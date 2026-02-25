@@ -236,10 +236,13 @@ export default function Library() {
     };
   }, []);
 
-  const handleLockedClick = useCallback(() => {
+  const [upsellPeptide, setUpsellPeptide] = useState<string | null>(null);
+
+  const handleLockedClick = useCallback((peptideId?: string) => {
+    setUpsellPeptide(peptideId ?? null);
     setShowToast(true);
     if (toastTimer.current) clearTimeout(toastTimer.current);
-    toastTimer.current = setTimeout(() => setShowToast(false), 2000);
+    toastTimer.current = setTimeout(() => setShowToast(false), 4000);
   }, []);
 
   const evidenceOrder: Record<string, number> = { excellent: 0, strong: 1, good: 2, moderate: 3, weak: 4, 'very-weak': 5 };
@@ -432,7 +435,7 @@ export default function Library() {
                   peptide={p}
                   index={i}
                   hasAccess={hasAccess}
-                  onLockedClick={handleLockedClick}
+                  onLockedClick={() => handleLockedClick(p.id)}
                   isFav={favorites.has(p.id)}
                   onToggleFav={() => toggleFavorite(p.id)}
                 />
@@ -476,24 +479,41 @@ export default function Library() {
         </AnimatePresence>
       </div>
 
-      {/* Toast */}
-      <AnimatePresence>
-        {showToast && (
-          <div
-            className="fixed bottom-6 left-1/2 z-50 -translate-x-1/2"
-          >
-            <Link
-              to="/pricing"
-              className="flex items-center gap-2.5 rounded-xl border border-emerald-300 bg-white px-5 py-3 shadow-xl transition-all hover:bg-emerald-50"
-            >
-              <Lock className="h-4 w-4 text-emerald-600" />
-              <span className="text-sm font-bold text-stone-900">
-                اشترك للوصول — $9/شهريًا
-              </span>
-            </Link>
+      {/* Upsell Modal */}
+      {upsellPeptide && (() => {
+        const p = peptides.find(x => x.id === upsellPeptide);
+        if (!p) return null;
+        return (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4" onClick={() => setUpsellPeptide(null)}>
+            <div className="w-full max-w-md rounded-2xl bg-white p-8 shadow-2xl text-center" onClick={e => e.stopPropagation()}>
+              <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-emerald-100">
+                <Lock className="h-7 w-7 text-emerald-600" />
+              </div>
+              <h3 className="mb-2 text-xl font-bold text-stone-900">{p.nameAr}</h3>
+              <p className="mb-1 text-sm text-stone-500" dir="ltr">{p.nameEn}</p>
+              <p className="mb-4 text-sm text-stone-700 leading-relaxed line-clamp-2">{p.summaryAr}</p>
+              <div className="mb-5 rounded-xl bg-emerald-50 border border-emerald-200 p-4">
+                <p className="text-sm text-emerald-800 font-semibold mb-1">البروتوكول الكامل يتضمن:</p>
+                <p className="text-xs text-emerald-700">الجرعة الدقيقة • التوقيت المثالي • الأعراض الجانبية • التجميعات • التخزين • التحاليل المطلوبة</p>
+              </div>
+              <Link
+                to="/pricing"
+                onClick={() => setUpsellPeptide(null)}
+                className="mb-3 flex w-full items-center justify-center rounded-full bg-emerald-600 px-6 py-3.5 font-bold text-white hover:bg-emerald-700 transition-all"
+              >
+                افتح البروتوكول — $9/شهريًا
+              </Link>
+              <Link
+                to="/coach"
+                onClick={() => setUpsellPeptide(null)}
+                className="text-sm text-emerald-600 hover:underline"
+              >
+                أو اسأل المدرب الذكي عن {p.nameAr} مجانًا
+              </Link>
+            </div>
           </div>
-        )}
-      </AnimatePresence>
+        );
+      })()}
     </div>
   );
 }

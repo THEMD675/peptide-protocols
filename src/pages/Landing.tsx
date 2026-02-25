@@ -3,6 +3,7 @@ import { Helmet } from 'react-helmet-async';
 import { Link } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
+import { peptides } from '@/data/peptides';
 import {
   FlaskConical,
   Calculator,
@@ -246,21 +247,106 @@ export default function Landing() {
           </p>
 
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {FEATURES.map((f, i) => (
-              <div
-                key={f.title}
-                className="group rounded-2xl border border-stone-300/60 bg-white p-7 transition-all duration-300 hover:-translate-y-1 hover:border-emerald-200 hover:shadow-lg"
-              >
-                <div className="mb-5 inline-flex h-12 w-12 items-center justify-center rounded-xl bg-emerald-600 text-white shadow-md shadow-emerald-600/20">
-                  <f.icon className="h-6 w-6" />
+            {FEATURES.map((f, i) => {
+              const links: Record<string, string> = {
+                '41 ببتيد مع بروتوكول كامل': '/library',
+                'حاسبة جرعات لا تخطئ': '/calculator',
+                'دليل تحاليل يحميك': '/lab-guide',
+                'بروتوكولات مُجمَّعة جاهزة': '/stacks',
+                'دليل عملي بالصور': '/guide',
+                'مبني على الأبحاث': '/sources',
+              };
+              const href = links[f.title];
+              const Card = (
+                <div
+                  className="group rounded-2xl border border-stone-300/60 bg-white p-7 transition-all duration-300 hover:-translate-y-1 hover:border-emerald-200 hover:shadow-lg cursor-pointer"
+                >
+                  <div className="mb-5 inline-flex h-12 w-12 items-center justify-center rounded-xl bg-emerald-600 text-white shadow-md shadow-emerald-600/20">
+                    <f.icon className="h-6 w-6" />
+                  </div>
+                  <h3 className="mb-2 text-lg font-bold text-stone-900 group-hover:text-emerald-600 transition-colors">{f.title}</h3>
+                  <p className="text-sm leading-relaxed text-stone-800">{f.description}</p>
+                  <p className="mt-3 text-xs font-semibold text-emerald-600 opacity-0 group-hover:opacity-100 transition-opacity">اكتشف المزيد ←</p>
                 </div>
-                <h3 className="mb-2 text-lg font-bold text-stone-900">{f.title}</h3>
-                <p className="text-sm leading-relaxed text-stone-800">{f.description}</p>
-              </div>
-            ))}
+              );
+              return href ? <Link key={f.title} to={href}>{Card}</Link> : <div key={f.title}>{Card}</div>;
+            })}
           </div>
         </div>
       </section>
+
+      {/* ═══════ PRODUCT PREVIEW — SHOW DON'T TELL ═══════ */}
+      {(() => {
+        const bpc = peptides.find(p => p.id === 'bpc-157');
+        if (!bpc) return null;
+        return (
+          <section className="mx-auto max-w-5xl px-6 py-16 md:py-24">
+            <div className="mb-4 text-center">
+              <span className="inline-block rounded-full bg-emerald-50 px-4 py-1.5 text-sm font-semibold text-emerald-700">شاهد بنفسك</span>
+            </div>
+            <h2 className="mb-4 text-center text-3xl font-bold text-stone-900 md:text-4xl">
+              هكذا تبدو <span className="text-emerald-600">بطاقة البروتوكول</span>
+            </h2>
+            <p className="mx-auto mb-10 max-w-xl text-center text-stone-800">
+              هذا ما تحصل عليه لكل ببتيد — جرّب BPC-157 مجانًا
+            </p>
+
+            <div className="overflow-hidden rounded-2xl border-2 border-emerald-200 bg-white shadow-xl shadow-emerald-600/5">
+              <div className="flex items-center justify-between border-b border-stone-200 bg-emerald-50 px-6 py-3">
+                <div className="flex items-center gap-3">
+                  <span className="rounded-full bg-emerald-600 px-3 py-1 text-xs font-bold text-white">مجاني</span>
+                  <h3 className="text-lg font-bold text-stone-900">{bpc.nameAr}</h3>
+                  <span className="text-sm text-stone-500">{bpc.nameEn}</span>
+                </div>
+                <span className="rounded-full bg-emerald-100 px-3 py-1 text-xs font-bold text-emerald-800 border border-emerald-300">الدليل: قوي</span>
+              </div>
+
+              <div className="grid md:grid-cols-2 divide-y md:divide-y-0 md:divide-x md:divide-x-reverse divide-stone-200">
+                <div className="p-6 space-y-4">
+                  <div>
+                    <p className="text-xs font-bold text-emerald-600 mb-1">الجرعة الموصى بها</p>
+                    <p className="text-sm text-stone-800">{bpc.dosageAr}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs font-bold text-emerald-600 mb-1">توقيت الاستخدام</p>
+                    <p className="text-sm text-stone-800">{bpc.timingAr}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs font-bold text-emerald-600 mb-1">مدة الدورة</p>
+                    <p className="text-sm text-stone-800">{bpc.cycleAr}</p>
+                  </div>
+                </div>
+                <div className="p-6 space-y-4">
+                  <div>
+                    <p className="text-xs font-bold text-emerald-600 mb-1">طريقة الإعطاء</p>
+                    <p className="text-sm text-stone-800">{bpc.administrationAr}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs font-bold text-emerald-600 mb-1">التجميع الموصى به</p>
+                    <p className="text-sm text-stone-800">{bpc.stackAr}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs font-bold text-emerald-600 mb-1">التكلفة التقريبية</p>
+                    <p className="text-sm font-bold text-stone-900">{bpc.costEstimate}</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="border-t border-stone-200 bg-stone-50 px-6 py-4 flex flex-col sm:flex-row items-center justify-between gap-3">
+                <p className="text-sm text-stone-600">هذا ببتيد واحد من 41. اشترك لفتح الكل.</p>
+                <div className="flex gap-3">
+                  <Link to="/peptide/bpc-157" className="rounded-full border border-emerald-300 px-5 py-2 text-sm font-bold text-emerald-700 hover:bg-emerald-50">
+                    شاهد البطاقة كاملة
+                  </Link>
+                  <Link to={ctaLink} className="rounded-full bg-emerald-600 px-5 py-2 text-sm font-bold text-white hover:bg-emerald-700">
+                    {user ? 'افتح المكتبة' : 'ابدأ مجانًا'}
+                  </Link>
+                </div>
+              </div>
+            </div>
+          </section>
+        );
+      })()}
 
       {/* ═══════ EVIDENCE / CREDIBILITY ═══════ */}
       <section className="mx-auto max-w-5xl px-6 py-24 md:py-32">
