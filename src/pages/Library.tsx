@@ -85,9 +85,14 @@ function PeptideCard({
           : 'border-stone-200 bg-stone-50/50 hover:border-stone-300',
       )}
     >
-      {!hasAccess && (
+      {!hasAccess && !peptide.isFree && (
         <div className="absolute left-3 top-3 z-10">
           <Lock className="h-3.5 w-3.5 text-stone-700" />
+        </div>
+      )}
+      {peptide.isFree && !hasAccess && (
+        <div className="absolute left-3 top-3 z-10">
+          <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] font-bold text-emerald-700">مجاني</span>
         </div>
       )}
       <button
@@ -136,7 +141,7 @@ function PeptideCard({
         </span>
       </div>
 
-      {hasAccess ? (
+      {(hasAccess || peptide.isFree) ? (
         <p className="mb-4 line-clamp-2 text-sm leading-relaxed text-stone-800">
           {peptide.summaryAr}
         </p>
@@ -155,7 +160,7 @@ function PeptideCard({
         </div>
       )}
 
-      {hasAccess && (
+      {(hasAccess || peptide.isFree) && (
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-1.5 text-stone-800">
             <FlaskConical className="h-3.5 w-3.5" />
@@ -169,10 +174,9 @@ function PeptideCard({
     </div>
   );
 
-  if (hasAccess) {
+  if (hasAccess || peptide.isFree) {
     return (
-      <div
-      >
+      <div>
         <Link to={`/peptide/${peptide.id}`} className="group block h-full">
           {cardContent}
         </Link>
@@ -181,8 +185,7 @@ function PeptideCard({
   }
 
   return (
-    <div
-    >
+    <div>
       <button
         type="button"
         onClick={onLockedClick}
