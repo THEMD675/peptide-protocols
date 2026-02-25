@@ -36,8 +36,8 @@ const DEFAULT_SUBSCRIPTION: Subscription = {
 };
 
 const STRIPE_LINKS: Record<'essentials' | 'elite', string> = {
-  essentials: 'VITE_STRIPE_ESSENTIALS_LINK',
-  elite: 'VITE_STRIPE_ELITE_LINK',
+  essentials: import.meta.env.VITE_STRIPE_ESSENTIALS_LINK ?? '',
+  elite: import.meta.env.VITE_STRIPE_ELITE_LINK ?? '',
 };
 
 const AuthContext = createContext<AuthContextType | null>(null);
@@ -126,37 +126,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const params = new URLSearchParams(window.location.search);
     if (params.get('payment') !== 'success' || !user) return;
 
-    const rawTier = params.get('tier') ?? 'essentials';
-    const validTiers = ['essentials', 'elite'];
-    const tier = validTiers.includes(rawTier) ? rawTier : 'essentials';
+    const url = new URL(window.location.href);
+    url.searchParams.delete('payment');
+    url.searchParams.delete('tier');
+    window.history.replaceState({}, '', url.toString());
 
-    (async () => {
-      const { data: current } = await supabase
-        .from('subscriptions')
-        .select('status')
-        .eq('user_id', user.id)
-        .maybeSingle();
-
-      if (current?.status === 'active') {
-        const url = new URL(window.location.href);
-        url.searchParams.delete('payment');
-        url.searchParams.delete('tier');
-        window.history.replaceState({}, '', url.toString());
-        return;
-      }
-
-      await supabase
-        .from('subscriptions')
-        .update({ status: 'active', tier })
-        .eq('user_id', user.id);
-
-      await fetchSubscription(user.id);
-
-      const url = new URL(window.location.href);
-      url.searchParams.delete('payment');
-      url.searchParams.delete('tier');
-      window.history.replaceState({}, '', url.toString());
-    })();
+    fetchSubscription(user.id);
+    import('sonner').then(m => m.toast.success('شكرًا! جارٍ تفعيل اشتراكك...'));
   }, [user, fetchSubscription]);
 
   useEffect(() => {
@@ -210,6 +186,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (data.user && !data.session) {
       throw new Error('تم إرسال رابط التأكيد لبريدك. تحقق من بريدك الإلكتروني.');
     }
+
+    if (data.user) {
+      try {
+        const edgeFnUrl = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/send-welcome-email`;
+        fetch(edgeFnUrl, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
+          },
+          body: JSON.stringify({ email, name: '' }),
+        });
+      } catch {}
+    }
   };
 
   const logout = async () => {
@@ -227,8 +217,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const upgradeTo = (tier: 'essentials' | 'elite') => {
-    const envKey = STRIPE_LINKS[tier];
-    const link = import.meta.env[envKey] as string | undefined;
+    const link = STRIPE_LINKS[tier];
     if (!link) {
       import('sonner').then(m => m.toast.error('عذرًا — رابط الدفع غير متاح حاليًا. تواصل معنا: contact@pptides.com'));
       return;

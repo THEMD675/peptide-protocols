@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowLeft, ArrowRight, CheckCircle, FlaskConical } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { peptides as allPeptides } from '@/data/peptides';
 
 interface QuizOption {
   id: string;
@@ -118,6 +119,9 @@ export default function PeptideQuiz() {
 
   if (showResult) {
     const rec = getRecommendation(answers);
+    const peptideData = allPeptides.find(p => p.id === rec.peptideId);
+    const isFree = peptideData?.isFree ?? false;
+
     return (
       <div className="rounded-2xl border border-emerald-200 bg-emerald-50/50 p-6 md:p-8">
         <div className="flex items-center gap-3 mb-4">
@@ -136,6 +140,9 @@ export default function PeptideQuiz() {
             <span className="text-sm font-medium text-stone-500" dir="ltr">{rec.nameEn}</span>
           </div>
           <p className="text-sm text-stone-700 leading-relaxed">{rec.reason}</p>
+          {peptideData?.costEstimate && (
+            <p className="mt-2 text-xs text-emerald-700 font-semibold">التكلفة التقريبية: {peptideData.costEstimate}</p>
+          )}
         </div>
 
         <div className="flex flex-col gap-3 sm:flex-row">
@@ -143,7 +150,7 @@ export default function PeptideQuiz() {
             to={`/peptide/${rec.peptideId}`}
             className="flex-1 flex items-center justify-center gap-2 rounded-xl bg-emerald-600 px-5 py-3 text-sm font-bold text-white transition-all hover:bg-emerald-700"
           >
-            شاهد البروتوكول الكامل
+            {isFree ? 'شاهد البروتوكول الكامل' : 'شاهد البروتوكول — اشترك للكامل'}
             <ArrowLeft className="h-4 w-4" />
           </Link>
           {rec.altId && (
