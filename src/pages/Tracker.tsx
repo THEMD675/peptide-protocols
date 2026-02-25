@@ -10,6 +10,9 @@ import {
   MapPin,
   FileText,
   Clock,
+  TrendingUp,
+  BarChart3,
+  Flame,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
@@ -151,6 +154,87 @@ export default function Tracker() {
         <h1 className="text-3xl font-bold text-emerald-600 md:text-4xl">سجل الحقن</h1>
         <p className="mt-2 text-lg text-stone-600">تتبّع جرعاتك ومواقع الحقن</p>
       </div>
+
+      {/* Stats Dashboard */}
+      {logs.length > 0 && (() => {
+        const totalInjections = logs.length;
+        const uniquePeptides = new Set(logs.map(l => l.peptide_name)).size;
+        const today = new Date().toDateString();
+        const todayCount = logs.filter(l => new Date(l.injected_at).toDateString() === today).length;
+
+        let streak = 0;
+        const daySet = new Set(logs.map(l => new Date(l.injected_at).toDateString()));
+        const d = new Date();
+        while (daySet.has(d.toDateString())) { streak++; d.setDate(d.getDate() - 1); }
+
+        const last7 = logs.filter(l => {
+          const diff = Date.now() - new Date(l.injected_at).getTime();
+          return diff < 7 * 24 * 60 * 60 * 1000;
+        }).length;
+
+        return (
+          <div className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
+            <div className="rounded-2xl border border-stone-200 bg-white p-4 text-center">
+              <BarChart3 className="mx-auto mb-1 h-5 w-5 text-emerald-600" />
+              <p className="text-2xl font-black text-stone-900">{totalInjections}</p>
+              <p className="text-xs text-stone-500">إجمالي الحقن</p>
+            </div>
+            <div className="rounded-2xl border border-stone-200 bg-white p-4 text-center">
+              <Flame className="mx-auto mb-1 h-5 w-5 text-orange-500" />
+              <p className="text-2xl font-black text-stone-900">{streak}</p>
+              <p className="text-xs text-stone-500">أيام متتالية</p>
+            </div>
+            <div className="rounded-2xl border border-stone-200 bg-white p-4 text-center">
+              <TrendingUp className="mx-auto mb-1 h-5 w-5 text-blue-500" />
+              <p className="text-2xl font-black text-stone-900">{last7}</p>
+              <p className="text-xs text-stone-500">آخر 7 أيام</p>
+            </div>
+            <div className="rounded-2xl border border-stone-200 bg-white p-4 text-center">
+              <Syringe className="mx-auto mb-1 h-5 w-5 text-purple-500" />
+              <p className="text-2xl font-black text-stone-900">{uniquePeptides}</p>
+              <p className="text-xs text-stone-500">ببتيدات مختلفة</p>
+            </div>
+          </div>
+        );
+      })()}
+
+      {/* Weekly Activity Bar */}
+      {logs.length > 0 && (() => {
+        const days = ['الأحد', 'الإثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'];
+        const weekCounts = Array(7).fill(0);
+        const now = new Date();
+        logs.forEach(l => {
+          const diff = Math.floor((now.getTime() - new Date(l.injected_at).getTime()) / (1000 * 60 * 60 * 24));
+          if (diff < 7) {
+            const dayIdx = new Date(l.injected_at).getDay();
+            weekCounts[dayIdx]++;
+          }
+        });
+        const max = Math.max(...weekCounts, 1);
+        const todayIdx = now.getDay();
+
+        return (
+          <div className="mb-6 rounded-2xl border border-stone-200 bg-white p-5">
+            <h3 className="mb-3 text-sm font-bold text-stone-900">نشاط الأسبوع</h3>
+            <div className="flex items-end justify-between gap-1 h-20">
+              {weekCounts.map((count, i) => (
+                <div key={i} className="flex flex-1 flex-col items-center gap-1">
+                  <div
+                    className={cn(
+                      'w-full rounded-t-md transition-all',
+                      i === todayIdx ? 'bg-emerald-500' : count > 0 ? 'bg-emerald-300' : 'bg-stone-200'
+                    )}
+                    style={{ height: `${Math.max((count / max) * 100, 8)}%`, minHeight: '4px' }}
+                  />
+                  <span className={cn('text-[10px]', i === todayIdx ? 'font-bold text-emerald-700' : 'text-stone-400')}>
+                    {days[i].slice(0, 3)}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+        );
+      })()}
 
       {/* Site Rotation Indicator */}
       {logs.length > 0 && (() => {

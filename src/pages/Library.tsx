@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback, useRef, useEffect } from 'react';
+import { useState, useMemo, useCallback, useRef, useEffect, type Dispatch, type SetStateAction } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { Link } from 'react-router-dom';
 import { AnimatePresence } from 'framer-motion';
@@ -16,6 +16,7 @@ import {
   Clock,
   CheckCircle,
   Sparkles,
+  Star,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { peptides, categories, type Peptide } from '@/data/peptides';
@@ -63,11 +64,15 @@ function PeptideCard({
   index,
   hasAccess,
   onLockedClick,
+  isFav,
+  onToggleFav,
 }: {
   peptide: Peptide;
   index: number;
   hasAccess: boolean;
   onLockedClick: () => void;
+  isFav: boolean;
+  onToggleFav: () => void;
 }) {
   const Icon = categoryIcons[peptide.category];
 
@@ -85,6 +90,14 @@ function PeptideCard({
           <Lock className="h-3.5 w-3.5 text-stone-700" />
         </div>
       )}
+      <button
+        type="button"
+        onClick={(e) => { e.preventDefault(); e.stopPropagation(); onToggleFav(); }}
+        className="absolute left-3 top-3 z-10 rounded-full p-1.5 transition-colors hover:bg-stone-100"
+        aria-label={isFav ? 'إزالة من المفضلة' : 'إضافة للمفضلة'}
+      >
+        <Star className={cn('h-4 w-4', isFav ? 'fill-amber-400 text-amber-400' : 'text-stone-300')} />
+      </button>
 
       <div className="mb-3 flex items-start justify-between gap-2">
         <div className="flex-1">
@@ -181,6 +194,26 @@ function PeptideCard({
   );
 }
 
+function useFavorites(): [Set<string>, (id: string) => void] {
+  const [favs, setFavs] = useState<Set<string>>(() => {
+    try {
+      const stored = localStorage.getItem('pptides_favorites');
+      return stored ? new Set(JSON.parse(stored)) : new Set();
+    } catch { return new Set(); }
+  });
+
+  const toggle = useCallback((id: string) => {
+    setFavs(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id); else next.add(id);
+      try { localStorage.setItem('pptides_favorites', JSON.stringify([...next])); } catch {}
+      return next;
+    });
+  }, []);
+
+  return [favs, toggle];
+}
+
 export default function Library() {
   const { subscription, isLoading } = useAuth();
   const hasAccess = !isLoading && (subscription?.isProOrTrial ?? false);
@@ -188,10 +221,11 @@ export default function Library() {
   const [activeCategory, setActiveCategory] = useState('all');
   const [search, setSearch] = useState('');
   const [evidenceFilter, setEvidenceFilter] = useState('all');
-  const [sortBy, setSortBy] = useState<'default' | 'evidence' | 'alpha'>('default');
+  const [sortBy, setSortBy] = useState<'default' | 'evidence' | 'alpha' | 'favorites'>('default');
   const [showFilters, setShowFilters] = useState(false);
   const [showToast, setShowToast] = useState(false);
   const toastTimer = useRef<ReturnType<typeof setTimeout>>();
+  const [favorites, toggleFavorite] = useFavorites();
 
   useEffect(() => {
     return () => {
@@ -225,6 +259,7 @@ export default function Library() {
     });
     if (sortBy === 'evidence') result.sort((a, b) => (evidenceOrder[a.evidenceLevel] ?? 5) - (evidenceOrder[b.evidenceLevel] ?? 5));
     if (sortBy === 'alpha') result.sort((a, b) => a.nameEn.localeCompare(b.nameEn));
+    if (sortBy === 'favorites') result.sort((a, b) => (favorites.has(b.id) ? 1 : 0) - (favorites.has(a.id) ? 1 : 0));
     return result;
   }, [activeCategory, search, evidenceFilter, sortBy]);
 
@@ -287,6 +322,7 @@ export default function Library() {
             <option value="default">الترتيب الافتراضي</option>
             <option value="evidence">الأقوى دليلًا</option>
             <option value="alpha">أبجدي (A-Z)</option>
+            <option value="favorites">المفضلة أولًا</option>
           </select>
 
           <button
@@ -394,6 +430,8 @@ export default function Library() {
                   index={i}
                   hasAccess={hasAccess}
                   onLockedClick={handleLockedClick}
+                  isFav={favorites.has(p.id)}
+                  onToggleFav={() => toggleFavorite(p.id)}
                 />
               ))}
 
