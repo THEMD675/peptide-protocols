@@ -1,0 +1,789 @@
+import { useState, useMemo } from 'react';
+import { Helmet } from 'react-helmet-async';
+import { Link } from 'react-router-dom';
+import { AnimatePresence } from 'framer-motion';
+import { Calculator, FlaskConical, Droplets, ChevronDown, ArrowLeft, BookOpen, Layers, Bot, Syringe } from 'lucide-react';
+import { cn } from '@/lib/utils';
+
+const EMERALD = '#10b981';
+
+type DoseUnit = 'mcg' | 'mg';
+
+interface SyringeOption {
+  label: string;
+  ml: number;
+  units: number;
+}
+
+const SYRINGE_OPTIONS: SyringeOption[] = [
+  { label: '0.3 مل (30 وحدة)', ml: 0.3, units: 30 },
+  { label: '0.5 مل (50 وحدة)', ml: 0.5, units: 50 },
+  { label: '1.0 مل (100 وحدة)', ml: 1.0, units: 100 },
+];
+
+function getRecommendedWater(vialMg: number): number {
+  if (vialMg <= 2) return 1;
+  if (vialMg <= 5) return 2;
+  if (vialMg <= 10) return 3;
+  if (vialMg <= 15) return 3;
+  if (vialMg <= 30) return 6;
+  return Math.ceil(vialMg / 5);
+}
+
+interface ReferenceRow {
+  vialMg: number;
+  waterMl: number;
+  concentration: number;
+  dose100: string;
+  dose250: string;
+  dose500: string;
+}
+
+const referenceData: ReferenceRow[] = [
+  { vialMg: 5, waterMl: 1, concentration: 5000, dose100: '0.02', dose250: '0.05', dose500: '0.10' },
+  { vialMg: 5, waterMl: 2, concentration: 2500, dose100: '0.04', dose250: '0.10', dose500: '0.20' },
+  { vialMg: 10, waterMl: 2, concentration: 5000, dose100: '0.02', dose250: '0.05', dose500: '0.10' },
+  { vialMg: 10, waterMl: 3, concentration: 3333, dose100: '0.03', dose250: '0.075', dose500: '0.15' },
+  { vialMg: 15, waterMl: 3, concentration: 5000, dose100: '0.02', dose250: '0.05', dose500: '0.10' },
+];
+
+
+/* ─────────────── Visual Syringe SVG ─────────────── */
+
+function SyringeVisual({
+  drawUnits,
+  syringeOption,
+}: {
+  drawUnits: number;
+  syringeOption: SyringeOption;
+}) {
+  const totalUnits = syringeOption.units;
+  const clampedUnits = Math.min(Math.max(drawUnits, 0), totalUnits);
+  const displayUnits = isFinite(clampedUnits) ? clampedUnits : 0;
+
+  const barrelTop = 40;
+  const barrelHeight = 240;
+  const barrelWidth = 36;
+  const barrelX = 22;
+
+  const tickCount = totalUnits / (totalUnits <= 30 ? 5 : 10);
+  const tickInterval = barrelHeight / tickCount;
+
+  const fillRatio = displayUnits / totalUnits;
+  const fillHeight = fillRatio * barrelHeight;
+  const fillY = barrelTop + barrelHeight - fillHeight;
+
+  const ticks: { y: number; label: string }[] = [];
+  for (let i = 0; i <= tickCount; i++) {
+    const unitVal = totalUnits <= 30
+      ? i * 5
+      : i * 10;
+    ticks.push({
+      y: barrelTop + barrelHeight - i * tickInterval,
+      label: String(unitVal),
+    });
+  }
+
+  return (
+    <div className="flex flex-col items-center gap-3">
+      <p className="text-sm font-bold" >
+        اسحب إلى: {displayUnits.toFixed(1)} وحدة
+      </p>
+      <svg
+        width="80"
+        height="320"
+        viewBox="0 0 80 320"
+        className="drop-shadow-lg"
+        role="img"
+        aria-label={`سيرنج يُظهر ${displayUnits.toFixed(1)} وحدة`}
+      >
+        {/* Plunger handle */}
+        <rect x={barrelX + 8} y={4} width={20} height={8} rx={2} fill="#4a5568" />
+        <rect x={barrelX + 14} y={12} width={8} height={barrelTop - 16} fill="#4a5568" />
+        <rect x={barrelX + 6} y={barrelTop - 6} width={24} height={6} rx={1} fill="#718096" />
+
+        {/* Barrel outline */}
+        <rect
+          x={barrelX}
+          y={barrelTop}
+          width={barrelWidth}
+          height={barrelHeight}
+          rx={4}
+          fill="rgba(255,255,255,0.04)"
+          stroke="rgba(255,255,255,0.25)"
+          strokeWidth={1.5}
+        />
+
+        {/* Fill */}
+        {fillHeight > 0 && (
+          <rect
+            x={barrelX + 1.5}
+            y={fillY}
+            width={barrelWidth - 3}
+            height={fillHeight}
+            rx={fillY + fillHeight >= barrelTop + barrelHeight - 2 ? 3 : 0}
+            fill="url(#emeraldGradient)"
+            opacity={0.85}
+          />
+        )}
+
+        {/* Tick marks */}
+        {ticks.map((t, i) => (
+          <g key={i}>
+            <line
+              x1={barrelX + barrelWidth + 2}
+              y1={t.y}
+              x2={barrelX + barrelWidth + (i % 2 === 0 ? 10 : 6)}
+              y2={t.y}
+              stroke="rgba(255,255,255,0.4)"
+              strokeWidth={i % 2 === 0 ? 1 : 0.5}
+            />
+            {i % 2 === 0 && (
+              <text
+                x={barrelX + barrelWidth + 13}
+                y={t.y + 3}
+                fill="rgba(255,255,255,0.5)"
+                fontSize="8"
+                fontFamily="Tajawal, sans-serif"
+              >
+                {t.label}
+              </text>
+            )}
+          </g>
+        ))}
+
+        {/* Draw line indicator */}
+        {fillHeight > 0 && fillHeight < barrelHeight && (
+          <>
+            <line
+              x1={barrelX - 4}
+              y1={fillY}
+              x2={barrelX + barrelWidth + 4}
+              y2={fillY}
+              stroke={EMERALD}
+              strokeWidth={1.5}
+              strokeDasharray="3,2"
+            />
+            <circle cx={barrelX - 4} cy={fillY} r={2} fill={EMERALD} />
+          </>
+        )}
+
+        {/* Needle hub */}
+        <rect x={barrelX + 12} y={barrelTop + barrelHeight} width={12} height={8} rx={1} fill="#718096" />
+        {/* Needle */}
+        <line
+          x1={barrelX + 18}
+          y1={barrelTop + barrelHeight + 8}
+          x2={barrelX + 18}
+          y2={barrelTop + barrelHeight + 30}
+          stroke="#a0aec0"
+          strokeWidth={1.5}
+          strokeLinecap="round"
+        />
+
+        <defs>
+          <linearGradient id="emeraldGradient" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="#10b981" stopOpacity={0.9} />
+            <stop offset="100%" stopColor="#059669" stopOpacity={0.7} />
+          </linearGradient>
+        </defs>
+      </svg>
+    </div>
+  );
+}
+
+/* ─────────────── Main Component ─────────────── */
+
+const PEPTIDE_PRESETS = [
+  { name: 'BPC-157', dose: 250, unit: 'mcg' as DoseUnit, vial: 5, water: 2 },
+  { name: 'TB-500', dose: 750, unit: 'mcg' as DoseUnit, vial: 5, water: 2 },
+  { name: 'Semaglutide', dose: 250, unit: 'mcg' as DoseUnit, vial: 5, water: 2 },
+  { name: 'CJC-1295', dose: 100, unit: 'mcg' as DoseUnit, vial: 2, water: 2 },
+  { name: 'Ipamorelin', dose: 200, unit: 'mcg' as DoseUnit, vial: 5, water: 2 },
+  { name: 'Tesamorelin', dose: 2000, unit: 'mcg' as DoseUnit, vial: 2, water: 2 },
+  { name: 'PT-141', dose: 1750, unit: 'mcg' as DoseUnit, vial: 10, water: 2 },
+  { name: 'Semax', dose: 400, unit: 'mcg' as DoseUnit, vial: 3, water: 1 },
+  { name: 'Epithalon', dose: 5000, unit: 'mcg' as DoseUnit, vial: 10, water: 2 },
+  { name: 'AOD-9604', dose: 300, unit: 'mcg' as DoseUnit, vial: 5, water: 2 },
+  { name: 'GHK-Cu', dose: 200, unit: 'mcg' as DoseUnit, vial: 5, water: 2 },
+  { name: 'Kisspeptin-10', dose: 100, unit: 'mcg' as DoseUnit, vial: 5, water: 2 },
+];
+
+export default function DoseCalculator() {
+  const [doseUnit, setDoseUnit] = useState<DoseUnit>('mcg');
+  const [doseValue, setDoseValue] = useState(250);
+  const [vialMg, setVialMg] = useState(5);
+  const [waterMl, setWaterMl] = useState(2);
+  const [syringeIdx, setSyringeIdx] = useState(2);
+  const [showFormulas, setShowFormulas] = useState(false);
+  const [selectedPreset, setSelectedPreset] = useState('');
+
+  const syringe = SYRINGE_OPTIONS[syringeIdx];
+  const recommendedWater = getRecommendedWater(vialMg);
+
+  const results = useMemo(() => {
+    const doseMcg = doseUnit === 'mg' ? doseValue * 1000 : doseValue;
+    if (vialMg <= 0 || waterMl <= 0 || doseMcg <= 0) {
+      return { concentration: 0, volumeMl: 0, syringeUnits: 0, dosesPerVial: 0, doseMcg };
+    }
+    const concentration = (vialMg * 1000) / waterMl;
+    const volumeMl = doseMcg / concentration;
+    const syringeUnits = volumeMl * syringe.units / syringe.ml;
+    const dosesPerVial = (vialMg * 1000) / doseMcg;
+    return { concentration, volumeMl, syringeUnits, dosesPerVial, doseMcg };
+  }, [doseUnit, doseValue, vialMg, waterMl, syringe]);
+
+  const fmt = (n: number, d = 2) => (isFinite(n) && n > 0 ? n.toFixed(d) : '—');
+
+  return (
+    <div className="min-h-screen" >
+      <Helmet>
+        <title>حاسبة جرعات الببتيدات — احسب الجرعة بدقة | Peptide Dosage Calculator</title>
+        <meta
+          name="description"
+          content="حاسبة مجانية لجرعات الببتيدات — احسب التركيز، الكمية بالمل، ووحدات السيرنج بدقة. أداة مجانية 100%. Free peptide reconstitution & dosage calculator."
+        />
+        <meta
+          name="keywords"
+          content="حاسبة ببتيدات, peptide calculator, جرعات ببتيدات, BPC-157, reconstitution calculator, حاسبة جرعات"
+        />
+      </Helmet>
+
+      <div className="mx-auto max-w-4xl px-4 py-8 md:px-6 md:py-12">
+        {/* Header */}
+        <div
+          className="mb-10 text-center"
+        >
+          <div
+            className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl"
+            style={{ background: 'rgba(16, 185, 129, 0.1)' }}
+          >
+            <Calculator className="h-7 w-7"  />
+          </div>
+          <h1 className="text-3xl font-bold md:text-4xl" >
+            حاسبة جرعات الببتيدات
+          </h1>
+          <p className="mt-2 text-base text-stone-800">
+            أداة مجانية — احسب جرعتك بدقة خلال ثوانٍ
+          </p>
+        </div>
+
+        {/* Peptide Preset Selector */}
+        <div className="mb-6">
+          <label className="mb-2 block text-sm font-bold text-stone-900 text-center">اختر الببتيد لتعبئة القيم تلقائيًا</label>
+          <div className="flex flex-wrap justify-center gap-2">
+            {PEPTIDE_PRESETS.map((p) => (
+              <button
+                key={p.name}
+                onClick={() => {
+                  setSelectedPreset(p.name);
+                  setDoseUnit(p.unit);
+                  setDoseValue(p.dose);
+                  setVialMg(p.vial);
+                  setWaterMl(p.water);
+                }}
+                className={cn(
+                  'rounded-full border px-3 py-1.5 text-xs font-medium transition-all',
+                  selectedPreset === p.name
+                    ? 'border-emerald-400 bg-emerald-50 text-emerald-700 shadow-sm'
+                    : 'border-stone-200 bg-white text-stone-700 hover:border-emerald-300 hover:text-emerald-600'
+                )}
+              >
+                {p.name}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Calculator Card */}
+        <div
+          className="mb-8 rounded-2xl border border-stone-300 bg-stone-50 p-6 md:p-8"
+        >
+          {/* Dose Unit Toggle */}
+          <div className="mb-6 flex items-center justify-center gap-1">
+            <span className="ml-3 text-sm text-stone-800">وحدة الجرعة:</span>
+            <div className="flex rounded-xl border border-stone-300 bg-stone-50 p-1">
+              <button
+                onClick={() => {
+                  if (doseUnit === 'mg') {
+                    setDoseValue(prev => prev * 1000);
+                    setDoseUnit('mcg');
+                  }
+                }}
+                className={cn(
+                  'rounded-lg px-4 py-1.5 text-sm font-medium transition-all',
+                  doseUnit === 'mcg'
+                    ? 'text-white'
+                    : 'text-stone-800 hover:text-stone-800',
+                )}
+                style={doseUnit === 'mcg' ? { background: EMERALD } : undefined}
+              >
+                مايكروغرام (mcg)
+              </button>
+              <button
+                onClick={() => {
+                  if (doseUnit === 'mcg') {
+                    setDoseValue(prev => prev / 1000);
+                    setDoseUnit('mg');
+                  }
+                }}
+                className={cn(
+                  'rounded-lg px-4 py-1.5 text-sm font-medium transition-all',
+                  doseUnit === 'mg'
+                    ? 'text-white'
+                    : 'text-stone-800 hover:text-stone-800',
+                )}
+                style={doseUnit === 'mg' ? { background: EMERALD } : undefined}
+              >
+                ملليغرام (mg)
+              </button>
+            </div>
+          </div>
+
+          {/* Input Fields */}
+          <div className="mb-6 grid gap-5 md:grid-cols-3">
+            <InputField
+              label={`الجرعة المطلوبة (${doseUnit === 'mcg' ? 'مايكروغرام' : 'ملليغرام'})`}
+              value={doseValue}
+              onChange={setDoseValue}
+              unit={doseUnit === 'mcg' ? 'مكغ' : 'ملغ'}
+              step={doseUnit === 'mcg' ? 50 : 0.05}
+            />
+            <InputField
+              label="كمية البيبتايد في القارورة (ملغ)"
+              value={vialMg}
+              onChange={setVialMg}
+              unit="ملغ"
+              step={1}
+            />
+            <div className="space-y-2">
+              <label className="block text-sm font-medium text-stone-800">
+                كمية الماء البكتيريوستاتك (مل)
+              </label>
+              <div className="relative">
+                <input
+                  type="number"
+                  min={0.1}
+                  step={0.5}
+                  value={waterMl}
+                  onChange={(e) => setWaterMl(Number(e.target.value))}
+                  aria-label="كمية الماء البكتيريوستاتك (مل)"
+                  className={cn(
+                    'w-full rounded-xl border border-stone-300 bg-stone-50 px-4 py-3 pl-16',
+                    'text-base text-stone-900',
+                    'transition-colors focus:border-emerald-300 focus:outline-none focus:ring-1 focus:ring-emerald-200',
+                  )}
+                />
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs text-stone-700">
+                  مل
+                </span>
+              </div>
+              {waterMl !== recommendedWater && vialMg > 0 && (
+                <button
+                  onClick={() => setWaterMl(recommendedWater)}
+                  className="text-xs transition-colors hover:underline"
+                  style={{ color: EMERALD, opacity: 0.7 }}
+                >
+                  💡 الكمية المُوصى بها: {recommendedWater} مل
+                </button>
+              )}
+            </div>
+          </div>
+
+          {/* Syringe Size Selector */}
+          <div className="mb-8">
+            <label className="mb-2 block text-sm font-medium text-stone-800">
+              حجم السيرنج
+            </label>
+            <div className="relative">
+              <select
+                value={syringeIdx}
+                onChange={(e) => setSyringeIdx(Number(e.target.value))}
+                aria-label="حجم السيرنج"
+                className={cn(
+                  'w-full appearance-none rounded-xl border border-stone-300 bg-stone-50 px-4 py-3',
+                  'text-base text-stone-900',
+                  'transition-colors focus:border-emerald-300 focus:outline-none focus:ring-1 focus:ring-emerald-200',
+                )}
+              >
+                {SYRINGE_OPTIONS.map((opt, i) => (
+                  <option key={i} value={i} className="bg-white text-stone-900">
+                    {opt.label}
+                  </option>
+                ))}
+              </select>
+              <ChevronDown className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-stone-700" />
+            </div>
+          </div>
+
+          {/* Results + Syringe Visual */}
+          <div className="flex flex-col items-stretch gap-6 md:flex-row">
+            {/* Result Cards */}
+            <div className="grid flex-1 grid-cols-2 gap-4">
+              <ResultCard
+                label="التركيز"
+                value={fmt(results.concentration, 0)}
+                unit="مكغ/مل"
+                index={0}
+              />
+              <ResultCard
+                label="الكمية المطلوبة"
+                value={fmt(results.volumeMl, 3)}
+                unit="مل"
+                index={1}
+              />
+              <ResultCard
+                label="وحدات السيرنج"
+                value={fmt(results.syringeUnits, 1)}
+                unit={`وحدة (${syringe.label.split('(')[0].trim()})`}
+                index={2}
+              />
+              <ResultCard
+                label="عدد الجرعات في القارورة"
+                value={fmt(results.dosesPerVial, 0)}
+                unit="جرعة"
+                index={3}
+              />
+            </div>
+
+            {/* SVG Syringe */}
+            <div className="flex items-center justify-center rounded-xl border border-stone-300 bg-stone-50 px-4 py-6 md:w-[140px]">
+              <SyringeVisual
+                drawUnits={results.syringeUnits}
+                syringeOption={syringe}
+              />
+            </div>
+          </div>
+
+          {/* Overflow warning */}
+          {isFinite(results.syringeUnits) && results.syringeUnits > syringe.units && (
+            <div
+              className="mt-4 rounded-xl border border-red-500/20 bg-red-500/5 px-4 py-3 text-center"
+            >
+              <p className="text-sm text-red-400">
+                ⚠️ الجرعة تتجاوز سعة السيرنج ({syringe.units} وحدة). استخدم سيرنجًا أكبر أو أضف ماءً أقل.
+              </p>
+            </div>
+          )}
+
+          {/* Vial Lifespan + Log Action */}
+          {isFinite(results.dosesPerVial) && results.dosesPerVial > 0 && (
+            <div className="mt-6 grid gap-4 sm:grid-cols-2">
+              <div className="rounded-xl border border-stone-200 bg-white p-4">
+                <p className="text-xs font-semibold text-stone-500 mb-1">عمر القارورة بهذه الجرعة</p>
+                {results.dosesPerVial >= 1 && (
+                  <div>
+                    <p className="text-lg font-bold text-stone-900">
+                      {results.dosesPerVial <= 2 ? `${fmt(results.dosesPerVial, 0)} جرعات` :
+                       results.dosesPerVial <= 7 ? `~${Math.floor(results.dosesPerVial)} أيام (جرعة/يوم)` :
+                       `~${Math.floor(results.dosesPerVial / 7)} أسابيع (جرعة/يوم)`}
+                    </p>
+                    <p className="text-xs text-stone-500 mt-1">
+                      {fmt(results.dosesPerVial, 0)} جرعة في القارورة الواحدة
+                    </p>
+                  </div>
+                )}
+              </div>
+              <Link
+                to={`/tracker`}
+                className="flex items-center justify-center gap-2 rounded-xl border-2 border-emerald-200 bg-emerald-50 p-4 font-bold text-emerald-700 transition-all hover:bg-emerald-100 hover:shadow-md"
+              >
+                <Syringe className="h-5 w-5" />
+                سجّل هذه الحقنة في سجل الحقن
+              </Link>
+            </div>
+          )}
+        </div>
+
+        {/* Expandable Formulas Section */}
+        <div
+          className="mb-8 rounded-2xl border border-stone-300 bg-stone-50"
+        >
+          <button
+            onClick={() => setShowFormulas(!showFormulas)}
+            className="flex w-full items-center justify-between px-6 py-4"
+          >
+            <div className="flex items-center gap-2">
+              <Droplets className="h-5 w-5"  />
+              <h2 className="text-base font-bold" >
+                كيف تستخدم هذه الحاسبة
+              </h2>
+            </div>
+            <ChevronDown
+              className={cn(
+                'h-5 w-5 transition-transform duration-300',
+                showFormulas && 'rotate-180',
+              )}
+              
+            />
+          </button>
+
+          <AnimatePresence>
+            {showFormulas && (
+              <div
+                className="overflow-hidden"
+              >
+                <div className="space-y-4 px-6 pb-6">
+                  <FormulaStep
+                    step="1"
+                    title="حساب التركيز"
+                    formula="التركيز (مكغ/مل) = كمية البيبتايد (ملغ) × 1000 ÷ كمية الماء (مل)"
+                    example={`(${vialMg} × 1000) ÷ ${waterMl} = ${fmt(results.concentration, 0)} مكغ/مل`}
+                  />
+                  <FormulaStep
+                    step="2"
+                    title="حساب الكمية المطلوبة"
+                    formula="الكمية (مل) = الجرعة المطلوبة (مكغ) ÷ التركيز (مكغ/مل)"
+                    example={`${results.doseMcg} ÷ ${fmt(results.concentration, 0)} = ${fmt(results.volumeMl, 3)} مل`}
+                  />
+                  <FormulaStep
+                    step="3"
+                    title="تحويل إلى وحدات السيرنج"
+                    formula={`وحدات السيرنج = الكمية (مل) ÷ سعة السيرنج (${syringe.ml} مل) × ${syringe.units}`}
+                    example={`${fmt(results.volumeMl, 3)} ÷ ${syringe.ml} × ${syringe.units} = ${fmt(results.syringeUnits, 1)} وحدة`}
+                  />
+                  <div className="rounded-xl border border-stone-300 bg-stone-50 p-4">
+                    <p className="text-sm leading-relaxed text-stone-800">
+                      <strong className="text-stone-800">ملاحظة:</strong> هذه الحاسبة أداة تعليمية فقط. استشر طبيبك المختص قبل استخدام أي ببتيد. تأكد من جودة المنتج ونظافة بيئة التحضير.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
+          </AnimatePresence>
+        </div>
+
+        {/* Reference Table */}
+        <div
+          className="mb-8 overflow-hidden rounded-2xl border border-stone-300"
+        >
+          <div
+            className="flex items-center gap-2 px-5 py-3"
+            style={{ background: 'rgba(250, 250, 249, 0.95)' }}
+          >
+            <FlaskConical className="h-4 w-4"  />
+            <h2 className="text-base font-bold" >
+              جدول مرجعي سريع
+            </h2>
+          </div>
+
+          <div className="overflow-x-auto">
+            <table className="w-full min-w-[600px]">
+              <thead>
+                <tr className="border-b border-stone-300 bg-white">
+                  {['القارورة', 'الماء', 'التركيز', '100 مكغ', '250 مكغ', '500 مكغ'].map(
+                    (h, i) => (
+                      <th
+                        key={i}
+                        className={cn(
+                          'px-4 py-3 text-xs font-semibold text-stone-800',
+                          i < 3 ? 'text-right' : 'text-center',
+                        )}
+                      >
+                        {h}
+                      </th>
+                    ),
+                  )}
+                </tr>
+              </thead>
+              <tbody>
+                {referenceData.map((row, i) => (
+                  <tr
+                    key={i}
+                    className={cn(
+                      'border-b border-stone-200 last:border-b-0',
+                      i % 2 === 0 ? 'bg-stone-50 border border-stone-300' : 'bg-transparent',
+                    )}
+                  >
+                    <td className="px-4 py-3 text-sm text-stone-800">{row.vialMg} ملغ</td>
+                    <td className="px-4 py-3 text-sm text-stone-800">{row.waterMl} مل</td>
+                    <td className="px-4 py-3 text-sm text-stone-800">
+                      {row.concentration.toLocaleString('en')} مكغ/مل
+                    </td>
+                    <td className="px-4 py-3 text-center text-sm text-stone-800">
+                      {row.dose100} مل
+                    </td>
+                    <td
+                      className="px-4 py-3 text-center text-sm font-semibold"
+                      
+                    >
+                      {row.dose250} مل
+                    </td>
+                    <td className="px-4 py-3 text-center text-sm text-stone-800">
+                      {row.dose500} مل
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        {/* AI Coach CTA */}
+        <div className="mb-8 rounded-2xl border-2 border-emerald-200 bg-emerald-50 p-6 text-center md:p-8">
+          <Bot className="mx-auto mb-3 h-8 w-8 text-emerald-600" />
+          <h3 className="text-lg font-bold text-stone-900">مش متأكد من الجرعة أو التوقيت أو التجميع؟</h3>
+          <p className="mt-2 text-sm text-stone-800">المدرب الذكي يعرف 41+ ببتيد — اسأله وجاوبك بالتفصيل.</p>
+          <Link
+            to="/coach"
+            className="mt-4 inline-flex items-center gap-2 rounded-full bg-emerald-600 px-8 py-3 text-sm font-bold text-white transition-all hover:bg-emerald-700"
+          >
+            <Bot className="h-4 w-4" />
+            اسأل المدرب الذكي
+          </Link>
+        </div>
+
+        {/* Cross-links */}
+        <div
+          className="grid gap-3 md:grid-cols-3"
+        >
+          <CrossLink
+            to="/table"
+            icon={<FlaskConical className="h-5 w-5"  />}
+            title="جدول الببتيدات الشامل"
+            desc="تصفّح جميع الببتيدات والجرعات"
+          />
+          <CrossLink
+            to="/stacks"
+            icon={<Layers className="h-5 w-5"  />}
+            title="البروتوكولات المُجمَّعة"
+            desc="اكتشف أفضل التوليفات"
+          />
+          <CrossLink
+            to="/lab-guide"
+            icon={<BookOpen className="h-5 w-5"  />}
+            title="دليل التحاليل المخبرية"
+            desc="تحاليل ما قبل وبعد البروتوكول"
+          />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ─────────────── Sub-components ─────────────── */
+
+function InputField({
+  label,
+  value,
+  onChange,
+  unit,
+  step = 1,
+}: {
+  label: string;
+  value: number;
+  onChange: (v: number) => void;
+  unit: string;
+  step?: number;
+}) {
+  return (
+    <div className="space-y-2">
+      <label className="block text-sm font-medium text-stone-800">{label}</label>
+      <div className="relative">
+        <input
+          type="number"
+          min={0}
+          step={step}
+          value={value}
+          onChange={(e) => onChange(Number(e.target.value))}
+          aria-label={label}
+          className={cn(
+            'w-full rounded-xl border border-stone-300 bg-stone-50 px-4 py-3 pl-16',
+            'text-base text-stone-900',
+            'transition-colors focus:border-emerald-300 focus:outline-none focus:ring-1 focus:ring-emerald-200',
+          )}
+        />
+        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs text-stone-700">
+          {unit}
+        </span>
+      </div>
+    </div>
+  );
+}
+
+function ResultCard({
+  label,
+  value,
+  unit,
+  index,
+}: {
+  label: string;
+  value: string;
+  unit: string;
+  index: number;
+}) {
+  return (
+    <div
+      className="rounded-xl border border-stone-300 bg-stone-100 p-4 text-center"
+    >
+      <p className="mb-1 text-xs font-medium text-stone-800">{label}</p>
+      <p className="text-2xl font-bold" >
+        {value}
+      </p>
+      <p className="mt-0.5 text-[11px] text-stone-800">{unit}</p>
+    </div>
+  );
+}
+
+function FormulaStep({
+  step,
+  title,
+  formula,
+  example,
+}: {
+  step: string;
+  title: string;
+  formula: string;
+  example: string;
+}) {
+  return (
+    <div className="rounded-xl border border-stone-300 bg-stone-50 p-4">
+      <div className="mb-2 flex items-center gap-2">
+        <span
+          className="flex h-6 w-6 items-center justify-center rounded-full text-xs font-bold"
+          style={{ background: EMERALD, color: 'white' }}
+        >
+          {step}
+        </span>
+        <h3 className="text-sm font-semibold text-stone-800">{title}</h3>
+      </div>
+      <p className="mb-1 text-sm text-stone-800" dir="ltr">{formula}</p>
+      <p className="text-xs" style={{ color: EMERALD, opacity: 0.8 }} dir="ltr">
+        {example}
+      </p>
+    </div>
+  );
+}
+
+function CrossLink({
+  to,
+  icon,
+  title,
+  desc,
+}: {
+  to: string;
+  icon: React.ReactNode;
+  title: string;
+  desc: string;
+}) {
+  return (
+    <Link
+      to={to}
+      className="group flex items-center gap-3 rounded-xl border border-stone-300 bg-stone-50 p-4 transition-all hover:border-emerald-300 hover:bg-stone-100"
+    >
+      <div
+        className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg"
+        style={{ background: 'rgba(16, 185, 129, 0.1)' }}
+      >
+        {icon}
+      </div>
+      <div className="flex-1">
+        <p className="text-sm font-bold text-stone-800 group-hover:text-stone-900">
+          {title}
+        </p>
+        <p className="text-xs text-stone-800">{desc}</p>
+      </div>
+      <ArrowLeft className="h-4 w-4 text-stone-500 transition-transform group-hover:-translate-x-1 group-hover:text-stone-800" />
+    </Link>
+  );
+}
