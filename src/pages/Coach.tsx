@@ -1,6 +1,8 @@
-import { useState, useRef, useEffect, useMemo, type ElementType } from 'react';
+import { useState, useRef, useEffect, useMemo, useCallback, type ElementType } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { Link, useSearchParams } from 'react-router-dom';
+import { supabase } from '@/lib/supabase';
+import { peptides as allPeptides } from '@/data/peptides';
 import { Bot, Send, Lock, Loader2, Sparkles, TrendingDown, Heart, Dumbbell, Brain, Clock, Zap } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
@@ -33,7 +35,9 @@ function renderMarkdown(text: string) {
     escapeHtml(s)
       .replace(/\*\*(.+?)\*\*/g, '<strong class="font-bold text-stone-900">$1</strong>')
       .replace(/\*(.+?)\*/g, '<em>$1</em>')
-      .replace(/`(.+?)`/g, '<code class="rounded bg-stone-200 px-1 py-0.5 text-xs font-mono">$1</code>');
+      .replace(/`(.+?)`/g, '<code class="rounded bg-stone-200 px-1 py-0.5 text-xs font-mono">$1</code>')
+      .replace(/\[([^\]]+)\]\(\/peptide\/([a-z0-9-]+)\)/g, '<a href="/peptide/$2" class="text-emerald-600 font-semibold underline underline-offset-2 hover:text-emerald-700">$1</a>')
+      .replace(/\[([^\]]+)\]\(\/calculator[^)]*\)/g, '<a href="/calculator" class="text-emerald-600 font-semibold underline underline-offset-2 hover:text-emerald-700">$1</a>');
 
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i].trim();
@@ -63,13 +67,32 @@ const GOALS: { id: string; label: string; Icon: ElementType; prompt: string }[] 
   { id: 'hormones', label: 'تحسين هرمونات', Icon: Zap, prompt: 'أبغى أحسّن هرموناتي بشكل طبيعي. وش الخيارات؟' },
 ];
 
-const FOLLOW_UP_QUESTIONS = [
-  'أنا مبتدئ — وش أول خطوة؟',
-  'وش التحاليل اللي لازم أسويها قبل ما أبدأ؟',
-  'كم تكلفة هذا البروتوكول شهريًا؟',
-  'وش البديل الأرخص أو الأسهل؟',
-  'أبغى أشوف تجارب ناس استخدموه',
-];
+function getContextualFollowUps(lastAssistantMessage: string): string[] {
+  const base = [
+    'وش التحاليل اللي لازم أسويها قبل ما أبدأ؟',
+    'كم تكلفة هذا البروتوكول شهريًا؟',
+  ];
+
+  const msg = lastAssistantMessage.toLowerCase();
+
+  if (msg.includes('semaglutide') || msg.includes('tirzepatide') || msg.includes('فقدان')) {
+    return [...base, 'هل أقدر أستخدمه مع تمارين صيام متقطع؟', 'وش الأعراض الجانبية الحقيقية؟', 'احسب لي الجرعة بالسيرنج'];
+  }
+  if (msg.includes('bpc-157') || msg.includes('tb-500') || msg.includes('تعافي') || msg.includes('إصابة')) {
+    return [...base, 'وين أحقن بالضبط قرب الإصابة؟', 'كم مدة قبل ما ألاحظ فرق؟', 'هل أقدر آخذه فموي بدل الحقن؟'];
+  }
+  if (msg.includes('semax') || msg.includes('selank') || msg.includes('تركيز') || msg.includes('دماغ')) {
+    return [...base, 'هل يسبب إدمان أو تحمّل؟', 'أقدر أستخدمه يوميًا؟', 'وش الفرق بين Semax و NA-Semax-Amidate؟'];
+  }
+  if (msg.includes('epithalon') || msg.includes('طول عمر') || msg.includes('شيخوخة')) {
+    return [...base, 'كم مرة أكرر الدورة في السنة؟', 'هل يتعارض مع أي مكمل ثاني؟', 'وش تحليل التيلوميرات؟'];
+  }
+  if (msg.includes('kisspeptin') || msg.includes('تستوستيرون') || msg.includes('هرمون')) {
+    return [...base, 'هل يثبّط الإنتاج الطبيعي؟', 'وش الفرق بينه وبين TRT؟', 'متى أتوقع النتيجة في التحاليل؟'];
+  }
+
+  return [...base, 'أنا مبتدئ — وش أول خطوة؟', 'وش البديل الأرخص أو الأسهل؟', 'أبغى أشوف تجارب ناس استخدموه'];
+}
 
 const SYSTEM_PROMPT = `أنت استشاري ببتيدات في pptides.com. أنت مش ChatGPT ولا محرك بحث — أنت خبير يقود الاستشارة مثل طبيب متخصص.
 
@@ -170,6 +193,47 @@ const SYSTEM_PROMPT = `أنت استشاري ببتيدات في pptides.com. أ
 أنت تمثّل منتج بقيمة $99/شهر. كل إجابة لازم تكون أفضل من ساعة بحث في Reddit + 30 دقيقة في ChatGPT مجتمعين. أعطِ قرارات، مش معلومات.`;
 
 
+async function buildUserContext(userId: string): Promise<string> {
+  let context = '\n\n## سياق المستخدم الحالي:\n';
+
+  try {
+    const { data: logs } = await supabase
+      .from('injection_logs')
+      .select('peptide_name, dose, unit, injection_site, injected_at')
+      .eq('user_id', userId)
+      .order('injected_at', { ascending: false })
+      .limit(10);
+
+    if (logs && logs.length > 0) {
+      context += `\n### سجل الحقن (آخر ${logs.length} حقنات):\n`;
+      logs.forEach(l => {
+        context += `- ${l.peptide_name}: ${l.dose} ${l.unit} في ${l.injection_site} (${new Date(l.injected_at).toLocaleDateString('en')})\n`;
+      });
+      context += `\nالمستخدم لديه خبرة سابقة. لا تسأله "هل جربت ببتيدات من قبل" — هو يستخدمها فعلًا. ابنِ على ما يستخدمه.\n`;
+    } else {
+      context += `\nالمستخدم ليس لديه سجل حقن. مبتدئ على الأرجح.\n`;
+    }
+
+    const favs = (() => {
+      try {
+        const stored = localStorage.getItem('pptides_favorites');
+        return stored ? JSON.parse(stored) as string[] : [];
+      } catch { return []; }
+    })();
+
+    if (favs.length > 0) {
+      const favNames = favs.map(id => allPeptides.find(p => p.id === id)?.nameEn).filter(Boolean);
+      if (favNames.length > 0) {
+        context += `\n### ببتيدات مفضّلة لديه: ${favNames.join(', ')}\nاستخدم هذه المعلومة لتخصيص التوصيات.\n`;
+      }
+    }
+  } catch {}
+
+  context += `\n### عند ذكر أي ببتيد، أضف رابطه هكذا: [اسم الببتيد](/peptide/id)\nمثال: [BPC-157](/peptide/bpc-157) أو [سيماغلوتايد](/peptide/semaglutide)\nهذا يسمح للمستخدم بالانتقال مباشرة لصفحة البروتوكول.\n`;
+
+  return context;
+}
+
 export default function Coach() {
   const { user, subscription, upgradeTo } = useAuth();
   const [messages, setMessages] = useState<ChatMessage[]>([]);
@@ -179,10 +243,17 @@ export default function Coach() {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const [searchParams] = useSearchParams();
   const autoSentRef = useRef(false);
+  const userContextRef = useRef<string>('');
 
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: 'smooth' });
   }, [messages]);
+
+  useEffect(() => {
+    if (user) {
+      buildUserContext(user.id).then(ctx => { userContextRef.current = ctx; });
+    }
+  }, [user]);
 
   useEffect(() => {
     const peptideParam = searchParams.get('peptide');
@@ -241,7 +312,7 @@ export default function Coach() {
         },
         body: JSON.stringify({
           messages: [
-            { role: 'system', content: SYSTEM_PROMPT },
+            { role: 'system', content: SYSTEM_PROMPT + userContextRef.current },
             ...updatedMessages.map((m) => ({ role: m.role, content: m.content })),
           ],
         }),
@@ -390,22 +461,27 @@ export default function Coach() {
                 {TRIAL_MESSAGE_LIMIT - userMessageCount} أسئلة مجانية متبقية — <button onClick={() => upgradeTo('elite')} className="text-emerald-600 underline">ترقَّ لأسئلة بلا حدود</button>
               </p>
             )}
-            {messages.length > 0 && messages.length <= 4 && !isLoading && !trialLimitReached && (
-              <div className="mb-3">
-                <p className="mb-2 text-xs text-stone-500 text-center">اسأل المزيد:</p>
-                <div className="flex flex-wrap gap-2 justify-center">
-                  {FOLLOW_UP_QUESTIONS.map((q) => (
-                    <button
-                      key={q}
-                      onClick={() => sendMessage(q)}
-                      className="rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1.5 text-xs font-medium text-emerald-700 transition-all hover:bg-emerald-100 hover:shadow-sm"
-                    >
-                      {q}
-                    </button>
-                  ))}
+            {messages.length > 0 && !isLoading && !trialLimitReached && (() => {
+              const lastAssistant = [...messages].reverse().find(m => m.role === 'assistant');
+              if (!lastAssistant) return null;
+              const followUps = getContextualFollowUps(lastAssistant.content);
+              return (
+                <div className="mb-3">
+                  <p className="mb-2 text-xs text-stone-500 text-center">اسأل المزيد:</p>
+                  <div className="flex flex-wrap gap-2 justify-center">
+                    {followUps.map((q) => (
+                      <button
+                        key={q}
+                        onClick={() => sendMessage(q)}
+                        className="rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1.5 text-xs font-medium text-emerald-700 transition-all hover:bg-emerald-100 hover:shadow-sm"
+                      >
+                        {q}
+                      </button>
+                    ))}
+                  </div>
                 </div>
-              </div>
-            )}
+              );
+            })()}
 
             <div className="flex items-end gap-3">
               <textarea
