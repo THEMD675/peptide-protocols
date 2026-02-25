@@ -15,7 +15,7 @@ function getPrimaryCategory(peptideIds: string[]) {
 
 export default function Stacks() {
   const { subscription, isLoading } = useAuth();
-  const isPro = isLoading || (subscription?.isProOrTrial ?? false);
+  const isPro = !isLoading && (subscription?.isProOrTrial ?? false);
 
   return (
     <main className="mx-auto max-w-6xl px-4 pb-24 pt-24 md:px-6 md:pt-28">

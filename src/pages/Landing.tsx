@@ -271,7 +271,7 @@ export default function Landing() {
               <li className="flex items-start gap-2"><Check className="mt-0.5 h-4 w-4 shrink-0 text-emerald-600" /><span><strong>Tirzepatide</strong> — Mounjaro/Zepbound (2022/2023)</span></li>
               <li className="flex items-start gap-2"><Check className="mt-0.5 h-4 w-4 shrink-0 text-emerald-600" /><span><strong>Tesamorelin</strong> — Egrifta (2010)</span></li>
               <li className="flex items-start gap-2"><Check className="mt-0.5 h-4 w-4 shrink-0 text-emerald-600" /><span><strong>PT-141</strong> — Vyleesi (2019)</span></li>
-              <li className="flex items-start gap-2"><Check className="mt-0.5 h-4 w-4 shrink-0 text-emerald-600" /><span><strong>Thymosin Alpha-1</strong> — Zadaxin (1999)</span></li>
+              <li className="flex items-start gap-2"><Check className="mt-0.5 h-4 w-4 shrink-0 text-emerald-600" /><span><strong>SS-31</strong> — Stegazah/Elamipretide (2025)</span></li>
             </ul>
           </div>
 

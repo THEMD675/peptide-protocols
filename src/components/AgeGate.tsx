@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
 import { Shield } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -9,13 +8,17 @@ export default function AgeGate() {
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
-    if (localStorage.getItem(STORAGE_KEY) !== "true") {
+    try {
+      if (localStorage.getItem(STORAGE_KEY) !== "true") {
+        setVisible(true);
+      }
+    } catch {
       setVisible(true);
     }
   }, []);
 
   const handleVerified = () => {
-    localStorage.setItem(STORAGE_KEY, "true");
+    try { localStorage.setItem(STORAGE_KEY, "true"); } catch {}
     setVisible(false);
   };
 
@@ -23,13 +26,13 @@ export default function AgeGate() {
     window.location.href = "https://www.google.com";
   };
 
+  if (!visible) return null;
+
   return (
-    <AnimatePresence>
-      {visible && (
         <div
           dir="rtl"
           className={cn(
-            "fixed inset-0 z-[9999] flex items-center justify-center",
+            "fixed inset-0 z-[9999] flex items-center justify-center animate-fade-in",
             "bg-stone-900/95 p-4"
           )}
         >
@@ -85,7 +88,5 @@ export default function AgeGate() {
             </div>
           </div>
         </div>
-      )}
-    </AnimatePresence>
   );
 }

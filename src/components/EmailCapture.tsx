@@ -47,14 +47,14 @@ export default function EmailCapture() {
         className="flex flex-col sm:flex-row items-center gap-3 w-full max-w-lg mx-auto"
       >
         <div className="relative flex-1 w-full">
-          <Mail className="absolute right-3 top-1/2 -translate-y-1/2 h-5 w-5 text-white/40" />
+          <Mail className="absolute right-3 top-1/2 -translate-y-1/2 h-5 w-5 text-stone-400" />
           <input
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder="أدخل بريدك الإلكتروني"
             required
-            className="w-full rounded-full bg-white/10 border border-white/20 py-3.5 pr-11 pl-4 text-white placeholder:text-white/40 outline-none focus:border-emerald-400 focus:ring-2 focus:ring-emerald-200 transition-all"
+            className="w-full rounded-full bg-white/10 border border-white/20 py-3.5 pr-11 pl-4 text-white placeholder:text-white/40 outline-none focus:border-emerald-400 focus:ring-2 focus:ring-emerald-200 transition-all dark:bg-white/10 dark:text-white dark:border-white/20"
           />
         </div>
         <button

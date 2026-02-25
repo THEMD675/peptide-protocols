@@ -1,24 +1,6 @@
 /**
- * ═══════════════════════════════════════════════════════════════════════
- * RAVORA DESIGN SYSTEM - SINGLE SOURCE OF TRUTH
- * ═══════════════════════════════════════════════════════════════════════
- * 
- * THIS FILE IS THE ONLY DESIGN TOKEN FILE.
- * 
- * Flow:
- *   design-tokens.css → index.css → tailwind.config.ts → Components
- * 
- * Validation:
- *   npm run validate:design (or ./scripts/validate-design-system.sh)
- * 
- * Research:
- *   Colors: UXmatters, Kurt Goldstein
- *   Typography: WCAG 2.2, W3C 2025
- *   Spacing: 8pt grid (Fluent 2, Material)
- *   Shadows: Linear/Apple layered depth
- * 
- * Version: 5.0.0 | 2026-01-29 | LOCKED
- * ═══════════════════════════════════════════════════════════════════════
+ * pptides Design Tokens
+ * Emerald + Stone palette for peptide reference app
  */
 
 :root {

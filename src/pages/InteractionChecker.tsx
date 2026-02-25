@@ -13,7 +13,7 @@ interface InteractionResult {
 }
 
 const DANGEROUS_COMBOS: Record<string, InteractionResult> = {
-  'semaglutide+insulin': { safe: false, warning: false, message: 'خطر هبوط سكر حاد', details: 'Semaglutide يخفض السكر بشكل كبير. دمجه مع الأنسولين يضاعف خطر هبوط السكر الحاد. يحتاج إشراف طبي مباشر.' },
+  'semaglutide+tirzepatide': { safe: false, warning: false, message: 'لا تجمع ناهضات GLP-1', details: 'كلاهما ينشّط مستقبلات GLP-1. الجمع بينهما يضاعف الآثار الجانبية (غثيان شديد، هبوط سكر) بدون فائدة إضافية مثبتة.' },
   'igf-1-lr3+cjc-1295': { safe: false, warning: true, message: 'خطر تضخّم أعضاء', details: 'IGF-1 LR3 مع أي محفّز لهرمون النمو يرفع IGF-1 بشكل مفرط. خطر تضخّم القلب والأعضاء على المدى الطويل.' },
   'igf-1-lr3+ipamorelin': { safe: false, warning: true, message: 'خطر تضخّم أعضاء', details: 'IGF-1 LR3 مع أي محفّز لهرمون النمو يرفع IGF-1 بشكل مفرط. خطر تضخّم القلب والأعضاء على المدى الطويل.' },
   'melanotan-ii+*': { safe: false, warning: false, message: 'Melanotan II غير آمن', details: 'لا ننصح باستخدام Melanotan II مطلقًا. خطر حقيقي لسرطان الجلد (ميلانوما). لا تجمعه مع أي شيء.' },

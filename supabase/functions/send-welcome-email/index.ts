@@ -2,9 +2,13 @@ import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
 
 const RESEND_API_KEY = Deno.env.get('RESEND_API_KEY')
 
+const ALLOWED_ORIGINS = ['https://pptides.com', 'http://localhost:3000']
+
 serve(async (req) => {
+  const origin = req.headers.get('origin') ?? ''
+  const allowedOrigin = ALLOWED_ORIGINS.includes(origin) ? origin : ALLOWED_ORIGINS[0]
   const corsHeaders = {
-    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Origin': allowedOrigin,
     'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
   }
 
@@ -19,7 +23,8 @@ serve(async (req) => {
       })
     }
 
-    const displayName = name || email.split('@')[0]
+    const rawName = name || email.split('@')[0]
+    const displayName = rawName.replace(/[<>"'&]/g, '')
 
     const res = await fetch('https://api.resend.com/emails', {
       method: 'POST',

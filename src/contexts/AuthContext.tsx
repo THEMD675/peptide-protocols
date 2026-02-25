@@ -90,9 +90,12 @@ function buildSubscription(row: Record<string, unknown> | null): Subscription {
     status = 'none';
   }
 
+  const periodEnd = row.current_period_end ? new Date(row.current_period_end as string) : null;
+  const cancelledButActive = status === 'expired' && periodEnd && periodEnd.getTime() > now.getTime();
+
   const isProOrTrial =
-    (status === 'trial' && trialDaysLeft > 0) || status === 'active';
-  const isPaidSubscriber = status === 'active';
+    (status === 'trial' && trialDaysLeft > 0) || status === 'active' || cancelledButActive;
+  const isPaidSubscriber = status === 'active' || cancelledButActive;
 
   return { status, tier, trialDaysLeft, isProOrTrial, isPaidSubscriber };
 }

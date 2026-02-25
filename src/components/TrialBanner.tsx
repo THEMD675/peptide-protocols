@@ -2,7 +2,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { Shield } from 'lucide-react';
 
-const FREE_PATHS = ['/calculator', '/pricing', '/login', '/signup', '/privacy', '/terms', '/'];
+const FREE_PATHS = ['/calculator', '/pricing', '/login', '/signup', '/privacy', '/terms', '/', '/glossary', '/sources', '/reviews'];
 
 export default function TrialBanner() {
   const { user, subscription } = useAuth();
@@ -62,11 +62,8 @@ export default function TrialBanner() {
   }
 
   if (subscription.status === 'trial' && subscription.trialDaysLeft > 0) {
-    const hoursElapsedToday = new Date().getHours();
-    const totalHoursLeft = subscription.trialDaysLeft * 24 - hoursElapsedToday;
-    const daysLeft = Math.floor(totalHoursLeft / 24);
-    const hoursLeft = totalHoursLeft % 24;
-    const isLastDay = totalHoursLeft < 24;
+    const daysLeft = subscription.trialDaysLeft;
+    const isLastDay = daysLeft <= 1;
 
     return (
       <div
@@ -92,7 +89,7 @@ export default function TrialBanner() {
             </>
           ) : (
             <>
-              متبقي {String(daysLeft)} أيام و{String(hoursLeft)} ساعة
+              متبقي {String(daysLeft)} أيام
               <span className="mx-2">—</span>
               <Link
                 to="/pricing"

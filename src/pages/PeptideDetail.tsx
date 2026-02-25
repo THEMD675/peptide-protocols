@@ -7,12 +7,12 @@ import { peptides } from '@/data/peptides';
 import { useAuth } from '@/contexts/AuthContext';
 
 const evidenceColors: Record<string, string> = {
-  excellent: 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30',
-  strong: 'bg-blue-500/20 text-blue-400 border-blue-500/30',
-  good: 'bg-sky-500/20 text-sky-400 border-sky-500/30',
-  moderate: 'bg-amber-500/20 text-amber-400 border-amber-500/30',
-  weak: 'bg-orange-500/20 text-orange-400 border-orange-500/30',
-  'very-weak': 'bg-red-500/20 text-red-400 border-red-500/30',
+  excellent: 'bg-emerald-100 text-emerald-800 border-emerald-300',
+  strong: 'bg-blue-100 text-blue-800 border-blue-300',
+  good: 'bg-sky-100 text-sky-800 border-sky-300',
+  moderate: 'bg-amber-100 text-amber-800 border-amber-300',
+  weak: 'bg-orange-100 text-orange-800 border-orange-300',
+  'very-weak': 'bg-red-100 text-red-800 border-red-300',
 };
 
 const evidenceLabels: Record<string, string> = {
@@ -34,7 +34,7 @@ interface ProtocolRow {
 export default function PeptideDetail() {
   const { id } = useParams<{ id: string }>();
   const { subscription, isLoading } = useAuth();
-  const hasAccess = isLoading || (subscription?.isProOrTrial ?? false);
+  const hasAccess = !isLoading && (subscription?.isProOrTrial ?? false);
 
   const peptide = useMemo(() => peptides.find((p) => p.id === id), [id]);
 

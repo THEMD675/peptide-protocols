@@ -80,7 +80,7 @@ function BlurredSection({ isPro, children }: { isPro: boolean; children: React.R
 
 export default function Guide() {
   const { subscription, isLoading } = useAuth();
-  const isPro = isLoading || (subscription?.isProOrTrial ?? false);
+  const isPro = !isLoading && (subscription?.isProOrTrial ?? false);
 
   return (
     <main className="mx-auto max-w-5xl px-4 pb-24 pt-24 md:px-6 md:pt-28">

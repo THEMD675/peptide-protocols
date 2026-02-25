@@ -7,12 +7,12 @@ import { peptides, categories, stacks } from '@/data/peptides';
 import { useAuth } from '@/contexts/AuthContext';
 
 const categoryColors: Record<string, { badge: string; border: string }> = {
-  metabolic: { badge: 'bg-orange-500/20 text-orange-300 border-orange-500/30', border: 'border-orange-500/20' },
-  recovery: { badge: 'bg-blue-500/20 text-blue-300 border-blue-500/30', border: 'border-blue-500/20' },
-  hormonal: { badge: 'bg-purple-500/20 text-purple-300 border-purple-500/30', border: 'border-purple-500/20' },
-  brain: { badge: 'bg-pink-500/20 text-pink-300 border-pink-500/30', border: 'border-pink-500/20' },
-  longevity: { badge: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30', border: 'border-emerald-500/20' },
-  'skin-gut': { badge: 'bg-teal-500/20 text-teal-300 border-teal-500/30', border: 'border-teal-500/20' },
+  metabolic: { badge: 'bg-orange-100 text-orange-800 border-orange-300', border: 'border-orange-200' },
+  recovery: { badge: 'bg-blue-100 text-blue-800 border-blue-300', border: 'border-blue-200' },
+  hormonal: { badge: 'bg-purple-100 text-purple-800 border-purple-300', border: 'border-purple-200' },
+  brain: { badge: 'bg-pink-100 text-pink-800 border-pink-300', border: 'border-pink-200' },
+  longevity: { badge: 'bg-emerald-100 text-emerald-800 border-emerald-300', border: 'border-emerald-200' },
+  'skin-gut': { badge: 'bg-teal-100 text-teal-800 border-teal-300', border: 'border-teal-200' },
 };
 
 const categoryIcons: Record<string, string> = {
@@ -30,7 +30,7 @@ function isLongTerm(cycleAr: string): boolean {
 
 export default function PeptideTable() {
   const { subscription, isLoading } = useAuth();
-  const hasAccess = isLoading || (subscription?.isProOrTrial ?? false);
+  const hasAccess = !isLoading && (subscription?.isProOrTrial ?? false);
 
   const [search, setSearch] = useState('');
   const [activeCategory, setActiveCategory] = useState<string>('all');

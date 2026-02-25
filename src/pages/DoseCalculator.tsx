@@ -109,8 +109,8 @@ function SyringeVisual({
           width={barrelWidth}
           height={barrelHeight}
           rx={4}
-          fill="rgba(255,255,255,0.04)"
-          stroke="rgba(255,255,255,0.25)"
+          fill="rgba(0,0,0,0.02)"
+          stroke="rgba(0,0,0,0.2)"
           strokeWidth={1.5}
         />
 
@@ -135,16 +135,16 @@ function SyringeVisual({
               y1={t.y}
               x2={barrelX + barrelWidth + (i % 2 === 0 ? 10 : 6)}
               y2={t.y}
-              stroke="rgba(255,255,255,0.4)"
+              stroke="rgba(0,0,0,0.3)"
               strokeWidth={i % 2 === 0 ? 1 : 0.5}
             />
             {i % 2 === 0 && (
               <text
                 x={barrelX + barrelWidth + 13}
                 y={t.y + 3}
-                fill="rgba(255,255,255,0.5)"
+                fill="rgba(0,0,0,0.5)"
                 fontSize="8"
-                fontFamily="Tajawal, sans-serif"
+                fontFamily="Cairo, sans-serif"
               >
                 {t.label}
               </text>

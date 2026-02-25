@@ -127,3 +127,58 @@ CREATE POLICY "Authenticated users insert own logs" ON public.community_logs
 
 CREATE POLICY "Users delete own logs" ON public.community_logs
   FOR DELETE USING (auth.uid() = user_id);
+
+-- ============================================================
+-- 6. Reviews table
+-- ============================================================
+
+CREATE TABLE IF NOT EXISTS public.reviews (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id uuid REFERENCES auth.users(id) ON DELETE CASCADE NOT NULL,
+  rating integer NOT NULL CHECK (rating >= 1 AND rating <= 5),
+  text text NOT NULL,
+  created_at timestamptz DEFAULT now()
+);
+
+ALTER TABLE public.reviews ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Anyone can read reviews" ON public.reviews
+  FOR SELECT USING (true);
+
+CREATE POLICY "Users can insert own review" ON public.reviews
+  FOR INSERT WITH CHECK (auth.uid() = user_id);
+
+-- ============================================================
+-- 7. Injection logs table
+-- ============================================================
+
+CREATE TABLE IF NOT EXISTS public.injection_logs (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id uuid REFERENCES auth.users(id) ON DELETE CASCADE NOT NULL,
+  peptide_name text NOT NULL,
+  dose numeric NOT NULL,
+  unit text NOT NULL DEFAULT 'mcg',
+  injection_site text,
+  injected_at timestamptz DEFAULT now(),
+  notes text,
+  created_at timestamptz DEFAULT now()
+);
+
+ALTER TABLE public.injection_logs ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Users read own injection logs" ON public.injection_logs
+  FOR SELECT USING (auth.uid() = user_id);
+
+CREATE POLICY "Users insert own injection logs" ON public.injection_logs
+  FOR INSERT WITH CHECK (auth.uid() = user_id);
+
+CREATE POLICY "Users delete own injection logs" ON public.injection_logs
+  FOR DELETE USING (auth.uid() = user_id);
+
+-- ============================================================
+-- 8. Add update policy for subscriptions (client-side updates)
+-- ============================================================
+
+CREATE POLICY "Users update own subscription status" ON public.subscriptions
+  FOR UPDATE USING (auth.uid() = user_id)
+  WITH CHECK (auth.uid() = user_id);

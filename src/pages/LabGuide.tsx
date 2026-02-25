@@ -33,7 +33,7 @@ function BlurredOverlay() {
 
 export default function LabGuide() {
   const { subscription, isLoading } = useAuth();
-  const isPro = isLoading || (subscription?.isProOrTrial ?? false);
+  const isPro = !isLoading && (subscription?.isProOrTrial ?? false);
 
   const blurStyle = !isPro
     ? { filter: 'blur(6px)', pointerEvents: 'none' as const, userSelect: 'none' as const }

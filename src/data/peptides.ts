@@ -326,6 +326,8 @@ export const peptides: Peptide[] = [
     summaryAr: 'نظير GHRH يرفع هرمون النمو بشكل مستدام — يُدمج عادة مع Ipamorelin لتحفيز أمثل. تنبّه لاحمرار الوجه الناتج عن الهيستامين.',
     warningAr: 'نسخة DAC ترفع IGF-1 بشكل مستمر — راقب مستويات IGF-1 بانتظام. احمرار الوجه (flushing) طبيعي وليس رد فعل تحسسي.',
     lastUpdated: 'Feb 2026',
+    costEstimate: '$80-150/شهر',
+    difficulty: 'intermediate',
   },
   {
     id: 'ipamorelin',
@@ -371,6 +373,9 @@ export const peptides: Peptide[] = [
     fdaApproved: false,
     isFree: false,
     summaryAr: 'أقدم ببتيد GHRH وأكثرها أمانًا — كان معتمدًا من FDA سابقًا. يحفّز هرمون النمو بنمط طبيعي مع تاريخ استخدام يمتد لعقود.',
+    costEstimate: '$100-180/شهر',
+    difficulty: 'beginner',
+    lastUpdated: 'Feb 2026',
   },
   {
     id: 'ghrp-2',
@@ -392,6 +397,9 @@ export const peptides: Peptide[] = [
     fdaApproved: false,
     isFree: false,
     summaryAr: 'ببتيد GHRP قوي يرفع هرمون النمو بشكل ملحوظ — أقوى من Ipamorelin لكن يرفع الشهية والكورتيزول بدرجة خفيفة.',
+    costEstimate: '$60-100/شهر',
+    difficulty: 'intermediate',
+    lastUpdated: 'Feb 2026',
   },
   {
     id: 'ghrp-6',
@@ -413,6 +421,9 @@ export const peptides: Peptide[] = [
     fdaApproved: false,
     isFree: false,
     summaryAr: 'أقوى GHRPs في تحفيز الشهية — مناسب لمن يريد زيادة الوزن والكتلة العضلية. أقل انتقائية من Ipamorelin.',
+    costEstimate: '$50-90/شهر',
+    difficulty: 'intermediate',
+    lastUpdated: 'Feb 2026',
   },
   {
     id: 'hexarelin',
@@ -434,6 +445,9 @@ export const peptides: Peptide[] = [
     fdaApproved: false,
     isFree: false,
     summaryAr: 'أقوى GHRP في تحفيز هرمون النمو — لكن يتطلب دورات قصيرة (4-6 أسابيع) بسبب التحمّل السريع. يُفضل للاستخدام التكتيكي.',
+    costEstimate: '$70-110/شهر',
+    difficulty: 'advanced',
+    lastUpdated: 'Feb 2026',
   },
   {
     id: 'igf-1-lr3',
@@ -456,6 +470,9 @@ export const peptides: Peptide[] = [
     isFree: false,
     summaryAr: 'عامل نمو مباشر وقوي جدًا — يحفّز نمو العضلات بآلية مختلفة عن GHRPs. عالي الفعالية لكن يتطلب خبرة وحذر بسبب خطر هبوط السكر وتحفيز النمو.',
     warningAr: 'خطر هبوط سكر الدم حقيقي — يجب تناول كربوهيدرات مع كل حقنة. لا يُستخدم من قِبل المبتدئين أو بدون إشراف طبي.',
+    costEstimate: '$150-300/شهر',
+    difficulty: 'advanced',
+    lastUpdated: 'Feb 2026',
   },
   {
     id: 'follistatin-344',
@@ -477,6 +494,9 @@ export const peptides: Peptide[] = [
     fdaApproved: false,
     isFree: false,
     summaryAr: 'مُثبّط الميوستاتين — يرفع السقف الوراثي لبناء العضلات عبر تثبيط المكبح الطبيعي. مثير للاهتمام علميًا لكنه مكلف وتجاربه البشرية محدودة.',
+    costEstimate: '$200-400/دورة',
+    difficulty: 'advanced',
+    lastUpdated: 'Feb 2026',
   },
 
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -502,6 +522,9 @@ export const peptides: Peptide[] = [
     fdaApproved: false,
     isFree: true,
     summaryAr: 'محفّز طبيعي للتستوستيرون يعمل من أعلى المحور الهرموني (Hypothalamus) — يرفع LH وFSH بأمان دون تثبيط الإنتاج الذاتي.',
+    costEstimate: '$80-120/شهر',
+    difficulty: 'intermediate',
+    lastUpdated: 'Feb 2026',
   },
   {
     id: 'pt-141',
@@ -523,6 +546,9 @@ export const peptides: Peptide[] = [
     fdaApproved: true,
     isFree: false,
     summaryAr: 'أول دواء معتمد من FDA يعمل على الدماغ لتحفيز الرغبة الجنسية — يختلف جذريًا عن الفياغرا. فعّال للجنسين عبر تفعيل مستقبلات الميلانوكورتين.',
+    costEstimate: '$15-25/جرعة',
+    difficulty: 'beginner',
+    lastUpdated: 'Feb 2026',
   },
   {
     id: 'testicular-bioregulators',
@@ -544,6 +570,9 @@ export const peptides: Peptide[] = [
     fdaApproved: false,
     isFree: false,
     summaryAr: 'ببتيدات قصيرة روسية المنشأ تعمل على مستوى الجينات لاستعادة وظيفة خلايا الخصية — بروتوكول قصير (10-30 يوم) يُكرر عدة مرات سنويًا.',
+    costEstimate: '$40-80/دورة',
+    difficulty: 'beginner',
+    lastUpdated: 'Feb 2026',
   },
   {
     id: 'gnrh-triptorelin',
@@ -566,6 +595,9 @@ export const peptides: Peptide[] = [
     isFree: false,
     summaryAr: 'أداة قوية لإعادة تشغيل المحور الهرموني — جرعة واحدة صغيرة تُطلق LH وFSH بقوة. يُستخدم بحذر شديد لأن الجرعة الزائدة تعكس التأثير.',
     warningAr: 'تحذير حرج: الجرعة الواحدة الصغيرة (100 ميكروغرام) تُحفّز المحور، لكن الجرعات الأكبر أو المتكررة تُثبّطه بالكامل. لا يُستخدم بدون إشراف طبي.',
+    costEstimate: '$30-50/جرعة',
+    difficulty: 'advanced',
+    lastUpdated: 'Feb 2026',
   },
 
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -591,6 +623,9 @@ export const peptides: Peptide[] = [
     fdaApproved: false,
     isFree: true,
     summaryAr: 'أقوى ببتيد لتعزيز التركيز والذاكرة — يرفع BDNF بشكل كبير ومعتمد كدواء في روسيا. بخاخ أنف سهل الاستخدام بدون حقن.',
+    costEstimate: '$40-60/شهر',
+    difficulty: 'beginner',
+    lastUpdated: 'Feb 2026',
   },
   {
     id: 'na-semax-amidate',
@@ -612,6 +647,9 @@ export const peptides: Peptide[] = [
     fdaApproved: false,
     isFree: false,
     summaryAr: 'النسخة المُحسّنة من Semax — تعديلات كيميائية تزيد النفاذية والاستقرار والقوة. خيار لمن يريد تأثيرًا أقوى من Semax العادي.',
+    costEstimate: '$50-80/شهر',
+    difficulty: 'intermediate',
+    lastUpdated: 'Feb 2026',
   },
   {
     id: 'selank',
@@ -633,6 +671,9 @@ export const peptides: Peptide[] = [
     fdaApproved: false,
     isFree: false,
     summaryAr: 'مضاد قلق طبيعي معتمد في روسيا — يقلل القلق دون نعاس أو إدمان أو تثبيط إدراكي. مشتق من Tuftsin المناعي مع فوائد مزدوجة للمزاج والمناعة.',
+    costEstimate: '$40-70/شهر',
+    difficulty: 'beginner',
+    lastUpdated: 'Feb 2026',
   },
   {
     id: 'dihexa',
@@ -655,6 +696,9 @@ export const peptides: Peptide[] = [
     isFree: false,
     summaryAr: 'ببتيد تجريبي "خارق القوة" في تحفيز المشابك العصبية — نتائج حيوانية مذهلة لكن بدون تجارب بشرية. للمتقدمين فقط.',
     warningAr: 'لا توجد تجارب بشرية. مسار c-Met مرتبط بنمو بعض الأورام — خطر نظري جدّي. للباحثين والمتقدمين فقط.',
+    costEstimate: '$80-150/شهر',
+    difficulty: 'advanced',
+    lastUpdated: 'Feb 2026',
   },
   {
     id: 'cerebrolysin',
@@ -676,6 +720,9 @@ export const peptides: Peptide[] = [
     fdaApproved: false,
     isFree: false,
     summaryAr: 'مستخلص دماغ الخنزير المنقّى — أكثر من 200 تجربة سريرية ومعتمد في 44 دولة لعلاج السكتة والزهايمر. أقوى حماية عصبية متاحة لكنه يحتاج حقن IM أو IV.',
+    costEstimate: '$100-200/دورة',
+    difficulty: 'advanced',
+    lastUpdated: 'Feb 2026',
   },
   {
     id: 'p21',
@@ -697,6 +744,9 @@ export const peptides: Peptide[] = [
     fdaApproved: false,
     isFree: false,
     summaryAr: 'ببتيد تجريبي يحفّز تكوّن خلايا عصبية جديدة في الحصين — واعد لمكافحة الزهايمر لكن بدون تجارب بشرية حتى الآن.',
+    costEstimate: '$60-100/شهر',
+    difficulty: 'advanced',
+    lastUpdated: 'Feb 2026',
   },
 
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -722,6 +772,8 @@ export const peptides: Peptide[] = [
     fdaApproved: false,
     isFree: true,
     summaryAr: 'ببتيد إطالة العمر الأشهر — 4 أحماض أمينية فقط تُنشّط التيلوميراز وتعيد ضبط الساعة البيولوجية. بيانات عمرها 40+ سنة تُظهر إطالة عمر الحيوانات بنسبة 25%.',
+    costEstimate: '$100-150/دورة',
+    difficulty: 'intermediate',
   },
   {
     id: 'dsip',
@@ -743,6 +795,9 @@ export const peptides: Peptide[] = [
     fdaApproved: false,
     isFree: false,
     summaryAr: 'ببتيد طبيعي يُعمّق النوم عبر تعزيز موجات دلتا — يحسّن جودة النوم دون إدمان. بخاخ أنف سهل الاستخدام.',
+    costEstimate: '$50-80/شهر',
+    difficulty: 'beginner',
+    lastUpdated: 'Feb 2026',
   },
   {
     id: 'ss-31',
@@ -764,6 +819,9 @@ export const peptides: Peptide[] = [
     fdaApproved: true,
     isFree: false,
     summaryAr: 'أول دواء معتمد من FDA يستهدف الميتوكوندريا مباشرة — يُعيد شحن محطة الطاقة الخلوية عبر إصلاح الكارديوليبين. اختراق في علاج أمراض الشيخوخة.',
+    costEstimate: '$200-400/شهر',
+    difficulty: 'advanced',
+    lastUpdated: 'Feb 2026',
   },
   {
     id: 'mots-c',
@@ -786,6 +844,9 @@ export const peptides: Peptide[] = [
     isFree: false,
     summaryAr: 'أول "هرمون ميتوكوندري" مكتشف — يحاكي تأثيرات التمرين الرياضي ويحسّن حساسية الأنسولين. ببتيد ثوري لكنه يحتاج بحثًا بشريًا أكثر.',
     warningAr: 'تأكد من مصدر موثوق — بعض المنتجات البحثية المتاحة قد تحتوي على شوائب بسبب صعوبة تصنيع هذا الببتيد. اطلب شهادة تحليل (COA) من طرف ثالث.',
+    costEstimate: '$150-300/شهر',
+    difficulty: 'advanced',
+    lastUpdated: 'Feb 2026',
   },
   {
     id: 'foxo4-dri',
@@ -808,6 +869,9 @@ export const peptides: Peptide[] = [
     isFree: false,
     summaryAr: 'ببتيد سنوليتيك ثوري يستهدف الخلايا الهَرِمة ويُحرّض موتها — نتائج مذهلة في الفئران لكن صفر تجارب بشرية. مكلف وتجريبي بالكامل.',
     warningAr: 'صفر تجارب بشرية. التكلفة باهظة جدًا. أي استخدام بشري تجريبي بالكامل. لا يُنصح بالاستخدام خارج السياق البحثي.',
+    costEstimate: '$500+/دورة',
+    difficulty: 'advanced',
+    lastUpdated: 'Feb 2026',
   },
   {
     id: 'thymalin',
@@ -829,6 +893,9 @@ export const peptides: Peptide[] = [
     fdaApproved: false,
     isFree: false,
     summaryAr: 'مستخلص الغدة الزعترية — بروتوكول خافينسون الكلاسيكي لمكافحة الشيخوخة المناعية. دراسة بشرية أظهرت انخفاض الوفاة 50% خلال 6 سنوات.',
+    costEstimate: '$80-120/دورة',
+    difficulty: 'intermediate',
+    lastUpdated: 'Feb 2026',
   },
   {
     id: 'thymosin-alpha-1',
@@ -850,6 +917,9 @@ export const peptides: Peptide[] = [
     fdaApproved: false,
     isFree: false,
     summaryAr: 'منظّم مناعي قوي معتمد في 35+ دولة — يُنشّط المراقبة المناعية ضد الفيروسات والأورام دون فرط نشاط. ملف أمان ممتاز مع عقود من الاستخدام السريري.',
+    costEstimate: '$120-200/شهر',
+    difficulty: 'intermediate',
+    lastUpdated: 'Feb 2026',
   },
 
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -875,6 +945,8 @@ export const peptides: Peptide[] = [
     fdaApproved: false,
     isFree: true,
     summaryAr: 'أكثر ببتيدات البشرة دراسةً وأمانًا — مسحوق فموي يحفّز إنتاج الكولاجين الذاتي ويحسّن البشرة والمفاصل. سهل الاستخدام ومتوفر تجاريًا.',
+    costEstimate: '$20-40/شهر',
+    difficulty: 'beginner',
   },
   {
     id: 'ghk-cu',
@@ -896,6 +968,9 @@ export const peptides: Peptide[] = [
     fdaApproved: false,
     isFree: false,
     summaryAr: 'ببتيد النحاس الطبيعي — يحفّز تجديد البشرة والشعر ويُعيد تنظيم الآلاف من الجينات نحو حالة أكثر شبابًا. متوفر موضعيًا وبالحقن.',
+    costEstimate: '$30-80/شهر',
+    difficulty: 'beginner',
+    lastUpdated: 'Feb 2026',
   },
   {
     id: 'copper-peptides-topical',
@@ -917,6 +992,9 @@ export const peptides: Peptide[] = [
     fdaApproved: false,
     isFree: false,
     summaryAr: 'تركيبات موضعية محسّنة من ببتيدات النحاس — بديل لطيف للريتينول يحفّز الكولاجين ويُجدد البشرة بتهيّج أقل.',
+    costEstimate: '$20-50/شهر',
+    difficulty: 'beginner',
+    lastUpdated: 'Feb 2026',
   },
   {
     id: 'larazotide',
@@ -938,6 +1016,9 @@ export const peptides: Peptide[] = [
     fdaApproved: false,
     isFree: false,
     summaryAr: 'ببتيد يُصلح "تسريب الأمعاء" عبر تنظيم الوصلات المحكمة — في المرحلة الثالثة من التجارب السريرية لمرض السيلياك. يعمل موضعيًا في الأمعاء دون امتصاص جهازي.',
+    costEstimate: '$100-180/شهر',
+    difficulty: 'intermediate',
+    lastUpdated: 'Feb 2026',
   },
   {
     id: 'kpv',
@@ -959,6 +1040,9 @@ export const peptides: Peptide[] = [
     fdaApproved: false,
     isFree: false,
     summaryAr: 'مضاد التهاب طبيعي من 3 أحماض أمينية فقط — يستهدف التهاب الأمعاء عبر تثبيط NF-κB. جزء أساسي من بروتوكول إصلاح الأمعاء.',
+    costEstimate: '$60-100/شهر',
+    difficulty: 'beginner',
+    lastUpdated: 'Feb 2026',
   },
   {
     id: 'll-37',
@@ -980,6 +1064,9 @@ export const peptides: Peptide[] = [
     fdaApproved: false,
     isFree: false,
     summaryAr: 'المضاد الحيوي الطبيعي للجسم — يقتل البكتيريا ويُفكك الأغشية الحيوية. إنتاجه مرتبط بفيتامين D. خيار متقدم للعدوى المزمنة المقاومة.',
+    costEstimate: '$80-150/شهر',
+    difficulty: 'advanced',
+    lastUpdated: 'Feb 2026',
   },
   {
     id: 'ara-290',
@@ -1001,6 +1088,9 @@ export const peptides: Peptide[] = [
     fdaApproved: false,
     isFree: false,
     summaryAr: 'ببتيد يحاكي الجانب الحامي من الإريثروبويتين — يُصلح الأعصاب ويقلل الالتهاب دون زيادة كريات الدم. خيار مبتكر لاعتلال الأعصاب.',
+    costEstimate: '$100-200/شهر',
+    difficulty: 'advanced',
+    lastUpdated: 'Feb 2026',
   },
   {
     id: 'melanotan-ii',
@@ -1023,6 +1113,9 @@ export const peptides: Peptide[] = [
     isFree: false,
     summaryAr: 'تحذير: ببتيد اسمرار البشرة الذي يحمل خطرًا حقيقيًا لتحفيز سرطان الجلد (ميلانوما). غير معتمد من أي جهة. المخاطر تفوق الفوائد بشكل كبير.',
     warningAr: 'تحذير شديد: Melanotan II مرتبط بتحفيز نمو الشامات وتحوّلها السرطاني. تم تسجيل حالات ميلانوما عند مستخدمين. غير معتمد من أي جهة تنظيمية في العالم. لا تستخدمه. إذا كنت تريد حماية من الشمس، استخدم واقي شمس.',
+    costEstimate: '$30-50/شهر',
+    difficulty: 'advanced',
+    lastUpdated: 'Feb 2026',
   },
 ];
 

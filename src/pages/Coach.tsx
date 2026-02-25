@@ -26,8 +26,11 @@ function renderMarkdown(text: string) {
     }
   };
 
+  const escapeHtml = (s: string) =>
+    s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+
   const inlineMarkdown = (s: string) =>
-    s
+    escapeHtml(s)
       .replace(/\*\*(.+?)\*\*/g, '<strong class="font-bold text-stone-900">$1</strong>')
       .replace(/\*(.+?)\*/g, '<em>$1</em>')
       .replace(/`(.+?)`/g, '<code class="rounded bg-stone-200 px-1 py-0.5 text-xs font-mono">$1</code>');
@@ -205,7 +208,8 @@ export default function Coach() {
 
   const isElite = subscription.isProOrTrial && subscription.tier === 'elite';
   const TRIAL_MESSAGE_LIMIT = 3;
-  const trialLimitReached = !isElite && messages.length >= TRIAL_MESSAGE_LIMIT * 2;
+  const userMessageCount = messages.filter(m => m.role === 'user').length;
+  const trialLimitReached = !isElite && userMessageCount >= TRIAL_MESSAGE_LIMIT;
 
   const sendMessage = async (content: string) => {
     const trimmed = content.trim();
@@ -373,7 +377,7 @@ export default function Coach() {
             )}
             {!isElite && messages.length > 0 && !trialLimitReached && (
               <p className="mb-2 text-center text-xs text-stone-700">
-                {TRIAL_MESSAGE_LIMIT - Math.floor(messages.length / 2)} أسئلة مجانية متبقية — <button onClick={() => upgradeTo('elite')} className="text-emerald-600 underline">ترقَّ لأسئلة بلا حدود</button>
+                {TRIAL_MESSAGE_LIMIT - userMessageCount} أسئلة مجانية متبقية — <button onClick={() => upgradeTo('elite')} className="text-emerald-600 underline">ترقَّ لأسئلة بلا حدود</button>
               </p>
             )}
             {messages.length > 0 && messages.length <= 4 && !isLoading && !trialLimitReached && (

@@ -1,15 +1,9 @@
 {
   "applinks": {
-    "details": [
-      {
-        "appIDs": ["6V4JKR28PH.app.ravora.health"],
-        "components": [
-          { "/": "/*" }
-        ]
-      }
-    ]
+    "apps": [],
+    "details": []
   },
   "webcredentials": {
-    "apps": ["6V4JKR28PH.app.ravora.health"]
+    "apps": []
   }
 }

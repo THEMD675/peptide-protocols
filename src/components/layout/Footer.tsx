@@ -58,7 +58,7 @@ export default function Footer() {
 
         <div className="mt-10 border-t border-stone-200 pt-6 text-center">
           <p className="text-xs text-stone-500">
-            pp<span className="text-emerald-600">tides</span> — جميع الحقوق محفوظة © 2026
+            pp<span className="text-emerald-600">tides</span> — جميع الحقوق محفوظة © {new Date().getFullYear()}
           </p>
           <p className="mt-2 text-xs text-stone-400 leading-relaxed">
             هذا المحتوى تعليمي ولا يُعدّ بديلًا عن الاستشارة الطبية. استشر طبيبك قبل استخدام أي ببتيد.

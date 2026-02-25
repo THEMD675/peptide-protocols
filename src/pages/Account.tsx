@@ -53,11 +53,16 @@ export default function Account() {
   const handleCancelSubscription = async () => {
     setIsProcessing(true);
     try {
-      await supabase.functions.invoke('cancel-subscription');
+      const { error } = await supabase
+        .from('subscriptions')
+        .update({ status: 'cancelled' })
+        .eq('user_id', user.id);
+      if (error) throw error;
       setShowCancelDialog(false);
-      window.location.reload();
+      import('sonner').then(m => m.toast.success('تم إلغاء الاشتراك. ستحتفظ بالوصول حتى نهاية الفترة الحالية.'));
+      setTimeout(() => window.location.reload(), 1500);
     } catch {
-      import('sonner').then(m => m.toast.error('حدث خطأ أثناء إلغاء الاشتراك. حاول مرة أخرى.'));
+      import('sonner').then(m => m.toast.error('حدث خطأ أثناء إلغاء الاشتراك. تواصل معنا: support@pptides.com'));
     } finally {
       setIsProcessing(false);
     }
@@ -66,8 +71,15 @@ export default function Account() {
   const handleDeleteAccount = async () => {
     setIsProcessing(true);
     try {
+      await supabase.from('subscriptions').delete().eq('user_id', user.id);
+      await supabase.from('injection_logs').delete().eq('user_id', user.id);
+      await supabase.from('community_logs').delete().eq('user_id', user.id);
+      await supabase.from('reviews').delete().eq('user_id', user.id);
+      await supabase.from('referrals').delete().eq('user_id', user.id);
       await logout();
       navigate('/');
+    } catch {
+      import('sonner').then(m => m.toast.error('حدث خطأ أثناء حذف الحساب. تواصل معنا: support@pptides.com'));
     } finally {
       setIsProcessing(false);
     }

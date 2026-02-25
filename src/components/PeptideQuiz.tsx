@@ -77,6 +77,7 @@ function getRecommendation(answers: string[]): Recommendation {
   }
 
   if (goal === 'longevity') {
+    if (injection === 'no') return { peptideId: 'collagen-peptides', nameAr: 'ببتيدات الكولاجين', nameEn: 'Collagen Peptides', reason: 'فموي — يبطئ شيخوخة البشرة والمفاصل. أكثر الببتيدات دراسة وأمانًا.', altId: 'epithalon', altName: 'Epithalon' };
     return { peptideId: 'epithalon', nameAr: 'إيبيثالون', nameEn: 'Epithalon', reason: 'يُطيل التيلوميرات — 40+ سنة من البيانات. دورة قصيرة كل 6 أشهر.', altId: 'thymosin-alpha-1', altName: 'Thymosin Alpha-1' };
   }
 
