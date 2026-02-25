@@ -70,6 +70,16 @@ export default function PeptideDetail() {
         <meta name="description" content={peptide.summaryAr} />
         <meta property="og:title" content={`${peptide.nameAr} — ${peptide.nameEn} | Peptide Guide`} />
         <meta property="og:description" content={peptide.summaryAr} />
+        <script type="application/ld+json">{JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "FAQPage",
+          "mainEntity": [
+            { "@type": "Question", "name": `ما هو ${peptide.nameEn}؟`, "acceptedAnswer": { "@type": "Answer", "text": peptide.summaryAr } },
+            { "@type": "Question", "name": `ما هي جرعة ${peptide.nameEn}؟`, "acceptedAnswer": { "@type": "Answer", "text": peptide.dosageAr } },
+            { "@type": "Question", "name": `ما هي الأعراض الجانبية لـ ${peptide.nameEn}؟`, "acceptedAnswer": { "@type": "Answer", "text": peptide.sideEffectsAr } },
+            { "@type": "Question", "name": `هل ${peptide.nameEn} معتمد من FDA؟`, "acceptedAnswer": { "@type": "Answer", "text": peptide.fdaApproved ? 'نعم، معتمد من FDA.' : 'لا، غير معتمد من FDA حاليًا. يُستخدم للأغراض البحثية.' } },
+          ]
+        })}</script>
       </Helmet>
 
       <div className="mx-auto max-w-4xl px-4 py-8 md:px-6 md:py-12">

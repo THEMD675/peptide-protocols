@@ -8,6 +8,8 @@ import Footer from '@/components/layout/Footer';
 import AgeGate from '@/components/AgeGate';
 import TrialBanner from '@/components/TrialBanner';
 import BackToTop from '@/components/BackToTop';
+import StickyScrollCTA from '@/components/StickyScrollCTA';
+import ExitIntentPopup from '@/components/ExitIntentPopup';
 
 import Landing from '@/pages/Landing';
 import Login from '@/pages/Login';
@@ -143,6 +145,8 @@ export default function App() {
           </main>
           <Footer />
           <BackToTop />
+          <StickyScrollCTA />
+          <ExitIntentPopup />
         </div>
         </ErrorBoundary>
       </AuthProvider>

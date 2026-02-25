@@ -1,9 +1,14 @@
+import { useState } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { Link } from 'react-router-dom';
-import { Check, Shield, Lock, CreditCard, RefreshCw, ChevronDown, MessageCircle, Crown, Zap, ArrowLeft } from 'lucide-react';
+import { Check, Shield, Lock, CreditCard, RefreshCw, ChevronDown, MessageCircle, Crown, Zap, ArrowLeft, Percent } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { cn } from '@/lib/utils';
 
+const PRICES = {
+  essentials: { monthly: 9, annual: 86, annualMonthly: 7.17, save: 22 },
+  elite: { monthly: 99, annual: 948, annualMonthly: 79, save: 20 },
+};
 
 const essentialsFeatures = [
   'بطاقات البروتوكول الكاملة لـ 41 ببتيد',
@@ -67,6 +72,8 @@ const faqs = [
 
 export default function Pricing() {
   const { user, subscription, upgradeTo } = useAuth();
+  const [billingCycle, setBillingCycle] = useState<'monthly' | 'annual'>('monthly');
+  const isAnnual = billingCycle === 'annual';
 
   const isSubscribedTo = (tier: string) =>
     user && subscription?.status === 'active' && subscription.tier === tier;
@@ -155,6 +162,25 @@ export default function Pricing() {
           </div>
         </div>
 
+        {/* Billing Toggle */}
+        <div className="mb-10 flex items-center justify-center gap-4">
+          <button
+            onClick={() => setBillingCycle('monthly')}
+            className={cn('rounded-full px-5 py-2.5 text-sm font-bold transition-all', !isAnnual ? 'bg-emerald-600 text-white shadow-lg' : 'text-stone-600 hover:text-stone-900')}
+          >
+            شهري
+          </button>
+          <button
+            onClick={() => setBillingCycle('annual')}
+            className={cn('rounded-full px-5 py-2.5 text-sm font-bold transition-all relative', isAnnual ? 'bg-emerald-600 text-white shadow-lg' : 'text-stone-600 hover:text-stone-900')}
+          >
+            سنوي
+            <span className="absolute -top-2 -left-2 rounded-full bg-red-500 px-2 py-0.5 text-[10px] font-bold text-white">
+              وفّر 20%
+            </span>
+          </button>
+        </div>
+
         {/* Pricing Cards */}
         <div className="grid gap-8 md:grid-cols-2">
           {/* Essentials */}
@@ -164,10 +190,20 @@ export default function Pricing() {
             <h2 className="mb-1 text-2xl font-bold text-stone-900">Essentials</h2>
             <p className="mb-6 text-stone-800">كل الأدوات الأساسية التي تحتاجها</p>
 
-            <div className="mb-8">
-              <span className="text-5xl font-black text-stone-900">$9</span>
+            <div className="mb-2">
+              {isAnnual && <span className="text-lg text-stone-400 line-through mr-2">${PRICES.essentials.monthly}</span>}
+              <span className="text-5xl font-black text-stone-900">${isAnnual ? PRICES.essentials.annualMonthly : PRICES.essentials.monthly}</span>
               <span className="text-lg text-stone-800"> /شهريًا</span>
             </div>
+            {isAnnual && (
+              <div className="mb-6 flex items-center gap-2">
+                <span className="rounded-full bg-red-100 px-3 py-1 text-xs font-bold text-red-700">
+                  وفّر ${PRICES.essentials.monthly * 12 - PRICES.essentials.annual}/سنة
+                </span>
+                <span className="text-xs text-stone-500">يُدفع ${PRICES.essentials.annual} سنويًا</span>
+              </div>
+            )}
+            {!isAnnual && <div className="mb-6" />}
 
             <ul className="mb-8 flex-1 space-y-3">
               {essentialsFeatures.map((f) => (
@@ -195,10 +231,20 @@ export default function Pricing() {
             </div>
             <p className="mb-6 text-stone-800">كل شيء + مدرب ذكي + استشارات شخصية</p>
 
-            <div className="mb-8">
-              <span className="text-5xl font-black text-stone-900">$99</span>
+            <div className="mb-2">
+              {isAnnual && <span className="text-lg text-stone-400 line-through mr-2">${PRICES.elite.monthly}</span>}
+              <span className="text-5xl font-black text-stone-900">${isAnnual ? PRICES.elite.annualMonthly : PRICES.elite.monthly}</span>
               <span className="text-lg text-stone-800"> /شهريًا</span>
             </div>
+            {isAnnual && (
+              <div className="mb-6 flex items-center gap-2">
+                <span className="rounded-full bg-red-100 px-3 py-1 text-xs font-bold text-red-700">
+                  وفّر ${PRICES.elite.monthly * 12 - PRICES.elite.annual}/سنة
+                </span>
+                <span className="text-xs text-stone-500">يُدفع ${PRICES.elite.annual} سنويًا</span>
+              </div>
+            )}
+            {!isAnnual && <div className="mb-6" />}
 
             <ul className="mb-8 flex-1 space-y-3">
               {eliteFeatures.map((f) => (

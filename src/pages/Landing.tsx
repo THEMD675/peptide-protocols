@@ -1,6 +1,8 @@
+import { useState, useEffect } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { Link } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
+import { supabase } from '@/lib/supabase';
 import {
   FlaskConical,
   Calculator,
@@ -91,6 +93,12 @@ const TESTIMONIALS = [
 
 export default function Landing() {
   const { user } = useAuth();
+  const [userCount, setUserCount] = useState(0);
+  useEffect(() => {
+    supabase.from('subscriptions').select('id', { count: 'exact', head: true }).then(({ count }) => {
+      if (count && count > 0) setUserCount(count);
+    });
+  }, []);
   const ctaLink = user ? '/library' : '/signup';
   const ctaText = user ? 'ادخل المكتبة' : 'ابدأ تجربتك المجانية';
   const ctaTextShort = user ? 'اختر خطتك' : 'ابدأ التجربة المجانية';
@@ -146,6 +154,12 @@ export default function Landing() {
             <span className="flex items-center gap-1.5"><CreditCard className="h-3.5 w-3.5" /> تجربة 3 أيام مجانية</span>
             <span className="flex items-center gap-1.5"><Shield className="h-3.5 w-3.5" /> ضمان استرداد كامل</span>
           </p>
+          {userCount > 0 && (
+            <p className="mt-4 flex items-center justify-center gap-2 text-sm text-stone-500">
+              <span className="relative flex h-2 w-2"><span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" /><span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500" /></span>
+              <span>انضم إلى <strong className="text-stone-700">{userCount}+</strong> مستخدم يثقون بـ pptides</span>
+            </p>
+          )}
         </div>
       </section>
 
