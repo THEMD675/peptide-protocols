@@ -39,9 +39,6 @@ export default function TrialBanner() {
           <p className="mb-4 text-stone-700">
             اشترك الآن للوصول إلى 41+ بروتوكول، المدرب الذكي، وجميع الأدوات
           </p>
-          <p className="mb-6 text-xs text-stone-500">
-            الحاسبة والأدوات المجانية لا تزال متاحة لك
-          </p>
           <div className="flex flex-col gap-3">
             <Link
               to="/pricing"
@@ -49,12 +46,13 @@ export default function TrialBanner() {
             >
               اشترك — $9/شهريًا
             </Link>
-            <Link
-              to="/calculator"
-              className="text-sm text-emerald-600 underline underline-offset-2 hover:text-emerald-700"
-            >
-              أو استخدم الحاسبة المجانية
-            </Link>
+          </div>
+          <div className="mt-6 flex flex-wrap justify-center gap-3 text-xs">
+            <span className="text-stone-400">أو تصفّح المجاني:</span>
+            <Link to="/calculator" className="text-emerald-600 underline underline-offset-2 hover:text-emerald-700">الحاسبة</Link>
+            <Link to="/glossary" className="text-emerald-600 underline underline-offset-2 hover:text-emerald-700">المصطلحات</Link>
+            <Link to="/sources" className="text-emerald-600 underline underline-offset-2 hover:text-emerald-700">المصادر</Link>
+            <Link to="/reviews" className="text-emerald-600 underline underline-offset-2 hover:text-emerald-700">التقييمات</Link>
           </div>
         </div>
       </div>

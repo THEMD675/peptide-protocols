@@ -1,6 +1,6 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { Helmet } from 'react-helmet-async';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { AnimatePresence } from 'framer-motion';
 import { Calculator, FlaskConical, Droplets, ChevronDown, ArrowLeft, BookOpen, Layers, Bot, Syringe } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -217,6 +217,21 @@ export default function DoseCalculator() {
   const [syringeIdx, setSyringeIdx] = useState(2);
   const [showFormulas, setShowFormulas] = useState(false);
   const [selectedPreset, setSelectedPreset] = useState('');
+  const [searchParams] = useSearchParams();
+
+  useEffect(() => {
+    const peptideParam = searchParams.get('peptide');
+    if (peptideParam && !selectedPreset) {
+      const preset = PEPTIDE_PRESETS.find(p => p.name.toLowerCase() === peptideParam.toLowerCase());
+      if (preset) {
+        setSelectedPreset(preset.name);
+        setDoseUnit(preset.unit);
+        setDoseValue(preset.dose);
+        setVialMg(preset.vial);
+        setWaterMl(preset.water);
+      }
+    }
+  }, [searchParams, selectedPreset]);
 
   const syringe = SYRINGE_OPTIONS[syringeIdx];
   const recommendedWater = getRecommendedWater(vialMg);

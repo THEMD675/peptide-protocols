@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import { useAuth } from '@/contexts/AuthContext';
@@ -18,9 +18,44 @@ export default function Login() {
   const [loading, setLoading] = useState(false);
   const [resetMessage, setResetMessage] = useState('');
   const [infoMessage, setInfoMessage] = useState('');
+  const [isRecovery, setIsRecovery] = useState(false);
+  const [newPassword, setNewPassword] = useState('');
 
-  const { login, signup } = useAuth();
+  const { login, signup, user } = useAuth();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (user && !isRecovery) navigate('/library', { replace: true });
+  }, [user, isRecovery, navigate]);
+
+  useEffect(() => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
+      if (event === 'PASSWORD_RECOVERY') setIsRecovery(true);
+    });
+    return () => subscription.unsubscribe();
+  }, []);
+
+  const handleUpdatePassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newPassword.trim() || newPassword.length < 6) {
+      setError('كلمة المرور يجب أن تكون 6 أحرف على الأقل');
+      return;
+    }
+    setLoading(true);
+    setError('');
+    try {
+      const { error } = await supabase.auth.updateUser({ password: newPassword });
+      if (error) throw error;
+      setIsRecovery(false);
+      setResetMessage('تم تغيير كلمة المرور بنجاح');
+      setNewPassword('');
+      setTimeout(() => navigate('/library'), 1500);
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'حدث خطأ غير متوقع');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -82,6 +117,44 @@ export default function Login() {
       setLoading(false);
     }
   };
+
+  if (isRecovery) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-white px-4">
+        <Helmet><title>تغيير كلمة المرور — pptides</title></Helmet>
+        <div className="w-full max-w-md">
+          <div className="overflow-hidden rounded-2xl border border-stone-300 bg-white shadow-lg">
+            <div className="bg-emerald-600 px-6 pb-6 pt-8 text-center">
+              <h1 className="mb-1 text-2xl font-bold text-white">تغيير كلمة المرور</h1>
+              <p className="text-sm text-white/70">أدخل كلمة مرور جديدة لحسابك</p>
+            </div>
+            <div className="px-6 pb-8 pt-6">
+              {error && <div className="mb-4 rounded-lg bg-red-50 px-4 py-3 text-sm text-red-700">{error}</div>}
+              {resetMessage && <div className="mb-4 rounded-lg bg-green-50 px-4 py-3 text-sm text-green-700">{resetMessage}</div>}
+              <form onSubmit={handleUpdatePassword} className="space-y-4">
+                <div>
+                  <label htmlFor="new-password" className="mb-1.5 block text-sm font-medium text-stone-900">كلمة المرور الجديدة</label>
+                  <input
+                    id="new-password"
+                    type="password"
+                    value={newPassword}
+                    onChange={(e) => setNewPassword(e.target.value)}
+                    placeholder="6 أحرف على الأقل"
+                    dir="ltr"
+                    minLength={6}
+                    className="w-full rounded-xl border border-stone-300 bg-white px-4 py-3 text-left text-stone-900 placeholder:text-stone-400 outline-none transition-shadow focus:border-emerald-300 focus:ring-2 focus:ring-emerald-200"
+                  />
+                </div>
+                <button type="submit" disabled={loading} className="w-full rounded-full bg-emerald-600 py-3.5 text-base font-bold text-white shadow transition-transform hover:bg-emerald-700 disabled:opacity-60">
+                  {loading ? '...' : 'تغيير كلمة المرور'}
+                </button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-white px-4">

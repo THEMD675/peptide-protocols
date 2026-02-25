@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect, useMemo, type ElementType } from 'react';
 import { Helmet } from 'react-helmet-async';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { Bot, Send, Lock, Loader2, Sparkles, TrendingDown, Heart, Dumbbell, Brain, Clock, Zap } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
@@ -177,10 +177,20 @@ export default function Coach() {
   const [isLoading, setIsLoading] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const [searchParams] = useSearchParams();
+  const autoSentRef = useRef(false);
 
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: 'smooth' });
   }, [messages]);
+
+  useEffect(() => {
+    const peptideParam = searchParams.get('peptide');
+    if (peptideParam && !autoSentRef.current && user && messages.length === 0) {
+      autoSentRef.current = true;
+      sendMessage(`أبغى أعرف عن ${peptideParam} — وش البروتوكول والجرعة المثالية؟`);
+    }
+  }, [searchParams, user]);
 
   if (!user) {
     return (

@@ -131,8 +131,29 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     url.searchParams.delete('tier');
     window.history.replaceState({}, '', url.toString());
 
-    fetchSubscription(user.id);
     import('sonner').then(m => m.toast.success('شكرًا! جارٍ تفعيل اشتراكك...'));
+
+    let attempts = 0;
+    const poll = async () => {
+      attempts++;
+      const { data } = await supabase
+        .from('subscriptions')
+        .select('status')
+        .eq('user_id', user.id)
+        .maybeSingle();
+
+      if (data?.status === 'active') {
+        await fetchSubscription(user.id);
+        import('sonner').then(m => m.toast.success('تم تفعيل اشتراكك بنجاح!'));
+        return;
+      }
+      if (attempts < 10) setTimeout(poll, 3000);
+      else {
+        await fetchSubscription(user.id);
+        import('sonner').then(m => m.toast('إذا لم يظهر اشتراكك، حدّث الصفحة بعد دقيقة.'));
+      }
+    };
+    poll();
   }, [user, fetchSubscription]);
 
   useEffect(() => {
