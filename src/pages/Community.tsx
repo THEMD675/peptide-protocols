@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { Link } from 'react-router-dom';
 import { MessageSquare, Send, Clock, FlaskConical, User, Flag } from 'lucide-react';
@@ -38,6 +38,7 @@ export default function Community() {
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const submittingRef = useRef(false);
   const [submitted, setSubmitted] = useState(false);
   const [filterGoal, setFilterGoal] = useState('all');
 
@@ -75,7 +76,8 @@ export default function Community() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setAttempted(true);
-    if (!user || !peptideName.trim() || !results.trim() || submitting) return;
+    if (!user || !peptideName.trim() || !results.trim() || submittingRef.current) return;
+    submittingRef.current = true;
 
     setSubmitting(true);
     const { error } = await supabase.from('community_logs').insert({
@@ -88,6 +90,7 @@ export default function Community() {
       rating,
     });
     setSubmitting(false);
+    submittingRef.current = false;
 
     if (error) {
       toast.error('حدث خطأ أثناء النشر. حاول مرة أخرى.');

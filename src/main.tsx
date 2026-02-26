@@ -4,7 +4,7 @@ import * as Sentry from '@sentry/react';
 import App from './App';
 import './index.css';
 
-if (localStorage.getItem('pptides_cookie_consent') === 'accepted') {
+if ((() => { try { return localStorage.getItem('pptides_cookie_consent') === 'accepted'; } catch { return false; } })()) {
   Sentry.init({
     dsn: import.meta.env.VITE_SENTRY_DSN,
     integrations: [

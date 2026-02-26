@@ -144,6 +144,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       setSubscription(buildSubscription(data));
     } catch {
+      toast.error('تعذّر تحميل بيانات الاشتراك. حاول تحديث الصفحة.');
       setSubscription(DEFAULT_SUBSCRIPTION);
     }
   }, []);
@@ -271,9 +272,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     } catch {
       // noop
     }
-    Object.keys(localStorage).forEach((key) => {
+    try { Object.keys(localStorage).forEach((key) => {
       if (key.startsWith('sb-')) localStorage.removeItem(key);
-    });
+    }); } catch { /* expected in restricted environments */ }
     window.location.href = '/';
   };
 

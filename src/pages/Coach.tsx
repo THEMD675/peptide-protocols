@@ -373,7 +373,15 @@ export default function Coach() {
         });
       }
     } catch {
-      setMessages(prev => [...prev, { role: 'assistant', content: '__ERROR__' }]);
+      setMessages(prev => {
+        const copy = [...prev];
+        if (copy.length > 0 && copy[copy.length - 1].role === 'assistant') {
+          copy[copy.length - 1] = { role: 'assistant', content: '__ERROR__' };
+        } else {
+          copy.push({ role: 'assistant', content: '__ERROR__' });
+        }
+        return copy;
+      });
     } finally {
       clearTimeout(stageTimer1);
       clearTimeout(stageTimer2);
