@@ -281,7 +281,7 @@ export default function Community() {
 
         {loading ? (
           <div className="py-16 text-center">
-            <p className="text-stone-800">جارٍ التحميل...</p>
+            <div className="h-6 w-6 mx-auto animate-spin rounded-full border-2 border-stone-200 border-t-emerald-600" />
           </div>
         ) : logs.length === 0 ? (
           <div className="rounded-2xl border border-stone-300 bg-stone-50 py-16 text-center">

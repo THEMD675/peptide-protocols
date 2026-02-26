@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback, useRef, useEffect, type Dispatch, type SetStateAction } from 'react';
+import { useState, useMemo, useCallback, useRef, useEffect } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { Link } from 'react-router-dom';
 import { AnimatePresence } from 'framer-motion';
@@ -280,7 +280,7 @@ export default function Library() {
     if (sortBy === 'alpha') result.sort((a, b) => a.nameEn.localeCompare(b.nameEn));
     if (sortBy === 'favorites') result.sort((a, b) => (favorites.has(b.id) ? 1 : 0) - (favorites.has(a.id) ? 1 : 0));
     return result;
-  }, [activeCategory, search, evidenceFilter, sortBy]);
+  }, [activeCategory, search, evidenceFilter, sortBy, favorites]);
 
   return (
     <div className="min-h-screen" >
@@ -334,7 +334,7 @@ export default function Library() {
 
           <select
             value={sortBy}
-            onChange={(e) => setSortBy(e.target.value as 'default' | 'evidence' | 'alpha')}
+            onChange={(e) => setSortBy(e.target.value as 'default' | 'evidence' | 'alpha' | 'favorites')}
             aria-label="ترتيب"
             className="rounded-xl border border-stone-300 bg-white px-3 py-2.5 text-sm text-stone-800 focus:border-emerald-300 focus:outline-none sm:w-auto"
           >

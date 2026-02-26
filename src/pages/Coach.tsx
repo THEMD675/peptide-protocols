@@ -183,15 +183,6 @@ export default function Coach() {
   useEffect(() => { scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: 'smooth' }); }, [messages, intakeStep]);
   useEffect(() => { if (user) buildUserContext(user.id).then(ctx => { userContextRef.current = ctx; }); }, [user]);
 
-  useEffect(() => {
-    const p = searchParams.get('peptide');
-    if (p && !autoSentRef.current && user) {
-      autoSentRef.current = true;
-      setIntakeStep('done');
-      sendToAI(`أبغى بروتوكول كامل لـ ${p} — الجرعة، التوقيت، المدة، التحاليل، والتكلفة.`);
-    }
-  }, [searchParams, user, sendToAI]);
-
   const isLoadingRef = useRef(false);
   const messagesRef = useRef<ChatMessage[]>(messages);
   messagesRef.current = messages;
@@ -234,6 +225,15 @@ export default function Coach() {
       setLoadingStage(0);
     }
   }, []);
+
+  useEffect(() => {
+    const p = searchParams.get('peptide');
+    if (p && !autoSentRef.current && user) {
+      autoSentRef.current = true;
+      setIntakeStep('done');
+      sendToAI(`أبغى بروتوكول كامل لـ ${p} — الجرعة، التوقيت، المدة، التحاليل، والتكلفة.`);
+    }
+  }, [searchParams, user, sendToAI]);
 
   const submitIntake = useCallback(() => {
     setIntakeStep('done');

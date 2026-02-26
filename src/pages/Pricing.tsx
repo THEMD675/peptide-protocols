@@ -6,8 +6,8 @@ import { useAuth } from '@/contexts/AuthContext';
 import { cn } from '@/lib/utils';
 
 const PRICES = {
-  essentials: { monthly: 9, annual: 86, annualMonthly: 7.17, save: 22 },
-  elite: { monthly: 99, annual: 948, annualMonthly: 79, save: 20 },
+  essentials: { monthly: 9 },
+  elite: { monthly: 99 },
 };
 
 const essentialsFeatures = [
@@ -62,7 +62,7 @@ const faqs = [
   },
   {
     q: 'هل يمكنني الإلغاء في أي وقت؟',
-    a: 'نعم. يمكنك إلغاء اشتراكك فورًا من حسابك دون الحاجة للتواصل معنا.',
+    a: 'نعم. يمكنك طلب إلغاء الاشتراك من حسابك. لإيقاف الدفعات المستقبلية، تواصل معنا عبر contact@pptides.com.',
   },
   {
     q: 'لماذا تحتاجون بطاقة للتجربة المجانية؟',
@@ -72,7 +72,6 @@ const faqs = [
 
 export default function Pricing() {
   const { user, subscription, upgradeTo } = useAuth();
-  const isAnnual = false;
 
   const isSubscribedTo = (tier: string) =>
     user && subscription?.status === 'active' && subscription.tier === tier;
@@ -173,19 +172,10 @@ export default function Pricing() {
             <p className="mb-6 text-stone-800">كل الأدوات الأساسية التي تحتاجها</p>
 
             <div className="mb-2">
-              {isAnnual && <span className="text-lg text-stone-400 line-through mr-2">${PRICES.essentials.monthly}</span>}
-              <span className="text-5xl font-black text-stone-900">${isAnnual ? PRICES.essentials.annualMonthly : PRICES.essentials.monthly}</span>
+              <span className="text-5xl font-black text-stone-900">${PRICES.essentials.monthly}</span>
               <span className="text-lg text-stone-800"> /شهريًا</span>
             </div>
-            {isAnnual && (
-              <div className="mb-6 flex items-center gap-2">
-                <span className="rounded-full bg-red-100 px-3 py-1 text-xs font-bold text-red-700">
-                  وفّر ${PRICES.essentials.monthly * 12 - PRICES.essentials.annual}/سنة
-                </span>
-                <span className="text-xs text-stone-500">يُدفع ${PRICES.essentials.annual} سنويًا</span>
-              </div>
-            )}
-            {!isAnnual && <div className="mb-6" />}
+            <div className="mb-6" />
 
             <ul className="mb-8 flex-1 space-y-3">
               {essentialsFeatures.map((f) => (
@@ -214,19 +204,10 @@ export default function Pricing() {
             <p className="mb-6 text-stone-800">كل شيء + مدرب ذكي + استشارات شخصية</p>
 
             <div className="mb-2">
-              {isAnnual && <span className="text-lg text-stone-400 line-through mr-2">${PRICES.elite.monthly}</span>}
-              <span className="text-5xl font-black text-stone-900">${isAnnual ? PRICES.elite.annualMonthly : PRICES.elite.monthly}</span>
+              <span className="text-5xl font-black text-stone-900">${PRICES.elite.monthly}</span>
               <span className="text-lg text-stone-800"> /شهريًا</span>
             </div>
-            {isAnnual && (
-              <div className="mb-6 flex items-center gap-2">
-                <span className="rounded-full bg-red-100 px-3 py-1 text-xs font-bold text-red-700">
-                  وفّر ${PRICES.elite.monthly * 12 - PRICES.elite.annual}/سنة
-                </span>
-                <span className="text-xs text-stone-500">يُدفع ${PRICES.elite.annual} سنويًا</span>
-              </div>
-            )}
-            {!isAnnual && <div className="mb-6" />}
+            <div className="mb-6" />
 
             <ul className="mb-8 flex-1 space-y-3">
               {eliteFeatures.map((f) => (

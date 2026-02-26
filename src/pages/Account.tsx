@@ -146,7 +146,7 @@ export default function Account() {
             {subscription.status === 'trial' && subscription.trialDaysLeft > 0 && (
               <div className="flex items-center justify-between">
                 <span className="text-sm text-stone-600">الأيام المتبقية</span>
-                <span className="text-sm font-bold text-amber-600">{subscription.trialDaysLeft} يوم</span>
+                <span className="text-sm font-bold text-amber-600">{subscription.trialDaysLeft === 1 ? 'يوم واحد' : subscription.trialDaysLeft === 2 ? 'يومان' : `${subscription.trialDaysLeft} أيام`}</span>
               </div>
             )}
           </div>

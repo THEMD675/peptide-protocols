@@ -181,7 +181,7 @@ export default function Dashboard() {
           </span>
           {subscription.status === 'trial' && subscription.trialDaysLeft > 0 && (
             <span className="text-sm text-amber-600 font-bold">
-              {subscription.trialDaysLeft} يوم متبقي
+              {subscription.trialDaysLeft === 1 ? 'يوم واحد متبقي' : subscription.trialDaysLeft === 2 ? 'يومان متبقيان' : `${subscription.trialDaysLeft} أيام متبقية`}
             </span>
           )}
         </div>

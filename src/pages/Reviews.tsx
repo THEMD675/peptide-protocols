@@ -92,8 +92,6 @@ export default function Reviews() {
       ? reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length
       : 0;
 
-  const userAlreadyReviewed = user ? reviews.some(() => false) : false;
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user || rating === 0 || !text.trim() || submitting) return;
@@ -270,7 +268,7 @@ export default function Reviews() {
 
           {loading ? (
             <div className="py-12 text-center">
-              <p className="text-sm text-stone-800">جارٍ التحميل...</p>
+              <div className="h-6 w-6 mx-auto animate-spin rounded-full border-2 border-stone-200 border-t-emerald-600" />
             </div>
           ) : reviews.length === 0 ? (
             <div className="rounded-2xl border border-stone-300 bg-stone-50 py-16 text-center">
