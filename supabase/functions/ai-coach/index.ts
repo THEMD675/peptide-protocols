@@ -201,7 +201,7 @@ serve(async (req) => {
       })
     }
 
-    // Server-side subscription check
+    // Server-side subscription check — allow limited free access
     const { data: sub } = await supabase
       .from('subscriptions')
       .select('status, tier, trial_ends_at')
@@ -212,14 +212,7 @@ serve(async (req) => {
     const trialEnd = sub?.trial_ends_at ? new Date(sub.trial_ends_at) : null
     const isTrialValid = sub?.status === 'trial' && trialEnd && trialEnd > now
     const isActive = sub?.status === 'active'
-    const hasAccess = isTrialValid || isActive
-
-    if (!hasAccess) {
-      return new Response(JSON.stringify({ error: 'يرجى الاشتراك للوصول إلى المدرب الذكي' }), {
-        status: 403,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      })
-    }
+    const hasFullAccess = isTrialValid || isActive
 
     let body: { messages?: unknown; stream?: unknown }
     try {
@@ -247,6 +240,17 @@ serve(async (req) => {
     if (invalidMsg) {
       return new Response(JSON.stringify({ error: 'Each message must have a valid role and string content' }), {
         status: 400,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      })
+    }
+
+    // Server-side message limit based on subscription
+    const isElite = hasFullAccess && sub?.tier === 'elite'
+    const serverLimit = isElite ? MAX_USER_MESSAGES : hasFullAccess ? 15 : 5
+    const userMsgCount = messages.filter((m: { role: string }) => m.role === 'user').length
+    if (userMsgCount > serverLimit) {
+      return new Response(JSON.stringify({ error: 'وصلت حد الأسئلة — اشترك للمزيد' }), {
+        status: 403,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       })
     }
