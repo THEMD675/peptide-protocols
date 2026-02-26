@@ -235,17 +235,23 @@ export default function DoseCalculator() {
   const syringe = SYRINGE_OPTIONS[syringeIdx];
   const recommendedWater = getRecommendedWater(vialMg);
 
+  const [dosesPerDay, setDosesPerDay] = useState(1);
+  const [vialPrice, setVialPrice] = useState(0);
+
   const results = useMemo(() => {
     const doseMcg = doseUnit === 'mg' ? doseValue * 1000 : doseValue;
     if (vialMg <= 0 || waterMl <= 0 || doseMcg <= 0) {
-      return { concentration: 0, volumeMl: 0, syringeUnits: 0, dosesPerVial: 0, doseMcg };
+      return { concentration: 0, volumeMl: 0, syringeUnits: 0, dosesPerVial: 0, doseMcg, monthlyVials: 0, monthlyCost: 0, daysPerVial: 0 };
     }
     const concentration = (vialMg * 1000) / waterMl;
     const volumeMl = doseMcg / concentration;
     const syringeUnits = volumeMl * syringe.units / syringe.ml;
     const dosesPerVial = (vialMg * 1000) / doseMcg;
-    return { concentration, volumeMl, syringeUnits, dosesPerVial, doseMcg };
-  }, [doseUnit, doseValue, vialMg, waterMl, syringe]);
+    const daysPerVial = dosesPerVial / dosesPerDay;
+    const monthlyVials = 30 / daysPerVial;
+    const monthlyCost = vialPrice > 0 ? monthlyVials * vialPrice : 0;
+    return { concentration, volumeMl, syringeUnits, dosesPerVial, doseMcg, monthlyVials, monthlyCost, daysPerVial };
+  }, [doseUnit, doseValue, vialMg, waterMl, syringe, dosesPerDay, vialPrice]);
 
   const fmt = (n: number, d = 2) => (isFinite(n) && n > 0 ? n.toFixed(d) : '—');
 
@@ -430,6 +436,27 @@ export default function DoseCalculator() {
             </div>
           </div>
 
+          {/* Frequency + Cost */}
+          <div className="mb-8 grid gap-5 md:grid-cols-2">
+            <div className="space-y-2">
+              <label className="block text-sm font-medium text-stone-800">عدد الجرعات يوميًا</label>
+              <div className="flex rounded-xl border border-stone-300 bg-stone-50 p-1">
+                {[1, 2, 3].map(n => (
+                  <button key={n} onClick={() => setDosesPerDay(n)}
+                    className={cn('flex-1 rounded-lg py-2 text-sm font-medium transition-all', dosesPerDay === n ? 'bg-emerald-600 text-white' : 'text-stone-700 hover:text-stone-900')}
+                  >
+                    {n}x / يوم
+                  </button>
+                ))}
+              </div>
+            </div>
+            <div className="space-y-2">
+              <label className="block text-sm font-medium text-stone-800">سعر القارورة ($ — اختياري)</label>
+              <input type="number" min={0} step={5} value={vialPrice || ''} onChange={e => setVialPrice(Number(e.target.value))} placeholder="مثال: 40"
+                className="w-full rounded-xl border border-stone-300 bg-stone-50 px-4 py-3 text-base text-stone-900 placeholder:text-stone-400 focus:border-emerald-300 focus:outline-none focus:ring-1 focus:ring-emerald-200" />
+            </div>
+          </div>
+
           {/* Results + Syringe Visual */}
           <div className="flex flex-col items-stretch gap-6 md:flex-row">
             {/* Result Cards */}
@@ -476,30 +503,37 @@ export default function DoseCalculator() {
             </div>
           )}
 
-          {/* Vial Lifespan + Log Action */}
+          {/* Monthly Planning */}
           {isFinite(results.dosesPerVial) && results.dosesPerVial > 0 && (
-            <div className="mt-6 grid gap-4 sm:grid-cols-2">
+            <div className="mt-6 grid gap-4 sm:grid-cols-3">
               <div className="rounded-xl border border-stone-200 bg-white p-4">
-                <p className="text-xs font-semibold text-stone-500 mb-1">عمر القارورة بهذه الجرعة</p>
-                {results.dosesPerVial >= 1 && (
-                  <div>
-                    <p className="text-lg font-bold text-stone-900">
-                      {results.dosesPerVial <= 2 ? `${fmt(results.dosesPerVial, 0)} جرعات` :
-                       results.dosesPerVial <= 7 ? `~${Math.floor(results.dosesPerVial)} أيام (جرعة/يوم)` :
-                       `~${Math.floor(results.dosesPerVial / 7)} أسابيع (جرعة/يوم)`}
-                    </p>
-                    <p className="text-xs text-stone-500 mt-1">
-                      {fmt(results.dosesPerVial, 0)} جرعة في القارورة الواحدة
-                    </p>
-                  </div>
+                <p className="text-xs font-semibold text-stone-500 mb-1">عمر القارورة</p>
+                <p className="text-lg font-bold text-stone-900">
+                  {results.daysPerVial < 1 ? 'أقل من يوم' :
+                   results.daysPerVial <= 7 ? `${Math.floor(results.daysPerVial)} أيام` :
+                   `~${Math.floor(results.daysPerVial / 7)} أسابيع`}
+                </p>
+                <p className="text-xs text-stone-500 mt-1">
+                  {fmt(results.dosesPerVial, 0)} جرعة × {dosesPerDay}/يوم
+                </p>
+              </div>
+              <div className="rounded-xl border border-stone-200 bg-white p-4">
+                <p className="text-xs font-semibold text-stone-500 mb-1">قوارير في الشهر</p>
+                <p className="text-lg font-bold text-stone-900">
+                  {Math.ceil(results.monthlyVials)} قوارير
+                </p>
+                {results.monthlyCost > 0 && (
+                  <p className="text-xs font-bold text-emerald-600 mt-1">
+                    ~${Math.round(results.monthlyCost)}/شهر
+                  </p>
                 )}
               </div>
               <Link
-                to={`/tracker`}
-                className="flex items-center justify-center gap-2 rounded-xl border-2 border-emerald-200 bg-emerald-50 p-4 font-bold text-emerald-700 transition-all hover:bg-emerald-100 hover:shadow-md"
+                to="/tracker"
+                className="flex flex-col items-center justify-center gap-1 rounded-xl border-2 border-emerald-200 bg-emerald-50 p-4 font-bold text-emerald-700 transition-all hover:bg-emerald-100 hover:shadow-md"
               >
                 <Syringe className="h-5 w-5" />
-                سجّل هذه الحقنة في سجل الحقن
+                <span className="text-sm">سجّل الحقنة</span>
               </Link>
             </div>
           )}

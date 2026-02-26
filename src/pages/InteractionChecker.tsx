@@ -60,13 +60,27 @@ function checkInteraction(id1: string, id2: string): InteractionResult {
 }
 
 export default function InteractionChecker() {
-  const [peptide1, setPeptide1] = useState('');
-  const [peptide2, setPeptide2] = useState('');
+  const [selected, setSelected] = useState<string[]>(['', '']);
 
-  const result = useMemo(() => {
-    if (!peptide1 || !peptide2 || peptide1 === peptide2) return null;
-    return checkInteraction(peptide1, peptide2);
-  }, [peptide1, peptide2]);
+  const addSlot = () => { if (selected.length < 5) setSelected(prev => [...prev, '']); };
+  const removeSlot = (idx: number) => { if (selected.length > 2) setSelected(prev => prev.filter((_, i) => i !== idx)); };
+  const updateSlot = (idx: number, val: string) => setSelected(prev => prev.map((v, i) => i === idx ? val : v));
+
+  const filledPeptides = selected.filter(s => s.trim() !== '');
+  const pairs = useMemo(() => {
+    const results: { id1: string; id2: string; result: InteractionResult }[] = [];
+    for (let i = 0; i < filledPeptides.length; i++) {
+      for (let j = i + 1; j < filledPeptides.length; j++) {
+        if (filledPeptides[i] !== filledPeptides[j]) {
+          results.push({ id1: filledPeptides[i], id2: filledPeptides[j], result: checkInteraction(filledPeptides[i], filledPeptides[j]) });
+        }
+      }
+    }
+    return results;
+  }, [filledPeptides]);
+
+  const hasAnyDanger = pairs.some(p => !p.result.safe);
+  const hasAnyWarning = pairs.some(p => p.result.warning);
 
   const sortedPeptides = useMemo(() => [...peptides].sort((a, b) => a.nameEn.localeCompare(b.nameEn)), []);
 
@@ -90,74 +104,81 @@ export default function InteractionChecker() {
           </p>
         </div>
 
-        <div className="mb-8 grid gap-4 sm:grid-cols-2">
-          <div>
-            <label className="mb-2 block text-sm font-bold text-stone-900">الببتيد الأول</label>
-            <select
-              value={peptide1}
-              onChange={(e) => setPeptide1(e.target.value)}
-              className="w-full rounded-xl border border-stone-300 bg-stone-50 px-4 py-3 text-sm text-stone-900 focus:border-emerald-300 focus:outline-none"
-            >
-              <option value="">اختر ببتيد...</option>
-              {sortedPeptides.map(p => (
-                <option key={p.id} value={p.id}>{p.nameAr} ({p.nameEn})</option>
-              ))}
-            </select>
-          </div>
-          <div>
-            <label className="mb-2 block text-sm font-bold text-stone-900">الببتيد الثاني</label>
-            <select
-              value={peptide2}
-              onChange={(e) => setPeptide2(e.target.value)}
-              className="w-full rounded-xl border border-stone-300 bg-stone-50 px-4 py-3 text-sm text-stone-900 focus:border-emerald-300 focus:outline-none"
-            >
-              <option value="">اختر ببتيد...</option>
-              {sortedPeptides.filter(p => p.id !== peptide1).map(p => (
-                <option key={p.id} value={p.id}>{p.nameAr} ({p.nameEn})</option>
-              ))}
-            </select>
-          </div>
+        <div className="mb-6 space-y-3">
+          {selected.map((sel, idx) => (
+            <div key={idx} className="flex items-center gap-2">
+              <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-xs font-bold text-emerald-700">{idx + 1}</span>
+              <select
+                value={sel}
+                onChange={(e) => updateSlot(idx, e.target.value)}
+                className="flex-1 rounded-xl border border-stone-300 bg-stone-50 px-4 py-3 text-sm text-stone-900 focus:border-emerald-300 focus:outline-none"
+              >
+                <option value="">اختر ببتيد...</option>
+                {sortedPeptides.map(p => (
+                  <option key={p.id} value={p.id}>{p.nameAr} ({p.nameEn})</option>
+                ))}
+              </select>
+              {selected.length > 2 && (
+                <button onClick={() => removeSlot(idx)} className="rounded-lg p-2 text-stone-400 hover:bg-red-50 hover:text-red-500"><XCircle className="h-4 w-4" /></button>
+              )}
+            </div>
+          ))}
+          {selected.length < 5 && (
+            <button onClick={addSlot} className="flex w-full items-center justify-center gap-2 rounded-xl border-2 border-dashed border-stone-200 py-3 text-sm font-medium text-stone-500 hover:border-emerald-300 hover:text-emerald-600">
+              + أضف ببتيد آخر
+            </button>
+          )}
         </div>
 
-        {result && (
+        {/* Stack Summary */}
+        {filledPeptides.length >= 2 && (
           <div className={cn(
-            'rounded-2xl border-2 p-6',
-            !result.safe ? 'border-red-300 bg-red-50' :
-            result.warning ? 'border-amber-300 bg-amber-50' :
+            'mb-6 rounded-2xl border-2 p-5',
+            hasAnyDanger ? 'border-red-300 bg-red-50' :
+            hasAnyWarning ? 'border-amber-300 bg-amber-50' :
             'border-emerald-300 bg-emerald-50'
           )}>
-            <div className="flex items-center gap-3 mb-4">
-              {!result.safe ? (
-                <XCircle className="h-8 w-8 text-red-600 shrink-0" />
-              ) : result.warning ? (
-                <AlertTriangle className="h-8 w-8 text-amber-600 shrink-0" />
+            <div className="flex items-center gap-3 mb-3">
+              {hasAnyDanger ? (
+                <XCircle className="h-7 w-7 text-red-600 shrink-0" />
+              ) : hasAnyWarning ? (
+                <AlertTriangle className="h-7 w-7 text-amber-600 shrink-0" />
               ) : (
-                <CheckCircle className="h-8 w-8 text-emerald-600 shrink-0" />
+                <CheckCircle className="h-7 w-7 text-emerald-600 shrink-0" />
               )}
-              <div>
-                <p className={cn(
-                  'text-lg font-bold',
-                  !result.safe ? 'text-red-900' : result.warning ? 'text-amber-900' : 'text-emerald-900'
-                )}>
-                  {result.message}
-                </p>
-              </div>
+              <p className={cn('text-base font-bold', hasAnyDanger ? 'text-red-900' : hasAnyWarning ? 'text-amber-900' : 'text-emerald-900')}>
+                {hasAnyDanger ? 'تعارض خطير — لا تجمع هذه التجميعة' :
+                 hasAnyWarning ? 'يوجد تحذيرات — راجع التفاصيل' :
+                 `التجميعة آمنة — ${filledPeptides.length} ببتيدات بدون تعارضات`}
+              </p>
             </div>
-            <p className={cn(
-              'text-sm leading-relaxed',
-              !result.safe ? 'text-red-800' : result.warning ? 'text-amber-800' : 'text-emerald-800'
-            )}>
-              {result.details}
-            </p>
+          </div>
+        )}
 
-            <div className="mt-4 flex gap-2">
-              <Link to={`/peptide/${peptide1}`} className="rounded-full border border-stone-200 bg-white px-4 py-2 text-xs font-medium text-stone-700 hover:bg-stone-50">
-                {peptides.find(p => p.id === peptide1)?.nameAr}
-              </Link>
-              <Link to={`/peptide/${peptide2}`} className="rounded-full border border-stone-200 bg-white px-4 py-2 text-xs font-medium text-stone-700 hover:bg-stone-50">
-                {peptides.find(p => p.id === peptide2)?.nameAr}
-              </Link>
-            </div>
+        {/* Pair-by-pair details */}
+        {pairs.length > 0 && (
+          <div className="space-y-3 mb-6">
+            {pairs.map((pair, idx) => {
+              const p1 = peptides.find(p => p.id === pair.id1);
+              const p2 = peptides.find(p => p.id === pair.id2);
+              return (
+                <div key={idx} className={cn(
+                  'rounded-xl border p-4',
+                  !pair.result.safe ? 'border-red-200 bg-red-50/50' :
+                  pair.result.warning ? 'border-amber-200 bg-amber-50/50' :
+                  'border-emerald-200 bg-emerald-50/50'
+                )}>
+                  <div className="flex items-center gap-2 mb-2">
+                    {!pair.result.safe ? <XCircle className="h-4 w-4 text-red-500 shrink-0" /> :
+                     pair.result.warning ? <AlertTriangle className="h-4 w-4 text-amber-500 shrink-0" /> :
+                     <CheckCircle className="h-4 w-4 text-emerald-500 shrink-0" />}
+                    <span className="text-sm font-bold text-stone-900" dir="ltr">{p1?.nameEn} + {p2?.nameEn}</span>
+                  </div>
+                  <p className="text-sm font-semibold text-stone-800">{pair.result.message}</p>
+                  <p className="text-xs text-stone-600 mt-1 leading-relaxed">{pair.result.details}</p>
+                </div>
+              );
+            })}
           </div>
         )}
 

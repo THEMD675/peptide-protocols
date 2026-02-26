@@ -1,10 +1,11 @@
-import { useMemo } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import { useParams, Link, Navigate } from 'react-router-dom';
-import { ArrowRight, Shield, AlertTriangle, CheckCircle, Lock, Calculator, Bot, FlaskConical, Printer } from 'lucide-react';
+import { ArrowRight, Shield, AlertTriangle, CheckCircle, Lock, Calculator, Bot, FlaskConical, Printer, MessageSquare, Star } from 'lucide-react';
 import { Helmet } from 'react-helmet-async';
 import { cn } from '@/lib/utils';
 import { peptides } from '@/data/peptides';
 import { useAuth } from '@/contexts/AuthContext';
+import { supabase } from '@/lib/supabase';
 
 const evidenceColors: Record<string, string> = {
   excellent: 'bg-emerald-100 text-emerald-800 border-emerald-300',
@@ -288,6 +289,9 @@ export default function PeptideDetail() {
               </div>
             </div>
           )}
+
+          {/* Community experiences for this peptide */}
+          <PeptideExperiences peptideNameEn={peptide.nameEn} />
         </>) : isFreeContent ? (
           /* ── Free peptide, non-subscriber: 3 preview rows + gradient CTA ── */
           <div
@@ -388,6 +392,49 @@ export default function PeptideDetail() {
             </div>
           </div>
         )}
+      </div>
+    </div>
+  );
+}
+
+function PeptideExperiences({ peptideNameEn }: { peptideNameEn: string }) {
+  const [experiences, setExperiences] = useState<{ id: string; results: string; rating: number; duration_weeks: number; created_at: string }[]>([]);
+
+  useEffect(() => {
+    supabase
+      .from('community_logs')
+      .select('id, results, rating, duration_weeks, created_at')
+      .ilike('peptide_name', `%${peptideNameEn}%`)
+      .order('created_at', { ascending: false })
+      .limit(3)
+      .then(({ data }) => { if (data) setExperiences(data); });
+  }, [peptideNameEn]);
+
+  if (experiences.length === 0) return null;
+
+  return (
+    <div className="mt-8">
+      <div className="flex items-center justify-between mb-4">
+        <h3 className="flex items-center gap-2 text-lg font-bold text-stone-900">
+          <MessageSquare className="h-5 w-5 text-emerald-600" />
+          تجارب المستخدمين
+        </h3>
+        <Link to="/community" className="text-xs font-semibold text-emerald-600 hover:underline">عرض الكل</Link>
+      </div>
+      <div className="space-y-3">
+        {experiences.map(exp => (
+          <div key={exp.id} className="rounded-xl border border-stone-200 bg-stone-50 p-4">
+            <div className="flex items-center justify-between mb-2">
+              <div className="flex gap-0.5">
+                {[1, 2, 3, 4, 5].map(s => (
+                  <Star key={s} className={cn('h-3.5 w-3.5', s <= exp.rating ? 'fill-emerald-500 text-emerald-500' : 'text-stone-300')} />
+                ))}
+              </div>
+              <span className="text-xs text-stone-500">{exp.duration_weeks} أسابيع</span>
+            </div>
+            <p className="text-sm text-stone-800 leading-relaxed line-clamp-3">{exp.results}</p>
+          </div>
+        ))}
       </div>
     </div>
   );

@@ -1,8 +1,16 @@
 import { Helmet } from 'react-helmet-async';
 import { Link } from 'react-router-dom';
-import { Layers } from 'lucide-react';
+import { Layers, Clock, DollarSign, BarChart3 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { stacks, peptides, categories } from '@/data/peptides';
+
+const STACK_META: Record<string, { difficulty: string; cost: string; duration: string }> = {
+  'golden-recovery': { difficulty: 'مبتدئ', cost: '$120-180/شهر', duration: '4-6 أسابيع' },
+  'gh-optimization': { difficulty: 'متوسط', cost: '$200-350/شهر', duration: '8-12 أسبوع' },
+  'brain-performance': { difficulty: 'مبتدئ', cost: '$70-100/شهر', duration: '4 أسابيع مع راحة' },
+  'longevity-protocol': { difficulty: 'متقدم', cost: '$270/دورة', duration: '20 يوم كل 6 أشهر' },
+  'gut-repair': { difficulty: 'متوسط', cost: '$160-270/شهر', duration: '8-12 أسبوع' },
+};
 
 function getCategoryLabel(categoryId: string) {
   return categories.find((c) => c.id === categoryId)?.nameAr ?? categoryId;
@@ -72,9 +80,27 @@ export default function Stacks() {
               </h2>
 
               {/* Goal — always visible */}
-              <p className="mb-4 text-sm leading-relaxed" >
+              <p className="mb-3 text-sm leading-relaxed text-stone-700" >
                 {stack.goalAr}
               </p>
+
+              {/* Stack meta — always visible */}
+              {STACK_META[stack.id] && (
+                <div className="mb-4 flex flex-wrap gap-2">
+                  <span className="flex items-center gap-1 rounded-full border border-stone-200 bg-stone-50 px-2.5 py-1 text-[11px] font-medium text-stone-700">
+                    <BarChart3 className="h-3 w-3" />
+                    {STACK_META[stack.id].difficulty}
+                  </span>
+                  <span className="flex items-center gap-1 rounded-full border border-stone-200 bg-stone-50 px-2.5 py-1 text-[11px] font-medium text-stone-700">
+                    <DollarSign className="h-3 w-3" />
+                    {STACK_META[stack.id].cost}
+                  </span>
+                  <span className="flex items-center gap-1 rounded-full border border-stone-200 bg-stone-50 px-2.5 py-1 text-[11px] font-medium text-stone-700">
+                    <Clock className="h-3 w-3" />
+                    {STACK_META[stack.id].duration}
+                  </span>
+                </div>
+              )}
 
               {/* Peptide name chips — always visible */}
               <div className="mb-4">
