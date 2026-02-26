@@ -23,6 +23,7 @@ import {
 } from 'lucide-react';
 import EmailCapture from '@/components/EmailCapture';
 import PeptideQuiz from '@/components/PeptideQuiz';
+import { PRICING, PEPTIDE_COUNT } from '@/lib/constants';
 
 
 const PAIN_POINTS = [
@@ -33,7 +34,7 @@ const PAIN_POINTS = [
 ];
 
 const VALUE_STACK = [
-  { item: 'مكتبة 41 ببتيد مع بروتوكولات كاملة', value: '$297' },
+  { item: `مكتبة ${PEPTIDE_COUNT} ببتيد مع بروتوكولات كاملة`, value: '$297' },
   { item: 'حاسبة جرعات دقيقة (مايكروغرام + سيرنج)', value: '$97' },
   { item: 'دليل تحاليل مخبرية شامل (11 تحليل)', value: '$147' },
   { item: 'بروتوكولات مُجمَّعة حسب الهدف', value: '$197' },
@@ -44,7 +45,7 @@ const VALUE_STACK = [
 const FEATURES = [
   {
     icon: FlaskConical,
-    title: '41 ببتيد مع بروتوكول كامل',
+    title: `${PEPTIDE_COUNT} ببتيد مع بروتوكول كامل`,
     description: 'الآلية، الجرعة، التوقيت، الأعراض الجانبية، ومستوى الأدلة — كل شيء في بطاقة واحدة.',
   },
   {
@@ -76,7 +77,7 @@ const FEATURES = [
 
 const FALLBACK_TESTIMONIALS = [
   {
-    text: 'كنت أدفع $200 استشارة كل شهر. الآن عندي كل المعلومات بـ $9 فقط.',
+    text: `كنت أدفع $200 استشارة كل شهر. الآن عندي كل المعلومات بـ ${PRICING.essentials.label} فقط.`,
     name: 'خالد م.',
     role: 'مستخدم منذ 4 أشهر',
   },
@@ -150,7 +151,7 @@ export default function Landing() {
         <div className="relative mx-auto max-w-5xl px-6 pb-20 pt-10 text-center md:pt-16 md:pb-28">
           <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 px-5 py-2 text-sm font-semibold text-emerald-700">
             <Zap className="h-4 w-4" />
-            <span>أول مرجع عربي شامل — 41 ببتيد علاجي</span>
+            <span>أول مرجع عربي شامل — {PEPTIDE_COUNT} ببتيد علاجي</span>
           </div>
 
           <h1 className="mb-6 text-4xl font-extrabold leading-[1.1] tracking-tight text-stone-900 sm:text-5xl md:text-6xl lg:text-7xl">
@@ -203,7 +204,7 @@ export default function Landing() {
       <section className="relative z-10 -mt-12 mx-auto max-w-5xl px-6">
         <div className="grid grid-cols-2 gap-4 rounded-2xl border border-stone-300/60 bg-white p-8 shadow-xl md:grid-cols-5 md:gap-0 md:divide-x md:divide-x-reverse md:divide-stone-100">
           {[
-            { value: '41+', label: 'ببتيد علاجي', sub: 'بروتوكولات كاملة' },
+            { value: `${PEPTIDE_COUNT}+`, label: 'ببتيد علاجي', sub: 'بروتوكولات كاملة' },
             { value: '6', label: 'فئات متخصصة', sub: 'من الأيض للدماغ' },
             { value: '11', label: 'تحليل مخبري', sub: 'قبل وأثناء وبعد' },
             { value: '85+', label: 'مصدر علمي', sub: 'دراسات سريرية' },
@@ -279,7 +280,7 @@ export default function Landing() {
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {FEATURES.map((f, i) => {
               const links: Record<string, string> = {
-                '41 ببتيد مع بروتوكول كامل': '/library',
+                [`${PEPTIDE_COUNT} ببتيد مع بروتوكول كامل`]: '/library',
                 'حاسبة جرعات لا تخطئ': '/calculator',
                 'دليل تحاليل يحميك': '/lab-guide',
                 'بروتوكولات مُجمَّعة جاهزة': '/stacks',
@@ -478,8 +479,8 @@ export default function Landing() {
           <p className="mb-1 text-lg text-stone-800">القيمة الإجمالية:</p>
           <p className="mb-2 text-3xl font-extrabold text-stone-800 line-through">$882+</p>
           <p className="mb-1 text-lg text-stone-800">أنت تدفع فقط:</p>
-          <p className="text-5xl font-black text-emerald-600 md:text-6xl">$9<span className="text-xl font-bold text-stone-800">/شهريًا</span></p>
-          <p className="mt-4 text-sm text-stone-800">أو $99/شهريًا للباقة المتقدمة مع المدرب الذكي + استشارات</p>
+          <p className="text-5xl font-black text-emerald-600 md:text-6xl">{PRICING.essentials.label}<span className="text-xl font-bold text-stone-800">/شهريًا</span></p>
+          <p className="mt-4 text-sm text-stone-800">أو {PRICING.elite.label}/شهريًا للباقة المتقدمة مع المدرب الذكي + استشارات</p>
         </div>
       </section>
 
@@ -573,12 +574,12 @@ export default function Landing() {
               <h3 className="mb-1 text-xl font-bold text-stone-900">Essentials</h3>
               <p className="mb-6 text-sm text-stone-800">كل الأدوات الأساسية</p>
               <div className="mb-6">
-                <span className="text-5xl font-black text-stone-900">$9</span>
+                <span className="text-5xl font-black text-stone-900">{PRICING.essentials.label}</span>
                 <span className="text-base text-stone-800"> /شهريًا</span>
               </div>
               <ul className="mb-8 flex-1 space-y-3">
                 {[
-                  'بطاقات البروتوكول الكاملة لـ 41 ببتيد',
+                  `بطاقات البروتوكول الكاملة لـ ${PEPTIDE_COUNT} ببتيد`,
                   'حاسبة الجرعات الدقيقة',
                   'دليل التحاليل المخبرية',
                   'البروتوكولات المُجمَّعة',
@@ -610,7 +611,7 @@ export default function Landing() {
               </div>
               <p className="mb-6 text-sm text-stone-800">كل شيء + مدرب ذكي + استشارات</p>
               <div className="mb-6">
-                <span className="text-5xl font-black text-stone-900">$99</span>
+                <span className="text-5xl font-black text-stone-900">{PRICING.elite.label}</span>
                 <span className="text-base text-stone-800"> /شهريًا</span>
               </div>
               <ul className="mb-8 flex-1 space-y-3">

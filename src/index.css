@@ -275,9 +275,10 @@
 }
 
 @media print {
-  header, footer, .age-gate, .trial-banner, .print\\:hidden {
+  header, footer, .age-gate, .trial-banner, .fixed, nav, button, .print\\:hidden {
     display: none !important;
   }
+  .blur-sm, [style*="blur"] { filter: none !important; }
   body {
     background: white !important;
     color: black !important;

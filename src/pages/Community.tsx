@@ -1,8 +1,10 @@
 import { useState, useEffect } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { Link } from 'react-router-dom';
-import { MessageSquare, Send, Clock, FlaskConical, User } from 'lucide-react';
+import { MessageSquare, Send, Clock, FlaskConical, User, Flag } from 'lucide-react';
+import { toast } from 'sonner';
 import { useAuth } from '@/contexts/AuthContext';
+import { PRICING } from '@/lib/constants';
 import { supabase } from '@/lib/supabase';
 import { cn } from '@/lib/utils';
 import { peptides as allPeptides } from '@/data/peptides';
@@ -86,7 +88,7 @@ export default function Community() {
     setSubmitting(false);
 
     if (error) {
-      import('sonner').then(m => m.toast.error('حدث خطأ أثناء النشر. حاول مرة أخرى.'));
+      toast.error('حدث خطأ أثناء النشر. حاول مرة أخرى.');
       return;
     }
 
@@ -276,7 +278,7 @@ export default function Community() {
             <p className="font-bold text-stone-900">اشترك لمشاركة تجربتك مع المجتمع</p>
             <p className="mt-1 text-sm text-stone-800">المشتركون فقط يمكنهم نشر تجاربهم</p>
             <Link to="/pricing" className="mt-3 inline-block rounded-full bg-emerald-600 px-8 py-2.5 text-sm font-bold text-white hover:bg-emerald-700">
-              اشترك — $9/شهريًا
+              اشترك — {PRICING.essentials.label}/شهريًا
             </Link>
           </div>
         )}
@@ -341,16 +343,25 @@ export default function Community() {
                       )}
                     </div>
                   </div>
-                  <div className="flex items-center gap-1">
-                    {[...Array(5)].map((_, i) => (
-                      <div
-                        key={i}
-                        className={cn(
-                          'h-2 w-2 rounded-full',
-                          i < log.rating ? 'bg-emerald-500' : 'bg-stone-200'
-                        )}
-                      />
-                    ))}
+                  <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-1">
+                      {[...Array(5)].map((_, i) => (
+                        <div
+                          key={i}
+                          className={cn(
+                            'h-2 w-2 rounded-full',
+                            i < log.rating ? 'bg-emerald-500' : 'bg-stone-200'
+                          )}
+                        />
+                      ))}
+                    </div>
+                    <button
+                      onClick={() => { toast.success('تم الإبلاغ — سنراجع المحتوى'); }}
+                      className="rounded-lg p-1.5 text-stone-300 hover:text-red-500 hover:bg-red-50 transition-colors"
+                      aria-label="إبلاغ"
+                    >
+                      <Flag className="h-3.5 w-3.5" />
+                    </button>
                   </div>
                 </div>
 

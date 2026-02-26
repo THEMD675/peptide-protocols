@@ -16,12 +16,13 @@ import {
   Flame,
   TrendingUp,
 } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { cn, arPlural } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
+import { PEPTIDE_COUNT } from '@/lib/constants';
 
 const QUICK_LINKS = [
-  { to: '/library', label: 'المكتبة', description: 'تصفّح 41+ ببتيد', Icon: BookOpen },
+  { to: '/library', label: 'المكتبة', description: `تصفّح ${PEPTIDE_COUNT}+ ببتيد`, Icon: BookOpen },
   { to: '/calculator', label: 'الحاسبة', description: 'احسب جرعتك بدقة', Icon: Calculator },
   { to: '/coach', label: 'المدرب الذكي', description: 'اسأل خبير الببتيدات', Icon: Bot },
   { to: '/lab-guide', label: 'دليل التحاليل', description: '11 تحليل أساسي', Icon: FlaskConical },
@@ -124,34 +125,11 @@ function useRecentActivity(userId: string | undefined) {
 }
 
 export default function Dashboard() {
-  const { user, subscription, isLoading: isAuthLoading } = useAuth();
+  const { user, subscription } = useAuth();
   const { visited, markVisited } = useVisitedPages();
   const activity = useRecentActivity(user?.id);
 
-  if (isAuthLoading) return <div className="flex min-h-[50vh] items-center justify-center"><div className="h-8 w-8 animate-spin rounded-full border-4 border-emerald-200 border-t-emerald-600" /></div>;
-  if (!user) {
-    return (
-      <div className="min-h-screen bg-white">
-        <Helmet>
-          <title>لوحة التحكم — pptides | Dashboard</title>
-          <meta name="description" content="لوحة التحكم الرئيسية لإدارة حسابك في pptides. Your pptides dashboard." />
-        </Helmet>
-        <div className="flex min-h-[70vh] flex-col items-center justify-center px-6 text-center">
-          <div className="flex h-16 w-16 items-center justify-center rounded-full bg-emerald-100 mb-4">
-            <LayoutDashboard className="h-7 w-7 text-emerald-600" />
-          </div>
-          <p className="text-xl font-bold text-stone-900">سجّل الدخول للوصول إلى لوحة التحكم</p>
-          <p className="mt-2 text-sm text-stone-600">ابدأ رحلتك مع الببتيدات</p>
-          <Link
-            to="/login"
-            className="mt-4 rounded-full bg-emerald-600 px-10 py-3 text-sm font-bold text-white transition-all hover:bg-emerald-700"
-          >
-            تسجيل الدخول
-          </Link>
-        </div>
-      </div>
-    );
-  }
+  if (!user) return null;
 
   const displayName = user.email?.split('@')[0] ?? 'مستخدم';
 
@@ -202,7 +180,7 @@ export default function Dashboard() {
           </span>
           {subscription.status === 'trial' && subscription.trialDaysLeft > 0 && (
             <span className="text-sm text-amber-600 font-bold">
-              {subscription.trialDaysLeft === 1 ? 'يوم واحد متبقي' : subscription.trialDaysLeft === 2 ? 'يومان متبقيان' : `${subscription.trialDaysLeft} أيام متبقية`}
+              {arPlural(subscription.trialDaysLeft, 'يوم واحد متبقي', 'يومان متبقيان', 'أيام متبقية')}
             </span>
           )}
         </div>

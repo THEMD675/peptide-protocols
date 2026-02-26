@@ -1,10 +1,8 @@
 import { useState, useEffect } from 'react';
 import { Helmet } from 'react-helmet-async';
-import { Link } from 'react-router-dom';
 import {
   Syringe,
   Plus,
-  Lock,
   Loader2,
   Calendar,
   MapPin,
@@ -17,6 +15,7 @@ import {
   Trash2,
   Download,
 } from 'lucide-react';
+import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
@@ -54,7 +53,7 @@ function formatTime(iso: string) {
 }
 
 export default function Tracker() {
-  const { user, isLoading: isAuthLoading } = useAuth();
+  const { user } = useAuth();
   const [logs, setLogs] = useState<InjectionLog[]>([]);
   const [isLoadingLogs, setIsLoadingLogs] = useState(true);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
@@ -155,36 +154,11 @@ export default function Tracker() {
       setInjectedAt(now.toISOString().slice(0, 16));
       await fetchLogs();
     } catch {
-      import('sonner').then(m => m.toast.error('حدث خطأ أثناء الحفظ. حاول مرة أخرى.'));
+      toast.error('حدث خطأ أثناء الحفظ. حاول مرة أخرى.');
     } finally {
       setIsSubmitting(false);
     }
   };
-
-  if (isAuthLoading) return <div className="flex min-h-[50vh] items-center justify-center"><div className="h-8 w-8 animate-spin rounded-full border-4 border-emerald-200 border-t-emerald-600" /></div>;
-  if (!user) {
-    return (
-      <div className="min-h-screen bg-white">
-        <Helmet>
-          <title>سجل الحقن — تتبّع جرعاتك | Injection Tracker</title>
-          <meta name="description" content="سجّل وتتبّع حقن الببتيدات والجرعات اليومية. Track your peptide injections and daily doses." />
-        </Helmet>
-        <div className="flex min-h-[70vh] flex-col items-center justify-center px-6 text-center">
-          <div className="flex h-16 w-16 items-center justify-center rounded-full bg-emerald-100 mb-4">
-            <Lock className="h-7 w-7 text-emerald-600" />
-          </div>
-          <p className="text-xl font-bold text-stone-900">سجّل الدخول لتتبّع حقنك</p>
-          <p className="mt-2 text-sm text-stone-600">سجّل جرعاتك وتابع تاريخك الطبي</p>
-          <Link
-            to="/login"
-            className="mt-4 rounded-full bg-emerald-600 px-10 py-3 text-sm font-bold text-white transition-all hover:bg-emerald-700"
-          >
-            تسجيل الدخول
-          </Link>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <main className="mx-auto max-w-3xl px-4 pb-24 pt-24 md:px-6 md:pt-28">
@@ -370,9 +344,9 @@ export default function Tracker() {
                         notes: null,
                       });
                       await fetchLogs();
-                      import('sonner').then(m => m.toast.success(`تم تسجيل ${last.peptide_name} — ${last.dose} ${last.unit}`));
+                      toast.success(`تم تسجيل ${last.peptide_name} — ${last.dose} ${last.unit}`);
                     } catch {
-                      import('sonner').then(m => m.toast.error('حدث خطأ'));
+                      toast.error('حدث خطأ');
                     } finally {
                       setIsSubmitting(false);
                     }
@@ -551,8 +525,13 @@ export default function Tracker() {
                           message: `حذف سجل ${log.peptide_name} — ${log.dose} ${log.unit}؟`,
                           onConfirm: async () => {
                             setConfirmDialog(null);
-                            await supabase.from('injection_logs').delete().eq('id', log.id);
+                            const deletedLog = logs.find(l => l.id === log.id);
                             setLogs(prev => prev.filter(l => l.id !== log.id));
+                            const { error } = await supabase.from('injection_logs').delete().eq('id', log.id);
+                            if (error) {
+                              if (deletedLog) setLogs(prev => [deletedLog, ...prev]);
+                              toast.error('فشل الحذف — حاول مرة أخرى');
+                            }
                           },
                         });
                       }}

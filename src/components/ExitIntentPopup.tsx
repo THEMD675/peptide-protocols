@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { X, Gift, ArrowLeft } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
+import { PEPTIDE_COUNT } from '@/lib/constants';
 
 const STORAGE_KEY = 'exit_popup_shown';
 
@@ -46,7 +47,7 @@ export default function ExitIntentPopup() {
           لحظة — لا تفوّت الفرصة
         </h2>
         <p className="mb-1 text-stone-700">
-          41+ ببتيد مع بروتوكولات كاملة، حاسبة جرعات، ومدرب ذكي
+          {PEPTIDE_COUNT}+ ببتيد مع بروتوكولات كاملة، حاسبة جرعات، ومدرب ذكي
         </p>
         <div className="mb-4 flex items-center justify-center gap-2">
           <span className="text-3xl font-black text-emerald-600">3 أيام</span>

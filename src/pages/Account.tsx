@@ -1,8 +1,9 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Helmet } from 'react-helmet-async';
-import { Link, useNavigate } from 'react-router-dom';
-import { User, Crown, LogOut, Trash2, AlertTriangle, Mail, ArrowUpCircle } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { Link } from 'react-router-dom';
+import { User, Crown, LogOut, Trash2, AlertTriangle, Mail, ArrowUpCircle, KeyRound } from 'lucide-react';
+import { toast } from 'sonner';
+import { cn, arPlural } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
 
@@ -20,11 +21,12 @@ const STATUS_LABELS: Record<string, string> = {
 };
 
 export default function Account() {
-  const { user, subscription, logout, isLoading: isAuthLoading } = useAuth();
-  const navigate = useNavigate();
+  const { user, subscription, logout } = useAuth();
   const [showCancelDialog, setShowCancelDialog] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [newPassword, setNewPassword] = useState('');
+  const [passwordLoading, setPasswordLoading] = useState(false);
 
   const closeDialogs = useCallback(() => {
     setShowCancelDialog(false);
@@ -38,30 +40,19 @@ export default function Account() {
     return () => window.removeEventListener('keydown', handleKey);
   }, [showCancelDialog, showDeleteDialog, closeDialogs]);
 
-  if (isAuthLoading) return <div className="flex min-h-[50vh] items-center justify-center"><div className="h-8 w-8 animate-spin rounded-full border-4 border-emerald-200 border-t-emerald-600" /></div>;
-  if (!user) {
-    return (
-      <div className="min-h-screen bg-white">
-        <Helmet>
-          <title>حسابي — إدارة الاشتراك والإعدادات | My Account</title>
-          <meta name="description" content="إدارة حسابك واشتراكك في pptides. Manage your account and subscription." />
-        </Helmet>
-        <div className="flex min-h-[70vh] flex-col items-center justify-center px-6 text-center">
-          <div className="flex h-16 w-16 items-center justify-center rounded-full bg-emerald-100 mb-4">
-            <User className="h-7 w-7 text-emerald-600" />
-          </div>
-          <p className="text-xl font-bold text-stone-900">سجّل الدخول للوصول إلى حسابك</p>
-          <p className="mt-2 text-sm text-stone-600">أدِر اشتراكك وبياناتك الشخصية</p>
-          <Link
-            to="/login"
-            className="mt-4 rounded-full bg-emerald-600 px-10 py-3 text-sm font-bold text-white transition-all hover:bg-emerald-700"
-          >
-            تسجيل الدخول
-          </Link>
-        </div>
-      </div>
-    );
-  }
+  if (!user) return null;
+
+  const handleChangePassword = async () => {
+    if (newPassword.length < 6) { toast.error('كلمة المرور يجب أن تكون 6 أحرف على الأقل'); return; }
+    setPasswordLoading(true);
+    try {
+      const { error } = await supabase.auth.updateUser({ password: newPassword });
+      if (error) throw error;
+      toast.success('تم تغيير كلمة المرور بنجاح');
+      setNewPassword('');
+    } catch (e: any) { toast.error(e?.message ?? 'حدث خطأ'); }
+    finally { setPasswordLoading(false); }
+  };
 
   const handleCancelSubscription = async () => {
     setIsProcessing(true);
@@ -78,10 +69,10 @@ export default function Account() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
       setShowCancelDialog(false);
-      import('sonner').then(m => m.toast.success('تم إلغاء اشتراكك. ستحتفظ بالوصول حتى نهاية فترتك الحالية.'));
+      toast.success('تم إلغاء اشتراكك. ستحتفظ بالوصول حتى نهاية فترتك الحالية.');
       setTimeout(() => window.location.reload(), 2000);
     } catch {
-      import('sonner').then(m => m.toast.error('حدث خطأ أثناء الإلغاء. تواصل معنا: contact@pptides.com'));
+      toast.error('حدث خطأ أثناء الإلغاء. تواصل معنا: contact@pptides.com');
     } finally {
       setIsProcessing(false);
     }
@@ -102,7 +93,7 @@ export default function Account() {
       if (!res.ok) throw new Error();
       await logout();
     } catch {
-      import('sonner').then(m => m.toast.error('حدث خطأ أثناء حذف الحساب. تواصل معنا: contact@pptides.com'));
+      toast.error('حدث خطأ أثناء حذف الحساب. تواصل معنا: contact@pptides.com');
     } finally {
       setIsProcessing(false);
     }
@@ -131,6 +122,36 @@ export default function Account() {
             <h2 className="text-lg font-bold text-stone-900">البريد الإلكتروني</h2>
           </div>
           <p className="text-sm text-stone-700" dir="ltr">{user.email}</p>
+        </div>
+
+        {/* Change Password */}
+        <div className="rounded-2xl border border-stone-300 bg-stone-50 p-6">
+          <div className="flex items-center gap-3 mb-4">
+            <KeyRound className="h-5 w-5 text-emerald-600" />
+            <h2 className="text-lg font-bold text-stone-900">تغيير كلمة المرور</h2>
+          </div>
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
+            <div className="flex-1">
+              <label htmlFor="new-password" className="mb-1.5 block text-sm font-medium text-stone-700">كلمة المرور الجديدة</label>
+              <input
+                id="new-password"
+                type="password"
+                value={newPassword}
+                onChange={(e) => setNewPassword(e.target.value)}
+                placeholder="6 أحرف على الأقل"
+                dir="ltr"
+                minLength={6}
+                className="w-full rounded-xl border border-stone-300 bg-white px-4 py-3 text-left text-sm text-stone-900 placeholder:text-stone-400 outline-none transition-shadow focus:border-emerald-300 focus:ring-2 focus:ring-emerald-200"
+              />
+            </div>
+            <button
+              onClick={handleChangePassword}
+              disabled={passwordLoading || !newPassword}
+              className="rounded-xl bg-emerald-600 px-6 py-3 text-sm font-bold text-white transition-all hover:bg-emerald-700 disabled:opacity-50"
+            >
+              {passwordLoading ? '...' : 'تغيير'}
+            </button>
+          </div>
         </div>
 
         {/* Subscription Card */}
@@ -169,7 +190,7 @@ export default function Account() {
             {subscription.status === 'trial' && subscription.trialDaysLeft > 0 && (
               <div className="flex items-center justify-between">
                 <span className="text-sm text-stone-600">الأيام المتبقية</span>
-                <span className="text-sm font-bold text-amber-600">{subscription.trialDaysLeft === 1 ? 'يوم واحد' : subscription.trialDaysLeft === 2 ? 'يومان' : `${subscription.trialDaysLeft} أيام`}</span>
+                <span className="text-sm font-bold text-amber-600">{arPlural(subscription.trialDaysLeft, 'يوم واحد', 'يومان', 'أيام')}</span>
               </div>
             )}
           </div>

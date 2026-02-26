@@ -8,6 +8,7 @@ import Footer from '@/components/layout/Footer';
 import AgeGate from '@/components/AgeGate';
 import TrialBanner from '@/components/TrialBanner';
 import BackToTop from '@/components/BackToTop';
+import ProtectedRoute from '@/components/ProtectedRoute';
 import StickyScrollCTA from '@/components/StickyScrollCTA';
 import ExitIntentPopup from '@/components/ExitIntentPopup';
 import CookieConsent from '@/components/CookieConsent';
@@ -132,16 +133,16 @@ export default function App() {
               <Route path="/lab-guide" element={<LabGuide />} />
               <Route path="/guide" element={<Guide />} />
               <Route path="/pricing" element={<Pricing />} />
-              <Route path="/coach" element={<Coach />} />
+              <Route path="/coach" element={<ProtectedRoute><Coach /></ProtectedRoute>} />
               <Route path="/reviews" element={<Reviews />} />
               <Route path="/table" element={<PeptideTable />} />
               <Route path="/sources" element={<Sources />} />
               <Route path="/community" element={<Community />} />
               <Route path="/privacy" element={<Privacy />} />
               <Route path="/terms" element={<Terms />} />
-              <Route path="/account" element={<Account />} />
-              <Route path="/dashboard" element={<Dashboard />} />
-              <Route path="/tracker" element={<Tracker />} />
+              <Route path="/account" element={<ProtectedRoute><Account /></ProtectedRoute>} />
+              <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+              <Route path="/tracker" element={<ProtectedRoute><Tracker /></ProtectedRoute>} />
               <Route path="/glossary" element={<Glossary />} />
               <Route path="/interactions" element={<InteractionChecker />} />
               <Route path="*" element={<NotFound />} />

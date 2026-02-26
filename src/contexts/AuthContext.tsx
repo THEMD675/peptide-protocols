@@ -1,4 +1,5 @@
 import { createContext, useContext, useState, useEffect, useCallback, type ReactNode } from 'react';
+import { toast } from 'sonner';
 import { supabase } from '@/lib/supabase';
 import type { User as SupabaseUser, Session } from '@supabase/supabase-js';
 
@@ -132,7 +133,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     url.searchParams.delete('tier');
     window.history.replaceState({}, '', url.toString());
 
-    import('sonner').then(m => m.toast.success('شكرًا! جارٍ تفعيل اشتراكك...'));
+    toast.success('شكرًا! جارٍ تفعيل اشتراكك...');
 
     let cancelled = false;
     let timer: ReturnType<typeof setTimeout>;
@@ -149,13 +150,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (cancelled) return;
       if (data?.status === 'active') {
         await fetchSubscription(user.id);
-        import('sonner').then(m => m.toast.success('تم تفعيل اشتراكك بنجاح!'));
+        toast.success('تم تفعيل اشتراكك بنجاح!');
         return;
       }
       if (attempts < 10) { timer = setTimeout(poll, 3000); }
       else {
         await fetchSubscription(user.id);
-        import('sonner').then(m => m.toast('إذا لم يظهر اشتراكك، حدّث الصفحة بعد دقيقة.'));
+        toast('إذا لم يظهر اشتراكك، حدّث الصفحة بعد دقيقة.');
       }
     };
     poll();
@@ -245,7 +246,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const upgradeTo = (tier: 'essentials' | 'elite') => {
     const link = STRIPE_LINKS[tier];
     if (!link) {
-      import('sonner').then(m => m.toast.error('عذرًا — رابط الدفع غير متاح حاليًا. تواصل معنا: contact@pptides.com'));
+      toast.error('عذرًا — رابط الدفع غير متاح حاليًا. تواصل معنا: contact@pptides.com');
       return;
     }
 

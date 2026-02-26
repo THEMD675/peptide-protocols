@@ -4,14 +4,10 @@ import { Link } from 'react-router-dom';
 import { Check, Shield, Lock, CreditCard, RefreshCw, ChevronDown, MessageCircle, Crown, ArrowLeft } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { cn } from '@/lib/utils';
-
-const PRICES = {
-  essentials: { monthly: 9 },
-  elite: { monthly: 99 },
-};
+import { PRICING, PEPTIDE_COUNT } from '@/lib/constants';
 
 const essentialsFeatures = [
-  'بطاقات البروتوكول الكاملة لـ 41 ببتيد',
+  `بطاقات البروتوكول الكاملة لـ ${PEPTIDE_COUNT} ببتيد`,
   'حاسبة الجرعات الدقيقة',
   'دليل التحاليل المخبرية (11 تحليل)',
   'البروتوكولات المُجمَّعة حسب الهدف',
@@ -31,7 +27,7 @@ const eliteFeatures = [
 ];
 
 const valueStack = [
-  { item: 'مكتبة 41 ببتيد مع بروتوكولات كاملة', value: '$297' },
+  { item: `مكتبة ${PEPTIDE_COUNT} ببتيد مع بروتوكولات كاملة`, value: '$297' },
   { item: 'حاسبة جرعات دقيقة', value: '$97' },
   { item: 'دليل تحاليل مخبرية شامل', value: '$147' },
   { item: 'بروتوكولات مُجمَّعة جاهزة', value: '$197' },
@@ -172,7 +168,7 @@ export default function Pricing() {
             <p className="mb-6 text-stone-800">كل الأدوات الأساسية التي تحتاجها</p>
 
             <div className="mb-2">
-              <span className="text-5xl font-black text-stone-900">${PRICES.essentials.monthly}</span>
+              <span className="text-5xl font-black text-stone-900">${PRICING.essentials.monthly}</span>
               <span className="text-lg text-stone-800"> /شهريًا</span>
             </div>
             <div className="mb-6" />
@@ -204,7 +200,7 @@ export default function Pricing() {
             <p className="mb-6 text-stone-800">كل شيء + مدرب ذكي + استشارات شخصية</p>
 
             <div className="mb-2">
-              <span className="text-5xl font-black text-stone-900">${PRICES.elite.monthly}</span>
+              <span className="text-5xl font-black text-stone-900">${PRICING.elite.monthly}</span>
               <span className="text-lg text-stone-800"> /شهريًا</span>
             </div>
             <div className="mb-6" />
@@ -249,7 +245,7 @@ export default function Pricing() {
           </div>
           <div className="mt-6 text-center">
             <p className="text-stone-800">القيمة الإجمالية: <span className="font-bold text-stone-800 line-through">$882+</span></p>
-            <p className="mt-1 text-2xl font-black text-emerald-600">أنت تدفع فقط $9/شهريًا</p>
+            <p className="mt-1 text-2xl font-black text-emerald-600">أنت تدفع فقط {PRICING.essentials.label}/شهريًا</p>
           </div>
         </div>
 
@@ -276,7 +272,7 @@ export default function Pricing() {
           </div>
           <div className="mt-6 text-center">
             <p className="text-stone-800">القيمة الإضافية: <span className="font-bold text-stone-800 line-through">$844+/شهريًا</span></p>
-            <p className="mt-1 text-2xl font-black text-emerald-600">كل شيء بـ $99/شهريًا فقط</p>
+            <p className="mt-1 text-2xl font-black text-emerald-600">كل شيء بـ {PRICING.elite.label}/شهريًا فقط</p>
           </div>
         </div>
 

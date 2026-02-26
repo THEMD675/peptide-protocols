@@ -8,6 +8,7 @@ import {
   CheckCircle,
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
+import { PRICING } from '@/lib/constants';
 
 const requiredTools = [
   { name: 'قارورة الببتيد (Vial)', desc: 'تحتوي على الببتيد المجفّد (lyophilized)' },
@@ -309,7 +310,7 @@ export default function Guide() {
             <p className="font-bold text-stone-900">جاهز تبدأ أول بروتوكول؟</p>
             <p className="mt-1 text-sm text-stone-600">اشترك للوصول إلى الدليل الكامل مع كل البروتوكولات</p>
             <div className="mt-4 flex flex-col gap-2 sm:flex-row sm:justify-center">
-              <Link to="/pricing" className="rounded-full bg-emerald-600 px-6 py-2.5 text-sm font-bold text-white hover:bg-emerald-700">اشترك — $9/شهريًا</Link>
+              <Link to="/pricing" className="rounded-full bg-emerald-600 px-6 py-2.5 text-sm font-bold text-white hover:bg-emerald-700">اشترك — {PRICING.essentials.label}/شهريًا</Link>
               <Link to="/calculator" className="rounded-full border border-emerald-300 px-6 py-2.5 text-sm font-bold text-emerald-700 hover:bg-emerald-100">جرّب الحاسبة مجانًا</Link>
             </div>
           </>

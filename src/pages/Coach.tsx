@@ -4,10 +4,10 @@ import { Link, useSearchParams, useNavigate } from 'react-router-dom';
 import { supabase } from '@/lib/supabase';
 import { peptides as allPeptides } from '@/data/peptides';
 import {
-  Bot, Send, Lock, Sparkles, TrendingDown, Heart, Dumbbell, Brain,
+  Bot, Send, Sparkles, TrendingDown, Heart, Dumbbell, Brain,
   Clock, Zap, Calculator, FlaskConical, Shield, RotateCcw, ArrowLeft,
 } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { cn, arPlural } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
 
 function renderMarkdown(text: string) {
@@ -60,8 +60,25 @@ function renderMarkdown(text: string) {
     }
   };
 
+  let inCodeBlock = false;
+  let codeLines: string[] = [];
+
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i].trim();
+
+    if (line.startsWith('```')) {
+      if (inCodeBlock) {
+        elements.push(<pre key={`code-${i}`} className="my-3 overflow-x-auto rounded-xl bg-stone-800 p-4 text-xs text-stone-100 leading-relaxed" dir="ltr"><code>{codeLines.join('\n')}</code></pre>);
+        codeLines = [];
+        inCodeBlock = false;
+      } else {
+        flushList(); flushTable();
+        inCodeBlock = true;
+      }
+      continue;
+    }
+    if (inCodeBlock) { codeLines.push(lines[i]); continue; }
+
     if (!line) { flushList(); flushTable(); elements.push(<div key={`br-${i}`} className="h-2" />); continue; }
 
     if (line.startsWith('|') && line.endsWith('|')) {
@@ -213,7 +230,7 @@ function getFollowUps(text: string, isFirstProtocol: boolean): string[] {
 }
 
 export default function Coach() {
-  const { user, subscription, upgradeTo, isLoading: isAuthLoading } = useAuth();
+  const { user, subscription, upgradeTo } = useAuth();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
 
@@ -383,21 +400,6 @@ export default function Coach() {
     autoSentRef.current = false;
     try { localStorage.removeItem(storageKey); } catch {}
   };
-
-  if (isAuthLoading) return <div className="flex min-h-[50vh] items-center justify-center"><div className="h-8 w-8 animate-spin rounded-full border-4 border-emerald-200 border-t-emerald-600" /></div>;
-  if (!user) {
-    return (
-      <div className="min-h-screen bg-white">
-        <Helmet><title>استشاري الببتيدات — بروتوكول مخصّص بالذكاء الاصطناعي | AI Peptide Coach</title></Helmet>
-        <div className="flex min-h-[70vh] flex-col items-center justify-center px-6 text-center">
-          <div className="flex h-16 w-16 items-center justify-center rounded-full bg-emerald-100 mb-4"><Lock className="h-7 w-7 text-emerald-600" /></div>
-          <p className="text-xl font-bold text-stone-900">سجّل الدخول لبدء الاستشارة</p>
-          <p className="mt-2 text-sm text-stone-600">استشاري ببتيدات يصمّم بروتوكول مخصّص لحالتك</p>
-          <Link to="/login" className="mt-4 rounded-full bg-emerald-600 px-10 py-3 text-sm font-bold text-white hover:bg-emerald-700">تسجيل الدخول</Link>
-        </div>
-      </div>
-    );
-  }
 
   const hasAccess = subscription.isProOrTrial;
   const isElite = hasAccess && subscription.tier === 'elite';
@@ -631,7 +633,7 @@ export default function Coach() {
                     </div>
                   )}
                   {!isElite && userMsgCount > 0 && (
-                    <p className="mb-2 text-center text-xs text-stone-400">{limit - userMsgCount} {(limit - userMsgCount) === 1 ? 'سؤال متبقي' : 'أسئلة متبقية'}</p>
+                    <p className="mb-2 text-center text-xs text-stone-400">{arPlural(limit - userMsgCount, 'سؤال متبقي', 'سؤالان متبقيان', 'أسئلة متبقية')}</p>
                   )}
                   <div className="flex items-end gap-3">
                     <textarea value={input} onChange={e => setInput(e.target.value)}

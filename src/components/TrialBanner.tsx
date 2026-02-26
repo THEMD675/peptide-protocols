@@ -1,7 +1,8 @@
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { Shield } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { cn, arPlural } from '@/lib/utils';
+import { PRICING, PEPTIDE_COUNT } from '@/lib/constants';
 
 const FREE_PATHS = ['/calculator', '/pricing', '/login', '/signup', '/privacy', '/terms', '/', '/glossary', '/sources', '/reviews'];
 
@@ -52,14 +53,14 @@ export default function TrialBanner() {
             انتهت تجربتك المجانية
           </h2>
           <p className="mb-4 text-stone-700">
-            اشترك الآن للوصول إلى 41+ بروتوكول، المدرب الذكي، وجميع الأدوات
+            اشترك الآن للوصول إلى {PEPTIDE_COUNT}+ بروتوكول، المدرب الذكي، وجميع الأدوات
           </p>
           <div className="flex flex-col gap-3">
             <Link
               to="/pricing"
               className="inline-block rounded-full bg-emerald-600 px-10 py-3.5 font-bold text-white shadow-lg transition-all hover:bg-emerald-700 hover:scale-105 active:scale-[0.98]"
             >
-              اشترك — $9/شهريًا
+              اشترك — {PRICING.essentials.label}/شهريًا
             </Link>
           </div>
           <div className="mt-6 flex flex-wrap justify-center gap-3 text-xs">
@@ -78,7 +79,7 @@ export default function TrialBanner() {
     const daysLeft = subscription.trialDaysLeft;
     const isLastDay = daysLeft <= 1;
 
-    const daysText = daysLeft === 1 ? 'يوم واحد' : daysLeft === 2 ? 'يومان' : `${daysLeft} أيام`;
+    const daysText = arPlural(daysLeft, 'يوم واحد', 'يومان', 'أيام');
 
     return (
       <div

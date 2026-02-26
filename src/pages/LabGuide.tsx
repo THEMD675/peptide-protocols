@@ -2,6 +2,7 @@ import { Helmet } from 'react-helmet-async';
 import { Link } from 'react-router-dom';
 import { TestTube, AlertTriangle, Calendar, ClipboardList } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
+import { PRICING } from '@/lib/constants';
 import { labTests } from '@/data/peptides';
 
 const monitoringSchedule = [
@@ -25,7 +26,7 @@ function BlurredOverlay() {
         to="/pricing"
         className="rounded-full bg-emerald-600 px-5 py-2 text-sm font-bold text-white hover:bg-emerald-700"
       >
-        اشترك — $9/شهريًا
+        اشترك — {PRICING.essentials.label}/شهريًا
       </Link>
     </div>
   );

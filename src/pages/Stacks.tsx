@@ -2,6 +2,7 @@ import { Helmet } from 'react-helmet-async';
 import { Link } from 'react-router-dom';
 import { Layers, Clock, DollarSign, BarChart3, Syringe, Calculator } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
+import { PRICING } from '@/lib/constants';
 import { stacks, peptides, categories } from '@/data/peptides';
 
 const STACK_META: Record<string, { difficulty: string; cost: string; duration: string }> = {
@@ -172,7 +173,7 @@ export default function Stacks() {
                         to="/pricing"
                         className="rounded-full bg-emerald-600 px-5 py-2 text-sm font-bold text-white hover:bg-emerald-700"
                       >
-                        اشترك — $9/شهريًا
+                        اشترك — {PRICING.essentials.label}/شهريًا
                       </Link>
                       <Link
                         to="/coach"
@@ -194,7 +195,7 @@ export default function Stacks() {
           <p className="font-bold text-stone-900">اكتشف البروتوكولات الكاملة</p>
           <p className="mt-1 text-sm text-stone-600">اشترك لفتح كل البروتوكولات المُجمَّعة مع الجرعات والتوقيت</p>
           <div className="mt-4 flex flex-col gap-2 sm:flex-row sm:justify-center">
-            <Link to="/pricing" className="rounded-full bg-emerald-600 px-6 py-2.5 text-sm font-bold text-white hover:bg-emerald-700">اشترك — $9/شهريًا</Link>
+            <Link to="/pricing" className="rounded-full bg-emerald-600 px-6 py-2.5 text-sm font-bold text-white hover:bg-emerald-700">اشترك — {PRICING.essentials.label}/شهريًا</Link>
             <Link to="/coach" className="rounded-full border border-emerald-300 px-6 py-2.5 text-sm font-bold text-emerald-700 hover:bg-emerald-100">اسأل المدرب الذكي</Link>
           </div>
         </div>

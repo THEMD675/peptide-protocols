@@ -2,7 +2,9 @@ import { useState, useMemo, useEffect } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { Link, useSearchParams } from 'react-router-dom';
 import { Calculator, FlaskConical, Droplets, ChevronDown, ArrowLeft, BookOpen, Layers, Bot, Syringe, Bookmark } from 'lucide-react';
+import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
+import { PEPTIDE_COUNT } from '@/lib/constants';
 
 const EMERALD = '#10b981';
 
@@ -248,7 +250,7 @@ export default function DoseCalculator() {
     const updated = [entry, ...savedCalcs.filter(c => c.peptide !== selectedPreset)].slice(0, 5);
     setSavedCalcs(updated);
     try { localStorage.setItem('pptides_calc_history', JSON.stringify(updated)); } catch {}
-    import('sonner').then(m => m.toast.success(`تم حفظ حساب ${selectedPreset}`));
+    toast.success(`تم حفظ حساب ${selectedPreset}`);
   };
   const loadSavedCalc = (calc: SavedCalc) => {
     setSelectedPreset(calc.peptide);
@@ -738,7 +740,7 @@ export default function DoseCalculator() {
         <div className="mb-8 rounded-2xl border-2 border-emerald-200 bg-emerald-50 p-6 text-center md:p-8">
           <Bot className="mx-auto mb-3 h-8 w-8 text-emerald-600" />
           <h3 className="text-lg font-bold text-stone-900">مش متأكد من الجرعة أو التوقيت أو التجميع؟</h3>
-          <p className="mt-2 text-sm text-stone-800">المدرب الذكي يعرف 41+ ببتيد — اسأله وجاوبك بالتفصيل.</p>
+          <p className="mt-2 text-sm text-stone-800">المدرب الذكي يعرف {PEPTIDE_COUNT}+ ببتيد — اسأله وجاوبك بالتفصيل.</p>
           <Link
             to="/coach"
             className="mt-4 inline-flex items-center gap-2 rounded-full bg-emerald-600 px-8 py-3 text-sm font-bold text-white transition-all hover:bg-emerald-700"

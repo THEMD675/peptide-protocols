@@ -3,6 +3,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { peptides } from '@/data/peptides';
+import { PRICING } from '@/lib/constants';
 
 const EXCLUDED_PATHS = ['/account', '/tracker', '/dashboard', '/coach', '/login', '/signup', '/pricing'];
 
@@ -22,7 +23,7 @@ export default function StickyScrollCTA() {
   if (EXCLUDED_PATHS.some(p => pathname.startsWith(p))) return null;
 
   const href = user ? '/pricing' : '/signup';
-  const text = user ? 'اشترك الآن — $9/شهر' : 'ابدأ تجربتك المجانية';
+  const text = user ? `اشترك الآن — ${PRICING.essentials.label}/شهر` : 'ابدأ تجربتك المجانية';
 
   return (
     <div className="fixed bottom-[60px] inset-x-0 z-40 border-t border-emerald-200/50 bg-white/95 backdrop-blur-xl shadow-[0_-4px_20px_rgba(0,0,0,0.08)] md:hidden animate-fade-up">

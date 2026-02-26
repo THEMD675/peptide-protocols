@@ -43,6 +43,7 @@ export default function Header() {
   const [scrolled, setScrolled] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [searchFocusIdx, setSearchFocusIdx] = useState(-1);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const moreDropdownRef = useRef<HTMLDivElement>(null);
   const searchRef = useRef<HTMLDivElement>(null);
@@ -194,18 +195,28 @@ export default function Header() {
                       autoFocus
                       type="text"
                       value={searchQuery}
-                      onChange={e => setSearchQuery(e.target.value)}
+                      onChange={e => { setSearchQuery(e.target.value); setSearchFocusIdx(-1); }}
+                      onKeyDown={e => {
+                        if (e.key === 'ArrowDown') { e.preventDefault(); setSearchFocusIdx(i => Math.min(i + 1, searchResults.length - 1)); }
+                        else if (e.key === 'ArrowUp') { e.preventDefault(); setSearchFocusIdx(i => Math.max(i - 1, 0)); }
+                        else if (e.key === 'Enter' && searchFocusIdx >= 0 && searchResults[searchFocusIdx]) {
+                          navigate(`/peptide/${searchResults[searchFocusIdx].id}`); setSearchOpen(false); setSearchQuery('');
+                        }
+                      }}
                       placeholder="ابحث عن ببتيد..."
                       className="w-full rounded-lg border border-stone-200 bg-stone-50 px-3 py-2 text-sm text-stone-900 placeholder:text-stone-400 outline-none focus:border-emerald-300"
                     />
                   </div>
                   {searchResults.length > 0 && (
                     <div className="border-t border-stone-100 py-1">
-                      {searchResults.map(p => (
+                      {searchResults.map((p, idx) => (
                         <button
                           key={p.id}
                           onClick={() => { navigate(`/peptide/${p.id}`); setSearchOpen(false); setSearchQuery(''); }}
-                          className="flex w-full items-center gap-3 px-3 py-2.5 text-right text-sm transition-colors hover:bg-stone-50"
+                          className={cn(
+                            'flex w-full items-center gap-3 px-3 py-2.5 text-right text-sm transition-colors',
+                            idx === searchFocusIdx ? 'bg-emerald-50' : 'hover:bg-stone-50'
+                          )}
                         >
                           <span className="font-bold text-stone-900">{p.nameAr}</span>
                           <span className="text-xs text-stone-500">{p.nameEn}</span>

@@ -18,9 +18,11 @@ import {
   Star,
   Bot,
 } from 'lucide-react';
+import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import { peptides, categories, type Peptide } from '@/data/peptides';
 import { useAuth } from '@/contexts/AuthContext';
+import { PRICING, PEPTIDE_COUNT } from '@/lib/constants';
 
 const categoryIcons: Record<string, React.ElementType> = {
   metabolic: TrendingDown,
@@ -239,6 +241,7 @@ function useFavorites(): [Set<string>, (id: string) => void] {
       const next = new Set(prev);
       if (next.has(id)) next.delete(id); else next.add(id);
       try { localStorage.setItem('pptides_favorites', JSON.stringify([...next])); } catch {}
+      if (next.has(id)) toast.success('تمت الإضافة للمفضلة');
       return next;
     });
   }, []);
@@ -475,12 +478,12 @@ export default function Library() {
                   <div className="flex flex-col items-center justify-center gap-4 rounded-2xl border-2 border-dashed border-emerald-200 bg-emerald-50 p-8 text-center">
                     <Sparkles className="h-6 w-6 text-emerald-600" />
                     <span className="text-lg font-bold text-stone-900">
-                      اكتشف البروتوكولات الكاملة لـ 41 ببتيد
+                      اكتشف البروتوكولات الكاملة لـ {PEPTIDE_COUNT} ببتيد
                     </span>
                     <p className="text-sm text-stone-800">مش متأكد وش يناسبك؟ اسأل المدرب الذكي — 3 أسئلة مجانية.</p>
                     <div className="flex flex-col gap-2 sm:flex-row">
                       <Link to="/pricing" className="rounded-full bg-emerald-600 px-6 py-2.5 text-sm font-bold text-white hover:bg-emerald-700">
-                        اشترك — $9/شهريًا
+                        اشترك — {PRICING.essentials.label}/شهريًا
                       </Link>
                       <Link to="/coach" className="rounded-full border-2 border-emerald-300 px-6 py-2.5 text-sm font-bold text-emerald-700 hover:bg-emerald-100">
                         اسأل المدرب الذكي
@@ -599,7 +602,7 @@ export default function Library() {
                 onClick={() => setUpsellPeptide(null)}
                 className="mb-3 flex w-full items-center justify-center rounded-full bg-emerald-600 px-6 py-3.5 font-bold text-white hover:bg-emerald-700 transition-all"
               >
-                افتح البروتوكول — $9/شهريًا
+                افتح البروتوكول — {PRICING.essentials.label}/شهريًا
               </Link>
               <Link
                 to="/coach"

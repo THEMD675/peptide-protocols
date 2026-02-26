@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import { Star, Send, MessageSquare, CheckCircle } from 'lucide-react';
+import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
@@ -102,7 +103,7 @@ export default function Reviews() {
       .eq('user_id', user.id)
       .limit(1);
     if (existing && existing.length > 0) {
-      import('sonner').then(m => m.toast.error('لديك تقييم مسبق بالفعل'));
+      toast.error('لديك تقييم مسبق بالفعل');
       return;
     }
 
@@ -116,7 +117,7 @@ export default function Reviews() {
     setSubmitting(false);
 
     if (error) {
-      import('sonner').then(m => m.toast.error('حدث خطأ أثناء النشر. حاول مرة أخرى.'));
+      toast.error('حدث خطأ أثناء النشر. حاول مرة أخرى.');
       return;
     }
     setSubmitted(true);

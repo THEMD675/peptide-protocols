@@ -25,7 +25,10 @@ export default function Login() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (user && !isRecovery) navigate('/dashboard', { replace: true });
+    if (user && !isRecovery) {
+      const redirectTo = new URLSearchParams(window.location.search).get('redirect') || '/dashboard';
+      navigate(redirectTo, { replace: true });
+    }
   }, [user, isRecovery, navigate]);
 
   useEffect(() => {
@@ -75,8 +78,13 @@ export default function Login() {
       } else {
         await signup(email, password);
       }
-      const hasQuiz = (() => { try { const q = localStorage.getItem('pptides_quiz_answers'); if (!q) return false; const d = JSON.parse(q); return Date.now() - (d.ts ?? 0) < 24 * 60 * 60 * 1000; } catch { return false; } })();
-      navigate(hasQuiz ? '/coach' : '/dashboard');
+      const redirectTo = new URLSearchParams(window.location.search).get('redirect');
+      if (redirectTo) {
+        navigate(redirectTo);
+      } else {
+        const hasQuiz = (() => { try { const q = localStorage.getItem('pptides_quiz_answers'); if (!q) return false; const d = JSON.parse(q); return Date.now() - (d.ts ?? 0) < 24 * 60 * 60 * 1000; } catch { return false; } })();
+        navigate(hasQuiz ? '/coach' : '/dashboard');
+      }
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'حدث خطأ غير متوقع';
       if (msg.includes('رابط التأكيد') || msg.includes('تحقق من بريدك')) {
@@ -94,7 +102,7 @@ export default function Login() {
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: `${window.location.origin}/dashboard`,
+        redirectTo: `${window.location.origin}${new URLSearchParams(window.location.search).get('redirect') || '/dashboard'}`,
       },
     });
     if (error) setError(error.message);

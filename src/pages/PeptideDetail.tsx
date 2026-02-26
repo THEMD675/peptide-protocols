@@ -6,6 +6,7 @@ import { cn } from '@/lib/utils';
 import { peptides } from '@/data/peptides';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
+import { PRICING } from '@/lib/constants';
 
 const evidenceColors: Record<string, string> = {
   excellent: 'bg-emerald-100 text-emerald-800 border-emerald-300',
@@ -71,6 +72,11 @@ export default function PeptideDetail() {
         <meta name="description" content={peptide.summaryAr} />
         <meta property="og:title" content={`${peptide.nameAr} — ${peptide.nameEn} | Peptide Guide`} />
         <meta property="og:description" content={peptide.summaryAr} />
+        <meta property="og:type" content="article" />
+        <meta property="og:url" content={`https://pptides.com/peptide/${peptide.id}`} />
+        <meta name="twitter:card" content="summary" />
+        <meta name="twitter:title" content={`${peptide.nameAr} — ${peptide.nameEn}`} />
+        <meta name="twitter:description" content={peptide.summaryAr.slice(0, 160)} />
         <script type="application/ld+json">{JSON.stringify({
           "@context": "https://schema.org",
           "@type": "FAQPage",
@@ -347,7 +353,7 @@ export default function PeptideDetail() {
                   to="/pricing"
                   className="rounded-full bg-emerald-600 px-8 py-3 text-sm font-bold text-white transition-all hover:bg-emerald-700"
                 >
-                  اشترك — $9/شهريًا
+                  اشترك — {PRICING.essentials.label}/شهريًا
                 </Link>
                 <Link
                   to="/coach"
@@ -383,7 +389,7 @@ export default function PeptideDetail() {
                   to="/pricing"
                   className="rounded-full bg-emerald-600 px-8 py-3 text-sm font-bold text-white transition-all hover:bg-emerald-700"
                 >
-                  اشترك الآن — $9/شهريًا
+                  اشترك الآن — {PRICING.essentials.label}/شهريًا
                 </Link>
                 <Link
                   to="/coach"
