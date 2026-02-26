@@ -65,16 +65,38 @@ serve(async (req) => {
           tier = session.amount_total >= 5000 ? 'elite' : 'essentials'
         }
 
+        let checkoutStatus = 'active'
+        let trialEndsAt: string | undefined
+
+        if (stripeSubscriptionId) {
+          try {
+            const stripeSub = await stripe.subscriptions.retrieve(stripeSubscriptionId)
+            if (stripeSub.status === 'trialing') {
+              checkoutStatus = 'trial'
+              if (stripeSub.trial_end) {
+                trialEndsAt = new Date(stripeSub.trial_end * 1000).toISOString()
+              }
+            }
+          } catch (fetchErr) {
+            console.error('checkout: failed to fetch subscription from Stripe:', fetchErr)
+          }
+        }
+
         try {
+          const updatePayload: Record<string, unknown> = {
+            status: checkoutStatus,
+            tier,
+            stripe_customer_id: stripeCustomerId,
+            stripe_subscription_id: stripeSubscriptionId,
+            updated_at: new Date().toISOString(),
+          }
+          if (trialEndsAt) {
+            updatePayload.trial_ends_at = trialEndsAt
+          }
+
           const { error, data: updateData } = await supabase
             .from('subscriptions')
-            .update({
-              status: 'active',
-              tier,
-              stripe_customer_id: stripeCustomerId,
-              stripe_subscription_id: stripeSubscriptionId,
-              updated_at: new Date().toISOString(),
-            })
+            .update(updatePayload)
             .eq('user_id', userId)
             .select('id')
 
@@ -102,14 +124,20 @@ serve(async (req) => {
         else if (stripeStatus === 'canceled' || stripeStatus === 'unpaid') mappedStatus = 'cancelled'
         else mappedStatus = 'expired'
 
+        const updatePayload: Record<string, unknown> = {
+          status: mappedStatus,
+          current_period_end: periodEnd,
+          updated_at: new Date().toISOString(),
+        }
+
+        if (stripeStatus === 'trialing' && subscription.trial_end) {
+          updatePayload.trial_ends_at = new Date(subscription.trial_end * 1000).toISOString()
+        }
+
         try {
           const { error } = await supabase
             .from('subscriptions')
-            .update({
-              status: mappedStatus,
-              current_period_end: periodEnd,
-              updated_at: new Date().toISOString(),
-            })
+            .update(updatePayload)
             .eq('stripe_subscription_id', stripeSubId)
 
           if (error) console.error('subscription.updated DB error:', error)
