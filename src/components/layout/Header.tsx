@@ -242,7 +242,7 @@ export default function Header() {
                   </span>
                   <ChevronDown
                     className={cn(
-                      'h-4 w-4 text-stone-800 transition-transform',
+                      'hidden h-4 w-4 text-stone-800 transition-transform md:block',
                       dropdownOpen && 'rotate-180',
                     )}
                   />

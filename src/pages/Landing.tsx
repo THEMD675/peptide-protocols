@@ -166,26 +166,33 @@ export default function Landing() {
             مبني على الأبحاث — مصمّم للنتائج.
           </p>
 
-          <div className="flex flex-col items-center justify-center gap-4 sm:flex-row">
+          <div className="flex flex-col items-center justify-center gap-3 sm:flex-row sm:gap-4">
             <Link
               to={ctaLink}
-              className="btn-primary-glow inline-flex min-w-[220px] items-center justify-center gap-3 rounded-full bg-emerald-600 px-8 py-4 text-lg font-bold text-white transition-all duration-300 hover:bg-emerald-700"
+              className="btn-primary-glow inline-flex w-full max-w-xs items-center justify-center gap-3 rounded-full bg-emerald-600 px-8 py-4 text-lg font-bold text-white transition-all duration-300 hover:bg-emerald-700 sm:w-auto"
             >
               <span>{ctaText}</span>
               <ArrowLeft className="h-5 w-5" />
             </Link>
             <Link
               to={user ? "/pricing" : "/library"}
-              className="inline-flex min-w-[180px] items-center justify-center rounded-full border-2 border-stone-300 bg-white px-8 py-4 text-lg font-semibold text-stone-800 transition-all duration-300 hover:border-emerald-200 hover:text-emerald-700"
+              className="inline-flex w-full max-w-xs items-center justify-center rounded-full border-2 border-stone-200 bg-white px-8 py-4 text-lg font-semibold text-stone-800 transition-all duration-300 hover:border-emerald-300 hover:text-emerald-700 sm:w-auto"
             >
               {user ? 'اختر خطتك' : 'تصفّح المكتبة'}
             </Link>
           </div>
 
-          <p className="mt-6 flex items-center justify-center gap-4 text-sm text-stone-800">
-            <span className="flex items-center gap-1.5"><CreditCard className="h-3.5 w-3.5" /> تجربة 3 أيام مجانية</span>
-            <span className="flex items-center gap-1.5"><Shield className="h-3.5 w-3.5" /> ضمان استرداد كامل</span>
-          </p>
+          <div className="mt-8 flex items-center justify-center gap-6">
+            <span className="flex items-center gap-2 text-sm font-medium text-stone-700">
+              <CreditCard className="h-4 w-4 text-emerald-600" />
+              تجربة 3 أيام مجانية
+            </span>
+            <span className="h-4 w-px bg-stone-300" />
+            <span className="flex items-center gap-2 text-sm font-medium text-stone-700">
+              <Shield className="h-4 w-4 text-emerald-600" />
+              ضمان استرداد كامل
+            </span>
+          </div>
           {userCount >= 10 && (
             <p className="mt-4 flex items-center justify-center gap-2 text-sm text-stone-500">
               <span className="relative flex h-2 w-2"><span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" /><span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500" /></span>

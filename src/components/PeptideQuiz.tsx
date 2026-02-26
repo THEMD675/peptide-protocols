@@ -131,7 +131,7 @@ export default function PeptideQuiz() {
     const isFree = peptideData?.isFree ?? false;
 
     return (
-      <div className="rounded-2xl border border-emerald-200 bg-emerald-50/50 p-6 md:p-8">
+      <div className="rounded-2xl border border-emerald-200 bg-emerald-50/50 p-6 shadow-lg shadow-emerald-600/5 md:p-8">
         <div className="flex items-center gap-3 mb-4">
           <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-600">
             <CheckCircle className="h-5 w-5 text-white" />
@@ -179,7 +179,7 @@ export default function PeptideQuiz() {
   const currentStep = STEPS[step];
 
   return (
-    <div className="rounded-2xl border border-stone-200 bg-white p-6 md:p-8">
+    <div className="rounded-2xl border border-stone-200 bg-white p-6 shadow-lg shadow-emerald-600/5 md:p-8">
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-3">
           <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-100">
