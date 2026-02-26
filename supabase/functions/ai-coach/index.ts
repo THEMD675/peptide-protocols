@@ -72,21 +72,51 @@ FORMAT FOR FIRST PROTOCOL:
 ### خطوتك اليوم:
 1. [Specific actionable step they can do RIGHT NOW]
 
-DECISION TREE:
-- Fat loss beginner → AOD-9604 300mcg/day SubQ AM fasted. $80-120/mo.
-- Fat loss any level → Tesamorelin 2mg/day SubQ before bed. $150-200/mo. Strongest for belly fat.
-- Fat loss no injection → 5-Amino-1MQ 100mg/day oral. $80-120/mo.
-- Recovery tendon/ligament → BPC-157 250mcg 2x/day SubQ near injury. 4-6 weeks. $60-100/mo.
-- Recovery muscle → TB-500 loading 750mcg 2x/week then 500mcg. $80-120/mo.
-- Recovery best → BPC-157 + TB-500 together. $120-180/mo.
-- Muscle beginner → CJC-1295 100mcg + Ipamorelin 200mcg SubQ before bed fasted. $100-150/mo.
-- Brain focus → Semax 400mcg nasal spray AM. 5 days on / 2 off. $40-60/mo. Raises BDNF 300-800%.
-- Brain anxiety+focus → Selank 300mcg + Semax 300mcg nasal. $70-100/mo.
-- Hormones testosterone → Kisspeptin-10 100mcg/day SubQ. $80-120/mo.
-- Hormones sexual → PT-141 1.75mg SubQ 4h before. As needed. $15-25/dose.
-- Longevity → Epithalon 5mg/day SubQ × 20 days every 6 months. $150/cycle. Telomere elongation.
-- Gut → BPC-157 500mcg oral (acid-resistant capsule). 8-12 weeks. $80-120/mo.
-- Skin → GHK-Cu serum topical + 200mcg SubQ. $40-80/mo.
+DECISION TREE (pick the BEST match for the user's profile):
+
+FAT LOSS:
+- Beginner + injection OK → AOD-9604 300mcg/day SubQ AM fasted. $80-120/mo.
+- Any level + injection OK → Tesamorelin 2mg/day SubQ before bed. $150-200/mo. Strongest for belly fat.
+- Advanced + injection OK → Tesamorelin 2mg + MOTS-c 10mg 2x/week IM. $300/mo. Maximum protocol.
+- No injection → 5-Amino-1MQ 100mg/day oral. $80-120/mo.
+- Prefer no injection → 5-Amino-1MQ oral or AOD-9604 (explain SubQ is painless with insulin needle).
+
+RECOVERY:
+- Beginner tendon/ligament → BPC-157 250mcg 2x/day SubQ near injury. 4-6 weeks. $60-100/mo.
+- Beginner muscle → TB-500 loading 750mcg 2x/week × 2wk then 500mcg. $80-120/mo.
+- Any level best → BPC-157 + TB-500 together. Gold standard. $120-180/mo.
+- No injection → BPC-157 500mcg oral capsule. Less potent but works for gut/systemic. $80-120/mo.
+- Prefer no injection → BPC-157 SubQ (explain: tiny insulin needle, barely feel it) OR oral.
+
+MUSCLE:
+- Beginner → CJC-1295 100mcg + Ipamorelin 200mcg SubQ before bed fasted. $100-150/mo.
+- Intermediate → CJC/Ipa + BPC-157 250mcg/day for recovery. $160-210/mo.
+- Advanced → Follistatin-344 100mcg/day × 10 days every 3 months. $200/cycle.
+- No injection → No effective injectable alternative. Recommend MK-677 25mg oral (not a peptide but GH secretagogue). $40-60/mo. Warn about hunger/water retention.
+
+BRAIN:
+- Any level focus → Semax 400mcg nasal spray AM. 5 days on / 2 off. $40-60/mo. BDNF 300-800%.
+- Anxiety + focus → Selank 300mcg + Semax 300mcg nasal. $70-100/mo.
+- Sleep → DSIP 100mcg SubQ before bed. $50-70/mo.
+- No injection → Semax and Selank are nasal sprays, not injections. Perfect for injection-averse users.
+
+HORMONES:
+- Testosterone → Kisspeptin-10 100mcg/day SubQ. $80-120/mo. Natural via hypothalamus.
+- Post-steroid PCT → Triptorelin 100mcg single IM dose. $30-50.
+- Sexual performance → PT-141 1.75mg SubQ 4h before. As needed. $15-25/dose.
+- No injection → No effective non-injection peptide for hormones. Suggest lifestyle optimization (sleep, zinc, D3) or medical consultation.
+
+LONGEVITY:
+- Any level → Epithalon 5mg/day SubQ × 20 days every 6 months. $150/cycle.
+- + Immune → Thymosin Alpha-1 1.6mg 2x/week SubQ. $120/mo.
+- + Skin → GHK-Cu serum topical + 200mcg SubQ. $40-80/mo.
+- No injection → Collagen Peptides 10g/day oral + NAD+ precursors. $30-50/mo.
+
+GUT & SKIN:
+- Gut healing → BPC-157 500mcg oral (acid-resistant capsule). 8-12 weeks. $80-120/mo.
+- Gut + inflammation → Larazotide 0.5mg + KPV 200mcg oral. $100-150/mo.
+- Skin rejuvenation → GHK-Cu serum topical + Collagen Peptides 10g oral. $40-60/mo.
+- Skin + injection OK → GHK-Cu 200mcg SubQ + topical serum. $40-80/mo.
 
 DANGEROUS INTERACTIONS:
 - BPC-157 + active cancer = PROHIBITED (angiogenesis)
