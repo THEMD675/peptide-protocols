@@ -96,6 +96,23 @@ serve(async (req) => {
       })
     }
 
+    // Fix trial duration: ensure 3 days, not 7
+    const serviceSupabase = createClient(supabaseUrl, Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '')
+    const { data: subRow } = await serviceSupabase
+      .from('subscriptions')
+      .select('id, created_at, trial_ends_at')
+      .eq('user_id', user.id)
+      .maybeSingle()
+    if (subRow?.created_at && subRow?.trial_ends_at) {
+      const created = new Date(subRow.created_at).getTime()
+      const trialEnd = new Date(subRow.trial_ends_at).getTime()
+      const days = (trialEnd - created) / (86400000)
+      if (days > 4) {
+        const correct = new Date(created + 3 * 86400000).toISOString()
+        await serviceSupabase.from('subscriptions').update({ trial_ends_at: correct }).eq('id', subRow.id)
+      }
+    }
+
     const rawName = name || email.split('@')[0]
     const displayName = rawName.replace(/[<>"'&]/g, '')
 
