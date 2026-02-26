@@ -41,7 +41,7 @@ export default function LabGuide() {
     : undefined;
 
   return (
-    <main className="mx-auto max-w-5xl px-4 pb-24 pt-24 md:px-6 md:pt-28">
+    <main className="mx-auto max-w-5xl px-4 pb-24 pt-8 md:px-6 md:pt-12">
       <Helmet>
         <title>دليل تحاليل الببتيدات — التحاليل المخبرية الأساسية | Peptide Lab Guide</title>
         <meta name="description" content="التحاليل المخبرية اللازمة قبل وأثناء وبعد استخدام الببتيدات مع العلامات التحذيرية. Essential bloodwork guide for peptide users." />

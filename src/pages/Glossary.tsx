@@ -61,7 +61,7 @@ export default function Glossary() {
   }, [search]);
 
   return (
-    <main className="mx-auto max-w-4xl px-4 pb-24 pt-24 md:px-6 md:pt-28">
+    <main className="mx-auto max-w-4xl px-4 pb-24 pt-8 md:px-6 md:pt-12">
       <Helmet>
         <title>مصطلحات الببتيدات — قاموس شامل بالعربي | Peptide Glossary</title>
         <meta name="description" content="قاموس شامل لمصطلحات الببتيدات والبيوهاكينغ بالعربي مع المعادل الإنجليزي. Comprehensive Arabic peptide and biohacking glossary." />

@@ -27,7 +27,7 @@ export default function Stacks() {
   const isPro = !isLoading && (subscription?.isProOrTrial ?? false);
 
   return (
-    <main className="mx-auto max-w-6xl px-4 pb-24 pt-24 md:px-6 md:pt-28">
+    <main className="mx-auto max-w-6xl px-4 pb-24 pt-8 md:px-6 md:pt-12">
       <Helmet>
         <title>بروتوكولات ببتيدات مُجمَّعة — خلطات مُجرَّبة | Peptide Stacks & Protocols</title>
         <meta name="description" content="بروتوكولات مُجمَّعة تجمع عدة ببتيدات حسب الهدف: تعافي، دماغ، طول عمر. Curated peptide stacks for recovery, brain, and longevity." />

@@ -134,14 +134,14 @@ export default function Dashboard() {
   const displayName = user.email?.split('@')[0] ?? 'مستخدم';
 
   return (
-    <main className="mx-auto max-w-5xl px-4 pb-24 pt-24 md:px-6 md:pt-28">
+    <main className="mx-auto max-w-5xl px-4 pb-24 pt-8 md:px-6 md:pt-12">
       <Helmet>
         <title>لوحة التحكم — pptides | Dashboard</title>
         <meta name="description" content="لوحة التحكم الرئيسية لإدارة حسابك في pptides. Your pptides dashboard." />
       </Helmet>
 
       {/* Welcome Header */}
-      <div className="mb-10">
+      <div className="mb-8">
         <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-100">
           <LayoutDashboard className="h-7 w-7 text-emerald-600" />
         </div>
@@ -152,7 +152,7 @@ export default function Dashboard() {
       </div>
 
       {/* Subscription Status Card */}
-      <div className="mb-8 rounded-2xl border border-stone-300 bg-stone-50 p-6">
+      <div className="mb-8 rounded-2xl border border-stone-200 bg-stone-50 p-6">
         <div className="flex items-center gap-3 mb-3">
           <Crown className="h-5 w-5 text-emerald-600" />
           <h2 className="text-lg font-bold text-stone-900">اشتراكك</h2>

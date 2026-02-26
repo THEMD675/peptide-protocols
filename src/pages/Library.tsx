@@ -104,7 +104,7 @@ function PeptideCard({
       <button
         type="button"
         onClick={(e) => { e.preventDefault(); e.stopPropagation(); onToggleFav(); }}
-        className="absolute right-3 top-3 z-10 rounded-full p-1.5 transition-colors hover:bg-stone-100"
+        className="absolute right-3 top-3 z-10 rounded-full p-2 transition-colors hover:bg-stone-100"
         aria-label={isFav ? 'إزالة من المفضلة' : 'إضافة للمفضلة'}
       >
         <Star className={cn('h-4 w-4', isFav ? 'fill-amber-400 text-amber-400' : 'text-stone-300')} />
@@ -113,7 +113,7 @@ function PeptideCard({
         <button
           type="button"
           onClick={(e) => { e.preventDefault(); e.stopPropagation(); onToggleCompare(); }}
-          className={cn('absolute right-3 top-11 z-10 rounded-full p-1.5 transition-colors', isCompare ? 'bg-emerald-100' : 'hover:bg-stone-100')}
+          className={cn('absolute right-3 top-12 z-10 rounded-full p-2 transition-colors', isCompare ? 'bg-emerald-100' : 'hover:bg-stone-100')}
           aria-label={isCompare ? 'إزالة من المقارنة' : 'إضافة للمقارنة'}
           title="قارن"
         >
@@ -326,16 +326,16 @@ export default function Library() {
               onChange={(e) => setSearch(e.target.value)}
               placeholder="ابحث عن ببتيد..."
               className={cn(
-                'w-full rounded-xl border border-stone-300 bg-stone-50 py-2.5 pr-10 pl-4',
+                'w-full rounded-xl border border-stone-200 bg-stone-50 py-2.5 pr-10 pl-4',
                 'text-sm text-stone-900 placeholder:text-stone-700',
-                'transition-colors focus:border-emerald-300 focus:outline-none focus:ring-1 focus:ring-emerald-200',
+                'transition-colors focus:border-emerald-300 focus:outline-none focus:ring-2 focus:ring-emerald-100',
               )}
             />
             {search && (
               <button
                 onClick={() => setSearch('')}
                 aria-label="مسح البحث"
-                className="absolute left-3 top-1/2 -translate-y-1/2 text-stone-700 hover:text-stone-800"
+                className="absolute left-3 top-1/2 -translate-y-1/2 text-stone-700 transition-colors hover:text-stone-800"
               >
                 <X className="h-4 w-4" />
               </button>
@@ -346,7 +346,7 @@ export default function Library() {
             value={sortBy}
             onChange={(e) => setSortBy(e.target.value as 'default' | 'evidence' | 'alpha' | 'favorites')}
             aria-label="ترتيب"
-            className="rounded-xl border border-stone-300 bg-white px-3 py-2.5 text-sm text-stone-800 focus:border-emerald-300 focus:outline-none sm:w-auto"
+            className="rounded-xl border border-stone-200 bg-white px-3 py-2.5 text-sm text-stone-800 focus:border-emerald-300 focus:outline-none focus:ring-2 focus:ring-emerald-100 sm:w-auto"
           >
             <option value="default">الترتيب الافتراضي</option>
             <option value="evidence">الأقوى دليلًا</option>
@@ -360,7 +360,7 @@ export default function Library() {
               'flex items-center justify-center gap-2 rounded-xl border px-4 py-2.5 text-sm font-medium transition-colors sm:w-auto',
               showFilters
                 ? 'border-emerald-400 bg-emerald-50 text-emerald-600'
-                : 'border-stone-300 bg-white text-stone-800 hover:border-stone-300',
+                : 'border-stone-200 bg-white text-stone-800 hover:border-stone-300',
             )}
           >
             <Filter className="h-4 w-4" />
@@ -374,7 +374,7 @@ export default function Library() {
             <div
               className="mb-6 overflow-hidden"
             >
-              <div className="rounded-xl border border-stone-300 bg-stone-50 p-4">
+              <div className="rounded-xl border border-stone-200 bg-stone-50 p-4">
                 <label className="mb-2 block text-xs font-medium text-stone-800">
                   مستوى الدليل العلمي
                 </label>
@@ -382,7 +382,7 @@ export default function Library() {
                   value={evidenceFilter}
                   onChange={(e) => setEvidenceFilter(e.target.value)}
                   aria-label="مستوى الدليل العلمي"
-                  className="w-full rounded-lg border border-stone-300 bg-stone-50 px-3 py-2 text-sm text-stone-900 focus:border-emerald-300 focus:outline-none sm:w-auto"
+                  className="w-full rounded-lg border border-stone-200 bg-stone-50 px-3 py-2 text-sm text-stone-900 focus:border-emerald-300 focus:outline-none focus:ring-2 focus:ring-emerald-100 sm:w-auto"
                 >
                   <option value="all">الكل</option>
                   <option value="excellent">ممتاز</option>
@@ -408,7 +408,7 @@ export default function Library() {
                 'shrink-0 rounded-full border px-4 py-2 text-sm font-medium transition-all',
                 activeCategory === 'all'
                   ? 'border-emerald-300 text-white'
-                  : 'border-stone-300 bg-white text-stone-800 hover:border-stone-300 hover:text-stone-800',
+                  : 'border-stone-200 bg-white text-stone-800 hover:border-stone-300 hover:text-stone-800',
               )}
               style={
                 activeCategory === 'all'
@@ -429,7 +429,7 @@ export default function Library() {
                     'flex shrink-0 items-center gap-1.5 rounded-full border px-4 py-2 text-sm font-medium transition-all',
                     active
                       ? 'border-emerald-300 text-white'
-                      : 'border-stone-300 bg-white text-stone-800 hover:border-stone-300 hover:text-stone-800',
+                      : 'border-stone-200 bg-white text-stone-800 hover:border-stone-300 hover:text-stone-800',
                   )}
                   style={active ? { background: 'var(--gold, #10b981)' } : undefined}
                 >
@@ -447,13 +447,7 @@ export default function Library() {
         </div>
 
         {/* Peptide Grid */}
-        {isLoading ? (
-          <div className="flex items-center justify-center py-24">
-            <div className="h-8 w-8 animate-spin rounded-full border-4 border-emerald-200 border-t-emerald-600" />
-          </div>
-        ) : (
-          <>
-          {filtered.length > 0 ? (
+        {filtered.length > 0 ? (
             <div
               className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3"
             >
@@ -482,10 +476,10 @@ export default function Library() {
                     </span>
                     <p className="text-sm text-stone-800">مش متأكد وش يناسبك؟ اسأل المدرب الذكي — 3 أسئلة مجانية.</p>
                     <div className="flex flex-col gap-2 sm:flex-row">
-                      <Link to="/pricing" className="rounded-full bg-emerald-600 px-6 py-2.5 text-sm font-bold text-white hover:bg-emerald-700">
+                      <Link to="/pricing" className="rounded-full bg-emerald-600 px-6 py-2.5 text-sm font-bold text-white transition-colors hover:bg-emerald-700">
                         اشترك — {PRICING.essentials.label}/شهريًا
                       </Link>
-                      <Link to="/coach" className="rounded-full border-2 border-emerald-300 px-6 py-2.5 text-sm font-bold text-emerald-700 hover:bg-emerald-100">
+                      <Link to="/coach" className="rounded-full border-2 border-emerald-300 px-6 py-2.5 text-sm font-bold text-emerald-700 transition-colors hover:bg-emerald-100">
                         اسأل المدرب الذكي
                       </Link>
                     </div>
@@ -504,14 +498,12 @@ export default function Library() {
               <p className="mt-1 text-sm text-stone-600">
                 جرّب كلمات بحث مختلفة أو اسأل المدرب الذكي
               </p>
-              <Link to="/coach" className="mt-4 inline-flex items-center gap-2 rounded-full bg-emerald-600 px-6 py-2.5 text-sm font-bold text-white hover:bg-emerald-700">
+              <Link to="/coach" className="mt-4 inline-flex items-center gap-2 rounded-full bg-emerald-600 px-6 py-2.5 text-sm font-bold text-white transition-colors hover:bg-emerald-700">
                 <Bot className="h-4 w-4" />
                 اسأل المدرب الذكي
               </Link>
             </div>
           )}
-        </>
-        )}
       </div>
 
       {/* Floating Compare Bar */}
@@ -524,8 +516,8 @@ export default function Library() {
               return p ? <span key={id} className="rounded-full bg-emerald-50 px-2.5 py-0.5 text-xs font-bold text-emerald-700">{p.nameAr}</span> : null;
             })}
           </div>
-          <button onClick={() => setShowCompare(true)} className="rounded-xl bg-emerald-600 px-5 py-2 text-sm font-bold text-white hover:bg-emerald-700">عرض المقارنة</button>
-          <button onClick={() => setCompareIds([])} className="rounded-xl border border-stone-200 px-3 py-2 text-xs font-bold text-stone-600 hover:bg-stone-50">مسح</button>
+          <button onClick={() => setShowCompare(true)} className="rounded-xl bg-emerald-600 px-5 py-2 text-sm font-bold text-white transition-colors hover:bg-emerald-700">عرض المقارنة</button>
+          <button onClick={() => setCompareIds([])} className="rounded-xl border border-stone-200 px-3 py-2 text-xs font-bold text-stone-600 transition-colors hover:bg-stone-50">مسح</button>
         </div>
       )}
 
@@ -548,7 +540,7 @@ export default function Library() {
             <div className="w-full max-w-4xl my-8 rounded-2xl bg-white shadow-2xl overflow-hidden" onClick={e => e.stopPropagation()}>
               <div className="flex items-center justify-between border-b border-stone-200 px-6 py-4">
                 <h2 className="text-lg font-bold text-stone-900">مقارنة ببتيدات</h2>
-                <button onClick={() => setShowCompare(false)} className="rounded-lg p-2 text-stone-400 hover:bg-stone-100"><X className="h-5 w-5" /></button>
+                <button onClick={() => setShowCompare(false)} className="rounded-lg p-2 text-stone-400 transition-colors hover:bg-stone-100"><X className="h-5 w-5" /></button>
               </div>
               <div className="overflow-x-auto">
                 <table className="w-full min-w-[600px]">

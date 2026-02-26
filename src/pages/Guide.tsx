@@ -84,7 +84,7 @@ export default function Guide() {
   const isPro = !isLoading && (subscription?.isProOrTrial ?? false);
 
   return (
-    <main className="mx-auto max-w-5xl px-4 pb-24 pt-24 md:px-6 md:pt-28">
+    <main className="mx-auto max-w-5xl px-4 pb-24 pt-8 md:px-6 md:pt-12">
       <Helmet>
         <title>دليل تحضير وحقن الببتيدات — خطوات عملية | Peptide Reconstitution Guide</title>
         <meta name="description" content="خطوات تحضير الببتيدات والحقن تحت الجلد ومواقع الحقن وقواعد التخزين. How to reconstitute and inject peptides safely." />

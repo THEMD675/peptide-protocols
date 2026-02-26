@@ -161,14 +161,14 @@ export default function Tracker() {
   };
 
   return (
-    <main className="mx-auto max-w-3xl px-4 pb-24 pt-24 md:px-6 md:pt-28">
+    <main className="mx-auto max-w-3xl px-4 pb-24 pt-8 md:px-6 md:pt-12">
       <Helmet>
         <title>سجل الحقن — تتبّع جرعاتك | Injection Tracker</title>
         <meta name="description" content="سجّل وتتبّع حقن الببتيدات والجرعات اليومية. Track your peptide injections and daily doses." />
       </Helmet>
 
       {/* Header */}
-      <div className="mb-10 text-center">
+      <div className="mb-8 text-center">
         <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-100">
           <Syringe className="h-7 w-7 text-emerald-600" />
         </div>
@@ -194,7 +194,7 @@ export default function Tracker() {
         }).length;
 
         return (
-          <div className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
+          <div className="mb-8 grid grid-cols-2 gap-3 sm:grid-cols-4">
             <div className="rounded-2xl border border-stone-200 bg-white p-4 text-center">
               <BarChart3 className="mx-auto mb-1 h-5 w-5 text-emerald-600" />
               <p className="text-2xl font-black text-stone-900">{totalInjections}</p>
@@ -235,7 +235,7 @@ export default function Tracker() {
         const todayIdx = now.getDay();
 
         return (
-          <div className="mb-6 rounded-2xl border border-stone-200 bg-white p-5">
+          <div className="mb-8 rounded-2xl border border-stone-200 bg-white p-5">
             <h3 className="mb-3 text-sm font-bold text-stone-900">نشاط الأسبوع</h3>
             <div className="flex items-end justify-between gap-1 h-20">
               {weekCounts.map((count, i) => (
@@ -269,7 +269,7 @@ export default function Tracker() {
         const suggestedSite = lastSite === leastUsed ? allSites.find(s => s !== lastSite) || leastUsed : leastUsed;
 
         return (
-          <div className="mb-6 rounded-2xl border border-stone-200 bg-white p-5">
+          <div className="mb-8 rounded-2xl border border-stone-200 bg-white p-5">
             <div className="flex items-center gap-2 mb-3">
               <MapPin className="h-4 w-4 text-emerald-600" />
               <h3 className="text-sm font-bold text-stone-900">تدوير مواقع الحقن</h3>
@@ -365,7 +365,7 @@ export default function Tracker() {
 
       {/* Log Form */}
       {showForm && (
-        <form onSubmit={handleSubmit} className="mb-8 rounded-2xl border border-stone-300 bg-stone-50 p-6">
+        <form onSubmit={handleSubmit} className="mb-8 rounded-2xl border border-stone-200 bg-stone-50 p-6">
           <h2 className="mb-4 text-lg font-bold text-stone-900">تسجيل حقنة جديدة</h2>
           <div className="space-y-4">
             {/* Peptide Name */}
@@ -375,7 +375,7 @@ export default function Tracker() {
                 value={peptideName}
                 onChange={(e) => setPeptideName(e.target.value)}
                 required
-                className="w-full rounded-xl border border-stone-300 bg-white px-4 py-3 text-sm text-stone-900 focus:border-emerald-300 focus:outline-none focus:ring-1 focus:ring-emerald-200"
+                className="w-full rounded-xl border border-stone-200 bg-white px-4 py-3 text-sm text-stone-900 focus:border-emerald-300 focus:outline-none focus:ring-2 focus:ring-emerald-100"
               >
                 <option value="">اختر الببتيد...</option>
                 {allPeptides.map(p => (
@@ -397,7 +397,7 @@ export default function Tracker() {
                   min="0"
                   step="any"
                   dir="ltr"
-                  className="w-full rounded-xl border border-stone-300 bg-white px-4 py-3 text-sm text-stone-900 placeholder:text-stone-400 focus:border-emerald-300 focus:outline-none focus:ring-1 focus:ring-emerald-200"
+                  className="w-full rounded-xl border border-stone-200 bg-white px-4 py-3 text-sm text-stone-900 placeholder:text-stone-400 focus:border-emerald-300 focus:outline-none focus:ring-2 focus:ring-emerald-100"
                 />
               </div>
               <div className="w-28">
@@ -406,7 +406,7 @@ export default function Tracker() {
                   value={unit}
                   onChange={(e) => setUnit(e.target.value)}
                   aria-label="وحدة الجرعة"
-                  className="w-full rounded-xl border border-stone-300 bg-white px-4 py-3 text-sm text-stone-900 focus:border-emerald-300 focus:outline-none focus:ring-1 focus:ring-emerald-200"
+                  className="w-full rounded-xl border border-stone-200 bg-white px-4 py-3 text-sm text-stone-900 focus:border-emerald-300 focus:outline-none focus:ring-2 focus:ring-emerald-100"
                 >
                   <option value="mcg">mcg</option>
                   <option value="mg">mg</option>
@@ -421,7 +421,7 @@ export default function Tracker() {
                   value={site}
                   onChange={(e) => setSite(e.target.value)}
                   aria-label="موقع الحقن"
-                  className="w-full rounded-xl border border-stone-300 bg-white px-4 py-3 text-sm text-stone-900 focus:border-emerald-300 focus:outline-none focus:ring-1 focus:ring-emerald-200"
+                  className="w-full rounded-xl border border-stone-200 bg-white px-4 py-3 text-sm text-stone-900 focus:border-emerald-300 focus:outline-none focus:ring-2 focus:ring-emerald-100"
                 >
                 {INJECTION_SITES.map((s) => (
                   <option key={s.value} value={s.value}>{s.label}</option>
@@ -438,7 +438,7 @@ export default function Tracker() {
                 onChange={(e) => setInjectedAt(e.target.value)}
                 aria-label="التاريخ والوقت"
                 dir="ltr"
-                className="w-full rounded-xl border border-stone-300 bg-white px-4 py-3 text-sm text-stone-900 focus:border-emerald-300 focus:outline-none focus:ring-1 focus:ring-emerald-200"
+                className="w-full rounded-xl border border-stone-200 bg-white px-4 py-3 text-sm text-stone-900 focus:border-emerald-300 focus:outline-none focus:ring-2 focus:ring-emerald-100"
               />
             </div>
 
@@ -450,7 +450,7 @@ export default function Tracker() {
                 onChange={(e) => setNotes(e.target.value)}
                 placeholder="ملاحظات إضافية (اختياري)"
                 rows={3}
-                className="w-full resize-none rounded-xl border border-stone-300 bg-white px-4 py-3 text-sm text-stone-900 placeholder:text-stone-400 focus:border-emerald-300 focus:outline-none focus:ring-1 focus:ring-emerald-200"
+                className="w-full resize-none rounded-xl border border-stone-200 bg-white px-4 py-3 text-sm text-stone-900 placeholder:text-stone-400 focus:border-emerald-300 focus:outline-none focus:ring-2 focus:ring-emerald-100"
               />
             </div>
 
@@ -472,7 +472,7 @@ export default function Tracker() {
               <button
                 type="button"
                 onClick={() => setShowForm(false)}
-                className="rounded-xl border border-stone-300 px-6 py-3 text-sm font-bold text-stone-700 transition-all hover:bg-stone-50"
+                className="rounded-xl border border-stone-200 px-6 py-3 text-sm font-bold text-stone-700 transition-all hover:bg-stone-50"
               >
                 إلغاء
               </button>
@@ -535,7 +535,7 @@ export default function Tracker() {
                           },
                         });
                       }}
-                      className="rounded-lg p-1.5 text-stone-300 transition-colors hover:bg-red-50 hover:text-red-500"
+                      className="rounded-lg p-2 text-stone-300 transition-colors hover:bg-red-50 hover:text-red-500"
                       aria-label="حذف"
                     >
                       <Trash2 className="h-3.5 w-3.5" />

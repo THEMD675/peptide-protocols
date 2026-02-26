@@ -100,7 +100,7 @@ export default function Account() {
   };
 
   return (
-    <main className="mx-auto max-w-3xl px-4 pb-24 pt-24 md:px-6 md:pt-28">
+    <main className="mx-auto max-w-3xl px-4 pb-24 pt-8 md:px-6 md:pt-12">
       <Helmet>
         <title>حسابي — إدارة الاشتراك والإعدادات | My Account</title>
         <meta name="description" content="إدارة حسابك واشتراكك في pptides. Manage your account and subscription." />

@@ -14,7 +14,7 @@ export default function Footer() {
             <p className="mt-2 text-sm text-stone-600 leading-relaxed">
               أشمل دليل عربي للببتيدات العلاجية. {peptides.length}+ ببتيد مع بروتوكولات كاملة.
             </p>
-            <a href="mailto:contact@pptides.com" className="mt-3 inline-flex items-center gap-1.5 text-sm text-emerald-600 hover:text-emerald-700">
+            <a href="mailto:contact@pptides.com" className="mt-3 inline-flex items-center gap-1.5 text-sm text-emerald-600 transition-colors hover:text-emerald-700">
               <Mail className="h-3.5 w-3.5" /> contact@pptides.com
             </a>
             <div className="mt-3 flex gap-3">
@@ -30,32 +30,32 @@ export default function Footer() {
           <div>
             <h4 className="mb-3 text-sm font-bold text-stone-900">المنتج</h4>
             <nav className="flex flex-col gap-2 text-sm">
-              <Link to="/library" className="text-stone-600 hover:text-emerald-600">المكتبة</Link>
-              <Link to="/calculator" className="text-stone-600 hover:text-emerald-600">حاسبة الجرعات</Link>
-              <Link to="/table" className="text-stone-600 hover:text-emerald-600">جدول الببتيدات</Link>
-              <Link to="/coach" className="text-stone-600 hover:text-emerald-600">المدرب الذكي</Link>
-              <Link to="/pricing" className="text-stone-600 hover:text-emerald-600">الأسعار</Link>
+              <Link to="/library" className="text-stone-600 transition-colors hover:text-emerald-600">المكتبة</Link>
+              <Link to="/calculator" className="text-stone-600 transition-colors hover:text-emerald-600">حاسبة الجرعات</Link>
+              <Link to="/table" className="text-stone-600 transition-colors hover:text-emerald-600">جدول الببتيدات</Link>
+              <Link to="/coach" className="text-stone-600 transition-colors hover:text-emerald-600">المدرب الذكي</Link>
+              <Link to="/pricing" className="text-stone-600 transition-colors hover:text-emerald-600">الأسعار</Link>
             </nav>
           </div>
 
           <div>
             <h4 className="mb-3 text-sm font-bold text-stone-900">الموارد</h4>
             <nav className="flex flex-col gap-2 text-sm">
-              <Link to="/stacks" className="text-stone-600 hover:text-emerald-600">البروتوكولات المُجمَّعة</Link>
-              <Link to="/lab-guide" className="text-stone-600 hover:text-emerald-600">دليل التحاليل</Link>
-              <Link to="/guide" className="text-stone-600 hover:text-emerald-600">دليل الحقن</Link>
-              <Link to="/glossary" className="text-stone-600 hover:text-emerald-600">المصطلحات</Link>
-              <Link to="/interactions" className="text-stone-600 hover:text-emerald-600">فحص التعارضات</Link>
-              <Link to="/sources" className="text-stone-600 hover:text-emerald-600">المصادر</Link>
-              <Link to="/community" className="text-stone-600 hover:text-emerald-600">التجارب</Link>
+              <Link to="/stacks" className="text-stone-600 transition-colors hover:text-emerald-600">البروتوكولات المُجمَّعة</Link>
+              <Link to="/lab-guide" className="text-stone-600 transition-colors hover:text-emerald-600">دليل التحاليل</Link>
+              <Link to="/guide" className="text-stone-600 transition-colors hover:text-emerald-600">دليل الحقن</Link>
+              <Link to="/glossary" className="text-stone-600 transition-colors hover:text-emerald-600">المصطلحات</Link>
+              <Link to="/interactions" className="text-stone-600 transition-colors hover:text-emerald-600">فحص التعارضات</Link>
+              <Link to="/sources" className="text-stone-600 transition-colors hover:text-emerald-600">المصادر</Link>
+              <Link to="/community" className="text-stone-600 transition-colors hover:text-emerald-600">التجارب</Link>
             </nav>
           </div>
 
           <div>
             <h4 className="mb-3 text-sm font-bold text-stone-900">قانوني</h4>
             <nav className="flex flex-col gap-2 text-sm">
-              <Link to="/privacy" className="text-stone-600 hover:text-emerald-600">سياسة الخصوصية</Link>
-              <Link to="/terms" className="text-stone-600 hover:text-emerald-600">شروط الاستخدام</Link>
+              <Link to="/privacy" className="text-stone-600 transition-colors hover:text-emerald-600">سياسة الخصوصية</Link>
+              <Link to="/terms" className="text-stone-600 transition-colors hover:text-emerald-600">شروط الاستخدام</Link>
             </nav>
             <div className="mt-4 flex flex-col gap-2 text-xs text-stone-500">
               <p className="flex items-center gap-1.5"><Lock className="h-3 w-3" /> دفع آمن عبر Stripe</p>

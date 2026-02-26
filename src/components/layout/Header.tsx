@@ -109,7 +109,7 @@ export default function Header() {
           'fixed inset-x-0 top-0 z-50 transition-all duration-300',
           'h-16 md:h-[72px]',
           scrolled
-            ? 'border-b border-stone-300/50 bg-stone-50/90 backdrop-blur-2xl shadow-sm'
+            ? 'border-b border-stone-200/50 bg-stone-50/90 backdrop-blur-2xl shadow-sm'
             : 'bg-white/80 backdrop-blur-md',
         )}
       >
@@ -249,7 +249,7 @@ export default function Header() {
                 </button>
 
                 {dropdownOpen && (
-                  <div className="absolute left-0 top-full mt-2 min-w-[180px] overflow-hidden rounded-xl border border-stone-300 bg-white py-1 shadow-xl">
+                  <div className="absolute left-0 top-full mt-2 min-w-[180px] overflow-hidden rounded-xl border border-stone-200 bg-white py-1 shadow-xl">
                     <p className="truncate border-b border-stone-200 px-4 py-2 text-xs text-stone-800">
                       {user.email}
                     </p>
@@ -284,7 +284,7 @@ export default function Header() {
             ) : (
               <Link
                 to="/login"
-                className="hidden rounded-full bg-emerald-600 px-5 py-2 text-sm font-semibold text-white transition-colors hover:bg-emerald-700 md:inline-flex"
+                className="inline-flex rounded-full bg-emerald-600 px-4 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-emerald-700 md:px-5 md:py-2 md:text-sm"
               >
                 تسجيل الدخول
               </Link>
@@ -315,7 +315,7 @@ export default function Header() {
 
         <nav
           className={cn(
-            'absolute inset-y-0 right-0 flex w-72 flex-col border-l border-stone-300 bg-white pt-16 shadow-2xl transition-transform duration-300',
+            'absolute inset-y-0 right-0 flex w-72 flex-col border-l border-stone-200 bg-white pt-16 shadow-2xl transition-transform duration-300',
             mobileOpen ? 'translate-x-0' : 'translate-x-full',
           )}
         >

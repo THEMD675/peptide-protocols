@@ -118,7 +118,7 @@ export default function Community() {
         <meta name="description" content="اقرأ تجارب حقيقية من مستخدمي الببتيدات. بروتوكولات مُجرَّبة، نتائج فعلية، وتقييمات صادقة." />
       </Helmet>
 
-      <div className="mx-auto max-w-4xl px-6 pb-20 pt-20 md:pt-28">
+      <div className="mx-auto max-w-4xl px-6 pb-20 pt-8 md:pt-12">
         <div className="mb-12 text-center">
           <div className="mx-auto mb-4 inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-100">
             <MessageSquare className="h-7 w-7 text-emerald-600" />
@@ -149,7 +149,7 @@ export default function Community() {
                 <p className="mt-1 text-sm text-stone-800">ساعد غيرك — شارك البروتوكول والنتائج</p>
               </button>
             ) : (
-              <form onSubmit={handleSubmit} className="rounded-2xl border border-stone-300 bg-white p-6 md:p-8">
+              <form onSubmit={handleSubmit} className="rounded-2xl border border-stone-200 bg-white p-6 md:p-8">
                 <h3 className="mb-6 text-lg font-bold text-stone-900">شارك تجربتك</h3>
 
                 <div className="mb-4">
@@ -161,7 +161,7 @@ export default function Community() {
                     placeholder="مثال: BPC-157, Semaglutide, Semax..."
                     required
                     dir="ltr"
-                    className="w-full rounded-xl border border-stone-300 bg-stone-50 px-4 py-3 text-stone-900 placeholder:text-stone-400"
+                    className="w-full rounded-xl border border-stone-200 bg-stone-50 px-4 py-3 text-stone-900 placeholder:text-stone-400 focus:border-emerald-300 focus:outline-none focus:ring-2 focus:ring-emerald-100"
                   />
                 </div>
 
@@ -177,7 +177,7 @@ export default function Community() {
                           'rounded-full border px-4 py-1.5 text-sm font-medium transition-all',
                           goal === g
                             ? 'border-emerald-300 bg-emerald-100 text-emerald-800'
-                            : 'border-stone-300 bg-white text-stone-800 hover:border-emerald-200'
+                            : 'border-stone-200 bg-white text-stone-800 hover:border-emerald-200'
                         )}
                       >
                         {g}
@@ -193,7 +193,7 @@ export default function Community() {
                     onChange={(e) => setProtocol(e.target.value)}
                     placeholder="مثال: 250mcg مرتين يوميًا، حقن تحت الجلد في البطن، لمدة 6 أسابيع..."
                     rows={3}
-                    className="w-full resize-none rounded-xl border border-stone-300 bg-stone-50 px-4 py-3 text-stone-900 placeholder:text-stone-400"
+                    className="w-full resize-none rounded-xl border border-stone-200 bg-stone-50 px-4 py-3 text-stone-900 placeholder:text-stone-400 focus:border-emerald-300 focus:outline-none focus:ring-2 focus:ring-emerald-100"
                   />
                 </div>
 
@@ -206,7 +206,7 @@ export default function Community() {
                       max={52}
                       value={durationWeeks}
                       onChange={(e) => setDurationWeeks(Number(e.target.value))}
-                      className="w-full rounded-xl border border-stone-300 bg-stone-50 px-4 py-3 text-stone-900"
+                      className="w-full rounded-xl border border-stone-200 bg-stone-50 px-4 py-3 text-stone-900 focus:border-emerald-300 focus:outline-none focus:ring-2 focus:ring-emerald-100"
                     />
                   </div>
                   <div>
@@ -221,7 +221,7 @@ export default function Community() {
                             'h-10 w-10 rounded-lg text-sm font-bold transition-all',
                             rating >= r
                               ? 'bg-emerald-600 text-white'
-                              : 'border border-stone-300 bg-white text-stone-800'
+                              : 'border border-stone-200 bg-white text-stone-800'
                           )}
                         >
                           {r}
@@ -239,7 +239,7 @@ export default function Community() {
                     placeholder="وصف النتائج: تحسّن، أعراض جانبية، تغييرات في التحاليل..."
                     rows={4}
                     required
-                    className="w-full resize-none rounded-xl border border-stone-300 bg-stone-50 px-4 py-3 text-stone-900 placeholder:text-stone-400"
+                    className="w-full resize-none rounded-xl border border-stone-200 bg-stone-50 px-4 py-3 text-stone-900 placeholder:text-stone-400 focus:border-emerald-300 focus:outline-none focus:ring-2 focus:ring-emerald-100"
                   />
                 </div>
 
@@ -254,7 +254,7 @@ export default function Community() {
                   <button
                     type="button"
                     onClick={() => setShowForm(false)}
-                    className="rounded-full border border-stone-300 px-6 py-3 font-bold text-stone-800 hover:bg-stone-50"
+                    className="rounded-full border border-stone-200 px-6 py-3 font-bold text-stone-800 hover:bg-stone-50"
                   >
                     إلغاء
                   </button>
@@ -265,7 +265,7 @@ export default function Community() {
         )}
 
         {!user && (
-          <div className="mb-8 rounded-2xl border border-stone-300 bg-stone-50 p-6 text-center">
+          <div className="mb-8 rounded-2xl border border-stone-200 bg-stone-50 p-6 text-center">
             <p className="font-bold text-stone-900">سجّل الدخول لمشاركة تجربتك</p>
             <Link to="/login" className="mt-3 inline-block rounded-full bg-emerald-600 px-8 py-2.5 text-sm font-bold text-white hover:bg-emerald-700">
               تسجيل الدخول
@@ -311,7 +311,7 @@ export default function Community() {
             <div className="h-6 w-6 mx-auto animate-spin rounded-full border-2 border-stone-200 border-t-emerald-600" />
           </div>
         ) : logs.length === 0 ? (
-          <div className="rounded-2xl border border-stone-300 bg-stone-50 py-16 text-center">
+          <div className="rounded-2xl border border-stone-200 bg-stone-50 py-16 text-center">
             <FlaskConical className="mx-auto mb-3 h-12 w-12 text-stone-400" />
             <p className="text-lg font-bold text-stone-800">لا توجد تجارب بعد</p>
             <p className="mt-2 text-sm text-stone-700">كن أول من يشارك تجربته!</p>
@@ -319,7 +319,7 @@ export default function Community() {
         ) : (
           <div className="space-y-4">
             {logs.filter(log => filterGoal === 'all' || log.goal === filterGoal).map((log) => (
-              <div key={log.id} className="rounded-2xl border border-stone-300 bg-white p-6">
+              <div key={log.id} className="rounded-2xl border border-stone-200 bg-white p-6">
                 <div className="mb-3 flex items-start justify-between">
                   <div className="flex items-center gap-3">
                     <div className="flex h-10 w-10 items-center justify-center rounded-full bg-emerald-100">
@@ -357,7 +357,7 @@ export default function Community() {
                     </div>
                     <button
                       onClick={() => { toast.success('تم الإبلاغ — سنراجع المحتوى'); }}
-                      className="rounded-lg p-1.5 text-stone-300 hover:text-red-500 hover:bg-red-50 transition-colors"
+                      className="rounded-lg p-2 text-stone-300 hover:text-red-500 hover:bg-red-50 transition-colors"
                       aria-label="إبلاغ"
                     >
                       <Flag className="h-3.5 w-3.5" />

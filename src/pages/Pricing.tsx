@@ -136,7 +136,7 @@ export default function Pricing() {
         })}</script>
       </Helmet>
 
-      <div className="mx-auto max-w-6xl px-6 pb-20 pt-20 md:pt-28">
+      <div className="mx-auto max-w-6xl px-6 pb-20 pt-8 md:pt-12">
         {/* Header */}
         <div className="mb-16 text-center">
           <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 px-5 py-2 text-sm font-bold text-emerald-700">
