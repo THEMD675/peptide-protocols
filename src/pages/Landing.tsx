@@ -574,7 +574,7 @@ export default function Landing() {
             اختر <span className="text-emerald-600">خطتك</span>
           </h2>
           <p className="mx-auto mb-14 max-w-lg text-center text-lg text-stone-800">
-            ابدأ بتجربة 3 أيام مجانية — بطاقة مطلوبة للتأكد فقط.
+            ابدأ بتجربة 3 أيام مجانية — بدون بطاقة.
           </p>
 
           <div className="grid gap-8 md:grid-cols-2">
