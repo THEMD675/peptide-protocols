@@ -192,33 +192,37 @@ export default function Guide() {
           </div>
 
           <BlurredSection isPro={isPro}>
-            <div className="overflow-x-auto rounded-2xl border" style={{ borderColor: '#d6d3d1' }}>
-              <table className="w-full text-sm">
-                <thead>
-                  <tr style={{ background: '#10b981' }}>
-                    <th className="px-4 py-3 text-right font-bold text-white/90">الموقع</th>
-                    <th className="px-4 py-3 text-right font-bold text-white/90">الوصف</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {injectionSites.map((row, i) => (
-                    <tr
-                      key={row.site}
-                      className="border-t transition-colors hover:bg-stone-50"
-                      style={{
-                        background: i % 2 === 0 ? 'var(--card)' : undefined,
-                      }}
-                    >
-                      <td className="px-4 py-3 font-bold" >
-                        {row.site}
-                      </td>
-                      <td className="px-4 py-3 leading-relaxed" >
-                        {row.desc}
-                      </td>
-                    </tr>
+            {/* Visual injection site diagram */}
+            <div className="mb-6 rounded-2xl border border-stone-200 bg-stone-50 p-6">
+              <div className="flex flex-col items-center gap-4 sm:flex-row sm:items-start sm:gap-8">
+                <svg viewBox="0 0 200 400" className="h-64 w-auto shrink-0" role="img" aria-label="مواقع الحقن تحت الجلد">
+                  {/* Body outline */}
+                  <ellipse cx="100" cy="40" rx="25" ry="30" fill="none" stroke="#d6d3d1" strokeWidth="1.5" />
+                  <line x1="100" y1="70" x2="100" y2="200" stroke="#d6d3d1" strokeWidth="1.5" />
+                  <line x1="100" y1="90" x2="45" y2="160" stroke="#d6d3d1" strokeWidth="1.5" />
+                  <line x1="100" y1="90" x2="155" y2="160" stroke="#d6d3d1" strokeWidth="1.5" />
+                  <line x1="100" y1="200" x2="65" y2="370" stroke="#d6d3d1" strokeWidth="1.5" />
+                  <line x1="100" y1="200" x2="135" y2="370" stroke="#d6d3d1" strokeWidth="1.5" />
+                  {/* Abdomen highlight */}
+                  <circle cx="100" cy="165" r="18" fill="#10b98120" stroke="#10b981" strokeWidth="2" strokeDasharray="4 2" />
+                  <text x="100" y="170" textAnchor="middle" fontSize="8" fill="#10b981" fontWeight="bold">البطن</text>
+                  {/* Thigh highlight */}
+                  <ellipse cx="78" cy="280" rx="12" ry="25" fill="#10b98120" stroke="#10b981" strokeWidth="2" strokeDasharray="4 2" />
+                  <text x="78" y="285" textAnchor="middle" fontSize="7" fill="#10b981" fontWeight="bold">الفخذ</text>
+                  <ellipse cx="122" cy="280" rx="12" ry="25" fill="#10b98120" stroke="#10b981" strokeWidth="2" strokeDasharray="4 2" />
+                  {/* Arm highlight */}
+                  <circle cx="45" cy="135" r="10" fill="#10b98120" stroke="#10b981" strokeWidth="2" strokeDasharray="4 2" />
+                  <text x="20" y="138" textAnchor="middle" fontSize="7" fill="#10b981" fontWeight="bold">الذراع</text>
+                </svg>
+                <div className="flex-1 space-y-3">
+                  {injectionSites.map((row) => (
+                    <div key={row.site} className="rounded-xl border border-stone-200 bg-white p-4">
+                      <h4 className="text-sm font-bold text-stone-900">{row.site}</h4>
+                      <p className="mt-1 text-xs leading-relaxed text-stone-600">{row.desc}</p>
+                    </div>
                   ))}
-                </tbody>
-              </table>
+                </div>
+              </div>
             </div>
           </BlurredSection>
         </section>

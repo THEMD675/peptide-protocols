@@ -48,6 +48,11 @@ function PageLoader() {
 class ErrorBoundary extends Component<{ children: ReactNode }, { hasError: boolean }> {
   state = { hasError: false };
   static getDerivedStateFromError() { return { hasError: true }; }
+  componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
+    import('@sentry/react').then(Sentry => {
+      Sentry.captureException(error, { extra: { componentStack: errorInfo.componentStack } });
+    });
+  }
   render() {
     if (this.state.hasError) {
       return (
