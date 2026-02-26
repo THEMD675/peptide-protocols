@@ -10,6 +10,7 @@ import TrialBanner from '@/components/TrialBanner';
 import BackToTop from '@/components/BackToTop';
 import StickyScrollCTA from '@/components/StickyScrollCTA';
 import ExitIntentPopup from '@/components/ExitIntentPopup';
+import CookieConsent from '@/components/CookieConsent';
 
 import Login from '@/pages/Login';
 import Library from '@/pages/Library';
@@ -148,6 +149,7 @@ export default function App() {
           <BackToTop />
           <StickyScrollCTA />
           <ExitIntentPopup />
+          <CookieConsent />
         </div>
         </ErrorBoundary>
       </AuthProvider>
