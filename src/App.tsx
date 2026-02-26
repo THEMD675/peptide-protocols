@@ -1,5 +1,6 @@
 import { lazy, Suspense, useEffect, Component, type ReactNode } from 'react';
-import { BrowserRouter, Routes, Route, Link, useLocation } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Link, Navigate, useLocation } from 'react-router-dom';
+import { useAuth } from '@/contexts/AuthContext';
 import { HelmetProvider } from 'react-helmet-async';
 import { Toaster } from 'sonner';
 import { AuthProvider } from '@/contexts/AuthContext';
@@ -91,6 +92,13 @@ function ScrollToTop() {
   return null;
 }
 
+function HomeRedirect() {
+  const { user, subscription, isLoading } = useAuth();
+  if (isLoading) return <PageLoader />;
+  if (user && subscription?.isProOrTrial) return <Navigate to="/dashboard" replace />;
+  return <Suspense fallback={<PageLoader />}><Landing /></Suspense>;
+}
+
 function NotFound() {
   return (
     <div className="flex flex-1 flex-col items-center justify-center py-24 text-center px-6">
@@ -139,7 +147,7 @@ export default function App() {
           <main id="main-content" className="flex-1">
             <Suspense fallback={<PageLoader />}>
             <Routes>
-              <Route path="/" element={<Landing />} />
+              <Route path="/" element={<HomeRedirect />} />
               <Route path="/login" element={<Login />} />
               <Route path="/signup" element={<Login />} />
               <Route path="/library" element={<Library />} />
