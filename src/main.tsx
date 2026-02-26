@@ -6,7 +6,7 @@ import './index.css';
 
 if (localStorage.getItem('pptides_cookie_consent') === 'accepted') {
   Sentry.init({
-    dsn: import.meta.env.VITE_SENTRY_DSN || 'https://379ce8bcb1d6e230dd99ab2a275339b8@o4510688220348416.ingest.us.sentry.io/4510688227950592',
+    dsn: import.meta.env.VITE_SENTRY_DSN,
     integrations: [
       Sentry.browserTracingIntegration(),
       Sentry.replayIntegration({ maskAllText: false, blockAllMedia: false }),

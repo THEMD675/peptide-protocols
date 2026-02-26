@@ -14,9 +14,9 @@ import StickyScrollCTA from '@/components/StickyScrollCTA';
 import ExitIntentPopup from '@/components/ExitIntentPopup';
 import CookieConsent from '@/components/CookieConsent';
 
-import Login from '@/pages/Login';
-import Library from '@/pages/Library';
-import Pricing from '@/pages/Pricing';
+const Login = lazy(() => import('@/pages/Login'));
+const Library = lazy(() => import('@/pages/Library'));
+const Pricing = lazy(() => import('@/pages/Pricing'));
 
 const Landing = lazy(() => import('@/pages/Landing'));
 const DoseCalculator = lazy(() => import('@/pages/DoseCalculator'));

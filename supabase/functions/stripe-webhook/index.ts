@@ -204,7 +204,7 @@ serve(async (req) => {
             const { error } = await supabase
               .from('subscriptions')
               .update({
-                status: 'active',
+                status: 'cancelled',
                 updated_at: new Date().toISOString(),
               })
               .eq('stripe_subscription_id', stripeSubId)
