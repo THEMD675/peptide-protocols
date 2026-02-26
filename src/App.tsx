@@ -40,8 +40,11 @@ const InteractionChecker = lazy(() => import('@/pages/InteractionChecker'));
 
 function PageLoader() {
   return (
-    <div className="flex min-h-[50vh] items-center justify-center">
-      <div className="h-8 w-8 animate-spin rounded-full border-4 border-emerald-200 border-t-emerald-600" />
+    <div className="flex min-h-[60vh] flex-col items-center justify-center gap-4">
+      <div className="text-xl font-bold tracking-tight text-stone-900">
+        <span>pp</span><span className="text-emerald-600">tides</span>
+      </div>
+      <div className="h-6 w-6 animate-spin rounded-full border-3 border-emerald-200 border-t-emerald-600" />
     </div>
   );
 }
