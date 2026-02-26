@@ -145,9 +145,9 @@ export default function Pricing() {
       <div className="mx-auto max-w-6xl px-6 pb-20 pt-20 md:pt-28">
         {/* Header */}
         <div className="mb-16 text-center">
-          <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-red-200 bg-red-50 px-5 py-2 text-sm font-bold text-red-700">
-            <span className="relative flex h-2 w-2"><span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-red-400 opacity-75" /><span className="relative inline-flex h-2 w-2 rounded-full bg-red-500" /></span>
-            سعر الإطلاق — ينتهي قريبًا
+          <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 px-5 py-2 text-sm font-bold text-emerald-700">
+            <span className="relative flex h-2 w-2"><span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" /><span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500" /></span>
+            3 أيام تجربة مجانية على كل الخطط
           </div>
           <h1 className="mb-4 text-3xl font-bold text-stone-900 md:text-5xl lg:text-6xl">
             استثمر في <span className="text-emerald-600">صحتك</span>

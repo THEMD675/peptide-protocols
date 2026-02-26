@@ -44,10 +44,10 @@ export default function Sources() {
   return (
     <div className="min-h-screen" >
       <Helmet>
-        <title>مصادر ببتيدات موثوقة — موردون معتمدون | Trusted Peptide Sources</title>
+        <title>مصادر ببتيدات موثوقة — معايير اختيار المورد | Trusted Peptide Sources</title>
         <meta
           name="description"
-          content="معايير اختيار مورد ببتيدات موثوق — شهادات التحليل، النقاء، السمعة المجتمعية، والشحن المبرّد."
+          content="تعلّم كيف تختار مورد ببتيدات موثوق — شهادات التحليل، النقاء ≥98%، السمعة المجتمعية، والشحن المبرّد."
         />
       </Helmet>
 

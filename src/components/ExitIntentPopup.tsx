@@ -42,15 +42,14 @@ export default function ExitIntentPopup() {
         </div>
 
         <h2 className="mb-2 text-2xl font-bold text-stone-900">
-          لحظة — عرض خاص لك
+          لحظة — لا تفوّت الفرصة
         </h2>
         <p className="mb-1 text-stone-700">
-          وفّر 20% على الاشتراك السنوي
+          41+ ببتيد مع بروتوكولات كاملة، حاسبة جرعات، ومدرب ذكي
         </p>
         <div className="mb-4 flex items-center justify-center gap-2">
-          <span className="text-3xl font-black text-emerald-600">$7.17</span>
-          <span className="text-stone-500">/شهريًا بدلًا من</span>
-          <span className="text-lg text-stone-400 line-through">$9</span>
+          <span className="text-3xl font-black text-emerald-600">3 أيام</span>
+          <span className="text-stone-500">تجربة مجانية</span>
         </div>
 
         <Link
@@ -58,7 +57,7 @@ export default function ExitIntentPopup() {
           onClick={() => setVisible(false)}
           className="mb-3 flex w-full items-center justify-center gap-2 rounded-full bg-emerald-600 px-6 py-3.5 text-base font-bold text-white transition-all hover:bg-emerald-700 hover:scale-[1.02] active:scale-[0.98]"
         >
-          <span>احصل على العرض</span>
+          <span>ابدأ تجربتك المجانية</span>
           <ArrowLeft className="h-5 w-5" />
         </Link>
 

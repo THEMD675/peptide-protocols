@@ -17,6 +17,7 @@ import {
   CheckCircle,
   Sparkles,
   Star,
+  Bot,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { peptides, categories, type Peptide } from '@/data/peptides';
@@ -465,15 +466,19 @@ export default function Library() {
             </div>
           ) : (
             <div
-              className="flex flex-col items-center justify-center py-20 text-center"
+              className="flex flex-col items-center justify-center py-16 text-center"
             >
-              <FlaskConical className="mb-4 h-12 w-12 text-stone-500" />
+              <FlaskConical className="mb-4 h-12 w-12 text-stone-400" />
               <p className="text-lg font-semibold text-stone-800">
-                لا توجد نتائج
+                لا توجد نتائج لـ &quot;{search}&quot;
               </p>
-              <p className="mt-1 text-sm text-stone-700">
-                حاول تغيير معايير البحث
+              <p className="mt-1 text-sm text-stone-600">
+                جرّب كلمات بحث مختلفة أو اسأل المدرب الذكي
               </p>
+              <Link to="/coach" className="mt-4 inline-flex items-center gap-2 rounded-full bg-emerald-600 px-6 py-2.5 text-sm font-bold text-white hover:bg-emerald-700">
+                <Bot className="h-4 w-4" />
+                اسأل المدرب الذكي
+              </Link>
             </div>
           )}
         </AnimatePresence>

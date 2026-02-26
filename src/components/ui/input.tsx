@@ -21,7 +21,7 @@ const Input = React.forwardRef<HTMLInputElement, React.ComponentProps<"input">>(
         className={cn(
           // Base styles - clean and modern (explicit pl/pr for LTR, separate for overridability)
           "flex h-12 w-full rounded-lg border border-border bg-background ps-4 pe-4 py-3",
-          // Typography - LTR global app, placeholder slightly darker for visibility
+          // Typography
           "text-base text-foreground placeholder:text-muted-foreground text-start placeholder:text-start caret-primary",
           // Focus states - subtle ring with glow
           "ring-offset-background focus-visible:outline-none",

@@ -59,10 +59,10 @@ export default function Account() {
         .eq('user_id', user.id);
       if (error) throw error;
       setShowCancelDialog(false);
-      import('sonner').then(m => m.toast.success('تم إلغاء الاشتراك. ستحتفظ بالوصول حتى نهاية الفترة الحالية.'));
-      setTimeout(() => window.location.reload(), 1500);
+      import('sonner').then(m => m.toast.success('تم طلب إلغاء الاشتراك. ستحتفظ بالوصول حتى نهاية الفترة الحالية. لإيقاف الدفعات المستقبلية، تواصل معنا عبر support@pptides.com'));
+      setTimeout(() => window.location.reload(), 2500);
     } catch {
-      import('sonner').then(m => m.toast.error('حدث خطأ أثناء إلغاء الاشتراك. تواصل معنا: support@pptides.com'));
+      import('sonner').then(m => m.toast.error('حدث خطأ. تواصل معنا: support@pptides.com'));
     } finally {
       setIsProcessing(false);
     }
@@ -191,7 +191,10 @@ export default function Account() {
             </div>
             <h3 className="text-lg font-bold text-stone-900">إلغاء الاشتراك</h3>
             <p className="mt-2 text-sm text-stone-600">
-              هل أنت متأكد من إلغاء اشتراكك؟ ستفقد الوصول إلى المحتوى المميز عند انتهاء الفترة الحالية.
+              هل أنت متأكد من إلغاء اشتراكك؟ ستحتفظ بالوصول حتى نهاية فترتك الحالية.
+            </p>
+            <p className="mt-2 text-sm text-stone-500">
+              لإيقاف الدفعات المستقبلية بشكل نهائي، تواصل معنا عبر <a href="mailto:support@pptides.com" className="text-emerald-600 font-semibold">support@pptides.com</a>
             </p>
             <div className="mt-6 flex gap-3">
               <button

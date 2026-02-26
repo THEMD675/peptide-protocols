@@ -24,8 +24,8 @@ export function GlassPanel({
 }: GlassPanelProps) {
   const variants = {
     subtle: 'bg-card border-border backdrop-blur-xl ring-1 ring-border',
-    medium: 'bg-card border-border backdrop-blur-xl ring-1 ring-border shadow-xl shadow-sm',
-    strong: 'bg-card/60 border-border backdrop-blur-2xl ring-1 ring-border shadow-2xl shadow-sm'
+    medium: 'bg-card border-border backdrop-blur-xl ring-1 ring-border shadow-lg',
+    strong: 'bg-card/60 border-border backdrop-blur-2xl ring-1 ring-border shadow-xl'
   }
   
   const Component = magnetic ? motion.div : 'div'
@@ -60,7 +60,7 @@ export function GlassPanel({
         <div className="absolute inset-0 bg-gradient-to-br from-white/[0.03] via-transparent to-white/[0.01] rounded-2xl" />
         
         {/* Shimmer layer */}
-        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/[0.02] to-transparent animate-premium-shimmer rounded-2xl" />
+        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/[0.02] to-transparent animate-shimmer rounded-2xl" />
         
         {/* Inner highlight */}
         <div className="absolute inset-0 border border-white/[0.02] rounded-2xl pointer-events-none" />

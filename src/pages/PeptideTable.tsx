@@ -210,7 +210,7 @@ export default function PeptideTable() {
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="ابحث بالاسم أو الفئة..."
-              className="w-full rounded-xl border border-stone-300 bg-stone-50 py-3 pr-10 pl-4 text-sm text-stone-900 placeholder-white/30 outline-none transition-colors focus:border-emerald-300 focus:ring-1 focus:ring-emerald-200"
+              className="w-full rounded-xl border border-stone-300 bg-stone-50 py-3 pr-10 pl-4 text-sm text-stone-900 placeholder:text-stone-400 outline-none transition-colors focus:border-emerald-300 focus:ring-1 focus:ring-emerald-200"
             />
           </div>
 
@@ -296,7 +296,7 @@ export default function PeptideTable() {
                       const catName = categories.find((c) => c.id === p.category)?.nameAr ?? p.category;
                       const longTerm = isLongTerm(p.cycleAr);
                       const shouldBlur = !hasAccess && !p.isFree;
-                      const rowBg = i % 2 === 0 ? 'rgba(255,255,255,0.015)' : 'transparent';
+                      const rowBg = i % 2 === 0 ? '#fafaf9' : '#ffffff';
 
                       return (
                         <tr
@@ -368,8 +368,8 @@ export default function PeptideTable() {
                               className={cn(
                                 'inline-block rounded-full px-2 py-0.5 text-[10px] font-bold md:text-xs',
                                 longTerm
-                                  ? 'bg-emerald-500/20 text-emerald-400'
-                                  : 'bg-amber-500/20 text-amber-400'
+                                  ? 'bg-emerald-100 text-emerald-800'
+                                  : 'bg-amber-100 text-amber-800'
                               )}
                               style={shouldBlur ? blurStyle : undefined}
                             >

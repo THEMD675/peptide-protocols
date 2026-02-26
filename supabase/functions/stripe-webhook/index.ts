@@ -29,13 +29,12 @@ serve(async (req) => {
     case 'checkout.session.completed': {
       const session = event.data.object as Stripe.Checkout.Session
       const userId = session.client_reference_id
-      const customerEmail = session.customer_email ?? session.customer_details?.email
       const stripeCustomerId = session.customer as string
       const stripeSubscriptionId = session.subscription as string
 
       if (userId) {
         const tier = session.metadata?.tier ?? 'essentials'
-        await supabase
+        const { error, count } = await supabase
           .from('subscriptions')
           .update({
             status: 'active',
@@ -45,6 +44,12 @@ serve(async (req) => {
             updated_at: new Date().toISOString(),
           })
           .eq('user_id', userId)
+
+        if (error) {
+          console.error('checkout.session.completed DB error:', error)
+        } else if (count === 0) {
+          console.error('checkout.session.completed: no subscription row found for user', userId)
+        }
       }
       break
     }
@@ -52,47 +57,66 @@ serve(async (req) => {
     case 'customer.subscription.updated': {
       const subscription = event.data.object as Stripe.Subscription
       const stripeSubId = subscription.id
-      const status = subscription.status === 'active' ? 'active' : 'expired'
+      const stripeStatus = subscription.status
       const periodEnd = new Date(subscription.current_period_end * 1000).toISOString()
 
-      await supabase
+      let mappedStatus: string
+      if (stripeStatus === 'active') mappedStatus = 'active'
+      else if (stripeStatus === 'past_due' || stripeStatus === 'trialing') mappedStatus = 'active'
+      else if (stripeStatus === 'canceled' || stripeStatus === 'unpaid') mappedStatus = 'cancelled'
+      else mappedStatus = 'expired'
+
+      const { error } = await supabase
         .from('subscriptions')
         .update({
-          status,
+          status: mappedStatus,
           current_period_end: periodEnd,
           updated_at: new Date().toISOString(),
         })
         .eq('stripe_subscription_id', stripeSubId)
+
+      if (error) console.error('subscription.updated DB error:', error)
       break
     }
 
     case 'customer.subscription.deleted': {
       const subscription = event.data.object as Stripe.Subscription
       const stripeSubId = subscription.id
+      const periodEnd = new Date(subscription.current_period_end * 1000).toISOString()
 
-      await supabase
+      const { error } = await supabase
         .from('subscriptions')
         .update({
           status: 'cancelled',
+          current_period_end: periodEnd,
           updated_at: new Date().toISOString(),
         })
         .eq('stripe_subscription_id', stripeSubId)
+
+      if (error) console.error('subscription.deleted DB error:', error)
       break
     }
 
     case 'invoice.payment_failed': {
       const invoice = event.data.object as Stripe.Invoice
-      const stripeCustomerId = invoice.customer as string
+      const stripeSubId = invoice.subscription as string
 
-      await supabase
-        .from('subscriptions')
-        .update({
-          status: 'expired',
-          updated_at: new Date().toISOString(),
-        })
-        .eq('stripe_customer_id', stripeCustomerId)
+      if (stripeSubId) {
+        const { error } = await supabase
+          .from('subscriptions')
+          .update({
+            status: 'expired',
+            updated_at: new Date().toISOString(),
+          })
+          .eq('stripe_subscription_id', stripeSubId)
+
+        if (error) console.error('payment_failed DB error:', error)
+      }
       break
     }
+
+    default:
+      console.log('Unhandled event type:', event.type)
   }
 
   return new Response(JSON.stringify({ received: true }), {

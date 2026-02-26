@@ -520,8 +520,8 @@ export default function Landing() {
       <section className="bg-gradient-to-b from-stone-50 to-white py-24 md:py-32">
         <div className="mx-auto max-w-5xl px-6">
           <div className="mb-6 text-center">
-            <span className="inline-block animate-pulse rounded-full bg-red-100 px-4 py-1.5 text-sm font-bold text-red-700">
-              عرض محدود — سعر الإطلاق ينتهي قريبًا
+            <span className="inline-block rounded-full bg-emerald-100 px-4 py-1.5 text-sm font-bold text-emerald-700">
+              ابدأ بتجربة 3 أيام مجانية
             </span>
           </div>
           <h2

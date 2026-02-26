@@ -23,7 +23,9 @@ CREATE POLICY "Users read own subscription" ON public.subscriptions
   FOR SELECT USING (auth.uid() = user_id);
 
 CREATE POLICY "Service role manages subscriptions" ON public.subscriptions
-  FOR ALL USING (auth.role() = 'service_role');
+  FOR ALL USING (
+    (current_setting('request.jwt.claims', true)::json ->> 'role') = 'service_role'
+  );
 
 -- 2. Email list table
 CREATE TABLE IF NOT EXISTS public.email_list (
@@ -39,7 +41,9 @@ CREATE POLICY "Anyone can insert email" ON public.email_list
   FOR INSERT WITH CHECK (true);
 
 CREATE POLICY "Service role reads emails" ON public.email_list
-  FOR SELECT USING (auth.role() = 'service_role');
+  FOR SELECT USING (
+    (current_setting('request.jwt.claims', true)::json ->> 'role') = 'service_role'
+  );
 
 -- 3. Auto-create subscription row on user signup
 CREATE OR REPLACE FUNCTION public.handle_new_user()
@@ -74,10 +78,12 @@ CREATE POLICY "Users read own referral" ON public.referrals
   FOR SELECT USING (auth.uid() = user_id);
 
 CREATE POLICY "Service role manages referrals" ON public.referrals
-  FOR ALL USING (auth.role() = 'service_role');
+  FOR ALL USING (
+    (current_setting('request.jwt.claims', true)::json ->> 'role') = 'service_role'
+  );
 
-CREATE POLICY "Anyone can insert referral on signup" ON public.referrals
-  FOR INSERT WITH CHECK (true);
+CREATE POLICY "Users insert own referral on signup" ON public.referrals
+  FOR INSERT WITH CHECK (auth.uid() = user_id);
 
 CREATE TABLE IF NOT EXISTS public.referral_rewards (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -96,10 +102,9 @@ CREATE POLICY "Users read own rewards" ON public.referral_rewards
   );
 
 CREATE POLICY "Service role manages rewards" ON public.referral_rewards
-  FOR ALL USING (auth.role() = 'service_role');
-
-CREATE POLICY "Anyone can insert reward on signup" ON public.referral_rewards
-  FOR INSERT WITH CHECK (true);
+  FOR ALL USING (
+    (current_setting('request.jwt.claims', true)::json ->> 'role') = 'service_role'
+  );
 
 -- ============================================================
 -- 5. Community logs table
@@ -176,9 +181,26 @@ CREATE POLICY "Users delete own injection logs" ON public.injection_logs
   FOR DELETE USING (auth.uid() = user_id);
 
 -- ============================================================
--- 8. Add update policy for subscriptions (client-side updates)
+-- 8. Restricted update policy — users can ONLY cancel their own subscription
+-- (all other updates go through the service role via Stripe webhook)
 -- ============================================================
 
-CREATE POLICY "Users update own subscription status" ON public.subscriptions
+CREATE POLICY "Users can cancel own subscription" ON public.subscriptions
+  FOR UPDATE USING (auth.uid() = user_id)
+  WITH CHECK (auth.uid() = user_id AND status = 'cancelled');
+
+-- ============================================================
+-- 9. UPDATE policies for user-editable tables
+-- ============================================================
+
+CREATE POLICY "Users update own injection logs" ON public.injection_logs
+  FOR UPDATE USING (auth.uid() = user_id)
+  WITH CHECK (auth.uid() = user_id);
+
+CREATE POLICY "Users update own community logs" ON public.community_logs
+  FOR UPDATE USING (auth.uid() = user_id)
+  WITH CHECK (auth.uid() = user_id);
+
+CREATE POLICY "Users update own reviews" ON public.reviews
   FOR UPDATE USING (auth.uid() = user_id)
   WITH CHECK (auth.uid() = user_id);

@@ -25,7 +25,7 @@ export default function Login() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (user && !isRecovery) navigate('/library', { replace: true });
+    if (user && !isRecovery) navigate('/dashboard', { replace: true });
   }, [user, isRecovery, navigate]);
 
   useEffect(() => {
@@ -75,7 +75,7 @@ export default function Login() {
       } else {
         await signup(email, password);
       }
-      navigate('/library');
+      navigate('/dashboard');
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'حدث خطأ غير متوقع';
       if (msg.includes('رابط التأكيد') || msg.includes('تحقق من بريدك')) {
@@ -93,7 +93,7 @@ export default function Login() {
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: `${window.location.origin}/library`,
+        redirectTo: `${window.location.origin}/dashboard`,
       },
     });
     if (error) setError(error.message);

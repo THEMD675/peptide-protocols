@@ -14,6 +14,15 @@ serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: corsHeaders })
 
   try {
+    const cronSecret = req.headers.get('x-cron-secret')
+    const expectedSecret = Deno.env.get('CRON_SECRET')
+    if (expectedSecret && cronSecret !== expectedSecret) {
+      return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+        status: 401,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      })
+    }
+
     if (!RESEND_API_KEY) {
       return new Response(JSON.stringify({ error: 'Missing API key' }), {
         status: 500,
@@ -24,9 +33,6 @@ serve(async (req) => {
     const supabase = createClient(supabaseUrl, supabaseServiceKey)
 
     const now = new Date()
-    const oneDayAgo = new Date(now.getTime() - 24 * 60 * 60 * 1000).toISOString()
-    const twoDaysAgo = new Date(now.getTime() - 2 * 24 * 60 * 60 * 1000).toISOString()
-    const threeDaysFromNow = new Date(now.getTime() + 3 * 24 * 60 * 60 * 1000).toISOString()
 
     const { data: trialUsers } = await supabase
       .from('subscriptions')
@@ -103,7 +109,7 @@ serve(async (req) => {
         continue
       }
 
-      await fetch('https://api.resend.com/emails', {
+      const emailRes = await fetch('https://api.resend.com/emails', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -125,13 +131,18 @@ serve(async (req) => {
         }),
       })
 
-      sent++
+      if (emailRes.ok) {
+        sent++
+      } else {
+        console.error(`Failed to send to ${email}:`, emailRes.status, await emailRes.text().catch(() => ''))
+      }
     }
 
     return new Response(JSON.stringify({ sent }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     })
   } catch (error) {
+    console.error('trial-reminder error:', error)
     return new Response(JSON.stringify({ error: 'Internal error' }), {
       status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },

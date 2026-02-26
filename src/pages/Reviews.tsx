@@ -1,9 +1,3 @@
-// SQL to create the reviews table in Supabase:
-// CREATE TABLE public.reviews (id uuid PRIMARY KEY DEFAULT gen_random_uuid(), user_id uuid REFERENCES auth.users(id), rating int NOT NULL CHECK (rating >= 1 AND rating <= 5), text text NOT NULL, created_at timestamptz DEFAULT now());
-// ALTER TABLE public.reviews ENABLE ROW LEVEL SECURITY;
-// CREATE POLICY "Anyone can read reviews" ON public.reviews FOR SELECT USING (true);
-// CREATE POLICY "Users can insert own review" ON public.reviews FOR INSERT WITH CHECK (auth.uid() = user_id);
-
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
@@ -76,11 +70,15 @@ export default function Reviews() {
   const [submitted, setSubmitted] = useState(false);
 
   const fetchReviews = async () => {
-    const { data } = await supabase
+    const { data, error } = await supabase
       .from('reviews')
       .select('id, rating, text, created_at')
-      .order('created_at', { ascending: false });
+      .order('created_at', { ascending: false })
+      .limit(100);
 
+    if (error) {
+      console.error('Failed to load reviews:', error.message);
+    }
     if (data) setReviews(data);
     setLoading(false);
   };
@@ -211,12 +209,16 @@ export default function Reviews() {
                   onChange={(e) => setText(e.target.value)}
                   placeholder="شاركنا تجربتك..."
                   rows={4}
+                  maxLength={1000}
                   className={cn(
                     'w-full resize-none rounded-xl border border-stone-300 bg-stone-50 px-4 py-3',
                     'text-sm text-stone-900 placeholder:text-stone-700',
                     'transition-colors focus:border-emerald-300 focus:outline-none focus:ring-1 focus:ring-emerald-200',
                   )}
                 />
+                {text.length > 0 && (
+                  <p className="mt-1 text-left text-xs text-stone-400">{text.length}/1000</p>
+                )}
               </div>
 
               <button

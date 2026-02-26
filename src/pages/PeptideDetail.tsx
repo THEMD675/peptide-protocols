@@ -238,20 +238,27 @@ export default function PeptideDetail() {
             </table>
           </div>
 
-          <div className="mt-6 grid gap-3 sm:grid-cols-2">
+          <div className="mt-6 grid gap-3 sm:grid-cols-3">
             <Link
               to={`/calculator?peptide=${encodeURIComponent(peptide.nameEn)}`}
               className="flex items-center justify-center gap-2 rounded-xl border border-emerald-200 bg-emerald-50 px-5 py-3.5 text-sm font-bold text-emerald-700 transition-all hover:bg-emerald-100 hover:shadow-md"
             >
               <Calculator className="h-4 w-4" />
-              احسب جرعة {peptide.nameAr}
+              احسب الجرعة
             </Link>
             <Link
               to={`/coach?peptide=${encodeURIComponent(peptide.nameAr)}`}
               className="flex items-center justify-center gap-2 rounded-xl border border-stone-200 bg-white px-5 py-3.5 text-sm font-bold text-stone-800 transition-all hover:border-emerald-200 hover:shadow-md"
             >
               <Bot className="h-4 w-4" />
-              اسأل المدرب عن {peptide.nameAr}
+              اسأل المدرب
+            </Link>
+            <Link
+              to={`/tracker`}
+              className="flex items-center justify-center gap-2 rounded-xl border border-stone-200 bg-white px-5 py-3.5 text-sm font-bold text-stone-800 transition-all hover:border-emerald-200 hover:shadow-md"
+            >
+              <ArrowRight className="h-4 w-4" />
+              سجّل أول حقنة
             </Link>
           </div>
 

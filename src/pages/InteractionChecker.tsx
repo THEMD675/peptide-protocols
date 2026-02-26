@@ -48,7 +48,12 @@ function checkInteraction(id1: string, id2: string): InteractionResult {
   if (!p1 || !p2) return { safe: true, warning: true, message: 'غير متوفر', details: '' };
 
   if (p1.category === p2.category) {
-    return { safe: true, warning: true, message: 'نفس الفئة — تحقق من التداخل', details: `كلا الببتيدين من فئة ${p1.category === 'metabolic' ? 'الأيض' : p1.category === 'recovery' ? 'التعافي' : p1.category === 'brain' ? 'الدماغ' : p1.category}. قد يكون هناك تداخل في الآلية. استشر مختص قبل الجمع.` };
+    const catLabels: Record<string, string> = {
+      metabolic: 'الأيض', recovery: 'التعافي', brain: 'الدماغ',
+      hormonal: 'الهرمونات', longevity: 'إطالة العمر', 'skin-gut': 'البشرة والأمعاء',
+    };
+    const catName = catLabels[p1.category] ?? p1.category;
+    return { safe: true, warning: true, message: 'نفس الفئة — تحقق من التداخل', details: `كلا الببتيدين من فئة ${catName}. قد يكون هناك تداخل في الآلية. استشر مختص قبل الجمع.` };
   }
 
   return { safe: true, warning: false, message: 'لا يوجد تعارض معروف', details: 'بناءً على البيانات المتاحة، لا يوجد تعارض معروف بين هذين الببتيدين. لكن استشر مختص دائمًا قبل تجميع أي بروتوكول.' };
@@ -113,12 +118,6 @@ export default function InteractionChecker() {
             </select>
           </div>
         </div>
-
-        {peptide1 && peptide2 && peptide1 === peptide2 && (
-          <div className="rounded-xl border border-stone-200 bg-stone-50 p-6 text-center text-sm text-stone-600">
-            اختر ببتيدين مختلفين للمقارنة
-          </div>
-        )}
 
         {result && (
           <div className={cn(

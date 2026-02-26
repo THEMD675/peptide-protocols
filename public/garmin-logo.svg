@@ -1,6 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60 60">
-  <!-- Garmin triangle logo -->
-  <rect width="60" height="60" fill="none"/>
-  <path d="M30 8 L50 38 H10 Z" fill="white"/>
-  <text x="30" y="54" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="9" font-weight="700" letter-spacing="0.5" fill="white">GARMIN</text>
-</svg>

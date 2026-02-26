@@ -1,6 +1,7 @@
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { Shield } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 const FREE_PATHS = ['/calculator', '/pricing', '/login', '/signup', '/privacy', '/terms', '/', '/glossary', '/sources', '/reviews'];
 
@@ -63,16 +64,20 @@ export default function TrialBanner() {
     const daysLeft = subscription.trialDaysLeft;
     const isLastDay = daysLeft <= 1;
 
+    const daysText = daysLeft === 1 ? 'يوم واحد' : daysLeft === 2 ? 'يومان' : `${daysLeft} أيام`;
+
     return (
       <div
-        className={`sticky top-[64px] md:top-[72px] z-40 text-center py-2 px-4 ${
+        className={cn(
+          'sticky top-[64px] md:top-[72px] z-40 text-center py-2 px-4',
           isLastDay ? 'bg-red-600' : 'gold-gradient'
-        }`}
+        )}
       >
         <p
-          className={`text-sm font-semibold ${
+          className={cn(
+            'text-sm font-semibold',
             isLastDay ? 'text-white' : 'text-stone-900'
-          }`}
+          )}
         >
           {isLastDay ? (
             <>
@@ -87,7 +92,7 @@ export default function TrialBanner() {
             </>
           ) : (
             <>
-              متبقي {String(daysLeft)} أيام
+              متبقي {daysText}
               <span className="mx-2">—</span>
               <Link
                 to="/pricing"

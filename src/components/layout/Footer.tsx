@@ -39,6 +39,7 @@ export default function Footer() {
               <Link to="/interactions" className="text-stone-600 hover:text-emerald-600">فحص التعارضات</Link>
               <Link to="/sources" className="text-stone-600 hover:text-emerald-600">المصادر</Link>
               <Link to="/community" className="text-stone-600 hover:text-emerald-600">التجارب</Link>
+              <Link to="/referral" className="text-stone-600 hover:text-emerald-600">برنامج الإحالة</Link>
             </nav>
           </div>
 
@@ -47,7 +48,6 @@ export default function Footer() {
             <nav className="flex flex-col gap-2 text-sm">
               <Link to="/privacy" className="text-stone-600 hover:text-emerald-600">سياسة الخصوصية</Link>
               <Link to="/terms" className="text-stone-600 hover:text-emerald-600">شروط الاستخدام</Link>
-              <Link to="/referral" className="text-stone-600 hover:text-emerald-600">برنامج الإحالة</Link>
             </nav>
             <div className="mt-4 flex flex-col gap-2 text-xs text-stone-500">
               <p className="flex items-center gap-1.5"><Lock className="h-3 w-3" /> دفع آمن عبر Stripe</p>

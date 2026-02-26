@@ -1,7 +1,6 @@
 import { useState, useMemo, useEffect } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { Link, useSearchParams } from 'react-router-dom';
-import { AnimatePresence } from 'framer-motion';
 import { Calculator, FlaskConical, Droplets, ChevronDown, ArrowLeft, BookOpen, Layers, Bot, Syringe } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -439,25 +438,21 @@ export default function DoseCalculator() {
                 label="التركيز"
                 value={fmt(results.concentration, 0)}
                 unit="مكغ/مل"
-                index={0}
               />
               <ResultCard
                 label="الكمية المطلوبة"
                 value={fmt(results.volumeMl, 3)}
                 unit="مل"
-                index={1}
               />
               <ResultCard
                 label="وحدات السيرنج"
                 value={fmt(results.syringeUnits, 1)}
                 unit={`وحدة (${syringe.label.split('(')[0].trim()})`}
-                index={2}
               />
               <ResultCard
                 label="عدد الجرعات في القارورة"
                 value={fmt(results.dosesPerVial, 0)}
                 unit="جرعة"
-                index={3}
               />
             </div>
 
@@ -533,7 +528,6 @@ export default function DoseCalculator() {
             />
           </button>
 
-          <AnimatePresence>
             {showFormulas && (
               <div
                 className="overflow-hidden"
@@ -565,7 +559,6 @@ export default function DoseCalculator() {
                 </div>
               </div>
             )}
-          </AnimatePresence>
         </div>
 
         {/* Reference Table */}
@@ -720,12 +713,10 @@ function ResultCard({
   label,
   value,
   unit,
-  index,
 }: {
   label: string;
   value: string;
   unit: string;
-  index: number;
 }) {
   return (
     <div

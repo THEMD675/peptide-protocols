@@ -71,7 +71,7 @@ export default function LabGuide() {
             </h2>
           </div>
 
-          <div className="overflow-x-auto rounded-2xl border" style={{ borderColor: '#d6d3d1' }}>
+          <div className="relative overflow-x-auto rounded-2xl border" style={{ borderColor: '#d6d3d1' }}>
             <table className="w-full text-sm">
               <thead>
                 <tr style={{ background: '#10b981' }}>
@@ -86,39 +86,35 @@ export default function LabGuide() {
                   </th>
                 </tr>
               </thead>
+              <tbody style={blurStyle}>
+                {labTests.map((test, i) => (
+                  <tr
+                    key={test.id}
+                    className="border-t transition-colors hover:bg-stone-50"
+                    style={{
+                      background: i % 2 === 0 ? 'var(--card)' : undefined,
+                    }}
+                  >
+                    <td className="px-4 py-3">
+                      <span className="font-bold" >
+                        {test.nameAr}
+                      </span>
+                      <br />
+                      <span className="text-xs" >
+                        {test.nameEn}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3 leading-relaxed" >
+                      {test.descriptionAr}
+                    </td>
+                    <td className="px-4 py-3 text-sm" >
+                      {test.whenAr}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
             </table>
-            <div className="relative">
-              <table className="w-full text-sm" style={blurStyle}>
-                <tbody>
-                  {labTests.map((test, i) => (
-                    <tr
-                      key={test.id}
-                      className="border-t transition-colors hover:bg-stone-50"
-                      style={{
-                        background: i % 2 === 0 ? 'var(--card)' : undefined,
-                      }}
-                    >
-                      <td className="px-4 py-3">
-                        <span className="font-bold" >
-                          {test.nameAr}
-                        </span>
-                        <br />
-                        <span className="text-xs" >
-                          {test.nameEn}
-                        </span>
-                      </td>
-                      <td className="px-4 py-3 leading-relaxed" >
-                        {test.descriptionAr}
-                      </td>
-                      <td className="px-4 py-3 text-sm" >
-                        {test.whenAr}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-              {!isPro && <BlurredOverlay />}
-            </div>
+            {!isPro && <BlurredOverlay />}
           </div>
         </section>
 
@@ -131,7 +127,7 @@ export default function LabGuide() {
             </h2>
           </div>
 
-          <div className="overflow-x-auto rounded-2xl border" style={{ borderColor: '#d6d3d1' }}>
+          <div className="relative overflow-x-auto rounded-2xl border" style={{ borderColor: '#d6d3d1' }}>
             <table className="w-full text-sm">
               <thead>
                 <tr style={{ background: '#10b981' }}>
@@ -143,30 +139,26 @@ export default function LabGuide() {
                   </th>
                 </tr>
               </thead>
+              <tbody style={blurStyle}>
+                {monitoringSchedule.map((row, i) => (
+                  <tr
+                    key={row.when}
+                    className="border-t transition-colors hover:bg-stone-50"
+                    style={{
+                      background: i % 2 === 0 ? 'var(--card)' : undefined,
+                    }}
+                  >
+                    <td className="px-4 py-3 font-bold" >
+                      {row.when}
+                    </td>
+                    <td className="px-4 py-3" >
+                      {row.tests}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
             </table>
-            <div className="relative">
-              <table className="w-full text-sm" style={blurStyle}>
-                <tbody>
-                  {monitoringSchedule.map((row, i) => (
-                    <tr
-                      key={row.when}
-                      className="border-t transition-colors hover:bg-stone-50"
-                      style={{
-                        background: i % 2 === 0 ? 'var(--card)' : undefined,
-                      }}
-                    >
-                      <td className="px-4 py-3 font-bold" >
-                        {row.when}
-                      </td>
-                      <td className="px-4 py-3" >
-                        {row.tests}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-              {!isPro && <BlurredOverlay />}
-            </div>
+            {!isPro && <BlurredOverlay />}
           </div>
         </section>
 

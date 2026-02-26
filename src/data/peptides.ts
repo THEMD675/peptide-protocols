@@ -1,5 +1,5 @@
 // ─────────────────────────────────────────────────────────────
-// peptides.ts — Core data for the REWIRE Peptide Protocols app
+// peptides.ts — Core data for pptides.com
 // ─────────────────────────────────────────────────────────────
 
 export interface Peptide {
