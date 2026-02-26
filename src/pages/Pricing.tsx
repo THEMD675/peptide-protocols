@@ -73,6 +73,7 @@ export default function Pricing() {
     user && subscription?.status === 'active' && subscription.tier === tier;
 
   const showTrialMessaging = !user || subscription?.status === 'none';
+  const [loadingPlan, setLoadingPlan] = useState<string | null>(null);
 
   const renderAction = (planKey: 'essentials' | 'elite', isElite: boolean) => {
     if (isSubscribedTo(planKey)) {
@@ -88,19 +89,27 @@ export default function Pricing() {
     }
 
     if (user) {
+      const isLoading = loadingPlan === planKey;
       return (
         <button
-          onClick={() => upgradeTo(planKey)}
+          onClick={() => { setLoadingPlan(planKey); upgradeTo(planKey); }}
+          disabled={isLoading}
           className={cn(
-            'inline-flex w-full items-center justify-center rounded-full px-6 py-3.5',
+            'inline-flex w-full items-center justify-center gap-2 rounded-full px-6 py-3.5',
             'font-bold transition-all duration-300',
             'hover:scale-[1.02] active:scale-[0.98]',
             isElite
               ? 'btn-primary-glow bg-emerald-600 text-white hover:bg-emerald-700'
-              : 'border-2 border-stone-300 bg-white text-stone-800 hover:border-emerald-200 hover:text-emerald-700'
+              : 'border-2 border-stone-300 bg-white text-stone-800 hover:border-emerald-200 hover:text-emerald-700',
+            isLoading && 'opacity-70 pointer-events-none'
           )}
         >
-          اشترك الآن
+          {isLoading ? (
+            <>
+              <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />
+              جارٍ التحويل لصفحة الدفع...
+            </>
+          ) : 'اشترك الآن'}
         </button>
       );
     }

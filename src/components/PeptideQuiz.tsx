@@ -156,10 +156,10 @@ export default function PeptideQuiz() {
         <div className="flex flex-col gap-3 sm:flex-row">
           <Link
             to="/coach"
-            className="flex-1 flex items-center justify-center gap-2 rounded-xl bg-emerald-600 px-5 py-3 text-sm font-bold text-white transition-all hover:bg-emerald-700"
+            className="flex-1 flex flex-col items-center justify-center gap-1 rounded-xl bg-emerald-600 px-5 py-3 text-white transition-all hover:bg-emerald-700"
           >
-            صمّم بروتوكول مخصّص بالذكاء الاصطناعي
-            <ArrowLeft className="h-4 w-4" />
+            <span className="text-sm font-bold flex items-center gap-2">صمّم بروتوكول مخصّص <ArrowLeft className="h-4 w-4" /></span>
+            <span className="text-[10px] opacity-80">بناءً على إجاباتك — المدرب الذكي جاهز</span>
           </Link>
           <Link
             to={`/peptide/${rec.peptideId}`}
