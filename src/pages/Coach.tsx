@@ -291,6 +291,8 @@ export default function Coach() {
   const messagesRef = useRef<ChatMessage[]>(messages);
   messagesRef.current = messages;
 
+  const normalizeDigits = (s: string) => s.replace(/[٠-٩]/g, d => String('٠١٢٣٤٥٦٧٨٩'.indexOf(d)));
+
   const sendToAI = useCallback(async (content: string) => {
     const trimmed = content.trim();
     if (!trimmed || isLoadingRef.current) return;
@@ -301,8 +303,8 @@ export default function Coach() {
     setIsLoading(true);
     isLoadingRef.current = true;
     setLoadingStage(0);
-    const stageTimer1 = setTimeout(() => setLoadingStage(1), 2000);
-    const stageTimer2 = setTimeout(() => setLoadingStage(2), 5000);
+    const stageTimer1 = setTimeout(() => setLoadingStage(1), 3000);
+    const stageTimer2 = setTimeout(() => setLoadingStage(2), 8000);
     try {
       const token = await getSessionToken();
       const res = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/ai-coach`, {
@@ -314,11 +316,52 @@ export default function Coach() {
         },
         body: JSON.stringify({
           messages: updated.map(m => ({ role: m.role, content: m.content })),
+          stream: true,
         }),
       });
       if (!res.ok) throw new Error();
-      const data = await res.json();
-      setMessages(prev => [...prev, { role: 'assistant', content: data.choices?.[0]?.message?.content ?? 'عذرًا، حدث خطأ. حاول مرة أخرى.' }]);
+
+      const reader = res.body?.getReader();
+      if (!reader) throw new Error();
+      const decoder = new TextDecoder();
+      let accumulated = '';
+      let buffer = '';
+
+      setMessages(prev => [...prev, { role: 'assistant', content: '' }]);
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split('\n');
+        buffer = lines.pop() ?? '';
+        for (const line of lines) {
+          if (!line.startsWith('data: ')) continue;
+          const payload = line.slice(6).trim();
+          if (payload === '[DONE]') break;
+          try {
+            const parsed = JSON.parse(payload);
+            const delta = parsed.choices?.[0]?.delta?.content;
+            if (delta) {
+              accumulated += delta;
+              const normalized = normalizeDigits(accumulated);
+              setMessages(prev => {
+                const copy = [...prev];
+                copy[copy.length - 1] = { role: 'assistant', content: normalized };
+                return copy;
+              });
+            }
+          } catch {}
+        }
+      }
+
+      if (!accumulated) {
+        setMessages(prev => {
+          const copy = [...prev];
+          copy[copy.length - 1] = { role: 'assistant', content: 'عذرًا، حدث خطأ. حاول مرة أخرى.' };
+          return copy;
+        });
+      }
     } catch {
       setMessages(prev => [...prev, { role: 'assistant', content: 'تعذّر الاتصال بالخادم. تأكد من اتصالك وحاول مرة أخرى.' }]);
     } finally {
@@ -507,7 +550,7 @@ export default function Coach() {
                     )}
                   </div>
                 </div>
-                {msg.role === 'assistant' && i === messages.length - 1 && !isLoading && (
+                {msg.role === 'assistant' && i === messages.length - 1 && !isLoading && msg.content.length > 50 && (
                   <div className="mt-2 flex justify-end">
                     <div className="flex flex-wrap gap-1.5 max-w-[88%]">
                       {peptideActions.map(p => (
@@ -536,21 +579,19 @@ export default function Coach() {
               </div>
             ))}
 
-            {isLoading && (
+            {isLoading && messages.length > 0 && messages[messages.length - 1].role === 'assistant' && messages[messages.length - 1].content === '' && (
               <div className="flex justify-end">
-                <div className="rounded-2xl rounded-bl-md border border-stone-200 bg-white px-5 py-4 min-w-[240px]">
-                  <div className="mb-3 h-1.5 w-full overflow-hidden rounded-full bg-stone-100">
-                    <div className="h-full rounded-full bg-emerald-500 transition-all duration-1000" style={{ width: `${Math.min(95, (loadingStage + 1) * 33)}%` }} />
+                <div className="rounded-2xl rounded-bl-md border border-stone-200 bg-white px-5 py-4 min-w-[200px]">
+                  <div className="flex items-center gap-3">
+                    <div className="flex gap-1">
+                      <span className="h-2 w-2 rounded-full bg-emerald-400 animate-bounce" style={{ animationDelay: '0ms' }} />
+                      <span className="h-2 w-2 rounded-full bg-emerald-400 animate-bounce" style={{ animationDelay: '150ms' }} />
+                      <span className="h-2 w-2 rounded-full bg-emerald-400 animate-bounce" style={{ animationDelay: '300ms' }} />
+                    </div>
+                    <span className="text-xs text-stone-500">
+                      {loadingStage === 0 ? 'يحلّل حالتك...' : loadingStage === 1 ? 'يبني البروتوكول...' : 'يحسب الجرعات...'}
+                    </span>
                   </div>
-                  <div className="space-y-1.5">
-                    {['يحلّل ملفك الصحي...', 'يختار الببتيد المثالي...', 'يبني البروتوكول المخصّص...'].map((stage, idx) => (
-                      <div key={idx} className={cn('flex items-center gap-2 text-xs transition-all duration-500', idx <= loadingStage ? 'text-emerald-700 opacity-100' : 'text-stone-300 opacity-60')}>
-                        <span className={cn('h-1.5 w-1.5 rounded-full transition-colors', idx < loadingStage ? 'bg-emerald-500' : idx === loadingStage ? 'bg-emerald-400 animate-pulse' : 'bg-stone-300')} />
-                        {stage}
-                      </div>
-                    ))}
-                  </div>
-                  <p className="mt-2 text-[10px] text-stone-400">يستغرق 15-25 ثانية لبناء بروتوكول مفصّل</p>
                 </div>
               </div>
             )}

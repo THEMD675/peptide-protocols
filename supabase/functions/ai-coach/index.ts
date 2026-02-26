@@ -112,7 +112,7 @@ serve(async (req) => {
       })
     }
 
-    const { messages } = await req.json()
+    const { messages, stream } = await req.json()
     if (!Array.isArray(messages) || messages.length === 0) {
       return new Response(JSON.stringify({ error: 'Invalid messages' }), {
         status: 400,
@@ -121,6 +121,7 @@ serve(async (req) => {
     }
 
     const userMessages = messages.filter((m: { role: string }) => m.role !== 'system').slice(-MAX_USER_MESSAGES)
+    const wantStream = stream === true
 
     const response = await fetch('https://api.deepseek.com/chat/completions', {
       method: 'POST',
@@ -136,6 +137,7 @@ serve(async (req) => {
         ],
         max_tokens: 2400,
         temperature: 0.7,
+        stream: wantStream,
       }),
     })
 
@@ -145,6 +147,17 @@ serve(async (req) => {
       return new Response(JSON.stringify({ error: 'AI service error' }), {
         status: response.status,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      })
+    }
+
+    if (wantStream) {
+      return new Response(response.body, {
+        headers: {
+          ...corsHeaders,
+          'Content-Type': 'text/event-stream',
+          'Cache-Control': 'no-cache',
+          Connection: 'keep-alive',
+        },
       })
     }
 
