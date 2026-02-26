@@ -218,7 +218,7 @@ export default function PeptideDetail() {
                       url: window.location.href,
                     };
                     if (navigator.share) {
-                      try { await navigator.share(shareData); } catch {}
+                      try { await navigator.share(shareData); } catch { /* expected */ }
                     } else {
                       await navigator.clipboard.writeText(window.location.href);
                       toast.success('تم نسخ الرابط');

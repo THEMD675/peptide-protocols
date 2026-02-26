@@ -59,7 +59,7 @@ function useVisitedPages() {
   });
 
   useEffect(() => {
-    try { localStorage.setItem('pptides_visited', JSON.stringify([...visited])); } catch {}
+    try { localStorage.setItem('pptides_visited', JSON.stringify([...visited])); } catch { /* expected */ }
   }, [visited]);
 
   const markVisited = (id: string) => setVisited(prev => new Set(prev).add(id));

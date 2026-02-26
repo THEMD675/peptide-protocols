@@ -16,10 +16,10 @@ export default function ExitIntentPopup() {
       if (localStorage.getItem('pptides_age_verified') !== 'true') return;
       const lastShown = localStorage.getItem(STORAGE_KEY);
       if (lastShown && Date.now() - Number(lastShown) < 7 * 24 * 60 * 60 * 1000) return;
-    } catch {}
+    } catch { /* expected */ }
     if (user && subscription?.isProOrTrial) return;
     setVisible(true);
-    try { localStorage.setItem(STORAGE_KEY, String(Date.now())); } catch {}
+    try { localStorage.setItem(STORAGE_KEY, String(Date.now())); } catch { /* expected */ }
   }, [user, subscription]);
 
   useEffect(() => {

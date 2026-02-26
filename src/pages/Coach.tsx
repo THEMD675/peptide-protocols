@@ -174,9 +174,7 @@ async function buildUserContext(userId: string): Promise<string> {
       const names = favs.map(id => allPeptides.find(p => p.id === id)?.nameEn).filter(Boolean);
       if (names.length) ctx += `ببتيدات مفضّلة: ${names.join(', ')}\n`;
     }
-  } catch (e) {
-    void e;
-  }
+  } catch { /* expected */ }
   return ctx;
 }
 
@@ -256,7 +254,7 @@ export default function Coach() {
     try {
       const s = localStorage.getItem(storageKey);
       if (s) { const d = JSON.parse(s); if (d.messages?.length > 0) return 'done'; }
-    } catch {}
+    } catch { /* expected */ }
     const quiz = loadQuizAnswers();
     if (quiz?.goal && quiz?.experience && quiz?.injection) return 'details';
     return 'goal';
@@ -265,7 +263,7 @@ export default function Coach() {
     try {
       const s = localStorage.getItem(storageKey);
       if (s) return JSON.parse(s).intake ?? { goal: '', goalLabel: '', experience: '', injection: '', age: '', medications: '' };
-    } catch {}
+    } catch { /* expected */ }
     const quiz = loadQuizAnswers();
     if (quiz) {
       const goalMap: Record<string, string> = { 'fat-loss': 'فقدان دهون', recovery: 'تعافي وإصابات', muscle: 'بناء عضل', brain: 'تركيز ودماغ', longevity: 'طول عمر', hormones: 'تحسين هرمونات', 'gut-skin': 'بشرة أو أمعاء أو نوم' };
@@ -282,7 +280,7 @@ export default function Coach() {
     return { goal: '', goalLabel: '', experience: '', injection: '', age: '', medications: '' };
   });
   const [messages, setMessages] = useState<ChatMessage[]>(() => {
-    try { const s = localStorage.getItem(storageKey); if (s) return JSON.parse(s).messages ?? []; } catch {} return [];
+    try { const s = localStorage.getItem(storageKey); if (s) return JSON.parse(s).messages ?? []; } catch { /* expected */ } return [];
   });
   const [input, setInput] = useState('');
   const [copiedIdx, setCopiedIdx] = useState<number | null>(null);
@@ -293,7 +291,7 @@ export default function Coach() {
   const autoSentRef = useRef(false);
 
   useEffect(() => {
-    try { localStorage.setItem(storageKey, JSON.stringify({ messages, intake })); } catch {}
+    try { localStorage.setItem(storageKey, JSON.stringify({ messages, intake })); } catch { /* expected */ }
   }, [messages, intake, storageKey]);
 
   useEffect(() => { scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: 'smooth' }); }, [messages, intakeStep]);
@@ -363,7 +361,7 @@ export default function Coach() {
                 return copy;
               });
             }
-          } catch {}
+          } catch { /* expected */ }
         }
       }
 
@@ -408,7 +406,7 @@ export default function Coach() {
     setIntakeStep('goal');
     setIntake({ goal: '', goalLabel: '', experience: '', injection: '', age: '', medications: '' });
     autoSentRef.current = false;
-    try { localStorage.removeItem(storageKey); } catch {}
+    try { localStorage.removeItem(storageKey); } catch { /* expected */ }
     setConfirmReset(false);
   };
 

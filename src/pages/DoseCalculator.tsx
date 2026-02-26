@@ -1,7 +1,7 @@
 import { useState, useMemo, useEffect } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { Link, useSearchParams } from 'react-router-dom';
-import { Calculator, FlaskConical, Droplets, ChevronDown, ArrowLeft, BookOpen, Layers, Bot, Syringe, Bookmark } from 'lucide-react';
+import { Calculator, FlaskConical, Droplets, ChevronDown, ArrowLeft, BookOpen, Layers, Bot, Bookmark } from 'lucide-react';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import { PEPTIDE_COUNT } from '@/lib/constants';
@@ -264,7 +264,7 @@ export default function DoseCalculator() {
     const entry: SavedCalc = { peptide: selectedPreset, dose: doseValue, unit: doseUnit, vial: vialMg, water: waterMl, units: results.syringeUnits.toFixed(1), ts: Date.now() };
     const updated = [entry, ...savedCalcs.filter(c => c.peptide !== selectedPreset)].slice(0, 5);
     setSavedCalcs(updated);
-    try { localStorage.setItem('pptides_calc_history', JSON.stringify(updated)); } catch {}
+    try { localStorage.setItem('pptides_calc_history', JSON.stringify(updated)); } catch { /* expected */ }
     toast.success(`تم حفظ حساب ${selectedPreset}`);
   };
   const loadSavedCalc = (calc: SavedCalc) => {

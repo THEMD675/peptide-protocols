@@ -15,12 +15,12 @@ export default function CookieConsent() {
   }, []);
 
   const accept = () => {
-    try { localStorage.setItem(STORAGE_KEY, 'accepted'); } catch {}
+    try { localStorage.setItem(STORAGE_KEY, 'accepted'); } catch { /* expected */ }
     setVisible(false);
   };
 
   const reject = () => {
-    try { localStorage.setItem(STORAGE_KEY, 'rejected'); } catch {}
+    try { localStorage.setItem(STORAGE_KEY, 'rejected'); } catch { /* expected */ }
     setVisible(false);
   };
 

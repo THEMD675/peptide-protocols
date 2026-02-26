@@ -65,7 +65,6 @@ const categoryLabels: Record<string, string> = {
 
 function PeptideCard({
   peptide,
-  index,
   hasAccess,
   onLockedClick,
   isFav,
@@ -75,7 +74,6 @@ function PeptideCard({
   isUsed,
 }: {
   peptide: Peptide;
-  index: number;
   hasAccess: boolean;
   onLockedClick: () => void;
   isFav: boolean;
@@ -251,7 +249,7 @@ function useFavorites(): [Set<string>, (id: string) => void] {
     setFavs(prev => {
       const next = new Set(prev);
       if (next.has(id)) next.delete(id); else next.add(id);
-      try { localStorage.setItem('pptides_favorites', JSON.stringify([...next])); } catch {}
+      try { localStorage.setItem('pptides_favorites', JSON.stringify([...next])); } catch { /* expected */ }
       if (next.has(id)) toast.success('تمت الإضافة للمفضلة');
       return next;
     });
@@ -275,11 +273,10 @@ function useUsedPeptides() {
 }
 
 export default function Library() {
-  const { subscription, isLoading, user } = useAuth();
+  const { subscription, isLoading } = useAuth();
   const isPaid = !isLoading && (subscription?.isPaidSubscriber ?? false);
   const isTrial = !isLoading && (subscription?.isTrial ?? false);
   const hasFullAccess = isPaid;
-  const hasAccess = hasFullAccess || isTrial;
   const usedPeptides = useUsedPeptides();
 
   const [activeCategory, setActiveCategory] = useState('all');
@@ -297,7 +294,7 @@ export default function Library() {
   const [upsellPeptide, setUpsellPeptide] = useState<string | null>(null);
 
   useEffect(() => {
-    try { sessionStorage.setItem('pptides_compare', JSON.stringify(compareIds)); } catch {}
+    try { sessionStorage.setItem('pptides_compare', JSON.stringify(compareIds)); } catch { /* expected */ }
   }, [compareIds]);
 
   const handleLockedClick = useCallback((peptideId?: string) => {
@@ -494,7 +491,6 @@ export default function Library() {
                 <PeptideCard
                   key={p.id}
                   peptide={p}
-                  index={i}
                   hasAccess={hasFullAccess || (isTrial && (p.isFree || i < 6))}
                   onLockedClick={() => handleLockedClick(p.id)}
                   isFav={favorites.has(p.id)}

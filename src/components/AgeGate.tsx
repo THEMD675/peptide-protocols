@@ -19,7 +19,7 @@ export default function AgeGate() {
   }, []);
 
   const handleVerified = () => {
-    try { localStorage.setItem(STORAGE_KEY, "true"); } catch {}
+    try { localStorage.setItem(STORAGE_KEY, "true"); } catch { /* expected */ }
     setVisible(false);
   };
 

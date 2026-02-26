@@ -204,8 +204,6 @@ export default function Tracker() {
       {logs.length > 0 && (() => {
         const totalInjections = logs.length;
         const uniquePeptides = new Set(logs.map(l => l.peptide_name)).size;
-        const today = new Date().toDateString();
-
         let streak = 0;
         const daySet = new Set(logs.map(l => new Date(l.injected_at).toDateString()));
         const d = new Date();

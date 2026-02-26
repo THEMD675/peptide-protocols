@@ -108,7 +108,7 @@ export default function Landing() {
     supabase.from('subscriptions').select('id', { count: 'exact', head: true }).then(({ count }) => {
       if (mounted && count && count > 0) {
         setUserCount(count);
-        try { sessionStorage.setItem('pptides_user_count', String(count)); sessionStorage.setItem('pptides_user_count_ts', String(Date.now())); } catch {}
+        try { sessionStorage.setItem('pptides_user_count', String(count)); sessionStorage.setItem('pptides_user_count_ts', String(Date.now())); } catch { /* expected */ }
       }
     });
     return () => { mounted = false; };
@@ -292,7 +292,7 @@ export default function Landing() {
           </p>
 
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {FEATURES.map((f, i) => {
+            {FEATURES.map((f) => {
               const links: Record<string, string> = {
                 [`${PEPTIDE_COUNT} ببتيد مع بروتوكول كامل`]: '/library',
                 'حاسبة جرعات لا تخطئ': '/calculator',

@@ -143,8 +143,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
 
       setSubscription(buildSubscription(data));
-    } catch (e) {
-      
+    } catch {
       setSubscription(DEFAULT_SUBSCRIPTION);
     }
   }, []);

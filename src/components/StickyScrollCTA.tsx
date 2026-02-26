@@ -26,7 +26,7 @@ export default function StickyScrollCTA() {
 
   const handleDismiss = useCallback(() => {
     setDismissed(true);
-    try { sessionStorage.setItem(DISMISS_KEY, String(Date.now())); } catch {}
+    try { sessionStorage.setItem(DISMISS_KEY, String(Date.now())); } catch { /* expected */ }
   }, []);
 
   if (!visible || dismissed) return null;

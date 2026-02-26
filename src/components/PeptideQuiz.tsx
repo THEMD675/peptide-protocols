@@ -119,7 +119,7 @@ export default function PeptideQuiz() {
           injection: newAnswers[2],
           ts: Date.now(),
         }));
-      } catch {}
+      } catch { /* expected */ }
     }
   };
 
@@ -136,7 +136,6 @@ export default function PeptideQuiz() {
   if (showResult) {
     const rec = getRecommendation(answers);
     const peptideData = allPeptides.find(p => p.id === rec.peptideId);
-    const isFree = peptideData?.isFree ?? false;
 
     return (
       <div className="rounded-2xl border border-emerald-200 bg-emerald-50/50 p-6 shadow-lg shadow-emerald-600/5 md:p-8">
