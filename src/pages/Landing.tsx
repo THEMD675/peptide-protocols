@@ -479,7 +479,7 @@ export default function Landing() {
           <p className="mb-1 text-lg text-stone-800">القيمة الإجمالية:</p>
           <p className="mb-2 text-3xl font-extrabold text-stone-800 line-through">$882+</p>
           <p className="mb-1 text-lg text-stone-800">أنت تدفع فقط:</p>
-          <p className="text-5xl font-black text-emerald-600 md:text-6xl">{PRICING.essentials.label}<span className="text-xl font-bold text-stone-800">/شهريًا</span></p>
+          <p className="text-3xl font-black text-emerald-600 sm:text-5xl md:text-6xl">{PRICING.essentials.label}<span className="text-xl font-bold text-stone-800">/شهريًا</span></p>
           <p className="mt-4 text-sm text-stone-800">أو {PRICING.elite.label}/شهريًا للباقة المتقدمة مع المدرب الذكي + استشارات</p>
         </div>
       </section>
@@ -574,7 +574,7 @@ export default function Landing() {
               <h3 className="mb-1 text-xl font-bold text-stone-900">Essentials</h3>
               <p className="mb-6 text-sm text-stone-800">كل الأدوات الأساسية</p>
               <div className="mb-6">
-                <span className="text-5xl font-black text-stone-900">{PRICING.essentials.label}</span>
+                <span className="text-3xl font-black text-stone-900 sm:text-5xl">{PRICING.essentials.label}</span>
                 <span className="text-base text-stone-800"> /شهريًا</span>
               </div>
               <ul className="mb-8 flex-1 space-y-3">
@@ -611,7 +611,7 @@ export default function Landing() {
               </div>
               <p className="mb-6 text-sm text-stone-800">كل شيء + مدرب ذكي + استشارات</p>
               <div className="mb-6">
-                <span className="text-5xl font-black text-stone-900">{PRICING.elite.label}</span>
+                <span className="text-3xl font-black text-stone-900 sm:text-5xl">{PRICING.elite.label}</span>
                 <span className="text-base text-stone-800"> /شهريًا</span>
               </div>
               <ul className="mb-8 flex-1 space-y-3">

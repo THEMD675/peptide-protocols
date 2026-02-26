@@ -170,7 +170,9 @@ async function buildUserContext(userId: string): Promise<string> {
       const names = favs.map(id => allPeptides.find(p => p.id === id)?.nameEn).filter(Boolean);
       if (names.length) ctx += `ببتيدات مفضّلة: ${names.join(', ')}\n`;
     }
-  } catch {}
+  } catch (e) {
+    console.error('Failed to build user context:', e);
+  }
   return ctx;
 }
 
@@ -367,7 +369,8 @@ export default function Coach() {
           return copy;
         });
       }
-    } catch {
+    } catch (e) {
+      console.error('AI coach request failed:', e);
       setMessages(prev => [...prev, { role: 'assistant', content: 'تعذّر الاتصال بالخادم. تأكد من اتصالك وحاول مرة أخرى.' }]);
     } finally {
       clearTimeout(stageTimer1);

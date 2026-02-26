@@ -50,7 +50,7 @@ export default function Account() {
       if (error) throw error;
       toast.success('تم تغيير كلمة المرور بنجاح');
       setNewPassword('');
-    } catch (e: any) { toast.error(e?.message ?? 'حدث خطأ'); }
+    } catch (e) { toast.error(e instanceof Error ? e.message : 'حدث خطأ'); }
     finally { setPasswordLoading(false); }
   };
 

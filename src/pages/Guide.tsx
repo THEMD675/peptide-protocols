@@ -92,8 +92,7 @@ export default function Guide() {
       {/* Header */}
       <div className="mb-10 text-center">
         <div
-          className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl"
-          style={{ background: '#10b981' }}
+          className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-500"
         >
           <BookOpen className="h-7 w-7"  />
         </div>
@@ -116,10 +115,10 @@ export default function Guide() {
           </div>
 
           <BlurredSection isPro={isPro}>
-            <div className="overflow-x-auto rounded-2xl border" style={{ borderColor: '#d6d3d1' }}>
+            <div className="overflow-x-auto rounded-2xl border border-stone-300">
               <table className="w-full text-sm">
                 <thead>
-                  <tr style={{ background: '#10b981' }}>
+                  <tr className="bg-emerald-500">
                     <th className="px-4 py-3 text-right font-bold text-white/90">الأداة</th>
                     <th className="px-4 py-3 text-right font-bold text-white/90">الوصف</th>
                   </tr>
@@ -164,8 +163,7 @@ export default function Guide() {
                   className="glass-card gold-border flex items-start gap-4 p-5"
                 >
                   <span
-                    className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl text-lg font-bold text-white"
-                    style={{ background: '#10b981' }}
+                    className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-emerald-500 text-lg font-bold text-white"
                   >
                     {i + 1}
                   </span>
@@ -239,8 +237,7 @@ export default function Guide() {
 
           <BlurredSection isPro={isPro}>
             <div
-              className="rounded-2xl border p-6"
-              style={{ borderColor: '#d6d3d1', background: '#ffffff' }}
+              className="rounded-2xl border border-stone-300 bg-white p-6"
             >
               <ul className="space-y-3">
                 {importantRules.map((rule) => (

@@ -174,7 +174,7 @@ export default function Pricing() {
             <p className="mb-6 text-stone-800">كل الأدوات الأساسية التي تحتاجها</p>
 
             <div className="mb-2">
-              <span className="text-5xl font-black text-stone-900">${PRICING.essentials.monthly}</span>
+              <span className="text-3xl font-black text-stone-900 sm:text-5xl">${PRICING.essentials.monthly}</span>
               <span className="text-lg text-stone-800"> /شهريًا</span>
             </div>
             <div className="mb-6" />
@@ -206,7 +206,7 @@ export default function Pricing() {
             <p className="mb-6 text-stone-800">كل شيء + مدرب ذكي + استشارات شخصية</p>
 
             <div className="mb-2">
-              <span className="text-5xl font-black text-stone-900">${PRICING.elite.monthly}</span>
+              <span className="text-3xl font-black text-stone-900 sm:text-5xl">${PRICING.elite.monthly}</span>
               <span className="text-lg text-stone-800"> /شهريًا</span>
             </div>
             <div className="mb-6" />

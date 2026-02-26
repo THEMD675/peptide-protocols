@@ -355,10 +355,9 @@ export default function DoseCalculator() {
                 className={cn(
                   'rounded-lg px-4 py-1.5 text-sm font-medium transition-all',
                   doseUnit === 'mcg'
-                    ? 'text-white'
+                    ? 'bg-emerald-500 text-white'
                     : 'text-stone-800 hover:text-stone-800',
                 )}
-                style={doseUnit === 'mcg' ? { background: EMERALD } : undefined}
               >
                 مايكروغرام (mcg)
               </button>
@@ -372,10 +371,9 @@ export default function DoseCalculator() {
                 className={cn(
                   'rounded-lg px-4 py-1.5 text-sm font-medium transition-all',
                   doseUnit === 'mg'
-                    ? 'text-white'
+                    ? 'bg-emerald-500 text-white'
                     : 'text-stone-800 hover:text-stone-800',
                 )}
-                style={doseUnit === 'mg' ? { background: EMERALD } : undefined}
               >
                 ملليغرام (mg)
               </button>

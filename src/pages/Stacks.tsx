@@ -35,8 +35,7 @@ export default function Stacks() {
       {/* Header */}
       <div className="mb-10 text-center">
         <div
-          className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl"
-          style={{ background: '#10b981' }}
+          className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-500"
         >
           <Layers className="h-7 w-7"  />
         </div>
@@ -63,11 +62,7 @@ export default function Stacks() {
             >
               {/* Category badge — always visible */}
               <span
-                className="mb-3 w-fit rounded-full px-3 py-1 text-xs font-semibold"
-                style={{
-                  background: 'rgba(16, 185, 129, 0.12)',
-                  color: '#10b981',
-                }}
+                className="mb-3 w-fit rounded-full bg-emerald-500/[0.12] px-3 py-1 text-xs font-semibold text-emerald-500"
               >
                 {getCategoryLabel(primaryCategory)}
               </span>

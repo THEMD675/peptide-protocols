@@ -88,8 +88,7 @@ export default function PeptideTable() {
             </div>
             <Link
               to="/pricing"
-              className="shrink-0 rounded-lg px-5 py-2 text-sm font-bold text-white shadow-lg transition-all hover:scale-105 hover:shadow-xl"
-              style={{ background: 'linear-gradient(135deg, var(--gold, #10b981), #34d399)' }}
+              className="gold-gradient shrink-0 rounded-lg px-5 py-2 text-sm font-bold text-white shadow-lg transition-all hover:scale-105 hover:shadow-xl"
             >
               عرض الباقات
             </Link>
@@ -108,8 +107,7 @@ export default function PeptideTable() {
           <h1 className="text-3xl font-extrabold leading-tight text-stone-900 md:text-4xl lg:text-5xl">
             جدول الببتيدات{' '}
             <span
-              className="bg-clip-text text-transparent"
-              style={{ backgroundImage: 'linear-gradient(135deg, var(--gold, #10b981), #34d399)' }}
+              className="gold-gradient bg-clip-text text-transparent"
             >
               الشامل
             </span>
@@ -221,10 +219,9 @@ export default function PeptideTable() {
               className={cn(
                 'rounded-full px-4 py-2 text-sm font-semibold transition-all',
                 activeCategory === 'all'
-                  ? 'text-white shadow-lg'
+                  ? 'gold-gradient text-white shadow-lg'
                   : 'border border-stone-300 bg-stone-50 text-stone-800 hover:border-stone-300 hover:text-stone-900'
               )}
-              style={activeCategory === 'all' ? { background: 'linear-gradient(135deg, var(--gold, #10b981), #34d399)' } : undefined}
             >
               الكل ({peptides.length})
             </button>
@@ -235,10 +232,9 @@ export default function PeptideTable() {
                 className={cn(
                   'rounded-full px-4 py-2 text-sm font-semibold transition-all',
                   activeCategory === cat.id
-                    ? 'text-white shadow-lg'
+                    ? 'gold-gradient text-white shadow-lg'
                     : 'border border-stone-300 bg-stone-50 text-stone-800 hover:border-stone-300 hover:text-stone-900'
                 )}
-                style={activeCategory === cat.id ? { background: 'linear-gradient(135deg, var(--gold, #10b981), #34d399)' } : undefined}
               >
                 {categoryIcons[cat.id]} {cat.nameAr} ({cat.peptideCount})
               </button>
@@ -256,7 +252,7 @@ export default function PeptideTable() {
             <div className="overflow-x-auto">
               <table className="w-full min-w-[1100px] border-collapse text-xs md:text-sm">
                 <thead>
-                  <tr style={{ background: 'linear-gradient(135deg, #10b981, #059669)' }}>
+                  <tr className="bg-gradient-to-l from-emerald-500 to-emerald-600">
                     {[
                       { key: 'cat', label: 'الفئة', sticky: true, stickyRight: '0', minW: '120px', zIndex: 21 },
                       { key: 'name', label: 'الببتيد', sticky: true, stickyRight: '120px', minW: '180px', zIndex: 20 },
@@ -308,7 +304,7 @@ export default function PeptideTable() {
                           {/* Category — sticky */}
                           <td
                             className="sticky z-10 px-3 py-3"
-                            style={{ right: '0', background: i % 2 === 0 ? '#fafaf9' : '#ffffff' }}
+                            style={{ right: '0' }} className={i % 2 === 0 ? 'bg-stone-50' : 'bg-white'}
                           >
                             <span
                               className={cn(
@@ -323,7 +319,7 @@ export default function PeptideTable() {
                           {/* Peptide name — sticky */}
                           <td
                             className="sticky z-10 px-3 py-3"
-                            style={{ right: '120px', background: i % 2 === 0 ? '#fafaf9' : '#ffffff' }}
+                            style={{ right: '120px' }} className={i % 2 === 0 ? 'bg-stone-50' : 'bg-white'}
                           >
                             <Link to={`/peptide/${p.id}`} className="group block">
                               <span className="block font-bold text-stone-900 transition-colors group-hover:text-emerald-600">

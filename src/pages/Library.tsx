@@ -407,14 +407,9 @@ export default function Library() {
               className={cn(
                 'shrink-0 rounded-full border px-4 py-2 text-sm font-medium transition-all',
                 activeCategory === 'all'
-                  ? 'border-emerald-300 text-white'
+                  ? 'gold-gradient border-emerald-300 text-white'
                   : 'border-stone-200 bg-white text-stone-800 hover:border-stone-300 hover:text-stone-800',
               )}
-              style={
-                activeCategory === 'all'
-                  ? { background: 'var(--gold, #10b981)' }
-                  : undefined
-              }
             >
               الكل
             </button>
@@ -428,10 +423,9 @@ export default function Library() {
                   className={cn(
                     'flex shrink-0 items-center gap-1.5 rounded-full border px-4 py-2 text-sm font-medium transition-all',
                     active
-                      ? 'border-emerald-300 text-white'
+                      ? 'gold-gradient border-emerald-300 text-white'
                       : 'border-stone-200 bg-white text-stone-800 hover:border-stone-300 hover:text-stone-800',
                   )}
-                  style={active ? { background: 'var(--gold, #10b981)' } : undefined}
                 >
                   {Icon && <Icon className="h-3.5 w-3.5" />}
                   {categoryLabels[cat.id]}

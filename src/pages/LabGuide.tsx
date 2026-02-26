@@ -49,8 +49,7 @@ export default function LabGuide() {
       {/* Header */}
       <div className="mb-10 text-center">
         <div
-          className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl"
-          style={{ background: '#10b981' }}
+          className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-500"
         >
           <TestTube className="h-7 w-7"  />
         </div>
@@ -72,10 +71,10 @@ export default function LabGuide() {
             </h2>
           </div>
 
-          <div className="relative overflow-x-auto rounded-2xl border" style={{ borderColor: '#d6d3d1' }}>
+          <div className="relative overflow-x-auto rounded-2xl border border-stone-300">
             <table className="w-full text-sm">
               <thead>
-                <tr style={{ background: '#10b981' }}>
+                <tr className="bg-emerald-500">
                   <th className="px-4 py-3 text-right font-bold text-white/90">
                     التحليل
                   </th>
@@ -128,10 +127,10 @@ export default function LabGuide() {
             </h2>
           </div>
 
-          <div className="relative overflow-x-auto rounded-2xl border" style={{ borderColor: '#d6d3d1' }}>
+          <div className="relative overflow-x-auto rounded-2xl border border-stone-300">
             <table className="w-full text-sm">
               <thead>
-                <tr style={{ background: '#10b981' }}>
+                <tr className="bg-emerald-500">
                   <th className="px-4 py-3 text-right font-bold text-white/90">
                     التوقيت
                   </th>

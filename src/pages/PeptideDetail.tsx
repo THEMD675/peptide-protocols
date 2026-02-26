@@ -200,8 +200,7 @@ export default function PeptideDetail() {
             </div>
 
             <div
-              className="flex items-center justify-between px-5 py-3"
-              style={{ background: 'rgba(250, 250, 249, 0.95)' }}
+              className="flex items-center justify-between bg-stone-50/95 px-5 py-3"
             >
               <div className="flex items-center gap-2">
                 <Shield className="h-4 w-4"  />
@@ -308,8 +307,7 @@ export default function PeptideDetail() {
             style={{ paddingBottom: '10rem' }}
           >
             <div
-              className="flex items-center gap-2 px-5 py-3"
-              style={{ background: 'rgba(250, 250, 249, 0.95)' }}
+              className="flex items-center gap-2 bg-stone-50/95 px-5 py-3"
             >
               <Shield className="h-4 w-4"  />
               <h2
@@ -371,10 +369,9 @@ export default function PeptideDetail() {
           >
             <div className="flex flex-col items-center justify-center gap-5 px-6 py-14 text-center">
               <div
-                className="flex h-16 w-16 items-center justify-center rounded-full"
-                style={{ background: '#10b981' }}
+                className="flex h-16 w-16 items-center justify-center rounded-full bg-emerald-500"
               >
-                <Lock className="h-7 w-7" style={{ color: 'white' }} />
+                <Lock className="h-7 w-7 text-white" />
               </div>
               <div>
                 <p className="text-xl font-bold text-stone-900">

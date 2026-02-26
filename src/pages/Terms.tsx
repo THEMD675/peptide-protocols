@@ -9,7 +9,7 @@ export default function Terms() {
         <meta name="description" content="شروط الاستخدام لموقع pptides.com — الاشتراكات، الاسترداد، وحدود المسؤولية." />
       </Helmet>
       <div className="mx-auto max-w-3xl px-6 pb-20 pt-8 md:pt-12">
-        <h1 className="mb-8 text-3xl font-bold text-stone-900">شروط الاستخدام</h1>
+        <h1 className="mb-8 text-2xl font-bold text-stone-900 sm:text-3xl">شروط الاستخدام</h1>
         <p className="mb-4 text-sm text-stone-500">آخر تحديث: 25 فبراير 2026</p>
 
         <div className="space-y-8 text-stone-800 leading-relaxed">
