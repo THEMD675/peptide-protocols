@@ -280,7 +280,7 @@ export default function DoseCalculator() {
   return (
     <div className="min-h-screen" >
       <Helmet>
-        <title>حاسبة جرعات الببتيدات — احسب الجرعة بدقة | Peptide Dosage Calculator</title>
+        <title>حاسبة جرعات الببتيدات — احسب الجرعة بدقة | pptides</title>
         <meta
           name="description"
           content="حاسبة مجانية لجرعات الببتيدات — احسب التركيز، الكمية بالمل، ووحدات السيرنج بدقة. أداة مجانية 100%. Free peptide reconstitution & dosage calculator."
@@ -609,9 +609,13 @@ export default function DoseCalculator() {
                 <p className="text-lg font-bold text-stone-900">
                   {Math.ceil(results.monthlyVials)} قوارير
                 </p>
-                {results.monthlyCost > 0 && (
+                {results.monthlyCost > 0 ? (
                   <p className="text-xs font-bold text-emerald-600 mt-1">
                     ~${Math.round(results.monthlyCost)}/شهر
+                  </p>
+                ) : (
+                  <p className="text-xs text-stone-400 mt-1">
+                    أدخل سعر القارورة لحساب التكلفة الشهرية
                   </p>
                 )}
               </div>

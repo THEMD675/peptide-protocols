@@ -76,7 +76,7 @@ export default function Tracker() {
     return now.toISOString().slice(0, 16);
   });
   const [notes, setNotes] = useState('');
-  const [confirmDialog, setConfirmDialog] = useState<{ title: string; message: string; onConfirm: () => void } | null>(null);
+  const [confirmDialog, setConfirmDialog] = useState<{ title: string; message: string; onConfirm: () => void; isDestructive?: boolean } | null>(null);
   const [calendarMonth, setCalendarMonth] = useState(() => {
     const now = new Date();
     return { year: now.getFullYear(), month: now.getMonth() };
@@ -180,7 +180,7 @@ export default function Tracker() {
   return (
     <main className="mx-auto max-w-3xl px-4 pb-24 pt-8 md:px-6 md:pt-12">
       <Helmet>
-        <title>سجل الحقن — تتبّع جرعاتك | Injection Tracker</title>
+        <title>سجل الحقن — تتبّع جرعاتك | pptides</title>
         <meta name="description" content="سجّل وتتبّع حقن الببتيدات والجرعات اليومية. Track your peptide injections and daily doses." />
       </Helmet>
 
@@ -555,8 +555,10 @@ export default function Tracker() {
                 onChange={(e) => setNotes(e.target.value)}
                 placeholder="ملاحظات إضافية (اختياري)"
                 rows={3}
+                maxLength={200}
                 className="w-full resize-none rounded-xl border border-stone-200 bg-white px-4 py-3 text-sm text-stone-900 placeholder:text-stone-400 focus:border-emerald-300 focus:outline-none focus:ring-2 focus:ring-emerald-100"
               />
+              <p className={cn('mt-1 text-left text-xs', notes.length >= 180 ? 'text-amber-600' : 'text-stone-400')}>{notes.length}/200</p>
             </div>
 
             <div className="flex gap-3">
@@ -612,10 +614,12 @@ export default function Tracker() {
           </div>
         ) : (
           <div className="space-y-4">
-            {logs.map((log) => (
+            {logs.map((log) => {
+              const isToday = new Date(log.injected_at).toDateString() === new Date().toDateString();
+              return (
               <div
                 key={log.id}
-                className="rounded-2xl border border-stone-200 bg-white p-5 transition-all hover:shadow-sm"
+                className={cn('rounded-2xl border p-5 transition-all hover:shadow-sm', isToday ? 'border-emerald-300 border-l-4 bg-emerald-50/30' : 'border-stone-200 bg-white')}
               >
                 <div className="flex items-start justify-between mb-2">
                   <h3 className="font-bold text-stone-900" dir="ltr">{log.peptide_name}</h3>
@@ -628,6 +632,7 @@ export default function Tracker() {
                         setConfirmDialog({
                           title: 'حذف السجل',
                           message: `حذف سجل ${log.peptide_name} — ${log.dose} ${log.unit}؟`,
+                          isDestructive: true,
                           onConfirm: async () => {
                             setConfirmDialog(null);
                             const deletedLog = logs.find(l => l.id === log.id);
@@ -668,7 +673,8 @@ export default function Tracker() {
                   </div>
                 )}
               </div>
-            ))}
+              );
+            })}
             {hasMore && (
               <button
                 onClick={fetchMore}
@@ -696,7 +702,7 @@ export default function Tracker() {
             <div className="flex gap-3">
               <button
                 onClick={confirmDialog.onConfirm}
-                className="flex-1 rounded-xl bg-emerald-600 px-4 py-2.5 text-sm font-bold text-white hover:bg-emerald-700"
+                className={cn('flex-1 rounded-xl px-4 py-2.5 text-sm font-bold text-white', confirmDialog.isDestructive ? 'bg-red-600 hover:bg-red-700' : 'bg-emerald-600 hover:bg-emerald-700')}
               >
                 تأكيد
               </button>

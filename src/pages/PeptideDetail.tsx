@@ -70,7 +70,7 @@ export default function PeptideDetail() {
   return (
     <div className="min-h-screen" >
       <Helmet>
-        <title>{peptide.nameAr} — {peptide.nameEn} | دليل البيبتايدات</title>
+        <title>{peptide.nameAr} — {peptide.nameEn} | pptides</title>
         <meta name="description" content={peptide.summaryAr} />
         <meta property="og:title" content={`${peptide.nameAr} — ${peptide.nameEn} | Peptide Guide`} />
         <meta property="og:description" content={peptide.summaryAr} />
@@ -455,9 +455,12 @@ function InlineDoseCalc({ peptide }: { peptide: { nameEn: string } }) {
 
   return (
     <div className="mt-6 rounded-2xl border border-emerald-200 bg-emerald-50/50 p-5">
-      <div className="flex items-center gap-2 mb-4">
-        <Syringe className="h-5 w-5 text-emerald-600" />
-        <h3 className="text-sm font-bold text-stone-900">حاسبة سريعة — الجرعة الموصى بها</h3>
+      <div className="mb-4">
+        <div className="flex items-center gap-2">
+          <Syringe className="h-5 w-5 text-emerald-600" />
+          <h3 className="text-sm font-bold text-stone-900">حاسبة سريعة — {peptide.nameEn}</h3>
+        </div>
+        <p className="mt-1 mr-7 text-xs text-stone-500">بناءً على الجرعة الموصى بها ({preset.dose} mcg)</p>
       </div>
 
       <div className="grid gap-3 sm:grid-cols-4">

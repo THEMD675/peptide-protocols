@@ -27,9 +27,9 @@ export default function CookieConsent() {
   if (!visible) return null;
 
   return (
-    <div className="fixed bottom-0 inset-x-0 z-50 border-t border-stone-200 bg-white/95 backdrop-blur-xl shadow-[0_-4px_20px_rgba(0,0,0,0.08)] p-4 md:p-5">
-      <div className="mx-auto max-w-5xl flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <p className="text-sm text-stone-700 leading-relaxed">
+    <div className="fixed bottom-0 inset-x-0 z-50 border-t border-stone-200 bg-white/95 backdrop-blur-xl shadow-[0_-4px_20px_rgba(0,0,0,0.08)] px-4 py-2 sm:px-6 sm:py-3 md:p-5">
+      <div className="mx-auto max-w-5xl flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between sm:gap-3">
+        <p className="text-xs sm:text-sm text-stone-700 leading-relaxed">
           نستخدم ملفات تعريف الارتباط لتحسين تجربتك.{' '}
           <Link to="/privacy" className="text-emerald-600 underline underline-offset-2 hover:text-emerald-700">سياسة الخصوصية</Link>
         </p>

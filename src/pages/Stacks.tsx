@@ -29,7 +29,7 @@ export default function Stacks() {
   return (
     <main className="mx-auto max-w-6xl px-4 pb-24 pt-8 md:px-6 md:pt-12">
       <Helmet>
-        <title>بروتوكولات ببتيدات مُجمَّعة — خلطات مُجرَّبة | Peptide Stacks & Protocols</title>
+        <title>بروتوكولات ببتيدات مُجمَّعة — خلطات مُجرَّبة | pptides</title>
         <meta name="description" content="بروتوكولات مُجمَّعة تجمع عدة ببتيدات حسب الهدف: تعافي، دماغ، طول عمر. Curated peptide stacks for recovery, brain, and longevity." />
       </Helmet>
       {/* Header */}
@@ -128,7 +128,7 @@ export default function Stacks() {
                     {stack.descriptionAr}
                   </p>
 
-                  <div className="rounded-xl bg-stone-100 p-4 text-xs leading-relaxed text-stone-600 whitespace-pre-line">
+                  <div className="rounded-xl bg-emerald-50/50 border border-emerald-100 p-4 text-xs leading-relaxed text-stone-700 whitespace-pre-line">
                     {stack.protocolAr}
                   </div>
 

@@ -304,7 +304,7 @@ export default function Header() {
       {/* Mobile drawer */}
       <div
         className={cn(
-          'fixed inset-0 z-40 transition-opacity md:hidden',
+          'fixed inset-0 z-40 md:hidden transition-all duration-300',
           mobileOpen ? 'pointer-events-auto opacity-100' : 'pointer-events-none opacity-0',
         )}
       >

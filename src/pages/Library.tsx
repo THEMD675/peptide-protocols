@@ -317,7 +317,7 @@ export default function Library() {
   return (
     <div className="min-h-screen" >
       <Helmet>
-        <title>مكتبة الببتيدات — 41 ببتيد علاجي مع بروتوكولات كاملة | Peptide Library</title>
+        <title>مكتبة الببتيدات — 41 ببتيد علاجي مع بروتوكولات كاملة | pptides</title>
         <meta name="description" content="تصفّح 41 ببتيد علاجي مع شرح مفصّل للآليات والجرعات والآثار الجانبية. Browse 41 therapeutic peptides with detailed protocols." />
       </Helmet>
       <div className="mx-auto max-w-7xl px-4 py-8 md:px-6 md:py-12">
@@ -457,9 +457,18 @@ export default function Library() {
           </div>
         </div>
 
-        {/* Results Count */}
-        <div className="mb-4 text-sm text-stone-800">
-          {filtered.length} ببتيد
+        {/* Results Count + Clear Filters */}
+        <div className="mb-4 flex items-center justify-between text-sm text-stone-800">
+          <span>{filtered.length} ببتيد</span>
+          {(activeCategory !== 'all' || search.trim() !== '' || evidenceFilter !== 'all') && (
+            <button
+              onClick={() => { setActiveCategory('all'); setSearch(''); setEvidenceFilter('all'); setSortBy('default'); }}
+              className="flex items-center gap-1 rounded-lg border border-stone-200 bg-white px-3 py-1.5 text-xs font-medium text-stone-600 transition-colors hover:border-red-200 hover:bg-red-50 hover:text-red-600"
+            >
+              <X className="h-3 w-3" />
+              مسح الفلاتر
+            </button>
+          )}
         </div>
 
         {/* Peptide Grid */}

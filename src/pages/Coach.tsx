@@ -399,12 +399,26 @@ export default function Coach() {
     sendToAI(prompt);
   }, [intake, sendToAI]);
 
+  const [confirmReset, setConfirmReset] = useState(false);
+  const confirmResetTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
   const resetConversation = () => {
     setMessages([]);
     setIntakeStep('goal');
     setIntake({ goal: '', goalLabel: '', experience: '', injection: '', age: '', medications: '' });
     autoSentRef.current = false;
     try { localStorage.removeItem(storageKey); } catch {}
+    setConfirmReset(false);
+  };
+
+  const handleResetClick = () => {
+    if (confirmReset) {
+      resetConversation();
+    } else {
+      setConfirmReset(true);
+      if (confirmResetTimer.current) clearTimeout(confirmResetTimer.current);
+      confirmResetTimer.current = setTimeout(() => setConfirmReset(false), 3000);
+    }
   };
 
   const hasAccess = subscription.isProOrTrial;
@@ -420,7 +434,7 @@ export default function Coach() {
 
   return (
     <div className="min-h-screen">
-      <Helmet><title>استشاري الببتيدات — بروتوكول مخصّص بالذكاء الاصطناعي | AI Peptide Coach</title></Helmet>
+      <Helmet><title>استشاري الببتيدات — بروتوكول مخصّص بالذكاء الاصطناعي | pptides</title></Helmet>
       <div className="mx-auto max-w-3xl px-4 py-8 md:px-6 md:py-12">
         <div className="mb-6 flex items-center justify-between">
           <div className="flex items-center gap-3">
@@ -433,9 +447,9 @@ export default function Coach() {
             </div>
           </div>
           {intakeStep === 'done' && messages.length > 0 && (
-            <button onClick={resetConversation} className="flex items-center gap-1.5 rounded-lg border border-stone-200 bg-white px-3 py-2 text-xs font-medium text-stone-600 hover:bg-stone-50">
+            <button onClick={handleResetClick} className={cn('flex items-center gap-1.5 rounded-lg border px-3 py-2 text-xs font-medium transition-colors', confirmReset ? 'border-red-300 bg-red-50 text-red-600 hover:bg-red-100' : 'border-stone-200 bg-white text-stone-600 hover:bg-stone-50')}>
               <RotateCcw className="h-3.5 w-3.5" />
-              استشارة جديدة
+              {confirmReset ? 'تأكيد' : 'استشارة جديدة'}
             </button>
           )}
         </div>
@@ -560,6 +574,11 @@ export default function Coach() {
             {intakeStep === 'done' && messages.map((msg, i) => (
               <div key={i}>
                 <div className={cn('flex', msg.role === 'user' ? 'justify-start' : 'justify-end')}>
+                  {msg.role === 'user' && (
+                    <div className="ml-2 mt-1 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-emerald-600 text-xs font-bold text-white">
+                      {user?.email?.charAt(0).toUpperCase() ?? ''}
+                    </div>
+                  )}
                   <div className={cn('max-w-[88%] rounded-2xl px-5 py-3', msg.role === 'user' ? 'gold-gradient rounded-br-md' : 'rounded-bl-md border border-stone-200 bg-white')}>
                     {msg.role === 'user' ? (
                       <p className="text-sm leading-relaxed whitespace-pre-wrap text-white">{

@@ -393,7 +393,10 @@ export default function Landing() {
 
               <div className="border-t border-stone-200 bg-stone-50 px-6 py-4 flex flex-col sm:flex-row items-center justify-between gap-3">
                 <p className="text-sm text-stone-600">هذا ببتيد واحد من 41. اشترك لفتح الكل.</p>
-                <div className="flex gap-3">
+                <div className="flex flex-wrap gap-3">
+                  <Link to="/calculator?peptide=BPC-157" className="text-sm font-semibold text-emerald-600 hover:text-emerald-700 hover:underline flex items-center gap-1">
+                    احسب جرعتك بالحاسبة ←
+                  </Link>
                   <Link to="/peptide/bpc-157" className="rounded-full border border-emerald-300 px-5 py-2 text-sm font-bold text-emerald-700 hover:bg-emerald-50">
                     شاهد البطاقة كاملة
                   </Link>
@@ -571,9 +574,14 @@ export default function Landing() {
                 ))}
               </div>
               <p className="mb-5 text-base leading-relaxed text-stone-800">&quot;{t.text}&quot;</p>
-              <div>
-                <p className="font-bold text-stone-900">{t.name}</p>
-                <p className="text-sm text-stone-800">{t.role}</p>
+              <div className="flex items-center gap-3">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-sm font-bold text-emerald-700">
+                  {t.name.charAt(0)}
+                </div>
+                <div>
+                  <p className="font-bold text-stone-900">{t.name}</p>
+                  <p className="text-sm text-stone-800">{t.role}</p>
+                </div>
               </div>
             </div>
           ))}

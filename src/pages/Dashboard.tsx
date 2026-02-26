@@ -140,7 +140,7 @@ export default function Dashboard() {
   return (
     <main className="mx-auto max-w-5xl px-4 pb-24 pt-8 md:px-6 md:pt-12">
       <Helmet>
-        <title>لوحة التحكم — pptides | Dashboard</title>
+        <title>لوحة التحكم | pptides</title>
         <meta name="description" content="لوحة التحكم الرئيسية لإدارة حسابك في pptides. Your pptides dashboard." />
       </Helmet>
 
