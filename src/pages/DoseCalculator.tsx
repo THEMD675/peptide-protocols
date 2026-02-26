@@ -1,7 +1,7 @@
 import { useState, useMemo, useEffect } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { Link, useSearchParams } from 'react-router-dom';
-import { Calculator, FlaskConical, Droplets, ChevronDown, ArrowLeft, BookOpen, Layers, Bot, Syringe } from 'lucide-react';
+import { Calculator, FlaskConical, Droplets, ChevronDown, ArrowLeft, BookOpen, Layers, Bot, Syringe, Bookmark } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const EMERALD = '#10b981';
@@ -237,6 +237,26 @@ export default function DoseCalculator() {
 
   const [dosesPerDay, setDosesPerDay] = useState(1);
   const [vialPrice, setVialPrice] = useState(0);
+
+  interface SavedCalc { peptide: string; dose: number; unit: string; vial: number; water: number; units: string; ts: number }
+  const [savedCalcs, setSavedCalcs] = useState<SavedCalc[]>(() => {
+    try { const s = localStorage.getItem('pptides_calc_history'); return s ? JSON.parse(s) : []; } catch { return []; }
+  });
+  const saveCurrentCalc = () => {
+    if (!selectedPreset || !isFinite(results.syringeUnits) || results.syringeUnits <= 0) return;
+    const entry: SavedCalc = { peptide: selectedPreset, dose: doseValue, unit: doseUnit, vial: vialMg, water: waterMl, units: results.syringeUnits.toFixed(1), ts: Date.now() };
+    const updated = [entry, ...savedCalcs.filter(c => c.peptide !== selectedPreset)].slice(0, 5);
+    setSavedCalcs(updated);
+    try { localStorage.setItem('pptides_calc_history', JSON.stringify(updated)); } catch {}
+    import('sonner').then(m => m.toast.success(`تم حفظ حساب ${selectedPreset}`));
+  };
+  const loadSavedCalc = (calc: SavedCalc) => {
+    setSelectedPreset(calc.peptide);
+    setDoseValue(calc.dose);
+    setDoseUnit(calc.unit as DoseUnit);
+    setVialMg(calc.vial);
+    setWaterMl(calc.water);
+  };
 
   const results = useMemo(() => {
     const doseMcg = doseUnit === 'mg' ? doseValue * 1000 : doseValue;
@@ -556,13 +576,38 @@ export default function DoseCalculator() {
                   </p>
                 )}
               </div>
-              <Link
-                to="/tracker"
+              <button
+                onClick={saveCurrentCalc}
                 className="flex flex-col items-center justify-center gap-1 rounded-xl border-2 border-emerald-200 bg-emerald-50 p-4 font-bold text-emerald-700 transition-all hover:bg-emerald-100 hover:shadow-md"
               >
-                <Syringe className="h-5 w-5" />
-                <span className="text-sm">سجّل الحقنة</span>
-              </Link>
+                <Bookmark className="h-5 w-5" />
+                <span className="text-sm">احفظ الحساب</span>
+              </button>
+            </div>
+          )}
+
+          {/* Saved Calculations */}
+          {savedCalcs.length > 0 && (
+            <div className="mt-6">
+              <h3 className="mb-3 text-sm font-bold text-stone-700">حساباتك المحفوظة</h3>
+              <div className="grid gap-2 sm:grid-cols-2">
+                {savedCalcs.map((calc, idx) => (
+                  <button
+                    key={`${calc.peptide}-${idx}`}
+                    onClick={() => loadSavedCalc(calc)}
+                    className={cn(
+                      'flex items-center justify-between rounded-xl border px-4 py-3 text-right transition-all hover:shadow-sm',
+                      selectedPreset === calc.peptide ? 'border-emerald-400 bg-emerald-50' : 'border-stone-200 bg-white hover:border-emerald-300'
+                    )}
+                  >
+                    <div>
+                      <p className="text-sm font-bold text-stone-900" dir="ltr">{calc.peptide}</p>
+                      <p className="text-xs text-stone-500">{calc.dose} {calc.unit} — {calc.units} وحدة</p>
+                    </div>
+                    <span className="text-xs text-stone-400">{new Date(calc.ts).toLocaleDateString('ar-u-nu-latn', { month: 'short', day: 'numeric' })}</span>
+                  </button>
+                ))}
+              </div>
             </div>
           )}
         </div>

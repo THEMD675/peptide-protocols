@@ -73,6 +73,8 @@ interface RecentLog {
   injected_at: string;
 }
 
+interface TodayItem { peptide: string; dose: number; unit: string; done: boolean }
+
 function useRecentActivity(userId: string | undefined) {
   const [logs, setLogs] = useState<RecentLog[]>([]);
   const [loading, setLoading] = useState(true);
@@ -84,7 +86,7 @@ function useRecentActivity(userId: string | undefined) {
       .select('id, peptide_name, dose, unit, injected_at')
       .eq('user_id', userId)
       .order('injected_at', { ascending: false })
-      .limit(5)
+      .limit(30)
       .then(({ data }) => {
         if (data) setLogs(data);
         setLoading(false);
@@ -101,7 +103,24 @@ function useRecentActivity(userId: string | undefined) {
     while (daySet.has(d.toDateString())) { streak++; d.setDate(d.getDate() - 1); }
   }
 
-  return { logs, loading, activePeptides, totalInjections, streak };
+  const todayPlan: TodayItem[] = [];
+  if (logs.length >= 3) {
+    const today = new Date().toDateString();
+    const peptideFreq: Record<string, { dose: number; unit: string; daysUsed: Set<string>; total: number }> = {};
+    logs.forEach(l => {
+      if (!peptideFreq[l.peptide_name]) peptideFreq[l.peptide_name] = { dose: l.dose, unit: l.unit, daysUsed: new Set(), total: 0 };
+      peptideFreq[l.peptide_name].daysUsed.add(new Date(l.injected_at).toDateString());
+      peptideFreq[l.peptide_name].total++;
+    });
+    const todayDone = new Set(logs.filter(l => new Date(l.injected_at).toDateString() === today).map(l => l.peptide_name));
+    for (const [name, info] of Object.entries(peptideFreq)) {
+      if (info.total >= 2) {
+        todayPlan.push({ peptide: name, dose: info.dose, unit: info.unit, done: todayDone.has(name) });
+      }
+    }
+  }
+
+  return { logs: logs.slice(0, 5), loading, activePeptides, totalInjections, streak, todayPlan };
 }
 
 export default function Dashboard() {
@@ -196,6 +215,42 @@ export default function Dashboard() {
           </Link>
         )}
       </div>
+
+      {/* Today's Protocol */}
+      {!activity.loading && activity.todayPlan.length > 0 && (
+        <div className="mb-8">
+          <h2 className="mb-4 text-xl font-bold text-stone-900">بروتوكول اليوم</h2>
+          <div className="space-y-2">
+            {activity.todayPlan.map(item => (
+              <div key={item.peptide} className={cn(
+                'flex items-center justify-between rounded-2xl border px-5 py-4 transition-all',
+                item.done ? 'border-emerald-200 bg-emerald-50' : 'border-stone-200 bg-white'
+              )}>
+                <div className="flex items-center gap-3">
+                  {item.done ? (
+                    <CheckCircle2 className="h-5 w-5 text-emerald-600" />
+                  ) : (
+                    <Circle className="h-5 w-5 text-stone-300" />
+                  )}
+                  <div>
+                    <p className={cn('text-sm font-bold', item.done ? 'text-emerald-700' : 'text-stone-900')} dir="ltr">{item.peptide}</p>
+                    <p className="text-xs text-stone-500">{item.dose} {item.unit}</p>
+                  </div>
+                </div>
+                {!item.done && (
+                  <Link
+                    to={`/tracker?peptide=${encodeURIComponent(item.peptide)}`}
+                    className="rounded-full bg-emerald-600 px-4 py-1.5 text-xs font-bold text-white hover:bg-emerald-700"
+                  >
+                    سجّل الآن
+                  </Link>
+                )}
+                {item.done && <span className="text-xs font-bold text-emerald-600">تم</span>}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Activity Section */}
       {!activity.loading && activity.logs.length > 0 && (

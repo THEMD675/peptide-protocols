@@ -59,10 +59,13 @@ export default function Tracker() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showForm, setShowForm] = useState(false);
 
-  const [peptideName, setPeptideName] = useState('');
+  const [peptideName, setPeptideName] = useState(() => {
+    try { const p = new URLSearchParams(window.location.search).get('peptide'); return p ?? ''; } catch { return ''; }
+  });
   const [dose, setDose] = useState('');
   const [unit, setUnit] = useState('mcg');
   const [site, setSite] = useState('abdomen');
+  const [autoFilled, setAutoFilled] = useState(false);
   const [injectedAt, setInjectedAt] = useState(() => {
     const now = new Date();
     now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
@@ -290,7 +293,16 @@ export default function Tracker() {
       {!showForm && (
         <div className="mb-8 flex gap-3">
           <button
-            onClick={() => setShowForm(true)}
+            onClick={() => {
+              setShowForm(true);
+              if (!autoFilled && logs.length > 0 && !peptideName) {
+                const last = logs[0];
+                setPeptideName(last.peptide_name);
+                setDose(String(last.dose));
+                setUnit(last.unit);
+                setAutoFilled(true);
+              }
+            }}
             className="flex flex-1 items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-emerald-300 bg-emerald-50 px-6 py-4 text-sm font-bold text-emerald-700 transition-all hover:border-emerald-400 hover:bg-emerald-100"
           >
             <Plus className="h-5 w-5" />
