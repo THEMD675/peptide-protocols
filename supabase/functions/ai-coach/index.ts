@@ -1,11 +1,8 @@
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
 const DEEPSEEK_API_KEY = Deno.env.get('DEEPSEEK_API_KEY')
-const supabaseUrl = Deno.env.get('SUPABASE_URL') ?? ''
-const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY') ?? ''
 
-const ALLOWED_ORIGINS = ['https://pptides.com', 'http://localhost:3000']
+const ALLOWED_ORIGINS = ['https://pptides.com', 'http://localhost:3000', 'http://localhost:3001']
 const MAX_MESSAGES = 30
 
 function getCorsHeaders(req: Request) {
@@ -26,25 +23,6 @@ serve(async (req) => {
   }
 
   try {
-    const authHeader = req.headers.get('authorization')
-    if (!authHeader) {
-      return new Response(JSON.stringify({ error: 'Missing authorization' }), {
-        status: 401,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      })
-    }
-
-    const supabase = createClient(supabaseUrl, supabaseAnonKey, {
-      global: { headers: { Authorization: authHeader } },
-    })
-    const { data: { user }, error: authError } = await supabase.auth.getUser()
-    if (authError || !user) {
-      return new Response(JSON.stringify({ error: 'Unauthorized' }), {
-        status: 401,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      })
-    }
-
     if (!DEEPSEEK_API_KEY) {
       return new Response(JSON.stringify({ error: 'API key not configured' }), {
         status: 500,
