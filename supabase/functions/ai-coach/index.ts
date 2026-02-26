@@ -1,6 +1,9 @@
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
 const DEEPSEEK_API_KEY = Deno.env.get('DEEPSEEK_API_KEY')
+const supabaseUrl = Deno.env.get('SUPABASE_URL') ?? ''
+const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
 
 const ALLOWED_ORIGINS = ['https://pptides.com', 'http://localhost:3000', 'http://localhost:3001']
 const MAX_USER_MESSAGES = 30
@@ -148,6 +151,23 @@ serve(async (req) => {
       console.error('ai-coach: DEEPSEEK_API_KEY is not configured')
       return new Response(JSON.stringify({ error: 'API key not configured' }), {
         status: 500,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      })
+    }
+
+    const authHeader = req.headers.get('authorization')
+    const token = authHeader?.replace('Bearer ', '')
+    if (!token) {
+      return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+        status: 401,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      })
+    }
+    const supabase = createClient(supabaseUrl, supabaseServiceKey)
+    const { data: { user }, error: authError } = await supabase.auth.getUser(token)
+    if (authError || !user) {
+      return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+        status: 401,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       })
     }

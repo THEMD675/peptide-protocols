@@ -308,7 +308,7 @@ export default function Header() {
         )}
       >
         <div
-          className="absolute inset-0 bg-black/40 backdrop-blur-sm"
+          className="absolute inset-0 bg-black/50 backdrop-blur-sm"
           onClick={() => setMobileOpen(false)}
         />
 

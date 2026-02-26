@@ -64,7 +64,6 @@ serve(async (req) => {
       .from('subscriptions')
       .select('user_id, trial_ends_at, created_at')
       .eq('status', 'trial')
-      .eq('tier', 'free')
 
     if (queryError) {
       console.error('trial-reminder: failed to query trial users:', queryError)

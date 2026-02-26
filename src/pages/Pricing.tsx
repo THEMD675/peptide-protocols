@@ -177,7 +177,7 @@ export default function Pricing() {
         <div className="grid gap-8 md:grid-cols-2">
           {/* Essentials */}
           <div
-            className="relative flex flex-col rounded-3xl border border-stone-300/60 bg-white p-8 md:p-10"
+            className="relative flex flex-col rounded-2xl border border-stone-300/60 bg-white p-8 md:p-10"
           >
             <h2 className="mb-1 text-2xl font-bold text-stone-900">Essentials</h2>
             <p className="mb-6 text-stone-800">كل الأدوات الأساسية التي تحتاجها</p>
@@ -202,7 +202,7 @@ export default function Pricing() {
 
           {/* Elite */}
           <div
-            className="relative flex flex-col rounded-3xl border-2 border-emerald-200 bg-white p-8 shadow-xl shadow-emerald-600/5 md:p-10"
+            className="relative flex flex-col rounded-2xl border-2 border-emerald-200 bg-white p-8 shadow-xl shadow-emerald-600/5 md:p-10"
           >
             <span className="absolute -top-3.5 right-6 rounded-full bg-emerald-600 px-5 py-1.5 text-sm font-bold text-white">
               الأفضل قيمة

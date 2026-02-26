@@ -1,6 +1,6 @@
 import { useState, type ElementType } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowLeft, ArrowRight, CheckCircle, FlaskConical, TrendingDown, Heart, Brain, Zap, Clock, Shield, Syringe, Pill, SprayCan } from 'lucide-react';
+import { ArrowLeft, ArrowRight, CheckCircle, FlaskConical, TrendingDown, Heart, Brain, Zap, Clock, Shield, Syringe, Pill, SprayCan, Dumbbell } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { peptides as allPeptides } from '@/data/peptides';
 
@@ -21,6 +21,7 @@ const STEPS: QuizStep[] = [
     options: [
       { id: 'fat-loss', label: 'فقدان دهون وإنقاص وزن', icon: TrendingDown },
       { id: 'recovery', label: 'تعافي من إصابة أو أداء رياضي', icon: Heart },
+      { id: 'muscle', label: 'بناء عضل وقوة', icon: Dumbbell },
       { id: 'brain', label: 'تركيز وذاكرة وأداء ذهني', icon: Brain },
       { id: 'hormones', label: 'تحسين هرمونات', icon: Zap },
       { id: 'longevity', label: 'إطالة عمر ومكافحة شيخوخة', icon: Clock },
@@ -66,6 +67,12 @@ function getRecommendation(answers: string[]): Recommendation {
   if (goal === 'recovery') {
     if (experience === 'beginner') return { peptideId: 'bpc-157', nameAr: 'BPC-157', nameEn: 'BPC-157', reason: 'أشهر ببتيد تعافي — يُسرّع شفاء الأوتار والأربطة. ملف أمان ممتاز.', altId: 'tb-500', altName: 'TB-500' };
     return { peptideId: 'tb-500', nameAr: 'TB-500', nameEn: 'TB-500', reason: 'تعافي جهازي — يُرمّم العضلات والأنسجة. يُجمع مع BPC-157.', altId: 'bpc-157', altName: 'BPC-157' };
+  }
+
+  if (goal === 'muscle') {
+    if (injection === 'no') return { peptideId: 'collagen-peptides', nameAr: 'ببتيدات الكولاجين', nameEn: 'Collagen Peptides', reason: 'فموي — يدعم المفاصل والأنسجة الضامة. لا يبني عضل مباشرة لكن يحمي المفاصل تحت الأحمال.', altId: 'bpc-157', altName: 'BPC-157' };
+    if (experience === 'beginner') return { peptideId: 'cjc-1295', nameAr: 'CJC-1295', nameEn: 'CJC-1295', reason: 'يحفّز إفراز هرمون النمو بشكل مستدام — يُجمع مع Ipamorelin لأفضل النتائج.', altId: 'ipamorelin', altName: 'Ipamorelin' };
+    return { peptideId: 'follistatin-344', nameAr: 'فوليستاتين-344', nameEn: 'Follistatin 344', reason: 'يثبّط الميوستاتين — أقوى ببتيد لبناء العضل. للمتقدمين فقط.', altId: 'cjc-1295', altName: 'CJC-1295' };
   }
 
   if (goal === 'brain') {
