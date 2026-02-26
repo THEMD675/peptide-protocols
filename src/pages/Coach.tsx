@@ -368,13 +368,12 @@ export default function Coach() {
       if (!accumulated) {
         setMessages(prev => {
           const copy = [...prev];
-          copy[copy.length - 1] = { role: 'assistant', content: 'عذرًا، حدث خطأ. حاول مرة أخرى.' };
+          copy[copy.length - 1] = { role: 'assistant', content: '__ERROR__' };
           return copy;
         });
       }
-    } catch (e) {
-      void e;
-      setMessages(prev => [...prev, { role: 'assistant', content: 'تعذّر الاتصال بالخادم. تأكد من اتصالك وحاول مرة أخرى.' }]);
+    } catch {
+      setMessages(prev => [...prev, { role: 'assistant', content: '__ERROR__' }]);
     } finally {
       clearTimeout(stageTimer1);
       clearTimeout(stageTimer2);
@@ -586,6 +585,23 @@ export default function Coach() {
                           ? `هدفي: ${intake.goalLabel || 'استشارة عامة'}`
                           : msg.content
                       }</p>
+                    ) : msg.content === '__ERROR__' ? (
+                      <div className="text-sm text-stone-800">
+                        <p className="mb-2">تعذّر الاتصال بالخادم. تأكد من اتصالك وحاول مرة أخرى.</p>
+                        <button
+                          onClick={() => {
+                            const lastUserMsg = [...messages].reverse().find(m => m.role === 'user');
+                            if (lastUserMsg) {
+                              setMessages(prev => prev.filter((_, idx) => idx < i));
+                              sendToAI(lastUserMsg.content);
+                            }
+                          }}
+                          className="inline-flex items-center gap-1.5 rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-1.5 text-xs font-bold text-emerald-700 transition-colors hover:bg-emerald-100"
+                        >
+                          <RotateCcw className="h-3 w-3" />
+                          إعادة المحاولة
+                        </button>
+                      </div>
                     ) : (
                       <div className="text-sm leading-relaxed text-stone-800">
                         {renderMarkdown(msg.content)}

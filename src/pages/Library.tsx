@@ -284,10 +284,16 @@ export default function Library() {
   const [sortBy, setSortBy] = useState<'default' | 'evidence' | 'alpha' | 'favorites'>('default');
   const [showFilters, setShowFilters] = useState(false);
   const [favorites, toggleFavorite] = useFavorites();
-  const [compareIds, setCompareIds] = useState<string[]>([]);
+  const [compareIds, setCompareIds] = useState<string[]>(() => {
+    try { const s = sessionStorage.getItem('pptides_compare'); return s ? JSON.parse(s) : []; } catch { return []; }
+  });
   const [showCompare, setShowCompare] = useState(false);
 
   const [upsellPeptide, setUpsellPeptide] = useState<string | null>(null);
+
+  useEffect(() => {
+    try { sessionStorage.setItem('pptides_compare', JSON.stringify(compareIds)); } catch {}
+  }, [compareIds]);
 
   const handleLockedClick = useCallback((peptideId?: string) => {
     setUpsellPeptide(peptideId ?? null);

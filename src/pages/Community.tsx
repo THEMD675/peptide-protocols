@@ -156,18 +156,20 @@ export default function Community() {
 
                 <div className="mb-4">
                   <label className="mb-1.5 block text-sm font-bold text-stone-900">اسم الببتيد</label>
-                  <input
-                    type="text"
+                  <select
                     value={peptideName}
                     onChange={(e) => setPeptideName(e.target.value)}
-                    placeholder="مثال: BPC-157, Semaglutide, Semax..."
                     required
-                    dir="ltr"
                     className={cn(
-                      'w-full rounded-xl border bg-stone-50 px-4 py-3 text-stone-900 placeholder:text-stone-400 focus:border-emerald-300 focus:outline-none focus:ring-2 focus:ring-emerald-100',
+                      'w-full rounded-xl border bg-stone-50 px-4 py-3 text-stone-900 focus:border-emerald-300 focus:outline-none focus:ring-2 focus:ring-emerald-100',
                       attempted && !peptideName.trim() ? 'border-red-400 ring-1 ring-red-200' : 'border-stone-200'
                     )}
-                  />
+                  >
+                    <option value="">اختر الببتيد...</option>
+                    {allPeptides.map(p => (
+                      <option key={p.id} value={p.nameEn}>{p.nameAr} ({p.nameEn})</option>
+                    ))}
+                  </select>
                   {attempted && !peptideName.trim() && (
                     <p className="mt-1 text-xs text-red-600">يرجى إدخال اسم الببتيد</p>
                   )}

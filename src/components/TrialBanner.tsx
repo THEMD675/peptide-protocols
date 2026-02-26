@@ -25,6 +25,16 @@ export default function TrialBanner() {
 
   const isFreePage = FREE_PATHS.some(p => pathname === p) || isPeptideFree;
 
+  if (subscription.status === 'cancelled' && subscription.isPaidSubscriber) {
+    return (
+      <div className="sticky top-[64px] md:top-[72px] z-40 bg-amber-500 text-center py-2 px-4">
+        <p className="text-sm font-semibold text-white">
+          اشتراكك ملغي — ستحتفظ بالوصول حتى نهاية الفترة الحالية
+        </p>
+      </div>
+    );
+  }
+
   if (subscription.status === 'cancelled' && !subscription.isPaidSubscriber) {
     if (isFreePage) {
       return (
