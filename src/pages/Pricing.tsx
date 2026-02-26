@@ -135,7 +135,7 @@ export default function Pricing() {
     <div className="min-h-screen bg-gradient-to-b from-white via-stone-50 to-white">
       <Helmet>
         <title>خطط الاشتراك | pptides</title>
-        <meta name="description" content="اختر خطتك: Essentials $9/شهر أو Elite $99/شهر. 3 أيام تجربة مجانية. ضمان استرداد كامل." />
+        <meta name="description" content={`اختر خطتك: Essentials ${PRICING.essentials.label}/شهر أو Elite ${PRICING.elite.label}/شهر. 3 أيام تجربة مجانية. ضمان استرداد كامل.`} />
         <script type="application/ld+json">{JSON.stringify({
           "@context": "https://schema.org",
           "@type": "FAQPage",

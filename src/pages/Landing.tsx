@@ -420,6 +420,7 @@ export default function Landing() {
               <li className="flex items-start gap-2"><Check className="mt-0.5 h-4 w-4 shrink-0 text-emerald-600" /><span><strong>Tesamorelin</strong> — Egrifta (2010)</span></li>
               <li className="flex items-start gap-2"><Check className="mt-0.5 h-4 w-4 shrink-0 text-emerald-600" /><span><strong>PT-141</strong> — Vyleesi (2019)</span></li>
               <li className="flex items-start gap-2"><Check className="mt-0.5 h-4 w-4 shrink-0 text-emerald-600" /><span><strong>SS-31</strong> — Stegazah/Elamipretide (2025)</span></li>
+              <li className="flex items-start gap-2"><Check className="mt-0.5 h-4 w-4 shrink-0 text-emerald-600" /><span><strong>Triptorelin</strong> — Trelstar/Decapeptyl (1986)</span></li>
             </ul>
           </div>
 
@@ -632,7 +633,7 @@ export default function Landing() {
                   'استشارة خاصة شهرية',
                   'مراجعة تحاليل شخصية',
                   'تواصل مباشر مع المختص',
-                  'دعم أولوية 24/7',
+                  'دعم أولوية — رد خلال ساعات',
                 ].map((f) => (
                   <li key={f} className="flex items-start gap-3 text-sm text-stone-800">
                     <Check className="mt-0.5 h-4 w-4 shrink-0 text-emerald-600" />

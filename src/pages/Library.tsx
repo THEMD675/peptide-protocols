@@ -1,6 +1,6 @@
 import { useState, useMemo, useCallback, useEffect } from 'react';
 import { Helmet } from 'react-helmet-async';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import {
   Search,
   Lock,
@@ -282,7 +282,8 @@ export default function Library() {
   const usedPeptides = useUsedPeptides();
 
   const [activeCategory, setActiveCategory] = useState('all');
-  const [search, setSearch] = useState('');
+  const [searchParams] = useSearchParams();
+  const [search, setSearch] = useState(() => searchParams.get('q') ?? '');
   const [evidenceFilter, setEvidenceFilter] = useState('all');
   const [sortBy, setSortBy] = useState<'default' | 'evidence' | 'alpha' | 'favorites'>('default');
   const [showFilters, setShowFilters] = useState(false);

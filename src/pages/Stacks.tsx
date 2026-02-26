@@ -6,9 +6,9 @@ import { PRICING } from '@/lib/constants';
 import { stacks, peptides, categories } from '@/data/peptides';
 
 const STACK_META: Record<string, { difficulty: string; cost: string; duration: string }> = {
-  'golden-recovery': { difficulty: 'مبتدئ', cost: '$120-180/شهر', duration: '4-6 أسابيع' },
-  'gh-optimization': { difficulty: 'متوسط', cost: '$200-350/شهر', duration: '8-12 أسبوع' },
-  'brain-performance': { difficulty: 'مبتدئ', cost: '$70-100/شهر', duration: '4 أسابيع مع راحة' },
+  'golden-recovery': { difficulty: 'مبتدئ', cost: '$140-220/شهر', duration: '4-6 أسابيع' },
+  'gh-optimization': { difficulty: 'متوسط', cost: '$260-380/شهر', duration: '8-12 أسبوع' },
+  'brain-performance': { difficulty: 'مبتدئ', cost: '$80-130/شهر', duration: '4 أسابيع مع راحة' },
   'longevity-protocol': { difficulty: 'متقدم', cost: '$270/دورة', duration: '20 يوم كل 6 أشهر' },
   'gut-repair': { difficulty: 'متوسط', cost: '$160-270/شهر', duration: '8-12 أسبوع' },
 };
