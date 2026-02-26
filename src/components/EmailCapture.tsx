@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { supabase } from '@/lib/supabase';
 import { Mail, ArrowLeft, Loader2, CheckCircle } from 'lucide-react';
 
@@ -89,7 +90,7 @@ export default function EmailCapture() {
         <p className="mt-3 text-center text-sm text-red-400">{errorMsg}</p>
       )}
       <p className="mt-2 text-center text-[10px] text-white/30">
-        بالاشتراك، أنت توافق على <a href="/privacy" className="underline hover:text-white/50">سياسة الخصوصية</a>
+        بالاشتراك، أنت توافق على <Link to="/privacy" className="underline hover:text-white/50">سياسة الخصوصية</Link>
       </p>
     </div>
   );

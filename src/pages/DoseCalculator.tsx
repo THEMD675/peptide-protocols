@@ -157,11 +157,11 @@ function SyringeVisual({
               y1={fillY}
               x2={barrelX + barrelWidth + 4}
               y2={fillY}
-              stroke={EMERALD}
+              stroke="#10b981"
               strokeWidth={1.5}
               strokeDasharray="3,2"
             />
-            <circle cx={barrelX - 4} cy={fillY} r={2} fill={EMERALD} />
+            <circle cx={barrelX - 4} cy={fillY} r={2} fill="#10b981" />
           </>
         )}
 

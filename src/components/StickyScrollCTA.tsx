@@ -34,7 +34,7 @@ export default function StickyScrollCTA() {
   if (user && subscription?.isProOrTrial) return null;
   if (EXCLUDED_PATHS.some(p => pathname.startsWith(p))) return null;
 
-  const href = user ? '/pricing' : '/signup';
+  const href = user ? '/pricing' : '/signup?redirect=/pricing';
   const text = user ? `اشترك الآن — ${PRICING.essentials.label}/شهر` : 'ابدأ تجربتك المجانية';
 
   return (

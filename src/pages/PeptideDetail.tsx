@@ -61,12 +61,6 @@ export default function PeptideDetail() {
     { label: 'التخزين', value: peptide.storageAr },
   ];
 
-  const previewRows: ProtocolRow[] = [
-    { label: 'الاسم العلمي', value: peptide.nameEn },
-    { label: 'عدد الأحماض الأمينية', value: peptide.aminoAcids },
-    { label: 'مستوى الدليل العلمي', value: evidenceLabels[peptide.evidenceLevel] },
-  ];
-
   return (
     <div className="min-h-screen" >
       <Helmet>
@@ -323,65 +317,7 @@ export default function PeptideDetail() {
 
           {/* Community experiences for this peptide */}
           <PeptideExperiences peptideNameEn={peptide.nameEn} />
-        </>) : isFreeContent ? (
-          /* ── Free peptide, non-subscriber: 3 preview rows + gradient CTA ── */
-          <div
-            className="relative overflow-hidden rounded-2xl border border-stone-300 pb-40"
-          >
-            <div
-              className="flex items-center gap-2 bg-stone-50/95 px-5 py-3"
-            >
-              <Shield className="h-4 w-4"  />
-              <h2
-                className="text-base font-bold"
-                
-              >
-                بطاقة البروتوكول
-              </h2>
-            </div>
-
-            <table className="w-full">
-              <tbody>
-                {previewRows.map((row, i) => (
-                  <tr
-                    key={row.label}
-                    className={cn(
-                      'border-b border-stone-200',
-                      i % 2 === 0 ? 'bg-stone-50 border border-stone-300' : 'bg-transparent',
-                    )}
-                  >
-                    <td className="w-[35%] px-5 py-4 align-top text-sm font-semibold text-stone-800">
-                      {row.label}
-                    </td>
-                    <td className="px-5 py-4 text-sm leading-relaxed text-stone-800">
-                      {row.value}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-
-            {/* Gradient overlay + CTA */}
-            <div
-              className="absolute bottom-0 left-0 right-0 flex h-48 flex-col items-center justify-center bg-gradient-to-t from-white via-white/80 to-transparent"
-            >
-              <div className="flex flex-col gap-3 sm:flex-row">
-                <Link
-                  to="/pricing"
-                  className="rounded-full bg-emerald-600 px-8 py-3 text-sm font-bold text-white transition-all hover:bg-emerald-700"
-                >
-                  اشترك — {PRICING.essentials.label}/شهريًا
-                </Link>
-                <Link
-                  to="/coach"
-                  className="rounded-full border-2 border-emerald-300 px-8 py-3 text-sm font-bold text-emerald-700 transition-all hover:bg-emerald-50"
-                >
-                  اسأل المدرب الذكي
-                </Link>
-              </div>
-            </div>
-          </div>
-        ) : (
+        </>) : (
           /* ── Locked peptide, non-subscriber: compelling CTA ── */
           <div className="overflow-hidden rounded-2xl border border-stone-200 bg-stone-50">
             <div className="flex flex-col items-center gap-6 px-6 py-10 text-center">

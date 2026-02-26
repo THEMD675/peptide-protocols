@@ -9,6 +9,7 @@ const FREE_PATHS = [
   '/calculator', '/pricing', '/login', '/signup', '/privacy', '/terms', '/',
   '/glossary', '/sources', '/reviews', '/account',
   '/dashboard', '/tracker', '/coach', '/community', '/interactions',
+  '/library', '/stacks', '/table', '/guide', '/lab-guide', '/peptide',
 ];
 
 export default function TrialBanner() {

@@ -56,7 +56,7 @@ export default function ExitIntentPopup() {
         </div>
 
         <Link
-          to={user ? '/pricing' : '/signup'}
+          to={user ? '/pricing' : '/signup?redirect=/pricing'}
           onClick={() => setVisible(false)}
           className="mb-3 flex w-full items-center justify-center gap-2 rounded-full bg-emerald-600 px-6 py-3.5 text-base font-bold text-white transition-all hover:bg-emerald-700 hover:scale-[1.02] active:scale-[0.98]"
         >
