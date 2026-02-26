@@ -25,7 +25,6 @@ const moreLinks = [
   { to: '/stacks', label: 'البروتوكولات المُجمَّعة' },
   { to: '/lab-guide', label: 'دليل التحاليل' },
   { to: '/guide', label: 'دليل الحقن' },
-  { to: '/tracker', label: 'سجل الحقن' },
   { to: '/interactions', label: 'فحص التعارضات' },
   { to: '/community', label: 'تجارب المستخدمين' },
   { to: '/glossary', label: 'المصطلحات' },
@@ -157,7 +156,7 @@ export default function Header() {
                 <ChevronDown className={cn('h-3 w-3 transition-transform', moreOpen && 'rotate-180')} />
               </button>
               {moreOpen && (
-                <div className="absolute left-0 top-full mt-2 min-w-[200px] overflow-hidden rounded-xl border border-stone-200 bg-white py-1 shadow-xl">
+                <div className="absolute right-0 top-full mt-2 min-w-[200px] overflow-hidden rounded-xl border border-stone-200 bg-white py-1 shadow-xl">
                   {moreLinks.map(({ to, label }) => (
                     <Link
                       key={to}
@@ -189,7 +188,7 @@ export default function Header() {
                 <Search className="h-4 w-4" />
               </button>
               {searchOpen && (
-                <div className="absolute left-0 top-full mt-2 w-72 overflow-hidden rounded-xl border border-stone-200 bg-white shadow-xl">
+                <div className="absolute right-0 top-full mt-2 w-72 overflow-hidden rounded-xl border border-stone-200 bg-white shadow-xl">
                   <div className="p-2">
                     <input
                       autoFocus
@@ -249,7 +248,7 @@ export default function Header() {
                 </button>
 
                 {dropdownOpen && (
-                  <div className="absolute left-0 top-full mt-2 min-w-[180px] overflow-hidden rounded-xl border border-stone-200 bg-white py-1 shadow-xl">
+                  <div className="absolute right-0 top-full mt-2 min-w-[180px] overflow-hidden rounded-xl border border-stone-200 bg-white py-1 shadow-xl">
                     <p className="truncate border-b border-stone-200 px-4 py-2 text-xs text-stone-800">
                       {user.email}
                     </p>

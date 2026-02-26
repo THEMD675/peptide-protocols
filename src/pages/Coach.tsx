@@ -173,7 +173,7 @@ async function buildUserContext(userId: string): Promise<string> {
       if (names.length) ctx += `ببتيدات مفضّلة: ${names.join(', ')}\n`;
     }
   } catch (e) {
-    console.error('Failed to build user context:', e);
+    void e;
   }
   return ctx;
 }
@@ -373,7 +373,7 @@ export default function Coach() {
         });
       }
     } catch (e) {
-      console.error('AI coach request failed:', e);
+      void e;
       setMessages(prev => [...prev, { role: 'assistant', content: 'تعذّر الاتصال بالخادم. تأكد من اتصالك وحاول مرة أخرى.' }]);
     } finally {
       clearTimeout(stageTimer1);

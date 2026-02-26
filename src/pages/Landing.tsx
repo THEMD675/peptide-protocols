@@ -149,7 +149,7 @@ export default function Landing() {
       {/* ═══════ HERO ═══════ */}
       <section className="relative bg-gradient-to-b from-white via-stone-50 to-stone-50">
         <div className="pointer-events-none absolute inset-0">
-          <div className="absolute left-1/2 top-0 h-[600px] w-[800px] -translate-x-1/2" style={{ background: 'radial-gradient(ellipse at center, rgba(16, 185, 129, 0.07) 0%, transparent 60%)' }} />
+          <div className="absolute left-1/2 top-0 h-[600px] w-[800px] -translate-x-1/2 bg-[radial-gradient(ellipse_at_center,rgba(16,185,129,0.07)_0%,transparent_60%)]" />
         </div>
 
         <div className="relative mx-auto max-w-5xl px-6 pb-20 pt-10 text-center md:pt-16 md:pb-28">
@@ -173,7 +173,7 @@ export default function Landing() {
           <div className="flex flex-col items-center justify-center gap-3 sm:flex-row sm:gap-4">
             <Link
               to={ctaLink}
-              className="btn-primary-glow animate-breathe inline-flex w-full max-w-xs items-center justify-center gap-3 rounded-full bg-emerald-600 px-8 py-4 text-lg font-bold text-white transition-all duration-300 hover:bg-emerald-700 sm:w-auto"
+              className="btn-primary-glow inline-flex w-full max-w-xs items-center justify-center gap-3 rounded-full bg-emerald-600 px-8 py-4 text-lg font-bold text-white transition-all duration-300 hover:bg-emerald-700 sm:w-auto"
             >
               <span>{ctaText}</span>
               <ArrowLeft className="h-5 w-5" />
@@ -715,7 +715,7 @@ export default function Landing() {
 
       {/* ═══════ EMAIL CAPTURE ═══════ */}
       <section className="relative bg-stone-900 py-20">
-        <div className="pointer-events-none absolute inset-0" style={{ background: 'radial-gradient(ellipse at center, rgba(16, 185, 129, 0.08) 0%, transparent 60%)' }} />
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(16,185,129,0.08)_0%,transparent_60%)]" />
         <div className="relative mx-auto max-w-2xl px-6 text-center">
           <h2 className="mb-3 text-2xl font-bold text-white md:text-3xl">
             ابقَ على <span className="text-emerald-400">اطلاع</span>

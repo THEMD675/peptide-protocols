@@ -34,7 +34,7 @@ export default function ExitIntentPopup() {
       <div className="relative w-full max-w-md rounded-2xl bg-white p-8 shadow-2xl text-center">
         <button
           onClick={() => setVisible(false)}
-          className="absolute top-4 left-4 rounded-full p-1.5 text-stone-400 hover:text-stone-600 hover:bg-stone-100 transition-colors"
+          className="absolute top-4 right-4 rounded-full p-1.5 text-stone-400 hover:text-stone-600 hover:bg-stone-100 transition-colors"
           aria-label="إغلاق"
         >
           <X className="h-5 w-5" />

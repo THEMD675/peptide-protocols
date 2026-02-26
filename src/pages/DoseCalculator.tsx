@@ -6,8 +6,6 @@ import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import { PEPTIDE_COUNT } from '@/lib/constants';
 
-const EMERALD = '#10b981';
-
 type DoseUnit = 'mcg' | 'mg';
 
 interface SyringeOption {
@@ -87,7 +85,7 @@ function SyringeVisual({
 
   return (
     <div className="flex flex-col items-center gap-3">
-      <p className="text-sm font-bold" >
+      <p className="text-sm font-bold text-stone-900">
         اسحب إلى: {displayUnits.toFixed(1)} وحدة
       </p>
       <svg
@@ -295,12 +293,11 @@ export default function DoseCalculator() {
           className="mb-10 text-center"
         >
           <div
-            className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl"
-            style={{ background: 'rgba(16, 185, 129, 0.1)' }}
+            className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-500/10"
           >
-            <Calculator className="h-7 w-7"  />
+            <Calculator className="h-7 w-7 text-emerald-600" />
           </div>
-          <h1 className="text-3xl font-bold md:text-4xl" >
+          <h1 className="text-3xl font-bold text-stone-900 md:text-4xl">
             حاسبة جرعات الببتيدات
           </h1>
           <p className="mt-2 text-base text-stone-800">
@@ -433,7 +430,7 @@ export default function DoseCalculator() {
                   <button
                     onClick={() => setWaterMl(recommendedWater)}
                     className="text-xs transition-colors hover:underline"
-                    style={{ color: EMERALD, opacity: 0.7 }}
+                    className="text-xs text-emerald-600/70 transition-colors hover:underline"
                   >
                     💡 الكمية المُوصى بها: {recommendedWater} مل
                   </button>
@@ -662,17 +659,16 @@ export default function DoseCalculator() {
             className="flex w-full items-center justify-between px-6 py-4"
           >
             <div className="flex items-center gap-2">
-              <Droplets className="h-5 w-5"  />
-              <h2 className="text-base font-bold" >
+              <Droplets className="h-5 w-5 text-emerald-600" />
+              <h2 className="text-base font-bold text-stone-900">
                 كيف تستخدم هذه الحاسبة
               </h2>
             </div>
             <ChevronDown
               className={cn(
-                'h-5 w-5 transition-transform duration-300',
+                'h-5 w-5 text-stone-500 transition-transform duration-300',
                 showFormulas && 'rotate-180',
               )}
-              
             />
           </button>
 
@@ -714,11 +710,10 @@ export default function DoseCalculator() {
           className="mb-8 overflow-hidden rounded-2xl border border-stone-300"
         >
           <div
-            className="flex items-center gap-2 px-5 py-3"
-            style={{ background: 'rgba(250, 250, 249, 0.95)' }}
+            className="flex items-center gap-2 bg-stone-50/95 px-5 py-3"
           >
-            <FlaskConical className="h-4 w-4"  />
-            <h2 className="text-base font-bold" >
+            <FlaskConical className="h-4 w-4 text-emerald-600" />
+            <h2 className="text-base font-bold text-stone-900">
               جدول مرجعي سريع
             </h2>
           </div>
@@ -795,19 +790,19 @@ export default function DoseCalculator() {
         >
           <CrossLink
             to="/table"
-            icon={<FlaskConical className="h-5 w-5"  />}
+            icon={<FlaskConical className="h-5 w-5 text-emerald-600" />}
             title="جدول الببتيدات الشامل"
             desc="تصفّح جميع الببتيدات والجرعات"
           />
           <CrossLink
             to="/stacks"
-            icon={<Layers className="h-5 w-5"  />}
+            icon={<Layers className="h-5 w-5 text-emerald-600" />}
             title="البروتوكولات المُجمَّعة"
             desc="اكتشف أفضل التوليفات"
           />
           <CrossLink
             to="/lab-guide"
-            icon={<BookOpen className="h-5 w-5"  />}
+            icon={<BookOpen className="h-5 w-5 text-emerald-600" />}
             title="دليل التحاليل المخبرية"
             desc="تحاليل ما قبل وبعد البروتوكول"
           />
@@ -871,7 +866,7 @@ function ResultCard({
       className="rounded-xl border border-stone-300 bg-stone-100 p-4 text-center"
     >
       <p className="mb-1 text-xs font-medium text-stone-800">{label}</p>
-      <p className="text-2xl font-bold" >
+      <p className="text-2xl font-bold text-emerald-600">
         {value}
       </p>
       <p className="mt-0.5 text-[11px] text-stone-800">{unit}</p>
@@ -894,15 +889,14 @@ function FormulaStep({
     <div className="rounded-xl border border-stone-300 bg-stone-50 p-4">
       <div className="mb-2 flex items-center gap-2">
         <span
-          className="flex h-6 w-6 items-center justify-center rounded-full text-xs font-bold"
-          style={{ background: EMERALD, color: 'white' }}
+          className="flex h-6 w-6 items-center justify-center rounded-full bg-emerald-500 text-xs font-bold text-white"
         >
           {step}
         </span>
         <h3 className="text-sm font-semibold text-stone-800">{title}</h3>
       </div>
       <p className="mb-1 text-sm text-stone-800" dir="ltr">{formula}</p>
-      <p className="text-xs" style={{ color: EMERALD, opacity: 0.8 }} dir="ltr">
+      <p className="text-xs text-emerald-600/80" dir="ltr">
         {example}
       </p>
     </div>
@@ -926,8 +920,7 @@ function CrossLink({
       className="group flex items-center gap-3 rounded-xl border border-stone-300 bg-stone-50 p-4 transition-all hover:border-emerald-300 hover:bg-stone-100"
     >
       <div
-        className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg"
-        style={{ background: 'rgba(16, 185, 129, 0.1)' }}
+        className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-emerald-500/10"
       >
         {icon}
       </div>

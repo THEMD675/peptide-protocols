@@ -11,5 +11,6 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
   auth: {
     persistSession: true,
     detectSessionInUrl: true,
+    lock: 'no-op' as never,
   },
 });

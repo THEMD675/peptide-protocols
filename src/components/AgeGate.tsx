@@ -43,9 +43,8 @@ export default function AgeGate() {
           <div
             className={cn(
               "w-full max-w-md rounded-2xl border-2 border-emerald-500",
-              "bg-stone-900 p-8 text-center shadow-2xl"
+              "bg-stone-900 p-8 text-center shadow-2xl shadow-emerald-500/10"
             )}
-            style={{ boxShadow: '0 25px 50px -12px rgba(16, 185, 129, 0.1)' }}
           >
             <div
               className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-emerald-500/10"
@@ -83,14 +82,10 @@ export default function AgeGate() {
                   <button
                     onClick={handleUnder}
                     className={cn(
-                      "w-full rounded-xl border-2 px-6 py-3",
-                      "text-lg font-bold",
+                      "w-full rounded-xl border-2 border-emerald-500/40 px-6 py-3",
+                      "text-lg font-bold text-amber-400",
                       "transition-all duration-200 active:scale-[0.98]"
                     )}
-                    style={{
-                      borderColor: 'rgba(16, 185, 129, 0.4)',
-                      color: 'var(--gold)',
-                    }}
                   >
                     عمري أقل من 18 — خروج
                   </button>
