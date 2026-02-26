@@ -136,7 +136,7 @@ export default function App() {
           <TrialBanner />
           <ScrollToTop />
           <Toaster position="top-center" richColors dir="rtl" />
-          <main className="flex-1">
+          <main id="main-content" className="flex-1">
             <Suspense fallback={<PageLoader />}>
             <Routes>
               <Route path="/" element={<Landing />} />

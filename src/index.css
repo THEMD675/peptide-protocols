@@ -320,3 +320,40 @@
 .scrollbar-hide::-webkit-scrollbar {
   display: none;
 }
+
+.scroll-fade {
+  -webkit-mask-image: linear-gradient(to left, transparent, black 40px, black calc(100% - 40px), transparent);
+  mask-image: linear-gradient(to left, transparent, black 40px, black calc(100% - 40px), transparent);
+}
+
+.skip-link {
+  position: absolute;
+  top: -100%;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 9999;
+  padding: 0.75rem 1.5rem;
+  background: #10b981;
+  color: white;
+  font-weight: 700;
+  font-size: 0.875rem;
+  border-radius: 0 0 0.75rem 0.75rem;
+  transition: top 0.2s;
+}
+.skip-link:focus {
+  top: 0;
+}
+
+*:focus-visible {
+  outline: 2px solid #10b981;
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible,
+button:focus-visible {
+  outline: 2px solid #10b981;
+  outline-offset: 2px;
+}

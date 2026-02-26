@@ -77,12 +77,13 @@
     }
     </script>
 
-    <!-- Preconnect hints -->
+    <!-- Preconnect + Font -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link rel="dns-prefetch" href="https://hexnuldwerzwbljorokw.supabase.co" />
     <link rel="dns-prefetch" href="https://api.deepseek.com" />
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" />
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet" />
 
     <!-- Favicon -->
     <link rel="icon" href="/favicon.ico" />
@@ -94,6 +95,7 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="default" />
   </head>
   <body>
+    <a href="#main-content" class="skip-link">تخطّي إلى المحتوى</a>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>

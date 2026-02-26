@@ -316,7 +316,7 @@ export default function Library() {
 
         {/* Search & Filter Bar */}
         <div
-          className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center"
+          className="mb-6 flex flex-wrap gap-2 items-center"
         >
           <div className="relative flex-1">
             <Search className="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-stone-700" />
@@ -399,7 +399,7 @@ export default function Library() {
 
         {/* Category Tabs */}
         <div
-          className="mb-8 -mx-4 px-4 overflow-x-auto scrollbar-hide"
+          className="mb-8 -mx-4 px-4 overflow-x-auto scrollbar-hide scroll-fade"
         >
           <div className="flex gap-2 pb-2 min-w-max">
             <button
