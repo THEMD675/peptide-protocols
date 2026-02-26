@@ -1,3 +1,9 @@
 User-agent: *
 Allow: /
+Disallow: /account
+Disallow: /dashboard
+Disallow: /tracker
+Disallow: /coach
+Disallow: /login
+Disallow: /signup
 Sitemap: https://pptides.com/sitemap.xml

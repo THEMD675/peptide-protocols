@@ -19,6 +19,11 @@ export default function CookieConsent() {
     setVisible(false);
   };
 
+  const reject = () => {
+    try { localStorage.setItem(STORAGE_KEY, 'rejected'); } catch {}
+    setVisible(false);
+  };
+
   if (!visible) return null;
 
   return (
@@ -28,12 +33,20 @@ export default function CookieConsent() {
           نستخدم ملفات تعريف الارتباط لتحسين تجربتك.{' '}
           <Link to="/privacy" className="text-emerald-600 underline underline-offset-2 hover:text-emerald-700">سياسة الخصوصية</Link>
         </p>
-        <button
-          onClick={accept}
-          className="shrink-0 rounded-full bg-emerald-600 px-6 py-2 text-sm font-bold text-white transition-all hover:bg-emerald-700 active:scale-95"
-        >
-          موافق
-        </button>
+        <div className="flex shrink-0 items-center gap-3">
+          <button
+            onClick={reject}
+            className="text-sm text-stone-500 underline underline-offset-2 transition-colors hover:text-stone-700"
+          >
+            رفض
+          </button>
+          <button
+            onClick={accept}
+            className="shrink-0 rounded-full bg-emerald-600 px-6 py-2 text-sm font-bold text-white transition-all hover:bg-emerald-700 active:scale-95"
+          >
+            موافق
+          </button>
+        </div>
       </div>
     </div>
   );

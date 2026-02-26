@@ -22,8 +22,10 @@ export default function AgeGate() {
     setVisible(false);
   };
 
+  const [rejected, setRejected] = useState(false);
+
   const handleUnder = () => {
-    window.location.href = "https://www.google.com";
+    setRejected(true);
   };
 
   if (!visible) return null;
@@ -31,6 +33,8 @@ export default function AgeGate() {
   return (
         <div
           dir="rtl"
+          role="dialog"
+          aria-modal="true"
           className={cn(
             "fixed inset-0 z-[9999] flex items-center justify-center animate-fade-in",
             "bg-stone-900/95 p-4"
@@ -54,38 +58,46 @@ export default function AgeGate() {
               التحقق من العمر
             </h2>
 
-            <p className="mb-8 leading-relaxed text-gray-300">
-              هذا الموقع يحتوي على محتوى تعليمي وبحثي مخصص للبالغين. يجب أن
-              يكون عمرك 21 عامًا أو أكثر للمتابعة.
-            </p>
+            {rejected ? (
+              <p className="mb-8 leading-relaxed text-red-400 font-semibold">
+                عذرًا، هذا المحتوى مخصص لمن هم 18 عامًا أو أكثر
+              </p>
+            ) : (
+              <>
+                <p className="mb-8 leading-relaxed text-gray-300">
+                  هذا الموقع يحتوي على محتوى تعليمي وبحثي مخصص للبالغين. يجب أن
+                  يكون عمرك 18 عامًا أو أكثر للمتابعة.
+                </p>
 
-            <div className="flex flex-col gap-3">
-              <button
-                onClick={handleVerified}
-                className={cn(
-                  "gold-gradient w-full rounded-xl px-6 py-3 text-lg font-bold text-white",
-                  "transition-all duration-200 hover:brightness-110 hover:shadow-lg",
-                  "active:scale-[0.98]"
-                )}
-              >
-                عمري 21 أو أكثر — متابعة
-              </button>
+                <div className="flex flex-col gap-3">
+                  <button
+                    onClick={handleVerified}
+                    className={cn(
+                      "gold-gradient w-full rounded-xl px-6 py-3 text-lg font-bold text-white",
+                      "transition-all duration-200 hover:brightness-110 hover:shadow-lg",
+                      "active:scale-[0.98]"
+                    )}
+                  >
+                    عمري 18 أو أكثر — متابعة
+                  </button>
 
-              <button
-                onClick={handleUnder}
-                className={cn(
-                  "w-full rounded-xl border-2 px-6 py-3",
-                  "text-lg font-bold",
-                  "transition-all duration-200 active:scale-[0.98]"
-                )}
-                style={{
-                  borderColor: 'rgba(16, 185, 129, 0.4)',
-                  color: 'var(--gold)',
-                }}
-              >
-                عمري أقل من 21 — خروج
-              </button>
-            </div>
+                  <button
+                    onClick={handleUnder}
+                    className={cn(
+                      "w-full rounded-xl border-2 px-6 py-3",
+                      "text-lg font-bold",
+                      "transition-all duration-200 active:scale-[0.98]"
+                    )}
+                    style={{
+                      borderColor: 'rgba(16, 185, 129, 0.4)',
+                      color: 'var(--gold)',
+                    }}
+                  >
+                    عمري أقل من 18 — خروج
+                  </button>
+                </div>
+              </>
+            )}
           </div>
         </div>
   );

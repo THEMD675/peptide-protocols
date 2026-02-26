@@ -72,6 +72,8 @@ export default function Pricing() {
   const isSubscribedTo = (tier: string) =>
     user && subscription?.status === 'active' && subscription.tier === tier;
 
+  const showTrialMessaging = !user || subscription?.status === 'none';
+
   const renderAction = (planKey: 'essentials' | 'elite', isElite: boolean) => {
     if (isSubscribedTo(planKey)) {
       return (
@@ -139,16 +141,20 @@ export default function Pricing() {
       <div className="mx-auto max-w-6xl px-6 pb-20 pt-8 md:pt-12">
         {/* Header */}
         <div className="mb-16 text-center">
-          <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 px-5 py-2 text-sm font-bold text-emerald-700">
-            <span className="relative flex h-2 w-2"><span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" /><span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500" /></span>
-            3 أيام تجربة مجانية على كل الخطط
-          </div>
+          {showTrialMessaging && (
+            <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 px-5 py-2 text-sm font-bold text-emerald-700">
+              <span className="relative flex h-2 w-2"><span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" /><span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500" /></span>
+              3 أيام تجربة مجانية على كل الخطط
+            </div>
+          )}
           <h1 className="mb-4 text-3xl font-bold text-stone-900 md:text-5xl lg:text-6xl">
             استثمر في <span className="text-emerald-600">صحتك</span>
           </h1>
-          <p className="mx-auto max-w-lg text-lg text-stone-800">
-            3 أيام تجربة مجانية على كل الخطط. بطاقة مطلوبة للتأكد فقط.
-          </p>
+          {showTrialMessaging && (
+            <p className="mx-auto max-w-lg text-lg text-stone-800">
+              3 أيام تجربة مجانية على كل الخطط. بطاقة مطلوبة للتأكد فقط.
+            </p>
+          )}
           <div className="mt-6 flex items-center justify-center gap-6 text-sm text-stone-500">
             <span className="flex items-center gap-1.5"><Check className="h-4 w-4 text-emerald-500" /> إلغاء في أي وقت</span>
             <span className="flex items-center gap-1.5"><Shield className="h-4 w-4 text-emerald-500" /> ضمان استرداد 3 أيام</span>
@@ -355,7 +361,9 @@ export default function Pricing() {
               <ArrowLeft className="h-5 w-5" />
             </Link>
           )}
-          <p className="mt-4 text-sm text-stone-800">3 أيام مجانًا — إلغاء في أي وقت</p>
+          {showTrialMessaging && (
+            <p className="mt-4 text-sm text-stone-800">3 أيام مجانًا — إلغاء في أي وقت</p>
+          )}
         </div>
 
         {/* Disclaimer */}

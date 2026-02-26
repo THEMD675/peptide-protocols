@@ -3,6 +3,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { Shield } from 'lucide-react';
 import { cn, arPlural } from '@/lib/utils';
 import { PRICING, PEPTIDE_COUNT } from '@/lib/constants';
+import { peptides } from '@/data/peptides';
 
 const FREE_PATHS = ['/calculator', '/pricing', '/login', '/signup', '/privacy', '/terms', '/', '/glossary', '/sources', '/reviews'];
 
@@ -14,7 +15,10 @@ export default function TrialBanner() {
   if (subscription.status === 'active') return null;
   if (subscription.isPaidSubscriber) return null;
 
-  const isFreePage = FREE_PATHS.some(p => pathname === p || pathname.startsWith('/peptide/'));
+  const peptideId = pathname.startsWith('/peptide/') ? pathname.split('/')[2] : null;
+  const isPeptideFree = peptideId ? peptides.find(p => p.id === peptideId)?.isFree === true : false;
+
+  const isFreePage = FREE_PATHS.some(p => pathname === p) || isPeptideFree;
 
   if (subscription.status === 'cancelled' && !subscription.isPaidSubscriber) {
     if (isFreePage) {
