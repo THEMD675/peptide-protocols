@@ -61,7 +61,9 @@ export default function Tracker() {
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [hasMore, setHasMore] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [showForm, setShowForm] = useState(false);
+  const [showForm, setShowForm] = useState(() => {
+    try { return !!new URLSearchParams(window.location.search).get('peptide'); } catch { return false; }
+  });
 
   const [peptideName, setPeptideName] = useState(() => {
     try { const p = new URLSearchParams(window.location.search).get('peptide'); return p ?? ''; } catch { return ''; }

@@ -489,7 +489,11 @@ export default function Library() {
                   isFav={favorites.has(p.id)}
                   onToggleFav={() => toggleFavorite(p.id)}
                   isCompare={compareIds.includes(p.id)}
-                  onToggleCompare={() => setCompareIds(prev => prev.includes(p.id) ? prev.filter(x => x !== p.id) : prev.length >= 3 ? prev : [...prev, p.id])}
+                  onToggleCompare={() => setCompareIds(prev => {
+                    if (prev.includes(p.id)) return prev.filter(x => x !== p.id);
+                    if (prev.length >= 3) { toast('الحد الأقصى 3 ببتيدات للمقارنة'); return prev; }
+                    return [...prev, p.id];
+                  })}
                   isUsed={usedPeptides.has(p.nameEn)}
                 />
               ))}

@@ -45,6 +45,7 @@ const TIER_LABELS: Record<string, string> = {
 const STATUS_LABELS: Record<string, string> = {
   trial: 'فترة تجريبية',
   active: 'مفعّل',
+  cancelled: 'ملغي',
   expired: 'منتهي',
   none: 'بدون اشتراك',
 };
