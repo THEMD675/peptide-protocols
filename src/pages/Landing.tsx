@@ -74,7 +74,7 @@ const FEATURES = [
   },
 ];
 
-const TESTIMONIALS = [
+const FALLBACK_TESTIMONIALS = [
   {
     text: 'كنت أدفع $200 استشارة كل شهر. الآن عندي كل المعلومات بـ $9 فقط.',
     name: 'خالد م.',
@@ -97,6 +97,8 @@ export default function Landing() {
   const [userCount, setUserCount] = useState(() => {
     try { const c = sessionStorage.getItem('pptides_user_count'); return c ? Number(c) : 0; } catch { return 0; }
   });
+  const [testimonials, setTestimonials] = useState(FALLBACK_TESTIMONIALS);
+
   useEffect(() => {
     const cached = sessionStorage.getItem('pptides_user_count_ts');
     if (cached && Date.now() - Number(cached) < 5 * 60 * 1000) return;
@@ -106,6 +108,24 @@ export default function Landing() {
         try { sessionStorage.setItem('pptides_user_count', String(count)); sessionStorage.setItem('pptides_user_count_ts', String(Date.now())); } catch {}
       }
     });
+  }, []);
+
+  useEffect(() => {
+    supabase
+      .from('reviews')
+      .select('text, rating, created_at')
+      .gte('rating', 4)
+      .order('created_at', { ascending: false })
+      .limit(3)
+      .then(({ data }) => {
+        if (data && data.length >= 2) {
+          setTestimonials(data.map((r, i) => ({
+            text: r.text,
+            name: `مستخدم ${i + 1}`,
+            role: `تقييم ${r.rating}/5`,
+          })));
+        }
+      });
   }, []);
   const ctaLink = user ? '/library' : '/signup';
   const ctaText = user ? 'ادخل المكتبة' : 'ابدأ تجربتك المجانية';
@@ -503,7 +523,7 @@ export default function Landing() {
         </p>
 
         <div className="grid gap-6 md:grid-cols-3">
-          {TESTIMONIALS.map((t, i) => (
+          {testimonials.map((t, i) => (
             <div
               key={i}
               className="rounded-2xl border border-stone-300/60 bg-white p-7"
