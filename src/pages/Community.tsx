@@ -116,7 +116,7 @@ export default function Community() {
   return (
     <div className="min-h-screen bg-white">
       <Helmet>
-        <title>تجارب المستخدمين — بروتوكولات حقيقية ونتائج فعلية | pptides Community</title>
+        <title>تجارب المستخدمين | pptides</title>
         <meta name="description" content="اقرأ تجارب حقيقية من مستخدمي الببتيدات. بروتوكولات مُجرَّبة، نتائج فعلية، وتقييمات صادقة." />
       </Helmet>
 

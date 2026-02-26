@@ -5,7 +5,7 @@ export default function Terms() {
   return (
     <div className="min-h-screen bg-white">
       <Helmet>
-        <title>شروط الاستخدام — pptides</title>
+        <title>شروط الاستخدام | pptides</title>
         <meta name="description" content="شروط الاستخدام لموقع pptides.com — الاشتراكات، الاسترداد، وحدود المسؤولية." />
       </Helmet>
       <div className="mx-auto max-w-3xl px-6 pb-20 pt-8 md:pt-12">

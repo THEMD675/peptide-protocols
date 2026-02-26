@@ -142,8 +142,8 @@ export default function Landing() {
   return (
     <div className="min-h-screen overflow-x-hidden bg-white">
       <Helmet>
-        <title>دليل البيبتايدات — أول مرجع عربي شامل للببتيدات العلاجية</title>
-        <meta name="description" content="41 ببتيد علاجي مع بروتوكولات كاملة، حاسبة جرعات، ودليل تحاليل. أشمل دليل عربي مبني على الأبحاث." />
+        <title>pptides — أشمل دليل عربي للببتيدات العلاجية</title>
+        <meta name="description" content={`${PEPTIDE_COUNT} ببتيد علاجي مع بروتوكولات كاملة، حاسبة جرعات، ودليل تحاليل. أشمل دليل عربي مبني على الأبحاث.`} />
       </Helmet>
 
       {/* ═══════ HERO ═══════ */}
@@ -378,7 +378,7 @@ export default function Landing() {
               </div>
 
               <div className="border-t border-stone-200 bg-stone-50 px-6 py-4 flex flex-col sm:flex-row items-center justify-between gap-3">
-                <p className="text-sm text-stone-600">هذا ببتيد واحد من 41. اشترك لفتح الكل.</p>
+                <p className="text-sm text-stone-600">هذا ببتيد واحد من {PEPTIDE_COUNT}. اشترك لفتح الكل.</p>
                 <div className="flex flex-wrap gap-3">
                   <Link to="/calculator?peptide=BPC-157" className="text-sm font-semibold text-emerald-600 hover:text-emerald-700 hover:underline flex items-center gap-1">
                     احسب جرعتك بالحاسبة ←
@@ -387,7 +387,7 @@ export default function Landing() {
                     شاهد البطاقة كاملة
                   </Link>
                   <Link to={ctaLink} className="rounded-full bg-emerald-600 px-5 py-2 text-sm font-bold text-white hover:bg-emerald-700">
-                    {user ? 'اشترك الآن' : 'ابدأ مجانًا'}
+                    {user ? 'اشترك الآن' : 'ابدأ تجربتك المجانية'}
                   </Link>
                 </div>
               </div>
@@ -710,7 +710,7 @@ export default function Landing() {
             to={ctaLink}
             className="btn-primary-glow inline-flex items-center justify-center gap-2 rounded-full bg-emerald-600 px-10 py-4 text-lg font-bold text-white transition-all hover:bg-emerald-700"
           >
-            <span>{user ? "اشترك الآن" : "ابدأ تجربتك المجانية الآن"}</span>
+            <span>{user ? "اشترك الآن" : "ابدأ تجربتك المجانية"}</span>
             <ArrowLeft className="h-5 w-5" />
           </Link>
           <p className="mt-4 text-sm text-stone-800">3 أيام مجانًا — إلغاء في أي وقت — ضمان استرداد كامل</p>

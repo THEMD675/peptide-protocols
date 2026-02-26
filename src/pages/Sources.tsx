@@ -45,7 +45,7 @@ export default function Sources() {
   return (
     <div className="min-h-screen" >
       <Helmet>
-        <title>مصادر ببتيدات موثوقة — معايير اختيار المورد | Trusted Peptide Sources</title>
+        <title>المصادر الموثوقة | pptides</title>
         <meta
           name="description"
           content="تعلّم كيف تختار مورد ببتيدات موثوق — شهادات التحليل، النقاء ≥98%، السمعة المجتمعية، والشحن المبرّد."

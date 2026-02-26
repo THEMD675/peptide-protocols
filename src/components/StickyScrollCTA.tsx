@@ -2,8 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { ArrowLeft, X } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
-import { peptides } from '@/data/peptides';
-import { PRICING } from '@/lib/constants';
+import { PRICING, PEPTIDE_COUNT } from '@/lib/constants';
 
 const EXCLUDED_PATHS = ['/account', '/tracker', '/dashboard', '/coach', '/login', '/signup', '/pricing'];
 const DISMISS_KEY = 'pptides_sticky_dismissed';
@@ -48,7 +47,7 @@ export default function StickyScrollCTA() {
           <X className="h-4 w-4" />
         </button>
         <div className="flex-1 min-w-0">
-          <p className="text-sm font-bold text-stone-900 truncate">{peptides.length}+ ببتيد مع بروتوكولات كاملة</p>
+          <p className="text-sm font-bold text-stone-900 truncate">{PEPTIDE_COUNT}+ ببتيد مع بروتوكولات كاملة</p>
           <p className="text-xs text-stone-500">3 أيام مجانًا — إلغاء في أي وقت</p>
         </div>
         <Link

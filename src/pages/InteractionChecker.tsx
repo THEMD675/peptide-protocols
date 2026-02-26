@@ -109,7 +109,7 @@ export default function InteractionChecker() {
   return (
     <div className="min-h-screen bg-white">
       <Helmet>
-        <title>فحص التعارضات — هل يمكن تجميع ببتيدين معًا؟ | Interaction Checker</title>
+        <title>فحص التعارضات | pptides</title>
         <meta name="description" content="تحقق من أمان تجميع أي ببتيدين معًا. فحص التعارضات والتفاعلات بين 41+ ببتيد." />
       </Helmet>
 

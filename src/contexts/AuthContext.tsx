@@ -204,7 +204,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       throw new Error(
         error.message === 'Invalid login credentials'
           ? 'البريد أو كلمة المرور غير صحيحة'
-          : error.message,
+          : 'حدث خطأ في تسجيل الدخول. حاول مرة أخرى.',
       );
     }
   };
@@ -218,7 +218,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (error) {
       if (error.message.includes('already registered') || error.message.includes('already been registered'))
         throw new Error('هذا البريد مسجّل مسبقًا');
-      throw new Error(error.message);
+      throw new Error('حدث خطأ في إنشاء الحساب. حاول مرة أخرى.');
     }
     if (data.user && !data.session) {
       throw new Error('تم إرسال رابط التأكيد لبريدك. تحقق من بريدك الإلكتروني.');

@@ -105,7 +105,7 @@ export default function Login() {
         redirectTo: `${window.location.origin}${new URLSearchParams(window.location.search).get('redirect') || '/dashboard'}`,
       },
     });
-    if (error) setError(error.message);
+    if (error) setError('تعذّر تسجيل الدخول عبر Google. حاول مرة أخرى.');
   };
 
   const handleResetPassword = async () => {
@@ -130,7 +130,7 @@ export default function Login() {
   if (isRecovery) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-white px-4">
-        <Helmet><title>تغيير كلمة المرور — pptides</title></Helmet>
+        <Helmet><title>تغيير كلمة المرور | pptides</title></Helmet>
         <div className="w-full max-w-md">
           <div className="overflow-hidden rounded-2xl border border-stone-200 bg-white shadow-lg">
             <div className="bg-emerald-600 px-6 pb-6 pt-8 text-center">
@@ -173,7 +173,7 @@ export default function Login() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-white px-4">
       <Helmet>
-        <title>تسجيل الدخول — pptides</title>
+        <title>تسجيل الدخول | pptides</title>
         <meta name="description" content="سجّل دخولك أو أنشئ حساب جديد للوصول إلى مكتبة الببتيدات وحاسبة الجرعات والمدرب الذكي." />
       </Helmet>
       <div className="w-full max-w-md">

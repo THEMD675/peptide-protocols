@@ -153,7 +153,7 @@ export default function Reviews() {
   return (
     <div className="min-h-screen" >
       <Helmet>
-        <title>آراء المستخدمين — دليل البيبتايدات | Peptide Guide Reviews</title>
+        <title>تقييمات المستخدمين | pptides</title>
         <meta name="description" content="اقرأ آراء وتقييمات المستخدمين عن دليل البيبتايدات. شارك تجربتك وساعد الآخرين." />
       </Helmet>
       <div className="mx-auto max-w-4xl px-4 pt-8 pb-24 md:px-6 md:pt-12">

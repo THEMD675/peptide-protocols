@@ -326,8 +326,8 @@ export default function Library() {
   return (
     <div className="min-h-screen" >
       <Helmet>
-        <title>مكتبة الببتيدات — 41 ببتيد علاجي مع بروتوكولات كاملة | pptides</title>
-        <meta name="description" content="تصفّح 41 ببتيد علاجي مع شرح مفصّل للآليات والجرعات والآثار الجانبية. Browse 41 therapeutic peptides with detailed protocols." />
+        <title>{`مكتبة الببتيدات — ${PEPTIDE_COUNT} ببتيد علاجي مع بروتوكولات كاملة | pptides`}</title>
+        <meta name="description" content={`تصفّح ${PEPTIDE_COUNT} ببتيد علاجي مع شرح مفصّل للآليات والجرعات والآثار الجانبية. Browse ${PEPTIDE_COUNT} therapeutic peptides with detailed protocols.`} />
       </Helmet>
       <div className="mx-auto max-w-7xl px-4 py-8 md:px-6 md:py-12">
         {/* Header */}
@@ -338,7 +338,7 @@ export default function Library() {
             className="text-3xl font-bold md:text-4xl"
             
           >
-            مكتبة البيبتايدات
+            مكتبة الببتيدات
           </h1>
           <p className="mt-2 text-base text-stone-800">
             استكشف البروتوكولات المبنية على الأدلة العلمية

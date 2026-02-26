@@ -66,7 +66,7 @@ export default function PeptideTable() {
   return (
     <div className="min-h-screen" >
       <Helmet>
-        <title>{`جدول الببتيدات الشامل — مقارنة ${PEPTIDE_COUNT} ببتيد بالعربي | Peptide Comparison Table Arabic`}</title>
+        <title>{`جدول الببتيدات الشامل — مقارنة ${PEPTIDE_COUNT} ببتيد | pptides`}</title>
         <meta
           name="description"
           content={`أشمل جدول مقارنة ببتيدات بالعربي — ${PEPTIDE_COUNT} ببتيد مع الجرعات المثالية، التوقيت، الدورات، الاستخدام طويل الأمد، ونصائح التجميع. دليلك الكامل لبروتوكولات الببتيدات.`}

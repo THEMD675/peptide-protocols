@@ -385,7 +385,7 @@ export default function DoseCalculator() {
               step={doseUnit === 'mcg' ? 50 : 0.05}
             />
             <InputField
-              label="كمية البيبتايد في القارورة (ملغ)"
+              label="كمية الببتيد في القارورة (ملغ)"
               value={vialMg}
               onChange={setVialMg}
               unit="ملغ"
@@ -679,7 +679,7 @@ export default function DoseCalculator() {
                   <FormulaStep
                     step="1"
                     title="حساب التركيز"
-                    formula="التركيز (مكغ/مل) = كمية البيبتايد (ملغ) × 1000 ÷ كمية الماء (مل)"
+                    formula="التركيز (مكغ/مل) = كمية الببتيد (ملغ) × 1000 ÷ كمية الماء (مل)"
                     example={`(${vialMg} × 1000) ÷ ${waterMl} = ${fmt(results.concentration, 0)} مكغ/مل`}
                   />
                   <FormulaStep

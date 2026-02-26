@@ -5,7 +5,7 @@ export default function Privacy() {
   return (
     <div className="min-h-screen bg-white">
       <Helmet>
-        <title>سياسة الخصوصية — pptides</title>
+        <title>سياسة الخصوصية | pptides</title>
         <meta name="description" content="سياسة الخصوصية لموقع pptides.com — كيف نحمي بياناتك الشخصية." />
       </Helmet>
       <div className="mx-auto max-w-3xl px-6 pb-20 pt-8 md:pt-12">
