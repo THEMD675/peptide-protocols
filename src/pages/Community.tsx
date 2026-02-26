@@ -5,6 +5,7 @@ import { MessageSquare, Send, Clock, FlaskConical, User } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
 import { cn } from '@/lib/utils';
+import { peptides as allPeptides } from '@/data/peptides';
 
 interface LogEntry {
   id: string;
@@ -323,9 +324,18 @@ export default function Community() {
                       <User className="h-5 w-5 text-emerald-700" />
                     </div>
                     <div>
-                      <span className="rounded-full bg-emerald-100 px-3 py-1 text-sm font-bold text-emerald-800" dir="ltr">
-                        {log.peptide_name}
-                      </span>
+                      {(() => {
+                        const peptide = allPeptides.find(p => p.nameEn.toLowerCase() === log.peptide_name.toLowerCase() || p.nameAr === log.peptide_name);
+                        return peptide ? (
+                          <Link to={`/peptide/${peptide.id}`} className="rounded-full bg-emerald-100 px-3 py-1 text-sm font-bold text-emerald-800 hover:bg-emerald-200 transition-colors" dir="ltr">
+                            {log.peptide_name}
+                          </Link>
+                        ) : (
+                          <span className="rounded-full bg-emerald-100 px-3 py-1 text-sm font-bold text-emerald-800" dir="ltr">
+                            {log.peptide_name}
+                          </span>
+                        );
+                      })()}
                       {log.goal && (
                         <span className="mr-2 text-sm text-stone-700">— {log.goal}</span>
                       )}

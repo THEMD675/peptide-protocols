@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback, useRef, useEffect } from 'react';
+import { useState, useMemo, useCallback } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { Link } from 'react-router-dom';
 import {
@@ -255,25 +255,14 @@ export default function Library() {
   const [evidenceFilter, setEvidenceFilter] = useState('all');
   const [sortBy, setSortBy] = useState<'default' | 'evidence' | 'alpha' | 'favorites'>('default');
   const [showFilters, setShowFilters] = useState(false);
-  const [showToast, setShowToast] = useState(false);
-  const toastTimer = useRef<ReturnType<typeof setTimeout>>();
   const [favorites, toggleFavorite] = useFavorites();
   const [compareIds, setCompareIds] = useState<string[]>([]);
   const [showCompare, setShowCompare] = useState(false);
-
-  useEffect(() => {
-    return () => {
-      if (toastTimer.current) clearTimeout(toastTimer.current);
-    };
-  }, []);
 
   const [upsellPeptide, setUpsellPeptide] = useState<string | null>(null);
 
   const handleLockedClick = useCallback((peptideId?: string) => {
     setUpsellPeptide(peptideId ?? null);
-    setShowToast(true);
-    if (toastTimer.current) clearTimeout(toastTimer.current);
-    toastTimer.current = setTimeout(() => setShowToast(false), 4000);
   }, []);
 
   const evidenceOrder: Record<string, number> = { excellent: 0, strong: 1, good: 2, moderate: 3, weak: 4, 'very-weak': 5 };
@@ -455,7 +444,12 @@ export default function Library() {
         </div>
 
         {/* Peptide Grid */}
-        <>
+        {isLoading ? (
+          <div className="flex items-center justify-center py-24">
+            <div className="h-8 w-8 animate-spin rounded-full border-4 border-emerald-200 border-t-emerald-600" />
+          </div>
+        ) : (
+          <>
           {filtered.length > 0 ? (
             <div
               className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3"
@@ -514,6 +508,7 @@ export default function Library() {
             </div>
           )}
         </>
+        )}
       </div>
 
       {/* Floating Compare Bar */}

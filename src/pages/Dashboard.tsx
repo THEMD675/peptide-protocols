@@ -15,7 +15,6 @@ import {
   Syringe,
   Flame,
   TrendingUp,
-  MessageSquare,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
@@ -87,10 +86,11 @@ function useRecentActivity(userId: string | undefined) {
       .eq('user_id', userId)
       .order('injected_at', { ascending: false })
       .limit(30)
-      .then(({ data }) => {
-        if (data) setLogs(data);
+      .then(({ data, error }) => {
+        if (data && !error) setLogs(data);
         setLoading(false);
-      });
+      })
+      .catch(() => setLoading(false));
   }, [userId]);
 
   const activePeptides = [...new Set(logs.map(l => l.peptide_name))];

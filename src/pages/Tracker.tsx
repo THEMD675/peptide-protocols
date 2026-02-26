@@ -15,6 +15,7 @@ import {
   Flame,
   Repeat,
   Trash2,
+  Download,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
@@ -56,6 +57,8 @@ export default function Tracker() {
   const { user, isLoading: isAuthLoading } = useAuth();
   const [logs, setLogs] = useState<InjectionLog[]>([]);
   const [isLoadingLogs, setIsLoadingLogs] = useState(true);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const [hasMore, setHasMore] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showForm, setShowForm] = useState(false);
 
@@ -79,25 +82,61 @@ export default function Tracker() {
     fetchLogs();
   }, [user]);
 
+  const PAGE_SIZE = 50;
+
   const fetchLogs = async () => {
+    if (!user) return;
     setIsLoadingLogs(true);
     const { data } = await supabase
       .from('injection_logs')
       .select('*')
-      .eq('user_id', user!.id)
+      .eq('user_id', user.id)
       .order('injected_at', { ascending: false })
-      .limit(50);
-    setLogs((data as InjectionLog[]) ?? []);
+      .range(0, PAGE_SIZE - 1);
+    const rows = (data as InjectionLog[]) ?? [];
+    setLogs(rows);
+    setHasMore(rows.length >= PAGE_SIZE);
     setIsLoadingLogs(false);
+  };
+
+  const fetchMore = async () => {
+    if (!user || isLoadingMore) return;
+    setIsLoadingMore(true);
+    const from = logs.length;
+    const { data } = await supabase
+      .from('injection_logs')
+      .select('*')
+      .eq('user_id', user.id)
+      .order('injected_at', { ascending: false })
+      .range(from, from + PAGE_SIZE - 1);
+    const rows = (data as InjectionLog[]) ?? [];
+    setLogs(prev => [...prev, ...rows]);
+    setHasMore(rows.length >= PAGE_SIZE);
+    setIsLoadingMore(false);
+  };
+
+  const exportCSV = () => {
+    const headers = 'Peptide,Dose,Unit,Site,Date,Time,Notes';
+    const rows = logs.map(l =>
+      `${l.peptide_name},${l.dose},${l.unit},${l.injection_site},${formatDate(l.injected_at)},${formatTime(l.injected_at)},${(l.notes ?? '').replace(/,/g, ';')}`
+    );
+    const csv = [headers, ...rows].join('\n');
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `pptides-injections-${new Date().toISOString().slice(0, 10)}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!peptideName.trim() || !dose) return;
+    if (!user || !peptideName.trim() || !dose) return;
     setIsSubmitting(true);
     try {
       await supabase.from('injection_logs').insert({
-        user_id: user!.id,
+        user_id: user.id,
         peptide_name: peptideName.trim(),
         dose: parseFloat(dose),
         unit,
@@ -316,12 +355,13 @@ export default function Tracker() {
                   title: 'تكرار الحقنة الأخيرة',
                   message: `تكرار حقنة ${last.peptide_name} — ${last.dose} ${last.unit}؟`,
                   onConfirm: async () => {
+                    if (!user) return;
                     setConfirmDialog(null);
                     setIsSubmitting(true);
                     try {
                       const now = new Date();
                       await supabase.from('injection_logs').insert({
-                        user_id: user!.id,
+                        user_id: user.id,
                         peptide_name: last.peptide_name,
                         dose: last.dose,
                         unit: last.unit,
@@ -469,7 +509,18 @@ export default function Tracker() {
 
       {/* Timeline */}
       <div>
-        <h2 className="mb-4 text-xl font-bold text-stone-900">السجل</h2>
+        <div className="mb-4 flex items-center justify-between">
+          <h2 className="text-xl font-bold text-stone-900">السجل</h2>
+          {logs.length > 0 && (
+            <button
+              onClick={exportCSV}
+              className="flex items-center gap-1.5 rounded-lg border border-stone-200 bg-white px-3 py-1.5 text-xs font-bold text-stone-600 transition-all hover:border-emerald-300 hover:text-emerald-700"
+            >
+              <Download className="h-3.5 w-3.5" />
+              تحميل CSV
+            </button>
+          )}
+        </div>
         {isLoadingLogs ? (
           <div className="flex items-center justify-center py-16">
             <Loader2 className="h-6 w-6 animate-spin text-emerald-600" />
@@ -534,6 +585,22 @@ export default function Tracker() {
                 )}
               </div>
             ))}
+            {hasMore && (
+              <button
+                onClick={fetchMore}
+                disabled={isLoadingMore}
+                className="flex w-full items-center justify-center gap-2 rounded-2xl border border-stone-200 bg-white py-4 text-sm font-bold text-stone-600 transition-all hover:border-emerald-300 hover:text-emerald-700 disabled:opacity-50"
+              >
+                {isLoadingMore ? (
+                  <>
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    جارٍ التحميل...
+                  </>
+                ) : (
+                  'تحميل المزيد'
+                )}
+              </button>
+            )}
           </div>
         )}
       </div>

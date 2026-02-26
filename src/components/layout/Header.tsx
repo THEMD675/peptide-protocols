@@ -39,10 +39,12 @@ export default function Header() {
   const { user, logout } = useAuth();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [moreOpen, setMoreOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const moreDropdownRef = useRef<HTMLDivElement>(null);
   const searchRef = useRef<HTMLDivElement>(null);
 
   const searchResults = searchQuery.trim().length >= 2
@@ -56,6 +58,9 @@ export default function Header() {
     function handleClickOutside(e: MouseEvent) {
       if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
         setDropdownOpen(false);
+      }
+      if (moreDropdownRef.current && !moreDropdownRef.current.contains(e.target as Node)) {
+        setMoreOpen(false);
       }
       if (searchRef.current && !searchRef.current.contains(e.target as Node)) {
         setSearchOpen(false);
@@ -83,6 +88,7 @@ export default function Header() {
 
   useEffect(() => {
     setMobileOpen(false);
+    setMoreOpen(false);
   }, [pathname]);
 
   useEffect(() => {
@@ -136,6 +142,39 @@ export default function Header() {
                 </Link>
               );
             })}
+            <div className="relative" ref={moreDropdownRef}>
+              <button
+                onClick={() => setMoreOpen(v => !v)}
+                className={cn(
+                  'rounded-lg px-3 py-2 text-sm font-medium transition-colors flex items-center gap-1',
+                  moreLinks.some(l => pathname.startsWith(l.to))
+                    ? 'text-emerald-700'
+                    : 'text-stone-800 hover:text-stone-900',
+                )}
+              >
+                المزيد
+                <ChevronDown className={cn('h-3 w-3 transition-transform', moreOpen && 'rotate-180')} />
+              </button>
+              {moreOpen && (
+                <div className="absolute left-0 top-full mt-2 min-w-[200px] overflow-hidden rounded-xl border border-stone-200 bg-white py-1 shadow-xl">
+                  {moreLinks.map(({ to, label }) => (
+                    <Link
+                      key={to}
+                      to={to}
+                      onClick={() => setMoreOpen(false)}
+                      className={cn(
+                        'block px-4 py-2.5 text-sm hover:bg-stone-50',
+                        pathname.startsWith(to)
+                          ? 'text-emerald-700 font-medium'
+                          : 'text-stone-700 hover:text-stone-900',
+                      )}
+                    >
+                      {label}
+                    </Link>
+                  ))}
+                </div>
+              )}
+            </div>
           </nav>
 
           <div className="flex items-center gap-3">
