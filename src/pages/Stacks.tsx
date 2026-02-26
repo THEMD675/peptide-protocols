@@ -125,6 +125,7 @@ export default function Stacks() {
               {/* Description + Protocol — blurred for non-subscribers */}
               <div className="relative flex-1">
                 <div
+                  aria-hidden={!isPro}
                   style={
                     !isPro
                       ? { filter: 'blur(6px)', pointerEvents: 'none', userSelect: 'none' }

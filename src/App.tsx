@@ -11,11 +11,12 @@ import BackToTop from '@/components/BackToTop';
 import StickyScrollCTA from '@/components/StickyScrollCTA';
 import ExitIntentPopup from '@/components/ExitIntentPopup';
 
-import Landing from '@/pages/Landing';
 import Login from '@/pages/Login';
 import Library from '@/pages/Library';
 import Pricing from '@/pages/Pricing';
-import DoseCalculator from '@/pages/DoseCalculator';
+
+const Landing = lazy(() => import('@/pages/Landing'));
+const DoseCalculator = lazy(() => import('@/pages/DoseCalculator'));
 
 const PeptideDetail = lazy(() => import('@/pages/PeptideDetail'));
 const Stacks = lazy(() => import('@/pages/Stacks'));

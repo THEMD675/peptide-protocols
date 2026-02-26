@@ -255,7 +255,7 @@ export default function PeptideDetail() {
               اسأل المدرب
             </Link>
             <Link
-              to={`/tracker`}
+              to={`/tracker?peptide=${encodeURIComponent(peptide.nameEn)}`}
               className="flex items-center justify-center gap-2 rounded-xl border border-stone-200 bg-white px-5 py-3.5 text-sm font-bold text-stone-800 transition-all hover:border-emerald-200 hover:shadow-md"
             >
               <ArrowRight className="h-4 w-4" />
@@ -399,18 +399,21 @@ export default function PeptideDetail() {
 
 function PeptideExperiences({ peptideNameEn }: { peptideNameEn: string }) {
   const [experiences, setExperiences] = useState<{ id: string; results: string; rating: number; duration_weeks: number; created_at: string }[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    setLoading(true);
+    const safeName = peptideNameEn.replace(/[%_]/g, '');
     supabase
       .from('community_logs')
       .select('id, results, rating, duration_weeks, created_at')
-      .ilike('peptide_name', `%${peptideNameEn}%`)
+      .ilike('peptide_name', `%${safeName}%`)
       .order('created_at', { ascending: false })
       .limit(3)
-      .then(({ data }) => { if (data) setExperiences(data); });
+      .then(({ data }) => { if (data) setExperiences(data); setLoading(false); });
   }, [peptideNameEn]);
 
-  if (experiences.length === 0) return null;
+  if (loading || experiences.length === 0) return null;
 
   return (
     <div className="mt-8">

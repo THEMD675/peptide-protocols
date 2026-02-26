@@ -39,7 +39,6 @@ export default function Footer() {
               <Link to="/interactions" className="text-stone-600 hover:text-emerald-600">فحص التعارضات</Link>
               <Link to="/sources" className="text-stone-600 hover:text-emerald-600">المصادر</Link>
               <Link to="/community" className="text-stone-600 hover:text-emerald-600">التجارب</Link>
-              <Link to="/referral" className="text-stone-600 hover:text-emerald-600">برنامج الإحالة</Link>
             </nav>
           </div>
 

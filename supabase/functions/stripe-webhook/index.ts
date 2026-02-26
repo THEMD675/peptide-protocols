@@ -33,8 +33,12 @@ serve(async (req) => {
       const stripeSubscriptionId = session.subscription as string
 
       if (userId) {
-        const tier = session.metadata?.tier ?? 'essentials'
-        const { error, count } = await supabase
+        let tier = session.metadata?.tier ?? 'essentials'
+        if (!session.metadata?.tier && session.amount_total) {
+          tier = session.amount_total >= 5000 ? 'elite' : 'essentials'
+        }
+
+        const { error, data: updateData } = await supabase
           .from('subscriptions')
           .update({
             status: 'active',
@@ -44,10 +48,11 @@ serve(async (req) => {
             updated_at: new Date().toISOString(),
           })
           .eq('user_id', userId)
+          .select('id')
 
         if (error) {
           console.error('checkout.session.completed DB error:', error)
-        } else if (count === 0) {
+        } else if (!updateData || updateData.length === 0) {
           console.error('checkout.session.completed: no subscription row found for user', userId)
         }
       }
@@ -62,7 +67,8 @@ serve(async (req) => {
 
       let mappedStatus: string
       if (stripeStatus === 'active') mappedStatus = 'active'
-      else if (stripeStatus === 'past_due' || stripeStatus === 'trialing') mappedStatus = 'active'
+      else if (stripeStatus === 'trialing') mappedStatus = 'trial'
+      else if (stripeStatus === 'past_due') mappedStatus = 'active'
       else if (stripeStatus === 'canceled' || stripeStatus === 'unpaid') mappedStatus = 'cancelled'
       else mappedStatus = 'expired'
 

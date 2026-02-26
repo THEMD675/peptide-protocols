@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { Link } from 'react-router-dom';
-import { Check, Shield, Lock, CreditCard, RefreshCw, ChevronDown, MessageCircle, Crown, Zap, ArrowLeft, Percent } from 'lucide-react';
+import { Check, Shield, Lock, CreditCard, RefreshCw, ChevronDown, MessageCircle, Crown, ArrowLeft } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { cn } from '@/lib/utils';
 
@@ -72,8 +72,7 @@ const faqs = [
 
 export default function Pricing() {
   const { user, subscription, upgradeTo } = useAuth();
-  const [billingCycle, setBillingCycle] = useState<'monthly' | 'annual'>('monthly');
-  const isAnnual = billingCycle === 'annual';
+  const isAnnual = false;
 
   const isSubscribedTo = (tier: string) =>
     user && subscription?.status === 'active' && subscription.tier === tier;
@@ -162,24 +161,7 @@ export default function Pricing() {
           </div>
         </div>
 
-        {/* Billing Toggle */}
-        <div className="mb-10 flex items-center justify-center gap-4">
-          <button
-            onClick={() => setBillingCycle('monthly')}
-            className={cn('rounded-full px-5 py-2.5 text-sm font-bold transition-all', !isAnnual ? 'bg-emerald-600 text-white shadow-lg' : 'text-stone-600 hover:text-stone-900')}
-          >
-            شهري
-          </button>
-          <button
-            onClick={() => setBillingCycle('annual')}
-            className={cn('rounded-full px-5 py-2.5 text-sm font-bold transition-all relative', isAnnual ? 'bg-emerald-600 text-white shadow-lg' : 'text-stone-600 hover:text-stone-900')}
-          >
-            سنوي
-            <span className="absolute -top-2 -left-2 rounded-full bg-red-500 px-2 py-0.5 text-[10px] font-bold text-white">
-              وفّر 20%
-            </span>
-          </button>
-        </div>
+        {/* Billing cycle: monthly only (annual coming soon) */}
 
         {/* Pricing Cards */}
         <div className="grid gap-8 md:grid-cols-2">

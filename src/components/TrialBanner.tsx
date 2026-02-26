@@ -11,11 +11,25 @@ export default function TrialBanner() {
 
   if (!user || !subscription) return null;
   if (subscription.status === 'active') return null;
+  if (subscription.isPaidSubscriber) return null;
 
   const isFreePage = FREE_PATHS.some(p => pathname === p || pathname.startsWith('/peptide/'));
 
+  if (subscription.status === 'cancelled' && !subscription.isPaidSubscriber) {
+    if (isFreePage) {
+      return (
+        <div className="sticky top-[64px] md:top-[72px] z-40 bg-amber-600 text-center py-2.5 px-4">
+          <p className="text-sm font-semibold text-white">
+            تم إلغاء اشتراكك — <Link to="/pricing" className="underline underline-offset-2 hover:opacity-80">أعد الاشتراك</Link>
+          </p>
+        </div>
+      );
+    }
+  }
+
   if (
     subscription.status === 'expired' ||
+    subscription.status === 'cancelled' ||
     (subscription.status === 'trial' && subscription.trialDaysLeft <= 0)
   ) {
     if (isFreePage) {

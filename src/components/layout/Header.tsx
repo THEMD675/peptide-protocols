@@ -49,9 +49,28 @@ export default function Header() {
       if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
         setDropdownOpen(false);
       }
+      if (searchRef.current && !searchRef.current.contains(e.target as Node)) {
+        setSearchOpen(false);
+      }
     }
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  useEffect(() => {
+    function handleKeyDown(e: KeyboardEvent) {
+      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+        e.preventDefault();
+        setSearchOpen(v => !v);
+        setSearchQuery('');
+      }
+      if (e.key === 'Escape') {
+        setSearchOpen(false);
+        setMobileOpen(false);
+      }
+    }
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
   }, []);
 
   useEffect(() => {
@@ -187,13 +206,6 @@ export default function Header() {
                       className="flex w-full items-center gap-2 px-4 py-2 text-sm text-stone-800 transition-colors hover:bg-stone-50"
                     >
                       إعدادات الحساب
-                    </Link>
-                    <Link
-                      to="/referral"
-                      onClick={() => setDropdownOpen(false)}
-                      className="flex w-full items-center gap-2 px-4 py-2 text-sm text-emerald-600 transition-colors hover:bg-stone-50"
-                    >
-                      برنامج الإحالة
                     </Link>
                     <div className="my-1 h-px bg-stone-200" />
                     <button

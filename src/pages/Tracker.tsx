@@ -298,6 +298,7 @@ export default function Tracker() {
             <button
               onClick={async () => {
                 const last = logs[0];
+                if (!confirm(`تكرار حقنة ${last.peptide_name} — ${last.dose} ${last.unit}؟`)) return;
                 setIsSubmitting(true);
                 try {
                   const now = new Date();
@@ -474,6 +475,7 @@ export default function Tracker() {
                     </span>
                     <button
                       onClick={async () => {
+                        if (!confirm('هل تريد حذف هذا السجل؟')) return;
                         await supabase.from('injection_logs').delete().eq('id', log.id);
                         setLogs(prev => prev.filter(l => l.id !== log.id));
                       }}

@@ -59,10 +59,10 @@ export default function Account() {
         .eq('user_id', user.id);
       if (error) throw error;
       setShowCancelDialog(false);
-      import('sonner').then(m => m.toast.success('تم طلب إلغاء الاشتراك. ستحتفظ بالوصول حتى نهاية الفترة الحالية. لإيقاف الدفعات المستقبلية، تواصل معنا عبر support@pptides.com'));
+      import('sonner').then(m => m.toast.success('تم طلب إلغاء الاشتراك. ستحتفظ بالوصول حتى نهاية الفترة الحالية. لإيقاف الدفعات المستقبلية، تواصل معنا عبر contact@pptides.com'));
       setTimeout(() => window.location.reload(), 2500);
     } catch {
-      import('sonner').then(m => m.toast.error('حدث خطأ. تواصل معنا: support@pptides.com'));
+      import('sonner').then(m => m.toast.error('حدث خطأ. تواصل معنا: contact@pptides.com'));
     } finally {
       setIsProcessing(false);
     }
@@ -79,7 +79,7 @@ export default function Account() {
       await logout();
       navigate('/');
     } catch {
-      import('sonner').then(m => m.toast.error('حدث خطأ أثناء حذف الحساب. تواصل معنا: support@pptides.com'));
+      import('sonner').then(m => m.toast.error('حدث خطأ أثناء حذف الحساب. تواصل معنا: contact@pptides.com'));
     } finally {
       setIsProcessing(false);
     }
@@ -194,7 +194,7 @@ export default function Account() {
               هل أنت متأكد من إلغاء اشتراكك؟ ستحتفظ بالوصول حتى نهاية فترتك الحالية.
             </p>
             <p className="mt-2 text-sm text-stone-500">
-              لإيقاف الدفعات المستقبلية بشكل نهائي، تواصل معنا عبر <a href="mailto:support@pptides.com" className="text-emerald-600 font-semibold">support@pptides.com</a>
+              لإيقاف الدفعات المستقبلية بشكل نهائي، تواصل معنا عبر <a href="mailto:contact@pptides.com" className="text-emerald-600 font-semibold">contact@pptides.com</a>
             </p>
             <div className="mt-6 flex gap-3">
               <button
@@ -226,7 +226,7 @@ export default function Account() {
             <p className="mt-2 text-sm text-stone-600">
               سيتم تسجيل خروجك. لحذف بياناتك نهائيًا، تواصل معنا عبر البريد:
             </p>
-            <p className="mt-2 text-sm font-bold text-emerald-600" dir="ltr">support@pptides.com</p>
+            <p className="mt-2 text-sm font-bold text-emerald-600" dir="ltr">contact@pptides.com</p>
             <div className="mt-6 flex gap-3">
               <button
                 onClick={handleDeleteAccount}

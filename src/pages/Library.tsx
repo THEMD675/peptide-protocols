@@ -88,7 +88,7 @@ function PeptideCard({
     >
       {!hasAccess && !peptide.isFree && (
         <div className="absolute left-3 top-3 z-10">
-          <Lock className="h-3.5 w-3.5 text-stone-700" />
+          <Lock className="h-3.5 w-3.5 text-stone-400" />
         </div>
       )}
       {peptide.isFree && !hasAccess && (
@@ -99,7 +99,7 @@ function PeptideCard({
       <button
         type="button"
         onClick={(e) => { e.preventDefault(); e.stopPropagation(); onToggleFav(); }}
-        className="absolute left-3 top-3 z-10 rounded-full p-1.5 transition-colors hover:bg-stone-100"
+        className="absolute right-3 top-3 z-10 rounded-full p-1.5 transition-colors hover:bg-stone-100"
         aria-label={isFav ? 'إزالة من المفضلة' : 'إضافة للمفضلة'}
       >
         <Star className={cn('h-4 w-4', isFav ? 'fill-amber-400 text-amber-400' : 'text-stone-300')} />

@@ -5,7 +5,7 @@ import type { User as SupabaseUser, Session } from '@supabase/supabase-js';
 type SubscriptionTier = 'free' | 'essentials' | 'elite';
 
 interface Subscription {
-  status: 'trial' | 'active' | 'expired' | 'none';
+  status: 'trial' | 'active' | 'cancelled' | 'expired' | 'none';
   tier: SubscriptionTier;
   trialDaysLeft: number;
   isProOrTrial: boolean;
@@ -91,7 +91,8 @@ function buildSubscription(row: Record<string, unknown> | null): Subscription {
   }
 
   const periodEnd = row.current_period_end ? new Date(row.current_period_end as string) : null;
-  const cancelledButActive = status === 'expired' && periodEnd && periodEnd.getTime() > now.getTime();
+  const hasRemainingPeriod = periodEnd != null && periodEnd.getTime() > now.getTime();
+  const cancelledButActive = (status === 'cancelled' || status === 'expired') && hasRemainingPeriod;
 
   const isProOrTrial =
     (status === 'trial' && trialDaysLeft > 0) || status === 'active' || cancelledButActive;
@@ -133,8 +134,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     import('sonner').then(m => m.toast.success('شكرًا! جارٍ تفعيل اشتراكك...'));
 
+    let cancelled = false;
+    let timer: ReturnType<typeof setTimeout>;
     let attempts = 0;
     const poll = async () => {
+      if (cancelled) return;
       attempts++;
       const { data } = await supabase
         .from('subscriptions')
@@ -142,18 +146,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         .eq('user_id', user.id)
         .maybeSingle();
 
+      if (cancelled) return;
       if (data?.status === 'active') {
         await fetchSubscription(user.id);
         import('sonner').then(m => m.toast.success('تم تفعيل اشتراكك بنجاح!'));
         return;
       }
-      if (attempts < 10) setTimeout(poll, 3000);
+      if (attempts < 10) { timer = setTimeout(poll, 3000); }
       else {
         await fetchSubscription(user.id);
         import('sonner').then(m => m.toast('إذا لم يظهر اشتراكك، حدّث الصفحة بعد دقيقة.'));
       }
     };
     poll();
+    return () => { cancelled = true; clearTimeout(timer); };
   }, [user, fetchSubscription]);
 
   useEffect(() => {
@@ -209,17 +215,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
 
     if (data.user) {
-      try {
-        const edgeFnUrl = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/send-welcome-email`;
-        fetch(edgeFnUrl, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
-          },
-          body: JSON.stringify({ email, name: '' }),
-        });
-      } catch {}
+      const edgeFnUrl = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/send-welcome-email`;
+      fetch(edgeFnUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
+          apikey: import.meta.env.VITE_SUPABASE_ANON_KEY,
+        },
+        body: JSON.stringify({ email, name: '' }),
+      }).catch(() => {});
     }
   };
 
