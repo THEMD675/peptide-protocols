@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import FocusTrap from 'focus-trap-react';
 import { Shield } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -40,6 +41,7 @@ export default function AgeGate() {
             "bg-stone-900/95 p-4"
           )}
         >
+          <FocusTrap focusTrapOptions={{ allowOutsideClick: true }}>
           <div
             className={cn(
               "w-full max-w-md rounded-2xl border-2 border-emerald-500",
@@ -93,6 +95,7 @@ export default function AgeGate() {
               </>
             )}
           </div>
+          </FocusTrap>
         </div>
   );
 }

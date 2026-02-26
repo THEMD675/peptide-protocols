@@ -8,6 +8,20 @@ const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
 const ALLOWED_ORIGINS = ['https://pptides.com', 'http://localhost:3000', 'http://localhost:3001']
 const MAX_USER_MESSAGES = 30
 
+const rateLimitMap = new Map<string, number[]>()
+const RATE_LIMIT_WINDOW = 60_000
+const RATE_LIMIT_MAX = 10
+
+function checkRateLimit(userId: string): boolean {
+  const now = Date.now()
+  const timestamps = rateLimitMap.get(userId) ?? []
+  const recent = timestamps.filter(t => now - t < RATE_LIMIT_WINDOW)
+  if (recent.length >= RATE_LIMIT_MAX) return false
+  recent.push(now)
+  rateLimitMap.set(userId, recent)
+  return true
+}
+
 function getCorsHeaders(req: Request) {
   const origin = req.headers.get('origin') ?? ''
   const allowedOrigin = ALLOWED_ORIGINS.includes(origin) ? origin : ALLOWED_ORIGINS[0]
@@ -169,6 +183,13 @@ serve(async (req) => {
     if (authError || !user) {
       return new Response(JSON.stringify({ error: 'Unauthorized' }), {
         status: 401,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      })
+    }
+
+    if (!checkRateLimit(user.id)) {
+      return new Response(JSON.stringify({ error: 'Too many requests. Please wait a moment before trying again.' }), {
+        status: 429,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       })
     }

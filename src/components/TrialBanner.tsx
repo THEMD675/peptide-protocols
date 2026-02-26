@@ -1,4 +1,5 @@
 import { Link, useLocation } from 'react-router-dom';
+import FocusTrap from 'focus-trap-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Shield } from 'lucide-react';
 import { cn, arPlural } from '@/lib/utils';
@@ -70,6 +71,7 @@ export default function TrialBanner() {
 
     return (
       <div className="fixed inset-0 z-50 flex items-center justify-center bg-stone-900/80 backdrop-blur-sm">
+        <FocusTrap focusTrapOptions={{ allowOutsideClick: true }}>
         <div className="mx-4 w-full max-w-md rounded-2xl bg-white p-10 text-center shadow-2xl">
           <Shield className="mx-auto mb-4 h-12 w-12 text-emerald-600" />
           <h2 className="mb-3 text-2xl font-bold text-stone-900">
@@ -94,6 +96,7 @@ export default function TrialBanner() {
             <Link to="/reviews" className="text-emerald-600 underline underline-offset-2 hover:text-emerald-700">التقييمات</Link>
           </div>
         </div>
+        </FocusTrap>
       </div>
     );
   }

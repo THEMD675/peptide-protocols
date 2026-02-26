@@ -86,6 +86,48 @@ class ErrorBoundary extends Component<{ children: ReactNode }, { hasError: boole
   }
 }
 
+class RouteErrorBoundary extends Component<
+  { children: ReactNode; fallbackTitle?: string },
+  { hasError: boolean; error: Error | null }
+> {
+  state = { hasError: false, error: null as Error | null };
+  static getDerivedStateFromError(error: Error) {
+    return { hasError: true, error };
+  }
+  componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
+    if (localStorage.getItem('pptides_cookie_consent') === 'accepted') {
+      import('@sentry/react').then(Sentry => {
+        Sentry.captureException(error, { extra: { componentStack: errorInfo.componentStack } });
+      });
+    }
+  }
+  reset = () => this.setState({ hasError: false, error: null });
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div className="flex min-h-[50vh] flex-col items-center justify-center px-6 text-center">
+          <h2 className="mb-3 text-2xl font-bold text-stone-900">
+            {this.props.fallbackTitle ?? 'حدث خطأ في هذه الصفحة'}
+          </h2>
+          <p className="mb-6 text-stone-600">نعتذر عن هذا الخطأ. يمكنك المحاولة مرة أخرى.</p>
+          <div className="flex gap-3">
+            <button
+              onClick={this.reset}
+              className="rounded-full bg-emerald-600 px-8 py-3 font-bold text-white hover:bg-emerald-700 transition-colors"
+            >
+              حاول مرة أخرى
+            </button>
+            <Link to="/" className="rounded-full border-2 border-stone-300 px-8 py-3 font-bold text-stone-800 hover:bg-stone-50 transition-colors">
+              الرئيسية
+            </Link>
+          </div>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
+
 function ScrollToTop() {
   const { pathname } = useLocation();
   useEffect(() => { window.scrollTo(0, 0); }, [pathname]);
@@ -159,27 +201,27 @@ export default function App() {
             <Suspense fallback={<PageLoader />}>
             <Routes>
               <Route path="/" element={<HomeRedirect />} />
-              <Route path="/login" element={<Login />} />
-              <Route path="/signup" element={<Login />} />
-              <Route path="/library" element={<Library />} />
-              <Route path="/peptide/:id" element={<PeptideDetail />} />
-              <Route path="/calculator" element={<DoseCalculator />} />
-              <Route path="/stacks" element={<Stacks />} />
-              <Route path="/lab-guide" element={<LabGuide />} />
-              <Route path="/guide" element={<Guide />} />
-              <Route path="/pricing" element={<Pricing />} />
-              <Route path="/coach" element={<ProtectedRoute><Coach /></ProtectedRoute>} />
-              <Route path="/reviews" element={<Reviews />} />
-              <Route path="/table" element={<PeptideTable />} />
-              <Route path="/sources" element={<Sources />} />
-              <Route path="/community" element={<Community />} />
-              <Route path="/privacy" element={<Privacy />} />
-              <Route path="/terms" element={<Terms />} />
-              <Route path="/account" element={<ProtectedRoute><Account /></ProtectedRoute>} />
-              <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
-              <Route path="/tracker" element={<ProtectedRoute><Tracker /></ProtectedRoute>} />
-              <Route path="/glossary" element={<Glossary />} />
-              <Route path="/interactions" element={<InteractionChecker />} />
+              <Route path="/login" element={<RouteErrorBoundary fallbackTitle="خطأ في صفحة الدخول"><Login /></RouteErrorBoundary>} />
+              <Route path="/signup" element={<RouteErrorBoundary fallbackTitle="خطأ في صفحة الدخول"><Login /></RouteErrorBoundary>} />
+              <Route path="/library" element={<RouteErrorBoundary fallbackTitle="خطأ في المكتبة"><Library /></RouteErrorBoundary>} />
+              <Route path="/peptide/:id" element={<RouteErrorBoundary fallbackTitle="خطأ في صفحة الببتيد"><PeptideDetail /></RouteErrorBoundary>} />
+              <Route path="/calculator" element={<RouteErrorBoundary fallbackTitle="خطأ في الحاسبة"><DoseCalculator /></RouteErrorBoundary>} />
+              <Route path="/stacks" element={<RouteErrorBoundary fallbackTitle="خطأ في التجميعات"><Stacks /></RouteErrorBoundary>} />
+              <Route path="/lab-guide" element={<RouteErrorBoundary fallbackTitle="خطأ في دليل التحاليل"><LabGuide /></RouteErrorBoundary>} />
+              <Route path="/guide" element={<RouteErrorBoundary fallbackTitle="خطأ في الدليل"><Guide /></RouteErrorBoundary>} />
+              <Route path="/pricing" element={<RouteErrorBoundary fallbackTitle="خطأ في صفحة الأسعار"><Pricing /></RouteErrorBoundary>} />
+              <Route path="/coach" element={<ProtectedRoute><RouteErrorBoundary fallbackTitle="خطأ في المدرب الذكي"><Coach /></RouteErrorBoundary></ProtectedRoute>} />
+              <Route path="/reviews" element={<RouteErrorBoundary fallbackTitle="خطأ في التقييمات"><Reviews /></RouteErrorBoundary>} />
+              <Route path="/table" element={<RouteErrorBoundary fallbackTitle="خطأ في جدول الببتيدات"><PeptideTable /></RouteErrorBoundary>} />
+              <Route path="/sources" element={<RouteErrorBoundary fallbackTitle="خطأ في المصادر"><Sources /></RouteErrorBoundary>} />
+              <Route path="/community" element={<RouteErrorBoundary fallbackTitle="خطأ في المجتمع"><Community /></RouteErrorBoundary>} />
+              <Route path="/privacy" element={<RouteErrorBoundary><Privacy /></RouteErrorBoundary>} />
+              <Route path="/terms" element={<RouteErrorBoundary><Terms /></RouteErrorBoundary>} />
+              <Route path="/account" element={<ProtectedRoute><RouteErrorBoundary fallbackTitle="خطأ في الحساب"><Account /></RouteErrorBoundary></ProtectedRoute>} />
+              <Route path="/dashboard" element={<ProtectedRoute><RouteErrorBoundary fallbackTitle="خطأ في لوحة التحكم"><Dashboard /></RouteErrorBoundary></ProtectedRoute>} />
+              <Route path="/tracker" element={<ProtectedRoute><RouteErrorBoundary fallbackTitle="خطأ في سجل الحقن"><Tracker /></RouteErrorBoundary></ProtectedRoute>} />
+              <Route path="/glossary" element={<RouteErrorBoundary fallbackTitle="خطأ في المصطلحات"><Glossary /></RouteErrorBoundary>} />
+              <Route path="/interactions" element={<RouteErrorBoundary fallbackTitle="خطأ في التفاعلات"><InteractionChecker /></RouteErrorBoundary>} />
               <Route path="*" element={<NotFound />} />
             </Routes>
             </Suspense>

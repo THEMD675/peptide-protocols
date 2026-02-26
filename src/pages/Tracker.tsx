@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import FocusTrap from 'focus-trap-react';
 import { Helmet } from 'react-helmet-async';
 import {
   Syringe,
@@ -716,6 +717,7 @@ export default function Tracker() {
       </div>
       {confirmDialog && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4" onClick={() => setConfirmDialog(null)}>
+          <FocusTrap focusTrapOptions={{ allowOutsideClick: true }}>
           <div className="w-full max-w-sm rounded-2xl bg-white p-6 shadow-2xl" onClick={e => e.stopPropagation()}>
             <h3 className="text-lg font-bold text-stone-900 mb-2">{confirmDialog.title}</h3>
             <p className="text-sm text-stone-600 mb-6">{confirmDialog.message}</p>
@@ -734,6 +736,7 @@ export default function Tracker() {
               </button>
             </div>
           </div>
+          </FocusTrap>
         </div>
       )}
     </main>

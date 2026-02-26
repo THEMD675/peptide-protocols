@@ -107,6 +107,14 @@ function buildSubscription(row: Record<string, unknown> | null): Subscription {
 }
 
 
+async function fetchWithRetry<T>(fn: () => Promise<T>, retries = 2, delay = 1000): Promise<T> {
+  for (let i = 0; i <= retries; i++) {
+    try { return await fn(); }
+    catch (e) { if (i === retries) throw e; await new Promise(r => setTimeout(r, delay * (i + 1))); }
+  }
+  throw new Error('unreachable');
+}
+
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [subscription, setSubscription] = useState<Subscription>(DEFAULT_SUBSCRIPTION);
@@ -114,11 +122,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const fetchSubscription = useCallback(async (userId: string) => {
     try {
-      const { data, error } = await supabase
-        .from('subscriptions')
-        .select('*')
-        .eq('user_id', userId)
-        .maybeSingle();
+      const { data, error } = await fetchWithRetry(() =>
+        supabase
+          .from('subscriptions')
+          .select('*')
+          .eq('user_id', userId)
+          .maybeSingle()
+      );
       if (error) return;
 
       if (data?.status === 'trial' && data.trial_ends_at && data.created_at) {
