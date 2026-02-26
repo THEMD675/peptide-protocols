@@ -218,7 +218,11 @@ export default function Pricing() {
               <span className="text-3xl font-black text-stone-900 sm:text-5xl">${PRICING.elite.monthly}</span>
               <span className="text-lg text-stone-800"> /شهريًا</span>
             </div>
-            <div className="mb-6" />
+            <div className="mb-4 inline-flex items-center gap-1.5 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-xs font-bold text-emerald-700">
+              <Crown className="h-3.5 w-3.5" />
+              الأكثر اختيارًا بين المحترفين
+            </div>
+            <div className="mb-2" />
 
             <ul className="mb-8 flex-1 space-y-3">
               {eliteFeatures.map((f) => (

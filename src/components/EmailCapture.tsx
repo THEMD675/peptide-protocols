@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { supabase } from '@/lib/supabase';
-import { Mail, ArrowLeft, Loader2 } from 'lucide-react';
+import { Mail, ArrowLeft, Loader2, CheckCircle } from 'lucide-react';
 
 export default function EmailCapture() {
   const [email, setEmail] = useState('');
@@ -34,10 +34,12 @@ export default function EmailCapture() {
 
   if (status === 'success') {
     return (
-      <div className="rounded-2xl border border-emerald-300 bg-emerald-50 p-6 text-center">
-        <p className="text-lg font-semibold text-emerald-700">
-          ✓ تم التسجيل بنجاح
+      <div className="rounded-2xl border border-emerald-300 bg-emerald-50 p-8 text-center">
+        <CheckCircle className="mx-auto mb-3 h-10 w-10 text-emerald-600" />
+        <p className="text-lg font-bold text-emerald-700">
+          شكرًا! تم تسجيل بريدك بنجاح
         </p>
+        <p className="mt-2 text-sm text-emerald-600/80">سنرسل لك آخر المستجدات قريبًا</p>
       </div>
     );
   }

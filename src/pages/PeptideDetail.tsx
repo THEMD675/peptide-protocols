@@ -1,6 +1,7 @@
 import { useMemo, useState, useEffect } from 'react';
 import { useParams, Link, Navigate } from 'react-router-dom';
-import { ArrowRight, Shield, AlertTriangle, CheckCircle, Lock, Calculator, Bot, FlaskConical, Printer, MessageSquare, Star, Syringe } from 'lucide-react';
+import { ArrowRight, Shield, AlertTriangle, CheckCircle, Lock, Calculator, Bot, FlaskConical, Printer, MessageSquare, Star, Syringe, Share2 } from 'lucide-react';
+import { toast } from 'sonner';
 import { Helmet } from 'react-helmet-async';
 import { cn } from '@/lib/utils';
 import { peptides } from '@/data/peptides';
@@ -209,13 +210,34 @@ export default function PeptideDetail() {
                   بطاقة البروتوكول
                 </h2>
               </div>
-              <button
-                onClick={() => window.print()}
-                className="print:hidden flex items-center gap-1.5 rounded-lg border border-stone-200 bg-white px-3 py-1.5 text-xs font-medium text-stone-600 transition-colors hover:bg-stone-50"
-              >
-                <Printer className="h-3.5 w-3.5" />
-                طباعة البروتوكول
-              </button>
+              <div className="print:hidden flex items-center gap-2">
+                <button
+                  onClick={async () => {
+                    const shareData = {
+                      title: `${peptide.nameAr} — ${peptide.nameEn}`,
+                      text: peptide.summaryAr.slice(0, 200),
+                      url: window.location.href,
+                    };
+                    if (navigator.share) {
+                      try { await navigator.share(shareData); } catch {}
+                    } else {
+                      await navigator.clipboard.writeText(window.location.href);
+                      toast.success('تم نسخ الرابط');
+                    }
+                  }}
+                  className="flex items-center gap-1.5 rounded-lg border border-stone-200 bg-white px-3 py-1.5 text-xs font-medium text-stone-600 transition-colors hover:bg-stone-50"
+                >
+                  <Share2 className="h-3.5 w-3.5" />
+                  مشاركة
+                </button>
+                <button
+                  onClick={() => window.print()}
+                  className="flex items-center gap-1.5 rounded-lg border border-stone-200 bg-white px-3 py-1.5 text-xs font-medium text-stone-600 transition-colors hover:bg-stone-50"
+                >
+                  <Printer className="h-3.5 w-3.5" />
+                  طباعة
+                </button>
+              </div>
             </div>
 
             <table className="w-full">

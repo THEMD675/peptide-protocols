@@ -15,6 +15,7 @@ import {
   Syringe,
   Flame,
   TrendingUp,
+  Clock,
 } from 'lucide-react';
 import { cn, arPlural } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
@@ -237,7 +238,24 @@ export default function Dashboard() {
       {!activity.loading && activity.logs.length > 0 && (
         <div className="mb-8">
           <h2 className="mb-4 text-xl font-bold text-stone-900">نشاطك</h2>
-          <div className="grid gap-4 sm:grid-cols-3 mb-4">
+          <div className="grid gap-4 sm:grid-cols-4 mb-4">
+            <div className="rounded-2xl border border-stone-200 bg-white p-4 text-center">
+              <Clock className="mx-auto mb-1 h-5 w-5 text-emerald-500" />
+              <p className="text-2xl font-black text-stone-900">
+                {(() => {
+                  const last = activity.logs[0];
+                  if (!last) return '—';
+                  const diff = Date.now() - new Date(last.injected_at).getTime();
+                  const mins = Math.floor(diff / 60000);
+                  if (mins < 60) return `${mins} د`;
+                  const hrs = Math.floor(mins / 60);
+                  if (hrs < 24) return `${hrs} س`;
+                  const days = Math.floor(hrs / 24);
+                  return `${days} ي`;
+                })()}
+              </p>
+              <p className="text-xs text-stone-500">آخر حقنة منذ</p>
+            </div>
             <div className="rounded-2xl border border-stone-200 bg-white p-4 text-center">
               <Flame className="mx-auto mb-1 h-5 w-5 text-orange-500" />
               <p className="text-2xl font-black text-stone-900">{activity.streak}</p>

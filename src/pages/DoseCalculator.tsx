@@ -419,13 +419,27 @@ export default function DoseCalculator() {
                 </span>
               </div>
               {waterMl !== recommendedWater && vialMg > 0 && (
-                <button
-                  onClick={() => setWaterMl(recommendedWater)}
-                  className="text-xs transition-colors hover:underline"
-                  style={{ color: EMERALD, opacity: 0.7 }}
-                >
-                  💡 الكمية المُوصى بها: {recommendedWater} مل
-                </button>
+                !selectedPreset ? (
+                  <div className="mt-1 flex items-center gap-2 rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2">
+                    <span className="text-xs text-emerald-700">
+                      الكمية الموصى بها: <strong>{recommendedWater} ml</strong>
+                    </span>
+                    <button
+                      onClick={() => setWaterMl(recommendedWater)}
+                      className="rounded-md bg-emerald-600 px-2.5 py-1 text-[11px] font-bold text-white transition-colors hover:bg-emerald-700"
+                    >
+                      تعبئة
+                    </button>
+                  </div>
+                ) : (
+                  <button
+                    onClick={() => setWaterMl(recommendedWater)}
+                    className="text-xs transition-colors hover:underline"
+                    style={{ color: EMERALD, opacity: 0.7 }}
+                  >
+                    💡 الكمية المُوصى بها: {recommendedWater} مل
+                  </button>
+                )
               )}
             </div>
           </div>

@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { Link } from 'react-router-dom';
-import { User, Crown, LogOut, Trash2, AlertTriangle, Mail, ArrowUpCircle, KeyRound } from 'lucide-react';
+import { User, Crown, LogOut, Trash2, AlertTriangle, Mail, ArrowUpCircle, KeyRound, XCircle } from 'lucide-react';
 import { toast } from 'sonner';
 import { cn, arPlural } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
@@ -273,6 +273,22 @@ export default function Account() {
             <p className="mt-2 text-sm text-stone-600">
               هل أنت متأكد من إلغاء اشتراكك؟ ستحتفظ بالوصول حتى نهاية فترتك الحالية، ولن يتم تجديد الاشتراك بعدها.
             </p>
+            <div className="mt-4 rounded-xl border border-red-200 bg-red-50 p-4">
+              <p className="text-sm font-bold text-red-800 mb-2">ستفقد الوصول إلى:</p>
+              <ul className="space-y-1.5">
+                {[
+                  '41 بروتوكول كامل',
+                  'المدرب الذكي',
+                  'دليل التحاليل',
+                  'البروتوكولات المجمّعة',
+                ].map(item => (
+                  <li key={item} className="flex items-center gap-2 text-sm text-red-700">
+                    <XCircle className="h-3.5 w-3.5 shrink-0 text-red-400" />
+                    {item}
+                  </li>
+                ))}
+              </ul>
+            </div>
             <div className="mt-6 flex gap-3">
               <button
                 onClick={handleCancelSubscription}

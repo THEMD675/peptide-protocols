@@ -14,6 +14,8 @@ import {
   Repeat,
   Trash2,
   Download,
+  ChevronLeft,
+  ChevronRight,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
@@ -75,6 +77,21 @@ export default function Tracker() {
   });
   const [notes, setNotes] = useState('');
   const [confirmDialog, setConfirmDialog] = useState<{ title: string; message: string; onConfirm: () => void } | null>(null);
+  const [calendarMonth, setCalendarMonth] = useState(() => {
+    const now = new Date();
+    return { year: now.getFullYear(), month: now.getMonth() };
+  });
+
+  const suggestedSite = (() => {
+    if (logs.length === 0) return 'abdomen';
+    const allSites = ['abdomen', 'thigh', 'arm', 'glute'];
+    const recentSites = logs.slice(0, 5).map(l => l.injection_site);
+    const siteCounts: Record<string, number> = {};
+    recentSites.forEach(s => { if (s) siteCounts[s] = (siteCounts[s] || 0) + 1; });
+    const leastUsed = allSites.reduce((a, b) => (siteCounts[a] || 0) <= (siteCounts[b] || 0) ? a : b);
+    const lastSite = logs[0]?.injection_site;
+    return lastSite === leastUsed ? allSites.find(s => s !== lastSite) || leastUsed : leastUsed;
+  })();
 
   useEffect(() => {
     if (!user) return;
@@ -260,12 +277,12 @@ export default function Tracker() {
       {/* Monthly Calendar */}
       {logs.length > 0 && (() => {
         const now = new Date();
-        const year = now.getFullYear();
-        const month = now.getMonth();
+        const { year, month } = calendarMonth;
         const daysInMonth = new Date(year, month + 1, 0).getDate();
         const firstDayOfWeek = new Date(year, month, 1).getDay();
         const dayNames = ['أحد', 'إثن', 'ثلا', 'أرب', 'خمي', 'جمع', 'سبت'];
-        const monthName = now.toLocaleDateString('ar-SA', { month: 'long', year: 'numeric' });
+        const monthName = new Date(year, month).toLocaleDateString('ar-SA', { month: 'long', year: 'numeric' });
+        const isCurrentMonth = year === now.getFullYear() && month === now.getMonth();
 
         const injectionDays = new Map<number, number>();
         logs.forEach(l => {
@@ -279,7 +296,7 @@ export default function Tracker() {
         for (let i = 0; i < firstDayOfWeek; i++) cells.push(<div key={`empty-${i}`} />);
         for (let day = 1; day <= daysInMonth; day++) {
           const count = injectionDays.get(day) ?? 0;
-          const isToday = day === now.getDate();
+          const isToday = isCurrentMonth && day === now.getDate();
           cells.push(
             <div key={day} className={cn(
               'relative flex flex-col items-center justify-center rounded-lg py-1.5 text-xs transition-colors',
@@ -298,11 +315,31 @@ export default function Tracker() {
           );
         }
 
+        const prevMonth = () => setCalendarMonth(prev => {
+          const m = prev.month - 1;
+          return m < 0 ? { year: prev.year - 1, month: 11 } : { year: prev.year, month: m };
+        });
+        const nextMonth = () => {
+          if (isCurrentMonth) return;
+          setCalendarMonth(prev => {
+            const m = prev.month + 1;
+            return m > 11 ? { year: prev.year + 1, month: 0 } : { year: prev.year, month: m };
+          });
+        };
+
         return (
           <div className="mb-8 rounded-2xl border border-stone-200 bg-white p-5">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-sm font-bold text-stone-900">{monthName}</h3>
-              <span className="text-xs text-stone-500">{injectionDays.size} يوم نشط</span>
+              <button onClick={prevMonth} aria-label="الشهر السابق" className="rounded-lg border border-stone-200 p-1.5 text-stone-500 transition-colors hover:bg-stone-50 hover:text-stone-700">
+                <ChevronRight className="h-4 w-4" />
+              </button>
+              <div className="text-center">
+                <h3 className="text-sm font-bold text-stone-900">{monthName}</h3>
+                <span className="text-xs text-stone-500">{injectionDays.size} يوم نشط</span>
+              </div>
+              <button onClick={nextMonth} disabled={isCurrentMonth} aria-label="الشهر التالي" className={cn('rounded-lg border border-stone-200 p-1.5 transition-colors', isCurrentMonth ? 'text-stone-300 cursor-not-allowed' : 'text-stone-500 hover:bg-stone-50 hover:text-stone-700')}>
+                <ChevronLeft className="h-4 w-4" />
+              </button>
             </div>
             <div className="grid grid-cols-7 gap-1 text-center">
               {dayNames.map(d => (
@@ -365,6 +402,7 @@ export default function Tracker() {
           <button
             onClick={() => {
               setShowForm(true);
+              setSite(suggestedSite);
               if (!autoFilled && logs.length > 0 && !peptideName) {
                 const last = logs[0];
                 setPeptideName(last.peptide_name);
