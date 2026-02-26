@@ -7,10 +7,13 @@ if (!supabaseUrl || !supabaseAnonKey) {
   throw new Error('Missing Supabase env vars');
 }
 
+const noopLock: <R>(name: string, acquireTimeout: number, fn: () => Promise<R>) => Promise<R> =
+  async (_name, _acquireTimeout, fn) => fn();
+
 export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
   auth: {
     persistSession: true,
     detectSessionInUrl: true,
-    lock: async (_name: string, _acquireTimeout: number, fn: () => Promise<unknown>) => await fn(),
+    lock: noopLock,
   },
 });
