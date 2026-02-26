@@ -232,19 +232,13 @@ export default function Landing() {
 
       {/* ═══════ PROBLEM (Hormozi Agitation) ═══════ */}
       <section className="mx-auto max-w-5xl px-6 py-24 md:py-32">
-        <div
-          className="mb-4 text-center"
-        >
+        <div className="mb-4 text-center">
           <span className="inline-block rounded-full bg-red-50 px-4 py-1.5 text-sm font-semibold text-red-600">المشكلة</span>
         </div>
-        <h2
-          className="mb-4 text-center text-3xl font-bold text-stone-900 md:text-4xl lg:text-5xl"
-        >
+        <h2 className="mb-4 text-center text-3xl font-bold text-stone-900 md:text-4xl lg:text-5xl">
           هل هذا أنت؟
         </h2>
-        <p
-          className="mx-auto mb-12 max-w-2xl text-center text-lg text-stone-800"
-        >
+        <p className="mx-auto mb-12 max-w-2xl text-center text-lg text-stone-800">
           إذا أجبت &quot;نعم&quot; على أي من هذه — فأنت في المكان الصحيح.
         </p>
 
@@ -277,9 +271,7 @@ export default function Landing() {
           ))}
         </div>
 
-        <div
-          className="mt-12 text-center"
-        >
+        <div className="mt-12 text-center">
           <p className="text-xl font-bold text-stone-900">
             <span className="text-emerald-600">الخبر الجيد:</span> صنعنا الحل.
           </p>
@@ -289,19 +281,13 @@ export default function Landing() {
       {/* ═══════ SOLUTION / FEATURES ═══════ */}
       <section className="bg-gradient-to-b from-stone-50 to-white py-24 md:py-32">
         <div className="mx-auto max-w-6xl px-6">
-          <div
-            className="mb-4 text-center"
-          >
+          <div className="mb-4 text-center">
             <span className="inline-block rounded-full bg-emerald-50 px-4 py-1.5 text-sm font-semibold text-emerald-700">الحل</span>
           </div>
-          <h2
-            className="mb-4 text-center text-3xl font-bold text-stone-900 md:text-4xl lg:text-5xl"
-          >
+          <h2 className="mb-4 text-center text-3xl font-bold text-stone-900 md:text-4xl lg:text-5xl">
             كل ما تحتاجه في <span className="text-emerald-600">مكان واحد</span>
           </h2>
-          <p
-            className="mx-auto mb-16 max-w-2xl text-center text-lg text-stone-800"
-          >
+          <p className="mx-auto mb-16 max-w-2xl text-center text-lg text-stone-800">
             بدل ما تدفع آلاف الدولارات على استشارات ومصادر متفرقة — كل شيء هنا.
           </p>
 
@@ -473,19 +459,13 @@ export default function Landing() {
 
       {/* ═══════ VALUE STACK (Hormozi) ═══════ */}
       <section className="mx-auto max-w-4xl px-6 py-24 md:py-32">
-        <div
-          className="mb-4 text-center"
-        >
+        <div className="mb-4 text-center">
           <span className="inline-block rounded-full bg-emerald-50 px-4 py-1.5 text-sm font-semibold text-emerald-700">القيمة الحقيقية</span>
         </div>
-        <h2
-          className="mb-4 text-center text-3xl font-bold text-stone-900 md:text-4xl lg:text-5xl"
-        >
+        <h2 className="mb-4 text-center text-3xl font-bold text-stone-900 md:text-4xl lg:text-5xl">
           ماذا تحصل <span className="text-emerald-600">فعلًا؟</span>
         </h2>
-        <p
-          className="mx-auto mb-12 max-w-xl text-center text-lg text-stone-800"
-        >
+        <p className="mx-auto mb-12 max-w-xl text-center text-lg text-stone-800">
           لو اشتريت كل أداة لوحدها — ستدفع أكثر من $882.
         </p>
 
@@ -504,9 +484,7 @@ export default function Landing() {
           ))}
         </div>
 
-        <div
-          className="mt-10 rounded-2xl border-2 border-emerald-200 bg-emerald-50 p-8 text-center"
-        >
+        <div className="mt-10 rounded-2xl border-2 border-emerald-200 bg-emerald-50 p-8 text-center">
           <p className="mb-1 text-lg text-stone-800">القيمة الإجمالية:</p>
           <p className="mb-2 text-3xl font-extrabold text-stone-800 line-through">$882+</p>
           <p className="mb-1 text-lg text-stone-800">أنت تدفع فقط:</p>
@@ -519,9 +497,7 @@ export default function Landing() {
       {/* ═══════ HOW IT WORKS ═══════ */}
       <section className="bg-gradient-to-b from-white via-stone-50 to-stone-50 py-24 md:py-32">
         <div className="mx-auto max-w-5xl px-6">
-          <h2
-            className="mb-16 text-center text-3xl font-bold text-stone-900 md:text-4xl"
-          >
+          <h2 className="mb-16 text-center text-3xl font-bold text-stone-900 md:text-4xl">
             ابدأ في <span className="text-emerald-600">3 خطوات</span>
           </h2>
 
@@ -552,14 +528,10 @@ export default function Landing() {
 
       {/* ═══════ SOCIAL PROOF ═══════ */}
       <section className="mx-auto max-w-5xl px-6 py-24 md:py-32">
-        <h2
-          className="mb-4 text-center text-3xl font-bold text-stone-900 md:text-4xl"
-        >
+        <h2 className="mb-4 text-center text-3xl font-bold text-stone-900 md:text-4xl">
           ماذا يقول <span className="text-emerald-600">المستخدمون</span>
         </h2>
-        <p
-          className="mx-auto mb-12 max-w-xl text-center text-stone-800"
-        >
+        <p className="mx-auto mb-12 max-w-xl text-center text-stone-800">
           أشخاص حقيقيون. نتائج حقيقية.
         </p>
 
@@ -567,7 +539,7 @@ export default function Landing() {
           {testimonials.map((t, i) => (
             <div
               key={i}
-              className="rounded-2xl border border-stone-300/60 bg-white p-7"
+              className="rounded-2xl border border-stone-300/60 bg-white p-7 transition-all duration-300 hover:border-emerald-200 hover:shadow-lg hover:-translate-y-1"
             >
               <div className="mb-4 flex gap-1">
                 {[...Array(5)].map((_, j) => (
@@ -597,21 +569,17 @@ export default function Landing() {
               ابدأ بتجربة 3 أيام مجانية
             </span>
           </div>
-          <h2
-            className="mb-4 text-center text-3xl font-bold text-stone-900 md:text-4xl lg:text-5xl"
-          >
+          <h2 className="mb-4 text-center text-3xl font-bold text-stone-900 md:text-4xl lg:text-5xl">
             اختر <span className="text-emerald-600">خطتك</span>
           </h2>
-          <p
-            className="mx-auto mb-14 max-w-lg text-center text-lg text-stone-800"
-          >
+          <p className="mx-auto mb-14 max-w-lg text-center text-lg text-stone-800">
             ابدأ بتجربة 3 أيام مجانية — بطاقة مطلوبة للتأكد فقط.
           </p>
 
           <div className="grid gap-8 md:grid-cols-2">
             {/* Essentials */}
             <div
-              className="relative flex flex-col rounded-2xl border border-stone-300/60 bg-white p-8 transition-all hover:shadow-lg"
+              className="relative flex flex-col rounded-2xl border border-stone-300/60 bg-white p-8 transition-all duration-300 hover:shadow-lg hover:border-stone-400 hover:-translate-y-1"
             >
               <h3 className="mb-1 text-xl font-bold text-stone-900">Essentials</h3>
               <p className="mb-6 text-sm text-stone-800">كل الأدوات الأساسية</p>
