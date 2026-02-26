@@ -12,9 +12,13 @@ import {
   Crown,
   CheckCircle2,
   Circle,
+  Syringe,
+  Flame,
+  TrendingUp,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
+import { supabase } from '@/lib/supabase';
 
 const QUICK_LINKS = [
   { to: '/library', label: 'المكتبة', description: 'تصفّح 41+ ببتيد', Icon: BookOpen },
@@ -60,9 +64,49 @@ function useVisitedPages() {
   return { visited, markVisited };
 }
 
+interface RecentLog {
+  id: string;
+  peptide_name: string;
+  dose: number;
+  unit: string;
+  injected_at: string;
+}
+
+function useRecentActivity(userId: string | undefined) {
+  const [logs, setLogs] = useState<RecentLog[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (!userId) return;
+    supabase
+      .from('injection_logs')
+      .select('id, peptide_name, dose, unit, injected_at')
+      .eq('user_id', userId)
+      .order('injected_at', { ascending: false })
+      .limit(5)
+      .then(({ data }) => {
+        if (data) setLogs(data);
+        setLoading(false);
+      });
+  }, [userId]);
+
+  const activePeptides = [...new Set(logs.map(l => l.peptide_name))];
+  const totalInjections = logs.length;
+
+  let streak = 0;
+  if (logs.length > 0) {
+    const daySet = new Set(logs.map(l => new Date(l.injected_at).toDateString()));
+    const d = new Date();
+    while (daySet.has(d.toDateString())) { streak++; d.setDate(d.getDate() - 1); }
+  }
+
+  return { logs, loading, activePeptides, totalInjections, streak };
+}
+
 export default function Dashboard() {
   const { user, subscription } = useAuth();
   const { visited, markVisited } = useVisitedPages();
+  const activity = useRecentActivity(user?.id);
 
   if (!user) {
     return (
@@ -150,6 +194,60 @@ export default function Dashboard() {
           </Link>
         )}
       </div>
+
+      {/* Activity Section */}
+      {!activity.loading && activity.logs.length > 0 && (
+        <div className="mb-8">
+          <h2 className="mb-4 text-xl font-bold text-stone-900">نشاطك</h2>
+          <div className="grid gap-4 sm:grid-cols-3 mb-4">
+            <div className="rounded-2xl border border-stone-200 bg-white p-4 text-center">
+              <Flame className="mx-auto mb-1 h-5 w-5 text-orange-500" />
+              <p className="text-2xl font-black text-stone-900">{activity.streak}</p>
+              <p className="text-xs text-stone-500">أيام متتالية</p>
+            </div>
+            <div className="rounded-2xl border border-stone-200 bg-white p-4 text-center">
+              <Syringe className="mx-auto mb-1 h-5 w-5 text-emerald-500" />
+              <p className="text-2xl font-black text-stone-900">{activity.activePeptides.length}</p>
+              <p className="text-xs text-stone-500">ببتيدات نشطة</p>
+            </div>
+            <div className="rounded-2xl border border-stone-200 bg-white p-4 text-center">
+              <TrendingUp className="mx-auto mb-1 h-5 w-5 text-blue-500" />
+              <p className="text-2xl font-black text-stone-900">{activity.totalInjections}</p>
+              <p className="text-xs text-stone-500">حقن مسجّلة</p>
+            </div>
+          </div>
+          <div className="rounded-2xl border border-stone-200 bg-white p-4">
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="text-sm font-bold text-stone-900">آخر الحقن</h3>
+              <Link to="/tracker" className="text-xs font-semibold text-emerald-600 hover:underline">عرض الكل</Link>
+            </div>
+            <div className="space-y-2">
+              {activity.logs.slice(0, 3).map(log => (
+                <div key={log.id} className="flex items-center justify-between rounded-lg bg-stone-50 px-3 py-2">
+                  <div>
+                    <span className="text-sm font-bold text-stone-900" dir="ltr">{log.peptide_name}</span>
+                    <span className="mr-2 text-xs text-stone-500">{log.dose} {log.unit}</span>
+                  </div>
+                  <span className="text-xs text-stone-400">
+                    {new Date(log.injected_at).toLocaleDateString('ar-u-nu-latn', { month: 'short', day: 'numeric' })}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {!activity.loading && activity.logs.length === 0 && (
+        <div className="mb-8 rounded-2xl border-2 border-dashed border-emerald-200 bg-emerald-50 p-6 text-center">
+          <Syringe className="mx-auto mb-2 h-6 w-6 text-emerald-600" />
+          <p className="font-bold text-stone-900">ابدأ بتسجيل أول حقنة</p>
+          <p className="mt-1 text-sm text-stone-600">تتبّع جرعاتك ومواقع الحقن وشاهد تقدّمك</p>
+          <Link to="/tracker" className="mt-3 inline-flex items-center gap-2 rounded-full bg-emerald-600 px-6 py-2.5 text-sm font-bold text-white hover:bg-emerald-700">
+            <Syringe className="h-4 w-4" /> سجل الحقن
+          </Link>
+        </div>
+      )}
 
       {/* Quick Links Grid */}
       <div className="mb-8">

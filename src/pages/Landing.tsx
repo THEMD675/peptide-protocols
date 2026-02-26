@@ -155,13 +155,18 @@ export default function Landing() {
             <span className="flex items-center gap-1.5"><CreditCard className="h-3.5 w-3.5" /> تجربة 3 أيام مجانية</span>
             <span className="flex items-center gap-1.5"><Shield className="h-3.5 w-3.5" /> ضمان استرداد كامل</span>
           </p>
-          {userCount > 0 && (
+          {userCount >= 10 && (
             <p className="mt-4 flex items-center justify-center gap-2 text-sm text-stone-500">
               <span className="relative flex h-2 w-2"><span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" /><span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500" /></span>
               <span>انضم إلى <strong className="text-stone-700">{userCount}+</strong> مستخدم يثقون بـ pptides</span>
             </p>
           )}
         </div>
+      </section>
+
+      {/* ═══════ PEPTIDE QUIZ — First interaction ═══════ */}
+      <section className="relative z-10 -mt-6 mx-auto max-w-2xl px-6 pb-10">
+        <PeptideQuiz />
       </section>
 
       {/* ═══════ STATS BAR ═══════ */}
@@ -220,11 +225,6 @@ export default function Landing() {
             <span className="text-emerald-600">الخبر الجيد:</span> صنعنا الحل.
           </p>
         </div>
-      </section>
-
-      {/* ═══════ PEPTIDE QUIZ ═══════ */}
-      <section className="mx-auto max-w-2xl px-6 pb-16">
-        <PeptideQuiz />
       </section>
 
       {/* ═══════ SOLUTION / FEATURES ═══════ */}

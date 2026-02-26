@@ -1,8 +1,9 @@
 import { useState, useRef, useEffect } from 'react';
-import { Link, useLocation } from 'react-router-dom';
-import { Menu, X, User, LogOut, ChevronDown } from 'lucide-react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { Menu, X, User, LogOut, ChevronDown, Search } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
+import { peptides } from '@/data/peptides';
 
 const navLinks = [
   { to: '/library', label: 'المكتبة' },
@@ -26,11 +27,22 @@ const moreLinks = [
 
 export default function Header() {
   const { pathname } = useLocation();
+  const navigate = useNavigate();
   const { user, logout } = useAuth();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const searchRef = useRef<HTMLDivElement>(null);
+
+  const searchResults = searchQuery.trim().length >= 2
+    ? peptides.filter(p =>
+        p.nameAr.includes(searchQuery) ||
+        p.nameEn.toLowerCase().includes(searchQuery.toLowerCase())
+      ).slice(0, 5)
+    : [];
 
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
@@ -98,6 +110,48 @@ export default function Header() {
           </nav>
 
           <div className="flex items-center gap-3">
+            {/* Global Search */}
+            <div ref={searchRef} className="relative hidden md:block">
+              <button
+                onClick={() => { setSearchOpen(v => !v); setSearchQuery(''); }}
+                className="flex items-center gap-1.5 rounded-lg px-2.5 py-2 text-stone-500 transition-colors hover:bg-stone-100 hover:text-stone-700"
+                aria-label="بحث"
+              >
+                <Search className="h-4 w-4" />
+              </button>
+              {searchOpen && (
+                <div className="absolute left-0 top-full mt-2 w-72 overflow-hidden rounded-xl border border-stone-200 bg-white shadow-xl">
+                  <div className="p-2">
+                    <input
+                      autoFocus
+                      type="text"
+                      value={searchQuery}
+                      onChange={e => setSearchQuery(e.target.value)}
+                      placeholder="ابحث عن ببتيد..."
+                      className="w-full rounded-lg border border-stone-200 bg-stone-50 px-3 py-2 text-sm text-stone-900 placeholder:text-stone-400 outline-none focus:border-emerald-300"
+                    />
+                  </div>
+                  {searchResults.length > 0 && (
+                    <div className="border-t border-stone-100 py-1">
+                      {searchResults.map(p => (
+                        <button
+                          key={p.id}
+                          onClick={() => { navigate(`/peptide/${p.id}`); setSearchOpen(false); setSearchQuery(''); }}
+                          className="flex w-full items-center gap-3 px-3 py-2.5 text-right text-sm transition-colors hover:bg-stone-50"
+                        >
+                          <span className="font-bold text-stone-900">{p.nameAr}</span>
+                          <span className="text-xs text-stone-500">{p.nameEn}</span>
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                  {searchQuery.trim().length >= 2 && searchResults.length === 0 && (
+                    <div className="border-t border-stone-100 px-3 py-3 text-center text-xs text-stone-500">لا توجد نتائج</div>
+                  )}
+                </div>
+              )}
+            </div>
+
             {user ? (
               <div ref={dropdownRef} className="relative">
                 <button

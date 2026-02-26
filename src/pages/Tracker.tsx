@@ -13,10 +13,13 @@ import {
   TrendingUp,
   BarChart3,
   Flame,
+  Repeat,
+  Trash2,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
+import { peptides as allPeptides } from '@/data/peptides';
 
 interface InjectionLog {
   id: string;
@@ -281,15 +284,48 @@ export default function Tracker() {
         );
       })()}
 
-      {/* Add Button */}
+      {/* Action Buttons */}
       {!showForm && (
-        <button
-          onClick={() => setShowForm(true)}
-          className="mb-8 flex w-full items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-emerald-300 bg-emerald-50 px-6 py-4 text-sm font-bold text-emerald-700 transition-all hover:border-emerald-400 hover:bg-emerald-100"
-        >
-          <Plus className="h-5 w-5" />
-          تسجيل حقنة جديدة
-        </button>
+        <div className="mb-8 flex gap-3">
+          <button
+            onClick={() => setShowForm(true)}
+            className="flex flex-1 items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-emerald-300 bg-emerald-50 px-6 py-4 text-sm font-bold text-emerald-700 transition-all hover:border-emerald-400 hover:bg-emerald-100"
+          >
+            <Plus className="h-5 w-5" />
+            حقنة جديدة
+          </button>
+          {logs.length > 0 && (
+            <button
+              onClick={async () => {
+                const last = logs[0];
+                setIsSubmitting(true);
+                try {
+                  const now = new Date();
+                  await supabase.from('injection_logs').insert({
+                    user_id: user!.id,
+                    peptide_name: last.peptide_name,
+                    dose: last.dose,
+                    unit: last.unit,
+                    injection_site: last.injection_site,
+                    injected_at: now.toISOString(),
+                    notes: null,
+                  });
+                  await fetchLogs();
+                  import('sonner').then(m => m.toast.success(`تم تسجيل ${last.peptide_name} — ${last.dose} ${last.unit}`));
+                } catch {
+                  import('sonner').then(m => m.toast.error('حدث خطأ'));
+                } finally {
+                  setIsSubmitting(false);
+                }
+              }}
+              disabled={isSubmitting}
+              className="flex items-center justify-center gap-2 rounded-2xl border border-stone-200 bg-white px-5 py-4 text-sm font-bold text-stone-700 transition-all hover:border-emerald-300 hover:bg-stone-50 disabled:opacity-50"
+            >
+              <Repeat className="h-4 w-4" />
+              كرّر الأخيرة
+            </button>
+          )}
+        </div>
       )}
 
       {/* Log Form */}
@@ -300,15 +336,17 @@ export default function Tracker() {
             {/* Peptide Name */}
             <div>
               <label className="mb-1 block text-sm font-bold text-stone-700">اسم الببتيد</label>
-              <input
-                type="text"
+              <select
                 value={peptideName}
                 onChange={(e) => setPeptideName(e.target.value)}
-                placeholder="مثال: BPC-157"
                 required
-                dir="ltr"
-                className="w-full rounded-xl border border-stone-300 bg-white px-4 py-3 text-sm text-stone-900 placeholder:text-stone-400 focus:border-emerald-300 focus:outline-none focus:ring-1 focus:ring-emerald-200"
-              />
+                className="w-full rounded-xl border border-stone-300 bg-white px-4 py-3 text-sm text-stone-900 focus:border-emerald-300 focus:outline-none focus:ring-1 focus:ring-emerald-200"
+              >
+                <option value="">اختر الببتيد...</option>
+                {allPeptides.map(p => (
+                  <option key={p.id} value={p.nameEn}>{p.nameAr} ({p.nameEn})</option>
+                ))}
+              </select>
             </div>
 
             {/* Dose + Unit */}
@@ -430,9 +468,21 @@ export default function Tracker() {
               >
                 <div className="flex items-start justify-between mb-2">
                   <h3 className="font-bold text-stone-900" dir="ltr">{log.peptide_name}</h3>
-                  <span className="rounded-full bg-emerald-50 px-3 py-1 text-xs font-bold text-emerald-700">
-                    {log.dose} {log.unit}
-                  </span>
+                  <div className="flex items-center gap-2">
+                    <span className="rounded-full bg-emerald-50 px-3 py-1 text-xs font-bold text-emerald-700">
+                      {log.dose} {log.unit}
+                    </span>
+                    <button
+                      onClick={async () => {
+                        await supabase.from('injection_logs').delete().eq('id', log.id);
+                        setLogs(prev => prev.filter(l => l.id !== log.id));
+                      }}
+                      className="rounded-lg p-1.5 text-stone-300 transition-colors hover:bg-red-50 hover:text-red-500"
+                      aria-label="حذف"
+                    >
+                      <Trash2 className="h-3.5 w-3.5" />
+                    </button>
+                  </div>
                 </div>
                 <div className="flex flex-wrap gap-4 text-xs text-stone-500">
                   <span className="flex items-center gap-1">
