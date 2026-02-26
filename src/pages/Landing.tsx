@@ -118,15 +118,16 @@ export default function Landing() {
     let mounted = true;
     supabase
       .from('reviews')
-      .select('text, rating, created_at')
+      .select('content, rating, name, created_at')
+      .eq('is_approved', true)
       .gte('rating', 4)
       .order('created_at', { ascending: false })
       .limit(3)
       .then(({ data }) => {
         if (mounted && data && data.length >= 2) {
-          setTestimonials(data.map((r, i) => ({
-            text: r.text,
-            name: `مستخدم ${i + 1}`,
+          setTestimonials(data.map((r) => ({
+            text: r.content,
+            name: r.name ?? 'مستخدم',
             role: `تقييم ${r.rating}/5`,
           })));
         }

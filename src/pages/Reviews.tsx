@@ -84,7 +84,7 @@ export default function Reviews() {
     setFetchError(null);
     const { data, error } = await supabase
       .from('reviews')
-      .select('id, rating, text, created_at')
+      .select('id, rating, content, name, created_at')
       .order('created_at', { ascending: false })
       .limit(100);
 
@@ -124,9 +124,10 @@ export default function Reviews() {
 
     setSubmitting(true);
     const { error } = await supabase.from('reviews').insert({
-      user_id: user.id,
+      name: user.email?.split('@')[0] ?? 'مستخدم',
+      email: user.email,
       rating,
-      text: text.trim(),
+      content: text.trim(),
     });
 
     setSubmitting(false);
@@ -330,7 +331,7 @@ export default function Reviews() {
                     </span>
                   </div>
                   <p className="text-sm leading-relaxed text-stone-800">
-                    {review.text}
+                    {review.content ?? review.text}
                   </p>
                 </div>
               ))}
