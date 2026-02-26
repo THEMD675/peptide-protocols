@@ -1,4 +1,5 @@
 import { Helmet } from 'react-helmet-async';
+import { Link } from 'react-router-dom';
 import { Shield, CheckCircle, Users, Package, MessageCircle, AlertTriangle, Mail } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -138,6 +139,15 @@ export default function Sources() {
             </a>
           </div>
         </section>
+
+        <div className="mt-10 rounded-2xl border border-emerald-200 bg-emerald-50 p-6 text-center">
+          <p className="font-bold text-stone-900">جاهز تختار بروتوكولك؟</p>
+          <p className="mt-1 text-sm text-stone-600">تصفّح مكتبة الببتيدات واحسب جرعتك</p>
+          <div className="mt-4 flex flex-col gap-2 sm:flex-row sm:justify-center">
+            <Link to="/library" className="rounded-full bg-emerald-600 px-6 py-2.5 text-sm font-bold text-white hover:bg-emerald-700">تصفّح المكتبة</Link>
+            <Link to="/calculator" className="rounded-full border border-emerald-300 px-6 py-2.5 text-sm font-bold text-emerald-700 hover:bg-emerald-100">حاسبة الجرعات</Link>
+          </div>
+        </div>
       </div>
     </div>
   );

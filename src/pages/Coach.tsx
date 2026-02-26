@@ -14,6 +14,15 @@ function renderMarkdown(text: string) {
   const lines = text.split('\n');
   const elements: React.ReactNode[] = [];
   let listItems: string[] = [];
+  let tableRows: string[][] = [];
+
+  const esc = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  const inlineMd = (s: string) =>
+    esc(s)
+      .replace(/\*\*(.+?)\*\*/g, '<strong class="font-bold text-stone-900">$1</strong>')
+      .replace(/\*(.+?)\*/g, '<em>$1</em>')
+      .replace(/`(.+?)`/g, '<code class="rounded bg-stone-200 px-1 py-0.5 text-xs font-mono">$1</code>');
+
   const flushList = () => {
     if (listItems.length > 0) {
       elements.push(
@@ -29,23 +38,52 @@ function renderMarkdown(text: string) {
       listItems = [];
     }
   };
-  const esc = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-  const inlineMd = (s: string) =>
-    esc(s)
-      .replace(/\*\*(.+?)\*\*/g, '<strong class="font-bold text-stone-900">$1</strong>')
-      .replace(/\*(.+?)\*/g, '<em>$1</em>')
-      .replace(/`(.+?)`/g, '<code class="rounded bg-stone-200 px-1 py-0.5 text-xs font-mono">$1</code>');
+
+  const flushTable = () => {
+    if (tableRows.length > 0) {
+      elements.push(
+        <div key={`tbl-${elements.length}`} className="my-3 overflow-x-auto rounded-xl border border-stone-200">
+          <table className="w-full text-sm">
+            <tbody>
+              {tableRows.map((cells, ri) => (
+                <tr key={ri} className={ri % 2 === 0 ? 'bg-stone-50' : 'bg-white'}>
+                  {cells.map((cell, ci) => (
+                    <td key={ci} className={cn('px-3 py-2 border-b border-stone-100', ci === 0 && 'font-bold text-stone-700 w-[35%]')} dangerouslySetInnerHTML={{ __html: inlineMd(cell) }} />
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      );
+      tableRows = [];
+    }
+  };
+
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i].trim();
-    if (!line) { flushList(); elements.push(<div key={`br-${i}`} className="h-2" />); continue; }
-    if (line.startsWith('###')) { flushList(); elements.push(<h4 key={i} className="mt-3 mb-1 font-bold text-stone-900 text-sm">{line.replace(/^###\s*/, '')}</h4>); continue; }
-    if (line.startsWith('##')) { flushList(); elements.push(<h3 key={i} className="mt-3 mb-1 font-bold text-stone-900">{line.replace(/^##\s*/, '')}</h3>); continue; }
-    if (line.startsWith('#')) { flushList(); elements.push(<h3 key={i} className="mt-3 mb-1 font-bold text-stone-900">{line.replace(/^#\s*/, '')}</h3>); continue; }
+    if (!line) { flushList(); flushTable(); elements.push(<div key={`br-${i}`} className="h-2" />); continue; }
+
+    if (line.startsWith('|') && line.endsWith('|')) {
+      if (/^\|[\s-:|]+\|$/.test(line)) continue;
+      flushList();
+      const cells = line.split('|').slice(1, -1).map(c => c.trim());
+      if (cells.length > 0) { tableRows.push(cells); continue; }
+    } else {
+      flushTable();
+    }
+
+    if (line === '---') { flushList(); elements.push(<hr key={`hr-${i}`} className="my-3 border-stone-200" />); continue; }
+    if (line.startsWith('###')) { flushList(); elements.push(<h4 key={i} className="mt-4 mb-1 font-bold text-emerald-700 text-sm">{line.replace(/^###\s*/, '')}</h4>); continue; }
+    if (line.startsWith('##')) { flushList(); elements.push(<h3 key={i} className="mt-4 mb-1 text-base font-bold text-stone-900">{line.replace(/^##\s*/, '')}</h3>); continue; }
+    if (line.startsWith('#')) { flushList(); elements.push(<h3 key={i} className="mt-4 mb-1 text-base font-bold text-stone-900">{line.replace(/^#\s*/, '')}</h3>); continue; }
     if (/^[-*]\s/.test(line) || /^\d+\.\s/.test(line)) { listItems.push(line.replace(/^[-*]\s*/, '').replace(/^\d+\.\s*/, '')); continue; }
+    if (line.startsWith('⚠️')) { flushList(); elements.push(<p key={i} className="my-2 text-xs text-stone-400 italic">{line}</p>); continue; }
     flushList();
     elements.push(<p key={i} className="my-1" dangerouslySetInnerHTML={{ __html: inlineMd(line) }} />);
   }
   flushList();
+  flushTable();
   return elements;
 }
 
@@ -121,21 +159,22 @@ async function buildUserContext(userId: string): Promise<string> {
 
 function buildIntakePrompt(intake: IntakeData, userContext: string): string {
   const goalMap: Record<string, string> = {
-    'fat-loss': 'فقدان دهون وإنقاص وزن',
-    recovery: 'تعافي من إصابة أو تحسين أداء رياضي',
-    muscle: 'بناء عضل وتحسين أداء رياضي',
-    brain: 'تحسين التركيز والذاكرة والأداء الذهني',
-    longevity: 'إطالة عمر ومكافحة شيخوخة',
-    hormones: 'تحسين هرمونات (تستوستيرون / نمو)',
+    'fat-loss': 'fat loss',
+    recovery: 'injury recovery / athletic performance',
+    muscle: 'muscle building',
+    brain: 'brain / focus / cognitive enhancement',
+    longevity: 'longevity / anti-aging',
+    hormones: 'hormone optimization (testosterone/GH)',
+    'gut-skin': 'gut repair / skin',
   };
-  const expMap: Record<string, string> = { beginner: 'مبتدئ — أول مرة', intermediate: 'متوسط — جرب قبل', advanced: 'متقدم — يستخدم بانتظام' };
-  const injMap: Record<string, string> = { yes: 'يتقبل الحقن', 'prefer-no': 'يفضل بدون حقن', no: 'لا يقبل الحقن — فموي أو بخاخ فقط' };
+  const expMap: Record<string, string> = { beginner: 'complete beginner (never used peptides)', intermediate: 'intermediate (used 1-2 peptides before)', advanced: 'advanced (regular peptide user)' };
+  const injMap: Record<string, string> = { yes: 'accepts injections', 'prefer-no': 'prefers non-injection routes', no: 'NO injections — oral or nasal spray only' };
 
-  let prompt = `## ملف المستخدم:\n- الهدف: ${goalMap[intake.goal] ?? intake.goal}\n- الخبرة: ${expMap[intake.experience] ?? intake.experience}\n- الحقن: ${injMap[intake.injection] ?? intake.injection}\n`;
-  if (intake.age) prompt += `- العمر: ${intake.age}\n`;
-  if (intake.medications) prompt += `- أدوية/مكملات حالية: ${intake.medications}\n`;
-  if (userContext) prompt += `\n${userContext}\n`;
-  prompt += `\nأعطه البروتوكول المخصّص فورًا بالتنسيق المطلوب. لا تسأل أسئلة إضافية.`;
+  let prompt = `USER PROFILE:\n- Goal: ${goalMap[intake.goal] ?? intake.goal}\n- Experience: ${expMap[intake.experience] ?? intake.experience}\n- Injection: ${injMap[intake.injection] ?? intake.injection}\n`;
+  if (intake.age) prompt += `- Age: ${intake.age}\n`;
+  if (intake.medications) prompt += `- Current meds/supplements: ${intake.medications}\n`;
+  if (userContext) prompt += `\nUSER HISTORY:\n${userContext}\n`;
+  prompt += `\nGive the full personalized protocol NOW using the format in your instructions. Reply in Gulf Arabic. Do NOT ask questions — give the protocol immediately.`;
   return prompt;
 }
 

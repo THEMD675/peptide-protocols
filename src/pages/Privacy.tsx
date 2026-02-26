@@ -1,4 +1,5 @@
 import { Helmet } from 'react-helmet-async';
+import { Link } from 'react-router-dom';
 
 export default function Privacy() {
   return (
@@ -49,6 +50,9 @@ export default function Privacy() {
             <h2 className="mb-3 text-xl font-bold text-stone-900">5. التواصل</h2>
             <p>لأي استفسار حول الخصوصية: <a href="mailto:contact@pptides.com" className="text-emerald-600 underline">contact@pptides.com</a></p>
           </section>
+        </div>
+        <div className="mt-8 border-t border-stone-200 pt-6 text-center">
+          <Link to="/" className="text-sm font-semibold text-emerald-600 hover:text-emerald-700">← العودة للصفحة الرئيسية</Link>
         </div>
       </div>
     </div>

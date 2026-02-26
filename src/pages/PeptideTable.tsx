@@ -614,6 +614,16 @@ export default function PeptideTable() {
             </div>
           </div>
         </section>
+
+        <div className="mt-10 rounded-2xl border border-emerald-200 bg-emerald-50 p-6 text-center">
+          <p className="font-bold text-stone-900">اخترت ببتيداتك؟</p>
+          <p className="mt-1 text-sm text-stone-600">تحقق من التعارضات بينها واحسب الجرعة الدقيقة</p>
+          <div className="mt-4 flex flex-col gap-2 sm:flex-row sm:justify-center">
+            <Link to="/interactions" className="rounded-full bg-emerald-600 px-6 py-2.5 text-sm font-bold text-white hover:bg-emerald-700">فحص التعارضات</Link>
+            <Link to="/calculator" className="rounded-full border border-emerald-300 px-6 py-2.5 text-sm font-bold text-emerald-700 hover:bg-emerald-100">حاسبة الجرعات</Link>
+            <Link to="/coach" className="rounded-full border border-emerald-300 px-6 py-2.5 text-sm font-bold text-emerald-700 hover:bg-emerald-100">اسأل المدرب الذكي</Link>
+          </div>
+        </div>
       </div>
     </div>
   );

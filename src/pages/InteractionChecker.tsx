@@ -186,9 +186,11 @@ export default function InteractionChecker() {
           هذه الأداة تعليمية وليست بديلًا عن الاستشارة الطبية. استشر مختص قبل تجميع أي بروتوكول.
         </div>
 
-        <div className="mt-6 text-center">
-          <Link to="/coach" className="inline-flex items-center gap-2 text-sm font-semibold text-emerald-600 hover:text-emerald-700">
-            <ArrowLeft className="h-4 w-4" />
+        <div className="mt-6 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
+          <Link to="/calculator" className="inline-flex items-center gap-2 rounded-full bg-emerald-600 px-5 py-2.5 text-sm font-bold text-white hover:bg-emerald-700">
+            احسب الجرعة
+          </Link>
+          <Link to="/coach" className="inline-flex items-center gap-2 rounded-full border border-emerald-300 px-5 py-2.5 text-sm font-bold text-emerald-700 hover:bg-emerald-100">
             اسأل المدرب الذكي عن تجميعة مخصّصة
           </Link>
         </div>
