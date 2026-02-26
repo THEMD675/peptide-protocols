@@ -36,13 +36,14 @@ interface ProtocolRow {
 export default function PeptideDetail() {
   const { id } = useParams<{ id: string }>();
   const { subscription, isLoading } = useAuth();
-  const hasAccess = !isLoading && (subscription?.isProOrTrial ?? false);
+  const isPro = !isLoading && (subscription?.isProOrTrial ?? false);
 
   const peptide = useMemo(() => peptides.find((p) => p.id === id), [id]);
 
   if (!peptide) return <Navigate to="/library" replace />;
 
   const isFreeContent = peptide.isFree;
+  const hasAccess = isPro || isFreeContent;
   const firstSentence = peptide.summaryAr.split('.')[0] + '.';
 
   const rows: ProtocolRow[] = [
