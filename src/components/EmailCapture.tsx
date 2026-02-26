@@ -75,6 +75,9 @@ export default function EmailCapture() {
       {status === 'error' && errorMsg && (
         <p className="mt-3 text-center text-sm text-red-400">{errorMsg}</p>
       )}
+      <p className="mt-2 text-center text-[10px] text-white/30">
+        بالاشتراك، أنت توافق على <a href="/privacy" className="underline hover:text-white/50">سياسة الخصوصية</a>
+      </p>
     </div>
   );
 }

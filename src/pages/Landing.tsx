@@ -94,10 +94,17 @@ const TESTIMONIALS = [
 
 export default function Landing() {
   const { user } = useAuth();
-  const [userCount, setUserCount] = useState(0);
+  const [userCount, setUserCount] = useState(() => {
+    try { const c = sessionStorage.getItem('pptides_user_count'); return c ? Number(c) : 0; } catch { return 0; }
+  });
   useEffect(() => {
+    const cached = sessionStorage.getItem('pptides_user_count_ts');
+    if (cached && Date.now() - Number(cached) < 5 * 60 * 1000) return;
     supabase.from('subscriptions').select('id', { count: 'exact', head: true }).then(({ count }) => {
-      if (count && count > 0) setUserCount(count);
+      if (count && count > 0) {
+        setUserCount(count);
+        try { sessionStorage.setItem('pptides_user_count', String(count)); sessionStorage.setItem('pptides_user_count_ts', String(Date.now())); } catch {}
+      }
     });
   }, []);
   const ctaLink = user ? '/library' : '/signup';

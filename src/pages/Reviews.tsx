@@ -92,9 +92,21 @@ export default function Reviews() {
       ? reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length
       : 0;
 
+  const userAlreadyReviewed = user ? reviews.some(() => false) : false;
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user || rating === 0 || !text.trim() || submitting) return;
+
+    const { data: existing } = await supabase
+      .from('reviews')
+      .select('id')
+      .eq('user_id', user.id)
+      .limit(1);
+    if (existing && existing.length > 0) {
+      import('sonner').then(m => m.toast.error('لديك تقييم مسبق بالفعل'));
+      return;
+    }
 
     setSubmitting(true);
     const { error } = await supabase.from('reviews').insert({
