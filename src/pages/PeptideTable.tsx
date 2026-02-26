@@ -61,7 +61,7 @@ export default function PeptideTable() {
     return map;
   }, []);
 
-  const blurStyle = { filter: 'blur(5px)', userSelect: 'none' as const, WebkitUserSelect: 'none' as const };
+  const blurClass = 'blur-[5px] select-none';
 
   return (
     <div className="min-h-screen" >
@@ -219,12 +219,11 @@ export default function PeptideTable() {
                         key={col.key}
                         className={cn(
                           'border-b-2 border-emerald-200 px-3 py-3.5 text-right text-xs font-bold tracking-wide',
-                          col.sticky && 'sticky z-20'
+                          col.sticky ? 'sticky z-20 bg-stone-100 text-emerald-500' : 'text-white'
                         )}
                         style={{
-                          color: col.sticky ? '#10b981' : '#ffffff',
                           minWidth: col.minW,
-                          ...(col.sticky ? { right: col.stickyRight, zIndex: col.zIndex, background: '#f5f5f4' } : {}),
+                          ...(col.sticky ? { right: col.stickyRight, zIndex: col.zIndex } : {}),
                         }}
                       >
                         {col.label}
@@ -246,13 +245,11 @@ export default function PeptideTable() {
                       const catName = categories.find((c) => c.id === p.category)?.nameAr ?? p.category;
                       const longTerm = isLongTerm(p.cycleAr);
                       const shouldBlur = !hasAccess && !p.isFree;
-                      const rowBg = i % 2 === 0 ? '#fafaf9' : '#ffffff';
 
                       return (
                         <tr
                           key={p.id}
-                          className="border-b border-white/[0.05] transition-colors hover:bg-stone-100"
-                          style={{ background: rowBg }}
+                          className={cn("border-b border-white/[0.05] transition-colors hover:bg-stone-100", i % 2 === 0 ? "bg-stone-50" : "bg-white")}
                         >
                           {/* Category — sticky */}
                           <td
@@ -283,8 +280,7 @@ export default function PeptideTable() {
                           {/* Dosage — blurred for non-subscribers */}
                           <td className="px-3 py-3">
                             <span
-                              className="block leading-relaxed text-stone-800"
-                              style={shouldBlur ? blurStyle : undefined}
+                              className={cn("block leading-relaxed text-stone-800", shouldBlur && blurClass)}
                             >
                               {p.dosageAr}
                             </span>
@@ -293,8 +289,7 @@ export default function PeptideTable() {
                           {/* Timing — blurred */}
                           <td className="px-3 py-3">
                             <span
-                              className="block leading-relaxed text-stone-800"
-                              style={shouldBlur ? blurStyle : undefined}
+                              className={cn("block leading-relaxed text-stone-800", shouldBlur && blurClass)}
                             >
                               {p.timingAr}
                             </span>
@@ -303,8 +298,7 @@ export default function PeptideTable() {
                           {/* Cycle — blurred */}
                           <td className="px-3 py-3">
                             <span
-                              className="block leading-relaxed text-stone-800"
-                              style={shouldBlur ? blurStyle : undefined}
+                              className={cn("block leading-relaxed text-stone-800", shouldBlur && blurClass)}
                             >
                               {p.cycleAr}
                             </span>
@@ -317,9 +311,9 @@ export default function PeptideTable() {
                                 'inline-block rounded-full px-2 py-0.5 text-[10px] font-bold md:text-xs',
                                 longTerm
                                   ? 'bg-emerald-100 text-emerald-800'
-                                  : 'bg-amber-100 text-amber-800'
+                                  : 'bg-amber-100 text-amber-800',
+                                shouldBlur && blurClass
                               )}
-                              style={shouldBlur ? blurStyle : undefined}
                             >
                               {longTerm ? 'نعم' : 'تحتاج دورات'}
                             </span>
@@ -328,8 +322,7 @@ export default function PeptideTable() {
                           {/* Stacking — blurred */}
                           <td className="px-3 py-3">
                             <span
-                              className="block leading-relaxed text-stone-800"
-                              style={shouldBlur ? blurStyle : undefined}
+                              className={cn("block leading-relaxed text-stone-800", shouldBlur && blurClass)}
                             >
                               {p.stackAr}
                             </span>
@@ -356,7 +349,7 @@ export default function PeptideTable() {
           className="mb-12"
         >
           <div className="mb-6 flex items-center gap-3">
-            <Layers className="h-6 w-6"  />
+            <Layers className="h-6 w-6 text-emerald-600" />
             <h2 className="text-xl font-extrabold text-stone-900 md:text-2xl">
               البروتوكولات المُركّبة{' '}
               <span className="text-stone-800 font-normal text-base">(Synergistic Stacks)</span>
@@ -399,8 +392,7 @@ export default function PeptideTable() {
                   <div className="mb-3">
                     <span className="text-[10px] font-bold uppercase tracking-wider text-stone-700">الهدف</span>
                     <p
-                      className="mt-1 text-xs leading-relaxed text-stone-800"
-                      style={!hasAccess ? blurStyle : undefined}
+                      className={cn("mt-1 text-xs leading-relaxed text-stone-800", !hasAccess && blurClass)}
                     >
                       {stack.goalAr}
                     </p>
@@ -410,8 +402,7 @@ export default function PeptideTable() {
                   <div>
                     <span className="text-[10px] font-bold uppercase tracking-wider text-stone-700">البروتوكول</span>
                     <p
-                      className="mt-1 line-clamp-4 whitespace-pre-line text-xs leading-relaxed text-stone-800"
-                      style={!hasAccess ? blurStyle : undefined}
+                      className={cn("mt-1 line-clamp-4 whitespace-pre-line text-xs leading-relaxed text-stone-800", !hasAccess && blurClass)}
                     >
                       {stack.protocolAr}
                     </p>
@@ -429,7 +420,7 @@ export default function PeptideTable() {
           className="mb-12"
         >
           <div className="mb-6 flex items-center gap-3">
-            <FlaskConical className="h-6 w-6"  />
+            <FlaskConical className="h-6 w-6 text-emerald-600" />
             <h2 className="text-xl font-extrabold text-stone-900 md:text-2xl">تفصيل الفئات</h2>
           </div>
 
@@ -487,7 +478,7 @@ export default function PeptideTable() {
                       {stackingNotes.map((sn, idx) => (
                         <li key={idx} className="text-[10px] leading-relaxed text-stone-800">
                           <span className="font-semibold text-stone-800">{sn.name}:</span>{' '}
-                          <span style={!hasAccess ? blurStyle : undefined}>
+                          <span className={cn(!hasAccess && blurClass)}>
                             {sn.note.length > 100 ? sn.note.slice(0, 100) + '…' : sn.note}
                           </span>
                         </li>

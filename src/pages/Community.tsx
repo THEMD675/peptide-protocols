@@ -335,7 +335,7 @@ export default function Community() {
         ) : (
           <div className="space-y-4">
             {logs.filter(log => filterGoal === 'all' || log.goal === filterGoal).map((log) => (
-              <div key={log.id} className="rounded-2xl border border-stone-200 bg-white p-6">
+              <div key={log.id} className="rounded-2xl border border-stone-200 bg-white p-6 transition-all hover:border-emerald-200 hover:shadow-sm">
                 <div className="mb-3 flex items-start justify-between">
                   <div className="flex items-center gap-3">
                     <div className="flex h-10 w-10 items-center justify-center rounded-full bg-emerald-100">
@@ -362,7 +362,7 @@ export default function Community() {
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
-                    <div className="flex items-center gap-1">
+                    <div className="flex items-center gap-1" role="img" aria-label={`التقييم ${log.rating} من 5`}>
                       {[...Array(5)].map((_, i) => (
                         <div
                           key={i}

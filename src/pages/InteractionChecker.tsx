@@ -133,6 +133,7 @@ export default function InteractionChecker() {
               <select
                 value={sel}
                 onChange={(e) => updateSlot(idx, e.target.value)}
+                aria-label={`اختر الببتيد ${idx + 1}`}
                 className={cn('flex-1 rounded-xl border border-stone-300 bg-stone-50 px-4 py-3 text-sm focus:border-emerald-300 focus:outline-none', sel ? 'text-stone-900' : 'text-stone-400 italic')}
               >
                 <option value="">اختر ببتيد...</option>
@@ -193,7 +194,7 @@ export default function InteractionChecker() {
               const p2 = peptides.find(p => p.id === pair.id2);
               return (
                 <div key={idx} className={cn(
-                  'rounded-xl border p-4',
+                  'rounded-xl border p-4 transition-all hover:shadow-sm',
                   !pair.result.safe ? 'border-red-200 bg-red-50/50' :
                   pair.result.warning ? 'border-amber-200 bg-amber-50/50' :
                   'border-emerald-200 bg-emerald-50/50'

@@ -27,12 +27,12 @@ const eliteFeatures = [
 ];
 
 const valueStack = [
-  { item: `مكتبة ${PEPTIDE_COUNT} ببتيد مع بروتوكولات كاملة`, value: '$297' },
-  { item: 'حاسبة جرعات دقيقة', value: '$97' },
-  { item: 'دليل تحاليل مخبرية شامل', value: '$147' },
-  { item: 'بروتوكولات مُجمَّعة جاهزة', value: '$197' },
-  { item: 'دليل التحضير والحقن', value: '$97' },
-  { item: 'تحديثات علمية شهرية', value: '$47/شهر' },
+  { item: `مكتبة ${PEPTIDE_COUNT} ببتيد مع بروتوكولات كاملة`, value: '$149' },
+  { item: 'حاسبة جرعات دقيقة', value: '$29' },
+  { item: 'دليل تحاليل مخبرية شامل', value: '$49' },
+  { item: 'بروتوكولات مُجمَّعة جاهزة', value: '$39' },
+  { item: 'دليل التحضير والحقن', value: '$29' },
+  { item: 'تحديثات علمية شهرية', value: '$19/شهر' },
 ];
 
 const eliteValueStack = [
@@ -263,7 +263,7 @@ export default function Pricing() {
             ))}
           </div>
           <div className="mt-6 text-center">
-            <p className="text-stone-800">القيمة الإجمالية: <span className="font-bold text-stone-800 line-through">$882+</span></p>
+            <p className="text-stone-800">القيمة الإجمالية: <span className="font-bold text-stone-800 line-through">$314+</span></p>
             <p className="mt-1 text-2xl font-black text-emerald-600">أنت تدفع فقط {PRICING.essentials.label}/شهريًا</p>
           </div>
         </div>

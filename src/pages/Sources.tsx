@@ -52,7 +52,7 @@ export default function Sources() {
         />
       </Helmet>
 
-      <div className="mx-auto max-w-4xl px-4 py-8 md:px-6 md:py-12">
+      <div className="mx-auto max-w-4xl px-4 pt-8 pb-24 md:px-6 md:pt-12">
         {/* Header */}
         <div
           className="mb-10 text-center"

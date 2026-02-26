@@ -156,7 +156,7 @@ export default function Reviews() {
         <title>آراء المستخدمين — دليل البيبتايدات | Peptide Guide Reviews</title>
         <meta name="description" content="اقرأ آراء وتقييمات المستخدمين عن دليل البيبتايدات. شارك تجربتك وساعد الآخرين." />
       </Helmet>
-      <div className="mx-auto max-w-4xl px-4 py-8 md:px-6 md:py-12">
+      <div className="mx-auto max-w-4xl px-4 pt-8 pb-24 md:px-6 md:pt-12">
         <div
           className="mb-10 text-center"
         >
@@ -219,17 +219,20 @@ export default function Reviews() {
           ) : (
             <form onSubmit={handleSubmit} className="space-y-5">
               <div>
-                <label className="mb-2 block text-sm font-medium text-stone-800">
+                <label htmlFor="review-rating" className="mb-2 block text-sm font-medium text-stone-800">
                   التقييم
                 </label>
-                <StarRating rating={rating} onRate={setRating} interactive />
+                <div id="review-rating">
+                  <StarRating rating={rating} onRate={setRating} interactive />
+                </div>
               </div>
 
               <div>
-                <label className="mb-2 block text-sm font-medium text-stone-800">
+                <label htmlFor="review-text" className="mb-2 block text-sm font-medium text-stone-800">
                   رأيك
                 </label>
                 <textarea
+                  id="review-text"
                   value={text}
                   onChange={(e) => setText(e.target.value)}
                   placeholder="شاركنا تجربتك..."
@@ -305,7 +308,7 @@ export default function Reviews() {
               {reviews.map((review, i) => (
                 <div
                   key={review.id}
-                  className="rounded-2xl border border-stone-300 bg-stone-50 p-5"
+                  className="rounded-2xl border border-stone-300 bg-stone-50 p-5 transition-all hover:border-emerald-200 hover:shadow-sm"
                 >
                   <div className="mb-3 flex items-center justify-between">
                     <div className="flex items-center gap-2">

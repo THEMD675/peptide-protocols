@@ -34,12 +34,12 @@ const PAIN_POINTS = [
 ];
 
 const VALUE_STACK = [
-  { item: `مكتبة ${PEPTIDE_COUNT} ببتيد مع بروتوكولات كاملة`, value: '$297' },
-  { item: 'حاسبة جرعات دقيقة (مايكروغرام + سيرنج)', value: '$97' },
-  { item: 'دليل تحاليل مخبرية شامل (11 تحليل)', value: '$147' },
-  { item: 'بروتوكولات مُجمَّعة حسب الهدف', value: '$197' },
-  { item: 'دليل التحضير والحقن خطوة بخطوة', value: '$97' },
-  { item: 'تحديثات علمية مستمرة كل شهر', value: '$47/شهر' },
+  { item: `مكتبة ${PEPTIDE_COUNT} ببتيد مع بروتوكولات كاملة`, value: '$149' },
+  { item: 'حاسبة جرعات دقيقة (مايكروغرام + سيرنج)', value: '$29' },
+  { item: 'دليل تحاليل مخبرية شامل (11 تحليل)', value: '$49' },
+  { item: 'بروتوكولات مُجمَّعة حسب الهدف', value: '$39' },
+  { item: 'دليل التحضير والحقن خطوة بخطوة', value: '$29' },
+  { item: 'تحديثات علمية مستمرة كل شهر', value: '$19/شهر' },
 ];
 
 const FEATURES = [
@@ -466,7 +466,7 @@ export default function Landing() {
           ماذا تحصل <span className="text-emerald-600">فعلًا؟</span>
         </h2>
         <p className="mx-auto mb-12 max-w-xl text-center text-lg text-stone-800">
-          لو اشتريت كل أداة لوحدها — ستدفع أكثر من $882.
+          لو اشتريت كل أداة لوحدها — ستدفع أكثر من $314.
         </p>
 
         <div className="space-y-3">
@@ -486,10 +486,10 @@ export default function Landing() {
 
         <div className="mt-10 rounded-2xl border-2 border-emerald-200 bg-emerald-50 p-8 text-center">
           <p className="mb-1 text-lg text-stone-800">القيمة الإجمالية:</p>
-          <p className="mb-2 text-3xl font-extrabold text-stone-800 line-through">$882+</p>
+          <p className="mb-2 text-3xl font-extrabold text-stone-800 line-through">$314+</p>
           <p className="mb-1 text-lg text-stone-800">أنت تدفع فقط:</p>
           <p className="text-3xl font-black text-emerald-600 sm:text-5xl md:text-6xl">{PRICING.essentials.label}<span className="text-xl font-bold text-stone-800">/شهريًا</span></p>
-          <span className="mt-3 inline-block rounded-full bg-emerald-600 px-5 py-1.5 text-sm font-bold text-white shadow-md">توفير 99% — وفّر $873 شهريًا</span>
+          <span className="mt-3 inline-block rounded-full bg-emerald-600 px-5 py-1.5 text-sm font-bold text-white shadow-md">توفير 97% — وفّر $305 شهريًا</span>
           <p className="mt-4 text-sm text-stone-800">أو {PRICING.elite.label}/شهريًا للباقة المتقدمة مع المدرب الذكي + استشارات</p>
         </div>
       </section>
@@ -548,7 +548,7 @@ export default function Landing() {
               </div>
               <p className="mb-5 text-base leading-relaxed text-stone-800">&quot;{t.text}&quot;</p>
               <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-sm font-bold text-emerald-700">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full gold-gradient text-sm font-bold text-white shadow-sm">
                   {t.name.charAt(0)}
                 </div>
                 <div>

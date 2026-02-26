@@ -225,6 +225,9 @@ export default function PeptideQuiz() {
           );
         })}
       </div>
+      <Link to="/library" className="mt-4 block text-center text-xs text-stone-400 hover:text-stone-600 transition-colors">
+        تخطّي — تصفّح المكتبة مباشرة
+      </Link>
     </div>
   );
 }

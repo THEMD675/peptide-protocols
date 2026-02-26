@@ -153,7 +153,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         toast.success('تم تفعيل اشتراكك بنجاح!');
         return;
       }
-      if (attempts < 10) { timer = setTimeout(poll, 3000); }
+      if (attempts < 15) { timer = setTimeout(poll, 3000); }
       else {
         await fetchSubscription(user.id);
         toast('إذا لم يظهر اشتراكك، حدّث الصفحة بعد دقيقة.');

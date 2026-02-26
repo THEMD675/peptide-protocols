@@ -7,6 +7,7 @@ import {
   AlertCircle,
   CheckCircle,
 } from 'lucide-react';
+import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
 import { PRICING } from '@/lib/constants';
 
@@ -94,7 +95,7 @@ export default function Guide() {
         <div
           className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-500"
         >
-          <BookOpen className="h-7 w-7"  />
+          <BookOpen className="h-7 w-7 text-white" />
         </div>
         <h1 className="text-3xl font-bold md:text-4xl text-emerald-600">
           الدليل العملي
@@ -108,7 +109,7 @@ export default function Guide() {
         {/* ── Section 1: Required tools ── */}
         <section id="required-tools">
           <div className="mb-4 flex items-center gap-3">
-            <FlaskConical className="h-6 w-6 shrink-0"  />
+            <FlaskConical className="h-6 w-6 shrink-0 text-emerald-600" />
             <h2 className="text-2xl font-bold" >
               الأدوات المطلوبة
             </h2>
@@ -127,10 +128,7 @@ export default function Guide() {
                   {requiredTools.map((tool, i) => (
                     <tr
                       key={tool.name}
-                      className="border-t transition-colors hover:bg-stone-50"
-                      style={{
-                        background: i % 2 === 0 ? 'var(--card)' : undefined,
-                      }}
+                      className={cn("border-t transition-colors hover:bg-stone-50", i % 2 === 0 && "bg-[var(--card)]")}
                     >
                       <td className="px-4 py-3 font-bold" >
                         {tool.name}
@@ -149,7 +147,7 @@ export default function Guide() {
         {/* ── Section 2: Reconstitution steps ── */}
         <section id="reconstitution">
           <div className="mb-4 flex items-center gap-3">
-            <CheckCircle className="h-6 w-6 shrink-0"  />
+            <CheckCircle className="h-6 w-6 shrink-0 text-emerald-600" />
             <h2 className="text-2xl font-bold" >
               خطوات التحضير
             </h2>
@@ -184,7 +182,7 @@ export default function Guide() {
         {/* ── Section 3: Injection sites ── */}
         <section id="injection-sites">
           <div className="mb-4 flex items-center gap-3">
-            <FlaskConical className="h-6 w-6 shrink-0"  />
+            <FlaskConical className="h-6 w-6 shrink-0 text-emerald-600" />
             <h2 className="text-2xl font-bold" >
               مواقع الحقن
             </h2>
@@ -215,7 +213,7 @@ export default function Guide() {
                 </svg>
                 <div className="flex-1 space-y-3">
                   {injectionSites.map((row) => (
-                    <div key={row.site} className="rounded-xl border border-stone-200 bg-white p-4">
+                    <div key={row.site} className="rounded-xl border border-stone-200 bg-white p-4 transition-all hover:border-emerald-200 hover:shadow-sm">
                       <h4 className="text-sm font-bold text-stone-900">{row.site}</h4>
                       <p className="mt-1 text-xs leading-relaxed text-stone-600">{row.desc}</p>
                     </div>
@@ -229,7 +227,7 @@ export default function Guide() {
         {/* ── Section 4: Important rules ── */}
         <section id="important-rules">
           <div className="mb-4 flex items-center gap-3">
-            <Shield className="h-6 w-6 shrink-0"  />
+            <Shield className="h-6 w-6 shrink-0 text-emerald-600" />
             <h2 className="text-2xl font-bold" >
               قواعد مهمة
             </h2>
@@ -259,7 +257,7 @@ export default function Guide() {
         {/* ── Section 5: Other administration routes ── */}
         <section id="other-routes">
           <div className="mb-4 flex items-center gap-3">
-            <BookOpen className="h-6 w-6 shrink-0"  />
+            <BookOpen className="h-6 w-6 shrink-0 text-emerald-600" />
             <h2 className="text-2xl font-bold" >
               طرق الاستخدام الأخرى
             </h2>

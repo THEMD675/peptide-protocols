@@ -162,7 +162,7 @@ export default function Account() {
         </div>
 
         {/* Change Password */}
-        <div className="rounded-2xl border border-stone-300 bg-stone-50 p-6">
+        <div className="rounded-2xl border border-stone-200 bg-stone-50 p-6">
           <div className="flex items-center gap-3 mb-4">
             <KeyRound className="h-5 w-5 text-emerald-600" />
             <h2 className="text-lg font-bold text-stone-900">تغيير كلمة المرور</h2>
@@ -290,7 +290,7 @@ export default function Account() {
       {/* Cancel Subscription Dialog */}
       {showCancelDialog && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4" onClick={() => setShowCancelDialog(false)}>
-          <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl" onClick={e => e.stopPropagation()}>
+          <div role="dialog" aria-modal="true" className="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl" onClick={e => e.stopPropagation()}>
             <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-amber-100">
               <AlertTriangle className="h-6 w-6 text-amber-600" />
             </div>
@@ -336,7 +336,7 @@ export default function Account() {
       {/* Delete Account Dialog */}
       {showDeleteDialog && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4" onClick={() => setShowDeleteDialog(false)}>
-          <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl" onClick={e => e.stopPropagation()}>
+          <div role="dialog" aria-modal="true" className="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl" onClick={e => e.stopPropagation()}>
             <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-red-100">
               <Trash2 className="h-6 w-6 text-red-600" />
             </div>

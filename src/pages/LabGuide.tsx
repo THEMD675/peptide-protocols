@@ -50,7 +50,7 @@ export default function LabGuide() {
         <div
           className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-500"
         >
-          <TestTube className="h-7 w-7"  />
+          <TestTube className="h-7 w-7 text-white" />
         </div>
         <h1 className="text-3xl font-bold md:text-4xl text-emerald-600">
           دليل التحاليل المخبرية
@@ -64,7 +64,7 @@ export default function LabGuide() {
         {/* ── Section 1: Baseline tests ── */}
         <section>
           <div className="mb-4 flex items-center gap-3">
-            <ClipboardList className="h-6 w-6 shrink-0"  />
+            <ClipboardList className="h-6 w-6 shrink-0 text-emerald-600" />
             <h2 className="text-2xl font-bold" >
               التحاليل الأساسية
             </h2>
@@ -89,10 +89,7 @@ export default function LabGuide() {
                 {labTests.map((test, i) => (
                   <tr
                     key={test.id}
-                    className="border-t transition-colors hover:bg-stone-50"
-                    style={{
-                      background: i % 2 === 0 ? 'var(--card)' : undefined,
-                    }}
+                    className={cn("border-t transition-colors hover:bg-stone-50", i % 2 === 0 && "bg-[var(--card)]")}
                   >
                     <td className="px-4 py-3">
                       <span className="font-bold" >
@@ -120,7 +117,7 @@ export default function LabGuide() {
         {/* ── Section 2: Monitoring schedule ── */}
         <section>
           <div className="mb-4 flex items-center gap-3">
-            <Calendar className="h-6 w-6 shrink-0"  />
+            <Calendar className="h-6 w-6 shrink-0 text-emerald-600" />
             <h2 className="text-2xl font-bold" >
               جدول المتابعة
             </h2>
@@ -142,10 +139,7 @@ export default function LabGuide() {
                 {monitoringSchedule.map((row, i) => (
                   <tr
                     key={row.when}
-                    className="border-t transition-colors hover:bg-stone-50"
-                    style={{
-                      background: i % 2 === 0 ? 'var(--card)' : undefined,
-                    }}
+                    className={cn("border-t transition-colors hover:bg-stone-50", i % 2 === 0 && "bg-[var(--card)]")}
                   >
                     <td className="px-4 py-3 font-bold" >
                       {row.when}

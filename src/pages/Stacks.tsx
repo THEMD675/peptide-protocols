@@ -26,6 +26,16 @@ export default function Stacks() {
   const { subscription, isLoading } = useAuth();
   const isPro = !isLoading && (subscription?.isProOrTrial ?? false);
 
+  if (isLoading) {
+    return (
+      <main className="mx-auto max-w-6xl px-4 pb-24 pt-8 md:px-6 md:pt-12">
+        <div className="flex items-center justify-center py-32">
+          <div className="h-8 w-8 animate-spin rounded-full border-2 border-stone-200 border-t-emerald-600" />
+        </div>
+      </main>
+    );
+  }
+
   return (
     <main className="mx-auto max-w-6xl px-4 pb-24 pt-8 md:px-6 md:pt-12">
       <Helmet>
