@@ -137,6 +137,7 @@ const GOALS: { id: string; label: string; Icon: ElementType }[] = [
   { id: 'brain', label: 'تركيز ودماغ', Icon: Brain },
   { id: 'longevity', label: 'طول عمر', Icon: Clock },
   { id: 'hormones', label: 'تحسين هرمونات', Icon: Zap },
+  { id: 'gut-skin', label: 'بشرة وأمعاء ونوم', Icon: Shield },
 ];
 
 const EXPERIENCE_OPTIONS = [

@@ -52,11 +52,15 @@ export default function TrialBanner() {
     subscription.status === 'cancelled' ||
     (subscription.status === 'trial' && subscription.trialDaysLeft <= 0)
   ) {
+    const isTrial = subscription.status === 'trial' || (subscription.status === 'expired' && subscription.tier === 'free');
+    const bannerText = isTrial ? 'انتهت تجربتك المجانية — اشترك للوصول لكل المحتوى' : 'انتهت صلاحية اشتراكك — جدّد للوصول لكل المحتوى';
+    const modalTitle = isTrial ? 'انتهت تجربتك المجانية' : 'انتهت صلاحية اشتراكك';
+
     if (isFreePage) {
       return (
         <div className="sticky top-[64px] md:top-[72px] z-40 bg-red-600 text-center py-2.5 px-4">
           <p className="text-sm font-semibold text-white">
-            انتهت تجربتك المجانية — اشترك للوصول لكل المحتوى
+            {bannerText}
             <span className="mx-2">—</span>
             <Link to="/pricing" className="underline underline-offset-2 hover:opacity-80">اشترك الآن</Link>
           </p>
@@ -69,7 +73,7 @@ export default function TrialBanner() {
         <div className="mx-4 w-full max-w-md rounded-2xl bg-white p-10 text-center shadow-2xl">
           <Shield className="mx-auto mb-4 h-12 w-12 text-emerald-600" />
           <h2 className="mb-3 text-2xl font-bold text-stone-900">
-            انتهت تجربتك المجانية
+            {modalTitle}
           </h2>
           <p className="mb-4 text-stone-700">
             اشترك الآن للوصول إلى {PEPTIDE_COUNT}+ بروتوكول، المدرب الذكي، وجميع الأدوات

@@ -319,6 +319,35 @@ export default function Header() {
           )}
         >
           <div className="flex flex-1 flex-col gap-1 overflow-y-auto px-4 py-4">
+            {/* Mobile Search */}
+            <div className="relative mb-3">
+              <Search className="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-stone-400" />
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={e => { setSearchQuery(e.target.value); setSearchFocusIdx(-1); }}
+                placeholder="ابحث عن ببتيد..."
+                className="w-full rounded-xl border border-stone-200 bg-stone-50 py-2.5 pr-10 pl-4 text-sm text-stone-900 placeholder:text-stone-400 outline-none focus:border-emerald-300 focus:ring-2 focus:ring-emerald-100"
+              />
+              {searchQuery.trim().length >= 2 && searchResults.length > 0 && (
+                <div className="mt-1 rounded-xl border border-stone-200 bg-white overflow-hidden">
+                  {searchResults.map(p => (
+                    <Link
+                      key={p.id}
+                      to={`/peptide/${p.id}`}
+                      onClick={() => { setMobileOpen(false); setSearchQuery(''); }}
+                      className="flex items-center gap-3 px-3 py-2.5 text-sm hover:bg-stone-50"
+                    >
+                      <span className="font-bold text-stone-900">{p.nameAr}</span>
+                      <span className="text-xs text-stone-500">{p.nameEn}</span>
+                    </Link>
+                  ))}
+                </div>
+              )}
+              {searchQuery.trim().length >= 2 && searchResults.length === 0 && (
+                <p className="mt-1 text-center text-xs text-stone-400 py-2">لا توجد نتائج</p>
+              )}
+            </div>
             {(user ? userNavLinks : guestNavLinks).map(({ to, label }) => {
               const active = to === '/' ? pathname === '/' : pathname.startsWith(to);
               return (
