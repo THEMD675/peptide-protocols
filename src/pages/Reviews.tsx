@@ -90,7 +90,7 @@ export default function Reviews() {
 
     if (signal?.cancelled) return;
     if (error) {
-      console.error('Failed to load reviews:', error.message);
+      void error;
       setFetchError('تعذّر تحميل التقييمات. حاول مرة أخرى.');
     }
     if (data) setReviews(data);

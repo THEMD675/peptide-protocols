@@ -1,7 +1,7 @@
 import { useState, useMemo } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { Link } from 'react-router-dom';
-import { Search, Lock, BookOpen, AlertTriangle, FlaskConical, Layers, Info } from 'lucide-react';
+import { Search, Lock, BookOpen, AlertTriangle, FlaskConical, Layers } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { peptides, categories, stacks } from '@/data/peptides';
 import { useAuth } from '@/contexts/AuthContext';

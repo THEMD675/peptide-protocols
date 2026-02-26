@@ -37,7 +37,7 @@ export default function Stacks() {
         <div
           className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-500"
         >
-          <Layers className="h-7 w-7"  />
+          <Layers className="h-7 w-7 text-white" />
         </div>
         <h1 className="text-3xl font-bold md:text-4xl text-emerald-600">
           البروتوكولات المُجمَّعة
@@ -58,7 +58,7 @@ export default function Stacks() {
           return (
             <article
               key={stack.id}
-              className="glass-card gold-border flex flex-col overflow-hidden p-6"
+              className="glass-card gold-border flex flex-col overflow-hidden p-6 transition-all hover:shadow-lg hover:scale-[1.01]"
             >
               {/* Category badge — always visible */}
               <span

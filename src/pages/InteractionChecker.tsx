@@ -1,7 +1,7 @@
 import { useState, useMemo } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { Link } from 'react-router-dom';
-import { AlertTriangle, CheckCircle, XCircle, Shield, ArrowLeft } from 'lucide-react';
+import { AlertTriangle, CheckCircle, XCircle, Shield } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { peptides } from '@/data/peptides';
 

@@ -64,7 +64,7 @@ function BlurredSection({ isPro, children }: { isPro: boolean; children: React.R
 
   return (
     <div className="relative">
-      <div aria-hidden="true" style={{ filter: 'blur(6px)', pointerEvents: 'none', userSelect: 'none' }}>
+      <div aria-hidden="true" className="blur-sm pointer-events-none select-none">
         {children}
       </div>
       <div className="absolute inset-0 z-10 flex items-center justify-center">

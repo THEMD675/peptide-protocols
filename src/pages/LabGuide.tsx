@@ -1,6 +1,7 @@
 import { Helmet } from 'react-helmet-async';
 import { Link } from 'react-router-dom';
 import { TestTube, AlertTriangle, Calendar, ClipboardList } from 'lucide-react';
+import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
 import { PRICING } from '@/lib/constants';
 import { labTests } from '@/data/peptides';
@@ -36,9 +37,7 @@ export default function LabGuide() {
   const { subscription, isLoading } = useAuth();
   const isPro = !isLoading && (subscription?.isProOrTrial ?? false);
 
-  const blurStyle = !isPro
-    ? { filter: 'blur(6px)', pointerEvents: 'none' as const, userSelect: 'none' as const }
-    : undefined;
+  const blurClass = !isPro ? 'blur-sm pointer-events-none select-none' : '';
 
   return (
     <main className="mx-auto max-w-5xl px-4 pb-24 pt-8 md:px-6 md:pt-12">
@@ -86,7 +85,7 @@ export default function LabGuide() {
                   </th>
                 </tr>
               </thead>
-              <tbody style={blurStyle}>
+              <tbody className={blurClass}>
                 {labTests.map((test, i) => (
                   <tr
                     key={test.id}
@@ -139,7 +138,7 @@ export default function LabGuide() {
                   </th>
                 </tr>
               </thead>
-              <tbody style={blurStyle}>
+              <tbody className={blurClass}>
                 {monitoringSchedule.map((row, i) => (
                   <tr
                     key={row.when}
@@ -173,12 +172,7 @@ export default function LabGuide() {
 
           <div className="relative">
             <div
-              className="rounded-2xl border-2 p-6"
-              style={{
-                borderColor: '#dc2626',
-                background: 'rgba(220, 38, 38, 0.04)',
-                ...(blurStyle ?? {}),
-              }}
+              className={cn('rounded-2xl border-2 border-red-600 bg-red-600/[0.04] p-6', blurClass)}
             >
               <ul className="space-y-3">
                 {redFlags.map((flag) => (

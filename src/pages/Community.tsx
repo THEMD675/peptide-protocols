@@ -242,7 +242,7 @@ export default function Community() {
                 </div>
 
                 <div className="mb-6">
-                  <label className="mb-1.5 block text-sm font-bold text-stone-900">النتائج — وش لاحظت؟</label>
+                  <label className="mb-1.5 block text-sm font-bold text-stone-900">النتائج — ماذا لاحظت؟</label>
                   <textarea
                     value={results}
                     onChange={(e) => setResults(e.target.value)}

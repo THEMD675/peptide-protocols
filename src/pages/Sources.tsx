@@ -105,8 +105,8 @@ export default function Sources() {
         >
           <div className="rounded-2xl border border-amber-500/20 bg-amber-500/[0.06] p-6">
             <div className="mb-3 flex items-center gap-2">
-              <AlertTriangle className="h-5 w-5 text-amber-400" />
-              <h2 className="text-lg font-bold text-amber-400">ملاحظة مهمة</h2>
+              <AlertTriangle className="h-5 w-5 text-amber-600" />
+              <h2 className="text-lg font-bold text-amber-600">ملاحظة مهمة</h2>
             </div>
             <p className="text-sm leading-relaxed text-stone-800">
               هذه القائمة لأغراض تعليمية فقط. لا نبيع ببتيدات ولا نتحمل مسؤولية أي عملية شراء.
