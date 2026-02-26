@@ -183,45 +183,33 @@ async function getSessionToken(): Promise<string> {
   return data.session?.access_token ?? '';
 }
 
-function getFollowUps(text: string): string[] {
+function getFollowUps(text: string, isFirstProtocol: boolean): string[] {
+  if (!isFirstProtocol) {
+    return [
+      'وش لو حسّيت بأعراض جانبية؟',
+      'كيف أحسّن النتائج أكثر؟',
+      'صمّم لي جدول يومي كامل',
+    ];
+  }
+
+  const actions: string[] = [];
+
+  actions.push('اكتب لي قائمة تسوّق كاملة — وش أشتري بالضبط مع الكميات');
+  actions.push('صمّم لي جدول أسبوعي كامل بالمواعيد والجرعات');
+
   const t = text.toLowerCase();
-  const suggestions: string[] = [];
+  if (t.includes('bpc') || t.includes('tb-500'))
+    actions.push('وين بالضبط أحقن لإصابتي؟ ارسم لي خريطة');
+  else if (t.includes('tesamorelin') || t.includes('aod'))
+    actions.push('وش النظام الغذائي اللي يعزّز النتيجة؟');
+  else if (t.includes('semax') || t.includes('selank'))
+    actions.push('وش أفضل ستاك نوتروبيكس أجمعه معاه؟');
+  else if (t.includes('cjc') || t.includes('ipamorelin'))
+    actions.push('صمّم لي بروتوكول نوم يعزّز إفراز هرمون النمو');
+  else
+    actions.push('وش أضيف لتحسين النتيجة — ستاك ثاني؟');
 
-  if (t.includes('bpc-157') || t.includes('tb-500')) {
-    suggestions.push('وين أحقن بالضبط — قرب الإصابة ولا بطن؟');
-    suggestions.push('أقدر أجمع BPC-157 مع TB-500 بنفس السيرنج؟');
-    if (t.includes('فموي') || t.includes('oral')) suggestions.push('الفموي فعال بنفس مستوى الحقن؟');
-    else suggestions.push('كم يوم قبل ما أحس فرق؟');
-  } else if (t.includes('tesamorelin') || t.includes('aod-9604') || t.includes('mots-c')) {
-    suggestions.push('هل أحتاج أصوم قبل الحقن؟');
-    suggestions.push('وش أضيف له لنتيجة أسرع؟');
-    suggestions.push('متى أشيك وزني — أسبوعيًا ولا شهريًا؟');
-  } else if (t.includes('semax') || t.includes('selank')) {
-    suggestions.push('هل يسبب تحمّل لو استخدمته كل يوم؟');
-    suggestions.push('وش الفرق بين Semax العادي و NA-Semax Amidate؟');
-    suggestions.push('أقدر أجمعه مع كافيين أو نوتروبيكس؟');
-  } else if (t.includes('cjc') || t.includes('ipamorelin')) {
-    suggestions.push('لازم آخذه فارغ المعدة؟ كم ساعة بعد الأكل؟');
-    suggestions.push('هل يرفع IGF-1 لمستوى خطير؟');
-    suggestions.push('وش التحاليل أسويها بعد شهر؟');
-  } else if (t.includes('epithalon') || t.includes('thymosin')) {
-    suggestions.push('كم مرة أكرر الدورة بالسنة؟');
-    suggestions.push('هل أحتاج تحليل تيلوميرات قبل؟');
-    suggestions.push('يتعارض مع أي مكملات أتناولها؟');
-  } else if (t.includes('kisspeptin') || t.includes('pt-141') || t.includes('triptorelin')) {
-    suggestions.push('هل يثبّط الإنتاج الطبيعي على المدى الطويل؟');
-    suggestions.push('متى أشيك التستوستيرون بالتحاليل؟');
-    suggestions.push('وش البديل الطبيعي لو ما بغيت حقن؟');
-  }
-
-  if (suggestions.length < 3) {
-    if (t.includes('سيرنج') || t.includes('وحد')) suggestions.push('وش نوع السرنجات اللي أشتريها بالضبط؟');
-    if (t.includes('تحاليل') || t.includes('تحليل')) suggestions.push('وين أسوي التحاليل بأرخص سعر؟');
-    suggestions.push('وش لو حسّيت بأعراض جانبية — أوقف ولا أنقّص الجرعة؟');
-    suggestions.push('صمّم لي جدول أسبوعي كامل للبروتوكول');
-  }
-
-  return suggestions.slice(0, 3);
+  return actions.slice(0, 3);
 }
 
 export default function Coach() {
@@ -419,7 +407,8 @@ export default function Coach() {
 
   const lastAI = [...messages].reverse().find(m => m.role === 'assistant');
   const peptideActions = lastAI ? extractPeptideActions(lastAI.content) : [];
-  const followUps = lastAI ? getFollowUps(lastAI.content) : [];
+  const aiMsgCount = messages.filter(m => m.role === 'assistant').length;
+  const followUps = lastAI ? getFollowUps(lastAI.content, aiMsgCount <= 1) : [];
 
   return (
     <div className="min-h-screen">
@@ -446,42 +435,44 @@ export default function Coach() {
         <div className="rounded-2xl border border-stone-200 bg-white overflow-hidden shadow-sm">
           <div ref={scrollRef} className="max-h-[560px] min-h-[360px] overflow-y-auto p-5 space-y-4 bg-stone-50/50">
 
-            {/* ═══ INTAKE FORM ═══ */}
+            {/* ═══ INTAKE AS CONVERSATION ═══ */}
             {intakeStep !== 'done' && (
               <div className="space-y-4">
-                <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-4">
-                  {intakeStep === 'details' && intake.goal ? (
-                    <>
-                      <p className="text-sm font-bold text-emerald-900">جاهز! استوردنا إجاباتك من الاختبار.</p>
-                      <p className="mt-1 text-xs text-emerald-700">أضف معلومات إضافية (اختياري) ثم اضغط "صمّم بروتوكولي"</p>
-                    </>
-                  ) : (
-                    <>
-                      <p className="text-sm font-bold text-emerald-900">أجب على 3 أسئلة سريعة وأصمّم لك بروتوكول مخصّص فورًا.</p>
-                      <p className="mt-1 text-xs text-emerald-700">بدون تشخيص مطوّل — نتيجة مباشرة.</p>
-                    </>
-                  )}
-                </div>
-
-                {/* Step 1: Goal */}
-                <div>
-                  <p className="mb-2 text-sm font-bold text-stone-900">1. ما هدفك الأساسي؟</p>
-                  <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
-                    {GOALS.map(g => (
-                      <button key={g.id} onClick={() => { setIntake(p => ({ ...p, goal: g.id, goalLabel: g.label })); if (intakeStep === 'goal') setIntakeStep('experience'); }}
-                        className={cn('flex flex-col items-center gap-1.5 rounded-xl border p-3 text-center transition-all', intake.goal === g.id ? 'border-emerald-400 bg-emerald-50 ring-2 ring-emerald-200' : 'border-stone-200 bg-white hover:border-emerald-300')}>
-                        <g.Icon className={cn('h-5 w-5', intake.goal === g.id ? 'text-emerald-600' : 'text-stone-400')} />
-                        <span className="text-xs font-bold text-stone-800">{g.label}</span>
-                      </button>
-                    ))}
+                {/* Coach greeting */}
+                <div className="flex justify-end">
+                  <div className="max-w-[88%] rounded-2xl rounded-bl-md border border-stone-200 bg-white px-5 py-3">
+                    <p className="text-sm leading-relaxed text-stone-800">
+                      <strong>أهلًا!</strong> أنا مستشارك المتخصص في الببتيدات البحثية. عندي خبرة 10 سنوات أساعد ناس يحققون نتائج حقيقية.
+                    </p>
+                    <p className="mt-2 text-sm text-stone-800">خلنا نبدأ — <strong>وش هدفك الأساسي؟</strong></p>
                   </div>
                 </div>
 
-                {/* Step 2: Experience */}
+                {/* Step 1: Goal */}
+                <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 max-w-[88%]">
+                  {GOALS.map(g => (
+                    <button key={g.id} onClick={() => { setIntake(p => ({ ...p, goal: g.id, goalLabel: g.label })); if (intakeStep === 'goal') setIntakeStep('experience'); }}
+                      className={cn('flex flex-col items-center gap-1.5 rounded-xl border p-3 text-center transition-all', intake.goal === g.id ? 'border-emerald-400 bg-emerald-50 ring-2 ring-emerald-200' : 'border-stone-200 bg-white hover:border-emerald-300')}>
+                      <g.Icon className={cn('h-5 w-5', intake.goal === g.id ? 'text-emerald-600' : 'text-stone-400')} />
+                      <span className="text-xs font-bold text-stone-800">{g.label}</span>
+                    </button>
+                  ))}
+                </div>
+
+                {/* User's goal answer + Coach's next question */}
                 {(intakeStep === 'experience' || intakeStep === 'injection' || intakeStep === 'details') && (
-                  <div className="animate-fade-up">
-                    <p className="mb-2 text-sm font-bold text-stone-900">2. ما مستوى خبرتك مع الببتيدات؟</p>
-                    <div className="grid gap-2">
+                  <>
+                    <div className="flex justify-start">
+                      <div className="gold-gradient rounded-2xl rounded-br-md px-5 py-2.5">
+                        <p className="text-sm font-bold text-white">{intake.goalLabel}</p>
+                      </div>
+                    </div>
+                    <div className="flex justify-end animate-fade-up">
+                      <div className="max-w-[88%] rounded-2xl rounded-bl-md border border-stone-200 bg-white px-5 py-3">
+                        <p className="text-sm text-stone-800">تمام، <strong>{intake.goalLabel}</strong>. عندي بروتوكولات ممتازة لهذا الهدف. <strong>ما مستوى خبرتك مع الببتيدات؟</strong></p>
+                      </div>
+                    </div>
+                    <div className="grid gap-2 max-w-[88%]">
                       {EXPERIENCE_OPTIONS.map(o => (
                         <button key={o.id} onClick={() => { setIntake(p => ({ ...p, experience: o.id })); if (intakeStep === 'experience') setIntakeStep('injection'); }}
                           className={cn('rounded-xl border px-4 py-3 text-right transition-all', intake.experience === o.id ? 'border-emerald-400 bg-emerald-50 ring-2 ring-emerald-200' : 'border-stone-200 bg-white hover:border-emerald-300')}>
@@ -490,14 +481,26 @@ export default function Coach() {
                         </button>
                       ))}
                     </div>
-                  </div>
+                  </>
                 )}
 
-                {/* Step 3: Injection */}
+                {/* User's experience answer + Coach's injection question */}
                 {(intakeStep === 'injection' || intakeStep === 'details') && (
-                  <div className="animate-fade-up">
-                    <p className="mb-2 text-sm font-bold text-stone-900">3. هل تتقبّل الحقن؟</p>
-                    <div className="grid gap-2">
+                  <>
+                    <div className="flex justify-start">
+                      <div className="gold-gradient rounded-2xl rounded-br-md px-5 py-2.5">
+                        <p className="text-sm font-bold text-white">{EXPERIENCE_OPTIONS.find(o => o.id === intake.experience)?.label}</p>
+                      </div>
+                    </div>
+                    <div className="flex justify-end animate-fade-up">
+                      <div className="max-w-[88%] rounded-2xl rounded-bl-md border border-stone-200 bg-white px-5 py-3">
+                        <p className="text-sm text-stone-800">
+                          {intake.experience === 'beginner' ? 'ممتاز، رح أختار لك شي آمن وسهل للبداية.' : intake.experience === 'advanced' ? 'عندك خبرة — رح أعطيك بروتوكول متقدم.' : 'جيد، عندك أساس نبني عليه.'}
+                          {' '}<strong>هل تتقبّل الحقن؟</strong>
+                        </p>
+                      </div>
+                    </div>
+                    <div className="grid gap-2 max-w-[88%]">
                       {INJECTION_OPTIONS.map(o => (
                         <button key={o.id} onClick={() => { setIntake(p => ({ ...p, injection: o.id })); if (intakeStep === 'injection') setIntakeStep('details'); }}
                           className={cn('rounded-xl border px-4 py-3 text-right transition-all', intake.injection === o.id ? 'border-emerald-400 bg-emerald-50 ring-2 ring-emerald-200' : 'border-stone-200 bg-white hover:border-emerald-300')}>
@@ -506,30 +509,41 @@ export default function Coach() {
                         </button>
                       ))}
                     </div>
-                  </div>
+                  </>
                 )}
 
-                {/* Step 4: Optional details + Submit */}
+                {/* User's injection answer + Optional details + Submit */}
                 {intakeStep === 'details' && (
-                  <div className="animate-fade-up space-y-3">
-                    <p className="text-sm font-bold text-stone-900">معلومات إضافية <span className="font-normal text-stone-400">(اختياري)</span></p>
-                    <div className="grid gap-3 sm:grid-cols-2">
-                      <div>
-                        <label className="mb-1 block text-xs font-medium text-stone-600">العمر تقريبًا</label>
-                        <input type="text" value={intake.age} onChange={e => setIntake(p => ({ ...p, age: e.target.value }))} placeholder="مثال: 32" className="w-full rounded-lg border border-stone-200 bg-white px-3 py-2.5 text-sm text-stone-900 placeholder:text-stone-400 focus:border-emerald-300 focus:outline-none" />
-                      </div>
-                      <div>
-                        <label className="mb-1 block text-xs font-medium text-stone-600">أدوية أو مكملات حالية</label>
-                        <input type="text" value={intake.medications} onChange={e => setIntake(p => ({ ...p, medications: e.target.value }))} placeholder="مثال: فيتامين D، كرياتين" className="w-full rounded-lg border border-stone-200 bg-white px-3 py-2.5 text-sm text-stone-900 placeholder:text-stone-400 focus:border-emerald-300 focus:outline-none" />
+                  <>
+                    <div className="flex justify-start">
+                      <div className="gold-gradient rounded-2xl rounded-br-md px-5 py-2.5">
+                        <p className="text-sm font-bold text-white">{INJECTION_OPTIONS.find(o => o.id === intake.injection)?.label}</p>
                       </div>
                     </div>
-                    <button onClick={submitIntake}
-                      className="w-full flex items-center justify-center gap-2 rounded-xl bg-emerald-600 px-6 py-3.5 text-sm font-bold text-white transition-all hover:bg-emerald-700 active:scale-[0.98]">
-                      <Bot className="h-4 w-4" />
-                      صمّم بروتوكولي المخصّص
-                      <ArrowLeft className="h-4 w-4" />
-                    </button>
-                  </div>
+                    <div className="flex justify-end animate-fade-up">
+                      <div className="max-w-[88%] rounded-2xl rounded-bl-md border border-stone-200 bg-white px-5 py-3">
+                        <p className="text-sm text-stone-800">عندي صورة واضحة الحين. آخر شي — لو تبي تعطيني عمرك أو أي أدوية تأخذها، رح يكون البروتوكول أدق. <strong>أو اضغط "صمّم بروتوكولي" مباشرة.</strong></p>
+                      </div>
+                    </div>
+                    <div className="animate-fade-up space-y-3 max-w-[88%]">
+                      <div className="grid gap-3 sm:grid-cols-2">
+                        <div>
+                          <label className="mb-1 block text-xs font-medium text-stone-600">العمر تقريبًا</label>
+                          <input type="text" value={intake.age} onChange={e => setIntake(p => ({ ...p, age: e.target.value }))} placeholder="مثال: 32" className="w-full rounded-lg border border-stone-200 bg-white px-3 py-2.5 text-sm text-stone-900 placeholder:text-stone-400 focus:border-emerald-300 focus:outline-none" />
+                        </div>
+                        <div>
+                          <label className="mb-1 block text-xs font-medium text-stone-600">أدوية أو مكملات حالية</label>
+                          <input type="text" value={intake.medications} onChange={e => setIntake(p => ({ ...p, medications: e.target.value }))} placeholder="مثال: فيتامين D، كرياتين" className="w-full rounded-lg border border-stone-200 bg-white px-3 py-2.5 text-sm text-stone-900 placeholder:text-stone-400 focus:border-emerald-300 focus:outline-none" />
+                        </div>
+                      </div>
+                      <button onClick={submitIntake}
+                        className="w-full flex items-center justify-center gap-2 rounded-xl bg-emerald-600 px-6 py-3.5 text-sm font-bold text-white transition-all hover:bg-emerald-700 active:scale-[0.98]">
+                        <Bot className="h-4 w-4" />
+                        صمّم بروتوكولي المخصّص
+                        <ArrowLeft className="h-4 w-4" />
+                      </button>
+                    </div>
+                  </>
                 )}
               </div>
             )}
@@ -541,7 +555,7 @@ export default function Coach() {
                   <div className={cn('max-w-[88%] rounded-2xl px-5 py-3', msg.role === 'user' ? 'gold-gradient rounded-br-md' : 'rounded-bl-md border border-stone-200 bg-white')}>
                     {msg.role === 'user' ? (
                       <p className="text-sm leading-relaxed whitespace-pre-wrap text-white">{
-                        msg.content.startsWith('## ملف المستخدم')
+                        msg.content.startsWith('USER PROFILE')
                           ? `هدفي: ${intake.goalLabel || 'استشارة عامة'}`
                           : msg.content
                       }</p>
