@@ -34,7 +34,6 @@ const Account = lazy(() => import('@/pages/Account'));
 const Dashboard = lazy(() => import('@/pages/Dashboard'));
 const Tracker = lazy(() => import('@/pages/Tracker'));
 const Glossary = lazy(() => import('@/pages/Glossary'));
-const Referral = lazy(() => import('@/pages/Referral'));
 const InteractionChecker = lazy(() => import('@/pages/InteractionChecker'));
 
 function PageLoader() {
@@ -144,7 +143,6 @@ export default function App() {
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/tracker" element={<Tracker />} />
               <Route path="/glossary" element={<Glossary />} />
-              <Route path="/referral" element={<Referral />} />
               <Route path="/interactions" element={<InteractionChecker />} />
               <Route path="*" element={<NotFound />} />
             </Routes>

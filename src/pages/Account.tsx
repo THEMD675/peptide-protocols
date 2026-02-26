@@ -53,16 +53,22 @@ export default function Account() {
   const handleCancelSubscription = async () => {
     setIsProcessing(true);
     try {
-      const { error } = await supabase
-        .from('subscriptions')
-        .update({ status: 'cancelled' })
-        .eq('user_id', user.id);
-      if (error) throw error;
+      const { data: { session } } = await supabase.auth.getSession();
+      const res = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/cancel-subscription`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${session?.access_token ?? ''}`,
+          apikey: import.meta.env.VITE_SUPABASE_ANON_KEY,
+        },
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error);
       setShowCancelDialog(false);
-      import('sonner').then(m => m.toast.success('تم طلب إلغاء الاشتراك. ستحتفظ بالوصول حتى نهاية الفترة الحالية. لإيقاف الدفعات المستقبلية، تواصل معنا عبر contact@pptides.com'));
-      setTimeout(() => window.location.reload(), 2500);
+      import('sonner').then(m => m.toast.success('تم إلغاء اشتراكك. ستحتفظ بالوصول حتى نهاية فترتك الحالية.'));
+      setTimeout(() => window.location.reload(), 2000);
     } catch {
-      import('sonner').then(m => m.toast.error('حدث خطأ. تواصل معنا: contact@pptides.com'));
+      import('sonner').then(m => m.toast.error('حدث خطأ أثناء الإلغاء. تواصل معنا: contact@pptides.com'));
     } finally {
       setIsProcessing(false);
     }
@@ -71,13 +77,17 @@ export default function Account() {
   const handleDeleteAccount = async () => {
     setIsProcessing(true);
     try {
-      await supabase.from('subscriptions').delete().eq('user_id', user.id);
-      await supabase.from('injection_logs').delete().eq('user_id', user.id);
-      await supabase.from('community_logs').delete().eq('user_id', user.id);
-      await supabase.from('reviews').delete().eq('user_id', user.id);
-      await supabase.from('referrals').delete().eq('user_id', user.id);
+      const { data: { session } } = await supabase.auth.getSession();
+      const res = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/delete-account`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${session?.access_token ?? ''}`,
+          apikey: import.meta.env.VITE_SUPABASE_ANON_KEY,
+        },
+      });
+      if (!res.ok) throw new Error();
       await logout();
-      navigate('/');
     } catch {
       import('sonner').then(m => m.toast.error('حدث خطأ أثناء حذف الحساب. تواصل معنا: contact@pptides.com'));
     } finally {
@@ -191,10 +201,7 @@ export default function Account() {
             </div>
             <h3 className="text-lg font-bold text-stone-900">إلغاء الاشتراك</h3>
             <p className="mt-2 text-sm text-stone-600">
-              هل أنت متأكد من إلغاء اشتراكك؟ ستحتفظ بالوصول حتى نهاية فترتك الحالية.
-            </p>
-            <p className="mt-2 text-sm text-stone-500">
-              لإيقاف الدفعات المستقبلية بشكل نهائي، تواصل معنا عبر <a href="mailto:contact@pptides.com" className="text-emerald-600 font-semibold">contact@pptides.com</a>
+              هل أنت متأكد من إلغاء اشتراكك؟ ستحتفظ بالوصول حتى نهاية فترتك الحالية، ولن يتم تجديد الاشتراك بعدها.
             </p>
             <div className="mt-6 flex gap-3">
               <button
@@ -224,9 +231,8 @@ export default function Account() {
             </div>
             <h3 className="text-lg font-bold text-stone-900">حذف الحساب</h3>
             <p className="mt-2 text-sm text-stone-600">
-              سيتم تسجيل خروجك. لحذف بياناتك نهائيًا، تواصل معنا عبر البريد:
+              سيتم حذف حسابك وجميع بياناتك نهائيًا. إذا كان لديك اشتراك نشط، سيتم إلغاؤه فورًا. هذا الإجراء لا يمكن التراجع عنه.
             </p>
-            <p className="mt-2 text-sm font-bold text-emerald-600" dir="ltr">contact@pptides.com</p>
             <div className="mt-6 flex gap-3">
               <button
                 onClick={handleDeleteAccount}

@@ -1,7 +1,6 @@
 import { useState, useMemo, useCallback, useRef, useEffect } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { Link } from 'react-router-dom';
-import { AnimatePresence } from 'framer-motion';
 import {
   Search,
   Lock,
@@ -359,7 +358,7 @@ export default function Library() {
         </div>
 
         {/* Evidence Filter Dropdown */}
-        <AnimatePresence>
+        <>
           {showFilters && (
             <div
               className="mb-6 overflow-hidden"
@@ -385,7 +384,7 @@ export default function Library() {
               </div>
             </div>
           )}
-        </AnimatePresence>
+        </>
 
         {/* Category Tabs */}
         <div
@@ -437,7 +436,7 @@ export default function Library() {
         </div>
 
         {/* Peptide Grid */}
-        <AnimatePresence mode="popLayout">
+        <>
           {filtered.length > 0 ? (
             <div
               className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3"
@@ -493,7 +492,7 @@ export default function Library() {
               </Link>
             </div>
           )}
-        </AnimatePresence>
+        </>
       </div>
 
       {/* Upsell Modal */}
