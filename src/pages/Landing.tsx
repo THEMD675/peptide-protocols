@@ -96,7 +96,7 @@ const FALLBACK_TESTIMONIALS = [
 export default function Landing() {
   const { user, subscription, isLoading } = useAuth();
   const [userCount, setUserCount] = useState(() => {
-    try { const c = sessionStorage.getItem('pptides_user_count'); return c ? Number(c) : 150; } catch { return 150; }
+    try { const c = sessionStorage.getItem('pptides_user_count'); return c ? Number(c) : 0; } catch { return 0; }
   });
   const [testimonials, setTestimonials] = useState(FALLBACK_TESTIMONIALS);
   const shouldRedirect = !isLoading && user && subscription.isProOrTrial;
