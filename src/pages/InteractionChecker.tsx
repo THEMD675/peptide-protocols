@@ -21,14 +21,24 @@ const DANGEROUS_COMBOS: Record<string, InteractionResult> = {
 };
 
 const SYNERGISTIC_COMBOS: Record<string, InteractionResult> = {
-  'bpc-157+tb-500': { safe: true, warning: false, message: 'تجميعة ممتازة — أفضل مزيج تعافي', details: 'BPC-157 يُصلح الأوتار والأربطة موضعيًا، TB-500 يُرمّم الأنسجة جهازيًا. يكمّلان بعض. الجرعة: BPC-157 250mcg 2x/يوم + TB-500 750mcg 2x/أسبوع.' },
-  'cjc-1295+ipamorelin': { safe: true, warning: false, message: 'أفضل تجميعة هرمون نمو للمبتدئين', details: 'CJC-1295 يحفّز إفراز GH بشكل مستدام، Ipamorelin يضيف نبضة نظيفة. معًا يرفعان GH بدون رفع الكورتيزول. الجرعة: CJC 100mcg + Ipa 200mcg قبل النوم.' },
-  'semax+selank': { safe: true, warning: false, message: 'تجميعة دماغ ممتازة', details: 'Semax يرفع BDNF للتركيز والذاكرة، Selank يقلل القلق عبر GABA. يكمّلان بعض بدون تعارض. بخاخ أنف صباحًا.' },
-  'bpc-157+cjc-1295': { safe: true, warning: false, message: 'تعافي + هرمون نمو — تجميعة فعّالة', details: 'BPC-157 للتعافي الموضعي + CJC-1295 لتحفيز هرمون النمو يعزّزان الشفاء بآليات مختلفة.' },
-  'bpc-157+ipamorelin': { safe: true, warning: false, message: 'تعافي + هرمون نمو — تجميعة فعّالة', details: 'BPC-157 للتعافي + Ipamorelin لهرمون النمو. تجميعة آمنة وفعّالة.' },
-  'semaglutide+tesamorelin': { safe: true, warning: false, message: 'فقدان دهون مزدوج — فعّال جدًا', details: 'Semaglutide يقلل الشهية عبر GLP-1، Tesamorelin يحرق دهون البطن عبر هرمون النمو. آليات مختلفة = نتائج أفضل.' },
-  'epithalon+ghk-cu': { safe: true, warning: false, message: 'بروتوكول إطالة عمر أساسي', details: 'Epithalon يُطيل التيلوميرات، GHK-Cu يُجدد البشرة والأنسجة. يكمّلان بعض بآليات مختلفة تمامًا.' },
-  'epithalon+thymosin-alpha-1': { safe: true, warning: false, message: 'طول عمر + مناعة — تجميعة ممتازة', details: 'Epithalon للتيلوميرات + Thymosin Alpha-1 للمناعة. بروتوكول خافينسون الكلاسيكي لمكافحة الشيخوخة.' },
+  'bpc-157+tb-500': { safe: true, warning: false, message: 'المزيج الذهبي للتعافي', details: 'BPC-157 يُصلح الأوتار والأربطة موضعيًا، TB-500 يُرمّم الأنسجة جهازيًا. أشهر تجميعة في مجتمع البايوهاكينغ. الجرعة: BPC-157 250mcg 2x/يوم + TB-500 750mcg 2x/أسبوع.' },
+  'cjc-1295+ipamorelin': { safe: true, warning: false, message: 'أفضل تجميعة هرمون نمو', details: 'CJC-1295 يحفّز إفراز GH بشكل مستدام، Ipamorelin يضيف نبضة نظيفة بدون رفع الكورتيزول. الجرعة: CJC 100mcg + Ipa 200mcg قبل النوم فارغ المعدة.' },
+  'semax+selank': { safe: true, warning: false, message: 'تجميعة دماغ مثالية', details: 'Semax يرفع BDNF 300-800% للتركيز والذاكرة، Selank يقلل القلق عبر GABA. توازن مثالي بين الحدّة والهدوء. بخاخ أنف صباحًا.' },
+  'bpc-157+cjc-1295': { safe: true, warning: false, message: 'تعافي + هرمون نمو', details: 'BPC-157 يُسرّع شفاء الأنسجة، CJC-1295 يحفّز GH اللي يعزّز التعافي. آليات مكمّلة.' },
+  'bpc-157+ipamorelin': { safe: true, warning: false, message: 'تعافي + هرمون نمو نظيف', details: 'BPC-157 للتعافي الموضعي + Ipamorelin لرفع GH بدون أعراض جانبية. تجميعة شائعة وآمنة.' },
+  'bpc-157+ghk-cu': { safe: true, warning: false, message: 'تعافي شامل — أنسجة + بشرة', details: 'BPC-157 يُصلح الأوتار والأمعاء، GHK-Cu يُجدد الكولاجين والبشرة. آليات مختلفة تمامًا.' },
+  'tb-500+cjc-1295': { safe: true, warning: false, message: 'تعافي عضلي + هرمون نمو', details: 'TB-500 للتعافي الجهازي + CJC-1295 لهرمون النمو. ممتاز للرياضيين.' },
+  'tb-500+ipamorelin': { safe: true, warning: false, message: 'تعافي + GH نظيف', details: 'TB-500 يُرمّم العضلات + Ipamorelin يرفع GH. تجميعة آمنة للتعافي المتقدم.' },
+  'semaglutide+tesamorelin': { safe: true, warning: false, message: 'فقدان دهون مزدوج — قوي جدًا', details: 'Semaglutide يقلل الشهية عبر GLP-1، Tesamorelin يحرق دهون البطن عبر GHRH. آليات مختلفة = نتائج مضاعفة.' },
+  'semaglutide+aod-9604': { safe: true, warning: false, message: 'GLP-1 + حرق دهون مركّز', details: 'Semaglutide يقلل الشهية، AOD-9604 يستهدف الدهون مباشرة. تجميعة فقدان وزن فعّالة.' },
+  'tesamorelin+aod-9604': { safe: true, warning: true, message: 'حرق دهون مكثّف — تداخل محتمل', details: 'كلاهما يستهدف الدهون عبر آليات GH. قد يكون هناك تداخل. الأفضل استخدام واحد فقط.' },
+  'tesamorelin+ipamorelin': { safe: true, warning: true, message: 'كلاهما يحفّز GH — احترس', details: 'Tesamorelin (GHRH) + Ipamorelin (GHRP) = رفع GH قوي. قد يكون مفرط للمبتدئين. راقب IGF-1.' },
+  'epithalon+ghk-cu': { safe: true, warning: false, message: 'بروتوكول إطالة عمر أساسي', details: 'Epithalon يُطيل التيلوميرات، GHK-Cu يُجدد البشرة والأنسجة. تجميعة خافينسون.' },
+  'epithalon+thymosin-alpha-1': { safe: true, warning: false, message: 'طول عمر + مناعة', details: 'Epithalon للتيلوميرات + Thymosin Alpha-1 يعيد بناء الغدة الزعترية. بروتوكول مكافحة الشيخوخة الكلاسيكي.' },
+  'kisspeptin-10+pt-141': { safe: true, warning: true, message: 'هرمونات + أداء جنسي — بحذر', details: 'Kisspeptin يرفع التستوستيرون طبيعيًا، PT-141 يحسّن الأداء الجنسي. آليات مختلفة لكن كلاهما يؤثر هرمونيًا.' },
+  'bpc-157+larazotide': { safe: true, warning: false, message: 'إصلاح أمعاء شامل', details: 'BPC-157 يُصلح بطانة الأمعاء، Larazotide يغلق الفجوات بين الخلايا (leaky gut). تجميعة مثالية لمشاكل الأمعاء.' },
+  'bpc-157+kpv': { safe: true, warning: false, message: 'إصلاح أمعاء + مضاد التهاب', details: 'BPC-157 للشفاء + KPV للالتهاب المعوي. يكمّلان بعض.' },
+  'semax+dsip': { safe: true, warning: true, message: 'تركيز نهاري + نوم ليلي — توقيت مهم', details: 'Semax صباحًا للتركيز + DSIP مساءً للنوم. لا تأخذهم بنفس الوقت — Semax منبّه وDSIP منوّم.' },
 };
 
 function checkInteraction(id1: string, id2: string): InteractionResult {
@@ -47,16 +57,28 @@ function checkInteraction(id1: string, id2: string): InteractionResult {
   const p2 = peptides.find(p => p.id === id2);
   if (!p1 || !p2) return { safe: true, warning: true, message: 'غير متوفر', details: '' };
 
+  const ghPeptides = ['cjc-1295', 'ipamorelin', 'tesamorelin', 'sermorelin', 'mk-677', 'hexarelin'];
+  const bothGH = ghPeptides.includes(id1) && ghPeptides.includes(id2);
+  if (bothGH) {
+    return { safe: true, warning: true, message: 'كلاهما يحفّز هرمون النمو — راقب IGF-1', details: `${p1.nameAr} و ${p2.nameAr} كلاهما يحفّز إفراز هرمون النمو. الجمع قد يرفع IGF-1 بشكل مفرط. اعمل تحليل IGF-1 بعد أسبوعين. لا تجمع أكثر من 2 محفّزات GH.` };
+  }
+
+  const fatLossPeptides = ['semaglutide', 'tirzepatide', 'retatrutide', 'tesamorelin', 'aod-9604', '5-amino-1mq', 'mots-c'];
+  const bothFatLoss = fatLossPeptides.includes(id1) && fatLossPeptides.includes(id2);
+  if (bothFatLoss) {
+    return { safe: true, warning: true, message: 'كلاهما لفقدان الدهون — تحقق من الحاجة', details: `${p1.nameAr} و ${p2.nameAr} كلاهما يستهدف فقدان الدهون. تأكد أن آلياتهم مختلفة قبل الجمع. إذا كانا بنفس الآلية (مثلًا ناهضان GLP-1)، لا تجمع.` };
+  }
+
   if (p1.category === p2.category) {
     const catLabels: Record<string, string> = {
       metabolic: 'الأيض', recovery: 'التعافي', brain: 'الدماغ',
       hormonal: 'الهرمونات', longevity: 'إطالة العمر', 'skin-gut': 'البشرة والأمعاء',
     };
     const catName = catLabels[p1.category] ?? p1.category;
-    return { safe: true, warning: true, message: 'نفس الفئة — تحقق من التداخل', details: `كلا الببتيدين من فئة ${catName}. قد يكون هناك تداخل في الآلية. استشر مختص قبل الجمع.` };
+    return { safe: true, warning: true, message: `نفس فئة ${catName} — تحقق من التداخل`, details: `${p1.nameAr} و ${p2.nameAr} من نفس الفئة (${catName}). إذا كانت آلية عملهم متشابهة، قد يكون الجمع غير ضروري أو يزيد الأعراض الجانبية. تحقق من أن كل واحد يضيف قيمة مختلفة.` };
   }
 
-  return { safe: true, warning: false, message: 'لا يوجد تعارض معروف', details: 'بناءً على البيانات المتاحة، لا يوجد تعارض معروف بين هذين الببتيدين. لكن استشر مختص دائمًا قبل تجميع أي بروتوكول.' };
+  return { safe: true, warning: false, message: `${p1.nameAr} + ${p2.nameAr} — آمن على الأرجح`, details: `الببتيدان من فئات مختلفة (${p1.nameAr}: ${p1.category === 'metabolic' ? 'أيض' : p1.category === 'recovery' ? 'تعافي' : p1.category === 'brain' ? 'دماغ' : p1.category === 'hormonal' ? 'هرمونات' : p1.category === 'longevity' ? 'طول عمر' : 'بشرة/أمعاء'} + ${p2.nameAr}: ${p2.category === 'metabolic' ? 'أيض' : p2.category === 'recovery' ? 'تعافي' : p2.category === 'brain' ? 'دماغ' : p2.category === 'hormonal' ? 'هرمونات' : p2.category === 'longevity' ? 'طول عمر' : 'بشرة/أمعاء'}). آليات مختلفة عادةً لا تتعارض. لكن استشر مختص قبل أي تجميعة جديدة.` };
 }
 
 export default function InteractionChecker() {
