@@ -1,12 +1,13 @@
-import { useState } from 'react';
+import { useState, type ElementType } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowLeft, ArrowRight, CheckCircle, FlaskConical } from 'lucide-react';
+import { ArrowLeft, ArrowRight, CheckCircle, FlaskConical, TrendingDown, Heart, Brain, Zap, Clock, Shield, Syringe, Pill, SprayCan } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { peptides as allPeptides } from '@/data/peptides';
 
 interface QuizOption {
   id: string;
   label: string;
+  icon?: ElementType;
 }
 
 interface QuizStep {
@@ -18,12 +19,12 @@ const STEPS: QuizStep[] = [
   {
     question: 'ما هدفك الأساسي؟',
     options: [
-      { id: 'fat-loss', label: 'فقدان دهون وإنقاص وزن' },
-      { id: 'recovery', label: 'تعافي من إصابة أو تحسين أداء رياضي' },
-      { id: 'brain', label: 'تركيز وذاكرة وأداء ذهني' },
-      { id: 'hormones', label: 'تحسين هرمونات (تستوستيرون / نمو)' },
-      { id: 'longevity', label: 'إطالة عمر ومكافحة شيخوخة' },
-      { id: 'gut-skin', label: 'بشرة أو أمعاء أو نوم' },
+      { id: 'fat-loss', label: 'فقدان دهون وإنقاص وزن', icon: TrendingDown },
+      { id: 'recovery', label: 'تعافي من إصابة أو أداء رياضي', icon: Heart },
+      { id: 'brain', label: 'تركيز وذاكرة وأداء ذهني', icon: Brain },
+      { id: 'hormones', label: 'تحسين هرمونات', icon: Zap },
+      { id: 'longevity', label: 'إطالة عمر ومكافحة شيخوخة', icon: Clock },
+      { id: 'gut-skin', label: 'بشرة أو أمعاء أو نوم', icon: Shield },
     ],
   },
   {
@@ -37,9 +38,9 @@ const STEPS: QuizStep[] = [
   {
     question: 'هل تتقبّل الحقن؟',
     options: [
-      { id: 'yes', label: 'نعم، عادي عندي' },
-      { id: 'prefer-no', label: 'أفضّل بدون حقن إن أمكن' },
-      { id: 'no', label: 'لا — فموي أو بخاخ أنف فقط' },
+      { id: 'yes', label: 'نعم، عادي عندي', icon: Syringe },
+      { id: 'prefer-no', label: 'أفضّل بدون حقن إن أمكن', icon: SprayCan },
+      { id: 'no', label: 'لا — فموي أو بخاخ أنف فقط', icon: Pill },
     ],
   },
 ];
@@ -203,21 +204,26 @@ export default function PeptideQuiz() {
 
       <h3 className="mb-5 text-lg font-bold text-stone-900">{currentStep.question}</h3>
 
-      <div className="grid gap-2">
-        {currentStep.options.map((opt) => (
-          <button
-            key={opt.id}
-            onClick={() => handleSelect(opt.id)}
-            className={cn(
-              'w-full rounded-xl border px-5 py-3.5 text-sm font-medium text-right transition-all',
-              answers[step] === opt.id
-                ? 'border-emerald-400 bg-emerald-50 text-emerald-800'
-                : 'border-stone-200 bg-white text-stone-800 hover:border-emerald-300 hover:bg-stone-50'
-            )}
-          >
-            {opt.label}
-          </button>
-        ))}
+      <div className={cn('grid gap-2', step === 0 ? 'grid-cols-2 sm:grid-cols-3' : '')}>
+        {currentStep.options.map((opt) => {
+          const Icon = opt.icon;
+          return (
+            <button
+              key={opt.id}
+              onClick={() => handleSelect(opt.id)}
+              className={cn(
+                'w-full rounded-xl border text-sm font-medium transition-all',
+                Icon ? 'flex flex-col items-center gap-1.5 px-3 py-3 text-center' : 'px-5 py-3.5 text-right',
+                answers[step] === opt.id
+                  ? 'border-emerald-400 bg-emerald-50 text-emerald-800 ring-2 ring-emerald-200'
+                  : 'border-stone-200 bg-white text-stone-800 hover:border-emerald-300 hover:bg-stone-50'
+              )}
+            >
+              {Icon && <Icon className={cn('h-5 w-5', answers[step] === opt.id ? 'text-emerald-600' : 'text-stone-400')} />}
+              <span className="text-xs font-bold">{opt.label}</span>
+            </button>
+          );
+        })}
       </div>
     </div>
   );
