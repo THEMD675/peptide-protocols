@@ -1,5 +1,5 @@
 import { useMemo, useState, useEffect } from 'react';
-import { useParams, Link, Navigate } from 'react-router-dom';
+import { useParams, Link, Navigate, useNavigate } from 'react-router-dom';
 import { ArrowRight, Shield, AlertTriangle, CheckCircle, Lock, Calculator, Bot, FlaskConical, Printer, MessageSquare, Star, Syringe, Share2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { Helmet } from 'react-helmet-async';
@@ -37,11 +37,15 @@ interface ProtocolRow {
 export default function PeptideDetail() {
   const { id } = useParams<{ id: string }>();
   const { subscription, isLoading } = useAuth();
+  const navigate = useNavigate();
   const isPro = !isLoading && (subscription?.isProOrTrial ?? false);
 
   const peptide = useMemo(() => peptides.find((p) => p.id === id), [id]);
 
-  if (!peptide) return <Navigate to="/library" replace />;
+  if (!peptide) {
+    toast.error('الببتيد غير موجود');
+    return <Navigate to="/library" replace />;
+  }
 
   const isFreeContent = peptide.isFree;
   const hasAccess = isPro || isFreeContent;
@@ -87,15 +91,14 @@ export default function PeptideDetail() {
 
       <div className="mx-auto max-w-4xl px-4 py-8 md:px-6 md:py-12">
         {/* Back Button */}
-        <div
-        >
-          <Link
-            to="/library"
+        <div>
+          <button
+            onClick={() => window.history.length > 1 ? navigate(-1) : navigate('/library')}
             className="mb-6 inline-flex items-center gap-2 rounded-lg px-3 py-1.5 text-sm text-stone-800 transition-colors hover:bg-stone-100 hover:text-stone-800"
           >
             <ArrowRight className="h-4 w-4" />
-            العودة للمكتبة
-          </Link>
+            رجوع
+          </button>
         </div>
 
         {/* Warning Banner — subscribers only */}

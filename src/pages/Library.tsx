@@ -526,10 +526,10 @@ export default function Library() {
             >
               <FlaskConical className="mb-4 h-12 w-12 text-stone-400" />
               <p className="text-lg font-semibold text-stone-800">
-                لا توجد نتائج لـ &quot;{search}&quot;
+                {search.trim() ? `لا توجد نتائج لـ "${search}"` : 'لا توجد نتائج للفلاتر المحددة'}
               </p>
               <p className="mt-1 text-sm text-stone-600">
-                جرّب كلمات بحث مختلفة أو اسأل المدرب الذكي
+                {search.trim() ? 'جرّب كلمات بحث مختلفة أو اسأل المدرب الذكي' : 'جرّب تغيير التصنيف أو مستوى الدليل'}
               </p>
               <Link to="/coach" className="mt-4 inline-flex items-center gap-2 rounded-full bg-emerald-600 px-6 py-2.5 text-sm font-bold text-white transition-colors hover:bg-emerald-700">
                 <Bot className="h-4 w-4" />

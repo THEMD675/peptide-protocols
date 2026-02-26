@@ -325,6 +325,7 @@ export default function Header() {
                 <Link
                   key={to}
                   to={to}
+                  onClick={() => setMobileOpen(false)}
                   className={cn(
                     'rounded-lg px-4 py-3 text-sm font-medium transition-colors',
                     active
@@ -344,6 +345,7 @@ export default function Header() {
                 <Link
                   key={to}
                   to={to}
+                  onClick={() => setMobileOpen(false)}
                   className={cn(
                     'rounded-lg px-4 py-2.5 text-sm font-medium transition-colors',
                     active

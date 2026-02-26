@@ -106,12 +106,13 @@ export default function Tracker() {
   const fetchLogs = async () => {
     if (!user) return;
     setIsLoadingLogs(true);
-    const { data } = await supabase
+    const { data, error } = await supabase
       .from('injection_logs')
       .select('*')
       .eq('user_id', user.id)
       .order('injected_at', { ascending: false })
       .range(0, PAGE_SIZE - 1);
+    if (error) { toast.error('تعذّر تحميل السجلات. حاول تحديث الصفحة.'); }
     const rows = (data as InjectionLog[]) ?? [];
     setLogs(rows);
     setHasMore(rows.length >= PAGE_SIZE);
@@ -151,7 +152,9 @@ export default function Tracker() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!user || !peptideName.trim() || !dose) return;
+    if (!user) return;
+    if (!peptideName.trim()) { toast.error('اختر الببتيد أولاً'); return; }
+    if (!dose || parseFloat(dose) <= 0) { toast.error('أدخل جرعة صحيحة'); return; }
     setIsSubmitting(true);
     try {
       await supabase.from('injection_logs').insert({
