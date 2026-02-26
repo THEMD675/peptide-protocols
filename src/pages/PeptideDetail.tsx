@@ -364,36 +364,39 @@ export default function PeptideDetail() {
             </div>
           </div>
         ) : (
-          /* ── Locked peptide, non-subscriber: CTA only ── */
-          <div
-            className="overflow-hidden rounded-2xl border border-stone-300 bg-stone-50"
-          >
-            <div className="flex flex-col items-center justify-center gap-5 px-6 py-14 text-center">
-              <div
-                className="flex h-16 w-16 items-center justify-center rounded-full bg-emerald-500"
-              >
-                <Lock className="h-7 w-7 text-white" />
+          /* ── Locked peptide, non-subscriber: compelling CTA ── */
+          <div className="overflow-hidden rounded-2xl border border-stone-200 bg-stone-50">
+            <div className="flex flex-col items-center gap-6 px-6 py-10 text-center">
+              <div className="flex h-14 w-14 items-center justify-center rounded-full bg-emerald-500">
+                <Lock className="h-6 w-6 text-white" />
               </div>
               <div>
-                <p className="text-xl font-bold text-stone-900">
-                  البروتوكول الكامل متاح للمشتركين
-                </p>
-                <p className="mt-2 text-sm text-stone-800">
-                  الجرعات، التوقيت، الأعراض الجانبية، والتجميعات — كل شيء داخل.
-                </p>
+                <p className="text-xl font-bold text-stone-900">البروتوكول الكامل لـ {peptide.nameAr}</p>
+                <p className="mt-2 text-sm text-stone-600">اشترك لفتح كل التفاصيل:</p>
               </div>
-              <div className="flex flex-col gap-3 sm:flex-row">
+              <div className="grid grid-cols-2 gap-2 text-right w-full max-w-sm">
+                {['الجرعة الدقيقة بوحدات السيرنج', 'التوقيت المثالي للحقن', 'مدة الدورة والراحة', 'الأعراض الجانبية الحقيقية', 'أفضل التجميعات', 'التحاليل المطلوبة'].map(item => (
+                  <div key={item} className="flex items-center gap-2 rounded-lg bg-white px-3 py-2 border border-stone-200">
+                    <CheckCircle className="h-3.5 w-3.5 shrink-0 text-emerald-500" />
+                    <span className="text-xs text-stone-700">{item}</span>
+                  </div>
+                ))}
+              </div>
+              {peptide.costEstimate && (
+                <p className="text-xs text-stone-500">التكلفة التقريبية: <strong className="text-stone-800">{peptide.costEstimate}</strong></p>
+              )}
+              <div className="flex flex-col gap-3 w-full max-w-sm">
                 <Link
                   to="/pricing"
-                  className="rounded-full bg-emerald-600 px-8 py-3 text-sm font-bold text-white transition-all hover:bg-emerald-700"
+                  className="rounded-full bg-emerald-600 px-8 py-3.5 text-sm font-bold text-white transition-all hover:bg-emerald-700 text-center"
                 >
-                  اشترك الآن — {PRICING.essentials.label}/شهريًا
+                  افتح البروتوكول — {PRICING.essentials.label}/شهريًا
                 </Link>
                 <Link
-                  to="/coach"
-                  className="rounded-full border-2 border-emerald-300 px-8 py-3 text-sm font-bold text-emerald-700 transition-all hover:bg-emerald-50"
+                  to={`/coach?peptide=${encodeURIComponent(peptide.nameAr)}`}
+                  className="rounded-full border-2 border-emerald-300 px-8 py-3 text-sm font-bold text-emerald-700 transition-all hover:bg-emerald-50 text-center"
                 >
-                  اسأل المدرب الذكي
+                  اسأل المدرب الذكي عن {peptide.nameAr} مجانًا
                 </Link>
               </div>
             </div>
