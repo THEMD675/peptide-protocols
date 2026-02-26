@@ -104,6 +104,14 @@ export default function PeptideQuiz() {
       setStep(step + 1);
     } else {
       setShowResult(true);
+      try {
+        localStorage.setItem('pptides_quiz_answers', JSON.stringify({
+          goal: newAnswers[0],
+          experience: newAnswers[1],
+          injection: newAnswers[2],
+          ts: Date.now(),
+        }));
+      } catch {}
     }
   };
 
@@ -147,20 +155,18 @@ export default function PeptideQuiz() {
 
         <div className="flex flex-col gap-3 sm:flex-row">
           <Link
-            to={`/peptide/${rec.peptideId}`}
+            to="/coach"
             className="flex-1 flex items-center justify-center gap-2 rounded-xl bg-emerald-600 px-5 py-3 text-sm font-bold text-white transition-all hover:bg-emerald-700"
           >
-            {isFree ? 'شاهد البروتوكول الكامل' : 'شاهد البروتوكول — اشترك للكامل'}
+            صمّم بروتوكول مخصّص بالذكاء الاصطناعي
             <ArrowLeft className="h-4 w-4" />
           </Link>
-          {rec.altId && (
-            <Link
-              to={`/peptide/${rec.altId}`}
-              className="flex items-center justify-center gap-2 rounded-xl border border-stone-200 bg-white px-5 py-3 text-sm font-bold text-stone-700 transition-all hover:border-emerald-200"
-            >
-              البديل: {rec.altName}
-            </Link>
-          )}
+          <Link
+            to={`/peptide/${rec.peptideId}`}
+            className="flex items-center justify-center gap-2 rounded-xl border border-stone-200 bg-white px-5 py-3 text-sm font-bold text-stone-700 transition-all hover:border-emerald-200"
+          >
+            شاهد بروتوكول {rec.nameAr}
+          </Link>
         </div>
 
         <button onClick={handleReset} className="mt-4 w-full text-center text-xs text-emerald-600 hover:underline">

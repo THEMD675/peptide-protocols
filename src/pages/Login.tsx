@@ -75,7 +75,8 @@ export default function Login() {
       } else {
         await signup(email, password);
       }
-      navigate('/dashboard');
+      const hasQuiz = (() => { try { const q = localStorage.getItem('pptides_quiz_answers'); if (!q) return false; const d = JSON.parse(q); return Date.now() - (d.ts ?? 0) < 24 * 60 * 60 * 1000; } catch { return false; } })();
+      navigate(hasQuiz ? '/coach' : '/dashboard');
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'حدث خطأ غير متوقع';
       if (msg.includes('رابط التأكيد') || msg.includes('تحقق من بريدك')) {

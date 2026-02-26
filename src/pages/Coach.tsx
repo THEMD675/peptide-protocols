@@ -146,12 +146,43 @@ async function getSessionToken(): Promise<string> {
 
 function getFollowUps(text: string): string[] {
   const t = text.toLowerCase();
-  if (t.includes('semaglutide') || t.includes('tirzepatide')) return ['وش الأعراض الجانبية الحقيقية؟', 'احسب لي الجرعة بالسيرنج', 'وش لو ما نزل وزني؟'];
-  if (t.includes('bpc-157') || t.includes('tb-500')) return ['وين أحقن بالضبط؟', 'كم مدة قبل ما ألاحظ فرق؟', 'هل أقدر آخذه فموي؟'];
-  if (t.includes('semax') || t.includes('selank')) return ['هل يسبب تحمّل؟', 'أقدر أستخدمه يوميًا؟', 'وش الفرق بين Semax العادي و NA-Semax?'];
-  if (t.includes('epithalon') || t.includes('thymosin')) return ['كم مرة أكرر الدورة؟', 'هل يتعارض مع مكملاتي؟', 'وش التحاليل بعد الدورة؟'];
-  if (t.includes('kisspeptin') || t.includes('pt-141') || t.includes('triptorelin')) return ['هل يثبّط الإنتاج الطبيعي؟', 'متى تظهر النتيجة بالتحاليل؟', 'وش البديل الطبيعي؟'];
-  return ['وش التحاليل بعد البروتوكول؟', 'كم تكلفة الشهر كاملة؟', 'وش لو حسّيت بأعراض جانبية؟'];
+  const suggestions: string[] = [];
+
+  if (t.includes('bpc-157') || t.includes('tb-500')) {
+    suggestions.push('وين أحقن بالضبط — قرب الإصابة ولا بطن؟');
+    suggestions.push('أقدر أجمع BPC-157 مع TB-500 بنفس السيرنج؟');
+    if (t.includes('فموي') || t.includes('oral')) suggestions.push('الفموي فعال بنفس مستوى الحقن؟');
+    else suggestions.push('كم يوم قبل ما أحس فرق؟');
+  } else if (t.includes('tesamorelin') || t.includes('aod-9604') || t.includes('mots-c')) {
+    suggestions.push('هل أحتاج أصوم قبل الحقن؟');
+    suggestions.push('وش أضيف له لنتيجة أسرع؟');
+    suggestions.push('متى أشيك وزني — أسبوعيًا ولا شهريًا؟');
+  } else if (t.includes('semax') || t.includes('selank')) {
+    suggestions.push('هل يسبب تحمّل لو استخدمته كل يوم؟');
+    suggestions.push('وش الفرق بين Semax العادي و NA-Semax Amidate؟');
+    suggestions.push('أقدر أجمعه مع كافيين أو نوتروبيكس؟');
+  } else if (t.includes('cjc') || t.includes('ipamorelin')) {
+    suggestions.push('لازم آخذه فارغ المعدة؟ كم ساعة بعد الأكل؟');
+    suggestions.push('هل يرفع IGF-1 لمستوى خطير؟');
+    suggestions.push('وش التحاليل أسويها بعد شهر؟');
+  } else if (t.includes('epithalon') || t.includes('thymosin')) {
+    suggestions.push('كم مرة أكرر الدورة بالسنة؟');
+    suggestions.push('هل أحتاج تحليل تيلوميرات قبل؟');
+    suggestions.push('يتعارض مع أي مكملات أتناولها؟');
+  } else if (t.includes('kisspeptin') || t.includes('pt-141') || t.includes('triptorelin')) {
+    suggestions.push('هل يثبّط الإنتاج الطبيعي على المدى الطويل؟');
+    suggestions.push('متى أشيك التستوستيرون بالتحاليل؟');
+    suggestions.push('وش البديل الطبيعي لو ما بغيت حقن؟');
+  }
+
+  if (suggestions.length < 3) {
+    if (t.includes('سيرنج') || t.includes('وحد')) suggestions.push('وش نوع السرنجات اللي أشتريها بالضبط؟');
+    if (t.includes('تحاليل') || t.includes('تحليل')) suggestions.push('وين أسوي التحاليل بأرخص سعر؟');
+    suggestions.push('وش لو حسّيت بأعراض جانبية — أوقف ولا أنقّص الجرعة؟');
+    suggestions.push('صمّم لي جدول أسبوعي كامل للبروتوكول');
+  }
+
+  return suggestions.slice(0, 3);
 }
 
 export default function Coach() {
@@ -160,11 +191,45 @@ export default function Coach() {
   const [searchParams] = useSearchParams();
 
   const storageKey = `pptides_coach_${user?.id ?? 'anon'}`;
+
+  function loadQuizAnswers(): { goal: string; experience: string; injection: string } | null {
+    try {
+      const raw = localStorage.getItem('pptides_quiz_answers');
+      if (!raw) return null;
+      const data = JSON.parse(raw);
+      if (Date.now() - (data.ts ?? 0) > 24 * 60 * 60 * 1000) return null;
+      return data;
+    } catch { return null; }
+  }
+
   const [intakeStep, setIntakeStep] = useState<IntakeStep>(() => {
-    try { const s = localStorage.getItem(storageKey); if (s) { const d = JSON.parse(s); if (d.messages?.length > 0) return 'done'; } } catch {} return 'goal';
+    try {
+      const s = localStorage.getItem(storageKey);
+      if (s) { const d = JSON.parse(s); if (d.messages?.length > 0) return 'done'; }
+    } catch {}
+    const quiz = loadQuizAnswers();
+    if (quiz?.goal && quiz?.experience && quiz?.injection) return 'details';
+    return 'goal';
   });
   const [intake, setIntake] = useState<IntakeData>(() => {
-    try { const s = localStorage.getItem(storageKey); if (s) return JSON.parse(s).intake ?? { goal: '', goalLabel: '', experience: '', injection: '', age: '', medications: '' }; } catch {} return { goal: '', goalLabel: '', experience: '', injection: '', age: '', medications: '' };
+    try {
+      const s = localStorage.getItem(storageKey);
+      if (s) return JSON.parse(s).intake ?? { goal: '', goalLabel: '', experience: '', injection: '', age: '', medications: '' };
+    } catch {}
+    const quiz = loadQuizAnswers();
+    if (quiz) {
+      const goalMap: Record<string, string> = { 'fat-loss': 'فقدان دهون', recovery: 'تعافي وإصابات', muscle: 'بناء عضل', brain: 'تركيز ودماغ', longevity: 'طول عمر', hormones: 'تحسين هرمونات', 'gut-skin': 'بشرة أو أمعاء أو نوم' };
+      const expMap: Record<string, string> = { beginner: 'beginner', some: 'intermediate', advanced: 'advanced' };
+      const injMap: Record<string, string> = { yes: 'yes', 'prefer-no': 'prefer-no', no: 'no' };
+      return {
+        goal: quiz.goal,
+        goalLabel: goalMap[quiz.goal] ?? '',
+        experience: expMap[quiz.experience] ?? quiz.experience,
+        injection: injMap[quiz.injection] ?? quiz.injection,
+        age: '', medications: '',
+      };
+    }
+    return { goal: '', goalLabel: '', experience: '', injection: '', age: '', medications: '' };
   });
   const [messages, setMessages] = useState<ChatMessage[]>(() => {
     try { const s = localStorage.getItem(storageKey); if (s) return JSON.parse(s).messages ?? []; } catch {} return [];
@@ -303,8 +368,17 @@ export default function Coach() {
             {intakeStep !== 'done' && (
               <div className="space-y-4">
                 <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-4">
-                  <p className="text-sm font-bold text-emerald-900">أجب على 3 أسئلة سريعة وأصمّم لك بروتوكول مخصّص فورًا.</p>
-                  <p className="mt-1 text-xs text-emerald-700">بدون تشخيص مطوّل — نتيجة مباشرة.</p>
+                  {intakeStep === 'details' && intake.goal ? (
+                    <>
+                      <p className="text-sm font-bold text-emerald-900">جاهز! استوردنا إجاباتك من الاختبار.</p>
+                      <p className="mt-1 text-xs text-emerald-700">أضف معلومات إضافية (اختياري) ثم اضغط "صمّم بروتوكولي"</p>
+                    </>
+                  ) : (
+                    <>
+                      <p className="text-sm font-bold text-emerald-900">أجب على 3 أسئلة سريعة وأصمّم لك بروتوكول مخصّص فورًا.</p>
+                      <p className="mt-1 text-xs text-emerald-700">بدون تشخيص مطوّل — نتيجة مباشرة.</p>
+                    </>
+                  )}
                 </div>
 
                 {/* Step 1: Goal */}
@@ -394,7 +468,7 @@ export default function Coach() {
                     )}
                   </div>
                 </div>
-                {msg.role === 'assistant' && i === messages.length - 1 && peptideActions.length > 0 && !isLoading && (
+                {msg.role === 'assistant' && i === messages.length - 1 && !isLoading && (
                   <div className="mt-2 flex justify-end">
                     <div className="flex flex-wrap gap-1.5 max-w-[88%]">
                       {peptideActions.map(p => (
@@ -402,12 +476,19 @@ export default function Coach() {
                           <FlaskConical className="h-3 w-3" />{p.nameAr}
                         </Link>
                       ))}
-                      <Link to={`/calculator?peptide=${encodeURIComponent(peptideActions[0]?.nameEn ?? '')}`} className="inline-flex items-center gap-1 rounded-lg border border-stone-200 bg-white px-2.5 py-1 text-[11px] font-semibold text-stone-600 hover:bg-stone-50">
-                        <Calculator className="h-3 w-3" />احسب الجرعة
-                      </Link>
+                      {peptideActions.length > 0 && (
+                        <Link to={`/calculator?peptide=${encodeURIComponent(peptideActions[0]?.nameEn ?? '')}`} className="inline-flex items-center gap-1 rounded-lg border border-stone-200 bg-white px-2.5 py-1 text-[11px] font-semibold text-stone-600 hover:bg-stone-50">
+                          <Calculator className="h-3 w-3" />احسب الجرعة
+                        </Link>
+                      )}
                       {peptideActions.length >= 2 && (
                         <Link to="/interactions" className="inline-flex items-center gap-1 rounded-lg border border-stone-200 bg-white px-2.5 py-1 text-[11px] font-semibold text-stone-600 hover:bg-stone-50">
                           <Shield className="h-3 w-3" />فحص التعارض
+                        </Link>
+                      )}
+                      {peptideActions.length > 0 && (
+                        <Link to={`/tracker?peptide=${encodeURIComponent(peptideActions[0]?.nameEn ?? '')}`} className="inline-flex items-center gap-1 rounded-lg border border-stone-200 bg-white px-2.5 py-1 text-[11px] font-semibold text-stone-600 hover:bg-stone-50">
+                          <Sparkles className="h-3 w-3" />ابدأ التتبّع
                         </Link>
                       )}
                     </div>
