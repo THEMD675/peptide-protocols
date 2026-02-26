@@ -85,7 +85,7 @@ function useRecentActivity(userId: string | undefined) {
     let mounted = true;
     supabase
       .from('injection_logs')
-      .select('id, peptide_name, dose, unit, logged_at')
+      .select('id, peptide_name, dose, dose_unit, logged_at')
       .eq('user_id', userId)
       .order('logged_at', { ascending: false })
       .limit(30)
