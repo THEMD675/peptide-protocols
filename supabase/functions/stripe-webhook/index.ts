@@ -204,12 +204,12 @@ serve(async (req) => {
             const { error } = await supabase
               .from('subscriptions')
               .update({
-                status: 'cancelled',
                 updated_at: new Date().toISOString(),
               })
               .eq('stripe_subscription_id', stripeSubId)
 
             if (error) console.error('payment_failed DB error:', error)
+            else console.log('payment_failed: kept status unchanged, Stripe will retry')
           } catch (dbErr) {
             console.error('payment_failed DB exception:', dbErr)
           }

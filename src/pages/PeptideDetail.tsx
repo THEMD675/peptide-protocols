@@ -44,7 +44,6 @@ export default function PeptideDetail() {
   const peptide = useMemo(() => peptides.find((p) => p.id === id), [id]);
 
   if (!peptide) {
-    toast.error('الببتيد غير موجود');
     return <Navigate to="/library" replace />;
   }
 
@@ -425,7 +424,7 @@ function InlineDoseCalc({ peptide }: { peptide: { nameEn: string } }) {
           <p className="text-lg font-black text-stone-900">{preset.dose} <span className="text-xs font-bold">mcg</span></p>
         </div>
         <div className="rounded-xl border border-emerald-200 bg-white p-3 text-center">
-          <p className="text-xs text-stone-500 mb-1">اسحب في السيرنج</p>
+          <p className="text-xs text-stone-500 mb-1">اسحب في السيرنج (1مل)</p>
           <p className="text-lg font-black text-emerald-700">{syringeUnits.toFixed(1)} <span className="text-xs font-bold">وحدة</span></p>
         </div>
         <div className="rounded-xl border border-emerald-200 bg-white p-3 text-center">

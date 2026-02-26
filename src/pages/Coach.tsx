@@ -400,6 +400,7 @@ export default function Coach() {
 
   const [confirmReset, setConfirmReset] = useState(false);
   const confirmResetTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  useEffect(() => () => { if (confirmResetTimer.current) clearTimeout(confirmResetTimer.current); }, []);
 
   const resetConversation = () => {
     setMessages([]);
@@ -423,7 +424,7 @@ export default function Coach() {
   const hasAccess = subscription.isProOrTrial;
   const isElite = hasAccess && subscription.tier === 'elite';
   const isTrial = subscription.isTrial;
-  const limit = isElite ? Infinity : hasAccess && !isTrial ? 15 : isTrial ? 3 : 5;
+  const limit = isElite ? Infinity : hasAccess && !isTrial ? 15 : isTrial ? 5 : 3;
   const userMsgCount = messages.filter(m => m.role === 'user').length;
   const limitReached = userMsgCount >= limit;
 

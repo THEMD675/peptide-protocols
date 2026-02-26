@@ -141,8 +141,8 @@ export default function Tracker() {
     const rows = logs.map(l =>
       `${l.peptide_name},${l.dose},${l.unit},${l.injection_site},${formatDate(l.injected_at)},${formatTime(l.injected_at)},${(l.notes ?? '').replace(/,/g, ';')}`
     );
-    const csv = [headers, ...rows].join('\n');
-    const blob = new Blob([csv], { type: 'text/csv' });
+    const csv = '\ufeff' + [headers, ...rows].join('\n');
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
@@ -448,7 +448,7 @@ export default function Tracker() {
                         peptide_name: last.peptide_name,
                         dose: last.dose,
                         unit: last.unit,
-                        injection_site: last.injection_site,
+                        injection_site: suggestedSite,
                         injected_at: now.toISOString(),
                         notes: null,
                       });

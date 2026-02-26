@@ -19,6 +19,11 @@ function checkRateLimit(userId: string): boolean {
   if (recent.length >= RATE_LIMIT_MAX) return false
   recent.push(now)
   rateLimitMap.set(userId, recent)
+  if (rateLimitMap.size > 1000) {
+    for (const [key, vals] of rateLimitMap) {
+      if (vals.every(t => now - t > RATE_LIMIT_WINDOW)) rateLimitMap.delete(key)
+    }
+  }
   return true
 }
 
@@ -228,6 +233,7 @@ serve(async (req) => {
     const wantStream = stream === true
 
     const response = await fetch('https://api.deepseek.com/chat/completions', {
+      signal: AbortSignal.timeout(30000),
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
