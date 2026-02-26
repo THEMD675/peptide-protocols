@@ -164,12 +164,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [user, fetchSubscription]);
 
   useEffect(() => {
+    const timeout = setTimeout(() => {
+      setIsLoading(false);
+    }, 8000);
+
     supabase.auth.getSession().then(async ({ data: { session } }) => {
+      clearTimeout(timeout);
       if (session?.user) {
         const mapped = mapUser(session.user);
         setUser(mapped);
         if (mapped) await fetchSubscription(mapped.id);
       }
+      setIsLoading(false);
+    }).catch(() => {
+      clearTimeout(timeout);
       setIsLoading(false);
     });
 
@@ -183,10 +191,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           setUser(null);
           setSubscription(DEFAULT_SUBSCRIPTION);
         }
+        setIsLoading(false);
       }
     );
 
-    return () => authListener.unsubscribe();
+    return () => { authListener.unsubscribe(); clearTimeout(timeout); };
   }, [fetchSubscription]);
 
   const login = async (email: string, password: string) => {
