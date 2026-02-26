@@ -75,7 +75,7 @@ export default function Sources() {
           </h2>
 
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {criteria.map((item, i) => {
+            {criteria.map((item) => {
               const Icon = item.icon;
               return (
                 <div
