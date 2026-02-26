@@ -70,11 +70,11 @@ interface RecentLog {
   id: string;
   peptide_name: string;
   dose: number;
-  unit: string;
+  dose_unit: string;
   logged_at: string;
 }
 
-interface TodayItem { peptide: string; dose: number; unit: string; done: boolean }
+interface TodayItem { peptide: string; dose: number; dose_unit: string; done: boolean }
 
 function useRecentActivity(userId: string | undefined) {
   const [logs, setLogs] = useState<RecentLog[]>([]);
@@ -120,7 +120,7 @@ function useRecentActivity(userId: string | undefined) {
     const todayDone = new Set(logs.filter(l => new Date(l.logged_at).toDateString() === today).map(l => l.peptide_name));
     for (const [name, info] of Object.entries(peptideFreq)) {
       if (info.total >= 2) {
-        todayPlan.push({ peptide: name, dose: info.dose, unit: info.unit, done: todayDone.has(name) });
+        todayPlan.push({ peptide: name, dose: info.dose, dose_unit: info.dose_unit, done: todayDone.has(name) });
       }
     }
   }
@@ -217,7 +217,7 @@ export default function Dashboard() {
                   )}
                   <div>
                     <p className={cn('text-sm font-bold', item.done ? 'text-emerald-700' : 'text-stone-900')} dir="ltr">{item.peptide}</p>
-                    <p className="text-xs text-stone-500">{item.dose} {item.unit}</p>
+                    <p className="text-xs text-stone-500">{item.dose} {item.dose_unit}</p>
                   </div>
                 </div>
                 {!item.done && (
@@ -283,7 +283,7 @@ export default function Dashboard() {
                 <div key={log.id} className="flex items-center justify-between rounded-lg bg-stone-50 px-3 py-2">
                   <div>
                     <span className="text-sm font-bold text-stone-900" dir="ltr">{log.peptide_name}</span>
-                    <span className="mr-2 text-xs text-stone-500">{log.dose} {log.unit}</span>
+                    <span className="mr-2 text-xs text-stone-500">{log.dose} {log.dose_unit}</span>
                   </div>
                   <span className="text-xs text-stone-400">
                     {new Date(log.logged_at).toLocaleDateString('ar-u-nu-latn', { month: 'short', day: 'numeric' })}
