@@ -302,10 +302,17 @@ export default function Reviews() {
             <div className="rounded-2xl border border-stone-300 bg-stone-50 py-16 text-center">
               <Star className="mx-auto mb-3 h-10 w-10 text-stone-500" />
               <p className="text-base text-stone-800">كن أول من يقيّم</p>
+              <button
+                onClick={() => document.getElementById('review-rating')?.scrollIntoView({ behavior: 'smooth' })}
+                className="mt-4 inline-flex items-center gap-2 rounded-full bg-emerald-600 px-6 py-2.5 text-sm font-bold text-white transition-all hover:bg-emerald-700"
+              >
+                <Send className="h-4 w-4" />
+                أضف تقييمك الآن
+              </button>
             </div>
           ) : (
             <div className="space-y-4">
-              {reviews.map((review, i) => (
+              {reviews.map((review) => (
                 <div
                   key={review.id}
                   className="rounded-2xl border border-stone-300 bg-stone-50 p-5 transition-all hover:border-emerald-200 hover:shadow-sm"

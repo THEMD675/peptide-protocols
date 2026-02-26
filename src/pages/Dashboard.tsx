@@ -343,6 +343,9 @@ export default function Dashboard() {
           <Link to="/tracker" className="mt-3 inline-flex items-center gap-2 rounded-full bg-emerald-600 px-6 py-2.5 text-sm font-bold text-white hover:bg-emerald-700">
             <Syringe className="h-4 w-4" /> سجل الحقن
           </Link>
+          <Link to="/coach" className="mt-2 inline-flex items-center gap-2 rounded-full border-2 border-emerald-300 px-6 py-2.5 text-sm font-bold text-emerald-700 hover:bg-emerald-100">
+            أو ابدأ بسؤال المدرب الذكي
+          </Link>
         </div>
       )}
 
