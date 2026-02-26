@@ -116,85 +116,38 @@ export default function PeptideTable() {
             دليل مقارنة سريع لجميع الببتيدات مع الجرعات والتوقيت والدورات والتجميع
           </p>
 
-          <div className="mx-auto mt-6 max-w-3xl rounded-xl border border-stone-300 bg-stone-50 p-5 text-right">
-            <div className="mb-2 flex items-center gap-2">
-              <BookOpen className="h-5 w-5 shrink-0"  />
-              <h2 className="text-base font-bold text-stone-900">كيف تستخدم هذا الجدول</h2>
-            </div>
-            <p className="text-sm leading-relaxed text-stone-800">
-              هذا الجدول يُلخّص أهم المعلومات العملية لكل ببتيد في مكان واحد. استخدم خانة البحث أو أزرار الفئات للتصفية.
-              اضغط على اسم أي ببتيد للانتقال لصفحته التفصيلية الكاملة. الأعمدة مُصمّمة لتعطيك نظرة سريعة على الجرعة المثالية،
-              أفضل توقيت، بروتوكول الدورة، وإمكانية الاستخدام طويل الأمد، مع نصائح التجميع مع ببتيدات أخرى.
-            </p>
-          </div>
         </header>
 
-        {/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-           SECTION 2: Legend / Abbreviations
-        ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
-        <section
-          className="mb-10"
-        >
-          <div className="grid gap-4 md:grid-cols-2">
-            {/* Column Definitions */}
-            <div className="rounded-xl border border-stone-300 bg-stone-50 p-5">
-              <h3 className="mb-3 flex items-center gap-2 text-sm font-bold text-stone-900">
-                <Info className="h-4 w-4"  />
-                تعريف الأعمدة
-              </h3>
-              <dl className="space-y-2 text-xs text-stone-800">
-                <div className="flex gap-2">
-                  <dt className="shrink-0 font-semibold text-stone-800">الجرعة المثالية:</dt>
-                  <dd>النطاق المحافظ المبني على البيانات العملية</dd>
-                </div>
-                <div className="flex gap-2">
-                  <dt className="shrink-0 font-semibold text-stone-800">التوقيت المثالي:</dt>
-                  <dd>أفضل أوقات الاستخدام خلال اليوم</dd>
-                </div>
-                <div className="flex gap-2">
-                  <dt className="shrink-0 font-semibold text-stone-800">الدورة المثالية:</dt>
-                  <dd>بروتوكول الاستخدام والراحة</dd>
-                </div>
-                <div className="flex gap-2">
-                  <dt className="shrink-0 font-semibold text-stone-800">طويل الأمد؟:</dt>
-                  <dd>هل الاستخدام المستمر مدروس وآمن</dd>
-                </div>
-                <div className="flex gap-2">
-                  <dt className="shrink-0 font-semibold text-stone-800">نصائح التجميع:</dt>
-                  <dd>ببتيدات متآزرة أو تحذيرات</dd>
-                </div>
-              </dl>
-            </div>
-
-            {/* Abbreviations */}
-            <div className="rounded-xl border border-stone-300 bg-stone-50 p-5">
-              <h3 className="mb-3 flex items-center gap-2 text-sm font-bold text-stone-900">
-                <FlaskConical className="h-4 w-4"  />
-                الاختصارات المستخدمة
-              </h3>
-              <div className="flex flex-wrap gap-2 text-xs">
-                {[
-                  { label: 'SubQ', full: 'تحت الجلد' },
-                  { label: 'IM', full: 'عضلي' },
-                  { label: 'IN', full: 'بخاخ أنف' },
-                  { label: 'AM', full: 'صباحًا' },
-                  { label: 'PM', full: 'مساءً' },
-                  { label: 'قبل التمرين', full: '' },
-                  { label: 'بعد التمرين', full: '' },
-                  { label: 'FDA', full: 'إدارة الغذاء والدواء' },
-                ].map((abbr) => (
-                  <span
-                    key={abbr.label}
-                    className="rounded-md border border-stone-300 bg-white/[0.05] px-2 py-1 text-stone-800"
+        {/* Collapsible guide — starts CLOSED so data is visible immediately */}
+        <details className="mb-6 rounded-xl border border-stone-200 bg-stone-50">
+          <summary className="flex cursor-pointer items-center gap-2 px-5 py-3 text-sm font-bold text-stone-700 hover:text-stone-900">
+            <BookOpen className="h-4 w-4" />
+            دليل استخدام الجدول والاختصارات
+          </summary>
+          <div className="border-t border-stone-200 px-5 py-4 space-y-4">
+            <p className="text-xs leading-relaxed text-stone-600">
+              استخدم البحث أو الفئات للتصفية. اضغط على اسم أي ببتيد لصفحته الكاملة. الأعمدة: الجرعة المثالية، التوقيت، الدورة، الاستخدام طويل الأمد، ونصائح التجميع.
+            </p>
+            <div className="flex flex-wrap gap-2 text-xs">
+              {[
+                { label: 'SubQ', full: 'تحت الجلد' },
+                { label: 'IM', full: 'عضلي' },
+                { label: 'IN', full: 'بخاخ أنف' },
+                { label: 'AM', full: 'صباحًا' },
+                { label: 'PM', full: 'مساءً' },
+                { label: 'FDA', full: 'إدارة الغذاء والدواء' },
+              ].map((abbr) => (
+                <span
+                  key={abbr.label}
+                  className="rounded-md border border-stone-200 bg-white px-2 py-1 text-stone-700"
                   >
                     <span className="font-semibold text-stone-800">{abbr.label}</span>
                     {abbr.full && <span className="text-stone-800"> = {abbr.full}</span>}
                   </span>
                 ))}
               </div>
-            </div>
           </div>
-        </section>
+        </details>
 
         {/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
            SECTION 3: Search + Category Filters

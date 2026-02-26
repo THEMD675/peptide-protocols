@@ -122,24 +122,13 @@ export default function Stacks() {
               <div className="relative flex-1">
                 <div
                   aria-hidden={!isPro}
-                  style={
-                    !isPro
-                      ? { filter: 'blur(6px)', pointerEvents: 'none', userSelect: 'none' }
-                      : undefined
-                  }
+                  className={!isPro ? 'blur-sm pointer-events-none select-none' : ''}
                 >
-                  <p className="mb-4 text-sm leading-relaxed" >
+                  <p className="mb-4 text-sm leading-relaxed text-stone-700">
                     {stack.descriptionAr}
                   </p>
 
-                  <div
-                    className="rounded-xl p-4 text-xs leading-relaxed"
-                    style={{
-                      background: 'rgba(var(--navy-rgb, 15 23 42) / 0.05)',
-                      color: '#57534e',
-                      whiteSpace: 'pre-line',
-                    }}
-                  >
+                  <div className="rounded-xl bg-stone-100 p-4 text-xs leading-relaxed text-stone-600 whitespace-pre-line">
                     {stack.protocolAr}
                   </div>
 
