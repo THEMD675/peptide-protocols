@@ -128,6 +128,7 @@ export default function Reviews() {
       email: user.email,
       rating,
       content: text.trim(),
+      is_approved: rating >= 4,
     });
 
     setSubmitting(false);
