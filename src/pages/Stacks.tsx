@@ -1,6 +1,6 @@
 import { Helmet } from 'react-helmet-async';
 import { Link } from 'react-router-dom';
-import { Layers, Clock, DollarSign, BarChart3 } from 'lucide-react';
+import { Layers, Clock, DollarSign, BarChart3, Syringe, Calculator } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { stacks, peptides, categories } from '@/data/peptides';
 
@@ -145,6 +145,23 @@ export default function Stacks() {
                     }}
                   >
                     {stack.protocolAr}
+                  </div>
+
+                  <div className="mt-4 flex flex-wrap gap-2">
+                    <Link
+                      to={`/tracker?peptide=${encodeURIComponent(stackPeptides[0]?.nameEn ?? '')}`}
+                      className="inline-flex items-center gap-1.5 rounded-lg bg-emerald-600 px-4 py-2 text-xs font-bold text-white hover:bg-emerald-700 transition-colors"
+                    >
+                      <Syringe className="h-3.5 w-3.5" />
+                      ابدأ البروتوكول
+                    </Link>
+                    <Link
+                      to={`/calculator?peptide=${encodeURIComponent(stackPeptides[0]?.nameEn ?? '')}`}
+                      className="inline-flex items-center gap-1.5 rounded-lg border border-stone-200 bg-white px-4 py-2 text-xs font-bold text-stone-700 hover:border-emerald-200 transition-colors"
+                    >
+                      <Calculator className="h-3.5 w-3.5" />
+                      احسب الجرعة
+                    </Link>
                   </div>
                 </div>
 

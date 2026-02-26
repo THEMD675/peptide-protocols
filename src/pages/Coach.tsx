@@ -161,13 +161,13 @@ export default function Coach() {
 
   const storageKey = `pptides_coach_${user?.id ?? 'anon'}`;
   const [intakeStep, setIntakeStep] = useState<IntakeStep>(() => {
-    try { const s = sessionStorage.getItem(storageKey); if (s) { const d = JSON.parse(s); if (d.messages?.length > 0) return 'done'; } } catch {} return 'goal';
+    try { const s = localStorage.getItem(storageKey); if (s) { const d = JSON.parse(s); if (d.messages?.length > 0) return 'done'; } } catch {} return 'goal';
   });
   const [intake, setIntake] = useState<IntakeData>(() => {
-    try { const s = sessionStorage.getItem(storageKey); if (s) return JSON.parse(s).intake ?? { goal: '', goalLabel: '', experience: '', injection: '', age: '', medications: '' }; } catch {} return { goal: '', goalLabel: '', experience: '', injection: '', age: '', medications: '' };
+    try { const s = localStorage.getItem(storageKey); if (s) return JSON.parse(s).intake ?? { goal: '', goalLabel: '', experience: '', injection: '', age: '', medications: '' }; } catch {} return { goal: '', goalLabel: '', experience: '', injection: '', age: '', medications: '' };
   });
   const [messages, setMessages] = useState<ChatMessage[]>(() => {
-    try { const s = sessionStorage.getItem(storageKey); if (s) return JSON.parse(s).messages ?? []; } catch {} return [];
+    try { const s = localStorage.getItem(storageKey); if (s) return JSON.parse(s).messages ?? []; } catch {} return [];
   });
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -177,7 +177,7 @@ export default function Coach() {
   const autoSentRef = useRef(false);
 
   useEffect(() => {
-    try { sessionStorage.setItem(storageKey, JSON.stringify({ messages, intake })); } catch {}
+    try { localStorage.setItem(storageKey, JSON.stringify({ messages, intake })); } catch {}
   }, [messages, intake, storageKey]);
 
   useEffect(() => { scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: 'smooth' }); }, [messages, intakeStep]);
@@ -246,6 +246,7 @@ export default function Coach() {
     setIntakeStep('goal');
     setIntake({ goal: '', goalLabel: '', experience: '', injection: '', age: '', medications: '' });
     autoSentRef.current = false;
+    try { localStorage.removeItem(storageKey); } catch {}
   };
 
   if (isAuthLoading) return <div className="flex min-h-[50vh] items-center justify-center"><div className="h-8 w-8 animate-spin rounded-full border-4 border-emerald-200 border-t-emerald-600" /></div>;

@@ -15,6 +15,7 @@ import {
   Syringe,
   Flame,
   TrendingUp,
+  MessageSquare,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
@@ -272,40 +273,78 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {/* Getting Started Checklist */}
-      <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-6">
-        <h2 className="mb-4 text-lg font-bold text-stone-900">ابدأ هنا</h2>
-        <p className="mb-4 text-sm text-stone-600">أكمل هذه الخطوات للاستفادة القصوى من pptides</p>
-        <div className="space-y-3">
-          {GETTING_STARTED.map((step, i) => {
-            const done = visited.has(step.id);
-            return (
-              <Link
-                key={step.id}
-                to={step.to}
-                onClick={() => markVisited(step.id)}
-                className={cn(
-                  "flex items-center gap-3 rounded-xl border px-4 py-3 transition-all hover:shadow-sm",
-                  done
-                    ? "border-emerald-300 bg-emerald-50"
-                    : "border-emerald-100 bg-white hover:border-emerald-300"
-                )}
-              >
-                {done
-                  ? <CheckCircle2 className="h-5 w-5 shrink-0 text-emerald-600" />
-                  : <Circle className="h-5 w-5 shrink-0 text-stone-300" />
-                }
-                <span className={cn("text-sm font-bold", done ? "text-emerald-700" : "text-stone-700")}>
-                  {i + 1}. {step.label}
-                </span>
-              </Link>
-            );
-          })}
+      {/* Getting Started Checklist — only show if not all done */}
+      {visited.size < GETTING_STARTED.length ? (
+        <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-6">
+          <h2 className="mb-4 text-lg font-bold text-stone-900">ابدأ هنا</h2>
+          <p className="mb-4 text-sm text-stone-600">أكمل هذه الخطوات للاستفادة القصوى من pptides</p>
+          <div className="space-y-3">
+            {GETTING_STARTED.map((step, i) => {
+              const done = visited.has(step.id);
+              return (
+                <Link
+                  key={step.id}
+                  to={step.to}
+                  onClick={() => markVisited(step.id)}
+                  className={cn(
+                    "flex items-center gap-3 rounded-xl border px-4 py-3 transition-all hover:shadow-sm",
+                    done
+                      ? "border-emerald-300 bg-emerald-50"
+                      : "border-emerald-100 bg-white hover:border-emerald-300"
+                  )}
+                >
+                  {done
+                    ? <CheckCircle2 className="h-5 w-5 shrink-0 text-emerald-600" />
+                    : <Circle className="h-5 w-5 shrink-0 text-stone-300" />
+                  }
+                  <span className={cn("text-sm font-bold", done ? "text-emerald-700" : "text-stone-700")}>
+                    {i + 1}. {step.label}
+                  </span>
+                </Link>
+              );
+            })}
+          </div>
         </div>
-        {visited.size >= GETTING_STARTED.length && (
-          <p className="mt-4 text-center text-sm font-bold text-emerald-700">أحسنت! أكملت جميع الخطوات</p>
-        )}
-      </div>
+      ) : (
+        <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-6">
+          <h2 className="mb-4 text-lg font-bold text-stone-900">خطوتك التالية</h2>
+          <div className="space-y-3">
+            {activity.activePeptides.length > 0 ? (
+              <Link
+                to="/tracker"
+                className="flex items-center gap-3 rounded-xl border border-emerald-300 bg-white px-4 py-3 transition-all hover:shadow-sm hover:border-emerald-400"
+              >
+                <Syringe className="h-5 w-5 shrink-0 text-emerald-600" />
+                <div>
+                  <p className="text-sm font-bold text-stone-900">سجّل حقنة اليوم</p>
+                  <p className="text-xs text-stone-500">ببتيداتك النشطة: {activity.activePeptides.join(', ')}</p>
+                </div>
+              </Link>
+            ) : (
+              <Link
+                to="/coach"
+                className="flex items-center gap-3 rounded-xl border border-emerald-300 bg-white px-4 py-3 transition-all hover:shadow-sm hover:border-emerald-400"
+              >
+                <Bot className="h-5 w-5 shrink-0 text-emerald-600" />
+                <div>
+                  <p className="text-sm font-bold text-stone-900">ابدأ استشارة مع المدرب الذكي</p>
+                  <p className="text-xs text-stone-500">احصل على بروتوكول مخصّص لهدفك</p>
+                </div>
+              </Link>
+            )}
+            <Link
+              to="/community"
+              className="flex items-center gap-3 rounded-xl border border-emerald-100 bg-white px-4 py-3 transition-all hover:shadow-sm hover:border-emerald-300"
+            >
+              <TrendingUp className="h-5 w-5 shrink-0 text-blue-500" />
+              <div>
+                <p className="text-sm font-bold text-stone-700">شارك تجربتك مع المجتمع</p>
+                <p className="text-xs text-stone-500">ساعد غيرك بنتائجك الحقيقية</p>
+              </div>
+            </Link>
+          </div>
+        </div>
+      )}
     </main>
   );
 }

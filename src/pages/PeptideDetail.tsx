@@ -1,6 +1,6 @@
 import { useMemo, useState, useEffect } from 'react';
 import { useParams, Link, Navigate } from 'react-router-dom';
-import { ArrowRight, Shield, AlertTriangle, CheckCircle, Lock, Calculator, Bot, FlaskConical, Printer, MessageSquare, Star } from 'lucide-react';
+import { ArrowRight, Shield, AlertTriangle, CheckCircle, Lock, Calculator, Bot, FlaskConical, Printer, MessageSquare, Star, Syringe } from 'lucide-react';
 import { Helmet } from 'react-helmet-async';
 import { cn } from '@/lib/utils';
 import { peptides } from '@/data/peptides';
@@ -239,13 +239,16 @@ export default function PeptideDetail() {
             </table>
           </div>
 
-          <div className="mt-6 grid gap-3 sm:grid-cols-3">
+          {/* Inline Quick Dose Calculator */}
+          <InlineDoseCalc peptide={peptide} />
+
+          <div className="mt-4 grid gap-3 sm:grid-cols-3">
             <Link
               to={`/calculator?peptide=${encodeURIComponent(peptide.nameEn)}`}
               className="flex items-center justify-center gap-2 rounded-xl border border-emerald-200 bg-emerald-50 px-5 py-3.5 text-sm font-bold text-emerald-700 transition-all hover:bg-emerald-100 hover:shadow-md"
             >
               <Calculator className="h-4 w-4" />
-              احسب الجرعة
+              حاسبة متقدمة
             </Link>
             <Link
               to={`/coach?peptide=${encodeURIComponent(peptide.nameAr)}`}
@@ -393,6 +396,63 @@ export default function PeptideDetail() {
           </div>
         )}
       </div>
+    </div>
+  );
+}
+
+const DOSE_PRESETS: Record<string, { dose: number; vialMg: number; waterMl: number; minDose: number; maxDose: number }> = {
+  'BPC-157': { dose: 250, vialMg: 5, waterMl: 2, minDose: 100, maxDose: 500 },
+  'TB-500': { dose: 750, vialMg: 5, waterMl: 2, minDose: 250, maxDose: 1500 },
+  'Semaglutide': { dose: 250, vialMg: 5, waterMl: 2, minDose: 250, maxDose: 2400 },
+  'CJC-1295': { dose: 100, vialMg: 2, waterMl: 2, minDose: 50, maxDose: 300 },
+  'Ipamorelin': { dose: 200, vialMg: 5, waterMl: 2, minDose: 100, maxDose: 300 },
+  'Tesamorelin': { dose: 2000, vialMg: 2, waterMl: 2, minDose: 1000, maxDose: 2000 },
+  'PT-141': { dose: 1750, vialMg: 10, waterMl: 2, minDose: 500, maxDose: 2000 },
+  'Semax': { dose: 400, vialMg: 3, waterMl: 1, minDose: 200, maxDose: 1000 },
+  'Epithalon': { dose: 5000, vialMg: 10, waterMl: 2, minDose: 2500, maxDose: 10000 },
+  'AOD-9604': { dose: 300, vialMg: 5, waterMl: 2, minDose: 200, maxDose: 600 },
+  'GHK-Cu': { dose: 200, vialMg: 5, waterMl: 2, minDose: 100, maxDose: 500 },
+  'Kisspeptin-10': { dose: 100, vialMg: 5, waterMl: 2, minDose: 50, maxDose: 200 },
+};
+
+function InlineDoseCalc({ peptide }: { peptide: { nameEn: string } }) {
+  const preset = DOSE_PRESETS[peptide.nameEn];
+  if (!preset) return null;
+
+  const concentrationMcgPerMl = (preset.vialMg * 1000) / preset.waterMl;
+  const volumeMl = preset.dose / concentrationMcgPerMl;
+  const syringeUnits = volumeMl * 100;
+  const dosesPerVial = Math.floor((preset.vialMg * 1000) / preset.dose);
+
+  return (
+    <div className="mt-6 rounded-2xl border border-emerald-200 bg-emerald-50/50 p-5">
+      <div className="flex items-center gap-2 mb-4">
+        <Syringe className="h-5 w-5 text-emerald-600" />
+        <h3 className="text-sm font-bold text-stone-900">حاسبة سريعة — الجرعة الموصى بها</h3>
+      </div>
+
+      <div className="grid gap-3 sm:grid-cols-4">
+        <div className="rounded-xl border border-emerald-200 bg-white p-3 text-center">
+          <p className="text-xs text-stone-500 mb-1">الجرعة</p>
+          <p className="text-lg font-black text-stone-900">{preset.dose} <span className="text-xs font-bold">mcg</span></p>
+        </div>
+        <div className="rounded-xl border border-emerald-200 bg-white p-3 text-center">
+          <p className="text-xs text-stone-500 mb-1">اسحب في السيرنج</p>
+          <p className="text-lg font-black text-emerald-700">{syringeUnits.toFixed(1)} <span className="text-xs font-bold">وحدة</span></p>
+        </div>
+        <div className="rounded-xl border border-emerald-200 bg-white p-3 text-center">
+          <p className="text-xs text-stone-500 mb-1">عدد الجرعات/قارورة</p>
+          <p className="text-lg font-black text-stone-900">{dosesPerVial}</p>
+        </div>
+        <div className="rounded-xl border border-emerald-200 bg-white p-3 text-center">
+          <p className="text-xs text-stone-500 mb-1">القارورة</p>
+          <p className="text-lg font-black text-stone-900">{preset.vialMg} <span className="text-xs font-bold">mg</span> + {preset.waterMl} <span className="text-xs font-bold">ml</span></p>
+        </div>
+      </div>
+
+      <p className="mt-3 text-center text-xs text-stone-500">
+        بقارورة {preset.vialMg}mg مع {preset.waterMl}ml ماء بكتيريوستاتي — {dosesPerVial} جرعة لكل قارورة
+      </p>
     </div>
   );
 }

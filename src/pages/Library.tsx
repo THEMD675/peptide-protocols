@@ -66,6 +66,8 @@ function PeptideCard({
   onLockedClick,
   isFav,
   onToggleFav,
+  isCompare,
+  onToggleCompare,
 }: {
   peptide: Peptide;
   index: number;
@@ -73,6 +75,8 @@ function PeptideCard({
   onLockedClick: () => void;
   isFav: boolean;
   onToggleFav: () => void;
+  isCompare: boolean;
+  onToggleCompare: () => void;
 }) {
   const Icon = categoryIcons[peptide.category];
 
@@ -103,6 +107,19 @@ function PeptideCard({
       >
         <Star className={cn('h-4 w-4', isFav ? 'fill-amber-400 text-amber-400' : 'text-stone-300')} />
       </button>
+      {hasAccess && (
+        <button
+          type="button"
+          onClick={(e) => { e.preventDefault(); e.stopPropagation(); onToggleCompare(); }}
+          className={cn('absolute right-3 top-11 z-10 rounded-full p-1.5 transition-colors', isCompare ? 'bg-emerald-100' : 'hover:bg-stone-100')}
+          aria-label={isCompare ? 'إزالة من المقارنة' : 'إضافة للمقارنة'}
+          title="قارن"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={cn('h-4 w-4', isCompare ? 'text-emerald-600' : 'text-stone-300')}>
+            <line x1="18" y1="20" x2="18" y2="10" /><line x1="12" y1="20" x2="12" y2="4" /><line x1="6" y1="20" x2="6" y2="14" />
+          </svg>
+        </button>
+      )}
 
       <div className="mb-3 flex items-start justify-between gap-2">
         <div className="flex-1">
@@ -241,6 +258,8 @@ export default function Library() {
   const [showToast, setShowToast] = useState(false);
   const toastTimer = useRef<ReturnType<typeof setTimeout>>();
   const [favorites, toggleFavorite] = useFavorites();
+  const [compareIds, setCompareIds] = useState<string[]>([]);
+  const [showCompare, setShowCompare] = useState(false);
 
   useEffect(() => {
     return () => {
@@ -450,6 +469,8 @@ export default function Library() {
                   onLockedClick={() => handleLockedClick(p.id)}
                   isFav={favorites.has(p.id)}
                   onToggleFav={() => toggleFavorite(p.id)}
+                  isCompare={compareIds.includes(p.id)}
+                  onToggleCompare={() => setCompareIds(prev => prev.includes(p.id) ? prev.filter(x => x !== p.id) : prev.length >= 3 ? prev : [...prev, p.id])}
                 />
               ))}
 
@@ -494,6 +515,72 @@ export default function Library() {
           )}
         </>
       </div>
+
+      {/* Floating Compare Bar */}
+      {compareIds.length >= 2 && (
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-40 flex items-center gap-3 rounded-2xl border border-emerald-300 bg-white px-6 py-3 shadow-xl">
+          <span className="text-sm font-bold text-stone-900">قارن {compareIds.length} ببتيدات</span>
+          <div className="flex gap-1.5">
+            {compareIds.map(id => {
+              const p = peptides.find(x => x.id === id);
+              return p ? <span key={id} className="rounded-full bg-emerald-50 px-2.5 py-0.5 text-xs font-bold text-emerald-700">{p.nameAr}</span> : null;
+            })}
+          </div>
+          <button onClick={() => setShowCompare(true)} className="rounded-xl bg-emerald-600 px-5 py-2 text-sm font-bold text-white hover:bg-emerald-700">عرض المقارنة</button>
+          <button onClick={() => setCompareIds([])} className="rounded-xl border border-stone-200 px-3 py-2 text-xs font-bold text-stone-600 hover:bg-stone-50">مسح</button>
+        </div>
+      )}
+
+      {/* Compare Modal */}
+      {showCompare && compareIds.length >= 2 && (() => {
+        const items = compareIds.map(id => peptides.find(x => x.id === id)!).filter(Boolean);
+        const rows = [
+          { label: 'الاسم العلمي', get: (p: Peptide) => p.nameEn },
+          { label: 'التصنيف', get: (p: Peptide) => categoryLabels[p.category] },
+          { label: 'الدليل العلمي', get: (p: Peptide) => evidenceLabels[p.evidenceLevel] },
+          { label: 'الجرعة', get: (p: Peptide) => p.dosageAr },
+          { label: 'طريقة الإعطاء', get: (p: Peptide) => p.administrationAr.split('.')[0] },
+          { label: 'مدة الدورة', get: (p: Peptide) => p.cycleAr },
+          { label: 'الأعراض الجانبية', get: (p: Peptide) => p.sideEffectsAr },
+          { label: 'التكلفة', get: (p: Peptide) => p.costEstimate ?? '—' },
+          { label: 'المستوى', get: (p: Peptide) => p.difficulty === 'beginner' ? 'مبتدئ' : p.difficulty === 'intermediate' ? 'متوسط' : 'متقدم' },
+        ];
+        return (
+          <div className="fixed inset-0 z-50 flex items-start justify-center bg-black/50 backdrop-blur-sm p-4 overflow-y-auto" onClick={() => setShowCompare(false)}>
+            <div className="w-full max-w-4xl my-8 rounded-2xl bg-white shadow-2xl overflow-hidden" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between border-b border-stone-200 px-6 py-4">
+                <h2 className="text-lg font-bold text-stone-900">مقارنة ببتيدات</h2>
+                <button onClick={() => setShowCompare(false)} className="rounded-lg p-2 text-stone-400 hover:bg-stone-100"><X className="h-5 w-5" /></button>
+              </div>
+              <div className="overflow-x-auto">
+                <table className="w-full min-w-[600px]">
+                  <thead>
+                    <tr className="border-b border-stone-200 bg-stone-50">
+                      <th className="px-4 py-3 text-right text-xs font-bold text-stone-500 w-[160px]">المعيار</th>
+                      {items.map(p => (
+                        <th key={p.id} className="px-4 py-3 text-right">
+                          <p className="text-sm font-bold text-stone-900">{p.nameAr}</p>
+                          <p className="text-xs text-stone-500">{p.nameEn}</p>
+                        </th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {rows.map((row, i) => (
+                      <tr key={row.label} className={cn('border-b border-stone-100', i % 2 === 0 ? 'bg-white' : 'bg-stone-50/50')}>
+                        <td className="px-4 py-3 text-xs font-bold text-stone-700">{row.label}</td>
+                        {items.map(p => (
+                          <td key={p.id} className="px-4 py-3 text-xs text-stone-800 leading-relaxed">{row.get(p)}</td>
+                        ))}
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        );
+      })()}
 
       {/* Upsell Modal */}
       {upsellPeptide && (() => {

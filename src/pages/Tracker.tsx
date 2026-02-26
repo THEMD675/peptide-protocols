@@ -69,6 +69,7 @@ export default function Tracker() {
     return now.toISOString().slice(0, 16);
   });
   const [notes, setNotes] = useState('');
+  const [confirmDialog, setConfirmDialog] = useState<{ title: string; message: string; onConfirm: () => void } | null>(null);
 
   useEffect(() => {
     if (!user) return;
@@ -297,28 +298,34 @@ export default function Tracker() {
           </button>
           {logs.length > 0 && (
             <button
-              onClick={async () => {
+              onClick={() => {
                 const last = logs[0];
-                if (!confirm(`تكرار حقنة ${last.peptide_name} — ${last.dose} ${last.unit}؟`)) return;
-                setIsSubmitting(true);
-                try {
-                  const now = new Date();
-                  await supabase.from('injection_logs').insert({
-                    user_id: user!.id,
-                    peptide_name: last.peptide_name,
-                    dose: last.dose,
-                    unit: last.unit,
-                    injection_site: last.injection_site,
-                    injected_at: now.toISOString(),
-                    notes: null,
-                  });
-                  await fetchLogs();
-                  import('sonner').then(m => m.toast.success(`تم تسجيل ${last.peptide_name} — ${last.dose} ${last.unit}`));
-                } catch {
-                  import('sonner').then(m => m.toast.error('حدث خطأ'));
-                } finally {
-                  setIsSubmitting(false);
-                }
+                setConfirmDialog({
+                  title: 'تكرار الحقنة الأخيرة',
+                  message: `تكرار حقنة ${last.peptide_name} — ${last.dose} ${last.unit}؟`,
+                  onConfirm: async () => {
+                    setConfirmDialog(null);
+                    setIsSubmitting(true);
+                    try {
+                      const now = new Date();
+                      await supabase.from('injection_logs').insert({
+                        user_id: user!.id,
+                        peptide_name: last.peptide_name,
+                        dose: last.dose,
+                        unit: last.unit,
+                        injection_site: last.injection_site,
+                        injected_at: now.toISOString(),
+                        notes: null,
+                      });
+                      await fetchLogs();
+                      import('sonner').then(m => m.toast.success(`تم تسجيل ${last.peptide_name} — ${last.dose} ${last.unit}`));
+                    } catch {
+                      import('sonner').then(m => m.toast.error('حدث خطأ'));
+                    } finally {
+                      setIsSubmitting(false);
+                    }
+                  },
+                });
               }}
               disabled={isSubmitting}
               className="flex items-center justify-center gap-2 rounded-2xl border border-stone-200 bg-white px-5 py-4 text-sm font-bold text-stone-700 transition-all hover:border-emerald-300 hover:bg-stone-50 disabled:opacity-50"
@@ -475,10 +482,16 @@ export default function Tracker() {
                       {log.dose} {log.unit}
                     </span>
                     <button
-                      onClick={async () => {
-                        if (!confirm('هل تريد حذف هذا السجل؟')) return;
-                        await supabase.from('injection_logs').delete().eq('id', log.id);
-                        setLogs(prev => prev.filter(l => l.id !== log.id));
+                      onClick={() => {
+                        setConfirmDialog({
+                          title: 'حذف السجل',
+                          message: `حذف سجل ${log.peptide_name} — ${log.dose} ${log.unit}؟`,
+                          onConfirm: async () => {
+                            setConfirmDialog(null);
+                            await supabase.from('injection_logs').delete().eq('id', log.id);
+                            setLogs(prev => prev.filter(l => l.id !== log.id));
+                          },
+                        });
                       }}
                       className="rounded-lg p-1.5 text-stone-300 transition-colors hover:bg-red-50 hover:text-red-500"
                       aria-label="حذف"
@@ -512,6 +525,28 @@ export default function Tracker() {
           </div>
         )}
       </div>
+      {confirmDialog && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4" onClick={() => setConfirmDialog(null)}>
+          <div className="w-full max-w-sm rounded-2xl bg-white p-6 shadow-2xl" onClick={e => e.stopPropagation()}>
+            <h3 className="text-lg font-bold text-stone-900 mb-2">{confirmDialog.title}</h3>
+            <p className="text-sm text-stone-600 mb-6">{confirmDialog.message}</p>
+            <div className="flex gap-3">
+              <button
+                onClick={confirmDialog.onConfirm}
+                className="flex-1 rounded-xl bg-emerald-600 px-4 py-2.5 text-sm font-bold text-white hover:bg-emerald-700"
+              >
+                تأكيد
+              </button>
+              <button
+                onClick={() => setConfirmDialog(null)}
+                className="flex-1 rounded-xl border border-stone-200 px-4 py-2.5 text-sm font-bold text-stone-700 hover:bg-stone-50"
+              >
+                إلغاء
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </main>
   );
 }
