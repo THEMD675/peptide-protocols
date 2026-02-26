@@ -87,7 +87,7 @@ serve(async (req) => {
     const { error: commDelErr } = await supabase.from('community_logs').delete().eq('user_id', user.id)
     if (commDelErr) console.error('delete-account: failed to delete community_logs:', commDelErr)
 
-    const { error: revDelErr } = await supabase.from('reviews').delete().eq('user_id', user.id)
+    const { error: revDelErr } = await supabase.from('reviews').delete().eq('email', user.email)
     if (revDelErr) console.error('delete-account: failed to delete reviews:', revDelErr)
 
     const { error: deleteError } = await supabase.auth.admin.deleteUser(user.id)
