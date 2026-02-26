@@ -115,6 +115,7 @@ serve(async (req) => {
         break
       }
 
+      case 'customer.subscription.created':
       case 'customer.subscription.updated': {
         const subscription = event.data.object as Stripe.Subscription
         const stripeSubId = subscription.id
@@ -173,7 +174,7 @@ serve(async (req) => {
         break
       }
 
-      case 'invoice.payment_succeeded': {
+      case 'invoice.paid': {
         const invoice = event.data.object as Stripe.Invoice
         const stripeSubId = invoice.subscription as string | null
 
