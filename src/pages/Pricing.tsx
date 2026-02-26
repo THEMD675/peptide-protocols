@@ -36,11 +36,11 @@ const valueStack = [
 ];
 
 const eliteValueStack = [
-  { item: 'مدرب ذكاء اصطناعي شخصي', value: '$147/شهر' },
-  { item: 'استشارة خاصة شهرية', value: '$200/جلسة' },
-  { item: 'مراجعة تحاليل شخصية', value: '$150/مراجعة' },
-  { item: 'بروتوكول مخصّص', value: '$300' },
-  { item: 'دعم أولوية 24/7', value: '$47/شهر' },
+  { item: 'مدرب ذكاء اصطناعي شخصي', value: '$49/شهر' },
+  { item: 'استشارة خاصة شهرية', value: '$75/جلسة' },
+  { item: 'مراجعة تحاليل شخصية', value: '$50/مراجعة' },
+  { item: 'بروتوكول مخصّص', value: '$99' },
+  { item: 'دعم أولوية 24/7', value: '$19/شهر' },
 ];
 
 const faqs = [
@@ -290,7 +290,7 @@ export default function Pricing() {
             ))}
           </div>
           <div className="mt-6 text-center">
-            <p className="text-stone-800">القيمة الإضافية: <span className="font-bold text-stone-800 line-through">$844+/شهريًا</span></p>
+            <p className="text-stone-800">القيمة الإضافية: <span className="font-bold text-stone-800 line-through">$292+/شهريًا</span></p>
             <p className="mt-1 text-2xl font-black text-emerald-600">كل شيء بـ {PRICING.elite.label}/شهريًا فقط</p>
           </div>
         </div>

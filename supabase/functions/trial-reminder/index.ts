@@ -142,19 +142,19 @@ serve(async (req) => {
             <a href="https://pptides.com/pricing" style="display: inline-block; background: #059669; color: white; padding: 14px 32px; border-radius: 9999px; text-decoration: none; font-weight: bold;">
               اشترك الآن — $9/شهر
             </a>
-            <p style="margin-top: 16px; color: #78716c;">أو وفّر 20% مع الاشتراك السنوي بـ $7.17/شهر فقط.</p>
+            <p style="margin-top: 16px; color: #78716c;">ضمان استرداد كامل خلال 3 أيام. بدون مخاطرة.</p>
           `
         } else if (daysUntilExpiry === 0 || daysUntilExpiry === -1) {
-          subject = '🔒 انتهت تجربتك — عرض خاص لك — pptides'
+          subject = '🔒 انتهت تجربتك — اشترك الآن — pptides'
           body = `
             <h1 style="color: #1c1917; font-size: 24px;">انتهت تجربتك المجانية</h1>
-            <p>لكن لا تقلق — لديك عرض خاص:</p>
+            <p>لكن لا تقلق — يمكنك الاشتراك الآن والوصول لكل المحتوى:</p>
             <div style="background: #ecfdf5; border-radius: 12px; padding: 20px; margin: 20px 0; text-align: center;">
-              <p style="font-size: 24px; font-weight: 900; color: #059669;">$7.17/شهر</p>
-              <p style="color: #44403c;">وفّر 20% مع الاشتراك السنوي</p>
+              <p style="font-size: 24px; font-weight: 900; color: #059669;">$9/شهر</p>
+              <p style="color: #44403c;">Essentials — كل الأدوات والبروتوكولات</p>
             </div>
             <a href="https://pptides.com/pricing" style="display: inline-block; background: #059669; color: white; padding: 14px 32px; border-radius: 9999px; text-decoration: none; font-weight: bold;">
-              احصل على العرض
+              اشترك الآن
             </a>
             <p style="margin-top: 16px; color: #78716c;">ضمان استرداد كامل خلال 3 أيام. بدون مخاطرة.</p>
           `
