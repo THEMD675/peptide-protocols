@@ -199,6 +199,26 @@ serve(async (req) => {
       })
     }
 
+    // Server-side subscription check
+    const { data: sub } = await supabase
+      .from('subscriptions')
+      .select('status, tier, trial_ends_at')
+      .eq('user_id', user.id)
+      .maybeSingle()
+
+    const now = new Date()
+    const trialEnd = sub?.trial_ends_at ? new Date(sub.trial_ends_at) : null
+    const isTrialValid = sub?.status === 'trial' && trialEnd && trialEnd > now
+    const isActive = sub?.status === 'active'
+    const hasAccess = isTrialValid || isActive
+
+    if (!hasAccess) {
+      return new Response(JSON.stringify({ error: 'يرجى الاشتراك للوصول إلى المدرب الذكي' }), {
+        status: 403,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      })
+    }
+
     let body: { messages?: unknown; stream?: unknown }
     try {
       body = await req.json()

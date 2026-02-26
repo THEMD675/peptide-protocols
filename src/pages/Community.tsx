@@ -377,7 +377,11 @@ export default function Community() {
                       ))}
                     </div>
                     <button
-                      onClick={() => { toast.success('تم الإبلاغ — سنراجع المحتوى'); }}
+                      onClick={async () => {
+                        if (!user) return;
+                        await supabase.from('community_logs').update({ rating: 0 }).eq('id', log.id);
+                        toast.success('تم الإبلاغ — سنراجع المحتوى');
+                      }}
                       className="rounded-lg p-2 text-stone-300 hover:text-red-500 hover:bg-red-50 transition-colors"
                       aria-label="إبلاغ"
                     >
