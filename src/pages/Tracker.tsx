@@ -257,6 +257,63 @@ export default function Tracker() {
         );
       })()}
 
+      {/* Monthly Calendar */}
+      {logs.length > 0 && (() => {
+        const now = new Date();
+        const year = now.getFullYear();
+        const month = now.getMonth();
+        const daysInMonth = new Date(year, month + 1, 0).getDate();
+        const firstDayOfWeek = new Date(year, month, 1).getDay();
+        const dayNames = ['أحد', 'إثن', 'ثلا', 'أرب', 'خمي', 'جمع', 'سبت'];
+        const monthName = now.toLocaleDateString('ar-SA', { month: 'long', year: 'numeric' });
+
+        const injectionDays = new Map<number, number>();
+        logs.forEach(l => {
+          const d = new Date(l.injected_at);
+          if (d.getFullYear() === year && d.getMonth() === month) {
+            injectionDays.set(d.getDate(), (injectionDays.get(d.getDate()) ?? 0) + 1);
+          }
+        });
+
+        const cells: React.ReactNode[] = [];
+        for (let i = 0; i < firstDayOfWeek; i++) cells.push(<div key={`empty-${i}`} />);
+        for (let day = 1; day <= daysInMonth; day++) {
+          const count = injectionDays.get(day) ?? 0;
+          const isToday = day === now.getDate();
+          cells.push(
+            <div key={day} className={cn(
+              'relative flex flex-col items-center justify-center rounded-lg py-1.5 text-xs transition-colors',
+              isToday ? 'ring-2 ring-emerald-400 font-bold' : '',
+              count > 0 ? 'bg-emerald-50 text-emerald-800 font-semibold' : 'text-stone-500',
+            )}>
+              <span>{day}</span>
+              {count > 0 && (
+                <div className="flex gap-0.5 mt-0.5">
+                  {Array.from({ length: Math.min(count, 3) }).map((_, i) => (
+                    <span key={i} className="h-1 w-1 rounded-full bg-emerald-500" />
+                  ))}
+                </div>
+              )}
+            </div>
+          );
+        }
+
+        return (
+          <div className="mb-8 rounded-2xl border border-stone-200 bg-white p-5">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-sm font-bold text-stone-900">{monthName}</h3>
+              <span className="text-xs text-stone-500">{injectionDays.size} يوم نشط</span>
+            </div>
+            <div className="grid grid-cols-7 gap-1 text-center">
+              {dayNames.map(d => (
+                <div key={d} className="text-[10px] font-bold text-stone-400 pb-1">{d}</div>
+              ))}
+              {cells}
+            </div>
+          </div>
+        );
+      })()}
+
       {/* Site Rotation Indicator */}
       {logs.length > 0 && (() => {
         const siteLabels: Record<string, string> = { abdomen: 'البطن', thigh: 'الفخذ', arm: 'الذراع', glute: 'المؤخرة' };

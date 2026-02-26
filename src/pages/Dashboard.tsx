@@ -273,6 +273,47 @@ export default function Dashboard() {
         </div>
       )}
 
+      {/* 30-Day Streak Calendar */}
+      {!activity.loading && activity.logs.length > 0 && (() => {
+        const today = new Date();
+        const days: { date: Date; count: number }[] = [];
+        for (let i = 29; i >= 0; i--) {
+          const d = new Date(today);
+          d.setDate(d.getDate() - i);
+          const ds = d.toDateString();
+          const count = activity.logs.filter(l => new Date(l.injected_at).toDateString() === ds).length;
+          days.push({ date: d, count });
+        }
+
+        return (
+          <div className="mb-8 rounded-2xl border border-stone-200 bg-white p-5">
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="text-sm font-bold text-stone-900">آخر 30 يوم</h3>
+              <span className="text-xs text-stone-500">{days.filter(d => d.count > 0).length} يوم نشط</span>
+            </div>
+            <div className="grid grid-cols-10 gap-1">
+              {days.map((d, i) => (
+                <div key={i} className={cn(
+                  'aspect-square rounded-sm transition-colors',
+                  d.count === 0 ? 'bg-stone-100' :
+                  d.count === 1 ? 'bg-emerald-200' :
+                  d.count === 2 ? 'bg-emerald-400' :
+                  'bg-emerald-600',
+                )} title={`${d.date.toLocaleDateString('ar-u-nu-latn', { month: 'short', day: 'numeric' })}: ${d.count} حقن`} />
+              ))}
+            </div>
+            <div className="mt-2 flex items-center justify-end gap-1 text-[10px] text-stone-400">
+              <span>أقل</span>
+              <span className="h-2.5 w-2.5 rounded-sm bg-stone-100" />
+              <span className="h-2.5 w-2.5 rounded-sm bg-emerald-200" />
+              <span className="h-2.5 w-2.5 rounded-sm bg-emerald-400" />
+              <span className="h-2.5 w-2.5 rounded-sm bg-emerald-600" />
+              <span>أكثر</span>
+            </div>
+          </div>
+        );
+      })()}
+
       {!activity.loading && activity.logs.length === 0 && (
         <div className="mb-8 rounded-2xl border-2 border-dashed border-emerald-200 bg-emerald-50 p-6 text-center">
           <Syringe className="mx-auto mb-2 h-6 w-6 text-emerald-600" />

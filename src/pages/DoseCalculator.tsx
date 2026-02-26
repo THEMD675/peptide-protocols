@@ -523,6 +523,31 @@ export default function DoseCalculator() {
             </div>
           )}
 
+          {/* Reconstitution Guide */}
+          {selectedPreset && isFinite(results.syringeUnits) && results.syringeUnits > 0 && (
+            <div className="mt-6 rounded-2xl border border-emerald-200 bg-emerald-50/50 p-5">
+              <h3 className="mb-3 text-sm font-bold text-stone-900">دليل التحضير — {selectedPreset}</h3>
+              <div className="space-y-3">
+                <div className="flex items-start gap-3">
+                  <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-emerald-600 text-xs font-bold text-white">1</span>
+                  <p className="text-sm text-stone-700">اسحب <strong>{waterMl} ml</strong> ماء بكتيريوستاتي وأضفه على قارورة <strong>{vialMg} mg</strong> {selectedPreset}. أدخل الإبرة ببطء على جدار القارورة.</p>
+                </div>
+                <div className="flex items-start gap-3">
+                  <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-emerald-600 text-xs font-bold text-white">2</span>
+                  <p className="text-sm text-stone-700">حرّك القارورة بلطف بحركة دائرية. <strong>لا ترجّها أبدًا</strong>. انتظر حتى يذوب المسحوق بالكامل (1-2 دقيقة).</p>
+                </div>
+                <div className="flex items-start gap-3">
+                  <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-emerald-600 text-xs font-bold text-white">3</span>
+                  <p className="text-sm text-stone-700">بسرنجة إنسولين ({syringe.label})، اسحب <strong>{fmt(results.syringeUnits, 1)} وحدة</strong>. هذه جرعتك ({doseUnit === 'mg' ? `${doseValue} mg` : `${doseValue} mcg`}).</p>
+                </div>
+                <div className="flex items-start gap-3">
+                  <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-emerald-600 text-xs font-bold text-white">4</span>
+                  <p className="text-sm text-stone-700">احقن تحت الجلد في البطن أو الفخذ. خزّن القارورة في الثلاجة 2-8°C — تصلح لـ {vialMg >= 5 ? '28' : '14'} يوم بعد التحضير.</p>
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* Dose safety warning */}
           {selectedPreset && (() => {
             const preset = PEPTIDE_PRESETS.find(p => p.name === selectedPreset);

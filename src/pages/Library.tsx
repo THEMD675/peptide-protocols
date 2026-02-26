@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback } from 'react';
+import { useState, useMemo, useCallback, useEffect } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { Link } from 'react-router-dom';
 import {
@@ -22,6 +22,7 @@ import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import { peptides, categories, type Peptide } from '@/data/peptides';
 import { useAuth } from '@/contexts/AuthContext';
+import { supabase } from '@/lib/supabase';
 import { PRICING, PEPTIDE_COUNT } from '@/lib/constants';
 
 const categoryIcons: Record<string, React.ElementType> = {
@@ -70,6 +71,7 @@ function PeptideCard({
   onToggleFav,
   isCompare,
   onToggleCompare,
+  isUsed,
 }: {
   peptide: Peptide;
   index: number;
@@ -79,6 +81,7 @@ function PeptideCard({
   onToggleFav: () => void;
   isCompare: boolean;
   onToggleCompare: () => void;
+  isUsed: boolean;
 }) {
   const Icon = categoryIcons[peptide.category];
 
@@ -135,7 +138,10 @@ function PeptideCard({
           >
             {peptide.nameAr}
           </h3>
-          <p className="mt-0.5 text-xs text-stone-800">{peptide.nameEn}</p>
+          <div className="mt-0.5 flex items-center gap-2">
+            <p className="text-xs text-stone-800">{peptide.nameEn}</p>
+            {isUsed && <span className="rounded-full bg-emerald-100 px-1.5 py-0.5 text-[9px] font-bold text-emerald-700">مستخدم</span>}
+          </div>
         </div>
         {peptide.fdaApproved && (
           <span className="flex shrink-0 items-center gap-1 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2 py-0.5 text-[10px] font-semibold text-emerald-400">
@@ -249,9 +255,22 @@ function useFavorites(): [Set<string>, (id: string) => void] {
   return [favs, toggle];
 }
 
+function useUsedPeptides() {
+  const { user } = useAuth();
+  const [used, setUsed] = useState<Set<string>>(new Set());
+  useEffect(() => {
+    if (!user) return;
+    supabase.from('injection_logs').select('peptide_name').eq('user_id', user.id).then(({ data }) => {
+      if (data) setUsed(new Set(data.map(d => d.peptide_name)));
+    });
+  }, [user]);
+  return used;
+}
+
 export default function Library() {
-  const { subscription, isLoading } = useAuth();
+  const { subscription, isLoading, user } = useAuth();
   const hasAccess = !isLoading && (subscription?.isProOrTrial ?? false);
+  const usedPeptides = useUsedPeptides();
 
   const [activeCategory, setActiveCategory] = useState('all');
   const [search, setSearch] = useState('');
@@ -456,6 +475,7 @@ export default function Library() {
                   onToggleFav={() => toggleFavorite(p.id)}
                   isCompare={compareIds.includes(p.id)}
                   onToggleCompare={() => setCompareIds(prev => prev.includes(p.id) ? prev.filter(x => x !== p.id) : prev.length >= 3 ? prev : [...prev, p.id])}
+                  isUsed={usedPeptides.has(p.nameEn)}
                 />
               ))}
 
