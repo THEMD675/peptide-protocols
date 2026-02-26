@@ -417,13 +417,9 @@ export default function Coach() {
 
             {isLoading && (
               <div className="flex justify-end">
-                <div className="rounded-2xl rounded-bl-md border border-stone-200 bg-white px-5 py-4 min-w-[200px]">
-                  <div className="flex items-center gap-2 mb-2">
-                    <span className="flex gap-1">
-                      <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-bounce" style={{ animationDelay: '0ms' }} />
-                      <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-bounce" style={{ animationDelay: '150ms' }} />
-                      <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-bounce" style={{ animationDelay: '300ms' }} />
-                    </span>
+                <div className="rounded-2xl rounded-bl-md border border-stone-200 bg-white px-5 py-4 min-w-[240px]">
+                  <div className="mb-3 h-1.5 w-full overflow-hidden rounded-full bg-stone-100">
+                    <div className="h-full rounded-full bg-emerald-500 transition-all duration-1000" style={{ width: `${Math.min(95, (loadingStage + 1) * 33)}%` }} />
                   </div>
                   <div className="space-y-1.5">
                     {['يحلّل ملفك الصحي...', 'يختار الببتيد المثالي...', 'يبني البروتوكول المخصّص...'].map((stage, idx) => (
@@ -433,6 +429,7 @@ export default function Coach() {
                       </div>
                     ))}
                   </div>
+                  <p className="mt-2 text-[10px] text-stone-400">يستغرق 15-25 ثانية لبناء بروتوكول مفصّل</p>
                 </div>
               </div>
             )}
