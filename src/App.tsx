@@ -1,7 +1,7 @@
 import { lazy, Suspense, useEffect, Component, type ReactNode } from 'react';
 import { BrowserRouter, Routes, Route, Link, Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
-import { HelmetProvider } from 'react-helmet-async';
+import { Helmet, HelmetProvider } from 'react-helmet-async';
 import { Toaster } from 'sonner';
 import { AuthProvider } from '@/contexts/AuthContext';
 import Header from '@/components/layout/Header';
@@ -92,6 +92,16 @@ function ScrollToTop() {
   return null;
 }
 
+function CanonicalUrl() {
+  const { pathname } = useLocation();
+  const url = `https://pptides.com${pathname === '/' ? '' : pathname}`;
+  return (
+    <Helmet>
+      <link rel="canonical" href={url} />
+    </Helmet>
+  );
+}
+
 function HomeRedirect() {
   const { user, subscription, isLoading } = useAuth();
   if (isLoading) return <PageLoader />;
@@ -143,6 +153,7 @@ export default function App() {
           <Header />
           <TrialBanner />
           <ScrollToTop />
+          <CanonicalUrl />
           <Toaster position="top-center" richColors dir="rtl" />
           <main id="main-content" className="flex-1">
             <Suspense fallback={<PageLoader />}>

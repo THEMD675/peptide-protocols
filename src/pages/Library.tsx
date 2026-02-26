@@ -579,8 +579,8 @@ export default function Library() {
           { label: 'المستوى', get: (p: Peptide) => p.difficulty === 'beginner' ? 'مبتدئ' : p.difficulty === 'intermediate' ? 'متوسط' : 'متقدم' },
         ];
         return (
-          <div className="fixed inset-0 z-50 flex items-start justify-center bg-black/50 backdrop-blur-sm p-4 overflow-y-auto" onClick={() => setShowCompare(false)}>
-            <div className="w-full max-w-4xl my-8 rounded-2xl bg-white shadow-2xl overflow-hidden" onClick={e => e.stopPropagation()}>
+          <div className="fixed inset-0 z-50 flex items-start justify-center bg-black/50 backdrop-blur-sm p-4 overflow-y-auto" onClick={() => setShowCompare(false)} role="dialog" aria-modal="true" aria-label="مقارنة ببتيدات">
+            <div className="w-full max-w-4xl my-8 rounded-2xl bg-white shadow-2xl overflow-hidden animate-fade-in" onClick={e => e.stopPropagation()}>
               <div className="flex items-center justify-between border-b border-stone-200 px-6 py-4">
                 <h2 className="text-lg font-bold text-stone-900">مقارنة ببتيدات</h2>
                 <button onClick={() => setShowCompare(false)} className="rounded-lg p-2 text-stone-400 transition-colors hover:bg-stone-100"><X className="h-5 w-5" /></button>
@@ -620,8 +620,8 @@ export default function Library() {
         const p = peptides.find(x => x.id === upsellPeptide);
         if (!p) return null;
         return (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4" onClick={() => setUpsellPeptide(null)}>
-            <div className="w-full max-w-md rounded-2xl bg-white p-8 shadow-2xl text-center" onClick={e => e.stopPropagation()}>
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4" onClick={() => setUpsellPeptide(null)} role="dialog" aria-modal="true" aria-label="اشترك لفتح البروتوكول">
+            <div className="w-full max-w-md rounded-2xl bg-white p-8 shadow-2xl text-center animate-fade-in" onClick={e => e.stopPropagation()}>
               <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-emerald-100">
                 <Lock className="h-7 w-7 text-emerald-600" />
               </div>

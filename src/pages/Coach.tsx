@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect, useCallback, type ElementType } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { Link, useSearchParams, useNavigate } from 'react-router-dom';
+import DOMPurify from 'dompurify';
 import { supabase } from '@/lib/supabase';
 import { peptides as allPeptides } from '@/data/peptides';
 import {
@@ -32,7 +33,7 @@ function renderMarkdown(text: string) {
           {listItems.map((item, j) => (
             <li key={j} className="flex items-start gap-2">
               <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-emerald-500" />
-              <span dangerouslySetInnerHTML={{ __html: inlineMd(item) }} />
+              <span dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(inlineMd(item)) }} />
             </li>
           ))}
         </ul>
@@ -50,7 +51,7 @@ function renderMarkdown(text: string) {
               {tableRows.map((cells, ri) => (
                 <tr key={ri} className={ri % 2 === 0 ? 'bg-stone-50' : 'bg-white'}>
                   {cells.map((cell, ci) => (
-                    <td key={ci} className={cn('px-3 py-2 border-b border-stone-100', ci === 0 && 'font-bold text-stone-700 w-[35%]')} dangerouslySetInnerHTML={{ __html: inlineMd(cell) }} />
+                    <td key={ci} className={cn('px-3 py-2 border-b border-stone-100', ci === 0 && 'font-bold text-stone-700 w-[35%]')} dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(inlineMd(cell)) }} />
                   ))}
                 </tr>
               ))}
@@ -99,7 +100,7 @@ function renderMarkdown(text: string) {
     if (/^[-*]\s/.test(line) || /^\d+\.\s/.test(line)) { listItems.push(line.replace(/^[-*]\s*/, '').replace(/^\d+\.\s*/, '')); continue; }
     if (line.startsWith('⚠️')) { flushList(); elements.push(<p key={i} className="my-2 text-xs text-stone-400 italic">{line}</p>); continue; }
     flushList();
-    elements.push(<p key={i} className="my-1" dangerouslySetInnerHTML={{ __html: inlineMd(line) }} />);
+    elements.push(<p key={i} className="my-1" dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(inlineMd(line)) }} />);
   }
   flushList();
   flushTable();
