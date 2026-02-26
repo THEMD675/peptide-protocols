@@ -45,21 +45,37 @@ function PageLoader() {
   );
 }
 
-class ErrorBoundary extends Component<{ children: ReactNode }, { hasError: boolean }> {
-  state = { hasError: false };
-  static getDerivedStateFromError() { return { hasError: true }; }
+class ErrorBoundary extends Component<{ children: ReactNode }, { hasError: boolean; isChunkError: boolean }> {
+  state = { hasError: false, isChunkError: false };
+  static getDerivedStateFromError(error: Error) {
+    const isChunk = error.message?.includes('Loading chunk') || error.message?.includes('Failed to fetch dynamically imported');
+    return { hasError: true, isChunkError: isChunk };
+  }
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
-    import('@sentry/react').then(Sentry => {
-      Sentry.captureException(error, { extra: { componentStack: errorInfo.componentStack } });
-    });
+    if (this.state.isChunkError) {
+      const reloaded = sessionStorage.getItem('pptides_chunk_reload');
+      if (!reloaded) {
+        sessionStorage.setItem('pptides_chunk_reload', '1');
+        window.location.reload();
+        return;
+      }
+      sessionStorage.removeItem('pptides_chunk_reload');
+    }
+    if (localStorage.getItem('pptides_cookie_consent') === 'accepted') {
+      import('@sentry/react').then(Sentry => {
+        Sentry.captureException(error, { extra: { componentStack: errorInfo.componentStack } });
+      });
+    }
   }
   render() {
     if (this.state.hasError) {
       return (
         <div className="flex min-h-[50vh] flex-col items-center justify-center px-6 text-center">
           <h2 className="mb-3 text-2xl font-bold text-stone-900">حدث خطأ غير متوقع</h2>
-          <p className="mb-6 text-stone-600">نعتذر عن هذا الخطأ. يرجى تحديث الصفحة.</p>
-          <button onClick={() => window.location.reload()} className="rounded-full bg-emerald-600 px-8 py-3 font-bold text-white hover:bg-emerald-700">
+          <p className="mb-6 text-stone-600">
+            {this.state.isChunkError ? 'تم تحديث الموقع — يرجى تحديث الصفحة.' : 'نعتذر عن هذا الخطأ. يرجى تحديث الصفحة.'}
+          </p>
+          <button onClick={() => window.location.reload()} className="rounded-full bg-emerald-600 px-8 py-3 font-bold text-white hover:bg-emerald-700 transition-colors">
             تحديث الصفحة
           </button>
         </div>

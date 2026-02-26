@@ -125,6 +125,11 @@
     border-color: var(--border);
   }
 
+  ::selection {
+    background-color: rgba(16, 185, 129, 0.2);
+    color: #064e3b;
+  }
+
   html {
     scroll-behavior: smooth;
   }
@@ -139,6 +144,18 @@
     text-align: right;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    caret-color: #10b981;
+  }
+
+  input::placeholder,
+  textarea::placeholder {
+    opacity: 0.5;
+  }
+
+  input:focus,
+  textarea:focus,
+  select:focus {
+    caret-color: #10b981;
   }
 }
 
