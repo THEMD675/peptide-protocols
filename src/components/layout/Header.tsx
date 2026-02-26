@@ -5,12 +5,20 @@ import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
 import { peptides } from '@/data/peptides';
 
-const navLinks = [
+const guestNavLinks = [
   { to: '/library', label: 'المكتبة' },
   { to: '/calculator', label: 'حاسبة الجرعات' },
   { to: '/table', label: 'الجدول' },
   { to: '/coach', label: 'المدرب' },
   { to: '/pricing', label: 'الأسعار' },
+] as const;
+
+const userNavLinks = [
+  { to: '/dashboard', label: 'لوحة التحكم' },
+  { to: '/library', label: 'المكتبة' },
+  { to: '/calculator', label: 'الحاسبة' },
+  { to: '/coach', label: 'المدرب' },
+  { to: '/tracker', label: 'سجل الحقن' },
 ] as const;
 
 const moreLinks = [
@@ -84,6 +92,8 @@ export default function Header() {
   }, []);
 
   const initial = user?.email?.charAt(0).toUpperCase() ?? '';
+  const navLinks = user ? userNavLinks : guestNavLinks;
+  const logoHref = user ? '/dashboard' : '/';
 
   return (
     <>
@@ -98,7 +108,7 @@ export default function Header() {
       >
         <div className="mx-auto flex h-full max-w-7xl items-center justify-between px-4 md:px-6">
           <Link
-            to="/"
+            to={logoHref}
             className="shrink-0 text-xl font-bold tracking-tight text-stone-900 md:text-2xl"
           >
             <span>pp</span>
@@ -260,7 +270,7 @@ export default function Header() {
           )}
         >
           <div className="flex flex-1 flex-col gap-1 overflow-y-auto px-4 py-4">
-            {navLinks.map(({ to, label }) => {
+            {(user ? userNavLinks : guestNavLinks).map(({ to, label }) => {
               const active = to === '/' ? pathname === '/' : pathname.startsWith(to);
               return (
                 <Link

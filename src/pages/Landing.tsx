@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Helmet } from 'react-helmet-async';
-import { Link } from 'react-router-dom';
+import { Link, Navigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
 import { peptides } from '@/data/peptides';
@@ -93,11 +93,12 @@ const FALLBACK_TESTIMONIALS = [
 ];
 
 export default function Landing() {
-  const { user } = useAuth();
+  const { user, subscription, isLoading } = useAuth();
   const [userCount, setUserCount] = useState(() => {
     try { const c = sessionStorage.getItem('pptides_user_count'); return c ? Number(c) : 0; } catch { return 0; }
   });
   const [testimonials, setTestimonials] = useState(FALLBACK_TESTIMONIALS);
+  const shouldRedirect = !isLoading && user && subscription.isProOrTrial;
 
   useEffect(() => {
     const cached = sessionStorage.getItem('pptides_user_count_ts');
@@ -127,6 +128,8 @@ export default function Landing() {
         }
       });
   }, []);
+  if (shouldRedirect) return <Navigate to="/dashboard" replace />;
+
   const ctaLink = user ? '/library' : '/signup';
   const ctaText = user ? 'ادخل المكتبة' : 'ابدأ تجربتك المجانية';
   const ctaTextShort = user ? 'اختر خطتك' : 'ابدأ التجربة المجانية';
