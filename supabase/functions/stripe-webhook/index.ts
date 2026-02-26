@@ -103,7 +103,11 @@ serve(async (req) => {
           if (error) {
             console.error('checkout.session.completed DB error:', error)
           } else if (!updateData || updateData.length === 0) {
-            console.error('checkout.session.completed: no subscription row found for user', userId)
+            console.error('checkout.session.completed: no row found, inserting new one for user', userId)
+            const { error: insertErr } = await supabase
+              .from('subscriptions')
+              .insert({ user_id: userId, ...updatePayload })
+            if (insertErr) console.error('checkout.session.completed insert fallback error:', insertErr)
           }
         } catch (dbErr) {
           console.error('checkout.session.completed DB exception:', dbErr)
@@ -200,7 +204,7 @@ serve(async (req) => {
             const { error } = await supabase
               .from('subscriptions')
               .update({
-                status: 'expired',
+                status: 'active',
                 updated_at: new Date().toISOString(),
               })
               .eq('stripe_subscription_id', stripeSubId)

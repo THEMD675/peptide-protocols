@@ -49,7 +49,8 @@ export default function PeptideDetail() {
   }
 
   const isFreeContent = peptide.isFree;
-  const hasAccess = isPaid || isFreeContent || (isTrial && isFreeContent);
+  const trialPeptideIds = ['semaglutide', 'bpc-157', 'cjc-1295', 'ipamorelin', 'semax', 'epithalon'];
+  const hasAccess = isPaid || isFreeContent || (isTrial && trialPeptideIds.includes(peptide.id));
   const firstSentence = peptide.summaryAr.split('.')[0] + '.';
 
   const rows: ProtocolRow[] = [

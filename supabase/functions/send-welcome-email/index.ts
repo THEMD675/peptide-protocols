@@ -82,6 +82,13 @@ serve(async (req) => {
       })
     }
 
+    if (email !== user.email) {
+      return new Response(JSON.stringify({ error: 'Email mismatch' }), {
+        status: 403,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      })
+    }
+
     if (!EMAIL_RE.test(email)) {
       return new Response(JSON.stringify({ error: 'Invalid email format' }), {
         status: 400,
