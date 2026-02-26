@@ -131,6 +131,24 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       );
       if (error) return;
 
+      if (!data) {
+        const now = new Date();
+        const trialEnd = new Date(now.getTime() + 3 * 24 * 60 * 60 * 1000);
+        await supabase.from('subscriptions').insert({
+          user_id: userId,
+          status: 'trial',
+          tier: 'free',
+          trial_ends_at: trialEnd.toISOString(),
+        });
+        setSubscription(buildSubscription({
+          status: 'trial',
+          tier: 'free',
+          trial_ends_at: trialEnd.toISOString(),
+          created_at: now.toISOString(),
+        }));
+        return;
+      }
+
       if (data?.status === 'trial' && data.trial_ends_at && data.created_at) {
         const created = new Date(data.created_at).getTime();
         const trialEnd = new Date(data.trial_ends_at).getTime();

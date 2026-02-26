@@ -135,7 +135,8 @@ export default function Dashboard() {
 
   if (!user) return null;
 
-  const displayName = user.email?.split('@')[0] ?? 'مستخدم';
+  const rawName = user.email?.split('@')[0] ?? 'مستخدم';
+  const displayName = rawName.charAt(0).toUpperCase() + rawName.slice(1);
 
   return (
     <main className="mx-auto max-w-5xl px-4 pb-24 pt-8 md:px-6 md:pt-12">
