@@ -13,6 +13,7 @@ export default function ExitIntentPopup() {
   const handleMouseLeave = useCallback((e: MouseEvent) => {
     if (e.clientY > 10) return;
     try {
+      if (localStorage.getItem('age_verified') !== 'true') return;
       const lastShown = localStorage.getItem(STORAGE_KEY);
       if (lastShown && Date.now() - Number(lastShown) < 7 * 24 * 60 * 60 * 1000) return;
     } catch {}

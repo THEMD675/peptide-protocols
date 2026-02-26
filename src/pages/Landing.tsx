@@ -131,8 +131,8 @@ export default function Landing() {
   }, []);
   if (shouldRedirect) return <Navigate to="/dashboard" replace />;
 
-  const ctaLink = user ? '/library' : '/signup';
-  const ctaText = user ? 'ادخل المكتبة' : 'ابدأ تجربتك المجانية';
+  const ctaLink = user ? '/pricing' : '/signup';
+  const ctaText = user ? 'اشترك الآن' : 'ابدأ تجربتك المجانية';
   const ctaTextShort = user ? 'اختر خطتك' : 'ابدأ التجربة المجانية';
 
   return (
@@ -370,7 +370,7 @@ export default function Landing() {
                     شاهد البطاقة كاملة
                   </Link>
                   <Link to={ctaLink} className="rounded-full bg-emerald-600 px-5 py-2 text-sm font-bold text-white hover:bg-emerald-700">
-                    {user ? 'افتح المكتبة' : 'ابدأ مجانًا'}
+                    {user ? 'اشترك الآن' : 'ابدأ مجانًا'}
                   </Link>
                 </div>
               </div>
@@ -700,7 +700,7 @@ export default function Landing() {
             to={ctaLink}
             className="btn-primary-glow inline-flex items-center justify-center gap-2 rounded-full bg-emerald-600 px-10 py-4 text-lg font-bold text-white transition-all hover:bg-emerald-700"
           >
-            <span>{user ? "ادخل المكتبة الآن" : "ابدأ تجربتك المجانية الآن"}</span>
+            <span>{user ? "اشترك الآن" : "ابدأ تجربتك المجانية الآن"}</span>
             <ArrowLeft className="h-5 w-5" />
           </Link>
           <p className="mt-4 text-sm text-stone-800">3 أيام مجانًا — إلغاء في أي وقت — ضمان استرداد كامل</p>

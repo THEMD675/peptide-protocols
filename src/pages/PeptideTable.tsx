@@ -5,6 +5,7 @@ import { Search, Lock, BookOpen, AlertTriangle, FlaskConical, Layers, Info } fro
 import { cn } from '@/lib/utils';
 import { peptides, categories, stacks } from '@/data/peptides';
 import { useAuth } from '@/contexts/AuthContext';
+import { PEPTIDE_COUNT } from '@/lib/constants';
 
 const categoryColors: Record<string, { badge: string; border: string }> = {
   metabolic: { badge: 'bg-orange-100 text-orange-800 border-orange-300', border: 'border-orange-200' },
@@ -65,14 +66,14 @@ export default function PeptideTable() {
   return (
     <div className="min-h-screen" >
       <Helmet>
-        <title>جدول الببتيدات الشامل — مقارنة 41 ببتيد بالعربي | Peptide Comparison Table Arabic</title>
+        <title>{`جدول الببتيدات الشامل — مقارنة ${PEPTIDE_COUNT} ببتيد بالعربي | Peptide Comparison Table Arabic`}</title>
         <meta
           name="description"
-          content="أشمل جدول مقارنة ببتيدات بالعربي — 41 ببتيد مع الجرعات المثالية، التوقيت، الدورات، الاستخدام طويل الأمد، ونصائح التجميع. دليلك الكامل لبروتوكولات الببتيدات."
+          content={`أشمل جدول مقارنة ببتيدات بالعربي — ${PEPTIDE_COUNT} ببتيد مع الجرعات المثالية، التوقيت، الدورات، الاستخدام طويل الأمد، ونصائح التجميع. دليلك الكامل لبروتوكولات الببتيدات.`}
         />
         <meta
           name="keywords"
-          content="جدول ببتيدات, peptide comparison table arabic, مقارنة ببتيدات, بروتوكولات ببتيدات, جرعات ببتيدات, ببتيدات عربي"
+          content={`جدول ببتيدات, peptide comparison table arabic, مقارنة ببتيدات, بروتوكولات ببتيدات, جرعات ببتيدات, ببتيدات عربي, ${PEPTIDE_COUNT} ببتيد`}
         />
         <link rel="canonical" href="https://pptides.com/table" />
       </Helmet>
@@ -96,7 +97,7 @@ export default function PeptideTable() {
         </div>
       )}
 
-      <div className="mx-auto max-w-[1440px] px-4 py-8 md:px-6 md:py-12 lg:py-16">
+      <div className="mx-auto max-w-[1440px] px-4 py-8 md:px-6 md:py-12">
 
         {/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
            SECTION 1: Header + How to Use

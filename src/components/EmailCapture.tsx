@@ -4,12 +4,14 @@ import { Mail, ArrowLeft, Loader2 } from 'lucide-react';
 
 export default function EmailCapture() {
   const [email, setEmail] = useState('');
+  const [honeypot, setHoneypot] = useState('');
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
   const [errorMsg, setErrorMsg] = useState('');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email) return;
+    if (honeypot) return;
 
     setStatus('loading');
     setErrorMsg('');
@@ -55,6 +57,15 @@ export default function EmailCapture() {
             placeholder="أدخل بريدك الإلكتروني"
             required
             className="w-full rounded-full bg-white/10 border border-white/20 py-3.5 pr-11 pl-4 text-white placeholder:text-white/40 outline-none focus:border-emerald-400 focus:ring-2 focus:ring-emerald-200 transition-all dark:bg-white/10 dark:text-white dark:border-white/20"
+          />
+          <input
+            type="text"
+            value={honeypot}
+            onChange={(e) => setHoneypot(e.target.value)}
+            tabIndex={-1}
+            autoComplete="off"
+            aria-hidden="true"
+            className="absolute -left-[9999px] h-0 w-0 opacity-0 overflow-hidden"
           />
         </div>
         <button

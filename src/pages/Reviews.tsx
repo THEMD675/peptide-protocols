@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
-import { Star, Send, MessageSquare, CheckCircle } from 'lucide-react';
+import { Star, Send, MessageSquare, CheckCircle, AlertCircle, BadgeCheck } from 'lucide-react';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
@@ -31,32 +31,41 @@ function StarRating({
 
   return (
     <div className="flex gap-1" dir="ltr">
-      {[1, 2, 3, 4, 5].map((star) => (
-        <button
-          key={star}
-          type="button"
-          disabled={!interactive}
-          onClick={() => onRate?.(star)}
-          onMouseEnter={() => interactive && setHover(star)}
-          onMouseLeave={() => interactive && setHover(0)}
-          className={cn(
-            'transition-transform',
-            interactive && 'cursor-pointer hover:scale-110',
-            !interactive && 'cursor-default',
-          )}
-        >
-          <span className="sr-only">{star} نجمة</span>
-          <Star
-            className={cn(
-              sizeClass,
-              'transition-colors',
-              (hover || rating) >= star
-                ? 'fill-emerald-500 text-emerald-500'
-                : 'fill-transparent text-stone-500',
-            )}
-          />
-        </button>
-      ))}
+      {[1, 2, 3, 4, 5].map((star) =>
+        interactive ? (
+          <button
+            key={star}
+            type="button"
+            onClick={() => onRate?.(star)}
+            onMouseEnter={() => setHover(star)}
+            onMouseLeave={() => setHover(0)}
+            className="cursor-pointer transition-transform hover:scale-110"
+          >
+            <span className="sr-only">{star} نجمة</span>
+            <Star
+              className={cn(
+                sizeClass,
+                'transition-colors',
+                (hover || rating) >= star
+                  ? 'fill-emerald-500 text-emerald-500'
+                  : 'fill-transparent text-stone-500',
+              )}
+            />
+          </button>
+        ) : (
+          <span key={star} className="cursor-default" aria-hidden="true">
+            <Star
+              className={cn(
+                sizeClass,
+                'transition-colors',
+                rating >= star
+                  ? 'fill-emerald-500 text-emerald-500'
+                  : 'fill-transparent text-stone-500',
+              )}
+            />
+          </span>
+        ),
+      )}
     </div>
   );
 }
@@ -65,12 +74,14 @@ export default function Reviews() {
   const { user } = useAuth();
   const [reviews, setReviews] = useState<Review[]>([]);
   const [loading, setLoading] = useState(true);
+  const [fetchError, setFetchError] = useState<string | null>(null);
   const [rating, setRating] = useState(0);
   const [text, setText] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
 
   const fetchReviews = async () => {
+    setFetchError(null);
     const { data, error } = await supabase
       .from('reviews')
       .select('id, rating, text, created_at')
@@ -79,6 +90,7 @@ export default function Reviews() {
 
     if (error) {
       console.error('Failed to load reviews:', error.message);
+      setFetchError('تعذّر تحميل التقييمات. حاول مرة أخرى.');
     }
     if (data) setReviews(data);
     setLoading(false);
@@ -271,6 +283,17 @@ export default function Reviews() {
             <div className="py-12 text-center">
               <div className="h-6 w-6 mx-auto animate-spin rounded-full border-2 border-stone-200 border-t-emerald-600" />
             </div>
+          ) : fetchError ? (
+            <div className="rounded-2xl border border-red-200 bg-red-50 py-10 text-center">
+              <AlertCircle className="mx-auto mb-3 h-10 w-10 text-red-400" />
+              <p className="text-base text-red-700">{fetchError}</p>
+              <button
+                onClick={() => { setLoading(true); fetchReviews(); }}
+                className="mt-4 rounded-xl bg-red-100 px-6 py-2 text-sm font-bold text-red-700 hover:bg-red-200 transition-colors"
+              >
+                إعادة المحاولة
+              </button>
+            </div>
           ) : reviews.length === 0 ? (
             <div className="rounded-2xl border border-stone-300 bg-stone-50 py-16 text-center">
               <Star className="mx-auto mb-3 h-10 w-10 text-stone-500" />
@@ -284,7 +307,13 @@ export default function Reviews() {
                   className="rounded-2xl border border-stone-300 bg-stone-50 p-5"
                 >
                   <div className="mb-3 flex items-center justify-between">
-                    <StarRating rating={review.rating} size="sm" />
+                    <div className="flex items-center gap-2">
+                      <StarRating rating={review.rating} size="sm" />
+                      <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-0.5 text-[10px] font-bold text-emerald-700 border border-emerald-200">
+                        <BadgeCheck className="h-3 w-3" />
+                        مستخدم موثّق
+                      </span>
+                    </div>
                     <span className="text-xs text-stone-700">
                       {formatDate(review.created_at)}
                     </span>
