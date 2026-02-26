@@ -97,6 +97,8 @@ serve(async (req) => {
     }
 
     // Fix trial duration: ensure 3 days, not 7
+    // Small delay to ensure DB trigger has created the subscription row
+    await new Promise(r => setTimeout(r, 2000))
     const serviceSupabase = createClient(supabaseUrl, Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '')
     const { data: subRow } = await serviceSupabase
       .from('subscriptions')
