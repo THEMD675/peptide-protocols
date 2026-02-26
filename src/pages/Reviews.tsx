@@ -80,7 +80,7 @@ export default function Reviews() {
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
 
-  const fetchReviews = async () => {
+  const fetchReviews = async (signal?: { cancelled: boolean }) => {
     setFetchError(null);
     const { data, error } = await supabase
       .from('reviews')
@@ -88,6 +88,7 @@ export default function Reviews() {
       .order('created_at', { ascending: false })
       .limit(100);
 
+    if (signal?.cancelled) return;
     if (error) {
       console.error('Failed to load reviews:', error.message);
       setFetchError('تعذّر تحميل التقييمات. حاول مرة أخرى.');
@@ -97,7 +98,9 @@ export default function Reviews() {
   };
 
   useEffect(() => {
-    fetchReviews();
+    const signal = { cancelled: false };
+    fetchReviews(signal);
+    return () => { signal.cancelled = true; };
   }, []);
 
   const averageRating =

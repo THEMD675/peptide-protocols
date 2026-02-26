@@ -56,6 +56,9 @@ export default function Footer() {
             <nav className="flex flex-col gap-2 text-sm">
               <Link to="/privacy" className="text-stone-600 transition-colors hover:text-emerald-600">سياسة الخصوصية</Link>
               <Link to="/terms" className="text-stone-600 transition-colors hover:text-emerald-600">شروط الاستخدام</Link>
+              <button onClick={() => { localStorage.removeItem('pptides_cookie_consent'); window.location.reload(); }} className="text-start text-sm text-stone-500 hover:text-emerald-600 transition-colors">
+                إدارة ملفات تعريف الارتباط
+              </button>
             </nav>
             <div className="mt-4 flex flex-col gap-2 text-xs text-stone-500">
               <p className="flex items-center gap-1.5"><Lock className="h-3 w-3" /> دفع آمن عبر Stripe</p>

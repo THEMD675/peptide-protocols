@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Shield } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-const STORAGE_KEY = "age_verified";
+const STORAGE_KEY = "pptides_age_verified";
 
 export default function AgeGate() {
   const [visible, setVisible] = useState(false);

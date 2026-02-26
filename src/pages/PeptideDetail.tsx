@@ -465,6 +465,7 @@ function PeptideExperiences({ peptideNameEn }: { peptideNameEn: string }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    let mounted = true;
     setLoading(true);
     const safeName = peptideNameEn.replace(/[%_]/g, '');
     supabase
@@ -473,7 +474,12 @@ function PeptideExperiences({ peptideNameEn }: { peptideNameEn: string }) {
       .ilike('peptide_name', `%${safeName}%`)
       .order('created_at', { ascending: false })
       .limit(3)
-      .then(({ data }) => { if (data) setExperiences(data); setLoading(false); });
+      .then(({ data }) => {
+        if (!mounted) return;
+        if (data) setExperiences(data);
+        setLoading(false);
+      });
+    return () => { mounted = false; };
   }, [peptideNameEn]);
 
   if (loading || experiences.length === 0) return null;

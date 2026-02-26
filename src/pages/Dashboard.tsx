@@ -81,6 +81,7 @@ function useRecentActivity(userId: string | undefined) {
 
   useEffect(() => {
     if (!userId) return;
+    let mounted = true;
     supabase
       .from('injection_logs')
       .select('id, peptide_name, dose, unit, injected_at')
@@ -88,10 +89,12 @@ function useRecentActivity(userId: string | undefined) {
       .order('injected_at', { ascending: false })
       .limit(30)
       .then(({ data, error }) => {
+        if (!mounted) return;
         if (data && !error) setLogs(data);
         setLoading(false);
       })
-      .catch(() => setLoading(false));
+      .catch(() => { if (mounted) setLoading(false); });
+    return () => { mounted = false; };
   }, [userId]);
 
   const activePeptides = [...new Set(logs.map(l => l.peptide_name))];

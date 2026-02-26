@@ -107,7 +107,7 @@ export default function Pricing() {
 
     return (
       <Link
-        to="/signup"
+        to="/signup?redirect=/pricing"
         className={cn(
           'inline-flex w-full items-center justify-center rounded-full px-6 py-3.5',
           'font-bold transition-all duration-300',
@@ -354,7 +354,7 @@ export default function Pricing() {
             </button>
           ) : (
             <Link
-              to="/signup"
+              to="/signup?redirect=/pricing"
               className="btn-primary-glow inline-flex items-center gap-2 rounded-full bg-emerald-600 px-10 py-4 text-lg font-bold text-white transition-all hover:bg-emerald-700"
             >
               <span>ابدأ تجربتك المجانية الآن</span>

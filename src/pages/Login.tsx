@@ -52,7 +52,7 @@ export default function Login() {
       setIsRecovery(false);
       setResetMessage('تم تغيير كلمة المرور بنجاح');
       setNewPassword('');
-      setTimeout(() => navigate('/library'), 1500);
+      setTimeout(() => navigate('/dashboard'), 1500);
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'حدث خطأ غير متوقع');
     } finally {

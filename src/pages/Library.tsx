@@ -260,9 +260,11 @@ function useUsedPeptides() {
   const [used, setUsed] = useState<Set<string>>(new Set());
   useEffect(() => {
     if (!user) return;
+    let mounted = true;
     supabase.from('injection_logs').select('peptide_name').eq('user_id', user.id).then(({ data }) => {
-      if (data) setUsed(new Set(data.map(d => d.peptide_name)));
+      if (mounted && data) setUsed(new Set(data.map(d => d.peptide_name)));
     });
+    return () => { mounted = false; };
   }, [user]);
   return used;
 }

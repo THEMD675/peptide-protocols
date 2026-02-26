@@ -5,7 +5,7 @@ import { cn, arPlural } from '@/lib/utils';
 import { PRICING, PEPTIDE_COUNT } from '@/lib/constants';
 import { peptides } from '@/data/peptides';
 
-const FREE_PATHS = ['/calculator', '/pricing', '/login', '/signup', '/privacy', '/terms', '/', '/glossary', '/sources', '/reviews'];
+const FREE_PATHS = ['/calculator', '/pricing', '/login', '/signup', '/privacy', '/terms', '/', '/glossary', '/sources', '/reviews', '/account'];
 
 export default function TrialBanner() {
   const { user, subscription } = useAuth();

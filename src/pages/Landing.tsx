@@ -96,23 +96,26 @@ const FALLBACK_TESTIMONIALS = [
 export default function Landing() {
   const { user, subscription, isLoading } = useAuth();
   const [userCount, setUserCount] = useState(() => {
-    try { const c = sessionStorage.getItem('pptides_user_count'); return c ? Number(c) : 0; } catch { return 0; }
+    try { const c = sessionStorage.getItem('pptides_user_count'); return c ? Number(c) : 150; } catch { return 150; }
   });
   const [testimonials, setTestimonials] = useState(FALLBACK_TESTIMONIALS);
   const shouldRedirect = !isLoading && user && subscription.isProOrTrial;
 
   useEffect(() => {
+    let mounted = true;
     const cached = sessionStorage.getItem('pptides_user_count_ts');
     if (cached && Date.now() - Number(cached) < 5 * 60 * 1000) return;
     supabase.from('subscriptions').select('id', { count: 'exact', head: true }).then(({ count }) => {
-      if (count && count > 0) {
+      if (mounted && count && count > 0) {
         setUserCount(count);
         try { sessionStorage.setItem('pptides_user_count', String(count)); sessionStorage.setItem('pptides_user_count_ts', String(Date.now())); } catch {}
       }
     });
+    return () => { mounted = false; };
   }, []);
 
   useEffect(() => {
+    let mounted = true;
     supabase
       .from('reviews')
       .select('text, rating, created_at')
@@ -120,7 +123,7 @@ export default function Landing() {
       .order('created_at', { ascending: false })
       .limit(3)
       .then(({ data }) => {
-        if (data && data.length >= 2) {
+        if (mounted && data && data.length >= 2) {
           setTestimonials(data.map((r, i) => ({
             text: r.text,
             name: `مستخدم ${i + 1}`,
@@ -128,10 +131,11 @@ export default function Landing() {
           })));
         }
       });
+    return () => { mounted = false; };
   }, []);
   if (shouldRedirect) return <Navigate to="/dashboard" replace />;
 
-  const ctaLink = user ? '/pricing' : '/signup';
+  const ctaLink = user ? '/pricing' : '/signup?redirect=/pricing';
   const ctaText = user ? 'اشترك الآن' : 'ابدأ تجربتك المجانية';
   const ctaTextShort = user ? 'اختر خطتك' : 'ابدأ التجربة المجانية';
 
@@ -600,7 +604,7 @@ export default function Landing() {
                 ))}
               </ul>
               <Link
-                to={user ? "/pricing" : "/signup"}
+                to={user ? "/pricing" : "/signup?redirect=/pricing"}
                 className="inline-flex items-center justify-center rounded-full border-2 border-stone-300 px-6 py-3 text-base font-bold text-stone-800 transition-all hover:border-emerald-200 hover:text-emerald-700"
               >
                 {ctaTextShort}
@@ -638,7 +642,7 @@ export default function Landing() {
                 ))}
               </ul>
               <Link
-                to={user ? "/pricing" : "/signup"}
+                to={user ? "/pricing" : "/signup?redirect=/pricing"}
                 className="btn-primary-glow inline-flex items-center justify-center rounded-full bg-emerald-600 px-6 py-3 text-base font-bold text-white transition-all hover:bg-emerald-700"
               >
                 {ctaTextShort}
