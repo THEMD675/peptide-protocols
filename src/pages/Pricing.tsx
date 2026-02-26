@@ -61,8 +61,8 @@ const faqs = [
     a: 'نعم. يمكنك طلب إلغاء الاشتراك من حسابك. لإيقاف الدفعات المستقبلية، تواصل معنا عبر contact@pptides.com.',
   },
   {
-    q: 'هل أحتاج بطاقة ائتمان للتجربة المجانية؟',
-    a: 'لا تحتاج بطاقة للتجربة. سجّل بالبريد الإلكتروني فقط واستمتع بـ 3 أيام مجانية. عند الاشتراك، ندعم Visa و Mastercard و Apple Pay عبر Stripe.',
+    q: 'كيف تعمل التجربة المجانية؟',
+    a: 'عند اشتراكك في أي خطة، تحصل على 3 أيام تجربة مجانية. ندعم Visa و Mastercard و Apple Pay عبر Stripe. يمكنك الإلغاء قبل انتهاء التجربة بدون أي رسوم.',
   },
 ];
 
@@ -161,7 +161,7 @@ export default function Pricing() {
           </h1>
           {showTrialMessaging && (
             <p className="mx-auto max-w-lg text-lg text-stone-800">
-              3 أيام تجربة مجانية على كل الخطط — بدون بطاقة.
+              3 أيام تجربة مجانية مع كل اشتراك.
             </p>
           )}
           <div className="mt-6 flex items-center justify-center gap-6 text-sm text-stone-500">
