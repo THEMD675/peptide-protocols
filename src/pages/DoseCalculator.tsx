@@ -429,7 +429,6 @@ export default function DoseCalculator() {
                 ) : (
                   <button
                     onClick={() => setWaterMl(recommendedWater)}
-                    className="text-xs transition-colors hover:underline"
                     className="text-xs text-emerald-600/70 transition-colors hover:underline"
                   >
                     💡 الكمية المُوصى بها: {recommendedWater} مل

@@ -256,8 +256,7 @@ export default function PeptideTable() {
                         >
                           {/* Category — sticky */}
                           <td
-                            className="sticky z-10 px-3 py-3"
-                            style={{ right: '0' }} className={i % 2 === 0 ? 'bg-stone-50' : 'bg-white'}
+                            className={cn('sticky right-0 z-10 px-3 py-3', i % 2 === 0 ? 'bg-stone-50' : 'bg-white')}
                           >
                             <span
                               className={cn(
@@ -271,8 +270,7 @@ export default function PeptideTable() {
 
                           {/* Peptide name — sticky */}
                           <td
-                            className="sticky z-10 px-3 py-3"
-                            style={{ right: '120px' }} className={i % 2 === 0 ? 'bg-stone-50' : 'bg-white'}
+                            className={cn('sticky right-[120px] z-10 px-3 py-3', i % 2 === 0 ? 'bg-stone-50' : 'bg-white')}
                           >
                             <Link to={`/peptide/${p.id}`} className="group block">
                               <span className="block font-bold text-stone-900 transition-colors group-hover:text-emerald-600 group-hover:underline">
