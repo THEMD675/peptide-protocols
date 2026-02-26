@@ -11,6 +11,7 @@ interface Subscription {
   trialDaysLeft: number;
   isProOrTrial: boolean;
   isPaidSubscriber: boolean;
+  isTrial: boolean;
 }
 
 interface User {
@@ -34,6 +35,7 @@ const DEFAULT_SUBSCRIPTION: Subscription = {
   trialDaysLeft: 0,
   isProOrTrial: false,
   isPaidSubscriber: false,
+  isTrial: false,
 };
 
 const STRIPE_LINKS: Record<'essentials' | 'elite', string> = {
@@ -99,7 +101,9 @@ function buildSubscription(row: Record<string, unknown> | null): Subscription {
     (status === 'trial' && trialDaysLeft > 0) || status === 'active' || cancelledButActive;
   const isPaidSubscriber = status === 'active' || cancelledButActive;
 
-  return { status, tier, trialDaysLeft, isProOrTrial, isPaidSubscriber };
+  const isTrial = status === 'trial' && trialDaysLeft > 0;
+
+  return { status, tier, trialDaysLeft, isProOrTrial, isPaidSubscriber, isTrial };
 }
 
 

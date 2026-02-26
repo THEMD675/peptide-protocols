@@ -38,7 +38,8 @@ export default function PeptideDetail() {
   const { id } = useParams<{ id: string }>();
   const { subscription, isLoading } = useAuth();
   const navigate = useNavigate();
-  const isPro = !isLoading && (subscription?.isProOrTrial ?? false);
+  const isPaid = !isLoading && (subscription?.isPaidSubscriber ?? false);
+  const isTrial = !isLoading && (subscription?.isTrial ?? false);
 
   const peptide = useMemo(() => peptides.find((p) => p.id === id), [id]);
 
@@ -48,7 +49,7 @@ export default function PeptideDetail() {
   }
 
   const isFreeContent = peptide.isFree;
-  const hasAccess = isPro || isFreeContent;
+  const hasAccess = isPaid || isFreeContent || (isTrial && isFreeContent);
   const firstSentence = peptide.summaryAr.split('.')[0] + '.';
 
   const rows: ProtocolRow[] = [

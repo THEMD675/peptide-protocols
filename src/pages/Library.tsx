@@ -275,7 +275,10 @@ function useUsedPeptides() {
 
 export default function Library() {
   const { subscription, isLoading, user } = useAuth();
-  const hasAccess = !isLoading && (subscription?.isProOrTrial ?? false);
+  const isPaid = !isLoading && (subscription?.isPaidSubscriber ?? false);
+  const isTrial = !isLoading && (subscription?.isTrial ?? false);
+  const hasFullAccess = isPaid;
+  const hasAccess = hasFullAccess || isTrial;
   const usedPeptides = useUsedPeptides();
 
   const [activeCategory, setActiveCategory] = useState('all');
@@ -490,7 +493,7 @@ export default function Library() {
                   key={p.id}
                   peptide={p}
                   index={i}
-                  hasAccess={hasAccess}
+                  hasAccess={hasFullAccess || (isTrial && (p.isFree || i < 6))}
                   onLockedClick={() => handleLockedClick(p.id)}
                   isFav={favorites.has(p.id)}
                   onToggleFav={() => toggleFavorite(p.id)}
@@ -504,7 +507,7 @@ export default function Library() {
                 />
               ))}
 
-              {!hasAccess && (
+              {(!hasFullAccess) && (
                 <div
                   className="md:col-span-2"
                 >

@@ -130,7 +130,7 @@ export default function TrialBanner() {
             </>
           ) : (
             <>
-              متبقي {daysText}
+              تجربتك المجانية — متبقي {daysText}
               <span className="mx-2">—</span>
               <Link
                 to="/pricing"

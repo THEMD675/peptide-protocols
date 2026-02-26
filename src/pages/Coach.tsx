@@ -423,7 +423,8 @@ export default function Coach() {
 
   const hasAccess = subscription.isProOrTrial;
   const isElite = hasAccess && subscription.tier === 'elite';
-  const limit = isElite ? Infinity : hasAccess ? 15 : 5;
+  const isTrial = subscription.isTrial;
+  const limit = isElite ? Infinity : hasAccess && !isTrial ? 15 : isTrial ? 3 : 5;
   const userMsgCount = messages.filter(m => m.role === 'user').length;
   const limitReached = userMsgCount >= limit;
 
