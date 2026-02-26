@@ -71,7 +71,7 @@ interface RecentLog {
   peptide_name: string;
   dose: number;
   unit: string;
-  injected_at: string;
+  logged_at: string;
 }
 
 interface TodayItem { peptide: string; dose: number; unit: string; done: boolean }
@@ -85,9 +85,9 @@ function useRecentActivity(userId: string | undefined) {
     let mounted = true;
     supabase
       .from('injection_logs')
-      .select('id, peptide_name, dose, unit, injected_at')
+      .select('id, peptide_name, dose, unit, logged_at')
       .eq('user_id', userId)
-      .order('injected_at', { ascending: false })
+      .order('logged_at', { ascending: false })
       .limit(30)
       .then(({ data, error }) => {
         if (!mounted) return;
@@ -103,7 +103,7 @@ function useRecentActivity(userId: string | undefined) {
 
   let streak = 0;
   if (logs.length > 0) {
-    const daySet = new Set(logs.map(l => new Date(l.injected_at).toDateString()));
+    const daySet = new Set(logs.map(l => new Date(l.logged_at).toDateString()));
     const d = new Date();
     while (daySet.has(d.toDateString())) { streak++; d.setDate(d.getDate() - 1); }
   }
@@ -113,11 +113,11 @@ function useRecentActivity(userId: string | undefined) {
     const today = new Date().toDateString();
     const peptideFreq: Record<string, { dose: number; unit: string; daysUsed: Set<string>; total: number }> = {};
     logs.forEach(l => {
-      if (!peptideFreq[l.peptide_name]) peptideFreq[l.peptide_name] = { dose: l.dose, unit: l.unit, daysUsed: new Set(), total: 0 };
-      peptideFreq[l.peptide_name].daysUsed.add(new Date(l.injected_at).toDateString());
+      if (!peptideFreq[l.peptide_name]) peptideFreq[l.peptide_name] = { dose: l.dose, unit: l.dose_unit, daysUsed: new Set(), total: 0 };
+      peptideFreq[l.peptide_name].daysUsed.add(new Date(l.logged_at).toDateString());
       peptideFreq[l.peptide_name].total++;
     });
-    const todayDone = new Set(logs.filter(l => new Date(l.injected_at).toDateString() === today).map(l => l.peptide_name));
+    const todayDone = new Set(logs.filter(l => new Date(l.logged_at).toDateString() === today).map(l => l.peptide_name));
     for (const [name, info] of Object.entries(peptideFreq)) {
       if (info.total >= 2) {
         todayPlan.push({ peptide: name, dose: info.dose, unit: info.unit, done: todayDone.has(name) });
@@ -246,7 +246,7 @@ export default function Dashboard() {
                 {(() => {
                   const last = activity.logs[0];
                   if (!last) return '—';
-                  const diff = Date.now() - new Date(last.injected_at).getTime();
+                  const diff = Date.now() - new Date(last.logged_at).getTime();
                   const mins = Math.floor(diff / 60000);
                   if (mins < 60) return `${mins} د`;
                   const hrs = Math.floor(mins / 60);
@@ -286,7 +286,7 @@ export default function Dashboard() {
                     <span className="mr-2 text-xs text-stone-500">{log.dose} {log.unit}</span>
                   </div>
                   <span className="text-xs text-stone-400">
-                    {new Date(log.injected_at).toLocaleDateString('ar-u-nu-latn', { month: 'short', day: 'numeric' })}
+                    {new Date(log.logged_at).toLocaleDateString('ar-u-nu-latn', { month: 'short', day: 'numeric' })}
                   </span>
                 </div>
               ))}
@@ -303,7 +303,7 @@ export default function Dashboard() {
           const d = new Date(today);
           d.setDate(d.getDate() - i);
           const ds = d.toDateString();
-          const count = activity.logs.filter(l => new Date(l.injected_at).toDateString() === ds).length;
+          const count = activity.logs.filter(l => new Date(l.logged_at).toDateString() === ds).length;
           days.push({ date: d, count });
         }
 

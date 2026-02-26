@@ -28,9 +28,9 @@ interface InjectionLog {
   id: string;
   peptide_name: string;
   dose: number;
-  unit: string;
+  dose_unit: string;
   injection_site: string;
-  injected_at: string;
+  logged_at: string;
   notes: string | null;
 }
 
@@ -111,7 +111,7 @@ export default function Tracker() {
       .from('injection_logs')
       .select('*')
       .eq('user_id', user.id)
-      .order('injected_at', { ascending: false })
+      .order('logged_at', { ascending: false })
       .range(0, PAGE_SIZE - 1);
     if (error) { toast.error('تعذّر تحميل السجلات. حاول تحديث الصفحة.'); }
     const rows = (data as InjectionLog[]) ?? [];
@@ -128,7 +128,7 @@ export default function Tracker() {
       .from('injection_logs')
       .select('*')
       .eq('user_id', user.id)
-      .order('injected_at', { ascending: false })
+      .order('logged_at', { ascending: false })
       .range(from, from + PAGE_SIZE - 1);
     const rows = (data as InjectionLog[]) ?? [];
     setLogs(prev => [...prev, ...rows]);
@@ -139,7 +139,7 @@ export default function Tracker() {
   const exportCSV = () => {
     const headers = 'Peptide,Dose,Unit,Site,Date,Time,Notes';
     const rows = logs.map(l =>
-      `${l.peptide_name},${l.dose},${l.unit},${l.injection_site},${formatDate(l.injected_at)},${formatTime(l.injected_at)},${(l.notes ?? '').replace(/,/g, ';')}`
+      `${l.peptide_name},${l.dose},${l.dose_unit},${l.injection_site},${formatDate(l.logged_at)},${formatTime(l.logged_at)},${(l.notes ?? '').replace(/,/g, ';')}`
     );
     const csv = '\ufeff' + [headers, ...rows].join('\n');
     const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
@@ -162,9 +162,9 @@ export default function Tracker() {
         user_id: user.id,
         peptide_name: peptideName.trim(),
         dose: parseFloat(dose),
-        unit,
+        dose_unit: unit,
         injection_site: site,
-        injected_at: new Date(injectedAt).toISOString(),
+        logged_at: new Date(injectedAt).toISOString(),
         notes: notes.trim() || null,
       });
       setPeptideName('');
@@ -205,12 +205,12 @@ export default function Tracker() {
         const totalInjections = logs.length;
         const uniquePeptides = new Set(logs.map(l => l.peptide_name)).size;
         let streak = 0;
-        const daySet = new Set(logs.map(l => new Date(l.injected_at).toDateString()));
+        const daySet = new Set(logs.map(l => new Date(l.logged_at).toDateString()));
         const d = new Date();
         while (daySet.has(d.toDateString())) { streak++; d.setDate(d.getDate() - 1); }
 
         const last7 = logs.filter(l => {
-          const diff = Date.now() - new Date(l.injected_at).getTime();
+          const diff = Date.now() - new Date(l.logged_at).getTime();
           return diff < 7 * 24 * 60 * 60 * 1000;
         }).length;
 
@@ -256,9 +256,9 @@ export default function Tracker() {
         const weekCounts = Array(7).fill(0);
         const now = new Date();
         logs.forEach(l => {
-          const diff = Math.floor((now.getTime() - new Date(l.injected_at).getTime()) / (1000 * 60 * 60 * 24));
+          const diff = Math.floor((now.getTime() - new Date(l.logged_at).getTime()) / (1000 * 60 * 60 * 24));
           if (diff < 7) {
-            const dayIdx = new Date(l.injected_at).getDay();
+            const dayIdx = new Date(l.logged_at).getDay();
             weekCounts[dayIdx]++;
           }
         });
@@ -300,7 +300,7 @@ export default function Tracker() {
 
         const injectionDays = new Map<number, number>();
         logs.forEach(l => {
-          const d = new Date(l.injected_at);
+          const d = new Date(l.logged_at);
           if (d.getFullYear() === year && d.getMonth() === month) {
             injectionDays.set(d.getDate(), (injectionDays.get(d.getDate()) ?? 0) + 1);
           }
@@ -421,7 +421,7 @@ export default function Tracker() {
                 const last = logs[0];
                 setPeptideName(last.peptide_name);
                 setDose(String(last.dose));
-                setUnit(last.unit);
+                setUnit(last.dose_unit);
                 setAutoFilled(true);
               }
             }}
@@ -436,7 +436,7 @@ export default function Tracker() {
                 const last = logs[0];
                 setConfirmDialog({
                   title: 'تكرار الحقنة الأخيرة',
-                  message: `تكرار حقنة ${last.peptide_name} — ${last.dose} ${last.unit}؟`,
+                  message: `تكرار حقنة ${last.peptide_name} — ${last.dose} ${last.dose_unit}؟`,
                   onConfirm: async () => {
                     if (!user) return;
                     setConfirmDialog(null);
@@ -447,13 +447,13 @@ export default function Tracker() {
                         user_id: user.id,
                         peptide_name: last.peptide_name,
                         dose: last.dose,
-                        unit: last.unit,
+                        dose_unit: last.dose_unit,
                         injection_site: suggestedSite,
-                        injected_at: now.toISOString(),
+                        logged_at: now.toISOString(),
                         notes: null,
                       });
                       await fetchLogs();
-                      toast.success(`تم تسجيل ${last.peptide_name} — ${last.dose} ${last.unit}`);
+                      toast.success(`تم تسجيل ${last.peptide_name} — ${last.dose} ${last.dose_unit}`);
                     } catch {
                       toast.error('حدث خطأ في تكرار الحقنة. حاول مرة أخرى.');
                     } finally {
@@ -633,7 +633,7 @@ export default function Tracker() {
         ) : (
           <div className="space-y-4">
             {logs.map((log) => {
-              const isToday = new Date(log.injected_at).toDateString() === new Date().toDateString();
+              const isToday = new Date(log.logged_at).toDateString() === new Date().toDateString();
               return (
               <div
                 key={log.id}
@@ -643,13 +643,13 @@ export default function Tracker() {
                   <h3 className="font-bold text-stone-900" dir="ltr">{log.peptide_name}</h3>
                   <div className="flex items-center gap-2">
                     <span className="rounded-full bg-emerald-50 px-3 py-1 text-xs font-bold text-emerald-700">
-                      {log.dose} {log.unit}
+                      {log.dose} {log.dose_unit}
                     </span>
                     <button
                       onClick={() => {
                         setConfirmDialog({
                           title: 'حذف السجل',
-                          message: `حذف سجل ${log.peptide_name} — ${log.dose} ${log.unit}؟`,
+                          message: `حذف سجل ${log.peptide_name} — ${log.dose} ${log.dose_unit}؟`,
                           isDestructive: true,
                           onConfirm: async () => {
                             setConfirmDialog(null);
@@ -677,11 +677,11 @@ export default function Tracker() {
                   </span>
                   <span className="flex items-center gap-1">
                     <Calendar className="h-3.5 w-3.5" />
-                    {formatDate(log.injected_at)}
+                    {formatDate(log.logged_at)}
                   </span>
                   <span className="flex items-center gap-1">
                     <Clock className="h-3.5 w-3.5" />
-                    {formatTime(log.injected_at)}
+                    {formatTime(log.logged_at)}
                   </span>
                 </div>
                 {log.notes && (

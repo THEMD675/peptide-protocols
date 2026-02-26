@@ -160,13 +160,13 @@ async function buildUserContext(userId: string): Promise<string> {
   try {
     const { data: logs } = await supabase
       .from('injection_logs')
-      .select('peptide_name, dose, unit, injection_site, injected_at')
+      .select('peptide_name, dose, dose_unit, injection_site, logged_at')
       .eq('user_id', userId)
-      .order('injected_at', { ascending: false })
+      .order('logged_at', { ascending: false })
       .limit(10);
     if (logs && logs.length > 0) {
       ctx += `\nسجل حقن المستخدم (آخر ${logs.length}):\n`;
-      logs.forEach(l => { ctx += `- ${l.peptide_name}: ${l.dose}${l.unit} (${new Date(l.injected_at).toLocaleDateString('ar-u-nu-latn')})\n`; });
+      logs.forEach(l => { ctx += `- ${l.peptide_name}: ${l.dose}${l.dose_unit} (${new Date(l.logged_at).toLocaleDateString('ar-u-nu-latn')})\n`; });
       ctx += `لديه خبرة فعلية. ابنِ على ما يستخدمه.\n`;
     }
     const favs = (() => { try { const s = localStorage.getItem('pptides_favorites'); return s ? JSON.parse(s) as string[] : []; } catch { return []; } })();
