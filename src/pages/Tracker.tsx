@@ -53,7 +53,7 @@ function formatTime(iso: string) {
 }
 
 export default function Tracker() {
-  const { user } = useAuth();
+  const { user, isLoading: isAuthLoading } = useAuth();
   const [logs, setLogs] = useState<InjectionLog[]>([]);
   const [isLoadingLogs, setIsLoadingLogs] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -118,6 +118,7 @@ export default function Tracker() {
     }
   };
 
+  if (isAuthLoading) return <div className="flex min-h-[50vh] items-center justify-center"><div className="h-8 w-8 animate-spin rounded-full border-4 border-emerald-200 border-t-emerald-600" /></div>;
   if (!user) {
     return (
       <div className="min-h-screen bg-white">

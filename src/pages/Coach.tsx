@@ -107,7 +107,7 @@ async function buildUserContext(userId: string): Promise<string> {
       .limit(10);
     if (logs && logs.length > 0) {
       ctx += `\nسجل حقن المستخدم (آخر ${logs.length}):\n`;
-      logs.forEach(l => { ctx += `- ${l.peptide_name}: ${l.dose}${l.unit} (${new Date(l.injected_at).toLocaleDateString('en')})\n`; });
+      logs.forEach(l => { ctx += `- ${l.peptide_name}: ${l.dose}${l.unit} (${new Date(l.injected_at).toLocaleDateString('ar-u-nu-latn')})\n`; });
       ctx += `لديه خبرة فعلية. ابنِ على ما يستخدمه.\n`;
     }
     const favs = (() => { try { const s = localStorage.getItem('pptides_favorites'); return s ? JSON.parse(s) as string[] : []; } catch { return []; } })();
@@ -155,7 +155,7 @@ function getFollowUps(text: string): string[] {
 }
 
 export default function Coach() {
-  const { user, subscription, upgradeTo } = useAuth();
+  const { user, subscription, upgradeTo, isLoading: isAuthLoading } = useAuth();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
 
@@ -248,6 +248,7 @@ export default function Coach() {
     autoSentRef.current = false;
   };
 
+  if (isAuthLoading) return <div className="flex min-h-[50vh] items-center justify-center"><div className="h-8 w-8 animate-spin rounded-full border-4 border-emerald-200 border-t-emerald-600" /></div>;
   if (!user) {
     return (
       <div className="min-h-screen bg-white">

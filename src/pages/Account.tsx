@@ -20,12 +20,13 @@ const STATUS_LABELS: Record<string, string> = {
 };
 
 export default function Account() {
-  const { user, subscription, logout } = useAuth();
+  const { user, subscription, logout, isLoading: isAuthLoading } = useAuth();
   const navigate = useNavigate();
   const [showCancelDialog, setShowCancelDialog] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
 
+  if (isAuthLoading) return <div className="flex min-h-[50vh] items-center justify-center"><div className="h-8 w-8 animate-spin rounded-full border-4 border-emerald-200 border-t-emerald-600" /></div>;
   if (!user) {
     return (
       <div className="min-h-screen bg-white">

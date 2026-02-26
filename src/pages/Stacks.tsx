@@ -171,6 +171,17 @@ export default function Stacks() {
           );
         })}
       </div>
+
+      {!isPro && (
+        <div className="mt-10 rounded-2xl border border-emerald-200 bg-emerald-50 p-6 text-center">
+          <p className="font-bold text-stone-900">اكتشف البروتوكولات الكاملة</p>
+          <p className="mt-1 text-sm text-stone-600">اشترك لفتح كل البروتوكولات المُجمَّعة مع الجرعات والتوقيت</p>
+          <div className="mt-4 flex flex-col gap-2 sm:flex-row sm:justify-center">
+            <Link to="/pricing" className="rounded-full bg-emerald-600 px-6 py-2.5 text-sm font-bold text-white hover:bg-emerald-700">اشترك — $9/شهريًا</Link>
+            <Link to="/coach" className="rounded-full border border-emerald-300 px-6 py-2.5 text-sm font-bold text-emerald-700 hover:bg-emerald-100">اسأل المدرب الذكي</Link>
+          </div>
+        </div>
+      )}
     </main>
   );
 }

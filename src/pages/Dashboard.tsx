@@ -104,10 +104,11 @@ function useRecentActivity(userId: string | undefined) {
 }
 
 export default function Dashboard() {
-  const { user, subscription } = useAuth();
+  const { user, subscription, isLoading: isAuthLoading } = useAuth();
   const { visited, markVisited } = useVisitedPages();
   const activity = useRecentActivity(user?.id);
 
+  if (isAuthLoading) return <div className="flex min-h-[50vh] items-center justify-center"><div className="h-8 w-8 animate-spin rounded-full border-4 border-emerald-200 border-t-emerald-600" /></div>;
   if (!user) {
     return (
       <div className="min-h-screen bg-white">

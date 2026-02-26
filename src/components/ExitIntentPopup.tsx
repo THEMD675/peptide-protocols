@@ -12,11 +12,12 @@ export default function ExitIntentPopup() {
   const handleMouseLeave = useCallback((e: MouseEvent) => {
     if (e.clientY > 10) return;
     try {
-      if (sessionStorage.getItem(STORAGE_KEY) === 'true') return;
+      const lastShown = localStorage.getItem(STORAGE_KEY);
+      if (lastShown && Date.now() - Number(lastShown) < 7 * 24 * 60 * 60 * 1000) return;
     } catch {}
     if (user && subscription?.isProOrTrial) return;
     setVisible(true);
-    try { sessionStorage.setItem(STORAGE_KEY, 'true'); } catch {}
+    try { localStorage.setItem(STORAGE_KEY, String(Date.now())); } catch {}
   }, [user, subscription]);
 
   useEffect(() => {

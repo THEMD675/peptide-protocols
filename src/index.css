@@ -294,3 +294,11 @@
   .shadow-md, .shadow-lg, .shadow-xl { box-shadow: none !important; }
   * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
 }
+
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
