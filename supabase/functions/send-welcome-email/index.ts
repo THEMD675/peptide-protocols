@@ -5,7 +5,9 @@ const RESEND_API_KEY = Deno.env.get('RESEND_API_KEY')
 const supabaseUrl = Deno.env.get('SUPABASE_URL') ?? ''
 const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY') ?? ''
 
-const ALLOWED_ORIGINS = ['https://pptides.com', 'http://localhost:3000']
+const ALLOWED_ORIGINS = ['https://pptides.com', 'http://localhost:3000', 'http://localhost:3001']
+
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
 serve(async (req) => {
   const origin = req.headers.get('origin') ?? ''
@@ -18,7 +20,30 @@ serve(async (req) => {
 
   if (req.method === 'OPTIONS') return new Response('ok', { headers: corsHeaders })
 
+  if (req.method !== 'POST') {
+    return new Response(JSON.stringify({ error: 'Method not allowed' }), {
+      status: 405,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    })
+  }
+
   try {
+    if (!supabaseUrl || !supabaseAnonKey) {
+      console.error('send-welcome-email: missing SUPABASE_URL or SUPABASE_ANON_KEY')
+      return new Response(JSON.stringify({ error: 'Server misconfigured' }), {
+        status: 500,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      })
+    }
+
+    if (!RESEND_API_KEY) {
+      console.error('send-welcome-email: RESEND_API_KEY is not configured')
+      return new Response(JSON.stringify({ error: 'Email service not configured' }), {
+        status: 500,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      })
+    }
+
     const authHeader = req.headers.get('authorization')
     if (!authHeader) {
       return new Response(JSON.stringify({ error: 'Missing authorization' }), {
@@ -31,15 +56,34 @@ serve(async (req) => {
     })
     const { data: { user }, error: authError } = await supabase.auth.getUser()
     if (authError || !user) {
+      console.error('send-welcome-email auth failed:', authError?.message ?? 'no user')
       return new Response(JSON.stringify({ error: 'Unauthorized' }), {
         status: 401,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       })
     }
 
-    const { email, name } = await req.json()
-    if (!email || !RESEND_API_KEY) {
-      return new Response(JSON.stringify({ error: 'Missing email or API key' }), {
+    let body: { email?: string; name?: string }
+    try {
+      body = await req.json()
+    } catch {
+      return new Response(JSON.stringify({ error: 'Invalid JSON body' }), {
+        status: 400,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      })
+    }
+
+    const { email, name } = body
+
+    if (!email) {
+      return new Response(JSON.stringify({ error: 'Missing required field: email' }), {
+        status: 400,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      })
+    }
+
+    if (!EMAIL_RE.test(email)) {
+      return new Response(JSON.stringify({ error: 'Invalid email format' }), {
         status: 400,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       })
@@ -85,7 +129,7 @@ serve(async (req) => {
 
     if (!res.ok) {
       const errBody = await res.text().catch(() => '')
-      console.error('Resend error:', res.status, errBody)
+      console.error('send-welcome-email Resend error:', res.status, errBody)
       return new Response(JSON.stringify({ error: 'Email service error' }), {
         status: 502,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -97,7 +141,7 @@ serve(async (req) => {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     })
   } catch (error) {
-    console.error('send-welcome-email error:', error)
+    console.error('send-welcome-email unhandled error:', error)
     return new Response(JSON.stringify({ error: 'Failed to send email' }), {
       status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },

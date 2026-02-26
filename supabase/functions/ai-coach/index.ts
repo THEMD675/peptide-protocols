@@ -106,17 +106,47 @@ serve(async (req) => {
     return new Response('ok', { headers: corsHeaders })
   }
 
+  if (req.method !== 'POST') {
+    return new Response(JSON.stringify({ error: 'Method not allowed' }), {
+      status: 405,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    })
+  }
+
   try {
     if (!DEEPSEEK_API_KEY) {
+      console.error('ai-coach: DEEPSEEK_API_KEY is not configured')
       return new Response(JSON.stringify({ error: 'API key not configured' }), {
         status: 500,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       })
     }
 
-    const { messages, stream } = await req.json()
+    let body: { messages?: unknown; stream?: unknown }
+    try {
+      body = await req.json()
+    } catch {
+      return new Response(JSON.stringify({ error: 'Invalid JSON body' }), {
+        status: 400,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      })
+    }
+
+    const { messages, stream } = body
     if (!Array.isArray(messages) || messages.length === 0) {
-      return new Response(JSON.stringify({ error: 'Invalid messages' }), {
+      return new Response(JSON.stringify({ error: 'Invalid messages: expected non-empty array' }), {
+        status: 400,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      })
+    }
+
+    const validRoles = ['user', 'assistant', 'system']
+    const invalidMsg = messages.find(
+      (m: { role?: string; content?: string }) =>
+        !m.role || !validRoles.includes(m.role) || typeof m.content !== 'string'
+    )
+    if (invalidMsg) {
+      return new Response(JSON.stringify({ error: 'Each message must have a valid role and string content' }), {
         status: 400,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       })
@@ -145,20 +175,48 @@ serve(async (req) => {
 
     if (!response.ok) {
       const errBody = await response.text().catch(() => '')
-      console.error('DeepSeek error:', response.status, errBody)
+      console.error('ai-coach DeepSeek error:', response.status, errBody)
+      const status = response.status >= 400 && response.status < 600 ? response.status : 502
       return new Response(JSON.stringify({ error: 'AI service error' }), {
-        status: response.status,
+        status,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       })
     }
 
     if (wantStream) {
-      return new Response(response.body, {
+      if (!response.body) {
+        console.error('ai-coach: stream response body is null')
+        return new Response(JSON.stringify({ error: 'AI service returned empty stream' }), {
+          status: 502,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        })
+      }
+
+      const reader = response.body.getReader()
+      const stream = new ReadableStream({
+        async pull(controller) {
+          try {
+            const { done, value } = await reader.read()
+            if (done) {
+              controller.close()
+              return
+            }
+            controller.enqueue(value)
+          } catch (err) {
+            console.error('ai-coach stream read error:', err)
+            controller.close()
+          }
+        },
+        cancel() {
+          reader.cancel().catch(() => {})
+        },
+      })
+
+      return new Response(stream, {
         headers: {
           ...corsHeaders,
           'Content-Type': 'text/event-stream',
           'Cache-Control': 'no-cache',
-          Connection: 'keep-alive',
         },
       })
     }
@@ -168,7 +226,7 @@ serve(async (req) => {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     })
   } catch (error) {
-    console.error('ai-coach error:', error)
+    console.error('ai-coach unhandled error:', error)
     return new Response(JSON.stringify({ error: 'Internal error' }), {
       status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
