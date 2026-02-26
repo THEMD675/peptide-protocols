@@ -211,7 +211,7 @@ export default function PeptideQuiz() {
 
       <h3 className="mb-5 text-lg font-bold text-stone-900">{currentStep.question}</h3>
 
-      <div className={cn('grid gap-2', step === 0 ? 'grid-cols-2 sm:grid-cols-3' : '')}>
+      <div className={cn('grid gap-2', step === 0 ? 'grid-cols-2' : '')}>
         {currentStep.options.map((opt) => {
           const Icon = opt.icon;
           return (

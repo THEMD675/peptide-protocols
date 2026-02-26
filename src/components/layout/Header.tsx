@@ -307,6 +307,8 @@ export default function Header() {
           'fixed inset-0 z-40 md:hidden transition-all duration-300',
           mobileOpen ? 'pointer-events-auto opacity-100' : 'pointer-events-none opacity-0',
         )}
+        aria-hidden={!mobileOpen}
+        {...(!mobileOpen ? { inert: '' } : {})}
       >
         <div
           className="absolute inset-0 bg-black/50 backdrop-blur-sm"
