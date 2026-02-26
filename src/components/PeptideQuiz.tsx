@@ -57,9 +57,9 @@ function getRecommendation(answers: string[]): Recommendation {
   const [goal, experience, injection] = answers;
 
   if (goal === 'fat-loss') {
-    if (injection === 'no') return { peptideId: '5-amino-1mq', nameAr: '5-أمينو-1MQ', nameEn: '5-Amino-1MQ', reason: 'فموي بدون حقن — يثبّط إنزيم NNMT لزيادة حرق الدهون', altId: 'semaglutide', altName: 'Semaglutide' };
-    if (experience === 'beginner') return { peptideId: 'semaglutide', nameAr: 'سيماغلوتايد', nameEn: 'Semaglutide', reason: 'معتمد من FDA — أقوى ببتيد مُثبت لفقدان الوزن (15-20%). حقنة واحدة أسبوعيًا.', altId: 'tirzepatide', altName: 'Tirzepatide' };
-    return { peptideId: 'tirzepatide', nameAr: 'تيرزيباتايد', nameEn: 'Tirzepatide', reason: 'أقوى من Semaglutide بـ 30% — فقدان 22.5%. للمتقدمين.', altId: 'retatrutide', altName: 'Retatrutide' };
+    if (injection === 'no') return { peptideId: '5-amino-1mq', nameAr: '5-أمينو-1MQ', nameEn: '5-Amino-1MQ', reason: 'فموي بدون حقن — يثبّط إنزيم NNMT لزيادة حرق الدهون. $80-120/شهر.', altId: 'aod-9604', altName: 'AOD-9604' };
+    if (experience === 'beginner') return { peptideId: 'aod-9604', nameAr: 'AOD-9604', nameEn: 'AOD-9604', reason: 'جزء من هرمون النمو — يحرق الدهون بدون الأعراض الجانبية. آمن جدًا للمبتدئين. $80-120/شهر.', altId: 'tesamorelin', altName: 'Tesamorelin' };
+    return { peptideId: 'tesamorelin', nameAr: 'تيساموريلين', nameEn: 'Tesamorelin', reason: 'أقوى ببتيد بحثي لحرق دهون البطن — يحفّز هرمون النمو مباشرة. $150-200/شهر.', altId: 'aod-9604', altName: 'AOD-9604' };
   }
 
   if (goal === 'recovery') {
