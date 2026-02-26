@@ -348,7 +348,7 @@ export default function Pricing() {
           <h3 className="mb-8 text-center text-2xl font-bold text-stone-900">أسئلة شائعة</h3>
           <div className="space-y-3">
             {faqs.map((faq) => (
-              <details key={faq.q} className="group rounded-2xl border border-stone-300/60 bg-white">
+              <details key={faq.q} className="group rounded-2xl border border-stone-300/60 bg-white transition-all hover:border-stone-400/60">
                 <summary className="flex cursor-pointer items-center justify-between p-5 text-sm font-semibold text-stone-800">
                   <span>{faq.q}</span>
                   <ChevronDown className="h-4 w-4 text-stone-800 transition-transform group-open:rotate-180" />

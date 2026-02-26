@@ -73,7 +73,7 @@ export default function EmailCapture() {
         <button
           type="submit"
           disabled={status === 'loading'}
-          className="gold-gradient flex items-center justify-center gap-2 rounded-full px-8 py-3.5 font-bold text-stone-900 transition-transform hover:scale-105 active:scale-[0.98] disabled:opacity-60 whitespace-nowrap min-w-[120px]"
+          className="gold-gradient flex items-center justify-center gap-2 rounded-full px-8 py-3.5 font-bold text-white transition-transform hover:scale-105 active:scale-[0.98] disabled:opacity-60 whitespace-nowrap min-w-[120px]"
         >
           {status === 'loading' ? (
             <Loader2 className="h-5 w-5 animate-spin" />

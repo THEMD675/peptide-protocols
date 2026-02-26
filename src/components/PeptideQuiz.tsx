@@ -198,8 +198,8 @@ export default function PeptideQuiz() {
         )}
       </div>
 
-      <div className="mb-2 h-1 w-full rounded-full bg-stone-100">
-        <div className="h-1 rounded-full bg-emerald-500 transition-all duration-300" style={{ width: `${((step + 1) / STEPS.length) * 100}%` }} />
+      <div className="mb-2 h-1.5 w-full rounded-full bg-stone-100">
+        <div className="h-1.5 rounded-full bg-emerald-500 transition-all duration-500 ease-out" style={{ width: `${((step + 1) / STEPS.length) * 100}%` }} />
       </div>
 
       <h3 className="mb-5 text-lg font-bold text-stone-900">{currentStep.question}</h3>

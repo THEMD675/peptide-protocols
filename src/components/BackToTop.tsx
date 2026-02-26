@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { ChevronUp } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 export default function BackToTop() {
   const [visible, setVisible] = useState(false);
@@ -10,13 +11,14 @@ export default function BackToTop() {
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
-  if (!visible) return null;
-
   return (
     <button
       onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
       aria-label="العودة للأعلى"
-      className="print:hidden fixed bottom-[72px] left-6 z-50 flex h-11 w-11 items-center justify-center rounded-full bg-emerald-600 text-white shadow-lg transition-all hover:bg-emerald-700 hover:shadow-xl active:scale-95 md:bottom-6"
+      className={cn(
+        'print:hidden fixed bottom-[72px] left-6 z-50 flex h-11 w-11 items-center justify-center rounded-full bg-emerald-600 text-white shadow-lg transition-all duration-300 hover:bg-emerald-700 hover:shadow-xl active:scale-95 md:bottom-6',
+        visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4 pointer-events-none'
+      )}
     >
       <ChevronUp className="h-5 w-5" />
     </button>

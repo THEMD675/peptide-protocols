@@ -181,12 +181,7 @@ function PeptideCard({
         </p>
       ) : (
         <div
-          className="relative mb-4 overflow-hidden"
-          style={{
-            maxHeight: '3rem',
-            maskImage: 'linear-gradient(to bottom, #000 20%, transparent 100%)',
-            WebkitMaskImage: 'linear-gradient(to bottom, #000 20%, transparent 100%)',
-          }}
+          className="relative mb-4 max-h-12 overflow-hidden [mask-image:linear-gradient(to_bottom,#000_20%,transparent_100%)] [-webkit-mask-image:linear-gradient(to_bottom,#000_20%,transparent_100%)]"
         >
           <p className="text-sm leading-relaxed text-stone-800">
             {peptide.summaryAr.slice(0, 40)}...
@@ -542,7 +537,7 @@ export default function Library() {
 
       {/* Floating Compare Bar */}
       {compareIds.length >= 2 && (
-        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-40 flex items-center gap-3 rounded-2xl border border-emerald-300 bg-white px-6 py-3 shadow-xl">
+        <div className="fixed bottom-20 left-1/2 -translate-x-1/2 z-40 flex items-center gap-3 rounded-2xl border border-emerald-300 bg-white/95 backdrop-blur-lg px-6 py-3 shadow-xl md:bottom-6 animate-slide-up">
           <span className="text-sm font-bold text-stone-900">قارن {compareIds.length} ببتيدات</span>
           <div className="flex gap-1.5">
             {compareIds.map(id => {

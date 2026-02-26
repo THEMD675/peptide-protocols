@@ -326,8 +326,7 @@ export default function PeptideDetail() {
         </>) : isFreeContent ? (
           /* ── Free peptide, non-subscriber: 3 preview rows + gradient CTA ── */
           <div
-            className="relative overflow-hidden rounded-2xl border border-stone-300"
-            style={{ paddingBottom: '10rem' }}
+            className="relative overflow-hidden rounded-2xl border border-stone-300 pb-40"
           >
             <div
               className="flex items-center gap-2 bg-stone-50/95 px-5 py-3"
@@ -364,10 +363,7 @@ export default function PeptideDetail() {
 
             {/* Gradient overlay + CTA */}
             <div
-              className="absolute bottom-0 left-0 right-0 flex h-48 flex-col items-center justify-center"
-              style={{
-                background: 'linear-gradient(to top, white 40%, transparent)',
-              }}
+              className="absolute bottom-0 left-0 right-0 flex h-48 flex-col items-center justify-center bg-gradient-to-t from-white via-white/80 to-transparent"
             >
               <div className="flex flex-col gap-3 sm:flex-row">
                 <Link

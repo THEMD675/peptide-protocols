@@ -96,7 +96,8 @@ export default function Tracker() {
   useEffect(() => {
     if (!user) return;
     fetchLogs();
-  }, [user]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user?.id]);
 
   const PAGE_SIZE = 50;
 

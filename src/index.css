@@ -277,6 +277,24 @@
 .animate-fade-up { animation: fade-up 0.6s ease-out both; }
 .animate-fade-in { animation: fade-in 0.5s ease-out both; }
 .animate-breathe { animation: breathe 3s ease-in-out infinite; }
+.animate-slide-up { animation: slide-up 0.4s cubic-bezier(0.23, 1, 0.32, 1) both; }
+
+@keyframes slide-up {
+  from { opacity: 0; transform: translateY(100%); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes count-up {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.stagger-1 { animation-delay: 0.05s; }
+.stagger-2 { animation-delay: 0.1s; }
+.stagger-3 { animation-delay: 0.15s; }
+.stagger-4 { animation-delay: 0.2s; }
+.stagger-5 { animation-delay: 0.25s; }
+.stagger-6 { animation-delay: 0.3s; }
 
 ::-webkit-scrollbar { width: 6px; }
 ::-webkit-scrollbar-track { background: transparent; }

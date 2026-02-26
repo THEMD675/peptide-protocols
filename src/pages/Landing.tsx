@@ -153,24 +153,24 @@ export default function Landing() {
         </div>
 
         <div className="relative mx-auto max-w-5xl px-6 pb-20 pt-10 text-center md:pt-16 md:pb-28">
-          <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 px-5 py-2 text-sm font-semibold text-emerald-700">
+          <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 px-5 py-2 text-sm font-semibold text-emerald-700 animate-fade-up">
             <Zap className="h-4 w-4" />
             <span>أول مرجع عربي شامل — {PEPTIDE_COUNT} ببتيد علاجي</span>
           </div>
 
-          <h1 className="mb-6 text-4xl font-extrabold leading-[1.1] tracking-tight text-stone-900 sm:text-5xl md:text-6xl lg:text-7xl">
+          <h1 className="mb-6 text-4xl font-extrabold leading-[1.1] tracking-tight text-stone-900 sm:text-5xl md:text-6xl lg:text-7xl animate-fade-up stagger-1">
             توقّف عن التخمين.
             <br />
             <span className="text-emerald-600">ابدأ بالعلم.</span>
           </h1>
 
-          <p className="mx-auto mb-10 max-w-2xl text-lg leading-relaxed text-stone-800 md:text-xl">
+          <p className="mx-auto mb-10 max-w-2xl text-lg leading-relaxed text-stone-800 md:text-xl animate-fade-up stagger-2">
             كل ببتيد. كل جرعة. كل بروتوكول. في مكان واحد.
             <br className="hidden sm:block" />
             مبني على الأبحاث — مصمّم للنتائج.
           </p>
 
-          <div className="flex flex-col items-center justify-center gap-3 sm:flex-row sm:gap-4">
+          <div className="flex flex-col items-center justify-center gap-3 sm:flex-row sm:gap-4 animate-fade-up stagger-3">
             <Link
               to={ctaLink}
               className="btn-primary-glow inline-flex w-full max-w-xs items-center justify-center gap-3 rounded-full bg-emerald-600 px-8 py-4 text-lg font-bold text-white transition-all duration-300 hover:bg-emerald-700 sm:w-auto"
@@ -186,12 +186,12 @@ export default function Landing() {
             </Link>
           </div>
 
-          <div className="mt-8 flex items-center justify-center gap-6">
+          <div className="mt-8 flex items-center justify-center gap-6 animate-fade-up stagger-4">
             <span className="flex items-center gap-2 text-sm font-medium text-stone-700">
               <CreditCard className="h-4 w-4 text-emerald-600" />
               تجربة 3 أيام مجانية
             </span>
-            <span className="h-4 w-px bg-stone-300" />
+            <span className="h-5 w-px bg-stone-300/80" />
             <span className="flex items-center gap-2 text-sm font-medium text-stone-700">
               <Shield className="h-4 w-4 text-emerald-600" />
               ضمان استرداد كامل
@@ -212,7 +212,7 @@ export default function Landing() {
       </section>
 
       {/* ═══════ STATS BAR ═══════ */}
-      <section className="relative z-10 -mt-12 mx-auto max-w-5xl px-6">
+      <section className="relative z-10 mt-4 mx-auto max-w-5xl px-6 md:-mt-8">
         <div className="grid grid-cols-2 gap-4 rounded-2xl border border-stone-300/60 bg-white p-8 shadow-xl md:grid-cols-5 md:gap-0 md:divide-x md:divide-x-reverse md:divide-stone-100">
           {[
             { value: `${PEPTIDE_COUNT}+`, label: 'ببتيد علاجي', sub: 'بروتوكولات كاملة' },
@@ -540,8 +540,8 @@ export default function Landing() {
                 <h3 className="mb-2 pt-4 text-lg font-bold text-stone-900">{step.title}</h3>
                 <p className="text-sm text-stone-800">{step.desc}</p>
                 {i < arr.length - 1 && (
-                  <div className="pointer-events-none absolute left-0 top-8 hidden -translate-x-1/2 md:block">
-                    <ArrowLeft className="h-6 w-6 text-emerald-300" />
+                  <div className="pointer-events-none absolute left-0 top-12 hidden -translate-x-1/2 md:block">
+                    <ArrowLeft className="h-6 w-6 text-emerald-400 animate-pulse" />
                   </div>
                 )}
               </div>
