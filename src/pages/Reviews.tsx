@@ -173,12 +173,13 @@ export default function Reviews() {
           </h1>
 
           {reviews.length > 0 && (
-            <div className="mt-4 flex items-center justify-center gap-3">
+            <div className="mx-auto mt-6 flex max-w-sm flex-col items-center gap-2 rounded-2xl border border-emerald-200 bg-emerald-50 p-5">
+              <div className="flex items-baseline gap-1">
+                <span className="text-4xl font-black text-emerald-700">{averageRating.toFixed(1)}</span>
+                <span className="text-lg font-bold text-stone-500">/5</span>
+              </div>
               <StarRating rating={Math.round(averageRating)} />
-              <span className="text-lg font-bold text-stone-900">
-                {averageRating.toFixed(1)}
-              </span>
-              <span className="text-sm text-stone-800">
+              <span className="text-sm font-medium text-stone-600">
                 ({reviews.length} تقييم)
               </span>
             </div>

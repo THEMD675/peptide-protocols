@@ -140,6 +140,34 @@ export default function Sources() {
           </div>
         </section>
 
+        {/* Key Scientific References */}
+        <section className="mt-10 mb-10">
+          <h2 className="mb-6 text-xl font-bold text-stone-900 md:text-2xl">المراجع العلمية الرئيسية</h2>
+          <div className="space-y-3">
+            {[
+              { title: 'STEP Trials — Semaglutide لفقدان الوزن', url: 'https://pubmed.ncbi.nlm.nih.gov/33567185/' },
+              { title: 'SURMOUNT — Tirzepatide فقدان 22.5%', url: 'https://pubmed.ncbi.nlm.nih.gov/35658024/' },
+              { title: 'BPC-157 — مراجعة شاملة للتعافي', url: 'https://pubmed.ncbi.nlm.nih.gov/30915550/' },
+              { title: 'Semax — تأثيره على BDNF والدماغ', url: 'https://pubmed.ncbi.nlm.nih.gov/17369778/' },
+              { title: 'Epithalon — التيلوميرات وإطالة العمر', url: 'https://pubmed.ncbi.nlm.nih.gov/12937145/' },
+            ].map((study) => (
+              <a
+                key={study.url}
+                href={study.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-3 rounded-xl border border-stone-200 bg-white p-4 text-sm font-medium text-stone-900 transition-all hover:border-emerald-300 hover:bg-emerald-50"
+              >
+                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-emerald-100">
+                  <CheckCircle className="h-4 w-4 text-emerald-700" />
+                </span>
+                <span className="flex-1">{study.title}</span>
+                <span className="shrink-0 text-xs text-emerald-600">PubMed ↗</span>
+              </a>
+            ))}
+          </div>
+        </section>
+
         <div className="mt-10 rounded-2xl border border-emerald-200 bg-emerald-50 p-6 text-center">
           <p className="font-bold text-stone-900">جاهز تختار بروتوكولك؟</p>
           <p className="mt-1 text-sm text-stone-600">تصفّح مكتبة الببتيدات واحسب جرعتك</p>

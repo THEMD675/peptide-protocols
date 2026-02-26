@@ -160,7 +160,15 @@ export default function InteractionChecker() {
             hasAnyWarning ? 'border-amber-300 bg-amber-50' :
             'border-emerald-300 bg-emerald-50'
           )}>
-            <div className="flex items-center gap-3 mb-3">
+            {filledPeptides.length >= 3 && (
+              <p className={cn(
+                'mb-3 text-center text-2xl font-black md:text-3xl',
+                hasAnyDanger ? 'text-red-700' : hasAnyWarning ? 'text-amber-700' : 'text-emerald-700'
+              )}>
+                {hasAnyDanger ? 'Stack غير آمن' : hasAnyWarning ? 'Stack يحتاج مراجعة' : 'Stack آمن'}
+              </p>
+            )}
+            <div className="flex items-center gap-3">
               {hasAnyDanger ? (
                 <XCircle className="h-7 w-7 text-red-600 shrink-0" />
               ) : hasAnyWarning ? (

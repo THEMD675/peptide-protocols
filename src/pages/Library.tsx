@@ -92,6 +92,7 @@ function PeptideCard({
         hasAccess
           ? 'border-stone-200 bg-white hover:border-emerald-300 hover:shadow-xl hover:shadow-emerald-600/10 hover:-translate-y-1'
           : 'border-stone-200 bg-stone-50/50 hover:border-stone-300',
+        isFav && 'border-r-4 border-r-amber-400',
       )}
     >
       {!hasAccess && !peptide.isFree && (

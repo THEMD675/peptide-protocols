@@ -329,11 +329,13 @@ export default function Community() {
                       {(() => {
                         const peptide = allPeptides.find(p => p.nameEn.toLowerCase() === log.peptide_name.toLowerCase() || p.nameAr === log.peptide_name);
                         return peptide ? (
-                          <Link to={`/peptide/${peptide.id}`} className="rounded-full bg-emerald-100 px-3 py-1 text-sm font-bold text-emerald-800 hover:bg-emerald-200 transition-colors" dir="ltr">
+                          <Link to={`/peptide/${peptide.id}`} className="inline-flex items-center gap-1.5 rounded-full border border-emerald-300 bg-emerald-100 px-3 py-1 text-sm font-bold text-emerald-800 shadow-sm hover:bg-emerald-200 transition-colors" dir="ltr">
+                            <FlaskConical className="h-3 w-3" />
                             {log.peptide_name}
                           </Link>
                         ) : (
-                          <span className="rounded-full bg-emerald-100 px-3 py-1 text-sm font-bold text-emerald-800" dir="ltr">
+                          <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-300 bg-emerald-100 px-3 py-1 text-sm font-bold text-emerald-800 shadow-sm" dir="ltr">
+                            <FlaskConical className="h-3 w-3" />
                             {log.peptide_name}
                           </span>
                         );

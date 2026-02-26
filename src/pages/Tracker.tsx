@@ -210,8 +210,13 @@ export default function Tracker() {
           return diff < 7 * 24 * 60 * 60 * 1000;
         }).length;
 
+        const msSinceLast = Date.now() - new Date(logs[0].injected_at).getTime();
+        const hoursSince = Math.floor(msSinceLast / (1000 * 60 * 60));
+        const daysSince = Math.floor(hoursSince / 24);
+        const timeSinceLabel = daysSince > 0 ? `منذ ${daysSince} يوم` : hoursSince > 0 ? `منذ ${hoursSince} ساعة` : 'الآن';
+
         return (
-          <div className="mb-8 grid grid-cols-2 gap-3 sm:grid-cols-4">
+          <div className="mb-8 grid grid-cols-2 gap-3 sm:grid-cols-5">
             <div className="rounded-2xl border border-stone-200 bg-white p-4 text-center">
               <BarChart3 className="mx-auto mb-1 h-5 w-5 text-emerald-600" />
               <p className="text-2xl font-black text-stone-900">{totalInjections}</p>
@@ -231,6 +236,11 @@ export default function Tracker() {
               <Syringe className="mx-auto mb-1 h-5 w-5 text-purple-500" />
               <p className="text-2xl font-black text-stone-900">{uniquePeptides}</p>
               <p className="text-xs text-stone-500">ببتيدات مختلفة</p>
+            </div>
+            <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-4 text-center col-span-2 sm:col-span-1">
+              <Clock className="mx-auto mb-1 h-5 w-5 text-emerald-600" />
+              <p className="text-2xl font-black text-emerald-700">{timeSinceLabel}</p>
+              <p className="text-xs text-stone-500">آخر حقنة</p>
             </div>
           </div>
         );

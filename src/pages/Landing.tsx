@@ -260,6 +260,23 @@ export default function Landing() {
           ))}
         </div>
 
+        <div className="mt-6 grid gap-4 sm:grid-cols-2">
+          {[
+            'كل المعلومات في مكان واحد — لا حاجة لـ Reddit',
+            'اختبار يحدد لك الببتيد المناسب',
+            'حاسبة جرعات دقيقة تحميك',
+            'أول مرجع عربي شامل مبني على الأبحاث',
+          ].map((point, i) => (
+            <div
+              key={i}
+              className="flex items-start gap-4 rounded-2xl border border-emerald-200 bg-emerald-50/50 p-6 transition-all hover:border-emerald-300 hover:bg-emerald-50"
+            >
+              <Check className="mt-0.5 h-5 w-5 shrink-0 text-emerald-500" />
+              <p className="text-base font-medium text-stone-800">{point}</p>
+            </div>
+          ))}
+        </div>
+
         <div
           className="mt-12 text-center"
         >
@@ -509,15 +526,20 @@ export default function Landing() {
               { num: '01', title: 'سجّل حسابك', desc: 'بريد إلكتروني وكلمة مرور. 10 ثوانٍ.' },
               { num: '02', title: 'جرّب 3 أيام مجانًا', desc: 'تصفّح المكتبة واكتشف ما يناسبك.' },
               { num: '03', title: 'اشترك واستفد', desc: 'اختر خطتك وابدأ رحلتك بثقة.' },
-            ].map((step, i) => (
+            ].map((step, i, arr) => (
               <div
                 key={step.num}
-                className="text-center"
+                className="relative text-center"
               >
                 <span className="mb-4 block text-6xl font-black text-emerald-200/80 md:text-7xl">{step.num}</span>
                 <div className="mb-2 h-px w-full bg-stone-200/60" />
                 <h3 className="mb-2 pt-4 text-lg font-bold text-stone-900">{step.title}</h3>
                 <p className="text-sm text-stone-800">{step.desc}</p>
+                {i < arr.length - 1 && (
+                  <div className="pointer-events-none absolute left-0 top-8 hidden -translate-x-1/2 md:block">
+                    <ArrowLeft className="h-6 w-6 text-emerald-300" />
+                  </div>
+                )}
               </div>
             ))}
           </div>

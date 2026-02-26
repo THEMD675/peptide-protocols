@@ -271,6 +271,22 @@ export default function Login() {
                   dir="ltr"
                   className="w-full rounded-xl border border-stone-200 bg-white px-4 py-3 text-left text-stone-900 placeholder:text-stone-400 outline-none transition-shadow focus:border-emerald-300 focus:ring-2 focus:ring-emerald-100"
                 />
+                {tab === 'signup' && password.length > 0 && (() => {
+                  const strength = password.length >= 8 ? 'strong' : password.length >= 6 ? 'medium' : 'weak';
+                  const color = strength === 'strong' ? 'bg-emerald-500' : strength === 'medium' ? 'bg-amber-500' : 'bg-red-500';
+                  const label = strength === 'strong' ? 'قوية' : strength === 'medium' ? 'متوسطة' : 'ضعيفة';
+                  const width = strength === 'strong' ? 'w-full' : strength === 'medium' ? 'w-2/3' : 'w-1/3';
+                  return (
+                    <div className="mt-2">
+                      <div className="h-1.5 w-full rounded-full bg-stone-200">
+                        <div className={cn('h-1.5 rounded-full transition-all duration-300', color, width)} />
+                      </div>
+                      <p className={cn('mt-1 text-xs font-medium', strength === 'strong' ? 'text-emerald-600' : strength === 'medium' ? 'text-amber-600' : 'text-red-600')}>
+                        كلمة المرور: {label}
+                      </p>
+                    </div>
+                  );
+                })()}
                 {tab === 'login' && (
                   <button
                     type="button"

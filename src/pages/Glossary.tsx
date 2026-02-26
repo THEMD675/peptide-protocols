@@ -104,10 +104,12 @@ export default function Glossary() {
           {filtered.map((term) => (
             <article
               key={term.en}
-              className="rounded-2xl border border-stone-200 bg-white p-5 transition-all hover:border-emerald-200 hover:shadow-sm"
+              className="rounded-2xl border border-stone-200 border-r-2 border-r-emerald-300 bg-white p-5 transition-all hover:border-emerald-200 hover:shadow-sm"
             >
-              <h3 className="text-base font-bold text-stone-900">{term.ar}</h3>
-              <p className="mt-1 text-xs font-medium text-emerald-600" dir="ltr">{term.en}</p>
+              <div className="flex items-baseline justify-between gap-3">
+                <h3 className="text-base font-bold text-stone-900">{term.ar}</h3>
+                <p className="shrink-0 text-xs font-medium text-emerald-600" dir="ltr">{term.en}</p>
+              </div>
               <p className="mt-3 text-sm leading-relaxed text-stone-600">{term.definition}</p>
             </article>
           ))}
