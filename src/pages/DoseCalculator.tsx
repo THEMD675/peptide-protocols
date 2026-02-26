@@ -194,18 +194,18 @@ function SyringeVisual({
 /* ─────────────── Main Component ─────────────── */
 
 const PEPTIDE_PRESETS = [
-  { name: 'BPC-157', dose: 250, unit: 'mcg' as DoseUnit, vial: 5, water: 2 },
-  { name: 'TB-500', dose: 750, unit: 'mcg' as DoseUnit, vial: 5, water: 2 },
-  { name: 'Semaglutide', dose: 250, unit: 'mcg' as DoseUnit, vial: 5, water: 2 },
-  { name: 'CJC-1295', dose: 100, unit: 'mcg' as DoseUnit, vial: 2, water: 2 },
-  { name: 'Ipamorelin', dose: 200, unit: 'mcg' as DoseUnit, vial: 5, water: 2 },
-  { name: 'Tesamorelin', dose: 2000, unit: 'mcg' as DoseUnit, vial: 2, water: 2 },
-  { name: 'PT-141', dose: 1750, unit: 'mcg' as DoseUnit, vial: 10, water: 2 },
-  { name: 'Semax', dose: 400, unit: 'mcg' as DoseUnit, vial: 3, water: 1 },
-  { name: 'Epithalon', dose: 5000, unit: 'mcg' as DoseUnit, vial: 10, water: 2 },
-  { name: 'AOD-9604', dose: 300, unit: 'mcg' as DoseUnit, vial: 5, water: 2 },
-  { name: 'GHK-Cu', dose: 200, unit: 'mcg' as DoseUnit, vial: 5, water: 2 },
-  { name: 'Kisspeptin-10', dose: 100, unit: 'mcg' as DoseUnit, vial: 5, water: 2 },
+  { name: 'BPC-157', dose: 250, unit: 'mcg' as DoseUnit, vial: 5, water: 2, minDose: 100, maxDose: 500 },
+  { name: 'TB-500', dose: 750, unit: 'mcg' as DoseUnit, vial: 5, water: 2, minDose: 250, maxDose: 1500 },
+  { name: 'Semaglutide', dose: 250, unit: 'mcg' as DoseUnit, vial: 5, water: 2, minDose: 250, maxDose: 2400 },
+  { name: 'CJC-1295', dose: 100, unit: 'mcg' as DoseUnit, vial: 2, water: 2, minDose: 50, maxDose: 300 },
+  { name: 'Ipamorelin', dose: 200, unit: 'mcg' as DoseUnit, vial: 5, water: 2, minDose: 100, maxDose: 300 },
+  { name: 'Tesamorelin', dose: 2000, unit: 'mcg' as DoseUnit, vial: 2, water: 2, minDose: 1000, maxDose: 2000 },
+  { name: 'PT-141', dose: 1750, unit: 'mcg' as DoseUnit, vial: 10, water: 2, minDose: 500, maxDose: 2000 },
+  { name: 'Semax', dose: 400, unit: 'mcg' as DoseUnit, vial: 3, water: 1, minDose: 200, maxDose: 1000 },
+  { name: 'Epithalon', dose: 5000, unit: 'mcg' as DoseUnit, vial: 10, water: 2, minDose: 2500, maxDose: 10000 },
+  { name: 'AOD-9604', dose: 300, unit: 'mcg' as DoseUnit, vial: 5, water: 2, minDose: 200, maxDose: 600 },
+  { name: 'GHK-Cu', dose: 200, unit: 'mcg' as DoseUnit, vial: 5, water: 2, minDose: 100, maxDose: 500 },
+  { name: 'Kisspeptin-10', dose: 100, unit: 'mcg' as DoseUnit, vial: 5, water: 2, minDose: 50, maxDose: 200 },
 ];
 
 export default function DoseCalculator() {
@@ -502,6 +502,34 @@ export default function DoseCalculator() {
               </p>
             </div>
           )}
+
+          {/* Dose safety warning */}
+          {selectedPreset && (() => {
+            const preset = PEPTIDE_PRESETS.find(p => p.name === selectedPreset);
+            if (!preset) return null;
+            const doseMcg = doseUnit === 'mg' ? doseValue * 1000 : doseValue;
+            if (doseMcg > preset.maxDose) {
+              return (
+                <div className="mt-4 rounded-xl border border-red-300 bg-red-50 px-4 py-3">
+                  <p className="text-sm font-bold text-red-800">⚠️ جرعة مرتفعة</p>
+                  <p className="text-xs text-red-700 mt-1">الجرعة المدخلة ({doseMcg} mcg) تتجاوز الحد الأعلى الموصى به لـ {preset.name} ({preset.maxDose} mcg). استشر طبيبك قبل استخدام هذه الجرعة.</p>
+                </div>
+              );
+            }
+            if (doseMcg < preset.minDose) {
+              return (
+                <div className="mt-4 rounded-xl border border-amber-300 bg-amber-50 px-4 py-3">
+                  <p className="text-sm font-bold text-amber-800">💡 جرعة منخفضة</p>
+                  <p className="text-xs text-amber-700 mt-1">الجرعة المدخلة ({doseMcg} mcg) أقل من الحد الأدنى الفعّال لـ {preset.name} ({preset.minDose} mcg). قد لا تحصل على النتيجة المطلوبة.</p>
+                </div>
+              );
+            }
+            return (
+              <div className="mt-4 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3">
+                <p className="text-xs text-emerald-700">✓ الجرعة ضمن النطاق الموصى به لـ {preset.name} ({preset.minDose}-{preset.maxDose} mcg)</p>
+              </div>
+            );
+          })()}
 
           {/* Monthly Planning */}
           {isFinite(results.dosesPerVial) && results.dosesPerVial > 0 && (

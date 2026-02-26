@@ -36,6 +36,7 @@ export default function Community() {
   const [showForm, setShowForm] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [filterGoal, setFilterGoal] = useState('all');
 
   const [peptideName, setPeptideName] = useState('');
   const [goal, setGoal] = useState('');
@@ -279,6 +280,29 @@ export default function Community() {
           </div>
         )}
 
+        {/* Filter bar */}
+        {!loading && logs.length > 0 && (
+          <div className="mb-6 flex flex-wrap gap-2">
+            {['all', ...GOALS].map(g => {
+              const label = g === 'all' ? 'الكل' : g;
+              return (
+                <button
+                  key={g}
+                  onClick={() => setFilterGoal(g)}
+                  className={cn(
+                    'rounded-full border px-4 py-1.5 text-sm font-medium transition-all',
+                    filterGoal === g
+                      ? 'border-emerald-400 bg-emerald-50 text-emerald-800'
+                      : 'border-stone-200 bg-white text-stone-600 hover:border-emerald-200'
+                  )}
+                >
+                  {label}
+                </button>
+              );
+            })}
+          </div>
+        )}
+
         {loading ? (
           <div className="py-16 text-center">
             <div className="h-6 w-6 mx-auto animate-spin rounded-full border-2 border-stone-200 border-t-emerald-600" />
@@ -291,7 +315,7 @@ export default function Community() {
           </div>
         ) : (
           <div className="space-y-4">
-            {logs.map((log) => (
+            {logs.filter(log => filterGoal === 'all' || log.goal === filterGoal).map((log) => (
               <div key={log.id} className="rounded-2xl border border-stone-300 bg-white p-6">
                 <div className="mb-3 flex items-start justify-between">
                   <div className="flex items-center gap-3">
