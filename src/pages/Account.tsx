@@ -27,6 +27,8 @@ export default function Account() {
   const [isProcessing, setIsProcessing] = useState(false);
   const [newPassword, setNewPassword] = useState('');
   const [passwordLoading, setPasswordLoading] = useState(false);
+  const [newEmail, setNewEmail] = useState('');
+  const [emailLoading, setEmailLoading] = useState(false);
 
   const closeDialogs = useCallback(() => {
     setShowCancelDialog(false);
@@ -41,6 +43,18 @@ export default function Account() {
   }, [showCancelDialog, showDeleteDialog, closeDialogs]);
 
   if (!user) return null;
+
+  const handleChangeEmail = async () => {
+    if (!newEmail.trim() || !newEmail.includes('@')) { toast.error('أدخل بريد إلكتروني صالح'); return; }
+    setEmailLoading(true);
+    try {
+      const { error } = await supabase.auth.updateUser({ email: newEmail });
+      if (error) throw error;
+      toast.success('تم إرسال رابط التأكيد إلى بريدك الجديد. تحقق من صندوق البريد.');
+      setNewEmail('');
+    } catch (e) { toast.error(e instanceof Error ? e.message : 'حدث خطأ'); }
+    finally { setEmailLoading(false); }
+  };
 
   const handleChangePassword = async () => {
     if (newPassword.length < 6) { toast.error('كلمة المرور يجب أن تكون 6 أحرف على الأقل'); return; }
@@ -116,12 +130,34 @@ export default function Account() {
 
       <div className="space-y-6">
         {/* Email Card */}
-        <div className="rounded-2xl border border-stone-300 bg-stone-50 p-6">
+        <div className="rounded-2xl border border-stone-200 bg-stone-50 p-6">
           <div className="flex items-center gap-3 mb-4">
             <Mail className="h-5 w-5 text-emerald-600" />
             <h2 className="text-lg font-bold text-stone-900">البريد الإلكتروني</h2>
           </div>
-          <p className="text-sm text-stone-700" dir="ltr">{user.email}</p>
+          <p className="text-sm text-stone-700 mb-4" dir="ltr">{user.email}</p>
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
+            <div className="flex-1">
+              <label htmlFor="new-email" className="mb-1.5 block text-sm font-medium text-stone-700">بريد إلكتروني جديد</label>
+              <input
+                id="new-email"
+                type="email"
+                value={newEmail}
+                onChange={(e) => setNewEmail(e.target.value)}
+                placeholder="example@mail.com"
+                dir="ltr"
+                autoComplete="email"
+                className="w-full rounded-xl border border-stone-200 bg-white px-4 py-3 text-left text-sm text-stone-900 placeholder:text-stone-400 focus:border-emerald-300 focus:outline-none focus:ring-2 focus:ring-emerald-100"
+              />
+            </div>
+            <button
+              onClick={handleChangeEmail}
+              disabled={emailLoading || !newEmail.trim()}
+              className="rounded-xl bg-emerald-600 px-6 py-3 text-sm font-bold text-white transition-colors hover:bg-emerald-700 disabled:opacity-50"
+            >
+              {emailLoading ? '...' : 'تغيير البريد'}
+            </button>
+          </div>
         </div>
 
         {/* Change Password */}
