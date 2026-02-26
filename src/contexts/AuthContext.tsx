@@ -120,6 +120,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         .eq('user_id', userId)
         .maybeSingle();
       if (error) return;
+
+      if (data?.status === 'trial' && data.trial_ends_at && data.created_at) {
+        const created = new Date(data.created_at).getTime();
+        const trialEnd = new Date(data.trial_ends_at).getTime();
+        const durationDays = (trialEnd - created) / (1000 * 60 * 60 * 24);
+        if (durationDays > 4) {
+          const correctEnd = new Date(created + 3 * 24 * 60 * 60 * 1000).toISOString();
+          await supabase.from('subscriptions').update({ trial_ends_at: correctEnd }).eq('user_id', userId);
+          data.trial_ends_at = correctEnd;
+        }
+      }
+
       setSubscription(buildSubscription(data));
     } catch (e) {
       
