@@ -218,7 +218,9 @@ export default function Account() {
                   ? 'bg-emerald-100 text-emerald-700'
                   : subscription.status === 'trial'
                     ? 'bg-amber-100 text-amber-700'
-                    : 'bg-stone-200 text-stone-600',
+                    : subscription.status === 'expired'
+                      ? 'bg-red-100 text-red-700'
+                      : 'bg-stone-200 text-stone-600',
               )}>
                 {STATUS_LABELS[subscription.status] ?? subscription.status}
               </span>
@@ -230,7 +232,29 @@ export default function Account() {
               </div>
             )}
           </div>
-          {subscription.tier !== 'elite' && (
+          {(subscription.status === 'expired' || subscription.status === 'none') && (
+            <div className="mt-4 rounded-xl border border-amber-300 bg-amber-50 p-4">
+              <div className="flex items-center gap-2 mb-2">
+                <AlertTriangle className="h-4 w-4 text-amber-600 shrink-0" />
+                <p className="text-sm font-bold text-amber-800">
+                  {subscription.status === 'expired' ? 'انتهت صلاحية اشتراكك' : 'لا يوجد اشتراك نشط'}
+                </p>
+              </div>
+              <p className="text-xs text-amber-700 mb-3">
+                {subscription.status === 'expired'
+                  ? 'جدّد اشتراكك للعودة إلى البروتوكولات والأدوات الكاملة.'
+                  : 'اشترك للوصول إلى كل البروتوكولات والأدوات.'}
+              </p>
+              <Link
+                to="/pricing"
+                className="flex items-center justify-center gap-2 rounded-full bg-emerald-600 px-6 py-3 text-sm font-bold text-white transition-all hover:bg-emerald-700"
+              >
+                <ArrowUpCircle className="h-4 w-4" />
+                {subscription.status === 'expired' ? 'جدّد اشتراكك الآن' : 'اشترك الآن'}
+              </Link>
+            </div>
+          )}
+          {subscription.status !== 'expired' && subscription.status !== 'none' && subscription.tier !== 'elite' && (
             <Link
               to="/pricing"
               className="mt-5 flex items-center justify-center gap-2 rounded-full bg-emerald-600 px-6 py-3 text-sm font-bold text-white transition-all hover:bg-emerald-700"

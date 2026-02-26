@@ -7,7 +7,6 @@ import {
   Calculator,
   Bot,
   FlaskConical,
-  Layers,
   Table2,
   Crown,
   CheckCircle2,
@@ -23,11 +22,11 @@ import { supabase } from '@/lib/supabase';
 import { PEPTIDE_COUNT } from '@/lib/constants';
 
 const QUICK_LINKS = [
-  { to: '/library', label: 'المكتبة', description: `تصفّح ${PEPTIDE_COUNT}+ ببتيد`, Icon: BookOpen },
-  { to: '/calculator', label: 'الحاسبة', description: 'احسب جرعتك بدقة', Icon: Calculator },
   { to: '/coach', label: 'المدرب الذكي', description: 'اسأل خبير الببتيدات', Icon: Bot },
+  { to: '/tracker', label: 'سجل الحقن', description: 'تتبّع جرعاتك', Icon: Syringe },
+  { to: '/calculator', label: 'الحاسبة', description: 'احسب جرعتك بدقة', Icon: Calculator },
+  { to: '/library', label: 'المكتبة', description: `تصفّح ${PEPTIDE_COUNT}+ ببتيد`, Icon: BookOpen },
   { to: '/lab-guide', label: 'دليل التحاليل', description: '11 تحليل أساسي', Icon: FlaskConical },
-  { to: '/stacks', label: 'البروتوكولات', description: 'خلطات مُجرَّبة', Icon: Layers },
   { to: '/table', label: 'الجدول المرجعي', description: 'جميع الببتيدات في جدول', Icon: Table2 },
 ];
 

@@ -47,6 +47,7 @@ export default function Community() {
   const [durationWeeks, setDurationWeeks] = useState(4);
   const [results, setResults] = useState('');
   const [rating, setRating] = useState(4);
+  const [attempted, setAttempted] = useState(false);
 
   useEffect(() => {
     let mounted = true;
@@ -73,6 +74,7 @@ export default function Community() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setAttempted(true);
     if (!user || !peptideName.trim() || !results.trim() || submitting) return;
 
     setSubmitting(true);
@@ -161,8 +163,14 @@ export default function Community() {
                     placeholder="مثال: BPC-157, Semaglutide, Semax..."
                     required
                     dir="ltr"
-                    className="w-full rounded-xl border border-stone-200 bg-stone-50 px-4 py-3 text-stone-900 placeholder:text-stone-400 focus:border-emerald-300 focus:outline-none focus:ring-2 focus:ring-emerald-100"
+                    className={cn(
+                      'w-full rounded-xl border bg-stone-50 px-4 py-3 text-stone-900 placeholder:text-stone-400 focus:border-emerald-300 focus:outline-none focus:ring-2 focus:ring-emerald-100',
+                      attempted && !peptideName.trim() ? 'border-red-400 ring-1 ring-red-200' : 'border-stone-200'
+                    )}
                   />
+                  {attempted && !peptideName.trim() && (
+                    <p className="mt-1 text-xs text-red-600">يرجى إدخال اسم الببتيد</p>
+                  )}
                 </div>
 
                 <div className="mb-4">
@@ -239,8 +247,14 @@ export default function Community() {
                     placeholder="وصف النتائج: تحسّن، أعراض جانبية، تغييرات في التحاليل..."
                     rows={4}
                     required
-                    className="w-full resize-none rounded-xl border border-stone-200 bg-stone-50 px-4 py-3 text-stone-900 placeholder:text-stone-400 focus:border-emerald-300 focus:outline-none focus:ring-2 focus:ring-emerald-100"
+                    className={cn(
+                      'w-full resize-none rounded-xl border bg-stone-50 px-4 py-3 text-stone-900 placeholder:text-stone-400 focus:border-emerald-300 focus:outline-none focus:ring-2 focus:ring-emerald-100',
+                      attempted && !results.trim() ? 'border-red-400 ring-1 ring-red-200' : 'border-stone-200'
+                    )}
                   />
+                  {attempted && !results.trim() && (
+                    <p className="mt-1 text-xs text-red-600">يرجى وصف النتائج</p>
+                  )}
                 </div>
 
                 <div className="flex gap-3">

@@ -587,7 +587,12 @@ export default function Coach() {
                           : msg.content
                       }</p>
                     ) : (
-                      <div className="text-sm leading-relaxed text-stone-800">{renderMarkdown(msg.content)}</div>
+                      <div className="text-sm leading-relaxed text-stone-800">
+                        {renderMarkdown(msg.content)}
+                        {isLoading && i === messages.length - 1 && msg.content.length > 0 && (
+                          <span className="inline-block w-2 h-4 bg-emerald-600 animate-pulse align-text-bottom mr-0.5" />
+                        )}
+                      </div>
                     )}
                   </div>
                 </div>

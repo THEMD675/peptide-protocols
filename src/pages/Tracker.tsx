@@ -607,10 +607,24 @@ export default function Tracker() {
             <Loader2 className="h-6 w-6 animate-spin text-emerald-600" />
           </div>
         ) : logs.length === 0 ? (
-          <div className="rounded-2xl border border-stone-200 bg-stone-50 py-16 text-center">
-            <Syringe className="mx-auto mb-3 h-8 w-8 text-stone-300" />
-            <p className="text-sm text-stone-500">لا توجد سجلات بعد</p>
-            <p className="mt-1 text-xs text-stone-400">سجّل أول حقنة لك لتبدأ التتبّع</p>
+          <div className="rounded-2xl border-2 border-dashed border-emerald-200 bg-emerald-50/50 p-8 text-center">
+            <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-100">
+              <Syringe className="h-7 w-7 text-emerald-600" />
+            </div>
+            <p className="text-lg font-bold text-stone-900">لا توجد سجلات بعد</p>
+            <p className="mt-2 text-sm text-stone-600 leading-relaxed max-w-md mx-auto">
+              سجل الحقن يساعدك على تتبّع جرعاتك اليومية، تدوير مواقع الحقن، ومراقبة التزامك بالبروتوكول. كل حقنة تُسجّل مع الجرعة والموقع والوقت.
+            </p>
+            <button
+              onClick={() => {
+                setShowForm(true);
+                setSite(suggestedSite);
+              }}
+              className="mt-5 inline-flex items-center gap-2 rounded-full bg-emerald-600 px-8 py-3 text-sm font-bold text-white transition-all hover:bg-emerald-700"
+            >
+              <Plus className="h-4 w-4" />
+              ابدأ بتسجيل أول حقنة
+            </button>
           </div>
         ) : (
           <div className="space-y-4">

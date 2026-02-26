@@ -155,7 +155,12 @@ export default function Login() {
                   />
                 </div>
                 <button type="submit" disabled={loading} className="w-full rounded-full bg-emerald-600 py-3.5 text-base font-bold text-white shadow transition-transform hover:bg-emerald-700 disabled:opacity-60">
-                  {loading ? '...' : 'تغيير كلمة المرور'}
+                  {loading ? (
+                    <span className="inline-flex items-center gap-2">
+                      <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />
+                      جارٍ التغيير...
+                    </span>
+                  ) : 'تغيير كلمة المرور'}
                 </button>
               </form>
             </div>
@@ -304,7 +309,12 @@ export default function Login() {
                 disabled={loading}
                 className="w-full rounded-full bg-emerald-600 py-3.5 text-base font-bold text-white shadow transition-transform hover:bg-emerald-700 hover:scale-[1.02] active:scale-[0.98] disabled:pointer-events-none disabled:opacity-60"
               >
-                {loading ? '...' : tab === 'login' ? 'تسجيل الدخول' : 'إنشاء حساب'}
+                {loading ? (
+                  <span className="inline-flex items-center gap-2">
+                    <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />
+                    {tab === 'login' ? 'جارٍ تسجيل الدخول...' : 'جارٍ إنشاء الحساب...'}
+                  </span>
+                ) : tab === 'login' ? 'تسجيل الدخول' : 'إنشاء حساب'}
               </button>
 
               <p className="text-center text-sm text-stone-700">

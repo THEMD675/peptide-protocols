@@ -162,6 +162,14 @@ function PeptideCard({
             'rounded-full border px-2.5 py-0.5 text-[11px] font-medium',
             evidenceColors[peptide.evidenceLevel],
           )}
+          title={
+            peptide.evidenceLevel === 'excellent' ? 'ممتاز — تجارب سريرية كبرى + اعتماد FDA' :
+            peptide.evidenceLevel === 'strong' ? 'قوي — تجارب بشرية متعددة' :
+            peptide.evidenceLevel === 'good' ? 'جيد — دراسات بشرية محدودة' :
+            peptide.evidenceLevel === 'moderate' ? 'متوسط — دراسات حيوانية + تقارير بشرية' :
+            peptide.evidenceLevel === 'weak' ? 'ضعيف — دراسات حيوانية فقط' :
+            'ضعيف جدًا — بيانات أولية محدودة'
+          }
         >
           {evidenceLabels[peptide.evidenceLevel]}
         </span>

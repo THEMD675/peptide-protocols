@@ -297,13 +297,19 @@ export default function Pricing() {
 
         {/* Money-back guarantee */}
         <div
-          className="mt-16 rounded-2xl border-2 border-emerald-200 bg-emerald-50 p-8 text-center"
+          className="mt-16 rounded-2xl border-2 border-emerald-300 bg-gradient-to-r from-emerald-50 to-emerald-100 p-8"
         >
-          <Shield className="mx-auto mb-3 h-10 w-10 text-emerald-600" />
-          <p className="text-xl font-bold text-stone-900">ضمان استرداد كامل خلال 3 أيام</p>
-          <p className="mt-2 text-stone-800">
-            إذا لم يعجبك المحتوى — استرد أموالك بالكامل. بدون أسئلة. بدون شروط.
-          </p>
+          <div className="flex flex-col items-center gap-4 sm:flex-row sm:gap-6">
+            <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full bg-emerald-200">
+              <Shield className="h-8 w-8 text-emerald-700" />
+            </div>
+            <div className="text-center sm:text-right">
+              <p className="text-xl font-bold text-stone-900">ضمان استرداد كامل خلال 3 أيام</p>
+              <p className="mt-1 text-stone-800">
+                إذا لم يعجبك المحتوى — استرد أموالك بالكامل. بدون أسئلة. بدون شروط.
+              </p>
+            </div>
+          </div>
         </div>
 
         {/* Referral removed — backend not ready */}

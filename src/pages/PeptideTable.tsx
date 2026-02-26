@@ -275,7 +275,7 @@ export default function PeptideTable() {
                             style={{ right: '120px' }} className={i % 2 === 0 ? 'bg-stone-50' : 'bg-white'}
                           >
                             <Link to={`/peptide/${p.id}`} className="group block">
-                              <span className="block font-bold text-stone-900 transition-colors group-hover:text-emerald-600">
+                              <span className="block font-bold text-stone-900 transition-colors group-hover:text-emerald-600 group-hover:underline">
                                 {p.nameAr}
                               </span>
                               <span className="block text-[10px] text-stone-800 md:text-xs">{p.nameEn}</span>

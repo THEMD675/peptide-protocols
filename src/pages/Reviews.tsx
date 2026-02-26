@@ -39,7 +39,7 @@ function StarRating({
             onClick={() => onRate?.(star)}
             onMouseEnter={() => setHover(star)}
             onMouseLeave={() => setHover(0)}
-            className="cursor-pointer transition-transform hover:scale-110"
+            className="cursor-pointer transition-transform hover:scale-110 active:scale-125"
           >
             <span className="sr-only">{star} نجمة</span>
             <Star

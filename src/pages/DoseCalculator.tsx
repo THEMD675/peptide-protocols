@@ -91,10 +91,8 @@ function SyringeVisual({
         اسحب إلى: {displayUnits.toFixed(1)} وحدة
       </p>
       <svg
-        width="80"
-        height="320"
         viewBox="0 0 80 320"
-        className="drop-shadow-lg"
+        className="drop-shadow-lg w-[100px] h-[400px] md:w-[80px] md:h-[320px]"
         role="img"
         aria-label={`سيرنج يُظهر ${displayUnits.toFixed(1)} وحدة`}
       >
@@ -325,10 +323,10 @@ export default function DoseCalculator() {
                   setWaterMl(p.water);
                 }}
                 className={cn(
-                  'rounded-full border px-3 py-1.5 text-xs font-medium transition-all',
+                  'rounded-full border px-3 py-1.5 text-xs transition-all',
                   selectedPreset === p.name
-                    ? 'border-emerald-400 bg-emerald-50 text-emerald-700 shadow-sm'
-                    : 'border-stone-200 bg-white text-stone-700 hover:border-emerald-300 hover:text-emerald-600'
+                    ? 'border-emerald-400 bg-emerald-50 text-emerald-700 ring-2 ring-emerald-400 font-bold shadow-sm'
+                    : 'border-stone-200 bg-white text-stone-700 font-medium hover:border-emerald-300 hover:text-emerald-600'
                 )}
               >
                 {p.name}
@@ -518,7 +516,7 @@ export default function DoseCalculator() {
             </div>
 
             {/* SVG Syringe */}
-            <div className="flex items-center justify-center rounded-xl border border-stone-300 bg-stone-50 px-4 py-6 md:w-[140px]">
+            <div className="flex items-center justify-center rounded-xl border border-stone-300 bg-stone-50 px-4 py-6 min-h-[200px] md:w-[140px]">
               <SyringeVisual
                 drawUnits={results.syringeUnits}
                 syringeOption={syringe}

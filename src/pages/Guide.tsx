@@ -106,7 +106,7 @@ export default function Guide() {
 
       <div className="space-y-10">
         {/* ── Section 1: Required tools ── */}
-        <section>
+        <section id="required-tools">
           <div className="mb-4 flex items-center gap-3">
             <FlaskConical className="h-6 w-6 shrink-0"  />
             <h2 className="text-2xl font-bold" >
@@ -147,7 +147,7 @@ export default function Guide() {
         </section>
 
         {/* ── Section 2: Reconstitution steps ── */}
-        <section>
+        <section id="reconstitution">
           <div className="mb-4 flex items-center gap-3">
             <CheckCircle className="h-6 w-6 shrink-0"  />
             <h2 className="text-2xl font-bold" >
@@ -182,7 +182,7 @@ export default function Guide() {
         </section>
 
         {/* ── Section 3: Injection sites ── */}
-        <section>
+        <section id="injection-sites">
           <div className="mb-4 flex items-center gap-3">
             <FlaskConical className="h-6 w-6 shrink-0"  />
             <h2 className="text-2xl font-bold" >
@@ -227,7 +227,7 @@ export default function Guide() {
         </section>
 
         {/* ── Section 4: Important rules ── */}
-        <section>
+        <section id="important-rules">
           <div className="mb-4 flex items-center gap-3">
             <Shield className="h-6 w-6 shrink-0"  />
             <h2 className="text-2xl font-bold" >
@@ -257,7 +257,7 @@ export default function Guide() {
         </section>
 
         {/* ── Section 5: Other administration routes ── */}
-        <section>
+        <section id="other-routes">
           <div className="mb-4 flex items-center gap-3">
             <BookOpen className="h-6 w-6 shrink-0"  />
             <h2 className="text-2xl font-bold" >

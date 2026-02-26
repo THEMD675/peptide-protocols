@@ -511,6 +511,7 @@ export default function Landing() {
           <p className="mb-2 text-3xl font-extrabold text-stone-800 line-through">$882+</p>
           <p className="mb-1 text-lg text-stone-800">أنت تدفع فقط:</p>
           <p className="text-3xl font-black text-emerald-600 sm:text-5xl md:text-6xl">{PRICING.essentials.label}<span className="text-xl font-bold text-stone-800">/شهريًا</span></p>
+          <span className="mt-3 inline-block rounded-full bg-emerald-600 px-5 py-1.5 text-sm font-bold text-white shadow-md">توفير 99% — وفّر $873 شهريًا</span>
           <p className="mt-4 text-sm text-stone-800">أو {PRICING.elite.label}/شهريًا للباقة المتقدمة مع المدرب الذكي + استشارات</p>
         </div>
       </section>

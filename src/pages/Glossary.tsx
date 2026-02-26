@@ -1,7 +1,7 @@
 import { useState, useMemo } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { Link } from 'react-router-dom';
-import { BookA, Search } from 'lucide-react';
+import { BookA, Search, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { PEPTIDE_COUNT } from '@/lib/constants';
 
@@ -84,8 +84,17 @@ export default function Glossary() {
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder="ابحث عن مصطلح..."
-          className="w-full rounded-2xl border border-stone-300 bg-stone-50 py-4 pr-12 pl-4 text-sm text-stone-900 placeholder:text-stone-400 focus:border-emerald-300 focus:outline-none focus:ring-1 focus:ring-emerald-200"
+          className="w-full rounded-2xl border border-stone-300 bg-stone-50 py-4 pr-12 pl-10 text-sm text-stone-900 placeholder:text-stone-400 focus:border-emerald-300 focus:outline-none focus:ring-1 focus:ring-emerald-200"
         />
+        {search && (
+          <button
+            onClick={() => setSearch('')}
+            aria-label="مسح البحث"
+            className="absolute left-4 top-1/2 -translate-y-1/2 text-stone-400 transition-colors hover:text-stone-700"
+          >
+            <X className="h-4 w-4" />
+          </button>
+        )}
       </div>
 
       {/* Results count */}
