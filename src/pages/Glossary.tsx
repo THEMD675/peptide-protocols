@@ -99,7 +99,7 @@ export default function Glossary() {
 
       {/* Results count */}
       <p className="mb-4 text-sm text-stone-500">
-        {filtered.length} مصطلح{search.trim() ? ' — نتائج البحث' : ''}
+        {search.trim() ? `${filtered.length} نتيجة` : `${TERMS.length} مصطلح`}
       </p>
 
       {/* Terms Grid */}

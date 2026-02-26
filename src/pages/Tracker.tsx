@@ -46,12 +46,12 @@ const SITE_LABELS: Record<string, string> = Object.fromEntries(
 
 function formatDate(iso: string) {
   const d = new Date(iso);
-  return d.toLocaleDateString('ar-SA', { year: 'numeric', month: 'short', day: 'numeric' });
+  return d.toLocaleDateString('ar-u-nu-latn', { year: 'numeric', month: 'short', day: 'numeric' });
 }
 
 function formatTime(iso: string) {
   const d = new Date(iso);
-  return d.toLocaleTimeString('ar-SA', { hour: '2-digit', minute: '2-digit' });
+  return d.toLocaleTimeString('ar-u-nu-latn', { hour: '2-digit', minute: '2-digit' });
 }
 
 export default function Tracker() {
@@ -291,7 +291,7 @@ export default function Tracker() {
         const daysInMonth = new Date(year, month + 1, 0).getDate();
         const firstDayOfWeek = new Date(year, month, 1).getDay();
         const dayNames = ['أحد', 'إثن', 'ثلا', 'أرب', 'خمي', 'جمع', 'سبت'];
-        const monthName = new Date(year, month).toLocaleDateString('ar-SA', { month: 'long', year: 'numeric' });
+        const monthName = new Date(year, month).toLocaleDateString('ar-u-nu-latn', { month: 'long', year: 'numeric' });
         const isCurrentMonth = year === now.getFullYear() && month === now.getMonth();
 
         const injectionDays = new Map<number, number>();
@@ -451,7 +451,7 @@ export default function Tracker() {
                       await fetchLogs();
                       toast.success(`تم تسجيل ${last.peptide_name} — ${last.dose} ${last.unit}`);
                     } catch {
-                      toast.error('حدث خطأ');
+                      toast.error('حدث خطأ في تكرار الحقنة. حاول مرة أخرى.');
                     } finally {
                       setIsSubmitting(false);
                     }
@@ -549,11 +549,11 @@ export default function Tracker() {
 
             {/* Notes */}
             <div>
-              <label className="mb-1 block text-sm font-bold text-stone-700">ملاحظات</label>
+              <label className="mb-1 block text-sm font-bold text-stone-700">ملاحظات <span className="text-[10px] text-emerald-600 font-normal mr-1">اختياري</span></label>
               <textarea
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
-                placeholder="ملاحظات إضافية (اختياري)"
+                placeholder="ملاحظات إضافية..."
                 rows={3}
                 maxLength={200}
                 className="w-full resize-none rounded-xl border border-stone-200 bg-white px-4 py-3 text-sm text-stone-900 placeholder:text-stone-400 focus:border-emerald-300 focus:outline-none focus:ring-2 focus:ring-emerald-100"

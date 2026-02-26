@@ -133,7 +133,7 @@ export default function InteractionChecker() {
               <select
                 value={sel}
                 onChange={(e) => updateSlot(idx, e.target.value)}
-                className="flex-1 rounded-xl border border-stone-300 bg-stone-50 px-4 py-3 text-sm text-stone-900 focus:border-emerald-300 focus:outline-none"
+                className={cn('flex-1 rounded-xl border border-stone-300 bg-stone-50 px-4 py-3 text-sm focus:border-emerald-300 focus:outline-none', sel ? 'text-stone-900' : 'text-stone-400 italic')}
               >
                 <option value="">اختر ببتيد...</option>
                 {sortedPeptides.map(p => (

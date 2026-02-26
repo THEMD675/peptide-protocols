@@ -203,7 +203,7 @@ export default function Header() {
                           navigate(`/peptide/${searchResults[searchFocusIdx].id}`); setSearchOpen(false); setSearchQuery('');
                         }
                       }}
-                      placeholder="ابحث عن ببتيد..."
+                      placeholder="ابحث بالاسم..."
                       className="w-full rounded-lg border border-stone-200 bg-stone-50 px-3 py-2 text-sm text-stone-900 placeholder:text-stone-400 outline-none focus:border-emerald-300"
                     />
                   </div>

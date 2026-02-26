@@ -23,7 +23,7 @@ export default function EmailCapture() {
       setErrorMsg(
         error.code === '23505'
           ? 'هذا البريد مسجّل مسبقًا'
-          : 'حدث خطأ، حاول مرة أخرى'
+          : 'تعذّر تسجيل بريدك. حاول مرة أخرى.'
       );
       return;
     }

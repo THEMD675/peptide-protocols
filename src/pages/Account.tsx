@@ -52,7 +52,7 @@ export default function Account() {
       if (error) throw error;
       toast.success('تم إرسال رابط التأكيد إلى بريدك الجديد. تحقق من صندوق البريد.');
       setNewEmail('');
-    } catch (e) { toast.error(e instanceof Error ? e.message : 'حدث خطأ'); }
+    } catch (e) { toast.error(e instanceof Error ? e.message : 'حدث خطأ في تغيير البريد الإلكتروني'); }
     finally { setEmailLoading(false); }
   };
 
@@ -64,7 +64,7 @@ export default function Account() {
       if (error) throw error;
       toast.success('تم تغيير كلمة المرور بنجاح');
       setNewPassword('');
-    } catch (e) { toast.error(e instanceof Error ? e.message : 'حدث خطأ'); }
+    } catch (e) { toast.error(e instanceof Error ? e.message : 'حدث خطأ في تغيير كلمة المرور'); }
     finally { setPasswordLoading(false); }
   };
 

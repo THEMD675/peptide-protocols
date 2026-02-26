@@ -354,7 +354,7 @@ export default function Library() {
               type="text"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              placeholder="ابحث عن ببتيد..."
+              placeholder="ابحث بالاسم العربي أو الإنجليزي..."
               className={cn(
                 'w-full rounded-xl border border-stone-200 bg-stone-50 py-2.5 pr-10 pl-4',
                 'text-sm text-stone-900 placeholder:text-stone-700',

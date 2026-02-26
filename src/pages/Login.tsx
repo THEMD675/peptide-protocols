@@ -54,7 +54,7 @@ export default function Login() {
       setNewPassword('');
       setTimeout(() => navigate('/dashboard'), 1500);
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : 'حدث خطأ غير متوقع');
+      setError(err instanceof Error ? err.message : 'حدث خطأ في تغيير كلمة المرور');
     } finally {
       setLoading(false);
     }
@@ -86,7 +86,7 @@ export default function Login() {
         navigate(hasQuiz ? '/coach' : '/dashboard');
       }
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : 'حدث خطأ غير متوقع';
+      const msg = err instanceof Error ? err.message : 'حدث خطأ في تسجيل الدخول. تحقق من بريدك وكلمة المرور.';
       if (msg.includes('رابط التأكيد') || msg.includes('تحقق من بريدك')) {
         setInfoMessage(msg);
       } else {
@@ -121,7 +121,7 @@ export default function Login() {
       if (error) throw error;
       setResetMessage('تم إرسال رابط إعادة تعيين كلمة المرور');
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : 'حدث خطأ غير متوقع');
+      setError(err instanceof Error ? err.message : 'حدث خطأ في إرسال رابط إعادة التعيين');
     } finally {
       setLoading(false);
     }

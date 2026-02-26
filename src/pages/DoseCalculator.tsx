@@ -483,7 +483,7 @@ export default function DoseCalculator() {
               </div>
             </div>
             <div className="space-y-2">
-              <label className="block text-sm font-medium text-stone-800">سعر القارورة ($ — اختياري)</label>
+              <label className="block text-sm font-medium text-stone-800">سعر القارورة ($) <span className="text-[10px] text-emerald-600 font-normal mr-1">اختياري</span></label>
               <input type="number" min={0} step={5} value={vialPrice || ''} onChange={e => setVialPrice(Number(e.target.value))} placeholder="مثال: 40"
                 className="w-full rounded-xl border border-stone-300 bg-stone-50 px-4 py-3 text-base text-stone-900 placeholder:text-stone-400 focus:border-emerald-300 focus:outline-none focus:ring-1 focus:ring-emerald-200" />
             </div>
