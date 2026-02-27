@@ -94,14 +94,13 @@ serve(async (req) => {
 
     const userIds = trialUsers.map(s => s.user_id).filter(Boolean)
     const emailMap = new Map<string, string>()
-    const PAGE_SIZE = 100
-    for (let page = 0; page * PAGE_SIZE < userIds.length + PAGE_SIZE; page++) {
-      const { data: listData } = await supabase.auth.admin.listUsers({ page: page + 1, perPage: PAGE_SIZE })
-      if (!listData?.users?.length) break
-      for (const u of listData.users) {
-        if (u.email && userIds.includes(u.id)) emailMap.set(u.id, u.email)
+    for (const uid of userIds) {
+      try {
+        const { data } = await supabase.auth.admin.getUserById(uid)
+        if (data?.user?.email) emailMap.set(uid, data.user.email)
+      } catch {
+        console.error('trial-reminder: failed to get user', uid)
       }
-      if (listData.users.length < PAGE_SIZE) break
     }
 
     let sent = 0
@@ -169,7 +168,7 @@ serve(async (req) => {
             </a>
             <p style="margin-top: 16px; color: #78716c;">ضمان استرداد كامل خلال 3 أيام. بدون مخاطرة.</p>
           `
-        } else if (daysUntilExpiry === 0 || daysUntilExpiry === -1) {
+        } else if (daysUntilExpiry <= 0 && daysUntilExpiry >= -3) {
           reminderType = 'expired'
           subject = '🔒 انتهت تجربتك — اشترك الآن — pptides'
           body = `
