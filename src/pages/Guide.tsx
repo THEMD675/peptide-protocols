@@ -71,7 +71,7 @@ function BlurredSection({ isPro, children }: { isPro: boolean; children: React.R
       <div className="absolute inset-0 z-10 flex items-center justify-center">
         <Link
           to="/pricing"
-          className="rounded-lg px-4 py-2 text-sm font-bold gold-gradient text-white shadow-md transition-transform hover:scale-105"
+          className="rounded-full bg-emerald-600 px-5 py-2 text-sm font-bold text-white hover:bg-emerald-700 transition-colors"
         >
           اشترك للوصول الكامل
         </Link>

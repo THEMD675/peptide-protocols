@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { Link } from 'react-router-dom';
-import { MessageSquare, Send, Clock, FlaskConical, User, Flag } from 'lucide-react';
+import { MessageSquare, Send, Clock, FlaskConical, User, Flag, Star } from 'lucide-react';
 import { toast } from 'sonner';
 import { useAuth } from '@/contexts/AuthContext';
 import { PRICING } from '@/lib/constants';
@@ -41,6 +41,7 @@ export default function Community() {
   const submittingRef = useRef(false);
   const [submitted, setSubmitted] = useState(false);
   const [filterGoal, setFilterGoal] = useState('all');
+  const [sortBy, setSortBy] = useState<'newest' | 'highest'>('newest');
   const [hasMore, setHasMore] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
   const PAGE_SIZE = 50;
@@ -328,6 +329,15 @@ export default function Community() {
                 </button>
               );
             })}
+            <select
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value as 'newest' | 'highest')}
+              aria-label="ترتيب التجارب"
+              className="mr-auto rounded-xl border border-stone-200 bg-white px-3 py-1.5 text-sm text-stone-700 focus:border-emerald-300 focus:outline-none"
+            >
+              <option value="newest">الأحدث</option>
+              <option value="highest">الأعلى تقييمًا</option>
+            </select>
           </div>
         )}
 
@@ -343,13 +353,13 @@ export default function Community() {
           </div>
         ) : (
           <div className="space-y-4">
-            {logs.filter(log => filterGoal === 'all' || log.goal === filterGoal).length === 0 && (
+            {logs.filter(log => filterGoal === 'all' || log.goal === filterGoal).sort((a, b) => sortBy === 'highest' ? b.rating - a.rating : 0).length === 0 && (
               <div className="rounded-2xl border border-stone-200 bg-stone-50 py-12 text-center">
                 <p className="text-sm font-bold text-stone-600">لا توجد تجارب لهذا الهدف بعد</p>
                 <button onClick={() => setFilterGoal('all')} className="mt-3 text-sm text-emerald-600 font-medium hover:underline">عرض الكل</button>
               </div>
             )}
-            {logs.filter(log => filterGoal === 'all' || log.goal === filterGoal).map((log) => (
+            {logs.filter(log => filterGoal === 'all' || log.goal === filterGoal).sort((a, b) => sortBy === 'highest' ? b.rating - a.rating : 0).map((log) => (
               <div key={log.id} className="rounded-2xl border border-stone-200 bg-white p-6 transition-all hover:border-emerald-200 hover:shadow-sm">
                 <div className="mb-3 flex items-start justify-between">
                   <div className="flex items-center gap-3">
@@ -377,13 +387,13 @@ export default function Community() {
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
-                    <div className="flex items-center gap-1" role="img" aria-label={`التقييم ${log.rating} من 5`}>
-                      {[...Array(5)].map((_, i) => (
-                        <div
-                          key={i}
+                    <div className="flex items-center gap-0.5" role="img" aria-label={`التقييم ${log.rating} من 5`} dir="ltr">
+                      {[1, 2, 3, 4, 5].map((s) => (
+                        <Star
+                          key={s}
                           className={cn(
-                            'h-2 w-2 rounded-full',
-                            i < log.rating ? 'bg-emerald-500' : 'bg-stone-200'
+                            'h-3.5 w-3.5',
+                            s <= log.rating ? 'fill-emerald-500 text-emerald-500' : 'fill-transparent text-stone-300'
                           )}
                         />
                       ))}

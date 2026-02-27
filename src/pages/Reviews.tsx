@@ -31,7 +31,7 @@ function StarRating({
   const sizeClass = size === 'sm' ? 'h-4 w-4' : 'h-6 w-6';
 
   return (
-    <div className="flex gap-1" dir="ltr">
+    <div className="flex gap-1" dir="ltr" role={interactive ? 'radiogroup' : undefined} aria-label={interactive ? 'التقييم' : undefined}>
       {[1, 2, 3, 4, 5].map((star) =>
         interactive ? (
           <button

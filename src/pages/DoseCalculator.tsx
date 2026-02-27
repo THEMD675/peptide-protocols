@@ -616,6 +616,13 @@ export default function DoseCalculator() {
                 <Syringe className="h-5 w-5" />
                 <span className="text-sm">سجّل في المتابعة</span>
               </Link>
+              <Link
+                to="/guide"
+                className="flex flex-col items-center justify-center gap-1 rounded-xl border-2 border-stone-200 bg-white p-4 font-bold text-stone-700 transition-all hover:border-emerald-200 hover:text-emerald-700 hover:shadow-md"
+              >
+                <BookOpen className="h-5 w-5" />
+                <span className="text-sm">كيف أحقن؟</span>
+              </Link>
             </div>
           )}
 

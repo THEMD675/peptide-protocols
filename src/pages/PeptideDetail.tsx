@@ -40,7 +40,6 @@ export default function PeptideDetail() {
   const { subscription, isLoading } = useAuth();
   const navigate = useNavigate();
   const isPaid = !isLoading && (subscription?.isPaidSubscriber ?? false);
-  const isTrial = !isLoading && (subscription?.isTrial ?? false);
 
   const peptide = useMemo(() => peptides.find((p) => p.id === id), [id]);
 

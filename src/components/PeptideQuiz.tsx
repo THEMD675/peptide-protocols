@@ -176,6 +176,11 @@ export default function PeptideQuiz() {
           </Link>
         </div>
 
+        {rec.altId && rec.altName && (
+          <Link to={`/peptide/${rec.altId}`} className="mt-3 block text-center text-sm text-stone-500 hover:text-emerald-600 transition-colors">
+            بديل آخر: <span className="font-bold">{rec.altName}</span>
+          </Link>
+        )}
         <button onClick={handleReset} className="mt-4 w-full text-center text-xs text-emerald-600 hover:underline">
           أعد الاختبار
         </button>

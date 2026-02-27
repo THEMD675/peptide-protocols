@@ -41,7 +41,7 @@ export default function StickyScrollCTA() {
       <div className="flex items-center justify-between gap-2 px-3 py-2">
         <button
           onClick={handleDismiss}
-          className="shrink-0 rounded-full p-1.5 text-stone-400 transition-colors hover:bg-stone-100 hover:text-stone-600"
+          className="shrink-0 flex items-center justify-center rounded-full min-h-[44px] min-w-[44px] text-stone-400 transition-colors hover:bg-stone-100 hover:text-stone-600"
           aria-label="إغلاق"
         >
           <X className="h-4 w-4" />

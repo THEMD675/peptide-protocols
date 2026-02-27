@@ -88,7 +88,7 @@ export default function PeptideTable() {
             </div>
             <Link
               to="/pricing"
-              className="gold-gradient shrink-0 rounded-lg px-5 py-2 text-sm font-bold text-white shadow-lg transition-all hover:scale-105 hover:shadow-xl"
+              className="shrink-0 rounded-full bg-emerald-600 px-5 py-2 text-sm font-bold text-white hover:bg-emerald-700 transition-colors"
             >
               عرض الباقات
             </Link>
@@ -204,7 +204,7 @@ export default function PeptideTable() {
           <div className="overflow-hidden rounded-2xl border border-stone-300 bg-stone-100 shadow-2xl">
             <div className="overflow-x-auto">
               <table className="w-full min-w-[1100px] border-collapse text-xs md:text-sm">
-                <thead>
+                <thead className="sticky top-0 z-10">
                   <tr className="bg-gradient-to-l from-emerald-500 to-emerald-600">
                     {[
                       { key: 'cat', label: 'الفئة', sticky: true, stickyRight: '0', minW: '120px', zIndex: 21 },

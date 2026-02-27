@@ -136,15 +136,15 @@ HORMONES (مرتّب حسب الهدف):
 
 LONGEVITY (مرتّب حسب الفعالية):
 - الأقوى: Epithalon 5mg/يوم SubQ × 20 يوم كل 6 أشهر. يُطيل التيلوميرات. 40+ سنة بيانات. $150/دورة.
-- مناعة: Thymosin Alpha-1 1.6mg 2x/أسبوع SubQ. $120/شهر.
-- بشرة + شيخوخة: GHK-Cu سيروم موضعي + 200mcg SubQ. $40-80/شهر.
+- مناعة: Thymosin Alpha-1 1.6mg يوميًا أو كل يومين SubQ. $120-200/شهر.
+- بشرة + شيخوخة: GHK-Cu سيروم موضعي + 1-2mg SubQ يوميًا. $30-80/شهر.
 - بدون حقن: Collagen Peptides 10g/يوم فموي. $30-50/شهر. كن صريح: "الكولاجين الفموي للبشرة والمفاصل، مو لإطالة العمر."
 
 GUT & SKIN (مرتّب حسب الهدف):
 - أمعاء: BPC-157 500mcg فموي (كبسولة مقاومة للحمض). 8-12 أسبوع. $80-120/شهر. "BPC-157 الفموي فعّال تحديداً للأمعاء لأنه مقاوم للحمض."
 - أمعاء + التهاب: Larazotide 0.5mg + KPV 200mcg فموي. $100-150/شهر.
 - بشرة: GHK-Cu سيروم موضعي + Collagen Peptides 10g فموي. $40-60/شهر.
-- بشرة + حقن: GHK-Cu 200mcg SubQ + سيروم موضعي. $40-80/شهر.
+- بشرة + حقن: GHK-Cu 1-2mg SubQ يوميًا + سيروم موضعي. $30-80/شهر.
 
 DANGEROUS INTERACTIONS:
 - BPC-157 + active cancer = PROHIBITED (angiogenesis)
@@ -235,7 +235,7 @@ serve(async (req) => {
       })
     }
 
-    const validRoles = ['user', 'assistant', 'system']
+    const validRoles = ['user', 'assistant']
     const invalidMsg = messages.find(
       (m: { role?: string; content?: string }) =>
         !m.role || !validRoles.includes(m.role) || typeof m.content !== 'string'

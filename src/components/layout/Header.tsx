@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Menu, X, User, LogOut, ChevronDown, Search } from 'lucide-react';
+import FocusTrap from 'focus-trap-react';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
 import type { Peptide } from '@/data/peptides';
@@ -323,6 +324,7 @@ export default function Header() {
           onClick={() => setMobileOpen(false)}
         />
 
+        <FocusTrap active={mobileOpen} focusTrapOptions={{ allowOutsideClick: true }}>
         <nav
           className={cn(
             'absolute inset-y-0 right-0 flex w-72 flex-col border-l border-stone-200 bg-white pt-16 shadow-2xl transition-all duration-300 ease-out',
@@ -432,6 +434,7 @@ export default function Header() {
             )}
           </div>
         </nav>
+        </FocusTrap>
       </div>
 
       <div className="h-16 md:h-[72px]" />

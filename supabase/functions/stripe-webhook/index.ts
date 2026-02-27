@@ -70,7 +70,7 @@ serve(async (req) => {
 
         let tier = session.metadata?.tier ?? 'essentials'
         if (!session.metadata?.tier && session.amount_total) {
-          tier = session.amount_total >= 5000 ? 'elite' : 'essentials'
+          tier = session.amount_total >= 9900 ? 'elite' : 'essentials'
           console.warn('checkout.session.completed: tier determined by amount fallback, set metadata.tier on checkout session for reliability')
         }
 
