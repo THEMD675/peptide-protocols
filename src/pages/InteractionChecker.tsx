@@ -14,10 +14,12 @@ interface InteractionResult {
 
 const DANGEROUS_COMBOS: Record<string, InteractionResult> = {
   'semaglutide+tirzepatide': { safe: false, warning: false, message: 'لا تجمع ناهضات GLP-1', details: 'كلاهما ينشّط مستقبلات GLP-1. الجمع بينهما يضاعف الآثار الجانبية (غثيان شديد، هبوط سكر) بدون فائدة إضافية مثبتة.' },
-  'igf-1-lr3+cjc-1295': { safe: false, warning: true, message: 'خطر تضخّم أعضاء', details: 'IGF-1 LR3 مع أي محفّز لهرمون النمو يرفع IGF-1 بشكل مفرط. خطر تضخّم القلب والأعضاء على المدى الطويل.' },
-  'igf-1-lr3+ipamorelin': { safe: false, warning: true, message: 'خطر تضخّم أعضاء', details: 'IGF-1 LR3 مع أي محفّز لهرمون النمو يرفع IGF-1 بشكل مفرط. خطر تضخّم القلب والأعضاء على المدى الطويل.' },
+  'semaglutide+retatrutide': { safe: false, warning: false, message: 'لا تجمع ناهضات GLP-1', details: 'كلاهما يحتوي على نشاط GLP-1. الجمع يضاعف الغثيان وهبوط السكر بدون فائدة.' },
+  'tirzepatide+retatrutide': { safe: false, warning: false, message: 'لا تجمع ناهضات GLP-1', details: 'كلاهما ناهض لـ GLP-1 وGIP. الجمع خطير ولا فائدة مثبتة.' },
+  'igf-1-lr3+*': { safe: false, warning: true, message: 'خطر تضخّم أعضاء', details: 'IGF-1 LR3 مع أي محفّز لهرمون النمو يرفع IGF-1 بشكل مفرط. خطر تضخّم القلب والأعضاء على المدى الطويل. لا تجمع IGF-1 مع أي GHRH أو GHRP.' },
   'melanotan-ii+*': { safe: false, warning: false, message: 'Melanotan II غير آمن', details: 'لا ننصح باستخدام Melanotan II مطلقًا. خطر حقيقي لسرطان الجلد (ميلانوما). لا تجمعه مع أي شيء.' },
   'dihexa+*': { safe: false, warning: true, message: 'Dihexa تجريبي بالكامل', details: 'صفر تجارب بشرية. لا ننصح باستخدامه ولا بتجميعه مع أي شيء آخر.' },
+  'foxo4-dri+*': { safe: false, warning: true, message: 'FOXO4-DRI تجريبي بالكامل', details: 'صفر تجارب بشرية. مكلف جدًا وآلية عمله غير مفهومة بالكامل. لا ننصح بالتجميع.' },
 };
 
 const SYNERGISTIC_COMBOS: Record<string, InteractionResult> = {
@@ -39,6 +41,9 @@ const SYNERGISTIC_COMBOS: Record<string, InteractionResult> = {
   'bpc-157+larazotide': { safe: true, warning: false, message: 'إصلاح أمعاء شامل', details: 'BPC-157 يُصلح بطانة الأمعاء، Larazotide يغلق الفجوات بين الخلايا (leaky gut). تجميعة مثالية لمشاكل الأمعاء.' },
   'bpc-157+kpv': { safe: true, warning: false, message: 'إصلاح أمعاء + مضاد التهاب', details: 'BPC-157 للشفاء + KPV للالتهاب المعوي. يكمّلان بعض.' },
   'semax+dsip': { safe: true, warning: true, message: 'تركيز نهاري + نوم ليلي — توقيت مهم', details: 'Semax صباحًا للتركيز + DSIP مساءً للنوم. لا تأخذهم بنفس الوقت — Semax منبّه وDSIP منوّم.' },
+  'epithalon+dsip': { safe: true, warning: false, message: 'نوم + تيلوميرات — تآزر مثالي', details: 'Epithalon يعيد ضبط الميلاتونين + DSIP يعمّق النوم. كلاهما مساءً. بروتوكول إطالة عمر شامل.' },
+  'epithalon+thymalin': { safe: true, warning: false, message: 'بروتوكول خافينسون الكلاسيكي', details: 'Epithalon للتيلوميرات + Thymalin لتجديد الغدة الزعترية. دورات قصيرة متتابعة 2x سنويًا.' },
+  'larazotide+kpv': { safe: true, warning: false, message: 'إصلاح أمعاء مزدوج', details: 'Larazotide يغلق الوصلات المحكمة + KPV يقلل الالتهاب. المرحلتان الأولى والثانية من بروتوكول إصلاح الأمعاء.' },
 };
 
 function checkInteraction(id1: string, id2: string): InteractionResult {
@@ -57,7 +62,7 @@ function checkInteraction(id1: string, id2: string): InteractionResult {
   const p2 = peptides.find(p => p.id === id2);
   if (!p1 || !p2) return { safe: true, warning: true, message: 'غير متوفر', details: '' };
 
-  const ghPeptides = ['cjc-1295', 'ipamorelin', 'tesamorelin', 'sermorelin', 'mk-677', 'hexarelin'];
+  const ghPeptides = ['cjc-1295', 'ipamorelin', 'tesamorelin', 'sermorelin', 'ghrp-2', 'ghrp-6', 'hexarelin'];
   const bothGH = ghPeptides.includes(id1) && ghPeptides.includes(id2);
   if (bothGH) {
     return { safe: true, warning: true, message: 'كلاهما يحفّز هرمون النمو — راقب IGF-1', details: `${p1.nameAr} و ${p2.nameAr} كلاهما يحفّز إفراز هرمون النمو. الجمع قد يرفع IGF-1 بشكل مفرط. اعمل تحليل IGF-1 بعد أسبوعين. لا تجمع أكثر من 2 محفّزات GH.` };
@@ -87,6 +92,7 @@ export default function InteractionChecker() {
   const addSlot = () => { if (selected.length < 5) setSelected(prev => [...prev, '']); };
   const removeSlot = (idx: number) => { if (selected.length > 2) setSelected(prev => prev.filter((_, i) => i !== idx)); };
   const updateSlot = (idx: number, val: string) => setSelected(prev => prev.map((v, i) => i === idx ? val : v));
+  const resetAll = () => setSelected(['', '']);
 
   const filledPeptides = selected.filter(s => s.trim() !== '');
   const pairs = useMemo(() => {
@@ -137,21 +143,39 @@ export default function InteractionChecker() {
                 className={cn('flex-1 rounded-xl border border-stone-300 bg-stone-50 px-4 py-3 text-sm focus:border-emerald-300 focus:outline-none', sel ? 'text-stone-900' : 'text-stone-400 italic')}
               >
                 <option value="">اختر ببتيد...</option>
-                {sortedPeptides.map(p => (
-                  <option key={p.id} value={p.id}>{p.nameAr} ({p.nameEn})</option>
-                ))}
+                {sortedPeptides.map(p => {
+                  const usedElsewhere = selected.some((s, i) => i !== idx && s === p.id);
+                  return (
+                    <option key={p.id} value={p.id} disabled={usedElsewhere}>{p.nameAr} ({p.nameEn}){usedElsewhere ? ' ✓' : ''}</option>
+                  );
+                })}
               </select>
               {selected.length > 2 && (
                 <button onClick={() => removeSlot(idx)} className="rounded-lg p-2 text-stone-400 hover:bg-red-50 hover:text-red-500"><XCircle className="h-4 w-4" /></button>
               )}
             </div>
           ))}
+          <div className="flex gap-2">
           {selected.length < 5 && (
-            <button onClick={addSlot} className="flex w-full items-center justify-center gap-2 rounded-xl border-2 border-dashed border-stone-200 py-3 text-sm font-medium text-stone-500 hover:border-emerald-300 hover:text-emerald-600">
+            <button onClick={addSlot} className="flex flex-1 items-center justify-center gap-2 rounded-xl border-2 border-dashed border-stone-200 py-3 text-sm font-medium text-stone-500 hover:border-emerald-300 hover:text-emerald-600">
               + أضف ببتيد آخر
             </button>
           )}
+          {filledPeptides.length > 0 && (
+            <button onClick={resetAll} className="rounded-xl border border-stone-200 px-4 py-3 text-sm font-medium text-stone-500 hover:border-red-200 hover:text-red-500 transition-colors">
+              مسح الكل
+            </button>
+          )}
+          </div>
         </div>
+
+        {filledPeptides.length < 2 && (
+          <div className="rounded-2xl border-2 border-dashed border-stone-200 bg-stone-50 py-12 text-center">
+            <Shield className="mx-auto mb-3 h-10 w-10 text-stone-300" />
+            <p className="text-sm font-bold text-stone-600">اختر ببتيدين أو أكثر لفحص التعارضات بينهما</p>
+            <p className="mt-1 text-xs text-stone-400">نتحقق من أمان الدمج بناءً على آليات العمل والأدلة العلمية</p>
+          </div>
+        )}
 
         {/* Stack Summary */}
         {filledPeptides.length >= 2 && (
@@ -166,7 +190,7 @@ export default function InteractionChecker() {
                 'mb-3 text-center text-2xl font-black md:text-3xl',
                 hasAnyDanger ? 'text-red-700' : hasAnyWarning ? 'text-amber-700' : 'text-emerald-700'
               )}>
-                {hasAnyDanger ? 'Stack غير آمن' : hasAnyWarning ? 'Stack يحتاج مراجعة' : 'Stack آمن'}
+                {hasAnyDanger ? 'التجميعة غير آمنة' : hasAnyWarning ? 'التجميعة تحتاج مراجعة' : 'التجميعة آمنة'}
               </p>
             )}
             <div className="flex items-center gap-3">

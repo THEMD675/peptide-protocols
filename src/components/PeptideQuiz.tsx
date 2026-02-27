@@ -59,9 +59,9 @@ function getRecommendation(answers: string[]): Recommendation {
   const [goal, experience, injection] = answers;
 
   if (goal === 'fat-loss') {
-    if (injection === 'no') return { peptideId: '5-amino-1mq', nameAr: '5-أمينو-1MQ', nameEn: '5-Amino-1MQ', reason: 'فموي بدون حقن — يثبّط إنزيم NNMT لزيادة حرق الدهون. $80-120/شهر.', altId: 'aod-9604', altName: 'AOD-9604' };
-    if (experience === 'beginner') return { peptideId: 'aod-9604', nameAr: 'AOD-9604', nameEn: 'AOD-9604', reason: 'جزء من هرمون النمو — يحرق الدهون بدون الأعراض الجانبية. آمن جدًا للمبتدئين. $80-120/شهر.', altId: 'tesamorelin', altName: 'Tesamorelin' };
-    return { peptideId: 'tesamorelin', nameAr: 'تيساموريلين', nameEn: 'Tesamorelin', reason: 'أقوى ببتيد بحثي لحرق دهون البطن — يحفّز هرمون النمو مباشرة. $180-250/شهر.', altId: 'aod-9604', altName: 'AOD-9604' };
+    if (injection === 'no') return { peptideId: '5-amino-1mq', nameAr: '5-أمينو-1MQ', nameEn: '5-Amino-1MQ', reason: 'فموي بدون حقن — يثبّط إنزيم NNMT لزيادة حرق الدهون.', altId: 'aod-9604', altName: 'AOD-9604' };
+    if (experience === 'beginner') return { peptideId: 'aod-9604', nameAr: 'AOD-9604', nameEn: 'AOD-9604', reason: 'جزء من هرمون النمو — يحرق الدهون بدون الأعراض الجانبية. آمن جدًا للمبتدئين.', altId: 'tesamorelin', altName: 'Tesamorelin' };
+    return { peptideId: 'tesamorelin', nameAr: 'تيساموريلين', nameEn: 'Tesamorelin', reason: 'أقوى ببتيد بحثي لحرق دهون البطن — يحفّز هرمون النمو مباشرة.', altId: 'aod-9604', altName: 'AOD-9604' };
   }
 
   if (goal === 'recovery') {
@@ -204,7 +204,7 @@ export default function PeptideQuiz() {
         )}
       </div>
 
-      <div className="mb-2 h-1.5 w-full rounded-full bg-stone-100">
+      <div className="mb-2 h-1.5 w-full rounded-full bg-stone-100" role="progressbar" aria-valuenow={step + 1} aria-valuemin={1} aria-valuemax={STEPS.length} aria-label="تقدّم الاختبار">
         <div className="h-1.5 rounded-full bg-emerald-500 transition-all duration-500 ease-out" style={{ width: `${((step + 1) / STEPS.length) * 100}%` }} />
       </div>
 

@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback, useEffect } from 'react';
+import { useState, useMemo, useCallback, useEffect, memo } from 'react';
 import FocusTrap from 'focus-trap-react';
 import { Helmet } from 'react-helmet-async';
 import { Link, useSearchParams } from 'react-router-dom';
@@ -24,7 +24,7 @@ import { cn } from '@/lib/utils';
 import { peptides, categories, type Peptide } from '@/data/peptides';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
-import { PRICING, PEPTIDE_COUNT } from '@/lib/constants';
+import { PRICING, PEPTIDE_COUNT, TRIAL_PEPTIDE_IDS } from '@/lib/constants';
 
 const categoryIcons: Record<string, React.ElementType> = {
   metabolic: TrendingDown,
@@ -62,8 +62,10 @@ const categoryLabels: Record<string, string> = {
   'skin-gut': 'البشرة والأمعاء',
 };
 
+const evidenceOrder: Record<string, number> = { excellent: 0, strong: 1, good: 2, moderate: 3, weak: 4, 'very-weak': 5 };
 
-function PeptideCard({
+
+const PeptideCard = memo(function PeptideCard({
   peptide,
   hasAccess,
   onLockedClick,
@@ -235,7 +237,7 @@ function PeptideCard({
       </button>
     </div>
   );
-}
+});
 
 function useFavorites(): [Set<string>, (id: string) => void] {
   const [favs, setFavs] = useState<Set<string>>(() => {
@@ -300,8 +302,6 @@ export default function Library() {
   const handleLockedClick = useCallback((peptideId?: string) => {
     setUpsellPeptide(peptideId ?? null);
   }, []);
-
-  const evidenceOrder: Record<string, number> = { excellent: 0, strong: 1, good: 2, moderate: 3, weak: 4, 'very-weak': 5 };
 
   const filtered = useMemo(() => {
     const result = peptides.filter((p) => {
@@ -491,7 +491,7 @@ export default function Library() {
                 <PeptideCard
                   key={p.id}
                   peptide={p}
-                  hasAccess={hasFullAccess || (isTrial && (p.isFree || i < 6))}
+                  hasAccess={hasFullAccess || (isTrial && (p.isFree || TRIAL_PEPTIDE_IDS.has(p.id)))}
                   onLockedClick={() => handleLockedClick(p.id)}
                   isFav={favorites.has(p.id)}
                   onToggleFav={() => toggleFavorite(p.id)}
@@ -563,7 +563,7 @@ export default function Library() {
 
       {/* Compare Modal */}
       {showCompare && compareIds.length >= 2 && (() => {
-        const items = compareIds.map(id => peptides.find(x => x.id === id)!).filter(Boolean);
+        const items = compareIds.map(id => peptides.find(x => x.id === id)).filter((p): p is Peptide => p != null);
         const rows = [
           { label: 'الاسم العلمي', get: (p: Peptide) => p.nameEn },
           { label: 'التصنيف', get: (p: Peptide) => categoryLabels[p.category] },

@@ -58,7 +58,7 @@ serve(async (req) => {
 
     const { data: sub, error: subFetchError } = await supabase
       .from('subscriptions')
-      .select('stripe_subscription_id')
+      .select('stripe_subscription_id, stripe_customer_id')
       .eq('user_id', user.id)
       .maybeSingle()
 
@@ -66,16 +66,23 @@ serve(async (req) => {
       console.error('delete-account: failed to fetch subscription:', subFetchError)
     }
 
-    if (sub?.stripe_subscription_id) {
-      if (!stripeKey) {
-        console.error('delete-account: STRIPE_SECRET_KEY missing, skipping Stripe cancellation')
-      } else {
+    if (stripeKey && sub) {
+      if (sub.stripe_subscription_id) {
         try {
           await stripe.subscriptions.cancel(sub.stripe_subscription_id)
         } catch (e) {
           console.error('delete-account: failed to cancel Stripe sub:', sub.stripe_subscription_id, e)
         }
       }
+      if (sub.stripe_customer_id) {
+        try {
+          await stripe.customers.del(sub.stripe_customer_id)
+        } catch (e) {
+          console.error('delete-account: failed to delete Stripe customer:', sub.stripe_customer_id, e)
+        }
+      }
+    } else if (!stripeKey) {
+      console.error('delete-account: STRIPE_SECRET_KEY missing, skipping Stripe cleanup')
     }
 
     const { error: subDelErr } = await supabase.from('subscriptions').delete().eq('user_id', user.id)

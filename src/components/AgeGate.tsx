@@ -27,6 +27,7 @@ export default function AgeGate() {
 
   const handleUnder = () => {
     setRejected(true);
+    try { sessionStorage.setItem('pptides_age_rejected', 'true'); } catch { /* expected */ }
   };
 
   if (!visible) return null;
@@ -59,9 +60,17 @@ export default function AgeGate() {
             </h2>
 
             {rejected ? (
-              <p className="mb-8 leading-relaxed text-red-400 font-semibold">
-                عذرًا، هذا المحتوى مخصص لمن هم 18 عامًا أو أكثر
-              </p>
+              <div className="space-y-4">
+                <p className="leading-relaxed text-red-400 font-semibold">
+                  عذرًا، هذا المحتوى مخصص لمن هم 18 عامًا أو أكثر
+                </p>
+                <a
+                  href="https://www.google.com"
+                  className="inline-block rounded-xl border border-stone-600 px-6 py-3 text-sm font-medium text-stone-400 transition-colors hover:border-stone-400 hover:text-stone-300"
+                >
+                  مغادرة الموقع
+                </a>
+              </div>
             ) : (
               <>
                 <p className="mb-8 leading-relaxed text-gray-300">

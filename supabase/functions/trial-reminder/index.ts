@@ -4,6 +4,8 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 const RESEND_API_KEY = Deno.env.get('RESEND_API_KEY')
 const supabaseUrl = Deno.env.get('SUPABASE_URL') ?? ''
 const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
+const APP_URL = Deno.env.get('APP_URL') ?? 'https://pptides.com'
+const ESSENTIALS_PRICE = '$9'
 
 const ALLOWED_ORIGINS = ['https://pptides.com', 'http://localhost:3000', 'http://localhost:3001']
 
@@ -40,8 +42,8 @@ serve(async (req) => {
 
     const cronSecret = req.headers.get('x-cron-secret')
     const expectedSecret = Deno.env.get('CRON_SECRET')
-    if (expectedSecret && cronSecret !== expectedSecret) {
-      console.error('trial-reminder: invalid cron secret')
+    if (!expectedSecret || cronSecret !== expectedSecret) {
+      console.error('trial-reminder: missing or invalid cron secret')
       return new Response(JSON.stringify({ error: 'Unauthorized' }), {
         status: 401,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -79,6 +81,18 @@ serve(async (req) => {
       })
     }
 
+    const userIds = trialUsers.map(s => s.user_id).filter(Boolean)
+    const emailMap = new Map<string, string>()
+    const PAGE_SIZE = 100
+    for (let page = 0; page * PAGE_SIZE < userIds.length + PAGE_SIZE; page++) {
+      const { data: listData } = await supabase.auth.admin.listUsers({ page: page + 1, perPage: PAGE_SIZE })
+      if (!listData?.users?.length) break
+      for (const u of listData.users) {
+        if (u.email && userIds.includes(u.id)) emailMap.set(u.id, u.email)
+      }
+      if (listData.users.length < PAGE_SIZE) break
+    }
+
     let sent = 0
     let skipped = 0
     let failed = 0
@@ -91,13 +105,11 @@ serve(async (req) => {
           continue
         }
 
-        const { data: authUser } = await supabase.auth.admin.getUserById(sub.user_id)
-        if (!authUser?.user?.email) {
+        const email = emailMap.get(sub.user_id)
+        if (!email) {
           skipped++
           continue
         }
-
-        const email = authUser.user.email
         const createdAt = new Date(sub.created_at)
         const trialEnds = new Date(sub.trial_ends_at)
 
@@ -112,21 +124,24 @@ serve(async (req) => {
 
         let subject = ''
         let body = ''
+        let reminderType = ''
 
         if (daysSinceSignup === 1) {
+          reminderType = 'day1'
           subject = 'هل استكشفت المكتبة؟ — pptides'
           body = `
             <h1 style="color: #1c1917; font-size: 24px;">مرحبًا 👋</h1>
             <p>أنت الآن في اليوم الثاني من تجربتك المجانية.</p>
             <p><strong>هل جرّبت هذه الأدوات؟</strong></p>
             <ul>
-              <li>🔬 <a href="https://pptides.com/library" style="color: #059669;">تصفّح مكتبة 41+ ببتيد</a></li>
-              <li>🧮 <a href="https://pptides.com/calculator" style="color: #059669;">احسب جرعتك بالحاسبة</a></li>
-              <li>🤖 <a href="https://pptides.com/coach" style="color: #059669;">اسأل المدرب الذكي</a></li>
+              <li>🔬 <a href="${APP_URL}/library" style="color: #059669;">تصفّح مكتبة الببتيدات</a></li>
+              <li>🧮 <a href="${APP_URL}/calculator" style="color: #059669;">احسب جرعتك بالحاسبة</a></li>
+              <li>🤖 <a href="${APP_URL}/coach" style="color: #059669;">اسأل المدرب الذكي</a></li>
             </ul>
             <p>استفد من كل يوم — تجربتك تنتهي خلال ${daysUntilExpiry} أيام.</p>
           `
         } else if (daysUntilExpiry === 1) {
+          reminderType = 'last_day'
           subject = '⚠️ آخر يوم في تجربتك — pptides'
           body = `
             <h1 style="color: #1c1917; font-size: 24px;">تنتهي تجربتك المجانية غدًا</h1>
@@ -137,27 +152,36 @@ serve(async (req) => {
               <li>✅ دليل التحاليل المخبرية</li>
               <li>✅ البروتوكولات المُجمَّعة</li>
             </ul>
-            <p><strong>اشترك الآن وابدأ بـ $9/شهر فقط:</strong></p>
-            <a href="https://pptides.com/pricing" style="display: inline-block; background: #059669; color: white; padding: 14px 32px; border-radius: 9999px; text-decoration: none; font-weight: bold;">
-              اشترك الآن — $9/شهر
+            <p><strong>اشترك الآن وابدأ بـ ${ESSENTIALS_PRICE}/شهر فقط:</strong></p>
+            <a href="${APP_URL}/pricing" style="display: inline-block; background: #059669; color: white; padding: 14px 32px; border-radius: 9999px; text-decoration: none; font-weight: bold;">
+              اشترك الآن — ${ESSENTIALS_PRICE}/شهر
             </a>
             <p style="margin-top: 16px; color: #78716c;">ضمان استرداد كامل خلال 3 أيام. بدون مخاطرة.</p>
           `
         } else if (daysUntilExpiry === 0 || daysUntilExpiry === -1) {
+          reminderType = 'expired'
           subject = '🔒 انتهت تجربتك — اشترك الآن — pptides'
           body = `
             <h1 style="color: #1c1917; font-size: 24px;">انتهت تجربتك المجانية</h1>
             <p>لكن لا تقلق — يمكنك الاشتراك الآن والوصول لكل المحتوى:</p>
             <div style="background: #ecfdf5; border-radius: 12px; padding: 20px; margin: 20px 0; text-align: center;">
-              <p style="font-size: 24px; font-weight: 900; color: #059669;">$9/شهر</p>
+              <p style="font-size: 24px; font-weight: 900; color: #059669;">${ESSENTIALS_PRICE}/شهر</p>
               <p style="color: #44403c;">Essentials — كل الأدوات والبروتوكولات</p>
             </div>
-            <a href="https://pptides.com/pricing" style="display: inline-block; background: #059669; color: white; padding: 14px 32px; border-radius: 9999px; text-decoration: none; font-weight: bold;">
+            <a href="${APP_URL}/pricing" style="display: inline-block; background: #059669; color: white; padding: 14px 32px; border-radius: 9999px; text-decoration: none; font-weight: bold;">
               اشترك الآن
             </a>
             <p style="margin-top: 16px; color: #78716c;">ضمان استرداد كامل خلال 3 أيام. بدون مخاطرة.</p>
           `
         } else {
+          skipped++
+          continue
+        }
+
+        const { error: dedupErr } = await supabase
+          .from('sent_reminders')
+          .insert({ user_id: sub.user_id, reminder_type: reminderType })
+        if (dedupErr && dedupErr.code === '23505') {
           skipped++
           continue
         }

@@ -1,12 +1,13 @@
 import { createContext, useContext, useState, useEffect, useCallback, type ReactNode } from 'react';
 import { toast } from 'sonner';
 import { supabase } from '@/lib/supabase';
+import { SUPPORT_EMAIL } from '@/lib/constants';
 import type { User as SupabaseUser, Session } from '@supabase/supabase-js';
 
 type SubscriptionTier = 'free' | 'essentials' | 'elite';
 
 interface Subscription {
-  status: 'trial' | 'active' | 'cancelled' | 'expired' | 'none';
+  status: 'trial' | 'active' | 'past_due' | 'cancelled' | 'expired' | 'none';
   tier: SubscriptionTier;
   trialDaysLeft: number;
   isProOrTrial: boolean;
@@ -87,7 +88,7 @@ function buildSubscription(row: Record<string, unknown> | null): Subscription {
   let status: Subscription['status'];
   if (dbStatus === 'trial' && trialDaysLeft <= 0) {
     status = 'expired';
-  } else if (dbStatus === 'trial' || dbStatus === 'active' || dbStatus === 'expired' || dbStatus === 'cancelled') {
+  } else if (dbStatus === 'trial' || dbStatus === 'active' || dbStatus === 'past_due' || dbStatus === 'expired' || dbStatus === 'cancelled') {
     status = dbStatus as Subscription['status'];
   } else {
     status = 'none';
@@ -98,8 +99,8 @@ function buildSubscription(row: Record<string, unknown> | null): Subscription {
   const cancelledButActive = (status === 'cancelled' || status === 'expired') && hasRemainingPeriod;
 
   const isProOrTrial =
-    (status === 'trial' && trialDaysLeft > 0) || status === 'active' || cancelledButActive;
-  const isPaidSubscriber = status === 'active' || cancelledButActive;
+    (status === 'trial' && trialDaysLeft > 0) || status === 'active' || status === 'past_due' || cancelledButActive;
+  const isPaidSubscriber = status === 'active' || status === 'past_due' || cancelledButActive;
 
   const isTrial = status === 'trial' && trialDaysLeft > 0;
 
@@ -164,9 +165,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         .maybeSingle();
 
       if (cancelled) return;
-      if (data?.status === 'active') {
+      if (data?.status === 'active' || data?.status === 'trial') {
         await fetchSubscription(user.id);
         toast.success('تم تفعيل اشتراكك بنجاح!');
+        if (window.location.pathname === '/pricing') {
+          window.location.href = '/dashboard';
+        }
         return;
       }
       if (attempts < 15) { timer = setTimeout(poll, 3000); }
@@ -271,7 +275,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const upgradeTo = (tier: 'essentials' | 'elite') => {
     const link = STRIPE_LINKS[tier];
     if (!link) {
-      toast.error('عذرًا — رابط الدفع غير متاح حاليًا. تواصل معنا: contact@pptides.com');
+      toast.error(`عذرًا — رابط الدفع غير متاح حاليًا. تواصل معنا: ${SUPPORT_EMAIL}`);
       return;
     }
 

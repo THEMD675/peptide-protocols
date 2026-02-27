@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import FocusTrap from 'focus-trap-react';
 import { Helmet } from 'react-helmet-async';
 import {
@@ -96,15 +96,9 @@ export default function Tracker() {
     return lastSite === leastUsed ? allSites.find(s => s !== lastSite) || leastUsed : leastUsed;
   })();
 
-  useEffect(() => {
-    if (!user) return;
-    fetchLogs();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user?.id]);
-
   const PAGE_SIZE = 50;
 
-  const fetchLogs = async () => {
+  const fetchLogs = useCallback(async () => {
     if (!user) return;
     setIsLoadingLogs(true);
     const { data, error } = await supabase
@@ -118,7 +112,12 @@ export default function Tracker() {
     setLogs(rows);
     setHasMore(rows.length >= PAGE_SIZE);
     setIsLoadingLogs(false);
-  };
+  }, [user]);
+
+  useEffect(() => {
+    if (!user) return;
+    fetchLogs();
+  }, [user, fetchLogs]);
 
   const fetchMore = async () => {
     if (!user || isLoadingMore) return;
@@ -139,7 +138,7 @@ export default function Tracker() {
   const exportCSV = () => {
     const headers = 'Peptide,Dose,Unit,Site,Date,Time,Notes';
     const rows = logs.map(l =>
-      `${l.peptide_name},${l.dose},${l.dose_unit},${l.injection_site},${formatDate(l.logged_at)},${formatTime(l.logged_at)},${(l.notes ?? '').replace(/,/g, ';')}`
+      `"${l.peptide_name}",${l.dose},"${l.dose_unit}","${l.injection_site}","${formatDate(l.logged_at)}","${formatTime(l.logged_at)}","${(l.notes ?? '').replace(/"/g, '""')}"`
     );
     const csv = '\ufeff' + [headers, ...rows].join('\n');
     const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
@@ -185,7 +184,7 @@ export default function Tracker() {
   };
 
   return (
-    <main className="mx-auto max-w-3xl px-4 pb-24 pt-8 md:px-6 md:pt-12">
+    <div className="mx-auto max-w-3xl px-4 pb-24 pt-8 md:px-6 md:pt-12">
       <Helmet>
         <title>سجل الحقن — تتبّع جرعاتك | pptides</title>
         <meta name="description" content="سجّل وتتبّع حقن الببتيدات والجرعات اليومية. Track your peptide injections and daily doses." />
@@ -207,6 +206,7 @@ export default function Tracker() {
         let streak = 0;
         const daySet = new Set(logs.map(l => new Date(l.logged_at).toDateString()));
         const d = new Date();
+        if (!daySet.has(d.toDateString())) d.setDate(d.getDate() - 1);
         while (daySet.has(d.toDateString())) { streak++; d.setDate(d.getDate() - 1); }
 
         const last7 = logs.filter(l => {
@@ -214,7 +214,7 @@ export default function Tracker() {
           return diff < 7 * 24 * 60 * 60 * 1000;
         }).length;
 
-        const msSinceLast = Date.now() - new Date(logs[0].injected_at).getTime();
+        const msSinceLast = Date.now() - new Date(logs[0].logged_at).getTime();
         const hoursSince = Math.floor(msSinceLast / (1000 * 60 * 60));
         const daysSince = Math.floor(hoursSince / 24);
         const timeSinceLabel = daysSince > 0 ? `منذ ${daysSince} يوم` : hoursSince > 0 ? `منذ ${hoursSince} ساعة` : 'الآن';
@@ -637,7 +637,7 @@ export default function Tracker() {
               return (
               <div
                 key={log.id}
-                className={cn('rounded-2xl border p-5 transition-all hover:shadow-sm', isToday ? 'border-emerald-300 border-l-4 bg-emerald-50/30' : 'border-stone-200 bg-white')}
+                className={cn('rounded-2xl border p-5 transition-all hover:shadow-sm', isToday ? 'border-emerald-300 border-r-4 bg-emerald-50/30' : 'border-stone-200 bg-white')}
               >
                 <div className="flex items-start justify-between mb-2">
                   <h3 className="font-bold text-stone-900" dir="ltr">{log.peptide_name}</h3>
@@ -736,6 +736,6 @@ export default function Tracker() {
           </FocusTrap>
         </div>
       )}
-    </main>
+    </div>
   );
 }

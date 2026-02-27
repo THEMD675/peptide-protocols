@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 import { Lock, Shield, Mail } from 'lucide-react';
-import { PEPTIDE_COUNT } from '@/lib/constants';
+import { PEPTIDE_COUNT, SUPPORT_EMAIL } from '@/lib/constants';
 
 export default function Footer() {
   return (
@@ -14,8 +14,8 @@ export default function Footer() {
             <p className="mt-2 text-sm text-stone-600 leading-relaxed">
               أشمل دليل عربي للببتيدات العلاجية. {PEPTIDE_COUNT}+ ببتيد مع بروتوكولات كاملة.
             </p>
-            <a href="mailto:contact@pptides.com" className="mt-3 inline-flex items-center gap-1.5 text-sm text-emerald-600 transition-colors hover:text-emerald-700">
-              <Mail className="h-3.5 w-3.5" /> contact@pptides.com
+            <a href={`mailto:${SUPPORT_EMAIL}`} className="mt-3 inline-flex items-center gap-1.5 text-sm text-emerald-600 transition-colors hover:text-emerald-700">
+              <Mail className="h-3.5 w-3.5" /> {SUPPORT_EMAIL}
             </a>
             <div className="mt-3 flex gap-3">
               <a href="https://x.com/pptides" target="_blank" rel="noopener noreferrer" className="text-stone-400 hover:text-emerald-600 transition-colors" aria-label="X/Twitter">

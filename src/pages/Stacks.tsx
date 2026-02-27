@@ -28,16 +28,16 @@ export default function Stacks() {
 
   if (isLoading) {
     return (
-      <main className="mx-auto max-w-6xl px-4 pb-24 pt-8 md:px-6 md:pt-12">
+      <div className="mx-auto max-w-6xl px-4 pb-24 pt-8 md:px-6 md:pt-12">
         <div className="flex items-center justify-center py-32">
           <div className="h-8 w-8 animate-spin rounded-full border-2 border-stone-200 border-t-emerald-600" />
         </div>
-      </main>
+      </div>
     );
   }
 
   return (
-    <main className="mx-auto max-w-6xl px-4 pb-24 pt-8 md:px-6 md:pt-12">
+    <div className="mx-auto max-w-6xl px-4 pb-24 pt-8 md:px-6 md:pt-12">
       <Helmet>
         <title>بروتوكولات ببتيدات مُجمَّعة — خلطات مُجرَّبة | pptides</title>
         <meta name="description" content="بروتوكولات مُجمَّعة تجمع عدة ببتيدات حسب الهدف: تعافي، دماغ، طول عمر. Curated peptide stacks for recovery, brain, and longevity." />
@@ -138,7 +138,7 @@ export default function Stacks() {
                     {stack.descriptionAr}
                   </p>
 
-                  <div className="rounded-xl bg-emerald-50/50 border border-emerald-100 p-4 text-xs leading-relaxed text-stone-700 whitespace-pre-line">
+                  <div className="rounded-xl bg-emerald-50/50 border border-emerald-100 p-4 text-sm leading-relaxed text-stone-700 whitespace-pre-line">
                     {stack.protocolAr}
                   </div>
 
@@ -194,6 +194,6 @@ export default function Stacks() {
           </div>
         </div>
       )}
-    </main>
+    </div>
   );
 }

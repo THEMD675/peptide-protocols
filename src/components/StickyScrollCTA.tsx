@@ -47,7 +47,7 @@ export default function StickyScrollCTA() {
           <X className="h-4 w-4" />
         </button>
         <div className="flex-1 min-w-0">
-          <p className="text-sm font-bold text-stone-900 truncate">{PEPTIDE_COUNT}+ ببتيد مع بروتوكولات كاملة</p>
+          <p className="text-sm font-bold text-stone-900 line-clamp-1">{PEPTIDE_COUNT}+ ببتيد مع بروتوكولات كاملة</p>
           <p className="text-xs text-stone-600">3 أيام مجانًا — إلغاء في أي وقت</p>
         </div>
         <Link

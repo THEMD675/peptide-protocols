@@ -80,18 +80,18 @@ function BlurredSection({ isPro, children }: { isPro: boolean; children: React.R
   );
 }
 
+const SVG_COLORS = {
+  primary: '#10b981',
+  primaryLight: '#10b98120',
+  border: '#d6d3d1',
+} as const;
+
 export default function Guide() {
   const { subscription, isLoading } = useAuth();
   const isPro = !isLoading && (subscription?.isProOrTrial ?? false);
 
-  const SVG_COLORS = {
-    primary: '#10b981',
-    primaryLight: '#10b98120',
-    border: '#d6d3d1',
-  } as const;
-
   return (
-    <main className="mx-auto max-w-5xl px-4 pb-24 pt-8 md:px-6 md:pt-12">
+    <div className="mx-auto max-w-5xl px-4 pb-24 pt-8 md:px-6 md:pt-12">
       <Helmet>
         <title>دليل التحضير والحقن | pptides</title>
         <meta name="description" content="خطوات تحضير الببتيدات والحقن تحت الجلد ومواقع الحقن وقواعد التخزين. How to reconstitute and inject peptides safely." />
@@ -317,6 +317,6 @@ export default function Guide() {
           </>
         )}
       </div>
-    </main>
+    </div>
   );
 }

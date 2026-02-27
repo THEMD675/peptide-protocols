@@ -1,9 +1,9 @@
 import { useState, useRef, useEffect, useCallback, type ElementType } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { Link, useSearchParams, useNavigate } from 'react-router-dom';
-import DOMPurify from 'dompurify';
 import { supabase } from '@/lib/supabase';
 import { peptides as allPeptides } from '@/data/peptides';
+import { renderMarkdown } from '@/lib/markdown';
 import {
   Bot, Send, Sparkles, TrendingDown, Heart, Dumbbell, Brain,
   Clock, Zap, Calculator, FlaskConical, Shield, RotateCcw, ArrowLeft,
@@ -13,99 +13,6 @@ import { toast } from 'sonner';
 import { cn, arPlural } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
 
-function renderMarkdown(text: string) {
-  const lines = text.split('\n');
-  const elements: React.ReactNode[] = [];
-  let listItems: string[] = [];
-  let tableRows: string[][] = [];
-
-  const esc = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
-  const inlineMd = (s: string) =>
-    esc(s)
-      .replace(/\*\*(.+?)\*\*/g, '<strong class="font-bold text-stone-900">$1</strong>')
-      .replace(/\*(.+?)\*/g, '<em>$1</em>')
-      .replace(/`(.+?)`/g, '<code class="rounded bg-stone-200 px-1 py-0.5 text-xs font-mono">$1</code>');
-
-  const flushList = () => {
-    if (listItems.length > 0) {
-      elements.push(
-        <ul key={`ul-${elements.length}`} className="my-2 space-y-1 pr-4">
-          {listItems.map((item, j) => (
-            <li key={j} className="flex items-start gap-2">
-              <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-emerald-500" />
-              <span dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(inlineMd(item)) }} />
-            </li>
-          ))}
-        </ul>
-      );
-      listItems = [];
-    }
-  };
-
-  const flushTable = () => {
-    if (tableRows.length > 0) {
-      elements.push(
-        <div key={`tbl-${elements.length}`} className="my-3 overflow-x-auto rounded-xl border border-stone-200">
-          <table className="w-full text-sm">
-            <tbody>
-              {tableRows.map((cells, ri) => (
-                <tr key={ri} className={ri % 2 === 0 ? 'bg-stone-50' : 'bg-white'}>
-                  {cells.map((cell, ci) => (
-                    <td key={ci} className={cn('px-3 py-2 border-b border-stone-100', ci === 0 && 'font-bold text-stone-700 w-[35%]')} dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(inlineMd(cell)) }} />
-                  ))}
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      );
-      tableRows = [];
-    }
-  };
-
-  let inCodeBlock = false;
-  let codeLines: string[] = [];
-
-  for (let i = 0; i < lines.length; i++) {
-    const line = lines[i].trim();
-
-    if (line.startsWith('```')) {
-      if (inCodeBlock) {
-        elements.push(<pre key={`code-${i}`} className="my-3 overflow-x-auto rounded-xl bg-stone-800 p-4 text-xs text-stone-100 leading-relaxed" dir="ltr"><code>{codeLines.join('\n')}</code></pre>);
-        codeLines = [];
-        inCodeBlock = false;
-      } else {
-        flushList(); flushTable();
-        inCodeBlock = true;
-      }
-      continue;
-    }
-    if (inCodeBlock) { codeLines.push(lines[i]); continue; }
-
-    if (!line) { flushList(); flushTable(); elements.push(<div key={`br-${i}`} className="h-2" />); continue; }
-
-    if (line.startsWith('|') && line.endsWith('|')) {
-      if (/^\|[\s-:|]+\|$/.test(line)) continue;
-      flushList();
-      const cells = line.split('|').slice(1, -1).map(c => c.trim());
-      if (cells.length > 0) { tableRows.push(cells); continue; }
-    } else {
-      flushTable();
-    }
-
-    if (line === '---') { flushList(); elements.push(<hr key={`hr-${i}`} className="my-3 border-stone-200" />); continue; }
-    if (line.startsWith('###')) { flushList(); elements.push(<h4 key={i} className="mt-4 mb-1 font-bold text-emerald-700 text-sm">{line.replace(/^###\s*/, '')}</h4>); continue; }
-    if (line.startsWith('##')) { flushList(); elements.push(<h3 key={i} className="mt-4 mb-1 text-base font-bold text-stone-900">{line.replace(/^##\s*/, '')}</h3>); continue; }
-    if (line.startsWith('#')) { flushList(); elements.push(<h3 key={i} className="mt-4 mb-1 text-base font-bold text-stone-900">{line.replace(/^#\s*/, '')}</h3>); continue; }
-    if (/^[-*]\s/.test(line) || /^\d+\.\s/.test(line)) { listItems.push(line.replace(/^[-*]\s*/, '').replace(/^\d+\.\s*/, '')); continue; }
-    if (line.startsWith('⚠️')) { flushList(); elements.push(<p key={i} className="my-2 text-xs text-stone-400 italic">{line}</p>); continue; }
-    flushList();
-    elements.push(<p key={i} className="my-1" dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(inlineMd(line)) }} />);
-  }
-  flushList();
-  flushTable();
-  return elements;
-}
 
 function extractPeptideActions(text: string) {
   const found: { id: string; nameAr: string; nameEn: string }[] = [];
@@ -291,7 +198,8 @@ export default function Coach() {
   const autoSentRef = useRef(false);
 
   useEffect(() => {
-    try { localStorage.setItem(storageKey, JSON.stringify({ messages, intake })); } catch { /* expected */ }
+    const cleanMessages = messages.filter(m => m.content !== '__ERROR__');
+    try { localStorage.setItem(storageKey, JSON.stringify({ messages: cleanMessages, intake })); } catch { /* expected */ }
   }, [messages, intake, storageKey]);
 
   useEffect(() => { scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: 'smooth' }); }, [messages, intakeStep]);
@@ -303,9 +211,16 @@ export default function Coach() {
 
   const normalizeDigits = (s: string) => s.replace(/[٠-٩]/g, d => String('٠١٢٣٤٥٦٧٨٩'.indexOf(d)));
 
+  const abortRef = useRef<AbortController | null>(null);
+  const hasAccessRef = useRef(false);
+  useEffect(() => () => { abortRef.current?.abort(); }, []);
+
   const sendToAI = useCallback(async (content: string) => {
     const trimmed = content.trim();
     if (!trimmed || isLoadingRef.current) return;
+    abortRef.current?.abort();
+    const controller = new AbortController();
+    abortRef.current = controller;
     const userMsg: ChatMessage = { role: 'user', content: trimmed };
     const updated = [...messagesRef.current, userMsg];
     setMessages(updated);
@@ -328,6 +243,7 @@ export default function Coach() {
           messages: updated.map(m => ({ role: m.role, content: m.content })),
           stream: true,
         }),
+        signal: controller.signal,
       });
       if (!res.ok) throw new Error();
 
@@ -433,6 +349,8 @@ export default function Coach() {
   const isElite = hasAccess && subscription.tier === 'elite';
   const isTrial = subscription.isTrial;
   const limit = isElite ? Infinity : hasAccess && !isTrial ? 15 : isTrial ? 5 : 3;
+
+  hasAccessRef.current = hasAccess;
   const userMsgCount = messages.filter(m => m.role === 'user').length;
   const limitReached = userMsgCount >= limit;
 
@@ -443,7 +361,10 @@ export default function Coach() {
 
   return (
     <div className="min-h-screen">
-      <Helmet><title>استشاري الببتيدات — بروتوكول مخصّص بالذكاء الاصطناعي | pptides</title></Helmet>
+      <Helmet>
+        <title>استشاري الببتيدات — بروتوكول مخصّص بالذكاء الاصطناعي | pptides</title>
+        <meta name="description" content="مدرب ذكي بالذكاء الاصطناعي يصمّم لك بروتوكول ببتيدات مخصّص حسب أهدافك وخبرتك. AI-powered peptide protocol coach." />
+      </Helmet>
       <div className="mx-auto max-w-3xl px-4 py-8 md:px-6 md:py-12">
         <div className="mb-6 flex items-center justify-between">
           <div className="flex items-center gap-3">
@@ -581,7 +502,7 @@ export default function Coach() {
 
             {/* ═══ CHAT MESSAGES ═══ */}
             {intakeStep === 'done' && messages.map((msg, i) => (
-              <div key={i}>
+              <div key={`${msg.role}-${i}`}>
                 <div className={cn('flex', msg.role === 'user' ? 'justify-start' : 'justify-end')}>
                   {msg.role === 'user' && (
                     <div className="ml-2 mt-1 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-emerald-600 text-xs font-bold text-white">
@@ -637,7 +558,7 @@ export default function Coach() {
                       {copiedIdx === i ? 'تم' : 'نسخ'}
                     </button>
                     <a
-                      href={`https://wa.me/?text=${encodeURIComponent('بروتوكولي من pptides.com:\n' + msg.content.slice(0, 500))}`}
+                      href={`https://wa.me/?text=${encodeURIComponent('بروتوكولي من pptides.com:\n' + msg.content.slice(0, 2000))}`}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="inline-flex items-center gap-1 rounded-lg border border-emerald-200 bg-emerald-50 px-2 py-1 text-[11px] font-medium text-emerald-700 transition-colors hover:bg-emerald-100"

@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 import { Check, Shield, Lock, CreditCard, RefreshCw, ChevronDown, MessageCircle, Crown, ArrowLeft } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { cn } from '@/lib/utils';
-import { PRICING, PEPTIDE_COUNT } from '@/lib/constants';
+import { PRICING, PEPTIDE_COUNT, VALUE_TOTAL, VALUE_SAVINGS_ELITE, VALUE_STACK, SUPPORT_EMAIL } from '@/lib/constants';
 
 const essentialsFeatures = [
   `بطاقات البروتوكول الكاملة لـ ${PEPTIDE_COUNT} ببتيد`,
@@ -26,14 +26,7 @@ const eliteFeatures = [
   'دعم أولوية — رد خلال ساعات',
 ];
 
-const valueStack = [
-  { item: `مكتبة ${PEPTIDE_COUNT} ببتيد مع بروتوكولات كاملة`, value: '$149' },
-  { item: 'حاسبة جرعات دقيقة', value: '$29' },
-  { item: 'دليل تحاليل مخبرية شامل', value: '$49' },
-  { item: 'بروتوكولات مُجمَّعة جاهزة', value: '$39' },
-  { item: 'دليل التحضير والحقن', value: '$29' },
-  { item: 'تحديثات علمية شهرية', value: '$19/شهر' },
-];
+const valueStack = VALUE_STACK;
 
 const eliteValueStack = [
   { item: 'مدرب ذكاء اصطناعي شخصي', value: '$49/شهر' },
@@ -58,7 +51,7 @@ const faqs = [
   },
   {
     q: 'هل يمكنني الإلغاء في أي وقت؟',
-    a: 'نعم. يمكنك طلب إلغاء الاشتراك من حسابك. لإيقاف الدفعات المستقبلية، تواصل معنا عبر contact@pptides.com.',
+    a: `نعم. يمكنك طلب إلغاء الاشتراك من حسابك. لإيقاف الدفعات المستقبلية، تواصل معنا عبر ${SUPPORT_EMAIL}.`,
   },
   {
     q: 'كيف تعمل التجربة المجانية؟',
@@ -70,7 +63,7 @@ export default function Pricing() {
   const { user, subscription, upgradeTo } = useAuth();
 
   const isSubscribedTo = (tier: string) =>
-    user && subscription?.status === 'active' && subscription.tier === tier;
+    user && (subscription?.status === 'active' || subscription?.status === 'past_due' || subscription?.isTrial) && subscription.tier === tier;
 
   const showTrialMessaging = !user || subscription?.status === 'none';
   const [loadingPlan, setLoadingPlan] = useState<string | null>(null);
@@ -92,7 +85,11 @@ export default function Pricing() {
       const isLoading = loadingPlan === planKey;
       return (
         <button
-          onClick={() => { setLoadingPlan(planKey); upgradeTo(planKey); }}
+          onClick={() => {
+            setLoadingPlan(planKey);
+            try { upgradeTo(planKey); } catch { /* noop */ }
+            setTimeout(() => setLoadingPlan(null), 3000);
+          }}
           disabled={isLoading}
           className={cn(
             'inline-flex w-full items-center justify-center gap-2 rounded-full px-6 py-3.5',
@@ -263,7 +260,7 @@ export default function Pricing() {
             ))}
           </div>
           <div className="mt-6 text-center">
-            <p className="text-stone-800">القيمة الإجمالية: <span className="font-bold text-stone-800 line-through">$314+</span></p>
+            <p className="text-stone-800">القيمة الإجمالية: <span className="font-bold text-stone-800 line-through">{VALUE_TOTAL}</span></p>
             <p className="mt-1 text-2xl font-black text-emerald-600">أنت تدفع فقط {PRICING.essentials.label}/شهريًا</p>
           </div>
         </div>
@@ -290,7 +287,7 @@ export default function Pricing() {
             ))}
           </div>
           <div className="mt-6 text-center">
-            <p className="text-stone-800">القيمة الإضافية: <span className="font-bold text-stone-800 line-through">$292+/شهريًا</span></p>
+            <p className="text-stone-800">القيمة الإضافية: <span className="font-bold text-stone-800 line-through">{VALUE_SAVINGS_ELITE}/شهريًا</span></p>
             <p className="mt-1 text-2xl font-black text-emerald-600">كل شيء بـ {PRICING.elite.label}/شهريًا فقط</p>
           </div>
         </div>
@@ -336,7 +333,7 @@ export default function Pricing() {
         >
           <MessageCircle className="mx-auto mb-3 h-6 w-6 text-emerald-600" />
           <p className="text-sm font-semibold text-stone-800">
-            تواصل معنا: <a href="mailto:contact@pptides.com" className="text-emerald-600 underline">contact@pptides.com</a>
+            تواصل معنا: <a href={`mailto:${SUPPORT_EMAIL}`} className="text-emerald-600 underline">{SUPPORT_EMAIL}</a>
           </p>
           <p className="mt-1 text-xs text-stone-800">الدعم متاح 24/7 عبر البريد الإلكتروني</p>
         </div>

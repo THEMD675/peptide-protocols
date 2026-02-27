@@ -1,12 +1,11 @@
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useEffect, useId } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { Link, useSearchParams } from 'react-router-dom';
-import { Calculator, FlaskConical, Droplets, ChevronDown, ArrowLeft, BookOpen, Layers, Bot, Bookmark } from 'lucide-react';
+import { Calculator, FlaskConical, Droplets, ChevronDown, ArrowLeft, BookOpen, Layers, Bot, Bookmark, Syringe } from 'lucide-react';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import { PEPTIDE_COUNT } from '@/lib/constants';
-
-type DoseUnit = 'mcg' | 'mg';
+import { DOSE_PRESETS as PEPTIDE_PRESETS_DATA, type DoseUnit } from '@/data/dose-presets';
 
 interface SyringeOption {
   label: string;
@@ -52,10 +51,11 @@ const referenceData: ReferenceRow[] = [
 function SyringeVisual({
   drawUnits,
   syringeOption,
-}: {
+}: {  
   drawUnits: number;
   syringeOption: SyringeOption;
 }) {
+  const gradientId = useId();
   const totalUnits = syringeOption.units;
   const clampedUnits = Math.min(Math.max(drawUnits, 0), totalUnits);
   const displayUnits = isFinite(clampedUnits) ? clampedUnits : 0;
@@ -119,7 +119,7 @@ function SyringeVisual({
             width={barrelWidth - 3}
             height={fillHeight}
             rx={fillY + fillHeight >= barrelTop + barrelHeight - 2 ? 3 : 0}
-            fill="url(#emeraldGradient)"
+            fill={`url(#${gradientId})`}
             opacity={0.85}
           />
         )}
@@ -179,7 +179,7 @@ function SyringeVisual({
         />
 
         <defs>
-          <linearGradient id="emeraldGradient" x1="0" y1="0" x2="0" y2="1">
+          <linearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">
             <stop offset="0%" stopColor="#10b981" stopOpacity={0.9} />
             <stop offset="100%" stopColor="#059669" stopOpacity={0.7} />
           </linearGradient>
@@ -191,39 +191,9 @@ function SyringeVisual({
 
 /* ─────────────── Main Component ─────────────── */
 
-const PEPTIDE_PRESETS = [
-  { name: 'BPC-157', dose: 250, unit: 'mcg' as DoseUnit, vial: 5, water: 2, minDose: 100, maxDose: 500 },
-  { name: 'TB-500', dose: 750, unit: 'mcg' as DoseUnit, vial: 5, water: 2, minDose: 250, maxDose: 1500 },
-  { name: 'Semaglutide', dose: 250, unit: 'mcg' as DoseUnit, vial: 5, water: 2, minDose: 250, maxDose: 2400 },
-  { name: 'CJC-1295', dose: 100, unit: 'mcg' as DoseUnit, vial: 2, water: 2, minDose: 50, maxDose: 300 },
-  { name: 'Ipamorelin', dose: 200, unit: 'mcg' as DoseUnit, vial: 5, water: 2, minDose: 100, maxDose: 300 },
-  { name: 'Tesamorelin', dose: 2000, unit: 'mcg' as DoseUnit, vial: 2, water: 2, minDose: 1000, maxDose: 2000 },
-  { name: 'PT-141', dose: 1750, unit: 'mcg' as DoseUnit, vial: 10, water: 2, minDose: 500, maxDose: 2000 },
-  { name: 'Semax', dose: 400, unit: 'mcg' as DoseUnit, vial: 3, water: 1, minDose: 200, maxDose: 1000 },
-  { name: 'Epithalon', dose: 5000, unit: 'mcg' as DoseUnit, vial: 10, water: 2, minDose: 2500, maxDose: 10000 },
-  { name: 'AOD-9604', dose: 300, unit: 'mcg' as DoseUnit, vial: 5, water: 2, minDose: 200, maxDose: 600 },
-  { name: 'GHK-Cu', dose: 200, unit: 'mcg' as DoseUnit, vial: 5, water: 2, minDose: 100, maxDose: 500 },
-  { name: 'Kisspeptin-10', dose: 100, unit: 'mcg' as DoseUnit, vial: 5, water: 2, minDose: 50, maxDose: 200 },
-  { name: 'Tirzepatide', dose: 2500, unit: 'mcg' as DoseUnit, vial: 5, water: 2, minDose: 2500, maxDose: 15000 },
-  { name: 'Retatrutide', dose: 1000, unit: 'mcg' as DoseUnit, vial: 5, water: 2, minDose: 1000, maxDose: 12000 },
-  { name: 'Sermorelin', dose: 300, unit: 'mcg' as DoseUnit, vial: 5, water: 2, minDose: 200, maxDose: 300 },
-  { name: 'GHRP-2', dose: 200, unit: 'mcg' as DoseUnit, vial: 5, water: 2, minDose: 100, maxDose: 300 },
-  { name: 'GHRP-6', dose: 200, unit: 'mcg' as DoseUnit, vial: 5, water: 2, minDose: 100, maxDose: 300 },
-  { name: 'Hexarelin', dose: 200, unit: 'mcg' as DoseUnit, vial: 5, water: 2, minDose: 100, maxDose: 200 },
-  { name: 'IGF-1 LR3', dose: 50, unit: 'mcg' as DoseUnit, vial: 1, water: 1, minDose: 20, maxDose: 100 },
-  { name: 'Follistatin 344', dose: 100, unit: 'mcg' as DoseUnit, vial: 1, water: 1, minDose: 50, maxDose: 100 },
-  { name: 'GnRH / Triptorelin', dose: 100, unit: 'mcg' as DoseUnit, vial: 2, water: 1, minDose: 50, maxDose: 100 },
-  { name: 'P21', dose: 750, unit: 'mcg' as DoseUnit, vial: 5, water: 2, minDose: 500, maxDose: 1000 },
-  { name: 'DSIP', dose: 200, unit: 'mcg' as DoseUnit, vial: 5, water: 2, minDose: 100, maxDose: 300 },
-  { name: 'SS-31 / Elamipretide', dose: 20000, unit: 'mcg' as DoseUnit, vial: 10, water: 2, minDose: 5000, maxDose: 40000 },
-  { name: 'MOTS-c', dose: 5000, unit: 'mcg' as DoseUnit, vial: 10, water: 2, minDose: 5000, maxDose: 10000 },
-  { name: 'Thymalin', dose: 10000, unit: 'mcg' as DoseUnit, vial: 10, water: 2, minDose: 5000, maxDose: 10000 },
-  { name: 'Thymosin Alpha-1', dose: 1600, unit: 'mcg' as DoseUnit, vial: 5, water: 1, minDose: 800, maxDose: 3200 },
-  { name: 'KPV', dose: 500, unit: 'mcg' as DoseUnit, vial: 5, water: 2, minDose: 200, maxDose: 500 },
-  { name: 'LL-37', dose: 200, unit: 'mcg' as DoseUnit, vial: 5, water: 2, minDose: 100, maxDose: 200 },
-  { name: 'ARA-290', dose: 2000, unit: 'mcg' as DoseUnit, vial: 5, water: 2, minDose: 2000, maxDose: 4000 },
-  { name: 'Selank', dose: 300, unit: 'mcg' as DoseUnit, vial: 5, water: 1, minDose: 100, maxDose: 500 },
-];
+const PEPTIDE_PRESETS = PEPTIDE_PRESETS_DATA.map(p => ({
+  name: p.name, dose: p.dose, unit: p.unit, vial: p.vialMg, water: p.waterMl, minDose: p.minDose, maxDose: p.maxDose,
+}));
 
 export default function DoseCalculator() {
   const [doseUnit, setDoseUnit] = useState<DoseUnit>('mcg');
@@ -639,6 +609,13 @@ export default function DoseCalculator() {
                 <Bookmark className="h-5 w-5" />
                 <span className="text-sm">احفظ الحساب</span>
               </button>
+              <Link
+                to={`/tracker?peptide=${encodeURIComponent(selectedPreset || 'Custom')}`}
+                className="flex flex-col items-center justify-center gap-1 rounded-xl border-2 border-stone-200 bg-white p-4 font-bold text-stone-700 transition-all hover:border-emerald-200 hover:text-emerald-700 hover:shadow-md"
+              >
+                <Syringe className="h-5 w-5" />
+                <span className="text-sm">سجّل في المتابعة</span>
+              </Link>
             </div>
           )}
 

@@ -22,9 +22,10 @@ const redFlags = [
 
 function BlurredOverlay() {
   return (
-    <div className="absolute inset-0 z-10 flex items-center justify-center">
+    <div className="absolute inset-0 z-10 flex items-center justify-center" role="region" aria-label="محتوى مقفل — يتطلب اشتراك">
       <Link
         to="/pricing"
+        aria-label="اشترك لفتح هذا المحتوى"
         className="rounded-full bg-emerald-600 px-5 py-2 text-sm font-bold text-white hover:bg-emerald-700"
       >
         اشترك — {PRICING.essentials.label}/شهريًا
@@ -40,7 +41,7 @@ export default function LabGuide() {
   const blurClass = !isPro ? 'blur-sm pointer-events-none select-none' : '';
 
   return (
-    <main className="mx-auto max-w-5xl px-4 pb-24 pt-8 md:px-6 md:pt-12">
+    <div className="mx-auto max-w-5xl px-4 pb-24 pt-8 md:px-6 md:pt-12">
       <Helmet>
         <title>دليل التحاليل المخبرية | pptides</title>
         <meta name="description" content="التحاليل المخبرية اللازمة قبل وأثناء وبعد استخدام الببتيدات مع العلامات التحذيرية. Essential bloodwork guide for peptide users." />
@@ -72,6 +73,7 @@ export default function LabGuide() {
 
           <div className="relative overflow-x-auto rounded-2xl border border-stone-300">
             <table className="w-full text-sm">
+              <caption className="sr-only">تحاليل خط الأساس الموصى بها قبل استخدام الببتيدات</caption>
               <thead>
                 <tr className="bg-emerald-500">
                   <th className="px-4 py-3 text-right font-bold text-white/90">
@@ -125,6 +127,7 @@ export default function LabGuide() {
 
           <div className="relative overflow-x-auto rounded-2xl border border-stone-300">
             <table className="w-full text-sm">
+              <caption className="sr-only">جدول متابعة التحاليل أثناء استخدام الببتيدات</caption>
               <thead>
                 <tr className="bg-emerald-500">
                   <th className="px-4 py-3 text-right font-bold text-white/90">
@@ -164,22 +167,17 @@ export default function LabGuide() {
             </h2>
           </div>
 
-          <div className="relative">
-            <div
-              className={cn('rounded-2xl border-2 border-red-600 bg-red-600/[0.04] p-6', blurClass)}
-            >
-              <ul className="space-y-3">
-                {redFlags.map((flag) => (
-                  <li key={flag} className="flex items-start gap-3">
-                    <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0 text-red-500" />
-                    <span className="text-base font-medium" >
-                      {flag}
-                    </span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-            {!isPro && <BlurredOverlay />}
+          <div className="rounded-2xl border-2 border-red-600 bg-red-600/[0.04] p-6">
+            <ul className="space-y-3">
+              {redFlags.map((flag) => (
+                <li key={flag} className="flex items-start gap-3">
+                  <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0 text-red-500" />
+                  <span className="text-base font-medium">
+                    {flag}
+                  </span>
+                </li>
+              ))}
+            </ul>
           </div>
         </section>
       </div>
@@ -193,6 +191,6 @@ export default function LabGuide() {
           <Link to="/coach" className="rounded-full border border-emerald-300 px-6 py-2.5 text-sm font-bold text-emerald-700 hover:bg-emerald-100">اسأل المدرب الذكي</Link>
         </div>
       </div>
-    </main>
+    </div>
   );
 }

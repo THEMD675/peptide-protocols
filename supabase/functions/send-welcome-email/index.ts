@@ -5,6 +5,7 @@ const RESEND_API_KEY = Deno.env.get('RESEND_API_KEY')
 const supabaseUrl = Deno.env.get('SUPABASE_URL') ?? ''
 const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY') ?? ''
 
+const APP_URL = Deno.env.get('APP_URL') ?? 'https://pptides.com'
 const ALLOWED_ORIGINS = ['https://pptides.com', 'http://localhost:3000', 'http://localhost:3001']
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
@@ -96,27 +97,40 @@ serve(async (req) => {
       })
     }
 
-    // Fix trial duration: ensure 3 days, not 7
-    // Small delay to ensure DB trigger has created the subscription row
-    await new Promise(r => setTimeout(r, 2000))
     const serviceSupabase = createClient(supabaseUrl, Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '')
-    const { data: subRow } = await serviceSupabase
-      .from('subscriptions')
-      .select('id, created_at, trial_ends_at')
-      .eq('user_id', user.id)
-      .maybeSingle()
-    if (subRow?.created_at && subRow?.trial_ends_at) {
-      const created = new Date(subRow.created_at).getTime()
-      const trialEnd = new Date(subRow.trial_ends_at).getTime()
-      const days = (trialEnd - created) / (86400000)
-      if (days > 4) {
-        const correct = new Date(created + 3 * 86400000).toISOString()
-        await serviceSupabase.from('subscriptions').update({ trial_ends_at: correct }).eq('id', subRow.id)
+
+    const fixTrialDuration = async () => {
+      for (let attempt = 0; attempt < 3; attempt++) {
+        await new Promise(r => setTimeout(r, 1000 * (attempt + 1)))
+        const { data: subRow } = await serviceSupabase
+          .from('subscriptions')
+          .select('id, created_at, trial_ends_at')
+          .eq('user_id', user.id)
+          .maybeSingle()
+        if (!subRow) continue
+        if (subRow.created_at && subRow.trial_ends_at) {
+          const created = new Date(subRow.created_at).getTime()
+          const trialEnd = new Date(subRow.trial_ends_at).getTime()
+          const days = (trialEnd - created) / 86400000
+          if (days > 4) {
+            const correct = new Date(created + 3 * 86400000).toISOString()
+            await serviceSupabase.from('subscriptions').update({ trial_ends_at: correct }).eq('id', subRow.id)
+          }
+        }
+        break
       }
     }
+    fixTrialDuration().catch(e => console.error('trial fix failed:', e))
 
     const rawName = name || email.split('@')[0]
-    const displayName = rawName.replace(/[<>"'&]/g, '')
+    const displayName = rawName
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;')
+      .replace(/`/g, '&#96;')
+      .slice(0, 50)
 
     const res = await fetch('https://api.resend.com/emails', {
       method: 'POST',
@@ -138,11 +152,11 @@ serve(async (req) => {
               حسابك جاهز. إليك كيف تبدأ:
             </p>
             <div style="background: #ecfdf5; border-radius: 12px; padding: 20px; margin: 20px 0;">
-              <p style="margin: 8px 0;"><strong>1.</strong> تصفّح <a href="https://pptides.com/library" style="color: #059669;">مكتبة 41+ ببتيد</a></p>
-              <p style="margin: 8px 0;"><strong>2.</strong> جرّب <a href="https://pptides.com/calculator" style="color: #059669;">حاسبة الجرعات المجانية</a></p>
-              <p style="margin: 8px 0;"><strong>3.</strong> اسأل <a href="https://pptides.com/coach" style="color: #059669;">المدرب الذكي</a> عن أي ببتيد</p>
+              <p style="margin: 8px 0;"><strong>1.</strong> تصفّح <a href="${APP_URL}/library" style="color: #059669;">مكتبة 41+ ببتيد</a></p>
+              <p style="margin: 8px 0;"><strong>2.</strong> جرّب <a href="${APP_URL}/calculator" style="color: #059669;">حاسبة الجرعات المجانية</a></p>
+              <p style="margin: 8px 0;"><strong>3.</strong> اسأل <a href="${APP_URL}/coach" style="color: #059669;">المدرب الذكي</a> عن أي ببتيد</p>
             </div>
-            <a href="https://pptides.com/library" style="display: inline-block; background: #059669; color: white; padding: 14px 32px; border-radius: 9999px; text-decoration: none; font-weight: bold; font-size: 16px;">
+            <a href="${APP_URL}/library" style="display: inline-block; background: #059669; color: white; padding: 14px 32px; border-radius: 9999px; text-decoration: none; font-weight: bold; font-size: 16px;">
               ابدأ الاستكشاف
             </a>
             <p style="color: #a8a29e; font-size: 12px; margin-top: 30px;">

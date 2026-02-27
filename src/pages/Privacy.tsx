@@ -1,5 +1,6 @@
 import { Helmet } from 'react-helmet-async';
 import { Link } from 'react-router-dom';
+import { LEGAL_LAST_UPDATED, SUPPORT_EMAIL } from '@/lib/constants';
 
 export default function Privacy() {
   return (
@@ -10,7 +11,7 @@ export default function Privacy() {
       </Helmet>
       <div className="mx-auto max-w-3xl px-6 pb-20 pt-8 md:pt-12">
         <h1 className="mb-8 text-2xl font-bold text-stone-900 sm:text-3xl">سياسة الخصوصية</h1>
-        <p className="mb-4 text-sm text-stone-500">آخر تحديث: 25 فبراير 2026</p>
+        <p className="mb-4 text-sm text-stone-500">آخر تحديث: {LEGAL_LAST_UPDATED}</p>
 
         <div className="space-y-8 text-stone-800 leading-relaxed">
           <section>
@@ -48,11 +49,11 @@ export default function Privacy() {
 
           <section>
             <h2 className="mb-3 text-xl font-bold text-stone-900">5. التواصل</h2>
-            <p>لأي استفسار حول الخصوصية: <a href="mailto:contact@pptides.com" className="text-emerald-600 underline">contact@pptides.com</a></p>
+            <p>لأي استفسار حول الخصوصية: <a href={`mailto:${SUPPORT_EMAIL}`} className="text-emerald-600 underline">{SUPPORT_EMAIL}</a></p>
           </section>
         </div>
         <div className="mt-8 border-t border-stone-200 pt-6 text-center">
-          <Link to="/" className="text-sm font-semibold text-emerald-600 hover:text-emerald-700">← العودة للصفحة الرئيسية</Link>
+          <Link to="/" className="text-sm font-semibold text-emerald-600 hover:text-emerald-700">→ العودة للصفحة الرئيسية</Link>
         </div>
       </div>
     </div>

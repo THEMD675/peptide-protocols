@@ -1,7 +1,7 @@
 import { useState, useMemo } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { Link } from 'react-router-dom';
-import { Search, Lock, BookOpen, AlertTriangle, FlaskConical, Layers } from 'lucide-react';
+import { Search, Lock, BookOpen, AlertTriangle, FlaskConical, Layers, TrendingDown, Heart, Zap, Brain, Clock, Shield } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { peptides, categories, stacks } from '@/data/peptides';
 import { useAuth } from '@/contexts/AuthContext';
@@ -16,13 +16,13 @@ const categoryColors: Record<string, { badge: string; border: string }> = {
   'skin-gut': { badge: 'bg-teal-100 text-teal-800 border-teal-300', border: 'border-teal-200' },
 };
 
-const categoryIcons: Record<string, string> = {
-  metabolic: '⚡',
-  recovery: '💪',
-  hormonal: '🧬',
-  brain: '🧠',
-  longevity: '⏳',
-  'skin-gut': '🛡️',
+const categoryIcons: Record<string, React.ElementType> = {
+  metabolic: TrendingDown,
+  recovery: Heart,
+  hormonal: Zap,
+  brain: Brain,
+  longevity: Clock,
+  'skin-gut': Shield,
 };
 
 function isLongTerm(cycleAr: string): boolean {
@@ -189,7 +189,7 @@ export default function PeptideTable() {
                     : 'border border-stone-300 bg-stone-50 text-stone-800 hover:border-stone-300 hover:text-stone-900'
                 )}
               >
-                {categoryIcons[cat.id]} {cat.nameAr} ({cat.peptideCount})
+                {(() => { const Icon = categoryIcons[cat.id]; return Icon ? <Icon className="inline h-4 w-4" /> : null; })()} {cat.nameAr} ({cat.peptideCount})
               </button>
             ))}
           </div>
@@ -442,7 +442,7 @@ export default function PeptideTable() {
                   )}
                 >
                   <div className="mb-3 flex items-center gap-2">
-                    <span className="text-xl">{categoryIcons[cat.id]}</span>
+                    {(() => { const Icon = categoryIcons[cat.id]; return Icon ? <Icon className="h-5 w-5 text-emerald-600" /> : null; })()}
                     <h3 className="text-base font-bold text-stone-900">{cat.nameAr}</h3>
                     <span className="mr-auto rounded-full bg-stone-100 px-2 py-0.5 text-[10px] font-semibold text-stone-800">
                       {cat.peptideCount} ببتيد

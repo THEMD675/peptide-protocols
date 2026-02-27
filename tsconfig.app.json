@@ -24,18 +24,9 @@
 
     /* Enhanced Path Resolution for Premium App */
     "baseUrl": ".",
+    "forceConsistentCasingInFileNames": true,
     "paths": {
-      "@/*": ["./src/*"],
-      "@/components/*": ["./src/components/*"],
-      "@/hooks/*": ["./src/hooks/*"],
-      "@/lib/*": ["./src/lib/*"],
-      "@/pages/*": ["./src/pages/*"],
-      "@/contexts/*": ["./src/contexts/*"],
-      "@/types/*": ["./src/types/*"],
-      "@/utils/*": ["./src/lib/utils/*"],
-      "@/ai/*": ["./src/lib/ai/*"],
-      "@/dashboard/*": ["./src/components/dashboard/*"],
-      "@/ui/*": ["./src/components/ui/*"]
+      "@/*": ["./src/*"]
     }
   },
   "include": ["src"]

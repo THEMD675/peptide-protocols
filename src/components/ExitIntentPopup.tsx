@@ -4,6 +4,8 @@ import { X, Gift, ArrowLeft } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { PEPTIDE_COUNT } from '@/lib/constants';
 
+const EXCLUDED_PATHS = ['/login', '/signup', '/pricing', '/account'];
+
 const STORAGE_KEY = 'exit_popup_shown';
 
 export default function ExitIntentPopup() {
@@ -18,6 +20,7 @@ export default function ExitIntentPopup() {
       if (lastShown && Date.now() - Number(lastShown) < 7 * 24 * 60 * 60 * 1000) return;
     } catch { /* expected */ }
     if (user && subscription?.isProOrTrial) return;
+    if (EXCLUDED_PATHS.some(p => window.location.pathname.startsWith(p))) return;
     setVisible(true);
     try { localStorage.setItem(STORAGE_KEY, String(Date.now())); } catch { /* expected */ }
   }, [user, subscription]);

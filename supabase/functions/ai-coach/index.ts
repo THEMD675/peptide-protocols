@@ -8,22 +8,25 @@ const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
 const ALLOWED_ORIGINS = ['https://pptides.com', 'http://localhost:3000', 'http://localhost:3001']
 const MAX_USER_MESSAGES = 30
 
-const rateLimitMap = new Map<string, number[]>()
-const RATE_LIMIT_WINDOW = 60_000
+const RATE_LIMIT_WINDOW_SECONDS = 60
 const RATE_LIMIT_MAX = 10
 
-function checkRateLimit(userId: string): boolean {
-  const now = Date.now()
-  const timestamps = rateLimitMap.get(userId) ?? []
-  const recent = timestamps.filter(t => now - t < RATE_LIMIT_WINDOW)
-  if (recent.length >= RATE_LIMIT_MAX) return false
-  recent.push(now)
-  rateLimitMap.set(userId, recent)
-  if (rateLimitMap.size > 1000) {
-    for (const [key, vals] of rateLimitMap) {
-      if (vals.every(t => now - t > RATE_LIMIT_WINDOW)) rateLimitMap.delete(key)
-    }
+async function checkRateLimit(userId: string, supabase: ReturnType<typeof createClient>): Promise<boolean> {
+  const windowStart = new Date(Date.now() - RATE_LIMIT_WINDOW_SECONDS * 1000).toISOString()
+  const { count, error } = await supabase
+    .from('ai_coach_requests')
+    .select('id', { count: 'exact', head: true })
+    .eq('user_id', userId)
+    .gte('created_at', windowStart)
+
+  if (error) {
+    console.error('rate-limit check failed, allowing request:', error.message)
+    return true
   }
+
+  if ((count ?? 0) >= RATE_LIMIT_MAX) return false
+
+  await supabase.from('ai_coach_requests').insert({ user_id: userId })
   return true
 }
 
@@ -194,7 +197,7 @@ serve(async (req) => {
       })
     }
 
-    if (!checkRateLimit(user.id)) {
+    if (!(await checkRateLimit(user.id, supabase))) {
       return new Response(JSON.stringify({ error: 'Too many requests. Please wait a moment before trying again.' }), {
         status: 429,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },

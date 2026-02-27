@@ -48,6 +48,14 @@ serve(async (req) => {
 
     const supabase = createClient(supabaseUrl, supabaseServiceKey)
 
+    const { error: dedupError } = await supabase
+      .from('processed_webhook_events')
+      .insert({ event_id: event.id, event_type: event.type })
+    if (dedupError && dedupError.code === '23505') {
+      console.log('stripe-webhook: duplicate event skipped:', event.id)
+      return jsonResponse({ received: true, duplicate: true })
+    }
+
     switch (event.type) {
       case 'checkout.session.completed': {
         const session = event.data.object as Stripe.Checkout.Session
@@ -63,6 +71,7 @@ serve(async (req) => {
         let tier = session.metadata?.tier ?? 'essentials'
         if (!session.metadata?.tier && session.amount_total) {
           tier = session.amount_total >= 5000 ? 'elite' : 'essentials'
+          console.warn('checkout.session.completed: tier determined by amount fallback, set metadata.tier on checkout session for reliability')
         }
 
         let checkoutStatus = 'active'
@@ -125,7 +134,7 @@ serve(async (req) => {
         let mappedStatus: string
         if (stripeStatus === 'active') mappedStatus = 'active'
         else if (stripeStatus === 'trialing') mappedStatus = 'trial'
-        else if (stripeStatus === 'past_due') mappedStatus = 'active'
+        else if (stripeStatus === 'past_due') mappedStatus = 'past_due'
         else if (stripeStatus === 'canceled' || stripeStatus === 'unpaid') mappedStatus = 'cancelled'
         else mappedStatus = 'expired'
 

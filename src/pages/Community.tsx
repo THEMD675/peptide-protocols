@@ -41,6 +41,9 @@ export default function Community() {
   const submittingRef = useRef(false);
   const [submitted, setSubmitted] = useState(false);
   const [filterGoal, setFilterGoal] = useState('all');
+  const [hasMore, setHasMore] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const PAGE_SIZE = 50;
 
   const [peptideName, setPeptideName] = useState('');
   const [goal, setGoal] = useState('');
@@ -60,7 +63,10 @@ export default function Community() {
           .select('*')
           .order('created_at', { ascending: false })
           .limit(50);
-        if (mounted && !error && data) setLogs(data);
+        if (mounted && !error && data) {
+          setLogs(data);
+          setHasMore(data.length >= PAGE_SIZE);
+        }
       } catch {
         // query failed
       }
@@ -337,6 +343,12 @@ export default function Community() {
           </div>
         ) : (
           <div className="space-y-4">
+            {logs.filter(log => filterGoal === 'all' || log.goal === filterGoal).length === 0 && (
+              <div className="rounded-2xl border border-stone-200 bg-stone-50 py-12 text-center">
+                <p className="text-sm font-bold text-stone-600">لا توجد تجارب لهذا الهدف بعد</p>
+                <button onClick={() => setFilterGoal('all')} className="mt-3 text-sm text-emerald-600 font-medium hover:underline">عرض الكل</button>
+              </div>
+            )}
             {logs.filter(log => filterGoal === 'all' || log.goal === filterGoal).map((log) => (
               <div key={log.id} className="rounded-2xl border border-stone-200 bg-white p-6 transition-all hover:border-emerald-200 hover:shadow-sm">
                 <div className="mb-3 flex items-start justify-between">
@@ -378,9 +390,19 @@ export default function Community() {
                     </div>
                     <button
                       onClick={async () => {
-                        if (!user) return;
-                        await supabase.from('community_logs').update({ rating: 0 }).eq('id', log.id);
-                        toast.success('تم الإبلاغ — سنراجع المحتوى');
+                        if (!user) { toast('سجّل الدخول للإبلاغ عن محتوى'); return; }
+                        const { error } = await supabase.from('reports').insert({
+                          user_id: user.id,
+                          target_type: 'community_log',
+                          target_id: log.id,
+                        });
+                        if (error && error.code === '23505') {
+                          toast('سبق لك الإبلاغ عن هذا المحتوى');
+                        } else if (error) {
+                          toast.error('تعذّر الإبلاغ. حاول مرة أخرى.');
+                        } else {
+                          toast.success('تم الإبلاغ — سنراجع المحتوى');
+                        }
                       }}
                       className="rounded-lg p-2 text-stone-300 hover:text-red-500 hover:bg-red-50 transition-colors"
                       aria-label="إبلاغ"
@@ -410,6 +432,27 @@ export default function Community() {
                 </div>
               </div>
             ))}
+            {hasMore && (
+              <button
+                onClick={async () => {
+                  setLoadingMore(true);
+                  const { data } = await supabase
+                    .from('community_logs')
+                    .select('*')
+                    .order('created_at', { ascending: false })
+                    .range(logs.length, logs.length + PAGE_SIZE - 1);
+                  if (data) {
+                    setLogs(prev => [...prev, ...data]);
+                    setHasMore(data.length >= PAGE_SIZE);
+                  }
+                  setLoadingMore(false);
+                }}
+                disabled={loadingMore}
+                className="flex w-full items-center justify-center gap-2 rounded-2xl border border-stone-200 bg-white py-4 text-sm font-bold text-stone-600 transition-all hover:border-emerald-300 hover:text-emerald-700 disabled:opacity-50"
+              >
+                {loadingMore ? 'جارٍ التحميل...' : 'تحميل المزيد'}
+              </button>
+            )}
           </div>
         )}
       </div>

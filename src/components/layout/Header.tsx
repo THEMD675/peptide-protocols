@@ -3,7 +3,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Menu, X, User, LogOut, ChevronDown, Search } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
-import { peptides } from '@/data/peptides';
+import type { Peptide } from '@/data/peptides';
 
 const guestNavLinks = [
   { to: '/library', label: 'المكتبة' },
@@ -43,12 +43,20 @@ export default function Header() {
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [searchFocusIdx, setSearchFocusIdx] = useState(-1);
+  const [peptidesList, setPeptidesList] = useState<Pick<Peptide, 'id' | 'nameAr' | 'nameEn'>[]>([]);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const moreDropdownRef = useRef<HTMLDivElement>(null);
   const searchRef = useRef<HTMLDivElement>(null);
 
+  useEffect(() => {
+    if (!searchOpen || peptidesList.length > 0) return;
+    import('@/data/peptides').then(m => {
+      setPeptidesList(m.peptides.map(p => ({ id: p.id, nameAr: p.nameAr, nameEn: p.nameEn })));
+    });
+  }, [searchOpen, peptidesList.length]);
+
   const searchResults = searchQuery.trim().length >= 2
-    ? peptides.filter(p =>
+    ? peptidesList.filter(p =>
         p.nameAr.includes(searchQuery) ||
         p.nameEn.toLowerCase().includes(searchQuery.toLowerCase())
       ).slice(0, 5)
@@ -330,6 +338,7 @@ export default function Header() {
                 value={searchQuery}
                 onChange={e => { setSearchQuery(e.target.value); setSearchFocusIdx(-1); }}
                 placeholder="ابحث عن ببتيد..."
+                aria-label="بحث عن ببتيد"
                 className="w-full rounded-xl border border-stone-200 bg-stone-50 py-2.5 pr-10 pl-4 text-sm text-stone-900 placeholder:text-stone-400 outline-none focus:border-emerald-300 focus:ring-2 focus:ring-emerald-100"
               />
               {searchQuery.trim().length >= 2 && searchResults.length > 0 && (

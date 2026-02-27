@@ -1,7 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
-import { Star, Send, MessageSquare, CheckCircle, AlertCircle, BadgeCheck } from 'lucide-react';
+import { Star, Send, MessageSquare, CheckCircle, AlertCircle } from 'lucide-react';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
@@ -10,7 +10,8 @@ import { supabase } from '@/lib/supabase';
 interface Review {
   id: string;
   rating: number;
-  text: string;
+  content: string;
+  text?: string;
   created_at: string;
 }
 
@@ -79,8 +80,9 @@ export default function Reviews() {
   const [text, setText] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [submittedRating, setSubmittedRating] = useState(0);
 
-  const fetchReviews = async (signal?: { cancelled: boolean }) => {
+  const fetchReviews = useCallback(async (signal?: { cancelled: boolean }) => {
     setFetchError(null);
     const { data, error } = await supabase
       .from('reviews')
@@ -95,7 +97,7 @@ export default function Reviews() {
     }
     if (data) setReviews(data);
     setLoading(false);
-  };
+  }, []);
 
   useEffect(() => {
     const signal = { cancelled: false };
@@ -138,6 +140,7 @@ export default function Reviews() {
       return;
     }
     setSubmitted(true);
+    setSubmittedRating(rating);
     setRating(0);
     setText('');
     fetchReviews();
@@ -213,10 +216,13 @@ export default function Reviews() {
             <div
               className="flex flex-col items-center gap-3 py-6 text-center"
             >
-              <CheckCircle className="h-10 w-10"  />
+              <CheckCircle className="h-10 w-10 text-emerald-600" />
               <p className="text-base font-bold text-stone-900">
                 شكرًا لتقييمك!
               </p>
+              {submittedRating < 4 && (
+                <p className="text-sm text-stone-500">تقييمك قيد المراجعة وسيظهر قريبًا</p>
+              )}
             </div>
           ) : (
             <form onSubmit={handleSubmit} className="space-y-5">
@@ -322,17 +328,13 @@ export default function Reviews() {
                   <div className="mb-3 flex items-center justify-between">
                     <div className="flex items-center gap-2">
                       <StarRating rating={review.rating} size="sm" />
-                      <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-0.5 text-[10px] font-bold text-emerald-700 border border-emerald-200">
-                        <BadgeCheck className="h-3 w-3" />
-                        مستخدم موثّق
-                      </span>
                     </div>
                     <span className="text-xs text-stone-700">
                       {formatDate(review.created_at)}
                     </span>
                   </div>
                   <p className="text-sm leading-relaxed text-stone-800">
-                    {review.content ?? review.text}
+                    {review.content}
                   </p>
                 </div>
               ))}
@@ -341,7 +343,7 @@ export default function Reviews() {
         </div>
 
         <p className="mt-6 text-center text-xs text-stone-500">
-          جميع التقييمات من مستخدمين حقيقيين
+          التقييمات من مشتركين مسجّلين
         </p>
 
         <div className="mt-8 rounded-2xl border border-emerald-200 bg-emerald-50 p-6 text-center">

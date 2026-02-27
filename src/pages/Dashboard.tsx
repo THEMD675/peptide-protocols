@@ -19,7 +19,7 @@ import {
 import { cn, arPlural } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
-import { PEPTIDE_COUNT } from '@/lib/constants';
+import { PEPTIDE_COUNT, STATUS_LABELS } from '@/lib/constants';
 
 const QUICK_LINKS = [
   { to: '/coach', label: 'المدرب الذكي', description: 'اسأل خبير الببتيدات', Icon: Bot },
@@ -42,13 +42,6 @@ const TIER_LABELS: Record<string, string> = {
   elite: 'Elite',
 };
 
-const STATUS_LABELS: Record<string, string> = {
-  trial: 'فترة تجريبية',
-  active: 'مفعّل',
-  cancelled: 'ملغي',
-  expired: 'منتهي',
-  none: 'بدون اشتراك',
-};
 
 function useVisitedPages() {
   const [visited, setVisited] = useState<Set<string>>(() => {
@@ -88,7 +81,7 @@ function useRecentActivity(userId: string | undefined) {
       .select('id, peptide_name, dose, dose_unit, logged_at')
       .eq('user_id', userId)
       .order('logged_at', { ascending: false })
-      .limit(30)
+      .limit(200)
       .then(({ data, error }) => {
         if (!mounted) return;
         if (data && !error) setLogs(data);
@@ -105,6 +98,7 @@ function useRecentActivity(userId: string | undefined) {
   if (logs.length > 0) {
     const daySet = new Set(logs.map(l => new Date(l.logged_at).toDateString()));
     const d = new Date();
+    if (!daySet.has(d.toDateString())) d.setDate(d.getDate() - 1);
     while (daySet.has(d.toDateString())) { streak++; d.setDate(d.getDate() - 1); }
   }
 
@@ -139,7 +133,7 @@ export default function Dashboard() {
   const displayName = rawName.charAt(0).toUpperCase() + rawName.slice(1);
 
   return (
-    <main className="mx-auto max-w-5xl px-4 pb-24 pt-8 md:px-6 md:pt-12">
+    <div className="mx-auto max-w-5xl px-4 pb-24 pt-8 md:px-6 md:pt-12">
       <Helmet>
         <title>لوحة التحكم | pptides</title>
         <meta name="description" content="لوحة التحكم الرئيسية لإدارة حسابك في pptides. Your pptides dashboard." />
@@ -177,7 +171,7 @@ export default function Dashboard() {
             'rounded-full px-3 py-1 text-xs font-bold',
             subscription.status === 'active'
               ? 'bg-emerald-100 text-emerald-700'
-              : subscription.status === 'trial'
+              : subscription.status === 'trial' || subscription.status === 'past_due'
                 ? 'bg-amber-100 text-amber-700'
                 : 'bg-stone-200 text-stone-600',
           )}>
@@ -444,6 +438,6 @@ export default function Dashboard() {
           </div>
         </div>
       )}
-    </main>
+    </div>
   );
 }

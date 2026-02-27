@@ -7,7 +7,8 @@ import { cn } from '@/lib/utils';
 import { peptides } from '@/data/peptides';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
-import { PRICING } from '@/lib/constants';
+import { PRICING, TRIAL_PEPTIDE_IDS } from '@/lib/constants';
+import { DOSE_PRESETS_MAP as DOSE_PRESETS } from '@/data/dose-presets';
 
 const evidenceColors: Record<string, string> = {
   excellent: 'bg-emerald-100 text-emerald-800 border-emerald-300',
@@ -48,8 +49,8 @@ export default function PeptideDetail() {
   }
 
   const isFreeContent = peptide.isFree;
-  const trialPeptideIds = ['semaglutide', 'bpc-157', 'cjc-1295', 'ipamorelin', 'semax', 'epithalon'];
-  const hasAccess = isPaid || isFreeContent || (isTrial && trialPeptideIds.includes(peptide.id));
+  const isTrialAccessible = isTrial && (isFreeContent || TRIAL_PEPTIDE_IDS.has(peptide.id));
+  const hasAccess = isPaid || isFreeContent || isTrialAccessible;
   const firstSentence = peptide.summaryAr.split('.')[0] + '.';
 
   const rows: ProtocolRow[] = [
@@ -364,40 +365,6 @@ export default function PeptideDetail() {
     </div>
   );
 }
-
-const DOSE_PRESETS: Record<string, { dose: number; vialMg: number; waterMl: number; minDose: number; maxDose: number }> = {
-  'BPC-157': { dose: 250, vialMg: 5, waterMl: 2, minDose: 100, maxDose: 500 },
-  'TB-500': { dose: 750, vialMg: 5, waterMl: 2, minDose: 250, maxDose: 1500 },
-  'Semaglutide': { dose: 250, vialMg: 5, waterMl: 2, minDose: 250, maxDose: 2400 },
-  'CJC-1295': { dose: 100, vialMg: 2, waterMl: 2, minDose: 50, maxDose: 300 },
-  'Ipamorelin': { dose: 200, vialMg: 5, waterMl: 2, minDose: 100, maxDose: 300 },
-  'Tesamorelin': { dose: 2000, vialMg: 2, waterMl: 2, minDose: 1000, maxDose: 2000 },
-  'PT-141': { dose: 1750, vialMg: 10, waterMl: 2, minDose: 500, maxDose: 2000 },
-  'Semax': { dose: 400, vialMg: 3, waterMl: 1, minDose: 200, maxDose: 1000 },
-  'Epithalon': { dose: 5000, vialMg: 10, waterMl: 2, minDose: 2500, maxDose: 10000 },
-  'AOD-9604': { dose: 300, vialMg: 5, waterMl: 2, minDose: 200, maxDose: 600 },
-  'GHK-Cu': { dose: 200, vialMg: 5, waterMl: 2, minDose: 100, maxDose: 500 },
-  'Kisspeptin-10': { dose: 100, vialMg: 5, waterMl: 2, minDose: 50, maxDose: 200 },
-  'Tirzepatide': { dose: 2500, vialMg: 5, waterMl: 2, minDose: 2500, maxDose: 15000 },
-  'Retatrutide': { dose: 1000, vialMg: 5, waterMl: 2, minDose: 1000, maxDose: 12000 },
-  'Sermorelin': { dose: 300, vialMg: 5, waterMl: 2, minDose: 200, maxDose: 300 },
-  'GHRP-2': { dose: 200, vialMg: 5, waterMl: 2, minDose: 100, maxDose: 300 },
-  'GHRP-6': { dose: 200, vialMg: 5, waterMl: 2, minDose: 100, maxDose: 300 },
-  'Hexarelin': { dose: 200, vialMg: 5, waterMl: 2, minDose: 100, maxDose: 200 },
-  'IGF-1 LR3': { dose: 50, vialMg: 1, waterMl: 1, minDose: 20, maxDose: 100 },
-  'Follistatin 344': { dose: 100, vialMg: 1, waterMl: 1, minDose: 50, maxDose: 100 },
-  'GnRH / Triptorelin': { dose: 100, vialMg: 2, waterMl: 1, minDose: 50, maxDose: 100 },
-  'P21': { dose: 750, vialMg: 5, waterMl: 2, minDose: 500, maxDose: 1000 },
-  'DSIP': { dose: 200, vialMg: 5, waterMl: 2, minDose: 100, maxDose: 300 },
-  'SS-31 / Elamipretide': { dose: 20000, vialMg: 10, waterMl: 2, minDose: 5000, maxDose: 40000 },
-  'MOTS-c': { dose: 5000, vialMg: 10, waterMl: 2, minDose: 5000, maxDose: 10000 },
-  'Thymalin': { dose: 10000, vialMg: 10, waterMl: 2, minDose: 5000, maxDose: 10000 },
-  'Thymosin Alpha-1': { dose: 1600, vialMg: 5, waterMl: 1, minDose: 800, maxDose: 3200 },
-  'KPV': { dose: 500, vialMg: 5, waterMl: 2, minDose: 200, maxDose: 500 },
-  'LL-37': { dose: 200, vialMg: 5, waterMl: 2, minDose: 100, maxDose: 200 },
-  'ARA-290': { dose: 2000, vialMg: 5, waterMl: 2, minDose: 2000, maxDose: 4000 },
-  'Selank': { dose: 300, vialMg: 5, waterMl: 1, minDose: 100, maxDose: 500 },
-};
 
 function InlineDoseCalc({ peptide }: { peptide: { nameEn: string } }) {
   const preset = DOSE_PRESETS[peptide.nameEn];

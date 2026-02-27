@@ -5,6 +5,7 @@ import { Link } from 'react-router-dom';
 import { User, Crown, LogOut, Trash2, AlertTriangle, Mail, ArrowUpCircle, KeyRound, XCircle } from 'lucide-react';
 import { toast } from 'sonner';
 import { cn, arPlural } from '@/lib/utils';
+import { SUPPORT_EMAIL, STATUS_LABELS, PEPTIDE_COUNT } from '@/lib/constants';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
 
@@ -14,18 +15,11 @@ const TIER_LABELS: Record<string, string> = {
   elite: 'Elite',
 };
 
-const STATUS_LABELS: Record<string, string> = {
-  trial: 'فترة تجريبية',
-  active: 'مفعّل',
-  cancelled: 'ملغي',
-  expired: 'منتهي',
-  none: 'بدون اشتراك',
-};
-
 export default function Account() {
   const { user, subscription, logout } = useAuth();
   const [showCancelDialog, setShowCancelDialog] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [deleteConfirmText, setDeleteConfirmText] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
   const [newPassword, setNewPassword] = useState('');
   const [passwordLoading, setPasswordLoading] = useState(false);
@@ -47,7 +41,7 @@ export default function Account() {
   if (!user) return null;
 
   const handleChangeEmail = async () => {
-    if (!newEmail.trim() || !newEmail.includes('@')) { toast.error('أدخل بريد إلكتروني صالح'); return; }
+    if (!newEmail.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(newEmail)) { toast.error('أدخل بريد إلكتروني صالح'); return; }
     setEmailLoading(true);
     try {
       const { error } = await supabase.auth.updateUser({ email: newEmail });
@@ -86,9 +80,9 @@ export default function Account() {
       if (!res.ok) throw new Error(data.error);
       setShowCancelDialog(false);
       toast.success('تم إلغاء اشتراكك. ستحتفظ بالوصول حتى نهاية فترتك الحالية.');
-      setTimeout(() => window.location.reload(), 2000);
+      setTimeout(() => window.location.href = '/account', 2000);
     } catch {
-      toast.error('حدث خطأ أثناء الإلغاء. تواصل معنا: contact@pptides.com');
+      toast.error(`حدث خطأ أثناء الإلغاء. تواصل معنا: ${SUPPORT_EMAIL}`);
     } finally {
       setIsProcessing(false);
     }
@@ -109,14 +103,14 @@ export default function Account() {
       if (!res.ok) throw new Error();
       await logout();
     } catch {
-      toast.error('حدث خطأ أثناء حذف الحساب. تواصل معنا: contact@pptides.com');
+      toast.error(`حدث خطأ أثناء حذف الحساب. تواصل معنا: ${SUPPORT_EMAIL}`);
     } finally {
       setIsProcessing(false);
     }
   };
 
   return (
-    <main className="mx-auto max-w-3xl px-4 pb-24 pt-8 md:px-6 md:pt-12">
+    <div className="mx-auto max-w-3xl px-4 pb-24 pt-8 md:px-6 md:pt-12">
       <Helmet>
         <title>حسابي — إدارة الاشتراك والإعدادات | pptides</title>
         <meta name="description" content="إدارة حسابك واشتراكك في pptides. Manage your account and subscription." />
@@ -218,7 +212,7 @@ export default function Account() {
                 'rounded-full px-3 py-1 text-xs font-bold',
                 subscription.status === 'active'
                   ? 'bg-emerald-100 text-emerald-700'
-                  : subscription.status === 'trial'
+                  : subscription.status === 'trial' || subscription.status === 'past_due'
                     ? 'bg-amber-100 text-amber-700'
                     : subscription.status === 'expired'
                       ? 'bg-red-100 text-red-700'
@@ -269,13 +263,13 @@ export default function Account() {
 
         {/* Actions */}
         <div className="space-y-3">
-          {subscription.isPaidSubscriber && (
+          {(subscription.isPaidSubscriber || subscription.isTrial) && (
             <button
               onClick={() => setShowCancelDialog(true)}
               className="flex w-full items-center justify-center gap-2 rounded-xl border border-stone-300 bg-white px-6 py-3 text-sm font-bold text-stone-700 transition-all hover:bg-stone-50"
             >
               <LogOut className="h-4 w-4" />
-              إلغاء الاشتراك
+              {subscription.isTrial ? 'إلغاء التجربة' : 'إلغاء الاشتراك'}
             </button>
           )}
           <button
@@ -304,7 +298,7 @@ export default function Account() {
               <p className="text-sm font-bold text-red-800 mb-2">ستفقد الوصول إلى:</p>
               <ul className="space-y-1.5">
                 {[
-                  '41 بروتوكول كامل',
+                  `${PEPTIDE_COUNT} بروتوكول كامل`,
                   'المدرب الذكي',
                   'دليل التحاليل',
                   'البروتوكولات المجمّعة',
@@ -348,11 +342,24 @@ export default function Account() {
             <p className="mt-2 text-sm text-stone-600">
               سيتم حذف حسابك وجميع بياناتك نهائيًا. إذا كان لديك اشتراك نشط، سيتم إلغاؤه فورًا. هذا الإجراء لا يمكن التراجع عنه.
             </p>
-            <div className="mt-6 flex gap-3">
+            <div className="mt-4">
+              <label className="mb-1.5 block text-sm font-medium text-stone-700">
+                اكتب <span className="font-bold text-red-600">حذف</span> للتأكيد
+              </label>
+              <input
+                type="text"
+                value={deleteConfirmText}
+                onChange={(e) => setDeleteConfirmText(e.target.value)}
+                placeholder="حذف"
+                dir="rtl"
+                className="w-full rounded-xl border border-stone-300 bg-stone-50 px-4 py-2.5 text-sm text-stone-900 placeholder:text-stone-400 outline-none focus:border-red-300 focus:ring-2 focus:ring-red-100"
+              />
+            </div>
+            <div className="mt-4 flex gap-3">
               <button
                 onClick={handleDeleteAccount}
-                disabled={isProcessing}
-                className="flex-1 rounded-xl bg-red-600 px-4 py-2.5 text-sm font-bold text-white transition-all hover:bg-red-700 disabled:opacity-50"
+                disabled={isProcessing || deleteConfirmText !== 'حذف'}
+                className="flex-1 rounded-xl bg-red-600 px-4 py-2.5 text-sm font-bold text-white transition-all hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isProcessing ? 'جارٍ الحذف...' : 'تسجيل الخروج وحذف الحساب'}
               </button>
@@ -367,6 +374,6 @@ export default function Account() {
           </FocusTrap>
         </div>
       )}
-    </main>
+    </div>
   );
 }

@@ -1,25 +1,27 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import * as Sentry from '@sentry/react';
 import App from './App';
 import './index.css';
 
-if ((() => { try { return localStorage.getItem('pptides_cookie_consent') === 'accepted'; } catch { return false; } })()) {
-  Sentry.init({
-    dsn: import.meta.env.VITE_SENTRY_DSN,
-    integrations: [
-      Sentry.browserTracingIntegration(),
-      Sentry.replayIntegration({ maskAllText: false, blockAllMedia: false }),
-    ],
-    tracesSampleRate: 0.1,
-    replaysSessionSampleRate: 0.05,
-    replaysOnErrorSampleRate: 1.0,
-    environment: import.meta.env.MODE,
-    enabled: import.meta.env.PROD,
+const hasConsent = (() => { try { return localStorage.getItem('pptides_cookie_consent') === 'accepted'; } catch { return false; } })();
+
+if (hasConsent && import.meta.env.PROD) {
+  import('@sentry/react').then(Sentry => {
+    Sentry.init({
+      dsn: import.meta.env.VITE_SENTRY_DSN,
+      integrations: [
+        Sentry.browserTracingIntegration(),
+        Sentry.replayIntegration({ maskAllText: false, blockAllMedia: false }),
+      ],
+      tracesSampleRate: 0.1,
+      replaysSessionSampleRate: 0.05,
+      replaysOnErrorSampleRate: 1.0,
+      environment: import.meta.env.MODE,
+    });
   });
 
   const ga4Id = import.meta.env.VITE_GA4_ID;
-  if (ga4Id && import.meta.env.PROD) {
+  if (ga4Id) {
     const script = document.createElement('script');
     script.src = `https://www.googletagmanager.com/gtag/js?id=${ga4Id}`;
     script.async = true;

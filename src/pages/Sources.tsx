@@ -2,6 +2,7 @@ import { Helmet } from 'react-helmet-async';
 import { Link } from 'react-router-dom';
 import { Shield, CheckCircle, Users, Package, MessageCircle, AlertTriangle, Mail } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { SUPPORT_EMAIL } from '@/lib/constants';
 
 const criteria = [
   {
@@ -43,7 +44,7 @@ const criteria = [
 
 export default function Sources() {
   return (
-    <div className="min-h-screen" >
+    <div className="min-h-screen" role="main" aria-label="المصادر الموثوقة">
       <Helmet>
         <title>المصادر الموثوقة | pptides</title>
         <meta
@@ -88,7 +89,7 @@ export default function Sources() {
                   <div
                     className="mb-3 flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-50"
                   >
-                    <Icon className="h-5 w-5"  />
+                    <Icon className="h-5 w-5" aria-hidden="true" />
                   </div>
                   <h3 className="mb-1 text-sm font-bold text-stone-900">{item.titleAr}</h3>
                   <span className="mb-2 block text-xs text-stone-700">{item.titleEn}</span>
@@ -122,7 +123,7 @@ export default function Sources() {
             className="rounded-2xl border border-stone-300 bg-stone-50 p-6 text-center"
           >
             <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-emerald-50">
-              <Mail className="h-5 w-5"  />
+              <Mail className="h-5 w-5" aria-hidden="true" />
             </div>
             <h2 className="mb-2 text-lg font-bold text-stone-900">
               هل تعرف موردًا موثوقًا؟
@@ -131,18 +132,17 @@ export default function Sources() {
               إذا كنت تعرف موردًا يستوفي هذه المعايير، أرسل لنا على
             </p>
             <a
-              href="mailto:contact@pptides.com"
+              href={`mailto:${SUPPORT_EMAIL}`}
               className="mt-3 inline-block text-sm font-semibold transition-opacity hover:opacity-80"
-              
             >
-              contact@pptides.com
+              {SUPPORT_EMAIL}
             </a>
           </div>
         </section>
 
         {/* Key Scientific References */}
-        <section className="mt-10 mb-10">
-          <h2 className="mb-6 text-xl font-bold text-stone-900 md:text-2xl">المراجع العلمية الرئيسية</h2>
+        <section className="mt-10 mb-10" aria-labelledby="sources-refs-heading">
+          <h2 id="sources-refs-heading" className="mb-6 text-xl font-bold text-stone-900 md:text-2xl">المراجع العلمية الرئيسية</h2>
           <div className="space-y-3">
             {[
               { title: 'STEP Trials — Semaglutide لفقدان الوزن', url: 'https://pubmed.ncbi.nlm.nih.gov/33567185/' },

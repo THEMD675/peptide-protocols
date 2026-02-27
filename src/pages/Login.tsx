@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import { useAuth } from '@/contexts/AuthContext';
@@ -23,10 +23,13 @@ export default function Login() {
 
   const { login, signup, user } = useAuth();
   const navigate = useNavigate();
+  const recoveryTimerRef = useRef<ReturnType<typeof setTimeout>>();
+  useEffect(() => () => { clearTimeout(recoveryTimerRef.current); }, []);
 
   useEffect(() => {
     if (user && !isRecovery) {
-      const redirectTo = new URLSearchParams(window.location.search).get('redirect') || '/dashboard';
+      const raw = new URLSearchParams(window.location.search).get('redirect') || '/dashboard';
+      const redirectTo = raw.startsWith('/') && !raw.startsWith('//') ? raw : '/dashboard';
       navigate(redirectTo, { replace: true });
     }
   }, [user, isRecovery, navigate]);
@@ -52,7 +55,7 @@ export default function Login() {
       setIsRecovery(false);
       setResetMessage('تم تغيير كلمة المرور بنجاح');
       setNewPassword('');
-      setTimeout(() => navigate('/dashboard'), 1500);
+      recoveryTimerRef.current = setTimeout(() => navigate('/'), 1500);
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'حدث خطأ في تغيير كلمة المرور');
     } finally {
@@ -78,7 +81,8 @@ export default function Login() {
       } else {
         await signup(email, password);
       }
-      const redirectTo = new URLSearchParams(window.location.search).get('redirect');
+      const raw = new URLSearchParams(window.location.search).get('redirect');
+      const redirectTo = raw && raw.startsWith('/') && !raw.startsWith('//') ? raw : null;
       if (redirectTo) {
         navigate(redirectTo);
       } else {
@@ -98,13 +102,19 @@ export default function Login() {
 
   const handleGoogleSignIn = async () => {
     setError('');
+    setLoading(true);
+    const raw = new URLSearchParams(window.location.search).get('redirect') || '/dashboard';
+    const safeRedirect = raw.startsWith('/') && !raw.startsWith('//') ? raw : '/dashboard';
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: `${window.location.origin}${new URLSearchParams(window.location.search).get('redirect') || '/dashboard'}`,
+        redirectTo: `${window.location.origin}${safeRedirect}`,
       },
     });
-    if (error) setError('تعذّر تسجيل الدخول عبر Google. حاول مرة أخرى.');
+    if (error) {
+      setError('تعذّر تسجيل الدخول عبر Google. حاول مرة أخرى.');
+      setLoading(false);
+    }
   };
 
   const handleResetPassword = async () => {

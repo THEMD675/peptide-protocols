@@ -23,7 +23,8 @@ import {
 } from 'lucide-react';
 import EmailCapture from '@/components/EmailCapture';
 import PeptideQuiz from '@/components/PeptideQuiz';
-import { PRICING, PEPTIDE_COUNT } from '@/lib/constants';
+import { cn } from '@/lib/utils';
+import { PRICING, PEPTIDE_COUNT, VALUE_TOTAL, VALUE_SAVINGS_ESSENTIALS, VALUE_STACK } from '@/lib/constants';
 
 
 const PAIN_POINTS = [
@@ -33,14 +34,6 @@ const PAIN_POINTS = [
   'لا يوجد مرجع عربي واحد يجمع كل شيء بمكان واحد',
 ];
 
-const VALUE_STACK = [
-  { item: `مكتبة ${PEPTIDE_COUNT} ببتيد مع بروتوكولات كاملة`, value: '$149' },
-  { item: 'حاسبة جرعات دقيقة (مايكروغرام + سيرنج)', value: '$29' },
-  { item: 'دليل تحاليل مخبرية شامل (11 تحليل)', value: '$49' },
-  { item: 'بروتوكولات مُجمَّعة حسب الهدف', value: '$39' },
-  { item: 'دليل التحضير والحقن خطوة بخطوة', value: '$29' },
-  { item: 'تحديثات علمية مستمرة كل شهر', value: '$19/شهر' },
-];
 
 const FEATURES = [
   {
@@ -75,37 +68,27 @@ const FEATURES = [
   },
 ];
 
-const FALLBACK_TESTIMONIALS = [
-  {
-    text: `كنت أدفع $200 استشارة كل شهر. الآن عندي كل المعلومات بـ ${PRICING.essentials.label} فقط.`,
-    name: 'خالد م.',
-    role: 'مستخدم منذ 4 أشهر',
-  },
-  {
-    text: 'حاسبة الجرعات وحدها توفّر عليك أخطاء ممكن تكلّفك صحتك.',
-    name: 'أحمد ع.',
-    role: 'طبيب رياضي',
-  },
-  {
-    text: 'أول مرجع عربي أثق فيه. المصادر العلمية واضحة ومحدّثة.',
-    name: 'سارة ر.',
-    role: 'باحثة في الطب الوظيفي',
-  },
-];
+interface Testimonial {
+  text: string;
+  name: string;
+  role: string;
+  rating: number;
+}
 
 export default function Landing() {
   const { user, subscription, isLoading } = useAuth();
   const [userCount, setUserCount] = useState(() => {
     try { const c = sessionStorage.getItem('pptides_user_count'); return c ? Number(c) : 0; } catch { return 0; }
   });
-  const [testimonials, setTestimonials] = useState(FALLBACK_TESTIMONIALS);
+  const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
   const shouldRedirect = !isLoading && user && subscription.isProOrTrial;
 
   useEffect(() => {
     let mounted = true;
     const cached = sessionStorage.getItem('pptides_user_count_ts');
     if (cached && Date.now() - Number(cached) < 5 * 60 * 1000) return;
-    supabase.from('subscriptions').select('id', { count: 'exact', head: true }).then(({ count }) => {
+    supabase.from('subscriptions').select('id', { count: 'exact', head: true }).then(({ count, error }) => {
+      if (error) return;
       if (mounted && count && count > 0) {
         setUserCount(count);
         try { sessionStorage.setItem('pptides_user_count', String(count)); sessionStorage.setItem('pptides_user_count_ts', String(Date.now())); } catch { /* expected */ }
@@ -120,15 +103,16 @@ export default function Landing() {
       .from('reviews')
       .select('content, rating, name, created_at')
       .eq('is_approved', true)
-      .gte('rating', 4)
+      .gte('rating', 3)
       .order('created_at', { ascending: false })
       .limit(3)
       .then(({ data }) => {
-        if (mounted && data && data.length >= 2) {
+        if (mounted && data && data.length > 0) {
           setTestimonials(data.map((r) => ({
             text: r.content,
             name: r.name ?? 'مستخدم',
             role: `تقييم ${r.rating}/5`,
+            rating: r.rating,
           })));
         }
       });
@@ -180,10 +164,10 @@ export default function Landing() {
               <ArrowLeft className="h-5 w-5" />
             </Link>
             <Link
-              to={user ? "/pricing" : "/library"}
+              to="/library"
               className="inline-flex w-full max-w-xs items-center justify-center rounded-full border-2 border-stone-200 bg-white px-8 py-4 text-lg font-semibold text-stone-800 transition-all duration-300 hover:border-emerald-300 hover:text-emerald-700 sm:w-auto"
             >
-              {user ? 'اختر خطتك' : 'تصفّح المكتبة'}
+              تصفّح المكتبة
             </Link>
           </div>
 
@@ -244,9 +228,9 @@ export default function Landing() {
         </p>
 
         <div className="grid gap-4 sm:grid-cols-2">
-          {PAIN_POINTS.map((point, i) => (
+          {PAIN_POINTS.map((point) => (
             <div
-              key={i}
+              key={point}
               className="flex items-start gap-4 rounded-2xl border border-stone-300 bg-stone-100 p-6 transition-all hover:border-red-200 hover:bg-red-50/30"
             >
               <X className="mt-0.5 h-5 w-5 shrink-0 text-red-400" />
@@ -261,9 +245,9 @@ export default function Landing() {
             'اختبار يحدد لك الببتيد المناسب',
             'حاسبة جرعات دقيقة تحميك',
             'أول مرجع عربي شامل مبني على الأبحاث',
-          ].map((point, i) => (
+          ].map((point) => (
             <div
-              key={i}
+              key={point}
               className="flex items-start gap-4 rounded-2xl border border-emerald-200 bg-emerald-50/50 p-6 transition-all hover:border-emerald-300 hover:bg-emerald-50"
             >
               <Check className="mt-0.5 h-5 w-5 shrink-0 text-emerald-500" />
@@ -468,13 +452,13 @@ export default function Landing() {
           ماذا تحصل <span className="text-emerald-600">فعلًا؟</span>
         </h2>
         <p className="mx-auto mb-12 max-w-xl text-center text-lg text-stone-800">
-          لو اشتريت كل أداة لوحدها — ستدفع أكثر من $314.
+          لو اشتريت كل أداة لوحدها — ستدفع أكثر من {VALUE_TOTAL}.
         </p>
 
         <div className="space-y-3">
-          {VALUE_STACK.map((item, i) => (
+          {VALUE_STACK.map((item) => (
             <div
-              key={i}
+              key={item.item}
               className="flex items-center justify-between rounded-xl border border-stone-300/60 bg-white px-6 py-4 transition-all hover:border-emerald-200"
             >
               <div className="flex items-center gap-3">
@@ -488,10 +472,10 @@ export default function Landing() {
 
         <div className="mt-10 rounded-2xl border-2 border-emerald-200 bg-emerald-50 p-8 text-center">
           <p className="mb-1 text-lg text-stone-800">القيمة الإجمالية:</p>
-          <p className="mb-2 text-3xl font-extrabold text-stone-800 line-through">$314+</p>
+          <p className="mb-2 text-3xl font-extrabold text-stone-800 line-through">{VALUE_TOTAL}</p>
           <p className="mb-1 text-lg text-stone-800">أنت تدفع فقط:</p>
           <p className="text-3xl font-black text-emerald-600 sm:text-5xl md:text-6xl">{PRICING.essentials.label}<span className="text-xl font-bold text-stone-800">/شهريًا</span></p>
-          <span className="mt-3 inline-block rounded-full bg-emerald-600 px-5 py-1.5 text-sm font-bold text-white shadow-md">توفير 97% — وفّر $305 شهريًا</span>
+          <span className="mt-3 inline-block rounded-full bg-emerald-600 px-5 py-1.5 text-sm font-bold text-white shadow-md">توفير 97% — وفّر {VALUE_SAVINGS_ESSENTIALS} شهريًا</span>
           <p className="mt-4 text-sm text-stone-800">أو {PRICING.elite.label}/شهريًا للباقة المتقدمة مع المدرب الذكي + استشارات</p>
         </div>
       </section>
@@ -529,39 +513,39 @@ export default function Landing() {
       </section>
 
       {/* ═══════ SOCIAL PROOF ═══════ */}
-      <section className="mx-auto max-w-5xl px-6 py-24 md:py-32">
+      {testimonials.length > 0 && <section className="mx-auto max-w-5xl px-6 py-24 md:py-32">
         <h2 className="mb-4 text-center text-3xl font-bold text-stone-900 md:text-4xl">
           ماذا يقول <span className="text-emerald-600">المستخدمون</span>
         </h2>
         <p className="mx-auto mb-12 max-w-xl text-center text-stone-800">
-          أشخاص حقيقيون. نتائج حقيقية.
+          تقييمات حقيقية من مشتركين
         </p>
 
         <div className="grid gap-6 md:grid-cols-3">
-          {testimonials.map((t, i) => (
+          {testimonials.map((t) => (
             <div
-              key={i}
+              key={t.name}
               className="rounded-2xl border border-stone-300/60 bg-white p-7 transition-all duration-300 hover:border-emerald-200 hover:shadow-lg hover:-translate-y-1"
             >
-              <div className="mb-4 flex gap-1">
-                {[...Array(5)].map((_, j) => (
-                  <Star key={j} className="h-4 w-4 fill-emerald-500 text-emerald-500" />
+              <div className="mb-4 flex gap-1" dir="ltr">
+                {[1, 2, 3, 4, 5].map((s) => (
+                  <Star key={s} className={cn('h-4 w-4', s <= t.rating ? 'fill-emerald-500 text-emerald-500' : 'fill-transparent text-stone-300')} />
                 ))}
               </div>
               <p className="mb-5 text-base leading-relaxed text-stone-800">&quot;{t.text}&quot;</p>
               <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full gold-gradient text-sm font-bold text-white shadow-sm">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-sm font-bold text-emerald-700">
                   {t.name.charAt(0)}
                 </div>
                 <div>
                   <p className="font-bold text-stone-900">{t.name}</p>
-                  <p className="text-sm text-stone-800">{t.role}</p>
+                  <p className="text-sm text-stone-600">{t.role}</p>
                 </div>
               </div>
             </div>
           ))}
         </div>
-      </section>
+      </section>}
 
       {/* ═══════ PRICING PREVIEW ═══════ */}
       <section className="bg-gradient-to-b from-stone-50 to-white py-24 md:py-32">

@@ -6,13 +6,14 @@ import { Toaster } from 'sonner';
 import { AuthProvider } from '@/contexts/AuthContext';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
-import AgeGate from '@/components/AgeGate';
 import TrialBanner from '@/components/TrialBanner';
 import BackToTop from '@/components/BackToTop';
 import ProtectedRoute from '@/components/ProtectedRoute';
-import StickyScrollCTA from '@/components/StickyScrollCTA';
-import ExitIntentPopup from '@/components/ExitIntentPopup';
-import CookieConsent from '@/components/CookieConsent';
+
+const AgeGate = lazy(() => import('@/components/AgeGate'));
+const StickyScrollCTA = lazy(() => import('@/components/StickyScrollCTA'));
+const ExitIntentPopup = lazy(() => import('@/components/ExitIntentPopup'));
+const CookieConsent = lazy(() => import('@/components/CookieConsent'));
 
 const Login = lazy(() => import('@/pages/Login'));
 const Library = lazy(() => import('@/pages/Library'));
@@ -194,7 +195,7 @@ export default function App() {
       <AuthProvider>
         <ErrorBoundary>
           <div className="min-h-screen flex flex-col bg-white text-stone-900">
-          <AgeGate />
+          <Suspense fallback={null}><AgeGate /></Suspense>
           <Header />
           <TrialBanner />
           <ScrollToTop />
@@ -231,9 +232,9 @@ export default function App() {
           </main>
           <Footer />
           <BackToTop />
-          <StickyScrollCTA />
-          <ExitIntentPopup />
-          <CookieConsent />
+          <Suspense fallback={null}><StickyScrollCTA /></Suspense>
+          <Suspense fallback={null}><ExitIntentPopup /></Suspense>
+          <Suspense fallback={null}><CookieConsent /></Suspense>
         </div>
         </ErrorBoundary>
       </AuthProvider>
