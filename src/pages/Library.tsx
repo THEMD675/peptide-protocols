@@ -24,7 +24,7 @@ import { cn } from '@/lib/utils';
 import { peptides, categories, type Peptide } from '@/data/peptides';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
-import { PRICING, PEPTIDE_COUNT, TRIAL_PEPTIDE_IDS } from '@/lib/constants';
+import { PRICING, PEPTIDE_COUNT } from '@/lib/constants';
 
 const categoryIcons: Record<string, React.ElementType> = {
   metabolic: TrendingDown,
@@ -438,7 +438,7 @@ export default function Library() {
             <button
               onClick={() => setActiveCategory('all')}
               className={cn(
-                'shrink-0 rounded-full border px-4 py-2 text-sm font-medium transition-all',
+                'shrink-0 rounded-full border px-4 py-2 min-h-[44px] text-sm font-medium transition-all',
                 activeCategory === 'all'
                   ? 'gold-gradient border-emerald-300 text-white'
                   : 'border-stone-200 bg-white text-stone-800 hover:border-stone-300 hover:text-stone-800',
@@ -454,7 +454,7 @@ export default function Library() {
                   key={cat.id}
                   onClick={() => setActiveCategory(cat.id)}
                   className={cn(
-                    'flex shrink-0 items-center gap-1.5 rounded-full border px-4 py-2 text-sm font-medium transition-all',
+                    'flex shrink-0 items-center gap-1.5 rounded-full border px-4 py-2 min-h-[44px] text-sm font-medium transition-all',
                     active
                       ? 'gold-gradient border-emerald-300 text-white'
                       : 'border-stone-200 bg-white text-stone-800 hover:border-stone-300 hover:text-stone-800',
@@ -491,7 +491,7 @@ export default function Library() {
                 <PeptideCard
                   key={p.id}
                   peptide={p}
-                  hasAccess={hasFullAccess || (isTrial && (p.isFree || TRIAL_PEPTIDE_IDS.has(p.id)))}
+                  hasAccess={hasFullAccess || (isTrial && p.isFree)}
                   onLockedClick={() => handleLockedClick(p.id)}
                   isFav={favorites.has(p.id)}
                   onToggleFav={() => toggleFavorite(p.id)}

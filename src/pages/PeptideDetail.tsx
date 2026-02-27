@@ -7,7 +7,7 @@ import { cn } from '@/lib/utils';
 import { peptides } from '@/data/peptides';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
-import { PRICING, TRIAL_PEPTIDE_IDS } from '@/lib/constants';
+import { PRICING } from '@/lib/constants';
 import { DOSE_PRESETS_MAP as DOSE_PRESETS } from '@/data/dose-presets';
 
 const evidenceColors: Record<string, string> = {
@@ -49,8 +49,7 @@ export default function PeptideDetail() {
   }
 
   const isFreeContent = peptide.isFree;
-  const isTrialAccessible = isTrial && (isFreeContent || TRIAL_PEPTIDE_IDS.has(peptide.id));
-  const hasAccess = isPaid || isFreeContent || isTrialAccessible;
+  const hasAccess = isPaid || isFreeContent;
   const firstSentence = peptide.summaryAr.split('.')[0] + '.';
 
   const rows: ProtocolRow[] = [

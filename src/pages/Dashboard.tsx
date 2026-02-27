@@ -72,6 +72,7 @@ interface TodayItem { peptide: string; dose: number; dose_unit: string; done: bo
 function useRecentActivity(userId: string | undefined) {
   const [logs, setLogs] = useState<RecentLog[]>([]);
   const [loading, setLoading] = useState(true);
+  const [totalCount, setTotalCount] = useState(0);
 
   useEffect(() => {
     if (!userId) return;
@@ -88,11 +89,18 @@ function useRecentActivity(userId: string | undefined) {
         setLoading(false);
       })
       .catch(() => { if (mounted) setLoading(false); });
+    supabase
+      .from('injection_logs')
+      .select('id', { count: 'exact', head: true })
+      .eq('user_id', userId)
+      .then(({ count }) => {
+        if (mounted && count != null) setTotalCount(count);
+      });
     return () => { mounted = false; };
   }, [userId]);
 
   const activePeptides = [...new Set(logs.map(l => l.peptide_name))];
-  const totalInjections = logs.length;
+  const totalInjections = totalCount || logs.length;
 
   let streak = 0;
   if (logs.length > 0) {

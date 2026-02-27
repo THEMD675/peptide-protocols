@@ -58,6 +58,7 @@ function formatTime(iso: string) {
 export default function Tracker() {
   const { user } = useAuth();
   const [logs, setLogs] = useState<InjectionLog[]>([]);
+  const [totalCount, setTotalCount] = useState(0);
   const [isLoadingLogs, setIsLoadingLogs] = useState(true);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [hasMore, setHasMore] = useState(true);
@@ -101,15 +102,22 @@ export default function Tracker() {
   const fetchLogs = useCallback(async () => {
     if (!user) return;
     setIsLoadingLogs(true);
-    const { data, error } = await supabase
-      .from('injection_logs')
-      .select('*')
-      .eq('user_id', user.id)
-      .order('logged_at', { ascending: false })
-      .range(0, PAGE_SIZE - 1);
+    const [{ data, error }, { count }] = await Promise.all([
+      supabase
+        .from('injection_logs')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('logged_at', { ascending: false })
+        .range(0, PAGE_SIZE - 1),
+      supabase
+        .from('injection_logs')
+        .select('id', { count: 'exact', head: true })
+        .eq('user_id', user.id),
+    ]);
     if (error) { toast.error('تعذّر تحميل السجلات. حاول تحديث الصفحة.'); }
     const rows = (data as InjectionLog[]) ?? [];
     setLogs(rows);
+    if (count != null) setTotalCount(count);
     setHasMore(rows.length >= PAGE_SIZE);
     setIsLoadingLogs(false);
   }, [user]);
@@ -201,7 +209,7 @@ export default function Tracker() {
 
       {/* Stats Dashboard */}
       {logs.length > 0 && (() => {
-        const totalInjections = logs.length;
+        const totalInjections = totalCount || logs.length;
         const uniquePeptides = new Set(logs.map(l => l.peptide_name)).size;
         let streak = 0;
         const daySet = new Set(logs.map(l => new Date(l.logged_at).toDateString()));
