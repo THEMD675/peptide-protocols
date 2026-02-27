@@ -4,7 +4,7 @@
   <url><loc>https://pptides.com/library</loc><lastmod>2026-02-26</lastmod><changefreq>weekly</changefreq><priority>0.9</priority></url>
   <url><loc>https://pptides.com/calculator</loc><lastmod>2026-02-26</lastmod><changefreq>monthly</changefreq><priority>0.9</priority></url>
   <url><loc>https://pptides.com/table</loc><lastmod>2026-02-26</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
-  <!-- /coach is a protected route, excluded per robots.txt -->
+  <url><loc>https://pptides.com/coach</loc><lastmod>2026-02-26</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
   <url><loc>https://pptides.com/pricing</loc><lastmod>2026-02-26</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
   <url><loc>https://pptides.com/stacks</loc><lastmod>2026-02-26</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
   <url><loc>https://pptides.com/lab-guide</loc><lastmod>2026-02-26</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>

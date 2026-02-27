@@ -127,7 +127,7 @@ export const peptides: Peptide[] = [
     storageAr: 'يُحفظ في الثلاجة (2-8°C). بعد أول استخدام يمكن حفظه في درجة حرارة الغرفة (أقل من 30°C) لمدة 56 يومًا. لا يُجمّد.',
     fdaApproved: true,
     isFree: true,
-    summaryAr: 'أقوى ببتيد معتمد لإنقاص الوزن — يحقق فقدان 15-20% من وزن الجسم عبر تقليل الشهية وتحسين حساسية الأنسولين، مع فوائد قلبية مثبتة.',
+    summaryAr: 'أشهر ببتيد معتمد لإنقاص الوزن — يحقق فقدان 15-20% من وزن الجسم عبر تقليل الشهية وتحسين حساسية الأنسولين، مع فوائد قلبية مثبتة. الأكثر دراسة لكن ليس الأقوى.',
     lastUpdated: 'Feb 2026',
     costEstimate: '$150-250/شهر',
     difficulty: 'beginner',
@@ -302,7 +302,7 @@ export const peptides: Peptide[] = [
     summaryAr: 'ببتيد تعافي جهازي قوي من الغدة الزعترية — يُسرّع شفاء العضلات والأنسجة الرخوة ويقلل الالتهاب. يشكّل مع BPC-157 أقوى مزيج تعافي متاح.',
     lastUpdated: 'Feb 2026',
     costEstimate: '$80-120/شهر',
-    difficulty: 'beginner',
+    difficulty: 'intermediate',
   },
   {
     id: 'cjc-1295',
@@ -351,7 +351,7 @@ export const peptides: Peptide[] = [
     summaryAr: 'أنظف ببتيد لتحفيز هرمون النمو — 5 أحماض أمينية فقط ترفع GH بدون رفع الكورتيزول أو البرولاكتين. الخيار الأول للمبتدئين.',
     lastUpdated: 'Feb 2026',
     costEstimate: '$80-130/شهر',
-    difficulty: 'beginner',
+    difficulty: 'intermediate',
   },
   {
     id: 'sermorelin',
@@ -397,7 +397,7 @@ export const peptides: Peptide[] = [
     fdaApproved: false,
     isFree: false,
     summaryAr: 'ببتيد GHRP قوي يرفع هرمون النمو بشكل ملحوظ — أقوى من Ipamorelin لكن يرفع الشهية والكورتيزول بدرجة خفيفة.',
-    warningAr: 'يرفع الكورتيزول والبرولاكتين — راقب التحاليل كل 8 أسابيع. لا يُستخدم مع ارتفاع البرولاكتين.',
+    warningAr: 'يرفع الكورتيزول والبرولاكتين — يجب مراقبة التحاليل. قد يسبب احتباس ماء وجوع شديد.',
     costEstimate: '$60-100/شهر',
     difficulty: 'intermediate',
     lastUpdated: 'Feb 2026',
@@ -422,7 +422,7 @@ export const peptides: Peptide[] = [
     fdaApproved: false,
     isFree: false,
     summaryAr: 'أقوى GHRPs في تحفيز الشهية — مناسب لمن يريد زيادة الوزن والكتلة العضلية. أقل انتقائية من Ipamorelin.',
-    warningAr: 'زيادة شهية شديدة + ارتفاع كورتيزول وبرولاكتين وسكر الدم. راقب التحاليل. لا يناسب مرضى السمنة أو السكري.',
+    warningAr: 'يسبب جوعًا شديدًا وقد يرفع سكر الدم. يرفع الكورتيزول والبرولاكتين. راقب التحاليل بانتظام.',
     costEstimate: '$50-90/شهر',
     difficulty: 'intermediate',
     lastUpdated: 'Feb 2026',
@@ -447,7 +447,7 @@ export const peptides: Peptide[] = [
     fdaApproved: false,
     isFree: false,
     summaryAr: 'أقوى GHRP في تحفيز هرمون النمو — لكن يتطلب دورات قصيرة (4-6 أسابيع) بسبب التحمّل السريع. يُفضل للاستخدام التكتيكي.',
-    warningAr: 'تحمّل سريع (desensitization) — لا تتجاوز 4-6 أسابيع. يرفع الكورتيزول والبرولاكتين بشكل ملحوظ.',
+    warningAr: 'يحدث تحمّل سريع — تقل الفعالية بعد 4-6 أسابيع. يرفع الكورتيزول والبرولاكتين أكثر من بقية محفّزات GH.',
     costEstimate: '$70-110/شهر',
     difficulty: 'advanced',
     lastUpdated: 'Feb 2026',
@@ -747,7 +747,7 @@ export const peptides: Peptide[] = [
     fdaApproved: false,
     isFree: false,
     summaryAr: 'ببتيد تجريبي يحفّز تكوّن خلايا عصبية جديدة في الحصين — واعد لمكافحة الزهايمر لكن بدون تجارب بشرية حتى الآن.',
-    warningAr: 'صفر تجارب بشرية — أي استخدام تجريبي بالكامل. لا توجد بيانات أمان بشرية.',
+    warningAr: 'تجريبي بالكامل — صفر تجارب بشرية. آلية العمل غير مفهومة بالكامل. لا ننصح بالاستخدام بدون إشراف طبي متخصص.',
     costEstimate: '$60-100/شهر',
     difficulty: 'advanced',
     lastUpdated: 'Feb 2026',
@@ -1150,7 +1150,7 @@ export const stacks: Stack[] = [
     nameAr: 'تحسين هرمون النمو',
     nameEn: 'GH Optimization Stack',
     descriptionAr: 'مزيج GHRH + GHRP لتحفيز إفراز هرمون النمو بشكل طبيعي ونظيف — بديل آمن عن حقن هرمون النمو الخارجي.',
-    peptideIds: ['tesamorelin', 'ipamorelin'],
+    peptideIds: ['tesamorelin', 'ipamorelin', 'cjc-1295'],
     protocolAr: `البروتوكول المسائي (الأكثر فعالية):
 • Tesamorelin: 2 ملغ + Ipamorelin: 200-300 ميكروغرام
 • يُخلطان في نفس المحقنة ويُحقنان معًا
@@ -1169,7 +1169,7 @@ export const stacks: Stack[] = [
     nameAr: 'أداء الدماغ',
     nameEn: 'Brain Performance Stack',
     descriptionAr: 'مزيج روسي كلاسيكي للتركيز والهدوء — Semax للحدّة الذهنية وSelank لتقليل القلق. توازن مثالي.',
-    peptideIds: ['semax', 'selank'],
+    peptideIds: ['semax', 'selank', 'na-semax-amidate'],
     protocolAr: `البروتوكول اليومي:
 • Semax: بخّة واحدة (200 ميكروغرام) في كل فتحة أنف صباحًا = 400 ميكروغرام
 • Selank: بخّة واحدة في كل فتحة أنف عند الحاجة (قلق، توتر، اجتماعات)
@@ -1190,7 +1190,7 @@ export const stacks: Stack[] = [
     nameAr: 'بروتوكول إطالة العمر',
     nameEn: 'Longevity Protocol',
     descriptionAr: 'بروتوكول خافينسون لمكافحة الشيخوخة — يستهدف التيلوميرات والمناعة معًا لإبطاء الشيخوخة البيولوجية.',
-    peptideIds: ['epithalon', 'thymosin-alpha-1'],
+    peptideIds: ['epithalon', 'thymosin-alpha-1', 'dsip', 'thymalin'],
     protocolAr: `الدورة (مرتين سنويًا):
 
 المرحلة 1 — Epithalon (10 أيام):

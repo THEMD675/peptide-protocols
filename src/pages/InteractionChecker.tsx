@@ -4,47 +4,9 @@ import { Link } from 'react-router-dom';
 import { AlertTriangle, CheckCircle, XCircle, Shield } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { peptides } from '@/data/peptides';
-
-interface InteractionResult {
-  safe: boolean;
-  warning: boolean;
-  message: string;
-  details: string;
-}
-
-const DANGEROUS_COMBOS: Record<string, InteractionResult> = {
-  'semaglutide+tirzepatide': { safe: false, warning: false, message: 'لا تجمع ناهضات GLP-1', details: 'كلاهما ينشّط مستقبلات GLP-1. الجمع بينهما يضاعف الآثار الجانبية (غثيان شديد، هبوط سكر) بدون فائدة إضافية مثبتة.' },
-  'semaglutide+retatrutide': { safe: false, warning: false, message: 'لا تجمع ناهضات GLP-1', details: 'كلاهما يحتوي على نشاط GLP-1. الجمع يضاعف الغثيان وهبوط السكر بدون فائدة.' },
-  'tirzepatide+retatrutide': { safe: false, warning: false, message: 'لا تجمع ناهضات GLP-1', details: 'كلاهما ناهض لـ GLP-1 وGIP. الجمع خطير ولا فائدة مثبتة.' },
-  'igf-1-lr3+*': { safe: false, warning: true, message: 'خطر تضخّم أعضاء', details: 'IGF-1 LR3 مع أي محفّز لهرمون النمو يرفع IGF-1 بشكل مفرط. خطر تضخّم القلب والأعضاء على المدى الطويل. لا تجمع IGF-1 مع أي GHRH أو GHRP.' },
-  'melanotan-ii+*': { safe: false, warning: false, message: 'Melanotan II غير آمن', details: 'لا ننصح باستخدام Melanotan II مطلقًا. خطر حقيقي لسرطان الجلد (ميلانوما). لا تجمعه مع أي شيء.' },
-  'dihexa+*': { safe: false, warning: true, message: 'Dihexa تجريبي بالكامل', details: 'صفر تجارب بشرية. لا ننصح باستخدامه ولا بتجميعه مع أي شيء آخر.' },
-  'foxo4-dri+*': { safe: false, warning: true, message: 'FOXO4-DRI تجريبي بالكامل', details: 'صفر تجارب بشرية. مكلف جدًا وآلية عمله غير مفهومة بالكامل. لا ننصح بالتجميع.' },
-};
-
-const SYNERGISTIC_COMBOS: Record<string, InteractionResult> = {
-  'bpc-157+tb-500': { safe: true, warning: false, message: 'المزيج الذهبي للتعافي', details: 'BPC-157 يُصلح الأوتار والأربطة موضعيًا، TB-500 يُرمّم الأنسجة جهازيًا. أشهر تجميعة في مجتمع البايوهاكينغ. الجرعة: BPC-157 250mcg 2x/يوم + TB-500 750mcg 2x/أسبوع.' },
-  'cjc-1295+ipamorelin': { safe: true, warning: false, message: 'أفضل تجميعة هرمون نمو', details: 'CJC-1295 يحفّز إفراز GH بشكل مستدام، Ipamorelin يضيف نبضة نظيفة بدون رفع الكورتيزول. الجرعة: CJC 100mcg + Ipa 200mcg قبل النوم فارغ المعدة.' },
-  'semax+selank': { safe: true, warning: false, message: 'تجميعة دماغ مثالية', details: 'Semax يرفع BDNF 300-800% للتركيز والذاكرة، Selank يقلل القلق عبر GABA. توازن مثالي بين الحدّة والهدوء. بخاخ أنف صباحًا.' },
-  'bpc-157+cjc-1295': { safe: true, warning: false, message: 'تعافي + هرمون نمو', details: 'BPC-157 يُسرّع شفاء الأنسجة، CJC-1295 يحفّز GH اللي يعزّز التعافي. آليات مكمّلة.' },
-  'bpc-157+ipamorelin': { safe: true, warning: false, message: 'تعافي + هرمون نمو نظيف', details: 'BPC-157 للتعافي الموضعي + Ipamorelin لرفع GH بدون أعراض جانبية. تجميعة شائعة وآمنة.' },
-  'bpc-157+ghk-cu': { safe: true, warning: false, message: 'تعافي شامل — أنسجة + بشرة', details: 'BPC-157 يُصلح الأوتار والأمعاء، GHK-Cu يُجدد الكولاجين والبشرة. آليات مختلفة تمامًا.' },
-  'tb-500+cjc-1295': { safe: true, warning: false, message: 'تعافي عضلي + هرمون نمو', details: 'TB-500 للتعافي الجهازي + CJC-1295 لهرمون النمو. ممتاز للرياضيين.' },
-  'tb-500+ipamorelin': { safe: true, warning: false, message: 'تعافي + GH نظيف', details: 'TB-500 يُرمّم العضلات + Ipamorelin يرفع GH. تجميعة آمنة للتعافي المتقدم.' },
-  'semaglutide+tesamorelin': { safe: true, warning: false, message: 'فقدان دهون مزدوج — قوي جدًا', details: 'Semaglutide يقلل الشهية عبر GLP-1، Tesamorelin يحرق دهون البطن عبر GHRH. آليات مختلفة = نتائج مضاعفة.' },
-  'semaglutide+aod-9604': { safe: true, warning: false, message: 'GLP-1 + حرق دهون مركّز', details: 'Semaglutide يقلل الشهية، AOD-9604 يستهدف الدهون مباشرة. تجميعة فقدان وزن فعّالة.' },
-  'tesamorelin+aod-9604': { safe: true, warning: true, message: 'حرق دهون مكثّف — تداخل محتمل', details: 'كلاهما يستهدف الدهون عبر آليات GH. قد يكون هناك تداخل. الأفضل استخدام واحد فقط.' },
-  'tesamorelin+ipamorelin': { safe: true, warning: true, message: 'كلاهما يحفّز GH — احترس', details: 'Tesamorelin (GHRH) + Ipamorelin (GHRP) = رفع GH قوي. قد يكون مفرط للمبتدئين. راقب IGF-1.' },
-  'epithalon+ghk-cu': { safe: true, warning: false, message: 'بروتوكول إطالة عمر أساسي', details: 'Epithalon يُطيل التيلوميرات، GHK-Cu يُجدد البشرة والأنسجة. تجميعة خافينسون.' },
-  'epithalon+thymosin-alpha-1': { safe: true, warning: false, message: 'طول عمر + مناعة', details: 'Epithalon للتيلوميرات + Thymosin Alpha-1 يعيد بناء الغدة الزعترية. بروتوكول مكافحة الشيخوخة الكلاسيكي.' },
-  'kisspeptin-10+pt-141': { safe: true, warning: true, message: 'هرمونات + أداء جنسي — بحذر', details: 'Kisspeptin يرفع التستوستيرون طبيعيًا، PT-141 يحسّن الأداء الجنسي. آليات مختلفة لكن كلاهما يؤثر هرمونيًا.' },
-  'bpc-157+larazotide': { safe: true, warning: false, message: 'إصلاح أمعاء شامل', details: 'BPC-157 يُصلح بطانة الأمعاء، Larazotide يغلق الفجوات بين الخلايا (leaky gut). تجميعة مثالية لمشاكل الأمعاء.' },
-  'bpc-157+kpv': { safe: true, warning: false, message: 'إصلاح أمعاء + مضاد التهاب', details: 'BPC-157 للشفاء + KPV للالتهاب المعوي. يكمّلان بعض.' },
-  'semax+dsip': { safe: true, warning: true, message: 'تركيز نهاري + نوم ليلي — توقيت مهم', details: 'Semax صباحًا للتركيز + DSIP مساءً للنوم. لا تأخذهم بنفس الوقت — Semax منبّه وDSIP منوّم.' },
-  'epithalon+dsip': { safe: true, warning: false, message: 'نوم + تيلوميرات — تآزر مثالي', details: 'Epithalon يعيد ضبط الميلاتونين + DSIP يعمّق النوم. كلاهما مساءً. بروتوكول إطالة عمر شامل.' },
-  'epithalon+thymalin': { safe: true, warning: false, message: 'بروتوكول خافينسون الكلاسيكي', details: 'Epithalon للتيلوميرات + Thymalin لتجديد الغدة الزعترية. دورات قصيرة متتابعة 2x سنويًا.' },
-  'larazotide+kpv': { safe: true, warning: false, message: 'إصلاح أمعاء مزدوج', details: 'Larazotide يغلق الوصلات المحكمة + KPV يقلل الالتهاب. المرحلتان الأولى والثانية من بروتوكول إصلاح الأمعاء.' },
-};
+import { categoryLabels } from '@/lib/peptide-labels';
+import { PEPTIDE_COUNT } from '@/lib/constants';
+import { DANGEROUS_COMBOS, SYNERGISTIC_COMBOS, GH_PEPTIDE_IDS, FAT_LOSS_PEPTIDE_IDS, type InteractionResult } from '@/data/interactions';
 
 function checkInteraction(id1: string, id2: string): InteractionResult {
   const key1 = `${id1}+${id2}`;
@@ -62,28 +24,20 @@ function checkInteraction(id1: string, id2: string): InteractionResult {
   const p2 = peptides.find(p => p.id === id2);
   if (!p1 || !p2) return { safe: true, warning: true, message: 'غير متوفر', details: '' };
 
-  const ghPeptides = ['cjc-1295', 'ipamorelin', 'tesamorelin', 'sermorelin', 'ghrp-2', 'ghrp-6', 'hexarelin'];
-  const bothGH = ghPeptides.includes(id1) && ghPeptides.includes(id2);
-  if (bothGH) {
+  if (GH_PEPTIDE_IDS.includes(id1) && GH_PEPTIDE_IDS.includes(id2)) {
     return { safe: true, warning: true, message: 'كلاهما يحفّز هرمون النمو — راقب IGF-1', details: `${p1.nameAr} و ${p2.nameAr} كلاهما يحفّز إفراز هرمون النمو. الجمع قد يرفع IGF-1 بشكل مفرط. اعمل تحليل IGF-1 بعد أسبوعين. لا تجمع أكثر من 2 محفّزات GH.` };
   }
 
-  const fatLossPeptides = ['semaglutide', 'tirzepatide', 'retatrutide', 'tesamorelin', 'aod-9604', '5-amino-1mq', 'mots-c'];
-  const bothFatLoss = fatLossPeptides.includes(id1) && fatLossPeptides.includes(id2);
-  if (bothFatLoss) {
+  if (FAT_LOSS_PEPTIDE_IDS.includes(id1) && FAT_LOSS_PEPTIDE_IDS.includes(id2)) {
     return { safe: true, warning: true, message: 'كلاهما لفقدان الدهون — تحقق من الحاجة', details: `${p1.nameAr} و ${p2.nameAr} كلاهما يستهدف فقدان الدهون. تأكد أن آلياتهم مختلفة قبل الجمع. إذا كانا بنفس الآلية (مثلًا ناهضان GLP-1)، لا تجمع.` };
   }
 
   if (p1.category === p2.category) {
-    const catLabels: Record<string, string> = {
-      metabolic: 'الأيض', recovery: 'التعافي', brain: 'الدماغ',
-      hormonal: 'الهرمونات', longevity: 'إطالة العمر', 'skin-gut': 'البشرة والأمعاء',
-    };
-    const catName = catLabels[p1.category] ?? p1.category;
+    const catName = categoryLabels[p1.category] ?? p1.category;
     return { safe: true, warning: true, message: `نفس فئة ${catName} — تحقق من التداخل`, details: `${p1.nameAr} و ${p2.nameAr} من نفس الفئة (${catName}). إذا كانت آلية عملهم متشابهة، قد يكون الجمع غير ضروري أو يزيد الأعراض الجانبية. تحقق من أن كل واحد يضيف قيمة مختلفة.` };
   }
 
-  return { safe: true, warning: false, message: `${p1.nameAr} + ${p2.nameAr} — آمن على الأرجح`, details: `الببتيدان من فئات مختلفة (${p1.nameAr}: ${p1.category === 'metabolic' ? 'أيض' : p1.category === 'recovery' ? 'تعافي' : p1.category === 'brain' ? 'دماغ' : p1.category === 'hormonal' ? 'هرمونات' : p1.category === 'longevity' ? 'طول عمر' : 'بشرة/أمعاء'} + ${p2.nameAr}: ${p2.category === 'metabolic' ? 'أيض' : p2.category === 'recovery' ? 'تعافي' : p2.category === 'brain' ? 'دماغ' : p2.category === 'hormonal' ? 'هرمونات' : p2.category === 'longevity' ? 'طول عمر' : 'بشرة/أمعاء'}). آليات مختلفة عادةً لا تتعارض. لكن استشر مختص قبل أي تجميعة جديدة.` };
+  return { safe: true, warning: true, message: `${p1.nameAr} + ${p2.nameAr} — لا توجد بيانات كافية`, details: `الببتيدان من فئات مختلفة (${categoryLabels[p1.category] ?? p1.category} + ${categoryLabels[p2.category] ?? p2.category}). لا تتوفر بيانات كافية عن هذه التجميعة تحديدًا. آليات مختلفة عادةً لا تتعارض، لكن استشر مختص قبل أي تجميعة جديدة.` };
 }
 
 export default function InteractionChecker() {
@@ -94,7 +48,7 @@ export default function InteractionChecker() {
   const updateSlot = (idx: number, val: string) => setSelected(prev => prev.map((v, i) => i === idx ? val : v));
   const resetAll = () => setSelected(['', '']);
 
-  const filledPeptides = selected.filter(s => s.trim() !== '');
+  const filledPeptides = useMemo(() => selected.filter(s => s.trim() !== ''), [selected]);
   const pairs = useMemo(() => {
     const results: { id1: string; id2: string; result: InteractionResult }[] = [];
     for (let i = 0; i < filledPeptides.length; i++) {
@@ -115,8 +69,8 @@ export default function InteractionChecker() {
   return (
     <div className="min-h-screen bg-white">
       <Helmet>
-        <title>فحص التعارضات | pptides</title>
-        <meta name="description" content="تحقق من أمان تجميع أي ببتيدين معًا. فحص التعارضات والتفاعلات بين 41+ ببتيد." />
+        <title>فحص تعارضات الببتيدات | pptides</title>
+        <meta name="description" content={`تحقق من أمان تجميع أي ببتيدين معًا. فحص التعارضات والتفاعلات بين ${PEPTIDE_COUNT}+ ببتيد.`} />
       </Helmet>
 
       <div className="mx-auto max-w-2xl px-4 py-8 md:px-6 md:py-12">
@@ -227,7 +181,11 @@ export default function InteractionChecker() {
                     {!pair.result.safe ? <XCircle className="h-4 w-4 text-red-500 shrink-0" /> :
                      pair.result.warning ? <AlertTriangle className="h-4 w-4 text-amber-500 shrink-0" /> :
                      <CheckCircle className="h-4 w-4 text-emerald-500 shrink-0" />}
-                    <span className="text-sm font-bold text-stone-900" dir="ltr">{p1?.nameEn} + {p2?.nameEn}</span>
+                    <span className="text-sm font-bold text-stone-900" dir="ltr">
+                      <Link to={`/peptide/${pair.id1}`} className="hover:text-emerald-600 transition-colors">{p1?.nameEn}</Link>
+                      <span> + </span>
+                      <Link to={`/peptide/${pair.id2}`} className="hover:text-emerald-600 transition-colors">{p2?.nameEn}</Link>
+                    </span>
                   </div>
                   <p className="text-sm font-semibold text-stone-800">{pair.result.message}</p>
                   <p className="text-xs text-stone-600 mt-1 leading-relaxed">{pair.result.details}</p>
@@ -237,7 +195,7 @@ export default function InteractionChecker() {
           </div>
         )}
 
-        <div className="mt-8 rounded-xl border border-stone-200 bg-stone-50 p-5 text-center text-xs text-stone-500 leading-relaxed">
+        <div className="mt-8 rounded-xl border border-stone-200 bg-stone-50 p-5 text-center text-sm text-stone-600 leading-relaxed">
           هذه الأداة تعليمية وليست بديلًا عن الاستشارة الطبية. استشر مختص قبل تجميع أي بروتوكول.
         </div>
 

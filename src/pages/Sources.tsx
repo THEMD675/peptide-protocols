@@ -133,7 +133,7 @@ export default function Sources() {
             </p>
             <a
               href={`mailto:${SUPPORT_EMAIL}`}
-              className="mt-3 inline-block text-sm font-semibold transition-opacity hover:opacity-80"
+              className="mt-3 inline-block text-sm font-semibold text-emerald-600 transition-opacity hover:opacity-80"
             >
               {SUPPORT_EMAIL}
             </a>
@@ -163,6 +163,7 @@ export default function Sources() {
                 </span>
                 <span className="flex-1">{study.title}</span>
                 <span className="shrink-0 text-xs text-emerald-600">PubMed ↗</span>
+                <span className="sr-only"> (يفتح في نافذة جديدة)</span>
               </a>
             ))}
           </div>

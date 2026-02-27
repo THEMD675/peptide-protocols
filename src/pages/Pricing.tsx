@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { Link } from 'react-router-dom';
 import { Check, Shield, Lock, CreditCard, RefreshCw, ChevronDown, MessageCircle, Crown, ArrowLeft } from 'lucide-react';
+import { toast } from 'sonner';
 import { useAuth } from '@/contexts/AuthContext';
 import { cn } from '@/lib/utils';
 import { PRICING, PEPTIDE_COUNT, VALUE_TOTAL, VALUE_SAVINGS_ELITE, VALUE_STACK, SUPPORT_EMAIL } from '@/lib/constants';
@@ -87,8 +88,12 @@ export default function Pricing() {
         <button
           onClick={() => {
             setLoadingPlan(planKey);
-            try { upgradeTo(planKey); } catch { /* noop */ }
-            setTimeout(() => setLoadingPlan(null), 3000);
+            try {
+              upgradeTo(planKey);
+            } catch {
+              setLoadingPlan(null);
+              toast.error('حدث خطأ أثناء التحويل لصفحة الدفع. حاول مرة أخرى.');
+            }
           }}
           disabled={isLoading}
           className={cn(
@@ -131,7 +136,7 @@ export default function Pricing() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-white via-stone-50 to-white">
       <Helmet>
-        <title>خطط الاشتراك | pptides</title>
+        <title>أسعار واشتراكات الببتيدات | pptides</title>
         <meta name="description" content={`اختر خطتك: Essentials ${PRICING.essentials.label}/شهر أو Elite ${PRICING.elite.label}/شهر. 3 أيام تجربة مجانية. ضمان استرداد كامل.`} />
         <script type="application/ld+json">{JSON.stringify({
           "@context": "https://schema.org",
@@ -161,7 +166,7 @@ export default function Pricing() {
               3 أيام تجربة مجانية مع كل اشتراك.
             </p>
           )}
-          <div className="mt-6 flex items-center justify-center gap-6 text-sm text-stone-500">
+          <div className="mt-6 flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-6 text-sm text-stone-500">
             <span className="flex items-center gap-1.5"><Check className="h-4 w-4 text-emerald-500" /> إلغاء في أي وقت</span>
             <span className="flex items-center gap-1.5"><Shield className="h-4 w-4 text-emerald-500" /> ضمان استرداد 3 أيام</span>
             <span className="flex items-center gap-1.5"><Lock className="h-4 w-4 text-emerald-500" /> دفع آمن عبر Stripe</span>
@@ -217,7 +222,7 @@ export default function Pricing() {
             </div>
             <div className="mb-4 inline-flex items-center gap-1.5 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-xs font-bold text-emerald-700">
               <Crown className="h-3.5 w-3.5" />
-              الأكثر اختيارًا بين المحترفين
+              الباقة الشاملة
             </div>
             <div className="mb-2" />
 
@@ -242,9 +247,9 @@ export default function Pricing() {
         <div
           className="mt-20"
         >
-          <h3 className="mb-8 text-center text-2xl font-bold text-stone-900 md:text-3xl">
+          <h2 className="mb-8 text-center text-2xl font-bold text-stone-900 md:text-3xl">
             ماذا تحصل مع <span className="text-emerald-600">Essentials</span>؟
-          </h3>
+          </h2>
           <div className="space-y-2">
             {valueStack.map((item, i) => (
               <div
@@ -269,9 +274,9 @@ export default function Pricing() {
         <div
           className="mt-16"
         >
-          <h3 className="mb-8 text-center text-2xl font-bold text-stone-900 md:text-3xl">
+          <h2 className="mb-8 text-center text-2xl font-bold text-stone-900 md:text-3xl">
             ماذا يضيف <span className="text-emerald-600">Elite</span>؟
-          </h3>
+          </h2>
           <div className="space-y-2">
             {eliteValueStack.map((item, i) => (
               <div
@@ -342,7 +347,7 @@ export default function Pricing() {
         <div
           className="mt-16"
         >
-          <h3 className="mb-8 text-center text-2xl font-bold text-stone-900">أسئلة شائعة</h3>
+          <h2 className="mb-8 text-center text-2xl font-bold text-stone-900">أسئلة شائعة</h2>
           <div className="space-y-3">
             {faqs.map((faq) => (
               <details key={faq.q} className="group rounded-2xl border border-stone-300/60 bg-white transition-all hover:border-stone-400/60">
@@ -384,7 +389,7 @@ export default function Pricing() {
 
         {/* Disclaimer */}
         <p
-          className="mt-10 text-center text-xs text-stone-800 leading-relaxed"
+          className="mt-10 text-center text-sm text-stone-600 leading-relaxed"
         >
           تنويه طبي: المحتوى المقدّم في هذا الموقع لأغراض تعليمية فقط ولا يُعدّ بديلًا عن
           الاستشارة الطبية المتخصصة. استشر طبيبك قبل استخدام أي ببتيد أو مكمّل.

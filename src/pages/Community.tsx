@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { Link } from 'react-router-dom';
 import { MessageSquare, Send, Clock, FlaskConical, User, Flag, Star } from 'lucide-react';
@@ -39,6 +39,8 @@ export default function Community() {
   const [showForm, setShowForm] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const submittingRef = useRef(false);
+  const mountedRef = useRef(true);
+  useEffect(() => () => { mountedRef.current = false; }, []);
   const [submitted, setSubmitted] = useState(false);
   const [filterGoal, setFilterGoal] = useState('all');
   const [sortBy, setSortBy] = useState<'newest' | 'highest'>('newest');
@@ -96,8 +98,9 @@ export default function Community() {
       results: results.trim(),
       rating,
     });
-    setSubmitting(false);
     submittingRef.current = false;
+    if (!mountedRef.current) return;
+    setSubmitting(false);
 
     if (error) {
       toast.error('حدث خطأ أثناء النشر. حاول مرة أخرى.');
@@ -105,23 +108,30 @@ export default function Community() {
     }
 
     setSubmitted(true);
-      setPeptideName('');
-      setGoal('');
-      setProtocol('');
-      setResults('');
-      setRating(4);
-      setShowForm(false);
+    setPeptideName('');
+    setGoal('');
+    setProtocol('');
+    setResults('');
+    setRating(4);
+    setShowForm(false);
 
-      const { data } = await supabase
-        .from('community_logs')
-        .select('*')
-        .order('created_at', { ascending: false })
-        .limit(50);
-      if (data) setLogs(data);
-      setTimeout(() => setSubmitted(false), 3000);
+    const { data } = await supabase
+      .from('community_logs')
+      .select('*')
+      .order('created_at', { ascending: false })
+      .limit(50);
+    if (mountedRef.current && data) setLogs(data);
+    setTimeout(() => { if (mountedRef.current) setSubmitted(false); }, 5000);
   };
 
   const isPaid = subscription?.isProOrTrial ?? false;
+
+  const filteredLogs = useMemo(() =>
+    logs
+      .filter(log => filterGoal === 'all' || log.goal === filterGoal)
+      .sort((a, b) => sortBy === 'highest' ? b.rating - a.rating : 0),
+    [logs, filterGoal, sortBy]
+  );
 
   return (
     <div className="min-h-screen bg-white">
@@ -211,10 +221,12 @@ export default function Community() {
                   <textarea
                     value={protocol}
                     onChange={(e) => setProtocol(e.target.value)}
+                    maxLength={3000}
                     placeholder="مثال: 250mcg مرتين يوميًا، حقن تحت الجلد في البطن، لمدة 6 أسابيع..."
                     rows={3}
                     className="w-full resize-none rounded-xl border border-stone-200 bg-stone-50 px-4 py-3 text-stone-900 placeholder:text-stone-400 focus:border-emerald-300 focus:outline-none focus:ring-2 focus:ring-emerald-100"
                   />
+                  <p className="mt-1 text-start text-xs text-stone-400">{protocol.length}/3000</p>
                 </div>
 
                 <div className="mb-4 grid grid-cols-2 gap-4">
@@ -256,6 +268,7 @@ export default function Community() {
                   <textarea
                     value={results}
                     onChange={(e) => setResults(e.target.value)}
+                    maxLength={3000}
                     placeholder="وصف النتائج: تحسّن، أعراض جانبية، تغييرات في التحاليل..."
                     rows={4}
                     required
@@ -264,16 +277,20 @@ export default function Community() {
                       attempted && !results.trim() ? 'border-red-400 ring-1 ring-red-200' : 'border-stone-200'
                     )}
                   />
-                  {attempted && !results.trim() && (
-                    <p className="mt-1 text-xs text-red-600">يرجى وصف النتائج</p>
-                  )}
+                  <div className="mt-1 flex justify-between">
+                    {attempted && !results.trim() ? (
+                      <p className="text-xs text-red-600">يرجى وصف النتائج</p>
+                    ) : <span />}
+                    <p className="text-xs text-stone-400">{results.length}/3000</p>
+                  </div>
                 </div>
 
                 <div className="flex gap-3">
                   <button
                     type="submit"
                     disabled={submitting || !peptideName.trim() || !results.trim()}
-                    className="flex-1 rounded-full bg-emerald-600 py-3 font-bold text-white transition-all hover:bg-emerald-700 disabled:opacity-50"
+                    aria-disabled={submitting || !peptideName.trim() || !results.trim() || undefined}
+                    className="flex-1 rounded-full bg-emerald-600 py-3 font-bold text-white transition-all hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     {submitting ? '...' : 'نشر التجربة'}
                   </button>
@@ -353,13 +370,13 @@ export default function Community() {
           </div>
         ) : (
           <div className="space-y-4">
-            {logs.filter(log => filterGoal === 'all' || log.goal === filterGoal).sort((a, b) => sortBy === 'highest' ? b.rating - a.rating : 0).length === 0 && (
+            {filteredLogs.length === 0 && (
               <div className="rounded-2xl border border-stone-200 bg-stone-50 py-12 text-center">
                 <p className="text-sm font-bold text-stone-600">لا توجد تجارب لهذا الهدف بعد</p>
                 <button onClick={() => setFilterGoal('all')} className="mt-3 text-sm text-emerald-600 font-medium hover:underline">عرض الكل</button>
               </div>
             )}
-            {logs.filter(log => filterGoal === 'all' || log.goal === filterGoal).sort((a, b) => sortBy === 'highest' ? b.rating - a.rating : 0).map((log) => (
+            {filteredLogs.map((log) => (
               <div key={log.id} className="rounded-2xl border border-stone-200 bg-white p-6 transition-all hover:border-emerald-200 hover:shadow-sm">
                 <div className="mb-3 flex items-start justify-between">
                   <div className="flex items-center gap-3">
@@ -382,7 +399,7 @@ export default function Community() {
                         );
                       })()}
                       {log.goal && (
-                        <span className="mr-2 text-sm text-stone-700">— {log.goal}</span>
+                        <span className="me-2 text-sm text-stone-700">— {log.goal}</span>
                       )}
                     </div>
                   </div>
@@ -414,7 +431,7 @@ export default function Community() {
                           toast.success('تم الإبلاغ — سنراجع المحتوى');
                         }
                       }}
-                      className="rounded-lg p-2 text-stone-300 hover:text-red-500 hover:bg-red-50 transition-colors"
+                      className="rounded-lg p-2.5 min-h-[44px] min-w-[44px] text-stone-300 hover:text-red-500 hover:bg-red-50 transition-colors"
                       aria-label="إبلاغ"
                     >
                       <Flag className="h-3.5 w-3.5" />

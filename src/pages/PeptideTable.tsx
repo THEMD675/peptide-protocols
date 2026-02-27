@@ -1,11 +1,12 @@
 import { useState, useMemo } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { Link } from 'react-router-dom';
-import { Search, Lock, BookOpen, AlertTriangle, FlaskConical, Layers, TrendingDown, Heart, Zap, Brain, Clock, Shield } from 'lucide-react';
+import { Search, Lock, BookOpen, AlertTriangle, FlaskConical, Layers } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { peptides, categories, stacks } from '@/data/peptides';
 import { useAuth } from '@/contexts/AuthContext';
-import { PEPTIDE_COUNT } from '@/lib/constants';
+import { PEPTIDE_COUNT, SITE_URL } from '@/lib/constants';
+import { categoryIcons } from '@/lib/peptide-labels';
 
 const categoryColors: Record<string, { badge: string; border: string }> = {
   metabolic: { badge: 'bg-orange-100 text-orange-800 border-orange-300', border: 'border-orange-200' },
@@ -14,15 +15,6 @@ const categoryColors: Record<string, { badge: string; border: string }> = {
   brain: { badge: 'bg-pink-100 text-pink-800 border-pink-300', border: 'border-pink-200' },
   longevity: { badge: 'bg-emerald-100 text-emerald-800 border-emerald-300', border: 'border-emerald-200' },
   'skin-gut': { badge: 'bg-teal-100 text-teal-800 border-teal-300', border: 'border-teal-200' },
-};
-
-const categoryIcons: Record<string, React.ElementType> = {
-  metabolic: TrendingDown,
-  recovery: Heart,
-  hormonal: Zap,
-  brain: Brain,
-  longevity: Clock,
-  'skin-gut': Shield,
 };
 
 function isLongTerm(cycleAr: string): boolean {
@@ -66,7 +58,7 @@ export default function PeptideTable() {
   return (
     <div className="min-h-screen" >
       <Helmet>
-        <title>{`جدول الببتيدات الشامل — مقارنة ${PEPTIDE_COUNT} ببتيد | pptides`}</title>
+        <title>{`جدول الببتيدات الشامل | مقارنة ${PEPTIDE_COUNT} ببتيد | pptides`}</title>
         <meta
           name="description"
           content={`أشمل جدول مقارنة ببتيدات بالعربي — ${PEPTIDE_COUNT} ببتيد مع الجرعات المثالية، التوقيت، الدورات، الاستخدام طويل الأمد، ونصائح التجميع. دليلك الكامل لبروتوكولات الببتيدات.`}
@@ -75,7 +67,7 @@ export default function PeptideTable() {
           name="keywords"
           content={`جدول ببتيدات, peptide comparison table arabic, مقارنة ببتيدات, بروتوكولات ببتيدات, جرعات ببتيدات, ببتيدات عربي, ${PEPTIDE_COUNT} ببتيد`}
         />
-        <link rel="canonical" href="https://pptides.com/table" />
+        <link rel="canonical" href={`${SITE_URL}/table`} />
       </Helmet>
 
       {/* ━━━ STICKY SUBSCRIPTION BANNER ━━━ */}
@@ -162,7 +154,8 @@ export default function PeptideTable() {
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="ابحث بالاسم أو الفئة..."
-              className="w-full rounded-xl border border-stone-300 bg-stone-50 py-3 pr-10 pl-4 text-sm text-stone-900 placeholder:text-stone-400 outline-none transition-colors focus:border-emerald-300 focus:ring-1 focus:ring-emerald-200"
+              aria-label="ابحث في الببتيدات"
+              className="w-full rounded-xl border border-stone-300 bg-stone-50 py-3 ps-10 pe-4 text-sm text-stone-900 placeholder:text-stone-400 outline-none transition-colors focus:border-emerald-300 focus:ring-1 focus:ring-emerald-200"
             />
           </div>
 
@@ -203,7 +196,7 @@ export default function PeptideTable() {
         >
           <div className="overflow-hidden rounded-2xl border border-stone-300 bg-stone-100 shadow-2xl">
             <div className="overflow-x-auto">
-              <table className="w-full min-w-[1100px] border-collapse text-xs md:text-sm">
+              <table className="w-full min-w-[1100px] border-collapse text-xs md:text-sm" aria-label="جدول الببتيدات">
                 <thead className="sticky top-0 z-10">
                   <tr className="bg-gradient-to-l from-emerald-500 to-emerald-600">
                     {[
@@ -217,6 +210,7 @@ export default function PeptideTable() {
                     ].map((col) => (
                       <th
                         key={col.key}
+                        scope="col"
                         className={cn(
                           'border-b-2 border-emerald-200 px-3 py-3.5 text-right text-xs font-bold tracking-wide',
                           col.sticky ? 'sticky z-20 bg-stone-100 text-emerald-500' : 'text-white'
@@ -281,6 +275,7 @@ export default function PeptideTable() {
                           <td className="px-3 py-3">
                             <span
                               className={cn("block leading-relaxed text-stone-800", shouldBlur && blurClass)}
+                              aria-hidden={shouldBlur || undefined}
                             >
                               {p.dosageAr}
                             </span>
@@ -290,6 +285,7 @@ export default function PeptideTable() {
                           <td className="px-3 py-3">
                             <span
                               className={cn("block leading-relaxed text-stone-800", shouldBlur && blurClass)}
+                              aria-hidden={shouldBlur || undefined}
                             >
                               {p.timingAr}
                             </span>
@@ -299,6 +295,7 @@ export default function PeptideTable() {
                           <td className="px-3 py-3">
                             <span
                               className={cn("block leading-relaxed text-stone-800", shouldBlur && blurClass)}
+                              aria-hidden={shouldBlur || undefined}
                             >
                               {p.cycleAr}
                             </span>
@@ -314,6 +311,7 @@ export default function PeptideTable() {
                                   : 'bg-amber-100 text-amber-800',
                                 shouldBlur && blurClass
                               )}
+                              aria-hidden={shouldBlur || undefined}
                             >
                               {longTerm ? 'نعم' : 'تحتاج دورات'}
                             </span>
@@ -323,6 +321,7 @@ export default function PeptideTable() {
                           <td className="px-3 py-3">
                             <span
                               className={cn("block leading-relaxed text-stone-800", shouldBlur && blurClass)}
+                              aria-hidden={shouldBlur || undefined}
                             >
                               {p.stackAr}
                             </span>
@@ -390,9 +389,10 @@ export default function PeptideTable() {
 
                   {/* Goal */}
                   <div className="mb-3">
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-stone-700">الهدف</span>
+                    <span className="text-[10px] font-bold tracking-wider text-stone-700">الهدف</span>
                     <p
                       className={cn("mt-1 text-xs leading-relaxed text-stone-800", !hasAccess && blurClass)}
+                      aria-hidden={!hasAccess || undefined}
                     >
                       {stack.goalAr}
                     </p>
@@ -400,9 +400,10 @@ export default function PeptideTable() {
 
                   {/* Protocol preview */}
                   <div>
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-stone-700">البروتوكول</span>
+                    <span className="text-[10px] font-bold tracking-wider text-stone-700">البروتوكول</span>
                     <p
                       className={cn("mt-1 line-clamp-4 whitespace-pre-line text-xs leading-relaxed text-stone-800", !hasAccess && blurClass)}
+                      aria-hidden={!hasAccess || undefined}
                     >
                       {stack.protocolAr}
                     </p>
@@ -453,7 +454,7 @@ export default function PeptideTable() {
 
                   {/* Peptide list */}
                   <div className="mb-4">
-                    <span className="mb-2 block text-[10px] font-bold uppercase tracking-wider text-stone-700">
+                    <span className="mb-2 block text-[10px] font-bold tracking-wider text-stone-700">
                       الببتيدات
                     </span>
                     <div className="flex flex-wrap gap-1.5">
@@ -471,14 +472,14 @@ export default function PeptideTable() {
 
                   {/* Key stacking notes */}
                   <div>
-                    <span className="mb-2 block text-[10px] font-bold uppercase tracking-wider text-stone-700">
+                    <span className="mb-2 block text-[10px] font-bold tracking-wider text-stone-700">
                       ملاحظات تجميع رئيسية
                     </span>
                     <ul className="space-y-1.5">
                       {stackingNotes.map((sn, idx) => (
                         <li key={idx} className="text-[10px] leading-relaxed text-stone-800">
                           <span className="font-semibold text-stone-800">{sn.name}:</span>{' '}
-                          <span className={cn(!hasAccess && blurClass)}>
+                          <span className={cn(!hasAccess && blurClass)} aria-hidden={!hasAccess || undefined}>
                             {sn.note.length > 100 ? sn.note.slice(0, 100) + '…' : sn.note}
                           </span>
                         </li>

@@ -17,20 +17,25 @@ export default function EmailCapture() {
     setStatus('loading');
     setErrorMsg('');
 
-    const { error } = await supabase.from('email_list').insert({ email });
+    try {
+      const { error } = await supabase.from('email_list').insert({ email });
 
-    if (error) {
+      if (error) {
+        setStatus('error');
+        setErrorMsg(
+          error.code === '23505'
+            ? 'هذا البريد مسجّل مسبقًا'
+            : 'تعذّر تسجيل بريدك. حاول مرة أخرى.'
+        );
+        return;
+      }
+
+      setStatus('success');
+      setEmail('');
+    } catch {
       setStatus('error');
-      setErrorMsg(
-        error.code === '23505'
-          ? 'هذا البريد مسجّل مسبقًا'
-          : 'تعذّر تسجيل بريدك. حاول مرة أخرى.'
-      );
-      return;
+      setErrorMsg('تعذّر تسجيل بريدك. حاول مرة أخرى.');
     }
-
-    setStatus('success');
-    setEmail('');
   };
 
   if (status === 'success') {
@@ -49,6 +54,7 @@ export default function EmailCapture() {
     <div className="rounded-2xl border border-emerald-300 bg-white/5 p-6">
       <form
         onSubmit={handleSubmit}
+        aria-label="الاشتراك في القائمة البريدية"
         className="flex flex-col sm:flex-row items-center gap-3 w-full max-w-lg mx-auto"
       >
         <div className="relative flex-1 w-full">
@@ -59,7 +65,7 @@ export default function EmailCapture() {
             onChange={(e) => setEmail(e.target.value)}
             placeholder="أدخل بريدك الإلكتروني"
             required
-            className="w-full rounded-full bg-white/10 border border-white/20 py-3.5 pr-11 pl-4 text-white placeholder:text-white/40 outline-none focus:border-emerald-400 focus:ring-2 focus:ring-emerald-200 transition-all"
+            className="w-full rounded-full bg-white/10 border border-white/20 py-3.5 ps-11 pe-4 text-white placeholder:text-white/40 outline-none focus:border-emerald-400 focus:ring-2 focus:ring-emerald-200 transition-all"
           />
           <input
             type="text"
@@ -89,7 +95,7 @@ export default function EmailCapture() {
       {status === 'error' && errorMsg && (
         <p className="mt-3 text-center text-sm text-red-400">{errorMsg}</p>
       )}
-      <p className="mt-2 text-center text-[10px] text-white/30">
+      <p className="mt-2 text-center text-xs text-white/50">
         بالاشتراك، أنت توافق على <Link to="/privacy" className="underline hover:text-white/50">سياسة الخصوصية</Link>
       </p>
     </div>

@@ -6,17 +6,13 @@ import { cn } from "@/lib/utils";
 const STORAGE_KEY = "pptides_age_verified";
 
 export default function AgeGate() {
-  const [visible, setVisible] = useState(false);
-
-  useEffect(() => {
+  const [visible, setVisible] = useState(() => {
     try {
-      if (localStorage.getItem(STORAGE_KEY) !== "true") {
-        setVisible(true);
-      }
+      return localStorage.getItem(STORAGE_KEY) !== "true";
     } catch {
-      setVisible(true);
+      return true;
     }
-  }, []);
+  });
 
   const handleVerified = () => {
     try { localStorage.setItem(STORAGE_KEY, "true"); } catch { /* expected */ }
@@ -30,6 +26,12 @@ export default function AgeGate() {
     try { sessionStorage.setItem('pptides_age_rejected', 'true'); } catch { /* expected */ }
   };
 
+  useEffect(() => {
+    if (!visible) return;
+    document.body.style.overflow = 'hidden';
+    return () => { document.body.style.overflow = ''; };
+  }, [visible]);
+
   if (!visible) return null;
 
   return (
@@ -37,6 +39,7 @@ export default function AgeGate() {
           dir="rtl"
           role="dialog"
           aria-modal="true"
+          aria-labelledby="age-gate-title"
           className={cn(
             "fixed inset-0 z-[9999] flex items-center justify-center animate-fade-in",
             "bg-stone-900/95 p-4"
@@ -52,10 +55,10 @@ export default function AgeGate() {
             <div
               className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-emerald-500/10"
             >
-              <Shield className="h-10 w-10"  />
+              <Shield className="h-10 w-10 text-emerald-400" aria-hidden="true" />
             </div>
 
-            <h2 className="mb-4 text-2xl font-bold text-white">
+            <h2 id="age-gate-title" className="mb-4 text-2xl font-bold text-white">
               التحقق من العمر
             </h2>
 
@@ -64,12 +67,20 @@ export default function AgeGate() {
                 <p className="leading-relaxed text-red-400 font-semibold">
                   عذرًا، هذا المحتوى مخصص لمن هم 18 عامًا أو أكثر
                 </p>
-                <a
-                  href="https://www.google.com"
-                  className="inline-block rounded-xl border border-stone-600 px-6 py-3 text-sm font-medium text-stone-400 transition-colors hover:border-stone-400 hover:text-stone-300"
-                >
-                  مغادرة الموقع
-                </a>
+                <div className="flex flex-col gap-3">
+                  <a
+                    href="https://www.google.com"
+                    className="inline-block rounded-xl border border-stone-600 px-6 py-3 text-sm font-medium text-stone-400 transition-colors hover:border-stone-400 hover:text-stone-300"
+                  >
+                    مغادرة الموقع
+                  </a>
+                  <button
+                    onClick={() => setRejected(false)}
+                    className="text-xs text-stone-600 hover:text-stone-400 transition-colors"
+                  >
+                    أخطأت؟ عُد للاختيار
+                  </button>
+                </div>
               </div>
             ) : (
               <>
@@ -94,8 +105,8 @@ export default function AgeGate() {
                     onClick={handleUnder}
                     className={cn(
                       "w-full rounded-xl border-2 border-emerald-500/40 px-6 py-3",
-                      "text-lg font-bold text-amber-400",
-                      "transition-all duration-200 active:scale-[0.98]"
+                      "text-lg font-bold text-amber-300",
+                      "transition-all duration-200 hover:border-amber-300 active:scale-[0.98]"
                     )}
                   >
                     عمري أقل من 18 — خروج

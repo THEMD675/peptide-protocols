@@ -29,15 +29,18 @@ export default function StickyScrollCTA() {
     try { sessionStorage.setItem(DISMISS_KEY, String(Date.now())); } catch { /* expected */ }
   }, []);
 
+  const cookieConsented = (() => { try { return !!localStorage.getItem('pptides_cookie_consent'); } catch { return false; } })();
+
   if (!visible || dismissed) return null;
   if (user && subscription?.isProOrTrial) return null;
   if (EXCLUDED_PATHS.some(p => pathname.startsWith(p))) return null;
+  if (!cookieConsented) return null;
 
   const href = user ? '/pricing' : '/signup?redirect=/pricing';
   const text = user ? `اشترك الآن — ${PRICING.essentials.label}/شهر` : 'ابدأ تجربتك المجانية';
 
   return (
-    <div className="fixed bottom-0 inset-x-0 z-40 border-t border-emerald-200/50 bg-white/95 backdrop-blur-xl shadow-[0_-4px_20px_rgba(0,0,0,0.08)] md:hidden animate-slide-up">
+    <div role="complementary" aria-label="عرض الاشتراك" className="fixed bottom-0 inset-x-0 z-40 border-t border-emerald-200/50 bg-white/95 backdrop-blur-xl shadow-[0_-4px_20px_rgba(0,0,0,0.08)] md:hidden animate-slide-up">
       <div className="flex items-center justify-between gap-2 px-3 py-2">
         <button
           onClick={handleDismiss}

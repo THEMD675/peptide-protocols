@@ -19,7 +19,7 @@ import {
 import { cn, arPlural } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
-import { PEPTIDE_COUNT, STATUS_LABELS } from '@/lib/constants';
+import { PEPTIDE_COUNT, STATUS_LABELS, TIER_LABELS } from '@/lib/constants';
 
 const QUICK_LINKS = [
   { to: '/coach', label: 'المدرب الذكي', description: 'اسأل خبير الببتيدات', Icon: Bot },
@@ -35,12 +35,6 @@ const GETTING_STARTED = [
   { id: 'calculator', label: 'جرّب حاسبة الجرعات', to: '/calculator' },
   { id: 'coach', label: 'اسأل المدرب الذكي', to: '/coach' },
 ];
-
-const TIER_LABELS: Record<string, string> = {
-  free: 'مجاني',
-  essentials: 'Essentials',
-  elite: 'Elite',
-};
 
 
 function useVisitedPages() {
@@ -82,7 +76,7 @@ function useRecentActivity(userId: string | undefined) {
       .select('id, peptide_name, dose, dose_unit, logged_at')
       .eq('user_id', userId)
       .order('logged_at', { ascending: false })
-      .limit(200)
+      .gte('logged_at', new Date(Date.now() - 35 * 24 * 60 * 60 * 1000).toISOString())
       .then(({ data, error }) => {
         if (!mounted) return;
         if (data && !error) setLogs(data);
@@ -95,7 +89,7 @@ function useRecentActivity(userId: string | undefined) {
       .eq('user_id', userId)
       .then(({ count }) => {
         if (mounted && count != null) setTotalCount(count);
-      });
+      }).catch(() => {});
     return () => { mounted = false; };
   }, [userId]);
 
@@ -127,7 +121,11 @@ function useRecentActivity(userId: string | undefined) {
     }
   }
 
-  return { logs: logs.slice(0, 5), loading, activePeptides, totalInjections, streak, todayPlan };
+  const [lastCheckedAt, setLastCheckedAt] = useState(Date.now);
+  // eslint-disable-next-line react-hooks/set-state-in-effect -- sync timestamp when data arrives
+  useEffect(() => { if (!loading) setLastCheckedAt(Date.now()); }, [loading]);
+
+  return { logs: logs.slice(0, 5), loading, activePeptides, totalInjections, streak, todayPlan, lastCheckedAt };
 }
 
 export default function Dashboard() {
@@ -145,6 +143,7 @@ export default function Dashboard() {
       <Helmet>
         <title>لوحة التحكم | pptides</title>
         <meta name="description" content="لوحة التحكم الرئيسية لإدارة حسابك في pptides. Your pptides dashboard." />
+        <meta name="robots" content="noindex, nofollow" />
       </Helmet>
 
       {/* Welcome Header */}
@@ -164,7 +163,7 @@ export default function Dashboard() {
           <Crown className="h-5 w-5 text-emerald-600" />
           <h2 className="text-lg font-bold text-stone-900">اشتراكك</h2>
         </div>
-        <div className="flex flex-wrap items-center gap-4">
+        <div className="flex flex-wrap items-center gap-4" role="status">
           <span className={cn(
             'rounded-full px-3 py-1 text-xs font-bold',
             subscription.tier === 'elite'
@@ -248,7 +247,7 @@ export default function Dashboard() {
                 {(() => {
                   const last = activity.logs[0];
                   if (!last) return '—';
-                  const diff = Date.now() - new Date(last.logged_at).getTime();
+                  const diff = activity.lastCheckedAt - new Date(last.logged_at).getTime();
                   const mins = Math.floor(diff / 60000);
                   if (mins < 60) return `${mins} د`;
                   const hrs = Math.floor(mins / 60);
@@ -285,7 +284,7 @@ export default function Dashboard() {
                 <div key={log.id} className="flex items-center justify-between rounded-lg bg-stone-50 px-3 py-2">
                   <div>
                     <span className="text-sm font-bold text-stone-900" dir="ltr">{log.peptide_name}</span>
-                    <span className="mr-2 text-xs text-stone-500">{log.dose} {log.dose_unit}</span>
+                    <span className="me-2 text-xs text-stone-500">{log.dose} {log.dose_unit}</span>
                   </div>
                   <span className="text-xs text-stone-400">
                     {new Date(log.logged_at).toLocaleDateString('ar-u-nu-latn', { month: 'short', day: 'numeric' })}
@@ -315,7 +314,7 @@ export default function Dashboard() {
               <h3 className="text-sm font-bold text-stone-900">آخر 30 يوم</h3>
               <span className="text-xs text-stone-500">{days.filter(d => d.count > 0).length} يوم نشط</span>
             </div>
-            <div className="grid grid-cols-10 gap-1">
+            <div className="grid grid-cols-6 sm:grid-cols-10 gap-1">
               {days.map((d, i) => (
                 <div key={i} className={cn(
                   'aspect-square rounded-sm transition-colors',

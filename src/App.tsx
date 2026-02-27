@@ -1,9 +1,9 @@
 import { lazy, Suspense, useEffect, Component, type ReactNode } from 'react';
 import { BrowserRouter, Routes, Route, Link, Navigate, useLocation } from 'react-router-dom';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth, AuthProvider } from '@/contexts/AuthContext';
 import { Helmet, HelmetProvider } from 'react-helmet-async';
 import { Toaster } from 'sonner';
-import { AuthProvider } from '@/contexts/AuthContext';
+import { SITE_URL } from '@/lib/constants';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import TrialBanner from '@/components/TrialBanner';
@@ -41,17 +41,17 @@ const InteractionChecker = lazy(() => import('@/pages/InteractionChecker'));
 
 function PageLoader() {
   return (
-    <div className="flex min-h-[60vh] flex-col items-center justify-center gap-4">
+    <div className="flex min-h-[60vh] flex-col items-center justify-center gap-4" role="status" aria-label="جارٍ التحميل">
       <div className="text-xl font-bold tracking-tight text-stone-900">
         <span>pp</span><span className="text-emerald-600">tides</span>
       </div>
-      <div className="h-6 w-6 animate-spin rounded-full border-3 border-emerald-200 border-t-emerald-600" />
+      <div className="h-8 w-8 animate-spin rounded-full border-2 border-emerald-200 border-t-emerald-600" />
     </div>
   );
 }
 
-class ErrorBoundary extends Component<{ children: ReactNode }, { hasError: boolean; isChunkError: boolean }> {
-  state = { hasError: false, isChunkError: false };
+class ErrorBoundary extends Component<{ children: ReactNode }, { hasError: boolean; isChunkError: boolean; reloading: boolean }> {
+  state = { hasError: false, isChunkError: false, reloading: false };
   static getDerivedStateFromError(error: Error) {
     const isChunk = error.message?.includes('Loading chunk') || error.message?.includes('Failed to fetch dynamically imported');
     return { hasError: true, isChunkError: isChunk };
@@ -69,19 +69,19 @@ class ErrorBoundary extends Component<{ children: ReactNode }, { hasError: boole
     if (localStorage.getItem('pptides_cookie_consent') === 'accepted') {
       import('@sentry/react').then(Sentry => {
         Sentry.captureException(error, { extra: { componentStack: errorInfo.componentStack } });
-      });
+      }).catch(() => {});
     }
   }
   render() {
     if (this.state.hasError) {
       return (
-        <div className="flex min-h-[50vh] flex-col items-center justify-center px-6 text-center">
+        <div role="alert" className="flex min-h-[50vh] flex-col items-center justify-center px-6 text-center">
           <h2 className="mb-3 text-2xl font-bold text-stone-900">حدث خطأ غير متوقع</h2>
           <p className="mb-6 text-stone-600">
             {this.state.isChunkError ? 'تم تحديث الموقع — يرجى تحديث الصفحة.' : 'نعتذر عن هذا الخطأ. يرجى تحديث الصفحة.'}
           </p>
-          <button onClick={() => window.location.reload()} className="rounded-full bg-emerald-600 px-8 py-3 font-bold text-white hover:bg-emerald-700 transition-colors">
-            تحديث الصفحة
+          <button onClick={() => { this.setState({ reloading: true }); window.location.reload(); }} className="rounded-full bg-emerald-600 px-8 py-3 font-bold text-white hover:bg-emerald-700 transition-colors">
+            {this.state.reloading ? <span className="inline-flex items-center gap-2"><span className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />جارٍ التحديث...</span> : 'تحديث الصفحة'}
           </button>
         </div>
       );
@@ -92,9 +92,9 @@ class ErrorBoundary extends Component<{ children: ReactNode }, { hasError: boole
 
 class RouteErrorBoundary extends Component<
   { children: ReactNode; fallbackTitle?: string },
-  { hasError: boolean; error: Error | null }
+  { hasError: boolean; error: Error | null; retryCount: number }
 > {
-  state = { hasError: false, error: null as Error | null };
+  state = { hasError: false, error: null as Error | null, retryCount: 0 };
   static getDerivedStateFromError(error: Error) {
     return { hasError: true, error };
   }
@@ -102,25 +102,37 @@ class RouteErrorBoundary extends Component<
     if (localStorage.getItem('pptides_cookie_consent') === 'accepted') {
       import('@sentry/react').then(Sentry => {
         Sentry.captureException(error, { extra: { componentStack: errorInfo.componentStack } });
-      });
+      }).catch(() => {});
     }
   }
-  reset = () => this.setState({ hasError: false, error: null });
+  reset = () => this.setState(prev => ({ hasError: false, error: null, retryCount: prev.retryCount + 1 }));
   render() {
     if (this.state.hasError) {
+      const canRetry = this.state.retryCount < 2;
       return (
         <div className="flex min-h-[50vh] flex-col items-center justify-center px-6 text-center">
           <h2 className="mb-3 text-2xl font-bold text-stone-900">
             {this.props.fallbackTitle ?? 'حدث خطأ في هذه الصفحة'}
           </h2>
-          <p className="mb-6 text-stone-600">نعتذر عن هذا الخطأ. يمكنك المحاولة مرة أخرى.</p>
+          <p className="mb-6 text-stone-600">
+            {canRetry ? 'نعتذر عن هذا الخطأ. يمكنك المحاولة مرة أخرى.' : 'يبدو أن هناك مشكلة مستمرة. حاول تحديث الصفحة أو العودة للرئيسية.'}
+          </p>
           <div className="flex gap-3">
-            <button
-              onClick={this.reset}
-              className="rounded-full bg-emerald-600 px-8 py-3 font-bold text-white hover:bg-emerald-700 transition-colors"
-            >
-              حاول مرة أخرى
-            </button>
+            {canRetry ? (
+              <button
+                onClick={this.reset}
+                className="rounded-full bg-emerald-600 px-8 py-3 font-bold text-white hover:bg-emerald-700 transition-colors"
+              >
+                حاول مرة أخرى
+              </button>
+            ) : (
+              <button
+                onClick={() => window.location.reload()}
+                className="rounded-full bg-emerald-600 px-8 py-3 font-bold text-white hover:bg-emerald-700 transition-colors"
+              >
+                تحديث الصفحة
+              </button>
+            )}
             <Link to="/" className="rounded-full border-2 border-stone-300 px-8 py-3 font-bold text-stone-800 hover:bg-stone-50 transition-colors">
               الرئيسية
             </Link>
@@ -138,9 +150,19 @@ function ScrollToTop() {
   return null;
 }
 
+function TrackPageView() {
+  const { pathname } = useLocation();
+  useEffect(() => {
+    if (typeof window.gtag === 'function') {
+      window.gtag('event', 'page_view', { page_path: pathname });
+    }
+  }, [pathname]);
+  return null;
+}
+
 function CanonicalUrl() {
   const { pathname } = useLocation();
-  const url = `https://pptides.com${pathname === '/' ? '' : pathname}`;
+  const url = `${SITE_URL}${pathname === '/' ? '' : pathname}`;
   return (
     <Helmet>
       <link rel="canonical" href={url} />
@@ -199,6 +221,7 @@ export default function App() {
           <Header />
           <TrialBanner />
           <ScrollToTop />
+          <TrackPageView />
           <CanonicalUrl />
           <Toaster position="top-center" richColors dir="rtl" />
           <main id="main-content" className="flex-1">

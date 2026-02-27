@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect, useId } from 'react';
+import { useState, useMemo, useEffect, useId, useCallback } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { Link, useSearchParams } from 'react-router-dom';
 import { Calculator, FlaskConical, Droplets, ChevronDown, ArrowLeft, BookOpen, Layers, Bot, Bookmark, Syringe } from 'lucide-react';
@@ -90,7 +90,7 @@ function SyringeVisual({
       </p>
       <svg
         viewBox="0 0 80 320"
-        className="drop-shadow-lg w-[100px] h-[400px] md:w-[80px] md:h-[320px]"
+        className="drop-shadow-lg w-[80px] h-[320px] md:w-[100px] md:h-[400px]"
         role="img"
         aria-label={`سيرنج يُظهر ${displayUnits.toFixed(1)} وحدة`}
       >
@@ -205,6 +205,7 @@ export default function DoseCalculator() {
   const [selectedPreset, setSelectedPreset] = useState('');
   const [searchParams] = useSearchParams();
 
+  /* eslint-disable react-hooks/set-state-in-effect -- sync form state from URL params */
   useEffect(() => {
     const peptideParam = searchParams.get('peptide');
     if (peptideParam && !selectedPreset) {
@@ -218,6 +219,7 @@ export default function DoseCalculator() {
       }
     }
   }, [searchParams, selectedPreset]);
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   const syringe = SYRINGE_OPTIONS[syringeIdx];
   const recommendedWater = getRecommendedWater(vialMg);
@@ -229,14 +231,6 @@ export default function DoseCalculator() {
   const [savedCalcs, setSavedCalcs] = useState<SavedCalc[]>(() => {
     try { const s = localStorage.getItem('pptides_calc_history'); return s ? JSON.parse(s) : []; } catch { return []; }
   });
-  const saveCurrentCalc = () => {
-    if (!selectedPreset || !isFinite(results.syringeUnits) || results.syringeUnits <= 0) return;
-    const entry: SavedCalc = { peptide: selectedPreset, dose: doseValue, unit: doseUnit, vial: vialMg, water: waterMl, units: results.syringeUnits.toFixed(1), ts: Date.now() };
-    const updated = [entry, ...savedCalcs.filter(c => c.peptide !== selectedPreset)].slice(0, 5);
-    setSavedCalcs(updated);
-    try { localStorage.setItem('pptides_calc_history', JSON.stringify(updated)); } catch { /* expected */ }
-    toast.success(`تم حفظ حساب ${selectedPreset}`);
-  };
   const loadSavedCalc = (calc: SavedCalc) => {
     setSelectedPreset(calc.peptide);
     setDoseValue(calc.dose);
@@ -247,7 +241,7 @@ export default function DoseCalculator() {
 
   const results = useMemo(() => {
     const doseMcg = doseUnit === 'mg' ? doseValue * 1000 : doseValue;
-    if (vialMg <= 0 || waterMl <= 0 || doseMcg <= 0) {
+    if (!vialMg || !waterMl || !doseMcg || vialMg <= 0 || waterMl <= 0 || doseMcg <= 0) {
       return { concentration: 0, volumeMl: 0, syringeUnits: 0, dosesPerVial: 0, doseMcg, monthlyVials: 0, monthlyCost: 0, daysPerVial: 0 };
     }
     const concentration = (vialMg * 1000) / waterMl;
@@ -260,12 +254,21 @@ export default function DoseCalculator() {
     return { concentration, volumeMl, syringeUnits, dosesPerVial, doseMcg, monthlyVials, monthlyCost, daysPerVial };
   }, [doseUnit, doseValue, vialMg, waterMl, syringe, dosesPerDay, vialPrice]);
 
+  const saveCurrentCalc = useCallback(() => {
+    if (!selectedPreset || !isFinite(results.syringeUnits) || results.syringeUnits <= 0) return;
+    const entry: SavedCalc = { peptide: selectedPreset, dose: doseValue, unit: doseUnit, vial: vialMg, water: waterMl, units: results.syringeUnits.toFixed(1), ts: Date.now() };
+    const updated = [entry, ...savedCalcs.filter(c => c.peptide !== selectedPreset)].slice(0, 5);
+    setSavedCalcs(updated);
+    try { localStorage.setItem('pptides_calc_history', JSON.stringify(updated)); } catch { /* expected */ }
+    toast.success(`تم حفظ حساب ${selectedPreset}`);
+  }, [selectedPreset, doseValue, doseUnit, vialMg, waterMl, results.syringeUnits, savedCalcs]);
+
   const fmt = (n: number, d = 2) => (isFinite(n) && n > 0 ? n.toFixed(d) : '—');
 
   return (
     <div className="min-h-screen" >
       <Helmet>
-        <title>حاسبة جرعات الببتيدات — احسب الجرعة بدقة | pptides</title>
+        <title>حاسبة جرعات الببتيدات | احسب الجرعة بدقة | pptides</title>
         <meta
           name="description"
           content="حاسبة مجانية لجرعات الببتيدات — احسب التركيز، الكمية بالمل، ووحدات السيرنج بدقة. أداة مجانية 100%. Free peptide reconstitution & dosage calculator."
@@ -309,7 +312,7 @@ export default function DoseCalculator() {
                   setWaterMl(p.water);
                 }}
                 className={cn(
-                  'rounded-full border px-3 py-1.5 text-xs transition-all',
+                  'rounded-full border px-3 py-1.5 text-xs transition-all active:scale-[0.98]',
                   selectedPreset === p.name
                     ? 'border-emerald-400 bg-emerald-50 text-emerald-700 ring-2 ring-emerald-400 font-bold shadow-sm'
                     : 'border-stone-200 bg-white text-stone-700 font-medium hover:border-emerald-300 hover:text-emerald-600'
@@ -327,12 +330,12 @@ export default function DoseCalculator() {
         >
           {/* Dose Unit Toggle */}
           <div className="mb-6 flex items-center justify-center gap-1">
-            <span className="ml-3 text-sm text-stone-800">وحدة الجرعة:</span>
+            <span className="ms-3 text-sm text-stone-800">وحدة الجرعة:</span>
             <div className="flex rounded-xl border border-stone-300 bg-stone-50 p-1">
               <button
                 onClick={() => {
                   if (doseUnit === 'mg') {
-                    setDoseValue(prev => prev * 1000);
+                    setDoseValue(prev => +(prev * 1000).toPrecision(10));
                     setDoseUnit('mcg');
                   }
                 }}
@@ -348,7 +351,7 @@ export default function DoseCalculator() {
               <button
                 onClick={() => {
                   if (doseUnit === 'mcg') {
-                    setDoseValue(prev => prev / 1000);
+                    setDoseValue(prev => +(prev / 1000).toPrecision(10));
                     setDoseUnit('mg');
                   }
                 }}
@@ -393,12 +396,12 @@ export default function DoseCalculator() {
                   onChange={(e) => setWaterMl(Number(e.target.value))}
                   aria-label="كمية الماء البكتيريوستاتك (مل)"
                   className={cn(
-                    'w-full rounded-xl border border-stone-300 bg-stone-50 px-4 py-3 pl-16',
+                    'w-full rounded-xl border border-stone-300 bg-stone-50 px-4 py-3 pe-16',
                     'text-base text-stone-900',
                     'transition-colors focus:border-emerald-300 focus:outline-none focus:ring-1 focus:ring-emerald-200',
                   )}
                 />
-                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs text-stone-700">
+                <span className="absolute start-3 top-1/2 -translate-y-1/2 text-xs text-stone-700">
                   مل
                 </span>
               </div>
@@ -449,7 +452,7 @@ export default function DoseCalculator() {
                   </option>
                 ))}
               </select>
-              <ChevronDown className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-stone-700" />
+              <ChevronDown className="pointer-events-none absolute start-3 top-1/2 h-4 w-4 -translate-y-1/2 text-stone-700" />
             </div>
           </div>
 
@@ -468,7 +471,7 @@ export default function DoseCalculator() {
               </div>
             </div>
             <div className="space-y-2">
-              <label className="block text-sm font-medium text-stone-800">سعر القارورة ($) <span className="text-[10px] text-emerald-600 font-normal mr-1">اختياري</span></label>
+              <label className="block text-sm font-medium text-stone-800">سعر القارورة ($) <span className="text-[10px] text-emerald-600 font-normal me-1">اختياري</span></label>
               <input type="number" min={0} step={5} value={vialPrice || ''} onChange={e => setVialPrice(Number(e.target.value))} placeholder="مثال: 40"
                 className="w-full rounded-xl border border-stone-300 bg-stone-50 px-4 py-3 text-base text-stone-900 placeholder:text-stone-400 focus:border-emerald-300 focus:outline-none focus:ring-1 focus:ring-emerald-200" />
             </div>
@@ -514,7 +517,7 @@ export default function DoseCalculator() {
             <div
               className="mt-4 rounded-xl border border-red-500/20 bg-red-500/5 px-4 py-3 text-center"
             >
-              <p className="text-sm text-red-400">
+              <p className="text-sm text-red-600">
                 ⚠️ الجرعة تتجاوز سعة السيرنج ({syringe.units} وحدة). استخدم سيرنجًا أكبر أو أضف ماءً أقل.
               </p>
             </div>
@@ -554,7 +557,7 @@ export default function DoseCalculator() {
               return (
                 <div className="mt-4 rounded-xl border border-red-300 bg-red-50 px-4 py-3">
                   <p className="text-sm font-bold text-red-800">⚠️ جرعة مرتفعة</p>
-                  <p className="text-xs text-red-700 mt-1">الجرعة المدخلة ({doseMcg} mcg) تتجاوز الحد الأعلى الموصى به لـ {preset.name} ({preset.maxDose} mcg). استشر طبيبك قبل استخدام هذه الجرعة.</p>
+                  <p className="text-xs text-red-600 mt-1">الجرعة المدخلة ({doseMcg} mcg) تتجاوز الحد الأعلى الموصى به لـ {preset.name} ({preset.maxDose} mcg). استشر طبيبك قبل استخدام هذه الجرعة.</p>
                 </div>
               );
             }
@@ -658,6 +661,7 @@ export default function DoseCalculator() {
         >
           <button
             onClick={() => setShowFormulas(!showFormulas)}
+            aria-expanded={showFormulas}
             className="flex w-full items-center justify-between px-6 py-4"
           >
             <div className="flex items-center gap-2">
@@ -841,12 +845,12 @@ function InputField({
           onChange={(e) => onChange(Number(e.target.value))}
           aria-label={label}
           className={cn(
-            'w-full rounded-xl border border-stone-300 bg-stone-50 px-4 py-3 pl-16',
+            'w-full rounded-xl border border-stone-300 bg-stone-50 px-4 py-3 pe-16',
             'text-base text-stone-900',
             'transition-colors focus:border-emerald-300 focus:outline-none focus:ring-1 focus:ring-emerald-200',
           )}
         />
-        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs text-stone-700">
+        <span className="absolute start-3 top-1/2 -translate-y-1/2 text-xs text-stone-700">
           {unit}
         </span>
       </div>

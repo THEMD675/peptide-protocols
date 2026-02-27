@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
+import { Eye, EyeOff } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
 import { cn } from '@/lib/utils';
@@ -14,6 +15,7 @@ export default function Login() {
   const [tab, setTab] = useState<Tab>(isSignupRoute ? 'signup' : 'login');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [resetMessage, setResetMessage] = useState('');
@@ -43,8 +45,8 @@ export default function Login() {
 
   const handleUpdatePassword = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newPassword.trim() || newPassword.length < 6) {
-      setError('كلمة المرور يجب أن تكون 6 أحرف على الأقل');
+    if (!newPassword.trim() || newPassword.length < 8) {
+      setError('كلمة المرور يجب أن تكون 8 أحرف على الأقل');
       return;
     }
     setLoading(true);
@@ -147,7 +149,7 @@ export default function Login() {
               <p className="text-sm text-white/70">أدخل كلمة مرور جديدة لحسابك</p>
             </div>
             <div className="px-6 pb-8 pt-6">
-              {error && <div className="mb-4 rounded-lg bg-red-50 px-4 py-3 text-sm text-red-700">{error}</div>}
+              {error && <div role="alert" className="mb-4 rounded-lg bg-red-50 px-4 py-3 text-sm text-red-700">{error}</div>}
               {resetMessage && <div className="mb-4 rounded-lg bg-green-50 px-4 py-3 text-sm text-green-700">{resetMessage}</div>}
               <form onSubmit={handleUpdatePassword} className="space-y-4">
                 <div>
@@ -157,9 +159,9 @@ export default function Login() {
                     type="password"
                     value={newPassword}
                     onChange={(e) => setNewPassword(e.target.value)}
-                    placeholder="6 أحرف على الأقل"
+                    placeholder="8 أحرف على الأقل"
                     dir="ltr"
-                    minLength={6}
+                    minLength={8}
                     className="w-full rounded-xl border border-stone-200 bg-white px-4 py-3 text-left text-stone-900 placeholder:text-stone-400 outline-none transition-shadow focus:border-emerald-300 focus:ring-2 focus:ring-emerald-100"
                   />
                 </div>
@@ -182,7 +184,7 @@ export default function Login() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-white px-4">
       <Helmet>
-        <title>تسجيل الدخول | pptides</title>
+        <title>{tab === 'login' ? 'تسجيل الدخول' : 'إنشاء حساب'} | pptides</title>
         <meta name="description" content="سجّل دخولك أو أنشئ حساب جديد للوصول إلى مكتبة الببتيدات وحاسبة الجرعات والمدرب الذكي." />
       </Helmet>
       <div className="w-full max-w-md">
@@ -236,7 +238,7 @@ export default function Login() {
             </div>
 
             {error && (
-              <div className="mb-4 rounded-lg bg-red-50 px-4 py-3 text-sm text-red-700">
+              <div role="alert" className="mb-4 rounded-lg bg-red-50 px-4 py-3 text-sm text-red-700">
                 {error}
               </div>
             )}
@@ -275,24 +277,34 @@ export default function Login() {
                 <label htmlFor="password" className="mb-1.5 block text-sm font-medium text-stone-900">
                   كلمة المرور
                 </label>
-                <input
-                  id="password"
-                  type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="••••••••"
-                  autoComplete={tab === 'login' ? 'current-password' : 'new-password'}
-                  dir="ltr"
-                  className="w-full rounded-xl border border-stone-200 bg-white px-4 py-3 text-left text-stone-900 placeholder:text-stone-400 outline-none transition-shadow focus:border-emerald-300 focus:ring-2 focus:ring-emerald-100"
-                />
+                <div className="relative">
+                  <input
+                    id="password"
+                    type={showPassword ? 'text' : 'password'}
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="••••••••"
+                    autoComplete={tab === 'login' ? 'current-password' : 'new-password'}
+                    dir="ltr"
+                    className="w-full rounded-xl border border-stone-200 bg-white px-4 py-3 pl-12 text-left text-stone-900 placeholder:text-stone-400 outline-none transition-shadow focus:border-emerald-300 focus:ring-2 focus:ring-emerald-100"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(v => !v)}
+                    className="absolute left-3 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-600 transition-colors"
+                    aria-label={showPassword ? 'إخفاء كلمة المرور' : 'إظهار كلمة المرور'}
+                  >
+                    {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                  </button>
+                </div>
                 {tab === 'signup' && password.length > 0 && (() => {
-                  const strength = password.length >= 8 ? 'strong' : password.length >= 6 ? 'medium' : 'weak';
+                  const strength = password.length >= 12 ? 'strong' : password.length >= 8 ? 'medium' : 'weak';
                   const color = strength === 'strong' ? 'bg-emerald-500' : strength === 'medium' ? 'bg-amber-500' : 'bg-red-500';
                   const label = strength === 'strong' ? 'قوية' : strength === 'medium' ? 'متوسطة' : 'ضعيفة';
                   const width = strength === 'strong' ? 'w-full' : strength === 'medium' ? 'w-2/3' : 'w-1/3';
                   return (
                     <div className="mt-2">
-                      <div className="h-1.5 w-full rounded-full bg-stone-200">
+                      <div className="h-1.5 w-full rounded-full bg-stone-200" role="progressbar" aria-valuenow={strength === 'strong' ? 100 : strength === 'medium' ? 66 : 33} aria-valuemin={0} aria-valuemax={100} aria-label="قوة كلمة المرور">
                         <div className={cn('h-1.5 rounded-full transition-all duration-300', color, width)} />
                       </div>
                       <p className={cn('mt-1 text-xs font-medium', strength === 'strong' ? 'text-emerald-600' : strength === 'medium' ? 'text-amber-600' : 'text-red-600')}>
@@ -302,14 +314,16 @@ export default function Login() {
                   );
                 })()}
                 {tab === 'login' && (
-                  <button
-                    type="button"
-                    onClick={handleResetPassword}
-                    disabled={loading}
-                    className="mt-2 text-sm font-medium text-emerald-600 hover:underline disabled:opacity-50"
-                  >
-                    نسيت كلمة المرور؟
-                  </button>
+                  <div className="mt-2 flex items-center justify-between">
+                    <button
+                      type="button"
+                      onClick={handleResetPassword}
+                      disabled={loading}
+                      className="text-sm font-medium text-emerald-600 hover:underline disabled:opacity-50"
+                    >
+                      نسيت كلمة المرور؟
+                    </button>
+                  </div>
                 )}
               </div>
 

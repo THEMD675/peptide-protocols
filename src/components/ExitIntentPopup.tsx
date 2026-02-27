@@ -30,10 +30,23 @@ export default function ExitIntentPopup() {
     return () => document.removeEventListener('mouseleave', handleMouseLeave);
   }, [handleMouseLeave]);
 
+  useEffect(() => {
+    if (!visible) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setVisible(false);
+    };
+    document.addEventListener('keydown', handleKeyDown);
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+      document.body.style.overflow = '';
+    };
+  }, [visible]);
+
   if (!visible) return null;
 
   return (
-    <div className="fixed inset-0 z-[9998] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4 animate-fade-in">
+    <div role="dialog" aria-modal="true" aria-labelledby="exit-popup-title" className="fixed inset-0 z-[9998] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4 animate-fade-in">
       <div className="relative w-full max-w-md rounded-2xl bg-white p-8 shadow-2xl text-center">
         <button
           onClick={() => setVisible(false)}
@@ -47,7 +60,7 @@ export default function ExitIntentPopup() {
           <Gift className="h-8 w-8 text-emerald-600" />
         </div>
 
-        <h2 className="mb-2 text-2xl font-bold text-stone-900">
+        <h2 id="exit-popup-title" className="mb-2 text-2xl font-bold text-stone-900">
           لحظة — لا تفوّت الفرصة
         </h2>
         <p className="mb-1 text-stone-700">
@@ -69,7 +82,7 @@ export default function ExitIntentPopup() {
 
         <button
           onClick={() => setVisible(false)}
-          className="text-sm text-stone-400 hover:text-stone-600 transition-colors"
+          className="rounded-full border border-stone-200 px-5 py-2 text-sm text-stone-500 hover:text-stone-700 hover:border-stone-300 transition-colors"
         >
           لا شكرًا
         </button>

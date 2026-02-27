@@ -56,6 +56,8 @@ serve(async (req) => {
       return jsonResponse({ received: true, duplicate: true })
     }
 
+    let dbFailed = false
+
     switch (event.type) {
       case 'checkout.session.completed': {
         const session = event.data.object as Stripe.Checkout.Session
@@ -111,15 +113,20 @@ serve(async (req) => {
 
           if (error) {
             console.error('checkout.session.completed DB error:', error)
+            dbFailed = true
           } else if (!updateData || updateData.length === 0) {
             console.error('checkout.session.completed: no row found, inserting new one for user', userId)
             const { error: insertErr } = await supabase
               .from('subscriptions')
               .insert({ user_id: userId, ...updatePayload })
-            if (insertErr) console.error('checkout.session.completed insert fallback error:', insertErr)
+            if (insertErr) {
+              console.error('checkout.session.completed insert fallback error:', insertErr)
+              dbFailed = true
+            }
           }
         } catch (dbErr) {
           console.error('checkout.session.completed DB exception:', dbErr)
+          dbFailed = true
         }
         break
       }
@@ -154,9 +161,13 @@ serve(async (req) => {
             .update(updatePayload)
             .eq('stripe_subscription_id', stripeSubId)
 
-          if (error) console.error('subscription.updated DB error:', error)
+          if (error) {
+            console.error('subscription.updated DB error:', error)
+            dbFailed = true
+          }
         } catch (dbErr) {
           console.error('subscription.updated DB exception:', dbErr)
+          dbFailed = true
         }
         break
       }
@@ -176,9 +187,13 @@ serve(async (req) => {
             })
             .eq('stripe_subscription_id', stripeSubId)
 
-          if (error) console.error('subscription.deleted DB error:', error)
+          if (error) {
+            console.error('subscription.deleted DB error:', error)
+            dbFailed = true
+          }
         } catch (dbErr) {
           console.error('subscription.deleted DB exception:', dbErr)
+          dbFailed = true
         }
         break
       }
@@ -186,8 +201,9 @@ serve(async (req) => {
       case 'invoice.paid': {
         const invoice = event.data.object as Stripe.Invoice
         const stripeSubId = invoice.subscription as string | null
+        const amountPaid = invoice.amount_paid ?? 0
 
-        if (stripeSubId) {
+        if (stripeSubId && amountPaid > 0) {
           try {
             const { error } = await supabase
               .from('subscriptions')
@@ -197,9 +213,13 @@ serve(async (req) => {
               })
               .eq('stripe_subscription_id', stripeSubId)
 
-            if (error) console.error('payment_succeeded DB error:', error)
+            if (error) {
+              console.error('payment_succeeded DB error:', error)
+              dbFailed = true
+            }
           } catch (dbErr) {
             console.error('payment_succeeded DB exception:', dbErr)
+            dbFailed = true
           }
         }
         break
@@ -214,14 +234,20 @@ serve(async (req) => {
             const { error } = await supabase
               .from('subscriptions')
               .update({
+                status: 'past_due',
                 updated_at: new Date().toISOString(),
               })
               .eq('stripe_subscription_id', stripeSubId)
 
-            if (error) console.error('payment_failed DB error:', error)
-            else console.log('payment_failed: kept status unchanged, Stripe will retry')
+            if (error) {
+              console.error('payment_failed DB error:', error)
+              dbFailed = true
+            } else {
+              console.log('payment_failed: status set to past_due, Stripe will retry billing')
+            }
           } catch (dbErr) {
             console.error('payment_failed DB exception:', dbErr)
+            dbFailed = true
           }
         } else {
           console.error('invoice.payment_failed: missing subscription ID on invoice', invoice.id)
@@ -231,6 +257,10 @@ serve(async (req) => {
 
       default:
         console.log('Unhandled Stripe event type:', event.type)
+    }
+
+    if (dbFailed) {
+      return jsonResponse({ error: 'Database update failed' }, 500)
     }
 
     return jsonResponse({ received: true })

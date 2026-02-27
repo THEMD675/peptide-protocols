@@ -6,7 +6,10 @@ const supabaseUrl = Deno.env.get('SUPABASE_URL') ?? ''
 const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY') ?? ''
 
 const APP_URL = Deno.env.get('APP_URL') ?? 'https://pptides.com'
-const ALLOWED_ORIGINS = ['https://pptides.com', 'http://localhost:3000', 'http://localhost:3001']
+const IS_PRODUCTION = !Deno.env.get('DENO_DEV')
+const ALLOWED_ORIGINS = IS_PRODUCTION
+  ? ['https://pptides.com']
+  : ['https://pptides.com', 'http://localhost:3000', 'http://localhost:3001']
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 

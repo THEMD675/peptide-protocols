@@ -82,7 +82,7 @@ export function renderMarkdown(text: string) {
     }
 
     if (line === '---') { flushList(); elements.push(<hr key={`hr-${i}`} className="my-3 border-stone-200" />); continue; }
-    if (line.startsWith('###')) { flushList(); elements.push(<h4 key={i} className="mt-4 mb-1 font-bold text-emerald-700 text-sm">{line.replace(/^###\s*/, '')}</h4>); continue; }
+    if (line.startsWith('###')) { flushList(); elements.push(<h4 key={i} className="mt-4 mb-1 font-bold text-emerald-700 text-base">{line.replace(/^###\s*/, '')}</h4>); continue; }
     if (line.startsWith('##')) { flushList(); elements.push(<h3 key={i} className="mt-4 mb-1 text-base font-bold text-stone-900">{line.replace(/^##\s*/, '')}</h3>); continue; }
     if (line.startsWith('#')) { flushList(); elements.push(<h3 key={i} className="mt-4 mb-1 text-base font-bold text-stone-900">{line.replace(/^#\s*/, '')}</h3>); continue; }
     if (/^[-*]\s/.test(line) || /^\d+\.\s/.test(line)) { listItems.push(line.replace(/^[-*]\s*/, '').replace(/^\d+\.\s*/, '')); continue; }

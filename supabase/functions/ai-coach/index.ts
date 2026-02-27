@@ -5,7 +5,10 @@ const DEEPSEEK_API_KEY = Deno.env.get('DEEPSEEK_API_KEY')
 const supabaseUrl = Deno.env.get('SUPABASE_URL') ?? ''
 const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
 
-const ALLOWED_ORIGINS = ['https://pptides.com', 'http://localhost:3000', 'http://localhost:3001']
+const IS_PRODUCTION = !Deno.env.get('DENO_DEV')
+const ALLOWED_ORIGINS = IS_PRODUCTION
+  ? ['https://pptides.com']
+  : ['https://pptides.com', 'http://localhost:3000', 'http://localhost:3001']
 const MAX_USER_MESSAGES = 30
 
 const RATE_LIMIT_WINDOW_SECONDS = 60
@@ -104,8 +107,8 @@ DECISION TREE (pick the BEST match for the user's profile):
 FAT LOSS (مرتّب حسب الفعالية — الأقوى أول):
 - الأقوى: Retatrutide 1mg/week SubQ → titrate to 8-12mg. Triple agonist (GLP-1 + GIP + Glucagon). 24% فقدان وزن في Phase 2. الأقوى بالبيانات. $200-350/شهر. قول للمستخدم بوضوح: "هذا أقوى خيار موجود حالياً بالبيانات."
 - ممتاز: Tirzepatide 2.5mg/week SubQ → titrate to 10-15mg. Dual agonist (GLP-1 + GIP). 22.5% فقدان وزن (SURMOUNT). معتمد FDA. $200-400/شهر. قول: "ثاني أقوى خيار، وميزته إنه معتمد FDA."
-- قوي: Semaglutide 0.25mg/week → titrate to 2.4mg. GLP-1 فقط. 15-20% فقدان وزن (STEP). أكثر واحد مدروس. $150-300/شهر. قول: "الأكثر دراسة لكن مو الأقوى."
-- بحثي فقط: Tesamorelin 2mg/day + AOD-9604 300mcg. لدهون البطن تحديداً. $200-300/شهر.
+- قوي: Semaglutide 0.25mg/week → titrate to 2.4mg. GLP-1 فقط. 15-20% فقدان وزن (STEP). أكثر واحد مدروس. $150-250/شهر. قول: "الأكثر دراسة لكن مو الأقوى."
+- بحثي فقط: Tesamorelin 2mg/day + AOD-9604 300mcg. لدهون البطن تحديداً. $250-350/شهر.
 - بدون حقن: 5-Amino-1MQ 100mg/day فموي. تأثير متواضع مقارنة بالحقن. $80-120/شهر. كن صريح: "الفموي ما يقارَن بالحقن بالنتائج."
 - يفضّل بدون حقن: اشرح إن Semaglutide حقنة أسبوعية وحدة بإبرة إنسولين صغيرة — أغلب الناس ما يحسون فيها. إذا مصر → 5-Amino-1MQ.
 مهم: لا تقترح Semaglutide أو Tirzepatide على إنهم "الأفضل" — Retatrutide أقوى بالبيانات. كن صريح.
@@ -118,8 +121,8 @@ RECOVERY (مرتّب حسب الفعالية):
 
 MUSCLE (مرتّب حسب الفعالية):
 - الأقوى: Follistatin-344 100mcg/يوم × 10 أيام كل 3 أشهر. يثبّط الميوستاتين. للمتقدمين فقط. $200/دورة. كن واضح: "هذا أقوى ببتيد لبناء العضل لكنه للمتقدمين."
-- ممتاز: CJC-1295 100mcg + Ipamorelin 200mcg SubQ قبل النوم فارغ المعدة. يرفع هرمون النمو بشكل طبيعي. $100-150/شهر.
-- متوسط + تعافي: CJC/Ipa + BPC-157 250mcg/يوم. يغطي النمو + التعافي. $160-210/شهر.
+- ممتاز: CJC-1295 100mcg + Ipamorelin 200mcg SubQ قبل النوم فارغ المعدة. يرفع هرمون النمو بشكل طبيعي. $150-250/شهر.
+- متوسط + تعافي: CJC/Ipa + BPC-157 250mcg/يوم. يغطي النمو + التعافي. $200-300/شهر.
 - بدون حقن: ما في ببتيد فموي فعّال لبناء العضل. اقترح MK-677 25mg فموي (مو ببتيد لكن GH secretagogue). $40-60/شهر. حذّر من الجوع واحتباس الماء.
 
 BRAIN (مرتّب حسب الفعالية):
@@ -142,7 +145,7 @@ LONGEVITY (مرتّب حسب الفعالية):
 
 GUT & SKIN (مرتّب حسب الهدف):
 - أمعاء: BPC-157 500mcg فموي (كبسولة مقاومة للحمض). 8-12 أسبوع. $80-120/شهر. "BPC-157 الفموي فعّال تحديداً للأمعاء لأنه مقاوم للحمض."
-- أمعاء + التهاب: Larazotide 0.5mg + KPV 200mcg فموي. $100-150/شهر.
+- أمعاء + التهاب: Larazotide 0.5mg + KPV 200mcg فموي. $150-250/شهر.
 - بشرة: GHK-Cu سيروم موضعي + Collagen Peptides 10g فموي. $40-60/شهر.
 - بشرة + حقن: GHK-Cu 1-2mg SubQ يوميًا + سيروم موضعي. $30-80/شهر.
 
@@ -217,6 +220,14 @@ serve(async (req) => {
     const isActive = sub?.status === 'active'
     const hasFullAccess = isTrialValid || isActive
 
+    const contentLength = parseInt(req.headers.get('content-length') || '0', 10);
+    if (contentLength > 100_000) {
+      return new Response(JSON.stringify({ error: 'Request too large' }), {
+        status: 413,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
     let body: { messages?: unknown; stream?: unknown }
     try {
       body = await req.json()
@@ -274,7 +285,7 @@ serve(async (req) => {
           { role: 'system', content: SYSTEM_PROMPT },
           ...userMessages,
         ],
-        max_tokens: 2400,
+        max_tokens: 4000,
         temperature: 0.7,
         stream: wantStream,
       }),

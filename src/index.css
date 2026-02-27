@@ -3,28 +3,11 @@
 @tailwind utilities;
 
 :root {
-  /* ═══ Legacy variables — used by existing pages (raw colors) ═══ */
-  --navy: #0a1628;
-  --gold: #10b981;
-  --gold-light: #6ee7b7;
-  --cream: #ffffff;
-  --dark-cream: #fafaf9;
-  --card: #ffffff;
+  /* ═══ Core design tokens ═══ */
   --text: #0a0a0a;
-  --text-secondary: #57534e;
   --muted: #78716c;
   --border: #e7e5e4;
-  --danger: #dc2626;
-  --success: #10b981;
-  --info: #3b82f6;
-  --warning: #f59e0b;
   --radius: 1rem;
-
-  /* ═══ HSL component aliases — used by ui component shadows ═══ */
-  --primary: 160 84% 39%;
-  --primary-foreground: 0 0% 100%;
-  --destructive: 0 84% 60%;
-  --destructive-foreground: 0 0% 100%;
 
   /* ═══ Tailwind/Radix HSL system — used by ui components ═══ */
   --tw-background: 0 0% 100%;
@@ -49,16 +32,8 @@
   --tw-input: 0 0% 90%;
   --tw-ring: 160 84% 39%;
 
-  --color-amber: 38 80% 50%;
-  --color-gold: 43 86% 56%;
-  --color-violet: 262 70% 58%;
-  --color-cyan: 190 80% 39%;
 
-  --chart-1: 160 74% 38%;
-  --chart-2: 262 70% 58%;
-  --chart-3: 43 86% 56%;
-  --chart-4: 190 80% 39%;
-  --chart-5: 0 78% 58%;
+  --header-height: 4rem;
 
   --divider: hsl(var(--tw-border) / 0.4);
   --divider-soft: hsl(var(--tw-border) / 0.25);
@@ -73,11 +48,12 @@
 }
 
 
-* { margin: 0; padding: 0; box-sizing: border-box; }
-
 @layer base {
-  * {
-    border-color: var(--border);
+  *,
+  ::before,
+  ::after {
+    --tw-border-opacity: 1;
+    border-color: hsl(var(--tw-border) / var(--tw-border-opacity));
   }
 
   ::selection {
@@ -91,10 +67,10 @@
 
   body {
     font-family: 'Cairo', 'Inter', 'SF Pro Display', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
-    background: var(--cream);
+    background: #fff;
     color: var(--text);
-    line-height: 1.8;
-    font-size: 16px;
+    line-height: 1.6;
+    font-size: 1rem;
     direction: rtl;
     text-align: right;
     -webkit-font-smoothing: antialiased;
@@ -121,7 +97,7 @@
     backdrop-filter: blur(16px) saturate(1.8);
     border: 1px solid rgba(255, 255, 255, 0.2);
     border-radius: var(--radius);
-    transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+    transition: transform 0.4s cubic-bezier(0.23, 1, 0.32, 1), box-shadow 0.4s cubic-bezier(0.23, 1, 0.32, 1), border-color 0.4s cubic-bezier(0.23, 1, 0.32, 1);
   }
   .glass-card:hover {
     transform: translateY(-4px);
@@ -183,10 +159,6 @@
 }
 
 /* fade-up and fade-in defined in tailwind.config.ts */
-@keyframes shimmer {
-  0% { background-position: -200% 0; }
-  100% { background-position: 200% 0; }
-}
 @keyframes breathe {
   0%, 100% {
     box-shadow: 0 0 20px -5px rgba(16, 185, 129, 0.3);
@@ -216,6 +188,11 @@
 .stagger-5 { animation-delay: 0.25s; }
 .stagger-6 { animation-delay: 0.3s; }
 
+html {
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) transparent;
+}
+
 ::-webkit-scrollbar { width: 6px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
@@ -223,9 +200,9 @@
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
-    animation-duration: 0.01ms !important;
+    animation-duration: 0s !important;
     animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
+    transition-duration: 0s !important;
   }
 }
 
@@ -269,7 +246,7 @@
   top: -100%;
   left: 50%;
   transform: translateX(-50%);
-  z-index: 9999;
+  z-index: 9990;
   padding: 0.75rem 1.5rem;
   background: #10b981;
   color: white;

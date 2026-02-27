@@ -7,7 +7,10 @@ const stripe = new Stripe(stripeKey, { apiVersion: '2023-10-16' })
 const supabaseUrl = Deno.env.get('SUPABASE_URL') ?? ''
 const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
 
-const ALLOWED_ORIGINS = ['https://pptides.com', 'http://localhost:3000', 'http://localhost:3001']
+const IS_PRODUCTION = !Deno.env.get('DENO_DEV')
+const ALLOWED_ORIGINS = IS_PRODUCTION
+  ? ['https://pptides.com']
+  : ['https://pptides.com', 'http://localhost:3000', 'http://localhost:3001']
 
 serve(async (req) => {
   const origin = req.headers.get('origin') ?? ''
@@ -96,6 +99,19 @@ serve(async (req) => {
         already_cancelled: true,
         cancel_at: periodEnd,
         message: 'Subscription is already cancelled',
+      }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      })
+    }
+
+    const currentSub = await stripe.subscriptions.retrieve(sub.stripe_subscription_id)
+    if (currentSub.cancel_at_period_end) {
+      const periodEnd = new Date(currentSub.current_period_end * 1000).toISOString()
+      return new Response(JSON.stringify({
+        success: true,
+        already_cancelled: true,
+        cancel_at: periodEnd,
+        message: 'Already cancelled',
       }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       })

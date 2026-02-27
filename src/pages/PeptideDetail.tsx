@@ -1,5 +1,5 @@
 import { useMemo, useState, useEffect } from 'react';
-import { useParams, Link, Navigate, useNavigate } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import { ArrowRight, Shield, AlertTriangle, CheckCircle, Lock, Calculator, Bot, FlaskConical, Printer, MessageSquare, Star, Syringe, Share2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { Helmet } from 'react-helmet-async';
@@ -7,26 +7,9 @@ import { cn } from '@/lib/utils';
 import { peptides } from '@/data/peptides';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
-import { PRICING } from '@/lib/constants';
+import { PRICING, TRIAL_PEPTIDE_IDS, SITE_URL } from '@/lib/constants';
 import { DOSE_PRESETS_MAP as DOSE_PRESETS } from '@/data/dose-presets';
-
-const evidenceColors: Record<string, string> = {
-  excellent: 'bg-emerald-100 text-emerald-800 border-emerald-300',
-  strong: 'bg-blue-100 text-blue-800 border-blue-300',
-  good: 'bg-sky-100 text-sky-800 border-sky-300',
-  moderate: 'bg-amber-100 text-amber-800 border-amber-300',
-  weak: 'bg-orange-100 text-orange-800 border-orange-300',
-  'very-weak': 'bg-red-100 text-red-800 border-red-300',
-};
-
-const evidenceLabels: Record<string, string> = {
-  excellent: 'ممتاز',
-  strong: 'قوي',
-  good: 'جيد',
-  moderate: 'متوسط',
-  weak: 'ضعيف',
-  'very-weak': 'ضعيف جدًا',
-};
+import { evidenceColors, evidenceLabels } from '@/lib/peptide-labels';
 
 interface ProtocolRow {
   label: string;
@@ -40,15 +23,24 @@ export default function PeptideDetail() {
   const { subscription, isLoading } = useAuth();
   const navigate = useNavigate();
   const isPaid = !isLoading && (subscription?.isPaidSubscriber ?? false);
+  const isTrial = !isLoading && (subscription?.isTrial ?? false);
 
   const peptide = useMemo(() => peptides.find((p) => p.id === id), [id]);
 
   if (!peptide) {
-    return <Navigate to="/library" replace />;
+    return (
+      <div className="flex min-h-[50vh] flex-col items-center justify-center px-6 text-center">
+        <h1 className="mb-3 text-2xl font-bold text-stone-900">الببتيد غير موجود</h1>
+        <p className="mb-6 text-stone-600">لم يتم العثور على ببتيد بهذا المعرّف.</p>
+        <Link to="/library" className="rounded-full bg-emerald-600 px-8 py-3 font-bold text-white hover:bg-emerald-700 transition-colors">
+          تصفّح المكتبة
+        </Link>
+      </div>
+    );
   }
 
   const isFreeContent = peptide.isFree;
-  const hasAccess = isPaid || isFreeContent;
+  const hasAccess = isPaid || isFreeContent || (isTrial && TRIAL_PEPTIDE_IDS.has(peptide.id));
   const firstSentence = peptide.summaryAr.split('.')[0] + '.';
 
   const rows: ProtocolRow[] = [
@@ -68,14 +60,15 @@ export default function PeptideDetail() {
   return (
     <div className="min-h-screen" >
       <Helmet>
-        <title>{peptide.nameAr} — {peptide.nameEn} | pptides</title>
-        <meta name="description" content={peptide.summaryAr} />
-        <meta property="og:title" content={`${peptide.nameAr} — ${peptide.nameEn} | Peptide Guide`} />
+        <title>{peptide.nameAr} | {peptide.nameEn} | pptides</title>
+        <meta name="description" content={peptide.summaryAr.length > 155 ? peptide.summaryAr.slice(0, 155) + '…' : peptide.summaryAr} />
+        <meta property="og:title" content={`${peptide.nameAr} | ${peptide.nameEn} | pptides`} />
         <meta property="og:description" content={peptide.summaryAr} />
         <meta property="og:type" content="article" />
-        <meta property="og:url" content={`https://pptides.com/peptide/${peptide.id}`} />
-        <meta name="twitter:card" content="summary" />
-        <meta name="twitter:title" content={`${peptide.nameAr} — ${peptide.nameEn}`} />
+        <meta property="og:url" content={`${SITE_URL}/peptide/${peptide.id}`} />
+        <meta property="og:locale" content="ar_SA" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content={`${peptide.nameAr} | ${peptide.nameEn}`} />
         <meta name="twitter:description" content={peptide.summaryAr.slice(0, 160)} />
         <script type="application/ld+json">{JSON.stringify({
           "@context": "https://schema.org",
@@ -93,7 +86,13 @@ export default function PeptideDetail() {
         {/* Back Button */}
         <div>
           <button
-            onClick={() => window.history.length > 1 ? navigate(-1) : navigate('/library')}
+            onClick={() => {
+              if (document.referrer && new URL(document.referrer).origin === window.location.origin) {
+                navigate(-1);
+              } else {
+                navigate('/library');
+              }
+            }}
             className="mb-6 inline-flex items-center gap-2 rounded-lg px-3 py-1.5 text-sm text-stone-800 transition-colors hover:bg-stone-100 hover:text-stone-800"
           >
             <ArrowRight className="h-4 w-4" />
@@ -212,7 +211,7 @@ export default function PeptideDetail() {
                   onClick={async () => {
                     const shareData = {
                       title: `${peptide.nameAr} — ${peptide.nameEn}`,
-                      text: peptide.summaryAr.slice(0, 200),
+                      text: peptide.summaryAr.slice(0, 200) + ' — اشترك في pptides.com للمزيد',
                       url: window.location.href,
                     };
                     if (navigator.share) {
@@ -222,6 +221,7 @@ export default function PeptideDetail() {
                       toast.success('تم نسخ الرابط');
                     }
                   }}
+                  aria-label="مشاركة البروتوكول"
                   className="flex items-center gap-1.5 rounded-lg border border-stone-200 bg-white px-3 py-1.5 text-xs font-medium text-stone-600 transition-colors hover:bg-stone-50"
                 >
                   <Share2 className="h-3.5 w-3.5" />
@@ -247,14 +247,15 @@ export default function PeptideDetail() {
                       i % 2 === 0 ? 'bg-stone-50 border border-stone-300' : 'bg-transparent',
                     )}
                   >
-                    <td
+                    <th
+                      scope="row"
                       className={cn(
-                        'w-[35%] px-5 py-4 align-top text-sm font-semibold',
+                        'w-[35%] px-5 py-4 align-top text-sm font-semibold text-right',
                         row.highlight ? 'text-emerald-600' : 'text-stone-800',
                       )}
                     >
                       {row.label}
-                    </td>
+                    </th>
                     <td className="px-5 py-4 text-sm leading-relaxed text-stone-800">
                       {row.value}
                     </td>
@@ -267,13 +268,20 @@ export default function PeptideDetail() {
           {/* Inline Quick Dose Calculator */}
           <InlineDoseCalc peptide={peptide} />
 
-          <div className="mt-4 grid gap-3 sm:grid-cols-3">
+          <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
             <Link
               to={`/calculator?peptide=${encodeURIComponent(peptide.nameEn)}`}
               className="flex items-center justify-center gap-2 rounded-xl border border-emerald-200 bg-emerald-50 px-5 py-3.5 text-sm font-bold text-emerald-700 transition-all hover:bg-emerald-100 hover:shadow-md"
             >
               <Calculator className="h-4 w-4" />
               حاسبة متقدمة
+            </Link>
+            <Link
+              to={`/interactions?peptide=${encodeURIComponent(peptide.id)}`}
+              className="flex items-center justify-center gap-2 rounded-xl border border-stone-200 bg-white px-5 py-3.5 text-sm font-bold text-stone-800 transition-all hover:border-emerald-200 hover:shadow-md"
+            >
+              <Shield className="h-4 w-4" />
+              فحص التعارضات
             </Link>
             <Link
               to={`/coach?peptide=${encodeURIComponent(peptide.nameAr)}`}
@@ -366,12 +374,19 @@ export default function PeptideDetail() {
 
 function InlineDoseCalc({ peptide }: { peptide: { nameEn: string } }) {
   const preset = DOSE_PRESETS[peptide.nameEn];
-  if (!preset) return null;
 
-  const concentrationMcgPerMl = (preset.vialMg * 1000) / preset.waterMl;
-  const volumeMl = preset.dose / concentrationMcgPerMl;
-  const syringeUnits = volumeMl * 100;
-  const dosesPerVial = Math.floor((preset.vialMg * 1000) / preset.dose);
+  const calc = useMemo(() => {
+    if (!preset) return null;
+    const concentrationMcgPerMl = (preset.vialMg * 1000) / preset.waterMl;
+    const volumeMl = preset.dose / concentrationMcgPerMl;
+    return {
+      syringeUnits: volumeMl * 100,
+      dosesPerVial: Math.floor((preset.vialMg * 1000) / preset.dose),
+    };
+  }, [preset]);
+
+  if (!preset || !calc) return null;
+  const { syringeUnits, dosesPerVial } = calc;
 
   return (
     <div className="mt-6 rounded-2xl border border-emerald-200 bg-emerald-50/50 p-5">
@@ -380,7 +395,7 @@ function InlineDoseCalc({ peptide }: { peptide: { nameEn: string } }) {
           <Syringe className="h-5 w-5 text-emerald-600" />
           <h3 className="text-sm font-bold text-stone-900">حاسبة سريعة — {peptide.nameEn}</h3>
         </div>
-        <p className="mt-1 mr-7 text-xs text-stone-500">بناءً على الجرعة الموصى بها ({preset.dose} mcg)</p>
+        <p className="mt-1 me-7 text-xs text-stone-500">بناءً على الجرعة الموصى بها ({preset.dose} mcg)</p>
       </div>
 
       <div className="grid gap-3 sm:grid-cols-4">
@@ -415,23 +430,27 @@ function PeptideExperiences({ peptideNameEn }: { peptideNameEn: string }) {
 
   useEffect(() => {
     let mounted = true;
-    setLoading(true);
-    const safeName = peptideNameEn.replace(/[%_]/g, '');
     supabase
       .from('community_logs')
       .select('id, results, rating, duration_weeks, created_at')
-      .ilike('peptide_name', `%${safeName}%`)
+      .eq('peptide_name', peptideNameEn)
       .order('created_at', { ascending: false })
       .limit(3)
       .then(({ data }) => {
         if (!mounted) return;
         if (data) setExperiences(data);
         setLoading(false);
-      });
+      }).catch(() => { if (mounted) setLoading(false); });
     return () => { mounted = false; };
   }, [peptideNameEn]);
 
-  if (loading || experiences.length === 0) return null;
+  if (loading) return (
+    <div className="mt-8 space-y-3">
+      <div className="h-6 w-40 animate-pulse rounded bg-stone-200" />
+      <div className="h-20 animate-pulse rounded-xl bg-stone-100" />
+    </div>
+  );
+  if (experiences.length === 0) return null;
 
   return (
     <div className="mt-8">

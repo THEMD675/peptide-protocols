@@ -2,7 +2,6 @@ import type { Config } from "tailwindcss";
 import tailwindcssAnimate from "tailwindcss-animate";
 
 export default {
-  darkMode: ["class"],
   content: [
     "./index.html",
     "./src/**/*.{ts,tsx}",
@@ -18,20 +17,6 @@ export default {
     extend: {
       fontFamily: {
         sans: ['Cairo', 'Inter', 'SF Pro Display', '-apple-system', 'BlinkMacSystemFont', 'system-ui', 'sans-serif'],
-      },
-      spacing: {
-        'space-1': 'var(--space-1)',
-        'space-2': 'var(--space-2)',
-        'space-3': 'var(--space-3)',
-        'space-4': 'var(--space-4)',
-        'space-5': 'var(--space-5)',
-        'space-6': 'var(--space-6)',
-        'space-7': 'var(--space-7)',
-        'space-8': 'var(--space-8)',
-        'space-9': 'var(--space-9)',
-        'space-10': 'var(--space-10)',
-        'space-11': 'var(--space-11)',
-        'space-12': 'var(--space-12)',
       },
       colors: {
         border: "hsl(var(--tw-border))",
@@ -74,17 +59,6 @@ export default {
         divider: "var(--divider)",
         "divider-soft": "var(--divider-soft)",
         "divider-strong": "var(--divider-strong)",
-        "brand-amber": "hsl(var(--color-amber))",
-        "brand-gold": "hsl(var(--color-gold))",
-        "brand-violet": "hsl(var(--color-violet))",
-        "brand-cyan": "hsl(var(--color-cyan))",
-        chart: {
-          "1": "hsl(var(--chart-1))",
-          "2": "hsl(var(--chart-2))",
-          "3": "hsl(var(--chart-3))",
-          "4": "hsl(var(--chart-4))",
-          "5": "hsl(var(--chart-5))",
-        },
       },
       borderRadius: {
         lg: "var(--radius)",

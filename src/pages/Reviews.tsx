@@ -37,6 +37,8 @@ function StarRating({
           <button
             key={star}
             type="button"
+            role="radio"
+            aria-checked={rating >= star}
             onClick={() => onRate?.(star)}
             onMouseEnter={() => setHover(star)}
             onMouseLeave={() => setHover(0)}
@@ -80,7 +82,7 @@ export default function Reviews() {
   const [text, setText] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
-  const [submittedRating, setSubmittedRating] = useState(0);
+
 
   const fetchReviews = useCallback(async (signal?: { cancelled: boolean }) => {
     setFetchError(null);
@@ -99,11 +101,13 @@ export default function Reviews() {
     setLoading(false);
   }, []);
 
+  /* eslint-disable react-hooks/set-state-in-effect -- data fetching on mount */
   useEffect(() => {
     const signal = { cancelled: false };
-    fetchReviews(signal);
+    void fetchReviews(signal);
     return () => { signal.cancelled = true; };
-  }, []);
+  }, [fetchReviews]);
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   const averageRating =
     reviews.length > 0
@@ -130,7 +134,7 @@ export default function Reviews() {
       email: user.email,
       rating,
       content: text.trim(),
-      is_approved: rating >= 4,
+      is_approved: false,
     });
 
     setSubmitting(false);
@@ -140,7 +144,6 @@ export default function Reviews() {
       return;
     }
     setSubmitted(true);
-    setSubmittedRating(rating);
     setRating(0);
     setText('');
     fetchReviews();
@@ -159,7 +162,7 @@ export default function Reviews() {
     <div className="min-h-screen" >
       <Helmet>
         <title>تقييمات المستخدمين | pptides</title>
-        <meta name="description" content="اقرأ آراء وتقييمات المستخدمين عن دليل البيبتايدات. شارك تجربتك وساعد الآخرين." />
+        <meta name="description" content="اقرأ آراء وتقييمات المستخدمين عن دليل الببتيدات. شارك تجربتك وساعد الآخرين." />
       </Helmet>
       <div className="mx-auto max-w-4xl px-4 pt-8 pb-24 md:px-6 md:pt-12">
         <div
@@ -218,11 +221,8 @@ export default function Reviews() {
             >
               <CheckCircle className="h-10 w-10 text-emerald-600" />
               <p className="text-base font-bold text-stone-900">
-                شكرًا لتقييمك!
+                شكرًا! سيتم مراجعة تقييمك قبل النشر.
               </p>
-              {submittedRating < 4 && (
-                <p className="text-sm text-stone-500">تقييمك قيد المراجعة وسيظهر قريبًا</p>
-              )}
             </div>
           ) : (
             <form onSubmit={handleSubmit} className="space-y-5">
@@ -253,7 +253,7 @@ export default function Reviews() {
                   )}
                 />
                 {text.length > 0 && (
-                  <p className="mt-1 text-left text-xs text-stone-400">{text.length}/1000</p>
+                  <p className="mt-1 text-start text-xs text-stone-400">{text.length}/1000</p>
                 )}
               </div>
 

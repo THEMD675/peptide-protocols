@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import FocusTrap from 'focus-trap-react';
 import { Helmet } from 'react-helmet-async';
 import {
@@ -86,7 +86,7 @@ export default function Tracker() {
     return { year: now.getFullYear(), month: now.getMonth() };
   });
 
-  const suggestedSite = (() => {
+  const suggestedSite = useMemo(() => {
     if (logs.length === 0) return 'abdomen';
     const allSites = ['abdomen', 'thigh', 'arm', 'glute'];
     const recentSites = logs.slice(0, 5).map(l => l.injection_site);
@@ -95,7 +95,7 @@ export default function Tracker() {
     const leastUsed = allSites.reduce((a, b) => (siteCounts[a] || 0) <= (siteCounts[b] || 0) ? a : b);
     const lastSite = logs[0]?.injection_site;
     return lastSite === leastUsed ? allSites.find(s => s !== lastSite) || leastUsed : leastUsed;
-  })();
+  }, [logs]);
 
   const PAGE_SIZE = 50;
 
@@ -165,7 +165,7 @@ export default function Tracker() {
     if (!dose || parseFloat(dose) <= 0) { toast.error('أدخل جرعة صحيحة'); return; }
     setIsSubmitting(true);
     try {
-      await supabase.from('injection_logs').insert({
+      const { error } = await supabase.from('injection_logs').insert({
         user_id: user.id,
         peptide_name: peptideName.trim(),
         dose: parseFloat(dose),
@@ -174,6 +174,10 @@ export default function Tracker() {
         logged_at: new Date(injectedAt).toISOString(),
         notes: notes.trim() || null,
       });
+      if (error) {
+        toast.error('حدث خطأ أثناء الحفظ. حاول مرة أخرى.');
+        return;
+      }
       setPeptideName('');
       setDose('');
       setUnit('mcg');
@@ -191,11 +195,96 @@ export default function Tracker() {
     }
   };
 
+  const dashboardStats = useMemo(() => {
+    if (logs.length === 0) return null;
+    const totalInjections = totalCount || logs.length;
+    const uniquePeptides = new Set(logs.map(l => l.peptide_name)).size;
+    let streak = 0;
+    const daySet = new Set(logs.map(l => new Date(l.logged_at).toDateString()));
+    const d = new Date();
+    if (!daySet.has(d.toDateString())) d.setDate(d.getDate() - 1);
+    while (daySet.has(d.toDateString())) { streak++; d.setDate(d.getDate() - 1); }
+    const last7 = logs.filter(l => Date.now() - new Date(l.logged_at).getTime() < 7 * 24 * 60 * 60 * 1000).length;
+    const msSinceLast = Date.now() - new Date(logs[0].logged_at).getTime();
+    const hoursSince = Math.floor(msSinceLast / (1000 * 60 * 60));
+    const daysSince = Math.floor(hoursSince / 24);
+    const timeSinceLabel = daysSince > 0 ? `منذ ${daysSince} يوم` : hoursSince > 0 ? `منذ ${hoursSince} ساعة` : 'الآن';
+    return { totalInjections, uniquePeptides, streak, last7, timeSinceLabel };
+  }, [logs, totalCount]);
+
+  const weeklyActivity = useMemo(() => {
+    if (logs.length === 0) return null;
+    const days = ['الأحد', 'الإثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'];
+    const weekCounts = Array(7).fill(0) as number[];
+    const now = new Date();
+    logs.forEach(l => {
+      const diff = Math.floor((now.getTime() - new Date(l.logged_at).getTime()) / (1000 * 60 * 60 * 24));
+      if (diff < 7) weekCounts[new Date(l.logged_at).getDay()]++;
+    });
+    const max = Math.max(...weekCounts, 1);
+    return { days, weekCounts, max, todayIdx: now.getDay() };
+  }, [logs]);
+
+  const calendarData = useMemo(() => {
+    if (logs.length === 0) return null;
+    const now = new Date();
+    const { year, month } = calendarMonth;
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    const firstDayOfWeek = new Date(year, month, 1).getDay();
+    const dayNames = ['أحد', 'إثن', 'ثلا', 'أرب', 'خمي', 'جمع', 'سبت'];
+    const monthName = new Date(year, month).toLocaleDateString('ar-u-nu-latn', { month: 'long', year: 'numeric' });
+    const isCurrentMonth = year === now.getFullYear() && month === now.getMonth();
+    const injectionDays = new Map<number, number>();
+    logs.forEach(l => {
+      const d = new Date(l.logged_at);
+      if (d.getFullYear() === year && d.getMonth() === month) {
+        injectionDays.set(d.getDate(), (injectionDays.get(d.getDate()) ?? 0) + 1);
+      }
+    });
+    const cells: React.ReactNode[] = [];
+    for (let i = 0; i < firstDayOfWeek; i++) cells.push(<div key={`empty-${i}`} />);
+    for (let day = 1; day <= daysInMonth; day++) {
+      const count = injectionDays.get(day) ?? 0;
+      const isToday = isCurrentMonth && day === now.getDate();
+      cells.push(
+        <div key={day} className={cn(
+          'relative flex flex-col items-center justify-center rounded-lg py-1.5 text-xs transition-colors',
+          isToday ? 'ring-2 ring-emerald-400 font-bold' : '',
+          count > 0 ? 'bg-emerald-50 text-emerald-800 font-semibold' : 'text-stone-500',
+        )}>
+          <span>{day}</span>
+          {count > 0 && (
+            <div className="flex gap-0.5 mt-0.5">
+              {Array.from({ length: Math.min(count, 3) }).map((_, i) => (
+                <span key={i} className="h-1 w-1 rounded-full bg-emerald-500" />
+              ))}
+            </div>
+          )}
+        </div>
+      );
+    }
+    return { dayNames, monthName, isCurrentMonth, injectionDays, cells };
+  }, [logs, calendarMonth]);
+
+  const siteRotationData = useMemo(() => {
+    if (logs.length === 0) return null;
+    const siteLabels: Record<string, string> = { abdomen: 'البطن', thigh: 'الفخذ', arm: 'الذراع', glute: 'المؤخرة' };
+    const allSites = ['abdomen', 'thigh', 'arm', 'glute'];
+    const recentSites = logs.slice(0, 5).map(l => l.injection_site);
+    const siteCounts: Record<string, number> = {};
+    recentSites.forEach(s => { if (s) siteCounts[s] = (siteCounts[s] || 0) + 1; });
+    const leastUsed = allSites.reduce((a, b) => (siteCounts[a] || 0) <= (siteCounts[b] || 0) ? a : b);
+    const lastSite = logs[0]?.injection_site;
+    const suggestedSite = lastSite === leastUsed ? allSites.find(s => s !== lastSite) || leastUsed : leastUsed;
+    return { siteLabels, allSites, siteCounts, lastSite, suggestedSite };
+  }, [logs]);
+
   return (
     <div className="mx-auto max-w-3xl px-4 pb-24 pt-8 md:px-6 md:pt-12">
       <Helmet>
-        <title>سجل الحقن — تتبّع جرعاتك | pptides</title>
+        <title>سجل الحقن | تتبّع جرعاتك | pptides</title>
         <meta name="description" content="سجّل وتتبّع حقن الببتيدات والجرعات اليومية. Track your peptide injections and daily doses." />
+        <meta name="robots" content="noindex, nofollow" />
       </Helmet>
 
       {/* Header */}
@@ -208,193 +297,95 @@ export default function Tracker() {
       </div>
 
       {/* Stats Dashboard */}
-      {logs.length > 0 && (() => {
-        const totalInjections = totalCount || logs.length;
-        const uniquePeptides = new Set(logs.map(l => l.peptide_name)).size;
-        let streak = 0;
-        const daySet = new Set(logs.map(l => new Date(l.logged_at).toDateString()));
-        const d = new Date();
-        if (!daySet.has(d.toDateString())) d.setDate(d.getDate() - 1);
-        while (daySet.has(d.toDateString())) { streak++; d.setDate(d.getDate() - 1); }
-
-        const last7 = logs.filter(l => {
-          const diff = Date.now() - new Date(l.logged_at).getTime();
-          return diff < 7 * 24 * 60 * 60 * 1000;
-        }).length;
-
-        const msSinceLast = Date.now() - new Date(logs[0].logged_at).getTime();
-        const hoursSince = Math.floor(msSinceLast / (1000 * 60 * 60));
-        const daysSince = Math.floor(hoursSince / 24);
-        const timeSinceLabel = daysSince > 0 ? `منذ ${daysSince} يوم` : hoursSince > 0 ? `منذ ${hoursSince} ساعة` : 'الآن';
-
-        return (
+      {dashboardStats && (
           <div className="mb-8 grid grid-cols-2 gap-3 sm:grid-cols-5">
             <div className="rounded-2xl border border-stone-200 bg-white p-4 text-center">
               <BarChart3 className="mx-auto mb-1 h-5 w-5 text-emerald-600" />
-              <p className="text-2xl font-black text-stone-900">{totalInjections}</p>
+              <p className="text-2xl font-black text-stone-900">{dashboardStats.totalInjections}</p>
               <p className="text-xs text-stone-500">إجمالي الحقن</p>
             </div>
             <div className="rounded-2xl border border-stone-200 bg-white p-4 text-center">
               <Flame className="mx-auto mb-1 h-5 w-5 text-orange-500" />
-              <p className="text-2xl font-black text-stone-900">{streak}</p>
+              <p className="text-2xl font-black text-stone-900">{dashboardStats.streak}</p>
               <p className="text-xs text-stone-500">أيام متتالية</p>
             </div>
             <div className="rounded-2xl border border-stone-200 bg-white p-4 text-center">
               <TrendingUp className="mx-auto mb-1 h-5 w-5 text-blue-500" />
-              <p className="text-2xl font-black text-stone-900">{last7}</p>
+              <p className="text-2xl font-black text-stone-900">{dashboardStats.last7}</p>
               <p className="text-xs text-stone-500">آخر 7 أيام</p>
             </div>
             <div className="rounded-2xl border border-stone-200 bg-white p-4 text-center">
               <Syringe className="mx-auto mb-1 h-5 w-5 text-purple-500" />
-              <p className="text-2xl font-black text-stone-900">{uniquePeptides}</p>
+              <p className="text-2xl font-black text-stone-900">{dashboardStats.uniquePeptides}</p>
               <p className="text-xs text-stone-500">ببتيدات مختلفة</p>
             </div>
             <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-4 text-center col-span-2 sm:col-span-1">
               <Clock className="mx-auto mb-1 h-5 w-5 text-emerald-600" />
-              <p className="text-2xl font-black text-emerald-700">{timeSinceLabel}</p>
+              <p className="text-2xl font-black text-emerald-700">{dashboardStats.timeSinceLabel}</p>
               <p className="text-xs text-stone-500">آخر حقنة</p>
             </div>
           </div>
-        );
-      })()}
+      )}
 
       {/* Weekly Activity Bar */}
-      {logs.length > 0 && (() => {
-        const days = ['الأحد', 'الإثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'];
-        const weekCounts = Array(7).fill(0);
-        const now = new Date();
-        logs.forEach(l => {
-          const diff = Math.floor((now.getTime() - new Date(l.logged_at).getTime()) / (1000 * 60 * 60 * 24));
-          if (diff < 7) {
-            const dayIdx = new Date(l.logged_at).getDay();
-            weekCounts[dayIdx]++;
-          }
-        });
-        const max = Math.max(...weekCounts, 1);
-        const todayIdx = now.getDay();
-
-        return (
+      {weeklyActivity && (
           <div className="mb-8 rounded-2xl border border-stone-200 bg-white p-5">
             <h3 className="mb-3 text-sm font-bold text-stone-900">نشاط الأسبوع</h3>
             <div className="flex items-end justify-between gap-1 h-20">
-              {weekCounts.map((count, i) => (
+              {weeklyActivity.weekCounts.map((count, i) => (
                 <div key={i} className="flex flex-1 flex-col items-center gap-1">
                   <div
                     className={cn(
                       'w-full rounded-t-md transition-all',
-                      i === todayIdx ? 'bg-emerald-500' : count > 0 ? 'bg-emerald-300' : 'bg-stone-200'
+                      i === weeklyActivity.todayIdx ? 'bg-emerald-500' : count > 0 ? 'bg-emerald-300' : 'bg-stone-200'
                     )}
-                    style={{ height: `${Math.max((count / max) * 100, 8)}%`, minHeight: '4px' }}
+                    style={{ height: `${Math.max((count / weeklyActivity.max) * 100, 8)}%`, minHeight: '4px' }}
                   />
-                  <span className={cn('text-[10px]', i === todayIdx ? 'font-bold text-emerald-700' : 'text-stone-400')}>
-                    {days[i].slice(0, 3)}
+                  <span className={cn('text-[10px]', i === weeklyActivity.todayIdx ? 'font-bold text-emerald-700' : 'text-stone-400')}>
+                    {weeklyActivity.days[i].slice(0, 3)}
                   </span>
                 </div>
               ))}
             </div>
           </div>
-        );
-      })()}
+      )}
 
       {/* Monthly Calendar */}
-      {logs.length > 0 && (() => {
-        const now = new Date();
-        const { year, month } = calendarMonth;
-        const daysInMonth = new Date(year, month + 1, 0).getDate();
-        const firstDayOfWeek = new Date(year, month, 1).getDay();
-        const dayNames = ['أحد', 'إثن', 'ثلا', 'أرب', 'خمي', 'جمع', 'سبت'];
-        const monthName = new Date(year, month).toLocaleDateString('ar-u-nu-latn', { month: 'long', year: 'numeric' });
-        const isCurrentMonth = year === now.getFullYear() && month === now.getMonth();
-
-        const injectionDays = new Map<number, number>();
-        logs.forEach(l => {
-          const d = new Date(l.logged_at);
-          if (d.getFullYear() === year && d.getMonth() === month) {
-            injectionDays.set(d.getDate(), (injectionDays.get(d.getDate()) ?? 0) + 1);
-          }
-        });
-
-        const cells: React.ReactNode[] = [];
-        for (let i = 0; i < firstDayOfWeek; i++) cells.push(<div key={`empty-${i}`} />);
-        for (let day = 1; day <= daysInMonth; day++) {
-          const count = injectionDays.get(day) ?? 0;
-          const isToday = isCurrentMonth && day === now.getDate();
-          cells.push(
-            <div key={day} className={cn(
-              'relative flex flex-col items-center justify-center rounded-lg py-1.5 text-xs transition-colors',
-              isToday ? 'ring-2 ring-emerald-400 font-bold' : '',
-              count > 0 ? 'bg-emerald-50 text-emerald-800 font-semibold' : 'text-stone-500',
-            )}>
-              <span>{day}</span>
-              {count > 0 && (
-                <div className="flex gap-0.5 mt-0.5">
-                  {Array.from({ length: Math.min(count, 3) }).map((_, i) => (
-                    <span key={i} className="h-1 w-1 rounded-full bg-emerald-500" />
-                  ))}
-                </div>
-              )}
-            </div>
-          );
-        }
-
-        const prevMonth = () => setCalendarMonth(prev => {
-          const m = prev.month - 1;
-          return m < 0 ? { year: prev.year - 1, month: 11 } : { year: prev.year, month: m };
-        });
-        const nextMonth = () => {
-          if (isCurrentMonth) return;
-          setCalendarMonth(prev => {
-            const m = prev.month + 1;
-            return m > 11 ? { year: prev.year + 1, month: 0 } : { year: prev.year, month: m };
-          });
-        };
-
-        return (
+      {calendarData && (
           <div className="mb-8 rounded-2xl border border-stone-200 bg-white p-5">
             <div className="flex items-center justify-between mb-4">
-              <button onClick={prevMonth} aria-label="الشهر السابق" className="rounded-lg border border-stone-200 p-1.5 text-stone-500 transition-colors hover:bg-stone-50 hover:text-stone-700">
+              <button onClick={() => setCalendarMonth(prev => { const m = prev.month - 1; return m < 0 ? { year: prev.year - 1, month: 11 } : { year: prev.year, month: m }; })} aria-label="الشهر السابق" className="rounded-lg border border-stone-200 p-1.5 text-stone-500 transition-colors hover:bg-stone-50 hover:text-stone-700">
                 <ChevronRight className="h-4 w-4" />
               </button>
               <div className="text-center">
-                <h3 className="text-sm font-bold text-stone-900">{monthName}</h3>
-                <span className="text-xs text-stone-500">{injectionDays.size} يوم نشط</span>
+                <h3 className="text-sm font-bold text-stone-900">{calendarData.monthName}</h3>
+                <span className="text-xs text-stone-500">{calendarData.injectionDays.size} يوم نشط</span>
               </div>
-              <button onClick={nextMonth} disabled={isCurrentMonth} aria-label="الشهر التالي" className={cn('rounded-lg border border-stone-200 p-1.5 transition-colors', isCurrentMonth ? 'text-stone-300 cursor-not-allowed' : 'text-stone-500 hover:bg-stone-50 hover:text-stone-700')}>
+              <button onClick={() => { if (calendarData.isCurrentMonth) return; setCalendarMonth(prev => { const m = prev.month + 1; return m > 11 ? { year: prev.year + 1, month: 0 } : { year: prev.year, month: m }; }); }} disabled={calendarData.isCurrentMonth} aria-label="الشهر التالي" className={cn('rounded-lg border border-stone-200 p-1.5 transition-colors', calendarData.isCurrentMonth ? 'text-stone-300 cursor-not-allowed' : 'text-stone-500 hover:bg-stone-50 hover:text-stone-700')}>
                 <ChevronLeft className="h-4 w-4" />
               </button>
             </div>
             <div className="grid grid-cols-7 gap-1 text-center">
-              {dayNames.map(d => (
+              {calendarData.dayNames.map(d => (
                 <div key={d} className="text-[10px] font-bold text-stone-400 pb-1">{d}</div>
               ))}
-              {cells}
+              {calendarData.cells}
             </div>
           </div>
-        );
-      })()}
+      )}
 
       {/* Site Rotation Indicator */}
-      {logs.length > 0 && (() => {
-        const siteLabels: Record<string, string> = { abdomen: 'البطن', thigh: 'الفخذ', arm: 'الذراع', glute: 'المؤخرة' };
-        const allSites = ['abdomen', 'thigh', 'arm', 'glute'];
-        const recentSites = logs.slice(0, 5).map(l => l.injection_site);
-        const siteCounts: Record<string, number> = {};
-        recentSites.forEach(s => { if (s) siteCounts[s] = (siteCounts[s] || 0) + 1; });
-        const leastUsed = allSites.reduce((a, b) => (siteCounts[a] || 0) <= (siteCounts[b] || 0) ? a : b);
-        const lastSite = logs[0]?.injection_site;
-        const suggestedSite = lastSite === leastUsed ? allSites.find(s => s !== lastSite) || leastUsed : leastUsed;
-
-        return (
+      {siteRotationData && (
           <div className="mb-8 rounded-2xl border border-stone-200 bg-white p-5">
             <div className="flex items-center gap-2 mb-3">
               <MapPin className="h-4 w-4 text-emerald-600" />
               <h3 className="text-sm font-bold text-stone-900">تدوير مواقع الحقن</h3>
             </div>
             <div className="grid grid-cols-4 gap-2 mb-3">
-              {allSites.map(s => {
-                const count = siteCounts[s] || 0;
-                const isLast = s === lastSite;
-                const isSuggested = s === suggestedSite;
+              {siteRotationData.allSites.map(s => {
+                const count = siteRotationData.siteCounts[s] || 0;
+                const isLast = s === siteRotationData.lastSite;
+                const isSuggested = s === siteRotationData.suggestedSite;
                 return (
                   <div key={s} className={cn(
                     'rounded-xl border p-3 text-center transition-all',
@@ -402,7 +393,7 @@ export default function Tracker() {
                     isLast ? 'border-amber-300 bg-amber-50' :
                     'border-stone-200 bg-stone-50'
                   )}>
-                    <p className="text-xs font-bold text-stone-800">{siteLabels[s]}</p>
+                    <p className="text-xs font-bold text-stone-800">{siteRotationData.siteLabels[s]}</p>
                     <p className="text-lg font-black text-stone-900">{count}</p>
                     <p className="text-[10px] text-stone-500">
                       {isSuggested ? 'الموقع التالي' : isLast ? 'آخر حقنة' : `آخر 5`}
@@ -412,11 +403,10 @@ export default function Tracker() {
               })}
             </div>
             <p className="text-xs text-stone-600 text-center">
-              الحقنة القادمة في <span className="font-bold text-emerald-700">{siteLabels[suggestedSite]}</span> لتجنّب تلف الأنسجة
+              الحقنة القادمة في <span className="font-bold text-emerald-700">{siteRotationData.siteLabels[siteRotationData.suggestedSite]}</span> لتجنّب تلف الأنسجة
             </p>
           </div>
-        );
-      })()}
+      )}
 
       {/* Action Buttons */}
       {!showForm && (
@@ -451,7 +441,7 @@ export default function Tracker() {
                     setIsSubmitting(true);
                     try {
                       const now = new Date();
-                      await supabase.from('injection_logs').insert({
+                      const { error } = await supabase.from('injection_logs').insert({
                         user_id: user.id,
                         peptide_name: last.peptide_name,
                         dose: last.dose,
@@ -460,6 +450,10 @@ export default function Tracker() {
                         logged_at: now.toISOString(),
                         notes: null,
                       });
+                      if (error) {
+                        toast.error('حدث خطأ في تكرار الحقنة. حاول مرة أخرى.');
+                        return;
+                      }
                       await fetchLogs();
                       toast.success(`تم تسجيل ${last.peptide_name} — ${last.dose} ${last.dose_unit}`);
                     } catch {
@@ -561,7 +555,7 @@ export default function Tracker() {
 
             {/* Notes */}
             <div>
-              <label className="mb-1 block text-sm font-bold text-stone-700">ملاحظات <span className="text-[10px] text-emerald-600 font-normal mr-1">اختياري</span></label>
+              <label className="mb-1 block text-sm font-bold text-stone-700">ملاحظات <span className="text-[10px] text-emerald-600 font-normal me-1">اختياري</span></label>
               <textarea
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
@@ -570,7 +564,7 @@ export default function Tracker() {
                 maxLength={200}
                 className="w-full resize-none rounded-xl border border-stone-200 bg-white px-4 py-3 text-sm text-stone-900 placeholder:text-stone-400 focus:border-emerald-300 focus:outline-none focus:ring-2 focus:ring-emerald-100"
               />
-              <p className={cn('mt-1 text-left text-xs', notes.length >= 180 ? 'text-amber-600' : 'text-stone-400')}>{notes.length}/200</p>
+              <p className={cn('mt-1 text-start text-xs', notes.length >= 180 ? 'text-amber-600' : 'text-stone-400')}>{notes.length}/200</p>
             </div>
 
             <div className="flex gap-3">
@@ -645,7 +639,7 @@ export default function Tracker() {
               return (
               <div
                 key={log.id}
-                className={cn('rounded-2xl border p-5 transition-all hover:shadow-sm', isToday ? 'border-emerald-300 border-r-4 bg-emerald-50/30' : 'border-stone-200 bg-white')}
+                className={cn('rounded-2xl border p-5 transition-all hover:shadow-sm', isToday ? 'border-emerald-300 border-s-4 bg-emerald-50/30' : 'border-stone-200 bg-white')}
               >
                 <div className="flex items-start justify-between mb-2">
                   <h3 className="font-bold text-stone-900" dir="ltr">{log.peptide_name}</h3>

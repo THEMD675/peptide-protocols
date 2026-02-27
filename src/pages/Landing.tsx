@@ -68,6 +68,27 @@ const FEATURES = [
   },
 ];
 
+const STATS_BAR = [
+  { value: `${PEPTIDE_COUNT}+`, label: 'ببتيد علاجي', sub: 'بروتوكولات كاملة' },
+  { value: '6', label: 'فئات متخصصة', sub: 'من الأيض للدماغ' },
+  { value: '11', label: 'تحليل مخبري', sub: 'قبل وأثناء وبعد' },
+  { value: '85+', label: 'مصدر علمي', sub: 'دراسات سريرية' },
+  { value: '24/7', label: 'مدرب ذكي', sub: 'إجابات فورية' },
+];
+
+const SOLUTION_CHECKS = [
+  'كل المعلومات في مكان واحد — لا حاجة لـ Reddit',
+  'اختبار يحدد لك الببتيد المناسب',
+  'حاسبة جرعات دقيقة تحميك',
+  'أول مرجع عربي شامل مبني على الأبحاث',
+];
+
+const HOW_IT_WORKS_STEPS = [
+  { num: '01', title: 'سجّل حسابك', desc: 'بريد إلكتروني وكلمة مرور. 10 ثوانٍ.' },
+  { num: '02', title: 'جرّب 3 أيام مجانًا', desc: 'تصفّح المكتبة واكتشف ما يناسبك.' },
+  { num: '03', title: 'اشترك واستفد', desc: 'اختر خطتك وابدأ رحلتك بثقة.' },
+];
+
 interface Testimonial {
   text: string;
   name: string;
@@ -87,13 +108,13 @@ export default function Landing() {
     let mounted = true;
     const cached = sessionStorage.getItem('pptides_user_count_ts');
     if (cached && Date.now() - Number(cached) < 5 * 60 * 1000) return;
-    supabase.from('subscriptions').select('id', { count: 'exact', head: true }).then(({ count, error }) => {
+    supabase.from('subscriptions').select('id', { count: 'exact', head: true }).in('status', ['active', 'trial']).then(({ count, error }) => {
       if (error) return;
       if (mounted && count && count > 0) {
         setUserCount(count);
         try { sessionStorage.setItem('pptides_user_count', String(count)); sessionStorage.setItem('pptides_user_count_ts', String(Date.now())); } catch { /* expected */ }
       }
-    });
+    }).catch(() => {});
     return () => { mounted = false; };
   }, []);
 
@@ -115,7 +136,7 @@ export default function Landing() {
             rating: r.rating,
           })));
         }
-      });
+      }).catch(() => {});
     return () => { mounted = false; };
   }, []);
   if (shouldRedirect) return <Navigate to="/dashboard" replace />;
@@ -125,15 +146,16 @@ export default function Landing() {
   const ctaTextShort = user ? 'اختر خطتك' : 'ابدأ التجربة المجانية';
 
   return (
-    <div className="min-h-screen overflow-x-hidden bg-white">
+    <div className="min-h-screen bg-white">
       <Helmet>
-        <title>pptides — أشمل دليل عربي للببتيدات العلاجية</title>
+        <title>pptides | أشمل دليل عربي للببتيدات العلاجية</title>
         <meta name="description" content={`${PEPTIDE_COUNT} ببتيد علاجي مع بروتوكولات كاملة، حاسبة جرعات، ودليل تحاليل. أشمل دليل عربي مبني على الأبحاث.`} />
+        <meta property="og:locale" content="ar_SA" />
       </Helmet>
 
       {/* ═══════ HERO ═══════ */}
       <section className="relative bg-gradient-to-b from-white via-stone-50 to-stone-50">
-        <div className="pointer-events-none absolute inset-0">
+        <div className="pointer-events-none absolute inset-0 overflow-hidden">
           <div className="absolute left-1/2 top-0 h-[600px] w-[800px] -translate-x-1/2 bg-[radial-gradient(ellipse_at_center,rgba(16,185,129,0.07)_0%,transparent_60%)]" />
         </div>
 
@@ -143,7 +165,7 @@ export default function Landing() {
             <span>أول مرجع عربي شامل — {PEPTIDE_COUNT} ببتيد علاجي</span>
           </div>
 
-          <h1 className="mb-6 text-4xl font-extrabold leading-[1.1] tracking-tight text-stone-900 sm:text-5xl md:text-6xl lg:text-7xl animate-fade-up stagger-1">
+          <h1 className="mb-6 text-4xl font-extrabold leading-[1.3] text-stone-900 sm:text-5xl md:text-6xl lg:text-7xl animate-fade-up stagger-1">
             توقّف عن التخمين.
             <br />
             <span className="text-emerald-600">ابدأ بالعلم.</span>
@@ -165,7 +187,7 @@ export default function Landing() {
             </Link>
             <Link
               to="/library"
-              className="inline-flex w-full max-w-xs items-center justify-center rounded-full border-2 border-stone-200 bg-white px-8 py-4 text-lg font-semibold text-stone-800 transition-all duration-300 hover:border-emerald-300 hover:text-emerald-700 sm:w-auto"
+              className="inline-flex w-full max-w-xs items-center justify-center rounded-full border-2 border-stone-200 bg-white px-8 py-4 text-lg font-semibold text-stone-800 transition-all duration-300 hover:border-emerald-300 hover:text-emerald-700 active:scale-[0.98] sm:w-auto"
             >
               تصفّح المكتبة
             </Link>
@@ -198,14 +220,8 @@ export default function Landing() {
 
       {/* ═══════ STATS BAR ═══════ */}
       <section className="relative z-10 mt-4 mx-auto max-w-5xl px-6 md:-mt-8">
-        <div className="grid grid-cols-2 gap-4 rounded-2xl border border-stone-300/60 bg-white p-8 shadow-xl md:grid-cols-5 md:gap-0 md:divide-x md:divide-x-reverse md:divide-stone-100">
-          {[
-            { value: `${PEPTIDE_COUNT}+`, label: 'ببتيد علاجي', sub: 'بروتوكولات كاملة' },
-            { value: '6', label: 'فئات متخصصة', sub: 'من الأيض للدماغ' },
-            { value: '11', label: 'تحليل مخبري', sub: 'قبل وأثناء وبعد' },
-            { value: '85+', label: 'مصدر علمي', sub: 'دراسات سريرية' },
-            { value: '24/7', label: 'مدرب ذكي', sub: 'إجابات فورية' },
-          ].map((s) => (
+        <div className="grid grid-cols-2 gap-4 rounded-2xl border border-stone-300/60 bg-white p-4 sm:p-8 shadow-xl md:grid-cols-5 md:gap-0 md:divide-x md:divide-x-reverse md:divide-stone-100">
+          {STATS_BAR.map((s) => (
             <div key={s.label} className="flex flex-col items-center justify-center py-3">
               <span className="text-3xl font-black text-emerald-600 md:text-4xl">{s.value}</span>
               <span className="mt-1 text-sm font-semibold text-stone-900">{s.label}</span>
@@ -240,12 +256,7 @@ export default function Landing() {
         </div>
 
         <div className="mt-6 grid gap-4 sm:grid-cols-2">
-          {[
-            'كل المعلومات في مكان واحد — لا حاجة لـ Reddit',
-            'اختبار يحدد لك الببتيد المناسب',
-            'حاسبة جرعات دقيقة تحميك',
-            'أول مرجع عربي شامل مبني على الأبحاث',
-          ].map((point) => (
+          {SOLUTION_CHECKS.map((point) => (
             <div
               key={point}
               className="flex items-start gap-4 rounded-2xl border border-emerald-200 bg-emerald-50/50 p-6 transition-all hover:border-emerald-300 hover:bg-emerald-50"
@@ -488,11 +499,7 @@ export default function Landing() {
           </h2>
 
           <div className="grid gap-10 md:grid-cols-3 md:gap-8">
-            {[
-              { num: '01', title: 'سجّل حسابك', desc: 'بريد إلكتروني وكلمة مرور. 10 ثوانٍ.' },
-              { num: '02', title: 'جرّب 3 أيام مجانًا', desc: 'تصفّح المكتبة واكتشف ما يناسبك.' },
-              { num: '03', title: 'اشترك واستفد', desc: 'اختر خطتك وابدأ رحلتك بثقة.' },
-            ].map((step, i, arr) => (
+            {HOW_IT_WORKS_STEPS.map((step, i, arr) => (
               <div
                 key={step.num}
                 className="relative text-center"
@@ -532,7 +539,7 @@ export default function Landing() {
                   <Star key={s} className={cn('h-4 w-4', s <= t.rating ? 'fill-emerald-500 text-emerald-500' : 'fill-transparent text-stone-300')} />
                 ))}
               </div>
-              <p className="mb-5 text-base leading-relaxed text-stone-800">&quot;{t.text}&quot;</p>
+              <p className="mb-5 text-base leading-relaxed text-stone-800 line-clamp-4">&quot;{t.text}&quot;</p>
               <div className="flex items-center gap-3">
                 <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-sm font-bold text-emerald-700">
                   {t.name.charAt(0)}
@@ -668,7 +675,7 @@ export default function Landing() {
       </section>
 
       {/* ═══════ EMAIL CAPTURE ═══════ */}
-      <section className="relative bg-stone-900 py-20">
+      <section className="relative bg-stone-900 py-24">
         <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(16,185,129,0.08)_0%,transparent_60%)]" />
         <div className="relative mx-auto max-w-2xl px-6 text-center">
           <h2 className="mb-3 text-2xl font-bold text-white md:text-3xl">

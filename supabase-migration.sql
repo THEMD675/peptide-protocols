@@ -7,7 +7,7 @@
 CREATE TABLE IF NOT EXISTS public.subscriptions (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id uuid REFERENCES auth.users(id) ON DELETE CASCADE UNIQUE NOT NULL,
-  status text NOT NULL DEFAULT 'trial' CHECK (status IN ('trial', 'active', 'expired', 'cancelled')),
+  status text NOT NULL DEFAULT 'trial' CHECK (status IN ('trial', 'active', 'past_due', 'expired', 'cancelled')),
   tier text NOT NULL DEFAULT 'free' CHECK (tier IN ('free', 'pro', 'premium', 'essentials', 'elite')),
   trial_ends_at timestamptz DEFAULT (now() + interval '3 days'),
   stripe_customer_id text,
@@ -162,9 +162,9 @@ CREATE TABLE IF NOT EXISTS public.injection_logs (
   user_id uuid REFERENCES auth.users(id) ON DELETE CASCADE NOT NULL,
   peptide_name text NOT NULL,
   dose numeric NOT NULL,
-  unit text NOT NULL DEFAULT 'mcg',
+  dose_unit text NOT NULL DEFAULT 'mcg',
   injection_site text,
-  injected_at timestamptz DEFAULT now(),
+  logged_at timestamptz DEFAULT now(),
   notes text,
   created_at timestamptz DEFAULT now()
 );

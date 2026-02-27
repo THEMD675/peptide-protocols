@@ -3,7 +3,16 @@ Allow: /
 Disallow: /account
 Disallow: /dashboard
 Disallow: /tracker
-Disallow: /coach
 Disallow: /login
 Disallow: /signup
+
+User-agent: GPTBot
+Disallow: /
+
+User-agent: CCBot
+Disallow: /
+
+User-agent: Google-Extended
+Disallow: /
+
 Sitemap: https://pptides.com/sitemap.xml

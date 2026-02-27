@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, useCallback, type ElementType } from 'react';
+import { useState, useRef, useEffect, useCallback, memo, useMemo, type ElementType } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { Link, useSearchParams, useNavigate } from 'react-router-dom';
 import { supabase } from '@/lib/supabase';
@@ -6,7 +6,7 @@ import { peptides as allPeptides } from '@/data/peptides';
 import { renderMarkdown } from '@/lib/markdown';
 import {
   Bot, Send, Sparkles, TrendingDown, Heart, Dumbbell, Brain,
-  Clock, Zap, Calculator, FlaskConical, Shield, RotateCcw, ArrowLeft,
+  Clock, Zap, Calculator, FlaskConical, Shield, RotateCcw, ArrowLeft, ArrowRight,
   Copy, Check,
 } from 'lucide-react';
 import { toast } from 'sonner';
@@ -140,6 +140,11 @@ function getFollowUps(text: string, isFirstProtocol: boolean): string[] {
   return actions.slice(0, 3);
 }
 
+const MarkdownBubble = memo(function MarkdownBubble({ content }: { content: string }) {
+  const rendered = useMemo(() => renderMarkdown(content), [content]);
+  return <>{rendered}</>;
+});
+
 export default function Coach() {
   const { user, subscription, upgradeTo } = useAuth();
   const navigate = useNavigate();
@@ -198,12 +203,14 @@ export default function Coach() {
   const autoSentRef = useRef(false);
 
   useEffect(() => {
-    const cleanMessages = messages.filter(m => m.content !== '__ERROR__');
+    if (isLoading) return;
+    let cleanMessages = messages.filter(m => !m.content.startsWith('__ERROR'));
+    if (cleanMessages.length > 50) cleanMessages = cleanMessages.slice(-50);
     try { localStorage.setItem(storageKey, JSON.stringify({ messages: cleanMessages, intake })); } catch { /* expected */ }
-  }, [messages, intake, storageKey]);
+  }, [messages, intake, storageKey, isLoading]);
 
   useEffect(() => { scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: 'smooth' }); }, [messages, intakeStep]);
-  useEffect(() => { if (user) buildUserContext(user.id).then(ctx => { userContextRef.current = ctx; }); }, [user]);
+  useEffect(() => { if (user) buildUserContext(user.id).then(ctx => { userContextRef.current = ctx; }).catch(() => {}); }, [user]);
 
   const isLoadingRef = useRef(false);
   const messagesRef = useRef<ChatMessage[]>(messages);
@@ -218,6 +225,7 @@ export default function Coach() {
   const sendToAI = useCallback(async (content: string) => {
     const trimmed = content.trim();
     if (!trimmed || isLoadingRef.current) return;
+    isLoadingRef.current = true;
     abortRef.current?.abort();
     const controller = new AbortController();
     abortRef.current = controller;
@@ -226,7 +234,6 @@ export default function Coach() {
     setMessages(updated);
     setInput('');
     setIsLoading(true);
-    isLoadingRef.current = true;
     setLoadingStage(0);
     const stageTimer1 = setTimeout(() => setLoadingStage(1), 3000);
     const stageTimer2 = setTimeout(() => setLoadingStage(2), 8000);
@@ -245,13 +252,14 @@ export default function Coach() {
         }),
         signal: controller.signal,
       });
-      if (!res.ok) throw new Error();
+      if (!res.ok) throw new Error(String(res.status));
 
       const reader = res.body?.getReader();
       if (!reader) throw new Error();
       const decoder = new TextDecoder();
       let accumulated = '';
       let buffer = '';
+      const streamTimeout = setTimeout(() => controller.abort(), 60_000);
 
       setMessages(prev => [...prev, { role: 'assistant', content: '' }]);
 
@@ -281,20 +289,23 @@ export default function Coach() {
         }
       }
 
+      clearTimeout(streamTimeout);
       if (!accumulated) {
         setMessages(prev => {
           const copy = [...prev];
-          copy[copy.length - 1] = { role: 'assistant', content: '__ERROR__' };
+          copy[copy.length - 1] = { role: 'assistant', content: 'لم أتمكن من إنشاء رد. حاول مرة أخرى بصياغة مختلفة.' };
           return copy;
         });
       }
-    } catch {
+    } catch (err) {
+      const status = err instanceof Error ? err.message : '';
+      const errorTag = status === '429' ? '__ERROR__:429' : status === '403' ? '__ERROR__:403' : '__ERROR__';
       setMessages(prev => {
         const copy = [...prev];
         if (copy.length > 0 && copy[copy.length - 1].role === 'assistant') {
-          copy[copy.length - 1] = { role: 'assistant', content: '__ERROR__' };
+          copy[copy.length - 1] = { role: 'assistant', content: errorTag };
         } else {
-          copy.push({ role: 'assistant', content: '__ERROR__' });
+          copy.push({ role: 'assistant', content: errorTag });
         }
         return copy;
       });
@@ -362,7 +373,7 @@ export default function Coach() {
   return (
     <div className="min-h-screen">
       <Helmet>
-        <title>استشاري الببتيدات — بروتوكول مخصّص بالذكاء الاصطناعي | pptides</title>
+        <title>استشاري الببتيدات | بروتوكول مخصّص بالذكاء الاصطناعي | pptides</title>
         <meta name="description" content="مدرب ذكي بالذكاء الاصطناعي يصمّم لك بروتوكول ببتيدات مخصّص حسب أهدافك وخبرتك. AI-powered peptide protocol coach." />
       </Helmet>
       <div className="mx-auto max-w-3xl px-4 py-8 md:px-6 md:py-12">
@@ -373,7 +384,9 @@ export default function Coach() {
             </div>
             <div>
               <h1 className="text-lg font-bold">استشاري الببتيدات</h1>
-              <p className="text-xs text-stone-500">بروتوكول مخصّص لحالتك</p>
+              <p className="text-xs text-stone-500">
+                {limit === Infinity ? 'بروتوكول مخصّص لحالتك' : `${Math.max(0, limit - userMsgCount)} رسائل متبقية من ${limit}`}
+              </p>
             </div>
           </div>
           {intakeStep === 'done' && messages.length > 0 && (
@@ -385,7 +398,7 @@ export default function Coach() {
         </div>
 
         <div className="rounded-2xl border border-stone-200 bg-white overflow-hidden shadow-sm">
-          <div ref={scrollRef} className="max-h-[560px] min-h-[360px] overflow-y-auto p-5 space-y-4 bg-stone-50/50">
+          <div ref={scrollRef} role="log" aria-label="محادثة المدرب الذكي" className="max-h-[65vh] min-h-[360px] overflow-y-auto p-5 space-y-4 bg-stone-50/50">
 
             {/* ═══ INTAKE AS CONVERSATION ═══ */}
             {intakeStep !== 'done' && (
@@ -401,7 +414,7 @@ export default function Coach() {
                 </div>
 
                 {/* Step 1: Goal */}
-                <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 max-w-[88%]">
+                <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 md:grid-cols-3 max-w-[88%]">
                   {GOALS.map(g => (
                     <button key={g.id} onClick={() => { setIntake(p => ({ ...p, goal: g.id, goalLabel: g.label })); if (intakeStep === 'goal') setIntakeStep('experience'); }}
                       className={cn('flex flex-col items-center gap-1.5 rounded-xl border p-3 text-center transition-all', intake.goal === g.id ? 'border-emerald-400 bg-emerald-50 ring-2 ring-emerald-200' : 'border-stone-200 bg-white hover:border-emerald-300')}>
@@ -432,6 +445,11 @@ export default function Coach() {
                           <span className="block text-xs text-stone-500 mt-0.5">{o.desc}</span>
                         </button>
                       ))}
+                      {intakeStep === 'experience' && (
+                        <button onClick={() => setIntakeStep('goal')} className="mt-1 flex items-center gap-1 text-xs text-stone-500 hover:text-stone-800 transition-colors">
+                          <ArrowRight className="h-3 w-3" /> رجوع
+                        </button>
+                      )}
                     </div>
                   </>
                 )}
@@ -460,6 +478,11 @@ export default function Coach() {
                           <span className="block text-xs text-stone-500 mt-0.5">{o.desc}</span>
                         </button>
                       ))}
+                      {intakeStep === 'injection' && (
+                        <button onClick={() => setIntakeStep('experience')} className="mt-1 flex items-center gap-1 text-xs text-stone-500 hover:text-stone-800 transition-colors">
+                          <ArrowRight className="h-3 w-3" /> رجوع
+                        </button>
+                      )}
                     </div>
                   </>
                 )}
@@ -494,6 +517,9 @@ export default function Coach() {
                         صمّم بروتوكولي المخصّص
                         <ArrowLeft className="h-4 w-4" />
                       </button>
+                      <button onClick={() => setIntakeStep('injection')} className="mt-1 flex items-center gap-1 text-xs text-stone-500 hover:text-stone-800 transition-colors">
+                        <ArrowRight className="h-3 w-3" /> رجوع
+                      </button>
                     </div>
                   </>
                 )}
@@ -505,7 +531,7 @@ export default function Coach() {
               <div key={`${msg.role}-${i}`}>
                 <div className={cn('flex', msg.role === 'user' ? 'justify-start' : 'justify-end')}>
                   {msg.role === 'user' && (
-                    <div className="ml-2 mt-1 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-emerald-600 text-xs font-bold text-white">
+                    <div className="ms-2 mt-1 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-emerald-600 text-xs font-bold text-white">
                       {user?.email?.charAt(0).toUpperCase() ?? ''}
                     </div>
                   )}
@@ -516,9 +542,13 @@ export default function Coach() {
                           ? `هدفي: ${intake.goalLabel || 'استشارة عامة'}`
                           : msg.content
                       }</p>
-                    ) : msg.content === '__ERROR__' ? (
+                    ) : msg.content.startsWith('__ERROR') ? (
                       <div className="text-sm text-stone-800">
-                        <p className="mb-2">تعذّر الاتصال بالخادم. تأكد من اتصالك وحاول مرة أخرى.</p>
+                        <p className="mb-2">{
+                          msg.content === '__ERROR__:429' ? 'لقد تجاوزت الحد المسموح. حاول بعد قليل.' :
+                          msg.content === '__ERROR__:403' ? 'انتهت صلاحية جلستك. أعد تسجيل الدخول.' :
+                          'حدث خطأ في الاتصال. حاول مرة أخرى.'
+                        }</p>
                         <button
                           onClick={() => {
                             const lastUserMsg = [...messages].reverse().find(m => m.role === 'user');
@@ -535,9 +565,9 @@ export default function Coach() {
                       </div>
                     ) : (
                       <div className="text-sm leading-relaxed text-stone-800">
-                        {renderMarkdown(msg.content)}
+                        <MarkdownBubble content={msg.content} />
                         {isLoading && i === messages.length - 1 && msg.content.length > 0 && (
-                          <span className="inline-block w-2 h-4 bg-emerald-600 animate-pulse align-text-bottom mr-0.5" />
+                          <span className="inline-block w-2 h-4 bg-emerald-600 animate-pulse align-text-bottom me-0.5" />
                         )}
                       </div>
                     )}
@@ -552,13 +582,13 @@ export default function Coach() {
                         toast.success('تم النسخ');
                         setTimeout(() => setCopiedIdx(null), 2000);
                       }}
-                      className="inline-flex items-center gap-1 rounded-lg border border-stone-200 bg-white px-2 py-1 text-[11px] font-medium text-stone-500 transition-colors hover:bg-stone-50 hover:text-stone-700"
+                      className="inline-flex items-center gap-1 rounded-lg border border-stone-200 bg-white px-3 py-1.5 text-xs font-medium text-stone-500 transition-colors hover:bg-stone-50 hover:text-stone-700"
                     >
                       {copiedIdx === i ? <Check className="h-3 w-3 text-emerald-500" /> : <Copy className="h-3 w-3" />}
                       {copiedIdx === i ? 'تم' : 'نسخ'}
                     </button>
                     <a
-                      href={`https://wa.me/?text=${encodeURIComponent('بروتوكولي من pptides.com:\n' + msg.content.slice(0, 2000))}`}
+                      href={`https://wa.me/?text=${encodeURIComponent('استشرت مدرب الببتيدات في pptides.com — جرّبه مجانًا: https://pptides.com/coach')}`}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="inline-flex items-center gap-1 rounded-lg border border-emerald-200 bg-emerald-50 px-2 py-1 text-[11px] font-medium text-emerald-700 transition-colors hover:bg-emerald-100"
@@ -641,6 +671,7 @@ export default function Coach() {
                     <textarea value={input} onChange={e => setInput(e.target.value)}
                       onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendToAI(input); } }}
                       placeholder="اسأل المزيد عن البروتوكول..." rows={1} disabled={isLoading}
+                      aria-label="اكتب رسالتك"
                       className={cn('flex-1 resize-none rounded-xl border border-stone-200 bg-stone-50 px-4 py-3 text-sm text-stone-900 placeholder:text-stone-400 focus:border-emerald-300 focus:outline-none focus:ring-2 focus:ring-emerald-100', isLoading && 'opacity-60')} />
                     <button onClick={() => sendToAI(input)} disabled={!input.trim() || isLoading}
                       className={cn('flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-emerald-600 transition-all', input.trim() && !isLoading ? 'hover:bg-emerald-700' : 'opacity-40')}>

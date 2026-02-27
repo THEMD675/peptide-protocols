@@ -44,7 +44,9 @@ export const DOSE_PRESETS: DosePreset[] = [
   { name: 'Selank', dose: 300, unit: 'mcg', vialMg: 5, waterMl: 1, minDose: 100, maxDose: 500 },
 ];
 
+const PT141_PRESET = DOSE_PRESETS.find(p => p.name === 'PT-141');
+
 export const DOSE_PRESETS_MAP: Record<string, DosePreset> = {
   ...Object.fromEntries(DOSE_PRESETS.map(p => [p.name, p])),
-  'PT-141 / Bremelanotide': DOSE_PRESETS.find(p => p.name === 'PT-141')!,
+  ...(PT141_PRESET && { 'PT-141 / Bremelanotide': PT141_PRESET }),
 };

@@ -1,22 +1,17 @@
 import { useState, useEffect, useCallback } from 'react';
 import FocusTrap from 'focus-trap-react';
 import { Helmet } from 'react-helmet-async';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { User, Crown, LogOut, Trash2, AlertTriangle, Mail, ArrowUpCircle, KeyRound, XCircle } from 'lucide-react';
 import { toast } from 'sonner';
 import { cn, arPlural } from '@/lib/utils';
-import { SUPPORT_EMAIL, STATUS_LABELS, PEPTIDE_COUNT } from '@/lib/constants';
+import { SUPPORT_EMAIL, STATUS_LABELS, TIER_LABELS, PEPTIDE_COUNT } from '@/lib/constants';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
 
-const TIER_LABELS: Record<string, string> = {
-  free: 'مجاني',
-  essentials: 'Essentials',
-  elite: 'Elite',
-};
-
 export default function Account() {
-  const { user, subscription, logout } = useAuth();
+  const { user, subscription, logout, refreshSubscription } = useAuth();
+  const navigate = useNavigate();
   const [showCancelDialog, setShowCancelDialog] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [deleteConfirmText, setDeleteConfirmText] = useState('');
@@ -68,11 +63,12 @@ export default function Account() {
     setIsProcessing(true);
     try {
       const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.access_token) throw new Error('انتهت جلستك. أعد تسجيل الدخول.');
       const res = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/cancel-subscription`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${session?.access_token ?? ''}`,
+          Authorization: `Bearer ${session.access_token}`,
           apikey: import.meta.env.VITE_SUPABASE_ANON_KEY,
         },
       });
@@ -80,7 +76,8 @@ export default function Account() {
       if (!res.ok) throw new Error(data.error);
       setShowCancelDialog(false);
       toast.success('تم إلغاء اشتراكك. ستحتفظ بالوصول حتى نهاية فترتك الحالية.');
-      setTimeout(() => window.location.href = '/account', 2000);
+      await refreshSubscription();
+      navigate('/account', { replace: true });
     } catch {
       toast.error(`حدث خطأ أثناء الإلغاء. تواصل معنا: ${SUPPORT_EMAIL}`);
     } finally {
@@ -92,11 +89,12 @@ export default function Account() {
     setIsProcessing(true);
     try {
       const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.access_token) throw new Error('انتهت جلستك. أعد تسجيل الدخول.');
       const res = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/delete-account`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${session?.access_token ?? ''}`,
+          Authorization: `Bearer ${session.access_token}`,
           apikey: import.meta.env.VITE_SUPABASE_ANON_KEY,
         },
       });
@@ -112,8 +110,9 @@ export default function Account() {
   return (
     <div className="mx-auto max-w-3xl px-4 pb-24 pt-8 md:px-6 md:pt-12">
       <Helmet>
-        <title>حسابي — إدارة الاشتراك والإعدادات | pptides</title>
+        <title>حسابي | إدارة الاشتراك والإعدادات | pptides</title>
         <meta name="description" content="إدارة حسابك واشتراكك في pptides. Manage your account and subscription." />
+        <meta name="robots" content="noindex, nofollow" />
       </Helmet>
 
       <div className="mb-10 text-center">
@@ -151,7 +150,7 @@ export default function Account() {
               disabled={emailLoading || !newEmail.trim()}
               className="rounded-xl bg-emerald-600 px-6 py-3 text-sm font-bold text-white transition-colors hover:bg-emerald-700 disabled:opacity-50"
             >
-              {emailLoading ? '...' : 'تغيير البريد'}
+              {emailLoading ? <span className="inline-flex items-center gap-2"><span className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />جارٍ التغيير</span> : 'تغيير البريد'}
             </button>
           </div>
         </div>
@@ -173,7 +172,7 @@ export default function Account() {
                 placeholder="6 أحرف على الأقل"
                 dir="ltr"
                 minLength={6}
-                className="w-full rounded-xl border border-stone-300 bg-white px-4 py-3 text-left text-sm text-stone-900 placeholder:text-stone-400 outline-none transition-shadow focus:border-emerald-300 focus:ring-2 focus:ring-emerald-200"
+                className="w-full rounded-xl border border-stone-200 bg-white px-4 py-3 text-left text-sm text-stone-900 placeholder:text-stone-400 focus:outline-none focus:border-emerald-300 focus:ring-2 focus:ring-emerald-100"
               />
             </div>
             <button
@@ -181,7 +180,7 @@ export default function Account() {
               disabled={passwordLoading || !newPassword}
               className="rounded-xl bg-emerald-600 px-6 py-3 text-sm font-bold text-white transition-all hover:bg-emerald-700 disabled:opacity-50"
             >
-              {passwordLoading ? '...' : 'تغيير'}
+              {passwordLoading ? <span className="inline-flex items-center gap-2"><span className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />جارٍ التغيير</span> : 'تغيير'}
             </button>
           </div>
         </div>
@@ -256,7 +255,7 @@ export default function Account() {
               className="mt-5 flex items-center justify-center gap-2 rounded-full bg-emerald-600 px-6 py-3 text-sm font-bold text-white transition-all hover:bg-emerald-700"
             >
               <ArrowUpCircle className="h-4 w-4" />
-              ترقية الاشتراك
+              {subscription.status === 'cancelled' ? 'أعد الاشتراك' : 'ترقية الاشتراك'}
             </Link>
           )}
         </div>
@@ -352,7 +351,7 @@ export default function Account() {
                 onChange={(e) => setDeleteConfirmText(e.target.value)}
                 placeholder="حذف"
                 dir="rtl"
-                className="w-full rounded-xl border border-stone-300 bg-stone-50 px-4 py-2.5 text-sm text-stone-900 placeholder:text-stone-400 outline-none focus:border-red-300 focus:ring-2 focus:ring-red-100"
+                className="w-full rounded-xl border border-stone-200 bg-stone-50 px-4 py-2.5 text-sm text-stone-900 placeholder:text-stone-400 focus:outline-none focus:border-emerald-300 focus:ring-2 focus:ring-emerald-100"
               />
             </div>
             <div className="mt-4 flex gap-3">

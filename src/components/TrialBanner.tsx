@@ -1,9 +1,12 @@
+import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import FocusTrap from 'focus-trap-react';
 import { useAuth } from '@/contexts/AuthContext';
-import { Shield } from 'lucide-react';
+import { Shield, X } from 'lucide-react';
 import { cn, arPlural } from '@/lib/utils';
 import { PRICING, PEPTIDE_COUNT, FREE_PEPTIDE_IDS } from '@/lib/constants';
+
+const DISMISS_KEY = 'pptides_trial_banner_dismissed';
 
 const FREE_PATHS = [
   '/calculator', '/pricing', '/login', '/signup', '/privacy', '/terms', '/',
@@ -15,6 +18,7 @@ const FREE_PATHS = [
 export default function TrialBanner() {
   const { user, subscription } = useAuth();
   const { pathname } = useLocation();
+  const [dismissed, setDismissed] = useState(() => sessionStorage.getItem(DISMISS_KEY) === '1');
 
   if (!user || !subscription) return null;
   if (subscription.status === 'active') return null;
@@ -33,7 +37,7 @@ export default function TrialBanner() {
   const peptideId = pathname.startsWith('/peptide/') ? pathname.split('/')[2] : null;
   const isPeptideFree = peptideId ? FREE_PEPTIDE_IDS.has(peptideId) : false;
 
-  const isFreePage = FREE_PATHS.some(p => pathname === p) || isPeptideFree;
+  const isFreePage = FREE_PATHS.some(p => pathname === p || pathname.startsWith(p + '/')) || isPeptideFree;
 
   if (subscription.status === 'cancelled' && subscription.isPaidSubscriber) {
     return (
@@ -81,9 +85,9 @@ export default function TrialBanner() {
     return (
       <div className="fixed inset-0 z-50 flex items-center justify-center bg-stone-900/80 backdrop-blur-sm">
         <FocusTrap focusTrapOptions={{ allowOutsideClick: true }}>
-        <div className="mx-4 w-full max-w-md rounded-2xl bg-white p-10 text-center shadow-2xl">
+        <div className="mx-4 w-full max-w-md rounded-2xl bg-white p-10 text-center shadow-2xl" aria-labelledby="trial-modal-title">
           <Shield className="mx-auto mb-4 h-12 w-12 text-emerald-600" />
-          <h2 className="mb-3 text-2xl font-bold text-stone-900">
+          <h2 id="trial-modal-title" className="mb-3 text-2xl font-bold text-stone-900">
             {modalTitle}
           </h2>
           <p className="mb-4 text-stone-700">
@@ -104,6 +108,12 @@ export default function TrialBanner() {
             <Link to="/sources" className="text-emerald-600 underline underline-offset-2 hover:text-emerald-700">المصادر</Link>
             <Link to="/reviews" className="text-emerald-600 underline underline-offset-2 hover:text-emerald-700">التقييمات</Link>
           </div>
+          <button
+            onClick={() => window.history.length > 1 ? window.history.back() : window.location.href = '/'}
+            className="mt-4 text-sm text-stone-400 hover:text-stone-600 transition-colors"
+          >
+            رجوع
+          </button>
         </div>
         </FocusTrap>
       </div>
@@ -115,9 +125,9 @@ export default function TrialBanner() {
     return (
       <div className="fixed inset-0 z-50 flex items-center justify-center bg-stone-900/80 backdrop-blur-sm">
         <FocusTrap focusTrapOptions={{ allowOutsideClick: true }}>
-        <div className="mx-4 w-full max-w-md rounded-2xl bg-white p-10 text-center shadow-2xl">
+        <div className="mx-4 w-full max-w-md rounded-2xl bg-white p-10 text-center shadow-2xl" aria-labelledby="sub-modal-title">
           <Shield className="mx-auto mb-4 h-12 w-12 text-emerald-600" />
-          <h2 className="mb-3 text-2xl font-bold text-stone-900">
+          <h2 id="sub-modal-title" className="mb-3 text-2xl font-bold text-stone-900">
             محتوى للمشتركين فقط
           </h2>
           <p className="mb-4 text-stone-700">
@@ -137,6 +147,12 @@ export default function TrialBanner() {
             <Link to="/library" className="text-emerald-600 underline underline-offset-2 hover:text-emerald-700">المكتبة</Link>
             <Link to="/glossary" className="text-emerald-600 underline underline-offset-2 hover:text-emerald-700">المصطلحات</Link>
           </div>
+          <button
+            onClick={() => window.history.length > 1 ? window.history.back() : window.location.href = '/'}
+            className="mt-4 text-sm text-stone-400 hover:text-stone-600 transition-colors"
+          >
+            رجوع
+          </button>
         </div>
         </FocusTrap>
       </div>
@@ -144,15 +160,22 @@ export default function TrialBanner() {
   }
 
   if (subscription.status === 'trial' && subscription.trialDaysLeft > 0) {
+    if (dismissed) return null;
+
     const daysLeft = subscription.trialDaysLeft;
     const isLastDay = daysLeft <= 1;
 
     const daysText = arPlural(daysLeft, 'يوم واحد', 'يومان', 'أيام');
 
+    const handleDismiss = () => {
+      setDismissed(true);
+      sessionStorage.setItem(DISMISS_KEY, '1');
+    };
+
     return (
       <div
         className={cn(
-          'sticky top-[64px] md:top-[72px] z-40 text-center py-2 px-4',
+          'sticky top-[64px] md:top-[72px] z-40 text-center py-2 px-4 relative',
           isLastDay ? 'bg-red-600' : 'gold-gradient'
         )}
       >
@@ -186,6 +209,18 @@ export default function TrialBanner() {
             </>
           )}
         </p>
+        <button
+          onClick={handleDismiss}
+          aria-label="إغلاق"
+          className={cn(
+            'absolute end-3 top-1/2 -translate-y-1/2 rounded-full p-1 transition-colors',
+            isLastDay
+              ? 'text-white/70 hover:text-white hover:bg-white/10'
+              : 'text-stone-600/70 hover:text-stone-900 hover:bg-black/5'
+          )}
+        >
+          <X className="h-4 w-4" />
+        </button>
       </div>
     );
   }

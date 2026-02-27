@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect, useCallback, type ReactNode } from 'react';
+import { createContext, useContext, useState, useEffect, useCallback, useMemo, type ReactNode } from 'react';
 import { toast } from 'sonner';
 import { supabase } from '@/lib/supabase';
 import { SUPPORT_EMAIL } from '@/lib/constants';
@@ -6,7 +6,7 @@ import type { User as SupabaseUser, Session } from '@supabase/supabase-js';
 
 type SubscriptionTier = 'free' | 'essentials' | 'elite';
 
-interface Subscription {
+export interface Subscription {
   status: 'trial' | 'active' | 'past_due' | 'cancelled' | 'expired' | 'none';
   tier: SubscriptionTier;
   trialDaysLeft: number;
@@ -20,7 +20,7 @@ interface User {
   email: string;
 }
 
-interface AuthContextType {
+export interface AuthContextType {
   user: User | null;
   subscription: Subscription;
   isLoading: boolean;
@@ -28,6 +28,7 @@ interface AuthContextType {
   signup: (email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
   upgradeTo: (tier: 'essentials' | 'elite') => void;
+  refreshSubscription: () => Promise<void>;
 }
 
 const DEFAULT_SUBSCRIPTION: Subscription = {
@@ -44,14 +45,17 @@ const STRIPE_LINKS: Record<'essentials' | 'elite', string> = {
   elite: import.meta.env.VITE_STRIPE_ELITE_LINK ?? '',
 };
 
-const AuthContext = createContext<AuthContextType | null>(null);
+// eslint-disable-next-line react-refresh/only-export-components
+export const AuthContext = createContext<AuthContextType | null>(null);
 
+// eslint-disable-next-line react-refresh/only-export-components
 export function useAuth() {
   const ctx = useContext(AuthContext);
   if (!ctx) throw new Error('useAuth must be used within AuthProvider');
   return ctx;
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 export function useSubscription(): Subscription {
   const { subscription } = useAuth();
   return subscription;
@@ -111,7 +115,7 @@ function buildSubscription(row: Record<string, unknown> | null): Subscription {
 async function fetchWithRetry<T>(fn: () => Promise<T>, retries = 2, delay = 1000): Promise<T> {
   for (let i = 0; i <= retries; i++) {
     try { return await fn(); }
-    catch (e) { if (i === retries) throw e; await new Promise(r => setTimeout(r, delay * (i + 1))); }
+    catch (e) { if (i === retries) throw e; await new Promise(r => setTimeout(r, delay * Math.pow(2, i))); }
   }
   throw new Error('unreachable');
 }
@@ -158,25 +162,32 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const poll = async () => {
       if (cancelled) return;
       attempts++;
-      const { data } = await supabase
-        .from('subscriptions')
-        .select('status')
-        .eq('user_id', user.id)
-        .maybeSingle();
+      if (attempts % 4 === 0) toast('لا زلنا نتحقق... يرجى الانتظار');
+      try {
+        const { data } = await supabase
+          .from('subscriptions')
+          .select('status')
+          .eq('user_id', user.id)
+          .maybeSingle();
 
-      if (cancelled) return;
-      if (data?.status === 'active' || data?.status === 'trial') {
-        await fetchSubscription(user.id);
-        toast.success('تم تفعيل اشتراكك بنجاح!');
-        if (window.location.pathname === '/pricing') {
-          window.location.href = '/dashboard';
+        if (cancelled) return;
+        if (data?.status === 'active' || data?.status === 'trial') {
+          await fetchSubscription(user.id);
+          toast.success('تم تفعيل اشتراكك بنجاح!');
+          if (window.location.pathname === '/pricing') {
+            window.location.href = '/dashboard';
+          }
+          return;
         }
+        if (attempts < 15) { timer = setTimeout(poll, Math.min(3000 * Math.pow(1.5, attempts - 1), 15000)); }
+        else {
+          await fetchSubscription(user.id);
+          toast('إذا لم يظهر اشتراكك، حدّث الصفحة بعد دقيقة.');
+        }
+      } catch {
+        if (cancelled) return;
+        toast.error('تعذّر التحقق من حالة الاشتراك. حدّث الصفحة.');
         return;
-      }
-      if (attempts < 15) { timer = setTimeout(poll, 3000); }
-      else {
-        await fetchSubscription(user.id);
-        toast('إذا لم يظهر اشتراكك، حدّث الصفحة بعد دقيقة.');
       }
     };
     poll();
@@ -186,7 +197,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     const timeout = setTimeout(() => {
       setIsLoading(false);
-    }, 10000);
+    }, 5000);
 
     supabase.auth.getSession().then(async ({ data: { session } }) => {
       clearTimeout(timeout);
@@ -218,7 +229,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return () => { authListener.unsubscribe(); clearTimeout(timeout); };
   }, [fetchSubscription]);
 
-  const login = async (email: string, password: string) => {
+  const login = useCallback(async (email: string, password: string) => {
     const { error } = await supabase.auth.signInWithPassword({ email, password });
     if (error) {
       throw new Error(
@@ -227,9 +238,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           : 'حدث خطأ في تسجيل الدخول. حاول مرة أخرى.',
       );
     }
-  };
+  }, []);
 
-  const signup = async (email: string, password: string) => {
+  const signup = useCallback(async (email: string, password: string) => {
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
@@ -256,9 +267,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         body: JSON.stringify({ email, name: '' }),
       }).catch(() => {});
     }
-  };
+  }, []);
 
-  const logout = async () => {
+  const logout = useCallback(async () => {
     setUser(null);
     setSubscription(DEFAULT_SUBSCRIPTION);
     try {
@@ -270,9 +281,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (key.startsWith('sb-')) localStorage.removeItem(key);
     }); } catch { /* expected in restricted environments */ }
     window.location.href = '/';
-  };
+  }, []);
 
-  const upgradeTo = (tier: 'essentials' | 'elite') => {
+  const refreshSubscription = useCallback(async () => {
+    if (user) await fetchSubscription(user.id);
+  }, [user, fetchSubscription]);
+
+  const upgradeTo = useCallback((tier: 'essentials' | 'elite') => {
     const link = STRIPE_LINKS[tier];
     if (!link) {
       toast.error(`عذرًا — رابط الدفع غير متاح حاليًا. تواصل معنا: ${SUPPORT_EMAIL}`);
@@ -283,12 +298,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (user?.id) url.searchParams.set('client_reference_id', user.id);
     if (user?.email) url.searchParams.set('prefilled_email', user.email);
     window.location.href = url.toString();
-  };
+  }, [user]);
+
+  const contextValue = useMemo(
+    () => ({ user, subscription, isLoading, login, signup, logout, upgradeTo, refreshSubscription }),
+    [user, subscription, isLoading, login, signup, logout, upgradeTo, refreshSubscription],
+  );
 
   return (
-    <AuthContext.Provider
-      value={{ user, subscription, isLoading, login, signup, logout, upgradeTo }}
-    >
+    <AuthContext.Provider value={contextValue}>
       {children}
     </AuthContext.Provider>
   );

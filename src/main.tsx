@@ -18,7 +18,7 @@ if (hasConsent && import.meta.env.PROD) {
       replaysOnErrorSampleRate: 1.0,
       environment: import.meta.env.MODE,
     });
-  });
+  }).catch(() => {});
 
   const ga4Id = import.meta.env.VITE_GA4_ID;
   if (ga4Id) {

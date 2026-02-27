@@ -56,17 +56,40 @@ export default function LabGuide() {
         <h1 className="text-3xl font-bold md:text-4xl text-emerald-600">
           دليل التحاليل المخبرية
         </h1>
-        <p className="mt-2 text-lg" >
+        <p className="mt-2 text-lg">
           التحاليل الأساسية قبل وأثناء وبعد استخدام الببتيدات
         </p>
       </div>
+
+      {/* ── Red flags — always visible (safety-critical) ── */}
+      <section className="mb-10">
+        <div className="mb-4 flex items-center gap-3">
+          <AlertTriangle className="h-6 w-6 shrink-0 text-red-500" />
+          <h2 className="text-2xl font-bold text-red-600">
+            علامات تحذيرية تستوجب التوقف الفوري
+          </h2>
+        </div>
+
+        <div className="rounded-2xl border-2 border-red-600 bg-red-600/[0.04] p-6">
+          <ul className="space-y-3">
+            {redFlags.map((flag) => (
+              <li key={flag} className="flex items-start gap-3">
+                <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0 text-red-500" />
+                <span className="text-base font-medium">
+                  {flag}
+                </span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </section>
 
       <div className="space-y-10">
         {/* ── Section 1: Baseline tests ── */}
         <section>
           <div className="mb-4 flex items-center gap-3">
             <ClipboardList className="h-6 w-6 shrink-0 text-emerald-600" />
-            <h2 className="text-2xl font-bold" >
+            <h2 className="text-2xl font-bold">
               التحاليل الأساسية
             </h2>
           </div>
@@ -75,7 +98,7 @@ export default function LabGuide() {
             <table className="w-full text-sm">
               <caption className="sr-only">تحاليل خط الأساس الموصى بها قبل استخدام الببتيدات</caption>
               <thead>
-                <tr className="bg-emerald-500">
+                <tr className="bg-emerald-800">
                   <th className="px-4 py-3 text-right font-bold text-white/90">
                     التحليل
                   </th>
@@ -87,25 +110,25 @@ export default function LabGuide() {
                   </th>
                 </tr>
               </thead>
-              <tbody className={blurClass}>
+              <tbody className={blurClass} aria-hidden={!isPro || undefined}>
                 {labTests.map((test, i) => (
                   <tr
                     key={test.id}
-                    className={cn("border-t transition-colors hover:bg-stone-50", i % 2 === 0 && "bg-[var(--card)]")}
+                    className={cn("border-t transition-colors hover:bg-stone-50", i % 2 === 0 && "bg-stone-50")}
                   >
                     <td className="px-4 py-3">
-                      <span className="font-bold" >
+                      <span className="font-bold">
                         {test.nameAr}
                       </span>
                       <br />
-                      <span className="text-xs" >
+                      <span className="text-xs">
                         {test.nameEn}
                       </span>
                     </td>
-                    <td className="px-4 py-3 leading-relaxed" >
+                    <td className="px-4 py-3 leading-relaxed">
                       {test.descriptionAr}
                     </td>
-                    <td className="px-4 py-3 text-sm" >
+                    <td className="px-4 py-3 text-sm">
                       {test.whenAr}
                     </td>
                   </tr>
@@ -120,7 +143,7 @@ export default function LabGuide() {
         <section>
           <div className="mb-4 flex items-center gap-3">
             <Calendar className="h-6 w-6 shrink-0 text-emerald-600" />
-            <h2 className="text-2xl font-bold" >
+            <h2 className="text-2xl font-bold">
               جدول المتابعة
             </h2>
           </div>
@@ -129,7 +152,7 @@ export default function LabGuide() {
             <table className="w-full text-sm">
               <caption className="sr-only">جدول متابعة التحاليل أثناء استخدام الببتيدات</caption>
               <thead>
-                <tr className="bg-emerald-500">
+                <tr className="bg-emerald-800">
                   <th className="px-4 py-3 text-right font-bold text-white/90">
                     التوقيت
                   </th>
@@ -138,16 +161,16 @@ export default function LabGuide() {
                   </th>
                 </tr>
               </thead>
-              <tbody className={blurClass}>
+              <tbody className={blurClass} aria-hidden={!isPro || undefined}>
                 {monitoringSchedule.map((row, i) => (
                   <tr
                     key={row.when}
-                    className={cn("border-t transition-colors hover:bg-stone-50", i % 2 === 0 && "bg-[var(--card)]")}
+                    className={cn("border-t transition-colors hover:bg-stone-50", i % 2 === 0 && "bg-stone-50")}
                   >
-                    <td className="px-4 py-3 font-bold" >
+                    <td className="px-4 py-3 font-bold">
                       {row.when}
                     </td>
-                    <td className="px-4 py-3" >
+                    <td className="px-4 py-3">
                       {row.tests}
                     </td>
                   </tr>
@@ -158,28 +181,6 @@ export default function LabGuide() {
           </div>
         </section>
 
-        {/* ── Section 3: Red flags ── */}
-        <section>
-          <div className="mb-4 flex items-center gap-3">
-            <AlertTriangle className="h-6 w-6 shrink-0 text-red-500" />
-            <h2 className="text-2xl font-bold text-red-600 ">
-              علامات تحذيرية تستوجب التوقف الفوري
-            </h2>
-          </div>
-
-          <div className="rounded-2xl border-2 border-red-600 bg-red-600/[0.04] p-6">
-            <ul className="space-y-3">
-              {redFlags.map((flag) => (
-                <li key={flag} className="flex items-start gap-3">
-                  <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0 text-red-500" />
-                  <span className="text-base font-medium">
-                    {flag}
-                  </span>
-                </li>
-              ))}
-            </ul>
-          </div>
-        </section>
       </div>
 
       <div className="mt-12 rounded-2xl border border-emerald-200 bg-emerald-50 p-6 text-center">

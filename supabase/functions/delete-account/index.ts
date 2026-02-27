@@ -7,7 +7,10 @@ const stripe = new Stripe(stripeKey, { apiVersion: '2023-10-16' })
 const supabaseUrl = Deno.env.get('SUPABASE_URL') ?? ''
 const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
 
-const ALLOWED_ORIGINS = ['https://pptides.com', 'http://localhost:3000', 'http://localhost:3001']
+const IS_PRODUCTION = !Deno.env.get('DENO_DEV')
+const ALLOWED_ORIGINS = IS_PRODUCTION
+  ? ['https://pptides.com']
+  : ['https://pptides.com', 'http://localhost:3000', 'http://localhost:3001']
 
 serve(async (req) => {
   const origin = req.headers.get('origin') ?? ''
@@ -85,6 +88,15 @@ serve(async (req) => {
       console.error('delete-account: STRIPE_SECRET_KEY missing, skipping Stripe cleanup')
     }
 
+    const { error: deleteError } = await supabase.auth.admin.deleteUser(user.id)
+    if (deleteError) {
+      console.error('delete-account: failed to delete auth user:', deleteError)
+      return new Response(JSON.stringify({ error: 'Failed to delete account' }), {
+        status: 500,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      })
+    }
+
     const { error: subDelErr } = await supabase.from('subscriptions').delete().eq('user_id', user.id)
     if (subDelErr) console.error('delete-account: failed to delete subscriptions row:', subDelErr)
 
@@ -94,16 +106,20 @@ serve(async (req) => {
     const { error: commDelErr } = await supabase.from('community_logs').delete().eq('user_id', user.id)
     if (commDelErr) console.error('delete-account: failed to delete community_logs:', commDelErr)
 
-    const { error: revDelErr } = await supabase.from('reviews').delete().eq('email', user.email)
-    if (revDelErr) console.error('delete-account: failed to delete reviews:', revDelErr)
+    if (user.email) {
+      const { error: revDelErr } = await supabase.from('reviews').delete().eq('email', user.email)
+      if (revDelErr) console.error('delete-account: failed to delete reviews:', revDelErr)
+    }
 
-    const { error: deleteError } = await supabase.auth.admin.deleteUser(user.id)
-    if (deleteError) {
-      console.error('delete-account: failed to delete auth user:', deleteError)
-      return new Response(JSON.stringify({ error: 'Failed to delete account' }), {
-        status: 500,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      })
+    const { error: aiDelErr } = await supabase.from('ai_coach_requests').delete().eq('user_id', user.id)
+    if (aiDelErr) console.error('delete-account: failed to delete ai_coach_requests:', aiDelErr)
+
+    const { error: reminderDelErr } = await supabase.from('sent_reminders').delete().eq('user_id', user.id)
+    if (reminderDelErr) console.error('delete-account: failed to delete sent_reminders:', reminderDelErr)
+
+    if (user.email) {
+      const { error: emailListDelErr } = await supabase.from('email_list').delete().eq('email', user.email)
+      if (emailListDelErr) console.error('delete-account: failed to delete email_list:', emailListDelErr)
     }
 
     return new Response(JSON.stringify({ success: true }), {

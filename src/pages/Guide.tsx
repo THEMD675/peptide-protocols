@@ -81,9 +81,9 @@ function BlurredSection({ isPro, children }: { isPro: boolean; children: React.R
 }
 
 const SVG_COLORS = {
-  primary: '#10b981',
+  primary: '#10b981' /* emerald-500 */,
   primaryLight: '#10b98120',
-  border: '#d6d3d1',
+  border: '#d6d3d1' /* stone-300 */,
 } as const;
 
 export default function Guide() {
@@ -106,7 +106,7 @@ export default function Guide() {
         <h1 className="text-3xl font-bold md:text-4xl text-emerald-600">
           الدليل العملي
         </h1>
-        <p className="mt-2 text-lg" >
+        <p className="mt-2 text-lg">
           من التحضير إلى التنفيذ
         </p>
       </div>
@@ -116,7 +116,7 @@ export default function Guide() {
         <section id="required-tools">
           <div className="mb-4 flex items-center gap-3">
             <FlaskConical className="h-6 w-6 shrink-0 text-emerald-600" />
-            <h2 className="text-2xl font-bold" >
+            <h2 className="text-2xl font-bold">
               الأدوات المطلوبة
             </h2>
           </div>
@@ -134,12 +134,12 @@ export default function Guide() {
                   {requiredTools.map((tool, i) => (
                     <tr
                       key={tool.name}
-                      className={cn("border-t transition-colors hover:bg-stone-50", i % 2 === 0 && "bg-[var(--card)]")}
+                      className={cn("border-t transition-colors hover:bg-stone-50", i % 2 === 0 && "bg-stone-50")}
                     >
-                      <td className="px-4 py-3 font-bold" >
+                      <td className="px-4 py-3 font-bold">
                         {tool.name}
                       </td>
-                      <td className="px-4 py-3" >
+                      <td className="px-4 py-3">
                         {tool.desc}
                       </td>
                     </tr>
@@ -154,34 +154,35 @@ export default function Guide() {
         <section id="reconstitution">
           <div className="mb-4 flex items-center gap-3">
             <CheckCircle className="h-6 w-6 shrink-0 text-emerald-600" />
-            <h2 className="text-2xl font-bold" >
+            <h2 className="text-2xl font-bold">
               خطوات التحضير
             </h2>
           </div>
 
           <BlurredSection isPro={isPro}>
-            <div className="grid gap-4">
+            <ol className="grid gap-4 list-none p-0 m-0">
               {reconstitutionSteps.map((item, i) => (
-                <div
+                <li
                   key={item.step}
                   className="glass-card gold-border flex items-start gap-4 p-5"
                 >
                   <span
                     className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-emerald-500 text-lg font-bold text-white"
+                    aria-hidden="true"
                   >
                     {i + 1}
                   </span>
                   <div>
-                    <h3 className="text-base font-bold" >
+                    <h3 className="text-base font-bold">
                       {item.step}
                     </h3>
-                    <p className="mt-1 text-sm leading-relaxed" >
+                    <p className="mt-1 text-sm leading-relaxed">
                       {item.detail}
                     </p>
                   </div>
-                </div>
+                </li>
               ))}
-            </div>
+            </ol>
           </BlurredSection>
         </section>
 
@@ -189,7 +190,7 @@ export default function Guide() {
         <section id="injection-sites">
           <div className="mb-4 flex items-center gap-3">
             <FlaskConical className="h-6 w-6 shrink-0 text-emerald-600" />
-            <h2 className="text-2xl font-bold" >
+            <h2 className="text-2xl font-bold">
               مواقع الحقن
             </h2>
           </div>
@@ -234,7 +235,7 @@ export default function Guide() {
         <section id="important-rules">
           <div className="mb-4 flex items-center gap-3">
             <Shield className="h-6 w-6 shrink-0 text-emerald-600" />
-            <h2 className="text-2xl font-bold" >
+            <h2 className="text-2xl font-bold">
               قواعد مهمة
             </h2>
           </div>
@@ -250,7 +251,7 @@ export default function Guide() {
                       className="mt-0.5 h-5 w-5 shrink-0"
                       
                     />
-                    <span className="text-sm leading-relaxed" >
+                    <span className="text-sm leading-relaxed">
                       {rule}
                     </span>
                   </li>
@@ -264,7 +265,7 @@ export default function Guide() {
         <section id="other-routes">
           <div className="mb-4 flex items-center gap-3">
             <BookOpen className="h-6 w-6 shrink-0 text-emerald-600" />
-            <h2 className="text-2xl font-bold" >
+            <h2 className="text-2xl font-bold">
               طرق الاستخدام الأخرى
             </h2>
           </div>
@@ -285,7 +286,7 @@ export default function Guide() {
                   >
                     {route.peptides}
                   </span>
-                  <p className="flex-1 text-sm leading-relaxed" >
+                  <p className="flex-1 text-sm leading-relaxed">
                     {route.desc}
                   </p>
                 </div>

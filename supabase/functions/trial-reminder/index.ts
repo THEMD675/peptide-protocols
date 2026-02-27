@@ -7,7 +7,10 @@ const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
 const APP_URL = Deno.env.get('APP_URL') ?? 'https://pptides.com'
 const ESSENTIALS_PRICE = '$9'
 
-const ALLOWED_ORIGINS = ['https://pptides.com', 'http://localhost:3000', 'http://localhost:3001']
+const IS_PRODUCTION = !Deno.env.get('DENO_DEV')
+const ALLOWED_ORIGINS = IS_PRODUCTION
+  ? ['https://pptides.com']
+  : ['https://pptides.com', 'http://localhost:3000', 'http://localhost:3001']
 
 function getCorsHeaders(req: Request) {
   const origin = req.headers.get('origin') ?? ''
@@ -40,10 +43,18 @@ serve(async (req) => {
       })
     }
 
-    const cronSecret = req.headers.get('x-cron-secret')
     const expectedSecret = Deno.env.get('CRON_SECRET')
-    if (!expectedSecret || cronSecret !== expectedSecret) {
-      console.error('trial-reminder: missing or invalid cron secret')
+    if (!expectedSecret) {
+      console.error('trial-reminder: CRON_SECRET not configured')
+      return new Response(JSON.stringify({ error: 'CRON_SECRET not configured' }), {
+        status: 500,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      })
+    }
+
+    const cronSecret = req.headers.get('x-cron-secret')
+    if (cronSecret !== expectedSecret) {
+      console.error('trial-reminder: invalid cron secret')
       return new Response(JSON.stringify({ error: 'Unauthorized' }), {
         status: 401,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -145,7 +156,7 @@ serve(async (req) => {
           subject = '⚠️ آخر يوم في تجربتك — pptides'
           body = `
             <h1 style="color: #1c1917; font-size: 24px;">تنتهي تجربتك المجانية غدًا</h1>
-            <p>بعد غد ستفقد الوصول إلى:</p>
+            <p>غدًا ستفقد الوصول إلى:</p>
             <ul>
               <li>✅ البروتوكولات الكاملة لـ 41 ببتيد</li>
               <li>✅ المدرب الذكي بالذكاء الاصطناعي</li>

@@ -18,8 +18,17 @@ function getCategoryLabel(categoryId: string) {
 }
 
 function getPrimaryCategory(peptideIds: string[]) {
-  const first = peptides.find((p) => p.id === peptideIds[0]);
-  return first?.category ?? 'recovery';
+  const counts: Record<string, number> = {};
+  for (const id of peptideIds) {
+    const p = peptides.find(x => x.id === id);
+    if (p) counts[p.category] = (counts[p.category] ?? 0) + 1;
+  }
+  let best = 'recovery';
+  let max = 0;
+  for (const [cat, n] of Object.entries(counts)) {
+    if (n > max) { max = n; best = cat; }
+  }
+  return best;
 }
 
 export default function Stacks() {
@@ -39,7 +48,7 @@ export default function Stacks() {
   return (
     <div className="mx-auto max-w-6xl px-4 pb-24 pt-8 md:px-6 md:pt-12">
       <Helmet>
-        <title>بروتوكولات ببتيدات مُجمَّعة — خلطات مُجرَّبة | pptides</title>
+        <title>بروتوكولات ببتيدات مُجمَّعة | خلطات مُجرَّبة | pptides</title>
         <meta name="description" content="بروتوكولات مُجمَّعة تجمع عدة ببتيدات حسب الهدف: تعافي، دماغ، طول عمر. Curated peptide stacks for recovery, brain, and longevity." />
       </Helmet>
       {/* Header */}
@@ -52,7 +61,7 @@ export default function Stacks() {
         <h1 className="text-3xl font-bold md:text-4xl text-emerald-600">
           البروتوكولات المُجمَّعة
         </h1>
-        <p className="mt-2 text-lg" >
+        <p className="mt-2 text-lg">
           خلطات مُجرَّبة لأهداف محددة
         </p>
       </div>
@@ -86,22 +95,22 @@ export default function Stacks() {
               </h2>
 
               {/* Goal — always visible */}
-              <p className="mb-3 text-sm leading-relaxed text-stone-700" >
+              <p className="mb-3 text-sm leading-relaxed text-stone-700">
                 {stack.goalAr}
               </p>
 
               {/* Stack meta — always visible */}
               {STACK_META[stack.id] && (
                 <div className="mb-4 flex flex-wrap gap-2">
-                  <span className="flex items-center gap-1 rounded-full border border-stone-200 bg-stone-50 px-2.5 py-1 text-[11px] font-medium text-stone-700">
+                  <span className="flex items-center gap-1 rounded-full border border-stone-200 bg-stone-50 px-2.5 py-1 text-sm font-medium text-stone-700">
                     <BarChart3 className="h-3 w-3" />
                     {STACK_META[stack.id].difficulty}
                   </span>
-                  <span className="flex items-center gap-1 rounded-full border border-stone-200 bg-stone-50 px-2.5 py-1 text-[11px] font-medium text-stone-700">
+                  <span className="flex items-center gap-1 rounded-full border border-stone-200 bg-stone-50 px-2.5 py-1 text-sm font-medium text-stone-700">
                     <DollarSign className="h-3 w-3" />
                     {STACK_META[stack.id].cost}
                   </span>
-                  <span className="flex items-center gap-1 rounded-full border border-stone-200 bg-stone-50 px-2.5 py-1 text-[11px] font-medium text-stone-700">
+                  <span className="flex items-center gap-1 rounded-full border border-stone-200 bg-stone-50 px-2.5 py-1 text-sm font-medium text-stone-700">
                     <Clock className="h-3 w-3" />
                     {STACK_META[stack.id].duration}
                   </span>
@@ -110,7 +119,7 @@ export default function Stacks() {
 
               {/* Peptide name chips — always visible */}
               <div className="mb-4">
-                <h3 className="mb-2 text-xs font-bold uppercase tracking-wider" >
+                <h3 className="mb-2 text-xs font-bold tracking-wider">
                   الببتيدات
                 </h3>
                 <div className="flex flex-wrap gap-2">
@@ -132,6 +141,7 @@ export default function Stacks() {
               <div className="relative flex-1">
                 <div
                   aria-hidden={!isPro}
+                  tabIndex={!isPro ? -1 : undefined}
                   className={!isPro ? 'blur-sm pointer-events-none select-none' : ''}
                 >
                   <p className="mb-4 text-sm leading-relaxed text-stone-700">
@@ -144,15 +154,15 @@ export default function Stacks() {
 
                   <div className="mt-4 flex flex-wrap gap-2">
                     <Link
-                      to={`/tracker?peptide=${encodeURIComponent(stackPeptides[0]?.nameEn ?? '')}`}
-                      className="inline-flex items-center gap-1.5 rounded-lg bg-emerald-600 px-4 py-2 text-xs font-bold text-white hover:bg-emerald-700 transition-colors"
+                      to="/tracker"
+                      className="inline-flex items-center gap-1.5 rounded-lg bg-emerald-600 px-4 py-2 text-sm font-bold text-white hover:bg-emerald-700 transition-colors"
                     >
                       <Syringe className="h-3.5 w-3.5" />
                       ابدأ البروتوكول
                     </Link>
                     <Link
-                      to={`/calculator?peptide=${encodeURIComponent(stackPeptides[0]?.nameEn ?? '')}`}
-                      className="inline-flex items-center gap-1.5 rounded-lg border border-stone-200 bg-white px-4 py-2 text-xs font-bold text-stone-700 hover:border-emerald-200 transition-colors"
+                      to="/calculator"
+                      className="inline-flex items-center gap-1.5 rounded-lg border border-stone-200 bg-white px-4 py-2 text-sm font-bold text-stone-700 hover:border-emerald-200 transition-colors"
                     >
                       <Calculator className="h-3.5 w-3.5" />
                       احسب الجرعة

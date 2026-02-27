@@ -104,23 +104,25 @@ export default function PeptideQuiz() {
   const [showResult, setShowResult] = useState(false);
 
   const handleSelect = (optionId: string) => {
-    const newAnswers = [...answers];
-    newAnswers[step] = optionId;
-    setAnswers(newAnswers);
+    setAnswers(prev => {
+      const newAnswers = [...prev];
+      newAnswers[step] = optionId;
 
-    if (step < STEPS.length - 1) {
-      setStep(step + 1);
-    } else {
-      setShowResult(true);
-      try {
-        localStorage.setItem('pptides_quiz_answers', JSON.stringify({
-          goal: newAnswers[0],
-          experience: newAnswers[1],
-          injection: newAnswers[2],
-          ts: Date.now(),
-        }));
-      } catch { /* expected */ }
-    }
+      if (step < STEPS.length - 1) {
+        setStep(s => s + 1);
+      } else {
+        setShowResult(true);
+        try {
+          localStorage.setItem('pptides_quiz_answers', JSON.stringify({
+            goal: newAnswers[0],
+            experience: newAnswers[1],
+            injection: newAnswers[2],
+          }));
+        } catch { /* expected */ }
+      }
+
+      return newAnswers;
+    });
   };
 
   const handleBack = () => {
@@ -155,6 +157,9 @@ export default function PeptideQuiz() {
             <span className="text-sm font-medium text-stone-500" dir="ltr">{rec.nameEn}</span>
           </div>
           <p className="text-sm text-stone-700 leading-relaxed">{rec.reason}</p>
+          {peptideData?.dosageAr && (
+            <p className="mt-2 text-xs text-stone-600"><strong>الجرعة:</strong> {peptideData.dosageAr.split('.')[0]}</p>
+          )}
           {peptideData?.costEstimate && (
             <p className="mt-2 text-xs text-emerald-700 font-semibold">التكلفة التقريبية: {peptideData.costEstimate}</p>
           )}
@@ -166,7 +171,7 @@ export default function PeptideQuiz() {
             className="flex-1 flex flex-col items-center justify-center gap-1 rounded-xl bg-emerald-600 px-5 py-3 text-white transition-all hover:bg-emerald-700"
           >
             <span className="text-sm font-bold flex items-center gap-2">صمّم بروتوكول مخصّص <ArrowLeft className="h-4 w-4" /></span>
-            <span className="text-[10px] opacity-80">بناءً على إجاباتك — المدرب الذكي جاهز</span>
+            <span className="text-xs opacity-80">بناءً على إجاباتك — المدرب الذكي جاهز</span>
           </Link>
           <Link
             to={`/peptide/${rec.peptideId}`}
@@ -181,9 +186,15 @@ export default function PeptideQuiz() {
             بديل آخر: <span className="font-bold">{rec.altName}</span>
           </Link>
         )}
-        <button onClick={handleReset} className="mt-4 w-full text-center text-xs text-emerald-600 hover:underline">
-          أعد الاختبار
-        </button>
+        <div className="mt-4 flex items-center justify-center gap-4">
+          <button onClick={() => { setShowResult(false); setStep(STEPS.length - 1); }} className="text-xs text-stone-500 hover:text-stone-700 transition-colors">
+            غيّر إجابتك
+          </button>
+          <span className="text-stone-300">|</span>
+          <button onClick={handleReset} className="text-xs text-emerald-600 hover:underline">
+            أعد الاختبار
+          </button>
+        </div>
       </div>
     );
   }
@@ -209,8 +220,8 @@ export default function PeptideQuiz() {
         )}
       </div>
 
-      <div className="mb-2 h-1.5 w-full rounded-full bg-stone-100" role="progressbar" aria-valuenow={step + 1} aria-valuemin={1} aria-valuemax={STEPS.length} aria-label="تقدّم الاختبار">
-        <div className="h-1.5 rounded-full bg-emerald-500 transition-all duration-500 ease-out" style={{ width: `${((step + 1) / STEPS.length) * 100}%` }} />
+      <div className="mb-2 h-2 w-full rounded-full bg-stone-100" role="progressbar" aria-valuenow={step + 1} aria-valuemin={1} aria-valuemax={STEPS.length} aria-label="تقدّم الاختبار">
+        <div className="h-2 rounded-full bg-emerald-500 transition-all duration-500 ease-out" style={{ width: `${((step + 1) / STEPS.length) * 100}%` }} />
       </div>
 
       <h3 className="mb-5 text-lg font-bold text-stone-900">{currentStep.question}</h3>
@@ -222,6 +233,7 @@ export default function PeptideQuiz() {
             <button
               key={opt.id}
               onClick={() => handleSelect(opt.id)}
+              aria-pressed={answers[step] === opt.id}
               className={cn(
                 'w-full rounded-xl border text-sm font-medium transition-all',
                 Icon ? 'flex flex-col items-center gap-1.5 px-3 py-3 text-center' : 'px-5 py-3.5 text-right',
@@ -231,7 +243,7 @@ export default function PeptideQuiz() {
               )}
             >
               {Icon && <Icon className={cn('h-5 w-5', answers[step] === opt.id ? 'text-emerald-600' : 'text-stone-400')} />}
-              <span className="text-xs font-bold">{opt.label}</span>
+              <span className="text-sm font-bold">{opt.label}</span>
             </button>
           );
         })}

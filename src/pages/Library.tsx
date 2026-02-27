@@ -7,13 +7,7 @@ import {
   Lock,
   Filter,
   FlaskConical,
-  Shield,
   X,
-  TrendingDown,
-  Heart,
-  Zap,
-  Brain,
-  Clock,
   CheckCircle,
   Sparkles,
   Star,
@@ -24,45 +18,8 @@ import { cn } from '@/lib/utils';
 import { peptides, categories, type Peptide } from '@/data/peptides';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
-import { PRICING, PEPTIDE_COUNT } from '@/lib/constants';
-
-const categoryIcons: Record<string, React.ElementType> = {
-  metabolic: TrendingDown,
-  recovery: Heart,
-  hormonal: Zap,
-  brain: Brain,
-  longevity: Clock,
-  'skin-gut': Shield,
-};
-
-const evidenceColors: Record<string, string> = {
-  excellent: 'bg-emerald-100 text-emerald-800 border-emerald-300',
-  strong: 'bg-blue-100 text-blue-800 border-blue-300',
-  good: 'bg-sky-100 text-sky-800 border-sky-300',
-  moderate: 'bg-amber-100 text-amber-800 border-amber-300',
-  weak: 'bg-orange-100 text-orange-800 border-orange-300',
-  'very-weak': 'bg-red-100 text-red-800 border-red-300',
-};
-
-const evidenceLabels: Record<string, string> = {
-  excellent: 'ممتاز',
-  strong: 'قوي',
-  good: 'جيد',
-  moderate: 'متوسط',
-  weak: 'ضعيف',
-  'very-weak': 'ضعيف جدًا',
-};
-
-const categoryLabels: Record<string, string> = {
-  metabolic: 'الأيض',
-  recovery: 'التعافي',
-  hormonal: 'الهرمونات',
-  brain: 'الدماغ',
-  longevity: 'إطالة العمر',
-  'skin-gut': 'البشرة والأمعاء',
-};
-
-const evidenceOrder: Record<string, number> = { excellent: 0, strong: 1, good: 2, moderate: 3, weak: 4, 'very-weak': 5 };
+import { PRICING, PEPTIDE_COUNT, TRIAL_PEPTIDE_IDS } from '@/lib/constants';
+import { categoryIcons, evidenceColors, evidenceLabels, categoryLabels, evidenceOrder } from '@/lib/peptide-labels';
 
 
 const PeptideCard = memo(function PeptideCard({
@@ -93,7 +50,7 @@ const PeptideCard = memo(function PeptideCard({
         hasAccess
           ? 'border-stone-200 bg-white hover:border-emerald-300 hover:shadow-xl hover:shadow-emerald-600/10 hover:-translate-y-1'
           : 'border-stone-200 bg-stone-50/50 hover:border-stone-300',
-        isFav && 'border-r-4 border-r-amber-400',
+        isFav && 'border-s-4 border-s-amber-400',
       )}
     >
       {!hasAccess && !peptide.isFree && (
@@ -109,7 +66,7 @@ const PeptideCard = memo(function PeptideCard({
       <button
         type="button"
         onClick={(e) => { e.preventDefault(); e.stopPropagation(); onToggleFav(); }}
-        className="absolute right-3 top-3 z-10 rounded-full p-2 transition-colors hover:bg-stone-100"
+        className="absolute right-3 top-3 z-10 rounded-full p-2.5 min-h-[44px] min-w-[44px] transition-colors hover:bg-stone-100"
         aria-label={isFav ? 'إزالة من المفضلة' : 'إضافة للمفضلة'}
       >
         <Star className={cn('h-4 w-4', isFav ? 'fill-amber-400 text-amber-400' : 'text-stone-300')} />
@@ -118,7 +75,7 @@ const PeptideCard = memo(function PeptideCard({
         <button
           type="button"
           onClick={(e) => { e.preventDefault(); e.stopPropagation(); onToggleCompare(); }}
-          className={cn('absolute right-3 top-12 z-10 rounded-full p-2 transition-colors', isCompare ? 'bg-emerald-100' : 'hover:bg-stone-100')}
+          className={cn('absolute right-3 top-12 z-10 rounded-full p-2.5 min-h-[44px] min-w-[44px] transition-colors', isCompare ? 'bg-emerald-100' : 'hover:bg-stone-100')}
           aria-label={isCompare ? 'إزالة من المقارنة' : 'إضافة للمقارنة'}
           title="قارن"
         >
@@ -266,9 +223,9 @@ function useUsedPeptides() {
   useEffect(() => {
     if (!user) return;
     let mounted = true;
-    supabase.from('injection_logs').select('peptide_name').eq('user_id', user.id).then(({ data }) => {
+    supabase.from('injection_logs').select('peptide_name').eq('user_id', user.id).limit(500).then(({ data }) => {
       if (mounted && data) setUsed(new Set(data.map(d => d.peptide_name)));
-    });
+    }).catch(() => {});
     return () => { mounted = false; };
   }, [user]);
   return used;
@@ -304,17 +261,18 @@ export default function Library() {
   }, []);
 
   const filtered = useMemo(() => {
+    const stripDiacritics = (s: string) => s.normalize('NFD').replace(/[\u0610-\u061A\u064B-\u065F\u0670\u06D6-\u06DC\u06DF-\u06E4\u06E7-\u06E8\u06EA-\u06ED]/g, '');
     const result = peptides.filter((p) => {
       if (activeCategory !== 'all' && p.category !== activeCategory) return false;
       if (evidenceFilter !== 'all' && p.evidenceLevel !== evidenceFilter) return false;
       if (search.trim()) {
-        const q = search.trim().toLowerCase();
+        const q = stripDiacritics(search.trim().toLowerCase());
         return (
-          p.nameAr.includes(q) ||
+          stripDiacritics(p.nameAr).includes(q) ||
           p.nameEn.toLowerCase().includes(q) ||
-          p.summaryAr.includes(q) ||
-          p.mechanismAr.includes(q) ||
-          p.dosageAr.includes(q)
+          stripDiacritics(p.summaryAr).includes(q) ||
+          stripDiacritics(p.mechanismAr).includes(q) ||
+          stripDiacritics(p.dosageAr).includes(q)
         );
       }
       return true;
@@ -328,8 +286,9 @@ export default function Library() {
   return (
     <div className="min-h-screen" >
       <Helmet>
-        <title>{`مكتبة الببتيدات — ${PEPTIDE_COUNT} ببتيد علاجي مع بروتوكولات كاملة | pptides`}</title>
+        <title>{`مكتبة الببتيدات | ${PEPTIDE_COUNT} ببتيد علاجي مع بروتوكولات كاملة | pptides`}</title>
         <meta name="description" content={`تصفّح ${PEPTIDE_COUNT} ببتيد علاجي مع شرح مفصّل للآليات والجرعات والآثار الجانبية. Browse ${PEPTIDE_COUNT} therapeutic peptides with detailed protocols.`} />
+        <meta property="og:locale" content="ar_SA" />
       </Helmet>
       <div className="mx-auto max-w-7xl px-4 py-8 md:px-6 md:py-12">
         {/* Header */}
@@ -355,11 +314,12 @@ export default function Library() {
             <Search className="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-stone-700" />
             <input
               type="text"
+              role="searchbox"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="ابحث بالاسم العربي أو الإنجليزي..."
               className={cn(
-                'w-full rounded-xl border border-stone-200 bg-stone-50 py-2.5 pr-10 pl-4',
+                'w-full rounded-xl border border-stone-200 bg-stone-50 py-2.5 ps-10 pe-4',
                 'text-sm text-stone-900 placeholder:text-stone-700',
                 'transition-colors focus:border-emerald-300 focus:outline-none focus:ring-2 focus:ring-emerald-100',
               )}
@@ -437,6 +397,7 @@ export default function Library() {
           <div className="flex gap-2 pb-2 min-w-max">
             <button
               onClick={() => setActiveCategory('all')}
+              aria-pressed={activeCategory === 'all'}
               className={cn(
                 'shrink-0 rounded-full border px-4 py-2 min-h-[44px] text-sm font-medium transition-all',
                 activeCategory === 'all'
@@ -453,6 +414,7 @@ export default function Library() {
                 <button
                   key={cat.id}
                   onClick={() => setActiveCategory(cat.id)}
+                  aria-pressed={active}
                   className={cn(
                     'flex shrink-0 items-center gap-1.5 rounded-full border px-4 py-2 min-h-[44px] text-sm font-medium transition-all',
                     active
@@ -487,11 +449,11 @@ export default function Library() {
             <div
               className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3"
             >
-              {filtered.map((p, i) => (
+              {filtered.map((p) => (
                 <PeptideCard
                   key={p.id}
                   peptide={p}
-                  hasAccess={hasFullAccess || (isTrial && p.isFree)}
+                  hasAccess={hasFullAccess || p.isFree || (isTrial && TRIAL_PEPTIDE_IDS.has(p.id))}
                   onLockedClick={() => handleLockedClick(p.id)}
                   isFav={favorites.has(p.id)}
                   onToggleFav={() => toggleFavorite(p.id)}

@@ -20,7 +20,7 @@ export default function Glossary() {
   }, [search]);
 
   return (
-    <div className="mx-auto max-w-4xl px-4 pb-24 pt-8 md:px-6 md:pt-12">
+    <div className="min-h-screen mx-auto max-w-4xl px-4 pb-24 pt-8 md:px-6 md:pt-12">
       <Helmet>
         <title>مصطلحات الببتيدات | pptides</title>
         <meta name="description" content="قاموس شامل لمصطلحات الببتيدات والبيوهاكينغ بالعربي مع المعادل الإنجليزي. Comprehensive Arabic peptide and biohacking glossary." />
@@ -44,7 +44,7 @@ export default function Glossary() {
           onChange={(e) => setSearch(e.target.value)}
           placeholder="ابحث عن مصطلح..."
           aria-label="البحث في المصطلحات"
-          className="w-full rounded-2xl border border-stone-300 bg-stone-50 py-4 pr-12 pl-10 text-sm text-stone-900 placeholder:text-stone-400 focus:border-emerald-300 focus:outline-none focus:ring-1 focus:ring-emerald-200"
+          className="w-full rounded-2xl border border-stone-300 bg-stone-50 py-4 ps-12 pe-10 text-sm text-stone-900 placeholder:text-stone-400 focus:border-emerald-300 focus:outline-none focus:ring-1 focus:ring-emerald-200"
         />
         {search && (
           <button
@@ -69,20 +69,20 @@ export default function Glossary() {
           <p className="text-sm text-stone-500">لا توجد نتائج لـ "{search}"</p>
         </div>
       ) : (
-        <div className="grid gap-4 sm:grid-cols-2">
+        <dl className="grid gap-4 sm:grid-cols-2">
           {filtered.map((term) => (
-            <article
+            <div
               key={term.en}
-              className="rounded-2xl border border-stone-200 border-r-2 border-r-emerald-300 bg-white p-5 transition-all hover:border-emerald-200 hover:shadow-sm"
+              className="rounded-2xl border border-stone-200 border-s-2 border-s-emerald-300 bg-white p-5 transition-all hover:border-emerald-200 hover:shadow-sm"
             >
-              <div className="flex items-baseline justify-between gap-3">
-                <h3 className="text-base font-bold text-stone-900">{term.ar}</h3>
-                <p className="shrink-0 text-xs font-medium text-emerald-600" dir="ltr">{term.en}</p>
-              </div>
-              <p className="mt-3 text-sm leading-relaxed text-stone-600">{term.definition}</p>
-            </article>
+              <dt className="flex items-baseline justify-between gap-3">
+                <span className="text-base font-bold text-stone-900">{term.ar}</span>
+                <span className="shrink-0 text-xs font-medium text-emerald-600" dir="ltr">{term.en}</span>
+              </dt>
+              <dd className="mt-3 text-sm leading-relaxed text-stone-600">{term.definition}</dd>
+            </div>
           ))}
-        </div>
+        </dl>
       )}
       {/* CTA */}
       <div className="mt-12 rounded-2xl border border-emerald-200 bg-emerald-50 p-6 text-center">

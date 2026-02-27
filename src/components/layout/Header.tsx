@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useMemo, memo } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Menu, X, User, LogOut, ChevronDown, Search } from 'lucide-react';
 import FocusTrap from 'focus-trap-react';
@@ -17,7 +17,7 @@ const guestNavLinks = [
 const userNavLinks = [
   { to: '/dashboard', label: 'لوحة التحكم' },
   { to: '/library', label: 'المكتبة' },
-  { to: '/calculator', label: 'الحاسبة' },
+  { to: '/calculator', label: 'حاسبة الجرعات' },
   { to: '/coach', label: 'المدرب' },
   { to: '/tracker', label: 'سجل الحقن' },
 ] as const;
@@ -33,7 +33,7 @@ const moreLinks = [
   { to: '/reviews', label: 'التقييمات' },
 ] as const;
 
-export default function Header() {
+export default memo(function Header() {
   const { pathname } = useLocation();
   const navigate = useNavigate();
   const { user, logout } = useAuth();
@@ -53,15 +53,18 @@ export default function Header() {
     if (!searchOpen || peptidesList.length > 0) return;
     import('@/data/peptides').then(m => {
       setPeptidesList(m.peptides.map(p => ({ id: p.id, nameAr: p.nameAr, nameEn: p.nameEn })));
-    });
+    }).catch(() => {});
   }, [searchOpen, peptidesList.length]);
 
-  const searchResults = searchQuery.trim().length >= 2
-    ? peptidesList.filter(p =>
-        p.nameAr.includes(searchQuery) ||
-        p.nameEn.toLowerCase().includes(searchQuery.toLowerCase())
-      ).slice(0, 5)
-    : [];
+  const searchResults = useMemo(() =>
+    searchQuery.trim().length >= 2
+      ? peptidesList.filter(p =>
+          p.nameAr.includes(searchQuery) ||
+          p.nameEn.toLowerCase().includes(searchQuery.toLowerCase())
+        ).slice(0, 5)
+      : [],
+    [searchQuery, peptidesList],
+  );
 
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
@@ -146,7 +149,7 @@ export default function Header() {
                 >
                   {label}
                   {active && (
-                    <span className="absolute inset-x-3 -bottom-[calc(theme(spacing.2)+1px)] h-0.5 rounded-full bg-emerald-600" />
+                    <span className="absolute inset-x-3 -bottom-3 h-0.5 rounded-full bg-emerald-600" />
                   )}
                 </Link>
               );
@@ -154,6 +157,7 @@ export default function Header() {
             <div className="relative" ref={moreDropdownRef}>
               <button
                 onClick={() => setMoreOpen(v => !v)}
+                aria-expanded={moreOpen}
                 className={cn(
                   'rounded-lg px-3 py-2 text-sm font-medium transition-colors flex items-center gap-1',
                   moreLinks.some(l => pathname.startsWith(l.to))
@@ -165,11 +169,12 @@ export default function Header() {
                 <ChevronDown className={cn('h-3 w-3 transition-transform', moreOpen && 'rotate-180')} />
               </button>
               {moreOpen && (
-                <div className="absolute right-0 top-full mt-2 min-w-[200px] overflow-hidden rounded-xl border border-stone-200 bg-white py-1 shadow-xl">
+                <div role="menu" aria-label="المزيد من الصفحات" className="absolute right-0 top-full mt-2 min-w-[200px] overflow-hidden rounded-xl border border-stone-200 bg-white py-1 shadow-xl animate-fade-in">
                   {moreLinks.map(({ to, label }) => (
                     <Link
                       key={to}
                       to={to}
+                      role="menuitem"
                       onClick={() => setMoreOpen(false)}
                       className={cn(
                         'block px-4 py-2.5 text-sm hover:bg-stone-50',
@@ -188,16 +193,16 @@ export default function Header() {
 
           <div className="flex items-center gap-3">
             {/* Global Search */}
-            <div ref={searchRef} className="relative hidden md:block">
+            <div ref={searchRef} className="relative">
               <button
                 onClick={() => { setSearchOpen(v => !v); setSearchQuery(''); }}
-                className="flex items-center gap-1.5 rounded-lg px-2.5 py-2 text-stone-500 transition-colors hover:bg-stone-100 hover:text-stone-700"
+                className="flex items-center gap-1.5 rounded-lg p-2.5 min-h-[44px] min-w-[44px] text-stone-500 transition-colors hover:bg-stone-100 hover:text-stone-700"
                 aria-label="بحث"
               >
                 <Search className="h-4 w-4" />
               </button>
               {searchOpen && (
-                <div className="absolute right-0 top-full mt-2 w-72 overflow-hidden rounded-xl border border-stone-200 bg-white shadow-xl">
+                <div className="absolute right-0 top-full mt-2 w-[calc(100vw-2rem)] max-w-80 overflow-hidden rounded-xl border border-stone-200 bg-white shadow-xl">
                   <div className="p-2">
                     <input
                       autoFocus
@@ -234,7 +239,10 @@ export default function Header() {
                     </div>
                   )}
                   {searchQuery.trim().length >= 2 && searchResults.length === 0 && (
-                    <div className="border-t border-stone-100 px-3 py-3 text-center text-xs text-stone-500">لا توجد نتائج</div>
+                    <div className="border-t border-stone-100 px-3 py-3 text-center text-xs text-stone-500">
+                      لا توجد نتائج
+                      <Link to="/library" onClick={() => { setSearchOpen(false); setSearchQuery(''); }} className="block text-xs text-emerald-600 hover:underline mt-1">تصفّح المكتبة</Link>
+                    </div>
                   )}
                 </div>
               )}
@@ -258,31 +266,36 @@ export default function Header() {
                 </button>
 
                 {dropdownOpen && (
-                  <div className="absolute right-0 top-full mt-2 min-w-[180px] overflow-hidden rounded-xl border border-stone-200 bg-white py-1 shadow-xl">
+                  <div role="menu" aria-label="قائمة الحساب" className="absolute right-0 top-full mt-2 min-w-[180px] overflow-hidden rounded-xl border border-stone-200 bg-white py-1 shadow-xl animate-fade-in">
                     <p className="truncate border-b border-stone-200 px-4 py-2 text-xs text-stone-800">
                       {user.email}
                     </p>
                     <Link
                       to="/dashboard"
+                      role="menuitem"
                       onClick={() => setDropdownOpen(false)}
-                      className="flex w-full items-center gap-2 px-4 py-2 text-sm text-stone-800 transition-colors hover:bg-stone-50"
+                      className="flex w-full items-center gap-2 px-4 py-2.5 min-h-[44px] text-sm text-stone-800 transition-colors hover:bg-stone-50"
                     >
                       لوحة التحكم
                     </Link>
                     <Link
                       to="/account"
+                      role="menuitem"
                       onClick={() => setDropdownOpen(false)}
-                      className="flex w-full items-center gap-2 px-4 py-2 text-sm text-stone-800 transition-colors hover:bg-stone-50"
+                      className="flex w-full items-center gap-2 px-4 py-2.5 min-h-[44px] text-sm text-stone-800 transition-colors hover:bg-stone-50"
                     >
                       إعدادات الحساب
                     </Link>
                     <div className="my-1 h-px bg-stone-200" />
                     <button
+                      role="menuitem"
                       onClick={() => {
-                        logout();
-                        setDropdownOpen(false);
+                        if (window.confirm('هل تريد تسجيل الخروج؟')) {
+                          logout();
+                          setDropdownOpen(false);
+                        }
                       }}
-                      className="flex w-full items-center gap-2 px-4 py-2 text-sm text-red-500 transition-colors hover:bg-stone-50"
+                      className="flex w-full items-center gap-2 px-4 py-2.5 min-h-[44px] text-sm text-red-500 transition-colors hover:bg-stone-50"
                     >
                       <LogOut className="h-4 w-4" />
                       تسجيل الخروج
@@ -293,7 +306,7 @@ export default function Header() {
             ) : (
               <Link
                 to="/login"
-                className="inline-flex rounded-full bg-emerald-600 px-4 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-emerald-700 md:px-5 md:py-2 md:text-sm"
+                className="inline-flex rounded-full bg-emerald-600 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-emerald-700 md:px-5 md:py-2 md:text-sm"
               >
                 تسجيل الدخول
               </Link>
@@ -301,7 +314,7 @@ export default function Header() {
 
             <button
               onClick={() => setMobileOpen((v) => !v)}
-              className="inline-flex items-center justify-center rounded-lg p-2 text-stone-800 transition-colors hover:bg-stone-100 md:hidden"
+              className="inline-flex items-center justify-center rounded-lg p-2.5 min-h-[44px] min-w-[44px] text-stone-800 transition-colors hover:bg-stone-100 md:hidden"
               aria-label="القائمة"
             >
               {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
@@ -327,7 +340,7 @@ export default function Header() {
         <FocusTrap active={mobileOpen} focusTrapOptions={{ allowOutsideClick: true }}>
         <nav
           className={cn(
-            'absolute inset-y-0 right-0 flex w-72 flex-col border-l border-stone-200 bg-white pt-16 shadow-2xl transition-all duration-300 ease-out',
+            'absolute inset-y-0 right-0 flex w-[min(18rem,85vw)] flex-col border-l border-stone-200 bg-white pt-16 shadow-2xl transition-all duration-300 ease-out',
             mobileOpen ? 'translate-x-0 opacity-100' : 'translate-x-full opacity-0',
           )}
         >
@@ -341,7 +354,7 @@ export default function Header() {
                 onChange={e => { setSearchQuery(e.target.value); setSearchFocusIdx(-1); }}
                 placeholder="ابحث عن ببتيد..."
                 aria-label="بحث عن ببتيد"
-                className="w-full rounded-xl border border-stone-200 bg-stone-50 py-2.5 pr-10 pl-4 text-sm text-stone-900 placeholder:text-stone-400 outline-none focus:border-emerald-300 focus:ring-2 focus:ring-emerald-100"
+                className="w-full rounded-xl border border-stone-200 bg-stone-50 py-2.5 ps-10 pe-4 text-sm text-stone-900 placeholder:text-stone-400 outline-none focus:border-emerald-300 focus:ring-2 focus:ring-emerald-100"
               />
               {searchQuery.trim().length >= 2 && searchResults.length > 0 && (
                 <div className="mt-1 rounded-xl border border-stone-200 bg-white overflow-hidden">
@@ -413,8 +426,10 @@ export default function Header() {
                 </div>
                 <button
                   onClick={() => {
-                    logout();
-                    setMobileOpen(false);
+                    if (window.confirm('هل تريد تسجيل الخروج؟')) {
+                      logout();
+                      setMobileOpen(false);
+                    }
                   }}
                   className="flex w-full items-center gap-2 rounded-lg px-4 py-2.5 text-sm text-red-500 transition-colors hover:bg-stone-50"
                 >
@@ -428,7 +443,7 @@ export default function Header() {
                 onClick={() => setMobileOpen(false)}
                 className="flex w-full items-center justify-center rounded-full bg-emerald-600 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-emerald-700"
               >
-                <User className="ml-2 h-4 w-4" />
+                <User className="ms-2 h-4 w-4" />
                 تسجيل الدخول
               </Link>
             )}
@@ -440,4 +455,4 @@ export default function Header() {
       <div className="h-16 md:h-[72px]" />
     </>
   );
-}
+});
