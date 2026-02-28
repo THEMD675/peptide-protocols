@@ -169,7 +169,7 @@ export default function Landing() {
           <div className="absolute left-1/2 top-0 h-[600px] w-[800px] -translate-x-1/2 bg-[radial-gradient(ellipse_at_center,rgba(16,185,129,0.07)_0%,transparent_60%)]" />
         </div>
 
-        <div className="relative mx-auto max-w-5xl px-6 pb-20 pt-10 text-center md:pt-16 md:pb-28">
+        <div className="relative mx-auto max-w-5xl px-6 pb-12 pt-10 text-center md:pt-16 md:pb-16">
           <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 px-5 py-2 text-sm font-semibold text-emerald-700 animate-fade-up">
             <Zap className="h-4 w-4" />
             <span>أول مرجع عربي شامل — {PEPTIDE_COUNT} ببتيد علاجي</span>
@@ -224,7 +224,7 @@ export default function Landing() {
       </section>
 
       {/* ═══════ PEPTIDE QUIZ — First interaction ═══════ */}
-      <section className="relative z-10 -mt-6 mx-auto max-w-2xl px-6 pb-10">
+      <section className="relative z-10 -mt-4 mx-auto max-w-2xl px-6 pb-6">
         <PeptideQuiz />
       </section>
 
@@ -245,7 +245,7 @@ export default function Landing() {
       </div>
 
       {/* ═══════ STATS BAR ═══════ */}
-      <section className="relative z-10 mt-4 mx-auto max-w-5xl px-6 md:-mt-8">
+      <section className="relative z-10 mt-6 mx-auto max-w-5xl px-6">
         <div className="grid grid-cols-2 gap-4 rounded-2xl border border-stone-300/60 bg-white p-4 sm:grid-cols-3 sm:p-8 shadow-xl md:grid-cols-5 md:gap-0 md:divide-x md:divide-x-reverse md:divide-stone-100">
           {STATS_BAR.map((s) => (
             <div key={s.label} className="flex flex-col items-center justify-center py-3 last:col-span-2 sm:last:col-span-1">
