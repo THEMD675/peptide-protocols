@@ -53,61 +53,62 @@ const PeptideCard = memo(function PeptideCard({
         isFav && 'border-s-4 border-s-amber-400',
       )}
     >
-      {!hasAccess && !peptide.isFree && (
-        <div className="absolute left-3 top-3 z-10">
-          <Lock className="h-3.5 w-3.5 text-stone-400" />
+      {/* Top action bar — in flow, no absolute positioning */}
+      <div className="mb-2 flex items-center justify-between">
+        <div className="flex items-center gap-1">
+          {!hasAccess && !peptide.isFree && (
+            <Lock className="h-3.5 w-3.5 text-stone-400" />
+          )}
+          {peptide.isFree && !hasAccess && (
+            <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-bold text-emerald-700">مجاني</span>
+          )}
+          {peptide.fdaApproved && (
+            <span className="flex items-center gap-1 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2 py-0.5 text-xs font-semibold text-emerald-400">
+              <CheckCircle className="h-3 w-3" />
+              FDA
+            </span>
+          )}
         </div>
-      )}
-      {peptide.isFree && !hasAccess && (
-        <div className="absolute left-3 top-3 z-10">
-          <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-bold text-emerald-700">مجاني</span>
-        </div>
-      )}
-      <button
-        type="button"
-        onClick={(e) => { e.preventDefault(); e.stopPropagation(); onToggleFav(); }}
-        className="absolute right-3 top-3 z-10 rounded-full p-2.5 min-h-[44px] min-w-[44px] transition-colors hover:bg-stone-100"
-        aria-label={isFav ? 'إزالة من المفضلة' : 'إضافة للمفضلة'}
-      >
-        <Star className={cn('h-4 w-4', isFav ? 'fill-amber-400 text-amber-400' : 'text-stone-300')} />
-      </button>
-      {hasAccess && (
-        <button
-          type="button"
-          onClick={(e) => { e.preventDefault(); e.stopPropagation(); onToggleCompare(); }}
-          className={cn('absolute right-3 top-12 z-10 rounded-full p-2.5 min-h-[44px] min-w-[44px] transition-colors', isCompare ? 'bg-emerald-100' : 'hover:bg-stone-100')}
-          aria-label={isCompare ? 'إزالة من المقارنة' : 'إضافة للمقارنة'}
-          title="قارن"
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={cn('h-4 w-4', isCompare ? 'text-emerald-600' : 'text-stone-300')}>
-            <line x1="18" y1="20" x2="18" y2="10" /><line x1="12" y1="20" x2="12" y2="4" /><line x1="6" y1="20" x2="6" y2="14" />
-          </svg>
-        </button>
-      )}
-
-      <div className="mb-3 flex items-start justify-between gap-2 pt-8">
-        <div className="flex-1 min-w-0">
-          <h3
-            className={cn(
-              'text-lg font-bold transition-colors',
-              hasAccess
-                ? 'text-stone-900 group-hover:text-emerald-600'
-                : 'text-stone-900',
-            )}
+        <div className="flex items-center">
+          {hasAccess && (
+            <button
+              type="button"
+              onClick={(e) => { e.preventDefault(); e.stopPropagation(); onToggleCompare(); }}
+              className={cn('rounded-full p-2 min-h-[40px] min-w-[40px] transition-colors', isCompare ? 'bg-emerald-100' : 'hover:bg-stone-100')}
+              aria-label={isCompare ? 'إزالة من المقارنة' : 'إضافة للمقارنة'}
+              title="قارن"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={cn('h-4 w-4', isCompare ? 'text-emerald-600' : 'text-stone-300')}>
+                <line x1="18" y1="20" x2="18" y2="10" /><line x1="12" y1="20" x2="12" y2="4" /><line x1="6" y1="20" x2="6" y2="14" />
+              </svg>
+            </button>
+          )}
+          <button
+            type="button"
+            onClick={(e) => { e.preventDefault(); e.stopPropagation(); onToggleFav(); }}
+            className="rounded-full p-2 min-h-[40px] min-w-[40px] transition-colors hover:bg-stone-100"
+            aria-label={isFav ? 'إزالة من المفضلة' : 'إضافة للمفضلة'}
           >
-            {peptide.nameAr}
-          </h3>
-          <div className="mt-0.5 flex items-center gap-2">
-            <p className="text-xs text-stone-800 truncate">{peptide.nameEn}</p>
-            {isUsed && <span className="shrink-0 rounded-full bg-emerald-100 px-1.5 py-0.5 text-xs font-bold text-emerald-700">مستخدم</span>}
-          </div>
+            <Star className={cn('h-4 w-4', isFav ? 'fill-amber-400 text-amber-400' : 'text-stone-300')} />
+          </button>
         </div>
-        {peptide.fdaApproved && (
-          <span className="flex shrink-0 items-center gap-1 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2 py-0.5 text-xs font-semibold text-emerald-400">
-            <CheckCircle className="h-3 w-3" />
-            FDA
-          </span>
-        )}
+      </div>
+
+      <div className="mb-3">
+        <h3
+          className={cn(
+            'text-lg font-bold transition-colors',
+            hasAccess
+              ? 'text-stone-900 group-hover:text-emerald-600'
+              : 'text-stone-900',
+          )}
+        >
+          {peptide.nameAr}
+        </h3>
+        <div className="mt-0.5 flex items-center gap-2">
+          <p className="text-xs text-stone-800 truncate">{peptide.nameEn}</p>
+          {isUsed && <span className="shrink-0 rounded-full bg-emerald-100 px-1.5 py-0.5 text-xs font-bold text-emerald-700">مستخدم</span>}
+        </div>
       </div>
 
       <div className="mb-3 flex flex-wrap items-center gap-2">
