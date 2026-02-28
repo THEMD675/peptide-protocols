@@ -147,7 +147,7 @@ export default function Landing() {
   const ctaTextShort = user ? 'اختر خطتك' : 'ابدأ التجربة المجانية';
 
   return (
-    <div className="min-h-screen bg-white animate-fade-in">
+    <div className="min-h-screen bg-white">
       <Helmet>
         <title>pptides | أشمل دليل عربي للببتيدات العلاجية</title>
         <meta name="description" content={`${PEPTIDE_COUNT} ببتيد علاجي مع بروتوكولات كاملة، حاسبة جرعات، ودليل تحاليل. أشمل دليل عربي مبني على الأبحاث.`} />
@@ -169,25 +169,25 @@ export default function Landing() {
           <div className="absolute left-1/2 top-0 h-[600px] w-[800px] -translate-x-1/2 bg-[radial-gradient(ellipse_at_center,rgba(16,185,129,0.07)_0%,transparent_60%)]" />
         </div>
 
-        <div className="relative mx-auto max-w-5xl px-6 pb-20 pt-10 text-center md:pt-16 md:pb-28">
-          <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 px-5 py-2 text-sm font-semibold text-emerald-700 animate-fade-up">
+        <div className="relative mx-auto max-w-5xl px-6 pb-6 pt-10 text-center md:pt-16 md:pb-8">
+          <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 px-5 py-2 text-sm font-semibold text-emerald-700">
             <Zap className="h-4 w-4" />
             <span>أول مرجع عربي شامل — {PEPTIDE_COUNT} ببتيد علاجي</span>
           </div>
 
-          <h1 className="mb-6 text-4xl font-extrabold leading-[1.3] text-stone-900 sm:text-5xl md:text-6xl lg:text-7xl animate-fade-up stagger-1">
+          <h1 className="mb-6 text-4xl font-extrabold leading-[1.3] text-stone-900 sm:text-5xl md:text-6xl lg:text-7xl">
             توقّف عن التخمين.
             <br />
             <span className="text-emerald-600">ابدأ بالعلم.</span>
           </h1>
 
-          <p className="mx-auto mb-10 max-w-2xl text-lg leading-relaxed text-stone-800 md:text-xl animate-fade-up stagger-2">
+          <p className="mx-auto mb-10 max-w-2xl text-lg leading-relaxed text-stone-800 md:text-xl">
             كل ببتيد. كل جرعة. كل بروتوكول. في مكان واحد.
             <br className="hidden sm:block" />
             مبني على الأبحاث — مصمّم للنتائج.
           </p>
 
-          <div className="flex flex-col items-center justify-center gap-3 sm:flex-row sm:gap-4 animate-fade-up stagger-3">
+          <div className="flex flex-col items-center justify-center gap-3 sm:flex-row sm:gap-4">
             <Link
               to={ctaLink}
               className="btn-primary-glow inline-flex w-full max-w-xs items-center justify-center gap-3 rounded-full bg-emerald-600 px-8 py-4 text-lg font-bold text-white transition-all duration-300 hover:bg-emerald-700 sm:w-auto"
@@ -203,7 +203,7 @@ export default function Landing() {
             </Link>
           </div>
 
-          <div className="mt-8 flex flex-wrap items-center justify-center gap-4 sm:gap-6 animate-fade-up stagger-4">
+          <div className="mt-8 flex flex-wrap items-center justify-center gap-4 sm:gap-6">
             <span className="flex items-center gap-2 text-sm font-medium text-stone-700">
               <CreditCard className="h-4 w-4 text-emerald-600" />
               تجربة 3 أيام مجانية
@@ -223,8 +223,24 @@ export default function Landing() {
         </div>
       </section>
 
+      {/* ═══════ CALCULATOR CTA + FREE CALLOUT ═══════ */}
+      <div className="mx-auto max-w-lg px-6 pb-4 text-center">
+        <Link
+          to="/calculator"
+          className="group inline-flex items-center gap-3 rounded-2xl border border-emerald-200 bg-emerald-50 px-6 py-3 transition-all hover:border-emerald-300 hover:shadow-md"
+        >
+          <Calculator className="h-5 w-5 text-emerald-600" />
+          <span className="text-sm font-semibold text-emerald-800">جرّب حاسبة الجرعات المجانية — شاهد جرعتك بالضبط على السيرنج</span>
+          <ArrowLeft className="h-4 w-4 text-emerald-500 transition-transform group-hover:-translate-x-1" />
+        </Link>
+        <p className="mt-3 text-sm text-stone-500">
+          <Link to="/library" className="font-semibold text-emerald-600 hover:underline">6 ببتيدات مجانية بالكامل</Link>
+          {' — بدون تسجيل. تصفّحها الآن.'}
+        </p>
+      </div>
+
       {/* ═══════ PEPTIDE QUIZ — First interaction ═══════ */}
-      <section className="relative z-10 -mt-6 mx-auto max-w-2xl px-6 pb-10">
+      <section className="relative z-10 mx-auto max-w-2xl px-6 pb-10">
         <PeptideQuiz />
       </section>
 
