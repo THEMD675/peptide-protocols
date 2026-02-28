@@ -354,14 +354,14 @@ export default function Tracker() {
       {calendarData && (
           <div className="mb-8 rounded-2xl border border-stone-200 bg-white p-5">
             <div className="flex items-center justify-between mb-4">
-              <button onClick={() => setCalendarMonth(prev => { const m = prev.month - 1; return m < 0 ? { year: prev.year - 1, month: 11 } : { year: prev.year, month: m }; })} aria-label="الشهر السابق" className="rounded-lg border border-stone-200 p-1.5 text-stone-500 transition-colors hover:bg-stone-50 hover:text-stone-700">
+              <button onClick={() => setCalendarMonth(prev => { const m = prev.month - 1; return m < 0 ? { year: prev.year - 1, month: 11 } : { year: prev.year, month: m }; })} aria-label="الشهر السابق" className="flex items-center justify-center rounded-lg border border-stone-200 p-1.5 min-h-[44px] min-w-[44px] text-stone-500 transition-colors hover:bg-stone-50 hover:text-stone-700">
                 <ChevronRight className="h-4 w-4" />
               </button>
               <div className="text-center">
                 <h3 className="text-sm font-bold text-stone-900">{calendarData.monthName}</h3>
                 <span className="text-xs text-stone-500">{calendarData.injectionDays.size} يوم نشط</span>
               </div>
-              <button onClick={() => { if (calendarData.isCurrentMonth) return; setCalendarMonth(prev => { const m = prev.month + 1; return m > 11 ? { year: prev.year + 1, month: 0 } : { year: prev.year, month: m }; }); }} disabled={calendarData.isCurrentMonth} aria-label="الشهر التالي" className={cn('rounded-lg border border-stone-200 p-1.5 transition-colors', calendarData.isCurrentMonth ? 'text-stone-300 cursor-not-allowed' : 'text-stone-500 hover:bg-stone-50 hover:text-stone-700')}>
+              <button onClick={() => { if (calendarData.isCurrentMonth) return; setCalendarMonth(prev => { const m = prev.month + 1; return m > 11 ? { year: prev.year + 1, month: 0 } : { year: prev.year, month: m }; }); }} disabled={calendarData.isCurrentMonth} aria-label="الشهر التالي" className={cn('flex items-center justify-center rounded-lg border border-stone-200 p-1.5 min-h-[44px] min-w-[44px] transition-colors', calendarData.isCurrentMonth ? 'text-stone-300 cursor-not-allowed' : 'text-stone-500 hover:bg-stone-50 hover:text-stone-700')}>
                 <ChevronLeft className="h-4 w-4" />
               </button>
             </div>
@@ -665,7 +665,7 @@ export default function Tracker() {
                           },
                         });
                       }}
-                      className="rounded-lg p-2 text-stone-300 transition-colors hover:bg-red-50 hover:text-red-500"
+                      className="flex items-center justify-center rounded-lg p-2 min-h-[44px] min-w-[44px] text-stone-300 transition-colors hover:bg-red-50 hover:text-red-500"
                       aria-label="حذف"
                     >
                       <Trash2 className="h-3.5 w-3.5" />

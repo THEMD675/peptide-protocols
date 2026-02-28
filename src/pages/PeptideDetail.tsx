@@ -93,7 +93,7 @@ export default function PeptideDetail() {
                 navigate('/library');
               }
             }}
-            className="mb-6 inline-flex items-center gap-2 rounded-lg px-3 py-1.5 text-sm text-stone-800 transition-colors hover:bg-stone-100 hover:text-stone-800"
+            className="mb-6 inline-flex items-center gap-2 rounded-lg px-3 py-2.5 min-h-[44px] text-sm text-stone-800 transition-colors hover:bg-stone-100 hover:text-stone-800"
           >
             <ArrowRight className="h-4 w-4" />
             رجوع
