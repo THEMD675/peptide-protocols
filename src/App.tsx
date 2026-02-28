@@ -172,8 +172,7 @@ function CanonicalUrl() {
 
 function HomeRedirect() {
   const { user, subscription, isLoading } = useAuth();
-  if (isLoading) return <PageLoader />;
-  if (user && subscription?.isProOrTrial) return <Navigate to="/dashboard" replace />;
+  if (!isLoading && user && subscription?.isProOrTrial) return <Navigate to="/dashboard" replace />;
   return <Suspense fallback={<PageLoader />}><Landing /></Suspense>;
 }
 
