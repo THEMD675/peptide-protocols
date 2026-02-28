@@ -238,7 +238,7 @@ export default function PeptideQuiz() {
                 'w-full rounded-xl border text-sm font-medium transition-all',
                 Icon ? 'flex flex-col items-center gap-1.5 px-3 py-3 text-center' : 'px-5 py-3.5 text-right',
                 answers[step] === opt.id
-                  ? 'border-emerald-400 bg-emerald-50 text-emerald-800 ring-2 ring-emerald-200'
+                  ? 'border-emerald-400 bg-emerald-50 text-emerald-800 ring-2 ring-emerald-100'
                   : 'border-stone-200 bg-white text-stone-800 hover:border-emerald-300 hover:bg-stone-50'
               )}
             >

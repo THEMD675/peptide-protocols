@@ -320,7 +320,7 @@ export default function Library() {
               placeholder="ابحث بالاسم العربي أو الإنجليزي..."
               className={cn(
                 'w-full rounded-xl border border-stone-200 bg-stone-50 py-2.5 ps-10 pe-4',
-                'text-sm text-stone-900 placeholder:text-stone-700',
+                'text-sm text-stone-900 placeholder:text-stone-400',
                 'transition-colors focus:border-emerald-300 focus:outline-none focus:ring-2 focus:ring-emerald-100',
               )}
             />

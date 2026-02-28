@@ -326,7 +326,7 @@ export default function DoseCalculator() {
 
         {/* Calculator Card */}
         <div
-          className="mb-8 rounded-2xl border border-stone-300 bg-stone-50 p-6 md:p-8"
+          className="mb-8 rounded-2xl border border-stone-200 bg-stone-50 p-6 md:p-8"
         >
           {/* Dose Unit Toggle */}
           <div className="mb-6 flex items-center justify-center gap-1">
@@ -398,7 +398,7 @@ export default function DoseCalculator() {
                   className={cn(
                     'w-full rounded-xl border border-stone-300 bg-stone-50 px-4 py-3 pe-16',
                     'text-base text-stone-900',
-                    'transition-colors focus:border-emerald-300 focus:outline-none focus:ring-1 focus:ring-emerald-200',
+                    'transition-colors focus:border-emerald-300 focus:outline-none focus:ring-1 focus:ring-emerald-100',
                   )}
                 />
                 <span className="absolute end-3 top-1/2 -translate-y-1/2 text-xs text-stone-700">
@@ -443,7 +443,7 @@ export default function DoseCalculator() {
                 className={cn(
                   'w-full appearance-none rounded-xl border border-stone-300 bg-stone-50 px-4 py-3 pe-10',
                   'text-base text-stone-900',
-                  'transition-colors focus:border-emerald-300 focus:outline-none focus:ring-1 focus:ring-emerald-200',
+                  'transition-colors focus:border-emerald-300 focus:outline-none focus:ring-1 focus:ring-emerald-100',
                 )}
               >
                 {SYRINGE_OPTIONS.map((opt, i) => (
@@ -473,7 +473,7 @@ export default function DoseCalculator() {
             <div className="space-y-2">
               <label className="block text-sm font-medium text-stone-800">سعر القارورة ($) <span className="text-xs text-emerald-600 font-normal me-1">اختياري</span></label>
               <input type="number" min={0} step={5} value={vialPrice || ''} onChange={e => setVialPrice(Number(e.target.value))} placeholder="مثال: 40"
-                className="w-full rounded-xl border border-stone-300 bg-stone-50 px-4 py-3 text-base text-stone-900 placeholder:text-stone-400 focus:border-emerald-300 focus:outline-none focus:ring-1 focus:ring-emerald-200" />
+                className="w-full rounded-xl border border-stone-300 bg-stone-50 px-4 py-3 text-base text-stone-900 placeholder:text-stone-400 focus:border-emerald-300 focus:outline-none focus:ring-1 focus:ring-emerald-100" />
             </div>
           </div>
 
@@ -657,7 +657,7 @@ export default function DoseCalculator() {
 
         {/* Expandable Formulas Section */}
         <div
-          className="mb-8 rounded-2xl border border-stone-300 bg-stone-50"
+          className="mb-8 rounded-2xl border border-stone-200 bg-stone-50"
         >
           <button
             onClick={() => setShowFormulas(!showFormulas)}
@@ -713,7 +713,7 @@ export default function DoseCalculator() {
 
         {/* Reference Table */}
         <div
-          className="mb-8 overflow-hidden rounded-2xl border border-stone-300"
+          className="mb-8 overflow-hidden rounded-2xl border border-stone-200"
         >
           <div
             className="flex items-center gap-2 bg-stone-50/95 px-5 py-3"
@@ -847,7 +847,7 @@ function InputField({
           className={cn(
             'w-full rounded-xl border border-stone-300 bg-stone-50 px-4 py-3 pe-16',
             'text-base text-stone-900',
-            'transition-colors focus:border-emerald-300 focus:outline-none focus:ring-1 focus:ring-emerald-200',
+            'transition-colors focus:border-emerald-300 focus:outline-none focus:ring-1 focus:ring-emerald-100',
           )}
         />
         <span className="absolute end-3 top-1/2 -translate-y-1/2 text-xs text-stone-700">

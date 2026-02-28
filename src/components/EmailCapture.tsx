@@ -65,7 +65,7 @@ export default function EmailCapture() {
             onChange={(e) => setEmail(e.target.value)}
             placeholder="أدخل بريدك الإلكتروني"
             required
-            className="w-full rounded-full bg-white/10 border border-white/20 py-3.5 ps-11 pe-4 text-white placeholder:text-white/40 outline-none focus:border-emerald-400 focus:ring-2 focus:ring-emerald-200 transition-all"
+            className="w-full rounded-full bg-white/10 border border-white/20 py-3.5 ps-11 pe-4 text-white placeholder:text-white/40 outline-none focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100 transition-all"
           />
           <input
             type="text"

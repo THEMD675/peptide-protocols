@@ -389,7 +389,7 @@ export default function Tracker() {
                 return (
                   <div key={s} className={cn(
                     'rounded-xl border p-3 text-center transition-all',
-                    isSuggested ? 'border-emerald-400 bg-emerald-50 ring-2 ring-emerald-200' :
+                    isSuggested ? 'border-emerald-400 bg-emerald-50 ring-2 ring-emerald-100' :
                     isLast ? 'border-amber-300 bg-amber-50' :
                     'border-stone-200 bg-stone-50'
                   )}>

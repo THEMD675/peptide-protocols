@@ -94,7 +94,7 @@ export default function LabGuide() {
             </h2>
           </div>
 
-          <div className="relative overflow-x-auto rounded-2xl border border-stone-300">
+          <div className="relative overflow-x-auto rounded-2xl border border-stone-200">
             <table className="w-full text-sm">
               <caption className="sr-only">تحاليل خط الأساس الموصى بها قبل استخدام الببتيدات</caption>
               <thead>
@@ -148,7 +148,7 @@ export default function LabGuide() {
             </h2>
           </div>
 
-          <div className="relative overflow-x-auto rounded-2xl border border-stone-300">
+          <div className="relative overflow-x-auto rounded-2xl border border-stone-200">
             <table className="w-full text-sm">
               <caption className="sr-only">جدول متابعة التحاليل أثناء استخدام الببتيدات</caption>
               <thead>

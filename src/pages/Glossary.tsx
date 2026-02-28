@@ -44,7 +44,7 @@ export default function Glossary() {
           onChange={(e) => setSearch(e.target.value)}
           placeholder="ابحث عن مصطلح..."
           aria-label="البحث في المصطلحات"
-          className="w-full rounded-2xl border border-stone-300 bg-stone-50 py-4 ps-12 pe-10 text-sm text-stone-900 placeholder:text-stone-400 focus:border-emerald-300 focus:outline-none focus:ring-1 focus:ring-emerald-200"
+          className="w-full rounded-2xl border border-stone-300 bg-stone-50 py-4 ps-12 pe-10 text-sm text-stone-900 placeholder:text-stone-400 focus:border-emerald-300 focus:outline-none focus:ring-1 focus:ring-emerald-100"
         />
         {search && (
           <button

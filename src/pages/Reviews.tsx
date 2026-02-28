@@ -196,7 +196,7 @@ export default function Reviews() {
 
         {/* Submit Review */}
         <div
-          className="mb-10 rounded-2xl border border-stone-300 bg-stone-50 p-6 md:p-8"
+          className="mb-10 rounded-2xl border border-stone-200 bg-stone-50 p-6 md:p-8"
         >
           <h2
             className="mb-5 text-lg font-bold"
@@ -248,8 +248,8 @@ export default function Reviews() {
                   maxLength={1000}
                   className={cn(
                     'w-full resize-none rounded-xl border border-stone-300 bg-stone-50 px-4 py-3',
-                    'text-sm text-stone-900 placeholder:text-stone-700',
-                    'transition-colors focus:border-emerald-300 focus:outline-none focus:ring-1 focus:ring-emerald-200',
+                    'text-sm text-stone-900 placeholder:text-stone-400',
+                    'transition-colors focus:border-emerald-300 focus:outline-none focus:ring-1 focus:ring-emerald-100',
                   )}
                 />
                 {text.length > 0 && (
@@ -307,7 +307,7 @@ export default function Reviews() {
               </button>
             </div>
           ) : reviews.length === 0 ? (
-            <div className="rounded-2xl border border-stone-300 bg-stone-50 py-16 text-center">
+            <div className="rounded-2xl border border-stone-200 bg-stone-50 py-16 text-center">
               <Star className="mx-auto mb-3 h-10 w-10 text-stone-500" />
               <p className="text-base text-stone-800">كن أول من يقيّم</p>
               <button
@@ -323,7 +323,7 @@ export default function Reviews() {
               {reviews.map((review) => (
                 <div
                   key={review.id}
-                  className="rounded-2xl border border-stone-300 bg-stone-50 p-5 transition-all hover:border-emerald-200 hover:shadow-sm"
+                  className="rounded-2xl border border-stone-200 bg-stone-50 p-5 transition-all hover:border-emerald-200 hover:shadow-sm"
                 >
                   <div className="mb-3 flex items-center justify-between">
                     <div className="flex items-center gap-2">

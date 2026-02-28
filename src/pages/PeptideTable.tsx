@@ -155,7 +155,7 @@ export default function PeptideTable() {
               onChange={(e) => setSearch(e.target.value)}
               placeholder="ابحث بالاسم أو الفئة..."
               aria-label="ابحث في الببتيدات"
-              className="w-full rounded-xl border border-stone-300 bg-stone-50 py-3 ps-10 pe-4 text-sm text-stone-900 placeholder:text-stone-400 outline-none transition-colors focus:border-emerald-300 focus:ring-1 focus:ring-emerald-200"
+              className="w-full rounded-xl border border-stone-300 bg-stone-50 py-3 ps-10 pe-4 text-sm text-stone-900 placeholder:text-stone-400 outline-none transition-colors focus:border-emerald-300 focus:ring-1 focus:ring-emerald-100"
             />
           </div>
 
@@ -194,7 +194,7 @@ export default function PeptideTable() {
         <section
           className="mb-12"
         >
-          <div className="overflow-hidden rounded-2xl border border-stone-300 bg-stone-100 shadow-2xl">
+          <div className="overflow-hidden rounded-2xl border border-stone-200 bg-stone-100 shadow-2xl">
             <div className="overflow-x-auto">
               <table className="w-full min-w-[1100px] border-collapse text-xs md:text-sm" aria-label="جدول الببتيدات">
                 <thead className="sticky top-0 z-10">

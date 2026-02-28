@@ -122,7 +122,7 @@ export default function Guide() {
           </div>
 
           <BlurredSection isPro={isPro}>
-            <div className="overflow-x-auto rounded-2xl border border-stone-300">
+            <div className="overflow-x-auto rounded-2xl border border-stone-200">
               <table className="w-full text-sm">
                 <thead>
                   <tr className="bg-emerald-500">
@@ -242,7 +242,7 @@ export default function Guide() {
 
           <BlurredSection isPro={isPro}>
             <div
-              className="rounded-2xl border border-stone-300 bg-white p-6"
+              className="rounded-2xl border border-stone-200 bg-white p-6"
             >
               <ul className="space-y-3">
                 {importantRules.map((rule) => (

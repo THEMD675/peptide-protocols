@@ -450,7 +450,7 @@ export default function Landing() {
         </div>
 
         <p className="mt-8 text-center text-sm text-stone-700">
-          كل معلومة في المكتبة مربوطة بمرجعها العلمي. <Link to="/sources" className="text-emerald-600 font-semibold underline">اطّلع على المصادر</Link>
+          كل معلومة في المكتبة مربوطة بمرجعها العلمي. <Link to="/sources" className="text-emerald-600 font-semibold underline hover:text-emerald-700 transition-colors">اطّلع على المصادر</Link>
         </p>
       </section>
 
