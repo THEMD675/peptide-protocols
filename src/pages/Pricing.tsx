@@ -149,7 +149,7 @@ export default function Pricing() {
         })}</script>
       </Helmet>
 
-      <div className="mx-auto max-w-6xl px-6 pb-20 pt-8 md:pt-12">
+      <div className="mx-auto max-w-6xl px-4 pb-24 pt-8 md:px-6 md:pt-12">
         {/* Header */}
         <div className="mb-16 text-center">
           {showTrialMessaging && (

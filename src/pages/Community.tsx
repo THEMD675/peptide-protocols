@@ -140,7 +140,7 @@ export default function Community() {
         <meta name="description" content="اقرأ تجارب حقيقية من مستخدمي الببتيدات. بروتوكولات مُجرَّبة، نتائج فعلية، وتقييمات صادقة." />
       </Helmet>
 
-      <div className="mx-auto max-w-4xl px-6 pb-20 pt-8 md:pt-12">
+      <div className="mx-auto max-w-4xl px-4 pb-24 pt-8 md:px-6 md:pt-12">
         <div className="mb-12 text-center">
           <div className="mx-auto mb-4 inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-100">
             <MessageSquare className="h-7 w-7 text-emerald-600" />
