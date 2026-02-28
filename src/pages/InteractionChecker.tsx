@@ -105,7 +105,7 @@ export default function InteractionChecker() {
                 })}
               </select>
               {selected.length > 2 && (
-                <button onClick={() => removeSlot(idx)} className="rounded-lg p-2 text-stone-400 hover:bg-red-50 transition-colors hover:text-red-500"><XCircle className="h-4 w-4" /></button>
+                <button onClick={() => removeSlot(idx)} className="flex items-center justify-center rounded-lg p-2 min-h-[44px] min-w-[44px] text-stone-400 hover:bg-red-50 transition-colors hover:text-red-500"><XCircle className="h-4 w-4" /></button>
               )}
             </div>
           ))}
@@ -127,7 +127,7 @@ export default function InteractionChecker() {
           <div className="rounded-2xl border-2 border-dashed border-stone-200 bg-stone-50 py-12 text-center">
             <Shield className="mx-auto mb-3 h-10 w-10 text-stone-300" />
             <p className="text-sm font-bold text-stone-600">اختر ببتيدين أو أكثر لفحص التعارضات بينهما</p>
-            <p className="mt-1 text-xs text-stone-400">نتحقق من أمان الدمج بناءً على آليات العمل والأدلة العلمية</p>
+            <p className="mt-1 text-sm text-stone-400">نتحقق من أمان الدمج بناءً على آليات العمل والأدلة العلمية</p>
           </div>
         )}
 
@@ -188,7 +188,7 @@ export default function InteractionChecker() {
                     </span>
                   </div>
                   <p className="text-sm font-semibold text-stone-800">{pair.result.message}</p>
-                  <p className="text-xs text-stone-600 mt-1 leading-relaxed">{pair.result.details}</p>
+                  <p className="text-sm text-stone-600 mt-1 leading-relaxed">{pair.result.details}</p>
                 </div>
               );
             })}

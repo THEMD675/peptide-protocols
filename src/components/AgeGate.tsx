@@ -76,7 +76,7 @@ export default function AgeGate() {
                   </a>
                   <button
                     onClick={() => setRejected(false)}
-                    className="text-xs text-stone-600 hover:text-stone-400 transition-colors"
+                    className="min-h-[44px] px-3 py-2 text-sm text-stone-600 hover:text-stone-400 transition-colors"
                   >
                     أخطأت؟ عُد للاختيار
                   </button>
