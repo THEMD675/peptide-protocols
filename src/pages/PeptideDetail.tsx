@@ -60,9 +60,9 @@ export default function PeptideDetail() {
   return (
     <div className="min-h-screen" >
       <Helmet>
-        <title>{peptide.nameAr} | {peptide.nameEn} | pptides</title>
+        <title>{peptide.nameAr === peptide.nameEn ? peptide.nameAr : `${peptide.nameAr} | ${peptide.nameEn}`} | pptides</title>
         <meta name="description" content={peptide.summaryAr.length > 155 ? peptide.summaryAr.slice(0, 155) + '…' : peptide.summaryAr} />
-        <meta property="og:title" content={`${peptide.nameAr} | ${peptide.nameEn} | pptides`} />
+        <meta property="og:title" content={`${peptide.nameAr === peptide.nameEn ? peptide.nameAr : `${peptide.nameAr} | ${peptide.nameEn}`} | pptides`} />
         <meta property="og:description" content={peptide.summaryAr} />
         <meta property="og:type" content="article" />
         <meta property="og:url" content={`${SITE_URL}/peptide/${peptide.id}`} />

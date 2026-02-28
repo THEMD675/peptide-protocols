@@ -401,7 +401,7 @@ export default function DoseCalculator() {
                     'transition-colors focus:border-emerald-300 focus:outline-none focus:ring-1 focus:ring-emerald-200',
                   )}
                 />
-                <span className="absolute start-3 top-1/2 -translate-y-1/2 text-xs text-stone-700">
+                <span className="absolute end-3 top-1/2 -translate-y-1/2 text-xs text-stone-700">
                   مل
                 </span>
               </div>
@@ -452,7 +452,7 @@ export default function DoseCalculator() {
                   </option>
                 ))}
               </select>
-              <ChevronDown className="pointer-events-none absolute start-3 top-1/2 h-4 w-4 -translate-y-1/2 text-stone-700" />
+              <ChevronDown className="pointer-events-none absolute end-3 top-1/2 h-4 w-4 -translate-y-1/2 text-stone-700" />
             </div>
           </div>
 
@@ -850,7 +850,7 @@ function InputField({
             'transition-colors focus:border-emerald-300 focus:outline-none focus:ring-1 focus:ring-emerald-200',
           )}
         />
-        <span className="absolute start-3 top-1/2 -translate-y-1/2 text-xs text-stone-700">
+        <span className="absolute end-3 top-1/2 -translate-y-1/2 text-xs text-stone-700">
           {unit}
         </span>
       </div>
