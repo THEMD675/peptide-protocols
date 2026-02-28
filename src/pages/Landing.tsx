@@ -169,7 +169,7 @@ export default function Landing() {
           <div className="absolute left-1/2 top-0 h-[600px] w-[800px] -translate-x-1/2 bg-[radial-gradient(ellipse_at_center,rgba(16,185,129,0.07)_0%,transparent_60%)]" />
         </div>
 
-        <div className="relative mx-auto max-w-5xl px-6 pb-20 pt-10 text-center md:pt-16 md:pb-28">
+        <div className="relative mx-auto max-w-5xl px-6 pb-8 pt-10 text-center md:pt-16 md:pb-12">
           <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 px-5 py-2 text-sm font-semibold text-emerald-700 animate-fade-up">
             <Zap className="h-4 w-4" />
             <span>أول مرجع عربي شامل — {PEPTIDE_COUNT} ببتيد علاجي</span>
@@ -224,12 +224,12 @@ export default function Landing() {
       </section>
 
       {/* ═══════ PEPTIDE QUIZ — First interaction ═══════ */}
-      <section className="relative z-10 -mt-6 mx-auto max-w-2xl px-6 pb-10">
+      <section className="relative z-10 mx-auto max-w-2xl px-6 pb-10">
         <PeptideQuiz />
       </section>
 
       {/* ═══════ AHA MOMENT — Calculator CTA ═══════ */}
-      <div className="mx-auto -mt-4 mb-2 max-w-lg px-6 text-center">
+      <div className="mx-auto mb-2 max-w-lg px-6 text-center">
         <Link to="/calculator" className="group inline-flex items-center gap-3 rounded-2xl border border-emerald-200 bg-emerald-50 px-6 py-3 transition-all hover:border-emerald-300 hover:shadow-md">
           <Calculator className="h-5 w-5 text-emerald-600" />
           <span className="text-sm font-bold text-stone-800 group-hover:text-emerald-700">جرّب حاسبة الجرعات المجانية — شاهد جرعتك بالضبط على السيرنج</span>
