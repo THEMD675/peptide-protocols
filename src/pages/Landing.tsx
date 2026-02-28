@@ -182,7 +182,7 @@ export default function Landing() {
           </h1>
 
           <p className="mx-auto mb-10 max-w-2xl text-lg leading-relaxed text-stone-800 md:text-xl">
-            كل ببتيد. كل جرعة. كل بروتوكول. في مكان واحد.
+            كل ببتيد. كل جرعة. كل بروتوكول. في مكان واحد.{' '}
             <br className="hidden sm:block" />
             مبني على الأبحاث — مصمّم للنتائج.
           </p>
