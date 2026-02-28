@@ -228,7 +228,7 @@ export default function Guide() {
                 </svg>
                 <div className="flex-1 space-y-3">
                   {injectionSites.map((row) => (
-                    <div key={row.site} className="rounded-xl border border-stone-200 bg-white p-4 transition-all hover:border-emerald-200 hover:shadow-sm">
+                    <div key={row.site} className="rounded-xl border border-stone-200 bg-white p-4 shadow-sm">
                       <h4 className="text-sm font-bold text-stone-900">{row.site}</h4>
                       <p className="mt-1 text-xs leading-relaxed text-stone-600">{row.desc}</p>
                     </div>

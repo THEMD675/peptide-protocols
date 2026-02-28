@@ -154,14 +154,14 @@ export default function Stacks() {
 
                   <div className="mt-4 flex flex-wrap gap-2">
                     <Link
-                      to="/tracker"
+                      to={`/tracker?peptide=${encodeURIComponent(stackPeptides[0]?.nameEn ?? '')}`}
                       className="inline-flex items-center gap-1.5 rounded-full bg-emerald-600 px-5 py-2.5 text-sm font-bold text-white hover:bg-emerald-700 transition-colors"
                     >
                       <Syringe className="h-3.5 w-3.5" />
                       ابدأ البروتوكول
                     </Link>
                     <Link
-                      to="/calculator"
+                      to={`/calculator?peptide=${encodeURIComponent(stackPeptides[0]?.nameEn ?? '')}`}
                       className="inline-flex items-center gap-1.5 rounded-full border border-stone-200 bg-white px-4 py-2 text-sm font-bold text-stone-700 hover:border-emerald-200 transition-colors"
                     >
                       <Calculator className="h-3.5 w-3.5" />
