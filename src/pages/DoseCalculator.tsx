@@ -441,7 +441,7 @@ export default function DoseCalculator() {
                 onChange={(e) => setSyringeIdx(Number(e.target.value))}
                 aria-label="حجم السيرنج"
                 className={cn(
-                  'w-full appearance-none rounded-xl border border-stone-300 bg-stone-50 px-4 py-3',
+                  'w-full appearance-none rounded-xl border border-stone-300 bg-stone-50 px-4 py-3 pe-10',
                   'text-base text-stone-900',
                   'transition-colors focus:border-emerald-300 focus:outline-none focus:ring-1 focus:ring-emerald-200',
                 )}
