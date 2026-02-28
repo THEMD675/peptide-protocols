@@ -57,7 +57,7 @@ export default memo(function Footer() {
             <nav aria-label="قانوني" className="flex flex-col gap-2 text-sm">
               <Link to="/privacy" className="text-stone-600 transition-colors hover:text-emerald-600 active:text-emerald-700">سياسة الخصوصية</Link>
               <Link to="/terms" className="text-stone-600 transition-colors hover:text-emerald-600 active:text-emerald-700">شروط الاستخدام</Link>
-              <button onClick={() => { localStorage.removeItem('pptides_cookie_consent'); window.location.reload(); }} className="text-start text-sm text-stone-500 hover:text-emerald-600 transition-colors">
+              <button onClick={() => { localStorage.removeItem('pptides_cookie_consent'); window.location.reload(); }} className="text-start text-sm text-stone-600 hover:text-emerald-600 transition-colors">
                 إدارة ملفات تعريف الارتباط
               </button>
             </nav>

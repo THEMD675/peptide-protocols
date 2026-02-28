@@ -169,7 +169,7 @@ export default memo(function Header() {
                 <ChevronDown className={cn('h-3 w-3 transition-transform', moreOpen && 'rotate-180')} />
               </button>
               {moreOpen && (
-                <div role="menu" aria-label="المزيد من الصفحات" className="absolute right-0 top-full mt-2 min-w-[200px] overflow-hidden rounded-xl border border-stone-200 bg-white py-1 shadow-xl animate-fade-in">
+                <div role="menu" aria-label="المزيد من الصفحات" className="absolute end-0 top-full mt-2 min-w-[200px] overflow-hidden rounded-xl border border-stone-200 bg-white py-1 shadow-xl animate-fade-in">
                   {moreLinks.map(({ to, label }) => (
                     <Link
                       key={to}
@@ -202,7 +202,7 @@ export default memo(function Header() {
                 <Search className="h-4 w-4" />
               </button>
               {searchOpen && (
-                <div className="absolute right-0 top-full mt-2 w-[calc(100vw-2rem)] max-w-80 overflow-hidden rounded-xl border border-stone-200 bg-white shadow-xl">
+                <div className="absolute end-0 top-full mt-2 w-[calc(100vw-2rem)] max-w-80 overflow-hidden rounded-xl border border-stone-200 bg-white shadow-xl">
                   <div className="p-2">
                     <input
                       autoFocus
@@ -266,7 +266,7 @@ export default memo(function Header() {
                 </button>
 
                 {dropdownOpen && (
-                  <div role="menu" aria-label="قائمة الحساب" className="absolute right-0 top-full mt-2 min-w-[180px] overflow-hidden rounded-xl border border-stone-200 bg-white py-1 shadow-xl animate-fade-in">
+                  <div role="menu" aria-label="قائمة الحساب" className="absolute end-0 top-full mt-2 min-w-[180px] overflow-hidden rounded-xl border border-stone-200 bg-white py-1 shadow-xl animate-fade-in">
                     <p className="truncate border-b border-stone-200 px-4 py-2 text-xs text-stone-800">
                       {user.email}
                     </p>
@@ -406,7 +406,7 @@ export default memo(function Header() {
                     'rounded-lg px-4 py-2.5 text-sm font-medium transition-colors',
                     active
                       ? 'bg-emerald-50 text-emerald-700'
-                      : 'text-stone-600 hover:bg-stone-50 transition-colors hover:text-stone-900',
+                      : 'text-stone-700 hover:bg-stone-50 transition-colors hover:text-stone-900',
                   )}
                 >
                   {label}
