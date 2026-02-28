@@ -73,7 +73,7 @@ export default function Glossary() {
           {filtered.map((term) => (
             <div
               key={term.en}
-              className="rounded-2xl border border-stone-200 border-s-2 border-s-emerald-300 bg-white p-5 transition-all hover:border-emerald-200 hover:shadow-sm"
+              className="rounded-2xl border border-stone-200 border-s-2 border-s-emerald-300 bg-white p-5 shadow-sm transition-all hover:border-emerald-200 hover:shadow-md"
             >
               <dt className="flex items-baseline justify-between gap-3">
                 <span className="text-base font-bold text-stone-900">{term.ar}</span>

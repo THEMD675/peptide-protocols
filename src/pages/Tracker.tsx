@@ -329,7 +329,7 @@ export default function Tracker() {
 
       {/* Weekly Activity Bar */}
       {weeklyActivity && (
-          <div className="mb-8 rounded-2xl border border-stone-200 bg-white p-5">
+          <div className="mb-8 rounded-2xl border border-stone-200 bg-white p-5 shadow-sm">
             <h3 className="mb-3 text-sm font-bold text-stone-900">نشاط الأسبوع</h3>
             <div className="flex items-end justify-between gap-1 h-20">
               {weeklyActivity.weekCounts.map((count, i) => (
@@ -352,7 +352,7 @@ export default function Tracker() {
 
       {/* Monthly Calendar */}
       {calendarData && (
-          <div className="mb-8 rounded-2xl border border-stone-200 bg-white p-5">
+          <div className="mb-8 rounded-2xl border border-stone-200 bg-white p-5 shadow-sm">
             <div className="flex items-center justify-between mb-4">
               <button onClick={() => setCalendarMonth(prev => { const m = prev.month - 1; return m < 0 ? { year: prev.year - 1, month: 11 } : { year: prev.year, month: m }; })} aria-label="الشهر السابق" className="flex items-center justify-center rounded-lg border border-stone-200 p-1.5 min-h-[44px] min-w-[44px] text-stone-500 transition-colors hover:bg-stone-50 hover:text-stone-700">
                 <ChevronRight className="h-4 w-4" />
@@ -376,7 +376,7 @@ export default function Tracker() {
 
       {/* Site Rotation Indicator */}
       {siteRotationData && (
-          <div className="mb-8 rounded-2xl border border-stone-200 bg-white p-5">
+          <div className="mb-8 rounded-2xl border border-stone-200 bg-white p-5 shadow-sm">
             <div className="flex items-center gap-2 mb-3">
               <MapPin className="h-4 w-4 text-emerald-600" />
               <h3 className="text-sm font-bold text-stone-900">تدوير مواقع الحقن</h3>
@@ -639,7 +639,7 @@ export default function Tracker() {
               return (
               <div
                 key={log.id}
-                className={cn('rounded-2xl border p-5 transition-all hover:shadow-sm', isToday ? 'border-emerald-300 border-s-4 bg-emerald-50/30' : 'border-stone-200 bg-white')}
+                className={cn('rounded-2xl border p-5 shadow-sm transition-all hover:shadow-md', isToday ? 'border-emerald-300 border-s-4 bg-emerald-50/30' : 'border-stone-200 bg-white')}
               >
                 <div className="flex items-start justify-between mb-2">
                   <h3 className="font-bold text-stone-900" dir="ltr">{log.peptide_name}</h3>

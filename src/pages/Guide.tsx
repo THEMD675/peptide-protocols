@@ -242,7 +242,7 @@ export default function Guide() {
 
           <BlurredSection isPro={isPro}>
             <div
-              className="rounded-2xl border border-stone-200 bg-white p-6"
+              className="rounded-2xl border border-stone-200 bg-white p-6 shadow-sm"
             >
               <ul className="space-y-3">
                 {importantRules.map((rule) => (

@@ -171,7 +171,7 @@ export default function Community() {
                 <p className="mt-1 text-sm text-stone-800">ساعد غيرك — شارك البروتوكول والنتائج</p>
               </button>
             ) : (
-              <form onSubmit={handleSubmit} className="rounded-2xl border border-stone-200 bg-white p-6 md:p-8">
+              <form onSubmit={handleSubmit} className="rounded-2xl border border-stone-200 bg-white p-6 shadow-sm md:p-8">
                 <h3 className="mb-6 text-lg font-bold text-stone-900">شارك تجربتك</h3>
 
                 <div className="mb-4">
@@ -377,7 +377,7 @@ export default function Community() {
               </div>
             )}
             {filteredLogs.map((log) => (
-              <div key={log.id} className="rounded-2xl border border-stone-200 bg-white p-6 transition-all hover:border-emerald-200 hover:shadow-sm">
+              <div key={log.id} className="rounded-2xl border border-stone-200 bg-white p-6 shadow-sm transition-all hover:border-emerald-200 hover:shadow-md">
                 <div className="mb-3 flex flex-wrap items-start justify-between gap-2">
                   <div className="flex items-center gap-3">
                     <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-emerald-100">

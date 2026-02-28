@@ -309,7 +309,7 @@ export default function Dashboard() {
         }
 
         return (
-          <div className="mb-8 rounded-2xl border border-stone-200 bg-white p-5">
+          <div className="mb-8 rounded-2xl border border-stone-200 bg-white p-5 shadow-sm">
             <div className="flex items-center justify-between mb-3">
               <h3 className="text-sm font-bold text-stone-900">آخر 30 يوم</h3>
               <span className="text-xs text-stone-500">{days.filter(d => d.count > 0).length} يوم نشط</span>

@@ -405,7 +405,7 @@ export default function Landing() {
         </p>
 
         <div className="grid gap-6 md:grid-cols-3">
-          <div className="rounded-2xl border border-stone-300 bg-white p-6">
+          <div className="rounded-2xl border border-stone-300 bg-white p-6 shadow-sm">
             <div className="mb-3 flex items-center gap-2">
               <span className="flex h-8 w-8 items-center justify-center rounded-full bg-emerald-100 text-xs font-bold text-emerald-700">FDA</span>
               <h3 className="font-bold text-stone-900">ببتيدات معتمدة من FDA</h3>
@@ -420,7 +420,7 @@ export default function Landing() {
             </ul>
           </div>
 
-          <div className="rounded-2xl border border-stone-300 bg-white p-6">
+          <div className="rounded-2xl border border-stone-300 bg-white p-6 shadow-sm">
             <div className="mb-3 flex items-center gap-2">
               <span className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-100 text-xs font-bold text-blue-700">RCT</span>
               <h3 className="font-bold text-stone-900">تجارب سريرية مرجعية</h3>
@@ -434,7 +434,7 @@ export default function Landing() {
             </ul>
           </div>
 
-          <div className="rounded-2xl border border-stone-300 bg-white p-6">
+          <div className="rounded-2xl border border-stone-300 bg-white p-6 shadow-sm">
             <div className="mb-3 flex items-center gap-2">
               <span className="flex h-8 w-8 items-center justify-center rounded-full bg-amber-100 text-xs font-bold text-amber-700">EL</span>
               <h3 className="font-bold text-stone-900">مستوى الدليل واضح</h3>

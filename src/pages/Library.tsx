@@ -46,10 +46,10 @@ const PeptideCard = memo(function PeptideCard({
   const cardContent = (
     <div
       className={cn(
-        'relative h-full overflow-hidden rounded-2xl border p-5 transition-all duration-300',
+        'relative h-full overflow-hidden rounded-2xl border p-5 shadow-sm transition-all duration-300',
         hasAccess
-          ? 'border-stone-200 bg-white transition-colors hover:border-emerald-300 hover:shadow-xl hover:shadow-emerald-600/10 hover:-translate-y-1'
-          : 'border-stone-200 bg-stone-50/50 transition-colors hover:border-stone-300',
+          ? 'border-stone-200 bg-white hover:border-emerald-300 hover:shadow-lg hover:shadow-emerald-600/10 hover:-translate-y-1'
+          : 'border-stone-200 bg-stone-50/50 hover:border-stone-300 hover:shadow-md',
         isFav && 'border-s-4 border-s-amber-400',
       )}
     >
