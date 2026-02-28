@@ -38,3 +38,28 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
     <App />
   </React.StrictMode>
 );
+
+// PWA update toast – notify user when a new version is available
+if ('serviceWorker' in navigator && import.meta.env.PROD) {
+  navigator.serviceWorker.ready.then(reg => {
+    reg.addEventListener('updatefound', () => {
+      const newSW = reg.installing;
+      if (!newSW) return;
+      newSW.addEventListener('statechange', () => {
+        if (newSW.state === 'activated' && navigator.serviceWorker.controller) {
+          const el = document.createElement('div');
+          el.className = 'fixed bottom-4 start-4 end-4 z-50 mx-auto max-w-sm rounded-2xl border border-emerald-200 bg-white p-4 shadow-xl animate-slide-up print:hidden';
+          el.dir = 'rtl';
+          el.innerHTML = `
+            <div class="flex items-center justify-between gap-3">
+              <p class="text-sm font-bold text-stone-900">تم تحديث pptides</p>
+              <button onclick="location.reload()" class="shrink-0 rounded-full bg-emerald-600 px-4 py-1.5 text-xs font-bold text-white hover:bg-emerald-700">تحديث</button>
+            </div>
+          `;
+          document.body.appendChild(el);
+          setTimeout(() => el.remove(), 15000);
+        }
+      });
+    });
+  });
+}

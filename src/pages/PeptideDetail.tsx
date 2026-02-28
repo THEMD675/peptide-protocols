@@ -82,6 +82,16 @@ export default function PeptideDetail() {
             { "@type": "Question", "name": `هل ${peptide.nameEn} معتمد من FDA؟`, "acceptedAnswer": { "@type": "Answer", "text": peptide.fdaApproved ? 'نعم، معتمد من FDA.' : 'لا، غير معتمد من FDA حاليًا. يُستخدم للأغراض البحثية.' } },
           ]
         })}</script>
+        <script type="application/ld+json">{JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "MedicalWebPage",
+          "name": `${peptide.nameAr} — ${peptide.nameEn}`,
+          "description": peptide.summaryAr?.slice(0, 200),
+          "url": `${SITE_URL}/peptide/${peptide.id}`,
+          "inLanguage": "ar",
+          "lastReviewed": peptide.lastUpdated ?? "2026-02",
+          "medicalAudience": { "@type": "MedicalAudience", "audienceType": "Patient" }
+        })}</script>
       </Helmet>
 
       <div className="mx-auto max-w-4xl px-4 py-8 md:px-6 md:py-12">

@@ -167,6 +167,23 @@ export default function Reviews() {
 
   return (
     <div className="min-h-screen animate-fade-in" >
+      {reviews.length > 0 && (
+        <Helmet>
+          <script type="application/ld+json">{JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "Product",
+            "name": "pptides",
+            "description": "أشمل دليل عربي للببتيدات العلاجية",
+            "aggregateRating": {
+              "@type": "AggregateRating",
+              "ratingValue": (reviews.reduce((s, r) => s + r.rating, 0) / reviews.length).toFixed(1),
+              "reviewCount": reviews.length,
+              "bestRating": 5,
+              "worstRating": 1
+            }
+          })}</script>
+        </Helmet>
+      )}
       <Helmet>
         <title>تقييمات المستخدمين | pptides</title>
         <meta name="description" content="اقرأ آراء وتقييمات المستخدمين عن دليل الببتيدات. شارك تجربتك وساعد الآخرين." />

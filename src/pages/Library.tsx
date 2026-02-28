@@ -296,6 +296,19 @@ export default function Library() {
         <meta property="og:url" content={`${SITE_URL}/library`} />
         <meta property="og:image" content={`${SITE_URL}/og-image.png`} />
         <meta name="twitter:card" content="summary_large_image" />
+        <script type="application/ld+json">{JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "ItemList",
+          "name": "مكتبة الببتيدات العلاجية",
+          "description": "41+ ببتيد مع بروتوكولات كاملة مبنية على الأدلة العلمية",
+          "numberOfItems": 41,
+          "itemListElement": peptides.slice(0, 10).map((p, i) => ({
+            "@type": "ListItem",
+            "position": i + 1,
+            "name": p.nameAr,
+            "url": `${SITE_URL}/peptide/${p.id}`
+          }))
+        })}</script>
       </Helmet>
       <div className="mx-auto max-w-7xl px-4 py-8 md:px-6 md:py-12">
         {/* Header */}
