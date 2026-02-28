@@ -178,12 +178,12 @@
 .animate-gate-enter { animation: gate-enter 0.4s cubic-bezier(0.23, 1, 0.32, 1) both; }
 
 @keyframes gate-enter {
-  from { opacity: 0; transform: scale(0.92) translateY(12px); }
+  from { opacity: 1; transform: scale(0.96) translateY(6px); }
   to { opacity: 1; transform: scale(1) translateY(0); }
 }
 
 @keyframes slide-up {
-  from { opacity: 0; transform: translateY(100%); }
+  from { opacity: 1; transform: translateY(100%); }
   to { opacity: 1; transform: translateY(0); }
 }
 
