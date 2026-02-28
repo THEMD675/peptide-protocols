@@ -299,27 +299,27 @@ export default function Tracker() {
       {/* Stats Dashboard */}
       {dashboardStats && (
           <div className="mb-8 grid grid-cols-2 gap-3 sm:grid-cols-5">
-            <div className="rounded-2xl border border-stone-200 bg-white p-4 text-center">
+            <div className="rounded-2xl border border-stone-200 bg-white p-4 text-center shadow-sm">
               <BarChart3 className="mx-auto mb-1 h-5 w-5 text-emerald-600" />
               <p className="text-2xl font-black text-stone-900">{dashboardStats.totalInjections}</p>
               <p className="text-xs text-stone-500">إجمالي الحقن</p>
             </div>
-            <div className="rounded-2xl border border-stone-200 bg-white p-4 text-center">
+            <div className="rounded-2xl border border-stone-200 bg-white p-4 text-center shadow-sm">
               <Flame className="mx-auto mb-1 h-5 w-5 text-orange-500" />
               <p className="text-2xl font-black text-stone-900">{dashboardStats.streak}</p>
               <p className="text-xs text-stone-500">أيام متتالية</p>
             </div>
-            <div className="rounded-2xl border border-stone-200 bg-white p-4 text-center">
+            <div className="rounded-2xl border border-stone-200 bg-white p-4 text-center shadow-sm">
               <TrendingUp className="mx-auto mb-1 h-5 w-5 text-blue-500" />
               <p className="text-2xl font-black text-stone-900">{dashboardStats.last7}</p>
               <p className="text-xs text-stone-500">آخر 7 أيام</p>
             </div>
-            <div className="rounded-2xl border border-stone-200 bg-white p-4 text-center">
+            <div className="rounded-2xl border border-stone-200 bg-white p-4 text-center shadow-sm">
               <Syringe className="mx-auto mb-1 h-5 w-5 text-purple-500" />
               <p className="text-2xl font-black text-stone-900">{dashboardStats.uniquePeptides}</p>
               <p className="text-xs text-stone-500">ببتيدات مختلفة</p>
             </div>
-            <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-4 text-center col-span-2 sm:col-span-1">
+            <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-4 text-center shadow-sm col-span-2 sm:col-span-1">
               <Clock className="mx-auto mb-1 h-5 w-5 text-emerald-600" />
               <p className="text-2xl font-black text-emerald-700">{dashboardStats.timeSinceLabel}</p>
               <p className="text-xs text-stone-500">آخر حقنة</p>

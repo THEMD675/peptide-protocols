@@ -241,7 +241,7 @@ export default function Dashboard() {
         <div className="mb-8">
           <h2 className="mb-4 text-xl font-bold text-stone-900">نشاطك</h2>
           <div className="grid gap-4 sm:grid-cols-4 mb-4">
-            <div className="rounded-2xl border border-stone-200 bg-white p-4 text-center">
+            <div className="rounded-2xl border border-stone-200 bg-white p-4 text-center shadow-sm">
               <Clock className="mx-auto mb-1 h-5 w-5 text-emerald-500" />
               <p className="text-2xl font-black text-stone-900">
                 {(() => {
@@ -258,17 +258,17 @@ export default function Dashboard() {
               </p>
               <p className="text-xs text-stone-500">آخر حقنة منذ</p>
             </div>
-            <div className="rounded-2xl border border-stone-200 bg-white p-4 text-center">
+            <div className="rounded-2xl border border-stone-200 bg-white p-4 text-center shadow-sm">
               <Flame className="mx-auto mb-1 h-5 w-5 text-orange-500" />
               <p className="text-2xl font-black text-stone-900">{activity.streak}</p>
               <p className="text-xs text-stone-500">أيام متتالية</p>
             </div>
-            <div className="rounded-2xl border border-stone-200 bg-white p-4 text-center">
+            <div className="rounded-2xl border border-stone-200 bg-white p-4 text-center shadow-sm">
               <Syringe className="mx-auto mb-1 h-5 w-5 text-emerald-500" />
               <p className="text-2xl font-black text-stone-900">{activity.activePeptides.length}</p>
               <p className="text-xs text-stone-500">ببتيدات نشطة</p>
             </div>
-            <div className="rounded-2xl border border-stone-200 bg-white p-4 text-center">
+            <div className="rounded-2xl border border-stone-200 bg-white p-4 text-center shadow-sm">
               <TrendingUp className="mx-auto mb-1 h-5 w-5 text-blue-500" />
               <p className="text-2xl font-black text-stone-900">{activity.totalInjections}</p>
               <p className="text-xs text-stone-500">حقن مسجّلة</p>
