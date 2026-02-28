@@ -215,7 +215,7 @@ export default function App() {
     <BrowserRouter>
       <AuthProvider>
         <ErrorBoundary>
-          <div className="min-h-screen flex flex-col bg-white text-stone-900">
+          <div className="min-h-screen flex flex-col bg-white text-stone-900 overflow-x-hidden">
           <Suspense fallback={null}><AgeGate /></Suspense>
           <Header />
           <TrialBanner />

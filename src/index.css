@@ -76,6 +76,7 @@
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     caret-color: #10b981;
+    overflow-x: hidden;
   }
 
   input::placeholder,
