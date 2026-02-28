@@ -193,7 +193,7 @@ export default function Landing() {
             </Link>
           </div>
 
-          <div className="mt-8 flex items-center justify-center gap-6 animate-fade-up stagger-4">
+          <div className="mt-8 flex flex-wrap items-center justify-center gap-4 sm:gap-6 animate-fade-up stagger-4">
             <span className="flex items-center gap-2 text-sm font-medium text-stone-700">
               <CreditCard className="h-4 w-4 text-emerald-600" />
               تجربة 3 أيام مجانية
@@ -607,7 +607,7 @@ export default function Landing() {
             <div
               className="relative flex flex-col rounded-2xl border-2 border-emerald-200 bg-white p-8 shadow-lg shadow-emerald-600/5"
             >
-              <span className="absolute -top-3 right-6 rounded-full bg-emerald-600 px-4 py-1 text-xs font-bold text-white">الأفضل قيمة</span>
+              <span className="absolute -top-3 end-6 rounded-full bg-emerald-600 px-4 py-1 text-xs font-bold text-white">الأفضل قيمة</span>
               <div className="mb-1 flex items-center gap-2">
                 <Crown className="h-5 w-5 text-emerald-600" />
                 <h3 className="text-xl font-bold text-stone-900">Elite</h3>

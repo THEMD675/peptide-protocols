@@ -74,7 +74,7 @@ const PeptideCard = memo(function PeptideCard({
             <button
               type="button"
               onClick={(e) => { e.preventDefault(); e.stopPropagation(); onToggleCompare(); }}
-              className={cn('rounded-full p-2 min-h-[40px] min-w-[40px] transition-colors', isCompare ? 'bg-emerald-100' : 'hover:bg-stone-100')}
+              className={cn('rounded-full p-2.5 min-h-[44px] min-w-[44px] transition-colors', isCompare ? 'bg-emerald-100' : 'hover:bg-stone-100')}
               aria-label={isCompare ? 'إزالة من المقارنة' : 'إضافة للمقارنة'}
               title="قارن"
             >
@@ -86,7 +86,7 @@ const PeptideCard = memo(function PeptideCard({
           <button
             type="button"
             onClick={(e) => { e.preventDefault(); e.stopPropagation(); onToggleFav(); }}
-            className="rounded-full p-2 min-h-[40px] min-w-[40px] transition-colors hover:bg-stone-100"
+            className="rounded-full p-2.5 min-h-[44px] min-w-[44px] transition-colors hover:bg-stone-100"
             aria-label={isFav ? 'إزالة من المفضلة' : 'إضافة للمفضلة'}
           >
             <Star className={cn('h-4 w-4', isFav ? 'fill-amber-400 text-amber-400' : 'text-stone-300')} />

@@ -167,9 +167,9 @@ export default function Pricing() {
             </p>
           )}
           <div className="mt-6 flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-6 text-sm text-stone-500">
-            <span className="flex items-center gap-1.5"><Check className="h-4 w-4 text-emerald-500" /> إلغاء في أي وقت</span>
-            <span className="flex items-center gap-1.5"><Shield className="h-4 w-4 text-emerald-500" /> ضمان استرداد 3 أيام</span>
-            <span className="flex items-center gap-1.5"><Lock className="h-4 w-4 text-emerald-500" /> دفع آمن عبر Stripe</span>
+            <span className="flex items-center gap-1.5"><Check className="h-4 w-4 shrink-0 text-emerald-500" /> إلغاء في أي وقت</span>
+            <span className="flex items-center gap-1.5"><Shield className="h-4 w-4 shrink-0 text-emerald-500" /> ضمان استرداد 3 أيام</span>
+            <span className="flex items-center gap-1.5"><Lock className="h-4 w-4 shrink-0 text-emerald-500" /> دفع آمن عبر Stripe</span>
           </div>
         </div>
 
@@ -206,7 +206,7 @@ export default function Pricing() {
           <div
             className="relative flex flex-col rounded-2xl border-2 border-emerald-200 bg-white p-8 shadow-xl shadow-emerald-600/5 md:p-10"
           >
-            <span className="absolute -top-3.5 right-6 rounded-full bg-emerald-600 px-5 py-1.5 text-sm font-bold text-white">
+            <span className="absolute -top-3.5 end-6 rounded-full bg-emerald-600 px-5 py-1.5 text-sm font-bold text-white">
               الأفضل قيمة
             </span>
 
