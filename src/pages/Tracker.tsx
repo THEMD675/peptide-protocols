@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import FocusTrap from 'focus-trap-react';
 import { Helmet } from 'react-helmet-async';
+import { Link } from 'react-router-dom';
 import { useCelebrations } from '@/hooks/useCelebrations';
 import BodyMap from '@/components/BodyMap';
 import ActivityChart from '@/components/charts/ActivityChart';
