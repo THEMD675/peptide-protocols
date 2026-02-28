@@ -446,8 +446,8 @@ export default function Coach() {
                         </button>
                       ))}
                       {intakeStep === 'experience' && (
-                        <button onClick={() => setIntakeStep('goal')} className="mt-1 flex items-center gap-1 text-xs text-stone-500 hover:text-stone-800 transition-colors">
-                          <ArrowRight className="h-3 w-3" /> رجوع
+                        <button onClick={() => setIntakeStep('goal')} className="mt-1 flex items-center gap-1 min-h-[44px] text-sm text-stone-500 hover:text-stone-800 transition-colors">
+                          <ArrowRight className="h-3 w-3 shrink-0" /> رجوع
                         </button>
                       )}
                     </div>
@@ -479,8 +479,8 @@ export default function Coach() {
                         </button>
                       ))}
                       {intakeStep === 'injection' && (
-                        <button onClick={() => setIntakeStep('experience')} className="mt-1 flex items-center gap-1 text-xs text-stone-500 hover:text-stone-800 transition-colors">
-                          <ArrowRight className="h-3 w-3" /> رجوع
+                        <button onClick={() => setIntakeStep('experience')} className="mt-1 flex items-center gap-1 min-h-[44px] text-sm text-stone-500 hover:text-stone-800 transition-colors">
+                          <ArrowRight className="h-3 w-3 shrink-0" /> رجوع
                         </button>
                       )}
                     </div>
@@ -517,8 +517,8 @@ export default function Coach() {
                         صمّم بروتوكولي المخصّص
                         <ArrowLeft className="h-4 w-4" />
                       </button>
-                      <button onClick={() => setIntakeStep('injection')} className="mt-1 flex items-center gap-1 text-xs text-stone-500 hover:text-stone-800 transition-colors">
-                        <ArrowRight className="h-3 w-3" /> رجوع
+                      <button onClick={() => setIntakeStep('injection')} className="mt-1 flex items-center gap-1 min-h-[44px] text-sm text-stone-500 hover:text-stone-800 transition-colors">
+                        <ArrowRight className="h-3 w-3 shrink-0" /> رجوع
                       </button>
                     </div>
                   </>
