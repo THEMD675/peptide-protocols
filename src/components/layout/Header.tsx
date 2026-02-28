@@ -104,6 +104,12 @@ export default memo(function Header() {
   }, [pathname]);
 
   useEffect(() => {
+    if (!mobileOpen) return;
+    document.body.style.overflow = 'hidden';
+    return () => { document.body.style.overflow = ''; };
+  }, [mobileOpen]);
+
+  useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 10);
     window.addEventListener('scroll', onScroll, { passive: true });
     return () => window.removeEventListener('scroll', onScroll);
@@ -236,6 +242,11 @@ export default memo(function Header() {
                           <span className="text-xs text-stone-500">{p.nameEn}</span>
                         </button>
                       ))}
+                    </div>
+                  )}
+                  {searchQuery.trim().length === 1 && (
+                    <div className="border-t border-stone-100 px-3 py-3 text-center text-xs text-stone-400">
+                      اكتب حرفين على الأقل للبحث...
                     </div>
                   )}
                   {searchQuery.trim().length >= 2 && searchResults.length === 0 && (

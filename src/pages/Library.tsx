@@ -46,7 +46,7 @@ const PeptideCard = memo(function PeptideCard({
   const cardContent = (
     <div
       className={cn(
-        'relative h-full overflow-hidden rounded-2xl border p-5 shadow-sm transition-all duration-300',
+        'relative h-full overflow-hidden rounded-2xl border p-5 shadow-sm transition-all duration-300 active:scale-[0.98]',
         hasAccess
           ? 'border-stone-200 bg-white hover:border-emerald-300 hover:shadow-lg hover:shadow-emerald-600/10 hover:-translate-y-1'
           : 'border-stone-200 bg-stone-50/50 hover:border-stone-300 hover:shadow-md',
@@ -454,7 +454,13 @@ export default function Library() {
         </div>
 
         {/* Peptide Grid */}
-        {filtered.length > 0 ? (
+        {isLoading ? (
+          <div className="grid grid-cols-1 gap-5 md:grid-cols-2 md:gap-6 lg:grid-cols-3">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <div key={i} className="h-52 animate-pulse rounded-2xl border border-stone-200 bg-stone-100" />
+            ))}
+          </div>
+        ) : filtered.length > 0 ? (
             <div
               className="grid grid-cols-1 gap-5 md:grid-cols-2 md:gap-6 lg:grid-cols-3"
             >

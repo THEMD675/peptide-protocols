@@ -24,7 +24,7 @@ import {
 import EmailCapture from '@/components/EmailCapture';
 import PeptideQuiz from '@/components/PeptideQuiz';
 import { cn } from '@/lib/utils';
-import { PRICING, PEPTIDE_COUNT, VALUE_TOTAL, VALUE_SAVINGS_ESSENTIALS, VALUE_STACK } from '@/lib/constants';
+import { PRICING, PEPTIDE_COUNT, VALUE_TOTAL, VALUE_SAVINGS_ESSENTIALS, VALUE_STACK, SITE_URL } from '@/lib/constants';
 
 
 const PAIN_POINTS = [

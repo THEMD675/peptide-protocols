@@ -19,7 +19,9 @@ export default function AgeGate() {
     setVisible(false);
   };
 
-  const [rejected, setRejected] = useState(false);
+  const [rejected, setRejected] = useState(() => {
+    try { return sessionStorage.getItem('pptides_age_rejected') === 'true'; } catch { return false; }
+  });
 
   const handleUnder = () => {
     setRejected(true);
@@ -49,7 +51,8 @@ export default function AgeGate() {
           <div
             className={cn(
               "w-full max-w-md rounded-2xl border-2 border-emerald-500",
-              "bg-stone-900 p-8 text-center shadow-2xl shadow-emerald-500/10"
+              "bg-stone-900 p-8 text-center shadow-2xl shadow-emerald-500/10",
+              "animate-gate-enter"
             )}
           >
             <div

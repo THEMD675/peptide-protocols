@@ -10,7 +10,7 @@ import TrialBanner from '@/components/TrialBanner';
 import BackToTop from '@/components/BackToTop';
 import ProtectedRoute from '@/components/ProtectedRoute';
 
-const AgeGate = lazy(() => import('@/components/AgeGate'));
+import AgeGate from '@/components/AgeGate';
 const StickyScrollCTA = lazy(() => import('@/components/StickyScrollCTA'));
 const ExitIntentPopup = lazy(() => import('@/components/ExitIntentPopup'));
 const CookieConsent = lazy(() => import('@/components/CookieConsent'));
@@ -41,7 +41,7 @@ const InteractionChecker = lazy(() => import('@/pages/InteractionChecker'));
 
 function PageLoader() {
   return (
-    <div className="flex min-h-[60vh] flex-col items-center justify-center gap-4" role="status" aria-label="جارٍ التحميل">
+    <div className="flex min-h-[60vh] flex-col items-center justify-center gap-4 animate-fade-in" role="status" aria-label="جارٍ التحميل">
       <div className="text-xl font-bold tracking-tight text-stone-900">
         <span>pp</span><span className="text-emerald-600">tides</span>
       </div>
@@ -178,6 +178,8 @@ function HomeRedirect() {
 
 function NotFound() {
   return (
+    <>
+    <Helmet><title>الصفحة غير موجودة — 404 | pptides</title><meta name="robots" content="noindex" /></Helmet>
     <div className="flex flex-1 flex-col items-center justify-center py-24 text-center px-6">
       <Link to="/" className="mb-6 text-2xl font-bold tracking-tight text-stone-900">
         <span>pp</span>
@@ -206,6 +208,7 @@ function NotFound() {
         <Link to="/pricing" className="text-stone-500 hover:text-emerald-600 transition-colors">الأسعار</Link>
       </div>
     </div>
+    </>
   );
 }
 
@@ -216,7 +219,7 @@ export default function App() {
       <AuthProvider>
         <ErrorBoundary>
           <div className="min-h-screen flex flex-col bg-white text-stone-900 overflow-x-hidden">
-          <Suspense fallback={null}><AgeGate /></Suspense>
+          <AgeGate />
           <Header />
           <TrialBanner />
           <ScrollToTop />
