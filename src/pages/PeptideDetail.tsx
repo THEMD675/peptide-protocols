@@ -127,7 +127,7 @@ export default function PeptideDetail() {
               <p className="mt-1 text-lg text-stone-800">{peptide.nameEn}</p>
             </div>
 
-            <div className="flex items-center gap-2">
+            <div className="flex flex-wrap items-center gap-2">
               {peptide.fdaApproved && (hasAccess || isFreeContent) && (
                 <span className="flex items-center gap-1.5 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-3 py-1 text-xs font-semibold text-emerald-400">
                   <CheckCircle className="h-3.5 w-3.5" />
