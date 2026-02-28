@@ -629,7 +629,7 @@ export default function Coach() {
 
             {isLoading && messages.length > 0 && messages[messages.length - 1].role === 'assistant' && messages[messages.length - 1].content === '' && (
               <div className="flex justify-end">
-                <div className="rounded-2xl rounded-bl-md border border-stone-200 bg-white px-5 py-4 min-w-[200px]">
+                <div className="rounded-2xl rounded-bl-md border border-stone-200 bg-white px-5 py-4 min-w-0 sm:min-w-[200px]">
                   <div className="flex items-center gap-3">
                     <div className="flex gap-1">
                       <span className="h-2 w-2 rounded-full bg-emerald-400 animate-bounce" style={{ animationDelay: '0ms' }} />
