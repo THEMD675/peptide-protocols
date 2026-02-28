@@ -60,7 +60,7 @@ const PeptideCard = memo(function PeptideCard({
       )}
       {peptide.isFree && !hasAccess && (
         <div className="absolute left-3 top-3 z-10">
-          <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] font-bold text-emerald-700">مجاني</span>
+          <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-bold text-emerald-700">مجاني</span>
         </div>
       )}
       <button
@@ -99,11 +99,11 @@ const PeptideCard = memo(function PeptideCard({
           </h3>
           <div className="mt-0.5 flex items-center gap-2">
             <p className="text-xs text-stone-800">{peptide.nameEn}</p>
-            {isUsed && <span className="rounded-full bg-emerald-100 px-1.5 py-0.5 text-[9px] font-bold text-emerald-700">مستخدم</span>}
+            {isUsed && <span className="rounded-full bg-emerald-100 px-1.5 py-0.5 text-xs font-bold text-emerald-700">مستخدم</span>}
           </div>
         </div>
         {peptide.fdaApproved && (
-          <span className="flex shrink-0 items-center gap-1 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2 py-0.5 text-[10px] font-semibold text-emerald-400">
+          <span className="flex shrink-0 items-center gap-1 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2 py-0.5 text-xs font-semibold text-emerald-400">
             <CheckCircle className="h-3 w-3" />
             FDA
           </span>
@@ -111,13 +111,13 @@ const PeptideCard = memo(function PeptideCard({
       </div>
 
       <div className="mb-3 flex flex-wrap items-center gap-2">
-        <span className="flex items-center gap-1 rounded-full border border-stone-300 bg-stone-50 px-2.5 py-0.5 text-[11px] font-medium text-stone-800">
+        <span className="flex items-center gap-1 rounded-full border border-stone-300 bg-stone-50 px-2.5 py-0.5 text-xs font-medium text-stone-800">
           {Icon && <Icon className="h-3 w-3" />}
           {categoryLabels[peptide.category]}
         </span>
         <span
           className={cn(
-            'rounded-full border px-2.5 py-0.5 text-[11px] font-medium',
+            'rounded-full border px-2.5 py-0.5 text-xs font-medium',
             evidenceColors[peptide.evidenceLevel],
           )}
           title={
@@ -151,12 +151,12 @@ const PeptideCard = memo(function PeptideCard({
         <div className="space-y-2">
           <div className="flex items-center gap-1.5 text-stone-600">
             <FlaskConical className="h-3 w-3" />
-            <span className="text-[11px]">{peptide.administrationAr.split('.')[0]}</span>
+            <span className="text-xs">{peptide.administrationAr.split('.')[0]}</span>
           </div>
           <div className="flex items-center justify-between gap-2">
             {peptide.difficulty && (
               <span className={cn(
-                'rounded-full px-2 py-0.5 text-[10px] font-bold border',
+                'rounded-full px-2 py-0.5 text-xs font-bold border',
                 peptide.difficulty === 'beginner' ? 'border-emerald-200 bg-emerald-50 text-emerald-700' :
                 peptide.difficulty === 'intermediate' ? 'border-amber-200 bg-amber-50 text-amber-700' :
                 'border-red-200 bg-red-50 text-red-700'
@@ -165,7 +165,7 @@ const PeptideCard = memo(function PeptideCard({
               </span>
             )}
             {peptide.costEstimate && (
-              <span className="text-[11px] font-bold text-emerald-600">{peptide.costEstimate}</span>
+              <span className="text-xs font-bold text-emerald-600">{peptide.costEstimate}</span>
             )}
           </div>
         </div>

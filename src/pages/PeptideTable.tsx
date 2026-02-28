@@ -251,7 +251,7 @@ export default function PeptideTable() {
                           >
                             <span
                               className={cn(
-                                'inline-block whitespace-nowrap rounded-full border px-2 py-0.5 text-[10px] font-bold md:text-xs',
+                                'inline-block whitespace-nowrap rounded-full border px-2 py-0.5 text-xs font-bold md:text-xs',
                                 catColor.badge
                               )}
                             >
@@ -267,7 +267,7 @@ export default function PeptideTable() {
                               <span className="block font-bold text-stone-900 transition-colors group-hover:text-emerald-600 group-hover:underline">
                                 {p.nameAr}
                               </span>
-                              <span className="block text-[10px] text-stone-800 md:text-xs">{p.nameEn}</span>
+                              <span className="block text-xs text-stone-800 md:text-xs">{p.nameEn}</span>
                             </Link>
                           </td>
 
@@ -305,7 +305,7 @@ export default function PeptideTable() {
                           <td className="px-3 py-3 text-center">
                             <span
                               className={cn(
-                                'inline-block rounded-full px-2 py-0.5 text-[10px] font-bold md:text-xs',
+                                'inline-block rounded-full px-2 py-0.5 text-xs font-bold md:text-xs',
                                 longTerm
                                   ? 'bg-emerald-100 text-emerald-800'
                                   : 'bg-amber-100 text-amber-800',
@@ -377,7 +377,7 @@ export default function PeptideTable() {
                           key={sp.id}
                           to={`/peptide/${sp.id}`}
                           className={cn(
-                            'rounded-full border px-2 py-0.5 text-[10px] font-semibold transition-colors hover:opacity-80',
+                            'rounded-full border px-2 py-0.5 text-xs font-semibold transition-colors hover:opacity-80',
                             categoryColors[sp.category]?.badge
                           )}
                         >
@@ -389,7 +389,7 @@ export default function PeptideTable() {
 
                   {/* Goal */}
                   <div className="mb-3">
-                    <span className="text-[10px] font-bold tracking-wider text-stone-700">الهدف</span>
+                    <span className="text-xs font-bold tracking-wider text-stone-700">الهدف</span>
                     <p
                       className={cn("mt-1 text-xs leading-relaxed text-stone-800", !hasAccess && blurClass)}
                       aria-hidden={!hasAccess || undefined}
@@ -400,7 +400,7 @@ export default function PeptideTable() {
 
                   {/* Protocol preview */}
                   <div>
-                    <span className="text-[10px] font-bold tracking-wider text-stone-700">البروتوكول</span>
+                    <span className="text-xs font-bold tracking-wider text-stone-700">البروتوكول</span>
                     <p
                       className={cn("mt-1 line-clamp-4 whitespace-pre-line text-xs leading-relaxed text-stone-800", !hasAccess && blurClass)}
                       aria-hidden={!hasAccess || undefined}
@@ -445,7 +445,7 @@ export default function PeptideTable() {
                   <div className="mb-3 flex items-center gap-2">
                     {(() => { const Icon = categoryIcons[cat.id]; return Icon ? <Icon className="h-5 w-5 text-emerald-600" /> : null; })()}
                     <h3 className="text-base font-bold text-stone-900">{cat.nameAr}</h3>
-                    <span className="mr-auto rounded-full bg-stone-100 px-2 py-0.5 text-[10px] font-semibold text-stone-800">
+                    <span className="mr-auto rounded-full bg-stone-100 px-2 py-0.5 text-xs font-semibold text-stone-800">
                       {cat.peptideCount} ببتيد
                     </span>
                   </div>
@@ -454,7 +454,7 @@ export default function PeptideTable() {
 
                   {/* Peptide list */}
                   <div className="mb-4">
-                    <span className="mb-2 block text-[10px] font-bold tracking-wider text-stone-700">
+                    <span className="mb-2 block text-xs font-bold tracking-wider text-stone-700">
                       الببتيدات
                     </span>
                     <div className="flex flex-wrap gap-1.5">
@@ -462,7 +462,7 @@ export default function PeptideTable() {
                         <Link
                           key={p.id}
                           to={`/peptide/${p.id}`}
-                          className="rounded-md border border-stone-300 bg-white/[0.05] px-2 py-1 text-[10px] font-medium text-stone-800 transition-colors hover:border-emerald-300 hover:text-stone-900"
+                          className="rounded-md border border-stone-300 bg-white/[0.05] px-2 py-1 text-xs font-medium text-stone-800 transition-colors hover:border-emerald-300 hover:text-stone-900"
                         >
                           {p.nameAr}
                         </Link>
@@ -472,12 +472,12 @@ export default function PeptideTable() {
 
                   {/* Key stacking notes */}
                   <div>
-                    <span className="mb-2 block text-[10px] font-bold tracking-wider text-stone-700">
+                    <span className="mb-2 block text-xs font-bold tracking-wider text-stone-700">
                       ملاحظات تجميع رئيسية
                     </span>
                     <ul className="space-y-1.5">
                       {stackingNotes.map((sn, idx) => (
-                        <li key={idx} className="text-[10px] leading-relaxed text-stone-800">
+                        <li key={idx} className="text-xs leading-relaxed text-stone-800">
                           <span className="font-semibold text-stone-800">{sn.name}:</span>{' '}
                           <span className={cn(!hasAccess && blurClass)} aria-hidden={!hasAccess || undefined}>
                             {sn.note.length > 100 ? sn.note.slice(0, 100) + '…' : sn.note}

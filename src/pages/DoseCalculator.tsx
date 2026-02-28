@@ -413,7 +413,7 @@ export default function DoseCalculator() {
                     </span>
                     <button
                       onClick={() => setWaterMl(recommendedWater)}
-                      className="rounded-md bg-emerald-600 px-2.5 py-1 text-[11px] font-bold text-white transition-colors hover:bg-emerald-700"
+                      className="rounded-md bg-emerald-600 px-2.5 py-1 text-xs font-bold text-white transition-colors hover:bg-emerald-700"
                     >
                       تعبئة
                     </button>
@@ -471,7 +471,7 @@ export default function DoseCalculator() {
               </div>
             </div>
             <div className="space-y-2">
-              <label className="block text-sm font-medium text-stone-800">سعر القارورة ($) <span className="text-[10px] text-emerald-600 font-normal me-1">اختياري</span></label>
+              <label className="block text-sm font-medium text-stone-800">سعر القارورة ($) <span className="text-xs text-emerald-600 font-normal me-1">اختياري</span></label>
               <input type="number" min={0} step={5} value={vialPrice || ''} onChange={e => setVialPrice(Number(e.target.value))} placeholder="مثال: 40"
                 className="w-full rounded-xl border border-stone-300 bg-stone-50 px-4 py-3 text-base text-stone-900 placeholder:text-stone-400 focus:border-emerald-300 focus:outline-none focus:ring-1 focus:ring-emerald-200" />
             </div>
@@ -875,7 +875,7 @@ function ResultCard({
       <p className="text-2xl font-bold text-emerald-600">
         {value}
       </p>
-      <p className="mt-0.5 text-[11px] text-stone-800">{unit}</p>
+      <p className="mt-0.5 text-xs text-stone-800">{unit}</p>
     </div>
   );
 }

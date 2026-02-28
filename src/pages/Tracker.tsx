@@ -341,7 +341,7 @@ export default function Tracker() {
                     )}
                     style={{ height: `${Math.max((count / weeklyActivity.max) * 100, 8)}%`, minHeight: '4px' }}
                   />
-                  <span className={cn('text-[10px]', i === weeklyActivity.todayIdx ? 'font-bold text-emerald-700' : 'text-stone-400')}>
+                  <span className={cn('text-xs', i === weeklyActivity.todayIdx ? 'font-bold text-emerald-700' : 'text-stone-400')}>
                     {weeklyActivity.days[i].slice(0, 3)}
                   </span>
                 </div>
@@ -367,7 +367,7 @@ export default function Tracker() {
             </div>
             <div className="grid grid-cols-7 gap-1 text-center">
               {calendarData.dayNames.map(d => (
-                <div key={d} className="text-[10px] font-bold text-stone-400 pb-1">{d}</div>
+                <div key={d} className="text-xs font-bold text-stone-400 pb-1">{d}</div>
               ))}
               {calendarData.cells}
             </div>
@@ -395,7 +395,7 @@ export default function Tracker() {
                   )}>
                     <p className="text-xs font-bold text-stone-800">{siteRotationData.siteLabels[s]}</p>
                     <p className="text-lg font-black text-stone-900">{count}</p>
-                    <p className="text-[10px] text-stone-500">
+                    <p className="text-xs text-stone-500">
                       {isSuggested ? 'الموقع التالي' : isLast ? 'آخر حقنة' : `آخر 5`}
                     </p>
                   </div>
@@ -555,7 +555,7 @@ export default function Tracker() {
 
             {/* Notes */}
             <div>
-              <label className="mb-1 block text-sm font-bold text-stone-700">ملاحظات <span className="text-[10px] text-emerald-600 font-normal me-1">اختياري</span></label>
+              <label className="mb-1 block text-sm font-bold text-stone-700">ملاحظات <span className="text-xs text-emerald-600 font-normal me-1">اختياري</span></label>
               <textarea
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}

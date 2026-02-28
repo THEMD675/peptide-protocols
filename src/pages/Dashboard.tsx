@@ -325,7 +325,7 @@ export default function Dashboard() {
                 )} title={`${d.date.toLocaleDateString('ar-u-nu-latn', { month: 'short', day: 'numeric' })}: ${d.count} حقن`} />
               ))}
             </div>
-            <div className="mt-2 flex items-center justify-end gap-1 text-[10px] text-stone-400">
+            <div className="mt-2 flex items-center justify-end gap-1 text-xs text-stone-400">
               <span>أقل</span>
               <span className="h-2.5 w-2.5 rounded-sm bg-stone-100" />
               <span className="h-2.5 w-2.5 rounded-sm bg-emerald-200" />
