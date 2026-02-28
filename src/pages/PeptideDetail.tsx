@@ -339,7 +339,7 @@ export default function PeptideDetail() {
                 <p className="text-xl font-bold text-stone-900">البروتوكول الكامل لـ {peptide.nameAr}</p>
                 <p className="mt-2 text-sm text-stone-600">اشترك لفتح كل التفاصيل:</p>
               </div>
-              <div className="grid grid-cols-2 gap-2 text-right w-full max-w-sm">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-right w-full max-w-sm">
                 {['الجرعة الدقيقة بوحدات السيرنج', 'التوقيت المثالي للحقن', 'مدة الدورة والراحة', 'الأعراض الجانبية الحقيقية', 'أفضل التجميعات', 'التحاليل المطلوبة'].map(item => (
                   <div key={item} className="flex items-center gap-2 rounded-lg bg-white px-3 py-2 border border-stone-200">
                     <CheckCircle className="h-3.5 w-3.5 shrink-0 text-emerald-500" />
