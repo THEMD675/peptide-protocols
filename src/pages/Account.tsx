@@ -170,9 +170,9 @@ export default function Account() {
                 type="password"
                 value={newPassword}
                 onChange={(e) => setNewPassword(e.target.value)}
-                placeholder="6 أحرف على الأقل"
+                placeholder="8 أحرف على الأقل"
                 dir="ltr"
-                minLength={6}
+                minLength={8}
                 className="w-full rounded-xl border border-stone-200 bg-white px-4 py-3 text-left text-sm text-stone-900 placeholder:text-stone-400 focus:outline-none focus:border-emerald-300 focus:ring-2 focus:ring-emerald-100"
               />
             </div>
