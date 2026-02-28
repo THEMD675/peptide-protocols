@@ -134,7 +134,7 @@ export default function Pricing() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-white via-stone-50 to-white">
+    <div className="min-h-screen bg-gradient-to-b from-white via-stone-50 to-white animate-fade-in">
       <Helmet>
         <title>أسعار واشتراكات الببتيدات | pptides</title>
         <meta name="description" content={`اختر خطتك: Essentials ${PRICING.essentials.label}/شهر أو Elite ${PRICING.elite.label}/شهر. 3 أيام تجربة مجانية. ضمان استرداد كامل.`} />

@@ -99,7 +99,7 @@ export default function Guide() {
   }
 
   return (
-    <div className="mx-auto max-w-5xl px-4 pb-24 pt-8 md:px-6 md:pt-12">
+    <div className="mx-auto max-w-5xl px-4 pb-24 pt-8 md:px-6 md:pt-12 animate-fade-in">
       <Helmet>
         <title>دليل التحضير والحقن | pptides</title>
         <meta name="description" content="خطوات تحضير الببتيدات والحقن تحت الجلد ومواقع الحقن وقواعد التخزين. How to reconstitute and inject peptides safely." />
@@ -303,6 +303,28 @@ export default function Guide() {
           </BlurredSection>
         </section>
       </div>
+
+      {/* ═══════ TROUBLESHOOTING FAQ ═══════ */}
+      <section className="mt-12">
+        <h2 className="mb-6 text-2xl font-bold text-stone-900">مشاكل شائعة وحلولها</h2>
+        <div className="space-y-3">
+          {[
+            { q: 'حقنت فقاعة هواء — هل هذا خطير؟', a: 'لا. فقاعات الهواء الصغيرة في الحقن تحت الجلد (SubQ) غير ضارة. يمتصها الجسم بشكل طبيعي. فقط تأكد من طرد الفقاعات الكبيرة قبل الحقن عن طريق النقر على السيرنج برفق.' },
+            { q: 'موقع الحقن متورّم أو أحمر', a: 'احمرار خفيف وتورم بسيط في أول 24-48 ساعة طبيعي جدًا. استخدم كمادة باردة. إذا انتشر الاحمرار أو استمر أكثر من 48 ساعة أو ظهرت حرارة — راجع الطبيب فورًا.' },
+            { q: 'نسيت أضع القارورة في الثلاجة طوال الليل', a: 'معظم الببتيدات المحلولة تتحمل درجة حرارة الغرفة لأقل من 24 ساعة. تحقق من صفاء المحلول — إذا كان شفافًا فغالبًا لا مشكلة. إذا أصبح عكرًا أو تغير لونه، تخلص منه وحضّر قارورة جديدة.' },
+            { q: 'المحلول أصبح عكرًا أو متغير اللون', a: 'محلول عكر أو متغير اللون يعني احتمال تلف الببتيد. لا تستخدمه. حضّر قارورة جديدة. تأكد من استخدام ماء بكتيريوستاتيك (BAC water) وليس ماء عادي.' },
+            { q: 'نسيت الحقن 3 أيام — ماذا أفعل؟', a: 'لا تضاعف الجرعة. استأنف الجرعة العادية من حيث توقفت. معظم الببتيدات لا تحتاج "تعويض". الاستمرارية أهم من الكمال.' },
+            { q: 'أشعر بغثيان بعد حقن Semaglutide', a: 'الغثيان شائع جدًا مع GLP-1 (44% من المستخدمين). جرّب: تقليل الجرعة، الحقن قبل النوم بدل الصباح، تناول وجبات صغيرة وخفيفة، وتجنب الأطعمة الدهنية. يتحسن عادة خلال 2-3 أسابيع.' },
+          ].map((faq) => (
+            <details key={faq.q} className="group rounded-2xl border border-stone-200 bg-white transition-all hover:border-amber-200">
+              <summary className="flex cursor-pointer items-center justify-between px-5 py-4 text-sm font-bold text-stone-900 [&::-webkit-details-marker]:hidden">
+                <span className="flex items-center gap-2">⚠️ {faq.q}</span>
+              </summary>
+              <p className="px-5 pb-4 text-sm leading-relaxed text-stone-700">{faq.a}</p>
+            </details>
+          ))}
+        </div>
+      </section>
 
       <div className="mt-12 rounded-2xl border border-emerald-200 bg-emerald-50 p-6 text-center">
         {isPro ? (

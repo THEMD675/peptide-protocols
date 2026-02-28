@@ -8,29 +8,29 @@ import type { Peptide } from '@/data/peptides';
 
 const guestNavLinks = [
   { to: '/library', label: 'المكتبة' },
-  { to: '/calculator', label: 'حاسبة الجرعات' },
-  { to: '/table', label: 'الجدول' },
-  { to: '/coach', label: 'المدرب' },
   { to: '/pricing', label: 'الأسعار' },
 ] as const;
 
 const userNavLinks = [
   { to: '/dashboard', label: 'لوحة التحكم' },
+  { to: '/tracker', label: 'المتتبع' },
   { to: '/library', label: 'المكتبة' },
-  { to: '/calculator', label: 'حاسبة الجرعات' },
   { to: '/coach', label: 'المدرب' },
-  { to: '/tracker', label: 'سجل الحقن' },
 ] as const;
 
-const moreLinks = [
+const guestToolLinks = [
+  { to: '/calculator', label: 'حاسبة الجرعات' },
+  { to: '/interactions', label: 'فحص التعارضات' },
+  { to: '/table', label: 'جدول المقارنة' },
+] as const;
+
+const userToolLinks = [
+  { to: '/calculator', label: 'حاسبة الجرعات' },
+  { to: '/interactions', label: 'فحص التعارضات' },
   { to: '/stacks', label: 'البروتوكولات المُجمَّعة' },
   { to: '/lab-guide', label: 'دليل التحاليل' },
   { to: '/guide', label: 'دليل الحقن' },
-  { to: '/interactions', label: 'فحص التعارضات' },
-  { to: '/community', label: 'تجارب المستخدمين' },
-  { to: '/glossary', label: 'المصطلحات' },
-  { to: '/sources', label: 'المصادر' },
-  { to: '/reviews', label: 'التقييمات' },
+  { to: '/table', label: 'جدول المقارنة' },
 ] as const;
 
 export default memo(function Header() {
@@ -161,39 +161,46 @@ export default memo(function Header() {
               );
             })}
             <div className="relative" ref={moreDropdownRef}>
-              <button
-                onClick={() => setMoreOpen(v => !v)}
-                aria-expanded={moreOpen}
-                className={cn(
-                  'rounded-lg px-3 py-2 text-sm font-medium transition-colors flex items-center gap-1',
-                  moreLinks.some(l => pathname.startsWith(l.to))
-                    ? 'text-emerald-700'
-                    : 'text-stone-800 transition-colors hover:text-stone-900',
-                )}
-              >
-                المزيد
-                <ChevronDown className={cn('h-3 w-3 transition-transform', moreOpen && 'rotate-180')} />
-              </button>
-              {moreOpen && (
-                <div role="menu" aria-label="المزيد من الصفحات" className="absolute end-0 top-full mt-2 min-w-[200px] overflow-hidden rounded-xl border border-stone-200 bg-white py-1 shadow-xl animate-fade-in">
-                  {moreLinks.map(({ to, label }) => (
-                    <Link
-                      key={to}
-                      to={to}
-                      role="menuitem"
-                      onClick={() => setMoreOpen(false)}
+              {(() => {
+                const tools = user ? userToolLinks : guestToolLinks;
+                return (
+                  <>
+                    <button
+                      onClick={() => setMoreOpen(v => !v)}
+                      aria-expanded={moreOpen}
                       className={cn(
-                        'block px-4 py-2.5 text-sm transition-colors hover:bg-stone-50',
-                        pathname.startsWith(to)
-                          ? 'text-emerald-700 font-medium'
-                          : 'text-stone-700 transition-colors hover:text-stone-900',
+                        'rounded-lg px-3 py-2 text-sm font-medium transition-colors flex items-center gap-1',
+                        tools.some(l => pathname.startsWith(l.to))
+                          ? 'text-emerald-700'
+                          : 'text-stone-800 transition-colors hover:text-stone-900',
                       )}
                     >
-                      {label}
-                    </Link>
-                  ))}
-                </div>
-              )}
+                      الأدوات
+                      <ChevronDown className={cn('h-3 w-3 transition-transform', moreOpen && 'rotate-180')} />
+                    </button>
+                    {moreOpen && (
+                      <div role="menu" aria-label="الأدوات" className="absolute end-0 top-full mt-2 min-w-[200px] overflow-hidden rounded-xl border border-stone-200 bg-white py-1 shadow-xl animate-fade-in">
+                        {tools.map(({ to, label }) => (
+                          <Link
+                            key={to}
+                            to={to}
+                            role="menuitem"
+                            onClick={() => setMoreOpen(false)}
+                            className={cn(
+                              'block px-4 py-2.5 text-sm transition-colors hover:bg-stone-50',
+                              pathname.startsWith(to)
+                                ? 'text-emerald-700 font-medium'
+                                : 'text-stone-700 transition-colors hover:text-stone-900',
+                            )}
+                          >
+                            {label}
+                          </Link>
+                        ))}
+                      </div>
+                    )}
+                  </>
+                );
+              })()}
             </div>
           </nav>
 
@@ -405,8 +412,8 @@ export default memo(function Header() {
               );
             })}
             <div className="my-2 h-px bg-stone-200" />
-            <p className="px-4 py-1 text-xs font-bold text-stone-500 uppercase tracking-wider">المزيد</p>
-            {moreLinks.map(({ to, label }) => {
+            <p className="px-4 py-1 text-xs font-bold text-stone-500 uppercase tracking-wider">الأدوات</p>
+            {(user ? userToolLinks : guestToolLinks).map(({ to, label }) => {
               const active = pathname.startsWith(to);
               return (
                 <Link

@@ -88,7 +88,7 @@ export default function Login() {
       if (redirectTo) {
         navigate(redirectTo);
       } else {
-        navigate(tab === 'signup' ? '/pricing' : '/dashboard');
+        navigate('/dashboard');
       }
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'حدث خطأ في تسجيل الدخول. تحقق من بريدك وكلمة المرور.';

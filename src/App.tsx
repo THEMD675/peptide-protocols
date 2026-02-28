@@ -11,6 +11,13 @@ import BackToTop from '@/components/BackToTop';
 import ProtectedRoute from '@/components/ProtectedRoute';
 
 import AgeGate from '@/components/AgeGate';
+import FloatingWhatsApp from '@/components/FloatingWhatsApp';
+import PaymentProcessing from '@/components/PaymentProcessing';
+import InstallPrompt from '@/components/InstallPrompt';
+import {
+  LibrarySkeleton, DashboardSkeleton, TrackerSkeleton, CoachSkeleton,
+  PeptideDetailSkeleton, PricingSkeleton, CalculatorSkeleton, GenericPageSkeleton,
+} from '@/components/Skeletons';
 const StickyScrollCTA = lazy(() => import('@/components/StickyScrollCTA'));
 const ExitIntentPopup = lazy(() => import('@/components/ExitIntentPopup'));
 const CookieConsent = lazy(() => import('@/components/CookieConsent'));
@@ -219,6 +226,7 @@ export default function App() {
       <AuthProvider>
         <ErrorBoundary>
           <div className="min-h-screen flex flex-col bg-white text-stone-900 overflow-x-hidden">
+          <PaymentProcessing />
           <AgeGate />
           <Header />
           <TrialBanner />
@@ -227,39 +235,39 @@ export default function App() {
           <CanonicalUrl />
           <Toaster position="top-center" richColors dir="rtl" />
           <main id="main-content" className="flex-1 pb-16 md:pb-0">
-            <Suspense fallback={<PageLoader />}>
             <Routes>
               <Route path="/" element={<HomeRedirect />} />
-              <Route path="/login" element={<RouteErrorBoundary fallbackTitle="خطأ في صفحة الدخول"><Login /></RouteErrorBoundary>} />
-              <Route path="/signup" element={<RouteErrorBoundary fallbackTitle="خطأ في صفحة الدخول"><Login /></RouteErrorBoundary>} />
-              <Route path="/library" element={<RouteErrorBoundary fallbackTitle="خطأ في المكتبة"><Library /></RouteErrorBoundary>} />
-              <Route path="/peptide/:id" element={<RouteErrorBoundary fallbackTitle="خطأ في صفحة الببتيد"><PeptideDetail /></RouteErrorBoundary>} />
-              <Route path="/calculator" element={<RouteErrorBoundary fallbackTitle="خطأ في الحاسبة"><DoseCalculator /></RouteErrorBoundary>} />
-              <Route path="/stacks" element={<RouteErrorBoundary fallbackTitle="خطأ في التجميعات"><Stacks /></RouteErrorBoundary>} />
-              <Route path="/lab-guide" element={<RouteErrorBoundary fallbackTitle="خطأ في دليل التحاليل"><LabGuide /></RouteErrorBoundary>} />
-              <Route path="/guide" element={<RouteErrorBoundary fallbackTitle="خطأ في الدليل"><Guide /></RouteErrorBoundary>} />
-              <Route path="/pricing" element={<RouteErrorBoundary fallbackTitle="خطأ في صفحة الأسعار"><Pricing /></RouteErrorBoundary>} />
-              <Route path="/coach" element={<ProtectedRoute><RouteErrorBoundary fallbackTitle="خطأ في المدرب الذكي"><Coach /></RouteErrorBoundary></ProtectedRoute>} />
-              <Route path="/reviews" element={<RouteErrorBoundary fallbackTitle="خطأ في التقييمات"><Reviews /></RouteErrorBoundary>} />
-              <Route path="/table" element={<RouteErrorBoundary fallbackTitle="خطأ في جدول الببتيدات"><PeptideTable /></RouteErrorBoundary>} />
-              <Route path="/sources" element={<RouteErrorBoundary fallbackTitle="خطأ في المصادر"><Sources /></RouteErrorBoundary>} />
-              <Route path="/community" element={<RouteErrorBoundary fallbackTitle="خطأ في المجتمع"><Community /></RouteErrorBoundary>} />
-              <Route path="/privacy" element={<RouteErrorBoundary><Privacy /></RouteErrorBoundary>} />
-              <Route path="/terms" element={<RouteErrorBoundary><Terms /></RouteErrorBoundary>} />
-              <Route path="/account" element={<ProtectedRoute><RouteErrorBoundary fallbackTitle="خطأ في الحساب"><Account /></RouteErrorBoundary></ProtectedRoute>} />
-              <Route path="/dashboard" element={<ProtectedRoute><RouteErrorBoundary fallbackTitle="خطأ في لوحة التحكم"><Dashboard /></RouteErrorBoundary></ProtectedRoute>} />
-              <Route path="/tracker" element={<ProtectedRoute><RouteErrorBoundary fallbackTitle="خطأ في سجل الحقن"><Tracker /></RouteErrorBoundary></ProtectedRoute>} />
-              <Route path="/glossary" element={<RouteErrorBoundary fallbackTitle="خطأ في المصطلحات"><Glossary /></RouteErrorBoundary>} />
-              <Route path="/interactions" element={<RouteErrorBoundary fallbackTitle="خطأ في التفاعلات"><InteractionChecker /></RouteErrorBoundary>} />
+              <Route path="/login" element={<Suspense fallback={<PageLoader />}><RouteErrorBoundary fallbackTitle="خطأ في صفحة الدخول"><Login /></RouteErrorBoundary></Suspense>} />
+              <Route path="/signup" element={<Suspense fallback={<PageLoader />}><RouteErrorBoundary fallbackTitle="خطأ في صفحة الدخول"><Login /></RouteErrorBoundary></Suspense>} />
+              <Route path="/library" element={<Suspense fallback={<LibrarySkeleton />}><RouteErrorBoundary fallbackTitle="خطأ في المكتبة"><Library /></RouteErrorBoundary></Suspense>} />
+              <Route path="/peptide/:id" element={<Suspense fallback={<PeptideDetailSkeleton />}><RouteErrorBoundary fallbackTitle="خطأ في صفحة الببتيد"><PeptideDetail /></RouteErrorBoundary></Suspense>} />
+              <Route path="/calculator" element={<Suspense fallback={<CalculatorSkeleton />}><RouteErrorBoundary fallbackTitle="خطأ في الحاسبة"><DoseCalculator /></RouteErrorBoundary></Suspense>} />
+              <Route path="/stacks" element={<Suspense fallback={<GenericPageSkeleton />}><RouteErrorBoundary fallbackTitle="خطأ في التجميعات"><Stacks /></RouteErrorBoundary></Suspense>} />
+              <Route path="/lab-guide" element={<Suspense fallback={<GenericPageSkeleton />}><RouteErrorBoundary fallbackTitle="خطأ في دليل التحاليل"><LabGuide /></RouteErrorBoundary></Suspense>} />
+              <Route path="/guide" element={<Suspense fallback={<GenericPageSkeleton />}><RouteErrorBoundary fallbackTitle="خطأ في الدليل"><Guide /></RouteErrorBoundary></Suspense>} />
+              <Route path="/pricing" element={<Suspense fallback={<PricingSkeleton />}><RouteErrorBoundary fallbackTitle="خطأ في صفحة الأسعار"><Pricing /></RouteErrorBoundary></Suspense>} />
+              <Route path="/coach" element={<ProtectedRoute><Suspense fallback={<CoachSkeleton />}><RouteErrorBoundary fallbackTitle="خطأ في المدرب الذكي"><Coach /></RouteErrorBoundary></Suspense></ProtectedRoute>} />
+              <Route path="/reviews" element={<Suspense fallback={<GenericPageSkeleton />}><RouteErrorBoundary fallbackTitle="خطأ في التقييمات"><Reviews /></RouteErrorBoundary></Suspense>} />
+              <Route path="/table" element={<Suspense fallback={<GenericPageSkeleton />}><RouteErrorBoundary fallbackTitle="خطأ في جدول الببتيدات"><PeptideTable /></RouteErrorBoundary></Suspense>} />
+              <Route path="/sources" element={<Suspense fallback={<GenericPageSkeleton />}><RouteErrorBoundary fallbackTitle="خطأ في المصادر"><Sources /></RouteErrorBoundary></Suspense>} />
+              <Route path="/community" element={<Suspense fallback={<GenericPageSkeleton />}><RouteErrorBoundary fallbackTitle="خطأ في المجتمع"><Community /></RouteErrorBoundary></Suspense>} />
+              <Route path="/privacy" element={<Suspense fallback={<PageLoader />}><RouteErrorBoundary><Privacy /></RouteErrorBoundary></Suspense>} />
+              <Route path="/terms" element={<Suspense fallback={<PageLoader />}><RouteErrorBoundary><Terms /></RouteErrorBoundary></Suspense>} />
+              <Route path="/account" element={<ProtectedRoute><Suspense fallback={<PageLoader />}><RouteErrorBoundary fallbackTitle="خطأ في الحساب"><Account /></RouteErrorBoundary></Suspense></ProtectedRoute>} />
+              <Route path="/dashboard" element={<ProtectedRoute><Suspense fallback={<DashboardSkeleton />}><RouteErrorBoundary fallbackTitle="خطأ في لوحة التحكم"><Dashboard /></RouteErrorBoundary></Suspense></ProtectedRoute>} />
+              <Route path="/tracker" element={<ProtectedRoute><Suspense fallback={<TrackerSkeleton />}><RouteErrorBoundary fallbackTitle="خطأ في سجل الحقن"><Tracker /></RouteErrorBoundary></Suspense></ProtectedRoute>} />
+              <Route path="/glossary" element={<Suspense fallback={<GenericPageSkeleton />}><RouteErrorBoundary fallbackTitle="خطأ في المصطلحات"><Glossary /></RouteErrorBoundary></Suspense>} />
+              <Route path="/interactions" element={<Suspense fallback={<GenericPageSkeleton />}><RouteErrorBoundary fallbackTitle="خطأ في التفاعلات"><InteractionChecker /></RouteErrorBoundary></Suspense>} />
               <Route path="*" element={<NotFound />} />
             </Routes>
-            </Suspense>
           </main>
           <Footer />
+          <FloatingWhatsApp />
           <BackToTop />
           <Suspense fallback={null}><StickyScrollCTA /></Suspense>
           <Suspense fallback={null}><ExitIntentPopup /></Suspense>
           <Suspense fallback={null}><CookieConsent /></Suspense>
+          <InstallPrompt />
         </div>
         </ErrorBoundary>
       </AuthProvider>

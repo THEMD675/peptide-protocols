@@ -140,7 +140,7 @@ export default function Community() {
   );
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-white animate-fade-in">
       <Helmet>
         <title>تجارب المستخدمين | pptides</title>
         <meta name="description" content="اقرأ تجارب حقيقية من مستخدمي الببتيدات. بروتوكولات مُجرَّبة، نتائج فعلية، وتقييمات صادقة." />
@@ -374,17 +374,27 @@ export default function Community() {
             <div className="h-6 w-6 mx-auto animate-spin rounded-full border-2 border-stone-200 border-t-emerald-600" />
           </div>
         ) : logs.length === 0 ? (
-          <div className="rounded-2xl border border-stone-200 bg-stone-50 py-16 text-center">
-            <FlaskConical className="mx-auto mb-3 h-12 w-12 text-stone-400" />
-            <p className="text-lg font-bold text-stone-800">لا توجد تجارب بعد</p>
-            <p className="mt-2 text-sm text-stone-700">كن أول من يشارك تجربته!</p>
+          <div className="rounded-2xl border-2 border-dashed border-emerald-200 bg-gradient-to-b from-emerald-50 to-white py-16 px-8 text-center">
+            <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-emerald-100">
+              <FlaskConical className="h-8 w-8 text-emerald-600" />
+            </div>
+            <h3 className="text-xl font-bold text-stone-900">شارك تجربتك مع المجتمع</h3>
+            <p className="mx-auto mt-2 max-w-md text-sm leading-relaxed text-stone-600">
+              لا توجد تجارب مشاركة بعد — كن أول من يشارك بروتوكوله ونتائجه مع مجتمع pptides العربي.
+            </p>
+            {user && isPaid && (
+              <button onClick={() => setShowForm(true)} className="mt-5 inline-flex items-center gap-2 rounded-full bg-emerald-600 px-6 py-3 text-sm font-bold text-white transition-colors hover:bg-emerald-700">
+                شارك تجربتك الأولى
+              </button>
+            )}
           </div>
         ) : (
           <div className="space-y-4">
             {filteredLogs.length === 0 && (
-              <div className="rounded-2xl border border-stone-200 bg-stone-50 py-12 text-center">
-                <p className="text-sm font-bold text-stone-600">لا توجد تجارب لهذا الهدف بعد</p>
-                <button onClick={() => setFilterGoal('all')} className="mt-3 text-sm text-emerald-600 font-medium hover:underline">عرض الكل</button>
+              <div className="rounded-2xl border border-stone-200 bg-stone-50 py-12 px-6 text-center">
+                <p className="text-sm font-bold text-stone-800">لا توجد تجارب لهذا الهدف بعد</p>
+                <p className="mt-1 text-xs text-stone-500">جرّب تصنيف مختلف أو شارك تجربتك</p>
+                <button onClick={() => setFilterGoal('all')} className="mt-3 text-sm text-emerald-600 font-bold hover:underline">عرض الكل</button>
               </div>
             )}
             {filteredLogs.map((log) => (

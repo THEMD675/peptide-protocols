@@ -1,6 +1,7 @@
 import { useMemo, useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { ArrowRight, Shield, AlertTriangle, CheckCircle, Lock, Calculator, Bot, FlaskConical, Printer, MessageSquare, Star, Syringe, Share2 } from 'lucide-react';
+import { ArrowRight, Shield, AlertTriangle, CheckCircle, Lock, Calculator, Bot, FlaskConical, Printer, MessageSquare, Star, Syringe, Share2, Play } from 'lucide-react';
+import ProtocolWizard from '@/components/ProtocolWizard';
 import { toast } from 'sonner';
 import { Helmet } from 'react-helmet-async';
 import { cn } from '@/lib/utils';
@@ -26,6 +27,7 @@ export default function PeptideDetail() {
   const isTrial = !isLoading && (subscription?.isTrial ?? false);
 
   const peptide = useMemo(() => peptides.find((p) => p.id === id), [id]);
+  const [showProtocolWizard, setShowProtocolWizard] = useState(false);
 
   if (!peptide) {
     return (
@@ -58,7 +60,7 @@ export default function PeptideDetail() {
   ];
 
   return (
-    <div className="min-h-screen" >
+    <div className="min-h-screen animate-fade-in" >
       <Helmet>
         <title>{peptide.nameAr === peptide.nameEn ? peptide.nameAr : `${peptide.nameAr} | ${peptide.nameEn}`} | pptides</title>
         <meta name="description" content={peptide.summaryAr.length > 155 ? peptide.summaryAr.slice(0, 155) + '…' : peptide.summaryAr} />
@@ -291,6 +293,13 @@ export default function PeptideDetail() {
               <Bot className="h-4 w-4" />
               اسأل المدرب
             </Link>
+            <button
+              onClick={() => setShowProtocolWizard(true)}
+              className="flex items-center justify-center gap-2 rounded-xl bg-emerald-600 px-5 py-3.5 text-sm font-bold text-white transition-all hover:bg-emerald-700"
+            >
+              <Play className="h-4 w-4" />
+              ابدأ بروتوكول
+            </button>
             <Link
               to={`/tracker?peptide=${encodeURIComponent(peptide.nameEn)}`}
               className="flex items-center justify-center gap-2 rounded-xl border border-stone-200 bg-white px-5 py-3.5 text-sm font-bold text-stone-800 transition-all hover:border-emerald-200 hover:shadow-md"
@@ -477,6 +486,9 @@ function PeptideExperiences({ peptideNameEn }: { peptideNameEn: string }) {
           </div>
         ))}
       </div>
+      {showProtocolWizard && peptide && (
+        <ProtocolWizard peptideId={peptide.id} onClose={() => setShowProtocolWizard(false)} />
+      )}
     </div>
   );
 }

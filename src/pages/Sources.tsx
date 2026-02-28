@@ -44,7 +44,7 @@ const criteria = [
 
 export default function Sources() {
   return (
-    <div className="min-h-screen" role="main" aria-label="المصادر الموثوقة">
+    <div className="min-h-screen animate-fade-in" role="main" aria-label="المصادر الموثوقة">
       <Helmet>
         <title>المصادر الموثوقة | pptides</title>
         <meta

@@ -20,11 +20,12 @@ import {
   Zap,
   Star,
   Crown,
+  ChevronDown,
 } from 'lucide-react';
 import EmailCapture from '@/components/EmailCapture';
 import PeptideQuiz from '@/components/PeptideQuiz';
 import { cn } from '@/lib/utils';
-import { PRICING, PEPTIDE_COUNT, VALUE_TOTAL, VALUE_SAVINGS_ESSENTIALS, VALUE_STACK, SITE_URL } from '@/lib/constants';
+import { PRICING, PEPTIDE_COUNT, VALUE_TOTAL, VALUE_SAVINGS_ESSENTIALS, VALUE_STACK, SITE_URL, SUPPORT_EMAIL } from '@/lib/constants';
 
 
 const PAIN_POINTS = [
@@ -146,7 +147,7 @@ export default function Landing() {
   const ctaTextShort = user ? 'اختر خطتك' : 'ابدأ التجربة المجانية';
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-white animate-fade-in">
       <Helmet>
         <title>pptides | أشمل دليل عربي للببتيدات العلاجية</title>
         <meta name="description" content={`${PEPTIDE_COUNT} ببتيد علاجي مع بروتوكولات كاملة، حاسبة جرعات، ودليل تحاليل. أشمل دليل عربي مبني على الأبحاث.`} />
@@ -222,8 +223,24 @@ export default function Landing() {
         </div>
       </section>
 
+      {/* ═══════ AHA MOMENT — Calculator CTA ═══════ */}
+      <div className="mx-auto -mt-2 mb-2 max-w-lg px-6 text-center">
+        <Link to="/calculator" className="group inline-flex items-center gap-3 rounded-2xl border border-emerald-200 bg-emerald-50 px-6 py-3 transition-all hover:border-emerald-300 hover:shadow-md">
+          <Calculator className="h-5 w-5 text-emerald-600" />
+          <span className="text-sm font-bold text-stone-800 group-hover:text-emerald-700">جرّب حاسبة الجرعات المجانية — شاهد جرعتك بالضبط على السيرنج</span>
+          <ArrowLeft className="h-4 w-4 text-emerald-500" />
+        </Link>
+      </div>
+
+      {/* ═══════ FREE CONTENT CALLOUT ═══════ */}
+      <div className="mx-auto mb-4 max-w-md px-6 text-center">
+        <p className="text-sm text-stone-500">
+          <Link to="/library" className="font-semibold text-emerald-600 hover:underline">6 ببتيدات مجانية بالكامل</Link> — بدون تسجيل. تصفّحها الآن.
+        </p>
+      </div>
+
       {/* ═══════ PEPTIDE QUIZ — First interaction ═══════ */}
-      <section className="relative z-10 -mt-6 mx-auto max-w-2xl px-6 pb-10">
+      <section className="relative z-10 -mt-2 mx-auto max-w-2xl px-6 pb-10">
         <PeptideQuiz />
       </section>
 
@@ -529,7 +546,7 @@ export default function Landing() {
       </section>
 
       {/* ═══════ SOCIAL PROOF ═══════ */}
-      {testimonials.length > 0 && <section className="mx-auto max-w-5xl px-6 py-24 md:py-32">
+      <section className="mx-auto max-w-5xl px-6 py-24 md:py-32">
         <h2 className="mb-4 text-center text-3xl font-bold text-stone-900 md:text-4xl">
           ماذا يقول <span className="text-emerald-600">المستخدمون</span>
         </h2>
@@ -537,31 +554,47 @@ export default function Landing() {
           تقييمات حقيقية من مشتركين
         </p>
 
-        <div className="grid gap-6 md:grid-cols-3">
-          {testimonials.map((t) => (
-            <div
-              key={t.name}
-              className="rounded-2xl border border-stone-300/60 bg-white p-7 transition-all duration-300 hover:border-emerald-200 hover:shadow-lg hover:-translate-y-1"
-            >
-              <div className="mb-4 flex gap-1" dir="ltr">
-                {[1, 2, 3, 4, 5].map((s) => (
-                  <Star key={s} className={cn('h-4 w-4', s <= t.rating ? 'fill-emerald-500 text-emerald-500' : 'fill-transparent text-stone-300')} />
-                ))}
-              </div>
-              <p className="mb-5 text-base leading-relaxed text-stone-800 line-clamp-4">&quot;{t.text}&quot;</p>
-              <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-sm font-bold text-emerald-700">
-                  {t.name.charAt(0)}
+        {testimonials.length > 0 ? (
+          <div className="grid gap-6 md:grid-cols-3">
+            {testimonials.map((t) => (
+              <div
+                key={t.name}
+                className="rounded-2xl border border-stone-300/60 bg-white p-7 transition-all duration-300 hover:border-emerald-200 hover:shadow-lg hover:-translate-y-1"
+              >
+                <div className="mb-4 flex gap-1" dir="ltr">
+                  {[1, 2, 3, 4, 5].map((s) => (
+                    <Star key={s} className={cn('h-4 w-4', s <= t.rating ? 'fill-emerald-500 text-emerald-500' : 'fill-transparent text-stone-300')} />
+                  ))}
                 </div>
-                <div>
-                  <p className="font-bold text-stone-900">{t.name}</p>
-                  <p className="text-sm text-stone-600">{t.role}</p>
+                <p className="mb-5 text-base leading-relaxed text-stone-800 line-clamp-4">&quot;{t.text}&quot;</p>
+                <div className="flex items-center gap-3">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-sm font-bold text-emerald-700">
+                    {t.name.charAt(0)}
+                  </div>
+                  <div>
+                    <p className="font-bold text-stone-900">{t.name}</p>
+                    <p className="text-sm text-stone-600">{t.role}</p>
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
-        </div>
-      </section>}
+            ))}
+          </div>
+        ) : (
+          <div className="grid gap-6 sm:grid-cols-3">
+            {[
+              { value: `${PEPTIDE_COUNT}+`, label: 'بروتوكول كامل', desc: 'كل ببتيد مع جرعة ودورة وأعراض' },
+              { value: '85+', label: 'مصدر علمي', desc: 'دراسات سريرية منشورة' },
+              { value: '6', label: 'معتمد FDA', desc: 'ببتيدات موثّقة ومعتمدة' },
+            ].map((m) => (
+              <div key={m.label} className="rounded-2xl border border-stone-300/60 bg-white p-7 text-center transition-all hover:border-emerald-200 hover:shadow-lg">
+                <p className="text-4xl font-black text-emerald-600">{m.value}</p>
+                <p className="mt-2 text-sm font-bold text-stone-900">{m.label}</p>
+                <p className="mt-1 text-xs text-stone-500">{m.desc}</p>
+              </div>
+            ))}
+          </div>
+        )}
+      </section>
 
       {/* ═══════ PRICING PREVIEW ═══════ */}
       <section className="bg-gradient-to-b from-stone-50 to-white py-24 md:py-32">
@@ -679,7 +712,39 @@ export default function Landing() {
             <p className="text-sm text-stone-800">
               نحن واثقون من المحتوى لأننا نعرف أنه يعمل. المخاطرة علينا — وليس عليك.
             </p>
+            <div className="mt-6 flex flex-wrap items-center justify-center gap-4">
+              <a href={`mailto:${SUPPORT_EMAIL}`} className="inline-flex items-center gap-2 rounded-full border border-emerald-300 bg-emerald-50 px-5 py-2.5 text-sm font-bold text-emerald-700 transition-colors hover:bg-emerald-100">
+                {SUPPORT_EMAIL}
+              </a>
+            </div>
           </div>
+        </div>
+      </section>
+
+      {/* ═══════ FAQ ═══════ */}
+      <section className="mx-auto max-w-3xl px-6 py-16 md:py-24">
+        <h2 className="mb-10 text-center text-3xl font-bold text-stone-900 md:text-4xl">
+          أسئلة <span className="text-emerald-600">شائعة</span>
+        </h2>
+        <div className="space-y-3">
+          {[
+            { q: 'هل الببتيدات قانونية في السعودية والإمارات؟', a: 'معظم الببتيدات البحثية متاحة للشراء عبر الإنترنت في دول الخليج. بعض الببتيدات المعتمدة من FDA (مثل Semaglutide) تتطلب وصفة طبية. pptides منصة تعليمية — لا نبيع ببتيدات.' },
+            { q: 'هل أحتاج وصفة طبية؟', a: 'للببتيدات المعتمدة من FDA (Semaglutide, Tirzepatide) نعم. للببتيدات البحثية (BPC-157, TB-500) عادة لا. ننصح دائمًا باستشارة طبيبك قبل البدء.' },
+            { q: 'من أين أشتري الببتيدات؟', a: 'ابحث عن مورّد يوفّر شهادة تحليل (COA) من طرف ثالث، نقاء 98%+ ، وشحن مبرّد. اطّلع على صفحة المصادر لمعايير الاختيار.' },
+            { q: 'هل الببتيدات حلال؟', a: 'معظم الببتيدات العلاجية مصنّعة كيميائيًا ولا تحتوي مكونات حيوانية. ببتيدات الكولاجين قد تكون مشتقة من مصادر بحرية أو حيوانية — تحقق من المصدر. للاستفسار الشرعي، ننصح بسؤال مختص.' },
+            { q: 'كيف ألغي اشتراكي؟', a: 'يمكنك إلغاء اشتراكك في أي وقت من صفحة الحساب. تحتفظ بالوصول حتى نهاية فترة الدفع الحالية. ضمان استرداد كامل خلال 3 أيام.' },
+            { q: 'هل الدفع آمن؟', a: 'نستخدم Stripe — أكبر منصة دفع في العالم. بياناتك مشفّرة ولا نحفظ بيانات بطاقتك. ندعم Visa و Mastercard و Apple Pay.' },
+            { q: '6 ببتيدات مجانية — بدون تسجيل؟', a: `نعم! ${PEPTIDE_COUNT > 6 ? '6' : PEPTIDE_COUNT} ببتيد مع بروتوكول كامل متاح مجانًا بدون إنشاء حساب: Semaglutide, BPC-157, Kisspeptin-10, Semax, Epithalon, Collagen. جرّبها الآن من المكتبة.` },
+            { q: 'ماذا أحصل بعد الاشتراك؟', a: `بروتوكولات كاملة لـ ${PEPTIDE_COUNT} ببتيد، حاسبة جرعات دقيقة، دليل تحاليل مخبرية، بروتوكولات مُجمَّعة، دليل حقن عملي، فحص تعارضات، ومدرب ذكي (في باقة Elite).` },
+          ].map((faq) => (
+            <details key={faq.q} className="group rounded-2xl border border-stone-200 bg-white transition-all hover:border-emerald-200">
+              <summary className="flex cursor-pointer items-center justify-between px-6 py-5 text-base font-bold text-stone-900 [&::-webkit-details-marker]:hidden">
+                {faq.q}
+                <ChevronDown className="h-4 w-4 shrink-0 text-stone-400 transition-transform group-open:rotate-180" />
+              </summary>
+              <p className="px-6 pb-5 text-sm leading-relaxed text-stone-700">{faq.a}</p>
+            </details>
+          ))}
         </div>
       </section>
 

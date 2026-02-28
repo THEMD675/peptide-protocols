@@ -1,7 +1,7 @@
 import { useState, useMemo, useEffect, useId, useCallback } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { Link, useSearchParams } from 'react-router-dom';
-import { Calculator, FlaskConical, Droplets, ChevronDown, ArrowLeft, BookOpen, Layers, Bot, Bookmark, Syringe } from 'lucide-react';
+import { Calculator, FlaskConical, Droplets, ChevronDown, ArrowLeft, BookOpen, Layers, Bot, Bookmark, Syringe, Shield } from 'lucide-react';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import { PEPTIDE_COUNT } from '@/lib/constants';
@@ -269,7 +269,7 @@ export default function DoseCalculator() {
   const fmt = (n: number, d = 2) => (isFinite(n) && n > 0 ? n.toFixed(d) : '—');
 
   return (
-    <div className="min-h-screen" >
+    <div className="min-h-screen animate-fade-in" >
       <Helmet>
         <title>حاسبة جرعات الببتيدات | احسب الجرعة بدقة | pptides</title>
         <meta
@@ -814,6 +814,12 @@ export default function DoseCalculator() {
             icon={<BookOpen className="h-5 w-5 text-emerald-600" />}
             title="دليل التحاليل المخبرية"
             desc="تحاليل ما قبل وبعد البروتوكول"
+          />
+          <CrossLink
+            to="/interactions"
+            icon={<Shield className="h-5 w-5 text-emerald-600" />}
+            title="فحص التعارضات"
+            desc="تأكد من أمان تجميعتك"
           />
         </div>
       </div>

@@ -145,25 +145,44 @@ serve(async (req) => {
         from: 'pptides <noreply@pptides.com>',
         reply_to: 'contact@pptides.com',
         to: email,
-        subject: 'مرحبًا في pptides — رحلتك مع الببتيدات تبدأ الآن',
+        subject: '⏱️ تجربتك المجانية بدأت — 3 أيام لاستكشاف pptides',
         html: `
           <div dir="rtl" style="font-family: 'Cairo', Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 40px 20px;">
             <h1 style="color: #1c1917; font-size: 24px;">مرحبًا، ${displayName}</h1>
             <p style="color: #44403c; font-size: 16px; line-height: 1.8;">
-              شكرًا لانضمامك إلى pptides — أشمل دليل عربي للببتيدات العلاجية.
+              تجربتك المجانية في pptides بدأت الآن — أمامك <strong style="color: #059669;">3 أيام</strong> لاستكشاف أشمل دليل عربي للببتيدات العلاجية.
             </p>
-            <p style="color: #44403c; font-size: 16px; line-height: 1.8;">
-              حسابك جاهز. إليك كيف تبدأ:
-            </p>
-            <div style="background: #ecfdf5; border-radius: 12px; padding: 20px; margin: 20px 0;">
-              <p style="margin: 8px 0;"><strong>1.</strong> تصفّح <a href="${APP_URL}/library" style="color: #059669;">مكتبة 41+ ببتيد</a></p>
-              <p style="margin: 8px 0;"><strong>2.</strong> جرّب <a href="${APP_URL}/calculator" style="color: #059669;">حاسبة الجرعات المجانية</a></p>
-              <p style="margin: 8px 0;"><strong>3.</strong> اسأل <a href="${APP_URL}/coach" style="color: #059669;">المدرب الذكي</a> عن أي ببتيد</p>
+
+            <div style="background: #fef3c7; border: 1px solid #fbbf24; border-radius: 12px; padding: 16px; margin: 20px 0; text-align: center;">
+              <p style="margin: 0; font-size: 14px; color: #92400e; font-weight: bold;">⏱️ تنتهي تجربتك خلال 72 ساعة — استفد من كل دقيقة</p>
             </div>
-            <a href="${APP_URL}/library" style="display: inline-block; background: #059669; color: white; padding: 14px 32px; border-radius: 9999px; text-decoration: none; font-weight: bold; font-size: 16px;">
-              ابدأ الاستكشاف
-            </a>
-            <p style="color: #a8a29e; font-size: 12px; margin-top: 30px;">
+
+            <p style="color: #44403c; font-size: 15px; line-height: 1.8; font-weight: bold;">خطتك لـ 3 أيام:</p>
+
+            <div style="background: #ecfdf5; border-radius: 12px; padding: 20px; margin: 16px 0;">
+              <p style="margin: 10px 0; font-size: 15px;">
+                <strong style="color: #059669;">اليوم الأول:</strong> تصفّح <a href="${APP_URL}/library" style="color: #059669; font-weight: bold;">مكتبة 41+ ببتيد</a> — اكتشف البروتوكول المناسب لهدفك
+              </p>
+              <p style="margin: 10px 0; font-size: 15px;">
+                <strong style="color: #059669;">اليوم الثاني:</strong> اسأل <a href="${APP_URL}/coach" style="color: #059669; font-weight: bold;">المدرب الذكي</a> — احصل على بروتوكول مخصّص بالجرعات والتوقيت
+              </p>
+              <p style="margin: 10px 0; font-size: 15px;">
+                <strong style="color: #059669;">اليوم الثالث:</strong> جرّب <a href="${APP_URL}/calculator" style="color: #059669; font-weight: bold;">حاسبة الجرعات</a> — شاهد جرعتك بالضبط على السيرنج
+              </p>
+            </div>
+
+            <div style="text-align: center; margin: 24px 0;">
+              <a href="${APP_URL}/dashboard" style="display: inline-block; background: #059669; color: white; padding: 16px 40px; border-radius: 9999px; text-decoration: none; font-weight: bold; font-size: 16px;">
+                ابدأ الآن
+              </a>
+            </div>
+
+            <p style="color: #78716c; font-size: 13px; line-height: 1.6; margin-top: 24px;">
+              بعد 3 أيام، يمكنك الاشتراك بـ $9/شهر للاحتفاظ بالوصول الكامل. ضمان استرداد كامل — بدون أسئلة.
+            </p>
+
+            <hr style="border: none; border-top: 1px solid #e7e5e4; margin: 24px 0;" />
+            <p style="color: #a8a29e; font-size: 12px;">
               pptides.com — محتوى تعليمي بحثي. استشر طبيبك قبل استخدام أي ببتيد.
             </p>
           </div>

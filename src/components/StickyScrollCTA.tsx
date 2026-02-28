@@ -40,7 +40,7 @@ export default function StickyScrollCTA() {
   const text = user ? `اشترك — ${PRICING.essentials.label}` : 'ابدأ مجانًا';
 
   return (
-    <div role="complementary" aria-label="عرض الاشتراك" className="fixed bottom-0 inset-x-0 z-40 border-t border-emerald-200/50 bg-white/95 backdrop-blur-xl shadow-[0_-4px_20px_rgba(0,0,0,0.08)] md:hidden animate-slide-up">
+    <div role="complementary" aria-label="عرض الاشتراك" className="fixed bottom-0 inset-x-0 z-40 border-t border-emerald-200/50 bg-white/95 backdrop-blur-xl shadow-[0_-4px_20px_rgba(0,0,0,0.08)] animate-slide-up">
       <div className="flex items-center justify-between gap-2 px-3 py-2">
         <button
           onClick={handleDismiss}

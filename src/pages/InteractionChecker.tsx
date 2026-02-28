@@ -7,6 +7,8 @@ import { peptides } from '@/data/peptides';
 import { categoryLabels } from '@/lib/peptide-labels';
 import { PEPTIDE_COUNT } from '@/lib/constants';
 import { DANGEROUS_COMBOS, SYNERGISTIC_COMBOS, GH_PEPTIDE_IDS, FAT_LOSS_PEPTIDE_IDS, type InteractionResult } from '@/data/interactions';
+import { useAuth } from '@/contexts/AuthContext';
+import { supabase } from '@/lib/supabase';
 
 function checkInteraction(id1: string, id2: string): InteractionResult {
   const key1 = `${id1}+${id2}`;
@@ -41,11 +43,27 @@ function checkInteraction(id1: string, id2: string): InteractionResult {
 }
 
 export default function InteractionChecker() {
+  const { user } = useAuth();
   const [searchParams] = useSearchParams();
   const [selected, setSelected] = useState<string[]>(() => {
     const p = searchParams.get('peptide');
     return p ? [p, ''] : ['', ''];
   });
+
+  useEffect(() => {
+    if (!user || selected.some(s => s !== '')) return;
+    supabase
+      .from('user_protocols')
+      .select('peptide_id')
+      .eq('user_id', user.id)
+      .eq('status', 'active')
+      .then(({ data }) => {
+        if (data && data.length >= 2) {
+          setSelected(data.map(d => d.peptide_id).slice(0, 5));
+        }
+      })
+      .catch(() => {});
+  }, [user]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const addSlot = () => { if (selected.length < 5) setSelected(prev => [...prev, '']); };
   const removeSlot = (idx: number) => { if (selected.length > 2) setSelected(prev => prev.filter((_, i) => i !== idx)); };
@@ -71,7 +89,7 @@ export default function InteractionChecker() {
   const sortedPeptides = useMemo(() => [...peptides].sort((a, b) => a.nameEn.localeCompare(b.nameEn)), []);
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-white animate-fade-in">
       <Helmet>
         <title>فحص تعارضات الببتيدات | pptides</title>
         <meta name="description" content={`تحقق من أمان تجميع أي ببتيدين معًا. فحص التعارضات والتفاعلات بين ${PEPTIDE_COUNT}+ ببتيد.`} />
@@ -207,8 +225,14 @@ export default function InteractionChecker() {
           <Link to="/calculator" className="inline-flex items-center gap-2 rounded-full bg-emerald-600 px-5 py-2.5 text-sm font-bold text-white transition-colors hover:bg-emerald-700">
             احسب الجرعة
           </Link>
+          <Link to="/tracker" className="inline-flex items-center gap-2 rounded-full border border-emerald-300 px-5 py-2.5 text-sm font-bold text-emerald-700 transition-colors hover:bg-emerald-100">
+            سجّل في المتتبع
+          </Link>
           <Link to="/coach" className="inline-flex items-center gap-2 rounded-full border border-emerald-300 px-5 py-2.5 text-sm font-bold text-emerald-700 transition-colors hover:bg-emerald-100">
-            اسأل المدرب الذكي عن تجميعة مخصّصة
+            اسأل المدرب الذكي
+          </Link>
+          <Link to="/library" className="text-sm font-medium text-emerald-600 hover:underline">
+            العودة للمكتبة
           </Link>
         </div>
       </div>

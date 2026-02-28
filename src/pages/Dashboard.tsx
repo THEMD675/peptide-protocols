@@ -20,6 +20,13 @@ import { cn, arPlural } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
 import { PEPTIDE_COUNT, STATUS_LABELS, TIER_LABELS } from '@/lib/constants';
+import OnboardingModal from '@/components/OnboardingModal';
+import ProgressRing from '@/components/charts/ProgressRing';
+import AdherenceBar from '@/components/charts/AdherenceBar';
+import DoseTitrationTimeline from '@/components/DoseTitrationTimeline';
+import ShareableCard from '@/components/ShareableCard';
+import { peptides as allPeptides } from '@/data/peptides';
+import { labTests } from '@/data/peptides';
 
 const QUICK_LINKS = [
   { to: '/coach', label: 'المدرب الذكي', description: 'اسأل خبير الببتيدات', Icon: Bot },
@@ -128,10 +135,45 @@ function useRecentActivity(userId: string | undefined) {
   return { logs: logs.slice(0, 5), loading, activePeptides, totalInjections, streak, todayPlan, lastCheckedAt };
 }
 
+interface ActiveProtocol {
+  id: string;
+  peptide_id: string;
+  dose: number;
+  dose_unit: string;
+  frequency: string;
+  cycle_weeks: number;
+  started_at: string;
+  status: string;
+}
+
+function useActiveProtocols(userId: string | undefined) {
+  const [protocols, setProtocols] = useState<ActiveProtocol[]>([]);
+  const [loading, setLoading] = useState(true);
+  useEffect(() => {
+    if (!userId) return;
+    let mounted = true;
+    supabase
+      .from('user_protocols')
+      .select('*')
+      .eq('user_id', userId)
+      .eq('status', 'active')
+      .order('started_at', { ascending: false })
+      .then(({ data }) => {
+        if (mounted && data) setProtocols(data);
+        if (mounted) setLoading(false);
+      })
+      .catch(() => { if (mounted) setLoading(false); });
+    return () => { mounted = false; };
+  }, [userId]);
+  return { protocols, loading };
+}
+
 export default function Dashboard() {
   const { user, subscription } = useAuth();
   const { visited, markVisited } = useVisitedPages();
   const activity = useRecentActivity(user?.id);
+  const { protocols: activeProtocols } = useActiveProtocols(user?.id);
+  const [shareProtocolId, setShareProtocolId] = useState<string | null>(null);
 
   if (!user) return null;
 
@@ -139,12 +181,14 @@ export default function Dashboard() {
   const displayName = rawName.charAt(0).toUpperCase() + rawName.slice(1);
 
   return (
-    <div className="mx-auto max-w-5xl px-4 pb-24 pt-8 md:px-6 md:pt-12">
+    <div className="mx-auto max-w-5xl px-4 pb-24 pt-8 md:px-6 md:pt-12 animate-fade-in">
       <Helmet>
         <title>لوحة التحكم | pptides</title>
         <meta name="description" content="لوحة التحكم الرئيسية لإدارة حسابك في pptides. Your pptides dashboard." />
         <meta name="robots" content="noindex, nofollow" />
       </Helmet>
+
+      <OnboardingModal />
 
       {/* Welcome Header */}
       <div className="mb-8">
@@ -199,6 +243,106 @@ export default function Dashboard() {
           </Link>
         )}
       </div>
+
+      {/* Active Protocols */}
+      {activeProtocols.length > 0 && (
+        <div className="mb-8">
+          <h2 className="mb-4 text-xl font-bold text-stone-900">بروتوكولاتك النشطة</h2>
+          <div className="grid gap-4 sm:grid-cols-2">
+            {activeProtocols.map(proto => {
+              const peptide = allPeptides.find(p => p.id === proto.peptide_id);
+              const startDate = new Date(proto.started_at);
+              const daysSinceStart = Math.floor((Date.now() - startDate.getTime()) / (1000 * 60 * 60 * 24));
+              const totalDays = proto.cycle_weeks * 7;
+              const daysLeft = Math.max(totalDays - daysSinceStart, 0);
+              const relatedLabs = peptide ? labTests.filter(lt => lt.relatedCategories.includes(peptide.category)) : [];
+              const showLabReminder = daysSinceStart >= 21 && relatedLabs.length > 0;
+
+              return (
+                <div key={proto.id} className="rounded-2xl border border-emerald-200 bg-white p-5 transition-all hover:shadow-md">
+                  <div className="flex items-start gap-4">
+                    <ProgressRing current={daysSinceStart} total={totalDays} size={64} label={`يوم ${daysSinceStart}`} />
+                    <div className="flex-1 min-w-0">
+                      <p className="font-bold text-stone-900 truncate">{peptide?.nameAr ?? proto.peptide_id}</p>
+                      <p className="text-xs text-stone-500 mt-0.5" dir="ltr">{proto.dose} {proto.dose_unit} — {proto.frequency === 'od' ? 'يوميًا' : proto.frequency === 'bid' ? 'مرتين يوميًا' : proto.frequency === 'weekly' ? 'أسبوعيًا' : proto.frequency}</p>
+                      <p className="text-xs text-stone-400 mt-1">{daysLeft > 0 ? `${daysLeft} يوم متبقي` : 'انتهت الدورة'}</p>
+                    </div>
+                  </div>
+                  {daysLeft <= 3 && daysLeft > 0 && (
+                    <div className="mt-3 rounded-lg bg-amber-50 border border-amber-200 px-3 py-2 text-xs font-bold text-amber-700">
+                      دورتك تنتهي خلال {daysLeft} {daysLeft === 1 ? 'يوم' : 'أيام'} — خطّط لفترة الراحة
+                    </div>
+                  )}
+                  {daysLeft === 0 && (
+                    <div className="mt-3 rounded-lg bg-emerald-50 border border-emerald-200 px-3 py-2 text-xs font-bold text-emerald-700">
+                      أكملت الدورة! {peptide?.restPeriodWeeks ? `فترة راحة موصى بها: ${peptide.restPeriodWeeks} أسابيع` : ''}
+                    </div>
+                  )}
+                  {showLabReminder && (
+                    <div className="mt-3 rounded-lg bg-blue-50 border border-blue-200 px-3 py-2 text-xs text-blue-700">
+                      <strong>تحاليل موصى بها:</strong> {relatedLabs.slice(0, 2).map(l => l.nameAr).join('، ')}
+                      <Link to="/lab-guide" className="ms-1 font-bold text-blue-600 hover:underline">عرض الدليل</Link>
+                    </div>
+                  )}
+                  {peptide?.weeklySchedule && peptide.weeklySchedule.length >= 2 && (
+                    <div className="mt-3">
+                      <DoseTitrationTimeline schedule={peptide.weeklySchedule} currentWeek={Math.ceil(daysSinceStart / 7)} />
+                    </div>
+                  )}
+                  <div className="mt-3">
+                    <AdherenceBar scheduled={daysSinceStart} actual={activity.logs.filter(l => l.peptide_name === (peptide?.nameEn ?? proto.peptide_id)).length} />
+                  </div>
+                  <div className="mt-3 flex gap-2">
+                    <Link
+                      to={`/tracker?peptide=${encodeURIComponent(peptide?.nameEn ?? proto.peptide_id)}`}
+                      className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-emerald-600 px-4 py-2.5 text-sm font-bold text-white transition-colors hover:bg-emerald-700"
+                    >
+                      <Syringe className="h-4 w-4" />
+                      سجّل جرعة اليوم
+                    </Link>
+                    <button
+                      onClick={() => setShareProtocolId(proto.id)}
+                      className="flex items-center justify-center rounded-xl border border-stone-200 px-3 py-2.5 text-sm text-stone-500 transition-colors hover:bg-stone-50 hover:text-emerald-600"
+                      aria-label="مشاركة"
+                    >
+                      <TrendingUp className="h-4 w-4" />
+                    </button>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* Share Protocol Modal */}
+      {shareProtocolId && (() => {
+        const proto = activeProtocols.find(p => p.id === shareProtocolId);
+        if (!proto) return null;
+        const peptide = allPeptides.find(p => p.id === proto.peptide_id);
+        const daysSinceStart = Math.floor((Date.now() - new Date(proto.started_at).getTime()) / (1000 * 60 * 60 * 24));
+        const actualDoses = activity.logs.filter(l => l.peptide_name === (peptide?.nameEn ?? proto.peptide_id)).length;
+        const adherence = daysSinceStart > 0 ? Math.min(Math.round((actualDoses / daysSinceStart) * 100), 100) : 0;
+        return (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4" onClick={() => setShareProtocolId(null)}>
+            <div className="w-full max-w-sm" onClick={e => e.stopPropagation()}>
+              <ShareableCard
+                peptideName={peptide?.nameAr ?? proto.peptide_id}
+                peptideNameEn={peptide?.nameEn ?? proto.peptide_id}
+                dose={proto.dose}
+                unit={proto.dose_unit}
+                frequency={proto.frequency}
+                cycleWeeks={proto.cycle_weeks}
+                daysSinceStart={daysSinceStart}
+                adherencePercent={adherence}
+              />
+              <button onClick={() => setShareProtocolId(null)} className="mt-3 w-full rounded-xl border border-stone-200 py-2.5 text-sm font-bold text-stone-600 transition-colors hover:bg-stone-50">
+                إغلاق
+              </button>
+            </div>
+          </div>
+        );
+      })()}
 
       {/* Today's Protocol */}
       {!activity.loading && activity.todayPlan.length > 0 && (
@@ -338,16 +482,23 @@ export default function Dashboard() {
       })()}
 
       {!activity.loading && activity.logs.length === 0 && (
-        <div className="mb-8 rounded-2xl border-2 border-dashed border-emerald-200 bg-emerald-50 p-6 text-center">
-          <Syringe className="mx-auto mb-2 h-6 w-6 text-emerald-600" />
-          <p className="font-bold text-stone-900">ابدأ بتسجيل أول حقنة</p>
-          <p className="mt-1 text-sm text-stone-600">تتبّع جرعاتك ومواقع الحقن وشاهد تقدّمك</p>
-          <Link to="/tracker" className="mt-3 inline-flex items-center gap-2 rounded-full bg-emerald-600 px-6 py-2.5 text-sm font-bold text-white transition-colors hover:bg-emerald-700">
-            <Syringe className="h-4 w-4" /> سجل الحقن
-          </Link>
-          <Link to="/coach" className="mt-2 inline-flex items-center gap-2 rounded-full border-2 border-emerald-300 px-6 py-2.5 text-sm font-bold text-emerald-700 transition-colors hover:bg-emerald-100">
-            أو ابدأ بسؤال المدرب الذكي
-          </Link>
+        <div className="mb-8 rounded-2xl border-2 border-dashed border-emerald-200 bg-gradient-to-b from-emerald-50 to-white p-8 text-center">
+          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-emerald-100">
+            <Syringe className="h-8 w-8 text-emerald-600" />
+          </div>
+          <h3 className="text-xl font-bold text-stone-900">رحلتك تبدأ الآن</h3>
+          <p className="mx-auto mt-2 max-w-md text-sm leading-relaxed text-stone-600">
+            اختر ببتيد من المكتبة أو اسأل المدرب الذكي — وسنساعدك في بناء بروتوكولك الأول خطوة بخطوة.
+          </p>
+          <div className="mt-5 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
+            <Link to="/library" className="inline-flex w-full max-w-xs items-center justify-center gap-2 rounded-full bg-emerald-600 px-6 py-3 text-sm font-bold text-white transition-colors hover:bg-emerald-700 sm:w-auto">
+              <BookOpen className="h-4 w-4" /> تصفّح المكتبة
+            </Link>
+            <Link to="/coach" className="inline-flex w-full max-w-xs items-center justify-center gap-2 rounded-full border-2 border-emerald-300 px-6 py-3 text-sm font-bold text-emerald-700 transition-colors hover:bg-emerald-100 sm:w-auto">
+              <Bot className="h-4 w-4" /> اسأل المدرب الذكي
+            </Link>
+          </div>
+          <p className="mt-4 text-xs text-stone-400">أو <Link to="/calculator" className="text-emerald-600 font-semibold hover:underline">جرّب حاسبة الجرعات المجانية</Link></p>
         </div>
       )}
 

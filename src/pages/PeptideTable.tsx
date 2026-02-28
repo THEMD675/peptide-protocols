@@ -56,7 +56,7 @@ export default function PeptideTable() {
   const blurClass = 'blur-[5px] select-none';
 
   return (
-    <div className="min-h-screen" >
+    <div className="min-h-screen animate-fade-in" >
       <Helmet>
         <title>{`جدول الببتيدات الشامل | مقارنة ${PEPTIDE_COUNT} ببتيد | pptides`}</title>
         <meta

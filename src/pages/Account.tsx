@@ -49,7 +49,7 @@ export default function Account() {
   };
 
   const handleChangePassword = async () => {
-    if (newPassword.length < 6) { toast.error('كلمة المرور يجب أن تكون 6 أحرف على الأقل'); return; }
+    if (newPassword.length < 8) { toast.error('كلمة المرور يجب أن تكون 8 أحرف على الأقل'); return; }
     setPasswordLoading(true);
     try {
       const { error } = await supabase.auth.updateUser({ password: newPassword });
@@ -109,7 +109,7 @@ export default function Account() {
   };
 
   return (
-    <div className="mx-auto max-w-3xl px-4 pb-24 pt-8 md:px-6 md:pt-12">
+    <div className="mx-auto max-w-3xl px-4 pb-24 pt-8 md:px-6 md:pt-12 animate-fade-in">
       <Helmet>
         <title>حسابي | إدارة الاشتراك والإعدادات | pptides</title>
         <meta name="description" content="إدارة حسابك واشتراكك في pptides. Manage your account and subscription." />

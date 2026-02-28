@@ -91,7 +91,7 @@ export default function TrialBanner() {
             {modalTitle}
           </h2>
           <p className="mb-4 text-stone-700">
-            اشترك الآن للوصول إلى {PEPTIDE_COUNT}+ بروتوكول، المدرب الذكي، وجميع الأدوات
+            لا تخسر تقدّمك — اشترك الآن للاحتفاظ ببياناتك والوصول لـ {PEPTIDE_COUNT}+ بروتوكول، المدرب الذكي، وجميع الأدوات
           </p>
           <div className="flex flex-col gap-3">
             <Link

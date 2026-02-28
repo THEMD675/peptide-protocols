@@ -90,6 +90,7 @@ export default function Reviews() {
       const { data, error } = await supabase
         .from('reviews')
         .select('id, rating, content, name, created_at')
+        .eq('is_approved', true)
         .order('created_at', { ascending: false })
         .limit(100);
 
@@ -164,7 +165,7 @@ export default function Reviews() {
   };
 
   return (
-    <div className="min-h-screen" >
+    <div className="min-h-screen animate-fade-in" >
       <Helmet>
         <title>تقييمات المستخدمين | pptides</title>
         <meta name="description" content="اقرأ آراء وتقييمات المستخدمين عن دليل الببتيدات. شارك تجربتك وساعد الآخرين." />
@@ -312,12 +313,17 @@ export default function Reviews() {
               </button>
             </div>
           ) : reviews.length === 0 ? (
-            <div className="rounded-2xl border border-stone-200 bg-stone-50 py-16 text-center">
-              <Star className="mx-auto mb-3 h-10 w-10 text-stone-500" />
-              <p className="text-base text-stone-800">كن أول من يقيّم</p>
+            <div className="rounded-2xl border-2 border-dashed border-emerald-200 bg-gradient-to-b from-emerald-50 to-white py-16 px-8 text-center">
+              <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-emerald-100">
+                <Star className="h-8 w-8 text-emerald-600" />
+              </div>
+              <h3 className="text-xl font-bold text-stone-900">شاركنا رأيك</h3>
+              <p className="mx-auto mt-2 max-w-md text-sm leading-relaxed text-stone-600">
+                تقييمك يساعد الآخرين على اتخاذ قرارهم بثقة. كن أول من يشارك تجربته مع pptides.
+              </p>
               <button
                 onClick={() => document.getElementById('review-rating')?.scrollIntoView({ behavior: 'smooth' })}
-                className="mt-4 inline-flex items-center gap-2 rounded-full bg-emerald-600 px-6 py-2.5 text-sm font-bold text-white transition-all hover:bg-emerald-700"
+                className="mt-5 inline-flex items-center gap-2 rounded-full bg-emerald-600 px-6 py-3 text-sm font-bold text-white transition-all hover:bg-emerald-700"
               >
                 <Send className="h-4 w-4" />
                 أضف تقييمك الآن

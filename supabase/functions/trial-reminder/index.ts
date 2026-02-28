@@ -183,6 +183,48 @@ serve(async (req) => {
             </a>
             <p style="margin-top: 16px; color: #78716c;">ضمان استرداد كامل خلال 3 أيام. بدون مخاطرة.</p>
           `
+        } else if (daysUntilExpiry >= -8 && daysUntilExpiry <= -6) {
+          reminderType = 'day7_winback'
+          subject = '💡 محتوى جديد في pptides — عد واكتشف'
+          body = `
+            <h1 style="color: #1c1917; font-size: 24px;">نشتاق لك 👋</h1>
+            <p>أضفنا تحديثات جديدة على المكتبة والأدوات. لا تفوّت:</p>
+            <ul>
+              <li>🔬 بروتوكولات محدّثة مع أحدث الأبحاث</li>
+              <li>🧮 حاسبة الجرعات — مجانية دائمًا</li>
+              <li>🤖 المدرب الذكي جاهز لأي سؤال</li>
+            </ul>
+            <a href="${APP_URL}/library" style="display: inline-block; background: #059669; color: white; padding: 14px 32px; border-radius: 9999px; text-decoration: none; font-weight: bold;">
+              تصفّح المحتوى الجديد
+            </a>
+            <p style="margin-top: 16px; color: #78716c;">اشترك بـ ${ESSENTIALS_PRICE}/شهر فقط. ضمان استرداد كامل.</p>
+          `
+        } else if (daysUntilExpiry >= -15 && daysUntilExpiry <= -13) {
+          reminderType = 'day14_winback'
+          subject = '📊 مستخدمون بدأوا بروتوكولاتهم هذا الأسبوع — pptides'
+          body = `
+            <h1 style="color: #1c1917; font-size: 24px;">مجتمع pptides ينمو</h1>
+            <p>مستخدمون جدد بدأوا بروتوكولات BPC-157 و Semaglutide هذا الأسبوع.</p>
+            <p>اكتشف ما يناسبك — البروتوكول الصح يبدأ من المعلومة الصح.</p>
+            <a href="${APP_URL}/pricing" style="display: inline-block; background: #059669; color: white; padding: 14px 32px; border-radius: 9999px; text-decoration: none; font-weight: bold;">
+              اشترك الآن — ${ESSENTIALS_PRICE}/شهر
+            </a>
+            <p style="margin-top: 16px; color: #78716c;">ضمان استرداد كامل خلال 3 أيام.</p>
+          `
+        } else if (daysUntilExpiry >= -31 && daysUntilExpiry <= -29) {
+          reminderType = 'day30_winback'
+          subject = '🔑 آخر تذكير — مفتاحك لـ pptides ينتظرك'
+          body = `
+            <h1 style="color: #1c1917; font-size: 24px;">شهر مرّ — ما زلنا هنا</h1>
+            <p>41 بروتوكول ببتيد، حاسبة جرعات، مدرب ذكي، ودليل تحاليل — كل شيء جاهز لك.</p>
+            <div style="background: #ecfdf5; border-radius: 12px; padding: 20px; margin: 20px 0; text-align: center;">
+              <p style="font-size: 20px; font-weight: 900; color: #059669;">فقط ${ESSENTIALS_PRICE}/شهر</p>
+              <p style="color: #44403c;">كل الأدوات + ضمان استرداد كامل</p>
+            </div>
+            <a href="${APP_URL}/pricing" style="display: inline-block; background: #059669; color: white; padding: 14px 32px; border-radius: 9999px; text-decoration: none; font-weight: bold;">
+              ابدأ الآن
+            </a>
+          `
         } else {
           skipped++
           continue

@@ -4,7 +4,7 @@ import { PRICING, LEGAL_LAST_UPDATED, SUPPORT_EMAIL } from '@/lib/constants';
 
 export default function Terms() {
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-white animate-fade-in">
       <Helmet>
         <title>شروط الاستخدام | pptides</title>
         <meta name="description" content="شروط الاستخدام لموقع pptides.com — الاشتراكات، الاسترداد، وحدود المسؤولية." />

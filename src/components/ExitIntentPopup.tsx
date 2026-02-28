@@ -20,7 +20,7 @@ export default function ExitIntentPopup() {
       const lastShown = localStorage.getItem(STORAGE_KEY);
       if (lastShown && Date.now() - Number(lastShown) < 7 * 24 * 60 * 60 * 1000) return;
     } catch { /* expected */ }
-    if (user && subscription?.isProOrTrial) return;
+    if (user && subscription?.isPaidSubscriber) return;
     if (EXCLUDED_PATHS.some(p => window.location.pathname.startsWith(p))) return;
     setVisible(true);
     try { localStorage.setItem(STORAGE_KEY, String(Date.now())); } catch { /* expected */ }
@@ -63,14 +63,26 @@ export default function ExitIntentPopup() {
         </div>
 
         <h2 id="exit-popup-title" className="mb-2 text-2xl font-bold text-stone-900">
-          لحظة — لا تفوّت الفرصة
+          {subscription?.isTrial ? 'تجربتك تنتهي قريبًا' : 'لحظة — لا تفوّت الفرصة'}
         </h2>
         <p className="mb-1 text-stone-700">
-          {PEPTIDE_COUNT}+ ببتيد مع بروتوكولات كاملة، حاسبة جرعات، ومدرب ذكي
+          {subscription?.isTrial
+            ? `تبقى ${subscription.trialDaysLeft} ${subscription.trialDaysLeft === 1 ? 'يوم' : 'أيام'} — اشترك الآن ولا تخسر وصولك`
+            : `${PEPTIDE_COUNT}+ ببتيد مع بروتوكولات كاملة، حاسبة جرعات، ومدرب ذكي`
+          }
         </p>
         <div className="mb-4 flex items-center justify-center gap-2">
-          <span className="text-3xl font-black text-emerald-600">3 أيام</span>
-          <span className="text-stone-500">تجربة مجانية</span>
+          {subscription?.isTrial ? (
+            <>
+              <span className="text-3xl font-black text-amber-600">{subscription.trialDaysLeft}</span>
+              <span className="text-stone-500">{subscription.trialDaysLeft === 1 ? 'يوم متبقي' : 'أيام متبقية'}</span>
+            </>
+          ) : (
+            <>
+              <span className="text-3xl font-black text-emerald-600">3 أيام</span>
+              <span className="text-stone-500">تجربة مجانية</span>
+            </>
+          )}
         </div>
 
         <Link
@@ -78,7 +90,7 @@ export default function ExitIntentPopup() {
           onClick={() => setVisible(false)}
           className="mb-3 flex w-full items-center justify-center gap-2 rounded-full bg-emerald-600 px-6 py-3.5 text-base font-bold text-white transition-all hover:bg-emerald-700 hover:scale-[1.02] active:scale-[0.98]"
         >
-          <span>ابدأ تجربتك المجانية</span>
+          <span>{subscription?.isTrial ? 'اشترك الآن' : 'ابدأ تجربتك المجانية'}</span>
           <ArrowLeft className="h-5 w-5" />
         </Link>
 

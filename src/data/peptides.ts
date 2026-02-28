@@ -26,6 +26,13 @@ export interface Peptide {
   lastUpdated?: string;
   costEstimate?: string;
   difficulty?: 'beginner' | 'intermediate' | 'advanced';
+  doseMcg?: number;
+  doseMaxMcg?: number;
+  frequency?: 'od' | 'bid' | 'weekly' | 'biweekly' | 'prn' | 'daily-10' | 'daily-20';
+  cycleDurationWeeks?: number;
+  restPeriodWeeks?: number;
+  route?: 'subq' | 'im' | 'nasal' | 'oral' | 'topical';
+  weeklySchedule?: { week: number; doseMcg: number }[];
 }
 
 export interface Category {
@@ -1124,6 +1131,54 @@ export const peptides: Peptide[] = [
     lastUpdated: 'Feb 2026',
   },
 ];
+
+const STRUCTURED_DATA: Record<string, Partial<Pick<Peptide, 'doseMcg' | 'doseMaxMcg' | 'frequency' | 'cycleDurationWeeks' | 'restPeriodWeeks' | 'route' | 'weeklySchedule'>>> = {
+  'semaglutide': { doseMcg: 250, doseMaxMcg: 2400, frequency: 'weekly', route: 'subq', weeklySchedule: [{ week: 1, doseMcg: 250 }, { week: 5, doseMcg: 500 }, { week: 9, doseMcg: 1000 }, { week: 13, doseMcg: 1700 }, { week: 17, doseMcg: 2400 }] },
+  'tirzepatide': { doseMcg: 2500, doseMaxMcg: 15000, frequency: 'weekly', route: 'subq', weeklySchedule: [{ week: 1, doseMcg: 2500 }, { week: 5, doseMcg: 5000 }, { week: 9, doseMcg: 7500 }, { week: 13, doseMcg: 10000 }, { week: 17, doseMcg: 12500 }, { week: 21, doseMcg: 15000 }] },
+  'retatrutide': { doseMcg: 1000, doseMaxMcg: 12000, frequency: 'weekly', route: 'subq' },
+  'tesamorelin': { doseMcg: 2000, doseMaxMcg: 3000, frequency: 'od', cycleDurationWeeks: 16, restPeriodWeeks: 6, route: 'subq' },
+  'aod-9604': { doseMcg: 300, doseMaxMcg: 600, frequency: 'od', cycleDurationWeeks: 12, restPeriodWeeks: 4, route: 'subq' },
+  '5-amino-1mq': { frequency: 'od', cycleDurationWeeks: 10, restPeriodWeeks: 4, route: 'oral' },
+  'bpc-157': { doseMcg: 250, doseMaxMcg: 500, frequency: 'bid', cycleDurationWeeks: 5, restPeriodWeeks: 3, route: 'subq' },
+  'tb-500': { doseMcg: 750, doseMaxMcg: 1500, frequency: 'biweekly', cycleDurationWeeks: 10, restPeriodWeeks: 4, route: 'subq' },
+  'cjc-1295': { doseMcg: 100, doseMaxMcg: 300, frequency: 'od', cycleDurationWeeks: 14, restPeriodWeeks: 6, route: 'subq' },
+  'ipamorelin': { doseMcg: 200, doseMaxMcg: 300, frequency: 'od', cycleDurationWeeks: 14, restPeriodWeeks: 4, route: 'subq' },
+  'sermorelin': { doseMcg: 300, doseMaxMcg: 500, frequency: 'od', cycleDurationWeeks: 18, route: 'subq' },
+  'ghrp-2': { doseMcg: 200, doseMaxMcg: 300, frequency: 'bid', cycleDurationWeeks: 10, restPeriodWeeks: 4, route: 'subq' },
+  'ghrp-6': { doseMcg: 200, doseMaxMcg: 300, frequency: 'bid', cycleDurationWeeks: 10, restPeriodWeeks: 4, route: 'subq' },
+  'hexarelin': { doseMcg: 200, doseMaxMcg: 300, frequency: 'od', cycleDurationWeeks: 5, restPeriodWeeks: 6, route: 'subq' },
+  'igf-1-lr3': { doseMcg: 50, doseMaxMcg: 100, frequency: 'od', cycleDurationWeeks: 5, restPeriodWeeks: 5, route: 'subq' },
+  'follistatin-344': { doseMcg: 100, doseMaxMcg: 200, frequency: 'od', cycleDurationWeeks: 3, route: 'subq' },
+  'kisspeptin-10': { doseMcg: 100, doseMaxMcg: 200, frequency: 'od', cycleDurationWeeks: 6, route: 'subq' },
+  'pt-141': { doseMcg: 1750, doseMaxMcg: 2000, frequency: 'prn', route: 'subq' },
+  'testicular-bioregulators': { frequency: 'od', cycleDurationWeeks: 3, restPeriodWeeks: 18, route: 'oral' },
+  'gnrh-triptorelin': { doseMcg: 100, doseMaxMcg: 200, frequency: 'prn', route: 'im' },
+  'semax': { doseMcg: 400, doseMaxMcg: 1000, frequency: 'od', cycleDurationWeeks: 2, restPeriodWeeks: 2, route: 'nasal' },
+  'na-semax-amidate': { doseMcg: 200, doseMaxMcg: 400, frequency: 'od', cycleDurationWeeks: 2, restPeriodWeeks: 2, route: 'nasal' },
+  'selank': { doseMcg: 300, doseMaxMcg: 500, frequency: 'od', cycleDurationWeeks: 2, restPeriodWeeks: 2, route: 'nasal' },
+  'dihexa': { frequency: 'od', cycleDurationWeeks: 3, restPeriodWeeks: 3, route: 'oral' },
+  'cerebrolysin': { frequency: 'od', cycleDurationWeeks: 2, restPeriodWeeks: 8, route: 'im' },
+  'p21': { doseMcg: 750, doseMaxMcg: 1000, frequency: 'od', cycleDurationWeeks: 3, restPeriodWeeks: 3, route: 'nasal' },
+  'epithalon': { doseMcg: 5000, doseMaxMcg: 10000, frequency: 'od', cycleDurationWeeks: 2, restPeriodWeeks: 20, route: 'subq' },
+  'dsip': { doseMcg: 200, doseMaxMcg: 300, frequency: 'od', cycleDurationWeeks: 2, restPeriodWeeks: 2, route: 'nasal' },
+  'ss-31': { doseMcg: 20000, doseMaxMcg: 40000, frequency: 'od', cycleDurationWeeks: 6, route: 'subq' },
+  'mots-c': { doseMcg: 5000, doseMaxMcg: 10000, frequency: 'od', cycleDurationWeeks: 6, restPeriodWeeks: 4, route: 'subq' },
+  'thymalin': { doseMcg: 10000, doseMaxMcg: 20000, frequency: 'od', cycleDurationWeeks: 2, restPeriodWeeks: 24, route: 'im' },
+  'thymosin-alpha-1': { doseMcg: 1600, doseMaxMcg: 3200, frequency: 'od', cycleDurationWeeks: 3, route: 'subq' },
+  'collagen-peptides': { frequency: 'od', route: 'oral' },
+  'ghk-cu': { doseMcg: 200, doseMaxMcg: 500, frequency: 'bid', cycleDurationWeeks: 6, route: 'topical' },
+  'copper-peptides-topical': { frequency: 'bid', route: 'topical' },
+  'larazotide': { doseMcg: 500, doseMaxMcg: 1000, frequency: 'bid', cycleDurationWeeks: 10, route: 'oral' },
+  'kpv': { doseMcg: 500, doseMaxMcg: 1000, frequency: 'od', cycleDurationWeeks: 6, route: 'oral' },
+  'll-37': { doseMcg: 200, doseMaxMcg: 400, frequency: 'od', cycleDurationWeeks: 3, route: 'subq' },
+  'ara-290': { doseMcg: 2000, doseMaxMcg: 4000, frequency: 'od', cycleDurationWeeks: 6, route: 'subq' },
+  'melanotan-ii': { doseMcg: 250, doseMaxMcg: 1000, frequency: 'od', route: 'subq' },
+};
+
+for (const p of peptides) {
+  const sd = STRUCTURED_DATA[p.id];
+  if (sd) Object.assign(p, sd);
+}
 
 // ── Stacks (بروتوكولات مُركّبة) ─────────────────────────────
 

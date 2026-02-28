@@ -21,6 +21,44 @@ serve(async (req) => {
 
   try {
     const rawBody = await req.text()
+
+    if (RESEND_WEBHOOK_SECRET) {
+      const svixId = req.headers.get('svix-id')
+      const svixTimestamp = req.headers.get('svix-timestamp')
+      const svixSignature = req.headers.get('svix-signature')
+      if (!svixId || !svixTimestamp || !svixSignature) {
+        return new Response(JSON.stringify({ error: 'Missing webhook headers' }), {
+          status: 401,
+          headers: { 'Content-Type': 'application/json' },
+        })
+      }
+      const ts = parseInt(svixTimestamp, 10)
+      const now = Math.floor(Date.now() / 1000)
+      if (Math.abs(now - ts) > 300) {
+        return new Response(JSON.stringify({ error: 'Timestamp too old' }), {
+          status: 401,
+          headers: { 'Content-Type': 'application/json' },
+        })
+      }
+      const toSign = `${svixId}.${svixTimestamp}.${rawBody}`
+      const secretBytes = Uint8Array.from(atob(RESEND_WEBHOOK_SECRET.replace('whsec_', '')), c => c.charCodeAt(0))
+      const key = await crypto.subtle.importKey('raw', secretBytes, { name: 'HMAC', hash: 'SHA-256' }, false, ['sign'])
+      const sig = await crypto.subtle.sign('HMAC', key, new TextEncoder().encode(toSign))
+      const expected = btoa(String.fromCharCode(...new Uint8Array(sig)))
+      const signatures = svixSignature.split(' ')
+      const valid = signatures.some(s => {
+        const val = s.startsWith('v1,') ? s.slice(3) : s
+        return val === expected
+      })
+      if (!valid) {
+        console.error('inbound-email: invalid webhook signature')
+        return new Response(JSON.stringify({ error: 'Invalid signature' }), {
+          status: 401,
+          headers: { 'Content-Type': 'application/json' },
+        })
+      }
+    }
+
     const event = JSON.parse(rawBody)
 
     if (event.type !== 'email.received') {

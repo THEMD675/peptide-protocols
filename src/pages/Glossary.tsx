@@ -20,7 +20,7 @@ export default function Glossary() {
   }, [search]);
 
   return (
-    <div className="min-h-screen mx-auto max-w-4xl px-4 pb-24 pt-8 md:px-6 md:pt-12">
+    <div className="min-h-screen mx-auto max-w-4xl px-4 pb-24 pt-8 md:px-6 md:pt-12 animate-fade-in">
       <Helmet>
         <title>مصطلحات الببتيدات | pptides</title>
         <meta name="description" content="قاموس شامل لمصطلحات الببتيدات والبيوهاكينغ بالعربي مع المعادل الإنجليزي. Comprehensive Arabic peptide and biohacking glossary." />

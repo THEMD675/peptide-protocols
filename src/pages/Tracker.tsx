@@ -1,6 +1,10 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import FocusTrap from 'focus-trap-react';
 import { Helmet } from 'react-helmet-async';
+import { useCelebrations } from '@/hooks/useCelebrations';
+import BodyMap from '@/components/BodyMap';
+import ActivityChart from '@/components/charts/ActivityChart';
+import DoseTrendChart from '@/components/charts/DoseTrendChart';
 import {
   Syringe,
   Plus,
@@ -23,6 +27,7 @@ import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
 import { peptides as allPeptides } from '@/data/peptides';
+import { DOSE_PRESETS_MAP } from '@/data/dose-presets';
 
 interface InjectionLog {
   id: string;
@@ -57,6 +62,7 @@ function formatTime(iso: string) {
 
 export default function Tracker() {
   const { user } = useAuth();
+  const { celebrate } = useCelebrations();
   const [logs, setLogs] = useState<InjectionLog[]>([]);
   const [totalCount, setTotalCount] = useState(0);
   const [isLoadingLogs, setIsLoadingLogs] = useState(true);
@@ -199,6 +205,12 @@ export default function Tracker() {
       setInjectedAt(now.toISOString().slice(0, 16));
       await fetchLogs();
       toast.success(`تم تسجيل ${peptideName.trim()} — ${dose} ${unit}`);
+      const newTotal = (totalCount || logs.length) + 1;
+      const daySet = new Set([...logs.map(l => new Date(l.logged_at).toDateString()), new Date().toDateString()]);
+      let s = 0; const dd = new Date();
+      if (!daySet.has(dd.toDateString())) dd.setDate(dd.getDate() - 1);
+      while (daySet.has(dd.toDateString())) { s++; dd.setDate(dd.getDate() - 1); }
+      celebrate(newTotal, s);
     } catch {
       toast.error('حدث خطأ أثناء الحفظ. حاول مرة أخرى.');
     } finally {
@@ -291,7 +303,7 @@ export default function Tracker() {
   }, [logs]);
 
   return (
-    <div className="mx-auto max-w-3xl px-4 pb-24 pt-8 md:px-6 md:pt-12">
+    <div className="mx-auto max-w-3xl px-4 pb-24 pt-8 md:px-6 md:pt-12 animate-fade-in">
       <Helmet>
         <title>سجل الحقن | تتبّع جرعاتك | pptides</title>
         <meta name="description" content="سجّل وتتبّع حقن الببتيدات والجرعات اليومية. Track your peptide injections and daily doses." />
@@ -338,28 +350,27 @@ export default function Tracker() {
           </div>
       )}
 
-      {/* Weekly Activity Bar */}
+      {/* Weekly Activity Chart */}
       {weeklyActivity && (
           <div className="mb-8 rounded-2xl border border-stone-200 bg-white p-5 shadow-sm">
             <h3 className="mb-3 text-sm font-bold text-stone-900">نشاط الأسبوع</h3>
-            <div className="flex items-end justify-between gap-1 h-20">
-              {weeklyActivity.weekCounts.map((count, i) => (
-                <div key={i} className="flex flex-1 flex-col items-center gap-1">
-                  <div
-                    className={cn(
-                      'w-full rounded-t-md transition-all',
-                      i === weeklyActivity.todayIdx ? 'bg-emerald-500' : count > 0 ? 'bg-emerald-300' : 'bg-stone-200'
-                    )}
-                    style={{ height: `${Math.max((count / weeklyActivity.max) * 100, 8)}%`, minHeight: '4px' }}
-                  />
-                  <span className={cn('text-xs', i === weeklyActivity.todayIdx ? 'font-bold text-emerald-700' : 'text-stone-400')}>
-                    {weeklyActivity.days[i].slice(0, 3)}
-                  </span>
-                </div>
-              ))}
-            </div>
+            <ActivityChart data={weeklyActivity.days.map((day, i) => ({ day: day.slice(0, 3), count: weeklyActivity.weekCounts[i], isToday: i === weeklyActivity.todayIdx }))} />
           </div>
       )}
+
+      {/* Dose Trend Chart */}
+      {logs.length >= 3 && (() => {
+        const trendData = [...logs].reverse().slice(-14).map(l => ({
+          date: new Date(l.logged_at).toLocaleDateString('ar-u-nu-latn', { month: 'short', day: 'numeric' }),
+          dose: l.dose,
+        }));
+        return (
+          <div className="mb-8 rounded-2xl border border-stone-200 bg-white p-5 shadow-sm">
+            <h3 className="mb-3 text-sm font-bold text-stone-900">تاريخ الجرعات</h3>
+            <DoseTrendChart data={trendData} unit={logs[0]?.dose_unit ?? 'mcg'} />
+          </div>
+        );
+      })()}
 
       {/* Monthly Calendar */}
       {calendarData && (
@@ -535,20 +546,25 @@ export default function Tracker() {
                 </select>
               </div>
             </div>
+            {(() => {
+              if (!peptideName.trim() || !dose) return null;
+              const preset = DOSE_PRESETS_MAP[peptideName.trim()];
+              if (!preset) return null;
+              const doseNum = parseFloat(dose);
+              const doseMcg = unit === 'mg' ? doseNum * 1000 : doseNum;
+              if (doseMcg > preset.maxDose) {
+                return <p className="text-xs font-bold text-red-600 flex items-center gap-1">⚠️ الجرعة أعلى من الحد الأقصى الموصى به ({preset.maxDose} mcg)</p>;
+              }
+              if (doseMcg < preset.minDose) {
+                return <p className="text-xs font-bold text-amber-600 flex items-center gap-1">⚠️ الجرعة أقل من الحد الأدنى الموصى به ({preset.minDose} mcg)</p>;
+              }
+              return null;
+            })()}
 
-            {/* Injection Site */}
+            {/* Injection Site — Body Map */}
             <div>
               <label className="mb-1 block text-sm font-bold text-stone-700">موقع الحقن</label>
-                <select
-                  value={site}
-                  onChange={(e) => setSite(e.target.value)}
-                  aria-label="موقع الحقن"
-                  className="w-full rounded-xl border border-stone-200 bg-white px-4 py-3 text-sm text-stone-900 focus:border-emerald-300 focus:outline-none focus:ring-2 focus:ring-emerald-100"
-                >
-                {INJECTION_SITES.map((s) => (
-                  <option key={s.value} value={s.value}>{s.label}</option>
-                ))}
-              </select>
+              <BodyMap selected={site} suggested={suggestedSite} onSelect={(s) => setSite(s)} />
             </div>
 
             {/* Date/Time */}
@@ -624,13 +640,13 @@ export default function Tracker() {
             <Loader2 className="h-6 w-6 animate-spin text-emerald-600" />
           </div>
         ) : logs.length === 0 ? (
-          <div className="rounded-2xl border-2 border-dashed border-emerald-200 bg-emerald-50/50 p-8 text-center">
-            <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-100">
-              <Syringe className="h-7 w-7 text-emerald-600" />
+          <div className="rounded-2xl border-2 border-dashed border-emerald-200 bg-gradient-to-b from-emerald-50 to-white p-8 text-center">
+            <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-emerald-100">
+              <Syringe className="h-8 w-8 text-emerald-600" />
             </div>
-            <p className="text-lg font-bold text-stone-900">لا توجد سجلات بعد</p>
-            <p className="mt-2 text-sm text-stone-600 leading-relaxed max-w-md mx-auto">
-              سجل الحقن يساعدك على تتبّع جرعاتك اليومية، تدوير مواقع الحقن، ومراقبة التزامك بالبروتوكول. كل حقنة تُسجّل مع الجرعة والموقع والوقت.
+            <h3 className="text-xl font-bold text-stone-900">سجل حقنك جاهز</h3>
+            <p className="mx-auto mt-2 max-w-md text-sm leading-relaxed text-stone-600">
+              سجّل حقنتك الأولى الآن — سنتتبّع جرعاتك، ندير تدوير مواقع الحقن، ونعرض لك إحصائيات التزامك بالبروتوكول.
             </p>
             <button
               onClick={() => {
@@ -648,6 +664,8 @@ export default function Tracker() {
               <Link to="/guide" className="text-sm font-semibold text-emerald-600 hover:underline transition-colors">تعلّم كيف تحقن</Link>
               <span className="hidden sm:inline text-stone-300">|</span>
               <Link to="/calculator" className="text-sm font-semibold text-emerald-600 hover:underline transition-colors">احسب جرعتك</Link>
+              <span className="hidden sm:inline text-stone-300">|</span>
+              <Link to="/interactions" className="text-sm font-semibold text-emerald-600 hover:underline transition-colors">فحص التعارضات</Link>
             </div>
           </div>
         ) : (

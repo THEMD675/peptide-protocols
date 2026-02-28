@@ -7,7 +7,7 @@ import { renderMarkdown } from '@/lib/markdown';
 import {
   Bot, Send, Sparkles, TrendingDown, Heart, Dumbbell, Brain,
   Clock, Zap, Calculator, FlaskConical, Shield, RotateCcw, ArrowLeft, ArrowRight,
-  Copy, Check,
+  Copy, Check, BookOpen,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { cn, arPlural } from '@/lib/utils';
@@ -371,7 +371,7 @@ export default function Coach() {
   const followUps = lastAI ? getFollowUps(lastAI.content, aiMsgCount <= 1) : [];
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen animate-fade-in">
       <Helmet>
         <title>استشاري الببتيدات | بروتوكول مخصّص بالذكاء الاصطناعي | pptides</title>
         <meta name="description" content="مدرب ذكي بالذكاء الاصطناعي يصمّم لك بروتوكول ببتيدات مخصّص حسب أهدافك وخبرتك. AI-powered peptide protocol coach." />
@@ -626,6 +626,9 @@ export default function Coach() {
                           <Sparkles className="h-3 w-3" />ابدأ التتبّع
                         </Link>
                       )}
+                      <Link to="/guide" className="inline-flex items-center gap-1 rounded-lg border border-stone-200 bg-white px-2.5 py-1 text-xs font-semibold text-stone-600 transition-colors hover:bg-stone-50">
+                        <BookOpen className="h-3 w-3" />دليل الحقن
+                      </Link>
                     </div>
                   </div>
                 )}

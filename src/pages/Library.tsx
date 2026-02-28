@@ -285,7 +285,7 @@ export default function Library() {
   }, [activeCategory, search, evidenceFilter, sortBy, favorites]);
 
   return (
-    <div className="min-h-screen" >
+    <div className="min-h-screen animate-fade-in" >
       <Helmet>
         <title>{`مكتبة الببتيدات | ${PEPTIDE_COUNT} ببتيد علاجي مع بروتوكولات كاملة | pptides`}</title>
         <meta name="description" content={`تصفّح ${PEPTIDE_COUNT} ببتيد علاجي مع شرح مفصّل للآليات والجرعات والآثار الجانبية. Browse ${PEPTIDE_COUNT} therapeutic peptides with detailed protocols.`} />
@@ -623,6 +623,23 @@ export default function Library() {
               >
                 أو اسأل المدرب الذكي عن {p.nameAr} مجانًا
               </Link>
+              {(() => {
+                const related = peptides.filter(x => x.isFree && x.id !== p.id && x.category === p.category).slice(0, 2);
+                const fallback = related.length === 0 ? peptides.filter(x => x.isFree && x.id !== p.id).slice(0, 2) : related;
+                if (fallback.length === 0) return null;
+                return (
+                  <div className="mt-4 border-t border-stone-100 pt-4">
+                    <p className="mb-2 text-xs font-bold text-stone-500">ببتيدات مجانية يمكنك تصفّحها:</p>
+                    <div className="flex flex-wrap justify-center gap-2">
+                      {fallback.map(f => (
+                        <Link key={f.id} to={`/peptide/${f.id}`} onClick={() => setUpsellPeptide(null)} className="rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1.5 text-xs font-bold text-emerald-700 transition-colors hover:bg-emerald-100">
+                          {f.nameAr}
+                        </Link>
+                      ))}
+                    </div>
+                  </div>
+                );
+              })()}
             </div>
             </FocusTrap>
           </div>

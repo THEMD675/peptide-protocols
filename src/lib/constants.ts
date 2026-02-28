@@ -10,6 +10,8 @@ export const VALUE_SAVINGS_ESSENTIALS = '$290';
 export const VALUE_SAVINGS_ELITE = '$200+';
 
 export const SUPPORT_EMAIL = 'contact@pptides.com';
+export const SUPPORT_WHATSAPP = '';
+export const SUPPORT_WHATSAPP_URL = '';
 
 export const FREE_PEPTIDE_IDS = new Set([
   'semaglutide', 'bpc-157', 'kisspeptin-10', 'semax', 'epithalon', 'collagen-peptides',

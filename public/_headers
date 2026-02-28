@@ -1,14 +1,3 @@
-/*
-  X-Frame-Options: DENY
-  X-Content-Type-Options: nosniff
-  Referrer-Policy: strict-origin-when-cross-origin
-  Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=()
-  X-XSS-Protection: 0
-  Strict-Transport-Security: max-age=63072000; includeSubDomains; preload
-  Cross-Origin-Opener-Policy: same-origin-allow-popups
-  Cross-Origin-Resource-Policy: same-origin
-  Content-Security-Policy: default-src 'self'; script-src 'self' https://www.googletagmanager.com https://www.google-analytics.com https://challenges.cloudflare.com https://js.stripe.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: https: blob:; connect-src 'self' https://hexnuldwerzwbljorokw.supabase.co wss://hexnuldwerzwbljorokw.supabase.co https://*.supabase.co wss://*.supabase.co https://api.stripe.com https://r.stripe.com https://m.stripe.network https://q.stripe.com https://www.google-analytics.com https://analytics.google.com https://www.googletagmanager.com https://*.vercel.app https://*.ingest.sentry.io https://*.ingest.us.sentry.io; frame-src https://challenges.cloudflare.com https://checkout.stripe.com https://js.stripe.com; frame-ancestors 'self' https://*.vercel.app; base-uri 'self'; form-action 'self'; upgrade-insecure-requests; object-src 'none'; manifest-src 'self';
-
 /index.html
   Cache-Control: no-cache, no-store, must-revalidate
 
