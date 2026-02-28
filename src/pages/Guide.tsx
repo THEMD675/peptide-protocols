@@ -106,7 +106,7 @@ export default function Guide() {
         <h1 className="text-3xl font-bold md:text-4xl text-emerald-600">
           الدليل العملي
         </h1>
-        <p className="mt-2 text-lg">
+        <p className="mt-2 text-lg text-stone-600">
           من التحضير إلى التنفيذ
         </p>
       </div>

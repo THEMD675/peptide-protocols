@@ -171,7 +171,7 @@ export default function Reviews() {
           <div
             className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-500/10"
           >
-            <MessageSquare className="h-7 w-7"  />
+            <MessageSquare className="h-7 w-7 text-emerald-600"  />
           </div>
           <h1
             className="text-3xl font-bold md:text-4xl"
@@ -210,7 +210,7 @@ export default function Reviews() {
               <p className="text-sm text-stone-800">سجّل الدخول لإضافة تقييمك</p>
               <Link
                 to="/login"
-                className="rounded-xl bg-emerald-500 px-8 py-3 text-sm font-bold text-white transition-all hover:brightness-110"
+                className="rounded-xl bg-emerald-600 px-8 py-3 text-sm font-bold text-white transition-all hover:bg-emerald-700"
               >
                 تسجيل الدخول
               </Link>
@@ -261,10 +261,10 @@ export default function Reviews() {
                 type="submit"
                 disabled={rating === 0 || !text.trim() || submitting}
                 className={cn(
-                  'flex items-center justify-center gap-2 rounded-xl bg-emerald-500 px-8 py-3',
+                  'flex items-center justify-center gap-2 rounded-xl bg-emerald-600 px-8 py-3',
                   'text-sm font-bold text-white transition-all',
                   rating > 0 && text.trim()
-                    ? 'hover:brightness-110'
+                    ? 'hover:bg-emerald-700'
                     : 'cursor-not-allowed opacity-40',
                 )}
               >

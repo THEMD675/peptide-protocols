@@ -350,7 +350,7 @@ export default function Community() {
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value as 'newest' | 'highest')}
               aria-label="ترتيب التجارب"
-              className="mr-auto rounded-xl border border-stone-200 bg-white px-3 py-1.5 text-sm text-stone-700 focus:border-emerald-300 focus:outline-none"
+              className="ms-auto rounded-xl border border-stone-200 bg-white px-3 py-1.5 text-sm text-stone-700 focus:border-emerald-300 focus:outline-none"
             >
               <option value="newest">الأحدث</option>
               <option value="highest">الأعلى تقييمًا</option>

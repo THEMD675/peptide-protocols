@@ -61,7 +61,7 @@ export default function Stacks() {
         <h1 className="text-3xl font-bold md:text-4xl text-emerald-600">
           البروتوكولات المُجمَّعة
         </h1>
-        <p className="mt-2 text-lg">
+        <p className="mt-2 text-lg text-stone-600">
           خلطات مُجرَّبة لأهداف محددة
         </p>
       </div>
@@ -162,7 +162,7 @@ export default function Stacks() {
                     </Link>
                     <Link
                       to="/calculator"
-                      className="inline-flex items-center gap-1.5 rounded-lg border border-stone-200 bg-white px-4 py-2 text-sm font-bold text-stone-700 hover:border-emerald-200 transition-colors"
+                      className="inline-flex items-center gap-1.5 rounded-full border border-stone-200 bg-white px-4 py-2 text-sm font-bold text-stone-700 hover:border-emerald-200 transition-colors"
                     >
                       <Calculator className="h-3.5 w-3.5" />
                       احسب الجرعة

@@ -62,7 +62,7 @@ export default function Sources() {
             مصادر{' '}
             <span className="text-emerald-600">موثوقة</span>
           </h1>
-          <p className="mt-2 text-stone-800">
+          <p className="mt-2 text-stone-600">
             معايير اختيار المورد الموثوق
           </p>
         </div>

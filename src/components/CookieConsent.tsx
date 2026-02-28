@@ -53,7 +53,7 @@ export default function CookieConsent() {
           </button>
           <button
             onClick={accept}
-            className="shrink-0 rounded-full bg-emerald-600 px-6 py-2 text-sm font-bold text-white transition-all hover:bg-emerald-700 active:scale-95"
+            className="shrink-0 rounded-full bg-emerald-600 px-6 py-2 min-h-[44px] text-sm font-bold text-white transition-all hover:bg-emerald-700 active:scale-95"
           >
             موافق
           </button>

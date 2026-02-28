@@ -106,7 +106,7 @@ const PeptideCard = memo(function PeptideCard({
           {peptide.nameAr}
         </h3>
         <div className="mt-0.5 flex items-center gap-2">
-          <p className="text-xs text-stone-800 truncate">{peptide.nameEn}</p>
+          <p className="min-w-0 text-xs text-stone-800 truncate">{peptide.nameEn}</p>
           {isUsed && <span className="shrink-0 rounded-full bg-emerald-100 px-1.5 py-0.5 text-xs font-bold text-emerald-700">مستخدم</span>}
         </div>
       </div>

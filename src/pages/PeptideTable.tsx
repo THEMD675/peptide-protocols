@@ -104,7 +104,7 @@ export default function PeptideTable() {
               الشامل
             </span>
           </h1>
-          <p className="mx-auto mt-3 max-w-2xl text-base text-stone-800 md:text-lg">
+          <p className="mx-auto mt-3 max-w-2xl text-base text-stone-600 md:text-lg">
             دليل مقارنة سريع لجميع الببتيدات مع الجرعات والتوقيت والدورات والتجميع
           </p>
 

@@ -267,7 +267,7 @@ export default memo(function Header() {
 
                 {dropdownOpen && (
                   <div role="menu" aria-label="قائمة الحساب" className="absolute end-0 top-full mt-2 min-w-[180px] overflow-hidden rounded-xl border border-stone-200 bg-white py-1 shadow-xl animate-fade-in">
-                    <p className="truncate border-b border-stone-200 px-4 py-2 text-xs text-stone-800">
+                    <p className="truncate border-b border-stone-200 px-4 py-2 text-sm text-stone-800">
                       {user.email}
                     </p>
                     <Link
@@ -306,7 +306,7 @@ export default memo(function Header() {
             ) : (
               <Link
                 to="/login"
-                className="inline-flex rounded-full bg-emerald-600 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-emerald-700 md:px-5 md:py-2 md:text-sm"
+                className="inline-flex min-h-[44px] items-center rounded-full bg-emerald-600 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-emerald-700 md:px-5 md:py-2 md:text-sm"
               >
                 تسجيل الدخول
               </Link>
@@ -406,7 +406,7 @@ export default memo(function Header() {
                     'rounded-lg px-4 py-2.5 text-sm font-medium transition-colors',
                     active
                       ? 'bg-emerald-50 text-emerald-700'
-                      : 'text-stone-700 hover:bg-stone-50 transition-colors hover:text-stone-900',
+                      : 'text-stone-800 hover:bg-stone-50 transition-colors hover:text-stone-900',
                   )}
                 >
                   {label}

@@ -186,7 +186,7 @@ export default function Account() {
         </div>
 
         {/* Subscription Card */}
-        <div className="rounded-2xl border border-stone-300 bg-stone-50 p-6">
+        <div className="rounded-2xl border border-stone-200 bg-stone-50 p-6">
           <div className="flex items-center gap-3 mb-4">
             <Crown className="h-5 w-5 text-emerald-600" />
             <h2 className="text-lg font-bold text-stone-900">الاشتراك</h2>

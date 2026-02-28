@@ -56,7 +56,7 @@ export default function LabGuide() {
         <h1 className="text-3xl font-bold md:text-4xl text-emerald-600">
           دليل التحاليل المخبرية
         </h1>
-        <p className="mt-2 text-lg">
+        <p className="mt-2 text-lg text-stone-600">
           التحاليل الأساسية قبل وأثناء وبعد استخدام الببتيدات
         </p>
       </div>

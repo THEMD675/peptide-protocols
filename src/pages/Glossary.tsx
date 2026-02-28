@@ -50,7 +50,7 @@ export default function Glossary() {
           <button
             onClick={() => setSearch('')}
             aria-label="مسح البحث"
-            className="absolute left-4 top-1/2 -translate-y-1/2 text-stone-400 transition-colors hover:text-stone-700"
+            className="absolute end-4 top-1/2 -translate-y-1/2 text-stone-400 transition-colors hover:text-stone-700"
           >
             <X className="h-4 w-4" />
           </button>

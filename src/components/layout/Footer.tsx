@@ -16,7 +16,7 @@ export default memo(function Footer() {
               أشمل دليل عربي للببتيدات العلاجية. {PEPTIDE_COUNT}+ ببتيد مع بروتوكولات كاملة.
             </p>
             <a href={`mailto:${SUPPORT_EMAIL}`} className="mt-3 inline-flex items-center gap-1.5 text-sm text-emerald-600 transition-colors hover:text-emerald-700">
-              <Mail className="h-3.5 w-3.5" /> {SUPPORT_EMAIL}
+              <Mail className="h-3.5 w-3.5 shrink-0" /> {SUPPORT_EMAIL}
             </a>
             <div className="mt-3 flex gap-3">
               <a href="https://x.com/pptides" target="_blank" rel="noopener noreferrer" className="text-stone-400 hover:text-emerald-600 transition-colors" aria-label="X/Twitter">
@@ -61,9 +61,9 @@ export default memo(function Footer() {
                 إدارة ملفات تعريف الارتباط
               </button>
             </nav>
-            <div className="mt-4 flex flex-col gap-2 text-xs text-stone-600">
-              <p className="flex items-center gap-1.5"><Lock className="h-3 w-3" /> دفع آمن عبر Stripe</p>
-              <p className="flex items-center gap-1.5"><Shield className="h-3 w-3" /> ضمان استرداد 3 أيام</p>
+            <div className="mt-4 flex flex-col gap-2 text-sm text-stone-600">
+              <p className="flex items-center gap-1.5"><Lock className="h-3 w-3 shrink-0" /> دفع آمن عبر Stripe</p>
+              <p className="flex items-center gap-1.5"><Shield className="h-3 w-3 shrink-0" /> ضمان استرداد 3 أيام</p>
             </div>
           </div>
         </div>
