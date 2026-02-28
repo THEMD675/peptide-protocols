@@ -1,6 +1,6 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { Helmet } from 'react-helmet-async';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { AlertTriangle, CheckCircle, XCircle, Shield } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { peptides } from '@/data/peptides';
@@ -41,7 +41,11 @@ function checkInteraction(id1: string, id2: string): InteractionResult {
 }
 
 export default function InteractionChecker() {
-  const [selected, setSelected] = useState<string[]>(['', '']);
+  const [searchParams] = useSearchParams();
+  const [selected, setSelected] = useState<string[]>(() => {
+    const p = searchParams.get('peptide');
+    return p ? [p, ''] : ['', ''];
+  });
 
   const addSlot = () => { if (selected.length < 5) setSelected(prev => [...prev, '']); };
   const removeSlot = (idx: number) => { if (selected.length > 2) setSelected(prev => prev.filter((_, i) => i !== idx)); };

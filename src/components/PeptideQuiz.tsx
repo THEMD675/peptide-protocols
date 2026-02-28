@@ -1,6 +1,6 @@
 import { useState, type ElementType } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowLeft, ArrowRight, CheckCircle, FlaskConical, TrendingDown, Heart, Brain, Zap, Clock, Shield, Syringe, Pill, SprayCan, Dumbbell } from 'lucide-react';
+import { ArrowLeft, ArrowRight, CheckCircle, FlaskConical, TrendingDown, Heart, Brain, Zap, Clock, Shield, Syringe, Pill, SprayCan, Dumbbell, Calculator } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { peptides as allPeptides } from '@/data/peptides';
 
@@ -178,6 +178,13 @@ export default function PeptideQuiz() {
             className="flex items-center justify-center gap-2 rounded-xl border border-stone-200 bg-white px-5 py-3 text-sm font-bold text-stone-700 transition-all hover:border-emerald-200 hover:shadow-sm"
           >
             شاهد بروتوكول {rec.nameAr}
+          </Link>
+          <Link
+            to={`/calculator?peptide=${encodeURIComponent(rec.nameEn)}`}
+            className="flex items-center justify-center gap-2 rounded-xl border border-stone-200 bg-white px-5 py-3 text-sm font-bold text-stone-700 transition-all hover:border-emerald-200 hover:shadow-sm"
+          >
+            <Calculator className="h-4 w-4" />
+            احسب جرعة {rec.nameAr}
           </Link>
         </div>
 

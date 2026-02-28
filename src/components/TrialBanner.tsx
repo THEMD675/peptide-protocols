@@ -103,7 +103,9 @@ export default function TrialBanner() {
           </div>
           <div className="mt-6 flex flex-wrap justify-center gap-3 text-sm">
             <span className="text-stone-400">أو تصفّح المجاني:</span>
+            <Link to="/library" className="text-emerald-600 underline underline-offset-2 transition-colors hover:text-emerald-700">المكتبة</Link>
             <Link to="/calculator" className="text-emerald-600 underline underline-offset-2 transition-colors hover:text-emerald-700">الحاسبة</Link>
+            <Link to="/interactions" className="text-emerald-600 underline underline-offset-2 transition-colors hover:text-emerald-700">فحص التعارضات</Link>
             <Link to="/glossary" className="text-emerald-600 underline underline-offset-2 transition-colors hover:text-emerald-700">المصطلحات</Link>
             <Link to="/sources" className="text-emerald-600 underline underline-offset-2 transition-colors hover:text-emerald-700">المصادر</Link>
             <Link to="/reviews" className="text-emerald-600 underline underline-offset-2 transition-colors hover:text-emerald-700">التقييمات</Link>

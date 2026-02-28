@@ -642,6 +642,13 @@ export default function Tracker() {
               <Plus className="h-4 w-4" />
               ابدأ بتسجيل أول حقنة
             </button>
+            <div className="mt-6 flex flex-col items-center gap-2 sm:flex-row sm:justify-center">
+              <Link to="/coach" className="text-sm font-semibold text-emerald-600 hover:underline transition-colors">صمّم بروتوكول مع المدرب الذكي</Link>
+              <span className="hidden sm:inline text-stone-300">|</span>
+              <Link to="/guide" className="text-sm font-semibold text-emerald-600 hover:underline transition-colors">تعلّم كيف تحقن</Link>
+              <span className="hidden sm:inline text-stone-300">|</span>
+              <Link to="/calculator" className="text-sm font-semibold text-emerald-600 hover:underline transition-colors">احسب جرعتك</Link>
+            </div>
           </div>
         ) : (
           <div className="space-y-4">
