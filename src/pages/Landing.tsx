@@ -169,7 +169,7 @@ export default function Landing() {
           <div className="absolute left-1/2 top-0 h-[600px] w-[800px] -translate-x-1/2 bg-[radial-gradient(ellipse_at_center,rgba(16,185,129,0.07)_0%,transparent_60%)]" />
         </div>
 
-        <div className="relative mx-auto max-w-5xl px-6 pb-12 pt-10 text-center md:pt-16 md:pb-16">
+        <div className="relative mx-auto max-w-5xl px-6 pb-20 pt-10 text-center md:pt-16 md:pb-28">
           <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 px-5 py-2 text-sm font-semibold text-emerald-700 animate-fade-up">
             <Zap className="h-4 w-4" />
             <span>أول مرجع عربي شامل — {PEPTIDE_COUNT} ببتيد علاجي</span>
@@ -224,28 +224,12 @@ export default function Landing() {
       </section>
 
       {/* ═══════ PEPTIDE QUIZ — First interaction ═══════ */}
-      <section className="relative z-10 -mt-4 mx-auto max-w-2xl px-6 pb-6">
+      <section className="relative z-10 -mt-6 mx-auto max-w-2xl px-6 pb-10">
         <PeptideQuiz />
       </section>
 
-      {/* ═══════ AHA MOMENT — Calculator CTA ═══════ */}
-      <div className="mx-auto mb-2 max-w-lg px-6 text-center">
-        <Link to="/calculator" className="group inline-flex items-center gap-3 rounded-2xl border border-emerald-200 bg-emerald-50 px-6 py-3 transition-all hover:border-emerald-300 hover:shadow-md">
-          <Calculator className="h-5 w-5 text-emerald-600" />
-          <span className="text-sm font-bold text-stone-800 group-hover:text-emerald-700">جرّب حاسبة الجرعات المجانية — شاهد جرعتك بالضبط على السيرنج</span>
-          <ArrowLeft className="h-4 w-4 text-emerald-500" />
-        </Link>
-      </div>
-
-      {/* ═══════ FREE CONTENT CALLOUT ═══════ */}
-      <div className="mx-auto mb-6 max-w-md px-6 text-center">
-        <p className="text-sm text-stone-500">
-          <Link to="/library" className="font-semibold text-emerald-600 hover:underline">6 ببتيدات مجانية بالكامل</Link> — بدون تسجيل. تصفّحها الآن.
-        </p>
-      </div>
-
       {/* ═══════ STATS BAR ═══════ */}
-      <section className="relative z-10 mt-6 mx-auto max-w-5xl px-6">
+      <section className="relative z-10 mt-4 mx-auto max-w-5xl px-6 md:-mt-8">
         <div className="grid grid-cols-2 gap-4 rounded-2xl border border-stone-300/60 bg-white p-4 sm:grid-cols-3 sm:p-8 shadow-xl md:grid-cols-5 md:gap-0 md:divide-x md:divide-x-reverse md:divide-stone-100">
           {STATS_BAR.map((s) => (
             <div key={s.label} className="flex flex-col items-center justify-center py-3 last:col-span-2 sm:last:col-span-1">
@@ -557,10 +541,7 @@ export default function Landing() {
         {testimonials.length > 0 ? (
           <div className="grid gap-6 md:grid-cols-3">
             {testimonials.map((t) => (
-              <div
-                key={t.name}
-                className="rounded-2xl border border-stone-300/60 bg-white p-7 transition-all duration-300 hover:border-emerald-200 hover:shadow-lg hover:-translate-y-1"
-              >
+              <div key={t.name} className="rounded-2xl border border-stone-300/60 bg-white p-7 transition-all duration-300 hover:border-emerald-200 hover:shadow-lg hover:-translate-y-1">
                 <div className="mb-4 flex gap-1" dir="ltr">
                   {[1, 2, 3, 4, 5].map((s) => (
                     <Star key={s} className={cn('h-4 w-4', s <= t.rating ? 'fill-emerald-500 text-emerald-500' : 'fill-transparent text-stone-300')} />
@@ -568,13 +549,8 @@ export default function Landing() {
                 </div>
                 <p className="mb-5 text-base leading-relaxed text-stone-800 line-clamp-4">&quot;{t.text}&quot;</p>
                 <div className="flex items-center gap-3">
-                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-sm font-bold text-emerald-700">
-                    {t.name.charAt(0)}
-                  </div>
-                  <div>
-                    <p className="font-bold text-stone-900">{t.name}</p>
-                    <p className="text-sm text-stone-600">{t.role}</p>
-                  </div>
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-sm font-bold text-emerald-700">{t.name.charAt(0)}</div>
+                  <div><p className="font-bold text-stone-900">{t.name}</p><p className="text-sm text-stone-600">{t.role}</p></div>
                 </div>
               </div>
             ))}
@@ -712,7 +688,7 @@ export default function Landing() {
             <p className="text-sm text-stone-800">
               نحن واثقون من المحتوى لأننا نعرف أنه يعمل. المخاطرة علينا — وليس عليك.
             </p>
-            <div className="mt-6 flex flex-wrap items-center justify-center gap-4">
+            <div className="mt-6">
               <a href={`mailto:${SUPPORT_EMAIL}`} className="inline-flex items-center gap-2 rounded-full border border-emerald-300 bg-emerald-50 px-5 py-2.5 text-sm font-bold text-emerald-700 transition-colors hover:bg-emerald-100">
                 {SUPPORT_EMAIL}
               </a>
@@ -731,10 +707,10 @@ export default function Landing() {
             { q: 'هل الببتيدات قانونية في السعودية والإمارات؟', a: 'معظم الببتيدات البحثية متاحة للشراء عبر الإنترنت في دول الخليج. بعض الببتيدات المعتمدة من FDA (مثل Semaglutide) تتطلب وصفة طبية. pptides منصة تعليمية — لا نبيع ببتيدات.' },
             { q: 'هل أحتاج وصفة طبية؟', a: 'للببتيدات المعتمدة من FDA (Semaglutide, Tirzepatide) نعم. للببتيدات البحثية (BPC-157, TB-500) عادة لا. ننصح دائمًا باستشارة طبيبك قبل البدء.' },
             { q: 'من أين أشتري الببتيدات؟', a: 'ابحث عن مورّد يوفّر شهادة تحليل (COA) من طرف ثالث، نقاء 98%+ ، وشحن مبرّد. اطّلع على صفحة المصادر لمعايير الاختيار.' },
-            { q: 'هل الببتيدات حلال؟', a: 'معظم الببتيدات العلاجية مصنّعة كيميائيًا ولا تحتوي مكونات حيوانية. ببتيدات الكولاجين قد تكون مشتقة من مصادر بحرية أو حيوانية — تحقق من المصدر. للاستفسار الشرعي، ننصح بسؤال مختص.' },
+            { q: 'هل الببتيدات حلال؟', a: 'معظم الببتيدات العلاجية مصنّعة كيميائيًا ولا تحتوي مكونات حيوانية. ببتيدات الكولاجين قد تكون مشتقة من مصادر بحرية أو حيوانية — تحقق من المصدر.' },
             { q: 'كيف ألغي اشتراكي؟', a: 'يمكنك إلغاء اشتراكك في أي وقت من صفحة الحساب. تحتفظ بالوصول حتى نهاية فترة الدفع الحالية. ضمان استرداد كامل خلال 3 أيام.' },
             { q: 'هل الدفع آمن؟', a: 'نستخدم Stripe — أكبر منصة دفع في العالم. بياناتك مشفّرة ولا نحفظ بيانات بطاقتك. ندعم Visa و Mastercard و Apple Pay.' },
-            { q: '6 ببتيدات مجانية — بدون تسجيل؟', a: `نعم! ${PEPTIDE_COUNT > 6 ? '6' : PEPTIDE_COUNT} ببتيد مع بروتوكول كامل متاح مجانًا بدون إنشاء حساب: Semaglutide, BPC-157, Kisspeptin-10, Semax, Epithalon, Collagen. جرّبها الآن من المكتبة.` },
+            { q: '6 ببتيدات مجانية — بدون تسجيل؟', a: 'نعم! 6 ببتيد مع بروتوكول كامل متاح مجانًا بدون إنشاء حساب. جرّبها الآن من المكتبة.' },
             { q: 'ماذا أحصل بعد الاشتراك؟', a: `بروتوكولات كاملة لـ ${PEPTIDE_COUNT} ببتيد، حاسبة جرعات دقيقة، دليل تحاليل مخبرية، بروتوكولات مُجمَّعة، دليل حقن عملي، فحص تعارضات، ومدرب ذكي (في باقة Elite).` },
           ].map((faq) => (
             <details key={faq.q} className="group rounded-2xl border border-stone-200 bg-white transition-all hover:border-emerald-200">
