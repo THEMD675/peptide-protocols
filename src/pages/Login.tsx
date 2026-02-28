@@ -211,7 +211,7 @@ export default function Login() {
                 )}
               >
                 {t === 'login' ? 'تسجيل الدخول' : 'إنشاء حساب'}
-                {tab === t && <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-emerald-500" />}
+                {tab === t && <div className="absolute bottom-0 inset-x-0 h-0.5 bg-emerald-500" />}
               </button>
             ))}
           </div>

@@ -199,7 +199,7 @@ export default function Reviews() {
           className="mb-10 rounded-2xl border border-stone-200 bg-stone-50 p-6 md:p-8"
         >
           <h2
-            className="mb-5 text-lg font-bold"
+            className="mb-5 text-lg font-bold text-stone-900"
             
           >
             أضف تقييمك
@@ -285,7 +285,7 @@ export default function Reviews() {
         <div
         >
           <h2
-            className="mb-6 text-lg font-bold"
+            className="mb-6 text-lg font-bold text-stone-900"
             
           >
             التقييمات
