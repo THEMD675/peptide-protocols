@@ -378,9 +378,9 @@ export default function Community() {
             )}
             {filteredLogs.map((log) => (
               <div key={log.id} className="rounded-2xl border border-stone-200 bg-white p-6 transition-all hover:border-emerald-200 hover:shadow-sm">
-                <div className="mb-3 flex items-start justify-between">
+                <div className="mb-3 flex flex-wrap items-start justify-between gap-2">
                   <div className="flex items-center gap-3">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-emerald-100">
+                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-emerald-100">
                       <User className="h-5 w-5 text-emerald-700" />
                     </div>
                     <div>
