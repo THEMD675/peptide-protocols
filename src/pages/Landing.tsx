@@ -245,7 +245,7 @@ export default function Landing() {
       </section>
 
       {/* ═══════ STATS BAR ═══════ */}
-      <section className="relative z-10 mt-4 mx-auto max-w-5xl px-6 md:-mt-8">
+      <section className="relative z-10 mt-6 mx-auto max-w-5xl px-6">
         <div className="grid grid-cols-2 gap-4 rounded-2xl border border-stone-300/60 bg-white p-4 sm:grid-cols-3 sm:p-8 shadow-xl md:grid-cols-5 md:gap-0 md:divide-x md:divide-x-reverse md:divide-stone-100">
           {STATS_BAR.map((s) => (
             <div key={s.label} className="flex flex-col items-center justify-center py-3 last:col-span-2 sm:last:col-span-1">
