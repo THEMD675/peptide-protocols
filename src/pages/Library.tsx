@@ -85,21 +85,21 @@ const PeptideCard = memo(function PeptideCard({
         </button>
       )}
 
-      <div className="mb-3 flex items-start justify-between gap-2">
-        <div className="flex-1">
+      <div className="mb-3 flex items-start justify-between gap-2 pt-8">
+        <div className="flex-1 min-w-0">
           <h3
             className={cn(
               'text-lg font-bold transition-colors',
               hasAccess
-                ? 'text-stone-900 group-transition-colors hover:text-emerald-600'
+                ? 'text-stone-900 group-hover:text-emerald-600'
                 : 'text-stone-900',
             )}
           >
             {peptide.nameAr}
           </h3>
           <div className="mt-0.5 flex items-center gap-2">
-            <p className="text-xs text-stone-800">{peptide.nameEn}</p>
-            {isUsed && <span className="rounded-full bg-emerald-100 px-1.5 py-0.5 text-xs font-bold text-emerald-700">مستخدم</span>}
+            <p className="text-xs text-stone-800 truncate">{peptide.nameEn}</p>
+            {isUsed && <span className="shrink-0 rounded-full bg-emerald-100 px-1.5 py-0.5 text-xs font-bold text-emerald-700">مستخدم</span>}
           </div>
         </div>
         {peptide.fdaApproved && (
