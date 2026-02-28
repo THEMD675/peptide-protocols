@@ -217,8 +217,12 @@ export default function PeptideDetail() {
                     if (navigator.share) {
                       try { await navigator.share(shareData); } catch { /* expected */ }
                     } else {
-                      await navigator.clipboard.writeText(window.location.href);
-                      toast.success('تم نسخ الرابط');
+                      try {
+                        await navigator.clipboard.writeText(window.location.href);
+                        toast.success('تم نسخ الرابط');
+                      } catch {
+                        toast.error('تعذّر نسخ الرابط');
+                      }
                     }
                   }}
                   aria-label="مشاركة البروتوكول"

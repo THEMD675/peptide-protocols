@@ -71,7 +71,7 @@ export default function Community() {
           setHasMore(data.length >= PAGE_SIZE);
         }
       } catch {
-        // query failed
+        if (mounted) toast.error('تعذّر تحميل التجارب. حاول تحديث الصفحة.');
       }
       if (mounted) setLoading(false);
     };
@@ -89,39 +89,45 @@ export default function Community() {
     submittingRef.current = true;
 
     setSubmitting(true);
-    const { error } = await supabase.from('community_logs').insert({
-      user_id: user.id,
-      peptide_name: peptideName.trim(),
-      goal,
-      protocol: protocol.trim(),
-      duration_weeks: durationWeeks,
-      results: results.trim(),
-      rating,
-    });
-    submittingRef.current = false;
-    if (!mountedRef.current) return;
-    setSubmitting(false);
+    try {
+      const { error } = await supabase.from('community_logs').insert({
+        user_id: user.id,
+        peptide_name: peptideName.trim(),
+        goal,
+        protocol: protocol.trim(),
+        duration_weeks: durationWeeks,
+        results: results.trim(),
+        rating,
+      });
 
-    if (error) {
-      toast.error('حدث خطأ أثناء النشر. حاول مرة أخرى.');
-      return;
+      if (!mountedRef.current) return;
+
+      if (error) {
+        toast.error('حدث خطأ أثناء النشر. حاول مرة أخرى.');
+        return;
+      }
+
+      setSubmitted(true);
+      setPeptideName('');
+      setGoal('');
+      setProtocol('');
+      setResults('');
+      setRating(4);
+      setShowForm(false);
+
+      const { data } = await supabase
+        .from('community_logs')
+        .select('*')
+        .order('created_at', { ascending: false })
+        .limit(50);
+      if (mountedRef.current && data) setLogs(data);
+      setTimeout(() => { if (mountedRef.current) setSubmitted(false); }, 5000);
+    } catch {
+      if (mountedRef.current) toast.error('حدث خطأ أثناء النشر. تحقق من اتصالك بالإنترنت.');
+    } finally {
+      submittingRef.current = false;
+      if (mountedRef.current) setSubmitting(false);
     }
-
-    setSubmitted(true);
-    setPeptideName('');
-    setGoal('');
-    setProtocol('');
-    setResults('');
-    setRating(4);
-    setShowForm(false);
-
-    const { data } = await supabase
-      .from('community_logs')
-      .select('*')
-      .order('created_at', { ascending: false })
-      .limit(50);
-    if (mountedRef.current && data) setLogs(data);
-    setTimeout(() => { if (mountedRef.current) setSubmitted(false); }, 5000);
   };
 
   const isPaid = subscription?.isProOrTrial ?? false;
@@ -463,16 +469,21 @@ export default function Community() {
               <button
                 onClick={async () => {
                   setLoadingMore(true);
-                  const { data } = await supabase
-                    .from('community_logs')
-                    .select('*')
-                    .order('created_at', { ascending: false })
-                    .range(logs.length, logs.length + PAGE_SIZE - 1);
-                  if (data) {
-                    setLogs(prev => [...prev, ...data]);
-                    setHasMore(data.length >= PAGE_SIZE);
+                  try {
+                    const { data } = await supabase
+                      .from('community_logs')
+                      .select('*')
+                      .order('created_at', { ascending: false })
+                      .range(logs.length, logs.length + PAGE_SIZE - 1);
+                    if (data) {
+                      setLogs(prev => [...prev, ...data]);
+                      setHasMore(data.length >= PAGE_SIZE);
+                    }
+                  } catch {
+                    toast.error('تعذّر تحميل المزيد. حاول مرة أخرى.');
+                  } finally {
+                    setLoadingMore(false);
                   }
-                  setLoadingMore(false);
                 }}
                 disabled={loadingMore}
                 className="flex w-full items-center justify-center gap-2 rounded-2xl border border-stone-200 bg-white py-4 text-sm font-bold text-stone-600 transition-all hover:border-emerald-300 hover:text-emerald-700 disabled:opacity-50"

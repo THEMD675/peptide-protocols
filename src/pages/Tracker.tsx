@@ -102,24 +102,29 @@ export default function Tracker() {
   const fetchLogs = useCallback(async () => {
     if (!user) return;
     setIsLoadingLogs(true);
-    const [{ data, error }, { count }] = await Promise.all([
-      supabase
-        .from('injection_logs')
-        .select('*')
-        .eq('user_id', user.id)
-        .order('logged_at', { ascending: false })
-        .range(0, PAGE_SIZE - 1),
-      supabase
-        .from('injection_logs')
-        .select('id', { count: 'exact', head: true })
-        .eq('user_id', user.id),
-    ]);
-    if (error) { toast.error('تعذّر تحميل السجلات. حاول تحديث الصفحة.'); }
-    const rows = (data as InjectionLog[]) ?? [];
-    setLogs(rows);
-    if (count != null) setTotalCount(count);
-    setHasMore(rows.length >= PAGE_SIZE);
-    setIsLoadingLogs(false);
+    try {
+      const [{ data, error }, { count }] = await Promise.all([
+        supabase
+          .from('injection_logs')
+          .select('*')
+          .eq('user_id', user.id)
+          .order('logged_at', { ascending: false })
+          .range(0, PAGE_SIZE - 1),
+        supabase
+          .from('injection_logs')
+          .select('id', { count: 'exact', head: true })
+          .eq('user_id', user.id),
+      ]);
+      if (error) { toast.error('تعذّر تحميل السجلات. حاول تحديث الصفحة.'); }
+      const rows = (data as InjectionLog[]) ?? [];
+      setLogs(rows);
+      if (count != null) setTotalCount(count);
+      setHasMore(rows.length >= PAGE_SIZE);
+    } catch {
+      toast.error('تعذّر تحميل السجلات. حاول تحديث الصفحة.');
+    } finally {
+      setIsLoadingLogs(false);
+    }
   }, [user]);
 
   useEffect(() => {
@@ -130,17 +135,22 @@ export default function Tracker() {
   const fetchMore = async () => {
     if (!user || isLoadingMore) return;
     setIsLoadingMore(true);
-    const from = logs.length;
-    const { data } = await supabase
-      .from('injection_logs')
-      .select('*')
-      .eq('user_id', user.id)
-      .order('logged_at', { ascending: false })
-      .range(from, from + PAGE_SIZE - 1);
-    const rows = (data as InjectionLog[]) ?? [];
-    setLogs(prev => [...prev, ...rows]);
-    setHasMore(rows.length >= PAGE_SIZE);
-    setIsLoadingMore(false);
+    try {
+      const from = logs.length;
+      const { data } = await supabase
+        .from('injection_logs')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('logged_at', { ascending: false })
+        .range(from, from + PAGE_SIZE - 1);
+      const rows = (data as InjectionLog[]) ?? [];
+      setLogs(prev => [...prev, ...rows]);
+      setHasMore(rows.length >= PAGE_SIZE);
+    } catch {
+      toast.error('تعذّر تحميل المزيد. حاول مرة أخرى.');
+    } finally {
+      setIsLoadingMore(false);
+    }
   };
 
   const exportCSV = () => {
@@ -188,6 +198,7 @@ export default function Tracker() {
       now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
       setInjectedAt(now.toISOString().slice(0, 16));
       await fetchLogs();
+      toast.success(`تم تسجيل ${peptideName.trim()} — ${dose} ${unit}`);
     } catch {
       toast.error('حدث خطأ أثناء الحفظ. حاول مرة أخرى.');
     } finally {

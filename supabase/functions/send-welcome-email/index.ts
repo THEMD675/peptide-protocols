@@ -143,6 +143,7 @@ serve(async (req) => {
       },
       body: JSON.stringify({
         from: 'pptides <noreply@pptides.com>',
+        reply_to: 'contact@pptides.com',
         to: email,
         subject: 'مرحبًا في pptides — رحلتك مع الببتيدات تبدأ الآن',
         html: `

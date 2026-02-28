@@ -86,19 +86,24 @@ export default function Reviews() {
 
   const fetchReviews = useCallback(async (signal?: { cancelled: boolean }) => {
     setFetchError(null);
-    const { data, error } = await supabase
-      .from('reviews')
-      .select('id, rating, content, name, created_at')
-      .order('created_at', { ascending: false })
-      .limit(100);
+    try {
+      const { data, error } = await supabase
+        .from('reviews')
+        .select('id, rating, content, name, created_at')
+        .order('created_at', { ascending: false })
+        .limit(100);
 
-    if (signal?.cancelled) return;
-    if (error) {
-      void error;
-      setFetchError('تعذّر تحميل التقييمات. حاول مرة أخرى.');
+      if (signal?.cancelled) return;
+      if (error) {
+        setFetchError('تعذّر تحميل التقييمات. حاول مرة أخرى.');
+      }
+      if (data) setReviews(data);
+    } catch {
+      if (signal?.cancelled) return;
+      setFetchError('تعذّر تحميل التقييمات. تحقق من اتصالك بالإنترنت.');
+    } finally {
+      setLoading(false);
     }
-    if (data) setReviews(data);
-    setLoading(false);
   }, []);
 
   /* eslint-disable react-hooks/set-state-in-effect -- data fetching on mount */

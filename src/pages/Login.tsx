@@ -105,16 +105,21 @@ export default function Login() {
   const handleGoogleSignIn = async () => {
     setError('');
     setLoading(true);
-    const raw = new URLSearchParams(window.location.search).get('redirect') || '/dashboard';
-    const safeRedirect = raw.startsWith('/') && !raw.startsWith('//') ? raw : '/dashboard';
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: 'google',
-      options: {
-        redirectTo: `${window.location.origin}${safeRedirect}`,
-      },
-    });
-    if (error) {
-      setError('تعذّر تسجيل الدخول عبر Google. حاول مرة أخرى.');
+    try {
+      const raw = new URLSearchParams(window.location.search).get('redirect') || '/dashboard';
+      const safeRedirect = raw.startsWith('/') && !raw.startsWith('//') ? raw : '/dashboard';
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: `${window.location.origin}${safeRedirect}`,
+        },
+      });
+      if (error) {
+        setError('تعذّر تسجيل الدخول عبر Google. حاول مرة أخرى.');
+        setLoading(false);
+      }
+    } catch {
+      setError('تعذّر تسجيل الدخول عبر Google. تحقق من اتصالك بالإنترنت.');
       setLoading(false);
     }
   };

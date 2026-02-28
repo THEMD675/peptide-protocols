@@ -43,7 +43,7 @@ export default function Account() {
       if (error) throw error;
       toast.success('تم إرسال رابط التأكيد إلى بريدك الجديد. تحقق من صندوق البريد.');
       setNewEmail('');
-    } catch (e) { toast.error(e instanceof Error ? e.message : 'حدث خطأ في تغيير البريد الإلكتروني'); }
+    } catch { toast.error('حدث خطأ في تغيير البريد الإلكتروني. حاول مرة أخرى.'); }
     finally { setEmailLoading(false); }
   };
 
@@ -55,7 +55,7 @@ export default function Account() {
       if (error) throw error;
       toast.success('تم تغيير كلمة المرور بنجاح');
       setNewPassword('');
-    } catch (e) { toast.error(e instanceof Error ? e.message : 'حدث خطأ في تغيير كلمة المرور'); }
+    } catch { toast.error('حدث خطأ في تغيير كلمة المرور. حاول مرة أخرى.'); }
     finally { setPasswordLoading(false); }
   };
 

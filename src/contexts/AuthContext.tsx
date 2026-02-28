@@ -134,7 +134,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           .eq('user_id', userId)
           .maybeSingle()
       );
-      if (error) return;
+      if (error) {
+        setSubscription(DEFAULT_SUBSCRIPTION);
+        return;
+      }
 
 
       setSubscription(buildSubscription(data));
