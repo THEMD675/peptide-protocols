@@ -103,10 +103,10 @@ export default function TrialBanner() {
           </div>
           <div className="mt-6 flex flex-wrap justify-center gap-3 text-xs">
             <span className="text-stone-400">أو تصفّح المجاني:</span>
-            <Link to="/calculator" className="text-emerald-600 underline underline-offset-2 hover:text-emerald-700">الحاسبة</Link>
-            <Link to="/glossary" className="text-emerald-600 underline underline-offset-2 hover:text-emerald-700">المصطلحات</Link>
-            <Link to="/sources" className="text-emerald-600 underline underline-offset-2 hover:text-emerald-700">المصادر</Link>
-            <Link to="/reviews" className="text-emerald-600 underline underline-offset-2 hover:text-emerald-700">التقييمات</Link>
+            <Link to="/calculator" className="text-emerald-600 underline underline-offset-2 transition-colors hover:text-emerald-700">الحاسبة</Link>
+            <Link to="/glossary" className="text-emerald-600 underline underline-offset-2 transition-colors hover:text-emerald-700">المصطلحات</Link>
+            <Link to="/sources" className="text-emerald-600 underline underline-offset-2 transition-colors hover:text-emerald-700">المصادر</Link>
+            <Link to="/reviews" className="text-emerald-600 underline underline-offset-2 transition-colors hover:text-emerald-700">التقييمات</Link>
           </div>
           <button
             onClick={() => window.history.length > 1 ? window.history.back() : window.location.href = '/'}
@@ -143,9 +143,9 @@ export default function TrialBanner() {
           </div>
           <div className="mt-6 flex flex-wrap justify-center gap-3 text-xs">
             <span className="text-stone-400">أو تصفّح المجاني:</span>
-            <Link to="/calculator" className="text-emerald-600 underline underline-offset-2 hover:text-emerald-700">الحاسبة</Link>
-            <Link to="/library" className="text-emerald-600 underline underline-offset-2 hover:text-emerald-700">المكتبة</Link>
-            <Link to="/glossary" className="text-emerald-600 underline underline-offset-2 hover:text-emerald-700">المصطلحات</Link>
+            <Link to="/calculator" className="text-emerald-600 underline underline-offset-2 transition-colors hover:text-emerald-700">الحاسبة</Link>
+            <Link to="/library" className="text-emerald-600 underline underline-offset-2 transition-colors hover:text-emerald-700">المكتبة</Link>
+            <Link to="/glossary" className="text-emerald-600 underline underline-offset-2 transition-colors hover:text-emerald-700">المصطلحات</Link>
           </div>
           <button
             onClick={() => window.history.length > 1 ? window.history.back() : window.location.href = '/'}
@@ -215,8 +215,8 @@ export default function TrialBanner() {
           className={cn(
             'absolute end-3 top-1/2 -translate-y-1/2 rounded-full p-1 transition-colors',
             isLastDay
-              ? 'text-white/70 hover:text-white hover:bg-white/10'
-              : 'text-stone-600/70 hover:text-stone-900 hover:bg-black/5'
+              ? 'text-white/70 transition-colors hover:text-white hover:bg-white/10'
+              : 'text-stone-600/70 transition-colors hover:text-stone-900 hover:bg-black/5'
           )}
         >
           <X className="h-4 w-4" />

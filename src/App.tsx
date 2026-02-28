@@ -188,7 +188,7 @@ function NotFound() {
       <p className="mb-6 text-sm text-stone-500">الصفحة التي تبحث عنها غير متاحة أو تم نقلها.</p>
       <p className="mb-8 text-sm text-stone-600">
         جرّب البحث في{' '}
-        <Link to="/library" className="font-semibold text-emerald-600 underline underline-offset-2 hover:text-emerald-700">
+        <Link to="/library" className="font-semibold text-emerald-600 underline underline-offset-2 transition-colors hover:text-emerald-700">
           المكتبة
         </Link>
       </p>

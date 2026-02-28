@@ -224,7 +224,7 @@ export default function Dashboard() {
                 {!item.done && (
                   <Link
                     to={`/tracker?peptide=${encodeURIComponent(item.peptide)}`}
-                    className="rounded-full bg-emerald-600 px-4 py-1.5 text-xs font-bold text-white hover:bg-emerald-700"
+                    className="rounded-full bg-emerald-600 px-4 py-1.5 text-xs font-bold text-white transition-colors hover:bg-emerald-700"
                   >
                     سجّل الآن
                   </Link>
@@ -342,10 +342,10 @@ export default function Dashboard() {
           <Syringe className="mx-auto mb-2 h-6 w-6 text-emerald-600" />
           <p className="font-bold text-stone-900">ابدأ بتسجيل أول حقنة</p>
           <p className="mt-1 text-sm text-stone-600">تتبّع جرعاتك ومواقع الحقن وشاهد تقدّمك</p>
-          <Link to="/tracker" className="mt-3 inline-flex items-center gap-2 rounded-full bg-emerald-600 px-6 py-2.5 text-sm font-bold text-white hover:bg-emerald-700">
+          <Link to="/tracker" className="mt-3 inline-flex items-center gap-2 rounded-full bg-emerald-600 px-6 py-2.5 text-sm font-bold text-white transition-colors hover:bg-emerald-700">
             <Syringe className="h-4 w-4" /> سجل الحقن
           </Link>
-          <Link to="/coach" className="mt-2 inline-flex items-center gap-2 rounded-full border-2 border-emerald-300 px-6 py-2.5 text-sm font-bold text-emerald-700 hover:bg-emerald-100">
+          <Link to="/coach" className="mt-2 inline-flex items-center gap-2 rounded-full border-2 border-emerald-300 px-6 py-2.5 text-sm font-bold text-emerald-700 transition-colors hover:bg-emerald-100">
             أو ابدأ بسؤال المدرب الذكي
           </Link>
         </div>
@@ -390,7 +390,7 @@ export default function Dashboard() {
                     "flex items-center gap-3 rounded-xl border px-4 py-3 transition-all hover:shadow-sm",
                     done
                       ? "border-emerald-300 bg-emerald-50"
-                      : "border-emerald-100 bg-white hover:border-emerald-300"
+                      : "border-emerald-100 bg-white transition-colors hover:border-emerald-300"
                   )}
                 >
                   {done

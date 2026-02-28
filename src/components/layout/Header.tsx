@@ -144,7 +144,7 @@ export default memo(function Header() {
                     'relative rounded-lg px-3 py-2 text-sm font-medium transition-colors',
                     active
                       ? 'text-emerald-700'
-                      : 'text-stone-800 hover:text-stone-900',
+                      : 'text-stone-800 transition-colors hover:text-stone-900',
                   )}
                 >
                   {label}
@@ -162,7 +162,7 @@ export default memo(function Header() {
                   'rounded-lg px-3 py-2 text-sm font-medium transition-colors flex items-center gap-1',
                   moreLinks.some(l => pathname.startsWith(l.to))
                     ? 'text-emerald-700'
-                    : 'text-stone-800 hover:text-stone-900',
+                    : 'text-stone-800 transition-colors hover:text-stone-900',
                 )}
               >
                 المزيد
@@ -177,10 +177,10 @@ export default memo(function Header() {
                       role="menuitem"
                       onClick={() => setMoreOpen(false)}
                       className={cn(
-                        'block px-4 py-2.5 text-sm hover:bg-stone-50',
+                        'block px-4 py-2.5 text-sm transition-colors hover:bg-stone-50',
                         pathname.startsWith(to)
                           ? 'text-emerald-700 font-medium'
-                          : 'text-stone-700 hover:text-stone-900',
+                          : 'text-stone-700 transition-colors hover:text-stone-900',
                       )}
                     >
                       {label}
@@ -229,7 +229,7 @@ export default memo(function Header() {
                           onClick={() => { navigate(`/peptide/${p.id}`); setSearchOpen(false); setSearchQuery(''); }}
                           className={cn(
                             'flex w-full items-center gap-3 px-3 py-2.5 text-right text-sm transition-colors',
-                            idx === searchFocusIdx ? 'bg-emerald-50' : 'hover:bg-stone-50'
+                            idx === searchFocusIdx ? 'bg-emerald-50' : 'transition-colors hover:bg-stone-50'
                           )}
                         >
                           <span className="font-bold text-stone-900">{p.nameAr}</span>
@@ -363,7 +363,7 @@ export default memo(function Header() {
                       key={p.id}
                       to={`/peptide/${p.id}`}
                       onClick={() => { setMobileOpen(false); setSearchQuery(''); }}
-                      className="flex items-center gap-3 px-3 py-2.5 text-sm hover:bg-stone-50"
+                      className="flex items-center gap-3 px-3 py-2.5 text-sm transition-colors hover:bg-stone-50"
                     >
                       <span className="font-bold text-stone-900">{p.nameAr}</span>
                       <span className="text-xs text-stone-500">{p.nameEn}</span>
@@ -386,7 +386,7 @@ export default memo(function Header() {
                     'rounded-lg px-4 py-3 text-sm font-medium transition-colors',
                     active
                       ? 'bg-emerald-50 text-emerald-700'
-                      : 'text-stone-800 hover:bg-stone-50 hover:text-stone-900',
+                      : 'text-stone-800 hover:bg-stone-50 transition-colors hover:text-stone-900',
                   )}
                 >
                   {label}
@@ -406,7 +406,7 @@ export default memo(function Header() {
                     'rounded-lg px-4 py-2.5 text-sm font-medium transition-colors',
                     active
                       ? 'bg-emerald-50 text-emerald-700'
-                      : 'text-stone-600 hover:bg-stone-50 hover:text-stone-900',
+                      : 'text-stone-600 hover:bg-stone-50 transition-colors hover:text-stone-900',
                   )}
                 >
                   {label}

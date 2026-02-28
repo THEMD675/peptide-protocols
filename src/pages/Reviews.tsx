@@ -350,8 +350,8 @@ export default function Reviews() {
           <p className="font-bold text-stone-900">جرّب بنفسك</p>
           <p className="mt-1 text-sm text-stone-600">3 أيام تجربة مجانية — كل البروتوكولات والأدوات</p>
           <div className="mt-4 flex flex-col gap-2 sm:flex-row sm:justify-center">
-            <Link to="/signup?redirect=/pricing" className="rounded-full bg-emerald-600 px-6 py-2.5 text-sm font-bold text-white hover:bg-emerald-700">ابدأ تجربتك المجانية</Link>
-            <Link to="/library" className="rounded-full border border-emerald-300 px-6 py-2.5 text-sm font-bold text-emerald-700 hover:bg-emerald-100">تصفّح المكتبة</Link>
+            <Link to="/signup?redirect=/pricing" className="rounded-full bg-emerald-600 px-6 py-2.5 text-sm font-bold text-white transition-colors hover:bg-emerald-700">ابدأ تجربتك المجانية</Link>
+            <Link to="/library" className="rounded-full border border-emerald-300 px-6 py-2.5 text-sm font-bold text-emerald-700 transition-colors hover:bg-emerald-100">تصفّح المكتبة</Link>
           </div>
         </div>
       </div>

@@ -376,13 +376,13 @@ export default function Landing() {
               <div className="border-t border-stone-200 bg-stone-50 px-6 py-4 flex flex-col sm:flex-row items-center justify-between gap-3">
                 <p className="text-sm text-stone-600">هذا ببتيد واحد من {PEPTIDE_COUNT}. اشترك لفتح الكل.</p>
                 <div className="flex flex-wrap gap-3">
-                  <Link to="/calculator?peptide=BPC-157" className="text-sm font-semibold text-emerald-600 hover:text-emerald-700 hover:underline flex items-center gap-1">
+                  <Link to="/calculator?peptide=BPC-157" className="text-sm font-semibold text-emerald-600 transition-colors hover:text-emerald-700 hover:underline flex items-center gap-1">
                     احسب جرعتك بالحاسبة ←
                   </Link>
-                  <Link to="/peptide/bpc-157" className="rounded-full border border-emerald-300 px-5 py-2 text-sm font-bold text-emerald-700 hover:bg-emerald-50">
+                  <Link to="/peptide/bpc-157" className="rounded-full border border-emerald-300 px-5 py-2 text-sm font-bold text-emerald-700 transition-colors hover:bg-emerald-50">
                     شاهد البطاقة كاملة
                   </Link>
-                  <Link to={ctaLink} className="rounded-full bg-emerald-600 px-5 py-2 text-sm font-bold text-white hover:bg-emerald-700">
+                  <Link to={ctaLink} className="rounded-full bg-emerald-600 px-5 py-2 text-sm font-bold text-white transition-colors hover:bg-emerald-700">
                     {user ? 'اشترك الآن' : 'ابدأ تجربتك المجانية'}
                   </Link>
                 </div>

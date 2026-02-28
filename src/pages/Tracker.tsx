@@ -723,13 +723,13 @@ export default function Tracker() {
             <div className="flex gap-3">
               <button
                 onClick={confirmDialog.onConfirm}
-                className={cn('flex-1 rounded-xl px-4 py-2.5 text-sm font-bold text-white', confirmDialog.isDestructive ? 'bg-red-600 hover:bg-red-700' : 'bg-emerald-600 hover:bg-emerald-700')}
+                className={cn('flex-1 rounded-xl px-4 py-2.5 text-sm font-bold text-white', confirmDialog.isDestructive ? 'bg-red-600 transition-colors hover:bg-red-700' : 'bg-emerald-600 transition-colors hover:bg-emerald-700')}
               >
                 تأكيد
               </button>
               <button
                 onClick={() => setConfirmDialog(null)}
-                className="flex-1 rounded-xl border border-stone-200 px-4 py-2.5 text-sm font-bold text-stone-700 hover:bg-stone-50"
+                className="flex-1 rounded-xl border border-stone-200 px-4 py-2.5 text-sm font-bold text-stone-700 transition-colors hover:bg-stone-50"
               >
                 إلغاء
               </button>

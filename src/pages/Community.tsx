@@ -207,7 +207,7 @@ export default function Community() {
                           'rounded-full border px-4 py-1.5 text-sm font-medium transition-all',
                           goal === g
                             ? 'border-emerald-300 bg-emerald-100 text-emerald-800'
-                            : 'border-stone-200 bg-white text-stone-800 hover:border-emerald-200'
+                            : 'border-stone-200 bg-white text-stone-800 transition-colors hover:border-emerald-200'
                         )}
                       >
                         {g}
@@ -297,7 +297,7 @@ export default function Community() {
                   <button
                     type="button"
                     onClick={() => setShowForm(false)}
-                    className="rounded-full border border-stone-200 px-6 py-3 font-bold text-stone-800 hover:bg-stone-50"
+                    className="rounded-full border border-stone-200 px-6 py-3 font-bold text-stone-800 transition-colors hover:bg-stone-50"
                   >
                     إلغاء
                   </button>
@@ -310,7 +310,7 @@ export default function Community() {
         {!user && (
           <div className="mb-8 rounded-2xl border border-stone-200 bg-stone-50 p-6 text-center">
             <p className="font-bold text-stone-900">سجّل الدخول لمشاركة تجربتك</p>
-            <Link to="/login" className="mt-3 inline-block rounded-full bg-emerald-600 px-8 py-2.5 text-sm font-bold text-white hover:bg-emerald-700">
+            <Link to="/login" className="mt-3 inline-block rounded-full bg-emerald-600 px-8 py-2.5 text-sm font-bold text-white transition-colors hover:bg-emerald-700">
               تسجيل الدخول
             </Link>
           </div>
@@ -320,7 +320,7 @@ export default function Community() {
           <div className="mb-8 rounded-2xl border-2 border-emerald-200 bg-emerald-50 p-6 text-center">
             <p className="font-bold text-stone-900">اشترك لمشاركة تجربتك مع المجتمع</p>
             <p className="mt-1 text-sm text-stone-800">المشتركون فقط يمكنهم نشر تجاربهم</p>
-            <Link to="/pricing" className="mt-3 inline-block rounded-full bg-emerald-600 px-8 py-2.5 text-sm font-bold text-white hover:bg-emerald-700">
+            <Link to="/pricing" className="mt-3 inline-block rounded-full bg-emerald-600 px-8 py-2.5 text-sm font-bold text-white transition-colors hover:bg-emerald-700">
               اشترك — {PRICING.essentials.label}/شهريًا
             </Link>
           </div>
@@ -339,7 +339,7 @@ export default function Community() {
                     'rounded-full border px-4 py-1.5 text-sm font-medium transition-all',
                     filterGoal === g
                       ? 'border-emerald-400 bg-emerald-50 text-emerald-800'
-                      : 'border-stone-200 bg-white text-stone-600 hover:border-emerald-200'
+                      : 'border-stone-200 bg-white text-stone-600 transition-colors hover:border-emerald-200'
                   )}
                 >
                   {label}

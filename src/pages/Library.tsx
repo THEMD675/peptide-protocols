@@ -48,8 +48,8 @@ const PeptideCard = memo(function PeptideCard({
       className={cn(
         'relative h-full overflow-hidden rounded-2xl border p-5 transition-all duration-300',
         hasAccess
-          ? 'border-stone-200 bg-white hover:border-emerald-300 hover:shadow-xl hover:shadow-emerald-600/10 hover:-translate-y-1'
-          : 'border-stone-200 bg-stone-50/50 hover:border-stone-300',
+          ? 'border-stone-200 bg-white transition-colors hover:border-emerald-300 hover:shadow-xl hover:shadow-emerald-600/10 hover:-translate-y-1'
+          : 'border-stone-200 bg-stone-50/50 transition-colors hover:border-stone-300',
         isFav && 'border-s-4 border-s-amber-400',
       )}
     >
@@ -91,7 +91,7 @@ const PeptideCard = memo(function PeptideCard({
             className={cn(
               'text-lg font-bold transition-colors',
               hasAccess
-                ? 'text-stone-900 group-hover:text-emerald-600'
+                ? 'text-stone-900 group-transition-colors hover:text-emerald-600'
                 : 'text-stone-900',
             )}
           >
@@ -353,7 +353,7 @@ export default function Library() {
               'flex items-center justify-center gap-2 rounded-xl border px-4 py-2.5 text-sm font-medium transition-colors sm:w-auto',
               showFilters
                 ? 'border-emerald-400 bg-emerald-50 text-emerald-600'
-                : 'border-stone-200 bg-white text-stone-800 hover:border-stone-300',
+                : 'border-stone-200 bg-white text-stone-800 transition-colors hover:border-stone-300',
             )}
           >
             <Filter className="h-4 w-4" />
@@ -402,7 +402,7 @@ export default function Library() {
                 'shrink-0 rounded-full border px-4 py-2 min-h-[44px] text-sm font-medium transition-all',
                 activeCategory === 'all'
                   ? 'gold-gradient border-emerald-300 text-white'
-                  : 'border-stone-200 bg-white text-stone-800 hover:border-stone-300 hover:text-stone-800',
+                  : 'border-stone-200 bg-white text-stone-800 hover:border-stone-300 transition-colors hover:text-stone-800',
               )}
             >
               الكل
@@ -419,7 +419,7 @@ export default function Library() {
                     'flex shrink-0 items-center gap-1.5 rounded-full border px-4 py-2 min-h-[44px] text-sm font-medium transition-all',
                     active
                       ? 'gold-gradient border-emerald-300 text-white'
-                      : 'border-stone-200 bg-white text-stone-800 hover:border-stone-300 hover:text-stone-800',
+                      : 'border-stone-200 bg-white text-stone-800 hover:border-stone-300 transition-colors hover:text-stone-800',
                   )}
                 >
                   {Icon && <Icon className="h-3.5 w-3.5" />}

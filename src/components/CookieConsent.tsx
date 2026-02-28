@@ -42,7 +42,7 @@ export default function CookieConsent() {
       <div className="mx-auto max-w-5xl flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between sm:gap-3">
         <p className="text-sm text-stone-700 leading-relaxed">
           نستخدم ملفات تعريف الارتباط لتحسين تجربتك.{' '}
-          <Link to="/privacy" className="text-emerald-600 underline underline-offset-2 hover:text-emerald-700">سياسة الخصوصية</Link>
+          <Link to="/privacy" className="text-emerald-600 underline underline-offset-2 transition-colors hover:text-emerald-700">سياسة الخصوصية</Link>
         </p>
         <div className="flex shrink-0 items-center gap-3">
           <button

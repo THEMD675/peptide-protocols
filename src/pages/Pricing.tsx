@@ -101,8 +101,8 @@ export default function Pricing() {
             'font-bold transition-all duration-300',
             'hover:scale-[1.02] active:scale-[0.98]',
             isElite
-              ? 'btn-primary-glow bg-emerald-600 text-white hover:bg-emerald-700'
-              : 'border-2 border-stone-300 bg-white text-stone-800 hover:border-emerald-200 hover:text-emerald-700',
+              ? 'btn-primary-glow bg-emerald-600 text-white transition-colors hover:bg-emerald-700'
+              : 'border-2 border-stone-300 bg-white text-stone-800 hover:border-emerald-200 transition-colors hover:text-emerald-700',
             isLoading && 'opacity-70 pointer-events-none'
           )}
         >
@@ -124,8 +124,8 @@ export default function Pricing() {
           'font-bold transition-all duration-300',
           'hover:scale-[1.02] active:scale-[0.98]',
           isElite
-            ? 'btn-primary-glow bg-emerald-600 text-white hover:bg-emerald-700'
-            : 'border-2 border-stone-300 bg-white text-stone-800 hover:border-emerald-200 hover:text-emerald-700'
+            ? 'btn-primary-glow bg-emerald-600 text-white transition-colors hover:bg-emerald-700'
+            : 'border-2 border-stone-300 bg-white text-stone-800 hover:border-emerald-200 transition-colors hover:text-emerald-700'
         )}
       >
         ابدأ التجربة المجانية

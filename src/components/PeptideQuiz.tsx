@@ -214,7 +214,7 @@ export default function PeptideQuiz() {
           </div>
         </div>
         {step > 0 && (
-          <button onClick={handleBack} className="flex items-center gap-1 text-xs text-stone-500 hover:text-stone-800">
+          <button onClick={handleBack} className="flex items-center gap-1 text-xs text-stone-500 transition-colors hover:text-stone-800">
             <ArrowRight className="h-3 w-3" /> رجوع
           </button>
         )}
@@ -239,7 +239,7 @@ export default function PeptideQuiz() {
                 Icon ? 'flex flex-col items-center gap-1.5 px-3 py-3 text-center' : 'px-5 py-3.5 text-right',
                 answers[step] === opt.id
                   ? 'border-emerald-400 bg-emerald-50 text-emerald-800 ring-2 ring-emerald-100'
-                  : 'border-stone-200 bg-white text-stone-800 hover:border-emerald-300 hover:bg-stone-50'
+                  : 'border-stone-200 bg-white text-stone-800 hover:border-emerald-300 transition-colors hover:bg-stone-50'
               )}
             >
               {Icon && <Icon className={cn('h-5 w-5', answers[step] === opt.id ? 'text-emerald-600' : 'text-stone-400')} />}

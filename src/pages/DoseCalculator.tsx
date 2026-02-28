@@ -315,7 +315,7 @@ export default function DoseCalculator() {
                   'rounded-full border px-3 py-1.5 text-xs transition-all active:scale-[0.98]',
                   selectedPreset === p.name
                     ? 'border-emerald-400 bg-emerald-50 text-emerald-700 ring-2 ring-emerald-400 font-bold shadow-sm'
-                    : 'border-stone-200 bg-white text-stone-700 font-medium hover:border-emerald-300 hover:text-emerald-600'
+                    : 'border-stone-200 bg-white text-stone-700 font-medium hover:border-emerald-300 transition-colors hover:text-emerald-600'
                 )}
               >
                 {p.name}
@@ -343,7 +343,7 @@ export default function DoseCalculator() {
                   'rounded-lg px-4 py-1.5 text-sm font-medium transition-all',
                   doseUnit === 'mcg'
                     ? 'bg-emerald-500 text-white'
-                    : 'text-stone-800 hover:text-stone-800',
+                    : 'text-stone-800 transition-colors hover:text-stone-800',
                 )}
               >
                 مايكروغرام (mcg)
@@ -359,7 +359,7 @@ export default function DoseCalculator() {
                   'rounded-lg px-4 py-1.5 text-sm font-medium transition-all',
                   doseUnit === 'mg'
                     ? 'bg-emerald-500 text-white'
-                    : 'text-stone-800 hover:text-stone-800',
+                    : 'text-stone-800 transition-colors hover:text-stone-800',
                 )}
               >
                 ملليغرام (mg)
@@ -640,7 +640,7 @@ export default function DoseCalculator() {
                     onClick={() => loadSavedCalc(calc)}
                     className={cn(
                       'flex items-center justify-between rounded-xl border px-4 py-3 text-right transition-all hover:shadow-sm',
-                      selectedPreset === calc.peptide ? 'border-emerald-400 bg-emerald-50' : 'border-stone-200 bg-white hover:border-emerald-300'
+                      selectedPreset === calc.peptide ? 'border-emerald-400 bg-emerald-50' : 'border-stone-200 bg-white transition-colors hover:border-emerald-300'
                     )}
                   >
                     <div>
@@ -931,7 +931,7 @@ function CrossLink({
         {icon}
       </div>
       <div className="flex-1">
-        <p className="text-sm font-bold text-stone-800 group-hover:text-stone-900">
+        <p className="text-sm font-bold text-stone-800 group-transition-colors hover:text-stone-900">
           {title}
         </p>
         <p className="text-xs text-stone-800">{desc}</p>

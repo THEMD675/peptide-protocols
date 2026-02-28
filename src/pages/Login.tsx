@@ -207,7 +207,7 @@ export default function Login() {
                 onClick={() => { setTab(t); setError(''); setResetMessage(''); }}
                 className={cn(
                   'relative flex-1 py-3.5 text-center text-sm font-semibold transition-colors',
-                  tab === t ? 'text-emerald-600' : 'text-stone-600 hover:text-stone-900'
+                  tab === t ? 'text-emerald-600' : 'text-stone-600 transition-colors hover:text-stone-900'
                 )}
               >
                 {t === 'login' ? 'تسجيل الدخول' : 'إنشاء حساب'}

@@ -105,13 +105,13 @@ export default function InteractionChecker() {
                 })}
               </select>
               {selected.length > 2 && (
-                <button onClick={() => removeSlot(idx)} className="rounded-lg p-2 text-stone-400 hover:bg-red-50 hover:text-red-500"><XCircle className="h-4 w-4" /></button>
+                <button onClick={() => removeSlot(idx)} className="rounded-lg p-2 text-stone-400 hover:bg-red-50 transition-colors hover:text-red-500"><XCircle className="h-4 w-4" /></button>
               )}
             </div>
           ))}
           <div className="flex gap-2">
           {selected.length < 5 && (
-            <button onClick={addSlot} className="flex flex-1 items-center justify-center gap-2 rounded-xl border-2 border-dashed border-stone-200 py-3 text-sm font-medium text-stone-500 hover:border-emerald-300 hover:text-emerald-600">
+            <button onClick={addSlot} className="flex flex-1 items-center justify-center gap-2 rounded-xl border-2 border-dashed border-stone-200 py-3 text-sm font-medium text-stone-500 hover:border-emerald-300 transition-colors hover:text-emerald-600">
               + أضف ببتيد آخر
             </button>
           )}
@@ -200,10 +200,10 @@ export default function InteractionChecker() {
         </div>
 
         <div className="mt-6 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
-          <Link to="/calculator" className="inline-flex items-center gap-2 rounded-full bg-emerald-600 px-5 py-2.5 text-sm font-bold text-white hover:bg-emerald-700">
+          <Link to="/calculator" className="inline-flex items-center gap-2 rounded-full bg-emerald-600 px-5 py-2.5 text-sm font-bold text-white transition-colors hover:bg-emerald-700">
             احسب الجرعة
           </Link>
-          <Link to="/coach" className="inline-flex items-center gap-2 rounded-full border border-emerald-300 px-5 py-2.5 text-sm font-bold text-emerald-700 hover:bg-emerald-100">
+          <Link to="/coach" className="inline-flex items-center gap-2 rounded-full border border-emerald-300 px-5 py-2.5 text-sm font-bold text-emerald-700 transition-colors hover:bg-emerald-100">
             اسأل المدرب الذكي عن تجميعة مخصّصة
           </Link>
         </div>

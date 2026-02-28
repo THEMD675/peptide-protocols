@@ -112,7 +112,7 @@ export default function PeptideTable() {
 
         {/* Collapsible guide — starts CLOSED so data is visible immediately */}
         <details className="mb-6 rounded-xl border border-stone-200 bg-stone-50">
-          <summary className="flex cursor-pointer items-center gap-2 px-5 py-3 text-sm font-bold text-stone-700 hover:text-stone-900">
+          <summary className="flex cursor-pointer items-center gap-2 px-5 py-3 text-sm font-bold text-stone-700 transition-colors hover:text-stone-900">
             <BookOpen className="h-4 w-4" />
             دليل استخدام الجدول والاختصارات
           </summary>
@@ -166,7 +166,7 @@ export default function PeptideTable() {
                 'rounded-full px-4 py-2 text-sm font-semibold transition-all',
                 activeCategory === 'all'
                   ? 'gold-gradient text-white shadow-lg'
-                  : 'border border-stone-300 bg-stone-50 text-stone-800 hover:border-stone-300 hover:text-stone-900'
+                  : 'border border-stone-300 bg-stone-50 text-stone-800 hover:border-stone-300 transition-colors hover:text-stone-900'
               )}
             >
               الكل ({peptides.length})
@@ -179,7 +179,7 @@ export default function PeptideTable() {
                   'rounded-full px-4 py-2 text-sm font-semibold transition-all',
                   activeCategory === cat.id
                     ? 'gold-gradient text-white shadow-lg'
-                    : 'border border-stone-300 bg-stone-50 text-stone-800 hover:border-stone-300 hover:text-stone-900'
+                    : 'border border-stone-300 bg-stone-50 text-stone-800 hover:border-stone-300 transition-colors hover:text-stone-900'
                 )}
               >
                 {(() => { const Icon = categoryIcons[cat.id]; return Icon ? <Icon className="inline h-4 w-4" /> : null; })()} {cat.nameAr} ({cat.peptideCount})
@@ -559,9 +559,9 @@ export default function PeptideTable() {
           <p className="font-bold text-stone-900">اخترت ببتيداتك؟</p>
           <p className="mt-1 text-sm text-stone-600">تحقق من التعارضات بينها واحسب الجرعة الدقيقة</p>
           <div className="mt-4 flex flex-col gap-2 sm:flex-row sm:justify-center">
-            <Link to="/interactions" className="rounded-full bg-emerald-600 px-6 py-2.5 text-sm font-bold text-white hover:bg-emerald-700">فحص التعارضات</Link>
-            <Link to="/calculator" className="rounded-full border border-emerald-300 px-6 py-2.5 text-sm font-bold text-emerald-700 hover:bg-emerald-100">حاسبة الجرعات</Link>
-            <Link to="/coach" className="rounded-full border border-emerald-300 px-6 py-2.5 text-sm font-bold text-emerald-700 hover:bg-emerald-100">اسأل المدرب الذكي</Link>
+            <Link to="/interactions" className="rounded-full bg-emerald-600 px-6 py-2.5 text-sm font-bold text-white transition-colors hover:bg-emerald-700">فحص التعارضات</Link>
+            <Link to="/calculator" className="rounded-full border border-emerald-300 px-6 py-2.5 text-sm font-bold text-emerald-700 transition-colors hover:bg-emerald-100">حاسبة الجرعات</Link>
+            <Link to="/coach" className="rounded-full border border-emerald-300 px-6 py-2.5 text-sm font-bold text-emerald-700 transition-colors hover:bg-emerald-100">اسأل المدرب الذكي</Link>
           </div>
         </div>
       </div>
