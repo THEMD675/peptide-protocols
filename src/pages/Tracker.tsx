@@ -381,7 +381,7 @@ export default function Tracker() {
               <MapPin className="h-4 w-4 text-emerald-600" />
               <h3 className="text-sm font-bold text-stone-900">تدوير مواقع الحقن</h3>
             </div>
-            <div className="grid grid-cols-4 gap-2 mb-3">
+            <div className="grid grid-cols-2 gap-2 mb-3 sm:grid-cols-4">
               {siteRotationData.allSites.map(s => {
                 const count = siteRotationData.siteCounts[s] || 0;
                 const isLast = s === siteRotationData.lastSite;

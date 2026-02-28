@@ -229,7 +229,7 @@ export default function Community() {
                   <p className="mt-1 text-start text-xs text-stone-400">{protocol.length}/3000</p>
                 </div>
 
-                <div className="mb-4 grid grid-cols-2 gap-4">
+                <div className="mb-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
                   <div>
                     <label className="mb-1.5 block text-sm font-bold text-stone-900">المدة (أسابيع)</label>
                     <input
