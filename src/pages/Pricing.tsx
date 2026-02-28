@@ -5,7 +5,7 @@ import { Check, Shield, Lock, CreditCard, RefreshCw, ChevronDown, MessageCircle,
 import { toast } from 'sonner';
 import { useAuth } from '@/contexts/AuthContext';
 import { cn } from '@/lib/utils';
-import { PRICING, PEPTIDE_COUNT, VALUE_TOTAL, VALUE_SAVINGS_ELITE, VALUE_STACK, SUPPORT_EMAIL } from '@/lib/constants';
+import { PRICING, PEPTIDE_COUNT, VALUE_TOTAL, VALUE_SAVINGS_ELITE, VALUE_STACK, SUPPORT_EMAIL, SITE_URL } from '@/lib/constants';
 
 const essentialsFeatures = [
   `بطاقات البروتوكول الكاملة لـ ${PEPTIDE_COUNT} ببتيد`,
@@ -138,6 +138,12 @@ export default function Pricing() {
       <Helmet>
         <title>أسعار واشتراكات الببتيدات | pptides</title>
         <meta name="description" content={`اختر خطتك: Essentials ${PRICING.essentials.label}/شهر أو Elite ${PRICING.elite.label}/شهر. 3 أيام تجربة مجانية. ضمان استرداد كامل.`} />
+        <meta property="og:title" content="أسعار pptides | ابدأ بتجربة 3 أيام مجانية" />
+        <meta property="og:description" content={`Essentials ${PRICING.essentials.label}/شهر أو Elite ${PRICING.elite.label}/شهر. ضمان استرداد كامل.`} />
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content={`${SITE_URL}/pricing`} />
+        <meta property="og:image" content={`${SITE_URL}/og-image.png`} />
+        <meta name="twitter:card" content="summary_large_image" />
         <script type="application/ld+json">{JSON.stringify({
           "@context": "https://schema.org",
           "@type": "FAQPage",

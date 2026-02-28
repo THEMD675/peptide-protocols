@@ -18,7 +18,7 @@ import { cn } from '@/lib/utils';
 import { peptides, categories, type Peptide } from '@/data/peptides';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
-import { PRICING, PEPTIDE_COUNT, TRIAL_PEPTIDE_IDS } from '@/lib/constants';
+import { PRICING, PEPTIDE_COUNT, TRIAL_PEPTIDE_IDS, SITE_URL } from '@/lib/constants';
 import { categoryIcons, evidenceColors, evidenceLabels, categoryLabels, evidenceOrder } from '@/lib/peptide-labels';
 
 
@@ -290,6 +290,12 @@ export default function Library() {
         <title>{`مكتبة الببتيدات | ${PEPTIDE_COUNT} ببتيد علاجي مع بروتوكولات كاملة | pptides`}</title>
         <meta name="description" content={`تصفّح ${PEPTIDE_COUNT} ببتيد علاجي مع شرح مفصّل للآليات والجرعات والآثار الجانبية. Browse ${PEPTIDE_COUNT} therapeutic peptides with detailed protocols.`} />
         <meta property="og:locale" content="ar_SA" />
+        <meta property="og:title" content={`مكتبة الببتيدات | ${PEPTIDE_COUNT} ببتيد علاجي | pptides`} />
+        <meta property="og:description" content={`تصفّح ${PEPTIDE_COUNT} ببتيد علاجي مع بروتوكولات كاملة وحاسبة جرعات.`} />
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content={`${SITE_URL}/library`} />
+        <meta property="og:image" content={`${SITE_URL}/og-image.png`} />
+        <meta name="twitter:card" content="summary_large_image" />
       </Helmet>
       <div className="mx-auto max-w-7xl px-4 py-8 md:px-6 md:py-12">
         {/* Header */}

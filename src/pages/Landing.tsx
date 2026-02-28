@@ -151,6 +151,15 @@ export default function Landing() {
         <title>pptides | أشمل دليل عربي للببتيدات العلاجية</title>
         <meta name="description" content={`${PEPTIDE_COUNT} ببتيد علاجي مع بروتوكولات كاملة، حاسبة جرعات، ودليل تحاليل. أشمل دليل عربي مبني على الأبحاث.`} />
         <meta property="og:locale" content="ar_SA" />
+        <meta property="og:title" content={`pptides | أشمل دليل عربي للببتيدات العلاجية | ${PEPTIDE_COUNT}+ ببتيد`} />
+        <meta property="og:description" content={`${PEPTIDE_COUNT} ببتيد علاجي مع بروتوكولات كاملة، حاسبة جرعات، ومدرب ذكي. مبني على الأبحاث.`} />
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content={SITE_URL} />
+        <meta property="og:image" content={`${SITE_URL}/og-image.png`} />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="pptides | أشمل دليل عربي للببتيدات العلاجية" />
+        <meta name="twitter:description" content={`${PEPTIDE_COUNT} ببتيد علاجي مع بروتوكولات كاملة ومدرب ذكي.`} />
+        <meta name="twitter:image" content={`${SITE_URL}/og-image.png`} />
       </Helmet>
 
       {/* ═══════ HERO ═══════ */}

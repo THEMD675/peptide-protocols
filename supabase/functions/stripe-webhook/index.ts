@@ -260,6 +260,7 @@ serve(async (req) => {
     }
 
     if (dbFailed) {
+      await supabase.from('processed_webhook_events').delete().eq('event_id', event.id).catch(() => {})
       return jsonResponse({ error: 'Database update failed' }, 500)
     }
 

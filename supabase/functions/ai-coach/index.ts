@@ -210,15 +210,16 @@ serve(async (req) => {
     // Server-side subscription check — allow limited free access
     const { data: sub } = await supabase
       .from('subscriptions')
-      .select('status, tier, trial_ends_at')
+      .select('status, tier, trial_ends_at, current_period_end')
       .eq('user_id', user.id)
       .maybeSingle()
 
     const now = new Date()
     const trialEnd = sub?.trial_ends_at ? new Date(sub.trial_ends_at) : null
     const isTrialValid = sub?.status === 'trial' && trialEnd && trialEnd > now
-    const isActive = sub?.status === 'active'
-    const hasFullAccess = isTrialValid || isActive
+    const isActive = sub?.status === 'active' || sub?.status === 'past_due'
+    const cancelledButPaid = sub?.status === 'cancelled' && sub?.current_period_end && new Date(sub.current_period_end) > now
+    const hasFullAccess = isTrialValid || isActive || cancelledButPaid
 
     const contentLength = parseInt(req.headers.get('content-length') || '0', 10);
     if (contentLength > 100_000) {
