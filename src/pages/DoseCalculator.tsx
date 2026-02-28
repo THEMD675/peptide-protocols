@@ -292,7 +292,7 @@ export default function DoseCalculator() {
           <h1 className="text-3xl font-bold text-stone-900 md:text-4xl">
             حاسبة جرعات الببتيدات
           </h1>
-          <p className="mt-2 text-base text-stone-800">
+          <p className="mt-2 text-base text-stone-600">
             أداة مجانية — احسب جرعتك بدقة خلال ثوانٍ
           </p>
         </div>

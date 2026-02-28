@@ -148,7 +148,7 @@ export default function Community() {
           <h1 className="mb-3 text-3xl font-bold text-stone-900 md:text-4xl">
             تجارب <span className="text-emerald-600">المستخدمين</span>
           </h1>
-          <p className="mx-auto max-w-lg text-lg text-stone-800">
+          <p className="mx-auto max-w-lg text-lg text-stone-600">
             بروتوكولات حقيقية. نتائج فعلية. من مستخدمين مثلك.
           </p>
         </div>

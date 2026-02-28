@@ -294,15 +294,17 @@ export default function Library() {
       <div className="mx-auto max-w-7xl px-4 py-8 md:px-6 md:py-12">
         {/* Header */}
         <div
-          className="mb-8 text-center"
+          className="mb-10 text-center"
         >
+          <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-500/10">
+            <FlaskConical className="h-7 w-7 text-emerald-600" />
+          </div>
           <h1
             className="text-3xl font-bold md:text-4xl"
-            
           >
             مكتبة الببتيدات
           </h1>
-          <p className="mt-2 text-base text-stone-800">
+          <p className="mt-2 text-base text-stone-600">
             استكشف البروتوكولات المبنية على الأدلة العلمية
           </p>
         </div>
@@ -448,7 +450,7 @@ export default function Library() {
         {/* Peptide Grid */}
         {filtered.length > 0 ? (
             <div
-              className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3"
+              className="grid grid-cols-1 gap-5 md:grid-cols-2 md:gap-6 lg:grid-cols-3"
             >
               {filtered.map((p) => (
                 <PeptideCard

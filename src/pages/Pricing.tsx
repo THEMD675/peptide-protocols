@@ -162,7 +162,7 @@ export default function Pricing() {
             استثمر في <span className="text-emerald-600">صحتك</span>
           </h1>
           {showTrialMessaging && (
-            <p className="mx-auto max-w-lg text-lg text-stone-800">
+            <p className="mx-auto max-w-lg text-lg text-stone-600">
               3 أيام تجربة مجانية مع كل اشتراك.
             </p>
           )}
