@@ -662,10 +662,10 @@ export default function DoseCalculator() {
           <button
             onClick={() => setShowFormulas(!showFormulas)}
             aria-expanded={showFormulas}
-            className="flex w-full items-center justify-between px-6 py-4"
+            className="flex w-full items-center justify-between px-6 py-4 transition-colors hover:bg-stone-100/80"
           >
             <div className="flex items-center gap-2">
-              <Droplets className="h-5 w-5 text-emerald-600" />
+              <Droplets className="h-5 w-5 shrink-0 text-emerald-600" />
               <h2 className="text-base font-bold text-stone-900">
                 كيف تستخدم هذه الحاسبة
               </h2>

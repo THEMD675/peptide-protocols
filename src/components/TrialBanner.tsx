@@ -101,7 +101,7 @@ export default function TrialBanner() {
               اشترك — {PRICING.essentials.label}/شهريًا
             </Link>
           </div>
-          <div className="mt-6 flex flex-wrap justify-center gap-3 text-xs">
+          <div className="mt-6 flex flex-wrap justify-center gap-3 text-sm">
             <span className="text-stone-400">أو تصفّح المجاني:</span>
             <Link to="/calculator" className="text-emerald-600 underline underline-offset-2 transition-colors hover:text-emerald-700">الحاسبة</Link>
             <Link to="/glossary" className="text-emerald-600 underline underline-offset-2 transition-colors hover:text-emerald-700">المصطلحات</Link>
@@ -110,7 +110,7 @@ export default function TrialBanner() {
           </div>
           <button
             onClick={() => window.history.length > 1 ? window.history.back() : window.location.href = '/'}
-            className="mt-4 text-sm text-stone-400 hover:text-stone-600 transition-colors"
+            className="mt-4 min-h-[44px] px-3 py-2 text-sm text-stone-400 hover:text-stone-600 transition-colors"
           >
             رجوع
           </button>
@@ -141,7 +141,7 @@ export default function TrialBanner() {
               ابدأ تجربتك المجانية
             </Link>
           </div>
-          <div className="mt-6 flex flex-wrap justify-center gap-3 text-xs">
+          <div className="mt-6 flex flex-wrap justify-center gap-3 text-sm">
             <span className="text-stone-400">أو تصفّح المجاني:</span>
             <Link to="/calculator" className="text-emerald-600 underline underline-offset-2 transition-colors hover:text-emerald-700">الحاسبة</Link>
             <Link to="/library" className="text-emerald-600 underline underline-offset-2 transition-colors hover:text-emerald-700">المكتبة</Link>
@@ -149,7 +149,7 @@ export default function TrialBanner() {
           </div>
           <button
             onClick={() => window.history.length > 1 ? window.history.back() : window.location.href = '/'}
-            className="mt-4 text-sm text-stone-400 hover:text-stone-600 transition-colors"
+            className="mt-4 min-h-[44px] px-3 py-2 text-sm text-stone-400 hover:text-stone-600 transition-colors"
           >
             رجوع
           </button>

@@ -158,10 +158,10 @@ export default function PeptideQuiz() {
           </div>
           <p className="text-sm text-stone-700 leading-relaxed">{rec.reason}</p>
           {peptideData?.dosageAr && (
-            <p className="mt-2 text-xs text-stone-600"><strong>الجرعة:</strong> {peptideData.dosageAr.split('.')[0]}</p>
+            <p className="mt-2 text-sm text-stone-600"><strong>الجرعة:</strong> {peptideData.dosageAr.split('.')[0]}</p>
           )}
           {peptideData?.costEstimate && (
-            <p className="mt-2 text-xs text-emerald-700 font-semibold">التكلفة التقريبية: {peptideData.costEstimate}</p>
+            <p className="mt-2 text-sm text-emerald-700 font-semibold">التكلفة التقريبية: {peptideData.costEstimate}</p>
           )}
         </div>
 
@@ -170,12 +170,12 @@ export default function PeptideQuiz() {
             to="/coach"
             className="flex-1 flex flex-col items-center justify-center gap-1 rounded-xl bg-emerald-600 px-5 py-3 text-white transition-all hover:bg-emerald-700"
           >
-            <span className="text-sm font-bold flex items-center gap-2">صمّم بروتوكول مخصّص <ArrowLeft className="h-4 w-4" /></span>
+            <span className="text-sm font-bold flex items-center gap-2">صمّم بروتوكول مخصّص <ArrowLeft className="h-4 w-4 shrink-0" /></span>
             <span className="text-xs opacity-80">بناءً على إجاباتك — المدرب الذكي جاهز</span>
           </Link>
           <Link
             to={`/peptide/${rec.peptideId}`}
-            className="flex items-center justify-center gap-2 rounded-xl border border-stone-200 bg-white px-5 py-3 text-sm font-bold text-stone-700 transition-all hover:border-emerald-200"
+            className="flex items-center justify-center gap-2 rounded-xl border border-stone-200 bg-white px-5 py-3 text-sm font-bold text-stone-700 transition-all hover:border-emerald-200 hover:shadow-sm"
           >
             شاهد بروتوكول {rec.nameAr}
           </Link>
@@ -187,11 +187,11 @@ export default function PeptideQuiz() {
           </Link>
         )}
         <div className="mt-4 flex items-center justify-center gap-4">
-          <button onClick={() => { setShowResult(false); setStep(STEPS.length - 1); }} className="text-xs text-stone-500 hover:text-stone-700 transition-colors">
+          <button onClick={() => { setShowResult(false); setStep(STEPS.length - 1); }} className="min-h-[44px] px-2 text-sm text-stone-500 hover:text-stone-700 transition-colors">
             غيّر إجابتك
           </button>
           <span className="text-stone-300">|</span>
-          <button onClick={handleReset} className="text-xs text-emerald-600 hover:underline">
+          <button onClick={handleReset} className="min-h-[44px] px-2 text-sm text-emerald-600 hover:underline transition-colors">
             أعد الاختبار
           </button>
         </div>
@@ -214,8 +214,8 @@ export default function PeptideQuiz() {
           </div>
         </div>
         {step > 0 && (
-          <button onClick={handleBack} className="flex items-center gap-1 text-xs text-stone-500 transition-colors hover:text-stone-800">
-            <ArrowRight className="h-3 w-3" /> رجوع
+          <button onClick={handleBack} className="flex items-center gap-1 min-h-[44px] text-sm text-stone-500 transition-colors hover:text-stone-800">
+            <ArrowRight className="h-3 w-3 shrink-0" /> رجوع
           </button>
         )}
       </div>
@@ -248,7 +248,7 @@ export default function PeptideQuiz() {
           );
         })}
       </div>
-      <Link to="/library" className="mt-4 block text-center text-xs text-stone-400 hover:text-stone-600 transition-colors">
+      <Link to="/library" className="mt-4 block text-center text-sm text-stone-400 hover:text-stone-600 transition-colors">
         تخطّي — تصفّح المكتبة مباشرة
       </Link>
     </div>
