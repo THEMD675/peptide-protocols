@@ -16,12 +16,14 @@ const FREE_PATHS = [
 ];
 
 export default function TrialBanner() {
-  const { user, subscription } = useAuth();
+  const { user, subscription, isLoading } = useAuth();
   const { pathname } = useLocation();
   const [dismissed, setDismissed] = useState(() => sessionStorage.getItem(DISMISS_KEY) === '1');
 
+  if (isLoading) return null;
   if (!user || !subscription) return null;
   if (subscription.status === 'active') return null;
+  if (subscription.isProOrTrial) return null;
 
   if (subscription.status === 'past_due') {
     return (
