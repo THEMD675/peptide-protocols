@@ -188,7 +188,7 @@ export default function Dashboard() {
         <meta name="robots" content="noindex, nofollow" />
       </Helmet>
 
-      <OnboardingModal />
+      {!activity.loading && activity.logs.length === 0 && <OnboardingModal />}
 
       {/* Welcome Header */}
       <div className="mb-8">
@@ -220,13 +220,15 @@ export default function Dashboard() {
           </span>
           <span className={cn(
             'rounded-full px-3 py-1 text-xs font-bold',
-            subscription.status === 'active'
+            subscription.isProOrTrial
               ? 'bg-emerald-100 text-emerald-700'
-              : subscription.status === 'trial' || subscription.status === 'past_due'
+              : subscription.status === 'past_due'
                 ? 'bg-amber-100 text-amber-700'
                 : 'bg-stone-200 text-stone-600',
           )}>
-            {STATUS_LABELS[subscription.status] ?? subscription.status}
+            {subscription.isProOrTrial && subscription.status === 'cancelled'
+              ? 'نشط'
+              : STATUS_LABELS[subscription.status] ?? subscription.status}
           </span>
           {subscription.status === 'trial' && subscription.trialDaysLeft > 0 && (
             <span className="text-sm text-amber-600 font-bold">
@@ -234,12 +236,12 @@ export default function Dashboard() {
             </span>
           )}
         </div>
-        {subscription.tier !== 'elite' && (
+        {!subscription.isProOrTrial && (
           <Link
             to="/pricing"
             className="mt-4 inline-flex items-center gap-2 rounded-full bg-emerald-600 px-6 py-2.5 text-sm font-bold text-white transition-all hover:bg-emerald-700"
           >
-            ترقية الاشتراك
+            ابدأ تجربتك المجانية
           </Link>
         )}
       </div>

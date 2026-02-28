@@ -1,12 +1,12 @@
 import { useState, useMemo, useEffect, useId, useCallback } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { Link, useSearchParams } from 'react-router-dom';
-import { Calculator, FlaskConical, Droplets, ChevronDown, ArrowLeft, BookOpen, Layers, Bot, Bookmark, Syringe, Shield, Play } from 'lucide-react';
+import { Calculator, FlaskConical, Droplets, ChevronDown, ArrowLeft, BookOpen, Layers, Bot, Bookmark, Syringe, Shield, Play, Search } from 'lucide-react';
 import ProtocolWizard from '@/components/ProtocolWizard';
 import { peptides as allPeptides } from '@/data/peptides';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
-import { PEPTIDE_COUNT } from '@/lib/constants';
+import { PEPTIDE_COUNT, SITE_URL } from '@/lib/constants';
 import { DOSE_PRESETS as PEPTIDE_PRESETS_DATA, type DoseUnit } from '@/data/dose-presets';
 
 interface SyringeOption {
@@ -197,6 +197,18 @@ const PEPTIDE_PRESETS = PEPTIDE_PRESETS_DATA.map(p => ({
   name: p.name, dose: p.dose, unit: p.unit, vial: p.vialMg, water: p.waterMl, minDose: p.minDose, maxDose: p.maxDose,
 }));
 
+const POPULAR_PRESET_COUNT = 8;
+
+function getPresetDisplayName(presetName: string): string {
+  const pep = allPeptides.find(
+    p =>
+      p.nameEn === presetName ||
+      p.nameEn.startsWith(presetName + ' ') ||
+      p.nameEn.startsWith(presetName + '/'),
+  );
+  return pep?.nameAr ?? presetName;
+}
+
 export default function DoseCalculator() {
   const [doseUnit, setDoseUnit] = useState<DoseUnit>('mcg');
   const [doseValue, setDoseValue] = useState(250);
@@ -206,6 +218,8 @@ export default function DoseCalculator() {
   const [showFormulas, setShowFormulas] = useState(false);
   const [selectedPreset, setSelectedPreset] = useState('');
   const [showProtocolWizard, setShowProtocolWizard] = useState(false);
+  const [presetSearch, setPresetSearch] = useState('');
+  const [showAllPresets, setShowAllPresets] = useState(false);
   const [searchParams] = useSearchParams();
 
   /* eslint-disable react-hooks/set-state-in-effect -- sync form state from URL params */
@@ -283,6 +297,11 @@ export default function DoseCalculator() {
           name="keywords"
           content="حاسبة ببتيدات, peptide calculator, جرعات ببتيدات, BPC-157, reconstitution calculator, حاسبة جرعات"
         />
+        <meta property="og:title" content="حاسبة جرعات الببتيدات | pptides" />
+        <meta property="og:description" content="احسب جرعتك بدقة خلال ثوانٍ — أداة مجانية لحساب جرعات 30+ ببتيد" />
+        <meta property="og:url" content={`${SITE_URL}/calculator`} />
+        <meta property="og:type" content="website" />
+        <meta property="og:locale" content="ar_SA" />
       </Helmet>
 
       <div className="mx-auto max-w-4xl px-4 py-8 md:px-6 md:py-12">
@@ -306,28 +325,72 @@ export default function DoseCalculator() {
         {/* Peptide Preset Selector */}
         <div className="mb-6">
           <label className="mb-2 block text-sm font-bold text-stone-900 text-center">اختر الببتيد لتعبئة القيم تلقائيًا</label>
-          <div className="flex flex-wrap justify-center gap-2">
-            {PEPTIDE_PRESETS.map((p) => (
-              <button
-                key={p.name}
-                onClick={() => {
-                  setSelectedPreset(p.name);
-                  setDoseUnit(p.unit);
-                  setDoseValue(p.dose);
-                  setVialMg(p.vial);
-                  setWaterMl(p.water);
-                }}
-                className={cn(
-                  'rounded-full border px-3 py-1.5 text-xs transition-all active:scale-[0.98]',
-                  selectedPreset === p.name
-                    ? 'border-emerald-400 bg-emerald-50 text-emerald-700 ring-2 ring-emerald-400 font-bold shadow-sm'
-                    : 'border-stone-200 bg-white text-stone-700 font-medium hover:border-emerald-300 transition-colors hover:text-emerald-600'
-                )}
-              >
-                {p.name}
-              </button>
-            ))}
+          <div className="mb-3 relative">
+            <Search className="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-stone-400" />
+            <input
+              type="text"
+              value={presetSearch}
+              onChange={(e) => setPresetSearch(e.target.value)}
+              placeholder="ابحث عن ببتيد..."
+              className="w-full rounded-xl border border-stone-200 bg-stone-50 px-4 py-2.5 ps-10 text-sm text-stone-800 placeholder:text-stone-400 focus:border-emerald-300 focus:ring-1 focus:ring-emerald-200 outline-none"
+              aria-label="ابحث عن ببتيد"
+            />
           </div>
+          {(() => {
+            const q = presetSearch.trim().toLowerCase();
+            const filtered =
+              q === ''
+                ? PEPTIDE_PRESETS
+                : PEPTIDE_PRESETS.filter(
+                    (p) =>
+                      p.name.toLowerCase().includes(q) ||
+                      getPresetDisplayName(p.name).toLowerCase().includes(q),
+                  );
+            const isCollapsed = !showAllPresets && q === '';
+            const visible = isCollapsed ? filtered.slice(0, POPULAR_PRESET_COUNT) : filtered;
+            const hasMore = isCollapsed && filtered.length > POPULAR_PRESET_COUNT;
+            return (
+              <>
+                <div
+                  className={cn(
+                    'flex gap-2',
+                    isCollapsed ? 'overflow-x-auto flex-nowrap scrollbar-hide scroll-fade -mx-1 px-1' : 'flex-wrap justify-center',
+                  )}
+                >
+                  {visible.map((p) => (
+                    <button
+                      key={p.name}
+                      onClick={() => {
+                        setSelectedPreset(p.name);
+                        setDoseUnit(p.unit);
+                        setDoseValue(p.dose);
+                        setVialMg(p.vial);
+                        setWaterMl(p.water);
+                      }}
+                      className={cn(
+                        'rounded-full border px-3 py-1.5 text-xs transition-all active:scale-[0.98] shrink-0',
+                        selectedPreset === p.name
+                          ? 'border-emerald-400 bg-emerald-50 text-emerald-700 ring-2 ring-emerald-400 font-bold shadow-sm'
+                          : 'border-stone-200 bg-white text-stone-700 font-medium hover:border-emerald-300 transition-colors hover:text-emerald-600',
+                      )}
+                    >
+                      {getPresetDisplayName(p.name)}
+                    </button>
+                  ))}
+                </div>
+                {hasMore && (
+                  <div className="mt-2 text-center">
+                    <button
+                      onClick={() => setShowAllPresets(true)}
+                      className="text-xs font-medium text-emerald-600 hover:text-emerald-700 hover:underline"
+                    >
+                      عرض الكل ({PEPTIDE_PRESETS.length}+)
+                    </button>
+                  </div>
+                )}
+              </>
+            );
+          })()}
         </div>
 
         {/* Calculator Card */}

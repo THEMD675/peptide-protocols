@@ -2,7 +2,7 @@ import { Helmet } from 'react-helmet-async';
 import { Link } from 'react-router-dom';
 import { Shield, CheckCircle, Users, Package, MessageCircle, AlertTriangle, Mail } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { SUPPORT_EMAIL } from '@/lib/constants';
+import { SUPPORT_EMAIL, SITE_URL } from '@/lib/constants';
 
 const criteria = [
   {
@@ -51,6 +51,11 @@ export default function Sources() {
           name="description"
           content="تعلّم كيف تختار مورد ببتيدات موثوق — شهادات التحليل، النقاء ≥98%، السمعة المجتمعية، والشحن المبرّد."
         />
+        <meta property="og:title" content="المصادر الموثوقة | pptides" />
+        <meta property="og:description" content="معايير اختيار مورد ببتيدات موثوق — شهادات التحليل والنقاء والشحن المبرّد" />
+        <meta property="og:url" content={`${SITE_URL}/sources`} />
+        <meta property="og:type" content="website" />
+        <meta property="og:locale" content="ar_SA" />
       </Helmet>
 
       <div className="mx-auto max-w-4xl px-4 pt-8 pb-24 md:px-6 md:pt-12">

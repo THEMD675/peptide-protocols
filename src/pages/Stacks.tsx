@@ -2,7 +2,7 @@ import { Helmet } from 'react-helmet-async';
 import { Link } from 'react-router-dom';
 import { Layers, Clock, DollarSign, BarChart3, Syringe, Calculator } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
-import { PRICING } from '@/lib/constants';
+import { PRICING, SITE_URL } from '@/lib/constants';
 import { stacks, peptides, categories } from '@/data/peptides';
 
 const STACK_META: Record<string, { difficulty: string; cost: string; duration: string }> = {
@@ -50,6 +50,11 @@ export default function Stacks() {
       <Helmet>
         <title>بروتوكولات ببتيدات مُجمَّعة | خلطات مُجرَّبة | pptides</title>
         <meta name="description" content="بروتوكولات مُجمَّعة تجمع عدة ببتيدات حسب الهدف: تعافي، دماغ، طول عمر. Curated peptide stacks for recovery, brain, and longevity." />
+        <meta property="og:title" content="البروتوكولات المُجمَّعة | pptides" />
+        <meta property="og:description" content="خلطات ببتيدات مُجرَّبة لأهداف محددة — تعافي، دماغ، طول عمر" />
+        <meta property="og:url" content={`${SITE_URL}/stacks`} />
+        <meta property="og:type" content="website" />
+        <meta property="og:locale" content="ar_SA" />
       </Helmet>
       {/* Header */}
       <div className="mb-10 text-center">
@@ -148,8 +153,19 @@ export default function Stacks() {
                     {stack.descriptionAr}
                   </p>
 
-                  <div className="rounded-xl bg-emerald-50/50 border border-emerald-100 p-4 text-sm leading-relaxed text-stone-700 whitespace-pre-line">
-                    {stack.protocolAr}
+                  <div className="rounded-xl bg-emerald-50/50 border border-emerald-100 p-4 text-sm leading-relaxed text-stone-700 space-y-3">
+                    {stack.protocolAr.split(/\n\n+/).filter(Boolean).map((block, i) => {
+                      const idx = block.indexOf('\n');
+                      const firstLine = idx >= 0 ? block.slice(0, idx) : block;
+                      const rest = idx >= 0 ? block.slice(idx + 1) : '';
+                      const isPhaseHeader = /^(المرحلة \d|البروتوكول |البديل |الدورة\b|بروتوكول |دعم مساعد)/.test(firstLine.trim());
+                      return (
+                        <div key={i} className="border-s-2 border-emerald-300 ps-3">
+                          <span className={isPhaseHeader ? 'font-bold text-stone-900 block mb-1' : ''}>{firstLine}</span>
+                          {rest ? <span className="whitespace-pre-line block">{rest}</span> : null}
+                        </div>
+                      );
+                    })}
                   </div>
 
                   <div className="mt-4 flex flex-wrap gap-2">

@@ -13,6 +13,7 @@ export default function Account() {
   const { user, subscription, logout, refreshSubscription } = useAuth();
   const navigate = useNavigate();
   const [showCancelDialog, setShowCancelDialog] = useState(false);
+  const [cancelStep, setCancelStep] = useState<'confirm' | 'retention' | null>(null);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [deleteConfirmText, setDeleteConfirmText] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
@@ -23,6 +24,7 @@ export default function Account() {
 
   const closeDialogs = useCallback(() => {
     setShowCancelDialog(false);
+    setCancelStep(null);
     setShowDeleteDialog(false);
     setDeleteConfirmText('');
   }, []);
@@ -76,6 +78,7 @@ export default function Account() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
       setShowCancelDialog(false);
+      setCancelStep(null);
       toast.success('تم إلغاء اشتراكك. ستحتفظ بالوصول حتى نهاية فترتك الحالية.');
       await refreshSubscription();
       navigate('/account', { replace: true });
@@ -210,15 +213,17 @@ export default function Account() {
               <span className="text-sm text-stone-600">الحالة</span>
               <span className={cn(
                 'rounded-full px-3 py-1 text-xs font-bold',
-                subscription.status === 'active'
+                subscription.isProOrTrial
                   ? 'bg-emerald-100 text-emerald-700'
-                  : subscription.status === 'trial' || subscription.status === 'past_due'
+                  : subscription.status === 'past_due'
                     ? 'bg-amber-100 text-amber-700'
                     : subscription.status === 'expired'
                       ? 'bg-red-100 text-red-700'
                       : 'bg-stone-200 text-stone-600',
               )}>
-                {STATUS_LABELS[subscription.status] ?? subscription.status}
+                {subscription.isProOrTrial && subscription.status === 'cancelled'
+                  ? 'نشط'
+                  : STATUS_LABELS[subscription.status] ?? subscription.status}
               </span>
             </div>
             {subscription.status === 'trial' && subscription.trialDaysLeft > 0 && (
@@ -265,7 +270,7 @@ export default function Account() {
         <div className="space-y-3">
           {(subscription.isPaidSubscriber || subscription.isTrial) && (
             <button
-              onClick={() => setShowCancelDialog(true)}
+              onClick={() => { setShowCancelDialog(true); setCancelStep('retention'); }}
               className="flex w-full items-center justify-center gap-2 rounded-xl border border-stone-300 bg-white px-6 py-3 text-sm font-bold text-stone-700 transition-all hover:bg-stone-50"
             >
               <LogOut className="h-4 w-4" />
@@ -282,47 +287,47 @@ export default function Account() {
         </div>
       </div>
 
-      {/* Cancel Subscription Dialog */}
-      {showCancelDialog && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm px-4 animate-fade-in" onClick={() => setShowCancelDialog(false)}>
+      {/* Cancel Subscription Dialog — retention step first */}
+      {showCancelDialog && cancelStep === 'retention' && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm px-4 animate-fade-in" onClick={() => { setShowCancelDialog(false); setCancelStep(null); }}>
           <FocusTrap focusTrapOptions={{ allowOutsideClick: true }}>
           <div role="dialog" aria-modal="true" className="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl" onClick={e => e.stopPropagation()}>
             <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-amber-100">
               <AlertTriangle className="h-6 w-6 text-amber-600" />
             </div>
-            <h3 className="text-lg font-bold text-stone-900">إلغاء الاشتراك</h3>
-            <p className="mt-2 text-sm text-stone-600">
-              هل أنت متأكد من إلغاء اشتراكك؟ ستحتفظ بالوصول حتى نهاية فترتك الحالية، ولن يتم تجديد الاشتراك بعدها.
-            </p>
+            <h3 className="text-lg font-bold text-stone-900">هل أنت متأكد؟</h3>
             <div className="mt-4 rounded-xl border border-red-200 bg-red-50 p-4">
-              <p className="text-sm font-bold text-red-800 mb-2">ستفقد الوصول إلى:</p>
+              <p className="text-sm font-bold text-red-800 mb-2">ستفقد:</p>
               <ul className="space-y-1.5">
-                {[
-                  `${PEPTIDE_COUNT} بروتوكول كامل`,
-                  'المدرب الذكي',
-                  'دليل التحاليل',
-                  'البروتوكولات المجمّعة',
-                ].map(item => (
-                  <li key={item} className="flex items-center gap-2 text-sm text-red-700">
+                <li className="flex items-center gap-2 text-sm text-red-700">
+                  <XCircle className="h-3.5 w-3.5 shrink-0 text-red-400" />
+                  الوصول إلى {PEPTIDE_COUNT}+ بروتوكول كامل
+                </li>
+                {subscription.tier === 'elite' && (
+                  <li className="flex items-center gap-2 text-sm text-red-700">
                     <XCircle className="h-3.5 w-3.5 shrink-0 text-red-400" />
-                    {item}
+                    المدرب الذكي بالذكاء الاصطناعي
                   </li>
-                ))}
+                )}
+                <li className="flex items-center gap-2 text-sm text-red-700">
+                  <XCircle className="h-3.5 w-3.5 shrink-0 text-red-400" />
+                  سجل حقنك وبياناتك
+                </li>
               </ul>
             </div>
             <div className="mt-6 flex gap-3">
               <button
                 onClick={handleCancelSubscription}
                 disabled={isProcessing}
-                className="flex-1 rounded-xl bg-red-600 px-4 py-2.5 text-sm font-bold text-white transition-all hover:bg-red-700 disabled:opacity-50"
+                className="flex-1 rounded-xl border border-stone-300 px-4 py-2.5 text-sm font-bold text-stone-700 transition-all hover:bg-stone-50 disabled:opacity-50"
               >
-                {isProcessing ? 'جارٍ الإلغاء...' : 'نعم، ألغِ الاشتراك'}
+                {isProcessing ? 'جارٍ الإلغاء...' : 'متابعة الإلغاء'}
               </button>
               <button
-                onClick={() => setShowCancelDialog(false)}
-                className="flex-1 rounded-xl border border-stone-300 px-4 py-2.5 text-sm font-bold text-stone-700 transition-all hover:bg-stone-50"
+                onClick={() => { setShowCancelDialog(false); setCancelStep(null); }}
+                className="flex-1 rounded-xl bg-emerald-600 px-4 py-2.5 text-sm font-bold text-white transition-all hover:bg-emerald-700"
               >
-                تراجع
+                الاحتفاظ بالاشتراك
               </button>
             </div>
           </div>

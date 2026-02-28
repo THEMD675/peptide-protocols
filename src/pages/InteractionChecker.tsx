@@ -5,7 +5,7 @@ import { AlertTriangle, CheckCircle, XCircle, Shield } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { peptides } from '@/data/peptides';
 import { categoryLabels } from '@/lib/peptide-labels';
-import { PEPTIDE_COUNT } from '@/lib/constants';
+import { PEPTIDE_COUNT, SITE_URL } from '@/lib/constants';
 import { DANGEROUS_COMBOS, SYNERGISTIC_COMBOS, GH_PEPTIDE_IDS, FAT_LOSS_PEPTIDE_IDS, type InteractionResult } from '@/data/interactions';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
@@ -46,9 +46,38 @@ export default function InteractionChecker() {
   const { user } = useAuth();
   const [searchParams] = useSearchParams();
   const [selected, setSelected] = useState<string[]>(() => {
-    const p = searchParams.get('peptide');
-    return p ? [p, ''] : ['', ''];
+    const p1 = searchParams.get('p1');
+    const p2 = searchParams.get('p2');
+    const p = searchParams.get('p');
+    if (p1 !== null || p2 !== null) {
+      return [p1 ?? '', p2 ?? ''];
+    }
+    if (p) {
+      const parts = p.split(',').map(s => s.trim()).filter(Boolean).slice(0, 5);
+      return parts.length >= 2 ? parts : [...parts, ...Array(2 - parts.length).fill('')];
+    }
+    const legacyPeptide = searchParams.get('peptide');
+    return legacyPeptide ? [legacyPeptide, ''] : ['', ''];
   });
+
+  useEffect(() => {
+    const p1 = searchParams.get('p1');
+    const p2 = searchParams.get('p2');
+    const p = searchParams.get('p');
+    if (p1 !== null || p2 !== null) {
+      setSelected([p1 ?? '', p2 ?? '']);
+      return;
+    }
+    if (p) {
+      const parts = p.split(',').map(s => s.trim()).filter(Boolean).slice(0, 5);
+      setSelected(parts.length >= 2 ? parts : [...parts, ...Array(2 - parts.length).fill('')]);
+      return;
+    }
+    const legacyPeptide = searchParams.get('peptide');
+    if (legacyPeptide) {
+      setSelected([legacyPeptide, '']);
+    }
+  }, [searchParams]);
 
   useEffect(() => {
     if (!user || selected.some(s => s !== '')) return;
@@ -93,6 +122,11 @@ export default function InteractionChecker() {
       <Helmet>
         <title>فحص تعارضات الببتيدات | pptides</title>
         <meta name="description" content={`تحقق من أمان تجميع أي ببتيدين معًا. فحص التعارضات والتفاعلات بين ${PEPTIDE_COUNT}+ ببتيد.`} />
+        <meta property="og:title" content="فحص تعارضات الببتيدات | pptides" />
+        <meta property="og:description" content="اختر ببتيدين لمعرفة إذا يمكن تجميعهما بأمان" />
+        <meta property="og:url" content={`${SITE_URL}/interactions`} />
+        <meta property="og:type" content="website" />
+        <meta property="og:locale" content="ar_SA" />
       </Helmet>
 
       <div className="mx-auto max-w-2xl px-4 py-8 md:px-6 md:py-12">

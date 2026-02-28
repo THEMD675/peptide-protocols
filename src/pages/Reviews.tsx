@@ -6,6 +6,7 @@ import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
+import { SITE_URL } from '@/lib/constants';
 
 interface Review {
   id: string;
@@ -169,6 +170,11 @@ export default function Reviews() {
       <Helmet>
         <title>تقييمات المستخدمين | pptides</title>
         <meta name="description" content="اقرأ آراء وتقييمات المستخدمين عن دليل الببتيدات. شارك تجربتك وساعد الآخرين." />
+        <meta property="og:title" content="آراء المستخدمين | pptides" />
+        <meta property="og:description" content="تقييمات حقيقية من مستخدمي pptides" />
+        <meta property="og:url" content={`${SITE_URL}/reviews`} />
+        <meta property="og:type" content="website" />
+        <meta property="og:locale" content="ar_SA" />
       </Helmet>
       <div className="mx-auto max-w-4xl px-4 pt-8 pb-24 md:px-6 md:pt-12">
         <div
@@ -296,6 +302,44 @@ export default function Reviews() {
           >
             التقييمات
           </h2>
+
+          {reviews.length > 0 && (
+            <div className="mb-6 rounded-2xl border border-stone-200 bg-stone-50 p-5">
+              <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:gap-8">
+                <div className="flex items-center gap-2">
+                  <span className="text-3xl font-black text-stone-900">
+                    {averageRating.toFixed(1)}
+                  </span>
+                  <StarRating rating={Math.round(averageRating)} size="sm" />
+                </div>
+                <span className="text-xs text-stone-600">
+                  {reviews.length.toLocaleString('ar')} تقييم
+                </span>
+                <div className="flex-1 min-w-0 space-y-1.5">
+                  {[5, 4, 3, 2, 1].map((star) => {
+                    const count = reviews.filter((r) => r.rating === star).length;
+                    const total = reviews.length;
+                    return (
+                      <div key={star} className="flex items-center gap-2">
+                        <span className="text-xs text-stone-600 w-6" dir="ltr">
+                          {star}★
+                        </span>
+                        <div className="flex-1 h-2 min-w-0 overflow-hidden rounded-full bg-stone-200">
+                          <div
+                            className="h-2 rounded-full bg-emerald-500"
+                            style={{ width: `${total > 0 ? (count / total) * 100 : 0}%` }}
+                          />
+                        </div>
+                        <span className="text-xs text-stone-600 w-5 tabular-nums">
+                          {count}
+                        </span>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+          )}
 
           {loading ? (
             <div className="py-12 text-center">

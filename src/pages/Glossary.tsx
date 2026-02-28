@@ -2,7 +2,7 @@ import { useState, useMemo } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { Link } from 'react-router-dom';
 import { BookA, Search, X } from 'lucide-react';
-import { PEPTIDE_COUNT } from '@/lib/constants';
+import { PEPTIDE_COUNT, SITE_URL } from '@/lib/constants';
 import { GLOSSARY_TERMS as TERMS } from '@/data/glossary';
 
 export default function Glossary() {
@@ -24,6 +24,11 @@ export default function Glossary() {
       <Helmet>
         <title>مصطلحات الببتيدات | pptides</title>
         <meta name="description" content="قاموس شامل لمصطلحات الببتيدات والبيوهاكينغ بالعربي مع المعادل الإنجليزي. Comprehensive Arabic peptide and biohacking glossary." />
+        <meta property="og:title" content="مصطلحات الببتيدات | pptides" />
+        <meta property="og:description" content="قاموس شامل لمصطلحات الببتيدات والطب الرياضي" />
+        <meta property="og:url" content={`${SITE_URL}/glossary`} />
+        <meta property="og:type" content="website" />
+        <meta property="og:locale" content="ar_SA" />
       </Helmet>
 
       {/* Header */}

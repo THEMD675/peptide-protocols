@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { TestTube, AlertTriangle, Calendar, ClipboardList } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
-import { PRICING } from '@/lib/constants';
+import { PRICING, SITE_URL } from '@/lib/constants';
 import { labTests } from '@/data/peptides';
 
 const monitoringSchedule = [
@@ -53,6 +53,11 @@ export default function LabGuide() {
       <Helmet>
         <title>دليل التحاليل المخبرية | pptides</title>
         <meta name="description" content="التحاليل المخبرية اللازمة قبل وأثناء وبعد استخدام الببتيدات مع العلامات التحذيرية. Essential bloodwork guide for peptide users." />
+        <meta property="og:title" content="دليل التحاليل المخبرية | pptides" />
+        <meta property="og:description" content="التحاليل الأساسية قبل وأثناء وبعد استخدام الببتيدات" />
+        <meta property="og:url" content={`${SITE_URL}/lab-guide`} />
+        <meta property="og:type" content="article" />
+        <meta property="og:locale" content="ar_SA" />
       </Helmet>
       {/* Header */}
       <div className="mb-10 text-center">

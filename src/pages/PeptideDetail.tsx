@@ -280,7 +280,7 @@ export default function PeptideDetail() {
               حاسبة متقدمة
             </Link>
             <Link
-              to={`/interactions?peptide=${encodeURIComponent(peptide.id)}`}
+              to={`/interactions?p1=${peptide.id}`}
               className="flex items-center justify-center gap-2 rounded-xl border border-stone-200 bg-white px-5 py-3.5 text-sm font-bold text-stone-800 transition-all hover:border-emerald-200 hover:shadow-md"
             >
               <Shield className="h-4 w-4" />

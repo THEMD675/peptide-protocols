@@ -12,6 +12,7 @@ import {
 import { toast } from 'sonner';
 import { cn, arPlural } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
+import { SITE_URL } from '@/lib/constants';
 import ProtocolWizard from '@/components/ProtocolWizard';
 
 
@@ -378,6 +379,11 @@ export default function Coach() {
         <title>استشاري الببتيدات | بروتوكول مخصّص بالذكاء الاصطناعي | pptides</title>
         <meta name="description" content="مدرب ذكي بالذكاء الاصطناعي يصمّم لك بروتوكول ببتيدات مخصّص حسب أهدافك وخبرتك. AI-powered peptide protocol coach." />
         <meta name="robots" content="noindex, nofollow" />
+        <meta property="og:title" content="استشاري الببتيدات | pptides" />
+        <meta property="og:description" content="مدرب ذكي بالذكاء الاصطناعي يصمّم لك بروتوكول ببتيدات مخصّص" />
+        <meta property="og:url" content={`${SITE_URL}/coach`} />
+        <meta property="og:type" content="website" />
+        <meta property="og:locale" content="ar_SA" />
       </Helmet>
       <div className="mx-auto max-w-3xl px-4 py-8 md:px-6 md:py-12">
         <div className="mb-6 flex items-center justify-between">
@@ -576,7 +582,8 @@ export default function Coach() {
                     )}
                   </div>
                 </div>
-                {msg.role === 'assistant' && !isLoading && msg.content.length > 50 && (
+                {/* Action pills: for non-last messages, show Copy + WhatsApp only */}
+                {msg.role === 'assistant' && !isLoading && msg.content.length > 50 && i !== messages.length - 1 && (
                   <div className="mt-1.5 flex justify-end gap-1.5">
                     <button
                       onClick={async () => {
@@ -605,37 +612,69 @@ export default function Coach() {
                     </a>
                   </div>
                 )}
+                {/* Last message: two-row layout — Row 1 primary, Row 2 secondary (scrollable) */}
                 {msg.role === 'assistant' && i === messages.length - 1 && !isLoading && msg.content.length > 50 && (
-                  <div className="mt-2 flex justify-end">
-                    <div className="flex flex-wrap gap-1.5 max-w-[88%]">
-                      {peptideActions.map(p => (
-                        <Link key={p.id} to={`/peptide/${p.id}`} className="inline-flex items-center gap-1 rounded-lg border border-emerald-200 bg-emerald-50 px-2.5 py-1 text-xs font-semibold text-emerald-700 transition-colors hover:bg-emerald-100">
-                          <FlaskConical className="h-3 w-3" />{p.nameAr}
-                        </Link>
-                      ))}
+                  <div className="mt-2 flex flex-col gap-2 max-w-[88%] ms-auto">
+                    {/* Row 1 — Primary: نسخ, واتساب, ابدأ بروتوكول */}
+                    <div className="flex flex-wrap justify-end gap-1.5">
+                      <button
+                        onClick={async () => {
+                          try {
+                            await navigator.clipboard.writeText(msg.content);
+                            setCopiedIdx(i);
+                            toast.success('تم النسخ');
+                            setTimeout(() => setCopiedIdx(null), 2000);
+                          } catch {
+                            toast.error('تعذّر النسخ');
+                          }
+                        }}
+                        className="inline-flex items-center gap-1 rounded-lg border border-stone-200 bg-white px-3 py-1.5 text-xs font-medium text-stone-500 transition-colors hover:bg-stone-50 hover:text-stone-700"
+                      >
+                        {copiedIdx === i ? <Check className="h-3 w-3 text-emerald-500" /> : <Copy className="h-3 w-3" />}
+                        {copiedIdx === i ? 'تم' : 'نسخ'}
+                      </button>
+                      <a
+                        href={`https://wa.me/?text=${encodeURIComponent('استشرت مدرب الببتيدات في pptides.com — جرّبه مجانًا: https://pptides.com/coach')}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1 rounded-lg border border-emerald-200 bg-emerald-50 px-2 py-1 text-xs font-medium text-emerald-700 transition-colors hover:bg-emerald-100"
+                      >
+                        <svg className="h-3 w-3" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+                        واتساب
+                      </a>
                       {peptideActions.length > 0 && (
-                        <Link to={`/calculator?peptide=${encodeURIComponent(peptideActions[0]?.nameEn ?? '')}`} className="inline-flex items-center gap-1 rounded-lg border border-stone-200 bg-white px-2.5 py-1 text-xs font-semibold text-stone-600 transition-colors hover:bg-stone-50">
-                          <Calculator className="h-3 w-3" />احسب الجرعة
-                        </Link>
-                      )}
-                      {peptideActions.length >= 2 && (
-                        <Link to="/interactions" className="inline-flex items-center gap-1 rounded-lg border border-stone-200 bg-white px-2.5 py-1 text-xs font-semibold text-stone-600 transition-colors hover:bg-stone-50">
-                          <Shield className="h-3 w-3" />فحص التعارض
-                        </Link>
-                      )}
-                      {peptideActions.length > 0 && (
-                        <button onClick={() => setProtocolWizardPeptide(peptideActions[0].id)} className="inline-flex items-center gap-1 rounded-lg bg-emerald-600 px-2.5 py-1 text-xs font-semibold text-white transition-colors hover:bg-emerald-700">
+                        <button onClick={() => setProtocolWizardPeptide(peptideActions[0].id)} className="inline-flex items-center gap-1 rounded-lg bg-emerald-600 px-2.5 py-1 text-xs font-semibold text-white transition-colors hover:bg-emerald-700 shrink-0">
                           <Play className="h-3 w-3" />ابدأ بروتوكول
                         </button>
                       )}
-                      {peptideActions.length > 0 && (
-                        <Link to={`/tracker?peptide=${encodeURIComponent(peptideActions[0]?.nameEn ?? '')}`} className="inline-flex items-center gap-1 rounded-lg border border-stone-200 bg-white px-2.5 py-1 text-xs font-semibold text-stone-600 transition-colors hover:bg-stone-50">
-                          <Sparkles className="h-3 w-3" />سجّل حقنة
+                    </div>
+                    {/* Divider + Row 2 — Secondary contextual (horizontally scrollable) */}
+                    <div className="border-t border-stone-200 pt-2">
+                      <div className="overflow-x-auto flex flex-nowrap gap-1.5 pb-0.5 -mx-0.5">
+                        {peptideActions.map(p => (
+                          <Link key={p.id} to={`/peptide/${p.id}`} className="inline-flex items-center gap-1 rounded-lg border border-emerald-200 bg-emerald-50 px-2.5 py-1 text-xs font-semibold text-emerald-700 transition-colors hover:bg-emerald-100 shrink-0">
+                            <FlaskConical className="h-3 w-3" />{p.nameAr}
+                          </Link>
+                        ))}
+                        {peptideActions.length > 0 && (
+                          <Link to={`/calculator?peptide=${encodeURIComponent(peptideActions[0]?.nameEn ?? '')}`} className="inline-flex items-center gap-1 rounded-lg border border-stone-200 bg-white px-2.5 py-1 text-xs font-semibold text-stone-600 transition-colors hover:bg-stone-50 shrink-0">
+                            <Calculator className="h-3 w-3" />احسب الجرعة
+                          </Link>
+                        )}
+                        {peptideActions.length >= 2 && (
+                          <Link to="/interactions" className="inline-flex items-center gap-1 rounded-lg border border-stone-200 bg-white px-2.5 py-1 text-xs font-semibold text-stone-600 transition-colors hover:bg-stone-50 shrink-0">
+                            <Shield className="h-3 w-3" />فحص التعارض
+                          </Link>
+                        )}
+                        {peptideActions.length > 0 && (
+                          <Link to={`/tracker?peptide=${encodeURIComponent(peptideActions[0]?.nameEn ?? '')}`} className="inline-flex items-center gap-1 rounded-lg border border-stone-200 bg-white px-2.5 py-1 text-xs font-semibold text-stone-600 transition-colors hover:bg-stone-50 shrink-0">
+                            <Sparkles className="h-3 w-3" />سجّل حقنة
+                          </Link>
+                        )}
+                        <Link to="/guide" className="inline-flex items-center gap-1 rounded-lg border border-stone-200 bg-white px-2.5 py-1 text-xs font-semibold text-stone-600 transition-colors hover:bg-stone-50 shrink-0">
+                          <BookOpen className="h-3 w-3" />دليل الحقن
                         </Link>
-                      )}
-                      <Link to="/guide" className="inline-flex items-center gap-1 rounded-lg border border-stone-200 bg-white px-2.5 py-1 text-xs font-semibold text-stone-600 transition-colors hover:bg-stone-50">
-                        <BookOpen className="h-3 w-3" />دليل الحقن
-                      </Link>
+                      </div>
                     </div>
                   </div>
                 )}

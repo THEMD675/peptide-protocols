@@ -9,7 +9,7 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
-import { PRICING } from '@/lib/constants';
+import { PRICING, SITE_URL } from '@/lib/constants';
 
 const requiredTools = [
   { name: 'قارورة الببتيد (Vial)', desc: 'تحتوي على الببتيد المجفّد (lyophilized)' },
@@ -103,6 +103,26 @@ export default function Guide() {
       <Helmet>
         <title>دليل التحضير والحقن | pptides</title>
         <meta name="description" content="خطوات تحضير الببتيدات والحقن تحت الجلد ومواقع الحقن وقواعد التخزين. How to reconstitute and inject peptides safely." />
+        <meta property="og:title" content="دليل تحضير وحقن الببتيدات | pptides" />
+        <meta property="og:description" content="دليل عملي خطوة بخطوة لتحضير وحقن الببتيدات بأمان" />
+        <meta property="og:url" content={`${SITE_URL}/guide`} />
+        <meta property="og:type" content="article" />
+        <meta property="og:locale" content="ar_SA" />
+        <script type="application/ld+json">{JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "HowTo",
+          "name": "دليل تحضير وحقن الببتيدات",
+          "description": "دليل عملي خطوة بخطوة لتحضير وحقن الببتيدات بأمان",
+          "inLanguage": "ar",
+          "step": [
+            {"@type": "HowToStep", "name": "غسل اليدين", "text": "اغسل يديك بالماء والصابون لمدة 20 ثانية"},
+            {"@type": "HowToStep", "name": "تعقيم الأغطية", "text": "امسح أغطية القارورة بمسحة كحولية"},
+            {"@type": "HowToStep", "name": "سحب الماء", "text": "اسحب الكمية المطلوبة من الماء البكتيريوستاتك"},
+            {"@type": "HowToStep", "name": "إضافة الماء", "text": "أضف الماء ببطء على جدار القارورة"},
+            {"@type": "HowToStep", "name": "سحب الجرعة", "text": "اسحب الجرعة المطلوبة بالسيرنج"},
+            {"@type": "HowToStep", "name": "الحقن", "text": "احقن تحت الجلد في البطن أو الفخذ"}
+          ]
+        })}</script>
       </Helmet>
       {/* Header */}
       <div className="mb-10 text-center">

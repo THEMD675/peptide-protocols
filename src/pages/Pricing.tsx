@@ -64,7 +64,7 @@ export default function Pricing() {
   const { user, subscription, upgradeTo } = useAuth();
 
   const isSubscribedTo = (tier: string) =>
-    user && (subscription?.status === 'active' || subscription?.status === 'past_due' || subscription?.isTrial) && subscription.tier === tier;
+    user && subscription?.isProOrTrial && subscription.tier === tier;
 
   const showTrialMessaging = !user || subscription?.status === 'none';
   const [loadingPlan, setLoadingPlan] = useState<string | null>(null);

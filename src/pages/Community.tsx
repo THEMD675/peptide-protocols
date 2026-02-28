@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 import { MessageSquare, Send, Clock, FlaskConical, User, Flag, Star } from 'lucide-react';
 import { toast } from 'sonner';
 import { useAuth } from '@/contexts/AuthContext';
-import { PRICING } from '@/lib/constants';
+import { PRICING, SITE_URL } from '@/lib/constants';
 import { supabase } from '@/lib/supabase';
 import { cn } from '@/lib/utils';
 import { peptides as allPeptides } from '@/data/peptides';
@@ -46,6 +46,12 @@ export default function Community() {
   const [sortBy, setSortBy] = useState<'newest' | 'highest'>('newest');
   const [hasMore, setHasMore] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
+  const [expandedPosts, setExpandedPosts] = useState<Set<string>>(new Set());
+  const toggleExpand = (id: string) => setExpandedPosts(prev => {
+    const next = new Set(prev);
+    next.has(id) ? next.delete(id) : next.add(id);
+    return next;
+  });
   const PAGE_SIZE = 50;
 
   const [peptideName, setPeptideName] = useState('');
@@ -144,6 +150,11 @@ export default function Community() {
       <Helmet>
         <title>تجارب المستخدمين | pptides</title>
         <meta name="description" content="اقرأ تجارب حقيقية من مستخدمي الببتيدات. بروتوكولات مُجرَّبة، نتائج فعلية، وتقييمات صادقة." />
+        <meta property="og:title" content="تجارب المستخدمين | pptides" />
+        <meta property="og:description" content="بروتوكولات حقيقية ونتائج فعلية من مستخدمين مثلك" />
+        <meta property="og:url" content={`${SITE_URL}/community`} />
+        <meta property="og:type" content="website" />
+        <meta property="og:locale" content="ar_SA" />
       </Helmet>
 
       <div className="mx-auto max-w-4xl px-4 pb-24 pt-8 md:px-6 md:pt-12">
@@ -339,29 +350,33 @@ export default function Community() {
 
         {/* Filter bar */}
         {!loading && logs.length > 0 && (
-          <div className="mb-6 flex flex-wrap gap-2">
-            {['all', ...GOALS].map(g => {
-              const label = g === 'all' ? 'الكل' : g;
-              return (
-                <button
-                  key={g}
-                  onClick={() => setFilterGoal(g)}
-                  className={cn(
-                    'rounded-full border px-4 py-1.5 text-sm font-medium transition-all',
-                    filterGoal === g
-                      ? 'border-emerald-400 bg-emerald-50 text-emerald-800'
-                      : 'border-stone-200 bg-white text-stone-600 transition-colors hover:border-emerald-200'
-                  )}
-                >
-                  {label}
-                </button>
-              );
-            })}
+          <div className="mb-6 flex items-center gap-3">
+            <div className="-mx-4 min-w-0 flex-1 overflow-x-auto px-4 scrollbar-hide scroll-fade">
+              <div className="flex flex-nowrap gap-2 pb-2">
+                {['all', ...GOALS].map(g => {
+                  const label = g === 'all' ? 'الكل' : g;
+                  return (
+                    <button
+                      key={g}
+                      onClick={() => setFilterGoal(g)}
+                      className={cn(
+                        'shrink-0 rounded-full border px-4 py-1.5 text-sm font-medium transition-all',
+                        filterGoal === g
+                          ? 'border-emerald-400 bg-emerald-50 text-emerald-800'
+                          : 'border-stone-200 bg-white text-stone-600 transition-colors hover:border-emerald-200'
+                      )}
+                    >
+                      {label}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
             <select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value as 'newest' | 'highest')}
               aria-label="ترتيب التجارب"
-              className="ms-auto rounded-xl border border-stone-200 bg-white px-3 py-1.5 text-sm text-stone-700 focus:border-emerald-300 focus:outline-none"
+              className="shrink-0 rounded-xl border border-stone-200 bg-white px-3 py-1.5 text-sm text-stone-700 focus:border-emerald-300 focus:outline-none"
             >
               <option value="newest">الأحدث</option>
               <option value="highest">الأعلى تقييمًا</option>
@@ -463,11 +478,46 @@ export default function Community() {
                 {log.protocol && (
                   <div className="mb-3 rounded-lg bg-stone-50 p-3 text-sm text-stone-800">
                     <span className="font-bold text-stone-900">البروتوكول: </span>
-                    {log.protocol}
+                    {(() => {
+                      const isLong = (log.protocol?.length ?? 0) > 200;
+                      const isExpanded = expandedPosts.has(log.id);
+                      if (!isLong) return log.protocol;
+                      return (
+                        <span>
+                          {isExpanded ? log.protocol : `${log.protocol!.slice(0, 200)}...`}
+                          <button
+                            type="button"
+                            onClick={() => toggleExpand(log.id)}
+                            className="me-2 font-bold text-emerald-600 hover:underline"
+                          >
+                            {isExpanded ? 'اقرأ أقل' : 'اقرأ المزيد'}
+                          </button>
+                        </span>
+                      );
+                    })()}
                   </div>
                 )}
 
-                <p className="text-base leading-relaxed text-stone-900">{log.results}</p>
+                <div className="text-base leading-relaxed text-stone-900">
+                  {(() => {
+                    const isLong = (log.results?.length ?? 0) > 200;
+                    const isExpanded = expandedPosts.has(log.id);
+                    if (!isLong) return <p>{log.results}</p>;
+                    const display = isExpanded ? log.results : `${log.results!.slice(0, 200)}...`;
+                    return (
+                      <p className={!isExpanded ? 'line-clamp-4' : ''}>
+                        {display}
+                        <button
+                          type="button"
+                          onClick={() => toggleExpand(log.id)}
+                          className="me-2 font-bold text-emerald-600 hover:underline"
+                        >
+                          {isExpanded ? 'اقرأ أقل' : 'اقرأ المزيد'}
+                        </button>
+                      </p>
+                    );
+                  })()}
+                </div>
 
                 <div className="mt-3 flex items-center gap-4 text-xs text-stone-700">
                   <span className="flex items-center gap-1">

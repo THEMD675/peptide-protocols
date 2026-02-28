@@ -31,7 +31,7 @@ export const TIER_LABELS: Record<string, string> = {
 
 export const STATUS_LABELS: Record<string, string> = {
   trial: 'فترة تجريبية',
-  active: 'مفعّل',
+  active: 'نشط',
   past_due: 'مشكلة في الدفع',
   cancelled: 'ملغي',
   expired: 'منتهي',

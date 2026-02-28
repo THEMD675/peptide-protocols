@@ -11,7 +11,6 @@ import BackToTop from '@/components/BackToTop';
 import ProtectedRoute from '@/components/ProtectedRoute';
 
 import AgeGate from '@/components/AgeGate';
-import FloatingHelp from '@/components/FloatingHelp';
 import PaymentProcessing from '@/components/PaymentProcessing';
 import InstallPrompt from '@/components/InstallPrompt';
 import {
@@ -262,7 +261,6 @@ export default function App() {
             </Routes>
           </main>
           <Footer />
-          <FloatingHelp />
           <BackToTop />
           <Suspense fallback={null}><StickyScrollCTA /></Suspense>
           <Suspense fallback={null}><ExitIntentPopup /></Suspense>
