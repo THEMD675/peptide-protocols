@@ -16,6 +16,7 @@ export default function BackToTop() {
   }, []);
 
   if (HIDDEN_PATHS.some(p => pathname.startsWith(p))) return null;
+  if (pathname === '/') return null;
 
   return (
     <button
