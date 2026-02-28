@@ -326,7 +326,7 @@ export default function Library() {
               role="searchbox"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              placeholder="ابحث بالاسم العربي أو الإنجليزي..."
+              placeholder="ابحث عن ببتيد..."
               className={cn(
                 'w-full rounded-xl border border-stone-200 bg-stone-50 py-2.5 ps-10 pe-4',
                 'text-sm text-stone-900 placeholder:text-stone-400',
