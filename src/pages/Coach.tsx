@@ -7,11 +7,12 @@ import { renderMarkdown } from '@/lib/markdown';
 import {
   Bot, Send, Sparkles, TrendingDown, Heart, Dumbbell, Brain,
   Clock, Zap, Calculator, FlaskConical, Shield, RotateCcw, ArrowLeft, ArrowRight,
-  Copy, Check, BookOpen,
+  Copy, Check, BookOpen, Play,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { cn, arPlural } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
+import ProtocolWizard from '@/components/ProtocolWizard';
 
 
 function extractPeptideActions(text: string) {
@@ -198,6 +199,7 @@ export default function Coach() {
   const [copiedIdx, setCopiedIdx] = useState<number | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [loadingStage, setLoadingStage] = useState(0);
+  const [protocolWizardPeptide, setProtocolWizardPeptide] = useState<string | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const userContextRef = useRef('');
   const autoSentRef = useRef(false);
@@ -622,8 +624,13 @@ export default function Coach() {
                         </Link>
                       )}
                       {peptideActions.length > 0 && (
+                        <button onClick={() => setProtocolWizardPeptide(peptideActions[0].id)} className="inline-flex items-center gap-1 rounded-lg bg-emerald-600 px-2.5 py-1 text-xs font-semibold text-white transition-colors hover:bg-emerald-700">
+                          <Play className="h-3 w-3" />ابدأ بروتوكول
+                        </button>
+                      )}
+                      {peptideActions.length > 0 && (
                         <Link to={`/tracker?peptide=${encodeURIComponent(peptideActions[0]?.nameEn ?? '')}`} className="inline-flex items-center gap-1 rounded-lg border border-stone-200 bg-white px-2.5 py-1 text-xs font-semibold text-stone-600 transition-colors hover:bg-stone-50">
-                          <Sparkles className="h-3 w-3" />ابدأ التتبّع
+                          <Sparkles className="h-3 w-3" />سجّل حقنة
                         </Link>
                       )}
                       <Link to="/guide" className="inline-flex items-center gap-1 rounded-lg border border-stone-200 bg-white px-2.5 py-1 text-xs font-semibold text-stone-600 transition-colors hover:bg-stone-50">
@@ -695,6 +702,9 @@ export default function Coach() {
 
         <p className="mt-4 text-center text-xs text-stone-400">محتوى تعليمي بحثي — استشر طبيبك قبل استخدام أي ببتيد</p>
       </div>
+      {protocolWizardPeptide && (
+        <ProtocolWizard peptideId={protocolWizardPeptide} onClose={() => setProtocolWizardPeptide(null)} />
+      )}
     </div>
   );
 }

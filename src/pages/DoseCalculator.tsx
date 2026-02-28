@@ -1,7 +1,9 @@
 import { useState, useMemo, useEffect, useId, useCallback } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { Link, useSearchParams } from 'react-router-dom';
-import { Calculator, FlaskConical, Droplets, ChevronDown, ArrowLeft, BookOpen, Layers, Bot, Bookmark, Syringe, Shield } from 'lucide-react';
+import { Calculator, FlaskConical, Droplets, ChevronDown, ArrowLeft, BookOpen, Layers, Bot, Bookmark, Syringe, Shield, Play } from 'lucide-react';
+import ProtocolWizard from '@/components/ProtocolWizard';
+import { peptides as allPeptides } from '@/data/peptides';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import { PEPTIDE_COUNT } from '@/lib/constants';
@@ -203,6 +205,7 @@ export default function DoseCalculator() {
   const [syringeIdx, setSyringeIdx] = useState(2);
   const [showFormulas, setShowFormulas] = useState(false);
   const [selectedPreset, setSelectedPreset] = useState('');
+  const [showProtocolWizard, setShowProtocolWizard] = useState(false);
   const [searchParams] = useSearchParams();
 
   /* eslint-disable react-hooks/set-state-in-effect -- sync form state from URL params */
@@ -615,12 +618,21 @@ export default function DoseCalculator() {
                 <Bookmark className="h-5 w-5" />
                 <span className="text-sm">احفظ الحساب</span>
               </button>
+              {selectedPreset && allPeptides.find(p => p.nameEn === selectedPreset) && (
+                <button
+                  onClick={() => setShowProtocolWizard(true)}
+                  className="flex flex-col items-center justify-center gap-1 rounded-xl border-2 border-emerald-300 bg-emerald-50 p-4 font-bold text-emerald-700 transition-all hover:border-emerald-400 hover:bg-emerald-100 hover:shadow-md"
+                >
+                  <Play className="h-5 w-5" />
+                  <span className="text-sm">ابدأ بروتوكول</span>
+                </button>
+              )}
               <Link
                 to={`/tracker?peptide=${encodeURIComponent(selectedPreset || 'Custom')}`}
                 className="flex flex-col items-center justify-center gap-1 rounded-xl border-2 border-stone-200 bg-white p-4 font-bold text-stone-700 transition-all hover:border-emerald-200 hover:text-emerald-700 hover:shadow-md"
               >
                 <Syringe className="h-5 w-5" />
-                <span className="text-sm">سجّل في المتابعة</span>
+                <span className="text-sm">سجّل حقنة</span>
               </Link>
               <Link
                 to="/guide"
@@ -823,6 +835,19 @@ export default function DoseCalculator() {
           />
         </div>
       </div>
+      {showProtocolWizard && selectedPreset && (() => {
+        const peptide = allPeptides.find(p => p.nameEn === selectedPreset);
+        if (!peptide) return null;
+        const doseMcg = doseUnit === 'mg' ? doseValue * 1000 : doseValue;
+        return (
+          <ProtocolWizard
+            peptideId={peptide.id}
+            prefillDose={doseMcg}
+            prefillUnit="mcg"
+            onClose={() => setShowProtocolWizard(false)}
+          />
+        );
+      })()}
     </div>
   );
 }

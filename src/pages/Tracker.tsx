@@ -28,6 +28,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
 import { peptides as allPeptides } from '@/data/peptides';
 import { DOSE_PRESETS_MAP } from '@/data/dose-presets';
+import ProgressRing from '@/components/charts/ProgressRing';
 
 interface InjectionLog {
   id: string;
@@ -87,6 +88,46 @@ export default function Tracker() {
   });
   const [notes, setNotes] = useState('');
   const [confirmDialog, setConfirmDialog] = useState<{ title: string; message: string; onConfirm: () => void; isDestructive?: boolean } | null>(null);
+  const [sideEffect, setSideEffect] = useState('none');
+
+  interface ActiveProtocol { id: string; peptide_id: string; dose: number; dose_unit: string; frequency: string; cycle_weeks: number; started_at: string; status: string; }
+  const [activeProtocols, setActiveProtocols] = useState<ActiveProtocol[]>([]);
+  useEffect(() => {
+    if (!user) return;
+    let mounted = true;
+    supabase.from('user_protocols').select('*').eq('user_id', user.id).eq('status', 'active').order('started_at', { ascending: false }).then(({ data }) => {
+      if (mounted && data) setActiveProtocols(data);
+    }).catch(() => {});
+    return () => { mounted = false; };
+  }, [user]);
+
+  const handleQuickLog = async (proto: ActiveProtocol) => {
+    if (!user || isSubmitting) return;
+    setIsSubmitting(true);
+    try {
+      const { error } = await supabase.from('injection_logs').insert({
+        user_id: user.id,
+        peptide_name: allPeptides.find(p => p.id === proto.peptide_id)?.nameEn ?? proto.peptide_id,
+        dose: proto.dose,
+        dose_unit: proto.dose_unit,
+        injection_site: suggestedSite,
+        logged_at: new Date().toISOString(),
+        protocol_id: proto.id,
+      });
+      if (error) { toast.error('حدث خطأ'); return; }
+      await fetchLogs();
+      const peptide = allPeptides.find(p => p.id === proto.peptide_id);
+      toast.success(`تم تسجيل ${peptide?.nameAr ?? proto.peptide_id} — ${proto.dose} ${proto.dose_unit}`);
+      const newTotal = (totalCount || logs.length) + 1;
+      const daySet = new Set([...logs.map(l => new Date(l.logged_at).toDateString()), new Date().toDateString()]);
+      let s = 0; const dd = new Date();
+      if (!daySet.has(dd.toDateString())) dd.setDate(dd.getDate() - 1);
+      while (daySet.has(dd.toDateString())) { s++; dd.setDate(dd.getDate() - 1); }
+      celebrate(newTotal, s);
+    } catch { toast.error('حدث خطأ'); }
+    finally { setIsSubmitting(false); }
+  };
+
   const [calendarMonth, setCalendarMonth] = useState(() => {
     const now = new Date();
     return { year: now.getFullYear(), month: now.getMonth() };
@@ -318,6 +359,44 @@ export default function Tracker() {
         <h1 className="text-3xl font-bold text-emerald-600 md:text-4xl">سجل الحقن</h1>
         <p className="mt-2 text-lg text-stone-600">تتبّع جرعاتك ومواقع الحقن</p>
       </div>
+
+      {/* Active Protocol Cards — One-Tap Logging */}
+      {activeProtocols.length > 0 && (
+        <div className="mb-8">
+          <h2 className="mb-3 text-lg font-bold text-stone-900">بروتوكولاتك النشطة</h2>
+          <div className="grid gap-3 sm:grid-cols-2">
+            {activeProtocols.map(proto => {
+              const peptide = allPeptides.find(p => p.id === proto.peptide_id);
+              const daysSinceStart = Math.floor((Date.now() - new Date(proto.started_at).getTime()) / (1000 * 60 * 60 * 24));
+              const totalDays = proto.cycle_weeks * 7;
+              const todayLogged = logs.some(l => l.peptide_name === (peptide?.nameEn ?? proto.peptide_id) && new Date(l.logged_at).toDateString() === new Date().toDateString());
+              return (
+                <div key={proto.id} className={cn('rounded-2xl border p-4 transition-all', todayLogged ? 'border-emerald-300 bg-emerald-50/50' : 'border-stone-200 bg-white')}>
+                  <div className="flex items-center gap-3">
+                    <ProgressRing current={daysSinceStart} total={totalDays} size={56} />
+                    <div className="flex-1 min-w-0">
+                      <p className="font-bold text-stone-900 truncate">{peptide?.nameAr ?? proto.peptide_id}</p>
+                      <p className="text-xs text-stone-500" dir="ltr">{proto.dose} {proto.dose_unit}</p>
+                    </div>
+                    <button
+                      onClick={() => handleQuickLog(proto)}
+                      disabled={isSubmitting || todayLogged}
+                      className={cn(
+                        'shrink-0 rounded-full px-4 py-2 text-sm font-bold transition-all',
+                        todayLogged
+                          ? 'bg-emerald-100 text-emerald-600 cursor-default'
+                          : 'bg-emerald-600 text-white hover:bg-emerald-700 active:scale-95'
+                      )}
+                    >
+                      {todayLogged ? '✓ تم' : 'سجّل'}
+                    </button>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
 
       {/* Stats Dashboard */}
       {dashboardStats && (
@@ -581,6 +660,34 @@ export default function Tracker() {
             </div>
 
             {/* Notes */}
+            {/* Side Effect Quick-Log */}
+            <div>
+              <label className="mb-1 block text-sm font-bold text-stone-700">أعراض جانبية <span className="text-xs text-emerald-600 font-normal me-1">اختياري</span></label>
+              <div className="flex flex-wrap gap-2">
+                {[
+                  { value: 'none', label: 'لا يوجد', color: 'emerald' },
+                  { value: 'headache', label: 'صداع', color: 'amber' },
+                  { value: 'nausea', label: 'غثيان', color: 'amber' },
+                  { value: 'redness', label: 'احمرار', color: 'amber' },
+                  { value: 'fatigue', label: 'إرهاق', color: 'amber' },
+                ].map(opt => (
+                  <button
+                    key={opt.value}
+                    type="button"
+                    onClick={() => setSideEffect(opt.value)}
+                    className={cn(
+                      'rounded-full px-3 py-1.5 text-xs font-bold transition-all',
+                      sideEffect === opt.value
+                        ? opt.color === 'emerald' ? 'bg-emerald-600 text-white' : 'bg-amber-500 text-white'
+                        : 'border border-stone-200 bg-white text-stone-600 hover:border-stone-300'
+                    )}
+                  >
+                    {opt.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
             <div>
               <label className="mb-1 block text-sm font-bold text-stone-700">ملاحظات <span className="text-xs text-emerald-600 font-normal me-1">اختياري</span></label>
               <textarea
