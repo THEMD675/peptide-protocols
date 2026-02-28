@@ -142,7 +142,7 @@ export default function Stacks() {
                 <div
                   aria-hidden={!isPro}
                   tabIndex={!isPro ? -1 : undefined}
-                  className={!isPro ? 'blur-sm pointer-events-none select-none' : ''}
+                  className={!isPro ? 'blur-[6px] pointer-events-none select-none max-h-32 overflow-hidden' : ''}
                 >
                   <p className="mb-4 text-sm leading-relaxed text-stone-700">
                     {stack.descriptionAr}
@@ -171,7 +171,7 @@ export default function Stacks() {
                 </div>
 
                 {!isPro && (
-                  <div className="absolute inset-0 flex items-center justify-center">
+                  <div className="mt-4 flex items-center justify-center">
                     <div className="flex flex-col gap-2 sm:flex-row">
                       <Link
                         to="/pricing"
