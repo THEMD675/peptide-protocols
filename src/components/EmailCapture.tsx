@@ -96,7 +96,7 @@ export default function EmailCapture() {
         <p className="mt-3 text-center text-sm text-red-400">{errorMsg}</p>
       )}
       <p className="mt-2 text-center text-xs text-white/50">
-        بالاشتراك، أنت توافق على <Link to="/privacy" className="underline transition-colors hover:text-white/50">سياسة الخصوصية</Link>
+        بالاشتراك، أنت توافق على <Link to="/privacy" className="underline transition-colors hover:text-white/80">سياسة الخصوصية</Link>
       </p>
     </div>
   );

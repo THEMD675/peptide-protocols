@@ -664,7 +664,7 @@ export default function Coach() {
                   {followUps.length > 0 && !isLoading && userMsgCount > 0 && (
                     <div className="mb-3 flex flex-wrap gap-1.5 justify-center">
                       {followUps.map(q => (
-                        <button key={q} onClick={() => sendToAI(q)} className="rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1.5 text-xs font-medium text-emerald-700 transition-colors hover:bg-emerald-100">{q}</button>
+                        <button key={q} onClick={() => sendToAI(q)} disabled={isLoading} className={cn("rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1.5 text-xs font-medium text-emerald-700 transition-colors hover:bg-emerald-100", isLoading && "opacity-50 cursor-not-allowed")}>{q}</button>
                       ))}
                     </div>
                   )}
@@ -674,6 +674,7 @@ export default function Coach() {
                   <div className="flex items-end gap-3">
                     <textarea value={input} onChange={e => setInput(e.target.value)}
                       onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendToAI(input); } }}
+                      onInput={e => { const t = e.currentTarget; t.style.height = 'auto'; t.style.height = Math.min(t.scrollHeight, 120) + 'px'; }}
                       placeholder="اسأل المزيد عن البروتوكول..." rows={1} disabled={isLoading}
                       aria-label="اكتب رسالتك"
                       className={cn('flex-1 resize-none rounded-xl border border-stone-200 bg-stone-50 px-4 py-3 text-sm text-stone-900 placeholder:text-stone-400 focus:border-emerald-300 focus:outline-none focus:ring-2 focus:ring-emerald-100', isLoading && 'opacity-60')} />

@@ -13,6 +13,10 @@ export const DANGEROUS_COMBOS: Record<string, InteractionResult> = {
   'melanotan-ii+*': { safe: false, warning: false, message: 'Melanotan II غير آمن', details: 'لا ننصح باستخدام Melanotan II مطلقًا. خطر حقيقي لسرطان الجلد (ميلانوما). لا تجمعه مع أي شيء.' },
   'dihexa+*': { safe: false, warning: true, message: 'Dihexa تجريبي بالكامل', details: 'صفر تجارب بشرية. لا ننصح باستخدامه ولا بتجميعه مع أي شيء آخر.' },
   'foxo4-dri+*': { safe: false, warning: true, message: 'FOXO4-DRI تجريبي بالكامل', details: 'صفر تجارب بشرية. مكلف جدًا وآلية عمله غير مفهومة بالكامل. لا ننصح بالتجميع.' },
+  'ghrp-2+ghrp-6': { safe: false, warning: false, message: 'لا تجمع GHRPs من نفس النوع', details: 'كلاهما يعمل على مستقبل GHS-R1a. الجمع لا يضيف فائدة ويزيد الكورتيزول والبرولاكتين. استخدم واحدًا فقط.' },
+  'ghrp-2+hexarelin': { safe: false, warning: false, message: 'لا تجمع GHRPs من نفس النوع', details: 'كلاهما GHRP يعمل على نفس المستقبل. الجمع يزيد الأعراض الجانبية (احتباس ماء، جوع) بدون فائدة إضافية.' },
+  'ghrp-6+hexarelin': { safe: false, warning: false, message: 'لا تجمع GHRPs من نفس النوع', details: 'كلاهما GHRP يتنافسان على مستقبل GHS-R1a. الجمع يرفع الكورتيزول والبرولاكتين بشكل مفرط.' },
+  'semax+na-semax-amidate': { safe: false, warning: false, message: 'نفس الببتيد بأشكال مختلفة', details: 'NA-Semax-Amidate نسخة معدّلة من Semax. الجمع بينهما يعادل جرعة مضاعفة. استخدم واحدًا فقط.' },
 };
 
 export const SYNERGISTIC_COMBOS: Record<string, InteractionResult> = {

@@ -255,7 +255,10 @@ export default function DoseCalculator() {
   }, [doseUnit, doseValue, vialMg, waterMl, syringe, dosesPerDay, vialPrice]);
 
   const saveCurrentCalc = useCallback(() => {
-    if (!selectedPreset || !isFinite(results.syringeUnits) || results.syringeUnits <= 0) return;
+    if (!selectedPreset || !isFinite(results.syringeUnits) || results.syringeUnits <= 0) {
+      toast.error('اختر ببتيدًا أولًا لحفظ الحساب');
+      return;
+    }
     const entry: SavedCalc = { peptide: selectedPreset, dose: doseValue, unit: doseUnit, vial: vialMg, water: waterMl, units: results.syringeUnits.toFixed(1), ts: Date.now() };
     const updated = [entry, ...savedCalcs.filter(c => c.peptide !== selectedPreset)].slice(0, 5);
     setSavedCalcs(updated);

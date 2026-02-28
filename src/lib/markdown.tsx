@@ -12,21 +12,33 @@ export function renderMarkdown(text: string) {
   const lines = text.split('\n');
   const elements: React.ReactNode[] = [];
   let listItems: string[] = [];
+  let listType: 'ul' | 'ol' = 'ul';
   let tableRows: string[][] = [];
 
   const flushList = () => {
     if (listItems.length > 0) {
-      elements.push(
-        <ul key={`ul-${elements.length}`} className="my-2 space-y-1 pr-4">
-          {listItems.map((item, j) => (
-            <li key={j} className="flex items-start gap-2">
-              <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-emerald-500" />
-              <span dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(inlineMd(item)) }} />
-            </li>
-          ))}
-        </ul>
-      );
+      if (listType === 'ol') {
+        elements.push(
+          <ol key={`ol-${elements.length}`} className="my-2 space-y-1 pr-4 list-decimal list-inside">
+            {listItems.map((item, j) => (
+              <li key={j} className="text-stone-800" dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(inlineMd(item)) }} />
+            ))}
+          </ol>
+        );
+      } else {
+        elements.push(
+          <ul key={`ul-${elements.length}`} className="my-2 space-y-1 pr-4">
+            {listItems.map((item, j) => (
+              <li key={j} className="flex items-start gap-2">
+                <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-emerald-500" />
+                <span dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(inlineMd(item)) }} />
+              </li>
+            ))}
+          </ul>
+        );
+      }
       listItems = [];
+      listType = 'ul';
     }
   };
 
@@ -85,10 +97,14 @@ export function renderMarkdown(text: string) {
     if (line.startsWith('###')) { flushList(); elements.push(<h4 key={i} className="mt-4 mb-1 font-bold text-emerald-700 text-base">{line.replace(/^###\s*/, '')}</h4>); continue; }
     if (line.startsWith('##')) { flushList(); elements.push(<h3 key={i} className="mt-4 mb-1 text-base font-bold text-stone-900">{line.replace(/^##\s*/, '')}</h3>); continue; }
     if (line.startsWith('#')) { flushList(); elements.push(<h3 key={i} className="mt-4 mb-1 text-base font-bold text-stone-900">{line.replace(/^#\s*/, '')}</h3>); continue; }
-    if (/^[-*]\s/.test(line) || /^\d+\.\s/.test(line)) { listItems.push(line.replace(/^[-*]\s*/, '').replace(/^\d+\.\s*/, '')); continue; }
+    if (/^\d+\.\s/.test(line)) { if (listItems.length === 0) listType = 'ol'; listItems.push(line.replace(/^\d+\.\s*/, '')); continue; }
+    if (/^[-*]\s/.test(line)) { if (listItems.length === 0) listType = 'ul'; listItems.push(line.replace(/^[-*]\s*/, '')); continue; }
     if (line.startsWith('⚠️')) { flushList(); elements.push(<p key={i} className="my-2 text-xs text-stone-400 italic">{line}</p>); continue; }
     flushList();
     elements.push(<p key={i} className="my-1" dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(inlineMd(line)) }} />);
+  }
+  if (inCodeBlock && codeLines.length) {
+    elements.push(<pre key="code-end" className="my-3 overflow-x-auto rounded-xl bg-stone-800 p-4 text-xs text-stone-100 leading-relaxed" dir="ltr"><code>{codeLines.join('\n')}</code></pre>);
   }
   flushList();
   flushTable();
