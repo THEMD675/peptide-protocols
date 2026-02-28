@@ -22,7 +22,15 @@ serve(async (req) => {
   try {
     const rawBody = await req.text()
 
-    if (RESEND_WEBHOOK_SECRET) {
+    if (!RESEND_WEBHOOK_SECRET) {
+      console.error('inbound-email: RESEND_WEBHOOK_SECRET not configured — rejecting request')
+      return new Response(JSON.stringify({ error: 'Webhook secret not configured' }), {
+        status: 500,
+        headers: { 'Content-Type': 'application/json' },
+      })
+    }
+
+    {
       const svixId = req.headers.get('svix-id')
       const svixTimestamp = req.headers.get('svix-timestamp')
       const svixSignature = req.headers.get('svix-signature')

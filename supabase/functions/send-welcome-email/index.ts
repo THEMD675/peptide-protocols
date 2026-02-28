@@ -67,9 +67,26 @@ serve(async (req) => {
       })
     }
 
+    let rawBody: string
+    try {
+      rawBody = await req.text()
+    } catch {
+      return new Response(JSON.stringify({ error: 'Failed to read request' }), {
+        status: 400,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      })
+    }
+
+    if (rawBody.length > 10_000) {
+      return new Response(JSON.stringify({ error: 'Request too large' }), {
+        status: 413,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      })
+    }
+
     let body: { email?: string; name?: string }
     try {
-      body = await req.json()
+      body = JSON.parse(rawBody)
     } catch {
       return new Response(JSON.stringify({ error: 'Invalid JSON body' }), {
         status: 400,

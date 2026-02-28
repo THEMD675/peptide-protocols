@@ -76,6 +76,11 @@ export default function Login() {
       return;
     }
 
+    if (tab === 'signup' && password.length < 8) {
+      setError('كلمة المرور يجب أن تكون 8 أحرف على الأقل');
+      return;
+    }
+
     setLoading(true);
     try {
       if (tab === 'login') {
@@ -291,6 +296,7 @@ export default function Login() {
                     placeholder="••••••••"
                     autoComplete={tab === 'login' ? 'current-password' : 'new-password'}
                     dir="ltr"
+                    {...(tab === 'signup' ? { minLength: 8 } : {})}
                     className="w-full rounded-xl border border-stone-200 bg-white px-4 py-3 pl-12 text-left text-stone-900 placeholder:text-stone-400 outline-none transition-shadow focus:border-emerald-300 focus:ring-2 focus:ring-emerald-100"
                   />
                   <button

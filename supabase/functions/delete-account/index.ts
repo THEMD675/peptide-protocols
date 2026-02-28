@@ -111,6 +111,9 @@ serve(async (req) => {
       if (revDelErr) console.error('delete-account: failed to delete reviews:', revDelErr)
     }
 
+    const { error: reportsDelErr } = await supabase.from('reports').delete().eq('user_id', user.id)
+    if (reportsDelErr) console.error('delete-account: failed to delete reports:', reportsDelErr)
+
     const { error: aiDelErr } = await supabase.from('ai_coach_requests').delete().eq('user_id', user.id)
     if (aiDelErr) console.error('delete-account: failed to delete ai_coach_requests:', aiDelErr)
 

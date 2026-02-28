@@ -222,8 +222,17 @@ serve(async (req) => {
     const cancelledButPaid = sub?.status === 'cancelled' && sub?.current_period_end && new Date(sub.current_period_end) > now
     const hasFullAccess = isTrialValid || isActive || cancelledButPaid
 
-    const contentLength = parseInt(req.headers.get('content-length') || '0', 10);
-    if (contentLength > 100_000) {
+    let rawBody: string
+    try {
+      rawBody = await req.text()
+    } catch {
+      return new Response(JSON.stringify({ error: 'تعذّر قراءة الطلب' }), {
+        status: 400,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      })
+    }
+
+    if (rawBody.length > 100_000) {
       return new Response(JSON.stringify({ error: 'الطلب كبير جدًا' }), {
         status: 413,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -232,7 +241,7 @@ serve(async (req) => {
 
     let body: { messages?: unknown; stream?: unknown }
     try {
-      body = await req.json()
+      body = JSON.parse(rawBody)
     } catch {
       return new Response(JSON.stringify({ error: 'صيغة الطلب غير صحيحة' }), {
         status: 400,
