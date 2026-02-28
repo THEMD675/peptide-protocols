@@ -19,9 +19,18 @@ export default function StickyScrollCTA() {
   });
 
   useEffect(() => {
-    const onScroll = () => setVisible(window.scrollY > 600);
+    let timer: ReturnType<typeof setTimeout>;
+    const onScroll = () => {
+      if (window.scrollY > 800) {
+        clearTimeout(timer);
+        timer = setTimeout(() => setVisible(true), 2000);
+      } else {
+        clearTimeout(timer);
+        setVisible(false);
+      }
+    };
     window.addEventListener('scroll', onScroll, { passive: true });
-    return () => window.removeEventListener('scroll', onScroll);
+    return () => { window.removeEventListener('scroll', onScroll); clearTimeout(timer); };
   }, []);
 
   const handleDismiss = useCallback(() => {

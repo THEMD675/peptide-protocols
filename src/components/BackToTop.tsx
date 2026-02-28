@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { ChevronUp } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -8,11 +8,29 @@ const HIDDEN_PATHS = ['/pricing', '/login', '/signup', '/coach', '/dashboard', '
 export default function BackToTop() {
   const { pathname } = useLocation();
   const [visible, setVisible] = useState(false);
+  const lastScrollY = useRef(0);
+  const hideTimer = useRef<ReturnType<typeof setTimeout>>();
 
   useEffect(() => {
-    const onScroll = () => setVisible(window.scrollY > 600);
+    const onScroll = () => {
+      const y = window.scrollY;
+      const scrollingUp = y < lastScrollY.current - 50;
+      const farEnough = y > 600;
+
+      if (scrollingUp && farEnough) {
+        setVisible(true);
+        clearTimeout(hideTimer.current);
+        hideTimer.current = setTimeout(() => setVisible(false), 3000);
+      } else if (y < 100) {
+        setVisible(false);
+      }
+      lastScrollY.current = y;
+    };
     window.addEventListener('scroll', onScroll, { passive: true });
-    return () => window.removeEventListener('scroll', onScroll);
+    return () => {
+      window.removeEventListener('scroll', onScroll);
+      clearTimeout(hideTimer.current);
+    };
   }, []);
 
   if (HIDDEN_PATHS.some(p => pathname.startsWith(p))) return null;
