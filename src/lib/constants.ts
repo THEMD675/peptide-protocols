@@ -5,9 +5,9 @@ export const PRICING = {
 
 export const PEPTIDE_COUNT = 41;
 
-export const VALUE_TOTAL = '$314+';
-export const VALUE_SAVINGS_ESSENTIALS = '$305';
-export const VALUE_SAVINGS_ELITE = '$292+';
+export const VALUE_TOTAL = '$299+';
+export const VALUE_SAVINGS_ESSENTIALS = '$290';
+export const VALUE_SAVINGS_ELITE = '$200+';
 
 export const SUPPORT_EMAIL = 'contact@pptides.com';
 
@@ -47,7 +47,7 @@ export const STORAGE_KEYS = {
   CHUNK_RELOAD: 'pptides_chunk_reload',
   COMPARE: 'pptides_compare',
   STICKY_DISMISSED: 'pptides_sticky_dismissed',
-  EXIT_POPUP: 'exit_popup_shown',
+  EXIT_POPUP: 'pptides_exit_popup_shown',
   USER_COUNT: 'pptides_user_count',
   USER_COUNT_TS: 'pptides_user_count_ts',
 } as const;

@@ -1,12 +1,13 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
+import FocusTrap from 'focus-trap-react';
 import { X, Gift, ArrowLeft } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { PEPTIDE_COUNT } from '@/lib/constants';
 
 const EXCLUDED_PATHS = ['/login', '/signup', '/pricing', '/account'];
 
-const STORAGE_KEY = 'exit_popup_shown';
+const STORAGE_KEY = 'pptides_exit_popup_shown';
 
 export default function ExitIntentPopup() {
   const { user, subscription } = useAuth();
@@ -46,7 +47,8 @@ export default function ExitIntentPopup() {
   if (!visible) return null;
 
   return (
-    <div role="dialog" aria-modal="true" aria-labelledby="exit-popup-title" className="fixed inset-0 z-[9998] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4 animate-fade-in">
+    <div role="dialog" aria-modal="true" aria-labelledby="exit-popup-title" className="fixed inset-0 z-[9998] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4 animate-fade-in" onClick={(e) => { if (e.target === e.currentTarget) setVisible(false); }}>
+      <FocusTrap focusTrapOptions={{ allowOutsideClick: true }}>
       <div className="relative w-full max-w-md rounded-2xl bg-white p-8 shadow-2xl text-center">
         <button
           onClick={() => setVisible(false)}
@@ -87,6 +89,7 @@ export default function ExitIntentPopup() {
           لا شكرًا
         </button>
       </div>
+      </FocusTrap>
     </div>
   );
 }

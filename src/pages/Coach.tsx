@@ -504,15 +504,15 @@ export default function Coach() {
                       <div className="grid gap-3 sm:grid-cols-2">
                         <div>
                           <label className="mb-1 block text-xs font-medium text-stone-600">العمر تقريبًا</label>
-                          <input type="text" value={intake.age} onChange={e => setIntake(p => ({ ...p, age: e.target.value }))} placeholder="مثال: 32" className="w-full rounded-xl border border-stone-200 bg-white px-3 py-2.5 text-sm text-stone-900 placeholder:text-stone-400 focus:border-emerald-300 focus:outline-none focus:ring-2 focus:ring-emerald-100" />
+                          <input type="number" inputMode="numeric" min={16} max={120} value={intake.age} onChange={e => setIntake(p => ({ ...p, age: e.target.value }))} placeholder="مثال: 32" dir="ltr" className="w-full rounded-xl border border-stone-200 bg-white px-3 py-2.5 text-sm text-stone-900 placeholder:text-stone-400 focus:border-emerald-300 focus:outline-none focus:ring-2 focus:ring-emerald-100" />
                         </div>
                         <div>
                           <label className="mb-1 block text-xs font-medium text-stone-600">أدوية أو مكملات حالية</label>
                           <input type="text" value={intake.medications} onChange={e => setIntake(p => ({ ...p, medications: e.target.value }))} placeholder="مثال: فيتامين D، كرياتين" className="w-full rounded-xl border border-stone-200 bg-white px-3 py-2.5 text-sm text-stone-900 placeholder:text-stone-400 focus:border-emerald-300 focus:outline-none focus:ring-2 focus:ring-emerald-100" />
                         </div>
                       </div>
-                      <button onClick={submitIntake}
-                        className="w-full flex items-center justify-center gap-2 rounded-xl bg-emerald-600 px-6 py-3.5 text-sm font-bold text-white transition-all hover:bg-emerald-700 active:scale-[0.98]">
+                      <button onClick={submitIntake} disabled={isLoading}
+                        className={cn("w-full flex items-center justify-center gap-2 rounded-xl bg-emerald-600 px-6 py-3.5 text-sm font-bold text-white transition-all hover:bg-emerald-700 active:scale-[0.98]", isLoading && "opacity-60 cursor-not-allowed")}>
                         <Bot className="h-4 w-4" />
                         صمّم بروتوكولي المخصّص
                         <ArrowLeft className="h-4 w-4" />
@@ -576,11 +576,15 @@ export default function Coach() {
                 {msg.role === 'assistant' && !isLoading && msg.content.length > 50 && (
                   <div className="mt-1.5 flex justify-end gap-1.5">
                     <button
-                      onClick={() => {
-                        navigator.clipboard.writeText(msg.content);
-                        setCopiedIdx(i);
-                        toast.success('تم النسخ');
-                        setTimeout(() => setCopiedIdx(null), 2000);
+                      onClick={async () => {
+                        try {
+                          await navigator.clipboard.writeText(msg.content);
+                          setCopiedIdx(i);
+                          toast.success('تم النسخ');
+                          setTimeout(() => setCopiedIdx(null), 2000);
+                        } catch {
+                          toast.error('تعذّر النسخ');
+                        }
                       }}
                       className="inline-flex items-center gap-1 rounded-lg border border-stone-200 bg-white px-3 py-1.5 text-xs font-medium text-stone-500 transition-colors hover:bg-stone-50 hover:text-stone-700"
                     >

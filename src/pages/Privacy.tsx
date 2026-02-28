@@ -53,7 +53,7 @@ export default function Privacy() {
           </section>
         </div>
         <div className="mt-8 border-t border-stone-200 pt-6 text-center">
-          <Link to="/" className="text-sm font-semibold text-emerald-600 transition-colors hover:text-emerald-700">← العودة للصفحة الرئيسية</Link>
+          <Link to="/" className="text-sm font-semibold text-emerald-600 transition-colors hover:text-emerald-700">→ العودة للصفحة الرئيسية</Link>
         </div>
       </div>
     </div>

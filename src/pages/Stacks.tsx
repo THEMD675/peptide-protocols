@@ -77,7 +77,7 @@ export default function Stacks() {
           return (
             <article
               key={stack.id}
-              className="glass-card gold-border flex flex-col overflow-hidden p-6 transition-all hover:shadow-lg hover:scale-[1.01]"
+              className="glass-card gold-border flex flex-col overflow-hidden p-6 transition-all hover:shadow-lg"
             >
               {/* Category badge — always visible */}
               <span

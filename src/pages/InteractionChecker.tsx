@@ -37,7 +37,7 @@ function checkInteraction(id1: string, id2: string): InteractionResult {
     return { safe: true, warning: true, message: `نفس فئة ${catName} — تحقق من التداخل`, details: `${p1.nameAr} و ${p2.nameAr} من نفس الفئة (${catName}). إذا كانت آلية عملهم متشابهة، قد يكون الجمع غير ضروري أو يزيد الأعراض الجانبية. تحقق من أن كل واحد يضيف قيمة مختلفة.` };
   }
 
-  return { safe: true, warning: true, message: `${p1.nameAr} + ${p2.nameAr} — لا توجد بيانات كافية`, details: `الببتيدان من فئات مختلفة (${categoryLabels[p1.category] ?? p1.category} + ${categoryLabels[p2.category] ?? p2.category}). لا تتوفر بيانات كافية عن هذه التجميعة تحديدًا. آليات مختلفة عادةً لا تتعارض، لكن استشر مختص قبل أي تجميعة جديدة.` };
+  return { safe: true, warning: false, message: `${p1.nameAr} + ${p2.nameAr} — لا تعارض معروف`, details: `الببتيدان من فئات مختلفة (${categoryLabels[p1.category] ?? p1.category} + ${categoryLabels[p2.category] ?? p2.category}). آليات مختلفة عادةً لا تتعارض. استشر مختص قبل أي تجميعة جديدة.` };
 }
 
 export default function InteractionChecker() {
