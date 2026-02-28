@@ -223,8 +223,13 @@ export default function Landing() {
         </div>
       </section>
 
+      {/* ═══════ PEPTIDE QUIZ — First interaction ═══════ */}
+      <section className="relative z-10 -mt-6 mx-auto max-w-2xl px-6 pb-10">
+        <PeptideQuiz />
+      </section>
+
       {/* ═══════ AHA MOMENT — Calculator CTA ═══════ */}
-      <div className="mx-auto -mt-2 mb-2 max-w-lg px-6 text-center">
+      <div className="mx-auto -mt-4 mb-2 max-w-lg px-6 text-center">
         <Link to="/calculator" className="group inline-flex items-center gap-3 rounded-2xl border border-emerald-200 bg-emerald-50 px-6 py-3 transition-all hover:border-emerald-300 hover:shadow-md">
           <Calculator className="h-5 w-5 text-emerald-600" />
           <span className="text-sm font-bold text-stone-800 group-hover:text-emerald-700">جرّب حاسبة الجرعات المجانية — شاهد جرعتك بالضبط على السيرنج</span>
@@ -233,16 +238,11 @@ export default function Landing() {
       </div>
 
       {/* ═══════ FREE CONTENT CALLOUT ═══════ */}
-      <div className="mx-auto mb-4 max-w-md px-6 text-center">
+      <div className="mx-auto mb-6 max-w-md px-6 text-center">
         <p className="text-sm text-stone-500">
           <Link to="/library" className="font-semibold text-emerald-600 hover:underline">6 ببتيدات مجانية بالكامل</Link> — بدون تسجيل. تصفّحها الآن.
         </p>
       </div>
-
-      {/* ═══════ PEPTIDE QUIZ — First interaction ═══════ */}
-      <section className="relative z-10 -mt-2 mx-auto max-w-2xl px-6 pb-10">
-        <PeptideQuiz />
-      </section>
 
       {/* ═══════ STATS BAR ═══════ */}
       <section className="relative z-10 mt-4 mx-auto max-w-5xl px-6 md:-mt-8">
