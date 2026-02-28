@@ -223,7 +223,7 @@ export default function App() {
           <TrackPageView />
           <CanonicalUrl />
           <Toaster position="top-center" richColors dir="rtl" />
-          <main id="main-content" className="flex-1">
+          <main id="main-content" className="flex-1 pb-16 md:pb-0">
             <Suspense fallback={<PageLoader />}>
             <Routes>
               <Route path="/" element={<HomeRedirect />} />
