@@ -298,7 +298,12 @@ export default function Community() {
                     aria-disabled={submitting || !peptideName.trim() || !results.trim() || undefined}
                     className="flex-1 rounded-full bg-emerald-600 py-3 font-bold text-white transition-all hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    {submitting ? '...' : 'نشر التجربة'}
+                    {submitting ? (
+                      <span className="inline-flex items-center gap-2">
+                        <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />
+                        جارٍ النشر...
+                      </span>
+                    ) : 'نشر التجربة'}
                   </button>
                   <button
                     type="button"

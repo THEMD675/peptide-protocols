@@ -249,11 +249,11 @@ export default function Dashboard() {
                   if (!last) return '—';
                   const diff = activity.lastCheckedAt - new Date(last.logged_at).getTime();
                   const mins = Math.floor(diff / 60000);
-                  if (mins < 60) return `${mins} د`;
+                  if (mins < 60) return `${mins} دقيقة`;
                   const hrs = Math.floor(mins / 60);
-                  if (hrs < 24) return `${hrs} س`;
+                  if (hrs < 24) return `${hrs} ساعة`;
                   const days = Math.floor(hrs / 24);
-                  return `${days} ي`;
+                  return `${days} يوم`;
                 })()}
               </p>
               <p className="text-xs text-stone-500">آخر حقنة منذ</p>

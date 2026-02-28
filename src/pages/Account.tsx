@@ -24,6 +24,7 @@ export default function Account() {
   const closeDialogs = useCallback(() => {
     setShowCancelDialog(false);
     setShowDeleteDialog(false);
+    setDeleteConfirmText('');
   }, []);
 
   useEffect(() => {
@@ -283,7 +284,7 @@ export default function Account() {
 
       {/* Cancel Subscription Dialog */}
       {showCancelDialog && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4 animate-fade-in" onClick={() => setShowCancelDialog(false)}>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm px-4 animate-fade-in" onClick={() => setShowCancelDialog(false)}>
           <FocusTrap focusTrapOptions={{ allowOutsideClick: true }}>
           <div role="dialog" aria-modal="true" className="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl" onClick={e => e.stopPropagation()}>
             <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-amber-100">
@@ -331,7 +332,7 @@ export default function Account() {
 
       {/* Delete Account Dialog */}
       {showDeleteDialog && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4 animate-fade-in" onClick={() => setShowDeleteDialog(false)}>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm px-4 animate-fade-in" onClick={() => setShowDeleteDialog(false)}>
           <FocusTrap focusTrapOptions={{ allowOutsideClick: true }}>
           <div role="dialog" aria-modal="true" className="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl" onClick={e => e.stopPropagation()}>
             <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-red-100">
@@ -351,7 +352,7 @@ export default function Account() {
                 onChange={(e) => setDeleteConfirmText(e.target.value)}
                 placeholder="حذف"
                 dir="rtl"
-                className="w-full rounded-xl border border-stone-200 bg-stone-50 px-4 py-2.5 text-sm text-stone-900 placeholder:text-stone-400 focus:outline-none focus:border-emerald-300 focus:ring-2 focus:ring-emerald-100"
+                className="w-full rounded-xl border border-stone-200 bg-stone-50 px-4 py-2.5 text-sm text-stone-900 placeholder:text-stone-400 focus:outline-none focus:border-red-300 focus:ring-2 focus:ring-red-100"
               />
             </div>
             <div className="mt-4 flex gap-3">

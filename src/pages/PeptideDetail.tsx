@@ -118,10 +118,7 @@ export default function PeptideDetail() {
         >
           <div className="flex flex-wrap items-start justify-between gap-4">
             <div>
-              <h1
-                className="text-3xl font-bold md:text-4xl"
-                
-              >
+              <h1 className="text-3xl font-bold md:text-4xl">
                 {peptide.nameAr}
               </h1>
               <p className="mt-1 text-lg text-stone-800">{peptide.nameEn}</p>
@@ -299,7 +296,7 @@ export default function PeptideDetail() {
               className="flex items-center justify-center gap-2 rounded-xl border border-stone-200 bg-white px-5 py-3.5 text-sm font-bold text-stone-800 transition-all hover:border-emerald-200 hover:shadow-md"
             >
               <ArrowRight className="h-4 w-4" />
-              سجّل أول حقنة
+              سجّل حقنة
             </Link>
           </div>
 
