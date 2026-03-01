@@ -299,7 +299,13 @@ export default function Dashboard() {
                     </div>
                   )}
                   <div className="mt-3">
-                    <AdherenceBar scheduled={daysSinceStart} actual={activity.logs.filter(l => l.peptide_name === (peptide?.nameEn ?? proto.peptide_id)).length} />
+                    {(() => {
+                      const frequencyMultiplier = proto.frequency === 'bid' ? 2 : proto.frequency === 'tid' ? 3 : 1;
+                      const scheduledDoses = daysSinceStart * frequencyMultiplier;
+                      return (
+                        <AdherenceBar scheduled={scheduledDoses} actual={activity.logs.filter(l => l.peptide_name === (peptide?.nameEn ?? proto.peptide_id)).length} />
+                      );
+                    })()}
                   </div>
                   <div className="mt-3 flex gap-2">
                     <Link

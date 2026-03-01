@@ -77,10 +77,14 @@ export default function Tracker() {
   });
 
   const [peptideName, setPeptideName] = useState(() => {
-    try { const p = new URLSearchParams(window.location.search).get('peptide'); return p ?? ''; } catch { return ''; }
+    try { return new URLSearchParams(window.location.search).get('peptide') ?? ''; } catch { return ''; }
   });
-  const [dose, setDose] = useState('');
-  const [unit, setUnit] = useState('mcg');
+  const [dose, setDose] = useState(() => {
+    try { return new URLSearchParams(window.location.search).get('dose') ?? ''; } catch { return ''; }
+  });
+  const [unit, setUnit] = useState(() => {
+    try { const u = new URLSearchParams(window.location.search).get('unit'); return u || 'mcg'; } catch { return 'mcg'; }
+  });
   const [site, setSite] = useState('abdomen');
   const [autoFilled, setAutoFilled] = useState(false);
   const [injectedAt, setInjectedAt] = useState(() => {
@@ -470,16 +474,18 @@ export default function Tracker() {
           </div>
       )}
 
-      {/* Dose Trend Chart */}
+      {/* Dose Trend Chart — one peptide at a time for consistent units */}
       {logs.length >= 3 && (() => {
-        const trendData = [...logs].reverse().slice(-14).map(l => ({
+        const trendPeptide = logs[0]?.peptide_name;
+        const trendLogs = logs.filter(l => l.peptide_name === trendPeptide);
+        const trendData = [...trendLogs].reverse().slice(-14).map(l => ({
           date: new Date(l.logged_at).toLocaleDateString('ar-u-nu-latn', { month: 'short', day: 'numeric' }),
           dose: l.dose,
         }));
         return (
           <div className="mb-8 rounded-2xl border border-stone-200 bg-white p-5 shadow-sm">
-            <h3 className="mb-3 text-sm font-bold text-stone-900">تاريخ الجرعات</h3>
-            <DoseTrendChart data={trendData} unit={logs[0]?.dose_unit ?? 'mcg'} />
+            <h3 className="mb-3 text-sm font-bold text-stone-900">تاريخ جرعات {trendPeptide}</h3>
+            <DoseTrendChart data={trendData} unit={trendLogs[0]?.dose_unit ?? 'mcg'} />
           </div>
         );
       })()}

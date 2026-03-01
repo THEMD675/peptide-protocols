@@ -13,7 +13,7 @@ const guestNavLinks = [
 
 const userNavLinks = [
   { to: '/dashboard', label: 'لوحة التحكم' },
-  { to: '/tracker', label: 'المتتبع' },
+  { to: '/tracker', label: 'سجل الحقن' },
   { to: '/library', label: 'المكتبة' },
   { to: '/coach', label: 'المدرب' },
 ] as const;

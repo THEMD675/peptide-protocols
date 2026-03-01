@@ -698,22 +698,6 @@ export default function DoseCalculator() {
                 <Bookmark className="h-5 w-5" />
                 <span className="text-sm">احفظ الحساب</span>
               </button>
-              {selectedPreset && allPeptides.find(p => p.nameEn === selectedPreset) && (
-                <button
-                  onClick={() => setShowProtocolWizard(true)}
-                  className="flex flex-col items-center justify-center gap-1 rounded-xl border-2 border-emerald-300 bg-emerald-50 p-4 font-bold text-emerald-700 transition-all hover:border-emerald-400 hover:bg-emerald-100 hover:shadow-md"
-                >
-                  <Play className="h-5 w-5" />
-                  <span className="text-sm">ابدأ بروتوكول</span>
-                </button>
-              )}
-              <Link
-                to={`/tracker?peptide=${encodeURIComponent(selectedPreset || 'Custom')}`}
-                className="flex flex-col items-center justify-center gap-1 rounded-xl border-2 border-stone-200 bg-white p-4 font-bold text-stone-700 transition-all hover:border-emerald-200 hover:text-emerald-700 hover:shadow-md"
-              >
-                <Syringe className="h-5 w-5" />
-                <span className="text-sm">سجّل حقنة</span>
-              </Link>
               <Link
                 to="/guide"
                 className="flex flex-col items-center justify-center gap-1 rounded-xl border-2 border-stone-200 bg-white p-4 font-bold text-stone-700 transition-all hover:border-emerald-200 hover:text-emerald-700 hover:shadow-md"
@@ -721,6 +705,28 @@ export default function DoseCalculator() {
                 <BookOpen className="h-5 w-5" />
                 <span className="text-sm">كيف أحقن؟</span>
               </Link>
+            </div>
+          )}
+
+          {/* CTAs — always visible when preset selected */}
+          {selectedPreset && (
+            <div className="flex gap-3 mt-4 flex-wrap">
+              <Link
+                to={`/tracker?peptide=${encodeURIComponent(selectedPreset || 'Custom')}&dose=${doseValue}&unit=${doseUnit}`}
+                className="flex flex-col items-center justify-center gap-1 rounded-xl border-2 border-stone-200 bg-white p-4 font-bold text-stone-700 transition-all hover:border-emerald-200 hover:text-emerald-700 hover:shadow-md min-w-[140px]"
+              >
+                <Syringe className="h-5 w-5" />
+                <span className="text-sm">سجّل حقنة</span>
+              </Link>
+              {allPeptides.find(p => p.nameEn === selectedPreset) && (
+                <button
+                  onClick={() => setShowProtocolWizard(true)}
+                  className="flex flex-col items-center justify-center gap-1 rounded-xl border-2 border-emerald-300 bg-emerald-50 p-4 font-bold text-emerald-700 transition-all hover:border-emerald-400 hover:bg-emerald-100 hover:shadow-md min-w-[140px]"
+                >
+                  <Play className="h-5 w-5" />
+                  <span className="text-sm">ابدأ بروتوكول</span>
+                </button>
+              )}
             </div>
           )}
 
