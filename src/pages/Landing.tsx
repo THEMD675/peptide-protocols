@@ -107,7 +107,8 @@ export default function Landing() {
 
   useEffect(() => {
     let mounted = true;
-    const cached = sessionStorage.getItem('pptides_user_count_ts');
+    let cached: string | null = null;
+    try { cached = sessionStorage.getItem('pptides_user_count_ts'); } catch { /* Safari private */ }
     const cacheValid = cached && Date.now() - Number(cached) < 5 * 60 * 1000;
     Promise.all([
       cacheValid ? Promise.resolve({ count: null, error: null }) : supabase.from('subscriptions').select('id', { count: 'exact', head: true }).in('status', ['active', 'trial']),

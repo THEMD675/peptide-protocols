@@ -5,8 +5,9 @@ const DEEPSEEK_API_KEY = Deno.env.get('DEEPSEEK_API_KEY')
 const supabaseUrl = Deno.env.get('SUPABASE_URL') ?? ''
 const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
 if (!supabaseUrl || !supabaseServiceKey) {
-  console.error('ai-coach: missing SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY')
+  console.error('ai-coach: FATAL — missing SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY')
 }
+const envReady = !!(supabaseUrl && supabaseServiceKey)
 
 const IS_PRODUCTION = !Deno.env.get('DENO_DEV')
 const ALLOWED_ORIGINS = IS_PRODUCTION
@@ -170,6 +171,12 @@ serve(async (req) => {
 
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders })
+  }
+
+  if (!envReady) {
+    return new Response(JSON.stringify({ error: 'Server misconfigured' }), {
+      status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    })
   }
 
   if (req.method !== 'POST') {

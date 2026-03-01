@@ -198,12 +198,13 @@ export default function Tracker() {
   useEffect(() => {
     if (!user) return;
     let active = true;
-    fetchLogs().catch(() => { if (!active) return; });
+    fetchLogs().catch(() => { /* handled inside fetchLogs */ });
     return () => { active = false; };
   }, [user, fetchLogs]);
 
   useEffect(() => {
-    const draft = sessionStorage.getItem('pptides_injection_draft');
+    let draft: string | null = null;
+    try { draft = sessionStorage.getItem('pptides_injection_draft'); } catch { /* Safari private */ }
     if (draft && !peptideName) {
       try {
         const d = JSON.parse(draft);
@@ -220,13 +221,11 @@ export default function Tracker() {
 
   useEffect(() => {
     if (peptideName || dose) {
-      sessionStorage.setItem('pptides_injection_draft', JSON.stringify({
-        peptide: peptideName,
-        dose,
-        unit,
-        site,
-        notes,
-      }));
+      try {
+        sessionStorage.setItem('pptides_injection_draft', JSON.stringify({
+          peptide: peptideName, dose, unit, site, notes,
+        }));
+      } catch { /* Safari private / quota */ }
     }
   }, [peptideName, dose, unit, site, notes]);
 
@@ -235,12 +234,13 @@ export default function Tracker() {
     setIsLoadingMore(true);
     try {
       const from = logs.length;
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from('injection_logs')
         .select('*')
         .eq('user_id', user.id)
         .order('logged_at', { ascending: false })
         .range(from, from + PAGE_SIZE - 1);
+      if (error) { toast.error('تعذّر تحميل المزيد'); setIsLoadingMore(false); return; }
       const rows = (data as InjectionLog[]) ?? [];
       setLogs(prev => [...prev, ...rows]);
       setHasMore(rows.length >= PAGE_SIZE);

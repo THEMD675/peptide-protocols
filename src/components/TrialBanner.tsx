@@ -18,7 +18,7 @@ const FREE_PATHS = [
 export default function TrialBanner() {
   const { user, subscription, isLoading } = useAuth();
   const { pathname } = useLocation();
-  const [dismissed, setDismissed] = useState(() => sessionStorage.getItem(DISMISS_KEY) === '1');
+  const [dismissed, setDismissed] = useState(() => { try { return sessionStorage.getItem(DISMISS_KEY) === '1'; } catch { return false; } });
 
   if (isLoading) return null;
   if (!user || !subscription) return null;
@@ -173,7 +173,7 @@ export default function TrialBanner() {
 
     const handleDismiss = () => {
       setDismissed(true);
-      sessionStorage.setItem(DISMISS_KEY, '1');
+      try { sessionStorage.setItem(DISMISS_KEY, '1'); } catch { /* Safari private */ }
     };
 
     return (

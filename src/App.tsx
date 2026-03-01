@@ -65,13 +65,15 @@ class ErrorBoundary extends Component<{ children: ReactNode }, { hasError: boole
   }
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
     if (this.state.isChunkError) {
-      const reloaded = sessionStorage.getItem('pptides_chunk_reload');
-      if (!reloaded) {
-        sessionStorage.setItem('pptides_chunk_reload', '1');
-        window.location.reload();
-        return;
-      }
-      sessionStorage.removeItem('pptides_chunk_reload');
+      try {
+        const reloaded = sessionStorage.getItem('pptides_chunk_reload');
+        if (!reloaded) {
+          sessionStorage.setItem('pptides_chunk_reload', '1');
+          window.location.reload();
+          return;
+        }
+        sessionStorage.removeItem('pptides_chunk_reload');
+      } catch { /* Safari private mode */ }
     }
     try {
       if (localStorage.getItem('pptides_cookie_consent') === 'accepted') {

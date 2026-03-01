@@ -81,17 +81,19 @@ export default function InteractionChecker() {
 
   useEffect(() => {
     if (!user || selected.some(s => s !== '')) return;
+    let mounted = true;
     supabase
       .from('user_protocols')
       .select('peptide_id')
       .eq('user_id', user.id)
       .eq('status', 'active')
-      .then(({ data }) => {
-        if (data && data.length >= 2) {
+      .then(({ data, error }) => {
+        if (mounted && !error && data && data.length >= 2) {
           setSelected(data.map(d => d.peptide_id).slice(0, 5));
         }
       })
       .catch(() => {});
+    return () => { mounted = false; };
   }, [user, selected]);
 
   const addSlot = () => { if (selected.length < 5) setSelected(prev => [...prev, '']); };

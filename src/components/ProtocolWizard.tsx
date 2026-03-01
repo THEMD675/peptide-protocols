@@ -59,7 +59,11 @@ export default function ProtocolWizard({ peptideId, prefillDose, prefillUnit, on
   const [existingProtocols, setExistingProtocols] = useState(0);
   useEffect(() => {
     if (!user) return;
-    supabase.from('user_protocols').select('id', { count: 'exact', head: true }).eq('user_id', user.id).eq('status', 'active').then(({ count }) => setExistingProtocols(count ?? 0));
+    let mounted = true;
+    supabase.from('user_protocols').select('id', { count: 'exact', head: true }).eq('user_id', user.id).eq('status', 'active')
+      .then(({ count, error }) => { if (mounted && !error) setExistingProtocols(count ?? 0); })
+      .catch(() => {});
+    return () => { mounted = false; };
   }, [user]);
 
   useEffect(() => {

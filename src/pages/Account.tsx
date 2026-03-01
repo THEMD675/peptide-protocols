@@ -96,6 +96,10 @@ export default function Account() {
         supabase.from('user_protocols').select('*').eq('user_id', user.id),
         supabase.from('reviews').select('*').eq('user_id', user.id),
       ]);
+      if (logsRes.error || protosRes.error || reviewsRes.error) {
+        toast.error('تعذّر تحميل بعض البيانات. حاول مرة أخرى.');
+        return;
+      }
       const exportData = {
         exported_at: new Date().toISOString(),
         email: user.email,

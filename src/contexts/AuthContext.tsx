@@ -184,13 +184,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       attempts++;
       if (attempts % 4 === 0) toast('لا زلنا نتحقق... يرجى الانتظار');
       try {
-        const { data } = await supabase
+        const { data, error: pollError } = await supabase
           .from('subscriptions')
           .select('status')
           .eq('user_id', user.id)
           .maybeSingle();
 
         if (cancelled) return;
+        if (pollError) { timer = setTimeout(poll, 5000); return; }
         if (data?.status === 'active' || data?.status === 'trial') {
           await fetchSubscription(user.id);
           cleanUrl();
@@ -254,6 +255,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         } else {
           setUser(null);
           setSubscription(DEFAULT_SUBSCRIPTION);
+          try {
+            Object.keys(localStorage).filter(k =>
+              k.startsWith('pptides_coach_') || k.startsWith('pptides_calc_') ||
+              k === 'pptides_favorites' || k === 'pptides_visited' || k === 'pptides_quiz_answers'
+            ).forEach(k => localStorage.removeItem(k));
+          } catch { /* restricted env */ }
         }
         setIsLoading(false);
       }
@@ -326,7 +333,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if ('caches' in window) {
       caches.keys().then(names => names.forEach(name => {
         if (name.includes('supabase-api')) caches.delete(name);
-      }));
+      })).catch(() => {});
     }
     try {
       const appKeys = Object.keys(localStorage).filter(k =>

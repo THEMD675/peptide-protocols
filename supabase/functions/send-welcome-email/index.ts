@@ -119,11 +119,12 @@ serve(async (req) => {
 
     const serviceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     if (!serviceRoleKey) {
-      console.error('send-welcome-email: SUPABASE_SERVICE_ROLE_KEY not set')
+      console.error('send-welcome-email: SUPABASE_SERVICE_ROLE_KEY not set — skipping trial fix')
     }
-    const serviceSupabase = createClient(supabaseUrl, serviceRoleKey)
+    const serviceSupabase = serviceRoleKey ? createClient(supabaseUrl, serviceRoleKey) : null
 
     const fixTrialDuration = async () => {
+      if (!serviceSupabase) return
       for (let attempt = 0; attempt < 3; attempt++) {
         await new Promise(r => setTimeout(r, 1000 * (attempt + 1)))
         const { data: subRow, error: selectErr } = await serviceSupabase

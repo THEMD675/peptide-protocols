@@ -30,12 +30,18 @@ serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: corsHeaders })
 
   if (!allowedOrigin && req.method !== 'OPTIONS') {
-    return new Response(JSON.stringify({ error: 'Forbidden' }), { status: 403, headers: { 'Content-Type': 'application/json' } })
+    return new Response(JSON.stringify({ error: 'Forbidden' }), { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } })
   }
 
   if (req.method !== 'POST') {
     return new Response(JSON.stringify({ error: 'Method not allowed' }), {
       status: 405, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    })
+  }
+
+  if (!stripeKey || !supabaseUrl || !supabaseAnonKey) {
+    return new Response(JSON.stringify({ error: 'Server misconfigured' }), {
+      status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     })
   }
 
@@ -57,7 +63,12 @@ serve(async (req) => {
       })
     }
 
-    const body = await req.json()
+    let body: { tier?: string }
+    try { body = await req.json() } catch {
+      return new Response(JSON.stringify({ error: 'Invalid request body' }), {
+        status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      })
+    }
     const tier = body.tier as string
     if (!tier || !PRICE_IDS[tier]) {
       return new Response(JSON.stringify({ error: 'Invalid tier' }), {
@@ -77,6 +88,12 @@ serve(async (req) => {
       .select('status, trial_ends_at, stripe_subscription_id')
       .eq('user_id', user.id)
       .maybeSingle()
+
+    if (existingSub?.status === 'active' || existingSub?.status === 'trial') {
+      return new Response(JSON.stringify({ error: 'لديك اشتراك فعّال بالفعل', alreadySubscribed: true }), {
+        status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      })
+    }
 
     const hadTrial = existingSub?.trial_ends_at != null
     const hasStripe = !!existingSub?.stripe_subscription_id
