@@ -79,12 +79,32 @@ export function useCelebrations() {
       return;
     }
 
+    if (totalInjections >= 25 && !celebrated['milestone_25']) {
+      markCelebration('milestone_25');
+      setTimeout(() => {
+        toast.success('25 حقنة! أنت ملتزم بشكل رائع', {
+          duration: 5000,
+        });
+      }, 300);
+      return;
+    }
+
     if (totalInjections === 50 && !celebrated['fifty_injections']) {
       markCelebration('fifty_injections');
       setTimeout(() => {
         toast.success('50 حقنة! مستخدم متقدّم', {
           duration: 4000,
           description: 'خبرتك تتزايد — شارك تجربتك لمساعدة الآخرين',
+        });
+      }, 300);
+      return;
+    }
+
+    if (totalInjections >= 100 && !celebrated['milestone_100']) {
+      markCelebration('milestone_100');
+      setTimeout(() => {
+        toast.success('100 حقنة! إنجاز استثنائي 🏆', {
+          duration: 5000,
         });
       }, 300);
     }

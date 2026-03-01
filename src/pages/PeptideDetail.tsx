@@ -29,6 +29,15 @@ export default function PeptideDetail() {
   const peptide = useMemo(() => peptides.find((p) => p.id === id), [id]);
   const [showProtocolWizard, setShowProtocolWizard] = useState(false);
 
+  useEffect(() => {
+    if (!peptide) return;
+    try {
+      const recent = JSON.parse(localStorage.getItem('pptides_recent_peptides') ?? '[]');
+      const updated = [peptide.id, ...recent.filter((rid: string) => rid !== peptide.id)].slice(0, 10);
+      localStorage.setItem('pptides_recent_peptides', JSON.stringify(updated));
+    } catch { /* expected */ }
+  }, [peptide]);
+
   if (!peptide) {
     return (
       <div className="flex min-h-[50vh] flex-col items-center justify-center px-6 text-center">

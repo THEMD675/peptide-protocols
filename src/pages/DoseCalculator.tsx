@@ -224,7 +224,7 @@ export default function DoseCalculator() {
 
   /* eslint-disable react-hooks/set-state-in-effect -- sync form state from URL params */
   useEffect(() => {
-    const peptideParam = searchParams.get('peptide');
+    const peptideParam = searchParams.get('preset') ?? searchParams.get('peptide') ?? '';
     if (peptideParam && !selectedPreset) {
       const preset = PEPTIDE_PRESETS.find(p => p.name.toLowerCase() === peptideParam.toLowerCase());
       if (preset) {
@@ -255,6 +255,15 @@ export default function DoseCalculator() {
     setVialMg(calc.vial);
     setWaterMl(calc.water);
   };
+
+  /* eslint-disable react-hooks/set-state-in-effect -- auto-load last saved calc */
+  useEffect(() => {
+    if (selectedPreset) return;
+    if (savedCalcs.length > 0) {
+      loadSavedCalc(savedCalcs[0]);
+    }
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   const results = useMemo(() => {
     const doseMcg = doseUnit === 'mg' ? doseValue * 1000 : doseValue;

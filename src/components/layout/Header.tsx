@@ -66,6 +66,14 @@ export default memo(function Header() {
     ).slice(0, 5);
   }, [searchQuery, peptidesList]);
 
+  const recentPeptides = useMemo(() => {
+    if (searchQuery.trim().length >= 2 || peptidesList.length === 0) return [];
+    try {
+      const recentIds: string[] = JSON.parse(localStorage.getItem('pptides_recent_peptides') ?? '[]').slice(0, 5);
+      return recentIds.map((id: string) => peptidesList.find(p => p.id === id)).filter(Boolean) as Pick<Peptide, 'id' | 'nameAr' | 'nameEn'>[];
+    } catch { return []; }
+  }, [searchQuery, peptidesList]);
+
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
       if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
@@ -233,6 +241,21 @@ export default memo(function Header() {
                       className="w-full rounded-lg border border-stone-200 bg-stone-50 px-3 py-2 text-sm text-stone-900 placeholder:text-stone-400 outline-none focus:border-emerald-300"
                     />
                   </div>
+                  {recentPeptides.length > 0 && searchResults.length === 0 && (
+                    <div className="border-t border-stone-100 py-1">
+                      <p className="px-3 py-1.5 text-xs font-bold text-stone-400">شوهدت مؤخرًا</p>
+                      {recentPeptides.map((p) => (
+                        <button
+                          key={p.id}
+                          onClick={() => { navigate(`/peptide/${p.id}`); setSearchOpen(false); setSearchQuery(''); }}
+                          className="flex w-full items-center gap-3 px-3 py-2.5 text-right text-sm transition-colors hover:bg-stone-50"
+                        >
+                          <span className="font-bold text-stone-900">{p.nameAr}</span>
+                          <span className="text-xs text-stone-500">{p.nameEn}</span>
+                        </button>
+                      ))}
+                    </div>
+                  )}
                   {searchResults.length > 0 && (
                     <div className="border-t border-stone-100 py-1">
                       {searchResults.map((p, idx) => (

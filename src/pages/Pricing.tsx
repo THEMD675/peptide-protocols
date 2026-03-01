@@ -407,7 +407,7 @@ export default function Pricing() {
               }}
               disabled={loadingPlan === 'elite'}
               className={cn(
-                'btn-primary-glow inline-flex items-center gap-2 rounded-full bg-emerald-600 px-10 py-4 text-lg font-bold text-white transition-all hover:bg-emerald-700',
+                'btn-primary-glow inline-flex items-center gap-2 rounded-full bg-emerald-600 px-10 py-4 text-lg font-bold text-white transition-all hover:bg-emerald-700 active:scale-[0.98]',
                 loadingPlan === 'elite' && 'opacity-70 pointer-events-none'
               )}
             >
@@ -426,7 +426,7 @@ export default function Pricing() {
           ) : (
             <Link
               to="/signup?redirect=/pricing"
-              className="btn-primary-glow inline-flex items-center gap-2 rounded-full bg-emerald-600 px-10 py-4 text-lg font-bold text-white transition-all hover:bg-emerald-700"
+              className="btn-primary-glow inline-flex items-center gap-2 rounded-full bg-emerald-600 px-10 py-4 text-lg font-bold text-white transition-all hover:bg-emerald-700 active:scale-[0.98]"
             >
               <span>ابدأ تجربتك المجانية الآن</span>
               <ArrowLeft className="h-5 w-5" />

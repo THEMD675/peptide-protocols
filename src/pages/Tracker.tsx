@@ -131,10 +131,13 @@ export default function Tracker() {
       }
       await fetchLogs();
       const peptide = allPeptides.find(p => p.id === proto.peptide_id);
-      toast.success(`تم تسجيل ${peptide?.nameAr ?? proto.peptide_id} — ${proto.dose} ${proto.dose_unit}`);
-      if (logs.length === 0) {
-        setTimeout(() => toast('أول حقنة! ارجع غدًا لتسجيل الجرعة التالية'), 2000);
-      }
+      toast.success(
+        `تم تسجيل ${peptide?.nameAr ?? proto.peptide_id} — ${proto.dose} ${proto.dose_unit}`,
+        { duration: 6000, description: 'الجرعة التالية غدًا — استمر في الالتزام!' },
+      );
+      const freq = proto.frequency;
+      const nextIn = freq === 'bid' ? '12 ساعة' : freq === 'tid' ? '8 ساعات' : 'غدًا';
+      setTimeout(() => toast(`الجرعة التالية: ${nextIn}`, { duration: 5000 }), 2000);
       const newTotal = (totalCount || logs.length) + 1;
       const daySet = new Set([...logs.map(l => new Date(l.logged_at).toDateString()), new Date().toDateString()]);
       let s = 0; const dd = new Date();
@@ -305,9 +308,18 @@ export default function Tracker() {
       now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
       setInjectedAt(now.toISOString().slice(0, 16));
       await fetchLogs();
-      toast.success(`تم تسجيل ${peptideName.trim()} — ${dose} ${unit}`);
-      if (logs.length === 0) {
-        setTimeout(() => toast('أول حقنة! ارجع غدًا لتسجيل الجرعة التالية'), 2000);
+      toast.success(
+        `تم تسجيل ${peptideName.trim()} — ${dose} ${unit}`,
+        { duration: 6000, description: 'الجرعة التالية غدًا — استمر في الالتزام!' },
+      );
+      const matchedPeptide = allPeptides.find(p => p.nameEn === peptideName.trim());
+      if (matchedPeptide) {
+        const protocol = activeProtocols.find(p => p.peptide_id === matchedPeptide.id && p.status === 'active');
+        if (protocol) {
+          const freq = protocol.frequency;
+          const nextIn = freq === 'bid' ? '12 ساعة' : freq === 'tid' ? '8 ساعات' : 'غدًا';
+          setTimeout(() => toast(`الجرعة التالية: ${nextIn}`, { duration: 5000 }), 2000);
+        }
       }
       const newTotal = (totalCount || logs.length) + 1;
       const daySet = new Set([...logs.map(l => new Date(l.logged_at).toDateString()), new Date().toDateString()]);

@@ -179,7 +179,7 @@ export default function Landing() {
           <div className="flex flex-col items-center justify-center gap-3 sm:flex-row sm:gap-4">
             <Link
               to={ctaLink}
-              className="btn-primary-glow inline-flex w-full max-w-xs items-center justify-center gap-3 rounded-full bg-emerald-600 px-8 py-4 text-lg font-bold text-white transition-all duration-300 hover:bg-emerald-700 sm:w-auto"
+              className="btn-primary-glow inline-flex w-full max-w-xs items-center justify-center gap-3 rounded-full bg-emerald-600 px-8 py-4 text-lg font-bold text-white transition-all duration-300 hover:bg-emerald-700 active:scale-[0.98] sm:w-auto"
             >
               <span>{ctaText}</span>
               <ArrowLeft className="h-5 w-5" />
@@ -397,7 +397,7 @@ export default function Landing() {
                   <Link to="/peptide/bpc-157" className="rounded-full border border-emerald-300 px-5 py-2 text-sm font-bold text-emerald-700 transition-colors hover:bg-emerald-50">
                     شاهد البطاقة كاملة
                   </Link>
-                  <Link to={ctaLink} className="rounded-full bg-emerald-600 px-5 py-2 text-sm font-bold text-white transition-colors hover:bg-emerald-700">
+                  <Link to={ctaLink} className="rounded-full bg-emerald-600 px-5 py-2 text-sm font-bold text-white transition-colors hover:bg-emerald-700 active:scale-[0.98]">
                     {user ? 'اشترك الآن' : 'ابدأ تجربتك المجانية'}
                   </Link>
                 </div>
@@ -656,7 +656,7 @@ export default function Landing() {
               </ul>
               <Link
                 to={user ? "/pricing" : "/signup?redirect=/pricing"}
-                className="btn-primary-glow inline-flex items-center justify-center rounded-full bg-emerald-600 px-6 py-3 text-base font-bold text-white transition-all hover:bg-emerald-700"
+                className="btn-primary-glow inline-flex items-center justify-center rounded-full bg-emerald-600 px-6 py-3 text-base font-bold text-white transition-all hover:bg-emerald-700 active:scale-[0.98]"
               >
                 {ctaTextShort}
               </Link>
@@ -754,7 +754,7 @@ export default function Landing() {
           </div>
           <Link
             to={ctaLink}
-            className="btn-primary-glow inline-flex items-center justify-center gap-2 rounded-full bg-emerald-600 px-10 py-4 text-lg font-bold text-white transition-all hover:bg-emerald-700"
+            className="btn-primary-glow inline-flex items-center justify-center gap-2 rounded-full bg-emerald-600 px-10 py-4 text-lg font-bold text-white transition-all hover:bg-emerald-700 active:scale-[0.98]"
           >
             <span>{user ? "اشترك الآن" : "ابدأ تجربتك المجانية"}</span>
             <ArrowLeft className="h-5 w-5" />
