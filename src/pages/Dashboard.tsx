@@ -1,6 +1,6 @@
 import { Helmet } from 'react-helmet-async';
 import { Link } from 'react-router-dom';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import {
   LayoutDashboard,
   BookOpen,
@@ -16,6 +16,7 @@ import {
   TrendingUp,
   Clock,
 } from 'lucide-react';
+import { toast } from 'sonner';
 import { cn, arPlural } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
@@ -149,30 +150,31 @@ interface ActiveProtocol {
 function useActiveProtocols(userId: string | undefined) {
   const [protocols, setProtocols] = useState<ActiveProtocol[]>([]);
   const [loading, setLoading] = useState(true);
-  useEffect(() => {
+  const fetchProtocols = useCallback(async () => {
     if (!userId) return;
-    let mounted = true;
-    supabase
+    const { data, error } = await supabase
       .from('user_protocols')
       .select('*')
       .eq('user_id', userId)
       .eq('status', 'active')
-      .order('started_at', { ascending: false })
-      .then(({ data, error }) => {
-        if (mounted && !error && data) setProtocols(data);
-        if (mounted) setLoading(false);
-      })
-      .catch(() => { if (mounted) setLoading(false); });
-    return () => { mounted = false; };
+      .order('started_at', { ascending: false });
+    if (!error && data) setProtocols(data);
+    setLoading(false);
   }, [userId]);
-  return { protocols, loading };
+  useEffect(() => {
+    if (!userId) return;
+    let mounted = true;
+    fetchProtocols().then(() => { if (!mounted) return; }).catch(() => { if (mounted) setLoading(false); });
+    return () => { mounted = false; };
+  }, [userId, fetchProtocols]);
+  return { protocols, loading, refetch: fetchProtocols };
 }
 
 export default function Dashboard() {
   const { user, subscription } = useAuth();
   const { visited, markVisited } = useVisitedPages();
   const activity = useRecentActivity(user?.id);
-  const { protocols: activeProtocols } = useActiveProtocols(user?.id);
+  const { protocols: activeProtocols, refetch: refetchProtocols } = useActiveProtocols(user?.id);
   const [shareProtocolId, setShareProtocolId] = useState<string | null>(null);
 
   useEffect(() => {
@@ -307,7 +309,7 @@ export default function Dashboard() {
                       );
                     })()}
                   </div>
-                  <div className="mt-3 flex gap-2">
+                  <div className="mt-3 flex flex-wrap items-center gap-2">
                     <Link
                       to={`/tracker?peptide=${encodeURIComponent(peptide?.nameEn ?? proto.peptide_id)}`}
                       className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-emerald-600 px-4 py-2.5 text-sm font-bold text-white transition-colors hover:bg-emerald-700"
@@ -315,6 +317,24 @@ export default function Dashboard() {
                       <Syringe className="h-4 w-4" />
                       سجّل جرعة اليوم
                     </Link>
+                    <button
+                      onClick={async () => {
+                        const { error } = await supabase
+                          .from('user_protocols')
+                          .update({ status: 'completed', updated_at: new Date().toISOString() })
+                          .eq('id', proto.id)
+                          .eq('user_id', user.id);
+                        if (!error) {
+                          toast.success('تم إنهاء البروتوكول');
+                          refetchProtocols();
+                        } else {
+                          toast.error('تعذّر إنهاء البروتوكول');
+                        }
+                      }}
+                      className="text-xs text-stone-400 hover:text-red-500 transition-colors"
+                    >
+                      أنهِ البروتوكول
+                    </button>
                     <button
                       onClick={() => setShareProtocolId(proto.id)}
                       className="flex items-center justify-center rounded-xl border border-stone-200 px-3 py-2.5 text-sm text-stone-500 transition-colors hover:bg-stone-50 hover:text-emerald-600"

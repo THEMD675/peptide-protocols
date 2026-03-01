@@ -99,14 +99,14 @@ export default function Tracker() {
 
   interface ActiveProtocol { id: string; peptide_id: string; dose: number; dose_unit: string; frequency: string; cycle_weeks: number; started_at: string; status: string; }
   const [activeProtocols, setActiveProtocols] = useState<ActiveProtocol[]>([]);
-  useEffect(() => {
+  const fetchActiveProtocols = useCallback(async () => {
     if (!user) return;
-    let mounted = true;
-    supabase.from('user_protocols').select('*').eq('user_id', user.id).eq('status', 'active').order('started_at', { ascending: false }).then(({ data, error }) => {
-      if (mounted && !error && data) setActiveProtocols(data);
-    }).catch(() => {});
-    return () => { mounted = false; };
+    const { data, error } = await supabase.from('user_protocols').select('*').eq('user_id', user.id).eq('status', 'active').order('started_at', { ascending: false });
+    if (!error && data) setActiveProtocols(data);
   }, [user]);
+  useEffect(() => {
+    fetchActiveProtocols().catch(() => {});
+  }, [fetchActiveProtocols]);
 
   const handleQuickLog = async (proto: ActiveProtocol) => {
     if (!user || isSubmitting) return;
@@ -443,6 +443,24 @@ export default function Tracker() {
                       <p className="font-bold text-stone-900 truncate">{peptide?.nameAr ?? proto.peptide_id}</p>
                       <p className="text-xs text-stone-500" dir="ltr">{proto.dose} {proto.dose_unit}</p>
                       <p className="text-xs text-stone-500">الأسبوع {weekNumber} من {totalWeeks}</p>
+                      <button
+                        onClick={async () => {
+                          const { error } = await supabase
+                            .from('user_protocols')
+                            .update({ status: 'completed', updated_at: new Date().toISOString() })
+                            .eq('id', proto.id)
+                            .eq('user_id', user.id);
+                          if (!error) {
+                            toast.success('تم إنهاء البروتوكول');
+                            fetchActiveProtocols();
+                          } else {
+                            toast.error('تعذّر إنهاء البروتوكول');
+                          }
+                        }}
+                        className="text-xs text-stone-400 hover:text-red-500 transition-colors"
+                      >
+                        أنهِ البروتوكول
+                      </button>
                     </div>
                     <button
                       onClick={() => handleQuickLog(proto)}

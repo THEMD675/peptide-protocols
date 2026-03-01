@@ -7,7 +7,7 @@ import { renderMarkdown } from '@/lib/markdown';
 import {
   Bot, Send, Sparkles, TrendingDown, Heart, Dumbbell, Brain,
   Clock, Zap, Calculator, FlaskConical, Shield, RotateCcw, ArrowLeft, ArrowRight,
-  Copy, Check, BookOpen, Play,
+  Copy, Check, BookOpen, Play, Printer,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { cn, arPlural } from '@/lib/utils';
@@ -626,8 +626,25 @@ export default function Coach() {
                       {copiedIdx === i ? <Check className="h-3 w-3 text-emerald-500" /> : <Copy className="h-3 w-3" />}
                       {copiedIdx === i ? 'تم' : 'نسخ'}
                     </button>
+                    <button
+                      onClick={() => {
+                        const printWindow = window.open('', '_blank');
+                        if (printWindow) {
+                          printWindow.document.write(`
+                            <html dir="rtl"><head><title>بروتوكول pptides</title>
+                            <style>body{font-family:Arial;padding:40px;line-height:1.8;}</style></head>
+                            <body>${msg.content.replace(/\n/g, '<br>')}</body></html>
+                          `);
+                          printWindow.document.close();
+                          printWindow.print();
+                        }
+                      }}
+                      className="inline-flex items-center gap-1 rounded-full border border-stone-200 px-3 py-1.5 text-xs font-medium text-stone-600 transition-colors hover:bg-stone-50"
+                    >
+                      <Printer className="h-3 w-3" /> طباعة
+                    </button>
                     <a
-                      href={`https://wa.me/?text=${encodeURIComponent(`استشرت مدرب الببتيدات في pptides.com — جرّبه مجانًا: ${SITE_URL}/`)}`}
+                      href={`https://wa.me/?text=${encodeURIComponent(`بروتوكول من pptides:\n\n${msg.content.slice(0, 500)}\n\nاقرأ المزيد: ${SITE_URL}`)}`}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="inline-flex items-center gap-1 rounded-lg border border-emerald-200 bg-emerald-50 px-2 py-1 text-xs font-medium text-emerald-700 transition-colors hover:bg-emerald-100"
@@ -658,8 +675,25 @@ export default function Coach() {
                         {copiedIdx === i ? <Check className="h-3 w-3 text-emerald-500" /> : <Copy className="h-3 w-3" />}
                         {copiedIdx === i ? 'تم' : 'نسخ'}
                       </button>
+                      <button
+                        onClick={() => {
+                          const printWindow = window.open('', '_blank');
+                          if (printWindow) {
+                            printWindow.document.write(`
+                              <html dir="rtl"><head><title>بروتوكول pptides</title>
+                              <style>body{font-family:Arial;padding:40px;line-height:1.8;}</style></head>
+                              <body>${msg.content.replace(/\n/g, '<br>')}</body></html>
+                            `);
+                            printWindow.document.close();
+                            printWindow.print();
+                          }
+                        }}
+                        className="flex items-center gap-1 rounded-full border border-stone-200 px-3 py-1.5 text-xs font-medium text-stone-600 transition-colors hover:bg-stone-50"
+                      >
+                        <Printer className="h-3 w-3" /> طباعة
+                      </button>
                       <a
-                        href={`https://wa.me/?text=${encodeURIComponent(`استشرت مدرب الببتيدات في pptides.com — جرّبه مجانًا: ${SITE_URL}/`)}`}
+                        href={`https://wa.me/?text=${encodeURIComponent(`بروتوكول من pptides:\n\n${msg.content.slice(0, 500)}\n\nاقرأ المزيد: ${SITE_URL}`)}`}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="inline-flex items-center gap-1 rounded-lg border border-emerald-200 bg-emerald-50 px-2 py-1 text-xs font-medium text-emerald-700 transition-colors hover:bg-emerald-100"

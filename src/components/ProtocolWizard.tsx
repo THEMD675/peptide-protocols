@@ -56,6 +56,11 @@ export default function ProtocolWizard({ peptideId, prefillDose, prefillUnit, on
   const [frequency, setFrequency] = useState(peptide?.frequency ?? 'od');
   const [cycleWeeks, setCycleWeeks] = useState(String(peptide?.cycleDurationWeeks ?? 4));
   const [submitting, setSubmitting] = useState(false);
+  const [existingProtocols, setExistingProtocols] = useState(0);
+  useEffect(() => {
+    if (!user) return;
+    supabase.from('user_protocols').select('id', { count: 'exact', head: true }).eq('user_id', user.id).eq('status', 'active').then(({ count }) => setExistingProtocols(count ?? 0));
+  }, [user]);
 
   useEffect(() => {
     const handler = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose(); };
@@ -126,6 +131,11 @@ export default function ProtocolWizard({ peptideId, prefillDose, prefillUnit, on
           </div>
 
           <div className="space-y-4">
+            {existingProtocols > 0 && (
+              <div className="mb-4 rounded-xl border border-amber-200 bg-amber-50 px-4 py-2 text-xs text-amber-700">
+                لديك {existingProtocols} بروتوكول نشط — يمكنك تشغيل عدة بروتوكولات معًا
+              </div>
+            )}
             <div className="flex gap-3">
               <div className="flex-1">
                 <label htmlFor="wizard-dose" className="mb-1 block text-sm font-bold text-stone-700">الجرعة</label>
