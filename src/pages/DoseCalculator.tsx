@@ -462,7 +462,7 @@ export default function DoseCalculator() {
                   min={0.1}
                   step={0.5}
                   value={waterMl}
-                  onChange={(e) => setWaterMl(Number(e.target.value))}
+                  onChange={(e) => setWaterMl(Math.max(0, Number(e.target.value) || 0))}
                   aria-label="كمية الماء البكتيريوستاتك (مل)"
                   className={cn(
                     'w-full rounded-xl border border-stone-300 bg-stone-50 px-4 py-3 pe-16',
@@ -474,7 +474,10 @@ export default function DoseCalculator() {
                   مل
                 </span>
               </div>
-              {waterMl !== recommendedWater && vialMg > 0 && (
+              {waterMl === 0 && (
+                <p className="mt-1 text-xs font-medium text-red-600">⚠️ أدخل كمية ماء أكبر من صفر</p>
+              )}
+              {waterMl !== recommendedWater && vialMg > 0 && waterMl > 0 && (
                 !selectedPreset ? (
                   <div className="mt-1 flex items-center gap-2 rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2">
                     <span className="text-xs text-emerald-700">
@@ -939,7 +942,7 @@ function InputField({
           min={0}
           step={step}
           value={value}
-          onChange={(e) => onChange(Number(e.target.value))}
+          onChange={(e) => onChange(Math.max(0, Number(e.target.value) || 0))}
           aria-label={label}
           className={cn(
             'w-full rounded-xl border border-stone-300 bg-stone-50 px-4 py-3 pe-16',

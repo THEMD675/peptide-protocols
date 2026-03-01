@@ -138,7 +138,9 @@ export default function Login() {
     }
     setLoading(true);
     try {
-      const { error } = await supabase.auth.resetPasswordForEmail(email);
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}/account`,
+      });
       if (error) throw error;
       setResetMessage('تم إرسال رابط إعادة تعيين كلمة المرور');
     } catch (err: unknown) {

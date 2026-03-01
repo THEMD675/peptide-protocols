@@ -311,7 +311,7 @@ export default function Account() {
                 )}
                 <li className="flex items-center gap-2 text-sm text-red-700">
                   <XCircle className="h-3.5 w-3.5 shrink-0 text-red-400" />
-                  سجل حقنك وبياناتك
+                  الوصول الكامل بعد انتهاء الفترة الحالية
                 </li>
               </ul>
             </div>
@@ -349,7 +349,7 @@ export default function Account() {
             </p>
             <div className="mt-4">
               <label className="mb-1.5 block text-sm font-medium text-stone-700">
-                اكتب <span className="font-bold text-red-600">حذف</span> للتأكيد
+                اكتب <span className="font-bold text-red-600">حذف</span> أو <span className="font-bold text-red-600">delete</span> للتأكيد
               </label>
               <input
                 type="text"
@@ -363,7 +363,7 @@ export default function Account() {
             <div className="mt-4 flex gap-3">
               <button
                 onClick={handleDeleteAccount}
-                disabled={isProcessing || deleteConfirmText !== 'حذف'}
+                disabled={isProcessing || (deleteConfirmText !== 'حذف' && deleteConfirmText.toLowerCase() !== 'delete')}
                 className="flex-1 rounded-xl bg-red-600 px-4 py-2.5 text-sm font-bold text-white transition-all hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isProcessing ? 'جارٍ الحذف...' : 'تسجيل الخروج وحذف الحساب'}

@@ -202,6 +202,9 @@ serve(async (req) => {
             <p style="color: #a8a29e; font-size: 12px;">
               pptides.com — محتوى تعليمي بحثي. استشر طبيبك قبل استخدام أي ببتيد.
             </p>
+            <p style="color: #a8a29e; font-size: 11px; margin-top: 16px;">
+              لإلغاء الاشتراك من رسائلنا، تواصل معنا: <a href="mailto:contact@pptides.com" style="color: #a8a29e;">contact@pptides.com</a>
+            </p>
           </div>
         `,
       }),

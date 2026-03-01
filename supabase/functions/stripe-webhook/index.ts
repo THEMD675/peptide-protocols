@@ -196,6 +196,7 @@ serve(async (req) => {
             .from('subscriptions')
             .update({
               status: 'cancelled',
+              tier: 'free',
               current_period_end: periodEnd,
               updated_at: new Date().toISOString(),
             })

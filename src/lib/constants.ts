@@ -18,7 +18,10 @@ export const FREE_PEPTIDE_IDS = new Set([
 ]);
 
 export const TRIAL_PEPTIDE_IDS = new Set([
-  'semaglutide', 'tirzepatide', 'retatrutide', 'tesamorelin', 'aod-9604', '5-amino-1mq',
+  // All free peptides (don't downgrade on signup)
+  'semaglutide', 'bpc-157', 'kisspeptin-10', 'semax', 'epithalon', 'collagen-peptides',
+  // Plus trial-exclusive peptides
+  'tirzepatide', 'retatrutide', 'tesamorelin', 'aod-9604', '5-amino-1mq',
 ]);
 
 export const LEGAL_LAST_UPDATED = '25 فبراير 2026';
