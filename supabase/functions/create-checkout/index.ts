@@ -63,13 +63,18 @@ serve(async (req) => {
       })
     }
 
-    const adminDb = createClient(supabaseUrl, Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '')
-    const oneMinAgo = new Date(Date.now() - 60000).toISOString()
-    const { count } = await adminDb.from('rate_limits').select('id', { count: 'exact', head: true }).eq('endpoint', 'create-checkout').eq('user_id', user.id).gte('created_at', oneMinAgo)
-    if ((count ?? 0) >= 5) {
-      return new Response(JSON.stringify({ error: 'محاولات كثيرة — انتظر دقيقة' }), { status: 429, headers: { ...corsHeaders, 'Content-Type': 'application/json' } })
-    }
-    await adminDb.from('rate_limits').insert({ user_id: user.id, endpoint: 'create-checkout' }).catch(() => {})
+    try {
+      const serviceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')
+      if (serviceKey) {
+        const adminDb = createClient(supabaseUrl, serviceKey)
+        const oneMinAgo = new Date(Date.now() - 60000).toISOString()
+        const { count } = await adminDb.from('rate_limits').select('id', { count: 'exact', head: true }).eq('endpoint', 'create-checkout').eq('user_id', user.id).gte('created_at', oneMinAgo)
+        if ((count ?? 0) >= 5) {
+          return new Response(JSON.stringify({ error: 'محاولات كثيرة — انتظر دقيقة' }), { status: 429, headers: { ...corsHeaders, 'Content-Type': 'application/json' } })
+        }
+        adminDb.from('rate_limits').insert({ user_id: user.id, endpoint: 'create-checkout' }).then(() => {}).catch(() => {})
+      }
+    } catch (rlErr) { console.error('rate limit check failed:', rlErr) }
 
     let body: { tier?: string }
     try { body = await req.json() } catch {
