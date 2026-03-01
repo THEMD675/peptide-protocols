@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import { Eye, EyeOff } from 'lucide-react';
+import { toast } from 'sonner';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
 import { cn } from '@/lib/utils';
@@ -20,6 +21,8 @@ export default function Login() {
   const [loading, setLoading] = useState(false);
   const [resetMessage, setResetMessage] = useState('');
   const [infoMessage, setInfoMessage] = useState('');
+  const [failedAttempts, setFailedAttempts] = useState(0);
+  const [lockoutUntil, setLockoutUntil] = useState(0);
   const [isRecovery, setIsRecovery] = useState(false);
   const [newPassword, setNewPassword] = useState('');
 
@@ -81,6 +84,12 @@ export default function Login() {
       return;
     }
 
+    if (Date.now() < lockoutUntil) {
+      const remaining = Math.ceil((lockoutUntil - Date.now()) / 1000);
+      toast.error(`حاول مرة أخرى بعد ${remaining} ثانية`);
+      return;
+    }
+
     setLoading(true);
     try {
       if (tab === 'login') {
@@ -88,6 +97,7 @@ export default function Login() {
       } else {
         await signup(email, password);
       }
+      setFailedAttempts(0);
       const raw = new URLSearchParams(window.location.search).get('redirect');
       const redirectTo = raw && raw.startsWith('/') && !raw.startsWith('//') ? raw : null;
       if (redirectTo) {
@@ -99,8 +109,18 @@ export default function Login() {
       const msg = err instanceof Error ? err.message : 'حدث خطأ في تسجيل الدخول. تحقق من بريدك وكلمة المرور.';
       if (msg.includes('رابط التأكيد') || msg.includes('تحقق من بريدك')) {
         setInfoMessage(msg);
+      } else if (err instanceof Error && (err.message?.includes('already') || err.message?.includes('registered'))) {
+        toast.error('هذا البريد مسجّل — جرّب تسجيل الدخول أو استخدم Google');
+        setError(msg);
       } else {
         setError(msg);
+      }
+      const next = failedAttempts + 1;
+      setFailedAttempts(next);
+      if (next >= 5) {
+        setLockoutUntil(Date.now() + 30000);
+        setFailedAttempts(0);
+        toast.error('محاولات كثيرة — انتظر 30 ثانية');
       }
     } finally {
       setLoading(false);
@@ -121,10 +141,12 @@ export default function Login() {
       });
       if (error) {
         setError('تعذّر تسجيل الدخول عبر Google. حاول مرة أخرى.');
+        toast.error('تعذّر الدخول بـ Google — جرّب البريد وكلمة المرور');
         setLoading(false);
       }
     } catch {
       setError('تعذّر تسجيل الدخول عبر Google. تحقق من اتصالك بالإنترنت.');
+      toast.error('تعذّر الدخول بـ Google — جرّب البريد وكلمة المرور');
       setLoading(false);
     }
   };
@@ -299,12 +321,12 @@ export default function Login() {
                     autoComplete={tab === 'login' ? 'current-password' : 'new-password'}
                     dir="ltr"
                     {...(tab === 'signup' ? { minLength: 8 } : {})}
-                    className="w-full rounded-xl border border-stone-200 bg-white px-4 py-3 pl-12 text-left text-stone-900 placeholder:text-stone-400 outline-none transition-shadow focus:border-emerald-300 focus:ring-2 focus:ring-emerald-100"
+                    className="w-full rounded-xl border border-stone-200 bg-white px-4 py-3 ps-12 text-left text-stone-900 placeholder:text-stone-400 outline-none transition-shadow focus:border-emerald-300 focus:ring-2 focus:ring-emerald-100"
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(v => !v)}
-                    className="absolute left-3 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-600 transition-colors"
+                    className="absolute start-3 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-600 transition-colors"
                     aria-label={showPassword ? 'إخفاء كلمة المرور' : 'إظهار كلمة المرور'}
                   >
                     {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}

@@ -249,7 +249,7 @@ serve(async (req) => {
             to: email,
             subject,
             html: `
-              <div dir="rtl" style="font-family: 'Cairo', Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 40px 20px; line-height: 1.8;">
+              <div dir="rtl" style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Tahoma, Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 40px 20px; line-height: 1.8;">
                 ${body}
                 <hr style="border: none; border-top: 1px solid #e7e5e4; margin: 30px 0;" />
                 <p style="color: #a8a29e; font-size: 12px;">

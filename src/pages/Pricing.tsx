@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { Link } from 'react-router-dom';
 import { Check, Shield, Lock, CreditCard, RefreshCw, ChevronDown, MessageCircle, Crown, ArrowLeft } from 'lucide-react';
@@ -68,6 +68,7 @@ export default function Pricing() {
 
   const showTrialMessaging = !user || subscription?.status === 'none';
   const [loadingPlan, setLoadingPlan] = useState<string | null>(null);
+  const navigatingRef = useRef(false);
 
   const renderAction = (planKey: 'essentials' | 'elite', isElite: boolean) => {
     if (isSubscribedTo(planKey)) {
@@ -82,20 +83,31 @@ export default function Pricing() {
       );
     }
 
+    if (user && subscription?.isProOrTrial && subscription.tier === 'elite' && planKey === 'essentials') {
+      return (
+        <div className="text-center text-sm text-stone-500">
+          للتغيير تواصل معنا: <a href={`mailto:${SUPPORT_EMAIL}`} className="text-emerald-600 underline">{SUPPORT_EMAIL}</a>
+        </div>
+      );
+    }
+
     if (user) {
       const isLoading = loadingPlan === planKey;
       return (
         <button
           onClick={() => {
+            if (navigatingRef.current) return;
+            navigatingRef.current = true;
             setLoadingPlan(planKey);
             try {
               upgradeTo(planKey);
             } catch {
+              navigatingRef.current = false;
               setLoadingPlan(null);
               toast.error('حدث خطأ أثناء التحويل لصفحة الدفع. حاول مرة أخرى.');
             }
           }}
-          disabled={isLoading}
+          disabled={isLoading || navigatingRef.current}
           className={cn(
             'inline-flex w-full items-center justify-center gap-2 rounded-full px-6 py-3.5',
             'font-bold transition-all duration-300',

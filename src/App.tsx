@@ -1,4 +1,4 @@
-import { lazy, Suspense, useEffect, Component, type ReactNode } from 'react';
+import { lazy, Suspense, useEffect, useState, Component, type ReactNode } from 'react';
 import { BrowserRouter, Routes, Route, Link, Navigate, useLocation } from 'react-router-dom';
 import { useAuth, AuthProvider } from '@/contexts/AuthContext';
 import { Helmet, HelmetProvider } from 'react-helmet-async';
@@ -176,6 +176,19 @@ function CanonicalUrl() {
   );
 }
 
+function OfflineBanner() {
+  const [offline, setOffline] = useState(!navigator.onLine);
+  useEffect(() => {
+    const goOffline = () => setOffline(true);
+    const goOnline = () => setOffline(false);
+    window.addEventListener('offline', goOffline);
+    window.addEventListener('online', goOnline);
+    return () => { window.removeEventListener('offline', goOffline); window.removeEventListener('online', goOnline); };
+  }, []);
+  if (!offline) return null;
+  return <div className="fixed top-0 inset-x-0 z-[9999] bg-red-600 text-white text-center py-2 text-sm font-bold">أنت غير متصل بالإنترنت</div>;
+}
+
 function HomeRedirect() {
   const { user, subscription, isLoading } = useAuth();
   if (!isLoading && user && subscription?.isProOrTrial) return <Navigate to="/dashboard" replace />;
@@ -225,6 +238,7 @@ export default function App() {
       <AuthProvider>
         <ErrorBoundary>
           <div className="min-h-screen flex flex-col bg-white text-stone-900 overflow-x-hidden">
+          <OfflineBanner />
           <PaymentProcessing />
           <AgeGate />
           <Header />
@@ -232,7 +246,7 @@ export default function App() {
           <ScrollToTop />
           <TrackPageView />
           <CanonicalUrl />
-          <Toaster position="top-center" richColors dir="rtl" />
+          <Toaster position="top-center" richColors dir="rtl" visibleToasts={3} toastOptions={{ duration: 4000 }} />
           <main id="main-content" className="flex-1 pb-16 md:pb-0">
             <Routes>
               <Route path="/" element={<HomeRedirect />} />

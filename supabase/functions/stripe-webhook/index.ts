@@ -282,18 +282,45 @@ serve(async (req) => {
         break
       }
 
+      case 'checkout.session.async_payment_succeeded': {
+        const session = event.data.object as Stripe.Checkout.Session
+        const userId = session.client_reference_id
+        if (userId) {
+          const { error } = await supabase
+            .from('subscriptions')
+            .update({ status: 'active', updated_at: new Date().toISOString() })
+            .eq('user_id', userId)
+          if (error) { console.error('async_payment_succeeded DB error:', error); dbFailed = true }
+        }
+        break
+      }
+
+      case 'checkout.session.async_payment_failed': {
+        const session = event.data.object as Stripe.Checkout.Session
+        const userId = session.client_reference_id
+        if (userId) {
+          const { error } = await supabase
+            .from('subscriptions')
+            .update({ status: 'expired', updated_at: new Date().toISOString() })
+            .eq('user_id', userId)
+          if (error) { console.error('async_payment_failed DB error:', error); dbFailed = true }
+        }
+        break
+      }
+
       default:
         console.log('Unhandled Stripe event type:', event.type)
     }
 
     if (dbFailed) {
       await supabase.from('processed_webhook_events').delete().eq('event_id', event.id).catch(() => {})
+      console.error(JSON.stringify({ severity: 'CRITICAL', action: 'webhook_db_failed', event_type: event.type, event_id: event.id, timestamp: new Date().toISOString() }))
       return jsonResponse({ error: 'Database update failed' }, 500)
     }
 
     return jsonResponse({ received: true })
   } catch (error) {
-    console.error('stripe-webhook unhandled error:', error)
+    console.error(JSON.stringify({ severity: 'CRITICAL', action: 'webhook_unhandled_error', error: (error as Error).message, timestamp: new Date().toISOString() }))
     return jsonResponse({ error: 'Internal webhook error' }, 500)
   }
 })

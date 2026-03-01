@@ -108,36 +108,25 @@ export default function Landing() {
   useEffect(() => {
     let mounted = true;
     const cached = sessionStorage.getItem('pptides_user_count_ts');
-    if (cached && Date.now() - Number(cached) < 5 * 60 * 1000) return;
-    supabase.from('subscriptions').select('id', { count: 'exact', head: true }).in('status', ['active', 'trial']).then(({ count, error }) => {
-      if (error) return;
-      if (mounted && count && count > 0) {
-        setUserCount(count);
-        try { sessionStorage.setItem('pptides_user_count', String(count)); sessionStorage.setItem('pptides_user_count_ts', String(Date.now())); } catch { /* expected */ }
+    const cacheValid = cached && Date.now() - Number(cached) < 5 * 60 * 1000;
+    Promise.all([
+      cacheValid ? Promise.resolve({ count: null, error: null }) : supabase.from('subscriptions').select('id', { count: 'exact', head: true }).in('status', ['active', 'trial']),
+      supabase.from('reviews').select('content, rating, name, created_at').eq('is_approved', true).gte('rating', 3).order('created_at', { ascending: false }).limit(3),
+    ]).then(([subsResult, reviewsResult]) => {
+      if (!mounted) return;
+      if (subsResult.count != null && subsResult.count > 0) {
+        setUserCount(subsResult.count);
+        try { sessionStorage.setItem('pptides_user_count', String(subsResult.count)); sessionStorage.setItem('pptides_user_count_ts', String(Date.now())); } catch { /* expected */ }
+      }
+      if (reviewsResult.data && reviewsResult.data.length > 0) {
+        setTestimonials(reviewsResult.data.map((r) => ({
+          text: r.content,
+          name: r.name ?? 'مستخدم',
+          role: `تقييم ${r.rating}/5`,
+          rating: r.rating,
+        })));
       }
     }).catch(() => {});
-    return () => { mounted = false; };
-  }, []);
-
-  useEffect(() => {
-    let mounted = true;
-    supabase
-      .from('reviews')
-      .select('content, rating, name, created_at')
-      .eq('is_approved', true)
-      .gte('rating', 3)
-      .order('created_at', { ascending: false })
-      .limit(3)
-      .then(({ data }) => {
-        if (mounted && data && data.length > 0) {
-          setTestimonials(data.map((r) => ({
-            text: r.content,
-            name: r.name ?? 'مستخدم',
-            role: `تقييم ${r.rating}/5`,
-            rating: r.rating,
-          })));
-        }
-      }).catch(() => {});
     return () => { mounted = false; };
   }, []);
   if (shouldRedirect) return <Navigate to="/dashboard" replace />;

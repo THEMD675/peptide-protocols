@@ -223,6 +223,8 @@ export default function Tracker() {
     if (!dose || parseFloat(dose) <= 0) { toast.error('أدخل جرعة صحيحة'); return; }
     setIsSubmitting(true);
     try {
+      const sideEffectLabel = sideEffect !== 'none' ? `أعراض جانبية: ${sideEffect}` : '';
+      const combinedNotes = [notes.trim(), sideEffectLabel].filter(Boolean).join('\n') || null;
       const { error } = await supabase.from('injection_logs').insert({
         user_id: user.id,
         peptide_name: peptideName.trim(),
@@ -230,7 +232,7 @@ export default function Tracker() {
         dose_unit: unit,
         injection_site: site,
         logged_at: new Date(injectedAt).toISOString(),
-        notes: notes.trim() || null,
+        notes: combinedNotes,
       });
       if (error) {
         toast.error('حدث خطأ أثناء الحفظ. حاول مرة أخرى.');
@@ -242,6 +244,7 @@ export default function Tracker() {
       setSite('abdomen');
       setNotes('');
       setShowForm(false);
+      window.history.replaceState({}, '', window.location.pathname);
       const now = new Date();
       now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
       setInjectedAt(now.toISOString().slice(0, 16));
@@ -295,8 +298,8 @@ export default function Tracker() {
     const now = new Date();
     const { year, month } = calendarMonth;
     const daysInMonth = new Date(year, month + 1, 0).getDate();
-    const firstDayOfWeek = new Date(year, month, 1).getDay();
-    const dayNames = ['أحد', 'إثن', 'ثلا', 'أرب', 'خمي', 'جمع', 'سبت'];
+    const firstDayOfWeek = (new Date(year, month, 1).getDay() + 1) % 7;
+    const dayNames = ['سبت', 'أحد', 'إثن', 'ثلا', 'أرب', 'خمي', 'جمع'];
     const monthName = new Date(year, month).toLocaleDateString('ar-u-nu-latn', { month: 'long', year: 'numeric' });
     const isCurrentMonth = year === now.getFullYear() && month === now.getMonth();
     const injectionDays = new Map<number, number>();
@@ -800,10 +803,16 @@ export default function Tracker() {
                           onConfirm: async () => {
                             setConfirmDialog(null);
                             const deletedLog = logs.find(l => l.id === log.id);
+                            // TODO(#49): concurrent deletes may cause stale-state rollback; consider a queue or mutex
                             setLogs(prev => prev.filter(l => l.id !== log.id));
                             const { error } = await supabase.from('injection_logs').delete().eq('id', log.id);
                             if (error) {
-                              if (deletedLog) setLogs(prev => [deletedLog, ...prev]);
+                              if (deletedLog) setLogs(prev => {
+                                const originalIndex = prev.findIndex(l => new Date(l.logged_at) < new Date(deletedLog.logged_at));
+                                const restored = [...prev];
+                                restored.splice(originalIndex === -1 ? prev.length : originalIndex, 0, deletedLog);
+                                return restored;
+                              });
                               toast.error('فشل الحذف — حاول مرة أخرى');
                             }
                           },

@@ -209,7 +209,15 @@ export default function Coach() {
     if (isLoading) return;
     let cleanMessages = messages.filter(m => !m.content.startsWith('__ERROR'));
     if (cleanMessages.length > 50) cleanMessages = cleanMessages.slice(-50);
-    try { localStorage.setItem(storageKey, JSON.stringify({ messages: cleanMessages, intake })); } catch { /* expected */ }
+    try {
+      localStorage.setItem(storageKey, JSON.stringify({ messages: cleanMessages, intake }));
+    } catch (e) {
+      if (e instanceof DOMException && e.name === 'QuotaExceededError') {
+        toast.error('ذاكرة المتصفح ممتلئة — سيتم حذف المحادثات القديمة');
+        const trimmed = cleanMessages.slice(-20);
+        try { localStorage.setItem(storageKey, JSON.stringify({ messages: trimmed, intake })); } catch { /* give up */ }
+      }
+    }
   }, [messages, intake, storageKey, isLoading]);
 
   useEffect(() => { scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: 'smooth' }); }, [messages, intakeStep]);
@@ -256,6 +264,11 @@ export default function Coach() {
         signal: controller.signal,
       });
       if (!res.ok) throw new Error(String(res.status));
+
+      const contentType = res.headers.get('content-type') ?? '';
+      if (!contentType.includes('text/event-stream') && !contentType.includes('text/plain')) {
+        throw new Error('Unexpected response format');
+      }
 
       const reader = res.body?.getReader();
       if (!reader) throw new Error();
@@ -573,7 +586,7 @@ export default function Coach() {
                         </button>
                       </div>
                     ) : (
-                      <div className="text-sm leading-relaxed text-stone-800">
+                      <div className="text-sm leading-relaxed text-stone-800" style={{ overflowWrap: 'anywhere', wordBreak: 'break-word' }}>
                         <MarkdownBubble content={msg.content} />
                         {isLoading && i === messages.length - 1 && msg.content.length > 0 && (
                           <span className="inline-block w-2 h-4 bg-emerald-600 animate-pulse align-text-bottom me-0.5" />
@@ -714,7 +727,7 @@ export default function Coach() {
                   {followUps.length > 0 && !isLoading && userMsgCount > 0 && (
                     <div className="mb-3 flex flex-wrap gap-1.5 justify-center">
                       {followUps.map(q => (
-                        <button key={q} onClick={() => sendToAI(q)} disabled={isLoading} className={cn("rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1.5 text-xs font-medium text-emerald-700 transition-colors hover:bg-emerald-100", isLoading && "opacity-50 cursor-not-allowed")}>{q}</button>
+                        <button key={q} onClick={() => sendToAI(q)} disabled={isLoading} className={cn("rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1.5 min-h-[44px] text-xs font-medium text-emerald-700 transition-colors hover:bg-emerald-100", isLoading && "opacity-50 cursor-not-allowed")}>{q}</button>
                       ))}
                     </div>
                   )}

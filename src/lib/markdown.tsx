@@ -19,7 +19,7 @@ export function renderMarkdown(text: string) {
     if (listItems.length > 0) {
       if (listType === 'ol') {
         elements.push(
-          <ol key={`ol-${elements.length}`} className="my-2 space-y-1 pr-4 list-decimal list-inside">
+          <ol key={`ol-${elements.length}`} className="my-2 space-y-1 pe-4 list-decimal list-inside">
             {listItems.map((item, j) => (
               <li key={j} className="text-stone-800" dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(inlineMd(item)) }} />
             ))}
@@ -27,7 +27,7 @@ export function renderMarkdown(text: string) {
         );
       } else {
         elements.push(
-          <ul key={`ul-${elements.length}`} className="my-2 space-y-1 pr-4">
+          <ul key={`ul-${elements.length}`} className="my-2 space-y-1 pe-4">
             {listItems.map((item, j) => (
               <li key={j} className="flex items-start gap-2">
                 <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-emerald-500" />

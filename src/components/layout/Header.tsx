@@ -358,7 +358,7 @@ export default memo(function Header() {
         <FocusTrap active={mobileOpen} focusTrapOptions={{ allowOutsideClick: true }}>
         <nav
           className={cn(
-            'absolute inset-y-0 right-0 flex w-[min(18rem,85vw)] flex-col border-l border-stone-200 bg-white pt-16 shadow-2xl transition-all duration-300 ease-out',
+            'absolute inset-y-0 right-0 flex w-[min(18rem,85vw)] flex-col border-s border-stone-200 bg-white pt-16 shadow-2xl transition-all duration-300 ease-out',
             mobileOpen ? 'translate-x-0 opacity-100' : 'translate-x-full opacity-0',
           )}
         >

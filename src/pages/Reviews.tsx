@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import { Star, Send, MessageSquare, CheckCircle, AlertCircle } from 'lucide-react';
@@ -83,7 +83,12 @@ export default function Reviews() {
   const [text, setText] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const submittingRef = useRef(false);
 
+  useEffect(() => {
+    const timer = setTimeout(() => setLoading(false), 8000);
+    return () => clearTimeout(timer);
+  }, []);
 
   const fetchReviews = useCallback(async (signal?: { cancelled: boolean }) => {
     setFetchError(null);
@@ -124,37 +129,43 @@ export default function Reviews() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user || rating === 0 || !text.trim() || submitting) return;
+    if (submittingRef.current) return;
+    submittingRef.current = true;
 
-    const { data: existing } = await supabase
-      .from('reviews')
-      .select('id')
-      .eq('user_id', user.id)
-      .limit(1);
-    if (existing && existing.length > 0) {
-      toast.error('لديك تقييم مسبق بالفعل');
-      return;
+    try {
+      const { data: existing } = await supabase
+        .from('reviews')
+        .select('id')
+        .eq('user_id', user.id)
+        .limit(1);
+      if (existing && existing.length > 0) {
+        toast.error('لديك تقييم مسبق بالفعل');
+        return;
+      }
+
+      setSubmitting(true);
+      const { error } = await supabase.from('reviews').insert({
+        name: user.email?.split('@')[0] ?? 'مستخدم',
+        email: user.email,
+        rating,
+        content: text.trim(),
+        is_approved: false,
+      });
+
+      setSubmitting(false);
+
+      if (error) {
+        toast.error('حدث خطأ أثناء النشر. حاول مرة أخرى.');
+        return;
+      }
+      setSubmitted(true);
+      setRating(0);
+      setText('');
+      fetchReviews();
+      setTimeout(() => setSubmitted(false), 4000);
+    } finally {
+      submittingRef.current = false;
     }
-
-    setSubmitting(true);
-    const { error } = await supabase.from('reviews').insert({
-      name: user.email?.split('@')[0] ?? 'مستخدم',
-      email: user.email,
-      rating,
-      content: text.trim(),
-      is_approved: false,
-    });
-
-    setSubmitting(false);
-
-    if (error) {
-      toast.error('حدث خطأ أثناء النشر. حاول مرة أخرى.');
-      return;
-    }
-    setSubmitted(true);
-    setRating(0);
-    setText('');
-    fetchReviews();
-    setTimeout(() => setSubmitted(false), 4000);
   };
 
   const formatDate = (dateStr: string) => {

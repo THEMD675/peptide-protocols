@@ -14,14 +14,16 @@ const ALLOWED_ORIGINS = IS_PRODUCTION
 
 serve(async (req) => {
   const origin = req.headers.get('origin') ?? ''
-  const allowedOrigin = ALLOWED_ORIGINS.includes(origin) ? origin : ALLOWED_ORIGINS[0]
+  const allowedOrigin = ALLOWED_ORIGINS.includes(origin) ? origin : ''
   const corsHeaders = {
-    'Access-Control-Allow-Origin': allowedOrigin,
+    'Access-Control-Allow-Origin': allowedOrigin || ALLOWED_ORIGINS[0],
     'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
     'Access-Control-Allow-Methods': 'POST, OPTIONS',
   }
 
   if (req.method === 'OPTIONS') return new Response('ok', { headers: corsHeaders })
+
+  if (!allowedOrigin) return new Response(JSON.stringify({ error: 'Forbidden' }), { status: 403 })
 
   if (req.method !== 'POST') {
     return new Response(JSON.stringify({ error: 'Method not allowed' }), {
@@ -157,6 +159,22 @@ serve(async (req) => {
         status: 500,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       })
+    }
+
+    console.log(JSON.stringify({ action: 'cancel_subscription', user_id: user.id, email: user.email ?? null, result: 'success', timestamp: new Date().toISOString() }))
+
+    const RESEND_API_KEY = Deno.env.get('RESEND_API_KEY')
+    if (RESEND_API_KEY && user.email) {
+      fetch('https://api.resend.com/emails', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${RESEND_API_KEY}` },
+        body: JSON.stringify({
+          from: 'pptides <noreply@pptides.com>',
+          to: user.email,
+          subject: 'تم إلغاء اشتراكك في pptides',
+          html: `<div dir="rtl" style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 40px 20px;"><h2>تم إلغاء اشتراكك</h2><p>ستحتفظ بالوصول حتى نهاية الفترة الحالية (${periodEnd.split('T')[0]}).</p><p>يمكنك إعادة الاشتراك في أي وقت من <a href="https://pptides.com/pricing">صفحة الأسعار</a>.</p><hr/><p style="color:#999;font-size:12px;">pptides.com</p></div>`,
+        }),
+      }).catch(e => console.error('cancel confirmation email failed:', e))
     }
 
     return new Response(JSON.stringify({
