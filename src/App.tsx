@@ -10,13 +10,13 @@ import TrialBanner from '@/components/TrialBanner';
 import BackToTop from '@/components/BackToTop';
 import ProtectedRoute from '@/components/ProtectedRoute';
 
-import AgeGate from '@/components/AgeGate';
-import PaymentProcessing from '@/components/PaymentProcessing';
-import InstallPrompt from '@/components/InstallPrompt';
 import {
   LibrarySkeleton, DashboardSkeleton, TrackerSkeleton, CoachSkeleton,
   PeptideDetailSkeleton, PricingSkeleton, CalculatorSkeleton, GenericPageSkeleton,
 } from '@/components/Skeletons';
+const AgeGate = lazy(() => import('@/components/AgeGate'));
+const PaymentProcessing = lazy(() => import('@/components/PaymentProcessing'));
+const InstallPrompt = lazy(() => import('@/components/InstallPrompt'));
 const StickyScrollCTA = lazy(() => import('@/components/StickyScrollCTA'));
 const ExitIntentPopup = lazy(() => import('@/components/ExitIntentPopup'));
 const CookieConsent = lazy(() => import('@/components/CookieConsent'));
@@ -239,8 +239,8 @@ export default function App() {
         <ErrorBoundary>
           <div className="min-h-screen flex flex-col bg-white text-stone-900 overflow-x-hidden">
           <OfflineBanner />
-          <PaymentProcessing />
-          <AgeGate />
+          <Suspense fallback={null}><PaymentProcessing /></Suspense>
+          <Suspense fallback={null}><AgeGate /></Suspense>
           <Header />
           <TrialBanner />
           <ScrollToTop />
@@ -279,7 +279,7 @@ export default function App() {
           <Suspense fallback={null}><StickyScrollCTA /></Suspense>
           <Suspense fallback={null}><ExitIntentPopup /></Suspense>
           <Suspense fallback={null}><CookieConsent /></Suspense>
-          <InstallPrompt />
+          <Suspense fallback={null}><InstallPrompt /></Suspense>
         </div>
         </ErrorBoundary>
       </AuthProvider>

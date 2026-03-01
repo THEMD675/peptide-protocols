@@ -246,6 +246,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return () => { authListener.unsubscribe(); clearTimeout(timeout); };
   }, [fetchSubscription]);
 
+  useEffect(() => {
+    const handler = (e: StorageEvent) => {
+      if (e.key?.startsWith('sb-') && user) {
+        fetchSubscription(user.id);
+      }
+    };
+    window.addEventListener('storage', handler);
+    return () => window.removeEventListener('storage', handler);
+  }, [user, fetchSubscription]);
+
   const login = useCallback(async (email: string, password: string) => {
     const { error } = await supabase.auth.signInWithPassword({ email, password });
     if (error) {
