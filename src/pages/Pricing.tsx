@@ -392,17 +392,16 @@ export default function Pricing() {
         </div>
 
         {/* Final CTA */}
-        <div
-          className="mt-16 text-center"
-        >
+        {!subscription?.isProOrTrial && (
+        <div className="mt-16 text-center">
           {user ? (
             <button
-              onClick={() => {
+              onClick={async () => {
                 if (navigatingRef.current) return;
                 navigatingRef.current = true;
                 setLoadingPlan('elite');
                 try {
-                  upgradeTo('elite');
+                  await upgradeTo('elite');
                 } catch {
                   navigatingRef.current = false;
                   setLoadingPlan(null);
@@ -440,6 +439,7 @@ export default function Pricing() {
             <p className="mt-4 text-sm text-stone-800">3 أيام مجانًا — إلغاء في أي وقت</p>
           )}
         </div>
+        )}
 
         {/* Disclaimer */}
         <p
