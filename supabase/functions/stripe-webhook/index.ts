@@ -61,12 +61,22 @@ serve(async (req) => {
     switch (event.type) {
       case 'checkout.session.completed': {
         const session = event.data.object as Stripe.Checkout.Session
-        const userId = session.client_reference_id
+        let userId = session.client_reference_id
         const stripeCustomerId = session.customer as string | null
         const stripeSubscriptionId = session.subscription as string | null
 
+        if (!userId && session.customer_email) {
+          const { data: authUser } = await supabase.auth.admin.listUsers()
+          const match = authUser?.users?.find(u => u.email === session.customer_email)
+          if (match) {
+            userId = match.id
+            console.warn('checkout.session.completed: resolved user via email fallback:', session.customer_email)
+          }
+        }
+
         if (!userId) {
-          console.error('checkout.session.completed: missing client_reference_id')
+          console.error('checkout.session.completed: missing client_reference_id AND email fallback failed')
+          dbFailed = true
           break
         }
 
@@ -156,13 +166,17 @@ serve(async (req) => {
         }
 
         try {
-          const { error } = await supabase
+          const { error, data: rows } = await supabase
             .from('subscriptions')
             .update(updatePayload)
             .eq('stripe_subscription_id', stripeSubId)
+            .select('id')
 
           if (error) {
             console.error('subscription.updated DB error:', error)
+            dbFailed = true
+          } else if (!rows || rows.length === 0) {
+            console.error('subscription.updated: zero rows matched stripe_subscription_id:', stripeSubId)
             dbFailed = true
           }
         } catch (dbErr) {
@@ -178,7 +192,7 @@ serve(async (req) => {
         const periodEnd = new Date(subscription.current_period_end * 1000).toISOString()
 
         try {
-          const { error } = await supabase
+          const { error, data: rows } = await supabase
             .from('subscriptions')
             .update({
               status: 'cancelled',
@@ -186,9 +200,13 @@ serve(async (req) => {
               updated_at: new Date().toISOString(),
             })
             .eq('stripe_subscription_id', stripeSubId)
+            .select('id')
 
           if (error) {
             console.error('subscription.deleted DB error:', error)
+            dbFailed = true
+          } else if (!rows || rows.length === 0) {
+            console.error('subscription.deleted: zero rows matched stripe_subscription_id:', stripeSubId)
             dbFailed = true
           }
         } catch (dbErr) {

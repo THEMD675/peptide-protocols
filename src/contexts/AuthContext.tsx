@@ -152,12 +152,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const params = new URLSearchParams(window.location.search);
     if (params.get('payment') !== 'success' || !user) return;
 
-    const url = new URL(window.location.href);
-    url.searchParams.delete('payment');
-    url.searchParams.delete('tier');
-    window.history.replaceState({}, '', url.toString());
-
     toast.success('شكرًا! جارٍ تفعيل اشتراكك...');
+
+    const cleanUrl = () => {
+      const url = new URL(window.location.href);
+      url.searchParams.delete('payment');
+      url.searchParams.delete('tier');
+      window.history.replaceState({}, '', url.toString());
+    };
 
     let cancelled = false;
     let timer: ReturnType<typeof setTimeout>;
@@ -176,16 +178,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         if (cancelled) return;
         if (data?.status === 'active' || data?.status === 'trial') {
           await fetchSubscription(user.id);
+          cleanUrl();
           toast.success('تم تفعيل اشتراكك بنجاح!');
           if (window.location.pathname === '/pricing') {
             window.location.href = '/dashboard';
           }
           return;
         }
-        if (attempts < 15) { timer = setTimeout(poll, Math.min(3000 * Math.pow(1.5, attempts - 1), 15000)); }
+        if (attempts < 20) { timer = setTimeout(poll, Math.min(3000 * Math.pow(1.5, attempts - 1), 15000)); }
         else {
           await fetchSubscription(user.id);
-          toast('إذا لم يظهر اشتراكك، حدّث الصفحة بعد دقيقة.');
+          cleanUrl();
+          toast.error('تعذّر تفعيل الاشتراك تلقائيًا. تواصل معنا: contact@pptides.com');
         }
       } catch {
         if (cancelled) return;
