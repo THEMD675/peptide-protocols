@@ -242,9 +242,13 @@ export default function Dashboard() {
           <LayoutDashboard className="h-7 w-7 text-emerald-600" />
         </div>
         <h1 className="text-3xl font-bold text-stone-900 md:text-4xl">
-          مرحبًا، {displayName}
+          {new Date().getHours() < 12 ? 'صباح الخير' : new Date().getHours() < 18 ? 'مرحبًا' : 'مساء الخير'}، {displayName}
         </h1>
-        <p className="mt-2 text-lg text-stone-600">ابدأ من هنا — كل أدواتك في مكان واحد</p>
+        <p className="mt-2 text-lg text-stone-600">
+          {activeProtocols.length > 0
+            ? `لديك ${activeProtocols.length} بروتوكول نشط — استمر في الالتزام`
+            : 'ابدأ من هنا — كل أدواتك في مكان واحد'}
+        </p>
       </div>
 
       {/* Subscription Status Card */}
@@ -317,6 +321,24 @@ export default function Dashboard() {
           <Link to="/tracker" className="shrink-0 rounded-full bg-amber-600 px-4 py-2 text-xs font-bold text-white hover:bg-amber-700">
             سجّل الآن
           </Link>
+        </div>
+      )}
+
+      {/* Journey Stats */}
+      {!activity.loading && (activity.logs.length > 0 || activeProtocols.length > 0) && (
+        <div className="mb-8 grid grid-cols-3 gap-3">
+          <div className="rounded-xl border border-stone-200 bg-white p-3 text-center">
+            <p className="text-2xl font-bold text-emerald-600">{activity.totalInjections ?? activity.logs.length}</p>
+            <p className="text-[11px] text-stone-500">حقنة مسجّلة</p>
+          </div>
+          <div className="rounded-xl border border-stone-200 bg-white p-3 text-center">
+            <p className="text-2xl font-bold text-emerald-600">{activity.streak}</p>
+            <p className="text-[11px] text-stone-500">يوم متتالي</p>
+          </div>
+          <div className="rounded-xl border border-stone-200 bg-white p-3 text-center">
+            <p className="text-2xl font-bold text-emerald-600">{activeProtocols.length}</p>
+            <p className="text-[11px] text-stone-500">بروتوكول نشط</p>
+          </div>
         </div>
       )}
 
