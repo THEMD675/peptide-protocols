@@ -153,15 +153,15 @@ export default function Stacks() {
                     {stack.descriptionAr}
                   </p>
 
-                  <div className="rounded-xl bg-emerald-50/50 border border-emerald-100 p-4 text-sm leading-relaxed text-stone-700 space-y-3">
+                  <div className="rounded-xl bg-emerald-50/50 border border-emerald-100 p-4 text-sm leading-relaxed text-stone-700 space-y-4">
                     {stack.protocolAr.split(/\n\n+/).filter(Boolean).map((block, i) => {
                       const idx = block.indexOf('\n');
                       const firstLine = idx >= 0 ? block.slice(0, idx) : block;
                       const rest = idx >= 0 ? block.slice(idx + 1) : '';
                       const isPhaseHeader = /^(المرحلة \d|البروتوكول |البديل |الدورة\b|بروتوكول |دعم مساعد)/.test(firstLine.trim());
                       return (
-                        <div key={i} className="border-s-2 border-emerald-300 ps-3">
-                          <span className={isPhaseHeader ? 'font-bold text-stone-900 block mb-1' : ''}>{firstLine}</span>
+                        <div key={i} className="rounded-xl bg-white/50 p-3 py-2 border-s-2 border-emerald-300 ps-3">
+                          <span className={isPhaseHeader ? 'text-base font-bold text-stone-900 block mb-1' : ''}>{firstLine}</span>
                           {rest ? <span className="whitespace-pre-line block">{rest}</span> : null}
                         </div>
                       );

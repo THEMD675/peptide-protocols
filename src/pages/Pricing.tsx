@@ -200,7 +200,7 @@ export default function Pricing() {
               {essentialsFeatures.map((f) => (
                 <li key={f} className="flex items-start gap-3 text-stone-800">
                   <Check className="mt-0.5 h-5 w-5 shrink-0 text-emerald-600" />
-                  <span>{f}</span>
+                  <span className="leading-relaxed">{f}</span>
                 </li>
               ))}
             </ul>
@@ -236,7 +236,7 @@ export default function Pricing() {
               {eliteFeatures.map((f) => (
                 <li key={f} className="flex items-start gap-3 text-stone-800">
                   <Check className="mt-0.5 h-5 w-5 shrink-0 text-emerald-600" />
-                  <span>{f}</span>
+                  <span className="leading-relaxed">{f}</span>
                 </li>
               ))}
             </ul>

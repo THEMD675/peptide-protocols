@@ -194,7 +194,9 @@ export default function PeptideTable() {
         <section
           className="mb-12"
         >
-          <p className="text-xs text-stone-400 mb-2 md:hidden">← اسحب لمشاهدة المزيد →</p>
+          <p className="mb-2 md:hidden">
+            <span className="inline-flex items-center gap-2 rounded-full bg-stone-100 px-4 py-1.5 text-sm font-medium text-stone-500 animate-pulse">← اسحب لمشاهدة المزيد →</span>
+          </p>
           <div className="overflow-hidden rounded-2xl border border-stone-200 bg-stone-100 shadow-2xl">
             <div className="overflow-x-auto scroll-fade">
               <table className="w-full min-w-[1100px] border-collapse text-xs md:text-sm" aria-label="جدول الببتيدات">

@@ -107,7 +107,7 @@ export default function LabGuide() {
             </h2>
           </div>
 
-          <div className="relative overflow-x-auto rounded-2xl border border-stone-200">
+          <div className="relative overflow-x-auto scroll-fade rounded-2xl border border-stone-200">
             <table className="w-full text-sm">
               <caption className="sr-only">تحاليل خط الأساس الموصى بها قبل استخدام الببتيدات</caption>
               <thead>
@@ -129,7 +129,7 @@ export default function LabGuide() {
                     key={test.id}
                     className={cn("border-t transition-colors hover:bg-stone-50", i % 2 === 0 && "bg-stone-50")}
                   >
-                    <td className="px-4 py-3">
+                    <td className="whitespace-nowrap px-4 py-3">
                       <span className="font-bold">
                         {test.nameAr}
                       </span>

@@ -510,8 +510,8 @@ export default function Tracker() {
           </div>
       )}
 
-      {/* Action Buttons */}
-      {!showForm && (
+      {/* Action Buttons — hide when empty to avoid duplicate CTA with empty state card */}
+      {!showForm && logs.length > 0 && (
         <div className="mb-8 flex gap-3">
           <button
             onClick={() => {
