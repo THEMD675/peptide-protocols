@@ -352,6 +352,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (user) await fetchSubscription(user.id);
   }, [user, fetchSubscription]);
 
+  useEffect(() => {
+    if (!user || subscription.status !== 'trial' || subscription.trialDaysLeft <= 0) return;
+    const interval = setInterval(() => { fetchSubscription(user.id); }, 5 * 60 * 1000);
+    return () => clearInterval(interval);
+  }, [user, subscription.status, subscription.trialDaysLeft, fetchSubscription]);
+
   const upgradeTo = useCallback(async (tier: 'essentials' | 'elite') => {
     try {
       const session = await supabase.auth.getSession();
@@ -384,6 +390,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     } catch (e) {
       console.error('upgradeTo error:', e);
       toast.error(`تعذّر التحويل لصفحة الدفع. تواصل معنا: ${SUPPORT_EMAIL}`);
+      throw e;
     }
   }, []);
 

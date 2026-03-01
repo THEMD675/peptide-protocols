@@ -585,7 +585,9 @@ export default function Coach() {
                           onClick={() => {
                             const lastUserMsg = [...messages].reverse().find(m => m.role === 'user');
                             if (lastUserMsg) {
-                              setMessages(prev => prev.filter((_, idx) => idx < i));
+                              const cleaned = messages.filter((_, idx) => idx < i);
+                              setMessages(cleaned);
+                              messagesRef.current = cleaned;
                               sendToAI(lastUserMsg.content);
                             }
                           }}
@@ -778,7 +780,7 @@ export default function Coach() {
                       ))}
                     </div>
                   )}
-                  {!isElite && userMsgCount > 0 && (
+                  {!isElite && userMsgCount > 0 && limit - userMsgCount > 0 && (
                     <p className="mb-2 text-center text-xs text-stone-400">{arPlural(limit - userMsgCount, 'سؤال متبقي', 'سؤالان متبقيان', 'أسئلة متبقية')}</p>
                   )}
                   <div className="flex items-end gap-3">

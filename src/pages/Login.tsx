@@ -127,12 +127,15 @@ export default function Login() {
       } else {
         setError(msg);
       }
-      const next = failedAttempts + 1;
-      setFailedAttempts(next);
-      if (next >= 5) {
-        setLockoutUntil(Date.now() + 30000);
-        setFailedAttempts(0);
-        toast.error('محاولات كثيرة — انتظر 30 ثانية');
+      const isConfirmation = raw.includes('رابط التأكيد') || raw.includes('تحقق من بريدك');
+      if (!isConfirmation) {
+        const next = failedAttempts + 1;
+        setFailedAttempts(next);
+        if (next >= 5) {
+          setLockoutUntil(Date.now() + 30000);
+          setFailedAttempts(0);
+          toast.error('محاولات كثيرة — انتظر 30 ثانية');
+        }
       }
     } finally {
       setLoading(false);

@@ -384,6 +384,7 @@ export default function Dashboard() {
                     </Link>
                     <button
                       onClick={async () => {
+                        if (!window.confirm('هل تريد إنهاء هذا البروتوكول؟ لا يمكن التراجع.')) return;
                         const { error } = await supabase
                           .from('user_protocols')
                           .update({ status: 'completed', updated_at: new Date().toISOString() })

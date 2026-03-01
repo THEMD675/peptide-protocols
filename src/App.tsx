@@ -198,7 +198,7 @@ function OfflineBanner() {
     return () => { window.removeEventListener('offline', goOffline); window.removeEventListener('online', goOnline); };
   }, []);
   if (!offline) return null;
-  return <div className="fixed top-0 inset-x-0 z-[9999] bg-red-600 text-white text-center py-2 text-sm font-bold">أنت غير متصل بالإنترنت</div>;
+  return <div className="sticky top-0 inset-x-0 z-[9999] bg-red-600 text-white text-center py-2 text-sm font-bold">أنت غير متصل بالإنترنت</div>;
 }
 
 function HomeRedirect() {

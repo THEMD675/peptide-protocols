@@ -281,6 +281,7 @@ export default function Tracker() {
     if (!injectedAt.trim()) { toast.error('أدخل التاريخ والوقت'); return; }
     const injectedDate = new Date(injectedAt);
     if (Number.isNaN(injectedDate.getTime())) { toast.error('التاريخ والوقت غير صالح'); return; }
+    if (injectedDate.getTime() > Date.now() + 60000) { toast.error('لا يمكن تسجيل حقنة في المستقبل'); return; }
     setIsSubmitting(true);
     try {
       const sideEffectLabel = sideEffect !== 'none' ? `أعراض جانبية: ${sideEffect}` : '';
@@ -462,19 +463,27 @@ export default function Tracker() {
                       <p className="text-xs text-stone-500" dir="ltr">{proto.dose} {proto.dose_unit}</p>
                       <p className="text-xs text-stone-500">الأسبوع {weekNumber} من {totalWeeks}</p>
                       <button
-                        onClick={async () => {
-                          const { error } = await supabase
-                            .from('user_protocols')
-                            .update({ status: 'completed', updated_at: new Date().toISOString() })
-                            .eq('id', proto.id)
-                            .eq('user_id', user.id);
-                          if (!error) {
-                            toast.success('تم إنهاء البروتوكول');
-                            fetchActiveProtocols();
-                          } else {
-                            toast.error('تعذّر إنهاء البروتوكول');
-                          }
-                        }}
+                        onClick={() => setConfirmDialog({
+                          title: 'إنهاء البروتوكول',
+                          message: `هل تريد إنهاء بروتوكول ${peptide?.nameAr ?? proto.peptide_id}؟ لا يمكن التراجع.`,
+                          isDestructive: true,
+                          onConfirm: async () => {
+                            setConfirmBusy(true);
+                            const { error } = await supabase
+                              .from('user_protocols')
+                              .update({ status: 'completed', updated_at: new Date().toISOString() })
+                              .eq('id', proto.id)
+                              .eq('user_id', user.id);
+                            if (!error) {
+                              toast.success('تم إنهاء البروتوكول');
+                              fetchActiveProtocols();
+                            } else {
+                              toast.error('تعذّر إنهاء البروتوكول');
+                            }
+                            setConfirmBusy(false);
+                            setConfirmDialog(null);
+                          },
+                        })}
                         className="text-xs text-stone-400 hover:text-red-500 transition-colors"
                       >
                         أنهِ البروتوكول
@@ -951,6 +960,8 @@ export default function Tracker() {
                                 return restored;
                               });
                               toast.error('تعذّر حذف السجل — حاول مرة أخرى');
+                            } else {
+                              setTotalCount(prev => Math.max(0, prev - 1));
                             }
                             setConfirmBusy(false);
                             setConfirmDialog(null);
