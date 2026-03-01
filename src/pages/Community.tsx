@@ -154,6 +154,7 @@ export default function Community() {
       setProtocol('');
       setResults('');
       setRating(4);
+      setAttempted(false);
       setShowForm(false);
 
       const { data } = await supabase

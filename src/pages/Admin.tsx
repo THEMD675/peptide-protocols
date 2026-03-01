@@ -252,7 +252,33 @@ export default function Admin() {
                     </div>
                   </div>
                   <p className="text-sm text-stone-700">{r.content}</p>
-                  <p className="text-xs text-stone-400 mt-2">{new Date(r.created_at).toLocaleDateString('en-GB')}</p>
+                  <div className="flex items-center justify-between mt-3">
+                    <p className="text-xs text-stone-400">{new Date(r.created_at).toLocaleDateString('en-GB')}</p>
+                    <div className="flex gap-2">
+                      <button onClick={async () => {
+                        const { supabase } = await import('@/lib/supabase');
+                        const session = await supabase.auth.getSession();
+                        const token = session.data.session?.access_token;
+                        if (!token) return;
+                        const res = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/rest/v1/reviews?id=eq.${r.id}`, {
+                          method: 'PATCH', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}`, apikey: import.meta.env.VITE_SUPABASE_ANON_KEY, Prefer: 'return=minimal' },
+                          body: JSON.stringify({ is_approved: true }),
+                        });
+                        if (res.ok) { toast.success('Review approved'); fetchStats(); } else { toast.error('Failed to approve'); }
+                      }} className="rounded-lg bg-emerald-600 px-3 py-1.5 text-xs font-bold text-white hover:bg-emerald-700">Approve</button>
+                      <button onClick={async () => {
+                        if (!window.confirm('Delete this review?')) return;
+                        const { supabase } = await import('@/lib/supabase');
+                        const session = await supabase.auth.getSession();
+                        const token = session.data.session?.access_token;
+                        if (!token) return;
+                        const res = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/rest/v1/reviews?id=eq.${r.id}`, {
+                          method: 'DELETE', headers: { Authorization: `Bearer ${token}`, apikey: import.meta.env.VITE_SUPABASE_ANON_KEY },
+                        });
+                        if (res.ok) { toast.success('Review deleted'); fetchStats(); } else { toast.error('Failed to delete'); }
+                      }} className="rounded-lg border border-red-200 px-3 py-1.5 text-xs font-bold text-red-600 hover:bg-red-50">Delete</button>
+                    </div>
+                  </div>
                 </div>
               ))
             )}

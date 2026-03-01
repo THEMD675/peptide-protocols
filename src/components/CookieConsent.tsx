@@ -38,7 +38,7 @@ export default function CookieConsent() {
   if (!visible) return null;
 
   return (
-    <div role="alertdialog" aria-label="ملفات تعريف الارتباط" className="fixed bottom-0 inset-x-0 z-[45] border-t border-stone-200 bg-white/95 backdrop-blur-xl shadow-[0_-4px_20px_rgba(0,0,0,0.08)] px-4 py-2 sm:px-6 sm:py-3 md:p-5 animate-slide-up">
+    <div role="alertdialog" aria-label="ملفات تعريف الارتباط" className="fixed bottom-0 inset-x-0 z-[45] border-t border-stone-200 bg-white/95 backdrop-blur-xl shadow-[0_-4px_20px_rgba(0,0,0,0.08)] px-4 py-2 sm:px-6 sm:py-3 md:p-5 animate-slide-up pb-[env(safe-area-inset-bottom)]">
       <div className="mx-auto max-w-5xl flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between sm:gap-3">
         <p className="text-sm text-stone-700 leading-relaxed">
           نستخدم ملفات تعريف الارتباط لتحسين تجربتك.{' '}

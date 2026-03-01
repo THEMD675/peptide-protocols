@@ -41,6 +41,10 @@ export default function PeptideDetail() {
   if (!peptide) {
     return (
       <div className="flex min-h-[50vh] flex-col items-center justify-center px-6 text-center">
+        <Helmet>
+          <title>الببتيد غير موجود | pptides</title>
+          <meta name="robots" content="noindex" />
+        </Helmet>
         <h1 className="mb-3 text-2xl font-bold text-stone-900">الببتيد غير موجود</h1>
         <p className="mb-6 text-stone-600">لم يتم العثور على ببتيد بهذا المعرّف.</p>
         <Link to="/library" className="rounded-full bg-emerald-600 px-8 py-3 font-bold text-white hover:bg-emerald-700 transition-colors">
@@ -186,7 +190,7 @@ export default function PeptideDetail() {
           {peptide.costEstimate && (
             <div className="mt-3 inline-flex items-center gap-2 rounded-lg border border-stone-200 bg-stone-50 px-4 py-2">
               <span className="text-xs text-stone-500">التكلفة التقريبية:</span>
-              <span className="text-sm font-bold text-stone-900">{peptide.costEstimate}</span>
+              <span className="text-sm font-bold text-stone-900" dir="ltr">{peptide.costEstimate}</span>
             </div>
           )}
 
@@ -391,7 +395,7 @@ export default function PeptideDetail() {
                 ))}
               </div>
               {peptide.costEstimate && (
-                <p className="text-xs text-stone-500">التكلفة التقريبية: <strong className="text-stone-800">{peptide.costEstimate}</strong></p>
+                <p className="text-xs text-stone-500">التكلفة التقريبية: <strong className="text-stone-800" dir="ltr">{peptide.costEstimate}</strong></p>
               )}
               <div className="flex flex-col gap-3 w-full max-w-sm">
                 <Link

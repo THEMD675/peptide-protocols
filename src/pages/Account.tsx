@@ -91,10 +91,12 @@ export default function Account() {
     if (!user) return;
     toast('جارٍ تجهيز بياناتك...');
     try {
-      const [logsRes, protosRes, reviewsRes] = await Promise.all([
+      const [logsRes, protosRes, reviewsRes, communityRes, subsRes] = await Promise.all([
         supabase.from('injection_logs').select('*').eq('user_id', user.id),
         supabase.from('user_protocols').select('*').eq('user_id', user.id),
         supabase.from('reviews').select('*').eq('user_id', user.id),
+        supabase.from('community_logs').select('*').eq('user_id', user.id),
+        supabase.from('subscriptions').select('*').eq('user_id', user.id),
       ]);
       if (logsRes.error || protosRes.error || reviewsRes.error) {
         toast.error('تعذّر تحميل بعض البيانات. حاول مرة أخرى.');
@@ -106,6 +108,8 @@ export default function Account() {
         injection_logs: logsRes.data ?? [],
         protocols: protosRes.data ?? [],
         reviews: reviewsRes.data ?? [],
+        community_posts: communityRes.data ?? [],
+        subscriptions: subsRes.data ?? [],
       };
       const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
       const url = URL.createObjectURL(blob);
@@ -298,6 +302,14 @@ export default function Account() {
                 </span>
               </div>
             )}
+            {subscription.status === 'cancelled' && subscription.currentPeriodEnd && (
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-stone-600">ينتهي الوصول في</span>
+                <span className="text-sm font-bold text-amber-600">
+                  {new Date(subscription.currentPeriodEnd).toLocaleDateString('ar-u-nu-latn')}
+                </span>
+              </div>
+            )}
             {subscription.status === 'trial' && subscription.trialDaysLeft > 0 && (
               <div className="flex items-center justify-between">
                 <span className="text-sm text-stone-600">الأيام المتبقية</span>
@@ -352,7 +364,7 @@ export default function Account() {
 
         {/* Actions */}
         <div className="space-y-3">
-          {(subscription.isPaidSubscriber || subscription.isTrial) && (
+          {(subscription.isPaidSubscriber || subscription.isTrial) && subscription.status !== 'cancelled' && (
             <button
               onClick={() => { setShowCancelDialog(true); setCancelStep('retention'); }}
               className="flex w-full items-center justify-center gap-2 rounded-xl border border-stone-300 bg-white px-6 py-3 text-sm font-bold text-stone-700 transition-all hover:bg-stone-50"

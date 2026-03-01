@@ -164,7 +164,7 @@ const PeptideCard = memo(function PeptideCard({
               </span>
             )}
             {peptide.costEstimate && (
-              <span className="text-xs font-bold text-emerald-600">{peptide.costEstimate}</span>
+              <span className="text-xs font-bold text-emerald-600" dir="ltr">{peptide.costEstimate}</span>
             )}
           </div>
         </div>
