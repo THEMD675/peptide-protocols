@@ -96,8 +96,8 @@ export default function AgeGate() {
                   يكون عمرك 18 عامًا أو أكثر للمتابعة.
                 </p>
 
-                <label className="flex items-center gap-2 mt-4 text-sm text-stone-400 cursor-pointer">
-                  <input type="checkbox" checked={confirmed} onChange={e => setConfirmed(e.target.checked)} className="h-4 w-4 rounded border-stone-300 text-emerald-600" />
+                <label htmlFor="age-confirm" className="flex items-center gap-2 mt-4 text-sm text-stone-400 cursor-pointer">
+                  <input id="age-confirm" type="checkbox" checked={confirmed} onChange={e => setConfirmed(e.target.checked)} className="h-4 w-4 rounded border-stone-300 text-emerald-600" />
                   أؤكد أن عمري 18 سنة أو أكثر
                 </label>
 

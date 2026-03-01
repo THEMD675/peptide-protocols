@@ -595,8 +595,9 @@ export default function Tracker() {
           <div className="space-y-4">
             {/* Peptide Name */}
             <div>
-              <label className="mb-1 block text-sm font-bold text-stone-700">اسم الببتيد</label>
+              <label htmlFor="tracker-peptide" className="mb-1 block text-sm font-bold text-stone-700">اسم الببتيد</label>
               <select
+                id="tracker-peptide"
                 value={peptideName}
                 onChange={(e) => setPeptideName(e.target.value)}
                 required
@@ -612,8 +613,9 @@ export default function Tracker() {
             {/* Dose + Unit */}
             <div className="flex gap-3">
               <div className="flex-1">
-                <label className="mb-1 block text-sm font-bold text-stone-700">الجرعة</label>
+                <label htmlFor="tracker-dose" className="mb-1 block text-sm font-bold text-stone-700">الجرعة</label>
                 <input
+                  id="tracker-dose"
                   type="number"
                   inputMode="decimal"
                   value={dose}
@@ -627,8 +629,9 @@ export default function Tracker() {
                 />
               </div>
               <div className="w-28">
-                <label className="mb-1 block text-sm font-bold text-stone-700">الوحدة</label>
+                <label htmlFor="tracker-unit" className="mb-1 block text-sm font-bold text-stone-700">الوحدة</label>
                 <select
+                  id="tracker-unit"
                   value={unit}
                   onChange={(e) => setUnit(e.target.value)}
                   aria-label="وحدة الجرعة"
@@ -662,8 +665,9 @@ export default function Tracker() {
 
             {/* Date/Time */}
             <div>
-              <label className="mb-1 block text-sm font-bold text-stone-700">التاريخ والوقت</label>
+              <label htmlFor="tracker-datetime" className="mb-1 block text-sm font-bold text-stone-700">التاريخ والوقت</label>
               <input
+                id="tracker-datetime"
                 type="datetime-local"
                 value={injectedAt}
                 onChange={(e) => setInjectedAt(e.target.value)}
@@ -703,8 +707,9 @@ export default function Tracker() {
             </div>
 
             <div>
-              <label className="mb-1 block text-sm font-bold text-stone-700">ملاحظات <span className="text-xs text-emerald-600 font-normal me-1">اختياري</span></label>
+              <label htmlFor="tracker-notes" className="mb-1 block text-sm font-bold text-stone-700">ملاحظات <span className="text-xs text-emerald-600 font-normal me-1">اختياري</span></label>
               <textarea
+                id="tracker-notes"
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
                 placeholder="ملاحظات إضافية..."

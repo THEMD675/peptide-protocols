@@ -454,11 +454,12 @@ export default function DoseCalculator() {
               step={1}
             />
             <div className="space-y-2">
-              <label className="block text-sm font-medium text-stone-800">
+              <label htmlFor="calc-water" className="block text-sm font-medium text-stone-800">
                 كمية الماء البكتيريوستاتك (مل)
               </label>
               <div className="relative">
                 <input
+                  id="calc-water"
                   type="number"
                   inputMode="decimal"
                   min={0.1}
@@ -506,11 +507,12 @@ export default function DoseCalculator() {
 
           {/* Syringe Size Selector */}
           <div className="mb-8">
-            <label className="mb-2 block text-sm font-medium text-stone-800">
+            <label htmlFor="calc-syringe" className="mb-2 block text-sm font-medium text-stone-800">
               حجم السيرنج
             </label>
             <div className="relative">
               <select
+                id="calc-syringe"
                 value={syringeIdx}
                 onChange={(e) => setSyringeIdx(Number(e.target.value))}
                 aria-label="حجم السيرنج"
@@ -545,8 +547,8 @@ export default function DoseCalculator() {
               </div>
             </div>
             <div className="space-y-2">
-              <label className="block text-sm font-medium text-stone-800">سعر القارورة ($) <span className="text-xs text-emerald-600 font-normal me-1">اختياري</span></label>
-              <input type="number" inputMode="decimal" min={0} step={5} value={vialPrice || ''} onChange={e => setVialPrice(Number(e.target.value))} placeholder="مثال: 40"
+              <label htmlFor="calc-vial-price" className="block text-sm font-medium text-stone-800">سعر القارورة ($) <span className="text-xs text-emerald-600 font-normal me-1">اختياري</span></label>
+              <input id="calc-vial-price" type="number" inputMode="decimal" min={0} step={5} value={vialPrice || ''} onChange={e => setVialPrice(Number(e.target.value))} placeholder="مثال: 40"
                 className="w-full rounded-xl border border-stone-300 bg-stone-50 px-4 py-3 text-base text-stone-900 placeholder:text-stone-400 focus:border-emerald-300 focus:outline-none focus:ring-1 focus:ring-emerald-100" />
             </div>
           </div>
@@ -946,11 +948,13 @@ function InputField({
   unit: string;
   step?: number;
 }) {
+  const id = useId();
   return (
     <div className="space-y-2">
-      <label className="block text-sm font-medium text-stone-800">{label}</label>
+      <label htmlFor={id} className="block text-sm font-medium text-stone-800">{label}</label>
       <div className="relative">
         <input
+          id={id}
           type="number"
           inputMode="decimal"
           min={0}

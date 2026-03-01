@@ -117,16 +117,21 @@ serve(async (req) => {
       })
     }
 
-    const serviceSupabase = createClient(supabaseUrl, Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '')
+    const serviceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
+    if (!serviceRoleKey) {
+      console.error('send-welcome-email: SUPABASE_SERVICE_ROLE_KEY not set')
+    }
+    const serviceSupabase = createClient(supabaseUrl, serviceRoleKey)
 
     const fixTrialDuration = async () => {
       for (let attempt = 0; attempt < 3; attempt++) {
         await new Promise(r => setTimeout(r, 1000 * (attempt + 1)))
-        const { data: subRow } = await serviceSupabase
+        const { data: subRow, error: selectErr } = await serviceSupabase
           .from('subscriptions')
           .select('id, created_at, trial_ends_at')
           .eq('user_id', user.id)
           .maybeSingle()
+        if (selectErr) { console.error('fixTrialDuration select error:', selectErr); continue }
         if (!subRow) continue
         if (subRow.created_at && subRow.trial_ends_at) {
           const created = new Date(subRow.created_at).getTime()
@@ -134,7 +139,8 @@ serve(async (req) => {
           const days = (trialEnd - created) / 86400000
           if (days > 4) {
             const correct = new Date(created + 3 * 86400000).toISOString()
-            await serviceSupabase.from('subscriptions').update({ trial_ends_at: correct }).eq('id', subRow.id)
+            const { error: updateErr } = await serviceSupabase.from('subscriptions').update({ trial_ends_at: correct }).eq('id', subRow.id)
+            if (updateErr) console.error('fixTrialDuration update error:', updateErr)
           }
         }
         break

@@ -67,7 +67,12 @@ serve(async (req) => {
       }
     }
 
-    const event = JSON.parse(rawBody)
+    let event: { type?: string; data?: Record<string, unknown> }
+    try {
+      event = JSON.parse(rawBody)
+    } catch {
+      return new Response('Invalid JSON', { status: 400 })
+    }
 
     if (event.type !== 'email.received') {
       return new Response(JSON.stringify({ ignored: true }), {
@@ -76,7 +81,10 @@ serve(async (req) => {
       })
     }
 
-    const { email_id, from, to, subject } = event.data
+    const { email_id, from, to, subject } = (event.data ?? {}) as { email_id?: string; from?: string; to?: string | string[]; subject?: string }
+    if (!from || !subject) {
+      return new Response('Missing email fields', { status: 400 })
+    }
     const recipients = Array.isArray(to) ? to.join(', ') : to
 
     console.log(`Inbound email: from=${from} to=${recipients} subject=${subject}`)

@@ -224,8 +224,9 @@ export default function Community() {
                 <h3 className="mb-6 text-lg font-bold text-stone-900">شارك تجربتك</h3>
 
                 <div className="mb-4">
-                  <label className="mb-1.5 block text-sm font-bold text-stone-900">اسم الببتيد <span className="text-red-500" aria-hidden="true">*</span></label>
+                  <label htmlFor="community-peptide" className="mb-1.5 block text-sm font-bold text-stone-900">اسم الببتيد <span className="text-red-500" aria-hidden="true">*</span></label>
                   <select
+                    id="community-peptide"
                     value={peptideName}
                     onChange={(e) => setPeptideName(e.target.value)}
                     required
@@ -266,8 +267,9 @@ export default function Community() {
                 </div>
 
                 <div className="mb-4">
-                  <label className="mb-1.5 block text-sm font-bold text-stone-900">البروتوكول (الجرعة، التوقيت، المدة)</label>
+                  <label htmlFor="community-protocol" className="mb-1.5 block text-sm font-bold text-stone-900">البروتوكول (الجرعة، التوقيت، المدة)</label>
                   <textarea
+                    id="community-protocol"
                     value={protocol}
                     onChange={(e) => {
                       setProtocol(e.target.value);
@@ -285,8 +287,9 @@ export default function Community() {
 
                 <div className="mb-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
                   <div>
-                    <label className="mb-1.5 block text-sm font-bold text-stone-900">المدة (أسابيع)</label>
+                    <label htmlFor="community-duration" className="mb-1.5 block text-sm font-bold text-stone-900">المدة (أسابيع)</label>
                     <input
+                      id="community-duration"
                       type="number"
                       min={1}
                       max={52}
@@ -318,8 +321,9 @@ export default function Community() {
                 </div>
 
                 <div className="mb-6">
-                  <label className="mb-1.5 block text-sm font-bold text-stone-900">النتائج — ماذا لاحظت؟ <span className="text-red-500" aria-hidden="true">*</span></label>
+                  <label htmlFor="community-results" className="mb-1.5 block text-sm font-bold text-stone-900">النتائج — ماذا لاحظت؟ <span className="text-red-500" aria-hidden="true">*</span></label>
                   <textarea
+                    id="community-results"
                     value={results}
                     onChange={(e) => {
                       setResults(e.target.value);

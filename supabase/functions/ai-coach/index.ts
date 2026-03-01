@@ -4,6 +4,9 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 const DEEPSEEK_API_KEY = Deno.env.get('DEEPSEEK_API_KEY')
 const supabaseUrl = Deno.env.get('SUPABASE_URL') ?? ''
 const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
+if (!supabaseUrl || !supabaseServiceKey) {
+  console.error('ai-coach: missing SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY')
+}
 
 const IS_PRODUCTION = !Deno.env.get('DENO_DEV')
 const ALLOWED_ORIGINS = IS_PRODUCTION
