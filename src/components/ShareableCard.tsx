@@ -27,12 +27,12 @@ export default memo(function ShareableCard(props: ShareableCardProps) {
   const [copied, setCopied] = useState(false);
   const cardRef = useRef<HTMLDivElement>(null);
 
-  const shareText = `بروتوكولي على pptides:\n${props.peptideName} (${props.peptideNameEn})\n${props.dose} ${props.unit} — ${FREQ_LABELS[props.frequency] ?? props.frequency}\nمدة الدورة: ${props.cycleWeeks} أسابيع\nاليوم ${props.daysSinceStart} من ${props.cycleWeeks * 7}\n${props.adherencePercent != null ? `الالتزام: ${props.adherencePercent}%` : ''}\n\n${SITE_URL}`;
+  const shareBody = `بروتوكولي على pptides:\n${props.peptideName} (${props.peptideNameEn})\n${props.dose} ${props.unit} — ${FREQ_LABELS[props.frequency] ?? props.frequency}\nمدة الدورة: ${props.cycleWeeks} أسابيع\nاليوم ${props.daysSinceStart} من ${props.cycleWeeks * 7}\n${props.adherencePercent != null ? `الالتزام: ${props.adherencePercent}%` : ''}`;
 
   const handleShare = async () => {
     if (navigator.share) {
       try {
-        await navigator.share({ title: `بروتوكول ${props.peptideName}`, text: shareText, url: SITE_URL });
+        await navigator.share({ title: `بروتوكول ${props.peptideName}`, text: `${shareBody}\n\n${SITE_URL}` });
       } catch { /* user cancelled */ }
     } else {
       handleCopy();
@@ -41,7 +41,7 @@ export default memo(function ShareableCard(props: ShareableCardProps) {
 
   const handleCopy = async () => {
     try {
-      await navigator.clipboard.writeText(shareText);
+      await navigator.clipboard.writeText(shareBody + `\n\n${SITE_URL}`);
       setCopied(true);
       toast.success('تم نسخ البروتوكول');
       setTimeout(() => setCopied(false), 2000);

@@ -690,6 +690,12 @@ export default function Tracker() {
                       }
                       await fetchLogs();
                       toast.success(`تم تسجيل ${last.peptide_name} — ${last.dose} ${last.dose_unit}`);
+                      const newTotal = (totalCount || logs.length) + 1;
+                      const daySet = new Set([...logs.map(l => new Date(l.logged_at).toDateString()), new Date().toDateString()]);
+                      let s = 0; const dd = new Date();
+                      if (!daySet.has(dd.toDateString())) dd.setDate(dd.getDate() - 1);
+                      while (daySet.has(dd.toDateString())) { s++; dd.setDate(dd.getDate() - 1); }
+                      celebrate(newTotal, s);
                     } catch {
                       toast.error('تعذّر حفظ الحقنة — تحقق من اتصالك وحاول مرة أخرى');
                     } finally {
