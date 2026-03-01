@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import FocusTrap from 'focus-trap-react';
 import { X, Gift, ArrowLeft } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
+import { arPlural } from '@/lib/utils';
 import { PEPTIDE_COUNT } from '@/lib/constants';
 
 const EXCLUDED_PATHS = ['/login', '/signup', '/pricing', '/account'];
@@ -67,7 +68,7 @@ export default function ExitIntentPopup() {
         </h2>
         <p className="mb-1 text-stone-700">
           {subscription?.isTrial
-            ? `تبقى ${subscription.trialDaysLeft} ${subscription.trialDaysLeft === 1 ? 'يوم' : 'أيام'} — اشترك الآن ولا تخسر وصولك`
+            ? `تبقى ${subscription.trialDaysLeft} ${arPlural(subscription.trialDaysLeft, 'يوم واحد', 'يومان', 'أيام')} — اشترك الآن ولا تخسر وصولك`
             : `${PEPTIDE_COUNT}+ ببتيد مع بروتوكولات كاملة، حاسبة جرعات، ومدرب ذكي`
           }
         </p>
@@ -75,7 +76,7 @@ export default function ExitIntentPopup() {
           {subscription?.isTrial ? (
             <>
               <span className="text-3xl font-black text-amber-600">{subscription.trialDaysLeft}</span>
-              <span className="text-stone-500">{subscription.trialDaysLeft === 1 ? 'يوم متبقي' : 'أيام متبقية'}</span>
+              <span className="text-stone-500">{arPlural(subscription.trialDaysLeft, 'يوم متبقي', 'يومان متبقيان', 'أيام متبقية')}</span>
             </>
           ) : (
             <>

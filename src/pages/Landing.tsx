@@ -111,7 +111,7 @@ export default function Landing() {
     const cacheValid = cached && Date.now() - Number(cached) < 5 * 60 * 1000;
     Promise.all([
       cacheValid ? Promise.resolve({ count: null, error: null }) : supabase.from('subscriptions').select('id', { count: 'exact', head: true }).in('status', ['active', 'trial']),
-      supabase.from('reviews').select('content, rating, name, created_at').eq('is_approved', true).gte('rating', 3).order('created_at', { ascending: false }).limit(3),
+      supabase.from('reviews').select('content, rating, name, created_at').eq('is_approved', true).gte('rating', 4).order('created_at', { ascending: false }).limit(3),
     ]).then(([subsResult, reviewsResult]) => {
       if (!mounted) return;
       if (subsResult.count != null && subsResult.count > 0) {

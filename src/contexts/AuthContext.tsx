@@ -86,7 +86,7 @@ function buildSubscription(row: Record<string, unknown> | null): Subscription {
   const trialEndsAt = row.trial_ends_at ? new Date(row.trial_ends_at as string) : null;
   const now = new Date();
   const trialDaysLeft = trialEndsAt
-    ? Math.max(0, Math.floor((trialEndsAt.getTime() - now.getTime()) / (1000 * 60 * 60 * 24)))
+    ? Math.max(0, Math.ceil((trialEndsAt.getTime() - now.getTime()) / (1000 * 60 * 60 * 24)))
     : 0;
 
   let status: Subscription['status'];
@@ -199,7 +199,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         else {
           await fetchSubscription(user.id);
           cleanUrl();
-          toast.error('تعذّر تفعيل الاشتراك تلقائيًا. تواصل معنا: contact@pptides.com');
+          toast.error(`تعذّر تفعيل الاشتراك تلقائيًا. تواصل معنا: ${SUPPORT_EMAIL}`);
         }
       } catch {
         if (cancelled) return;

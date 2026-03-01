@@ -387,11 +387,35 @@ export default function Pricing() {
         >
           {user ? (
             <button
-              onClick={() => upgradeTo('elite')}
-              className="btn-primary-glow inline-flex items-center gap-2 rounded-full bg-emerald-600 px-10 py-4 text-lg font-bold text-white transition-all hover:bg-emerald-700"
+              onClick={() => {
+                if (navigatingRef.current) return;
+                navigatingRef.current = true;
+                setLoadingPlan('elite');
+                try {
+                  upgradeTo('elite');
+                } catch {
+                  navigatingRef.current = false;
+                  setLoadingPlan(null);
+                  toast.error('حدث خطأ أثناء التحويل لصفحة الدفع. حاول مرة أخرى.');
+                }
+              }}
+              disabled={loadingPlan === 'elite'}
+              className={cn(
+                'btn-primary-glow inline-flex items-center gap-2 rounded-full bg-emerald-600 px-10 py-4 text-lg font-bold text-white transition-all hover:bg-emerald-700',
+                loadingPlan === 'elite' && 'opacity-70 pointer-events-none'
+              )}
             >
-              <span>ابدأ مع Elite الآن</span>
-              <ArrowLeft className="h-5 w-5" />
+              {loadingPlan === 'elite' ? (
+                <>
+                  <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />
+                  جارٍ التحويل لصفحة الدفع...
+                </>
+              ) : (
+                <>
+                  <span>ابدأ مع Elite الآن</span>
+                  <ArrowLeft className="h-5 w-5" />
+                </>
+              )}
             </button>
           ) : (
             <Link

@@ -412,7 +412,7 @@ export default memo(function Header() {
               );
             })}
             <div className="my-2 h-px bg-stone-200" />
-            <p className="px-4 py-1 text-xs font-bold text-stone-500 uppercase tracking-wider">الأدوات</p>
+            <p className="px-4 py-1 text-xs font-bold text-stone-500">الأدوات</p>
             {(user ? userToolLinks : guestToolLinks).map(({ to, label }) => {
               const active = pathname.startsWith(to);
               return (

@@ -53,7 +53,7 @@ export default function OnboardingModal() {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4" onClick={handleClose}>
+    <div role="dialog" aria-modal="true" aria-labelledby="onboarding-title" className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4" onClick={handleClose}>
       <FocusTrap focusTrapOptions={{ allowOutsideClick: true }}>
         <div className="w-full max-w-md rounded-2xl bg-white p-8 shadow-2xl animate-fade-in" onClick={e => e.stopPropagation()}>
           {step === 'goal' ? (
@@ -61,7 +61,7 @@ export default function OnboardingModal() {
               <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-100">
                 <Sparkles className="h-7 w-7 text-emerald-600" />
               </div>
-              <h2 className="mb-2 text-center text-xl font-bold text-stone-900">مرحبًا في pptides</h2>
+              <h2 id="onboarding-title" className="mb-2 text-center text-xl font-bold text-stone-900">مرحبًا في pptides</h2>
               <p className="mb-6 text-center text-sm text-stone-600">ما هدفك الأساسي؟ سنساعدك في إيجاد الببتيد المناسب.</p>
               <div className="space-y-2">
                 {GOALS.map((g) => (
@@ -83,7 +83,7 @@ export default function OnboardingModal() {
               <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-100">
                 <Sparkles className="h-7 w-7 text-emerald-600" />
               </div>
-              <h2 className="mb-2 text-center text-xl font-bold text-stone-900">خطتك لـ 3 أيام</h2>
+              <h2 id="onboarding-title" className="mb-2 text-center text-xl font-bold text-stone-900">خطتك لـ 3 أيام</h2>
               <p className="mb-6 text-center text-sm text-stone-600">استفد من تجربتك المجانية بأقصى قدر</p>
               <div className="space-y-3">
                 {TRIAL_PLAN.map((item, i) => (

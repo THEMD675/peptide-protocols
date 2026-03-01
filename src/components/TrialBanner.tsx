@@ -85,14 +85,14 @@ export default function TrialBanner() {
     }
 
     return (
-      <div className="fixed inset-0 z-50 flex items-center justify-center bg-stone-900/80 backdrop-blur-sm">
+      <div role="dialog" aria-modal="true" aria-describedby="sub-modal-desc" className="fixed inset-0 z-50 flex items-center justify-center bg-stone-900/80 backdrop-blur-sm">
         <FocusTrap focusTrapOptions={{ allowOutsideClick: true }}>
         <div className="mx-4 w-full max-w-md rounded-2xl bg-white p-10 text-center shadow-2xl" aria-labelledby="trial-modal-title">
           <Shield className="mx-auto mb-4 h-12 w-12 text-emerald-600" />
           <h2 id="trial-modal-title" className="mb-3 text-2xl font-bold text-stone-900">
             {modalTitle}
           </h2>
-          <p className="mb-4 text-stone-700">
+          <p id="sub-modal-desc" className="mb-4 text-stone-700">
             لا تخسر تقدّمك — اشترك الآن للاحتفاظ ببياناتك والوصول لـ {PEPTIDE_COUNT}+ بروتوكول، المدرب الذكي، وجميع الأدوات
           </p>
           <div className="flex flex-col gap-3">
@@ -127,14 +127,14 @@ export default function TrialBanner() {
   if (subscription.status === 'none') {
     if (isFreePage) return null;
     return (
-      <div className="fixed inset-0 z-50 flex items-center justify-center bg-stone-900/80 backdrop-blur-sm">
+      <div role="dialog" aria-modal="true" aria-describedby="sub-modal-desc" className="fixed inset-0 z-50 flex items-center justify-center bg-stone-900/80 backdrop-blur-sm">
         <FocusTrap focusTrapOptions={{ allowOutsideClick: true }}>
         <div className="mx-4 w-full max-w-md rounded-2xl bg-white p-10 text-center shadow-2xl" aria-labelledby="sub-modal-title">
           <Shield className="mx-auto mb-4 h-12 w-12 text-emerald-600" />
           <h2 id="sub-modal-title" className="mb-3 text-2xl font-bold text-stone-900">
             محتوى للمشتركين فقط
           </h2>
-          <p className="mb-4 text-stone-700">
+          <p id="sub-modal-desc" className="mb-4 text-stone-700">
             اشترك للوصول إلى {PEPTIDE_COUNT}+ بروتوكول، المدرب الذكي، وجميع الأدوات
           </p>
           <div className="flex flex-col gap-3">
