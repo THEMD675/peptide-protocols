@@ -336,13 +336,13 @@ export default function DoseCalculator() {
         <div className="mb-6">
           <label className="mb-2 block text-sm font-bold text-stone-900 text-center">اختر الببتيد لتعبئة القيم تلقائيًا</label>
           <div className="mb-3 relative">
-            <Search className="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-stone-400" />
+            <Search className="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-stone-500" />
             <input
               type="text"
               value={presetSearch}
               onChange={(e) => setPresetSearch(e.target.value)}
               placeholder="ابحث عن ببتيد..."
-              className="w-full rounded-xl border border-stone-200 bg-stone-50 px-4 py-2.5 ps-10 text-sm text-stone-800 placeholder:text-stone-400 focus:border-emerald-300 focus:ring-1 focus:ring-emerald-200 outline-none"
+              className="w-full rounded-xl border border-stone-200 bg-stone-50 px-4 py-2.5 ps-10 text-sm text-stone-800 placeholder:text-stone-500 focus:border-emerald-300 focus:ring-1 focus:ring-emerald-200 outline-none"
               aria-label="ابحث عن ببتيد"
             />
           </div>
@@ -559,7 +559,7 @@ export default function DoseCalculator() {
             <div className="space-y-2">
               <label htmlFor="calc-vial-price" className="block text-sm font-medium text-stone-800">سعر القارورة ($) <span className="text-xs text-emerald-600 font-normal me-1">اختياري</span></label>
               <input id="calc-vial-price" type="number" inputMode="decimal" min={0} step={5} value={vialPrice || ''} onChange={e => setVialPrice(Number(e.target.value))} placeholder="مثال: 40"
-                className="w-full rounded-xl border border-stone-300 bg-stone-50 px-4 py-3 text-base text-stone-900 placeholder:text-stone-400 focus:border-emerald-300 focus:outline-none focus:ring-1 focus:ring-emerald-100" />
+                className="w-full rounded-xl border border-stone-300 bg-stone-50 px-4 py-3 text-base text-stone-900 placeholder:text-stone-500 focus:border-emerald-300 focus:outline-none focus:ring-1 focus:ring-emerald-100" />
             </div>
           </div>
 
@@ -696,7 +696,7 @@ export default function DoseCalculator() {
                     ~<span dir="ltr">${Math.round(results.monthlyCost)}</span>/شهر
                   </p>
                 ) : (
-                  <p className="text-xs text-stone-400 mt-1">
+                  <p className="text-xs text-stone-500 mt-1">
                     أدخل سعر القارورة لحساب التكلفة الشهرية
                   </p>
                 )}
@@ -758,7 +758,7 @@ export default function DoseCalculator() {
                       <p className="text-sm font-bold text-stone-900" dir="ltr">{calc.peptide}</p>
                       <p className="text-xs text-stone-500">{calc.dose} {calc.unit} — {calc.units} وحدة</p>
                     </div>
-                    <span className="text-xs text-stone-400">{new Date(calc.ts).toLocaleDateString('ar-u-nu-latn', { month: 'short', day: 'numeric' })}</span>
+                    <span className="text-xs text-stone-500">{new Date(calc.ts).toLocaleDateString('ar-u-nu-latn', { month: 'short', day: 'numeric' })}</span>
                   </button>
                 ))}
               </div>

@@ -229,7 +229,7 @@ export default function Landing() {
       </div>
 
       {/* ═══════ PEPTIDE QUIZ — First interaction ═══════ */}
-      <section className="relative z-10 mx-auto max-w-2xl px-6 pb-10">
+      <section id="quiz" className="relative z-10 mx-auto max-w-2xl px-6 pb-10">
         <PeptideQuiz />
       </section>
 

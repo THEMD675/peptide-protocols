@@ -15,6 +15,7 @@ import {
   Flame,
   TrendingUp,
   Clock,
+  Sparkles,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { cn, arPlural } from '@/lib/utils';
@@ -62,6 +63,7 @@ const SEASONAL_TIPS: Record<number, string> = {
 };
 
 const QUICK_LINKS = [
+  { to: '/quiz', label: 'اختبار الببتيد', description: 'اكتشف الأنسب لك', Icon: Sparkles },
   { to: '/coach', label: 'المدرب الذكي', description: 'اسأل خبير الببتيدات', Icon: Bot },
   { to: '/tracker', label: 'سجل الحقن', description: 'تتبّع جرعاتك', Icon: Syringe },
   { to: '/calculator', label: 'الحاسبة', description: 'احسب جرعتك بدقة', Icon: Calculator },
@@ -71,6 +73,7 @@ const QUICK_LINKS = [
 ];
 
 const GETTING_STARTED = [
+  { id: 'quiz', label: 'اكتشف الببتيد المناسب لك', to: '/quiz' },
   { id: 'library', label: 'تصفّح مكتبة الببتيدات', to: '/library' },
   { id: 'calculator', label: 'جرّب حاسبة الجرعات', to: '/calculator' },
   { id: 'coach', label: 'اسأل المدرب الذكي', to: '/coach' },
@@ -689,6 +692,9 @@ export default function Dashboard() {
                 <p className="text-sm font-bold text-stone-700">شارك تجربتك مع المجتمع</p>
                 <p className="text-xs text-stone-500">ساعد غيرك بنتائجك الحقيقية</p>
               </div>
+            </Link>
+            <Link to="/quiz" className="block text-sm text-emerald-600 hover:underline">
+              🧪 أعد اختبار الببتيد المناسب لك
             </Link>
           </div>
         </div>
