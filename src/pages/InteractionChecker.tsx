@@ -100,6 +100,8 @@ export default function InteractionChecker() {
   const resetAll = () => setSelected(['', '']);
 
   const filledPeptides = useMemo(() => selected.filter(s => s.trim() !== ''), [selected]);
+  const uniquePeptides = useMemo(() => [...new Set(filledPeptides)], [filledPeptides]);
+  const hasDuplicates = uniquePeptides.length < filledPeptides.length;
   const pairs = useMemo(() => {
     const results: { id1: string; id2: string; result: InteractionResult }[] = [];
     for (let i = 0; i < filledPeptides.length; i++) {
@@ -187,8 +189,15 @@ export default function InteractionChecker() {
           </div>
         )}
 
+        {filledPeptides.length >= 2 && hasDuplicates && (
+          <div className="rounded-2xl border-2 border-dashed border-amber-200 bg-amber-50 py-12 text-center">
+            <AlertTriangle className="mx-auto mb-3 h-10 w-10 text-amber-500" />
+            <p className="text-sm font-bold text-amber-800">اختر ببتيدات مختلفة لفحص التعارضات</p>
+          </div>
+        )}
+
         {/* Stack Summary */}
-        {filledPeptides.length >= 2 && (
+        {filledPeptides.length >= 2 && !hasDuplicates && (
           <div className={cn(
             'mb-6 rounded-2xl border-2 p-5',
             hasAnyDanger ? 'border-red-300 bg-red-50' :
@@ -221,7 +230,7 @@ export default function InteractionChecker() {
         )}
 
         {/* Pair-by-pair details */}
-        {pairs.length > 0 && (
+        {pairs.length > 0 && !hasDuplicates && (
           <div className="space-y-3 mb-6">
             {pairs.map((pair, idx) => {
               const p1 = peptides.find(p => p.id === pair.id1);

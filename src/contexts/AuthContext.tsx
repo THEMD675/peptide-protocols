@@ -13,6 +13,7 @@ export interface Subscription {
   isProOrTrial: boolean;
   isPaidSubscriber: boolean;
   isTrial: boolean;
+  currentPeriodEnd?: string;
 }
 
 interface User {
@@ -111,7 +112,9 @@ function buildSubscription(row: Record<string, unknown> | null): Subscription {
 
   const isTrial = status === 'trial' && trialDaysLeft > 0;
 
-  return { status, tier, trialDaysLeft, isProOrTrial, isPaidSubscriber, isTrial };
+  const currentPeriodEnd = row.current_period_end ? (row.current_period_end as string) : undefined;
+
+  return { status, tier, trialDaysLeft, isProOrTrial, isPaidSubscriber, isTrial, currentPeriodEnd };
 }
 
 

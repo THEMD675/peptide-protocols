@@ -282,6 +282,14 @@ export default function Account() {
                   : STATUS_LABELS[subscription.status] ?? subscription.status}
               </span>
             </div>
+            {subscription.status === 'active' && subscription.currentPeriodEnd && (
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-stone-600">يتجدد في</span>
+                <span className="text-sm font-bold text-stone-700">
+                  {new Date(subscription.currentPeriodEnd).toLocaleDateString('ar-u-nu-latn')}
+                </span>
+              </div>
+            )}
             {subscription.status === 'trial' && subscription.trialDaysLeft > 0 && (
               <div className="flex items-center justify-between">
                 <span className="text-sm text-stone-600">الأيام المتبقية</span>

@@ -199,6 +199,34 @@ export default function Tracker() {
     return () => { active = false; };
   }, [user, fetchLogs]);
 
+  useEffect(() => {
+    const draft = sessionStorage.getItem('pptides_injection_draft');
+    if (draft && !peptideName) {
+      try {
+        const d = JSON.parse(draft);
+        setPeptideName(d.peptide ?? '');
+        setDose(d.dose ?? '');
+        setUnit(d.unit ?? 'mcg');
+        setSite(d.site ?? 'abdomen');
+        setNotes(d.notes ?? '');
+      } catch {
+        // ignore invalid draft
+      }
+    }
+  }, []);
+
+  useEffect(() => {
+    if (peptideName || dose) {
+      sessionStorage.setItem('pptides_injection_draft', JSON.stringify({
+        peptide: peptideName,
+        dose,
+        unit,
+        site,
+        notes,
+      }));
+    }
+  }, [peptideName, dose, unit, site, notes]);
+
   const fetchMore = async () => {
     if (!user || isLoadingMore) return;
     setIsLoadingMore(true);
@@ -271,6 +299,7 @@ export default function Tracker() {
       setSite('abdomen');
       setNotes('');
       setShowForm(false);
+      sessionStorage.removeItem('pptides_injection_draft');
       window.history.replaceState({}, '', window.location.pathname);
       const now = new Date();
       now.setMinutes(now.getMinutes() - now.getTimezoneOffset());

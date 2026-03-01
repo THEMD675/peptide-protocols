@@ -366,18 +366,31 @@ export default memo(function Header() {
                 type="text"
                 value={searchQuery}
                 onChange={e => { setSearchQuery(e.target.value); setSearchFocusIdx(-1); }}
+                onKeyDown={e => {
+                  if (e.key === 'ArrowDown') { e.preventDefault(); setSearchFocusIdx(i => Math.min(i + 1, searchResults.length - 1)); }
+                  else if (e.key === 'ArrowUp') { e.preventDefault(); setSearchFocusIdx(i => Math.max(i - 1, 0)); }
+                  else if (e.key === 'Enter' && searchFocusIdx >= 0 && searchResults[searchFocusIdx]) {
+                    navigate(`/peptide/${searchResults[searchFocusIdx].id}`); setMobileOpen(false); setSearchQuery('');
+                  }
+                }}
                 placeholder="ابحث عن ببتيد..."
                 aria-label="بحث عن ببتيد"
                 className="w-full rounded-xl border border-stone-200 bg-stone-50 py-2.5 ps-10 pe-4 text-sm text-stone-900 placeholder:text-stone-400 outline-none focus:border-emerald-300 focus:ring-2 focus:ring-emerald-100"
               />
+              {searchQuery.trim().length === 1 && (
+                <p className="mt-1 text-center text-xs text-stone-400 py-1">اكتب حرفين على الأقل</p>
+              )}
               {searchQuery.trim().length >= 2 && searchResults.length > 0 && (
                 <div className="mt-1 rounded-xl border border-stone-200 bg-white overflow-hidden">
-                  {searchResults.map(p => (
+                  {searchResults.map((p, idx) => (
                     <Link
                       key={p.id}
                       to={`/peptide/${p.id}`}
                       onClick={() => { setMobileOpen(false); setSearchQuery(''); }}
-                      className="flex items-center gap-3 px-3 py-2.5 text-sm transition-colors hover:bg-stone-50"
+                      className={cn(
+                        'flex items-center gap-3 px-3 py-2.5 text-sm transition-colors',
+                        idx === searchFocusIdx ? 'bg-emerald-50' : 'hover:bg-stone-50'
+                      )}
                     >
                       <span className="font-bold text-stone-900">{p.nameAr}</span>
                       <span className="text-xs text-stone-500">{p.nameEn}</span>
