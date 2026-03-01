@@ -62,7 +62,7 @@ serve(async (req) => {
       admin.from('enquiries').select('*').order('created_at', { ascending: false }).limit(50),
     ])
 
-    const users = usersResult.data?.users ?? []
+    const allUsers = usersResult.data?.users ?? []
     const subs = subsResult.data ?? []
     const logs = logsResult.data ?? []
     const reviews = reviewsResult.data ?? []
@@ -71,19 +71,28 @@ serve(async (req) => {
     const emailList = emailListResult.data ?? []
     const enquiriesData = enquiriesResult?.data ?? []
 
+    // Only count confirmed users (not bots/unconfirmed/test)
+    const users = allUsers.filter(u => !!u.email_confirmed_at)
+
     const now = new Date()
     const dayAgo = new Date(now.getTime() - 86400000)
     const weekAgo = new Date(now.getTime() - 7 * 86400000)
     const monthAgo = new Date(now.getTime() - 30 * 86400000)
 
-    const activeSubs = subs.filter(s => s.status === 'active')
-    const trialSubs = subs.filter(s => s.status === 'trial')
-    const expiredSubs = subs.filter(s => s.status === 'expired' || s.status === 'cancelled')
-    const pastDueSubs = subs.filter(s => s.status === 'past_due')
+    // Only count subscriptions with real Stripe IDs as "paid"
+    const paidSubs = subs.filter(s => !!s.stripe_subscription_id)
+    const activeSubs = paidSubs.filter(s => s.status === 'active')
+    const trialSubs = paidSubs.filter(s => s.status === 'trial')
+    const expiredSubs = paidSubs.filter(s => s.status === 'expired' || s.status === 'cancelled')
+    const pastDueSubs = paidSubs.filter(s => s.status === 'past_due')
+
+    // Also track non-Stripe subscriptions as "test/manual"
+    const manualSubs = subs.filter(s => !s.stripe_subscription_id)
 
     const essentialsSubs = activeSubs.filter(s => s.tier === 'essentials')
     const eliteSubs = activeSubs.filter(s => s.tier === 'elite')
 
+    // MRR only from real Stripe subscriptions
     const mrr = essentialsSubs.length * 9 + eliteSubs.length * 99
     const trialEssentials = trialSubs.filter(s => s.tier === 'essentials')
     const trialElite = trialSubs.filter(s => s.tier === 'elite')
@@ -146,6 +155,9 @@ serve(async (req) => {
         emailListCount: emailList.length,
         pendingEnquiries: enquiriesData.filter((e: { status: string }) => e.status === 'pending').length,
         totalEnquiries: enquiriesData.length,
+        totalAuthUsers: allUsers.length,
+        unconfirmedUsers: allUsers.length - users.length,
+        manualSubscriptions: manualSubs.length,
       },
       recentUsers: userSubs,
       recentLogs: logs.slice(0, 20),

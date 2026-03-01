@@ -123,7 +123,7 @@ export default function Landing() {
     try { cached = sessionStorage.getItem('pptides_user_count_ts'); } catch { /* Safari private */ }
     const cacheValid = cached && Date.now() - Number(cached) < 5 * 60 * 1000;
     Promise.all([
-      cacheValid ? Promise.resolve({ count: null, error: null }) : supabase.from('subscriptions').select('id', { count: 'exact', head: true }).in('status', ['active', 'trial']),
+      cacheValid ? Promise.resolve({ count: null, error: null }) : supabase.from('subscriptions').select('id', { count: 'exact', head: true }).in('status', ['active', 'trial']).not('stripe_subscription_id', 'is', null),
       supabase.from('reviews').select('content, rating, name, created_at').eq('is_approved', true).gte('rating', 4).order('created_at', { ascending: false }).limit(3),
     ]).then(([subsResult, reviewsResult]) => {
       if (!mounted) return;

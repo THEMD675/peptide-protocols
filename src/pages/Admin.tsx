@@ -195,8 +195,8 @@ export default function Admin() {
         {tab === 'overview' && (
           <div className="space-y-6">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-              <StatCard label="Total Users" value={o.totalUsers} icon={Users} sub={`+${o.signupsToday} today · +${o.signupsWeek} this week`} />
-              <StatCard label="MRR" value={`$${o.mrr}`} icon={TrendingUp} sub={`${o.essentialsActive} Essentials · ${o.eliteActive} Elite`} />
+              <StatCard label="Verified Users" value={o.totalUsers} icon={Users} sub={`+${o.signupsToday} today · ${(o as Record<string, number>).unconfirmedUsers ?? 0} unconfirmed`} />
+              <StatCard label="MRR (Stripe)" value={`$${o.mrr}`} icon={TrendingUp} sub={`${o.essentialsActive} Essentials · ${o.eliteActive} Elite${(o as Record<string, number>).manualSubscriptions ? ` · ${(o as Record<string, number>).manualSubscriptions} manual` : ''}`} />
               <StatCard label="Active Subs" value={o.activeSubscriptions} icon={CreditCard} sub={`${o.trialSubscriptions} trials`} />
               <StatCard label="Past Due" value={o.pastDueSubscriptions} icon={AlertTriangle} alert={o.pastDueSubscriptions > 0} sub={`${o.expiredSubscriptions} expired`} />
             </div>
@@ -208,7 +208,7 @@ export default function Admin() {
             </div>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
               <StatCard label="Email List" value={o.emailListCount} icon={Mail} />
-              <StatCard label="Conversion Rate" value={o.totalUsers > 0 ? `${Math.round((o.activeSubscriptions / o.totalUsers) * 100)}%` : '0%'} icon={TrendingUp} sub={`${o.activeSubscriptions} paid / ${o.totalUsers} total`} />
+              <StatCard label="Conversion Rate" value={o.totalUsers > 0 ? `${Math.round((o.activeSubscriptions / o.totalUsers) * 100)}%` : '0%'} icon={TrendingUp} sub={`${o.activeSubscriptions} Stripe paid / ${o.totalUsers} verified`} />
               <StatCard label="Trial → Paid" value={o.trialSubscriptions > 0 ? `${Math.round(((o.essentialsActive + o.eliteActive) / (o.essentialsActive + o.eliteActive + o.trialSubscriptions + o.expiredSubscriptions)) * 100)}%` : '—'} icon={CreditCard} />
               <StatCard label="Signups (30d)" value={o.signupsMonth} icon={Users} />
             </div>
