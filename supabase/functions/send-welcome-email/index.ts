@@ -67,6 +67,14 @@ serve(async (req) => {
       })
     }
 
+    const serviceDb = createClient(supabaseUrl, Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '')
+    const tenMinAgo = new Date(Date.now() - 600000).toISOString()
+    const { count } = await serviceDb.from('rate_limits').select('id', { count: 'exact', head: true }).eq('endpoint', 'welcome-email').eq('user_id', user.id).gte('created_at', tenMinAgo)
+    if ((count ?? 0) >= 3) {
+      return new Response(JSON.stringify({ error: 'Email already sent' }), { status: 429, headers: { ...corsHeaders, 'Content-Type': 'application/json' } })
+    }
+    await serviceDb.from('rate_limits').insert({ user_id: user.id, endpoint: 'welcome-email' }).catch(() => {})
+
     let rawBody: string
     try {
       rawBody = await req.text()

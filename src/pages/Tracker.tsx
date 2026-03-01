@@ -24,6 +24,7 @@ import {
   ChevronRight,
 } from 'lucide-react';
 import { toast } from 'sonner';
+import { events } from '@/lib/analytics';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
@@ -311,6 +312,7 @@ export default function Tracker() {
       setNotes('');
       setShowForm(false);
       sessionStorage.removeItem('pptides_injection_draft');
+      events.injectionLog(peptideName);
       window.history.replaceState({}, '', window.location.pathname);
       const now = new Date();
       now.setMinutes(now.getMinutes() - now.getTimezoneOffset());

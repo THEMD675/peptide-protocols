@@ -6,6 +6,7 @@ import { toast } from 'sonner';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
 import { cn } from '@/lib/utils';
+import { events } from '@/lib/analytics';
 
 type Tab = 'login' | 'signup';
 
@@ -111,8 +112,10 @@ export default function Login() {
     try {
       if (tab === 'login') {
         await login(email, password);
+        events.login('email');
       } else {
         await signup(email, password);
+        events.signup('email');
       }
       setFailedAttempts(0);
       const raw = new URLSearchParams(window.location.search).get('redirect');

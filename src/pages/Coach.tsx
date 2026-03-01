@@ -10,6 +10,7 @@ import {
   Copy, Check, BookOpen, Play, Printer,
 } from 'lucide-react';
 import { toast } from 'sonner';
+import { events } from '@/lib/analytics';
 import { cn, arPlural } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
 import { SITE_URL } from '@/lib/constants';
@@ -237,6 +238,7 @@ export default function Coach() {
     const trimmed = content.trim();
     if (!trimmed || isLoadingRef.current) return;
     isLoadingRef.current = true;
+    events.coachMessage();
     abortRef.current?.abort();
     const controller = new AbortController();
     abortRef.current = controller;

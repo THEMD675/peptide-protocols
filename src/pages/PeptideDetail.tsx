@@ -84,6 +84,17 @@ export default function PeptideDetail() {
         <meta property="og:image" content={`${SITE_URL}/og-image.png`} />
         <meta property="og:locale" content="ar_SA" />
         <meta name="twitter:card" content="summary_large_image" />
+        <script type="application/ld+json">{JSON.stringify({
+          '@context': 'https://schema.org',
+          '@type': 'MedicalWebPage',
+          name: `${peptide.nameAr} — ${peptide.nameEn}`,
+          description: peptide.summaryAr,
+          url: `${SITE_URL}/peptide/${peptide.id}`,
+          inLanguage: 'ar',
+          medicalAudience: { '@type': 'MedicalAudience', audienceType: 'Patient' },
+          publisher: { '@type': 'Organization', name: 'pptides', url: SITE_URL },
+          dateModified: peptide.lastUpdated ?? '2026-02-01',
+        })}</script>
         <meta name="twitter:title" content={`${peptide.nameAr} | ${peptide.nameEn}`} />
         <meta name="twitter:description" content={peptide.summaryAr.slice(0, 160)} />
         <script type="application/ld+json">{JSON.stringify({
