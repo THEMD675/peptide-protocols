@@ -305,8 +305,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       options: { data: { signed_up_at: new Date().toISOString() } },
     });
     if (error) {
-      if (error.message.includes('already registered') || error.message.includes('already been registered'))
+      if (error.message.includes('already registered') || error.message.includes('already been registered') || error.message.includes('already exists'))
         throw new Error('هذا البريد مسجّل مسبقًا — جرّب تسجيل الدخول');
+      if (error.message.includes('weak') || error.message.includes('pwned') || error.message.includes('easy to guess'))
+        throw new Error('كلمة المرور ضعيفة أو مسرّبة — اختر كلمة مرور أقوى وفريدة');
+      if (error.message.includes('rate limit') || error.message.includes('too many'))
+        throw new Error('محاولات كثيرة — انتظر دقيقة وحاول مرة أخرى');
+      if (error.message.includes('invalid') || error.message.includes('Unable to validate'))
+        throw new Error('البريد الإلكتروني غير صحيح — تحقق من الكتابة');
+      if (error.message.includes('signup_disabled'))
+        throw new Error('التسجيل معطّل مؤقتًا — حاول لاحقًا');
       throw new Error('حدث خطأ في إنشاء الحساب. حاول مرة أخرى.');
     }
     if (data.user && (!data.user.identities || data.user.identities.length === 0)) {
