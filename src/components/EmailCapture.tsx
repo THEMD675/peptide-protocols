@@ -63,7 +63,7 @@ export default function EmailCapture() {
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            placeholder="أدخل بريدك الإلكتروني"
+            placeholder="example@email.com"
             aria-label="البريد الإلكتروني"
             required
             className="w-full rounded-full bg-white/10 border border-white/20 py-3.5 ps-11 pe-4 text-white placeholder:text-white/40 outline-none focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100 transition-all"

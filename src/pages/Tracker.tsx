@@ -117,7 +117,7 @@ export default function Tracker() {
         logged_at: new Date().toISOString(),
         protocol_id: proto.id,
       });
-      if (error) { toast.error('حدث خطأ'); return; }
+      if (error) { toast.error('تعذّر حفظ الحقنة — تحقق من اتصالك وحاول مرة أخرى'); return; }
       await fetchLogs();
       const peptide = allPeptides.find(p => p.id === proto.peptide_id);
       toast.success(`تم تسجيل ${peptide?.nameAr ?? proto.peptide_id} — ${proto.dose} ${proto.dose_unit}`);
@@ -127,7 +127,7 @@ export default function Tracker() {
       if (!daySet.has(dd.toDateString())) dd.setDate(dd.getDate() - 1);
       while (daySet.has(dd.toDateString())) { s++; dd.setDate(dd.getDate() - 1); }
       celebrate(newTotal, s);
-    } catch { toast.error('حدث خطأ'); }
+    } catch { toast.error('تعذّر حفظ الحقنة — تحقق من اتصالك وحاول مرة أخرى'); }
     finally { setIsSubmitting(false); }
   };
 
@@ -240,7 +240,7 @@ export default function Tracker() {
         notes: combinedNotes,
       });
       if (error) {
-        toast.error('حدث خطأ أثناء الحفظ. حاول مرة أخرى.');
+        toast.error('تعذّر حفظ الحقنة — تحقق من اتصالك وحاول مرة أخرى');
         return;
       }
       setPeptideName('');
@@ -262,7 +262,7 @@ export default function Tracker() {
       while (daySet.has(dd.toDateString())) { s++; dd.setDate(dd.getDate() - 1); }
       celebrate(newTotal, s);
     } catch {
-      toast.error('حدث خطأ أثناء الحفظ. حاول مرة أخرى.');
+      toast.error('تعذّر حفظ الحقنة — تحقق من اتصالك وحاول مرة أخرى');
     } finally {
       setIsSubmitting(false);
     }
@@ -564,13 +564,13 @@ export default function Tracker() {
                         notes: null,
                       });
                       if (error) {
-                        toast.error('حدث خطأ في تكرار الحقنة. حاول مرة أخرى.');
+                        toast.error('تعذّر حفظ الحقنة — تحقق من اتصالك وحاول مرة أخرى');
                         return;
                       }
                       await fetchLogs();
                       toast.success(`تم تسجيل ${last.peptide_name} — ${last.dose} ${last.dose_unit}`);
                     } catch {
-                      toast.error('حدث خطأ في تكرار الحقنة. حاول مرة أخرى.');
+                      toast.error('تعذّر حفظ الحقنة — تحقق من اتصالك وحاول مرة أخرى');
                     } finally {
                       setIsSubmitting(false);
                     }
@@ -822,7 +822,7 @@ export default function Tracker() {
                           onConfirm: async () => {
                             setConfirmBusy(true);
                             const deletedLog = logs.find(l => l.id === log.id);
-                            // TODO(#49): concurrent deletes may cause stale-state rollback; consider a queue or mutex
+                            // Known limitation: concurrent deletes from multiple tabs may cause stale-state rollback position
                             setLogs(prev => prev.filter(l => l.id !== log.id));
                             const { error } = await supabase.from('injection_logs').delete().eq('id', log.id);
                             if (error) {
@@ -832,7 +832,7 @@ export default function Tracker() {
                                 restored.splice(originalIndex === -1 ? prev.length : originalIndex, 0, deletedLog);
                                 return restored;
                               });
-                              toast.error('فشل الحذف — حاول مرة أخرى');
+                              toast.error('تعذّر حذف السجل — حاول مرة أخرى');
                             }
                             setConfirmBusy(false);
                             setConfirmDialog(null);

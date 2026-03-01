@@ -22,12 +22,13 @@ const TRIAL_PLAN = [
 ];
 
 export default function OnboardingModal() {
-  const [show, setShow] = useState(() => {
-    try { return localStorage.getItem(ONBOARDING_KEY) !== 'true'; } catch { return true; }
-  });
+  const [show, setShow] = useState(true);
   const [step, setStep] = useState<'goal' | 'plan'>('goal');
-  const [selectedGoal, setSelectedGoal] = useState('');
-
+  useEffect(() => {
+    try {
+      setShow(localStorage.getItem(ONBOARDING_KEY) !== 'true');
+    } catch { /* expected */ }
+  }, []);
   useEffect(() => {
     if (show) {
       document.body.style.overflow = 'hidden';
@@ -50,11 +51,12 @@ export default function OnboardingModal() {
   if (!show) return null;
 
   const handleGoalSelect = (goalId: string) => {
-    setSelectedGoal(goalId);
     try {
       const existing = localStorage.getItem('pptides_quiz_answers');
       const parsed = existing ? JSON.parse(existing) : {};
-      localStorage.setItem('pptides_quiz_answers', JSON.stringify({ ...parsed, goal: goalId, ts: Date.now() }));
+      // eslint-disable-next-line react-hooks/purity -- event handler, not render
+      const ts = Date.now();
+      localStorage.setItem('pptides_quiz_answers', JSON.stringify({ ...parsed, goal: goalId, ts }));
     } catch { /* expected */ }
     setStep('plan');
   };

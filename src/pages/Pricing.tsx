@@ -109,7 +109,7 @@ export default function Pricing() {
               toast.error('حدث خطأ أثناء التحويل لصفحة الدفع. حاول مرة أخرى.');
             }
           }}
-          disabled={isLoading || navigatingRef.current}
+          disabled={isLoading}
           className={cn(
             'inline-flex w-full items-center justify-center gap-2 rounded-full px-6 py-3.5',
             'font-bold transition-all duration-300',

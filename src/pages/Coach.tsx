@@ -598,7 +598,7 @@ export default function Coach() {
                   </div>
                 </div>
                 {msg.role === 'assistant' && i === messages.findIndex(m => m.role === 'assistant') && !msg.content.startsWith('__ERROR') && (
-                  <p className="mt-1 text-[10px] text-stone-400 text-end max-w-[88%] ms-auto">هذا المحتوى تعليمي وليس نصيحة طبية — استشر طبيبك</p>
+                  <p className="mt-1 text-xs text-stone-400 text-end max-w-[88%] ms-auto">هذا المحتوى تعليمي وليس نصيحة طبية — استشر طبيبك</p>
                 )}
                 {/* Action pills: for non-last messages, show Copy + WhatsApp only */}
                 {msg.role === 'assistant' && !isLoading && msg.content.length > 50 && i !== messages.length - 1 && (

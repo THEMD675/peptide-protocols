@@ -304,6 +304,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     } catch {
       // noop
     }
+    if ('caches' in window) {
+      caches.keys().then(names => names.forEach(name => {
+        if (name.includes('supabase-api')) caches.delete(name);
+      }));
+    }
     try {
       const appKeys = Object.keys(localStorage).filter(k =>
         k.startsWith('pptides_coach_') || k.startsWith('pptides_calc_') ||

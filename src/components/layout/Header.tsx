@@ -257,7 +257,7 @@ export default memo(function Header() {
                   )}
                   {searchQuery.trim().length >= 2 && searchResults.length === 0 && (
                     <div className="border-t border-stone-100 px-3 py-3 text-center text-xs text-stone-500">
-                      لا توجد نتائج
+                      لا توجد نتائج — جرّب اسمًا آخر
                       <Link to="/library" onClick={() => { setSearchOpen(false); setSearchQuery(''); }} className="block text-xs text-emerald-600 hover:underline mt-1">تصفّح المكتبة</Link>
                     </div>
                   )}
@@ -386,7 +386,7 @@ export default memo(function Header() {
                 </div>
               )}
               {searchQuery.trim().length >= 2 && searchResults.length === 0 && (
-                <p className="mt-1 text-center text-xs text-stone-400 py-2">لا توجد نتائج</p>
+                <p className="mt-1 text-center text-xs text-stone-400 py-2">لا توجد نتائج — جرّب اسمًا آخر</p>
               )}
             </div>
             {navLinks.map(({ to, label }) => {

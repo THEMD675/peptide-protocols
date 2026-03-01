@@ -119,9 +119,12 @@ export function TrackerSkeleton() {
       <div className="mb-8 rounded-2xl border border-stone-200 p-5 space-y-3">
         <Bone className="h-5 w-28" />
         <div className="flex items-end gap-2 h-20">
-          {Array.from({ length: 7 }).map((_, i) => (
-            <Bone key={i} className="flex-1 rounded-t-md" style={{ height: `${20 + Math.random() * 60}%` }} />
-          ))}
+          {(() => {
+            const widths = [75, 60, 85, 45, 70, 55, 80];
+            return Array.from({ length: 7 }).map((_, i) => (
+              <Bone key={i} className="flex-1 rounded-t-md" style={{ height: `${widths[i % widths.length]}%` }} />
+            ));
+          })()}
         </div>
       </div>
       <div className="space-y-3">

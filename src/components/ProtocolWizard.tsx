@@ -126,6 +126,7 @@ export default function ProtocolWizard({ peptideId, prefillDose, prefillUnit, on
                   onChange={e => setDose(e.target.value)}
                   placeholder={String(peptide.doseMcg ?? 250)}
                   min="0"
+                  max={50000}
                   step="any"
                   dir="ltr"
                   className="w-full rounded-xl border border-stone-200 bg-white px-4 py-3 text-sm text-stone-900 focus:border-emerald-300 focus:outline-none focus:ring-2 focus:ring-emerald-100"

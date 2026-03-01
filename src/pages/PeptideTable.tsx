@@ -233,7 +233,7 @@ export default function PeptideTable() {
                     <tr>
                       <td colSpan={7} className="px-4 py-16 text-center text-stone-800">
                         <Search className="mx-auto mb-2 h-8 w-8 text-stone-500" />
-                        لا توجد نتائج مطابقة
+                        لا توجد نتائج — جرّب بحثًا مختلفًا أو اختر فئة أخرى
                       </td>
                     </tr>
                   ) : (
