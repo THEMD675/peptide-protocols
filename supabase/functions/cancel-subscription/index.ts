@@ -78,7 +78,10 @@ serve(async (req) => {
         .from('subscriptions')
         .update({ status: 'cancelled', updated_at: new Date().toISOString() })
         .eq('user_id', user.id)
-      if (updateErr) console.error('cancel-subscription: DB update (no stripe sub) failed:', updateErr)
+      if (updateErr) {
+        console.error('cancel-subscription: DB update (no stripe sub) failed:', updateErr)
+        return new Response(JSON.stringify({ error: 'تعذّر تحديث حالة الاشتراك', success: false }), { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } })
+      }
       return new Response(JSON.stringify({ success: true, already_cancelled: false, message: 'No Stripe subscription found, DB updated' }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       })

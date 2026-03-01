@@ -23,13 +23,14 @@ async function checkRateLimit(userId: string, supabase: ReturnType<typeof create
     .gte('created_at', windowStart)
 
   if (error) {
-    console.error('rate-limit check failed, allowing request:', error.message)
-    return true
+    console.error('rate-limit check failed, denying request:', error.message)
+    return false
   }
 
   if ((count ?? 0) >= RATE_LIMIT_MAX) return false
 
-  await supabase.from('ai_coach_requests').insert({ user_id: userId })
+  const { error: insertErr } = await supabase.from('ai_coach_requests').insert({ user_id: userId })
+  if (insertErr) console.error('ai-coach: rate limit insert failed:', insertErr.message)
   return true
 }
 
@@ -209,11 +210,15 @@ serve(async (req) => {
     }
 
     // Server-side subscription check — allow limited free access
-    const { data: sub } = await supabase
+    const { data: sub, error: subError } = await supabase
       .from('subscriptions')
       .select('status, tier, trial_ends_at, current_period_end')
       .eq('user_id', user.id)
       .maybeSingle()
+
+    if (subError) {
+      console.error('ai-coach: subscription lookup failed:', subError.message)
+    }
 
     const now = new Date()
     const trialEnd = sub?.trial_ends_at ? new Date(sub.trial_ends_at) : null

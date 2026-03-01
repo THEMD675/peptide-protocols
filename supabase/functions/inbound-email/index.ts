@@ -98,6 +98,10 @@ serve(async (req) => {
       }
     }
 
+    if (!bodyText && !bodyHtml) {
+      bodyText = `[محتوى الرسالة غير متاح — الرجاء التحقق من Resend Dashboard]\n\nEmail ID: ${email_id}\nFrom: ${from}\nSubject: ${subject}`
+    }
+
     if (!RESEND_API_KEY) {
       console.error('inbound-email: RESEND_API_KEY not configured, cannot forward')
       return new Response(JSON.stringify({ error: 'Not configured' }), {

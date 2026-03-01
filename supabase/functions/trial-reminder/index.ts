@@ -92,15 +92,10 @@ serve(async (req) => {
       })
     }
 
-    const userIds = trialUsers.map(s => s.user_id).filter(Boolean)
+    const { data: { users: allUsers } } = await supabase.auth.admin.listUsers({ perPage: 1000 })
     const emailMap = new Map<string, string>()
-    for (const uid of userIds) {
-      try {
-        const { data } = await supabase.auth.admin.getUserById(uid)
-        if (data?.user?.email) emailMap.set(uid, data.user.email)
-      } catch {
-        console.error('trial-reminder: failed to get user', uid)
-      }
+    for (const u of (allUsers ?? [])) {
+      if (u.id && u.email) emailMap.set(u.id, u.email)
     }
 
     let sent = 0
@@ -233,8 +228,13 @@ serve(async (req) => {
         const { error: dedupErr } = await supabase
           .from('sent_reminders')
           .insert({ user_id: sub.user_id, reminder_type: reminderType })
-        if (dedupErr && dedupErr.code === '23505') {
-          skipped++
+        if (dedupErr) {
+          if (dedupErr.code === '23505') {
+            skipped++
+            continue
+          }
+          console.error('trial-reminder: dedup insert failed:', dedupErr)
+          failed++
           continue
         }
 
@@ -265,6 +265,10 @@ serve(async (req) => {
         } else {
           const errBody = await emailRes.text().catch(() => '')
           console.error(`trial-reminder: failed to send to ${email}:`, emailRes.status, errBody)
+          await supabase.from('sent_reminders').delete()
+            .eq('user_id', sub.user_id)
+            .eq('reminder_type', reminderType)
+            .catch(() => {})
           failed++
         }
       } catch (loopErr) {
