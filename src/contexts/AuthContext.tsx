@@ -286,7 +286,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const { error } = await supabase.auth.signInWithPassword({ email, password });
     if (error) {
       if (error.message === 'Invalid login credentials') {
-        throw new Error('البريد أو كلمة المرور غير صحيحة');
+        throw new Error('البريد أو كلمة المرور غير صحيحة — إذا سجّلت بـ Google جرّب زر Google أعلاه');
       }
       if (error.message.includes('Email not confirmed')) {
         throw new Error('يرجى تأكيد بريدك الإلكتروني أولًا — تحقق من صندوق الوارد');
@@ -306,8 +306,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     });
     if (error) {
       if (error.message.includes('already registered') || error.message.includes('already been registered'))
-        throw new Error('هذا البريد مسجّل مسبقًا');
+        throw new Error('هذا البريد مسجّل مسبقًا — جرّب تسجيل الدخول');
       throw new Error('حدث خطأ في إنشاء الحساب. حاول مرة أخرى.');
+    }
+    if (data.user && (!data.user.identities || data.user.identities.length === 0)) {
+      throw new Error('هذا البريد مسجّل مسبقًا — جرّب تسجيل الدخول أو استخدم Google');
     }
     if (data.user && !data.session) {
       throw new Error('تم إرسال رابط التأكيد لبريدك. تحقق من بريدك الإلكتروني.');
