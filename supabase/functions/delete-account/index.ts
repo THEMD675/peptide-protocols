@@ -75,6 +75,10 @@ serve(async (req) => {
           await stripe.subscriptions.cancel(sub.stripe_subscription_id)
         } catch (e) {
           console.error('delete-account: failed to cancel Stripe sub:', sub.stripe_subscription_id, e)
+          return new Response(JSON.stringify({
+            error: 'تعذّر إلغاء اشتراك Stripe. تواصل معنا لإكمال حذف حسابك.',
+            support: 'contact@pptides.com'
+          }), { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } })
         }
       }
       if (sub.stripe_customer_id) {
@@ -82,19 +86,14 @@ serve(async (req) => {
           await stripe.customers.del(sub.stripe_customer_id)
         } catch (e) {
           console.error('delete-account: failed to delete Stripe customer:', sub.stripe_customer_id, e)
+          return new Response(JSON.stringify({
+            error: 'تعذّر حذف عميل Stripe. تواصل معنا لإكمال حذف حسابك.',
+            support: 'contact@pptides.com'
+          }), { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } })
         }
       }
     } else if (!stripeKey) {
       console.error('delete-account: STRIPE_SECRET_KEY missing, skipping Stripe cleanup')
-    }
-
-    const { error: deleteError } = await supabase.auth.admin.deleteUser(user.id)
-    if (deleteError) {
-      console.error('delete-account: failed to delete auth user:', deleteError)
-      return new Response(JSON.stringify({ error: 'Failed to delete account' }), {
-        status: 500,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      })
     }
 
     const { error: subDelErr } = await supabase.from('subscriptions').delete().eq('user_id', user.id)
@@ -123,6 +122,15 @@ serve(async (req) => {
     if (user.email) {
       const { error: emailListDelErr } = await supabase.from('email_list').delete().eq('email', user.email)
       if (emailListDelErr) console.error('delete-account: failed to delete email_list:', emailListDelErr)
+    }
+
+    const { error: deleteError } = await supabase.auth.admin.deleteUser(user.id)
+    if (deleteError) {
+      console.error('delete-account: failed to delete auth user:', deleteError)
+      return new Response(JSON.stringify({ error: 'Failed to delete account' }), {
+        status: 500,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      })
     }
 
     return new Response(JSON.stringify({ success: true }), {

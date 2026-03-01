@@ -66,8 +66,8 @@ serve(async (req) => {
         const stripeSubscriptionId = session.subscription as string | null
 
         if (!userId && session.customer_email) {
-          const { data: authUser } = await supabase.auth.admin.listUsers()
-          const match = authUser?.users?.find(u => u.email === session.customer_email)
+          const { data: { users } } = await supabase.auth.admin.listUsers({ perPage: 1000 })
+          const match = users?.find(u => u.email === session.customer_email)
           if (match) {
             userId = match.id
             console.warn('checkout.session.completed: resolved user via email fallback:', session.customer_email)
@@ -223,20 +223,24 @@ serve(async (req) => {
 
         if (stripeSubId && amountPaid > 0) {
           try {
-            const { error } = await supabase
+            const { error, data: rows } = await supabase
               .from('subscriptions')
               .update({
                 status: 'active',
                 updated_at: new Date().toISOString(),
               })
               .eq('stripe_subscription_id', stripeSubId)
+              .select('id')
 
             if (error) {
-              console.error('payment_succeeded DB error:', error)
+              console.error('invoice.paid DB error:', error)
+              dbFailed = true
+            } else if (!rows || rows.length === 0) {
+              console.error('invoice.paid: zero rows matched stripe_subscription_id:', stripeSubId)
               dbFailed = true
             }
           } catch (dbErr) {
-            console.error('payment_succeeded DB exception:', dbErr)
+            console.error('invoice.paid DB exception:', dbErr)
             dbFailed = true
           }
         }
@@ -249,22 +253,26 @@ serve(async (req) => {
 
         if (stripeSubId) {
           try {
-            const { error } = await supabase
+            const { error, data: rows } = await supabase
               .from('subscriptions')
               .update({
                 status: 'past_due',
                 updated_at: new Date().toISOString(),
               })
               .eq('stripe_subscription_id', stripeSubId)
+              .select('id')
 
             if (error) {
-              console.error('payment_failed DB error:', error)
+              console.error('invoice.payment_failed DB error:', error)
+              dbFailed = true
+            } else if (!rows || rows.length === 0) {
+              console.error('invoice.payment_failed: zero rows matched stripe_subscription_id:', stripeSubId)
               dbFailed = true
             } else {
               console.log('payment_failed: status set to past_due, Stripe will retry billing')
             }
           } catch (dbErr) {
-            console.error('payment_failed DB exception:', dbErr)
+            console.error('invoice.payment_failed DB exception:', dbErr)
             dbFailed = true
           }
         } else {

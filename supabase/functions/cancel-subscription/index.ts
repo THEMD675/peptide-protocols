@@ -147,6 +147,13 @@ serve(async (req) => {
 
     if (dbUpdateErr) {
       console.error('cancel-subscription: DB update after Stripe cancel failed:', dbUpdateErr)
+      return new Response(JSON.stringify({
+        error: 'تم إلغاء الاشتراك في Stripe لكن تعذّر تحديث قاعدة البيانات. حدّث الصفحة.',
+        stripe_cancelled: true
+      }), {
+        status: 500,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      })
     }
 
     return new Response(JSON.stringify({
