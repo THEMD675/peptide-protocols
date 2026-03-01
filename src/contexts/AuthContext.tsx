@@ -190,7 +190,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           await fetchSubscription(user.id);
           cleanUrl();
           toast.success('تم تفعيل اشتراكك بنجاح!');
-          if (window.location.pathname === '/pricing') {
+          if (window.location.pathname !== '/dashboard') {
             window.location.href = '/dashboard';
           }
           return;
@@ -339,6 +339,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const url = new URL(link);
     if (user?.id) url.searchParams.set('client_reference_id', user.id);
     if (user?.email) url.searchParams.set('prefilled_email', user.email);
+
+    const successUrl = `${window.location.origin}/dashboard?payment=success&tier=${tier}`;
+    url.searchParams.set('success_url', successUrl);
+
     window.location.href = url.toString();
   }, [user]);
 
