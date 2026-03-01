@@ -23,7 +23,7 @@ export default memo(function AdherenceBar({ scheduled, actual }: AdherenceBarPro
           }}
         />
       </div>
-      <p className="text-[10px] text-stone-500">{actual} من {scheduled} جرعة</p>
+      <p className="text-[10px] text-stone-500">{scheduled === 0 ? 'بروتوكول جديد — سجّل جرعتك الأولى' : `${actual} من ${scheduled} جرعة`}</p>
     </div>
   );
 });

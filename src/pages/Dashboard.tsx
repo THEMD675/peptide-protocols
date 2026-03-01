@@ -234,7 +234,7 @@ export default function Dashboard() {
         <meta name="robots" content="noindex, nofollow" />
       </Helmet>
 
-      {!activity.loading && activity.logs.length === 0 && <OnboardingModal />}
+      {!activity.loading && activity.logs.length === 0 && activeProtocols.length === 0 && <OnboardingModal />}
 
       {/* Welcome Header */}
       <div className="mb-8">
