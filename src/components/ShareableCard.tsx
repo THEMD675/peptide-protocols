@@ -89,6 +89,7 @@ export default memo(function ShareableCard(props: ShareableCardProps) {
         </button>
         <button
           onClick={handleCopy}
+          aria-label="نسخ"
           className="flex items-center justify-center gap-2 rounded-xl border border-stone-200 px-4 py-2.5 text-sm font-bold text-stone-700 transition-colors hover:bg-stone-50"
         >
           {copied ? <Check className="h-4 w-4 text-emerald-600" /> : <Copy className="h-4 w-4" />}

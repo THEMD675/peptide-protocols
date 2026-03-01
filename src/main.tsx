@@ -50,6 +50,8 @@ if ('serviceWorker' in navigator && import.meta.env.PROD) {
           const el = document.createElement('div');
           el.className = 'fixed bottom-4 start-4 end-4 z-50 mx-auto max-w-sm rounded-2xl border border-emerald-200 bg-white p-4 shadow-xl animate-slide-up print:hidden';
           el.dir = 'rtl';
+          el.setAttribute('role', 'status');
+          el.setAttribute('aria-live', 'polite');
           el.innerHTML = `
             <div class="flex items-center justify-between gap-3">
               <p class="text-sm font-bold text-stone-900">تم تحديث pptides</p>

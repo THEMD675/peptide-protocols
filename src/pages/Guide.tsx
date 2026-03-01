@@ -154,8 +154,8 @@ export default function Guide() {
               <table className="w-full text-sm">
                 <thead>
                   <tr className="bg-emerald-500">
-                    <th className="px-4 py-3 text-right font-bold text-white/90">الأداة</th>
-                    <th className="px-4 py-3 text-right font-bold text-white/90">الوصف</th>
+                    <th scope="col" className="px-4 py-3 text-right font-bold text-white/90">الأداة</th>
+                    <th scope="col" className="px-4 py-3 text-right font-bold text-white/90">الوصف</th>
                   </tr>
                 </thead>
                 <tbody>

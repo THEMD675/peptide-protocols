@@ -346,6 +346,7 @@ export default function Library() {
             <input
               type="text"
               role="searchbox"
+              aria-label="البحث في المكتبة"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="ابحث عن ببتيد..."
@@ -580,15 +581,15 @@ export default function Library() {
             <div className="w-full max-w-4xl my-8 rounded-2xl bg-white shadow-2xl overflow-hidden animate-fade-in" onClick={e => e.stopPropagation()}>
               <div className="flex items-center justify-between border-b border-stone-200 px-6 py-4">
                 <h2 className="text-lg font-bold text-stone-900">مقارنة ببتيدات</h2>
-                <button onClick={() => setShowCompare(false)} className="rounded-lg p-2 text-stone-400 transition-colors hover:bg-stone-100"><X className="h-5 w-5" /></button>
+                <button onClick={() => setShowCompare(false)} aria-label="إغلاق" className="rounded-lg p-2 text-stone-400 transition-colors hover:bg-stone-100"><X className="h-5 w-5" /></button>
               </div>
               <div className="overflow-x-auto">
                 <table className="w-full min-w-[600px]">
                   <thead>
                     <tr className="border-b border-stone-200 bg-stone-50">
-                      <th className="px-4 py-3 text-right text-xs font-bold text-stone-500 w-[160px]">المعيار</th>
+                      <th scope="col" className="px-4 py-3 text-right text-xs font-bold text-stone-500 w-[160px]">المعيار</th>
                       {items.map(p => (
-                        <th key={p.id} className="px-4 py-3 text-right">
+                        <th key={p.id} scope="col" className="px-4 py-3 text-right">
                           <p className="text-sm font-bold text-stone-900">{p.nameAr}</p>
                           <p className="text-xs text-stone-500">{p.nameEn}</p>
                         </th>
@@ -598,7 +599,7 @@ export default function Library() {
                   <tbody>
                     {rows.map((row, i) => (
                       <tr key={row.label} className={cn('border-b border-stone-100', i % 2 === 0 ? 'bg-white' : 'bg-stone-50/50')}>
-                        <td className="px-4 py-3 text-xs font-bold text-stone-700">{row.label}</td>
+                        <th scope="row" className="px-4 py-3 text-xs font-bold text-stone-700">{row.label}</th>
                         {items.map(p => (
                           <td key={p.id} className="px-4 py-3 text-xs text-stone-800 leading-relaxed">{row.get(p)}</td>
                         ))}

@@ -161,7 +161,7 @@ export default function InteractionChecker() {
                 })}
               </select>
               {selected.length > 2 && (
-                <button onClick={() => removeSlot(idx)} className="flex items-center justify-center rounded-lg p-2 min-h-[44px] min-w-[44px] text-stone-400 hover:bg-red-50 transition-colors hover:text-red-500"><XCircle className="h-4 w-4" /></button>
+                <button onClick={() => removeSlot(idx)} aria-label="إزالة" className="flex items-center justify-center rounded-lg p-2 min-h-[44px] min-w-[44px] text-stone-400 hover:bg-red-50 transition-colors hover:text-red-500"><XCircle className="h-4 w-4" /></button>
               )}
             </div>
           ))}

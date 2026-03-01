@@ -825,6 +825,7 @@ export default function DoseCalculator() {
                     (h, i) => (
                       <th
                         key={i}
+                        scope="col"
                         className={cn(
                           'px-4 py-3 text-xs font-semibold text-stone-800',
                           i < 3 ? 'text-right' : 'text-center',
@@ -848,7 +849,7 @@ export default function DoseCalculator() {
                     <td className="px-4 py-3 text-sm text-stone-800">{row.vialMg} ملغ</td>
                     <td className="px-4 py-3 text-sm text-stone-800">{row.waterMl} مل</td>
                     <td className="px-4 py-3 text-sm text-stone-800">
-                      {row.concentration.toLocaleString('en')} مكغ/مل
+                      {row.concentration.toLocaleString('ar-u-nu-latn')} مكغ/مل
                     </td>
                     <td className="px-4 py-3 text-center text-sm text-stone-800">
                       {row.dose100} مل
