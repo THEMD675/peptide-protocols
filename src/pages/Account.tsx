@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import FocusTrap from 'focus-trap-react';
 import { Helmet } from 'react-helmet-async';
 import { Link, useNavigate } from 'react-router-dom';
-import { User, Crown, LogOut, Trash2, AlertTriangle, Mail, ArrowUpCircle, KeyRound, XCircle, Download, CreditCard } from 'lucide-react';
+import { User, Crown, LogOut, Trash2, AlertTriangle, Mail, ArrowUpCircle, KeyRound, XCircle, Download, CreditCard, Gift, Copy, Share2, Check } from 'lucide-react';
 import { toast } from 'sonner';
 import { cn, arPlural } from '@/lib/utils';
 import { SUPPORT_EMAIL, STATUS_LABELS, TIER_LABELS, PEPTIDE_COUNT } from '@/lib/constants';
@@ -373,6 +373,9 @@ export default function Account() {
           )}
         </div>
 
+        {/* Referral Program */}
+        <ReferralSection userId={user?.id} />
+
         {/* Data Export */}
         <div className="rounded-2xl border border-stone-200 bg-white p-6">
           <div className="flex items-center gap-3 mb-3">
@@ -504,6 +507,123 @@ export default function Account() {
           </FocusTrap>
         </div>
       )}
+    </div>
+  );
+}
+
+function ReferralSection({ userId }: { userId?: string }) {
+  const [code, setCode] = useState('');
+  const [stats, setStats] = useState({ total: 0, signedUp: 0, subscribed: 0 });
+  const [copied, setCopied] = useState(false);
+  const [loading, setLoading] = useState(true);
+
+  const generateCode = useCallback(() => {
+    const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+    let result = 'PP-';
+    for (let i = 0; i < 6; i++) result += chars[Math.floor(Math.random() * chars.length)];
+    return result;
+  }, []);
+
+  useEffect(() => {
+    if (!userId) return;
+    let mounted = true;
+    (async () => {
+      const { data: sub } = await supabase.from('subscriptions').select('referral_code').eq('user_id', userId).maybeSingle();
+      if (!mounted) return;
+
+      let refCode = sub?.referral_code;
+      if (!refCode) {
+        refCode = generateCode();
+        await supabase.from('subscriptions').update({ referral_code: refCode }).eq('user_id', userId);
+      }
+      setCode(refCode);
+
+      const { data: refs } = await supabase.from('referrals').select('status').eq('referrer_id', userId);
+      if (mounted && refs) {
+        setStats({
+          total: refs.length,
+          signedUp: refs.filter(r => r.status === 'signed_up' || r.status === 'subscribed').length,
+          subscribed: refs.filter(r => r.status === 'subscribed').length,
+        });
+      }
+      setLoading(false);
+    })();
+    return () => { mounted = false; };
+  }, [userId, generateCode]);
+
+  const shareUrl = `https://pptides.com/?ref=${code}`;
+  const shareText = `جرّب pptides — أشمل دليل عربي للببتيدات العلاجية مع مدرب ذكي وحاسبة جرعات 🧬\n${shareUrl}`;
+
+  const handleCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(shareUrl);
+      setCopied(true);
+      toast.success('تم نسخ رابط الإحالة');
+      setTimeout(() => setCopied(false), 2000);
+    } catch { toast.error('تعذّر النسخ'); }
+  };
+
+  if (loading) return null;
+
+  return (
+    <div className="rounded-2xl border border-emerald-200 bg-gradient-to-b from-emerald-50 to-white p-6">
+      <div className="flex items-center gap-3 mb-1">
+        <Gift className="h-5 w-5 text-emerald-600" />
+        <h2 className="text-lg font-bold text-stone-900">ادعُ أصدقاءك</h2>
+      </div>
+      <p className="text-sm text-stone-600 mb-4">شارك رابط الإحالة واحصل على مكافآت عند اشتراك أصدقائك</p>
+
+      <div className="flex items-center gap-2 mb-4">
+        <div className="flex-1 rounded-xl border border-stone-200 bg-white px-4 py-3 text-sm font-mono text-stone-700 truncate" dir="ltr">
+          {shareUrl}
+        </div>
+        <button onClick={handleCopy} className="shrink-0 rounded-xl border border-emerald-300 bg-emerald-50 p-3 text-emerald-600 transition-colors hover:bg-emerald-100">
+          {copied ? <Check className="h-5 w-5" /> : <Copy className="h-5 w-5" />}
+        </button>
+      </div>
+
+      <div className="flex gap-2 mb-5">
+        <a
+          href={`https://wa.me/?text=${encodeURIComponent(shareText)}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex-1 flex items-center justify-center gap-2 rounded-xl bg-[#25D366] px-4 py-2.5 text-sm font-bold text-white transition-colors hover:bg-[#20bd5a]"
+        >
+          <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.625.846 5.059 2.284 7.034L.789 23.492a.75.75 0 00.917.917l4.458-1.495A11.945 11.945 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-2.37 0-4.567-.764-6.353-2.06l-.444-.333-3.16 1.06 1.06-3.16-.333-.444A9.952 9.952 0 012 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z"/></svg>
+          واتساب
+        </a>
+        <button
+          onClick={async () => {
+            if (navigator.share) {
+              try { await navigator.share({ title: 'pptides — دليل الببتيدات', text: shareText, url: shareUrl }); } catch { /* cancelled */ }
+            } else { handleCopy(); }
+          }}
+          className="flex-1 flex items-center justify-center gap-2 rounded-xl border border-stone-200 bg-white px-4 py-2.5 text-sm font-bold text-stone-700 transition-colors hover:bg-stone-50"
+        >
+          <Share2 className="h-4 w-4" />
+          مشاركة
+        </button>
+      </div>
+
+      <div className="rounded-xl bg-stone-50 p-4">
+        <p className="text-xs font-bold text-stone-500 mb-2">إحصائيات الإحالة</p>
+        <div className="grid grid-cols-3 gap-3 text-center">
+          <div>
+            <p className="text-xl font-bold text-stone-900">{stats.total}</p>
+            <p className="text-xs text-stone-500">دعوات</p>
+          </div>
+          <div>
+            <p className="text-xl font-bold text-emerald-600">{stats.signedUp}</p>
+            <p className="text-xs text-stone-500">سجّلوا</p>
+          </div>
+          <div>
+            <p className="text-xl font-bold text-emerald-700">{stats.subscribed}</p>
+            <p className="text-xs text-stone-500">اشتركوا</p>
+          </div>
+        </div>
+      </div>
+
+      <p className="text-[11px] text-stone-400 mt-3 text-center">كود الإحالة الخاص بك: <span className="font-mono font-bold" dir="ltr">{code}</span></p>
     </div>
   );
 }

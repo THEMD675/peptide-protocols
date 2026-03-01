@@ -335,6 +335,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         },
         body: JSON.stringify({ email, name: '' }),
       }).catch((e) => console.error('Welcome email failed:', e));
+
+      try {
+        const refCode = localStorage.getItem('pptides_referral');
+        if (refCode && data.session?.access_token) {
+          supabase.from('subscriptions').update({ referred_by: refCode }).eq('user_id', data.user.id).then(() => {});
+          supabase.from('referrals').update({ referred_id: data.user.id, referred_email: email, status: 'signed_up' }).eq('referral_code', refCode).eq('status', 'pending').then(() => {});
+          localStorage.removeItem('pptides_referral');
+        }
+      } catch { /* expected */ }
     }
   }, []);
 

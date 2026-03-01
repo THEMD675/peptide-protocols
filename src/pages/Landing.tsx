@@ -106,6 +106,18 @@ export default function Landing() {
   const shouldRedirect = !isLoading && user && subscription.isProOrTrial;
 
   useEffect(() => {
+    try {
+      const ref = new URLSearchParams(window.location.search).get('ref');
+      if (ref) {
+        localStorage.setItem('pptides_referral', ref);
+        const url = new URL(window.location.href);
+        url.searchParams.delete('ref');
+        window.history.replaceState({}, '', url.toString());
+      }
+    } catch { /* expected */ }
+  }, []);
+
+  useEffect(() => {
     let mounted = true;
     let cached: string | null = null;
     try { cached = sessionStorage.getItem('pptides_user_count_ts'); } catch { /* Safari private */ }
