@@ -83,7 +83,7 @@ export default function Tracker() {
     try { return new URLSearchParams(window.location.search).get('dose') ?? ''; } catch { return ''; }
   });
   const [unit, setUnit] = useState(() => {
-    try { const u = new URLSearchParams(window.location.search).get('unit'); return u || 'mcg'; } catch { return 'mcg'; }
+    try { const u = new URLSearchParams(window.location.search).get('unit'); return u === 'mg' ? 'mg' : 'mcg'; } catch { return 'mcg'; }
   });
   const [site, setSite] = useState('abdomen');
   const [autoFilled, setAutoFilled] = useState(false);
@@ -107,7 +107,7 @@ export default function Tracker() {
   const [activeProtocols, setActiveProtocols] = useState<ActiveProtocol[]>([]);
   const fetchActiveProtocols = useCallback(async () => {
     if (!user) return;
-    const { data, error } = await supabase.from('user_protocols').select('*').eq('user_id', user.id).eq('status', 'active').order('started_at', { ascending: false });
+    const { data, error } = await supabase.from('user_protocols').select('*').eq('user_id', user.id).eq('status', 'active').order('started_at', { ascending: false }).limit(20);
     if (!error && data) setActiveProtocols(data);
   }, [user]);
   useEffect(() => {

@@ -11,7 +11,11 @@ export default function EmailCapture() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!email) return;
+    if (!email || email.length > 254 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      setStatus('error');
+      setErrorMsg('يرجى إدخال بريد إلكتروني صحيح');
+      return;
+    }
     if (honeypot) return;
 
     setStatus('loading');

@@ -108,7 +108,7 @@ export default function Landing() {
   useEffect(() => {
     try {
       const ref = new URLSearchParams(window.location.search).get('ref');
-      if (ref) {
+      if (ref && /^PP-[A-Z0-9]{6}$/.test(ref)) {
         localStorage.setItem('pptides_referral', ref);
         const url = new URL(window.location.href);
         url.searchParams.delete('ref');
