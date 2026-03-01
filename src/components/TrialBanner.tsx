@@ -23,7 +23,7 @@ export default function TrialBanner() {
   if (isLoading) return null;
   if (!user || !subscription) return null;
   if (subscription.status === 'active') return null;
-  if (subscription.isProOrTrial) return null;
+  if (subscription.isPaidSubscriber) return null;
 
   if (subscription.status === 'past_due') {
     return (

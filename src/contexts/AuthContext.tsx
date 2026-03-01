@@ -41,11 +41,6 @@ const DEFAULT_SUBSCRIPTION: Subscription = {
   isTrial: false,
 };
 
-const STRIPE_LINKS: Record<'essentials' | 'elite', string> = {
-  essentials: import.meta.env.VITE_STRIPE_ESSENTIALS_LINK ?? '',
-  elite: import.meta.env.VITE_STRIPE_ELITE_LINK ?? '',
-};
-
 // eslint-disable-next-line react-refresh/only-export-components
 export const AuthContext = createContext<AuthContextType | null>(null);
 
@@ -240,7 +235,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     });
 
     const { data: { subscription: authListener } } = supabase.auth.onAuthStateChange(
-      async (_event: string, session: Session | null) => {
+      async (event: string, session: Session | null) => {
+        if (event === 'SIGNED_IN' && session?.user) {
+          const createdAt = new Date(session.user.created_at).getTime();
+          const isNewUser = Date.now() - createdAt < 60000;
+          if (isNewUser && session.user.email) {
+            fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/send-welcome-email`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${session.access_token}`, apikey: import.meta.env.VITE_SUPABASE_ANON_KEY },
+              body: JSON.stringify({ email: session.user.email, name: '' }),
+            }).catch(e => console.error('OAuth welcome email failed:', e));
+          }
+        }
         if (session?.user) {
           const mapped = mapUser(session.user);
           setUser(mapped);
@@ -345,6 +351,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const token = session.data.session?.access_token;
       if (!token) {
         toast.error('يرجى تسجيل الدخول أولًا');
+        window.location.href = '/login?redirect=/pricing';
         return;
       }
 

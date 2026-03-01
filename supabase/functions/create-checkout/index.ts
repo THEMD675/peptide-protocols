@@ -72,6 +72,15 @@ serve(async (req) => {
       })
     }
 
+    const { data: existingSub } = await supabase
+      .from('subscriptions')
+      .select('status, trial_ends_at, stripe_subscription_id')
+      .eq('user_id', user.id)
+      .maybeSingle()
+
+    const hadTrial = existingSub?.trial_ends_at != null
+    const hasStripe = !!existingSub?.stripe_subscription_id
+
     const session = await stripe.checkout.sessions.create({
       mode: 'subscription',
       payment_method_types: ['card'],
@@ -79,7 +88,7 @@ serve(async (req) => {
       client_reference_id: user.id,
       customer_email: user.email,
       subscription_data: {
-        trial_period_days: 3,
+        trial_period_days: (hadTrial || hasStripe) ? undefined : 3,
         metadata: { tier, user_id: user.id },
       },
       metadata: { tier, user_id: user.id },

@@ -131,11 +131,15 @@ export default function Account() {
           apikey: import.meta.env.VITE_SUPABASE_ANON_KEY,
         },
       });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error);
+      const result = await res.json();
+      if (!res.ok) throw new Error(result.error);
       setShowCancelDialog(false);
       setCancelStep(null);
-      toast.success('تم إلغاء اشتراكك. ستحتفظ بالوصول حتى نهاية فترتك الحالية.');
+      if (result.cancel_at) {
+        toast.success(`تم إلغاء اشتراكك. ستحتفظ بالوصول حتى ${new Date(result.cancel_at).toLocaleDateString('ar-u-nu-latn')}`);
+      } else {
+        toast.success('تم إلغاء التجربة المجانية');
+      }
       await refreshSubscription();
       navigate('/account', { replace: true });
     } catch {

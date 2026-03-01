@@ -374,7 +374,7 @@ serve(async (req) => {
         const customerId = dispute.customer as string
         if (customerId) {
           const { error } = await supabase.from('subscriptions').update({
-            status: 'past_due',
+            status: 'cancelled',
             updated_at: new Date().toISOString(),
           }).eq('stripe_customer_id', customerId)
           if (error) { console.error('charge.dispute.created DB error:', error); dbFailed = true }
@@ -395,6 +395,26 @@ serve(async (req) => {
           if (error) { console.error('charge.refunded DB error:', error); dbFailed = true }
         }
         console.log(JSON.stringify({ action: 'charge_refunded', customer: customerId, amount: charge.amount_refunded, timestamp: new Date().toISOString() }))
+
+        const RESEND_API_KEY = Deno.env.get('RESEND_API_KEY')
+        if (RESEND_API_KEY && customerId) {
+          const customer = await stripe.customers.retrieve(customerId).catch(() => null)
+          const email = (customer && !customer.deleted) ? customer.email : null
+          if (email) {
+            fetch('https://api.resend.com/emails', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${RESEND_API_KEY}` },
+              body: JSON.stringify({
+                from: 'pptides <noreply@pptides.com>',
+                reply_to: 'contact@pptides.com',
+                to: email,
+                subject: '✅ تم استرداد أموالك — pptides',
+                headers: { 'List-Unsubscribe': '<mailto:contact@pptides.com?subject=unsubscribe>' },
+                html: `<div dir="rtl" style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Tahoma,Arial,sans-serif;max-width:600px;margin:0 auto;padding:40px 20px;"><h1 style="color:#1c1917;font-size:24px;">تم استرداد أموالك</h1><p style="color:#44403c;font-size:16px;line-height:1.8;">تم معالجة استرداد أموالك بنجاح. سيظهر المبلغ في حسابك خلال 5-10 أيام عمل.</p><p style="color:#78716c;font-size:13px;">إذا كان لديك أي استفسار: contact@pptides.com</p></div>`,
+              }),
+            }).catch(e => console.error('refund email failed:', e))
+          }
+        }
         break
       }
 

@@ -75,7 +75,7 @@ serve(async (req) => {
 
     const { data: trialUsers, error: queryError } = await supabase
       .from('subscriptions')
-      .select('user_id, trial_ends_at, created_at')
+      .select('user_id, trial_ends_at, created_at, stripe_subscription_id')
       .eq('status', 'trial')
 
     if (queryError) {
@@ -221,6 +221,11 @@ serve(async (req) => {
             </a>
           `
         } else {
+          skipped++
+          continue
+        }
+
+        if (reminderType === 'last_day' && sub.stripe_subscription_id) {
           skipped++
           continue
         }
