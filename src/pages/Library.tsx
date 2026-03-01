@@ -70,19 +70,17 @@ const PeptideCard = memo(function PeptideCard({
           )}
         </div>
         <div className="flex items-center">
-          {hasAccess && (
-            <button
-              type="button"
-              onClick={(e) => { e.preventDefault(); e.stopPropagation(); onToggleCompare(); }}
-              className={cn('flex items-center gap-1 rounded-full px-2.5 py-1.5 min-h-[44px] text-xs font-medium transition-colors', isCompare ? 'bg-emerald-100 text-emerald-700' : 'text-stone-400 hover:bg-stone-100 hover:text-stone-600')}
-              aria-label={isCompare ? 'إزالة من المقارنة' : 'إضافة للمقارنة'}
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-3.5 w-3.5">
-                <line x1="18" y1="20" x2="18" y2="10" /><line x1="12" y1="20" x2="12" y2="4" /><line x1="6" y1="20" x2="6" y2="14" />
-              </svg>
-              {isCompare ? 'مُختار' : 'قارن'}
-            </button>
-          )}
+          <button
+            type="button"
+            onClick={(e) => { e.preventDefault(); e.stopPropagation(); onToggleCompare(); }}
+            className={cn('flex items-center gap-1 rounded-full px-2.5 py-1.5 min-h-[44px] text-xs font-medium transition-colors', isCompare ? 'bg-emerald-100 text-emerald-700' : 'text-stone-400 hover:bg-stone-100 hover:text-stone-600')}
+            aria-label={isCompare ? 'إزالة من المقارنة' : 'إضافة للمقارنة'}
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-3.5 w-3.5">
+              <line x1="18" y1="20" x2="18" y2="10" /><line x1="12" y1="20" x2="12" y2="4" /><line x1="6" y1="20" x2="6" y2="14" />
+            </svg>
+            {isCompare ? 'مُختار' : 'قارن'}
+          </button>
           <button
             type="button"
             onClick={(e) => { e.preventDefault(); e.stopPropagation(); onToggleFav(); }}
@@ -631,6 +629,13 @@ export default function Library() {
                         <th key={p.id} scope="col" className="px-4 py-3 text-right">
                           <p className="text-sm font-bold text-stone-900">{p.nameAr}</p>
                           <p className="text-xs text-stone-500">{p.nameEn}</p>
+                          <Link
+                            to={`/calculator?preset=${encodeURIComponent(p.nameEn)}`}
+                            onClick={() => setShowCompare(false)}
+                            className="text-xs text-emerald-600 hover:underline"
+                          >
+                            احسب الجرعة
+                          </Link>
                         </th>
                       ))}
                     </tr>
@@ -646,6 +651,15 @@ export default function Library() {
                     ))}
                   </tbody>
                 </table>
+              </div>
+              <div className="flex items-center justify-center gap-3 border-t border-stone-200 px-6 py-4">
+                <Link
+                  to={`/interactions?p1=${compareIds[0]}&p2=${compareIds[1]}`}
+                  onClick={() => setShowCompare(false)}
+                  className="inline-flex items-center gap-2 rounded-full border border-emerald-300 px-5 py-2.5 text-sm font-bold text-emerald-700 hover:bg-emerald-50"
+                >
+                  فحص التعارضات بين هذه الببتيدات
+                </Link>
               </div>
             </div>
             </FocusTrap>

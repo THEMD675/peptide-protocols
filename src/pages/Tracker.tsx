@@ -128,6 +128,9 @@ export default function Tracker() {
       await fetchLogs();
       const peptide = allPeptides.find(p => p.id === proto.peptide_id);
       toast.success(`تم تسجيل ${peptide?.nameAr ?? proto.peptide_id} — ${proto.dose} ${proto.dose_unit}`);
+      if (logs.length === 0) {
+        setTimeout(() => toast('أول حقنة! ارجع غدًا لتسجيل الجرعة التالية'), 2000);
+      }
       const newTotal = (totalCount || logs.length) + 1;
       const daySet = new Set([...logs.map(l => new Date(l.logged_at).toDateString()), new Date().toDateString()]);
       let s = 0; const dd = new Date();
@@ -270,6 +273,9 @@ export default function Tracker() {
       setInjectedAt(now.toISOString().slice(0, 16));
       await fetchLogs();
       toast.success(`تم تسجيل ${peptideName.trim()} — ${dose} ${unit}`);
+      if (logs.length === 0) {
+        setTimeout(() => toast('أول حقنة! ارجع غدًا لتسجيل الجرعة التالية'), 2000);
+      }
       const newTotal = (totalCount || logs.length) + 1;
       const daySet = new Set([...logs.map(l => new Date(l.logged_at).toDateString()), new Date().toDateString()]);
       let s = 0; const dd = new Date();

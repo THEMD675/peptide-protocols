@@ -95,9 +95,10 @@ export default function ProtocolWizard({ peptideId, prefillDose, prefillUnit, on
         // Error logged to Sentry via ErrorBoundary
         return;
       }
-      toast.success(`تم بدء بروتوكول ${peptide.nameAr}!`);
+      toast.success(`تم بدء بروتوكول ${peptide.nameAr}! — انتقل لسجل الحقن`);
       onCreated?.();
       onClose();
+      window.location.href = `/tracker?peptide=${encodeURIComponent(peptide.nameEn)}`;
     } catch {
       toast.error('حدث خطأ — حاول مرة أخرى');
     } finally {

@@ -15,18 +15,46 @@ const GOALS = [
   { id: 'gut-skin', label: 'بشرة أو أمعاء أو نوم' },
 ] as const;
 
-const TRIAL_PLAN = [
-  { day: 'اليوم الأول', task: 'تصفّح المكتبة واكتشف الببتيد المناسب', icon: BookOpen, to: '/library' },
-  { day: 'اليوم الثاني', task: 'اسأل المدرب الذكي عن بروتوكول مخصّص', icon: Bot, to: '/coach' },
-  { day: 'اليوم الثالث', task: 'جرّب حاسبة الجرعات واحسب جرعتك', icon: Calculator, to: '/calculator' },
-];
+function getTrialPlan(goal: string) {
+  const category = GOAL_TO_CATEGORY[goal] ?? '';
+  const libraryLink = `/library${category ? `?category=${encodeURIComponent(category)}` : ''}`;
+  return [
+    { day: 'اليوم الأول', task: 'تصفّح المكتبة واكتشف الببتيد المناسب', icon: BookOpen, to: libraryLink },
+    { day: 'اليوم الثاني', task: 'اسأل المدرب الذكي عن بروتوكول مخصّص', icon: Bot, to: '/coach' },
+    { day: 'اليوم الثالث', task: 'جرّب حاسبة الجرعات واحسب جرعتك', icon: Calculator, to: '/calculator' },
+  ];
+}
+
+const GOAL_TO_CATEGORY: Record<string, string> = {
+  'fat-loss': 'الأيض',
+  'recovery': 'التعافي',
+  'muscle': 'الهرمونات',
+  'brain': 'الدماغ',
+  'hormones': 'الهرمونات',
+  'longevity': 'النوم',
+  'gut-skin': 'البشرة',
+};
 
 export default function OnboardingModal() {
   const [show, setShow] = useState(true);
   const [step, setStep] = useState<'goal' | 'plan'>('goal');
+  const [selectedGoal, setSelectedGoal] = useState('');
   useEffect(() => {
     try {
       setShow(localStorage.getItem(ONBOARDING_KEY) !== 'true');
+    } catch { /* expected */ }
+  }, []);
+
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem('pptides_quiz_answers');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (parsed.goal && parsed.ts && Date.now() - parsed.ts < 24 * 60 * 60 * 1000) {
+          setSelectedGoal(parsed.goal);
+          setStep('plan');
+        }
+      }
     } catch { /* expected */ }
   }, []);
   useEffect(() => {
@@ -58,6 +86,7 @@ export default function OnboardingModal() {
       const ts = Date.now();
       localStorage.setItem('pptides_quiz_answers', JSON.stringify({ ...parsed, goal: goalId, ts }));
     } catch { /* expected */ }
+    setSelectedGoal(goalId);
     setStep('plan');
   };
 
@@ -95,7 +124,7 @@ export default function OnboardingModal() {
               <h2 id="onboarding-title" className="mb-2 text-center text-xl font-bold text-stone-900">خطتك لـ 3 أيام</h2>
               <p className="mb-6 text-center text-sm text-stone-600">استفد من تجربتك المجانية بأقصى قدر</p>
               <div className="space-y-3">
-                {TRIAL_PLAN.map((item, i) => (
+                {getTrialPlan(selectedGoal).map((item, i) => (
                   <Link
                     key={i}
                     to={item.to}

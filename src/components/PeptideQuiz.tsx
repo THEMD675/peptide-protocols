@@ -2,6 +2,7 @@ import { useState, useEffect, type ElementType } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowLeft, ArrowRight, CheckCircle, FlaskConical, TrendingDown, Heart, Brain, Zap, Clock, Shield, Syringe, Pill, SprayCan, Dumbbell, Calculator } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useAuth } from '@/contexts/AuthContext';
 import { peptides as allPeptides } from '@/data/peptides';
 
 interface QuizOption {
@@ -99,6 +100,7 @@ function getRecommendation(answers: string[]): Recommendation {
 }
 
 export default function PeptideQuiz() {
+  const { user } = useAuth();
   const [step, setStep] = useState(0);
   const [answers, setAnswers] = useState<string[]>([]);
   const [showResult, setShowResult] = useState(false);
@@ -195,11 +197,11 @@ export default function PeptideQuiz() {
 
         <div className="flex flex-col gap-3 sm:flex-row">
           <Link
-            to="/coach"
+            to={user ? '/coach' : '/signup?redirect=/coach'}
             className="flex-1 flex flex-col items-center justify-center gap-1 rounded-xl bg-emerald-600 px-5 py-3 text-white transition-all hover:bg-emerald-700"
           >
-            <span className="text-sm font-bold flex items-center gap-2">صمّم بروتوكول مخصّص <ArrowLeft className="h-4 w-4 shrink-0" /></span>
-            <span className="text-xs opacity-80">بناءً على إجاباتك — المدرب الذكي جاهز</span>
+            <span className="text-sm font-bold flex items-center gap-2">{user ? 'صمّم بروتوكول مخصّص' : 'سجّل مجانًا وصمّم بروتوكولك'} <ArrowLeft className="h-4 w-4 shrink-0" /></span>
+            <span className="text-xs opacity-80">{user ? 'بناءً على إجاباتك — المدرب الذكي جاهز' : 'أنشئ حساب مجاني واحصل على بروتوكول مخصّص'}</span>
           </Link>
           <Link
             to={`/peptide/${rec.peptideId}`}

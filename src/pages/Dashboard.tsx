@@ -353,8 +353,8 @@ export default function Dashboard() {
         );
       })()}
 
-      {/* Today's Protocol */}
-      {!activity.loading && activity.todayPlan.length > 0 && (
+      {/* Today's Protocol — only show heuristic plan when no formal active protocols exist */}
+      {!activity.loading && activity.todayPlan.length > 0 && activeProtocols.length === 0 && (
         <div className="mb-8">
           <h2 className="mb-4 text-xl font-bold text-stone-900">بروتوكول اليوم</h2>
           <div className="space-y-2">
