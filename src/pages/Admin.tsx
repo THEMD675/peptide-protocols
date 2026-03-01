@@ -49,7 +49,7 @@ interface AdminStats {
   emailList: Array<{ id: string; email: string; created_at: string }>;
 }
 
-type Tab = 'overview' | 'users' | 'reviews' | 'emails';
+type Tab = 'overview' | 'users' | 'reviews' | 'emails' | 'enquiries';
 type UserFilter = 'all' | 'active' | 'trial' | 'expired' | 'none';
 
 function StatCard({ label, value, icon: Icon, sub, alert }: { label: string; value: string | number; icon: React.ElementType; sub?: string; alert?: boolean }) {
@@ -160,6 +160,7 @@ export default function Admin() {
     { key: 'overview', label: 'Overview' },
     { key: 'users', label: 'Users', count: o.totalUsers },
     { key: 'reviews', label: 'Reviews', count: o.pendingReviews },
+    { key: 'enquiries', label: 'Enquiries', count: (o as Record<string, number>).pendingEnquiries ?? 0 },
     { key: 'emails', label: 'Email List', count: o.emailListCount },
   ];
 
@@ -318,6 +319,33 @@ export default function Admin() {
                         if (res.ok) { toast.success('Review deleted'); fetchStats(); } else { toast.error('Failed to delete'); }
                       }} className="rounded-lg border border-red-200 px-3 py-1.5 text-xs font-bold text-red-600 hover:bg-red-50">Delete</button>
                     </div>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+        )}
+
+        {tab === 'enquiries' && (
+          <div className="space-y-3">
+            <h2 className="text-sm font-bold text-stone-700">User Enquiries ({((stats as Record<string, unknown[]>).enquiries ?? []).length})</h2>
+            {((stats as Record<string, Array<{ id: string; email: string; subject: string; peptide_name: string | null; message: string; status: string; created_at: string }>>).enquiries ?? []).length === 0 ? (
+              <p className="text-sm text-stone-500">No enquiries yet</p>
+            ) : (
+              ((stats as Record<string, Array<{ id: string; email: string; subject: string; peptide_name: string | null; message: string; status: string; created_at: string }>>).enquiries ?? []).map(eq => (
+                <div key={eq.id} className={cn('rounded-xl border bg-white p-4', eq.status === 'pending' ? 'border-amber-200' : 'border-stone-200')}>
+                  <div className="flex items-center justify-between mb-2">
+                    <div>
+                      <span className="font-mono text-xs text-stone-500">{eq.email}</span>
+                      {eq.peptide_name && <span className="ml-2 rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-medium text-emerald-700">{eq.peptide_name}</span>}
+                    </div>
+                    <span className={cn('rounded-full px-2 py-0.5 text-xs font-medium', eq.status === 'pending' ? 'bg-amber-100 text-amber-700' : eq.status === 'replied' ? 'bg-emerald-100 text-emerald-700' : 'bg-stone-100 text-stone-600')}>{eq.status}</span>
+                  </div>
+                  <p className="text-sm font-bold text-stone-900 mb-1">{eq.subject}</p>
+                  <p className="text-sm text-stone-700 whitespace-pre-wrap">{eq.message}</p>
+                  <div className="flex items-center justify-between mt-3">
+                    <p className="text-xs text-stone-400">{new Date(eq.created_at).toLocaleDateString('en-GB')} {new Date(eq.created_at).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })}</p>
+                    <a href={`mailto:${eq.email}?subject=Re: ${eq.subject}`} className="rounded-lg bg-emerald-600 px-3 py-1.5 text-xs font-bold text-white hover:bg-emerald-700">Reply</a>
                   </div>
                 </div>
               ))

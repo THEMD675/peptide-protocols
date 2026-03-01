@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import FocusTrap from 'focus-trap-react';
 import { Helmet } from 'react-helmet-async';
 import { Link, useNavigate } from 'react-router-dom';
-import { User, Crown, LogOut, Trash2, AlertTriangle, Mail, ArrowUpCircle, KeyRound, XCircle, Download, CreditCard, Gift, Copy, Share2, Check } from 'lucide-react';
+import { User, Crown, LogOut, Trash2, AlertTriangle, Mail, ArrowUpCircle, KeyRound, XCircle, Download, CreditCard, Gift, Copy, Share2, Check, Send, MessageSquare } from 'lucide-react';
 import { toast } from 'sonner';
 import { cn, arPlural } from '@/lib/utils';
 import { SUPPORT_EMAIL, STATUS_LABELS, TIER_LABELS, PEPTIDE_COUNT } from '@/lib/constants';
@@ -379,6 +379,9 @@ export default function Account() {
         {/* Referral Program */}
         <ReferralSection userId={user?.id} />
 
+        {/* Peptide Enquiry */}
+        <EnquiryForm userEmail={user?.email} userId={user?.id} />
+
         {/* Data Export */}
         <div className="rounded-2xl border border-stone-200 bg-white p-6">
           <div className="flex items-center gap-3 mb-3">
@@ -627,6 +630,125 @@ function ReferralSection({ userId }: { userId?: string }) {
       </div>
 
       <p className="text-[11px] text-stone-400 mt-3 text-center">كود الإحالة الخاص بك: <span className="font-mono font-bold" dir="ltr">{code}</span></p>
+    </div>
+  );
+}
+
+function EnquiryForm({ userEmail, userId }: { userEmail?: string; userId?: string }) {
+  const [subject, setSubject] = useState('');
+  const [message, setMessage] = useState('');
+  const [peptide, setPeptide] = useState('');
+  const [sending, setSending] = useState(false);
+  const [sent, setSent] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!message.trim() || !userId) return;
+    if (sending) return;
+    setSending(true);
+    (document.activeElement as HTMLElement)?.blur();
+
+    try {
+      const { error } = await supabase.from('enquiries').insert({
+        user_id: userId,
+        email: userEmail,
+        subject: subject.trim() || 'استفسار عام',
+        peptide_name: peptide.trim() || null,
+        message: message.trim(),
+      });
+
+      if (error) {
+        toast.error('تعذّر إرسال الاستفسار. حاول مرة أخرى.');
+        return;
+      }
+
+      toast.success('تم إرسال استفسارك بنجاح — سنرد عليك قريبًا');
+      setSent(true);
+      setSubject('');
+      setMessage('');
+      setPeptide('');
+      setTimeout(() => setSent(false), 5000);
+    } catch {
+      toast.error('خطأ في الاتصال. حاول مرة أخرى.');
+    } finally {
+      setSending(false);
+    }
+  };
+
+  return (
+    <div className="rounded-2xl border border-stone-200 bg-white p-6">
+      <div className="flex items-center gap-3 mb-1">
+        <MessageSquare className="h-5 w-5 text-emerald-600" />
+        <h2 className="text-lg font-bold text-stone-900">استفسار خاص</h2>
+      </div>
+      <p className="text-sm text-stone-600 mb-4">هل لديك سؤال عن ببتيد معيّن أو بروتوكول؟ أرسل لنا وسنرد بأسرع وقت.</p>
+
+      {sent ? (
+        <div className="rounded-xl bg-emerald-50 border border-emerald-200 p-4 text-center">
+          <Check className="mx-auto h-8 w-8 text-emerald-600 mb-2" />
+          <p className="text-sm font-bold text-emerald-800">تم إرسال استفسارك</p>
+          <p className="text-xs text-emerald-600 mt-1">سنرد عليك على {userEmail} في أقرب وقت</p>
+        </div>
+      ) : (
+        <form onSubmit={handleSubmit} className="space-y-3">
+          <div>
+            <label htmlFor="enquiry-peptide" className="mb-1 block text-xs font-medium text-stone-600">الببتيد (اختياري)</label>
+            <input
+              id="enquiry-peptide"
+              type="text"
+              value={peptide}
+              onChange={e => setPeptide(e.target.value)}
+              placeholder="مثال: BPC-157"
+              dir="ltr"
+              maxLength={100}
+              className="w-full rounded-xl border border-stone-200 bg-white px-4 py-2.5 text-sm text-stone-900 placeholder:text-stone-400 outline-none focus:border-emerald-300 focus:ring-2 focus:ring-emerald-100"
+            />
+          </div>
+          <div>
+            <label htmlFor="enquiry-subject" className="mb-1 block text-xs font-medium text-stone-600">الموضوع</label>
+            <input
+              id="enquiry-subject"
+              type="text"
+              value={subject}
+              onChange={e => setSubject(e.target.value)}
+              placeholder="جرعة، تعارض، بروتوكول..."
+              maxLength={200}
+              className="w-full rounded-xl border border-stone-200 bg-white px-4 py-2.5 text-sm text-stone-900 placeholder:text-stone-400 outline-none focus:border-emerald-300 focus:ring-2 focus:ring-emerald-100"
+            />
+          </div>
+          <div>
+            <label htmlFor="enquiry-message" className="mb-1 block text-xs font-medium text-stone-600">رسالتك <span className="text-red-500">*</span></label>
+            <textarea
+              id="enquiry-message"
+              value={message}
+              onChange={e => setMessage(e.target.value)}
+              placeholder="اكتب استفسارك هنا..."
+              rows={4}
+              maxLength={2000}
+              required
+              className="w-full rounded-xl border border-stone-200 bg-white px-4 py-2.5 text-sm text-stone-900 placeholder:text-stone-400 outline-none resize-none focus:border-emerald-300 focus:ring-2 focus:ring-emerald-100"
+            />
+            <p className="text-[10px] text-stone-400 mt-1 text-left" dir="ltr">{message.length}/2000</p>
+          </div>
+          <button
+            type="submit"
+            disabled={!message.trim() || sending}
+            className="w-full flex items-center justify-center gap-2 rounded-full bg-emerald-600 px-6 py-3 text-sm font-bold text-white transition-all hover:bg-emerald-700 disabled:opacity-50 disabled:pointer-events-none"
+          >
+            {sending ? (
+              <span className="inline-flex items-center gap-2">
+                <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />
+                جارٍ الإرسال...
+              </span>
+            ) : (
+              <>
+                <Send className="h-4 w-4" />
+                إرسال الاستفسار
+              </>
+            )}
+          </button>
+        </form>
+      )}
     </div>
   );
 }

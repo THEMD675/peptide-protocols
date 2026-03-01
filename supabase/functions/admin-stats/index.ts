@@ -50,6 +50,7 @@ serve(async (req) => {
       communityResult,
       coachResult,
       emailListResult,
+      enquiriesResult,
     ] = await Promise.all([
       admin.auth.admin.listUsers({ perPage: 1000 }),
       admin.from('subscriptions').select('*').order('created_at', { ascending: false }),
@@ -58,6 +59,7 @@ serve(async (req) => {
       admin.from('community_logs').select('id, peptide_name, goal, rating, created_at', { count: 'exact', head: false }).order('created_at', { ascending: false }).limit(50),
       admin.from('ai_coach_requests').select('id, user_id, created_at', { count: 'exact', head: false }).order('created_at', { ascending: false }).limit(50),
       admin.from('email_list').select('*').order('created_at', { ascending: false }),
+      admin.from('enquiries').select('*').order('created_at', { ascending: false }).limit(50),
     ])
 
     const users = usersResult.data?.users ?? []
@@ -67,6 +69,7 @@ serve(async (req) => {
     const community = communityResult.data ?? []
     const coachRequests = coachResult.data ?? []
     const emailList = emailListResult.data ?? []
+    const enquiriesData = enquiriesResult?.data ?? []
 
     const now = new Date()
     const dayAgo = new Date(now.getTime() - 86400000)
@@ -141,12 +144,15 @@ serve(async (req) => {
         pendingReviews: pendingReviews.length,
         approvedReviews: approvedReviews.length,
         emailListCount: emailList.length,
+        pendingEnquiries: enquiriesData.filter((e: { status: string }) => e.status === 'pending').length,
+        totalEnquiries: enquiriesData.length,
       },
       recentUsers: userSubs,
       recentLogs: logs.slice(0, 20),
       pendingReviews: pendingReviews.slice(0, 20),
       recentCommunity: community.slice(0, 20),
       emailList: emailList.slice(0, 50),
+      enquiries: enquiriesData.slice(0, 30),
     }
 
     return new Response(JSON.stringify(stats), {
