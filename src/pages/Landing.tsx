@@ -643,11 +643,9 @@ export default function Landing() {
               <ul className="mb-8 flex-1 space-y-3">
                 {[
                   'كل مزايا Essentials',
-                  'مدرب ذكي بالذكاء الاصطناعي',
+                  'مدرب ذكي بالذكاء الاصطناعي 24/7',
                   'بروتوكولات مخصّصة لأهدافك',
-                  'استشارة خاصة شهرية',
-                  'مراجعة تحاليل شخصية',
-                  'تواصل مباشر مع المختص',
+                  'استشارات بلا حدود',
                   'دعم أولوية — رد خلال ساعات',
                 ].map((f) => (
                   <li key={f} className="flex items-start gap-3 text-sm text-stone-800">
