@@ -183,7 +183,7 @@ export default function Login() {
     setLoading(true);
     try {
       const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `${window.location.origin}/account`,
+        redirectTo: `${window.location.origin}/login`,
       });
       if (error) throw error;
       setResetMessage('تم إرسال رابط إعادة تعيين كلمة المرور');

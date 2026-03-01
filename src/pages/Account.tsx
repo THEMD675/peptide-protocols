@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import FocusTrap from 'focus-trap-react';
 import { Helmet } from 'react-helmet-async';
 import { Link, useNavigate } from 'react-router-dom';
-import { User, Crown, LogOut, Trash2, AlertTriangle, Mail, ArrowUpCircle, KeyRound, XCircle, Download } from 'lucide-react';
+import { User, Crown, LogOut, Trash2, AlertTriangle, Mail, ArrowUpCircle, KeyRound, XCircle, Download, CreditCard } from 'lucide-react';
 import { toast } from 'sonner';
 import { cn, arPlural } from '@/lib/utils';
 import { SUPPORT_EMAIL, STATUS_LABELS, TIER_LABELS, PEPTIDE_COUNT } from '@/lib/constants';
@@ -317,6 +317,29 @@ export default function Account() {
               </div>
             )}
           </div>
+          {subscription.isPaidSubscriber && (
+            <button
+              onClick={async () => {
+                try {
+                  const session = await supabase.auth.getSession();
+                  const token = session.data.session?.access_token;
+                  if (!token) { toast.error('يرجى تسجيل الدخول'); return; }
+                  toast('جارٍ فتح إدارة الدفع...');
+                  const res = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/create-portal-session`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}`, apikey: import.meta.env.VITE_SUPABASE_ANON_KEY },
+                  });
+                  if (!res.ok) { toast.error('تعذّر فتح إدارة الدفع'); return; }
+                  const { url } = await res.json();
+                  if (url) window.location.href = url;
+                } catch { toast.error('تعذّر فتح إدارة الدفع. حاول مرة أخرى.'); }
+              }}
+              className="mt-3 flex w-full items-center justify-center gap-2 rounded-xl border border-emerald-300 bg-emerald-50 px-6 py-3 text-sm font-bold text-emerald-700 transition-all hover:bg-emerald-100"
+            >
+              <CreditCard className="h-4 w-4" />
+              إدارة الدفع والفواتير
+            </button>
+          )}
           {(subscription.status === 'expired' || subscription.status === 'none') && (
             <div className="mt-4 rounded-xl border border-amber-300 bg-amber-50 p-4">
               <div className="flex items-center gap-2 mb-2">
