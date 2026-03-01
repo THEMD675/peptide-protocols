@@ -6,13 +6,13 @@
 2. Health check sends alert email on failure to contact@pptides.com
 3. Run health check on schedule (set up cron in Supabase dashboard)
 4. Admin dashboard shows real-time user count, MRR, errors
-5. Sentry configured for frontend error capture (needs VITE_SENTRY_DSN)
+5. Sentry code ready but NOT ACTIVE — requires VITE_SENTRY_DSN env var in Vercel dashboard
 6. Edge function errors logged with structured JSON format
 7. Stripe webhook failures return 500 so Stripe retries
 8. Payment polling has 20-attempt timeout with support email fallback
 9. All fetch calls have 15-20s timeouts (won't hang forever)
 10. Console errors tracked — zero errors on all 20 pages (verified)
-11. Service worker update detection with user notification
+11. Service worker update detection with user notification (fragile — may not show before SW takeover)
 12. Visibility change listener re-validates session on tab return
 13. Trial expiration detected every 5 minutes for active trial users
 14. Webhook deduplication prevents duplicate processing

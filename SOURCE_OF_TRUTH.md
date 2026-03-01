@@ -12,12 +12,17 @@
 
 ## Real Data (as of March 1, 2026)
 - **Real subscribers**: 1 (trial/essentials with Stripe ID)
+- **Test subscribers**: 1 (test-elite, no Stripe ID — excluded from MRR)
 - **Real MRR**: $0 (trial hasn't converted)
 - **Community posts**: 0
 - **Reviews**: 0
 - **Injection logs**: 0
+- **Enquiries**: 0
 - **Auth users**: ~55 (mix of real signups + test/unconfirmed)
 - **Verified users**: only those with email_confirmed_at
+- **GA4**: NOT ACTIVE (needs VITE_GA4_ID env var)
+- **Sentry**: NOT ACTIVE (needs VITE_SENTRY_DSN env var)
+- **Health check cron**: NOT SCHEDULED (function exists, needs Supabase cron job)
 
 ## Pricing
 - Essentials: $9/month (annual $79/year)
