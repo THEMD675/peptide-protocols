@@ -589,6 +589,12 @@ export default function Community() {
                     {new Date(log.created_at).toLocaleDateString('ar-u-nu-latn', { year: 'numeric', month: 'long', day: 'numeric' })}
                   </span>
                 </div>
+                <Link
+                  to={`/peptide/${(log.peptide_name ?? '').toLowerCase().replace(/\s+/g, '-')}`}
+                  className="mt-2 inline-flex items-center gap-1 text-xs font-bold text-emerald-600 hover:text-emerald-700"
+                >
+                  ابدأ هذا البروتوكول ←
+                </Link>
               </div>
             ))}
             {hasMore && (

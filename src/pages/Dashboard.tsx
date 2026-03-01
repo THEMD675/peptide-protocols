@@ -29,6 +29,38 @@ import ShareableCard from '@/components/ShareableCard';
 import { peptides as allPeptides } from '@/data/peptides';
 import { labTests } from '@/data/peptides';
 
+const DAILY_TIPS = [
+  'حقن BPC-157 على معدة فارغة يزيد من امتصاصه بشكل ملحوظ',
+  'دوّر مواقع الحقن كل يوم لتقليل تكوّن الندب والتورم',
+  'خزّن الببتيدات المحضّرة في الثلاجة (2-8°C) وتصلح لـ 28 يومًا',
+  'اشرب كمية كافية من الماء — الترطيب يساعد في امتصاص الببتيدات',
+  'لا تخلط أكثر من ببتيد في نفس السيرنج إلا بعد التأكد من التوافق',
+  'الالتزام بالتوقيت أهم من الجرعة — حاول الحقن في نفس الوقت يوميًا',
+  'تحاليل الدم قبل البدء تساعدك في قياس التحسن لاحقًا',
+  'هرمون النمو يُفرز بشكل أكبر أثناء النوم — احقن GH قبل النوم',
+  'BPC-157 + TB-500 من أشهر التوليفات للتعافي — جرّب المزيج الذهبي',
+  'سيماغلوتايد يعمل بشكل أفضل مع نظام غذائي عالي البروتين',
+  'لا توقف البروتوكول فجأة — اتبع جدول التخفيف التدريجي',
+  'الحقن تحت الجلد (Sub-Q) أسهل وأقل ألمًا من العضلي',
+  'راجع طبيبك إذا لاحظت أي تغيرات غير طبيعية في الجلد أو الهضم',
+  'سجّل ملاحظاتك بعد كل حقنة — تساعدك في تقييم النتائج',
+];
+
+const SEASONAL_TIPS: Record<number, string> = {
+  0: 'الشتاء — وقت ممتاز لبروتوكولات هرمون النمو والتعافي',
+  1: 'فبراير — جهّز تحاليلك قبل بدء بروتوكول جديد في الربيع',
+  2: 'الربيع — وقت مثالي لبدء بروتوكول إنقاص الوزن',
+  3: 'أبريل — ابدأ بروتوكول البشرة قبل الصيف',
+  4: 'مايو — راجع بروتوكولك الحالي وقيّم النتائج',
+  5: 'الصيف — ركّز على الترطيب والبشرة مع ببتيدات النحاس',
+  6: 'يوليو — حافظ على تخزين الببتيدات في الثلاجة في الحرارة',
+  7: 'أغسطس — وقت جيد لبروتوكولات التعافي والمفاصل',
+  8: 'سبتمبر — ابدأ دورة جديدة مع بداية الموسم',
+  9: 'أكتوبر — استعد لبروتوكولات المناعة قبل الشتاء',
+  10: 'نوفمبر — ببتيدات النوم مثل DSIP تساعد في الليالي الطويلة',
+  11: 'ديسمبر — قيّم سنتك وخطّط لبروتوكول العام الجديد',
+};
+
 const QUICK_LINKS = [
   { to: '/coach', label: 'المدرب الذكي', description: 'اسأل خبير الببتيدات', Icon: Bot },
   { to: '/tracker', label: 'سجل الحقن', description: 'تتبّع جرعاتك', Icon: Syringe },
@@ -133,7 +165,9 @@ function useRecentActivity(userId: string | undefined) {
   // eslint-disable-next-line react-hooks/set-state-in-effect -- sync timestamp when data arrives
   useEffect(() => { if (!loading) setLastCheckedAt(Date.now()); }, [loading]);
 
-  return { logs: logs.slice(0, 5), loading, activePeptides, totalInjections, streak, todayPlan, lastCheckedAt };
+  const todayLogged = logs.some(l => new Date(l.logged_at).toDateString() === new Date().toDateString());
+
+  return { logs: logs.slice(0, 5), loading, activePeptides, totalInjections, streak, todayPlan, lastCheckedAt, todayLogged };
 }
 
 interface ActiveProtocol {
@@ -254,6 +288,34 @@ export default function Dashboard() {
           </Link>
         )}
       </div>
+
+      {/* Daily tip + seasonal */}
+      {(() => {
+        const tipIndex = Math.floor(Date.now() / 86400000) % DAILY_TIPS.length;
+        const seasonalTip = SEASONAL_TIPS[new Date().getMonth()];
+        return (
+          <div className="mb-6 rounded-2xl border border-emerald-100 bg-emerald-50/50 p-4">
+            <p className="text-xs font-bold text-emerald-700 mb-1">💡 نصيحة اليوم</p>
+            <p className="text-sm text-stone-700 leading-relaxed">{DAILY_TIPS[tipIndex]}</p>
+            {seasonalTip && (
+              <p className="mt-2 text-xs text-stone-500 border-t border-emerald-100 pt-2">{seasonalTip}</p>
+            )}
+          </div>
+        );
+      })()}
+
+      {/* Streak-at-risk banner */}
+      {!activity.loading && activity.streak > 0 && !activity.todayLogged && new Date().getHours() >= 16 && (
+        <div className="mb-6 rounded-2xl border border-amber-200 bg-amber-50 p-4 flex items-center justify-between gap-3">
+          <div>
+            <p className="text-sm font-bold text-amber-800">⚠️ سلسلتك في خطر!</p>
+            <p className="text-xs text-amber-600">{activity.streak} يوم متتالي — سجّل جرعتك قبل منتصف الليل</p>
+          </div>
+          <Link to="/tracker" className="shrink-0 rounded-full bg-amber-600 px-4 py-2 text-xs font-bold text-white hover:bg-amber-700">
+            سجّل الآن
+          </Link>
+        </div>
+      )}
 
       {/* Active Protocols */}
       {activeProtocols.length > 0 && (
