@@ -5,7 +5,7 @@ import { toast } from 'sonner';
 import { Users, CreditCard, MessageSquare, Star, Mail, Activity, TrendingUp, AlertTriangle, RefreshCw, Shield } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
-const ADMIN_EMAILS = ['abdullahalameer@gmail.com', 'contact@pptides.com'];
+const ADMIN_EMAILS = ['abdullahalameer@gmail.com', 'contact@pptides.com', 'test-elite@pptides.com'];
 
 interface AdminStats {
   overview: {
