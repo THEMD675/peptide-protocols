@@ -179,12 +179,11 @@ export default memo(function Header() {
                       <ChevronDown className={cn('h-3 w-3 transition-transform', moreOpen && 'rotate-180')} />
                     </button>
                     {moreOpen && (
-                      <div role="menu" aria-label="الأدوات" className="absolute end-0 top-full mt-2 min-w-[200px] overflow-hidden rounded-xl border border-stone-200 bg-white py-1 shadow-xl animate-fade-in">
+                      <div aria-label="الأدوات" className="absolute end-0 top-full mt-2 min-w-[200px] overflow-hidden rounded-xl border border-stone-200 bg-white py-1 shadow-xl animate-fade-in">
                         {tools.map(({ to, label }) => (
                           <Link
                             key={to}
                             to={to}
-                            role="menuitem"
                             onClick={() => setMoreOpen(false)}
                             className={cn(
                               'block px-4 py-2.5 text-sm transition-colors hover:bg-stone-50',
@@ -284,13 +283,12 @@ export default memo(function Header() {
                 </button>
 
                 {dropdownOpen && (
-                  <div role="menu" aria-label="قائمة الحساب" className="absolute end-0 top-full mt-2 min-w-[180px] overflow-hidden rounded-xl border border-stone-200 bg-white py-1 shadow-xl animate-fade-in">
+                  <div aria-label="قائمة الحساب" className="absolute end-0 top-full mt-2 min-w-[180px] overflow-hidden rounded-xl border border-stone-200 bg-white py-1 shadow-xl animate-fade-in">
                     <p className="truncate border-b border-stone-200 px-4 py-2 text-sm text-stone-800">
                       {user.email}
                     </p>
                     <Link
                       to="/dashboard"
-                      role="menuitem"
                       onClick={() => setDropdownOpen(false)}
                       className="flex w-full items-center gap-2 px-4 py-2.5 min-h-[44px] text-sm text-stone-800 transition-colors hover:bg-stone-50"
                     >
@@ -298,7 +296,6 @@ export default memo(function Header() {
                     </Link>
                     <Link
                       to="/account"
-                      role="menuitem"
                       onClick={() => setDropdownOpen(false)}
                       className="flex w-full items-center gap-2 px-4 py-2.5 min-h-[44px] text-sm text-stone-800 transition-colors hover:bg-stone-50"
                     >
@@ -306,7 +303,6 @@ export default memo(function Header() {
                     </Link>
                     <div className="my-1 h-px bg-stone-200" />
                     <button
-                      role="menuitem"
                       onClick={() => {
                         if (window.confirm('هل تريد تسجيل الخروج؟')) {
                           logout();

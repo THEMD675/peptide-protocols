@@ -72,7 +72,7 @@ export default function PeptideTable() {
 
       {/* ━━━ STICKY SUBSCRIPTION BANNER ━━━ */}
       {!hasAccess && (
-        <div className="sticky top-0 z-50 border-b border-[var(--gold,#10b981)]/40 bg-gradient-to-l from-[var(--gold,#10b981)]/15 to-[var(--gold,#10b981)]/5 backdrop-blur-xl">
+        <div className="sticky top-[64px] md:top-[72px] z-40 border-b border-[var(--gold,#10b981)]/40 bg-gradient-to-l from-[var(--gold,#10b981)]/15 to-[var(--gold,#10b981)]/5 backdrop-blur-xl">
           <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-3">
             <div className="flex items-center gap-2.5 text-sm text-stone-800">
               <Lock className="h-4 w-4 shrink-0"  />

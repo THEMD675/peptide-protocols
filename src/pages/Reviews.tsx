@@ -32,20 +32,19 @@ function StarRating({
   const sizeClass = size === 'sm' ? 'h-4 w-4' : 'h-6 w-6';
 
   return (
-    <div className="flex gap-1" dir="ltr" role={interactive ? 'radiogroup' : undefined} aria-label={interactive ? 'التقييم' : undefined}>
+    <div className="flex gap-1" dir="ltr" aria-label={interactive ? 'التقييم' : undefined}>
       {[1, 2, 3, 4, 5].map((star) =>
         interactive ? (
           <button
             key={star}
             type="button"
-            role="radio"
-            aria-checked={rating >= star}
+            aria-label={`${star} نجوم`}
+            aria-pressed={rating >= star}
             onClick={() => onRate?.(star)}
             onMouseEnter={() => setHover(star)}
             onMouseLeave={() => setHover(0)}
             className="cursor-pointer transition-transform hover:scale-110 active:scale-125"
           >
-            <span className="sr-only">{star} نجمة</span>
             <Star
               className={cn(
                 sizeClass,
@@ -54,6 +53,7 @@ function StarRating({
                   ? 'fill-emerald-500 text-emerald-500'
                   : 'fill-transparent text-stone-500',
               )}
+              aria-hidden
             />
           </button>
         ) : (
