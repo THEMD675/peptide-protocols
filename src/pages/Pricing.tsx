@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { Link } from 'react-router-dom';
 import { Check, Shield, Lock, CreditCard, RefreshCw, ChevronDown, MessageCircle, Crown, ArrowLeft } from 'lucide-react';
@@ -69,6 +69,8 @@ export default function Pricing() {
   const showTrialMessaging = !user || subscription?.status === 'none';
   const [loadingPlan, setLoadingPlan] = useState<string | null>(null);
   const navigatingRef = useRef(false);
+
+  useEffect(() => { navigatingRef.current = false; }, []);
 
   const renderAction = (planKey: 'essentials' | 'elite', isElite: boolean) => {
     if (isSubscribedTo(planKey)) {

@@ -175,6 +175,13 @@ export default function Dashboard() {
   const { protocols: activeProtocols } = useActiveProtocols(user?.id);
   const [shareProtocolId, setShareProtocolId] = useState<string | null>(null);
 
+  useEffect(() => {
+    if (shareProtocolId) {
+      document.body.style.overflow = 'hidden';
+      return () => { document.body.style.overflow = ''; };
+    }
+  }, [shareProtocolId]);
+
   if (!user) return null;
 
   const rawName = user.email?.split('@')[0] ?? 'مستخدم';

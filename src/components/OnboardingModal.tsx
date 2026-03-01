@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import FocusTrap from 'focus-trap-react';
 import { Sparkles, BookOpen, Calculator, Bot } from 'lucide-react';
 import { Link } from 'react-router-dom';
@@ -27,6 +27,13 @@ export default function OnboardingModal() {
   });
   const [step, setStep] = useState<'goal' | 'plan'>('goal');
   const [selectedGoal, setSelectedGoal] = useState('');
+
+  useEffect(() => {
+    if (show) {
+      document.body.style.overflow = 'hidden';
+      return () => { document.body.style.overflow = ''; };
+    }
+  }, [show]);
 
   if (!show) return null;
 

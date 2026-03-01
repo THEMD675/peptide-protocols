@@ -9,6 +9,14 @@ import { cn } from '@/lib/utils';
 
 type Tab = 'login' | 'signup';
 
+const friendlyError = (msg: string) => {
+  if (msg.includes('Invalid login')) return 'بريد إلكتروني أو كلمة مرور غير صحيحة';
+  if (msg.includes('Email not confirmed')) return 'يرجى تأكيد بريدك الإلكتروني أولًا';
+  if (msg.includes('already registered') || msg.includes('already been registered')) return 'هذا البريد مسجّل — جرّب تسجيل الدخول';
+  if (msg.includes('rate limit') || msg.includes('too many')) return 'محاولات كثيرة — انتظر قليلًا';
+  return 'حدث خطأ — حاول مرة أخرى';
+};
+
 export default function Login() {
   const location = useLocation();
   const isSignupRoute = location.pathname === '/signup';
@@ -62,7 +70,7 @@ export default function Login() {
       setNewPassword('');
       recoveryTimerRef.current = setTimeout(() => navigate('/'), 1500);
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : 'حدث خطأ في تغيير كلمة المرور');
+      setError(err instanceof Error ? friendlyError(err.message) : 'حدث خطأ — حاول مرة أخرى');
     } finally {
       setLoading(false);
     }
@@ -106,10 +114,11 @@ export default function Login() {
         navigate('/dashboard');
       }
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : 'حدث خطأ في تسجيل الدخول. تحقق من بريدك وكلمة المرور.';
-      if (msg.includes('رابط التأكيد') || msg.includes('تحقق من بريدك')) {
-        setInfoMessage(msg);
-      } else if (err instanceof Error && (err.message?.includes('already') || err.message?.includes('registered'))) {
+      const raw = err instanceof Error ? err.message : '';
+      const msg = friendlyError(raw);
+      if (raw.includes('رابط التأكيد') || raw.includes('تحقق من بريدك')) {
+        setInfoMessage(raw);
+      } else if (raw.includes('already') || raw.includes('registered')) {
         toast.error('هذا البريد مسجّل — جرّب تسجيل الدخول أو استخدم Google');
         setError(msg);
       } else {
@@ -166,7 +175,7 @@ export default function Login() {
       if (error) throw error;
       setResetMessage('تم إرسال رابط إعادة تعيين كلمة المرور');
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : 'حدث خطأ في إرسال رابط إعادة التعيين');
+      setError(err instanceof Error ? friendlyError(err.message) : 'حدث خطأ — حاول مرة أخرى');
     } finally {
       setLoading(false);
     }

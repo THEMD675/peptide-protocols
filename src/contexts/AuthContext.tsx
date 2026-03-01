@@ -86,7 +86,7 @@ function buildSubscription(row: Record<string, unknown> | null): Subscription {
   const trialEndsAt = row.trial_ends_at ? new Date(row.trial_ends_at as string) : null;
   const now = new Date();
   const trialDaysLeft = trialEndsAt
-    ? Math.max(0, Math.ceil((trialEndsAt.getTime() - now.getTime()) / (1000 * 60 * 60 * 24)))
+    ? Math.max(0, Math.floor((trialEndsAt.getTime() - now.getTime()) / (1000 * 60 * 60 * 24)))
     : 0;
 
   let status: Subscription['status'];
@@ -102,8 +102,11 @@ function buildSubscription(row: Record<string, unknown> | null): Subscription {
   const hasRemainingPeriod = periodEnd != null && periodEnd.getTime() > now.getTime();
   const cancelledButActive = (status === 'cancelled' || status === 'expired') && hasRemainingPeriod;
 
+  const pastDueGrace = status === 'past_due' && periodEnd != null &&
+    (periodEnd.getTime() + 7 * 24 * 60 * 60 * 1000) > now.getTime();
+
   const isProOrTrial =
-    (status === 'trial' && trialDaysLeft > 0) || status === 'active' || status === 'past_due' || cancelledButActive;
+    (status === 'trial' && trialDaysLeft > 0) || status === 'active' || pastDueGrace || cancelledButActive;
   const isPaidSubscriber = status === 'active' || status === 'past_due' || cancelledButActive;
 
   const isTrial = status === 'trial' && trialDaysLeft > 0;
@@ -135,6 +138,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           .maybeSingle()
       );
       if (error) {
+        if (error?.message?.includes('JWT') || (error as Record<string, unknown>)?.status === 401) {
+          toast.error('انتهت الجلسة — يرجى تسجيل الدخول مرة أخرى');
+          await supabase.auth.signOut({ scope: 'local' });
+          setUser(null);
+          setSubscription(DEFAULT_SUBSCRIPTION);
+          return;
+        }
         setSubscription(DEFAULT_SUBSCRIPTION);
         return;
       }
@@ -284,9 +294,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     } catch {
       // noop
     }
-    try { Object.keys(localStorage).forEach((key) => {
-      if (key.startsWith('sb-')) localStorage.removeItem(key);
-    }); } catch { /* expected in restricted environments */ }
+    try {
+      const appKeys = Object.keys(localStorage).filter(k =>
+        k.startsWith('pptides_coach_') || k.startsWith('pptides_calc_') ||
+        k === 'pptides_favorites' || k === 'pptides_visited' || k === 'pptides_quiz_answers'
+      );
+      appKeys.forEach(k => localStorage.removeItem(k));
+      Object.keys(localStorage).forEach((key) => {
+        if (key.startsWith('sb-')) localStorage.removeItem(key);
+      });
+    } catch { /* expected in restricted environments */ }
     window.location.href = '/';
   }, []);
 

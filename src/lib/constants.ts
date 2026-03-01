@@ -57,6 +57,7 @@ export const STORAGE_KEYS = {
   USER_COUNT_TS: 'pptides_user_count_ts',
 } as const;
 
+// IMPORTANT: Trial duration must match supabase-migration.sql trigger (interval '3 days')
 export const TRIAL_DAYS = 3;
 export const SITE_URL = 'https://pptides.com';
 

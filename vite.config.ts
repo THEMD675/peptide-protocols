@@ -37,7 +37,7 @@ export default defineConfig({
         runtimeCaching: [
           {
             urlPattern: /^https:\/\/hexnuldwerzwbljorokw\.supabase\.co\/rest\//,
-            handler: 'StaleWhileRevalidate',
+            handler: 'NetworkFirst',
             options: {
               cacheName: 'supabase-api',
               expiration: { maxEntries: 50, maxAgeSeconds: 300 },

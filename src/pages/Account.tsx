@@ -36,6 +36,20 @@ export default function Account() {
     return () => window.removeEventListener('keydown', handleKey);
   }, [showCancelDialog, showDeleteDialog, closeDialogs]);
 
+  useEffect(() => {
+    if (showCancelDialog) {
+      document.body.style.overflow = 'hidden';
+      return () => { document.body.style.overflow = ''; };
+    }
+  }, [showCancelDialog]);
+
+  useEffect(() => {
+    if (showDeleteDialog) {
+      document.body.style.overflow = 'hidden';
+      return () => { document.body.style.overflow = ''; };
+    }
+  }, [showDeleteDialog]);
+
   if (!user) return null;
 
   const handleChangeEmail = async () => {
@@ -46,7 +60,14 @@ export default function Account() {
       if (error) throw error;
       toast.success('تم إرسال رابط التأكيد إلى بريدك الجديد. تحقق من صندوق البريد.');
       setNewEmail('');
-    } catch { toast.error('حدث خطأ في تغيير البريد الإلكتروني. حاول مرة أخرى.'); }
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : '';
+      if (msg.includes('already') || msg.includes('duplicate') || msg.includes('exists')) {
+        toast.error('هذا البريد الإلكتروني مسجّل بالفعل');
+      } else {
+        toast.error('حدث خطأ في تغيير البريد الإلكتروني. حاول مرة أخرى.');
+      }
+    }
     finally { setEmailLoading(false); }
   };
 

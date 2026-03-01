@@ -163,6 +163,9 @@ serve(async (req) => {
         reply_to: 'contact@pptides.com',
         to: email,
         subject: '⏱️ تجربتك المجانية بدأت — 3 أيام لاستكشاف pptides',
+        headers: {
+          'List-Unsubscribe': '<mailto:contact@pptides.com?subject=unsubscribe>',
+        },
         html: `
           <div dir="rtl" style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Tahoma, Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 40px 20px;">
             <h1 style="color: #1c1917; font-size: 24px;">مرحبًا، ${displayName}</h1>

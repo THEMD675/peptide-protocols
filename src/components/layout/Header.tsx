@@ -56,15 +56,15 @@ export default memo(function Header() {
     }).catch(() => {});
   }, [searchOpen, peptidesList.length]);
 
-  const searchResults = useMemo(() =>
-    searchQuery.trim().length >= 2
-      ? peptidesList.filter(p =>
-          p.nameAr.includes(searchQuery) ||
-          p.nameEn.toLowerCase().includes(searchQuery.toLowerCase())
-        ).slice(0, 5)
-      : [],
-    [searchQuery, peptidesList],
-  );
+  const searchResults = useMemo(() => {
+    const normalize = (s: string) => s.replace(/[\u064B-\u065F\u0670]/g, '').toLowerCase();
+    if (searchQuery.trim().length < 2) return [];
+    const q = normalize(searchQuery);
+    return peptidesList.filter(p =>
+      normalize(p.nameAr).includes(q) ||
+      p.nameEn.toLowerCase().includes(q)
+    ).slice(0, 5);
+  }, [searchQuery, peptidesList]);
 
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {

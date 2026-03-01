@@ -337,14 +337,15 @@ export default function DoseCalculator() {
             />
           </div>
           {(() => {
-            const q = presetSearch.trim().toLowerCase();
+            const normalize = (s: string) => s.replace(/[\u064B-\u065F\u0670]/g, '').toLowerCase();
+            const q = normalize(presetSearch.trim());
             const filtered =
               q === ''
                 ? PEPTIDE_PRESETS
                 : PEPTIDE_PRESETS.filter(
                     (p) =>
                       p.name.toLowerCase().includes(q) ||
-                      getPresetDisplayName(p.name).toLowerCase().includes(q),
+                      normalize(getPresetDisplayName(p.name)).includes(q),
                   );
             const isCollapsed = !showAllPresets && q === '';
             const visible = isCollapsed ? filtered.slice(0, POPULAR_PRESET_COUNT) : filtered;
@@ -669,7 +670,7 @@ export default function DoseCalculator() {
                 </p>
                 {results.monthlyCost > 0 ? (
                   <p className="text-xs font-bold text-emerald-600 mt-1">
-                    ~${Math.round(results.monthlyCost)}/شهر
+                    ~<span dir="ltr">${Math.round(results.monthlyCost)}</span>/شهر
                   </p>
                 ) : (
                   <p className="text-xs text-stone-400 mt-1">
