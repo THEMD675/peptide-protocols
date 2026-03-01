@@ -42,7 +42,7 @@ export default function BackToTop() {
       title="العودة للأعلى"
       aria-label="العودة للأعلى"
       className={cn(
-        'print:hidden fixed bottom-6 end-4 z-40 flex h-10 w-10 items-center justify-center rounded-full border border-stone-200 bg-white/90 text-stone-500 shadow-sm backdrop-blur-sm transition-all duration-300 hover:border-stone-300 hover:text-stone-700 hover:shadow-md active:scale-95 md:end-6',
+        'print:hidden fixed bottom-6 end-4 z-40 flex h-11 w-11 items-center justify-center rounded-full border border-stone-200 bg-white/90 text-stone-500 shadow-sm backdrop-blur-sm transition-all duration-300 hover:border-stone-300 hover:text-stone-700 hover:shadow-md active:scale-95 md:end-6',
         visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4 pointer-events-none'
       )}
     >

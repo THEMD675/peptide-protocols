@@ -17,6 +17,12 @@ export default function PaymentProcessing() {
   }, []);
 
   useEffect(() => {
+    if (!visible) return;
+    document.body.style.overflow = 'hidden';
+    return () => { document.body.style.overflow = ''; };
+  }, [visible]);
+
+  useEffect(() => {
     if (!visible || stage !== 'loading') return;
     timerRef.current = setInterval(() => {
       setProgress(p => Math.min(p + 3, 90));

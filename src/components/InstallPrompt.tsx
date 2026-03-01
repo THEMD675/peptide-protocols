@@ -57,7 +57,7 @@ export default function InstallPrompt() {
         </button>
         <button
           onClick={handleDismiss}
-          className="shrink-0 flex items-center justify-center rounded-full min-h-[36px] min-w-[36px] text-stone-400 transition-colors hover:bg-stone-100 hover:text-stone-600"
+          className="shrink-0 flex items-center justify-center rounded-full min-h-[44px] min-w-[44px] text-stone-400 transition-colors hover:bg-stone-100 hover:text-stone-600"
           aria-label="إغلاق"
         >
           <X className="h-4 w-4" />

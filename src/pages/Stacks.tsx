@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { Link } from 'react-router-dom';
+import { toast } from 'sonner';
 import { Layers, Clock, DollarSign, BarChart3, Syringe, Calculator } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import ProtocolWizard from '@/components/ProtocolWizard';
@@ -176,7 +177,7 @@ export default function Stacks() {
                   <div className="mt-4 flex flex-wrap gap-2">
                     <button
                       type="button"
-                      onClick={() => stack.peptideIds[0] && setActiveWizard(stack.peptideIds[0])}
+                      onClick={() => { if (stack.peptideIds[0]) setActiveWizard(stack.peptideIds[0]); else toast.error('لا يوجد ببتيد مرتبط بهذا البروتوكول'); }}
                       className="inline-flex items-center gap-1.5 rounded-full bg-emerald-600 px-5 py-2.5 text-sm font-bold text-white hover:bg-emerald-700 transition-colors"
                     >
                       <Syringe className="h-3.5 w-3.5" />

@@ -69,7 +69,8 @@ export default function ProtocolWizard({ peptideId, prefillDose, prefillUnit, on
   useEffect(() => {
     const handler = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose(); };
     document.addEventListener('keydown', handler);
-    return () => document.removeEventListener('keydown', handler);
+    document.body.style.overflow = 'hidden';
+    return () => { document.removeEventListener('keydown', handler); document.body.style.overflow = ''; };
   }, [onClose]);
 
   if (!peptide) return (
@@ -129,7 +130,7 @@ export default function ProtocolWizard({ peptideId, prefillDose, prefillUnit, on
                 <p className="text-sm text-stone-500">{peptide.nameAr} ({peptide.nameEn})</p>
               </div>
             </div>
-            <button onClick={onClose} className="rounded-lg p-2 text-stone-400 hover:bg-stone-100 hover:text-stone-600 transition-colors">
+            <button onClick={onClose} className="rounded-lg p-2 min-h-[44px] min-w-[44px] flex items-center justify-center text-stone-400 hover:bg-stone-100 hover:text-stone-600 transition-colors">
               <X className="h-5 w-5" />
             </button>
           </div>

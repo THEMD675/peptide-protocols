@@ -20,6 +20,19 @@ export default function TrialBanner() {
   const { pathname } = useLocation();
   const [dismissed, setDismissed] = useState(() => { try { return sessionStorage.getItem(DISMISS_KEY) === '1'; } catch { return false; } });
 
+  const showsModal = !isLoading && user && subscription &&
+    subscription.status !== 'active' && !subscription.isPaidSubscriber &&
+    subscription.status !== 'past_due' &&
+    (subscription.status === 'expired' || subscription.status === 'cancelled' ||
+     (subscription.status === 'trial' && subscription.trialDaysLeft <= 0) ||
+     subscription.status === 'none');
+
+  useEffect(() => {
+    if (!showsModal) return;
+    document.body.style.overflow = 'hidden';
+    return () => { document.body.style.overflow = ''; };
+  }, [showsModal]);
+
   if (isLoading) return null;
   if (!user || !subscription) return null;
   if (subscription.status === 'active') return null;

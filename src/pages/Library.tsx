@@ -288,16 +288,18 @@ export default function Library() {
 
   useEffect(() => {
     if (!showCompare) return;
+    document.body.style.overflow = 'hidden';
     const handler = (e: KeyboardEvent) => { if (e.key === 'Escape') setShowCompare(false); };
     document.addEventListener('keydown', handler);
-    return () => document.removeEventListener('keydown', handler);
+    return () => { document.removeEventListener('keydown', handler); document.body.style.overflow = ''; };
   }, [showCompare]);
 
   useEffect(() => {
     if (!upsellPeptide) return;
+    document.body.style.overflow = 'hidden';
     const handler = (e: KeyboardEvent) => { if (e.key === 'Escape') setUpsellPeptide(null); };
     document.addEventListener('keydown', handler);
-    return () => document.removeEventListener('keydown', handler);
+    return () => { document.removeEventListener('keydown', handler); document.body.style.overflow = ''; };
   }, [upsellPeptide]);
 
   const handleLockedClick = useCallback((peptideId?: string) => {
@@ -618,7 +620,7 @@ export default function Library() {
             <div className="w-full max-w-4xl my-8 rounded-2xl bg-white shadow-2xl overflow-hidden animate-fade-in" onClick={e => e.stopPropagation()}>
               <div className="flex items-center justify-between border-b border-stone-200 px-6 py-4">
                 <h2 className="text-lg font-bold text-stone-900">مقارنة ببتيدات</h2>
-                <button onClick={() => setShowCompare(false)} aria-label="إغلاق" className="rounded-lg p-2 text-stone-400 transition-colors hover:bg-stone-100"><X className="h-5 w-5" /></button>
+                <button onClick={() => setShowCompare(false)} aria-label="إغلاق" className="rounded-lg p-2 min-h-[44px] min-w-[44px] flex items-center justify-center text-stone-400 transition-colors hover:bg-stone-100"><X className="h-5 w-5" /></button>
               </div>
               <div className="overflow-x-auto">
                 <table className="w-full min-w-[600px]">

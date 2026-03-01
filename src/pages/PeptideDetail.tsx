@@ -257,14 +257,14 @@ export default function PeptideDetail() {
                     }
                   }}
                   aria-label="مشاركة البروتوكول"
-                  className="flex items-center gap-1.5 rounded-lg border border-stone-200 bg-white px-3 py-1.5 text-xs font-medium text-stone-600 transition-colors hover:bg-stone-50"
+                  className="flex items-center gap-1.5 rounded-lg border border-stone-200 bg-white px-3 py-2.5 min-h-[44px] text-xs font-medium text-stone-600 transition-colors hover:bg-stone-50"
                 >
                   <Share2 className="h-3.5 w-3.5" />
                   مشاركة
                 </button>
                 <button
                   onClick={() => window.print()}
-                  className="flex items-center gap-1.5 rounded-lg border border-stone-200 bg-white px-3 py-1.5 text-xs font-medium text-stone-600 transition-colors hover:bg-stone-50"
+                  className="flex items-center gap-1.5 rounded-lg border border-stone-200 bg-white px-3 py-2.5 min-h-[44px] text-xs font-medium text-stone-600 transition-colors hover:bg-stone-50"
                 >
                   <Printer className="h-3.5 w-3.5" />
                   طباعة
@@ -272,7 +272,7 @@ export default function PeptideDetail() {
               </div>
             </div>
 
-            <table className="w-full">
+            <div className="overflow-x-auto -mx-4 px-4 md:mx-0 md:px-0"><table className="w-full">
               <tbody>
                 {rows.map((row, i) => (
                   <tr
@@ -297,7 +297,7 @@ export default function PeptideDetail() {
                   </tr>
                 ))}
               </tbody>
-            </table>
+            </table></div>
           </div>
 
           {/* Inline Quick Dose Calculator */}
