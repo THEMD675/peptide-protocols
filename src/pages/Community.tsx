@@ -44,8 +44,16 @@ export default function Community() {
   useEffect(() => () => { mountedRef.current = false; }, []);
   const [submitted, setSubmitted] = useState(false);
   const [searchParams, setSearchParams] = useSearchParams();
-  const [filterGoal, setFilterGoal] = useState(() => searchParams.get('goal') ?? 'all');
-  const [sortBy, setSortBy] = useState<'newest' | 'highest'>(() => (searchParams.get('sort') as 'newest' | 'highest') ?? 'newest');
+  const validGoals = ['all', ...GOALS];
+  const validSorts = ['newest', 'highest'] as const;
+  const [filterGoal, setFilterGoal] = useState(() => {
+    const g = searchParams.get('goal') ?? 'all';
+    return validGoals.includes(g) ? g : 'all';
+  });
+  const [sortBy, setSortBy] = useState<'newest' | 'highest'>(() => {
+    const s = searchParams.get('sort') as 'newest' | 'highest';
+    return validSorts.includes(s) ? s : 'newest';
+  });
 
   useEffect(() => {
     const params = new URLSearchParams();
@@ -55,8 +63,10 @@ export default function Community() {
   }, [filterGoal, sortBy, setSearchParams]);
 
   useEffect(() => {
-    setFilterGoal(searchParams.get('goal') ?? 'all');
-    setSortBy((searchParams.get('sort') as 'newest' | 'highest') ?? 'newest');
+    const g = searchParams.get('goal') ?? 'all';
+    setFilterGoal(validGoals.includes(g) ? g : 'all');
+    const s = searchParams.get('sort') as 'newest' | 'highest';
+    setSortBy(validSorts.includes(s) ? s : 'newest');
   }, [searchParams]);
   const [hasMore, setHasMore] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
@@ -416,6 +426,7 @@ export default function Community() {
           </div>
         )}
 
+        <h2 className="sr-only">المشاركات</h2>
         {loading ? (
           <div className="py-16 text-center" role="status" aria-label="جارٍ تحميل التجارب">
             <div className="h-6 w-6 mx-auto animate-spin rounded-full border-2 border-stone-200 border-t-emerald-600" />

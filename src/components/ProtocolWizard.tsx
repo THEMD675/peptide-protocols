@@ -70,7 +70,8 @@ export default function ProtocolWizard({ peptideId, prefillDose, prefillUnit, on
 
   const handleSubmit = async () => {
     if (!user) { toast.error('سجّل دخولك أولاً'); return; }
-    if (!dose || parseFloat(dose) <= 0) { toast.error('أدخل جرعة صحيحة'); return; }
+    const doseNum = parseFloat(dose);
+    if (!dose || isNaN(doseNum) || doseNum <= 0) { toast.error('أدخل جرعة صحيحة'); return; }
     setSubmitting(true);
     try {
       const { error } = await supabase.from('user_protocols').insert({

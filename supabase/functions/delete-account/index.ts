@@ -107,10 +107,8 @@ serve(async (req) => {
     const { error: commDelErr } = await supabase.from('community_logs').delete().eq('user_id', user.id)
     if (commDelErr) console.error('delete-account: failed to delete community_logs:', commDelErr)
 
-    if (user.email) {
-      const { error: revDelErr } = await supabase.from('reviews').delete().eq('email', user.email)
-      if (revDelErr) console.error('delete-account: failed to delete reviews:', revDelErr)
-    }
+    const { error: revDelErr } = await supabase.from('reviews').delete().eq('user_id', user.id)
+    if (revDelErr) console.error('delete-account: failed to delete reviews:', revDelErr)
 
     const { error: reportsDelErr } = await supabase.from('reports').delete().eq('user_id', user.id)
     if (reportsDelErr) console.error('delete-account: failed to delete reports:', reportsDelErr)
@@ -125,6 +123,12 @@ serve(async (req) => {
       const { error: emailListDelErr } = await supabase.from('email_list').delete().eq('email', user.email)
       if (emailListDelErr) console.error('delete-account: failed to delete email_list:', emailListDelErr)
     }
+
+    await supabase.from('user_protocols').delete().eq('user_id', user.id).catch(() => {})
+    await supabase.from('user_profiles').delete().eq('user_id', user.id).catch(() => {})
+    await supabase.from('lab_results').delete().eq('user_id', user.id).catch(() => {})
+    await supabase.from('side_effect_logs').delete().eq('user_id', user.id).catch(() => {})
+    await supabase.from('wellness_logs').delete().eq('user_id', user.id).catch(() => {})
 
     const { error: deleteError } = await supabase.auth.admin.deleteUser(user.id)
     if (deleteError) {

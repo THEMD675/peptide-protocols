@@ -114,11 +114,11 @@ export default function Landing() {
       supabase.from('reviews').select('content, rating, name, created_at').eq('is_approved', true).gte('rating', 4).order('created_at', { ascending: false }).limit(3),
     ]).then(([subsResult, reviewsResult]) => {
       if (!mounted) return;
-      if (subsResult.count != null && subsResult.count > 0) {
+      if (!subsResult.error && subsResult.count != null && subsResult.count > 0) {
         setUserCount(subsResult.count);
         try { sessionStorage.setItem('pptides_user_count', String(subsResult.count)); sessionStorage.setItem('pptides_user_count_ts', String(Date.now())); } catch { /* expected */ }
       }
-      if (reviewsResult.data && reviewsResult.data.length > 0) {
+      if (!reviewsResult.error && reviewsResult.data && reviewsResult.data.length > 0) {
         setTestimonials(reviewsResult.data.map((r) => ({
           text: r.content,
           name: r.name ?? 'مستخدم',

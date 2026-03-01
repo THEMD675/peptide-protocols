@@ -98,8 +98,8 @@ export default function Tracker() {
   useEffect(() => {
     if (!user) return;
     let mounted = true;
-    supabase.from('user_protocols').select('*').eq('user_id', user.id).eq('status', 'active').order('started_at', { ascending: false }).then(({ data }) => {
-      if (mounted && data) setActiveProtocols(data);
+    supabase.from('user_protocols').select('*').eq('user_id', user.id).eq('status', 'active').order('started_at', { ascending: false }).then(({ data, error }) => {
+      if (mounted && !error && data) setActiveProtocols(data);
     }).catch(() => {});
     return () => { mounted = false; };
   }, [user]);
@@ -225,7 +225,8 @@ export default function Tracker() {
     e.preventDefault();
     if (!user) return;
     if (!peptideName.trim()) { toast.error('اختر الببتيد أولاً'); return; }
-    if (!dose || parseFloat(dose) <= 0) { toast.error('أدخل جرعة صحيحة'); return; }
+    const doseNum = parseFloat(dose);
+    if (!dose || isNaN(doseNum) || doseNum <= 0) { toast.error('أدخل جرعة صحيحة'); return; }
     setIsSubmitting(true);
     try {
       const sideEffectLabel = sideEffect !== 'none' ? `أعراض جانبية: ${sideEffect}` : '';

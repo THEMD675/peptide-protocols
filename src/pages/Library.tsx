@@ -240,10 +240,22 @@ export default function Library() {
   const usedPeptides = useUsedPeptides();
 
   const [searchParams, setSearchParams] = useSearchParams();
-  const [activeCategory, setActiveCategory] = useState(() => searchParams.get('category') ?? 'all');
+  const validCategories = ['all', ...categories.map(c => c.id)];
+  const validEvidence = ['all', 'excellent', 'strong', 'good', 'moderate', 'weak', 'very-weak'];
+  const validSorts = ['default', 'evidence', 'alpha', 'favorites'] as const;
+  const [activeCategory, setActiveCategory] = useState(() => {
+    const c = searchParams.get('category') ?? 'all';
+    return validCategories.includes(c) ? c : 'all';
+  });
   const [search, setSearch] = useState(() => searchParams.get('q') ?? '');
-  const [evidenceFilter, setEvidenceFilter] = useState(() => searchParams.get('evidence') ?? 'all');
-  const [sortBy, setSortBy] = useState<'default' | 'evidence' | 'alpha' | 'favorites'>(() => (searchParams.get('sort') as 'default' | 'evidence' | 'alpha' | 'favorites') ?? 'default');
+  const [evidenceFilter, setEvidenceFilter] = useState(() => {
+    const e = searchParams.get('evidence') ?? 'all';
+    return validEvidence.includes(e) ? e : 'all';
+  });
+  const [sortBy, setSortBy] = useState<'default' | 'evidence' | 'alpha' | 'favorites'>(() => {
+    const s = searchParams.get('sort') as 'default' | 'evidence' | 'alpha' | 'favorites';
+    return (validSorts as readonly string[]).includes(s) ? s : 'default';
+  });
 
   useEffect(() => {
     const params = new URLSearchParams();
@@ -255,10 +267,13 @@ export default function Library() {
   }, [activeCategory, search, evidenceFilter, sortBy, setSearchParams]);
 
   useEffect(() => {
-    setActiveCategory(searchParams.get('category') ?? 'all');
+    const c = searchParams.get('category') ?? 'all';
+    setActiveCategory(validCategories.includes(c) ? c : 'all');
     setSearch(searchParams.get('q') ?? '');
-    setEvidenceFilter(searchParams.get('evidence') ?? 'all');
-    setSortBy((searchParams.get('sort') as 'default' | 'evidence' | 'alpha' | 'favorites') ?? 'default');
+    const e = searchParams.get('evidence') ?? 'all';
+    setEvidenceFilter(validEvidence.includes(e) ? e : 'all');
+    const s = searchParams.get('sort') as 'default' | 'evidence' | 'alpha' | 'favorites';
+    setSortBy((validSorts as readonly string[]).includes(s) ? s : 'default');
   }, [searchParams]);
   const [showFilters, setShowFilters] = useState(false);
   const [favorites, toggleFavorite] = useFavorites();
@@ -505,6 +520,8 @@ export default function Library() {
             ))}
           </div>
         ) : filtered.length > 0 ? (
+            <>
+            <h2 className="sr-only">قائمة الببتيدات</h2>
             <div
               className="grid grid-cols-1 gap-5 md:grid-cols-2 md:gap-6 lg:grid-cols-3"
             >
@@ -548,6 +565,7 @@ export default function Library() {
                 </div>
               )}
             </div>
+            </>
           ) : (
             <div
               className="flex flex-col items-center justify-center py-16 text-center"
