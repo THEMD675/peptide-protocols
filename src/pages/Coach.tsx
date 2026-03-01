@@ -346,6 +346,13 @@ export default function Coach() {
   }, [searchParams, user, sendToAI]);
 
   const submitIntake = useCallback(() => {
+    if (intake.age) {
+      const ageNum = parseInt(intake.age, 10);
+      if (isNaN(ageNum) || ageNum < 16 || ageNum > 120) {
+        toast.error('أدخل عمرًا بين 16 و 120');
+        return;
+      }
+    }
     setIntakeStep('done');
     const prompt = buildIntakePrompt(intake, userContextRef.current);
     sendToAI(prompt);

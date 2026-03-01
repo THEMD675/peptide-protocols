@@ -54,6 +54,10 @@ export default function Account() {
 
   const handleChangeEmail = async () => {
     if (!newEmail.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(newEmail)) { toast.error('أدخل بريد إلكتروني صالح'); return; }
+    if (newEmail.trim().toLowerCase() === user?.email?.toLowerCase()) {
+      toast.error('هذا هو بريدك الحالي');
+      return;
+    }
     setEmailLoading(true);
     try {
       const { error } = await supabase.auth.updateUser({ email: newEmail });

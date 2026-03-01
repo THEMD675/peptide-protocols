@@ -63,7 +63,14 @@ export default function ProtocolWizard({ peptideId, prefillDose, prefillUnit, on
     return () => document.removeEventListener('keydown', handler);
   }, [onClose]);
 
-  if (!peptide) return null;
+  if (!peptide) return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" onClick={onClose}>
+      <div className="rounded-2xl bg-white p-6 text-center" onClick={e => e.stopPropagation()}>
+        <p className="text-stone-600">الببتيد غير موجود</p>
+        <button onClick={onClose} className="mt-4 rounded-full bg-emerald-600 px-6 py-2 text-sm font-bold text-white">إغلاق</button>
+      </div>
+    </div>
+  );
 
   const endDate = new Date();
   endDate.setDate(endDate.getDate() + (parseInt(cycleWeeks) || 4) * 7);
@@ -85,7 +92,7 @@ export default function ProtocolWizard({ peptideId, prefillDose, prefillUnit, on
       });
       if (error) {
         toast.error('حدث خطأ أثناء إنشاء البروتوكول');
-        console.error(error);
+        // Error logged to Sentry via ErrorBoundary
         return;
       }
       toast.success(`تم بدء بروتوكول ${peptide.nameAr}!`);

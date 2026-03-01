@@ -130,12 +130,13 @@ export default function Community() {
 
     setSubmitting(true);
     try {
+      const dur = Math.max(1, Math.min(52, durationWeeks));
       const { error } = await supabase.from('community_logs').insert({
         user_id: user.id,
         peptide_name: peptideName.trim(),
         goal,
         protocol: protocol.trim(),
-        duration_weeks: durationWeeks,
+        duration_weeks: dur,
         results: results.trim(),
         rating,
       });
