@@ -126,7 +126,7 @@ export default function Landing() {
           rating: r.rating,
         })));
       }
-    }).catch(() => {});
+    }).catch(() => { /* network error — data not critical for landing */ });
     return () => { mounted = false; };
   }, []);
   if (shouldRedirect) return <Navigate to="/dashboard" replace />;

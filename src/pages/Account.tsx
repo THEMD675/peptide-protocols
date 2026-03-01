@@ -58,7 +58,7 @@ export default function Account() {
     try {
       const { error } = await supabase.auth.updateUser({ email: newEmail });
       if (error) throw error;
-      toast.success('تم إرسال رابط التأكيد إلى بريدك الجديد. تحقق من صندوق البريد.');
+      toast.success('تم تغيير البريد — يُرجى تحديث بريدك في إعدادات الدفع أيضًا');
       setNewEmail('');
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : '';

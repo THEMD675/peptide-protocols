@@ -85,10 +85,10 @@ export default function Pricing() {
       );
     }
 
-    if (user && subscription?.isProOrTrial && subscription.tier === 'elite' && planKey === 'essentials') {
+    if (user && subscription?.isProOrTrial && subscription.tier !== planKey) {
       return (
         <div className="text-center text-sm text-stone-500">
-          للتغيير تواصل معنا: <a href={`mailto:${SUPPORT_EMAIL}`} className="text-emerald-600 underline">{SUPPORT_EMAIL}</a>
+          للتغيير تواصل معنا: <a href={`mailto:${SUPPORT_EMAIL}?subject=تغيير الباقة`} className="text-emerald-600 underline">{SUPPORT_EMAIL}</a>
         </div>
       );
     }

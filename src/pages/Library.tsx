@@ -97,7 +97,7 @@ const PeptideCard = memo(function PeptideCard({
       <div className="mb-3">
         <h3
           className={cn(
-            'text-lg font-bold transition-colors',
+            'text-lg font-bold transition-colors truncate',
             hasAccess
               ? 'text-stone-900 group-hover:text-emerald-600'
               : 'text-stone-900',
@@ -226,7 +226,7 @@ function useUsedPeptides() {
     let mounted = true;
     supabase.from('injection_logs').select('peptide_name').eq('user_id', user.id).limit(500).then(({ data }) => {
       if (mounted && data) setUsed(new Set(data.map(d => d.peptide_name)));
-    }).catch(() => {});
+    }).catch(() => { if (mounted) console.warn('Failed to load used peptides'); });
     return () => { mounted = false; };
   }, [user]);
   return used;
@@ -253,6 +253,13 @@ export default function Library() {
     if (sortBy !== 'default') params.set('sort', sortBy);
     setSearchParams(params, { replace: true });
   }, [activeCategory, search, evidenceFilter, sortBy, setSearchParams]);
+
+  useEffect(() => {
+    setActiveCategory(searchParams.get('category') ?? 'all');
+    setSearch(searchParams.get('q') ?? '');
+    setEvidenceFilter(searchParams.get('evidence') ?? 'all');
+    setSortBy((searchParams.get('sort') as 'default' | 'evidence' | 'alpha' | 'favorites') ?? 'default');
+  }, [searchParams]);
   const [showFilters, setShowFilters] = useState(false);
   const [favorites, toggleFavorite] = useFavorites();
   const [compareIds, setCompareIds] = useState<string[]>(() => {

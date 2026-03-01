@@ -152,6 +152,7 @@ serve(async (req) => {
         if (stripeStatus === 'active') mappedStatus = 'active'
         else if (stripeStatus === 'trialing') mappedStatus = 'trial'
         else if (stripeStatus === 'past_due') mappedStatus = 'past_due'
+        else if (stripeStatus === 'incomplete') mappedStatus = 'trial'
         else if (stripeStatus === 'canceled' || stripeStatus === 'unpaid') mappedStatus = 'cancelled'
         else mappedStatus = 'expired'
 
@@ -305,6 +306,33 @@ serve(async (req) => {
             .eq('user_id', userId)
           if (error) { console.error('async_payment_failed DB error:', error); dbFailed = true }
         }
+        break
+      }
+
+      case 'charge.dispute.created': {
+        const dispute = event.data.object as Stripe.Dispute
+        const customerId = dispute.customer as string
+        if (customerId) {
+          await supabase.from('subscriptions').update({
+            status: 'past_due',
+            updated_at: new Date().toISOString(),
+          }).eq('stripe_customer_id', customerId)
+        }
+        console.error(JSON.stringify({ severity: 'CRITICAL', action: 'charge_disputed', customer: customerId, amount: dispute.amount, timestamp: new Date().toISOString() }))
+        break
+      }
+
+      case 'charge.refunded': {
+        const charge = event.data.object as Stripe.Charge
+        const customerId = charge.customer as string
+        if (customerId && charge.refunded) {
+          await supabase.from('subscriptions').update({
+            status: 'cancelled',
+            tier: 'free',
+            updated_at: new Date().toISOString(),
+          }).eq('stripe_customer_id', customerId)
+        }
+        console.log(JSON.stringify({ action: 'charge_refunded', customer: customerId, amount: charge.amount_refunded, timestamp: new Date().toISOString() }))
         break
       }
 

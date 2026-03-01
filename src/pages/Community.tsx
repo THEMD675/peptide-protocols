@@ -53,6 +53,11 @@ export default function Community() {
     if (sortBy !== 'newest') params.set('sort', sortBy);
     setSearchParams(params, { replace: true });
   }, [filterGoal, sortBy, setSearchParams]);
+
+  useEffect(() => {
+    setFilterGoal(searchParams.get('goal') ?? 'all');
+    setSortBy((searchParams.get('sort') as 'newest' | 'highest') ?? 'newest');
+  }, [searchParams]);
   const [hasMore, setHasMore] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
   const [expandedPosts, setExpandedPosts] = useState<Set<string>>(new Set());

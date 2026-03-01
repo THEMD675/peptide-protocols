@@ -248,6 +248,7 @@ export default function Coach() {
     setLoadingStage(0);
     const stageTimer1 = setTimeout(() => setLoadingStage(1), 3000);
     const stageTimer2 = setTimeout(() => setLoadingStage(2), 8000);
+    let streamTimeout: ReturnType<typeof setTimeout> | undefined;
     try {
       const token = await getSessionToken();
       const res = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/ai-coach`, {
@@ -275,7 +276,7 @@ export default function Coach() {
       const decoder = new TextDecoder();
       let accumulated = '';
       let buffer = '';
-      const streamTimeout = setTimeout(() => controller.abort(), 60_000);
+      streamTimeout = setTimeout(() => controller.abort(), 60_000);
 
       setMessages(prev => [...prev, { role: 'assistant', content: '' }]);
 
@@ -328,6 +329,7 @@ export default function Coach() {
     } finally {
       clearTimeout(stageTimer1);
       clearTimeout(stageTimer2);
+      if (streamTimeout) clearTimeout(streamTimeout);
       setIsLoading(false);
       isLoadingRef.current = false;
       setLoadingStage(0);

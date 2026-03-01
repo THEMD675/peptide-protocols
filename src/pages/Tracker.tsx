@@ -90,6 +90,7 @@ export default function Tracker() {
   });
   const [notes, setNotes] = useState('');
   const [confirmDialog, setConfirmDialog] = useState<{ title: string; message: string; onConfirm: () => void; isDestructive?: boolean } | null>(null);
+  const [confirmBusy, setConfirmBusy] = useState(false);
   const [sideEffect, setSideEffect] = useState('none');
 
   interface ActiveProtocol { id: string; peptide_id: string; dose: number; dose_unit: string; frequency: string; cycle_weeks: number; started_at: string; status: string; }
@@ -819,7 +820,7 @@ export default function Tracker() {
                           message: `حذف سجل ${log.peptide_name} — ${log.dose} ${log.dose_unit}؟`,
                           isDestructive: true,
                           onConfirm: async () => {
-                            setConfirmDialog(null);
+                            setConfirmBusy(true);
                             const deletedLog = logs.find(l => l.id === log.id);
                             // TODO(#49): concurrent deletes may cause stale-state rollback; consider a queue or mutex
                             setLogs(prev => prev.filter(l => l.id !== log.id));
@@ -833,6 +834,8 @@ export default function Tracker() {
                               });
                               toast.error('فشل الحذف — حاول مرة أخرى');
                             }
+                            setConfirmBusy(false);
+                            setConfirmDialog(null);
                           },
                         });
                       }}
@@ -894,9 +897,10 @@ export default function Tracker() {
             <div className="flex gap-3">
               <button
                 onClick={confirmDialog.onConfirm}
-                className={cn('flex-1 rounded-xl px-4 py-2.5 text-sm font-bold text-white', confirmDialog.isDestructive ? 'bg-red-600 transition-colors hover:bg-red-700' : 'bg-emerald-600 transition-colors hover:bg-emerald-700')}
+                disabled={confirmBusy}
+                className={cn('flex-1 rounded-xl px-4 py-2.5 text-sm font-bold text-white disabled:opacity-50', confirmDialog.isDestructive ? 'bg-red-600 transition-colors hover:bg-red-700' : 'bg-emerald-600 transition-colors hover:bg-emerald-700')}
               >
-                تأكيد
+                {confirmBusy ? 'جارٍ التنفيذ...' : 'تأكيد'}
               </button>
               <button
                 onClick={() => setConfirmDialog(null)}

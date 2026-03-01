@@ -72,11 +72,13 @@ class ErrorBoundary extends Component<{ children: ReactNode }, { hasError: boole
       }
       sessionStorage.removeItem('pptides_chunk_reload');
     }
-    if (localStorage.getItem('pptides_cookie_consent') === 'accepted') {
-      import('@sentry/react').then(Sentry => {
-        Sentry.captureException(error, { extra: { componentStack: errorInfo.componentStack } });
-      }).catch(() => {});
-    }
+    try {
+      if (localStorage.getItem('pptides_cookie_consent') === 'accepted') {
+        import('@sentry/react').then(Sentry => {
+          Sentry.captureException(error, { extra: { componentStack: errorInfo.componentStack } });
+        }).catch(() => {});
+      }
+    } catch { /* localStorage unavailable */ }
   }
   render() {
     if (this.state.hasError) {
@@ -105,11 +107,13 @@ class RouteErrorBoundary extends Component<
     return { hasError: true, error };
   }
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
-    if (localStorage.getItem('pptides_cookie_consent') === 'accepted') {
-      import('@sentry/react').then(Sentry => {
-        Sentry.captureException(error, { extra: { componentStack: errorInfo.componentStack } });
-      }).catch(() => {});
-    }
+    try {
+      if (localStorage.getItem('pptides_cookie_consent') === 'accepted') {
+        import('@sentry/react').then(Sentry => {
+          Sentry.captureException(error, { extra: { componentStack: errorInfo.componentStack } });
+        }).catch(() => {});
+      }
+    } catch { /* localStorage unavailable */ }
   }
   reset = () => this.setState(prev => ({ hasError: false, error: null, retryCount: prev.retryCount + 1 }));
   render() {

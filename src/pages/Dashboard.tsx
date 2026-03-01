@@ -96,7 +96,7 @@ function useRecentActivity(userId: string | undefined) {
       .eq('user_id', userId)
       .then(({ count }) => {
         if (mounted && count != null) setTotalCount(count);
-      }).catch(() => {});
+      }).catch(() => { if (mounted) console.warn('Failed to load injection count'); });
     return () => { mounted = false; };
   }, [userId]);
 

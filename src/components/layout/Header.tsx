@@ -36,7 +36,7 @@ const userToolLinks = [
 export default memo(function Header() {
   const { pathname } = useLocation();
   const navigate = useNavigate();
-  const { user, logout } = useAuth();
+  const { user, logout, isLoading: authLoading } = useAuth();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [moreOpen, setMoreOpen] = useState(false);
@@ -116,7 +116,7 @@ export default memo(function Header() {
   }, []);
 
   const initial = user?.email?.charAt(0).toUpperCase() ?? '';
-  const navLinks = user ? userNavLinks : guestNavLinks;
+  const navLinks = authLoading ? [] : user ? userNavLinks : guestNavLinks;
   const logoHref = user ? '/dashboard' : '/';
 
   return (
@@ -393,7 +393,7 @@ export default memo(function Header() {
                 <p className="mt-1 text-center text-xs text-stone-400 py-2">لا توجد نتائج</p>
               )}
             </div>
-            {(user ? userNavLinks : guestNavLinks).map(({ to, label }) => {
+            {navLinks.map(({ to, label }) => {
               const active = to === '/' ? pathname === '/' : pathname.startsWith(to);
               return (
                 <Link

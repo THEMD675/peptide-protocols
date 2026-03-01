@@ -1,10 +1,11 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { Loader2, CheckCircle } from 'lucide-react';
 
 export default function PaymentProcessing() {
   const [visible, setVisible] = useState(false);
   const [done, setDone] = useState(false);
+  const hideTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -14,12 +15,16 @@ export default function PaymentProcessing() {
   }, []);
 
   useEffect(() => {
+    return () => { if (hideTimeoutRef.current) clearTimeout(hideTimeoutRef.current); };
+  }, []);
+
+  useEffect(() => {
     if (!visible) return;
     const check = setInterval(() => {
       const params = new URLSearchParams(window.location.search);
       if (params.get('payment') !== 'success') {
         setDone(true);
-        setTimeout(() => setVisible(false), 1500);
+        hideTimeoutRef.current = setTimeout(() => setVisible(false), 1500);
         clearInterval(check);
       }
     }, 500);
