@@ -181,7 +181,7 @@ export default function Stacks() {
                       className="inline-flex items-center gap-1.5 rounded-full bg-emerald-600 px-5 py-2.5 text-sm font-bold text-white hover:bg-emerald-700 transition-colors"
                     >
                       <Syringe className="h-3.5 w-3.5" />
-                      ابدأ البروتوكول
+                      ابدأ بـ {stackPeptides[0]?.nameAr ?? 'البروتوكول'}
                     </button>
                     <Link
                       to={`/calculator?peptide=${encodeURIComponent(stackPeptides[0]?.nameEn ?? '')}`}

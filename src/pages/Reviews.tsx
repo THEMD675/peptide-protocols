@@ -164,6 +164,9 @@ export default function Reviews() {
       setText('');
       fetchReviews();
       setTimeout(() => setSubmitted(false), 4000);
+    } catch {
+      setSubmitting(false);
+      toast.error('حدث خطأ في الاتصال. حاول مرة أخرى.');
     } finally {
       submittingRef.current = false;
     }
