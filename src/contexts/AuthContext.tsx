@@ -167,7 +167,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
     if (params.get('payment') !== 'success' || !user) return;
 
-    toast.success('شكرًا! جارٍ تفعيل اشتراكك...');
+    toast('شكرًا! جارٍ تفعيل اشتراكك...');
 
     const cleanUrl = () => {
       const url = new URL(window.location.href);

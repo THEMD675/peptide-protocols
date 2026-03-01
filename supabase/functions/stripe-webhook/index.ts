@@ -142,7 +142,7 @@ serve(async (req) => {
         if (!dbFailed) {
           const RESEND_API_KEY = Deno.env.get('RESEND_API_KEY')
           if (RESEND_API_KEY && session.customer_email) {
-            fetch('https://api.resend.com/emails', {
+            await fetch('https://api.resend.com/emails', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${RESEND_API_KEY}` },
               body: JSON.stringify({
@@ -183,7 +183,7 @@ serve(async (req) => {
         if (stripeStatus === 'active') mappedStatus = 'active'
         else if (stripeStatus === 'trialing') mappedStatus = 'trial'
         else if (stripeStatus === 'past_due') mappedStatus = 'past_due'
-        else if (stripeStatus === 'incomplete') mappedStatus = 'trial'
+        else if (stripeStatus === 'incomplete' || stripeStatus === 'incomplete_expired') mappedStatus = 'expired'
         else if (stripeStatus === 'canceled' || stripeStatus === 'unpaid') mappedStatus = 'cancelled'
         else mappedStatus = 'expired'
 
@@ -421,6 +421,12 @@ serve(async (req) => {
       case 'customer.subscription.trial_will_end': {
         const subscription = event.data.object as Stripe.Subscription
         const customerId = subscription.customer as string
+        const trialEnd = subscription.trial_end ? new Date(subscription.trial_end * 1000) : null
+        const hoursUntilEnd = trialEnd ? (trialEnd.getTime() - Date.now()) / 3600000 : 0
+        if (hoursUntilEnd > 60) {
+          console.log('trial_will_end: skipping email — trial just started, hours until end:', hoursUntilEnd.toFixed(0))
+          break
+        }
         const RESEND_API_KEY = Deno.env.get('RESEND_API_KEY')
         if (RESEND_API_KEY && customerId) {
           const customer = await stripe.customers.retrieve(customerId).catch(() => null)

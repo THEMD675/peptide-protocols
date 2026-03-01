@@ -148,8 +148,10 @@ serve(async (req) => {
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${RESEND_API_KEY}` },
         body: JSON.stringify({
           from: 'pptides <noreply@pptides.com>',
+          reply_to: 'contact@pptides.com',
           to: user.email,
           subject: 'تم حذف حسابك في pptides',
+          headers: { 'List-Unsubscribe': '<mailto:contact@pptides.com?subject=unsubscribe>' },
           html: `<div dir="rtl" style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Tahoma, Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 40px 20px;">
             <h1 style="color: #1c1917; font-size: 24px;">تم حذف حسابك</h1>
             <p style="color: #44403c; font-size: 16px; line-height: 1.8;">تم حذف حسابك وجميع بياناتك من pptides بنجاح. إذا كان هذا خطأ، تواصل معنا فورًا.</p>

@@ -173,6 +173,7 @@ serve(async (req) => {
           reply_to: 'contact@pptides.com',
           to: user.email,
           subject: 'تم إلغاء اشتراكك في pptides',
+          headers: { 'List-Unsubscribe': '<mailto:contact@pptides.com?subject=unsubscribe>' },
           html: `<div dir="rtl" style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 40px 20px;"><h2>تم إلغاء اشتراكك</h2><p>ستحتفظ بالوصول حتى نهاية الفترة الحالية (${periodEnd.split('T')[0]}).</p><p>يمكنك إعادة الاشتراك في أي وقت من <a href="https://pptides.com/pricing">صفحة الأسعار</a>.</p><hr/><p style="color:#999;font-size:12px;">pptides.com</p></div>`,
         }),
       }).catch(e => console.error('cancel confirmation email failed:', e))
