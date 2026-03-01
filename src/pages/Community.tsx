@@ -296,6 +296,7 @@ export default function Community() {
                     <input
                       id="community-duration"
                       type="number"
+                      inputMode="numeric"
                       min={1}
                       max={52}
                       value={durationWeeks}

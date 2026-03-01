@@ -164,7 +164,7 @@ function useRecentActivity(userId: string | undefined) {
     }
   }
 
-  const [lastCheckedAt, setLastCheckedAt] = useState(Date.now);
+  const [lastCheckedAt, setLastCheckedAt] = useState(() => Date.now());
   // eslint-disable-next-line react-hooks/set-state-in-effect -- sync timestamp when data arrives
   useEffect(() => { if (!loading) setLastCheckedAt(Date.now()); }, [loading]);
 

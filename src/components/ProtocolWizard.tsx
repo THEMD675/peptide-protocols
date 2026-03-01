@@ -147,6 +147,7 @@ export default function ProtocolWizard({ peptideId, prefillDose, prefillUnit, on
                 <input
                   id="wizard-dose"
                   type="number"
+                  inputMode="decimal"
                   value={dose}
                   onChange={e => setDose(e.target.value)}
                   placeholder={String(peptide.doseMcg ?? 250)}
@@ -180,6 +181,7 @@ export default function ProtocolWizard({ peptideId, prefillDose, prefillUnit, on
               <input
                 id="wizard-cycle"
                 type="number"
+                inputMode="numeric"
                 value={cycleWeeks}
                 onChange={e => setCycleWeeks(e.target.value)}
                 min="1"

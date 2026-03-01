@@ -282,6 +282,7 @@ export default function Tracker() {
     const injectedDate = new Date(injectedAt);
     if (Number.isNaN(injectedDate.getTime())) { toast.error('التاريخ والوقت غير صالح'); return; }
     if (injectedDate.getTime() > Date.now() + 60000) { toast.error('لا يمكن تسجيل حقنة في المستقبل'); return; }
+    (document.activeElement as HTMLElement)?.blur();
     setIsSubmitting(true);
     try {
       const sideEffectLabel = sideEffect !== 'none' ? `أعراض جانبية: ${sideEffect}` : '';
