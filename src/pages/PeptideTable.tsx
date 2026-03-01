@@ -513,7 +513,7 @@ export default function PeptideTable() {
 
             <div className="grid gap-3 text-xs leading-relaxed text-stone-800 sm:grid-cols-2 lg:grid-cols-3">
               <div className="rounded-lg border border-stone-300 bg-stone-50 p-3">
-                <h4 className="mb-1 text-xs font-bold text-stone-800">📚 تعليمي فقط</h4>
+                <h4 className="mb-1 text-xs font-bold text-stone-800">تعليمي فقط</h4>
                 <p>
                   جميع المعلومات في هذا الجدول لأغراض تعليمية وبحثية فقط، ولا تُعتبر وصفة طبية أو نصيحة علاجية.
                   استشر طبيبك المختص قبل استخدام أي ببتيد.
@@ -521,7 +521,7 @@ export default function PeptideTable() {
               </div>
 
               <div className="rounded-lg border border-stone-300 bg-stone-50 p-3">
-                <h4 className="mb-1 text-xs font-bold text-stone-800">🧬 التباين الفردي</h4>
+                <h4 className="mb-1 text-xs font-bold text-stone-800">التباين الفردي</h4>
                 <p>
                   الاستجابة للببتيدات تختلف بشكل كبير بين الأفراد. الجرعات المذكورة هي نطاقات عامة وقد
                   تحتاج إلى تعديل بناءً على وزنك، صحتك، وأهدافك. ابدأ دائمًا بأقل جرعة.
@@ -529,7 +529,7 @@ export default function PeptideTable() {
               </div>
 
               <div className="rounded-lg border border-stone-300 bg-stone-50 p-3">
-                <h4 className="mb-1 text-xs font-bold text-stone-800">👨‍⚕️ الإشراف الطبي</h4>
+                <h4 className="mb-1 text-xs font-bold text-stone-800">الإشراف الطبي</h4>
                 <p>
                   لا تستخدم أي ببتيد بدون إشراف طبيب مختص. تحاليل الدم الدورية ضرورية لمراقبة
                   الأمان والفعالية. أخبر طبيبك بجميع ما تستخدمه.
@@ -537,7 +537,7 @@ export default function PeptideTable() {
               </div>
 
               <div className="rounded-lg border border-stone-300 bg-stone-50 p-3">
-                <h4 className="mb-1 text-xs font-bold text-stone-800">✅ جودة المصدر</h4>
+                <h4 className="mb-1 text-xs font-bold text-stone-800">جودة المصدر</h4>
                 <p>
                   جودة الببتيدات تتفاوت بشكل كبير بين الموردين. اطلب دائمًا شهادة تحليل (COA) من مختبر
                   طرف ثالث، وتأكد من النقاء (≥98%). المصدر غير الموثوق قد يكون خطيرًا.
@@ -545,7 +545,7 @@ export default function PeptideTable() {
               </div>
 
               <div className="rounded-lg border border-stone-300 bg-stone-50 p-3">
-                <h4 className="mb-1 text-xs font-bold text-stone-800">🔄 الدورات ضرورية</h4>
+                <h4 className="mb-1 text-xs font-bold text-stone-800">الدورات ضرورية</h4>
                 <p>
                   معظم الببتيدات تحتاج فترات راحة بين دورات الاستخدام. الاستخدام المستمر دون راحة قد يُقلل
                   الفعالية أو يزيد المخاطر. التزم بدورات الاستخدام والراحة المذكورة.
@@ -553,7 +553,7 @@ export default function PeptideTable() {
               </div>
 
               <div className="rounded-lg border border-stone-300 bg-stone-50 p-3">
-                <h4 className="mb-1 text-xs font-bold text-stone-800">⚖️ الوضع القانوني</h4>
+                <h4 className="mb-1 text-xs font-bold text-stone-800">الوضع القانوني</h4>
                 <p>
                   الوضع القانوني للببتيدات يختلف حسب البلد. بعضها معتمد من FDA وبعضها بحثي فقط.
                   تحقق من القوانين المحلية في بلدك قبل الشراء أو الاستخدام.

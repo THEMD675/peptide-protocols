@@ -288,7 +288,7 @@ export default function Admin() {
                     <span className="font-medium text-stone-900">{r.name}</span>
                     <div className="flex gap-0.5">
                       {[1,2,3,4,5].map(s => (
-                        <span key={s} className={cn('text-sm', s <= r.rating ? 'text-amber-400' : 'text-stone-300')}>★</span>
+                        <Star key={s} className={cn('h-4 w-4', s <= r.rating ? 'fill-amber-400 text-amber-400' : 'text-stone-300')} />
                       ))}
                     </div>
                   </div>

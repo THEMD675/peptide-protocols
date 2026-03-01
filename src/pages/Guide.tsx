@@ -339,7 +339,7 @@ export default function Guide() {
           ].map((faq) => (
             <details key={faq.q} className="group rounded-2xl border border-stone-200 bg-white transition-all hover:border-amber-200">
               <summary className="flex cursor-pointer items-center justify-between px-5 py-4 text-sm font-bold text-stone-900 [&::-webkit-details-marker]:hidden">
-                <span className="flex items-center gap-2">⚠️ {faq.q}</span>
+                <span className="flex items-center gap-2">{faq.q}</span>
               </summary>
               <p className="px-5 pb-4 text-sm leading-relaxed text-stone-700">{faq.a}</p>
             </details>

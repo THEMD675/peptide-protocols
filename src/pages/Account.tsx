@@ -558,7 +558,7 @@ function ReferralSection({ userId }: { userId?: string }) {
   }, [userId, generateCode]);
 
   const shareUrl = `https://pptides.com/?ref=${code}`;
-  const shareText = `جرّب pptides — أشمل دليل عربي للببتيدات العلاجية مع مدرب ذكي وحاسبة جرعات 🧬\n${shareUrl}`;
+  const shareText = `جرّب pptides — أشمل دليل عربي للببتيدات العلاجية مع مدرب ذكي وحاسبة جرعات\n${shareUrl}`;
 
   const handleCopy = async () => {
     try {

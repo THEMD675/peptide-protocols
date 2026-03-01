@@ -149,7 +149,7 @@ serve(async (req) => {
                 from: 'pptides <noreply@pptides.com>',
                 reply_to: 'contact@pptides.com',
                 to: session.customer_email,
-                subject: '✅ تم تفعيل اشتراكك في pptides',
+                subject: 'تم تفعيل اشتراكك في pptides',
                 headers: { 'List-Unsubscribe': '<mailto:contact@pptides.com?subject=unsubscribe>' },
                 html: `<div dir="rtl" style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Tahoma, Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 40px 20px;">
                   <h1 style="color: #1c1917; font-size: 24px;">مرحبًا بك في pptides!</h1>
@@ -322,7 +322,7 @@ serve(async (req) => {
                     from: 'pptides <noreply@pptides.com>',
                     reply_to: 'contact@pptides.com',
                     to: customerEmail,
-                    subject: '⚠️ تعذّر تحصيل الدفعة — حدّث وسيلة الدفع',
+                    subject: 'تعذّر تحصيل الدفعة — حدّث وسيلة الدفع',
                     headers: { 'List-Unsubscribe': '<mailto:contact@pptides.com?subject=unsubscribe>' },
                     html: `<div dir="rtl" style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Tahoma, Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 40px 20px;">
                       <h1 style="color: #1c1917; font-size: 24px;">تعذّر تحصيل الدفعة</h1>
@@ -408,7 +408,7 @@ serve(async (req) => {
                 from: 'pptides <noreply@pptides.com>',
                 reply_to: 'contact@pptides.com',
                 to: email,
-                subject: '✅ تم استرداد أموالك — pptides',
+                subject: 'تم استرداد أموالك — pptides',
                 headers: { 'List-Unsubscribe': '<mailto:contact@pptides.com?subject=unsubscribe>' },
                 html: `<div dir="rtl" style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Tahoma,Arial,sans-serif;max-width:600px;margin:0 auto;padding:40px 20px;"><h1 style="color:#1c1917;font-size:24px;">تم استرداد أموالك</h1><p style="color:#44403c;font-size:16px;line-height:1.8;">تم معالجة استرداد أموالك بنجاح. سيظهر المبلغ في حسابك خلال 5-10 أيام عمل.</p><p style="color:#78716c;font-size:13px;">إذا كان لديك أي استفسار: contact@pptides.com</p></div>`,
               }),
@@ -439,7 +439,7 @@ serve(async (req) => {
                 from: 'pptides <noreply@pptides.com>',
                 reply_to: 'contact@pptides.com',
                 to: email,
-                subject: '⏰ تجربتك تنتهي قريبًا — لا تفقد وصولك',
+                subject: ' تجربتك تنتهي قريبًا — لا تفقد وصولك',
                 headers: { 'List-Unsubscribe': '<mailto:contact@pptides.com?subject=unsubscribe>' },
                 html: `<div dir="rtl" style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Tahoma, Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 40px 20px;">
                   <h1 style="color: #1c1917; font-size: 24px;">تجربتك تنتهي قريبًا</h1>

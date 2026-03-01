@@ -500,7 +500,7 @@ export default function Tracker() {
                           : 'bg-emerald-600 text-white hover:bg-emerald-700 active:scale-95'
                       )}
                     >
-                      {todayLogged ? '✓ تم' : 'سجّل'}
+                      {todayLogged ? 'تم' : 'سجّل'}
                     </button>
                   </div>
                 </div>
@@ -776,10 +776,10 @@ export default function Tracker() {
               const doseNum = parseFloat(dose);
               const doseMcg = unit === 'mg' ? doseNum * 1000 : doseNum;
               if (doseMcg > preset.maxDose) {
-                return <p className="text-xs font-bold text-red-600 flex items-center gap-1">⚠️ الجرعة أعلى من الحد الأقصى الموصى به ({preset.maxDose} mcg)</p>;
+                return <p className="text-xs font-bold text-red-600 flex items-center gap-1">الجرعة أعلى من الحد الأقصى الموصى به ({preset.maxDose} mcg)</p>;
               }
               if (doseMcg < preset.minDose) {
-                return <p className="text-xs font-bold text-amber-600 flex items-center gap-1">⚠️ الجرعة أقل من الحد الأدنى الموصى به ({preset.minDose} mcg)</p>;
+                return <p className="text-xs font-bold text-amber-600 flex items-center gap-1">الجرعة أقل من الحد الأدنى الموصى به ({preset.minDose} mcg)</p>;
               }
               return null;
             })()}

@@ -135,27 +135,27 @@ serve(async (req) => {
           reminderType = 'day1'
           subject = 'هل استكشفت المكتبة؟ — pptides'
           body = `
-            <h1 style="color: #1c1917; font-size: 24px;">مرحبًا 👋</h1>
+            <h1 style="color: #1c1917; font-size: 24px;">مرحبًا </h1>
             <p>أنت الآن في اليوم الثاني من تجربتك المجانية.</p>
             <p><strong>هل جرّبت هذه الأدوات؟</strong></p>
             <ul>
-              <li>🔬 <a href="${APP_URL}/library" style="color: #059669;">تصفّح مكتبة الببتيدات</a></li>
-              <li>🧮 <a href="${APP_URL}/calculator" style="color: #059669;">احسب جرعتك بالحاسبة</a></li>
-              <li>🤖 <a href="${APP_URL}/coach" style="color: #059669;">اسأل المدرب الذكي</a></li>
+              <li> <a href="${APP_URL}/library" style="color: #059669;">تصفّح مكتبة الببتيدات</a></li>
+              <li> <a href="${APP_URL}/calculator" style="color: #059669;">احسب جرعتك بالحاسبة</a></li>
+              <li> <a href="${APP_URL}/coach" style="color: #059669;">اسأل المدرب الذكي</a></li>
             </ul>
             <p>استفد من كل يوم — تجربتك تنتهي خلال ${daysUntilExpiry} أيام.</p>
           `
         } else if (daysUntilExpiry === 1) {
           reminderType = 'last_day'
-          subject = '⚠️ آخر يوم في تجربتك — pptides'
+          subject = ' آخر يوم في تجربتك — pptides'
           body = `
             <h1 style="color: #1c1917; font-size: 24px;">تنتهي تجربتك المجانية غدًا</h1>
             <p>غدًا ستفقد الوصول إلى:</p>
             <ul>
-              <li>✅ البروتوكولات الكاملة لـ 41 ببتيد</li>
-              <li>✅ المدرب الذكي بالذكاء الاصطناعي</li>
-              <li>✅ دليل التحاليل المخبرية</li>
-              <li>✅ البروتوكولات المُجمَّعة</li>
+              <li> البروتوكولات الكاملة لـ 41 ببتيد</li>
+              <li> المدرب الذكي بالذكاء الاصطناعي</li>
+              <li> دليل التحاليل المخبرية</li>
+              <li> البروتوكولات المُجمَّعة</li>
             </ul>
             <p><strong>اشترك الآن وابدأ بـ ${ESSENTIALS_PRICE}/شهر فقط:</strong></p>
             <a href="${APP_URL}/pricing" style="display: inline-block; background: #059669; color: white; padding: 14px 32px; border-radius: 9999px; text-decoration: none; font-weight: bold;">
@@ -165,7 +165,7 @@ serve(async (req) => {
           `
         } else if (daysUntilExpiry <= 0 && daysUntilExpiry >= -3) {
           reminderType = 'expired'
-          subject = '🔒 انتهت تجربتك — اشترك الآن — pptides'
+          subject = ' انتهت تجربتك — اشترك الآن — pptides'
           body = `
             <h1 style="color: #1c1917; font-size: 24px;">انتهت تجربتك المجانية</h1>
             <p>لكن لا تقلق — يمكنك الاشتراك الآن والوصول لكل المحتوى:</p>
@@ -180,14 +180,14 @@ serve(async (req) => {
           `
         } else if (daysUntilExpiry >= -8 && daysUntilExpiry <= -6) {
           reminderType = 'day7_winback'
-          subject = '💡 محتوى جديد في pptides — عد واكتشف'
+          subject = ' محتوى جديد في pptides — عد واكتشف'
           body = `
-            <h1 style="color: #1c1917; font-size: 24px;">نشتاق لك 👋</h1>
+            <h1 style="color: #1c1917; font-size: 24px;">نشتاق لك </h1>
             <p>أضفنا تحديثات جديدة على المكتبة والأدوات. لا تفوّت:</p>
             <ul>
-              <li>🔬 بروتوكولات محدّثة مع أحدث الأبحاث</li>
-              <li>🧮 حاسبة الجرعات — مجانية دائمًا</li>
-              <li>🤖 المدرب الذكي جاهز لأي سؤال</li>
+              <li> بروتوكولات محدّثة مع أحدث الأبحاث</li>
+              <li> حاسبة الجرعات — مجانية دائمًا</li>
+              <li> المدرب الذكي جاهز لأي سؤال</li>
             </ul>
             <a href="${APP_URL}/library" style="display: inline-block; background: #059669; color: white; padding: 14px 32px; border-radius: 9999px; text-decoration: none; font-weight: bold;">
               تصفّح المحتوى الجديد
@@ -196,7 +196,7 @@ serve(async (req) => {
           `
         } else if (daysUntilExpiry >= -15 && daysUntilExpiry <= -13) {
           reminderType = 'day14_winback'
-          subject = '📊 مستخدمون بدأوا بروتوكولاتهم هذا الأسبوع — pptides'
+          subject = ' مستخدمون بدأوا بروتوكولاتهم هذا الأسبوع — pptides'
           body = `
             <h1 style="color: #1c1917; font-size: 24px;">مجتمع pptides ينمو</h1>
             <p>مستخدمون جدد بدأوا بروتوكولات BPC-157 و Semaglutide هذا الأسبوع.</p>

@@ -103,7 +103,7 @@ export function useCelebrations() {
     if (totalInjections >= 100 && !celebrated['milestone_100']) {
       markCelebration('milestone_100');
       setTimeout(() => {
-        toast.success('100 حقنة! إنجاز استثنائي 🏆', {
+        toast.success('100 حقنة! إنجاز استثنائي', {
           duration: 5000,
         });
       }, 300);

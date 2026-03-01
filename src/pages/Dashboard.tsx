@@ -298,7 +298,7 @@ export default function Dashboard() {
         const seasonalTip = SEASONAL_TIPS[new Date().getMonth()];
         return (
           <div className="mb-6 rounded-2xl border border-emerald-100 bg-emerald-50/50 p-4">
-            <p className="text-xs font-bold text-emerald-700 mb-1">💡 نصيحة اليوم</p>
+            <p className="text-xs font-bold text-emerald-700 mb-1">نصيحة اليوم</p>
             <p className="text-sm text-stone-700 leading-relaxed">{DAILY_TIPS[tipIndex]}</p>
             {seasonalTip && (
               <p className="mt-2 text-xs text-stone-500 border-t border-emerald-100 pt-2">{seasonalTip}</p>
@@ -311,7 +311,7 @@ export default function Dashboard() {
       {!activity.loading && activity.streak > 0 && !activity.todayLogged && new Date().getHours() >= 16 && (
         <div className="mb-6 rounded-2xl border border-amber-200 bg-amber-50 p-4 flex items-center justify-between gap-3">
           <div>
-            <p className="text-sm font-bold text-amber-800">⚠️ سلسلتك في خطر!</p>
+            <p className="text-sm font-bold text-amber-800">سلسلتك في خطر!</p>
             <p className="text-xs text-amber-600">{activity.streak} يوم متتالي — سجّل جرعتك قبل منتصف الليل</p>
           </div>
           <Link to="/tracker" className="shrink-0 rounded-full bg-amber-600 px-4 py-2 text-xs font-bold text-white hover:bg-amber-700">
@@ -695,7 +695,7 @@ export default function Dashboard() {
               </div>
             </Link>
             <Link to="/quiz" className="block text-sm text-emerald-600 hover:underline">
-              🧪 أعد اختبار الببتيد المناسب لك
+              أعد اختبار الببتيد المناسب لك
             </Link>
           </div>
         </div>

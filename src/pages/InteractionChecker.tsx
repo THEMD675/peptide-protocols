@@ -161,7 +161,7 @@ export default function InteractionChecker() {
                 {sortedPeptides.map(p => {
                   const usedElsewhere = selected.some((s, i) => i !== idx && s === p.id);
                   return (
-                    <option key={p.id} value={p.id} disabled={usedElsewhere}>{p.nameAr} ({p.nameEn}){usedElsewhere ? ' ✓' : ''}</option>
+                    <option key={p.id} value={p.id} disabled={usedElsewhere}>{p.nameAr} ({p.nameEn}){usedElsewhere ? ' (محدد)' : ''}</option>
                   );
                 })}
               </select>

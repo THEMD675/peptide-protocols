@@ -488,7 +488,7 @@ export default function DoseCalculator() {
                 </span>
               </div>
               {waterMl === 0 && (
-                <p className="mt-1 text-xs font-medium text-red-600">⚠️ أدخل كمية ماء أكبر من صفر</p>
+                <p className="mt-1 text-xs font-medium text-red-600">أدخل كمية ماء أكبر من صفر</p>
               )}
               {waterMl !== recommendedWater && vialMg > 0 && waterMl > 0 && (
                 !selectedPreset ? (
@@ -508,7 +508,7 @@ export default function DoseCalculator() {
                     onClick={() => setWaterMl(recommendedWater)}
                     className="text-xs text-emerald-600/70 transition-colors hover:underline"
                   >
-                    💡 الكمية المُوصى بها: {recommendedWater} مل
+                    الكمية المُوصى بها: {recommendedWater} مل
                   </button>
                 )
               )}
@@ -604,7 +604,7 @@ export default function DoseCalculator() {
               className="mt-4 rounded-xl border border-red-500/20 bg-red-500/5 px-4 py-3 text-center"
             >
               <p className="text-sm text-red-600">
-                ⚠️ الجرعة تتجاوز سعة السيرنج ({syringe.units} وحدة). استخدم سيرنجًا أكبر أو أضف ماءً أقل.
+                الجرعة تتجاوز سعة السيرنج ({syringe.units} وحدة). استخدم سيرنجًا أكبر أو أضف ماءً أقل.
               </p>
             </div>
           )}
@@ -642,7 +642,7 @@ export default function DoseCalculator() {
             if (doseMcg > preset.maxDose) {
               return (
                 <div className="mt-4 rounded-xl border border-red-300 bg-red-50 px-4 py-3">
-                  <p className="text-sm font-bold text-red-800">⚠️ جرعة مرتفعة</p>
+                  <p className="text-sm font-bold text-red-800">جرعة مرتفعة</p>
                   <p className="text-xs text-red-600 mt-1">الجرعة المدخلة ({doseMcg} mcg) تتجاوز الحد الأعلى الموصى به لـ {preset.name} ({preset.maxDose} mcg). استشر طبيبك قبل استخدام هذه الجرعة.</p>
                 </div>
               );
@@ -650,14 +650,14 @@ export default function DoseCalculator() {
             if (doseMcg < preset.minDose) {
               return (
                 <div className="mt-4 rounded-xl border border-amber-300 bg-amber-50 px-4 py-3">
-                  <p className="text-sm font-bold text-amber-800">💡 جرعة منخفضة</p>
+                  <p className="text-sm font-bold text-amber-800">جرعة منخفضة</p>
                   <p className="text-xs text-amber-700 mt-1">الجرعة المدخلة ({doseMcg} mcg) أقل من الحد الأدنى الفعّال لـ {preset.name} ({preset.minDose} mcg). قد لا تحصل على النتيجة المطلوبة.</p>
                 </div>
               );
             }
             return (
               <div className="mt-4 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3">
-                <p className="text-xs text-emerald-700">✓ الجرعة ضمن النطاق الموصى به لـ {preset.name} ({preset.minDose}-{preset.maxDose} mcg)</p>
+                <p className="text-xs text-emerald-700">الجرعة ضمن النطاق الموصى به لـ {preset.name} ({preset.minDose}-{preset.maxDose} mcg)</p>
               </div>
             );
           })()}
