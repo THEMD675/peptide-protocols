@@ -133,6 +133,7 @@ export default function Account() {
       if (!session?.access_token) throw new Error('انتهت جلستك. أعد تسجيل الدخول.');
       const res = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/cancel-subscription`, {
         method: 'POST',
+        signal: AbortSignal.timeout(15000),
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${session.access_token}`,
@@ -164,6 +165,7 @@ export default function Account() {
       if (!session?.access_token) throw new Error('انتهت جلستك. أعد تسجيل الدخول.');
       const res = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/delete-account`, {
         method: 'POST',
+        signal: AbortSignal.timeout(20000),
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${session.access_token}`,
@@ -327,6 +329,7 @@ export default function Account() {
                   toast('جارٍ فتح إدارة الدفع...');
                   const res = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/create-portal-session`, {
                     method: 'POST',
+                    signal: AbortSignal.timeout(15000),
                     headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}`, apikey: import.meta.env.VITE_SUPABASE_ANON_KEY },
                   });
                   if (!res.ok) { toast.error('تعذّر فتح إدارة الدفع'); return; }

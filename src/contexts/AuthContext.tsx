@@ -395,6 +395,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       const res = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/create-checkout`, {
         method: 'POST',
+        signal: AbortSignal.timeout(15000),
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`,

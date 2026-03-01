@@ -103,6 +103,7 @@ html {
   /* ═══ Glass card — updated for emerald but same class name ═══ */
   .glass-card {
     background: rgba(255, 255, 255, 0.8);
+    -webkit-backdrop-filter: blur(16px) saturate(1.8);
     backdrop-filter: blur(16px) saturate(1.8);
     border: 1px solid rgba(255, 255, 255, 0.2);
     border-radius: var(--radius);
