@@ -32,7 +32,7 @@ export default defineConfig({
         clientsClaim: true,
         cleanupOutdatedCaches: true,
         navigateFallback: '/index.html',
-        navigateFallbackDenylist: [/^\/api/, /^\/rest/, /^\/_vercel/, /^\/dashboard/, /^\/tracker/, /^\/coach/, /^\/account/],
+        navigateFallbackDenylist: [/^\/api/, /^\/rest/, /^\/_vercel/],
         globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
         runtimeCaching: [
           {

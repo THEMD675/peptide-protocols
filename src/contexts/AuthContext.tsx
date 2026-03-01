@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect, useCallback, useMemo, type ReactNode } from 'react';
+import { createContext, useContext, useState, useEffect, useCallback, useMemo, useRef, type ReactNode } from 'react';
 import { toast } from 'sonner';
 import { supabase } from '@/lib/supabase';
 import { SUPPORT_EMAIL } from '@/lib/constants';
@@ -246,15 +246,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return () => { authListener.unsubscribe(); clearTimeout(timeout); };
   }, [fetchSubscription]);
 
+  const fetchSubRef = useRef(fetchSubscription);
+  fetchSubRef.current = fetchSubscription;
+
   useEffect(() => {
     const handler = (e: StorageEvent) => {
       if (e.key?.startsWith('sb-') && user) {
-        fetchSubscription(user.id);
+        fetchSubRef.current(user.id);
       }
     };
     window.addEventListener('storage', handler);
     return () => window.removeEventListener('storage', handler);
-  }, [user, fetchSubscription]);
+  }, [user]);
 
   const login = useCallback(async (email: string, password: string) => {
     const { error } = await supabase.auth.signInWithPassword({ email, password });
