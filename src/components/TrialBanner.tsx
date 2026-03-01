@@ -36,6 +36,18 @@ export default function TrialBanner() {
   if (isLoading) return null;
   if (!user || !subscription) return null;
   if (subscription.status === 'active') return null;
+
+  if (subscription.status === 'cancelled' && subscription.isPaidSubscriber) {
+    return (
+      <div className="sticky top-[64px] md:top-[72px] z-40 bg-amber-500 text-center py-2 px-4">
+        <p className="text-sm font-semibold text-white">
+          اشتراكك ملغي — ستحتفظ بالوصول حتى نهاية الفترة الحالية.{' '}
+          <Link to="/pricing" className="underline underline-offset-2 hover:opacity-80">أعد الاشتراك</Link>
+        </p>
+      </div>
+    );
+  }
+
   if (subscription.isPaidSubscriber) return null;
 
   if (subscription.status === 'past_due') {
@@ -53,16 +65,6 @@ export default function TrialBanner() {
   const isPeptideFree = peptideId ? FREE_PEPTIDE_IDS.has(peptideId) : false;
 
   const isFreePage = FREE_PATHS.some(p => pathname === p || pathname.startsWith(p + '/')) || isPeptideFree;
-
-  if (subscription.status === 'cancelled' && subscription.isPaidSubscriber) {
-    return (
-      <div className="sticky top-[64px] md:top-[72px] z-40 bg-amber-500 text-center py-2 px-4">
-        <p className="text-sm font-semibold text-white">
-          اشتراكك ملغي — ستحتفظ بالوصول حتى نهاية الفترة الحالية
-        </p>
-      </div>
-    );
-  }
 
   if (subscription.status === 'cancelled' && !subscription.isPaidSubscriber) {
     if (isFreePage) {

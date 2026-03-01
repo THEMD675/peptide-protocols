@@ -540,7 +540,11 @@ function ReferralSection({ userId }: { userId?: string }) {
       let refCode = sub?.referral_code;
       if (!refCode) {
         refCode = generateCode();
-        await supabase.from('subscriptions').update({ referral_code: refCode }).eq('user_id', userId);
+        if (sub) {
+          await supabase.from('subscriptions').update({ referral_code: refCode }).eq('user_id', userId);
+        } else {
+          await supabase.from('subscriptions').upsert({ user_id: userId, status: 'none', tier: 'free', referral_code: refCode }, { onConflict: 'user_id' });
+        }
       }
       setCode(refCode);
 
@@ -680,13 +684,7 @@ function EnquiryForm({ userEmail, userId }: { userEmail?: string; userId?: strin
         return;
       }
 
-      // Send admin notification email
-      const RESEND_NOTIFY_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/send-welcome-email`;
-      fetch(RESEND_NOTIFY_URL.replace('send-welcome-email', 'inbound-email'), {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ type: 'enquiry_notification', from: userEmail, subject: `New enquiry: ${subjectText}`, text: `From: ${userEmail}\nPeptide: ${peptide.trim() || 'N/A'}\nSubject: ${subjectText}\n\nMessage:\n${message.trim()}` }),
-      }).catch(() => {});
+      // Admin notification handled server-side via enquiries table polling
 
       toast.success('تم إرسال استفسارك بنجاح — سنرد عليك قريبًا');
       setSent(true);
