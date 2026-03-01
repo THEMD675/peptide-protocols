@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import FocusTrap from 'focus-trap-react';
 import { X, Play, Calendar, FlaskConical } from 'lucide-react';
 import { toast } from 'sonner';
@@ -56,6 +56,12 @@ export default function ProtocolWizard({ peptideId, prefillDose, prefillUnit, on
   const [frequency, setFrequency] = useState(peptide?.frequency ?? 'od');
   const [cycleWeeks, setCycleWeeks] = useState(String(peptide?.cycleDurationWeeks ?? 4));
   const [submitting, setSubmitting] = useState(false);
+
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose(); };
+    document.addEventListener('keydown', handler);
+    return () => document.removeEventListener('keydown', handler);
+  }, [onClose]);
 
   if (!peptide) return null;
 

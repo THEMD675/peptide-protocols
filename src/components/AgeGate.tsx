@@ -75,6 +75,8 @@ export default function AgeGate() {
                 <div className="flex flex-col gap-3">
                   <a
                     href="https://www.google.com"
+                    target="_blank"
+                    rel="noopener noreferrer"
                     className="inline-block rounded-xl border border-stone-600 px-6 py-3 text-sm font-medium text-stone-400 transition-colors hover:border-stone-400 hover:text-stone-300"
                   >
                     مغادرة الموقع

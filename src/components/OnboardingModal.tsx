@@ -35,6 +35,18 @@ export default function OnboardingModal() {
     }
   }, [show]);
 
+  const handleClose = () => {
+    try { localStorage.setItem(ONBOARDING_KEY, 'true'); } catch { /* expected */ }
+    setShow(false);
+  };
+
+  useEffect(() => {
+    if (!show) return;
+    const handler = (e: KeyboardEvent) => { if (e.key === 'Escape') handleClose(); };
+    document.addEventListener('keydown', handler);
+    return () => document.removeEventListener('keydown', handler);
+  }, [show]);
+
   if (!show) return null;
 
   const handleGoalSelect = (goalId: string) => {
@@ -45,11 +57,6 @@ export default function OnboardingModal() {
       localStorage.setItem('pptides_quiz_answers', JSON.stringify({ ...parsed, goal: goalId, ts: Date.now() }));
     } catch { /* expected */ }
     setStep('plan');
-  };
-
-  const handleClose = () => {
-    try { localStorage.setItem(ONBOARDING_KEY, 'true'); } catch { /* expected */ }
-    setShow(false);
   };
 
   return (

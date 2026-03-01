@@ -273,6 +273,20 @@ export default function Library() {
     try { sessionStorage.setItem('pptides_compare', JSON.stringify(compareIds)); } catch { /* expected */ }
   }, [compareIds]);
 
+  useEffect(() => {
+    if (!showCompare) return;
+    const handler = (e: KeyboardEvent) => { if (e.key === 'Escape') setShowCompare(false); };
+    document.addEventListener('keydown', handler);
+    return () => document.removeEventListener('keydown', handler);
+  }, [showCompare]);
+
+  useEffect(() => {
+    if (!upsellPeptide) return;
+    const handler = (e: KeyboardEvent) => { if (e.key === 'Escape') setUpsellPeptide(null); };
+    document.addEventListener('keydown', handler);
+    return () => document.removeEventListener('keydown', handler);
+  }, [upsellPeptide]);
+
   const handleLockedClick = useCallback((peptideId?: string) => {
     setUpsellPeptide(peptideId ?? null);
   }, []);

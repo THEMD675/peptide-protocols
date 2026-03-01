@@ -69,6 +69,9 @@ html {
     scroll-behavior: smooth;
   }
 
+  #main-content { scroll-margin-top: 80px; }
+  [id] { scroll-margin-top: 80px; }
+
   body {
     font-family: 'Cairo', 'Inter', 'SF Pro Display', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
     background: #fff;
