@@ -268,7 +268,7 @@ export default function Reviews() {
             <form onSubmit={handleSubmit} className="space-y-5">
               <div>
                 <label htmlFor="review-rating" className="mb-2 block text-sm font-medium text-stone-800">
-                  التقييم
+                  التقييم <span className="text-red-500" aria-hidden="true">*</span>
                 </label>
                 <div id="review-rating">
                   <StarRating rating={rating} onRate={setRating} interactive />
@@ -277,12 +277,16 @@ export default function Reviews() {
 
               <div>
                 <label htmlFor="review-text" className="mb-2 block text-sm font-medium text-stone-800">
-                  رأيك
+                  رأيك <span className="text-red-500" aria-hidden="true">*</span>
                 </label>
                 <textarea
                   id="review-text"
                   value={text}
-                  onChange={(e) => setText(e.target.value)}
+                  onChange={(e) => {
+                    setText(e.target.value);
+                    e.target.style.height = 'auto';
+                    e.target.style.height = e.target.scrollHeight + 'px';
+                  }}
                   placeholder="شاركنا تجربتك..."
                   rows={4}
                   maxLength={1000}
@@ -291,6 +295,7 @@ export default function Reviews() {
                     'text-sm text-stone-900 placeholder:text-stone-400',
                     'transition-colors focus:border-emerald-300 focus:outline-none focus:ring-1 focus:ring-emerald-100',
                   )}
+                  style={{ overflow: 'hidden' }}
                 />
                 {text.length > 0 && (
                   <p className="mt-1 text-start text-xs text-stone-400">{text.length}/1000</p>

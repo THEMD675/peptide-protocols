@@ -1,6 +1,6 @@
-import { useState, useEffect, useRef, useMemo } from 'react';
+import { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import { Helmet } from 'react-helmet-async';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { MessageSquare, Send, Clock, FlaskConical, User, Flag, Star } from 'lucide-react';
 import { toast } from 'sonner';
 import { useAuth } from '@/contexts/AuthContext';
@@ -36,14 +36,23 @@ export default function Community() {
   const { user, subscription } = useAuth();
   const [logs, setLogs] = useState<LogEntry[]>([]);
   const [loading, setLoading] = useState(true);
+  const [fetchError, setFetchError] = useState(false);
   const [showForm, setShowForm] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const submittingRef = useRef(false);
   const mountedRef = useRef(true);
   useEffect(() => () => { mountedRef.current = false; }, []);
   const [submitted, setSubmitted] = useState(false);
-  const [filterGoal, setFilterGoal] = useState('all');
-  const [sortBy, setSortBy] = useState<'newest' | 'highest'>('newest');
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [filterGoal, setFilterGoal] = useState(() => searchParams.get('goal') ?? 'all');
+  const [sortBy, setSortBy] = useState<'newest' | 'highest'>(() => (searchParams.get('sort') as 'newest' | 'highest') ?? 'newest');
+
+  useEffect(() => {
+    const params = new URLSearchParams();
+    if (filterGoal !== 'all') params.set('goal', filterGoal);
+    if (sortBy !== 'newest') params.set('sort', sortBy);
+    setSearchParams(params, { replace: true });
+  }, [filterGoal, sortBy, setSearchParams]);
   const [hasMore, setHasMore] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
   const [expandedPosts, setExpandedPosts] = useState<Set<string>>(new Set());
@@ -62,36 +71,44 @@ export default function Community() {
   const [rating, setRating] = useState(4);
   const [attempted, setAttempted] = useState(false);
 
+  const loadCommunityLogs = useCallback(async () => {
+    setLoading(true);
+    setFetchError(false);
+    try {
+      const { data, error } = await supabase
+        .from('community_logs')
+        .select('*')
+        .order('created_at', { ascending: false })
+        .limit(50);
+      if (!error && data) {
+        setLogs(data);
+        setHasMore(data.length >= PAGE_SIZE);
+      } else {
+        setFetchError(true);
+      }
+    } catch {
+      setFetchError(true);
+    }
+    setLoading(false);
+  }, []);
+
   useEffect(() => {
     let mounted = true;
-
-    const load = async () => {
-      try {
-        const { data, error } = await supabase
-          .from('community_logs')
-          .select('*')
-          .order('created_at', { ascending: false })
-          .limit(50);
-        if (mounted && !error && data) {
-          setLogs(data);
-          setHasMore(data.length >= PAGE_SIZE);
-        }
-      } catch {
-        if (mounted) toast.error('تعذّر تحميل التجارب. حاول تحديث الصفحة.');
-      }
-      if (mounted) setLoading(false);
-    };
-
-    load();
+    loadCommunityLogs();
     const fallback = setTimeout(() => { if (mounted) setLoading(false); }, 8000);
-
     return () => { mounted = false; clearTimeout(fallback); };
-  }, []);
+  }, [loadCommunityLogs]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setAttempted(true);
-    if (!user || !peptideName.trim() || !results.trim() || submittingRef.current) return;
+    if (!user || !peptideName.trim() || !results.trim() || submittingRef.current) {
+      requestAnimationFrame(() => {
+        const firstError = document.querySelector('[data-error="true"]');
+        firstError?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      });
+      return;
+    }
     submittingRef.current = true;
 
     setSubmitting(true);
@@ -192,7 +209,7 @@ export default function Community() {
                 <h3 className="mb-6 text-lg font-bold text-stone-900">شارك تجربتك</h3>
 
                 <div className="mb-4">
-                  <label className="mb-1.5 block text-sm font-bold text-stone-900">اسم الببتيد</label>
+                  <label className="mb-1.5 block text-sm font-bold text-stone-900">اسم الببتيد <span className="text-red-500" aria-hidden="true">*</span></label>
                   <select
                     value={peptideName}
                     onChange={(e) => setPeptideName(e.target.value)}
@@ -208,7 +225,7 @@ export default function Community() {
                     ))}
                   </select>
                   {attempted && !peptideName.trim() && (
-                    <p className="mt-1 text-xs text-red-600">يرجى إدخال اسم الببتيد</p>
+                    <p data-error="true" className="mt-1 text-xs text-red-600">يرجى إدخال اسم الببتيد</p>
                   )}
                 </div>
 
@@ -237,11 +254,16 @@ export default function Community() {
                   <label className="mb-1.5 block text-sm font-bold text-stone-900">البروتوكول (الجرعة، التوقيت، المدة)</label>
                   <textarea
                     value={protocol}
-                    onChange={(e) => setProtocol(e.target.value)}
+                    onChange={(e) => {
+                      setProtocol(e.target.value);
+                      e.target.style.height = 'auto';
+                      e.target.style.height = e.target.scrollHeight + 'px';
+                    }}
                     maxLength={3000}
                     placeholder="مثال: 250mcg مرتين يوميًا، حقن تحت الجلد في البطن، لمدة 6 أسابيع..."
                     rows={3}
                     className="w-full resize-none rounded-xl border border-stone-200 bg-stone-50 px-4 py-3 text-stone-900 placeholder:text-stone-400 focus:border-emerald-300 focus:outline-none focus:ring-2 focus:ring-emerald-100"
+                    style={{ overflow: 'hidden' }}
                   />
                   <p className="mt-1 text-start text-xs text-stone-400">{protocol.length}/3000</p>
                 </div>
@@ -281,10 +303,14 @@ export default function Community() {
                 </div>
 
                 <div className="mb-6">
-                  <label className="mb-1.5 block text-sm font-bold text-stone-900">النتائج — ماذا لاحظت؟</label>
+                  <label className="mb-1.5 block text-sm font-bold text-stone-900">النتائج — ماذا لاحظت؟ <span className="text-red-500" aria-hidden="true">*</span></label>
                   <textarea
                     value={results}
-                    onChange={(e) => setResults(e.target.value)}
+                    onChange={(e) => {
+                      setResults(e.target.value);
+                      e.target.style.height = 'auto';
+                      e.target.style.height = e.target.scrollHeight + 'px';
+                    }}
                     maxLength={3000}
                     placeholder="وصف النتائج: تحسّن، أعراض جانبية، تغييرات في التحاليل..."
                     rows={4}
@@ -293,10 +319,11 @@ export default function Community() {
                       'w-full resize-none rounded-xl border bg-stone-50 px-4 py-3 text-stone-900 placeholder:text-stone-400 focus:border-emerald-300 focus:outline-none focus:ring-2 focus:ring-emerald-100',
                       attempted && !results.trim() ? 'border-red-400 ring-1 ring-red-200' : 'border-stone-200'
                     )}
+                    style={{ overflow: 'hidden' }}
                   />
                   <div className="mt-1 flex justify-between">
                     {attempted && !results.trim() ? (
-                      <p className="text-xs text-red-600">يرجى وصف النتائج</p>
+                      <p data-error="true" className="text-xs text-red-600">يرجى وصف النتائج</p>
                     ) : <span />}
                     <p className="text-xs text-stone-400">{results.length}/3000</p>
                   </div>
@@ -387,6 +414,16 @@ export default function Community() {
         {loading ? (
           <div className="py-16 text-center">
             <div className="h-6 w-6 mx-auto animate-spin rounded-full border-2 border-stone-200 border-t-emerald-600" />
+          </div>
+        ) : fetchError && logs.length === 0 ? (
+          <div className="rounded-2xl border border-red-200 bg-red-50 py-10 text-center">
+            <p className="text-base text-red-700 mb-4">تعذّر تحميل التجارب. تحقق من اتصالك بالإنترنت.</p>
+            <button
+              onClick={() => loadCommunityLogs()}
+              className="rounded-xl bg-red-100 px-6 py-2 text-sm font-bold text-red-700 hover:bg-red-200 transition-colors"
+            >
+              إعادة المحاولة
+            </button>
           </div>
         ) : logs.length === 0 ? (
           <div className="rounded-2xl border-2 border-dashed border-emerald-200 bg-gradient-to-b from-emerald-50 to-white py-16 px-8 text-center">

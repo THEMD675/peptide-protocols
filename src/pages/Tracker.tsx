@@ -68,6 +68,7 @@ export default function Tracker() {
   const [logs, setLogs] = useState<InjectionLog[]>([]);
   const [totalCount, setTotalCount] = useState(0);
   const [isLoadingLogs, setIsLoadingLogs] = useState(true);
+  const [fetchError, setFetchError] = useState(false);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [hasMore, setHasMore] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -150,6 +151,7 @@ export default function Tracker() {
   const fetchLogs = useCallback(async () => {
     if (!user) return;
     setIsLoadingLogs(true);
+    setFetchError(false);
     try {
       const [{ data, error }, { count }] = await Promise.all([
         supabase
@@ -163,13 +165,13 @@ export default function Tracker() {
           .select('id', { count: 'exact', head: true })
           .eq('user_id', user.id),
       ]);
-      if (error) { toast.error('تعذّر تحميل السجلات. حاول تحديث الصفحة.'); }
+      if (error) { setFetchError(true); }
       const rows = (data as InjectionLog[]) ?? [];
       setLogs(rows);
       if (count != null) setTotalCount(count);
       setHasMore(rows.length >= PAGE_SIZE);
     } catch {
-      toast.error('تعذّر تحميل السجلات. حاول تحديث الصفحة.');
+      setFetchError(true);
     } finally {
       setIsLoadingLogs(false);
     }
@@ -755,6 +757,16 @@ export default function Tracker() {
         {isLoadingLogs ? (
           <div className="flex items-center justify-center py-16">
             <Loader2 className="h-6 w-6 animate-spin text-emerald-600" />
+          </div>
+        ) : fetchError && logs.length === 0 ? (
+          <div className="rounded-2xl border border-red-200 bg-red-50 py-10 text-center">
+            <p className="text-base text-red-700 mb-4">تعذّر تحميل السجلات. تحقق من اتصالك بالإنترنت.</p>
+            <button
+              onClick={() => fetchLogs()}
+              className="rounded-xl bg-red-100 px-6 py-2 text-sm font-bold text-red-700 hover:bg-red-200 transition-colors"
+            >
+              إعادة المحاولة
+            </button>
           </div>
         ) : logs.length === 0 ? (
           <div className="rounded-2xl border-2 border-dashed border-emerald-200 bg-gradient-to-b from-emerald-50 to-white p-8 text-center">

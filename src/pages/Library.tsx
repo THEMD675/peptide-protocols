@@ -239,11 +239,20 @@ export default function Library() {
   const hasFullAccess = isPaid;
   const usedPeptides = useUsedPeptides();
 
-  const [activeCategory, setActiveCategory] = useState('all');
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [activeCategory, setActiveCategory] = useState(() => searchParams.get('category') ?? 'all');
   const [search, setSearch] = useState(() => searchParams.get('q') ?? '');
-  const [evidenceFilter, setEvidenceFilter] = useState('all');
-  const [sortBy, setSortBy] = useState<'default' | 'evidence' | 'alpha' | 'favorites'>('default');
+  const [evidenceFilter, setEvidenceFilter] = useState(() => searchParams.get('evidence') ?? 'all');
+  const [sortBy, setSortBy] = useState<'default' | 'evidence' | 'alpha' | 'favorites'>(() => (searchParams.get('sort') as 'default' | 'evidence' | 'alpha' | 'favorites') ?? 'default');
+
+  useEffect(() => {
+    const params = new URLSearchParams();
+    if (activeCategory !== 'all') params.set('category', activeCategory);
+    if (search.trim()) params.set('q', search.trim());
+    if (evidenceFilter !== 'all') params.set('evidence', evidenceFilter);
+    if (sortBy !== 'default') params.set('sort', sortBy);
+    setSearchParams(params, { replace: true });
+  }, [activeCategory, search, evidenceFilter, sortBy, setSearchParams]);
   const [showFilters, setShowFilters] = useState(false);
   const [favorites, toggleFavorite] = useFavorites();
   const [compareIds, setCompareIds] = useState<string[]>(() => {

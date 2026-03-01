@@ -84,6 +84,9 @@ export default function Login() {
 
     if (!email.trim() || !password.trim()) {
       setError('يرجى ملء جميع الحقول');
+      requestAnimationFrame(() => {
+        document.querySelector('[role="alert"]')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      });
       return;
     }
 
@@ -301,7 +304,7 @@ export default function Login() {
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
                 <label htmlFor="email" className="mb-1.5 block text-sm font-medium text-stone-900">
-                  البريد الإلكتروني
+                  البريد الإلكتروني <span className="text-red-500" aria-hidden="true">*</span>
                 </label>
                 <input
                   id="email"
@@ -318,7 +321,7 @@ export default function Login() {
 
               <div>
                 <label htmlFor="password" className="mb-1.5 block text-sm font-medium text-stone-900">
-                  كلمة المرور
+                  كلمة المرور <span className="text-red-500" aria-hidden="true">*</span>
                 </label>
                 <div className="relative">
                   <input

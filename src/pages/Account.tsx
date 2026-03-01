@@ -156,7 +156,7 @@ export default function Account() {
             <h2 className="text-lg font-bold text-stone-900">البريد الإلكتروني</h2>
           </div>
           <p className="text-sm text-stone-700 mb-4" dir="ltr">{user.email}</p>
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
+          <form onSubmit={(e) => { e.preventDefault(); handleChangeEmail(); }} className="flex flex-col gap-3 sm:flex-row sm:items-end">
             <div className="flex-1">
               <label htmlFor="new-email" className="mb-1.5 block text-sm font-medium text-stone-700">بريد إلكتروني جديد</label>
               <input
@@ -171,13 +171,13 @@ export default function Account() {
               />
             </div>
             <button
-              onClick={handleChangeEmail}
+              type="submit"
               disabled={emailLoading || !newEmail.trim()}
               className="rounded-xl bg-emerald-600 px-6 py-3 text-sm font-bold text-white transition-colors hover:bg-emerald-700 disabled:opacity-50"
             >
               {emailLoading ? <span className="inline-flex items-center gap-2"><span className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />جارٍ التغيير</span> : 'تغيير البريد'}
             </button>
-          </div>
+          </form>
         </div>
 
         {/* Change Password */}
@@ -186,7 +186,7 @@ export default function Account() {
             <KeyRound className="h-5 w-5 text-emerald-600" />
             <h2 className="text-lg font-bold text-stone-900">تغيير كلمة المرور</h2>
           </div>
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
+          <form onSubmit={(e) => { e.preventDefault(); handleChangePassword(); }} className="flex flex-col gap-3 sm:flex-row sm:items-end">
             <div className="flex-1">
               <label htmlFor="new-password" className="mb-1.5 block text-sm font-medium text-stone-700">كلمة المرور الجديدة</label>
               <input
@@ -201,13 +201,13 @@ export default function Account() {
               />
             </div>
             <button
-              onClick={handleChangePassword}
+              type="submit"
               disabled={passwordLoading || !newPassword}
               className="rounded-xl bg-emerald-600 px-6 py-3 text-sm font-bold text-white transition-all hover:bg-emerald-700 disabled:opacity-50"
             >
               {passwordLoading ? <span className="inline-flex items-center gap-2"><span className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />جارٍ التغيير</span> : 'تغيير'}
             </button>
-          </div>
+          </form>
         </div>
 
         {/* Subscription Card */}
