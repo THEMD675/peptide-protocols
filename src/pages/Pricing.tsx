@@ -97,12 +97,12 @@ export default function Pricing() {
       const isLoading = loadingPlan === planKey;
       return (
         <button
-          onClick={() => {
+          onClick={async () => {
             if (navigatingRef.current) return;
             navigatingRef.current = true;
             setLoadingPlan(planKey);
             try {
-              upgradeTo(planKey);
+              await upgradeTo(planKey);
             } catch {
               navigatingRef.current = false;
               setLoadingPlan(null);

@@ -329,22 +329,39 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (user) await fetchSubscription(user.id);
   }, [user, fetchSubscription]);
 
-  const upgradeTo = useCallback((tier: 'essentials' | 'elite') => {
-    const link = STRIPE_LINKS[tier];
-    if (!link) {
-      toast.error(`عذرًا — رابط الدفع غير متاح حاليًا. تواصل معنا: ${SUPPORT_EMAIL}`);
-      return;
+  const upgradeTo = useCallback(async (tier: 'essentials' | 'elite') => {
+    try {
+      const session = await supabase.auth.getSession();
+      const token = session.data.session?.access_token;
+      if (!token) {
+        toast.error('يرجى تسجيل الدخول أولًا');
+        return;
+      }
+
+      const res = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/create-checkout`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+          apikey: import.meta.env.VITE_SUPABASE_ANON_KEY,
+        },
+        body: JSON.stringify({ tier }),
+      });
+
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.error ?? 'Checkout failed');
+      }
+
+      const { url } = await res.json();
+      if (!url) throw new Error('No checkout URL returned');
+
+      window.location.href = url;
+    } catch (e) {
+      console.error('upgradeTo error:', e);
+      toast.error(`تعذّر التحويل لصفحة الدفع. تواصل معنا: ${SUPPORT_EMAIL}`);
     }
-
-    const url = new URL(link);
-    if (user?.id) url.searchParams.set('client_reference_id', user.id);
-    if (user?.email) url.searchParams.set('prefilled_email', user.email);
-
-    const successUrl = `${window.location.origin}/dashboard?payment=success&tier=${tier}`;
-    url.searchParams.set('success_url', successUrl);
-
-    window.location.href = url.toString();
-  }, [user]);
+  }, []);
 
   const contextValue = useMemo(
     () => ({ user, subscription, isLoading, login, signup, logout, upgradeTo, refreshSubscription }),
