@@ -569,7 +569,14 @@ function ReferralSection({ userId }: { userId?: string }) {
     } catch { toast.error('تعذّر النسخ'); }
   };
 
-  if (loading) return null;
+  if (loading) return (
+    <div className="rounded-2xl border border-stone-200 bg-white p-6 animate-pulse">
+      <div className="h-5 w-32 bg-stone-200 rounded mb-3" />
+      <div className="h-3 w-48 bg-stone-100 rounded mb-4" />
+      <div className="h-10 w-full bg-stone-100 rounded-xl mb-3" />
+      <div className="grid grid-cols-3 gap-3"><div className="h-16 bg-stone-100 rounded-xl" /><div className="h-16 bg-stone-100 rounded-xl" /><div className="h-16 bg-stone-100 rounded-xl" /></div>
+    </div>
+  );
 
   return (
     <div className="rounded-2xl border border-emerald-200 bg-gradient-to-b from-emerald-50 to-white p-6">

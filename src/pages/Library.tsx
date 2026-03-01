@@ -208,7 +208,7 @@ function useFavorites(): [Set<string>, (id: string) => void] {
       const next = new Set(prev);
       if (next.has(id)) next.delete(id); else next.add(id);
       try { localStorage.setItem('pptides_favorites', JSON.stringify([...next])); } catch { /* expected */ }
-      if (next.has(id)) toast.success('تمت الإضافة للمفضلة');
+      if (next.has(id)) { const p = peptides.find(x => x.id === id); toast.success(`تمت إضافة ${p?.nameAr ?? 'الببتيد'} للمفضلة`); }
       return next;
     });
   }, []);
@@ -593,7 +593,7 @@ export default function Library() {
                     <span className="text-lg font-bold text-stone-900">
                       اكتشف البروتوكولات الكاملة لـ {PEPTIDE_COUNT} ببتيد
                     </span>
-                    <p className="text-sm text-stone-800">مش متأكد وش يناسبك؟ اسأل المدرب الذكي — 3 أسئلة مجانية.</p>
+                    <p className="text-sm text-stone-800">لست متأكدًا من اختيارك؟ اسأل المدرب الذكي — 3 أسئلة مجانية.</p>
                     <div className="flex flex-col gap-2 sm:flex-row">
                       <Link to="/pricing" className="rounded-full bg-emerald-600 px-6 py-2.5 text-sm font-bold text-white transition-colors hover:bg-emerald-700">
                         اشترك — {PRICING.essentials.label}/شهريًا

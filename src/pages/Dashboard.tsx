@@ -432,7 +432,7 @@ export default function Dashboard() {
                           .eq('id', proto.id)
                           .eq('user_id', user.id);
                         if (!error) {
-                          toast.success('تم إنهاء البروتوكول');
+                          toast.success(`تم إنهاء بروتوكول ${peptide?.nameAr ?? proto.peptide_id}`);
                           refetchProtocols();
                         } else {
                           toast.error('تعذّر إنهاء البروتوكول');

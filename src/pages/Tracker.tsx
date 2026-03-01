@@ -500,7 +500,7 @@ export default function Tracker() {
                           : 'bg-emerald-600 text-white hover:bg-emerald-700 active:scale-95'
                       )}
                     >
-                      {todayLogged ? 'تم' : 'سجّل'}
+                      {todayLogged ? 'تم اليوم' : 'سجّل'}
                     </button>
                   </div>
                 </div>
