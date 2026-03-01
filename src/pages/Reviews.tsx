@@ -385,7 +385,7 @@ export default function Reviews() {
           )}
 
           {loading ? (
-            <div className="py-12 text-center">
+            <div className="py-12 text-center" role="status" aria-label="جارٍ تحميل التقييمات">
               <div className="h-6 w-6 mx-auto animate-spin rounded-full border-2 border-stone-200 border-t-emerald-600" />
             </div>
           ) : fetchError ? (

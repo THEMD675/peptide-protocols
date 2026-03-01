@@ -417,7 +417,7 @@ export default function Community() {
         )}
 
         {loading ? (
-          <div className="py-16 text-center">
+          <div className="py-16 text-center" role="status" aria-label="جارٍ تحميل التجارب">
             <div className="h-6 w-6 mx-auto animate-spin rounded-full border-2 border-stone-200 border-t-emerald-600" />
           </div>
         ) : fetchError && logs.length === 0 ? (

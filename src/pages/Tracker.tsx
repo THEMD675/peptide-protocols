@@ -756,7 +756,7 @@ export default function Tracker() {
           )}
         </div>
         {isLoadingLogs ? (
-          <div className="flex items-center justify-center py-16">
+          <div className="flex items-center justify-center py-16" role="status" aria-label="جارٍ تحميل السجلات">
             <Loader2 className="h-6 w-6 animate-spin text-emerald-600" />
           </div>
         ) : fetchError && logs.length === 0 ? (
@@ -876,10 +876,10 @@ export default function Tracker() {
                 className="flex w-full items-center justify-center gap-2 rounded-2xl border border-stone-200 bg-white py-4 text-sm font-bold text-stone-600 transition-all hover:border-emerald-300 hover:text-emerald-700 disabled:opacity-50"
               >
                 {isLoadingMore ? (
-                  <>
+                  <span className="flex items-center justify-center gap-2" role="status" aria-label="جارٍ تحميل السجلات">
                     <Loader2 className="h-4 w-4 animate-spin" />
                     جارٍ التحميل...
-                  </>
+                  </span>
                 ) : (
                   'تحميل المزيد'
                 )}
