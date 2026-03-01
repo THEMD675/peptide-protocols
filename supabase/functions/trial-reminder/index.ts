@@ -208,7 +208,7 @@ serve(async (req) => {
           `
         } else if (daysUntilExpiry >= -31 && daysUntilExpiry <= -29) {
           reminderType = 'day30_winback'
-          subject = '🔑 آخر تذكير — مفتاحك لـ pptides ينتظرك'
+          subject = 'آخر تذكير — مفتاحك لـ pptides ينتظرك'
           body = `
             <h1 style="color: #1c1917; font-size: 24px;">شهر مرّ — ما زلنا هنا</h1>
             <p>41 بروتوكول ببتيد، حاسبة جرعات، مدرب ذكي، ودليل تحاليل — كل شيء جاهز لك.</p>

@@ -370,7 +370,7 @@ export default function Reviews() {
                     return (
                       <div key={star} className="flex items-center gap-2">
                         <span className="text-xs text-stone-600 w-6" dir="ltr">
-                          {star}★
+                          {star}
                         </span>
                         <div className="flex-1 h-2 min-w-0 overflow-hidden rounded-full bg-stone-200">
                           <div

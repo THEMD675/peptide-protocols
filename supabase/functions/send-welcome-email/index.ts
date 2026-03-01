@@ -169,7 +169,7 @@ serve(async (req) => {
         from: 'pptides <noreply@pptides.com>',
         reply_to: 'contact@pptides.com',
         to: email,
-        subject: '⏱️ تجربتك المجانية بدأت — 3 أيام لاستكشاف pptides',
+        subject: 'مرحبًا بك في pptides — تجربتك المجانية بدأت الآن',
         headers: {
           'List-Unsubscribe': '<mailto:contact@pptides.com?subject=unsubscribe>',
         },
@@ -181,7 +181,7 @@ serve(async (req) => {
             </p>
 
             <div style="background: #fef3c7; border: 1px solid #fbbf24; border-radius: 12px; padding: 16px; margin: 20px 0; text-align: center;">
-              <p style="margin: 0; font-size: 14px; color: #92400e; font-weight: bold;">⏱️ تنتهي تجربتك خلال 72 ساعة — استفد من كل دقيقة</p>
+              <p style="margin: 0; font-size: 14px; color: #92400e; font-weight: bold;">تنتهي تجربتك خلال 72 ساعة — استفد من كل دقيقة</p>
             </div>
 
             <p style="color: #44403c; font-size: 15px; line-height: 1.8; font-weight: bold;">خطتك لـ 3 أيام:</p>
