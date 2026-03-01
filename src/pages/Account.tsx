@@ -647,6 +647,16 @@ function EnquiryForm({ userEmail, userId }: { userEmail?: string; userId?: strin
   const [peptide, setPeptide] = useState('');
   const [sending, setSending] = useState(false);
   const [sent, setSent] = useState(false);
+  const [history, setHistory] = useState<Array<{ id: string; subject: string; status: string; created_at: string; peptide_name: string | null }>>([]);
+
+  useEffect(() => {
+    if (!userId) return;
+    let mounted = true;
+    supabase.from('enquiries').select('id, subject, status, created_at, peptide_name').eq('user_id', userId).order('created_at', { ascending: false }).limit(5)
+      .then(({ data }) => { if (mounted && data) setHistory(data); })
+      .catch(() => {});
+    return () => { mounted = false; };
+  }, [userId, sent]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -656,10 +666,11 @@ function EnquiryForm({ userEmail, userId }: { userEmail?: string; userId?: strin
     (document.activeElement as HTMLElement)?.blur();
 
     try {
+      const subjectText = subject.trim() || 'استفسار عام';
       const { error } = await supabase.from('enquiries').insert({
         user_id: userId,
         email: userEmail,
-        subject: subject.trim() || 'استفسار عام',
+        subject: subjectText,
         peptide_name: peptide.trim() || null,
         message: message.trim(),
       });
@@ -668,6 +679,14 @@ function EnquiryForm({ userEmail, userId }: { userEmail?: string; userId?: strin
         toast.error('تعذّر إرسال الاستفسار. حاول مرة أخرى.');
         return;
       }
+
+      // Send admin notification email
+      const RESEND_NOTIFY_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/send-welcome-email`;
+      fetch(RESEND_NOTIFY_URL.replace('send-welcome-email', 'inbound-email'), {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ type: 'enquiry_notification', from: userEmail, subject: `New enquiry: ${subjectText}`, text: `From: ${userEmail}\nPeptide: ${peptide.trim() || 'N/A'}\nSubject: ${subjectText}\n\nMessage:\n${message.trim()}` }),
+      }).catch(() => {});
 
       toast.success('تم إرسال استفسارك بنجاح — سنرد عليك قريبًا');
       setSent(true);
@@ -755,6 +774,23 @@ function EnquiryForm({ userEmail, userId }: { userEmail?: string; userId?: strin
             )}
           </button>
         </form>
+      )}
+
+      {history.length > 0 && (
+        <div className="mt-4 border-t border-stone-100 pt-4">
+          <p className="text-xs font-bold text-stone-600 mb-2">استفساراتك السابقة</p>
+          <div className="space-y-2">
+            {history.map(h => (
+              <div key={h.id} className="flex items-center justify-between rounded-lg border border-stone-100 bg-stone-50 px-3 py-2">
+                <div className="min-w-0 flex-1">
+                  <p className="text-xs font-medium text-stone-800 truncate">{h.subject}</p>
+                  <p className="text-[10px] text-stone-400">{new Date(h.created_at).toLocaleDateString('ar-u-nu-latn')}</p>
+                </div>
+                <span className={cn('shrink-0 rounded-full px-2 py-0.5 text-[10px] font-bold', h.status === 'replied' ? 'bg-emerald-100 text-emerald-700' : h.status === 'closed' ? 'bg-stone-200 text-stone-600' : 'bg-amber-100 text-amber-700')}>{h.status === 'replied' ? 'تم الرد' : h.status === 'closed' ? 'مغلق' : 'قيد المراجعة'}</span>
+              </div>
+            ))}
+          </div>
+        </div>
       )}
     </div>
   );

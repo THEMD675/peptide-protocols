@@ -302,6 +302,9 @@ serve(async (req) => {
       }
     }
 
+    // Cleanup: delete rate limit entries older than 1 hour
+    await supabase.from('rate_limits').delete().lt('created_at', new Date(Date.now() - 3600000).toISOString()).catch(() => {})
+
     return new Response(JSON.stringify({ sent, skipped, failed }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     })

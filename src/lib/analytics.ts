@@ -5,9 +5,11 @@ declare global {
 }
 
 export function trackEvent(event: string, params?: Record<string, unknown>) {
-  if (typeof window.gtag === 'function') {
-    window.gtag('event', event, params);
-  }
+  try {
+    if (typeof window !== 'undefined' && typeof window.gtag === 'function') {
+      window.gtag('event', event, params);
+    }
+  } catch { /* analytics should never crash the app */ }
 }
 
 export const events = {
