@@ -1,4 +1,4 @@
-import { useState, type ElementType } from 'react';
+import { useState, useEffect, type ElementType } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowLeft, ArrowRight, CheckCircle, FlaskConical, TrendingDown, Heart, Brain, Zap, Clock, Shield, Syringe, Pill, SprayCan, Dumbbell, Calculator } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -102,6 +102,30 @@ export default function PeptideQuiz() {
   const [step, setStep] = useState(0);
   const [answers, setAnswers] = useState<string[]>([]);
   const [showResult, setShowResult] = useState(false);
+  const [hasPreviousResult, setHasPreviousResult] = useState(false);
+
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem('pptides_quiz_answers');
+      if (saved) {
+        const data = JSON.parse(saved);
+        if (data.goal && data.experience && data.injection) {
+          setHasPreviousResult(true);
+        }
+      }
+    } catch { /* expected */ }
+  }, []);
+
+  const loadPreviousResult = () => {
+    try {
+      const saved = localStorage.getItem('pptides_quiz_answers');
+      if (saved) {
+        const data = JSON.parse(saved);
+        setAnswers([data.goal, data.experience, data.injection]);
+        setShowResult(true);
+      }
+    } catch { /* expected */ }
+  };
 
   const handleSelect = (optionId: string) => {
     setAnswers(prev => {
@@ -163,6 +187,9 @@ export default function PeptideQuiz() {
           {peptideData?.costEstimate && (
             <p className="mt-2 text-sm text-emerald-700 font-semibold">التكلفة التقريبية: {peptideData.costEstimate}</p>
           )}
+          {peptideData?.timingAr && <p className="text-xs text-stone-500 mt-1">التوقيت: {peptideData.timingAr.split('.')[0]}</p>}
+          {peptideData?.cycleAr && <p className="text-xs text-stone-500">الدورة: {peptideData.cycleAr.split('.')[0]}</p>}
+          {peptideData?.administrationAr && <p className="text-xs text-stone-500">طريقة الحقن: {peptideData.administrationAr.split('.')[0]}</p>}
         </div>
 
         <div className="flex flex-col gap-3 sm:flex-row">
@@ -255,6 +282,11 @@ export default function PeptideQuiz() {
           );
         })}
       </div>
+      {hasPreviousResult && (
+        <button onClick={loadPreviousResult} className="mt-3 block w-full text-center text-sm font-bold text-emerald-600 hover:underline transition-colors">
+          عرض نتائجك السابقة
+        </button>
+      )}
       <Link to="/library" className="mt-4 block text-center text-sm text-stone-400 hover:text-stone-600 transition-colors">
         تخطّي — تصفّح المكتبة مباشرة
       </Link>

@@ -460,6 +460,7 @@ export default function DoseCalculator() {
               <div className="relative">
                 <input
                   type="number"
+                  inputMode="decimal"
                   min={0.1}
                   step={0.5}
                   value={waterMl}
@@ -545,7 +546,7 @@ export default function DoseCalculator() {
             </div>
             <div className="space-y-2">
               <label className="block text-sm font-medium text-stone-800">سعر القارورة ($) <span className="text-xs text-emerald-600 font-normal me-1">اختياري</span></label>
-              <input type="number" min={0} step={5} value={vialPrice || ''} onChange={e => setVialPrice(Number(e.target.value))} placeholder="مثال: 40"
+              <input type="number" inputMode="decimal" min={0} step={5} value={vialPrice || ''} onChange={e => setVialPrice(Number(e.target.value))} placeholder="مثال: 40"
                 className="w-full rounded-xl border border-stone-300 bg-stone-50 px-4 py-3 text-base text-stone-900 placeholder:text-stone-400 focus:border-emerald-300 focus:outline-none focus:ring-1 focus:ring-emerald-100" />
             </div>
           </div>
@@ -649,6 +650,15 @@ export default function DoseCalculator() {
             );
           })()}
 
+          {selectedPreset && (() => {
+            const p = allPeptides.find(x => x.nameEn === selectedPreset);
+            return p?.warningAr ? (
+              <div className="mt-3 rounded-xl border border-amber-200 bg-amber-50 p-3 text-xs text-amber-800">
+                <strong>تحذير:</strong> {p.warningAr}
+              </div>
+            ) : null;
+          })()}
+
           {/* Monthly Planning */}
           {isFinite(results.dosesPerVial) && results.dosesPerVial > 0 && (
             <div className="mt-6 grid gap-4 sm:grid-cols-3">
@@ -662,6 +672,7 @@ export default function DoseCalculator() {
                 <p className="text-xs text-stone-500 mt-1">
                   {fmt(results.dosesPerVial, 0)} جرعة × {dosesPerDay}/يوم
                 </p>
+                <p className="text-xs text-amber-600 mt-1">خزّن في الثلاجة (2-8°C) — تصلح لـ 28 يوم بعد التحضير</p>
               </div>
               <div className="rounded-xl border border-stone-200 bg-white p-4">
                 <p className="text-xs font-semibold text-stone-500 mb-1">قوارير في الشهر</p>
@@ -940,6 +951,7 @@ function InputField({
       <div className="relative">
         <input
           type="number"
+          inputMode="decimal"
           min={0}
           step={step}
           value={value}

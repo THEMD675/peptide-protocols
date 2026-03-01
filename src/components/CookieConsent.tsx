@@ -44,6 +44,7 @@ export default function CookieConsent() {
           نستخدم ملفات تعريف الارتباط لتحسين تجربتك.{' '}
           <Link to="/privacy" className="text-emerald-600 underline underline-offset-2 transition-colors hover:text-emerald-700">سياسة الخصوصية</Link>
         </p>
+        <p className="text-xs text-stone-500 mt-1">نستخدم Google Analytics لتحسين تجربتك فقط — لا نبيع بياناتك</p>
         <div className="flex shrink-0 items-center gap-3">
           <button
             onClick={reject}

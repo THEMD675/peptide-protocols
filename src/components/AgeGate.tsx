@@ -19,6 +19,8 @@ export default function AgeGate() {
     setVisible(false);
   };
 
+  const [confirmed, setConfirmed] = useState(false);
+
   const [rejected, setRejected] = useState(() => {
     try { return sessionStorage.getItem('pptides_age_rejected') === 'true'; } catch { return false; }
   });
@@ -92,13 +94,20 @@ export default function AgeGate() {
                   يكون عمرك 18 عامًا أو أكثر للمتابعة.
                 </p>
 
-                <div className="flex flex-col gap-3">
+                <label className="flex items-center gap-2 mt-4 text-sm text-stone-400 cursor-pointer">
+                  <input type="checkbox" checked={confirmed} onChange={e => setConfirmed(e.target.checked)} className="h-4 w-4 rounded border-stone-300 text-emerald-600" />
+                  أؤكد أن عمري 18 سنة أو أكثر
+                </label>
+
+                <div className="flex flex-col gap-3 mt-4">
                   <button
                     onClick={handleVerified}
+                    disabled={!confirmed}
                     className={cn(
                       "gold-gradient w-full rounded-xl px-6 py-3 text-lg font-bold text-white",
                       "transition-all duration-200 hover:brightness-110 hover:shadow-lg",
-                      "active:scale-[0.98]"
+                      "active:scale-[0.98]",
+                      !confirmed && "opacity-50 pointer-events-none"
                     )}
                   >
                     عمري 18 أو أكثر — متابعة

@@ -177,7 +177,9 @@ export default function Tracker() {
 
   useEffect(() => {
     if (!user) return;
-    fetchLogs();
+    let active = true;
+    fetchLogs().catch(() => { if (!active) return; });
+    return () => { active = false; };
   }, [user, fetchLogs]);
 
   const fetchMore = async () => {
@@ -373,6 +375,8 @@ export default function Tracker() {
               const peptide = allPeptides.find(p => p.id === proto.peptide_id);
               const daysSinceStart = Math.floor((Date.now() - new Date(proto.started_at).getTime()) / (1000 * 60 * 60 * 24));
               const totalDays = proto.cycle_weeks * 7;
+              const weekNumber = Math.floor(daysSinceStart / 7) + 1;
+              const totalWeeks = proto.cycle_weeks || 8;
               const todayLogged = logs.some(l => l.peptide_name === (peptide?.nameEn ?? proto.peptide_id) && new Date(l.logged_at).toDateString() === new Date().toDateString());
               return (
                 <div key={proto.id} className={cn('rounded-2xl border p-4 transition-all', todayLogged ? 'border-emerald-300 bg-emerald-50/50' : 'border-stone-200 bg-white')}>
@@ -381,6 +385,7 @@ export default function Tracker() {
                     <div className="flex-1 min-w-0">
                       <p className="font-bold text-stone-900 truncate">{peptide?.nameAr ?? proto.peptide_id}</p>
                       <p className="text-xs text-stone-500" dir="ltr">{proto.dose} {proto.dose_unit}</p>
+                      <p className="text-xs text-stone-500">الأسبوع {weekNumber} من {totalWeeks}</p>
                     </div>
                     <button
                       onClick={() => handleQuickLog(proto)}
@@ -606,6 +611,7 @@ export default function Tracker() {
                 <label className="mb-1 block text-sm font-bold text-stone-700">الجرعة</label>
                 <input
                   type="number"
+                  inputMode="decimal"
                   value={dose}
                   onChange={(e) => setDose(e.target.value)}
                   placeholder="250"

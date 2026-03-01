@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { Loader2, CheckCircle } from 'lucide-react';
 
 export default function PaymentProcessing() {
@@ -38,7 +39,11 @@ export default function PaymentProcessing() {
           <>
             <CheckCircle className="mx-auto mb-4 h-16 w-16 text-emerald-500" />
             <h2 className="text-2xl font-bold text-stone-900">تم تفعيل اشتراكك!</h2>
-            <p className="mt-2 text-stone-600">مرحبًا بك في pptides</p>
+            <div className="space-y-3 mt-4">
+              <Link to="/library" className="block rounded-xl border border-emerald-200 p-3 text-sm font-bold text-emerald-700 hover:bg-emerald-50">تصفّح المكتبة</Link>
+              <Link to="/coach" className="block rounded-xl border border-emerald-200 p-3 text-sm font-bold text-emerald-700 hover:bg-emerald-50">اسأل المدرب الذكي</Link>
+              <Link to="/calculator" className="block rounded-xl border border-emerald-200 p-3 text-sm font-bold text-emerald-700 hover:bg-emerald-50">جرّب حاسبة الجرعات</Link>
+            </div>
           </>
         ) : (
           <>

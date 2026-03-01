@@ -336,17 +336,23 @@ export default function Account() {
                 </li>
               </ul>
             </div>
-            <div className="mt-6 flex gap-3">
+            <div className="mt-6 flex flex-col gap-3">
               <button
                 onClick={handleCancelSubscription}
                 disabled={isProcessing}
-                className="flex-1 rounded-xl border border-stone-300 px-4 py-2.5 text-sm font-bold text-stone-700 transition-all hover:bg-stone-50 disabled:opacity-50"
+                className="w-full rounded-xl border border-stone-300 px-4 py-2.5 text-sm font-bold text-stone-700 transition-all hover:bg-stone-50 disabled:opacity-50"
               >
                 {isProcessing ? 'جارٍ الإلغاء...' : 'متابعة الإلغاء'}
               </button>
+              <a
+                href={`mailto:${SUPPORT_EMAIL}?subject=إيقاف مؤقت للاشتراك`}
+                className="w-full text-center rounded-full border border-stone-200 py-3 text-sm font-bold text-stone-600 hover:bg-stone-50 block"
+              >
+                إيقاف مؤقت — تواصل معنا
+              </a>
               <button
                 onClick={() => { setShowCancelDialog(false); setCancelStep(null); }}
-                className="flex-1 rounded-xl bg-emerald-600 px-4 py-2.5 text-sm font-bold text-white transition-all hover:bg-emerald-700"
+                className="w-full rounded-xl bg-emerald-600 px-4 py-2.5 text-sm font-bold text-white transition-all hover:bg-emerald-700"
               >
                 الاحتفاظ بالاشتراك
               </button>

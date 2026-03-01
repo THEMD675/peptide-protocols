@@ -125,7 +125,7 @@ export default function Pricing() {
               <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />
               جارٍ التحويل لصفحة الدفع...
             </>
-          ) : 'اشترك الآن'}
+          ) : 'ابدأ تجربة 3 أيام مجانية'}
         </button>
       );
     }
@@ -208,6 +208,7 @@ export default function Pricing() {
               <span className="text-3xl font-black text-stone-900 sm:text-5xl">${PRICING.essentials.monthly}</span>
               <span className="text-lg text-stone-800"> /شهريًا</span>
             </div>
+            <p className="text-xs text-stone-400 mt-1">خطة سنوية قريبًا — وفّر أكثر</p>
             <div className="mb-6" />
 
             <ul className="mb-8 flex-1 space-y-3">
@@ -220,6 +221,10 @@ export default function Pricing() {
             </ul>
 
             {renderAction('essentials', false)}
+            <div className="mt-2 flex items-center justify-center gap-1.5 text-xs text-stone-400">
+              <Shield className="h-3.5 w-3.5" />
+              <span>ضمان استرداد كامل خلال 3 أيام</span>
+            </div>
           </div>
 
           {/* Elite */}
@@ -240,6 +245,7 @@ export default function Pricing() {
               <span className="text-3xl font-black text-stone-900 sm:text-5xl">${PRICING.elite.monthly}</span>
               <span className="text-lg text-stone-800"> /شهريًا</span>
             </div>
+            <p className="text-xs text-stone-400 mt-1">خطة سنوية قريبًا — وفّر أكثر</p>
             <div className="mb-4 inline-flex items-center gap-1.5 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-xs font-bold text-emerald-700">
               <Crown className="h-3.5 w-3.5" />
               الباقة الشاملة
@@ -256,6 +262,10 @@ export default function Pricing() {
             </ul>
 
             {renderAction('elite', true)}
+            <div className="mt-2 flex items-center justify-center gap-1.5 text-xs text-stone-400">
+              <Shield className="h-3.5 w-3.5" />
+              <span>ضمان استرداد كامل خلال 3 أيام</span>
+            </div>
           </div>
         </div>
 

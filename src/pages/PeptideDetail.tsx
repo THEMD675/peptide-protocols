@@ -112,6 +112,10 @@ export default function PeptideDetail() {
           </button>
         </div>
 
+        <div className="mb-4 rounded-xl border border-amber-200 bg-amber-50 px-4 py-2 text-xs text-amber-700">
+          محتوى تعليمي — استشر طبيبك قبل استخدام أي ببتيد
+        </div>
+
         {/* Warning Banner — subscribers only */}
         {peptide.warningAr && hasAccess && (
           <div
@@ -204,6 +208,15 @@ export default function PeptideDetail() {
                   {peptide.evidenceAr}
                 </p>
               </div>
+              <details className="mt-2 text-xs text-stone-500">
+                <summary className="cursor-pointer hover:text-emerald-600">ماذا تعني مستويات الدليل؟</summary>
+                <ul className="mt-1 space-y-1 ps-4 list-disc">
+                  <li>ممتاز: تجارب سريرية كبرى متعددة + اعتماد FDA</li>
+                  <li>قوي: عدة دراسات بشرية أو بيانات ما قبل سريرية واسعة</li>
+                  <li>متوسط / جيد: دراسات محدودة أو بيانات حيوانية قوية</li>
+                  <li>ضعيف: تقارير حالة أو بيانات أولية فقط</li>
+                </ul>
+              </details>
             </div>
 
             <div
