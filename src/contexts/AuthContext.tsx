@@ -295,7 +295,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           apikey: import.meta.env.VITE_SUPABASE_ANON_KEY,
         },
         body: JSON.stringify({ email, name: '' }),
-      }).catch(() => {});
+      }).catch((e) => console.error('Welcome email failed:', e));
     }
   }, []);
 

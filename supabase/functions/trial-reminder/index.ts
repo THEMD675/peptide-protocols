@@ -281,6 +281,22 @@ serve(async (req) => {
       }
     }
 
+    // Server-side trial expiration cleanup
+    const { data: expiredTrials } = await supabase
+      .from('subscriptions')
+      .select('id, user_id, trial_ends_at')
+      .eq('status', 'trial')
+      .lt('trial_ends_at', new Date().toISOString())
+
+    if (expiredTrials && expiredTrials.length > 0) {
+      for (const t of expiredTrials) {
+        const { data: sub } = await supabase.from('subscriptions').select('stripe_subscription_id').eq('id', t.id).maybeSingle()
+        if (!sub?.stripe_subscription_id) {
+          await supabase.from('subscriptions').update({ status: 'expired', updated_at: new Date().toISOString() }).eq('id', t.id)
+        }
+      }
+    }
+
     return new Response(JSON.stringify({ sent, skipped, failed }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     })

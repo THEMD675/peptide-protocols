@@ -141,6 +141,24 @@ serve(async (req) => {
 
     console.log(JSON.stringify({ action: 'delete_account', user_id: user.id, email: user.email ?? null, result: 'success', timestamp: new Date().toISOString() }))
 
+    const RESEND_API_KEY = Deno.env.get('RESEND_API_KEY')
+    if (RESEND_API_KEY && user.email) {
+      fetch('https://api.resend.com/emails', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${RESEND_API_KEY}` },
+        body: JSON.stringify({
+          from: 'pptides <noreply@pptides.com>',
+          to: user.email,
+          subject: 'تم حذف حسابك في pptides',
+          html: `<div dir="rtl" style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Tahoma, Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 40px 20px;">
+            <h1 style="color: #1c1917; font-size: 24px;">تم حذف حسابك</h1>
+            <p style="color: #44403c; font-size: 16px; line-height: 1.8;">تم حذف حسابك وجميع بياناتك من pptides بنجاح. إذا كان هذا خطأ، تواصل معنا فورًا.</p>
+            <p style="color: #78716c; font-size: 13px;">contact@pptides.com</p>
+          </div>`,
+        }),
+      }).catch(e => console.error('account deletion email failed:', e))
+    }
+
     return new Response(JSON.stringify({ success: true }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     })

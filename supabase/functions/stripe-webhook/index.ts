@@ -138,6 +138,37 @@ serve(async (req) => {
           console.error('checkout.session.completed DB exception:', dbErr)
           dbFailed = true
         }
+
+        if (!dbFailed) {
+          const RESEND_API_KEY = Deno.env.get('RESEND_API_KEY')
+          if (RESEND_API_KEY && session.customer_email) {
+            fetch('https://api.resend.com/emails', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${RESEND_API_KEY}` },
+              body: JSON.stringify({
+                from: 'pptides <noreply@pptides.com>',
+                reply_to: 'contact@pptides.com',
+                to: session.customer_email,
+                subject: '✅ تم تفعيل اشتراكك في pptides',
+                headers: { 'List-Unsubscribe': '<mailto:contact@pptides.com?subject=unsubscribe>' },
+                html: `<div dir="rtl" style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Tahoma, Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 40px 20px;">
+                  <h1 style="color: #1c1917; font-size: 24px;">مرحبًا بك في pptides!</h1>
+                  <p style="color: #44403c; font-size: 16px; line-height: 1.8;">تم تفعيل اشتراكك في باقة <strong style="color: #059669;">${tier === 'elite' ? 'Elite' : 'Essentials'}</strong> بنجاح.</p>
+                  <div style="background: #ecfdf5; border-radius: 12px; padding: 20px; margin: 20px 0;">
+                    <p style="margin: 8px 0; font-size: 15px;"><strong style="color: #059669;">الخطوة التالية:</strong> تصفّح <a href="https://pptides.com/library" style="color: #059669; font-weight: bold;">مكتبة الببتيدات</a> واكتشف البروتوكول المناسب لك</p>
+                    <p style="margin: 8px 0; font-size: 15px;"><strong style="color: #059669;">المدرب الذكي:</strong> اسأل <a href="https://pptides.com/coach" style="color: #059669; font-weight: bold;">المدرب</a> عن بروتوكول مخصّص</p>
+                  </div>
+                  <div style="text-align: center; margin: 24px 0;">
+                    <a href="https://pptides.com/dashboard" style="display: inline-block; background: #059669; color: white; padding: 16px 40px; border-radius: 9999px; text-decoration: none; font-weight: bold; font-size: 16px;">ابدأ الآن</a>
+                  </div>
+                  <p style="color: #78716c; font-size: 13px;">ضمان استرداد كامل خلال 3 أيام — تواصل معنا: contact@pptides.com</p>
+                  <hr style="border: none; border-top: 1px solid #e7e5e4; margin: 24px 0;" />
+                  <p style="color: #a8a29e; font-size: 12px;">pptides.com — محتوى تعليمي بحثي</p>
+                </div>`,
+              }),
+            }).catch(e => console.error('payment confirmation email failed:', e))
+          }
+        }
         break
       }
 
@@ -277,6 +308,35 @@ serve(async (req) => {
             console.error('invoice.payment_failed DB exception:', dbErr)
             dbFailed = true
           }
+
+          if (!dbFailed) {
+            const RESEND_API_KEY = Deno.env.get('RESEND_API_KEY')
+            if (RESEND_API_KEY) {
+              const customer = await stripe.customers.retrieve(invoice.customer as string).catch(() => null)
+              const customerEmail = (customer && !customer.deleted) ? customer.email : null
+              if (customerEmail) {
+                fetch('https://api.resend.com/emails', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${RESEND_API_KEY}` },
+                  body: JSON.stringify({
+                    from: 'pptides <noreply@pptides.com>',
+                    reply_to: 'contact@pptides.com',
+                    to: customerEmail,
+                    subject: '⚠️ تعذّر تحصيل الدفعة — حدّث وسيلة الدفع',
+                    headers: { 'List-Unsubscribe': '<mailto:contact@pptides.com?subject=unsubscribe>' },
+                    html: `<div dir="rtl" style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Tahoma, Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 40px 20px;">
+                      <h1 style="color: #1c1917; font-size: 24px;">تعذّر تحصيل الدفعة</h1>
+                      <p style="color: #44403c; font-size: 16px; line-height: 1.8;">لم نتمكن من تحصيل دفعتك لاشتراك pptides. يرجى تحديث وسيلة الدفع لتجنّب فقدان الوصول.</p>
+                      <div style="text-align: center; margin: 24px 0;">
+                        <a href="https://pptides.com/account" style="display: inline-block; background: #059669; color: white; padding: 16px 40px; border-radius: 9999px; text-decoration: none; font-weight: bold; font-size: 16px;">تحديث وسيلة الدفع</a>
+                      </div>
+                      <p style="color: #78716c; font-size: 13px;">إذا كنت بحاجة للمساعدة: contact@pptides.com</p>
+                    </div>`,
+                  }),
+                }).catch(e => console.error('payment failed email error:', e))
+              }
+            }
+          }
         } else {
           console.error('invoice.payment_failed: missing subscription ID on invoice', invoice.id)
         }
@@ -335,6 +395,37 @@ serve(async (req) => {
           if (error) { console.error('charge.refunded DB error:', error); dbFailed = true }
         }
         console.log(JSON.stringify({ action: 'charge_refunded', customer: customerId, amount: charge.amount_refunded, timestamp: new Date().toISOString() }))
+        break
+      }
+
+      case 'customer.subscription.trial_will_end': {
+        const subscription = event.data.object as Stripe.Subscription
+        const customerId = subscription.customer as string
+        const RESEND_API_KEY = Deno.env.get('RESEND_API_KEY')
+        if (RESEND_API_KEY && customerId) {
+          const customer = await stripe.customers.retrieve(customerId).catch(() => null)
+          const email = (customer && !customer.deleted) ? customer.email : null
+          if (email) {
+            fetch('https://api.resend.com/emails', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${RESEND_API_KEY}` },
+              body: JSON.stringify({
+                from: 'pptides <noreply@pptides.com>',
+                reply_to: 'contact@pptides.com',
+                to: email,
+                subject: '⏰ تجربتك تنتهي قريبًا — لا تفقد وصولك',
+                headers: { 'List-Unsubscribe': '<mailto:contact@pptides.com?subject=unsubscribe>' },
+                html: `<div dir="rtl" style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Tahoma, Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 40px 20px;">
+                  <h1 style="color: #1c1917; font-size: 24px;">تجربتك تنتهي قريبًا</h1>
+                  <p style="color: #44403c; font-size: 16px; line-height: 1.8;">سيتم تحصيل الدفعة تلقائيًا عند انتهاء التجربة. إذا لم ترغب بالاستمرار، يمكنك الإلغاء من حسابك.</p>
+                  <div style="text-align: center; margin: 24px 0;">
+                    <a href="https://pptides.com/dashboard" style="display: inline-block; background: #059669; color: white; padding: 16px 40px; border-radius: 9999px; text-decoration: none; font-weight: bold; font-size: 16px;">تصفّح pptides</a>
+                  </div>
+                </div>`,
+              }),
+            }).catch(e => console.error('trial_will_end email error:', e))
+          }
+        }
         break
       }
 
