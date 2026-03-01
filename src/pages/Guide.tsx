@@ -102,12 +102,13 @@ export default function Guide() {
     <div className="mx-auto max-w-5xl px-4 pb-24 pt-8 md:px-6 md:pt-12 animate-fade-in">
       <Helmet>
         <title>دليل التحضير والحقن | pptides</title>
-        <meta name="description" content="خطوات تحضير الببتيدات والحقن تحت الجلد ومواقع الحقن وقواعد التخزين. How to reconstitute and inject peptides safely." />
+        <meta name="description" content="دليل التحضير والحقن خطوة بخطوة" />
         <meta property="og:title" content="دليل تحضير وحقن الببتيدات | pptides" />
         <meta property="og:description" content="دليل عملي خطوة بخطوة لتحضير وحقن الببتيدات بأمان" />
         <meta property="og:url" content={`${SITE_URL}/guide`} />
         <meta property="og:type" content="article" />
         <meta property="og:locale" content="ar_SA" />
+        <meta property="og:image" content="https://pptides.com/og-image.png" />
         <script type="application/ld+json">{JSON.stringify({
           "@context": "https://schema.org",
           "@type": "HowTo",

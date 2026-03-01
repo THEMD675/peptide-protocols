@@ -193,7 +193,7 @@ export default function Dashboard() {
     <div className="mx-auto max-w-5xl px-4 pb-24 pt-8 md:px-6 md:pt-12 animate-fade-in">
       <Helmet>
         <title>لوحة التحكم | pptides</title>
-        <meta name="description" content="لوحة التحكم الرئيسية لإدارة حسابك في pptides. Your pptides dashboard." />
+        <meta name="description" content="لوحة التحكم — أدواتك في مكان واحد" />
         <meta name="robots" content="noindex, nofollow" />
       </Helmet>
 

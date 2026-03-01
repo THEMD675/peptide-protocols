@@ -53,12 +53,13 @@ export default function Stacks() {
       {activeWizard && <ProtocolWizard peptideId={activeWizard} onClose={() => setActiveWizard(null)} />}
       <Helmet>
         <title>بروتوكولات ببتيدات مُجمَّعة | خلطات مُجرَّبة | pptides</title>
-        <meta name="description" content="بروتوكولات مُجمَّعة تجمع عدة ببتيدات حسب الهدف: تعافي، دماغ، طول عمر. Curated peptide stacks for recovery, brain, and longevity." />
+        <meta name="description" content="بروتوكولات مُجمَّعة لأهداف محددة" />
         <meta property="og:title" content="البروتوكولات المُجمَّعة | pptides" />
         <meta property="og:description" content="خلطات ببتيدات مُجرَّبة لأهداف محددة — تعافي، دماغ، طول عمر" />
         <meta property="og:url" content={`${SITE_URL}/stacks`} />
         <meta property="og:type" content="website" />
         <meta property="og:locale" content="ar_SA" />
+        <meta property="og:image" content="https://pptides.com/og-image.png" />
       </Helmet>
       {/* Header */}
       <div className="mb-10 text-center">

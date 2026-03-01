@@ -56,6 +56,7 @@ export default function Sources() {
         <meta property="og:url" content={`${SITE_URL}/sources`} />
         <meta property="og:type" content="website" />
         <meta property="og:locale" content="ar_SA" />
+        <meta property="og:image" content="https://pptides.com/og-image.png" />
       </Helmet>
 
       <div className="mx-auto max-w-4xl px-4 pt-8 pb-24 md:px-6 md:pt-12">

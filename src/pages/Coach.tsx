@@ -399,13 +399,14 @@ export default function Coach() {
     <div className="min-h-screen animate-fade-in">
       <Helmet>
         <title>استشاري الببتيدات | بروتوكول مخصّص بالذكاء الاصطناعي | pptides</title>
-        <meta name="description" content="مدرب ذكي بالذكاء الاصطناعي يصمّم لك بروتوكول ببتيدات مخصّص حسب أهدافك وخبرتك. AI-powered peptide protocol coach." />
+        <meta name="description" content="استشاري الببتيدات بالذكاء الاصطناعي" />
         <meta name="robots" content="noindex, nofollow" />
         <meta property="og:title" content="استشاري الببتيدات | pptides" />
         <meta property="og:description" content="مدرب ذكي بالذكاء الاصطناعي يصمّم لك بروتوكول ببتيدات مخصّص" />
         <meta property="og:url" content={`${SITE_URL}/coach`} />
         <meta property="og:type" content="website" />
         <meta property="og:locale" content="ar_SA" />
+        <meta property="og:image" content="https://pptides.com/og-image.png" />
       </Helmet>
       <div className="mx-auto max-w-3xl px-4 py-8 md:px-6 md:py-12">
         <div className="mb-6 flex items-center justify-between">
@@ -604,8 +605,8 @@ export default function Coach() {
                     )}
                   </div>
                 </div>
-                {msg.role === 'assistant' && i === messages.findIndex(m => m.role === 'assistant') && !msg.content.startsWith('__ERROR') && (
-                  <p className="mt-1 text-xs text-stone-400 text-end max-w-[88%] ms-auto">هذا المحتوى تعليمي وليس نصيحة طبية — استشر طبيبك</p>
+                {msg.role === 'assistant' && !msg.content.startsWith('__ERROR') && (
+                  <p className="mt-1 text-[11px] text-stone-400 text-end max-w-[88%] ms-auto">محتوى تعليمي — استشر طبيبك</p>
                 )}
                 {/* Action pills: for non-last messages, show Copy + WhatsApp only */}
                 {msg.role === 'assistant' && !isLoading && msg.content.length > 50 && i !== messages.length - 1 && (

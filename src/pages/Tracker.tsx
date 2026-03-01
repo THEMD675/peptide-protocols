@@ -422,7 +422,7 @@ export default function Tracker() {
     <div className="mx-auto max-w-3xl px-4 pb-24 pt-8 md:px-6 md:pt-12 animate-fade-in">
       <Helmet>
         <title>سجل الحقن | تتبّع جرعاتك | pptides</title>
-        <meta name="description" content="سجّل وتتبّع حقن الببتيدات والجرعات اليومية. Track your peptide injections and daily doses." />
+        <meta name="description" content="تتبّع جرعاتك ومواقع الحقن" />
         <meta name="robots" content="noindex, nofollow" />
       </Helmet>
 

@@ -68,6 +68,7 @@ export default function PeptideTable() {
           content={`جدول ببتيدات, peptide comparison table arabic, مقارنة ببتيدات, بروتوكولات ببتيدات, جرعات ببتيدات, ببتيدات عربي, ${PEPTIDE_COUNT} ببتيد`}
         />
         <link rel="canonical" href={`${SITE_URL}/table`} />
+        <meta property="og:image" content="https://pptides.com/og-image.png" />
       </Helmet>
 
       {/* ━━━ STICKY SUBSCRIPTION BANNER ━━━ */}

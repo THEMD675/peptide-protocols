@@ -23,11 +23,12 @@ export default function Glossary() {
     <div className="min-h-screen mx-auto max-w-4xl px-4 pb-24 pt-8 md:px-6 md:pt-12 animate-fade-in">
       <Helmet>
         <title>مصطلحات الببتيدات | pptides</title>
-        <meta name="description" content="قاموس شامل لمصطلحات الببتيدات والبيوهاكينغ بالعربي مع المعادل الإنجليزي. Comprehensive Arabic peptide and biohacking glossary." />
+        <meta name="description" content="قاموس شامل لمصطلحات الببتيدات" />
         <meta property="og:title" content="مصطلحات الببتيدات | pptides" />
         <meta property="og:description" content="قاموس شامل لمصطلحات الببتيدات والطب الرياضي" />
         <meta property="og:url" content={`${SITE_URL}/glossary`} />
         <meta property="og:type" content="website" />
+        <meta property="og:image" content="https://pptides.com/og-image.png" />
         <meta property="og:locale" content="ar_SA" />
         <script type="application/ld+json">{JSON.stringify({
           "@context": "https://schema.org",

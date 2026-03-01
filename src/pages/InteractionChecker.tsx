@@ -129,6 +129,7 @@ export default function InteractionChecker() {
         <meta property="og:url" content={`${SITE_URL}/interactions`} />
         <meta property="og:type" content="website" />
         <meta property="og:locale" content="ar_SA" />
+        <meta property="og:image" content="https://pptides.com/og-image.png" />
       </Helmet>
 
       <div className="mx-auto max-w-2xl px-4 py-8 md:px-6 md:py-12">
@@ -152,7 +153,7 @@ export default function InteractionChecker() {
                 value={sel}
                 onChange={(e) => updateSlot(idx, e.target.value)}
                 aria-label={`اختر الببتيد ${idx + 1}`}
-                className={cn('flex-1 rounded-xl border border-stone-300 bg-stone-50 px-4 py-3 text-sm focus:border-emerald-300 focus:outline-none', sel ? 'text-stone-900' : 'text-stone-400 italic')}
+                className={cn('flex-1 rounded-xl border border-stone-300 bg-stone-50 px-4 py-3 text-sm focus:border-emerald-300 focus:outline-none focus:ring-2 focus:ring-emerald-100', sel ? 'text-stone-900' : 'text-stone-400 italic')}
               >
                 <option value="">اختر ببتيد...</option>
                 {sortedPeptides.map(p => {

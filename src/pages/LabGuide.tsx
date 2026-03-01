@@ -52,12 +52,13 @@ export default function LabGuide() {
     <div className="mx-auto max-w-5xl px-4 pb-24 pt-8 md:px-6 md:pt-12 animate-fade-in">
       <Helmet>
         <title>دليل التحاليل المخبرية | pptides</title>
-        <meta name="description" content="التحاليل المخبرية اللازمة قبل وأثناء وبعد استخدام الببتيدات مع العلامات التحذيرية. Essential bloodwork guide for peptide users." />
+        <meta name="description" content="دليل التحاليل المخبرية للببتيدات" />
         <meta property="og:title" content="دليل التحاليل المخبرية | pptides" />
         <meta property="og:description" content="التحاليل الأساسية قبل وأثناء وبعد استخدام الببتيدات" />
         <meta property="og:url" content={`${SITE_URL}/lab-guide`} />
         <meta property="og:type" content="article" />
         <meta property="og:locale" content="ar_SA" />
+        <meta property="og:image" content="https://pptides.com/og-image.png" />
       </Helmet>
       {/* Header */}
       <div className="mb-10 text-center">

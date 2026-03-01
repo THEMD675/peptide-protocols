@@ -49,6 +49,7 @@ export default memo(function Footer() {
               <Link to="/interactions" className="text-stone-600 transition-colors hover:text-emerald-600 active:text-emerald-700">فحص التعارضات</Link>
               <Link to="/sources" className="text-stone-600 transition-colors hover:text-emerald-600 active:text-emerald-700">المصادر</Link>
               <Link to="/community" className="text-stone-600 transition-colors hover:text-emerald-600 active:text-emerald-700">التجارب</Link>
+              <Link to="/reviews" className="text-stone-600 transition-colors hover:text-emerald-600 active:text-emerald-700">التقييمات</Link>
             </nav>
           </div>
 
@@ -72,7 +73,7 @@ export default memo(function Footer() {
           <p className="text-xs text-stone-500">
             pp<span className="text-emerald-600">tides</span> — جميع الحقوق محفوظة © {new Date().getFullYear()}
           </p>
-          <p className="mt-2 text-xs text-stone-400 leading-relaxed">
+          <p className="mt-2 text-sm text-stone-500 leading-relaxed">
             هذا المحتوى تعليمي ولا يُعدّ بديلًا عن الاستشارة الطبية. استشر طبيبك قبل استخدام أي ببتيد.
           </p>
         </div>

@@ -207,7 +207,11 @@ function HomeRedirect() {
 function NotFound() {
   return (
     <>
-    <Helmet><title>الصفحة غير موجودة — 404 | pptides</title><meta name="robots" content="noindex" /></Helmet>
+    <Helmet>
+      <title>الصفحة غير موجودة — 404 | pptides</title>
+      <meta name="description" content="الصفحة التي تبحث عنها غير متاحة. تصفّح مكتبة الببتيدات أو جرّب الحاسبة." />
+      <meta name="robots" content="noindex" />
+    </Helmet>
     <div className="flex flex-1 flex-col items-center justify-center py-24 text-center px-6">
       <Link to="/" className="mb-6 text-2xl font-bold tracking-tight text-stone-900">
         <span>pp</span>

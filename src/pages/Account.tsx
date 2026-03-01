@@ -171,7 +171,7 @@ export default function Account() {
     <div className="mx-auto max-w-3xl px-4 pb-24 pt-8 md:px-6 md:pt-12 animate-fade-in">
       <Helmet>
         <title>حسابي | إدارة الاشتراك والإعدادات | pptides</title>
-        <meta name="description" content="إدارة حسابك واشتراكك في pptides. Manage your account and subscription." />
+        <meta name="description" content="إدارة حسابك واشتراكك" />
         <meta name="robots" content="noindex, nofollow" />
       </Helmet>
 
