@@ -227,6 +227,9 @@ export default function Tracker() {
     if (!peptideName.trim()) { toast.error('اختر الببتيد أولاً'); return; }
     const doseNum = parseFloat(dose);
     if (!dose || isNaN(doseNum) || doseNum <= 0) { toast.error('أدخل جرعة صحيحة'); return; }
+    if (!injectedAt.trim()) { toast.error('أدخل التاريخ والوقت'); return; }
+    const injectedDate = new Date(injectedAt);
+    if (Number.isNaN(injectedDate.getTime())) { toast.error('التاريخ والوقت غير صالح'); return; }
     setIsSubmitting(true);
     try {
       const sideEffectLabel = sideEffect !== 'none' ? `أعراض جانبية: ${sideEffect}` : '';
@@ -237,7 +240,7 @@ export default function Tracker() {
         dose: parseFloat(dose),
         dose_unit: unit,
         injection_site: site,
-        logged_at: new Date(injectedAt).toISOString(),
+        logged_at: injectedDate.toISOString(),
         notes: combinedNotes,
       });
       if (error) {
@@ -671,6 +674,7 @@ export default function Tracker() {
                 type="datetime-local"
                 value={injectedAt}
                 onChange={(e) => setInjectedAt(e.target.value)}
+                required
                 aria-label="التاريخ والوقت"
                 dir="ltr"
                 className="w-full rounded-xl border border-stone-200 bg-white px-4 py-3 text-sm text-stone-900 focus:border-emerald-300 focus:outline-none focus:ring-2 focus:ring-emerald-100"
