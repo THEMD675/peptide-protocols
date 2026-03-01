@@ -204,7 +204,8 @@ function OfflineBanner() {
 
 function HomeRedirect() {
   const { user, subscription, isLoading } = useAuth();
-  if (!isLoading && user && subscription?.isProOrTrial) return <Navigate to="/dashboard" replace />;
+  if (isLoading) return <PageLoader />;
+  if (user && subscription?.isProOrTrial) return <Navigate to="/dashboard" replace />;
   return <Suspense fallback={<PageLoader />}><Landing /></Suspense>;
 }
 

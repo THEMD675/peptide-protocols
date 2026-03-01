@@ -444,9 +444,9 @@ export default function Coach() {
                 <div className="flex justify-end">
                   <div className="max-w-[88%] rounded-2xl rounded-bl-md border border-stone-200 bg-white px-5 py-3">
                     <p className="text-sm leading-relaxed text-stone-800">
-                      <strong>أهلًا!</strong> أنا مستشارك المتخصص في الببتيدات البحثية. عندي خبرة 10 سنوات أساعد ناس يحققون نتائج حقيقية.
+                      <strong>مرحبًا!</strong> أنا مستشارك المتخصص في الببتيدات العلاجية. سأساعدك في تصميم بروتوكول مخصّص بناءً على هدفك وحالتك.
                     </p>
-                    <p className="mt-2 text-sm text-stone-800">خلنا نبدأ — <strong>وش هدفك الأساسي؟</strong></p>
+                    <p className="mt-2 text-sm text-stone-800">اختر هدفك وسأصمّم لك بروتوكول مخصّص، أو <button onClick={() => setIntakeStep('done')} className="font-bold text-emerald-600 hover:underline">اسأل مباشرة</button></p>
                   </div>
                 </div>
 
@@ -471,7 +471,7 @@ export default function Coach() {
                     </div>
                     <div className="flex justify-end animate-fade-up">
                       <div className="max-w-[88%] rounded-2xl rounded-bl-md border border-stone-200 bg-white px-5 py-3">
-                        <p className="text-sm text-stone-800">تمام، <strong>{intake.goalLabel}</strong>. عندي بروتوكولات ممتازة لهذا الهدف. <strong>ما مستوى خبرتك مع الببتيدات؟</strong></p>
+                        <p className="text-sm text-stone-800">ممتاز — <strong>{intake.goalLabel}</strong>. لديّ بروتوكولات فعّالة لهذا الهدف. <strong>ما مستوى خبرتك مع الببتيدات؟</strong></p>
                       </div>
                     </div>
                     <div className="grid gap-2 max-w-[88%]">
