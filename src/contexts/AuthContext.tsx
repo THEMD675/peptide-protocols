@@ -285,11 +285,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const login = useCallback(async (email: string, password: string) => {
     const { error } = await supabase.auth.signInWithPassword({ email, password });
     if (error) {
-      throw new Error(
-        error.message === 'Invalid login credentials'
-          ? 'البريد أو كلمة المرور غير صحيحة'
-          : 'حدث خطأ في تسجيل الدخول. حاول مرة أخرى.',
-      );
+      if (error.message === 'Invalid login credentials') {
+        throw new Error('البريد أو كلمة المرور غير صحيحة');
+      }
+      if (error.message.includes('Email not confirmed')) {
+        throw new Error('يرجى تأكيد بريدك الإلكتروني أولًا — تحقق من صندوق الوارد');
+      }
+      if (error.message.includes('too many') || error.message.includes('rate limit')) {
+        throw new Error('محاولات كثيرة — انتظر دقيقة وحاول مرة أخرى');
+      }
+      throw new Error(error.message);
     }
   }, []);
 

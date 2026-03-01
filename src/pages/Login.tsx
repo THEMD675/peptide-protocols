@@ -10,10 +10,15 @@ import { cn } from '@/lib/utils';
 type Tab = 'login' | 'signup';
 
 const friendlyError = (msg: string) => {
-  if (msg.includes('Invalid login')) return 'بريد إلكتروني أو كلمة مرور غير صحيحة';
-  if (msg.includes('Email not confirmed')) return 'يرجى تأكيد بريدك الإلكتروني أولًا';
-  if (msg.includes('already registered') || msg.includes('already been registered')) return 'هذا البريد مسجّل — جرّب تسجيل الدخول';
-  if (msg.includes('rate limit') || msg.includes('too many')) return 'محاولات كثيرة — انتظر قليلًا';
+  if (msg.includes('Invalid login') || msg.includes('البريد أو كلمة المرور غير صحيحة')) return 'بريد إلكتروني أو كلمة مرور غير صحيحة';
+  if (msg.includes('Email not confirmed') || msg.includes('تأكيد بريدك')) return 'يرجى تأكيد بريدك الإلكتروني أولًا — تحقق من صندوق الوارد';
+  if (msg.includes('already registered') || msg.includes('already been registered') || msg.includes('مسجّل مسبقًا') || msg.includes('مسجّل')) return 'هذا البريد مسجّل بالفعل — جرّب تسجيل الدخول بدلًا من إنشاء حساب';
+  if (msg.includes('rate limit') || msg.includes('too many') || msg.includes('request')) return 'محاولات كثيرة — انتظر قليلًا وحاول مرة أخرى';
+  if (msg.includes('email_address_invalid') || msg.includes('invalid') || msg.includes('Unable to validate')) return 'البريد الإلكتروني غير صحيح — تأكد من الكتابة';
+  if (msg.includes('weak_password') || msg.includes('Password should')) return 'كلمة المرور ضعيفة — استخدم 8 أحرف على الأقل';
+  if (msg.includes('signup_disabled')) return 'التسجيل معطّل مؤقتًا — حاول لاحقًا';
+  if (msg.includes('network') || msg.includes('fetch') || msg.includes('Failed to fetch')) return 'خطأ في الاتصال — تحقق من الإنترنت وحاول مرة أخرى';
+  if (msg.includes('خطأ في تسجيل الدخول') || msg.includes('خطأ في إنشاء')) return msg;
   return 'حدث خطأ — حاول مرة أخرى';
 };
 
@@ -121,9 +126,10 @@ export default function Login() {
       const msg = friendlyError(raw);
       if (raw.includes('رابط التأكيد') || raw.includes('تحقق من بريدك')) {
         setInfoMessage(raw);
-      } else if (raw.includes('already') || raw.includes('registered')) {
+      } else if (raw.includes('already') || raw.includes('registered') || raw.includes('مسجّل')) {
         toast.error('هذا البريد مسجّل — جرّب تسجيل الدخول أو استخدم Google');
         setError(msg);
+        setTab('login');
       } else {
         setError(msg);
       }
