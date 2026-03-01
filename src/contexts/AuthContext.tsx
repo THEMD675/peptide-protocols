@@ -343,6 +343,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
 
     if (data.user) {
+      let refCode: string | null = null;
+      try { refCode = localStorage.getItem('pptides_referral'); } catch { /* expected */ }
+      const validRef = refCode && /^PP-[A-Z0-9]{6}$/.test(refCode) ? refCode : null;
+
       const edgeFnUrl = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/send-welcome-email`;
       fetch(edgeFnUrl, {
         method: 'POST',
@@ -351,17 +355,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           Authorization: `Bearer ${data.session?.access_token ?? import.meta.env.VITE_SUPABASE_ANON_KEY}`,
           apikey: import.meta.env.VITE_SUPABASE_ANON_KEY,
         },
-        body: JSON.stringify({ email, name: '' }),
+        body: JSON.stringify({ email, name: '', referralCode: validRef }),
       }).catch((e) => console.error('Welcome email failed:', e));
 
-      try {
-        const refCode = localStorage.getItem('pptides_referral');
-        if (refCode && /^PP-[A-Z0-9]{6}$/.test(refCode) && data.session?.access_token) {
-          supabase.from('subscriptions').update({ referred_by: refCode }).eq('user_id', data.user.id).then(() => {});
-          supabase.from('referrals').update({ referred_id: data.user.id, referred_email: email, status: 'signed_up' }).eq('referral_code', refCode).eq('status', 'pending').then(() => {});
-          localStorage.removeItem('pptides_referral');
-        }
-      } catch { /* expected */ }
+      if (validRef) {
+        try { localStorage.removeItem('pptides_referral'); } catch { /* expected */ }
+      }
     }
   }, []);
 

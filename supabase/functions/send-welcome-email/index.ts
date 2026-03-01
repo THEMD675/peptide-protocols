@@ -97,7 +97,7 @@ serve(async (req) => {
       })
     }
 
-    let body: { email?: string; name?: string }
+    let body: { email?: string; name?: string; referralCode?: string }
     try {
       body = JSON.parse(rawBody)
     } catch {
@@ -107,7 +107,7 @@ serve(async (req) => {
       })
     }
 
-    const { email, name } = body
+    const { email, name, referralCode } = body
 
     if (!email) {
       return new Response(JSON.stringify({ error: 'Missing required field: email' }), {
@@ -243,6 +243,39 @@ serve(async (req) => {
     }
 
     const data = await res.json()
+
+    // Handle referral tracking with service role (bypasses RLS)
+    if (referralCode && /^PP-[A-Z0-9]{6}$/.test(referralCode) && serviceSupabase) {
+      try {
+        // Find the referrer by their referral code
+        const { data: referrerSub } = await serviceSupabase
+          .from('subscriptions')
+          .select('user_id')
+          .eq('referral_code', referralCode)
+          .maybeSingle()
+
+        if (referrerSub?.user_id) {
+          // Insert a new referral row (this is what was missing — rows were never created)
+          await serviceSupabase.from('referrals').insert({
+            referrer_id: referrerSub.user_id,
+            referred_id: user.id,
+            referral_code: referralCode,
+            referred_email: email,
+            status: 'signed_up',
+          }).catch(() => {})
+
+          // Mark the new user's subscription as referred
+          await serviceSupabase
+            .from('subscriptions')
+            .update({ referred_by: referralCode })
+            .eq('user_id', user.id)
+            .catch(() => {})
+        }
+      } catch (refErr) {
+        console.error('referral tracking failed:', refErr)
+      }
+    }
+
     return new Response(JSON.stringify(data), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     })

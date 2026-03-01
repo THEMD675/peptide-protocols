@@ -168,6 +168,16 @@ serve(async (req) => {
               }),
             }).catch(e => console.error('payment confirmation email failed:', e))
           }
+
+          // Update referral status to 'subscribed' when a referred user pays
+          if (userId) {
+            const { data: userSub } = await supabase.from('subscriptions').select('referred_by').eq('user_id', userId).maybeSingle()
+            if (userSub?.referred_by) {
+              await supabase.from('referrals').update({ status: 'subscribed', converted_at: new Date().toISOString() })
+                .eq('referred_id', userId).eq('referral_code', userSub.referred_by)
+                .catch(e => console.error('referral conversion update failed:', e))
+            }
+          }
         }
         break
       }
