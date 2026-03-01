@@ -1,7 +1,9 @@
+import { useState } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { Link } from 'react-router-dom';
 import { Layers, Clock, DollarSign, BarChart3, Syringe, Calculator } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
+import ProtocolWizard from '@/components/ProtocolWizard';
 import { PRICING, SITE_URL } from '@/lib/constants';
 import { stacks, peptides, categories } from '@/data/peptides';
 
@@ -34,6 +36,7 @@ function getPrimaryCategory(peptideIds: string[]) {
 export default function Stacks() {
   const { subscription, isLoading } = useAuth();
   const isPro = !isLoading && (subscription?.isProOrTrial ?? false);
+  const [activeWizard, setActiveWizard] = useState<string | null>(null);
 
   if (isLoading) {
     return (
@@ -47,6 +50,7 @@ export default function Stacks() {
 
   return (
     <div className="mx-auto max-w-6xl px-4 pb-24 pt-8 md:px-6 md:pt-12 animate-fade-in">
+      {activeWizard && <ProtocolWizard peptideId={activeWizard} onClose={() => setActiveWizard(null)} />}
       <Helmet>
         <title>بروتوكولات ببتيدات مُجمَّعة | خلطات مُجرَّبة | pptides</title>
         <meta name="description" content="بروتوكولات مُجمَّعة تجمع عدة ببتيدات حسب الهدف: تعافي، دماغ، طول عمر. Curated peptide stacks for recovery, brain, and longevity." />
@@ -169,13 +173,14 @@ export default function Stacks() {
                   </div>
 
                   <div className="mt-4 flex flex-wrap gap-2">
-                    <Link
-                      to={`/tracker?peptide=${encodeURIComponent(stackPeptides[0]?.nameEn ?? '')}`}
+                    <button
+                      type="button"
+                      onClick={() => stack.peptideIds[0] && setActiveWizard(stack.peptideIds[0])}
                       className="inline-flex items-center gap-1.5 rounded-full bg-emerald-600 px-5 py-2.5 text-sm font-bold text-white hover:bg-emerald-700 transition-colors"
                     >
                       <Syringe className="h-3.5 w-3.5" />
                       ابدأ البروتوكول
-                    </Link>
+                    </button>
                     <Link
                       to={`/calculator?peptide=${encodeURIComponent(stackPeptides[0]?.nameEn ?? '')}`}
                       className="inline-flex items-center gap-1.5 rounded-full border border-stone-200 bg-white px-4 py-2 text-sm font-bold text-stone-700 hover:border-emerald-200 transition-colors"

@@ -160,6 +160,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
+    if (params.get('payment') === 'cancelled') {
+      const url = new URL(window.location.href);
+      url.searchParams.delete('payment');
+      window.history.replaceState({}, '', url.toString());
+      toast('تم إلغاء عملية الدفع. يمكنك المحاولة مرة أخرى.');
+      return;
+    }
     if (params.get('payment') !== 'success' || !user) return;
 
     toast.success('شكرًا! جارٍ تفعيل اشتراكك...');

@@ -141,6 +141,7 @@ export default function PeptideQuiz() {
             goal: newAnswers[0],
             experience: newAnswers[1],
             injection: newAnswers[2],
+            ts: Date.now(),
           }));
         } catch { /* expected */ }
       }

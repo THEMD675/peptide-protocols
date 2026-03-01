@@ -117,7 +117,14 @@ export default function Tracker() {
         logged_at: new Date().toISOString(),
         protocol_id: proto.id,
       });
-      if (error) { toast.error('تعذّر حفظ الحقنة — تحقق من اتصالك وحاول مرة أخرى'); return; }
+      if (error) {
+        if (error?.message?.includes('JWT') || (error as { code?: string })?.code === '401' || error?.message?.includes('not authenticated')) {
+          toast.error('انتهت الجلسة — أعد تسجيل الدخول');
+        } else {
+          toast.error('تعذّر حفظ الحقنة — تحقق من اتصالك وحاول مرة أخرى');
+        }
+        return;
+      }
       await fetchLogs();
       const peptide = allPeptides.find(p => p.id === proto.peptide_id);
       toast.success(`تم تسجيل ${peptide?.nameAr ?? proto.peptide_id} — ${proto.dose} ${proto.dose_unit}`);
@@ -244,7 +251,11 @@ export default function Tracker() {
         notes: combinedNotes,
       });
       if (error) {
-        toast.error('تعذّر حفظ الحقنة — تحقق من اتصالك وحاول مرة أخرى');
+        if (error?.message?.includes('JWT') || (error as { code?: string })?.code === '401' || error?.message?.includes('not authenticated')) {
+          toast.error('انتهت الجلسة — أعد تسجيل الدخول');
+        } else {
+          toast.error('تعذّر حفظ الحقنة — تحقق من اتصالك وحاول مرة أخرى');
+        }
         return;
       }
       setPeptideName('');
@@ -568,7 +579,11 @@ export default function Tracker() {
                         notes: null,
                       });
                       if (error) {
-                        toast.error('تعذّر حفظ الحقنة — تحقق من اتصالك وحاول مرة أخرى');
+                        if (error?.message?.includes('JWT') || (error as { code?: string })?.code === '401' || error?.message?.includes('not authenticated')) {
+                          toast.error('انتهت الجلسة — أعد تسجيل الدخول');
+                        } else {
+                          toast.error('تعذّر حفظ الحقنة — تحقق من اتصالك وحاول مرة أخرى');
+                        }
                         return;
                       }
                       await fetchLogs();
