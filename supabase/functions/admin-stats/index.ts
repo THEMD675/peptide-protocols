@@ -4,7 +4,7 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 const supabaseUrl = Deno.env.get('SUPABASE_URL') ?? ''
 const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
 
-const ADMIN_EMAILS = ['abdullahalameer@gmail.com', 'contact@pptides.com', 'test-elite@pptides.com']
+const ADMIN_EMAILS = ['abdullahalameer@gmail.com', 'contact@pptides.com']
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': 'https://pptides.com',

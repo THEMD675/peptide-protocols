@@ -5,7 +5,7 @@ import { toast } from 'sonner';
 import { Users, CreditCard, MessageSquare, Star, Mail, Activity, TrendingUp, AlertTriangle, RefreshCw, Shield } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
-const ADMIN_EMAILS = ['abdullahalameer@gmail.com', 'contact@pptides.com', 'test-elite@pptides.com'];
+const ADMIN_EMAILS = ['abdullahalameer@gmail.com', 'contact@pptides.com'];
 
 interface AdminStats {
   overview: {
@@ -50,6 +50,7 @@ interface AdminStats {
 }
 
 type Tab = 'overview' | 'users' | 'reviews' | 'emails';
+type UserFilter = 'all' | 'active' | 'trial' | 'expired' | 'none';
 
 function StatCard({ label, value, icon: Icon, sub, alert }: { label: string; value: string | number; icon: React.ElementType; sub?: string; alert?: boolean }) {
   return (
@@ -82,6 +83,9 @@ export default function Admin() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [tab, setTab] = useState<Tab>('overview');
+  const [userSearch, setUserSearch] = useState('');
+  const [userFilter, setUserFilter] = useState<UserFilter>('all');
+  const [lastFetched, setLastFetched] = useState<Date | null>(null);
 
   const isAdmin = user && ADMIN_EMAILS.includes(user.email ?? '');
 
@@ -105,6 +109,7 @@ export default function Admin() {
         throw new Error(err.error ?? 'Failed to fetch stats');
       }
       setStats(await res.json());
+      setLastFetched(new Date());
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Failed to load');
       toast.error('Failed to load admin stats');
@@ -164,7 +169,10 @@ export default function Admin() {
 
       <div className="sticky top-[64px] md:top-[72px] z-30 bg-white border-b border-stone-200 px-4 py-3">
         <div className="max-w-6xl mx-auto flex items-center justify-between">
-          <h1 className="text-lg font-bold text-stone-900">Admin Dashboard</h1>
+          <div>
+            <h1 className="text-lg font-bold text-stone-900">Admin Dashboard</h1>
+            {lastFetched && <p className="text-[10px] text-stone-400">Updated {lastFetched.toLocaleTimeString('en-GB')}</p>}
+          </div>
           <button onClick={fetchStats} disabled={loading} className="flex items-center gap-1.5 rounded-lg border border-stone-200 px-3 py-1.5 text-xs font-medium text-stone-600 hover:bg-stone-50">
             <RefreshCw className={cn('h-3.5 w-3.5', loading && 'animate-spin')} /> Refresh
           </button>
@@ -199,41 +207,73 @@ export default function Admin() {
             </div>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
               <StatCard label="Email List" value={o.emailListCount} icon={Mail} />
-              <StatCard label="Trial → Essentials" value={o.trialEssentials} icon={CreditCard} />
-              <StatCard label="Trial → Elite" value={o.trialElite} icon={CreditCard} />
+              <StatCard label="Conversion Rate" value={o.totalUsers > 0 ? `${Math.round((o.activeSubscriptions / o.totalUsers) * 100)}%` : '0%'} icon={TrendingUp} sub={`${o.activeSubscriptions} paid / ${o.totalUsers} total`} />
+              <StatCard label="Trial → Paid" value={o.trialSubscriptions > 0 ? `${Math.round(((o.essentialsActive + o.eliteActive) / (o.essentialsActive + o.eliteActive + o.trialSubscriptions + o.expiredSubscriptions)) * 100)}%` : '—'} icon={CreditCard} />
               <StatCard label="Signups (30d)" value={o.signupsMonth} icon={Users} />
             </div>
           </div>
         )}
 
-        {tab === 'users' && (
-          <div className="overflow-x-auto rounded-xl border border-stone-200 bg-white">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="border-b border-stone-200 bg-stone-50">
-                  <th className="px-3 py-2 text-left font-medium text-stone-600">Email</th>
-                  <th className="px-3 py-2 text-left font-medium text-stone-600">Provider</th>
-                  <th className="px-3 py-2 text-left font-medium text-stone-600">Status</th>
-                  <th className="px-3 py-2 text-left font-medium text-stone-600">Tier</th>
-                  <th className="px-3 py-2 text-left font-medium text-stone-600">Signed Up</th>
-                  <th className="px-3 py-2 text-left font-medium text-stone-600">Last Login</th>
-                </tr>
-              </thead>
-              <tbody>
-                {stats.recentUsers.map(u => (
-                  <tr key={u.id} className="border-b border-stone-100 hover:bg-stone-50">
-                    <td className="px-3 py-2 font-mono text-xs">{u.email}</td>
-                    <td className="px-3 py-2 text-xs">{u.provider}</td>
-                    <td className="px-3 py-2"><StatusBadge status={u.subscription?.status ?? 'none'} /></td>
-                    <td className="px-3 py-2 text-xs">{u.subscription?.tier ?? '—'}</td>
-                    <td className="px-3 py-2 text-xs text-stone-500">{new Date(u.created_at).toLocaleDateString('en-GB')}</td>
-                    <td className="px-3 py-2 text-xs text-stone-500">{u.last_sign_in_at ? new Date(u.last_sign_in_at).toLocaleDateString('en-GB') : '—'}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
+        {tab === 'users' && (() => {
+          const filtered = stats.recentUsers.filter(u => {
+            if (userSearch && !u.email?.toLowerCase().includes(userSearch.toLowerCase())) return false;
+            if (userFilter === 'all') return true;
+            const s = u.subscription?.status ?? 'none';
+            if (userFilter === 'active') return s === 'active';
+            if (userFilter === 'trial') return s === 'trial';
+            if (userFilter === 'expired') return s === 'expired' || s === 'cancelled';
+            if (userFilter === 'none') return s === 'none' || !u.subscription;
+            return true;
+          });
+          return (
+            <div className="space-y-3">
+              <div className="flex flex-col sm:flex-row gap-2">
+                <input
+                  type="text"
+                  placeholder="Search by email..."
+                  value={userSearch}
+                  onChange={e => setUserSearch(e.target.value)}
+                  className="flex-1 rounded-lg border border-stone-200 bg-white px-3 py-2 text-sm outline-none focus:border-emerald-300 focus:ring-2 focus:ring-emerald-100"
+                  dir="ltr"
+                />
+                <div className="flex gap-1 overflow-x-auto">
+                  {(['all', 'active', 'trial', 'expired', 'none'] as UserFilter[]).map(f => (
+                    <button key={f} onClick={() => setUserFilter(f)} className={cn('rounded-lg px-3 py-1.5 text-xs font-medium whitespace-nowrap', userFilter === f ? 'bg-emerald-100 text-emerald-700' : 'bg-stone-100 text-stone-600 hover:bg-stone-200')}>
+                      {f === 'all' ? 'All' : f === 'active' ? 'Paid' : f === 'trial' ? 'Trial' : f === 'expired' ? 'Expired' : 'Free'}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <p className="text-xs text-stone-500">{filtered.length} users{userSearch ? ` matching "${userSearch}"` : ''}</p>
+              <div className="overflow-x-auto rounded-xl border border-stone-200 bg-white">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="border-b border-stone-200 bg-stone-50">
+                      <th className="px-3 py-2 text-left font-medium text-stone-600">Email</th>
+                      <th className="px-3 py-2 text-left font-medium text-stone-600">Provider</th>
+                      <th className="px-3 py-2 text-left font-medium text-stone-600">Status</th>
+                      <th className="px-3 py-2 text-left font-medium text-stone-600">Tier</th>
+                      <th className="px-3 py-2 text-left font-medium text-stone-600">Signed Up</th>
+                      <th className="px-3 py-2 text-left font-medium text-stone-600">Last Login</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {filtered.map(u => (
+                      <tr key={u.id} className="border-b border-stone-100 hover:bg-stone-50">
+                        <td className="px-3 py-2 font-mono text-xs">{u.email}{!u.confirmed && <span className="ml-1 text-[10px] text-amber-600">(unconfirmed)</span>}</td>
+                        <td className="px-3 py-2 text-xs">{u.provider}</td>
+                        <td className="px-3 py-2"><StatusBadge status={u.subscription?.status ?? 'none'} /></td>
+                        <td className="px-3 py-2 text-xs">{u.subscription?.tier ?? '—'}</td>
+                        <td className="px-3 py-2 text-xs text-stone-500">{new Date(u.created_at).toLocaleDateString('en-GB')}</td>
+                        <td className="px-3 py-2 text-xs text-stone-500">{u.last_sign_in_at ? new Date(u.last_sign_in_at).toLocaleDateString('en-GB') : '—'}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          );
+        })()}
 
         {tab === 'reviews' && (
           <div className="space-y-3">
