@@ -92,7 +92,7 @@ export default function InteractionChecker() {
         }
       })
       .catch(() => {});
-  }, [user]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [user, selected]);
 
   const addSlot = () => { if (selected.length < 5) setSelected(prev => [...prev, '']); };
   const removeSlot = (idx: number) => { if (selected.length > 2) setSelected(prev => prev.filter((_, i) => i !== idx)); };

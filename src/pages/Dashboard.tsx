@@ -158,8 +158,8 @@ function useActiveProtocols(userId: string | undefined) {
       .eq('user_id', userId)
       .eq('status', 'active')
       .order('started_at', { ascending: false })
-      .then(({ data }) => {
-        if (mounted && data) setProtocols(data);
+      .then(({ data, error }) => {
+        if (mounted && !error && data) setProtocols(data);
         if (mounted) setLoading(false);
       })
       .catch(() => { if (mounted) setLoading(false); });

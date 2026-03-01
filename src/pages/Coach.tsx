@@ -422,7 +422,7 @@ export default function Coach() {
         </div>
 
         <div className="rounded-2xl border border-stone-200 bg-white overflow-hidden shadow-sm">
-          <div ref={scrollRef} role="log" aria-label="محادثة المدرب الذكي" className="max-h-[65vh] min-h-[360px] overflow-y-auto p-5 space-y-4 bg-stone-50/50">
+          <div ref={scrollRef} role="log" aria-label="محادثة المدرب الذكي" className="max-h-[65vh] overflow-y-auto p-5 space-y-4 bg-stone-50/50">
 
             {/* ═══ INTAKE AS CONVERSATION ═══ */}
             {intakeStep !== 'done' && (

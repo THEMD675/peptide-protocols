@@ -401,6 +401,9 @@ export default function PeptideDetail() {
           </div>
         )}
       </div>
+      {showProtocolWizard && peptide && (
+        <ProtocolWizard peptideId={peptide.id} onClose={() => setShowProtocolWizard(false)} />
+      )}
     </div>
   );
 }
@@ -509,9 +512,6 @@ function PeptideExperiences({ peptideNameEn }: { peptideNameEn: string }) {
           </div>
         ))}
       </div>
-      {showProtocolWizard && peptide && (
-        <ProtocolWizard peptideId={peptide.id} onClose={() => setShowProtocolWizard(false)} />
-      )}
     </div>
   );
 }

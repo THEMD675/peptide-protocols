@@ -145,6 +145,7 @@ export default function Reviews() {
 
       setSubmitting(true);
       const { error } = await supabase.from('reviews').insert({
+        user_id: user.id,
         name: user.email?.split('@')[0] ?? 'مستخدم',
         email: user.email,
         rating,

@@ -830,7 +830,7 @@ export default function Tracker() {
                             const deletedLog = logs.find(l => l.id === log.id);
                             // Known limitation: concurrent deletes from multiple tabs may cause stale-state rollback position
                             setLogs(prev => prev.filter(l => l.id !== log.id));
-                            const { error } = await supabase.from('injection_logs').delete().eq('id', log.id);
+                            const { error } = await supabase.from('injection_logs').delete().eq('id', log.id).eq('user_id', user.id);
                             if (error) {
                               if (deletedLog) setLogs(prev => {
                                 const originalIndex = prev.findIndex(l => new Date(l.logged_at) < new Date(deletedLog.logged_at));

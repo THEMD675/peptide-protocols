@@ -64,9 +64,11 @@ export default function Community() {
 
   useEffect(() => {
     const g = searchParams.get('goal') ?? 'all';
-    setFilterGoal(validGoals.includes(g) ? g : 'all');
+    const validG = validGoals.includes(g) ? g : 'all';
     const s = searchParams.get('sort') as 'newest' | 'highest';
-    setSortBy(validSorts.includes(s) ? s : 'newest');
+    const validS = validSorts.includes(s) ? s : 'newest';
+    if (validG !== filterGoal) setFilterGoal(validG);
+    if (validS !== sortBy) setSortBy(validS);
   }, [searchParams]);
   const [hasMore, setHasMore] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
@@ -92,7 +94,7 @@ export default function Community() {
     try {
       const { data, error } = await supabase
         .from('community_logs')
-        .select('*')
+        .select('id, peptide_name, goal, protocol, duration_weeks, results, rating, created_at')
         .order('created_at', { ascending: false })
         .limit(50);
       if (!error && data) {
@@ -155,7 +157,7 @@ export default function Community() {
 
       const { data } = await supabase
         .from('community_logs')
-        .select('*')
+        .select('id, peptide_name, goal, protocol, duration_weeks, results, rating, created_at')
         .order('created_at', { ascending: false })
         .limit(50);
       if (mountedRef.current && data) setLogs(data);
@@ -594,7 +596,7 @@ export default function Community() {
                   try {
                     const { data } = await supabase
                       .from('community_logs')
-                      .select('*')
+                      .select('id, peptide_name, goal, protocol, duration_weeks, results, rating, created_at')
                       .order('created_at', { ascending: false })
                       .range(logs.length, logs.length + PAGE_SIZE - 1);
                     if (data) {

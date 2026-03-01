@@ -19,7 +19,8 @@ export default function ExitIntentPopup() {
     try {
       if (localStorage.getItem('pptides_age_verified') !== 'true') return;
       const lastShown = localStorage.getItem(STORAGE_KEY);
-      if (lastShown && Date.now() - Number(lastShown) < 7 * 24 * 60 * 60 * 1000) return;
+      const ts = Number(lastShown);
+      if (!isNaN(ts) && Date.now() - ts < 7 * 24 * 60 * 60 * 1000) return;
     } catch { /* expected */ }
     if (user && subscription?.isPaidSubscriber) return;
     if (EXCLUDED_PATHS.some(p => window.location.pathname.startsWith(p))) return;
