@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import FocusTrap from 'focus-trap-react';
 import { Helmet } from 'react-helmet-async';
 import { Link, useNavigate } from 'react-router-dom';
-import { User, Crown, LogOut, Trash2, AlertTriangle, Mail, ArrowUpCircle, KeyRound, XCircle } from 'lucide-react';
+import { User, Crown, LogOut, Trash2, AlertTriangle, Mail, ArrowUpCircle, KeyRound, XCircle, Download } from 'lucide-react';
 import { toast } from 'sonner';
 import { cn, arPlural } from '@/lib/utils';
 import { SUPPORT_EMAIL, STATUS_LABELS, TIER_LABELS, PEPTIDE_COUNT } from '@/lib/constants';
@@ -81,6 +81,37 @@ export default function Account() {
       setNewPassword('');
     } catch { toast.error('حدث خطأ في تغيير كلمة المرور. حاول مرة أخرى.'); }
     finally { setPasswordLoading(false); }
+  };
+
+  const handleExportData = async () => {
+    if (!user) return;
+    toast('جارٍ تجهيز بياناتك...');
+    try {
+      const [logsRes, protosRes, reviewsRes] = await Promise.all([
+        supabase.from('injection_logs').select('*').eq('user_id', user.id),
+        supabase.from('user_protocols').select('*').eq('user_id', user.id),
+        supabase.from('reviews').select('*').eq('user_id', user.id),
+      ]);
+      const exportData = {
+        exported_at: new Date().toISOString(),
+        email: user.email,
+        injection_logs: logsRes.data ?? [],
+        protocols: protosRes.data ?? [],
+        reviews: reviewsRes.data ?? [],
+      };
+      const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `pptides-data-${new Date().toISOString().slice(0, 10)}.json`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      toast.success('تم تصدير بياناتك بنجاح');
+    } catch {
+      toast.error('تعذّر تصدير البيانات. حاول مرة أخرى.');
+    }
   };
 
   const handleCancelSubscription = async () => {
@@ -285,6 +316,18 @@ export default function Account() {
               {subscription.status === 'cancelled' ? 'أعد الاشتراك' : 'ترقية الاشتراك'}
             </Link>
           )}
+        </div>
+
+        {/* Data Export */}
+        <div className="rounded-2xl border border-stone-200 bg-white p-6">
+          <div className="flex items-center gap-3 mb-3">
+            <Download className="h-5 w-5 text-emerald-600" />
+            <h2 className="text-lg font-bold text-stone-900">تصدير البيانات</h2>
+          </div>
+          <p className="text-sm text-stone-600 mb-4">حمّل نسخة من جميع بياناتك (سجل الحقن، البروتوكولات، التقييمات)</p>
+          <button onClick={handleExportData} className="rounded-full border border-emerald-300 px-6 py-2.5 text-sm font-bold text-emerald-700 transition-colors hover:bg-emerald-50">
+            تصدير بياناتي
+          </button>
         </div>
 
         {/* Actions */}

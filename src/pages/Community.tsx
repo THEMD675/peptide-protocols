@@ -289,7 +289,7 @@ export default function Community() {
                           type="button"
                           onClick={() => setRating(r)}
                           className={cn(
-                            'h-10 w-10 rounded-lg text-sm font-bold transition-all',
+                            'h-11 w-11 rounded-lg text-sm font-bold transition-all',
                             rating >= r
                               ? 'bg-emerald-600 text-white'
                               : 'border border-stone-200 bg-white text-stone-800'
@@ -387,7 +387,7 @@ export default function Community() {
                       key={g}
                       onClick={() => setFilterGoal(g)}
                       className={cn(
-                        'shrink-0 rounded-full border px-4 py-1.5 text-sm font-medium transition-all',
+                        'shrink-0 rounded-full border px-4 py-2 min-h-[44px] text-sm font-medium transition-all',
                         filterGoal === g
                           ? 'border-emerald-400 bg-emerald-50 text-emerald-800'
                           : 'border-stone-200 bg-white text-stone-600 transition-colors hover:border-emerald-200'

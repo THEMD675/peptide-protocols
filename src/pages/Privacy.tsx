@@ -47,6 +47,16 @@ export default function Privacy() {
             </ul>
           </section>
 
+          <section className="mb-8">
+            <h2 className="mb-3 text-xl font-bold text-stone-900">الاحتفاظ بالبيانات</h2>
+            <ul className="list-disc space-y-2 pe-6 text-stone-700 leading-relaxed">
+              <li>نحتفظ ببيانات حسابك طوال فترة اشتراكك النشط</li>
+              <li>عند حذف حسابك، يتم حذف جميع بياناتك الشخصية نهائيًا</li>
+              <li>سجلات الدفع تُحفظ لدى Stripe وفقًا لسياساتهم</li>
+              <li>يمكنك تصدير بياناتك في أي وقت من صفحة الحساب</li>
+            </ul>
+          </section>
+
           <section>
             <h2 className="mb-3 text-xl font-bold text-stone-900">5. التواصل</h2>
             <p>لأي استفسار حول الخصوصية: <a href={`mailto:${SUPPORT_EMAIL}`} className="text-emerald-600 underline">{SUPPORT_EMAIL}</a></p>

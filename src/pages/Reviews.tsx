@@ -75,7 +75,7 @@ function StarRating({
 }
 
 export default function Reviews() {
-  const { user } = useAuth();
+  const { user, subscription } = useAuth();
   const [reviews, setReviews] = useState<Review[]>([]);
   const [loading, setLoading] = useState(true);
   const [fetchError, setFetchError] = useState<string | null>(null);
@@ -253,6 +253,16 @@ export default function Reviews() {
                 className="rounded-xl bg-emerald-600 px-8 py-3 text-sm font-bold text-white transition-all hover:bg-emerald-700"
               >
                 تسجيل الدخول
+              </Link>
+            </div>
+          ) : !subscription?.isProOrTrial ? (
+            <div className="flex flex-col items-center gap-4 py-6 text-center">
+              <p className="text-sm text-stone-800">يجب أن تكون مشتركًا لإضافة تقييم</p>
+              <Link
+                to="/pricing"
+                className="rounded-xl bg-emerald-600 px-8 py-3 text-sm font-bold text-white transition-all hover:bg-emerald-700"
+              >
+                اشترك الآن
               </Link>
             </div>
           ) : submitted ? (

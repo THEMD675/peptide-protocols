@@ -45,7 +45,7 @@ export default function EmailCapture() {
         <p className="text-lg font-bold text-emerald-700">
           شكرًا! تم تسجيل بريدك بنجاح
         </p>
-        <p className="mt-2 text-sm text-emerald-600/80">سنرسل لك آخر المستجدات قريبًا</p>
+        <p className="mt-2 text-sm text-emerald-600">شكرًا! سنرسل لك آخر التحديثات</p>
       </div>
     );
   }

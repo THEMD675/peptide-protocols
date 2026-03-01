@@ -369,7 +369,7 @@ export default function DoseCalculator() {
                         setWaterMl(p.water);
                       }}
                       className={cn(
-                        'rounded-full border px-3 py-1.5 text-xs transition-all active:scale-[0.98] shrink-0',
+                        'rounded-full border px-3 py-2 min-h-[44px] text-xs transition-all active:scale-[0.98] shrink-0',
                         selectedPreset === p.name
                           ? 'border-emerald-400 bg-emerald-50 text-emerald-700 ring-2 ring-emerald-400 font-bold shadow-sm'
                           : 'border-stone-200 bg-white text-stone-700 font-medium hover:border-emerald-300 transition-colors hover:text-emerald-600',

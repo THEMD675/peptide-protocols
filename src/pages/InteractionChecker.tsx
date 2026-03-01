@@ -252,7 +252,7 @@ export default function InteractionChecker() {
         )}
 
         <div className="mt-8 rounded-xl border border-stone-200 bg-stone-50 p-5 text-center text-sm text-stone-600 leading-relaxed">
-          هذه الأداة تعليمية وليست بديلًا عن الاستشارة الطبية. استشر مختص قبل تجميع أي بروتوكول.
+          هذه الأداة تعليمية وليست بديلًا عن الاستشارة الطبية. قاعدة بيانات التعارضات لا تشمل جميع التعارضات المحتملة — استشر مختصًا قبل تجميع أي بروتوكول.
         </div>
 
         <div className="mt-6 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">

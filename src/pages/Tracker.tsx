@@ -688,7 +688,7 @@ export default function Tracker() {
                     type="button"
                     onClick={() => setSideEffect(opt.value)}
                     className={cn(
-                      'rounded-full px-3 py-1.5 text-xs font-bold transition-all',
+                      'rounded-full px-3 py-2.5 min-h-[44px] text-xs font-bold transition-all',
                       sideEffect === opt.value
                         ? opt.color === 'emerald' ? 'bg-emerald-600 text-white' : 'bg-amber-500 text-white'
                         : 'border border-stone-200 bg-white text-stone-600 hover:border-stone-300'
