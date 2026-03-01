@@ -373,6 +373,47 @@ export default function Library() {
           </p>
         </div>
 
+        {/* Recommended for you */}
+        {(() => {
+          let quizGoal: string | null = null;
+          try { const q = localStorage.getItem('pptides_quiz_answers'); if (q) { const parsed = JSON.parse(q); quizGoal = parsed.goal; } } catch { /* expected */ }
+          let recentIds: string[] = [];
+          try { const r = localStorage.getItem('pptides_recent_peptides'); if (r) recentIds = JSON.parse(r); } catch { /* expected */ }
+          const goalMap: Record<string, string> = { 'fat-loss': 'metabolic', recovery: 'recovery', muscle: 'hormones', brain: 'brain', hormones: 'hormones', longevity: 'longevity', 'skin-gut-sleep': 'skin-gut' };
+          const category = quizGoal ? goalMap[quizGoal] : null;
+          const recommended = category ? peptides.filter(p => p.category === category && !recentIds.includes(p.id)).slice(0, 3) : [];
+          if (recommended.length === 0 && recentIds.length === 0) return null;
+          const recentPeptides = recentIds.slice(0, 3).map(id => peptides.find(p => p.id === id)).filter(Boolean);
+          return (
+            <div className="mb-6">
+              {recommended.length > 0 && (
+                <div className="mb-4">
+                  <p className="text-sm font-bold text-stone-700 mb-2">مُوصى لك بناءً على هدفك</p>
+                  <div className="flex gap-2 overflow-x-auto pb-1">
+                    {recommended.map(p => (
+                      <Link key={p!.id} to={`/peptide/${p!.id}`} className="shrink-0 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-2.5 text-sm font-bold text-emerald-700 hover:bg-emerald-100 transition-colors whitespace-nowrap">
+                        {p!.nameAr}
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+              )}
+              {recentPeptides.length > 0 && (
+                <div>
+                  <p className="text-sm font-bold text-stone-700 mb-2">شاهدت مؤخرًا</p>
+                  <div className="flex gap-2 overflow-x-auto pb-1">
+                    {recentPeptides.map(p => (
+                      <Link key={p!.id} to={`/peptide/${p!.id}`} className="shrink-0 rounded-xl border border-stone-200 bg-white px-4 py-2.5 text-sm font-medium text-stone-700 hover:bg-stone-50 transition-colors whitespace-nowrap">
+                        {p!.nameAr}
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          );
+        })()}
+
         {/* Search & Filter Bar */}
         <div
           className="mb-6 flex flex-wrap gap-2 items-center"

@@ -325,22 +325,41 @@ export default function Dashboard() {
       )}
 
       {/* Journey Stats */}
-      {!activity.loading && (activity.logs.length > 0 || activeProtocols.length > 0) && (
-        <div className="mb-8 grid grid-cols-3 gap-3">
-          <div className="rounded-xl border border-stone-200 bg-white p-3 text-center">
-            <p className="text-2xl font-bold text-emerald-600">{activity.totalInjections ?? activity.logs.length}</p>
-            <p className="text-[11px] text-stone-500">حقنة مسجّلة</p>
+      {!activity.loading && (activity.logs.length > 0 || activeProtocols.length > 0) && (() => {
+        const total = activity.totalInjections ?? activity.logs.length;
+        const milestoneNext = total < 10 ? 10 : total < 25 ? 25 : total < 50 ? 50 : total < 100 ? 100 : total < 250 ? 250 : 500;
+        const milestonePrev = total < 10 ? 0 : total < 25 ? 10 : total < 50 ? 25 : total < 100 ? 50 : total < 250 ? 100 : 250;
+        const milestoneProgress = milestonePrev === milestoneNext ? 100 : Math.round(((total - milestonePrev) / (milestoneNext - milestonePrev)) * 100);
+        return (
+          <div className="mb-8">
+            <div className="grid grid-cols-3 gap-3 mb-3">
+              <div className="rounded-xl border border-emerald-100 bg-gradient-to-b from-emerald-50 to-white p-3 text-center">
+                <p className="text-2xl font-black text-emerald-600">{total}</p>
+                <p className="text-[11px] font-medium text-stone-500">حقنة مسجّلة</p>
+              </div>
+              <div className="rounded-xl border border-emerald-100 bg-gradient-to-b from-emerald-50 to-white p-3 text-center">
+                <p className="text-2xl font-black text-emerald-600">{activity.streak}</p>
+                <p className="text-[11px] font-medium text-stone-500">يوم متتالي</p>
+              </div>
+              <div className="rounded-xl border border-emerald-100 bg-gradient-to-b from-emerald-50 to-white p-3 text-center">
+                <p className="text-2xl font-black text-emerald-600">{activeProtocols.length}</p>
+                <p className="text-[11px] font-medium text-stone-500">بروتوكول نشط</p>
+              </div>
+            </div>
+            {total > 0 && (
+              <div className="rounded-xl border border-stone-100 bg-white p-3">
+                <div className="flex items-center justify-between mb-1.5">
+                  <p className="text-[11px] font-bold text-stone-600">الإنجاز التالي: {milestoneNext} حقنة</p>
+                  <p className="text-[11px] font-bold text-emerald-600">{milestoneProgress}%</p>
+                </div>
+                <div className="h-2 w-full overflow-hidden rounded-full bg-stone-100">
+                  <div className="h-full rounded-full bg-emerald-500 transition-all duration-700" style={{ width: `${milestoneProgress}%` }} />
+                </div>
+              </div>
+            )}
           </div>
-          <div className="rounded-xl border border-stone-200 bg-white p-3 text-center">
-            <p className="text-2xl font-bold text-emerald-600">{activity.streak}</p>
-            <p className="text-[11px] text-stone-500">يوم متتالي</p>
-          </div>
-          <div className="rounded-xl border border-stone-200 bg-white p-3 text-center">
-            <p className="text-2xl font-bold text-emerald-600">{activeProtocols.length}</p>
-            <p className="text-[11px] text-stone-500">بروتوكول نشط</p>
-          </div>
-        </div>
-      )}
+        );
+      })()}
 
       {/* Active Protocols */}
       {activeProtocols.length > 0 && (

@@ -205,7 +205,7 @@ export default function Pricing() {
               <span className="text-3xl font-black text-stone-900 sm:text-5xl">${PRICING.essentials.monthly}</span>
               <span className="text-lg text-stone-800"> /شهريًا</span>
             </div>
-            <p className="text-xs text-stone-400 mt-1">خطة سنوية قريبًا — وفّر أكثر</p>
+            <p className="text-xs text-emerald-600 font-medium mt-1">سنوي: <span dir="ltr">$79</span>/سنة — وفّر 12%</p>
             <div className="mb-6" />
 
             <ul className="mb-8 flex-1 space-y-3">
@@ -242,7 +242,7 @@ export default function Pricing() {
               <span className="text-3xl font-black text-stone-900 sm:text-5xl">${PRICING.elite.monthly}</span>
               <span className="text-lg text-stone-800"> /شهريًا</span>
             </div>
-            <p className="text-xs text-stone-400 mt-1">خطة سنوية قريبًا — وفّر أكثر</p>
+            <p className="text-xs text-emerald-600 font-medium mt-1">سنوي: <span dir="ltr">$790</span>/سنة — وفّر 33%</p>
             <div className="mb-4 inline-flex items-center gap-1.5 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-xs font-bold text-emerald-700">
               <Crown className="h-3.5 w-3.5" />
               الباقة الشاملة

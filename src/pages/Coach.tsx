@@ -421,6 +421,9 @@ export default function Coach() {
               </p>
             </div>
           </div>
+          {intakeStep === 'done' && messages.length === 0 && (
+            <div className="text-xs text-stone-400">جاهز لمساعدتك</div>
+          )}
           {intakeStep === 'done' && messages.length > 0 && (
             <button onClick={handleResetClick} className={cn('flex items-center gap-1.5 rounded-lg border px-3 py-2 text-xs font-medium transition-colors', confirmReset ? 'border-red-300 bg-red-50 text-red-600 hover:bg-red-100' : 'border-stone-200 bg-white text-stone-600 hover:bg-stone-50')}>
               <RotateCcw className="h-3.5 w-3.5" />
