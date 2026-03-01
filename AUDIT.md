@@ -36,7 +36,7 @@
 28. [STALE — soft-delete is a feature not a bug] No soft-delete with recovery period for account deletion
 29. [STALE — privacy policy disclosure, not a code fix] AI coach conversation data (health info) sent to DeepSeek with no privacy controls
 30. [FIXED] WhatsApp share in Coach sends first 500 chars of protocol — accidental health data exposure
-31. [STALE — GDPR export is a feature not a code fix] No GDPR data export option before account deletion
+31. [FIXED — Mar 1 session] GDPR data export added to Account page (5 tables: injection_logs, protocols, reviews, community_logs, subscriptions)
 
 ## CATEGORY 2: LOGIC BUGS (42 items)
 
@@ -130,7 +130,7 @@
 116. [STALE — abbreviations are standard Arabic shorthand] Dashboard: time abbreviations "د" "س" "ي" may confuse users
 117. [FIXED] Stacks: "ابدأ البروتوكول" links only first peptide — stack has multiple
 118. [FIXED] Stacks: protocol text at text-xs (12px) — too small for medical info
-119. [STALE — data export is a feature not a bug] Account: no data export option before deletion
+119. [FIXED — Mar 1 session] Account: GDPR data export added with 5 tables
 120. [STALE — already has type-to-confirm with حذف input] Account: delete has no type-to-confirm safety guard
 121. [FIXED] Account: "upgrade" shown for cancelled — should say "resubscribe"
 122. [STALE — multiple CTAs is intentional landing page conversion strategy] Landing: too many competing CTAs (6+ subscribe buttons)
@@ -506,8 +506,8 @@
 455. [FIXED] Mobile: search buried in hamburger menu — non-discoverable
 456. [STALE — syringe already responsive with mobile-first sizing] Mobile: DoseCalculator syringe SVG too tall (400px)
 457. [STALE — PWA install prompt needs manifest and service worker] No PWA install prompt despite apple-app-site-association file
-458. [STALE — payment failure notification needs Stripe webhook events] Payment failure: no user notification, no "update payment" page, no Stripe billing portal
-459. [STALE — self-service payment update needs Stripe billing portal] No self-service payment method update
+458. [FIXED — Mar 1 session] Payment failure: Stripe Customer Portal integrated + payment-failed email sends via webhook
+459. [FIXED — Mar 1 session] Self-service payment update via Stripe Customer Portal on Account page
 460. [FIXED] Share button on PeptideDetail sends to locked page for recipients
 461. [STALE — per-peptide OG cards need dynamic image generation] No per-peptide social cards — generic og-image.png
 462. [STALE — WhatsApp/Telegram share buttons are feature enhancement] No WhatsApp/Telegram share buttons (key for Arabic audience)
@@ -523,7 +523,7 @@
 472. [STALE — lazy loading is React.lazy which is already used for all pages] Slow 3G: no progressive loading for library cards
 473. [STALE — service worker needs offline strategy design] Slow 3G: no service worker for caching
 474. [STALE — app has no <img> tags — all visual content is SVG/CSS] Slow 3G: no loading="lazy" on images
-475. [STALE — GDPR data export needs backend endpoint] Delete account: no data export before deletion (GDPR requirement)
+475. [FIXED — Mar 1 session] GDPR data export on Account page before deletion
 476. [STALE — grace period is product feature requiring backend changes] Delete account: no grace period — immediate permanent deletion
 477. [STALE — delete already has typed confirmation with حذف input] Delete account: no typed confirmation
 478. [STALE — welcome back is marketing feature not code bug] Returning non-subscriber: no "welcome back" re-engagement
@@ -531,9 +531,9 @@
 480. [STALE — dashboard shows tools grid for all users — free tools accessible] Returning non-subscriber: free tools not surfaced on Dashboard
 481. [STALE — onboarding flow is product feature] No onboarding flow after payment — user lands on empty dashboard
 482. [STALE — email infrastructure is product/ops concern] No email infrastructure beyond welcome email and trial reminders
-483. [STALE — payment receipt needs Stripe event handling] No payment receipt email
-484. [STALE — subscription email needs Stripe webhook integration] No subscription cancelled email
-485. [STALE — deletion email needs edge function — infrastructure] No account deleted confirmation email
+483. [FIXED — Mar 1 session] Payment receipt email sent via checkout.session.completed webhook
+484. [FIXED — Mar 1 session] Subscription cancelled email sent via cancel-subscription edge function
+485. [FIXED — Mar 1 session] Account deletion confirmation email sent via delete-account edge function
 486. [STALE — age gate is legal requirement for peptide content] Age gate feels intimidating for educational site — unprofessional for medical context
 487. [STALE — fear-based section is intentional conversion copy] Landing page fear-based first section may alienate learners
 488. [STALE — intermediate tier is business decision] No intermediate pricing tier between $9 and $99
@@ -545,7 +545,7 @@
 494. [STALE — Gulf Arabic is intentional brand voice] No language consistency policy — Gulf Arabic mixed with MSA
 495. [STALE — multiple CTAs is standard long-form landing page pattern] Hero section has 6+ competing CTAs — dilutes conversion
 496. [STALE — stacks links already fixed to not pre-fill] Stacks "ابدأ البروتوكول" links only first peptide — stack has multiple
-497. [STALE — Stripe billing portal needs API integration] No Stripe billing portal integration
+497. [FIXED — Mar 1 session] Stripe billing portal integrated via create-portal-session edge function
 498. [STALE — post-subscribe guide is product feature] No "what to do first" guide after subscribing
 499. [STALE — community is open posting — no is_approved field] Community auto-approval bias — only rating >= 4 shows, creating survivorship bias
 
