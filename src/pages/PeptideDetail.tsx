@@ -58,6 +58,10 @@ export default function PeptideDetail() {
   const hasAccess = isPaid || isFreeContent || (isTrial && TRIAL_PEPTIDE_IDS.has(peptide.id));
   const firstSentence = peptide.summaryAr.split('.')[0] + '.';
 
+  const relatedPeptides = peptides.filter(
+    (p) => p.id !== peptide.id && (p.category === peptide.category || peptide.stackAr.toLowerCase().includes(p.nameEn.toLowerCase()))
+  ).slice(0, 4);
+
   const rows: ProtocolRow[] = [
     { label: 'الاسم العلمي', value: peptide.nameEn },
     { label: 'عدد الأحماض الأمينية', value: peptide.aminoAcids },
@@ -357,15 +361,11 @@ export default function PeptideDetail() {
             </Link>
           </div>
 
-          {peptides.filter(
-            (p) => p.id !== peptide.id && (p.category === peptide.category || peptide.stackAr.toLowerCase().includes(p.nameEn.toLowerCase()))
-          ).slice(0, 4).length > 0 && (
+          {relatedPeptides.length > 0 && (
             <div className="mt-8">
               <h3 className="mb-4 text-lg font-bold text-stone-900">ببتيدات ذات صلة</h3>
               <div className="grid gap-3 sm:grid-cols-2">
-                {peptides.filter(
-                  (p) => p.id !== peptide.id && (p.category === peptide.category || peptide.stackAr.toLowerCase().includes(p.nameEn.toLowerCase()))
-                ).slice(0, 4).map((rp) => (
+                {relatedPeptides.map((rp) => (
                   <Link
                     key={rp.id}
                     to={`/peptide/${rp.id}`}

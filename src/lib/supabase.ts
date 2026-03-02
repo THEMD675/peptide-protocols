@@ -27,10 +27,12 @@ if (supabaseUrl && typeof window !== 'undefined') {
   fetch(`${supabaseUrl}/rest/v1/`, {
     method: 'HEAD',
     headers: { apikey: supabaseAnonKey || '' },
-  }).catch(() => {
-    toast.error(
-      'يبدو أن مانع الإعلانات يحجب الاتصال — يرجى تعطيله لاستخدام التطبيق',
-      { duration: 15000, id: 'adblocker-warning' },
-    );
+  }).catch((err) => {
+    if (err instanceof TypeError) {
+      toast.error(
+        'يبدو أن مانع الإعلانات يحجب الاتصال — يرجى تعطيله لاستخدام التطبيق',
+        { duration: 15000, id: 'adblocker-warning' },
+      );
+    }
   });
 }

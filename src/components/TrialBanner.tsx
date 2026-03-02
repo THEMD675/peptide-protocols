@@ -46,7 +46,7 @@ export default function TrialBanner() {
 
   if (subscription.status === 'cancelled' && subscription.isPaidSubscriber) {
     return (
-      <div className="sticky top-[64px] md:top-[72px] z-40 bg-amber-500 text-center py-2 px-4">
+      <div className="sticky top-[var(--header-height)] z-40 bg-amber-500 text-center py-2 px-4">
         <p className="text-sm font-semibold text-white">
           اشتراكك ملغي — ستحتفظ بالوصول حتى نهاية الفترة الحالية.{' '}
           <Link to="/pricing" className="underline underline-offset-2 hover:opacity-80">أعد الاشتراك</Link>
@@ -67,7 +67,7 @@ export default function TrialBanner() {
       }
     }
     return (
-      <div className="sticky top-[64px] md:top-[72px] z-40 bg-amber-600 text-center py-2 px-4">
+      <div className="sticky top-[var(--header-height)] z-40 bg-amber-600 text-center py-2 px-4">
         <p className="text-sm font-semibold text-white">
           تعذّر تحصيل الدفعة —{daysLeftText} يرجى تحديث وسيلة الدفع لتجنّب فقدان الوصول.{' '}
           <Link to="/account" className="underline underline-offset-2 hover:opacity-80">إعدادات الحساب</Link>
@@ -79,7 +79,7 @@ export default function TrialBanner() {
   if (subscription.status === 'cancelled' && !subscription.isPaidSubscriber) {
     if (isFreePage) {
       return (
-        <div className="sticky top-[64px] md:top-[72px] z-40 bg-amber-600 text-center py-2.5 px-4">
+        <div className="sticky top-[var(--header-height)] z-40 bg-amber-600 text-center py-2.5 px-4">
           <p className="text-sm font-semibold text-white">
             تم إلغاء اشتراكك — <Link to="/pricing" className="underline underline-offset-2 hover:opacity-80">أعد الاشتراك</Link>
           </p>
@@ -99,7 +99,7 @@ export default function TrialBanner() {
 
     if (isFreePage) {
       return (
-        <div className="sticky top-[64px] md:top-[72px] z-40 bg-red-600 text-center py-2.5 px-4">
+        <div className="sticky top-[var(--header-height)] z-40 bg-red-600 text-center py-2.5 px-4">
           <p className="text-sm font-semibold text-white">
             {bannerText}
             <span className="mx-2">—</span>
@@ -204,7 +204,7 @@ export default function TrialBanner() {
     return (
       <div
         className={cn(
-          'sticky top-[64px] md:top-[72px] z-40 text-center py-2 px-4 relative',
+          'sticky top-[var(--header-height)] z-40 text-center py-2 px-4 relative',
           isLastDay ? 'bg-red-600' : 'primary-gradient'
         )}
       >

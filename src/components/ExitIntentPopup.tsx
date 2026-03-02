@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import FocusTrap from 'focus-trap-react';
 import { X, Gift, ArrowLeft } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
@@ -12,6 +12,7 @@ const STORAGE_KEY = 'pptides_exit_popup_shown';
 
 export default function ExitIntentPopup() {
   const { user, subscription } = useAuth();
+  const { pathname } = useLocation();
   const [visible, setVisible] = useState(false);
 
   const handleMouseLeave = useCallback((e: MouseEvent) => {
@@ -23,10 +24,10 @@ export default function ExitIntentPopup() {
       if (!isNaN(ts) && Date.now() - ts < 7 * 24 * 60 * 60 * 1000) return;
     } catch { /* expected */ }
     if (user && subscription?.isProOrTrial) return;
-    if (EXCLUDED_PATHS.some(p => window.location.pathname.startsWith(p))) return;
+    if (EXCLUDED_PATHS.some(p => pathname.startsWith(p))) return;
     setVisible(true);
     try { localStorage.setItem(STORAGE_KEY, String(Date.now())); } catch { /* expected */ }
-  }, [user, subscription]);
+  }, [user, subscription, pathname]);
 
   useEffect(() => {
     document.addEventListener('mouseleave', handleMouseLeave);

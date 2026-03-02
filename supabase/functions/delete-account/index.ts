@@ -76,6 +76,7 @@ serve(async (req) => {
       console.error('delete-account: failed to fetch subscription:', subFetchError)
     }
 
+    let stripeCleanupSucceeded = false
     if (stripeKey && sub) {
       if (sub.stripe_subscription_id) {
         try {
@@ -99,6 +100,7 @@ serve(async (req) => {
           }), { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } })
         }
       }
+      stripeCleanupSucceeded = true
     } else if (!stripeKey) {
       console.error('delete-account: STRIPE_SECRET_KEY missing, skipping Stripe cleanup')
     }
@@ -109,10 +111,19 @@ serve(async (req) => {
     })
     if (rpcErr) {
       console.error('delete-account: RPC delete_user_data failed:', rpcErr)
-      return new Response(JSON.stringify({
-        error: 'حذف البيانات فشل. تواصل معنا لإكمال الحذف.',
-        support: 'contact@pptides.com',
-      }), { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } })
+      const errorBody = stripeCleanupSucceeded
+        ? {
+            error: 'تم إلغاء اشتراكك بنجاح، لكن حذف بيانات حسابك فشل. راسلنا فورًا لإكمال الحذف: contact@pptides.com',
+            support: 'contact@pptides.com',
+          }
+        : {
+            error: 'حذف البيانات فشل. تواصل معنا لإكمال الحذف.',
+            support: 'contact@pptides.com',
+          }
+      return new Response(JSON.stringify(errorBody), {
+        status: 500,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      })
     }
 
     const { error: deleteError } = await supabase.auth.admin.deleteUser(user.id)

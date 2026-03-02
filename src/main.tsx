@@ -71,7 +71,7 @@ if ('serviceWorker' in navigator && import.meta.env.PROD) {
           document.body.appendChild(el);
           document.getElementById('pwa-update-btn')?.addEventListener('click', () => {
             newSW.postMessage({ type: 'SKIP_WAITING' });
-            location.reload();
+            navigator.serviceWorker.addEventListener('controllerchange', () => location.reload(), { once: true });
           });
           setTimeout(() => el.remove(), 30000);
         }

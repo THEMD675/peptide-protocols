@@ -90,7 +90,9 @@ serve(async (req) => {
 
         let tier = session.metadata?.tier ?? 'essentials'
         if (!session.metadata?.tier && session.amount_total) {
-          tier = session.amount_total >= 9900 ? 'elite' : 'essentials'
+          // SOURCE OF TRUTH: 9900 halalas = 99 SAR — Elite tier threshold; override via ELITE_AMOUNT_MIN_HALALAS env
+          const eliteMinHalalas = parseInt(Deno.env.get('ELITE_AMOUNT_MIN_HALALAS') ?? '9900', 10)
+          tier = session.amount_total >= eliteMinHalalas ? 'elite' : 'essentials'
           console.warn('checkout.session.completed: tier determined by amount fallback, set metadata.tier on checkout session for reliability')
         }
 
@@ -193,9 +195,11 @@ serve(async (req) => {
                   .select('stripe_customer_id').eq('user_id', referral.referrer_id).maybeSingle()
                 if (referrerSub?.stripe_customer_id) {
                   try {
+                    // SOURCE OF TRUTH: 3400 halalas = 34 SAR = 1 month Essentials free; override via REFERRAL_REWARD_HALALAS env
+                    const rewardHalalas = parseInt(Deno.env.get('REFERRAL_REWARD_HALALAS') ?? '3400', 10)
                     await stripe.invoiceItems.create({
                       customer: referrerSub.stripe_customer_id,
-                      amount: -3400,
+                      amount: -rewardHalalas,
                       currency: 'sar',
                       description: 'مكافأة إحالة — شهر مجاني (referral reward)',
                     })

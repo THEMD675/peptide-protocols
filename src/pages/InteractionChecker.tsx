@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useEffect, useRef } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { Link, useSearchParams } from 'react-router-dom';
 import { AlertTriangle, CheckCircle, XCircle, Shield } from 'lucide-react';
@@ -45,6 +45,7 @@ function checkInteraction(id1: string, id2: string): InteractionResult {
 export default function InteractionChecker() {
   const { user } = useAuth();
   const [searchParams] = useSearchParams();
+  const hasAutoFilled = useRef(false);
   const [selected, setSelected] = useState<string[]>(() => {
     const p1 = searchParams.get('p1');
     const p2 = searchParams.get('p2');
@@ -78,7 +79,7 @@ export default function InteractionChecker() {
   }, [searchParams]);
 
   useEffect(() => {
-    if (!user || selected.some(s => s !== '')) return;
+    if (!user || selected.some(s => s !== '') || hasAutoFilled.current) return;
     let mounted = true;
     supabase
       .from('user_protocols')
@@ -88,6 +89,7 @@ export default function InteractionChecker() {
       .then(({ data, error }) => {
         if (mounted && !error && data && data.length >= 2) {
           setSelected(data.map(d => d.peptide_id).slice(0, 5));
+          hasAutoFilled.current = true;
         }
       })
       .catch(() => {});

@@ -265,12 +265,17 @@ function NotFound() {
 }
 
 const overlayListeners = new Set<() => void>();
-const origSetItem = localStorage.setItem.bind(localStorage);
-localStorage.setItem = (...args: Parameters<Storage['setItem']>) => {
-  origSetItem(...args);
-  overlayListeners.forEach(fn => fn());
-};
-window.addEventListener('storage', () => overlayListeners.forEach(fn => fn()));
+let origSetItem: Storage['setItem'] = () => {};
+try {
+  origSetItem = localStorage.setItem.bind(localStorage);
+  localStorage.setItem = (...args: Parameters<Storage['setItem']>) => {
+    try {
+      origSetItem(...args);
+    } catch { /* Safari private mode */ }
+    overlayListeners.forEach(fn => fn());
+  };
+  window.addEventListener('storage', () => overlayListeners.forEach(fn => fn()));
+} catch { /* Safari private mode - skip monkey-patch */ }
 
 let storageVersion = 0;
 function subscribeToStorage(cb: () => void) {

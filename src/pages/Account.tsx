@@ -786,7 +786,7 @@ export default function Account() {
                 value={deleteConfirmText}
                 onChange={(e) => setDeleteConfirmText(e.target.value)}
                 placeholder="حذف"
-                dir="rtl"
+                dir="auto"
                 className="w-full rounded-xl border border-stone-200 bg-stone-50 px-4 py-2.5 text-sm text-stone-900 placeholder:text-stone-500 focus:outline-none focus:border-red-300 focus:ring-2 focus:ring-red-100"
               />
             </div>

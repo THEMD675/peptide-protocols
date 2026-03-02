@@ -90,8 +90,10 @@ serve(async (req) => {
     const essentialsSubs = activeSubs.filter(s => s.tier === 'essentials')
     const eliteSubs = activeSubs.filter(s => s.tier === 'elite')
 
-    // MRR only from real Stripe subscriptions
-    const mrr = essentialsSubs.length * 34 + eliteSubs.length * 371
+    // MRR only from real Stripe subscriptions. SOURCE OF TRUTH: 34 SAR (Essentials), 371 SAR (Elite); override via MRR_ESSENTIALS_SAR, MRR_ELITE_SAR env
+    const mrrEssentialsSar = parseFloat(Deno.env.get('MRR_ESSENTIALS_SAR') ?? '34')
+    const mrrEliteSar = parseFloat(Deno.env.get('MRR_ELITE_SAR') ?? '371')
+    const mrr = essentialsSubs.length * mrrEssentialsSar + eliteSubs.length * mrrEliteSar
     const trialEssentials = trialSubs.filter(s => s.tier === 'essentials')
     const trialElite = trialSubs.filter(s => s.tier === 'elite')
 

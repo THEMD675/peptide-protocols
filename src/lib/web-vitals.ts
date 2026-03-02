@@ -10,17 +10,6 @@ function sendToAnalytics(metric: Metric) {
       non_interaction: true,
     })
   }
-
-  // Send to Sentry as custom measurement
-  if (typeof window !== 'undefined' && 'Sentry' in window) {
-    try {
-      const Sentry = (window as unknown as { Sentry: { metrics: { distribution: (name: string, value: number, options: Record<string, unknown>) => void } } }).Sentry
-      Sentry.metrics.distribution(`web_vital.${metric.name}`, metric.value, {
-        unit: metric.name === 'CLS' ? '' : 'millisecond',
-        tags: { rating: metric.rating },
-      })
-    } catch { /* Sentry might not support metrics */ }
-  }
 }
 
 export function initWebVitals() {
