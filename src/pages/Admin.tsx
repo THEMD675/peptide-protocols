@@ -63,7 +63,7 @@ interface UserDetail {
 
 type Tab = 'overview' | 'users' | 'activity' | 'reviews' | 'enquiries' | 'emails' | 'email-logs' | 'payments' | 'health' | 'audit';
 type UserFilter = 'all' | 'active' | 'trial' | 'expired' | 'none';
-type ModalType = 'extend_trial' | 'grant_sub' | 'send_email' | 'confirm_delete' | 'confirm_suspend' | 'cancel_sub' | null;
+type ModalType = 'extend_trial' | 'grant_sub' | 'send_email' | 'confirm_delete' | 'confirm_suspend' | 'cancel_sub' | 'bulk_email' | null;
 
 const PER_PAGE = 20;
 
@@ -195,6 +195,7 @@ export default function Admin() {
   const [emailTo, setEmailTo] = useState('');
   const [emailSubject, setEmailSubject] = useState('');
   const [emailBody, setEmailBody] = useState('');
+  const [bulkAudience, setBulkAudience] = useState<'all' | 'trial' | 'active' | 'expired'>('all');
 
   // Health
   const [health, setHealth] = useState<HealthCheck | null>(null);
@@ -211,6 +212,12 @@ export default function Admin() {
   const [userDetail, setUserDetail] = useState<UserDetail | null>(null);
   const [userDetailLoading, setUserDetailLoading] = useState(false);
   const [userDetailOpen, setUserDetailOpen] = useState(false);
+
+  // User notes
+  const [userNotes, setUserNotes] = useState<Array<{ id: string; note: string; admin_email: string; created_at: string }>>([]);
+  const [userNotesLoading, setUserNotesLoading] = useState(false);
+  const [newNote, setNewNote] = useState('');
+  const [noteSaving, setNoteSaving] = useState(false);
 
   const getToken = useCallback(async () => {
     const { supabase } = await import('@/lib/supabase');
@@ -340,6 +347,17 @@ export default function Admin() {
     finally { setActionLoading(false); }
   };
 
+  const handleBulkEmail = async () => {
+    setActionLoading(true);
+    try {
+      const r = await adminAction({ action: 'send_email', to: 'bulk', audience: bulkAudience, subject: emailSubject, text: emailBody });
+      toast.success(`Sent ${r.sent} emails (${r.failed} failed)`);
+      setModal(null);
+      setEmailSubject(''); setEmailBody('');
+    } catch (e) { toast.error(e instanceof Error ? e.message : 'Failed'); }
+    finally { setActionLoading(false); }
+  };
+
   const runHealthCheck = async () => {
     setHealthLoading(true);
     try {
@@ -386,16 +404,28 @@ export default function Admin() {
 
   useEffect(() => { if (tab === 'audit' && auditLog.length === 0) fetchAuditLog(); }, [tab, auditLog.length, fetchAuditLog]);
 
+  const fetchUserNotes = useCallback(async (userId: string) => {
+    setUserNotesLoading(true);
+    try {
+      const r = await adminAction({ action: 'get_user_notes', user_id: userId });
+      setUserNotes(r.data ?? []);
+    } catch { setUserNotes([]); }
+    finally { setUserNotesLoading(false); }
+  }, [adminAction]);
+
   const fetchUserDetail = useCallback(async (userId: string) => {
     setUserDetailLoading(true);
     setUserDetailOpen(true);
     setUserDetail(null);
+    setUserNotes([]);
+    setNewNote('');
     try {
       const r = await adminAction({ action: 'get_user_detail', user_id: userId });
       setUserDetail(r as UserDetail);
+      fetchUserNotes(userId);
     } catch (e) { toast.error(e instanceof Error ? e.message : 'Failed to load user detail'); setUserDetailOpen(false); }
     finally { setUserDetailLoading(false); }
-  }, [adminAction]);
+  }, [adminAction, fetchUserNotes]);
 
   // --- Open modal helpers ---
   const openUserAction = (type: ModalType, u: { id: string; email: string }) => { setModalTarget(u); setModal(type); };
@@ -629,6 +659,9 @@ export default function Admin() {
                 </div>
                 <button onClick={() => exportCSV('users')} className="flex items-center gap-1 rounded-lg border border-stone-200 px-3 py-1.5 text-xs font-medium text-stone-600 hover:bg-stone-50">
                   <Download className="h-3.5 w-3.5" /> CSV
+                </button>
+                <button onClick={() => { setEmailSubject(''); setEmailBody(''); setBulkAudience('all'); setModal('bulk_email'); }} className="flex items-center gap-1 rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-1.5 text-xs font-medium text-emerald-700 hover:bg-emerald-100">
+                  <Mail className="h-3.5 w-3.5" /> Bulk Email
                 </button>
               </div>
               <p className="text-xs text-stone-500">{filtered.length} users</p>
@@ -986,6 +1019,27 @@ export default function Admin() {
         </div>
       </Modal>
 
+      {/* Bulk Email */}
+      <Modal open={modal === 'bulk_email'} title="Bulk Email" onClose={() => setModal(null)}>
+        <label className="block text-xs font-medium text-stone-600 mb-1">Audience</label>
+        <select value={bulkAudience} onChange={e => setBulkAudience(e.target.value as 'all' | 'trial' | 'active' | 'expired')} aria-label="Audience" className="w-full rounded-lg border border-stone-200 px-3 py-2 text-sm mb-3">
+          <option value="all">All users</option>
+          <option value="trial">Trial users</option>
+          <option value="active">Active subscribers</option>
+          <option value="expired">Expired users</option>
+        </select>
+        <label className="block text-xs font-medium text-stone-600 mb-1">Subject</label>
+        <input type="text" value={emailSubject} onChange={e => setEmailSubject(e.target.value)} placeholder="Subject" className="w-full rounded-lg border border-stone-200 px-3 py-2 text-sm mb-3" dir="ltr" />
+        <label className="block text-xs font-medium text-stone-600 mb-1">Body</label>
+        <textarea value={emailBody} onChange={e => setEmailBody(e.target.value)} placeholder="Email content..." rows={4} className="w-full rounded-lg border border-stone-200 px-3 py-2 text-sm mb-4 resize-y" dir="ltr" />
+        <div className="flex gap-2 justify-end">
+          <button onClick={() => setModal(null)} className="rounded-lg border border-stone-200 px-4 py-2 text-xs font-medium text-stone-600">Cancel</button>
+          <button onClick={handleBulkEmail} disabled={actionLoading || !emailSubject || !emailBody} className="rounded-lg bg-emerald-600 px-4 py-2 text-xs font-bold text-white disabled:opacity-50">
+            {actionLoading ? 'Sending...' : 'Send to All'}
+          </button>
+        </div>
+      </Modal>
+
       {/* Suspend User */}
       <Modal open={modal === 'confirm_suspend'} title="Suspend User" onClose={() => setModal(null)}>
         <p className="text-sm text-stone-600 mb-3">Suspend <span className="font-mono font-bold text-red-600">{modalTarget?.email}</span>?</p>
@@ -1168,6 +1222,54 @@ export default function Admin() {
                       </ul>
                     </section>
                   )}
+
+                  {/* Notes */}
+                  <section>
+                    <h4 className="text-xs font-bold text-stone-500 uppercase tracking-wide mb-2">ملاحظات</h4>
+                    {userNotesLoading ? (
+                      <div className="flex justify-center py-4"><Loader2 className="h-4 w-4 animate-spin text-stone-400" /></div>
+                    ) : userNotes.length > 0 ? (
+                      <ul className="space-y-2 mb-3">
+                        {userNotes.map(n => (
+                          <li key={n.id} className="rounded-lg border border-stone-100 px-3 py-2">
+                            <p className="text-sm text-stone-800 whitespace-pre-wrap">{n.note}</p>
+                            <div className="mt-1 flex items-center gap-2 text-[10px] text-stone-400">
+                              <span className="font-mono">{n.admin_email}</span>
+                              <span>{timeAgo(n.created_at)}</span>
+                            </div>
+                          </li>
+                        ))}
+                      </ul>
+                    ) : (
+                      <p className="text-sm text-stone-400 mb-3">No notes yet</p>
+                    )}
+                    <textarea
+                      value={newNote}
+                      onChange={e => setNewNote(e.target.value)}
+                      placeholder="Add a note..."
+                      rows={2}
+                      className="w-full rounded-lg border border-stone-200 bg-white px-3 py-2 text-sm outline-none focus:border-emerald-300 resize-y"
+                      dir="ltr"
+                    />
+                    <div className="flex justify-end mt-2">
+                      <button
+                        disabled={noteSaving || !newNote.trim()}
+                        onClick={async () => {
+                          setNoteSaving(true);
+                          try {
+                            await adminAction({ action: 'add_user_note', user_id: ud.user.id, note: newNote.trim() });
+                            toast.success('Note saved');
+                            setNewNote('');
+                            fetchUserNotes(ud.user.id);
+                          } catch (e) { toast.error(e instanceof Error ? e.message : 'Failed'); }
+                          finally { setNoteSaving(false); }
+                        }}
+                        className="rounded-lg bg-emerald-600 px-4 py-1.5 text-xs font-bold text-white hover:bg-emerald-700 disabled:opacity-50"
+                      >
+                        {noteSaving ? 'Saving...' : 'Save Note'}
+                      </button>
+                    </div>
+                  </section>
                 </div>
               );
             })() : null}

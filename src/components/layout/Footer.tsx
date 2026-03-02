@@ -50,6 +50,7 @@ export default memo(function Footer() {
               <Link to="/sources" className="text-stone-600 transition-colors hover:text-emerald-600 active:text-emerald-700">المصادر</Link>
               <Link to="/community" className="text-stone-600 transition-colors hover:text-emerald-600 active:text-emerald-700">التجارب</Link>
               <Link to="/reviews" className="text-stone-600 transition-colors hover:text-emerald-600 active:text-emerald-700">التقييمات</Link>
+              <Link to="/blog" className="text-stone-600 transition-colors hover:text-emerald-600 active:text-emerald-700">المدونة</Link>
             </nav>
           </div>
 

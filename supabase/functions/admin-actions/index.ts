@@ -241,6 +241,52 @@ serve(async (req) => {
       const textBody = (body.text as string)?.trim()
       if (!to || !subject || (!htmlBody && !textBody)) return json({ error: 'Missing to, subject, or body' }, 400, cors)
 
+      if (to === 'bulk') {
+        const audience = (body.audience as string) ?? 'all'
+        let emails: string[] = []
+
+        if (audience === 'all') {
+          const { data: { users: allUsers } } = await admin.auth.admin.listUsers({ perPage: 1000 })
+          emails = (allUsers ?? []).map(u => u.email).filter((e): e is string => !!e)
+        } else {
+          const statusMap: Record<string, string> = { trial: 'trial', active: 'active', expired: 'expired' }
+          const status = statusMap[audience]
+          if (status) {
+            const { data: subs } = await admin.from('subscriptions').select('user_id').eq('status', status)
+            if (subs?.length) {
+              const userIds = new Set(subs.map((s: { user_id: string }) => s.user_id))
+              const { data: { users: allUsers } } = await admin.auth.admin.listUsers({ perPage: 1000 })
+              emails = (allUsers ?? []).filter(u => userIds.has(u.id)).map(u => u.email).filter((e): e is string => !!e)
+            }
+          }
+        }
+
+        const batch = emails.slice(0, 50)
+        let sent = 0, failed = 0
+
+        for (const email of batch) {
+          try {
+            const r = await fetch('https://api.resend.com/emails', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${resendKey}` },
+              body: JSON.stringify({
+                from: 'pptides <contact@pptides.com>',
+                reply_to: 'contact@pptides.com',
+                to: email,
+                subject,
+                ...(htmlBody ? { html: htmlBody } : { text: textBody }),
+              }),
+            })
+            if (r.ok) sent++; else failed++
+            await admin.from('email_logs').insert({ email, type: 'admin_bulk', status: r.ok ? 'sent' : 'failed' }).catch(() => {})
+          } catch {
+            failed++
+          }
+        }
+
+        return json({ ok: true, sent, failed, total: batch.length }, 200, cors)
+      }
+
       const res = await fetch('https://api.resend.com/emails', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${resendKey}` },
@@ -258,7 +304,6 @@ serve(async (req) => {
       }
       const data = await res.json()
 
-      // Log it
       await admin.from('email_logs').insert({ email: to, type: 'admin_manual', status: 'sent' }).catch(() => {})
       return json({ ok: true, resend_id: data.id }, 200, cors)
     }
@@ -465,6 +510,39 @@ serve(async (req) => {
         enquiries: enquiriesRes.data ?? [],
         email_logs: emailLogsRes.data ?? [],
       }, 200, cors)
+    }
+
+    // ================================================================
+    // ADD USER NOTE
+    // ================================================================
+    if (action === 'add_user_note') {
+      const userId = body.user_id as string
+      const note = (body.note as string)?.trim()
+      if (!userId || !note) return json({ error: 'Missing user_id or note' }, 400, cors)
+
+      const { error } = await admin.from('admin_user_notes').insert({
+        user_id: userId,
+        note,
+        admin_email: user.email,
+      })
+      if (error) return json({ error: error.message }, 500, cors)
+      return json({ ok: true }, 200, cors)
+    }
+
+    // ================================================================
+    // GET USER NOTES
+    // ================================================================
+    if (action === 'get_user_notes') {
+      const userId = body.user_id as string
+      if (!userId) return json({ error: 'Missing user_id' }, 400, cors)
+
+      const { data, error } = await admin.from('admin_user_notes')
+        .select('*')
+        .eq('user_id', userId)
+        .order('created_at', { ascending: false })
+        .limit(50)
+      if (error) return json({ error: error.message }, 500, cors)
+      return json({ ok: true, data: data ?? [] }, 200, cors)
     }
 
     // ================================================================

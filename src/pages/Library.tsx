@@ -10,7 +10,8 @@ import {
   X,
   CheckCircle,
   Sparkles,
-  Star,
+  Bookmark,
+  BookmarkCheck,
   Bot,
 } from 'lucide-react';
 import { toast } from 'sonner';
@@ -21,6 +22,27 @@ import { supabase } from '@/lib/supabase';
 import { PRICING, PEPTIDE_COUNT, TRIAL_PEPTIDE_IDS, FREE_PEPTIDE_IDS, SITE_URL } from '@/lib/constants';
 import { categoryIcons, evidenceColors, evidenceLabels, evidenceDescriptions, categoryLabels, evidenceOrder } from '@/lib/peptide-labels';
 
+const GOAL_CATEGORY_MAP: Record<string, string> = {
+  'fat-loss': 'metabolic',
+  'recovery': 'recovery',
+  'muscle': 'recovery',
+  'brain': 'brain',
+  'hormones': 'hormonal',
+  'longevity': 'longevity',
+  'skin-gut-sleep': 'skin-gut',
+  'gut-skin': 'skin-gut',
+};
+
+const GOAL_LABELS: Record<string, string> = {
+  'fat-loss': 'فقدان دهون',
+  'recovery': 'تعافي وإصابات',
+  'muscle': 'بناء عضل',
+  'brain': 'تركيز ودماغ',
+  'hormones': 'تحسين هرمونات',
+  'longevity': 'طول عمر',
+  'skin-gut-sleep': 'بشرة وأمعاء ونوم',
+  'gut-skin': 'بشرة وأمعاء ونوم',
+};
 
 const PeptideCard = memo(function PeptideCard({
   peptide,
@@ -50,7 +72,7 @@ const PeptideCard = memo(function PeptideCard({
         hasAccess
           ? 'border-stone-200 bg-white hover:border-emerald-300 hover:shadow-lg hover:shadow-emerald-600/10'
           : 'border-stone-200 bg-stone-50/50 hover:border-stone-300',
-        isFav && 'border-s-4 border-s-amber-400',
+        isFav && 'border-s-4 border-s-emerald-400',
       )}
     >
       {/* Top action bar — in flow, no absolute positioning */}
@@ -85,9 +107,9 @@ const PeptideCard = memo(function PeptideCard({
             type="button"
             onClick={(e) => { e.preventDefault(); e.stopPropagation(); onToggleFav(); }}
             className="rounded-full p-2.5 min-h-[44px] min-w-[44px] transition-colors hover:bg-stone-100"
-            aria-label={isFav ? 'إزالة من المفضلة' : 'إضافة للمفضلة'}
+            aria-label={isFav ? 'إزالة من المحفوظات' : 'إضافة للمحفوظات'}
           >
-            <Star className={cn('h-4 w-4', isFav ? 'fill-amber-400 text-amber-400' : 'text-stone-300')} />
+            {isFav ? <BookmarkCheck className="h-4 w-4 text-emerald-600" /> : <Bookmark className="h-4 w-4 text-stone-300" />}
           </button>
         </div>
       </div>
@@ -238,7 +260,7 @@ export default function Library() {
   const usedPeptides = useUsedPeptides();
 
   const [searchParams, setSearchParams] = useSearchParams();
-  const validCategories = ['all', 'free', ...categories.map(c => c.id)];
+  const validCategories = ['all', 'free', 'bookmarks', ...categories.map(c => c.id)];
   const validEvidence = ['all', 'excellent', 'strong', 'good', 'moderate', 'weak', 'very-weak'];
   const validSorts = ['default', 'evidence', 'alpha', 'favorites'] as const;
   const [activeCategory, setActiveCategory] = useState(() => {
@@ -283,6 +305,24 @@ export default function Library() {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps -- URL→state sync, avoid loop
   }, [searchParams]);
+  const [quizGoalFilter, setQuizGoalFilter] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (searchParams.get('category')) return;
+    try {
+      const raw = localStorage.getItem('pptides_quiz_answers');
+      if (!raw) return;
+      const { goal } = JSON.parse(raw);
+      if (!goal) return;
+      const cat = GOAL_CATEGORY_MAP[goal];
+      if (cat && validCategories.includes(cat)) {
+        setActiveCategory(cat);
+        setQuizGoalFilter(goal);
+      }
+    } catch { /* expected */ }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const [showFilters, setShowFilters] = useState(false);
   const [favorites, toggleFavorite] = useFavorites();
   const [compareIds, setCompareIds] = useState<string[]>(() => {
@@ -319,7 +359,9 @@ export default function Library() {
   const filtered = useMemo(() => {
     const stripDiacritics = (s: string) => s.normalize('NFD').replace(/[\u0610-\u061A\u064B-\u065F\u0670\u06D6-\u06DC\u06DF-\u06E4\u06E7-\u06E8\u06EA-\u06ED]/g, '');
     const result = peptides.filter((p) => {
-      if (activeCategory === 'free') {
+      if (activeCategory === 'bookmarks') {
+        if (!favorites.has(p.id)) return false;
+      } else if (activeCategory === 'free') {
         if (!FREE_PEPTIDE_IDS.has(p.id)) return false;
       } else if (activeCategory !== 'all' && p.category !== activeCategory) return false;
       if (evidenceFilter !== 'all' && p.evidenceLevel !== evidenceFilter) return false;
@@ -531,6 +573,21 @@ export default function Library() {
           );
         })()}
 
+        {/* Quiz goal filter banner */}
+        {quizGoalFilter && (
+          <div className="mb-4 flex items-center justify-between rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-2.5">
+            <p className="text-sm font-medium text-emerald-800">
+              عرض النتائج بناءً على هدفك: <span className="font-bold">{GOAL_LABELS[quizGoalFilter] ?? quizGoalFilter}</span>
+            </p>
+            <button
+              onClick={() => { setQuizGoalFilter(null); setActiveCategory('all'); }}
+              className="shrink-0 rounded-lg border border-emerald-200 bg-white px-3 py-1 text-xs font-bold text-emerald-700 transition-colors hover:bg-emerald-100"
+            >
+              عرض الكل
+            </button>
+          </div>
+        )}
+
         {/* Category Tabs */}
         <div
           className="mb-8 -mx-4 px-4 overflow-x-auto scrollbar-hide scroll-fade"
@@ -559,6 +616,19 @@ export default function Library() {
               )}
             >
               مجاني
+            </button>
+            <button
+              onClick={() => setActiveCategory('bookmarks')}
+              aria-pressed={activeCategory === 'bookmarks'}
+              className={cn(
+                'flex shrink-0 items-center gap-1.5 rounded-full border px-4 py-2 min-h-[44px] text-sm font-medium transition-all',
+                activeCategory === 'bookmarks'
+                  ? 'primary-gradient border-emerald-300 text-white'
+                  : 'border-stone-200 bg-white text-stone-800 hover:border-stone-300 transition-colors hover:text-stone-800',
+              )}
+            >
+              <Bookmark className="h-3.5 w-3.5" />
+              المحفوظات
             </button>
             {categories.map((cat) => {
               const Icon = categoryIcons[cat.id];
