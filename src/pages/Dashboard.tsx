@@ -786,6 +786,41 @@ export default function Dashboard() {
         </div>
       )}
 
+      {/* Weekly Challenge */}
+      {!activity.loading && activeProtocols.length > 0 && (() => {
+        const now = new Date();
+        const dayOfWeek = now.getDay();
+        const startOfWeek = new Date(now);
+        startOfWeek.setDate(now.getDate() - dayOfWeek);
+        startOfWeek.setHours(0, 0, 0, 0);
+        const daysLogged = new Set(
+          activity.allLogs
+            .filter(l => new Date(l.logged_at) >= startOfWeek)
+            .map(l => new Date(l.logged_at).toDateString())
+        ).size;
+        return (
+          <div className="mb-8 rounded-2xl border border-emerald-200 bg-gradient-to-b from-emerald-50 to-white p-5 shadow-sm">
+            <div className="flex items-center gap-2 mb-3">
+              <Target className="h-5 w-5 text-emerald-600" />
+              <h2 className="text-lg font-bold text-stone-900">تحدي الأسبوع</h2>
+            </div>
+            <p className="text-sm text-stone-700 mb-3">سجّل حقنة كل يوم هذا الأسبوع</p>
+            <div className="flex items-center gap-3">
+              <div className="flex-1 h-3 overflow-hidden rounded-full bg-stone-100">
+                <div
+                  className="h-full rounded-full bg-emerald-500 transition-all duration-700"
+                  style={{ width: `${Math.round((daysLogged / 7) * 100)}%` }}
+                />
+              </div>
+              <span className="text-sm font-black text-emerald-600 shrink-0" dir="ltr">{daysLogged}/7</span>
+            </div>
+            {daysLogged >= 7 && (
+              <p className="mt-2 text-xs font-bold text-emerald-700">أحسنت! أكملت التحدي هذا الأسبوع</p>
+            )}
+          </div>
+        );
+      })()}
+
       {/* Recommended Peptides */}
       {(() => {
         const protocolPeptideIds = new Set(activeProtocols.map(p => p.peptide_id));

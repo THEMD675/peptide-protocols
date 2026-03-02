@@ -162,12 +162,15 @@ export default function Account() {
     if (!user) return;
     toast('جارٍ تجهيز بياناتك...');
     try {
-      const [logsRes, protosRes, reviewsRes, communityRes, subsRes] = await Promise.all([
+      const [logsRes, protosRes, reviewsRes, communityRes, subsRes, wellnessRes, labRes, sideEffectRes] = await Promise.all([
         supabase.from('injection_logs').select('*').eq('user_id', user.id),
         supabase.from('user_protocols').select('*').eq('user_id', user.id),
         supabase.from('reviews').select('*').eq('user_id', user.id),
         supabase.from('community_logs').select('*').eq('user_id', user.id),
         supabase.from('subscriptions').select('*').eq('user_id', user.id),
+        supabase.from('wellness_logs').select('*').eq('user_id', user.id),
+        supabase.from('lab_results').select('*').eq('user_id', user.id),
+        supabase.from('side_effect_logs').select('*').eq('user_id', user.id),
       ]);
       if (logsRes.error || protosRes.error || reviewsRes.error) {
         toast.error('تعذّر تحميل بعض البيانات. حاول مرة أخرى.');
@@ -217,6 +220,9 @@ export default function Account() {
           reviews: reviewsRes.data ?? [],
           community_posts: communityRes.data ?? [],
           subscriptions: subsRes.data ?? [],
+          wellness_logs: wellnessRes.data ?? [],
+          lab_results: labRes.data ?? [],
+          side_effect_logs: sideEffectRes.data ?? [],
         };
         download(new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' }), `pptides-data-${new Date().toISOString().slice(0, 10)}.json`);
       }
@@ -604,10 +610,10 @@ export default function Account() {
             <Download className="h-5 w-5 text-emerald-600" />
             <h2 className="text-lg font-bold text-stone-900">تصدير البيانات</h2>
           </div>
-          <p className="text-sm text-stone-600 mb-4">حمّل نسخة من جميع بياناتك (سجل الحقن، البروتوكولات، التقييمات)</p>
+          <p className="text-sm text-stone-600 mb-4">حمّل نسخة من جميع بياناتك (سجل الحقن، البروتوكولات، العافية، التحاليل، الأعراض الجانبية)</p>
           <div className="flex flex-wrap gap-3">
             <button onClick={() => handleExportData('json')} className="rounded-full border border-emerald-300 px-6 py-2.5 text-sm font-bold text-emerald-700 transition-colors hover:bg-emerald-50">
-              تصدير JSON (كامل)
+              تصدير بياناتي
             </button>
             <button onClick={() => handleExportData('csv')} className="rounded-full border border-stone-300 px-6 py-2.5 text-sm font-bold text-stone-700 transition-colors hover:bg-stone-50">
               تصدير CSV (سجل الحقن)

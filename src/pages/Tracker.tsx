@@ -262,7 +262,7 @@ export default function Tracker() {
 
   useEffect(() => {
     let draft: string | null = null;
-    try { draft = sessionStorage.getItem('pptides_injection_draft'); } catch { /* Safari private */ }
+    try { draft = sessionStorage.getItem('pptides_tracker_form_draft'); } catch { /* Safari private */ }
     if (draft && !peptideName) {
       try {
         const d = JSON.parse(draft);
@@ -284,7 +284,7 @@ export default function Tracker() {
   useEffect(() => {
     if (peptideName || dose) {
       try {
-        sessionStorage.setItem('pptides_injection_draft', JSON.stringify({
+        sessionStorage.setItem('pptides_tracker_form_draft', JSON.stringify({
           peptide: peptideName, dose, unit, site, notes,
         }));
       } catch { /* Safari private / quota */ }
@@ -389,7 +389,7 @@ export default function Tracker() {
       setNotes('');
       setDoseOutOfRangeConfirmed(false);
       setShowForm(false);
-      sessionStorage.removeItem('pptides_injection_draft');
+      sessionStorage.removeItem('pptides_tracker_form_draft');
       events.injectionLog(peptideName);
       window.history.replaceState({}, '', window.location.pathname);
       const now = new Date();
