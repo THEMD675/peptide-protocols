@@ -4,6 +4,10 @@ import { useState } from 'react';
 import { toast } from 'sonner';
 import { SITE_URL, FREQUENCY_LABELS } from '@/lib/constants';
 
+// WC19: Image export — The card supports Web Share API, clipboard copy, and WhatsApp wa.me
+// link with referral code. Image generation (e.g. PNG/JPEG export) would require adding
+// html2canvas or dom-to-image-more as a dependency; the current text+WhatsApp share is MVP.
+
 interface ShareableCardProps {
   peptideName: string;
   peptideNameEn: string;

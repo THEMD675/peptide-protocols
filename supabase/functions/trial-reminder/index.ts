@@ -379,6 +379,89 @@ serve(async (req) => {
       }
     }
 
+    // PRO8: Proactive coach check-in — active subscribers who haven't logged injection in 3+ days
+    const threeDaysAgo = new Date(now.getTime() - 3 * 24 * 60 * 60 * 1000).toISOString()
+    const getISOWeekKey = (d: Date) => {
+      const x = new Date(d)
+      x.setHours(0, 0, 0, 0)
+      x.setDate(x.getDate() + 4 - (x.getDay() || 7))
+      const yearStart = new Date(x.getFullYear(), 0, 1)
+      const weekNo = Math.ceil((((x.getTime() - yearStart.getTime()) / 86400000) + 1) / 7)
+      return `${x.getFullYear()}-W${String(weekNo).padStart(2, '0')}`
+    }
+    const inactiveCheckinWeekKey = `inactive_checkin_${getISOWeekKey(now)}`
+    const { data: activeSubsForCheckin } = await supabase
+      .from('subscriptions')
+      .select('user_id')
+      .eq('status', 'active')
+    let inactiveCheckinSent = 0
+    const INACTIVE_CHECKIN_LIMIT = 20
+    if (activeSubsForCheckin && activeSubsForCheckin.length > 0) {
+      for (const sub of activeSubsForCheckin) {
+        if (inactiveCheckinSent >= INACTIVE_CHECKIN_LIMIT) break
+        try {
+          const email = userIdToEmail.get(sub.user_id)
+          if (!email) continue
+          const { data: latestLog } = await supabase
+            .from('injection_logs')
+            .select('logged_at')
+            .eq('user_id', sub.user_id)
+            .order('logged_at', { ascending: false })
+            .limit(1)
+            .maybeSingle()
+          if (!latestLog || !latestLog.logged_at) continue
+          const lastLogged = new Date(latestLog.logged_at)
+          if (lastLogged >= new Date(threeDaysAgo)) continue
+          const { error: dedupErr } = await supabase
+            .from('sent_reminders')
+            .insert({ user_id: sub.user_id, reminder_type: inactiveCheckinWeekKey })
+          if (dedupErr) {
+            if (dedupErr.code === '23505') continue
+            console.error('trial-reminder: inactive_checkin dedup failed:', dedupErr)
+            continue
+          }
+          const emailRes = await fetch('https://api.resend.com/emails', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${RESEND_API_KEY}`,
+            },
+            body: JSON.stringify({
+              from: 'pptides <noreply@pptides.com>',
+              reply_to: 'contact@pptides.com',
+              to: email,
+              subject: 'هل كل شيء على ما يرام؟ — pptides',
+              headers: {
+                'List-Unsubscribe': '<mailto:contact@pptides.com?subject=unsubscribe>',
+              },
+              html: `
+                <div dir="rtl" style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Tahoma, Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 40px 20px; line-height: 1.8;">
+                  <h1 style="color: #1c1917; font-size: 24px;">مرحبًا — لاحظنا أنك لم تسجّل حقنة منذ 3 أيام. هل كل شيء على ما يرام مع بروتوكولك؟</h1>
+                  <a href="${APP_URL}/coach" style="display: inline-block; background: #059669; color: white; padding: 14px 32px; border-radius: 9999px; text-decoration: none; font-weight: bold; margin-top: 16px;">
+                    تحدث مع المدرب الذكي
+                  </a>
+                  <hr style="border: none; border-top: 1px solid #e7e5e4; margin: 30px 0;" />
+                  <p style="color: #a8a29e; font-size: 12px;">
+                    pptides.com — محتوى تعليمي بحثي. استشر طبيبك قبل استخدام أي ببتيد.
+                  </p>
+                </div>
+              `,
+            }),
+          })
+          if (emailRes.ok) {
+            inactiveCheckinSent++
+          } else {
+            await supabase.from('sent_reminders').delete()
+              .eq('user_id', sub.user_id)
+              .eq('reminder_type', inactiveCheckinWeekKey)
+              .catch(() => {})
+          }
+        } catch (e) {
+          console.error('trial-reminder: inactive_checkin error for user', sub.user_id, e)
+        }
+      }
+    }
+
     // Server-side trial expiration cleanup
     const { data: expiredTrials } = await supabase
       .from('subscriptions')
