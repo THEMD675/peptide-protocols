@@ -33,10 +33,10 @@ if (hasConsent && import.meta.env.PROD) {
     script.src = `https://www.googletagmanager.com/gtag/js?id=${ga4Id}`;
     script.async = true;
     document.head.appendChild(script);
-    (window as unknown as Record<string, unknown[]>).dataLayer = (window as unknown as Record<string, unknown[]>).dataLayer || [];
-    function gtag(...args: unknown[]) { (window as unknown as Record<string, unknown[]>).dataLayer.push(args); }
-    gtag('js', new Date());
-    gtag('config', ga4Id, { send_page_view: true });
+    const w = window as unknown as Record<string, unknown[]>;
+    w.dataLayer = w.dataLayer || [];
+    w.dataLayer.push(['js', new Date()]);
+    w.dataLayer.push(['config', ga4Id, { send_page_view: true }]);
   }
 }
 

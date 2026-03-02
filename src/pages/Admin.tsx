@@ -11,6 +11,7 @@ import {
   CheckCircle, XCircle, Loader2,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { PRICING } from '@/lib/constants';
 
 // ========================================================
 // TYPES
@@ -127,11 +128,12 @@ function Badge({ status }: { status: string }) {
 
 function Modal({ open, title, children, onClose }: { open: boolean; title: string; children: React.ReactNode; onClose: () => void }) {
   if (!open) return null;
+  const titleId = 'modal-title';
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" onClick={onClose}>
-      <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl" onClick={e => e.stopPropagation()}>
+      <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl" onClick={e => e.stopPropagation()} role="dialog" aria-modal="true" aria-labelledby={titleId}>
         <div className="flex items-center justify-between mb-4">
-          <h3 className="text-lg font-bold text-stone-900">{title}</h3>
+          <h3 id={titleId} className="text-lg font-bold text-stone-900">{title}</h3>
           <button onClick={onClose} className="rounded-lg p-1 hover:bg-stone-100"><X className="h-5 w-5 text-stone-500" /></button>
         </div>
         {children}
@@ -185,6 +187,7 @@ export default function Admin() {
   const [healthLoading, setHealthLoading] = useState(false);
   const [stripeVerify, setStripeVerify] = useState<StripeVerify | null>(null);
   const [stripeVerifyLoading, setStripeVerifyLoading] = useState(false);
+  const [approvingReviewId, setApprovingReviewId] = useState<string | null>(null);
 
   const getToken = useCallback(async () => {
     const { supabase } = await import('@/lib/supabase');
@@ -632,8 +635,9 @@ export default function Admin() {
                   <div className="flex items-center justify-between mt-3">
                     <p className="text-xs text-stone-500">{timeAgo(r.created_at)}</p>
                     <div className="flex gap-2">
-                      <button onClick={async () => { try { await adminAction({ action: 'approve_review', review_id: r.id }); toast.success('Approved'); fetchStats(); } catch { toast.error('Failed'); } }}
-                        className="rounded-lg bg-emerald-600 px-3 py-1.5 text-xs font-bold text-white hover:bg-emerald-700">Approve</button>
+                      <button onClick={async () => { setApprovingReviewId(r.id); try { await adminAction({ action: 'approve_review', review_id: r.id }); toast.success('Approved'); fetchStats(); } catch { toast.error('Failed'); } finally { setApprovingReviewId(null); } }}
+                        disabled={approvingReviewId === r.id}
+                        className="rounded-lg bg-emerald-600 px-3 py-1.5 text-xs font-bold text-white hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1">{(approvingReviewId === r.id) ? <><Loader2 className="h-3 w-3 animate-spin" /> Approving...</> : 'Approve'}</button>
                       <button onClick={async () => { if (!confirm('Delete?')) return; try { await adminAction({ action: 'delete_review', review_id: r.id }); toast.success('Deleted'); fetchStats(); } catch { toast.error('Failed'); } }}
                         className="rounded-lg border border-red-200 px-3 py-1.5 text-xs font-bold text-red-600 hover:bg-red-50">Delete</button>
                     </div>
@@ -804,8 +808,8 @@ export default function Admin() {
         <p className="text-sm text-stone-600 mb-3">Grant to <span className="font-mono font-bold">{modalTarget?.email}</span></p>
         <label className="block text-xs font-medium text-stone-600 mb-1">Tier</label>
         <select value={grantTier} onChange={e => setGrantTier(e.target.value as 'essentials' | 'elite')} className="w-full rounded-lg border border-stone-200 px-3 py-2 text-sm mb-3">
-          <option value="essentials">Essentials (34 SAR/mo)</option>
-          <option value="elite">Elite (371 SAR/mo)</option>
+          <option value="essentials">Essentials ({PRICING.essentials.label})</option>
+          <option value="elite">Elite ({PRICING.elite.label})</option>
         </select>
         <label className="block text-xs font-medium text-stone-600 mb-1">Duration (days)</label>
         <input type="number" min={1} max={365} value={grantDuration} onChange={e => setGrantDuration(Number(e.target.value))} className="w-full rounded-lg border border-stone-200 px-3 py-2 text-sm mb-4" />

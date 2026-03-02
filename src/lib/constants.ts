@@ -34,7 +34,7 @@ export const VALUE_SAVINGS_ELITE = '750 ر.س+';
 export const SUPPORT_EMAIL = 'contact@pptides.com';
 export const USD_TO_SAR = 3.75;
 
-/** Free peptides + trial-exclusive peptides */
+/** Free peptides + trial-exclusive peptides. The 5 IDs below are hardcoded trial-exclusive peptides (beyond FREE_PEPTIDE_IDS) — not in the free tier, but available during trial. */
 export const TRIAL_PEPTIDE_IDS = new Set([
   ...FREE_PEPTIDE_IDS,
   'tirzepatide', 'retatrutide', 'tesamorelin', 'aod-9604', '5-amino-1mq',

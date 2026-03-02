@@ -329,7 +329,7 @@ export default function Tracker() {
           sanitizeCSVCell(l.notes ?? ''),
         ].join(',')
       );
-      const headers = 'Peptide,Dose,Unit,Site,Date,Time,Notes';
+      const headers = 'الببتيد,الجرعة,الوحدة,الموقع,التاريخ,الوقت,الملاحظات';
       const csv = '\ufeff' + [headers, ...rows].join('\n');
       const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
       const url = URL.createObjectURL(blob);
