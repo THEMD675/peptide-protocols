@@ -321,6 +321,7 @@ export default memo(function Header() {
                     >
                       إعدادات الحساب
                     </Link>
+                    {['abdullah@amirisgroup.co', 'abdullahalameer@gmail.com', 'contact@pptides.com'].includes(user?.email ?? '') && (
                     <Link
                       to="/admin"
                       onClick={() => setDropdownOpen(false)}
@@ -329,6 +330,7 @@ export default memo(function Header() {
                     >
                       لوحة الإدارة
                     </Link>
+                    )}
                     <div className="my-1 h-px bg-stone-200" />
                     <button
                       onClick={() => {
@@ -487,6 +489,7 @@ export default memo(function Header() {
                   <User className="h-4 w-4" />
                   إعدادات الحساب
                 </Link>
+                {['abdullah@amirisgroup.co', 'abdullahalameer@gmail.com', 'contact@pptides.com'].includes(user?.email ?? '') && (
                 <Link
                   to="/admin"
                   onClick={() => setMobileOpen(false)}
@@ -494,6 +497,7 @@ export default memo(function Header() {
                 >
                   لوحة الإدارة
                 </Link>
+                )}
                 <button
                   onClick={() => {
                     if (window.confirm('هل تريد تسجيل الخروج؟')) {

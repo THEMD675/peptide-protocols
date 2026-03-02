@@ -32,6 +32,7 @@ import ShareableCard from '@/components/ShareableCard';
 import WellnessCheckin from '@/components/WellnessCheckin';
 import LabResultsTracker from '@/components/LabResultsTracker';
 import PushNotificationPrompt from '@/components/PushNotificationPrompt';
+import { AlertTriangle, HeartPulse } from 'lucide-react';
 import { peptides as allPeptides } from '@/data/peptides';
 import { labTests } from '@/data/peptides';
 
@@ -294,6 +295,32 @@ function useUserReviewCount(userId: string | undefined) {
   return reviewCount;
 }
 
+function useWellnessTrend(userId: string | undefined) {
+  const [trend, setTrend] = useState<{ avg: number; prevAvg: number; sideEffects7d: number } | null>(null);
+  useEffect(() => {
+    if (!userId) return;
+    let mounted = true;
+    const week = new Date(Date.now() - 7 * 86400000).toISOString();
+    const prevWeek = new Date(Date.now() - 14 * 86400000).toISOString();
+    Promise.all([
+      supabase.from('wellness_logs').select('energy, sleep, mood').eq('user_id', userId).gte('logged_at', week),
+      supabase.from('wellness_logs').select('energy, sleep, mood').eq('user_id', userId).gte('logged_at', prevWeek).lt('logged_at', week),
+      supabase.from('side_effect_logs').select('id', { count: 'exact', head: true }).eq('user_id', userId).gte('created_at', week),
+    ]).then(([thisWeek, lastWeek, sides]) => {
+      if (!mounted) return;
+      const avg = (arr: Array<{ energy: number; sleep: number; mood: number }>) =>
+        arr.length > 0 ? arr.reduce((s, w) => s + (w.energy + w.sleep + w.mood) / 3, 0) / arr.length : 0;
+      setTrend({
+        avg: Math.round(avg(thisWeek.data ?? []) * 10) / 10,
+        prevAvg: Math.round(avg(lastWeek.data ?? []) * 10) / 10,
+        sideEffects7d: sides.count ?? 0,
+      });
+    }).catch(() => {});
+    return () => { mounted = false; };
+  }, [userId]);
+  return trend;
+}
+
 export default function Dashboard() {
   const { user, subscription } = useAuth();
   const nowMs = useNowMs();
@@ -301,6 +328,7 @@ export default function Dashboard() {
   const activity = useRecentActivity(user?.id);
   const { protocols: activeProtocols, refetch: refetchProtocols } = useActiveProtocols(user?.id);
   const userReviewCount = useUserReviewCount(user?.id);
+  const wellnessTrend = useWellnessTrend(user?.id);
   const [shareProtocolId, setShareProtocolId] = useState<string | null>(null);
   const [showOnboarding, setShowOnboarding] = useState(false);
   const showOnboardButton = useMemo(() => {
@@ -675,6 +703,42 @@ export default function Dashboard() {
       <div className="mb-8">
         <WellnessCheckin />
       </div>
+
+      {/* Wellness Trend + Side Effects Summary */}
+      {wellnessTrend && (wellnessTrend.avg > 0 || wellnessTrend.sideEffects7d > 0) && (
+        <div className="mb-8 grid gap-4 sm:grid-cols-2">
+          {wellnessTrend.avg > 0 && (
+            <div className="rounded-2xl border border-stone-200 bg-white p-5 shadow-sm">
+              <div className="flex items-center gap-2 mb-2">
+                <HeartPulse className="h-5 w-5 text-emerald-600" />
+                <h3 className="text-sm font-bold text-stone-900">معدل العافية (٧ أيام)</h3>
+              </div>
+              <div className="flex items-baseline gap-2">
+                <span className="text-2xl font-black text-stone-900">{wellnessTrend.avg}</span>
+                <span className="text-sm text-stone-500">/ 5</span>
+                {wellnessTrend.prevAvg > 0 && (
+                  <span className={cn('text-xs font-medium', wellnessTrend.avg >= wellnessTrend.prevAvg ? 'text-emerald-600' : 'text-amber-600')}>
+                    {wellnessTrend.avg >= wellnessTrend.prevAvg ? '↑' : '↓'} {Math.abs(wellnessTrend.avg - wellnessTrend.prevAvg).toFixed(1)} عن الأسبوع الماضي
+                  </span>
+                )}
+              </div>
+            </div>
+          )}
+          {wellnessTrend.sideEffects7d > 0 && (
+            <div className="rounded-2xl border border-amber-200 bg-amber-50 p-5 shadow-sm">
+              <div className="flex items-center gap-2 mb-2">
+                <AlertTriangle className="h-5 w-5 text-amber-600" />
+                <h3 className="text-sm font-bold text-amber-900">أعراض جانبية (٧ أيام)</h3>
+              </div>
+              <div className="flex items-baseline gap-2">
+                <span className="text-2xl font-black text-amber-700">{wellnessTrend.sideEffects7d}</span>
+                <span className="text-sm text-amber-600">{arPlural(wellnessTrend.sideEffects7d, 'عرض واحد', 'عرضان', 'أعراض')}</span>
+              </div>
+              <Link to="/tracker" className="mt-2 block text-xs font-medium text-amber-700 underline">عرض التفاصيل في المتتبع</Link>
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Push Notification Prompt — paid subscribers only */}
       {subscription.isProOrTrial && (

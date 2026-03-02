@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { ArrowLeft, ArrowRight, CheckCircle, FlaskConical, TrendingDown, Heart, Brain, Zap, Clock, Shield, Syringe, Pill, SprayCan, Dumbbell, Calculator } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
+import { supabase } from '@/lib/supabase';
 import { peptides as allPeptides } from '@/data/peptides';
 
 interface QuizOption {
@@ -142,6 +143,12 @@ export default function PeptideQuiz() {
             injection: newAnswers[2],
             ts: Date.now(),
           }));
+          if (user) {
+            supabase.from('user_profiles').upsert({
+              user_id: user.id,
+              goals: [newAnswers[0]],
+            }, { onConflict: 'user_id' }).then(() => {}).catch(() => {});
+          }
         } catch { /* expected */ }
       }
 

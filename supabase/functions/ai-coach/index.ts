@@ -309,17 +309,25 @@ serve(async (req) => {
       })
     }
 
-    const [wellnessResult, labResult, protocolResult] = await Promise.all([
+    const [wellnessResult, labResult, protocolResult, sideEffectResult, profileResult] = await Promise.all([
       supabase.from('wellness_logs').select('energy, sleep, pain, mood, appetite, logged_at').eq('user_id', user.id).order('logged_at', { ascending: false }).limit(5),
       supabase.from('lab_results').select('test_id, value, unit, tested_at').eq('user_id', user.id).order('tested_at', { ascending: false }).limit(5),
       supabase.from('user_protocols').select('peptide_id, dose, dose_unit, frequency, cycle_weeks, started_at, status').eq('user_id', user.id).order('started_at', { ascending: false }).limit(10),
+      supabase.from('side_effect_logs').select('symptom, severity, peptide_id, notes, created_at').eq('user_id', user.id).order('created_at', { ascending: false }).limit(10),
+      supabase.from('user_profiles').select('goals, weight_kg').eq('user_id', user.id).maybeSingle(),
     ])
 
     const wellnessData = wellnessResult.data ?? []
     const labData = labResult.data ?? []
     const protocolData = protocolResult.data ?? []
+    const sideEffectData = sideEffectResult.data ?? []
+    const profileData = profileResult.data
 
     let userContextMsg = ''
+    if (profileData?.goals) {
+      userContextMsg += `\n\nأهداف المستخدم: ${Array.isArray(profileData.goals) ? profileData.goals.join(', ') : profileData.goals}`
+      if (profileData.weight_kg) userContextMsg += ` | الوزن: ${profileData.weight_kg} كغ`
+    }
     if (protocolData.length > 0) {
       const entries = protocolData.map(p => {
         const start = p.started_at ? new Date(p.started_at).toLocaleDateString('en-CA') : 'unknown'
@@ -338,6 +346,12 @@ serve(async (req) => {
         `${l.tested_at}: ${l.test_id} = ${l.value} ${l.unit ?? ''}`
       ).join('\n')
       userContextMsg += `\n\nنتائج التحاليل الأخيرة للمستخدم:\n${entries}`
+    }
+    if (sideEffectData.length > 0) {
+      const entries = sideEffectData.map(s =>
+        `${s.created_at}: ${s.symptom} (severity=${s.severity}/5)${s.peptide_id ? ` — ${s.peptide_id}` : ''}${s.notes ? ` — ${s.notes}` : ''}`
+      ).join('\n')
+      userContextMsg += `\n\nأعراض جانبية أبلغ عنها المستخدم:\n${entries}`
     }
 
     const userMessages = messages.filter((m: { role: string }) => m.role !== 'system').slice(-MAX_CONTEXT_MESSAGES)

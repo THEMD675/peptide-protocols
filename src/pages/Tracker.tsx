@@ -561,7 +561,7 @@ export default function Tracker() {
             {activeProtocols.map(proto => {
               const peptide = allPeptides.find(p => p.id === proto.peptide_id);
               const daysSinceStart = Math.floor((Date.now() - new Date(proto.started_at).getTime()) / (1000 * 60 * 60 * 24));
-              const totalDays = proto.cycle_weeks * 7;
+              const totalDays = (proto.cycle_weeks || 8) * 7;
               const weekNumber = Math.floor(daysSinceStart / 7) + 1;
               const totalWeeks = proto.cycle_weeks || 8;
               const todayLogged = logs.some(l => l.peptide_name === (peptide?.nameEn ?? proto.peptide_id) && new Date(l.logged_at).toDateString() === new Date().toDateString());

@@ -97,19 +97,36 @@ serve(async (req) => {
   const allOk = Object.values(checks).every(c => c.status === 'ok')
   const hasError = Object.values(checks).some(c => c.status === 'error')
 
-  // Send alert email if any errors
+  // Send alert email if any errors (max 1 per hour to prevent flooding)
   if (hasError && resendKey) {
-    const errorDetails = Object.entries(checks).filter(([, c]) => c.status === 'error').map(([name, c]) => `${name}: ${c.detail}`).join('\n')
-    await fetch('https://api.resend.com/emails', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${resendKey}` },
-      body: JSON.stringify({
-        from: 'pptides <noreply@pptides.com>',
-        to: 'contact@pptides.com',
-        subject: 'pptides Health Check FAILED',
-        text: `Health check detected errors:\n\n${errorDetails}\n\nFull report: ${JSON.stringify(checks, null, 2)}`,
-      }),
-    }).catch(e => console.error('Alert email failed:', e))
+    const supabaseUrl = Deno.env.get('SUPABASE_URL') ?? ''
+    const serviceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
+    let shouldSend = true
+    if (supabaseUrl && serviceKey) {
+      const { createClient } = await import('https://esm.sh/@supabase/supabase-js@2')
+      const db = createClient(supabaseUrl, serviceKey)
+      const hourAgo = new Date(Date.now() - 3600000).toISOString()
+      const { count } = await db.from('email_logs').select('id', { count: 'exact', head: true }).eq('type', 'health_alert').gte('created_at', hourAgo)
+      if ((count ?? 0) > 0) shouldSend = false
+    }
+    if (shouldSend) {
+      const errorDetails = Object.entries(checks).filter(([, c]) => c.status === 'error').map(([name, c]) => `${name}: ${c.detail}`).join('\n')
+      await fetch('https://api.resend.com/emails', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${resendKey}` },
+        body: JSON.stringify({
+          from: 'pptides <noreply@pptides.com>',
+          to: 'contact@pptides.com',
+          subject: 'pptides Health Check FAILED',
+          text: `Health check detected errors:\n\n${errorDetails}\n\nFull report: ${JSON.stringify(checks, null, 2)}`,
+        }),
+      }).catch(e => console.error('Alert email failed:', e))
+      if (supabaseUrl && serviceKey) {
+        const { createClient } = await import('https://esm.sh/@supabase/supabase-js@2')
+        const db = createClient(supabaseUrl, serviceKey)
+        await db.from('email_logs').insert({ email: 'contact@pptides.com', type: 'health_alert', status: 'sent' }).catch(() => {})
+      }
+    }
   }
 
   return new Response(JSON.stringify({

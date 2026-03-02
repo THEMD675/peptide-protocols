@@ -447,7 +447,7 @@ export default function Coach() {
       userContextRef.current = ctx;
       const prompt = buildPeptideRequestPrompt(p, intake.goal || intake.experience || intake.injection ? intake : null, ctx);
       sendToAI(prompt);
-    })();
+    })().catch(() => {});
   }, [searchParams, user, sendToAI, messages.length, intake]);
 
   const submitIntake = useCallback(() => {

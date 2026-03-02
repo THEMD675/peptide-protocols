@@ -113,7 +113,10 @@ serve(async (req) => {
         const stripe = new Stripe(stripeKey, { apiVersion: '2023-10-16' })
         try {
           await stripe.subscriptions.update(sub.stripe_subscription_id, { cancel_at_period_end: true })
-        } catch (e) { console.error('Stripe cancel failed:', e) }
+        } catch (e) {
+          console.error('Stripe cancel failed — aborting DB update to prevent desync:', e)
+          return json({ error: 'Stripe cancellation failed — subscription not changed' }, 502, cors)
+        }
       }
 
       const { error } = await admin.from('subscriptions').update({

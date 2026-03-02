@@ -531,7 +531,7 @@ export default function Account() {
                     });
                     if (!res.ok) { toast.error('تعذّر فتح إدارة الدفع'); return; }
                     const { url } = await res.json();
-                    if (url) window.location.href = url;
+                    if (url) { window.location.href = url; } else { toast.error('تعذّر فتح صفحة الدفع — تواصل مع الدعم'); }
                   } catch { toast.error('تعذّر فتح إدارة الدفع. حاول مرة أخرى.'); }
                 }}
                 className="mt-3 flex w-full items-center justify-center gap-2 rounded-xl border border-emerald-300 bg-emerald-50 px-6 py-3 text-sm font-bold text-emerald-700 transition-all hover:bg-emerald-100"

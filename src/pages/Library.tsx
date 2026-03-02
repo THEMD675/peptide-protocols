@@ -449,7 +449,7 @@ export default function Library() {
               <button
                 onClick={() => setSearch('')}
                 aria-label="مسح البحث"
-                className="absolute left-3 top-1/2 -translate-y-1/2 text-stone-700 transition-colors hover:text-stone-800"
+                className="absolute start-3 top-1/2 -translate-y-1/2 text-stone-700 transition-colors hover:text-stone-800"
               >
                 <X className="h-4 w-4" />
               </button>

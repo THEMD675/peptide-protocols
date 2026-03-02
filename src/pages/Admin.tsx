@@ -7,7 +7,7 @@ import {
   Users, CreditCard, MessageSquare, Star, Mail, Activity, TrendingUp,
   AlertTriangle, RefreshCw, Shield, Reply, Send, X, Clock, Zap,
   AlertCircle, Info, ArrowUpRight, ArrowDownRight, Download,
-  Trash2, Ban, CalendarPlus, Heart,
+  Trash2, Ban, CalendarPlus, Heart, ShieldCheck,
   CheckCircle, XCircle, Loader2,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -206,7 +206,7 @@ export default function Admin() {
       if (res.status === 403) { setForbidden(true); return; }
       if (!res.ok) throw new Error((await res.json().catch(() => ({}))).error ?? 'Failed');
       const d = await res.json();
-      setStats({ ...d, alerts: d.alerts ?? [], funnel: d.funnel ?? { totalSignups: 0, trialStarts: 0, paidConversions: 0, signupToTrial: 0, trialToPaid: 0 }, activityFeed: d.activityFeed ?? [], enquiries: d.enquiries ?? [], emailLogs: d.emailLogs ?? [], webhookEvents: d.webhookEvents ?? [] });
+      setStats({ ...d, alerts: d.alerts ?? [], funnel: d.funnel ?? { totalSignups: 0, trialStarts: 0, paidConversions: 0, signupToTrial: 0, trialToPaid: 0 }, activityFeed: d.activityFeed ?? [], enquiries: d.enquiries ?? [], emailLogs: d.emailLogs ?? [], webhookEvents: d.webhookEvents ?? [], recentUsers: d.recentUsers ?? [], pendingReviews: d.pendingReviews ?? [], emailList: d.emailList ?? [] });
       setLastFetched(new Date());
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Failed to load');
@@ -581,6 +581,7 @@ export default function Admin() {
                                 <button onClick={() => openUserAction('cancel_sub', u)} title="Cancel subscription" className="rounded p-1 hover:bg-amber-50"><XCircle className="h-3.5 w-3.5 text-amber-600" /></button>
                               )}
                               <button onClick={() => openUserAction('confirm_suspend', u)} title="Suspend" className="rounded p-1 hover:bg-red-50"><Ban className="h-3.5 w-3.5 text-red-400" /></button>
+                              <button onClick={async () => { try { await adminAction({ action: 'unsuspend_user', user_id: u.id }); toast.success(`${u.email} unsuspended`); fetchStats(); } catch { toast.error('Unsuspend failed'); } }} title="Unsuspend" className="rounded p-1 hover:bg-green-50"><ShieldCheck className="h-3.5 w-3.5 text-green-600" /></button>
                               <button onClick={() => openUserAction('confirm_delete', u)} title="Delete" className="rounded p-1 hover:bg-red-50"><Trash2 className="h-3.5 w-3.5 text-red-400" /></button>
                             </div>
                           </td>

@@ -18,13 +18,20 @@ export default function BaselineChecklist({ peptide, onAllChecked }: BaselineChe
     { id: 'guide', label: 'قرأت دليل الحقن والتحضير', icon: BookOpen },
   ];
 
-  const [checked, setChecked] = useState<Set<string>>(new Set());
+  const storageKey = `pptides_baseline_${peptide.id}`;
+  const [checked, setChecked] = useState<Set<string>>(() => {
+    try {
+      const saved = localStorage.getItem(storageKey);
+      return saved ? new Set(JSON.parse(saved)) : new Set();
+    } catch { return new Set(); }
+  });
 
   const toggle = (id: string) => {
     setChecked(prev => {
       const next = new Set(prev);
       if (next.has(id)) next.delete(id); else next.add(id);
       if (next.size === items.length) onAllChecked?.();
+      try { localStorage.setItem(storageKey, JSON.stringify([...next])); } catch { /* expected */ }
       return next;
     });
   };
