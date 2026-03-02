@@ -14,7 +14,7 @@ function ShoppingList({ peptide, dose, unit, frequency, cycleWeeks }: { peptide:
   if (!dose || !(peptide.route === 'subq' || peptide.route === 'im')) return null;
   const doseMcg = unit === 'mg' ? parseFloat(dose) * 1000 : parseFloat(dose);
   if (!doseMcg || doseMcg <= 0) return null;
-  const freqPerDay = frequency === 'bid' ? 2 : frequency === 'weekly' ? 1/7 : frequency === 'biweekly' ? 2/7 : 1;
+  const freqPerDay = frequency === 'bid' ? 2 : frequency === 'tid' ? 3 : frequency === 'weekly' ? 1/7 : frequency === 'biweekly' ? 2/7 : frequency === 'daily-10' ? 10/14 : frequency === 'daily-20' ? 20/28 : frequency === 'prn' ? 0.5 : 1;
   const totalDoses = Math.ceil(freqPerDay * (parseInt(cycleWeeks) || 4) * 7);
   const vialMg = peptide.doseMcg && peptide.doseMcg <= 1000 ? 5 : 10;
   const dosesPerVial = Math.floor((vialMg * 1000) / doseMcg);

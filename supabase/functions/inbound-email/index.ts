@@ -129,7 +129,7 @@ serve(async (req) => {
           <p style="margin: 4px 0; font-size: 13px; color: #78716c;"><strong>Subject:</strong> ${escapeHtml(subject ?? '(no subject)')}</p>
         </div>
         <div style="padding: 8px 0;">
-          ${bodyHtml || `<pre style="white-space: pre-wrap; font-family: inherit;">${escapeHtml(bodyText || '(empty body)')}</pre>`}
+          ${bodyHtml ? bodyHtml.replace(/<script[\s\S]*?<\/script>/gi, '').replace(/on\w+\s*=/gi, 'data-blocked=') : `<pre style="white-space: pre-wrap; font-family: inherit;">${escapeHtml(bodyText || '(empty body)')}</pre>`}
         </div>
       </div>
     `

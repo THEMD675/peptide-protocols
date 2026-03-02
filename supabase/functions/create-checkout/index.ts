@@ -107,7 +107,8 @@ serve(async (req) => {
     const hadStripeSub = !!existingSub?.stripe_subscription_id
 
     const openSessions = await stripe.checkout.sessions.list({
-      limit: 5,
+      limit: 10,
+      ...(existingSub?.stripe_customer_id ? { customer: existingSub.stripe_customer_id } : {}),
     })
     const reusable = openSessions.data.find(
       (s) =>
