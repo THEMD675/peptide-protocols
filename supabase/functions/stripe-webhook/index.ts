@@ -338,25 +338,32 @@ serve(async (req) => {
               const customer = await stripe.customers.retrieve(invoice.customer as string).catch(() => null)
               const customerEmail = (customer && !customer.deleted) ? customer.email : null
               if (customerEmail) {
-                await fetch('https://api.resend.com/emails', {
+                const res = await fetch('https://api.resend.com/emails', {
                   method: 'POST',
                   headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${RESEND_API_KEY}` },
                   body: JSON.stringify({
                     from: 'pptides <noreply@pptides.com>',
                     reply_to: 'contact@pptides.com',
                     to: customerEmail,
-                    subject: 'تعذّر تحصيل الدفعة — حدّث وسيلة الدفع',
+                    subject: 'دفعتك لم تتم — يرجى تحديث بيانات الدفع',
                     headers: { 'List-Unsubscribe': '<mailto:contact@pptides.com?subject=unsubscribe>' },
                     html: `<div dir="rtl" style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Tahoma, Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 40px 20px;">
-                      <h1 style="color: #1c1917; font-size: 24px;">تعذّر تحصيل الدفعة</h1>
-                      <p style="color: #44403c; font-size: 16px; line-height: 1.8;">لم نتمكن من تحصيل دفعتك لاشتراك pptides. يرجى تحديث وسيلة الدفع لتجنّب فقدان الوصول.</p>
+                      <h1 style="color: #1c1917; font-size: 24px;">دفعتك لم تتم</h1>
+                      <p style="color: #44403c; font-size: 16px; line-height: 1.8;">لم تتم معالجة دفعتك. يرجى تحديث بيانات الدفع في حسابك لتجنّب فقدان الوصول.</p>
                       <div style="text-align: center; margin: 24px 0;">
-                        <a href="https://pptides.com/account" style="display: inline-block; background: #059669; color: white; padding: 16px 40px; border-radius: 9999px; text-decoration: none; font-weight: bold; font-size: 16px;">تحديث وسيلة الدفع</a>
+                        <a href="https://pptides.com/account" style="display: inline-block; background: #059669; color: white; padding: 16px 40px; border-radius: 9999px; text-decoration: none; font-weight: bold; font-size: 16px;">تحديث بيانات الدفع</a>
                       </div>
                       <p style="color: #78716c; font-size: 13px;">إذا كنت بحاجة للمساعدة: contact@pptides.com</p>
                     </div>`,
                   }),
-                }).catch(e => console.error('payment failed email error:', e))
+                }).catch(e => { console.error('payment failed email error:', e); return null })
+                if (res?.ok) {
+                  await supabase.from('email_logs').insert({
+                    email: customerEmail,
+                    type: 'payment_failed',
+                    status: 'sent',
+                  }).catch(e => console.error('email_logs insert failed:', e))
+                }
               }
             }
           }

@@ -241,6 +241,25 @@ export default function Coach() {
   const [messages, setMessages] = useState<ChatMessage[]>(() => {
     try { const s = localStorage.getItem(storageKey); if (s) return JSON.parse(s).messages ?? []; } catch { /* expected */ } return [];
   });
+
+  // Hydrate from Supabase (overrides localStorage if server has data)
+  const supabaseLoadedRef = useRef(false);
+  useEffect(() => {
+    if (!user?.id || supabaseLoadedRef.current) return;
+    supabaseLoadedRef.current = true;
+    supabase
+      .from('coach_conversations')
+      .select('messages')
+      .eq('user_id', user.id)
+      .maybeSingle()
+      .then(({ data }) => {
+        if (data?.messages && Array.isArray(data.messages) && data.messages.length > 0) {
+          setMessages(data.messages as ChatMessage[]);
+          setIntakeStep('done');
+        }
+      })
+      .catch(() => {});
+  }, [user?.id]);
   const DRAFT_KEY = 'pptides_coach_draft';
   const DEEPSEEK_CONSENT_KEY = 'pptides_deepseek_consent';
   const [showDeepSeekConsent, setShowDeepSeekConsent] = useState(() => {
@@ -271,7 +290,17 @@ export default function Coach() {
         try { localStorage.setItem(storageKey, JSON.stringify({ messages: trimmed, intake })); } catch { /* give up */ }
       }
     }
-  }, [messages, intake, storageKey, isLoading]);
+    // Fire-and-forget upsert to Supabase for cross-device sync
+    if (user?.id && cleanMessages.length > 0) {
+      supabase
+        .from('coach_conversations')
+        .upsert(
+          { user_id: user.id, messages: cleanMessages, updated_at: new Date().toISOString() },
+          { onConflict: 'user_id' },
+        )
+        .then(() => {});
+    }
+  }, [messages, intake, storageKey, isLoading, user?.id]);
 
   useEffect(() => {
     try { sessionStorage.setItem(stepStorageKey, intakeStep); } catch { /* expected */ }
@@ -481,6 +510,9 @@ export default function Coach() {
       sessionStorage.removeItem(`pptides_coach_intake_${user?.id ?? 'anon'}`);
       sessionStorage.removeItem(stepStorageKey);
     } catch { /* expected */ }
+    if (user?.id) {
+      supabase.from('coach_conversations').delete().eq('user_id', user.id).then(() => {});
+    }
     setConfirmReset(false);
   };
 
