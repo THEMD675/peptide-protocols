@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { Link, useSearchParams } from 'react-router-dom';
-import { MessageSquare, Send, Clock, FlaskConical, User, Flag, Star, MessageCircle, ChevronDown, ChevronUp, Trash2, BadgeCheck } from 'lucide-react';
+import { MessageSquare, Send, Clock, FlaskConical, User, Flag, Star, MessageCircle, ChevronDown, ChevronUp, Trash2, BadgeCheck, ThumbsUp } from 'lucide-react';
 import { toast } from 'sonner';
 import { useAuth } from '@/contexts/AuthContext';
 import { PRICING, SITE_URL, SUPPORT_EMAIL } from '@/lib/constants';
@@ -19,6 +19,7 @@ interface LogEntry {
   results: string;
   rating: number;
   is_subscriber?: boolean;
+  upvotes?: number;
   created_at: string;
 }
 
@@ -88,6 +89,12 @@ export default function Community() {
   const submittingRef = useRef(false);
   const mountedRef = useRef(true);
   useEffect(() => () => { mountedRef.current = false; }, []);
+  const [upvotedPosts, setUpvotedPosts] = useState<Set<string>>(() => {
+    try {
+      const stored = localStorage.getItem('pptides_upvoted_posts');
+      return stored ? new Set(JSON.parse(stored)) : new Set();
+    } catch { return new Set(); }
+  });
   const [submitted, setSubmitted] = useState(false);
   const [searchParams, setSearchParams] = useSearchParams();
   const validGoals = ['all', ...GOALS];
@@ -173,7 +180,7 @@ export default function Community() {
     try {
       const { data, error } = await supabase
         .from('community_logs')
-        .select('id, user_id, peptide_name, goal, protocol, duration_weeks, results, rating, is_subscriber, created_at')
+        .select('id, user_id, peptide_name, goal, protocol, duration_weeks, results, rating, is_subscriber, upvotes, created_at')
         .order('created_at', { ascending: false })
         .limit(50);
       if (!error && data) {
@@ -304,7 +311,7 @@ export default function Community() {
 
       const { data } = await supabase
         .from('community_logs')
-        .select('id, user_id, peptide_name, goal, protocol, duration_weeks, results, rating, is_subscriber, created_at')
+        .select('id, user_id, peptide_name, goal, protocol, duration_weeks, results, rating, is_subscriber, upvotes, created_at')
         .order('created_at', { ascending: false })
         .limit(50);
       if (mountedRef.current && data) {
@@ -769,6 +776,37 @@ export default function Community() {
                   <span>
                     {new Date(log.created_at).toLocaleDateString('ar-u-nu-latn', { year: 'numeric', month: 'long', day: 'numeric' })}
                   </span>
+                  {!isSeed && (
+                    <button
+                      type="button"
+                      onClick={async () => {
+                        if (upvotedPosts.has(log.id)) return;
+                        const next = new Set(upvotedPosts).add(log.id);
+                        setUpvotedPosts(next);
+                        try { localStorage.setItem('pptides_upvoted_posts', JSON.stringify([...next])); } catch { /* expected */ }
+                        setLogs(prev => prev.map(l => l.id === log.id ? { ...l, upvotes: (l.upvotes ?? 0) + 1 } : l));
+                        const { error } = await supabase
+                          .from('community_logs')
+                          .update({ upvotes: (log.upvotes ?? 0) + 1 })
+                          .eq('id', log.id);
+                        if (error) {
+                          setLogs(prev => prev.map(l => l.id === log.id ? { ...l, upvotes: (l.upvotes ?? 0) - 1 } : l));
+                          const reverted = new Set(upvotedPosts);
+                          reverted.delete(log.id);
+                          setUpvotedPosts(reverted);
+                          try { localStorage.setItem('pptides_upvoted_posts', JSON.stringify([...reverted])); } catch { /* expected */ }
+                        }
+                      }}
+                      className={cn(
+                        'flex items-center gap-1 transition-colors',
+                        upvotedPosts.has(log.id) ? 'text-emerald-600' : 'text-stone-400 hover:text-emerald-500'
+                      )}
+                      disabled={upvotedPosts.has(log.id)}
+                    >
+                      <ThumbsUp className="h-3.5 w-3.5" />
+                      <span>{log.upvotes ?? 0}</span>
+                    </button>
+                  )}
                 </div>
                 <Link
                   to={`/peptide/${allPeptides.find(p => p.nameEn === log.peptide_name)?.id ?? (log.peptide_name ?? '').toLowerCase().replace(/[/\s]+/g, '-')}`}
@@ -876,7 +914,7 @@ export default function Community() {
                   try {
                     const { data } = await supabase
                       .from('community_logs')
-                      .select('id, user_id, peptide_name, goal, protocol, duration_weeks, results, rating, is_subscriber, created_at')
+                      .select('id, user_id, peptide_name, goal, protocol, duration_weeks, results, rating, is_subscriber, upvotes, created_at')
                       .order('created_at', { ascending: false })
                       .range(logs.length, logs.length + PAGE_SIZE - 1);
                     if (data) {

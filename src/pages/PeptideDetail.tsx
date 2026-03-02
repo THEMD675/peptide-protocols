@@ -8,7 +8,7 @@ import { cn } from '@/lib/utils';
 import { peptides } from '@/data/peptides';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
-import { PRICING, TRIAL_PEPTIDE_IDS, SITE_URL } from '@/lib/constants';
+import { PRICING, TRIAL_PEPTIDE_IDS, SITE_URL, PEPTIDE_COUNT } from '@/lib/constants';
 import { DOSE_PRESETS_MAP as DOSE_PRESETS } from '@/data/dose-presets';
 import { evidenceColors, evidenceLabels, categoryLabels } from '@/lib/peptide-labels';
 
@@ -57,6 +57,15 @@ export default function PeptideDetail() {
   const hasAccess = isPaid || isFreeContent || (isTrial && TRIAL_PEPTIDE_IDS.has(peptide.id));
   const firstSentence = peptide.summaryAr.split('.')[0] + '.';
 
+  const evidenceMeter: { label: string; cls: string } = ({
+    excellent: { label: 'أدلة قوية (تجارب سريرية)', cls: 'border-emerald-300 bg-emerald-50 text-emerald-800' },
+    strong: { label: 'أدلة قوية (تجارب سريرية)', cls: 'border-emerald-300 bg-emerald-50 text-emerald-800' },
+    good: { label: 'أدلة قوية (تجارب سريرية)', cls: 'border-emerald-300 bg-emerald-50 text-emerald-800' },
+    moderate: { label: 'أدلة متوسطة (دراسات أولية)', cls: 'border-amber-300 bg-amber-50 text-amber-800' },
+    weak: { label: 'أدلة محدودة (بحوث حيوانية)', cls: 'border-stone-300 bg-stone-100 text-stone-600' },
+    'very-weak': { label: 'أدلة محدودة (بحوث حيوانية)', cls: 'border-stone-300 bg-stone-100 text-stone-600' },
+  } as Record<string, { label: string; cls: string }>)[peptide.evidenceLevel] ?? { label: 'أدلة محدودة', cls: 'border-stone-300 bg-stone-100 text-stone-600' };
+
   const relatedPeptides = peptides.filter(
     (p) => p.id !== peptide.id && (p.category === peptide.category || peptide.stackAr.toLowerCase().includes(p.nameEn.toLowerCase()))
   ).slice(0, 4);
@@ -79,7 +88,7 @@ export default function PeptideDetail() {
     <div className="min-h-screen animate-fade-in" >
       <Helmet>
         <title>{peptide.nameAr === peptide.nameEn ? peptide.nameAr : `${peptide.nameAr} | ${peptide.nameEn}`} | pptides</title>
-        <meta name="description" content={peptide.summaryAr.length > 155 ? peptide.summaryAr.slice(0, 155) + '…' : peptide.summaryAr} />
+        <meta name="description" content={`بروتوكول ${peptide.nameAr} — الجرعة، التوقيت، الأعراض الجانبية، مستوى الأدلة. ${PEPTIDE_COUNT}+ ببتيد في مكتبة pptides.`} />
         <meta property="og:title" content={`${peptide.nameAr === peptide.nameEn ? peptide.nameAr : `${peptide.nameAr} | ${peptide.nameEn}`} | pptides`} />
         <meta property="og:description" content={peptide.summaryAr} />
         <meta property="og:type" content="article" />
@@ -187,6 +196,17 @@ export default function PeptideDetail() {
                 )}>
                   {peptide.difficulty === 'beginner' ? 'مبتدئ' : peptide.difficulty === 'intermediate' ? 'متوسط' : 'متقدم'}
                 </span>
+              )}
+            </div>
+          </div>
+
+          {/* WC28: Prominent evidence meter */}
+          <div className={cn('mt-3 flex items-center gap-3 rounded-xl border px-4 py-2.5', evidenceMeter.cls)}>
+            <FlaskConical className="h-5 w-5 shrink-0" />
+            <div>
+              <p className="text-sm font-bold">{evidenceMeter.label}</p>
+              {peptide.lastUpdated && (
+                <p className="text-xs opacity-75">آخر مراجعة: {peptide.lastUpdated}</p>
               )}
             </div>
           </div>

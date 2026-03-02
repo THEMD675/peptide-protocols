@@ -27,6 +27,7 @@ import {
   ChevronUp,
   Play,
   Info,
+  AlertTriangle,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { events } from '@/lib/analytics';
@@ -647,6 +648,32 @@ export default function Tracker() {
               );
             })}
           </div>
+          {/* Restocking Alerts */}
+          {(() => {
+            const alerts = activeProtocols.map(proto => {
+              const peptide = allPeptides.find(p => p.id === proto.peptide_id);
+              const pepName = peptide?.nameEn ?? proto.peptide_id;
+              const logsForPeptide = logs.filter(l => l.peptide_name === pepName).length;
+              if (logsForPeptide === 0) return null;
+              const dosesPerVial = peptide?.doseMcg ? Math.floor(5000 / peptide.doseMcg) : 20;
+              const remaining = Math.max(0, dosesPerVial - (logsForPeptide % dosesPerVial));
+              if (remaining >= 5) return null;
+              return { id: proto.id, nameAr: peptide?.nameAr ?? proto.peptide_id, remaining };
+            }).filter(Boolean) as { id: string; nameAr: string; remaining: number }[];
+            if (alerts.length === 0) return null;
+            return (
+              <div className="mt-4 space-y-2">
+                {alerts.map(a => (
+                  <div key={`restock-${a.id}`} className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 flex items-center gap-3">
+                    <AlertTriangle className="h-4 w-4 shrink-0 text-amber-600" />
+                    <p className="text-xs font-bold text-amber-800">
+                      ~{a.remaining} جرعة متبقية في قارورة {a.nameAr}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            );
+          })()}
         </div>
       )}
 

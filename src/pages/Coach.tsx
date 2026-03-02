@@ -8,7 +8,7 @@ import { renderMarkdown } from '@/lib/markdown';
 import {
   Bot, Send, Sparkles, TrendingDown, Heart, Dumbbell, Brain,
   Clock, Zap, Calculator, FlaskConical, Shield, RotateCcw, ArrowLeft, ArrowRight,
-  Copy, Check, BookOpen, Play, Printer,
+  Copy, Check, BookOpen, Play, Printer, Crown,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { events } from '@/lib/analytics';
@@ -924,12 +924,24 @@ export default function Coach() {
           {intakeStep === 'done' && (
             <div className="border-t border-stone-200 bg-white p-4">
               {limitReached ? (
+                subscription.tier === 'essentials' ? (
+                <div className="rounded-xl border-2 border-emerald-400 bg-gradient-to-b from-emerald-50 to-white p-6 text-center shadow-sm">
+                  <Crown className="mx-auto mb-3 h-8 w-8 text-emerald-600" />
+                  <p className="text-lg font-bold text-stone-900">لقد وصلت للحد الأقصى</p>
+                  <p className="mt-2 text-sm text-stone-600">ترقَّ إلى Elite لاستشارات بلا حدود</p>
+                  <Link to="/pricing?plan=elite" className="mt-4 inline-flex items-center gap-2 rounded-full bg-emerald-600 px-8 py-3 text-sm font-bold text-white transition-colors hover:bg-emerald-700">
+                    <Crown className="h-4 w-4" />
+                    ترقية إلى Elite
+                  </Link>
+                </div>
+                ) : (
                 <div className="rounded-xl border-2 border-emerald-200 bg-emerald-50 p-5 text-center">
                   <Sparkles className="mx-auto mb-2 h-6 w-6 text-emerald-600" />
                   <p className="font-bold text-stone-900">{hasAccess ? 'وصلت حد الأسئلة لهذه الجلسة' : 'أعجبتك الاستشارة؟'}</p>
                   <p className="mt-1 text-sm text-stone-600">{!isElite && (hasAccess ? 'ترقَّ إلى Elite لاستشارات بلا حدود.' : 'اشترك للحصول على استشارات مخصّصة.')}</p>
                   {!isElite && <button onClick={async () => { try { if (hasAccess) await upgradeTo('elite'); else navigate('/pricing'); } catch { /* non-blocking */ } }} className="mt-3 rounded-full bg-emerald-600 px-8 py-2.5 text-sm font-bold text-white transition-colors hover:bg-emerald-700">{hasAccess ? 'ترقَّ إلى Elite' : 'اشترك الآن'}</button>}
                 </div>
+                )
               ) : (
                 <>
                   {/* Value preview — when messages empty (first visit) */}

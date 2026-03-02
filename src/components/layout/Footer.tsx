@@ -60,6 +60,7 @@ export default memo(function Footer() {
               <Link to="/faq" className="text-stone-600 transition-colors hover:text-emerald-600 active:text-emerald-700">الأسئلة الشائعة</Link>
               <Link to="/privacy" className="text-stone-600 transition-colors hover:text-emerald-600 active:text-emerald-700">سياسة الخصوصية</Link>
               <Link to="/terms" className="text-stone-600 transition-colors hover:text-emerald-600 active:text-emerald-700">شروط الاستخدام</Link>
+              <Link to="/transparency" className="text-stone-600 transition-colors hover:text-emerald-600 active:text-emerald-700">كيف نكسب المال</Link>
               <button onClick={() => { try { localStorage.removeItem('pptides_cookie_consent'); } catch { /* storage unavailable */ } window.location.reload(); }} className="text-start text-sm text-stone-600 hover:text-emerald-600 transition-colors">
                 إدارة ملفات تعريف الارتباط
               </button>

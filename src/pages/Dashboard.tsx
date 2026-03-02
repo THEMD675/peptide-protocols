@@ -429,6 +429,14 @@ export default function Dashboard() {
               {TIER_LABELS[subscription.tier] ?? subscription.tier}
             </span>
           )}
+          {!activity.loading && (
+            <span className={cn(
+              'rounded-full px-3 py-1 text-xs font-bold',
+              activity.totalInjections >= 50 ? 'bg-amber-100 text-amber-700' : activity.totalInjections >= 10 ? 'bg-blue-100 text-blue-700' : 'bg-stone-100 text-stone-600',
+            )}>
+              {activity.totalInjections >= 50 ? 'متقدم' : activity.totalInjections >= 10 ? 'متوسط' : 'مبتدئ'}
+            </span>
+          )}
         </div>
         <p className="mt-2 text-lg text-stone-600">
           {activeProtocols.length > 0
@@ -700,6 +708,22 @@ export default function Dashboard() {
                       <Link to="/lab-guide" className="ms-1 font-bold text-blue-600 hover:underline">عرض الدليل</Link>
                     </div>
                   )}
+                  {daysSinceStart > totalDays * 0.8 && daysLeft > 0 && (() => {
+                    const nextPeptide = allPeptides.find(
+                      p => p.id !== proto.peptide_id
+                        && p.category === peptide?.category
+                        && !activeProtocols.some(ap => ap.peptide_id === p.id)
+                    );
+                    if (!nextPeptide) return null;
+                    return (
+                      <div className="mt-3 rounded-lg bg-emerald-50 border border-emerald-200 px-3 py-2 text-xs text-emerald-700">
+                        دورة {peptide?.nameAr ?? proto.peptide_id} تقترب من النهاية — فكّر في{' '}
+                        <Link to={`/peptide/${nextPeptide.id}`} className="font-bold text-emerald-600 hover:underline">
+                          {nextPeptide.nameAr}
+                        </Link>
+                      </div>
+                    );
+                  })()}
                   {peptide?.weeklySchedule && peptide.weeklySchedule.length >= 2 && (
                     <div className="mt-3">
                       <DoseTitrationTimeline schedule={peptide.weeklySchedule} currentWeek={Math.ceil(daysSinceStart / 7)} />
