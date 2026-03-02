@@ -42,6 +42,7 @@ stripe-webhook, ai-coach, create-checkout, send-welcome-email, delete-account, c
 ## Docs
 
 - **MANUAL_STEPS_RUNBOOK.md** — One-time setup (Stripe, DEEPSEEK, migrations, E2E)
+- **docs/SECRETS_INVENTORY.md** — All secrets, where they live, admin emails
 - **FOUNDER_RUNBOOK.md** — Ops (refunds, deploy, logs)
 - **SOURCE_OF_TRUTH.md** — Canonical config
 - **AUDIT.md** — Master audit (832 items)

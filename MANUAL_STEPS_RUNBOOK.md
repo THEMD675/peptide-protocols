@@ -2,6 +2,8 @@
 
 **Execute these steps to complete production readiness. No automation can do them without your credentials/dashboard access.**
 
+**See [docs/SECRETS_INVENTORY.md](docs/SECRETS_INVENTORY.md) for a full list of secrets and where to find them.**
+
 ---
 
 ## 1. DEEPSEEK_API_KEY (Coach AI)
