@@ -1,49 +1,41 @@
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
-
-const supabaseUrl = Deno.env.get('SUPABASE_URL') ?? ''
-const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
-
-const ADMIN_EMAILS = ['abdullahalameer@gmail.com', 'contact@pptides.com']
-
-const corsHeaders = {
-  'Access-Control-Allow-Origin': 'https://pptides.com',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-  'Access-Control-Allow-Methods': 'GET, OPTIONS',
-}
+import { handleCorsPreflightIfOptions, getCorsHeaders, jsonResponse } from '../_shared/cors.ts'
+import { requireAdmin } from '../_shared/admin-auth.ts'
+import { getServiceClient, supabaseUrl, supabaseServiceKey } from '../_shared/supabase.ts'
 
 serve(async (req) => {
-  if (req.method === 'OPTIONS') return new Response('ok', { headers: corsHeaders })
+  const preflight = handleCorsPreflightIfOptions(req)
+  if (preflight) return preflight
+
+  const corsHeaders = getCorsHeaders(req)
 
   if (!supabaseUrl || !supabaseServiceKey) {
-    return new Response(JSON.stringify({ error: 'Server misconfigured' }), {
-      status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-    })
+    return jsonResponse({ error: 'Server misconfigured' }, 500, corsHeaders)
   }
 
   try {
-    const authHeader = req.headers.get('authorization')
-    if (!authHeader) {
-      return new Response(JSON.stringify({ error: 'Unauthorized' }), {
-        status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      })
-    }
+    const { error: authResp } = await requireAdmin(req)
+    if (authResp) return authResp
 
-    const anonKey = Deno.env.get('SUPABASE_ANON_KEY') ?? ''
-    const userClient = createClient(supabaseUrl, anonKey, {
-      global: { headers: { Authorization: authHeader } },
-    })
-    const { data: { user }, error: authError } = await userClient.auth.getUser()
-    if (authError || !user || !ADMIN_EMAILS.includes(user.email ?? '')) {
-      return new Response(JSON.stringify({ error: 'Forbidden' }), {
-        status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      })
-    }
+    const admin = getServiceClient()
 
-    const admin = createClient(supabaseUrl, supabaseServiceKey)
+    async function getAllAuthUsers() {
+      const collected: typeof paginatedUsers = []
+      let page = 1
+      while (true) {
+        const { data: { users }, error } = await admin.auth.admin.listUsers({ page, perPage: 1000 })
+        if (error || !users || users.length === 0) break
+        collected.push(...users)
+        if (users.length < 1000) break
+        page++
+      }
+      return collected
+    }
+    type AuthUser = Awaited<ReturnType<typeof admin.auth.admin.listUsers>>['data']['users'][number]
+    let paginatedUsers: AuthUser[] = []
 
     const [
-      usersResult,
+      ,
       subsResult,
       logsResult,
       reviewsResult,
@@ -51,8 +43,10 @@ serve(async (req) => {
       coachResult,
       emailListResult,
       enquiriesResult,
+      emailLogsResult,
+      webhookEventsResult,
     ] = await Promise.all([
-      admin.auth.admin.listUsers({ perPage: 1000 }),
+      getAllAuthUsers().then(u => { paginatedUsers = u }),
       admin.from('subscriptions').select('*').order('created_at', { ascending: false }),
       admin.from('injection_logs').select('id, user_id, peptide_name, logged_at', { count: 'exact', head: false }).order('logged_at', { ascending: false }).limit(100),
       admin.from('reviews').select('*').order('created_at', { ascending: false }),
@@ -60,9 +54,11 @@ serve(async (req) => {
       admin.from('ai_coach_requests').select('id, user_id, created_at', { count: 'exact', head: false }).order('created_at', { ascending: false }).limit(50),
       admin.from('email_list').select('*').order('created_at', { ascending: false }),
       admin.from('enquiries').select('*').order('created_at', { ascending: false }).limit(50),
+      admin.from('email_logs').select('id, email, type, status, created_at').order('created_at', { ascending: false }).limit(50),
+      admin.from('processed_webhook_events').select('event_id, event_type, processed_at').order('processed_at', { ascending: false }).limit(30).then(r => r).catch(() => ({ data: null, error: null })),
     ])
 
-    const allUsers = usersResult.data?.users ?? []
+    const allUsers = paginatedUsers
     const subs = subsResult.data ?? []
     const logs = logsResult.data ?? []
     const reviews = reviewsResult.data ?? []
@@ -70,6 +66,8 @@ serve(async (req) => {
     const coachRequests = coachResult.data ?? []
     const emailList = emailListResult.data ?? []
     const enquiriesData = enquiriesResult?.data ?? []
+    const emailLogsData = emailLogsResult?.data ?? []
+    const webhookEventsData = webhookEventsResult?.data ?? []
 
     // Only count confirmed users (not bots/unconfirmed/test)
     const users = allUsers.filter(u => !!u.email_confirmed_at)
@@ -93,7 +91,7 @@ serve(async (req) => {
     const eliteSubs = activeSubs.filter(s => s.tier === 'elite')
 
     // MRR only from real Stripe subscriptions
-    const mrr = essentialsSubs.length * 9 + eliteSubs.length * 99
+    const mrr = essentialsSubs.length * 34 + eliteSubs.length * 371
     const trialEssentials = trialSubs.filter(s => s.tier === 'essentials')
     const trialElite = trialSubs.filter(s => s.tier === 'elite')
 
@@ -131,6 +129,83 @@ serve(async (req) => {
     const pendingReviews = reviews.filter(r => !r.is_approved)
     const approvedReviews = reviews.filter(r => r.is_approved)
 
+    // --- ALERTS: proactive issues that need attention ---
+    const in48h = new Date(now.getTime() + 48 * 60 * 60 * 1000)
+    type Alert = { type: string; severity: 'critical' | 'warning' | 'info'; message: string; data?: Record<string, unknown> }
+    const alerts: Alert[] = []
+
+    const expiringTrials = trialSubs.filter(s => {
+      const ends = s.trial_ends_at ? new Date(s.trial_ends_at) : null
+      return ends && ends <= in48h && ends > now
+    })
+    if (expiringTrials.length > 0) {
+      const trialEmails = expiringTrials.map(s => {
+        const u = allUsers.find(au => au.id === s.user_id)
+        return u?.email ?? s.user_id
+      })
+      alerts.push({ type: 'trial_expiring', severity: 'critical', message: `${expiringTrials.length} trial(s) expiring within 48h`, data: { emails: trialEmails } })
+    }
+    if (pastDueSubs.length > 0) {
+      alerts.push({ type: 'past_due', severity: 'critical', message: `${pastDueSubs.length} subscription(s) past due — revenue at risk` })
+    }
+    const pendingEnquiriesCount = enquiriesData.filter((e: { status: string }) => e.status === 'pending').length
+    if (pendingEnquiriesCount > 0) {
+      alerts.push({ type: 'pending_enquiries', severity: 'warning', message: `${pendingEnquiriesCount} unanswered enquiry(ies)` })
+    }
+    if (pendingReviews.length > 0) {
+      alerts.push({ type: 'pending_reviews', severity: 'info', message: `${pendingReviews.length} review(s) awaiting approval` })
+    }
+    if (emailLogsData.length === 0 && users.length > 3) {
+      alerts.push({ type: 'no_emails', severity: 'warning', message: 'No email delivery logs found — emails may not be sending' })
+    }
+    if (webhookEventsData.length === 0 && paidSubs.length > 0) {
+      alerts.push({ type: 'no_webhooks', severity: 'warning', message: 'No webhook events recorded despite active Stripe subscriptions' })
+    }
+
+    // --- ACTIVITY FEED: unified timeline across all tables ---
+    type ActivityItem = { type: string; description: string; email?: string; created_at: string }
+    const activityFeed: ActivityItem[] = []
+
+    // Signups
+    users.filter(u => new Date(u.created_at) > weekAgo).forEach(u => {
+      activityFeed.push({ type: 'signup', description: 'Signed up', email: u.email ?? undefined, created_at: u.created_at })
+    })
+    // Coach requests
+    coachRequests.slice(0, 20).forEach((r: { user_id: string; created_at: string }) => {
+      const u = allUsers.find(au => au.id === r.user_id)
+      activityFeed.push({ type: 'coach', description: 'Used AI Coach', email: u?.email ?? undefined, created_at: r.created_at })
+    })
+    // Injection logs
+    logs.slice(0, 20).forEach((l: { user_id: string; peptide_name: string; logged_at: string }) => {
+      const u = allUsers.find(au => au.id === l.user_id)
+      activityFeed.push({ type: 'injection', description: `Logged: ${l.peptide_name}`, email: u?.email ?? undefined, created_at: l.logged_at })
+    })
+    // Community posts
+    community.slice(0, 10).forEach((c: { peptide_name?: string; created_at: string }) => {
+      activityFeed.push({ type: 'community', description: `Community post: ${c.peptide_name ?? 'general'}`, created_at: c.created_at })
+    })
+    // Reviews
+    reviews.slice(0, 10).forEach((r: { name: string; rating: number; created_at: string }) => {
+      activityFeed.push({ type: 'review', description: `Review by ${r.name} (${r.rating}/5)`, created_at: r.created_at })
+    })
+    // Enquiries
+    enquiriesData.slice(0, 10).forEach((e: { email: string; subject: string; created_at: string }) => {
+      activityFeed.push({ type: 'enquiry', description: `Enquiry: ${e.subject}`, email: e.email, created_at: e.created_at })
+    })
+    activityFeed.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+
+    // --- FUNNEL: conversion tracking ---
+    const totalSignups = users.length
+    const trialStarts = paidSubs.length // anyone who started a Stripe trial/sub
+    const paidConversions = activeSubs.length
+    const funnel = {
+      totalSignups,
+      trialStarts,
+      paidConversions,
+      signupToTrial: totalSignups > 0 ? Math.round((trialStarts / totalSignups) * 100) : 0,
+      trialToPaid: trialStarts > 0 ? Math.round((paidConversions / trialStarts) * 100) : 0,
+    }
+
     const stats = {
       overview: {
         totalUsers: users.length,
@@ -153,18 +228,23 @@ serve(async (req) => {
         pendingReviews: pendingReviews.length,
         approvedReviews: approvedReviews.length,
         emailListCount: emailList.length,
-        pendingEnquiries: enquiriesData.filter((e: { status: string }) => e.status === 'pending').length,
+        pendingEnquiries: pendingEnquiriesCount,
         totalEnquiries: enquiriesData.length,
         totalAuthUsers: allUsers.length,
         unconfirmedUsers: allUsers.length - users.length,
         manualSubscriptions: manualSubs.length,
       },
+      alerts,
+      funnel,
+      activityFeed: activityFeed.slice(0, 50),
       recentUsers: userSubs,
       recentLogs: logs.slice(0, 20),
       pendingReviews: pendingReviews.slice(0, 20),
       recentCommunity: community.slice(0, 20),
       emailList: emailList.slice(0, 50),
       enquiries: enquiriesData.slice(0, 30),
+      emailLogs: emailLogsData.slice(0, 50),
+      webhookEvents: webhookEventsData.slice(0, 30),
     }
 
     return new Response(JSON.stringify(stats), {

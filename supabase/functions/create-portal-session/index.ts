@@ -8,27 +8,13 @@ const supabaseUrl = Deno.env.get('SUPABASE_URL') ?? ''
 const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY') ?? ''
 const appUrl = Deno.env.get('APP_URL') ?? 'https://pptides.com'
 
-const IS_PRODUCTION = !Deno.env.get('DENO_DEV')
-const ALLOWED_ORIGINS = IS_PRODUCTION
-  ? ['https://pptides.com']
-  : ['https://pptides.com', 'http://localhost:3000']
+import { getCorsHeaders, handleCorsPreflightIfOptions } from '../_shared/cors.ts'
 
 serve(async (req) => {
-  const origin = req.headers.get('origin') ?? ''
-  const allowedOrigin = ALLOWED_ORIGINS.includes(origin) ? origin : ''
-  const corsHeaders = {
-    'Access-Control-Allow-Origin': allowedOrigin || ALLOWED_ORIGINS[0],
-    'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-    'Access-Control-Allow-Methods': 'POST, OPTIONS',
-  }
+  const preflight = handleCorsPreflightIfOptions(req)
+  if (preflight) return preflight
 
-  if (req.method === 'OPTIONS') return new Response('ok', { headers: corsHeaders })
-
-  if (!allowedOrigin) {
-    return new Response(JSON.stringify({ error: 'Forbidden' }), {
-      status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-    })
-  }
+  const corsHeaders = getCorsHeaders(req)
 
   if (!stripeKey || !supabaseUrl || !supabaseAnonKey) {
     return new Response(JSON.stringify({ error: 'Server misconfigured' }), {
@@ -53,6 +39,19 @@ serve(async (req) => {
         status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       })
     }
+
+    try {
+      const serviceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')
+      if (serviceKey) {
+        const adminDb = createClient(supabaseUrl, serviceKey)
+        const oneMinAgo = new Date(Date.now() - 60000).toISOString()
+        const { count } = await adminDb.from('rate_limits').select('id', { count: 'exact', head: true }).eq('endpoint', 'create-portal-session').eq('user_id', user.id).gte('created_at', oneMinAgo)
+        if ((count ?? 0) >= 5) {
+          return new Response(JSON.stringify({ error: 'محاولات كثيرة — انتظر دقيقة' }), { status: 429, headers: { ...corsHeaders, 'Content-Type': 'application/json' } })
+        }
+        adminDb.from('rate_limits').insert({ user_id: user.id, endpoint: 'create-portal-session' }).then(() => {}).catch(() => {})
+      }
+    } catch (rlErr) { console.error('rate limit check failed:', rlErr) }
 
     const { data: sub } = await supabase
       .from('subscriptions')

@@ -9,11 +9,20 @@ const resendKey = Deno.env.get('RESEND_API_KEY') ?? ''
 const deepseekKey = Deno.env.get('DEEPSEEK_API_KEY') ?? ''
 const cronSecret = Deno.env.get('CRON_SECRET') ?? ''
 
+function constantTimeCompare(a: string, b: string): boolean {
+  if (a.length !== b.length) return false
+  let result = 0
+  for (let i = 0; i < a.length; i++) {
+    result |= a.charCodeAt(i) ^ b.charCodeAt(i)
+  }
+  return result === 0
+}
+
 serve(async (req) => {
-  const headers = { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' }
+  const headers = { 'Content-Type': 'application/json' }
 
   const authHeader = req.headers.get('x-cron-secret') || req.headers.get('authorization')
-  if (authHeader !== cronSecret && authHeader !== `Bearer ${cronSecret}`) {
+  if (!authHeader || !cronSecret || (!constantTimeCompare(authHeader, cronSecret) && !constantTimeCompare(authHeader, `Bearer ${cronSecret}`))) {
     return new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401, headers })
   }
 

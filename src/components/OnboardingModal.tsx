@@ -1,7 +1,8 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import FocusTrap from 'focus-trap-react';
 import { Sparkles, BookOpen, Calculator, Bot } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { TRIAL_DAYS } from '@/lib/constants';
 
 const ONBOARDING_KEY = 'pptides_onboarded';
 
@@ -25,25 +26,27 @@ function getTrialPlan(goal: string) {
   ];
 }
 
+/** Maps OnboardingModal goal id → Library category id (peptides.ts) */
 const GOAL_TO_CATEGORY: Record<string, string> = {
-  'fat-loss': 'الأيض',
-  'recovery': 'التعافي',
-  'muscle': 'الهرمونات',
-  'brain': 'الدماغ',
-  'hormones': 'الهرمونات',
-  'longevity': 'النوم',
-  'gut-skin': 'البشرة',
+  'fat-loss': 'metabolic',
+  'recovery': 'recovery',
+  'muscle': 'hormonal',
+  'brain': 'brain',
+  'hormones': 'hormonal',
+  'longevity': 'longevity',
+  'gut-skin': 'skin-gut',
 };
 
-export default function OnboardingModal() {
+export default function OnboardingModal({ forceOpen, onClose: externalClose }: { forceOpen?: boolean; onClose?: () => void } = {}) {
   const [show, setShow] = useState(true);
   const [step, setStep] = useState<'goal' | 'plan'>('goal');
   const [selectedGoal, setSelectedGoal] = useState('');
   useEffect(() => {
+    if (forceOpen) { setShow(true); return; }
     try {
       setShow(localStorage.getItem(ONBOARDING_KEY) !== 'true');
     } catch { /* expected */ }
-  }, []);
+  }, [forceOpen]);
 
   useEffect(() => {
     try {
@@ -64,17 +67,18 @@ export default function OnboardingModal() {
     }
   }, [show]);
 
-  const handleClose = () => {
+  const handleClose = useCallback(() => {
     try { localStorage.setItem(ONBOARDING_KEY, 'true'); } catch { /* expected */ }
     setShow(false);
-  };
+    externalClose?.();
+  }, [externalClose]);
 
   useEffect(() => {
     if (!show) return;
     const handler = (e: KeyboardEvent) => { if (e.key === 'Escape') handleClose(); };
     document.addEventListener('keydown', handler);
     return () => document.removeEventListener('keydown', handler);
-  }, [show]);
+  }, [show, handleClose]);
 
   if (!show) return null;
 
@@ -91,7 +95,7 @@ export default function OnboardingModal() {
   };
 
   return (
-    <div role="dialog" aria-modal="true" aria-labelledby="onboarding-title" className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4" onClick={handleClose}>
+    <div role="dialog" aria-modal="true" aria-labelledby={step === 'goal' ? 'onboarding-title-step1' : 'onboarding-title-step2'} className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4" onClick={handleClose}>
       <FocusTrap focusTrapOptions={{ allowOutsideClick: true }}>
         <div className="w-full max-w-md rounded-2xl bg-white p-8 shadow-2xl animate-fade-in" onClick={e => e.stopPropagation()}>
           {step === 'goal' ? (
@@ -99,7 +103,7 @@ export default function OnboardingModal() {
               <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-100">
                 <Sparkles className="h-7 w-7 text-emerald-600" />
               </div>
-              <h2 id="onboarding-title" className="mb-2 text-center text-xl font-bold text-stone-900">مرحبًا في pptides</h2>
+              <h2 id="onboarding-title-step1" className="mb-2 text-center text-xl font-bold text-stone-900">مرحبًا في pptides</h2>
               <p className="mb-6 text-center text-sm text-stone-600">ما هدفك الأساسي؟ سنساعدك في إيجاد الببتيد المناسب.</p>
               <div className="space-y-2">
                 {GOALS.map((g) => (
@@ -112,7 +116,7 @@ export default function OnboardingModal() {
                   </button>
                 ))}
               </div>
-              <button onClick={handleClose} className="mt-4 w-full text-center text-xs text-stone-400 hover:text-stone-600">
+              <button onClick={handleClose} className="mt-4 w-full text-center text-xs text-stone-500 hover:text-stone-600">
                 تخطّي
               </button>
             </>
@@ -121,7 +125,7 @@ export default function OnboardingModal() {
               <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-100">
                 <Sparkles className="h-7 w-7 text-emerald-600" />
               </div>
-              <h2 id="onboarding-title" className="mb-2 text-center text-xl font-bold text-stone-900">خطتك لـ 3 أيام</h2>
+              <h2 id="onboarding-title-step2" className="mb-2 text-center text-xl font-bold text-stone-900">خطتك لـ {TRIAL_DAYS} أيام</h2>
               <p className="mb-6 text-center text-sm text-stone-600">استفد من تجربتك المجانية بأقصى قدر</p>
               <div className="space-y-3">
                 {getTrialPlan(selectedGoal).map((item, i) => (

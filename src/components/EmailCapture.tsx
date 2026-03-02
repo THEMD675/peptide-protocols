@@ -1,13 +1,26 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { supabase } from '@/lib/supabase';
 import { Mail, ArrowLeft, Loader2, CheckCircle } from 'lucide-react';
+
+const RATE_LIMIT_MS = 60_000;
 
 export default function EmailCapture() {
   const [email, setEmail] = useState('');
   const [honeypot, setHoneypot] = useState('');
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
   const [errorMsg, setErrorMsg] = useState('');
+  const [cooldownRemaining, setCooldownRemaining] = useState(0);
+  const lastSubmitRef = useRef(0);
+
+  useEffect(() => {
+    if (cooldownRemaining <= 0) return;
+    const timer = setInterval(() => {
+      const remaining = Math.max(0, Math.ceil((lastSubmitRef.current + RATE_LIMIT_MS - Date.now()) / 1000));
+      setCooldownRemaining(remaining);
+    }, 1000);
+    return () => clearInterval(timer);
+  }, [cooldownRemaining]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -17,6 +30,12 @@ export default function EmailCapture() {
       return;
     }
     if (honeypot) return;
+
+    if (Date.now() - lastSubmitRef.current < RATE_LIMIT_MS) {
+      setStatus('error');
+      setErrorMsg('انتظر قليلاً قبل المحاولة مرة أخرى');
+      return;
+    }
 
     setStatus('loading');
     setErrorMsg('');
@@ -36,9 +55,11 @@ export default function EmailCapture() {
 
       setStatus('success');
       setEmail('');
+      lastSubmitRef.current = Date.now();
+      setCooldownRemaining(RATE_LIMIT_MS / 1000);
     } catch {
       setStatus('error');
-      setErrorMsg('تعذّر تسجيل بريدك. حاول مرة أخرى.');
+      setErrorMsg('فشل الاتصال بالخادم — تحقق من اتصالك بالإنترنت وحاول مرة أخرى.');
     }
   };
 
@@ -62,7 +83,7 @@ export default function EmailCapture() {
         className="flex flex-col sm:flex-row items-center gap-3 w-full max-w-lg mx-auto"
       >
         <div className="relative flex-1 w-full">
-          <Mail className="absolute right-3 top-1/2 -translate-y-1/2 h-5 w-5 text-stone-400" />
+          <Mail className="absolute end-3 top-1/2 -translate-y-1/2 h-5 w-5 text-stone-500" />
           <input
             type="email"
             value={email}
@@ -84,11 +105,13 @@ export default function EmailCapture() {
         </div>
         <button
           type="submit"
-          disabled={status === 'loading'}
-          className="gold-gradient flex items-center justify-center gap-2 rounded-full px-8 py-3.5 font-bold text-white transition-transform hover:scale-105 active:scale-[0.98] disabled:opacity-60 whitespace-nowrap min-w-[120px]"
+          disabled={status === 'loading' || cooldownRemaining > 0}
+          className="primary-gradient flex items-center justify-center gap-2 rounded-full px-8 py-3.5 font-bold text-white transition-transform hover:scale-105 active:scale-[0.98] disabled:opacity-60 whitespace-nowrap min-w-[120px]"
         >
           {status === 'loading' ? (
             <Loader2 className="h-5 w-5 animate-spin" />
+          ) : cooldownRemaining > 0 ? (
+            <span>انتظر {cooldownRemaining}s</span>
           ) : (
             <>
               <span>اشترك</span>

@@ -7,23 +7,13 @@ const stripe = new Stripe(stripeKey, { apiVersion: '2023-10-16' })
 const supabaseUrl = Deno.env.get('SUPABASE_URL') ?? ''
 const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
 
-const IS_PRODUCTION = !Deno.env.get('DENO_DEV')
-const ALLOWED_ORIGINS = IS_PRODUCTION
-  ? ['https://pptides.com']
-  : ['https://pptides.com', 'http://localhost:3000', 'http://localhost:3001']
+import { getCorsHeaders, handleCorsPreflightIfOptions } from '../_shared/cors.ts'
 
 serve(async (req) => {
-  const origin = req.headers.get('origin') ?? ''
-  const allowedOrigin = ALLOWED_ORIGINS.includes(origin) ? origin : ''
-  const corsHeaders = {
-    'Access-Control-Allow-Origin': allowedOrigin || ALLOWED_ORIGINS[0],
-    'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-    'Access-Control-Allow-Methods': 'POST, OPTIONS',
-  }
+  const preflight = handleCorsPreflightIfOptions(req)
+  if (preflight) return preflight
 
-  if (req.method === 'OPTIONS') return new Response('ok', { headers: corsHeaders })
-
-  if (!allowedOrigin) return new Response(JSON.stringify({ error: 'Forbidden' }), { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } })
+  const corsHeaders = getCorsHeaders(req)
 
   if (req.method !== 'POST') {
     return new Response(JSON.stringify({ error: 'Method not allowed' }), {
@@ -60,6 +50,15 @@ serve(async (req) => {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       })
     }
+
+    try {
+      const oneMinAgo = new Date(Date.now() - 60000).toISOString()
+      const { count } = await supabase.from('rate_limits').select('id', { count: 'exact', head: true }).eq('endpoint', 'cancel-subscription').eq('user_id', user.id).gte('created_at', oneMinAgo)
+      if ((count ?? 0) >= 5) {
+        return new Response(JSON.stringify({ error: 'محاولات كثيرة — انتظر دقيقة' }), { status: 429, headers: { ...corsHeaders, 'Content-Type': 'application/json' } })
+      }
+      supabase.from('rate_limits').insert({ user_id: user.id, endpoint: 'cancel-subscription' }).then(() => {}).catch(() => {})
+    } catch (rlErr) { console.error('rate limit check failed:', rlErr) }
 
     const { data: sub, error: subFetchError } = await supabase
       .from('subscriptions')
@@ -165,7 +164,7 @@ serve(async (req) => {
 
     const RESEND_API_KEY = Deno.env.get('RESEND_API_KEY')
     if (RESEND_API_KEY && user.email) {
-      fetch('https://api.resend.com/emails', {
+      await fetch('https://api.resend.com/emails', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${RESEND_API_KEY}` },
         body: JSON.stringify({

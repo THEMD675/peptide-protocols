@@ -4,7 +4,7 @@ import FocusTrap from 'focus-trap-react';
 import { X, Gift, ArrowLeft } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { arPlural } from '@/lib/utils';
-import { PEPTIDE_COUNT } from '@/lib/constants';
+import { PEPTIDE_COUNT, TRIAL_DAYS } from '@/lib/constants';
 
 const EXCLUDED_PATHS = ['/login', '/signup', '/pricing', '/account'];
 
@@ -22,7 +22,7 @@ export default function ExitIntentPopup() {
       const ts = Number(lastShown);
       if (!isNaN(ts) && Date.now() - ts < 7 * 24 * 60 * 60 * 1000) return;
     } catch { /* expected */ }
-    if (user && subscription?.isPaidSubscriber) return;
+    if (user && subscription?.isProOrTrial) return;
     if (EXCLUDED_PATHS.some(p => window.location.pathname.startsWith(p))) return;
     setVisible(true);
     try { localStorage.setItem(STORAGE_KEY, String(Date.now())); } catch { /* expected */ }
@@ -54,7 +54,7 @@ export default function ExitIntentPopup() {
       <div className="relative w-full max-w-md rounded-2xl bg-white p-8 shadow-2xl text-center">
         <button
           onClick={() => setVisible(false)}
-          className="absolute top-4 end-4 flex items-center justify-center rounded-full min-h-[44px] min-w-[44px] text-stone-400 hover:text-stone-600 hover:bg-stone-100 transition-colors"
+          className="absolute top-4 end-4 flex items-center justify-center rounded-full min-h-[44px] min-w-[44px] text-stone-500 hover:text-stone-600 hover:bg-stone-100 transition-colors"
           aria-label="إغلاق"
         >
           <X className="h-5 w-5" />
@@ -81,7 +81,7 @@ export default function ExitIntentPopup() {
             </>
           ) : (
             <>
-              <span className="text-3xl font-black text-emerald-600">3 أيام</span>
+              <span className="text-3xl font-black text-emerald-600">{TRIAL_DAYS} أيام</span>
               <span className="text-stone-500">تجربة مجانية</span>
             </>
           )}

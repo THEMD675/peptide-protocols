@@ -1,0 +1,60 @@
+---
+description: Coding standards and best practices for pptides.com development
+alwaysApply: true
+---
+
+# pptides.com — Development Standards
+
+## Architecture Rules
+- RTL-first: use logical properties (ps/pe/ms/me/start/end) not physical (pl/pr/ml/mr/left/right)
+- All text is Arabic (MSA/فصحى). English only for brand names, medical terms, and code identifiers
+- Constants in `src/lib/constants.ts` — never hardcode prices, counts, URLs, or frequency labels inline
+- FREQUENCY_LABELS: always import from constants.ts, never define locally
+- PEPTIDE_COUNT: derived from peptides.length — never hardcode the number
+- PRICING: use the PRICING constant with monthly/annual fields — never hardcode dollar amounts
+- SITE_URL: use for all og:image and og:url meta tags — never hardcode the domain
+- Supabase queries: ALWAYS check `.error` before using `.data`
+- All localStorage/sessionStorage reads wrapped in try/catch
+- All modals: Escape handler + body scroll lock + FocusTrap + role="dialog" + aria-modal="true"
+- Touch targets: minimum 44px (min-h-[44px] min-w-[44px])
+- Navigation: use React Router `navigate()` — NEVER `window.location.href` (except for external URLs and logout)
+- Error boundaries: RouteErrorBoundary wraps every route, LazyFallback wraps non-critical lazy overlays
+- Overlay stacking: OverlayGate component sequences AgeGate → CookieConsent → StickyScrollCTA/ExitIntent
+
+## Security Rules
+- Never expose service keys via VITE_ prefix
+- Admin authorization: server-side only via admin-stats function — no client-side email checks
+- All user input sanitized with DOMPurify before dangerouslySetInnerHTML or document.write
+- RLS policies: use `auth.uid() = user_id` — never `USING (true)`
+- CORS: explicit origin allowlist — never wildcard `*`
+- Edge function auth: validate JWT with supabase.auth.getUser()
+- Rate limiting: on all public-facing edge functions (create-checkout, cancel-subscription, create-portal-session)
+- CRON_SECRET: constant-time comparison via constantTimeCompare(), never `!==`
+- Sentry: maskAllText: true to protect medical data in replays
+- CSV export: sanitize cells with sanitizeCSVCell() to prevent formula injection
+- Login rate limiting: persisted in sessionStorage, not React state
+
+## Performance Rules
+- Lazy load all pages via React.lazy()
+- Memoize expensive computations with useMemo
+- Memo components receiving callbacks with React.memo + useCallback for stable refs
+- Recharts: only import in chart components (code-split via lazy pages)
+
+## Data Integrity
+- PEPTIDE_COUNT: derived from peptides.length via constants.ts import
+- FREE_PEPTIDE_IDS: must stay in sync with isFree:true on peptide objects
+- Category.peptideCount: must match actual peptides in that category
+- TRIAL_DAYS constant: must match supabase-migration.sql trigger interval
+- Edge functions: use PEPTIDE_COUNT and ESSENTIALS_PRICE local constants with "SOURCE OF TRUTH" comments pointing to constants.ts
+- Subscription logic: components use AuthContext booleans (isPaidSubscriber, isTrial, isProOrTrial), not raw status comparisons
+- Trial eligibility: based on stripe_subscription_id (not trial_ends_at), managed in create-checkout
+
+## Mobile
+- BottomNav: 4 tabs (Dashboard, Tracker, Library, Coach) for authenticated mobile users
+- Header height: uses --header-height CSS variable (4rem mobile, 4.5rem desktop)
+- Safe area: pb-[env(safe-area-inset-bottom)] on bottom nav
+- Main content: pb-20 md:pb-0 to clear bottom nav
+
+## Naming Conventions
+- CSS gradient classes: primary-gradient, primary-border (not gold-*)
+- HTML IDs: unique per page (recovery-password, account-new-password, onboarding-title-step1/step2)

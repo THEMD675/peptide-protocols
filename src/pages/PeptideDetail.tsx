@@ -1,6 +1,6 @@
 import { useMemo, useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { ArrowRight, Shield, AlertTriangle, CheckCircle, Lock, Calculator, Bot, FlaskConical, Printer, MessageSquare, Star, Syringe, Share2, Play } from 'lucide-react';
+import { ArrowRight, Shield, AlertTriangle, CheckCircle, Lock, Calculator, Bot, FlaskConical, Printer, MessageSquare, Star, Syringe, Share2, Play, ExternalLink, BookOpen } from 'lucide-react';
 import ProtocolWizard from '@/components/ProtocolWizard';
 import { toast } from 'sonner';
 import { Helmet } from 'react-helmet-async';
@@ -93,7 +93,15 @@ export default function PeptideDetail() {
           inLanguage: 'ar',
           medicalAudience: { '@type': 'MedicalAudience', audienceType: 'Patient' },
           publisher: { '@type': 'Organization', name: 'pptides', url: SITE_URL },
-          dateModified: peptide.lastUpdated ?? '2026-02-01',
+          dateModified: (() => {
+          const v = peptide.lastUpdated;
+          if (!v) return '2026-02-01';
+          const m: Record<string, string> = { Jan: '01', Feb: '02', Mar: '03', Apr: '04', May: '05', Jun: '06', Jul: '07', Aug: '08', Sep: '09', Oct: '10', Nov: '11', Dec: '12' };
+          const match = String(v).match(/^(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\s+(\d{4})$/);
+          if (match) return `${match[2]}-${m[match[1]] ?? '01'}-01`;
+          if (/^\d{4}-\d{2}-\d{2}/.test(String(v))) return String(v).slice(0, 10);
+          return '2026-02-01';
+        })(),
         })}</script>
         <meta name="twitter:title" content={`${peptide.nameAr} | ${peptide.nameEn}`} />
         <meta name="twitter:description" content={peptide.summaryAr.slice(0, 160)} />
@@ -107,16 +115,6 @@ export default function PeptideDetail() {
             { "@type": "Question", "name": `هل ${peptide.nameEn} معتمد من FDA؟`, "acceptedAnswer": { "@type": "Answer", "text": peptide.fdaApproved ? 'نعم، معتمد من FDA.' : 'لا، غير معتمد من FDA حاليًا. يُستخدم للأغراض البحثية.' } },
           ]
         })}</script>
-        <script type="application/ld+json">{JSON.stringify({
-          "@context": "https://schema.org",
-          "@type": "MedicalWebPage",
-          "name": `${peptide.nameAr} — ${peptide.nameEn}`,
-          "description": peptide.summaryAr?.slice(0, 200),
-          "url": `${SITE_URL}/peptide/${peptide.id}`,
-          "inLanguage": "ar",
-          "lastReviewed": peptide.lastUpdated ?? "2026-02",
-          "medicalAudience": { "@type": "MedicalAudience", "audienceType": "Patient" }
-        })}</script>
       </Helmet>
 
       <div className="mx-auto max-w-4xl px-4 py-8 md:px-6 md:py-12">
@@ -124,11 +122,13 @@ export default function PeptideDetail() {
         <div>
           <button
             onClick={() => {
-              if (document.referrer && new URL(document.referrer).origin === window.location.origin) {
-                navigate(-1);
-              } else {
-                navigate('/library');
-              }
+              try {
+                if (document.referrer && new URL(document.referrer).origin === window.location.origin) {
+                  navigate(-1);
+                  return;
+                }
+              } catch { /* empty referrer or invalid URL */ }
+              navigate('/library');
             }}
             className="mb-6 inline-flex items-center gap-2 rounded-lg px-3 py-2.5 min-h-[44px] text-sm text-stone-800 transition-colors hover:bg-stone-100 hover:text-stone-800"
           >
@@ -384,47 +384,125 @@ export default function PeptideDetail() {
             </div>
           )}
 
-          {/* Community experiences for this peptide */}
-          <PeptideExperiences peptideNameEn={peptide.nameEn} />
-        </>) : (
-          /* ── Locked peptide, non-subscriber: compelling CTA ── */
-          <div className="overflow-hidden rounded-2xl border border-stone-200 bg-stone-50">
-            <div className="flex flex-col items-center gap-6 px-6 py-10 text-center">
-              <div className="flex h-14 w-14 items-center justify-center rounded-full bg-emerald-500">
-                <Lock className="h-6 w-6 text-white" />
-              </div>
-              <div>
-                <p className="text-xl font-bold text-stone-900">البروتوكول الكامل لـ {peptide.nameAr}</p>
-                <p className="mt-2 text-sm text-stone-600">اشترك لفتح كل التفاصيل:</p>
-              </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-right w-full max-w-sm">
-                {['الجرعة الدقيقة بوحدات السيرنج', 'التوقيت المثالي للحقن', 'مدة الدورة والراحة', 'الأعراض الجانبية الحقيقية', 'أفضل التجميعات', 'التحاليل المطلوبة'].map(item => (
-                  <div key={item} className="flex items-center gap-2 rounded-lg bg-white px-3 py-2 border border-stone-200">
-                    <CheckCircle className="h-3.5 w-3.5 shrink-0 text-emerald-500" />
-                    <span className="text-xs text-stone-700">{item}</span>
-                  </div>
+          {/* Scientific References */}
+          {peptide.pubmedIds && peptide.pubmedIds.length > 0 && (
+            <div className="mt-8">
+              <h3 className="flex items-center gap-2 mb-4 text-lg font-bold text-stone-900">
+                <BookOpen className="h-5 w-5 text-emerald-600" />
+                المراجع العلمية
+              </h3>
+              <div className="space-y-2">
+                {peptide.pubmedIds.map((pmid) => (
+                  <a
+                    key={pmid}
+                    href={`https://pubmed.ncbi.nlm.nih.gov/${pmid}/`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-3 rounded-xl border border-stone-200 bg-white p-3 text-sm text-stone-700 transition-all hover:border-emerald-300 hover:shadow-sm"
+                    dir="ltr"
+                  >
+                    <ExternalLink className="h-4 w-4 shrink-0 text-emerald-600" />
+                    <span>PubMed ID: {pmid}</span>
+                  </a>
                 ))}
               </div>
-              {peptide.costEstimate && (
-                <p className="text-xs text-stone-500">التكلفة التقريبية: <strong className="text-stone-800" dir="ltr">{peptide.costEstimate}</strong></p>
-              )}
-              <div className="flex flex-col gap-3 w-full max-w-sm">
+            </div>
+          )}
+
+          {/* Community experiences for this peptide */}
+          <PeptideExperiences peptideNameEn={peptide.nameEn} />
+        </>) : (<>
+          {/* ── Locked peptide: tease first rows, blur rest with inline CTA ── */}
+          <div className="overflow-hidden rounded-2xl border border-stone-300">
+            <div
+              className="flex items-center justify-between bg-stone-50/95 px-5 py-3"
+            >
+              <div className="flex items-center gap-2">
+                <Shield className="h-4 w-4" />
+                <h2 className="text-base font-bold">بطاقة البروتوكول</h2>
+              </div>
+              <span className="flex items-center gap-1.5 rounded-full border border-amber-300 bg-amber-50 px-3 py-1 text-xs font-semibold text-amber-700">
+                <Lock className="h-3 w-3" />
+                معاينة
+              </span>
+            </div>
+
+            <div className="overflow-x-auto -mx-4 px-4 md:mx-0 md:px-0">
+              <table className="w-full">
+                <tbody>
+                  {rows.slice(0, 3).map((row, i) => (
+                    <tr
+                      key={row.label}
+                      className={cn(
+                        'border-b border-stone-200 last:border-b-0',
+                        i % 2 === 0 ? 'bg-stone-50 border border-stone-300' : 'bg-transparent',
+                      )}
+                    >
+                      <th
+                        scope="row"
+                        className={cn(
+                          'w-[35%] px-5 py-4 align-top text-sm font-semibold text-right',
+                          row.highlight ? 'text-emerald-600' : 'text-stone-800',
+                        )}
+                      >
+                        {row.label}
+                      </th>
+                      <td className="px-5 py-4 text-sm leading-relaxed text-stone-800">
+                        {row.value}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            <div className="relative">
+              <div className="overflow-x-auto -mx-4 px-4 md:mx-0 md:px-0 select-none blur-sm pointer-events-none" aria-hidden="true">
+                <table className="w-full">
+                  <tbody>
+                    {rows.slice(3, 6).map((row, i) => (
+                      <tr
+                        key={row.label}
+                        className={cn(
+                          'border-b border-stone-200 last:border-b-0',
+                          (i + 3) % 2 === 0 ? 'bg-stone-50 border border-stone-300' : 'bg-transparent',
+                        )}
+                      >
+                        <th scope="row" className="w-[35%] px-5 py-4 align-top text-sm font-semibold text-right text-stone-800">
+                          {row.label}
+                        </th>
+                        <td className="px-5 py-4 text-sm leading-relaxed text-stone-800">
+                          {row.value}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+              <div className="absolute inset-0 flex flex-col items-center justify-center bg-gradient-to-b from-white/60 to-white/90">
+                <Lock className="h-6 w-6 text-emerald-600 mb-2" />
+                <p className="text-sm font-bold text-stone-900 mb-1">اشترك لعرض البروتوكول الكامل</p>
+                <p className="text-xs text-stone-500 mb-3">الجرعة، التوقيت، الدورة، الأعراض الجانبية والمزيد</p>
                 <Link
                   to="/pricing"
-                  className="rounded-full bg-emerald-600 px-8 py-3.5 text-sm font-bold text-white transition-all hover:bg-emerald-700 text-center"
+                  className="rounded-full bg-emerald-600 px-8 py-3 text-sm font-bold text-white transition-all hover:bg-emerald-700"
                 >
                   افتح البروتوكول — {PRICING.essentials.label}/شهريًا
-                </Link>
-                <Link
-                  to={`/coach?peptide=${encodeURIComponent(peptide.nameAr)}`}
-                  className="rounded-full border-2 border-emerald-300 px-8 py-3 text-sm font-bold text-emerald-700 transition-all hover:bg-emerald-50 text-center"
-                >
-                  اسأل المدرب الذكي عن {peptide.nameAr} مجانًا
                 </Link>
               </div>
             </div>
           </div>
-        )}
+
+          <div className="mt-4">
+            <Link
+              to={`/coach?peptide=${encodeURIComponent(peptide.nameAr)}`}
+              className="flex items-center justify-center gap-2 rounded-xl border-2 border-emerald-300 px-5 py-3.5 text-sm font-bold text-emerald-700 transition-all hover:bg-emerald-50"
+            >
+              <Bot className="h-4 w-4" />
+              اسأل المدرب الذكي عن {peptide.nameAr} مجانًا
+            </Link>
+          </div>
+        </>)}
       </div>
       {showProtocolWizard && peptide && (
         <ProtocolWizard peptideId={peptide.id} onClose={() => setShowProtocolWizard(false)} />

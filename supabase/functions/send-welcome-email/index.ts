@@ -6,23 +6,18 @@ const supabaseUrl = Deno.env.get('SUPABASE_URL') ?? ''
 const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY') ?? ''
 
 const APP_URL = Deno.env.get('APP_URL') ?? 'https://pptides.com'
-const IS_PRODUCTION = !Deno.env.get('DENO_DEV')
-const ALLOWED_ORIGINS = IS_PRODUCTION
-  ? ['https://pptides.com']
-  : ['https://pptides.com', 'http://localhost:3000', 'http://localhost:3001']
+// SOURCE OF TRUTH: must match src/lib/constants.ts (peptides.length)
+const PEPTIDE_COUNT = parseInt(Deno.env.get('PEPTIDE_COUNT') ?? '41', 10)
+const ESSENTIALS_PRICE = '34 ر.س'
+import { getCorsHeaders, handleCorsPreflightIfOptions } from '../_shared/cors.ts'
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
 serve(async (req) => {
-  const origin = req.headers.get('origin') ?? ''
-  const allowedOrigin = ALLOWED_ORIGINS.includes(origin) ? origin : ALLOWED_ORIGINS[0]
-  const corsHeaders = {
-    'Access-Control-Allow-Origin': allowedOrigin,
-    'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-    'Access-Control-Allow-Methods': 'POST, OPTIONS',
-  }
+  const preflight = handleCorsPreflightIfOptions(req)
+  if (preflight) return preflight
 
-  if (req.method === 'OPTIONS') return new Response('ok', { headers: corsHeaders })
+  const corsHeaders = getCorsHeaders(req)
 
   if (req.method !== 'POST') {
     return new Response(JSON.stringify({ error: 'Method not allowed' }), {
@@ -162,6 +157,26 @@ serve(async (req) => {
     }
     fixTrialDuration().catch(e => console.error('trial fix failed:', e))
 
+    let trialEndDate = new Date(Date.now() + 3 * 86400000)
+    if (serviceSupabase) {
+      try {
+        const { data: subRow } = await serviceSupabase
+          .from('subscriptions')
+          .select('trial_ends_at')
+          .eq('user_id', user.id)
+          .maybeSingle()
+        if (subRow?.trial_ends_at) {
+          trialEndDate = new Date(subRow.trial_ends_at as string)
+        }
+      } catch { /* use default */ }
+    }
+    const trialEndFormatted = trialEndDate.toLocaleDateString('ar-EG', {
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+    })
+
     const rawName = name || email.split('@')[0]
     const displayName = rawName
       .replace(/&/g, '&amp;')
@@ -190,18 +205,18 @@ serve(async (req) => {
           <div dir="rtl" style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Tahoma, Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 40px 20px;">
             <h1 style="color: #1c1917; font-size: 24px;">مرحبًا، ${displayName}</h1>
             <p style="color: #44403c; font-size: 16px; line-height: 1.8;">
-              تجربتك المجانية في pptides بدأت الآن — أمامك <strong style="color: #059669;">3 أيام</strong> لاستكشاف أشمل دليل عربي للببتيدات العلاجية.
+              تجربتك المجانية في pptides بدأت الآن — أمامك حتى <strong style="color: #059669;">${trialEndFormatted}</strong> لاستكشاف أشمل دليل عربي للببتيدات العلاجية.
             </p>
 
             <div style="background: #fef3c7; border: 1px solid #fbbf24; border-radius: 12px; padding: 16px; margin: 20px 0; text-align: center;">
-              <p style="margin: 0; font-size: 14px; color: #92400e; font-weight: bold;">تنتهي تجربتك خلال 72 ساعة — استفد من كل دقيقة</p>
+              <p style="margin: 0; font-size: 14px; color: #92400e; font-weight: bold;">تنتهي تجربتك يوم ${trialEndFormatted} — استفد من كل دقيقة</p>
             </div>
 
-            <p style="color: #44403c; font-size: 15px; line-height: 1.8; font-weight: bold;">خطتك لـ 3 أيام:</p>
+            <p style="color: #44403c; font-size: 15px; line-height: 1.8; font-weight: bold;">خطتك حتى ${trialEndFormatted}:</p>
 
             <div style="background: #ecfdf5; border-radius: 12px; padding: 20px; margin: 16px 0;">
               <p style="margin: 10px 0; font-size: 15px;">
-                <strong style="color: #059669;">اليوم الأول:</strong> تصفّح <a href="${APP_URL}/library" style="color: #059669; font-weight: bold;">مكتبة 41+ ببتيد</a> — اكتشف البروتوكول المناسب لهدفك
+                <strong style="color: #059669;">اليوم الأول:</strong> تصفّح <a href="${APP_URL}/library" style="color: #059669; font-weight: bold;">مكتبة ${PEPTIDE_COUNT}+ ببتيد</a> — اكتشف البروتوكول المناسب لهدفك
               </p>
               <p style="margin: 10px 0; font-size: 15px;">
                 <strong style="color: #059669;">اليوم الثاني:</strong> اسأل <a href="${APP_URL}/coach" style="color: #059669; font-weight: bold;">المدرب الذكي</a> — احصل على بروتوكول مخصّص بالجرعات والتوقيت
@@ -218,7 +233,7 @@ serve(async (req) => {
             </div>
 
             <p style="color: #78716c; font-size: 13px; line-height: 1.6; margin-top: 24px;">
-              بعد 3 أيام، يمكنك الاشتراك بـ $9/شهر للاحتفاظ بالوصول الكامل. ضمان استرداد كامل — بدون أسئلة.
+              بعد انتهاء التجربة (${trialEndFormatted})، يمكنك الاشتراك بـ ${ESSENTIALS_PRICE}/شهر للاحتفاظ بالوصول الكامل. ضمان استرداد كامل — بدون أسئلة.
             </p>
 
             <hr style="border: none; border-top: 1px solid #e7e5e4; margin: 24px 0;" />

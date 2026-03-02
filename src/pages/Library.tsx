@@ -18,8 +18,8 @@ import { cn } from '@/lib/utils';
 import { peptides, categories, type Peptide } from '@/data/peptides';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
-import { PRICING, PEPTIDE_COUNT, TRIAL_PEPTIDE_IDS, SITE_URL } from '@/lib/constants';
-import { categoryIcons, evidenceColors, evidenceLabels, categoryLabels, evidenceOrder } from '@/lib/peptide-labels';
+import { PRICING, PEPTIDE_COUNT, TRIAL_PEPTIDE_IDS, FREE_PEPTIDE_IDS, SITE_URL } from '@/lib/constants';
+import { categoryIcons, evidenceColors, evidenceLabels, evidenceDescriptions, categoryLabels, evidenceOrder } from '@/lib/peptide-labels';
 
 
 const PeptideCard = memo(function PeptideCard({
@@ -46,10 +46,10 @@ const PeptideCard = memo(function PeptideCard({
   const cardContent = (
     <div
       className={cn(
-        'relative h-full overflow-hidden rounded-2xl border p-5 shadow-sm transition-all duration-300 active:scale-[0.98]',
+        'relative h-full overflow-hidden rounded-2xl border p-5 shadow-sm card-hover active:scale-[0.98]',
         hasAccess
-          ? 'border-stone-200 bg-white hover:border-emerald-300 hover:shadow-lg hover:shadow-emerald-600/10 hover:-translate-y-1'
-          : 'border-stone-200 bg-stone-50/50 hover:border-stone-300 hover:shadow-md',
+          ? 'border-stone-200 bg-white hover:border-emerald-300 hover:shadow-lg hover:shadow-emerald-600/10'
+          : 'border-stone-200 bg-stone-50/50 hover:border-stone-300',
         isFav && 'border-s-4 border-s-amber-400',
       )}
     >
@@ -57,7 +57,7 @@ const PeptideCard = memo(function PeptideCard({
       <div className="mb-2 flex items-center justify-between">
         <div className="flex items-center gap-1">
           {!hasAccess && !peptide.isFree && (
-            <Lock className="h-3.5 w-3.5 text-stone-400" />
+            <Lock className="h-3.5 w-3.5 text-stone-500" />
           )}
           {peptide.isFree && !hasAccess && (
             <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-bold text-emerald-700">مجاني</span>
@@ -73,7 +73,7 @@ const PeptideCard = memo(function PeptideCard({
           <button
             type="button"
             onClick={(e) => { e.preventDefault(); e.stopPropagation(); onToggleCompare(); }}
-            className={cn('flex items-center gap-1 rounded-full px-2.5 py-1.5 min-h-[44px] text-xs font-medium transition-colors', isCompare ? 'bg-emerald-100 text-emerald-700' : 'text-stone-400 hover:bg-stone-100 hover:text-stone-600')}
+            className={cn('flex items-center gap-1 rounded-full px-2.5 py-1.5 min-h-[44px] text-xs font-medium transition-colors', isCompare ? 'bg-emerald-100 text-emerald-700' : 'text-stone-500 hover:bg-stone-100 hover:text-stone-600')}
             aria-label={isCompare ? 'إزالة من المقارنة' : 'إضافة للمقارنة'}
           >
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-3.5 w-3.5">
@@ -119,14 +119,7 @@ const PeptideCard = memo(function PeptideCard({
             'rounded-full border px-2.5 py-0.5 text-xs font-medium',
             evidenceColors[peptide.evidenceLevel],
           )}
-          title={
-            peptide.evidenceLevel === 'excellent' ? 'ممتاز — تجارب سريرية كبرى + اعتماد FDA' :
-            peptide.evidenceLevel === 'strong' ? 'قوي — تجارب بشرية متعددة' :
-            peptide.evidenceLevel === 'good' ? 'جيد — دراسات بشرية محدودة' :
-            peptide.evidenceLevel === 'moderate' ? 'متوسط — دراسات حيوانية + تقارير بشرية' :
-            peptide.evidenceLevel === 'weak' ? 'ضعيف — دراسات حيوانية فقط' :
-            'ضعيف جدًا — بيانات أولية محدودة'
-          }
+          title={evidenceDescriptions[peptide.evidenceLevel]}
         >
           {evidenceLabels[peptide.evidenceLevel]}
         </span>
@@ -182,15 +175,22 @@ const PeptideCard = memo(function PeptideCard({
     );
   }
 
+  const handleEnter = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      onLockedClick();
+    }
+  };
+
   return (
-    <div>
-      <button
-        type="button"
-        onClick={onLockedClick}
-        className="block h-full w-full cursor-pointer text-start"
-      >
-        {cardContent}
-      </button>
+    <div
+      role="button"
+      tabIndex={0}
+      onClick={onLockedClick}
+      onKeyDown={handleEnter}
+      className="block h-full w-full cursor-pointer text-start focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400 focus-visible:ring-offset-2 rounded-2xl"
+    >
+      {cardContent}
     </div>
   );
 });
@@ -234,11 +234,11 @@ export default function Library() {
   const { subscription, isLoading } = useAuth();
   const isPaid = !isLoading && (subscription?.isPaidSubscriber ?? false);
   const isTrial = !isLoading && (subscription?.isTrial ?? false);
-  const hasFullAccess = isPaid;
+  const hasFullAccess = isPaid || isTrial;
   const usedPeptides = useUsedPeptides();
 
   const [searchParams, setSearchParams] = useSearchParams();
-  const validCategories = ['all', ...categories.map(c => c.id)];
+  const validCategories = ['all', 'free', ...categories.map(c => c.id)];
   const validEvidence = ['all', 'excellent', 'strong', 'good', 'moderate', 'weak', 'very-weak'];
   const validSorts = ['default', 'evidence', 'alpha', 'favorites'] as const;
   const [activeCategory, setActiveCategory] = useState(() => {
@@ -255,23 +255,33 @@ export default function Library() {
     return (validSorts as readonly string[]).includes(s) ? s : 'default';
   });
 
+  // Consolidated URL↔state sync: state→URL on change; URL→state only when URL differs (e.g. back/forward)
   useEffect(() => {
     const params = new URLSearchParams();
     if (activeCategory !== 'all') params.set('category', activeCategory);
     if (search.trim()) params.set('q', search.trim());
     if (evidenceFilter !== 'all') params.set('evidence', evidenceFilter);
     if (sortBy !== 'default') params.set('sort', sortBy);
-    setSearchParams(params, { replace: true });
-  }, [activeCategory, search, evidenceFilter, sortBy, setSearchParams]);
+    const next = params.toString();
+    const curr = searchParams.toString();
+    if (next !== curr) setSearchParams(params, { replace: true });
+  }, [activeCategory, search, evidenceFilter, sortBy, setSearchParams, searchParams]);
 
   useEffect(() => {
-    const c = searchParams.get('category') ?? 'all';
-    setActiveCategory(validCategories.includes(c) ? c : 'all');
-    setSearch(searchParams.get('q') ?? '');
-    const e = searchParams.get('evidence') ?? 'all';
-    setEvidenceFilter(validEvidence.includes(e) ? e : 'all');
-    const s = searchParams.get('sort') as 'default' | 'evidence' | 'alpha' | 'favorites';
-    setSortBy((validSorts as readonly string[]).includes(s) ? s : 'default');
+    const urlCategory = searchParams.get('category') ?? 'all';
+    const urlSearch = searchParams.get('q') ?? '';
+    const urlEvidence = searchParams.get('evidence') ?? 'all';
+    const urlSort = (searchParams.get('sort') as 'default' | 'evidence' | 'alpha' | 'favorites') ?? 'default';
+    const safeCategory = validCategories.includes(urlCategory) ? urlCategory : 'all';
+    const safeEvidence = validEvidence.includes(urlEvidence) ? urlEvidence : 'all';
+    const safeSort = (validSorts as readonly string[]).includes(urlSort) ? urlSort : 'default';
+    if (safeCategory !== activeCategory || urlSearch !== search || safeEvidence !== evidenceFilter || safeSort !== sortBy) {
+      setActiveCategory(safeCategory);
+      setSearch(urlSearch);
+      setEvidenceFilter(safeEvidence);
+      setSortBy(safeSort);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- URL→state sync, avoid loop
   }, [searchParams]);
   const [showFilters, setShowFilters] = useState(false);
   const [favorites, toggleFavorite] = useFavorites();
@@ -309,7 +319,9 @@ export default function Library() {
   const filtered = useMemo(() => {
     const stripDiacritics = (s: string) => s.normalize('NFD').replace(/[\u0610-\u061A\u064B-\u065F\u0670\u06D6-\u06DC\u06DF-\u06E4\u06E7-\u06E8\u06EA-\u06ED]/g, '');
     const result = peptides.filter((p) => {
-      if (activeCategory !== 'all' && p.category !== activeCategory) return false;
+      if (activeCategory === 'free') {
+        if (!FREE_PEPTIDE_IDS.has(p.id)) return false;
+      } else if (activeCategory !== 'all' && p.category !== activeCategory) return false;
       if (evidenceFilter !== 'all' && p.evidenceLevel !== evidenceFilter) return false;
       if (search.trim()) {
         const q = stripDiacritics(search.trim().toLowerCase());
@@ -345,8 +357,8 @@ export default function Library() {
           "@context": "https://schema.org",
           "@type": "ItemList",
           "name": "مكتبة الببتيدات العلاجية",
-          "description": "41+ ببتيد مع بروتوكولات كاملة مبنية على الأدلة العلمية",
-          "numberOfItems": 41,
+          "description": `${PEPTIDE_COUNT}+ ببتيد مع بروتوكولات كاملة مبنية على الأدلة العلمية`,
+          "numberOfItems": PEPTIDE_COUNT,
           "itemListElement": peptides.slice(0, 10).map((p, i) => ({
             "@type": "ListItem",
             "position": i + 1,
@@ -419,7 +431,7 @@ export default function Library() {
           className="mb-6 flex flex-wrap gap-2 items-center"
         >
           <div className="relative flex-1">
-            <Search className="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-stone-700" />
+            <Search className="absolute end-3 top-1/2 h-4 w-4 -translate-y-1/2 text-stone-700" />
             <input
               type="text"
               role="searchbox"
@@ -429,7 +441,7 @@ export default function Library() {
               placeholder="ابحث عن ببتيد..."
               className={cn(
                 'w-full rounded-xl border border-stone-200 bg-stone-50 py-2.5 ps-10 pe-4',
-                'text-sm text-stone-900 placeholder:text-stone-400',
+                'text-sm text-stone-900 placeholder:text-stone-500',
                 'transition-colors focus:border-emerald-300 focus:outline-none focus:ring-2 focus:ring-emerald-100',
               )}
             />
@@ -499,6 +511,26 @@ export default function Library() {
           )}
         </>
 
+        {/* Best First Cycle — beginner section */}
+        {(() => {
+          const beginnerIds = ['bpc-157', 'semaglutide', 'epithalon'] as const;
+          const beginnerPeptides = beginnerIds.map(id => peptides.find(p => p.id === id)).filter(Boolean) as Peptide[];
+          if (beginnerPeptides.length === 0) return null;
+          return (
+            <div className="mb-8">
+              <p className="text-sm font-bold text-stone-700 mb-3">أفضل دورة أولى</p>
+              <div className="flex gap-2 overflow-x-auto pb-1">
+                {beginnerPeptides.map(p => (
+                  <Link key={p.id} to={`/peptide/${p.id}`} className="shrink-0 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-2.5 text-sm font-bold text-emerald-700 hover:bg-emerald-100 transition-colors whitespace-nowrap flex items-center gap-2">
+                    <Sparkles className="h-4 w-4" />
+                    {p.nameAr}
+                  </Link>
+                ))}
+              </div>
+            </div>
+          );
+        })()}
+
         {/* Category Tabs */}
         <div
           className="mb-8 -mx-4 px-4 overflow-x-auto scrollbar-hide scroll-fade"
@@ -510,11 +542,23 @@ export default function Library() {
               className={cn(
                 'shrink-0 rounded-full border px-4 py-2 min-h-[44px] text-sm font-medium transition-all',
                 activeCategory === 'all'
-                  ? 'gold-gradient border-emerald-300 text-white'
+                  ? 'primary-gradient border-emerald-300 text-white'
                   : 'border-stone-200 bg-white text-stone-800 hover:border-stone-300 transition-colors hover:text-stone-800',
               )}
             >
               الكل
+            </button>
+            <button
+              onClick={() => setActiveCategory('free')}
+              aria-pressed={activeCategory === 'free'}
+              className={cn(
+                'flex shrink-0 items-center gap-1.5 rounded-full border px-4 py-2 min-h-[44px] text-sm font-medium transition-all',
+                activeCategory === 'free'
+                  ? 'primary-gradient border-emerald-300 text-white'
+                  : 'border-stone-200 bg-white text-stone-800 hover:border-stone-300 transition-colors hover:text-stone-800',
+              )}
+            >
+              مجاني
             </button>
             {categories.map((cat) => {
               const Icon = categoryIcons[cat.id];
@@ -527,7 +571,7 @@ export default function Library() {
                   className={cn(
                     'flex shrink-0 items-center gap-1.5 rounded-full border px-4 py-2 min-h-[44px] text-sm font-medium transition-all',
                     active
-                      ? 'gold-gradient border-emerald-300 text-white'
+                      ? 'primary-gradient border-emerald-300 text-white'
                       : 'border-stone-200 bg-white text-stone-800 hover:border-stone-300 transition-colors hover:text-stone-800',
                   )}
                 >
@@ -557,7 +601,15 @@ export default function Library() {
         {isLoading ? (
           <div className="grid grid-cols-1 gap-5 md:grid-cols-2 md:gap-6 lg:grid-cols-3">
             {Array.from({ length: 6 }).map((_, i) => (
-              <div key={i} className="h-52 animate-pulse rounded-2xl border border-stone-200 bg-stone-100" />
+              <div key={i} className="animate-pulse rounded-2xl border border-stone-200 p-5 space-y-3">
+                <div className="flex justify-between">
+                  <div className="space-y-2 flex-1"><div className="h-6 w-32 rounded bg-stone-200" /><div className="h-4 w-24 rounded bg-stone-100" /></div>
+                  <div className="h-8 w-16 rounded-full bg-stone-100" />
+                </div>
+                <div className="flex gap-2"><div className="h-6 w-20 rounded-full bg-stone-100" /><div className="h-6 w-16 rounded-full bg-stone-100" /></div>
+                <div className="h-10 w-full rounded bg-stone-100" />
+                <div className="h-4 w-40 rounded bg-stone-100" />
+              </div>
             ))}
           </div>
         ) : filtered.length > 0 ? (
@@ -611,7 +663,7 @@ export default function Library() {
             <div
               className="flex flex-col items-center justify-center py-16 text-center"
             >
-              <FlaskConical className="mb-4 h-12 w-12 text-stone-400" />
+              <FlaskConical className="mb-4 h-12 w-12 text-stone-500" />
               <p className="text-lg font-semibold text-stone-800">
                 {search.trim() ? `لا توجد نتائج لـ "${search}"` : 'لا توجد نتائج للفلاتر المحددة'}
               </p>
@@ -661,7 +713,7 @@ export default function Library() {
             <div className="w-full max-w-4xl my-8 rounded-2xl bg-white shadow-2xl overflow-hidden animate-fade-in" onClick={e => e.stopPropagation()}>
               <div className="flex items-center justify-between border-b border-stone-200 px-6 py-4">
                 <h2 className="text-lg font-bold text-stone-900">مقارنة ببتيدات</h2>
-                <button onClick={() => setShowCompare(false)} aria-label="إغلاق" className="rounded-lg p-2 min-h-[44px] min-w-[44px] flex items-center justify-center text-stone-400 transition-colors hover:bg-stone-100"><X className="h-5 w-5" /></button>
+                <button onClick={() => setShowCompare(false)} aria-label="إغلاق" className="rounded-lg p-2 min-h-[44px] min-w-[44px] flex items-center justify-center text-stone-500 transition-colors hover:bg-stone-100"><X className="h-5 w-5" /></button>
               </div>
               <div className="overflow-x-auto">
                 <table className="w-full min-w-[600px]">

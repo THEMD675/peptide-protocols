@@ -1,37 +1,44 @@
 import { useState, useEffect } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import FocusTrap from 'focus-trap-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Shield, X } from 'lucide-react';
 import { cn, arPlural } from '@/lib/utils';
 import { PRICING, PEPTIDE_COUNT, FREE_PEPTIDE_IDS } from '@/lib/constants';
+import { useNowMs } from '@/hooks/useNowMs';
 
 const DISMISS_KEY = 'pptides_trial_banner_dismissed';
 
 const FREE_PATHS = [
   '/calculator', '/pricing', '/login', '/signup', '/privacy', '/terms', '/',
   '/glossary', '/sources', '/reviews', '/account', '/interactions',
-  '/library', '/peptide', '/table', '/stacks', '/lab-guide', '/guide',
-  '/community',
+  '/library', '/table', '/stacks', '/lab-guide', '/guide',
+  '/community', '/about', '/faq', '/quiz',
 ];
+// Excluded: /dashboard, /tracker, /coach — premium routes; blocking modal must trigger for expired
+// /peptide handled separately via isPeptideFree (FREE_PEPTIDE_IDS)
 
 export default function TrialBanner() {
+  const navigate = useNavigate();
   const { user, subscription, isLoading } = useAuth();
   const { pathname } = useLocation();
+  const nowMs = useNowMs();
   const [dismissed, setDismissed] = useState(() => { try { return sessionStorage.getItem(DISMISS_KEY) === '1'; } catch { return false; } });
 
-  const showsModal = !isLoading && user && subscription &&
-    subscription.status !== 'active' && !subscription.isPaidSubscriber &&
-    subscription.status !== 'past_due' &&
-    (subscription.status === 'expired' || subscription.status === 'cancelled' ||
-     (subscription.status === 'trial' && subscription.trialDaysLeft <= 0) ||
-     subscription.status === 'none');
+  const peptideId = pathname.startsWith('/peptide/') ? pathname.split('/')[2] : null;
+  const isPeptideFree = peptideId ? FREE_PEPTIDE_IDS.has(peptideId) : false;
+  const isFreePage = FREE_PATHS.some(p => pathname === p || pathname.startsWith(p + '/')) || isPeptideFree;
+
+  const needsSubscription = !isLoading && user && subscription &&
+    !subscription.isPaidSubscriber && !subscription.isTrial;
+
+  const showsBlockingModal = needsSubscription && !isFreePage;
 
   useEffect(() => {
-    if (!showsModal) return;
+    if (!showsBlockingModal) return;
     document.body.style.overflow = 'hidden';
     return () => { document.body.style.overflow = ''; };
-  }, [showsModal]);
+  }, [showsBlockingModal]);
 
   if (isLoading) return null;
   if (!user || !subscription) return null;
@@ -51,20 +58,23 @@ export default function TrialBanner() {
   if (subscription.isPaidSubscriber) return null;
 
   if (subscription.status === 'past_due') {
+    let daysLeftText = '';
+    if (subscription.currentPeriodEnd) {
+      const graceEnd = new Date(subscription.currentPeriodEnd).getTime() + 7 * 24 * 60 * 60 * 1000;
+      const daysLeft = Math.max(0, Math.ceil((graceEnd - nowMs) / (1000 * 60 * 60 * 24)));
+      if (daysLeft > 0) {
+        daysLeftText = ` متبقي ${daysLeft} ${daysLeft <= 2 ? (daysLeft === 1 ? 'يوم' : 'يومان') : 'أيام'} لتحديث وسيلة الدفع.`;
+      }
+    }
     return (
       <div className="sticky top-[64px] md:top-[72px] z-40 bg-amber-600 text-center py-2 px-4">
         <p className="text-sm font-semibold text-white">
-          تعذّر تحصيل الدفعة — يرجى تحديث وسيلة الدفع لتجنّب فقدان الوصول.{' '}
+          تعذّر تحصيل الدفعة —{daysLeftText} يرجى تحديث وسيلة الدفع لتجنّب فقدان الوصول.{' '}
           <Link to="/account" className="underline underline-offset-2 hover:opacity-80">إعدادات الحساب</Link>
         </p>
       </div>
     );
   }
-
-  const peptideId = pathname.startsWith('/peptide/') ? pathname.split('/')[2] : null;
-  const isPeptideFree = peptideId ? FREE_PEPTIDE_IDS.has(peptideId) : false;
-
-  const isFreePage = FREE_PATHS.some(p => pathname === p || pathname.startsWith(p + '/')) || isPeptideFree;
 
   if (subscription.status === 'cancelled' && !subscription.isPaidSubscriber) {
     if (isFreePage) {
@@ -100,14 +110,14 @@ export default function TrialBanner() {
     }
 
     return (
-      <div role="dialog" aria-modal="true" aria-describedby="sub-modal-desc" className="fixed inset-0 z-50 flex items-center justify-center bg-stone-900/80 backdrop-blur-sm">
+      <div role="dialog" aria-modal="true" aria-describedby="sub-modal-desc-expired" className="fixed inset-0 z-50 flex items-center justify-center bg-stone-900/80 backdrop-blur-sm">
         <FocusTrap focusTrapOptions={{ allowOutsideClick: true }}>
         <div className="mx-4 w-full max-w-md rounded-2xl bg-white p-10 text-center shadow-2xl" aria-labelledby="trial-modal-title">
           <Shield className="mx-auto mb-4 h-12 w-12 text-emerald-600" />
           <h2 id="trial-modal-title" className="mb-3 text-2xl font-bold text-stone-900">
             {modalTitle}
           </h2>
-          <p id="sub-modal-desc" className="mb-4 text-stone-700">
+          <p id="sub-modal-desc-expired" className="mb-4 text-stone-700">
             لا تخسر تقدّمك — اشترك الآن للاحتفاظ ببياناتك والوصول لـ {PEPTIDE_COUNT}+ بروتوكول، المدرب الذكي، وجميع الأدوات
           </p>
           <div className="flex flex-col gap-3">
@@ -119,7 +129,7 @@ export default function TrialBanner() {
             </Link>
           </div>
           <div className="mt-6 flex flex-wrap justify-center gap-3 text-sm">
-            <span className="text-stone-400">أو تصفّح المجاني:</span>
+            <span className="text-stone-500">أو تصفّح المجاني:</span>
             <Link to="/library" className="text-emerald-600 underline underline-offset-2 transition-colors hover:text-emerald-700">المكتبة</Link>
             <Link to="/calculator" className="text-emerald-600 underline underline-offset-2 transition-colors hover:text-emerald-700">الحاسبة</Link>
             <Link to="/interactions" className="text-emerald-600 underline underline-offset-2 transition-colors hover:text-emerald-700">فحص التعارضات</Link>
@@ -128,8 +138,8 @@ export default function TrialBanner() {
             <Link to="/reviews" className="text-emerald-600 underline underline-offset-2 transition-colors hover:text-emerald-700">التقييمات</Link>
           </div>
           <button
-            onClick={() => window.history.length > 1 ? window.history.back() : window.location.href = '/'}
-            className="mt-4 min-h-[44px] px-3 py-2 text-sm text-stone-400 hover:text-stone-600 transition-colors"
+            onClick={() => window.history.length > 1 ? window.history.back() : navigate('/')}
+            className="mt-4 min-h-[44px] px-3 py-2 text-sm text-stone-500 hover:text-stone-600 transition-colors"
           >
             رجوع
           </button>
@@ -142,14 +152,14 @@ export default function TrialBanner() {
   if (subscription.status === 'none') {
     if (isFreePage) return null;
     return (
-      <div role="dialog" aria-modal="true" aria-describedby="sub-modal-desc" className="fixed inset-0 z-50 flex items-center justify-center bg-stone-900/80 backdrop-blur-sm">
+      <div role="dialog" aria-modal="true" aria-describedby="sub-modal-desc-none" className="fixed inset-0 z-50 flex items-center justify-center bg-stone-900/80 backdrop-blur-sm">
         <FocusTrap focusTrapOptions={{ allowOutsideClick: true }}>
         <div className="mx-4 w-full max-w-md rounded-2xl bg-white p-10 text-center shadow-2xl" aria-labelledby="sub-modal-title">
           <Shield className="mx-auto mb-4 h-12 w-12 text-emerald-600" />
           <h2 id="sub-modal-title" className="mb-3 text-2xl font-bold text-stone-900">
             محتوى للمشتركين فقط
           </h2>
-          <p id="sub-modal-desc" className="mb-4 text-stone-700">
+          <p id="sub-modal-desc-none" className="mb-4 text-stone-700">
             اشترك للوصول إلى {PEPTIDE_COUNT}+ بروتوكول، المدرب الذكي، وجميع الأدوات
           </p>
           <div className="flex flex-col gap-3">
@@ -161,14 +171,14 @@ export default function TrialBanner() {
             </Link>
           </div>
           <div className="mt-6 flex flex-wrap justify-center gap-3 text-sm">
-            <span className="text-stone-400">أو تصفّح المجاني:</span>
+            <span className="text-stone-500">أو تصفّح المجاني:</span>
             <Link to="/calculator" className="text-emerald-600 underline underline-offset-2 transition-colors hover:text-emerald-700">الحاسبة</Link>
             <Link to="/library" className="text-emerald-600 underline underline-offset-2 transition-colors hover:text-emerald-700">المكتبة</Link>
             <Link to="/glossary" className="text-emerald-600 underline underline-offset-2 transition-colors hover:text-emerald-700">المصطلحات</Link>
           </div>
           <button
-            onClick={() => window.history.length > 1 ? window.history.back() : window.location.href = '/'}
-            className="mt-4 min-h-[44px] px-3 py-2 text-sm text-stone-400 hover:text-stone-600 transition-colors"
+            onClick={() => window.history.length > 1 ? window.history.back() : navigate('/')}
+            className="mt-4 min-h-[44px] px-3 py-2 text-sm text-stone-500 hover:text-stone-600 transition-colors"
           >
             رجوع
           </button>
@@ -195,7 +205,7 @@ export default function TrialBanner() {
       <div
         className={cn(
           'sticky top-[64px] md:top-[72px] z-40 text-center py-2 px-4 relative',
-          isLastDay ? 'bg-red-600' : 'gold-gradient'
+          isLastDay ? 'bg-red-600' : 'primary-gradient'
         )}
       >
         <p

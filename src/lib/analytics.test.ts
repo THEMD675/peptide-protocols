@@ -1,0 +1,59 @@
+import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { trackEvent, events } from './analytics'
+
+describe('analytics', () => {
+  let gtagSpy: ReturnType<typeof vi.fn>
+
+  beforeEach(() => {
+    gtagSpy = vi.fn()
+    window.gtag = gtagSpy
+  })
+
+  describe('trackEvent', () => {
+    it('calls gtag with event name and params', () => {
+      trackEvent('test_event', { foo: 'bar' })
+      expect(gtagSpy).toHaveBeenCalledWith('event', 'test_event', { foo: 'bar' })
+    })
+
+    it('does not throw when gtag is undefined', () => {
+      window.gtag = undefined
+      expect(() => trackEvent('test_event')).not.toThrow()
+    })
+
+    it('does not throw when gtag throws', () => {
+      window.gtag = () => { throw new Error('gtag error') }
+      expect(() => trackEvent('test_event')).not.toThrow()
+    })
+  })
+
+  describe('events', () => {
+    it('tracks signup with method', () => {
+      events.signup('google')
+      expect(gtagSpy).toHaveBeenCalledWith('event', 'sign_up', { method: 'google' })
+    })
+
+    it('tracks login with method', () => {
+      events.login('email')
+      expect(gtagSpy).toHaveBeenCalledWith('event', 'login', { method: 'email' })
+    })
+
+    it('tracks subscribe with tier and value', () => {
+      events.subscribe('elite', 371)
+      expect(gtagSpy).toHaveBeenCalledWith('event', 'purchase', {
+        currency: 'SAR',
+        value: 371,
+        items: [{ item_name: 'elite' }],
+      })
+    })
+
+    it('tracks coach message', () => {
+      events.coachMessage()
+      expect(gtagSpy).toHaveBeenCalledWith('event', 'coach_message', undefined)
+    })
+
+    it('tracks injection log with peptide name', () => {
+      events.injectionLog('BPC-157')
+      expect(gtagSpy).toHaveBeenCalledWith('event', 'injection_log', { peptide: 'BPC-157' })
+    })
+  })
+})

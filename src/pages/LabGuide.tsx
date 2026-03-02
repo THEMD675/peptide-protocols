@@ -5,6 +5,7 @@ import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
 import { PRICING, SITE_URL } from '@/lib/constants';
 import { labTests } from '@/data/peptides';
+import { GenericPageSkeleton } from '@/components/Skeletons';
 
 const monitoringSchedule = [
   { when: 'قبل البدء', tests: 'جميع التحاليل الأساسية' },
@@ -41,11 +42,7 @@ export default function LabGuide() {
   const blurClass = !isPro ? 'blur-sm pointer-events-none select-none' : '';
 
   if (isLoading) {
-    return (
-      <div className="flex min-h-[60vh] items-center justify-center">
-        <div className="h-8 w-8 animate-spin rounded-full border-2 border-stone-200 border-t-emerald-600" />
-      </div>
-    );
+    return <GenericPageSkeleton />;
   }
 
   return (
@@ -58,7 +55,7 @@ export default function LabGuide() {
         <meta property="og:url" content={`${SITE_URL}/lab-guide`} />
         <meta property="og:type" content="article" />
         <meta property="og:locale" content="ar_SA" />
-        <meta property="og:image" content="https://pptides.com/og-image.png" />
+        <meta property="og:image" content={`${SITE_URL}/og-image.png`} />
       </Helmet>
       {/* Header */}
       <div className="mb-10 text-center">

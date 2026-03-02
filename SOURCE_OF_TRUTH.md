@@ -1,121 +1,116 @@
 # pptides.com — Single Source of Truth
-# Last updated: March 1, 2026
+# Last updated: March 2, 2026
 
 ## Stack
-- **Frontend**: React 18 + TypeScript + Vite + Tailwind CSS
-- **Auth/DB**: Supabase (PostgreSQL + Auth + Edge Functions)
-- **Payments**: Stripe (Checkout Sessions API + Webhooks + Customer Portal)
+- **Frontend**: React 18 + TypeScript + Vite 7 + Tailwind CSS
+- **Auth/DB**: Supabase (PostgreSQL + Auth + Edge Functions + RLS)
+- **Payments**: Stripe (Checkout Sessions API + Webhooks + Customer Portal) — SAR currency
 - **Email**: Resend
-- **AI**: DeepSeek (deepseek-chat model)
+- **AI**: DeepSeek (deepseek-chat model) — MSA system prompt
 - **Hosting**: Vercel
 - **Domain**: pptides.com
+- **PWA**: vite-plugin-pwa (start_url: /)
 
-## Real Data (as of March 1, 2026)
-- **Real subscribers**: 1 (trial/essentials with Stripe ID)
-- **Test subscribers**: 1 (test-elite, no Stripe ID — excluded from MRR)
-- **Real MRR**: $0 (trial hasn't converted)
-- **Community posts**: 0
-- **Reviews**: 0
-- **Injection logs**: 0
-- **Enquiries**: 0
-- **Auth users**: ~55 (mix of real signups + test/unconfirmed)
-- **Verified users**: only those with email_confirmed_at
-- **GA4**: NOT ACTIVE (needs VITE_GA4_ID env var)
-- **Sentry**: NOT ACTIVE (needs VITE_SENTRY_DSN env var)
-- **Health check cron**: NOT SCHEDULED (function exists, needs Supabase cron job)
+## Pricing (SAR)
+- Essentials: 34 ر.س/month (annual 296 ر.س/year)
+- Elite: 371 ر.س/month (annual 2,963 ر.س/year)
+- 3-day free trial on all plans (card required, based on stripe_subscription_id not DB trigger)
+- 3-day refund guarantee (contact support)
+- Stripe prices: price_1T6QrYAT1lRVVLw7UNdI4t2g (Essentials), price_1T6QrZAT1lRVVLw7qu0FZIWT (Elite)
+- Checkout locale: Arabic (locale: 'ar')
 
-## Pricing
-- Essentials: $9/month (annual $79/year)
-- Elite: $99/month (annual $790/year)
-- 3-day free trial on all plans (card required)
-- 3-day money-back guarantee
-
-## Admin Access
-- URL: pptides.com/admin
-- Allowed emails: abdullahalameer@gmail.com, contact@pptides.com
-- Shows: verified users only, Stripe-verified MRR only
-
-## Routes (22 pages)
+## Routes (26 pages)
 | Route | Auth | Purpose |
 |---|---|---|
 | / | No | Landing (redirects to /dashboard if subscribed) |
 | /login | No | Login/signup |
 | /signup | No | Same as /login |
-| /library | No | 41 peptide cards |
-| /peptide/:id | No | Peptide detail + protocol card |
-| /calculator | No | Dose calculator (free tool) |
+| /library | No | 41+ peptide cards with FREE filter |
+| /peptide/:id | No | Peptide detail + tease paywall (3 rows visible) |
+| /calculator | No | Dose calculator (free tool, SAR costs) |
 | /quiz | No | Goal-finding quiz |
-| /stacks | No | Curated peptide stacks |
+| /stacks | No | Curated peptide stacks (SAR costs) |
 | /lab-guide | No | Lab test guide |
 | /guide | No | Injection guide |
-| /pricing | No | Pricing page |
+| /pricing | No | Pricing page (SAR, comparison, Coach preview) |
 | /reviews | No | Public reviews |
 | /table | No | Peptide comparison table |
-| /sources | No | Scientific references |
+| /sources | No | Scientific references + vendor criteria |
 | /community | No | User experiences |
 | /interactions | No | Interaction checker |
-| /glossary | No | Terminology |
-| /privacy | No | Privacy policy |
-| /terms | No | Terms of service |
-| /dashboard | Yes | Main dashboard |
-| /tracker | Yes | Injection logging |
-| /coach | Yes | AI coach chat |
-| /account | Yes | Account management |
-| /admin | Yes + email whitelist | Admin dashboard |
+| /glossary | No | Terminology with alphabet navigation |
+| /about | No | About page with Organization JSON-LD |
+| /faq | No | FAQ with 8 questions + FAQPage JSON-LD |
+| /privacy | No | Privacy policy (6 third-party services listed) |
+| /terms | No | Terms (SAR prices, indemnification, Saudi jurisdiction) |
+| /dashboard | Yes | Dashboard + WellnessCheckin + LabResultsTracker |
+| /tracker | Yes | Injection logging + SideEffectLog |
+| /coach | Yes | AI coach chat (MSA, DeepSeek consent, preview) |
+| /account | No* | Account management (*redirects to login internally) |
+| /admin | Yes | Admin dashboard (email logs, payment events, pagination) |
+| /logout | No | Logout and redirect to / |
 
-## Edge Functions (10)
+## Edge Functions (14)
 | Function | Trigger | External API |
 |---|---|---|
 | stripe-webhook | Stripe webhook POST | Stripe, Resend |
-| ai-coach | Client POST | DeepSeek |
-| create-checkout | Client POST | Stripe |
-| create-portal-session | Client POST | Stripe |
-| cancel-subscription | Client POST | Stripe, Resend |
-| delete-account | Client POST | Stripe, Resend |
+| ai-coach | Client POST | DeepSeek (MSA prompt, wellness+lab+protocol context) |
+| create-checkout | Client POST | Stripe (SAR prices, Arabic locale, idempotency) |
+| create-portal-session | Client POST | Stripe (rate limited) |
+| cancel-subscription | Client POST | Stripe, Resend (rate limited) |
+| delete-account | Client POST | Stripe, Resend (halt on error) |
 | send-welcome-email | Client POST (signup) | Resend |
-| trial-reminder | Cron job POST | Resend |
-| admin-stats | Client GET (admin) | Supabase Auth Admin |
-| inbound-email | Resend webhook POST | Resend |
+| trial-reminder | Cron job POST | Resend (6 reminder types + weekly_summary) |
+| admin-stats | Client GET (admin) | Supabase Auth Admin (paginated) |
+| admin-actions | Client POST (admin) | Stripe, Resend, Supabase (extend_trial, grant_sub, cancel_sub, suspend, delete, send_email, export_csv, approve/delete_review) |
+| send-enquiry-reply | Client POST (admin) | Resend |
+| inbound-email | Resend webhook POST | Resend (forwards to contact@pptides.com) |
+| health-check | Cron job POST | Stripe, Resend, DeepSeek, Supabase |
+| verify-stripe | Cron/remote POST (CRON_SECRET) | Stripe (price IDs, webhook events) |
 
-## Database Tables (15)
-| Table | Real Data | Writers | Key Columns |
-|---|---|---|---|
-| subscriptions | 1 row | stripe-webhook, create-checkout | user_id, status, tier, stripe_subscription_id |
-| injection_logs | 0 rows | Tracker page | user_id, peptide_name, dose, logged_at |
-| user_protocols | 1 row | ProtocolWizard | user_id, peptide_id, dose, frequency, status |
-| community_logs | 0 rows | Community page | user_id, peptide_name, goal, results, rating |
-| reviews | 0 rows | Reviews page | user_id, rating, content, is_approved |
-| reports | 0 rows | Community page | user_id, target_type, target_id |
-| ai_coach_requests | 0 rows | ai-coach function | user_id, created_at |
-| processed_webhook_events | rows | stripe-webhook | event_id, event_type |
-| sent_reminders | rows | trial-reminder | user_id, reminder_type |
-| email_list | 1 row | EmailCapture | email |
-| enquiries | 0 rows | Account page | user_id, subject, peptide_name, message, status |
-| referrals | 0 rows | AuthContext (signup) | referrer_id, referral_code, status |
-| user_profiles | 0 rows | Not yet in UI | display_name, age, weight_kg, goals |
-| wellness_logs | 0 rows | Not yet in UI | energy, sleep, pain, mood (1-5) |
-| lab_results | 0 rows | Not yet in UI | test_id, value, unit |
+## Database Tables (19 + email_logs)
+| Table | UI | Key Columns |
+|---|---|---|
+| subscriptions | Dashboard, Account | user_id, status, tier, stripe_subscription_id, current_period_end |
+| injection_logs | Tracker | user_id, peptide_name, dose, dose_unit, injection_site, logged_at |
+| user_protocols | Tracker, Dashboard | user_id, peptide_id, dose, frequency, cycle_weeks, status |
+| wellness_logs | Dashboard (WellnessCheckin) | user_id, energy, sleep, pain, mood, appetite, weight_kg, notes |
+| lab_results | Dashboard (LabResultsTracker) | user_id, test_id, value, unit, tested_at, notes |
+| side_effect_logs | Tracker (SideEffectLog) | user_id, symptom, severity, peptide_id, notes |
+| user_profiles | Account, AuthContext | user_id, display_name, weight_kg, goals |
+| community_logs | Community | user_id, peptide_name, goal, results, rating |
+| reviews | Reviews | user_id, name, email, rating, content, is_approved |
+| enquiries | Account, Admin | user_id, email, subject, message, status, admin_notes |
+| referrals | AuthContext | referrer_id, referral_code, referred_email, status |
+| email_list | EmailCapture | email, source |
+| email_logs | Admin | email, type, resend_id, status |
+| processed_webhook_events | stripe-webhook | event_id, event_type, processed_at |
+| sent_reminders | trial-reminder | user_id, reminder_type |
+| ai_coach_requests | ai-coach | user_id, created_at |
+| reports | Community | user_id, target_type, target_id |
+| rate_limits | Edge functions | user_id, endpoint, created_at |
+| referral_rewards | Unused | — |
 
-## Email Types (8)
-1. Welcome email (signup)
-2. Payment confirmation (checkout.session.completed)
-3. Payment failed (invoice.payment_failed)
-4. Trial ending (customer.subscription.trial_will_end)
-5. Cancellation confirmation (cancel-subscription)
-6. Account deletion (delete-account)
-7. Refund confirmation (charge.refunded)
-8. Trial lifecycle reminders (6 types: day1, last_day, expired, day7, day14, day30)
+## Security
+- RLS on all tables
+- Subscription SELECT restricted to auth.uid() = user_id
+- Referral UPDATE restricted to service role
+- Rate limiting on create-checkout, cancel-subscription, create-portal-session
+- CRON_SECRET constant-time comparison
+- Coach XSS: DOMPurify on print
+- Sentry maskAllText: true
+- Admin auth: server-side only (no ADMIN_EMAILS in client bundle)
+- Login rate limiting: persisted in sessionStorage
+- SW denylist: /dashboard, /tracker, /coach, /account, /admin
 
-## Features Built in This Conversation
-1. Admin dashboard with user search, review moderation, enquiry management
-2. Stripe Customer Portal for billing management
-3. Referral system with codes and tracking
-4. Quiz page for logged-in users
-5. Peptide enquiry form on Account page
-6. Milestone progress bar on Dashboard
-7. Personalized recommendations on Library
-8. Time-based greeting on Dashboard
-9. Annual pricing display on Pricing page
-
-## Bugs Fixed: 95+
-All documented in commit history on main branch.
+## STILL NEEDS MANUAL ACTION (Dashboard Access Required)
+1. Stripe Dashboard: Change branding AMIRIS → pptides
+2. Supabase Dashboard: Verify Pro plan (not Free)
+3. Supabase Dashboard: Arabic auth email templates
+4. Resend Dashboard: Verify domain + inbound webhook
+5. Google Search Console: Submit sitemap.xml
+6. DNS: SPF/DKIM/DMARC for email deliverability
+7. Vercel Dashboard: Verify all env vars
+8. Visual check: og-image.png for Ravora branding
+9. Test: Send email to contact@pptides.com, verify receipt
+10. Stripe Dashboard: Verify all 11 webhook events registered

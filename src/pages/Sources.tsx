@@ -1,8 +1,124 @@
+import { useState } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { Link } from 'react-router-dom';
-import { Shield, CheckCircle, Users, Package, MessageCircle, AlertTriangle, Mail } from 'lucide-react';
+import { Shield, CheckCircle, Users, Package, AlertTriangle, Mail, Tag, Send, Loader2 } from 'lucide-react';
+import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
+import { supabase } from '@/lib/supabase';
+import { useAuth } from '@/contexts/AuthContext';
 import { SUPPORT_EMAIL, SITE_URL } from '@/lib/constants';
+import { peptides } from '@/data/peptides';
+
+function SourcingInterestForm() {
+  const { user } = useAuth();
+  const [email, setEmail] = useState(user?.email ?? '');
+  const [phone, setPhone] = useState('');
+  const [selectedPeptides, setSelectedPeptides] = useState<string[]>([]);
+  const [notes, setNotes] = useState('');
+  const [submitting, setSubmitting] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
+
+  const popularPeptides = peptides.filter(p =>
+    ['bpc-157', 'tb-500', 'semaglutide', 'tirzepatide', 'retatrutide', 'cjc-1295', 'ipamorelin', 'semax', 'epithalon'].includes(p.id)
+  );
+
+  const togglePeptide = (id: string) => {
+    setSelectedPeptides(prev => prev.includes(id) ? prev.filter(p => p !== id) : [...prev, id]);
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!email.trim()) { toast.error('يرجى إدخال بريدك الإلكتروني'); return; }
+    if (selectedPeptides.length === 0) { toast.error('اختر ببتيد واحد على الأقل'); return; }
+    setSubmitting(true);
+    try {
+      const { error } = await supabase.from('enquiries').insert({
+        user_id: user?.id ?? null,
+        email: email.trim(),
+        subject: 'sourcing_interest',
+        peptide_name: selectedPeptides.join(', '),
+        message: `رقم التواصل: ${phone || 'لم يُذكر'}\n\nالببتيدات المطلوبة: ${selectedPeptides.join(', ')}\n\nملاحظات: ${notes || 'لا يوجد'}`,
+      });
+      if (error) throw error;
+      setSubmitted(true);
+      toast.success('تم تسجيل اهتمامك — سنتواصل معك قريبًا');
+    } catch {
+      toast.error('تعذّر إرسال الطلب — حاول مرة أخرى');
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  if (submitted) {
+    return (
+      <section className="mt-10 rounded-2xl border-2 border-emerald-200 bg-emerald-50 p-8 text-center">
+        <CheckCircle className="mx-auto mb-3 h-10 w-10 text-emerald-600" />
+        <p className="text-lg font-bold text-stone-900">تم تسجيل اهتمامك</p>
+        <p className="mt-2 text-sm text-stone-600">سنتواصل معك عند توفّر خدمة التوريد الموثوق</p>
+      </section>
+    );
+  }
+
+  return (
+    <section className="mt-10 rounded-2xl border border-stone-200 bg-white p-6 md:p-8">
+      <div className="mb-6 text-center">
+        <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-emerald-100">
+          <Package className="h-5 w-5 text-emerald-700" />
+        </div>
+        <h2 className="text-xl font-bold text-stone-900">تبحث عن مورّد موثوق؟</h2>
+        <p className="mt-2 text-sm text-stone-600">نعمل على توفير خدمة توريد ببتيدات موثوقة للمنطقة العربية. سجّل اهتمامك وسنتواصل معك عند الإطلاق.</p>
+      </div>
+
+      <form onSubmit={handleSubmit} className="space-y-5">
+        <div className="grid gap-4 sm:grid-cols-2">
+          <div>
+            <label htmlFor="src-email" className="mb-1 block text-sm font-medium text-stone-800">البريد الإلكتروني *</label>
+            <input id="src-email" type="email" required value={email} onChange={e => setEmail(e.target.value)} placeholder="example@mail.com"
+              className="w-full rounded-xl border border-stone-200 bg-stone-50 px-4 py-3 text-sm text-stone-900 placeholder:text-stone-400 focus:border-emerald-300 focus:outline-none focus:ring-2 focus:ring-emerald-100" />
+          </div>
+          <div>
+            <label htmlFor="src-phone" className="mb-1 block text-sm font-medium text-stone-800">رقم التواصل (واتساب)</label>
+            <input id="src-phone" type="tel" value={phone} onChange={e => setPhone(e.target.value)} placeholder="+966 5X XXX XXXX" dir="ltr"
+              className="w-full rounded-xl border border-stone-200 bg-stone-50 px-4 py-3 text-sm text-stone-900 placeholder:text-stone-400 focus:border-emerald-300 focus:outline-none focus:ring-2 focus:ring-emerald-100" />
+          </div>
+        </div>
+
+        <div>
+          <p className="mb-2 text-sm font-medium text-stone-800">ما الببتيدات التي تبحث عنها؟ *</p>
+          <div className="flex flex-wrap gap-2">
+            {popularPeptides.map(p => (
+              <button key={p.id} type="button" onClick={() => togglePeptide(p.id)}
+                className={cn(
+                  'rounded-full border px-3 py-1.5 text-xs font-medium transition-all',
+                  selectedPeptides.includes(p.id)
+                    ? 'border-emerald-400 bg-emerald-100 text-emerald-800'
+                    : 'border-stone-200 bg-white text-stone-600 hover:border-stone-300',
+                )}
+              >
+                {p.nameAr}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div>
+          <label htmlFor="src-notes" className="mb-1 block text-sm font-medium text-stone-800">ملاحظات إضافية</label>
+          <textarea id="src-notes" rows={2} value={notes} onChange={e => setNotes(e.target.value)} placeholder="الكمية المطلوبة، الهدف، أي تفاصيل إضافية..."
+            className="w-full rounded-xl border border-stone-200 bg-stone-50 px-4 py-3 text-sm text-stone-900 placeholder:text-stone-400 focus:border-emerald-300 focus:outline-none focus:ring-2 focus:ring-emerald-100 resize-none" />
+        </div>
+
+        <button type="submit" disabled={submitting}
+          className="flex w-full items-center justify-center gap-2 rounded-xl bg-emerald-600 px-6 py-3.5 text-sm font-bold text-white transition-all hover:bg-emerald-700 active:scale-[0.98] disabled:opacity-50"
+        >
+          {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
+          {submitting ? 'جارٍ الإرسال...' : 'سجّل اهتمامك'}
+        </button>
+
+        <p className="text-center text-xs text-stone-500">pptides لا تبيع ببتيدات حاليًا — نجمع الاهتمام لتوفير خدمة موثوقة مستقبلًا</p>
+      </form>
+    </section>
+  );
+}
 
 const criteria = [
   {
@@ -14,10 +130,24 @@ const criteria = [
   },
   {
     icon: CheckCircle,
-    titleAr: 'نقاء ≥ 98% مؤكّد بالتحليل',
-    titleEn: 'Purity ≥ 98%',
+    titleAr: 'نقاء HPLC ≥ 98%',
+    titleEn: 'HPLC purity ≥ 98%',
     descriptionAr:
       'النقاء المرتفع يعني شوائب أقل وفعالية أعلى. ابحث عن نتائج HPLC و Mass Spec في شهادة التحليل.',
+  },
+  {
+    icon: Package,
+    titleAr: 'تخزين وشحن مبرّد',
+    titleEn: 'Cold storage & shipping',
+    descriptionAr:
+      'الببتيدات حساسة للحرارة. المورد الجيد يخزّن ويشحن بتغليف مبرّد (ice packs) ويوفر تتبعًا للشحنة.',
+  },
+  {
+    icon: Tag,
+    titleAr: 'توسيم واضح',
+    titleEn: 'Clear labeling',
+    descriptionAr:
+      'التوسيم الصحيح يتضمن اسم الببتيد، رقم الدفعة، تاريخ الانتهاء، والتركيز. تجنّب المنتجات غير المُوسَّمة.',
   },
   {
     icon: Users,
@@ -25,20 +155,6 @@ const criteria = [
     titleEn: 'Community reputation',
     descriptionAr:
       'تحقق من التقييمات في منتديات Reddit و Discord ومجتمعات البيوهاكينغ المعروفة. التجارب الحقيقية أهم من الإعلانات.',
-  },
-  {
-    icon: Package,
-    titleAr: 'شحن سريع وتغليف مبرّد',
-    titleEn: 'Fast cold-chain shipping',
-    descriptionAr:
-      'الببتيدات حساسة للحرارة. المورد الجيد يشحن بتغليف مبرّد (ice packs) ويوفر تتبعًا للشحنة.',
-  },
-  {
-    icon: MessageCircle,
-    titleAr: 'دعم عملاء وسياسة استرداد واضحة',
-    titleEn: 'Clear refund policy',
-    descriptionAr:
-      'المورد الموثوق لا يختبئ خلف سياسات غامضة. ابحث عن سياسة استرداد واضحة ودعم عملاء سريع الاستجابة.',
   },
 ];
 
@@ -56,7 +172,7 @@ export default function Sources() {
         <meta property="og:url" content={`${SITE_URL}/sources`} />
         <meta property="og:type" content="website" />
         <meta property="og:locale" content="ar_SA" />
-        <meta property="og:image" content="https://pptides.com/og-image.png" />
+        <meta property="og:image" content={`${SITE_URL}/og-image.png`} />
       </Helmet>
 
       <div className="mx-auto max-w-4xl px-4 pt-8 pb-24 md:px-6 md:pt-12">
@@ -77,6 +193,11 @@ export default function Sources() {
         <section
           className="mb-10"
         >
+          <div className="mb-4 rounded-xl border border-stone-200 bg-stone-50 p-4">
+            <p className="text-sm text-stone-700">
+              <strong className="text-stone-900">تنويه:</strong> pptides منصة تعليمية — لا نبيع ببتيدات ولا نتحمل مسؤولية أي عملية شراء. المعايير أدناه لمساعدتك في اختيار مورد موثوق.
+            </p>
+          </div>
           <h2 className="mb-6 text-xl font-bold text-stone-900 md:text-2xl">
             كيف تختار مورد ببتيدات موثوق؟
           </h2>
@@ -145,6 +266,9 @@ export default function Sources() {
             </a>
           </div>
         </section>
+
+        {/* Peptide Sourcing Interest Form */}
+        <SourcingInterestForm />
 
         {/* Key Scientific References */}
         <section className="mt-10 mb-10" aria-labelledby="sources-refs-heading">

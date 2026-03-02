@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import FocusTrap from 'focus-trap-react';
 import { X, Play, Calendar, FlaskConical } from 'lucide-react';
 import { toast } from 'sonner';
@@ -6,6 +7,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
 import { peptides, type Peptide } from '@/data/peptides';
 import { cn } from '@/lib/utils';
+import { FREQUENCY_LABELS } from '@/lib/constants';
 import BaselineChecklist from '@/components/BaselineChecklist';
 
 function ShoppingList({ peptide, dose, unit, frequency, cycleWeeks }: { peptide: Peptide; dose: string; unit: string; frequency: string; cycleWeeks: string }) {
@@ -39,15 +41,8 @@ interface ProtocolWizardProps {
   onCreated?: () => void;
 }
 
-const FREQUENCY_LABELS: Record<string, string> = {
-  od: 'مرة يوميًا',
-  bid: 'مرتين يوميًا',
-  weekly: 'مرة أسبوعيًا',
-  biweekly: 'مرتين أسبوعيًا',
-  prn: 'عند الحاجة',
-};
-
 export default function ProtocolWizard({ peptideId, prefillDose, prefillUnit, onClose, onCreated }: ProtocolWizardProps) {
+  const navigate = useNavigate();
   const { user } = useAuth();
   const peptide = peptides.find(p => p.id === peptideId);
 
@@ -57,14 +52,22 @@ export default function ProtocolWizard({ peptideId, prefillDose, prefillUnit, on
   const [cycleWeeks, setCycleWeeks] = useState(String(peptide?.cycleDurationWeeks ?? 4));
   const [submitting, setSubmitting] = useState(false);
   const [existingProtocols, setExistingProtocols] = useState(0);
+  const [hasDuplicatePeptide, setHasDuplicatePeptide] = useState(false);
+  const [duplicateConfirmed, setDuplicateConfirmed] = useState(false);
   useEffect(() => {
     if (!user) return;
     let mounted = true;
-    supabase.from('user_protocols').select('id', { count: 'exact', head: true }).eq('user_id', user.id).eq('status', 'active')
-      .then(({ count, error }) => { if (mounted && !error) setExistingProtocols(count ?? 0); })
-      .catch(() => {});
+    (async () => {
+      const [countRes, dupeRes] = await Promise.all([
+        supabase.from('user_protocols').select('id', { count: 'exact', head: true }).eq('user_id', user.id).eq('status', 'active'),
+        supabase.from('user_protocols').select('id', { count: 'exact', head: true }).eq('user_id', user.id).eq('status', 'active').eq('peptide_id', peptideId),
+      ]);
+      if (!mounted) return;
+      if (!countRes.error) setExistingProtocols(countRes.count ?? 0);
+      if (!dupeRes.error) setHasDuplicatePeptide((dupeRes.count ?? 0) > 0);
+    })().catch(() => {});
     return () => { mounted = false; };
-  }, [user]);
+  }, [user, peptideId]);
 
   useEffect(() => {
     const handler = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose(); };
@@ -74,7 +77,7 @@ export default function ProtocolWizard({ peptideId, prefillDose, prefillUnit, on
   }, [onClose]);
 
   if (!peptide) return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" onClick={onClose}>
+    <div role="dialog" aria-modal="true" className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" onClick={onClose}>
       <div className="rounded-2xl bg-white p-6 text-center" onClick={e => e.stopPropagation()}>
         <p className="text-stone-600">الببتيد غير موجود</p>
         <button onClick={onClose} className="mt-4 rounded-full bg-emerald-600 px-6 py-2 text-sm font-bold text-white">إغلاق</button>
@@ -101,23 +104,23 @@ export default function ProtocolWizard({ peptideId, prefillDose, prefillUnit, on
         status: 'active',
       });
       if (error) {
-        toast.error('حدث خطأ أثناء إنشاء البروتوكول');
+        toast.error('تعذّر إنشاء البروتوكول — تحقق من اتصالك وحاول مرة أخرى');
         // Error logged to Sentry via ErrorBoundary
         return;
       }
       toast.success(`تم بدء بروتوكول ${peptide.nameAr}! — انتقل لسجل الحقن`);
       onCreated?.();
       onClose();
-      window.location.href = `/tracker?peptide=${encodeURIComponent(peptide.nameEn)}`;
+      navigate(`/tracker?peptide=${encodeURIComponent(peptide.nameEn)}`);
     } catch {
-      toast.error('حدث خطأ — حاول مرة أخرى');
+      toast.error('فشل الاتصال بالخادم — تحقق من اتصالك وحاول مرة أخرى');
     } finally {
       setSubmitting(false);
     }
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4" onClick={onClose}>
+    <div role="dialog" aria-modal="true" className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4" onClick={onClose}>
       <FocusTrap focusTrapOptions={{ allowOutsideClick: true }}>
         <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl animate-fade-in" onClick={e => e.stopPropagation()}>
           <div className="flex items-center justify-between mb-5">
@@ -130,13 +133,27 @@ export default function ProtocolWizard({ peptideId, prefillDose, prefillUnit, on
                 <p className="text-sm text-stone-500">{peptide.nameAr} ({peptide.nameEn})</p>
               </div>
             </div>
-            <button onClick={onClose} className="rounded-lg p-2 min-h-[44px] min-w-[44px] flex items-center justify-center text-stone-400 hover:bg-stone-100 hover:text-stone-600 transition-colors">
+            <button onClick={onClose} aria-label="إغلاق" className="rounded-lg p-2 min-h-[44px] min-w-[44px] flex items-center justify-center text-stone-500 hover:bg-stone-100 hover:text-stone-600 transition-colors">
               <X className="h-5 w-5" />
             </button>
           </div>
 
           <div className="space-y-4">
-            {existingProtocols > 0 && (
+            {hasDuplicatePeptide && (
+              <div className="mb-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3">
+                <p className="text-xs font-bold text-red-700 mb-2">لديك بروتوكول نشط لهذا الببتيد بالفعل</p>
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={duplicateConfirmed}
+                    onChange={e => setDuplicateConfirmed(e.target.checked)}
+                    className="rounded border-red-300 text-red-600 focus:ring-red-200"
+                  />
+                  <span className="text-xs text-red-700">أريد إنشاء بروتوكول إضافي</span>
+                </label>
+              </div>
+            )}
+            {existingProtocols > 0 && !hasDuplicatePeptide && (
               <div className="mb-4 rounded-xl border border-amber-200 bg-amber-50 px-4 py-2 text-xs text-amber-700">
                 لديك {existingProtocols} بروتوكول نشط — يمكنك تشغيل عدة بروتوكولات معًا
               </div>
@@ -169,7 +186,7 @@ export default function ProtocolWizard({ peptideId, prefillDose, prefillUnit, on
 
             <div>
               <label htmlFor="wizard-frequency" className="mb-1 block text-sm font-bold text-stone-700">التكرار</label>
-              <select id="wizard-frequency" value={frequency} onChange={e => setFrequency(e.target.value)} className="w-full rounded-xl border border-stone-200 bg-white px-4 py-3 text-sm text-stone-900 focus:border-emerald-300 focus:outline-none focus:ring-2 focus:ring-emerald-100">
+              <select id="wizard-frequency" value={frequency} onChange={e => { const v = e.target.value; setFrequency(v as keyof typeof FREQUENCY_LABELS); }} className="w-full rounded-xl border border-stone-200 bg-white px-4 py-3 text-sm text-stone-900 focus:border-emerald-300 focus:outline-none focus:ring-2 focus:ring-emerald-100">
                 {Object.entries(FREQUENCY_LABELS).map(([k, v]) => (
                   <option key={k} value={k}>{v}</option>
                 ))}
@@ -213,7 +230,7 @@ export default function ProtocolWizard({ peptideId, prefillDose, prefillUnit, on
 
           <button
             onClick={handleSubmit}
-            disabled={submitting || !dose}
+            disabled={submitting || !dose || (hasDuplicatePeptide && !duplicateConfirmed)}
             className={cn(
               'mt-5 flex w-full items-center justify-center gap-2 rounded-full px-6 py-3.5 text-sm font-bold text-white transition-all',
               submitting ? 'bg-stone-400 cursor-not-allowed' : 'bg-emerald-600 hover:bg-emerald-700 active:scale-[0.98]'

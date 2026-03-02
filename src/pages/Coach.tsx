@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect, useCallback, memo, useMemo, type ElementType } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { Link, useSearchParams, useNavigate } from 'react-router-dom';
+import DOMPurify from 'dompurify';
 import { supabase } from '@/lib/supabase';
 import { peptides as allPeptides } from '@/data/peptides';
 import { renderMarkdown } from '@/lib/markdown';
@@ -58,7 +59,7 @@ const EXPERIENCE_OPTIONS = [
 ];
 
 const INJECTION_OPTIONS = [
-  { id: 'yes', label: 'نعم، عادي', desc: 'حقن تحت الجلد ما عندي مشكلة فيها' },
+  { id: 'yes', label: 'نعم، عادي', desc: 'حقن تحت الجلد لا مشكلة لدي' },
   { id: 'prefer-no', label: 'أفضّل بدون إن أمكن', desc: 'بخاخ أنف أو فموي أفضل' },
   { id: 'no', label: 'لا أبدًا', desc: 'فموي أو موضعي فقط' },
 ];
@@ -84,8 +85,33 @@ async function buildUserContext(userId: string): Promise<string> {
       const names = favs.map(id => allPeptides.find(p => p.id === id)?.nameEn).filter(Boolean);
       if (names.length) ctx += `ببتيدات مفضّلة: ${names.join(', ')}\n`;
     }
-  } catch { /* expected */ }
+  } catch (e) {
+    if (typeof console !== 'undefined' && console.warn) console.warn('Coach buildUserContext failed:', e);
+  }
   return ctx;
+}
+
+function buildPeptideRequestPrompt(peptideName: string, intake: IntakeData | null, userContext: string): string {
+  const goalMap: Record<string, string> = {
+    'fat-loss': 'fat loss', recovery: 'injury recovery', muscle: 'muscle building',
+    brain: 'brain/focus', longevity: 'longevity', hormones: 'hormone optimization', 'gut-skin': 'gut/skin',
+  };
+  const expMap: Record<string, string> = { beginner: 'complete beginner', intermediate: 'intermediate', advanced: 'advanced' };
+  const injMap: Record<string, string> = { yes: 'accepts injections', 'prefer-no': 'prefers non-injection', no: 'oral/nasal only' };
+
+  let prompt = `أريد بروتوكول كامل لـ ${peptideName} — الجرعة، التوقيت، المدة، التحاليل، والتكلفة.\n\n`;
+  if (intake?.goal || intake?.experience || intake?.injection || intake?.age || intake?.medications) {
+    prompt += `USER PROFILE:\n`;
+    if (intake.goal) prompt += `- Goal: ${goalMap[intake.goal] ?? intake.goal}\n`;
+    if (intake.experience) prompt += `- Experience: ${expMap[intake.experience] ?? intake.experience}\n`;
+    if (intake.injection) prompt += `- Injection: ${injMap[intake.injection] ?? intake.injection}\n`;
+    if (intake.age) prompt += `- Age: ${intake.age}\n`;
+    if (intake.medications) prompt += `- Meds/supplements: ${intake.medications}\n`;
+    prompt += `\n`;
+  }
+  if (userContext) prompt += `USER HISTORY:\n${userContext}\n\n`;
+  prompt += `Give the full personalized protocol NOW using the format in your instructions. Reply in Modern Standard Arabic (فصحى). Do NOT ask questions — give the protocol immediately.`;
+  return prompt;
 }
 
 function buildIntakePrompt(intake: IntakeData, userContext: string): string {
@@ -105,7 +131,7 @@ function buildIntakePrompt(intake: IntakeData, userContext: string): string {
   if (intake.age) prompt += `- Age: ${intake.age}\n`;
   if (intake.medications) prompt += `- Current meds/supplements: ${intake.medications}\n`;
   if (userContext) prompt += `\nUSER HISTORY:\n${userContext}\n`;
-  prompt += `\nGive the full personalized protocol NOW using the format in your instructions. Reply in Gulf Arabic. Do NOT ask questions — give the protocol immediately.`;
+  prompt += `\nGive the full personalized protocol NOW using the format in your instructions. Reply in Modern Standard Arabic (فصحى). Do NOT ask questions — give the protocol immediately.`;
   return prompt;
 }
 
@@ -114,10 +140,17 @@ async function getSessionToken(): Promise<string> {
   return data.session?.access_token ?? '';
 }
 
+const COACH_PREVIEW_SAMPLE_QS = [
+  'أريد بروتوكول BPC-157 للتعافي من إصابة في الكتف',
+  'ما أفضل ببتيد لفقدان الوزن لمبتدئ؟',
+  'صمّم لي بروتوكول CJC-1295 + Ipamorelin',
+  'أريد بروتوكول Semaglutide مع جدول جرعات',
+];
+
 function getFollowUps(text: string, isFirstProtocol: boolean): string[] {
   if (!isFirstProtocol) {
     return [
-      'وش لو حسّيت بأعراض جانبية؟',
+      'ماذا لو شعرت بأعراض جانبية؟',
       'كيف أحسّن النتائج أكثر؟',
       'صمّم لي جدول يومي كامل',
     ];
@@ -125,20 +158,20 @@ function getFollowUps(text: string, isFirstProtocol: boolean): string[] {
 
   const actions: string[] = [];
 
-  actions.push('اكتب لي قائمة تسوّق كاملة — وش أشتري بالضبط مع الكميات');
+  actions.push('اكتب لي قائمة تسوّق كاملة — ما الذي أشتريه بالضبط مع الكميات');
   actions.push('صمّم لي جدول أسبوعي كامل بالمواعيد والجرعات');
 
   const t = text.toLowerCase();
   if (t.includes('bpc') || t.includes('tb-500'))
     actions.push('وين بالضبط أحقن لإصابتي؟ ارسم لي خريطة');
   else if (t.includes('tesamorelin') || t.includes('aod'))
-    actions.push('وش النظام الغذائي اللي يعزّز النتيجة؟');
+    actions.push('ما النظام الغذائي الذي يعزّز النتيجة؟');
   else if (t.includes('semax') || t.includes('selank'))
-    actions.push('وش أفضل ستاك نوتروبيكس أجمعه معاه؟');
+    actions.push('ما أفضل ستاك نوتروبيكس يمكن دمجه معه؟');
   else if (t.includes('cjc') || t.includes('ipamorelin'))
     actions.push('صمّم لي بروتوكول نوم يعزّز إفراز هرمون النمو');
   else
-    actions.push('وش أضيف لتحسين النتيجة — ستاك ثاني؟');
+    actions.push('ما الذي أضيفه لتحسين النتيجة — ستاك ثاني؟');
 
   return actions.slice(0, 3);
 }
@@ -165,7 +198,12 @@ export default function Coach() {
     } catch { return null; }
   }
 
+  const stepStorageKey = `pptides_coach_step_${user?.id ?? 'anon'}`;
   const [intakeStep, setIntakeStep] = useState<IntakeStep>(() => {
+    try {
+      const sess = sessionStorage.getItem(`pptides_coach_step_${user?.id ?? 'anon'}`);
+      if (sess && ['goal', 'experience', 'injection', 'details', 'done'].includes(sess)) return sess as IntakeStep;
+    } catch { /* expected */ }
     try {
       const s = localStorage.getItem(storageKey);
       if (s) { const d = JSON.parse(s); if (d.messages?.length > 0) return 'done'; }
@@ -175,9 +213,15 @@ export default function Coach() {
     return 'goal';
   });
   const [intake, setIntake] = useState<IntakeData>(() => {
+    const empty = { goal: '', goalLabel: '', experience: '', injection: '', age: '', medications: '' };
     try {
+      const sess = sessionStorage.getItem(`pptides_coach_intake_${user?.id ?? 'anon'}`);
+      if (sess) {
+        const parsed = JSON.parse(sess);
+        if (parsed && typeof parsed === 'object') return { ...empty, ...parsed };
+      }
       const s = localStorage.getItem(storageKey);
-      if (s) return JSON.parse(s).intake ?? { goal: '', goalLabel: '', experience: '', injection: '', age: '', medications: '' };
+      if (s) return JSON.parse(s).intake ?? empty;
     } catch { /* expected */ }
     const quiz = loadQuizAnswers();
     if (quiz) {
@@ -197,7 +241,15 @@ export default function Coach() {
   const [messages, setMessages] = useState<ChatMessage[]>(() => {
     try { const s = localStorage.getItem(storageKey); if (s) return JSON.parse(s).messages ?? []; } catch { /* expected */ } return [];
   });
-  const [input, setInput] = useState('');
+  const DRAFT_KEY = 'pptides_coach_draft';
+  const DEEPSEEK_CONSENT_KEY = 'pptides_deepseek_consent';
+  const [showDeepSeekConsent, setShowDeepSeekConsent] = useState(() => {
+    try { return localStorage.getItem(DEEPSEEK_CONSENT_KEY) !== 'true'; } catch { return true; }
+  });
+  const [input, setInput] = useState(() => {
+    try { return sessionStorage.getItem(DRAFT_KEY) ?? ''; } catch { return ''; }
+  });
+  const draftTimerRef = useRef<ReturnType<typeof setTimeout>>();
   const [copiedIdx, setCopiedIdx] = useState<number | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [loadingStage, setLoadingStage] = useState(0);
@@ -221,8 +273,38 @@ export default function Coach() {
     }
   }, [messages, intake, storageKey, isLoading]);
 
+  useEffect(() => {
+    try { sessionStorage.setItem(stepStorageKey, intakeStep); } catch { /* expected */ }
+  }, [intakeStep, stepStorageKey]);
+
+  useEffect(() => {
+    const key = `pptides_coach_intake_${user?.id ?? 'anon'}`;
+    try { sessionStorage.setItem(key, JSON.stringify(intake)); } catch { /* expected */ }
+  }, [intake, user?.id]);
+
+  useEffect(() => {
+    if (draftTimerRef.current) clearTimeout(draftTimerRef.current);
+    draftTimerRef.current = setTimeout(() => {
+      try { if (input) sessionStorage.setItem(DRAFT_KEY, input); else sessionStorage.removeItem(DRAFT_KEY); } catch { /* expected */ }
+    }, 500);
+    return () => { if (draftTimerRef.current) clearTimeout(draftTimerRef.current); };
+  }, [input, DRAFT_KEY]);
+
   useEffect(() => { scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: 'smooth' }); }, [messages, intakeStep]);
   useEffect(() => { if (user) buildUserContext(user.id).then(ctx => { userContextRef.current = ctx; }).catch(() => {}); }, [user]);
+
+  // Migrate anon session data when user logs in (prevents loss on session expiry mid-form)
+  useEffect(() => {
+    if (!user?.id) return;
+    try {
+      const anonStep = sessionStorage.getItem('pptides_coach_step_anon');
+      const anonIntake = sessionStorage.getItem('pptides_coach_intake_anon');
+      if (anonStep || anonIntake) {
+        if (anonStep) { sessionStorage.setItem(`pptides_coach_step_${user.id}`, anonStep); sessionStorage.removeItem('pptides_coach_step_anon'); }
+        if (anonIntake) { sessionStorage.setItem(`pptides_coach_intake_${user.id}`, anonIntake); sessionStorage.removeItem('pptides_coach_intake_anon'); }
+      }
+    } catch { /* expected */ }
+  }, [user?.id]);
 
   const isLoadingRef = useRef(false);
   const messagesRef = useRef<ChatMessage[]>(messages);
@@ -234,9 +316,15 @@ export default function Coach() {
   const hasAccessRef = useRef(false);
   useEffect(() => () => { abortRef.current?.abort(); }, []);
 
+  const setConsentGiven = useCallback(() => {
+    try { localStorage.setItem(DEEPSEEK_CONSENT_KEY, 'true'); } catch { /* ok */ }
+    setShowDeepSeekConsent(false);
+  }, []);
+
   const sendToAI = useCallback(async (content: string) => {
     const trimmed = content.trim();
     if (!trimmed || isLoadingRef.current) return;
+    if (showDeepSeekConsent) setConsentGiven();
     isLoadingRef.current = true;
     events.coachMessage();
     abortRef.current?.abort();
@@ -246,6 +334,7 @@ export default function Coach() {
     const updated = [...messagesRef.current, userMsg];
     setMessages(updated);
     setInput('');
+    try { sessionStorage.removeItem(DRAFT_KEY); } catch { /* expected */ }
     setIsLoading(true);
     setLoadingStage(0);
     const stageTimer1 = setTimeout(() => setLoadingStage(1), 3000);
@@ -266,7 +355,14 @@ export default function Coach() {
         }),
         signal: controller.signal,
       });
-      if (!res.ok) throw new Error(String(res.status));
+      if (!res.ok) {
+        let errMsg = String(res.status);
+        try {
+          const body = await res.json().catch(() => null);
+          if (body?.error && typeof body.error === 'string') errMsg = `${res.status}:${body.error}`;
+        } catch { /* ignore */ }
+        throw new Error(errMsg);
+      }
 
       const contentType = res.headers.get('content-type') ?? '';
       if (!contentType.includes('text/event-stream') && !contentType.includes('text/plain')) {
@@ -317,16 +413,18 @@ export default function Coach() {
         });
       }
     } catch (err) {
-      const status = err instanceof Error ? err.message : '';
-      const errorTag = status === '429' ? '__ERROR__:429' : status === '403' ? '__ERROR__:403' : '__ERROR__';
+      const msg = err instanceof Error ? err.message : '';
+      const statusMatch = msg.match(/^(\d+)/);
+      const status = statusMatch ? statusMatch[1] : '';
+      const errorTag = status === '429' ? '__ERROR__:429' : status === '403' ? '__ERROR__:403' : status === '401' ? '__ERROR__:401' : status === '500' ? '__ERROR__:500' : '__ERROR__';
       setMessages(prev => {
-        const copy = [...prev];
-        if (copy.length > 0 && copy[copy.length - 1].role === 'assistant') {
-          copy[copy.length - 1] = { role: 'assistant', content: errorTag };
+        const filtered = prev.filter(m => !(m.role === 'assistant' && m.content === ''));
+        if (filtered.length > 0 && filtered[filtered.length - 1].role === 'assistant') {
+          filtered[filtered.length - 1] = { role: 'assistant', content: errorTag };
         } else {
-          copy.push({ role: 'assistant', content: errorTag });
+          filtered.push({ role: 'assistant', content: errorTag });
         }
-        return copy;
+        return filtered;
       });
     } finally {
       clearTimeout(stageTimer1);
@@ -336,16 +434,21 @@ export default function Coach() {
       isLoadingRef.current = false;
       setLoadingStage(0);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- sendToAI intentionally stable
   }, []);
 
   useEffect(() => {
     const p = searchParams.get('peptide');
-    if (p && !autoSentRef.current && user) {
-      autoSentRef.current = true;
-      setIntakeStep('done');
-      sendToAI(`أبغى بروتوكول كامل لـ ${p} — الجرعة، التوقيت، المدة، التحاليل، والتكلفة.`);
-    }
-  }, [searchParams, user, sendToAI]);
+    if (!p || autoSentRef.current || !user || messages.length > 0) return;
+    autoSentRef.current = true;
+    setIntakeStep('done');
+    (async () => {
+      const ctx = await buildUserContext(user.id);
+      userContextRef.current = ctx;
+      const prompt = buildPeptideRequestPrompt(p, intake.goal || intake.experience || intake.injection ? intake : null, ctx);
+      sendToAI(prompt);
+    })();
+  }, [searchParams, user, sendToAI, messages.length, intake]);
 
   const submitIntake = useCallback(() => {
     if (intake.age) {
@@ -369,7 +472,11 @@ export default function Coach() {
     setIntakeStep('goal');
     setIntake({ goal: '', goalLabel: '', experience: '', injection: '', age: '', medications: '' });
     autoSentRef.current = false;
-    try { localStorage.removeItem(storageKey); } catch { /* expected */ }
+    try {
+      localStorage.removeItem(storageKey);
+      sessionStorage.removeItem(`pptides_coach_intake_${user?.id ?? 'anon'}`);
+      sessionStorage.removeItem(stepStorageKey);
+    } catch { /* expected */ }
     setConfirmReset(false);
   };
 
@@ -386,7 +493,7 @@ export default function Coach() {
   const hasAccess = subscription.isProOrTrial;
   const isElite = hasAccess && subscription.tier === 'elite';
   const isTrial = subscription.isTrial;
-  const limit = isElite ? Infinity : hasAccess && !isTrial ? 15 : isTrial ? 5 : 3;
+  const limit = isElite ? Infinity : hasAccess && !isTrial ? 15 : isTrial ? 5 : 5;
 
   hasAccessRef.current = hasAccess;
   const userMsgCount = messages.filter(m => m.role === 'user').length;
@@ -408,7 +515,7 @@ export default function Coach() {
         <meta property="og:url" content={`${SITE_URL}/coach`} />
         <meta property="og:type" content="website" />
         <meta property="og:locale" content="ar_SA" />
-        <meta property="og:image" content="https://pptides.com/og-image.png" />
+        <meta property="og:image" content={`${SITE_URL}/og-image.png`} />
       </Helmet>
       <div className="mx-auto max-w-3xl px-4 py-8 md:px-6 md:py-12">
         <div className="mb-6 flex items-center justify-between">
@@ -424,7 +531,7 @@ export default function Coach() {
             </div>
           </div>
           {intakeStep === 'done' && messages.length === 0 && (
-            <div className="text-xs text-stone-400">جاهز لمساعدتك</div>
+            <div className="text-xs text-stone-500">جاهز لمساعدتك</div>
           )}
           {intakeStep === 'done' && messages.length > 0 && (
             <button onClick={handleResetClick} className={cn('flex items-center gap-1.5 rounded-lg border px-3 py-2 text-xs font-medium transition-colors', confirmReset ? 'border-red-300 bg-red-50 text-red-600 hover:bg-red-100' : 'border-stone-200 bg-white text-stone-600 hover:bg-stone-50')}>
@@ -436,6 +543,14 @@ export default function Coach() {
 
         <div className="rounded-2xl border border-stone-200 bg-white overflow-hidden shadow-sm">
           <div ref={scrollRef} role="log" aria-label="محادثة المدرب الذكي" className="max-h-[65vh] overflow-y-auto p-5 space-y-4 bg-stone-50/50">
+
+            {/* DeepSeek consent — one-time */}
+            {showDeepSeekConsent && (
+              <div className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+                <p className="font-medium">المدرب يستخدم DeepSeek AI لتحليل بياناتك وتقديم النصائح. بالمتابعة توافق على مشاركة بيانات الحقن مع DeepSeek.</p>
+                <button onClick={setConsentGiven} className="mt-2 text-xs font-bold text-amber-700 underline hover:no-underline">أوافق ومتابعة</button>
+              </div>
+            )}
 
             {/* ═══ INTAKE AS CONVERSATION ═══ */}
             {intakeStep !== 'done' && (
@@ -455,7 +570,7 @@ export default function Coach() {
                   {GOALS.map(g => (
                     <button key={g.id} onClick={() => { setIntake(p => ({ ...p, goal: g.id, goalLabel: g.label })); if (intakeStep === 'goal') setIntakeStep('experience'); }}
                       className={cn('flex flex-col items-center gap-1.5 rounded-xl border p-3 text-center transition-all', intake.goal === g.id ? 'border-emerald-400 bg-emerald-50 ring-2 ring-emerald-100' : 'border-stone-200 bg-white hover:border-emerald-300')}>
-                      <g.Icon className={cn('h-5 w-5', intake.goal === g.id ? 'text-emerald-600' : 'text-stone-400')} />
+                      <g.Icon className={cn('h-5 w-5', intake.goal === g.id ? 'text-emerald-600' : 'text-stone-500')} />
                       <span className="text-xs font-bold text-stone-800">{g.label}</span>
                     </button>
                   ))}
@@ -465,7 +580,7 @@ export default function Coach() {
                 {(intakeStep === 'experience' || intakeStep === 'injection' || intakeStep === 'details') && (
                   <>
                     <div className="flex justify-start">
-                      <div className="gold-gradient rounded-2xl rounded-br-md px-5 py-2.5">
+                      <div className="primary-gradient rounded-2xl rounded-br-md px-5 py-2.5">
                         <p className="text-sm font-bold text-white">{intake.goalLabel}</p>
                       </div>
                     </div>
@@ -495,14 +610,14 @@ export default function Coach() {
                 {(intakeStep === 'injection' || intakeStep === 'details') && (
                   <>
                     <div className="flex justify-start">
-                      <div className="gold-gradient rounded-2xl rounded-br-md px-5 py-2.5">
+                      <div className="primary-gradient rounded-2xl rounded-br-md px-5 py-2.5">
                         <p className="text-sm font-bold text-white">{EXPERIENCE_OPTIONS.find(o => o.id === intake.experience)?.label}</p>
                       </div>
                     </div>
                     <div className="flex justify-end animate-fade-up">
                       <div className="max-w-[88%] rounded-2xl rounded-bl-md border border-stone-200 bg-white px-5 py-3">
                         <p className="text-sm text-stone-800">
-                          {intake.experience === 'beginner' ? 'ممتاز، رح أختار لك شي آمن وسهل للبداية.' : intake.experience === 'advanced' ? 'عندك خبرة — رح أعطيك بروتوكول متقدم.' : 'جيد، عندك أساس نبني عليه.'}
+                          {intake.experience === 'beginner' ? 'ممتاز، سأختار لك خيارًا آمنًا وسهلًا للبداية.' : intake.experience === 'advanced' ? 'لديك خبرة — سأقدّم لك بروتوكولًا متقدمًا.' : 'جيد، لديك أساس نبني عليه.'}
                           {' '}<strong>هل تتقبّل الحقن؟</strong>
                         </p>
                       </div>
@@ -528,24 +643,24 @@ export default function Coach() {
                 {intakeStep === 'details' && (
                   <>
                     <div className="flex justify-start">
-                      <div className="gold-gradient rounded-2xl rounded-br-md px-5 py-2.5">
+                      <div className="primary-gradient rounded-2xl rounded-br-md px-5 py-2.5">
                         <p className="text-sm font-bold text-white">{INJECTION_OPTIONS.find(o => o.id === intake.injection)?.label}</p>
                       </div>
                     </div>
                     <div className="flex justify-end animate-fade-up">
                       <div className="max-w-[88%] rounded-2xl rounded-bl-md border border-stone-200 bg-white px-5 py-3">
-                        <p className="text-sm text-stone-800">عندي صورة واضحة الحين. آخر شي — لو تبي تعطيني عمرك أو أي أدوية تأخذها، رح يكون البروتوكول أدق. <strong>أو اضغط "صمّم بروتوكولي" مباشرة.</strong></p>
+                        <p className="text-sm text-stone-800">لدي صورة واضحة الآن. آخر شي — إذا أردت أن تعطيني عمرك أو أي أدوية تتناولها، سيكون البروتوكول أدق. <strong>أو اضغط "صمّم بروتوكولي" مباشرة.</strong></p>
                       </div>
                     </div>
                     <div className="animate-fade-up space-y-3 max-w-[88%]">
                       <div className="grid gap-3 sm:grid-cols-2">
                         <div>
                           <label htmlFor="coach-age" className="mb-1 block text-xs font-medium text-stone-600">العمر تقريبًا</label>
-                          <input id="coach-age" type="number" inputMode="numeric" min={16} max={120} value={intake.age} onChange={e => setIntake(p => ({ ...p, age: e.target.value }))} placeholder="مثال: 32" dir="ltr" className="w-full rounded-xl border border-stone-200 bg-white px-3 py-2.5 text-sm text-stone-900 placeholder:text-stone-400 focus:border-emerald-300 focus:outline-none focus:ring-2 focus:ring-emerald-100" />
+                          <input id="coach-age" type="number" inputMode="numeric" min={16} max={120} value={intake.age} onChange={e => setIntake(p => ({ ...p, age: e.target.value }))} placeholder="مثال: 32" dir="ltr" className="w-full rounded-xl border border-stone-200 bg-white px-3 py-2.5 text-sm text-stone-900 placeholder:text-stone-500 focus:border-emerald-300 focus:outline-none focus:ring-2 focus:ring-emerald-100" />
                         </div>
                         <div>
                           <label htmlFor="coach-medications" className="mb-1 block text-xs font-medium text-stone-600">أدوية أو مكملات حالية</label>
-                          <input id="coach-medications" type="text" value={intake.medications} onChange={e => setIntake(p => ({ ...p, medications: e.target.value }))} placeholder="مثال: فيتامين D، كرياتين" className="w-full rounded-xl border border-stone-200 bg-white px-3 py-2.5 text-sm text-stone-900 placeholder:text-stone-400 focus:border-emerald-300 focus:outline-none focus:ring-2 focus:ring-emerald-100" />
+                          <input id="coach-medications" type="text" value={intake.medications} onChange={e => setIntake(p => ({ ...p, medications: e.target.value }))} placeholder="مثال: فيتامين D، كرياتين" className="w-full rounded-xl border border-stone-200 bg-white px-3 py-2.5 text-sm text-stone-900 placeholder:text-stone-500 focus:border-emerald-300 focus:outline-none focus:ring-2 focus:ring-emerald-100" />
                         </div>
                       </div>
                       <button onClick={submitIntake} disabled={isLoading}
@@ -572,7 +687,7 @@ export default function Coach() {
                       {user?.email?.charAt(0).toUpperCase() ?? ''}
                     </div>
                   )}
-                  <div className={cn('max-w-[88%] rounded-2xl px-5 py-3', msg.role === 'user' ? 'gold-gradient rounded-br-md' : 'rounded-bl-md border border-stone-200 bg-white')}>
+                  <div className={cn('max-w-[88%] rounded-2xl px-5 py-3', msg.role === 'user' ? 'primary-gradient rounded-br-md' : 'rounded-bl-md border border-stone-200 bg-white')}>
                     {msg.role === 'user' ? (
                       <p className="text-sm leading-relaxed whitespace-pre-wrap text-white">{
                         msg.content.startsWith('USER PROFILE')
@@ -584,6 +699,8 @@ export default function Coach() {
                         <p className="mb-2">{
                           msg.content === '__ERROR__:429' ? 'لقد تجاوزت الحد المسموح. حاول بعد قليل.' :
                           msg.content === '__ERROR__:403' ? 'انتهت صلاحية جلستك. أعد تسجيل الدخول.' :
+                          msg.content === '__ERROR__:401' ? 'يرجى تسجيل الدخول أولًا.' :
+                          msg.content === '__ERROR__:500' ? 'خطأ في الخادم حاليًا. جرّب لاحقًا أو تواصل معنا.' :
                           'لم نتمكّن من إيصال سؤالك للمدرب. تحقق من اتصالك بالإنترنت وحاول مرة أخرى.'
                         }</p>
                         <button
@@ -613,7 +730,7 @@ export default function Coach() {
                   </div>
                 </div>
                 {msg.role === 'assistant' && !msg.content.startsWith('__ERROR') && (
-                  <p className="mt-1 text-[11px] text-stone-400 text-end max-w-[88%] ms-auto">محتوى تعليمي — استشر طبيبك</p>
+                  <p className="mt-1 text-[11px] text-stone-500 text-end max-w-[88%] ms-auto">محتوى تعليمي — استشر طبيبك</p>
                 )}
                 {/* Action pills: for non-last messages, show Copy + WhatsApp only */}
                 {msg.role === 'assistant' && !isLoading && msg.content.length > 50 && i !== messages.length - 1 && (
@@ -626,7 +743,7 @@ export default function Coach() {
                           toast.success('تم النسخ');
                           setTimeout(() => setCopiedIdx(null), 2000);
                         } catch {
-                          toast.error('تعذّر النسخ');
+                          toast.error('تعذّر نسخ المحتوى إلى الحافظة');
                         }
                       }}
                       className="inline-flex items-center gap-1 rounded-lg border border-stone-200 bg-white px-3 py-1.5 text-xs font-medium text-stone-500 transition-colors hover:bg-stone-50 hover:text-stone-700"
@@ -638,10 +755,11 @@ export default function Coach() {
                       onClick={() => {
                         const printWindow = window.open('', '_blank');
                         if (printWindow) {
+                          const sanitized = DOMPurify.sanitize(msg.content.replace(/\n/g, '<br>'));
                           printWindow.document.write(`
                             <html dir="rtl"><head><title>بروتوكول pptides</title>
                             <style>body{font-family:Arial;padding:40px;line-height:1.8;}</style></head>
-                            <body>${msg.content.replace(/\n/g, '<br>')}</body></html>
+                            <body>${sanitized}</body></html>
                           `);
                           printWindow.document.close();
                           printWindow.print();
@@ -675,7 +793,7 @@ export default function Coach() {
                             toast.success('تم النسخ');
                             setTimeout(() => setCopiedIdx(null), 2000);
                           } catch {
-                            toast.error('تعذّر النسخ');
+                            toast.error('تعذّر نسخ المحتوى إلى الحافظة');
                           }
                         }}
                         className="inline-flex items-center gap-1 rounded-lg border border-stone-200 bg-white px-3 py-1.5 text-xs font-medium text-stone-500 transition-colors hover:bg-stone-50 hover:text-stone-700"
@@ -687,10 +805,11 @@ export default function Coach() {
                         onClick={() => {
                           const printWindow = window.open('', '_blank');
                           if (printWindow) {
+                            const sanitized = DOMPurify.sanitize(msg.content.replace(/\n/g, '<br>'));
                             printWindow.document.write(`
                               <html dir="rtl"><head><title>بروتوكول pptides</title>
                               <style>body{font-family:Arial;padding:40px;line-height:1.8;}</style></head>
-                              <body>${msg.content.replace(/\n/g, '<br>')}</body></html>
+                              <body>${sanitized}</body></html>
                             `);
                             printWindow.document.close();
                             printWindow.print();
@@ -774,10 +893,43 @@ export default function Coach() {
                   <Sparkles className="mx-auto mb-2 h-6 w-6 text-emerald-600" />
                   <p className="font-bold text-stone-900">{hasAccess ? 'وصلت حد الأسئلة لهذه الجلسة' : 'أعجبتك الاستشارة؟'}</p>
                   <p className="mt-1 text-sm text-stone-600">{!isElite && (hasAccess ? 'ترقَّ إلى Elite لاستشارات بلا حدود.' : 'اشترك للحصول على استشارات مخصّصة.')}</p>
-                  {!isElite && <button onClick={() => hasAccess ? upgradeTo('elite') : navigate('/pricing')} className="mt-3 rounded-full bg-emerald-600 px-8 py-2.5 text-sm font-bold text-white transition-colors hover:bg-emerald-700">{hasAccess ? 'ترقَّ إلى Elite' : 'اشترك الآن'}</button>}
+                  {!isElite && <button onClick={async () => { try { if (hasAccess) await upgradeTo('elite'); else navigate('/pricing'); } catch { /* non-blocking */ } }} className="mt-3 rounded-full bg-emerald-600 px-8 py-2.5 text-sm font-bold text-white transition-colors hover:bg-emerald-700">{hasAccess ? 'ترقَّ إلى Elite' : 'اشترك الآن'}</button>}
                 </div>
               ) : (
                 <>
+                  {/* Value preview — when messages empty (first visit) */}
+                  {messages.length === 0 && !isLoading && (
+                    <div className="mb-6 rounded-2xl border border-emerald-200 bg-emerald-50/50 p-5">
+                      <h3 className="text-base font-bold text-stone-900 mb-3">المدرب الذكي — مثال على محادثة</h3>
+                      <div className="space-y-3 mb-4">
+                        <div className="flex justify-start">
+                          <div className="primary-gradient rounded-2xl rounded-br-md px-4 py-2.5 max-w-[85%]">
+                            <p className="text-sm font-bold text-white">أريد بروتوكول BPC-157 للتعافي من إصابة</p>
+                          </div>
+                        </div>
+                        <div className="flex justify-end">
+                          <div className="rounded-2xl rounded-bl-md border border-stone-200 bg-white px-4 py-3 max-w-[85%]">
+                            <p className="text-sm text-stone-800 leading-relaxed">
+                              ممتاز — BPC-157 مثالي للتعافي. البروتوكول: 250–500 mcg يوميًا تحت الجلد، 4–6 أسابيع. حقن في البطن أو الفخذ، دوّر المواقع. يفضّل على معدة فارغة لامتصاص أفضل...
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                      <p className="text-xs font-bold text-stone-600 mb-2">جرّب هذه الأسئلة:</p>
+                      <div className="flex flex-wrap gap-1.5">
+                        {COACH_PREVIEW_SAMPLE_QS.map(q => (
+                          <button
+                            key={q}
+                            onClick={() => sendToAI(q)}
+                            disabled={isLoading}
+                            className={cn("rounded-full border border-emerald-200 bg-white px-3 py-1.5 min-h-[44px] text-xs font-medium text-emerald-700 transition-colors hover:bg-emerald-50", isLoading && "opacity-50 cursor-not-allowed")}
+                          >
+                            {q}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                   {followUps.length > 0 && !isLoading && userMsgCount > 0 && (
                     <div className="mb-3 flex flex-wrap gap-1.5 justify-center">
                       {followUps.map(q => (
@@ -786,15 +938,15 @@ export default function Coach() {
                     </div>
                   )}
                   {!isElite && userMsgCount > 0 && limit - userMsgCount > 0 && (
-                    <p className="mb-2 text-center text-xs text-stone-400">{arPlural(limit - userMsgCount, 'سؤال متبقي', 'سؤالان متبقيان', 'أسئلة متبقية')}</p>
+                    <p className="mb-2 text-center text-xs text-stone-500">{arPlural(limit - userMsgCount, 'سؤال متبقي', 'سؤالان متبقيان', 'أسئلة متبقية')}</p>
                   )}
                   <div className="flex items-end gap-3">
                     <textarea value={input} onChange={e => setInput(e.target.value)}
                       onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendToAI(input); } }}
                       onInput={e => { const t = e.currentTarget; t.style.height = 'auto'; t.style.height = Math.min(t.scrollHeight, 120) + 'px'; }}
-                      placeholder="اسأل المزيد عن البروتوكول..." rows={1} disabled={isLoading}
+                      placeholder="اسأل المزيد عن البروتوكول..." rows={1} maxLength={2000} disabled={isLoading}
                       aria-label="اكتب رسالتك"
-                      className={cn('flex-1 resize-none rounded-xl border border-stone-200 bg-stone-50 px-4 py-3 text-sm text-stone-900 placeholder:text-stone-400 focus:border-emerald-300 focus:outline-none focus:ring-2 focus:ring-emerald-100', isLoading && 'opacity-60')} />
+                      className={cn('flex-1 resize-none rounded-xl border border-stone-200 bg-stone-50 px-4 py-3 text-sm text-stone-900 placeholder:text-stone-500 focus:border-emerald-300 focus:outline-none focus:ring-2 focus:ring-emerald-100', isLoading && 'opacity-60')} />
                     <button onClick={() => sendToAI(input)} disabled={!input.trim() || isLoading}
                       className={cn('flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-emerald-600 transition-all', input.trim() && !isLoading ? 'hover:bg-emerald-700 active:scale-[0.98]' : 'opacity-40')}>
                       <Send className="h-5 w-5 text-white" /><span className="sr-only">إرسال</span>
@@ -806,7 +958,7 @@ export default function Coach() {
           )}
         </div>
 
-        <p className="mt-4 text-center text-xs text-stone-400">محتوى تعليمي بحثي — استشر طبيبك قبل استخدام أي ببتيد</p>
+        <p className="mt-4 text-center text-xs text-stone-500">محتوى تعليمي بحثي — استشر طبيبك قبل استخدام أي ببتيد</p>
       </div>
       {protocolWizardPeptide && (
         <ProtocolWizard peptideId={protocolWizardPeptide} onClose={() => setProtocolWizardPeptide(null)} />

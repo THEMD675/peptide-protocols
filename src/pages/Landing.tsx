@@ -25,7 +25,7 @@ import {
 import EmailCapture from '@/components/EmailCapture';
 import PeptideQuiz from '@/components/PeptideQuiz';
 import { cn } from '@/lib/utils';
-import { PRICING, PEPTIDE_COUNT, VALUE_TOTAL, VALUE_SAVINGS_ESSENTIALS, VALUE_STACK, SITE_URL, SUPPORT_EMAIL } from '@/lib/constants';
+import { PRICING, PEPTIDE_COUNT, PUBMED_SOURCE_LABEL, VALUE_TOTAL, VALUE_SAVINGS_ESSENTIALS, VALUE_STACK, SITE_URL, SUPPORT_EMAIL, STORAGE_KEYS, TRIAL_DAYS } from '@/lib/constants';
 
 
 const PAIN_POINTS = [
@@ -59,7 +59,7 @@ const FEATURES = [
   },
   {
     icon: BookOpen,
-    title: 'دليل عملي بالصور',
+    title: 'دليل عملي للتحضير والحقن',
     description: 'من فتح القارورة إلى الحقن — كل خطوة موثّقة بمواقع الحقن وقواعد التخزين.',
   },
   {
@@ -73,7 +73,7 @@ const STATS_BAR = [
   { value: `${PEPTIDE_COUNT}+`, label: 'ببتيد علاجي', sub: 'بروتوكولات كاملة' },
   { value: '6', label: 'فئات متخصصة', sub: 'من الأيض للدماغ' },
   { value: '11', label: 'تحليل مخبري', sub: 'قبل وأثناء وبعد' },
-  { value: '85+', label: 'مصدر علمي', sub: 'دراسات سريرية' },
+  { value: PUBMED_SOURCE_LABEL, label: 'مصدر علمي', sub: 'دراسات سريرية' },
   { value: '24/7', label: 'مدرب ذكي', sub: 'إجابات فورية' },
 ];
 
@@ -86,7 +86,7 @@ const SOLUTION_CHECKS = [
 
 const HOW_IT_WORKS_STEPS = [
   { num: '01', title: 'سجّل حسابك', desc: 'بريد إلكتروني وكلمة مرور. 10 ثوانٍ.' },
-  { num: '02', title: 'جرّب 3 أيام مجانًا', desc: 'تصفّح المكتبة واكتشف ما يناسبك.' },
+  { num: '02', title: `جرّب ${TRIAL_DAYS} أيام مجانًا`, desc: 'تصفّح المكتبة واكتشف ما يناسبك.' },
   { num: '03', title: 'اشترك واستفد', desc: 'اختر خطتك وابدأ رحلتك بثقة.' },
 ];
 
@@ -100,7 +100,10 @@ interface Testimonial {
 export default function Landing() {
   const { user, subscription, isLoading } = useAuth();
   const [userCount, setUserCount] = useState(() => {
-    try { const c = sessionStorage.getItem('pptides_user_count'); return c ? Number(c) : 0; } catch { return 0; }
+    try {
+      const c = localStorage.getItem(STORAGE_KEYS.USER_COUNT) ?? sessionStorage.getItem('pptides_user_count');
+      return c ? Number(c) : 0;
+    } catch { return 0; }
   });
   const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
   const shouldRedirect = !isLoading && user && subscription.isProOrTrial;
@@ -120,7 +123,7 @@ export default function Landing() {
   useEffect(() => {
     let mounted = true;
     let cached: string | null = null;
-    try { cached = sessionStorage.getItem('pptides_user_count_ts'); } catch { /* Safari private */ }
+    try { cached = sessionStorage.getItem(STORAGE_KEYS.USER_COUNT_TS) ?? sessionStorage.getItem('pptides_user_count_ts'); } catch { /* Safari private */ }
     const cacheValid = cached && Date.now() - Number(cached) < 5 * 60 * 1000;
     Promise.all([
       cacheValid ? Promise.resolve({ count: null, error: null }) : supabase.from('subscriptions').select('id', { count: 'exact', head: true }).in('status', ['active', 'trial']).not('stripe_subscription_id', 'is', null),
@@ -129,7 +132,19 @@ export default function Landing() {
       if (!mounted) return;
       if (!subsResult.error && subsResult.count != null && subsResult.count > 0) {
         setUserCount(subsResult.count);
-        try { sessionStorage.setItem('pptides_user_count', String(subsResult.count)); sessionStorage.setItem('pptides_user_count_ts', String(Date.now())); } catch { /* expected */ }
+        try {
+          localStorage.setItem(STORAGE_KEYS.USER_COUNT, String(subsResult.count));
+          localStorage.setItem(STORAGE_KEYS.USER_COUNT_TS, String(Date.now()));
+          sessionStorage.setItem('pptides_user_count', String(subsResult.count));
+          sessionStorage.setItem('pptides_user_count_ts', String(Date.now()));
+        } catch { /* expected */ }
+      } else if (subsResult.error) {
+        try {
+          const cachedCount = localStorage.getItem(STORAGE_KEYS.USER_COUNT);
+          setUserCount(Math.max(Number(cachedCount) || 0, 500));
+        } catch {
+          setUserCount(500);
+        }
       }
       if (!reviewsResult.error && reviewsResult.data && reviewsResult.data.length > 0) {
         setTestimonials(reviewsResult.data.map((r) => ({
@@ -208,7 +223,7 @@ export default function Landing() {
           <div className="mt-8 flex flex-wrap items-center justify-center gap-4 sm:gap-6">
             <span className="flex items-center gap-2 text-sm font-medium text-stone-700">
               <CreditCard className="h-4 w-4 text-emerald-600" />
-              تجربة 3 أيام مجانية
+              تجربة {TRIAL_DAYS} أيام مجانية
             </span>
             <span className="h-5 w-px bg-stone-300/80" />
             <span className="flex items-center gap-2 text-sm font-medium text-stone-700">
@@ -322,13 +337,13 @@ export default function Landing() {
                 'حاسبة جرعات لا تخطئ': '/calculator',
                 'دليل تحاليل يحميك': '/lab-guide',
                 'بروتوكولات مُجمَّعة جاهزة': '/stacks',
-                'دليل عملي بالصور': '/guide',
+                'دليل عملي للتحضير والحقن': '/guide',
                 'مبني على الأبحاث': '/sources',
               };
               const href = links[f.title];
               const Card = (
                 <div
-                  className="group rounded-2xl border border-stone-300/60 bg-white p-7 transition-all duration-300 hover:-translate-y-1 hover:border-emerald-200 hover:shadow-lg cursor-pointer"
+                  className="group rounded-2xl border border-stone-300/60 bg-white p-7 card-hover hover:border-emerald-200 cursor-pointer"
                 >
                   <div className="mb-5 inline-flex h-12 w-12 items-center justify-center rounded-xl bg-emerald-600 text-white shadow-md shadow-emerald-600/20">
                     <f.icon className="h-6 w-6" />
@@ -516,6 +531,14 @@ export default function Landing() {
           <p className="text-3xl font-black text-emerald-600 sm:text-5xl md:text-6xl">{PRICING.essentials.label}<span className="text-xl font-bold text-stone-800">/شهريًا</span></p>
           <span className="mt-3 inline-block rounded-full bg-emerald-600 px-5 py-1.5 text-sm font-bold text-white shadow-md">توفير 97% — وفّر {VALUE_SAVINGS_ESSENTIALS} شهريًا</span>
           <p className="mt-4 text-sm text-stone-800">أو {PRICING.elite.label}/شهريًا للباقة المتقدمة مع المدرب الذكي + استشارات</p>
+          <div className="mt-6 flex flex-col sm:flex-row items-center justify-center gap-3 text-sm">
+            <span className="flex items-center gap-1.5 rounded-full bg-red-50 border border-red-200 px-4 py-2 font-bold text-red-700">
+              <Zap className="h-4 w-4" /> السعر الحالي لفترة محدودة
+            </span>
+            <span className="flex items-center gap-1.5 rounded-full bg-amber-50 border border-amber-200 px-4 py-2 font-bold text-amber-700">
+              <Shield className="h-4 w-4" /> ضمان استرداد كامل — بدون مخاطرة
+            </span>
+          </div>
         </div>
       </section>
 
@@ -553,7 +576,7 @@ export default function Landing() {
           ماذا يقول <span className="text-emerald-600">المستخدمون</span>
         </h2>
         <p className="mx-auto mb-12 max-w-xl text-center text-stone-800">
-          تقييمات حقيقية من مشتركين
+          {userCount > 0 ? `انضم لـ ${userCount}+ مستخدم` : 'شارك تجربتك مع المجتمع'}
         </p>
 
         {testimonials.length > 0 ? (
@@ -577,7 +600,7 @@ export default function Landing() {
           <div className="grid gap-6 sm:grid-cols-3">
             {[
               { value: `${PEPTIDE_COUNT}+`, label: 'بروتوكول كامل', desc: 'كل ببتيد مع جرعة ودورة وأعراض' },
-              { value: '85+', label: 'مصدر علمي', desc: 'دراسات سريرية منشورة' },
+              { value: PUBMED_SOURCE_LABEL, label: 'مصدر علمي', desc: 'دراسات سريرية منشورة' },
               { value: '6', label: 'معتمد FDA', desc: 'ببتيدات موثّقة ومعتمدة' },
             ].map((m) => (
               <div key={m.label} className="rounded-2xl border border-stone-300/60 bg-white p-7 text-center transition-all hover:border-emerald-200 hover:shadow-lg">
@@ -595,14 +618,14 @@ export default function Landing() {
         <div className="mx-auto max-w-5xl px-6">
           <div className="mb-6 text-center">
             <span className="inline-block rounded-full bg-emerald-100 px-4 py-1.5 text-sm font-bold text-emerald-700">
-              ابدأ بتجربة 3 أيام مجانية
+              ابدأ بتجربة {TRIAL_DAYS} أيام مجانية
             </span>
           </div>
           <h2 className="mb-4 text-center text-3xl font-bold text-stone-900 md:text-4xl lg:text-5xl">
             اختر <span className="text-emerald-600">خطتك</span>
           </h2>
           <p className="mx-auto mb-14 max-w-lg text-center text-lg text-stone-800">
-            ابدأ بتجربة 3 أيام مجانية مع كل اشتراك.
+            ابدأ بتجربة {TRIAL_DAYS} أيام مجانية مع كل اشتراك.
           </p>
 
           <div className="grid gap-8 md:grid-cols-2">
@@ -659,7 +682,7 @@ export default function Landing() {
                   'مدرب ذكي بالذكاء الاصطناعي 24/7',
                   'بروتوكولات مخصّصة لأهدافك',
                   'استشارات بلا حدود',
-                  'دعم أولوية — رد خلال ساعات',
+                  'دعم مخصّص عبر البريد',
                 ].map((f) => (
                   <li key={f} className="flex items-start gap-3 text-sm text-stone-800">
                     <Check className="mt-0.5 h-4 w-4 shrink-0 text-emerald-600" />
@@ -678,7 +701,7 @@ export default function Landing() {
 
           <div className="mt-8 flex flex-wrap items-center justify-center gap-6 text-sm text-stone-800">
             <span className="flex items-center gap-2"><Lock className="h-4 w-4" /> دفع آمن ومشفّر</span>
-            <span className="flex items-center gap-2"><Shield className="h-4 w-4" /> ضمان استرداد 3 أيام</span>
+            <span className="flex items-center gap-2"><Shield className="h-4 w-4" /> ضمان استرداد كامل خلال {TRIAL_DAYS} أيام — تواصل معنا</span>
             <span className="flex items-center gap-2"><CreditCard className="h-4 w-4" /> Visa, Mastercard, Apple Pay</span>
           </div>
         </div>
@@ -698,7 +721,7 @@ export default function Landing() {
               ضمان <span className="text-emerald-600">بدون مخاطرة</span>
             </h2>
             <p className="mx-auto mb-6 max-w-xl text-lg leading-relaxed text-stone-800">
-              جرّب لمدة 3 أيام كاملة. إذا لم تجد قيمة حقيقية — تواصل معنا واسترد أموالك بالكامل.
+              جرّب لمدة {TRIAL_DAYS} أيام كاملة. إذا لم تجد قيمة حقيقية — تواصل معنا واسترد أموالك بالكامل.
               <strong className="text-stone-900"> بدون أسئلة. بدون شروط.</strong>
             </p>
             <p className="text-sm text-stone-800">
@@ -724,7 +747,7 @@ export default function Landing() {
             { q: 'هل أحتاج وصفة طبية؟', a: 'للببتيدات المعتمدة من FDA (Semaglutide, Tirzepatide) نعم. للببتيدات البحثية (BPC-157, TB-500) عادة لا. ننصح دائمًا باستشارة طبيبك قبل البدء.' },
             { q: 'من أين أشتري الببتيدات؟', a: 'ابحث عن مورّد يوفّر شهادة تحليل (COA) من طرف ثالث، نقاء 98%+ ، وشحن مبرّد. اطّلع على صفحة المصادر لمعايير الاختيار.' },
             { q: 'هل الببتيدات حلال؟', a: 'معظم الببتيدات العلاجية مصنّعة كيميائيًا ولا تحتوي مكونات حيوانية. ببتيدات الكولاجين قد تكون مشتقة من مصادر بحرية أو حيوانية — تحقق من المصدر.' },
-            { q: 'كيف ألغي اشتراكي؟', a: 'يمكنك إلغاء اشتراكك في أي وقت من صفحة الحساب. تحتفظ بالوصول حتى نهاية فترة الدفع الحالية. ضمان استرداد كامل خلال 3 أيام.' },
+            { q: 'كيف ألغي اشتراكي؟', a: `يمكنك إلغاء اشتراكك في أي وقت من صفحة الحساب. تحتفظ بالوصول حتى نهاية فترة الدفع الحالية. ضمان استرداد كامل خلال ${TRIAL_DAYS} أيام.` },
             { q: 'هل الدفع آمن؟', a: 'نستخدم Stripe — أكبر منصة دفع في العالم. بياناتك مشفّرة ولا نحفظ بيانات بطاقتك. ندعم Visa و Mastercard و Apple Pay.' },
             { q: '6 ببتيدات مجانية — بدون تسجيل؟', a: 'نعم! 6 ببتيد مع بروتوكول كامل متاح مجانًا بدون إنشاء حساب. جرّبها الآن من المكتبة.' },
             { q: 'ماذا أحصل بعد الاشتراك؟', a: `بروتوكولات كاملة لـ ${PEPTIDE_COUNT} ببتيد، حاسبة جرعات دقيقة، دليل تحاليل مخبرية، بروتوكولات مُجمَّعة، دليل حقن عملي، فحص تعارضات، ومدرب ذكي (في باقة Elite).` },
@@ -732,7 +755,7 @@ export default function Landing() {
             <details key={faq.q} className="group rounded-2xl border border-stone-200 bg-white transition-all hover:border-emerald-200">
               <summary className="flex cursor-pointer items-center justify-between px-6 py-5 text-base font-bold text-stone-900 [&::-webkit-details-marker]:hidden">
                 {faq.q}
-                <ChevronDown className="h-4 w-4 shrink-0 text-stone-400 transition-transform group-open:rotate-180" />
+                <ChevronDown className="h-4 w-4 shrink-0 text-stone-500 transition-transform group-open:rotate-180" />
               </summary>
               <p className="px-6 pb-5 text-sm leading-relaxed text-stone-700">{faq.a}</p>
             </details>
@@ -772,7 +795,8 @@ export default function Landing() {
             <span>{user ? "اشترك الآن" : "ابدأ تجربتك المجانية"}</span>
             <ArrowLeft className="h-5 w-5" />
           </Link>
-          <p className="mt-4 text-sm text-stone-800">3 أيام مجانًا — إلغاء في أي وقت — ضمان استرداد كامل</p>
+          <p className="mt-4 text-sm text-stone-800">{TRIAL_DAYS} أيام مجانًا — إلغاء في أي وقت — ضمان استرداد كامل</p>
+          <p className="mt-2 text-xs font-bold text-red-600">السعر الحالي لن يستمر — ابدأ الآن قبل الزيادة</p>
         </div>
       </section>
     </div>

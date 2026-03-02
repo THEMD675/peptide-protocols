@@ -6,7 +6,7 @@ import ProtocolWizard from '@/components/ProtocolWizard';
 import { peptides as allPeptides } from '@/data/peptides';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
-import { PEPTIDE_COUNT, SITE_URL } from '@/lib/constants';
+import { PEPTIDE_COUNT, SITE_URL, USD_TO_SAR } from '@/lib/constants';
 import { DOSE_PRESETS as PEPTIDE_PRESETS_DATA, type DoseUnit } from '@/data/dose-presets';
 
 interface SyringeOption {
@@ -193,9 +193,18 @@ function SyringeVisual({
 
 /* ─────────────── Main Component ─────────────── */
 
-const PEPTIDE_PRESETS = PEPTIDE_PRESETS_DATA.map(p => ({
-  name: p.name, dose: p.dose, unit: p.unit, vial: p.vialMg, water: p.waterMl, minDose: p.minDose, maxDose: p.maxDose,
-}));
+const EXCLUDED_PEPTIDE_IDS = new Set(['melanotan-ii']);
+
+const PEPTIDE_PRESETS = PEPTIDE_PRESETS_DATA
+  .filter(p => {
+    const match = allPeptides.find(
+      pep => pep.nameEn === p.name || pep.nameEn.startsWith(p.name + ' ') || pep.nameEn.startsWith(p.name + '/'),
+    );
+    return !match || !EXCLUDED_PEPTIDE_IDS.has(match.id);
+  })
+  .map(p => ({
+    name: p.name, dose: p.dose, unit: p.unit, vial: p.vialMg, water: p.waterMl, minDose: p.minDose, maxDose: p.maxDose,
+  }));
 
 const POPULAR_PRESET_COUNT = 8;
 
@@ -311,7 +320,7 @@ export default function DoseCalculator() {
         <meta property="og:url" content={`${SITE_URL}/calculator`} />
         <meta property="og:type" content="website" />
         <meta property="og:locale" content="ar_SA" />
-        <meta property="og:image" content="https://pptides.com/og-image.png" />
+        <meta property="og:image" content={`${SITE_URL}/og-image.png`} />
       </Helmet>
 
       <div className="mx-auto max-w-4xl px-4 py-8 md:px-6 md:py-12">
@@ -336,7 +345,7 @@ export default function DoseCalculator() {
         <div className="mb-6">
           <label className="mb-2 block text-sm font-bold text-stone-900 text-center">اختر الببتيد لتعبئة القيم تلقائيًا</label>
           <div className="mb-3 relative">
-            <Search className="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-stone-500" />
+            <Search className="absolute end-3 top-1/2 h-4 w-4 -translate-y-1/2 text-stone-500" />
             <input
               type="text"
               value={presetSearch}
@@ -557,7 +566,7 @@ export default function DoseCalculator() {
               </div>
             </div>
             <div className="space-y-2">
-              <label htmlFor="calc-vial-price" className="block text-sm font-medium text-stone-800">سعر القارورة ($) <span className="text-xs text-emerald-600 font-normal me-1">اختياري</span></label>
+              <label htmlFor="calc-vial-price" className="block text-sm font-medium text-stone-800">سعر القارورة (ر.س) <span className="text-xs text-emerald-600 font-normal me-1">اختياري</span></label>
               <input id="calc-vial-price" type="number" inputMode="decimal" min={0} step={5} value={vialPrice || ''} onChange={e => setVialPrice(Number(e.target.value))} placeholder="مثال: 40"
                 className="w-full rounded-xl border border-stone-300 bg-stone-50 px-4 py-3 text-base text-stone-900 placeholder:text-stone-500 focus:border-emerald-300 focus:outline-none focus:ring-1 focus:ring-emerald-100" />
             </div>
@@ -693,7 +702,7 @@ export default function DoseCalculator() {
                 </p>
                 {results.monthlyCost > 0 ? (
                   <p className="text-xs font-bold text-emerald-600 mt-1">
-                    ~<span dir="ltr">${Math.round(results.monthlyCost)}</span>/شهر
+                    ~{Math.round(results.monthlyCost * USD_TO_SAR)} ر.س/شهر
                   </p>
                 ) : (
                   <p className="text-xs text-stone-500 mt-1">

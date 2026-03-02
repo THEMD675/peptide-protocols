@@ -1,4 +1,4 @@
-import { useState, useEffect, type ElementType } from 'react';
+import { useState, type ElementType } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowLeft, ArrowRight, CheckCircle, FlaskConical, TrendingDown, Heart, Brain, Zap, Clock, Shield, Syringe, Pill, SprayCan, Dumbbell, Calculator } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -104,19 +104,16 @@ export default function PeptideQuiz() {
   const [step, setStep] = useState(0);
   const [answers, setAnswers] = useState<string[]>([]);
   const [showResult, setShowResult] = useState(false);
-  const [hasPreviousResult, setHasPreviousResult] = useState(false);
-
-  useEffect(() => {
+  const [hasPreviousResult] = useState(() => {
     try {
       const saved = localStorage.getItem('pptides_quiz_answers');
       if (saved) {
         const data = JSON.parse(saved);
-        if (data.goal && data.experience && data.injection) {
-          setHasPreviousResult(true);
-        }
+        return !!(data.goal && data.experience && data.injection);
       }
     } catch { /* expected */ }
-  }, []);
+    return false;
+  });
 
   const loadPreviousResult = () => {
     try {
@@ -279,7 +276,7 @@ export default function PeptideQuiz() {
                   : 'border-stone-200 bg-white text-stone-800 hover:border-emerald-300 transition-colors hover:bg-stone-50'
               )}
             >
-              {Icon && <Icon className={cn('h-5 w-5', answers[step] === opt.id ? 'text-emerald-600' : 'text-stone-400')} />}
+              {Icon && <Icon className={cn('h-5 w-5', answers[step] === opt.id ? 'text-emerald-600' : 'text-stone-500')} />}
               <span className="text-sm font-bold">{opt.label}</span>
             </button>
           );
@@ -290,7 +287,7 @@ export default function PeptideQuiz() {
           عرض نتائجك السابقة
         </button>
       )}
-      <Link to="/library" className="mt-4 block text-center text-sm text-stone-400 hover:text-stone-600 transition-colors">
+      <Link to="/library" className="mt-4 block text-center text-sm text-stone-500 hover:text-stone-600 transition-colors">
         تخطّي — تصفّح المكتبة مباشرة
       </Link>
     </div>

@@ -19,6 +19,15 @@ export const evidenceLabels: Record<string, string> = {
   'very-weak': 'ضعيف جدًا',
 };
 
+export const evidenceDescriptions: Record<string, string> = {
+  excellent: 'ممتاز — تجارب سريرية كبرى + اعتماد FDA',
+  strong: 'قوي — تجارب بشرية متعددة',
+  good: 'جيد — دراسات بشرية محدودة',
+  moderate: 'متوسط — دراسات حيوانية + تقارير بشرية',
+  weak: 'ضعيف — دراسات حيوانية فقط',
+  'very-weak': 'ضعيف جدًا — بيانات أولية محدودة',
+};
+
 export const evidenceOrder: Record<string, number> = { excellent: 0, strong: 1, good: 2, moderate: 3, weak: 4, 'very-weak': 5 };
 
 export const categoryLabels: Record<string, string> = {

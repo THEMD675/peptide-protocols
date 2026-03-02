@@ -7,23 +7,14 @@ const stripe = new Stripe(stripeKey, { apiVersion: '2023-10-16' })
 const supabaseUrl = Deno.env.get('SUPABASE_URL') ?? ''
 const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
 
-const IS_PRODUCTION = !Deno.env.get('DENO_DEV')
-const ALLOWED_ORIGINS = IS_PRODUCTION
-  ? ['https://pptides.com']
-  : ['https://pptides.com', 'http://localhost:3000', 'http://localhost:3001']
+import { getCorsHeaders, handleCorsPreflightIfOptions } from '../_shared/cors.ts'
+import { checkRateLimit } from '../_shared/rate-limit.ts'
 
 serve(async (req) => {
-  const origin = req.headers.get('origin') ?? ''
-  const allowedOrigin = ALLOWED_ORIGINS.includes(origin) ? origin : ''
-  const corsHeaders = {
-    'Access-Control-Allow-Origin': allowedOrigin || ALLOWED_ORIGINS[0],
-    'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-    'Access-Control-Allow-Methods': 'POST, OPTIONS',
-  }
+  const preflight = handleCorsPreflightIfOptions(req)
+  if (preflight) return preflight
 
-  if (req.method === 'OPTIONS') return new Response('ok', { headers: corsHeaders })
-
-  if (!allowedOrigin) return new Response(JSON.stringify({ error: 'Forbidden' }), { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } })
+  const corsHeaders = getCorsHeaders(req)
 
   if (req.method !== 'POST') {
     return new Response(JSON.stringify({ error: 'Method not allowed' }), {
@@ -57,6 +48,20 @@ serve(async (req) => {
       console.error('delete-account auth failed:', authError?.message ?? 'no user')
       return new Response(JSON.stringify({ error: 'Unauthorized' }), {
         status: 401,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      })
+    }
+
+    // Rate limit: 2 delete attempts per hour per user
+    const allowed = await checkRateLimit(supabase, {
+      endpoint: 'delete-account',
+      identifier: user.id,
+      windowSeconds: 3600,
+      maxRequests: 2,
+    })
+    if (!allowed) {
+      return new Response(JSON.stringify({ error: 'محاولات كثيرة — انتظر ساعة وحاول مرة أخرى' }), {
+        status: 429,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       })
     }
@@ -98,37 +103,17 @@ serve(async (req) => {
       console.error('delete-account: STRIPE_SECRET_KEY missing, skipping Stripe cleanup')
     }
 
-    const { error: subDelErr } = await supabase.from('subscriptions').delete().eq('user_id', user.id)
-    if (subDelErr) console.error('delete-account: failed to delete subscriptions row:', subDelErr)
-
-    const { error: logDelErr } = await supabase.from('injection_logs').delete().eq('user_id', user.id)
-    if (logDelErr) console.error('delete-account: failed to delete injection_logs:', logDelErr)
-
-    const { error: commDelErr } = await supabase.from('community_logs').delete().eq('user_id', user.id)
-    if (commDelErr) console.error('delete-account: failed to delete community_logs:', commDelErr)
-
-    const { error: revDelErr } = await supabase.from('reviews').delete().eq('user_id', user.id)
-    if (revDelErr) console.error('delete-account: failed to delete reviews:', revDelErr)
-
-    const { error: reportsDelErr } = await supabase.from('reports').delete().eq('user_id', user.id)
-    if (reportsDelErr) console.error('delete-account: failed to delete reports:', reportsDelErr)
-
-    const { error: aiDelErr } = await supabase.from('ai_coach_requests').delete().eq('user_id', user.id)
-    if (aiDelErr) console.error('delete-account: failed to delete ai_coach_requests:', aiDelErr)
-
-    const { error: reminderDelErr } = await supabase.from('sent_reminders').delete().eq('user_id', user.id)
-    if (reminderDelErr) console.error('delete-account: failed to delete sent_reminders:', reminderDelErr)
-
-    if (user.email) {
-      const { error: emailListDelErr } = await supabase.from('email_list').delete().eq('email', user.email)
-      if (emailListDelErr) console.error('delete-account: failed to delete email_list:', emailListDelErr)
+    const { error: rpcErr } = await supabase.rpc('delete_user_data', {
+      p_user_id: user.id,
+      p_user_email: user.email ?? null,
+    })
+    if (rpcErr) {
+      console.error('delete-account: RPC delete_user_data failed:', rpcErr)
+      return new Response(JSON.stringify({
+        error: 'حذف البيانات فشل. تواصل معنا لإكمال الحذف.',
+        support: 'contact@pptides.com',
+      }), { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } })
     }
-
-    await supabase.from('user_protocols').delete().eq('user_id', user.id).catch(() => {})
-    await supabase.from('user_profiles').delete().eq('user_id', user.id).catch(() => {})
-    await supabase.from('lab_results').delete().eq('user_id', user.id).catch(() => {})
-    await supabase.from('side_effect_logs').delete().eq('user_id', user.id).catch(() => {})
-    await supabase.from('wellness_logs').delete().eq('user_id', user.id).catch(() => {})
 
     const { error: deleteError } = await supabase.auth.admin.deleteUser(user.id)
     if (deleteError) {
@@ -143,7 +128,7 @@ serve(async (req) => {
 
     const RESEND_API_KEY = Deno.env.get('RESEND_API_KEY')
     if (RESEND_API_KEY && user.email) {
-      fetch('https://api.resend.com/emails', {
+      await fetch('https://api.resend.com/emails', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${RESEND_API_KEY}` },
         body: JSON.stringify({

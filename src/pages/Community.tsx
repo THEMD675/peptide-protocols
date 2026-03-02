@@ -1,10 +1,10 @@
 import { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { Link, useSearchParams } from 'react-router-dom';
-import { MessageSquare, Send, Clock, FlaskConical, User, Flag, Star } from 'lucide-react';
+import { MessageSquare, Send, Clock, FlaskConical, User, Flag, Star, MessageCircle } from 'lucide-react';
 import { toast } from 'sonner';
 import { useAuth } from '@/contexts/AuthContext';
-import { PRICING, SITE_URL } from '@/lib/constants';
+import { PRICING, SITE_URL, SUPPORT_EMAIL } from '@/lib/constants';
 import { supabase } from '@/lib/supabase';
 import { cn } from '@/lib/utils';
 import { peptides as allPeptides } from '@/data/peptides';
@@ -30,6 +30,42 @@ const GOALS = [
   'هرمونات',
   'طول عمر',
   'بشرة وأمعاء',
+];
+
+const SEED_EXPERIENCES: LogEntry[] = [
+  {
+    id: 'seed-bpc157',
+    user_id: '',
+    peptide_name: 'BPC-157',
+    goal: 'تعافي وإصابات',
+    protocol: '250mcg مرتين يوميًا لمدة 6 أسابيع',
+    duration_weeks: 6,
+    results: 'تحسّن ملحوظ في الأسبوع الثالث. الألم انخفض من 7/10 إلى 2/10',
+    rating: 5,
+    created_at: '2024-06-15T10:00:00Z',
+  },
+  {
+    id: 'seed-semaglutide',
+    user_id: '',
+    peptide_name: 'Semaglutide',
+    goal: 'فقدان دهون',
+    protocol: 'بدأت بـ 0.25mg أسبوعيًا، رفعت تدريجيًا إلى 1mg',
+    duration_weeks: 12,
+    results: 'خسرت 8 كغ في 3 أشهر. الشهية انخفضت بشكل كبير',
+    rating: 4,
+    created_at: '2024-05-20T10:00:00Z',
+  },
+  {
+    id: 'seed-epithalon',
+    user_id: '',
+    peptide_name: 'Epithalon',
+    goal: 'طول عمر',
+    protocol: '10mg على 10 أيام، مرتين في السنة',
+    duration_weeks: 2,
+    results: 'نوم أعمق وطاقة أفضل بعد الدورة الأولى',
+    rating: 4,
+    created_at: '2024-04-10T10:00:00Z',
+  },
 ];
 
 export default function Community() {
@@ -69,24 +105,38 @@ export default function Community() {
     const validS = validSorts.includes(s) ? s : 'newest';
     if (validG !== filterGoal) setFilterGoal(validG);
     if (validS !== sortBy) setSortBy(validS);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- URL→state sync, filterGoal/sortBy are targets
   }, [searchParams]);
   const [hasMore, setHasMore] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
   const [expandedPosts, setExpandedPosts] = useState<Set<string>>(new Set());
   const toggleExpand = (id: string) => setExpandedPosts(prev => {
     const next = new Set(prev);
-    next.has(id) ? next.delete(id) : next.add(id);
+    if (next.has(id)) next.delete(id);
+    else next.add(id);
     return next;
   });
   const PAGE_SIZE = 50;
 
+  const DRAFT_KEY = 'pptides_community_draft';
   const [peptideName, setPeptideName] = useState('');
   const [goal, setGoal] = useState('');
-  const [protocol, setProtocol] = useState('');
+  const [protocol, setProtocol] = useState(() => {
+    try { return sessionStorage.getItem(`${DRAFT_KEY}_protocol`) ?? ''; } catch { return ''; }
+  });
   const [durationWeeks, setDurationWeeks] = useState(4);
-  const [results, setResults] = useState('');
+  const [results, setResults] = useState(() => {
+    try { return sessionStorage.getItem(`${DRAFT_KEY}_results`) ?? ''; } catch { return ''; }
+  });
   const [rating, setRating] = useState(4);
   const [attempted, setAttempted] = useState(false);
+
+  useEffect(() => {
+    try { sessionStorage.setItem(`${DRAFT_KEY}_protocol`, protocol); } catch { /* expected */ }
+  }, [protocol]);
+  useEffect(() => {
+    try { sessionStorage.setItem(`${DRAFT_KEY}_results`, results); } catch { /* expected */ }
+  }, [results]);
 
   const loadCommunityLogs = useCallback(async () => {
     setLoading(true);
@@ -94,7 +144,7 @@ export default function Community() {
     try {
       const { data, error } = await supabase
         .from('community_logs')
-        .select('id, peptide_name, goal, protocol, duration_weeks, results, rating, created_at')
+        .select('id, user_id, peptide_name, goal, protocol, duration_weeks, results, rating, created_at')
         .order('created_at', { ascending: false })
         .limit(50);
       if (!error && data) {
@@ -144,7 +194,7 @@ export default function Community() {
       if (!mountedRef.current) return;
 
       if (error) {
-        toast.error('حدث خطأ أثناء النشر. حاول مرة أخرى.');
+        toast.error('تعذّر نشر تجربتك — تحقق من البيانات وحاول مرة أخرى');
         return;
       }
 
@@ -156,16 +206,17 @@ export default function Community() {
       setRating(4);
       setAttempted(false);
       setShowForm(false);
+      try { sessionStorage.removeItem(`${DRAFT_KEY}_protocol`); sessionStorage.removeItem(`${DRAFT_KEY}_results`); } catch { /* expected */ }
 
       const { data } = await supabase
         .from('community_logs')
-        .select('id, peptide_name, goal, protocol, duration_weeks, results, rating, created_at')
+        .select('id, user_id, peptide_name, goal, protocol, duration_weeks, results, rating, created_at')
         .order('created_at', { ascending: false })
         .limit(50);
       if (mountedRef.current && data) setLogs(data);
       setTimeout(() => { if (mountedRef.current) setSubmitted(false); }, 5000);
     } catch {
-      if (mountedRef.current) toast.error('حدث خطأ أثناء النشر. تحقق من اتصالك بالإنترنت.');
+      if (mountedRef.current) toast.error('فشل الاتصال بالخادم — تحقق من اتصالك بالإنترنت وحاول مرة أخرى');
     } finally {
       submittingRef.current = false;
       if (mountedRef.current) setSubmitting(false);
@@ -181,6 +232,17 @@ export default function Community() {
     [logs, filterGoal, sortBy]
   );
 
+  const displayedLogs = useMemo(() => {
+    if (logs.length > 0) return filteredLogs;
+    return SEED_EXPERIENCES
+      .filter(s => filterGoal === 'all' || s.goal === filterGoal)
+      .sort((a, b) =>
+        sortBy === 'highest' ? b.rating - a.rating : new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+      );
+  }, [logs.length, filteredLogs, filterGoal, sortBy]);
+
+  const isShowingSeeds = logs.length === 0;
+
   return (
     <div className="min-h-screen bg-white animate-fade-in">
       <Helmet>
@@ -191,7 +253,7 @@ export default function Community() {
         <meta property="og:url" content={`${SITE_URL}/community`} />
         <meta property="og:type" content="website" />
         <meta property="og:locale" content="ar_SA" />
-        <meta property="og:image" content="https://pptides.com/og-image.png" />
+        <meta property="og:image" content={`${SITE_URL}/og-image.png`} />
       </Helmet>
 
       <div className="mx-auto max-w-4xl px-4 pb-24 pt-8 md:px-6 md:pt-12">
@@ -205,6 +267,13 @@ export default function Community() {
           <p className="mx-auto max-w-lg text-lg text-stone-600">
             بروتوكولات حقيقية. نتائج فعلية. من مستخدمين مثلك.
           </p>
+          <a
+            href={`mailto:${SUPPORT_EMAIL}?subject=أريد الانضمام لمجموعة المجتمع`}
+            className="mt-5 inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 px-6 py-2.5 text-sm font-bold text-emerald-700 transition-colors hover:bg-emerald-100"
+          >
+            <MessageCircle className="h-4 w-4" />
+            تواصل معنا للانضمام للمجتمع
+          </a>
         </div>
 
         {submitted && (
@@ -284,10 +353,10 @@ export default function Community() {
                     maxLength={3000}
                     placeholder="مثال: 250mcg مرتين يوميًا، حقن تحت الجلد في البطن، لمدة 6 أسابيع..."
                     rows={3}
-                    className="w-full resize-none rounded-xl border border-stone-200 bg-stone-50 px-4 py-3 text-stone-900 placeholder:text-stone-400 focus:border-emerald-300 focus:outline-none focus:ring-2 focus:ring-emerald-100"
+                    className="w-full resize-none rounded-xl border border-stone-200 bg-stone-50 px-4 py-3 text-stone-900 placeholder:text-stone-500 focus:border-emerald-300 focus:outline-none focus:ring-2 focus:ring-emerald-100"
                     style={{ overflow: 'hidden' }}
                   />
-                  <p className="mt-1 text-start text-xs text-stone-400">{protocol.length}/3000</p>
+                  <p className="mt-1 text-start text-xs text-stone-500">{protocol.length}/3000</p>
                 </div>
 
                 <div className="mb-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
@@ -341,7 +410,7 @@ export default function Community() {
                     rows={4}
                     required
                     className={cn(
-                      'w-full resize-none rounded-xl border bg-stone-50 px-4 py-3 text-stone-900 placeholder:text-stone-400 focus:border-emerald-300 focus:outline-none focus:ring-2 focus:ring-emerald-100',
+                      'w-full resize-none rounded-xl border bg-stone-50 px-4 py-3 text-stone-900 placeholder:text-stone-500 focus:border-emerald-300 focus:outline-none focus:ring-2 focus:ring-emerald-100',
                       attempted && !results.trim() ? 'border-red-400 ring-1 ring-red-200' : 'border-stone-200'
                     )}
                     style={{ overflow: 'hidden' }}
@@ -350,7 +419,7 @@ export default function Community() {
                     {attempted && !results.trim() ? (
                       <p data-error="true" className="text-xs text-red-600">يرجى وصف النتائج</p>
                     ) : <span />}
-                    <p className="text-xs text-stone-400">{results.length}/3000</p>
+                    <p className="text-xs text-stone-500">{results.length}/3000</p>
                   </div>
                 </div>
 
@@ -401,7 +470,7 @@ export default function Community() {
         )}
 
         {/* Filter bar */}
-        {!loading && logs.length > 0 && (
+        {!loading && (logs.length > 0 || isShowingSeeds) && (
           <div className="mb-6 flex items-center gap-3">
             <div className="-mx-4 min-w-0 flex-1 overflow-x-auto px-4 scrollbar-hide scroll-fade">
               <div className="flex flex-nowrap gap-2 pb-2">
@@ -438,8 +507,14 @@ export default function Community() {
 
         <h2 className="sr-only">المشاركات</h2>
         {loading ? (
-          <div className="py-16 text-center" role="status" aria-label="جارٍ تحميل التجارب">
-            <div className="h-6 w-6 mx-auto animate-spin rounded-full border-2 border-stone-200 border-t-emerald-600" />
+          <div className="space-y-4 py-4" role="status" aria-label="جارٍ تحميل التجارب">
+            {Array.from({ length: 3 }).map((_, i) => (
+              <div key={i} className="animate-pulse rounded-2xl border border-stone-200 p-5 space-y-3">
+                <div className="flex items-center gap-3"><div className="h-10 w-10 rounded-full bg-stone-200" /><div className="space-y-1 flex-1"><div className="h-4 w-24 rounded bg-stone-200" /><div className="h-3 w-16 rounded bg-stone-100" /></div></div>
+                <div className="h-4 w-full rounded bg-stone-100" />
+                <div className="h-4 w-3/4 rounded bg-stone-100" />
+              </div>
+            ))}
           </div>
         ) : fetchError && logs.length === 0 ? (
           <div className="rounded-2xl border border-red-200 bg-red-50 py-10 text-center">
@@ -451,31 +526,23 @@ export default function Community() {
               إعادة المحاولة
             </button>
           </div>
-        ) : logs.length === 0 ? (
-          <div className="rounded-2xl border-2 border-dashed border-emerald-200 bg-gradient-to-b from-emerald-50 to-white py-16 px-8 text-center">
-            <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-emerald-100">
-              <FlaskConical className="h-8 w-8 text-emerald-600" />
-            </div>
-            <h3 className="text-xl font-bold text-stone-900">شارك تجربتك مع المجتمع</h3>
-            <p className="mx-auto mt-2 max-w-md text-sm leading-relaxed text-stone-600">
-              لا توجد تجارب مشاركة بعد — كن أول من يشارك بروتوكوله ونتائجه مع مجتمع pptides العربي.
-            </p>
-            {user && isPaid && (
-              <button onClick={() => setShowForm(true)} className="mt-5 inline-flex items-center gap-2 rounded-full bg-emerald-600 px-6 py-3 text-sm font-bold text-white transition-colors hover:bg-emerald-700">
-                شارك تجربتك الأولى
-              </button>
-            )}
-          </div>
         ) : (
           <div className="space-y-4">
-            {filteredLogs.length === 0 && (
+            {displayedLogs.length === 0 && (
               <div className="rounded-2xl border border-stone-200 bg-stone-50 py-12 px-6 text-center">
                 <p className="text-sm font-bold text-stone-800">لا توجد تجارب لهذا الهدف بعد</p>
                 <p className="mt-1 text-xs text-stone-500">جرّب تصنيف مختلف أو شارك تجربتك</p>
                 <button onClick={() => setFilterGoal('all')} className="mt-3 text-sm text-emerald-600 font-bold hover:underline">عرض الكل</button>
               </div>
             )}
-            {filteredLogs.map((log) => (
+            {isShowingSeeds && displayedLogs.length > 0 && (
+              <div className="rounded-2xl border border-amber-200 bg-amber-50/50 px-4 py-3 text-center text-sm text-stone-700">
+                <p className="font-medium">تجارب توضيحية — كن أول من يشارك تجربتك الحقيقية مع المجتمع</p>
+              </div>
+            )}
+            {displayedLogs.map((log) => {
+              const isSeed = log.id.startsWith('seed-');
+              return (
               <div key={log.id} className="rounded-2xl border border-stone-200 bg-white p-6 shadow-sm transition-all hover:border-emerald-200 hover:shadow-md">
                 <div className="mb-3 flex flex-wrap items-start justify-between gap-2">
                   <div className="flex items-center gap-3">
@@ -483,6 +550,11 @@ export default function Community() {
                       <User className="h-5 w-5 text-emerald-700" />
                     </div>
                     <div>
+                      {isSeed && (
+                        <span className="inline-block mb-1 rounded-full border border-amber-300 bg-amber-50 px-2.5 py-0.5 text-xs font-medium text-amber-800">
+                          تجربة توضيحية
+                        </span>
+                      )}
                       {(() => {
                         const peptide = allPeptides.find(p => p.nameEn.toLowerCase() === log.peptide_name.toLowerCase() || p.nameAr === log.peptide_name);
                         return peptide ? (
@@ -514,6 +586,7 @@ export default function Community() {
                         />
                       ))}
                     </div>
+                    {!isSeed && (
                     <button
                       onClick={async () => {
                         if (!user) { toast('سجّل الدخول للإبلاغ عن محتوى'); return; }
@@ -535,6 +608,7 @@ export default function Community() {
                     >
                       <Flag className="h-3.5 w-3.5" />
                     </button>
+                    )}
                   </div>
                 </div>
 
@@ -598,15 +672,16 @@ export default function Community() {
                   ابدأ هذا البروتوكول ←
                 </Link>
               </div>
-            ))}
-            {hasMore && (
+              );
+            })}
+            {!isShowingSeeds && hasMore && (
               <button
                 onClick={async () => {
                   setLoadingMore(true);
                   try {
                     const { data } = await supabase
                       .from('community_logs')
-                      .select('id, peptide_name, goal, protocol, duration_weeks, results, rating, created_at')
+                      .select('id, user_id, peptide_name, goal, protocol, duration_weeks, results, rating, created_at')
                       .order('created_at', { ascending: false })
                       .range(logs.length, logs.length + PAGE_SIZE - 1);
                     if (data) {

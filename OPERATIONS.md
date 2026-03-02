@@ -1,8 +1,20 @@
 # pptides.com — Operations Runbook
 # 100 items for zero-downtime, white-glove service
 
+## ⚠️ PRE-EDIT DISCIPLINE (Dependency-Safe Changes)
+
+**The app has tight coupling. One change can break many consumers.**
+
+1. **Before editing any file:** Read `DEPENDENCY_MAP.md` — it lists blast radius for peptides, constants, trial config, AuthContext, Coach, edge functions.
+2. **TRIAL_DAYS:** If changing trial duration, update all 8 locations (frontend + 5 edge functions). See DEPENDENCY_MAP §1.
+3. **peptides.ts / constants.ts:** 20–25+ consumers. Run `rg "from '@/path'" src/` to see who imports.
+4. **Edge functions:** Request/response shape must match frontend. Redeploy after changes.
+5. **After every change:** `npm run predeploy` before commit. Fix type-check and build before pushing.
+
+---
+
 ## A. MONITORING (items 1-20)
-1. Health check endpoint: /functions/v1/health-check — checks DB, Auth, Stripe, Resend, DeepSeek
+1. Health check endpoint: /functions/v1/health-check — checks DB, Auth, Stripe, Resend, DeepSeek, DEEPSEEK_API_KEY
 2. Health check sends alert email on failure to contact@pptides.com
 3. Run health check on schedule (set up cron in Supabase dashboard)
 4. Admin dashboard shows real-time user count, MRR, errors
@@ -32,18 +44,25 @@
 26. Lazy-loaded page chunks — failed chunk loads auto-retry once
 27. ErrorBoundary catches React crashes and shows retry button
 28. RouteErrorBoundary per-route — one page crash doesn't kill the app
-29. Build verified with tsc --noEmit + vite build before every deploy
+29. Pre-deploy: run `npm run predeploy` (type-check + build) or manually `tsc --noEmit` then `npm run build`. Optional: `STRIPE_SECRET_KEY=sk_xxx npm run verify-stripe` to validate Stripe price IDs and webhooks. Coach AI requires `DEEPSEEK_API_KEY` in Supabase Edge Function secrets.
 30. Edge functions deployed individually: supabase functions deploy <name>
 31. Database migrations applied via supabase db push
 32. Environment variables set in Supabase dashboard (not in code)
 33. CORS configured per-function with production domain whitelist
 34. Vercel security headers: CSP, HSTS, X-Frame-Options DENY
-35. robots.txt blocks /account, /dashboard, /tracker, /login, /signup
+35. robots.txt blocks /account, /dashboard, /tracker, /login, /signup, /coach, /admin
 36. Sitemap.xml includes all public pages
 37. OG image and meta tags on all pages
 38. favicon, apple-touch-icon, PWA icons all pptides branded
 39. Google Fonts loaded with display=swap (no FOIT)
 40. Build chunks: vendor, supabase, ui, sentry (optimal splitting)
+
+### LIVE TEST CHECKLIST (https://pptides.com)
+- [ ] Landing, Library, Pricing load
+- [ ] Coach: send message → if 500: DEEPSEEK_API_KEY not set (see MANUAL_STEPS_RUNBOOK.md)
+- [ ] Signup → Checkout → payment=success polling
+- [ ] Dashboard, Account, Tracker (logged in)
+- [ ] Full manual runbook: MANUAL_STEPS_RUNBOOK.md
 
 ## C. ERROR HANDLING (items 41-60)
 41. Every Supabase .insert/.update/.delete checks .error
@@ -53,7 +72,7 @@
 45. Every async operation has loading state shown to user
 46. Payment flow: 20-attempt polling with exponential backoff
 47. Auth flow: specific error messages for every Supabase error code
-48. Email flow: all sends are awaited (not fire-and-forget) for critical emails
+48. Email flow: sends are awaited; errors logged to console, not retried (Stripe webhook, trial-reminder, etc.)
 49. Webhook flow: returns 500 on DB failure so Stripe retries
 50. Coach streaming: AbortController with 60s timeout
 51. Coach retry: messagesRef synced before re-send (no race condition)

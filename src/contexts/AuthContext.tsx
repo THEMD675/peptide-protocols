@@ -1,4 +1,5 @@
 import { createContext, useContext, useState, useEffect, useCallback, useMemo, useRef, type ReactNode } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { supabase } from '@/lib/supabase';
 import { SUPPORT_EMAIL } from '@/lib/constants';
@@ -28,7 +29,7 @@ export interface AuthContextType {
   login: (email: string, password: string) => Promise<void>;
   signup: (email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
-  upgradeTo: (tier: 'essentials' | 'elite') => void;
+  upgradeTo: (tier: 'essentials' | 'elite', billing?: 'monthly' | 'annual') => void;
   refreshSubscription: () => Promise<void>;
 }
 
@@ -62,7 +63,9 @@ function mapUser(su: SupabaseUser | null): User | null {
   return { id: su.id, email: su.email };
 }
 
-function buildSubscription(row: Record<string, unknown> | null): Subscription {
+/** @internal exported for testing */
+// eslint-disable-next-line react-refresh/only-export-components
+export function buildSubscription(row: Record<string, unknown> | null): Subscription {
   if (!row) return DEFAULT_SUBSCRIPTION;
 
   const dbStatus = row.status as string;
@@ -79,10 +82,11 @@ function buildSubscription(row: Record<string, unknown> | null): Subscription {
   };
   const tier = tierMap[rawTier] ?? 'free';
 
-  const trialEndsAt = row.trial_ends_at ? new Date(row.trial_ends_at as string) : null;
-  const now = new Date();
-  const trialDaysLeft = trialEndsAt
-    ? Math.max(0, Math.ceil((trialEndsAt.getTime() - now.getTime()) / (1000 * 60 * 60 * 24)))
+  const rawTrialEnd = row.trial_ends_at as string | undefined;
+  const trialEndsAtUtc = rawTrialEnd ? new Date(rawTrialEnd.endsWith('Z') ? rawTrialEnd : rawTrialEnd + 'Z') : null;
+  const nowUtcMs = Date.now();
+  const trialDaysLeft = trialEndsAtUtc
+    ? Math.max(0, Math.ceil((trialEndsAtUtc.getTime() - nowUtcMs) / (1000 * 60 * 60 * 24)))
     : 0;
 
   let status: Subscription['status'];
@@ -95,11 +99,11 @@ function buildSubscription(row: Record<string, unknown> | null): Subscription {
   }
 
   const periodEnd = row.current_period_end ? new Date(row.current_period_end as string) : null;
-  const hasRemainingPeriod = periodEnd != null && periodEnd.getTime() > now.getTime();
+  const hasRemainingPeriod = periodEnd != null && periodEnd.getTime() > nowUtcMs;
   const cancelledButActive = (status === 'cancelled' || status === 'expired') && hasRemainingPeriod;
 
   const pastDueGrace = status === 'past_due' && periodEnd != null &&
-    (periodEnd.getTime() + 7 * 24 * 60 * 60 * 1000) > now.getTime();
+    (periodEnd.getTime() + 7 * 24 * 60 * 60 * 1000) > nowUtcMs;
 
   const isProOrTrial =
     (status === 'trial' && trialDaysLeft > 0) || status === 'active' || pastDueGrace || cancelledButActive;
@@ -122,6 +126,7 @@ async function fetchWithRetry<T>(fn: () => Promise<T>, retries = 2, delay = 1000
 }
 
 export function AuthProvider({ children }: { children: ReactNode }) {
+  const navigate = useNavigate();
   const [user, setUser] = useState<User | null>(null);
   const [subscription, setSubscription] = useState<Subscription>(DEFAULT_SUBSCRIPTION);
   const [isLoading, setIsLoading] = useState(true);
@@ -165,6 +170,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       toast('تم إلغاء عملية الدفع. يمكنك المحاولة مرة أخرى.');
       return;
     }
+    if (params.get('payment') === 'error') {
+      const url = new URL(window.location.href);
+      url.searchParams.delete('payment');
+      window.history.replaceState({}, '', url.toString());
+      toast.error('تعذّر إتمام الدفع. تحقق من بطاقتك أو جرّب وسيلة دفع أخرى.');
+      return;
+    }
     if (params.get('payment') !== 'success' || !user) return;
 
     toast('شكرًا! جارٍ تفعيل اشتراكك...');
@@ -197,7 +209,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           cleanUrl();
           toast.success('تم تفعيل اشتراكك بنجاح!');
           if (window.location.pathname !== '/dashboard') {
-            window.location.href = '/dashboard';
+            navigate('/dashboard');
           }
           return;
         }
@@ -215,19 +227,31 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     };
     poll();
     return () => { cancelled = true; clearTimeout(timer); };
-  }, [user, fetchSubscription]);
+  }, [user, fetchSubscription, navigate]);
+
+  const hadSessionRef = useRef(false);
 
   useEffect(() => {
     const timeout = setTimeout(() => {
       setIsLoading(false);
-    }, 5000);
+    }, 15000);
 
     supabase.auth.getSession().then(async ({ data: { session } }) => {
       clearTimeout(timeout);
       if (session?.user) {
+        hadSessionRef.current = true;
         const mapped = mapUser(session.user);
         setUser(mapped);
-        if (mapped) await fetchSubscription(mapped.id);
+        if (mapped) {
+          await fetchSubscription(mapped.id);
+          const displayName = (session.user.user_metadata?.full_name ?? session.user.user_metadata?.name) as string | undefined;
+          if (displayName && typeof displayName === 'string' && displayName.trim()) {
+            supabase.from('user_profiles').upsert(
+              { user_id: mapped.id, display_name: displayName.trim(), updated_at: new Date().toISOString() },
+              { onConflict: 'user_id' }
+            ).then(() => {}).catch(() => {});
+          }
+        }
       }
       setIsLoading(false);
     }).catch(() => {
@@ -237,29 +261,32 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     const { data: { subscription: authListener } } = supabase.auth.onAuthStateChange(
       async (event: string, session: Session | null) => {
-        if (event === 'SIGNED_IN' && session?.user) {
-          const createdAt = new Date(session.user.created_at).getTime();
-          const isNewUser = Date.now() - createdAt < 60000;
-          if (isNewUser && session.user.email) {
-            fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/send-welcome-email`, {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${session.access_token}`, apikey: import.meta.env.VITE_SUPABASE_ANON_KEY },
-              body: JSON.stringify({ email: session.user.email, name: '' }),
-            }).catch(e => console.error('OAuth welcome email failed:', e));
-          }
-        }
         if (session?.user) {
+          hadSessionRef.current = true;
           const mapped = mapUser(session.user);
           setUser(mapped);
-          if (mapped) await fetchSubscription(mapped.id);
+          if (mapped) {
+            await fetchSubscription(mapped.id);
+            const displayName = (session.user.user_metadata?.full_name ?? session.user.user_metadata?.name) as string | undefined;
+            if (displayName && typeof displayName === 'string' && displayName.trim()) {
+              supabase.from('user_profiles').upsert(
+                { user_id: mapped.id, display_name: displayName.trim(), updated_at: new Date().toISOString() },
+                { onConflict: 'user_id' }
+              ).then(() => {}).catch(() => {});
+            }
+          }
         } else {
+          if (event === 'SIGNED_OUT' && hadSessionRef.current) {
+            const currentPath = window.location.pathname + window.location.search;
+            navigate(`/login?redirect=${encodeURIComponent(currentPath)}`, { replace: true });
+          }
+          hadSessionRef.current = false;
           setUser(null);
           setSubscription(DEFAULT_SUBSCRIPTION);
           try {
-            Object.keys(localStorage).filter(k =>
-              k.startsWith('pptides_coach_') || k.startsWith('pptides_calc_') ||
-              k === 'pptides_favorites' || k === 'pptides_visited' || k === 'pptides_quiz_answers'
-            ).forEach(k => localStorage.removeItem(k));
+            Object.keys(localStorage)
+              .filter(k => k.startsWith('pptides_'))
+              .forEach(k => localStorage.removeItem(k));
           } catch { /* restricted env */ }
         }
         setIsLoading(false);
@@ -267,7 +294,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     );
 
     return () => { authListener.unsubscribe(); clearTimeout(timeout); };
-  }, [fetchSubscription]);
+  }, [fetchSubscription, navigate]);
 
   const fetchSubRef = useRef(fetchSubscription);
   fetchSubRef.current = fetchSubscription;
@@ -356,7 +383,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           apikey: import.meta.env.VITE_SUPABASE_ANON_KEY,
         },
         body: JSON.stringify({ email, name: '', referralCode: validRef }),
-      }).catch((e) => console.error('Welcome email failed:', e));
+      }).catch(() => {});
 
       if (validRef) {
         try { localStorage.removeItem('pptides_referral'); } catch { /* expected */ }
@@ -378,17 +405,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       })).catch(() => {});
     }
     try {
-      const appKeys = Object.keys(localStorage).filter(k =>
-        k.startsWith('pptides_coach_') || k.startsWith('pptides_calc_') ||
-        k === 'pptides_favorites' || k === 'pptides_visited' || k === 'pptides_quiz_answers'
-      );
-      appKeys.forEach(k => localStorage.removeItem(k));
+      Object.keys(localStorage)
+        .filter(k => k.startsWith('pptides_'))
+        .forEach(k => localStorage.removeItem(k));
       Object.keys(localStorage).forEach((key) => {
         if (key.startsWith('sb-')) localStorage.removeItem(key);
       });
     } catch { /* expected in restricted environments */ }
-    window.location.href = '/';
-  }, []);
+    navigate('/');
+  }, [navigate]);
 
   const refreshSubscription = useCallback(async () => {
     if (user) await fetchSubscription(user.id);
@@ -400,15 +425,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return () => clearInterval(interval);
   }, [user, subscription.status, subscription.trialDaysLeft, fetchSubscription]);
 
-  const upgradeTo = useCallback(async (tier: 'essentials' | 'elite') => {
+  const upgradeTo = useCallback(async (tier: 'essentials' | 'elite', billing: 'monthly' | 'annual' = 'monthly') => {
     try {
       const session = await supabase.auth.getSession();
       const token = session.data.session?.access_token;
       if (!token) {
         toast.error('يرجى تسجيل الدخول أولًا');
-        window.location.href = '/login?redirect=/pricing';
+        navigate('/login?redirect=/pricing');
         return;
       }
+      let referralCode: string | undefined;
+      try { const r = localStorage.getItem('pptides_referral'); if (r && /^PP-[A-Z0-9]{6}$/.test(r)) referralCode = r; } catch { /* expected */ }
+      const body: Record<string, unknown> = { tier, billing };
+      if (referralCode) body.referralCode = referralCode;
 
       const res = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/create-checkout`, {
         method: 'POST',
@@ -418,7 +447,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           Authorization: `Bearer ${token}`,
           apikey: import.meta.env.VITE_SUPABASE_ANON_KEY,
         },
-        body: JSON.stringify({ tier }),
+        body: JSON.stringify(body),
       });
 
       if (!res.ok) {
@@ -431,11 +460,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       window.location.href = url;
     } catch (e) {
-      console.error('upgradeTo error:', e);
       toast.error(`تعذّر التحويل لصفحة الدفع. تواصل معنا: ${SUPPORT_EMAIL}`);
       throw e;
     }
-  }, []);
+  }, [navigate]);
 
   const contextValue = useMemo(
     () => ({ user, subscription, isLoading, login, signup, logout, upgradeTo, refreshSubscription }),

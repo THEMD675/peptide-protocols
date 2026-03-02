@@ -1,6 +1,7 @@
 import { Helmet } from 'react-helmet-async';
 import { Link } from 'react-router-dom';
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useNowMs } from '@/hooks/useNowMs';
 import {
   LayoutDashboard,
   BookOpen,
@@ -16,17 +17,21 @@ import {
   TrendingUp,
   Clock,
   Sparkles,
+  Star,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { cn, arPlural } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
-import { PEPTIDE_COUNT, STATUS_LABELS, TIER_LABELS } from '@/lib/constants';
+import { PEPTIDE_COUNT, STATUS_LABELS, TIER_LABELS, FREQUENCY_LABELS, STORAGE_KEYS } from '@/lib/constants';
 import OnboardingModal from '@/components/OnboardingModal';
 import ProgressRing from '@/components/charts/ProgressRing';
 import AdherenceBar from '@/components/charts/AdherenceBar';
 import DoseTitrationTimeline from '@/components/DoseTitrationTimeline';
 import ShareableCard from '@/components/ShareableCard';
+import WellnessCheckin from '@/components/WellnessCheckin';
+import LabResultsTracker from '@/components/LabResultsTracker';
+import PushNotificationPrompt from '@/components/PushNotificationPrompt';
 import { peptides as allPeptides } from '@/data/peptides';
 import { labTests } from '@/data/peptides';
 
@@ -72,6 +77,16 @@ const QUICK_LINKS = [
   { to: '/table', label: 'الجدول المرجعي', description: 'جميع الببتيدات في جدول', Icon: Table2 },
 ];
 
+const GOAL_RECOMMENDATIONS: Record<string, { text: string; peptideId: string }> = {
+  'fat-loss': { text: 'ننصح ببروتوكول Retatrutide أو Tirzepatide لإنقاص الوزن', peptideId: 'retatrutide' },
+  'recovery': { text: 'ننصح ببروتوكول BPC-157 + TB-500 للتعافي', peptideId: 'bpc-157' },
+  'muscle': { text: 'ننصح ببروتوكول CJC-1295 + Ipamorelin للأداء والعضلات', peptideId: 'cjc-1295' },
+  'brain': { text: 'ننصح ببروتوكول Semax لتحسين التركيز والذاكرة', peptideId: 'semax' },
+  'hormones': { text: 'ننصح ببروتوكول CJC-1295 + Ipamorelin لتحسين الهرمونات', peptideId: 'cjc-1295' },
+  'longevity': { text: 'ننصح ببروتوكول Epithalon لإطالة العمر', peptideId: 'epithalon' },
+  'gut-skin': { text: 'ننصح ببروتوكول DSIP لتحسين النوم و BPC-157 للأمعاء', peptideId: 'dsip' },
+};
+
 const GETTING_STARTED = [
   { id: 'quiz', label: 'اكتشف الببتيد المناسب لك', to: '/quiz' },
   { id: 'library', label: 'تصفّح مكتبة الببتيدات', to: '/library' },
@@ -110,6 +125,7 @@ function useRecentActivity(userId: string | undefined) {
   const [logs, setLogs] = useState<RecentLog[]>([]);
   const [loading, setLoading] = useState(true);
   const [totalCount, setTotalCount] = useState(0);
+  const [uniquePeptidesCount, setUniquePeptidesCount] = useState(0);
 
   useEffect(() => {
     if (!userId) return;
@@ -120,6 +136,7 @@ function useRecentActivity(userId: string | undefined) {
       .eq('user_id', userId)
       .order('logged_at', { ascending: false })
       .gte('logged_at', new Date(Date.now() - 35 * 24 * 60 * 60 * 1000).toISOString())
+      .limit(5000)
       .then(({ data, error }) => {
         if (!mounted) return;
         if (data && !error) setLogs(data);
@@ -132,12 +149,24 @@ function useRecentActivity(userId: string | undefined) {
       .eq('user_id', userId)
       .then(({ count }) => {
         if (mounted && count != null) setTotalCount(count);
-      }).catch(() => { if (mounted) /* silently ignored — non-critical */; });
+      }).catch(() => { /* totalCount non-critical — ignore */ });
+    supabase
+      .from('injection_logs')
+      .select('peptide_name')
+      .eq('user_id', userId)
+      .limit(10000)
+      .then(({ data }) => {
+        if (!mounted || !data) return;
+        const unique = new Set(data.map((r: { peptide_name: string }) => r.peptide_name));
+        setUniquePeptidesCount(unique.size);
+      })
+      .catch(() => { /* uniquePeptidesCount non-critical — ignore */ });
     return () => { mounted = false; };
   }, [userId]);
 
   const activePeptides = [...new Set(logs.map(l => l.peptide_name))];
   const totalInjections = totalCount || logs.length;
+  const displayUniquePeptides = uniquePeptidesCount > 0 ? uniquePeptidesCount : activePeptides.length;
 
   let streak = 0;
   if (logs.length > 0) {
@@ -170,7 +199,12 @@ function useRecentActivity(userId: string | undefined) {
 
   const todayLogged = logs.some(l => new Date(l.logged_at).toDateString() === new Date().toDateString());
 
-  return { logs: logs.slice(0, 5), loading, activePeptides, totalInjections, streak, todayPlan, lastCheckedAt, todayLogged };
+  const lastLogByPeptide: Record<string, string> = {};
+  logs.forEach(l => {
+    if (!(l.peptide_name in lastLogByPeptide)) lastLogByPeptide[l.peptide_name] = l.logged_at;
+  });
+
+  return { logs: logs.slice(0, 5), loading, activePeptides, totalInjections, uniquePeptidesCount: displayUniquePeptides, streak, todayPlan, lastCheckedAt, todayLogged, lastLogByPeptide };
 }
 
 interface ActiveProtocol {
@@ -182,6 +216,42 @@ interface ActiveProtocol {
   cycle_weeks: number;
   started_at: string;
   status: string;
+}
+
+function getNextInjectionLabel(
+  peptideName: string,
+  frequency: string,
+  todayPlan: { peptide: string; done: boolean }[],
+  lastLogByPeptide: Record<string, string>
+): string {
+  const todayDone = todayPlan.find(p => p.peptide === peptideName)?.done ?? false;
+  const lastAt = lastLogByPeptide[peptideName];
+  const now = Date.now();
+
+  if (frequency === 'bid') {
+    if (todayDone) return 'غدًا صباحًا ومساءً';
+    if (lastAt) {
+      const sinceMs = now - new Date(lastAt).getTime();
+      const sinceHrs = sinceMs / (1000 * 60 * 60);
+      if (sinceHrs < 12) return `خلال ${Math.round(12 - sinceHrs)} ساعة`;
+    }
+    return 'اليوم — مرتان';
+  }
+  if (frequency === 'tid') {
+    if (todayDone) return 'غدًا — 3 مرات';
+    if (lastAt) {
+      const sinceMs = now - new Date(lastAt).getTime();
+      const sinceHrs = sinceMs / (1000 * 60 * 60);
+      if (sinceHrs < 8) return `خلال ${Math.round(8 - sinceHrs)} ساعة`;
+    }
+    return 'اليوم — 3 مرات';
+  }
+  if (frequency === 'weekly' || frequency === 'biweekly') {
+    return todayDone ? 'الأسبوع القادم' : 'هذا الأسبوع';
+  }
+  if (frequency === 'prn') return 'عند الحاجة';
+  if (todayDone) return 'غدًا';
+  return 'اليوم';
 }
 
 function useActiveProtocols(userId: string | undefined) {
@@ -201,19 +271,43 @@ function useActiveProtocols(userId: string | undefined) {
   useEffect(() => {
     if (!userId) return;
     let mounted = true;
-    fetchProtocols().then(() => { if (!mounted) return; }).catch(() => { if (mounted) setLoading(false); });
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- async fetch with mounted guard
+    fetchProtocols().then(() => { if (!mounted) return; }).catch(() => { if (mounted) queueMicrotask(() => setLoading(false)); });
     return () => { mounted = false; };
   }, [userId, fetchProtocols]);
   return { protocols, loading, refetch: fetchProtocols };
 }
 
+function useUserReviewCount(userId: string | undefined) {
+  const [reviewCount, setReviewCount] = useState<number | null>(null);
+  useEffect(() => {
+    if (!userId) return;
+    let mounted = true;
+    supabase
+      .from('reviews')
+      .select('id', { count: 'exact', head: true })
+      .eq('user_id', userId)
+      .then(({ count }) => { if (mounted && count != null) setReviewCount(count); })
+      .catch(() => { if (mounted) setReviewCount(0); });
+    return () => { mounted = false; };
+  }, [userId]);
+  return reviewCount;
+}
+
 export default function Dashboard() {
   const { user, subscription } = useAuth();
+  const nowMs = useNowMs();
   const { visited, markVisited } = useVisitedPages();
   const activity = useRecentActivity(user?.id);
   const { protocols: activeProtocols, refetch: refetchProtocols } = useActiveProtocols(user?.id);
+  const userReviewCount = useUserReviewCount(user?.id);
   const [shareProtocolId, setShareProtocolId] = useState<string | null>(null);
+  const [showOnboarding, setShowOnboarding] = useState(false);
+  const showOnboardButton = useMemo(() => {
+    try { return localStorage.getItem('pptides_onboarded') === 'true'; } catch { return false; }
+  }, []);
 
+  // Payment polling handled by AuthContext on ?payment=success — no duplicate here
   useEffect(() => {
     if (shareProtocolId) {
       document.body.style.overflow = 'hidden';
@@ -234,16 +328,48 @@ export default function Dashboard() {
         <meta name="robots" content="noindex, nofollow" />
       </Helmet>
 
-      {!activity.loading && activity.logs.length === 0 && activeProtocols.length === 0 && <OnboardingModal />}
+      {!activity.loading && activity.logs.length === 0 && activeProtocols.length === 0 && subscription.isProOrTrial && <OnboardingModal />}
+      {showOnboarding && <OnboardingModal forceOpen onClose={() => setShowOnboarding(false)} />}
+
+      {/* Expired / never-subscribed banner — read-only mode */}
+      {!subscription.isProOrTrial && (
+        <div className="mb-6 rounded-2xl border border-amber-300 bg-amber-50 p-4 text-center">
+          <p className="text-sm font-bold text-amber-800 mb-1">
+            {subscription.status === 'none' || subscription.status === undefined
+              ? 'ابدأ اشتراكك'
+              : 'اشتراكك منتهي — بياناتك محفوظة'}
+          </p>
+          <p className="text-xs text-amber-700 mb-3">
+            {subscription.status === 'none' || subscription.status === undefined
+              ? 'اشترك للوصول إلى كل البروتوكولات والأدوات'
+              : 'اشترك للإضافة والتعديل'}
+          </p>
+          <Link to="/pricing" className="inline-flex items-center gap-2 rounded-full bg-emerald-600 px-6 py-2.5 text-sm font-bold text-white transition-all hover:bg-emerald-700">
+            اشترك الآن
+          </Link>
+        </div>
+      )}
 
       {/* Welcome Header */}
       <div className="mb-8">
         <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-100">
           <LayoutDashboard className="h-7 w-7 text-emerald-600" />
         </div>
-        <h1 className="text-3xl font-bold text-stone-900 md:text-4xl">
-          {new Date().getHours() < 12 ? 'صباح الخير' : new Date().getHours() < 18 ? 'مرحبًا' : 'مساء الخير'}، {displayName}
-        </h1>
+        <div className="flex items-center justify-center gap-3 flex-wrap">
+          <h1 className="text-3xl font-bold text-stone-900 md:text-4xl">
+            {new Date().getHours() < 12 ? 'صباح الخير' : new Date().getHours() < 18 ? 'مرحبًا' : 'مساء الخير'}، {displayName}
+          </h1>
+          {subscription.tier !== 'free' && (
+            <span className={cn(
+              'rounded-full px-3 py-1 text-xs font-bold',
+              subscription.tier === 'elite'
+                ? 'bg-gradient-to-r from-emerald-500 to-teal-500 text-white'
+                : 'bg-emerald-100 text-emerald-700',
+            )}>
+              {TIER_LABELS[subscription.tier] ?? subscription.tier}
+            </span>
+          )}
+        </div>
         <p className="mt-2 text-lg text-stone-600">
           {activeProtocols.length > 0
             ? `لديك ${activeProtocols.length} بروتوكول نشط — استمر في الالتزام`
@@ -296,10 +422,23 @@ export default function Dashboard() {
         )}
       </div>
 
+      {/* Re-open onboarding */}
+      {showOnboardButton && (
+        <div className="mb-6 flex justify-center">
+          <button
+            onClick={() => setShowOnboarding(true)}
+            className="inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 px-5 py-2.5 text-sm font-bold text-emerald-700 transition-all hover:bg-emerald-100"
+          >
+            <Sparkles className="h-4 w-4" />
+            خطة البداية
+          </button>
+        </div>
+      )}
+
       {/* Daily tip + seasonal */}
       {(() => {
-        const tipIndex = Math.floor(Date.now() / 86400000) % DAILY_TIPS.length;
-        const seasonalTip = SEASONAL_TIPS[new Date().getMonth()];
+        const tipIndex = Math.floor(nowMs / 86400000) % DAILY_TIPS.length;
+        const seasonalTip = SEASONAL_TIPS[new Date(nowMs).getMonth()];
         return (
           <div className="mb-6 rounded-2xl border border-emerald-100 bg-emerald-50/50 p-4">
             <p className="text-xs font-bold text-emerald-700 mb-1">نصيحة اليوم</p>
@@ -312,7 +451,7 @@ export default function Dashboard() {
       })()}
 
       {/* Streak-at-risk banner */}
-      {!activity.loading && activity.streak > 0 && !activity.todayLogged && new Date().getHours() >= 16 && (
+      {!activity.loading && activity.streak > 0 && !activity.todayLogged && new Date(nowMs).getHours() >= 16 && (
         <div className="mb-6 rounded-2xl border border-amber-200 bg-amber-50 p-4 flex items-center justify-between gap-3">
           <div>
             <p className="text-sm font-bold text-amber-800">سلسلتك في خطر!</p>
@@ -320,6 +459,24 @@ export default function Dashboard() {
           </div>
           <Link to="/tracker" className="shrink-0 rounded-full bg-amber-600 px-4 py-2 text-xs font-bold text-white hover:bg-amber-700">
             سجّل الآن
+          </Link>
+        </div>
+      )}
+
+      {/* Review encouragement — 7+ injections, 0 reviews */}
+      {!activity.loading && activity.totalInjections >= 7 && userReviewCount === 0 && (
+        <div className="mb-6 rounded-2xl border border-emerald-200 bg-gradient-to-b from-emerald-50 to-white p-5 flex items-center justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-emerald-100">
+              <Star className="h-6 w-6 text-emerald-600" />
+            </div>
+            <div>
+              <p className="font-bold text-stone-900">لقد سجّلت 7+ حقنة — شارك تجربتك وساعد الآخرين</p>
+              <p className="text-sm text-stone-600">تقييمك يساعد المجتمع على اتخاذ قرارات واعية</p>
+            </div>
+          </div>
+          <Link to="/reviews" className="shrink-0 rounded-full bg-emerald-600 px-5 py-2.5 text-sm font-bold text-white transition-colors hover:bg-emerald-700">
+            اكتب تقييمك
           </Link>
         </div>
       )}
@@ -361,6 +518,49 @@ export default function Dashboard() {
         );
       })()}
 
+      {/* Protocol ending soon — prominent warning cards */}
+      {activeProtocols.length > 0 && (() => {
+        const endingSoon = activeProtocols.filter(proto => {
+          const startDate = new Date(proto.started_at);
+          const daysSinceStart = Math.floor((nowMs - startDate.getTime()) / (1000 * 60 * 60 * 24));
+          const totalDays = proto.cycle_weeks * 7;
+          const daysLeft = Math.max(totalDays - daysSinceStart, 0);
+          return daysLeft <= 3 && daysLeft > 0;
+        });
+        if (endingSoon.length === 0) return null;
+        return (
+          <div className="mb-6 space-y-3">
+            {endingSoon.map(proto => {
+              const peptide = allPeptides.find(p => p.id === proto.peptide_id);
+              const startDate = new Date(proto.started_at);
+              const daysSinceStart = Math.floor((nowMs - startDate.getTime()) / (1000 * 60 * 60 * 24));
+              const totalDays = proto.cycle_weeks * 7;
+              const daysLeft = Math.max(totalDays - daysSinceStart, 0);
+              const nameAr = peptide?.nameAr ?? proto.peptide_id;
+              const daysLabel = daysLeft === 1 ? 'يوم' : daysLeft === 2 ? 'يومين' : 'أيام';
+              return (
+                <div key={`warning-${proto.id}`} className="rounded-2xl border-2 border-amber-400 bg-amber-50 p-5 shadow-sm">
+                  <div className="flex flex-wrap items-center justify-between gap-4">
+                    <div>
+                      <p className="font-bold text-amber-800">
+                        بروتوكول {nameAr} ينتهي خلال {daysLeft} {daysLabel} — هل تريد تجديده؟
+                      </p>
+                      <p className="mt-1 text-sm text-amber-700">خطّط لفترة الراحة أو ابدأ دورة جديدة</p>
+                    </div>
+                    <Link
+                      to={`/peptide/${proto.peptide_id}`}
+                      className="shrink-0 rounded-full bg-amber-600 px-5 py-2.5 text-sm font-bold text-white transition-colors hover:bg-amber-700"
+                    >
+                      عرض تفاصيل {nameAr}
+                    </Link>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        );
+      })()}
+
       {/* Active Protocols */}
       {activeProtocols.length > 0 && (
         <div className="mb-8">
@@ -369,7 +569,7 @@ export default function Dashboard() {
             {activeProtocols.map(proto => {
               const peptide = allPeptides.find(p => p.id === proto.peptide_id);
               const startDate = new Date(proto.started_at);
-              const daysSinceStart = Math.floor((Date.now() - startDate.getTime()) / (1000 * 60 * 60 * 24));
+              const daysSinceStart = Math.floor((nowMs - startDate.getTime()) / (1000 * 60 * 60 * 24));
               const totalDays = proto.cycle_weeks * 7;
               const daysLeft = Math.max(totalDays - daysSinceStart, 0);
               const relatedLabs = peptide ? labTests.filter(lt => lt.relatedCategories.includes(peptide.category)) : [];
@@ -381,8 +581,16 @@ export default function Dashboard() {
                     <ProgressRing current={daysSinceStart} total={totalDays} size={64} label={`يوم ${daysSinceStart}`} />
                     <div className="flex-1 min-w-0">
                       <p className="font-bold text-stone-900 truncate">{peptide?.nameAr ?? proto.peptide_id}</p>
-                      <p className="text-xs text-stone-500 mt-0.5" dir="ltr">{proto.dose} {proto.dose_unit} — {proto.frequency === 'od' ? 'يوميًا' : proto.frequency === 'bid' ? 'مرتين يوميًا' : proto.frequency === 'weekly' ? 'أسبوعيًا' : proto.frequency}</p>
-                      <p className="text-xs text-stone-400 mt-1">{daysLeft > 0 ? `${daysLeft} يوم متبقي` : 'انتهت الدورة'}</p>
+                      <p className="text-xs text-stone-500 mt-0.5" dir="ltr">{proto.dose} {proto.dose_unit} — {FREQUENCY_LABELS[proto.frequency] ?? proto.frequency}</p>
+                      <p className="text-xs text-stone-500 mt-1">{daysLeft > 0 ? `${daysLeft} يوم متبقي` : 'انتهت الدورة'}</p>
+                      <p className="text-xs font-semibold text-emerald-600 mt-1">
+                        الجرعة التالية: {getNextInjectionLabel(
+                          peptide?.nameEn ?? proto.peptide_id,
+                          proto.frequency,
+                          activity.todayPlan,
+                          activity.lastLogByPeptide
+                        )}
+                      </p>
                     </div>
                   </div>
                   {daysLeft <= 3 && daysLeft > 0 && (
@@ -416,32 +624,38 @@ export default function Dashboard() {
                     })()}
                   </div>
                   <div className="mt-3 flex flex-wrap items-center gap-2">
-                    <Link
-                      to={`/tracker?peptide=${encodeURIComponent(peptide?.nameEn ?? proto.peptide_id)}`}
-                      className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-emerald-600 px-4 py-2.5 text-sm font-bold text-white transition-colors hover:bg-emerald-700"
-                    >
-                      <Syringe className="h-4 w-4" />
-                      سجّل جرعة اليوم
-                    </Link>
-                    <button
-                      onClick={async () => {
-                        if (!window.confirm('هل تريد إنهاء هذا البروتوكول؟ لا يمكن التراجع.')) return;
-                        const { error } = await supabase
-                          .from('user_protocols')
-                          .update({ status: 'completed', updated_at: new Date().toISOString() })
-                          .eq('id', proto.id)
-                          .eq('user_id', user.id);
-                        if (!error) {
-                          toast.success(`تم إنهاء بروتوكول ${peptide?.nameAr ?? proto.peptide_id}`);
-                          refetchProtocols();
-                        } else {
-                          toast.error('تعذّر إنهاء البروتوكول');
-                        }
-                      }}
-                      className="text-xs text-stone-400 hover:text-red-500 transition-colors"
-                    >
-                      أنهِ البروتوكول
-                    </button>
+                    {subscription.isProOrTrial ? (
+                      <>
+                        <Link
+                          to={`/tracker?peptide=${encodeURIComponent(peptide?.nameEn ?? proto.peptide_id)}`}
+                          className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-emerald-600 px-4 py-2.5 text-sm font-bold text-white transition-colors hover:bg-emerald-700"
+                        >
+                          <Syringe className="h-4 w-4" />
+                          سجّل جرعة اليوم
+                        </Link>
+                        <button
+                          onClick={async () => {
+                            if (!window.confirm('هل تريد إنهاء هذا البروتوكول؟ لا يمكن التراجع.')) return;
+                            const { error } = await supabase
+                              .from('user_protocols')
+                              .update({ status: 'completed', updated_at: new Date().toISOString() })
+                              .eq('id', proto.id)
+                              .eq('user_id', user.id);
+                            if (!error) {
+                              toast.success(`تم إنهاء بروتوكول ${peptide?.nameAr ?? proto.peptide_id}`);
+                              refetchProtocols();
+                            } else {
+                              toast.error('تعذّر إنهاء البروتوكول — تحقق من اتصالك وحاول مرة أخرى');
+                            }
+                          }}
+                          className="text-xs text-stone-500 hover:text-red-500 transition-colors"
+                        >
+                          أنهِ البروتوكول
+                        </button>
+                      </>
+                    ) : (
+                      <span className="flex-1 text-center text-xs text-stone-500">وضع القراءة فقط</span>
+                    )}
                     <button
                       onClick={() => setShareProtocolId(proto.id)}
                       className="flex items-center justify-center rounded-xl border border-stone-200 px-3 py-2.5 text-sm text-stone-500 transition-colors hover:bg-stone-50 hover:text-emerald-600"
@@ -457,16 +671,33 @@ export default function Dashboard() {
         </div>
       )}
 
+      {/* Wellness Check-in */}
+      <div className="mb-8">
+        <WellnessCheckin />
+      </div>
+
+      {/* Push Notification Prompt — paid subscribers only */}
+      {subscription.isProOrTrial && (
+        <PushNotificationPrompt />
+      )}
+
+      {/* Lab Results Tracker */}
+      {subscription.isProOrTrial && (
+        <div className="mb-8">
+          <LabResultsTracker />
+        </div>
+      )}
+
       {/* Share Protocol Modal */}
       {shareProtocolId && (() => {
         const proto = activeProtocols.find(p => p.id === shareProtocolId);
         if (!proto) return null;
         const peptide = allPeptides.find(p => p.id === proto.peptide_id);
-        const daysSinceStart = Math.floor((Date.now() - new Date(proto.started_at).getTime()) / (1000 * 60 * 60 * 24));
+        const daysSinceStart = Math.floor((nowMs - new Date(proto.started_at).getTime()) / (1000 * 60 * 60 * 24));
         const actualDoses = activity.logs.filter(l => l.peptide_name === (peptide?.nameEn ?? proto.peptide_id)).length;
         const adherence = daysSinceStart > 0 ? Math.min(Math.round((actualDoses / daysSinceStart) * 100), 100) : 0;
         return (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4" onClick={() => setShareProtocolId(null)}>
+          <div role="dialog" aria-modal="true" className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4" onClick={() => setShareProtocolId(null)}>
             <div className="w-full max-w-sm" onClick={e => e.stopPropagation()}>
               <ShareableCard
                 peptideName={peptide?.nameAr ?? proto.peptide_id}
@@ -551,7 +782,7 @@ export default function Dashboard() {
             </div>
             <div className="rounded-2xl border border-stone-200 bg-white p-4 text-center shadow-sm">
               <Syringe className="mx-auto mb-1 h-5 w-5 text-emerald-500" />
-              <p className="text-2xl font-black text-stone-900">{activity.activePeptides.length}</p>
+              <p className="text-2xl font-black text-stone-900">{activity.uniquePeptidesCount}</p>
               <p className="text-xs text-stone-500">ببتيدات نشطة</p>
             </div>
             <div className="rounded-2xl border border-stone-200 bg-white p-4 text-center shadow-sm">
@@ -572,7 +803,7 @@ export default function Dashboard() {
                     <span className="text-sm font-bold text-stone-900" dir="ltr">{log.peptide_name}</span>
                     <span className="me-2 text-xs text-stone-500">{log.dose} {log.dose_unit}</span>
                   </div>
-                  <span className="text-xs text-stone-400">
+                  <span className="text-xs text-stone-500">
                     {new Date(log.logged_at).toLocaleDateString('ar-u-nu-latn', { month: 'short', day: 'numeric' })}
                   </span>
                 </div>
@@ -611,7 +842,7 @@ export default function Dashboard() {
                 )} title={`${d.date.toLocaleDateString('ar-u-nu-latn', { month: 'short', day: 'numeric' })}: ${d.count} حقن`} />
               ))}
             </div>
-            <div className="mt-2 flex items-center justify-end gap-1 text-xs text-stone-400">
+            <div className="mt-2 flex items-center justify-end gap-1 text-xs text-stone-500">
               <span>أقل</span>
               <span className="h-2.5 w-2.5 rounded-sm bg-stone-100" />
               <span className="h-2.5 w-2.5 rounded-sm bg-emerald-200" />
@@ -621,6 +852,32 @@ export default function Dashboard() {
             </div>
           </div>
         );
+      })()}
+
+      {/* Goal-based recommendation — only visible in empty state */}
+      {!activity.loading && activity.logs.length === 0 && activeProtocols.length === 0 && (() => {
+        try {
+          const raw = localStorage.getItem(STORAGE_KEYS.QUIZ_ANSWERS);
+          if (!raw) return null;
+          const parsed = JSON.parse(raw);
+          const rec = GOAL_RECOMMENDATIONS[parsed.goal];
+          if (!rec) return null;
+          return (
+            <div className="mb-8 rounded-2xl border border-emerald-300 bg-gradient-to-b from-emerald-50 to-white p-6">
+              <div className="flex items-center gap-3 mb-3">
+                <Sparkles className="h-5 w-5 text-emerald-600" />
+                <h2 className="text-lg font-bold text-stone-900">توصية مخصّصة لك</h2>
+              </div>
+              <p className="text-sm text-stone-700 leading-relaxed mb-4">{rec.text}</p>
+              <Link
+                to={`/peptide/${rec.peptideId}`}
+                className="inline-flex items-center gap-2 rounded-full bg-emerald-600 px-6 py-2.5 text-sm font-bold text-white transition-all hover:bg-emerald-700"
+              >
+                ابدأ البروتوكول
+              </Link>
+            </div>
+          );
+        } catch { return null; }
       })()}
 
       {!activity.loading && activity.logs.length === 0 && (
@@ -640,7 +897,7 @@ export default function Dashboard() {
               <Bot className="h-4 w-4" /> اسأل المدرب الذكي
             </Link>
           </div>
-          <p className="mt-4 text-xs text-stone-400">أو <Link to="/calculator" className="text-emerald-600 font-semibold hover:underline">جرّب حاسبة الجرعات المجانية</Link></p>
+          <p className="mt-4 text-xs text-stone-500">أو <Link to="/calculator" className="text-emerald-600 font-semibold hover:underline">جرّب حاسبة الجرعات المجانية</Link></p>
         </div>
       )}
 

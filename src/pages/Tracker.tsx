@@ -6,6 +6,7 @@ import { useCelebrations } from '@/hooks/useCelebrations';
 import BodyMap from '@/components/BodyMap';
 import ActivityChart from '@/components/charts/ActivityChart';
 import DoseTrendChart from '@/components/charts/DoseTrendChart';
+import ProtocolWizard from '@/components/ProtocolWizard';
 import {
   Syringe,
   Plus,
@@ -22,6 +23,10 @@ import {
   Download,
   ChevronLeft,
   ChevronRight,
+  ChevronDown,
+  ChevronUp,
+  Play,
+  Info,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { events } from '@/lib/analytics';
@@ -31,6 +36,7 @@ import { supabase } from '@/lib/supabase';
 import { peptides as allPeptides } from '@/data/peptides';
 import { DOSE_PRESETS_MAP } from '@/data/dose-presets';
 import ProgressRing from '@/components/charts/ProgressRing';
+import SideEffectLog from '@/components/SideEffectLog';
 
 interface InjectionLog {
   id: string;
@@ -53,9 +59,21 @@ const SITE_LABELS: Record<string, string> = Object.fromEntries(
   INJECTION_SITES.map((s) => [s.value, s.label]),
 );
 
-function formatDate(iso: string) {
+const hijriFormatter = new Intl.DateTimeFormat('ar-SA-u-ca-islamic-umalqura', {
+  day: 'numeric',
+  month: 'long',
+  year: 'numeric',
+});
+
+const gregorianFormatter = new Intl.DateTimeFormat('ar-u-nu-latn', {
+  year: 'numeric',
+  month: 'short',
+  day: 'numeric',
+});
+
+function formatDate(iso: string, useHijri = false) {
   const d = new Date(iso);
-  return d.toLocaleDateString('ar-u-nu-latn', { year: 'numeric', month: 'short', day: 'numeric' });
+  return useHijri ? hijriFormatter.format(d) : gregorianFormatter.format(d);
 }
 
 function formatTime(iso: string) {
@@ -63,9 +81,43 @@ function formatTime(iso: string) {
   return d.toLocaleTimeString('ar-u-nu-latn', { hour: '2-digit', minute: '2-digit' });
 }
 
+function sanitizeCSVCell(value: string): string {
+  const escaped = value.replace(/"/g, '""');
+  if (/^[=+\-@\t\r]/.test(escaped)) {
+    return `"\t${escaped}"`;
+  }
+  return `"${escaped}"`;
+}
+
+function computeStreak(logs: InjectionLog[], includeToday = false): number {
+  const daySet = new Set(logs.map(l => new Date(l.logged_at).toDateString()));
+  if (includeToday) daySet.add(new Date().toDateString());
+  let streak = 0;
+  const d = new Date();
+  if (!daySet.has(d.toDateString())) d.setDate(d.getDate() - 1);
+  while (daySet.has(d.toDateString())) { streak++; d.setDate(d.getDate() - 1); }
+  return streak;
+}
+
+const CALENDAR_PREF_KEY = 'pptides_calendar_pref';
+
 export default function Tracker() {
-  const { user } = useAuth();
+  const { user, subscription } = useAuth();
   const { celebrate } = useCelebrations();
+  const [useHijri, setUseHijri] = useState(() => {
+    try {
+      return localStorage.getItem(CALENDAR_PREF_KEY) === 'hijri';
+    } catch {
+      return false;
+    }
+  });
+  const toggleCalendar = () => {
+    const next = !useHijri;
+    setUseHijri(next);
+    try {
+      localStorage.setItem(CALENDAR_PREF_KEY, next ? 'hijri' : 'gregorian');
+    } catch { /* Safari private mode */ }
+  };
   const [logs, setLogs] = useState<InjectionLog[]>([]);
   const [totalCount, setTotalCount] = useState(0);
   const [isLoadingLogs, setIsLoadingLogs] = useState(true);
@@ -103,6 +155,8 @@ export default function Tracker() {
     return () => { document.body.style.overflow = ''; };
   }, [confirmDialog]);
   const [sideEffect, setSideEffect] = useState('none');
+  const [showProtocolWizard, setShowProtocolWizard] = useState(false);
+  const [wizardPeptideId, setWizardPeptideId] = useState('');
 
   interface ActiveProtocol { id: string; peptide_id: string; dose: number; dose_unit: string; frequency: string; cycle_weeks: number; started_at: string; status: string; }
   const [activeProtocols, setActiveProtocols] = useState<ActiveProtocol[]>([]);
@@ -146,11 +200,7 @@ export default function Tracker() {
       const nextIn = freq === 'bid' ? '12 ساعة' : freq === 'tid' ? '8 ساعات' : 'غدًا';
       setTimeout(() => toast(`الجرعة التالية: ${nextIn}`, { duration: 5000 }), 2000);
       const newTotal = (totalCount || logs.length) + 1;
-      const daySet = new Set([...logs.map(l => new Date(l.logged_at).toDateString()), new Date().toDateString()]);
-      let s = 0; const dd = new Date();
-      if (!daySet.has(dd.toDateString())) dd.setDate(dd.getDate() - 1);
-      while (daySet.has(dd.toDateString())) { s++; dd.setDate(dd.getDate() - 1); }
-      celebrate(newTotal, s);
+      celebrate(newTotal, computeStreak(logs, true));
     } catch { toast.error('تعذّر حفظ الحقنة — تحقق من اتصالك وحاول مرة أخرى'); }
     finally { setIsSubmitting(false); }
   };
@@ -159,6 +209,7 @@ export default function Tracker() {
     const now = new Date();
     return { year: now.getFullYear(), month: now.getMonth() };
   });
+  const [timingTipsExpanded, setTimingTipsExpanded] = useState(false);
 
   const suggestedSite = useMemo(() => {
     if (logs.length === 0) return 'abdomen';
@@ -204,9 +255,7 @@ export default function Tracker() {
 
   useEffect(() => {
     if (!user) return;
-    let active = true;
     fetchLogs().catch(() => { /* handled inside fetchLogs */ });
-    return () => { active = false; };
   }, [user, fetchLogs]);
 
   useEffect(() => {
@@ -224,7 +273,7 @@ export default function Tracker() {
         // ignore invalid draft
       }
     }
-  }, []);
+  }, [peptideName]);
 
   useEffect(() => {
     if (peptideName || dose) {
@@ -258,19 +307,41 @@ export default function Tracker() {
     }
   };
 
-  const exportCSV = () => {
-    const headers = 'Peptide,Dose,Unit,Site,Date,Time,Notes';
-    const rows = logs.map(l =>
-      `"${l.peptide_name}",${l.dose},"${l.dose_unit}","${l.injection_site}","${formatDate(l.logged_at)}","${formatTime(l.logged_at)}","${(l.notes ?? '').replace(/"/g, '""')}"`
-    );
-    const csv = '\ufeff' + [headers, ...rows].join('\n');
-    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `pptides-injections-${new Date().toISOString().slice(0, 10)}.csv`;
-    a.click();
-    URL.revokeObjectURL(url);
+  const exportCSV = async () => {
+    if (!user) return;
+    toast('جارٍ تجهيز التصدير...');
+    try {
+      const { data: allLogs, error } = await supabase
+        .from('injection_logs')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('logged_at', { ascending: false })
+        .limit(10000);
+      if (error) { toast.error('تعذّر تحميل البيانات'); return; }
+      const rows = (allLogs ?? []).map((l: InjectionLog) =>
+        [
+          sanitizeCSVCell(l.peptide_name),
+          l.dose,
+          sanitizeCSVCell(l.dose_unit),
+          sanitizeCSVCell(l.injection_site),
+          sanitizeCSVCell(formatDate(l.logged_at, useHijri)),
+          sanitizeCSVCell(formatTime(l.logged_at)),
+          sanitizeCSVCell(l.notes ?? ''),
+        ].join(',')
+      );
+      const headers = 'Peptide,Dose,Unit,Site,Date,Time,Notes';
+      const csv = '\ufeff' + [headers, ...rows].join('\n');
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `pptides-injections-${new Date().toISOString().slice(0, 10)}.csv`;
+      a.click();
+      URL.revokeObjectURL(url);
+      toast.success('تم تصدير البيانات');
+    } catch {
+      toast.error('تعذّر تصدير البيانات');
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -332,11 +403,7 @@ export default function Tracker() {
         }
       }
       const newTotal = (totalCount || logs.length) + 1;
-      const daySet = new Set([...logs.map(l => new Date(l.logged_at).toDateString()), new Date().toDateString()]);
-      let s = 0; const dd = new Date();
-      if (!daySet.has(dd.toDateString())) dd.setDate(dd.getDate() - 1);
-      while (daySet.has(dd.toDateString())) { s++; dd.setDate(dd.getDate() - 1); }
-      celebrate(newTotal, s);
+      celebrate(newTotal, computeStreak(logs, true));
     } catch {
       toast.error('تعذّر حفظ الحقنة — تحقق من اتصالك وحاول مرة أخرى');
     } finally {
@@ -348,12 +415,9 @@ export default function Tracker() {
     if (logs.length === 0) return null;
     const totalInjections = totalCount || logs.length;
     const uniquePeptides = new Set(logs.map(l => l.peptide_name)).size;
-    let streak = 0;
-    const daySet = new Set(logs.map(l => new Date(l.logged_at).toDateString()));
-    const d = new Date();
-    if (!daySet.has(d.toDateString())) d.setDate(d.getDate() - 1);
-    while (daySet.has(d.toDateString())) { streak++; d.setDate(d.getDate() - 1); }
+    const streak = computeStreak(logs);
     const last7 = logs.filter(l => Date.now() - new Date(l.logged_at).getTime() < 7 * 24 * 60 * 60 * 1000).length;
+    if (logs.length === 0) return null;
     const msSinceLast = Date.now() - new Date(logs[0].logged_at).getTime();
     const hoursSince = Math.floor(msSinceLast / (1000 * 60 * 60));
     const daysSince = Math.floor(hoursSince / 24);
@@ -381,7 +445,7 @@ export default function Tracker() {
     const daysInMonth = new Date(year, month + 1, 0).getDate();
     const firstDayOfWeek = (new Date(year, month, 1).getDay() + 1) % 7;
     const dayNames = ['سبت', 'أحد', 'إثن', 'ثلا', 'أرب', 'خمي', 'جمع'];
-    const monthName = new Date(year, month).toLocaleDateString('ar-u-nu-latn', { month: 'long', year: 'numeric' });
+    const monthName = useHijri ? hijriFormatter.format(new Date(year, month, 15)) : new Date(year, month).toLocaleDateString('ar-u-nu-latn', { month: 'long', year: 'numeric' });
     const isCurrentMonth = year === now.getFullYear() && month === now.getMonth();
     const injectionDays = new Map<number, number>();
     logs.forEach(l => {
@@ -413,7 +477,7 @@ export default function Tracker() {
       );
     }
     return { dayNames, monthName, isCurrentMonth, injectionDays, cells };
-  }, [logs, calendarMonth]);
+  }, [logs, calendarMonth, useHijri]);
 
   const siteRotationData = useMemo(() => {
     if (logs.length === 0) return null;
@@ -422,11 +486,9 @@ export default function Tracker() {
     const recentSites = logs.slice(0, 5).map(l => l.injection_site);
     const siteCounts: Record<string, number> = {};
     recentSites.forEach(s => { if (s) siteCounts[s] = (siteCounts[s] || 0) + 1; });
-    const leastUsed = allSites.reduce((a, b) => (siteCounts[a] || 0) <= (siteCounts[b] || 0) ? a : b);
     const lastSite = logs[0]?.injection_site;
-    const suggestedSite = lastSite === leastUsed ? allSites.find(s => s !== lastSite) || leastUsed : leastUsed;
     return { siteLabels, allSites, siteCounts, lastSite, suggestedSite };
-  }, [logs]);
+  }, [logs, suggestedSite]);
 
   return (
     <div className="mx-auto max-w-3xl px-4 pb-24 pt-8 md:px-6 md:pt-12 animate-fade-in">
@@ -438,11 +500,57 @@ export default function Tracker() {
 
       {/* Header */}
       <div className="mb-8 text-center">
-        <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-100">
-          <Syringe className="h-7 w-7 text-emerald-600" />
+        <div className="flex items-center justify-center gap-3 mb-4">
+          <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-100">
+            <Syringe className="h-7 w-7 text-emerald-600" />
+          </div>
+          <button
+            type="button"
+            onClick={toggleCalendar}
+            className="flex items-center gap-2 rounded-full border border-stone-200 bg-white px-4 py-2 text-sm font-medium text-stone-700 transition-all hover:border-emerald-300 hover:bg-emerald-50 hover:text-emerald-700"
+            title={useHijri ? 'عرض بالتوقيت الميلادي' : 'عرض بالتوقيت الهجري'}
+            aria-label={useHijri ? 'تبديل للتوقيت الميلادي' : 'تبديل للتوقيت الهجري'}
+          >
+            <span aria-hidden>📅</span>
+            {useHijri ? 'هجري' : 'ميلادي'}
+          </button>
         </div>
         <h1 className="text-3xl font-bold text-emerald-600 md:text-4xl">سجل الحقن</h1>
         <p className="mt-2 text-lg text-stone-600">تتبّع جرعاتك ومواقع الحقن</p>
+      </div>
+
+      {/* Expired subscription banner — read-only mode */}
+      {!subscription.isProOrTrial && (
+        <div className="mb-6 rounded-2xl border border-amber-300 bg-amber-50 p-4 text-center">
+          <p className="text-sm font-bold text-amber-800 mb-1">اشتراكك منتهي — بياناتك محفوظة</p>
+          <p className="text-xs text-amber-700 mb-3">اشترك للإضافة والتعديل</p>
+          <Link to="/pricing" className="inline-flex items-center gap-2 rounded-full bg-emerald-600 px-6 py-2.5 text-sm font-bold text-white transition-all hover:bg-emerald-700">
+            اشترك الآن
+          </Link>
+        </div>
+      )}
+
+      {/* Prayer Time / Timing Tips — collapsible */}
+      <div className="mb-6 rounded-2xl border border-stone-200 bg-stone-50 overflow-hidden">
+        <button
+          type="button"
+          onClick={() => setTimingTipsExpanded((p) => !p)}
+          className="flex w-full items-center justify-between px-4 py-3 text-start transition-colors hover:bg-stone-100"
+          aria-expanded={timingTipsExpanded ? 'true' : 'false'}
+        >
+          <span className="flex items-center gap-2 font-bold text-stone-900">
+            <Info className="h-4 w-4 text-emerald-600" />
+            نصائح التوقيت
+          </span>
+          {timingTipsExpanded ? <ChevronUp className="h-4 w-4 text-stone-500" /> : <ChevronDown className="h-4 w-4 text-stone-500" />}
+        </button>
+        {timingTipsExpanded && (
+          <div className="border-t border-stone-200 px-4 py-4 text-sm text-stone-700 space-y-2">
+            <p>• الحقن على معدة فارغة — يُفضل قبل الفجر أو بعد العشاء</p>
+            <p>• ببتيدات هرمون النمو (CJC, Ipamorelin) — أفضل توقيت قبل النوم</p>
+            <p>• BPC-157 — صباحًا ومساءً، يمكن ربطه بصلاة الفجر والعشاء</p>
+          </div>
+        )}
       </div>
 
       {/* Active Protocol Cards — One-Tap Logging */}
@@ -465,50 +573,93 @@ export default function Tracker() {
                       <p className="font-bold text-stone-900 truncate">{peptide?.nameAr ?? proto.peptide_id}</p>
                       <p className="text-xs text-stone-500" dir="ltr">{proto.dose} {proto.dose_unit}</p>
                       <p className="text-xs text-stone-500">الأسبوع {weekNumber} من {totalWeeks}</p>
-                      <button
-                        onClick={() => setConfirmDialog({
-                          title: 'إنهاء البروتوكول',
-                          message: `هل تريد إنهاء بروتوكول ${peptide?.nameAr ?? proto.peptide_id}؟ لا يمكن التراجع.`,
-                          isDestructive: true,
-                          onConfirm: async () => {
-                            setConfirmBusy(true);
-                            const { error } = await supabase
-                              .from('user_protocols')
-                              .update({ status: 'completed', updated_at: new Date().toISOString() })
-                              .eq('id', proto.id)
-                              .eq('user_id', user.id);
-                            if (!error) {
-                              toast.success('تم إنهاء البروتوكول');
-                              fetchActiveProtocols();
-                            } else {
-                              toast.error('تعذّر إنهاء البروتوكول');
-                            }
-                            setConfirmBusy(false);
-                            setConfirmDialog(null);
-                          },
-                        })}
-                        className="text-xs text-stone-400 hover:text-red-500 transition-colors"
-                      >
-                        أنهِ البروتوكول
-                      </button>
-                    </div>
-                    <button
-                      onClick={() => handleQuickLog(proto)}
-                      disabled={isSubmitting || todayLogged}
-                      className={cn(
-                        'shrink-0 rounded-full px-4 py-2 text-sm font-bold transition-all',
-                        todayLogged
-                          ? 'bg-emerald-100 text-emerald-600 cursor-default'
-                          : 'bg-emerald-600 text-white hover:bg-emerald-700 active:scale-95'
+                      <p className="text-xs text-stone-500">بدأ {formatDate(proto.started_at, useHijri)}</p>
+                      {subscription.isProOrTrial && (
+                        <button
+                          onClick={() => setConfirmDialog({
+                            title: 'إنهاء البروتوكول',
+                            message: `هل تريد إنهاء بروتوكول ${peptide?.nameAr ?? proto.peptide_id}؟ لا يمكن التراجع.`,
+                            isDestructive: true,
+                            onConfirm: async () => {
+                              setConfirmBusy(true);
+                              const { error } = await supabase
+                                .from('user_protocols')
+                                .update({ status: 'completed', updated_at: new Date().toISOString() })
+                                .eq('id', proto.id)
+                                .eq('user_id', user.id);
+                              if (!error) {
+                                toast.success('تم إنهاء البروتوكول');
+                                fetchActiveProtocols();
+                              } else {
+                                toast.error('تعذّر إنهاء البروتوكول — تحقق من اتصالك وحاول مرة أخرى');
+                              }
+                              setConfirmBusy(false);
+                              setConfirmDialog(null);
+                            },
+                          })}
+                          className="text-xs text-stone-500 hover:text-red-500 transition-colors"
+                        >
+                          أنهِ البروتوكول
+                        </button>
                       )}
-                    >
-                      {todayLogged ? 'تم اليوم' : 'سجّل'}
-                    </button>
+                    </div>
+                    {subscription.isProOrTrial ? (
+                      <button
+                        onClick={() => handleQuickLog(proto)}
+                        disabled={isSubmitting || todayLogged}
+                        className={cn(
+                          'shrink-0 rounded-full px-4 py-2 text-sm font-bold transition-all',
+                          todayLogged
+                            ? 'bg-emerald-100 text-emerald-600 cursor-default'
+                            : 'bg-emerald-600 text-white hover:bg-emerald-700 active:scale-95'
+                        )}
+                      >
+                        {todayLogged ? 'تم اليوم' : 'سجّل'}
+                      </button>
+                    ) : (
+                      <span className="shrink-0 rounded-full bg-stone-100 px-4 py-2 text-xs text-stone-500">قراءة فقط</span>
+                    )}
                   </div>
                 </div>
               );
             })}
           </div>
+        </div>
+      )}
+
+      {/* Start New Protocol */}
+      {subscription.isProOrTrial && (
+        <div className="mb-8">
+          {!showProtocolWizard ? (
+            <div className="rounded-2xl border-2 border-dashed border-emerald-200 bg-emerald-50/50 p-5">
+              <div className="flex flex-col sm:flex-row items-center gap-4">
+                <div className="flex-1 text-center sm:text-right">
+                  <h3 className="text-sm font-bold text-stone-900">بدء بروتوكول جديد</h3>
+                  <p className="text-xs text-stone-500 mt-1">اختر ببتيد وابدأ بروتوكول منظّم بجرعات وتذكيرات</p>
+                </div>
+                <div className="flex items-center gap-2 w-full sm:w-auto">
+                  <select
+                    value={wizardPeptideId}
+                    onChange={(e) => setWizardPeptideId(e.target.value)}
+                    className="flex-1 sm:w-48 rounded-xl border border-stone-200 bg-white px-3 py-2.5 text-sm text-stone-900 focus:border-emerald-300 focus:outline-none focus:ring-2 focus:ring-emerald-100"
+                    aria-label="اختر ببتيد للبروتوكول"
+                  >
+                    <option value="">اختر ببتيد...</option>
+                    {allPeptides.filter(p => p.id !== 'melanotan-ii').map(p => (
+                      <option key={p.id} value={p.id}>{p.nameAr}</option>
+                    ))}
+                  </select>
+                  <button
+                    onClick={() => { if (wizardPeptideId) setShowProtocolWizard(true); else toast.error('اختر ببتيدًا أولاً'); }}
+                    className="shrink-0 flex items-center gap-2 rounded-xl bg-emerald-600 px-5 py-2.5 text-sm font-bold text-white transition-all hover:bg-emerald-700 active:scale-95"
+                  >
+                    <Play className="h-4 w-4" />
+                    ابدأ
+                  </button>
+                </div>
+              </div>
+            </div>
+          ) : null}
         </div>
       )}
 
@@ -572,7 +723,7 @@ export default function Tracker() {
         const trendPeptide = logs[0]?.peptide_name;
         const trendLogs = logs.filter(l => l.peptide_name === trendPeptide);
         const trendData = [...trendLogs].reverse().slice(-14).map(l => ({
-          date: new Date(l.logged_at).toLocaleDateString('ar-u-nu-latn', { month: 'short', day: 'numeric' }),
+          date: useHijri ? hijriFormatter.format(new Date(l.logged_at)) : new Date(l.logged_at).toLocaleDateString('ar-u-nu-latn', { month: 'short', day: 'numeric' }),
           dose: l.dose,
         }));
         return (
@@ -600,7 +751,7 @@ export default function Tracker() {
             </div>
             <div className="grid grid-cols-7 gap-1 text-center">
               {calendarData.dayNames.map(d => (
-                <div key={d} className="text-xs font-bold text-stone-400 pb-1">{d}</div>
+                <div key={d} className="text-xs font-bold text-stone-500 pb-1">{d}</div>
               ))}
               {calendarData.cells}
             </div>
@@ -641,8 +792,8 @@ export default function Tracker() {
           </div>
       )}
 
-      {/* Action Buttons — hide when empty to avoid duplicate CTA with empty state card */}
-      {!showForm && logs.length > 0 && (
+      {/* Action Buttons — hide when empty or when subscription is expired */}
+      {!showForm && logs.length > 0 && subscription.isProOrTrial && (
         <div className="mb-8 flex gap-3">
           <button
             onClick={() => {
@@ -694,11 +845,7 @@ export default function Tracker() {
                       await fetchLogs();
                       toast.success(`تم تسجيل ${last.peptide_name} — ${last.dose} ${last.dose_unit}`);
                       const newTotal = (totalCount || logs.length) + 1;
-                      const daySet = new Set([...logs.map(l => new Date(l.logged_at).toDateString()), new Date().toDateString()]);
-                      let s = 0; const dd = new Date();
-                      if (!daySet.has(dd.toDateString())) dd.setDate(dd.getDate() - 1);
-                      while (daySet.has(dd.toDateString())) { s++; dd.setDate(dd.getDate() - 1); }
-                      celebrate(newTotal, s);
+                      celebrate(newTotal, computeStreak(logs, true));
                     } catch {
                       toast.error('تعذّر حفظ الحقنة — تحقق من اتصالك وحاول مرة أخرى');
                     } finally {
@@ -718,7 +865,7 @@ export default function Tracker() {
       )}
 
       {/* Log Form */}
-      {showForm && (
+      {showForm && subscription.isProOrTrial && (
         <form onSubmit={handleSubmit} className="mb-8 rounded-2xl border border-stone-200 bg-stone-50 p-6">
           <h2 className="mb-4 text-lg font-bold text-stone-900">تسجيل حقنة جديدة</h2>
           <div className="space-y-4">
@@ -733,7 +880,7 @@ export default function Tracker() {
                 className="w-full rounded-xl border border-stone-200 bg-white px-4 py-3 text-sm text-stone-900 focus:border-emerald-300 focus:outline-none focus:ring-2 focus:ring-emerald-100"
               >
                 <option value="">اختر الببتيد...</option>
-                {allPeptides.map(p => (
+                {allPeptides.filter(p => p.id !== 'melanotan-ii').map(p => (
                   <option key={p.id} value={p.nameEn}>{p.nameAr} ({p.nameEn})</option>
                 ))}
               </select>
@@ -754,7 +901,7 @@ export default function Tracker() {
                   min="0"
                   step="any"
                   dir="ltr"
-                  className="w-full rounded-xl border border-stone-200 bg-white px-4 py-3 text-sm text-stone-900 placeholder:text-stone-400 focus:border-emerald-300 focus:outline-none focus:ring-2 focus:ring-emerald-100"
+                  className="w-full rounded-xl border border-stone-200 bg-white px-4 py-3 text-sm text-stone-900 placeholder:text-stone-500 focus:border-emerald-300 focus:outline-none focus:ring-2 focus:ring-emerald-100"
                 />
               </div>
               <div className="w-28">
@@ -845,9 +992,9 @@ export default function Tracker() {
                 placeholder="ملاحظات إضافية..."
                 rows={3}
                 maxLength={200}
-                className="w-full resize-none rounded-xl border border-stone-200 bg-white px-4 py-3 text-sm text-stone-900 placeholder:text-stone-400 focus:border-emerald-300 focus:outline-none focus:ring-2 focus:ring-emerald-100"
+                className="w-full resize-none rounded-xl border border-stone-200 bg-white px-4 py-3 text-sm text-stone-900 placeholder:text-stone-500 focus:border-emerald-300 focus:outline-none focus:ring-2 focus:ring-emerald-100"
               />
-              <p className={cn('mt-1 text-start text-xs', notes.length >= 180 ? 'text-amber-600' : 'text-stone-400')}>{notes.length}/200</p>
+              <p className={cn('mt-1 text-start text-xs', notes.length >= 180 ? 'text-amber-600' : 'text-stone-500')}>{notes.length}/200</p>
             </div>
 
             <div className="flex gap-3">
@@ -877,6 +1024,11 @@ export default function Tracker() {
         </form>
       )}
 
+      {/* Side Effect Log */}
+      <div className="mb-8">
+        <SideEffectLog />
+      </div>
+
       {/* Timeline */}
       <div>
         <div className="mb-4 flex items-center justify-between">
@@ -892,8 +1044,14 @@ export default function Tracker() {
           )}
         </div>
         {isLoadingLogs ? (
-          <div className="flex items-center justify-center py-16" role="status" aria-label="جارٍ تحميل السجلات">
-            <Loader2 className="h-6 w-6 animate-spin text-emerald-600" />
+          <div className="space-y-3 py-4" role="status" aria-label="جارٍ تحميل السجلات">
+            {Array.from({ length: 3 }).map((_, i) => (
+              <div key={i} className="animate-pulse rounded-2xl border border-stone-200 p-5 space-y-2">
+                <div className="flex justify-between"><div className="h-5 w-28 rounded bg-stone-200" /><div className="h-6 w-20 rounded-full bg-stone-100" /></div>
+                <div className="h-4 w-40 rounded bg-stone-100" />
+                <div className="h-4 w-32 rounded bg-stone-100" />
+              </div>
+            ))}
           </div>
         ) : fetchError && logs.length === 0 ? (
           <div className="rounded-2xl border border-red-200 bg-red-50 py-10 text-center">
@@ -912,18 +1070,26 @@ export default function Tracker() {
             </div>
             <h3 className="text-xl font-bold text-stone-900">سجل حقنك جاهز</h3>
             <p className="mx-auto mt-2 max-w-md text-sm leading-relaxed text-stone-600">
-              سجّل حقنتك الأولى الآن — سنتتبّع جرعاتك، ندير تدوير مواقع الحقن، ونعرض لك إحصائيات التزامك بالبروتوكول.
+              {subscription.isProOrTrial
+                ? 'سجّل حقنتك الأولى الآن — سنتتبّع جرعاتك، ندير تدوير مواقع الحقن، ونعرض لك إحصائيات التزامك بالبروتوكول.'
+                : 'اشترك لبدء تسجيل حقنك وتتبّع جرعاتك.'}
             </p>
-            <button
-              onClick={() => {
-                setShowForm(true);
-                setSite(suggestedSite);
-              }}
-              className="mt-5 inline-flex items-center gap-2 rounded-full bg-emerald-600 px-8 py-3 text-sm font-bold text-white transition-all hover:bg-emerald-700"
-            >
-              <Plus className="h-4 w-4" />
-              ابدأ بتسجيل أول حقنة
-            </button>
+            {subscription.isProOrTrial ? (
+              <button
+                onClick={() => {
+                  setShowForm(true);
+                  setSite(suggestedSite);
+                }}
+                className="mt-5 inline-flex items-center gap-2 rounded-full bg-emerald-600 px-8 py-3 text-sm font-bold text-white transition-all hover:bg-emerald-700"
+              >
+                <Plus className="h-4 w-4" />
+                ابدأ بتسجيل أول حقنة
+              </button>
+            ) : (
+              <Link to="/pricing" className="mt-5 inline-flex items-center gap-2 rounded-full bg-emerald-600 px-8 py-3 text-sm font-bold text-white transition-all hover:bg-emerald-700">
+                اشترك الآن
+              </Link>
+            )}
             <div className="mt-6 flex flex-col items-center gap-2 sm:flex-row sm:justify-center">
               <Link to="/coach" className="text-sm font-semibold text-emerald-600 hover:underline transition-colors">صمّم بروتوكول مع المدرب الذكي</Link>
               <span className="hidden sm:inline text-stone-300">|</span>
@@ -943,13 +1109,13 @@ export default function Tracker() {
                 key={log.id}
                 className={cn('rounded-2xl border p-5 shadow-sm transition-all hover:shadow-md', isToday ? 'border-emerald-300 border-s-4 bg-emerald-50/30' : 'border-stone-200 bg-white')}
               >
-                <div className="flex items-start justify-between mb-2">
+                  <div className="flex items-start justify-between mb-2">
                   <h3 className="font-bold text-stone-900" dir="ltr">{log.peptide_name}</h3>
                   <div className="flex items-center gap-2">
                     <span className="rounded-full bg-emerald-50 px-3 py-1 text-xs font-bold text-emerald-700">
                       {log.dose} {log.dose_unit}
                     </span>
-                    <button
+                    {subscription.isProOrTrial && <button
                       onClick={() => {
                         setConfirmDialog({
                           title: 'حذف السجل',
@@ -981,7 +1147,7 @@ export default function Tracker() {
                       aria-label="حذف"
                     >
                       <Trash2 className="h-3.5 w-3.5" />
-                    </button>
+                    </button>}
                   </div>
                 </div>
                 <div className="flex flex-wrap gap-4 text-xs text-stone-500">
@@ -991,7 +1157,7 @@ export default function Tracker() {
                   </span>
                   <span className="flex items-center gap-1">
                     <Calendar className="h-3.5 w-3.5" />
-                    {formatDate(log.logged_at)}
+                    {formatDate(log.logged_at, useHijri)}
                   </span>
                   <span className="flex items-center gap-1">
                     <Clock className="h-3.5 w-3.5" />
@@ -1000,7 +1166,7 @@ export default function Tracker() {
                 </div>
                 {log.notes && (
                   <div className="mt-3 flex items-start gap-2 rounded-lg bg-stone-50 px-3 py-2">
-                    <FileText className="mt-0.5 h-3.5 w-3.5 shrink-0 text-stone-400" />
+                    <FileText className="mt-0.5 h-3.5 w-3.5 shrink-0 text-stone-500" />
                     <p className="text-xs text-stone-600">{log.notes}</p>
                   </div>
                 )}
@@ -1029,7 +1195,7 @@ export default function Tracker() {
       {confirmDialog && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4 animate-fade-in" onClick={() => setConfirmDialog(null)}>
           <FocusTrap focusTrapOptions={{ allowOutsideClick: true }}>
-          <div className="w-full max-w-sm rounded-2xl bg-white p-6 shadow-2xl" onClick={e => e.stopPropagation()}>
+          <div role="dialog" aria-modal="true" className="w-full max-w-sm rounded-2xl bg-white p-6 shadow-2xl" onClick={e => e.stopPropagation()}>
             <h3 className="text-lg font-bold text-stone-900 mb-2">{confirmDialog.title}</h3>
             <p className="text-sm text-stone-600 mb-6">{confirmDialog.message}</p>
             <div className="flex gap-3">
@@ -1050,6 +1216,13 @@ export default function Tracker() {
           </div>
           </FocusTrap>
         </div>
+      )}
+      {showProtocolWizard && wizardPeptideId && (
+        <ProtocolWizard
+          peptideId={wizardPeptideId}
+          onClose={() => setShowProtocolWizard(false)}
+          onCreated={() => { setShowProtocolWizard(false); setWizardPeptideId(''); fetchActiveProtocols(); }}
+        />
       )}
     </div>
   );

@@ -1,32 +1,43 @@
 import { useState, useEffect, useCallback } from 'react';
 import FocusTrap from 'focus-trap-react';
 import { Helmet } from 'react-helmet-async';
-import { Link, useNavigate } from 'react-router-dom';
-import { User, Crown, LogOut, Trash2, AlertTriangle, Mail, ArrowUpCircle, KeyRound, XCircle, Download, CreditCard, Gift, Copy, Share2, Check, Send, MessageSquare } from 'lucide-react';
+import { Link, Navigate, useNavigate, useLocation } from 'react-router-dom';
+import { User, Crown, LogOut, Trash2, AlertTriangle, Mail, ArrowUpCircle, KeyRound, XCircle, Download, CreditCard, Gift, Copy, Share2, Check, Send, MessageSquare, UserCircle } from 'lucide-react';
 import { toast } from 'sonner';
 import { cn, arPlural } from '@/lib/utils';
-import { SUPPORT_EMAIL, STATUS_LABELS, TIER_LABELS, PEPTIDE_COUNT } from '@/lib/constants';
+import { SUPPORT_EMAIL, STATUS_LABELS, TIER_LABELS, PEPTIDE_COUNT, SITE_URL } from '@/lib/constants';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
 
 export default function Account() {
-  const { user, subscription, logout, refreshSubscription } = useAuth();
+  const { user, subscription, logout, refreshSubscription, isLoading } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   const [showCancelDialog, setShowCancelDialog] = useState(false);
-  const [cancelStep, setCancelStep] = useState<'confirm' | 'retention' | null>(null);
+  const [cancelStep, setCancelStep] = useState<'survey' | 'retention' | null>(null);
+  const [cancelReason, setCancelReason] = useState('');
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [deleteConfirmText, setDeleteConfirmText] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
   const [newPassword, setNewPassword] = useState('');
+  const [currentPassword, setCurrentPassword] = useState('');
   const [passwordLoading, setPasswordLoading] = useState(false);
   const [newEmail, setNewEmail] = useState('');
   const [emailLoading, setEmailLoading] = useState(false);
+  const [deletePassword, setDeletePassword] = useState('');
+
+  const [profileDisplayName, setProfileDisplayName] = useState('');
+  const [profileWeight, setProfileWeight] = useState('');
+  const [profileGoals, setProfileGoals] = useState<string[]>([]);
+  const [profileLoading, setProfileLoading] = useState(false);
+  const [profileSaving, setProfileSaving] = useState(false);
 
   const closeDialogs = useCallback(() => {
     setShowCancelDialog(false);
     setCancelStep(null);
     setShowDeleteDialog(false);
     setDeleteConfirmText('');
+    setDeletePassword('');
   }, []);
 
   useEffect(() => {
@@ -43,12 +54,66 @@ export default function Account() {
     }
   }, [showCancelDialog]);
 
+  const PROFILE_GOALS = [
+    { id: 'recovery', label: 'تعافي' },
+    { id: 'weight_loss', label: 'فقدان وزن' },
+    { id: 'muscle', label: 'عضل' },
+    { id: 'brain', label: 'دماغ' },
+    { id: 'hormones', label: 'هرمونات' },
+    { id: 'longevity', label: 'طول عمر' },
+    { id: 'gut_skin', label: 'أمعاء/بشرة' },
+  ] as const;
+
+  useEffect(() => {
+    if (!user) return;
+    setProfileLoading(true);
+    supabase.from('user_profiles').select('display_name, weight_kg, goals').eq('user_id', user.id).maybeSingle()
+      .then(({ data, error }) => {
+        if (!error && data) {
+          setProfileDisplayName(data.display_name ?? '');
+          setProfileWeight(data.weight_kg != null ? String(data.weight_kg) : '');
+          setProfileGoals(Array.isArray(data.goals) ? data.goals : []);
+        }
+      })
+      .finally(() => setProfileLoading(false));
+  }, [user]);
+
+  const handleSaveProfile = async () => {
+    if (!user) return;
+    setProfileSaving(true);
+    try {
+      const weightNum = profileWeight.trim() ? parseFloat(profileWeight) : null;
+      if (profileWeight.trim() && (isNaN(weightNum!) || weightNum! <= 0 || weightNum! > 300)) {
+        toast.error('أدخل وزنًا صالحًا (بالكيلوغرام)');
+        setProfileSaving(false);
+        return;
+      }
+      const { error } = await supabase.from('user_profiles').upsert({
+        user_id: user.id,
+        display_name: profileDisplayName.trim() || null,
+        weight_kg: weightNum,
+        goals: profileGoals.length > 0 ? profileGoals : null,
+        updated_at: new Date().toISOString(),
+      }, { onConflict: 'user_id' });
+      if (error) throw error;
+      toast.success('تم حفظ الملف الشخصي');
+    } catch {
+      toast.error('تعذّر حفظ الملف الشخصي. حاول مرة أخرى.');
+    } finally {
+      setProfileSaving(false);
+    }
+  };
+
   useEffect(() => {
     if (showDeleteDialog) {
       document.body.style.overflow = 'hidden';
       return () => { document.body.style.overflow = ''; };
     }
   }, [showDeleteDialog]);
+
+  if (!isLoading && !user) {
+    return <Navigate to={`/login?redirect=${encodeURIComponent(location.pathname + location.search)}`} replace />;
+  }
 
   if (!user) return null;
 
@@ -62,32 +127,38 @@ export default function Account() {
     try {
       const { error } = await supabase.auth.updateUser({ email: newEmail });
       if (error) throw error;
-      toast.success('تم تغيير البريد — يُرجى تحديث بريدك في إعدادات الدفع أيضًا');
+      await supabase.from('email_list').update({ email: newEmail.trim().toLowerCase() }).eq('email', user.email).catch(() => {});
+      toast.success('تم إرسال رابط تأكيد للبريد الجديد. سيتم تحديث بريد Stripe تلقائيًا عند الدفعة القادمة.');
       setNewEmail('');
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : '';
       if (msg.includes('already') || msg.includes('duplicate') || msg.includes('exists')) {
         toast.error('هذا البريد الإلكتروني مسجّل بالفعل');
       } else {
-        toast.error('حدث خطأ في تغيير البريد الإلكتروني. حاول مرة أخرى.');
+        toast.error('تعذّر تغيير البريد الإلكتروني — تحقق من اتصالك وحاول مرة أخرى');
       }
     }
     finally { setEmailLoading(false); }
   };
 
   const handleChangePassword = async () => {
-    if (newPassword.length < 8) { toast.error('كلمة المرور يجب أن تكون 8 أحرف على الأقل'); return; }
+    if (!currentPassword) { toast.error('أدخل كلمة المرور الحالية'); return; }
+    if (newPassword.length < 8) { toast.error('كلمة المرور الجديدة يجب أن تكون 8 أحرف على الأقل'); return; }
+    if (currentPassword === newPassword) { toast.error('كلمة المرور الجديدة يجب أن تختلف عن الحالية'); return; }
     setPasswordLoading(true);
     try {
+      const { error: signInError } = await supabase.auth.signInWithPassword({ email: user.email, password: currentPassword });
+      if (signInError) { toast.error('كلمة المرور الحالية غير صحيحة'); return; }
       const { error } = await supabase.auth.updateUser({ password: newPassword });
       if (error) throw error;
       toast.success('تم تغيير كلمة المرور بنجاح');
       setNewPassword('');
-    } catch { toast.error('حدث خطأ في تغيير كلمة المرور. حاول مرة أخرى.'); }
+      setCurrentPassword('');
+    } catch { toast.error('تعذّر تغيير كلمة المرور — تحقق من اتصالك وحاول مرة أخرى'); }
     finally { setPasswordLoading(false); }
   };
 
-  const handleExportData = async () => {
+  const handleExportData = async (format: 'json' | 'csv' = 'json') => {
     if (!user) return;
     toast('جارٍ تجهيز بياناتك...');
     try {
@@ -102,24 +173,53 @@ export default function Account() {
         toast.error('تعذّر تحميل بعض البيانات. حاول مرة أخرى.');
         return;
       }
-      const exportData = {
-        exported_at: new Date().toISOString(),
-        email: user.email,
-        injection_logs: logsRes.data ?? [],
-        protocols: protosRes.data ?? [],
-        reviews: reviewsRes.data ?? [],
-        community_posts: communityRes.data ?? [],
-        subscriptions: subsRes.data ?? [],
+
+      const download = (blob: Blob, filename: string) => {
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
       };
-      const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `pptides-data-${new Date().toISOString().slice(0, 10)}.json`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
+
+      if (format === 'csv') {
+        const logs = (logsRes.data ?? []) as Array<Record<string, unknown>>;
+        const escapeCSV = (val: unknown): string => {
+          const str = String(val ?? '');
+          const escaped = str.replace(/"/g, '""');
+          if (/^[=+\-@\t\r]/.test(escaped)) return `"\t${escaped}"`;
+          return `"${escaped}"`;
+        };
+        const headers = 'Date,Time,Peptide,Dose,Unit,Site,Notes';
+        const rows = logs.map(l => {
+          const d = new Date(l.logged_at as string);
+          return [
+            escapeCSV(d.toLocaleDateString('en-CA')),
+            escapeCSV(d.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })),
+            escapeCSV(l.peptide_name),
+            l.dose,
+            escapeCSV(l.dose_unit),
+            escapeCSV(l.injection_site),
+            escapeCSV(l.notes),
+          ].join(',');
+        });
+        const csv = '\ufeff' + [headers, ...rows].join('\n');
+        download(new Blob([csv], { type: 'text/csv;charset=utf-8' }), `pptides-injections-${new Date().toISOString().slice(0, 10)}.csv`);
+      } else {
+        const exportData = {
+          exported_at: new Date().toISOString(),
+          email: user.email,
+          injection_logs: logsRes.data ?? [],
+          protocols: protosRes.data ?? [],
+          reviews: reviewsRes.data ?? [],
+          community_posts: communityRes.data ?? [],
+          subscriptions: subsRes.data ?? [],
+        };
+        download(new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' }), `pptides-data-${new Date().toISOString().slice(0, 10)}.json`);
+      }
       toast.success('تم تصدير بياناتك بنجاح');
     } catch {
       toast.error('تعذّر تصدير البيانات. حاول مرة أخرى.');
@@ -152,15 +252,24 @@ export default function Account() {
       await refreshSubscription();
       navigate('/account', { replace: true });
     } catch {
-      toast.error(`حدث خطأ أثناء الإلغاء. تواصل معنا: ${SUPPORT_EMAIL}`);
+      toast.error(`تعذّر إلغاء الاشتراك — تواصل معنا: ${SUPPORT_EMAIL}`);
     } finally {
       setIsProcessing(false);
     }
   };
 
+  const isOAuthUser = (user?.app_metadata?.provider ?? 'email') !== 'email';
+
   const handleDeleteAccount = async () => {
+    const confirmed = deleteConfirmText === 'حذف' || deleteConfirmText.toLowerCase() === 'delete';
+    if (!confirmed) { toast.error('اكتب حذف أو DELETE للتأكيد'); return; }
+    if (!isOAuthUser && !deletePassword) { toast.error('أدخل كلمة المرور للتأكيد'); return; }
     setIsProcessing(true);
     try {
+      if (!isOAuthUser) {
+        const { error: signInError } = await supabase.auth.signInWithPassword({ email: user!.email!, password: deletePassword });
+        if (signInError) { toast.error('كلمة المرور غير صحيحة'); setIsProcessing(false); return; }
+      }
       const { data: { session } } = await supabase.auth.getSession();
       if (!session?.access_token) throw new Error('انتهت جلستك. أعد تسجيل الدخول.');
       const res = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/delete-account`, {
@@ -175,7 +284,7 @@ export default function Account() {
       if (!res.ok) throw new Error();
       await logout();
     } catch {
-      toast.error(`حدث خطأ أثناء حذف الحساب. تواصل معنا: ${SUPPORT_EMAIL}`);
+      toast.error(`تعذّر حذف الحساب — تواصل معنا: ${SUPPORT_EMAIL}`);
     } finally {
       setIsProcessing(false);
     }
@@ -198,6 +307,77 @@ export default function Account() {
       </div>
 
       <div className="space-y-6">
+        {/* Profile Card */}
+        <div className="rounded-2xl border border-stone-200 bg-stone-50 p-6">
+          <div className="flex items-center gap-3 mb-4">
+            <UserCircle className="h-5 w-5 text-emerald-600" />
+            <h2 className="text-lg font-bold text-stone-900">الملف الشخصي</h2>
+          </div>
+          {profileLoading ? (
+            <div className="h-20 flex items-center justify-center">
+              <span className="h-5 w-5 animate-spin rounded-full border-2 border-emerald-300 border-t-transparent" />
+            </div>
+          ) : (
+            <form onSubmit={(e) => { e.preventDefault(); handleSaveProfile(); }} className="space-y-4">
+              <div>
+                <label htmlFor="profile-display-name" className="mb-1.5 block text-sm font-medium text-stone-700">الاسم المعروض</label>
+                <input
+                  id="profile-display-name"
+                  type="text"
+                  value={profileDisplayName}
+                  onChange={(e) => setProfileDisplayName(e.target.value)}
+                  placeholder="اسمك أو لقبك"
+                  maxLength={100}
+                  className="w-full rounded-xl border border-stone-200 bg-white px-4 py-3 text-sm text-stone-900 placeholder:text-stone-500 focus:border-emerald-300 focus:outline-none focus:ring-2 focus:ring-emerald-100"
+                />
+              </div>
+              <div>
+                <label htmlFor="profile-weight" className="mb-1.5 block text-sm font-medium text-stone-700">الوزن (كجم)</label>
+                <input
+                  id="profile-weight"
+                  type="number"
+                  inputMode="decimal"
+                  min={30}
+                  max={300}
+                  step={0.1}
+                  value={profileWeight}
+                  onChange={(e) => setProfileWeight(e.target.value)}
+                  placeholder="مثال: 75"
+                  dir="ltr"
+                  className="w-full rounded-xl border border-stone-200 bg-white px-4 py-3 text-sm text-stone-900 placeholder:text-stone-500 focus:border-emerald-300 focus:outline-none focus:ring-2 focus:ring-emerald-100"
+                />
+              </div>
+              <div>
+                <label className="mb-2 block text-sm font-medium text-stone-700">الأهداف</label>
+                <div className="flex flex-wrap gap-2">
+                  {PROFILE_GOALS.map((g) => (
+                    <button
+                      key={g.id}
+                      type="button"
+                      onClick={() => setProfileGoals((prev) => (prev.includes(g.id) ? prev.filter((x) => x !== g.id) : [...prev, g.id]))}
+                      className={cn(
+                        'rounded-full px-4 py-2 text-xs font-bold transition-colors',
+                        profileGoals.includes(g.id)
+                          ? 'bg-emerald-600 text-white'
+                          : 'border border-stone-200 bg-white text-stone-600 hover:border-emerald-300 hover:bg-emerald-50',
+                      )}
+                    >
+                      {g.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <button
+                type="submit"
+                disabled={profileSaving}
+                className="rounded-xl bg-emerald-600 px-6 py-3 text-sm font-bold text-white transition-colors hover:bg-emerald-700 active:scale-[0.98] disabled:opacity-50"
+              >
+                {profileSaving ? 'جارٍ الحفظ...' : 'حفظ الملف الشخصي'}
+              </button>
+            </form>
+          )}
+        </div>
+
         {/* Email Card */}
         <div className="rounded-2xl border border-stone-200 bg-stone-50 p-6">
           <div className="flex items-center gap-3 mb-4">
@@ -216,7 +396,7 @@ export default function Account() {
                 placeholder="example@mail.com"
                 dir="ltr"
                 autoComplete="email"
-                className="w-full rounded-xl border border-stone-200 bg-white px-4 py-3 text-left text-sm text-stone-900 placeholder:text-stone-400 focus:border-emerald-300 focus:outline-none focus:ring-2 focus:ring-emerald-100"
+                className="w-full rounded-xl border border-stone-200 bg-white px-4 py-3 text-left text-sm text-stone-900 placeholder:text-stone-500 focus:border-emerald-300 focus:outline-none focus:ring-2 focus:ring-emerald-100"
               />
             </div>
             <button
@@ -229,35 +409,51 @@ export default function Account() {
           </form>
         </div>
 
-        {/* Change Password */}
+        {/* Change Password — only for email users; OAuth users have no password */}
+        {!isOAuthUser && (
         <div className="rounded-2xl border border-stone-200 bg-stone-50 p-6">
           <div className="flex items-center gap-3 mb-4">
             <KeyRound className="h-5 w-5 text-emerald-600" />
             <h2 className="text-lg font-bold text-stone-900">تغيير كلمة المرور</h2>
           </div>
-          <form onSubmit={(e) => { e.preventDefault(); handleChangePassword(); }} className="flex flex-col gap-3 sm:flex-row sm:items-end">
-            <div className="flex-1">
-              <label htmlFor="new-password" className="mb-1.5 block text-sm font-medium text-stone-700">كلمة المرور الجديدة</label>
+          <form onSubmit={(e) => { e.preventDefault(); handleChangePassword(); }} className="flex flex-col gap-3">
+            <div>
+              <label htmlFor="account-current-password" className="mb-1.5 block text-sm font-medium text-stone-700">كلمة المرور الحالية</label>
               <input
-                id="new-password"
+                id="account-current-password"
+                type="password"
+                value={currentPassword}
+                onChange={(e) => setCurrentPassword(e.target.value)}
+                placeholder="كلمة المرور الحالية"
+                dir="ltr"
+                autoComplete="current-password"
+                className="w-full rounded-xl border border-stone-200 bg-white px-4 py-3 text-left text-sm text-stone-900 placeholder:text-stone-500 focus:outline-none focus:border-emerald-300 focus:ring-2 focus:ring-emerald-100"
+              />
+            </div>
+            <div>
+              <label htmlFor="account-new-password" className="mb-1.5 block text-sm font-medium text-stone-700">كلمة المرور الجديدة</label>
+              <input
+                id="account-new-password"
                 type="password"
                 value={newPassword}
                 onChange={(e) => setNewPassword(e.target.value)}
                 placeholder="8 أحرف على الأقل"
                 dir="ltr"
                 minLength={8}
-                className="w-full rounded-xl border border-stone-200 bg-white px-4 py-3 text-left text-sm text-stone-900 placeholder:text-stone-400 focus:outline-none focus:border-emerald-300 focus:ring-2 focus:ring-emerald-100"
+                autoComplete="new-password"
+                className="w-full rounded-xl border border-stone-200 bg-white px-4 py-3 text-left text-sm text-stone-900 placeholder:text-stone-500 focus:outline-none focus:border-emerald-300 focus:ring-2 focus:ring-emerald-100"
               />
             </div>
             <button
               type="submit"
-              disabled={passwordLoading || !newPassword}
+              disabled={passwordLoading || !newPassword || !currentPassword}
               className="rounded-xl bg-emerald-600 px-6 py-3 text-sm font-bold text-white transition-all hover:bg-emerald-700 active:scale-[0.98] disabled:opacity-50"
             >
               {passwordLoading ? <span className="inline-flex items-center gap-2"><span className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />جارٍ التغيير</span> : 'تغيير كلمة المرور'}
             </button>
           </form>
         </div>
+        )}
 
         {/* Subscription Card */}
         <div className="rounded-2xl border border-stone-200 bg-stone-50 p-6">
@@ -319,29 +515,49 @@ export default function Account() {
               </div>
             )}
           </div>
-          {subscription.isPaidSubscriber && (
-            <button
-              onClick={async () => {
-                try {
-                  const session = await supabase.auth.getSession();
-                  const token = session.data.session?.access_token;
-                  if (!token) { toast.error('يرجى تسجيل الدخول'); return; }
-                  toast('جارٍ فتح إدارة الدفع...');
-                  const res = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/create-portal-session`, {
-                    method: 'POST',
-                    signal: AbortSignal.timeout(15000),
-                    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}`, apikey: import.meta.env.VITE_SUPABASE_ANON_KEY },
-                  });
-                  if (!res.ok) { toast.error('تعذّر فتح إدارة الدفع'); return; }
-                  const { url } = await res.json();
-                  if (url) window.location.href = url;
-                } catch { toast.error('تعذّر فتح إدارة الدفع. حاول مرة أخرى.'); }
-              }}
-              className="mt-3 flex w-full items-center justify-center gap-2 rounded-xl border border-emerald-300 bg-emerald-50 px-6 py-3 text-sm font-bold text-emerald-700 transition-all hover:bg-emerald-100"
-            >
-              <CreditCard className="h-4 w-4" />
-              إدارة الدفع والفواتير
-            </button>
+          {(subscription.isPaidSubscriber || subscription.isTrial || subscription.status === 'past_due') && (
+            <>
+              <button
+                onClick={async () => {
+                  try {
+                    const session = await supabase.auth.getSession();
+                    const token = session.data.session?.access_token;
+                    if (!token) { toast.error('يرجى تسجيل الدخول'); return; }
+                    toast('جارٍ فتح إدارة الدفع...');
+                    const res = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/create-portal-session`, {
+                      method: 'POST',
+                      signal: AbortSignal.timeout(15000),
+                      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}`, apikey: import.meta.env.VITE_SUPABASE_ANON_KEY },
+                    });
+                    if (!res.ok) { toast.error('تعذّر فتح إدارة الدفع'); return; }
+                    const { url } = await res.json();
+                    if (url) window.location.href = url;
+                  } catch { toast.error('تعذّر فتح إدارة الدفع. حاول مرة أخرى.'); }
+                }}
+                className="mt-3 flex w-full items-center justify-center gap-2 rounded-xl border border-emerald-300 bg-emerald-50 px-6 py-3 text-sm font-bold text-emerald-700 transition-all hover:bg-emerald-100"
+              >
+                <CreditCard className="h-4 w-4" />
+                إدارة الدفع والفواتير
+              </button>
+              <button
+                onClick={async () => {
+                  try {
+                    const { error } = await supabase.from('enquiries').insert({
+                      user_id: user.id,
+                      email: user.email,
+                      subject: 'refund_request',
+                      message: 'طلب استرداد أموال',
+                      peptide_name: null,
+                    });
+                    if (error) throw error;
+                    toast.success('تم إرسال طلب الاسترداد — سنتواصل معك قريبًا');
+                  } catch { toast.error('تعذّر إرسال طلب الاسترداد. حاول مرة أخرى.'); }
+                }}
+                className="mt-3 flex w-full items-center justify-center gap-2 rounded-xl border border-stone-200 bg-white px-6 py-3 text-sm font-bold text-stone-700 transition-all hover:bg-stone-50"
+              >
+                طلب استرداد
+              </button>
+            </>
           )}
           {(subscription.status === 'expired' || subscription.status === 'none') && (
             <div className="mt-4 rounded-xl border border-amber-300 bg-amber-50 p-4">
@@ -389,16 +605,21 @@ export default function Account() {
             <h2 className="text-lg font-bold text-stone-900">تصدير البيانات</h2>
           </div>
           <p className="text-sm text-stone-600 mb-4">حمّل نسخة من جميع بياناتك (سجل الحقن، البروتوكولات، التقييمات)</p>
-          <button onClick={handleExportData} className="rounded-full border border-emerald-300 px-6 py-2.5 text-sm font-bold text-emerald-700 transition-colors hover:bg-emerald-50">
-            تصدير بياناتي
-          </button>
+          <div className="flex flex-wrap gap-3">
+            <button onClick={() => handleExportData('json')} className="rounded-full border border-emerald-300 px-6 py-2.5 text-sm font-bold text-emerald-700 transition-colors hover:bg-emerald-50">
+              تصدير JSON (كامل)
+            </button>
+            <button onClick={() => handleExportData('csv')} className="rounded-full border border-stone-300 px-6 py-2.5 text-sm font-bold text-stone-700 transition-colors hover:bg-stone-50">
+              تصدير CSV (سجل الحقن)
+            </button>
+          </div>
         </div>
 
         {/* Actions */}
         <div className="space-y-3">
           {(subscription.isPaidSubscriber || subscription.isTrial) && subscription.status !== 'cancelled' && (
             <button
-              onClick={() => { setShowCancelDialog(true); setCancelStep('retention'); }}
+              onClick={() => { setShowCancelDialog(true); setCancelStep('survey'); setCancelReason(''); }}
               className="flex w-full items-center justify-center gap-2 rounded-xl border border-stone-300 bg-white px-6 py-3 text-sm font-bold text-stone-700 transition-all hover:bg-stone-50"
             >
               <LogOut className="h-4 w-4" />
@@ -415,7 +636,77 @@ export default function Account() {
         </div>
       </div>
 
-      {/* Cancel Subscription Dialog — retention step first */}
+      {/* Cancel Subscription Dialog — survey step */}
+      {showCancelDialog && cancelStep === 'survey' && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm px-4 animate-fade-in" onClick={() => { setShowCancelDialog(false); setCancelStep(null); }}>
+          <FocusTrap focusTrapOptions={{ allowOutsideClick: true }}>
+          <div role="dialog" aria-modal="true" className="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl" onClick={e => e.stopPropagation()}>
+            <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-amber-100">
+              <AlertTriangle className="h-6 w-6 text-amber-600" />
+            </div>
+            <h3 className="text-lg font-bold text-stone-900">لماذا تريد الإلغاء؟</h3>
+            <p className="mt-1 text-sm text-stone-600">ساعدنا في تحسين الخدمة — اختر السبب الرئيسي</p>
+            <div className="mt-4 space-y-2">
+              {[
+                { id: 'too_expensive', label: 'السعر مرتفع' },
+                { id: 'not_useful', label: 'المحتوى غير مفيد بما يكفي' },
+                { id: 'found_alternative', label: 'وجدت بديلًا آخر' },
+                { id: 'technical_issues', label: 'مشاكل تقنية' },
+                { id: 'other', label: 'سبب آخر' },
+              ].map(opt => (
+                <button
+                  key={opt.id}
+                  onClick={() => setCancelReason(opt.id)}
+                  className={cn(
+                    'flex w-full items-center gap-3 rounded-xl border px-4 py-3 text-sm font-medium transition-all',
+                    cancelReason === opt.id
+                      ? 'border-emerald-400 bg-emerald-50 text-emerald-800'
+                      : 'border-stone-200 text-stone-700 hover:border-stone-300 hover:bg-stone-50',
+                  )}
+                >
+                  <span className={cn(
+                    'flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2',
+                    cancelReason === opt.id ? 'border-emerald-500 bg-emerald-500' : 'border-stone-300',
+                  )}>
+                    {cancelReason === opt.id && <span className="h-2 w-2 rounded-full bg-white" />}
+                  </span>
+                  {opt.label}
+                </button>
+              ))}
+            </div>
+            <div className="mt-6 flex flex-col gap-3">
+              <button
+                onClick={async () => {
+                  if (!cancelReason) { toast.error('اختر سبب الإلغاء'); return; }
+                  try {
+                    await supabase.from('enquiries').insert({
+                      user_id: user.id,
+                      email: user.email,
+                      subject: 'cancel_reason',
+                      message: cancelReason,
+                      peptide_name: null,
+                    });
+                  } catch { /* non-blocking */ }
+                  setCancelStep('retention');
+                }}
+                disabled={!cancelReason}
+                className="w-full rounded-xl bg-stone-700 px-4 py-2.5 text-sm font-bold text-white transition-all hover:bg-stone-800 disabled:opacity-50"
+              >
+                متابعة
+              </button>
+              <button
+                onClick={() => { setShowCancelDialog(false); setCancelStep(null); }}
+                className="w-full rounded-xl bg-emerald-600 px-4 py-2.5 text-sm font-bold text-white transition-all hover:bg-emerald-700"
+              >
+                الاحتفاظ بالاشتراك
+              </button>
+            </div>
+          </div>
+          </FocusTrap>
+        </div>
+      )}
+
+      {/* Cancel Subscription Dialog — retention step */}
       {showCancelDialog && cancelStep === 'retention' && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm px-4 animate-fade-in" onClick={() => { setShowCancelDialog(false); setCancelStep(null); }}>
           <FocusTrap focusTrapOptions={{ allowOutsideClick: true }}>
@@ -451,12 +742,17 @@ export default function Account() {
               >
                 {isProcessing ? 'جارٍ الإلغاء...' : 'متابعة الإلغاء'}
               </button>
-              <a
-                href={`mailto:${SUPPORT_EMAIL}?subject=إيقاف مؤقت للاشتراك`}
-                className="w-full text-center rounded-full border border-stone-200 py-3 text-sm font-bold text-stone-600 hover:bg-stone-50 block"
+              <button
+                type="button"
+                onClick={() => {
+                  toast.info('يمكنك إيقاف اشتراكك مؤقتًا لمدة شهر. تواصل معنا عبر contact@pptides.com لطلب الإيقاف.');
+                  setShowCancelDialog(false);
+                  setCancelStep(null);
+                }}
+                className="w-full rounded-full border border-stone-200 py-3 text-sm font-bold text-stone-600 hover:bg-stone-50"
               >
-                إيقاف مؤقت — تواصل معنا
-              </a>
+                إيقاف مؤقت
+              </button>
               <button
                 onClick={() => { setShowCancelDialog(false); setCancelStep(null); }}
                 className="w-full rounded-xl bg-emerald-600 px-4 py-2.5 text-sm font-bold text-white transition-all hover:bg-emerald-700"
@@ -471,7 +767,7 @@ export default function Account() {
 
       {/* Delete Account Dialog */}
       {showDeleteDialog && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm px-4 animate-fade-in" onClick={() => setShowDeleteDialog(false)}>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm px-4 animate-fade-in" onClick={closeDialogs}>
           <FocusTrap focusTrapOptions={{ allowOutsideClick: true }}>
           <div role="dialog" aria-modal="true" className="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl" onClick={e => e.stopPropagation()}>
             <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-red-100">
@@ -491,19 +787,33 @@ export default function Account() {
                 onChange={(e) => setDeleteConfirmText(e.target.value)}
                 placeholder="حذف"
                 dir="rtl"
-                className="w-full rounded-xl border border-stone-200 bg-stone-50 px-4 py-2.5 text-sm text-stone-900 placeholder:text-stone-400 focus:outline-none focus:border-red-300 focus:ring-2 focus:ring-red-100"
+                className="w-full rounded-xl border border-stone-200 bg-stone-50 px-4 py-2.5 text-sm text-stone-900 placeholder:text-stone-500 focus:outline-none focus:border-red-300 focus:ring-2 focus:ring-red-100"
               />
             </div>
+            {!isOAuthUser && (
+              <div className="mt-3">
+                <label className="mb-1.5 block text-sm font-medium text-stone-700">كلمة المرور</label>
+                <input
+                  type="password"
+                  value={deletePassword}
+                  onChange={(e) => setDeletePassword(e.target.value)}
+                  placeholder="أدخل كلمة المرور للتأكيد"
+                  dir="ltr"
+                  autoComplete="current-password"
+                  className="w-full rounded-xl border border-stone-200 bg-stone-50 px-4 py-2.5 text-sm text-stone-900 placeholder:text-stone-500 focus:outline-none focus:border-red-300 focus:ring-2 focus:ring-red-100"
+                />
+              </div>
+            )}
             <div className="mt-4 flex gap-3">
               <button
                 onClick={handleDeleteAccount}
-                disabled={isProcessing || (deleteConfirmText !== 'حذف' && deleteConfirmText.toLowerCase() !== 'delete')}
+                disabled={isProcessing || (deleteConfirmText !== 'حذف' && deleteConfirmText.toLowerCase() !== 'delete') || (!isOAuthUser && !deletePassword)}
                 className="flex-1 rounded-xl bg-red-600 px-4 py-2.5 text-sm font-bold text-white transition-all hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isProcessing ? 'جارٍ الحذف...' : 'تسجيل الخروج وحذف الحساب'}
               </button>
               <button
-                onClick={() => setShowDeleteDialog(false)}
+                onClick={closeDialogs}
                 className="flex-1 rounded-xl border border-stone-300 px-4 py-2.5 text-sm font-bold text-stone-700 transition-all hover:bg-stone-50"
               >
                 تراجع
@@ -561,7 +871,7 @@ function ReferralSection({ userId }: { userId?: string }) {
     return () => { mounted = false; };
   }, [userId, generateCode]);
 
-  const shareUrl = `https://pptides.com/?ref=${code}`;
+  const shareUrl = `${SITE_URL}/?ref=${code}`;
   const shareText = `جرّب pptides — أشمل دليل عربي للببتيدات العلاجية مع مدرب ذكي وحاسبة جرعات\n${shareUrl}`;
 
   const handleCopy = async () => {
@@ -640,7 +950,7 @@ function ReferralSection({ userId }: { userId?: string }) {
         </div>
       </div>
 
-      <p className="text-[11px] text-stone-400 mt-3 text-center">كود الإحالة الخاص بك: <span className="font-mono font-bold" dir="ltr">{code}</span></p>
+      <p className="text-[11px] text-stone-500 mt-3 text-center">كود الإحالة الخاص بك: <span className="font-mono font-bold" dir="ltr">{code}</span></p>
     </div>
   );
 }
@@ -693,7 +1003,7 @@ function EnquiryForm({ userEmail, userId }: { userEmail?: string; userId?: strin
       setPeptide('');
       setTimeout(() => setSent(false), 5000);
     } catch {
-      toast.error('خطأ في الاتصال. حاول مرة أخرى.');
+      toast.error('فشل الاتصال بالخادم — تحقق من اتصالك بالإنترنت');
     } finally {
       setSending(false);
     }
@@ -725,7 +1035,7 @@ function EnquiryForm({ userEmail, userId }: { userEmail?: string; userId?: strin
               placeholder="مثال: BPC-157"
               dir="ltr"
               maxLength={100}
-              className="w-full rounded-xl border border-stone-200 bg-white px-4 py-2.5 text-sm text-stone-900 placeholder:text-stone-400 outline-none focus:border-emerald-300 focus:ring-2 focus:ring-emerald-100"
+              className="w-full rounded-xl border border-stone-200 bg-white px-4 py-2.5 text-sm text-stone-900 placeholder:text-stone-500 outline-none focus:border-emerald-300 focus:ring-2 focus:ring-emerald-100"
             />
           </div>
           <div>
@@ -737,7 +1047,7 @@ function EnquiryForm({ userEmail, userId }: { userEmail?: string; userId?: strin
               onChange={e => setSubject(e.target.value)}
               placeholder="جرعة، تعارض، بروتوكول..."
               maxLength={200}
-              className="w-full rounded-xl border border-stone-200 bg-white px-4 py-2.5 text-sm text-stone-900 placeholder:text-stone-400 outline-none focus:border-emerald-300 focus:ring-2 focus:ring-emerald-100"
+              className="w-full rounded-xl border border-stone-200 bg-white px-4 py-2.5 text-sm text-stone-900 placeholder:text-stone-500 outline-none focus:border-emerald-300 focus:ring-2 focus:ring-emerald-100"
             />
           </div>
           <div>
@@ -750,9 +1060,9 @@ function EnquiryForm({ userEmail, userId }: { userEmail?: string; userId?: strin
               rows={4}
               maxLength={2000}
               required
-              className="w-full rounded-xl border border-stone-200 bg-white px-4 py-2.5 text-sm text-stone-900 placeholder:text-stone-400 outline-none resize-none focus:border-emerald-300 focus:ring-2 focus:ring-emerald-100"
+              className="w-full rounded-xl border border-stone-200 bg-white px-4 py-2.5 text-sm text-stone-900 placeholder:text-stone-500 outline-none resize-none focus:border-emerald-300 focus:ring-2 focus:ring-emerald-100"
             />
-            <p className="text-[10px] text-stone-400 mt-1 text-left" dir="ltr">{message.length}/2000</p>
+            <p className="text-[10px] text-stone-500 mt-1 text-left" dir="ltr">{message.length}/2000</p>
           </div>
           <button
             type="submit"
@@ -782,7 +1092,7 @@ function EnquiryForm({ userEmail, userId }: { userEmail?: string; userId?: strin
               <div key={h.id} className="flex items-center justify-between rounded-lg border border-stone-100 bg-stone-50 px-3 py-2">
                 <div className="min-w-0 flex-1">
                   <p className="text-xs font-medium text-stone-800 truncate">{h.subject}</p>
-                  <p className="text-[10px] text-stone-400">{new Date(h.created_at).toLocaleDateString('ar-u-nu-latn')}</p>
+                  <p className="text-[10px] text-stone-500">{new Date(h.created_at).toLocaleDateString('ar-u-nu-latn')}</p>
                 </div>
                 <span className={cn('shrink-0 rounded-full px-2 py-0.5 text-[10px] font-bold', h.status === 'replied' ? 'bg-emerald-100 text-emerald-700' : h.status === 'closed' ? 'bg-stone-200 text-stone-600' : 'bg-amber-100 text-amber-700')}>{h.status === 'replied' ? 'تم الرد' : h.status === 'closed' ? 'مغلق' : 'قيد المراجعة'}</span>
               </div>

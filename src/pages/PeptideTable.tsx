@@ -72,7 +72,6 @@ export default function PeptideTable() {
         <meta property="og:description" content={`أشمل جدول مقارنة ببتيدات بالعربي — ${PEPTIDE_COUNT} ببتيد مع الجرعات والبروتوكولات.`} />
         <meta property="og:url" content={`${SITE_URL}/table`} />
         <meta property="og:image" content={`${SITE_URL}/og-image.png`} />
-        <meta property="og:image" content="https://pptides.com/og-image.png" />
       </Helmet>
 
       {/* ━━━ STICKY SUBSCRIPTION BANNER ━━━ */}
@@ -104,7 +103,7 @@ export default function PeptideTable() {
           <h1 className="text-3xl font-extrabold leading-tight text-stone-900 md:text-4xl lg:text-5xl">
             جدول الببتيدات{' '}
             <span
-              className="gold-gradient bg-clip-text text-transparent"
+              className="primary-gradient bg-clip-text text-transparent"
             >
               الشامل
             </span>
@@ -153,14 +152,14 @@ export default function PeptideTable() {
           className="mb-6 space-y-4"
         >
           <div className="relative max-w-lg">
-            <Search className="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-stone-800" />
+            <Search className="absolute end-3 top-1/2 h-4 w-4 -translate-y-1/2 text-stone-800" />
             <input
               type="text"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="ابحث بالاسم أو الفئة..."
               aria-label="ابحث في الببتيدات"
-              className="w-full rounded-xl border border-stone-300 bg-stone-50 py-3 ps-10 pe-4 text-sm text-stone-900 placeholder:text-stone-400 outline-none transition-colors focus:border-emerald-300 focus:ring-1 focus:ring-emerald-100"
+              className="w-full rounded-xl border border-stone-300 bg-stone-50 py-3 ps-10 pe-4 text-sm text-stone-900 placeholder:text-stone-500 outline-none transition-colors focus:border-emerald-300 focus:ring-1 focus:ring-emerald-100"
             />
           </div>
 
@@ -170,7 +169,7 @@ export default function PeptideTable() {
               className={cn(
                 'rounded-full px-4 py-2 text-sm font-semibold transition-all',
                 activeCategory === 'all'
-                  ? 'gold-gradient text-white shadow-lg'
+                  ? 'primary-gradient text-white shadow-lg'
                   : 'border border-stone-300 bg-stone-50 text-stone-800 hover:border-stone-300 transition-colors hover:text-stone-900'
               )}
             >
@@ -183,7 +182,7 @@ export default function PeptideTable() {
                 className={cn(
                   'rounded-full px-4 py-2 text-sm font-semibold transition-all',
                   activeCategory === cat.id
-                    ? 'gold-gradient text-white shadow-lg'
+                    ? 'primary-gradient text-white shadow-lg'
                     : 'border border-stone-300 bg-stone-50 text-stone-800 hover:border-stone-300 transition-colors hover:text-stone-900'
                 )}
               >

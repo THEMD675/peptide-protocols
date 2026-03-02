@@ -1,12 +1,12 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
-import { Star, Send, MessageSquare, CheckCircle, AlertCircle } from 'lucide-react';
+import { Star, Send, MessageSquare, MessageCircle, CheckCircle, AlertCircle } from 'lucide-react';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
-import { SITE_URL } from '@/lib/constants';
+import { SITE_URL, TRIAL_DAYS } from '@/lib/constants';
 
 interface Review {
   id: string;
@@ -93,7 +93,7 @@ export default function Reviews() {
   const fetchReviews = useCallback(async (signal?: { cancelled: boolean }) => {
     setFetchError(null);
     try {
-      const { data, error } = await supabase
+      const { data } = await supabase
         .from('reviews')
         .select('id, rating, content, name, created_at')
         .eq('is_approved', true)
@@ -101,10 +101,7 @@ export default function Reviews() {
         .limit(100);
 
       if (signal?.cancelled) return;
-      if (error) {
-        setFetchError('تعذّر تحميل التقييمات. حاول مرة أخرى.');
-      }
-      if (data) setReviews(data);
+      setReviews(data ?? []);
     } catch {
       if (signal?.cancelled) return;
       setFetchError('تعذّر تحميل التقييمات. تحقق من اتصالك بالإنترنت.');
@@ -113,13 +110,11 @@ export default function Reviews() {
     }
   }, []);
 
-  /* eslint-disable react-hooks/set-state-in-effect -- data fetching on mount */
   useEffect(() => {
     const signal = { cancelled: false };
     void fetchReviews(signal);
     return () => { signal.cancelled = true; };
   }, [fetchReviews]);
-  /* eslint-enable react-hooks/set-state-in-effect */
 
   const averageRating =
     reviews.length > 0
@@ -140,6 +135,7 @@ export default function Reviews() {
         .limit(1);
       if (existing && existing.length > 0) {
         toast.error('لديك تقييم مسبق بالفعل');
+        submittingRef.current = false;
         return;
       }
 
@@ -156,7 +152,7 @@ export default function Reviews() {
       setSubmitting(false);
 
       if (error) {
-        toast.error('حدث خطأ أثناء النشر. حاول مرة أخرى.');
+        toast.error('تعذّر نشر تقييمك — تحقق من البيانات وحاول مرة أخرى');
         return;
       }
       setSubmitted(true);
@@ -166,7 +162,7 @@ export default function Reviews() {
       setTimeout(() => setSubmitted(false), 4000);
     } catch {
       setSubmitting(false);
-      toast.error('حدث خطأ في الاتصال. حاول مرة أخرى.');
+      toast.error('فشل الاتصال بالخادم — تحقق من اتصالك بالإنترنت');
     } finally {
       submittingRef.current = false;
     }
@@ -207,7 +203,7 @@ export default function Reviews() {
         <meta property="og:url" content={`${SITE_URL}/reviews`} />
         <meta property="og:type" content="website" />
         <meta property="og:locale" content="ar_SA" />
-        <meta property="og:image" content="https://pptides.com/og-image.png" />
+        <meta property="og:image" content={`${SITE_URL}/og-image.png`} />
       </Helmet>
       <div className="mx-auto max-w-4xl px-4 pt-8 pb-24 md:px-6 md:pt-12">
         <div
@@ -307,13 +303,13 @@ export default function Reviews() {
                   maxLength={1000}
                   className={cn(
                     'w-full resize-none rounded-xl border border-stone-300 bg-stone-50 px-4 py-3',
-                    'text-sm text-stone-900 placeholder:text-stone-400',
+                    'text-sm text-stone-900 placeholder:text-stone-500',
                     'transition-colors focus:border-emerald-300 focus:outline-none focus:ring-1 focus:ring-emerald-100',
                   )}
                   style={{ overflow: 'hidden' }}
                 />
                 {text.length > 0 && (
-                  <p className="mt-1 text-start text-xs text-stone-400">{text.length}/1000</p>
+                  <p className="mt-1 text-start text-xs text-stone-500">{text.length}/1000</p>
                 )}
               </div>
 
@@ -361,7 +357,7 @@ export default function Reviews() {
                   <StarRating rating={Math.round(averageRating)} size="sm" />
                 </div>
                 <span className="text-xs text-stone-600">
-                  {reviews.length.toLocaleString('ar')} تقييم
+                  {reviews.length.toLocaleString('ar-u-nu-latn')} تقييم
                 </span>
                 <div className="flex-1 min-w-0 space-y-1.5">
                   {[5, 4, 3, 2, 1].map((star) => {
@@ -390,8 +386,14 @@ export default function Reviews() {
           )}
 
           {loading ? (
-            <div className="py-12 text-center" role="status" aria-label="جارٍ تحميل التقييمات">
-              <div className="h-6 w-6 mx-auto animate-spin rounded-full border-2 border-stone-200 border-t-emerald-600" />
+            <div className="space-y-4 py-4" role="status" aria-label="جارٍ تحميل التقييمات">
+              {Array.from({ length: 3 }).map((_, i) => (
+                <div key={i} className="animate-pulse rounded-2xl border border-stone-200 p-5 space-y-3">
+                  <div className="flex items-center gap-3"><div className="h-5 w-28 rounded bg-stone-200" /><div className="h-4 w-16 rounded bg-stone-100" /></div>
+                  <div className="h-4 w-full rounded bg-stone-100" />
+                  <div className="h-4 w-2/3 rounded bg-stone-100" />
+                </div>
+              ))}
             </div>
           ) : fetchError ? (
             <div className="rounded-2xl border border-red-200 bg-red-50 py-10 text-center">
@@ -405,20 +407,20 @@ export default function Reviews() {
               </button>
             </div>
           ) : reviews.length === 0 ? (
-            <div className="rounded-2xl border-2 border-dashed border-emerald-200 bg-gradient-to-b from-emerald-50 to-white py-16 px-8 text-center">
-              <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-emerald-100">
-                <Star className="h-8 w-8 text-emerald-600" />
+            <div className="rounded-2xl border-2 border-dashed border-emerald-200 bg-gradient-to-b from-emerald-50 to-white py-20 px-8 text-center">
+              <div className="mx-auto mb-5 flex h-20 w-20 items-center justify-center rounded-2xl bg-emerald-100">
+                <MessageCircle className="h-10 w-10 text-emerald-600" />
               </div>
-              <h3 className="text-xl font-bold text-stone-900">شاركنا رأيك</h3>
-              <p className="mx-auto mt-2 max-w-md text-sm leading-relaxed text-stone-600">
-                تقييمك يساعد الآخرين على اتخاذ قرارهم بثقة. كن أول من يشارك تجربته مع pptides.
+              <h3 className="text-2xl font-bold text-stone-900">كن أول من يشارك تجربته</h3>
+              <p className="mx-auto mt-3 max-w-md text-base leading-relaxed text-stone-600">
+                تقييمك يساعد الآخرين على اتخاذ قرارهم بثقة. شارك تجربتك مع pptides وكن مرجعًا للمجتمع.
               </p>
               <button
                 onClick={() => document.getElementById('review-rating')?.scrollIntoView({ behavior: 'smooth' })}
-                className="mt-5 inline-flex items-center gap-2 rounded-full bg-emerald-600 px-6 py-3 text-sm font-bold text-white transition-all hover:bg-emerald-700"
+                className="mt-6 inline-flex items-center gap-2 rounded-full bg-emerald-600 px-8 py-4 text-base font-bold text-white shadow-lg shadow-emerald-600/25 transition-all hover:bg-emerald-700 hover:shadow-emerald-600/30"
               >
-                <Send className="h-4 w-4" />
-                أضف تقييمك الآن
+                <Send className="h-5 w-5" />
+                اكتب تقييمك الآن
               </button>
             </div>
           ) : (
@@ -451,7 +453,7 @@ export default function Reviews() {
 
         <div className="mt-8 rounded-2xl border border-emerald-200 bg-emerald-50 p-6 text-center">
           <p className="font-bold text-stone-900">جرّب بنفسك</p>
-          <p className="mt-1 text-sm text-stone-600">3 أيام تجربة مجانية — كل البروتوكولات والأدوات</p>
+          <p className="mt-1 text-sm text-stone-600">{TRIAL_DAYS} أيام تجربة مجانية — كل البروتوكولات والأدوات</p>
           <div className="mt-4 flex flex-col gap-2 sm:flex-row sm:justify-center">
             <Link to="/signup?redirect=/pricing" className="rounded-full bg-emerald-600 px-6 py-2.5 text-sm font-bold text-white transition-colors hover:bg-emerald-700">ابدأ تجربتك المجانية</Link>
             <Link to="/library" className="rounded-full border border-emerald-300 px-6 py-2.5 text-sm font-bold text-emerald-700 transition-colors hover:bg-emerald-100">تصفّح المكتبة</Link>

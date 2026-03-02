@@ -1,26 +1,42 @@
+import { peptides } from '@/data/peptides';
+
+/** Derived from peptides — never out of sync with isFree field */
+export const FREE_PEPTIDE_IDS = new Set(peptides.filter((p) => p.isFree).map((p) => p.id));
+
 export const PRICING = {
-  essentials: { monthly: 9, label: '$9' },
-  elite: { monthly: 99, label: '$99' },
+  essentials: { monthly: 34, label: '34 ر.س', annualMonthly: Math.round(296 / 12), annualTotal: 296, annualLabel: '296 ر.س' },
+  elite: { monthly: 371, label: '371 ر.س', annualMonthly: Math.round(2963 / 12), annualTotal: 2963, annualLabel: '2,963 ر.س' },
 } as const;
 
-export const PEPTIDE_COUNT = 41;
+export const PEPTIDE_COUNT = peptides.length;
 
-export const VALUE_TOTAL = '$299+';
-export const VALUE_SAVINGS_ESSENTIALS = '$290';
-export const VALUE_SAVINGS_ELITE = '$200+';
+/** Unique PubMed IDs across all peptides — used for "X+ مصدر علمي" stats */
+const _pubmedSet = new Set<string>();
+for (const p of peptides) {
+  for (const id of p.pubmedIds ?? []) _pubmedSet.add(id);
+}
+export const PUBMED_SOURCE_COUNT = _pubmedSet.size;
+export const PUBMED_SOURCE_LABEL = `${PUBMED_SOURCE_COUNT}+`;
+
+export const FREQUENCY_LABELS: Record<string, string> = {
+  od: 'مرة يوميًا',
+  bid: 'مرتين يوميًا',
+  weekly: 'مرة أسبوعيًا',
+  biweekly: 'مرتين أسبوعيًا',
+  prn: 'عند الحاجة',
+  tid: 'ثلاث مرات يوميًا',
+};
+
+export const VALUE_TOTAL = '1,121 ر.س+';
+export const VALUE_SAVINGS_ESSENTIALS = '1,087 ر.س';
+export const VALUE_SAVINGS_ELITE = '750 ر.س+';
 
 export const SUPPORT_EMAIL = 'contact@pptides.com';
-export const SUPPORT_WHATSAPP = '';
-export const SUPPORT_WHATSAPP_URL = '';
+export const USD_TO_SAR = 3.75;
 
-export const FREE_PEPTIDE_IDS = new Set([
-  'semaglutide', 'bpc-157', 'kisspeptin-10', 'semax', 'epithalon', 'collagen-peptides',
-]);
-
+/** Free peptides + trial-exclusive peptides */
 export const TRIAL_PEPTIDE_IDS = new Set([
-  // All free peptides (don't downgrade on signup)
-  'semaglutide', 'bpc-157', 'kisspeptin-10', 'semax', 'epithalon', 'collagen-peptides',
-  // Plus trial-exclusive peptides
+  ...FREE_PEPTIDE_IDS,
   'tirzepatide', 'retatrutide', 'tesamorelin', 'aod-9604', '5-amino-1mq',
 ]);
 
@@ -28,8 +44,8 @@ export const LEGAL_LAST_UPDATED = '25 فبراير 2026';
 
 export const TIER_LABELS: Record<string, string> = {
   free: 'مجاني',
-  essentials: 'Essentials',
-  elite: 'Elite',
+  essentials: 'أساسي',
+  elite: 'متقدم',
 };
 
 export const STATUS_LABELS: Record<string, string> = {
@@ -57,17 +73,17 @@ export const STORAGE_KEYS = {
   USER_COUNT_TS: 'pptides_user_count_ts',
 } as const;
 
-// IMPORTANT: Trial duration must match supabase-migration.sql trigger (interval '3 days')
-export const TRIAL_DAYS = 3;
+/** Re-export from single source of truth — must match supabase-migration.sql trigger */
+export { TRIAL_DAYS } from '@/config/trial';
 export const SITE_URL = 'https://pptides.com';
 
 export const VALUE_STACK = [
-  { item: `مكتبة ${PEPTIDE_COUNT} ببتيد مع بروتوكولات كاملة`, value: '$149' },
-  { item: 'حاسبة جرعات دقيقة (مايكروغرام + سيرنج)', value: '$29' },
-  { item: 'دليل تحاليل مخبرية شامل', value: '$39' },
-  { item: 'دليل تحضير وحقن بالصور', value: '$19' },
-  { item: 'بروتوكولات مُجمَّعة جاهزة', value: '$29' },
-  { item: 'فحص تعارضات الببتيدات', value: '$19' },
-  { item: 'تجارب مستخدمين حقيقية', value: '$15' },
+  { item: `مكتبة ${PEPTIDE_COUNT} ببتيد مع بروتوكولات كاملة`, value: '559 ر.س' },
+  { item: 'حاسبة جرعات دقيقة (مايكروغرام + سيرنج)', value: '109 ر.س' },
+  { item: 'دليل تحاليل مخبرية شامل', value: '146 ر.س' },
+  { item: 'دليل تحضير وحقن عملي', value: '71 ر.س' },
+  { item: 'بروتوكولات مُجمَّعة جاهزة', value: '109 ر.س' },
+  { item: 'فحص تعارضات الببتيدات', value: '71 ر.س' },
+  { item: 'شارك تجربتك مع المجتمع', value: '56 ر.س' },
   { item: 'تحديثات مستمرة', value: 'لا تُقدّر' },
 ];

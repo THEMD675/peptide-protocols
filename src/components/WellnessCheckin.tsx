@@ -1,0 +1,280 @@
+import { useState, useEffect, useCallback } from 'react';
+import { Loader2, Pencil, HeartPulse } from 'lucide-react';
+import { toast } from 'sonner';
+import { cn } from '@/lib/utils';
+import { useAuth } from '@/contexts/AuthContext';
+import { supabase } from '@/lib/supabase';
+
+interface WellnessEntry {
+  id: string;
+  energy: number;
+  sleep: number;
+  pain: number;
+  mood: number;
+  appetite: number;
+  weight_kg: number | null;
+  notes: string | null;
+  logged_at: string;
+}
+
+const METRICS = [
+  { key: 'energy', label: 'طاقة', emojis: ['😴', '🥱', '😐', '🙂', '⚡'] },
+  { key: 'sleep', label: 'نوم', emojis: ['😩', '😪', '😐', '😌', '😴'] },
+  { key: 'pain', label: 'ألم', emojis: ['😁', '🙂', '😐', '😣', '😖'] },
+  { key: 'mood', label: 'مزاج', emojis: ['😞', '😕', '😐', '🙂', '😄'] },
+  { key: 'appetite', label: 'شهية', emojis: ['🤢', '😶', '😐', '😋', '🤤'] },
+] as const;
+
+type MetricKey = (typeof METRICS)[number]['key'];
+
+const LEVEL_COLORS = [
+  'bg-red-100 text-red-700 border-red-300',
+  'bg-orange-100 text-orange-700 border-orange-300',
+  'bg-yellow-100 text-yellow-700 border-yellow-300',
+  'bg-lime-100 text-lime-700 border-lime-300',
+  'bg-emerald-100 text-emerald-700 border-emerald-300',
+];
+
+const PAIN_COLORS = [
+  'bg-emerald-100 text-emerald-700 border-emerald-300',
+  'bg-lime-100 text-lime-700 border-lime-300',
+  'bg-yellow-100 text-yellow-700 border-yellow-300',
+  'bg-orange-100 text-orange-700 border-orange-300',
+  'bg-red-100 text-red-700 border-red-300',
+];
+
+function getLastLogLabel(loggedAt: string): string {
+  const logDate = new Date(loggedAt);
+  const today = new Date();
+  const yesterday = new Date();
+  yesterday.setDate(yesterday.getDate() - 1);
+
+  if (logDate.toDateString() === today.toDateString()) return 'آخر تسجيل: اليوم';
+  if (logDate.toDateString() === yesterday.toDateString()) return 'آخر تسجيل: أمس';
+  return `آخر تسجيل: ${logDate.toLocaleDateString('ar-u-nu-latn', { month: 'short', day: 'numeric' })}`;
+}
+
+export default function WellnessCheckin() {
+  const { user } = useAuth();
+  const [values, setValues] = useState<Record<MetricKey, number>>({
+    energy: 3, sleep: 3, pain: 1, mood: 3, appetite: 3,
+  });
+  const [weight, setWeight] = useState('');
+  const [notes, setNotes] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [todayEntry, setTodayEntry] = useState<WellnessEntry | null>(null);
+  const [lastEntry, setLastEntry] = useState<WellnessEntry | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [editing, setEditing] = useState(false);
+
+  const fetchLatest = useCallback(async () => {
+    if (!user) return;
+    setLoading(true);
+    try {
+      const { data, error } = await supabase
+        .from('wellness_logs')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('logged_at', { ascending: false })
+        .limit(1);
+
+      if (error || !data || data.length === 0) {
+        setLoading(false);
+        return;
+      }
+
+      const entry = data[0] as WellnessEntry;
+      setLastEntry(entry);
+
+      if (new Date(entry.logged_at).toDateString() === new Date().toDateString()) {
+        setTodayEntry(entry);
+        setValues({
+          energy: entry.energy,
+          sleep: entry.sleep,
+          pain: entry.pain,
+          mood: entry.mood,
+          appetite: entry.appetite,
+        });
+        setWeight(entry.weight_kg != null ? String(entry.weight_kg) : '');
+        setNotes(entry.notes ?? '');
+      }
+    } catch {
+      // silently ignored
+    } finally {
+      setLoading(false);
+    }
+  }, [user]);
+
+  useEffect(() => {
+    fetchLatest();
+  }, [fetchLatest]);
+
+  const handleSubmit = async () => {
+    if (!user || isSubmitting) return;
+    setIsSubmitting(true);
+    try {
+      const payload = {
+        user_id: user.id,
+        energy: values.energy,
+        sleep: values.sleep,
+        pain: values.pain,
+        mood: values.mood,
+        appetite: values.appetite,
+        weight_kg: weight ? parseFloat(weight) : null,
+        notes: notes.trim() || null,
+        logged_at: new Date().toISOString(),
+      };
+
+      if (todayEntry) {
+        const { error } = await supabase
+          .from('wellness_logs')
+          .update(payload)
+          .eq('id', todayEntry.id)
+          .eq('user_id', user.id);
+        if (error) throw error;
+        toast.success('تم تحديث الحالة اليومية');
+      } else {
+        const { error } = await supabase
+          .from('wellness_logs')
+          .insert(payload);
+        if (error) throw error;
+        toast.success('تم تسجيل حالتك اليومية');
+      }
+
+      setEditing(false);
+      await fetchLatest();
+    } catch {
+      toast.error('تعذّر حفظ الحالة — حاول مرة أخرى');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  if (!user) return null;
+
+  const isReadonly = !!todayEntry && !editing;
+
+  return (
+    <div className="rounded-2xl border border-stone-200 bg-white p-5 shadow-sm">
+      <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center gap-3">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-50">
+            <HeartPulse className="h-5 w-5 text-emerald-600" />
+          </div>
+          <div>
+            <h3 className="text-sm font-bold text-stone-900">الحالة اليومية</h3>
+            {lastEntry && (
+              <p className="text-xs text-stone-500">{getLastLogLabel(lastEntry.logged_at)}</p>
+            )}
+          </div>
+        </div>
+        {isReadonly && (
+          <button
+            onClick={() => setEditing(true)}
+            className="flex items-center gap-1.5 rounded-lg border border-stone-200 px-3 py-1.5 text-xs font-bold text-stone-600 transition-colors hover:border-emerald-300 hover:text-emerald-700"
+          >
+            <Pencil className="h-3 w-3" />
+            تعديل
+          </button>
+        )}
+      </div>
+
+      {loading ? (
+        <div className="flex items-center justify-center py-8">
+          <Loader2 className="h-5 w-5 animate-spin text-emerald-600" />
+        </div>
+      ) : (
+        <div className="space-y-4">
+          {METRICS.map(metric => {
+            const val = values[metric.key];
+            const colors = metric.key === 'pain' ? PAIN_COLORS : LEVEL_COLORS;
+            return (
+              <div key={metric.key}>
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-xs font-bold text-stone-700">{metric.label}</span>
+                  <span className="text-sm">{metric.emojis[val - 1]}</span>
+                </div>
+                <div className="flex gap-1.5">
+                  {[1, 2, 3, 4, 5].map(level => (
+                    <button
+                      key={level}
+                      type="button"
+                      disabled={isReadonly}
+                      onClick={() =>
+                        setValues(prev => ({ ...prev, [metric.key]: level }))
+                      }
+                      className={cn(
+                        'flex-1 rounded-lg border py-2 text-xs font-bold transition-all',
+                        val === level
+                          ? colors[level - 1]
+                          : isReadonly
+                            ? 'border-stone-100 bg-stone-50 text-stone-300'
+                            : 'border-stone-200 bg-white text-stone-500 hover:border-stone-300',
+                        !isReadonly && 'cursor-pointer active:scale-95',
+                      )}
+                    >
+                      {level}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            );
+          })}
+
+          <div>
+            <label className="mb-1 block text-xs font-bold text-stone-700">
+              الوزن (كغ) <span className="text-emerald-600 font-normal">اختياري</span>
+            </label>
+            <input
+              type="number"
+              inputMode="decimal"
+              value={weight}
+              onChange={e => setWeight(e.target.value)}
+              disabled={isReadonly}
+              placeholder="75.5"
+              step="0.1"
+              min="20"
+              max="300"
+              dir="ltr"
+              className="w-full rounded-xl border border-stone-200 bg-white px-4 py-2.5 text-sm text-stone-900 placeholder:text-stone-500 focus:border-emerald-300 focus:outline-none focus:ring-2 focus:ring-emerald-100 disabled:bg-stone-50 disabled:text-stone-500"
+            />
+          </div>
+
+          <div>
+            <label className="mb-1 block text-xs font-bold text-stone-700">
+              ملاحظات <span className="text-emerald-600 font-normal">اختياري</span>
+            </label>
+            <textarea
+              value={notes}
+              onChange={e => setNotes(e.target.value)}
+              disabled={isReadonly}
+              placeholder="كيف تشعر اليوم؟"
+              rows={2}
+              maxLength={200}
+              className="w-full resize-none rounded-xl border border-stone-200 bg-white px-4 py-2.5 text-sm text-stone-900 placeholder:text-stone-500 focus:border-emerald-300 focus:outline-none focus:ring-2 focus:ring-emerald-100 disabled:bg-stone-50 disabled:text-stone-500"
+            />
+          </div>
+
+          {!isReadonly && (
+            <button
+              onClick={handleSubmit}
+              disabled={isSubmitting}
+              className="flex w-full items-center justify-center gap-2 rounded-xl bg-emerald-600 px-6 py-3 text-sm font-bold text-white transition-all hover:bg-emerald-700 disabled:opacity-50"
+            >
+              {isSubmitting ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  جارٍ الحفظ...
+                </>
+              ) : todayEntry ? (
+                'تحديث'
+              ) : (
+                'حفظ'
+              )}
+            </button>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}

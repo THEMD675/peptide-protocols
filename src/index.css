@@ -37,7 +37,7 @@ html {
   --tw-ring: 160 84% 39%;
 
 
-  --header-height: 4rem;
+  --header-height: 4rem; /* 64px mobile, overridden at md */
 
   --divider: hsl(var(--tw-border) / 0.4);
   --divider-soft: hsl(var(--tw-border) / 0.25);
@@ -51,6 +51,11 @@ html {
 
 }
 
+@media (min-width: 768px) {
+  :root {
+    --header-height: 4.5rem; /* 72px desktop */
+  }
+}
 
 @layer base {
   *,
@@ -69,8 +74,8 @@ html {
     scroll-behavior: smooth;
   }
 
-  #main-content { scroll-margin-top: 80px; }
-  [id] { scroll-margin-top: 80px; }
+  #main-content { scroll-margin-top: calc(var(--header-height) + 1rem); }
+  [id] { scroll-margin-top: calc(var(--header-height) + 1rem); }
 
   body {
     font-family: 'Cairo', 'Inter', 'SF Pro Display', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
@@ -115,13 +120,13 @@ html {
   }
 
   /* ═══ Gradient utilities — remapped to emerald ═══ */
-  .gold-gradient {
+  .primary-gradient {
     background: linear-gradient(135deg, #10b981 0%, #34d399 100%);
   }
-  .gold-border {
+  .primary-border {
     border: 1px solid rgba(16, 185, 129, 0.3);
   }
-  .gold-border:hover {
+  .primary-border:hover {
     border-color: rgba(16, 185, 129, 0.6);
   }
 
@@ -158,6 +163,15 @@ html {
     filter: blur(6px);
     pointer-events: none;
     user-select: none;
+  }
+
+  /* ═══ Card hover animation utility ═══ */
+  .card-hover {
+    transition: transform 200ms, box-shadow 200ms;
+  }
+  .card-hover:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
   }
 
 }

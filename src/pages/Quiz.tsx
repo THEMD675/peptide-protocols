@@ -15,6 +15,7 @@ export default function Quiz() {
         <meta property="og:type" content="website" />
       </Helmet>
       <div className="mx-auto max-w-2xl px-6 py-8 md:py-12">
+        <h1 className="mb-6 text-3xl font-bold tracking-tight text-stone-900 md:text-4xl">اكتشف الببتيد المناسب لك</h1>
         <PeptideQuiz />
       </div>
     </div>

@@ -8,30 +8,24 @@ const supabaseUrl = Deno.env.get('SUPABASE_URL') ?? ''
 const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY') ?? ''
 const appUrl = Deno.env.get('APP_URL') ?? 'https://pptides.com'
 
-const IS_PRODUCTION = !Deno.env.get('DENO_DEV')
-const ALLOWED_ORIGINS = IS_PRODUCTION
-  ? ['https://pptides.com']
-  : ['https://pptides.com', 'http://localhost:3000']
+import { getCorsHeaders, handleCorsPreflightIfOptions } from '../_shared/cors.ts'
 
-const PRICE_IDS: Record<string, string> = {
-  essentials: Deno.env.get('STRIPE_PRICE_ESSENTIALS') ?? '',
-  elite: Deno.env.get('STRIPE_PRICE_ELITE') ?? '',
+const PRICE_IDS: Record<string, Record<string, string>> = {
+  essentials: {
+    monthly: Deno.env.get('STRIPE_PRICE_ESSENTIALS') ?? '',
+    annual: Deno.env.get('STRIPE_PRICE_ESSENTIALS_ANNUAL') ?? '',
+  },
+  elite: {
+    monthly: Deno.env.get('STRIPE_PRICE_ELITE') ?? '',
+    annual: Deno.env.get('STRIPE_PRICE_ELITE_ANNUAL') ?? '',
+  },
 }
 
 serve(async (req) => {
-  const origin = req.headers.get('origin') ?? ''
-  const allowedOrigin = ALLOWED_ORIGINS.includes(origin) ? origin : ''
-  const corsHeaders = {
-    'Access-Control-Allow-Origin': allowedOrigin || ALLOWED_ORIGINS[0],
-    'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-    'Access-Control-Allow-Methods': 'POST, OPTIONS',
-  }
+  const preflight = handleCorsPreflightIfOptions(req)
+  if (preflight) return preflight
 
-  if (req.method === 'OPTIONS') return new Response('ok', { headers: corsHeaders })
-
-  if (!allowedOrigin && req.method !== 'OPTIONS') {
-    return new Response(JSON.stringify({ error: 'Forbidden' }), { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } })
-  }
+  const corsHeaders = getCorsHeaders(req)
 
   if (req.method !== 'POST') {
     return new Response(JSON.stringify({ error: 'Method not allowed' }), {
@@ -76,20 +70,22 @@ serve(async (req) => {
       }
     } catch (rlErr) { console.error('rate limit check failed:', rlErr) }
 
-    let body: { tier?: string }
+    let body: { tier?: string; billing?: string; referralCode?: string }
     try { body = await req.json() } catch {
       return new Response(JSON.stringify({ error: 'Invalid request body' }), {
         status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       })
     }
     const tier = body.tier as string
+    const billing = body.billing === 'annual' ? 'annual' : 'monthly'
+    const referralCode = (body.referralCode && /^PP-[A-Z0-9]{6}$/.test(String(body.referralCode))) ? String(body.referralCode) : undefined
     if (!tier || !PRICE_IDS[tier]) {
       return new Response(JSON.stringify({ error: 'Invalid tier' }), {
         status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       })
     }
 
-    const priceId = PRICE_IDS[tier]
+    const priceId = PRICE_IDS[tier][billing]
     if (!priceId) {
       return new Response(JSON.stringify({ error: 'Price not configured. Contact support.' }), {
         status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -98,7 +94,7 @@ serve(async (req) => {
 
     const { data: existingSub } = await supabase
       .from('subscriptions')
-      .select('status, trial_ends_at, stripe_subscription_id')
+      .select('status, trial_ends_at, stripe_subscription_id, stripe_customer_id')
       .eq('user_id', user.id)
       .maybeSingle()
 
@@ -108,20 +104,38 @@ serve(async (req) => {
       })
     }
 
-    const hadTrial = existingSub?.trial_ends_at != null
-    const hasStripe = !!existingSub?.stripe_subscription_id
+    const hadStripeSub = !!existingSub?.stripe_subscription_id
+
+    const openSessions = await stripe.checkout.sessions.list({
+      limit: 5,
+    })
+    const reusable = openSessions.data.find(
+      (s) =>
+        s.client_reference_id === user.id &&
+        s.status === 'open' &&
+        s.url &&
+        Date.now() - (s.created * 1000) < 5 * 60 * 1000,
+    )
+    if (reusable?.url) {
+      return new Response(JSON.stringify({ url: reusable.url }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      })
+    }
+
+    const existingCustomerId = existingSub?.stripe_customer_id ?? null
 
     const session = await stripe.checkout.sessions.create({
       mode: 'subscription',
       payment_method_types: ['card'],
+      locale: 'ar',
       line_items: [{ price: priceId, quantity: 1 }],
       client_reference_id: user.id,
-      customer_email: user.email,
+      ...(existingCustomerId ? { customer: existingCustomerId } : { customer_email: user.email }),
       subscription_data: {
-        trial_period_days: (hadTrial || hasStripe) ? undefined : 3,
-        metadata: { tier, user_id: user.id },
+        trial_period_days: hadStripeSub ? undefined : 3,
+        metadata: { tier, user_id: user.id, ...(referralCode ? { referral_code: referralCode } : {}) },
       },
-      metadata: { tier, user_id: user.id },
+      metadata: { tier, user_id: user.id, ...(referralCode ? { referral_code: referralCode } : {}) },
       success_url: `${appUrl}/dashboard?payment=success&tier=${tier}&session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${appUrl}/pricing?payment=cancelled`,
       allow_promotion_codes: true,

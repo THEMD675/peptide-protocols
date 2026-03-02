@@ -1,7 +1,7 @@
 import { memo } from 'react';
 import { Link } from 'react-router-dom';
 import { Lock, Shield, Mail } from 'lucide-react';
-import { PEPTIDE_COUNT, SUPPORT_EMAIL } from '@/lib/constants';
+import { PEPTIDE_COUNT, SUPPORT_EMAIL, TRIAL_DAYS } from '@/lib/constants';
 
 export default memo(function Footer() {
   return (
@@ -19,10 +19,10 @@ export default memo(function Footer() {
               <Mail className="h-3.5 w-3.5 shrink-0" /> {SUPPORT_EMAIL}
             </a>
             <div className="mt-3 flex gap-3">
-              <a href="https://x.com/pptides" target="_blank" rel="noopener noreferrer" className="text-stone-400 hover:text-emerald-600 transition-colors" aria-label="X/Twitter">
+              <a href="https://x.com/pptides" target="_blank" rel="noopener noreferrer" className="text-stone-500 hover:text-emerald-600 transition-colors" aria-label="X/Twitter">
                 <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
               </a>
-              <a href={`mailto:${SUPPORT_EMAIL}`} className="text-stone-400 hover:text-emerald-600 transition-colors" aria-label="البريد الإلكتروني">
+              <a href={`mailto:${SUPPORT_EMAIL}`} className="text-stone-500 hover:text-emerald-600 transition-colors" aria-label="البريد الإلكتروني">
                 <Mail className="h-5 w-5" />
               </a>
             </div>
@@ -56,6 +56,8 @@ export default memo(function Footer() {
           <div>
             <h4 className="mb-3 text-sm font-bold text-stone-900">قانوني</h4>
             <nav aria-label="قانوني" className="flex flex-col gap-2 text-sm">
+              <Link to="/about" className="text-stone-600 transition-colors hover:text-emerald-600 active:text-emerald-700">عن pptides</Link>
+              <Link to="/faq" className="text-stone-600 transition-colors hover:text-emerald-600 active:text-emerald-700">الأسئلة الشائعة</Link>
               <Link to="/privacy" className="text-stone-600 transition-colors hover:text-emerald-600 active:text-emerald-700">سياسة الخصوصية</Link>
               <Link to="/terms" className="text-stone-600 transition-colors hover:text-emerald-600 active:text-emerald-700">شروط الاستخدام</Link>
               <button onClick={() => { try { localStorage.removeItem('pptides_cookie_consent'); } catch { /* storage unavailable */ } window.location.reload(); }} className="text-start text-sm text-stone-600 hover:text-emerald-600 transition-colors">
@@ -64,7 +66,7 @@ export default memo(function Footer() {
             </nav>
             <div className="mt-4 flex flex-col gap-2 text-sm text-stone-600">
               <p className="flex items-center gap-1.5"><Lock className="h-3 w-3 shrink-0" /> دفع آمن عبر Stripe</p>
-              <p className="flex items-center gap-1.5"><Shield className="h-3 w-3 shrink-0" /> ضمان استرداد 3 أيام</p>
+              <p className="flex items-center gap-1.5"><Shield className="h-3 w-3 shrink-0" /> ضمان استرداد {TRIAL_DAYS} أيام</p>
             </div>
           </div>
         </div>

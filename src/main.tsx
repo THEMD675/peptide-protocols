@@ -3,7 +3,14 @@ import ReactDOM from 'react-dom/client';
 import App from './App';
 import './index.css';
 
-const hasConsent = (() => { try { return localStorage.getItem('pptides_cookie_consent') === 'accepted'; } catch { return false; } })();
+import { hasOptionalConsent } from '@/lib/cookie-utils';
+
+const hasConsent = hasOptionalConsent();
+
+// Web Vitals — always track (no PII, pure performance metrics)
+if (import.meta.env.PROD) {
+  import('@/lib/web-vitals').then(({ initWebVitals }) => initWebVitals()).catch(() => {});
+}
 
 if (hasConsent && import.meta.env.PROD) {
   import('@sentry/react').then(Sentry => {
@@ -11,7 +18,7 @@ if (hasConsent && import.meta.env.PROD) {
       dsn: import.meta.env.VITE_SENTRY_DSN,
       integrations: [
         Sentry.browserTracingIntegration(),
-        Sentry.replayIntegration({ maskAllText: false, blockAllMedia: false }),
+        Sentry.replayIntegration({ maskAllText: true, blockAllMedia: false }),
       ],
       tracesSampleRate: 0.1,
       replaysSessionSampleRate: 0.05,
@@ -39,14 +46,17 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
   </React.StrictMode>
 );
 
-// PWA update toast – notify user when a new version is available
+// PWA update toast – notify user when a new version is available.
+// The new SW waits in "installed" state until the user clicks "Update",
+// which sends SKIP_WAITING to activate it, then reloads. This prevents
+// mid-session asset swap that causes white screens.
 if ('serviceWorker' in navigator && import.meta.env.PROD) {
   navigator.serviceWorker.ready.then(reg => {
     reg.addEventListener('updatefound', () => {
       const newSW = reg.installing;
       if (!newSW) return;
       newSW.addEventListener('statechange', () => {
-        if (newSW.state === 'activated' && navigator.serviceWorker.controller) {
+        if (newSW.state === 'installed' && navigator.serviceWorker.controller) {
           const el = document.createElement('div');
           el.className = 'fixed bottom-4 start-4 end-4 z-50 mx-auto max-w-sm rounded-2xl border border-emerald-200 bg-white p-4 shadow-xl animate-slide-up print:hidden';
           el.dir = 'rtl';
@@ -54,12 +64,16 @@ if ('serviceWorker' in navigator && import.meta.env.PROD) {
           el.setAttribute('aria-live', 'polite');
           el.innerHTML = `
             <div class="flex items-center justify-between gap-3">
-              <p class="text-sm font-bold text-stone-900">تم تحديث pptides</p>
-              <button onclick="location.reload()" class="shrink-0 rounded-full bg-emerald-600 px-4 py-1.5 text-xs font-bold text-white hover:bg-emerald-700">تحديث</button>
+              <p class="text-sm font-bold text-stone-900">تحديث جديد متاح</p>
+              <button id="pwa-update-btn" class="shrink-0 rounded-full bg-emerald-600 px-4 py-1.5 text-xs font-bold text-white hover:bg-emerald-700">تحديث</button>
             </div>
           `;
           document.body.appendChild(el);
-          setTimeout(() => el.remove(), 15000);
+          document.getElementById('pwa-update-btn')?.addEventListener('click', () => {
+            newSW.postMessage({ type: 'SKIP_WAITING' });
+            location.reload();
+          });
+          setTimeout(() => el.remove(), 30000);
         }
       });
     });

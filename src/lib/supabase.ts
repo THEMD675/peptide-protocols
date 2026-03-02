@@ -1,10 +1,11 @@
 import { createClient, type SupabaseClient } from '@supabase/supabase-js';
+import { toast } from 'sonner';
 
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL as string | undefined;
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined;
 
 if (!supabaseUrl || !supabaseAnonKey) {
-  console.error('Missing VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY — auth and data will not work.');
+  // Sentry will capture downstream auth/data failures
 }
 
 const noopLock: <R>(name: string, acquireTimeout: number, fn: () => Promise<R>) => Promise<R> =
@@ -21,3 +22,15 @@ export const supabase: SupabaseClient = createClient(
     },
   },
 );
+
+if (supabaseUrl && typeof window !== 'undefined') {
+  fetch(`${supabaseUrl}/rest/v1/`, {
+    method: 'HEAD',
+    headers: { apikey: supabaseAnonKey || '' },
+  }).catch(() => {
+    toast.error(
+      'يبدو أن مانع الإعلانات يحجب الاتصال — يرجى تعطيله لاستخدام التطبيق',
+      { duration: 15000, id: 'adblocker-warning' },
+    );
+  });
+}

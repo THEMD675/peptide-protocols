@@ -16,7 +16,7 @@ export default function Privacy() {
         <div className="space-y-8 text-stone-800 leading-relaxed">
           <section>
             <h2 className="mb-3 text-xl font-bold text-stone-900">1. المعلومات التي نجمعها</h2>
-            <ul className="list-disc space-y-2 pr-6">
+            <ul className="list-disc space-y-2 pe-6">
               <li>البريد الإلكتروني وكلمة المرور عند إنشاء الحساب</li>
               <li>بيانات الاشتراك والدفع (تُعالج عبر Stripe — لا نخزّن بيانات البطاقة)</li>
               <li>البريد الإلكتروني عند الاشتراك في القائمة البريدية</li>
@@ -27,7 +27,7 @@ export default function Privacy() {
 
           <section>
             <h2 className="mb-3 text-xl font-bold text-stone-900">2. كيف نستخدم بياناتك</h2>
-            <ul className="list-disc space-y-2 pr-6">
+            <ul className="list-disc space-y-2 pe-6">
               <li>إدارة حسابك واشتراكك</li>
               <li>إرسال تحديثات المحتوى والعروض (يمكنك إلغاء الاشتراك في أي وقت)</li>
               <li>تحسين خدماتنا وتجربة المستخدم</li>
@@ -35,13 +35,26 @@ export default function Privacy() {
           </section>
 
           <section>
-            <h2 className="mb-3 text-xl font-bold text-stone-900">3. أمان البيانات</h2>
-            <p>نستخدم تشفير SSL/TLS لحماية اتصالاتك. بيانات الدفع تُعالج حصريًا عبر Stripe ولا تمر عبر خوادمنا. نستخدم Supabase كقاعدة بيانات مع سياسات أمان على مستوى الصفوف (RLS).</p>
+            <h2 className="mb-3 text-xl font-bold text-stone-900">3. مزودو الخدمات الخارجيون</h2>
+            <p className="mb-3">نستخدم مزودي خدمات خارجيين لتشغيل أجزاء من الموقع. كل مزود يعالج فقط البيانات اللازمة لتقديم خدمته:</p>
+            <ul className="list-disc space-y-2 pe-6">
+              <li><strong>Supabase</strong> — قاعدة البيانات والمصادقة، مع سياسات أمان على مستوى الصفوف (RLS)</li>
+              <li><strong>Stripe</strong> — معالجة المدفوعات. لا نخزّن بيانات بطاقتك أبدًا</li>
+              <li><strong>Google Analytics</strong> — تحليل زيارات الصفحات والأحداث لتحسين تجربة المستخدم</li>
+              <li><strong>Sentry</strong> — رصد الأخطاء التقنية وتسجيل الجلسات لتشخيص المشكلات</li>
+              <li><strong>Resend</strong> — إرسال الرسائل البريدية التشغيلية (تأكيد الحساب، إشعارات الاشتراك). يعالج عنوان بريدك الإلكتروني فقط</li>
+              <li><strong>DeepSeek</strong> — مزود الذكاء الاصطناعي للمدرب الذكي. تُرسل محادثاتك وسجل الحقن لتوليد الإجابات المخصّصة. لا تُستخدم بياناتك لتدريب النماذج</li>
+            </ul>
           </section>
 
           <section>
-            <h2 className="mb-3 text-xl font-bold text-stone-900">4. حقوقك</h2>
-            <ul className="list-disc space-y-2 pr-6">
+            <h2 className="mb-3 text-xl font-bold text-stone-900">4. أمان البيانات</h2>
+            <p>نستخدم تشفير SSL/TLS لحماية اتصالاتك. بيانات الدفع تُعالج حصريًا عبر Stripe ولا تمر عبر خوادمنا.</p>
+          </section>
+
+          <section>
+            <h2 className="mb-3 text-xl font-bold text-stone-900">5. حقوقك</h2>
+            <ul className="list-disc space-y-2 pe-6">
               <li>حذف حسابك وجميع بياناتك في أي وقت</li>
               <li>إلغاء الاشتراك البريدي</li>
               <li>طلب نسخة من بياناتك</li>
@@ -49,7 +62,7 @@ export default function Privacy() {
           </section>
 
           <section className="mb-8">
-            <h2 className="mb-3 text-xl font-bold text-stone-900">5. الاحتفاظ بالبيانات</h2>
+            <h2 className="mb-3 text-xl font-bold text-stone-900">6. الاحتفاظ بالبيانات</h2>
             <ul className="list-disc space-y-2 pe-6 text-stone-700 leading-relaxed">
               <li>نحتفظ ببيانات حسابك طوال فترة اشتراكك النشط</li>
               <li>عند حذف حسابك، يتم حذف جميع بياناتك الشخصية نهائيًا</li>
@@ -59,7 +72,7 @@ export default function Privacy() {
           </section>
 
           <section>
-            <h2 className="mb-3 text-xl font-bold text-stone-900">6. التواصل</h2>
+            <h2 className="mb-3 text-xl font-bold text-stone-900">7. التواصل</h2>
             <p>لأي استفسار حول الخصوصية: <a href={`mailto:${SUPPORT_EMAIL}`} className="text-emerald-600 underline">{SUPPORT_EMAIL}</a></p>
           </section>
         </div>

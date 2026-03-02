@@ -1,11 +1,12 @@
 import { useState, useRef, useEffect } from 'react';
 import { Helmet } from 'react-helmet-async';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { Check, Shield, Lock, CreditCard, RefreshCw, ChevronDown, MessageCircle, Crown, ArrowLeft } from 'lucide-react';
 import { toast } from 'sonner';
 import { useAuth } from '@/contexts/AuthContext';
+import { supabase } from '@/lib/supabase';
 import { cn } from '@/lib/utils';
-import { PRICING, PEPTIDE_COUNT, VALUE_TOTAL, VALUE_SAVINGS_ELITE, VALUE_STACK, SUPPORT_EMAIL, SITE_URL } from '@/lib/constants';
+import { PRICING, PEPTIDE_COUNT, TRIAL_DAYS, VALUE_TOTAL, VALUE_SAVINGS_ELITE, VALUE_STACK, SUPPORT_EMAIL, SITE_URL } from '@/lib/constants';
 
 const essentialsFeatures = [
   `بطاقات البروتوكول الكاملة لـ ${PEPTIDE_COUNT} ببتيد`,
@@ -19,25 +20,24 @@ const essentialsFeatures = [
 const eliteFeatures = [
   'كل مزايا Essentials',
   'مدرب ذكي بالذكاء الاصطناعي 24/7',
-  'بروتوكولات مخصّصة لأهدافك الشخصية',
-  'بروتوكول مصمّم حسب حالتك',
+  'بروتوكولات مخصّصة لأهدافك وحالتك الشخصية',
   'استشارات بلا حدود — لا حد للأسئلة',
-  'دعم أولوية — رد خلال ساعات',
+  'دعم مخصّص عبر البريد',
 ];
 
 const valueStack = VALUE_STACK;
 
 const eliteValueStack = [
-  { item: 'مدرب ذكاء اصطناعي شخصي', value: '$49/شهر' },
-  { item: 'بروتوكول مخصّص حسب حالتك', value: '$99' },
-  { item: 'استشارات بلا حدود', value: '$29/شهر' },
-  { item: 'دعم أولوية 24/7', value: '$19/شهر' },
+  { item: 'مدرب ذكاء اصطناعي شخصي', value: '184 ر.س/شهر' },
+  { item: 'بروتوكول مخصّص حسب حالتك', value: '371 ر.س' },
+  { item: 'استشارات بلا حدود', value: '109 ر.س/شهر' },
+  { item: 'دعم مخصّص عبر البريد', value: '71 ر.س/شهر' },
 ];
 
 const faqs = [
   {
     q: 'ما الفرق بين Essentials و Elite؟',
-    a: 'Essentials يعطيك كل الأدوات والمعلومات. Elite يضيف المدرب الذكي بلا حدود، بروتوكولات مخصّصة، ودعم أولوية. إذا تريد استشارات كثيرة ومتابعة — Elite هو الخيار.',
+    a: 'Essentials يعطيك كل الأدوات والمعلومات. Elite يضيف المدرب الذكي بلا حدود، بروتوكولات مخصّصة، ودعم مخصّص عبر البريد. إذا تريد استشارات كثيرة ومتابعة — Elite هو الخيار.',
   },
   {
     q: 'هل بياناتي آمنة؟',
@@ -45,7 +45,7 @@ const faqs = [
   },
   {
     q: 'ماذا لو لم يعجبني المحتوى؟',
-    a: 'لديك 3 أيام لتجربة المحتوى. إذا لم يعجبك، تواصل معنا واسترد أموالك بالكامل. بدون أسئلة.',
+    a: `لديك ${TRIAL_DAYS} أيام لتجربة المحتوى. إذا لم يعجبك، تواصل معنا واسترد أموالك بالكامل. بدون أسئلة.`,
   },
   {
     q: 'هل يمكنني الإلغاء في أي وقت؟',
@@ -53,7 +53,7 @@ const faqs = [
   },
   {
     q: 'كيف تعمل التجربة المجانية؟',
-    a: 'عند اشتراكك في أي خطة، تحصل على 3 أيام تجربة مجانية. ندعم Visa و Mastercard و Apple Pay عبر Stripe. يمكنك الإلغاء قبل انتهاء التجربة بدون أي رسوم.',
+    a: `عند اشتراكك في أي خطة، تحصل على ${TRIAL_DAYS} أيام تجربة مجانية. ندعم Visa و Mastercard و Apple Pay عبر Stripe. يمكنك الإلغاء قبل انتهاء التجربة بدون أي رسوم.`,
   },
 ];
 
@@ -63,13 +63,54 @@ export default function Pricing() {
   const isSubscribedTo = (tier: string) =>
     user && subscription?.isProOrTrial && subscription.tier === tier;
 
+  const [searchParams, setSearchParams] = useSearchParams();
   const showTrialMessaging = !user || subscription?.status === 'none';
   const [loadingPlan, setLoadingPlan] = useState<string | null>(null);
+  const [billingCycle, setBillingCycle] = useState<'monthly' | 'annual'>('monthly');
   const navigatingRef = useRef(false);
 
   useEffect(() => { navigatingRef.current = false; }, []);
 
+  useEffect(() => {
+    if (searchParams.get('payment') === 'cancelled') {
+      toast.error('تم إلغاء عملية الدفع — يمكنك المحاولة مرة أخرى');
+      setSearchParams({}, { replace: true });
+    }
+  }, [searchParams, setSearchParams]);
+
   const renderAction = (planKey: 'essentials' | 'elite', isElite: boolean) => {
+    const cancelledButActive = user && subscription?.status === 'cancelled' && subscription?.currentPeriodEnd && new Date(subscription.currentPeriodEnd) > new Date();
+    const openPortal = async () => {
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (!session?.access_token) { toast.error('يرجى تسجيل الدخول'); return; }
+        toast('جارٍ فتح إدارة الدفع...');
+        const res = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/create-portal-session`, {
+          method: 'POST',
+          signal: AbortSignal.timeout(15000),
+          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${session.access_token}`, apikey: import.meta.env.VITE_SUPABASE_ANON_KEY },
+        });
+        if (!res.ok) { toast.error('تعذّر فتح إدارة الدفع'); return; }
+        const { url } = await res.json();
+        if (url) window.location.href = url;
+      } catch { toast.error('تعذّر فتح إدارة الدفع. حاول مرة أخرى.'); }
+    };
+
+    if (cancelledButActive && subscription?.tier === planKey) {
+      return (
+        <button
+          onClick={openPortal}
+          className={cn(
+            'inline-flex w-full items-center justify-center gap-2 rounded-full px-6 py-3.5 font-bold',
+            'border-2 border-amber-300 bg-amber-50 text-amber-800 hover:bg-amber-100 transition-colors'
+          )}
+        >
+          <RefreshCw className="h-5 w-5" />
+          تجديد الاشتراك
+        </button>
+      );
+    }
+
     if (isSubscribedTo(planKey)) {
       return (
         <div className={cn(
@@ -99,11 +140,11 @@ export default function Pricing() {
             navigatingRef.current = true;
             setLoadingPlan(planKey);
             try {
-              await upgradeTo(planKey);
+              await upgradeTo(planKey, billingCycle);
             } catch {
               navigatingRef.current = false;
               setLoadingPlan(null);
-              toast.error('حدث خطأ أثناء التحويل لصفحة الدفع. حاول مرة أخرى.');
+              toast.error('تعذّر التحويل لصفحة الدفع — تحقق من اتصالك وحاول مرة أخرى');
             }
           }}
           disabled={isLoading}
@@ -122,7 +163,7 @@ export default function Pricing() {
               <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />
               جارٍ التحويل لصفحة الدفع...
             </>
-          ) : 'ابدأ تجربة 3 أيام مجانية'}
+          ) : `ابدأ تجربة ${TRIAL_DAYS} أيام مجانية`}
         </button>
       );
     }
@@ -148,8 +189,8 @@ export default function Pricing() {
     <div className="min-h-screen bg-gradient-to-b from-white via-stone-50 to-white animate-fade-in">
       <Helmet>
         <title>أسعار واشتراكات الببتيدات | pptides</title>
-        <meta name="description" content={`اختر خطتك: Essentials ${PRICING.essentials.label}/شهر أو Elite ${PRICING.elite.label}/شهر. 3 أيام تجربة مجانية. ضمان استرداد كامل.`} />
-        <meta property="og:title" content="أسعار pptides | ابدأ بتجربة 3 أيام مجانية" />
+        <meta name="description" content={`اختر خطتك: Essentials ${PRICING.essentials.label}/شهر أو Elite ${PRICING.elite.label}/شهر. ${TRIAL_DAYS} أيام تجربة مجانية. ضمان استرداد كامل.`} />
+        <meta property="og:title" content={`أسعار pptides | ابدأ بتجربة ${TRIAL_DAYS} أيام مجانية`} />
         <meta property="og:description" content={`Essentials ${PRICING.essentials.label}/شهر أو Elite ${PRICING.elite.label}/شهر. ضمان استرداد كامل.`} />
         <meta property="og:type" content="website" />
         <meta property="og:url" content={`${SITE_URL}/pricing`} />
@@ -172,7 +213,7 @@ export default function Pricing() {
           {showTrialMessaging && (
             <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 px-5 py-2 text-sm font-bold text-emerald-700">
               <span className="relative flex h-2 w-2"><span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" /><span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500" /></span>
-              3 أيام تجربة مجانية — لا تُحصّل أي رسوم خلال الفترة التجريبية
+              عرض تجريبي — جرّب {TRIAL_DAYS} أيام مجانًا
             </div>
           )}
           <h1 className="mb-4 text-3xl font-bold text-stone-900 md:text-5xl lg:text-6xl">
@@ -180,17 +221,33 @@ export default function Pricing() {
           </h1>
           {showTrialMessaging && (
             <p className="mx-auto max-w-lg text-lg text-stone-600">
-              3 أيام تجربة مجانية مع كل اشتراك.
+              {TRIAL_DAYS} أيام تجربة مجانية مع كل اشتراك.
             </p>
           )}
           <div className="mt-6 flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-6 text-sm text-stone-500">
             <span className="flex items-center gap-1.5"><Check className="h-4 w-4 shrink-0 text-emerald-500" /> إلغاء في أي وقت</span>
-            <span className="flex items-center gap-1.5"><Shield className="h-4 w-4 shrink-0 text-emerald-500" /> ضمان استرداد 3 أيام</span>
+            <span className="flex items-center gap-1.5"><Shield className="h-4 w-4 shrink-0 text-emerald-500" /> ضمان استرداد {TRIAL_DAYS} أيام</span>
             <span className="flex items-center gap-1.5"><Lock className="h-4 w-4 shrink-0 text-emerald-500" /> دفع آمن عبر Stripe</span>
           </div>
+          <p className="mt-4 text-center text-sm font-medium text-stone-700">
+            ضمان استرداد كامل + إلغاء في أي وقت + بدون التزام
+          </p>
         </div>
 
-        {/* Billing cycle: monthly only (annual coming soon) */}
+        {/* Billing Toggle */}
+        <div className="mt-8 flex items-center justify-center gap-4">
+          <span className={cn('text-sm font-semibold transition-colors', billingCycle === 'monthly' ? 'text-stone-900' : 'text-stone-500')}>شهري</span>
+          <button
+            onClick={() => setBillingCycle(billingCycle === 'monthly' ? 'annual' : 'monthly')}
+            className={cn('relative h-7 w-14 rounded-full transition-colors', billingCycle === 'annual' ? 'bg-emerald-600' : 'bg-stone-300')}
+            aria-label="تبديل بين شهري وسنوي"
+          >
+            <span className={cn('absolute top-0.5 h-6 w-6 rounded-full bg-white shadow transition-all', billingCycle === 'annual' ? 'start-0.5' : 'end-0.5')} />
+          </button>
+          <span className={cn('text-sm font-semibold transition-colors', billingCycle === 'annual' ? 'text-emerald-600' : 'text-stone-500')}>
+            سنوي <span className="text-xs text-emerald-600">(وفّر حتى 33%)</span>
+          </span>
+        </div>
 
         {/* Pricing Cards */}
         <div className="grid gap-8 md:grid-cols-2">
@@ -202,10 +259,11 @@ export default function Pricing() {
             <p className="mb-6 text-stone-800">كل الأدوات الأساسية التي تحتاجها</p>
 
             <div className="mb-2">
-              <span className="text-3xl font-black text-stone-900 sm:text-5xl">${PRICING.essentials.monthly}</span>
-              <span className="text-lg text-stone-800"> /شهريًا</span>
+              <span className="text-3xl font-black text-stone-900 sm:text-5xl">{billingCycle === 'annual' ? PRICING.essentials.annualLabel : PRICING.essentials.label}</span>
+              <span className="text-lg text-stone-800"> /{billingCycle === 'annual' ? 'سنويًا' : 'شهريًا'}</span>
             </div>
-            <p className="text-xs text-emerald-600 font-medium mt-1">سنوي: <span dir="ltr">$79</span>/سنة — وفّر 12%</p>
+            {billingCycle === 'monthly' && <p className="text-xs text-emerald-600 font-medium mt-1">سنوي: <span dir="ltr">{PRICING.essentials.annualLabel}</span>/سنة — وفّر 12%</p>}
+            {billingCycle === 'annual' && <p className="text-xs text-emerald-600 font-medium mt-1">≈ {Math.round(PRICING.essentials.annualTotal / 12)} ر.س/شهر — وفّر 12%</p>}
             <div className="mb-6" />
 
             <ul className="mb-8 flex-1 space-y-3">
@@ -218,9 +276,9 @@ export default function Pricing() {
             </ul>
 
             {renderAction('essentials', false)}
-            <div className="mt-2 flex items-center justify-center gap-1.5 text-xs text-stone-400">
+            <div className="mt-2 flex items-center justify-center gap-1.5 text-xs text-stone-500">
               <Shield className="h-3.5 w-3.5" />
-              <span>ضمان استرداد كامل خلال 3 أيام</span>
+              <span>ضمان استرداد كامل خلال {TRIAL_DAYS} أيام</span>
             </div>
           </div>
 
@@ -239,10 +297,11 @@ export default function Pricing() {
             <p className="mb-6 text-stone-800">كل شيء + مدرب ذكي + استشارات شخصية</p>
 
             <div className="mb-2">
-              <span className="text-3xl font-black text-stone-900 sm:text-5xl">${PRICING.elite.monthly}</span>
-              <span className="text-lg text-stone-800"> /شهريًا</span>
+              <span className="text-3xl font-black text-stone-900 sm:text-5xl">{billingCycle === 'annual' ? PRICING.elite.annualLabel : PRICING.elite.label}</span>
+              <span className="text-lg text-stone-800"> /{billingCycle === 'annual' ? 'سنويًا' : 'شهريًا'}</span>
             </div>
-            <p className="text-xs text-emerald-600 font-medium mt-1">سنوي: <span dir="ltr">$790</span>/سنة — وفّر 33%</p>
+            {billingCycle === 'monthly' && <p className="text-xs text-emerald-600 font-medium mt-1">سنوي: <span dir="ltr">{PRICING.elite.annualLabel}</span>/سنة — وفّر 33%</p>}
+            {billingCycle === 'annual' && <p className="text-xs text-emerald-600 font-medium mt-1">≈ {Math.round(PRICING.elite.annualTotal / 12)} ر.س/شهر — وفّر 33%</p>}
             <div className="mb-4 inline-flex items-center gap-1.5 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-xs font-bold text-emerald-700">
               <Crown className="h-3.5 w-3.5" />
               الباقة الشاملة
@@ -258,10 +317,22 @@ export default function Pricing() {
               ))}
             </ul>
 
+            <div className="mb-6 rounded-xl border border-emerald-200 bg-emerald-50/50 p-4">
+              <p className="text-xs font-bold text-emerald-700 mb-3">معاينة المدرب الذكي:</p>
+              <div className="space-y-2">
+                <div className="flex justify-end">
+                  <div className="rounded-2xl rounded-bl-md bg-emerald-600 px-4 py-2 text-xs text-white">أفضل ببتيد للتعافي؟</div>
+                </div>
+                <div className="flex justify-start">
+                  <div className="rounded-2xl rounded-br-md border border-emerald-200 bg-white px-4 py-2 text-xs text-stone-800">أنصحك بـ BPC-157 — يُسرّع شفاء الأنسجة والأوتار. الجرعة: 250-500 mcg يوميًا...</div>
+                </div>
+              </div>
+            </div>
+
             {renderAction('elite', true)}
-            <div className="mt-2 flex items-center justify-center gap-1.5 text-xs text-stone-400">
+            <div className="mt-2 flex items-center justify-center gap-1.5 text-xs text-stone-500">
               <Shield className="h-3.5 w-3.5" />
-              <span>ضمان استرداد كامل خلال 3 أيام</span>
+              <span>ضمان استرداد كامل خلال {TRIAL_DAYS} أيام</span>
             </div>
           </div>
         </div>
@@ -333,7 +404,7 @@ export default function Pricing() {
               <Shield className="h-8 w-8 text-emerald-700" />
             </div>
             <div className="text-center sm:text-right">
-              <p className="text-xl font-bold text-stone-900">ضمان استرداد كامل خلال 3 أيام</p>
+              <p className="text-xl font-bold text-stone-900">ضمان استرداد كامل خلال {TRIAL_DAYS} أيام</p>
               <p className="mt-1 text-stone-800">
                 إذا لم يعجبك المحتوى — استرد أموالك بالكامل. بدون أسئلة. بدون شروط.
               </p>
@@ -370,6 +441,71 @@ export default function Pricing() {
           <p className="mt-1 text-xs text-stone-800">الدعم متاح 24/7 عبر البريد الإلكتروني</p>
         </div>
 
+        {/* Why pptides vs free */}
+        <div className="mt-16">
+          <h2 className="mb-8 text-center text-2xl font-bold text-stone-900 md:text-3xl">
+            لماذا <span className="text-emerald-600">pptides</span> وليس المصادر المجانية؟
+          </h2>
+          <div className="grid gap-4 md:grid-cols-3">
+            <div className="rounded-2xl border border-stone-200 bg-white p-6">
+              <h3 className="mb-4 text-lg font-bold text-stone-900">المصادر المجانية</h3>
+              <p className="mb-3 text-xs font-medium text-stone-500">Reddit / YouTube</p>
+              <ul className="space-y-2.5 text-sm text-stone-600">
+                {[
+                  'محتوى إنجليزي فقط',
+                  'معلومات مبعثرة وغير منظّمة',
+                  'بدون أدوات حساب أو تتبّع',
+                  'آراء شخصية بدون مراجعة',
+                  'لا دعم — ابحث بنفسك',
+                ].map((item) => (
+                  <li key={item} className="flex items-start gap-2">
+                    <span className="mt-1 h-1.5 w-1.5 shrink-0 rounded-full bg-stone-300" />
+                    <span>{item}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            <div className="rounded-2xl border border-stone-200 bg-white p-6">
+              <h3 className="mb-4 text-lg font-bold text-stone-900">العيادات</h3>
+              <p className="mb-3 text-xs font-medium text-stone-500">استشارات مباشرة</p>
+              <ul className="space-y-2.5 text-sm text-stone-600">
+                {[
+                  'مكلفة — 750 ر.س+ للجلسة',
+                  'محدودة جغرافيًا',
+                  'لا تغطي كل الببتيدات',
+                  'بدون أدوات رقمية',
+                  'انتظار مواعيد طويلة',
+                ].map((item) => (
+                  <li key={item} className="flex items-start gap-2">
+                    <span className="mt-1 h-1.5 w-1.5 shrink-0 rounded-full bg-stone-300" />
+                    <span>{item}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            <div className="rounded-2xl border-2 border-emerald-200 bg-emerald-50/30 p-6">
+              <h3 className="mb-4 text-lg font-bold text-emerald-700">pptides</h3>
+              <p className="mb-3 text-xs font-medium text-emerald-600">الكل في مكان واحد</p>
+              <ul className="space-y-2.5 text-sm text-stone-800">
+                {[
+                  'عربي أولًا — محتوى بلغتك',
+                  'مدرب ذكي بالذكاء الاصطناعي 24/7',
+                  'حاسبة جرعات دقيقة',
+                  'سجل حقن وتتبّع مخبري',
+                  `${PEPTIDE_COUNT}+ ببتيد مع بروتوكولات كاملة`,
+                ].map((item) => (
+                  <li key={item} className="flex items-start gap-2">
+                    <Check className="mt-0.5 h-4 w-4 shrink-0 text-emerald-600" />
+                    <span>{item}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+        </div>
+
         {/* FAQ */}
         <div
           className="mt-16"
@@ -398,11 +534,11 @@ export default function Pricing() {
                 navigatingRef.current = true;
                 setLoadingPlan('elite');
                 try {
-                  await upgradeTo('elite');
+                  await upgradeTo('elite', billingCycle);
                 } catch {
                   navigatingRef.current = false;
                   setLoadingPlan(null);
-                  toast.error('حدث خطأ أثناء التحويل لصفحة الدفع. حاول مرة أخرى.');
+                  toast.error('تعذّر التحويل لصفحة الدفع — تحقق من اتصالك وحاول مرة أخرى');
                 }
               }}
               disabled={loadingPlan === 'elite'}
@@ -433,7 +569,7 @@ export default function Pricing() {
             </Link>
           )}
           {showTrialMessaging && (
-            <p className="mt-4 text-sm text-stone-800">3 أيام مجانًا — إلغاء في أي وقت</p>
+            <p className="mt-4 text-sm text-stone-800">{TRIAL_DAYS} أيام مجانًا — إلغاء في أي وقت</p>
           )}
         </div>
         )}

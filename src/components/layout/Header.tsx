@@ -4,7 +4,7 @@ import { Menu, X, User, LogOut, ChevronDown, Search } from 'lucide-react';
 import FocusTrap from 'focus-trap-react';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
-import type { Peptide } from '@/data/peptides';
+import { peptides, type Peptide } from '@/data/peptides';
 
 const guestNavLinks = [
   { to: '/library', label: 'المكتبة' },
@@ -44,17 +44,10 @@ export default memo(function Header() {
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [searchFocusIdx, setSearchFocusIdx] = useState(-1);
-  const [peptidesList, setPeptidesList] = useState<Pick<Peptide, 'id' | 'nameAr' | 'nameEn'>[]>([]);
+  const peptidesList = useMemo(() => peptides.map(p => ({ id: p.id, nameAr: p.nameAr, nameEn: p.nameEn })), []);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const moreDropdownRef = useRef<HTMLDivElement>(null);
   const searchRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    if (!searchOpen || peptidesList.length > 0) return;
-    import('@/data/peptides').then(m => {
-      setPeptidesList(m.peptides.map(p => ({ id: p.id, nameAr: p.nameAr, nameEn: p.nameEn })));
-    }).catch(() => {});
-  }, [searchOpen, peptidesList.length]);
 
   const searchResults = useMemo(() => {
     const normalize = (s: string) => s.replace(/[\u064B-\u065F\u0670]/g, '').toLowerCase();
@@ -107,8 +100,10 @@ export default memo(function Header() {
   }, []);
 
   useEffect(() => {
-    setMobileOpen(false);
-    setMoreOpen(false);
+    queueMicrotask(() => {
+      setMobileOpen(false);
+      setMoreOpen(false);
+    });
   }, [pathname]);
 
   useEffect(() => {
@@ -132,7 +127,7 @@ export default memo(function Header() {
       <header
         className={cn(
           'fixed inset-x-0 top-0 z-50 transition-all duration-300',
-          'h-16 md:h-[72px]',
+          'h-[var(--header-height)]',
           scrolled
             ? 'border-b border-stone-200/50 bg-stone-50/90 backdrop-blur-2xl shadow-sm'
             : 'bg-white/80 backdrop-blur-md',
@@ -154,6 +149,7 @@ export default memo(function Header() {
                 <Link
                   key={to}
                   to={to}
+                  aria-current={active ? 'page' : undefined}
                   className={cn(
                     'relative rounded-lg px-3 py-2 text-sm font-medium transition-colors',
                     active
@@ -192,6 +188,7 @@ export default memo(function Header() {
                           <Link
                             key={to}
                             to={to}
+                            aria-current={pathname.startsWith(to) ? 'page' : undefined}
                             onClick={() => setMoreOpen(false)}
                             className={cn(
                               'block px-4 py-2.5 text-sm transition-colors hover:bg-stone-50',
@@ -238,12 +235,12 @@ export default memo(function Header() {
                       }}
                       placeholder="ابحث بالاسم..."
                       aria-label="بحث عن ببتيد"
-                      className="w-full rounded-lg border border-stone-200 bg-stone-50 px-3 py-2 text-sm text-stone-900 placeholder:text-stone-400 outline-none focus:border-emerald-300 focus:ring-2 focus:ring-emerald-100"
+                      className="w-full rounded-lg border border-stone-200 bg-stone-50 px-3 py-2 text-sm text-stone-900 placeholder:text-stone-500 outline-none focus:border-emerald-300 focus:ring-2 focus:ring-emerald-100"
                     />
                   </div>
                   {recentPeptides.length > 0 && searchResults.length === 0 && (
                     <div className="border-t border-stone-100 py-1">
-                      <p className="px-3 py-1.5 text-xs font-bold text-stone-400">شوهدت مؤخرًا</p>
+                      <p className="px-3 py-1.5 text-xs font-bold text-stone-500">شوهدت مؤخرًا</p>
                       {recentPeptides.map((p) => (
                         <button
                           key={p.id}
@@ -274,7 +271,7 @@ export default memo(function Header() {
                     </div>
                   )}
                   {searchQuery.trim().length === 1 && (
-                    <div className="border-t border-stone-100 px-3 py-3 text-center text-xs text-stone-400">
+                    <div className="border-t border-stone-100 px-3 py-3 text-center text-xs text-stone-500">
                       اكتب حرفين على الأقل للبحث...
                     </div>
                   )}
@@ -367,7 +364,7 @@ export default memo(function Header() {
           mobileOpen ? 'pointer-events-auto opacity-100' : 'pointer-events-none opacity-0',
         )}
         aria-hidden={!mobileOpen}
-        {...(!mobileOpen ? { inert: '' } : {})}
+        {...(mobileOpen ? {} : { inert: true })}
       >
         <div
           className="absolute inset-0 bg-black/50 backdrop-blur-sm"
@@ -377,14 +374,14 @@ export default memo(function Header() {
         <FocusTrap active={mobileOpen} focusTrapOptions={{ allowOutsideClick: true }}>
         <nav
           className={cn(
-            'absolute inset-y-0 right-0 flex w-[min(18rem,85vw)] flex-col border-s border-stone-200 bg-white pt-16 shadow-2xl transition-all duration-300 ease-out',
+            'absolute inset-y-0 end-0 flex w-[min(18rem,85vw)] flex-col border-s border-stone-200 bg-white pt-16 shadow-2xl transition-all duration-300 ease-out',
             mobileOpen ? 'translate-x-0 opacity-100' : 'translate-x-full opacity-0',
           )}
         >
           <div className="flex flex-1 flex-col gap-1 overflow-y-auto px-4 py-4">
             {/* Mobile Search */}
             <div className="relative mb-3">
-              <Search className="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-stone-400" />
+              <Search className="absolute end-3 top-1/2 h-4 w-4 -translate-y-1/2 text-stone-500" />
               <input
                 type="text"
                 value={searchQuery}
@@ -398,10 +395,10 @@ export default memo(function Header() {
                 }}
                 placeholder="ابحث عن ببتيد..."
                 aria-label="بحث عن ببتيد"
-                className="w-full rounded-xl border border-stone-200 bg-stone-50 py-2.5 ps-10 pe-4 text-sm text-stone-900 placeholder:text-stone-400 outline-none focus:border-emerald-300 focus:ring-2 focus:ring-emerald-100"
+                className="w-full rounded-xl border border-stone-200 bg-stone-50 py-2.5 ps-10 pe-4 text-sm text-stone-900 placeholder:text-stone-500 outline-none focus:border-emerald-300 focus:ring-2 focus:ring-emerald-100"
               />
               {searchQuery.trim().length === 1 && (
-                <p className="mt-1 text-center text-xs text-stone-400 py-1">اكتب حرفين على الأقل</p>
+                <p className="mt-1 text-center text-xs text-stone-500 py-1">اكتب حرفين على الأقل</p>
               )}
               {searchQuery.trim().length >= 2 && searchResults.length > 0 && (
                 <div className="mt-1 rounded-xl border border-stone-200 bg-white overflow-hidden">
@@ -422,7 +419,7 @@ export default memo(function Header() {
                 </div>
               )}
               {searchQuery.trim().length >= 2 && searchResults.length === 0 && (
-                <p className="mt-1 text-center text-xs text-stone-400 py-2">لا توجد نتائج — جرّب اسمًا آخر</p>
+                <p className="mt-1 text-center text-xs text-stone-500 py-2">لا توجد نتائج — جرّب اسمًا آخر</p>
               )}
             </div>
             {navLinks.map(({ to, label }) => {
@@ -502,7 +499,7 @@ export default memo(function Header() {
         </FocusTrap>
       </div>
 
-      <div className="h-16 md:h-[72px]" />
+      <div className="h-[var(--header-height)]" />
     </>
   );
 });

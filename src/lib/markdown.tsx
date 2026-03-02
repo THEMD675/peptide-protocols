@@ -99,7 +99,7 @@ export function renderMarkdown(text: string) {
     if (line.startsWith('#')) { flushList(); elements.push(<h3 key={i} className="mt-4 mb-1 text-base font-bold text-stone-900">{line.replace(/^#\s*/, '')}</h3>); continue; }
     if (/^\d+\.\s/.test(line)) { if (listItems.length === 0) listType = 'ol'; listItems.push(line.replace(/^\d+\.\s*/, '')); continue; }
     if (/^[-*]\s/.test(line)) { if (listItems.length === 0) listType = 'ul'; listItems.push(line.replace(/^[-*]\s*/, '')); continue; }
-    if (line.startsWith('⚠') || line.startsWith('تنبيه') || line.startsWith('ملاحظة')) { flushList(); elements.push(<p key={i} className="my-2 text-xs text-stone-400 italic">{line}</p>); continue; }
+    if (line.startsWith('⚠') || line.startsWith('تنبيه') || line.startsWith('ملاحظة')) { flushList(); elements.push(<p key={i} className="my-2 text-xs text-stone-500 italic">{line}</p>); continue; }
     flushList();
     elements.push(<p key={i} className="my-1" dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(inlineMd(line)) }} />);
   }

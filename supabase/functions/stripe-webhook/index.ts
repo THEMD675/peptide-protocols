@@ -2,6 +2,7 @@ import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 import Stripe from 'https://esm.sh/stripe@14.14.0?target=deno'
 
+const TRIAL_DAYS = 3 // Keep in sync with src/config/trial.ts
 const stripeKey = Deno.env.get('STRIPE_SECRET_KEY') ?? ''
 const stripe = new Stripe(stripeKey, { apiVersion: '2023-10-16' })
 const endpointSecret = Deno.env.get('STRIPE_WEBHOOK_SECRET') ?? ''
@@ -66,11 +67,18 @@ serve(async (req) => {
         const stripeSubscriptionId = session.subscription as string | null
 
         if (!userId && session.customer_email) {
-          const { data: { users } } = await supabase.auth.admin.listUsers({ perPage: 1000 })
-          const match = users?.find(u => u.email === session.customer_email)
-          if (match) {
-            userId = match.id
-            console.warn('checkout.session.completed: resolved user via email fallback:', session.customer_email)
+          let page = 1
+          while (!userId) {
+            const { data: { users }, error: luErr } = await supabase.auth.admin.listUsers({ page, perPage: 1000 })
+            if (luErr || !users || users.length === 0) break
+            const match = users.find(u => u.email === session.customer_email)
+            if (match) {
+              userId = match.id
+              console.warn('checkout.session.completed: resolved user via email fallback:', session.customer_email)
+              break
+            }
+            if (users.length < 1000) break
+            page++
           }
         }
 
@@ -104,6 +112,7 @@ serve(async (req) => {
         }
 
         try {
+          const referralFromMeta = session.metadata?.referral_code as string | undefined
           const updatePayload: Record<string, unknown> = {
             status: checkoutStatus,
             tier,
@@ -111,9 +120,8 @@ serve(async (req) => {
             stripe_subscription_id: stripeSubscriptionId,
             updated_at: new Date().toISOString(),
           }
-          if (trialEndsAt) {
-            updatePayload.trial_ends_at = trialEndsAt
-          }
+          if (trialEndsAt) updatePayload.trial_ends_at = trialEndsAt
+          if (referralFromMeta && /^PP-[A-Z0-9]{6}$/.test(referralFromMeta)) updatePayload.referred_by = referralFromMeta
 
           const { error, data: updateData } = await supabase
             .from('subscriptions')
@@ -161,7 +169,7 @@ serve(async (req) => {
                   <div style="text-align: center; margin: 24px 0;">
                     <a href="https://pptides.com/dashboard" style="display: inline-block; background: #059669; color: white; padding: 16px 40px; border-radius: 9999px; text-decoration: none; font-weight: bold; font-size: 16px;">ابدأ الآن</a>
                   </div>
-                  <p style="color: #78716c; font-size: 13px;">ضمان استرداد كامل خلال 3 أيام — تواصل معنا: contact@pptides.com</p>
+                  <p style="color: #78716c; font-size: 13px;">ضمان استرداد كامل خلال ${TRIAL_DAYS} أيام — تواصل معنا: contact@pptides.com</p>
                   <hr style="border: none; border-top: 1px solid #e7e5e4; margin: 24px 0;" />
                   <p style="color: #a8a29e; font-size: 12px;">pptides.com — محتوى تعليمي بحثي</p>
                 </div>`,
@@ -169,13 +177,29 @@ serve(async (req) => {
             }).catch(e => console.error('payment confirmation email failed:', e))
           }
 
-          // Update referral status to 'subscribed' when a referred user pays
+          // Update referral status + reward referrer when referred user pays
           if (userId) {
             const { data: userSub } = await supabase.from('subscriptions').select('referred_by').eq('user_id', userId).maybeSingle()
             if (userSub?.referred_by) {
-              await supabase.from('referrals').update({ status: 'subscribed', converted_at: new Date().toISOString() })
+              const { data: referral } = await supabase.from('referrals')
+                .update({ status: 'subscribed', converted_at: new Date().toISOString(), reward_given: true })
                 .eq('referred_id', userId).eq('referral_code', userSub.referred_by)
-                .catch(e => console.error('referral conversion update failed:', e))
+                .select('referrer_id').maybeSingle()
+
+              if (referral?.referrer_id) {
+                const { data: referrerSub } = await supabase.from('subscriptions')
+                  .select('stripe_customer_id').eq('user_id', referral.referrer_id).maybeSingle()
+                if (referrerSub?.stripe_customer_id) {
+                  try {
+                    await stripe.invoiceItems.create({
+                      customer: referrerSub.stripe_customer_id,
+                      amount: -3400,
+                      currency: 'sar',
+                      description: 'مكافأة إحالة — شهر مجاني (referral reward)',
+                    })
+                  } catch (e) { console.error('referral reward failed:', e) }
+                }
+              }
             }
           }
         }
@@ -197,22 +221,17 @@ serve(async (req) => {
         else if (stripeStatus === 'canceled' || stripeStatus === 'unpaid') mappedStatus = 'cancelled'
         else mappedStatus = 'expired'
 
-        const updatePayload: Record<string, unknown> = {
-          status: mappedStatus,
-          current_period_end: periodEnd,
-          updated_at: new Date().toISOString(),
-        }
-
-        if (stripeStatus === 'trialing' && subscription.trial_end) {
-          updatePayload.trial_ends_at = new Date(subscription.trial_end * 1000).toISOString()
-        }
+        const trialEndsAt = stripeStatus === 'trialing' && subscription.trial_end
+          ? new Date(subscription.trial_end * 1000).toISOString()
+          : undefined
 
         try {
-          const { error, data: rows } = await supabase
-            .from('subscriptions')
-            .update(updatePayload)
-            .eq('stripe_subscription_id', stripeSubId)
-            .select('id')
+          const { error, data: rows } = await supabase.rpc('update_subscription_by_stripe_id', {
+            p_stripe_subscription_id: stripeSubId,
+            p_status: mappedStatus,
+            p_current_period_end: periodEnd,
+            p_trial_ends_at: trialEndsAt ?? null,
+          })
 
           if (error) {
             console.error('subscription.updated DB error:', error)
@@ -234,16 +253,12 @@ serve(async (req) => {
         const periodEnd = new Date(subscription.current_period_end * 1000).toISOString()
 
         try {
-          const { error, data: rows } = await supabase
-            .from('subscriptions')
-            .update({
-              status: 'cancelled',
-              tier: 'free',
-              current_period_end: periodEnd,
-              updated_at: new Date().toISOString(),
-            })
-            .eq('stripe_subscription_id', stripeSubId)
-            .select('id')
+          const { error, data: rows } = await supabase.rpc('update_subscription_by_stripe_id', {
+            p_stripe_subscription_id: stripeSubId,
+            p_status: 'cancelled',
+            p_tier: 'free',
+            p_current_period_end: periodEnd,
+          })
 
           if (error) {
             console.error('subscription.deleted DB error:', error)
@@ -266,14 +281,10 @@ serve(async (req) => {
 
         if (stripeSubId && amountPaid > 0) {
           try {
-            const { error, data: rows } = await supabase
-              .from('subscriptions')
-              .update({
-                status: 'active',
-                updated_at: new Date().toISOString(),
-              })
-              .eq('stripe_subscription_id', stripeSubId)
-              .select('id')
+            const { error, data: rows } = await supabase.rpc('update_subscription_by_stripe_id', {
+              p_stripe_subscription_id: stripeSubId,
+              p_status: 'active',
+            })
 
             if (error) {
               console.error('invoice.paid DB error:', error)
@@ -296,14 +307,10 @@ serve(async (req) => {
 
         if (stripeSubId) {
           try {
-            const { error, data: rows } = await supabase
-              .from('subscriptions')
-              .update({
-                status: 'past_due',
-                updated_at: new Date().toISOString(),
-              })
-              .eq('stripe_subscription_id', stripeSubId)
-              .select('id')
+            const { error, data: rows } = await supabase.rpc('update_subscription_by_stripe_id', {
+              p_stripe_subscription_id: stripeSubId,
+              p_status: 'past_due',
+            })
 
             if (error) {
               console.error('invoice.payment_failed DB error:', error)
@@ -325,7 +332,7 @@ serve(async (req) => {
               const customer = await stripe.customers.retrieve(invoice.customer as string).catch(() => null)
               const customerEmail = (customer && !customer.deleted) ? customer.email : null
               if (customerEmail) {
-                fetch('https://api.resend.com/emails', {
+                await fetch('https://api.resend.com/emails', {
                   method: 'POST',
                   headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${RESEND_API_KEY}` },
                   body: JSON.stringify({
@@ -411,7 +418,7 @@ serve(async (req) => {
           const customer = await stripe.customers.retrieve(customerId).catch(() => null)
           const email = (customer && !customer.deleted) ? customer.email : null
           if (email) {
-            fetch('https://api.resend.com/emails', {
+            await fetch('https://api.resend.com/emails', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${RESEND_API_KEY}` },
               body: JSON.stringify({
@@ -433,7 +440,7 @@ serve(async (req) => {
         const customerId = subscription.customer as string
         const trialEnd = subscription.trial_end ? new Date(subscription.trial_end * 1000) : null
         const hoursUntilEnd = trialEnd ? (trialEnd.getTime() - Date.now()) / 3600000 : 0
-        if (hoursUntilEnd > 60) {
+        if (hoursUntilEnd > 80) {
           console.log('trial_will_end: skipping email — trial just started, hours until end:', hoursUntilEnd.toFixed(0))
           break
         }
@@ -442,7 +449,7 @@ serve(async (req) => {
           const customer = await stripe.customers.retrieve(customerId).catch(() => null)
           const email = (customer && !customer.deleted) ? customer.email : null
           if (email) {
-            fetch('https://api.resend.com/emails', {
+            await fetch('https://api.resend.com/emails', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${RESEND_API_KEY}` },
               body: JSON.stringify({

@@ -1,11 +1,13 @@
-import { lazy, Suspense, useEffect, useState, Component, type ReactNode } from 'react';
+import { lazy, Suspense, useEffect, useState, useSyncExternalStore, Component, type ReactNode } from 'react';
 import { BrowserRouter, Routes, Route, Link, Navigate, useLocation, useNavigationType } from 'react-router-dom';
 import { useAuth, AuthProvider } from '@/contexts/AuthContext';
 import { Helmet, HelmetProvider } from 'react-helmet-async';
 import { Toaster } from 'sonner';
-import { SITE_URL } from '@/lib/constants';
+import { SITE_URL, STORAGE_KEYS } from '@/lib/constants';
+import { hasOptionalConsent } from '@/lib/cookie-utils';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
+import BottomNav from '@/components/layout/BottomNav';
 import TrialBanner from '@/components/TrialBanner';
 import BackToTop from '@/components/BackToTop';
 import ProtectedRoute from '@/components/ProtectedRoute';
@@ -46,6 +48,8 @@ const Glossary = lazy(() => import('@/pages/Glossary'));
 const InteractionChecker = lazy(() => import('@/pages/InteractionChecker'));
 const Admin = lazy(() => import('@/pages/Admin'));
 const Quiz = lazy(() => import('@/pages/Quiz'));
+const About = lazy(() => import('@/pages/About'));
+const FAQ = lazy(() => import('@/pages/FAQ'));
 
 function PageLoader() {
   return (
@@ -77,7 +81,7 @@ class ErrorBoundary extends Component<{ children: ReactNode }, { hasError: boole
       } catch { /* Safari private mode */ }
     }
     try {
-      if (localStorage.getItem('pptides_cookie_consent') === 'accepted') {
+      if (hasOptionalConsent()) {
         import('@sentry/react').then(Sentry => {
           Sentry.captureException(error, { extra: { componentStack: errorInfo.componentStack } });
         }).catch(() => {});
@@ -102,6 +106,12 @@ class ErrorBoundary extends Component<{ children: ReactNode }, { hasError: boole
   }
 }
 
+class LazyFallback extends Component<{ children: ReactNode }, { hasError: boolean }> {
+  state = { hasError: false };
+  static getDerivedStateFromError() { return { hasError: true }; }
+  render() { return this.state.hasError ? null : this.props.children; }
+}
+
 class RouteErrorBoundary extends Component<
   { children: ReactNode; fallbackTitle?: string },
   { hasError: boolean; error: Error | null; retryCount: number }
@@ -112,7 +122,7 @@ class RouteErrorBoundary extends Component<
   }
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
     try {
-      if (localStorage.getItem('pptides_cookie_consent') === 'accepted') {
+      if (hasOptionalConsent()) {
         import('@sentry/react').then(Sentry => {
           Sentry.captureException(error, { extra: { componentStack: errorInfo.componentStack } });
         }).catch(() => {});
@@ -204,9 +214,14 @@ function OfflineBanner() {
 
 function HomeRedirect() {
   const { user, subscription, isLoading } = useAuth();
-  if (isLoading) return <PageLoader />;
-  if (user && subscription?.isProOrTrial) return <Navigate to="/dashboard" replace />;
+  if (!isLoading && user && subscription?.isProOrTrial) return <Navigate to="/dashboard" replace />;
   return <Suspense fallback={<PageLoader />}><Landing /></Suspense>;
+}
+
+function LogoutRedirect() {
+  const { logout } = useAuth();
+  useEffect(() => { logout(); }, [logout]);
+  return null;
 }
 
 function NotFound() {
@@ -249,6 +264,41 @@ function NotFound() {
   );
 }
 
+const overlayListeners = new Set<() => void>();
+const origSetItem = localStorage.setItem.bind(localStorage);
+localStorage.setItem = (...args: Parameters<Storage['setItem']>) => {
+  origSetItem(...args);
+  overlayListeners.forEach(fn => fn());
+};
+window.addEventListener('storage', () => overlayListeners.forEach(fn => fn()));
+
+let storageVersion = 0;
+function subscribeToStorage(cb: () => void) {
+  const listener = () => { storageVersion++; cb(); };
+  overlayListeners.add(listener);
+  return () => { overlayListeners.delete(listener); };
+}
+function getStorageSnapshot() { return storageVersion; }
+
+function useOverlayGate() {
+  useSyncExternalStore(subscribeToStorage, getStorageSnapshot);
+  const ageVerified = localStorage.getItem(STORAGE_KEYS.AGE_VERIFIED) === 'true';
+  return { ageVerified, showSecondary: ageVerified && (localStorage.getItem(STORAGE_KEYS.COOKIE_CONSENT) !== null) };
+}
+
+function OverlayGate() {
+  const { ageVerified, showSecondary } = useOverlayGate();
+
+  return (
+    <>
+      <LazyFallback><Suspense fallback={null}><AgeGate /></Suspense></LazyFallback>
+      {ageVerified && <LazyFallback><Suspense fallback={null}><CookieConsent /></Suspense></LazyFallback>}
+      {showSecondary && <LazyFallback><Suspense fallback={null}><StickyScrollCTA /></Suspense></LazyFallback>}
+      {showSecondary && <LazyFallback><Suspense fallback={null}><ExitIntentPopup /></Suspense></LazyFallback>}
+    </>
+  );
+}
+
 export default function App() {
   return (
     <HelmetProvider>
@@ -257,17 +307,16 @@ export default function App() {
         <ErrorBoundary>
           <div className="min-h-screen flex flex-col bg-white text-stone-900 overflow-x-hidden">
           <OfflineBanner />
-          <Suspense fallback={null}><PaymentProcessing /></Suspense>
-          <Suspense fallback={null}><AgeGate /></Suspense>
+          <LazyFallback><Suspense fallback={null}><PaymentProcessing /></Suspense></LazyFallback>
           <Header />
           <TrialBanner />
           <ScrollToTop />
           <TrackPageView />
           <CanonicalUrl />
           <Toaster position="top-center" richColors dir="rtl" visibleToasts={3} toastOptions={{ duration: 4000 }} />
-          <main id="main-content" className="flex-1 pb-16 md:pb-0">
+          <main id="main-content" className="flex-1 pb-20 md:pb-0">
             <Routes>
-              <Route path="/" element={<HomeRedirect />} />
+              <Route path="/" element={<RouteErrorBoundary><HomeRedirect /></RouteErrorBoundary>} />
               <Route path="/login" element={<Suspense fallback={<PageLoader />}><RouteErrorBoundary fallbackTitle="خطأ في صفحة الدخول"><Login /></RouteErrorBoundary></Suspense>} />
               <Route path="/signup" element={<Suspense fallback={<PageLoader />}><RouteErrorBoundary fallbackTitle="خطأ في صفحة الدخول"><Login /></RouteErrorBoundary></Suspense>} />
               <Route path="/library" element={<Suspense fallback={<LibrarySkeleton />}><RouteErrorBoundary fallbackTitle="خطأ في المكتبة"><Library /></RouteErrorBoundary></Suspense>} />
@@ -283,23 +332,25 @@ export default function App() {
               <Route path="/table" element={<Suspense fallback={<GenericPageSkeleton />}><RouteErrorBoundary fallbackTitle="خطأ في جدول الببتيدات"><PeptideTable /></RouteErrorBoundary></Suspense>} />
               <Route path="/sources" element={<Suspense fallback={<GenericPageSkeleton />}><RouteErrorBoundary fallbackTitle="خطأ في المصادر"><Sources /></RouteErrorBoundary></Suspense>} />
               <Route path="/community" element={<Suspense fallback={<GenericPageSkeleton />}><RouteErrorBoundary fallbackTitle="خطأ في المجتمع"><Community /></RouteErrorBoundary></Suspense>} />
+              <Route path="/about" element={<Suspense fallback={<GenericPageSkeleton />}><RouteErrorBoundary fallbackTitle="خطأ في صفحة عن"><About /></RouteErrorBoundary></Suspense>} />
+              <Route path="/faq" element={<Suspense fallback={<GenericPageSkeleton />}><RouteErrorBoundary fallbackTitle="خطأ في الأسئلة الشائعة"><FAQ /></RouteErrorBoundary></Suspense>} />
               <Route path="/privacy" element={<Suspense fallback={<PageLoader />}><RouteErrorBoundary><Privacy /></RouteErrorBoundary></Suspense>} />
               <Route path="/terms" element={<Suspense fallback={<PageLoader />}><RouteErrorBoundary><Terms /></RouteErrorBoundary></Suspense>} />
-              <Route path="/account" element={<ProtectedRoute><Suspense fallback={<PageLoader />}><RouteErrorBoundary fallbackTitle="خطأ في الحساب"><Account /></RouteErrorBoundary></Suspense></ProtectedRoute>} />
+              <Route path="/account" element={<Suspense fallback={<PageLoader />}><RouteErrorBoundary fallbackTitle="خطأ في الحساب"><Account /></RouteErrorBoundary></Suspense>} />
               <Route path="/dashboard" element={<ProtectedRoute><Suspense fallback={<DashboardSkeleton />}><RouteErrorBoundary fallbackTitle="خطأ في لوحة التحكم"><Dashboard /></RouteErrorBoundary></Suspense></ProtectedRoute>} />
               <Route path="/tracker" element={<ProtectedRoute><Suspense fallback={<TrackerSkeleton />}><RouteErrorBoundary fallbackTitle="خطأ في سجل الحقن"><Tracker /></RouteErrorBoundary></Suspense></ProtectedRoute>} />
               <Route path="/glossary" element={<Suspense fallback={<GenericPageSkeleton />}><RouteErrorBoundary fallbackTitle="خطأ في المصطلحات"><Glossary /></RouteErrorBoundary></Suspense>} />
               <Route path="/interactions" element={<Suspense fallback={<GenericPageSkeleton />}><RouteErrorBoundary fallbackTitle="خطأ في التفاعلات"><InteractionChecker /></RouteErrorBoundary></Suspense>} />
               <Route path="/admin" element={<ProtectedRoute><Suspense fallback={<PageLoader />}><RouteErrorBoundary fallbackTitle="Admin Error"><Admin /></RouteErrorBoundary></Suspense></ProtectedRoute>} />
+              <Route path="/logout" element={<LogoutRedirect />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </main>
+          <BottomNav />
           <Footer />
           <BackToTop />
-          <Suspense fallback={null}><StickyScrollCTA /></Suspense>
-          <Suspense fallback={null}><ExitIntentPopup /></Suspense>
-          <Suspense fallback={null}><CookieConsent /></Suspense>
-          <Suspense fallback={null}><InstallPrompt /></Suspense>
+          <OverlayGate />
+          <LazyFallback><Suspense fallback={null}><InstallPrompt /></Suspense></LazyFallback>
         </div>
         </ErrorBoundary>
       </AuthProvider>

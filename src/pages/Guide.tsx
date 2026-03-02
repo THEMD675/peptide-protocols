@@ -10,6 +10,7 @@ import {
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
 import { PRICING, SITE_URL } from '@/lib/constants';
+import { GenericPageSkeleton } from '@/components/Skeletons';
 
 const requiredTools = [
   { name: 'قارورة الببتيد (Vial)', desc: 'تحتوي على الببتيد المجفّد (lyophilized)' },
@@ -91,11 +92,7 @@ export default function Guide() {
   const isPro = !isLoading && (subscription?.isProOrTrial ?? false);
 
   if (isLoading) {
-    return (
-      <div className="flex min-h-[60vh] items-center justify-center">
-        <div className="h-8 w-8 animate-spin rounded-full border-2 border-stone-200 border-t-emerald-600" />
-      </div>
-    );
+    return <GenericPageSkeleton />;
   }
 
   return (
@@ -108,7 +105,7 @@ export default function Guide() {
         <meta property="og:url" content={`${SITE_URL}/guide`} />
         <meta property="og:type" content="article" />
         <meta property="og:locale" content="ar_SA" />
-        <meta property="og:image" content="https://pptides.com/og-image.png" />
+        <meta property="og:image" content={`${SITE_URL}/og-image.png`} />
         <script type="application/ld+json">{JSON.stringify({
           "@context": "https://schema.org",
           "@type": "HowTo",
@@ -193,7 +190,7 @@ export default function Guide() {
               {reconstitutionSteps.map((item, i) => (
                 <li
                   key={item.step}
-                  className="glass-card gold-border flex items-start gap-4 p-5"
+                  className="glass-card primary-border flex items-start gap-4 p-5"
                 >
                   <span
                     className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-emerald-500 text-lg font-bold text-white"
@@ -302,7 +299,7 @@ export default function Guide() {
           <BlurredSection isPro={isPro}>
             <div className="grid gap-4 sm:grid-cols-3">
               {otherRoutes.map((route) => (
-                <div key={route.title} className="glass-card gold-border flex flex-col p-5">
+                <div key={route.title} className="glass-card primary-border flex flex-col p-5">
                   <h3
                     className="mb-1 text-base font-bold"
                     

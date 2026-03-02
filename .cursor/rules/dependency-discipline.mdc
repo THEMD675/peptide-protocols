@@ -1,0 +1,30 @@
+---
+description: Pre-edit dependency checks — treat app as tightly coupled; one change can break many consumers
+alwaysApply: true
+---
+
+# Dependency-Safe Edits
+
+The pptides app has **tight coupling**. Changing one file can break 20+ consumers.
+
+## Before Editing Any File
+
+1. **Read `DEPENDENCY_MAP.md`** — lists blast radius for peptides.ts, constants.ts, trial config, AuthContext, Coach, edge functions.
+2. **Grep consumers:** `rg "from '@/path/to/file'" src/` — see who imports the file.
+3. **TRIAL_DAYS:** If changing trial duration, update **all 8 locations** (src/config/trial.ts, vite.config, index.html, create-checkout, stripe-webhook, trial-reminder, send-welcome-email, admin-actions).
+4. **peptides.ts / constants.ts:** 20–25+ consumers. Changes to exports or derived values (FREE_PEPTIDE_IDS, PEPTIDE_COUNT) affect many pages.
+5. **Edge functions:** Request/response shape must match frontend. Redeploy after changes.
+
+## After Every Change
+
+- Run `npm run predeploy` (type-check + build) before commit.
+- Fix type-check and build errors before pushing.
+
+## High-Risk Files
+
+| File | Approx consumers |
+|------|------------------|
+| src/data/peptides.ts | 20+ |
+| src/lib/constants.ts | 25+ |
+| src/contexts/AuthContext.tsx | 15+ |
+| src/config/trial.ts | 8 (frontend + 5 edge functions) |

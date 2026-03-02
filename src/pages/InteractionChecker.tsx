@@ -64,19 +64,17 @@ export default function InteractionChecker() {
     const p1 = searchParams.get('p1');
     const p2 = searchParams.get('p2');
     const p = searchParams.get('p');
+    let next: [string, string] | null = null;
     if (p1 !== null || p2 !== null) {
-      setSelected([p1 ?? '', p2 ?? '']);
-      return;
-    }
-    if (p) {
+      next = [p1 ?? '', p2 ?? ''];
+    } else if (p) {
       const parts = p.split(',').map(s => s.trim()).filter(Boolean).slice(0, 5);
-      setSelected(parts.length >= 2 ? parts : [...parts, ...Array(2 - parts.length).fill('')]);
-      return;
+      next = parts.length >= 2 ? parts as [string, string] : [...parts, ...Array(2 - parts.length).fill('')] as [string, string];
+    } else {
+      const legacyPeptide = searchParams.get('peptide');
+      if (legacyPeptide) next = [legacyPeptide, ''];
     }
-    const legacyPeptide = searchParams.get('peptide');
-    if (legacyPeptide) {
-      setSelected([legacyPeptide, '']);
-    }
+    if (next) queueMicrotask(() => setSelected(next!));
   }, [searchParams]);
 
   useEffect(() => {
@@ -131,7 +129,7 @@ export default function InteractionChecker() {
         <meta property="og:url" content={`${SITE_URL}/interactions`} />
         <meta property="og:type" content="website" />
         <meta property="og:locale" content="ar_SA" />
-        <meta property="og:image" content="https://pptides.com/og-image.png" />
+        <meta property="og:image" content={`${SITE_URL}/og-image.png`} />
       </Helmet>
 
       <div className="mx-auto max-w-2xl px-4 py-8 md:px-6 md:py-12">
@@ -155,7 +153,7 @@ export default function InteractionChecker() {
                 value={sel}
                 onChange={(e) => updateSlot(idx, e.target.value)}
                 aria-label={`اختر الببتيد ${idx + 1}`}
-                className={cn('flex-1 rounded-xl border border-stone-300 bg-stone-50 px-4 py-3 text-sm focus:border-emerald-300 focus:outline-none focus:ring-2 focus:ring-emerald-100', sel ? 'text-stone-900' : 'text-stone-400 italic')}
+                className={cn('flex-1 rounded-xl border border-stone-300 bg-stone-50 px-4 py-3 text-sm focus:border-emerald-300 focus:outline-none focus:ring-2 focus:ring-emerald-100', sel ? 'text-stone-900' : 'text-stone-500 italic')}
               >
                 <option value="">اختر ببتيد...</option>
                 {sortedPeptides.map(p => {
@@ -166,7 +164,7 @@ export default function InteractionChecker() {
                 })}
               </select>
               {selected.length > 2 && (
-                <button onClick={() => removeSlot(idx)} aria-label="إزالة" className="flex items-center justify-center rounded-lg p-2 min-h-[44px] min-w-[44px] text-stone-400 hover:bg-red-50 transition-colors hover:text-red-500"><XCircle className="h-4 w-4" /></button>
+                <button onClick={() => removeSlot(idx)} aria-label="إزالة" className="flex items-center justify-center rounded-lg p-2 min-h-[44px] min-w-[44px] text-stone-500 hover:bg-red-50 transition-colors hover:text-red-500"><XCircle className="h-4 w-4" /></button>
               )}
             </div>
           ))}
@@ -188,7 +186,7 @@ export default function InteractionChecker() {
           <div className="rounded-2xl border-2 border-dashed border-stone-200 bg-stone-50 py-12 text-center">
             <Shield className="mx-auto mb-3 h-10 w-10 text-stone-300" />
             <p className="text-sm font-bold text-stone-600">اختر ببتيدين أو أكثر لفحص التعارضات بينهما</p>
-            <p className="mt-1 text-sm text-stone-400">نتحقق من أمان الدمج بناءً على آليات العمل والأدلة العلمية</p>
+            <p className="mt-1 text-sm text-stone-500">نتحقق من أمان الدمج بناءً على آليات العمل والأدلة العلمية</p>
           </div>
         )}
 

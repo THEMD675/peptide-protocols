@@ -21,7 +21,7 @@ const friendlyError = (msg: string) => {
   if (msg.includes('weak_password') || msg.includes('Password should')) return 'كلمة المرور ضعيفة — استخدم 8 أحرف على الأقل';
   if (msg.includes('signup_disabled')) return 'التسجيل معطّل مؤقتًا — حاول لاحقًا';
   if (msg.includes('network') || msg.includes('fetch') || msg.includes('Failed to fetch')) return 'خطأ في الاتصال — تحقق من الإنترنت وحاول مرة أخرى';
-  return 'حدث خطأ — حاول مرة أخرى';
+  return 'تعذّر إتمام العملية — تحقق من اتصالك وحاول مرة أخرى';
 };
 
 export default function Login() {
@@ -36,8 +36,12 @@ export default function Login() {
   const [loading, setLoading] = useState(false);
   const [resetMessage, setResetMessage] = useState('');
   const [infoMessage, setInfoMessage] = useState('');
-  const [failedAttempts, setFailedAttempts] = useState(0);
-  const [lockoutUntil, setLockoutUntil] = useState(0);
+  const [failedAttempts, setFailedAttempts] = useState(() => {
+    try { return parseInt(sessionStorage.getItem('pptides_failed_attempts') ?? '0', 10) || 0; } catch { return 0; }
+  });
+  const [lockoutUntil, setLockoutUntil] = useState(() => {
+    try { return parseInt(sessionStorage.getItem('pptides_lockout_until') ?? '0', 10) || 0; } catch { return 0; }
+  });
   const [isRecovery, setIsRecovery] = useState(false);
   const [newPassword, setNewPassword] = useState('');
 
@@ -45,6 +49,13 @@ export default function Login() {
   const navigate = useNavigate();
   const recoveryTimerRef = useRef<ReturnType<typeof setTimeout>>();
   useEffect(() => () => { clearTimeout(recoveryTimerRef.current); }, []);
+
+  useEffect(() => {
+    try { sessionStorage.setItem('pptides_failed_attempts', String(failedAttempts)); } catch { /* expected */ }
+  }, [failedAttempts]);
+  useEffect(() => {
+    try { sessionStorage.setItem('pptides_lockout_until', String(lockoutUntil)); } catch { /* expected */ }
+  }, [lockoutUntil]);
 
   useEffect(() => {
     if (user && !isRecovery) {
@@ -77,7 +88,7 @@ export default function Login() {
       setNewPassword('');
       recoveryTimerRef.current = setTimeout(() => navigate('/'), 1500);
     } catch (err: unknown) {
-      setError(err instanceof Error ? friendlyError(err.message) : 'حدث خطأ — حاول مرة أخرى');
+      setError(err instanceof Error ? friendlyError(err.message) : 'تعذّر إتمام العملية — تحقق من اتصالك وحاول مرة أخرى');
     } finally {
       setLoading(false);
     }
@@ -131,7 +142,7 @@ export default function Login() {
       if (raw.includes('رابط التأكيد') || raw.includes('تحقق من بريدك')) {
         setInfoMessage(raw);
       } else if (raw.includes('already') || raw.includes('registered') || raw.includes('مسجّل')) {
-        toast.error('هذا البريد مسجّل — جرّب تسجيل الدخول أو استخدم Google');
+        toast.error(msg);
         setError(msg);
         setTab('login');
       } else {
@@ -189,9 +200,9 @@ export default function Login() {
         redirectTo: `${window.location.origin}/login`,
       });
       if (error) throw error;
-      setResetMessage('تم إرسال رابط إعادة تعيين كلمة المرور');
+      setResetMessage('تم إرسال رابط إعادة تعيين كلمة المرور — تحقق من مجلد البريد غير المرغوب فيه');
     } catch (err: unknown) {
-      setError(err instanceof Error ? friendlyError(err.message) : 'حدث خطأ — حاول مرة أخرى');
+      setError(err instanceof Error ? friendlyError(err.message) : 'تعذّر إتمام العملية — تحقق من اتصالك وحاول مرة أخرى');
     } finally {
       setLoading(false);
     }
@@ -212,16 +223,16 @@ export default function Login() {
               {resetMessage && <div className="mb-4 rounded-lg bg-green-50 px-4 py-3 text-sm text-green-700">{resetMessage}</div>}
               <form onSubmit={handleUpdatePassword} className="space-y-4">
                 <div>
-                  <label htmlFor="new-password" className="mb-1.5 block text-sm font-medium text-stone-900">كلمة المرور الجديدة</label>
+                  <label htmlFor="recovery-password" className="mb-1.5 block text-sm font-medium text-stone-900">كلمة المرور الجديدة</label>
                   <input
-                    id="new-password"
+                    id="recovery-password"
                     type="password"
                     value={newPassword}
                     onChange={(e) => setNewPassword(e.target.value)}
                     placeholder="8 أحرف على الأقل"
                     dir="ltr"
                     minLength={8}
-                    className="w-full rounded-xl border border-stone-200 bg-white px-4 py-3 text-left text-stone-900 placeholder:text-stone-400 outline-none transition-shadow focus:border-emerald-300 focus:ring-2 focus:ring-emerald-100"
+                    className="w-full rounded-xl border border-stone-200 bg-white px-4 py-3 text-left text-stone-900 placeholder:text-stone-500 outline-none transition-shadow focus:border-emerald-300 focus:ring-2 focus:ring-emerald-100"
                   />
                 </div>
                 <button type="submit" disabled={loading} className="w-full rounded-full bg-emerald-600 py-3.5 text-base font-bold text-white shadow transition-transform hover:bg-emerald-700 active:scale-[0.98] disabled:opacity-60">
@@ -328,7 +339,7 @@ export default function Login() {
                   autoFocus
                   autoComplete="email"
                   dir="ltr"
-                  className="w-full rounded-xl border border-stone-200 bg-white px-4 py-3 text-left text-stone-900 placeholder:text-stone-400 outline-none transition-shadow focus:border-emerald-300 focus:ring-2 focus:ring-emerald-100"
+                  className="w-full rounded-xl border border-stone-200 bg-white px-4 py-3 text-left text-stone-900 placeholder:text-stone-500 outline-none transition-shadow focus:border-emerald-300 focus:ring-2 focus:ring-emerald-100"
                 />
               </div>
 
@@ -346,12 +357,12 @@ export default function Login() {
                     autoComplete={tab === 'login' ? 'current-password' : 'new-password'}
                     dir="ltr"
                     {...(tab === 'signup' ? { minLength: 8 } : {})}
-                    className="w-full rounded-xl border border-stone-200 bg-white px-4 py-3 ps-12 text-left text-stone-900 placeholder:text-stone-400 outline-none transition-shadow focus:border-emerald-300 focus:ring-2 focus:ring-emerald-100"
+                    className="w-full rounded-xl border border-stone-200 bg-white px-4 py-3 ps-12 text-left text-stone-900 placeholder:text-stone-500 outline-none transition-shadow focus:border-emerald-300 focus:ring-2 focus:ring-emerald-100"
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(v => !v)}
-                    className="absolute start-3 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-600 transition-colors"
+                    className="absolute start-3 top-1/2 -translate-y-1/2 text-stone-500 hover:text-stone-600 transition-colors"
                     aria-label={showPassword ? 'إخفاء كلمة المرور' : 'إظهار كلمة المرور'}
                   >
                     {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}

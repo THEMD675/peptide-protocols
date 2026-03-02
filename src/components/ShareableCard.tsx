@@ -1,8 +1,8 @@
-import { memo, useRef } from 'react';
+import { memo } from 'react';
 import { Share2, Copy, Check } from 'lucide-react';
 import { useState } from 'react';
 import { toast } from 'sonner';
-import { SITE_URL } from '@/lib/constants';
+import { SITE_URL, FREQUENCY_LABELS } from '@/lib/constants';
 
 interface ShareableCardProps {
   peptideName: string;
@@ -15,19 +15,10 @@ interface ShareableCardProps {
   adherencePercent?: number;
 }
 
-const FREQ_LABELS: Record<string, string> = {
-  od: 'يوميًا',
-  bid: 'مرتين يوميًا',
-  weekly: 'أسبوعيًا',
-  biweekly: 'مرتين أسبوعيًا',
-  prn: 'عند الحاجة',
-};
-
 export default memo(function ShareableCard(props: ShareableCardProps) {
   const [copied, setCopied] = useState(false);
-  const cardRef = useRef<HTMLDivElement>(null);
 
-  const shareBody = `بروتوكولي على pptides:\n${props.peptideName} (${props.peptideNameEn})\n${props.dose} ${props.unit} — ${FREQ_LABELS[props.frequency] ?? props.frequency}\nمدة الدورة: ${props.cycleWeeks} أسابيع\nاليوم ${props.daysSinceStart} من ${props.cycleWeeks * 7}\n${props.adherencePercent != null ? `الالتزام: ${props.adherencePercent}%` : ''}`;
+  const shareBody = `بروتوكولي على pptides:\n${props.peptideName} (${props.peptideNameEn})\n${props.dose} ${props.unit} — ${FREQUENCY_LABELS[props.frequency] ?? props.frequency}\nمدة الدورة: ${props.cycleWeeks} أسابيع\nاليوم ${props.daysSinceStart} من ${props.cycleWeeks * 7}\n${props.adherencePercent != null ? `الالتزام: ${props.adherencePercent}%` : ''}`;
 
   const handleShare = async () => {
     if (navigator.share) {
@@ -46,13 +37,13 @@ export default memo(function ShareableCard(props: ShareableCardProps) {
       toast.success('تم نسخ البروتوكول');
       setTimeout(() => setCopied(false), 2000);
     } catch {
-      toast.error('فشل النسخ');
+      toast.error('تعذّر نسخ الصورة — حاول مرة أخرى');
     }
   };
 
   return (
     <div>
-      <div ref={cardRef} className="rounded-2xl border-2 border-emerald-200 bg-gradient-to-br from-white to-emerald-50 p-6 text-center">
+      <div className="rounded-2xl border-2 border-emerald-200 bg-gradient-to-br from-white to-emerald-50 p-6 text-center">
         <p className="text-lg font-bold tracking-tight text-stone-900">
           <span>pp</span><span className="text-emerald-600">tides</span>
         </p>
@@ -65,7 +56,7 @@ export default memo(function ShareableCard(props: ShareableCardProps) {
           </div>
           <div className="rounded-xl bg-white border border-stone-200 p-3">
             <p className="text-xs text-stone-500">التكرار</p>
-            <p className="text-sm font-bold text-stone-900">{FREQ_LABELS[props.frequency] ?? props.frequency}</p>
+            <p className="text-sm font-bold text-stone-900">{FREQUENCY_LABELS[props.frequency] ?? props.frequency}</p>
           </div>
           <div className="rounded-xl bg-white border border-stone-200 p-3">
             <p className="text-xs text-stone-500">التقدّم</p>

@@ -7,13 +7,14 @@ import { useAuth } from '@/contexts/AuthContext';
 import ProtocolWizard from '@/components/ProtocolWizard';
 import { PRICING, SITE_URL } from '@/lib/constants';
 import { stacks, peptides, categories } from '@/data/peptides';
+import { GenericPageSkeleton } from '@/components/Skeletons';
 
 const STACK_META: Record<string, { difficulty: string; cost: string; duration: string }> = {
-  'golden-recovery': { difficulty: 'مبتدئ', cost: '$140-220/شهر', duration: '4-6 أسابيع' },
-  'gh-optimization': { difficulty: 'متوسط', cost: '$260-380/شهر', duration: '8-12 أسبوع' },
-  'brain-performance': { difficulty: 'مبتدئ', cost: '$80-130/شهر', duration: '4 أسابيع مع راحة' },
-  'longevity-protocol': { difficulty: 'متقدم', cost: '$270/دورة', duration: '20 يوم كل 6 أشهر' },
-  'gut-repair': { difficulty: 'متوسط', cost: '$160-270/شهر', duration: '8-12 أسبوع' },
+  'golden-recovery': { difficulty: 'مبتدئ', cost: '525-825 ر.س/شهر', duration: '4-6 أسابيع' },
+  'gh-optimization': { difficulty: 'متوسط', cost: '975-1,425 ر.س/شهر', duration: '8-12 أسبوع' },
+  'brain-performance': { difficulty: 'مبتدئ', cost: '300-488 ر.س/شهر', duration: '4 أسابيع مع راحة' },
+  'longevity-protocol': { difficulty: 'متقدم', cost: '1,013 ر.س/دورة', duration: '20 يوم كل 6 أشهر' },
+  'gut-repair': { difficulty: 'متوسط', cost: '600-1,013 ر.س/شهر', duration: '8-12 أسبوع' },
 };
 
 function getCategoryLabel(categoryId: string) {
@@ -38,20 +39,42 @@ export default function Stacks() {
   const { subscription, isLoading } = useAuth();
   const isPro = !isLoading && (subscription?.isProOrTrial ?? false);
   const [activeWizard, setActiveWizard] = useState<string | null>(null);
+  const [stackStartDialog, setStackStartDialog] = useState<{ peptideIds: string[]; stackName: string } | null>(null);
 
   if (isLoading) {
-    return (
-      <div className="mx-auto max-w-6xl px-4 pb-24 pt-8 md:px-6 md:pt-12">
-        <div className="flex items-center justify-center py-32">
-          <div className="h-8 w-8 animate-spin rounded-full border-2 border-stone-200 border-t-emerald-600" />
-        </div>
-      </div>
-    );
+    return <GenericPageSkeleton />;
   }
 
   return (
     <div className="mx-auto max-w-6xl px-4 pb-24 pt-8 md:px-6 md:pt-12 animate-fade-in">
       {activeWizard && <ProtocolWizard peptideId={activeWizard} onClose={() => setActiveWizard(null)} />}
+      {stackStartDialog && (
+        <div role="dialog" aria-modal="true" className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" onClick={() => setStackStartDialog(null)}>
+          <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl" onClick={e => e.stopPropagation()}>
+            <h3 className="text-lg font-bold text-stone-900 mb-2">ابدأ البروتوكول: {stackStartDialog.stackName}</h3>
+            <p className="text-sm text-stone-600 mb-4">اختر الببتيد الذي تريد بدء بروتوكوله:</p>
+            <div className="space-y-2">
+              {stackStartDialog.peptideIds.map(pid => {
+                const p = peptides.find(x => x.id === pid);
+                return p ? (
+                  <button
+                    key={pid}
+                    type="button"
+                    onClick={() => { setActiveWizard(pid); setStackStartDialog(null); }}
+                    className="flex w-full items-center justify-between gap-2 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-bold text-emerald-800 transition-colors hover:bg-emerald-100"
+                  >
+                    <span>{p.nameAr}</span>
+                    <Syringe className="h-4 w-4 shrink-0" />
+                  </button>
+                ) : null;
+              })}
+            </div>
+            <button onClick={() => setStackStartDialog(null)} className="mt-4 w-full rounded-xl border border-stone-200 py-2.5 text-sm font-bold text-stone-600 hover:bg-stone-50">
+              إلغاء
+            </button>
+          </div>
+        </div>
+      )}
       <Helmet>
         <title>بروتوكولات ببتيدات مُجمَّعة | خلطات مُجرَّبة | pptides</title>
         <meta name="description" content="بروتوكولات مُجمَّعة لأهداف محددة" />
@@ -60,7 +83,7 @@ export default function Stacks() {
         <meta property="og:url" content={`${SITE_URL}/stacks`} />
         <meta property="og:type" content="website" />
         <meta property="og:locale" content="ar_SA" />
-        <meta property="og:image" content="https://pptides.com/og-image.png" />
+        <meta property="og:image" content={`${SITE_URL}/og-image.png`} />
       </Helmet>
       {/* Header */}
       <div className="mb-10 text-center">
@@ -88,7 +111,7 @@ export default function Stacks() {
           return (
             <article
               key={stack.id}
-              className="glass-card gold-border flex flex-col overflow-hidden p-6 transition-all hover:shadow-lg"
+              className="glass-card primary-border card-hover flex flex-col overflow-hidden p-6"
             >
               {/* Category badge — always visible */}
               <span
@@ -177,11 +200,18 @@ export default function Stacks() {
                   <div className="mt-4 flex flex-wrap gap-2">
                     <button
                       type="button"
-                      onClick={() => { if (stack.peptideIds[0]) setActiveWizard(stack.peptideIds[0]); else toast.error('لا يوجد ببتيد مرتبط بهذا البروتوكول'); }}
+                      onClick={() => {
+                        if (stack.peptideIds.length === 0) { toast.error('لا يوجد ببتيد مرتبط بهذا البروتوكول'); return; }
+                        if (stack.peptideIds.length === 1) {
+                          setActiveWizard(stack.peptideIds[0]);
+                        } else {
+                          setStackStartDialog({ peptideIds: stack.peptideIds, stackName: stack.nameAr });
+                        }
+                      }}
                       className="inline-flex items-center gap-1.5 rounded-full bg-emerald-600 px-5 py-2.5 text-sm font-bold text-white hover:bg-emerald-700 transition-colors"
                     >
                       <Syringe className="h-3.5 w-3.5" />
-                      ابدأ بـ {stackPeptides[0]?.nameAr ?? 'البروتوكول'}
+                      {stack.peptideIds.length > 1 ? 'ابدأ البروتوكول' : `ابدأ بـ ${stackPeptides[0]?.nameAr ?? 'البروتوكول'}`}
                     </button>
                     <Link
                       to={`/calculator?peptide=${encodeURIComponent(stackPeptides[0]?.nameEn ?? '')}`}

@@ -1,73 +1,89 @@
-# React + TypeScript + Vite
+# pptides
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+**Live site:** [https://pptides.com](https://pptides.com)
 
-Currently, two official plugins are available:
+The most comprehensive Arabic reference for therapeutic peptides — protocols, dose calculators, AI coach, and lab guides.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+---
 
-## React Compiler
+## English
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+### About
 
-## Expanding the ESLint configuration
+pptides is a bilingual (Arabic-first) web app for therapeutic peptide protocols. It provides:
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+- 41+ peptides with full protocols (dosing, cycles, side effects, evidence levels)
+- Dose calculator with syringe units
+- AI coach for personalized protocol guidance
+- Lab guide for pre/during/post blood work
+- Injection tracker and community logs
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+### Tech stack
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+- React 18, TypeScript, Vite
+- Supabase (Auth, DB, Edge Functions)
+- Stripe (subscriptions)
+- Resend (emails)
+- DeepSeek (AI coach)
+- Vercel (hosting)
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+### Development
+
+```bash
+npm install
+npm run dev
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+### Build & deploy
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+npm run predeploy        # type-check + build
+npm run deploy           # deploy to production (Vercel)
+npm run deploy:preview   # preview deploy
 ```
+
+See [FOUNDER_RUNBOOK.md](./FOUNDER_RUNBOOK.md) for operational procedures and [OPERATIONS.md](./OPERATIONS.md) for deployment details.
+
+---
+
+## العربية
+
+### حول المشروع
+
+**الموقع الحيّ:** [https://pptides.com](https://pptides.com)
+
+pptides أشمل مرجع عربي للببتيدات العلاجية — بروتوكولات، حاسبة جرعات، مدرب ذكي، ودليل تحاليل مخبرية.
+
+### المميّزات
+
+- أكثر من 41 ببتيد مع بروتوكولات كاملة (الجرعة، الدورة، الأعراض، مستوى الأدلة)
+- حاسبة جرعات دقيقة مع وحدات السيرنج
+- مدرب ذكي بالذكاء الاصطناعي لإرشادات مخصّصة
+- دليل تحاليل مخبرية قبل وأثناء وبعد الاستخدام
+- متتبّع حقن وسجل مجتمعي
+
+### التقنيات
+
+- React 18, TypeScript, Vite
+- Supabase (مصادقة، قاعدة بيانات، دوال Edge)
+- Stripe (اشتراكات)
+- Resend (بريد إلكتروني)
+- DeepSeek (المدرب الذكي)
+- Vercel (استضافة)
+
+### التطوير
+
+```bash
+npm install
+npm run dev
+```
+
+### البناء والنشر
+
+```bash
+npm run predeploy        # فحص الأنواع + بناء
+npm run deploy           # النشر للإنتاج (Vercel)
+npm run deploy:preview   # نشر معاينة
+```
+
+راجع [FOUNDER_RUNBOOK.md](./FOUNDER_RUNBOOK.md) للإجراءات التشغيلية و[OPERATIONS.md](./OPERATIONS.md) لتفاصيل النشر.
