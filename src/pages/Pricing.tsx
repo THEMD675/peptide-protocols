@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { Link, useSearchParams } from 'react-router-dom';
-import { Check, Shield, Lock, CreditCard, RefreshCw, ChevronDown, MessageCircle, Crown, ArrowLeft } from 'lucide-react';
+import { Check, CheckCircle, Shield, Lock, CreditCard, RefreshCw, ChevronDown, MessageCircle, Crown, ArrowLeft, X } from 'lucide-react';
 import { toast } from 'sonner';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
@@ -340,6 +340,48 @@ export default function Pricing() {
         <p className="mt-8 text-center text-sm text-stone-800">
           يمكنك الإلغاء في أي وقت — لا التزامات ولا رسوم مخفية
         </p>
+
+        {/* Feature Comparison Table */}
+        <div className="mt-12">
+          <h2 className="mb-6 text-center text-2xl font-bold text-stone-900">مقارنة الباقات</h2>
+          <div className="overflow-x-auto rounded-2xl border border-stone-200 bg-white">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b border-stone-200 bg-stone-50">
+                  <th className="px-5 py-3 text-right font-semibold text-stone-700">الميزة</th>
+                  <th className="px-5 py-3 text-center font-semibold text-stone-700">Essentials</th>
+                  <th className="px-5 py-3 text-center font-semibold text-emerald-700">Elite</th>
+                </tr>
+              </thead>
+              <tbody>
+                {([
+                  { feature: `المكتبة (${PEPTIDE_COUNT} ببتيد)`, essentials: true, elite: true },
+                  { feature: 'حاسبة الجرعات', essentials: true, elite: true },
+                  { feature: 'دليل التحاليل المخبرية', essentials: true, elite: true },
+                  { feature: 'البروتوكولات المُجمَّعة حسب الهدف', essentials: true, elite: true },
+                  { feature: 'المدرب الذكي', essentials: false, elite: true },
+                  { feature: 'استشارات بلا حدود', essentials: false, elite: true },
+                  { feature: 'بروتوكولات مخصّصة', essentials: false, elite: true },
+                  { feature: 'دعم مخصّص عبر البريد', essentials: false, elite: true },
+                ] as const).map((row, i) => (
+                  <tr key={i} className={cn('border-b border-stone-100 last:border-b-0', i % 2 === 0 ? 'bg-white' : 'bg-stone-50/50')}>
+                    <td className="px-5 py-3 font-medium text-stone-800">{row.feature}</td>
+                    <td className="px-5 py-3 text-center">
+                      {row.essentials
+                        ? <CheckCircle className="mx-auto h-5 w-5 text-emerald-500" />
+                        : <X className="mx-auto h-5 w-5 text-stone-300" />}
+                    </td>
+                    <td className="px-5 py-3 text-center">
+                      {row.elite
+                        ? <CheckCircle className="mx-auto h-5 w-5 text-emerald-500" />
+                        : <X className="mx-auto h-5 w-5 text-stone-300" />}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
 
         {/* Value Stack — Essentials */}
         <div

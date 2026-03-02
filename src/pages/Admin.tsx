@@ -556,6 +556,48 @@ export default function Admin() {
               <Stat label="Signups (30d)" value={o.signupsMonth} icon={Users} sub={`${o.signupsWeek} this week`} />
             </div>
 
+            {/* Signups This Month — Bar Chart */}
+            {(() => {
+              const now = new Date();
+              const BAR_MAX_PX = 100;
+              const weeks = Array.from({ length: 4 }, (_, i) => {
+                const end = new Date(now.getFullYear(), now.getMonth(), now.getDate() - i * 7);
+                end.setHours(23, 59, 59, 999);
+                const start = new Date(end);
+                start.setDate(end.getDate() - 6);
+                start.setHours(0, 0, 0, 0);
+                return { start, end };
+              }).reverse();
+              const counts = weeks.map(w =>
+                stats.recentUsers.filter(u => {
+                  const d = new Date(u.created_at).getTime();
+                  return d >= w.start.getTime() && d <= w.end.getTime();
+                }).length
+              );
+              const max = Math.max(...counts, 1);
+              return (
+                <div className="rounded-xl border border-stone-200 bg-white p-4">
+                  <h3 className="text-xs font-bold text-stone-700 mb-4 flex items-center gap-1.5">
+                    <TrendingUp className="h-3.5 w-3.5 text-emerald-500" /> Signups This Month
+                  </h3>
+                  <div className="flex items-end gap-3">
+                    {counts.map((c, i) => (
+                      <div key={i} className="flex-1 flex flex-col items-center gap-1">
+                        <span className="text-xs font-bold text-stone-700">{c}</span>
+                        <div
+                          className="w-full rounded-t-md bg-emerald-500"
+                          style={{ height: `${Math.max(Math.round((c / max) * BAR_MAX_PX), c > 0 ? 4 : 2)}px` }}
+                        />
+                        <span className="text-[10px] text-stone-500">
+                          {weeks[i].start.getDate()}/{weeks[i].start.getMonth() + 1}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              );
+            })()}
+
             {/* Funnel + Trials + Health */}
             <div className="grid md:grid-cols-3 gap-4">
               {/* Funnel */}

@@ -370,6 +370,34 @@ export default function PeptideDetail() {
             </Link>
           </div>
 
+          {/* الخطوة التالية */}
+          <div className="mt-8 rounded-2xl border-2 border-emerald-200 bg-gradient-to-l from-emerald-50 to-white p-6">
+            <h3 className="mb-4 text-lg font-bold text-stone-900">الخطوة التالية</h3>
+            <div className="grid gap-3 sm:grid-cols-3">
+              <Link
+                to={`/calculator?peptide=${encodeURIComponent(peptide.nameEn)}`}
+                className="flex items-center justify-center gap-2 rounded-xl bg-emerald-600 px-5 py-3.5 text-sm font-bold text-white transition-all hover:bg-emerald-700"
+              >
+                <Calculator className="h-4 w-4" />
+                احسب جرعتك
+              </Link>
+              <button
+                onClick={() => setShowProtocolWizard(true)}
+                className="flex items-center justify-center gap-2 rounded-xl border-2 border-emerald-300 px-5 py-3.5 text-sm font-bold text-emerald-700 transition-all hover:bg-emerald-50"
+              >
+                <Play className="h-4 w-4" />
+                ابدأ البروتوكول
+              </button>
+              <Link
+                to={`/coach?peptide=${encodeURIComponent(peptide.nameAr)}`}
+                className="flex items-center justify-center gap-2 rounded-xl border-2 border-emerald-300 px-5 py-3.5 text-sm font-bold text-emerald-700 transition-all hover:bg-emerald-50"
+              >
+                <Bot className="h-4 w-4" />
+                اسأل المدرب
+              </Link>
+            </div>
+          </div>
+
           {relatedPeptides.length > 0 && (
             <div className="mt-8">
               <h3 className="mb-4 text-lg font-bold text-stone-900">ببتيدات ذات صلة</h3>
