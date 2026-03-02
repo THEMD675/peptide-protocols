@@ -91,6 +91,7 @@ serve(async (req) => {
     const eliteSubs = activeSubs.filter(s => s.tier === 'elite')
 
     // MRR only from real Stripe subscriptions. SOURCE OF TRUTH: 34 SAR (Essentials), 371 SAR (Elite); override via MRR_ESSENTIALS_SAR, MRR_ELITE_SAR env
+    // Note: counts all active subs at monthly rate. Annual subs (296/2963 SAR/year) are overcounted. Fix requires Stripe metadata.
     const mrrEssentialsSar = parseFloat(Deno.env.get('MRR_ESSENTIALS_SAR') ?? '34')
     const mrrEliteSar = parseFloat(Deno.env.get('MRR_ELITE_SAR') ?? '371')
     const mrr = essentialsSubs.length * mrrEssentialsSar + eliteSubs.length * mrrEliteSar

@@ -93,6 +93,19 @@ serve(async (req) => {
       })
     }
 
+    // Batch-fetch all auth users to avoid N+1 getUserById calls
+    const userIdToEmail = new Map<string, string>()
+    let page = 1
+    while (true) {
+      const { data: { users }, error } = await supabase.auth.admin.listUsers({ page, perPage: 1000 })
+      if (error || !users || users.length === 0) break
+      for (const u of users) {
+        if (u.email) userIdToEmail.set(u.id, u.email)
+      }
+      if (users.length < 1000) break
+      page++
+    }
+
     let sent = 0
     let skipped = 0
     let failed = 0
@@ -105,12 +118,11 @@ serve(async (req) => {
           continue
         }
 
-        const { data: { user: authUser }, error: userErr } = await supabase.auth.admin.getUserById(sub.user_id)
-        if (userErr || !authUser?.email) {
+        const email = userIdToEmail.get(sub.user_id)
+        if (!email) {
           skipped++
           continue
         }
-        const email = authUser.email
         const createdAt = new Date(sub.created_at)
         const trialEnds = new Date(sub.trial_ends_at)
 
@@ -293,8 +305,8 @@ serve(async (req) => {
 
       for (const sub of activeSubscribers) {
         try {
-          const { data: { user: authUser } } = await supabase.auth.admin.getUserById(sub.user_id)
-          if (!authUser?.email) continue
+          const email = userIdToEmail.get(sub.user_id)
+          if (!email) continue
 
           const { count: weeklyCount } = await supabase
             .from('injection_logs')
@@ -337,7 +349,7 @@ serve(async (req) => {
             body: JSON.stringify({
               from: 'pptides <noreply@pptides.com>',
               reply_to: 'contact@pptides.com',
-              to: authUser.email,
+              to: email,
               subject: `ملخصك الأسبوعي — ${weeklyCount} حقنة — pptides`,
               headers: {
                 'List-Unsubscribe': '<mailto:contact@pptides.com?subject=unsubscribe>',

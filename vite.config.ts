@@ -11,7 +11,8 @@ export default defineConfig({
     {
       name: 'inject-trial-days',
       transformIndexHtml(html) {
-        return html.replace(/%TRIAL_DAYS%/g, String(TRIAL_DAYS));
+        return html
+          .replace(/%TRIAL_DAYS%/g, String(TRIAL_DAYS));
       },
     },
     react(),

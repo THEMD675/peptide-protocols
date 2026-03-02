@@ -16,6 +16,8 @@ const MAX_CONTEXT_MESSAGES = 30
 const RATE_LIMIT_WINDOW_SECONDS = 60
 const RATE_LIMIT_MAX = 10
 
+// Uses ai_coach_requests table instead of _shared/rate-limit.ts: different fail behavior (insert-based dedup vs rate_limits),
+// different window/semantics, and this table doubles as usage tracking. Architectural cleanup not worth the risk.
 async function checkRateLimit(userId: string, supabase: ReturnType<typeof createClient>): Promise<boolean> {
   const windowStart = new Date(Date.now() - RATE_LIMIT_WINDOW_SECONDS * 1000).toISOString()
   const { count, error } = await supabase

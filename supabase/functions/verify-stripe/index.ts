@@ -5,8 +5,8 @@ const stripeKey = Deno.env.get('STRIPE_SECRET_KEY') ?? ''
 const cronSecret = Deno.env.get('CRON_SECRET') ?? ''
 
 const EXPECTED = {
-  essentials: 'price_1T6QrYAT1lRVVLw7UNdI4t2g',
-  elite: 'price_1T6QrZAT1lRVVLw7qu0FZIWT',
+  essentials: Deno.env.get('STRIPE_PRICE_ESSENTIALS') ?? 'price_1T6QrYAT1lRVVLw7UNdI4t2g',
+  elite: Deno.env.get('STRIPE_PRICE_ELITE') ?? 'price_1T6QrZAT1lRVVLw7qu0FZIWT',
 }
 
 function constantTimeCompare(a: string, b: string): boolean {

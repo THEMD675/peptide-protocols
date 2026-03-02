@@ -183,7 +183,7 @@ export default function Landing() {
       {/* ═══════ HERO ═══════ */}
       <section className="relative bg-gradient-to-b from-white via-stone-50 to-stone-50">
         <div className="pointer-events-none absolute inset-0 overflow-hidden">
-          <div className="absolute left-1/2 top-0 h-[600px] w-[800px] -translate-x-1/2 bg-[radial-gradient(ellipse_at_center,rgba(16,185,129,0.07)_0%,transparent_60%)]" />
+          <div className="absolute start-1/2 top-0 h-[600px] w-[800px] -translate-x-1/2 bg-[radial-gradient(ellipse_at_center,rgba(16,185,129,0.07)_0%,transparent_60%)]" />
         </div>
 
         <div className="relative mx-auto max-w-5xl px-6 pb-6 pt-10 text-center md:pt-16 md:pb-8">
@@ -560,7 +560,7 @@ export default function Landing() {
                 <h3 className="mb-2 pt-4 text-lg font-bold text-stone-900">{step.title}</h3>
                 <p className="text-sm text-stone-800">{step.desc}</p>
                 {i < arr.length - 1 && (
-                  <div className="pointer-events-none absolute left-0 top-12 hidden -translate-x-1/2 md:block">
+                  <div className="pointer-events-none absolute start-0 top-12 hidden -translate-x-1/2 md:block">
                     <ArrowLeft className="h-6 w-6 text-emerald-400 animate-pulse" />
                   </div>
                 )}

@@ -77,6 +77,7 @@ export const STORAGE_KEYS = {
 export { TRIAL_DAYS } from '@/config/trial';
 export const SITE_URL = 'https://pptides.com';
 
+// VALUE_STACK prices are marketing estimates, not derived from PRICING. Update manually when pricing changes.
 export const VALUE_STACK = [
   { item: `مكتبة ${PEPTIDE_COUNT} ببتيد مع بروتوكولات كاملة`, value: '559 ر.س' },
   { item: 'حاسبة جرعات دقيقة (مايكروغرام + سيرنج)', value: '109 ر.س' },
