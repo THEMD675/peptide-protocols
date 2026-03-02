@@ -733,7 +733,7 @@ export default function Coach() {
                   </div>
                 </div>
                 {msg.role === 'assistant' && !msg.content.startsWith('__ERROR') && (
-                  <p className="mt-1 text-[11px] text-stone-500 text-end max-w-[88%] ms-auto">محتوى تعليمي — استشر طبيبك</p>
+                  <p className="mt-1 text-[10px] text-stone-400 text-end max-w-[88%] ms-auto">هذه معلومات تعليمية وليست نصيحة طبية — استشر طبيبك</p>
                 )}
                 {/* Action pills: for non-last messages, show Copy + WhatsApp only */}
                 {msg.role === 'assistant' && !isLoading && msg.content.length > 50 && i !== messages.length - 1 && (

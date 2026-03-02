@@ -254,13 +254,20 @@ function useOverlayGate() {
 
 function OverlayGate() {
   const { ageVerified, showSecondary } = useOverlayGate();
+  const [showPromos, setShowPromos] = useState(false);
+
+  useEffect(() => {
+    if (!showSecondary) return;
+    const t = setTimeout(() => setShowPromos(true), 30_000);
+    return () => clearTimeout(t);
+  }, [showSecondary]);
 
   return (
     <>
       <LazyFallback><Suspense fallback={null}><AgeGate /></Suspense></LazyFallback>
       {ageVerified && <LazyFallback><Suspense fallback={null}><CookieConsent /></Suspense></LazyFallback>}
-      {showSecondary && <LazyFallback><Suspense fallback={null}><StickyScrollCTA /></Suspense></LazyFallback>}
-      {showSecondary && <LazyFallback><Suspense fallback={null}><ExitIntentPopup /></Suspense></LazyFallback>}
+      {showSecondary && showPromos && <LazyFallback><Suspense fallback={null}><StickyScrollCTA /></Suspense></LazyFallback>}
+      {showSecondary && showPromos && <LazyFallback><Suspense fallback={null}><ExitIntentPopup /></Suspense></LazyFallback>}
     </>
   );
 }
