@@ -403,42 +403,39 @@ serve(async (req) => {
       }
 
       const reader = response.body.getReader()
-      const chunks: Uint8Array[] = []
-      while (true) {
-        const { done, value } = await reader.read()
-        if (done) break
-        if (value) chunks.push(value)
-      }
-      const totalLen = chunks.reduce((s, c) => s + c.length, 0)
-      const fullBuffer = new Uint8Array(totalLen)
-      let offset = 0
-      for (const c of chunks) {
-        fullBuffer.set(c, offset)
-        offset += c.length
-      }
-      const textDecoder = new TextDecoder()
-      const buffer = textDecoder.decode(fullBuffer)
+      const encoder = new TextEncoder()
       let accumulatedContent = ''
-      for (const line of buffer.split('\n')) {
-        if (!line.startsWith('data: ')) continue
-        const payload = line.slice(6).trim()
-        if (payload === '[DONE]') break
-        try {
-          const parsed = JSON.parse(payload)
-          const delta = parsed.choices?.[0]?.delta?.content
-          if (delta) accumulatedContent += delta
-        } catch { /* expected */ }
-      }
-      let outputBuffer: string
-      if (containsPromptLeak(accumulatedContent)) {
-        outputBuffer = `data: ${JSON.stringify({ choices: [{ delta: { content: SANITIZED_RESPONSE } }] })}\n\ndata: [DONE]\n\n`
-      } else {
-        outputBuffer = buffer
-      }
+      let leaked = false
       const outStream = new ReadableStream({
-        start(controller) {
-          controller.enqueue(new TextEncoder().encode(outputBuffer))
-          controller.close()
+        async pull(controller) {
+          try {
+            const { done, value } = await reader.read()
+            if (done || leaked) {
+              if (!leaked) controller.enqueue(encoder.encode('data: [DONE]\n\n'))
+              controller.close()
+              return
+            }
+            const text = new TextDecoder().decode(value)
+            for (const line of text.split('\n')) {
+              if (!line.startsWith('data: ')) continue
+              const payload = line.slice(6).trim()
+              if (payload === '[DONE]') { controller.enqueue(encoder.encode('data: [DONE]\n\n')); controller.close(); return }
+              try {
+                const parsed = JSON.parse(payload)
+                const delta = parsed.choices?.[0]?.delta?.content
+                if (delta) accumulatedContent += delta
+              } catch { /* expected */ }
+            }
+            if (containsPromptLeak(accumulatedContent)) {
+              leaked = true
+              controller.enqueue(encoder.encode(`data: ${JSON.stringify({ choices: [{ delta: { content: SANITIZED_RESPONSE } }] })}\n\ndata: [DONE]\n\n`))
+              controller.close()
+              return
+            }
+            controller.enqueue(value)
+          } catch {
+            controller.close()
+          }
         },
       })
 
