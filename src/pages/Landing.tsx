@@ -141,9 +141,9 @@ export default function Landing() {
       } else if (subsResult.error) {
         try {
           const cachedCount = localStorage.getItem(STORAGE_KEYS.USER_COUNT);
-          setUserCount(Math.max(Number(cachedCount) || 0, 500));
+          setUserCount(Number(cachedCount) || 0);
         } catch {
-          setUserCount(500);
+          setUserCount(0);
         }
       }
       if (!reviewsResult.error && reviewsResult.data && reviewsResult.data.length > 0) {

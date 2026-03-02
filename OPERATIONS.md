@@ -120,7 +120,7 @@
 89. "Recently viewed" peptides on Library page
 90. "Recommended for you" based on quiz answers
 91. Referral section with share via WhatsApp + copy link
-92. Annual pricing visible: Essentials $79/yr, Elite $790/yr
+92. Annual pricing visible: Essentials 296 ر.س/year, Elite 2,963 ر.س/year
 93. 44px minimum touch targets on all interactive elements
 94. Body scroll lock on all modals
 95. Safe area padding for iPhone notch/home indicator

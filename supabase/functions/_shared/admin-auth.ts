@@ -6,11 +6,19 @@
 import { getAuthUser } from './supabase.ts'
 import { getCorsHeaders, jsonResponse } from './cors.ts'
 
-export const ADMIN_EMAILS = [
+const DEFAULT_ADMIN_EMAILS = [
   'abdullah@amirisgroup.co',
   'abdullahalameer@gmail.com',
   'contact@pptides.com',
 ]
+
+function getAdminEmails(): string[] {
+  const whitelist = Deno.env.get('ADMIN_EMAIL_WHITELIST')
+  if (!whitelist?.trim()) return DEFAULT_ADMIN_EMAILS
+  return whitelist.split(',').map((e) => e.trim()).filter(Boolean)
+}
+
+export const ADMIN_EMAILS = getAdminEmails()
 
 /**
  * Verify the request is from an authenticated admin.

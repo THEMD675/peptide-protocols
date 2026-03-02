@@ -17,7 +17,7 @@ export default memo(function ProgressRing({ current, total, size = 80, strokeWid
 
   return (
     <div className="relative inline-flex items-center justify-center" style={{ width: size, height: size }}>
-      <svg width={size} height={size} className="-rotate-90">
+      <svg width={size} height={size} className="-rotate-90" role="img" aria-label={label ? `${label}: ${percent}%` : `Progress: ${percent}%`}>
         <circle
           cx={size / 2}
           cy={size / 2}

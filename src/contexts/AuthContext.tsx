@@ -117,6 +117,14 @@ export function buildSubscription(row: Record<string, unknown> | null): Subscrip
 }
 
 
+function clearPptidesStorage() {
+  try {
+    Object.keys(localStorage)
+      .filter(k => k.startsWith('pptides_'))
+      .forEach(k => localStorage.removeItem(k));
+  } catch { /* restricted env */ }
+}
+
 async function fetchWithRetry<T>(fn: () => Promise<T>, retries = 2, delay = 1000): Promise<T> {
   for (let i = 0; i <= retries; i++) {
     try { return await fn(); }
@@ -283,11 +291,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           hadSessionRef.current = false;
           setUser(null);
           setSubscription(DEFAULT_SUBSCRIPTION);
-          try {
-            Object.keys(localStorage)
-              .filter(k => k.startsWith('pptides_'))
-              .forEach(k => localStorage.removeItem(k));
-          } catch { /* restricted env */ }
+          clearPptidesStorage();
         }
         setIsLoading(false);
       }
@@ -405,9 +409,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       })).catch(() => {});
     }
     try {
-      Object.keys(localStorage)
-        .filter(k => k.startsWith('pptides_'))
-        .forEach(k => localStorage.removeItem(k));
+      clearPptidesStorage();
       Object.keys(localStorage).forEach((key) => {
         if (key.startsWith('sb-')) localStorage.removeItem(key);
       });

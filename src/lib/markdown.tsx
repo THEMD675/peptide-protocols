@@ -44,11 +44,19 @@ export function renderMarkdown(text: string) {
 
   const flushTable = () => {
     if (tableRows.length > 0) {
+      const [headerRow, ...bodyRows] = tableRows;
       elements.push(
         <div key={`tbl-${elements.length}`} className="my-3 overflow-x-auto rounded-xl border border-stone-200">
           <table className="w-full text-sm">
+            <thead>
+              <tr className="bg-stone-100">
+                {headerRow.map((cell, ci) => (
+                  <th key={ci} className={cn('px-3 py-2 border-b border-stone-200 font-bold text-stone-700 text-left', ci === 0 && 'w-[35%]')} dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(inlineMd(cell)) }} />
+                ))}
+              </tr>
+            </thead>
             <tbody>
-              {tableRows.map((cells, ri) => (
+              {bodyRows.map((cells, ri) => (
                 <tr key={ri} className={ri % 2 === 0 ? 'bg-stone-50' : 'bg-white'}>
                   {cells.map((cell, ci) => (
                     <td key={ci} className={cn('px-3 py-2 border-b border-stone-100', ci === 0 && 'font-bold text-stone-700 w-[35%]')} dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(inlineMd(cell)) }} />

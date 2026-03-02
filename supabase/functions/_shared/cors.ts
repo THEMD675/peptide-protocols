@@ -1,15 +1,17 @@
 /**
  * Shared CORS configuration for all edge functions.
- * Always includes localhost origins — auth protects the server side.
  */
 
-export const ALLOWED_ORIGINS = [
-  'https://pptides.com',
-  'http://localhost:3000',
-  'http://localhost:3001',
-  'http://localhost:3002',
-  'http://localhost:3003',
-]
+const PRODUCTION_ORIGINS = ['https://pptides.com']
+const LOCALHOST_ORIGINS = ['http://localhost:3000', 'http://localhost:3001', 'http://localhost:3002', 'http://localhost:3003']
+
+function getAllowedOrigins(): string[] {
+  const env = Deno.env.get('ENVIRONMENT')
+  if (env === 'production') return PRODUCTION_ORIGINS
+  return [...PRODUCTION_ORIGINS, ...LOCALHOST_ORIGINS]
+}
+
+export const ALLOWED_ORIGINS = getAllowedOrigins()
 
 export function getCorsHeaders(req: Request): Record<string, string> {
   const origin = req.headers.get('origin') ?? ''
