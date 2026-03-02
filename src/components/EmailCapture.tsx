@@ -100,7 +100,7 @@ export default function EmailCapture() {
             tabIndex={-1}
             autoComplete="off"
             aria-hidden="true"
-            className="absolute -left-[9999px] h-0 w-0 opacity-0 overflow-hidden"
+            className="absolute -start-[9999px] h-0 w-0 opacity-0 overflow-hidden"
           />
         </div>
         <button

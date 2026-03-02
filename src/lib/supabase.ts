@@ -8,6 +8,8 @@ if (!supabaseUrl || !supabaseAnonKey) {
   // Sentry will capture downstream auth/data failures
 }
 
+// Bypass Web Locks API — some browsers (Safari <16.4, SSR) don't support navigator.locks.
+// Trade-off: concurrent tabs may race on token refresh. Acceptable for this app's usage pattern.
 const noopLock: <R>(name: string, acquireTimeout: number, fn: () => Promise<R>) => Promise<R> =
   async (_name, _acquireTimeout, fn) => fn();
 

@@ -37,7 +37,7 @@ const GOAL_TO_CATEGORY: Record<string, string> = {
   'gut-skin': 'skin-gut',
 };
 
-export default function OnboardingModal({ forceOpen, onClose: externalClose }: { forceOpen?: boolean; onClose?: () => void } = {}) {
+export default function OnboardingModal({ forceOpen, onClose: externalClose }: { forceOpen?: boolean; onClose?: () => void }) {
   const [show, setShow] = useState(true);
   const [step, setStep] = useState<'goal' | 'plan'>('goal');
   const [selectedGoal, setSelectedGoal] = useState('');
