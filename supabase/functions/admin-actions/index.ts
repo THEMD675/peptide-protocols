@@ -39,20 +39,34 @@ serve(async (req) => {
       if (!userId) return json({ error: 'Missing user_id' }, 400, cors)
 
       const { data: sub, error: fetchErr } = await admin
-        .from('subscriptions').select('id, trial_ends_at, status').eq('user_id', userId).maybeSingle()
+        .from('subscriptions').select('id, trial_ends_at, status, stripe_subscription_id').eq('user_id', userId).maybeSingle()
       if (fetchErr || !sub) return json({ error: 'Subscription not found' }, 404, cors)
 
       const baseDate = sub.trial_ends_at ? new Date(sub.trial_ends_at) : new Date()
-      const newEnd = new Date(Math.max(baseDate.getTime(), Date.now()) + days * 86400000).toISOString()
+      const newEnd = new Date(Math.max(baseDate.getTime(), Date.now()) + days * 86400000)
+      const newEndIso = newEnd.toISOString()
 
       const { error: updateErr } = await admin.from('subscriptions').update({
-        trial_ends_at: newEnd,
+        trial_ends_at: newEndIso,
         status: sub.status === 'expired' || sub.status === 'none' ? 'trial' : sub.status,
         updated_at: new Date().toISOString(),
       }).eq('id', sub.id)
 
       if (updateErr) return json({ error: updateErr.message }, 500, cors)
-      return json({ ok: true, trial_ends_at: newEnd }, 200, cors)
+
+      // Sync trial_end with Stripe if subscription has stripe_subscription_id (DB is primary; log but don't fail)
+      if (sub.stripe_subscription_id && stripeKey) {
+        try {
+          const stripe = new Stripe(stripeKey, { apiVersion: '2025-12-18.acacia' })
+          await stripe.subscriptions.update(sub.stripe_subscription_id, {
+            trial_end: Math.floor(newEnd.getTime() / 1000),
+          })
+        } catch (e) {
+          console.error('Stripe trial_end sync failed (DB updated):', e)
+        }
+      }
+
+      return json({ ok: true, trial_ends_at: newEndIso }, 200, cors)
     }
 
     // ================================================================

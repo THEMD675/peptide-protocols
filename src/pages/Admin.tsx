@@ -8,7 +8,7 @@ import {
   AlertTriangle, RefreshCw, Shield, Reply, Send, X, Clock, Zap,
   AlertCircle, Info, ArrowUpRight, ArrowDownRight, Download,
   Trash2, Ban, CalendarPlus, Heart, ShieldCheck,
-  CheckCircle, XCircle, Loader2,
+  CheckCircle, XCircle, Loader2, RotateCcw,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { PRICING } from '@/lib/constants';
@@ -585,6 +585,15 @@ export default function Admin() {
                               )}
                               <button onClick={() => openUserAction('confirm_suspend', u)} title="Suspend" className="rounded p-1 hover:bg-red-50"><Ban className="h-3.5 w-3.5 text-red-400" /></button>
                               <button onClick={async () => { try { await adminAction({ action: 'unsuspend_user', user_id: u.id }); toast.success(`${u.email} unsuspended`); fetchStats(); } catch { toast.error('Unsuspend failed'); } }} title="Unsuspend" className="rounded p-1 hover:bg-green-50"><ShieldCheck className="h-3.5 w-3.5 text-green-600" /></button>
+                              <button onClick={async () => {
+                                const id = window.prompt('Enter payment_intent_id (pi_...) or charge_id (ch_...)');
+                                if (!id?.trim()) return;
+                                try {
+                                  const payload = id.startsWith('ch_') ? { action: 'refund_payment' as const, charge_id: id.trim() } : { action: 'refund_payment' as const, payment_intent_id: id.trim() };
+                                  await adminAction(payload);
+                                  toast.success('Refund initiated');
+                                } catch (e) { toast.error(e instanceof Error ? e.message : 'Refund failed'); }
+                              }} title="Refund payment" className="rounded p-1 hover:bg-amber-50"><RotateCcw className="h-3.5 w-3.5 text-amber-600" /></button>
                               <button onClick={() => openUserAction('confirm_delete', u)} title="Delete" className="rounded p-1 hover:bg-red-50"><Trash2 className="h-3.5 w-3.5 text-red-400" /></button>
                             </div>
                           </td>
