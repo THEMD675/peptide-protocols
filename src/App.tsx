@@ -50,6 +50,7 @@ const Admin = lazy(() => import('@/pages/Admin'));
 const Quiz = lazy(() => import('@/pages/Quiz'));
 const About = lazy(() => import('@/pages/About'));
 const FAQ = lazy(() => import('@/pages/FAQ'));
+const NotFound = lazy(() => import('@/pages/NotFound'));
 
 function PageLoader() {
   return (
@@ -224,46 +225,6 @@ function LogoutRedirect() {
   return null;
 }
 
-function NotFound() {
-  return (
-    <>
-    <Helmet>
-      <title>الصفحة غير موجودة — 404 | pptides</title>
-      <meta name="description" content="الصفحة التي تبحث عنها غير متاحة. تصفّح مكتبة الببتيدات أو جرّب الحاسبة." />
-      <meta name="robots" content="noindex" />
-    </Helmet>
-    <div className="flex flex-1 flex-col items-center justify-center py-24 text-center px-6">
-      <Link to="/" className="mb-6 text-2xl font-bold tracking-tight text-stone-900">
-        <span>pp</span>
-        <span className="text-emerald-600">tides</span>
-      </Link>
-      <h1 className="mb-4 text-5xl font-bold text-stone-900">404</h1>
-      <p className="mb-4 text-lg text-stone-800">الصفحة غير موجودة</p>
-      <p className="mb-6 text-sm text-stone-500">الصفحة التي تبحث عنها غير متاحة أو تم نقلها.</p>
-      <p className="mb-8 text-sm text-stone-600">
-        جرّب البحث في{' '}
-        <Link to="/library" className="font-semibold text-emerald-600 underline underline-offset-2 transition-colors hover:text-emerald-700">
-          المكتبة
-        </Link>
-      </p>
-      <div className="flex flex-wrap justify-center gap-3">
-        <Link to="/" className="rounded-full bg-emerald-600 px-8 py-3 font-bold text-white transition-transform hover:scale-105 active:scale-[0.98]">
-          الرئيسية
-        </Link>
-        <Link to="/library" className="rounded-full border-2 border-stone-300 px-8 py-3 font-bold text-stone-800 transition-transform hover:scale-105 active:scale-[0.98]">
-          المكتبة
-        </Link>
-      </div>
-      <div className="mt-8 flex flex-wrap justify-center gap-4 text-sm">
-        <Link to="/calculator" className="text-stone-500 hover:text-emerald-600 transition-colors">حاسبة الجرعات</Link>
-        <Link to="/coach" className="text-stone-500 hover:text-emerald-600 transition-colors">المدرب الذكي</Link>
-        <Link to="/pricing" className="text-stone-500 hover:text-emerald-600 transition-colors">الأسعار</Link>
-      </div>
-    </div>
-    </>
-  );
-}
-
 const overlayListeners = new Set<() => void>();
 let origSetItem: Storage['setItem'] = () => {};
 try {
@@ -348,7 +309,7 @@ export default function App() {
               <Route path="/interactions" element={<Suspense fallback={<GenericPageSkeleton />}><RouteErrorBoundary fallbackTitle="خطأ في التفاعلات"><InteractionChecker /></RouteErrorBoundary></Suspense>} />
               <Route path="/admin" element={<ProtectedRoute><Suspense fallback={<PageLoader />}><RouteErrorBoundary fallbackTitle="Admin Error"><Admin /></RouteErrorBoundary></Suspense></ProtectedRoute>} />
               <Route path="/logout" element={<LogoutRedirect />} />
-              <Route path="*" element={<NotFound />} />
+              <Route path="*" element={<Suspense fallback={<PageLoader />}><NotFound /></Suspense>} />
             </Routes>
           </main>
           <BottomNav />

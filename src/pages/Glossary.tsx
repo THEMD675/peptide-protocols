@@ -86,7 +86,7 @@ export default function Glossary() {
 
       {/* Search */}
       <div className="relative mb-8">
-        <Search className="absolute right-4 top-1/2 h-5 w-5 -translate-y-1/2 text-stone-500" />
+        <Search className="absolute end-4 top-1/2 h-5 w-5 -translate-y-1/2 text-stone-500" />
         <input
           type="text"
           value={search}

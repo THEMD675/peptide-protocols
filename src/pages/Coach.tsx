@@ -313,7 +313,6 @@ export default function Coach() {
   const normalizeDigits = (s: string) => s.replace(/[٠-٩]/g, d => String('٠١٢٣٤٥٦٧٨٩'.indexOf(d)));
 
   const abortRef = useRef<AbortController | null>(null);
-  const hasAccessRef = useRef(false);
   useEffect(() => () => { abortRef.current?.abort(); }, []);
 
   const setConsentGiven = useCallback(() => {
@@ -378,7 +377,8 @@ export default function Coach() {
 
       setMessages(prev => [...prev, { role: 'assistant', content: '' }]);
 
-      while (true) {
+      let streamDone = false;
+      while (!streamDone) {
         const { done, value } = await reader.read();
         if (done) break;
         buffer += decoder.decode(value, { stream: true });
@@ -387,7 +387,10 @@ export default function Coach() {
         for (const line of lines) {
           if (!line.startsWith('data: ')) continue;
           const payload = line.slice(6).trim();
-          if (payload === '[DONE]') break;
+          if (payload === '[DONE]') {
+            streamDone = true;
+            break;
+          }
           try {
             const parsed = JSON.parse(payload);
             const delta = parsed.choices?.[0]?.delta?.content;
@@ -402,6 +405,7 @@ export default function Coach() {
             }
           } catch { /* expected */ }
         }
+        if (streamDone) break;
       }
 
       clearTimeout(streamTimeout);
@@ -495,7 +499,6 @@ export default function Coach() {
   const isTrial = subscription.isTrial;
   const limit = isElite ? Infinity : hasAccess && !isTrial ? 15 : isTrial ? 5 : 5;
 
-  hasAccessRef.current = hasAccess;
   const userMsgCount = messages.filter(m => m.role === 'user').length;
   const limitReached = userMsgCount >= limit;
 

@@ -31,6 +31,9 @@ export default memo(function BodyMap({ selected, suggested, onSelect }: BodyMapP
               cx={site.cx}
               cy={site.cy}
               r={site.r}
+              tabIndex={0}
+              role="button"
+              aria-label={site.label}
               className={cn(
                 'cursor-pointer transition-all',
                 selected === site.id
@@ -40,6 +43,7 @@ export default memo(function BodyMap({ selected, suggested, onSelect }: BodyMapP
                     : 'fill-stone-200 stroke-stone-400 stroke-1 hover:fill-emerald-100'
               )}
               onClick={() => onSelect(site.id)}
+              onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onSelect(site.id); } }}
             />
             {suggested === site.id && selected !== site.id && (
               <text x={site.cx} y={site.cy + 3} textAnchor="middle" className="fill-emerald-700 text-[6px] font-bold pointer-events-none">
