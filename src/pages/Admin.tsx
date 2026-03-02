@@ -891,14 +891,24 @@ export default function Admin() {
         })()}
 
         {/* ===================== PAYMENTS ===================== */}
-        {tab === 'payments' && (
+        {tab === 'payments' && (() => {
+          const now = Date.now();
+          const dayMs = 24 * 60 * 60 * 1000;
+          const count24h = stats.webhookEvents.filter(e => now - new Date(e.processed_at).getTime() < dayMs).length;
+          const count7d = stats.webhookEvents.filter(e => now - new Date(e.processed_at).getTime() < 7 * dayMs).length;
+          const lastEvent = stats.webhookEvents.length ? stats.webhookEvents.reduce((a, b) => new Date(b.processed_at).getTime() > new Date(a.processed_at).getTime() ? b : a) : null;
+          return (
           <div className="space-y-3">
             <h2 className="text-sm font-bold text-stone-700">Webhook Events ({stats.webhookEvents.length})</h2>
+            {stats.webhookEvents.length > 0 && (
+              <p className="text-xs text-stone-600" dir="rtl">آخر 24 ساعة: {count24h} أحداث | آخر 7 أيام: {count7d} أحداث | آخر حدث: {lastEvent ? timeAgo(lastEvent.processed_at) : '—'}</p>
+            )}
             {stats.webhookEvents.length === 0 ? <div className="rounded-xl border border-amber-200 bg-amber-50 p-6 text-center"><AlertTriangle className="mx-auto h-8 w-8 text-amber-400 mb-2" /><p className="text-sm font-medium text-amber-800">No events recorded</p><p className="text-xs text-amber-600 mt-1">Stripe webhooks may not be configured</p></div> :
               <div className="overflow-x-auto rounded-xl border border-stone-200 bg-white"><table className="w-full text-sm"><thead><tr className="border-b border-stone-200 bg-stone-50"><th className="px-3 py-2 text-start font-medium text-stone-600">Event</th><th className="px-3 py-2 text-start font-medium text-stone-600">ID</th><th className="px-3 py-2 text-start font-medium text-stone-600">When</th></tr></thead>
               <tbody>{stats.webhookEvents.map(ev => <tr key={ev.event_id} className="border-b border-stone-100 hover:bg-stone-50"><td className="px-3 py-2 text-xs"><span className={cn('rounded-full px-2 py-0.5 text-xs font-medium', ev.event_type.includes('succeeded') || ev.event_type.includes('paid') ? 'bg-emerald-100 text-emerald-700' : ev.event_type.includes('failed') ? 'bg-red-100 text-red-700' : 'bg-stone-100 text-stone-700')}>{ev.event_type}</span></td><td className="px-3 py-2 font-mono text-xs text-stone-500">{ev.event_id?.slice(0, 24)}</td><td className="px-3 py-2 text-xs text-stone-500">{timeAgo(ev.processed_at)}</td></tr>)}</tbody></table></div>}
           </div>
-        )}
+          );
+        })()}
 
         {/* ===================== HEALTH ===================== */}
         {tab === 'health' && (

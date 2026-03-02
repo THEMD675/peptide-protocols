@@ -9,6 +9,7 @@ const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
 
 import { getCorsHeaders, handleCorsPreflightIfOptions } from '../_shared/cors.ts'
 import { checkRateLimit } from '../_shared/rate-limit.ts'
+import { emailWrapper } from '../_shared/email-template.ts'
 
 serve(async (req) => {
   const preflight = handleCorsPreflightIfOptions(req)
@@ -148,11 +149,10 @@ serve(async (req) => {
           to: user.email,
           subject: 'تم حذف حسابك في pptides',
           headers: { 'List-Unsubscribe': '<mailto:contact@pptides.com?subject=unsubscribe>' },
-          html: `<div dir="rtl" style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Tahoma, Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 40px 20px;">
+          html: emailWrapper(`
             <h1 style="color: #1c1917; font-size: 24px;">تم حذف حسابك</h1>
             <p style="color: #44403c; font-size: 16px; line-height: 1.8;">تم حذف حسابك وجميع بياناتك من pptides بنجاح. إذا كان هذا خطأ، تواصل معنا فورًا.</p>
-            <p style="color: #78716c; font-size: 13px;">contact@pptides.com</p>
-          </div>`,
+          `),
         }),
       }).catch(e => console.error('account deletion email failed:', e))
     }
