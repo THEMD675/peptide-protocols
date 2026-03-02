@@ -49,7 +49,7 @@ export default function PushNotificationPrompt() {
       const registration = await navigator.serviceWorker.ready;
       const sub = await registration.pushManager.subscribe({
         userVisibleOnly: true,
-        applicationServerKey: undefined,
+        applicationServerKey: import.meta.env.VITE_VAPID_PUBLIC_KEY || undefined,
       });
       const subscriptionJson = sub.toJSON ? sub.toJSON() : JSON.parse(JSON.stringify(sub));
       const { error } = await supabase

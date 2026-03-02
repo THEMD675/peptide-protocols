@@ -411,12 +411,27 @@ export default function Tracker() {
     }
   };
 
+  const [fullStatsData, setFullStatsData] = useState<{ uniquePeptides: number; last7: number } | null>(null);
+  useEffect(() => {
+    if (!user) return;
+    let mounted = true;
+    Promise.all([
+      supabase.from('injection_logs').select('peptide_name').eq('user_id', user.id).limit(10000),
+      supabase.from('injection_logs').select('id', { count: 'exact', head: true }).eq('user_id', user.id).gte('logged_at', new Date(Date.now() - 7 * 86400000).toISOString()),
+    ]).then(([pepRes, weekRes]) => {
+      if (!mounted) return;
+      const unique = new Set((pepRes.data ?? []).map((r: { peptide_name: string }) => r.peptide_name)).size;
+      setFullStatsData({ uniquePeptides: unique, last7: weekRes.count ?? 0 });
+    }).catch(() => {});
+    return () => { mounted = false; };
+  }, [user, logs.length]);
+
   const dashboardStats = useMemo(() => {
     if (logs.length === 0) return null;
     const totalInjections = totalCount || logs.length;
-    const uniquePeptides = new Set(logs.map(l => l.peptide_name)).size;
+    const uniquePeptides = fullStatsData?.uniquePeptides ?? new Set(logs.map(l => l.peptide_name)).size;
     const streak = computeStreak(logs);
-    const last7 = logs.filter(l => Date.now() - new Date(l.logged_at).getTime() < 7 * 24 * 60 * 60 * 1000).length;
+    const last7 = fullStatsData?.last7 ?? logs.filter(l => Date.now() - new Date(l.logged_at).getTime() < 7 * 24 * 60 * 60 * 1000).length;
     if (logs.length === 0) return null;
     const msSinceLast = Date.now() - new Date(logs[0].logged_at).getTime();
     const hoursSince = Math.floor(msSinceLast / (1000 * 60 * 60));

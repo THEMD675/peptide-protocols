@@ -448,8 +448,10 @@ serve(async (req) => {
         const customerId = subscription.customer as string
         const trialEnd = subscription.trial_end ? new Date(subscription.trial_end * 1000) : null
         const hoursUntilEnd = trialEnd ? (trialEnd.getTime() - Date.now()) / 3600000 : 0
-        if (hoursUntilEnd > 80) {
-          console.log('trial_will_end: skipping email — trial just started, hours until end:', hoursUntilEnd.toFixed(0))
+        const subCreated = subscription.created ? new Date(subscription.created * 1000) : new Date()
+        const hoursSinceCreation = (Date.now() - subCreated.getTime()) / 3600000
+        if (hoursUntilEnd > 80 || hoursSinceCreation < 24) {
+          console.log(`trial_will_end: skipping — hoursUntilEnd=${hoursUntilEnd.toFixed(0)}, hoursSinceCreation=${hoursSinceCreation.toFixed(0)}`)
           break
         }
         const RESEND_API_KEY = Deno.env.get('RESEND_API_KEY')
