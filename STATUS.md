@@ -6,6 +6,8 @@
 
 **Deploy (2026-03-02):** Frontend → Vercel (pptides.com). 14 edge functions → Supabase. DB push: up to date. CORS: OK.
 
+**E2E verify (2026-03-02):** Landing (34/371 ر.س, 3 أيام), Library (41 peptides, search), Pricing (Essentials/Elite), Login (email, Google, forgot), Protected /dashboard → redirect /login?redirect=%2Fdashboard.
+
 ---
 
 ## System State
