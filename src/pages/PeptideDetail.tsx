@@ -1,5 +1,5 @@
 import { useMemo, useState, useEffect } from 'react';
-import { useParams, Link, useNavigate } from 'react-router-dom';
+import { useParams, Link } from 'react-router-dom';
 import { ArrowRight, Shield, AlertTriangle, CheckCircle, Lock, Calculator, Bot, FlaskConical, Printer, MessageSquare, Star, Syringe, Share2, Play, ExternalLink, BookOpen } from 'lucide-react';
 import ProtocolWizard from '@/components/ProtocolWizard';
 import { toast } from 'sonner';
@@ -10,7 +10,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
 import { PRICING, TRIAL_PEPTIDE_IDS, SITE_URL } from '@/lib/constants';
 import { DOSE_PRESETS_MAP as DOSE_PRESETS } from '@/data/dose-presets';
-import { evidenceColors, evidenceLabels } from '@/lib/peptide-labels';
+import { evidenceColors, evidenceLabels, categoryLabels } from '@/lib/peptide-labels';
 
 interface ProtocolRow {
   label: string;
@@ -22,7 +22,6 @@ interface ProtocolRow {
 export default function PeptideDetail() {
   const { id } = useParams<{ id: string }>();
   const { subscription, isLoading } = useAuth();
-  const navigate = useNavigate();
   const isPaid = !isLoading && (subscription?.isPaidSubscriber ?? false);
   const isTrial = !isLoading && (subscription?.isTrial ?? false);
 
@@ -122,24 +121,14 @@ export default function PeptideDetail() {
       </Helmet>
 
       <div className="mx-auto max-w-4xl px-4 py-8 md:px-6 md:py-12">
-        {/* Back Button */}
-        <div>
-          <button
-            onClick={() => {
-              try {
-                if (document.referrer && new URL(document.referrer).origin === window.location.origin) {
-                  navigate(-1);
-                  return;
-                }
-              } catch { /* empty referrer or invalid URL */ }
-              navigate('/library');
-            }}
-            className="mb-6 inline-flex items-center gap-2 rounded-lg px-3 py-2.5 min-h-[44px] text-sm text-stone-800 transition-colors hover:bg-stone-100 hover:text-stone-800"
-          >
-            <ArrowRight className="h-4 w-4" />
-            رجوع
-          </button>
-        </div>
+        {/* Breadcrumbs */}
+        <nav className="mb-4 flex items-center gap-1.5 text-sm text-stone-500" aria-label="breadcrumb">
+          <Link to="/library" className="hover:text-emerald-600 transition-colors">المكتبة</Link>
+          <span>/</span>
+          <Link to={`/library?category=${peptide.category}`} className="hover:text-emerald-600 transition-colors">{categoryLabels[peptide.category] ?? peptide.category}</Link>
+          <span>/</span>
+          <span className="text-stone-800 font-medium">{peptide.nameAr}</span>
+        </nav>
 
         <div className="mb-4 rounded-xl border border-amber-200 bg-amber-50 px-4 py-2 text-xs text-amber-700">
           محتوى تعليمي — استشر طبيبك قبل استخدام أي ببتيد

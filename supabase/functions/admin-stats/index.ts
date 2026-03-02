@@ -58,6 +58,9 @@ serve(async (req) => {
       admin.from('processed_webhook_events').select('event_id, event_type, processed_at').order('processed_at', { ascending: false }).limit(30).then(r => r).catch(() => ({ data: null, error: null })),
     ])
 
+    const url = new URL(req.url)
+    const searchQuery = url.searchParams.get('search')?.trim().toLowerCase() ?? ''
+
     const allUsers = paginatedUsers
     const subs = subsResult.data ?? []
     const logs = logsResult.data ?? []
@@ -102,9 +105,11 @@ serve(async (req) => {
     const signupsWeek = users.filter(u => new Date(u.created_at) > weekAgo).length
     const signupsMonth = users.filter(u => new Date(u.created_at) > monthAgo).length
 
-    const recentUsers = users
-      .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
-      .slice(0, 50)
+    const recentUsersSource = searchQuery
+      ? users.filter(u => u.email?.toLowerCase().includes(searchQuery))
+      : users.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()).slice(0, 50)
+
+    const recentUsers = recentUsersSource
       .map(u => ({
         id: u.id,
         email: u.email,

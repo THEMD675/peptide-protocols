@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import { useAuth } from '@/contexts/AuthContext';
@@ -8,7 +8,7 @@ import {
   AlertTriangle, RefreshCw, Shield, Reply, Send, X, Clock, Zap,
   AlertCircle, Info, ArrowUpRight, ArrowDownRight, Download,
   Trash2, Ban, CalendarPlus, Heart, ShieldCheck,
-  CheckCircle, XCircle, Loader2, RotateCcw,
+  CheckCircle, XCircle, Loader2, RotateCcw, ClipboardList,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { PRICING } from '@/lib/constants';
@@ -49,7 +49,7 @@ interface AdminStats {
   webhookEvents: Array<{ id: string; event_type: string; event_id: string; processed_at: string }>;
 }
 
-type Tab = 'overview' | 'users' | 'activity' | 'reviews' | 'enquiries' | 'emails' | 'email-logs' | 'payments' | 'health';
+type Tab = 'overview' | 'users' | 'activity' | 'reviews' | 'enquiries' | 'emails' | 'email-logs' | 'payments' | 'health' | 'audit';
 type UserFilter = 'all' | 'active' | 'trial' | 'expired' | 'none';
 type ModalType = 'extend_trial' | 'grant_sub' | 'send_email' | 'confirm_delete' | 'confirm_suspend' | 'cancel_sub' | null;
 
@@ -189,6 +189,10 @@ export default function Admin() {
   const [stripeVerifyLoading, setStripeVerifyLoading] = useState(false);
   const [approvingReviewId, setApprovingReviewId] = useState<string | null>(null);
 
+  // Audit log
+  const [auditLog, setAuditLog] = useState<Array<{ id: string; admin_email: string; action: string; target_user_id: string | null; details: Record<string, unknown> | null; created_at: string }>>([]);
+  const [auditLoading, setAuditLoading] = useState(false);
+
   const getToken = useCallback(async () => {
     const { supabase } = await import('@/lib/supabase');
     const s = await supabase.auth.getSession();
@@ -196,14 +200,16 @@ export default function Admin() {
   }, []);
 
   // --- Fetch stats ---
-  const fetchStats = useCallback(async () => {
+  const fetchStats = useCallback(async (search?: string) => {
     if (!user) return;
     setLoading(true);
     setError('');
     try {
       const token = await getToken();
       if (!token) throw new Error('No token');
-      const res = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/admin-stats`, {
+      const url = new URL(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/admin-stats`);
+      if (search) url.searchParams.set('search', search);
+      const res = await fetch(url.toString(), {
         headers: { Authorization: `Bearer ${token}`, apikey: import.meta.env.VITE_SUPABASE_ANON_KEY },
       });
       if (res.status === 403) { setForbidden(true); return; }
@@ -217,6 +223,18 @@ export default function Admin() {
   }, [user, getToken]);
 
   useEffect(() => { if (user) fetchStats(); }, [user, fetchStats]);
+
+  const searchTimerRef = useRef<ReturnType<typeof setTimeout>>(null);
+  useEffect(() => {
+    if (searchTimerRef.current) clearTimeout(searchTimerRef.current);
+    if (userSearch.length >= 3) {
+      searchTimerRef.current = setTimeout(() => fetchStats(userSearch), 500);
+    } else if (userSearch.length === 0) {
+      fetchStats();
+    }
+    return () => { if (searchTimerRef.current) clearTimeout(searchTimerRef.current); };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [userSearch]);
 
   // --- Admin action caller ---
   const adminAction = useCallback(async (body: Record<string, unknown>) => {
@@ -338,6 +356,17 @@ export default function Admin() {
     } catch (e) { toast.error(e instanceof Error ? e.message : 'Export failed'); }
   };
 
+  const fetchAuditLog = useCallback(async () => {
+    setAuditLoading(true);
+    try {
+      const r = await adminAction({ action: 'get_audit_log' });
+      setAuditLog(r.data ?? []);
+    } catch (e) { toast.error(e instanceof Error ? e.message : 'Failed to load audit log'); }
+    finally { setAuditLoading(false); }
+  }, [adminAction]);
+
+  useEffect(() => { if (tab === 'audit' && auditLog.length === 0) fetchAuditLog(); }, [tab, auditLog.length, fetchAuditLog]);
+
   // --- Open modal helpers ---
   const openUserAction = (type: ModalType, u: { id: string; email: string }) => { setModalTarget(u); setModal(type); };
 
@@ -383,6 +412,7 @@ export default function Admin() {
     { key: 'email-logs', label: 'Emails Sent', count: stats.emailLogs.length },
     { key: 'payments', label: 'Payments', count: stats.webhookEvents.length },
     { key: 'health', label: 'Health' },
+    { key: 'audit', label: 'Audit Log' },
   ];
 
   return (
@@ -526,7 +556,6 @@ export default function Admin() {
         {/* ===================== USERS ===================== */}
         {tab === 'users' && (() => {
           const filtered = stats.recentUsers.filter(u => {
-            if (userSearch && !u.email?.toLowerCase().includes(userSearch.toLowerCase())) return false;
             if (userFilter === 'all') return true;
             const s = u.subscription?.status ?? 'none';
             return userFilter === 'active' ? s === 'active' : userFilter === 'trial' ? s === 'trial' : userFilter === 'expired' ? (s === 'expired' || s === 'cancelled') : (s === 'none' || !u.subscription);
@@ -791,6 +820,51 @@ export default function Admin() {
                   <pre className="mt-2 text-xs overflow-x-auto bg-white/60 p-3 rounded-lg">{JSON.stringify(stripeVerify.prices, null, 2)}</pre>
                   {stripeVerify.missingEvents?.length > 0 && <p className="text-xs text-amber-700 mt-2">Missing events: {stripeVerify.missingEvents.join(', ')}</p>}
                 </div>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* ===================== AUDIT LOG ===================== */}
+        {tab === 'audit' && (
+          <div className="space-y-3">
+            <div className="flex items-center justify-between">
+              <h2 className="text-sm font-bold text-stone-700 flex items-center gap-1.5"><ClipboardList className="h-4 w-4 text-stone-500" /> Audit Log</h2>
+              <button onClick={fetchAuditLog} disabled={auditLoading} className="flex items-center gap-1.5 rounded-lg border border-stone-200 px-3 py-1.5 text-xs font-medium text-stone-600 hover:bg-stone-50 disabled:opacity-50">
+                {auditLoading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <RefreshCw className="h-3.5 w-3.5" />} Refresh
+              </button>
+            </div>
+            {auditLoading && auditLog.length === 0 ? (
+              <div className="flex justify-center py-12"><Loader2 className="h-6 w-6 animate-spin text-stone-400" /></div>
+            ) : auditLog.length === 0 ? (
+              <div className="rounded-xl border border-stone-200 bg-white p-8 text-center">
+                <ClipboardList className="mx-auto h-8 w-8 text-stone-300 mb-2" />
+                <p className="text-sm text-stone-500">No audit log entries yet</p>
+              </div>
+            ) : (
+              <div className="overflow-x-auto rounded-xl border border-stone-200 bg-white">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="border-b border-stone-200 bg-stone-50">
+                      <th className="px-3 py-2 text-start font-medium text-stone-600">Date</th>
+                      <th className="px-3 py-2 text-start font-medium text-stone-600">Admin</th>
+                      <th className="px-3 py-2 text-start font-medium text-stone-600">Action</th>
+                      <th className="px-3 py-2 text-start font-medium text-stone-600">Target</th>
+                      <th className="px-3 py-2 text-start font-medium text-stone-600">Details</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {auditLog.map(entry => (
+                      <tr key={entry.id} className="border-b border-stone-100 hover:bg-stone-50">
+                        <td className="px-3 py-2 text-xs text-stone-500 whitespace-nowrap">{new Date(entry.created_at).toLocaleString('en-GB')}</td>
+                        <td className="px-3 py-2 font-mono text-xs">{entry.admin_email}</td>
+                        <td className="px-3 py-2 text-xs"><span className="rounded-full bg-stone-100 px-2 py-0.5 text-xs font-medium text-stone-700">{entry.action}</span></td>
+                        <td className="px-3 py-2 font-mono text-xs text-stone-500">{entry.target_user_id ? entry.target_user_id.slice(0, 8) + '...' : '—'}</td>
+                        <td className="px-3 py-2 text-xs text-stone-500 max-w-[300px] truncate">{entry.details ? JSON.stringify(entry.details) : '—'}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
               </div>
             )}
           </div>

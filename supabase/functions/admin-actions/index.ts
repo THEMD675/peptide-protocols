@@ -29,6 +29,14 @@ serve(async (req) => {
 
   console.log(JSON.stringify({ admin_action: action, by: user.email, timestamp: new Date().toISOString() }))
 
+  // Fire-and-forget audit log — never blocks the action
+  admin.from('admin_audit_log').insert({
+    admin_email: user.email,
+    action,
+    target_user_id: (body.user_id as string) || null,
+    details: body,
+  }).then(({ error: auditErr }) => { if (auditErr) console.error('audit log insert failed:', auditErr) })
+
   try {
     // ================================================================
     // EXTEND TRIAL
@@ -412,6 +420,18 @@ serve(async (req) => {
         if (error) return json({ error: error.message }, 500, cors)
       }
       return json({ ok: true }, 200, cors)
+    }
+
+    // ================================================================
+    // GET AUDIT LOG
+    // ================================================================
+    if (action === 'get_audit_log') {
+      const { data, error } = await admin.from('admin_audit_log')
+        .select('*')
+        .order('created_at', { ascending: false })
+        .limit(100)
+      if (error) return json({ error: error.message }, 500, cors)
+      return json({ ok: true, data: data ?? [] }, 200, cors)
     }
 
     return json({ error: `Unknown action: ${action}` }, 400, cors)
