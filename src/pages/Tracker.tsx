@@ -644,6 +644,29 @@ export default function Tracker() {
                       <span className="shrink-0 rounded-full bg-stone-100 px-4 py-2 text-xs text-stone-500">قراءة فقط</span>
                     )}
                   </div>
+                  {daysSinceStart >= totalDays && (
+                    <div className="mt-3 rounded-lg bg-emerald-50 border border-emerald-200 px-3 py-3 text-center">
+                      <p className="text-sm font-bold text-emerald-700 mb-2">أكملت الدورة بنجاح!</p>
+                      <button
+                        onClick={async () => {
+                          const pepName = peptide?.nameAr ?? proto.peptide_id;
+                          const injCount = logs.filter(l => l.peptide_name === (peptide?.nameEn ?? proto.peptide_id)).length;
+                          const text = `أكملت دورة ${pepName} على pptides! 💪 ${totalDays} يوم — ${injCount} حقنة. pptides.com`;
+                          try {
+                            if (navigator.share) {
+                              await navigator.share({ text });
+                            } else {
+                              await navigator.clipboard.writeText(text);
+                              toast.success('تم نسخ الرسالة');
+                            }
+                          } catch { /* user cancelled share */ }
+                        }}
+                        className="inline-flex items-center gap-2 rounded-full bg-emerald-600 px-5 py-2 text-sm font-bold text-white transition-colors hover:bg-emerald-700"
+                      >
+                        شارك إنجازك
+                      </button>
+                    </div>
+                  )}
                 </div>
               );
             })}

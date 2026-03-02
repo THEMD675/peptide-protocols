@@ -617,6 +617,54 @@ export default function Dashboard() {
         );
       })()}
 
+      {/* My Journey Timeline */}
+      {!activity.loading && (activity.logs.length > 0 || activeProtocols.length > 0) && (() => {
+        const bd: BadgeData = {
+          totalInjections: activity.totalInjections,
+          streak: activity.streak,
+          protocols: activeProtocols.length,
+          uniquePeptides: activity.uniquePeptidesCount,
+        };
+        const earnedBadges = BADGES.filter(b => b.condition(bd));
+        const journeyEvents: { date: string | null; text: string }[] = [];
+        activeProtocols.forEach(proto => {
+          const pep = allPeptides.find(p => p.id === proto.peptide_id);
+          journeyEvents.push({ date: proto.started_at, text: `بدأت بروتوكول ${pep?.nameAr ?? proto.peptide_id}` });
+        });
+        const total = activity.totalInjections;
+        if (total >= 100) journeyEvents.push({ date: null, text: 'أكملت ١٠٠ حقنة' });
+        else if (total >= 50) journeyEvents.push({ date: null, text: 'أكملت ٥٠ حقنة' });
+        else if (total >= 10) journeyEvents.push({ date: null, text: 'أكملت ١٠ حقن' });
+        earnedBadges.forEach(badge => {
+          journeyEvents.push({ date: null, text: `حصلت على شارة ${badge.label}` });
+        });
+        journeyEvents.sort((a, b) => {
+          if (a.date && b.date) return new Date(b.date).getTime() - new Date(a.date).getTime();
+          if (a.date) return -1;
+          if (b.date) return 1;
+          return 0;
+        });
+        if (journeyEvents.length === 0) return null;
+        return (
+          <div className="mb-8">
+            <h2 className="mb-4 text-xl font-bold text-stone-900">رحلتي</h2>
+            <div className="relative border-s-2 border-emerald-200 ps-6 space-y-4">
+              {journeyEvents.map((event, i) => (
+                <div key={i} className="relative">
+                  <div className="absolute -start-[9px] top-1 h-4 w-4 rounded-full border-2 border-emerald-400 bg-white" />
+                  <p className="text-sm font-bold text-stone-800">{event.text}</p>
+                  {event.date && (
+                    <p className="text-xs text-stone-500 mt-0.5">
+                      {new Date(event.date).toLocaleDateString('ar-u-nu-latn', { month: 'short', day: 'numeric', year: 'numeric' })}
+                    </p>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        );
+      })()}
+
       {/* Protocol ending soon — prominent warning cards */}
       {activeProtocols.length > 0 && (() => {
         const endingSoon = activeProtocols.filter(proto => {
