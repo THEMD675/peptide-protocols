@@ -1,6 +1,6 @@
 # pptides
 
-**Live site:** [https://pptides.com](https://pptides.com)
+**Live site:** [https://pptides.com](https://pptides.com) · **Repo:** [github.com/THEMD675/peptide-protocols](https://github.com/THEMD675/peptide-protocols)
 
 The most comprehensive Arabic reference for therapeutic peptides — protocols, dose calculators, AI coach, and lab guides.
 

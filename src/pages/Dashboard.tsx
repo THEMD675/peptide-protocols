@@ -204,7 +204,7 @@ function useRecentActivity(userId: string | undefined) {
     if (!(l.peptide_name in lastLogByPeptide)) lastLogByPeptide[l.peptide_name] = l.logged_at;
   });
 
-  return { logs: logs.slice(0, 5), loading, activePeptides, totalInjections, uniquePeptidesCount: displayUniquePeptides, streak, todayPlan, lastCheckedAt, todayLogged, lastLogByPeptide };
+  return { logs: logs.slice(0, 5), allLogs: logs, loading, activePeptides, totalInjections, uniquePeptidesCount: displayUniquePeptides, streak, todayPlan, lastCheckedAt, todayLogged, lastLogByPeptide };
 }
 
 interface ActiveProtocol {
@@ -619,7 +619,7 @@ export default function Dashboard() {
                       const frequencyMultiplier = proto.frequency === 'bid' ? 2 : proto.frequency === 'tid' ? 3 : 1;
                       const scheduledDoses = daysSinceStart * frequencyMultiplier;
                       return (
-                        <AdherenceBar scheduled={scheduledDoses} actual={activity.logs.filter(l => l.peptide_name === (peptide?.nameEn ?? proto.peptide_id)).length} />
+                        <AdherenceBar scheduled={scheduledDoses} actual={activity.allLogs.filter(l => l.peptide_name === (peptide?.nameEn ?? proto.peptide_id)).length} />
                       );
                     })()}
                   </div>
@@ -694,7 +694,7 @@ export default function Dashboard() {
         if (!proto) return null;
         const peptide = allPeptides.find(p => p.id === proto.peptide_id);
         const daysSinceStart = Math.floor((nowMs - new Date(proto.started_at).getTime()) / (1000 * 60 * 60 * 24));
-        const actualDoses = activity.logs.filter(l => l.peptide_name === (peptide?.nameEn ?? proto.peptide_id)).length;
+        const actualDoses = activity.allLogs.filter(l => l.peptide_name === (peptide?.nameEn ?? proto.peptide_id)).length;
         const adherence = daysSinceStart > 0 ? Math.min(Math.round((actualDoses / daysSinceStart) * 100), 100) : 0;
         return (
           <div role="dialog" aria-modal="true" className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4" onClick={() => setShareProtocolId(null)}>
@@ -821,7 +821,7 @@ export default function Dashboard() {
           const d = new Date(today);
           d.setDate(d.getDate() - i);
           const ds = d.toDateString();
-          const count = activity.logs.filter(l => new Date(l.logged_at).toDateString() === ds).length;
+          const count = activity.allLogs.filter(l => new Date(l.logged_at).toDateString() === ds).length;
           days.push({ date: d, count });
         }
 

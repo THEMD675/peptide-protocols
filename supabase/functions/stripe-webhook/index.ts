@@ -107,7 +107,9 @@ serve(async (req) => {
               }
             }
           } catch (fetchErr) {
-            console.error('checkout: failed to fetch subscription from Stripe:', fetchErr)
+            console.error('checkout: failed to fetch subscription from Stripe — defaulting to trial:', fetchErr)
+            checkoutStatus = 'trial'
+            trialEndsAt = new Date(Date.now() + TRIAL_DAYS * 86400000).toISOString()
           }
         }
 
@@ -403,13 +405,15 @@ serve(async (req) => {
       case 'charge.refunded': {
         const charge = event.data.object as Stripe.Charge
         const customerId = charge.customer as string
-        if (customerId && charge.refunded) {
+        if (customerId && (charge.refunded || charge.amount_refunded > 0)) {
+          const isFullRefund = charge.refunded
           const { error } = await supabase.from('subscriptions').update({
-            status: 'cancelled',
-            tier: 'free',
+            status: isFullRefund ? 'cancelled' : 'active',
+            ...(isFullRefund && { tier: 'free' }),
             updated_at: new Date().toISOString(),
           }).eq('stripe_customer_id', customerId)
           if (error) { console.error('charge.refunded DB error:', error); dbFailed = true }
+          if (!isFullRefund) console.log('charge.refunded: partial refund — subscription kept active')
         }
         console.log(JSON.stringify({ action: 'charge_refunded', customer: customerId, amount: charge.amount_refunded, timestamp: new Date().toISOString() }))
 

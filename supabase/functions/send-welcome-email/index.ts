@@ -155,7 +155,7 @@ serve(async (req) => {
         break
       }
     }
-    fixTrialDuration().catch(e => console.error('trial fix failed:', e))
+    await fixTrialDuration().catch(e => console.error('trial fix failed:', e))
 
     let trialEndDate = new Date(Date.now() + 3 * 86400000)
     if (serviceSupabase) {

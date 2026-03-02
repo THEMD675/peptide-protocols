@@ -1,11 +1,12 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { COOKIE_CONSENT_STORAGE_KEY, type CookiePreferences } from '@/lib/cookie-utils';
+import { STORAGE_KEYS } from '@/lib/constants';
 
 export default function CookieConsent() {
   const [visible, setVisible] = useState(() => {
     try {
-      if (localStorage.getItem('pptides_age_verified') !== 'true') return false;
+      if (localStorage.getItem(STORAGE_KEYS.AGE_VERIFIED) !== 'true') return false;
       return !localStorage.getItem(COOKIE_CONSENT_STORAGE_KEY);
     } catch {
       return true;

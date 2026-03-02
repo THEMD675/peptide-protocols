@@ -14,7 +14,7 @@ const friendlyError = (msg: string) => {
   const hasArabic = /[\u0600-\u06FF]/.test(msg);
   if (hasArabic) return msg;
   if (msg.includes('Invalid login')) return 'البريد أو كلمة المرور غير صحيحة — إذا سجّلت بـ Google جرّب زر Google أعلاه';
-  if (msg.includes('Email not confirmed')) return 'يرجى تأكيد بريدك الإلكتروني أولًا — تحقق من صندوق الوارد';
+  if (msg.includes('Email not confirmed')) return 'يرجى تأكيد بريدك الإلكتروني أولًا — تحقق من صندوق الوارد والبريد المزعج';
   if (msg.includes('already registered') || msg.includes('already been registered')) return 'هذا البريد مسجّل بالفعل — جرّب تسجيل الدخول';
   if (msg.includes('rate limit') || msg.includes('too many')) return 'محاولات كثيرة — انتظر قليلًا وحاول مرة أخرى';
   if (msg.includes('email_address_invalid') || msg.includes('Unable to validate')) return 'البريد الإلكتروني غير صحيح — تأكد من الكتابة';

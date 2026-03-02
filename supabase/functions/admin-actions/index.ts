@@ -52,7 +52,7 @@ serve(async (req) => {
       }).eq('id', sub.id)
 
       if (updateErr) return json({ error: updateErr.message }, 500, cors)
-      return json({ ok: true, trial_ends_at: newEnd })
+      return json({ ok: true, trial_ends_at: newEnd }, 200, cors)
     }
 
     // ================================================================
@@ -80,7 +80,7 @@ serve(async (req) => {
         })
         if (error) return json({ error: error.message }, 500, cors)
       }
-      return json({ ok: true, tier, status, current_period_end: periodEnd })
+      return json({ ok: true, tier, status, current_period_end: periodEnd }, 200, cors)
     }
 
     // ================================================================
@@ -96,7 +96,7 @@ serve(async (req) => {
       updates.updated_at = new Date().toISOString()
       const { error } = await admin.from('subscriptions').update(updates).eq('user_id', userId)
       if (error) return json({ error: error.message }, 500, cors)
-      return json({ ok: true, ...updates })
+      return json({ ok: true, ...updates }, 200, cors)
     }
 
     // ================================================================
@@ -120,7 +120,7 @@ serve(async (req) => {
         status: 'cancelled', updated_at: new Date().toISOString(),
       }).eq('user_id', userId)
       if (error) return json({ error: error.message }, 500, cors)
-      return json({ ok: true })
+      return json({ ok: true }, 200, cors)
     }
 
     // ================================================================
@@ -137,7 +137,7 @@ serve(async (req) => {
         ...(paymentIntentId ? { payment_intent: paymentIntentId } : { charge: chargeId }),
         reason: 'requested_by_customer',
       })
-      return json({ ok: true, refund_id: refund.id, status: refund.status })
+      return json({ ok: true, refund_id: refund.id, status: refund.status }, 200, cors)
     }
 
     // ================================================================
@@ -152,7 +152,7 @@ serve(async (req) => {
 
       // Also expire their subscription
       await admin.from('subscriptions').update({ status: 'expired', updated_at: new Date().toISOString() }).eq('user_id', userId)
-      return json({ ok: true })
+      return json({ ok: true }, 200, cors)
     }
 
     // ================================================================
@@ -164,7 +164,7 @@ serve(async (req) => {
 
       const { error } = await admin.auth.admin.updateUserById(userId, { ban_duration: 'none' })
       if (error) return json({ error: error.message }, 500, cors)
-      return json({ ok: true })
+      return json({ ok: true }, 200, cors)
     }
 
     // ================================================================
@@ -202,7 +202,7 @@ serve(async (req) => {
       const { error: deleteErr } = await admin.auth.admin.deleteUser(userId)
       if (deleteErr) return json({ error: deleteErr.message }, 500, cors)
 
-      return json({ ok: true, deleted_email: targetUser?.email })
+      return json({ ok: true, deleted_email: targetUser?.email }, 200, cors)
     }
 
     // ================================================================
@@ -235,7 +235,7 @@ serve(async (req) => {
 
       // Log it
       await admin.from('email_logs').insert({ email: to, type: 'admin_manual', status: 'sent' }).catch(() => {})
-      return json({ ok: true, resend_id: data.id })
+      return json({ ok: true, resend_id: data.id }, 200, cors)
     }
 
     // ================================================================
@@ -291,7 +291,7 @@ serve(async (req) => {
 
       const allOk = Object.values(checks).every(c => c.status === 'ok')
       const hasError = Object.values(checks).some(c => c.status === 'error')
-      return json({ status: allOk ? 'healthy' : hasError ? 'unhealthy' : 'degraded', checks, timestamp: new Date().toISOString() })
+      return json({ status: allOk ? 'healthy' : hasError ? 'unhealthy' : 'degraded', checks, timestamp: new Date().toISOString() }, 200, cors)
     }
 
     // ================================================================
@@ -355,7 +355,7 @@ serve(async (req) => {
     // ================================================================
     if (action === 'export_csv') {
       const table = body.table as string
-      if (!table || !['users', 'subscriptions', 'injection_logs', 'ai_coach_requests', 'email_logs', 'enquiries'].includes(table)) {
+      if (!table || !['users', 'subscriptions', 'injection_logs', 'ai_coach_requests', 'email_logs', 'email_list', 'enquiries'].includes(table)) {
         return json({ error: 'Invalid table' }, 400, cors)
       }
 
@@ -372,12 +372,12 @@ serve(async (req) => {
             trial_ends: sub?.trial_ends_at ?? '', period_end: sub?.current_period_end ?? '',
           }
         })
-        return json({ ok: true, data: rows, count: rows.length })
+        return json({ ok: true, data: rows, count: rows.length }, 200, cors)
       }
 
       const { data, error } = await admin.from(table).select('*').order('created_at', { ascending: false }).limit(5000)
       if (error) return json({ error: error.message }, 500, cors)
-      return json({ ok: true, data: data ?? [], count: (data ?? []).length })
+      return json({ ok: true, data: data ?? [], count: (data ?? []).length }, 200, cors)
     }
 
     // ================================================================
@@ -394,7 +394,7 @@ serve(async (req) => {
         const { error } = await admin.from('reviews').delete().eq('id', reviewId)
         if (error) return json({ error: error.message }, 500, cors)
       }
-      return json({ ok: true })
+      return json({ ok: true }, 200, cors)
     }
 
     return json({ error: `Unknown action: ${action}` }, 400, cors)

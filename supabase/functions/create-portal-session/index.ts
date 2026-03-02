@@ -16,6 +16,12 @@ serve(async (req) => {
 
   const corsHeaders = getCorsHeaders(req)
 
+  if (req.method !== 'POST') {
+    return new Response(JSON.stringify({ error: 'Method not allowed' }), {
+      status: 405, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    })
+  }
+
   if (!stripeKey || !supabaseUrl || !supabaseAnonKey) {
     return new Response(JSON.stringify({ error: 'Server misconfigured' }), {
       status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' },

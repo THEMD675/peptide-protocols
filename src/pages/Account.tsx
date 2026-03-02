@@ -200,7 +200,7 @@ export default function Account() {
             escapeCSV(d.toLocaleDateString('en-CA')),
             escapeCSV(d.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })),
             escapeCSV(l.peptide_name),
-            l.dose,
+            escapeCSV(l.dose),
             escapeCSV(l.dose_unit),
             escapeCSV(l.injection_site),
             escapeCSV(l.notes),

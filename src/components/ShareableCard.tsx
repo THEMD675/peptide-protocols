@@ -37,7 +37,7 @@ export default memo(function ShareableCard(props: ShareableCardProps) {
       toast.success('تم نسخ البروتوكول');
       setTimeout(() => setCopied(false), 2000);
     } catch {
-      toast.error('تعذّر نسخ الصورة — حاول مرة أخرى');
+      toast.error('تعذّر نسخ النص — حاول مرة أخرى');
     }
   };
 
