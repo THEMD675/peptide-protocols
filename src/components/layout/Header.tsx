@@ -321,6 +321,14 @@ export default memo(function Header() {
                     >
                       إعدادات الحساب
                     </Link>
+                    <Link
+                      to="/admin"
+                      onClick={() => setDropdownOpen(false)}
+                      className="flex w-full items-center gap-2 px-4 py-2.5 min-h-[44px] text-sm text-stone-500 transition-colors hover:bg-stone-50"
+                      title="لوحة الإدارة"
+                    >
+                      لوحة الإدارة
+                    </Link>
                     <div className="my-1 h-px bg-stone-200" />
                     <button
                       onClick={() => {
@@ -471,6 +479,21 @@ export default memo(function Header() {
                   </span>
                   <span className="truncate text-sm text-stone-800">{user.email}</span>
                 </div>
+                <Link
+                  to="/account"
+                  onClick={() => setMobileOpen(false)}
+                  className="flex w-full items-center gap-2 rounded-lg px-4 py-2.5 text-sm text-stone-800 transition-colors hover:bg-stone-50"
+                >
+                  <User className="h-4 w-4" />
+                  إعدادات الحساب
+                </Link>
+                <Link
+                  to="/admin"
+                  onClick={() => setMobileOpen(false)}
+                  className="flex w-full items-center gap-2 rounded-lg px-4 py-2.5 text-sm text-stone-500 transition-colors hover:bg-stone-50"
+                >
+                  لوحة الإدارة
+                </Link>
                 <button
                   onClick={() => {
                     if (window.confirm('هل تريد تسجيل الخروج؟')) {

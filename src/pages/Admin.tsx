@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
@@ -338,9 +339,33 @@ export default function Admin() {
   const openUserAction = (type: ModalType, u: { id: string; email: string }) => { setModalTarget(u); setModal(type); };
 
   // --- Render gates ---
-  if (forbidden) return <div className="flex min-h-screen items-center justify-center"><Helmet><title>Admin | pptides</title></Helmet><div className="text-center"><Shield className="mx-auto h-12 w-12 text-stone-300 mb-4" /><h1 className="text-xl font-bold text-stone-900 mb-2">Access Denied</h1></div></div>;
+  if (forbidden) return (
+    <div className="flex min-h-screen items-center justify-center bg-stone-50" lang="en">
+      <Helmet><title>Admin | pptides</title></Helmet>
+      <div className="text-center px-4">
+        <Shield className="mx-auto h-12 w-12 text-stone-300 mb-4" />
+        <h1 className="text-xl font-bold text-stone-900 mb-2">Access Denied</h1>
+        <p className="text-sm text-stone-600 mb-6">You don&apos;t have permission to access the admin area.</p>
+        <Link to="/dashboard" className="inline-flex items-center gap-2 rounded-full bg-emerald-600 px-6 py-3 text-sm font-bold text-white hover:bg-emerald-700 transition-colors">
+          Back to Dashboard
+        </Link>
+      </div>
+    </div>
+  );
   if (loading) return <div className="flex min-h-screen items-center justify-center"><Helmet><title>Admin | pptides</title></Helmet><div className="h-8 w-8 animate-spin rounded-full border-4 border-emerald-200 border-t-emerald-600" /></div>;
-  if (error || !stats) return <div className="flex min-h-screen items-center justify-center"><Helmet><title>Admin | pptides</title></Helmet><div className="text-center"><AlertTriangle className="mx-auto h-12 w-12 text-red-400 mb-4" /><p className="text-red-600 mb-4">{error}</p><button onClick={fetchStats} className="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-bold text-white">Retry</button></div></div>;
+  if (error || !stats) return (
+    <div className="flex min-h-screen items-center justify-center bg-stone-50">
+      <Helmet><title>Admin | pptides</title></Helmet>
+      <div className="text-center px-4">
+        <AlertTriangle className="mx-auto h-12 w-12 text-red-400 mb-4" />
+        <p className="text-red-600 mb-4">{error}</p>
+        <div className="flex flex-wrap justify-center gap-3">
+          <button onClick={fetchStats} className="rounded-full bg-emerald-600 px-6 py-3 text-sm font-bold text-white hover:bg-emerald-700">Retry</button>
+          <Link to="/dashboard" className="rounded-full border-2 border-stone-300 px-6 py-3 text-sm font-bold text-stone-800 hover:bg-stone-50">Back to Dashboard</Link>
+        </div>
+      </div>
+    </div>
+  );
 
   const o = stats.overview;
   const critAlerts = stats.alerts.filter(a => a.severity === 'critical').length;
@@ -364,12 +389,15 @@ export default function Admin() {
       {/* ===================== HEADER ===================== */}
       <div className="sticky top-[64px] md:top-[72px] z-30 bg-white border-b border-stone-200 px-4 py-3">
         <div className="max-w-6xl mx-auto flex items-center justify-between">
-          <div>
+          <div className="flex items-center gap-3">
+            <Link to="/dashboard" className="text-xs font-medium text-stone-500 hover:text-emerald-600 transition-colors shrink-0">← Dashboard</Link>
+            <div>
             <h1 className="text-lg font-bold text-stone-900 flex items-center gap-2">
               Control Center
               {critAlerts > 0 && <span className="rounded-full bg-red-100 px-2 py-0.5 text-xs font-bold text-red-700">{critAlerts}</span>}
             </h1>
             {lastFetched && <p className="text-[10px] text-stone-500">Updated {lastFetched.toLocaleTimeString('en-GB')}</p>}
+            </div>
           </div>
           <div className="flex items-center gap-2">
             <button onClick={() => { setEmailTo(''); setEmailSubject(''); setEmailBody(''); setModal('send_email'); setModalTarget(null); }}
