@@ -146,6 +146,7 @@ export default function Tracker() {
     return now.toISOString().slice(0, 16);
   });
   const [notes, setNotes] = useState('');
+  const [doseOutOfRangeConfirmed, setDoseOutOfRangeConfirmed] = useState(false);
   const [confirmDialog, setConfirmDialog] = useState<{ title: string; message: string; onConfirm: () => void; isDestructive?: boolean } | null>(null);
   const [confirmBusy, setConfirmBusy] = useState(false);
 
@@ -276,6 +277,10 @@ export default function Tracker() {
   }, [peptideName]);
 
   useEffect(() => {
+    setDoseOutOfRangeConfirmed(false);
+  }, [peptideName, dose, unit]);
+
+  useEffect(() => {
     if (peptideName || dose) {
       try {
         sessionStorage.setItem('pptides_injection_draft', JSON.stringify({
@@ -381,6 +386,7 @@ export default function Tracker() {
       setUnit('mcg');
       setSite('abdomen');
       setNotes('');
+      setDoseOutOfRangeConfirmed(false);
       setShowForm(false);
       sessionStorage.removeItem('pptides_injection_draft');
       events.injectionLog(peptideName);
@@ -460,7 +466,9 @@ export default function Tracker() {
     const daysInMonth = new Date(year, month + 1, 0).getDate();
     const firstDayOfWeek = (new Date(year, month, 1).getDay() + 1) % 7;
     const dayNames = ['سبت', 'أحد', 'إثن', 'ثلا', 'أرب', 'خمي', 'جمع'];
-    const monthName = useHijri ? hijriFormatter.format(new Date(year, month, 15)) : new Date(year, month).toLocaleDateString('ar-u-nu-latn', { month: 'long', year: 'numeric' });
+    const gregorianLabel = new Date(year, month).toLocaleDateString('ar-u-nu-latn', { month: 'long', year: 'numeric' });
+    const hijriLabel = new Intl.DateTimeFormat('ar-SA-u-ca-islamic-umalqura', { month: 'long', year: 'numeric' }).format(new Date(year, month, 15));
+    const monthName = useHijri ? `${gregorianLabel} / ${hijriLabel}` : gregorianLabel;
     const isCurrentMonth = year === now.getFullYear() && month === now.getMonth();
     const injectionDays = new Map<number, number>();
     logs.forEach(l => {
@@ -939,11 +947,40 @@ export default function Tracker() {
               if (!preset) return null;
               const doseNum = parseFloat(dose);
               const doseMcg = unit === 'mg' ? doseNum * 1000 : doseNum;
-              if (doseMcg > preset.maxDose) {
-                return <p className="text-xs font-bold text-red-600 flex items-center gap-1">الجرعة أعلى من الحد الأقصى الموصى به ({preset.maxDose} mcg)</p>;
+              const isOverMax = doseMcg > preset.maxDose;
+              const isUnderMin = doseMcg < preset.minDose;
+              const isOutOfRange = isOverMax || isUnderMin;
+              if (isOverMax) {
+                return (
+                  <div className="space-y-2">
+                    <p className="text-xs font-bold text-red-600 flex items-center gap-1">الجرعة أعلى من الحد الأقصى الموصى به ({preset.maxDose} mcg)</p>
+                    <label className="flex items-center gap-2 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={doseOutOfRangeConfirmed}
+                        onChange={(e) => setDoseOutOfRangeConfirmed(e.target.checked)}
+                        className="rounded border-stone-300 text-emerald-600 focus:ring-emerald-500"
+                      />
+                      <span className="text-xs text-stone-700">أؤكد أن هذه الجرعة صحيحة</span>
+                    </label>
+                  </div>
+                );
               }
-              if (doseMcg < preset.minDose) {
-                return <p className="text-xs font-bold text-amber-600 flex items-center gap-1">الجرعة أقل من الحد الأدنى الموصى به ({preset.minDose} mcg)</p>;
+              if (isUnderMin) {
+                return (
+                  <div className="space-y-2">
+                    <p className="text-xs font-bold text-amber-600 flex items-center gap-1">الجرعة أقل من الحد الأدنى الموصى به ({preset.minDose} mcg)</p>
+                    <label className="flex items-center gap-2 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={doseOutOfRangeConfirmed}
+                        onChange={(e) => setDoseOutOfRangeConfirmed(e.target.checked)}
+                        className="rounded border-stone-300 text-emerald-600 focus:ring-emerald-500"
+                      />
+                      <span className="text-xs text-stone-700">أؤكد أن هذه الجرعة صحيحة</span>
+                    </label>
+                  </div>
+                );
               }
               return null;
             })()}
@@ -1013,9 +1050,16 @@ export default function Tracker() {
             </div>
 
             <div className="flex gap-3">
+              {(() => {
+                const preset = peptideName.trim() ? DOSE_PRESETS_MAP[peptideName.trim()] : null;
+                const doseNum = parseFloat(dose);
+                const doseMcg = dose && !isNaN(doseNum) ? (unit === 'mg' ? doseNum * 1000 : doseNum) : 0;
+                const isOutOfRange = preset && (doseMcg > preset.maxDose || doseMcg < preset.minDose);
+                const submitDisabled = isSubmitting || (isOutOfRange && !doseOutOfRangeConfirmed);
+                return (
               <button
                 type="submit"
-                disabled={isSubmitting}
+                disabled={submitDisabled}
                 className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-emerald-600 px-6 py-3 text-sm font-bold text-white transition-all hover:bg-emerald-700 disabled:opacity-50"
               >
                 {isSubmitting ? (
@@ -1027,6 +1071,8 @@ export default function Tracker() {
                   'حفظ'
                 )}
               </button>
+                );
+              })()}
               <button
                 type="button"
                 onClick={() => setShowForm(false)}
