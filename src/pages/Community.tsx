@@ -120,8 +120,11 @@ export default function Community() {
     const validG = validGoals.includes(g) ? g : 'all';
     const s = searchParams.get('sort') as 'newest' | 'highest';
     const validS = validSorts.includes(s) ? s : 'newest';
+    const p = searchParams.get('peptide') ?? '';
     if (validG !== filterGoal) setFilterGoal(validG);
     if (validS !== sortBy) setSortBy(validS);
+    if (p !== peptideName) setPeptideName(p);
+    if (p.trim() && user && subscription?.isProOrTrial) setShowForm(true);
     // eslint-disable-next-line react-hooks/exhaustive-deps -- URL→state sync, filterGoal/sortBy are targets
   }, [searchParams]);
   const [hasMore, setHasMore] = useState(true);
@@ -142,7 +145,9 @@ export default function Community() {
   const PAGE_SIZE = 50;
 
   const DRAFT_KEY = 'pptides_community_draft';
-  const [peptideName, setPeptideName] = useState('');
+  const [peptideName, setPeptideName] = useState(() => {
+    try { return searchParams.get('peptide') ?? ''; } catch { return ''; }
+  });
   const [goal, setGoal] = useState('');
   const [protocol, setProtocol] = useState(() => {
     try { return sessionStorage.getItem(`${DRAFT_KEY}_protocol`) ?? ''; } catch { return ''; }

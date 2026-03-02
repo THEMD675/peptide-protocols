@@ -1,5 +1,5 @@
 import { memo } from 'react';
-import { Share2, Copy, Check } from 'lucide-react';
+import { Share2, Copy, Check, MessageCircle } from 'lucide-react';
 import { useState } from 'react';
 import { toast } from 'sonner';
 import { SITE_URL, FREQUENCY_LABELS } from '@/lib/constants';
@@ -41,6 +41,17 @@ export default memo(function ShareableCard(props: ShareableCardProps) {
     }
   };
 
+  const handleWhatsApp = () => {
+    let shareText = shareBody + '\n\n' + SITE_URL;
+    try {
+      const refCode = localStorage.getItem('pptides_referral_code') ?? localStorage.getItem('pptides_referral');
+      if (refCode && /^PP-[A-Z0-9]{6}$/.test(refCode)) {
+        shareText += `\nكود إحالة: ${refCode}`;
+      }
+    } catch { /* expected */ }
+    window.open(`https://wa.me/?text=${encodeURIComponent(shareText)}`, '_blank', 'noopener,noreferrer');
+  };
+
   return (
     <div>
       <div className="rounded-2xl border-2 border-emerald-200 bg-gradient-to-br from-white to-emerald-50 p-6 text-center">
@@ -78,6 +89,15 @@ export default memo(function ShareableCard(props: ShareableCardProps) {
           <Share2 className="h-4 w-4" />
           مشاركة
         </button>
+        <a
+          href="#"
+          onClick={(e) => { e.preventDefault(); handleWhatsApp(); }}
+          aria-label="مشاركة عبر واتساب"
+          className="flex items-center justify-center gap-2 rounded-xl bg-[#25D366] px-4 py-2.5 text-sm font-bold text-white transition-colors hover:bg-[#20bd5a]"
+        >
+          <MessageCircle className="h-4 w-4" />
+          واتساب
+        </a>
         <button
           onClick={handleCopy}
           aria-label="نسخ"

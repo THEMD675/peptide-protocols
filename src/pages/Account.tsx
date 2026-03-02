@@ -128,7 +128,7 @@ export default function Account() {
       const { error } = await supabase.auth.updateUser({ email: newEmail });
       if (error) throw error;
       await supabase.from('email_list').update({ email: newEmail.trim().toLowerCase() }).eq('email', user.email).catch(() => {});
-      toast.success('تم إرسال رابط تأكيد للبريد الجديد. سيتم تحديث بريد Stripe تلقائيًا عند الدفعة القادمة.');
+      toast.success('تم إرسال رابط تأكيد للبريد الجديد. تم تحديث بريدك — قد يستغرق تحديث Stripe بضع دقائق');
       setNewEmail('');
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : '';

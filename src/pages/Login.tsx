@@ -108,9 +108,19 @@ export default function Login() {
       return;
     }
 
-    if (tab === 'signup' && password.length < 8) {
-      setError('كلمة المرور يجب أن تكون 8 أحرف على الأقل');
-      return;
+    if (tab === 'signup') {
+      if (password.length < 8) {
+        setError('كلمة المرور يجب أن تكون 8 أحرف على الأقل');
+        return;
+      }
+      if (!/[a-zA-Z]/.test(password)) {
+        setError('كلمة المرور يجب أن تحتوي على حرف واحد على الأقل');
+        return;
+      }
+      if (!/\d/.test(password)) {
+        setError('كلمة المرور يجب أن تحتوي على رقم واحد على الأقل');
+        return;
+      }
     }
 
     if (Date.now() < lockoutUntil) {
@@ -368,20 +378,25 @@ export default function Login() {
                     {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                   </button>
                 </div>
-                {tab === 'signup' && password.length > 0 && (() => {
-                  const strength = password.length >= 12 ? 'strong' : password.length >= 8 ? 'medium' : 'weak';
-                  const color = strength === 'strong' ? 'bg-emerald-500' : strength === 'medium' ? 'bg-amber-500' : 'bg-red-500';
-                  const label = strength === 'strong' ? 'قوية' : strength === 'medium' ? 'متوسطة' : 'ضعيفة';
-                  const width = strength === 'strong' ? 'w-full' : strength === 'medium' ? 'w-2/3' : 'w-1/3';
+                {tab === 'signup' && (() => {
+                  const hasMinLength = password.length >= 8;
+                  const hasLetter = /[a-zA-Z]/.test(password);
+                  const hasNumber = /\d/.test(password);
                   return (
-                    <div className="mt-2">
-                      <div className="h-1.5 w-full rounded-full bg-stone-200" role="progressbar" aria-valuenow={strength === 'strong' ? 100 : strength === 'medium' ? 66 : 33} aria-valuemin={0} aria-valuemax={100} aria-label="قوة كلمة المرور">
-                        <div className={cn('h-1.5 rounded-full transition-all duration-300', color, width)} />
-                      </div>
-                      <p className={cn('mt-1 text-xs font-medium', strength === 'strong' ? 'text-emerald-600' : strength === 'medium' ? 'text-amber-600' : 'text-red-600')}>
-                        كلمة المرور: {label}
-                      </p>
-                    </div>
+                    <ul className="mt-2 space-y-1 text-xs" aria-label="متطلبات كلمة المرور">
+                      <li className={cn('flex items-center gap-2', hasMinLength ? 'text-emerald-600' : 'text-stone-500')}>
+                        {hasMinLength ? <span aria-hidden>✓</span> : <span aria-hidden>○</span>}
+                        8 أحرف على الأقل
+                      </li>
+                      <li className={cn('flex items-center gap-2', hasLetter ? 'text-emerald-600' : 'text-stone-500')}>
+                        {hasLetter ? <span aria-hidden>✓</span> : <span aria-hidden>○</span>}
+                        حرف واحد على الأقل
+                      </li>
+                      <li className={cn('flex items-center gap-2', hasNumber ? 'text-emerald-600' : 'text-stone-500')}>
+                        {hasNumber ? <span aria-hidden>✓</span> : <span aria-hidden>○</span>}
+                        رقم واحد على الأقل
+                      </li>
+                    </ul>
                   );
                 })()}
                 {tab === 'login' && (
@@ -400,7 +415,7 @@ export default function Login() {
 
               <button
                 type="submit"
-                disabled={loading}
+                disabled={loading || (tab === 'signup' && !(password.length >= 8 && /[a-zA-Z]/.test(password) && /\d/.test(password)))}
                 className="w-full rounded-full bg-emerald-600 py-3.5 text-base font-bold text-white shadow transition-transform hover:bg-emerald-700 hover:scale-[1.02] active:scale-[0.98] disabled:pointer-events-none disabled:opacity-60"
               >
                 {loading ? (

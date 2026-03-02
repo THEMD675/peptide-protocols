@@ -1,6 +1,6 @@
 import { useMemo, useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { ArrowRight, Shield, AlertTriangle, CheckCircle, Lock, Calculator, Bot, FlaskConical, Printer, MessageSquare, Star, Syringe, Share2, Play, ExternalLink, BookOpen } from 'lucide-react';
+import { ArrowRight, Shield, AlertTriangle, CheckCircle, Lock, Calculator, Bot, FlaskConical, Printer, MessageSquare, Star, Syringe, Share2, Play, ExternalLink, BookOpen, Users } from 'lucide-react';
 import ProtocolWizard from '@/components/ProtocolWizard';
 import { toast } from 'sonner';
 import { Helmet } from 'react-helmet-async';
@@ -393,6 +393,20 @@ export default function PeptideDetail() {
             </div>
           )}
 
+          {/* Community Experiences for this peptide */}
+          <div className="mt-8">
+            <h3 className="flex items-center gap-2 mb-4 text-lg font-bold text-stone-900">
+              <Users className="h-5 w-5 text-emerald-600" />
+              تجارب المستخدمين مع {peptide.nameAr}
+            </h3>
+            <Link
+              to={`/community?peptide=${peptide.nameEn}`}
+              className="inline-flex items-center gap-2 rounded-full bg-emerald-50 px-4 py-2 text-sm font-bold text-emerald-700 transition-colors hover:bg-emerald-100"
+            >
+              شارك تجربتك ←
+            </Link>
+          </div>
+
           {/* Scientific References */}
           {peptide.pubmedIds && peptide.pubmedIds.length > 0 && (
             <div className="mt-8">
@@ -602,12 +616,17 @@ function PeptideExperiences({ peptideNameEn }: { peptideNameEn: string }) {
 
   return (
     <div className="mt-8">
-      <div className="flex items-center justify-between mb-4">
+      <div className="flex flex-wrap items-center justify-between gap-2 mb-4">
         <h3 className="flex items-center gap-2 text-lg font-bold text-stone-900">
           <MessageSquare className="h-5 w-5 text-emerald-600" />
           تجارب المستخدمين
         </h3>
-        <Link to="/community" className="text-xs font-semibold text-emerald-600 hover:underline">عرض الكل</Link>
+        <div className="flex items-center gap-3">
+          <Link to={`/community?peptide=${encodeURIComponent(peptideNameEn)}`} className="text-xs font-semibold text-emerald-600 hover:underline">
+            شارك تجربتك
+          </Link>
+          <Link to="/community" className="text-xs font-semibold text-stone-500 hover:text-emerald-600 hover:underline">عرض الكل</Link>
+        </div>
       </div>
       <div className="space-y-3">
         {experiences.map(exp => (

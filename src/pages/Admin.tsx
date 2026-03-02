@@ -174,6 +174,8 @@ export default function Admin() {
   const [userSearch, setUserSearch] = useState('');
   const [userFilter, setUserFilter] = useState<UserFilter>('all');
   const [usersPage, setUsersPage] = useState(1);
+  const [dateFrom, setDateFrom] = useState('');
+  const [dateTo, setDateTo] = useState('');
 
   // Enquiries
   const [replyingTo, setReplyingTo] = useState<string | null>(null);
@@ -587,10 +589,34 @@ export default function Admin() {
             if (userFilter === 'all') return true;
             const s = u.subscription?.status ?? 'none';
             return userFilter === 'active' ? s === 'active' : userFilter === 'trial' ? s === 'trial' : userFilter === 'expired' ? (s === 'expired' || s === 'cancelled') : (s === 'none' || !u.subscription);
+          }).filter(u => {
+            if (!dateFrom && !dateTo) return true;
+            const joined = new Date(u.created_at).getTime();
+            if (dateFrom) {
+              const from = new Date(dateFrom).setHours(0, 0, 0, 0);
+              if (joined < from) return false;
+            }
+            if (dateTo) {
+              const to = new Date(dateTo).setHours(23, 59, 59, 999);
+              if (joined > to) return false;
+            }
+            return true;
           });
           const paged = filtered.slice((usersPage - 1) * PER_PAGE, usersPage * PER_PAGE);
           return (
             <div className="space-y-3">
+              <div className="flex flex-wrap gap-2 items-center">
+                <label className="flex items-center gap-2 text-sm text-stone-600">
+                  <span>From</span>
+                  <input type="date" value={dateFrom} onChange={e => { setDateFrom(e.target.value); setUsersPage(1); }}
+                    className="rounded-lg border border-stone-200 bg-white px-3 py-2 text-sm outline-none focus:border-emerald-300" aria-label="Joined from date" />
+                </label>
+                <label className="flex items-center gap-2 text-sm text-stone-600">
+                  <span>To</span>
+                  <input type="date" value={dateTo} onChange={e => { setDateTo(e.target.value); setUsersPage(1); }}
+                    className="rounded-lg border border-stone-200 bg-white px-3 py-2 text-sm outline-none focus:border-emerald-300" aria-label="Joined to date" />
+                </label>
+              </div>
               <div className="flex flex-col sm:flex-row gap-2">
                 <input type="text" placeholder="Search email..." value={userSearch} onChange={e => { setUserSearch(e.target.value); setUsersPage(1); }}
                   className="flex-1 rounded-lg border border-stone-200 bg-white px-3 py-2 text-sm outline-none focus:border-emerald-300" dir="ltr" />

@@ -1,5 +1,6 @@
 import { peptides } from '@/data/peptides';
 
+/** PERF2: peptides.ts (1394 lines) cannot be lazy-loaded — constants is imported by App.tsx and many pages (PEPTIDE_COUNT, FREE_PEPTIDE_IDS, TRIAL_PEPTIDE_IDS, PUBMED_*, VALUE_STACK). Splitting would require refactoring constants to avoid top-level peptides import. */
 /** Derived from peptides — never out of sync with isFree field */
 export const FREE_PEPTIDE_IDS = new Set(peptides.filter((p) => p.isFree).map((p) => p.id));
 
