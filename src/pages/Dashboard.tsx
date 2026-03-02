@@ -18,6 +18,10 @@ import {
   Clock,
   Sparkles,
   Star,
+  Target,
+  Trophy,
+  ClipboardList,
+  Lock,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { cn, arPlural } from '@/lib/utils';
@@ -32,7 +36,7 @@ import ShareableCard from '@/components/ShareableCard';
 import WellnessCheckin from '@/components/WellnessCheckin';
 import LabResultsTracker from '@/components/LabResultsTracker';
 import PushNotificationPrompt from '@/components/PushNotificationPrompt';
-import { AlertTriangle, HeartPulse } from 'lucide-react';
+import { AlertTriangle, HeartPulse, ClipboardList, Target, Trophy, Lock } from 'lucide-react';
 import { peptides as allPeptides } from '@/data/peptides';
 import { labTests } from '@/data/peptides';
 
@@ -94,6 +98,34 @@ const GETTING_STARTED = [
   { id: 'calculator', label: 'جرّب حاسبة الجرعات', to: '/calculator' },
   { id: 'coach', label: 'اسأل المدرب الذكي', to: '/coach' },
 ];
+
+interface BadgeData {
+  totalInjections: number;
+  streak: number;
+  protocols: number;
+  uniquePeptides: number;
+}
+
+const BADGES: { id: string; label: string; Icon: typeof Syringe; condition: (d: BadgeData) => boolean }[] = [
+  { id: 'first_injection', label: 'الحقنة الأولى', Icon: Syringe, condition: (d) => d.totalInjections >= 1 },
+  { id: 'streak_7', label: '٧ أيام متتالية', Icon: Flame, condition: (d) => d.streak >= 7 },
+  { id: 'streak_30', label: '٣٠ يوم متتالي', Icon: Star, condition: (d) => d.streak >= 30 },
+  { id: 'protocol_started', label: 'بروتوكول نشط', Icon: ClipboardList, condition: (d) => d.protocols >= 1 },
+  { id: 'injections_10', label: '١٠ حقن', Icon: Target, condition: (d) => d.totalInjections >= 10 },
+  { id: 'injections_50', label: '٥٠ حقنة', Icon: Trophy, condition: (d) => d.totalInjections >= 50 },
+  { id: 'peptides_3', label: '٣ ببتيدات', Icon: FlaskConical, condition: (d) => d.uniquePeptides >= 3 },
+];
+
+const GOAL_TO_CATEGORY: Record<string, string> = {
+  'fat-loss': 'metabolic',
+  'recovery': 'recovery',
+  'muscle': 'hormonal',
+  'brain': 'brain',
+  'hormones': 'hormonal',
+  'longevity': 'longevity',
+  'gut-skin': 'skin-gut',
+  'skin-gut-sleep': 'skin-gut',
+};
 
 
 function useVisitedPages() {
@@ -546,6 +578,37 @@ export default function Dashboard() {
         );
       })()}
 
+      {/* Achievement Badges */}
+      {!activity.loading && (activity.logs.length > 0 || activeProtocols.length > 0) && (() => {
+        const badgeData: BadgeData = {
+          totalInjections: activity.totalInjections,
+          streak: activity.streak,
+          protocols: activeProtocols.length,
+          uniquePeptides: activity.uniquePeptidesCount,
+        };
+        const earned = BADGES.filter(b => b.condition(badgeData));
+        const unearned = BADGES.filter(b => !b.condition(badgeData));
+        return (
+          <div className="mb-8">
+            <h2 className="mb-4 text-xl font-bold text-stone-900">إنجازاتك</h2>
+            <div className="flex flex-wrap gap-2">
+              {earned.map(badge => (
+                <div key={badge.id} className="flex items-center gap-2 rounded-full border border-emerald-200 bg-emerald-100 px-4 py-2 text-sm font-bold text-emerald-700">
+                  <badge.Icon className="h-4 w-4" />
+                  {badge.label}
+                </div>
+              ))}
+              {unearned.map(badge => (
+                <div key={badge.id} className="flex items-center gap-2 rounded-full border border-stone-200 bg-stone-100 px-4 py-2 text-sm font-medium text-stone-400">
+                  <Lock className="h-3.5 w-3.5" />
+                  {badge.label}
+                </div>
+              ))}
+            </div>
+          </div>
+        );
+      })()}
+
       {/* Protocol ending soon — prominent warning cards */}
       {activeProtocols.length > 0 && (() => {
         const endingSoon = activeProtocols.filter(proto => {
@@ -698,6 +761,55 @@ export default function Dashboard() {
           </div>
         </div>
       )}
+
+      {/* Recommended Peptides */}
+      {(() => {
+        const protocolPeptideIds = new Set(activeProtocols.map(p => p.peptide_id));
+        let recommended: typeof allPeptides = [];
+        try {
+          const raw = localStorage.getItem(STORAGE_KEYS.QUIZ_ANSWERS);
+          if (raw) {
+            const parsed = JSON.parse(raw);
+            const category = GOAL_TO_CATEGORY[parsed.goal];
+            if (category) {
+              recommended = allPeptides
+                .filter(p => p.category === category && !protocolPeptideIds.has(p.id))
+                .slice(0, 3);
+            }
+          }
+        } catch { /* ignore */ }
+        if (recommended.length === 0) {
+          recommended = allPeptides
+            .filter(p => p.isFree && !protocolPeptideIds.has(p.id))
+            .slice(0, 3);
+        }
+        if (recommended.length === 0) return null;
+        return (
+          <div className="mb-8">
+            <h2 className="mb-4 text-xl font-bold text-stone-900">ببتيدات مقترحة لك</h2>
+            <div className="grid gap-4 sm:grid-cols-3">
+              {recommended.map(peptide => (
+                <Link
+                  key={peptide.id}
+                  to={`/peptide/${peptide.id}`}
+                  className="group rounded-2xl border border-stone-200 bg-white p-5 transition-all duration-200 hover:border-emerald-400 hover:shadow-lg hover:shadow-emerald-600/10 hover:-translate-y-1"
+                >
+                  <div className="flex items-center gap-3 mb-2">
+                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-50 transition-colors group-hover:bg-emerald-100">
+                      <FlaskConical className="h-5 w-5 text-emerald-600" />
+                    </div>
+                    <div className="min-w-0">
+                      <p className="font-bold text-stone-900 truncate">{peptide.nameAr}</p>
+                      <p className="text-xs text-stone-500" dir="ltr">{peptide.nameEn}</p>
+                    </div>
+                  </div>
+                  <p className="text-xs text-stone-600 line-clamp-2 leading-relaxed">{peptide.summaryAr}</p>
+                </Link>
+              ))}
+            </div>
+          </div>
+        );
+      })()}
 
       {/* Wellness Check-in */}
       <div className="mb-8">

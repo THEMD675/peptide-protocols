@@ -398,6 +398,69 @@ serve(async (req) => {
     // Cleanup: delete rate limit entries older than 1 hour
     await supabase.from('rate_limits').delete().lt('created_at', new Date(Date.now() - 3600000).toISOString()).catch(() => {})
 
+    // Admin proactive alert (rate-limited: once per 24h)
+    const adminWhitelist = Deno.env.get('ADMIN_EMAIL_WHITELIST')
+    const adminTo = adminWhitelist?.trim()
+      ? adminWhitelist.split(',').map((e) => e.trim()).filter(Boolean)[0]
+      : 'contact@pptides.com'
+    const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString()
+    const { count: recentAlertCount } = await supabase
+      .from('email_logs')
+      .select('*', { count: 'exact', head: true })
+      .eq('type', 'admin_daily_alert')
+      .gte('created_at', twentyFourHoursAgo)
+    if (!recentAlertCount || recentAlertCount === 0) {
+      const { count: pastDueCount } = await supabase
+        .from('subscriptions')
+        .select('*', { count: 'exact', head: true })
+        .eq('status', 'past_due')
+      const in24h = new Date(now.getTime() + 24 * 60 * 60 * 1000).toISOString()
+      const { data: trialsExpiringSoon } = await supabase
+        .from('subscriptions')
+        .select('id')
+        .eq('status', 'trial')
+        .gte('trial_ends_at', now.toISOString())
+        .lte('trial_ends_at', in24h)
+      const { count: pendingEnquiriesCount } = await supabase
+        .from('enquiries')
+        .select('*', { count: 'exact', head: true })
+        .eq('status', 'pending')
+      const x = pastDueCount ?? 0
+      const y = trialsExpiringSoon?.length ?? 0
+      const z = pendingEnquiriesCount ?? 0
+      if (x > 0 || y > 0 || z > 0) {
+        const bodyLines: string[] = []
+        if (x > 0) bodyLines.push(`• ${x} اشتراكات متأخرة (past_due)`)
+        if (y > 0) bodyLines.push(`• ${y} تجارب تنتهي خلال 24 ساعة`)
+        if (z > 0) bodyLines.push(`• ${z} استفسارات غير مقروءة (pending)`)
+        const alertBody = bodyLines.join('\n')
+        const emailRes = await fetch('https://api.resend.com/emails', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${RESEND_API_KEY}`,
+          },
+          body: JSON.stringify({
+            from: 'pptides <noreply@pptides.com>',
+            to: adminTo,
+            subject: 'pptides تنبيه إداري',
+            html: `
+              <div dir="rtl" style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Tahoma, Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 40px 20px; line-height: 1.8;">
+                <h1 style="color: #1c1917; font-size: 24px;">تنبيه إداري</h1>
+                <p>البنود التالية تتطلب اهتمامك:</p>
+                <pre style="background: #f5f5f4; padding: 16px; border-radius: 8px; white-space: pre-wrap;">${alertBody}</pre>
+                <hr style="border: none; border-top: 1px solid #e7e5e4; margin: 30px 0;" />
+                <p style="color: #a8a29e; font-size: 12px;">pptides — تنبيه تلقائي</p>
+              </div>
+            `,
+          }),
+        })
+        if (emailRes.ok) {
+          await supabase.from('email_logs').insert({ email: adminTo, type: 'admin_daily_alert', status: 'sent' }).catch(() => {})
+        }
+      }
+    }
+
     return new Response(JSON.stringify({ sent, skipped, failed }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     })
