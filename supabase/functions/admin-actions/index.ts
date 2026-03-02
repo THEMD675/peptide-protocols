@@ -423,6 +423,51 @@ serve(async (req) => {
     }
 
     // ================================================================
+    // GET USER DETAIL
+    // ================================================================
+    if (action === 'get_user_detail') {
+      const userId = body.user_id as string
+      if (!userId) return json({ error: 'Missing user_id' }, 400, cors)
+
+      const { data: { user: authUser } } = await admin.auth.admin.getUserById(userId)
+      if (!authUser) return json({ error: 'User not found' }, 404, cors)
+
+      const email = authUser.email ?? ''
+
+      const [subsRes, injectionsRes, wellnessRes, sideEffectsRes, protocolsRes, coachCountRes, enquiriesRes, emailLogsRes] = await Promise.all([
+        admin.from('subscriptions').select('*').eq('user_id', userId).maybeSingle(),
+        admin.from('injection_logs').select('*').eq('user_id', userId).order('created_at', { ascending: false }).limit(20),
+        admin.from('wellness_logs').select('*').eq('user_id', userId).order('created_at', { ascending: false }).limit(10),
+        admin.from('side_effect_logs').select('*').eq('user_id', userId).order('created_at', { ascending: false }).limit(10),
+        admin.from('user_protocols').select('*').eq('user_id', userId),
+        admin.from('ai_coach_requests').select('id', { count: 'exact', head: true }).eq('user_id', userId),
+        admin.from('enquiries').select('*').eq('email', email).order('created_at', { ascending: false }),
+        admin.from('email_logs').select('*').eq('email', email).order('created_at', { ascending: false }).limit(20),
+      ])
+
+      return json({
+        ok: true,
+        user: {
+          id: authUser.id,
+          email: authUser.email,
+          provider: authUser.app_metadata?.provider ?? 'email',
+          confirmed: !!authUser.email_confirmed_at,
+          created_at: authUser.created_at,
+          last_sign_in_at: authUser.last_sign_in_at,
+          banned_until: authUser.banned_until,
+        },
+        subscription: subsRes.data ?? null,
+        injection_logs: injectionsRes.data ?? [],
+        wellness_logs: wellnessRes.data ?? [],
+        side_effect_logs: sideEffectsRes.data ?? [],
+        user_protocols: protocolsRes.data ?? [],
+        ai_coach_request_count: coachCountRes.count ?? 0,
+        enquiries: enquiriesRes.data ?? [],
+        email_logs: emailLogsRes.data ?? [],
+      }, 200, cors)
+    }
+
+    // ================================================================
     // GET AUDIT LOG
     // ================================================================
     if (action === 'get_audit_log') {

@@ -49,6 +49,18 @@ interface AdminStats {
   webhookEvents: Array<{ id: string; event_type: string; event_id: string; processed_at: string }>;
 }
 
+interface UserDetail {
+  user: { id: string; email: string; provider: string; confirmed: boolean; created_at: string; last_sign_in_at: string | null; banned_until: string | null };
+  subscription: { status: string; tier: string; stripe_subscription_id: string | null; stripe_customer_id: string | null; current_period_end: string | null; trial_ends_at: string | null; created_at: string } | null;
+  injection_logs: Array<Record<string, unknown>>;
+  wellness_logs: Array<Record<string, unknown>>;
+  side_effect_logs: Array<Record<string, unknown>>;
+  user_protocols: Array<Record<string, unknown>>;
+  ai_coach_request_count: number;
+  enquiries: Array<Record<string, unknown>>;
+  email_logs: Array<Record<string, unknown>>;
+}
+
 type Tab = 'overview' | 'users' | 'activity' | 'reviews' | 'enquiries' | 'emails' | 'email-logs' | 'payments' | 'health' | 'audit';
 type UserFilter = 'all' | 'active' | 'trial' | 'expired' | 'none';
 type ModalType = 'extend_trial' | 'grant_sub' | 'send_email' | 'confirm_delete' | 'confirm_suspend' | 'cancel_sub' | null;
@@ -192,6 +204,11 @@ export default function Admin() {
   // Audit log
   const [auditLog, setAuditLog] = useState<Array<{ id: string; admin_email: string; action: string; target_user_id: string | null; details: Record<string, unknown> | null; created_at: string }>>([]);
   const [auditLoading, setAuditLoading] = useState(false);
+
+  // User detail
+  const [userDetail, setUserDetail] = useState<UserDetail | null>(null);
+  const [userDetailLoading, setUserDetailLoading] = useState(false);
+  const [userDetailOpen, setUserDetailOpen] = useState(false);
 
   const getToken = useCallback(async () => {
     const { supabase } = await import('@/lib/supabase');
@@ -366,6 +383,17 @@ export default function Admin() {
   }, [adminAction]);
 
   useEffect(() => { if (tab === 'audit' && auditLog.length === 0) fetchAuditLog(); }, [tab, auditLog.length, fetchAuditLog]);
+
+  const fetchUserDetail = useCallback(async (userId: string) => {
+    setUserDetailLoading(true);
+    setUserDetailOpen(true);
+    setUserDetail(null);
+    try {
+      const r = await adminAction({ action: 'get_user_detail', user_id: userId });
+      setUserDetail(r as UserDetail);
+    } catch (e) { toast.error(e instanceof Error ? e.message : 'Failed to load user detail'); setUserDetailOpen(false); }
+    finally { setUserDetailLoading(false); }
+  }, [adminAction]);
 
   // --- Open modal helpers ---
   const openUserAction = (type: ModalType, u: { id: string; email: string }) => { setModalTarget(u); setModal(type); };
@@ -597,7 +625,7 @@ export default function Admin() {
                       const tl = u.subscription?.status === 'trial' ? trialLeft(u.subscription?.trial_ends_at ?? null) : null;
                       return (
                         <tr key={u.id} className="border-b border-stone-100 hover:bg-stone-50">
-                          <td className="px-3 py-2 font-mono text-xs">{u.email}{!u.confirmed && <span className="ms-1 text-[10px] text-amber-600">(unconf)</span>}</td>
+                          <td className="px-3 py-2 font-mono text-xs"><button onClick={() => fetchUserDetail(u.id)} className="text-emerald-700 hover:underline">{u.email}</button>{!u.confirmed && <span className="ms-1 text-[10px] text-amber-600">(unconf)</span>}</td>
                           <td className="px-3 py-2 text-xs"><span className={cn('rounded-full px-2 py-0.5 text-xs', u.provider === 'google' ? 'bg-blue-50 text-blue-700' : 'bg-stone-100 text-stone-600')}>{u.provider}</span></td>
                           <td className="px-3 py-2"><Badge status={u.subscription?.status ?? 'none'} /></td>
                           <td className="px-3 py-2 text-xs">{u.subscription?.tier ?? '—'}</td>
@@ -955,6 +983,171 @@ export default function Admin() {
           </button>
         </div>
       </Modal>
+
+      {/* User Detail */}
+      {userDetailOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" onClick={() => setUserDetailOpen(false)}>
+          <div className="w-full max-w-2xl max-h-[85vh] overflow-y-auto rounded-2xl bg-white p-6 shadow-xl" onClick={e => e.stopPropagation()} role="dialog" aria-modal="true">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-bold text-stone-900">User Detail</h3>
+              <button onClick={() => setUserDetailOpen(false)} title="Close" className="rounded-lg p-1 hover:bg-stone-100"><X className="h-5 w-5 text-stone-500" /></button>
+            </div>
+            {userDetailLoading ? (
+              <div className="flex justify-center py-12"><Loader2 className="h-6 w-6 animate-spin text-stone-400" /></div>
+            ) : userDetail ? (() => {
+              const ud = userDetail;
+              return (
+                <div className="space-y-5">
+                  {/* User Info */}
+                  <section>
+                    <h4 className="text-xs font-bold text-stone-500 uppercase tracking-wide mb-2">User Info</h4>
+                    <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-sm">
+                      <span className="text-stone-500">Email</span><span className="font-mono">{ud.user.email}</span>
+                      <span className="text-stone-500">Provider</span><span>{ud.user.provider}</span>
+                      <span className="text-stone-500">Confirmed</span><span>{ud.user.confirmed ? 'Yes' : 'No'}</span>
+                      <span className="text-stone-500">Joined</span><span>{new Date(ud.user.created_at).toLocaleDateString('en-GB')}</span>
+                      <span className="text-stone-500">Last Login</span><span>{ud.user.last_sign_in_at ? timeAgo(ud.user.last_sign_in_at) : '—'}</span>
+                      {ud.user.banned_until && <><span className="text-stone-500">Banned Until</span><span className="text-red-600">{ud.user.banned_until}</span></>}
+                      <span className="text-stone-500">Coach Requests</span><span>{ud.ai_coach_request_count}</span>
+                    </div>
+                  </section>
+
+                  {/* Subscription */}
+                  <section>
+                    <h4 className="text-xs font-bold text-stone-500 uppercase tracking-wide mb-2">Subscription</h4>
+                    {ud.subscription ? (
+                      <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-sm">
+                        <span className="text-stone-500">Status</span><span><Badge status={ud.subscription.status} /></span>
+                        <span className="text-stone-500">Tier</span><span>{ud.subscription.tier || '—'}</span>
+                        <span className="text-stone-500">Period End</span><span>{ud.subscription.current_period_end ? new Date(ud.subscription.current_period_end).toLocaleDateString('en-GB') : '—'}</span>
+                        <span className="text-stone-500">Trial Ends</span><span>{ud.subscription.trial_ends_at ? new Date(ud.subscription.trial_ends_at).toLocaleDateString('en-GB') : '—'}</span>
+                        <span className="text-stone-500">Stripe Sub</span><span className="font-mono text-xs truncate">{ud.subscription.stripe_subscription_id || '—'}</span>
+                        <span className="text-stone-500">Stripe Customer</span><span className="font-mono text-xs truncate">{ud.subscription.stripe_customer_id || '—'}</span>
+                      </div>
+                    ) : <p className="text-sm text-stone-500">No subscription</p>}
+                  </section>
+
+                  {/* Recent Injections */}
+                  <section>
+                    <h4 className="text-xs font-bold text-stone-500 uppercase tracking-wide mb-2">Recent Injections ({ud.injection_logs.length})</h4>
+                    {ud.injection_logs.length === 0 ? <p className="text-sm text-stone-400">None</p> : (
+                      <div className="overflow-x-auto rounded-lg border border-stone-200">
+                        <table className="w-full text-xs">
+                          <thead><tr className="border-b border-stone-200 bg-stone-50">
+                            <th className="px-2 py-1.5 text-start font-medium text-stone-600">Peptide</th>
+                            <th className="px-2 py-1.5 text-start font-medium text-stone-600">Dose</th>
+                            <th className="px-2 py-1.5 text-start font-medium text-stone-600">Site</th>
+                            <th className="px-2 py-1.5 text-start font-medium text-stone-600">Date</th>
+                          </tr></thead>
+                          <tbody>{ud.injection_logs.map((l, i) => (
+                            <tr key={i} className="border-b border-stone-100">
+                              <td className="px-2 py-1.5">{String(l.peptide_name ?? l.protocol_name ?? '—')}</td>
+                              <td className="px-2 py-1.5">{String(l.dose ?? l.dosage ?? '—')}{l.unit ? ` ${l.unit}` : ''}</td>
+                              <td className="px-2 py-1.5">{String(l.injection_site ?? l.site ?? '—')}</td>
+                              <td className="px-2 py-1.5 text-stone-500">{l.created_at ? timeAgo(String(l.created_at)) : '—'}</td>
+                            </tr>
+                          ))}</tbody>
+                        </table>
+                      </div>
+                    )}
+                  </section>
+
+                  {/* Wellness Logs */}
+                  <section>
+                    <h4 className="text-xs font-bold text-stone-500 uppercase tracking-wide mb-2">Wellness Logs ({ud.wellness_logs.length})</h4>
+                    {ud.wellness_logs.length === 0 ? <p className="text-sm text-stone-400">None</p> : (
+                      <div className="overflow-x-auto rounded-lg border border-stone-200">
+                        <table className="w-full text-xs">
+                          <thead><tr className="border-b border-stone-200 bg-stone-50">
+                            <th className="px-2 py-1.5 text-start font-medium text-stone-600">Energy</th>
+                            <th className="px-2 py-1.5 text-start font-medium text-stone-600">Sleep</th>
+                            <th className="px-2 py-1.5 text-start font-medium text-stone-600">Mood</th>
+                            <th className="px-2 py-1.5 text-start font-medium text-stone-600">Notes</th>
+                            <th className="px-2 py-1.5 text-start font-medium text-stone-600">Date</th>
+                          </tr></thead>
+                          <tbody>{ud.wellness_logs.map((l, i) => (
+                            <tr key={i} className="border-b border-stone-100">
+                              <td className="px-2 py-1.5">{String(l.energy ?? l.energy_level ?? '—')}</td>
+                              <td className="px-2 py-1.5">{String(l.sleep ?? l.sleep_quality ?? '—')}</td>
+                              <td className="px-2 py-1.5">{String(l.mood ?? '—')}</td>
+                              <td className="px-2 py-1.5 max-w-[120px] truncate">{String(l.notes ?? '—')}</td>
+                              <td className="px-2 py-1.5 text-stone-500">{l.created_at ? timeAgo(String(l.created_at)) : '—'}</td>
+                            </tr>
+                          ))}</tbody>
+                        </table>
+                      </div>
+                    )}
+                  </section>
+
+                  {/* Side Effects */}
+                  <section>
+                    <h4 className="text-xs font-bold text-stone-500 uppercase tracking-wide mb-2">Side Effects ({ud.side_effect_logs.length})</h4>
+                    {ud.side_effect_logs.length === 0 ? <p className="text-sm text-stone-400">None</p> : (
+                      <ul className="space-y-1">
+                        {ud.side_effect_logs.map((s, i) => (
+                          <li key={i} className="rounded-lg border border-stone-100 px-3 py-2 text-xs">
+                            <span className="font-medium">{String(s.side_effect ?? s.effect ?? s.type ?? '—')}</span>
+                            {s.severity && <span className={cn('ms-2 rounded-full px-2 py-0.5 text-[10px] font-medium', String(s.severity) === 'severe' ? 'bg-red-100 text-red-700' : String(s.severity) === 'moderate' ? 'bg-amber-100 text-amber-700' : 'bg-stone-100 text-stone-600')}>{String(s.severity)}</span>}
+                            {s.notes && <span className="ms-2 text-stone-500">{String(s.notes)}</span>}
+                            <span className="ms-2 text-stone-400">{s.created_at ? timeAgo(String(s.created_at)) : ''}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </section>
+
+                  {/* Active Protocols */}
+                  <section>
+                    <h4 className="text-xs font-bold text-stone-500 uppercase tracking-wide mb-2">Protocols ({ud.user_protocols.length})</h4>
+                    {ud.user_protocols.length === 0 ? <p className="text-sm text-stone-400">None</p> : (
+                      <ul className="space-y-1">
+                        {ud.user_protocols.map((p, i) => (
+                          <li key={i} className="flex items-center justify-between rounded-lg border border-stone-100 px-3 py-2 text-xs">
+                            <span className="font-medium">{String(p.protocol_name ?? p.name ?? p.peptide_name ?? '—')}</span>
+                            {p.status && <Badge status={String(p.status)} />}
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </section>
+
+                  {/* Enquiries */}
+                  {ud.enquiries.length > 0 && (
+                    <section>
+                      <h4 className="text-xs font-bold text-stone-500 uppercase tracking-wide mb-2">Enquiries ({ud.enquiries.length})</h4>
+                      <ul className="space-y-1">
+                        {ud.enquiries.map((eq, i) => (
+                          <li key={i} className="rounded-lg border border-stone-100 px-3 py-2 text-xs">
+                            <span className="font-medium">{String(eq.subject ?? '—')}</span>
+                            <span className={cn('ms-2 rounded-full px-2 py-0.5 text-[10px] font-medium', eq.status === 'pending' ? 'bg-amber-100 text-amber-700' : 'bg-emerald-100 text-emerald-700')}>{String(eq.status)}</span>
+                            <span className="ms-2 text-stone-400">{eq.created_at ? timeAgo(String(eq.created_at)) : ''}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </section>
+                  )}
+
+                  {/* Email Logs */}
+                  {ud.email_logs.length > 0 && (
+                    <section>
+                      <h4 className="text-xs font-bold text-stone-500 uppercase tracking-wide mb-2">Email Logs ({ud.email_logs.length})</h4>
+                      <ul className="space-y-1">
+                        {ud.email_logs.map((el, i) => (
+                          <li key={i} className="flex items-center justify-between rounded-lg border border-stone-100 px-3 py-2 text-xs">
+                            <span>{String(el.type ?? '—')}</span>
+                            <span className={cn('rounded-full px-2 py-0.5 text-[10px] font-medium', el.status === 'sent' ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-700')}>{String(el.status)}</span>
+                            <span className="text-stone-400">{el.created_at ? timeAgo(String(el.created_at)) : ''}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </section>
+                  )}
+                </div>
+              );
+            })() : null}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

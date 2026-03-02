@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { Link, useSearchParams } from 'react-router-dom';
-import { MessageSquare, Send, Clock, FlaskConical, User, Flag, Star, MessageCircle } from 'lucide-react';
+import { MessageSquare, Send, Clock, FlaskConical, User, Flag, Star, MessageCircle, ChevronDown, ChevronUp, Trash2, BadgeCheck } from 'lucide-react';
 import { toast } from 'sonner';
 import { useAuth } from '@/contexts/AuthContext';
 import { PRICING, SITE_URL, SUPPORT_EMAIL } from '@/lib/constants';
@@ -18,6 +18,16 @@ interface LogEntry {
   duration_weeks: number;
   results: string;
   rating: number;
+  is_subscriber?: boolean;
+  created_at: string;
+}
+
+interface Reply {
+  id: string;
+  post_id: string;
+  user_id: string;
+  content: string;
+  is_subscriber: boolean;
   created_at: string;
 }
 
@@ -116,6 +126,12 @@ export default function Community() {
     else next.add(id);
     return next;
   });
+  const [expandedReplies, setExpandedReplies] = useState<Set<string>>(new Set());
+  const [repliesByPost, setRepliesByPost] = useState<Record<string, Reply[]>>({});
+  const [replyCountByPost, setReplyCountByPost] = useState<Record<string, number>>({});
+  const [loadingReplies, setLoadingReplies] = useState<Set<string>>(new Set());
+  const [replyText, setReplyText] = useState<Record<string, string>>({});
+  const [submittingReply, setSubmittingReply] = useState<Set<string>>(new Set());
   const PAGE_SIZE = 50;
 
   const DRAFT_KEY = 'pptides_community_draft';
@@ -138,18 +154,32 @@ export default function Community() {
     try { sessionStorage.setItem(`${DRAFT_KEY}_results`, results); } catch { /* expected */ }
   }, [results]);
 
+  const loadReplyCounts = useCallback(async (postIds: string[]) => {
+    if (postIds.length === 0) return;
+    const { data } = await supabase
+      .from('community_replies')
+      .select('post_id')
+      .in('post_id', postIds);
+    if (data) {
+      const counts: Record<string, number> = {};
+      for (const r of data) counts[r.post_id] = (counts[r.post_id] ?? 0) + 1;
+      setReplyCountByPost(prev => ({ ...prev, ...counts }));
+    }
+  }, []);
+
   const loadCommunityLogs = useCallback(async () => {
     setLoading(true);
     setFetchError(false);
     try {
       const { data, error } = await supabase
         .from('community_logs')
-        .select('id, user_id, peptide_name, goal, protocol, duration_weeks, results, rating, created_at')
+        .select('id, user_id, peptide_name, goal, protocol, duration_weeks, results, rating, is_subscriber, created_at')
         .order('created_at', { ascending: false })
         .limit(50);
       if (!error && data) {
         setLogs(data);
         setHasMore(data.length >= PAGE_SIZE);
+        loadReplyCounts(data.map(d => d.id));
       } else {
         setFetchError(true);
       }
@@ -157,7 +187,70 @@ export default function Community() {
       setFetchError(true);
     }
     setLoading(false);
+  }, [loadReplyCounts]);
+
+  const loadReplies = useCallback(async (postId: string) => {
+    setLoadingReplies(prev => new Set(prev).add(postId));
+    const { data } = await supabase
+      .from('community_replies')
+      .select('id, post_id, user_id, content, is_subscriber, created_at')
+      .eq('post_id', postId)
+      .order('created_at', { ascending: true });
+    if (data) setRepliesByPost(prev => ({ ...prev, [postId]: data }));
+    setLoadingReplies(prev => { const n = new Set(prev); n.delete(postId); return n; });
   }, []);
+
+  const toggleReplies = useCallback(async (postId: string) => {
+    setExpandedReplies(prev => {
+      const next = new Set(prev);
+      if (next.has(postId)) { next.delete(postId); return next; }
+      next.add(postId);
+      return next;
+    });
+    if (!repliesByPost[postId]) await loadReplies(postId);
+  }, [repliesByPost, loadReplies]);
+
+  const submitReply = useCallback(async (postId: string) => {
+    const content = (replyText[postId] ?? '').trim();
+    if (!user || !content) return;
+    setSubmittingReply(prev => new Set(prev).add(postId));
+    const isSub = subscription?.isProOrTrial ?? false;
+    const optimistic: Reply = {
+      id: crypto.randomUUID(),
+      post_id: postId,
+      user_id: user.id,
+      content,
+      is_subscriber: isSub,
+      created_at: new Date().toISOString(),
+    };
+    setRepliesByPost(prev => ({ ...prev, [postId]: [...(prev[postId] ?? []), optimistic] }));
+    setReplyCountByPost(prev => ({ ...prev, [postId]: (prev[postId] ?? 0) + 1 }));
+    setReplyText(prev => ({ ...prev, [postId]: '' }));
+
+    const { error } = await supabase.from('community_replies').insert({
+      user_id: user.id,
+      post_id: postId,
+      content,
+      is_subscriber: isSub,
+    });
+    if (error) {
+      toast.error('تعذّر إرسال الرد');
+      setRepliesByPost(prev => ({ ...prev, [postId]: (prev[postId] ?? []).filter(r => r.id !== optimistic.id) }));
+      setReplyCountByPost(prev => ({ ...prev, [postId]: Math.max(0, (prev[postId] ?? 1) - 1) }));
+      setReplyText(prev => ({ ...prev, [postId]: content }));
+    }
+    setSubmittingReply(prev => { const n = new Set(prev); n.delete(postId); return n; });
+  }, [replyText, user, subscription]);
+
+  const deleteReply = useCallback(async (reply: Reply) => {
+    setRepliesByPost(prev => ({ ...prev, [reply.post_id]: (prev[reply.post_id] ?? []).filter(r => r.id !== reply.id) }));
+    setReplyCountByPost(prev => ({ ...prev, [reply.post_id]: Math.max(0, (prev[reply.post_id] ?? 1) - 1) }));
+    const { error } = await supabase.from('community_replies').delete().eq('id', reply.id);
+    if (error) {
+      toast.error('تعذّر حذف الرد');
+      await loadReplies(reply.post_id);
+    }
+  }, [loadReplies]);
 
   useEffect(() => {
     let mounted = true;
@@ -189,6 +282,7 @@ export default function Community() {
         duration_weeks: dur,
         results: results.trim(),
         rating,
+        is_subscriber: isPaid,
       });
 
       if (!mountedRef.current) return;
@@ -210,10 +304,13 @@ export default function Community() {
 
       const { data } = await supabase
         .from('community_logs')
-        .select('id, user_id, peptide_name, goal, protocol, duration_weeks, results, rating, created_at')
+        .select('id, user_id, peptide_name, goal, protocol, duration_weeks, results, rating, is_subscriber, created_at')
         .order('created_at', { ascending: false })
         .limit(50);
-      if (mountedRef.current && data) setLogs(data);
+      if (mountedRef.current && data) {
+        setLogs(data);
+        loadReplyCounts(data.map(d => d.id));
+      }
       setTimeout(() => { if (mountedRef.current) setSubmitted(false); }, 5000);
     } catch {
       if (mountedRef.current) toast.error('فشل الاتصال بالخادم — تحقق من اتصالك بالإنترنت وحاول مرة أخرى');
@@ -546,10 +643,18 @@ export default function Community() {
               <div key={log.id} className="rounded-2xl border border-stone-200 bg-white p-6 shadow-sm transition-all hover:border-emerald-200 hover:shadow-md">
                 <div className="mb-3 flex flex-wrap items-start justify-between gap-2">
                   <div className="flex items-center gap-3">
-                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-emerald-100">
+                    <div className="relative flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-emerald-100">
                       <User className="h-5 w-5 text-emerald-700" />
+                      {log.is_subscriber && (
+                        <span className="absolute -top-1 -start-1 flex h-5 items-center gap-0.5 rounded-full bg-emerald-600 px-1.5 text-[10px] font-bold text-white shadow" title="مشترك">
+                          <BadgeCheck className="h-3 w-3" />
+                        </span>
+                      )}
                     </div>
                     <div>
+                      {log.is_subscriber && (
+                        <span className="me-1 inline-block rounded-full bg-emerald-100 px-2 py-0.5 text-[11px] font-bold text-emerald-700">مشترك</span>
+                      )}
                       {isSeed && (
                         <span className="inline-block mb-1 rounded-full border border-amber-300 bg-amber-50 px-2.5 py-0.5 text-xs font-medium text-amber-800">
                           تجربة توضيحية
@@ -671,6 +776,96 @@ export default function Community() {
                 >
                   ابدأ هذا البروتوكول ←
                 </Link>
+
+                {!isSeed && (
+                  <div className="mt-4 border-t border-stone-100 pt-3">
+                    <button
+                      type="button"
+                      onClick={() => toggleReplies(log.id)}
+                      className="flex items-center gap-1.5 text-sm font-medium text-stone-500 hover:text-emerald-600 transition-colors"
+                    >
+                      <MessageCircle className="h-4 w-4" />
+                      <span>{replyCountByPost[log.id] ?? 0} ردود</span>
+                      {expandedReplies.has(log.id) ? <ChevronUp className="h-3.5 w-3.5" /> : <ChevronDown className="h-3.5 w-3.5" />}
+                    </button>
+
+                    {expandedReplies.has(log.id) && (
+                      <div className="mt-3 space-y-3">
+                        {loadingReplies.has(log.id) ? (
+                          <div className="flex items-center gap-2 text-sm text-stone-400">
+                            <span className="h-4 w-4 animate-spin rounded-full border-2 border-stone-200 border-t-emerald-500" />
+                            جارٍ تحميل الردود...
+                          </div>
+                        ) : (
+                          <>
+                            {(repliesByPost[log.id] ?? []).length === 0 && (
+                              <p className="text-sm text-stone-400">لا توجد ردود بعد</p>
+                            )}
+                            {(repliesByPost[log.id] ?? []).map(reply => (
+                              <div key={reply.id} className="flex gap-2.5 rounded-xl bg-stone-50 p-3">
+                                <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-stone-200">
+                                  <User className="h-3.5 w-3.5 text-stone-500" />
+                                </div>
+                                <div className="min-w-0 flex-1">
+                                  <div className="flex items-center gap-2">
+                                    {reply.is_subscriber && (
+                                      <span className="inline-flex items-center gap-0.5 rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] font-bold text-emerald-700">
+                                        <BadgeCheck className="h-3 w-3" />
+                                        مشترك
+                                      </span>
+                                    )}
+                                    <span className="text-xs text-stone-400">
+                                      {new Date(reply.created_at).toLocaleDateString('ar-u-nu-latn', { month: 'short', day: 'numeric' })}
+                                    </span>
+                                    {user && user.id === reply.user_id && (
+                                      <button
+                                        type="button"
+                                        onClick={() => deleteReply(reply)}
+                                        className="mr-auto rounded p-1 text-stone-300 hover:bg-red-50 hover:text-red-500 transition-colors"
+                                        aria-label="حذف الرد"
+                                      >
+                                        <Trash2 className="h-3 w-3" />
+                                      </button>
+                                    )}
+                                  </div>
+                                  <p className="mt-1 text-sm text-stone-800 whitespace-pre-line">{reply.content}</p>
+                                </div>
+                              </div>
+                            ))}
+                          </>
+                        )}
+
+                        {user && (
+                          <div className="flex gap-2">
+                            <textarea
+                              value={replyText[log.id] ?? ''}
+                              onChange={e => setReplyText(prev => ({ ...prev, [log.id]: e.target.value }))}
+                              placeholder="اكتب ردًا..."
+                              maxLength={1000}
+                              rows={1}
+                              className="flex-1 resize-none rounded-xl border border-stone-200 bg-white px-3 py-2 text-sm text-stone-900 placeholder:text-stone-400 focus:border-emerald-300 focus:outline-none focus:ring-1 focus:ring-emerald-100"
+                              onKeyDown={e => {
+                                if (e.key === 'Enter' && !e.shiftKey) {
+                                  e.preventDefault();
+                                  submitReply(log.id);
+                                }
+                              }}
+                            />
+                            <button
+                              type="button"
+                              onClick={() => submitReply(log.id)}
+                              disabled={!(replyText[log.id] ?? '').trim() || submittingReply.has(log.id)}
+                              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-600 text-white transition-colors hover:bg-emerald-700 disabled:opacity-40 disabled:cursor-not-allowed"
+                              aria-label="إرسال الرد"
+                            >
+                              <Send className="h-4 w-4" />
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
               );
             })}
@@ -681,12 +876,13 @@ export default function Community() {
                   try {
                     const { data } = await supabase
                       .from('community_logs')
-                      .select('id, user_id, peptide_name, goal, protocol, duration_weeks, results, rating, created_at')
+                      .select('id, user_id, peptide_name, goal, protocol, duration_weeks, results, rating, is_subscriber, created_at')
                       .order('created_at', { ascending: false })
                       .range(logs.length, logs.length + PAGE_SIZE - 1);
                     if (data) {
                       setLogs(prev => [...prev, ...data]);
                       setHasMore(data.length >= PAGE_SIZE);
+                      loadReplyCounts(data.map(d => d.id));
                     }
                   } catch {
                     toast.error('تعذّر تحميل المزيد. حاول مرة أخرى.');
