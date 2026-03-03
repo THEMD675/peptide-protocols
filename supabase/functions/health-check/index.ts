@@ -51,7 +51,7 @@ serve(async (req) => {
   // 3. Stripe API
   const stripeStart = Date.now()
   try {
-    const stripe = new Stripe(stripeKey, { apiVersion: '2025-12-18.acacia' })
+    const stripe = new Stripe(stripeKey, { apiVersion: '2024-06-20' })
     const balance = await stripe.balance.retrieve()
     checks.stripe = { status: 'ok', detail: `connected, ${balance.available.length} currency(ies)`, ms: Date.now() - stripeStart }
   } catch (e) {

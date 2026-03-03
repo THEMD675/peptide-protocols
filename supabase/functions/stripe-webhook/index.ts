@@ -4,7 +4,7 @@ import Stripe from 'https://esm.sh/stripe@14.14.0?target=deno'
 
 const TRIAL_DAYS = 3 // Keep in sync with src/config/trial.ts
 const stripeKey = Deno.env.get('STRIPE_SECRET_KEY') ?? ''
-const stripe = new Stripe(stripeKey, { apiVersion: '2025-12-18.acacia' })
+const stripe = new Stripe(stripeKey, { apiVersion: '2024-06-20' })
 const endpointSecret = Deno.env.get('STRIPE_WEBHOOK_SECRET') ?? ''
 
 const supabaseUrl = Deno.env.get('SUPABASE_URL') ?? ''

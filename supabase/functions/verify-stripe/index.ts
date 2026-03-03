@@ -27,7 +27,7 @@ serve(async (req) => {
     return new Response(JSON.stringify({ error: 'STRIPE_SECRET_KEY not set' }), { status: 500, headers })
   }
 
-  const stripe = new Stripe(stripeKey, { apiVersion: '2025-12-18.acacia' })
+  const stripe = new Stripe(stripeKey, { apiVersion: '2024-06-20' })
   const result: { prices: Record<string, unknown>; webhooks: unknown[]; eventsOk: boolean; missingEvents: string[] } = {
     prices: {},
     webhooks: [],

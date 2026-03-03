@@ -3,7 +3,7 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 import Stripe from 'https://esm.sh/stripe@14.14.0?target=deno'
 
 const stripeKey = Deno.env.get('STRIPE_SECRET_KEY') ?? ''
-const stripe = new Stripe(stripeKey, { apiVersion: '2025-12-18.acacia' })
+const stripe = new Stripe(stripeKey, { apiVersion: '2024-06-20' })
 const supabaseUrl = Deno.env.get('SUPABASE_URL') ?? ''
 const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY') ?? ''
 const appUrl = Deno.env.get('APP_URL') ?? 'https://pptides.com'
