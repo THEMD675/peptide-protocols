@@ -118,9 +118,10 @@ export function buildSubscription(row: Record<string, unknown> | null): Subscrip
 
 
 function clearPptidesStorage() {
+  const PRESERVE = ['pptides_age_verified', 'pptides_cookie_consent'];
   try {
     Object.keys(localStorage)
-      .filter(k => k.startsWith('pptides_'))
+      .filter(k => k.startsWith('pptides_') && !PRESERVE.includes(k))
       .forEach(k => localStorage.removeItem(k));
   } catch { /* restricted env */ }
 }
