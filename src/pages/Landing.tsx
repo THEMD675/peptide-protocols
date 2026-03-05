@@ -178,6 +178,29 @@ export default function Landing() {
         <meta name="twitter:title" content="pptides | أشمل دليل عربي للببتيدات العلاجية" />
         <meta name="twitter:description" content={`${PEPTIDE_COUNT} ببتيد علاجي مع بروتوكولات كاملة ومدرب ذكي.`} />
         <meta name="twitter:image" content={`${SITE_URL}/og-image.png`} />
+        <script type="application/ld+json">{JSON.stringify([
+          {
+            '@context': 'https://schema.org',
+            '@type': 'Organization',
+            name: 'pptides',
+            url: SITE_URL,
+            logo: `${SITE_URL}/og-image.png`,
+            description: 'أول منصة عربية متخصصة في علم الببتيدات — بروتوكولات كاملة، مدرب ذكي، وحاسبة جرعات.',
+            contactPoint: { '@type': 'ContactPoint', email: SUPPORT_EMAIL, contactType: 'customer service' },
+          },
+          {
+            '@context': 'https://schema.org',
+            '@type': 'WebSite',
+            name: 'pptides',
+            url: SITE_URL,
+            inLanguage: 'ar',
+            potentialAction: {
+              '@type': 'SearchAction',
+              target: { '@type': 'EntryPoint', urlTemplate: `${SITE_URL}/library?q={search_term_string}` },
+              'query-input': 'required name=search_term_string',
+            },
+          },
+        ])}</script>
       </Helmet>
 
       {/* ═══════ HERO ═══════ */}

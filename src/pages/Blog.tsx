@@ -53,6 +53,15 @@ export default function Blog() {
         <meta name="twitter:title" content="المدونة | pptides" />
         <meta name="twitter:description" content="مقالات ودلائل شاملة عن الببتيدات العلاجية باللغة العربية." />
         <meta name="twitter:image" content={`${SITE_URL}/og-image.png`} />
+        <script type="application/ld+json">{JSON.stringify({
+          '@context': 'https://schema.org',
+          '@type': 'Blog',
+          name: 'مدونة pptides',
+          url: `${SITE_URL}/blog`,
+          inLanguage: 'ar',
+          description: 'مقالات ودلائل شاملة عن الببتيدات العلاجية باللغة العربية.',
+          publisher: { '@type': 'Organization', name: 'pptides', url: SITE_URL },
+        })}</script>
       </Helmet>
 
       <div className="mx-auto max-w-3xl px-4 py-8 md:px-6 md:py-12">
