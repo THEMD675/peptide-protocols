@@ -69,8 +69,12 @@ export default function BlogPost() {
         <meta property="og:description" content={post.excerpt_ar} />
         <meta property="og:type" content="article" />
         <meta property="og:url" content={`${SITE_URL}/blog/${post.slug}`} />
-        {post.cover_image_url && <meta property="og:image" content={post.cover_image_url} />}
+        <meta property="og:image" content={post.cover_image_url || `${SITE_URL}/og-image.png`} />
         <meta property="article:published_time" content={post.published_at} />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content={post.title_ar} />
+        <meta name="twitter:description" content={post.excerpt_ar} />
+        <meta name="twitter:image" content={post.cover_image_url || `${SITE_URL}/og-image.png`} />
       </Helmet>
 
       <div className="mx-auto max-w-3xl px-4 py-8 md:px-6 md:py-12">

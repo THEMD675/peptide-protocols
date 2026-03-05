@@ -161,6 +161,8 @@ const ACTIVITY_COLOR: Record<string, string> = { signup: 'bg-emerald-100 text-em
 // MAIN
 // ========================================================
 
+// UX guard only — real authorization is enforced server-side in admin-stats and admin-actions edge functions.
+// Keep in sync with supabase/functions/_shared/admin-auth.ts DEFAULT_ADMIN_EMAILS.
 const ADMIN_EMAILS = [
   'abdullah@amirisgroup.co',
   'abdullahalameer@gmail.com',

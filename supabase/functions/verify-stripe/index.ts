@@ -4,9 +4,11 @@ import Stripe from 'https://esm.sh/stripe@14.14.0?target=deno'
 const stripeKey = Deno.env.get('STRIPE_SECRET_KEY') ?? ''
 const cronSecret = Deno.env.get('CRON_SECRET') ?? ''
 
-const EXPECTED = {
-  essentials: Deno.env.get('STRIPE_PRICE_ESSENTIALS') ?? 'price_1T6QrYAT1lRVVLw7UNdI4t2g',
-  elite: Deno.env.get('STRIPE_PRICE_ELITE') ?? 'price_1T6QrZAT1lRVVLw7qu0FZIWT',
+const essentialsPrice = Deno.env.get('STRIPE_PRICE_ESSENTIALS')
+const elitePrice = Deno.env.get('STRIPE_PRICE_ELITE')
+const EXPECTED: Record<string, string> = {
+  ...(essentialsPrice ? { essentials: essentialsPrice } : {}),
+  ...(elitePrice ? { elite: elitePrice } : {}),
 }
 
 function constantTimeCompare(a: string, b: string): boolean {
@@ -26,6 +28,12 @@ serve(async (req) => {
   if (!stripeKey) {
     return new Response(JSON.stringify({ error: 'STRIPE_SECRET_KEY not set' }), { status: 500, headers })
   }
+
+  const missingPriceIds: string[] = []
+  if (!essentialsPrice) missingPriceIds.push('STRIPE_PRICE_ESSENTIALS')
+  if (!elitePrice) missingPriceIds.push('STRIPE_PRICE_ELITE')
+  if (!Deno.env.get('STRIPE_PRICE_ESSENTIALS_ANNUAL')) missingPriceIds.push('STRIPE_PRICE_ESSENTIALS_ANNUAL')
+  if (!Deno.env.get('STRIPE_PRICE_ELITE_ANNUAL')) missingPriceIds.push('STRIPE_PRICE_ELITE_ANNUAL')
 
   const stripe = new Stripe(stripeKey, { apiVersion: '2024-06-20' })
   const result: { prices: Record<string, unknown>; webhooks: unknown[]; eventsOk: boolean; missingEvents: string[] } = {
@@ -73,8 +81,10 @@ serve(async (req) => {
     result.webhooks = [{ error: String(e) }]
   }
 
+  const hasIssues = ('error' in result.prices) || !result.eventsOk || missingPriceIds.length > 0
   return new Response(JSON.stringify({
-    status: result.prices && !('error' in result.prices) && result.eventsOk ? 'ok' : 'issues',
+    status: hasIssues ? 'issues' : 'ok',
+    ...(missingPriceIds.length > 0 ? { missingPriceIds } : {}),
     ...result,
     timestamp: new Date().toISOString(),
   }, null, 2), { status: 200, headers })

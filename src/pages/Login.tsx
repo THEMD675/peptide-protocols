@@ -10,6 +10,12 @@ import { events } from '@/lib/analytics';
 
 type Tab = 'login' | 'signup';
 
+/** Validate redirect path: must start with "/" but not "//" (open redirect) */
+function safeRedirect(raw: string | null, fallback = '/dashboard'): string {
+  if (!raw || typeof raw !== 'string') return fallback;
+  return raw.startsWith('/') && !raw.startsWith('//') ? raw : fallback;
+}
+
 const friendlyError = (msg: string) => {
   const hasArabic = /[\u0600-\u06FF]/.test(msg);
   if (hasArabic) return msg;
@@ -62,8 +68,7 @@ export default function Login() {
 
   useEffect(() => {
     if (user && !isRecovery) {
-      const raw = new URLSearchParams(window.location.search).get('redirect') || '/dashboard';
-      const redirectTo = raw.startsWith('/') && !raw.startsWith('//') ? raw : '/dashboard';
+      const redirectTo = safeRedirect(new URLSearchParams(window.location.search).get('redirect'));
       navigate(redirectTo, { replace: true });
     }
   }, [user, isRecovery, navigate]);
@@ -142,13 +147,7 @@ export default function Login() {
         events.signup('email');
       }
       setFailedAttempts(0);
-      const raw = new URLSearchParams(window.location.search).get('redirect');
-      const redirectTo = raw && raw.startsWith('/') && !raw.startsWith('//') ? raw : null;
-      if (redirectTo) {
-        navigate(redirectTo);
-      } else {
-        navigate('/dashboard');
-      }
+      navigate(safeRedirect(new URLSearchParams(window.location.search).get('redirect')));
     } catch (err: unknown) {
       const raw = err instanceof Error ? err.message : '';
       const msg = friendlyError(raw);
@@ -181,12 +180,11 @@ export default function Login() {
     setError('');
     setLoading(true);
     try {
-      const raw = new URLSearchParams(window.location.search).get('redirect') || '/dashboard';
-      const safeRedirect = raw.startsWith('/') && !raw.startsWith('//') ? raw : '/dashboard';
+      const redirect = safeRedirect(new URLSearchParams(window.location.search).get('redirect'));
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: `${window.location.origin}${safeRedirect}`,
+          redirectTo: `${window.location.origin}${redirect}`,
         },
       });
       if (error) {

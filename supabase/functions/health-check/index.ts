@@ -79,7 +79,7 @@ serve(async (req) => {
   }
 
   // 6. Environment variables
-  const envVars = ['SUPABASE_URL', 'SUPABASE_SERVICE_ROLE_KEY', 'SUPABASE_ANON_KEY', 'STRIPE_SECRET_KEY', 'STRIPE_WEBHOOK_SECRET', 'RESEND_API_KEY', 'DEEPSEEK_API_KEY', 'APP_URL', 'CRON_SECRET', 'STRIPE_PRICE_ESSENTIALS', 'STRIPE_PRICE_ELITE']
+  const envVars = ['SUPABASE_URL', 'SUPABASE_SERVICE_ROLE_KEY', 'SUPABASE_ANON_KEY', 'STRIPE_SECRET_KEY', 'STRIPE_WEBHOOK_SECRET', 'RESEND_API_KEY', 'DEEPSEEK_API_KEY', 'APP_URL', 'CRON_SECRET', 'STRIPE_PRICE_ESSENTIALS', 'STRIPE_PRICE_ELITE', 'STRIPE_PRICE_ESSENTIALS_ANNUAL', 'STRIPE_PRICE_ELITE_ANNUAL']
   const missing = envVars.filter(v => !Deno.env.get(v))
   checks.env_vars = { status: missing.length === 0 ? 'ok' : 'error', detail: missing.length === 0 ? `all ${envVars.length} set` : `missing: ${missing.join(', ')}`, ms: 0 }
 
