@@ -30,7 +30,7 @@ export default function Blog() {
         .limit(50);
 
       if (fetchError) {
-        console.error('Blog fetch error:', fetchError);
+        void fetchError;
         setError(true);
       } else {
         setPosts(data ?? []);

@@ -72,6 +72,15 @@ export default function PeptideTable() {
         <meta property="og:description" content={`أشمل جدول مقارنة ببتيدات بالعربي — ${PEPTIDE_COUNT} ببتيد مع الجرعات والبروتوكولات.`} />
         <meta property="og:url" content={`${SITE_URL}/table`} />
         <meta property="og:image" content={`${SITE_URL}/og-image.png`} />
+        <script type="application/ld+json">{JSON.stringify({
+          '@context': 'https://schema.org',
+          '@type': 'WebPage',
+          name: `جدول الببتيدات الشامل — مقارنة ${PEPTIDE_COUNT} ببتيد`,
+          description: `أشمل جدول مقارنة ببتيدات بالعربي — ${PEPTIDE_COUNT} ببتيد مع الجرعات والبروتوكولات.`,
+          url: `${SITE_URL}/table`,
+          inLanguage: 'ar',
+          isPartOf: { '@type': 'WebSite', name: 'pptides', url: SITE_URL },
+        })}</script>
       </Helmet>
 
       {/* ━━━ STICKY SUBSCRIPTION BANNER ━━━ */}

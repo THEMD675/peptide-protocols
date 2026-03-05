@@ -444,7 +444,7 @@ export default function Login() {
                   <button
                     type="button"
                     onClick={() => setShowPassword(v => !v)}
-                    className="absolute start-3 top-1/2 -translate-y-1/2 text-stone-500 hover:text-stone-600 transition-colors"
+                    className="absolute start-3 top-1/2 -translate-y-1/2 p-2 text-stone-500 hover:text-stone-600 transition-colors"
                     aria-label={showPassword ? 'إخفاء كلمة المرور' : 'إظهار كلمة المرور'}
                   >
                     {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
@@ -477,7 +477,7 @@ export default function Login() {
                       type="button"
                       onClick={handleResetPassword}
                       disabled={loading}
-                      className="text-sm font-medium text-emerald-600 hover:underline disabled:opacity-50"
+                      className="min-h-[44px] text-sm font-medium text-emerald-600 hover:underline disabled:opacity-50"
                     >
                       نسيت كلمة المرور؟
                     </button>

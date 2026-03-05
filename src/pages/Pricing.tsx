@@ -126,7 +126,7 @@ export default function Pricing() {
     if (user && subscription?.isProOrTrial && subscription.tier !== planKey) {
       return (
         <div className="text-center text-sm text-stone-500">
-          للتغيير تواصل معنا: <a href={`mailto:${SUPPORT_EMAIL}?subject=تغيير الباقة`} className="text-emerald-600 underline">{SUPPORT_EMAIL}</a>
+          للتغيير تواصل معنا: <a href={`mailto:${SUPPORT_EMAIL}?subject=تغيير الباقة`} className="inline-flex min-h-[44px] items-center text-emerald-600 underline">{SUPPORT_EMAIL}</a>
         </div>
       );
     }
@@ -478,7 +478,7 @@ export default function Pricing() {
         >
           <MessageCircle className="mx-auto mb-3 h-6 w-6 text-emerald-600" />
           <p className="text-sm font-semibold text-stone-800">
-            تواصل معنا: <a href={`mailto:${SUPPORT_EMAIL}`} className="text-emerald-600 underline">{SUPPORT_EMAIL}</a>
+            تواصل معنا: <a href={`mailto:${SUPPORT_EMAIL}`} className="inline-flex min-h-[44px] items-center text-emerald-600 underline">{SUPPORT_EMAIL}</a>
           </p>
           <p className="mt-1 text-xs text-stone-800">الدعم متاح 24/7 عبر البريد الإلكتروني</p>
         </div>

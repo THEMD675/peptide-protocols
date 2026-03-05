@@ -69,7 +69,7 @@ export default function PushNotificationPrompt() {
       setSubscribed(true);
       toast.success('تم تفعيل التنبيهات — لن تنسى جرعتك');
     } catch (e) {
-      console.error('Push subscribe error:', e);
+      void e;
       toast.error('تعذّر تفعيل التنبيهات — تحقق من الإعدادات');
     } finally {
       setIsEnabling(false);

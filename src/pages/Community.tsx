@@ -823,7 +823,7 @@ export default function Community() {
                 </div>
                 <Link
                   to={`/peptide/${allPeptides.find(p => p.nameEn === log.peptide_name)?.id ?? (log.peptide_name ?? '').toLowerCase().replace(/[/\s]+/g, '-')}`}
-                  className="mt-2 inline-flex items-center gap-1 text-xs font-bold text-emerald-600 hover:text-emerald-700"
+                  className="mt-2 inline-flex min-h-[44px] items-center gap-1 text-xs font-bold text-emerald-600 hover:text-emerald-700"
                 >
                   ابدأ هذا البروتوكول ←
                 </Link>

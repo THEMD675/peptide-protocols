@@ -294,7 +294,7 @@ export default function PeptideQuiz() {
           عرض نتائجك السابقة
         </button>
       )}
-      <Link to="/library" className="mt-4 block text-center text-sm text-stone-500 hover:text-stone-600 transition-colors">
+      <Link to="/library" className="mt-4 flex min-h-[44px] items-center justify-center text-center text-sm text-stone-500 hover:text-stone-600 transition-colors">
         تخطّي — تصفّح المكتبة مباشرة
       </Link>
     </div>

@@ -413,7 +413,7 @@ export default function DoseCalculator() {
                   <div className="mt-2 text-center">
                     <button
                       onClick={() => setShowAllPresets(true)}
-                      className="text-xs font-medium text-emerald-600 hover:text-emerald-700 hover:underline"
+                      className="min-h-[44px] text-xs font-medium text-emerald-600 hover:text-emerald-700 hover:underline"
                     >
                       عرض الكل ({PEPTIDE_PRESETS.length}+)
                     </button>

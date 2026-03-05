@@ -98,7 +98,7 @@ export default function FAQ() {
           <p className="font-bold text-stone-900">لم تجد إجابة على سؤالك؟</p>
           <p className="mt-1 text-sm text-stone-600">
             تواصل معنا مباشرة عبر{' '}
-            <a href={`mailto:${SUPPORT_EMAIL}`} className="font-semibold text-emerald-600 underline underline-offset-2 hover:text-emerald-700">
+            <a href={`mailto:${SUPPORT_EMAIL}`} className="inline-flex min-h-[44px] items-center font-semibold text-emerald-600 underline underline-offset-2 hover:text-emerald-700">
               {SUPPORT_EMAIL}
             </a>
           </p>

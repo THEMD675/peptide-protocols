@@ -170,7 +170,7 @@ export default function Stacks() {
                       <Link
                         key={p.id}
                         to={`/peptide/${p.id}`}
-                        className="rounded-lg bg-emerald-50 px-2.5 py-1 text-xs font-medium text-emerald-700 transition-all hover:bg-emerald-100 hover:shadow-sm"
+                        className="rounded-lg bg-emerald-50 px-3 py-2 text-xs font-medium text-emerald-700 transition-all hover:bg-emerald-100 hover:shadow-sm"
                       >
                         {p.nameAr}
                       </Link>

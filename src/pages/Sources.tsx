@@ -269,7 +269,7 @@ export default function Sources() {
             </p>
             <a
               href={`mailto:${SUPPORT_EMAIL}`}
-              className="mt-3 inline-block text-sm font-semibold text-emerald-600 transition-opacity hover:opacity-80"
+              className="mt-3 inline-flex min-h-[44px] items-center text-sm font-semibold text-emerald-600 transition-opacity hover:opacity-80"
             >
               {SUPPORT_EMAIL}
             </a>

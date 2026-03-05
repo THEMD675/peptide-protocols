@@ -1,6 +1,6 @@
 import { Helmet } from 'react-helmet-async';
 import { Link } from 'react-router-dom';
-import { PRICING, LEGAL_LAST_UPDATED, SUPPORT_EMAIL, TRIAL_DAYS } from '@/lib/constants';
+import { PRICING, LEGAL_LAST_UPDATED, SUPPORT_EMAIL, TRIAL_DAYS, SITE_URL } from '@/lib/constants';
 
 export default function Terms() {
   return (
@@ -8,7 +8,17 @@ export default function Terms() {
       <Helmet>
         <title>شروط الاستخدام | pptides</title>
         <meta name="description" content="شروط الاستخدام لموقع pptides.com — الاشتراكات، الاسترداد، وحدود المسؤولية." />
+        <meta property="og:title" content="شروط الاستخدام | pptides" />
         <meta property="og:description" content="شروط الاستخدام لموقع pptides.com — الاشتراكات، الاسترداد، وحدود المسؤولية." />
+        <script type="application/ld+json">{JSON.stringify({
+          '@context': 'https://schema.org',
+          '@type': 'WebPage',
+          name: 'شروط الاستخدام — pptides',
+          description: 'شروط الاستخدام لموقع pptides.com — الاشتراكات، الاسترداد، وحدود المسؤولية.',
+          url: `${SITE_URL}/terms`,
+          inLanguage: 'ar',
+          isPartOf: { '@type': 'WebSite', name: 'pptides', url: SITE_URL },
+        })}</script>
       </Helmet>
       <div className="mx-auto max-w-3xl px-4 pb-24 pt-8 md:px-6 md:pt-12">
         <h1 className="mb-8 text-3xl font-bold text-stone-900 md:text-4xl">شروط الاستخدام</h1>
@@ -33,7 +43,7 @@ export default function Terms() {
 
           <section>
             <h2 className="mb-3 text-xl font-bold text-stone-900">3. سياسة الاسترداد</h2>
-            <p>نقدّم ضمان استرداد كامل خلال {TRIAL_DAYS} أيام من تاريخ الاشتراك. إذا لم تكن راضيًا، تواصل معنا عبر <a href={`mailto:${SUPPORT_EMAIL}`} className="text-emerald-600 underline">{SUPPORT_EMAIL}</a> واسترد أموالك بالكامل. بعد مرور {TRIAL_DAYS} أيام، لا يمكن استرداد المبالغ المدفوعة.</p>
+            <p>نقدّم ضمان استرداد كامل خلال {TRIAL_DAYS} أيام من تاريخ الاشتراك. إذا لم تكن راضيًا، تواصل معنا عبر <a href={`mailto:${SUPPORT_EMAIL}`} className="inline-flex min-h-[44px] items-center text-emerald-600 underline">{SUPPORT_EMAIL}</a> واسترد أموالك بالكامل. بعد مرور {TRIAL_DAYS} أيام، لا يمكن استرداد المبالغ المدفوعة.</p>
           </section>
 
           <section>
@@ -88,11 +98,11 @@ export default function Terms() {
 
           <section>
             <h2 className="mb-3 text-xl font-bold text-stone-900">13. التواصل</h2>
-            <p>لأي استفسار: <a href={`mailto:${SUPPORT_EMAIL}`} className="text-emerald-600 underline">{SUPPORT_EMAIL}</a></p>
+            <p>لأي استفسار: <a href={`mailto:${SUPPORT_EMAIL}`} className="inline-flex min-h-[44px] items-center text-emerald-600 underline">{SUPPORT_EMAIL}</a></p>
           </section>
         </div>
         <div className="mt-8 border-t border-stone-200 pt-6 text-center">
-          <Link to="/" className="text-sm font-semibold text-emerald-600 transition-colors hover:text-emerald-700">→ العودة للصفحة الرئيسية</Link>
+          <Link to="/" className="inline-flex min-h-[44px] items-center text-sm font-semibold text-emerald-600 transition-colors hover:text-emerald-700">→ العودة للصفحة الرئيسية</Link>
         </div>
       </div>
     </div>

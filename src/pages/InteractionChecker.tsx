@@ -288,7 +288,7 @@ export default function InteractionChecker() {
           <Link to="/coach" className="inline-flex items-center gap-2 rounded-full border border-emerald-300 px-5 py-2.5 text-sm font-bold text-emerald-700 transition-colors hover:bg-emerald-100">
             اسأل المدرب الذكي
           </Link>
-          <Link to="/library" className="text-sm font-medium text-emerald-600 hover:underline">
+          <Link to="/library" className="inline-flex min-h-[44px] items-center text-sm font-medium text-emerald-600 hover:underline">
             العودة للمكتبة
           </Link>
         </div>

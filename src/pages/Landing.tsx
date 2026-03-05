@@ -274,7 +274,7 @@ export default function Landing() {
           <ArrowLeft className="h-4 w-4 text-emerald-500 transition-transform group-hover:-translate-x-1" />
         </Link>
         <p className="mt-3 text-sm text-stone-500">
-          <Link to="/library" className="font-semibold text-emerald-600 hover:underline">6 ببتيدات مجانية بالكامل</Link>
+          <Link to="/library" className="inline-flex min-h-[44px] items-center font-semibold text-emerald-600 hover:underline">6 ببتيدات مجانية بالكامل</Link>
           {' — بدون تسجيل. تصفّحها الآن.'}
         </p>
       </div>
@@ -442,7 +442,7 @@ export default function Landing() {
               <div className="border-t border-stone-200 bg-stone-50 px-6 py-4 flex flex-col sm:flex-row items-center justify-between gap-3">
                 <p className="text-sm text-stone-600">هذا ببتيد واحد من {PEPTIDE_COUNT}. اشترك لفتح الكل.</p>
                 <div className="flex flex-wrap gap-3">
-                  <Link to="/calculator?peptide=BPC-157" className="text-sm font-semibold text-emerald-600 transition-colors hover:text-emerald-700 hover:underline flex items-center gap-1">
+                  <Link to="/calculator?peptide=BPC-157" className="text-sm font-semibold text-emerald-600 transition-colors hover:text-emerald-700 hover:underline flex items-center gap-1 min-h-[44px]">
                     احسب جرعتك بالحاسبة ←
                   </Link>
                   <Link to="/peptide/bpc-157" className="rounded-full border border-emerald-300 px-5 py-2 text-sm font-bold text-emerald-700 transition-colors hover:bg-emerald-50">

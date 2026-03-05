@@ -86,7 +86,7 @@ async function buildUserContext(userId: string): Promise<string> {
       if (names.length) ctx += `ببتيدات مفضّلة: ${names.join(', ')}\n`;
     }
   } catch (e) {
-    if (typeof console !== 'undefined' && console.warn) console.warn('Coach buildUserContext failed:', e);
+    void e;
   }
   return ctx;
 }

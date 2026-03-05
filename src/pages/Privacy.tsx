@@ -1,6 +1,6 @@
 import { Helmet } from 'react-helmet-async';
 import { Link } from 'react-router-dom';
-import { LEGAL_LAST_UPDATED, SUPPORT_EMAIL } from '@/lib/constants';
+import { LEGAL_LAST_UPDATED, SUPPORT_EMAIL, SITE_URL } from '@/lib/constants';
 
 export default function Privacy() {
   return (
@@ -8,7 +8,17 @@ export default function Privacy() {
       <Helmet>
         <title>سياسة الخصوصية | pptides</title>
         <meta name="description" content="سياسة الخصوصية لموقع pptides.com — كيف نحمي بياناتك الشخصية." />
+        <meta property="og:title" content="سياسة الخصوصية | pptides" />
         <meta property="og:description" content="سياسة الخصوصية لموقع pptides.com — كيف نحمي بياناتك الشخصية." />
+        <script type="application/ld+json">{JSON.stringify({
+          '@context': 'https://schema.org',
+          '@type': 'WebPage',
+          name: 'سياسة الخصوصية — pptides',
+          description: 'سياسة الخصوصية لموقع pptides.com — كيف نحمي بياناتك الشخصية.',
+          url: `${SITE_URL}/privacy`,
+          inLanguage: 'ar',
+          isPartOf: { '@type': 'WebSite', name: 'pptides', url: SITE_URL },
+        })}</script>
       </Helmet>
       <div className="mx-auto max-w-3xl px-4 pb-24 pt-8 md:px-6 md:pt-12">
         <h1 className="mb-8 text-3xl font-bold text-stone-900 md:text-4xl">سياسة الخصوصية</h1>
@@ -74,11 +84,11 @@ export default function Privacy() {
 
           <section>
             <h2 className="mb-3 text-xl font-bold text-stone-900">7. التواصل</h2>
-            <p>لأي استفسار حول الخصوصية: <a href={`mailto:${SUPPORT_EMAIL}`} className="text-emerald-600 underline">{SUPPORT_EMAIL}</a></p>
+            <p>لأي استفسار حول الخصوصية: <a href={`mailto:${SUPPORT_EMAIL}`} className="inline-flex min-h-[44px] items-center text-emerald-600 underline">{SUPPORT_EMAIL}</a></p>
           </section>
         </div>
         <div className="mt-8 border-t border-stone-200 pt-6 text-center">
-          <Link to="/" className="text-sm font-semibold text-emerald-600 transition-colors hover:text-emerald-700">→ العودة للصفحة الرئيسية</Link>
+          <Link to="/" className="inline-flex min-h-[44px] items-center text-sm font-semibold text-emerald-600 transition-colors hover:text-emerald-700">→ العودة للصفحة الرئيسية</Link>
         </div>
       </div>
     </div>
