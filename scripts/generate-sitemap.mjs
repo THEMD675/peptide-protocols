@@ -29,7 +29,9 @@ const STATIC_PAGES = [
   '/reviews',
   '/quiz',
   '/about',
+  '/transparency',
   '/faq',
+  '/blog',
   '/privacy',
   '/terms',
 ];
