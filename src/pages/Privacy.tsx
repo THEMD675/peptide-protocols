@@ -8,6 +8,7 @@ export default function Privacy() {
       <Helmet>
         <title>سياسة الخصوصية | pptides</title>
         <meta name="description" content="سياسة الخصوصية لموقع pptides.com — كيف نحمي بياناتك الشخصية." />
+        <meta property="og:description" content="سياسة الخصوصية لموقع pptides.com — كيف نحمي بياناتك الشخصية." />
       </Helmet>
       <div className="mx-auto max-w-3xl px-4 pb-24 pt-8 md:px-6 md:pt-12">
         <h1 className="mb-8 text-3xl font-bold text-stone-900 md:text-4xl">سياسة الخصوصية</h1>

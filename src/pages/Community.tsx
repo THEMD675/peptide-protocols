@@ -363,6 +363,14 @@ export default function Community() {
         <meta property="og:type" content="website" />
         <meta property="og:locale" content="ar_SA" />
         <meta property="og:image" content={`${SITE_URL}/og-image.png`} />
+        <script type="application/ld+json">{JSON.stringify({
+          '@context': 'https://schema.org',
+          '@type': 'DiscussionForumPosting',
+          headline: 'تجارب المستخدمين — pptides',
+          url: `${SITE_URL}/community`,
+          description: 'بروتوكولات حقيقية ونتائج فعلية من مستخدمي الببتيدات.',
+          inLanguage: 'ar',
+        })}</script>
       </Helmet>
 
       <div className="mx-auto max-w-4xl px-4 pb-24 pt-8 md:px-6 md:pt-12">

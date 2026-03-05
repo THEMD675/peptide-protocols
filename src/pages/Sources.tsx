@@ -173,6 +173,15 @@ export default function Sources() {
         <meta property="og:type" content="website" />
         <meta property="og:locale" content="ar_SA" />
         <meta property="og:image" content={`${SITE_URL}/og-image.png`} />
+        <script type="application/ld+json">{JSON.stringify({
+          '@context': 'https://schema.org',
+          '@type': 'Article',
+          headline: 'المصادر الموثوقة للببتيدات',
+          url: `${SITE_URL}/sources`,
+          description: 'معايير اختيار مورد ببتيدات موثوق — شهادات التحليل والنقاء والشحن المبرّد.',
+          inLanguage: 'ar',
+          publisher: { '@type': 'Organization', name: 'pptides', url: SITE_URL },
+        })}</script>
       </Helmet>
 
       <div className="mx-auto max-w-4xl px-4 pt-8 pb-24 md:px-6 md:pt-12">

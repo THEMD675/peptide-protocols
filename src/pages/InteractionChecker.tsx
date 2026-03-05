@@ -132,6 +132,17 @@ export default function InteractionChecker() {
         <meta property="og:type" content="website" />
         <meta property="og:locale" content="ar_SA" />
         <meta property="og:image" content={`${SITE_URL}/og-image.png`} />
+        <script type="application/ld+json">{JSON.stringify({
+          '@context': 'https://schema.org',
+          '@type': 'WebApplication',
+          name: 'فحص تعارضات الببتيدات',
+          url: `${SITE_URL}/interactions`,
+          description: 'تحقق من أمان تجميع أي ببتيدين معًا — فحص التعارضات والتفاعلات.',
+          applicationCategory: 'HealthApplication',
+          operatingSystem: 'Web',
+          offers: { '@type': 'Offer', price: '0', priceCurrency: 'SAR' },
+          inLanguage: 'ar',
+        })}</script>
       </Helmet>
 
       <div className="mx-auto max-w-2xl px-4 py-8 md:px-6 md:py-12">

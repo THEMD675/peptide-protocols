@@ -385,6 +385,7 @@ export default function Dashboard() {
       <Helmet>
         <title>لوحة التحكم | pptides</title>
         <meta name="description" content="لوحة التحكم — أدواتك في مكان واحد" />
+        <meta property="og:description" content="لوحة التحكم — أدواتك في مكان واحد لإدارة بروتوكولات الببتيدات." />
         <meta name="robots" content="noindex, nofollow" />
       </Helmet>
 

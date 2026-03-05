@@ -50,16 +50,18 @@ serve(async (req) => {
       admin.from('subscriptions').select('*').order('created_at', { ascending: false }),
       admin.from('injection_logs').select('id, user_id, peptide_name, logged_at', { count: 'exact', head: false }).order('logged_at', { ascending: false }).limit(100),
       admin.from('reviews').select('*').order('created_at', { ascending: false }),
-      admin.from('community_logs').select('id, peptide_name, goal, rating, created_at', { count: 'exact', head: false }).order('created_at', { ascending: false }).limit(50),
-      admin.from('ai_coach_requests').select('id, user_id, created_at', { count: 'exact', head: false }).order('created_at', { ascending: false }).limit(50),
+      admin.from('community_logs').select('id, peptide_name, goal, rating, created_at', { count: 'exact', head: false }).order('created_at', { ascending: false }).limit(200),
+      admin.from('ai_coach_requests').select('id, user_id, created_at', { count: 'exact', head: false }).order('created_at', { ascending: false }).limit(200),
       admin.from('email_list').select('*').order('created_at', { ascending: false }),
-      admin.from('enquiries').select('*').order('created_at', { ascending: false }).limit(50),
-      admin.from('email_logs').select('id, email, type, status, created_at').order('created_at', { ascending: false }).limit(50),
+      admin.from('enquiries').select('*').order('created_at', { ascending: false }).limit(200),
+      admin.from('email_logs').select('id, email, type, status, created_at').order('created_at', { ascending: false }).limit(200),
       admin.from('processed_webhook_events').select('event_id, event_type, processed_at').order('processed_at', { ascending: false }).limit(30).then(r => r).catch(() => ({ data: null, error: null })),
     ])
 
     const url = new URL(req.url)
     const searchQuery = url.searchParams.get('search')?.trim().toLowerCase() ?? ''
+    const pageParam = Math.max(1, parseInt(url.searchParams.get('page') ?? '1', 10) || 1)
+    const perPageParam = Math.min(100, Math.max(10, parseInt(url.searchParams.get('per_page') ?? '50', 10) || 50))
 
     const allUsers = paginatedUsers
     const subs = subsResult.data ?? []
@@ -105,9 +107,12 @@ serve(async (req) => {
     const signupsWeek = users.filter(u => new Date(u.created_at) > weekAgo).length
     const signupsMonth = users.filter(u => new Date(u.created_at) > monthAgo).length
 
-    const recentUsersSource = searchQuery
+    // Server-side paginated user list with search
+    const filteredUsers = searchQuery
       ? users.filter(u => u.email?.toLowerCase().includes(searchQuery))
-      : users.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()).slice(0, 50)
+      : users.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+    const totalFilteredUsers = filteredUsers.length
+    const recentUsersSource = filteredUsers.slice((pageParam - 1) * perPageParam, pageParam * perPageParam)
 
     const recentUsers = recentUsersSource
       .map(u => ({
@@ -127,6 +132,7 @@ serve(async (req) => {
           status: sub.status,
           tier: sub.tier,
           stripe_subscription_id: sub.stripe_subscription_id,
+          grant_source: sub.grant_source ?? null,
           trial_ends_at: sub.trial_ends_at,
           current_period_end: sub.current_period_end,
           created_at: sub.created_at,
@@ -215,6 +221,13 @@ serve(async (req) => {
     }
 
     const stats = {
+      pagination: {
+        page: pageParam,
+        perPage: perPageParam,
+        totalFilteredUsers,
+        totalPages: Math.ceil(totalFilteredUsers / perPageParam),
+        searchQuery: searchQuery || null,
+      },
       overview: {
         totalUsers: users.length,
         signupsToday,

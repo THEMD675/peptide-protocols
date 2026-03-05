@@ -519,6 +519,7 @@ export default function Tracker() {
       <Helmet>
         <title>سجل الحقن | تتبّع جرعاتك | pptides</title>
         <meta name="description" content="تتبّع جرعاتك ومواقع الحقن" />
+        <meta property="og:description" content="تتبّع جرعاتك ومواقع الحقن — سجل ذكي لبروتوكولات الببتيدات." />
         <meta name="robots" content="noindex, nofollow" />
       </Helmet>
 

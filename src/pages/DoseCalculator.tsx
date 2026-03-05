@@ -321,6 +321,17 @@ export default function DoseCalculator() {
         <meta property="og:type" content="website" />
         <meta property="og:locale" content="ar_SA" />
         <meta property="og:image" content={`${SITE_URL}/og-image.png`} />
+        <script type="application/ld+json">{JSON.stringify({
+          '@context': 'https://schema.org',
+          '@type': 'WebApplication',
+          name: 'حاسبة جرعات الببتيدات',
+          url: `${SITE_URL}/calculator`,
+          description: 'حاسبة مجانية لجرعات الببتيدات — احسب التركيز، الكمية بالمل، ووحدات السيرنج بدقة.',
+          applicationCategory: 'HealthApplication',
+          operatingSystem: 'Web',
+          offers: { '@type': 'Offer', price: '0', priceCurrency: 'SAR' },
+          inLanguage: 'ar',
+        })}</script>
       </Helmet>
 
       <div className="mx-auto max-w-4xl px-4 py-8 md:px-6 md:py-12">

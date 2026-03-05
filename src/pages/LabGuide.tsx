@@ -56,6 +56,14 @@ export default function LabGuide() {
         <meta property="og:type" content="article" />
         <meta property="og:locale" content="ar_SA" />
         <meta property="og:image" content={`${SITE_URL}/og-image.png`} />
+        <script type="application/ld+json">{JSON.stringify({
+          '@context': 'https://schema.org',
+          '@type': 'MedicalWebPage',
+          name: 'دليل التحاليل المخبرية',
+          url: `${SITE_URL}/lab-guide`,
+          description: 'التحاليل الأساسية قبل وأثناء وبعد استخدام الببتيدات.',
+          inLanguage: 'ar',
+        })}</script>
       </Helmet>
       {/* Header */}
       <div className="mb-10 text-center">

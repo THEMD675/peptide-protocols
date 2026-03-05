@@ -75,6 +75,17 @@ export default function BlogPost() {
         <meta name="twitter:title" content={post.title_ar} />
         <meta name="twitter:description" content={post.excerpt_ar} />
         <meta name="twitter:image" content={post.cover_image_url || `${SITE_URL}/og-image.png`} />
+        <script type="application/ld+json">{JSON.stringify({
+          '@context': 'https://schema.org',
+          '@type': 'BlogPosting',
+          headline: post.title_ar,
+          description: post.excerpt_ar,
+          url: `${SITE_URL}/blog/${post.slug}`,
+          image: post.cover_image_url || `${SITE_URL}/og-image.png`,
+          datePublished: post.published_at,
+          inLanguage: 'ar',
+          publisher: { '@type': 'Organization', name: 'pptides', url: SITE_URL },
+        })}</script>
       </Helmet>
 
       <div className="mx-auto max-w-3xl px-4 py-8 md:px-6 md:py-12">

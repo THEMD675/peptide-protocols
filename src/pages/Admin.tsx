@@ -24,6 +24,7 @@ interface HealthCheck { status: string; checks: Record<string, { status: string;
 interface StripeVerify { status: string; prices: Record<string, unknown>; webhooks: unknown[]; eventsOk: boolean; missingEvents: string[]; timestamp: string }
 
 interface AdminStats {
+  pagination: { page: number; perPage: number; totalFilteredUsers: number; totalPages: number; searchQuery: string | null } | null;
   overview: {
     totalUsers: number; signupsToday: number; signupsWeek: number; signupsMonth: number;
     totalSubscriptions: number; activeSubscriptions: number; trialSubscriptions: number;
@@ -237,7 +238,7 @@ export default function Admin() {
   }, []);
 
   // --- Fetch stats ---
-  const fetchStats = useCallback(async (search?: string) => {
+  const fetchStats = useCallback(async (search?: string, page?: number) => {
     if (!user) return;
     setLoading(true);
     setError('');
@@ -246,13 +247,14 @@ export default function Admin() {
       if (!token) throw new Error('No token');
       const url = new URL(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/admin-stats`);
       if (search) url.searchParams.set('search', search);
+      if (page) url.searchParams.set('page', String(page));
       const res = await fetch(url.toString(), {
         headers: { Authorization: `Bearer ${token}`, apikey: import.meta.env.VITE_SUPABASE_ANON_KEY },
       });
       if (res.status === 403) { setForbidden(true); return; }
       if (!res.ok) throw new Error((await res.json().catch(() => ({}))).error ?? 'Failed');
       const d = await res.json();
-      setStats({ ...d, alerts: d.alerts ?? [], funnel: d.funnel ?? { totalSignups: 0, trialStarts: 0, paidConversions: 0, signupToTrial: 0, trialToPaid: 0 }, activityFeed: d.activityFeed ?? [], enquiries: d.enquiries ?? [], emailLogs: d.emailLogs ?? [], webhookEvents: d.webhookEvents ?? [], recentUsers: d.recentUsers ?? [], pendingReviews: d.pendingReviews ?? [], emailList: d.emailList ?? [] });
+      setStats({ ...d, pagination: d.pagination ?? null, alerts: d.alerts ?? [], funnel: d.funnel ?? { totalSignups: 0, trialStarts: 0, paidConversions: 0, signupToTrial: 0, trialToPaid: 0 }, activityFeed: d.activityFeed ?? [], enquiries: d.enquiries ?? [], emailLogs: d.emailLogs ?? [], webhookEvents: d.webhookEvents ?? [], recentUsers: d.recentUsers ?? [], pendingReviews: d.pendingReviews ?? [], emailList: d.emailList ?? [] });
       setLastFetched(new Date());
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Failed to load');
@@ -731,7 +733,7 @@ export default function Admin() {
                   <Mail className="h-3.5 w-3.5" /> Bulk Email
                 </button>
               </div>
-              <p className="text-xs text-stone-500">{filtered.length} users</p>
+              <p className="text-xs text-stone-500">{filtered.length} users{stats.pagination ? ` (${stats.pagination.totalFilteredUsers} total${stats.pagination.searchQuery ? `, searching "${stats.pagination.searchQuery}"` : ''})` : ''}</p>
               <div className="overflow-x-auto rounded-xl border border-stone-200 bg-white">
                 <table className="w-full text-sm">
                   <thead>

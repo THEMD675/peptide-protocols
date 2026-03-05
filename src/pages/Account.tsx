@@ -301,6 +301,7 @@ export default function Account() {
       <Helmet>
         <title>حسابي | إدارة الاشتراك والإعدادات | pptides</title>
         <meta name="description" content="إدارة حسابك واشتراكك" />
+        <meta property="og:description" content="إدارة حسابك واشتراكك في pptides — الباقة، طريقة الدفع، والإعدادات." />
         <meta name="robots" content="noindex, nofollow" />
       </Helmet>
 

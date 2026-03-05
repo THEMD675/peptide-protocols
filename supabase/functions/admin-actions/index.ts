@@ -98,21 +98,25 @@ serve(async (req) => {
       if (!userId || !tier) return json({ error: 'Missing user_id or tier' }, 400, cors)
 
       const periodEnd = new Date(Date.now() + durationDays * 86400000).toISOString()
+      const grantSource = `admin_comp:${user.email}:${new Date().toISOString()}`
       const { data: existing } = await admin.from('subscriptions').select('id').eq('user_id', userId).maybeSingle()
 
       if (existing) {
         const { error } = await admin.from('subscriptions').update({
-          tier, status, current_period_end: periodEnd, updated_at: new Date().toISOString(),
+          tier, status, current_period_end: periodEnd,
+          grant_source: grantSource,
+          updated_at: new Date().toISOString(),
         }).eq('id', existing.id)
         if (error) return json({ error: error.message }, 500, cors)
       } else {
         const { error } = await admin.from('subscriptions').insert({
           user_id: userId, tier, status, current_period_end: periodEnd,
+          grant_source: grantSource,
           trial_ends_at: new Date(Date.now() + 3 * 86400000).toISOString(),
         })
         if (error) return json({ error: error.message }, 500, cors)
       }
-      return json({ ok: true, tier, status, current_period_end: periodEnd }, 200, cors)
+      return json({ ok: true, tier, status, current_period_end: periodEnd, grant_source: grantSource }, 200, cors)
     }
 
     // ================================================================

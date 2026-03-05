@@ -551,6 +551,16 @@ export default function Coach() {
         <meta property="og:type" content="website" />
         <meta property="og:locale" content="ar_SA" />
         <meta property="og:image" content={`${SITE_URL}/og-image.png`} />
+        <script type="application/ld+json">{JSON.stringify({
+          '@context': 'https://schema.org',
+          '@type': 'WebApplication',
+          name: 'استشاري الببتيدات بالذكاء الاصطناعي',
+          url: `${SITE_URL}/coach`,
+          description: 'مدرب ذكي بالذكاء الاصطناعي يصمّم لك بروتوكول ببتيدات مخصّص.',
+          applicationCategory: 'HealthApplication',
+          operatingSystem: 'Web',
+          inLanguage: 'ar',
+        })}</script>
       </Helmet>
       <div className="mx-auto max-w-3xl px-4 py-8 md:px-6 md:py-12">
         <div className="mb-6 flex items-center justify-between">

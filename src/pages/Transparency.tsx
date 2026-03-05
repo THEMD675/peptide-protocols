@@ -8,8 +8,18 @@ export default function Transparency() {
         <title>كيف نكسب المال | pptides</title>
         <meta name="description" content="pptides منصة تعليمية بحتة. لا نبيع ببتيدات. اشتراكك هو مصدر دخلنا الوحيد." />
         <meta property="og:title" content="كيف نكسب المال | pptides" />
+        <meta property="og:description" content="pptides منصة تعليمية بحتة. لا نبيع ببتيدات. اشتراكك هو مصدر دخلنا الوحيد." />
         <meta property="og:url" content={`${SITE_URL}/transparency`} />
         <meta property="og:locale" content="ar_SA" />
+        <meta property="og:image" content={`${SITE_URL}/og-image.png`} />
+        <script type="application/ld+json">{JSON.stringify({
+          '@context': 'https://schema.org',
+          '@type': 'AboutPage',
+          name: 'كيف نكسب المال',
+          url: `${SITE_URL}/transparency`,
+          description: 'pptides منصة تعليمية بحتة. لا نبيع ببتيدات. اشتراكك هو مصدر دخلنا الوحيد.',
+          inLanguage: 'ar',
+        })}</script>
       </Helmet>
       <div className="mx-auto max-w-3xl px-4 py-12 md:px-6 md:py-16">
         <h1 className="text-3xl font-bold md:text-4xl">كيف نكسب المال</h1>
