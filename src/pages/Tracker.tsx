@@ -445,7 +445,7 @@ export default function Tracker() {
     const daysSince = Math.floor(hoursSince / 24);
     const timeSinceLabel = daysSince > 0 ? `منذ ${daysSince} يوم` : hoursSince > 0 ? `منذ ${hoursSince} ساعة` : 'الآن';
     return { totalInjections, uniquePeptides, streak, last7, timeSinceLabel };
-  }, [logs, totalCount]);
+  }, [logs, totalCount, fullStatsData?.last7, fullStatsData?.uniquePeptides]);
 
   const weeklyActivity = useMemo(() => {
     if (logs.length === 0) return null;
@@ -999,7 +999,6 @@ export default function Tracker() {
               const doseMcg = unit === 'mg' ? doseNum * 1000 : doseNum;
               const isOverMax = doseMcg > preset.maxDose;
               const isUnderMin = doseMcg < preset.minDose;
-              const isOutOfRange = isOverMax || isUnderMin;
               if (isOverMax) {
                 return (
                   <div className="space-y-2">
