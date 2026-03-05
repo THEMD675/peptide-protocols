@@ -25,6 +25,20 @@ self.addEventListener('push', (event) => {
       badge: '/icon-192.png',
       dir: 'rtl',
       lang: 'ar',
+      data: { url: data.url ?? '/' },
+    })
+  );
+});
+
+self.addEventListener('notificationclick', (event) => {
+  event.notification.close();
+  const url = (event.notification.data as { url?: string })?.url ?? '/';
+  event.waitUntil(
+    (self as unknown as ServiceWorkerGlobalScope).clients.matchAll({ type: 'window' }).then(clients => {
+      for (const client of clients) {
+        if ('focus' in client) { client.focus(); return (client as WindowClient).navigate(url); }
+      }
+      return (self as unknown as ServiceWorkerGlobalScope).clients.openWindow(url);
     })
   );
 });

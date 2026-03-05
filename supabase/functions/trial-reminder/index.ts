@@ -279,6 +279,20 @@ serve(async (req) => {
 
         if (emailRes.ok) {
           sent++
+          // Send push notification alongside email for key reminders
+          if (['last_day', 'expired'].includes(reminderType)) {
+            const pushTitle = reminderType === 'last_day'
+              ? 'آخر يوم في تجربتك المجانية'
+              : 'انتهت تجربتك — اشترك الآن'
+            const pushMsg = reminderType === 'last_day'
+              ? `غدًا ستفقد الوصول — اشترك بـ ${ESSENTIALS_PRICE}/شهر`
+              : `اشترك الآن بـ ${ESSENTIALS_PRICE}/شهر واحتفظ بالوصول الكامل`
+            fetch(`${supabaseUrl}/functions/v1/send-push`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json', 'x-cron-secret': expectedSecret },
+              body: JSON.stringify({ user_ids: [sub.user_id], title: pushTitle, body: pushMsg, url: `${APP_URL}/pricing` }),
+            }).catch(e => console.error('trial-reminder: push failed for', sub.user_id, e))
+          }
         } else {
           const errBody = await emailRes.text().catch(() => '')
           console.error(`trial-reminder: failed to send to ${email}:`, emailRes.status, errBody)

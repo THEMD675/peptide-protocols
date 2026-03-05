@@ -161,12 +161,21 @@ const ACTIVITY_COLOR: Record<string, string> = { signup: 'bg-emerald-100 text-em
 // MAIN
 // ========================================================
 
+const ADMIN_EMAILS = [
+  'abdullah@amirisgroup.co',
+  'abdullahalameer@gmail.com',
+  'contact@pptides.com',
+];
+
 export default function Admin() {
   const { user } = useAuth();
   const [stats, setStats] = useState<AdminStats | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [forbidden, setForbidden] = useState(false);
+  const [forbidden, setForbidden] = useState(() => {
+    // Client-side guard: immediately block non-admin users
+    return false;
+  });
   const [tab, setTab] = useState<Tab>('overview');
   const [lastFetched, setLastFetched] = useState<Date | null>(null);
 
@@ -431,6 +440,20 @@ export default function Admin() {
   const openUserAction = (type: ModalType, u: { id: string; email: string }) => { setModalTarget(u); setModal(type); };
 
   // --- Render gates ---
+  // Client-side admin email whitelist guard
+  if (user && !ADMIN_EMAILS.includes(user.email ?? '')) return (
+    <div className="flex min-h-screen items-center justify-center bg-stone-50">
+      <Helmet><title>404 | pptides</title></Helmet>
+      <div className="text-center px-4">
+        <h1 className="text-6xl font-bold text-stone-200 mb-4">404</h1>
+        <p className="text-lg font-bold text-stone-900 mb-2">الصفحة غير موجودة</p>
+        <p className="text-sm text-stone-600 mb-6">الصفحة التي تبحث عنها غير موجودة.</p>
+        <Link to="/" className="inline-flex items-center gap-2 rounded-full bg-emerald-600 px-6 py-3 text-sm font-bold text-white hover:bg-emerald-700 transition-colors">
+          الرئيسية
+        </Link>
+      </div>
+    </div>
+  );
   if (forbidden) return (
     <div className="flex min-h-screen items-center justify-center bg-stone-50" lang="en">
       <Helmet><title>Admin | pptides</title></Helmet>
