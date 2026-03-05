@@ -15,14 +15,14 @@ export default memo(function Footer() {
             <p className="mt-2 text-sm text-stone-600 leading-relaxed">
               أشمل دليل عربي للببتيدات العلاجية. {PEPTIDE_COUNT}+ ببتيد مع بروتوكولات كاملة.
             </p>
-            <a href={`mailto:${SUPPORT_EMAIL}`} className="mt-3 inline-flex items-center gap-1.5 text-sm text-emerald-600 transition-colors hover:text-emerald-700">
+            <a href={`mailto:${SUPPORT_EMAIL}`} className="mt-3 inline-flex min-h-[44px] items-center gap-1.5 text-sm text-emerald-600 transition-colors hover:text-emerald-700">
               <Mail className="h-3.5 w-3.5 shrink-0" /> {SUPPORT_EMAIL}
             </a>
             <div className="mt-3 flex gap-3">
-              <a href="https://x.com/pptides" target="_blank" rel="noopener noreferrer" className="text-stone-500 hover:text-emerald-600 transition-colors" aria-label="X/Twitter">
+              <a href="https://x.com/pptides" target="_blank" rel="noopener noreferrer" className="flex h-11 w-11 items-center justify-center rounded-lg text-stone-500 transition-colors hover:bg-stone-100 hover:text-emerald-600" aria-label="X/Twitter">
                 <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
               </a>
-              <a href={`mailto:${SUPPORT_EMAIL}`} className="text-stone-500 hover:text-emerald-600 transition-colors" aria-label="البريد الإلكتروني">
+              <a href={`mailto:${SUPPORT_EMAIL}`} className="flex h-11 w-11 items-center justify-center rounded-lg text-stone-500 transition-colors hover:bg-stone-100 hover:text-emerald-600" aria-label="البريد الإلكتروني">
                 <Mail className="h-5 w-5" />
               </a>
             </div>
@@ -30,39 +30,39 @@ export default memo(function Footer() {
 
           <div>
             <h4 className="mb-3 text-sm font-bold text-stone-900">المنتج</h4>
-            <nav aria-label="المنتج" className="flex flex-col gap-2 text-sm">
-              <Link to="/library" className="text-stone-600 transition-colors hover:text-emerald-600 active:text-emerald-700">المكتبة</Link>
-              <Link to="/calculator" className="text-stone-600 transition-colors hover:text-emerald-600 active:text-emerald-700">حاسبة الجرعات</Link>
-              <Link to="/table" className="text-stone-600 transition-colors hover:text-emerald-600 active:text-emerald-700">جدول الببتيدات</Link>
-              <Link to="/coach" className="text-stone-600 transition-colors hover:text-emerald-600 active:text-emerald-700">المدرب الذكي</Link>
-              <Link to="/pricing" className="text-stone-600 transition-colors hover:text-emerald-600 active:text-emerald-700">الأسعار</Link>
+            <nav aria-label="المنتج" className="flex flex-col gap-0.5 text-sm">
+              <Link to="/library" className="py-1.5 text-stone-600 transition-colors hover:text-emerald-600 active:text-emerald-700">المكتبة</Link>
+              <Link to="/calculator" className="py-1.5 text-stone-600 transition-colors hover:text-emerald-600 active:text-emerald-700">حاسبة الجرعات</Link>
+              <Link to="/table" className="py-1.5 text-stone-600 transition-colors hover:text-emerald-600 active:text-emerald-700">جدول الببتيدات</Link>
+              <Link to="/coach" className="py-1.5 text-stone-600 transition-colors hover:text-emerald-600 active:text-emerald-700">المدرب الذكي</Link>
+              <Link to="/pricing" className="py-1.5 text-stone-600 transition-colors hover:text-emerald-600 active:text-emerald-700">الأسعار</Link>
             </nav>
           </div>
 
           <div>
             <h4 className="mb-3 text-sm font-bold text-stone-900">الموارد</h4>
-            <nav aria-label="الموارد" className="flex flex-col gap-2 text-sm">
-              <Link to="/stacks" className="text-stone-600 transition-colors hover:text-emerald-600 active:text-emerald-700">البروتوكولات المُجمَّعة</Link>
-              <Link to="/lab-guide" className="text-stone-600 transition-colors hover:text-emerald-600 active:text-emerald-700">دليل التحاليل</Link>
-              <Link to="/guide" className="text-stone-600 transition-colors hover:text-emerald-600 active:text-emerald-700">دليل الحقن</Link>
-              <Link to="/glossary" className="text-stone-600 transition-colors hover:text-emerald-600 active:text-emerald-700">المصطلحات</Link>
-              <Link to="/interactions" className="text-stone-600 transition-colors hover:text-emerald-600 active:text-emerald-700">فحص التعارضات</Link>
-              <Link to="/sources" className="text-stone-600 transition-colors hover:text-emerald-600 active:text-emerald-700">المصادر</Link>
-              <Link to="/community" className="text-stone-600 transition-colors hover:text-emerald-600 active:text-emerald-700">التجارب</Link>
-              <Link to="/reviews" className="text-stone-600 transition-colors hover:text-emerald-600 active:text-emerald-700">التقييمات</Link>
-              <Link to="/blog" className="text-stone-600 transition-colors hover:text-emerald-600 active:text-emerald-700">المدونة</Link>
+            <nav aria-label="الموارد" className="flex flex-col gap-0.5 text-sm">
+              <Link to="/stacks" className="py-1.5 text-stone-600 transition-colors hover:text-emerald-600 active:text-emerald-700">البروتوكولات المُجمَّعة</Link>
+              <Link to="/lab-guide" className="py-1.5 text-stone-600 transition-colors hover:text-emerald-600 active:text-emerald-700">دليل التحاليل</Link>
+              <Link to="/guide" className="py-1.5 text-stone-600 transition-colors hover:text-emerald-600 active:text-emerald-700">دليل الحقن</Link>
+              <Link to="/glossary" className="py-1.5 text-stone-600 transition-colors hover:text-emerald-600 active:text-emerald-700">المصطلحات</Link>
+              <Link to="/interactions" className="py-1.5 text-stone-600 transition-colors hover:text-emerald-600 active:text-emerald-700">فحص التعارضات</Link>
+              <Link to="/sources" className="py-1.5 text-stone-600 transition-colors hover:text-emerald-600 active:text-emerald-700">المصادر</Link>
+              <Link to="/community" className="py-1.5 text-stone-600 transition-colors hover:text-emerald-600 active:text-emerald-700">التجارب</Link>
+              <Link to="/reviews" className="py-1.5 text-stone-600 transition-colors hover:text-emerald-600 active:text-emerald-700">التقييمات</Link>
+              <Link to="/blog" className="py-1.5 text-stone-600 transition-colors hover:text-emerald-600 active:text-emerald-700">المدونة</Link>
             </nav>
           </div>
 
           <div>
             <h4 className="mb-3 text-sm font-bold text-stone-900">قانوني</h4>
-            <nav aria-label="قانوني" className="flex flex-col gap-2 text-sm">
-              <Link to="/about" className="text-stone-600 transition-colors hover:text-emerald-600 active:text-emerald-700">عن pptides</Link>
-              <Link to="/faq" className="text-stone-600 transition-colors hover:text-emerald-600 active:text-emerald-700">الأسئلة الشائعة</Link>
-              <Link to="/privacy" className="text-stone-600 transition-colors hover:text-emerald-600 active:text-emerald-700">سياسة الخصوصية</Link>
-              <Link to="/terms" className="text-stone-600 transition-colors hover:text-emerald-600 active:text-emerald-700">شروط الاستخدام</Link>
-              <Link to="/transparency" className="text-stone-600 transition-colors hover:text-emerald-600 active:text-emerald-700">كيف نكسب المال</Link>
-              <button onClick={() => { try { localStorage.removeItem('pptides_cookie_consent'); } catch { /* storage unavailable */ } window.location.reload(); }} className="text-start text-sm text-stone-600 hover:text-emerald-600 transition-colors">
+            <nav aria-label="قانوني" className="flex flex-col gap-0.5 text-sm">
+              <Link to="/about" className="py-1.5 text-stone-600 transition-colors hover:text-emerald-600 active:text-emerald-700">عن pptides</Link>
+              <Link to="/faq" className="py-1.5 text-stone-600 transition-colors hover:text-emerald-600 active:text-emerald-700">الأسئلة الشائعة</Link>
+              <Link to="/privacy" className="py-1.5 text-stone-600 transition-colors hover:text-emerald-600 active:text-emerald-700">سياسة الخصوصية</Link>
+              <Link to="/terms" className="py-1.5 text-stone-600 transition-colors hover:text-emerald-600 active:text-emerald-700">شروط الاستخدام</Link>
+              <Link to="/transparency" className="py-1.5 text-stone-600 transition-colors hover:text-emerald-600 active:text-emerald-700">كيف نكسب المال</Link>
+              <button onClick={() => { try { localStorage.removeItem('pptides_cookie_consent'); } catch { /* storage unavailable */ } window.location.reload(); }} className="py-1.5 text-start text-sm text-stone-600 hover:text-emerald-600 transition-colors">
                 إدارة ملفات تعريف الارتباط
               </button>
             </nav>
