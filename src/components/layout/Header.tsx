@@ -144,7 +144,7 @@ export default memo(function Header() {
         <div className="mx-auto flex h-full max-w-7xl items-center justify-between px-4 md:px-6">
           <Link
             to={logoHref}
-            className="shrink-0 text-xl font-bold tracking-tight text-stone-900 md:text-2xl"
+            className="flex min-h-[44px] shrink-0 items-center text-xl font-bold tracking-tight text-stone-900 md:text-2xl"
           >
             <span>pp</span>
             <span className="text-emerald-600">tides</span>

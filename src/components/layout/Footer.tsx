@@ -31,38 +31,38 @@ export default memo(function Footer() {
           <div>
             <h4 className="mb-3 text-sm font-bold text-stone-900">المنتج</h4>
             <nav aria-label="المنتج" className="flex flex-col gap-0.5 text-sm">
-              <Link to="/library" className="py-1.5 text-stone-600 transition-colors hover:text-emerald-600 active:text-emerald-700">المكتبة</Link>
-              <Link to="/calculator" className="py-1.5 text-stone-600 transition-colors hover:text-emerald-600 active:text-emerald-700">حاسبة الجرعات</Link>
-              <Link to="/table" className="py-1.5 text-stone-600 transition-colors hover:text-emerald-600 active:text-emerald-700">جدول الببتيدات</Link>
-              <Link to="/coach" className="py-1.5 text-stone-600 transition-colors hover:text-emerald-600 active:text-emerald-700">المدرب الذكي</Link>
-              <Link to="/pricing" className="py-1.5 text-stone-600 transition-colors hover:text-emerald-600 active:text-emerald-700">الأسعار</Link>
+              <Link to="/library" className="min-h-[44px] flex items-center text-stone-600 transition-colors hover:text-emerald-600 active:text-emerald-700">المكتبة</Link>
+              <Link to="/calculator" className="min-h-[44px] flex items-center text-stone-600 transition-colors hover:text-emerald-600 active:text-emerald-700">حاسبة الجرعات</Link>
+              <Link to="/table" className="min-h-[44px] flex items-center text-stone-600 transition-colors hover:text-emerald-600 active:text-emerald-700">جدول الببتيدات</Link>
+              <Link to="/coach" className="min-h-[44px] flex items-center text-stone-600 transition-colors hover:text-emerald-600 active:text-emerald-700">المدرب الذكي</Link>
+              <Link to="/pricing" className="min-h-[44px] flex items-center text-stone-600 transition-colors hover:text-emerald-600 active:text-emerald-700">الأسعار</Link>
             </nav>
           </div>
 
           <div>
             <h4 className="mb-3 text-sm font-bold text-stone-900">الموارد</h4>
             <nav aria-label="الموارد" className="flex flex-col gap-0.5 text-sm">
-              <Link to="/stacks" className="py-1.5 text-stone-600 transition-colors hover:text-emerald-600 active:text-emerald-700">البروتوكولات المُجمَّعة</Link>
-              <Link to="/lab-guide" className="py-1.5 text-stone-600 transition-colors hover:text-emerald-600 active:text-emerald-700">دليل التحاليل</Link>
-              <Link to="/guide" className="py-1.5 text-stone-600 transition-colors hover:text-emerald-600 active:text-emerald-700">دليل الحقن</Link>
-              <Link to="/glossary" className="py-1.5 text-stone-600 transition-colors hover:text-emerald-600 active:text-emerald-700">المصطلحات</Link>
-              <Link to="/interactions" className="py-1.5 text-stone-600 transition-colors hover:text-emerald-600 active:text-emerald-700">فحص التعارضات</Link>
-              <Link to="/sources" className="py-1.5 text-stone-600 transition-colors hover:text-emerald-600 active:text-emerald-700">المصادر</Link>
-              <Link to="/community" className="py-1.5 text-stone-600 transition-colors hover:text-emerald-600 active:text-emerald-700">التجارب</Link>
-              <Link to="/reviews" className="py-1.5 text-stone-600 transition-colors hover:text-emerald-600 active:text-emerald-700">التقييمات</Link>
-              <Link to="/blog" className="py-1.5 text-stone-600 transition-colors hover:text-emerald-600 active:text-emerald-700">المدونة</Link>
+              <Link to="/stacks" className="min-h-[44px] flex items-center text-stone-600 transition-colors hover:text-emerald-600 active:text-emerald-700">البروتوكولات المُجمَّعة</Link>
+              <Link to="/lab-guide" className="min-h-[44px] flex items-center text-stone-600 transition-colors hover:text-emerald-600 active:text-emerald-700">دليل التحاليل</Link>
+              <Link to="/guide" className="min-h-[44px] flex items-center text-stone-600 transition-colors hover:text-emerald-600 active:text-emerald-700">دليل الحقن</Link>
+              <Link to="/glossary" className="min-h-[44px] flex items-center text-stone-600 transition-colors hover:text-emerald-600 active:text-emerald-700">المصطلحات</Link>
+              <Link to="/interactions" className="min-h-[44px] flex items-center text-stone-600 transition-colors hover:text-emerald-600 active:text-emerald-700">فحص التعارضات</Link>
+              <Link to="/sources" className="min-h-[44px] flex items-center text-stone-600 transition-colors hover:text-emerald-600 active:text-emerald-700">المصادر</Link>
+              <Link to="/community" className="min-h-[44px] flex items-center text-stone-600 transition-colors hover:text-emerald-600 active:text-emerald-700">التجارب</Link>
+              <Link to="/reviews" className="min-h-[44px] flex items-center text-stone-600 transition-colors hover:text-emerald-600 active:text-emerald-700">التقييمات</Link>
+              <Link to="/blog" className="min-h-[44px] flex items-center text-stone-600 transition-colors hover:text-emerald-600 active:text-emerald-700">المدونة</Link>
             </nav>
           </div>
 
           <div>
             <h4 className="mb-3 text-sm font-bold text-stone-900">قانوني</h4>
             <nav aria-label="قانوني" className="flex flex-col gap-0.5 text-sm">
-              <Link to="/about" className="py-1.5 text-stone-600 transition-colors hover:text-emerald-600 active:text-emerald-700">عن pptides</Link>
-              <Link to="/faq" className="py-1.5 text-stone-600 transition-colors hover:text-emerald-600 active:text-emerald-700">الأسئلة الشائعة</Link>
-              <Link to="/privacy" className="py-1.5 text-stone-600 transition-colors hover:text-emerald-600 active:text-emerald-700">سياسة الخصوصية</Link>
-              <Link to="/terms" className="py-1.5 text-stone-600 transition-colors hover:text-emerald-600 active:text-emerald-700">شروط الاستخدام</Link>
-              <Link to="/transparency" className="py-1.5 text-stone-600 transition-colors hover:text-emerald-600 active:text-emerald-700">كيف نكسب المال</Link>
-              <button onClick={() => { try { localStorage.removeItem('pptides_cookie_consent'); } catch { /* storage unavailable */ } window.location.reload(); }} className="py-1.5 text-start text-sm text-stone-600 hover:text-emerald-600 transition-colors">
+              <Link to="/about" className="min-h-[44px] flex items-center text-stone-600 transition-colors hover:text-emerald-600 active:text-emerald-700">عن pptides</Link>
+              <Link to="/faq" className="min-h-[44px] flex items-center text-stone-600 transition-colors hover:text-emerald-600 active:text-emerald-700">الأسئلة الشائعة</Link>
+              <Link to="/privacy" className="min-h-[44px] flex items-center text-stone-600 transition-colors hover:text-emerald-600 active:text-emerald-700">سياسة الخصوصية</Link>
+              <Link to="/terms" className="min-h-[44px] flex items-center text-stone-600 transition-colors hover:text-emerald-600 active:text-emerald-700">شروط الاستخدام</Link>
+              <Link to="/transparency" className="min-h-[44px] flex items-center text-stone-600 transition-colors hover:text-emerald-600 active:text-emerald-700">كيف نكسب المال</Link>
+              <button onClick={() => { try { localStorage.removeItem('pptides_cookie_consent'); } catch { /* storage unavailable */ } window.location.reload(); }} className="min-h-[44px] flex items-center text-start text-sm text-stone-600 hover:text-emerald-600 transition-colors">
                 إدارة ملفات تعريف الارتباط
               </button>
             </nav>
