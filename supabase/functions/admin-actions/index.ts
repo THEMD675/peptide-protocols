@@ -53,8 +53,8 @@ serve(async (req) => {
     // ================================================================
     if (action === 'extend_trial') {
       const userId = body.user_id as string
-      const days = Number(body.days) || 3
-      if (!userId) return json({ error: 'Missing user_id' }, 400, cors)
+      const days = body.days != null ? Number(body.days) : 3
+      if (!userId || !Number.isFinite(days) || days < 0) return json({ error: 'Missing user_id or invalid days' }, 400, cors)
 
       const { data: sub, error: fetchErr } = await admin
         .from('subscriptions').select('id, trial_ends_at, status, stripe_subscription_id').eq('user_id', userId).maybeSingle()
@@ -94,8 +94,8 @@ serve(async (req) => {
       const userId = body.user_id as string
       const tier = body.tier as string
       const status = (body.status as string) || 'active'
-      const durationDays = Number(body.duration_days) || 30
-      if (!userId || !tier) return json({ error: 'Missing user_id or tier' }, 400, cors)
+      const durationDays = body.duration_days != null ? Number(body.duration_days) : 30
+      if (!userId || !tier || !Number.isFinite(durationDays) || durationDays < 1) return json({ error: 'Missing user_id, tier, or invalid duration' }, 400, cors)
 
       const periodEnd = new Date(Date.now() + durationDays * 86400000).toISOString()
       const grantSource = `admin_comp:${user.email}:${new Date().toISOString()}`
