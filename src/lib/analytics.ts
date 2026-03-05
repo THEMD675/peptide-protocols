@@ -4,11 +4,20 @@ declare global {
   }
 }
 
+function addSentryBreadcrumb(category: string, message: string, data?: Record<string, unknown>) {
+  try {
+    import('@sentry/react').then(Sentry => {
+      Sentry.addBreadcrumb({ category, message, data, level: 'info' });
+    }).catch(() => {});
+  } catch { /* noop */ }
+}
+
 export function trackEvent(event: string, params?: Record<string, unknown>) {
   try {
     if (typeof window !== 'undefined' && typeof window.gtag === 'function') {
       window.gtag('event', event, params);
     }
+    addSentryBreadcrumb('user_action', event, params);
   } catch { /* analytics should never crash the app */ }
 }
 

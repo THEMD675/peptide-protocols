@@ -3,6 +3,7 @@ import Stripe from 'https://esm.sh/stripe@14.14.0?target=deno'
 import { handleCorsPreflightIfOptions, getCorsHeaders, jsonResponse as json } from '../_shared/cors.ts'
 import { requireAdmin } from '../_shared/admin-auth.ts'
 import { getServiceClient, supabaseUrl, supabaseServiceKey } from '../_shared/supabase.ts'
+import { checkRateLimit } from '../_shared/rate-limit.ts'
 
 const stripeKey = Deno.env.get('STRIPE_SECRET_KEY') ?? ''
 const resendKey = Deno.env.get('RESEND_API_KEY') ?? ''
@@ -20,6 +21,15 @@ serve(async (req) => {
   if (authResp) return authResp
 
   const admin = getServiceClient()
+
+  // Rate limit: 60 actions per minute per admin
+  const rlAllowed = await checkRateLimit(admin, {
+    endpoint: 'admin-actions',
+    identifier: user.id,
+    windowSeconds: 60,
+    maxRequests: 60,
+  })
+  if (!rlAllowed) return json({ error: 'Too many actions — slow down' }, 429, cors)
 
   let body: Record<string, unknown>
   try { body = await req.json() } catch { return json({ error: 'Invalid JSON' }, 400, cors) }

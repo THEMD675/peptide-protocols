@@ -2,6 +2,7 @@ import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
 import { handleCorsPreflightIfOptions, getCorsHeaders, jsonResponse } from '../_shared/cors.ts'
 import { requireAdmin } from '../_shared/admin-auth.ts'
 import { getServiceClient, supabaseServiceKey } from '../_shared/supabase.ts'
+import { checkRateLimit } from '../_shared/rate-limit.ts'
 
 const RESEND_API_KEY = Deno.env.get('RESEND_API_KEY')
 
@@ -16,8 +17,22 @@ serve(async (req) => {
   }
 
   try {
-    const { error: authResp } = await requireAdmin(req)
+    const { user: admin, error: authResp } = await requireAdmin(req)
     if (authResp) return authResp
+
+    // Rate limit: 30 replies per 10 minutes per admin
+    if (admin && supabaseServiceKey) {
+      const supabase = getServiceClient()
+      const allowed = await checkRateLimit(supabase, {
+        endpoint: 'send-enquiry-reply',
+        identifier: admin.id,
+        windowSeconds: 600,
+        maxRequests: 30,
+      })
+      if (!allowed) {
+        return jsonResponse({ error: 'Too many replies — wait a few minutes' }, 429, corsHeaders)
+      }
+    }
 
     if (!RESEND_API_KEY) {
       return jsonResponse({ error: 'Email service not configured' }, 500, corsHeaders)

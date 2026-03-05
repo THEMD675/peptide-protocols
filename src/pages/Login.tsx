@@ -44,6 +44,9 @@ export default function Login() {
   });
   const [isRecovery, setIsRecovery] = useState(false);
   const [newPassword, setNewPassword] = useState('');
+  const [pendingVerification, setPendingVerification] = useState(false);
+  const [resendLoading, setResendLoading] = useState(false);
+  const [resendCooldown, setResendCooldown] = useState(0);
 
   const { login, signup, user } = useAuth();
   const navigate = useNavigate();
@@ -149,8 +152,9 @@ export default function Login() {
     } catch (err: unknown) {
       const raw = err instanceof Error ? err.message : '';
       const msg = friendlyError(raw);
-      if (raw.includes('رابط التأكيد') || raw.includes('تحقق من بريدك')) {
-        setInfoMessage(raw);
+      if (raw.includes('رابط التأكيد') || raw.includes('تحقق من بريدك') || raw.includes('Email not confirmed') || raw.includes('تأكيد بريدك')) {
+        setPendingVerification(true);
+        return;
       } else if (raw.includes('already') || raw.includes('registered') || raw.includes('مسجّل')) {
         toast.error(msg);
         setError(msg);
@@ -217,6 +221,75 @@ export default function Login() {
       setLoading(false);
     }
   };
+
+  const handleResendVerification = async () => {
+    if (!email.trim() || resendCooldown > 0 || resendLoading) return;
+    setResendLoading(true);
+    try {
+      const { error } = await supabase.auth.resend({ type: 'signup', email });
+      if (error) throw error;
+      toast.success('تم إعادة إرسال رابط التأكيد — تحقق من بريدك');
+      setResendCooldown(60);
+      const interval = setInterval(() => {
+        setResendCooldown(prev => {
+          if (prev <= 1) { clearInterval(interval); return 0; }
+          return prev - 1;
+        });
+      }, 1000);
+    } catch {
+      toast.error('تعذّر إعادة الإرسال — حاول مرة أخرى');
+    } finally {
+      setResendLoading(false);
+    }
+  };
+
+  if (pendingVerification) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-white px-4">
+        <Helmet><title>تأكيد البريد الإلكتروني | pptides</title></Helmet>
+        <div className="w-full max-w-md">
+          <div className="overflow-hidden rounded-2xl border border-stone-200 bg-white shadow-lg">
+            <div className="bg-emerald-600 px-6 pb-6 pt-8 text-center">
+              <div className="mx-auto mb-3 flex h-16 w-16 items-center justify-center rounded-full bg-white/20">
+                <svg className="h-8 w-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                </svg>
+              </div>
+              <h1 className="mb-1 text-2xl font-bold text-white">تحقق من بريدك الإلكتروني</h1>
+              <p className="text-sm text-white/80">أرسلنا رابط التأكيد إلى</p>
+              <p className="mt-1 text-sm font-bold text-white" dir="ltr">{email}</p>
+            </div>
+            <div className="px-6 pb-8 pt-6 text-center">
+              <p className="mb-2 text-sm text-stone-600">اضغط على الرابط في البريد لتفعيل حسابك وبدء التجربة المجانية.</p>
+              <p className="mb-6 text-xs text-stone-500">لم يصلك البريد؟ تحقق من مجلد البريد المزعج (Spam).</p>
+              <button
+                onClick={handleResendVerification}
+                disabled={resendLoading || resendCooldown > 0}
+                className="mb-4 w-full rounded-full border-2 border-emerald-600 py-3 text-sm font-bold text-emerald-600 transition-colors hover:bg-emerald-50 disabled:opacity-50"
+              >
+                {resendLoading ? (
+                  <span className="inline-flex items-center gap-2">
+                    <span className="h-4 w-4 animate-spin rounded-full border-2 border-emerald-300 border-t-emerald-600" />
+                    جارٍ الإرسال...
+                  </span>
+                ) : resendCooldown > 0 ? (
+                  `إعادة الإرسال بعد ${resendCooldown} ثانية`
+                ) : (
+                  'إعادة إرسال رابط التأكيد'
+                )}
+              </button>
+              <button
+                onClick={() => { setPendingVerification(false); setTab('login'); }}
+                className="text-sm font-medium text-stone-500 hover:text-stone-700 transition-colors"
+              >
+                العودة لتسجيل الدخول
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   if (isRecovery) {
     return (
