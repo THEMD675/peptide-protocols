@@ -36,7 +36,7 @@ import ShareableCard from '@/components/ShareableCard';
 import WellnessCheckin from '@/components/WellnessCheckin';
 import LabResultsTracker from '@/components/LabResultsTracker';
 import PushNotificationPrompt from '@/components/PushNotificationPrompt';
-import { AlertTriangle, HeartPulse, ClipboardList, Target, Trophy, Lock } from 'lucide-react';
+import { AlertTriangle, HeartPulse } from 'lucide-react';
 import { peptides as allPeptides } from '@/data/peptides';
 import { labTests } from '@/data/peptides';
 
