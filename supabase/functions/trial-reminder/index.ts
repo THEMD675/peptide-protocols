@@ -474,6 +474,23 @@ serve(async (req) => {
       }
     }
 
+    // Auto-expire granted (non-Stripe) subscriptions past their period end
+    const { data: grantedExpired } = await supabase
+      .from('subscriptions')
+      .select('id, user_id, grant_source')
+      .in('status', ['active', 'trial'])
+      .not('grant_source', 'is', null)
+      .is('stripe_subscription_id', null)
+      .lt('current_period_end', new Date().toISOString())
+    if (grantedExpired && grantedExpired.length > 0) {
+      for (const gs of grantedExpired) {
+        await supabase.from('subscriptions').update({
+          status: 'expired', updated_at: new Date().toISOString(),
+        }).eq('id', gs.id)
+        console.log(`auto-expired granted subscription for user ${gs.user_id} (grant: ${gs.grant_source})`)
+      }
+    }
+
     // Cleanup: delete rate limit entries older than 1 hour
     await supabase.from('rate_limits').delete().lt('created_at', new Date(Date.now() - 3600000).toISOString()).catch(() => {})
 

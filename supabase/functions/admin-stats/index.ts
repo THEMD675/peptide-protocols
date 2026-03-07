@@ -259,6 +259,13 @@ serve(async (req) => {
         trialEssentials: trialEssentials.length,
         trialElite: trialElite.length,
         mrr,
+        arr: Math.round(mrr * 12),
+        arpu: activeSubs.length > 0 ? Math.round((mrr / activeSubs.length) * 100) / 100 : 0,
+        churnRate: (() => {
+          const cancelledThisMonth = subs.filter(s => s.status === 'cancelled' && s.updated_at && new Date(s.updated_at) > monthAgo).length
+          const totalActive30dAgo = activeSubs.length + cancelledThisMonth
+          return totalActive30dAgo > 0 ? Math.round((cancelledThisMonth / totalActive30dAgo) * 100) : 0
+        })(),
         totalInjectionLogs: logsResult.count ?? logs.length,
         totalCoachRequests: coachResult.count ?? coachRequests.length,
         totalCommunityPosts: communityResult.count ?? community.length,
