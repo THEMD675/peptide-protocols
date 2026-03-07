@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import { Eye, EyeOff } from 'lucide-react';
@@ -7,6 +7,8 @@ import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
 import { cn } from '@/lib/utils';
 import { events } from '@/lib/analytics';
+
+const TURNSTILE_SITE_KEY = import.meta.env.VITE_TURNSTILE_SITE_KEY ?? '';
 
 type Tab = 'login' | 'signup';
 
@@ -53,8 +55,41 @@ export default function Login() {
   const [pendingVerification, setPendingVerification] = useState(false);
   const [resendLoading, setResendLoading] = useState(false);
   const [resendCooldown, setResendCooldown] = useState(0);
+  const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
+  const turnstileRef = useRef<HTMLDivElement>(null);
+  const turnstileWidgetId = useRef<string | null>(null);
 
   const { login, signup, user } = useAuth();
+
+  const resetTurnstile = useCallback(() => {
+    if (turnstileWidgetId.current && window.turnstile) {
+      window.turnstile.reset(turnstileWidgetId.current);
+      setTurnstileToken(null);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!TURNSTILE_SITE_KEY || !turnstileRef.current) return;
+    const renderWidget = () => {
+      if (!turnstileRef.current || turnstileWidgetId.current) return;
+      turnstileWidgetId.current = window.turnstile?.render(turnstileRef.current, {
+        sitekey: TURNSTILE_SITE_KEY,
+        callback: (token: string) => setTurnstileToken(token),
+        'error-callback': () => setTurnstileToken(null),
+        'expired-callback': () => setTurnstileToken(null),
+        theme: 'light',
+        size: 'flexible',
+        language: 'ar',
+      }) ?? null;
+    };
+    if (window.turnstile) { renderWidget(); return; }
+    const script = document.createElement('script');
+    script.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit';
+    script.async = true;
+    script.onload = renderWidget;
+    document.head.appendChild(script);
+    return () => { turnstileWidgetId.current = null; };
+  }, []);
   const navigate = useNavigate();
   const recoveryTimerRef = useRef<ReturnType<typeof setTimeout>>();
   useEffect(() => () => { clearTimeout(recoveryTimerRef.current); }, []);
@@ -116,6 +151,11 @@ export default function Login() {
       return;
     }
 
+    if (TURNSTILE_SITE_KEY && !turnstileToken) {
+      setError('يرجى إكمال التحقق الأمني');
+      return;
+    }
+
     if (tab === 'signup') {
       if (password.length < 8) {
         setError('كلمة المرور يجب أن تكون 8 أحرف على الأقل');
@@ -171,6 +211,7 @@ export default function Login() {
           toast.error('محاولات كثيرة — انتظر 30 ثانية');
         }
       }
+      resetTurnstile();
     } finally {
       setLoading(false);
     }
@@ -486,9 +527,13 @@ export default function Login() {
                 )}
               </div>
 
+              {TURNSTILE_SITE_KEY && (
+                <div ref={turnstileRef} className="flex justify-center" />
+              )}
+
               <button
                 type="submit"
-                disabled={loading || (tab === 'signup' && !(password.length >= 8 && /[a-zA-Z]/.test(password) && /\d/.test(password)))}
+                disabled={loading || (TURNSTILE_SITE_KEY && !turnstileToken) || (tab === 'signup' && !(password.length >= 8 && /[a-zA-Z]/.test(password) && /\d/.test(password)))}
                 className="w-full rounded-full bg-emerald-600 py-3.5 text-base font-bold text-white shadow transition-transform hover:bg-emerald-700 hover:scale-[1.02] active:scale-[0.98] disabled:pointer-events-none disabled:opacity-60"
               >
                 {loading ? (
