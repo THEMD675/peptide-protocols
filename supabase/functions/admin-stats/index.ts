@@ -95,11 +95,27 @@ serve(async (req) => {
     const essentialsSubs = activeSubs.filter(s => s.tier === 'essentials')
     const eliteSubs = activeSubs.filter(s => s.tier === 'elite')
 
-    // MRR only from real Stripe subscriptions. SOURCE OF TRUTH: 34 SAR (Essentials), 371 SAR (Elite); override via MRR_ESSENTIALS_SAR, MRR_ELITE_SAR env
-    // Note: counts all active subs at monthly rate. Annual subs (296/2963 SAR/year) are overcounted. Fix requires Stripe metadata.
-    const mrrEssentialsSar = parseFloat(Deno.env.get('MRR_ESSENTIALS_SAR') ?? '34')
-    const mrrEliteSar = parseFloat(Deno.env.get('MRR_ELITE_SAR') ?? '371')
-    const mrr = essentialsSubs.length * mrrEssentialsSar + eliteSubs.length * mrrEliteSar
+    // MRR from real Stripe subscriptions, adjusted for billing interval
+    const mrrEssentialsMonthly = parseFloat(Deno.env.get('MRR_ESSENTIALS_SAR') ?? '34')
+    const mrrEliteMonthly = parseFloat(Deno.env.get('MRR_ELITE_SAR') ?? '371')
+    const mrrEssentialsAnnual = parseFloat(Deno.env.get('MRR_ESSENTIALS_ANNUAL_SAR') ?? '296')
+    const mrrEliteAnnual = parseFloat(Deno.env.get('MRR_ELITE_ANNUAL_SAR') ?? '2963')
+    const essentialsMonthly = essentialsSubs.filter(s => {
+      if (!s.current_period_end) return true
+      const periodMs = new Date(s.current_period_end).getTime() - (s.created_at ? new Date(s.created_at).getTime() : 0)
+      return periodMs < 60 * 86400000
+    })
+    const essentialsAnnual = essentialsSubs.filter(s => !essentialsMonthly.includes(s))
+    const eliteMonthly = eliteSubs.filter(s => {
+      if (!s.current_period_end) return true
+      const periodMs = new Date(s.current_period_end).getTime() - (s.created_at ? new Date(s.created_at).getTime() : 0)
+      return periodMs < 60 * 86400000
+    })
+    const eliteAnnual = eliteSubs.filter(s => !eliteMonthly.includes(s))
+    const mrr = (essentialsMonthly.length * mrrEssentialsMonthly)
+      + (essentialsAnnual.length * (mrrEssentialsAnnual / 12))
+      + (eliteMonthly.length * mrrEliteMonthly)
+      + (eliteAnnual.length * (mrrEliteAnnual / 12))
     const trialEssentials = trialSubs.filter(s => s.tier === 'essentials')
     const trialElite = trialSubs.filter(s => s.tier === 'elite')
 

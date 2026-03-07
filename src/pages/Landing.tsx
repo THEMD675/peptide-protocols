@@ -830,6 +830,15 @@ export default function Landing() {
           <p className="mt-2 text-xs font-bold text-red-600">السعر الحالي لن يستمر — ابدأ الآن قبل الزيادة</p>
         </div>
       </section>
+
+      {/* Floating WhatsApp / Help Button */}
+      <a
+        href={`mailto:${SUPPORT_EMAIL}`}
+        className="fixed bottom-24 end-4 z-40 flex h-14 w-14 items-center justify-center rounded-full bg-emerald-600 text-white shadow-lg shadow-emerald-600/30 transition-all hover:bg-emerald-700 hover:scale-110 md:bottom-6 md:end-6"
+        aria-label="تواصل معنا"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/></svg>
+      </a>
     </div>
   );
 }

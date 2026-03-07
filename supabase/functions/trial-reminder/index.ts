@@ -21,6 +21,7 @@ function constantTimeCompare(a: string, b: string): boolean {
 }
 
 import { getCorsHeaders } from '../_shared/cors.ts'
+import { emailWrapper, emailButton } from '../_shared/email-template.ts'
 
 serve(async (req) => {
   const corsHeaders = getCorsHeaders(req)
@@ -265,15 +266,7 @@ serve(async (req) => {
             headers: {
               'List-Unsubscribe': '<mailto:contact@pptides.com?subject=unsubscribe>',
             },
-            html: `
-              <div dir="rtl" style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Tahoma, Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 40px 20px; line-height: 1.8;">
-                ${body}
-                <hr style="border: none; border-top: 1px solid #e7e5e4; margin: 30px 0;" />
-                <p style="color: #a8a29e; font-size: 12px;">
-                  pptides.com — محتوى تعليمي بحثي. استشر طبيبك قبل استخدام أي ببتيد.
-                </p>
-              </div>
-            `,
+            html: emailWrapper(body),
           }),
         })
 
@@ -368,23 +361,17 @@ serve(async (req) => {
               headers: {
                 'List-Unsubscribe': '<mailto:contact@pptides.com?subject=unsubscribe>',
               },
-              html: `
-                <div dir="rtl" style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Tahoma, Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 40px 20px; line-height: 1.8;">
+              html: emailWrapper(`
                   <h1 style="color: #1c1917; font-size: 24px;">ملخصك الأسبوعي</h1>
                   <div style="background: #ecfdf5; border-radius: 12px; padding: 20px; margin: 20px 0; text-align: center;">
                     <p style="font-size: 18px; color: #059669; font-weight: bold;">لقد سجّلت ${weeklyCount} حقنة هذا الأسبوع</p>
-                    ${streakDays > 1 ? `<p style="font-size: 16px; color: #44403c; margin-top: 8px;">سلسلتك: ${streakDays} أيام 🔥</p>` : ''}
+                    ${streakDays > 1 ? `<p style="font-size: 16px; color: #44403c; margin-top: 8px;">سلسلتك: ${streakDays} أيام</p>` : ''}
                   </div>
                   <p>استمر في التتبّع — الانتظام هو المفتاح.</p>
-                  <a href="${APP_URL}/tracker" style="display: inline-block; background: #059669; color: white; padding: 14px 32px; border-radius: 9999px; text-decoration: none; font-weight: bold; margin-top: 16px;">
-                    سجّل حقنتك التالية
-                  </a>
-                  <hr style="border: none; border-top: 1px solid #e7e5e4; margin: 30px 0;" />
-                  <p style="color: #a8a29e; font-size: 12px;">
-                    pptides.com — محتوى تعليمي بحثي. استشر طبيبك قبل استخدام أي ببتيد.
-                  </p>
-                </div>
-              `,
+                  <div style="text-align: center; margin-top: 16px;">
+                    ${emailButton('سجّل حقنتك التالية', `${APP_URL}/tracker`)}
+                  </div>
+              `),
             }),
           })
         } catch (e) {
@@ -448,18 +435,13 @@ serve(async (req) => {
               headers: {
                 'List-Unsubscribe': '<mailto:contact@pptides.com?subject=unsubscribe>',
               },
-              html: `
-                <div dir="rtl" style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Tahoma, Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 40px 20px; line-height: 1.8;">
-                  <h1 style="color: #1c1917; font-size: 24px;">مرحبًا — لاحظنا أنك لم تسجّل حقنة منذ 3 أيام. هل كل شيء على ما يرام مع بروتوكولك؟</h1>
-                  <a href="${APP_URL}/coach" style="display: inline-block; background: #059669; color: white; padding: 14px 32px; border-radius: 9999px; text-decoration: none; font-weight: bold; margin-top: 16px;">
-                    تحدث مع المدرب الذكي
-                  </a>
-                  <hr style="border: none; border-top: 1px solid #e7e5e4; margin: 30px 0;" />
-                  <p style="color: #a8a29e; font-size: 12px;">
-                    pptides.com — محتوى تعليمي بحثي. استشر طبيبك قبل استخدام أي ببتيد.
-                  </p>
-                </div>
-              `,
+              html: emailWrapper(`
+                  <h1 style="color: #1c1917; font-size: 24px;">مرحبًا — لاحظنا أنك لم تسجّل حقنة منذ 3 أيام</h1>
+                  <p style="color: #44403c; font-size: 16px;">هل كل شيء على ما يرام مع بروتوكولك؟</p>
+                  <div style="text-align: center; margin-top: 16px;">
+                    ${emailButton('تحدث مع المدرب الذكي', `${APP_URL}/coach`)}
+                  </div>
+              `),
             }),
           })
           if (emailRes.ok) {
@@ -541,15 +523,11 @@ serve(async (req) => {
             from: 'pptides <noreply@pptides.com>',
             to: adminTo,
             subject: 'pptides تنبيه إداري',
-            html: `
-              <div dir="rtl" style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Tahoma, Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 40px 20px; line-height: 1.8;">
+            html: emailWrapper(`
                 <h1 style="color: #1c1917; font-size: 24px;">تنبيه إداري</h1>
                 <p>البنود التالية تتطلب اهتمامك:</p>
                 <pre style="background: #f5f5f4; padding: 16px; border-radius: 8px; white-space: pre-wrap;">${alertBody}</pre>
-                <hr style="border: none; border-top: 1px solid #e7e5e4; margin: 30px 0;" />
-                <p style="color: #a8a29e; font-size: 12px;">pptides — تنبيه تلقائي</p>
-              </div>
-            `,
+            `),
           }),
         })
         if (emailRes.ok) {

@@ -747,8 +747,25 @@ export default function Dashboard() {
                     </div>
                   )}
                   {daysLeft === 0 && (
-                    <div className="mt-3 rounded-lg bg-emerald-50 border border-emerald-200 px-3 py-2 text-xs font-bold text-emerald-700">
-                      أكملت الدورة! {peptide?.restPeriodWeeks ? `فترة راحة موصى بها: ${peptide.restPeriodWeeks} أسابيع` : ''}
+                    <div className="mt-3 rounded-lg bg-emerald-50 border border-emerald-200 px-3 py-2">
+                      <p className="text-xs font-bold text-emerald-700">
+                        أكملت الدورة! {peptide?.restPeriodWeeks ? `فترة راحة موصى بها: ${peptide.restPeriodWeeks} أسابيع` : ''}
+                      </p>
+                      <button
+                        onClick={async () => {
+                          const text = `أكملت بروتوكول ${peptide?.nameAr ?? proto.peptide_id} (${proto.cycle_weeks} أسابيع) على pptides.com\n\npptides — أشمل دليل عربي للببتيدات العلاجية`;
+                          if (navigator.share) {
+                            await navigator.share({ title: 'شهادة إتمام بروتوكول', text }).catch(() => {});
+                          } else {
+                            await navigator.clipboard.writeText(text).catch(() => {});
+                            toast.success('تم نسخ الشهادة');
+                          }
+                        }}
+                        className="mt-2 flex items-center gap-1.5 rounded-full bg-emerald-600 px-3 py-1.5 text-[11px] font-bold text-white hover:bg-emerald-700 transition-colors"
+                      >
+                        <Trophy className="h-3.5 w-3.5" />
+                        شارك شهادة الإتمام
+                      </button>
                     </div>
                   )}
                   {showLabReminder && (

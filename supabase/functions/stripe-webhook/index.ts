@@ -1,6 +1,7 @@
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 import Stripe from 'https://esm.sh/stripe@14.14.0?target=deno'
+import { emailWrapper, emailButton } from '../_shared/email-template.ts'
 
 const TRIAL_DAYS = 3 // Keep in sync with src/config/trial.ts
 const stripeKey = Deno.env.get('STRIPE_SECRET_KEY') ?? ''
@@ -163,7 +164,7 @@ serve(async (req) => {
                 to: session.customer_email,
                 subject: 'تم تفعيل اشتراكك في pptides',
                 headers: { 'List-Unsubscribe': '<mailto:contact@pptides.com?subject=unsubscribe>' },
-                html: `<div dir="rtl" style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Tahoma, Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 40px 20px;">
+                html: emailWrapper(`
                   <h1 style="color: #1c1917; font-size: 24px;">مرحبًا بك في pptides!</h1>
                   <p style="color: #44403c; font-size: 16px; line-height: 1.8;">تم تفعيل اشتراكك في باقة <strong style="color: #059669;">${tier === 'elite' ? 'Elite' : 'Essentials'}</strong> بنجاح.</p>
                   <div style="background: #ecfdf5; border-radius: 12px; padding: 20px; margin: 20px 0;">
@@ -171,12 +172,10 @@ serve(async (req) => {
                     <p style="margin: 8px 0; font-size: 15px;"><strong style="color: #059669;">المدرب الذكي:</strong> اسأل <a href="https://pptides.com/coach" style="color: #059669; font-weight: bold;">المدرب</a> عن بروتوكول مخصّص</p>
                   </div>
                   <div style="text-align: center; margin: 24px 0;">
-                    <a href="https://pptides.com/dashboard" style="display: inline-block; background: #059669; color: white; padding: 16px 40px; border-radius: 9999px; text-decoration: none; font-weight: bold; font-size: 16px;">ابدأ الآن</a>
+                    ${emailButton('ابدأ الآن', 'https://pptides.com/dashboard')}
                   </div>
                   <p style="color: #78716c; font-size: 13px;">ضمان استرداد كامل خلال ${TRIAL_DAYS} أيام — تواصل معنا: contact@pptides.com</p>
-                  <hr style="border: none; border-top: 1px solid #e7e5e4; margin: 24px 0;" />
-                  <p style="color: #a8a29e; font-size: 12px;">pptides.com — محتوى تعليمي بحثي</p>
-                </div>`,
+                `),
               }),
             }).catch(e => console.error('payment confirmation email failed:', e))
           }
@@ -347,14 +346,14 @@ serve(async (req) => {
                     to: customerEmail,
                     subject: 'دفعتك لم تتم — يرجى تحديث بيانات الدفع',
                     headers: { 'List-Unsubscribe': '<mailto:contact@pptides.com?subject=unsubscribe>' },
-                    html: `<div dir="rtl" style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Tahoma, Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 40px 20px;">
+                    html: emailWrapper(`
                       <h1 style="color: #1c1917; font-size: 24px;">دفعتك لم تتم</h1>
                       <p style="color: #44403c; font-size: 16px; line-height: 1.8;">لم تتم معالجة دفعتك. يرجى تحديث بيانات الدفع في حسابك لتجنّب فقدان الوصول.</p>
                       <div style="text-align: center; margin: 24px 0;">
-                        <a href="https://pptides.com/account" style="display: inline-block; background: #059669; color: white; padding: 16px 40px; border-radius: 9999px; text-decoration: none; font-weight: bold; font-size: 16px;">تحديث بيانات الدفع</a>
+                        ${emailButton('تحديث بيانات الدفع', 'https://pptides.com/account')}
                       </div>
                       <p style="color: #78716c; font-size: 13px;">إذا كنت بحاجة للمساعدة: contact@pptides.com</p>
-                    </div>`,
+                    `),
                   }),
                 }).catch(e => { console.error('payment failed email error:', e); return null })
                 if (res?.ok) {
@@ -442,7 +441,11 @@ serve(async (req) => {
                 to: email,
                 subject: 'تم استرداد أموالك — pptides',
                 headers: { 'List-Unsubscribe': '<mailto:contact@pptides.com?subject=unsubscribe>' },
-                html: `<div dir="rtl" style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Tahoma,Arial,sans-serif;max-width:600px;margin:0 auto;padding:40px 20px;"><h1 style="color:#1c1917;font-size:24px;">تم استرداد أموالك</h1><p style="color:#44403c;font-size:16px;line-height:1.8;">تم معالجة استرداد أموالك بنجاح. سيظهر المبلغ في حسابك خلال 5-10 أيام عمل.</p><p style="color:#78716c;font-size:13px;">إذا كان لديك أي استفسار: contact@pptides.com</p></div>`,
+                html: emailWrapper(`
+                  <h1 style="color: #1c1917; font-size: 24px;">تم استرداد أموالك</h1>
+                  <p style="color: #44403c; font-size: 16px; line-height: 1.8;">تم معالجة استرداد أموالك بنجاح. سيظهر المبلغ في حسابك خلال 5-10 أيام عمل.</p>
+                  <p style="color: #78716c; font-size: 13px;">إذا كان لديك أي استفسار: contact@pptides.com</p>
+                `),
               }),
             }).catch(e => console.error('refund email failed:', e))
           }
@@ -475,13 +478,13 @@ serve(async (req) => {
                 to: email,
                 subject: ' تجربتك تنتهي قريبًا — لا تفقد وصولك',
                 headers: { 'List-Unsubscribe': '<mailto:contact@pptides.com?subject=unsubscribe>' },
-                html: `<div dir="rtl" style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Tahoma, Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 40px 20px;">
+                html: emailWrapper(`
                   <h1 style="color: #1c1917; font-size: 24px;">تجربتك تنتهي قريبًا</h1>
                   <p style="color: #44403c; font-size: 16px; line-height: 1.8;">سيتم تحصيل الدفعة تلقائيًا عند انتهاء التجربة. إذا لم ترغب بالاستمرار، يمكنك الإلغاء من حسابك.</p>
                   <div style="text-align: center; margin: 24px 0;">
-                    <a href="https://pptides.com/dashboard" style="display: inline-block; background: #059669; color: white; padding: 16px 40px; border-radius: 9999px; text-decoration: none; font-weight: bold; font-size: 16px;">تصفّح pptides</a>
+                    ${emailButton('تصفّح pptides', 'https://pptides.com/dashboard')}
                   </div>
-                </div>`,
+                `),
               }),
             }).catch(e => console.error('trial_will_end email error:', e))
           }

@@ -11,6 +11,7 @@ const PEPTIDE_COUNT = parseInt(Deno.env.get('PEPTIDE_COUNT') ?? '41', 10)
 // SOURCE OF TRUTH: 34 SAR = 1 month Essentials; override via ESSENTIALS_PRICE_DISPLAY env
 const ESSENTIALS_PRICE = Deno.env.get('ESSENTIALS_PRICE_DISPLAY') ?? '34 ر.س'
 import { getCorsHeaders, handleCorsPreflightIfOptions } from '../_shared/cors.ts'
+import { emailWrapper, emailButton } from '../_shared/email-template.ts'
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
@@ -202,19 +203,15 @@ serve(async (req) => {
         headers: {
           'List-Unsubscribe': '<mailto:contact@pptides.com?subject=unsubscribe>',
         },
-        html: `
-          <div dir="rtl" style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Tahoma, Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 40px 20px;">
+        html: emailWrapper(`
             <h1 style="color: #1c1917; font-size: 24px;">مرحبًا، ${displayName}</h1>
             <p style="color: #44403c; font-size: 16px; line-height: 1.8;">
               تجربتك المجانية في pptides بدأت الآن — أمامك حتى <strong style="color: #059669;">${trialEndFormatted}</strong> لاستكشاف أشمل دليل عربي للببتيدات العلاجية.
             </p>
-
             <div style="background: #fef3c7; border: 1px solid #fbbf24; border-radius: 12px; padding: 16px; margin: 20px 0; text-align: center;">
               <p style="margin: 0; font-size: 14px; color: #92400e; font-weight: bold;">تنتهي تجربتك يوم ${trialEndFormatted} — استفد من كل دقيقة</p>
             </div>
-
             <p style="color: #44403c; font-size: 15px; line-height: 1.8; font-weight: bold;">خطتك حتى ${trialEndFormatted}:</p>
-
             <div style="background: #ecfdf5; border-radius: 12px; padding: 20px; margin: 16px 0;">
               <p style="margin: 10px 0; font-size: 15px;">
                 <strong style="color: #059669;">اليوم الأول:</strong> تصفّح <a href="${APP_URL}/library" style="color: #059669; font-weight: bold;">مكتبة ${PEPTIDE_COUNT}+ ببتيد</a> — اكتشف البروتوكول المناسب لهدفك
@@ -226,26 +223,13 @@ serve(async (req) => {
                 <strong style="color: #059669;">اليوم الثالث:</strong> جرّب <a href="${APP_URL}/calculator" style="color: #059669; font-weight: bold;">حاسبة الجرعات</a> — شاهد جرعتك بالضبط على السيرنج
               </p>
             </div>
-
             <div style="text-align: center; margin: 24px 0;">
-              <a href="${APP_URL}/dashboard" style="display: inline-block; background: #059669; color: white; padding: 16px 40px; border-radius: 9999px; text-decoration: none; font-weight: bold; font-size: 16px;">
-                ابدأ الآن
-              </a>
+              ${emailButton('ابدأ الآن', `${APP_URL}/dashboard`)}
             </div>
-
             <p style="color: #78716c; font-size: 13px; line-height: 1.6; margin-top: 24px;">
               بعد انتهاء التجربة (${trialEndFormatted})، يمكنك الاشتراك بـ ${ESSENTIALS_PRICE}/شهر للاحتفاظ بالوصول الكامل. ضمان استرداد كامل — بدون أسئلة.
             </p>
-
-            <hr style="border: none; border-top: 1px solid #e7e5e4; margin: 24px 0;" />
-            <p style="color: #a8a29e; font-size: 12px;">
-              pptides.com — محتوى تعليمي بحثي. استشر طبيبك قبل استخدام أي ببتيد.
-            </p>
-            <p style="color: #a8a29e; font-size: 11px; margin-top: 16px;">
-              لإلغاء الاشتراك من رسائلنا، تواصل معنا: <a href="mailto:contact@pptides.com" style="color: #a8a29e;">contact@pptides.com</a>
-            </p>
-          </div>
-        `,
+        `),
       }),
     })
 

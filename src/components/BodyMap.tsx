@@ -1,10 +1,11 @@
-import { memo } from 'react';
+import { memo, useMemo } from 'react';
 import { cn } from '@/lib/utils';
 
 interface BodyMapProps {
   selected: string;
-  suggested: string;
+  suggested?: string;
   onSelect: (site: string) => void;
+  lastUsedSite?: string;
 }
 
 const SITES = [
@@ -14,7 +15,19 @@ const SITES = [
   { id: 'glute', label: 'المؤخرة', cx: 62, cy: 55, r: 8 },
 ] as const;
 
-export default memo(function BodyMap({ selected, suggested, onSelect }: BodyMapProps) {
+const ROTATION_ORDER = ['abdomen', 'thigh', 'arm', 'glute'] as const;
+
+function getNextRotationSite(lastSite: string | undefined): string {
+  if (!lastSite) return ROTATION_ORDER[0];
+  const idx = ROTATION_ORDER.indexOf(lastSite as typeof ROTATION_ORDER[number]);
+  return ROTATION_ORDER[(idx + 1) % ROTATION_ORDER.length];
+}
+
+export default memo(function BodyMap({ selected, suggested: suggestedProp, onSelect, lastUsedSite }: BodyMapProps) {
+  const suggested = useMemo(() => {
+    if (suggestedProp) return suggestedProp;
+    return getNextRotationSite(lastUsedSite);
+  }, [suggestedProp, lastUsedSite]);
   return (
     <div className="flex flex-col items-center gap-3">
       <svg viewBox="0 0 100 100" className="h-48 w-32" aria-label="مواقع الحقن">
