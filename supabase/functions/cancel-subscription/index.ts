@@ -60,6 +60,36 @@ serve(async (req) => {
       supabase.from('rate_limits').insert({ user_id: user.id, endpoint: 'cancel-subscription' }).then(() => {}).catch(() => {})
     } catch (rlErr) { console.error('rate limit check failed:', rlErr) }
 
+    let reqBody: Record<string, unknown> = {}
+    try { reqBody = await req.clone().json() } catch { /* empty body is fine for cancel */ }
+    const applyCoupon = reqBody.apply_coupon === true
+
+    if (applyCoupon) {
+      const { data: sub } = await supabase
+        .from('subscriptions')
+        .select('stripe_subscription_id')
+        .eq('user_id', user.id)
+        .maybeSingle()
+      if (!sub?.stripe_subscription_id) {
+        return new Response(JSON.stringify({ error: 'No Stripe subscription found' }), {
+          status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        })
+      }
+      try {
+        await stripe.subscriptions.update(sub.stripe_subscription_id, {
+          coupon: 'STAY30',
+        })
+        return new Response(JSON.stringify({ ok: true, coupon: 'STAY30' }), {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        })
+      } catch (e) {
+        console.error('apply_retention_coupon error:', e)
+        return new Response(JSON.stringify({ error: 'Failed to apply coupon' }), {
+          status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        })
+      }
+    }
+
     const { data: sub, error: subFetchError } = await supabase
       .from('subscriptions')
       .select('stripe_subscription_id, stripe_customer_id, status')
