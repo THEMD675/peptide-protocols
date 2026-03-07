@@ -477,6 +477,75 @@ serve(async (req) => {
     // Cleanup: delete rate limit entries older than 1 hour
     await supabase.from('rate_limits').delete().lt('created_at', new Date(Date.now() - 3600000).toISOString()).catch(() => {})
 
+    // Smart dunning emails for past_due subscribers (day 3, day 7 escalation)
+    const { data: pastDueUsers } = await supabase
+      .from('subscriptions')
+      .select('user_id, stripe_customer_id, updated_at')
+      .eq('status', 'past_due')
+    if (pastDueUsers && pastDueUsers.length > 0) {
+      for (const pd of pastDueUsers) {
+        try {
+          const email = userIdToEmail.get(pd.user_id)
+          if (!email) continue
+          const pastDueSince = pd.updated_at ? new Date(pd.updated_at) : new Date()
+          const daysPastDue = Math.floor((now.getTime() - pastDueSince.getTime()) / 86400000)
+
+          let dunningType = ''
+          let dunningSubject = ''
+          let dunningBody = ''
+
+          if (daysPastDue >= 2 && daysPastDue <= 4) {
+            dunningType = 'dunning_day3'
+            dunningSubject = 'تذكير: حدّث بيانات الدفع لتجنّب فقدان الوصول — pptides'
+            dunningBody = `
+              <h1 style="color: #1c1917; font-size: 24px;">دفعتك لم تتم — حدّث بيانات الدفع</h1>
+              <p style="color: #44403c; font-size: 16px;">لا نريدك أن تفقد وصولك للمكتبة والمدرب الذكي. حدّث بيانات الدفع الآن.</p>
+              <div style="text-align: center; margin: 24px 0;">
+                ${emailButton('تحديث بيانات الدفع', `${APP_URL}/account`)}
+              </div>
+            `
+          } else if (daysPastDue >= 6 && daysPastDue <= 8) {
+            dunningType = 'dunning_day7'
+            dunningSubject = 'آخر تذكير: اشتراكك سيُلغى قريبًا — pptides'
+            dunningBody = `
+              <h1 style="color: #1c1917; font-size: 24px;">آخر فرصة — اشتراكك سيُلغى</h1>
+              <p style="color: #44403c; font-size: 16px;">لم تتم معالجة دفعتك منذ ${daysPastDue} أيام. إذا لم تُحدَّث بيانات الدفع، سيتم إلغاء اشتراكك تلقائيًا.</p>
+              <div style="text-align: center; margin: 24px 0;">
+                ${emailButton('حدّث الآن — لا تفقد وصولك', `${APP_URL}/account`)}
+              </div>
+              <p style="color: #78716c; font-size: 13px;">إذا كنت بحاجة للمساعدة: contact@pptides.com</p>
+            `
+          }
+
+          if (dunningType) {
+            const { error: dedupErr } = await supabase
+              .from('sent_reminders')
+              .insert({ user_id: pd.user_id, reminder_type: dunningType })
+            if (dedupErr) continue
+
+            const emailRes = await fetch('https://api.resend.com/emails', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${RESEND_API_KEY}` },
+              body: JSON.stringify({
+                from: 'pptides <noreply@pptides.com>',
+                reply_to: 'contact@pptides.com',
+                to: email,
+                subject: dunningSubject,
+                headers: { 'List-Unsubscribe': '<mailto:contact@pptides.com?subject=unsubscribe>' },
+                html: emailWrapper(dunningBody),
+              }),
+            })
+            if (!emailRes.ok) {
+              await supabase.from('sent_reminders').delete()
+                .eq('user_id', pd.user_id).eq('reminder_type', dunningType).catch(() => {})
+            }
+          }
+        } catch (e) {
+          console.error('dunning email error for user', pd.user_id, e)
+        }
+      }
+    }
+
     // Admin proactive alert (rate-limited: once per 24h)
     const adminWhitelist = Deno.env.get('ADMIN_EMAIL_WHITELIST')
     const adminTo = adminWhitelist?.trim()
