@@ -147,7 +147,7 @@ export default memo(function Header() {
             className="min-h-[44px] shrink-0 leading-[44px] text-xl font-bold tracking-tight text-stone-900 md:text-2xl"
             dir="ltr"
             aria-label="pptides"
-          >pp<span className="text-emerald-600">tides</span>
+          ><span style={{letterSpacing:0}}>pp</span><span className="text-emerald-600" style={{marginInlineStart:'-0.02em',letterSpacing:0}}>tides</span>
           </Link>
 
           <nav className="hidden items-center gap-1 md:flex">
