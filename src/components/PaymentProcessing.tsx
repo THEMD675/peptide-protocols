@@ -91,7 +91,7 @@ export default function PaymentProcessing() {
         ) : stage === 'timeout' ? (
           <>
             <div className="mx-auto mb-6">
-              <div className="text-2xl font-bold tracking-tight text-stone-900">
+              <div className="text-2xl font-bold tracking-tight text-stone-900" dir="ltr">
                 pp<span className="text-emerald-600">tides</span>
               </div>
             </div>
@@ -105,7 +105,7 @@ export default function PaymentProcessing() {
         ) : (
           <>
             <div className="mx-auto mb-6">
-              <div className="text-2xl font-bold tracking-tight text-stone-900">
+              <div className="text-2xl font-bold tracking-tight text-stone-900" dir="ltr">
                 pp<span className="text-emerald-600">tides</span>
               </div>
             </div>

@@ -145,8 +145,9 @@ export default memo(function Header() {
           <Link
             to={logoHref}
             className="min-h-[44px] shrink-0 inline-flex items-center text-xl font-bold tracking-tight text-stone-900 md:text-2xl"
+            dir="ltr"
           >
-            <span className="inline">pp<span className="text-emerald-600">tides</span></span>
+            pp<span className="text-emerald-600">tides</span>
           </Link>
 
           <nav className="hidden items-center gap-1 md:flex">
