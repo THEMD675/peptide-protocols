@@ -144,11 +144,10 @@ export default memo(function Header() {
         <div className="mx-auto flex h-full max-w-7xl items-center justify-between px-4 md:px-6">
           <Link
             to={logoHref}
-            className="min-h-[44px] shrink-0 flex items-center text-xl font-bold tracking-tight text-stone-900 md:text-2xl whitespace-nowrap"
+            className="min-h-[44px] shrink-0 leading-[44px] text-xl font-bold tracking-tight text-stone-900 md:text-2xl"
             dir="ltr"
             aria-label="pptides"
-          >
-            <span aria-hidden="true">pp</span><span className="text-emerald-600" aria-hidden="true">tides</span>
+          >pp<span className="text-emerald-600">tides</span>
           </Link>
 
           <nav className="hidden items-center gap-1 md:flex">
