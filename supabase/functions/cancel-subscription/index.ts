@@ -8,6 +8,7 @@ const supabaseUrl = Deno.env.get('SUPABASE_URL') ?? ''
 const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
 
 import { getCorsHeaders, handleCorsPreflightIfOptions } from '../_shared/cors.ts'
+import { emailWrapper, emailButton } from '../_shared/email-template.ts'
 
 serve(async (req) => {
   const preflight = handleCorsPreflightIfOptions(req)
@@ -203,16 +204,13 @@ serve(async (req) => {
           to: user.email,
           subject: 'تم إلغاء اشتراكك في pptides',
           headers: { 'List-Unsubscribe': '<mailto:contact@pptides.com?subject=unsubscribe>' },
-          html: `<div dir="rtl" style="font-family: 'Cairo', Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 40px 20px; background: #ffffff;">
-            <p style="text-align:center;font-size:22px;font-weight:800;margin-bottom:24px;"><span style="color:#1c1917;">pp</span><span style="color:#059669;">tides</span></p>
+          html: emailWrapper(`
             <h2 style="color:#1c1917;font-size:20px;">تم إلغاء اشتراكك</h2>
             <p style="color:#44403c;line-height:1.8;">ستحتفظ بالوصول حتى نهاية الفترة الحالية (${periodEnd.split('T')[0]}).</p>
             <div style="text-align:center;margin:24px 0;">
-              <a href="https://pptides.com/pricing" style="display:inline-block;background:#059669;color:#ffffff;font-weight:700;padding:14px 40px;border-radius:999px;text-decoration:none;font-size:15px;">أعد الاشتراك</a>
+              ${emailButton('أعد الاشتراك', 'https://pptides.com/pricing')}
             </div>
-            <hr style="border:none;border-top:1px solid #e7e5e4;margin:24px 0;"/>
-            <p style="color:#a8a29e;font-size:12px;text-align:center;">pptides — أشمل دليل عربي للببتيدات العلاجية</p>
-          </div>`,
+          `),
         }),
       }).catch(e => console.error('cancel confirmation email failed:', e))
     }
