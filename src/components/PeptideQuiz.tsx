@@ -201,17 +201,17 @@ export default function PeptideQuiz() {
 
         <div className="flex flex-col gap-3 sm:flex-row">
           <Link
-            to={user ? '/coach' : '/signup?redirect=/coach'}
+            to={user ? `/peptide/${rec.peptideId}?start=1` : `/signup?redirect=/peptide/${rec.peptideId}%3Fstart%3D1`}
             className="flex-1 flex flex-col items-center justify-center gap-1 rounded-xl bg-emerald-600 px-5 py-3 text-white transition-all hover:bg-emerald-700"
           >
-            <span className="text-sm font-bold flex items-center gap-2">{user ? 'صمّم بروتوكول مخصّص' : 'سجّل مجانًا وصمّم بروتوكولك'} <ArrowLeft className="h-4 w-4 shrink-0" /></span>
-            <span className="text-xs opacity-80">{user ? 'بناءً على إجاباتك — المدرب الذكي جاهز' : 'أنشئ حساب مجاني واحصل على بروتوكول مخصّص'}</span>
+            <span className="text-sm font-bold flex items-center gap-2">ابدأ بروتوكول {rec.nameAr} <ArrowLeft className="h-4 w-4 shrink-0" /></span>
+            <span className="text-xs opacity-80">أنشئ بروتوكولك وابدأ التتبّع فورًا</span>
           </Link>
           <Link
-            to={`/peptide/${rec.peptideId}`}
-            className="flex items-center justify-center gap-2 rounded-xl border border-stone-200 bg-white px-5 py-3 text-sm font-bold text-stone-700 transition-all hover:border-emerald-200 hover:shadow-sm"
+            to={user ? '/coach' : '/signup?redirect=/coach'}
+            className="flex items-center justify-center gap-2 rounded-xl border border-emerald-200 bg-white px-5 py-3 text-sm font-bold text-emerald-700 transition-all hover:bg-emerald-50"
           >
-            شاهد بروتوكول {rec.nameAr}
+            صمّم بروتوكول مخصّص مع المدرب
           </Link>
           <Link
             to={`/calculator?peptide=${encodeURIComponent(rec.nameEn)}`}

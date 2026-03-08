@@ -571,6 +571,20 @@ serve(async (req) => {
       return json({ ok: true, data: data ?? [] }, 200, cors)
     }
 
+    if (action === 'sync_email') {
+      const userId = body.user_id as string
+      const newEmail = body.new_email as string
+      if (!userId || !newEmail) return json({ error: 'Missing user_id or new_email' }, 400, cors)
+      const { data: sub } = await admin.from('subscriptions').select('stripe_customer_id').eq('user_id', userId).maybeSingle()
+      if (sub?.stripe_customer_id && stripeKey) {
+        const stripe = new Stripe(stripeKey, { apiVersion: '2024-06-20' })
+        try {
+          await stripe.customers.update(sub.stripe_customer_id, { email: newEmail })
+        } catch (e) { console.error('sync_email Stripe error:', e) }
+      }
+      return json({ ok: true }, 200, cors)
+    }
+
     return json({ error: `Unknown action: ${action}` }, 400, cors)
 
   } catch (err) {

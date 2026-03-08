@@ -128,7 +128,15 @@ export default function Account() {
       const { error } = await supabase.auth.updateUser({ email: newEmail });
       if (error) throw error;
       await supabase.from('email_list').update({ email: newEmail.trim().toLowerCase() }).eq('email', user.email).catch(() => {});
-      toast.success('تم إرسال رابط تأكيد للبريد الجديد. تم تحديث بريدك — قد يستغرق تحديث Stripe بضع دقائق');
+      const { data: sub } = await supabase.from('subscriptions').select('stripe_customer_id').eq('user_id', user.id).maybeSingle();
+      if (sub?.stripe_customer_id) {
+        fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/admin-actions`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}` },
+          body: JSON.stringify({ action: 'sync_email', user_id: user.id, new_email: newEmail.trim().toLowerCase() }),
+        }).catch(() => {});
+      }
+      toast.success('تم إرسال رابط تأكيد للبريد الجديد. سيتم تحديث بريدك في Stripe تلقائيًا');
       setNewEmail('');
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : '';

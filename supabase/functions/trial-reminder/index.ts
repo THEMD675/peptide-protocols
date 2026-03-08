@@ -323,6 +323,31 @@ serve(async (req) => {
 
           if (!weeklyCount || weeklyCount === 0) continue
 
+          const { data: wellnessData } = await supabase
+            .from('wellness_logs')
+            .select('energy, sleep, mood')
+            .eq('user_id', sub.user_id)
+            .gte('logged_at', weekAgo)
+
+          const wellnessAvg = wellnessData && wellnessData.length > 0
+            ? Math.round(wellnessData.reduce((s, w) => s + (w.energy + w.sleep + w.mood) / 3, 0) / wellnessData.length * 10) / 10
+            : 0
+
+          const { data: activeProtocols } = await supabase
+            .from('user_protocols')
+            .select('peptide_id, cycle_weeks, started_at')
+            .eq('user_id', sub.user_id)
+            .eq('status', 'active')
+
+          const protocolSummary = activeProtocols && activeProtocols.length > 0
+            ? activeProtocols.map(p => {
+                const daysIn = Math.floor((now.getTime() - new Date(p.started_at).getTime()) / 86400000)
+                const totalDays = p.cycle_weeks * 7
+                const pct = Math.min(100, Math.round((daysIn / totalDays) * 100))
+                return `${p.peptide_id}: ${pct}% (يوم ${daysIn}/${totalDays})`
+              }).join(' | ')
+            : ''
+
           const { data: streakData } = await supabase
             .from('injection_logs')
             .select('logged_at')
@@ -363,10 +388,28 @@ serve(async (req) => {
               },
               html: emailWrapper(`
                   <h1 style="color: #1c1917; font-size: 24px;">ملخصك الأسبوعي</h1>
-                  <div style="background: #ecfdf5; border-radius: 12px; padding: 20px; margin: 20px 0; text-align: center;">
-                    <p style="font-size: 18px; color: #059669; font-weight: bold;">لقد سجّلت ${weeklyCount} حقنة هذا الأسبوع</p>
-                    ${streakDays > 1 ? `<p style="font-size: 16px; color: #44403c; margin-top: 8px;">سلسلتك: ${streakDays} أيام</p>` : ''}
+                  <div style="background: #ecfdf5; border-radius: 12px; padding: 20px; margin: 20px 0;">
+                    <table style="width: 100%; border-collapse: collapse;">
+                      <tr>
+                        <td style="text-align: center; padding: 8px;">
+                          <p style="font-size: 28px; font-weight: 900; color: #059669; margin: 0;">${weeklyCount}</p>
+                          <p style="font-size: 12px; color: #44403c; margin: 4px 0 0;">حقنة</p>
+                        </td>
+                        <td style="text-align: center; padding: 8px;">
+                          <p style="font-size: 28px; font-weight: 900; color: #059669; margin: 0;">${streakDays}</p>
+                          <p style="font-size: 12px; color: #44403c; margin: 4px 0 0;">يوم متتالي</p>
+                        </td>
+                        ${wellnessAvg > 0 ? `<td style="text-align: center; padding: 8px;">
+                          <p style="font-size: 28px; font-weight: 900; color: #059669; margin: 0;">${wellnessAvg}</p>
+                          <p style="font-size: 12px; color: #44403c; margin: 4px 0 0;">معدل العافية</p>
+                        </td>` : ''}
+                      </tr>
+                    </table>
                   </div>
+                  ${protocolSummary ? `<div style="background: #f5f5f4; border-radius: 8px; padding: 12px; margin: 16px 0;">
+                    <p style="font-size: 13px; font-weight: bold; color: #44403c; margin: 0 0 4px;">بروتوكولاتك النشطة:</p>
+                    <p style="font-size: 12px; color: #78716c; margin: 0;" dir="ltr">${protocolSummary}</p>
+                  </div>` : ''}
                   <p>استمر في التتبّع — الانتظام هو المفتاح.</p>
                   <div style="text-align: center; margin-top: 16px;">
                     ${emailButton('سجّل حقنتك التالية', `${APP_URL}/tracker`)}
@@ -560,6 +603,59 @@ serve(async (req) => {
         } catch (e) {
           console.error('dunning email error for user', pd.user_id, e)
         }
+      }
+    }
+
+    // RT2: Re-engagement emails for churned/expired users (30-day and 60-day win-back)
+    const { data: churnedUsers } = await supabase
+      .from('subscriptions')
+      .select('user_id, status, updated_at')
+      .in('status', ['expired', 'cancelled'])
+    if (churnedUsers && churnedUsers.length > 0) {
+      for (const cu of churnedUsers) {
+        try {
+          const email = userIdToEmail.get(cu.user_id)
+          if (!email) continue
+          const churned = cu.updated_at ? new Date(cu.updated_at) : new Date()
+          const daysSinceChurn = Math.floor((now.getTime() - churned.getTime()) / 86400000)
+          let winbackType = ''
+          let winbackSubject = ''
+          let winbackBody = ''
+          if (daysSinceChurn >= 28 && daysSinceChurn <= 32) {
+            winbackType = 'winback_30d'
+            winbackSubject = 'نشتاق لك — عد واستكمل رحلتك — pptides'
+            winbackBody = `
+              <h1 style="color: #1c1917; font-size: 24px;">مرّ شهر — ما زلنا هنا</h1>
+              <p style="color: #44403c; font-size: 16px;">بروتوكولاتك والمدرب الذكي جاهزون لك. اشترك الآن واستكمل من حيث توقفت.</p>
+              <div style="text-align: center; margin: 24px 0;">
+                ${emailButton('عد إلى pptides', `${APP_URL}/pricing`)}
+              </div>
+            `
+          } else if (daysSinceChurn >= 58 && daysSinceChurn <= 62) {
+            winbackType = 'winback_60d'
+            winbackSubject = 'آخر تذكير — محتوى جديد في pptides'
+            winbackBody = `
+              <h1 style="color: #1c1917; font-size: 24px;">أضفنا محتوى جديد</h1>
+              <p style="color: #44403c; font-size: 16px;">${PEPTIDE_COUNT} بروتوكول محدّث، حاسبة جرعات، مدرب ذكي — كل شيء جاهز لك بـ ${ESSENTIALS_PRICE}/شهر فقط.</p>
+              <div style="text-align: center; margin: 24px 0;">
+                ${emailButton('اشترك الآن', `${APP_URL}/pricing`)}
+              </div>
+            `
+          }
+          if (winbackType) {
+            const { error: dedupErr } = await supabase.from('sent_reminders').insert({ user_id: cu.user_id, reminder_type: winbackType })
+            if (dedupErr) continue
+            await fetch('https://api.resend.com/emails', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${RESEND_API_KEY}` },
+              body: JSON.stringify({
+                from: 'pptides <noreply@pptides.com>', reply_to: 'contact@pptides.com', to: email, subject: winbackSubject,
+                headers: { 'List-Unsubscribe': '<mailto:contact@pptides.com?subject=unsubscribe>' },
+                html: emailWrapper(winbackBody),
+              }),
+            }).catch(() => {})
+          }
+        } catch (e) { console.error('winback email error:', e) }
       }
     }
 
