@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
-import { Star, Send, MessageSquare, MessageCircle, CheckCircle, AlertCircle } from 'lucide-react';
+import { Star, Send, MessageSquare, MessageCircle, CheckCircle, AlertCircle, BadgeCheck } from 'lucide-react';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
@@ -13,6 +13,8 @@ interface Review {
   rating: number;
   content: string;
   text?: string;
+  user_id?: string;
+  is_subscriber?: boolean;
   created_at: string;
 }
 
@@ -95,13 +97,22 @@ export default function Reviews() {
     try {
       const { data } = await supabase
         .from('reviews')
-        .select('id, rating, content, name, created_at')
+        .select('id, rating, content, name, user_id, created_at')
         .eq('is_approved', true)
         .order('created_at', { ascending: false })
         .limit(100);
 
       if (signal?.cancelled) return;
-      setReviews(data ?? []);
+      const reviewsWithSub = data ?? [];
+      if (reviewsWithSub.length > 0) {
+        const userIds = [...new Set(reviewsWithSub.map(r => r.user_id).filter(Boolean))];
+        if (userIds.length > 0) {
+          const { data: subs } = await supabase.from('subscriptions').select('user_id, status').in('user_id', userIds);
+          const activeUserIds = new Set((subs ?? []).filter(s => ['active', 'trial'].includes(s.status)).map(s => s.user_id));
+          reviewsWithSub.forEach(r => { r.is_subscriber = r.user_id ? activeUserIds.has(r.user_id) : false; });
+        }
+      }
+      setReviews(reviewsWithSub);
     } catch {
       if (signal?.cancelled) return;
       setFetchError('تعذّر تحميل التقييمات. تحقق من اتصالك بالإنترنت.');
@@ -433,6 +444,12 @@ export default function Reviews() {
                   <div className="mb-3 flex items-center justify-between">
                     <div className="flex items-center gap-2">
                       <StarRating rating={review.rating} size="sm" />
+                      {review.is_subscriber && (
+                        <span className="flex items-center gap-1 rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] font-bold text-emerald-700">
+                          <BadgeCheck className="h-3 w-3" />
+                          مشترك
+                        </span>
+                      )}
                     </div>
                     <span className="text-xs text-stone-700">
                       {formatDate(review.created_at)}
