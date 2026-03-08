@@ -1,5 +1,6 @@
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
 import { handleCorsPreflightIfOptions, getCorsHeaders, jsonResponse } from '../_shared/cors.ts'
+import { emailWrapper } from '../_shared/email-template.ts'
 import { requireAdmin } from '../_shared/admin-auth.ts'
 import { getServiceClient, supabaseServiceKey } from '../_shared/supabase.ts'
 import { checkRateLimit } from '../_shared/rate-limit.ts'
@@ -60,17 +61,13 @@ serve(async (req) => {
         to,
         reply_to: 'contact@pptides.com',
         subject,
-        html: `
-          <div dir="rtl" style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Tahoma, Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 40px 20px;">
+        html: emailWrapper(`
             <h1 style="color: #1c1917; font-size: 20px;">رد على استفسارك</h1>
             <p style="color: #44403c; font-size: 16px; line-height: 1.8; white-space: pre-wrap;">${sanitizedReply}</p>
-            <hr style="border: none; border-top: 1px solid #e7e5e4; margin: 24px 0;" />
             <p style="color: #78716c; font-size: 13px; margin-top: 24px;">
               إذا كان لديك أي سؤال إضافي، تواصل معنا: <a href="mailto:contact@pptides.com" style="color: #059669;">contact@pptides.com</a>
             </p>
-            <p style="color: #a8a29e; font-size: 11px; margin-top: 16px;">pptides.com — محتوى تعليمي بحثي</p>
-          </div>
-        `,
+        `),
       }),
     })
 
