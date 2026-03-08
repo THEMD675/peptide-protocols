@@ -34,3 +34,13 @@ Agents: read this file first. Pick the next unchecked `[ ]` task. Mark `[x]` whe
 - [ ] Expert advisory board — need real names
 - [ ] GitHub Actions VERCEL_TOKEN — create in Vercel Dashboard
 - [ ] Staging environment — Supabase branching
+
+## Next Sprint — Infra Fixes (DO NOW — DO NOT STOP)
+- [ ] Fix Tracker streak bug — computeStreak(logs) uses paginated 50-row array, needs separate full fetch for streak/calendar
+- [ ] Remove ALL Sentry dead code from 7 files (App.tsx, main.tsx, ProtocolWizard.tsx, CookieConsent.tsx, analytics.ts, supabase.ts, Privacy.tsx)
+- [ ] Wire coach_conversations table — ai-coach should save/load conversation history server-side, not just localStorage
+- [ ] Add drug-peptide interactions to interactions.ts (metformin, insulin, blood thinners, immunosuppressants, SSRIs)
+- [ ] Expand glossary.ts from current count to 80+ Arabic peptide/medical/wellness terms
+- [ ] Clean Stripe test customers — archive all test/duplicate customers via Stripe API
+- [ ] Partial refund handling in stripe-webhook — currently only handles full refunds
+- [ ] Admin hardcoded emails — move from Header.tsx to shared constant or env var
