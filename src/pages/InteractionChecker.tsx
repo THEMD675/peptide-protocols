@@ -6,7 +6,7 @@ import { cn } from '@/lib/utils';
 import { peptides } from '@/data/peptides';
 import { categoryLabels } from '@/lib/peptide-labels';
 import { PEPTIDE_COUNT, SITE_URL } from '@/lib/constants';
-import { DANGEROUS_COMBOS, SYNERGISTIC_COMBOS, GH_PEPTIDE_IDS, FAT_LOSS_PEPTIDE_IDS, type InteractionResult } from '@/data/interactions';
+import { DANGEROUS_COMBOS, SYNERGISTIC_COMBOS, DRUG_INTERACTIONS, GH_PEPTIDE_IDS, FAT_LOSS_PEPTIDE_IDS, type InteractionResult } from '@/data/interactions';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
 
@@ -18,6 +18,9 @@ function checkInteraction(id1: string, id2: string): InteractionResult {
   if (DANGEROUS_COMBOS[key2]) return DANGEROUS_COMBOS[key2];
   if (DANGEROUS_COMBOS[`${id1}+*`]) return DANGEROUS_COMBOS[`${id1}+*`];
   if (DANGEROUS_COMBOS[`${id2}+*`]) return DANGEROUS_COMBOS[`${id2}+*`];
+
+  if (DRUG_INTERACTIONS[key1]) return DRUG_INTERACTIONS[key1];
+  if (DRUG_INTERACTIONS[key2]) return DRUG_INTERACTIONS[key2];
 
   if (SYNERGISTIC_COMBOS[key1]) return SYNERGISTIC_COMBOS[key1];
   if (SYNERGISTIC_COMBOS[key2]) return SYNERGISTIC_COMBOS[key2];

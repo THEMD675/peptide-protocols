@@ -43,6 +43,23 @@ export const SYNERGISTIC_COMBOS: Record<string, InteractionResult> = {
   'larazotide+kpv': { safe: true, warning: false, message: 'إصلاح أمعاء مزدوج', details: 'Larazotide يغلق الوصلات المحكمة + KPV يقلل الالتهاب. المرحلتان الأولى والثانية من بروتوكول إصلاح الأمعاء.' },
 };
 
+// Drug-peptide interactions — medications that interact with peptides
+export const DRUG_INTERACTIONS: Record<string, InteractionResult> = {
+  'semaglutide+metformin': { safe: true, warning: true, message: 'GLP-1 + ميتفورمين — راقب السكر', details: 'كلاهما يخفض السكر. الجمع يزيد خطر هبوط السكر خصوصًا مع الصيام. راقب مستوى الجلوكوز يوميًا وقلّل جرعة الميتفورمين إذا لزم.' },
+  'tirzepatide+metformin': { safe: true, warning: true, message: 'GLP-1/GIP + ميتفورمين — راقب السكر', details: 'Tirzepatide يخفض السكر بقوة مع الميتفورمين. قد تحتاج لتقليل جرعة الميتفورمين. راقب الجلوكوز.' },
+  'semaglutide+insulin': { safe: false, warning: false, message: 'خطر هبوط سكر حاد', details: 'GLP-1 مع الأنسولين يضاعف خطر هبوط السكر الحاد (hypoglycemia). لا تجمعهم بدون إشراف طبي مباشر وتعديل جرعة الأنسولين.' },
+  'tirzepatide+insulin': { safe: false, warning: false, message: 'خطر هبوط سكر حاد', details: 'Tirzepatide مع الأنسولين خطير جدًا. هبوط سكر حاد محتمل. لا تجمعهم بدون طبيب.' },
+  'bpc-157+warfarin': { safe: false, warning: true, message: 'BPC-157 يؤثر على التخثر', details: 'BPC-157 يؤثر على نظام أكسيد النيتريك والتخثر. مع مميعات الدم (وارفارين/هيبارين) يزيد خطر النزيف. أوقف BPC-157 أو استشر طبيبك.' },
+  'tb-500+warfarin': { safe: false, warning: true, message: 'TB-500 + مميعات دم — خطر نزيف', details: 'TB-500 يُعزز تكوين أوعية دموية جديدة ويؤثر على التئام الجروح. مع مميعات الدم يزيد خطر النزيف.' },
+  'thymosin-alpha-1+immunosuppressants': { safe: false, warning: false, message: 'تعارض مع مثبطات المناعة', details: 'Thymosin Alpha-1 يُنشّط الجهاز المناعي. إذا تأخذ مثبطات مناعة (بعد زرع عضو، أمراض مناعية) = تعارض مباشر وخطير. لا تجمعهم.' },
+  'cjc-1295+ssri': { safe: true, warning: true, message: 'GH + مضادات اكتئاب — متابعة', details: 'هرمون النمو يؤثر على السيروتونين. مع SSRIs (فلوكستين، سيرترالين) قد تلاحظ تغيرات مزاجية. ليس خطيرًا لكن راقب حالتك.' },
+  'ipamorelin+ssri': { safe: true, warning: true, message: 'GHRP + مضادات اكتئاب — متابعة', details: 'Ipamorelin يرفع GH الذي يؤثر على الناقلات العصبية. مع SSRIs تابع مزاجك ونومك.' },
+  'semaglutide+thyroid': { safe: true, warning: true, message: 'GLP-1 + أدوية الغدة الدرقية — امتصاص', details: 'Semaglutide يبطئ إفراغ المعدة مما قد يؤثر على امتصاص ليفوثيروكسين. خذ دواء الغدة على معدة فارغة صباحًا، قبل ساعة من أي شيء.' },
+  'tirzepatide+thyroid': { safe: true, warning: true, message: 'GLP-1 + أدوية الغدة — امتصاص', details: 'مثل Semaglutide، يبطئ الهضم وقد يقلل امتصاص ليفوثيروكسين. خذ الدواء على معدة فارغة.' },
+  'cjc-1295+statins': { safe: true, warning: true, message: 'GH + ستاتينات — مراقبة الكبد', details: 'هرمون النمو يؤثر على استقلاب الدهون والكبد. مع الستاتينات (أتورفاستاتين، روسوفاستاتين) راقب وظائف الكبد بانتظام.' },
+  'bpc-157+nsaids': { safe: true, warning: false, message: 'BPC-157 يحمي من أضرار المسكنات', details: 'BPC-157 يحمي بطانة المعدة من تأثير مضادات الالتهاب (إيبوبروفين، نابروكسين). تجميعة مفيدة فعلًا — BPC-157 يقلل القرحة الناتجة عن NSAIDs.' },
+};
+
 export const GH_PEPTIDE_IDS = ['cjc-1295', 'ipamorelin', 'tesamorelin', 'sermorelin', 'ghrp-2', 'ghrp-6', 'hexarelin'];
 
 export const FAT_LOSS_PEPTIDE_IDS = ['semaglutide', 'tirzepatide', 'retatrutide', 'tesamorelin', 'aod-9604', '5-amino-1mq', 'mots-c'];
