@@ -33,6 +33,7 @@ export const VALUE_SAVINGS_ESSENTIALS = '1,087 ر.س';
 export const VALUE_SAVINGS_ELITE = '750 ر.س+';
 
 export const SUPPORT_EMAIL = 'contact@pptides.com';
+export const ADMIN_EMAILS = ['abdullah@amirisgroup.co', 'abdullahalameer@gmail.com', 'contact@pptides.com'];
 export const USD_TO_SAR = 3.75;
 
 /** Free peptides + trial-exclusive peptides. The 5 IDs below are hardcoded trial-exclusive peptides (beyond FREE_PEPTIDE_IDS) — not in the free tier, but available during trial. */

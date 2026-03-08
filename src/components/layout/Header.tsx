@@ -5,6 +5,7 @@ import FocusTrap from 'focus-trap-react';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
 import { peptides, type Peptide } from '@/data/peptides';
+import { ADMIN_EMAILS } from '@/lib/constants';
 
 const guestNavLinks = [
   { to: '/library', label: 'المكتبة' },
@@ -332,7 +333,7 @@ export default memo(function Header() {
                     >
                       إعدادات الحساب
                     </Link>
-                    {['abdullah@amirisgroup.co', 'abdullahalameer@gmail.com', 'contact@pptides.com'].includes(user?.email ?? '') && (
+                    {ADMIN_EMAILS.includes(user?.email ?? '') && (
                     <Link
                       to="/admin"
                       onClick={() => setDropdownOpen(false)}
@@ -501,7 +502,7 @@ export default memo(function Header() {
                   <User className="h-4 w-4" />
                   إعدادات الحساب
                 </Link>
-                {['abdullah@amirisgroup.co', 'abdullahalameer@gmail.com', 'contact@pptides.com'].includes(user?.email ?? '') && (
+                {ADMIN_EMAILS.includes(user?.email ?? '') && (
                 <Link
                   to="/admin"
                   onClick={() => setMobileOpen(false)}
