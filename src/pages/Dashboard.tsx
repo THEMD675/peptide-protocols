@@ -430,14 +430,30 @@ export default function Dashboard() {
               {TIER_LABELS[subscription.tier] ?? subscription.tier}
             </span>
           )}
-          {!activity.loading && (
-            <span className={cn(
-              'rounded-full px-3 py-1 text-xs font-bold',
-              activity.totalInjections >= 50 ? 'bg-amber-100 text-amber-700' : activity.totalInjections >= 10 ? 'bg-blue-100 text-blue-700' : 'bg-stone-100 text-stone-600',
-            )}>
-              {activity.totalInjections >= 50 ? 'متقدم' : activity.totalInjections >= 10 ? 'متوسط' : 'مبتدئ'}
-            </span>
-          )}
+          {!activity.loading && (() => {
+            const level = activity.totalInjections >= 50 ? 'متقدم' : activity.totalInjections >= 10 ? 'متوسط' : 'مبتدئ';
+            const nextThreshold = activity.totalInjections >= 50 ? null : activity.totalInjections >= 10 ? 50 : 10;
+            const prevThreshold = activity.totalInjections >= 50 ? 50 : activity.totalInjections >= 10 ? 10 : 0;
+            const progress = nextThreshold ? Math.round(((activity.totalInjections - prevThreshold) / (nextThreshold - prevThreshold)) * 100) : 100;
+            return (
+              <div className="flex items-center gap-2">
+                <span className={cn(
+                  'rounded-full px-3 py-1 text-xs font-bold',
+                  activity.totalInjections >= 50 ? 'bg-amber-100 text-amber-700' : activity.totalInjections >= 10 ? 'bg-blue-100 text-blue-700' : 'bg-stone-100 text-stone-600',
+                )}>
+                  {level}
+                </span>
+                {nextThreshold && (
+                  <div className="flex items-center gap-1.5" title={`${activity.totalInjections}/${nextThreshold} للمستوى التالي`}>
+                    <div className="h-1.5 w-16 overflow-hidden rounded-full bg-stone-200">
+                      <div className="h-full rounded-full bg-emerald-500 transition-all" style={{ width: `${progress}%` }} />
+                    </div>
+                    <span className="text-[10px] text-stone-400">{nextThreshold - activity.totalInjections} للتالي</span>
+                  </div>
+                )}
+              </div>
+            );
+          })()}
         </div>
         <p className="mt-2 text-lg text-stone-600">
           {activeProtocols.length > 0
