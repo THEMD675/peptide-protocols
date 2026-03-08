@@ -10,7 +10,7 @@ export default memo(function Footer() {
         <div className="grid gap-8 md:grid-cols-4">
           <div>
             <p className="text-lg font-bold text-stone-900">
-              <span>pp</span><span className="text-emerald-600">tides</span>
+              pp<span className="text-emerald-600">tides</span>
             </p>
             <p className="mt-2 text-sm text-stone-600 leading-relaxed">
               أشمل دليل عربي للببتيدات العلاجية. {PEPTIDE_COUNT}+ ببتيد مع بروتوكولات كاملة.

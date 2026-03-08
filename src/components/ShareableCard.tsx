@@ -60,7 +60,7 @@ export default memo(function ShareableCard(props: ShareableCardProps) {
     <div>
       <div className="rounded-2xl border-2 border-emerald-200 bg-gradient-to-br from-white to-emerald-50 p-6 text-center">
         <p className="text-lg font-bold tracking-tight text-stone-900">
-          <span>pp</span><span className="text-emerald-600">tides</span>
+          pp<span className="text-emerald-600">tides</span>
         </p>
         <h3 className="mt-3 text-xl font-black text-stone-900">{props.peptideName}</h3>
         <p className="text-sm text-stone-500" dir="ltr">{props.peptideNameEn}</p>

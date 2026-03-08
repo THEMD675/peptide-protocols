@@ -92,7 +92,7 @@ export default function PaymentProcessing() {
           <>
             <div className="mx-auto mb-6">
               <div className="text-2xl font-bold tracking-tight text-stone-900">
-                <span>pp</span><span className="text-emerald-600">tides</span>
+                pp<span className="text-emerald-600">tides</span>
               </div>
             </div>
             <h2 className="text-xl font-bold text-stone-900">لم نتمكن من التأكد من الدفع</h2>
@@ -106,7 +106,7 @@ export default function PaymentProcessing() {
           <>
             <div className="mx-auto mb-6">
               <div className="text-2xl font-bold tracking-tight text-stone-900">
-                <span>pp</span><span className="text-emerald-600">tides</span>
+                pp<span className="text-emerald-600">tides</span>
               </div>
             </div>
             <Loader2 className="mx-auto mb-4 h-10 w-10 animate-spin text-emerald-600" />

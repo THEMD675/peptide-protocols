@@ -59,7 +59,7 @@ function PageLoader() {
   return (
     <div className="flex min-h-[60vh] flex-col items-center justify-center gap-4 animate-fade-in" role="status" aria-label="جارٍ التحميل">
       <div className="text-xl font-bold tracking-tight text-stone-900">
-        <span>pp</span><span className="text-emerald-600">tides</span>
+        pp<span className="text-emerald-600">tides</span>
       </div>
       <div className="h-8 w-8 animate-spin rounded-full border-2 border-emerald-200 border-t-emerald-600" />
     </div>

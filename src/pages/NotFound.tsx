@@ -9,8 +9,7 @@ export default function NotFound() {
         <meta name="robots" content="noindex" />
       </Helmet>
       <Link to="/" className="mb-6 text-2xl font-bold tracking-tight text-stone-900 hover:opacity-90 transition-opacity">
-        <span>pp</span>
-        <span className="text-emerald-600">tides</span>
+        pp<span className="text-emerald-600">tides</span>
       </Link>
       <h1 className="mb-4 text-5xl font-bold text-stone-900">404</h1>
       <p className="mb-8 text-lg text-stone-800">الصفحة غير موجودة</p>
