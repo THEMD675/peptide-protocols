@@ -86,9 +86,6 @@ class ErrorBoundary extends Component<{ children: ReactNode }, { hasError: boole
     }
     try {
       if (hasOptionalConsent()) {
-        import('@sentry/react').then(Sentry => {
-          Sentry.captureException(error, { extra: { componentStack: errorInfo.componentStack } });
-        }).catch(() => {});
       }
     } catch { /* localStorage unavailable */ }
   }
@@ -127,9 +124,6 @@ class RouteErrorBoundary extends Component<
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
     try {
       if (hasOptionalConsent()) {
-        import('@sentry/react').then(Sentry => {
-          Sentry.captureException(error, { extra: { componentStack: errorInfo.componentStack } });
-        }).catch(() => {});
       }
     } catch { /* localStorage unavailable */ }
   }

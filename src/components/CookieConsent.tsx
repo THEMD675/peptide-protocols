@@ -60,7 +60,7 @@ export default function CookieConsent() {
             />
             <div>
               <span className="text-sm font-medium text-stone-800">اختيارية</span>
-              <span className="text-xs text-stone-500 block">Google Analytics وSentry — لتحسين الأداء واكتشاف الأخطاء</span>
+              <span className="text-xs text-stone-500 block">Google Analytics — لتحسين الأداء</span>
             </div>
           </label>
         </div>

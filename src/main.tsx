@@ -13,20 +13,6 @@ if (import.meta.env.PROD) {
 }
 
 if (hasConsent && import.meta.env.PROD) {
-  import('@sentry/react').then(Sentry => {
-    Sentry.init({
-      dsn: import.meta.env.VITE_SENTRY_DSN,
-      integrations: [
-        Sentry.browserTracingIntegration(),
-        Sentry.replayIntegration({ maskAllText: true, blockAllMedia: false }),
-      ],
-      tracesSampleRate: 0.1,
-      replaysSessionSampleRate: 0.05,
-      replaysOnErrorSampleRate: 1.0,
-      environment: import.meta.env.MODE,
-    });
-  }).catch(() => {});
-
   const ga4Id = import.meta.env.VITE_GA4_ID;
   if (ga4Id) {
     const { hasOptionalConsent } = await import('./lib/cookie-utils');

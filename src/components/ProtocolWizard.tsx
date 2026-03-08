@@ -105,7 +105,7 @@ export default function ProtocolWizard({ peptideId, prefillDose, prefillUnit, on
       });
       if (error) {
         toast.error('تعذّر إنشاء البروتوكول — تحقق من اتصالك وحاول مرة أخرى');
-        // Error logged to Sentry via ErrorBoundary
+
         return;
       }
       toast.success(`تم بدء بروتوكول ${peptide.nameAr}! — انتقل لسجل الحقن`);

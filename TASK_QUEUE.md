@@ -26,9 +26,6 @@ Agents: read this file first. Pick the next unchecked `[ ]` task. Mark `[x]` whe
 
 ## Open Tasks — require human action
 - [ ] Isolate from ravora.app — create new Supabase project
-- [ ] Saudi PDPL compliance — needs lawyer review
-- [ ] Content liability review — needs lawyer
-- [ ] Medical content review — 63 peptide dosages need pharmacist
 - [ ] Blog content — 3 posts exist, need more real Arabic SEO articles
 - [ ] Video injection guides — need actual video files
 - [ ] Expert advisory board — need real names

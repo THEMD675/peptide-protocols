@@ -419,16 +419,19 @@ export default function Tracker() {
   };
 
   const [fullStatsData, setFullStatsData] = useState<{ uniquePeptides: number; last7: number } | null>(null);
+  const [allLogsForStats, setAllLogsForStats] = useState<InjectionLog[]>([]);
   useEffect(() => {
     if (!user) return;
     let mounted = true;
     Promise.all([
       supabase.from('injection_logs').select('peptide_name').eq('user_id', user.id).limit(10000),
       supabase.from('injection_logs').select('id', { count: 'exact', head: true }).eq('user_id', user.id).gte('logged_at', new Date(Date.now() - 7 * 86400000).toISOString()),
-    ]).then(([pepRes, weekRes]) => {
+      supabase.from('injection_logs').select('logged_at, injection_site, peptide_name').eq('user_id', user.id).order('logged_at', { ascending: false }).limit(10000),
+    ]).then(([pepRes, weekRes, allRes]) => {
       if (!mounted) return;
       const unique = new Set((pepRes.data ?? []).map((r: { peptide_name: string }) => r.peptide_name)).size;
       setFullStatsData({ uniquePeptides: unique, last7: weekRes.count ?? 0 });
+      setAllLogsForStats((allRes.data as InjectionLog[]) ?? []);
     }).catch(() => {});
     return () => { mounted = false; };
   }, [user, logs.length]);
@@ -437,7 +440,7 @@ export default function Tracker() {
     if (logs.length === 0) return null;
     const totalInjections = totalCount || logs.length;
     const uniquePeptides = fullStatsData?.uniquePeptides ?? new Set(logs.map(l => l.peptide_name)).size;
-    const streak = computeStreak(logs);
+    const streak = computeStreak(allLogsForStats.length > 0 ? allLogsForStats : logs);
     const last7 = fullStatsData?.last7 ?? logs.filter(l => Date.now() - new Date(l.logged_at).getTime() < 7 * 24 * 60 * 60 * 1000).length;
     if (logs.length === 0) return null;
     const msSinceLast = Date.now() - new Date(logs[0].logged_at).getTime();
@@ -445,23 +448,25 @@ export default function Tracker() {
     const daysSince = Math.floor(hoursSince / 24);
     const timeSinceLabel = daysSince > 0 ? `منذ ${daysSince} يوم` : hoursSince > 0 ? `منذ ${hoursSince} ساعة` : 'الآن';
     return { totalInjections, uniquePeptides, streak, last7, timeSinceLabel };
-  }, [logs, totalCount, fullStatsData?.last7, fullStatsData?.uniquePeptides]);
+  }, [logs, allLogsForStats, totalCount, fullStatsData?.last7, fullStatsData?.uniquePeptides]);
 
   const weeklyActivity = useMemo(() => {
-    if (logs.length === 0) return null;
+    const src = allLogsForStats.length > 0 ? allLogsForStats : logs;
+    if (src.length === 0) return null;
     const days = ['الأحد', 'الإثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'];
     const weekCounts = Array(7).fill(0) as number[];
     const now = new Date();
-    logs.forEach(l => {
+    src.forEach(l => {
       const diff = Math.floor((now.getTime() - new Date(l.logged_at).getTime()) / (1000 * 60 * 60 * 24));
       if (diff < 7) weekCounts[new Date(l.logged_at).getDay()]++;
     });
     const max = Math.max(...weekCounts, 1);
     return { days, weekCounts, max, todayIdx: now.getDay() };
-  }, [logs]);
+  }, [logs, allLogsForStats]);
 
   const calendarData = useMemo(() => {
-    if (logs.length === 0) return null;
+    const src = allLogsForStats.length > 0 ? allLogsForStats : logs;
+    if (src.length === 0) return null;
     const now = new Date();
     const { year, month } = calendarMonth;
     const daysInMonth = new Date(year, month + 1, 0).getDate();
@@ -472,7 +477,7 @@ export default function Tracker() {
     const monthName = useHijri ? `${gregorianLabel} / ${hijriLabel}` : gregorianLabel;
     const isCurrentMonth = year === now.getFullYear() && month === now.getMonth();
     const injectionDays = new Map<number, number>();
-    logs.forEach(l => {
+    src.forEach(l => {
       const d = new Date(l.logged_at);
       if (d.getFullYear() === year && d.getMonth() === month) {
         injectionDays.set(d.getDate(), (injectionDays.get(d.getDate()) ?? 0) + 1);
