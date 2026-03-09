@@ -104,6 +104,32 @@ serve(async (req) => {
       })
     }
 
+    // FIX: If user cancelled (cancel_at_period_end) but sub is still active in Stripe,
+    // un-cancel it instead of creating a new checkout session (avoids duplicate subscriptions).
+    if (existingSub?.status === 'cancelled' && existingSub?.stripe_subscription_id) {
+      try {
+        const stripeSub = await stripe.subscriptions.retrieve(existingSub.stripe_subscription_id)
+        if (stripeSub.status === 'active' && stripeSub.cancel_at_period_end) {
+          await stripe.subscriptions.update(existingSub.stripe_subscription_id, {
+            cancel_at_period_end: false,
+          })
+          const serviceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')
+          if (serviceKey) {
+            const adminDb = createClient(supabaseUrl, serviceKey)
+            await adminDb.from('subscriptions').update({
+              status: 'active',
+              updated_at: new Date().toISOString(),
+            }).eq('user_id', user.id)
+          }
+          return new Response(JSON.stringify({ reactivated: true }), {
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          })
+        }
+      } catch (reactivateErr) {
+        console.error('create-checkout: reactivation check failed, proceeding to new checkout:', reactivateErr)
+      }
+    }
+
     const hadStripeSub = !!existingSub?.stripe_subscription_id
 
     const openSessions = await stripe.checkout.sessions.list({

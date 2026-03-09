@@ -432,11 +432,39 @@ serve(async (req) => {
         if (customerId) {
           const { error } = await supabase.from('subscriptions').update({
             status: 'cancelled',
+            tier: 'free',
             updated_at: new Date().toISOString(),
           }).eq('stripe_customer_id', customerId)
           if (error) { console.error('charge.dispute.created DB error:', error); dbFailed = true }
         }
         console.error(JSON.stringify({ severity: 'CRITICAL', action: 'charge_disputed', customer: customerId, amount: dispute.amount, timestamp: new Date().toISOString() }))
+
+        // Notify admin about the dispute
+        const RESEND_API_KEY = Deno.env.get('RESEND_API_KEY')
+        if (RESEND_API_KEY && customerId) {
+          const adminEmail = Deno.env.get('ADMIN_EMAIL_WHITELIST')?.split(',')[0]?.trim() || 'contact@pptides.com'
+          const customer = await stripe.customers.retrieve(customerId).catch(() => null)
+          const customerEmail = (customer && !customer.deleted) ? customer.email : 'unknown'
+          await fetch('https://api.resend.com/emails', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${RESEND_API_KEY}` },
+            body: JSON.stringify({
+              from: 'pptides <noreply@pptides.com>',
+              to: adminEmail,
+              subject: '⚠️ نزاع دفع جديد — pptides',
+              html: emailWrapper(`
+                <h1 style="color: #dc2626; font-size: 24px;">⚠️ نزاع دفع جديد</h1>
+                <p><strong>العميل:</strong> ${customerEmail}</p>
+                <p><strong>المبلغ:</strong> ${(dispute.amount / 100).toFixed(2)} ${dispute.currency?.toUpperCase()}</p>
+                <p><strong>السبب:</strong> ${dispute.reason ?? 'غير محدد'}</p>
+                <p style="color: #dc2626; font-weight: bold;">تم إلغاء اشتراك العميل تلقائيًا. يرجى الرد على النزاع في لوحة Stripe.</p>
+                <div style="text-align: center; margin: 24px 0;">
+                  ${emailButton('فتح Stripe Dashboard', 'https://dashboard.stripe.com/disputes')}
+                </div>
+              `),
+            }),
+          }).catch(e => console.error('dispute admin email failed:', e))
+        }
         break
       }
 

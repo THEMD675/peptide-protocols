@@ -20,6 +20,7 @@ export interface Subscription {
 interface User {
   id: string;
   email: string;
+  provider: string;
 }
 
 export interface AuthContextType {
@@ -60,7 +61,7 @@ export function useSubscription(): Subscription {
 
 function mapUser(su: SupabaseUser | null): User | null {
   if (!su || !su.email) return null;
-  return { id: su.id, email: su.email };
+  return { id: su.id, email: su.email, provider: su.app_metadata?.provider ?? 'email' };
 }
 
 /** @internal exported for testing */
@@ -83,7 +84,8 @@ export function buildSubscription(row: Record<string, unknown> | null): Subscrip
   const tier = tierMap[rawTier] ?? 'free';
 
   const rawTrialEnd = row.trial_ends_at as string | undefined;
-  const trialEndsAtUtc = rawTrialEnd ? new Date(rawTrialEnd.endsWith('Z') ? rawTrialEnd : rawTrialEnd + 'Z') : null;
+  const hasTimezone = rawTrialEnd ? (rawTrialEnd.endsWith('Z') || /[+-]\d{2}:\d{2}$/.test(rawTrialEnd)) : false;
+  const trialEndsAtUtc = rawTrialEnd ? new Date(hasTimezone ? rawTrialEnd : rawTrialEnd + 'Z') : null;
   const nowUtcMs = Date.now();
   const trialDaysLeft = trialEndsAtUtc
     ? Math.max(0, Math.ceil((trialEndsAtUtc.getTime() - nowUtcMs) / (1000 * 60 * 60 * 24)))
@@ -458,10 +460,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         throw new Error(err.error ?? 'Checkout failed');
       }
 
-      const { url } = await res.json();
-      if (!url) throw new Error('No checkout URL returned');
+      const data = await res.json();
 
-      window.location.href = url;
+      // Handle reactivation of cancelled-but-still-active subscription
+      if (data.reactivated) {
+        await refreshSubscription();
+        toast.success('تم إعادة تفعيل اشتراكك بنجاح!');
+        navigate('/dashboard');
+        return;
+      }
+
+      if (!data.url) throw new Error('No checkout URL returned');
+
+      window.location.href = data.url;
     } catch (e) {
       toast.error(`تعذّر التحويل لصفحة الدفع. تواصل معنا: ${SUPPORT_EMAIL}`);
       throw e;
