@@ -239,9 +239,10 @@ export default function LabResultsTracker() {
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="mb-1 block text-xs font-bold text-stone-700">القيمة</label>
+              <label htmlFor="lab-value" className="mb-1 block text-xs font-bold text-stone-700">القيمة</label>
               <div className="relative">
                 <input
+                  id="lab-value"
                   type="number"
                   inputMode="decimal"
                   value={value}
@@ -279,10 +280,11 @@ export default function LabResultsTracker() {
           </div>
 
           <div>
-            <label className="mb-1 block text-xs font-bold text-stone-700">
+            <label htmlFor="lab-notes" className="mb-1 block text-xs font-bold text-stone-700">
               ملاحظات <span className="text-emerald-600 font-normal">اختياري</span>
             </label>
             <textarea
+              id="lab-notes"
               value={notes}
               onChange={e => setNotes(e.target.value)}
               placeholder="ملاحظات إضافية..."

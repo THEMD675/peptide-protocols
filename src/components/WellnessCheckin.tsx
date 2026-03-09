@@ -228,10 +228,11 @@ export default function WellnessCheckin() {
           })}
 
           <div>
-            <label className="mb-1 block text-xs font-bold text-stone-700">
+            <label htmlFor="wc-weight" className="mb-1 block text-xs font-bold text-stone-700">
               الوزن (كغ) <span className="text-emerald-600 font-normal">اختياري</span>
             </label>
             <input
+              id="wc-weight"
               type="number"
               inputMode="decimal"
               value={weight}
@@ -247,10 +248,11 @@ export default function WellnessCheckin() {
           </div>
 
           <div>
-            <label className="mb-1 block text-xs font-bold text-stone-700">
+            <label htmlFor="wc-notes" className="mb-1 block text-xs font-bold text-stone-700">
               ملاحظات <span className="text-emerald-600 font-normal">اختياري</span>
             </label>
             <textarea
+              id="wc-notes"
               value={notes}
               onChange={e => setNotes(e.target.value)}
               disabled={isReadonly}
