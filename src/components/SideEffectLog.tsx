@@ -125,8 +125,15 @@ export default function SideEffectLog() {
     }
   };
 
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+
   const handleDelete = async (id: string) => {
     if (!user) return;
+    if (deletingId !== id) {
+      setDeletingId(id);
+      return;
+    }
+    setDeletingId(null);
     const prev = entries;
     setEntries(e => e.filter(x => x.id !== id));
     const { error } = await supabase
@@ -172,8 +179,9 @@ export default function SideEffectLog() {
           {/* Quick-add form */}
           <div className="space-y-3">
             <div>
-              <label className="mb-1 block text-xs font-bold text-stone-700">العرض</label>
+              <label htmlFor="se-symptom" className="mb-1 block text-xs font-bold text-stone-700">العرض</label>
               <input
+                id="se-symptom"
                 type="text"
                 value={symptom}
                 onChange={e => setSymptom(e.target.value)}
@@ -226,10 +234,11 @@ export default function SideEffectLog() {
             )}
 
             <div>
-              <label className="mb-1 block text-xs font-bold text-stone-700">
+              <label htmlFor="se-notes" className="mb-1 block text-xs font-bold text-stone-700">
                 ملاحظات <span className="text-emerald-600 font-normal">اختياري</span>
               </label>
               <textarea
+                id="se-notes"
                 value={notes}
                 onChange={e => setNotes(e.target.value)}
                 placeholder="تفاصيل إضافية..."
@@ -297,8 +306,14 @@ export default function SideEffectLog() {
                     </div>
                     <button
                       onClick={() => handleDelete(entry.id)}
-                      className="flex shrink-0 items-center justify-center rounded-lg p-2 text-stone-300 transition-colors hover:bg-red-50 hover:text-red-500"
-                      aria-label="حذف"
+                      onBlur={() => { if (deletingId === entry.id) setDeletingId(null); }}
+                      className={cn(
+                        'flex shrink-0 items-center justify-center rounded-lg p-2 transition-colors',
+                        deletingId === entry.id
+                          ? 'bg-red-100 text-red-600'
+                          : 'text-stone-300 hover:bg-red-50 hover:text-red-500',
+                      )}
+                      aria-label={deletingId === entry.id ? 'تأكيد الحذف' : 'حذف'}
                     >
                       <Trash2 className="h-3.5 w-3.5" />
                     </button>

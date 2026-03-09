@@ -22,10 +22,12 @@ export const PUBMED_SOURCE_LABEL = `${PUBMED_SOURCE_COUNT}+`;
 export const FREQUENCY_LABELS: Record<string, string> = {
   od: 'مرة يوميًا',
   bid: 'مرتين يوميًا',
+  tid: 'ثلاث مرات يوميًا',
   weekly: 'مرة أسبوعيًا',
   biweekly: 'مرتين أسبوعيًا',
+  'daily-10': '10 أيام من 14',
+  'daily-20': '20 يوم من 28',
   prn: 'عند الحاجة',
-  tid: 'ثلاث مرات يوميًا',
 };
 
 export const VALUE_TOTAL = '1,121 ر.س+';

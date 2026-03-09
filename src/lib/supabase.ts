@@ -5,7 +5,7 @@ const supabaseUrl = import.meta.env.VITE_SUPABASE_URL as string | undefined;
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined;
 
 if (!supabaseUrl || !supabaseAnonKey) {
-
+  console.warn('[pptides] Missing VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY — Supabase client will use placeholder (non-functional).');
 }
 
 // Bypass Web Locks API — some browsers (Safari <16.4, SSR) don't support navigator.locks.

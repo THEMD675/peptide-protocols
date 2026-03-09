@@ -89,7 +89,7 @@ export function useCelebrations() {
       return;
     }
 
-    if (totalInjections === 50 && !celebrated['fifty_injections']) {
+    if (totalInjections >= 50 && !celebrated['fifty_injections']) {
       markCelebration('fifty_injections');
       setTimeout(() => {
         toast.success('50 حقنة! مستخدم متقدّم', {

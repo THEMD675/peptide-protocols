@@ -477,7 +477,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       toast.error(`تعذّر التحويل لصفحة الدفع. تواصل معنا: ${SUPPORT_EMAIL}`);
       throw e;
     }
-  }, [navigate]);
+  }, [navigate, refreshSubscription]);
 
   const contextValue = useMemo(
     () => ({ user, subscription, isLoading, login, signup, logout, upgradeTo, refreshSubscription }),

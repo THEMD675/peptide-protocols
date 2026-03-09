@@ -15,7 +15,7 @@ export default memo(function ActivityChart({ data }: ActivityChartProps) {
   if (data.length === 0) return null;
 
   return (
-    <div className="h-32 w-full" dir="ltr">
+    <div className="h-32 w-full" dir="ltr" role="img" aria-label="مخطط النشاط الأسبوعي">
       <ResponsiveContainer width="100%" height="100%">
         <BarChart data={data} margin={{ top: 5, right: 0, left: 0, bottom: 5 }}>
           <XAxis

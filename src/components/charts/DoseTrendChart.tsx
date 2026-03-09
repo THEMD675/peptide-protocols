@@ -15,7 +15,7 @@ export default memo(function DoseTrendChart({ data, unit = 'mcg' }: DoseTrendCha
   if (data.length < 2) return null;
 
   return (
-    <div className="h-48 w-full" dir="ltr">
+    <div className="h-48 w-full" dir="ltr" role="img" aria-label={`مخطط اتجاه الجرعات — ${data.length} نقاط بيانات`}>
       <ResponsiveContainer width="100%" height="100%">
         <LineChart data={data} margin={{ top: 5, right: 10, left: 0, bottom: 5 }}>
           <CartesianGrid strokeDasharray="3 3" stroke="#e7e5e4" />

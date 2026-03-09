@@ -111,9 +111,16 @@ export default function WellnessCheckin() {
 
   const handleSubmit = async () => {
     if (!user || isSubmitting) return;
+    if (weight) {
+      const w = parseFloat(weight);
+      if (isNaN(w) || w < 20 || w > 300) {
+        toast.error('أدخل وزنًا صحيحًا (20–300 كغ)');
+        return;
+      }
+    }
     setIsSubmitting(true);
     try {
-      const payload = {
+      const basePayload = {
         user_id: user.id,
         energy: values.energy,
         sleep: values.sleep,
@@ -122,13 +129,12 @@ export default function WellnessCheckin() {
         appetite: values.appetite,
         weight_kg: weight ? parseFloat(weight) : null,
         notes: notes.trim() || null,
-        logged_at: new Date().toISOString(),
       };
 
       if (todayEntry) {
         const { error } = await supabase
           .from('wellness_logs')
-          .update(payload)
+          .update(basePayload)
           .eq('id', todayEntry.id)
           .eq('user_id', user.id);
         if (error) throw error;
@@ -136,7 +142,7 @@ export default function WellnessCheckin() {
       } else {
         const { error } = await supabase
           .from('wellness_logs')
-          .insert(payload);
+          .insert({ ...basePayload, logged_at: new Date().toISOString() });
         if (error) throw error;
         toast.success('تم تسجيل حالتك اليومية');
       }
