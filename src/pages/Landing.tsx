@@ -127,7 +127,7 @@ export default function Landing() {
     const cacheValid = cached && Date.now() - Number(cached) < 5 * 60 * 1000;
     Promise.all([
       cacheValid ? Promise.resolve({ count: null, error: null }) : supabase.from('subscriptions').select('id', { count: 'exact', head: true }).in('status', ['active', 'trial']).not('stripe_subscription_id', 'is', null),
-      supabase.from('reviews').select('content, rating, name, created_at').eq('is_approved', true).gte('rating', 4).order('created_at', { ascending: false }).limit(3),
+      supabase.from('reviews').select('body, rating, name, created_at').eq('is_approved', true).gte('rating', 4).order('created_at', { ascending: false }).limit(3),
     ]).then(([subsResult, reviewsResult]) => {
       if (!mounted) return;
       if (!subsResult.error && subsResult.count != null && subsResult.count > 0) {
@@ -148,7 +148,7 @@ export default function Landing() {
       }
       if (!reviewsResult.error && reviewsResult.data && reviewsResult.data.length > 0) {
         setTestimonials(reviewsResult.data.map((r) => ({
-          text: r.content,
+          text: r.body,
           name: r.name ?? 'مستخدم',
           role: `تقييم ${r.rating}/5`,
           rating: r.rating,

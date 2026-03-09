@@ -11,8 +11,8 @@ import { SITE_URL, TRIAL_DAYS } from '@/lib/constants';
 interface Review {
   id: string;
   rating: number;
-  content: string;
-  text?: string;
+  body: string;
+  name?: string;
   user_id?: string;
   is_subscriber?: boolean;
   created_at: string;
@@ -97,7 +97,7 @@ export default function Reviews() {
     try {
       const { data } = await supabase
         .from('reviews')
-        .select('id, rating, content, name, user_id, created_at')
+        .select('id, rating, body, name, user_id, created_at')
         .eq('is_approved', true)
         .order('created_at', { ascending: false })
         .limit(100);
@@ -156,7 +156,7 @@ export default function Reviews() {
         name: user.email?.split('@')[0] ?? 'مستخدم',
         email: user.email,
         rating,
-        content: text.trim(),
+        body: text.trim(),
         is_approved: false,
       });
 
@@ -456,7 +456,7 @@ export default function Reviews() {
                     </span>
                   </div>
                   <p className="text-sm leading-relaxed text-stone-800">
-                    {review.content}
+                    {review.body}
                   </p>
                 </div>
               ))}
