@@ -1,8 +1,8 @@
 import DOMPurify from 'dompurify';
 import { cn } from '@/lib/utils';
 
-const esc = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
-const inlineMd = (s: string) =>
+export const esc = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+export const inlineMd = (s: string) =>
   esc(s)
     .replace(/\*\*(.+?)\*\*/g, '<strong class="font-bold text-stone-900">$1</strong>')
     .replace(/\*(.+?)\*/g, '<em>$1</em>')
@@ -117,4 +117,81 @@ export function renderMarkdown(text: string) {
   flushList();
   flushTable();
   return elements;
+}
+
+/**
+ * Render markdown to a sanitized HTML string (for print/export).
+ * Mirrors renderMarkdown logic but outputs an HTML string instead of React nodes.
+ */
+export function renderMarkdownToHtml(text: string): string {
+  const lines = text.split('\n');
+  const parts: string[] = [];
+  let listItems: string[] = [];
+  let listType: 'ul' | 'ol' = 'ul';
+  let tableRows: string[][] = [];
+  let inCodeBlock = false;
+  let codeLines: string[] = [];
+
+  const flushList = () => {
+    if (listItems.length === 0) return;
+    const tag = listType === 'ol' ? 'ol' : 'ul';
+    parts.push(`<${tag} style="padding-right:1.25rem;margin:0.5rem 0;">${listItems.map(item => `<li>${DOMPurify.sanitize(inlineMd(item))}</li>`).join('')}</${tag}>`);
+    listItems = [];
+    listType = 'ul';
+  };
+
+  const flushTable = () => {
+    if (tableRows.length === 0) return;
+    const [header, ...body] = tableRows;
+    let html = '<table style="width:100%;border-collapse:collapse;margin:0.75rem 0;"><thead><tr>';
+    header.forEach(c => { html += `<th style="border:1px solid #e7e5e4;padding:6px 10px;background:#f5f5f4;text-align:start;font-weight:bold;">${DOMPurify.sanitize(inlineMd(c))}</th>`; });
+    html += '</tr></thead><tbody>';
+    body.forEach(row => {
+      html += '<tr>';
+      row.forEach(c => { html += `<td style="border:1px solid #e7e5e4;padding:6px 10px;">${DOMPurify.sanitize(inlineMd(c))}</td>`; });
+      html += '</tr>';
+    });
+    html += '</tbody></table>';
+    parts.push(html);
+    tableRows = [];
+  };
+
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i].trim();
+    if (line.startsWith('```')) {
+      if (inCodeBlock) {
+        parts.push(`<pre style="background:#292524;color:#f5f5f4;padding:16px;border-radius:8px;overflow-x:auto;font-size:12px;direction:ltr;"><code>${esc(codeLines.join('\n'))}</code></pre>`);
+        codeLines = [];
+        inCodeBlock = false;
+      } else {
+        flushList(); flushTable();
+        inCodeBlock = true;
+      }
+      continue;
+    }
+    if (inCodeBlock) { codeLines.push(lines[i]); continue; }
+    if (!line) { flushList(); flushTable(); parts.push('<br/>'); continue; }
+    if (line.startsWith('|') && line.endsWith('|')) {
+      if (/^\|[\s-:|]+\|$/.test(line)) continue;
+      flushList();
+      const cells = line.split('|').slice(1, -1).map(c => c.trim());
+      if (cells.length > 0) { tableRows.push(cells); continue; }
+    } else {
+      flushTable();
+    }
+    if (line === '---') { flushList(); parts.push('<hr style="margin:0.75rem 0;"/>'); continue; }
+    if (line.startsWith('###')) { flushList(); parts.push(`<h4 style="margin-top:1rem;font-weight:bold;color:#059669;">${esc(line.replace(/^###\s*/, ''))}</h4>`); continue; }
+    if (line.startsWith('##')) { flushList(); parts.push(`<h3 style="margin-top:1rem;font-weight:bold;">${esc(line.replace(/^##\s*/, ''))}</h3>`); continue; }
+    if (line.startsWith('#')) { flushList(); parts.push(`<h3 style="margin-top:1rem;font-weight:bold;">${esc(line.replace(/^#\s*/, ''))}</h3>`); continue; }
+    if (/^\d+\.\s/.test(line)) { if (listItems.length === 0) listType = 'ol'; listItems.push(line.replace(/^\d+\.\s*/, '')); continue; }
+    if (/^[-*]\s/.test(line)) { if (listItems.length === 0) listType = 'ul'; listItems.push(line.replace(/^[-*]\s*/, '')); continue; }
+    flushList();
+    parts.push(`<p style="margin:4px 0;">${DOMPurify.sanitize(inlineMd(line))}</p>`);
+  }
+  if (inCodeBlock && codeLines.length) {
+    parts.push(`<pre style="background:#292524;color:#f5f5f4;padding:16px;border-radius:8px;overflow-x:auto;font-size:12px;direction:ltr;"><code>${esc(codeLines.join('\n'))}</code></pre>`);
+  }
+  flushList();
+  flushTable();
+  return parts.join('\n');
 }

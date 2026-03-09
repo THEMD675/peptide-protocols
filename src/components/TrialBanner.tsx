@@ -13,7 +13,7 @@ const FREE_PATHS = [
   '/calculator', '/pricing', '/login', '/signup', '/privacy', '/terms', '/',
   '/glossary', '/sources', '/reviews', '/account', '/interactions',
   '/library', '/table', '/stacks', '/lab-guide', '/guide',
-  '/community', '/about', '/faq', '/quiz',
+  '/community', '/about', '/faq', '/quiz', '/blog', '/contact', '/transparency',
 ];
 // Excluded: /dashboard, /tracker, /coach — premium routes; blocking modal must trigger for expired
 // /peptide handled separately via isPeptideFree (FREE_PEPTIDE_IDS)

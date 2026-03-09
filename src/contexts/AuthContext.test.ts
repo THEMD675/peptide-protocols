@@ -140,6 +140,20 @@ describe('buildSubscription', () => {
     expect(sub.trialDaysLeft).toBeGreaterThan(0)
   })
 
+  // --- Trial end with +00:00 offset (Supabase PostgREST format) ---
+  it('handles trial_ends_at with +00:00 offset', () => {
+    const futureDate = new Date(Date.now() + 2 * 86400000)
+    const withOffset = futureDate.toISOString().replace('Z', '+00:00')
+    const sub = buildSubscription({
+      status: 'trial',
+      tier: 'essentials',
+      trial_ends_at: withOffset,
+    })
+    expect(sub.status).toBe('trial')
+    expect(sub.isTrial).toBe(true)
+    expect(sub.trialDaysLeft).toBeGreaterThan(0)
+  })
+
   // --- Unknown status ---
   it('treats unknown status as none', () => {
     const sub = buildSubscription({

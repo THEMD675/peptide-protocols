@@ -4,7 +4,7 @@ import { Link, useSearchParams, useNavigate } from 'react-router-dom';
 import DOMPurify from 'dompurify';
 import { supabase } from '@/lib/supabase';
 import { peptides as allPeptides } from '@/data/peptides';
-import { renderMarkdown } from '@/lib/markdown';
+import { renderMarkdown, renderMarkdownToHtml } from '@/lib/markdown';
 import {
   Bot, Send, Sparkles, TrendingDown, Heart, Dumbbell, Brain,
   Clock, Zap, Calculator, FlaskConical, Shield, RotateCcw, ArrowLeft, ArrowRight,
@@ -801,11 +801,11 @@ export default function Coach() {
                       onClick={() => {
                         const printWindow = window.open('', '_blank');
                         if (printWindow) {
-                          const sanitized = DOMPurify.sanitize(msg.content.replace(/\n/g, '<br>'));
+                          const rendered = renderMarkdownToHtml(msg.content);
                           printWindow.document.write(`
                             <html dir="rtl"><head><title>بروتوكول pptides</title>
-                            <style>body{font-family:Arial;padding:40px;line-height:1.8;}</style></head>
-                            <body>${sanitized}</body></html>
+                            <style>body{font-family:Arial,sans-serif;padding:40px;line-height:1.8;color:#1c1917;}table{border-collapse:collapse;width:100%;}th,td{border:1px solid #e7e5e4;padding:6px 10px;}th{background:#f5f5f4;font-weight:bold;}h3,h4{margin-top:1rem;}strong{font-weight:bold;}</style></head>
+                            <body>${rendered}<p style="margin-top:2rem;font-size:12px;color:#a8a29e;">محتوى تعليمي بحثي — استشر طبيبك قبل استخدام أي ببتيد | pptides.com</p></body></html>
                           `);
                           printWindow.document.close();
                           printWindow.print();

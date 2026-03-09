@@ -772,18 +772,11 @@ export default function Tracker() {
               <p className="text-xs text-stone-500">آخر حقنة</p>
             </div>
           </div>
-          <div className="grid grid-cols-3 gap-3 mb-6">
+          {/* Active days stat — uses full log set for accuracy */}
+          <div className="grid grid-cols-1 gap-3 mb-6">
             <div className="rounded-2xl border border-stone-200 bg-white p-4 text-center">
-              <p className="text-2xl font-black text-stone-900">{new Set(logs.map(l => new Date(l.logged_at).toDateString())).size}</p>
+              <p className="text-2xl font-black text-stone-900">{new Set((allLogsForStats.length > 0 ? allLogsForStats : logs).map(l => new Date(l.logged_at).toDateString())).size}</p>
               <p className="text-xs text-stone-500">يوم نشط</p>
-            </div>
-            <div className="rounded-2xl border border-stone-200 bg-white p-4 text-center">
-              <p className="text-2xl font-black text-stone-900">{new Set(logs.map(l => l.peptide_name)).size}</p>
-              <p className="text-xs text-stone-500">ببتيد مختلف</p>
-            </div>
-            <div className="rounded-2xl border border-stone-200 bg-white p-4 text-center">
-              <p className="text-2xl font-black text-stone-900">{logs.length}</p>
-              <p className="text-xs text-stone-500">حقنة مسجّلة</p>
             </div>
           </div>
           </>

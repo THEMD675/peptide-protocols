@@ -171,7 +171,7 @@ export default function Account() {
     if (!user) return;
     toast('جارٍ تجهيز بياناتك...');
     try {
-      const [logsRes, protosRes, reviewsRes, communityRes, subsRes, wellnessRes, labRes, sideEffectRes] = await Promise.all([
+      const [logsRes, protosRes, reviewsRes, communityRes, subsRes, wellnessRes, labRes, sideEffectRes, profileRes] = await Promise.all([
         supabase.from('injection_logs').select('*').eq('user_id', user.id),
         supabase.from('user_protocols').select('*').eq('user_id', user.id),
         supabase.from('reviews').select('*').eq('user_id', user.id),
@@ -180,6 +180,7 @@ export default function Account() {
         supabase.from('wellness_logs').select('*').eq('user_id', user.id),
         supabase.from('lab_results').select('*').eq('user_id', user.id),
         supabase.from('side_effect_logs').select('*').eq('user_id', user.id),
+        supabase.from('user_profiles').select('*').eq('user_id', user.id),
       ]);
       if (logsRes.error || protosRes.error || reviewsRes.error) {
         toast.error('تعذّر تحميل بعض البيانات. حاول مرة أخرى.');
@@ -224,6 +225,7 @@ export default function Account() {
         const exportData = {
           exported_at: new Date().toISOString(),
           email: user.email,
+          profile: profileRes.data ?? [],
           injection_logs: logsRes.data ?? [],
           protocols: protosRes.data ?? [],
           reviews: reviewsRes.data ?? [],
@@ -273,7 +275,7 @@ export default function Account() {
     }
   };
 
-  const isOAuthUser = (user?.app_metadata?.provider ?? 'email') !== 'email';
+  const isOAuthUser = user.provider !== 'email';
 
   const handleDeleteAccount = async () => {
     const confirmed = deleteConfirmText === 'حذف' || deleteConfirmText.toLowerCase() === 'delete';
