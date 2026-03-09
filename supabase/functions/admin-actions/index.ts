@@ -571,6 +571,45 @@ serve(async (req) => {
       return json({ ok: true, data: data ?? [] }, 200, cors)
     }
 
+    // ================================================================
+    // REPLY TO ENQUIRY (update DB + send email)
+    // ================================================================
+    if (action === 'reply_enquiry') {
+      const enquiryId = body.enquiry_id as string
+      const reply = (body.reply as string)?.trim()
+      const to = (body.to as string)?.trim()
+      const subject = (body.subject as string)?.trim()
+      if (!enquiryId || !reply) return json({ error: 'Missing enquiry_id or reply' }, 400, cors)
+
+      const { error: updateErr } = await admin.from('enquiries').update({
+        status: 'replied',
+        admin_notes: reply,
+        replied_at: new Date().toISOString(),
+      }).eq('id', enquiryId)
+      if (updateErr) return json({ error: updateErr.message }, 500, cors)
+
+      let emailSent = false
+      if (to && subject && resendKey) {
+        try {
+          const r = await fetch('https://api.resend.com/emails', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${resendKey}` },
+            body: JSON.stringify({
+              from: 'pptides <contact@pptides.com>',
+              reply_to: 'contact@pptides.com',
+              to,
+              subject,
+              text: reply,
+            }),
+          })
+          emailSent = r.ok
+          await admin.from('email_logs').insert({ email: to, type: 'enquiry_reply', status: r.ok ? 'sent' : 'failed' }).catch(() => {})
+        } catch { /* email failure is non-fatal */ }
+      }
+
+      return json({ ok: true, email_sent: emailSent }, 200, cors)
+    }
+
     if (action === 'sync_email') {
       const userId = body.user_id as string
       const newEmail = body.new_email as string

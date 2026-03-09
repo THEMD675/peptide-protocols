@@ -229,7 +229,10 @@ serve(async (req) => {
         const periodEnd = new Date(subscription.current_period_end * 1000).toISOString()
 
         let mappedStatus: string
-        if (stripeStatus === 'active') mappedStatus = 'active'
+        // FIX: If Stripe status is 'active' but cancel_at_period_end is true,
+        // the user cancelled — map to 'cancelled' to avoid overwriting the cancel function's DB update.
+        if (stripeStatus === 'active' && subscription.cancel_at_period_end) mappedStatus = 'cancelled'
+        else if (stripeStatus === 'active') mappedStatus = 'active'
         else if (stripeStatus === 'trialing') mappedStatus = 'trial'
         else if (stripeStatus === 'past_due') mappedStatus = 'past_due'
         else if (stripeStatus === 'incomplete' || stripeStatus === 'incomplete_expired') mappedStatus = 'expired'
@@ -240,13 +243,28 @@ serve(async (req) => {
           ? new Date(subscription.trial_end * 1000).toISOString()
           : undefined
 
+        // FIX: Sync tier from subscription metadata or infer from price amount
+        let tierUpdate: string | undefined
+        const metaTier = subscription.metadata?.tier
+        if (metaTier && (metaTier === 'essentials' || metaTier === 'elite')) {
+          tierUpdate = metaTier
+        } else if (subscription.items?.data?.length) {
+          // Infer tier from price amount — elite threshold from env or default 9900 halalas (99 SAR)
+          const totalAmount = subscription.items.data.reduce((sum, item) => sum + ((item.price?.unit_amount ?? 0) * (item.quantity ?? 1)), 0)
+          const eliteMinHalalas = parseInt(Deno.env.get('ELITE_AMOUNT_MIN_HALALAS') ?? '9900', 10)
+          tierUpdate = totalAmount >= eliteMinHalalas ? 'elite' : 'essentials'
+        }
+
         try {
-          const { error, data: rows } = await supabase.rpc('update_subscription_by_stripe_id', {
+          const rpcParams: Record<string, unknown> = {
             p_stripe_subscription_id: stripeSubId,
             p_status: mappedStatus,
             p_current_period_end: periodEnd,
             p_trial_ends_at: trialEndsAt ?? null,
-          })
+          }
+          if (tierUpdate) rpcParams.p_tier = tierUpdate
+
+          const { error, data: rows } = await supabase.rpc('update_subscription_by_stripe_id', rpcParams)
 
           if (error) {
             console.error('subscription.updated DB error:', error)

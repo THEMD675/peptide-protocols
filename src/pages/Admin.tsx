@@ -863,11 +863,17 @@ export default function Admin() {
                         <button disabled={replySending || !replyText.trim()} onClick={async () => {
                           setReplySending(true);
                           try {
-                            const { supabase } = await import('@/lib/supabase');
-                            await supabase.from('enquiries').update({ status: 'replied', admin_notes: replyText.trim(), replied_at: new Date().toISOString() }).eq('id', eq.id);
+                            // Use admin-actions edge function (service role) to update enquiry + send reply email.
+                            // Previously used user-scoped Supabase client which silently failed under RLS (no UPDATE policy for admins on enquiries).
                             const token = await getToken();
-                            const r = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/send-enquiry-reply`, { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}`, apikey: import.meta.env.VITE_SUPABASE_ANON_KEY }, body: JSON.stringify({ to: eq.email, subject: `رد: ${eq.subject}`, reply: replyText.trim() }) });
-                            toast.success(r.ok ? 'Reply sent' : 'Reply saved (email failed)');
+                            const updateRes = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/admin-actions`, {
+                              method: 'POST',
+                              headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}`, apikey: import.meta.env.VITE_SUPABASE_ANON_KEY },
+                              body: JSON.stringify({ action: 'reply_enquiry', enquiry_id: eq.id, reply: replyText.trim(), to: eq.email, subject: `رد: ${eq.subject}` }),
+                            });
+                            const updateData = await updateRes.json();
+                            if (!updateRes.ok) throw new Error(updateData.error ?? 'Failed');
+                            toast.success(updateData.email_sent ? 'Reply sent' : 'Reply saved (email failed)');
                             setReplyingTo(null); setReplyText(''); fetchStats();
                           } catch (e) { toast.error(e instanceof Error ? e.message : 'Failed'); }
                           finally { setReplySending(false); }
