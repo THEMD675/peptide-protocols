@@ -142,7 +142,7 @@ serve(async (req) => {
       cancel_url: `${appUrl}/pricing?payment=cancelled`,
       allow_promotion_codes: true,
       custom_text: {
-        submit: { message: 'Powered by Amiris Group' },
+        submit: { message: 'Powered by Veridx' },
       },
     })
 
