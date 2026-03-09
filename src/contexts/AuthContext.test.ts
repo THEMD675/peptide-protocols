@@ -311,14 +311,14 @@ describe('buildSubscription', () => {
     expect(sub.isPaidSubscriber).toBe(true)
   })
 
-  it('past_due without period end has no grace access', () => {
+  it('past_due without period end has no grace access but is still paid subscriber', () => {
     const sub = buildSubscription({
       status: 'past_due',
       tier: 'essentials',
     })
     expect(sub.isProOrTrial).toBe(false)
-    // isPaidSubscriber should still be true based on status
-    expect(sub.isPaidSubscriber).toBe(false)
+    // isPaidSubscriber is true for past_due status regardless of grace period
+    expect(sub.isPaidSubscriber).toBe(true)
   })
 
   // ── Expired subscription ──
