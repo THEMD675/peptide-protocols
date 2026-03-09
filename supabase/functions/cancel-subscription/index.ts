@@ -106,6 +106,20 @@ serve(async (req) => {
     }
 
     if (!sub?.stripe_subscription_id) {
+      // Trial or free users have no Stripe subscription — don't kill their trial
+      if (sub?.status === 'trial') {
+        return new Response(JSON.stringify({ error: 'أنت في فترة تجربة مجانية — لا يوجد اشتراك لإلغائه', success: false }), {
+          status: 400,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        })
+      }
+      if (sub?.status === 'none' || !sub) {
+        return new Response(JSON.stringify({ error: 'لا يوجد اشتراك نشط لإلغائه', success: false }), {
+          status: 400,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        })
+      }
+      // Only cancel if they had a real paid subscription that lost its Stripe reference
       const { error: updateErr } = await supabase
         .from('subscriptions')
         .update({ status: 'cancelled', updated_at: new Date().toISOString() })
