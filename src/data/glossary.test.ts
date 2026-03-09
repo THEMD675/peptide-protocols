@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { GLOSSARY_TERMS, type GlossaryTerm } from './glossary'
+import { GLOSSARY_TERMS } from './glossary'
 import { peptides } from './peptides'
 
 const validPeptideIds = new Set(peptides.map(p => p.id))

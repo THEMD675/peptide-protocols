@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { DOSE_PRESETS, DOSE_PRESETS_MAP, type DosePreset } from './dose-presets'
+import { DOSE_PRESETS, DOSE_PRESETS_MAP } from './dose-presets'
 
 describe('Dose presets data integrity', () => {
   it('has at least 20 presets', () => {

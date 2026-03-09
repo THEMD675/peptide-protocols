@@ -10,11 +10,15 @@ export default function Contact() {
   const { user, isLoading } = useAuth();
   const [name, setName] = useState('');
   const [email, setEmail] = useState(user?.email ?? '');
+  const [subject, setSubject] = useState('');
+  const [message, setMessage] = useState('');
+  const [submitting, setSubmitting] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
 
   // Update email when user loads
   useEffect(() => {
     if (user?.email && !email) setEmail(user.email);
-  }, [user?.email]);
+  }, [user?.email, email]);
 
   if (isLoading) {
     return (
@@ -23,10 +27,6 @@ export default function Contact() {
       </div>
     );
   }
-  const [subject, setSubject] = useState('');
-  const [message, setMessage] = useState('');
-  const [submitting, setSubmitting] = useState(false);
-  const [submitted, setSubmitted] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

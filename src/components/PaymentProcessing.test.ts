@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
+import { describe, it, expect } from 'vitest'
 
 /**
  * PaymentProcessing logic tests.
@@ -107,7 +107,7 @@ describe('PaymentProcessing — state machine', () => {
   })
 
   it('does not transition from success to timeout', () => {
-    let stage: Stage = 'success'
+    const stage: Stage = 'success'
     // Timeout logic should not run when already success
     const shouldRunTimeout = stage === 'loading'
     expect(shouldRunTimeout).toBe(false)

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { Link } from 'react-router-dom';
 import { Shield, CheckCircle, Users, Package, AlertTriangle, Mail, Tag, Send, Loader2 } from 'lucide-react';
@@ -159,17 +159,6 @@ const criteria = [
 ];
 
 export default function Sources() {
-  const [ready, setReady] = useState(false);
-  useEffect(() => { setReady(true); }, []);
-
-  if (!ready) {
-    return (
-      <div className="flex min-h-[60vh] items-center justify-center">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-emerald-200 border-t-emerald-600" />
-      </div>
-    );
-  }
-
   return (
     <div className="min-h-screen animate-fade-in" role="main" aria-label="المصادر الموثوقة">
       <Helmet>

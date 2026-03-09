@@ -73,7 +73,7 @@ class ErrorBoundary extends Component<{ children: ReactNode }, { hasError: boole
     const isChunk = error.message?.includes('Loading chunk') || error.message?.includes('Failed to fetch dynamically imported');
     return { hasError: true, isChunkError: isChunk };
   }
-  componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
+  componentDidCatch(_error: Error, _errorInfo: React.ErrorInfo) {
     if (this.state.isChunkError) {
       try {
         const reloaded = sessionStorage.getItem('pptides_chunk_reload');
@@ -86,8 +86,7 @@ class ErrorBoundary extends Component<{ children: ReactNode }, { hasError: boole
       } catch { /* Safari private mode */ }
     }
     try {
-      if (hasOptionalConsent()) {
-      }
+      if (hasOptionalConsent()) { /* consent-gated error reporting placeholder */ }
     } catch { /* localStorage unavailable */ }
   }
   render() {
@@ -122,10 +121,9 @@ class RouteErrorBoundary extends Component<
   static getDerivedStateFromError(error: Error) {
     return { hasError: true, error };
   }
-  componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
+  componentDidCatch(_error: Error, _errorInfo: React.ErrorInfo) {
     try {
-      if (hasOptionalConsent()) {
-      }
+      if (hasOptionalConsent()) { /* consent-gated error reporting placeholder */ }
     } catch { /* localStorage unavailable */ }
   }
   reset = () => this.setState(prev => ({ hasError: false, error: null, retryCount: prev.retryCount + 1 }));

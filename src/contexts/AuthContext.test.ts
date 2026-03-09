@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
+import { describe, it, expect } from 'vitest'
 import { buildSubscription } from './AuthContext'
 
 function daysFromNow(days: number): string {

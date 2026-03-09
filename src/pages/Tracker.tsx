@@ -506,7 +506,7 @@ export default function Tracker() {
       );
     }
     return { dayNames, monthName, isCurrentMonth, injectionDays, cells };
-  }, [logs, calendarMonth, useHijri]);
+  }, [logs, allLogsForStats, calendarMonth, useHijri]);
 
   const siteRotationData = useMemo(() => {
     if (logs.length === 0) return null;

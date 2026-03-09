@@ -214,7 +214,7 @@ describe('Password validation rules', () => {
 
 describe('Turnstile token handling', () => {
   it('token is null by default', () => {
-    let turnstileToken: string | null = null;
+    const turnstileToken: string | null = null;
     expect(turnstileToken).toBeNull();
   });
 

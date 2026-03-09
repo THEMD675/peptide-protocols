@@ -1,7 +1,6 @@
 import { useState, useRef, useEffect, useCallback, memo, useMemo, type ElementType } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { Link, useSearchParams, useNavigate } from 'react-router-dom';
-import DOMPurify from 'dompurify';
 import { supabase } from '@/lib/supabase';
 import { peptides as allPeptides } from '@/data/peptides';
 import { renderMarkdown, renderMarkdownToHtml } from '@/lib/markdown';
