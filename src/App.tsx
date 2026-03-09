@@ -48,6 +48,7 @@ const Glossary = lazy(() => import('@/pages/Glossary'));
 const InteractionChecker = lazy(() => import('@/pages/InteractionChecker'));
 const Admin = lazy(() => import('@/pages/Admin'));
 const Quiz = lazy(() => import('@/pages/Quiz'));
+const Contact = lazy(() => import('@/pages/Contact'));
 const Blog = lazy(() => import('@/pages/Blog'));
 const BlogPost = lazy(() => import('@/pages/BlogPost'));
 const About = lazy(() => import('@/pages/About'));
@@ -303,6 +304,7 @@ export default function App() {
               <Route path="/sources" element={<Suspense fallback={<GenericPageSkeleton />}><RouteErrorBoundary fallbackTitle="خطأ في المصادر"><Sources /></RouteErrorBoundary></Suspense>} />
               <Route path="/community" element={<Suspense fallback={<GenericPageSkeleton />}><RouteErrorBoundary fallbackTitle="خطأ في المجتمع"><Community /></RouteErrorBoundary></Suspense>} />
               <Route path="/about" element={<Suspense fallback={<GenericPageSkeleton />}><RouteErrorBoundary fallbackTitle="خطأ في صفحة عن"><About /></RouteErrorBoundary></Suspense>} />
+              <Route path="/contact" element={<Suspense fallback={<GenericPageSkeleton />}><RouteErrorBoundary fallbackTitle="خطأ في صفحة التواصل"><Contact /></RouteErrorBoundary></Suspense>} />
               <Route path="/transparency" element={<Suspense fallback={<GenericPageSkeleton />}><RouteErrorBoundary><Transparency /></RouteErrorBoundary></Suspense>} />
               <Route path="/faq" element={<Suspense fallback={<GenericPageSkeleton />}><RouteErrorBoundary fallbackTitle="خطأ في الأسئلة الشائعة"><FAQ /></RouteErrorBoundary></Suspense>} />
               <Route path="/privacy" element={<Suspense fallback={<PageLoader />}><RouteErrorBoundary><Privacy /></RouteErrorBoundary></Suspense>} />
