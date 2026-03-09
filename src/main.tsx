@@ -1,22 +1,9 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import * as Sentry from '@sentry/react';
 import App from './App';
 import './index.css';
 
 import { hasOptionalConsent } from '@/lib/cookie-utils';
-
-const SENTRY_DSN = import.meta.env.VITE_SENTRY_DSN;
-if (SENTRY_DSN && import.meta.env.PROD) {
-  Sentry.init({
-    dsn: SENTRY_DSN,
-    environment: 'production',
-    tracesSampleRate: 0.1,
-    replaysSessionSampleRate: 0,
-    replaysOnErrorSampleRate: 0.5,
-    integrations: [Sentry.browserTracingIntegration(), Sentry.replayIntegration()],
-  });
-}
 
 const hasConsent = hasOptionalConsent();
 

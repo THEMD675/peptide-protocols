@@ -76,8 +76,20 @@ export default function Contact() {
         <meta property="og:type" content="website" />
         <meta property="og:url" content={`${SITE_URL}/contact`} />
         <meta property="og:image" content={`${SITE_URL}/og-image.png`} />
+        <meta property="og:locale" content="ar_SA" />
         <meta name="twitter:card" content="summary_large_image" />
         <link rel="canonical" href={`${SITE_URL}/contact`} />
+        <script type="application/ld+json">{JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "ContactPage",
+          "name": "تواصل معنا",
+          "url": `${SITE_URL}/contact`,
+          "mainEntity": {
+            "@type": "Organization",
+            "name": "pptides",
+            "email": "contact@pptides.com"
+          }
+        })}</script>
       </Helmet>
 
       <div className="mx-auto max-w-2xl px-4 py-12 sm:py-16">

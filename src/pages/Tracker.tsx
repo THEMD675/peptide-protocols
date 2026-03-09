@@ -523,8 +523,18 @@ export default function Tracker() {
     <div className="mx-auto max-w-3xl px-4 pb-24 pt-8 md:px-6 md:pt-12 animate-fade-in">
       <Helmet>
         <title>سجل الحقن | تتبّع جرعاتك | pptides</title>
-        <meta name="description" content="تتبّع جرعاتك ومواقع الحقن" />
+        <meta name="description" content="تتبّع جرعاتك ومواقع الحقن — سجل ذكي لبروتوكولات الببتيدات." />
+        <meta property="og:title" content="سجل الحقن | pptides" />
         <meta property="og:description" content="تتبّع جرعاتك ومواقع الحقن — سجل ذكي لبروتوكولات الببتيدات." />
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content="https://pptides.com/tracker" />
+        <meta property="og:image" content="https://pptides.com/og-image.png" />
+        <meta property="og:locale" content="ar_SA" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="سجل الحقن | pptides" />
+        <meta name="twitter:description" content="تتبّع جرعاتك ومواقع الحقن — سجل ذكي لبروتوكولات الببتيدات." />
+        <meta name="twitter:image" content="https://pptides.com/og-image.png" />
+        <link rel="canonical" href="https://pptides.com/tracker" />
         <meta name="robots" content="noindex, nofollow" />
       </Helmet>
 

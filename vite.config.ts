@@ -1,7 +1,6 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react-swc";
 import { VitePWA } from "vite-plugin-pwa";
-import { sentryVitePlugin } from "@sentry/vite-plugin";
 import path from "path";
 import { TRIAL_DAYS } from "./src/config/trial";
 
@@ -69,15 +68,7 @@ export default defineConfig({
         ],
       },
     }),
-    // Upload source maps to Sentry in production builds.
-    // Requires SENTRY_AUTH_TOKEN, SENTRY_ORG, SENTRY_PROJECT env vars.
-    // Skips silently if not configured (local dev, CI without secrets).
-    ...(process.env.SENTRY_AUTH_TOKEN ? [sentryVitePlugin({
-      org: process.env.SENTRY_ORG ?? 'pptides',
-      project: process.env.SENTRY_PROJECT ?? 'pptides-web',
-      authToken: process.env.SENTRY_AUTH_TOKEN,
-      sourcemaps: { filesToDeleteAfterUpload: ['./dist/**/*.map'] },
-    })] : []),
+
   ],
   resolve: {
     alias: {
@@ -93,7 +84,7 @@ export default defineConfig({
           vendor: ['react', 'react-dom', 'react-router-dom'],
           supabase: ['@supabase/supabase-js'],
           ui: ['lucide-react', 'sonner', 'react-helmet-async'],
-          sentry: ['@sentry/react'],
+
         },
       },
     },

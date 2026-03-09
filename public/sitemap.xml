@@ -244,4 +244,10 @@
     <loc>https://pptides.com/peptide/melanotan-ii</loc>
     <lastmod>2026-03-09</lastmod>
   </url>
+  <url>
+    <loc>https://pptides.com/contact</loc>
+    <lastmod>2026-03-10</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
 </urlset>

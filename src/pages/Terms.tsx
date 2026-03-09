@@ -10,8 +10,12 @@ export default function Terms() {
         <meta name="description" content="شروط الاستخدام لموقع pptides.com — الاشتراكات، الاسترداد، وحدود المسؤولية." />
         <meta property="og:title" content="شروط الاستخدام | pptides" />
         <meta property="og:description" content="شروط الاستخدام لموقع pptides.com — الاشتراكات، الاسترداد، وحدود المسؤولية." />
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content={`${SITE_URL}/terms`} />
         <meta property="og:image" content={`${SITE_URL}/og-image.png`} />
+        <meta property="og:locale" content="ar_SA" />
         <meta name="twitter:card" content="summary_large_image" />
+        <link rel="canonical" href={`${SITE_URL}/terms`} />
         <script type="application/ld+json">{JSON.stringify({
           '@context': 'https://schema.org',
           '@type': 'WebPage',
