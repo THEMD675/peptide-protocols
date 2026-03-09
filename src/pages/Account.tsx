@@ -75,6 +75,7 @@ export default function Account() {
           setProfileGoals(Array.isArray(data.goals) ? data.goals : []);
         }
       })
+      .catch(() => { /* profile load failed — non-critical, defaults remain */ })
       .finally(() => setProfileLoading(false));
   }, [user]);
 

@@ -298,7 +298,8 @@ export default function Coach() {
           { user_id: user.id, messages: cleanMessages, updated_at: new Date().toISOString() },
           { onConflict: 'user_id' },
         )
-        .then(() => {});
+        .then(() => {})
+        .catch(() => { /* cross-device sync failed — non-critical */ });
     }
   }, [messages, intake, storageKey, isLoading, user?.id]);
 
@@ -511,7 +512,7 @@ export default function Coach() {
       sessionStorage.removeItem(stepStorageKey);
     } catch { /* expected */ }
     if (user?.id) {
-      supabase.from('coach_conversations').delete().eq('user_id', user.id).then(() => {});
+      supabase.from('coach_conversations').delete().eq('user_id', user.id).then(() => {}).catch(() => { /* conversation cleanup failed — non-critical */ });
     }
     setConfirmReset(false);
   };
