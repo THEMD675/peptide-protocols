@@ -1,7 +1,7 @@
 # Secrets Inventory — pptides
 
 **Last updated:** 2026-03-02  
-**Project:** hexnuldwerzwbljorokw (Supabase)  
+**Project:** rxxzphwojutewvbfzgqd (Supabase)  
 **Live:** https://pptides.com
 
 ---
@@ -10,7 +10,7 @@
 
 | Key | Present | Where to get |
 |-----|---------|--------------|
-| `VITE_SUPABASE_URL` | ✅ | https://hexnuldwerzwbljorokw.supabase.co |
+| `VITE_SUPABASE_URL` | ✅ | https://rxxzphwojutewvbfzgqd.supabase.co |
 | `VITE_SUPABASE_ANON_KEY` | ✅ | Supabase Dashboard → Project Settings → API |
 | `VITE_SENTRY_DSN` | — | sentry.io project |
 | `VITE_GA4_ID` | — | Google Analytics 4 |
@@ -101,7 +101,7 @@ Log in as admin → Admin → Health tab → Run Health Check | Run Stripe.
 
 | Source | URL |
 |--------|-----|
-| Supabase Dashboard | https://supabase.com/dashboard/project/hexnuldwerzwbljorokw |
+| Supabase Dashboard | https://supabase.com/dashboard/project/rxxzphwojutewvbfzgqd |
 | Supabase → Edge Functions → Secrets | Dashboard → Edge Functions → (project) → Secrets |
 | Stripe API keys | https://dashboard.stripe.com/apikeys |
 | Stripe Webhooks | https://dashboard.stripe.com/webhooks |
