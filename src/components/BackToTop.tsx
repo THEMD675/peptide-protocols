@@ -2,14 +2,19 @@ import { useEffect, useRef, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { ChevronUp } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useAuth } from '@/contexts/AuthContext';
 
 const HIDDEN_PATHS = ['/pricing', '/login', '/signup', '/coach', '/dashboard', '/account', '/tracker'];
 
 export default function BackToTop() {
   const { pathname } = useLocation();
+  const { user, subscription } = useAuth();
   const [visible, setVisible] = useState(false);
   const lastScrollY = useRef(0);
   const hideTimer = useRef<ReturnType<typeof setTimeout>>();
+
+  // Offset bottom when StickyScrollCTA may be visible (non-subscriber, non-excluded path)
+  const stickyCtaActive = !(user && subscription?.isProOrTrial);
 
   useEffect(() => {
     const onScroll = () => {
@@ -43,7 +48,8 @@ export default function BackToTop() {
       aria-label="العودة للأعلى"
       tabIndex={visible ? 0 : -1}
       className={cn(
-        'print:hidden fixed bottom-6 end-4 z-40 flex h-11 w-11 items-center justify-center rounded-full border border-stone-200 bg-white/90 text-stone-500 shadow-sm backdrop-blur-sm transition-all duration-300 hover:border-stone-300 hover:text-stone-700 hover:shadow-md active:scale-95 md:end-6',
+        'print:hidden fixed end-4 z-40 flex h-11 w-11 items-center justify-center rounded-full border border-stone-200 bg-white/90 text-stone-500 shadow-sm backdrop-blur-sm transition-all duration-300 hover:border-stone-300 hover:text-stone-700 hover:shadow-md active:scale-95 md:end-6',
+        stickyCtaActive ? 'bottom-16' : 'bottom-6',
         visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4 pointer-events-none'
       )}
     >

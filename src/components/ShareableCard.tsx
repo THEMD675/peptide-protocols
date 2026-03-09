@@ -1,5 +1,5 @@
 import { memo, useRef, useCallback } from 'react';
-import { Share2, Copy, Check, MessageCircle, Download } from 'lucide-react';
+import { Share2, Copy, Check, MessageCircle, Download, Twitter } from 'lucide-react';
 import { useState } from 'react';
 import { toast } from 'sonner';
 import { SITE_URL, FREQUENCY_LABELS } from '@/lib/constants';
@@ -41,6 +41,11 @@ export default memo(function ShareableCard(props: ShareableCardProps) {
     } catch {
       toast.error('تعذّر نسخ النص — حاول مرة أخرى');
     }
+  };
+
+  const handleTwitter = () => {
+    const tweetText = `${shareBody}\n\n${SITE_URL}`;
+    window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(tweetText)}`, '_blank', 'noopener,noreferrer');
   };
 
   const handleWhatsApp = () => {
@@ -134,6 +139,13 @@ export default memo(function ShareableCard(props: ShareableCardProps) {
           <MessageCircle className="h-4 w-4" />
           واتساب
         </a>
+        <button
+          onClick={handleTwitter}
+          aria-label="مشاركة عبر تويتر"
+          className="flex items-center justify-center gap-2 rounded-xl bg-black px-4 py-2.5 text-sm font-bold text-white transition-colors hover:bg-stone-800"
+        >
+          <Twitter className="h-4 w-4" />
+        </button>
         <button
           onClick={handleShare}
           aria-label="مشاركة"

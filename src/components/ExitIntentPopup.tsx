@@ -15,24 +15,49 @@ export default function ExitIntentPopup() {
   const { pathname } = useLocation();
   const [visible, setVisible] = useState(false);
 
-  const handleMouseLeave = useCallback((e: MouseEvent) => {
-    if (e.clientY > 10) return;
+  const canShow = useCallback(() => {
     try {
-      if (localStorage.getItem('pptides_age_verified') !== 'true') return;
+      if (localStorage.getItem('pptides_age_verified') !== 'true') return false;
       const lastShown = localStorage.getItem(STORAGE_KEY);
       const ts = Number(lastShown);
-      if (!isNaN(ts) && Date.now() - ts < 7 * 24 * 60 * 60 * 1000) return;
-    } catch { /* expected */ }
-    if (user && subscription?.isProOrTrial) return;
-    if (EXCLUDED_PATHS.some(p => pathname.startsWith(p))) return;
+      if (!isNaN(ts) && Date.now() - ts < 7 * 24 * 60 * 60 * 1000) return false;
+    } catch { return false; }
+    if (user && subscription?.isProOrTrial) return false;
+    if (EXCLUDED_PATHS.some(p => pathname.startsWith(p))) return false;
+    return true;
+  }, [user, subscription, pathname]);
+
+  const show = useCallback(() => {
+    if (!canShow()) return;
     setVisible(true);
     try { localStorage.setItem(STORAGE_KEY, String(Date.now())); } catch { /* expected */ }
-  }, [user, subscription, pathname]);
+  }, [canShow]);
+
+  const handleMouseLeave = useCallback((e: MouseEvent) => {
+    if (e.clientY > 10) return;
+    show();
+  }, [show]);
 
   useEffect(() => {
     document.addEventListener('mouseleave', handleMouseLeave);
     return () => document.removeEventListener('mouseleave', handleMouseLeave);
   }, [handleMouseLeave]);
+
+  // Mobile: trigger on visibility change (tab switch / app switch) after 30s on page
+  useEffect(() => {
+    let listenerAdded = false;
+    const onVisibilityChange = () => {
+      if (document.visibilityState === 'hidden') show();
+    };
+    const timer = setTimeout(() => {
+      document.addEventListener('visibilitychange', onVisibilityChange);
+      listenerAdded = true;
+    }, 30_000);
+    return () => {
+      clearTimeout(timer);
+      if (listenerAdded) document.removeEventListener('visibilitychange', onVisibilityChange);
+    };
+  }, [show]);
 
   useEffect(() => {
     if (!visible) return;

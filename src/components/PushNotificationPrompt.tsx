@@ -47,9 +47,15 @@ export default function PushNotificationPrompt() {
         return;
       }
       const registration = await navigator.serviceWorker.ready;
+      const vapidKey = import.meta.env.VITE_VAPID_PUBLIC_KEY;
+      if (!vapidKey) {
+        toast.error('تعذّر تفعيل التنبيهات — مفتاح VAPID غير مُعدّ');
+        setIsEnabling(false);
+        return;
+      }
       const sub = await registration.pushManager.subscribe({
         userVisibleOnly: true,
-        applicationServerKey: import.meta.env.VITE_VAPID_PUBLIC_KEY || undefined,
+        applicationServerKey: vapidKey,
       });
       const subscriptionJson = sub.toJSON ? sub.toJSON() : JSON.parse(JSON.stringify(sub));
       const { error } = await supabase

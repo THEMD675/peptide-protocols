@@ -83,7 +83,7 @@ export default function EmailCapture() {
         className="flex flex-col sm:flex-row items-center gap-3 w-full max-w-lg mx-auto"
       >
         <div className="relative flex-1 w-full">
-          <Mail className="absolute end-3 top-1/2 -translate-y-1/2 h-5 w-5 text-stone-500" />
+          <Mail className="absolute start-3 top-1/2 -translate-y-1/2 h-5 w-5 text-stone-500" />
           <input
             type="email"
             value={email}
