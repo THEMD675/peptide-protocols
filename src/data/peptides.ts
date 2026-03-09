@@ -1191,11 +1191,6 @@ for (const cat of categories) {
   cat.peptideCount = peptides.filter((p) => p.category === cat.id).length;
 }
 
-// Compute category peptideCount from actual data
-for (const cat of categories) {
-  cat.peptideCount = peptides.filter(p => p.category === cat.id).length;
-}
-
 // ── Stacks (بروتوكولات مُركّبة) ─────────────────────────────
 
 export const stacks: Stack[] = [
