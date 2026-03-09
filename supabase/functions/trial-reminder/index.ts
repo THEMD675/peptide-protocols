@@ -302,6 +302,7 @@ serve(async (req) => {
     }
 
     // Weekly summary email for active subscribers
+    try {
     const { data: activeSubscribers } = await supabase
       .from('subscriptions')
       .select('user_id')
@@ -422,8 +423,12 @@ serve(async (req) => {
         }
       }
     }
+    } catch (weeklySummaryErr) {
+      console.error('trial-reminder: weekly summary section failed:', weeklySummaryErr)
+    }
 
     // PRO8: Proactive coach check-in — active subscribers who haven't logged injection in 3+ days
+    try {
     const threeDaysAgo = new Date(now.getTime() - 3 * 24 * 60 * 60 * 1000).toISOString()
     const getISOWeekKey = (d: Date) => {
       const x = new Date(d)
@@ -500,8 +505,12 @@ serve(async (req) => {
         }
       }
     }
+    } catch (checkinErr) {
+      console.error('trial-reminder: inactive checkin section failed:', checkinErr)
+    }
 
     // Server-side trial expiration cleanup
+    try {
     const { data: expiredTrials } = await supabase
       .from('subscriptions')
       .select('id, user_id, trial_ends_at')
@@ -534,10 +543,15 @@ serve(async (req) => {
       }
     }
 
+    } catch (expirationErr) {
+      console.error('trial-reminder: expiration cleanup section failed:', expirationErr)
+    }
+
     // Cleanup: delete rate limit entries older than 1 hour
     await supabase.from('rate_limits').delete().lt('created_at', new Date(Date.now() - 3600000).toISOString()).catch(() => {})
 
     // Smart dunning emails for past_due subscribers (day 3, day 7 escalation)
+    try {
     const { data: pastDueUsers } = await supabase
       .from('subscriptions')
       .select('user_id, stripe_customer_id, updated_at')
@@ -605,8 +619,12 @@ serve(async (req) => {
         }
       }
     }
+    } catch (dunningErr) {
+      console.error('trial-reminder: dunning section failed:', dunningErr)
+    }
 
     // RT2: Re-engagement emails for churned/expired users (30-day and 60-day win-back)
+    try {
     const { data: churnedUsers } = await supabase
       .from('subscriptions')
       .select('user_id, status, updated_at')
@@ -658,8 +676,12 @@ serve(async (req) => {
         } catch (e) { console.error('winback email error:', e) }
       }
     }
+    } catch (winbackErr) {
+      console.error('trial-reminder: winback section failed:', winbackErr)
+    }
 
     // Admin proactive alert (rate-limited: once per 24h)
+    try {
     const adminWhitelist = Deno.env.get('ADMIN_EMAIL_WHITELIST')
     const adminTo = adminWhitelist?.trim()
       ? adminWhitelist.split(',').map((e) => e.trim()).filter(Boolean)[0]
@@ -717,13 +739,16 @@ serve(async (req) => {
         }
       }
     }
+    } catch (adminAlertErr) {
+      console.error('trial-reminder: admin alert section failed:', adminAlertErr)
+    }
 
     return new Response(JSON.stringify({ sent, skipped, failed }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     })
   } catch (error) {
     console.error('trial-reminder unhandled error:', error)
-    return new Response(JSON.stringify({ error: 'Internal error' }), {
+    return new Response(JSON.stringify({ error: 'Internal error', detail: String(error) }), {
       status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     })
