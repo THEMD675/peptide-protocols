@@ -532,7 +532,7 @@ serve(async (req) => {
                 from: 'pptides <noreply@pptides.com>',
                 reply_to: 'contact@pptides.com',
                 to: email,
-                subject: ' تجربتك تنتهي قريبًا — لا تفقد وصولك',
+                subject: 'تجربتك تنتهي قريبًا — لا تفقد وصولك',
                 headers: { 'List-Unsubscribe': '<mailto:contact@pptides.com?subject=unsubscribe>' },
                 html: emailWrapper(`
                   <h1 style="color: #1c1917; font-size: 24px;">تجربتك تنتهي قريبًا</h1>
