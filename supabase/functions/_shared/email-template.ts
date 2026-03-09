@@ -35,3 +35,13 @@ export function emailWrapper(content: string): string {
 export function emailButton(text: string, url: string): string {
   return `<a href="${url}" style="display: inline-block; background: ${BRAND_COLOR}; color: white; padding: 16px 40px; border-radius: 9999px; text-decoration: none; font-weight: bold; font-size: 16px;">${text}</a>`
 }
+
+/**
+ * Standard email headers for marketing/transactional emails.
+ * Includes List-Unsubscribe (mailto) for RFC 2369 compliance.
+ */
+export function unsubscribeHeaders(): Record<string, string> {
+  return {
+    'List-Unsubscribe': `<mailto:${SUPPORT_EMAIL}?subject=unsubscribe>`,
+  }
+}
