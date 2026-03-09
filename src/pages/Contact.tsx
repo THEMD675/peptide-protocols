@@ -1,15 +1,28 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Helmet } from 'react-helmet-async';
-import { Send, CheckCircle, Mail, MessageSquare } from 'lucide-react';
+import { Send, CheckCircle, Mail, MessageSquare, Loader2 } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { SITE_URL } from '@/lib/constants';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
 
 export default function Contact() {
-  const { user } = useAuth();
+  const { user, isLoading } = useAuth();
   const [name, setName] = useState('');
   const [email, setEmail] = useState(user?.email ?? '');
+
+  // Update email when user loads
+  useEffect(() => {
+    if (user?.email && !email) setEmail(user.email);
+  }, [user?.email]);
+
+  if (isLoading) {
+    return (
+      <div className="flex min-h-[60vh] items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-emerald-600" />
+      </div>
+    );
+  }
   const [subject, setSubject] = useState('');
   const [message, setMessage] = useState('');
   const [submitting, setSubmitting] = useState(false);

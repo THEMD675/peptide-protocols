@@ -303,6 +303,17 @@ export default function DoseCalculator() {
 
   const fmt = (n: number, d = 2) => (isFinite(n) && n > 0 ? n.toFixed(d) : '—');
 
+  const [ready, setReady] = useState(false);
+  useEffect(() => { setReady(true); }, []);
+
+  if (!ready) {
+    return (
+      <div className="flex min-h-[60vh] items-center justify-center">
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-emerald-200 border-t-emerald-600" />
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen animate-fade-in" >
       <Helmet>

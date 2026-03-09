@@ -653,8 +653,23 @@ export default function Community() {
               </div>
             )}
             {isShowingSeeds && displayedLogs.length > 0 && (
-              <div className="rounded-2xl border border-amber-200 bg-amber-50/50 px-4 py-3 text-center text-sm text-stone-700">
-                <p className="font-medium">تجارب توضيحية — كن أول من يشارك تجربتك الحقيقية مع المجتمع</p>
+              <div className="rounded-2xl border-2 border-dashed border-emerald-200 bg-gradient-to-b from-emerald-50 to-white px-6 py-8 text-center">
+                <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-emerald-100">
+                  <MessageSquare className="h-8 w-8 text-emerald-600" />
+                </div>
+                <h3 className="text-xl font-bold text-stone-900">كن أول من يشارك تجربته</h3>
+                <p className="mx-auto mt-2 max-w-md text-sm leading-relaxed text-stone-600">
+                  التجارب أدناه توضيحية — شارك تجربتك الحقيقية وساعد المجتمع العربي
+                </p>
+                {user && isPaid && (
+                  <button
+                    onClick={() => setShowForm(true)}
+                    className="mt-4 inline-flex items-center gap-2 rounded-full bg-emerald-600 px-6 py-3 text-sm font-bold text-white transition-all hover:bg-emerald-700"
+                  >
+                    <Send className="h-4 w-4" />
+                    شارك تجربتك الآن
+                  </button>
+                )}
               </div>
             )}
             {displayedLogs.map((log) => {

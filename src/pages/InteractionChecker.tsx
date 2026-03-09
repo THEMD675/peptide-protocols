@@ -46,7 +46,7 @@ function checkInteraction(id1: string, id2: string): InteractionResult {
 }
 
 export default function InteractionChecker() {
-  const { user } = useAuth();
+  const { user, isLoading: authLoading } = useAuth();
   const [searchParams] = useSearchParams();
   const hasAutoFilled = useRef(false);
   const [selected, setSelected] = useState<string[]>(() => {
@@ -123,6 +123,14 @@ export default function InteractionChecker() {
   const hasAnyWarning = pairs.some(p => p.result.warning);
 
   const sortedPeptides = useMemo(() => [...peptides].sort((a, b) => a.nameEn.localeCompare(b.nameEn)), []);
+
+  if (authLoading) {
+    return (
+      <div className="flex min-h-[60vh] items-center justify-center">
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-emerald-200 border-t-emerald-600" />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-white animate-fade-in">

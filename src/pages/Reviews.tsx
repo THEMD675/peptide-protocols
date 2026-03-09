@@ -422,9 +422,9 @@ export default function Reviews() {
               <div className="mx-auto mb-5 flex h-20 w-20 items-center justify-center rounded-2xl bg-emerald-100">
                 <MessageCircle className="h-10 w-10 text-emerald-600" />
               </div>
-              <h3 className="text-2xl font-bold text-stone-900">كن أول من يشارك تجربته</h3>
+              <h3 className="text-2xl font-bold text-stone-900">لا توجد تقييمات بعد</h3>
               <p className="mx-auto mt-3 max-w-md text-base leading-relaxed text-stone-600">
-                تقييمك يساعد الآخرين على اتخاذ قرارهم بثقة. شارك تجربتك مع pptides وكن مرجعًا للمجتمع.
+                كن أول من يشارك تجربته — تقييمك يساعد الآخرين على اتخاذ قرارهم بثقة وكن مرجعًا للمجتمع.
               </p>
               <button
                 onClick={() => document.getElementById('review-rating')?.scrollIntoView({ behavior: 'smooth' })}
