@@ -1,5 +1,6 @@
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
 import Stripe from 'https://esm.sh/stripe@14.14.0?target=deno'
+import { getCorsHeaders, handleCorsPreflightIfOptions } from '../_shared/cors.ts'
 
 const stripeKey = Deno.env.get('STRIPE_SECRET_KEY') ?? ''
 const cronSecret = Deno.env.get('CRON_SECRET') ?? ''
@@ -19,7 +20,11 @@ function constantTimeCompare(a: string, b: string): boolean {
 }
 
 serve(async (req) => {
-  const headers = { 'Content-Type': 'application/json' }
+  const preflight = handleCorsPreflightIfOptions(req)
+  if (preflight) return preflight
+
+  const corsHeaders = getCorsHeaders(req)
+  const headers = { ...corsHeaders, 'Content-Type': 'application/json' }
   const auth = req.headers.get('x-cron-secret') || req.headers.get('authorization')
   if (!cronSecret || !auth || (!constantTimeCompare(auth, cronSecret) && !constantTimeCompare(auth, `Bearer ${cronSecret}`))) {
     return new Response(JSON.stringify({ error: 'Unauthorized — set x-cron-secret header' }), { status: 401, headers })

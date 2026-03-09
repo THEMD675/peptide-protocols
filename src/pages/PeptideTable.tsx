@@ -228,7 +228,7 @@ export default function PeptideTable() {
                         key={col.key}
                         scope="col"
                         className={cn(
-                          'border-b-2 border-emerald-200 px-3 py-3.5 text-right text-xs font-bold tracking-wide',
+                          'border-b-2 border-emerald-200 px-3 py-3.5 text-start text-xs font-bold tracking-wide',
                           col.sticky ? 'sticky z-20 bg-stone-100 text-emerald-500' : 'text-white'
                         )}
                         style={{

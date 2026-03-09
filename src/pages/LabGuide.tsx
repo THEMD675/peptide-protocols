@@ -118,13 +118,13 @@ export default function LabGuide() {
               <caption className="sr-only">تحاليل خط الأساس الموصى بها قبل استخدام الببتيدات</caption>
               <thead>
                 <tr className="bg-emerald-800">
-                  <th className="px-4 py-3 text-right font-bold text-white/90">
+                  <th className="px-4 py-3 text-start font-bold text-white/90">
                     التحليل
                   </th>
-                  <th className="px-4 py-3 text-right font-bold text-white/90">
+                  <th className="px-4 py-3 text-start font-bold text-white/90">
                     الوصف
                   </th>
-                  <th className="px-4 py-3 text-right font-bold text-white/90">
+                  <th className="px-4 py-3 text-start font-bold text-white/90">
                     متى يُطلب
                   </th>
                 </tr>
@@ -172,10 +172,10 @@ export default function LabGuide() {
               <caption className="sr-only">جدول متابعة التحاليل أثناء استخدام الببتيدات</caption>
               <thead>
                 <tr className="bg-emerald-800">
-                  <th className="px-4 py-3 text-right font-bold text-white/90">
+                  <th className="px-4 py-3 text-start font-bold text-white/90">
                     التوقيت
                   </th>
-                  <th className="px-4 py-3 text-right font-bold text-white/90">
+                  <th className="px-4 py-3 text-start font-bold text-white/90">
                     التحاليل المطلوبة
                   </th>
                 </tr>

@@ -770,7 +770,7 @@ export default function DoseCalculator() {
                     key={`${calc.peptide}-${idx}`}
                     onClick={() => loadSavedCalc(calc)}
                     className={cn(
-                      'flex items-center justify-between rounded-xl border px-4 py-3 text-right transition-all hover:shadow-sm',
+                      'flex items-center justify-between rounded-xl border px-4 py-3 text-start transition-all hover:shadow-sm',
                       selectedPreset === calc.peptide ? 'border-emerald-400 bg-emerald-50' : 'border-stone-200 bg-white transition-colors hover:border-emerald-300'
                     )}
                   >
@@ -866,7 +866,7 @@ export default function DoseCalculator() {
                         scope="col"
                         className={cn(
                           'px-4 py-3 text-xs font-semibold text-stone-800',
-                          i < 3 ? 'text-right' : 'text-center',
+                          i < 3 ? 'text-start' : 'text-center',
                         )}
                       >
                         {h}

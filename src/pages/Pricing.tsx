@@ -348,7 +348,7 @@ export default function Pricing() {
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-stone-200 bg-stone-50">
-                  <th className="px-5 py-3 text-right font-semibold text-stone-700">الميزة</th>
+                  <th className="px-5 py-3 text-start font-semibold text-stone-700">الميزة</th>
                   <th className="px-5 py-3 text-center font-semibold text-stone-700">Essentials</th>
                   <th className="px-5 py-3 text-center font-semibold text-emerald-700">Elite</th>
                 </tr>
@@ -445,7 +445,7 @@ export default function Pricing() {
             <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full bg-emerald-200">
               <Shield className="h-8 w-8 text-emerald-700" />
             </div>
-            <div className="text-center sm:text-right">
+            <div className="text-center sm:text-start">
               <p className="text-xl font-bold text-stone-900">ضمان استرداد كامل خلال {TRIAL_DAYS} أيام</p>
               <p className="mt-1 text-stone-800">
                 إذا لم يعجبك المحتوى — استرد أموالك بالكامل. بدون أسئلة. بدون شروط.

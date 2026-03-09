@@ -638,7 +638,7 @@ export default function Coach() {
                     <div className="grid gap-2 max-w-[88%]">
                       {EXPERIENCE_OPTIONS.map(o => (
                         <button key={o.id} onClick={() => { setIntake(p => ({ ...p, experience: o.id })); if (intakeStep === 'experience') setIntakeStep('injection'); }}
-                          className={cn('rounded-xl border px-4 py-3 text-right transition-all', intake.experience === o.id ? 'border-emerald-400 bg-emerald-50 ring-2 ring-emerald-100' : 'border-stone-200 bg-white hover:border-emerald-300')}>
+                          className={cn('rounded-xl border px-4 py-3 text-start transition-all', intake.experience === o.id ? 'border-emerald-400 bg-emerald-50 ring-2 ring-emerald-100' : 'border-stone-200 bg-white hover:border-emerald-300')}>
                           <span className="text-sm font-bold text-stone-800">{o.label}</span>
                           <span className="block text-xs text-stone-500 mt-0.5">{o.desc}</span>
                         </button>
@@ -671,7 +671,7 @@ export default function Coach() {
                     <div className="grid gap-2 max-w-[88%]">
                       {INJECTION_OPTIONS.map(o => (
                         <button key={o.id} onClick={() => { setIntake(p => ({ ...p, injection: o.id })); if (intakeStep === 'injection') setIntakeStep('details'); }}
-                          className={cn('rounded-xl border px-4 py-3 text-right transition-all', intake.injection === o.id ? 'border-emerald-400 bg-emerald-50 ring-2 ring-emerald-100' : 'border-stone-200 bg-white hover:border-emerald-300')}>
+                          className={cn('rounded-xl border px-4 py-3 text-start transition-all', intake.injection === o.id ? 'border-emerald-400 bg-emerald-50 ring-2 ring-emerald-100' : 'border-stone-200 bg-white hover:border-emerald-300')}>
                           <span className="text-sm font-bold text-stone-800">{o.label}</span>
                           <span className="block text-xs text-stone-500 mt-0.5">{o.desc}</span>
                         </button>

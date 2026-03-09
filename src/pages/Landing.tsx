@@ -594,6 +594,7 @@ export default function Landing() {
       </section>
 
       {/* ═══════ SOCIAL PROOF ═══════ */}
+      {testimonials.length > 0 && (
       <section className="mx-auto max-w-5xl px-6 py-24 md:py-32">
         <h2 className="mb-4 text-center text-3xl font-bold text-stone-900 md:text-4xl">
           ماذا يقول <span className="text-emerald-600">المستخدمون</span>
@@ -602,39 +603,24 @@ export default function Landing() {
           {userCount > 0 ? `انضم لـ ${userCount}+ مستخدم` : 'شارك تجربتك مع المجتمع'}
         </p>
 
-        {testimonials.length > 0 ? (
-          <div className="grid gap-6 md:grid-cols-3">
-            {testimonials.map((t) => (
-              <div key={t.name} className="rounded-2xl border border-stone-300/60 bg-white p-7 transition-all duration-300 hover:border-emerald-200 hover:shadow-lg hover:-translate-y-1">
-                <div className="mb-4 flex gap-1" dir="ltr">
-                  {[1, 2, 3, 4, 5].map((s) => (
-                    <Star key={s} className={cn('h-4 w-4', s <= t.rating ? 'fill-emerald-500 text-emerald-500' : 'fill-transparent text-stone-300')} />
-                  ))}
-                </div>
-                <p className="mb-5 text-base leading-relaxed text-stone-800 line-clamp-4">&quot;{t.text}&quot;</p>
-                <div className="flex items-center gap-3">
-                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-sm font-bold text-emerald-700">{t.name.charAt(0)}</div>
-                  <div><p className="font-bold text-stone-900">{t.name}</p><p className="text-sm text-stone-600">{t.role}</p></div>
-                </div>
+        <div className="grid gap-6 md:grid-cols-3">
+          {testimonials.map((t) => (
+            <div key={t.name} className="rounded-2xl border border-stone-300/60 bg-white p-7 transition-all duration-300 hover:border-emerald-200 hover:shadow-lg hover:-translate-y-1">
+              <div className="mb-4 flex gap-1" dir="ltr">
+                {[1, 2, 3, 4, 5].map((s) => (
+                  <Star key={s} className={cn('h-4 w-4', s <= t.rating ? 'fill-emerald-500 text-emerald-500' : 'fill-transparent text-stone-300')} />
+                ))}
               </div>
-            ))}
-          </div>
-        ) : (
-          <div className="grid gap-6 sm:grid-cols-3">
-            {[
-              { value: `${PEPTIDE_COUNT}+`, label: 'بروتوكول كامل', desc: 'كل ببتيد مع جرعة ودورة وأعراض' },
-              { value: PUBMED_SOURCE_LABEL, label: 'مصدر علمي', desc: 'دراسات سريرية منشورة' },
-              { value: '6', label: 'معتمد FDA', desc: 'ببتيدات موثّقة ومعتمدة' },
-            ].map((m) => (
-              <div key={m.label} className="rounded-2xl border border-stone-300/60 bg-white p-7 text-center transition-all hover:border-emerald-200 hover:shadow-lg">
-                <p className="text-4xl font-black text-emerald-600">{m.value}</p>
-                <p className="mt-2 text-sm font-bold text-stone-900">{m.label}</p>
-                <p className="mt-1 text-xs text-stone-500">{m.desc}</p>
+              <p className="mb-5 text-base leading-relaxed text-stone-800 line-clamp-4">&quot;{t.text}&quot;</p>
+              <div className="flex items-center gap-3">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-sm font-bold text-emerald-700">{t.name.charAt(0)}</div>
+                <div><p className="font-bold text-stone-900">{t.name}</p><p className="text-sm text-stone-600">{t.role}</p></div>
               </div>
-            ))}
-          </div>
-        )}
+            </div>
+          ))}
+        </div>
       </section>
+      )}
 
       {/* ═══════ PRICING PREVIEW ═══════ */}
       <section className="bg-gradient-to-b from-stone-50 to-white py-24 md:py-32">
@@ -811,7 +797,7 @@ export default function Landing() {
       {/* ═══════ FINAL CTA ═══════ */}
       <section className="bg-white py-20">
         <div className="mx-auto max-w-3xl px-6 text-center">
-          <div className="mb-8 rounded-xl border border-amber-300 bg-amber-50 p-5 text-right">
+          <div className="mb-8 rounded-xl border border-amber-300 bg-amber-50 p-5 text-start">
             <p className="text-sm font-bold text-amber-900 mb-2">تنويه طبي مهم</p>
             <p className="text-sm text-amber-800 leading-relaxed">
               المحتوى المقدّم في pptides.com لأغراض تعليمية وبحثية فقط ولا يُعدّ بديلًا عن الاستشارة الطبية المتخصصة.

@@ -135,14 +135,14 @@ serve(async (req) => {
       subscription_data: {
         trial_period_days: hadStripeSub ? undefined : 3,
         metadata: { tier, user_id: user.id, ...(referralCode ? { referral_code: referralCode } : {}) },
-        description: 'Verdix Subscription',
+        description: 'pptides Subscription',
       },
       metadata: { tier, user_id: user.id, ...(referralCode ? { referral_code: referralCode } : {}) },
       success_url: `${appUrl}/dashboard?payment=success&tier=${tier}&session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${appUrl}/pricing?payment=cancelled`,
       allow_promotion_codes: true,
       custom_text: {
-        submit: { message: 'Powered by Verdix' },
+        submit: { message: 'Powered by pptides' },
       },
     })
 

@@ -1,6 +1,7 @@
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 import Stripe from 'https://esm.sh/stripe@14.14.0?target=deno'
+import { getCorsHeaders, handleCorsPreflightIfOptions } from '../_shared/cors.ts'
 
 const supabaseUrl = Deno.env.get('SUPABASE_URL') ?? ''
 const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
@@ -19,7 +20,11 @@ function constantTimeCompare(a: string, b: string): boolean {
 }
 
 serve(async (req) => {
-  const headers = { 'Content-Type': 'application/json' }
+  const preflight = handleCorsPreflightIfOptions(req)
+  if (preflight) return preflight
+
+  const corsHeaders = getCorsHeaders(req)
+  const headers = { ...corsHeaders, 'Content-Type': 'application/json' }
 
   const authHeader = req.headers.get('x-cron-secret') || req.headers.get('authorization')
   if (!authHeader || !cronSecret || (!constantTimeCompare(authHeader, cronSecret) && !constantTimeCompare(authHeader, `Bearer ${cronSecret}`))) {
@@ -98,17 +103,15 @@ serve(async (req) => {
   const hasError = Object.values(checks).some(c => c.status === 'error')
 
   // Send alert email if any errors (max 1 per hour to prevent flooding)
-  if (hasError && resendKey) {
-    const supabaseUrl = Deno.env.get('SUPABASE_URL') ?? ''
-    const serviceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
+  if (hasError && resendKey && supabaseUrl && supabaseServiceKey) {
+    const db = createClient(supabaseUrl, supabaseServiceKey)
     let shouldSend = true
-    if (supabaseUrl && serviceKey) {
-      const { createClient } = await import('https://esm.sh/@supabase/supabase-js@2')
-      const db = createClient(supabaseUrl, serviceKey)
+    try {
       const hourAgo = new Date(Date.now() - 3600000).toISOString()
       const { count } = await db.from('email_logs').select('id', { count: 'exact', head: true }).eq('type', 'health_alert').gte('created_at', hourAgo)
       if ((count ?? 0) > 0) shouldSend = false
-    }
+    } catch { /* send anyway if dedup check fails */ }
+
     if (shouldSend) {
       const errorDetails = Object.entries(checks).filter(([, c]) => c.status === 'error').map(([name, c]) => `${name}: ${c.detail}`).join('\n')
       await fetch('https://api.resend.com/emails', {
@@ -121,11 +124,7 @@ serve(async (req) => {
           text: `Health check detected errors:\n\n${errorDetails}\n\nFull report: ${JSON.stringify(checks, null, 2)}`,
         }),
       }).catch(e => console.error('Alert email failed:', e))
-      if (supabaseUrl && serviceKey) {
-        const { createClient } = await import('https://esm.sh/@supabase/supabase-js@2')
-        const db = createClient(supabaseUrl, serviceKey)
-        await db.from('email_logs').insert({ email: 'contact@pptides.com', type: 'health_alert', status: 'sent' }).catch(() => {})
-      }
+      await db.from('email_logs').insert({ email: 'contact@pptides.com', type: 'health_alert', status: 'sent' }).catch(() => {})
     }
   }
 

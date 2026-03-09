@@ -71,15 +71,15 @@ export default function PaymentProcessing() {
             <h2 className="text-2xl font-bold text-stone-900">مرحبًا بك في pptides!</h2>
             <p className="mt-2 text-sm text-stone-600">اشتراكك مفعّل — ابدأ رحلتك الآن</p>
             <div className="space-y-3 mt-6">
-              <button onClick={() => navigateTo('/library')} className="flex w-full items-center gap-3 rounded-xl border border-emerald-200 p-4 text-right font-bold text-emerald-700 hover:bg-emerald-50 transition-colors">
+              <button onClick={() => navigateTo('/library')} className="flex w-full items-center gap-3 rounded-xl border border-emerald-200 p-4 text-start font-bold text-emerald-700 hover:bg-emerald-50 transition-colors">
                 <BookOpen className="h-5 w-5 shrink-0" />
                 <div><p className="text-sm">تصفّح المكتبة</p><p className="text-xs font-normal text-stone-500">اكتشف {PEPTIDE_COUNT}+ ببتيد مع بروتوكولات كاملة</p></div>
               </button>
-              <button onClick={() => navigateTo('/coach')} className="flex w-full items-center gap-3 rounded-xl border border-emerald-200 p-4 text-right font-bold text-emerald-700 hover:bg-emerald-50 transition-colors">
+              <button onClick={() => navigateTo('/coach')} className="flex w-full items-center gap-3 rounded-xl border border-emerald-200 p-4 text-start font-bold text-emerald-700 hover:bg-emerald-50 transition-colors">
                 <Bot className="h-5 w-5 shrink-0" />
                 <div><p className="text-sm">اسأل المدرب الذكي</p><p className="text-xs font-normal text-stone-500">احصل على بروتوكول مخصّص لأهدافك</p></div>
               </button>
-              <button onClick={() => navigateTo('/calculator')} className="flex w-full items-center gap-3 rounded-xl border border-emerald-200 p-4 text-right font-bold text-emerald-700 hover:bg-emerald-50 transition-colors">
+              <button onClick={() => navigateTo('/calculator')} className="flex w-full items-center gap-3 rounded-xl border border-emerald-200 p-4 text-start font-bold text-emerald-700 hover:bg-emerald-50 transition-colors">
                 <Calculator className="h-5 w-5 shrink-0" />
                 <div><p className="text-sm">حاسبة الجرعات</p><p className="text-xs font-normal text-stone-500">احسب جرعتك بدقة على السيرنج</p></div>
               </button>

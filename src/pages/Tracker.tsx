@@ -712,7 +712,7 @@ export default function Tracker() {
           {!showProtocolWizard ? (
             <div className="rounded-2xl border-2 border-dashed border-emerald-200 bg-emerald-50/50 p-5">
               <div className="flex flex-col sm:flex-row items-center gap-4">
-                <div className="flex-1 text-center sm:text-right">
+                <div className="flex-1 text-center sm:text-start">
                   <h3 className="text-sm font-bold text-stone-900">بدء بروتوكول جديد</h3>
                   <p className="text-xs text-stone-500 mt-1">اختر ببتيد وابدأ بروتوكول منظّم بجرعات وتذكيرات</p>
                 </div>

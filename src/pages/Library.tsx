@@ -789,9 +789,9 @@ export default function Library() {
                 <table className="w-full min-w-[600px]">
                   <thead>
                     <tr className="border-b border-stone-200 bg-stone-50">
-                      <th scope="col" className="px-4 py-3 text-right text-xs font-bold text-stone-500 w-[160px]">المعيار</th>
+                      <th scope="col" className="px-4 py-3 text-start text-xs font-bold text-stone-500 w-[160px]">المعيار</th>
                       {items.map(p => (
-                        <th key={p.id} scope="col" className="px-4 py-3 text-right">
+                        <th key={p.id} scope="col" className="px-4 py-3 text-start">
                           <p className="text-sm font-bold text-stone-900">{p.nameAr}</p>
                           <p className="text-xs text-stone-500">{p.nameEn}</p>
                           <Link

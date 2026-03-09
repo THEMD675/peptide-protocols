@@ -314,7 +314,7 @@ export default function PeptideDetail() {
                     <th
                       scope="row"
                       className={cn(
-                        'w-[35%] px-5 py-4 align-top text-sm font-semibold text-right',
+                        'w-[35%] px-5 py-4 align-top text-sm font-semibold text-start',
                         row.highlight ? 'text-emerald-600' : 'text-stone-800',
                       )}
                     >
@@ -492,7 +492,7 @@ export default function PeptideDetail() {
                       <th
                         scope="row"
                         className={cn(
-                          'w-[35%] px-5 py-4 align-top text-sm font-semibold text-right',
+                          'w-[35%] px-5 py-4 align-top text-sm font-semibold text-start',
                           row.highlight ? 'text-emerald-600' : 'text-stone-800',
                         )}
                       >
@@ -519,7 +519,7 @@ export default function PeptideDetail() {
                           (i + 3) % 2 === 0 ? 'bg-stone-50 border border-stone-300' : 'bg-transparent',
                         )}
                       >
-                        <th scope="row" className="w-[35%] px-5 py-4 align-top text-sm font-semibold text-right text-stone-800">
+                        <th scope="row" className="w-[35%] px-5 py-4 align-top text-sm font-semibold text-start text-stone-800">
                           {row.label}
                         </th>
                         <td className="px-5 py-4 text-sm leading-relaxed text-stone-800">

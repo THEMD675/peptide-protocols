@@ -257,7 +257,7 @@ export default memo(function Header() {
                         <button
                           key={p.id}
                           onClick={() => { navigate(`/peptide/${p.id}`); setSearchOpen(false); setSearchQuery(''); }}
-                          className="flex w-full items-center gap-3 px-3 py-2.5 text-right text-sm transition-colors hover:bg-stone-50"
+                          className="flex w-full items-center gap-3 px-3 py-2.5 text-start text-sm transition-colors hover:bg-stone-50"
                         >
                           <span className="font-bold text-stone-900">{p.nameAr}</span>
                           <span className="text-xs text-stone-500">{p.nameEn}</span>
@@ -272,7 +272,7 @@ export default memo(function Header() {
                           key={p.id}
                           onClick={() => { navigate(`/peptide/${p.id}`); setSearchOpen(false); setSearchQuery(''); }}
                           className={cn(
-                            'flex w-full items-center gap-3 px-3 py-2.5 text-right text-sm transition-colors',
+                            'flex w-full items-center gap-3 px-3 py-2.5 text-start text-sm transition-colors',
                             idx === searchFocusIdx ? 'bg-emerald-50' : 'transition-colors hover:bg-stone-50'
                           )}
                         >
