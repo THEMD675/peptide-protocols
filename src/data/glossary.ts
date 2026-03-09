@@ -2,6 +2,8 @@ export interface GlossaryTerm {
   ar: string;
   en: string;
   definition: string;
+  /** Optional peptide IDs that relate to this term */
+  relatedPeptides?: string[];
 }
 
 export const GLOSSARY_TERMS: GlossaryTerm[] = [
@@ -9,10 +11,10 @@ export const GLOSSARY_TERMS: GlossaryTerm[] = [
   { ar: 'حقن تحت الجلد', en: 'Subcutaneous Injection', definition: 'طريقة حقن تُدخل الدواء في الطبقة الدهنية تحت الجلد مباشرة، وهي الطريقة الأكثر شيوعًا لحقن الببتيدات.' },
   { ar: 'إعادة التشكيل', en: 'Reconstitution', definition: 'عملية إذابة الببتيد المجفّف (البودرة) بإضافة ماء بكتيريوستاتيك أو ماء معقّم لتحضيره للحقن.' },
   { ar: 'الماء البكتيريوستاتيك', en: 'Bacteriostatic Water', definition: 'ماء معقّم يحتوي على 0.9% كحول بنزيلي كمادة حافظة، يُستخدم لإذابة الببتيدات ويبقى صالحًا لمدة 28 يومًا بعد الفتح.' },
-  { ar: 'التيلوميرات', en: 'Telomeres', definition: 'أغطية واقية في نهايات الكروموسومات تقصر مع التقدم في العمر. بعض الببتيدات مثل Epithalon تساعد في الحفاظ على طولها.' },
-  { ar: 'عامل التغذية العصبية', en: 'BDNF', definition: 'Brain-Derived Neurotrophic Factor — بروتين يعزز نمو وبقاء الخلايا العصبية. ببتيدات مثل Semax ترفع مستوياته بشكل كبير.' },
-  { ar: 'مستقبل GLP-1', en: 'GLP-1 Receptor Agonist', definition: 'فئة من الأدوية تحاكي هرمون GLP-1 الذي ينظّم الشهية وسكر الدم. تشمل Semaglutide وTirzepatide.' },
-  { ar: 'هرمون النمو', en: 'Growth Hormone (GH)', definition: 'هرمون تفرزه الغدة النخامية مسؤول عن النمو وتجديد الخلايا. محفّزات إفرازه تشمل CJC-1295 وIpamorelin.' },
+  { ar: 'التيلوميرات', en: 'Telomeres', definition: 'أغطية واقية في نهايات الكروموسومات تقصر مع التقدم في العمر. بعض الببتيدات مثل Epithalon تساعد في الحفاظ على طولها.', relatedPeptides: ['epithalon'] },
+  { ar: 'عامل التغذية العصبية', en: 'BDNF', definition: 'Brain-Derived Neurotrophic Factor — بروتين يعزز نمو وبقاء الخلايا العصبية. ببتيدات مثل Semax ترفع مستوياته بشكل كبير.', relatedPeptides: ['semax', 'selank'] },
+  { ar: 'مستقبل GLP-1', en: 'GLP-1 Receptor Agonist', definition: 'فئة من الأدوية تحاكي هرمون GLP-1 الذي ينظّم الشهية وسكر الدم. تشمل Semaglutide وTirzepatide.', relatedPeptides: ['semaglutide', 'tirzepatide'] },
+  { ar: 'هرمون النمو', en: 'Growth Hormone (GH)', definition: 'هرمون تفرزه الغدة النخامية مسؤول عن النمو وتجديد الخلايا. محفّزات إفرازه تشمل CJC-1295 وIpamorelin.', relatedPeptides: ['cjc-1295', 'ipamorelin'] },
   { ar: 'عامل النمو الشبيه بالإنسولين', en: 'IGF-1', definition: 'Insulin-like Growth Factor 1 — هرمون يُنتج استجابة لهرمون النمو، يعزز نمو العضلات وتعافي الأنسجة.' },
   { ar: 'التجفيف بالتبريد', en: 'Lyophilization', definition: 'عملية تجفيف الببتيد بالتجميد لتحويله إلى بودرة مستقرة يمكن تخزينها لفترة طويلة قبل إعادة التشكيل.' },
   { ar: 'نصف العمر', en: 'Half-life', definition: 'المدة التي يستغرقها تركيز الببتيد في الدم للانخفاض إلى النصف. يحدد تكرار الجرعات.' },
@@ -20,14 +22,14 @@ export const GLOSSARY_TERMS: GlossaryTerm[] = [
   { ar: 'سيرنج إنسولين', en: 'Insulin Syringe', definition: 'سيرنج رفيع بإبرة قصيرة (29-31 غيج) يُستخدم لحقن الببتيدات تحت الجلد. يُقاس بالوحدات (100 وحدة = 1 مل).' },
   { ar: 'التحميل', en: 'Loading Phase', definition: 'مرحلة أولية تُستخدم فيها جرعات أعلى أو أكثر تكرارًا لبناء مستوى فعّال في الجسم قبل الانتقال لجرعة الصيانة.' },
   { ar: 'جرعة الصيانة', en: 'Maintenance Dose', definition: 'الجرعة المنتظمة التي تُؤخذ بعد مرحلة التحميل للحفاظ على المستوى العلاجي في الجسم.' },
-  { ar: 'تجميعة', en: 'Stack', definition: 'مجموعة من الببتيدات تُؤخذ معًا لتحقيق هدف محدد، مثل تجميعة التعافي (BPC-157 + TB-500).' },
+  { ar: 'تجميعة', en: 'Stack', definition: 'مجموعة من الببتيدات تُؤخذ معًا لتحقيق هدف محدد، مثل تجميعة التعافي (BPC-157 + TB-500).', relatedPeptides: ['bpc-157', 'tb-500'] },
   { ar: 'بروتوكول', en: 'Protocol', definition: 'خطة منظّمة تحدد الجرعات والتوقيت والمدة وطريقة الاستخدام لببتيد أو تجميعة معينة.' },
-  { ar: 'الخلايا الشائخة', en: 'Senescent Cells', definition: 'خلايا توقفت عن الانقسام لكنها لا تموت، تُسبب التهابات مزمنة وترتبط بالشيخوخة. ببتيدات مثل FOXO4-DRI تستهدفها.' },
-  { ar: 'محفّز إفراز هرمون النمو', en: 'GHRH (Growth Hormone Releasing Hormone)', definition: 'هرمون يحفّز الغدة النخامية لإفراز هرمون النمو. ببتيدات مثل CJC-1295 وSermorelin تحاكي عمله.' },
-  { ar: 'غريلين', en: 'Ghrelin Mimetic (GHRP)', definition: 'ببتيدات تحاكي هرمون الجوع (غريلين) لتحفيز إفراز هرمون النمو. تشمل GHRP-2 وGHRP-6 وIpamorelin.' },
+  { ar: 'الخلايا الشائخة', en: 'Senescent Cells', definition: 'خلايا توقفت عن الانقسام لكنها لا تموت، تُسبب التهابات مزمنة وترتبط بالشيخوخة. ببتيدات مثل FOXO4-DRI تستهدفها.', relatedPeptides: ['foxo4-dri'] },
+  { ar: 'محفّز إفراز هرمون النمو', en: 'GHRH (Growth Hormone Releasing Hormone)', definition: 'هرمون يحفّز الغدة النخامية لإفراز هرمون النمو. ببتيدات مثل CJC-1295 وSermorelin تحاكي عمله.', relatedPeptides: ['cjc-1295', 'sermorelin'] },
+  { ar: 'غريلين', en: 'Ghrelin Mimetic (GHRP)', definition: 'ببتيدات تحاكي هرمون الجوع (غريلين) لتحفيز إفراز هرمون النمو. تشمل GHRP-2 وGHRP-6 وIpamorelin.', relatedPeptides: ['ghrp-2', 'ghrp-6', 'ipamorelin'] },
   { ar: 'تحليل IGF-1', en: 'IGF-1 Blood Test', definition: 'تحليل دم يقيس مستوى عامل النمو الشبيه بالإنسولين، يُستخدم لمراقبة فعالية ببتيدات هرمون النمو.' },
-  { ar: 'نفاذية الأمعاء', en: 'Leaky Gut', definition: 'حالة تزداد فيها نفاذية بطانة الأمعاء مما يسمح بمرور مواد غير مرغوبة. ببتيدات مثل BPC-157 وLarazotide تساعد في إصلاحها.' },
-  { ar: 'عامل التنخّر الورمي', en: 'TNF-alpha', definition: 'بروتين التهابي رئيسي في الجسم. بعض الببتيدات مثل KPV تعمل كمضادات التهاب عبر تثبيطه.' },
+  { ar: 'نفاذية الأمعاء', en: 'Leaky Gut', definition: 'حالة تزداد فيها نفاذية بطانة الأمعاء مما يسمح بمرور مواد غير مرغوبة. ببتيدات مثل BPC-157 وLarazotide تساعد في إصلاحها.', relatedPeptides: ['bpc-157', 'larazotide'] },
+  { ar: 'عامل التنخّر الورمي', en: 'TNF-alpha', definition: 'بروتين التهابي رئيسي في الجسم. بعض الببتيدات مثل KPV تعمل كمضادات التهاب عبر تثبيطه.', relatedPeptides: ['kpv'] },
   { ar: 'التنظيم التنازلي', en: 'Downregulation', definition: 'انخفاض استجابة المستقبلات عند التعرّض المستمر لمحفّز. يحدث مع بعض الببتيدات مثل Hexarelin عند الاستخدام المطوّل.' },
   { ar: 'الدورة', en: 'Cycling', definition: 'استراتيجية تناوب بين فترات الاستخدام والتوقف لمنع تطوّر التحمّل والحفاظ على فعالية الببتيد.' },
   { ar: 'الكولاجين', en: 'Collagen', definition: 'البروتين الأكثر وفرة في الجسم، يدعم البشرة والمفاصل والعظام. ببتيدات الكولاجين تُؤخذ فمويًا لتعزيز إنتاجه.' },
@@ -36,7 +38,7 @@ export const GLOSSARY_TERMS: GlossaryTerm[] = [
   { ar: 'جرعة ميكروغرام', en: 'Microgram (mcg)', definition: 'وحدة قياس تساوي جزءًا من المليون من الغرام (1 mg = 1000 mcg). معظم جرعات الببتيدات تُقاس بالميكروغرام.' },
   { ar: 'مضاد الشيخوخة', en: 'Anti-aging / Longevity', definition: 'مجال يهدف لإبطاء أو عكس علامات الشيخوخة. ببتيدات مثل Epithalon وGHK-Cu وThymosin Alpha-1 تُصنّف في هذا المجال.' },
   { ar: 'الميلاتونين', en: 'Melatonin', definition: 'هرمون ينظّم دورة النوم والاستيقاظ. ببتيد Epithalon يعيد تنظيم إفرازه الطبيعي من الغدة الصنوبرية.' },
-  { ar: 'التئام الجروح', en: 'Wound Healing', definition: 'عملية إصلاح الأنسجة التالفة. ببتيدات مثل BPC-157 وTB-500 وGHK-Cu تُسرّع هذه العملية بآليات مختلفة.' },
+  { ar: 'التئام الجروح', en: 'Wound Healing', definition: 'عملية إصلاح الأنسجة التالفة. ببتيدات مثل BPC-157 وTB-500 وGHK-Cu تُسرّع هذه العملية بآليات مختلفة.', relatedPeptides: ['bpc-157', 'tb-500', 'ghk-cu'] },
   { ar: 'الحمض الأميني', en: 'Amino Acid', definition: 'الوحدة البنائية الأساسية للبروتينات والببتيدات. هناك 20 حمضًا أمينيًا أساسيًا ترتبط ببعضها لتشكيل سلاسل ببتيدية.' },
   { ar: 'الرابطة الببتيدية', en: 'Peptide Bond', definition: 'رابطة كيميائية تصل بين حمضين أمينيين في سلسلة الببتيد. تتشكل عبر تفاعل تكاثف مع فقدان جزيء ماء.' },
   { ar: 'التخليق الصلب', en: 'Solid-Phase Peptide Synthesis (SPPS)', definition: 'أكثر طرق تصنيع الببتيدات شيوعًا، يتم فيها بناء السلسلة الببتيدية حمضًا أمينيًا تلو الآخر على سطح راتنج صلب.' },
@@ -65,7 +67,7 @@ export const GLOSSARY_TERMS: GlossaryTerm[] = [
   { ar: 'التوصيل عبر الأنف', en: 'Intranasal Delivery', definition: 'طريقة إعطاء الببتيد عبر رذاذ أنفي. تُستخدم مع ببتيدات مثل Semax وSelank وBPC-157 لتأثير أسرع على الدماغ.' },
   { ar: 'التنظيم التصاعدي', en: 'Upregulation', definition: 'زيادة عدد أو حساسية المستقبلات استجابةً لمحفّز. عكس التنظيم التنازلي، ويحدث أحيانًا مع فترات الراحة.' },
   { ar: 'الالتهاب المزمن', en: 'Chronic Inflammation', definition: 'التهاب مستمر منخفض الشدة يرتبط بأمراض مزمنة والشيخوخة. ببتيدات مثل KPV وBPC-157 وThymosin Beta-4 تعمل على تهدئته.' },
-  { ar: 'مقاومة الإنسولين', en: 'Insulin Resistance', definition: 'حالة تقل فيها استجابة الخلايا للإنسولين. ببتيدات GLP-1 مثل Semaglutide تُحسّن حساسية الإنسولين وتنظّم سكر الدم.' },
+  { ar: 'مقاومة الإنسولين', en: 'Insulin Resistance', definition: 'حالة تقل فيها استجابة الخلايا للإنسولين. ببتيدات GLP-1 مثل Semaglutide تُحسّن حساسية الإنسولين وتنظّم سكر الدم.', relatedPeptides: ['semaglutide'] },
   { ar: 'التليّف', en: 'Fibrosis', definition: 'تراكم مفرط للنسيج الضام في الأعضاء. ببتيدات مثل BPC-157 وGHK-Cu تُظهر قدرة على تقليل التليّف في الدراسات.' },
   { ar: 'الأوتوفاجي', en: 'Autophagy', definition: 'عملية خلوية تُعيد تدوير المكونات التالفة. الصيام وبعض الببتيدات مثل Epithalon قد تعزز هذه العملية لإبطاء الشيخوخة.' },
   { ar: 'الحاجز الدموي الدماغي', en: 'Blood-Brain Barrier (BBB)', definition: 'حاجز انتقائي يمنع دخول معظم المواد من الدم إلى الدماغ. ببتيدات مثل Dihexa وSemax تعبره عبر آليات نقل محددة.' },

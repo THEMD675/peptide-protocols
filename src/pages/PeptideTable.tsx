@@ -72,6 +72,7 @@ export default function PeptideTable() {
         <meta property="og:description" content={`أشمل جدول مقارنة ببتيدات بالعربي — ${PEPTIDE_COUNT} ببتيد مع الجرعات والبروتوكولات.`} />
         <meta property="og:url" content={`${SITE_URL}/table`} />
         <meta property="og:image" content={`${SITE_URL}/og-image.png`} />
+        <meta name="twitter:card" content="summary_large_image" />
         <script type="application/ld+json">{JSON.stringify({
           '@context': 'https://schema.org',
           '@type': 'WebPage',

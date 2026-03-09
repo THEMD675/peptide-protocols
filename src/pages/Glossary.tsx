@@ -1,9 +1,10 @@
 import { useState, useMemo, useCallback } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { Link } from 'react-router-dom';
-import { BookA, Search, X } from 'lucide-react';
+import { BookA, Search, X, FlaskConical } from 'lucide-react';
 import { PEPTIDE_COUNT, SITE_URL } from '@/lib/constants';
 import { GLOSSARY_TERMS as TERMS } from '@/data/glossary';
+import { peptides as allPeptides } from '@/data/peptides';
 
 const stripDiacritics = (s: string) => s.replace(/[\u0610-\u061A\u064B-\u065F\u0670\u06D6-\u06DC\u06DF-\u06E4\u06E7-\u06E8\u06EA-\u06ED]/g, '');
 
@@ -64,6 +65,7 @@ export default function Glossary() {
         <meta property="og:url" content={`${SITE_URL}/glossary`} />
         <meta property="og:type" content="website" />
         <meta property="og:image" content={`${SITE_URL}/og-image.png`} />
+        <meta name="twitter:card" content="summary_large_image" />
         <meta property="og:locale" content="ar_SA" />
         <script type="application/ld+json">{JSON.stringify({
           "@context": "https://schema.org",
@@ -86,7 +88,7 @@ export default function Glossary() {
 
       {/* Search */}
       <div className="relative mb-8">
-        <Search className="absolute end-4 top-1/2 h-5 w-5 -translate-y-1/2 text-stone-500" />
+        {!search && <Search className="absolute start-4 top-1/2 h-5 w-5 -translate-y-1/2 text-stone-500" />}
         <input
           type="text"
           value={search}
@@ -99,7 +101,7 @@ export default function Glossary() {
           <button
             onClick={() => setSearch('')}
             aria-label="مسح البحث"
-            className="absolute end-4 top-1/2 -translate-y-1/2 text-stone-500 transition-colors hover:text-stone-700"
+            className="absolute start-4 top-1/2 -translate-y-1/2 text-stone-500 transition-colors hover:text-stone-700"
           >
             <X className="h-4 w-4" />
           </button>
@@ -151,6 +153,23 @@ export default function Glossary() {
                       <span className="shrink-0 text-xs font-medium text-emerald-600" dir="ltr">{term.en}</span>
                     </dt>
                     <dd className="mt-3 text-sm leading-relaxed text-stone-600">{term.definition}</dd>
+                    {term.relatedPeptides && term.relatedPeptides.length > 0 && (
+                      <div className="mt-2 flex flex-wrap gap-1.5">
+                        {term.relatedPeptides.map((pid) => {
+                          const p = allPeptides.find(x => x.id === pid);
+                          return p ? (
+                            <Link
+                              key={pid}
+                              to={`/peptide/${pid}`}
+                              className="inline-flex items-center gap-1 rounded-full border border-emerald-200 bg-emerald-50 px-2.5 py-1 text-xs font-medium text-emerald-700 transition-colors hover:bg-emerald-100"
+                            >
+                              <FlaskConical className="h-3 w-3" />
+                              {p.nameEn}
+                            </Link>
+                          ) : null;
+                        })}
+                      </div>
+                    )}
                   </div>
                 ))}
               </dl>

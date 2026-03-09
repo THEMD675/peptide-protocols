@@ -363,6 +363,7 @@ export default function Community() {
         <meta property="og:type" content="website" />
         <meta property="og:locale" content="ar_SA" />
         <meta property="og:image" content={`${SITE_URL}/og-image.png`} />
+        <meta name="twitter:card" content="summary_large_image" />
         <script type="application/ld+json">{JSON.stringify({
           '@context': 'https://schema.org',
           '@type': 'DiscussionForumPosting',

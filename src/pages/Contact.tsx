@@ -75,6 +75,8 @@ export default function Contact() {
         <meta property="og:description" content="تواصل مع فريق pptides — نسعد بأسئلتكم واستفساراتكم." />
         <meta property="og:type" content="website" />
         <meta property="og:url" content={`${SITE_URL}/contact`} />
+        <meta property="og:image" content={`${SITE_URL}/og-image.png`} />
+        <meta name="twitter:card" content="summary_large_image" />
         <link rel="canonical" href={`${SITE_URL}/contact`} />
       </Helmet>
 

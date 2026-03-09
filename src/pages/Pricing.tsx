@@ -262,8 +262,8 @@ export default function Pricing() {
               <span className="text-3xl font-black text-stone-900 sm:text-5xl">{billingCycle === 'annual' ? PRICING.essentials.annualLabel : PRICING.essentials.label}</span>
               <span className="text-lg text-stone-800"> /{billingCycle === 'annual' ? 'سنويًا' : 'شهريًا'}</span>
             </div>
-            {billingCycle === 'monthly' && <p className="text-xs text-emerald-600 font-medium mt-1">سنوي: <span dir="ltr">{PRICING.essentials.annualLabel}</span>/سنة — وفّر 12%</p>}
-            {billingCycle === 'annual' && <p className="text-xs text-emerald-600 font-medium mt-1">≈ {Math.round(PRICING.essentials.annualTotal / 12)} ر.س/شهر — وفّر 12%</p>}
+            {billingCycle === 'monthly' && <p className="text-xs text-emerald-600 font-medium mt-1">سنوي: <span dir="ltr">{PRICING.essentials.annualLabel}</span>/سنة — وفّر 27%</p>}
+            {billingCycle === 'annual' && <p className="text-xs text-emerald-600 font-medium mt-1">≈ {Math.round(PRICING.essentials.annualTotal / 12)} ر.س/شهر — وفّر 27%</p>}
             <div className="mb-6" />
 
             <ul className="mb-8 flex-1 space-y-3">
