@@ -2,6 +2,7 @@ import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
 import { handleCorsPreflightIfOptions, getCorsHeaders, jsonResponse } from '../_shared/cors.ts'
 import { requireAdmin } from '../_shared/admin-auth.ts'
 import { getServiceClient, supabaseUrl, supabaseServiceKey } from '../_shared/supabase.ts'
+import { checkRateLimit } from '../_shared/rate-limit.ts'
 
 serve(async (req) => {
   const preflight = handleCorsPreflightIfOptions(req)
@@ -14,10 +15,21 @@ serve(async (req) => {
   }
 
   try {
-    const { error: authResp } = await requireAdmin(req)
+    const { user, error: authResp } = await requireAdmin(req)
     if (authResp) return authResp
 
     const admin = getServiceClient()
+
+    // Rate limit: 30 requests per minute per admin
+    const allowed = await checkRateLimit(admin, {
+      endpoint: 'admin-stats',
+      identifier: user!.id,
+      windowSeconds: 60,
+      maxRequests: 30,
+    })
+    if (!allowed) {
+      return jsonResponse({ error: 'Rate limited — try again shortly' }, 429, corsHeaders)
+    }
 
     async function getAllAuthUsers() {
       const collected: typeof paginatedUsers = []
