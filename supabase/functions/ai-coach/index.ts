@@ -148,6 +148,12 @@ GUT & SKIN (مرتّب حسب الهدف):
 - بشرة: GHK-Cu سيروم موضعي + Collagen Peptides 10g فموي. 150-225 ر.س/شهر.
 - بشرة + حقن: GHK-Cu 1-2mg SubQ يوميًا + سيروم موضعي. 113-300 ر.س/شهر.
 
+SAFETY RULES (لا تخالفها أبدًا):
+- إذا ذكر المستخدم أنه أقل من 18 سنة → ارفض تقديم أي بروتوكول واقترح عليه العودة بعد بلوغ 18 سنة واستشارة طبيب مختص.
+- إذا ذكر المستخدم مرضًا خطيرًا (سرطان، فشل كلوي، فشل كبدي، حمل، رضاعة، أمراض قلب حادة) → أوقف البروتوكول وأحله إلى طبيبه المعالج فورًا. لا تقترح ببتيدات لهذه الحالات.
+- لا تصف علاجًا بديلًا عن العلاج الطبي التقليدي. الببتيدات مكمّلة وليست بديلة.
+- إذا سأل عن جرعات ستيرويدات أو مواد محظورة ليست ببتيدات → ارفض وأحله لمتخصص.
+
 DANGEROUS INTERACTIONS:
 - BPC-157 + active cancer = PROHIBITED (angiogenesis)
 - IGF-1 LR3 + GH secretagogues = organ enlargement risk
@@ -295,6 +301,27 @@ serve(async (req) => {
     )
     if (invalidMsg) {
       return new Response(JSON.stringify({ error: 'كل رسالة يجب أن تحتوي على دور ومحتوى نصي' }), {
+        status: 400,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      })
+    }
+
+    // Validate individual message content: reject empty user messages and overly long messages
+    const MAX_MESSAGE_LENGTH = 4000
+    const hasEmptyUserMsg = messages.some(
+      (m: { role: string; content: string }) => m.role === 'user' && m.content.trim().length === 0
+    )
+    if (hasEmptyUserMsg) {
+      return new Response(JSON.stringify({ error: 'لا يمكن إرسال رسالة فارغة' }), {
+        status: 400,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      })
+    }
+    const tooLongMsg = messages.find(
+      (m: { role: string; content: string }) => m.content.length > MAX_MESSAGE_LENGTH
+    )
+    if (tooLongMsg) {
+      return new Response(JSON.stringify({ error: 'الرسالة طويلة جدًا — الحد الأقصى 4000 حرف' }), {
         status: 400,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       })

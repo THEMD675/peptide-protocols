@@ -588,7 +588,7 @@ export default function Coach() {
         </div>
 
         <div className="rounded-2xl border border-stone-200 bg-white overflow-hidden shadow-sm">
-          <div ref={scrollRef} role="log" aria-label="محادثة المدرب الذكي" className="max-h-[65vh] overflow-y-auto p-5 space-y-4 bg-stone-50/50">
+          <div ref={scrollRef} role="log" aria-label="محادثة المدرب الذكي" aria-live="polite" className="max-h-[65dvh] overflow-y-auto p-5 space-y-4 bg-stone-50/50">
 
             {/* DeepSeek consent — one-time */}
             {showDeepSeekConsent && (
@@ -730,7 +730,7 @@ export default function Coach() {
                 <div className={cn('flex', msg.role === 'user' ? 'justify-start' : 'justify-end')}>
                   {msg.role === 'user' && (
                     <div className="ms-2 mt-1 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-emerald-600 text-xs font-bold text-white">
-                      {user?.email?.charAt(0).toUpperCase() ?? ''}
+                      {user?.email?.charAt(0).toUpperCase() ?? '؟'}
                     </div>
                   )}
                   <div className={cn('max-w-[88%] rounded-2xl px-5 py-3', msg.role === 'user' ? 'primary-gradient rounded-br-md' : 'rounded-bl-md border border-stone-200 bg-white')}>
@@ -851,11 +851,11 @@ export default function Coach() {
                         onClick={() => {
                           const printWindow = window.open('', '_blank');
                           if (printWindow) {
-                            const sanitized = DOMPurify.sanitize(msg.content.replace(/\n/g, '<br>'));
+                            const rendered = renderMarkdownToHtml(msg.content);
                             printWindow.document.write(`
                               <html dir="rtl"><head><title>بروتوكول pptides</title>
-                              <style>body{font-family:Arial;padding:40px;line-height:1.8;}</style></head>
-                              <body>${sanitized}</body></html>
+                              <style>body{font-family:Arial,sans-serif;padding:40px;line-height:1.8;color:#1c1917;}table{border-collapse:collapse;width:100%;}th,td{border:1px solid #e7e5e4;padding:6px 10px;}th{background:#f5f5f4;font-weight:bold;}h3,h4{margin-top:1rem;}strong{font-weight:bold;}</style></head>
+                              <body>${rendered}<p style="margin-top:2rem;font-size:12px;color:#a8a29e;">محتوى تعليمي بحثي — استشر طبيبك قبل استخدام أي ببتيد | pptides.com</p></body></html>
                             `);
                             printWindow.document.close();
                             printWindow.print();
@@ -1003,6 +1003,7 @@ export default function Coach() {
                       onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendToAI(input); } }}
                       onInput={e => { const t = e.currentTarget; t.style.height = 'auto'; t.style.height = Math.min(t.scrollHeight, 120) + 'px'; }}
                       placeholder="اسأل المزيد عن البروتوكول..." rows={1} maxLength={2000} disabled={isLoading}
+                      dir="rtl"
                       aria-label="اكتب رسالتك"
                       className={cn('flex-1 resize-none rounded-xl border border-stone-200 bg-stone-50 px-4 py-3 text-sm text-stone-900 placeholder:text-stone-500 focus:border-emerald-300 focus:outline-none focus:ring-2 focus:ring-emerald-100', isLoading && 'opacity-60')} />
                     <button onClick={() => sendToAI(input)} disabled={!input.trim() || isLoading}
