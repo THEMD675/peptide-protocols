@@ -137,9 +137,13 @@ serve(async (req) => {
         metadata: { tier, user_id: user.id, ...(referralCode ? { referral_code: referralCode } : {}) },
       },
       metadata: { tier, user_id: user.id, ...(referralCode ? { referral_code: referralCode } : {}) },
+      payment_intent_data: undefined,
       success_url: `${appUrl}/dashboard?payment=success&tier=${tier}&session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${appUrl}/pricing?payment=cancelled`,
       allow_promotion_codes: true,
+      custom_text: {
+        submit: { message: 'Powered by Amiris Group' },
+      },
     })
 
     return new Response(JSON.stringify({ url: session.url }), {
