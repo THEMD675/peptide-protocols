@@ -61,10 +61,10 @@ export default function Pricing() {
   const { user, subscription, upgradeTo } = useAuth();
 
   const isSubscribedTo = (tier: string) =>
-    user && subscription?.isProOrTrial && subscription.tier === tier;
+    user && subscription?.status !== 'trial' && subscription?.isProOrTrial && subscription.tier === tier;
 
   const [searchParams, setSearchParams] = useSearchParams();
-  const showTrialMessaging = !user || subscription?.status === 'none';
+  const showTrialMessaging = !user || subscription?.status === 'none' || subscription?.status === 'trial';
   const [loadingPlan, setLoadingPlan] = useState<string | null>(null);
   const [billingCycle, setBillingCycle] = useState<'monthly' | 'annual'>('monthly');
   const navigatingRef = useRef(false);
@@ -123,7 +123,7 @@ export default function Pricing() {
       );
     }
 
-    if (user && subscription?.isProOrTrial && subscription.tier !== planKey) {
+    if (user && subscription?.status !== 'trial' && subscription?.isProOrTrial && subscription.tier !== planKey) {
       return (
         <div className="text-center text-sm text-stone-500">
           للتغيير تواصل معنا: <a href={`mailto:${SUPPORT_EMAIL}?subject=تغيير الباقة`} className="inline-flex min-h-[44px] items-center text-emerald-600 underline">{SUPPORT_EMAIL}</a>

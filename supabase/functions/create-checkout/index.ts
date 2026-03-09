@@ -98,7 +98,7 @@ serve(async (req) => {
       .eq('user_id', user.id)
       .maybeSingle()
 
-    if (existingSub?.status === 'active' || existingSub?.status === 'trial' || existingSub?.status === 'past_due') {
+    if (existingSub?.status === 'active' || existingSub?.status === 'past_due') {
       return new Response(JSON.stringify({ error: 'لديك اشتراك فعّال بالفعل', alreadySubscribed: true }), {
         status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       })
