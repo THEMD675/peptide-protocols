@@ -59,6 +59,7 @@ export default function Login() {
   const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
   const turnstileRef = useRef<HTMLDivElement>(null);
   const turnstileWidgetId = useRef<string | null>(null);
+  const resendIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const { login, signup, user } = useAuth();
   const googleBtnRef = useRef<HTMLDivElement>(null);
@@ -84,17 +85,23 @@ export default function Login() {
         language: 'ar',
       }) ?? null;
     };
-    if (window.turnstile) { renderWidget(); return; }
+    if (window.turnstile) { renderWidget(); return () => { turnstileWidgetId.current = null; }; }
     const script = document.createElement('script');
     script.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit';
     script.async = true;
     script.onload = renderWidget;
     document.head.appendChild(script);
-    return () => { turnstileWidgetId.current = null; };
+    return () => {
+      turnstileWidgetId.current = null;
+      if (script.parentNode) script.parentNode.removeChild(script);
+    };
   }, []);
   const navigate = useNavigate();
   const recoveryTimerRef = useRef<ReturnType<typeof setTimeout>>();
-  useEffect(() => () => { clearTimeout(recoveryTimerRef.current); }, []);
+  useEffect(() => () => {
+    clearTimeout(recoveryTimerRef.current);
+    if (resendIntervalRef.current) clearInterval(resendIntervalRef.current);
+  }, []);
 
   useEffect(() => {
     try { sessionStorage.setItem('pptides_failed_attempts', String(failedAttempts)); } catch { /* expected */ }
@@ -296,9 +303,10 @@ export default function Login() {
       if (error) throw error;
       toast.success('تم إعادة إرسال رابط التأكيد — تحقق من بريدك');
       setResendCooldown(60);
-      const interval = setInterval(() => {
+      if (resendIntervalRef.current) clearInterval(resendIntervalRef.current);
+      resendIntervalRef.current = setInterval(() => {
         setResendCooldown(prev => {
-          if (prev <= 1) { clearInterval(interval); return 0; }
+          if (prev <= 1) { if (resendIntervalRef.current) { clearInterval(resendIntervalRef.current); resendIntervalRef.current = null; } return 0; }
           return prev - 1;
         });
       }, 1000);

@@ -36,9 +36,9 @@ export async function requireAdmin(req: Request): Promise<
   }
 
   const user = await getAuthUser(req)
-  if (!user || !ADMIN_EMAILS.includes(user.email ?? '')) {
+  if (!user || !user.email || !ADMIN_EMAILS.includes(user.email)) {
     return { user: null, error: jsonResponse({ error: 'Forbidden' }, 403, cors) }
   }
 
-  return { user: { id: user.id, email: user.email! }, error: null }
+  return { user: { id: user.id, email: user.email }, error: null }
 }

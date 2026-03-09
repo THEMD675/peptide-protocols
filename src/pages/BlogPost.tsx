@@ -38,6 +38,7 @@ export default function BlogPost() {
 
   useEffect(() => {
     if (!slug) return;
+    let cancelled = false;
     (async () => {
       setLoading(true);
       const { data, error: fetchError } = await supabase
@@ -47,6 +48,7 @@ export default function BlogPost() {
         .eq('is_published', true)
         .maybeSingle();
 
+      if (cancelled) return;
       if (fetchError || !data) {
         setError(true);
       } else {
@@ -59,10 +61,11 @@ export default function BlogPost() {
           .neq('id', data.id)
           .order('published_at', { ascending: false })
           .limit(3);
-        if (related) setRelatedPosts(related);
+        if (!cancelled && related) setRelatedPosts(related);
       }
-      setLoading(false);
+      if (!cancelled) setLoading(false);
     })();
+    return () => { cancelled = true; };
   }, [slug]);
 
   if (loading) return <GenericPageSkeleton />;

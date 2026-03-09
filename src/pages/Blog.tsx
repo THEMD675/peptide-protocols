@@ -21,6 +21,7 @@ export default function Blog() {
   const [error, setError] = useState(false);
 
   useEffect(() => {
+    let cancelled = false;
     (async () => {
       const { data, error: fetchError } = await supabase
         .from('blog_posts')
@@ -29,6 +30,7 @@ export default function Blog() {
         .order('published_at', { ascending: false })
         .limit(50);
 
+      if (cancelled) return;
       if (fetchError) {
         void fetchError;
         setError(true);
@@ -37,6 +39,7 @@ export default function Blog() {
       }
       setLoading(false);
     })();
+    return () => { cancelled = true; };
   }, []);
 
   return (
