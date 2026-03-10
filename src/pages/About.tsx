@@ -70,7 +70,7 @@ export default function About() {
     <div className="min-h-screen bg-white dark:bg-stone-950 animate-fade-in">
       <Helmet>
         <title>عن pptides — أول منصة عربية للببتيدات العلاجية | pptides</title>
-        <meta name="description" content="تعرّف على pptides: أول منصة عربية متخصصة في علم الببتيدات العلاجية. أكثر من 41 ببتيد مع بروتوكولات كاملة، مدرب ذكي، وأدوات متقدمة." />
+        <meta name="description" content="تعرّف على pptides: أول منصة عربية متخصصة في علم الببتيدات العلاجية. أكثر من 63 ببتيد مع بروتوكولات كاملة، مدرب ذكي، وأدوات متقدمة." />
         <link rel="canonical" href={`${SITE_URL}/about`} />
         <meta property="og:title" content="عن pptides — أول منصة عربية للببتيدات العلاجية" />
         <meta property="og:description" content="أول منصة عربية متخصصة في علم الببتيدات — بروتوكولات كاملة، مدرب ذكي، مبنية على الأدلة العلمية." />

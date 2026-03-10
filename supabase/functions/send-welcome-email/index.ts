@@ -7,7 +7,7 @@ const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY') ?? ''
 
 const APP_URL = Deno.env.get('APP_URL') ?? 'https://pptides.com'
 // SOURCE OF TRUTH: must match src/lib/constants.ts (peptides.length)
-const PEPTIDE_COUNT = parseInt(Deno.env.get('PEPTIDE_COUNT') ?? '41', 10)
+const PEPTIDE_COUNT = parseInt(Deno.env.get('PEPTIDE_COUNT') ?? '63', 10)
 // SOURCE OF TRUTH: 34 SAR = 1 month Essentials; override via ESSENTIALS_PRICE_DISPLAY env
 const ESSENTIALS_PRICE = Deno.env.get('ESSENTIALS_PRICE_DISPLAY') ?? '34 ر.س'
 import { getCorsHeaders, handleCorsPreflightIfOptions } from '../_shared/cors.ts'

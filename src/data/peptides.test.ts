@@ -4,7 +4,7 @@ import { FREE_PEPTIDE_IDS } from '@/lib/constants'
 
 describe('peptides', () => {
   describe('peptides array', () => {
-    it('has 41+ items', () => {
+    it('has 63+ items', () => {
       expect(peptides.length).toBeGreaterThanOrEqual(41)
     })
 
