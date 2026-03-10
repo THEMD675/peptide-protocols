@@ -442,8 +442,8 @@ export default function Dashboard() {
         </div>
       )}
 
-      {/* Welcome Header */}
-      <div className="mb-8">
+      {/* Welcome Header — hidden for brand-new users (they see the first-time hero instead) */}
+      {!((!activity.loading && activity.logs.length === 0 && activeProtocols.length === 0)) && (<div className="mb-8">
         <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-100 dark:bg-emerald-900/30">
           <LayoutDashboard className="h-7 w-7 text-emerald-700" />
         </div>
@@ -491,7 +491,7 @@ export default function Dashboard() {
             ? `لديك ${activeProtocols.length} بروتوكول نشط — استمر في الالتزام`
             : 'ابدأ من هنا — كل أدواتك في مكان واحد'}
         </p>
-      </div>
+      </div>)}
 
       {/* Subscription Status Card */}
       <div className="mb-8 rounded-2xl border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-900 p-6">
