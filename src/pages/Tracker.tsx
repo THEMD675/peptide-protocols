@@ -302,7 +302,7 @@ export default function Tracker() {
         .eq('user_id', user.id)
         .order('logged_at', { ascending: false })
         .range(from, from + PAGE_SIZE - 1);
-      if (error) { toast.error('تعذّر تحميل المزيد'); setIsLoadingMore(false); return; }
+      if (error) { toast.error('تعذّر تحميل المزيد'); return; }
       const rows = (data as InjectionLog[]) ?? [];
       setLogs(prev => [...prev, ...rows]);
       setHasMore(rows.length >= PAGE_SIZE);
@@ -342,7 +342,9 @@ export default function Tracker() {
       const a = document.createElement('a');
       a.href = url;
       a.download = `pptides-injections-${new Date().toISOString().slice(0, 10)}.csv`;
+      document.body.appendChild(a);
       a.click();
+      document.body.removeChild(a);
       URL.revokeObjectURL(url);
       toast.success('تم تصدير البيانات');
     } catch {
@@ -387,6 +389,7 @@ export default function Tracker() {
       setUnit('mcg');
       setSite('abdomen');
       setNotes('');
+      setSideEffect('none');
       setDoseOutOfRangeConfirmed(false);
       setShowForm(false);
       sessionStorage.removeItem('pptides_tracker_form_draft');
@@ -442,7 +445,6 @@ export default function Tracker() {
     const uniquePeptides = fullStatsData?.uniquePeptides ?? new Set(logs.map(l => l.peptide_name)).size;
     const streak = computeStreak(allLogsForStats.length > 0 ? allLogsForStats : logs);
     const last7 = fullStatsData?.last7 ?? logs.filter(l => Date.now() - new Date(l.logged_at).getTime() < 7 * 24 * 60 * 60 * 1000).length;
-    if (logs.length === 0) return null;
     const msSinceLast = Date.now() - new Date(logs[0].logged_at).getTime();
     const hoursSince = Math.floor(msSinceLast / (1000 * 60 * 60));
     const daysSince = Math.floor(hoursSince / 24);
