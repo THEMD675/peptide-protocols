@@ -9,6 +9,7 @@ import { ADMIN_EMAILS } from '@/lib/constants';
 
 const guestNavLinks = [
   { to: '/library', label: 'المكتبة' },
+  { to: '/blog', label: 'المدونة' },
   { to: '/pricing', label: 'الأسعار' },
 ] as const;
 
@@ -17,6 +18,7 @@ const userNavLinks = [
   { to: '/tracker', label: 'سجل الحقن' },
   { to: '/library', label: 'المكتبة' },
   { to: '/coach', label: 'المدرب' },
+  { to: '/blog', label: 'المدونة' },
 ] as const;
 
 const guestToolLinks = [
