@@ -508,7 +508,11 @@ serve(async (req) => {
     }
 
     // Cleanup: delete rate limit entries older than 1 hour
-    await supabase.from('rate_limits').delete().lt('created_at', new Date(Date.now() - 3600000).toISOString()).catch(() => {})
+    try {
+      await supabase.from('rate_limits').delete().lt('created_at', new Date(Date.now() - 3600000).toISOString())
+    } catch (cleanupErr) {
+      console.error('trial-reminder: rate_limits cleanup failed:', cleanupErr)
+    }
 
     // Smart dunning emails for past_due subscribers (day 3, day 7 escalation)
     try {

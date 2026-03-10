@@ -2,6 +2,7 @@ import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 import { getCorsHeaders, handleCorsPreflightIfOptions, jsonResponse } from '../_shared/cors.ts'
 import { requireAdmin } from '../_shared/admin-auth.ts'
+import { checkRateLimit } from '../_shared/rate-limit.ts'
 
 const supabaseUrl = Deno.env.get('SUPABASE_URL') ?? ''
 const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
@@ -231,6 +232,23 @@ serve(async (req) => {
 
     if (!isAuthorized) {
       return jsonResponse({ error: 'Unauthorized' }, 401, corsHeaders)
+    }
+
+    // Rate limit: 10 per caller per hour
+    {
+      const supabase = createClient(supabaseUrl, supabaseServiceKey)
+      const callerIp = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim()
+        ?? req.headers.get('cf-connecting-ip')
+        ?? 'cron'
+      const allowed = await checkRateLimit(supabase, {
+        endpoint: 'send-push',
+        identifier: callerIp,
+        windowSeconds: 3600,
+        maxRequests: 10,
+      })
+      if (!allowed) {
+        return jsonResponse({ error: 'Rate limited' }, 429, corsHeaders)
+      }
     }
 
     let body: { user_ids?: string[]; user_id?: string; title: string; body: string; url?: string }

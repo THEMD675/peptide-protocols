@@ -10,6 +10,7 @@ const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
 
 import { getCorsHeaders, handleCorsPreflightIfOptions } from '../_shared/cors.ts'
 import { emailWrapper, emailButton } from '../_shared/email-template.ts'
+import { checkRateLimit } from '../_shared/rate-limit.ts'
 
 serve(async (req) => {
   const preflight = handleCorsPreflightIfOptions(req)
@@ -53,14 +54,19 @@ serve(async (req) => {
       })
     }
 
-    try {
-      const oneMinAgo = new Date(Date.now() - 60000).toISOString()
-      const { count } = await supabase.from('rate_limits').select('id', { count: 'exact', head: true }).eq('endpoint', 'cancel-subscription').eq('user_id', user.id).gte('created_at', oneMinAgo)
-      if ((count ?? 0) >= 5) {
-        return new Response(JSON.stringify({ error: 'محاولات كثيرة — انتظر دقيقة' }), { status: 429, headers: { ...corsHeaders, 'Content-Type': 'application/json' } })
+    {
+      const allowed = await checkRateLimit(supabase, {
+        endpoint: 'cancel-subscription',
+        identifier: user.id,
+        windowSeconds: 3600,
+        maxRequests: 3,
+      })
+      if (!allowed) {
+        return new Response(JSON.stringify({ error: 'محاولات كثيرة — حاول لاحقًا' }), {
+          status: 429, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        })
       }
-      supabase.from('rate_limits').insert({ user_id: user.id, endpoint: 'cancel-subscription' }).then(() => {}).catch(() => {})
-    } catch (rlErr) { console.error('rate limit check failed:', rlErr) }
+    }
 
     let reqBody: Record<string, unknown> = {}
     try { reqBody = await req.clone().json() } catch { /* empty body is fine for cancel */ }

@@ -9,6 +9,7 @@ const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY') ?? ''
 const appUrl = Deno.env.get('APP_URL') ?? 'https://pptides.com'
 
 import { getCorsHeaders, handleCorsPreflightIfOptions } from '../_shared/cors.ts'
+import { checkRateLimit } from '../_shared/rate-limit.ts'
 
 const PRICE_IDS: Record<string, Record<string, string>> = {
   essentials: {
@@ -57,18 +58,21 @@ serve(async (req) => {
       })
     }
 
-    try {
-      const serviceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')
-      if (serviceKey) {
-        const adminDb = createClient(supabaseUrl, serviceKey)
-        const oneMinAgo = new Date(Date.now() - 60000).toISOString()
-        const { count } = await adminDb.from('rate_limits').select('id', { count: 'exact', head: true }).eq('endpoint', 'create-checkout').eq('user_id', user.id).gte('created_at', oneMinAgo)
-        if ((count ?? 0) >= 5) {
-          return new Response(JSON.stringify({ error: 'محاولات كثيرة — انتظر دقيقة' }), { status: 429, headers: { ...corsHeaders, 'Content-Type': 'application/json' } })
-        }
-        adminDb.from('rate_limits').insert({ user_id: user.id, endpoint: 'create-checkout' }).then(() => {}).catch(() => {})
+    const serviceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')
+    if (serviceKey) {
+      const adminDb = createClient(supabaseUrl, serviceKey)
+      const allowed = await checkRateLimit(adminDb, {
+        endpoint: 'create-checkout',
+        identifier: user.id,
+        windowSeconds: 3600,
+        maxRequests: 5,
+      })
+      if (!allowed) {
+        return new Response(JSON.stringify({ error: 'محاولات كثيرة — حاول لاحقًا' }), {
+          status: 429, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        })
       }
-    } catch (rlErr) { console.error('rate limit check failed:', rlErr) }
+    }
 
     let body: { tier?: string; billing?: string; referralCode?: string }
     try { body = await req.json() } catch {

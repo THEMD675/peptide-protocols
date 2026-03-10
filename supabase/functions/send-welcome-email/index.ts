@@ -12,6 +12,7 @@ const PEPTIDE_COUNT = parseInt(Deno.env.get('PEPTIDE_COUNT') ?? '41', 10)
 const ESSENTIALS_PRICE = Deno.env.get('ESSENTIALS_PRICE_DISPLAY') ?? '34 ر.س'
 import { getCorsHeaders, handleCorsPreflightIfOptions } from '../_shared/cors.ts'
 import { emailWrapper, emailButton } from '../_shared/email-template.ts'
+import { checkRateLimit } from '../_shared/rate-limit.ts'
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
@@ -56,18 +57,21 @@ serve(async (req) => {
       })
     }
 
-    try {
-      const serviceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')
-      if (serviceKey) {
-        const serviceDb = createClient(supabaseUrl, serviceKey)
-        const tenMinAgo = new Date(Date.now() - 600000).toISOString()
-        const { count } = await serviceDb.from('rate_limits').select('id', { count: 'exact', head: true }).eq('endpoint', 'welcome-email').eq('user_id', user.id).gte('created_at', tenMinAgo)
-        if ((count ?? 0) >= 3) {
-          return new Response(JSON.stringify({ error: 'Email already sent' }), { status: 429, headers: { ...corsHeaders, 'Content-Type': 'application/json' } })
-        }
-        await serviceDb.from('rate_limits').insert({ user_id: user.id, endpoint: 'welcome-email' }).catch(() => {})
+    const serviceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')
+    if (serviceKey) {
+      const serviceDb = createClient(supabaseUrl, serviceKey)
+      const allowed = await checkRateLimit(serviceDb, {
+        endpoint: 'send-welcome-email',
+        identifier: user.id,
+        windowSeconds: 3600,
+        maxRequests: 3,
+      })
+      if (!allowed) {
+        return new Response(JSON.stringify({ error: 'Email already sent' }), {
+          status: 429, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        })
       }
-    } catch (rlErr) { console.error('rate limit check failed:', rlErr) }
+    }
 
     let rawBody: string
     try {

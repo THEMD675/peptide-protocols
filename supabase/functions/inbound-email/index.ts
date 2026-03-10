@@ -1,9 +1,13 @@
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 import { sendEmail } from '../_shared/send-email.ts'
+import { checkRateLimit } from '../_shared/rate-limit.ts'
 
 const RESEND_API_KEY = Deno.env.get('RESEND_API_KEY')
 const FORWARD_TO = Deno.env.get('SUPPORT_FORWARD_EMAIL') ?? 'contact@pptides.com'
 const RESEND_WEBHOOK_SECRET = Deno.env.get('RESEND_WEBHOOK_SECRET')
+const supabaseUrl = Deno.env.get('SUPABASE_URL') ?? ''
+const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -67,6 +71,25 @@ serve(async (req) => {
         return new Response(JSON.stringify({ error: 'Invalid signature' }), {
           status: 401,
           headers: { 'Content-Type': 'application/json' },
+        })
+      }
+    }
+
+    // Rate limit by IP: 20 per hour
+    if (supabaseUrl && supabaseServiceKey) {
+      const supabase = createClient(supabaseUrl, supabaseServiceKey)
+      const clientIp = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim()
+        ?? req.headers.get('cf-connecting-ip')
+        ?? 'unknown'
+      const allowed = await checkRateLimit(supabase, {
+        endpoint: 'inbound-email',
+        identifier: clientIp,
+        windowSeconds: 3600,
+        maxRequests: 20,
+      })
+      if (!allowed) {
+        return new Response(JSON.stringify({ error: 'Rate limited' }), {
+          status: 429, headers: { 'Content-Type': 'application/json' },
         })
       }
     }
