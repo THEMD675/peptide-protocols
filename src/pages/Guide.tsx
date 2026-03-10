@@ -274,10 +274,7 @@ export default function Guide() {
               <ul className="space-y-3">
                 {importantRules.map((rule) => (
                   <li key={rule} className="flex items-start gap-3">
-                    <AlertCircle
-                      className="mt-0.5 h-5 w-5 shrink-0"
-                      
-                    />
+                    <AlertCircle className="mt-0.5 h-5 w-5 shrink-0 text-amber-500" />
                     <span className="text-sm leading-relaxed">
                       {rule}
                     </span>
@@ -301,16 +298,10 @@ export default function Guide() {
             <div className="grid gap-4 sm:grid-cols-3">
               {otherRoutes.map((route) => (
                 <div key={route.title} className="glass-card primary-border flex flex-col p-5">
-                  <h3
-                    className="mb-1 text-base font-bold"
-                    
-                  >
+                  <h3 className="mb-1 text-base font-bold text-stone-900">
                     {route.title}
                   </h3>
-                  <span
-                    className="mb-3 text-xs font-semibold"
-                    
-                  >
+                  <span className="mb-3 text-xs font-semibold text-emerald-600">
                     {route.peptides}
                   </span>
                   <p className="flex-1 text-sm leading-relaxed">

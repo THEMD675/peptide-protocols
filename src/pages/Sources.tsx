@@ -221,13 +221,13 @@ export default function Sources() {
                   key={item.titleEn}
                   className={cn(
                     'group rounded-2xl border border-stone-300 bg-stone-50 p-5 transition-all',
-                    'hover:border-emerald-300 transition-colors hover:bg-white/[0.06]'
+                    'hover:border-emerald-300 hover:bg-white'
                   )}
                 >
                   <div
                     className="mb-3 flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-50"
                   >
-                    <Icon className="h-5 w-5" aria-hidden="true" />
+                    <Icon className="h-5 w-5 text-emerald-600" aria-hidden="true" />
                   </div>
                   <h3 className="mb-1 text-sm font-bold text-stone-900">{item.titleAr}</h3>
                   <span className="mb-2 block text-xs text-stone-700">{item.titleEn}</span>
@@ -261,7 +261,7 @@ export default function Sources() {
             className="rounded-2xl border border-stone-300 bg-stone-50 p-6 text-center"
           >
             <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-emerald-50">
-              <Mail className="h-5 w-5" aria-hidden="true" />
+              <Mail className="h-5 w-5 text-emerald-600" aria-hidden="true" />
             </div>
             <h2 className="mb-2 text-lg font-bold text-stone-900">
               هل تعرف موردًا موثوقًا؟

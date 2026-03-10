@@ -38,7 +38,7 @@ export default function Terms() {
 
           <section>
             <h2 className="mb-3 text-xl font-bold text-stone-900">2. الاشتراكات والدفع</h2>
-            <ul className="list-disc space-y-2 pe-6">
+            <ul className="list-disc space-y-2 ps-6">
               <li>خطة Essentials: {PRICING.essentials.label} شهريًا</li>
               <li>خطة Elite: {PRICING.elite.label} شهريًا</li>
               <li>تجربة مجانية: {TRIAL_DAYS} أيام على جميع الخطط</li>
@@ -74,7 +74,7 @@ export default function Terms() {
 
           <section>
             <h2 className="mb-3 text-xl font-bold text-stone-900">8. الاحتفاظ بالبيانات</h2>
-            <ul className="list-disc space-y-2 pe-6">
+            <ul className="list-disc space-y-2 ps-6">
               <li>نحتفظ ببيانات حسابك طوال فترة اشتراكك النشط</li>
               <li>عند حذف حسابك، تُحذف بياناتك الشخصية خلال 30 يومًا</li>
               <li>سجلات الدفع تُحفظ لدى Stripe وفقًا لمتطلبات الامتثال المالي</li>
