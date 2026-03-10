@@ -1,4 +1,5 @@
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
+import { sendEmail } from '../_shared/send-email.ts'
 
 const RESEND_API_KEY = Deno.env.get('RESEND_API_KEY')
 const FORWARD_TO = Deno.env.get('SUPPORT_FORWARD_EMAIL') ?? 'contact@pptides.com'
@@ -113,14 +114,6 @@ serve(async (req) => {
       bodyText = `[محتوى الرسالة غير متاح — الرجاء التحقق من Resend Dashboard]\n\nEmail ID: ${email_id}\nFrom: ${from}\nSubject: ${subject}`
     }
 
-    if (!RESEND_API_KEY) {
-      console.error('inbound-email: RESEND_API_KEY not configured, cannot forward')
-      return new Response(JSON.stringify({ error: 'Not configured' }), {
-        status: 500,
-        headers: { 'Content-Type': 'application/json' },
-      })
-    }
-
     const forwardHtml = `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
         <div style="background: #f5f5f4; border-radius: 8px; padding: 16px; margin-bottom: 16px;">
@@ -134,24 +127,15 @@ serve(async (req) => {
       </div>
     `
 
-    const res = await fetch('https://api.resend.com/emails', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${RESEND_API_KEY}`,
-      },
-      body: JSON.stringify({
-        from: `pptides Inbox <noreply@pptides.com>`,
-        to: FORWARD_TO,
-        subject: `[pptides] ${subject ?? '(no subject)'} — from ${from}`,
-        html: forwardHtml,
-        reply_to: from,
-      }),
+    const emailResult = await sendEmail({
+      to: FORWARD_TO,
+      subject: `[pptides] ${subject ?? '(no subject)'} — from ${from}`,
+      html: forwardHtml,
+      replyTo: from,
     })
 
-    if (!res.ok) {
-      const errBody = await res.text().catch(() => '')
-      console.error('Forward failed:', res.status, errBody)
+    if (!emailResult.ok) {
+      console.error('Forward failed:', emailResult.error)
       return new Response(JSON.stringify({ error: 'Forward failed' }), {
         status: 502,
         headers: { 'Content-Type': 'application/json' },

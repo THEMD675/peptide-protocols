@@ -1,6 +1,7 @@
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 import Stripe from 'https://esm.sh/stripe@14.14.0?target=deno'
+import { sendEmail } from '../_shared/send-email.ts'
 
 const stripeKey = Deno.env.get('STRIPE_SECRET_KEY') ?? ''
 const stripe = new Stripe(stripeKey, { apiVersion: '2024-06-20' })
@@ -169,22 +170,15 @@ serve(async (req) => {
 
     console.log(JSON.stringify({ action: 'delete_account', user_id: user.id, email: user.email ?? null, result: 'success', timestamp: new Date().toISOString() }))
 
-    const RESEND_API_KEY = Deno.env.get('RESEND_API_KEY')
-    if (RESEND_API_KEY && user.email) {
-      await fetch('https://api.resend.com/emails', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${RESEND_API_KEY}` },
-        body: JSON.stringify({
-          from: 'pptides <noreply@pptides.com>',
-          reply_to: 'contact@pptides.com',
-          to: user.email,
-          subject: 'تم حذف حسابك في pptides',
-          headers: { 'List-Unsubscribe': '<mailto:contact@pptides.com?subject=unsubscribe>' },
-          html: emailWrapper(`
+    if (user.email) {
+      sendEmail({
+        to: user.email,
+        subject: 'تم حذف حسابك في pptides',
+        html: emailWrapper(`
             <h1 style="color: #1c1917; font-size: 24px;">تم حذف حسابك</h1>
             <p style="color: #44403c; font-size: 16px; line-height: 1.8;">تم حذف حسابك وجميع بياناتك من pptides بنجاح. إذا كان هذا خطأ، تواصل معنا فورًا.</p>
           `),
-        }),
+        replyTo: 'contact@pptides.com',
       }).catch(e => console.error('account deletion email failed:', e))
     }
 

@@ -1,7 +1,7 @@
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+import { sendEmail } from '../_shared/send-email.ts'
 
-const RESEND_API_KEY = Deno.env.get('RESEND_API_KEY')
 const supabaseUrl = Deno.env.get('SUPABASE_URL') ?? ''
 const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY') ?? ''
 
@@ -32,14 +32,6 @@ serve(async (req) => {
     if (!supabaseUrl || !supabaseAnonKey) {
       console.error('send-welcome-email: missing SUPABASE_URL or SUPABASE_ANON_KEY')
       return new Response(JSON.stringify({ error: 'Server misconfigured' }), {
-        status: 500,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      })
-    }
-
-    if (!RESEND_API_KEY) {
-      console.error('send-welcome-email: RESEND_API_KEY is not configured')
-      return new Response(JSON.stringify({ error: 'Email service not configured' }), {
         status: 500,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       })
@@ -189,21 +181,10 @@ serve(async (req) => {
       .replace(/`/g, '&#96;')
       .slice(0, 50)
 
-    const res = await fetch('https://api.resend.com/emails', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${RESEND_API_KEY}`,
-      },
-      body: JSON.stringify({
-        from: 'pptides <noreply@pptides.com>',
-        reply_to: 'contact@pptides.com',
-        to: email,
-        subject: 'مرحبًا بك في pptides — تجربتك المجانية بدأت الآن',
-        headers: {
-          'List-Unsubscribe': '<mailto:contact@pptides.com?subject=unsubscribe>',
-        },
-        html: emailWrapper(`
+    const emailResult = await sendEmail({
+      to: email,
+      subject: 'مرحبًا بك في pptides — تجربتك المجانية بدأت الآن',
+      html: emailWrapper(`
             <h1 style="color: #1c1917; font-size: 24px;">مرحبًا، ${displayName}</h1>
             <p style="color: #44403c; font-size: 16px; line-height: 1.8;">
               تجربتك المجانية في pptides بدأت الآن — أمامك حتى <strong style="color: #059669;">${trialEndFormatted}</strong> لاستكشاف أشمل دليل عربي للببتيدات العلاجية.
@@ -230,19 +211,18 @@ serve(async (req) => {
               بعد انتهاء التجربة (${trialEndFormatted})، يمكنك الاشتراك بـ ${ESSENTIALS_PRICE}/شهر للاحتفاظ بالوصول الكامل. ضمان استرداد كامل — بدون أسئلة.
             </p>
         `),
-      }),
+      replyTo: 'contact@pptides.com',
     })
 
-    if (!res.ok) {
-      const errBody = await res.text().catch(() => '')
-      console.error('send-welcome-email Resend error:', res.status, errBody)
+    if (!emailResult.ok) {
+      console.error('send-welcome-email error:', emailResult.error)
       return new Response(JSON.stringify({ error: 'Email service error' }), {
         status: 502,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       })
     }
 
-    const data = await res.json()
+    const data = { ok: true }
 
     // Handle referral tracking with service role (bypasses RLS)
     if (referralCode && /^PP-[A-Z0-9]{6}$/.test(referralCode) && serviceSupabase) {

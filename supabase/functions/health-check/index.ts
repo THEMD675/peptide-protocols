@@ -2,6 +2,7 @@ import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 import Stripe from 'https://esm.sh/stripe@14.14.0?target=deno'
 import { getCorsHeaders, handleCorsPreflightIfOptions } from '../_shared/cors.ts'
+import { sendEmail } from '../_shared/send-email.ts'
 
 const supabaseUrl = Deno.env.get('SUPABASE_URL') ?? ''
 const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
@@ -63,14 +64,20 @@ serve(async (req) => {
     checks.stripe = { status: stripeKey ? 'error' : 'warning', detail: stripeKey ? String(e) : 'STRIPE_SECRET_KEY not set', ms: Date.now() - stripeStart }
   }
 
-  // 4. Resend API
-  const resendStart = Date.now()
+  // 4. Email provider (SMTP or Resend)
+  const emailProviderStart = Date.now()
   try {
-    if (!resendKey) throw new Error('RESEND_API_KEY not set')
-    const res = await fetch('https://api.resend.com/domains', { headers: { Authorization: `Bearer ${resendKey}` } })
-    checks.resend = { status: res.ok ? 'ok' : 'error', detail: res.ok ? 'connected' : `HTTP ${res.status}`, ms: Date.now() - resendStart }
+    const smtpUser = Deno.env.get('SMTP_USER')
+    if (smtpUser) {
+      checks.email = { status: 'ok', detail: `SMTP configured (${smtpUser})`, ms: Date.now() - emailProviderStart }
+    } else if (resendKey) {
+      const res = await fetch('https://api.resend.com/domains', { headers: { Authorization: `Bearer ${resendKey}` } })
+      checks.email = { status: res.ok ? 'ok' : 'error', detail: res.ok ? 'Resend connected' : `Resend HTTP ${res.status}`, ms: Date.now() - emailProviderStart }
+    } else {
+      throw new Error('No email provider configured (SMTP_USER or RESEND_API_KEY)')
+    }
   } catch (e) {
-    checks.resend = { status: 'warning', detail: String(e), ms: Date.now() - resendStart }
+    checks.email = { status: 'warning', detail: String(e), ms: Date.now() - emailProviderStart }
   }
 
   // 5. DeepSeek API
@@ -84,7 +91,7 @@ serve(async (req) => {
   }
 
   // 6. Environment variables
-  const envVars = ['SUPABASE_URL', 'SUPABASE_SERVICE_ROLE_KEY', 'SUPABASE_ANON_KEY', 'STRIPE_SECRET_KEY', 'STRIPE_WEBHOOK_SECRET', 'RESEND_API_KEY', 'DEEPSEEK_API_KEY', 'APP_URL', 'CRON_SECRET', 'STRIPE_PRICE_ESSENTIALS', 'STRIPE_PRICE_ELITE', 'STRIPE_PRICE_ESSENTIALS_ANNUAL', 'STRIPE_PRICE_ELITE_ANNUAL']
+  const envVars = ['SUPABASE_URL', 'SUPABASE_SERVICE_ROLE_KEY', 'SUPABASE_ANON_KEY', 'STRIPE_SECRET_KEY', 'STRIPE_WEBHOOK_SECRET', 'SMTP_USER', 'DEEPSEEK_API_KEY', 'APP_URL', 'CRON_SECRET', 'STRIPE_PRICE_ESSENTIALS', 'STRIPE_PRICE_ELITE', 'STRIPE_PRICE_ESSENTIALS_ANNUAL', 'STRIPE_PRICE_ELITE_ANNUAL']
   const missing = envVars.filter(v => !Deno.env.get(v))
   checks.env_vars = { status: missing.length === 0 ? 'ok' : 'error', detail: missing.length === 0 ? `all ${envVars.length} set` : `missing: ${missing.join(', ')}`, ms: 0 }
 
@@ -103,7 +110,7 @@ serve(async (req) => {
   const hasError = Object.values(checks).some(c => c.status === 'error')
 
   // Send alert email if any errors (max 1 per hour to prevent flooding)
-  if (hasError && resendKey && supabaseUrl && supabaseServiceKey) {
+  if (hasError && supabaseUrl && supabaseServiceKey) {
     const db = createClient(supabaseUrl, supabaseServiceKey)
     let shouldSend = true
     try {
@@ -114,15 +121,10 @@ serve(async (req) => {
 
     if (shouldSend) {
       const errorDetails = Object.entries(checks).filter(([, c]) => c.status === 'error').map(([name, c]) => `${name}: ${c.detail}`).join('\n')
-      await fetch('https://api.resend.com/emails', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${resendKey}` },
-        body: JSON.stringify({
-          from: 'pptides <noreply@pptides.com>',
-          to: 'contact@pptides.com',
-          subject: 'pptides Health Check FAILED',
-          text: `Health check detected errors:\n\n${errorDetails}\n\nFull report: ${JSON.stringify(checks, null, 2)}`,
-        }),
+      await sendEmail({
+        to: 'contact@pptides.com',
+        subject: 'pptides Health Check FAILED',
+        html: `<pre style="white-space: pre-wrap; font-family: monospace;">Health check detected errors:\n\n${errorDetails}\n\nFull report: ${JSON.stringify(checks, null, 2)}</pre>`,
       }).catch(e => console.error('Alert email failed:', e))
       await db.from('email_logs').insert({ email: 'contact@pptides.com', type: 'health_alert', status: 'sent' }).catch(() => {})
     }

@@ -2,7 +2,6 @@ import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
 const TRIAL_DAYS = 3 // Keep in sync with src/config/trial.ts
-const RESEND_API_KEY = Deno.env.get('RESEND_API_KEY')
 const supabaseUrl = Deno.env.get('SUPABASE_URL') ?? ''
 const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
 const APP_URL = Deno.env.get('APP_URL') ?? 'https://pptides.com'
@@ -22,6 +21,7 @@ function constantTimeCompare(a: string, b: string): boolean {
 
 import { getCorsHeaders } from '../_shared/cors.ts'
 import { emailWrapper, emailButton } from '../_shared/email-template.ts'
+import { sendEmail } from '../_shared/send-email.ts'
 
 serve(async (req) => {
   const corsHeaders = getCorsHeaders(req)
@@ -58,14 +58,6 @@ serve(async (req) => {
       console.error('trial-reminder: invalid cron secret')
       return new Response(JSON.stringify({ error: 'Unauthorized' }), {
         status: 401,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      })
-    }
-
-    if (!RESEND_API_KEY) {
-      console.error('trial-reminder: RESEND_API_KEY is not configured')
-      return new Response(JSON.stringify({ error: 'Email service not configured' }), {
-        status: 500,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       })
     }
@@ -252,25 +244,14 @@ serve(async (req) => {
           continue
         }
 
-        const emailRes = await fetch('https://api.resend.com/emails', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${RESEND_API_KEY}`,
-          },
-          body: JSON.stringify({
-            from: 'pptides <noreply@pptides.com>',
-            reply_to: 'contact@pptides.com',
-            to: email,
-            subject,
-            headers: {
-              'List-Unsubscribe': '<mailto:contact@pptides.com?subject=unsubscribe>',
-            },
-            html: emailWrapper(body),
-          }),
+        const emailResult = await sendEmail({
+          to: email,
+          subject,
+          html: emailWrapper(body),
+          replyTo: 'contact@pptides.com',
         })
 
-        if (emailRes.ok) {
+        if (emailResult.ok) {
           sent++
           // Send push notification alongside email for key reminders
           if (['last_day', 'expired'].includes(reminderType)) {
@@ -287,8 +268,7 @@ serve(async (req) => {
             }).catch(e => console.error('trial-reminder: push failed for', sub.user_id, e))
           }
         } else {
-          const errBody = await emailRes.text().catch(() => '')
-          console.error(`trial-reminder: failed to send to ${email}:`, emailRes.status, errBody)
+          console.error(`trial-reminder: failed to send to ${email}:`, emailResult.error)
           await supabase.from('sent_reminders').delete()
             .eq('user_id', sub.user_id)
             .eq('reminder_type', reminderType)
@@ -382,21 +362,10 @@ serve(async (req) => {
             .insert({ user_id: sub.user_id, reminder_type: `weekly_summary_${getISOWeekKey(now)}` })
           if (dedupErr) continue
 
-          await fetch('https://api.resend.com/emails', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              Authorization: `Bearer ${RESEND_API_KEY}`,
-            },
-            body: JSON.stringify({
-              from: 'pptides <noreply@pptides.com>',
-              reply_to: 'contact@pptides.com',
-              to: email,
-              subject: `ملخصك الأسبوعي — ${weeklyCount} حقنة — pptides`,
-              headers: {
-                'List-Unsubscribe': '<mailto:contact@pptides.com?subject=unsubscribe>',
-              },
-              html: emailWrapper(`
+          await sendEmail({
+            to: email,
+            subject: `ملخصك الأسبوعي — ${weeklyCount} حقنة — pptides`,
+            html: emailWrapper(`
                   <h1 style="color: #1c1917; font-size: 24px;">ملخصك الأسبوعي</h1>
                   <div style="background: #ecfdf5; border-radius: 12px; padding: 20px; margin: 20px 0;">
                     <table style="width: 100%; border-collapse: collapse;">
@@ -425,7 +394,7 @@ serve(async (req) => {
                     ${emailButton('سجّل حقنتك التالية', `${APP_URL}/tracker`)}
                   </div>
               `),
-            }),
+            replyTo: 'contact@pptides.com',
           })
         } catch (e) {
           console.error('trial-reminder: weekly summary error for user', sub.user_id, e)
@@ -470,32 +439,22 @@ serve(async (req) => {
             console.error('trial-reminder: inactive_checkin dedup failed:', dedupErr)
             continue
           }
-          const emailRes = await fetch('https://api.resend.com/emails', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              Authorization: `Bearer ${RESEND_API_KEY}`,
-            },
-            body: JSON.stringify({
-              from: 'pptides <noreply@pptides.com>',
-              reply_to: 'contact@pptides.com',
-              to: email,
-              subject: 'هل كل شيء على ما يرام؟ — pptides',
-              headers: {
-                'List-Unsubscribe': '<mailto:contact@pptides.com?subject=unsubscribe>',
-              },
-              html: emailWrapper(`
+          const emailResult = await sendEmail({
+            to: email,
+            subject: 'هل كل شيء على ما يرام؟ — pptides',
+            html: emailWrapper(`
                   <h1 style="color: #1c1917; font-size: 24px;">مرحبًا — لاحظنا أنك لم تسجّل حقنة منذ 3 أيام</h1>
                   <p style="color: #44403c; font-size: 16px;">هل كل شيء على ما يرام مع بروتوكولك؟</p>
                   <div style="text-align: center; margin-top: 16px;">
                     ${emailButton('تحدث مع المدرب الذكي', `${APP_URL}/coach`)}
                   </div>
               `),
-            }),
+            replyTo: 'contact@pptides.com',
           })
-          if (emailRes.ok) {
+          if (emailResult.ok) {
             inactiveCheckinSent++
           } else {
+            console.error('trial-reminder: inactive_checkin email failed:', emailResult.error)
             await supabase.from('sent_reminders').delete()
               .eq('user_id', sub.user_id)
               .eq('reminder_type', inactiveCheckinWeekKey)
@@ -598,19 +557,13 @@ serve(async (req) => {
               .insert({ user_id: pd.user_id, reminder_type: dunningType })
             if (dedupErr) continue
 
-            const emailRes = await fetch('https://api.resend.com/emails', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${RESEND_API_KEY}` },
-              body: JSON.stringify({
-                from: 'pptides <noreply@pptides.com>',
-                reply_to: 'contact@pptides.com',
-                to: email,
-                subject: dunningSubject,
-                headers: { 'List-Unsubscribe': '<mailto:contact@pptides.com?subject=unsubscribe>' },
-                html: emailWrapper(dunningBody),
-              }),
+            const emailResult = await sendEmail({
+              to: email,
+              subject: dunningSubject,
+              html: emailWrapper(dunningBody),
+              replyTo: 'contact@pptides.com',
             })
-            if (!emailRes.ok) {
+            if (!emailResult.ok) {
               await supabase.from('sent_reminders').delete()
                 .eq('user_id', pd.user_id).eq('reminder_type', dunningType).catch(() => {})
             }
@@ -664,14 +617,11 @@ serve(async (req) => {
           if (winbackType) {
             const { error: dedupErr } = await supabase.from('sent_reminders').insert({ user_id: cu.user_id, reminder_type: winbackType })
             if (dedupErr) continue
-            await fetch('https://api.resend.com/emails', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${RESEND_API_KEY}` },
-              body: JSON.stringify({
-                from: 'pptides <noreply@pptides.com>', reply_to: 'contact@pptides.com', to: email, subject: winbackSubject,
-                headers: { 'List-Unsubscribe': '<mailto:contact@pptides.com?subject=unsubscribe>' },
-                html: emailWrapper(winbackBody),
-              }),
+            await sendEmail({
+              to: email,
+              subject: winbackSubject,
+              html: emailWrapper(winbackBody),
+              replyTo: 'contact@pptides.com',
             }).catch(() => {})
           }
         } catch (e) { console.error('winback email error:', e) }
@@ -718,24 +668,16 @@ serve(async (req) => {
         if (y > 0) bodyLines.push(`• ${y} تجارب تنتهي خلال 24 ساعة`)
         if (z > 0) bodyLines.push(`• ${z} استفسارات غير مقروءة (pending)`)
         const alertBody = bodyLines.join('\n')
-        const emailRes = await fetch('https://api.resend.com/emails', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${RESEND_API_KEY}`,
-          },
-          body: JSON.stringify({
-            from: 'pptides <noreply@pptides.com>',
-            to: adminTo,
-            subject: 'pptides تنبيه إداري',
-            html: emailWrapper(`
+        const emailResult = await sendEmail({
+          to: adminTo,
+          subject: 'pptides تنبيه إداري',
+          html: emailWrapper(`
                 <h1 style="color: #1c1917; font-size: 24px;">تنبيه إداري</h1>
                 <p>البنود التالية تتطلب اهتمامك:</p>
                 <pre style="background: #f5f5f4; padding: 16px; border-radius: 8px; white-space: pre-wrap;">${alertBody}</pre>
             `),
-          }),
         })
-        if (emailRes.ok) {
+        if (emailResult.ok) {
           await supabase.from('email_logs').insert({ email: adminTo, type: 'admin_daily_alert', status: 'sent' }).catch(() => {})
         }
       }

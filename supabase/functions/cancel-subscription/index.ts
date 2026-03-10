@@ -1,6 +1,7 @@
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 import Stripe from 'https://esm.sh/stripe@14.14.0?target=deno'
+import { sendEmail } from '../_shared/send-email.ts'
 
 const stripeKey = Deno.env.get('STRIPE_SECRET_KEY') ?? ''
 const stripe = new Stripe(stripeKey, { apiVersion: '2024-06-20' })
@@ -216,25 +217,18 @@ serve(async (req) => {
 
     console.log(JSON.stringify({ action: 'cancel_subscription', user_id: user.id, email: user.email ?? null, result: 'success', timestamp: new Date().toISOString() }))
 
-    const RESEND_API_KEY = Deno.env.get('RESEND_API_KEY')
-    if (RESEND_API_KEY && user.email) {
-      await fetch('https://api.resend.com/emails', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${RESEND_API_KEY}` },
-        body: JSON.stringify({
-          from: 'pptides <noreply@pptides.com>',
-          reply_to: 'contact@pptides.com',
-          to: user.email,
-          subject: 'تم إلغاء اشتراكك في pptides',
-          headers: { 'List-Unsubscribe': '<mailto:contact@pptides.com?subject=unsubscribe>' },
-          html: emailWrapper(`
+    if (user.email) {
+      sendEmail({
+        to: user.email,
+        subject: 'تم إلغاء اشتراكك في pptides',
+        html: emailWrapper(`
             <h2 style="color:#1c1917;font-size:20px;">تم إلغاء اشتراكك</h2>
             <p style="color:#44403c;line-height:1.8;">ستحتفظ بالوصول حتى نهاية الفترة الحالية (${periodEnd.split('T')[0]}).</p>
             <div style="text-align:center;margin:24px 0;">
               ${emailButton('أعد الاشتراك', 'https://pptides.com/pricing')}
             </div>
           `),
-        }),
+        replyTo: 'contact@pptides.com',
       }).catch(e => console.error('cancel confirmation email failed:', e))
     }
 

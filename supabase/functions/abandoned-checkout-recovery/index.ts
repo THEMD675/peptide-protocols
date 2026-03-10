@@ -2,8 +2,7 @@ import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 import { getCorsHeaders } from '../_shared/cors.ts'
 import { emailWrapper, emailButton } from '../_shared/email-template.ts'
-
-const RESEND_API_KEY = Deno.env.get('RESEND_API_KEY')
+import { sendEmail } from '../_shared/send-email.ts'
 const supabaseUrl = Deno.env.get('SUPABASE_URL') ?? ''
 const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
 
@@ -51,14 +50,6 @@ serve(async (req) => {
       console.error('abandoned-checkout-recovery: invalid cron secret')
       return new Response(JSON.stringify({ error: 'Unauthorized' }), {
         status: 401,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      })
-    }
-
-    if (!RESEND_API_KEY) {
-      console.error('abandoned-checkout-recovery: RESEND_API_KEY not configured')
-      return new Response(JSON.stringify({ error: 'RESEND_API_KEY not configured' }), {
-        status: 500,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       })
     }
@@ -113,21 +104,10 @@ serve(async (req) => {
       }
 
       // Send recovery email
-      const emailRes = await fetch('https://api.resend.com/emails', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${RESEND_API_KEY}`,
-        },
-        body: JSON.stringify({
-          from: 'pptides <noreply@pptides.com>',
-          reply_to: 'contact@pptides.com',
-          to: record.email,
-          subject: 'ما زلنا ننتظرك 🧬',
-          headers: {
-            'List-Unsubscribe': '<mailto:contact@pptides.com?subject=unsubscribe>',
-          },
-          html: emailWrapper(`
+      const emailResult = await sendEmail({
+        to: record.email,
+        subject: 'ما زلنا ننتظرك 🧬',
+        html: emailWrapper(`
             <h1 style="color: #1c1917; font-size: 24px;">ما زلنا ننتظرك!</h1>
             <p style="color: #44403c; font-size: 16px; line-height: 1.8;">لاحظنا أنك بدأت رحلتك مع pptides لكن لم تكمل الاشتراك.</p>
             <div style="background: #ecfdf5; border-radius: 12px; padding: 20px; margin: 20px 0;">
@@ -141,17 +121,16 @@ serve(async (req) => {
             </div>
             <p style="color: #78716c; font-size: 13px;">إذا كنت بحاجة للمساعدة: contact@pptides.com</p>
           `),
-        }),
+        replyTo: 'contact@pptides.com',
       }).catch(e => { console.error(`abandoned-checkout-recovery: email failed for ${record.email}:`, e); return null })
 
-      if (emailRes?.ok) {
+      if (emailResult?.ok) {
         await supabase.from('abandoned_checkouts')
           .update({ recovery_email_sent_at: new Date().toISOString() })
           .eq('id', record.id)
         sent++
-      } else if (emailRes) {
-        const errBody = await emailRes.text().catch(() => '')
-        console.error(`abandoned-checkout-recovery: Resend error for ${record.email}:`, emailRes.status, errBody)
+      } else if (emailResult) {
+        console.error(`abandoned-checkout-recovery: email error for ${record.email}:`, emailResult.error)
       }
     }
 

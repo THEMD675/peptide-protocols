@@ -4,8 +4,7 @@ import { emailWrapper } from '../_shared/email-template.ts'
 import { requireAdmin } from '../_shared/admin-auth.ts'
 import { getServiceClient, supabaseServiceKey } from '../_shared/supabase.ts'
 import { checkRateLimit } from '../_shared/rate-limit.ts'
-
-const RESEND_API_KEY = Deno.env.get('RESEND_API_KEY')
+import { sendEmail } from '../_shared/send-email.ts'
 
 serve(async (req) => {
   const preflight = handleCorsPreflightIfOptions(req)
@@ -35,10 +34,6 @@ serve(async (req) => {
       }
     }
 
-    if (!RESEND_API_KEY) {
-      return jsonResponse({ error: 'Email service not configured' }, 500, corsHeaders)
-    }
-
     const body = await req.json() as { to?: string; subject?: string; reply?: string; enquiry_id?: string }
     const to = body?.to?.trim()
     const subject = body?.subject ?? 'رد على استفسارك — pptides'
@@ -54,27 +49,21 @@ serve(async (req) => {
       .replace(/>/g, '&gt;')
       .replace(/"/g, '&quot;')
 
-    const res = await fetch('https://api.resend.com/emails', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${RESEND_API_KEY}` },
-      body: JSON.stringify({
-        from: 'pptides <contact@pptides.com>',
-        to,
-        reply_to: 'contact@pptides.com',
-        subject,
-        html: emailWrapper(`
+    const emailResult = await sendEmail({
+      to,
+      subject,
+      html: emailWrapper(`
             <h1 style="color: #1c1917; font-size: 20px;">رد على استفسارك</h1>
             <p style="color: #44403c; font-size: 16px; line-height: 1.8; white-space: pre-wrap;">${sanitizedReply}</p>
             <p style="color: #78716c; font-size: 13px; margin-top: 24px;">
               إذا كان لديك أي سؤال إضافي، تواصل معنا: <a href="mailto:contact@pptides.com" style="color: #059669;">contact@pptides.com</a>
             </p>
         `),
-      }),
+      replyTo: 'contact@pptides.com',
     })
 
-    if (!res.ok) {
-      const errBody = await res.text().catch(() => '')
-      console.error('send-enquiry-reply Resend error:', res.status, errBody)
+    if (!emailResult.ok) {
+      console.error('send-enquiry-reply error:', emailResult.error)
       return jsonResponse({ error: 'Email delivery failed' }, 502, corsHeaders)
     }
 

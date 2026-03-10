@@ -2,6 +2,7 @@ import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 import Stripe from 'https://esm.sh/stripe@14.14.0?target=deno'
 import { emailWrapper, emailButton } from '../_shared/email-template.ts'
+import { sendEmail } from '../_shared/send-email.ts'
 
 const TRIAL_DAYS = 3 // Keep in sync with src/config/trial.ts
 const stripeKey = Deno.env.get('STRIPE_SECRET_KEY') ?? ''
@@ -174,18 +175,11 @@ serve(async (req) => {
               })
           }
 
-          const RESEND_API_KEY = Deno.env.get('RESEND_API_KEY')
-          if (RESEND_API_KEY && session.customer_email) {
-            await fetch('https://api.resend.com/emails', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${RESEND_API_KEY}` },
-              body: JSON.stringify({
-                from: 'pptides <noreply@pptides.com>',
-                reply_to: 'contact@pptides.com',
-                to: session.customer_email,
-                subject: 'تم تفعيل اشتراكك في pptides',
-                headers: { 'List-Unsubscribe': '<mailto:contact@pptides.com?subject=unsubscribe>' },
-                html: emailWrapper(`
+          if (session.customer_email) {
+            sendEmail({
+              to: session.customer_email,
+              subject: 'تم تفعيل اشتراكك في pptides',
+              html: emailWrapper(`
                   <h1 style="color: #1c1917; font-size: 24px;">مرحبًا بك في pptides!</h1>
                   <p style="color: #44403c; font-size: 16px; line-height: 1.8;">تم تفعيل اشتراكك في باقة <strong style="color: #059669;">${tier === 'elite' ? 'Elite' : 'Essentials'}</strong> بنجاح.</p>
                   <div style="background: #ecfdf5; border-radius: 12px; padding: 20px; margin: 20px 0;">
@@ -197,7 +191,7 @@ serve(async (req) => {
                   </div>
                   <p style="color: #78716c; font-size: 13px;">ضمان استرداد كامل خلال ${TRIAL_DAYS} أيام — تواصل معنا: contact@pptides.com</p>
                 `),
-              }),
+              replyTo: 'contact@pptides.com',
             }).catch(e => console.error('payment confirmation email failed:', e))
           }
 
@@ -374,21 +368,13 @@ serve(async (req) => {
           }
 
           if (!dbFailed) {
-            const RESEND_API_KEY = Deno.env.get('RESEND_API_KEY')
-            if (RESEND_API_KEY) {
-              const customer = await stripe.customers.retrieve(invoice.customer as string).catch(() => null)
-              const customerEmail = (customer && !customer.deleted) ? customer.email : null
-              if (customerEmail) {
-                const res = await fetch('https://api.resend.com/emails', {
-                  method: 'POST',
-                  headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${RESEND_API_KEY}` },
-                  body: JSON.stringify({
-                    from: 'pptides <noreply@pptides.com>',
-                    reply_to: 'contact@pptides.com',
-                    to: customerEmail,
-                    subject: 'دفعتك لم تتم — يرجى تحديث بيانات الدفع',
-                    headers: { 'List-Unsubscribe': '<mailto:contact@pptides.com?subject=unsubscribe>' },
-                    html: emailWrapper(`
+            const customer = await stripe.customers.retrieve(invoice.customer as string).catch(() => null)
+            const customerEmail = (customer && !customer.deleted) ? customer.email : null
+            if (customerEmail) {
+              const emailResult = await sendEmail({
+                to: customerEmail,
+                subject: 'دفعتك لم تتم — يرجى تحديث بيانات الدفع',
+                html: emailWrapper(`
                       <h1 style="color: #1c1917; font-size: 24px;">دفعتك لم تتم</h1>
                       <p style="color: #44403c; font-size: 16px; line-height: 1.8;">لم تتم معالجة دفعتك. يرجى تحديث بيانات الدفع في حسابك لتجنّب فقدان الوصول.</p>
                       <div style="text-align: center; margin: 24px 0;">
@@ -396,15 +382,14 @@ serve(async (req) => {
                       </div>
                       <p style="color: #78716c; font-size: 13px;">إذا كنت بحاجة للمساعدة: contact@pptides.com</p>
                     `),
-                  }),
-                }).catch(e => { console.error('payment failed email error:', e); return null })
-                if (res?.ok) {
-                  await supabase.from('email_logs').insert({
-                    email: customerEmail,
-                    type: 'payment_failed',
-                    status: 'sent',
-                  }).catch(e => console.error('email_logs insert failed:', e))
-                }
+                replyTo: 'contact@pptides.com',
+              }).catch(e => { console.error('payment failed email error:', e); return null })
+              if (emailResult?.ok) {
+                await supabase.from('email_logs').insert({
+                  email: customerEmail,
+                  type: 'payment_failed',
+                  status: 'sent',
+                }).catch(e => console.error('email_logs insert failed:', e))
               }
             }
           }
@@ -477,19 +462,14 @@ serve(async (req) => {
         console.error(JSON.stringify({ severity: 'CRITICAL', action: 'charge_disputed', customer: customerId, amount: dispute.amount, timestamp: new Date().toISOString() }))
 
         // Notify admin about the dispute
-        const RESEND_API_KEY = Deno.env.get('RESEND_API_KEY')
-        if (RESEND_API_KEY && customerId) {
+        if (customerId) {
           const adminEmail = Deno.env.get('ADMIN_EMAIL_WHITELIST')?.split(',')[0]?.trim() || 'contact@pptides.com'
           const customer = await stripe.customers.retrieve(customerId).catch(() => null)
           const customerEmail = (customer && !customer.deleted) ? customer.email : 'unknown'
-          await fetch('https://api.resend.com/emails', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${RESEND_API_KEY}` },
-            body: JSON.stringify({
-              from: 'pptides <noreply@pptides.com>',
-              to: adminEmail,
-              subject: '⚠️ نزاع دفع جديد — pptides',
-              html: emailWrapper(`
+          sendEmail({
+            to: adminEmail,
+            subject: '⚠️ نزاع دفع جديد — pptides',
+            html: emailWrapper(`
                 <h1 style="color: #dc2626; font-size: 24px;">⚠️ نزاع دفع جديد</h1>
                 <p><strong>العميل:</strong> ${customerEmail}</p>
                 <p><strong>المبلغ:</strong> ${(dispute.amount / 100).toFixed(2)} ${dispute.currency?.toUpperCase()}</p>
@@ -499,7 +479,6 @@ serve(async (req) => {
                   ${emailButton('فتح Stripe Dashboard', 'https://dashboard.stripe.com/disputes')}
                 </div>
               `),
-            }),
           }).catch(e => console.error('dispute admin email failed:', e))
         }
         break
@@ -520,26 +499,19 @@ serve(async (req) => {
         }
         console.log(JSON.stringify({ action: 'charge_refunded', customer: customerId, amount: charge.amount_refunded, timestamp: new Date().toISOString() }))
 
-        const RESEND_API_KEY = Deno.env.get('RESEND_API_KEY')
-        if (RESEND_API_KEY && customerId) {
+        if (customerId) {
           const customer = await stripe.customers.retrieve(customerId).catch(() => null)
           const email = (customer && !customer.deleted) ? customer.email : null
           if (email) {
-            await fetch('https://api.resend.com/emails', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${RESEND_API_KEY}` },
-              body: JSON.stringify({
-                from: 'pptides <noreply@pptides.com>',
-                reply_to: 'contact@pptides.com',
-                to: email,
-                subject: 'تم استرداد أموالك — pptides',
-                headers: { 'List-Unsubscribe': '<mailto:contact@pptides.com?subject=unsubscribe>' },
-                html: emailWrapper(`
+            sendEmail({
+              to: email,
+              subject: 'تم استرداد أموالك — pptides',
+              html: emailWrapper(`
                   <h1 style="color: #1c1917; font-size: 24px;">تم استرداد أموالك</h1>
                   <p style="color: #44403c; font-size: 16px; line-height: 1.8;">تم معالجة استرداد أموالك بنجاح. سيظهر المبلغ في حسابك خلال 5-10 أيام عمل.</p>
                   <p style="color: #78716c; font-size: 13px;">إذا كان لديك أي استفسار: contact@pptides.com</p>
                 `),
-              }),
+              replyTo: 'contact@pptides.com',
             }).catch(e => console.error('refund email failed:', e))
           }
         }
@@ -557,28 +529,21 @@ serve(async (req) => {
           console.log(`trial_will_end: skipping — hoursUntilEnd=${hoursUntilEnd.toFixed(0)}, hoursSinceCreation=${hoursSinceCreation.toFixed(0)}`)
           break
         }
-        const RESEND_API_KEY = Deno.env.get('RESEND_API_KEY')
-        if (RESEND_API_KEY && customerId) {
+        if (customerId) {
           const customer = await stripe.customers.retrieve(customerId).catch(() => null)
           const email = (customer && !customer.deleted) ? customer.email : null
           if (email) {
-            await fetch('https://api.resend.com/emails', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${RESEND_API_KEY}` },
-              body: JSON.stringify({
-                from: 'pptides <noreply@pptides.com>',
-                reply_to: 'contact@pptides.com',
-                to: email,
-                subject: 'تجربتك تنتهي قريبًا — لا تفقد وصولك',
-                headers: { 'List-Unsubscribe': '<mailto:contact@pptides.com?subject=unsubscribe>' },
-                html: emailWrapper(`
+            sendEmail({
+              to: email,
+              subject: 'تجربتك تنتهي قريبًا — لا تفقد وصولك',
+              html: emailWrapper(`
                   <h1 style="color: #1c1917; font-size: 24px;">تجربتك تنتهي قريبًا</h1>
                   <p style="color: #44403c; font-size: 16px; line-height: 1.8;">سيتم تحصيل الدفعة تلقائيًا عند انتهاء التجربة. إذا لم ترغب بالاستمرار، يمكنك الإلغاء من حسابك.</p>
                   <div style="text-align: center; margin: 24px 0;">
                     ${emailButton('تصفّح pptides', 'https://pptides.com/dashboard')}
                   </div>
                 `),
-              }),
+              replyTo: 'contact@pptides.com',
             }).catch(e => console.error('trial_will_end email error:', e))
           }
         }

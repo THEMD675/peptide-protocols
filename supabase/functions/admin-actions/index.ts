@@ -4,9 +4,9 @@ import { handleCorsPreflightIfOptions, getCorsHeaders, jsonResponse as json } fr
 import { requireAdmin } from '../_shared/admin-auth.ts'
 import { getServiceClient, supabaseUrl, supabaseServiceKey } from '../_shared/supabase.ts'
 import { checkRateLimit } from '../_shared/rate-limit.ts'
+import { sendEmail } from '../_shared/send-email.ts'
 
 const stripeKey = Deno.env.get('STRIPE_SECRET_KEY') ?? ''
-const resendKey = Deno.env.get('RESEND_API_KEY') ?? ''
 
 serve(async (req) => {
   const preflight = handleCorsPreflightIfOptions(req)
@@ -256,7 +256,6 @@ serve(async (req) => {
     // SEND EMAIL
     // ================================================================
     if (action === 'send_email') {
-      if (!resendKey) return json({ error: 'Resend not configured' }, 500, cors)
       const to = (body.to as string)?.trim()
       const subject = (body.subject as string)?.trim()
       const htmlBody = (body.html as string)?.trim()
@@ -297,16 +296,11 @@ serve(async (req) => {
 
         for (const email of batch) {
           try {
-            const r = await fetch('https://api.resend.com/emails', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${resendKey}` },
-              body: JSON.stringify({
-                from: 'pptides <contact@pptides.com>',
-                reply_to: 'contact@pptides.com',
-                to: email,
-                subject,
-                ...(htmlBody ? { html: htmlBody } : { text: textBody }),
-              }),
+            const r = await sendEmail({
+              to: email,
+              subject,
+              html: htmlBody || `<pre style="white-space: pre-wrap; font-family: inherit;">${textBody}</pre>`,
+              replyTo: 'contact@pptides.com',
             })
             if (r.ok) sent++; else failed++
             await admin.from('email_logs').insert({ email, type: 'admin_bulk', status: r.ok ? 'sent' : 'failed' }).catch(() => {})
@@ -318,25 +312,18 @@ serve(async (req) => {
         return json({ ok: true, sent, failed, total: batch.length }, 200, cors)
       }
 
-      const res = await fetch('https://api.resend.com/emails', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${resendKey}` },
-        body: JSON.stringify({
-          from: 'pptides <contact@pptides.com>',
-          reply_to: 'contact@pptides.com',
-          to,
-          subject,
-          ...(htmlBody ? { html: htmlBody } : { text: textBody }),
-        }),
+      const emailResult = await sendEmail({
+        to,
+        subject,
+        html: htmlBody || `<pre style="white-space: pre-wrap; font-family: inherit;">${textBody}</pre>`,
+        replyTo: 'contact@pptides.com',
       })
-      if (!res.ok) {
-        const errText = await res.text().catch(() => '')
-        return json({ error: `Resend error: ${res.status} ${errText}` }, 502, cors)
+      if (!emailResult.ok) {
+        return json({ error: `Email error: ${emailResult.error}` }, 502, cors)
       }
-      const data = await res.json()
 
       await admin.from('email_logs').insert({ email: to, type: 'admin_manual', status: 'sent' }).catch(() => {})
-      return json({ ok: true, resend_id: data.id }, 200, cors)
+      return json({ ok: true }, 200, cors)
     }
 
     // ================================================================
@@ -368,13 +355,20 @@ serve(async (req) => {
         checks.stripe = { status: 'ok', detail: 'connected', ms: Date.now() - stripeStart }
       } catch (e) { checks.stripe = { status: stripeKey ? 'error' : 'warning', detail: String(e), ms: Date.now() - stripeStart } }
 
-      // Resend
-      const resendStart = Date.now()
+      // Email provider (SMTP or Resend)
+      const emailStart = Date.now()
       try {
-        if (!resendKey) throw new Error('RESEND_API_KEY not set')
-        const res = await fetch('https://api.resend.com/domains', { headers: { Authorization: `Bearer ${resendKey}` } })
-        checks.resend = { status: res.ok ? 'ok' : 'error', detail: res.ok ? 'connected' : `HTTP ${res.status}`, ms: Date.now() - resendStart }
-      } catch (e) { checks.resend = { status: 'warning', detail: String(e), ms: Date.now() - resendStart } }
+        const smtpUser = Deno.env.get('SMTP_USER')
+        const resendKey = Deno.env.get('RESEND_API_KEY')
+        if (smtpUser) {
+          checks.email = { status: 'ok', detail: `SMTP configured (${smtpUser})`, ms: Date.now() - emailStart }
+        } else if (resendKey) {
+          const res = await fetch('https://api.resend.com/domains', { headers: { Authorization: `Bearer ${resendKey}` } })
+          checks.email = { status: res.ok ? 'ok' : 'error', detail: res.ok ? 'Resend connected' : `Resend HTTP ${res.status}`, ms: Date.now() - emailStart }
+        } else {
+          throw new Error('No email provider configured (SMTP_USER or RESEND_API_KEY)')
+        }
+      } catch (e) { checks.email = { status: 'warning', detail: String(e), ms: Date.now() - emailStart } }
 
       // DeepSeek
       const aiStart = Date.now()
@@ -386,7 +380,7 @@ serve(async (req) => {
       } catch (e) { checks.deepseek = { status: 'warning', detail: String(e), ms: Date.now() - aiStart } }
 
       // Env vars
-      const envVars = ['SUPABASE_URL', 'SUPABASE_SERVICE_ROLE_KEY', 'SUPABASE_ANON_KEY', 'STRIPE_SECRET_KEY', 'STRIPE_WEBHOOK_SECRET', 'RESEND_API_KEY', 'DEEPSEEK_API_KEY', 'APP_URL', 'CRON_SECRET']
+      const envVars = ['SUPABASE_URL', 'SUPABASE_SERVICE_ROLE_KEY', 'SUPABASE_ANON_KEY', 'STRIPE_SECRET_KEY', 'STRIPE_WEBHOOK_SECRET', 'SMTP_USER', 'DEEPSEEK_API_KEY', 'APP_URL', 'CRON_SECRET']
       const missing = envVars.filter(v => !Deno.env.get(v))
       checks.env_vars = { status: missing.length === 0 ? 'ok' : 'error', detail: missing.length === 0 ? `all ${envVars.length} set` : `missing: ${missing.join(', ')}`, ms: 0 }
 
@@ -612,18 +606,13 @@ serve(async (req) => {
       if (updateErr) return json({ error: updateErr.message }, 500, cors)
 
       let emailSent = false
-      if (to && subject && resendKey) {
+      if (to && subject) {
         try {
-          const r = await fetch('https://api.resend.com/emails', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${resendKey}` },
-            body: JSON.stringify({
-              from: 'pptides <contact@pptides.com>',
-              reply_to: 'contact@pptides.com',
-              to,
-              subject,
-              text: reply,
-            }),
+          const r = await sendEmail({
+            to,
+            subject,
+            html: `<pre style="white-space: pre-wrap; font-family: inherit;">${reply}</pre>`,
+            replyTo: 'contact@pptides.com',
           })
           emailSent = r.ok
           await admin.from('email_logs').insert({ email: to, type: 'enquiry_reply', status: r.ok ? 'sent' : 'failed' }).catch(() => {})
