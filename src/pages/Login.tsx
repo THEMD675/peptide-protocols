@@ -593,7 +593,6 @@ export default function Login() {
 
               <button
                 type="submit"
-                {/* Bug 6 fix: coerce to boolean to avoid string|boolean type error on disabled */}
               disabled={loading || !!(TURNSTILE_SITE_KEY && !turnstileToken) || (tab === 'signup' && !(password.length >= 8 && /[a-zA-Z]/.test(password) && /\d/.test(password)))}
                 className="w-full rounded-full bg-emerald-600 py-3.5 text-base font-bold text-white shadow transition-transform hover:bg-emerald-700 hover:scale-[1.02] active:scale-[0.98] disabled:pointer-events-none disabled:opacity-60"
               >
