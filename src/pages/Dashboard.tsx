@@ -1,6 +1,6 @@
 import { Helmet } from 'react-helmet-async';
 import { Link, Navigate } from 'react-router-dom';
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useCallback, useMemo, lazy, Suspense } from 'react';
 import { useNowMs } from '@/hooks/useNowMs';
 import {
   LayoutDashboard,
@@ -34,7 +34,7 @@ import AdherenceBar from '@/components/charts/AdherenceBar';
 import DoseTitrationTimeline from '@/components/DoseTitrationTimeline';
 import ShareableCard from '@/components/ShareableCard';
 import WellnessCheckin from '@/components/WellnessCheckin';
-import LabResultsTracker from '@/components/LabResultsTracker';
+const LabResultsTracker = lazy(() => import('@/components/LabResultsTracker'));
 import PushNotificationPrompt from '@/components/PushNotificationPrompt';
 import { AlertTriangle, HeartPulse } from 'lucide-react';
 import { peptides as allPeptides } from '@/data/peptides';
@@ -1018,7 +1018,7 @@ export default function Dashboard() {
       {/* Lab Results Tracker */}
       {subscription.isProOrTrial && (
         <div className="mb-8">
-          <LabResultsTracker />
+          <Suspense fallback={<div className="h-40 animate-pulse rounded-2xl bg-stone-100" />}><LabResultsTracker /></Suspense>
         </div>
       )}
 

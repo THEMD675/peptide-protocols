@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, lazy, Suspense } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { Link, Navigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
@@ -24,9 +24,9 @@ import {
   Gift,
 } from 'lucide-react';
 import EmailCapture from '@/components/EmailCapture';
-import ExitIntentPopup from '@/components/ExitIntentPopup';
-import PeptideQuiz from '@/components/PeptideQuiz';
-import StickyScrollCTA from '@/components/StickyScrollCTA';
+const ExitIntentPopup = lazy(() => import('@/components/ExitIntentPopup'));
+const PeptideQuiz = lazy(() => import('@/components/PeptideQuiz'));
+const StickyScrollCTA = lazy(() => import('@/components/StickyScrollCTA'));
 import { cn } from '@/lib/utils';
 import { PRICING, PEPTIDE_COUNT, PUBMED_SOURCE_LABEL, VALUE_TOTAL, VALUE_SAVINGS_ESSENTIALS, VALUE_STACK, SITE_URL, SUPPORT_EMAIL, STORAGE_KEYS, TRIAL_DAYS } from '@/lib/constants';
 
@@ -285,7 +285,7 @@ export default function Landing() {
 
       {/* ═══════ PEPTIDE QUIZ — First interaction ═══════ */}
       <section id="quiz" className="relative z-10 mx-auto max-w-2xl px-6 pb-10">
-        <PeptideQuiz />
+        <Suspense fallback={<div className="h-40" />}><PeptideQuiz /></Suspense>
       </section>
 
       {/* ═══════ STATS BAR ═══════ */}
@@ -461,10 +461,10 @@ export default function Landing() {
                   <Link to="/calculator?peptide=BPC-157" className="text-sm font-semibold text-emerald-600 transition-colors hover:text-emerald-700 hover:underline flex items-center gap-1 min-h-[44px]">
                     احسب جرعتك بالحاسبة ←
                   </Link>
-                  <Link to="/peptide/bpc-157" className="rounded-full border border-emerald-300 px-5 py-2 text-sm font-bold text-emerald-700 transition-colors hover:bg-emerald-50">
+                  <Link to="/peptide/bpc-157" className="rounded-full border border-emerald-300 px-5 py-2.5 min-h-[44px] inline-flex items-center text-sm font-bold text-emerald-700 transition-colors hover:bg-emerald-50">
                     شاهد البطاقة كاملة
                   </Link>
-                  <Link to={ctaLink} className="rounded-full bg-emerald-600 px-5 py-2 text-sm font-bold text-white transition-colors hover:bg-emerald-700 active:scale-[0.98]">
+                  <Link to={ctaLink} className="rounded-full bg-emerald-600 px-5 py-2.5 min-h-[44px] inline-flex items-center text-sm font-bold text-white transition-colors hover:bg-emerald-700 active:scale-[0.98]">
                     {user ? 'اشترك الآن' : 'ابدأ تجربتك المجانية'}
                   </Link>
                 </div>
@@ -532,7 +532,7 @@ export default function Landing() {
         </div>
 
         <p className="mt-8 text-center text-sm text-stone-700">
-          كل معلومة في المكتبة مربوطة بمرجعها العلمي. <Link to="/sources" className="text-emerald-600 font-semibold underline hover:text-emerald-700 transition-colors">اطّلع على المصادر</Link>
+          كل معلومة في المكتبة مربوطة بمرجعها العلمي. <Link to="/sources" className="text-emerald-600 font-semibold underline hover:text-emerald-700 transition-colors inline-flex items-center min-h-[44px]">اطّلع على المصادر</Link>
         </p>
       </section>
 
@@ -869,10 +869,10 @@ export default function Landing() {
       </a>
 
       {/* ═══════ EXIT INTENT POPUP ═══════ */}
-      <ExitIntentPopup />
+      <Suspense fallback={null}><ExitIntentPopup /></Suspense>
 
       {/* ═══════ STICKY SCROLL CTA ═══════ */}
-      <StickyScrollCTA />
+      <Suspense fallback={null}><StickyScrollCTA /></Suspense>
     </div>
   );
 }

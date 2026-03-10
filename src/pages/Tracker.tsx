@@ -1,11 +1,11 @@
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useCallback, useMemo, lazy, Suspense } from 'react';
 import FocusTrap from 'focus-trap-react';
 import { Helmet } from 'react-helmet-async';
 import { Link } from 'react-router-dom';
 import { useCelebrations } from '@/hooks/useCelebrations';
 import BodyMap from '@/components/BodyMap';
-import ActivityChart from '@/components/charts/ActivityChart';
-import DoseTrendChart from '@/components/charts/DoseTrendChart';
+const ActivityChart = lazy(() => import('@/components/charts/ActivityChart'));
+const DoseTrendChart = lazy(() => import('@/components/charts/DoseTrendChart'));
 import ProtocolWizard from '@/components/ProtocolWizard';
 import {
   Syringe,
@@ -798,7 +798,7 @@ export default function Tracker() {
       {weeklyActivity && (
           <div className="mb-8 rounded-2xl border border-stone-200 bg-white p-5 shadow-sm">
             <h3 className="mb-3 text-sm font-bold text-stone-900">نشاط الأسبوع</h3>
-            <ActivityChart data={weeklyActivity.days.map((day, i) => ({ day: day.slice(0, 3), count: weeklyActivity.weekCounts[i], isToday: i === weeklyActivity.todayIdx }))} />
+            <Suspense fallback={<div className="h-32 animate-pulse rounded-xl bg-stone-100" />}><ActivityChart data={weeklyActivity.days.map((day, i) => ({ day: day.slice(0, 3), count: weeklyActivity.weekCounts[i], isToday: i === weeklyActivity.todayIdx }))} /></Suspense>
           </div>
       )}
 
@@ -813,7 +813,7 @@ export default function Tracker() {
         return (
           <div className="mb-8 rounded-2xl border border-stone-200 bg-white p-5 shadow-sm">
             <h3 className="mb-3 text-sm font-bold text-stone-900">تاريخ جرعات {trendPeptide}</h3>
-            <DoseTrendChart data={trendData} unit={trendLogs[0]?.dose_unit ?? 'mcg'} />
+            <Suspense fallback={<div className="h-32 animate-pulse rounded-xl bg-stone-100" />}><DoseTrendChart data={trendData} unit={trendLogs[0]?.dose_unit ?? 'mcg'} /></Suspense>
           </div>
         );
       })()}

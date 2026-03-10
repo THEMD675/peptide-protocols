@@ -422,7 +422,7 @@ export default memo(function Header() {
                 }}
                 placeholder="ابحث عن ببتيد..."
                 aria-label="بحث عن ببتيد"
-                className="w-full rounded-xl border border-stone-200 bg-stone-50 py-2.5 ps-10 pe-4 text-sm text-stone-900 placeholder:text-stone-500 outline-none focus:border-emerald-300 focus:ring-2 focus:ring-emerald-100"
+                className="w-full rounded-xl border border-stone-200 bg-stone-50 py-2.5 min-h-[44px] ps-10 pe-4 text-sm text-stone-900 placeholder:text-stone-500 outline-none focus:border-emerald-300 focus:ring-2 focus:ring-emerald-100"
               />
               {searchQuery.trim().length === 1 && (
                 <p className="mt-1 text-center text-xs text-stone-500 py-1">اكتب حرفين على الأقل</p>
@@ -477,7 +477,7 @@ export default memo(function Header() {
                   to={to}
                   onClick={() => setMobileOpen(false)}
                   className={cn(
-                    'rounded-lg px-4 py-2.5 text-sm font-medium transition-colors',
+                    'rounded-lg px-4 py-2.5 min-h-[44px] flex items-center text-sm font-medium transition-colors',
                     active
                       ? 'bg-emerald-50 text-emerald-700'
                       : 'text-stone-800 hover:bg-stone-50 transition-colors hover:text-stone-900',
@@ -501,7 +501,7 @@ export default memo(function Header() {
                 <Link
                   to="/account"
                   onClick={() => setMobileOpen(false)}
-                  className="flex w-full items-center gap-2 rounded-lg px-4 py-2.5 text-sm text-stone-800 transition-colors hover:bg-stone-50"
+                  className="flex w-full items-center gap-2 rounded-lg px-4 py-2.5 min-h-[44px] text-sm text-stone-800 transition-colors hover:bg-stone-50"
                 >
                   <User className="h-4 w-4" />
                   إعدادات الحساب
@@ -510,7 +510,7 @@ export default memo(function Header() {
                 <Link
                   to="/admin"
                   onClick={() => setMobileOpen(false)}
-                  className="flex w-full items-center gap-2 rounded-lg px-4 py-2.5 text-sm text-stone-500 transition-colors hover:bg-stone-50"
+                  className="flex w-full items-center gap-2 rounded-lg px-4 py-2.5 min-h-[44px] text-sm text-stone-500 transition-colors hover:bg-stone-50"
                 >
                   لوحة الإدارة
                 </Link>
@@ -522,7 +522,7 @@ export default memo(function Header() {
                       setMobileOpen(false);
                     }
                   }}
-                  className="flex w-full items-center gap-2 rounded-lg px-4 py-2.5 text-sm text-red-500 transition-colors hover:bg-stone-50"
+                  className="flex w-full items-center gap-2 rounded-lg px-4 py-2.5 min-h-[44px] text-sm text-red-500 transition-colors hover:bg-stone-50"
                 >
                   <LogOut className="h-4 w-4" />
                   تسجيل الخروج
@@ -532,7 +532,7 @@ export default memo(function Header() {
               <Link
                 to="/login"
                 onClick={() => setMobileOpen(false)}
-                className="flex w-full items-center justify-center rounded-full bg-emerald-600 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-emerald-700"
+                className="flex w-full items-center justify-center rounded-full bg-emerald-600 py-2.5 min-h-[44px] text-sm font-semibold text-white transition-colors hover:bg-emerald-700"
               >
                 <User className="ms-2 h-4 w-4" />
                 تسجيل الدخول

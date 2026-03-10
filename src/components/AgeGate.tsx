@@ -66,7 +66,7 @@ export default function AgeGate() {
           </button>
         </div>
 
-        <p className="mt-4 text-[11px] text-stone-500">
+        <p className="mt-4 text-xs text-stone-500">
           هذا المحتوى لأغراض تعليمية فقط ولا يُعدّ نصيحة طبية
         </p>
       </div>

@@ -414,7 +414,7 @@ export default function Login() {
                     <button
                       type="button"
                       onClick={() => setShowNewPassword(v => !v)}
-                      className="absolute start-3 top-1/2 -translate-y-1/2 p-2 text-stone-500 hover:text-stone-600 transition-colors"
+                      className="absolute start-3 top-1/2 -translate-y-1/2 p-2 min-w-[44px] min-h-[44px] flex items-center justify-center text-stone-500 hover:text-stone-600 transition-colors"
                       aria-label={showNewPassword ? 'إخفاء كلمة المرور' : 'إظهار كلمة المرور'}
                     >
                       {showNewPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
@@ -546,7 +546,7 @@ export default function Login() {
                   <button
                     type="button"
                     onClick={() => setShowPassword(v => !v)}
-                    className="absolute start-3 top-1/2 -translate-y-1/2 p-2 text-stone-500 hover:text-stone-600 transition-colors"
+                    className="absolute start-3 top-1/2 -translate-y-1/2 p-2 min-w-[44px] min-h-[44px] flex items-center justify-center text-stone-500 hover:text-stone-600 transition-colors"
                     aria-label={showPassword ? 'إخفاء كلمة المرور' : 'إظهار كلمة المرور'}
                   >
                     {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
@@ -609,14 +609,14 @@ export default function Login() {
                   <>
                     ليس لديك حساب؟{' '}
                     {/* Bug 5 fix: also clear resetMessage on tab switch via bottom links */}
-                    <button type="button" onClick={() => { setTab('signup'); setError(''); setResetMessage(''); }} className="font-semibold text-emerald-600 hover:underline">
+                    <button type="button" onClick={() => { setTab('signup'); setError(''); setResetMessage(''); }} className="font-semibold text-emerald-600 hover:underline min-h-[44px] inline-flex items-center">
                       أنشئ حسابًا
                     </button>
                   </>
                 ) : (
                   <>
                     لديك حساب بالفعل؟{' '}
-                    <button type="button" onClick={() => { setTab('login'); setError(''); setResetMessage(''); }} className="font-semibold text-emerald-600 hover:underline">
+                    <button type="button" onClick={() => { setTab('login'); setError(''); setResetMessage(''); }} className="font-semibold text-emerald-600 hover:underline min-h-[44px] inline-flex items-center">
                       سجّل الدخول
                     </button>
                   </>

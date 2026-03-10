@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { LayoutDashboard, Syringe, BookOpen, Bot } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
@@ -10,7 +11,7 @@ const tabs = [
   { to: '/coach', icon: Bot, label: 'المدرب' },
 ] as const;
 
-export default function BottomNav() {
+export default memo(function BottomNav() {
   const { user } = useAuth();
   const { pathname } = useLocation();
 
@@ -41,4 +42,4 @@ export default function BottomNav() {
       </div>
     </nav>
   );
-}
+});
