@@ -888,7 +888,7 @@ export default function Community() {
                                       <button
                                         type="button"
                                         onClick={() => deleteReply(reply)}
-                                        className="mr-auto rounded p-1 text-stone-300 hover:bg-red-50 hover:text-red-500 transition-colors"
+                                        className="me-auto rounded p-1 text-stone-300 hover:bg-red-50 hover:text-red-500 transition-colors"
                                         aria-label="حذف الرد"
                                       >
                                         <Trash2 className="h-3 w-3" />

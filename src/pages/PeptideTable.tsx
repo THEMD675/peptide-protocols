@@ -264,7 +264,7 @@ export default function PeptideTable() {
                         >
                           {/* Category — sticky */}
                           <td
-                            className={cn('sticky right-0 z-10 px-3 py-3', i % 2 === 0 ? 'bg-stone-50' : 'bg-white')}
+                            className={cn('sticky end-0 z-10 px-3 py-3', i % 2 === 0 ? 'bg-stone-50' : 'bg-white')}
                           >
                             <span
                               className={cn(
@@ -278,7 +278,7 @@ export default function PeptideTable() {
 
                           {/* Peptide name — sticky */}
                           <td
-                            className={cn('sticky right-[120px] z-10 px-3 py-3', i % 2 === 0 ? 'bg-stone-50' : 'bg-white')}
+                            className={cn('sticky end-[120px] z-10 px-3 py-3', i % 2 === 0 ? 'bg-stone-50' : 'bg-white')}
                           >
                             <Link to={`/peptide/${p.id}`} className="group block">
                               <span className="block font-bold text-stone-900 transition-colors group-hover:text-emerald-600 group-hover:underline">
@@ -462,7 +462,7 @@ export default function PeptideTable() {
                   <div className="mb-3 flex items-center gap-2">
                     {(() => { const Icon = categoryIcons[cat.id]; return Icon ? <Icon className="h-5 w-5 text-emerald-600" /> : null; })()}
                     <h3 className="text-base font-bold text-stone-900">{cat.nameAr}</h3>
-                    <span className="mr-auto rounded-full bg-stone-100 px-2 py-0.5 text-xs font-semibold text-stone-800">
+                    <span className="me-auto rounded-full bg-stone-100 px-2 py-0.5 text-xs font-semibold text-stone-800">
                       {cat.peptideCount} ببتيد
                     </span>
                   </div>

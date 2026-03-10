@@ -130,7 +130,8 @@ serve(async (req) => {
       }
     }
 
-    const hadStripeSub = !!existingSub?.stripe_subscription_id
+    // Skip Stripe trial if user already had ANY trial (DB trial_ends_at set) or a prior Stripe sub
+    const hadTrialOrSub = !!existingSub?.stripe_subscription_id || !!existingSub?.trial_ends_at
 
     const openSessions = await stripe.checkout.sessions.list({
       limit: 10,
@@ -159,7 +160,7 @@ serve(async (req) => {
       client_reference_id: user.id,
       ...(existingCustomerId ? { customer: existingCustomerId } : { customer_email: user.email }),
       subscription_data: {
-        trial_period_days: hadStripeSub ? undefined : 3,
+        trial_period_days: hadTrialOrSub ? undefined : 3,
         metadata: { tier, user_id: user.id, ...(referralCode ? { referral_code: referralCode } : {}) },
         description: 'pptides Subscription',
       },
