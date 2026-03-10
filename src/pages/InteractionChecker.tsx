@@ -6,7 +6,7 @@ import { cn } from '@/lib/utils';
 import { peptides } from '@/data/peptides';
 import { categoryLabels } from '@/lib/peptide-labels';
 import { PEPTIDE_COUNT, SITE_URL } from '@/lib/constants';
-import { DANGEROUS_COMBOS, SYNERGISTIC_COMBOS, DRUG_INTERACTIONS, GH_PEPTIDE_IDS, FAT_LOSS_PEPTIDE_IDS, type InteractionResult } from '@/data/interactions';
+import { DANGEROUS_COMBOS, SYNERGISTIC_COMBOS, DRUG_INTERACTIONS, GH_PEPTIDE_IDS, FAT_LOSS_PEPTIDE_IDS, type InteractionResult, type SeverityLevel } from '@/data/interactions';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
 
@@ -27,22 +27,22 @@ function checkInteraction(id1: string, id2: string): InteractionResult {
 
   const p1 = peptides.find(p => p.id === id1);
   const p2 = peptides.find(p => p.id === id2);
-  if (!p1 || !p2) return { safe: true, warning: true, message: 'غير متوفر', details: '' };
+  if (!p1 || !p2) return { safe: true, warning: true, severity: 'warning' as SeverityLevel, severityAr: 'تحذير', message: 'غير متوفر', details: '' };
 
   if (GH_PEPTIDE_IDS.includes(id1) && GH_PEPTIDE_IDS.includes(id2)) {
-    return { safe: true, warning: true, message: 'كلاهما يحفّز هرمون النمو — راقب IGF-1', details: `${p1.nameAr} و ${p2.nameAr} كلاهما يحفّز إفراز هرمون النمو. الجمع قد يرفع IGF-1 بشكل مفرط. اعمل تحليل IGF-1 بعد أسبوعين. لا تجمع أكثر من 2 محفّزات GH.` };
+    return { safe: true, warning: true, severity: 'warning', severityAr: 'تحذير', message: 'كلاهما يحفّز هرمون النمو — راقب IGF-1', details: `${p1.nameAr} و ${p2.nameAr} كلاهما يحفّز إفراز هرمون النمو. الجمع قد يرفع IGF-1 بشكل مفرط. اعمل تحليل IGF-1 بعد أسبوعين. لا تجمع أكثر من 2 محفّزات GH.` };
   }
 
   if (FAT_LOSS_PEPTIDE_IDS.includes(id1) && FAT_LOSS_PEPTIDE_IDS.includes(id2)) {
-    return { safe: true, warning: true, message: 'كلاهما لفقدان الدهون — تحقق من الحاجة', details: `${p1.nameAr} و ${p2.nameAr} كلاهما يستهدف فقدان الدهون. تأكد أن آلياتهم مختلفة قبل الجمع. إذا كانا بنفس الآلية (مثلًا ناهضان GLP-1)، لا تجمع.` };
+    return { safe: true, warning: true, severity: 'warning', severityAr: 'تحذير', message: 'كلاهما لفقدان الدهون — تحقق من الحاجة', details: `${p1.nameAr} و ${p2.nameAr} كلاهما يستهدف فقدان الدهون. تأكد أن آلياتهم مختلفة قبل الجمع. إذا كانا بنفس الآلية (مثلًا ناهضان GLP-1)، لا تجمع.` };
   }
 
   if (p1.category === p2.category) {
     const catName = categoryLabels[p1.category] ?? p1.category;
-    return { safe: true, warning: true, message: `نفس فئة ${catName} — تحقق من التداخل`, details: `${p1.nameAr} و ${p2.nameAr} من نفس الفئة (${catName}). إذا كانت آلية عملهم متشابهة، قد يكون الجمع غير ضروري أو يزيد الأعراض الجانبية. تحقق من أن كل واحد يضيف قيمة مختلفة.` };
+    return { safe: true, warning: true, severity: 'warning', severityAr: 'تحذير', message: `نفس فئة ${catName} — تحقق من التداخل`, details: `${p1.nameAr} و ${p2.nameAr} من نفس الفئة (${catName}). إذا كانت آلية عملهم متشابهة، قد يكون الجمع غير ضروري أو يزيد الأعراض الجانبية. تحقق من أن كل واحد يضيف قيمة مختلفة.` };
   }
 
-  return { safe: true, warning: false, message: `${p1.nameAr} + ${p2.nameAr} — لا تعارض معروف`, details: `الببتيدان من فئات مختلفة (${categoryLabels[p1.category] ?? p1.category} + ${categoryLabels[p2.category] ?? p2.category}). آليات مختلفة عادةً لا تتعارض. استشر مختص قبل أي تجميعة جديدة.` };
+  return { safe: true, warning: false, severity: 'safe', severityAr: 'آمن', message: `${p1.nameAr} + ${p2.nameAr} — لا تعارض معروف`, details: `الببتيدان من فئات مختلفة (${categoryLabels[p1.category] ?? p1.category} + ${categoryLabels[p2.category] ?? p2.category}). آليات مختلفة عادةً لا تتعارض. استشر مختص قبل أي تجميعة جديدة.` };
 }
 
 export default function InteractionChecker() {
@@ -280,6 +280,14 @@ export default function InteractionChecker() {
                       <Link to={`/peptide/${pair.id1}`} className="hover:text-emerald-600 transition-colors">{p1?.nameEn}</Link>
                       <span> + </span>
                       <Link to={`/peptide/${pair.id2}`} className="hover:text-emerald-600 transition-colors">{p2?.nameEn}</Link>
+                    </span>
+                    <span className={cn(
+                      'ms-auto shrink-0 rounded-full px-2.5 py-0.5 text-xs font-bold',
+                      pair.result.severity === 'dangerous' ? 'bg-red-100 dark:bg-red-900/40 text-red-700 dark:text-red-300' :
+                      pair.result.severity === 'warning' ? 'bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-300' :
+                      'bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-300'
+                    )}>
+                      {pair.result.severityAr}
                     </span>
                   </div>
                   <p className="text-sm font-semibold text-stone-800 dark:text-stone-200">{pair.result.message}</p>
