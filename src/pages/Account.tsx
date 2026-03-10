@@ -122,7 +122,8 @@ export default function Account() {
       const { data: urlData } = supabase.storage.from('user-uploads').getPublicUrl(path);
       const publicUrl = urlData?.publicUrl;
       if (publicUrl) {
-        await supabase.from('user_profiles').update({ avatar_url: publicUrl, updated_at: new Date().toISOString() }).eq('user_id', user.id);
+        const { error: avatarErr } = await supabase.from('user_profiles').update({ avatar_url: publicUrl, updated_at: new Date().toISOString() }).eq('user_id', user.id);
+        if (avatarErr) { console.error('avatar url update failed:', avatarErr); toast.error('تعذّر تحديث صورة الملف الشخصي'); return; }
         setProfilePicUrl(publicUrl + '?t=' + Date.now());
         toast.success('تم تحديث صورة الملف الشخصي');
       }
@@ -1053,21 +1054,25 @@ function ReferralSection({ userId }: { userId?: string }) {
     if (!userId) return;
     let mounted = true;
     (async () => {
-      const { data: sub } = await supabase.from('subscriptions').select('referral_code').eq('user_id', userId).maybeSingle();
+      const { data: sub, error: subErr } = await supabase.from('subscriptions').select('referral_code').eq('user_id', userId).maybeSingle();
+      if (subErr) console.error('referral subscription query failed:', subErr);
       if (!mounted) return;
 
       let refCode = sub?.referral_code;
       if (!refCode) {
         refCode = generateCode();
         if (sub) {
-          await supabase.from('subscriptions').update({ referral_code: refCode }).eq('user_id', userId);
+          const { error: updErr } = await supabase.from('subscriptions').update({ referral_code: refCode }).eq('user_id', userId);
+          if (updErr) console.error('referral code update failed:', updErr);
         } else {
-          await supabase.from('subscriptions').insert({ user_id: userId, status: 'none', tier: 'free', referral_code: refCode });
+          const { error: insErr } = await supabase.from('subscriptions').insert({ user_id: userId, status: 'none', tier: 'free', referral_code: refCode });
+          if (insErr) console.error('referral code insert failed:', insErr);
         }
       }
       setCode(refCode);
 
-      const { data: refs } = await supabase.from('referrals').select('status, reward_code').eq('referrer_id', userId);
+      const { data: refs, error: refsErr } = await supabase.from('referrals').select('status, reward_code').eq('referrer_id', userId);
+      if (refsErr) console.error('referrals query failed:', refsErr);
       if (mounted && refs) {
         setStats({
           total: refs.length,
@@ -1285,7 +1290,7 @@ function EnquiryForm({ userEmail, userId }: { userEmail?: string; userId?: strin
     if (!userId) return;
     let mounted = true;
     supabase.from('enquiries').select('id, subject, status, created_at, peptide_name').eq('user_id', userId).order('created_at', { ascending: false }).limit(5)
-      .then(({ data }) => { if (mounted && data) setHistory(data); })
+      .then(({ data, error }) => { if (error) console.error('enquiries history query failed:', error); if (mounted && data) setHistory(data); })
       .catch(() => {});
     return () => { mounted = false; };
   }, [userId, sent]);

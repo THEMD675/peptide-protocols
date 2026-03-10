@@ -126,6 +126,7 @@ export default function Tracker() {
   const fetchActiveProtocols = useCallback(async () => {
     if (!user) return;
     const { data, error } = await supabase.from('user_protocols').select('*').eq('user_id', user.id).eq('status', 'active').order('started_at', { ascending: false }).limit(20);
+    if (error) console.error('active protocols query failed:', error);
     if (!error && data) setActiveProtocols(data);
   }, [user]);
   useEffect(() => { fetchActiveProtocols().catch(() => {}); }, [fetchActiveProtocols]);
@@ -258,6 +259,9 @@ export default function Tracker() {
       supabase.from('injection_logs').select('logged_at, injection_site, peptide_name').eq('user_id', user.id).order('logged_at', { ascending: false }).limit(10000),
     ]).then(([pepRes, weekRes, allRes]) => {
       if (!mounted) return;
+      if (pepRes.error) console.error('injection_logs peptide_name query failed:', pepRes.error);
+      if (weekRes.error) console.error('injection_logs weekly count failed:', weekRes.error);
+      if (allRes.error) console.error('injection_logs full stats query failed:', allRes.error);
       const unique = new Set((pepRes.data ?? []).map((r: { peptide_name: string }) => r.peptide_name)).size;
       setFullStatsData({ uniquePeptides: unique, last7: weekRes.count ?? 0 });
       setAllLogsForStats((allRes.data as InjectionLog[]) ?? []);
