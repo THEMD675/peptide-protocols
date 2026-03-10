@@ -1,17 +1,17 @@
 import { useMemo, useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { ArrowRight, Shield, AlertTriangle, CheckCircle, Lock, Calculator, Bot, FlaskConical, Printer, MessageSquare, Star, Syringe, Play, ExternalLink, BookOpen, Heart } from 'lucide-react';
+import { ArrowRight, Shield, AlertTriangle, CheckCircle, Lock, Calculator, Bot, FlaskConical, Printer, MessageSquare, Star, Syringe, Play, ExternalLink, BookOpen, Heart, Newspaper } from 'lucide-react';
 import { useBookmarks } from '@/hooks/useBookmarks';
 import ProtocolWizard from '@/components/ProtocolWizard';
 import { toast } from 'sonner';
 import { Helmet } from 'react-helmet-async';
 import { cn } from '@/lib/utils';
-import { peptides } from '@/data/peptides';
+import { peptides, categories } from '@/data/peptides';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
 import { PRICING, TRIAL_PEPTIDE_IDS, SITE_URL, PEPTIDE_COUNT } from '@/lib/constants';
 import { DOSE_PRESETS_MAP as DOSE_PRESETS } from '@/data/dose-presets';
-import { evidenceColors, evidenceLabels, categoryLabels } from '@/lib/peptide-labels';
+import { evidenceColors, evidenceLabels, categoryLabels, categoryIcons } from '@/lib/peptide-labels';
 import ShareButtons from '@/components/ShareButtons';
 
 interface ProtocolRow {
@@ -69,10 +69,21 @@ export default function PeptideDetail() {
     'very-weak': { label: 'أدلة محدودة (بحوث حيوانية)', cls: 'border-stone-300 dark:border-stone-700 bg-stone-100 dark:bg-stone-800 text-stone-600 dark:text-stone-400' },
   } as Record<string, { label: string; cls: string }>)[peptide.evidenceLevel] ?? { label: 'أدلة محدودة', cls: 'border-stone-300 dark:border-stone-700 bg-stone-100 dark:bg-stone-800 text-stone-600 dark:text-stone-400' };
 
-  const relatedPeptides = useMemo(() => {
+  const similarPeptides = useMemo(() => {
     const sameCategory = peptides.filter((p) => p.id !== peptide.id && p.category === peptide.category);
-    const fromStack = peptides.filter((p) => p.id !== peptide.id && p.category !== peptide.category && peptide.stackAr.toLowerCase().includes(p.nameEn.toLowerCase()));
-    return [...sameCategory, ...fromStack].slice(0, 3);
+    if (sameCategory.length >= 3) return sameCategory.slice(0, 4);
+    // Fill with related categories
+    const relatedCategoryMap: Record<string, string[]> = {
+      metabolic: ['hormonal', 'recovery'],
+      recovery: ['hormonal', 'metabolic'],
+      hormonal: ['recovery', 'metabolic'],
+      brain: ['longevity', 'recovery'],
+      longevity: ['brain', 'skin-gut'],
+      'skin-gut': ['longevity', 'recovery'],
+    };
+    const relatedCats = relatedCategoryMap[peptide.category] ?? [];
+    const extras = peptides.filter((p) => p.id !== peptide.id && p.category !== peptide.category && relatedCats.includes(p.category));
+    return [...sameCategory, ...extras].slice(0, 4);
   }, [peptide]);
 
   const rows: ProtocolRow[] = [
@@ -414,31 +425,46 @@ export default function PeptideDetail() {
             </div>
           </div>
 
-          {relatedPeptides.length > 0 && (
+          {similarPeptides.length > 0 && (
             <div className="mt-8">
               <h3 className="mb-4 flex items-center gap-2 text-lg font-bold text-stone-900 dark:text-stone-100">
                 <FlaskConical className="h-5 w-5 text-emerald-600" />
                 ببتيدات مشابهة
               </h3>
-              <div className="grid gap-3 sm:grid-cols-2">
-                {relatedPeptides.map((rp) => (
-                  <Link
-                    key={rp.id}
-                    to={`/peptide/${rp.id}`}
-                    className="group flex items-center gap-3 rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 p-4 transition-all hover:border-emerald-300 dark:border-emerald-700 hover:shadow-md hover:-translate-y-0.5"
-                  >
-                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-emerald-50 dark:bg-emerald-900/20">
-                      <FlaskConical className="h-5 w-5 text-emerald-600" />
-                    </div>
-                    <div className="min-w-0">
-                      <p className="font-bold text-stone-900 dark:text-stone-100 group-hover:text-emerald-600 transition-colors">{rp.nameAr}</p>
-                      <p className="text-xs text-stone-500 dark:text-stone-400 truncate">{rp.nameEn}</p>
-                    </div>
-                  </Link>
-                ))}
+              {/* Horizontal scroll on mobile, grid on desktop */}
+              <div className="flex gap-4 overflow-x-auto pb-2 snap-x snap-mandatory scrollbar-hide md:grid md:grid-cols-3 lg:grid-cols-4 md:overflow-x-visible md:pb-0">
+                {similarPeptides.map((rp) => {
+                  const CatIcon = categoryIcons[rp.category];
+                  return (
+                    <Link
+                      key={rp.id}
+                      to={`/peptide/${rp.id}`}
+                      className="group flex-shrink-0 w-[75vw] max-w-[280px] snap-start md:w-auto md:max-w-none rounded-2xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 p-5 shadow-sm dark:shadow-stone-900/30 transition-all hover:border-emerald-300 dark:hover:border-emerald-700 hover:shadow-lg hover:shadow-emerald-600/10 hover:-translate-y-0.5"
+                    >
+                      <div className="mb-3 flex items-center justify-between">
+                        <span className="flex items-center gap-1 rounded-full border border-stone-300 dark:border-stone-700 bg-stone-50 dark:bg-stone-900 px-2.5 py-0.5 text-xs font-medium text-stone-800 dark:text-stone-200">
+                          {CatIcon && <CatIcon className="h-3 w-3" />}
+                          {categoryLabels[rp.category]}
+                        </span>
+                        {rp.fdaApproved && (
+                          <span className="flex items-center gap-1 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2 py-0.5 text-xs font-semibold text-emerald-400">
+                            <CheckCircle className="h-3 w-3" />
+                            FDA
+                          </span>
+                        )}
+                      </div>
+                      <h4 className="text-base font-bold text-stone-900 dark:text-stone-100 group-hover:text-emerald-600 transition-colors truncate">{rp.nameAr}</h4>
+                      <p className="mt-0.5 text-xs text-stone-500 dark:text-stone-400">{rp.nameEn}</p>
+                      <p className="mt-2 text-sm leading-relaxed text-stone-600 dark:text-stone-400 line-clamp-2">{rp.descriptionAr ?? rp.summaryAr}</p>
+                    </Link>
+                  );
+                })}
               </div>
             </div>
           )}
+
+          {/* Related Blog Posts */}
+          <RelatedBlogPosts peptideNameEn={peptide.nameEn} peptideNameAr={peptide.nameAr} />
 
           {/* Scientific References */}
           {peptide.pubmedIds && peptide.pubmedIds.length > 0 && (
@@ -674,6 +700,73 @@ function PeptideExperiences({ peptideNameEn }: { peptideNameEn: string }) {
             </div>
             <p className="text-sm text-stone-800 dark:text-stone-200 leading-relaxed line-clamp-3">{exp.results}</p>
           </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function RelatedBlogPosts({ peptideNameEn, peptideNameAr }: { peptideNameEn: string; peptideNameAr: string }) {
+  const [posts, setPosts] = useState<{ id: string; slug: string; title_ar: string; excerpt_ar: string; published_at: string }[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    let mounted = true;
+    // Search for blog posts whose tags overlap with the peptide name
+    const searchTerms = [peptideNameEn.toLowerCase(), peptideNameAr];
+    (async () => {
+      try {
+        // Fetch published blog posts and filter by tag overlap client-side
+        const { data } = await supabase
+          .from('blog_posts')
+          .select('id, slug, title_ar, excerpt_ar, published_at, tags')
+          .eq('is_published', true)
+          .order('published_at', { ascending: false })
+          .limit(50);
+
+        if (!mounted) return;
+        if (data) {
+          const matched = data.filter((post: { tags?: string[] }) => {
+            if (!post.tags || !Array.isArray(post.tags)) return false;
+            return post.tags.some((tag: string) =>
+              searchTerms.some((term) => tag.toLowerCase().includes(term.toLowerCase()) || term.toLowerCase().includes(tag.toLowerCase()))
+            );
+          }).slice(0, 3);
+          setPosts(matched);
+        }
+      } catch {
+        // silently fail
+      }
+      if (mounted) setLoading(false);
+    })();
+    return () => { mounted = false; };
+  }, [peptideNameEn, peptideNameAr]);
+
+  if (loading) return (
+    <div className="mt-8 space-y-3">
+      <div className="h-6 w-40 animate-pulse rounded bg-stone-200 dark:bg-stone-700" />
+      <div className="h-20 animate-pulse rounded-xl bg-stone-100 dark:bg-stone-800" />
+    </div>
+  );
+  if (posts.length === 0) return null;
+
+  return (
+    <div className="mt-8">
+      <h3 className="mb-4 flex items-center gap-2 text-lg font-bold text-stone-900 dark:text-stone-100">
+        <Newspaper className="h-5 w-5 text-emerald-600" />
+        مقالات ذات صلة
+      </h3>
+      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        {posts.map((post) => (
+          <Link
+            key={post.id}
+            to={`/blog/${post.slug}`}
+            className="group rounded-2xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 p-5 shadow-sm dark:shadow-stone-900/30 transition-all hover:border-emerald-300 dark:hover:border-emerald-700 hover:shadow-lg hover:shadow-emerald-600/10 hover:-translate-y-0.5"
+          >
+            <h4 className="text-sm font-bold text-stone-900 dark:text-stone-100 group-hover:text-emerald-600 transition-colors line-clamp-2">{post.title_ar}</h4>
+            <p className="mt-2 text-xs leading-relaxed text-stone-600 dark:text-stone-400 line-clamp-2">{post.excerpt_ar}</p>
+            <p className="mt-3 text-xs text-stone-400 dark:text-stone-500">{new Date(post.published_at).toLocaleDateString('ar-SA', { year: 'numeric', month: 'short', day: 'numeric' })}</p>
+          </Link>
         ))}
       </div>
     </div>

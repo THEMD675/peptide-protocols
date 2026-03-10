@@ -5,6 +5,7 @@ import {
   Beaker, Shield, ShieldAlert, ShieldCheck, ShieldX,
   Clock, DollarSign, BarChart3, Syringe, X, ChevronDown,
   Save, Share2, Trash2, Bookmark, Target, Search,
+  Sparkles, Calendar,
 } from 'lucide-react';
 import { peptides as allPeptides } from '@/data/peptides';
 import {
@@ -101,6 +102,65 @@ function getInjectionsPerWeek(freq?: string): number {
   }
 }
 
+/** Extract key benefits from peptide summaries */
+function extractBenefits(peps: typeof allPeptides): string[] {
+  const benefits: string[] = [];
+  for (const p of peps) {
+    // Use summaryAr - take the first sentence/phrase before the long dash
+    const summary = p.summaryAr ?? '';
+    const parts = summary.split('—');
+    if (parts.length > 1) {
+      // Second part typically has the key benefit
+      const benefit = parts[1].trim().split('.')[0].trim();
+      if (benefit && benefit.length > 5) benefits.push(`${p.nameAr}: ${benefit}`);
+    } else if (summary.length > 10) {
+      benefits.push(`${p.nameAr}: ${summary.slice(0, 80)}`);
+    }
+  }
+  return benefits;
+}
+
+/** Build a suggested daily schedule from selected peptides */
+interface ScheduleSlot {
+  timeAr: string;
+  items: { nameAr: string; doseAr: string; routeAr: string }[];
+}
+
+function buildSchedule(peps: typeof allPeptides): ScheduleSlot[] {
+  const morning: ScheduleSlot = { timeAr: '🌅 الصباح (على معدة فارغة)', items: [] };
+  const preworkout: ScheduleSlot = { timeAr: '🏋️ قبل التمرين', items: [] };
+  const evening: ScheduleSlot = { timeAr: '🌙 قبل النوم (معدة فارغة)', items: [] };
+  const anytime: ScheduleSlot = { timeAr: '⏰ في أي وقت', items: [] };
+
+  for (const p of peps) {
+    const timing = (p.timingAr ?? '').toLowerCase();
+    const item = {
+      nameAr: p.nameAr,
+      doseAr: p.dosageAr?.split('.')[0] ?? '',
+      routeAr: getRouteLabel(p.route),
+    };
+
+    if (timing.includes('قبل النوم') || timing.includes('مساء')) {
+      evening.items.push(item);
+    } else if (timing.includes('صباح') || timing.includes('استيقاظ')) {
+      morning.items.push(item);
+    } else if (timing.includes('تمرين')) {
+      preworkout.items.push(item);
+    } else if (timing.includes('قبل الوجب')) {
+      anytime.items.push(item);
+    } else {
+      // Default: morning for nasal/oral, evening for subq
+      if (p.route === 'nasal' || p.route === 'oral') {
+        morning.items.push(item);
+      } else {
+        evening.items.push(item);
+      }
+    }
+  }
+
+  return [morning, preworkout, evening, anytime].filter((s) => s.items.length > 0);
+}
+
 function getRouteLabel(route?: string): string {
   switch (route) {
     case 'subq': return 'تحت الجلد';
@@ -148,14 +208,13 @@ export const goalStacks: GoalStack[] = [
     id: 'muscle-building',
     nameAr: 'بناء العضل',
     goalAr: 'تحفيز إفراز هرمون النمو الطبيعي لبناء العضلات وتحسين التكوين الجسماني مع تعافي أسرع.',
-    peptideIds: ['cjc-1295', 'ipamorelin', 'mk-677'],
+    peptideIds: ['cjc-1295', 'ipamorelin'],
     doses: {
-      'cjc-1295': '100 مكغ قبل النوم',
-      ipamorelin: '200 مكغ قبل النوم',
-      'mk-677': '—',
+      'cjc-1295': '100-300 مكغ قبل النوم',
+      ipamorelin: '200-300 مكغ قبل النوم',
     },
-    durationAr: '8-12 أسبوع ثم راحة 4 أسابيع',
-    monthlyCostSAR: '975-1,500 ر.س',
+    durationAr: '12-16 أسبوع ثم راحة 4 أسابيع',
+    monthlyCostSAR: '600-1,050 ر.س',
     difficulty: 'متوسط',
     safetyNotes: 'خذ على معدة فارغة قبل النوم. راقب مستوى IGF-1 وسكر الدم. تمارين مقاومة ضرورية.',
     icon: '💪',
@@ -301,6 +360,9 @@ export default function StackBuilder() {
     () => selectedPeptides.reduce((sum, p) => sum + getInjectionsPerWeek(p.frequency), 0),
     [selectedPeptides],
   );
+
+  const combinedBenefits = useMemo(() => extractBenefits(selectedPeptides), [selectedPeptides]);
+  const suggestedSchedule = useMemo(() => buildSchedule(selectedPeptides), [selectedPeptides]);
 
   const filteredPeptides = useMemo(() => {
     if (!searchQuery) return realPeptides;
@@ -712,6 +774,49 @@ export default function StackBuilder() {
               </div>
             </div>
           </div>
+
+          {/* Combined Benefits */}
+          {combinedBenefits.length > 0 && (
+            <div className="rounded-2xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-900 p-5">
+              <h3 className="mb-3 font-bold text-stone-900 dark:text-stone-100 flex items-center gap-2">
+                <Sparkles className="h-5 w-5 text-emerald-500" />
+                الفوائد المجمّعة
+              </h3>
+              <ul className="space-y-2">
+                {combinedBenefits.map((benefit, idx) => (
+                  <li key={idx} className="flex items-start gap-2 text-sm text-stone-700 dark:text-stone-300">
+                    <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-emerald-500" />
+                    <span>{benefit}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          {/* Suggested Schedule */}
+          {suggestedSchedule.length > 0 && (
+            <div className="rounded-2xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-900 p-5">
+              <h3 className="mb-3 font-bold text-stone-900 dark:text-stone-100 flex items-center gap-2">
+                <Calendar className="h-5 w-5 text-emerald-500" />
+                الجدول اليومي المقترح
+              </h3>
+              <div className="space-y-3">
+                {suggestedSchedule.map((slot) => (
+                  <div key={slot.timeAr} className="rounded-xl border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-800 p-3">
+                    <h4 className="text-sm font-bold text-stone-900 dark:text-stone-100 mb-2">{slot.timeAr}</h4>
+                    <div className="space-y-1.5">
+                      {slot.items.map((item, idx) => (
+                        <div key={idx} className="flex items-center justify-between text-xs">
+                          <span className="font-medium text-emerald-600 dark:text-emerald-400">{item.nameAr}</span>
+                          <span className="text-stone-500 dark:text-stone-400">{item.routeAr} • {item.doseAr.slice(0, 50)}{item.doseAr.length > 50 ? '...' : ''}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
 
           {/* Individual Peptide Details */}
           <div className="rounded-2xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-900 p-5">
