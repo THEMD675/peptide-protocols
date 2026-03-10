@@ -1182,7 +1182,7 @@ const STRUCTURED_DATA: Record<string, Partial<Pick<Peptide, 'doseMcg' | 'doseMax
   'aod-9604': { doseMcg: 300, doseMaxMcg: 600, frequency: 'od', cycleDurationWeeks: 12, restPeriodWeeks: 4, route: 'subq' },
   '5-amino-1mq': { frequency: 'od', cycleDurationWeeks: 10, restPeriodWeeks: 4, route: 'oral' },
   'bpc-157': { doseMcg: 250, doseMaxMcg: 500, frequency: 'bid', cycleDurationWeeks: 5, restPeriodWeeks: 3, route: 'subq' },
-  'tb-500': { doseMcg: 750, doseMaxMcg: 1500, frequency: 'biweekly', cycleDurationWeeks: 10, restPeriodWeeks: 4, route: 'subq' },
+  'tb-500': { doseMcg: 2500, doseMaxMcg: 10000, frequency: 'biweekly', cycleDurationWeeks: 10, restPeriodWeeks: 4, route: 'subq' },
   'cjc-1295': { doseMcg: 100, doseMaxMcg: 300, frequency: 'od', cycleDurationWeeks: 14, restPeriodWeeks: 6, route: 'subq' },
   'ipamorelin': { doseMcg: 200, doseMaxMcg: 300, frequency: 'od', cycleDurationWeeks: 14, restPeriodWeeks: 4, route: 'subq' },
   'sermorelin': { doseMcg: 300, doseMaxMcg: 500, frequency: 'od', cycleDurationWeeks: 18, route: 'subq' },
@@ -1238,11 +1238,11 @@ export const stacks: Stack[] = [
     peptideIds: ['bpc-157', 'tb-500'],
     protocolAr: `المرحلة 1 (أسابيع 1-4): التحميل
 • BPC-157: 500 ميكروغرام مرتين يوميًا (صباحًا ومساءً) — حقن بالقرب من الإصابة
-• TB-500: 750 ميكروغرام مرتين أسبوعيًا — حقن في البطن (يعمل جهازيًا)
+• TB-500: 2500 ميكروغرام مرتين أسبوعيًا — حقن في البطن (يعمل جهازيًا)
 
 المرحلة 2 (أسابيع 5-8): الصيانة
 • BPC-157: 250 ميكروغرام مرة يوميًا
-• TB-500: 500 ميكروغرام مرة أسبوعيًا
+• TB-500: 2500 ميكروغرام مرة أسبوعيًا
 
 ثم 4 أسابيع راحة.`,
     goalAr: 'شفاء إصابات الأوتار والأربطة والعضلات. التعافي بعد الجراحة. علاج الإصابات المزمنة.',

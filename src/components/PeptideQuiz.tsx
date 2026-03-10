@@ -87,6 +87,7 @@ function getRecommendation(answers: string[]): Recommendation {
   }
 
   if (goal === 'hormones') {
+    if (injection === 'no') return { peptideId: 'selank', nameAr: 'سيلانك', nameEn: 'Selank', reason: 'بخاخ أنف — يخفض الكورتيزول ويدعم التوازن الهرموني بشكل غير مباشر. ببتيدات الهرمونات المباشرة (Kisspeptin-10، Ipamorelin) تتطلب حقنًا.', altId: 'semax', altName: 'Semax' };
     if (experience === 'beginner') return { peptideId: 'ipamorelin', nameAr: 'إيباموريلين', nameEn: 'Ipamorelin', reason: 'أنظف محفّز لهرمون النمو — بدون رفع الكورتيزول. الخيار الأول للمبتدئين.', altId: 'cjc-1295', altName: 'CJC-1295' };
     return { peptideId: 'kisspeptin-10', nameAr: 'كيسبيبتين-10', nameEn: 'Kisspeptin-10', reason: 'يرفع التستوستيرون طبيعيًا من أعلى المحور الهرموني.', altId: 'ipamorelin', altName: 'Ipamorelin' };
   }

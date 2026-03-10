@@ -12,7 +12,7 @@ export interface DosePreset {
 
 export const DOSE_PRESETS: DosePreset[] = [
   { name: 'BPC-157', dose: 250, unit: 'mcg', vialMg: 5, waterMl: 2, minDose: 100, maxDose: 500 },
-  { name: 'TB-500', dose: 750, unit: 'mcg', vialMg: 5, waterMl: 2, minDose: 250, maxDose: 1500 },
+  { name: 'TB-500', dose: 2500, unit: 'mcg', vialMg: 10, waterMl: 2, minDose: 500, maxDose: 10000 },
   { name: 'Semaglutide', dose: 250, unit: 'mcg', vialMg: 5, waterMl: 2, minDose: 250, maxDose: 2400 },
   { name: 'CJC-1295', dose: 100, unit: 'mcg', vialMg: 2, waterMl: 2, minDose: 50, maxDose: 300 },
   { name: 'Ipamorelin', dose: 200, unit: 'mcg', vialMg: 5, waterMl: 2, minDose: 100, maxDose: 300 },
