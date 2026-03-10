@@ -15,6 +15,10 @@ export interface Subscription {
   isPaidSubscriber: boolean;
   isTrial: boolean;
   currentPeriodEnd?: string;
+  /** true when user has gone through Stripe checkout (card on file) */
+  hasStripeSubscription: boolean;
+  /** true when user is in trial but hasn't entered a credit card yet */
+  needsPaymentSetup: boolean;
 }
 
 interface User {
@@ -41,6 +45,8 @@ const DEFAULT_SUBSCRIPTION: Subscription = {
   isProOrTrial: false,
   isPaidSubscriber: false,
   isTrial: false,
+  hasStripeSubscription: false,
+  needsPaymentSetup: false,
 };
 
 // eslint-disable-next-line react-refresh/only-export-components
@@ -115,7 +121,10 @@ export function buildSubscription(row: Record<string, unknown> | null): Subscrip
 
   const currentPeriodEnd = row.current_period_end ? (row.current_period_end as string) : undefined;
 
-  return { status, tier, trialDaysLeft, isProOrTrial, isPaidSubscriber, isTrial, currentPeriodEnd };
+  const hasStripeSubscription = !!(row.stripe_subscription_id);
+  const needsPaymentSetup = isTrial && !hasStripeSubscription;
+
+  return { status, tier, trialDaysLeft, isProOrTrial, isPaidSubscriber, isTrial, currentPeriodEnd, hasStripeSubscription, needsPaymentSetup };
 }
 
 

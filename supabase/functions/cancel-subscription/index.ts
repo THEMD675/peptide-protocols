@@ -64,6 +64,15 @@ serve(async (req) => {
     let reqBody: Record<string, unknown> = {}
     try { reqBody = await req.clone().json() } catch { /* empty body is fine for cancel */ }
     const applyCoupon = reqBody.apply_coupon === true
+    const cancelReason = typeof reqBody.reason === 'string' ? reqBody.reason.slice(0, 200) : null
+
+    // Save cancellation reason to subscriptions table if provided
+    if (cancelReason) {
+      await supabase.from('subscriptions').update({
+        cancel_reason: cancelReason,
+        updated_at: new Date().toISOString(),
+      }).eq('user_id', user.id).then(() => {}).catch((e: unknown) => console.error('save cancel reason:', e))
+    }
 
     if (applyCoupon) {
       const { data: sub } = await supabase
@@ -78,9 +87,9 @@ serve(async (req) => {
       }
       try {
         await stripe.subscriptions.update(sub.stripe_subscription_id, {
-          coupon: 'STAY30',
+          coupon: 'retention_20_pct',
         })
-        return new Response(JSON.stringify({ ok: true, coupon: 'STAY30' }), {
+        return new Response(JSON.stringify({ ok: true, coupon: 'retention_20_pct' }), {
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         })
       } catch (e) {

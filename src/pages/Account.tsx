@@ -256,6 +256,7 @@ export default function Account() {
           Authorization: `Bearer ${session.access_token}`,
           apikey: import.meta.env.VITE_SUPABASE_ANON_KEY,
         },
+        body: JSON.stringify({ reason: cancelReason }),
       });
       const result = await res.json();
       if (!res.ok) throw new Error(result.error);
@@ -736,7 +737,7 @@ export default function Account() {
             <h3 className="text-lg font-bold text-stone-900">هل أنت متأكد؟</h3>
             <div className="mt-4 rounded-xl border border-emerald-200 bg-emerald-50 p-4 mb-4">
               <p className="text-sm font-bold text-emerald-800 mb-2">عرض خاص لك!</p>
-              <p className="text-sm text-emerald-700">احصل على <strong>خصم 30%</strong> لشهر واحد بدلًا من الإلغاء.</p>
+              <p className="text-sm text-emerald-700">نقدّر وجودك — خصم <strong>20%</strong> على اشتراكك القادم إذا بقيت معنا</p>
               <button
                 onClick={async () => {
                   try {
@@ -746,10 +747,10 @@ export default function Account() {
                     const res = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/cancel-subscription`, {
                       method: 'POST',
                       headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}` },
-                      body: JSON.stringify({ apply_coupon: true }),
+                      body: JSON.stringify({ apply_coupon: true, reason: cancelReason }),
                     });
                     if (res.ok) {
-                      toast.success('تم تطبيق الخصم — 30% خصم على الشهر القادم!');
+                      toast.success('تم تطبيق الخصم — 20% خصم على اشتراكك القادم!');
                       setShowCancelDialog(false); setCancelStep(null);
                     } else {
                       toast.error('تعذّر تطبيق الخصم — جرّب لاحقًا');
@@ -759,7 +760,7 @@ export default function Account() {
                 disabled={isProcessing}
                 className="mt-3 w-full rounded-full bg-emerald-600 px-4 py-2.5 text-sm font-bold text-white transition-all hover:bg-emerald-700 disabled:opacity-50"
               >
-                احصل على خصم 30%
+                احصل على خصم 20%
               </button>
             </div>
             <div className="rounded-xl border border-red-200 bg-red-50 p-4">

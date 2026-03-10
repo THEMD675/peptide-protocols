@@ -44,6 +44,61 @@ export default function TrialBanner() {
   if (!user || !subscription) return null;
   if (subscription.status === 'active') return null;
 
+  // Payment wall: trial user who hasn't entered a credit card yet
+  if (subscription.needsPaymentSetup) {
+    const PAYMENT_WALL_FREE_PATHS = [
+      '/pricing', '/account', '/login', '/signup', '/privacy', '/terms', '/contact', '/',
+    ];
+    const isPaymentWallFreePage = PAYMENT_WALL_FREE_PATHS.some(p => pathname === p || pathname.startsWith(p + '/'));
+
+    if (isPaymentWallFreePage) {
+      // Show a prominent banner on allowed pages
+      return (
+        <div className="sticky top-[var(--header-height)] z-40 bg-amber-500 text-center py-2.5 px-4">
+          <p className="text-sm font-semibold text-white">
+            أدخل بيانات الدفع لتفعيل تجربتك المجانية — لن يتم خصم أي مبلغ خلال 3 أيام
+            <span className="mx-2">—</span>
+            <Link to="/pricing" className="underline underline-offset-2 hover:opacity-80">أكمل الإعداد</Link>
+          </p>
+        </div>
+      );
+    }
+
+    // Block access to all other pages — show a setup modal
+    return (
+      <div role="dialog" aria-modal="true" aria-describedby="payment-wall-desc" className="fixed inset-0 z-50 flex items-center justify-center bg-stone-900/80 backdrop-blur-sm">
+        <FocusTrap focusTrapOptions={{ allowOutsideClick: true }}>
+        <div className="mx-4 w-full max-w-md rounded-2xl bg-white p-10 text-center shadow-2xl" aria-labelledby="payment-wall-title">
+          <Shield className="mx-auto mb-4 h-12 w-12 text-emerald-600" />
+          <h2 id="payment-wall-title" className="mb-3 text-2xl font-bold text-stone-900">
+            أكمل إعداد حسابك
+          </h2>
+          <p id="payment-wall-desc" className="mb-2 text-stone-700">
+            أكمل إعداد حسابك لبدء التجربة المجانية
+          </p>
+          <p className="mb-6 text-sm text-stone-500">
+            لن يتم خصم أي مبلغ خلال 3 أيام — يمكنك الإلغاء في أي وقت
+          </p>
+          <div className="flex flex-col gap-3">
+            <Link
+              to="/pricing"
+              className="inline-block rounded-full bg-emerald-600 px-10 py-3.5 font-bold text-white shadow-lg transition-all hover:bg-emerald-700 hover:scale-105 active:scale-[0.98]"
+            >
+              أدخل بيانات الدفع
+            </Link>
+          </div>
+          <button
+            onClick={() => window.history.length > 1 ? window.history.back() : navigate('/')}
+            className="mt-4 min-h-[44px] px-3 py-2 text-sm text-stone-500 hover:text-stone-600 transition-colors"
+          >
+            رجوع
+          </button>
+        </div>
+        </FocusTrap>
+      </div>
+    );
+  }
+
   if (subscription.status === 'cancelled' && subscription.isPaidSubscriber) {
     return (
       <div className="sticky top-[var(--header-height)] z-40 bg-amber-500 text-center py-2 px-4">

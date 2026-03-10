@@ -76,6 +76,10 @@ export default function Pricing() {
       toast.error('تم إلغاء عملية الدفع — يمكنك المحاولة مرة أخرى');
       setSearchParams({}, { replace: true });
     }
+    if (searchParams.get('setup') === '1') {
+      toast('أكمل إعداد حسابك لبدء التجربة المجانية', { duration: 6000 });
+      setSearchParams({}, { replace: true });
+    }
   }, [searchParams, setSearchParams]);
 
   const renderAction = (planKey: 'essentials' | 'elite', isElite: boolean) => {

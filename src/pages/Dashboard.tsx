@@ -1,5 +1,5 @@
 import { Helmet } from 'react-helmet-async';
-import { Link } from 'react-router-dom';
+import { Link, Navigate } from 'react-router-dom';
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useNowMs } from '@/hooks/useNowMs';
 import {
@@ -362,6 +362,14 @@ export default function Dashboard() {
   const showOnboardButton = useMemo(() => {
     try { return localStorage.getItem('pptides_onboarded') === 'true'; } catch { return false; }
   }, []);
+
+  // Redirect trial users who haven't entered payment to /pricing
+  // Skip redirect when returning from Stripe checkout (?payment=success)
+  const params = new URLSearchParams(window.location.search);
+  const isPaymentCallback = params.get('payment') === 'success';
+  if (subscription.needsPaymentSetup && !isPaymentCallback) {
+    return <Navigate to="/pricing?setup=1" replace />;
+  }
 
   // Payment polling handled by AuthContext on ?payment=success — no duplicate here
   useEffect(() => {
