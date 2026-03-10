@@ -114,6 +114,8 @@ export default function Tracker() {
   const [confirmDialog, setConfirmDialog] = useState<{ title: string; message: string; onConfirm: () => void; isDestructive?: boolean } | null>(null);
   const [confirmBusy, setConfirmBusy] = useState(false);
 
+  useEffect(() => { events.trackerView(); }, []);
+
   useEffect(() => {
     if (!confirmDialog) return;
     document.body.style.overflow = 'hidden';
@@ -632,6 +634,7 @@ export default function Tracker() {
           suggestedSite={suggestedSite}
           onSubmitSuccess={async () => {
             setShowForm(false);
+            if (initialPeptide) events.injectionLog(initialPeptide);
             await fetchLogs();
           }}
           onCancel={() => setShowForm(false)}

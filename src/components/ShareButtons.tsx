@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Copy, Check, Send, Share2 } from 'lucide-react';
 import { toast } from 'sonner';
+import { events } from '@/lib/analytics';
 
 interface ShareButtonsProps {
   /** Page URL to share */
@@ -33,6 +34,7 @@ export default function ShareButtons({
       await navigator.clipboard.writeText(url);
       setCopied(true);
       toast.success('تم نسخ الرابط ✓');
+      events.shareClick('copy_link');
       setTimeout(() => setCopied(false), 2000);
     } catch {
       toast.error('تعذّر نسخ الرابط');
@@ -47,6 +49,7 @@ export default function ShareButtons({
     };
     if (navigator.share) {
       try {
+        events.shareClick('native');
         await navigator.share(shareData);
       } catch {
         /* user cancelled */
@@ -66,6 +69,7 @@ export default function ShareButtons({
         href={`https://wa.me/?text=${encodeURIComponent(whatsappText)}`}
         target="_blank"
         rel="noopener noreferrer"
+        onClick={() => events.shareClick('whatsapp')}
         className={`${btnBase} bg-[#25D366] text-white hover:bg-[#20bd5a] shadow-sm`}
         aria-label="مشاركة عبر واتساب"
       >
@@ -80,6 +84,7 @@ export default function ShareButtons({
         href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(tweetText)}`}
         target="_blank"
         rel="noopener noreferrer"
+        onClick={() => events.shareClick('twitter')}
         className={`${btnBase} border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 text-stone-700 dark:text-stone-300 hover:border-stone-400 dark:hover:border-stone-500`}
         aria-label="مشاركة عبر تويتر"
       >
@@ -93,6 +98,7 @@ export default function ShareButtons({
           href={`https://t.me/share/url?url=${encodeURIComponent(url)}&text=${encodeURIComponent(title)}`}
           target="_blank"
           rel="noopener noreferrer"
+          onClick={() => events.shareClick('telegram')}
           className={`${btnBase} border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 text-stone-700 dark:text-stone-300 hover:border-[#0088cc] hover:text-[#0088cc]`}
           aria-label="مشاركة عبر تيليجرام"
         >

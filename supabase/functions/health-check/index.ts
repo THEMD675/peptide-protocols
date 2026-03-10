@@ -130,8 +130,25 @@ serve(async (req) => {
     }
   }
 
+  // Log to health_checks table for uptime history
+  const totalMs = Object.values(checks).reduce((sum, c) => sum + c.ms, 0)
+  const overallStatus = allOk ? 'healthy' : hasError ? 'unhealthy' : 'degraded'
+  try {
+    const db = createClient(supabaseUrl, supabaseServiceKey)
+    await db.from('health_checks').insert({
+      status: overallStatus,
+      response_time_ms: totalMs,
+      checks,
+    })
+    // Prune old records (keep 30 days)
+    const cutoff = new Date(Date.now() - 30 * 86400000).toISOString()
+    await db.from('health_checks').delete().lt('checked_at', cutoff)
+  } catch (e) {
+    console.error('Failed to log health check:', e)
+  }
+
   return new Response(JSON.stringify({
-    status: allOk ? 'healthy' : hasError ? 'unhealthy' : 'degraded',
+    status: overallStatus,
     timestamp: new Date().toISOString(),
     checks,
   }, null, 2), { status: allOk ? 200 : hasError ? 503 : 200, headers })

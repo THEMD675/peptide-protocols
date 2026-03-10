@@ -7,6 +7,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
 import { cn } from '@/lib/utils';
 import { PRICING, PEPTIDE_COUNT, TRIAL_DAYS, VALUE_TOTAL, VALUE_SAVINGS_ELITE, VALUE_STACK, SUPPORT_EMAIL, SITE_URL } from '@/lib/constants';
+import { events } from '@/lib/analytics';
 
 const essentialsFeatures = [
   `بطاقات البروتوكول الكاملة لـ ${PEPTIDE_COUNT} ببتيد`,
@@ -70,7 +71,7 @@ export default function Pricing() {
   const [userCount, setUserCount] = useState(0);
   const navigatingRef = useRef(false);
 
-  useEffect(() => { navigatingRef.current = false; }, []);
+  useEffect(() => { navigatingRef.current = false; events.pricingView(); }, []);
 
   useEffect(() => {
     let mounted = true;
@@ -152,6 +153,7 @@ export default function Pricing() {
             if (navigatingRef.current) return;
             navigatingRef.current = true;
             setLoadingPlan(planKey);
+            events.checkoutStart(planKey, billingCycle);
             try {
               await upgradeTo(planKey, billingCycle);
             } catch {
@@ -643,6 +645,7 @@ export default function Pricing() {
                 if (navigatingRef.current) return;
                 navigatingRef.current = true;
                 setLoadingPlan('elite');
+                events.checkoutStart('elite', billingCycle);
                 try {
                   await upgradeTo('elite', billingCycle);
                 } catch {

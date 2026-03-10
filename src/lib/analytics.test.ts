@@ -55,5 +55,35 @@ describe('analytics', () => {
       events.injectionLog('BPC-157')
       expect(gtagSpy).toHaveBeenCalledWith('event', 'injection_log', { peptide: 'BPC-157' })
     })
+
+    it('tracks quiz start', () => {
+      events.quizStart()
+      expect(gtagSpy).toHaveBeenCalledWith('event', 'quiz_start', undefined)
+    })
+
+    it('tracks quiz complete with goal', () => {
+      events.quizComplete('muscle')
+      expect(gtagSpy).toHaveBeenCalledWith('event', 'quiz_complete', { goal: 'muscle' })
+    })
+
+    it('tracks pricing view', () => {
+      events.pricingView()
+      expect(gtagSpy).toHaveBeenCalledWith('event', 'pricing_view', undefined)
+    })
+
+    it('tracks checkout start', () => {
+      events.checkoutStart('elite', 'monthly')
+      expect(gtagSpy).toHaveBeenCalledWith('event', 'checkout_start', { tier: 'elite', billing: 'monthly' })
+    })
+
+    it('tracks tracker view', () => {
+      events.trackerView()
+      expect(gtagSpy).toHaveBeenCalledWith('event', 'tracker_view', undefined)
+    })
+
+    it('tracks share click', () => {
+      events.shareClick('whatsapp')
+      expect(gtagSpy).toHaveBeenCalledWith('event', 'share_click', { target: 'whatsapp' })
+    })
   })
 })

@@ -10,6 +10,7 @@ import {
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
+import { events } from '@/lib/analytics';
 import { peptides as allPeptides } from '@/data/peptides';
 import ShareButtons from '@/components/ShareButtons';
 import { SITE_URL } from '@/lib/constants';
@@ -480,6 +481,7 @@ export default function PeptideQuiz() {
         setResult(protocol);
         saveResult(updated, protocol);
         setPhase('result');
+        events.quizComplete(updated.goal ?? 'general');
 
         // Save to supabase if logged in
         if (user) {
@@ -502,6 +504,7 @@ export default function PeptideQuiz() {
       setResult(protocol);
       saveResult(answers, protocol);
       setPhase('result');
+      events.quizComplete(answers.goal ?? 'general');
     } else {
       setDirection('forward');
       setStep(s => s + 1);
@@ -575,7 +578,7 @@ export default function PeptideQuiz() {
         </div>
 
         <button
-          onClick={() => setPhase('quiz')}
+          onClick={() => { events.quizStart(); setPhase('quiz'); }}
           className="w-full flex items-center justify-center gap-2 rounded-xl bg-emerald-600 px-6 py-4 text-white font-bold text-base transition-all hover:bg-emerald-700 active:scale-[0.98] shadow-lg shadow-emerald-600/20"
         >
           ابدأ الاختبار
