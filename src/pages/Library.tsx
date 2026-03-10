@@ -825,7 +825,7 @@ export default function Library() {
         return (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4" onClick={() => setUpsellPeptide(null)} role="dialog" aria-modal="true" aria-label="اشترك لفتح البروتوكول">
             <FocusTrap focusTrapOptions={{ allowOutsideClick: true }}>
-            <div className="w-full max-w-md rounded-2xl bg-white dark:bg-stone-950 p-8 shadow-2xl text-center animate-fade-in" onClick={e => e.stopPropagation()}>
+            <div className="w-full max-w-md max-h-[90vh] overflow-y-auto rounded-2xl bg-white dark:bg-stone-950 p-6 sm:p-8 shadow-2xl text-center animate-fade-in" onClick={e => e.stopPropagation()}>
               <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-emerald-100 dark:bg-emerald-900/30">
                 <Lock className="h-7 w-7 text-emerald-600" />
               </div>

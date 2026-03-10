@@ -122,7 +122,7 @@ export default function ProtocolWizard({ peptideId, prefillDose, prefillUnit, on
   return (
     <div role="dialog" aria-modal="true" className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4" onClick={onClose}>
       <FocusTrap focusTrapOptions={{ allowOutsideClick: true }}>
-        <div className="w-full max-w-md rounded-2xl bg-white dark:bg-stone-950 p-6 shadow-2xl animate-fade-in" onClick={e => e.stopPropagation()}>
+        <div className="w-full max-w-md max-h-[90vh] overflow-y-auto rounded-2xl bg-white dark:bg-stone-950 p-6 shadow-2xl animate-fade-in" onClick={e => e.stopPropagation()}>
           <div className="flex items-center justify-between mb-5">
             <div className="flex items-center gap-3">
               <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-100 dark:bg-emerald-900/30">

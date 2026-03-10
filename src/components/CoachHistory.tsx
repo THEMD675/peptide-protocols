@@ -175,7 +175,7 @@ export default function CoachHistory({
                         {conv.messages.map((msg, i) => (
                           <div key={i} className={cn('flex', msg.role === 'user' ? 'justify-start' : 'justify-end')}>
                             <div className={cn(
-                              'max-w-[85%] rounded-xl px-4 py-2 text-xs leading-relaxed',
+                              'max-w-[85%] rounded-xl px-4 py-2 text-sm leading-relaxed',
                               msg.role === 'user'
                                 ? 'bg-emerald-600 text-white rounded-br-sm'
                                 : 'border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 text-stone-800 dark:text-stone-200 rounded-bl-sm',

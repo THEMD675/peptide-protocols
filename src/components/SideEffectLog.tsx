@@ -179,7 +179,7 @@ export default function SideEffectLog() {
           {/* Quick-add form */}
           <div className="space-y-3">
             <div>
-              <label htmlFor="se-symptom" className="mb-1 block text-xs font-bold text-stone-700 dark:text-stone-300">العرض</label>
+              <label htmlFor="se-symptom" className="mb-1 block text-sm font-bold text-stone-700 dark:text-stone-300">العرض</label>
               <input
                 id="se-symptom"
                 type="text"
@@ -192,7 +192,7 @@ export default function SideEffectLog() {
             </div>
 
             <div>
-              <label className="mb-1 block text-xs font-bold text-stone-700 dark:text-stone-300">الشدة</label>
+              <label className="mb-1 block text-sm font-bold text-stone-700 dark:text-stone-300">الشدة</label>
               <div className="flex gap-1.5">
                 {[1, 2, 3, 4, 5].map(level => (
                   <button
@@ -214,7 +214,7 @@ export default function SideEffectLog() {
 
             {activePeptideOptions.length > 0 && (
               <div>
-                <label className="mb-1 block text-xs font-bold text-stone-700 dark:text-stone-300">
+                <label className="mb-1 block text-sm font-bold text-stone-700 dark:text-stone-300">
                   الببتيد <span className="text-emerald-600 font-normal">اختياري</span>
                 </label>
                 <select
@@ -234,7 +234,7 @@ export default function SideEffectLog() {
             )}
 
             <div>
-              <label htmlFor="se-notes" className="mb-1 block text-xs font-bold text-stone-700 dark:text-stone-300">
+              <label htmlFor="se-notes" className="mb-1 block text-sm font-bold text-stone-700 dark:text-stone-300">
                 ملاحظات <span className="text-emerald-600 font-normal">اختياري</span>
               </label>
               <textarea
