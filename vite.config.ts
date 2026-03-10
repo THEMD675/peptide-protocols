@@ -20,7 +20,7 @@ export default defineConfig({
       srcDir: 'src',
       filename: 'sw.ts',
       registerType: 'prompt',
-      includeAssets: ['favicon.ico', 'icon-192.png', 'icon-512.png', 'og-image.png'],
+      includeAssets: ['favicon.ico', 'icon-192.png', 'icon-512.png', 'og-image.jpg'],
       manifest: {
         name: 'pptides — دليل الببتيدات العلاجية',
         short_name: 'pptides',
