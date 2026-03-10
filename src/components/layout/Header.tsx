@@ -1,8 +1,9 @@
-import { useState, useRef, useEffect, useMemo, memo } from 'react';
+import { useState, useRef, useEffect, useMemo, memo, lazy, Suspense } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Menu, X, User, LogOut, ChevronDown, Search, Moon, Sun } from 'lucide-react';
-import FocusTrap from 'focus-trap-react';
 import { cn } from '@/lib/utils';
+
+const FocusTrap = lazy(() => import('focus-trap-react'));
 import { useAuth } from '@/contexts/AuthContext';
 import { peptideSearchIndex, type PeptideSearchEntry } from '@/data/peptide-search-index';
 import { ADMIN_EMAILS } from '@/lib/constants';

@@ -93,14 +93,22 @@ class ErrorBoundary extends Component<{ children: ReactNode }, { hasError: boole
   render() {
     if (this.state.hasError) {
       return (
-        <div role="alert" className="flex min-h-[50vh] flex-col items-center justify-center px-6 text-center">
+        <div role="alert" dir="rtl" className="flex min-h-[50vh] flex-col items-center justify-center px-6 text-center">
           <h2 className="mb-3 text-2xl font-bold text-stone-900 dark:text-stone-100">حدث خطأ غير متوقع</h2>
           <p className="mb-6 text-stone-600 dark:text-stone-400">
-            {this.state.isChunkError ? 'تم تحديث الموقع — يرجى تحديث الصفحة.' : 'نعتذر عن هذا الخطأ. يرجى تحديث الصفحة.'}
+            {this.state.isChunkError ? 'تم تحديث الموقع — يرجى تحديث الصفحة.' : 'نعتذر عن هذا الخطأ. يرجى تحديث الصفحة أو العودة للرئيسية.'}
           </p>
-          <button onClick={() => { this.setState({ reloading: true }); window.location.reload(); }} className="rounded-full bg-emerald-600 px-8 py-3 font-bold text-white hover:bg-emerald-700 transition-colors">
-            {this.state.reloading ? <span className="inline-flex items-center gap-2"><span className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />جارٍ التحديث...</span> : 'تحديث الصفحة'}
-          </button>
+          <div className="flex flex-wrap gap-3 justify-center">
+            <button onClick={() => { this.setState({ reloading: true }); window.location.reload(); }} className="rounded-full bg-emerald-600 px-8 py-3 font-bold text-white hover:bg-emerald-700 transition-colors">
+              {this.state.reloading ? <span className="inline-flex items-center gap-2"><span className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />جارٍ التحديث...</span> : 'حاول مرة أخرى'}
+            </button>
+            <a href="/" className="rounded-full border-2 border-stone-300 dark:border-stone-700 px-8 py-3 font-bold text-stone-800 dark:text-stone-200 hover:bg-stone-50 dark:hover:bg-stone-800 transition-colors">
+              العودة للرئيسية
+            </a>
+            <a href="/contact" className="rounded-full border-2 border-stone-300 dark:border-stone-700 px-6 py-3 text-sm font-bold text-stone-600 dark:text-stone-400 hover:bg-stone-50 dark:hover:bg-stone-800 transition-colors">
+              الإبلاغ عن المشكلة
+            </a>
+          </div>
         </div>
       );
     }
@@ -132,14 +140,14 @@ class RouteErrorBoundary extends Component<
     if (this.state.hasError) {
       const canRetry = this.state.retryCount < 2;
       return (
-        <div className="flex min-h-[50vh] flex-col items-center justify-center px-6 text-center">
+        <div dir="rtl" className="flex min-h-[50vh] flex-col items-center justify-center px-6 text-center">
           <h2 className="mb-3 text-2xl font-bold text-stone-900 dark:text-stone-100">
             {this.props.fallbackTitle ?? 'حدث خطأ في هذه الصفحة'}
           </h2>
           <p className="mb-6 text-stone-600 dark:text-stone-400">
             {canRetry ? 'نعتذر عن هذا الخطأ. يمكنك المحاولة مرة أخرى.' : 'يبدو أن هناك مشكلة مستمرة. حاول تحديث الصفحة أو العودة للرئيسية.'}
           </p>
-          <div className="flex gap-3">
+          <div className="flex flex-wrap gap-3 justify-center">
             {canRetry ? (
               <button
                 onClick={this.reset}
@@ -156,7 +164,10 @@ class RouteErrorBoundary extends Component<
               </button>
             )}
             <Link to="/" className="rounded-full border-2 border-stone-300 dark:border-stone-700 px-8 py-3 font-bold text-stone-800 dark:text-stone-200 hover:bg-stone-50 dark:hover:bg-stone-800 transition-colors">
-              الرئيسية
+              العودة للرئيسية
+            </Link>
+            <Link to="/contact" className="rounded-full border-2 border-stone-300 dark:border-stone-700 px-6 py-3 text-sm font-bold text-stone-600 dark:text-stone-400 hover:bg-stone-50 dark:hover:bg-stone-800 transition-colors">
+              الإبلاغ عن المشكلة
             </Link>
           </div>
         </div>

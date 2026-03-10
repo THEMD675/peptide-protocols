@@ -51,6 +51,7 @@ export default function Contact() {
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [showConfetti, setShowConfetti] = useState(false);
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
 
   useEffect(() => {
     if (user?.email && !email) setEmail(user.email);
@@ -64,22 +65,43 @@ export default function Contact() {
     );
   }
 
+  const validateField = (field: string, value: string): string => {
+    switch (field) {
+      case 'name':
+        return !value.trim() ? 'الاسم مطلوب' : '';
+      case 'email':
+        if (!value.trim()) return 'البريد الإلكتروني مطلوب';
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim())) return 'البريد الإلكتروني غير صحيح';
+        return '';
+      case 'subject':
+        return !value ? 'يرجى اختيار الموضوع' : '';
+      case 'message':
+        return !value.trim() ? 'الرسالة مطلوبة' : '';
+      default:
+        return '';
+    }
+  };
+
+  const handleBlur = (field: string, value: string) => {
+    const err = validateField(field, value);
+    setFieldErrors(prev => ({ ...prev, [field]: err }));
+  };
+
+  const clearFieldError = (field: string) => {
+    if (fieldErrors[field]) setFieldErrors(prev => ({ ...prev, [field]: '' }));
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!name.trim()) {
-      toast.error('يرجى إدخال اسمك');
-      return;
-    }
-    if (!email.trim()) {
-      toast.error('يرجى إدخال بريدك الإلكتروني');
-      return;
-    }
-    if (!subject) {
-      toast.error('يرجى اختيار الموضوع');
-      return;
-    }
-    if (!message.trim()) {
-      toast.error('يرجى كتابة رسالتك');
+    const errors: Record<string, string> = {
+      name: validateField('name', name),
+      email: validateField('email', email),
+      subject: validateField('subject', subject),
+      message: validateField('message', message),
+    };
+    setFieldErrors(errors);
+    const firstError = Object.values(errors).find(Boolean);
+    if (firstError) {
       return;
     }
 
@@ -222,10 +244,12 @@ export default function Contact() {
               type="text"
               required
               value={name}
-              onChange={(e) => setName(e.target.value)}
+              onChange={(e) => { setName(e.target.value); clearFieldError('name'); }}
+              onBlur={() => handleBlur('name', name)}
               placeholder="اسمك الكريم"
-              className="w-full rounded-xl border border-stone-300 dark:border-stone-600 bg-stone-50 dark:bg-stone-800 px-4 py-3 text-stone-900 dark:text-stone-100 placeholder:text-stone-400 dark:placeholder:text-stone-500 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-200 dark:focus:ring-emerald-800 transition-colors min-h-[44px]"
+              className={`w-full rounded-xl border bg-stone-50 dark:bg-stone-800 px-4 py-3 text-stone-900 dark:text-stone-100 placeholder:text-stone-400 dark:placeholder:text-stone-500 focus:outline-none focus:ring-2 transition-colors min-h-[44px] ${fieldErrors.name ? 'border-red-400 dark:border-red-600 focus:border-red-500 focus:ring-red-200 dark:focus:ring-red-800' : 'border-stone-300 dark:border-stone-600 focus:border-emerald-500 focus:ring-emerald-200 dark:focus:ring-emerald-800'}`}
             />
+            {fieldErrors.name && <p className="mt-1 text-sm text-red-600 dark:text-red-400">{fieldErrors.name}</p>}
           </div>
 
           {/* Email */}
@@ -241,10 +265,12 @@ export default function Contact() {
               type="email"
               required
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              onChange={(e) => { setEmail(e.target.value); clearFieldError('email'); }}
+              onBlur={() => handleBlur('email', email)}
               placeholder="name@example.com"
-              className="w-full rounded-xl border border-stone-300 dark:border-stone-600 bg-stone-50 dark:bg-stone-800 px-4 py-3 text-stone-900 dark:text-stone-100 placeholder:text-stone-400 dark:placeholder:text-stone-500 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-200 dark:focus:ring-emerald-800 transition-colors min-h-[44px]"
+              className={`w-full rounded-xl border bg-stone-50 dark:bg-stone-800 px-4 py-3 text-stone-900 dark:text-stone-100 placeholder:text-stone-400 dark:placeholder:text-stone-500 focus:outline-none focus:ring-2 transition-colors min-h-[44px] ${fieldErrors.email ? 'border-red-400 dark:border-red-600 focus:border-red-500 focus:ring-red-200 dark:focus:ring-red-800' : 'border-stone-300 dark:border-stone-600 focus:border-emerald-500 focus:ring-emerald-200 dark:focus:ring-emerald-800'}`}
             />
+            {fieldErrors.email && <p className="mt-1 text-sm text-red-600 dark:text-red-400">{fieldErrors.email}</p>}
           </div>
 
           {/* Subject dropdown */}

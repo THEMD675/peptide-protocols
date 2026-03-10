@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo } from 'react';
+import { useEffect, useState, useMemo, useCallback } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { Link } from 'react-router-dom';
 import { FileText, CalendarDays, Tag, Search, X } from 'lucide-react';
@@ -19,12 +19,31 @@ interface BlogPost {
 export default function Blog() {
   const [posts, setPosts] = useState<BlogPost[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(false);
+  const [error, setError] = useState<false | 'offline' | 'fetch'>(false);
   const [search, setSearch] = useState('');
   const [activeTag, setActiveTag] = useState<string | null>(null);
 
-  useEffect(() => {
+  const fetchPosts = useCallback(() => {
     let cancelled = false;
+    setLoading(true);
+    setError(false);
+
+    if (!navigator.onLine) {
+      // Try cache when offline
+      try {
+        const cached = localStorage.getItem('pptides_cache_blog_posts');
+        if (cached) {
+          const { data } = JSON.parse(cached) as { data: BlogPost[] };
+          setPosts(data);
+          setLoading(false);
+          return () => { cancelled = true; };
+        }
+      } catch { /* ignore */ }
+      setError('offline');
+      setLoading(false);
+      return () => { cancelled = true; };
+    }
+
     (async () => {
       const { data, error: fetchError } = await supabase
         .from('blog_posts')
@@ -35,14 +54,31 @@ export default function Blog() {
 
       if (cancelled) return;
       if (fetchError) {
-        setError(true);
+        // Try cache as fallback
+        try {
+          const cached = localStorage.getItem('pptides_cache_blog_posts');
+          if (cached) {
+            const { data: cachedData } = JSON.parse(cached) as { data: BlogPost[] };
+            setPosts(cachedData);
+            setLoading(false);
+            return;
+          }
+        } catch { /* ignore */ }
+        setError('fetch');
       } else {
         setPosts(data ?? []);
+        // Cache for offline use
+        try { localStorage.setItem('pptides_cache_blog_posts', JSON.stringify({ ts: Date.now(), data: data ?? [] })); } catch { /* quota */ }
       }
       setLoading(false);
     })();
     return () => { cancelled = true; };
   }, []);
+
+  useEffect(() => {
+    const cleanup = fetchPosts();
+    return cleanup;
+  }, [fetchPosts]);
 
   // Collect unique tags from all posts
   const allTags = useMemo(() => {
@@ -174,9 +210,29 @@ export default function Blog() {
         )}
 
         {error && (
-          <div className="rounded-2xl border border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-900/20 p-8 text-center">
-            <p className="font-bold text-red-800">تعذّر تحميل المقالات</p>
-            <p className="mt-2 text-sm text-red-600 dark:text-red-400">حاول تحديث الصفحة</p>
+          <div
+            dir="rtl"
+            role="alert"
+            className={`flex flex-col items-center justify-center gap-4 rounded-2xl border p-8 text-center ${
+              error === 'offline'
+                ? 'border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-900/20'
+                : 'border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-900/20'
+            }`}
+          >
+            <p className={`font-bold text-lg ${error === 'offline' ? 'text-amber-800 dark:text-amber-200' : 'text-red-800 dark:text-red-200'}`}>
+              {error === 'offline' ? 'لا يوجد اتصال بالإنترنت' : 'تعذّر تحميل المقالات'}
+            </p>
+            <p className={`text-sm ${error === 'offline' ? 'text-amber-600 dark:text-amber-400' : 'text-red-600 dark:text-red-400'}`}>
+              {error === 'offline' ? 'تحقق من اتصالك بالإنترنت وحاول مرة أخرى' : 'حدث خطأ أثناء تحميل البيانات — حاول مرة أخرى'}
+            </p>
+            <button
+              onClick={fetchPosts}
+              className={`inline-flex items-center gap-2 rounded-full px-6 py-2.5 font-bold text-white transition-colors ${
+                error === 'offline' ? 'bg-amber-600 hover:bg-amber-700' : 'bg-red-600 hover:bg-red-700'
+              }`}
+            >
+              حاول مرة أخرى
+            </button>
           </div>
         )}
 

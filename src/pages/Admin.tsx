@@ -10,6 +10,10 @@ import {
   Trash2, Ban, CalendarPlus, Heart, ShieldCheck,
   CheckCircle, XCircle, Loader2, RotateCcw, ClipboardList,
 } from 'lucide-react';
+import {
+  BarChart, Bar, XAxis, YAxis, Tooltip as RTooltip, ResponsiveContainer,
+  AreaChart, Area, Cell,
+} from 'recharts';
 import { cn } from '@/lib/utils';
 import { PRICING } from '@/lib/constants';
 
@@ -490,43 +494,43 @@ export default function Admin() {
   const critAlerts = stats.alerts.filter(a => a.severity === 'critical').length;
 
   const tabs: { key: Tab; label: string; count?: number; dot?: boolean }[] = [
-    { key: 'overview', label: 'Overview', dot: critAlerts > 0 },
-    { key: 'users', label: 'Users', count: o.totalUsers },
-    { key: 'activity', label: 'Activity', count: stats.activityFeed.length },
-    { key: 'reviews', label: 'Reviews', count: o.pendingReviews },
-    { key: 'enquiries', label: 'Enquiries', count: o.pendingEnquiries },
-    { key: 'emails', label: 'Email List', count: o.emailListCount },
-    { key: 'email-logs', label: 'Emails Sent', count: stats.emailLogs.length },
-    { key: 'payments', label: 'Payments', count: stats.webhookEvents.length },
-    { key: 'health', label: 'Health' },
-    { key: 'audit', label: 'Audit Log' },
+    { key: 'overview', label: 'نظرة عامة', dot: critAlerts > 0 },
+    { key: 'users', label: 'المستخدمون', count: o.totalUsers },
+    { key: 'activity', label: 'النشاط', count: stats.activityFeed.length },
+    { key: 'reviews', label: 'المراجعات', count: o.pendingReviews },
+    { key: 'enquiries', label: 'الاستفسارات', count: o.pendingEnquiries },
+    { key: 'emails', label: 'قائمة البريد', count: o.emailListCount },
+    { key: 'email-logs', label: 'البريد المرسل', count: stats.emailLogs.length },
+    { key: 'payments', label: 'المدفوعات', count: stats.webhookEvents.length },
+    { key: 'health', label: 'صحة النظام' },
+    { key: 'audit', label: 'سجل المراجعة' },
   ];
 
   return (
-    <div className="min-h-screen bg-stone-50 dark:bg-stone-900" lang="en">
-      <Helmet><title>Admin Dashboard | pptides</title></Helmet>
+    <div className="min-h-screen bg-stone-50 dark:bg-stone-900" lang="ar" dir="rtl">
+      <Helmet><title>لوحة التحكم | pptides</title></Helmet>
 
       {/* ===================== HEADER ===================== */}
       <div className="sticky top-[64px] md:top-[72px] z-30 bg-white dark:bg-stone-950 border-b border-stone-200 dark:border-stone-700 px-4 py-3">
         <div className="max-w-6xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <Link to="/dashboard" className="text-xs font-medium text-stone-500 dark:text-stone-400 hover:text-emerald-600 transition-colors shrink-0">← Dashboard</Link>
+            <Link to="/dashboard" className="text-xs font-medium text-stone-500 dark:text-stone-400 hover:text-emerald-600 transition-colors shrink-0">← لوحة التحكم</Link>
             <div>
             <h1 className="text-lg font-bold text-stone-900 dark:text-stone-100 flex items-center gap-2">
-              Control Center
+              مركز التحكم
               {critAlerts > 0 && <span className="rounded-full bg-red-100 px-2 py-0.5 text-xs font-bold text-red-700 dark:text-red-400">{critAlerts}</span>}
             </h1>
-            {lastFetched && <p className="text-[10px] text-stone-500 dark:text-stone-400">Updated {lastFetched.toLocaleTimeString('en-GB')}</p>}
+            {lastFetched && <p className="text-[10px] text-stone-500 dark:text-stone-400">آخر تحديث {lastFetched.toLocaleTimeString('ar-SA')}</p>}
             </div>
           </div>
           <div className="flex items-center gap-2">
             <button onClick={() => { setEmailTo(''); setEmailSubject(''); setEmailBody(''); setModal('send_email'); setModalTarget(null); }}
               className="flex items-center gap-1.5 rounded-lg border border-stone-200 dark:border-stone-700 px-3 py-1.5 text-xs font-medium text-stone-600 dark:text-stone-400 hover:bg-stone-50 dark:hover:bg-stone-800">
-              <Send className="h-3.5 w-3.5" /> Email
+              <Send className="h-3.5 w-3.5" /> بريد
             </button>
-            <button onClick={fetchStats} disabled={loading}
+            <button onClick={() => fetchStats()} disabled={loading}
               className="flex items-center gap-1.5 rounded-lg border border-stone-200 dark:border-stone-700 px-3 py-1.5 text-xs font-medium text-stone-600 dark:text-stone-400 hover:bg-stone-50 dark:hover:bg-stone-800">
-              <RefreshCw className={cn('h-3.5 w-3.5', loading && 'animate-spin')} /> Refresh
+              <RefreshCw className={cn('h-3.5 w-3.5', loading && 'animate-spin')} /> تحديث
             </button>
           </div>
         </div>
@@ -569,91 +573,147 @@ export default function Admin() {
               </div>
             )}
 
-            {/* Stats grid */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-              <Stat label="MRR" value={`${o.mrr} SAR`} icon={CreditCard} sub={`${o.essentialsActive}E + ${o.eliteActive}L`} alert={o.mrr === 0 && o.trialSubscriptions > 0} />
-              <Stat label="Users" value={o.totalUsers} icon={Users} sub={`${o.unconfirmedUsers} unconfirmed`} trend={o.signupsToday > 0 ? { dir: 'up', label: `+${o.signupsToday} today` } : undefined} />
-              <Stat label="Active Subs" value={o.activeSubscriptions} icon={Zap} sub={`${o.trialSubscriptions} trial · ${o.manualSubscriptions} manual`} />
-              <Stat label="Past Due" value={o.pastDueSubscriptions} icon={AlertTriangle} alert={o.pastDueSubscriptions > 0} sub={`${o.expiredSubscriptions} expired`} />
-            </div>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-              <Stat label="Coach Chats" value={o.totalCoachRequests} icon={MessageSquare} />
-              <Stat label="Injections" value={o.totalInjectionLogs} icon={Activity} />
-              <Stat label="Pending Reviews" value={o.pendingReviews} icon={Star} alert={o.pendingReviews > 0} sub={`${o.approvedReviews} approved`} />
-              <Stat label="Signups (30d)" value={o.signupsMonth} icon={Users} sub={`${o.signupsWeek} this week`} />
+            {/* ── Revenue Dashboard ── */}
+            <div className="rounded-2xl border border-stone-200 dark:border-stone-700 bg-gradient-to-br from-emerald-50/50 to-white dark:from-emerald-950/20 dark:to-stone-950 p-5">
+              <h2 className="text-sm font-bold text-stone-800 dark:text-stone-200 mb-4 flex items-center gap-2" dir="rtl">
+                <CreditCard className="h-4 w-4 text-emerald-500" /> لوحة الإيرادات
+              </h2>
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
+                <Stat label="الإيرادات الشهرية" value={`${o.mrr.toLocaleString()} ر.س`} icon={CreditCard} sub={`${o.essentialsActive} أساسي + ${o.eliteActive} نخبة`} alert={o.mrr === 0 && o.trialSubscriptions > 0} />
+                <Stat label="الإيرادات السنوية" value={`${(o as unknown as Record<string, number>).arr?.toLocaleString() ?? Math.round(o.mrr * 12).toLocaleString()} ر.س`} icon={TrendingUp} />
+                <Stat label="المشتركون الفعّالون" value={o.activeSubscriptions} icon={Zap} sub={`${o.manualSubscriptions} يدوي`} />
+                <Stat label="فترة تجريبية" value={o.trialSubscriptions} icon={Clock} sub={`${(o as unknown as Record<string, number>).trialEssentials ?? 0} أساسي · ${(o as unknown as Record<string, number>).trialElite ?? 0} نخبة`} />
+                <Stat label="معدل التراجع" value={`${(o as unknown as Record<string, number>).churnRate ?? 0}%`} icon={AlertTriangle} alert={((o as unknown as Record<string, number>).churnRate ?? 0) > 10} sub="آخر 30 يوم" />
+                <Stat label="متوسط الإيراد/مشترك" value={`${(o as unknown as Record<string, number>).arpu ?? (o.activeSubscriptions > 0 ? Math.round(o.mrr / o.activeSubscriptions) : 0)} ر.س`} icon={Users} />
+              </div>
             </div>
 
-            {/* Signups This Month — Bar Chart */}
+            {/* ── Revenue & Signups Chart (Recharts) ── */}
             {(() => {
               const now = new Date();
-              const BAR_MAX_PX = 100;
-              const weeks = Array.from({ length: 4 }, (_, i) => {
-                const end = new Date(now.getFullYear(), now.getMonth(), now.getDate() - i * 7);
-                end.setHours(23, 59, 59, 999);
-                const start = new Date(end);
-                start.setDate(end.getDate() - 6);
-                start.setHours(0, 0, 0, 0);
-                return { start, end };
-              }).reverse();
-              const counts = weeks.map(w =>
-                stats.recentUsers.filter(u => {
-                  const d = new Date(u.created_at).getTime();
-                  return d >= w.start.getTime() && d <= w.end.getTime();
-                }).length
-              );
-              const max = Math.max(...counts, 1);
+              const days: { date: string; signups: number; label: string }[] = [];
+              for (let i = 29; i >= 0; i--) {
+                const d = new Date(now.getFullYear(), now.getMonth(), now.getDate() - i);
+                const dayStart = new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime();
+                const dayEnd = dayStart + 86400000;
+                const count = stats.recentUsers.filter(u => {
+                  const t = new Date(u.created_at).getTime();
+                  return t >= dayStart && t < dayEnd;
+                }).length;
+                days.push({
+                  date: `${d.getDate()}/${d.getMonth() + 1}`,
+                  signups: count,
+                  label: d.toLocaleDateString('ar-SA', { weekday: 'short', day: 'numeric', month: 'short' }),
+                });
+              }
               return (
                 <div className="rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 p-4">
-                  <h3 className="text-xs font-bold text-stone-700 dark:text-stone-300 mb-4 flex items-center gap-1.5">
-                    <TrendingUp className="h-3.5 w-3.5 text-emerald-500" /> Signups This Month
+                  <h3 className="text-xs font-bold text-stone-700 dark:text-stone-300 mb-4 flex items-center gap-1.5" dir="rtl">
+                    <TrendingUp className="h-3.5 w-3.5 text-emerald-500" /> التسجيلات — آخر 30 يوم
                   </h3>
-                  <div className="flex items-end gap-3">
-                    {counts.map((c, i) => (
-                      <div key={i} className="flex-1 flex flex-col items-center gap-1">
-                        <span className="text-xs font-bold text-stone-700 dark:text-stone-300">{c}</span>
-                        <div
-                          className="w-full rounded-t-md bg-emerald-500"
-                          style={{ height: `${Math.max(Math.round((c / max) * BAR_MAX_PX), c > 0 ? 4 : 2)}px` }}
+                  <div className="h-48 w-full">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <AreaChart data={days} margin={{ top: 5, right: 5, left: -20, bottom: 0 }}>
+                        <defs>
+                          <linearGradient id="signupGrad" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="5%" stopColor="#10b981" stopOpacity={0.3} />
+                            <stop offset="95%" stopColor="#10b981" stopOpacity={0} />
+                          </linearGradient>
+                        </defs>
+                        <XAxis dataKey="date" tick={{ fontSize: 10, fill: '#9ca3af' }} interval={4} />
+                        <YAxis tick={{ fontSize: 10, fill: '#9ca3af' }} allowDecimals={false} />
+                        <RTooltip
+                          contentStyle={{ background: 'rgba(0,0,0,0.85)', border: 'none', borderRadius: 8, fontSize: 12, color: '#fff' }}
+                          labelFormatter={(_l: string, payload: Array<{ payload: { label: string } }>) => payload[0]?.payload?.label ?? _l}
+                          formatter={(value: number) => [`${value} تسجيل`, 'التسجيلات']}
                         />
-                        <span className="text-[10px] text-stone-500 dark:text-stone-400">
-                          {weeks[i].start.getDate()}/{weeks[i].start.getMonth() + 1}
-                        </span>
-                      </div>
-                    ))}
+                        <Area type="monotone" dataKey="signups" stroke="#10b981" strokeWidth={2} fill="url(#signupGrad)" />
+                      </AreaChart>
+                    </ResponsiveContainer>
                   </div>
                 </div>
               );
             })()}
 
-            {/* Funnel + Trials + Health */}
-            <div className="grid md:grid-cols-3 gap-4">
-              {/* Funnel */}
-              <div className="rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 p-4">
-                <h3 className="text-xs font-bold text-stone-700 dark:text-stone-300 mb-3 flex items-center gap-1.5"><TrendingUp className="h-3.5 w-3.5 text-emerald-500" /> Funnel</h3>
-                {[{ l: 'Signups', v: stats.funnel.totalSignups, c: 'bg-stone-200 dark:bg-stone-700' }, { l: 'Trial', v: stats.funnel.trialStarts, c: 'bg-blue-200' }, { l: 'Paid', v: stats.funnel.paidConversions, c: 'bg-emerald-200' }].map(s => (
-                  <div key={s.l} className="mb-2">
-                    <div className="flex justify-between text-xs mb-1"><span className="text-stone-600 dark:text-stone-400">{s.l}</span><span className="font-bold">{s.v}</span></div>
-                    <div className="h-2 rounded-full bg-stone-100 dark:bg-stone-800 overflow-hidden"><div className={cn('h-full rounded-full', s.c)} style={{ width: `${Math.max((s.v / Math.max(stats.funnel.totalSignups, 1)) * 100, 2)}%` }} /></div>
-                  </div>
-                ))}
-                <div className="flex gap-4 mt-3 pt-3 border-t border-stone-100 dark:border-stone-800">
-                  <div className="text-center flex-1"><p className="text-lg font-bold">{stats.funnel.signupToTrial}%</p><p className="text-[10px] text-stone-500 dark:text-stone-400">Sign &rarr; Trial</p></div>
-                  <div className="text-center flex-1"><p className="text-lg font-bold">{stats.funnel.trialToPaid}%</p><p className="text-[10px] text-stone-500 dark:text-stone-400">Trial &rarr; Paid</p></div>
-                </div>
-              </div>
+            {/* Stats grid */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+              <Stat label="إجمالي المستخدمين" value={o.totalUsers} icon={Users} sub={`${o.unconfirmedUsers} غير مؤكد`} trend={o.signupsToday > 0 ? { dir: 'up', label: `+${o.signupsToday} اليوم` } : undefined} />
+              <Stat label="متأخر الدفع" value={o.pastDueSubscriptions} icon={AlertTriangle} alert={o.pastDueSubscriptions > 0} sub={`${o.expiredSubscriptions} منتهي`} />
+              <Stat label="المراجعات المعلقة" value={o.pendingReviews} icon={Star} alert={o.pendingReviews > 0} sub={`${o.approvedReviews} معتمد`} />
+              <Stat label="التسجيلات (30 يوم)" value={o.signupsMonth} icon={Users} sub={`${o.signupsWeek} هذا الأسبوع`} />
+            </div>
 
+            {/* ── User Funnel (color-coded) ── */}
+            {(() => {
+              const funnelData = [
+                { name: 'التسجيلات', nameEn: 'Signups', value: stats.funnel.totalSignups, color: '#6b7280' },
+                { name: 'فترة تجريبية', nameEn: 'Trial', value: stats.funnel.trialStarts, color: '#3b82f6' },
+                { name: 'مدفوع', nameEn: 'Paid', value: stats.funnel.paidConversions, color: '#10b981' },
+                { name: 'متراجع', nameEn: 'Churned', value: o.expiredSubscriptions, color: '#ef4444' },
+              ];
+              return (
+                <div className="rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 p-4">
+                  <h3 className="text-xs font-bold text-stone-700 dark:text-stone-300 mb-4 flex items-center gap-1.5" dir="rtl">
+                    <TrendingUp className="h-3.5 w-3.5 text-emerald-500" /> قمع التحويل
+                  </h3>
+                  <div className="h-52 w-full">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <BarChart data={funnelData} margin={{ top: 5, right: 10, left: -10, bottom: 5 }}>
+                        <XAxis dataKey="name" tick={{ fontSize: 11, fill: '#9ca3af' }} />
+                        <YAxis tick={{ fontSize: 10, fill: '#9ca3af' }} allowDecimals={false} />
+                        <RTooltip
+                          contentStyle={{ background: 'rgba(0,0,0,0.85)', border: 'none', borderRadius: 8, fontSize: 12, color: '#fff' }}
+                          formatter={(value: number, _name: string, props: { payload: { nameEn: string } }) => [`${value}`, props.payload.nameEn]}
+                        />
+                        <Bar dataKey="value" radius={[6, 6, 0, 0]} maxBarSize={60}>
+                          {funnelData.map((entry, index) => (
+                            <Cell key={`cell-${index}`} fill={entry.color} />
+                          ))}
+                        </Bar>
+                      </BarChart>
+                    </ResponsiveContainer>
+                  </div>
+                  <div className="flex gap-4 mt-3 pt-3 border-t border-stone-100 dark:border-stone-800">
+                    <div className="text-center flex-1">
+                      <p className={cn('text-lg font-bold', stats.funnel.signupToTrial >= 20 ? 'text-emerald-600' : stats.funnel.signupToTrial >= 10 ? 'text-amber-600' : 'text-red-600')}>{stats.funnel.signupToTrial}%</p>
+                      <p className="text-[10px] text-stone-500 dark:text-stone-400">تسجيل ← تجريبي</p>
+                    </div>
+                    <div className="text-center flex-1">
+                      <p className={cn('text-lg font-bold', stats.funnel.trialToPaid >= 30 ? 'text-emerald-600' : stats.funnel.trialToPaid >= 15 ? 'text-amber-600' : 'text-red-600')}>{stats.funnel.trialToPaid}%</p>
+                      <p className="text-[10px] text-stone-500 dark:text-stone-400">تجريبي ← مدفوع</p>
+                    </div>
+                  </div>
+                </div>
+              );
+            })()}
+
+            {/* ── Content Stats ── */}
+            <div className="rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 p-4">
+              <h3 className="text-xs font-bold text-stone-700 dark:text-stone-300 mb-4 flex items-center gap-1.5" dir="rtl">
+                <Activity className="h-3.5 w-3.5 text-violet-500" /> إحصائيات المحتوى
+              </h3>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                <Stat label="محادثات المدرب الذكي" value={o.totalCoachRequests} icon={MessageSquare} />
+                <Stat label="سجلات الحقن" value={o.totalInjectionLogs} icon={Activity} />
+                <Stat label="منشورات المجتمع" value={o.totalCommunityPosts} icon={Users} />
+                <Stat label="قائمة البريد" value={o.emailListCount} icon={Mail} />
+              </div>
+            </div>
+
+            {/* Trials + Quick Actions */}
+            <div className="grid md:grid-cols-2 gap-4">
               {/* Active Trials */}
               <div className="rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 p-4">
-                <h3 className="text-xs font-bold text-stone-700 dark:text-stone-300 mb-3 flex items-center gap-1.5"><Clock className="h-3.5 w-3.5 text-blue-500" /> Active Trials</h3>
-                {stats.recentUsers.filter(u => u.subscription?.status === 'trial').length === 0 ? <p className="text-sm text-stone-500 dark:text-stone-400">No active trials</p> :
+                <h3 className="text-xs font-bold text-stone-700 dark:text-stone-300 mb-3 flex items-center gap-1.5" dir="rtl"><Clock className="h-3.5 w-3.5 text-blue-500" /> الفترات التجريبية النشطة</h3>
+                {stats.recentUsers.filter(u => u.subscription?.status === 'trial').length === 0 ? <p className="text-sm text-stone-500 dark:text-stone-400">لا توجد فترات تجريبية نشطة</p> :
                   stats.recentUsers.filter(u => u.subscription?.status === 'trial').map(u => {
                     const tl = trialLeft(u.subscription?.trial_ends_at ?? null);
                     return (
                       <div key={u.id} className="flex items-center justify-between text-sm mb-2">
-                        <span className="font-mono text-xs text-stone-700 dark:text-stone-300 truncate max-w-[140px]">{u.email}</span>
+                        <span className="font-mono text-xs text-stone-700 dark:text-stone-300 truncate max-w-[200px]">{u.email}</span>
                         <div className="flex items-center gap-1">
                           {tl && <span className={cn('rounded-full px-2 py-0.5 text-xs font-medium', tl.urgent ? 'bg-red-100 text-red-700 dark:text-red-400' : 'bg-blue-100 text-blue-700 dark:text-blue-400')}>{tl.text}</span>}
-                          <button onClick={() => openUserAction('extend_trial', u)} className="rounded p-1 hover:bg-stone-100 dark:hover:bg-stone-800" title="Extend"><CalendarPlus className="h-3.5 w-3.5 text-emerald-600" /></button>
+                          <button onClick={() => openUserAction('extend_trial', u)} className="rounded p-1 hover:bg-stone-100 dark:hover:bg-stone-800" title="تمديد"><CalendarPlus className="h-3.5 w-3.5 text-emerald-600" /></button>
                         </div>
                       </div>
                     );
@@ -662,19 +722,22 @@ export default function Admin() {
 
               {/* Quick Actions */}
               <div className="rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 p-4">
-                <h3 className="text-xs font-bold text-stone-700 dark:text-stone-300 mb-3 flex items-center gap-1.5"><Zap className="h-3.5 w-3.5 text-amber-500" /> Quick Actions</h3>
+                <h3 className="text-xs font-bold text-stone-700 dark:text-stone-300 mb-3 flex items-center gap-1.5" dir="rtl"><Zap className="h-3.5 w-3.5 text-amber-500" /> إجراءات سريعة</h3>
                 <div className="space-y-2">
-                  <button onClick={runHealthCheck} disabled={healthLoading} className="w-full flex items-center gap-2 rounded-lg border border-stone-200 dark:border-stone-700 px-3 py-2 text-xs font-medium text-stone-700 dark:text-stone-300 hover:bg-stone-50 dark:hover:bg-stone-800 disabled:opacity-50">
-                    {healthLoading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Heart className="h-3.5 w-3.5 text-red-500 dark:text-red-400" />} Run Health Check
+                  <button onClick={() => { setEmailSubject(''); setEmailBody(''); setBulkAudience('all'); setModal('bulk_email'); }} className="w-full flex items-center gap-2 rounded-lg border border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-900/20 px-3 py-2 text-xs font-medium text-emerald-700 dark:text-emerald-400 hover:bg-emerald-100 dark:hover:bg-emerald-900/30">
+                    <Mail className="h-3.5 w-3.5" /> إرسال بريد جماعي
                   </button>
                   <button onClick={() => { setEmailTo(''); setEmailSubject(''); setEmailBody(''); setModal('send_email'); setModalTarget(null); }} className="w-full flex items-center gap-2 rounded-lg border border-stone-200 dark:border-stone-700 px-3 py-2 text-xs font-medium text-stone-700 dark:text-stone-300 hover:bg-stone-50 dark:hover:bg-stone-800">
-                    <Send className="h-3.5 w-3.5 text-blue-500" /> Send Email
+                    <Send className="h-3.5 w-3.5 text-blue-500" /> إرسال بريد إلكتروني
+                  </button>
+                  <button onClick={runHealthCheck} disabled={healthLoading} className="w-full flex items-center gap-2 rounded-lg border border-stone-200 dark:border-stone-700 px-3 py-2 text-xs font-medium text-stone-700 dark:text-stone-300 hover:bg-stone-50 dark:hover:bg-stone-800 disabled:opacity-50">
+                    {healthLoading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Heart className="h-3.5 w-3.5 text-red-500 dark:text-red-400" />} فحص صحة النظام
                   </button>
                   <button onClick={() => exportCSV('users')} className="w-full flex items-center gap-2 rounded-lg border border-stone-200 dark:border-stone-700 px-3 py-2 text-xs font-medium text-stone-700 dark:text-stone-300 hover:bg-stone-50 dark:hover:bg-stone-800">
-                    <Download className="h-3.5 w-3.5 text-emerald-500" /> Export Users CSV
+                    <Download className="h-3.5 w-3.5 text-emerald-500" /> تصدير المستخدمين CSV
                   </button>
                   <button onClick={() => exportCSV('subscriptions')} className="w-full flex items-center gap-2 rounded-lg border border-stone-200 dark:border-stone-700 px-3 py-2 text-xs font-medium text-stone-700 dark:text-stone-300 hover:bg-stone-50 dark:hover:bg-stone-800">
-                    <Download className="h-3.5 w-3.5 text-emerald-500" /> Export Subscriptions
+                    <Download className="h-3.5 w-3.5 text-emerald-500" /> تصدير الاشتراكات
                   </button>
                 </div>
               </div>

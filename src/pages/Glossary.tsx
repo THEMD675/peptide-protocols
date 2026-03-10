@@ -1,9 +1,9 @@
 import { useState, useMemo, useCallback } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { Link } from 'react-router-dom';
-import { BookA, Search, X, FlaskConical } from 'lucide-react';
+import { BookA, Search, X, FlaskConical, ChevronDown } from 'lucide-react';
 import { PEPTIDE_COUNT, SITE_URL } from '@/lib/constants';
-import { GLOSSARY_TERMS as TERMS } from '@/data/glossary';
+import { GLOSSARY_TERMS as TERMS, type GlossaryTerm } from '@/data/glossary';
 import { peptides as allPeptides } from '@/data/peptides';
 
 const stripDiacritics = (s: string) => s.replace(/[\u0610-\u061A\u064B-\u065F\u0670\u06D6-\u06DC\u06DF-\u06E4\u06E7-\u06E8\u06EA-\u06ED]/g, '');
@@ -61,6 +61,63 @@ function HighlightedText({ text, query }: { text: string; query: string }) {
         )
       )}
     </>
+  );
+}
+
+/** Expandable glossary term card */
+function GlossaryCard({ term, search, allPeptides }: { term: GlossaryTerm; search: string; allPeptides: { id: string; nameEn: string }[] }) {
+  const [open, setOpen] = useState(false);
+  const SHORT_LEN = 80;
+  const isLong = term.definition.length > SHORT_LEN;
+  const preview = isLong ? term.definition.slice(0, SHORT_LEN) + '…' : term.definition;
+
+  return (
+    <div
+      className="rounded-2xl border border-stone-200 dark:border-stone-700 border-s-2 border-s-emerald-300 bg-white dark:bg-stone-900 p-5 shadow-sm dark:shadow-stone-900/30 transition-all hover:border-emerald-200 hover:shadow-md"
+    >
+      <dt
+        className="flex items-center justify-between gap-3 cursor-pointer select-none"
+        onClick={() => setOpen(o => !o)}
+        role="button"
+        aria-expanded={open}
+      >
+        <span className="flex items-baseline gap-3 min-w-0">
+          <span className="text-base font-bold text-stone-900 dark:text-stone-100">
+            <HighlightedText text={term.ar} query={search} />
+          </span>
+          <span className="shrink-0 text-xs font-medium text-emerald-600" dir="ltr">
+            <HighlightedText text={term.en} query={search} />
+          </span>
+        </span>
+        {isLong && (
+          <ChevronDown className={`h-4 w-4 shrink-0 text-stone-400 transition-transform ${open ? 'rotate-180' : ''}`} />
+        )}
+      </dt>
+      <dd className="mt-3 text-sm leading-relaxed text-stone-600 dark:text-stone-400">
+        {search.trim() || !isLong || open ? (
+          <HighlightedText text={term.definition} query={search} />
+        ) : (
+          <>{preview}</>
+        )}
+      </dd>
+      {(open || search.trim() || !isLong) && term.relatedPeptides && term.relatedPeptides.length > 0 && (
+        <div className="mt-3 flex flex-wrap gap-1.5">
+          {term.relatedPeptides.map((pid) => {
+            const p = allPeptides.find(x => x.id === pid);
+            return p ? (
+              <Link
+                key={pid}
+                to={`/peptide/${pid}`}
+                className="inline-flex items-center gap-1 rounded-full border border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-900/30 px-2.5 py-1 text-xs font-medium text-emerald-700 dark:text-emerald-400 transition-colors hover:bg-emerald-100 dark:hover:bg-emerald-900/50 min-h-[32px]"
+              >
+                <FlaskConical className="h-3 w-3" />
+                {p.nameEn}
+              </Link>
+            ) : null;
+          })}
+        </div>
+      )}
+    </div>
   );
 }
 
@@ -197,39 +254,7 @@ export default function Glossary() {
               </h2>
               <dl className="grid gap-4 sm:grid-cols-2">
                 {terms.map((term) => (
-                  <div
-                    key={term.en}
-                    className="rounded-2xl border border-stone-200 dark:border-stone-700 border-s-2 border-s-emerald-300 bg-white dark:bg-stone-900 p-5 shadow-sm dark:shadow-stone-900/30 transition-all hover:border-emerald-200 hover:shadow-md"
-                  >
-                    <dt className="flex items-baseline justify-between gap-3">
-                      <span className="text-base font-bold text-stone-900">
-                        <HighlightedText text={term.ar} query={search} />
-                      </span>
-                      <span className="shrink-0 text-xs font-medium text-emerald-600" dir="ltr">
-                        <HighlightedText text={term.en} query={search} />
-                      </span>
-                    </dt>
-                    <dd className="mt-3 text-sm leading-relaxed text-stone-600">
-                      <HighlightedText text={term.definition} query={search} />
-                    </dd>
-                    {term.relatedPeptides && term.relatedPeptides.length > 0 && (
-                      <div className="mt-3 flex flex-wrap gap-1.5">
-                        {term.relatedPeptides.map((pid) => {
-                          const p = allPeptides.find(x => x.id === pid);
-                          return p ? (
-                            <Link
-                              key={pid}
-                              to={`/peptide/${pid}`}
-                              className="inline-flex items-center gap-1 rounded-full border border-emerald-200 bg-emerald-50 px-2.5 py-1 text-xs font-medium text-emerald-700 transition-colors hover:bg-emerald-100 min-h-[32px]"
-                            >
-                              <FlaskConical className="h-3 w-3" />
-                              {p.nameEn}
-                            </Link>
-                          ) : null;
-                        })}
-                      </div>
-                    )}
-                  </div>
+                  <GlossaryCard key={term.en} term={term} search={search} allPeptides={allPeptides as { id: string; nameEn: string }[]} />
                 ))}
               </dl>
             </section>
