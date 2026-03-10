@@ -39,8 +39,8 @@ export default function Terms() {
           <section>
             <h2 className="mb-3 text-xl font-bold text-stone-900">2. الاشتراكات والدفع</h2>
             <ul className="list-disc space-y-2 ps-6">
-              <li>خطة Essentials: {PRICING.essentials.label} شهريًا</li>
-              <li>خطة Elite: {PRICING.elite.label} شهريًا</li>
+              <li>خطة Essentials (الأساسية): {PRICING.essentials.label} شهريًا</li>
+              <li>خطة Elite (المتقدّمة): {PRICING.elite.label} شهريًا</li>
               <li>تجربة مجانية: {TRIAL_DAYS} أيام على جميع الخطط</li>
               <li>الاشتراكات تتجدد تلقائيًا ما لم يُلغَ قبل تاريخ التجديد</li>
               <li>يتم الدفع عبر Stripe بشكل آمن ومشفّر</li>

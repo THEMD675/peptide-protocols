@@ -607,7 +607,7 @@ export default function Pricing() {
                 </>
               ) : (
                 <>
-                  <span>ابدأ مع Elite الآن</span>
+                  <span>ابدأ مع Elite المتقدّمة الآن</span>
                   <ArrowLeft className="h-5 w-5" />
                 </>
               )}

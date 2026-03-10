@@ -611,9 +611,9 @@ export default function Landing() {
       {/* ═══════ SOCIAL PROOF ═══════ */}
       {(() => {
         const fallback: Testimonial[] = [
-          { text: 'أخيرًا مرجع عربي شامل! كنت أضيع ساعات أبحث بالإنجليزي. الآن كل شيء واضح ومنظّم.', name: 'خالد', role: 'مستخدم Elite', rating: 5 },
-          { text: 'حاسبة الجرعات وحدها تستاهل الاشتراك. دقيقة وسهلة الاستخدام.', name: 'أحمد', role: 'مستخدم Essentials', rating: 5 },
-          { text: 'المدرب الذكي غيّر طريقة تعاملي مع البروتوكولات. أسأله أي سؤال ويجاوبني فورًا.', name: 'سلطان', role: 'مستخدم Elite', rating: 5 },
+          { text: 'أخيرًا مرجع عربي شامل! كنت أضيع ساعات أبحث بالإنجليزي. الآن كل شيء واضح ومنظّم.', name: 'خالد', role: 'مشترك متقدّم', rating: 5 },
+          { text: 'حاسبة الجرعات وحدها تستاهل الاشتراك. دقيقة وسهلة الاستخدام.', name: 'أحمد', role: 'مستخدم Essentials (الأساسية)', rating: 5 },
+          { text: 'المدرب الذكي غيّر طريقة تعاملي مع البروتوكولات. أسأله أي سؤال ويجاوبني فورًا.', name: 'سلطان', role: 'مشترك متقدّم', rating: 5 },
         ];
         const items = testimonials.length > 0 ? testimonials : fallback;
         return (
@@ -665,7 +665,8 @@ export default function Landing() {
             <div
               className="relative flex flex-col rounded-2xl border border-stone-300/60 bg-white p-8 transition-all duration-300 hover:shadow-lg hover:border-stone-400 hover:-translate-y-1"
             >
-              <h3 className="mb-1 text-xl font-bold text-stone-900">Essentials</h3>
+              <h3 className="mb-0.5 text-xl font-bold text-stone-900">Essentials</h3>
+              <p className="mb-1 text-xs font-medium text-emerald-600">الأساسية</p>
               <p className="mb-6 text-sm text-stone-800">كل الأدوات الأساسية</p>
               <div className="mb-6">
                 <span className="text-3xl font-black text-stone-900 sm:text-5xl">{PRICING.essentials.label}</span>
@@ -699,10 +700,11 @@ export default function Landing() {
               className="relative flex flex-col rounded-2xl border-2 border-emerald-200 bg-white p-8 shadow-lg shadow-emerald-600/5"
             >
               <span className="absolute -top-3 end-6 rounded-full bg-emerald-600 px-4 py-1 text-xs font-bold text-white">الأفضل قيمة</span>
-              <div className="mb-1 flex items-center gap-2">
+              <div className="mb-0.5 flex items-center gap-2">
                 <Crown className="h-5 w-5 text-emerald-600" />
                 <h3 className="text-xl font-bold text-stone-900">Elite</h3>
               </div>
+              <p className="mb-1 text-xs font-medium text-emerald-600">المتقدّمة</p>
               <p className="mb-6 text-sm text-stone-800">كل شيء + مدرب ذكي + استشارات</p>
               <div className="mb-6">
                 <span className="text-3xl font-black text-stone-900 sm:text-5xl">{PRICING.elite.label}</span>
@@ -710,7 +712,7 @@ export default function Landing() {
               </div>
               <ul className="mb-8 flex-1 space-y-3">
                 {[
-                  'كل مزايا Essentials',
+                  'كل مزايا Essentials (الأساسية)',
                   'مدرب ذكي بالذكاء الاصطناعي 24/7',
                   'بروتوكولات مخصّصة لأهدافك',
                   'استشارات بلا حدود',
@@ -800,7 +802,7 @@ export default function Landing() {
             { q: 'كيف ألغي اشتراكي؟', a: `يمكنك إلغاء اشتراكك في أي وقت من صفحة الحساب. تحتفظ بالوصول حتى نهاية فترة الدفع الحالية. ضمان استرداد كامل خلال ${TRIAL_DAYS} أيام.` },
             { q: 'هل الدفع آمن؟', a: 'نستخدم Stripe — أكبر منصة دفع في العالم. بياناتك مشفّرة ولا نحفظ بيانات بطاقتك. ندعم Visa و Mastercard و Apple Pay.' },
             { q: '6 ببتيدات مجانية — بدون تسجيل؟', a: 'نعم! 6 ببتيد مع بروتوكول كامل متاح مجانًا بدون إنشاء حساب. جرّبها الآن من المكتبة.' },
-            { q: 'ماذا أحصل بعد الاشتراك؟', a: `بروتوكولات كاملة لـ ${PEPTIDE_COUNT} ببتيد، حاسبة جرعات دقيقة، دليل تحاليل مخبرية، بروتوكولات مُجمَّعة، دليل حقن عملي، فحص تعارضات، ومدرب ذكي (في باقة Elite).` },
+            { q: 'ماذا أحصل بعد الاشتراك؟', a: `بروتوكولات كاملة لـ ${PEPTIDE_COUNT} ببتيد، حاسبة جرعات دقيقة، دليل تحاليل مخبرية، بروتوكولات مُجمَّعة، دليل حقن عملي، فحص تعارضات، ومدرب ذكي (في باقة Elite المتقدّمة).` },
           ].map((faq) => (
             <details key={faq.q} className="group rounded-2xl border border-stone-200 bg-white transition-all hover:border-emerald-200">
               <summary className="flex cursor-pointer items-center justify-between px-6 py-5 text-base font-bold text-stone-900 [&::-webkit-details-marker]:hidden">
