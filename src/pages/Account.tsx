@@ -374,7 +374,7 @@ export default function Account() {
             className="group relative mx-auto flex h-20 w-20 items-center justify-center overflow-hidden rounded-full border-2 border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-950 transition-all hover:border-emerald-400"
           >
             {profilePicUrl ? (
-              <img src={profilePicUrl} alt="صورة الملف الشخصي" className="h-full w-full object-cover" />
+              <img src={profilePicUrl} alt="صورة الملف الشخصي" width={80} height={80} className="h-full w-full object-cover" />
             ) : (
               <User className="h-8 w-8 text-emerald-600" />
             )}

@@ -1500,7 +1500,7 @@ export default function Tracker() {
               />
               {photoPreview ? (
                 <div className="relative inline-block">
-                  <img src={photoPreview} alt="معاينة" className="h-20 w-20 rounded-xl object-cover border border-stone-200" />
+                  <img src={photoPreview} alt="معاينة" width={80} height={80} className="h-20 w-20 rounded-xl object-cover border border-stone-200" />
                   <button
                     type="button"
                     onClick={() => { setPhotoFile(null); setPhotoPreview(null); if (photoInputRef.current) photoInputRef.current.value = ''; }}
@@ -1782,7 +1782,7 @@ export default function Tracker() {
                 </div>
                 {log.photo_url && (
                   <div className="mt-3">
-                    <img src={log.photo_url} alt="صورة الحقنة" className="h-20 w-20 rounded-xl object-cover border border-stone-200 dark:border-stone-700" loading="lazy" />
+                    <img src={log.photo_url} alt="صورة الحقنة" width={80} height={80} className="h-20 w-20 rounded-xl object-cover border border-stone-200 dark:border-stone-700" loading="lazy" />
                   </div>
                 )}
                 {log.notes && (

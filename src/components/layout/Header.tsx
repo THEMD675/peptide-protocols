@@ -415,6 +415,7 @@ export default memo(function Header() {
           onClick={() => setMobileOpen(false)}
         />
 
+        <Suspense fallback={null}>
         <FocusTrap active={mobileOpen} focusTrapOptions={{ allowOutsideClick: true }}>
         <nav
           className={cn(
@@ -566,6 +567,7 @@ export default memo(function Header() {
           </div>
         </nav>
         </FocusTrap>
+        </Suspense>
       </div>
 
       <div className="h-[var(--header-height)]" />

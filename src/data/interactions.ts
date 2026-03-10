@@ -66,19 +66,30 @@ export const SYNERGISTIC_COMBOS: Record<string, InteractionResult> = {
 
 // Drug-peptide interactions — medications that interact with peptides
 export const DRUG_INTERACTIONS: Record<string, InteractionResult> = {
-  'semaglutide+metformin': { safe: true, warning: true, message: 'GLP-1 + ميتفورمين — راقب السكر', details: 'كلاهما يخفض السكر. الجمع يزيد خطر هبوط السكر خصوصًا مع الصيام. راقب مستوى الجلوكوز يوميًا وقلّل جرعة الميتفورمين إذا لزم.' },
-  'tirzepatide+metformin': { safe: true, warning: true, message: 'GLP-1/GIP + ميتفورمين — راقب السكر', details: 'Tirzepatide يخفض السكر بقوة مع الميتفورمين. قد تحتاج لتقليل جرعة الميتفورمين. راقب الجلوكوز.' },
-  'semaglutide+insulin': { safe: false, warning: false, message: 'خطر هبوط سكر حاد', details: 'GLP-1 مع الأنسولين يضاعف خطر هبوط السكر الحاد (hypoglycemia). لا تجمعهم بدون إشراف طبي مباشر وتعديل جرعة الأنسولين.' },
-  'tirzepatide+insulin': { safe: false, warning: false, message: 'خطر هبوط سكر حاد', details: 'Tirzepatide مع الأنسولين خطير جدًا. هبوط سكر حاد محتمل. لا تجمعهم بدون طبيب.' },
-  'bpc-157+warfarin': { safe: false, warning: true, message: 'BPC-157 يؤثر على التخثر', details: 'BPC-157 يؤثر على نظام أكسيد النيتريك والتخثر. مع مميعات الدم (وارفارين/هيبارين) يزيد خطر النزيف. أوقف BPC-157 أو استشر طبيبك.' },
-  'tb-500+warfarin': { safe: false, warning: true, message: 'TB-500 + مميعات دم — خطر نزيف', details: 'TB-500 يُعزز تكوين أوعية دموية جديدة ويؤثر على التئام الجروح. مع مميعات الدم يزيد خطر النزيف.' },
-  'thymosin-alpha-1+immunosuppressants': { safe: false, warning: false, message: 'تعارض مع مثبطات المناعة', details: 'Thymosin Alpha-1 يُنشّط الجهاز المناعي. إذا تأخذ مثبطات مناعة (بعد زرع عضو، أمراض مناعية) = تعارض مباشر وخطير. لا تجمعهم.' },
-  'cjc-1295+ssri': { safe: true, warning: true, message: 'GH + مضادات اكتئاب — متابعة', details: 'هرمون النمو يؤثر على السيروتونين. مع SSRIs (فلوكستين، سيرترالين) قد تلاحظ تغيرات مزاجية. ليس خطيرًا لكن راقب حالتك.' },
-  'ipamorelin+ssri': { safe: true, warning: true, message: 'GHRP + مضادات اكتئاب — متابعة', details: 'Ipamorelin يرفع GH الذي يؤثر على الناقلات العصبية. مع SSRIs تابع مزاجك ونومك.' },
-  'semaglutide+thyroid': { safe: true, warning: true, message: 'GLP-1 + أدوية الغدة الدرقية — امتصاص', details: 'Semaglutide يبطئ إفراغ المعدة مما قد يؤثر على امتصاص ليفوثيروكسين. خذ دواء الغدة على معدة فارغة صباحًا، قبل ساعة من أي شيء.' },
-  'tirzepatide+thyroid': { safe: true, warning: true, message: 'GLP-1 + أدوية الغدة — امتصاص', details: 'مثل Semaglutide، يبطئ الهضم وقد يقلل امتصاص ليفوثيروكسين. خذ الدواء على معدة فارغة.' },
-  'cjc-1295+statins': { safe: true, warning: true, message: 'GH + ستاتينات — مراقبة الكبد', details: 'هرمون النمو يؤثر على استقلاب الدهون والكبد. مع الستاتينات (أتورفاستاتين، روسوفاستاتين) راقب وظائف الكبد بانتظام.' },
-  'bpc-157+nsaids': { safe: true, warning: false, message: 'BPC-157 يحمي من أضرار المسكنات', details: 'BPC-157 يحمي بطانة المعدة من تأثير مضادات الالتهاب (إيبوبروفين، نابروكسين). تجميعة مفيدة فعلًا — BPC-157 يقلل القرحة الناتجة عن NSAIDs.' },
+  'semaglutide+metformin': safeWarn('GLP-1 + ميتفورمين — راقب السكر', 'كلاهما يخفض السكر. الجمع يزيد خطر هبوط السكر خصوصًا مع الصيام. راقب مستوى الجلوكوز يوميًا وقلّل جرعة الميتفورمين إذا لزم.'),
+  'tirzepatide+metformin': safeWarn('GLP-1/GIP + ميتفورمين — راقب السكر', 'Tirzepatide يخفض السكر بقوة مع الميتفورمين. قد تحتاج لتقليل جرعة الميتفورمين. راقب الجلوكوز.'),
+  'retatrutide+metformin': safeWarn('GLP-1 ثلاثي + ميتفورمين — راقب السكر', 'Retatrutide يخفض السكر عبر 3 مستقبلات. مع الميتفورمين راقب الجلوكوز بعناية.'),
+  'semaglutide+insulin': danger('خطر هبوط سكر حاد', 'GLP-1 مع الأنسولين يضاعف خطر هبوط السكر الحاد (hypoglycemia). لا تجمعهم بدون إشراف طبي مباشر وتعديل جرعة الأنسولين.'),
+  'tirzepatide+insulin': danger('خطر هبوط سكر حاد', 'Tirzepatide مع الأنسولين خطير جدًا. هبوط سكر حاد محتمل. لا تجمعهم بدون طبيب.'),
+  'retatrutide+insulin': danger('خطر هبوط سكر حاد', 'Retatrutide مع الأنسولين خطير جدًا — ثلاثة مسارات لخفض السكر + أنسولين خارجي. لا تجمعهم بدون إشراف طبي.'),
+  'bpc-157+warfarin': dangerWarn('BPC-157 يؤثر على التخثر', 'BPC-157 يؤثر على نظام أكسيد النيتريك والتخثر. مع مميعات الدم (وارفارين/هيبارين) يزيد خطر النزيف. أوقف BPC-157 أو استشر طبيبك.'),
+  'tb-500+warfarin': dangerWarn('TB-500 + مميعات دم — خطر نزيف', 'TB-500 يُعزز تكوين أوعية دموية جديدة ويؤثر على التئام الجروح. مع مميعات الدم يزيد خطر النزيف.'),
+  'ghk-cu+warfarin': safeWarn('GHK-Cu + مميعات دم — احتياط', 'GHK-Cu يؤثر على إصلاح الأنسجة وتكوين الأوعية. مع مميعات الدم قد يكون هناك تأثير. راقب INR بانتظام.'),
+  'thymosin-alpha-1+immunosuppressants': danger('تعارض مع مثبطات المناعة', 'Thymosin Alpha-1 يُنشّط الجهاز المناعي. إذا تأخذ مثبطات مناعة (بعد زرع عضو، أمراض مناعية) = تعارض مباشر وخطير. لا تجمعهم.'),
+  'll-37+immunosuppressants': dangerWarn('LL-37 + مثبطات مناعة — تعارض', 'LL-37 ينشّط الجهاز المناعي الفطري. مع مثبطات المناعة يحدث تعارض في آلية العمل. استشر طبيبك.'),
+  'cjc-1295+ssri': safeWarn('GH + مضادات اكتئاب — متابعة', 'هرمون النمو يؤثر على السيروتونين. مع SSRIs (فلوكستين، سيرترالين) قد تلاحظ تغيرات مزاجية. ليس خطيرًا لكن راقب حالتك.'),
+  'ipamorelin+ssri': safeWarn('GHRP + مضادات اكتئاب — متابعة', 'Ipamorelin يرفع GH الذي يؤثر على الناقلات العصبية. مع SSRIs تابع مزاجك ونومك.'),
+  'semaglutide+thyroid': safeWarn('GLP-1 + أدوية الغدة الدرقية — امتصاص', 'Semaglutide يبطئ إفراغ المعدة مما قد يؤثر على امتصاص ليفوثيروكسين. خذ دواء الغدة على معدة فارغة صباحًا، قبل ساعة من أي شيء.'),
+  'tirzepatide+thyroid': safeWarn('GLP-1 + أدوية الغدة — امتصاص', 'مثل Semaglutide، يبطئ الهضم وقد يقلل امتصاص ليفوثيروكسين. خذ الدواء على معدة فارغة.'),
+  'cjc-1295+statins': safeWarn('GH + ستاتينات — مراقبة الكبد', 'هرمون النمو يؤثر على استقلاب الدهون والكبد. مع الستاتينات (أتورفاستاتين، روسوفاستاتين) راقب وظائف الكبد بانتظام.'),
+  'bpc-157+nsaids': safe('BPC-157 يحمي من أضرار المسكنات', 'BPC-157 يحمي بطانة المعدة من تأثير مضادات الالتهاب (إيبوبروفين، نابروكسين). تجميعة مفيدة فعلًا — BPC-157 يقلل القرحة الناتجة عن NSAIDs.'),
+  // Blood pressure medications
+  'bpc-157+antihypertensives': safeWarn('BPC-157 + أدوية ضغط — مراقبة الضغط', 'BPC-157 يؤثر على أكسيد النيتريك الذي يوسّع الأوعية الدموية. مع أدوية الضغط (أملوديبين، ليزينوبريل) قد ينخفض الضغط أكثر من المتوقع. راقب ضغطك يوميًا.'),
+  'semaglutide+antihypertensives': safeWarn('GLP-1 + أدوية ضغط — قد يتحسّن الضغط', 'Semaglutide يخفض الوزن مما يُحسّن ضغط الدم طبيعيًا. قد تحتاج لتقليل جرعة أدوية الضغط مع فقدان الوزن. تابع مع طبيبك.'),
+  'tirzepatide+antihypertensives': safeWarn('GLP-1/GIP + أدوية ضغط — قد يتحسّن الضغط', 'مثل Semaglutide — فقدان الوزن يحسّن الضغط. راقب وعدّل الجرعة مع طبيبك.'),
+  // Aspirin specific
+  'bpc-157+aspirin': safe('BPC-157 + أسبرين — حماية المعدة', 'BPC-157 يحمي بطانة المعدة من تأثير الأسبرين المُضر. تجميعة مفيدة خصوصًا مع الاستخدام طويل المدى.'),
+  'tb-500+aspirin': safeWarn('TB-500 + أسبرين — خطر نزيف خفيف', 'الأسبرين مميع دم خفيف + TB-500 يؤثر على الأوعية. خطر النزيف منخفض لكن موجود. راقب الكدمات.'),
 };
 
 export const GH_PEPTIDE_IDS = ['cjc-1295', 'ipamorelin', 'tesamorelin', 'sermorelin', 'ghrp-2', 'ghrp-6', 'hexarelin'];
