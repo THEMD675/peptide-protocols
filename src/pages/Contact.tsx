@@ -50,7 +50,6 @@ export default function Contact() {
   const [message, setMessage] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
-  const [showConfetti, setShowConfetti] = useState(false);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
 
   useEffect(() => {
@@ -115,7 +114,6 @@ export default function Contact() {
         message: message.trim(),
       });
       if (error) throw error;
-      setShowConfetti(true);
       setTimeout(() => setSubmitted(true), 600);
       toast.success('تم إرسال رسالتك بنجاح');
     } catch {
@@ -162,9 +160,7 @@ export default function Contact() {
   }
 
   return (
-    <div
-      className={`min-h-screen bg-white dark:bg-stone-950 animate-fade-in ${showConfetti ? 'pointer-events-none' : ''}`}
-    >
+    <div className="min-h-screen bg-white dark:bg-stone-950 animate-fade-in">
       <Helmet>
         <title>تواصل معنا | pptides</title>
         <meta

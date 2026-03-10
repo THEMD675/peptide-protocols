@@ -166,8 +166,6 @@ const faqSchema = {
 
 export default function FAQ() {
   const [search, setSearch] = useState('');
-  const [openSection, setOpenSection] = useState<string | null>(null);
-
   const filtered = useMemo(() => {
     if (!search.trim()) return sections;
     const q = search.trim().toLowerCase();
@@ -254,11 +252,7 @@ export default function FAQ() {
             {filtered.map((section) => (
               <div key={section.title}>
                 {/* Section header */}
-                <button
-                  type="button"
-                  onClick={() =>
-                    setOpenSection(openSection === section.title ? null : section.title)
-                  }
+                <div
                   className="mb-4 flex w-full items-center gap-3 text-start min-h-[44px]"
                 >
                   <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-100 dark:bg-emerald-900/30 text-lg">
@@ -270,7 +264,7 @@ export default function FAQ() {
                   <span className="ms-auto rounded-full bg-stone-100 dark:bg-stone-800 px-2.5 py-0.5 text-xs font-medium text-stone-600 dark:text-stone-400">
                     {section.items.length}
                   </span>
-                </button>
+                </div>
 
                 {/* FAQ items */}
                 <div className="space-y-2.5">
