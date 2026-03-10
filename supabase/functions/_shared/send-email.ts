@@ -10,7 +10,9 @@ const SMTP_HOST = Deno.env.get('SMTP_HOST') || 'smtp.gmail.com'
 const SMTP_PORT = parseInt(Deno.env.get('SMTP_PORT') || '465', 10)
 const SMTP_USER = Deno.env.get('SMTP_USER') || ''
 const SMTP_PASS = Deno.env.get('SMTP_PASS') || ''
-const FROM_EMAIL = Deno.env.get('FROM_EMAIL') || 'pptides <contact@amirisgroup.co>'
+// SMTP (Gmail) uses amirisgroup.co; Resend uses pptides.com (has SPF+DKIM)
+const FROM_EMAIL_SMTP = Deno.env.get('FROM_EMAIL') || 'pptides <contact@amirisgroup.co>'
+const FROM_EMAIL_RESEND = Deno.env.get('FROM_EMAIL_RESEND') || 'pptides <contact@pptides.com>'
 
 interface EmailPayload {
   to: string
@@ -41,7 +43,7 @@ export async function sendEmail(payload: EmailPayload): Promise<{ ok: boolean; e
       })
 
       await client.send({
-        from: FROM_EMAIL,
+        from: FROM_EMAIL_SMTP,
         to: payload.to,
         subject: payload.subject,
         content: 'Please view this email in an HTML-capable client.',
@@ -49,6 +51,7 @@ export async function sendEmail(payload: EmailPayload): Promise<{ ok: boolean; e
         headers: {
           'Reply-To': payload.replyTo || 'contact@pptides.com',
           'List-Unsubscribe': '<mailto:contact@pptides.com?subject=unsubscribe>',
+          'List-Unsubscribe-Post': 'List-Unsubscribe=One-Click',
         },
       })
 
@@ -70,11 +73,15 @@ export async function sendEmail(payload: EmailPayload): Promise<{ ok: boolean; e
           Authorization: `Bearer ${RESEND_API_KEY}`,
         },
         body: JSON.stringify({
-          from: FROM_EMAIL,
+          from: FROM_EMAIL_RESEND,
           to: payload.to,
           subject: payload.subject,
           html: payload.html,
           ...(payload.replyTo ? { reply_to: payload.replyTo } : {}),
+          headers: {
+            'List-Unsubscribe': '<mailto:contact@pptides.com?subject=unsubscribe>',
+            'List-Unsubscribe-Post': 'List-Unsubscribe=One-Click',
+          },
         }),
       })
       if (res.ok) return { ok: true }

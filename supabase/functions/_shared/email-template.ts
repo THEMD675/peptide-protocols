@@ -43,5 +43,6 @@ export function emailButton(text: string, url: string): string {
 export function unsubscribeHeaders(): Record<string, string> {
   return {
     'List-Unsubscribe': `<mailto:${SUPPORT_EMAIL}?subject=unsubscribe>`,
+    'List-Unsubscribe-Post': 'List-Unsubscribe=One-Click',
   }
 }
