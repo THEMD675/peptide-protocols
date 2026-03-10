@@ -147,12 +147,12 @@ serve(async (req) => {
             console.error('checkout.session.completed DB error:', error)
             dbFailed = true
           } else if (!updateData || updateData.length === 0) {
-            console.error('checkout.session.completed: no row found, upserting for user', userId)
+            console.error('checkout.session.completed: no row found, inserting for user', userId)
             const { error: insertErr } = await supabase
               .from('subscriptions')
-              .upsert({ user_id: userId, ...updatePayload }, { onConflict: 'user_id' })
+              .insert({ user_id: userId, ...updatePayload })
             if (insertErr) {
-              console.error('checkout.session.completed upsert fallback error:', insertErr)
+              console.error('checkout.session.completed insert fallback error:', insertErr)
               dbFailed = true
             }
           }

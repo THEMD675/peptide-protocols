@@ -338,6 +338,9 @@ function useWellnessTrend(userId: string | undefined) {
       supabase.from('side_effect_logs').select('id', { count: 'exact', head: true }).eq('user_id', userId).gte('created_at', week),
     ]).then(([thisWeek, lastWeek, sides]) => {
       if (!mounted) return;
+      if (thisWeek.error) console.error('wellness_logs thisWeek query failed:', thisWeek.error);
+      if (lastWeek.error) console.error('wellness_logs lastWeek query failed:', lastWeek.error);
+      if (sides.error) console.error('side_effect_logs count query failed:', sides.error);
       const avg = (arr: Array<{ energy: number; sleep: number; mood: number }>) =>
         arr.length > 0 ? arr.reduce((s, w) => s + (w.energy + w.sleep + w.mood) / 3, 0) / arr.length : 0;
       setTrend({

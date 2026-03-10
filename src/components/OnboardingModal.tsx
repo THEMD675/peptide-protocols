@@ -98,7 +98,7 @@ export default function OnboardingModal({ forceOpen, onClose: externalClose }: {
       supabase.from('user_profiles').update({
         onboarding_goals: { goal: selectedGoal, ts: Date.now() },
         updated_at: new Date().toISOString(),
-      }).eq('user_id', user.id).then(() => {}).catch(() => {});
+      }).eq('user_id', user.id).then(() => {}).catch((e) => { console.error('OnboardingModal: failed to persist goals', e); });
     }
     setShow(false);
     externalClose?.();

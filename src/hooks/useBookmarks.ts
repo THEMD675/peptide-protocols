@@ -50,12 +50,12 @@ export function useBookmarks(): {
 
           const toSync = localFavs.filter((s) => !slugs.has(s));
           if (toSync.length > 0) {
-            // Sync local favorites to Supabase
+            // Insert-only (duplicates ignored via onConflict DO NOTHING isn't available,
+            // so we filter already-synced slugs above; use insert + ignore duplicate errors)
             supabase
               .from('user_bookmarks')
-              .upsert(
+              .insert(
                 toSync.map((slug) => ({ user_id: user.id, peptide_slug: slug })),
-                { onConflict: 'user_id,peptide_slug' },
               )
               .then(() => {
                 if (mounted) {
@@ -96,9 +96,10 @@ export function useBookmarks(): {
           if (adding) {
             supabase
               .from('user_bookmarks')
-              .upsert({ user_id: user.id, peptide_slug: slug }, { onConflict: 'user_id,peptide_slug' })
+              .insert({ user_id: user.id, peptide_slug: slug })
               .then(({ error }) => {
-                if (error) console.error('Bookmark insert error:', error);
+                // 23505 = unique_violation — bookmark already exists, safe to ignore
+                if (error && error.code !== '23505') console.error('Bookmark insert error:', error);
               });
           } else {
             supabase

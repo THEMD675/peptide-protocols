@@ -58,16 +58,19 @@ export default function PushNotificationPrompt() {
         applicationServerKey: vapidKey,
       });
       const subscriptionJson = sub.toJSON ? sub.toJSON() : JSON.parse(JSON.stringify(sub));
-      const { error } = await supabase
+      // select→update/insert to avoid 409 (PK is id, not user_id)
+      const { data: existing } = await supabase
         .from('user_profiles')
-        .upsert(
-          {
-            user_id: user.id,
-            push_subscription: subscriptionJson,
-            updated_at: new Date().toISOString(),
-          },
-          { onConflict: 'user_id' }
-        );
+        .select('id')
+        .eq('user_id', user.id)
+        .maybeSingle();
+      const profilePayload = {
+        push_subscription: subscriptionJson,
+        updated_at: new Date().toISOString(),
+      };
+      const { error } = existing
+        ? await supabase.from('user_profiles').update(profilePayload).eq('user_id', user.id)
+        : await supabase.from('user_profiles').insert({ user_id: user.id, ...profilePayload });
       if (error) {
         toast.error('تعذّر تفعيل التنبيهات — حاول مرة أخرى');
         return;

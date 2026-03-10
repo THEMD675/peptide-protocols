@@ -96,6 +96,9 @@ export default function Account() {
       supabase.from('community_logs').select('id', { count: 'exact', head: true }).eq('user_id', user.id),
     ]).then(([injRes, protoRes, coachRes]) => {
       if (!mounted) return;
+      if (injRes.error) console.error('injection_logs count failed:', injRes.error);
+      if (protoRes.error) console.error('user_protocols count failed:', protoRes.error);
+      if (coachRes.error) console.error('community_logs count failed:', coachRes.error);
       setUsageStats({
         injections: injRes.count ?? 0,
         protocols: protoRes.count ?? 0,
@@ -175,7 +178,7 @@ export default function Account() {
     try {
       const { error } = await supabase.auth.updateUser({ email: newEmail });
       if (error) throw error;
-      await supabase.from('email_list').update({ email: newEmail.trim().toLowerCase() }).eq('email', user.email).catch(() => {});
+      await supabase.from('email_list').update({ email: newEmail.trim().toLowerCase() }).eq('email', user.email).catch((e) => { console.error('Account: email_list sync failed', e); });
       const { data: sub } = await supabase.from('subscriptions').select('stripe_customer_id').eq('user_id', user.id).maybeSingle();
       if (sub?.stripe_customer_id) {
         fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/admin-actions`, {
@@ -1059,7 +1062,7 @@ function ReferralSection({ userId }: { userId?: string }) {
         if (sub) {
           await supabase.from('subscriptions').update({ referral_code: refCode }).eq('user_id', userId);
         } else {
-          await supabase.from('subscriptions').upsert({ user_id: userId, status: 'none', tier: 'free', referral_code: refCode }, { onConflict: 'user_id' });
+          await supabase.from('subscriptions').insert({ user_id: userId, status: 'none', tier: 'free', referral_code: refCode });
         }
       }
       setCode(refCode);

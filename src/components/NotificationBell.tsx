@@ -70,17 +70,19 @@ export default function NotificationBell() {
 
   const markAsRead = async (id: string) => {
     setNotifications(prev => prev.map(n => n.id === id ? { ...n, read: true } : n));
-    await supabase.from('notifications').update({ read: true }).eq('id', id);
+    const { error } = await supabase.from('notifications').update({ read: true }).eq('id', id);
+    if (error) console.error('notification mark-read failed:', error);
   };
 
   const markAllRead = async () => {
     if (!user?.id) return;
     setNotifications(prev => prev.map(n => ({ ...n, read: true })));
-    await supabase
+    const { error } = await supabase
       .from('notifications')
       .update({ read: true })
       .eq('user_id', user.id)
       .eq('read', false);
+    if (error) console.error('notification mark-all-read failed:', error);
   };
 
   if (!user) return null;

@@ -485,7 +485,7 @@ export default function PeptideQuiz() {
         if (user) {
           supabase.from('user_profiles').update({
             goals: [updated.goal],
-          }).eq('user_id', user.id).then(() => {}).catch(() => {});
+          }).eq('user_id', user.id).then(() => {}).catch((e) => { console.error('PeptideQuiz: failed to save goals', e); });
         }
       } else {
         setDirection('forward');
