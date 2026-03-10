@@ -163,6 +163,17 @@ serve(async (req) => {
         }
 
         if (!dbFailed) {
+          // Mark any abandoned checkout records as recovered
+          if (session.customer_email) {
+            await supabase.from('abandoned_checkouts')
+              .update({ recovered: true })
+              .eq('email', session.customer_email)
+              .eq('recovered', false)
+              .then(({ error: recErr }) => {
+                if (recErr) console.error('checkout.session.completed: failed to mark abandoned as recovered:', recErr)
+              })
+          }
+
           const RESEND_API_KEY = Deno.env.get('RESEND_API_KEY')
           if (RESEND_API_KEY && session.customer_email) {
             await fetch('https://api.resend.com/emails', {
@@ -396,6 +407,29 @@ serve(async (req) => {
           }
         } else {
           console.error('invoice.payment_failed: missing subscription ID on invoice', invoice.id)
+        }
+        break
+      }
+
+      case 'checkout.session.expired': {
+        const session = event.data.object as Stripe.Checkout.Session
+        const userId = session.client_reference_id
+        const email = session.customer_email
+        if (email) {
+          let tier = session.metadata?.tier ?? 'essentials'
+          if (!session.metadata?.tier && session.amount_total) {
+            const eliteMinHalalas = parseInt(Deno.env.get('ELITE_AMOUNT_MIN_HALALAS') ?? '9900', 10)
+            tier = session.amount_total >= eliteMinHalalas ? 'elite' : 'essentials'
+          }
+          const { error } = await supabase.from('abandoned_checkouts').insert({
+            user_id: userId ?? null,
+            email,
+            tier,
+            stripe_session_id: session.id,
+          })
+          if (error && error.code !== '23505') {
+            console.error('checkout.session.expired: failed to log abandoned checkout:', error)
+          }
         }
         break
       }

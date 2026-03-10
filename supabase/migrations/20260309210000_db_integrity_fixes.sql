@@ -45,8 +45,9 @@ SELECT cron.schedule(
 -- =============================================================
 -- The old policy allowed ALL operations for public role (security hole)
 DROP POLICY IF EXISTS blog_posts_service_all ON blog_posts;
-CREATE POLICY blog_posts_service_write ON blog_posts 
-  FOR ALL TO service_role 
+DROP POLICY IF EXISTS blog_posts_service_write ON blog_posts;
+CREATE POLICY blog_posts_service_write ON blog_posts
+  FOR ALL TO service_role
   USING (true) WITH CHECK (true);
 
 -- Public can only read published posts (existing policy remains)
