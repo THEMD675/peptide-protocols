@@ -297,6 +297,7 @@ export default function Account() {
           Authorization: `Bearer ${session.access_token}`,
           apikey: import.meta.env.VITE_SUPABASE_ANON_KEY,
         },
+        body: JSON.stringify({ confirm: true }),
       });
       if (!res.ok) throw new Error();
       await logout();

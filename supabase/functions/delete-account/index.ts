@@ -53,6 +53,16 @@ serve(async (req) => {
       })
     }
 
+    // Require explicit confirmation
+    let body: { confirm?: boolean } = {}
+    try { body = await req.json() } catch { /* empty body ok for backwards compat check */ }
+    if (body.confirm !== true) {
+      return new Response(JSON.stringify({ error: 'يرجى تأكيد حذف الحساب', requiresConfirm: true }), {
+        status: 400,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      })
+    }
+
     // Rate limit: 2 delete attempts per hour per user
     const allowed = await checkRateLimit(supabase, {
       endpoint: 'delete-account',
