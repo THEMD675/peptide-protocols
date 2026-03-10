@@ -88,10 +88,10 @@ const STATIC_META: Record<string, { title: string; description: string }> = {
 };
 
 // ── Blog post fetcher (Supabase REST) ──
-async function fetchBlogMeta(slug: string): Promise<{ title: string; description: string; image: string } | null> {
+async function fetchBlogMeta(slug: string): Promise<{ title: string; description: string; image: string; publishedAt?: string; rawTitle?: string; rawExcerpt?: string } | null> {
   if (!SUPABASE_ANON_KEY) return null;
   try {
-    const url = `${SUPABASE_URL}/rest/v1/blog_posts?slug=eq.${encodeURIComponent(slug)}&is_published=eq.true&select=title_ar,excerpt_ar,cover_image_url&limit=1`;
+    const url = `${SUPABASE_URL}/rest/v1/blog_posts?slug=eq.${encodeURIComponent(slug)}&is_published=eq.true&select=title_ar,excerpt_ar,cover_image_url,published_at&limit=1`;
     const res = await fetch(url, {
       headers: {
         apikey: SUPABASE_ANON_KEY,
@@ -106,22 +106,35 @@ async function fetchBlogMeta(slug: string): Promise<{ title: string; description
       title: `${post.title_ar} | مدونة pptides`,
       description: post.excerpt_ar || DEFAULT_DESC,
       image: post.cover_image_url || DEFAULT_OG_IMAGE,
+      publishedAt: post.published_at || undefined,
+      rawTitle: post.title_ar || undefined,
+      rawExcerpt: post.excerpt_ar || undefined,
     };
   } catch {
     return null;
   }
 }
 
+// ── Extended meta type with JSON-LD support ──
+interface PageMeta {
+  title: string;
+  description: string;
+  image: string;
+  url: string;
+  jsonLd: object[];
+}
+
 // ── Resolve meta for any path ──
-async function resolveMeta(path: string): Promise<{ title: string; description: string; image: string; url: string }> {
+async function resolveMeta(path: string): Promise<PageMeta> {
   const cleanPath = path.replace(/\/$/, '') || '/';
 
-  // Static routes
-  if (STATIC_META[cleanPath]) {
+  // Homepage
+  if (cleanPath === '/') {
     return {
-      ...STATIC_META[cleanPath],
+      ...STATIC_META['/'],
       image: DEFAULT_OG_IMAGE,
-      url: `${SITE_URL}${cleanPath}`,
+      url: `${SITE_URL}/`,
+      jsonLd: [...getHomepageJsonLd()],
     };
   }
 
@@ -130,15 +143,25 @@ async function resolveMeta(path: string): Promise<{ title: string; description: 
   if (blogMatch) {
     const slug = blogMatch[1];
     const blogMeta = await fetchBlogMeta(slug);
+    const pageUrl = `${SITE_URL}${cleanPath}`;
     if (blogMeta) {
-      return { ...blogMeta, url: `${SITE_URL}${cleanPath}` };
+      return {
+        title: blogMeta.title,
+        description: blogMeta.description,
+        image: blogMeta.image,
+        url: pageUrl,
+        jsonLd: [
+          getBlogArticleJsonLd(blogMeta, pageUrl),
+          getBreadcrumbJsonLd(blogMeta.rawTitle || 'مقال', pageUrl),
+        ],
+      };
     }
-    // Fallback for unknown blog slug
     return {
       title: 'المدونة | pptides',
       description: DEFAULT_DESC,
       image: DEFAULT_OG_IMAGE,
-      url: `${SITE_URL}${cleanPath}`,
+      url: pageUrl,
+      jsonLd: [getBreadcrumbJsonLd('المدونة', pageUrl)],
     };
   }
 
@@ -149,13 +172,38 @@ async function resolveMeta(path: string): Promise<{ title: string; description: 
     const pep = PEPTIDE_META[id];
     if (pep) {
       const displayName = pep.nameAr === pep.nameEn ? pep.nameAr : `${pep.nameAr} | ${pep.nameEn}`;
+      const pageUrl = `${SITE_URL}${cleanPath}`;
       return {
         title: `${displayName} | pptides`,
         description: `بروتوكول ${pep.nameAr} — ${pep.summaryAr}`,
         image: DEFAULT_OG_IMAGE,
-        url: `${SITE_URL}${cleanPath}`,
+        url: pageUrl,
+        jsonLd: [
+          getPeptideJsonLd(pep, pageUrl),
+          getBreadcrumbJsonLd(pep.nameAr, pageUrl),
+        ],
       };
     }
+  }
+
+  // Static routes
+  if (STATIC_META[cleanPath]) {
+    const pageUrl = `${SITE_URL}${cleanPath}`;
+    const jsonLd: object[] = [getBreadcrumbJsonLd(PAGE_NAMES[cleanPath] || STATIC_META[cleanPath].title, pageUrl)];
+
+    // Add page-specific schemas
+    if (cleanPath === '/faq') {
+      jsonLd.unshift(getFaqJsonLd());
+    } else if (cleanPath === '/pricing') {
+      jsonLd.unshift(getPricingJsonLd());
+    }
+
+    return {
+      ...STATIC_META[cleanPath],
+      image: DEFAULT_OG_IMAGE,
+      url: pageUrl,
+      jsonLd,
+    };
   }
 
   // Default fallback
@@ -164,12 +212,183 @@ async function resolveMeta(path: string): Promise<{ title: string; description: 
     description: DEFAULT_DESC,
     image: DEFAULT_OG_IMAGE,
     url: `${SITE_URL}${cleanPath}`,
+    jsonLd: [getBreadcrumbJsonLd('', `${SITE_URL}${cleanPath}`)],
   };
 }
 
+// ── JSON-LD structured data generators ──
+
+// Homepage schemas (copied from index.html)
+function getHomepageJsonLd(): object[] {
+  return [
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "name": "pptides",
+      "alternateName": "دليل البيبتايدات",
+      "url": "https://pptides.com/",
+      "description": "أشمل دليل عربي للببتيدات العلاجية — 41+ ببتيد مع بروتوكولات كاملة",
+      "inLanguage": "ar",
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": "https://pptides.com/library?q={search_term_string}",
+        "query-input": "required name=search_term_string"
+      }
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "Product",
+      "name": "pptides — دليل البيبتايدات العلاجية",
+      "description": "وصول كامل لأكثر من 41 ببتيد مع بروتوكولات مفصّلة، حاسبة جرعات، دليل تحاليل مخبرية، مدرب ذكي بالذكاء الاصطناعي",
+      "brand": { "@type": "Brand", "name": "pptides" },
+      "offers": [
+        {
+          "@type": "Offer",
+          "name": "Essentials",
+          "price": "34",
+          "priceCurrency": "SAR",
+          "availability": "https://schema.org/InStock",
+          "priceValidUntil": "2027-12-31",
+          "url": "https://pptides.com/pricing"
+        },
+        {
+          "@type": "Offer",
+          "name": "Elite",
+          "price": "371",
+          "priceCurrency": "SAR",
+          "availability": "https://schema.org/InStock",
+          "priceValidUntil": "2027-12-31",
+          "url": "https://pptides.com/pricing"
+        }
+      ]
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      "name": "pptides",
+      "url": "https://pptides.com",
+      "logo": "https://pptides.com/icon-512.png",
+      "description": "أشمل دليل عربي للببتيدات العلاجية",
+      "sameAs": ["https://x.com/pptides"]
+    }
+  ];
+}
+
+// Blog Article schema
+function getBlogArticleJsonLd(blogMeta: { rawTitle?: string; rawExcerpt?: string; image: string; publishedAt?: string }, url: string): object {
+  return {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    "headline": blogMeta.rawTitle || '',
+    "description": blogMeta.rawExcerpt || '',
+    "image": blogMeta.image,
+    "author": { "@type": "Organization", "name": "pptides" },
+    "publisher": { "@type": "Organization", "name": "pptides", "url": "https://pptides.com", "logo": { "@type": "ImageObject", "url": "https://pptides.com/icon-512.png" } },
+    "datePublished": blogMeta.publishedAt || new Date().toISOString(),
+    "mainEntityOfPage": url
+  };
+}
+
+// Peptide MedicalWebPage schema
+function getPeptideJsonLd(pep: { nameAr: string; nameEn: string; summaryAr: string }, url: string): object {
+  return {
+    "@context": "https://schema.org",
+    "@type": "MedicalWebPage",
+    "name": pep.nameAr,
+    "description": pep.summaryAr,
+    "url": url,
+    "about": { "@type": "Drug", "name": pep.nameEn }
+  };
+}
+
+// FAQ schema (top 10 questions hardcoded)
+function getFaqJsonLd(): object {
+  const faqs = [
+    { q: 'ما هو pptides؟', a: 'pptides هي أول منصة عربية متخصصة في تعليم الببتيدات العلاجية. نقدّم مكتبة شاملة تضم 41+ ببتيد مع بروتوكولات استخدام مفصّلة، حاسبة جرعات دقيقة، ودليل تحاليل مخبرية — كل ذلك باللغة العربية ومبني على أبحاث علمية موثّقة.' },
+    { q: 'هل المحتوى موثوق علمياً؟', a: 'نعم. جميع المعلومات في pptides مستندة إلى أبحاث علمية منشورة في مجلات محكّمة (PubMed). كل ببتيد مرفق بمصادره العلمية التي يمكنك مراجعتها.' },
+    { q: 'هل هذا استشارة طبية؟', a: 'لا. محتوى pptides تعليمي بالكامل ولا يُعدّ بديلًا عن الاستشارة الطبية المتخصصة. يجب دائمًا استشارة طبيبك قبل استخدام أي ببتيد.' },
+    { q: 'هل تبيعون ببتيدات؟', a: 'لا. pptides منصة تعليمية ومعلوماتية فقط. لا نبيع أي ببتيدات أو مكمّلات أو أدوية.' },
+    { q: 'كم تكلفة الاشتراك؟', a: 'لدينا خطتان: الأساسية بسعر 34 ر.س شهرياً، والمتقدمة بسعر 371 ر.س شهرياً. كما نوفّر خصم كبير على الاشتراك السنوي.' },
+    { q: 'هل يوجد تجربة مجانية؟', a: 'نعم! نقدّم تجربة مجانية لمدة 3 أيام تمنحك وصولاً كاملاً لجميع ميزات الخطة التي تختارها.' },
+    { q: 'هل أحتاج بطاقة ائتمان للتجربة المجانية؟', a: 'نعم، نطلب بيانات بطاقتك عند بدء التجربة المجانية لضمان تجربة سلسة. لكن لن يتم خصم أي مبلغ خلال فترة التجربة.' },
+    { q: 'ما هي الببتيدات العلاجية؟', a: 'الببتيدات هي سلاسل قصيرة من الأحماض الأمينية تعمل كإشارات بيولوجية في الجسم. الببتيدات العلاجية تُستخدم لأهداف صحية محددة مثل التعافي وتحسين الأداء.' },
+    { q: 'هل الببتيدات آمنة؟', a: 'تختلف درجة الأمان حسب الببتيد. بعضها معتمد من FDA وله سجل أمان ممتاز، وبعضها تجريبي. كل ببتيد في pptides مصنّف بمستوى الأدلة العلمية.' },
+    { q: 'كيف أختار الببتيد المناسب لي؟', a: 'يمكنك استخدام اختبار الببتيد المناسب في المنصة، أو تصفح مكتبة الببتيدات حسب الفئة والهدف. دائمًا استشر طبيبك قبل البدء.' },
+  ];
+  return {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": faqs.map(f => ({
+      "@type": "Question",
+      "name": f.q,
+      "acceptedAnswer": { "@type": "Answer", "text": f.a }
+    }))
+  };
+}
+
+// Pricing Product schema
+function getPricingJsonLd(): object {
+  return {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    "name": "pptides - بروتوكولات الببتيد",
+    "description": "وصول كامل لأكثر من 41 ببتيد مع بروتوكولات مفصّلة، حاسبة جرعات، دليل تحاليل مخبرية",
+    "brand": { "@type": "Brand", "name": "pptides" },
+    "offers": [
+      { "@type": "Offer", "price": "34", "priceCurrency": "SAR", "name": "الأساسية", "availability": "https://schema.org/InStock", "url": "https://pptides.com/pricing" },
+      { "@type": "Offer", "price": "371", "priceCurrency": "SAR", "name": "المتقدّمة", "availability": "https://schema.org/InStock", "url": "https://pptides.com/pricing" }
+    ]
+  };
+}
+
+// BreadcrumbList schema
+function getBreadcrumbJsonLd(pageName: string, pageUrl: string): object {
+  const items: { "@type": string; position: number; name: string; item: string }[] = [
+    { "@type": "ListItem", "position": 1, "name": "الرئيسية", "item": "https://pptides.com/" }
+  ];
+  if (pageName && pageUrl !== `${SITE_URL}/`) {
+    items.push({ "@type": "ListItem", "position": 2, "name": pageName, "item": pageUrl });
+  }
+  return {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": items
+  };
+}
+
+// Page name mapping for breadcrumbs
+const PAGE_NAMES: Record<string, string> = {
+  '/pricing': 'الاشتراكات',
+  '/about': 'عن pptides',
+  '/transparency': 'الشفافية',
+  '/faq': 'الأسئلة الشائعة',
+  '/contact': 'تواصل معنا',
+  '/blog': 'المدونة',
+  '/glossary': 'قاموس المصطلحات',
+  '/sources': 'المصادر العلمية',
+  '/guide': 'دليل البدء',
+  '/lab-guide': 'دليل التحاليل',
+  '/quiz': 'اختبار الببتيد',
+  '/library': 'مكتبة الببتيدات',
+  '/table': 'جدول المقارنة',
+  '/stacks': 'البروتوكولات المُجمَّعة',
+  '/interactions': 'فحص التعارضات',
+  '/compare': 'مقارنة الببتيدات',
+  '/calculator': 'حاسبة الجرعات',
+  '/privacy': 'سياسة الخصوصية',
+  '/terms': 'شروط الاستخدام',
+  '/community': 'المجتمع',
+  '/reviews': 'التقييمات',
+};
+
 // ── Generate minimal HTML with OG tags ──
-function renderOgHtml(meta: { title: string; description: string; image: string; url: string }, originalPath: string): string {
+function renderOgHtml(meta: PageMeta, originalPath: string): string {
   const esc = (s: string) => s.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+
+  // Generate JSON-LD script tags
+  const jsonLdTags = (meta.jsonLd || [])
+    .map(schema => `  <script type="application/ld+json">${JSON.stringify(schema)}</script>`)
+    .join('\n');
 
   return `<!DOCTYPE html>
 <html lang="ar" dir="rtl">
@@ -199,6 +418,9 @@ function renderOgHtml(meta: { title: string; description: string; image: string;
   <!-- Canonical -->
   <link rel="canonical" href="${esc(meta.url)}" />
 
+  <!-- Structured Data (JSON-LD) -->
+${jsonLdTags}
+
   <!-- Redirect real users to the SPA -->
   <meta http-equiv="refresh" content="0;url=${esc(meta.url)}" />
 </head>
@@ -221,7 +443,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(200).send(html);
   } catch (err) {
     // Fallback on error
-    const meta = { title: DEFAULT_TITLE, description: DEFAULT_DESC, image: DEFAULT_OG_IMAGE, url: `${SITE_URL}${path}` };
+    const meta: PageMeta = { title: DEFAULT_TITLE, description: DEFAULT_DESC, image: DEFAULT_OG_IMAGE, url: `${SITE_URL}${path}`, jsonLd: [] };
     const html = renderOgHtml(meta, path);
     res.setHeader('Content-Type', 'text/html; charset=utf-8');
     return res.status(200).send(html);
