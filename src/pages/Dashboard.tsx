@@ -187,7 +187,7 @@ function useRecentActivity(userId: string | undefined) {
       .from('injection_logs')
       .select('peptide_name')
       .eq('user_id', userId)
-      .limit(10000)
+      .limit(500)
       .then(({ data }) => {
         if (!mounted || !data) return;
         const unique = new Set(data.map((r: { peptide_name: string }) => r.peptide_name));
@@ -226,10 +226,6 @@ function useRecentActivity(userId: string | undefined) {
     }
   }
 
-  const [lastCheckedAt, setLastCheckedAt] = useState(() => Date.now());
-  // eslint-disable-next-line react-hooks/set-state-in-effect -- sync timestamp when data arrives
-  useEffect(() => { if (!loading) setLastCheckedAt(Date.now()); }, [loading]);
-
   const todayLogged = logs.some(l => new Date(l.logged_at).toDateString() === new Date().toDateString());
 
   const lastLogByPeptide: Record<string, string> = {};
@@ -237,7 +233,7 @@ function useRecentActivity(userId: string | undefined) {
     if (!(l.peptide_name in lastLogByPeptide)) lastLogByPeptide[l.peptide_name] = l.logged_at;
   });
 
-  return { logs: logs.slice(0, 5), allLogs: logs, loading, activePeptides, totalInjections, uniquePeptidesCount: displayUniquePeptides, streak, todayPlan, lastCheckedAt, todayLogged, lastLogByPeptide };
+  return { logs: logs.slice(0, 5), allLogs: logs, loading, activePeptides, totalInjections, uniquePeptidesCount: displayUniquePeptides, streak, todayPlan, todayLogged, lastLogByPeptide };
 }
 
 interface ActiveProtocol {
@@ -563,6 +559,19 @@ export default function Dashboard() {
           <Link to="/reviews" className="shrink-0 rounded-full bg-emerald-600 px-5 py-2.5 text-sm font-bold text-white transition-colors hover:bg-emerald-700">
             اكتب تقييمك
           </Link>
+        </div>
+      )}
+
+      {/* Loading skeleton while activity data fetches */}
+      {activity.loading && (
+        <div className="mb-8 animate-pulse space-y-4">
+          <div className="grid grid-cols-3 gap-3">
+            {[0, 1, 2].map(i => (
+              <div key={i} className="h-20 rounded-xl bg-stone-200" />
+            ))}
+          </div>
+          <div className="h-10 rounded-xl bg-stone-200" />
+          <div className="h-24 rounded-2xl bg-stone-200" />
         </div>
       )}
 
@@ -1074,14 +1083,14 @@ export default function Dashboard() {
       {!activity.loading && activity.logs.length > 0 && (
         <div className="mb-8">
           <h2 className="mb-4 text-xl font-bold text-stone-900">نشاطك</h2>
-          <div className="grid gap-4 sm:grid-cols-4 mb-4">
+          <div className="grid grid-cols-2 gap-4 sm:grid-cols-4 mb-4">
             <div className="rounded-2xl border border-stone-200 bg-white p-4 text-center shadow-sm">
               <Clock className="mx-auto mb-1 h-5 w-5 text-emerald-500" />
               <p className="text-2xl font-black text-stone-900">
                 {(() => {
                   const last = activity.logs[0];
                   if (!last) return '—';
-                  const diff = activity.lastCheckedAt - new Date(last.logged_at).getTime();
+                  const diff = nowMs - new Date(last.logged_at).getTime();
                   const mins = Math.floor(diff / 60000);
                   if (mins < 60) return `${mins} دقيقة`;
                   const hrs = Math.floor(mins / 60);
