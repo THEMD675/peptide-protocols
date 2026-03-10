@@ -85,6 +85,7 @@ export default defineConfig({
           supabase: ['@supabase/supabase-js'],
           ui: ['lucide-react', 'sonner', 'react-helmet-async'],
           recharts: ['recharts'],
+          'focus-trap': ['focus-trap-react', 'focus-trap', 'tabbable'],
         },
       },
     },
