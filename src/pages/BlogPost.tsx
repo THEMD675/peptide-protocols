@@ -124,6 +124,8 @@ export default function BlogPost() {
             alt={post.title_ar}
             className="mb-8 w-full rounded-2xl object-cover h-56 sm:h-72 md:h-80"
             loading="lazy"
+            width="800"
+            height="224"
             onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
           />
         )}
