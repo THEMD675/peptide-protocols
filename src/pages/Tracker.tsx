@@ -1595,6 +1595,11 @@ export default function Tracker() {
                     {formatTime(log.logged_at)}
                   </span>
                 </div>
+                {log.photo_url && (
+                  <div className="mt-3">
+                    <img src={log.photo_url} alt="صورة الحقنة" className="h-20 w-20 rounded-xl object-cover border border-stone-200 dark:border-stone-700" loading="lazy" />
+                  </div>
+                )}
                 {log.notes && (
                   <div className="mt-3 flex items-start gap-2 rounded-lg bg-stone-50 dark:bg-stone-900 px-3 py-2">
                     <FileText className="mt-0.5 h-3.5 w-3.5 shrink-0 text-stone-500 dark:text-stone-400" />

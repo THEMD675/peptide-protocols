@@ -1,7 +1,7 @@
 import { useState, useMemo, useEffect, useId, useCallback } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { Link, useSearchParams } from 'react-router-dom';
-import { Calculator, FlaskConical, Droplets, ChevronDown, ArrowLeft, BookOpen, Layers, Bot, Bookmark, Syringe, Shield, Play, Search } from 'lucide-react';
+import { Calculator, FlaskConical, Droplets, ChevronDown, ArrowLeft, BookOpen, Layers, Bot, Bookmark, Syringe, Shield, Play, Search, Share2, Zap } from 'lucide-react';
 import ProtocolWizard from '@/components/ProtocolWizard';
 import { peptides as allPeptides } from '@/data/peptides';
 import { toast } from 'sonner';
@@ -113,7 +113,7 @@ function SyringeVisual({
           strokeWidth={1.5}
         />
 
-        {/* Fill */}
+        {/* Fill — animated */}
         {fillHeight > 0 && (
           <rect
             x={barrelX + 1.5}
@@ -123,6 +123,7 @@ function SyringeVisual({
             rx={fillY + fillHeight >= barrelTop + barrelHeight - 2 ? 3 : 0}
             fill={`url(#${gradientId})`}
             opacity={0.85}
+            style={{ transition: 'y 0.5s ease-out, height 0.5s ease-out' }}
           />
         )}
 
@@ -151,7 +152,7 @@ function SyringeVisual({
           </g>
         ))}
 
-        {/* Draw line indicator */}
+        {/* Draw line indicator — animated */}
         {fillHeight > 0 && fillHeight < barrelHeight && (
           <>
             <line
@@ -162,8 +163,9 @@ function SyringeVisual({
               stroke="#10b981"
               strokeWidth={1.5}
               strokeDasharray="3,2"
+              style={{ transition: 'y1 0.5s ease-out, y2 0.5s ease-out' }}
             />
-            <circle cx={barrelX - 4} cy={fillY} r={2} fill="#10b981" />
+            <circle cx={barrelX - 4} cy={fillY} r={2} fill="#10b981" style={{ transition: 'cy 0.5s ease-out' }} />
           </>
         )}
 
@@ -301,6 +303,37 @@ export default function DoseCalculator() {
     toast.success(`تم حفظ حساب ${selectedPreset}`);
   }, [selectedPreset, doseValue, doseUnit, vialMg, waterMl, results.syringeUnits, savedCalcs]);
 
+  const shareCalculation = useCallback(async () => {
+    if (!selectedPreset || !isFinite(results.syringeUnits) || results.syringeUnits <= 0) {
+      toast.error('اختر ببتيدًا أولًا');
+      return;
+    }
+    const text = `حساب جرعة ${selectedPreset} على pptides:\n` +
+      `الجرعة: ${doseValue} ${doseUnit}\n` +
+      `القارورة: ${vialMg} mg | الماء: ${waterMl} ml\n` +
+      `وحدات السيرنج: ${results.syringeUnits.toFixed(1)}\n` +
+      `الكمية: ${results.volumeMl.toFixed(3)} ml\n` +
+      `جرعات في القارورة: ${Math.floor(results.dosesPerVial)}\n\n` +
+      `${SITE_URL}/calculator?preset=${encodeURIComponent(selectedPreset)}`;
+    if (navigator.share) {
+      try { await navigator.share({ title: `حساب جرعة ${selectedPreset}`, text }); } catch { /* cancelled */ }
+    } else {
+      try {
+        await navigator.clipboard.writeText(text);
+        toast.success('تم نسخ الحساب');
+      } catch { toast.error('تعذّر النسخ'); }
+    }
+  }, [selectedPreset, doseValue, doseUnit, vialMg, waterMl, results]);
+
+  // Common protocols for quick-select
+  const COMMON_PROTOCOLS = useMemo(() => [
+    { name: 'فقدان الوزن', peptides: ['Semaglutide', 'Tirzepatide'], icon: '🏃‍♂️' },
+    { name: 'بناء العضلات', peptides: ['CJC-1295/Ipamorelin', 'BPC-157'], icon: '💪' },
+    { name: 'التعافي', peptides: ['BPC-157', 'TB-500'], icon: '🩹' },
+    { name: 'مكافحة الشيخوخة', peptides: ['Epithalon', 'GHK-Cu'], icon: '⏳' },
+    { name: 'النوم والاسترخاء', peptides: ['DSIP', 'Selank'], icon: '😴' },
+  ], []);
+
   const fmt = (n: number, d = 2) => (isFinite(n) && n > 0 ? n.toFixed(d) : '—');
 
   return (
@@ -352,6 +385,40 @@ export default function DoseCalculator() {
           <p className="mt-2 text-base text-stone-600 dark:text-stone-400">
             أداة مجانية — احسب جرعتك بدقة خلال ثوانٍ
           </p>
+        </div>
+
+        {/* Common Protocols Quick-Select */}
+        <div className="mb-8">
+          <div className="flex items-center justify-center gap-2 mb-3">
+            <Zap className="h-4 w-4 text-emerald-600" />
+            <h2 className="text-sm font-bold text-stone-900 dark:text-stone-100">بروتوكولات شائعة</h2>
+          </div>
+          <div className="flex gap-2 overflow-x-auto scrollbar-hide -mx-1 px-1 pb-1">
+            {COMMON_PROTOCOLS.map((proto) => (
+              <button
+                key={proto.name}
+                onClick={() => {
+                  const firstPeptide = proto.peptides[0];
+                  const preset = PEPTIDE_PRESETS.find(p => p.name === firstPeptide);
+                  if (preset) {
+                    setSelectedPreset(preset.name);
+                    setDoseUnit(preset.unit);
+                    setDoseValue(preset.dose);
+                    setVialMg(preset.vial);
+                    setWaterMl(preset.water);
+                    toast.success(`بروتوكول ${proto.name}: ${proto.peptides.join(' + ')}`);
+                  }
+                }}
+                className="flex shrink-0 items-center gap-2 rounded-2xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 px-4 py-3 text-sm font-medium text-stone-700 dark:text-stone-300 transition-all hover:border-emerald-300 hover:bg-emerald-50 dark:hover:bg-emerald-950 hover:shadow-sm"
+              >
+                <span className="text-lg">{proto.icon}</span>
+                <div className="text-start">
+                  <p className="text-xs font-bold text-stone-900 dark:text-stone-100">{proto.name}</p>
+                  <p className="text-[10px] text-stone-500" dir="ltr">{proto.peptides.join(' + ')}</p>
+                </div>
+              </button>
+            ))}
+          </div>
         </div>
 
         {/* Peptide Preset Selector */}
@@ -729,6 +796,13 @@ export default function DoseCalculator() {
               >
                 <Bookmark className="h-5 w-5" />
                 <span className="text-sm">احفظ الحساب</span>
+              </button>
+              <button
+                onClick={shareCalculation}
+                className="flex flex-col items-center justify-center gap-1 rounded-xl border-2 border-blue-200 dark:border-blue-800 bg-blue-50 dark:bg-blue-900/20 p-4 font-bold text-blue-700 dark:text-blue-400 transition-all hover:bg-blue-100 hover:shadow-md"
+              >
+                <Share2 className="h-5 w-5" />
+                <span className="text-sm">شارك الحساب</span>
               </button>
               <Link
                 to="/guide"

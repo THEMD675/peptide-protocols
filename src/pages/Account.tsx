@@ -1,8 +1,8 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import FocusTrap from 'focus-trap-react';
 import { Helmet } from 'react-helmet-async';
 import { Link, Navigate, useNavigate, useLocation } from 'react-router-dom';
-import { User, Crown, LogOut, Trash2, AlertTriangle, Mail, ArrowUpCircle, KeyRound, XCircle, Download, CreditCard, Gift, Copy, Share2, Check, Send, MessageSquare, UserCircle } from 'lucide-react';
+import { User, Crown, LogOut, Trash2, AlertTriangle, Mail, ArrowUpCircle, KeyRound, XCircle, Download, CreditCard, Gift, Copy, Share2, Check, Send, MessageSquare, UserCircle, Camera, BarChart3, Syringe, Bot, Calendar } from 'lucide-react';
 import { toast } from 'sonner';
 import { cn, arPlural } from '@/lib/utils';
 import { SUPPORT_EMAIL, STATUS_LABELS, TIER_LABELS, PEPTIDE_COUNT, SITE_URL } from '@/lib/constants';
@@ -31,6 +31,10 @@ export default function Account() {
   const [profileGoals, setProfileGoals] = useState<string[]>([]);
   const [profileLoading, setProfileLoading] = useState(false);
   const [profileSaving, setProfileSaving] = useState(false);
+  const [profilePicUrl, setProfilePicUrl] = useState<string | null>(null);
+  const [uploadingPic, setUploadingPic] = useState(false);
+  const avatarInputRef = useRef<HTMLInputElement>(null);
+  const [usageStats, setUsageStats] = useState<{ injections: number; protocols: number; coachMessages: number; memberSince: string } | null>(null);
 
   const closeDialogs = useCallback(() => {
     setShowCancelDialog(false);
@@ -67,17 +71,59 @@ export default function Account() {
   useEffect(() => {
     if (!user) return;
     setProfileLoading(true);
-    supabase.from('user_profiles').select('display_name, weight_kg, goals').eq('user_id', user.id).maybeSingle()
+    supabase.from('user_profiles').select('display_name, weight_kg, goals, avatar_url').eq('user_id', user.id).maybeSingle()
       .then(({ data, error }) => {
         if (!error && data) {
           setProfileDisplayName(data.display_name ?? '');
           setProfileWeight(data.weight_kg != null ? String(data.weight_kg) : '');
           setProfileGoals(Array.isArray(data.goals) ? data.goals : []);
+          if (data.avatar_url) setProfilePicUrl(data.avatar_url);
         }
       })
       .catch(() => { /* profile load failed — non-critical, defaults remain */ })
       .finally(() => setProfileLoading(false));
   }, [user]);
+
+  // Load usage stats
+  useEffect(() => {
+    if (!user) return;
+    let mounted = true;
+    Promise.all([
+      supabase.from('injection_logs').select('id', { count: 'exact', head: true }).eq('user_id', user.id),
+      supabase.from('user_protocols').select('id', { count: 'exact', head: true }).eq('user_id', user.id).eq('status', 'active'),
+      supabase.from('community_logs').select('id', { count: 'exact', head: true }).eq('user_id', user.id),
+    ]).then(([injRes, protoRes, coachRes]) => {
+      if (!mounted) return;
+      setUsageStats({
+        injections: injRes.count ?? 0,
+        protocols: protoRes.count ?? 0,
+        coachMessages: coachRes.count ?? 0,
+        memberSince: user.id ? new Date(parseInt(user.id.split('-')[0], 16) * 1000 || Date.now()).toLocaleDateString('ar-u-nu-latn', { year: 'numeric', month: 'long' }) : '',
+      });
+    }).catch(() => {});
+    return () => { mounted = false; };
+  }, [user]);
+
+  const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !user) return;
+    if (file.size > 2 * 1024 * 1024) { toast.error('حجم الصورة يجب أن يكون أقل من 2 ميجابايت'); return; }
+    setUploadingPic(true);
+    try {
+      const ext = file.name.split('.').pop() || 'jpg';
+      const path = `avatars/${user.id}.${ext}`;
+      const { error: uploadErr } = await supabase.storage.from('user-uploads').upload(path, file, { cacheControl: '31536000', upsert: true });
+      if (uploadErr) { toast.error('تعذّر رفع الصورة'); return; }
+      const { data: urlData } = supabase.storage.from('user-uploads').getPublicUrl(path);
+      const publicUrl = urlData?.publicUrl;
+      if (publicUrl) {
+        await supabase.from('user_profiles').upsert({ user_id: user.id, avatar_url: publicUrl, updated_at: new Date().toISOString() }, { onConflict: 'user_id' });
+        setProfilePicUrl(publicUrl + '?t=' + Date.now());
+        toast.success('تم تحديث صورة الملف الشخصي');
+      }
+    } catch { toast.error('تعذّر رفع الصورة — حاول مرة أخرى'); }
+    finally { setUploadingPic(false); }
+  };
 
   const handleSaveProfile = async () => {
     if (!user) return;
@@ -319,14 +365,105 @@ export default function Account() {
       </Helmet>
 
       <div className="mb-10 text-center">
-        <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-100 dark:bg-emerald-900/30">
-          <User className="h-7 w-7 text-emerald-600" />
+        {/* Profile Picture */}
+        <div className="relative mx-auto mb-4">
+          <input ref={avatarInputRef} type="file" accept="image/*" onChange={handleAvatarUpload} className="hidden" />
+          <button
+            onClick={() => avatarInputRef.current?.click()}
+            disabled={uploadingPic}
+            className="group relative mx-auto flex h-20 w-20 items-center justify-center overflow-hidden rounded-full border-2 border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-950 transition-all hover:border-emerald-400"
+          >
+            {profilePicUrl ? (
+              <img src={profilePicUrl} alt="صورة الملف الشخصي" className="h-full w-full object-cover" />
+            ) : (
+              <User className="h-8 w-8 text-emerald-600" />
+            )}
+            <div className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity">
+              {uploadingPic ? (
+                <span className="h-5 w-5 animate-spin rounded-full border-2 border-white/30 border-t-white" />
+              ) : (
+                <Camera className="h-5 w-5 text-white" />
+              )}
+            </div>
+          </button>
         </div>
         <h1 className="text-3xl font-bold text-emerald-600 md:text-4xl">حسابي</h1>
-        <p className="mt-2 text-lg text-stone-600 dark:text-stone-400">إدارة حسابك واشتراكك</p>
+        <p className="mt-2 text-lg text-stone-600 dark:text-stone-400">{profileDisplayName || user?.email || 'إدارة حسابك واشتراكك'}</p>
       </div>
 
       <div className="space-y-6">
+        {/* Usage Stats Dashboard */}
+        {usageStats && (
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+            <div className="rounded-2xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 p-4 text-center shadow-sm">
+              <Syringe className="mx-auto mb-1 h-5 w-5 text-emerald-600" />
+              <p className="text-2xl font-black text-stone-900 dark:text-stone-100">{usageStats.injections}</p>
+              <p className="text-xs text-stone-500">حقنة مسجلة</p>
+            </div>
+            <div className="rounded-2xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 p-4 text-center shadow-sm">
+              <Calendar className="mx-auto mb-1 h-5 w-5 text-blue-500" />
+              <p className="text-2xl font-black text-stone-900 dark:text-stone-100">{usageStats.protocols}</p>
+              <p className="text-xs text-stone-500">بروتوكول نشط</p>
+            </div>
+            <div className="rounded-2xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 p-4 text-center shadow-sm">
+              <Bot className="mx-auto mb-1 h-5 w-5 text-purple-500" />
+              <p className="text-2xl font-black text-stone-900 dark:text-stone-100">{usageStats.coachMessages}</p>
+              <p className="text-xs text-stone-500">رسالة مع المدرب</p>
+            </div>
+            <div className="rounded-2xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 p-4 text-center shadow-sm">
+              <BarChart3 className="mx-auto mb-1 h-5 w-5 text-orange-500" />
+              <p className="text-sm font-bold text-stone-900 dark:text-stone-100 mt-1">{usageStats.memberSince || '—'}</p>
+              <p className="text-xs text-stone-500">عضو منذ</p>
+            </div>
+          </div>
+        )}
+
+        {/* Current Plan Card */}
+        <div className="rounded-2xl border border-emerald-200 dark:border-emerald-800 bg-gradient-to-b from-emerald-50 to-white dark:from-emerald-950 dark:to-stone-950 p-6">
+          <div className="flex items-center gap-3 mb-3">
+            <Crown className="h-5 w-5 text-emerald-600" />
+            <h2 className="text-lg font-bold text-stone-900 dark:text-stone-100">خطتك الحالية</h2>
+          </div>
+          <div className="flex items-center gap-4">
+            <div className={cn(
+              'flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl',
+              subscription.tier === 'elite' ? 'bg-emerald-600' : subscription.tier === 'essentials' ? 'bg-emerald-500' : 'bg-stone-200 dark:bg-stone-700',
+            )}>
+              <Crown className={cn('h-8 w-8', subscription.tier !== 'free' ? 'text-white' : 'text-stone-400')} />
+            </div>
+            <div className="flex-1">
+              <p className="text-xl font-black text-stone-900 dark:text-stone-100">
+                {TIER_LABELS[subscription.tier] ?? subscription.tier}
+              </p>
+              <p className={cn(
+                'text-sm font-medium',
+                subscription.isProOrTrial ? 'text-emerald-600' : 'text-stone-500',
+              )}>
+                {subscription.isProOrTrial && subscription.status === 'cancelled'
+                  ? 'نشط'
+                  : STATUS_LABELS[subscription.status] ?? subscription.status}
+                {subscription.status === 'trial' && subscription.trialDaysLeft > 0 && (
+                  <span className="text-amber-600 ms-2">({arPlural(subscription.trialDaysLeft, 'يوم واحد', 'يومان', 'أيام')} متبقية)</span>
+                )}
+              </p>
+              {subscription.status === 'active' && subscription.currentPeriodEnd && (
+                <p className="text-xs text-stone-500 mt-1">
+                  يتجدد في {new Date(subscription.currentPeriodEnd).toLocaleDateString('ar-u-nu-latn')}
+                </p>
+              )}
+            </div>
+          </div>
+          {(subscription.status === 'expired' || subscription.status === 'none') && (
+            <Link
+              to="/pricing"
+              className="mt-4 flex items-center justify-center gap-2 rounded-full bg-emerald-600 px-6 py-3 text-sm font-bold text-white transition-all hover:bg-emerald-700"
+            >
+              <ArrowUpCircle className="h-4 w-4" />
+              اشترك الآن
+            </Link>
+          )}
+        </div>
+
         {/* Profile Card */}
         <div className="rounded-2xl border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-900 p-6">
           <div className="flex items-center gap-3 mb-4">
@@ -618,21 +755,30 @@ export default function Account() {
         {/* Peptide Enquiry */}
         <EnquiryForm userEmail={user?.email} userId={user?.id} />
 
-        {/* Data Export */}
+        {/* Data Export — GDPR Compliance */}
         <div className="rounded-2xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 p-6">
           <div className="flex items-center gap-3 mb-3">
             <Download className="h-5 w-5 text-emerald-600" />
-            <h2 className="text-lg font-bold text-stone-900 dark:text-stone-100">تصدير البيانات</h2>
+            <h2 className="text-lg font-bold text-stone-900 dark:text-stone-100">تصدير بياناتي</h2>
           </div>
-          <p className="text-sm text-stone-600 dark:text-stone-400 mb-4">حمّل نسخة من جميع بياناتك (سجل الحقن، البروتوكولات، العافية، التحاليل، الأعراض الجانبية)</p>
-          <div className="flex flex-wrap gap-3">
-            <button onClick={() => handleExportData('json')} className="rounded-full border border-emerald-300 dark:border-emerald-700 px-6 py-2.5 text-sm font-bold text-emerald-700 dark:text-emerald-400 transition-colors hover:bg-emerald-50 dark:bg-emerald-900/20">
-              تصدير بياناتي
+          <p className="text-sm text-stone-600 dark:text-stone-400 mb-4">حمّل نسخة كاملة من جميع بياناتك — حقك في نقل البيانات مكفول</p>
+          <div className="grid gap-3 sm:grid-cols-2">
+            <button
+              onClick={() => handleExportData('json')}
+              className="flex items-center justify-center gap-2 rounded-xl bg-emerald-600 px-6 py-3 text-sm font-bold text-white transition-all hover:bg-emerald-700"
+            >
+              <Download className="h-4 w-4" />
+              تصدير بياناتي (JSON)
             </button>
-            <button onClick={() => handleExportData('csv')} className="rounded-full border border-stone-300 dark:border-stone-700 px-6 py-2.5 text-sm font-bold text-stone-700 dark:text-stone-300 transition-colors hover:bg-stone-50 dark:hover:bg-stone-800">
+            <button
+              onClick={() => handleExportData('csv')}
+              className="flex items-center justify-center gap-2 rounded-xl border border-stone-300 dark:border-stone-700 px-6 py-3 text-sm font-bold text-stone-700 dark:text-stone-300 transition-all hover:bg-stone-50 dark:hover:bg-stone-800"
+            >
+              <Download className="h-4 w-4" />
               تصدير CSV (سجل الحقن)
             </button>
           </div>
+          <p className="text-[11px] text-stone-500 dark:text-stone-500 mt-3 text-center">يشمل: سجل الحقن، البروتوكولات، العافية، التحاليل، الأعراض الجانبية، والملف الشخصي</p>
         </div>
 
         {/* Actions */}
