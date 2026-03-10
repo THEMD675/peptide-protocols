@@ -454,7 +454,7 @@ export default function Community() {
                         type="button"
                         onClick={() => setGoal(g)}
                         className={cn(
-                          'rounded-full border px-4 py-1.5 text-sm font-medium transition-all',
+                          'rounded-full border px-4 py-2 min-h-[44px] text-sm font-medium transition-all',
                           goal === g
                             ? 'border-emerald-300 dark:border-emerald-700 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-800 dark:text-emerald-300'
                             : 'border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 text-stone-800 dark:text-stone-200 transition-colors hover:border-emerald-200 dark:border-emerald-800'
@@ -623,7 +623,7 @@ export default function Community() {
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value as 'newest' | 'highest')}
               aria-label="ترتيب التجارب"
-              className="shrink-0 rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 px-3 py-1.5 text-sm text-stone-700 dark:text-stone-300 focus:border-emerald-300 dark:border-emerald-700 focus:outline-none"
+              className="shrink-0 rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 px-3 py-2 min-h-[44px] text-sm text-stone-700 dark:text-stone-300 focus:border-emerald-300 dark:border-emerald-700 focus:outline-none"
             >
               <option value="newest">الأحدث</option>
               <option value="highest">الأعلى تقييمًا</option>
@@ -707,12 +707,12 @@ export default function Community() {
                       {(() => {
                         const peptide = allPeptides.find(p => p.nameEn.toLowerCase() === log.peptide_name.toLowerCase() || p.nameAr === log.peptide_name);
                         return peptide ? (
-                          <Link to={`/peptide/${peptide.id}`} className="inline-flex items-center gap-1.5 rounded-full border border-emerald-300 dark:border-emerald-700 bg-emerald-100 dark:bg-emerald-900/30 px-3 py-1 text-sm font-bold text-emerald-800 dark:text-emerald-300 shadow-sm dark:shadow-stone-900/30 hover:bg-emerald-200 transition-colors" dir="ltr">
+                          <Link to={`/peptide/${peptide.id}`} className="inline-flex items-center gap-1.5 rounded-full border border-emerald-300 dark:border-emerald-700 bg-emerald-100 dark:bg-emerald-900/30 px-3 py-2 min-h-[44px] text-sm font-bold text-emerald-800 dark:text-emerald-300 shadow-sm dark:shadow-stone-900/30 hover:bg-emerald-200 transition-colors" dir="ltr">
                             <FlaskConical className="h-3 w-3" />
                             {log.peptide_name}
                           </Link>
                         ) : (
-                          <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-300 dark:border-emerald-700 bg-emerald-100 dark:bg-emerald-900/30 px-3 py-1 text-sm font-bold text-emerald-800 dark:text-emerald-300 shadow-sm dark:shadow-stone-900/30" dir="ltr">
+                          <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-300 dark:border-emerald-700 bg-emerald-100 dark:bg-emerald-900/30 px-3 py-2 min-h-[44px] text-sm font-bold text-emerald-800 dark:text-emerald-300 shadow-sm dark:shadow-stone-900/30" dir="ltr">
                             <FlaskConical className="h-3 w-3" />
                             {log.peptide_name}
                           </span>

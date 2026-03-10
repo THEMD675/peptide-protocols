@@ -1144,14 +1144,14 @@ export default function Tracker() {
             <div className="flex rounded-xl border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-800 p-0.5">
               <button
                 onClick={() => setHeatmapView('weekly')}
-                className={cn('flex items-center gap-1 rounded-lg px-3 py-1.5 text-xs font-medium transition-all', heatmapView === 'weekly' ? 'bg-emerald-600 text-white' : 'text-stone-600 hover:text-stone-900')}
+                className={cn('flex items-center gap-1 rounded-lg px-3 py-2 min-h-[44px] text-xs font-medium transition-all', heatmapView === 'weekly' ? 'bg-emerald-600 text-white' : 'text-stone-600 hover:text-stone-900')}
               >
                 <CalendarDays className="h-3 w-3" />
                 أسبوعي
               </button>
               <button
                 onClick={() => setHeatmapView('monthly')}
-                className={cn('flex items-center gap-1 rounded-lg px-3 py-1.5 text-xs font-medium transition-all', heatmapView === 'monthly' ? 'bg-emerald-600 text-white' : 'text-stone-600 hover:text-stone-900')}
+                className={cn('flex items-center gap-1 rounded-lg px-3 py-2 min-h-[44px] text-xs font-medium transition-all', heatmapView === 'monthly' ? 'bg-emerald-600 text-white' : 'text-stone-600 hover:text-stone-900')}
               >
                 <CalendarRange className="h-3 w-3" />
                 شهري
@@ -1584,14 +1584,14 @@ export default function Tracker() {
             <div className="flex gap-2">
               <button
                 onClick={exportCSV}
-                className="flex items-center gap-1.5 rounded-lg border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 px-3 py-1.5 text-xs font-bold text-stone-600 dark:text-stone-400 transition-all hover:border-emerald-300 hover:text-emerald-700"
+                className="flex items-center gap-1.5 rounded-lg border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 px-3 py-1.5 min-h-[44px] text-xs font-bold text-stone-600 dark:text-stone-400 transition-all hover:border-emerald-300 hover:text-emerald-700"
               >
                 <Download className="h-3.5 w-3.5" />
                 CSV
               </button>
               <button
                 onClick={exportPDF}
-                className="flex items-center gap-1.5 rounded-lg border border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-950 px-3 py-1.5 text-xs font-bold text-emerald-700 dark:text-emerald-400 transition-all hover:bg-emerald-100"
+                className="flex items-center gap-1.5 rounded-lg border border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-950 px-3 py-1.5 min-h-[44px] text-xs font-bold text-emerald-700 dark:text-emerald-400 transition-all hover:bg-emerald-100"
               >
                 <FileDown className="h-3.5 w-3.5" />
                 PDF

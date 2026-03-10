@@ -517,7 +517,7 @@ export default function DoseCalculator() {
                   }
                 }}
                 className={cn(
-                  'rounded-lg px-4 py-1.5 text-sm font-medium transition-all',
+                  'rounded-lg px-4 py-2 min-h-[44px] text-sm font-medium transition-all',
                   doseUnit === 'mcg'
                     ? 'bg-emerald-500 text-white'
                     : 'text-stone-800 dark:text-stone-200 transition-colors hover:text-stone-800 dark:text-stone-200',
@@ -533,7 +533,7 @@ export default function DoseCalculator() {
                   }
                 }}
                 className={cn(
-                  'rounded-lg px-4 py-1.5 text-sm font-medium transition-all',
+                  'rounded-lg px-4 py-2 min-h-[44px] text-sm font-medium transition-all',
                   doseUnit === 'mg'
                     ? 'bg-emerald-500 text-white'
                     : 'text-stone-800 dark:text-stone-200 transition-colors hover:text-stone-800 dark:text-stone-200',
@@ -606,7 +606,7 @@ export default function DoseCalculator() {
                     </span>
                     <button
                       onClick={() => setWaterMl(recommendedWater)}
-                      className="rounded-md bg-emerald-600 px-2.5 py-1 text-xs font-bold text-white transition-colors hover:bg-emerald-700"
+                      className="rounded-md bg-emerald-600 px-3 py-2 min-h-[44px] text-xs font-bold text-white transition-colors hover:bg-emerald-700"
                     >
                       تعبئة
                     </button>

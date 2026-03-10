@@ -5,6 +5,7 @@ import { toast } from 'sonner';
 import { Layers, Clock, DollarSign, BarChart3, Syringe, Calculator, ArrowLeftRight } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import ProtocolWizard from '@/components/ProtocolWizard';
+import StackBuilder from '@/components/StackBuilder';
 import { PRICING, SITE_URL } from '@/lib/constants';
 import { stacks, peptides, categories } from '@/data/peptides';
 import { GenericPageSkeleton } from '@/components/Skeletons';
@@ -111,6 +112,18 @@ export default function Stacks() {
         <p className="mt-2 text-lg text-stone-600 dark:text-stone-400">
           خلطات مُجرَّبة لأهداف محددة
         </p>
+      </div>
+
+      {/* Interactive Stack Builder */}
+      <div className="mb-12">
+        <StackBuilder />
+      </div>
+
+      {/* Divider */}
+      <div className="mb-10 flex items-center gap-4">
+        <div className="h-px flex-1 bg-stone-200 dark:bg-stone-700" />
+        <span className="text-sm font-bold text-stone-400 dark:text-stone-500">بروتوكولات جاهزة</span>
+        <div className="h-px flex-1 bg-stone-200 dark:bg-stone-700" />
       </div>
 
       {/* Cards grid */}

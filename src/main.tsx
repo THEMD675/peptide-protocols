@@ -51,7 +51,7 @@ if ('serviceWorker' in navigator && import.meta.env.PROD) {
           el.innerHTML = `
             <div class="flex items-center justify-between gap-3">
               <p class="text-sm font-bold text-stone-900 dark:text-stone-100">تحديث جديد متاح</p>
-              <button id="pwa-update-btn" class="shrink-0 rounded-full bg-emerald-600 px-4 py-1.5 text-xs font-bold text-white hover:bg-emerald-700">تحديث</button>
+              <button id="pwa-update-btn" class="shrink-0 rounded-full bg-emerald-600 px-4 py-2.5 min-h-[44px] text-sm font-bold text-white hover:bg-emerald-700">تحديث</button>
             </div>
           `;
           document.body.appendChild(el);

@@ -1,4 +1,5 @@
 import { useState, useMemo, useCallback, useEffect, memo } from 'react';
+import { useBookmarks } from '@/hooks/useBookmarks';
 import FocusTrap from 'focus-trap-react';
 import { Helmet } from 'react-helmet-async';
 import { Link, useSearchParams } from 'react-router-dom';
@@ -217,26 +218,7 @@ const PeptideCard = memo(function PeptideCard({
   );
 });
 
-function useFavorites(): [Set<string>, (id: string) => void] {
-  const [favs, setFavs] = useState<Set<string>>(() => {
-    try {
-      const stored = localStorage.getItem('pptides_favorites');
-      return stored ? new Set(JSON.parse(stored)) : new Set();
-    } catch { return new Set(); }
-  });
-
-  const toggle = useCallback((id: string) => {
-    setFavs(prev => {
-      const next = new Set(prev);
-      if (next.has(id)) next.delete(id); else next.add(id);
-      try { localStorage.setItem('pptides_favorites', JSON.stringify([...next])); } catch { /* expected */ }
-      if (next.has(id)) { const p = peptides.find(x => x.id === id); toast.success(`تمت إضافة ${p?.nameAr ?? 'الببتيد'} للمفضلة`); }
-      return next;
-    });
-  }, []);
-
-  return [favs, toggle];
-}
+// Bookmarks now powered by useBookmarks hook (Supabase for logged-in, localStorage fallback)
 
 function useUsedPeptides() {
   const { user } = useAuth();
@@ -324,7 +306,7 @@ export default function Library() {
   }, []);
 
   const [showFilters, setShowFilters] = useState(false);
-  const [favorites, toggleFavorite] = useFavorites();
+  const { bookmarks: favorites, toggle: toggleFavorite } = useBookmarks();
   const [compareIds, setCompareIds] = useState<string[]>(() => {
     try { const s = sessionStorage.getItem('pptides_compare'); return s ? JSON.parse(s) : []; } catch { return []; }
   });
@@ -585,7 +567,7 @@ export default function Library() {
             </p>
             <button
               onClick={() => { setQuizGoalFilter(null); setActiveCategory('all'); }}
-              className="shrink-0 rounded-lg border border-emerald-200 dark:border-emerald-800 bg-white dark:bg-stone-950 px-3 py-1 text-xs font-bold text-emerald-700 dark:text-emerald-400 transition-colors hover:bg-emerald-100 dark:bg-emerald-900/30"
+              className="shrink-0 rounded-lg border border-emerald-200 dark:border-emerald-800 bg-white dark:bg-stone-950 px-3 py-2 min-h-[44px] text-xs font-bold text-emerald-700 dark:text-emerald-400 transition-colors hover:bg-emerald-100 dark:bg-emerald-900/30"
             >
               عرض الكل
             </button>
@@ -663,7 +645,7 @@ export default function Library() {
           {(activeCategory !== 'all' || search.trim() !== '' || evidenceFilter !== 'all') && (
             <button
               onClick={() => { setActiveCategory('all'); setSearch(''); setEvidenceFilter('all'); setSortBy('default'); }}
-              className="flex items-center gap-1 rounded-lg border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 px-3 py-1.5 text-xs font-medium text-stone-600 dark:text-stone-400 transition-colors hover:border-red-200 dark:border-red-800 hover:bg-red-50 dark:bg-red-900/20 hover:text-red-600 dark:text-red-400"
+              className="flex items-center gap-1 rounded-lg border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 px-3 py-1.5 min-h-[44px] text-xs font-medium text-stone-600 dark:text-stone-400 transition-colors hover:border-red-200 dark:border-red-800 hover:bg-red-50 dark:bg-red-900/20 hover:text-red-600 dark:text-red-400"
             >
               <X className="h-3 w-3" />
               مسح الفلاتر
@@ -877,7 +859,7 @@ export default function Library() {
                     <p className="mb-2 text-xs font-bold text-stone-500 dark:text-stone-400">ببتيدات مجانية يمكنك تصفّحها:</p>
                     <div className="flex flex-wrap justify-center gap-2">
                       {fallback.map(f => (
-                        <Link key={f.id} to={`/peptide/${f.id}`} onClick={() => setUpsellPeptide(null)} className="rounded-full border border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-900/20 px-3 py-1.5 text-xs font-bold text-emerald-700 dark:text-emerald-400 transition-colors hover:bg-emerald-100 dark:bg-emerald-900/30">
+                        <Link key={f.id} to={`/peptide/${f.id}`} onClick={() => setUpsellPeptide(null)} className="rounded-full border border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-900/20 px-3 py-2 min-h-[44px] inline-flex items-center text-xs font-bold text-emerald-700 dark:text-emerald-400 transition-colors hover:bg-emerald-100 dark:bg-emerald-900/30">
                           {f.nameAr}
                         </Link>
                       ))}
