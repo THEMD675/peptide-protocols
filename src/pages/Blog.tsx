@@ -206,9 +206,19 @@ export default function Blog() {
               <Link
                 key={post.id}
                 to={`/blog/${post.slug}`}
-                className="block rounded-2xl border border-stone-200 bg-white p-6 shadow-sm transition-shadow hover:shadow-md"
+                className="block overflow-hidden rounded-2xl border border-stone-200 bg-white shadow-sm transition-shadow hover:shadow-md"
               >
                 <article>
+                  {post.cover_image_url && (
+                    <img
+                      src={post.cover_image_url}
+                      alt={post.title_ar}
+                      className="h-48 w-full object-cover sm:h-56"
+                      loading="lazy"
+                      onError={e => { (e.target as HTMLImageElement).style.display = 'none'; }}
+                    />
+                  )}
+                  <div className="p-6">
                   <h2 className="text-lg font-bold text-stone-900">{post.title_ar}</h2>
                   <p className="mt-2 text-sm leading-relaxed text-stone-600">{post.excerpt_ar}</p>
                   <div className="mt-4 flex flex-wrap items-center gap-3 text-xs text-stone-500">
@@ -237,6 +247,7 @@ export default function Blog() {
                         ))}
                       </div>
                     )}
+                  </div>
                   </div>
                 </article>
               </Link>
