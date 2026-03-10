@@ -556,7 +556,7 @@ export default function Dashboard() {
               <p className="text-sm text-stone-600">تقييمك يساعد المجتمع على اتخاذ قرارات واعية</p>
             </div>
           </div>
-          <Link to="/reviews" className="shrink-0 rounded-full bg-emerald-600 px-5 py-2.5 text-sm font-bold text-white transition-colors hover:bg-emerald-700">
+          <Link to="/community" className="shrink-0 rounded-full bg-emerald-600 px-5 py-2.5 text-sm font-bold text-white transition-colors hover:bg-emerald-700">
             اكتب تقييمك
           </Link>
         </div>

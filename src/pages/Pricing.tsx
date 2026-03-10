@@ -18,7 +18,7 @@ const essentialsFeatures = [
 ];
 
 const eliteFeatures = [
-  'كل مزايا Essentials',
+  'كل مزايا Essentials (الأساسية)',
   'مدرب ذكي بالذكاء الاصطناعي 24/7',
   'بروتوكولات مخصّصة لأهدافك وحالتك الشخصية',
   'استشارات بلا حدود — لا حد للأسئلة',
@@ -37,7 +37,7 @@ const eliteValueStack = [
 const faqs = [
   {
     q: 'ما الفرق بين Essentials و Elite؟',
-    a: 'Essentials يعطيك كل الأدوات والمعلومات. Elite يضيف المدرب الذكي بلا حدود، بروتوكولات مخصّصة، ودعم مخصّص عبر البريد. إذا تريد استشارات كثيرة ومتابعة — Elite هو الخيار.',
+    a: 'Essentials (الأساسية) يعطيك كل الأدوات والمعلومات. Elite (المتقدّمة) يضيف المدرب الذكي بلا حدود، بروتوكولات مخصّصة، ودعم مخصّص عبر البريد. إذا تريد استشارات كثيرة ومتابعة — Elite (المتقدّمة) هو الخيار.',
   },
   {
     q: 'هل بياناتي آمنة؟',
@@ -264,7 +264,8 @@ export default function Pricing() {
           <div
             className="relative flex flex-col rounded-2xl border border-stone-300/60 bg-white p-8 md:p-10 transition-all duration-300 hover:shadow-lg hover:border-stone-400 hover:-translate-y-1"
           >
-            <h2 className="mb-1 text-2xl font-bold text-stone-900">Essentials</h2>
+            <h2 className="mb-0.5 text-2xl font-bold text-stone-900">Essentials</h2>
+            <p className="mb-1 text-sm font-medium text-emerald-600">الأساسية</p>
             <p className="mb-6 text-stone-800">كل الأدوات الأساسية التي تحتاجها</p>
 
             <div className="mb-2">
@@ -299,10 +300,11 @@ export default function Pricing() {
               الأفضل قيمة
             </span>
 
-            <div className="mb-1 flex items-center gap-2">
+            <div className="mb-0.5 flex items-center gap-2">
               <Crown className="h-5 w-5 text-emerald-600" />
               <h2 className="text-2xl font-bold text-stone-900">Elite</h2>
             </div>
+            <p className="mb-1 text-sm font-medium text-emerald-600">المتقدّمة</p>
             <p className="mb-6 text-stone-800">كل شيء + مدرب ذكي + استشارات شخصية</p>
 
             <div className="mb-2">
@@ -358,8 +360,8 @@ export default function Pricing() {
               <thead>
                 <tr className="border-b border-stone-200 bg-stone-50">
                   <th className="px-5 py-3 text-start font-semibold text-stone-700">الميزة</th>
-                  <th className="px-5 py-3 text-center font-semibold text-stone-700">Essentials</th>
-                  <th className="px-5 py-3 text-center font-semibold text-emerald-700">Elite</th>
+                  <th className="px-5 py-3 text-center font-semibold text-stone-700">Essentials<br /><span className="text-xs font-normal text-stone-500">الأساسية</span></th>
+                  <th className="px-5 py-3 text-center font-semibold text-emerald-700">Elite<br /><span className="text-xs font-normal text-emerald-500">المتقدّمة</span></th>
                 </tr>
               </thead>
               <tbody>
@@ -397,7 +399,7 @@ export default function Pricing() {
           className="mt-20"
         >
           <h2 className="mb-8 text-center text-2xl font-bold text-stone-900 md:text-3xl">
-            ماذا تحصل مع <span className="text-emerald-600">Essentials</span>؟
+            ماذا تحصل مع <span className="text-emerald-600">Essentials</span> <span className="text-stone-500">(الأساسية)</span>؟
           </h2>
           <div className="space-y-2">
             {valueStack.map((item, i) => (
@@ -424,7 +426,7 @@ export default function Pricing() {
           className="mt-16"
         >
           <h2 className="mb-8 text-center text-2xl font-bold text-stone-900 md:text-3xl">
-            ماذا يضيف <span className="text-emerald-600">Elite</span>؟
+            ماذا يضيف <span className="text-emerald-600">Elite</span> <span className="text-stone-500">(المتقدّمة)</span>؟
           </h2>
           <div className="space-y-2">
             {eliteValueStack.map((item, i) => (

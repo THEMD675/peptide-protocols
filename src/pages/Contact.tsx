@@ -130,7 +130,7 @@ export default function Contact() {
               required
               value={email}
               onChange={e => setEmail(e.target.value)}
-              placeholder="example@email.com"
+              placeholder="name@example.com"
               className="w-full rounded-xl border border-stone-300 bg-stone-50 px-4 py-2.5 text-stone-900 placeholder:text-stone-400 focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-200"
             />
           </div>

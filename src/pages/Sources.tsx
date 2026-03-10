@@ -73,7 +73,7 @@ function SourcingInterestForm() {
         <div className="grid gap-4 sm:grid-cols-2">
           <div>
             <label htmlFor="src-email" className="mb-1 block text-sm font-medium text-stone-800">البريد الإلكتروني *</label>
-            <input id="src-email" type="email" required value={email} onChange={e => setEmail(e.target.value)} placeholder="example@mail.com"
+            <input id="src-email" type="email" required value={email} onChange={e => setEmail(e.target.value)} placeholder="name@example.com"
               className="w-full rounded-xl border border-stone-200 bg-stone-50 px-4 py-3 text-sm text-stone-900 placeholder:text-stone-400 focus:border-emerald-300 focus:outline-none focus:ring-2 focus:ring-emerald-100" />
           </div>
           <div>

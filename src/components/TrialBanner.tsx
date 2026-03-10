@@ -140,7 +140,7 @@ export default function TrialBanner() {
             <Link to="/interactions" className="text-emerald-600 underline underline-offset-2 transition-colors hover:text-emerald-700">فحص التعارضات</Link>
             <Link to="/glossary" className="text-emerald-600 underline underline-offset-2 transition-colors hover:text-emerald-700">المصطلحات</Link>
             <Link to="/sources" className="text-emerald-600 underline underline-offset-2 transition-colors hover:text-emerald-700">المصادر</Link>
-            <Link to="/reviews" className="text-emerald-600 underline underline-offset-2 transition-colors hover:text-emerald-700">التقييمات</Link>
+            <Link to="/community" className="text-emerald-600 underline underline-offset-2 transition-colors hover:text-emerald-700">التقييمات</Link>
           </div>
           <button
             onClick={() => window.history.length > 1 ? window.history.back() : navigate('/')}

@@ -412,7 +412,7 @@ export default function Account() {
                 type="email"
                 value={newEmail}
                 onChange={(e) => setNewEmail(e.target.value)}
-                placeholder="example@mail.com"
+                placeholder="name@example.com"
                 dir="ltr"
                 autoComplete="email"
                 className="w-full rounded-xl border border-stone-200 bg-white px-4 py-3 text-left text-sm text-stone-900 placeholder:text-stone-500 focus:border-emerald-300 focus:outline-none focus:ring-2 focus:ring-emerald-100"
