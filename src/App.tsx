@@ -265,7 +265,7 @@ function OverlayGate() {
       {ageVerified && <LazyFallback><Suspense fallback={null}><CookieConsent /></Suspense></LazyFallback>}
       {showSecondary && showPromos && <LazyFallback><Suspense fallback={null}><StickyScrollCTA /></Suspense></LazyFallback>}
       {showSecondary && showPromos && <LazyFallback><Suspense fallback={null}><ExitIntentPopup /></Suspense></LazyFallback>}
-      {showSecondary && <LazyFallback><Suspense fallback={null}><SocialProofToast /></Suspense></LazyFallback>}
+      {/* DISABLED: Fake social proof — Ameer: "no fake shit" */}
     </>
   );
 }
