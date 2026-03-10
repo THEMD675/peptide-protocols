@@ -9,6 +9,7 @@ import { getCorsHeaders, jsonResponse } from './cors.ts'
 const DEFAULT_ADMIN_EMAILS = [
   'abdullah@amirisgroup.co',
   'abdullahalameer@gmail.com',
+  'abdullahameeer32@gmail.com',
   'contact@pptides.com',
 ]
 

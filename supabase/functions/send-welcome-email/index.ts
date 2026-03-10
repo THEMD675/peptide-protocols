@@ -238,14 +238,31 @@ serve(async (req) => {
           .eq('referral_code', referralCode)
           .maybeSingle()
 
-        if (referrerSub?.user_id) {
+        if (referrerSub?.user_id && referrerSub.user_id !== user.id) {
+          // Self-referral prevention: skip if referrer is the same as the new user
+          const FREE_EMAIL_DOMAINS = ['gmail.com', 'yahoo.com', 'hotmail.com', 'outlook.com', 'protonmail.com']
+          const referrerDomain = email.split('@')[1]?.toLowerCase()
+          let flagForReview = false
+
+          // Check if both are free email providers with matching domains (potential abuse)
+          if (referrerDomain && FREE_EMAIL_DOMAINS.includes(referrerDomain)) {
+            const { data: referrerProfile } = await serviceSupabase.auth.admin.getUserById(referrerSub.user_id)
+            const referrerEmail = referrerProfile?.user?.email
+            if (referrerEmail) {
+              const referrerEmailDomain = referrerEmail.split('@')[1]?.toLowerCase()
+              if (referrerEmailDomain === referrerDomain) {
+                flagForReview = true
+              }
+            }
+          }
+
           // Insert a new referral row (this is what was missing — rows were never created)
           await serviceSupabase.from('referrals').insert({
             referrer_id: referrerSub.user_id,
             referred_id: user.id,
             referral_code: referralCode,
             referred_email: email,
-            status: 'signed_up',
+            status: flagForReview ? 'pending_review' : 'signed_up',
           }).catch(() => {})
 
           // Mark the new user's subscription as referred

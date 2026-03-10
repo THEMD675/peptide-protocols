@@ -171,6 +171,7 @@ const ACTIVITY_COLOR: Record<string, string> = { signup: 'bg-emerald-100 dark:bg
 const ADMIN_EMAILS = [
   'abdullah@amirisgroup.co',
   'abdullahalameer@gmail.com',
+  'abdullahameeer32@gmail.com',
   'contact@pptides.com',
 ];
 

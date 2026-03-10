@@ -79,18 +79,16 @@ serve(async (req) => {
         const stripeSubscriptionId = session.subscription as string | null
 
         if (!userId && session.customer_email) {
-          let page = 1
-          while (!userId) {
-            const { data: { users }, error: luErr } = await supabase.auth.admin.listUsers({ page, perPage: 1000 })
-            if (luErr || !users || users.length === 0) break
-            const match = users.find(u => u.email === session.customer_email)
-            if (match) {
-              userId = match.id
-              console.warn('checkout.session.completed: resolved user via email fallback:', session.customer_email)
-              break
-            }
-            if (users.length < 1000) break
-            page++
+          // Direct lookup by email — O(1) instead of paginating all users
+          const { data: profileMatch } = await supabase
+            .from('profiles')
+            .select('id')
+            .eq('email', session.customer_email)
+            .limit(1)
+            .single()
+          if (profileMatch) {
+            userId = profileMatch.id
+            console.warn('checkout.session.completed: resolved user via email fallback:', session.customer_email)
           }
         }
 
@@ -206,33 +204,47 @@ serve(async (req) => {
 
               if (referral?.referrer_id && !referral.reward_given) {
                 try {
-                  // Create a unique single-use promotion code for the referrer
-                  const promoCode = await stripe.promotionCodes.create({
-                    coupon: 'referral_reward',
-                    max_redemptions: 1,
-                    metadata: { referrer_id: referral.referrer_id, referred_id: userId },
-                  })
+                  // Referral reward cap: max 5 rewards per referrer
+                  const { count: rewardCount } = await supabase.from('referrals')
+                    .select('id', { count: 'exact', head: true })
+                    .eq('referrer_id', referral.referrer_id)
+                    .eq('reward_given', true)
 
-                  // Update referral record with reward info
-                  await supabase.from('referrals')
-                    .update({
-                      status: 'rewarded',
-                      converted_at: new Date().toISOString(),
-                      reward_given: true,
-                      reward_code: promoCode.code,
-                      stripe_promotion_code_id: promoCode.id,
+                  if ((rewardCount ?? 0) >= 5) {
+                    console.log('referral reward cap reached for referrer:', referral.referrer_id)
+                    // Mark as converted but don't give reward
+                    await supabase.from('referrals')
+                      .update({ status: 'converted', converted_at: new Date().toISOString() })
+                      .eq('referred_id', userId).eq('referral_code', userSub.referred_by)
+                  } else {
+                    // Create a unique single-use promotion code for the referrer
+                    const promoCode = await stripe.promotionCodes.create({
+                      coupon: 'referral_reward',
+                      max_redemptions: 1,
+                      metadata: { referrer_id: referral.referrer_id, referred_id: userId },
                     })
-                    .eq('referred_id', userId).eq('referral_code', userSub.referred_by)
 
-                  // Notify the referrer
-                  await supabase.from('notifications').insert({
-                    user_id: referral.referrer_id,
-                    type: 'referral',
-                    title_ar: '🎁 مكافأة إحالة!',
-                    body_ar: `شكرًا! حصلت على شهر مجاني لأنك دعوت صديقًا. استخدم الكود: ${promoCode.code}`,
-                  })
+                    // Update referral record with reward info
+                    await supabase.from('referrals')
+                      .update({
+                        status: 'rewarded',
+                        converted_at: new Date().toISOString(),
+                        reward_given: true,
+                        reward_code: promoCode.code,
+                        stripe_promotion_code_id: promoCode.id,
+                      })
+                      .eq('referred_id', userId).eq('referral_code', userSub.referred_by)
 
-                  console.log('referral reward created:', promoCode.code, 'for referrer:', referral.referrer_id)
+                    // Notify the referrer
+                    await supabase.from('notifications').insert({
+                      user_id: referral.referrer_id,
+                      type: 'referral',
+                      title_ar: '🎁 مكافأة إحالة!',
+                      body_ar: `شكرًا! حصلت على شهر مجاني لأنك دعوت صديقًا. استخدم الكود: ${promoCode.code}`,
+                    })
+
+                    console.log('referral reward created:', promoCode.code, 'for referrer:', referral.referrer_id)
+                  }
                 } catch (e) { console.error('referral reward failed:', e) }
               }
             }
