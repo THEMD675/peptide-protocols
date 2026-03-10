@@ -197,7 +197,7 @@ export default function WellnessCheckin() {
             return (
               <div key={metric.key}>
                 <div className="flex items-center justify-between mb-2">
-                  <span className="text-xs font-bold text-stone-700 dark:text-stone-300">{metric.label}</span>
+                  <span className="text-sm font-bold text-stone-700 dark:text-stone-300">{metric.label}</span>
                   <span className="text-sm">{metric.emojis[val - 1]}</span>
                 </div>
                 <div className="flex gap-1.5">
@@ -228,7 +228,7 @@ export default function WellnessCheckin() {
           })}
 
           <div>
-            <label htmlFor="wc-weight" className="mb-1 block text-xs font-bold text-stone-700 dark:text-stone-300">
+            <label htmlFor="wc-weight" className="mb-1 block text-sm font-bold text-stone-700 dark:text-stone-300">
               الوزن (كغ) <span className="text-emerald-600 font-normal">اختياري</span>
             </label>
             <input
@@ -248,7 +248,7 @@ export default function WellnessCheckin() {
           </div>
 
           <div>
-            <label htmlFor="wc-notes" className="mb-1 block text-xs font-bold text-stone-700 dark:text-stone-300">
+            <label htmlFor="wc-notes" className="mb-1 block text-sm font-bold text-stone-700 dark:text-stone-300">
               ملاحظات <span className="text-emerald-600 font-normal">اختياري</span>
             </label>
             <textarea

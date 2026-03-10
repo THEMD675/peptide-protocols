@@ -735,11 +735,11 @@ export default function Coach() {
                     <div className="animate-fade-up space-y-3 max-w-[88%]">
                       <div className="grid gap-3 sm:grid-cols-2">
                         <div>
-                          <label htmlFor="coach-age" className="mb-1 block text-xs font-medium text-stone-600 dark:text-stone-400">العمر تقريبًا</label>
+                          <label htmlFor="coach-age" className="mb-1 block text-sm font-medium text-stone-600 dark:text-stone-400">العمر تقريبًا</label>
                           <input id="coach-age" type="number" inputMode="numeric" min={16} max={120} value={intake.age} onChange={e => setIntake(p => ({ ...p, age: e.target.value }))} placeholder="مثال: 32" dir="ltr" className="w-full rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 px-3 py-2.5 text-sm text-stone-900 dark:text-stone-100 placeholder:text-stone-500 dark:text-stone-400 focus:border-emerald-300 dark:border-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900" />
                         </div>
                         <div>
-                          <label htmlFor="coach-medications" className="mb-1 block text-xs font-medium text-stone-600 dark:text-stone-400">أدوية أو مكملات حالية</label>
+                          <label htmlFor="coach-medications" className="mb-1 block text-sm font-medium text-stone-600 dark:text-stone-400">أدوية أو مكملات حالية</label>
                           <input id="coach-medications" type="text" value={intake.medications} onChange={e => setIntake(p => ({ ...p, medications: e.target.value }))} placeholder="مثال: فيتامين D، كرياتين" className="w-full rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 px-3 py-2.5 text-sm text-stone-900 dark:text-stone-100 placeholder:text-stone-500 dark:text-stone-400 focus:border-emerald-300 dark:border-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900" />
                         </div>
                       </div>

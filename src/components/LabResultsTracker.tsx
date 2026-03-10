@@ -222,7 +222,7 @@ export default function LabResultsTracker() {
       {showForm && (
         <div className="mb-5 space-y-3 rounded-xl border border-emerald-100 bg-emerald-50/30 p-4">
           <div>
-            <label className="mb-1 block text-xs font-bold text-stone-700 dark:text-stone-300">التحليل</label>
+            <label className="mb-1 block text-sm font-bold text-stone-700 dark:text-stone-300">التحليل</label>
             <select
               value={selectedTest}
               onChange={e => setSelectedTest(e.target.value as LabTestId)}
@@ -239,7 +239,7 @@ export default function LabResultsTracker() {
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label htmlFor="lab-value" className="mb-1 block text-xs font-bold text-stone-700 dark:text-stone-300">القيمة</label>
+              <label htmlFor="lab-value" className="mb-1 block text-sm font-bold text-stone-700 dark:text-stone-300">القيمة</label>
               <div className="relative">
                 <input
                   id="lab-value"
@@ -266,7 +266,7 @@ export default function LabResultsTracker() {
               )}
             </div>
             <div>
-              <label className="mb-1 block text-xs font-bold text-stone-700 dark:text-stone-300">تاريخ التحليل</label>
+              <label className="mb-1 block text-sm font-bold text-stone-700 dark:text-stone-300">تاريخ التحليل</label>
               <input
                 type="date"
                 value={testedAt}
@@ -280,7 +280,7 @@ export default function LabResultsTracker() {
           </div>
 
           <div>
-            <label htmlFor="lab-notes" className="mb-1 block text-xs font-bold text-stone-700 dark:text-stone-300">
+            <label htmlFor="lab-notes" className="mb-1 block text-sm font-bold text-stone-700 dark:text-stone-300">
               ملاحظات <span className="text-emerald-600 font-normal">اختياري</span>
             </label>
             <textarea
