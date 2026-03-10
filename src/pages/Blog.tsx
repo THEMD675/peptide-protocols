@@ -167,7 +167,7 @@ export default function Blog() {
                   <button
                     onClick={() => setActiveTag(null)}
                     className={cn(
-                      'shrink-0 rounded-full border px-4 py-1.5 text-sm font-medium transition-all',
+                      'shrink-0 rounded-full border px-4 py-2 min-h-[44px] text-sm font-medium transition-all',
                       !activeTag
                         ? 'border-emerald-400 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-800 dark:text-emerald-300'
                         : 'border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 text-stone-600 dark:text-stone-400 hover:border-emerald-200 dark:border-emerald-800'
@@ -180,7 +180,7 @@ export default function Blog() {
                       key={tag}
                       onClick={() => setActiveTag(activeTag === tag ? null : tag)}
                       className={cn(
-                        'shrink-0 inline-flex items-center gap-1.5 rounded-full border px-4 py-1.5 text-sm font-medium transition-all',
+                        'shrink-0 inline-flex items-center gap-1.5 rounded-full border px-4 py-2 min-h-[44px] text-sm font-medium transition-all',
                         activeTag === tag
                           ? 'border-emerald-400 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-800 dark:text-emerald-300'
                           : 'border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 text-stone-600 dark:text-stone-400 hover:border-emerald-200 dark:border-emerald-800'

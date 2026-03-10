@@ -108,7 +108,7 @@ function GlossaryCard({ term, search, allPeptides }: { term: GlossaryTerm; searc
               <Link
                 key={pid}
                 to={`/peptide/${pid}`}
-                className="inline-flex items-center gap-1 rounded-full border border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-900/30 px-2.5 py-1 text-xs font-medium text-emerald-700 dark:text-emerald-400 transition-colors hover:bg-emerald-100 dark:hover:bg-emerald-900/50 min-h-[32px]"
+                className="inline-flex items-center gap-1 rounded-full border border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-900/30 px-2.5 py-1.5 text-xs font-medium text-emerald-700 dark:text-emerald-400 transition-colors hover:bg-emerald-100 dark:hover:bg-emerald-900/50 min-h-[44px]"
               >
                 <FlaskConical className="h-3 w-3" />
                 {p.nameEn}

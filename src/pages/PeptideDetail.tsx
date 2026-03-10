@@ -1,6 +1,7 @@
 import { useMemo, useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { ArrowRight, Shield, AlertTriangle, CheckCircle, Lock, Calculator, Bot, FlaskConical, Printer, MessageSquare, Star, Syringe, Play, ExternalLink, BookOpen } from 'lucide-react';
+import { ArrowRight, Shield, AlertTriangle, CheckCircle, Lock, Calculator, Bot, FlaskConical, Printer, MessageSquare, Star, Syringe, Play, ExternalLink, BookOpen, Heart } from 'lucide-react';
+import { useBookmarks } from '@/hooks/useBookmarks';
 import ProtocolWizard from '@/components/ProtocolWizard';
 import { toast } from 'sonner';
 import { Helmet } from 'react-helmet-async';

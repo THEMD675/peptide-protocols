@@ -744,7 +744,7 @@ export default function Library() {
               return p ? <span key={id} className="rounded-full bg-emerald-50 dark:bg-emerald-900/20 px-2.5 py-0.5 text-xs font-bold text-emerald-700 dark:text-emerald-400">{p.nameAr}</span> : null;
             })}
           </div>
-          <button onClick={() => setShowCompare(true)} className="rounded-xl bg-emerald-600 px-5 py-2 text-sm font-bold text-white transition-colors hover:bg-emerald-700">عرض المقارنة</button>
+          <Link to={`/compare?${compareIds.map((id, i) => `p${i + 1}=${id}`).join('&')}`} className="rounded-xl bg-emerald-600 px-5 py-2 text-sm font-bold text-white transition-colors hover:bg-emerald-700">عرض المقارنة</Link>
           <button onClick={() => setCompareIds([])} className="rounded-xl border border-stone-200 dark:border-stone-700 px-3 py-2 text-xs font-bold text-stone-600 dark:text-stone-400 transition-colors hover:bg-stone-50 dark:hover:bg-stone-800">مسح</button>
         </div>
       )}
