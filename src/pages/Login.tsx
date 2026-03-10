@@ -9,7 +9,7 @@ import { cn } from '@/lib/utils';
 import { events } from '@/lib/analytics';
 
 const TURNSTILE_SITE_KEY = import.meta.env.VITE_TURNSTILE_SITE_KEY ?? '';
-const GOOGLE_CLIENT_ID = '803062121443-7bgrfd0ms4smqv2k085sntkiprmesdch.apps.googleusercontent.com';
+const GOOGLE_CLIENT_ID = '803062121443-7497cu9tfra080sr835benjs5gl9295o.apps.googleusercontent.com';
 
 type Tab = 'login' | 'signup';
 
