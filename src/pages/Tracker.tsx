@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useMemo, lazy, Suspense } from 'react';
+import { useState, useEffect, useCallback, useMemo, lazy, Suspense, useRef } from 'react';
 import FocusTrap from 'focus-trap-react';
 import { Helmet } from 'react-helmet-async';
 import { Link } from 'react-router-dom';
@@ -28,6 +28,10 @@ import {
   Play,
   Info,
   AlertTriangle,
+  Camera,
+  FileDown,
+  CalendarDays,
+  CalendarRange,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { events } from '@/lib/analytics';
@@ -47,7 +51,10 @@ interface InjectionLog {
   injection_site: string;
   logged_at: string;
   notes: string | null;
+  photo_url?: string | null;
 }
+
+type HeatmapView = 'weekly' | 'monthly';
 
 const INJECTION_SITES = [
   { value: 'abdomen', label: 'البطن' },
@@ -212,6 +219,101 @@ export default function Tracker() {
     return { year: now.getFullYear(), month: now.getMonth() };
   });
   const [timingTipsExpanded, setTimingTipsExpanded] = useState(false);
+  const [heatmapView, setHeatmapView] = useState<HeatmapView>('monthly');
+  const [photoFile, setPhotoFile] = useState<File | null>(null);
+  const [photoPreview, setPhotoPreview] = useState<string | null>(null);
+  const photoInputRef = useRef<HTMLInputElement>(null);
+
+  const handlePhotoSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error('حجم الصورة يجب أن يكون أقل من 5 ميجابايت');
+      return;
+    }
+    setPhotoFile(file);
+    const reader = new FileReader();
+    reader.onload = () => setPhotoPreview(reader.result as string);
+    reader.readAsDataURL(file);
+  };
+
+  const uploadPhoto = async (): Promise<string | null> => {
+    if (!photoFile || !user) return null;
+    try {
+      const ext = photoFile.name.split('.').pop() || 'jpg';
+      const path = `injection-photos/${user.id}/${Date.now()}.${ext}`;
+      const { error } = await supabase.storage.from('user-uploads').upload(path, photoFile, { cacheControl: '31536000', upsert: false });
+      if (error) { console.warn('Photo upload failed:', error.message); return null; }
+      const { data: urlData } = supabase.storage.from('user-uploads').getPublicUrl(path);
+      return urlData?.publicUrl ?? null;
+    } catch { return null; }
+  };
+
+  const exportPDF = async () => {
+    if (!user) return;
+    toast('جارٍ تجهيز ملف PDF...');
+    try {
+      const { data: allLogs, error } = await supabase
+        .from('injection_logs')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('logged_at', { ascending: false })
+        .limit(10000);
+      if (error) { toast.error('تعذّر تحميل البيانات'); return; }
+      const rows = (allLogs ?? []) as InjectionLog[];
+      const html2canvas = (await import('html2canvas')).default;
+      // Build a temporary HTML table for PDF
+      const container = document.createElement('div');
+      container.style.cssText = 'position:fixed;top:-9999px;right:0;width:800px;padding:40px;background:#fff;direction:rtl;font-family:Cairo,sans-serif;';
+      container.innerHTML = `
+        <div style="text-align:center;margin-bottom:24px;">
+          <h1 style="font-size:24px;color:#059669;margin:0;">سجل الحقن — pptides</h1>
+          <p style="color:#78716c;font-size:14px;margin-top:8px;">${new Date().toLocaleDateString('ar-u-nu-latn', { year: 'numeric', month: 'long', day: 'numeric' })}</p>
+          <p style="color:#78716c;font-size:12px;">إجمالي: ${rows.length} حقنة</p>
+        </div>
+        <table style="width:100%;border-collapse:collapse;font-size:12px;">
+          <thead>
+            <tr style="background:#f5f5f4;border-bottom:2px solid #d6d3d1;">
+              <th style="padding:8px;text-align:right;">الببتيد</th>
+              <th style="padding:8px;text-align:center;">الجرعة</th>
+              <th style="padding:8px;text-align:center;">الموقع</th>
+              <th style="padding:8px;text-align:center;">التاريخ</th>
+              <th style="padding:8px;text-align:center;">الوقت</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${rows.slice(0, 200).map((l, i) => `
+              <tr style="border-bottom:1px solid #e7e5e4;${i % 2 === 0 ? 'background:#fafaf9;' : ''}">
+                <td style="padding:6px 8px;" dir="ltr">${l.peptide_name}</td>
+                <td style="padding:6px 8px;text-align:center;">${l.dose} ${l.dose_unit}</td>
+                <td style="padding:6px 8px;text-align:center;">${SITE_LABELS[l.injection_site] ?? l.injection_site}</td>
+                <td style="padding:6px 8px;text-align:center;">${formatDate(l.logged_at, useHijri)}</td>
+                <td style="padding:6px 8px;text-align:center;">${formatTime(l.logged_at)}</td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+        ${rows.length > 200 ? '<p style="text-align:center;color:#78716c;font-size:11px;margin-top:12px;">يتم عرض أول 200 سجل فقط</p>' : ''}
+        <p style="text-align:center;color:#a8a29e;font-size:10px;margin-top:24px;">pptides.com — تم التصدير تلقائيًا</p>
+      `;
+      document.body.appendChild(container);
+      const canvas = await html2canvas(container, { scale: 2, backgroundColor: '#ffffff' });
+      document.body.removeChild(container);
+      const blob = await new Promise<Blob | null>(resolve => canvas.toBlob(resolve, 'image/png'));
+      if (!blob) { toast.error('تعذّر إنشاء PDF'); return; }
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `pptides-injections-${new Date().toISOString().slice(0, 10)}.png`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      toast.success('تم تصدير السجل كصورة');
+    } catch {
+      toast.error('تعذّر التصدير');
+    }
+  };
 
   const suggestedSite = useMemo(() => {
     if (logs.length === 0) return 'abdomen';
@@ -367,7 +469,8 @@ export default function Tracker() {
     try {
       const sideEffectLabel = sideEffect !== 'none' ? `أعراض جانبية: ${sideEffect}` : '';
       const combinedNotes = [notes.trim(), sideEffectLabel].filter(Boolean).join('\n') || null;
-      const { error } = await supabase.from('injection_logs').insert({
+      const photoUrl = await uploadPhoto();
+      const insertData: Record<string, unknown> = {
         user_id: user.id,
         peptide_name: peptideName.trim(),
         dose: parseFloat(dose),
@@ -375,7 +478,9 @@ export default function Tracker() {
         injection_site: site,
         logged_at: injectedDate.toISOString(),
         notes: combinedNotes,
-      });
+      };
+      if (photoUrl) insertData.photo_url = photoUrl;
+      const { error } = await supabase.from('injection_logs').insert(insertData);
       if (error) {
         if (error?.message?.includes('JWT') || (error as { code?: string })?.code === '401' || error?.message?.includes('not authenticated')) {
           toast.error('انتهت الجلسة — أعد تسجيل الدخول');
@@ -391,6 +496,9 @@ export default function Tracker() {
       setNotes('');
       setSideEffect('none');
       setDoseOutOfRangeConfirmed(false);
+      setPhotoFile(null);
+      setPhotoPreview(null);
+      if (photoInputRef.current) photoInputRef.current.value = '';
       setShowForm(false);
       sessionStorage.removeItem('pptides_tracker_form_draft');
       events.injectionLog(peptideName);
@@ -494,7 +602,7 @@ export default function Tracker() {
         <div key={day} className={cn(
           'relative flex flex-col items-center justify-center rounded-lg py-1.5 text-xs transition-colors',
           isToday ? 'ring-2 ring-emerald-400 font-bold' : '',
-          count > 0 ? 'bg-emerald-50 text-emerald-800 font-semibold' : 'text-stone-500',
+          count > 0 ? 'bg-emerald-50 dark:bg-emerald-900/20 text-emerald-800 dark:text-emerald-300 font-semibold' : 'text-stone-500 dark:text-stone-400',
         )}>
           <span>{day}</span>
           {count > 0 && (
@@ -509,6 +617,54 @@ export default function Tracker() {
     }
     return { dayNames, monthName, isCurrentMonth, injectionDays, cells };
   }, [logs, allLogsForStats, calendarMonth, useHijri]);
+
+  // GitHub-style contribution heatmap data
+  const heatmapData = useMemo(() => {
+    const src = allLogsForStats.length > 0 ? allLogsForStats : logs;
+    if (src.length === 0) return null;
+    const now = new Date();
+    const dayCounts = new Map<string, number>();
+    src.forEach(l => {
+      const key = new Date(l.logged_at).toISOString().slice(0, 10);
+      dayCounts.set(key, (dayCounts.get(key) ?? 0) + 1);
+    });
+    const maxCount = Math.max(...dayCounts.values(), 1);
+
+    if (heatmapView === 'weekly') {
+      // Last 12 weeks
+      const weeks: { date: Date; count: number; key: string }[][] = [];
+      const startDate = new Date(now);
+      startDate.setDate(startDate.getDate() - 83); // ~12 weeks back
+      startDate.setDate(startDate.getDate() - startDate.getDay()); // start of week
+      let currentWeek: { date: Date; count: number; key: string }[] = [];
+      const d = new Date(startDate);
+      while (d <= now) {
+        const key = d.toISOString().slice(0, 10);
+        currentWeek.push({ date: new Date(d), count: dayCounts.get(key) ?? 0, key });
+        if (currentWeek.length === 7) {
+          weeks.push(currentWeek);
+          currentWeek = [];
+        }
+        d.setDate(d.getDate() + 1);
+      }
+      if (currentWeek.length > 0) weeks.push(currentWeek);
+      return { weeks, maxCount, view: 'weekly' as const };
+    } else {
+      // Last 6 months calendar view
+      const months: { year: number; month: number; days: { day: number; count: number }[] }[] = [];
+      for (let i = 5; i >= 0; i--) {
+        const m = new Date(now.getFullYear(), now.getMonth() - i, 1);
+        const daysInMonth = new Date(m.getFullYear(), m.getMonth() + 1, 0).getDate();
+        const days: { day: number; count: number }[] = [];
+        for (let day = 1; day <= daysInMonth; day++) {
+          const key = `${m.getFullYear()}-${String(m.getMonth() + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+          days.push({ day, count: dayCounts.get(key) ?? 0 });
+        }
+        months.push({ year: m.getFullYear(), month: m.getMonth(), days });
+      }
+      return { months, maxCount, view: 'monthly' as const };
+    }
+  }, [logs, allLogsForStats, heatmapView]);
 
   const siteRotationData = useMemo(() => {
     if (logs.length === 0) return null;
@@ -543,13 +699,13 @@ export default function Tracker() {
       {/* Header */}
       <div className="mb-8 text-center">
         <div className="flex items-center justify-center gap-3 mb-4">
-          <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-100">
+          <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-100 dark:bg-emerald-900/30">
             <Syringe className="h-7 w-7 text-emerald-600" />
           </div>
           <button
             type="button"
             onClick={toggleCalendar}
-            className="flex items-center gap-2 rounded-full border border-stone-200 bg-white px-4 py-2 text-sm font-medium text-stone-700 transition-all hover:border-emerald-300 hover:bg-emerald-50 hover:text-emerald-700"
+            className="flex items-center gap-2 rounded-full border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 px-4 py-2 text-sm font-medium text-stone-700 dark:text-stone-300 transition-all hover:border-emerald-300 dark:border-emerald-700 hover:bg-emerald-50 dark:bg-emerald-900/20 hover:text-emerald-700 dark:text-emerald-400"
             title={useHijri ? 'عرض بالتوقيت الميلادي' : 'عرض بالتوقيت الهجري'}
             aria-label={useHijri ? 'تبديل للتوقيت الميلادي' : 'تبديل للتوقيت الهجري'}
           >
@@ -558,14 +714,14 @@ export default function Tracker() {
           </button>
         </div>
         <h1 className="text-3xl font-bold text-emerald-600 md:text-4xl">سجل الحقن</h1>
-        <p className="mt-2 text-lg text-stone-600">تتبّع جرعاتك ومواقع الحقن</p>
+        <p className="mt-2 text-lg text-stone-600 dark:text-stone-400">تتبّع جرعاتك ومواقع الحقن</p>
       </div>
 
       {/* Expired subscription banner — read-only mode */}
       {!subscription.isProOrTrial && (
-        <div className="mb-6 rounded-2xl border border-amber-300 bg-amber-50 p-4 text-center">
-          <p className="text-sm font-bold text-amber-800 mb-1">اشتراكك منتهي — بياناتك محفوظة</p>
-          <p className="text-xs text-amber-700 mb-3">اشترك للإضافة والتعديل</p>
+        <div className="mb-6 rounded-2xl border border-amber-300 dark:border-amber-700 bg-amber-50 dark:bg-amber-900/20 p-4 text-center">
+          <p className="text-sm font-bold text-amber-800 dark:text-amber-300 mb-1">اشتراكك منتهي — بياناتك محفوظة</p>
+          <p className="text-xs text-amber-700 dark:text-amber-400 mb-3">اشترك للإضافة والتعديل</p>
           <Link to="/pricing" className="inline-flex items-center gap-2 rounded-full bg-emerald-600 px-6 py-2.5 text-sm font-bold text-white transition-all hover:bg-emerald-700">
             اشترك الآن
           </Link>
@@ -573,21 +729,21 @@ export default function Tracker() {
       )}
 
       {/* Prayer Time / Timing Tips — collapsible */}
-      <div className="mb-6 rounded-2xl border border-stone-200 bg-stone-50 overflow-hidden">
+      <div className="mb-6 rounded-2xl border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-900 overflow-hidden">
         <button
           type="button"
           onClick={() => setTimingTipsExpanded((p) => !p)}
-          className="flex w-full items-center justify-between px-4 py-3 text-start transition-colors hover:bg-stone-100"
+          className="flex w-full items-center justify-between px-4 py-3 text-start transition-colors hover:bg-stone-100 dark:hover:bg-stone-800"
           aria-expanded={timingTipsExpanded ? 'true' : 'false'}
         >
-          <span className="flex items-center gap-2 font-bold text-stone-900">
+          <span className="flex items-center gap-2 font-bold text-stone-900 dark:text-stone-100">
             <Info className="h-4 w-4 text-emerald-600" />
             نصائح التوقيت
           </span>
-          {timingTipsExpanded ? <ChevronUp className="h-4 w-4 text-stone-500" /> : <ChevronDown className="h-4 w-4 text-stone-500" />}
+          {timingTipsExpanded ? <ChevronUp className="h-4 w-4 text-stone-500 dark:text-stone-400" /> : <ChevronDown className="h-4 w-4 text-stone-500 dark:text-stone-400" />}
         </button>
         {timingTipsExpanded && (
-          <div className="border-t border-stone-200 px-4 py-4 text-sm text-stone-700 space-y-2">
+          <div className="border-t border-stone-200 dark:border-stone-700 px-4 py-4 text-sm text-stone-700 dark:text-stone-300 space-y-2">
             <p>• الحقن على معدة فارغة — يُفضل قبل الفجر أو بعد العشاء</p>
             <p>• ببتيدات هرمون النمو (CJC, Ipamorelin) — أفضل توقيت قبل النوم</p>
             <p>• BPC-157 — صباحًا ومساءً، يمكن ربطه بصلاة الفجر والعشاء</p>
@@ -598,7 +754,7 @@ export default function Tracker() {
       {/* Active Protocol Cards — One-Tap Logging */}
       {activeProtocols.length > 0 && (
         <div className="mb-8">
-          <h2 className="mb-3 text-lg font-bold text-stone-900">بروتوكولاتك النشطة</h2>
+          <h2 className="mb-3 text-lg font-bold text-stone-900 dark:text-stone-100">بروتوكولاتك النشطة</h2>
           <div className="grid gap-3 sm:grid-cols-2">
             {activeProtocols.map(proto => {
               const peptide = allPeptides.find(p => p.id === proto.peptide_id);
@@ -608,14 +764,14 @@ export default function Tracker() {
               const totalWeeks = proto.cycle_weeks || 8;
               const todayLogged = logs.some(l => l.peptide_name === (peptide?.nameEn ?? proto.peptide_id) && new Date(l.logged_at).toDateString() === new Date().toDateString());
               return (
-                <div key={proto.id} className={cn('rounded-2xl border p-4 transition-all', todayLogged ? 'border-emerald-300 bg-emerald-50/50' : 'border-stone-200 bg-white')}>
+                <div key={proto.id} className={cn('rounded-2xl border p-4 transition-all', todayLogged ? 'border-emerald-300 dark:border-emerald-700 bg-emerald-50/50' : 'border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950')}>
                   <div className="flex items-center gap-3">
                     <ProgressRing current={daysSinceStart} total={totalDays} size={56} />
                     <div className="flex-1 min-w-0">
-                      <p className="font-bold text-stone-900 truncate">{peptide?.nameAr ?? proto.peptide_id}</p>
-                      <p className="text-xs text-stone-500" dir="ltr">{proto.dose} {proto.dose_unit}</p>
-                      <p className="text-xs text-stone-500">الأسبوع {weekNumber} من {totalWeeks}</p>
-                      <p className="text-xs text-stone-500">بدأ {formatDate(proto.started_at, useHijri)}</p>
+                      <p className="font-bold text-stone-900 dark:text-stone-100 truncate">{peptide?.nameAr ?? proto.peptide_id}</p>
+                      <p className="text-xs text-stone-500 dark:text-stone-400" dir="ltr">{proto.dose} {proto.dose_unit}</p>
+                      <p className="text-xs text-stone-500 dark:text-stone-400">الأسبوع {weekNumber} من {totalWeeks}</p>
+                      <p className="text-xs text-stone-500 dark:text-stone-400">بدأ {formatDate(proto.started_at, useHijri)}</p>
                       {subscription.isProOrTrial && (
                         <button
                           onClick={() => setConfirmDialog({
@@ -639,7 +795,7 @@ export default function Tracker() {
                               setConfirmDialog(null);
                             },
                           })}
-                          className="text-xs text-stone-500 hover:text-red-500 transition-colors"
+                          className="text-xs text-stone-500 dark:text-stone-400 hover:text-red-500 dark:text-red-400 transition-colors"
                         >
                           أنهِ البروتوكول
                         </button>
@@ -652,19 +808,19 @@ export default function Tracker() {
                         className={cn(
                           'shrink-0 rounded-full px-4 py-2 text-sm font-bold transition-all',
                           todayLogged
-                            ? 'bg-emerald-100 text-emerald-600 cursor-default'
+                            ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 cursor-default'
                             : 'bg-emerald-600 text-white hover:bg-emerald-700 active:scale-95'
                         )}
                       >
                         {todayLogged ? 'تم اليوم' : 'سجّل'}
                       </button>
                     ) : (
-                      <span className="shrink-0 rounded-full bg-stone-100 px-4 py-2 text-xs text-stone-500">قراءة فقط</span>
+                      <span className="shrink-0 rounded-full bg-stone-100 dark:bg-stone-800 px-4 py-2 text-xs text-stone-500 dark:text-stone-400">قراءة فقط</span>
                     )}
                   </div>
                   {daysSinceStart >= totalDays && (
-                    <div className="mt-3 rounded-lg bg-emerald-50 border border-emerald-200 px-3 py-3 text-center">
-                      <p className="text-sm font-bold text-emerald-700 mb-2">أكملت الدورة بنجاح!</p>
+                    <div className="mt-3 rounded-lg bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 px-3 py-3 text-center">
+                      <p className="text-sm font-bold text-emerald-700 dark:text-emerald-400 mb-2">أكملت الدورة بنجاح!</p>
                       <button
                         onClick={async () => {
                           const pepName = peptide?.nameAr ?? proto.peptide_id;
@@ -705,9 +861,9 @@ export default function Tracker() {
             return (
               <div className="mt-4 space-y-2">
                 {alerts.map(a => (
-                  <div key={`restock-${a.id}`} className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 flex items-center gap-3">
+                  <div key={`restock-${a.id}`} className="rounded-xl border border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-900/20 px-4 py-3 flex items-center gap-3">
                     <AlertTriangle className="h-4 w-4 shrink-0 text-amber-600" />
-                    <p className="text-xs font-bold text-amber-800">
+                    <p className="text-xs font-bold text-amber-800 dark:text-amber-300">
                       ~{a.remaining} جرعة متبقية في قارورة {a.nameAr}
                     </p>
                   </div>
@@ -722,17 +878,17 @@ export default function Tracker() {
       {subscription.isProOrTrial && (
         <div className="mb-8">
           {!showProtocolWizard ? (
-            <div className="rounded-2xl border-2 border-dashed border-emerald-200 bg-emerald-50/50 p-5">
+            <div className="rounded-2xl border-2 border-dashed border-emerald-200 dark:border-emerald-800 bg-emerald-50/50 p-5">
               <div className="flex flex-col sm:flex-row items-center gap-4">
                 <div className="flex-1 text-center sm:text-start">
-                  <h3 className="text-sm font-bold text-stone-900">بدء بروتوكول جديد</h3>
-                  <p className="text-xs text-stone-500 mt-1">اختر ببتيد وابدأ بروتوكول منظّم بجرعات وتذكيرات</p>
+                  <h3 className="text-sm font-bold text-stone-900 dark:text-stone-100">بدء بروتوكول جديد</h3>
+                  <p className="text-xs text-stone-500 dark:text-stone-400 mt-1">اختر ببتيد وابدأ بروتوكول منظّم بجرعات وتذكيرات</p>
                 </div>
                 <div className="flex items-center gap-2 w-full sm:w-auto">
                   <select
                     value={wizardPeptideId}
                     onChange={(e) => setWizardPeptideId(e.target.value)}
-                    className="flex-1 sm:w-48 rounded-xl border border-stone-200 bg-white px-3 py-2.5 text-sm text-stone-900 focus:border-emerald-300 focus:outline-none focus:ring-2 focus:ring-emerald-100"
+                    className="flex-1 sm:w-48 rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 px-3 py-2.5 text-sm text-stone-900 dark:text-stone-100 focus:border-emerald-300 dark:border-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900"
                     aria-label="اختر ببتيد للبروتوكول"
                   >
                     <option value="">اختر ببتيد...</option>
@@ -758,37 +914,37 @@ export default function Tracker() {
       {dashboardStats && (
           <>
           <div className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-5">
-            <div className="rounded-2xl border border-stone-200 bg-white p-4 text-center shadow-sm">
+            <div className="rounded-2xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 p-4 text-center shadow-sm dark:shadow-stone-900/30">
               <BarChart3 className="mx-auto mb-1 h-5 w-5 text-emerald-600" />
-              <p className="text-2xl font-black text-stone-900">{dashboardStats.totalInjections}</p>
-              <p className="text-xs text-stone-500">إجمالي الحقن</p>
+              <p className="text-2xl font-black text-stone-900 dark:text-stone-100">{dashboardStats.totalInjections}</p>
+              <p className="text-xs text-stone-500 dark:text-stone-400">إجمالي الحقن</p>
             </div>
-            <div className="rounded-2xl border border-stone-200 bg-white p-4 text-center shadow-sm">
+            <div className="rounded-2xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 p-4 text-center shadow-sm dark:shadow-stone-900/30">
               <Flame className="mx-auto mb-1 h-5 w-5 text-orange-500" />
-              <p className="text-2xl font-black text-stone-900">{dashboardStats.streak}</p>
-              <p className="text-xs text-stone-500">أيام متتالية</p>
+              <p className="text-2xl font-black text-stone-900 dark:text-stone-100">{dashboardStats.streak}</p>
+              <p className="text-xs text-stone-500 dark:text-stone-400">أيام متتالية</p>
             </div>
-            <div className="rounded-2xl border border-stone-200 bg-white p-4 text-center shadow-sm">
+            <div className="rounded-2xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 p-4 text-center shadow-sm dark:shadow-stone-900/30">
               <TrendingUp className="mx-auto mb-1 h-5 w-5 text-blue-500" />
-              <p className="text-2xl font-black text-stone-900">{dashboardStats.last7}</p>
-              <p className="text-xs text-stone-500">آخر 7 أيام</p>
+              <p className="text-2xl font-black text-stone-900 dark:text-stone-100">{dashboardStats.last7}</p>
+              <p className="text-xs text-stone-500 dark:text-stone-400">آخر 7 أيام</p>
             </div>
-            <div className="rounded-2xl border border-stone-200 bg-white p-4 text-center shadow-sm">
+            <div className="rounded-2xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 p-4 text-center shadow-sm dark:shadow-stone-900/30">
               <Syringe className="mx-auto mb-1 h-5 w-5 text-purple-500" />
-              <p className="text-2xl font-black text-stone-900">{dashboardStats.uniquePeptides}</p>
-              <p className="text-xs text-stone-500">ببتيدات مختلفة</p>
+              <p className="text-2xl font-black text-stone-900 dark:text-stone-100">{dashboardStats.uniquePeptides}</p>
+              <p className="text-xs text-stone-500 dark:text-stone-400">ببتيدات مختلفة</p>
             </div>
-            <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-4 text-center shadow-sm col-span-2 sm:col-span-1">
+            <div className="rounded-2xl border border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-900/20 p-4 text-center shadow-sm dark:shadow-stone-900/30 col-span-2 sm:col-span-1">
               <Clock className="mx-auto mb-1 h-5 w-5 text-emerald-600" />
-              <p className="text-2xl font-black text-emerald-700">{dashboardStats.timeSinceLabel}</p>
-              <p className="text-xs text-stone-500">آخر حقنة</p>
+              <p className="text-2xl font-black text-emerald-700 dark:text-emerald-400">{dashboardStats.timeSinceLabel}</p>
+              <p className="text-xs text-stone-500 dark:text-stone-400">آخر حقنة</p>
             </div>
           </div>
           {/* Active days stat — uses full log set for accuracy */}
           <div className="grid grid-cols-1 gap-3 mb-6">
-            <div className="rounded-2xl border border-stone-200 bg-white p-4 text-center">
-              <p className="text-2xl font-black text-stone-900">{new Set((allLogsForStats.length > 0 ? allLogsForStats : logs).map(l => new Date(l.logged_at).toDateString())).size}</p>
-              <p className="text-xs text-stone-500">يوم نشط</p>
+            <div className="rounded-2xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 p-4 text-center">
+              <p className="text-2xl font-black text-stone-900 dark:text-stone-100">{new Set((allLogsForStats.length > 0 ? allLogsForStats : logs).map(l => new Date(l.logged_at).toDateString())).size}</p>
+              <p className="text-xs text-stone-500 dark:text-stone-400">يوم نشط</p>
             </div>
           </div>
           </>
@@ -796,9 +952,9 @@ export default function Tracker() {
 
       {/* Weekly Activity Chart */}
       {weeklyActivity && (
-          <div className="mb-8 rounded-2xl border border-stone-200 bg-white p-5 shadow-sm">
-            <h3 className="mb-3 text-sm font-bold text-stone-900">نشاط الأسبوع</h3>
-            <Suspense fallback={<div className="h-32 animate-pulse rounded-xl bg-stone-100" />}><ActivityChart data={weeklyActivity.days.map((day, i) => ({ day: day.slice(0, 3), count: weeklyActivity.weekCounts[i], isToday: i === weeklyActivity.todayIdx }))} /></Suspense>
+          <div className="mb-8 rounded-2xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 p-5 shadow-sm dark:shadow-stone-900/30">
+            <h3 className="mb-3 text-sm font-bold text-stone-900 dark:text-stone-100">نشاط الأسبوع</h3>
+            <Suspense fallback={<div className="h-32 animate-pulse rounded-xl bg-stone-100 dark:bg-stone-800" />}><ActivityChart data={weeklyActivity.days.map((day, i) => ({ day: day.slice(0, 3), count: weeklyActivity.weekCounts[i], isToday: i === weeklyActivity.todayIdx }))} /></Suspense>
           </div>
       )}
 
@@ -811,43 +967,145 @@ export default function Tracker() {
           dose: l.dose,
         }));
         return (
-          <div className="mb-8 rounded-2xl border border-stone-200 bg-white p-5 shadow-sm">
-            <h3 className="mb-3 text-sm font-bold text-stone-900">تاريخ جرعات {trendPeptide}</h3>
-            <Suspense fallback={<div className="h-32 animate-pulse rounded-xl bg-stone-100" />}><DoseTrendChart data={trendData} unit={trendLogs[0]?.dose_unit ?? 'mcg'} /></Suspense>
+          <div className="mb-8 rounded-2xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 p-5 shadow-sm dark:shadow-stone-900/30">
+            <h3 className="mb-3 text-sm font-bold text-stone-900 dark:text-stone-100">تاريخ جرعات {trendPeptide}</h3>
+            <Suspense fallback={<div className="h-32 animate-pulse rounded-xl bg-stone-100 dark:bg-stone-800" />}><DoseTrendChart data={trendData} unit={trendLogs[0]?.dose_unit ?? 'mcg'} /></Suspense>
           </div>
         );
       })()}
 
       {/* Monthly Calendar */}
       {calendarData && (
-          <div className="mb-8 rounded-2xl border border-stone-200 bg-white p-5 shadow-sm">
+          <div className="mb-8 rounded-2xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 p-5 shadow-sm dark:shadow-stone-900/30">
             <div className="flex items-center justify-between mb-4">
-              <button onClick={() => setCalendarMonth(prev => { const m = prev.month - 1; return m < 0 ? { year: prev.year - 1, month: 11 } : { year: prev.year, month: m }; })} aria-label="الشهر السابق" className="flex items-center justify-center rounded-lg border border-stone-200 p-1.5 min-h-[44px] min-w-[44px] text-stone-500 transition-colors hover:bg-stone-50 hover:text-stone-700">
+              <button onClick={() => setCalendarMonth(prev => { const m = prev.month - 1; return m < 0 ? { year: prev.year - 1, month: 11 } : { year: prev.year, month: m }; })} aria-label="الشهر السابق" className="flex items-center justify-center rounded-lg border border-stone-200 dark:border-stone-700 p-1.5 min-h-[44px] min-w-[44px] text-stone-500 dark:text-stone-400 transition-colors hover:bg-stone-50 dark:hover:bg-stone-800 hover:text-stone-700 dark:text-stone-300">
                 <ChevronRight className="h-4 w-4" />
               </button>
               <div className="text-center">
-                <h3 className="text-sm font-bold text-stone-900">{calendarData.monthName}</h3>
-                <span className="text-xs text-stone-500">{calendarData.injectionDays.size} يوم نشط</span>
+                <h3 className="text-sm font-bold text-stone-900 dark:text-stone-100">{calendarData.monthName}</h3>
+                <span className="text-xs text-stone-500 dark:text-stone-400">{calendarData.injectionDays.size} يوم نشط</span>
               </div>
-              <button onClick={() => { if (calendarData.isCurrentMonth) return; setCalendarMonth(prev => { const m = prev.month + 1; return m > 11 ? { year: prev.year + 1, month: 0 } : { year: prev.year, month: m }; }); }} disabled={calendarData.isCurrentMonth} aria-label="الشهر التالي" className={cn('flex items-center justify-center rounded-lg border border-stone-200 p-1.5 min-h-[44px] min-w-[44px] transition-colors', calendarData.isCurrentMonth ? 'text-stone-300 cursor-not-allowed' : 'text-stone-500 hover:bg-stone-50 hover:text-stone-700')}>
+              <button onClick={() => { if (calendarData.isCurrentMonth) return; setCalendarMonth(prev => { const m = prev.month + 1; return m > 11 ? { year: prev.year + 1, month: 0 } : { year: prev.year, month: m }; }); }} disabled={calendarData.isCurrentMonth} aria-label="الشهر التالي" className={cn('flex items-center justify-center rounded-lg border border-stone-200 dark:border-stone-700 p-1.5 min-h-[44px] min-w-[44px] transition-colors', calendarData.isCurrentMonth ? 'text-stone-300 cursor-not-allowed' : 'text-stone-500 dark:text-stone-400 hover:bg-stone-50 dark:hover:bg-stone-800 hover:text-stone-700 dark:text-stone-300')}>
                 <ChevronLeft className="h-4 w-4" />
               </button>
             </div>
             <div className="grid grid-cols-7 gap-1 text-center">
               {calendarData.dayNames.map(d => (
-                <div key={d} className="text-xs font-bold text-stone-500 pb-1">{d}</div>
+                <div key={d} className="text-xs font-bold text-stone-500 dark:text-stone-400 pb-1">{d}</div>
               ))}
               {calendarData.cells}
             </div>
           </div>
       )}
 
+      {/* Injection Heatmap — GitHub-style */}
+      {heatmapData && (
+        <div className="mb-8 rounded-2xl border border-stone-200 bg-white p-5 shadow-sm">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-sm font-bold text-stone-900">خريطة النشاط</h3>
+            <div className="flex rounded-xl border border-stone-200 bg-stone-50 p-0.5">
+              <button
+                onClick={() => setHeatmapView('weekly')}
+                className={cn('flex items-center gap-1 rounded-lg px-3 py-1.5 text-xs font-medium transition-all', heatmapView === 'weekly' ? 'bg-emerald-600 text-white' : 'text-stone-600 hover:text-stone-900')}
+              >
+                <CalendarDays className="h-3 w-3" />
+                أسبوعي
+              </button>
+              <button
+                onClick={() => setHeatmapView('monthly')}
+                className={cn('flex items-center gap-1 rounded-lg px-3 py-1.5 text-xs font-medium transition-all', heatmapView === 'monthly' ? 'bg-emerald-600 text-white' : 'text-stone-600 hover:text-stone-900')}
+              >
+                <CalendarRange className="h-3 w-3" />
+                شهري
+              </button>
+            </div>
+          </div>
+          {heatmapData.view === 'weekly' && 'weeks' in heatmapData && (
+            <div className="overflow-x-auto">
+              <div className="flex gap-1 min-w-[400px]">
+                {heatmapData.weeks.map((week, wi) => (
+                  <div key={wi} className="flex flex-col gap-1">
+                    {week.map((day) => {
+                      const intensity = day.count === 0 ? 0 : Math.min(Math.ceil((day.count / heatmapData.maxCount) * 4), 4);
+                      const isToday = day.key === new Date().toISOString().slice(0, 10);
+                      return (
+                        <div
+                          key={day.key}
+                          title={`${day.key}: ${day.count} حقنة`}
+                          className={cn(
+                            'h-3 w-3 rounded-sm transition-colors',
+                            isToday && 'ring-1 ring-emerald-400',
+                            intensity === 0 && 'bg-stone-100',
+                            intensity === 1 && 'bg-emerald-200',
+                            intensity === 2 && 'bg-emerald-400',
+                            intensity === 3 && 'bg-emerald-500',
+                            intensity === 4 && 'bg-emerald-700',
+                          )}
+                        />
+                      );
+                    })}
+                  </div>
+                ))}
+              </div>
+              <div className="flex items-center justify-end gap-1.5 mt-3 text-[10px] text-stone-500">
+                <span>أقل</span>
+                <div className="h-3 w-3 rounded-sm bg-stone-100" />
+                <div className="h-3 w-3 rounded-sm bg-emerald-200" />
+                <div className="h-3 w-3 rounded-sm bg-emerald-400" />
+                <div className="h-3 w-3 rounded-sm bg-emerald-500" />
+                <div className="h-3 w-3 rounded-sm bg-emerald-700" />
+                <span>أكثر</span>
+              </div>
+            </div>
+          )}
+          {heatmapData.view === 'monthly' && 'months' in heatmapData && (
+            <div className="space-y-4">
+              {heatmapData.months.map((month) => (
+                <div key={`${month.year}-${month.month}`}>
+                  <p className="text-xs font-medium text-stone-500 mb-1.5">
+                    {new Date(month.year, month.month).toLocaleDateString('ar-u-nu-latn', { month: 'long', year: 'numeric' })}
+                  </p>
+                  <div className="flex flex-wrap gap-1">
+                    {month.days.map((day) => {
+                      const intensity = day.count === 0 ? 0 : Math.min(Math.ceil((day.count / heatmapData.maxCount) * 4), 4);
+                      return (
+                        <div
+                          key={day.day}
+                          title={`${day.day}: ${day.count} حقنة`}
+                          className={cn(
+                            'h-3.5 w-3.5 rounded-sm transition-colors',
+                            intensity === 0 && 'bg-stone-100',
+                            intensity === 1 && 'bg-emerald-200',
+                            intensity === 2 && 'bg-emerald-400',
+                            intensity === 3 && 'bg-emerald-500',
+                            intensity === 4 && 'bg-emerald-700',
+                          )}
+                        />
+                      );
+                    })}
+                  </div>
+                </div>
+              ))}
+              <div className="flex items-center justify-end gap-1.5 text-[10px] text-stone-500">
+                <span>أقل</span>
+                <div className="h-3 w-3 rounded-sm bg-stone-100" />
+                <div className="h-3 w-3 rounded-sm bg-emerald-200" />
+                <div className="h-3 w-3 rounded-sm bg-emerald-400" />
+                <div className="h-3 w-3 rounded-sm bg-emerald-500" />
+                <div className="h-3 w-3 rounded-sm bg-emerald-700" />
+                <span>أكثر</span>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
       {/* Site Rotation Indicator */}
       {siteRotationData && (
-          <div className="mb-8 rounded-2xl border border-stone-200 bg-white p-5 shadow-sm">
+          <div className="mb-8 rounded-2xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 p-5 shadow-sm dark:shadow-stone-900/30">
             <div className="flex items-center gap-2 mb-3">
               <MapPin className="h-4 w-4 text-emerald-600" />
-              <h3 className="text-sm font-bold text-stone-900">تدوير مواقع الحقن</h3>
+              <h3 className="text-sm font-bold text-stone-900 dark:text-stone-100">تدوير مواقع الحقن</h3>
             </div>
             <div className="grid grid-cols-2 gap-2 mb-3 sm:grid-cols-4">
               {siteRotationData.allSites.map(s => {
@@ -857,21 +1115,21 @@ export default function Tracker() {
                 return (
                   <div key={s} className={cn(
                     'rounded-xl border p-3 text-center transition-all',
-                    isSuggested ? 'border-emerald-400 bg-emerald-50 ring-2 ring-emerald-100' :
-                    isLast ? 'border-amber-300 bg-amber-50' :
-                    'border-stone-200 bg-stone-50'
+                    isSuggested ? 'border-emerald-400 bg-emerald-50 dark:bg-emerald-900/20 ring-2 ring-emerald-100' :
+                    isLast ? 'border-amber-300 dark:border-amber-700 bg-amber-50 dark:bg-amber-900/20' :
+                    'border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-900'
                   )}>
-                    <p className="text-xs font-bold text-stone-800">{siteRotationData.siteLabels[s]}</p>
-                    <p className="text-lg font-black text-stone-900">{count}</p>
-                    <p className="text-xs text-stone-500">
+                    <p className="text-xs font-bold text-stone-800 dark:text-stone-200">{siteRotationData.siteLabels[s]}</p>
+                    <p className="text-lg font-black text-stone-900 dark:text-stone-100">{count}</p>
+                    <p className="text-xs text-stone-500 dark:text-stone-400">
                       {isSuggested ? 'الموقع التالي' : isLast ? 'آخر حقنة' : `آخر 5`}
                     </p>
                   </div>
                 );
               })}
             </div>
-            <p className="text-xs text-stone-600 text-center">
-              الحقنة القادمة في <span className="font-bold text-emerald-700">{siteRotationData.siteLabels[siteRotationData.suggestedSite]}</span> لتجنّب تلف الأنسجة
+            <p className="text-xs text-stone-600 dark:text-stone-400 text-center">
+              الحقنة القادمة في <span className="font-bold text-emerald-700 dark:text-emerald-400">{siteRotationData.siteLabels[siteRotationData.suggestedSite]}</span> لتجنّب تلف الأنسجة
             </p>
           </div>
       )}
@@ -891,7 +1149,7 @@ export default function Tracker() {
                 setAutoFilled(true);
               }
             }}
-            className="flex flex-1 items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-emerald-300 bg-emerald-50 px-6 py-4 text-sm font-bold text-emerald-700 transition-all hover:border-emerald-400 hover:bg-emerald-100"
+            className="flex flex-1 items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-emerald-300 dark:border-emerald-700 bg-emerald-50 dark:bg-emerald-900/20 px-6 py-4 text-sm font-bold text-emerald-700 dark:text-emerald-400 transition-all hover:border-emerald-400 hover:bg-emerald-100 dark:bg-emerald-900/30"
           >
             <Plus className="h-5 w-5" />
             حقنة جديدة
@@ -939,7 +1197,7 @@ export default function Tracker() {
                 });
               }}
               disabled={isSubmitting}
-              className="flex items-center justify-center gap-2 rounded-2xl border border-stone-200 bg-white px-5 py-4 text-sm font-bold text-stone-700 transition-all hover:border-emerald-300 hover:bg-stone-50 disabled:opacity-50"
+              className="flex items-center justify-center gap-2 rounded-2xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 px-5 py-4 text-sm font-bold text-stone-700 dark:text-stone-300 transition-all hover:border-emerald-300 dark:border-emerald-700 hover:bg-stone-50 dark:hover:bg-stone-800 disabled:opacity-50"
             >
               <Repeat className="h-4 w-4" />
               كرّر الأخيرة
@@ -950,18 +1208,18 @@ export default function Tracker() {
 
       {/* Log Form */}
       {showForm && subscription.isProOrTrial && (
-        <form onSubmit={handleSubmit} className="mb-8 rounded-2xl border border-stone-200 bg-stone-50 p-6">
-          <h2 className="mb-4 text-lg font-bold text-stone-900">تسجيل حقنة جديدة</h2>
+        <form onSubmit={handleSubmit} className="mb-8 rounded-2xl border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-900 p-6">
+          <h2 className="mb-4 text-lg font-bold text-stone-900 dark:text-stone-100">تسجيل حقنة جديدة</h2>
           <div className="space-y-4">
             {/* Peptide Name */}
             <div>
-              <label htmlFor="tracker-peptide" className="mb-1 block text-sm font-bold text-stone-700">اسم الببتيد</label>
+              <label htmlFor="tracker-peptide" className="mb-1 block text-sm font-bold text-stone-700 dark:text-stone-300">اسم الببتيد</label>
               <select
                 id="tracker-peptide"
                 value={peptideName}
                 onChange={(e) => setPeptideName(e.target.value)}
                 required
-                className="w-full rounded-xl border border-stone-200 bg-white px-4 py-3 text-sm text-stone-900 focus:border-emerald-300 focus:outline-none focus:ring-2 focus:ring-emerald-100"
+                className="w-full rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 px-4 py-3 text-sm text-stone-900 dark:text-stone-100 focus:border-emerald-300 dark:border-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900"
               >
                 <option value="">اختر الببتيد...</option>
                 {allPeptides.filter(p => p.id !== 'melanotan-ii').map(p => (
@@ -973,7 +1231,7 @@ export default function Tracker() {
             {/* Dose + Unit */}
             <div className="flex gap-3">
               <div className="flex-1">
-                <label htmlFor="tracker-dose" className="mb-1 block text-sm font-bold text-stone-700">الجرعة</label>
+                <label htmlFor="tracker-dose" className="mb-1 block text-sm font-bold text-stone-700 dark:text-stone-300">الجرعة</label>
                 <input
                   id="tracker-dose"
                   type="number"
@@ -985,17 +1243,17 @@ export default function Tracker() {
                   min="0"
                   step="any"
                   dir="ltr"
-                  className="w-full rounded-xl border border-stone-200 bg-white px-4 py-3 text-sm text-stone-900 placeholder:text-stone-500 focus:border-emerald-300 focus:outline-none focus:ring-2 focus:ring-emerald-100"
+                  className="w-full rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 px-4 py-3 text-sm text-stone-900 dark:text-stone-100 placeholder:text-stone-500 dark:text-stone-400 focus:border-emerald-300 dark:border-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900"
                 />
               </div>
               <div className="w-28">
-                <label htmlFor="tracker-unit" className="mb-1 block text-sm font-bold text-stone-700">الوحدة</label>
+                <label htmlFor="tracker-unit" className="mb-1 block text-sm font-bold text-stone-700 dark:text-stone-300">الوحدة</label>
                 <select
                   id="tracker-unit"
                   value={unit}
                   onChange={(e) => setUnit(e.target.value)}
                   aria-label="وحدة الجرعة"
-                  className="w-full rounded-xl border border-stone-200 bg-white px-4 py-3 text-sm text-stone-900 focus:border-emerald-300 focus:outline-none focus:ring-2 focus:ring-emerald-100"
+                  className="w-full rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 px-4 py-3 text-sm text-stone-900 dark:text-stone-100 focus:border-emerald-300 dark:border-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900"
                 >
                   <option value="mcg">mcg</option>
                   <option value="mg">mg</option>
@@ -1013,15 +1271,15 @@ export default function Tracker() {
               if (isOverMax) {
                 return (
                   <div className="space-y-2">
-                    <p className="text-xs font-bold text-red-600 flex items-center gap-1">الجرعة أعلى من الحد الأقصى الموصى به ({preset.maxDose} mcg)</p>
+                    <p className="text-xs font-bold text-red-600 dark:text-red-400 flex items-center gap-1">الجرعة أعلى من الحد الأقصى الموصى به ({preset.maxDose} mcg)</p>
                     <label className="flex items-center gap-2 cursor-pointer">
                       <input
                         type="checkbox"
                         checked={doseOutOfRangeConfirmed}
                         onChange={(e) => setDoseOutOfRangeConfirmed(e.target.checked)}
-                        className="rounded border-stone-300 text-emerald-600 focus:ring-emerald-500"
+                        className="rounded border-stone-300 dark:border-stone-700 text-emerald-600 focus:ring-emerald-500"
                       />
-                      <span className="text-xs text-stone-700">أؤكد أن هذه الجرعة صحيحة</span>
+                      <span className="text-xs text-stone-700 dark:text-stone-300">أؤكد أن هذه الجرعة صحيحة</span>
                     </label>
                   </div>
                 );
@@ -1035,9 +1293,9 @@ export default function Tracker() {
                         type="checkbox"
                         checked={doseOutOfRangeConfirmed}
                         onChange={(e) => setDoseOutOfRangeConfirmed(e.target.checked)}
-                        className="rounded border-stone-300 text-emerald-600 focus:ring-emerald-500"
+                        className="rounded border-stone-300 dark:border-stone-700 text-emerald-600 focus:ring-emerald-500"
                       />
-                      <span className="text-xs text-stone-700">أؤكد أن هذه الجرعة صحيحة</span>
+                      <span className="text-xs text-stone-700 dark:text-stone-300">أؤكد أن هذه الجرعة صحيحة</span>
                     </label>
                   </div>
                 );
@@ -1047,13 +1305,13 @@ export default function Tracker() {
 
             {/* Injection Site — Body Map */}
             <div>
-              <label className="mb-1 block text-sm font-bold text-stone-700">موقع الحقن</label>
+              <label className="mb-1 block text-sm font-bold text-stone-700 dark:text-stone-300">موقع الحقن</label>
               <BodyMap selected={site} suggested={suggestedSite} onSelect={(s) => setSite(s)} />
             </div>
 
             {/* Date/Time */}
             <div>
-              <label htmlFor="tracker-datetime" className="mb-1 block text-sm font-bold text-stone-700">التاريخ والوقت</label>
+              <label htmlFor="tracker-datetime" className="mb-1 block text-sm font-bold text-stone-700 dark:text-stone-300">التاريخ والوقت</label>
               <input
                 id="tracker-datetime"
                 type="datetime-local"
@@ -1062,14 +1320,14 @@ export default function Tracker() {
                 required
                 aria-label="التاريخ والوقت"
                 dir="ltr"
-                className="w-full rounded-xl border border-stone-200 bg-white px-4 py-3 text-sm text-stone-900 focus:border-emerald-300 focus:outline-none focus:ring-2 focus:ring-emerald-100"
+                className="w-full rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 px-4 py-3 text-sm text-stone-900 dark:text-stone-100 focus:border-emerald-300 dark:border-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900"
               />
             </div>
 
             {/* Notes */}
             {/* Side Effect Quick-Log */}
             <div>
-              <label className="mb-1 block text-sm font-bold text-stone-700">أعراض جانبية <span className="text-xs text-emerald-600 font-normal me-1">اختياري</span></label>
+              <label className="mb-1 block text-sm font-bold text-stone-700 dark:text-stone-300">أعراض جانبية <span className="text-xs text-emerald-600 font-normal me-1">اختياري</span></label>
               <div className="flex flex-wrap gap-2">
                 {[
                   { value: 'none', label: 'لا يوجد', color: 'emerald' },
@@ -1086,7 +1344,7 @@ export default function Tracker() {
                       'rounded-full px-3 py-2.5 min-h-[44px] text-xs font-bold transition-all',
                       sideEffect === opt.value
                         ? opt.color === 'emerald' ? 'bg-emerald-600 text-white' : 'bg-amber-500 text-white'
-                        : 'border border-stone-200 bg-white text-stone-600 hover:border-stone-300'
+                        : 'border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 text-stone-600 dark:text-stone-400 hover:border-stone-300 dark:border-stone-700'
                     )}
                   >
                     {opt.label}
@@ -1095,8 +1353,42 @@ export default function Tracker() {
               </div>
             </div>
 
+            {/* Photo Upload */}
             <div>
-              <label htmlFor="tracker-notes" className="mb-1 block text-sm font-bold text-stone-700">ملاحظات <span className="text-xs text-emerald-600 font-normal me-1">اختياري</span></label>
+              <label className="mb-1 block text-sm font-bold text-stone-700 dark:text-stone-300">صورة الحقنة <span className="text-xs text-emerald-600 font-normal me-1">اختياري</span></label>
+              <input
+                ref={photoInputRef}
+                type="file"
+                accept="image/*"
+                capture="environment"
+                onChange={handlePhotoSelect}
+                className="hidden"
+              />
+              {photoPreview ? (
+                <div className="relative inline-block">
+                  <img src={photoPreview} alt="معاينة" className="h-20 w-20 rounded-xl object-cover border border-stone-200" />
+                  <button
+                    type="button"
+                    onClick={() => { setPhotoFile(null); setPhotoPreview(null); if (photoInputRef.current) photoInputRef.current.value = ''; }}
+                    className="absolute -top-2 -start-2 flex h-6 w-6 items-center justify-center rounded-full bg-red-500 text-white text-xs font-bold shadow"
+                  >
+                    ×
+                  </button>
+                </div>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => photoInputRef.current?.click()}
+                  className="flex items-center gap-2 rounded-xl border-2 border-dashed border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-900 px-4 py-3 text-sm text-stone-500 transition-all hover:border-emerald-300 hover:text-emerald-600"
+                >
+                  <Camera className="h-4 w-4" />
+                  التقط أو اختر صورة
+                </button>
+              )}
+            </div>
+
+            <div>
+              <label htmlFor="tracker-notes" className="mb-1 block text-sm font-bold text-stone-700 dark:text-stone-300">ملاحظات <span className="text-xs text-emerald-600 font-normal me-1">اختياري</span></label>
               <textarea
                 id="tracker-notes"
                 value={notes}
@@ -1104,9 +1396,9 @@ export default function Tracker() {
                 placeholder="ملاحظات إضافية..."
                 rows={3}
                 maxLength={200}
-                className="w-full resize-none rounded-xl border border-stone-200 bg-white px-4 py-3 text-sm text-stone-900 placeholder:text-stone-500 focus:border-emerald-300 focus:outline-none focus:ring-2 focus:ring-emerald-100"
+                className="w-full resize-none rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 px-4 py-3 text-sm text-stone-900 dark:text-stone-100 placeholder:text-stone-500 dark:text-stone-400 focus:border-emerald-300 dark:border-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900"
               />
-              <p className={cn('mt-1 text-start text-xs', notes.length >= 180 ? 'text-amber-600' : 'text-stone-500')}>{notes.length}/200</p>
+              <p className={cn('mt-1 text-start text-xs', notes.length >= 180 ? 'text-amber-600' : 'text-stone-500 dark:text-stone-400')}>{notes.length}/200</p>
             </div>
 
             <div className="flex gap-3">
@@ -1136,7 +1428,7 @@ export default function Tracker() {
               <button
                 type="button"
                 onClick={() => setShowForm(false)}
-                className="rounded-xl border border-stone-200 px-6 py-3 text-sm font-bold text-stone-700 transition-all hover:bg-stone-50"
+                className="rounded-xl border border-stone-200 dark:border-stone-700 px-6 py-3 text-sm font-bold text-stone-700 dark:text-stone-300 transition-all hover:bg-stone-50 dark:hover:bg-stone-800"
               >
                 إلغاء
               </button>
@@ -1153,46 +1445,64 @@ export default function Tracker() {
       {/* Timeline */}
       <div>
         <div className="mb-4 flex items-center justify-between">
-          <h2 className="text-xl font-bold text-stone-900">السجل</h2>
+          <h2 className="text-xl font-bold text-stone-900 dark:text-stone-100">السجل</h2>
           {logs.length > 0 && (
-            <button
-              onClick={exportCSV}
-              className="flex items-center gap-1.5 rounded-lg border border-stone-200 bg-white px-3 py-1.5 text-xs font-bold text-stone-600 transition-all hover:border-emerald-300 hover:text-emerald-700"
-            >
-              <Download className="h-3.5 w-3.5" />
-              تحميل CSV
-            </button>
+            <div className="flex gap-2">
+              <button
+                onClick={exportCSV}
+                className="flex items-center gap-1.5 rounded-lg border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 px-3 py-1.5 text-xs font-bold text-stone-600 dark:text-stone-400 transition-all hover:border-emerald-300 hover:text-emerald-700"
+              >
+                <Download className="h-3.5 w-3.5" />
+                CSV
+              </button>
+              <button
+                onClick={exportPDF}
+                className="flex items-center gap-1.5 rounded-lg border border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-950 px-3 py-1.5 text-xs font-bold text-emerald-700 dark:text-emerald-400 transition-all hover:bg-emerald-100"
+              >
+                <FileDown className="h-3.5 w-3.5" />
+                PDF
+              </button>
+            </div>
           )}
         </div>
         {isLoadingLogs ? (
           <div className="space-y-3 py-4" role="status" aria-label="جارٍ تحميل السجلات">
             {Array.from({ length: 3 }).map((_, i) => (
-              <div key={i} className="animate-pulse rounded-2xl border border-stone-200 p-5 space-y-2">
-                <div className="flex justify-between"><div className="h-5 w-28 rounded bg-stone-200" /><div className="h-6 w-20 rounded-full bg-stone-100" /></div>
-                <div className="h-4 w-40 rounded bg-stone-100" />
-                <div className="h-4 w-32 rounded bg-stone-100" />
+              <div key={i} className="animate-pulse rounded-2xl border border-stone-200 dark:border-stone-700 p-5 space-y-2">
+                <div className="flex justify-between"><div className="h-5 w-28 rounded bg-stone-200 dark:bg-stone-700" /><div className="h-6 w-20 rounded-full bg-stone-100 dark:bg-stone-800" /></div>
+                <div className="h-4 w-40 rounded bg-stone-100 dark:bg-stone-800" />
+                <div className="h-4 w-32 rounded bg-stone-100 dark:bg-stone-800" />
               </div>
             ))}
           </div>
         ) : fetchError && logs.length === 0 ? (
-          <div className="rounded-2xl border border-red-200 bg-red-50 py-10 text-center">
-            <p className="text-base text-red-700 mb-4">تعذّر تحميل السجلات. تحقق من اتصالك بالإنترنت.</p>
+          <div className="rounded-2xl border border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-900/20 py-10 text-center">
+            <p className="text-base text-red-700 dark:text-red-400 mb-4">تعذّر تحميل السجلات. تحقق من اتصالك بالإنترنت.</p>
             <button
               onClick={() => fetchLogs()}
-              className="rounded-xl bg-red-100 px-6 py-2 text-sm font-bold text-red-700 hover:bg-red-200 transition-colors"
+              className="rounded-xl bg-red-100 px-6 py-2 text-sm font-bold text-red-700 dark:text-red-400 hover:bg-red-200 transition-colors"
             >
               إعادة المحاولة
             </button>
           </div>
         ) : logs.length === 0 ? (
-          <div className="rounded-2xl border-2 border-dashed border-emerald-200 bg-gradient-to-b from-emerald-50 to-white p-8 text-center">
-            <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-emerald-100">
-              <Syringe className="h-8 w-8 text-emerald-600" />
+          <div className="rounded-2xl border-2 border-dashed border-emerald-200 dark:border-emerald-800 bg-gradient-to-b from-emerald-50 to-white dark:to-stone-950 p-10 text-center">
+            {/* Illustration: syringe + calendar + chart */}
+            <div className="mx-auto mb-6 flex items-center justify-center gap-3">
+              <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-100 dark:bg-emerald-900/30 -rotate-6">
+                <Calendar className="h-7 w-7 text-emerald-500" />
+              </div>
+              <div className="flex h-20 w-20 items-center justify-center rounded-2xl bg-emerald-200 dark:bg-emerald-800/40 shadow-lg">
+                <Syringe className="h-10 w-10 text-emerald-600" />
+              </div>
+              <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-100 dark:bg-emerald-900/30 rotate-6">
+                <TrendingUp className="h-7 w-7 text-emerald-500" />
+              </div>
             </div>
-            <h3 className="text-xl font-bold text-stone-900">سجل حقنك جاهز</h3>
-            <p className="mx-auto mt-2 max-w-md text-sm leading-relaxed text-stone-600">
+            <h3 className="text-2xl font-black text-stone-900 dark:text-stone-100">سجّل أول حقنة لك 💉</h3>
+            <p className="mx-auto mt-3 max-w-md text-sm leading-relaxed text-stone-600 dark:text-stone-400">
               {subscription.isProOrTrial
-                ? 'سجّل حقنتك الأولى الآن — سنتتبّع جرعاتك، ندير تدوير مواقع الحقن، ونعرض لك إحصائيات التزامك بالبروتوكول.'
+                ? 'ابدأ بتسجيل حقنتك الأولى — سنتتبّع جرعاتك، ندير تدوير مواقع الحقن، ونعرض لك خريطة حرارية وإحصائيات التزامك بالبروتوكول.'
                 : 'اشترك لبدء تسجيل حقنك وتتبّع جرعاتك.'}
             </p>
             {subscription.isProOrTrial ? (
@@ -1228,12 +1538,12 @@ export default function Tracker() {
               return (
               <div
                 key={log.id}
-                className={cn('rounded-2xl border p-5 shadow-sm transition-all hover:shadow-md', isToday ? 'border-emerald-300 border-s-4 bg-emerald-50/30' : 'border-stone-200 bg-white')}
+                className={cn('rounded-2xl border p-5 shadow-sm dark:shadow-stone-900/30 transition-all hover:shadow-md', isToday ? 'border-emerald-300 dark:border-emerald-700 border-s-4 bg-emerald-50/30' : 'border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950')}
               >
                   <div className="flex items-start justify-between mb-2">
-                  <h3 className="font-bold text-stone-900" dir="ltr">{log.peptide_name}</h3>
+                  <h3 className="font-bold text-stone-900 dark:text-stone-100" dir="ltr">{log.peptide_name}</h3>
                   <div className="flex items-center gap-2">
-                    <span className="rounded-full bg-emerald-50 px-3 py-1 text-xs font-bold text-emerald-700">
+                    <span className="rounded-full bg-emerald-50 dark:bg-emerald-900/20 px-3 py-1 text-xs font-bold text-emerald-700 dark:text-emerald-400">
                       {log.dose} {log.dose_unit}
                     </span>
                     {subscription.isProOrTrial && <button
@@ -1264,14 +1574,14 @@ export default function Tracker() {
                           },
                         });
                       }}
-                      className="flex items-center justify-center rounded-lg p-2 min-h-[44px] min-w-[44px] text-stone-300 transition-colors hover:bg-red-50 hover:text-red-500"
+                      className="flex items-center justify-center rounded-lg p-2 min-h-[44px] min-w-[44px] text-stone-300 transition-colors hover:bg-red-50 dark:bg-red-900/20 hover:text-red-500 dark:text-red-400"
                       aria-label="حذف"
                     >
                       <Trash2 className="h-3.5 w-3.5" />
                     </button>}
                   </div>
                 </div>
-                <div className="flex flex-wrap gap-4 text-xs text-stone-500">
+                <div className="flex flex-wrap gap-4 text-xs text-stone-500 dark:text-stone-400">
                   <span className="flex items-center gap-1">
                     <MapPin className="h-3.5 w-3.5" />
                     {SITE_LABELS[log.injection_site] ?? log.injection_site}
@@ -1286,9 +1596,9 @@ export default function Tracker() {
                   </span>
                 </div>
                 {log.notes && (
-                  <div className="mt-3 flex items-start gap-2 rounded-lg bg-stone-50 px-3 py-2">
-                    <FileText className="mt-0.5 h-3.5 w-3.5 shrink-0 text-stone-500" />
-                    <p className="text-xs text-stone-600">{log.notes}</p>
+                  <div className="mt-3 flex items-start gap-2 rounded-lg bg-stone-50 dark:bg-stone-900 px-3 py-2">
+                    <FileText className="mt-0.5 h-3.5 w-3.5 shrink-0 text-stone-500 dark:text-stone-400" />
+                    <p className="text-xs text-stone-600 dark:text-stone-400">{log.notes}</p>
                   </div>
                 )}
               </div>
@@ -1298,7 +1608,7 @@ export default function Tracker() {
               <button
                 onClick={fetchMore}
                 disabled={isLoadingMore}
-                className="flex w-full items-center justify-center gap-2 rounded-2xl border border-stone-200 bg-white py-4 text-sm font-bold text-stone-600 transition-all hover:border-emerald-300 hover:text-emerald-700 disabled:opacity-50"
+                className="flex w-full items-center justify-center gap-2 rounded-2xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 py-4 text-sm font-bold text-stone-600 dark:text-stone-400 transition-all hover:border-emerald-300 dark:border-emerald-700 hover:text-emerald-700 dark:text-emerald-400 disabled:opacity-50"
               >
                 {isLoadingMore ? (
                   <span className="flex items-center justify-center gap-2" role="status" aria-label="جارٍ تحميل السجلات">
@@ -1316,9 +1626,9 @@ export default function Tracker() {
       {confirmDialog && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4 animate-fade-in" onClick={() => setConfirmDialog(null)}>
           <FocusTrap focusTrapOptions={{ allowOutsideClick: true }}>
-          <div role="dialog" aria-modal="true" className="w-full max-w-sm rounded-2xl bg-white p-6 shadow-2xl" onClick={e => e.stopPropagation()}>
-            <h3 className="text-lg font-bold text-stone-900 mb-2">{confirmDialog.title}</h3>
-            <p className="text-sm text-stone-600 mb-6">{confirmDialog.message}</p>
+          <div role="dialog" aria-modal="true" className="w-full max-w-sm rounded-2xl bg-white dark:bg-stone-950 p-6 shadow-2xl" onClick={e => e.stopPropagation()}>
+            <h3 className="text-lg font-bold text-stone-900 dark:text-stone-100 mb-2">{confirmDialog.title}</h3>
+            <p className="text-sm text-stone-600 dark:text-stone-400 mb-6">{confirmDialog.message}</p>
             <div className="flex gap-3">
               <button
                 onClick={confirmDialog.onConfirm}
@@ -1329,7 +1639,7 @@ export default function Tracker() {
               </button>
               <button
                 onClick={() => setConfirmDialog(null)}
-                className="flex-1 rounded-xl border border-stone-200 px-4 py-2.5 text-sm font-bold text-stone-700 transition-colors hover:bg-stone-50"
+                className="flex-1 rounded-xl border border-stone-200 dark:border-stone-700 px-4 py-2.5 text-sm font-bold text-stone-700 dark:text-stone-300 transition-colors hover:bg-stone-50 dark:hover:bg-stone-800"
               >
                 إلغاء
               </button>

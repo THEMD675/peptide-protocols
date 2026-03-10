@@ -89,7 +89,7 @@ export default function NotificationBell() {
     <div ref={ref} className="relative">
       <button
         onClick={() => setOpen(v => !v)}
-        className="relative flex min-h-[44px] min-w-[44px] items-center justify-center rounded-lg p-2.5 text-stone-500 transition-colors hover:bg-stone-100 hover:text-stone-700"
+        className="relative flex min-h-[44px] min-w-[44px] items-center justify-center rounded-lg p-2.5 text-stone-500 dark:text-stone-400 transition-colors hover:bg-stone-100 dark:hover:bg-stone-800 hover:text-stone-700 dark:text-stone-300"
         aria-label="الإشعارات"
         aria-expanded={open}
       >
@@ -102,9 +102,9 @@ export default function NotificationBell() {
       </button>
 
       {open && (
-        <div className="absolute end-0 top-full z-50 mt-2 w-[calc(100vw-2rem)] max-w-sm overflow-hidden rounded-xl border border-stone-200 bg-white shadow-xl animate-fade-in">
-          <div className="flex items-center justify-between border-b border-stone-100 px-4 py-3">
-            <h3 className="text-sm font-bold text-stone-900">الإشعارات</h3>
+        <div className="absolute end-0 top-full z-50 mt-2 w-[calc(100vw-2rem)] max-w-sm overflow-hidden rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 shadow-xl dark:shadow-stone-900/40 animate-fade-in">
+          <div className="flex items-center justify-between border-b border-stone-100 dark:border-stone-800 px-4 py-3">
+            <h3 className="text-sm font-bold text-stone-900 dark:text-stone-100">الإشعارات</h3>
             {unreadCount > 0 && (
               <button
                 onClick={markAllRead}
@@ -119,7 +119,7 @@ export default function NotificationBell() {
             {notifications.length === 0 ? (
               <div className="px-4 py-8 text-center">
                 <Bell className="mx-auto mb-2 h-8 w-8 text-stone-300" />
-                <p className="text-sm text-stone-500">لا توجد إشعارات</p>
+                <p className="text-sm text-stone-500 dark:text-stone-400">لا توجد إشعارات</p>
               </div>
             ) : (
               notifications.map(n => (
@@ -127,16 +127,16 @@ export default function NotificationBell() {
                   key={n.id}
                   onClick={() => { markAsRead(n.id); }}
                   className={cn(
-                    'flex w-full gap-3 px-4 py-3 text-start transition-colors hover:bg-stone-50',
+                    'flex w-full gap-3 px-4 py-3 text-start transition-colors hover:bg-stone-50 dark:hover:bg-stone-800',
                     !n.read && 'bg-emerald-50/50',
                   )}
                 >
                   <span className="mt-0.5 text-lg shrink-0">{TYPE_EMOJI[n.type] ?? '🔔'}</span>
                   <div className="min-w-0 flex-1">
-                    <p className={cn('text-sm', !n.read ? 'font-bold text-stone-900' : 'font-medium text-stone-700')}>
+                    <p className={cn('text-sm', !n.read ? 'font-bold text-stone-900 dark:text-stone-100' : 'font-medium text-stone-700 dark:text-stone-300')}>
                       {n.title_ar}
                     </p>
-                    <p className="mt-0.5 text-xs text-stone-500 line-clamp-2">{n.body_ar}</p>
+                    <p className="mt-0.5 text-xs text-stone-500 dark:text-stone-400 line-clamp-2">{n.body_ar}</p>
                     <p className="mt-1 text-[10px] text-stone-400">
                       {formatTimeAgo(n.created_at)}
                     </p>

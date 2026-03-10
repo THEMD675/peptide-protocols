@@ -12,7 +12,7 @@ const differentiators = [
 
 export default function About() {
   return (
-    <div className="min-h-screen bg-white animate-fade-in">
+    <div className="min-h-screen bg-white dark:bg-stone-950 animate-fade-in">
       <Helmet>
         <title>عن pptides — أول منصة عربية للببتيدات العلاجية | pptides</title>
         <meta name="description" content="تعرّف على pptides: أول منصة عربية متخصصة في علم الببتيدات العلاجية، أُسِّست بواسطة طبيب عام بخبرة شخصية عميقة في البروتوكولات والبيوهاكينغ." />
@@ -46,27 +46,27 @@ export default function About() {
       <div className="mx-auto max-w-4xl px-4 pb-24 pt-8 md:px-6 md:pt-12">
         {/* Hero */}
         <div className="mb-16 text-center">
-          <div className="mx-auto mb-4 inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-100">
+          <div className="mx-auto mb-4 inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-100 dark:bg-emerald-900/30">
             <Globe className="h-7 w-7 text-emerald-600" />
           </div>
-          <h1 className="mb-4 text-3xl font-bold text-stone-900 md:text-4xl lg:text-5xl">
+          <h1 className="mb-4 text-3xl font-bold text-stone-900 dark:text-stone-100 md:text-4xl lg:text-5xl">
             عن <span className="text-emerald-600">pptides</span>
           </h1>
-          <p className="mx-auto max-w-2xl text-lg leading-relaxed text-stone-600">
+          <p className="mx-auto max-w-2xl text-lg leading-relaxed text-stone-600 dark:text-stone-400">
             بواسطة طبيب عام مع خبرة شخصية في البيبتيدات
           </p>
         </div>
 
         {/* Mission */}
         <section className="mb-16">
-          <div className="rounded-2xl border border-emerald-200 bg-gradient-to-br from-emerald-50 to-white p-8 md:p-10">
+          <div className="rounded-2xl border border-emerald-200 dark:border-emerald-800 bg-gradient-to-br from-emerald-50 to-white dark:to-stone-950 p-8 md:p-10">
             <div className="flex items-start gap-4">
-              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-emerald-100">
+              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-emerald-100 dark:bg-emerald-900/30">
                 <BookOpen className="h-6 w-6 text-emerald-600" />
               </div>
               <div>
-                <h2 className="mb-3 text-xl font-bold text-stone-900 md:text-2xl">مهمّتنا</h2>
-                <p className="text-base leading-relaxed text-stone-700">
+                <h2 className="mb-3 text-xl font-bold text-stone-900 dark:text-stone-100 md:text-2xl">مهمّتنا</h2>
+                <p className="text-base leading-relaxed text-stone-700 dark:text-stone-300">
                   نقدّم علم الببتيدات باللغة العربية أولًا — للعالم العربي. المحتوى العلمي عن الببتيدات
                   متوفر بالإنجليزية فقط، مبعثر بين منتديات ومقاطع فيديو بدون تنظيم. أنشأنا pptides
                   ليكون المرجع العربي الشامل: {PEPTIDE_COUNT}+ ببتيد مع بروتوكولات كاملة، أدوات ذكية،
@@ -79,20 +79,20 @@ export default function About() {
 
         {/* Differentiators */}
         <section className="mb-16">
-          <h2 className="mb-8 text-center text-2xl font-bold text-stone-900 md:text-3xl">
+          <h2 className="mb-8 text-center text-2xl font-bold text-stone-900 dark:text-stone-100 md:text-3xl">
             ما الذي يميّز <span className="text-emerald-600">pptides</span>؟
           </h2>
           <div className="grid gap-4 sm:grid-cols-2">
             {differentiators.map(({ icon: Icon, title, desc }) => (
               <div
                 key={title}
-                className="rounded-2xl border border-stone-200 bg-white p-6 transition-all hover:border-emerald-200 hover:shadow-md"
+                className="rounded-2xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 p-6 transition-all hover:border-emerald-200 dark:border-emerald-800 hover:shadow-md"
               >
-                <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-100">
+                <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-100 dark:bg-emerald-900/30">
                   <Icon className="h-5 w-5 text-emerald-600" />
                 </div>
-                <h3 className="mb-1 font-bold text-stone-900">{title}</h3>
-                <p className="text-sm leading-relaxed text-stone-600">{desc}</p>
+                <h3 className="mb-1 font-bold text-stone-900 dark:text-stone-100">{title}</h3>
+                <p className="text-sm leading-relaxed text-stone-600 dark:text-stone-400">{desc}</p>
               </div>
             ))}
           </div>
@@ -100,20 +100,20 @@ export default function About() {
 
         {/* Founder note */}
         <section className="mb-16">
-          <div className="rounded-2xl border border-stone-200 bg-stone-50 p-8 md:p-10">
+          <div className="rounded-2xl border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-900 p-8 md:p-10">
             <div className="flex items-start gap-4">
-              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-emerald-100">
+              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-emerald-100 dark:bg-emerald-900/30">
                 <Stethoscope className="h-6 w-6 text-emerald-600" />
               </div>
               <div>
-                <h2 className="mb-3 text-xl font-bold text-stone-900 md:text-2xl">من يقف وراء pptides؟</h2>
-                <p className="text-base leading-relaxed text-stone-700">
+                <h2 className="mb-3 text-xl font-bold text-stone-900 dark:text-stone-100 md:text-2xl">من يقف وراء pptides؟</h2>
+                <p className="text-base leading-relaxed text-stone-700 dark:text-stone-300">
                   pptides أسّسه طبيب عام عربي بدأ رحلته مع الببتيدات كمستخدم شخصي قبل أن يحوّل
                   تجربته ومعرفته الطبية إلى منصة تعليمية شاملة. الهدف ليس بيع ببتيدات أو تقديم
                   استشارات طبية — بل تمكين المستخدم العربي من فهم العلم واتخاذ قرارات مستنيرة
                   بالتعاون مع طبيبه.
                 </p>
-                <p className="mt-3 text-sm text-stone-500">
+                <p className="mt-3 text-sm text-stone-500 dark:text-stone-400">
                   لأسباب مهنية وقانونية، نحافظ على خصوصية المؤسس مع التأكيد على الخلفية الطبية
                   والعلمية لكل المحتوى المنشور.
                 </p>
@@ -131,7 +131,7 @@ export default function About() {
             <span>ابدأ الآن</span>
             <ArrowLeft className="h-5 w-5" />
           </Link>
-          <p className="mt-4 text-sm text-stone-500">{TRIAL_DAYS} أيام تجربة مجانية — إلغاء في أي وقت</p>
+          <p className="mt-4 text-sm text-stone-500 dark:text-stone-400">{TRIAL_DAYS} أيام تجربة مجانية — إلغاء في أي وقت</p>
         </div>
       </div>
     </div>

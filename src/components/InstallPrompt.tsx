@@ -76,13 +76,13 @@ export default function InstallPrompt() {
 
   return (
     <div className="fixed top-20 start-4 end-4 z-40 mx-auto max-w-md animate-slide-up md:start-auto md:end-6 print:hidden">
-      <div className="flex items-center gap-3 rounded-2xl border border-emerald-200 bg-white p-4 shadow-xl shadow-emerald-600/10">
-        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-100">
+      <div className="flex items-center gap-3 rounded-2xl border border-emerald-200 dark:border-emerald-800 bg-white dark:bg-stone-950 p-4 shadow-xl shadow-emerald-600/10">
+        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-100 dark:bg-emerald-900/30">
           {showIOS ? <Share className="h-5 w-5 text-emerald-600" /> : <Download className="h-5 w-5 text-emerald-600" />}
         </div>
         <div className="flex-1 min-w-0">
-          <p className="text-sm font-bold text-stone-900">ثبّت pptides على جهازك</p>
-          <p className="text-xs text-stone-500">
+          <p className="text-sm font-bold text-stone-900 dark:text-stone-100">ثبّت pptides على جهازك</p>
+          <p className="text-xs text-stone-500 dark:text-stone-400">
             {showIOS ? 'اضغط على زر المشاركة ثم "إضافة إلى الشاشة الرئيسية"' : 'وصول سريع بدون متصفح'}
           </p>
         </div>
@@ -96,7 +96,7 @@ export default function InstallPrompt() {
         )}
         <button
           onClick={handleDismiss}
-          className="shrink-0 flex items-center justify-center rounded-full min-h-[44px] min-w-[44px] text-stone-500 transition-colors hover:bg-stone-100 hover:text-stone-600"
+          className="shrink-0 flex items-center justify-center rounded-full min-h-[44px] min-w-[44px] text-stone-500 dark:text-stone-400 transition-colors hover:bg-stone-100 dark:hover:bg-stone-800 hover:text-stone-600 dark:text-stone-400"
           aria-label="إغلاق"
         >
           <X className="h-4 w-4" />

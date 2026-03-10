@@ -124,19 +124,19 @@ export default function WeeklyProgressReport() {
   const isImproving = data.injectionsThisWeek >= data.injectionsLastWeek && data.streak > 0;
 
   return (
-    <div className="mb-8 rounded-2xl border border-emerald-200 bg-gradient-to-b from-emerald-50 to-white shadow-sm overflow-hidden">
+    <div className="mb-8 rounded-2xl border border-emerald-200 dark:border-emerald-800 bg-gradient-to-b from-emerald-50 to-white dark:to-stone-950 shadow-sm dark:shadow-stone-900/30 overflow-hidden">
       <button
         onClick={() => setOpen(v => !v)}
         className="flex w-full items-center justify-between px-5 py-4 min-h-[56px] text-start"
         aria-expanded={open}
       >
         <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-100">
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-100 dark:bg-emerald-900/30">
             <TrendingUp className="h-5 w-5 text-emerald-600" />
           </div>
           <div>
-            <h2 className="text-base font-bold text-stone-900">تقرير الأسبوع</h2>
-            <p className="text-xs text-stone-500">
+            <h2 className="text-base font-bold text-stone-900 dark:text-stone-100">تقرير الأسبوع</h2>
+            <p className="text-xs text-stone-500 dark:text-stone-400">
               {isImproving ? 'أداؤك ممتاز — استمر!' : 'لنعد إلى المسار الصحيح'}
             </p>
           </div>
@@ -149,10 +149,10 @@ export default function WeeklyProgressReport() {
           {/* Stats Grid */}
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
             {/* Injections This Week */}
-            <div className="rounded-xl border border-stone-100 bg-white p-3 text-center">
+            <div className="rounded-xl border border-stone-100 dark:border-stone-800 bg-white dark:bg-stone-950 p-3 text-center">
               <Syringe className="mx-auto mb-1 h-5 w-5 text-emerald-500" />
-              <p className="text-2xl font-black text-stone-900">{data.injectionsThisWeek}</p>
-              <p className="text-[10px] text-stone-500">حقنة هذا الأسبوع</p>
+              <p className="text-2xl font-black text-stone-900 dark:text-stone-100">{data.injectionsThisWeek}</p>
+              <p className="text-[10px] text-stone-500 dark:text-stone-400">حقنة هذا الأسبوع</p>
               {injDiff !== 0 && (
                 <p className={cn('mt-1 text-[10px] font-bold', injDiff > 0 ? 'text-emerald-600' : 'text-amber-600')}>
                   {injDiff > 0 ? `+${injDiff}` : injDiff} عن الأسبوع الماضي
@@ -161,42 +161,42 @@ export default function WeeklyProgressReport() {
             </div>
 
             {/* Streak */}
-            <div className="rounded-xl border border-stone-100 bg-white p-3 text-center">
+            <div className="rounded-xl border border-stone-100 dark:border-stone-800 bg-white dark:bg-stone-950 p-3 text-center">
               <Flame className="mx-auto mb-1 h-5 w-5 text-orange-500" />
-              <p className="text-2xl font-black text-stone-900">{data.streak}</p>
-              <p className="text-[10px] text-stone-500">يوم متتالي</p>
+              <p className="text-2xl font-black text-stone-900 dark:text-stone-100">{data.streak}</p>
+              <p className="text-[10px] text-stone-500 dark:text-stone-400">يوم متتالي</p>
             </div>
 
             {/* Mood */}
             {data.avgMood > 0 && (
-              <div className="rounded-xl border border-stone-100 bg-white p-3 text-center">
+              <div className="rounded-xl border border-stone-100 dark:border-stone-800 bg-white dark:bg-stone-950 p-3 text-center">
                 <Sparkles className="mx-auto mb-1 h-5 w-5 text-purple-500" />
-                <p className="text-2xl font-black text-stone-900">{data.avgMood}</p>
-                <p className="text-[10px] text-stone-500">معدل المزاج</p>
+                <p className="text-2xl font-black text-stone-900 dark:text-stone-100">{data.avgMood}</p>
+                <p className="text-[10px] text-stone-500 dark:text-stone-400">معدل المزاج</p>
               </div>
             )}
 
             {/* Energy */}
             {data.avgEnergy > 0 && (
-              <div className="rounded-xl border border-stone-100 bg-white p-3 text-center">
+              <div className="rounded-xl border border-stone-100 dark:border-stone-800 bg-white dark:bg-stone-950 p-3 text-center">
                 <TrendingUp className="mx-auto mb-1 h-5 w-5 text-blue-500" />
-                <p className="text-2xl font-black text-stone-900">{data.avgEnergy}</p>
-                <p className="text-[10px] text-stone-500">معدل الطاقة</p>
+                <p className="text-2xl font-black text-stone-900 dark:text-stone-100">{data.avgEnergy}</p>
+                <p className="text-[10px] text-stone-500 dark:text-stone-400">معدل الطاقة</p>
               </div>
             )}
           </div>
 
           {/* Side Effects Summary */}
           {data.sideEffectsCount > 0 && (
-            <div className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3">
+            <div className="rounded-xl border border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-900/20 px-4 py-3">
               <div className="flex items-center gap-2 mb-1">
                 <AlertTriangle className="h-4 w-4 text-amber-600" />
-                <p className="text-xs font-bold text-amber-800">
+                <p className="text-xs font-bold text-amber-800 dark:text-amber-300">
                   {data.sideEffectsCount} {data.sideEffectsCount === 1 ? 'عرض جانبي' : 'أعراض جانبية'} هذا الأسبوع
                 </p>
               </div>
               {data.topSideEffects.length > 0 && (
-                <p className="text-xs text-amber-700">
+                <p className="text-xs text-amber-700 dark:text-amber-400">
                   الأكثر شيوعًا: {data.topSideEffects.join('، ')}
                 </p>
               )}
@@ -207,22 +207,22 @@ export default function WeeklyProgressReport() {
           <div className={cn(
             'rounded-xl px-4 py-3 text-center',
             isImproving
-              ? 'border border-emerald-200 bg-emerald-50'
-              : 'border border-amber-200 bg-amber-50',
+              ? 'border border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-900/20'
+              : 'border border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-900/20',
           )}>
             {isImproving ? (
               <>
                 {data.streak >= 7 ? (
                   <div className="flex items-center justify-center gap-2">
                     {injDiff > 0 ? <TrendingUp className="h-4 w-4 text-emerald-600" /> : <TrendingDown className="h-4 w-4 text-emerald-600" />}
-                    <p className="text-sm font-bold text-emerald-700">ممتاز! سلسلة {data.streak} يوم — أداء استثنائي 🔥</p>
+                    <p className="text-sm font-bold text-emerald-700 dark:text-emerald-400">ممتاز! سلسلة {data.streak} يوم — أداء استثنائي 🔥</p>
                   </div>
                 ) : (
-                  <p className="text-sm font-bold text-emerald-700">أحسنت! استمر في الالتزام بالبروتوكول 💪</p>
+                  <p className="text-sm font-bold text-emerald-700 dark:text-emerald-400">أحسنت! استمر في الالتزام بالبروتوكول 💪</p>
                 )}
               </>
             ) : (
-              <p className="text-sm font-bold text-amber-700">لنعد إلى المسار — سجّل جرعتك اليوم وابدأ سلسلة جديدة 🎯</p>
+              <p className="text-sm font-bold text-amber-700 dark:text-amber-400">لنعد إلى المسار — سجّل جرعتك اليوم وابدأ سلسلة جديدة 🎯</p>
             )}
           </div>
         </div>

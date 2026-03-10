@@ -1,10 +1,20 @@
 import { useState, useEffect } from 'react';
 import { Helmet } from 'react-helmet-async';
-import { Send, CheckCircle, Mail, MessageSquare, Loader2 } from 'lucide-react';
+import { Send, CheckCircle, Mail, MessageSquare, Loader2, Clock, ChevronDown } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
-import { SITE_URL } from '@/lib/constants';
+import { SITE_URL, SUPPORT_EMAIL } from '@/lib/constants';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
+
+const SUBJECTS = [
+  { value: '', label: 'اختر الموضوع...' },
+  { value: 'سؤال عن ببتيد', label: 'سؤال عن ببتيد معين' },
+  { value: 'استفسار عن الاشتراك', label: 'استفسار عن الاشتراك' },
+  { value: 'مشكلة تقنية', label: 'مشكلة تقنية' },
+  { value: 'اقتراح تحسين', label: 'اقتراح تحسين' },
+  { value: 'طلب تعاون', label: 'طلب تعاون أو شراكة' },
+  { value: 'تواصل عام', label: 'تواصل عام' },
+];
 
 export default function Contact() {
   const { user, isLoading } = useAuth();
@@ -14,8 +24,8 @@ export default function Contact() {
   const [message, setMessage] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [showConfetti, setShowConfetti] = useState(false);
 
-  // Update email when user loads
   useEffect(() => {
     if (user?.email && !email) setEmail(user.email);
   }, [user?.email, email]);
@@ -42,7 +52,8 @@ export default function Contact() {
         message: `الاسم: ${name || 'لم يُذكر'}\n\n${message}`,
       });
       if (error) throw error;
-      setSubmitted(true);
+      setShowConfetti(true);
+      setTimeout(() => setSubmitted(true), 600);
       toast.success('تم إرسال رسالتك بنجاح');
     } catch {
       toast.error('تعذّر إرسال الرسالة — حاول مرة أخرى');
@@ -58,16 +69,32 @@ export default function Contact() {
           <title>تواصل معنا | pptides</title>
         </Helmet>
         <div className="mx-auto max-w-2xl px-4 py-20 text-center">
-          <CheckCircle className="mx-auto mb-4 h-16 w-16 text-emerald-500" />
-          <h1 className="mb-3 text-2xl font-bold text-stone-900">تم إرسال رسالتك بنجاح</h1>
-          <p className="text-stone-600">شكرًا لتواصلك معنا. سنرد عليك في أقرب وقت ممكن.</p>
+          {/* Success animation */}
+          <div className="relative mx-auto mb-6 flex h-24 w-24 items-center justify-center">
+            {/* Outer ring pulse */}
+            <span className="absolute inset-0 animate-ping rounded-full bg-emerald-200 opacity-30" />
+            {/* Inner circle */}
+            <span className="relative flex h-20 w-20 items-center justify-center rounded-full bg-gradient-to-br from-emerald-400 to-emerald-600 shadow-lg shadow-emerald-200">
+              <CheckCircle className="h-10 w-10 text-white" />
+            </span>
+          </div>
+          <h1 className="mb-3 text-2xl font-bold text-stone-900">تم إرسال رسالتك بنجاح ✨</h1>
+          <p className="text-lg text-stone-600">شكرًا لتواصلك معنا</p>
+          <div className="mx-auto mt-6 inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 px-5 py-2.5 text-sm font-bold text-emerald-700">
+            <Clock className="h-4 w-4" />
+            نرد خلال 24 ساعة
+          </div>
+          <p className="mt-6 text-sm text-stone-500">
+            للاستفسارات العاجلة:{' '}
+            <a href={`mailto:${SUPPORT_EMAIL}`} className="font-medium text-emerald-600 hover:underline">{SUPPORT_EMAIL}</a>
+          </p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen animate-fade-in">
+    <div className={`min-h-screen animate-fade-in ${showConfetti ? 'pointer-events-none' : ''}`}>
       <Helmet>
         <title>تواصل معنا | pptides</title>
         <meta name="description" content="تواصل مع فريق pptides — نسعد بأسئلتكم واستفساراتكم حول الببتيدات العلاجية والبروتوكولات." />
@@ -87,7 +114,7 @@ export default function Contact() {
           "mainEntity": {
             "@type": "Organization",
             "name": "pptides",
-            "email": "contact@pptides.com"
+            "email": SUPPORT_EMAIL
           }
         })}</script>
       </Helmet>
@@ -95,13 +122,21 @@ export default function Contact() {
       <div className="mx-auto max-w-2xl px-4 py-12 sm:py-16">
         {/* Header */}
         <div className="mb-10 text-center">
-          <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-amber-100">
-            <Mail className="h-7 w-7 text-amber-700" />
+          <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-100">
+            <Mail className="h-7 w-7 text-emerald-600" />
           </div>
           <h1 className="mb-2 text-3xl font-bold text-stone-900">تواصل معنا</h1>
           <p className="text-stone-600">
-            لديك سؤال أو اقتراح؟ نسعد بسماع رأيك. أرسل لنا رسالة وسنرد عليك في أقرب وقت.
+            لديك سؤال أو اقتراح؟ نسعد بسماع رأيك
           </p>
+        </div>
+
+        {/* Response time badge */}
+        <div className="mb-8 flex justify-center">
+          <div className="inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 px-5 py-2.5 text-sm font-medium text-emerald-700">
+            <Clock className="h-4 w-4" />
+            نرد خلال 24 ساعة
+          </div>
         </div>
 
         {/* Form */}
@@ -116,7 +151,7 @@ export default function Contact() {
               value={name}
               onChange={e => setName(e.target.value)}
               placeholder="اسمك الكريم"
-              className="w-full rounded-xl border border-stone-300 bg-stone-50 px-4 py-2.5 text-stone-900 placeholder:text-stone-400 focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-200"
+              className="w-full rounded-xl border border-stone-300 bg-stone-50 px-4 py-3 text-stone-900 placeholder:text-stone-400 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-200 transition-colors"
             />
           </div>
 
@@ -131,22 +166,27 @@ export default function Contact() {
               value={email}
               onChange={e => setEmail(e.target.value)}
               placeholder="name@example.com"
-              className="w-full rounded-xl border border-stone-300 bg-stone-50 px-4 py-2.5 text-stone-900 placeholder:text-stone-400 focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-200"
+              className="w-full rounded-xl border border-stone-300 bg-stone-50 px-4 py-3 text-stone-900 placeholder:text-stone-400 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-200 transition-colors"
             />
           </div>
 
           <div>
             <label htmlFor="contact-subject" className="mb-1.5 block text-sm font-medium text-stone-700">
-              الموضوع <span className="text-stone-400">(اختياري)</span>
+              الموضوع
             </label>
-            <input
-              id="contact-subject"
-              type="text"
-              value={subject}
-              onChange={e => setSubject(e.target.value)}
-              placeholder="موضوع الرسالة"
-              className="w-full rounded-xl border border-stone-300 bg-stone-50 px-4 py-2.5 text-stone-900 placeholder:text-stone-400 focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-200"
-            />
+            <div className="relative">
+              <select
+                id="contact-subject"
+                value={subject}
+                onChange={e => setSubject(e.target.value)}
+                className="w-full appearance-none rounded-xl border border-stone-300 bg-stone-50 px-4 py-3 pe-10 text-stone-900 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-200 transition-colors"
+              >
+                {SUBJECTS.map(s => (
+                  <option key={s.value} value={s.value}>{s.label}</option>
+                ))}
+              </select>
+              <ChevronDown className="pointer-events-none absolute end-3 top-1/2 h-5 w-5 -translate-y-1/2 text-stone-400" />
+            </div>
           </div>
 
           <div>
@@ -160,14 +200,14 @@ export default function Contact() {
               value={message}
               onChange={e => setMessage(e.target.value)}
               placeholder="اكتب رسالتك هنا..."
-              className="w-full resize-none rounded-xl border border-stone-300 bg-stone-50 px-4 py-2.5 text-stone-900 placeholder:text-stone-400 focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-200"
+              className="w-full resize-none rounded-xl border border-stone-300 bg-stone-50 px-4 py-3 text-stone-900 placeholder:text-stone-400 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-200 transition-colors"
             />
           </div>
 
           <button
             type="submit"
             disabled={submitting}
-            className="flex w-full items-center justify-center gap-2 rounded-xl bg-amber-600 px-6 py-3 text-sm font-semibold text-white transition hover:bg-amber-700 disabled:opacity-50"
+            className="flex w-full items-center justify-center gap-2 rounded-xl bg-emerald-600 px-6 py-3.5 text-sm font-bold text-white transition-all hover:bg-emerald-700 active:scale-[0.98] disabled:opacity-50 min-h-[44px]"
           >
             {submitting ? (
               <span className="h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent" />
@@ -182,9 +222,9 @@ export default function Contact() {
         <div className="mt-8 flex items-start gap-3 rounded-xl bg-stone-50 p-4 text-sm text-stone-600">
           <MessageSquare className="mt-0.5 h-5 w-5 flex-shrink-0 text-stone-400" />
           <p>
-            نحرص على الرد خلال 24-48 ساعة في أيام العمل. للاستفسارات العاجلة، يمكنك مراسلتنا عبر البريد مباشرة على{' '}
-            <a href="mailto:contact@pptides.com" className="font-medium text-amber-700 hover:underline">
-              contact@pptides.com
+            نحرص على الرد خلال 24 ساعة في أيام العمل. للاستفسارات العاجلة، يمكنك مراسلتنا عبر البريد مباشرة على{' '}
+            <a href={`mailto:${SUPPORT_EMAIL}`} className="font-medium text-emerald-600 hover:underline">
+              {SUPPORT_EMAIL}
             </a>
           </p>
         </div>

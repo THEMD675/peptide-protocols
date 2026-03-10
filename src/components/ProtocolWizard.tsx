@@ -20,9 +20,9 @@ function ShoppingList({ peptide, dose, unit, frequency, cycleWeeks }: { peptide:
   const dosesPerVial = Math.floor((vialMg * 1000) / doseMcg);
   const vialsNeeded = Math.ceil(totalDoses / Math.max(dosesPerVial, 1));
   return (
-    <div className="rounded-xl border border-stone-200 bg-stone-50 px-4 py-3">
-      <p className="text-xs font-bold text-stone-700 mb-2">قائمة التسوّق المقدّرة:</p>
-      <ul className="space-y-1 text-xs text-stone-600">
+    <div className="rounded-xl border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-900 px-4 py-3">
+      <p className="text-xs font-bold text-stone-700 dark:text-stone-300 mb-2">قائمة التسوّق المقدّرة:</p>
+      <ul className="space-y-1 text-xs text-stone-600 dark:text-stone-400">
         <li>• {vialsNeeded}x قارورة {peptide.nameEn} {vialMg}mg</li>
         <li>• 1x ماء بكتيريوستاتيك 30ml</li>
         <li>• {totalDoses}x سيرنج إنسولين 31g</li>
@@ -78,8 +78,8 @@ export default function ProtocolWizard({ peptideId, prefillDose, prefillUnit, on
 
   if (!peptide) return (
     <div role="dialog" aria-modal="true" className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" onClick={onClose}>
-      <div className="rounded-2xl bg-white p-6 text-center" onClick={e => e.stopPropagation()}>
-        <p className="text-stone-600">الببتيد غير موجود</p>
+      <div className="rounded-2xl bg-white dark:bg-stone-950 p-6 text-center" onClick={e => e.stopPropagation()}>
+        <p className="text-stone-600 dark:text-stone-400">الببتيد غير موجود</p>
         <button onClick={onClose} className="mt-4 rounded-full bg-emerald-600 px-6 py-2 text-sm font-bold text-white">إغلاق</button>
       </div>
     </div>
@@ -122,45 +122,45 @@ export default function ProtocolWizard({ peptideId, prefillDose, prefillUnit, on
   return (
     <div role="dialog" aria-modal="true" className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4" onClick={onClose}>
       <FocusTrap focusTrapOptions={{ allowOutsideClick: true }}>
-        <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl animate-fade-in" onClick={e => e.stopPropagation()}>
+        <div className="w-full max-w-md rounded-2xl bg-white dark:bg-stone-950 p-6 shadow-2xl animate-fade-in" onClick={e => e.stopPropagation()}>
           <div className="flex items-center justify-between mb-5">
             <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-100">
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-100 dark:bg-emerald-900/30">
                 <Play className="h-5 w-5 text-emerald-600" />
               </div>
               <div>
-                <h2 className="text-lg font-bold text-stone-900">ابدأ بروتوكول</h2>
-                <p className="text-sm text-stone-500">{peptide.nameAr} ({peptide.nameEn})</p>
+                <h2 className="text-lg font-bold text-stone-900 dark:text-stone-100">ابدأ بروتوكول</h2>
+                <p className="text-sm text-stone-500 dark:text-stone-400">{peptide.nameAr} ({peptide.nameEn})</p>
               </div>
             </div>
-            <button onClick={onClose} aria-label="إغلاق" className="rounded-lg p-2 min-h-[44px] min-w-[44px] flex items-center justify-center text-stone-500 hover:bg-stone-100 hover:text-stone-600 transition-colors">
+            <button onClick={onClose} aria-label="إغلاق" className="rounded-lg p-2 min-h-[44px] min-w-[44px] flex items-center justify-center text-stone-500 dark:text-stone-400 hover:bg-stone-100 dark:hover:bg-stone-800 hover:text-stone-600 dark:text-stone-400 transition-colors">
               <X className="h-5 w-5" />
             </button>
           </div>
 
           <div className="space-y-4">
             {hasDuplicatePeptide && (
-              <div className="mb-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3">
-                <p className="text-xs font-bold text-red-700 mb-2">لديك بروتوكول نشط لهذا الببتيد بالفعل</p>
+              <div className="mb-4 rounded-xl border border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-900/20 px-4 py-3">
+                <p className="text-xs font-bold text-red-700 dark:text-red-400 mb-2">لديك بروتوكول نشط لهذا الببتيد بالفعل</p>
                 <label className="flex items-center gap-2 cursor-pointer">
                   <input
                     type="checkbox"
                     checked={duplicateConfirmed}
                     onChange={e => setDuplicateConfirmed(e.target.checked)}
-                    className="rounded border-red-300 text-red-600 focus:ring-red-200"
+                    className="rounded border-red-300 text-red-600 dark:text-red-400 focus:ring-red-200"
                   />
-                  <span className="text-xs text-red-700">أريد إنشاء بروتوكول إضافي</span>
+                  <span className="text-xs text-red-700 dark:text-red-400">أريد إنشاء بروتوكول إضافي</span>
                 </label>
               </div>
             )}
             {existingProtocols > 0 && !hasDuplicatePeptide && (
-              <div className="mb-4 rounded-xl border border-amber-200 bg-amber-50 px-4 py-2 text-xs text-amber-700">
+              <div className="mb-4 rounded-xl border border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-900/20 px-4 py-2 text-xs text-amber-700 dark:text-amber-400">
                 لديك {existingProtocols} بروتوكول نشط — يمكنك تشغيل عدة بروتوكولات معًا
               </div>
             )}
             <div className="flex gap-3">
               <div className="flex-1">
-                <label htmlFor="wizard-dose" className="mb-1 block text-sm font-bold text-stone-700">الجرعة</label>
+                <label htmlFor="wizard-dose" className="mb-1 block text-sm font-bold text-stone-700 dark:text-stone-300">الجرعة</label>
                 <input
                   id="wizard-dose"
                   type="number"
@@ -172,12 +172,12 @@ export default function ProtocolWizard({ peptideId, prefillDose, prefillUnit, on
                   max={50000}
                   step="any"
                   dir="ltr"
-                  className="w-full rounded-xl border border-stone-200 bg-white px-4 py-3 text-sm text-stone-900 focus:border-emerald-300 focus:outline-none focus:ring-2 focus:ring-emerald-100"
+                  className="w-full rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 px-4 py-3 text-sm text-stone-900 dark:text-stone-100 focus:border-emerald-300 dark:border-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900"
                 />
               </div>
               <div className="w-24">
-                <label htmlFor="wizard-unit" className="mb-1 block text-sm font-bold text-stone-700">الوحدة</label>
-                <select id="wizard-unit" value={unit} onChange={e => setUnit(e.target.value)} className="w-full rounded-xl border border-stone-200 bg-white px-3 py-3 text-sm text-stone-900 focus:border-emerald-300 focus:outline-none focus:ring-2 focus:ring-emerald-100">
+                <label htmlFor="wizard-unit" className="mb-1 block text-sm font-bold text-stone-700 dark:text-stone-300">الوحدة</label>
+                <select id="wizard-unit" value={unit} onChange={e => setUnit(e.target.value)} className="w-full rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 px-3 py-3 text-sm text-stone-900 dark:text-stone-100 focus:border-emerald-300 dark:border-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900">
                   <option value="mcg">mcg</option>
                   <option value="mg">mg</option>
                 </select>
@@ -185,8 +185,8 @@ export default function ProtocolWizard({ peptideId, prefillDose, prefillUnit, on
             </div>
 
             <div>
-              <label htmlFor="wizard-frequency" className="mb-1 block text-sm font-bold text-stone-700">التكرار</label>
-              <select id="wizard-frequency" value={frequency} onChange={e => { const v = e.target.value; setFrequency(v as keyof typeof FREQUENCY_LABELS); }} className="w-full rounded-xl border border-stone-200 bg-white px-4 py-3 text-sm text-stone-900 focus:border-emerald-300 focus:outline-none focus:ring-2 focus:ring-emerald-100">
+              <label htmlFor="wizard-frequency" className="mb-1 block text-sm font-bold text-stone-700 dark:text-stone-300">التكرار</label>
+              <select id="wizard-frequency" value={frequency} onChange={e => { const v = e.target.value; setFrequency(v as keyof typeof FREQUENCY_LABELS); }} className="w-full rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 px-4 py-3 text-sm text-stone-900 dark:text-stone-100 focus:border-emerald-300 dark:border-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900">
                 {Object.entries(FREQUENCY_LABELS).map(([k, v]) => (
                   <option key={k} value={k}>{v}</option>
                 ))}
@@ -194,7 +194,7 @@ export default function ProtocolWizard({ peptideId, prefillDose, prefillUnit, on
             </div>
 
             <div>
-              <label htmlFor="wizard-cycle" className="mb-1 block text-sm font-bold text-stone-700">مدة الدورة (أسابيع)</label>
+              <label htmlFor="wizard-cycle" className="mb-1 block text-sm font-bold text-stone-700 dark:text-stone-300">مدة الدورة (أسابيع)</label>
               <input
                 id="wizard-cycle"
                 type="number"
@@ -204,22 +204,22 @@ export default function ProtocolWizard({ peptideId, prefillDose, prefillUnit, on
                 min="1"
                 max="52"
                 dir="ltr"
-                className="w-full rounded-xl border border-stone-200 bg-white px-4 py-3 text-sm text-stone-900 focus:border-emerald-300 focus:outline-none focus:ring-2 focus:ring-emerald-100"
+                className="w-full rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 px-4 py-3 text-sm text-stone-900 dark:text-stone-100 focus:border-emerald-300 dark:border-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900"
               />
             </div>
 
-            <div className="flex items-center gap-4 rounded-xl bg-stone-50 border border-stone-200 px-4 py-3">
-              <Calendar className="h-4 w-4 text-stone-500 shrink-0" />
-              <div className="text-xs text-stone-600">
+            <div className="flex items-center gap-4 rounded-xl bg-stone-50 dark:bg-stone-900 border border-stone-200 dark:border-stone-700 px-4 py-3">
+              <Calendar className="h-4 w-4 text-stone-500 dark:text-stone-400 shrink-0" />
+              <div className="text-xs text-stone-600 dark:text-stone-400">
                 <span>ينتهي تقريبًا: </span>
-                <strong className="text-stone-900">{endDate.toLocaleDateString('ar-u-nu-latn', { year: 'numeric', month: 'long', day: 'numeric' })}</strong>
+                <strong className="text-stone-900 dark:text-stone-100">{endDate.toLocaleDateString('ar-u-nu-latn', { year: 'numeric', month: 'long', day: 'numeric' })}</strong>
               </div>
             </div>
 
             {peptide.route && (
-              <div className="flex items-center gap-4 rounded-xl bg-emerald-50 border border-emerald-200 px-4 py-3">
+              <div className="flex items-center gap-4 rounded-xl bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 px-4 py-3">
                 <FlaskConical className="h-4 w-4 text-emerald-600 shrink-0" />
-                <p className="text-xs text-emerald-700">
+                <p className="text-xs text-emerald-700 dark:text-emerald-400">
                   طريقة الإعطاء: <strong>{peptide.route === 'subq' ? 'حقن تحت الجلد' : peptide.route === 'im' ? 'حقن عضلي' : peptide.route === 'nasal' ? 'بخاخ أنف' : peptide.route === 'oral' ? 'فموي' : 'موضعي'}</strong>
                 </p>
               </div>

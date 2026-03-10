@@ -37,16 +37,16 @@ export default function AgeGate() {
       aria-labelledby="age-gate-title"
       className="fixed inset-0 z-[9999] flex items-end sm:items-center justify-center bg-stone-900/60 backdrop-blur-sm p-0 sm:p-4 animate-fade-in"
     >
-      <div className="w-full sm:max-w-lg rounded-t-2xl sm:rounded-2xl bg-white p-6 sm:p-8 text-center shadow-2xl animate-slide-up">
-        <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-emerald-100">
+      <div className="w-full sm:max-w-lg rounded-t-2xl sm:rounded-2xl bg-white dark:bg-stone-950 p-6 sm:p-8 text-center shadow-2xl animate-slide-up">
+        <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-emerald-100 dark:bg-emerald-900/30">
           <Shield className="h-6 w-6 text-emerald-600" aria-hidden="true" />
         </div>
 
-        <h2 id="age-gate-title" className="mb-2 text-xl font-bold text-stone-900">
+        <h2 id="age-gate-title" className="mb-2 text-xl font-bold text-stone-900 dark:text-stone-100">
           محتوى تعليمي للبالغين
         </h2>
 
-        <p className="mb-6 text-sm leading-relaxed text-stone-600">
+        <p className="mb-6 text-sm leading-relaxed text-stone-600 dark:text-stone-400">
           pptides يحتوي على معلومات بحثية عن الببتيدات العلاجية. بالمتابعة، تؤكد أن عمرك 18 عامًا أو أكثر.
         </p>
 
@@ -60,13 +60,13 @@ export default function AgeGate() {
 
           <button
             onClick={handleUnder}
-            className="w-full rounded-xl border border-stone-200 px-6 py-3 text-sm font-medium text-stone-500 transition-colors hover:bg-stone-50"
+            className="w-full rounded-xl border border-stone-200 dark:border-stone-700 px-6 py-3 text-sm font-medium text-stone-500 dark:text-stone-400 transition-colors hover:bg-stone-50 dark:hover:bg-stone-800"
           >
             عمري أقل من 18
           </button>
         </div>
 
-        <p className="mt-4 text-xs text-stone-500">
+        <p className="mt-4 text-xs text-stone-500 dark:text-stone-400">
           هذا المحتوى لأغراض تعليمية فقط ولا يُعدّ نصيحة طبية
         </p>
       </div>

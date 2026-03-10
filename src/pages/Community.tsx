@@ -357,7 +357,7 @@ export default function Community() {
   const isShowingSeeds = logs.length === 0;
 
   return (
-    <div className="min-h-screen bg-white animate-fade-in">
+    <div className="min-h-screen bg-white dark:bg-stone-950 animate-fade-in">
       <Helmet>
         <title>تجارب المستخدمين | pptides</title>
         <meta name="description" content="اقرأ تجارب حقيقية من مستخدمي الببتيدات. بروتوكولات مُجرَّبة، نتائج فعلية، وتقييمات صادقة." />
@@ -384,18 +384,18 @@ export default function Community() {
 
       <div className="mx-auto max-w-4xl px-4 pb-24 pt-8 md:px-6 md:pt-12">
         <div className="mb-12 text-center">
-          <div className="mx-auto mb-4 inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-100">
+          <div className="mx-auto mb-4 inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-100 dark:bg-emerald-900/30">
             <MessageSquare className="h-7 w-7 text-emerald-600" />
           </div>
-          <h1 className="mb-3 text-3xl font-bold text-stone-900 md:text-4xl">
+          <h1 className="mb-3 text-3xl font-bold text-stone-900 dark:text-stone-100 md:text-4xl">
             تجارب <span className="text-emerald-600">المستخدمين</span>
           </h1>
-          <p className="mx-auto max-w-lg text-lg text-stone-600">
+          <p className="mx-auto max-w-lg text-lg text-stone-600 dark:text-stone-400">
             بروتوكولات حقيقية. نتائج فعلية. من مستخدمين مثلك.
           </p>
           <a
             href={`mailto:${SUPPORT_EMAIL}?subject=أريد الانضمام لمجموعة المجتمع`}
-            className="mt-5 inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 px-6 py-2.5 text-sm font-bold text-emerald-700 transition-colors hover:bg-emerald-100"
+            className="mt-5 inline-flex items-center gap-2 rounded-full border border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-900/20 px-6 py-2.5 text-sm font-bold text-emerald-700 dark:text-emerald-400 transition-colors hover:bg-emerald-100 dark:bg-emerald-900/30"
           >
             <MessageCircle className="h-4 w-4" />
             تواصل معنا للانضمام للمجتمع
@@ -403,7 +403,7 @@ export default function Community() {
         </div>
 
         {submitted && (
-          <div className="mb-6 rounded-xl border border-emerald-300 bg-emerald-50 p-4 text-center text-sm font-bold text-emerald-800">
+          <div className="mb-6 rounded-xl border border-emerald-300 dark:border-emerald-700 bg-emerald-50 dark:bg-emerald-900/20 p-4 text-center text-sm font-bold text-emerald-800 dark:text-emerald-300">
             تم نشر تجربتك بنجاح — شكرًا لمشاركتك!
           </div>
         )}
@@ -413,26 +413,26 @@ export default function Community() {
             {!showForm ? (
               <button
                 onClick={() => setShowForm(true)}
-                className="w-full rounded-2xl border-2 border-dashed border-emerald-300 bg-emerald-50 p-6 text-center transition-all hover:border-emerald-400 hover:bg-emerald-100"
+                className="w-full rounded-2xl border-2 border-dashed border-emerald-300 dark:border-emerald-700 bg-emerald-50 dark:bg-emerald-900/20 p-6 text-center transition-all hover:border-emerald-400 hover:bg-emerald-100 dark:bg-emerald-900/30"
               >
                 <Send className="mx-auto mb-2 h-6 w-6 text-emerald-600" />
-                <p className="font-bold text-stone-900">شارك تجربتك مع الببتيدات</p>
-                <p className="mt-1 text-sm text-stone-800">ساعد غيرك — شارك البروتوكول والنتائج</p>
+                <p className="font-bold text-stone-900 dark:text-stone-100">شارك تجربتك مع الببتيدات</p>
+                <p className="mt-1 text-sm text-stone-800 dark:text-stone-200">ساعد غيرك — شارك البروتوكول والنتائج</p>
               </button>
             ) : (
-              <form onSubmit={handleSubmit} className="rounded-2xl border border-stone-200 bg-white p-6 shadow-sm md:p-8">
-                <h3 className="mb-6 text-lg font-bold text-stone-900">شارك تجربتك</h3>
+              <form onSubmit={handleSubmit} className="rounded-2xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 p-6 shadow-sm dark:shadow-stone-900/30 md:p-8">
+                <h3 className="mb-6 text-lg font-bold text-stone-900 dark:text-stone-100">شارك تجربتك</h3>
 
                 <div className="mb-4">
-                  <label htmlFor="community-peptide" className="mb-1.5 block text-sm font-bold text-stone-900">اسم الببتيد <span className="text-red-500" aria-hidden="true">*</span></label>
+                  <label htmlFor="community-peptide" className="mb-1.5 block text-sm font-bold text-stone-900 dark:text-stone-100">اسم الببتيد <span className="text-red-500 dark:text-red-400" aria-hidden="true">*</span></label>
                   <select
                     id="community-peptide"
                     value={peptideName}
                     onChange={(e) => setPeptideName(e.target.value)}
                     required
                     className={cn(
-                      'w-full rounded-xl border bg-stone-50 px-4 py-3 text-stone-900 focus:border-emerald-300 focus:outline-none focus:ring-2 focus:ring-emerald-100',
-                      attempted && !peptideName.trim() ? 'border-red-400 ring-1 ring-red-200' : 'border-stone-200'
+                      'w-full rounded-xl border bg-stone-50 dark:bg-stone-900 px-4 py-3 text-stone-900 dark:text-stone-100 focus:border-emerald-300 dark:border-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900',
+                      attempted && !peptideName.trim() ? 'border-red-400 ring-1 ring-red-200' : 'border-stone-200 dark:border-stone-700'
                     )}
                   >
                     <option value="">اختر الببتيد...</option>
@@ -441,12 +441,12 @@ export default function Community() {
                     ))}
                   </select>
                   {attempted && !peptideName.trim() && (
-                    <p data-error="true" className="mt-1 text-xs text-red-600">يرجى إدخال اسم الببتيد</p>
+                    <p data-error="true" className="mt-1 text-xs text-red-600 dark:text-red-400">يرجى إدخال اسم الببتيد</p>
                   )}
                 </div>
 
                 <div className="mb-4">
-                  <label className="mb-1.5 block text-sm font-bold text-stone-900">الهدف</label>
+                  <label className="mb-1.5 block text-sm font-bold text-stone-900 dark:text-stone-100">الهدف</label>
                   <div className="flex flex-wrap gap-2">
                     {GOALS.map((g) => (
                       <button
@@ -456,8 +456,8 @@ export default function Community() {
                         className={cn(
                           'rounded-full border px-4 py-1.5 text-sm font-medium transition-all',
                           goal === g
-                            ? 'border-emerald-300 bg-emerald-100 text-emerald-800'
-                            : 'border-stone-200 bg-white text-stone-800 transition-colors hover:border-emerald-200'
+                            ? 'border-emerald-300 dark:border-emerald-700 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-800 dark:text-emerald-300'
+                            : 'border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 text-stone-800 dark:text-stone-200 transition-colors hover:border-emerald-200 dark:border-emerald-800'
                         )}
                       >
                         {g}
@@ -467,7 +467,7 @@ export default function Community() {
                 </div>
 
                 <div className="mb-4">
-                  <label htmlFor="community-protocol" className="mb-1.5 block text-sm font-bold text-stone-900">البروتوكول (الجرعة، التوقيت، المدة)</label>
+                  <label htmlFor="community-protocol" className="mb-1.5 block text-sm font-bold text-stone-900 dark:text-stone-100">البروتوكول (الجرعة، التوقيت، المدة)</label>
                   <textarea
                     id="community-protocol"
                     value={protocol}
@@ -479,15 +479,15 @@ export default function Community() {
                     maxLength={3000}
                     placeholder="مثال: 250mcg مرتين يوميًا، حقن تحت الجلد في البطن، لمدة 6 أسابيع..."
                     rows={3}
-                    className="w-full resize-none rounded-xl border border-stone-200 bg-stone-50 px-4 py-3 text-stone-900 placeholder:text-stone-500 focus:border-emerald-300 focus:outline-none focus:ring-2 focus:ring-emerald-100"
+                    className="w-full resize-none rounded-xl border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-900 px-4 py-3 text-stone-900 dark:text-stone-100 placeholder:text-stone-500 dark:text-stone-400 focus:border-emerald-300 dark:border-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900"
                     style={{ overflow: 'hidden' }}
                   />
-                  <p className="mt-1 text-start text-xs text-stone-500">{protocol.length}/3000</p>
+                  <p className="mt-1 text-start text-xs text-stone-500 dark:text-stone-400">{protocol.length}/3000</p>
                 </div>
 
                 <div className="mb-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
                   <div>
-                    <label htmlFor="community-duration" className="mb-1.5 block text-sm font-bold text-stone-900">المدة (أسابيع)</label>
+                    <label htmlFor="community-duration" className="mb-1.5 block text-sm font-bold text-stone-900 dark:text-stone-100">المدة (أسابيع)</label>
                     <input
                       id="community-duration"
                       type="number"
@@ -496,11 +496,11 @@ export default function Community() {
                       max={52}
                       value={durationWeeks}
                       onChange={(e) => setDurationWeeks(Number(e.target.value))}
-                      className="w-full rounded-xl border border-stone-200 bg-stone-50 px-4 py-3 text-stone-900 focus:border-emerald-300 focus:outline-none focus:ring-2 focus:ring-emerald-100"
+                      className="w-full rounded-xl border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-900 px-4 py-3 text-stone-900 dark:text-stone-100 focus:border-emerald-300 dark:border-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900"
                     />
                   </div>
                   <div>
-                    <label className="mb-1.5 block text-sm font-bold text-stone-900">التقييم (1-5)</label>
+                    <label className="mb-1.5 block text-sm font-bold text-stone-900 dark:text-stone-100">التقييم (1-5)</label>
                     <div className="flex gap-1 pt-2">
                       {[1, 2, 3, 4, 5].map((r) => (
                         <button
@@ -511,7 +511,7 @@ export default function Community() {
                             'h-11 w-11 rounded-lg text-sm font-bold transition-all',
                             rating >= r
                               ? 'bg-emerald-600 text-white'
-                              : 'border border-stone-200 bg-white text-stone-800'
+                              : 'border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 text-stone-800 dark:text-stone-200'
                           )}
                         >
                           {r}
@@ -522,7 +522,7 @@ export default function Community() {
                 </div>
 
                 <div className="mb-6">
-                  <label htmlFor="community-results" className="mb-1.5 block text-sm font-bold text-stone-900">النتائج — ماذا لاحظت؟ <span className="text-red-500" aria-hidden="true">*</span></label>
+                  <label htmlFor="community-results" className="mb-1.5 block text-sm font-bold text-stone-900 dark:text-stone-100">النتائج — ماذا لاحظت؟ <span className="text-red-500 dark:text-red-400" aria-hidden="true">*</span></label>
                   <textarea
                     id="community-results"
                     value={results}
@@ -536,16 +536,16 @@ export default function Community() {
                     rows={4}
                     required
                     className={cn(
-                      'w-full resize-none rounded-xl border bg-stone-50 px-4 py-3 text-stone-900 placeholder:text-stone-500 focus:border-emerald-300 focus:outline-none focus:ring-2 focus:ring-emerald-100',
-                      attempted && !results.trim() ? 'border-red-400 ring-1 ring-red-200' : 'border-stone-200'
+                      'w-full resize-none rounded-xl border bg-stone-50 dark:bg-stone-900 px-4 py-3 text-stone-900 dark:text-stone-100 placeholder:text-stone-500 dark:text-stone-400 focus:border-emerald-300 dark:border-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900',
+                      attempted && !results.trim() ? 'border-red-400 ring-1 ring-red-200' : 'border-stone-200 dark:border-stone-700'
                     )}
                     style={{ overflow: 'hidden' }}
                   />
                   <div className="mt-1 flex justify-between">
                     {attempted && !results.trim() ? (
-                      <p data-error="true" className="text-xs text-red-600">يرجى وصف النتائج</p>
+                      <p data-error="true" className="text-xs text-red-600 dark:text-red-400">يرجى وصف النتائج</p>
                     ) : <span />}
-                    <p className="text-xs text-stone-500">{results.length}/3000</p>
+                    <p className="text-xs text-stone-500 dark:text-stone-400">{results.length}/3000</p>
                   </div>
                 </div>
 
@@ -566,7 +566,7 @@ export default function Community() {
                   <button
                     type="button"
                     onClick={() => setShowForm(false)}
-                    className="rounded-full border border-stone-200 px-6 py-3 font-bold text-stone-800 transition-colors hover:bg-stone-50"
+                    className="rounded-full border border-stone-200 dark:border-stone-700 px-6 py-3 font-bold text-stone-800 dark:text-stone-200 transition-colors hover:bg-stone-50 dark:hover:bg-stone-800"
                   >
                     إلغاء
                   </button>
@@ -577,8 +577,8 @@ export default function Community() {
         )}
 
         {!user && (
-          <div className="mb-8 rounded-2xl border border-stone-200 bg-stone-50 p-6 text-center">
-            <p className="font-bold text-stone-900">سجّل الدخول لمشاركة تجربتك</p>
+          <div className="mb-8 rounded-2xl border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-900 p-6 text-center">
+            <p className="font-bold text-stone-900 dark:text-stone-100">سجّل الدخول لمشاركة تجربتك</p>
             <Link to="/login" className="mt-3 inline-block rounded-full bg-emerald-600 px-8 py-2.5 text-sm font-bold text-white transition-colors hover:bg-emerald-700">
               تسجيل الدخول
             </Link>
@@ -586,9 +586,9 @@ export default function Community() {
         )}
 
         {user && !isPaid && (
-          <div className="mb-8 rounded-2xl border-2 border-emerald-200 bg-emerald-50 p-6 text-center">
-            <p className="font-bold text-stone-900">اشترك لمشاركة تجربتك مع المجتمع</p>
-            <p className="mt-1 text-sm text-stone-800">المشتركون فقط يمكنهم نشر تجاربهم</p>
+          <div className="mb-8 rounded-2xl border-2 border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-900/20 p-6 text-center">
+            <p className="font-bold text-stone-900 dark:text-stone-100">اشترك لمشاركة تجربتك مع المجتمع</p>
+            <p className="mt-1 text-sm text-stone-800 dark:text-stone-200">المشتركون فقط يمكنهم نشر تجاربهم</p>
             <Link to="/pricing" className="mt-3 inline-block rounded-full bg-emerald-600 px-8 py-2.5 text-sm font-bold text-white transition-colors hover:bg-emerald-700">
               اشترك — {PRICING.essentials.label}/شهريًا
             </Link>
@@ -609,8 +609,8 @@ export default function Community() {
                       className={cn(
                         'shrink-0 rounded-full border px-4 py-2 min-h-[44px] text-sm font-medium transition-all',
                         filterGoal === g
-                          ? 'border-emerald-400 bg-emerald-50 text-emerald-800'
-                          : 'border-stone-200 bg-white text-stone-600 transition-colors hover:border-emerald-200'
+                          ? 'border-emerald-400 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-800 dark:text-emerald-300'
+                          : 'border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 text-stone-600 dark:text-stone-400 transition-colors hover:border-emerald-200 dark:border-emerald-800'
                       )}
                     >
                       {label}
@@ -623,7 +623,7 @@ export default function Community() {
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value as 'newest' | 'highest')}
               aria-label="ترتيب التجارب"
-              className="shrink-0 rounded-xl border border-stone-200 bg-white px-3 py-1.5 text-sm text-stone-700 focus:border-emerald-300 focus:outline-none"
+              className="shrink-0 rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 px-3 py-1.5 text-sm text-stone-700 dark:text-stone-300 focus:border-emerald-300 dark:border-emerald-700 focus:outline-none"
             >
               <option value="newest">الأحدث</option>
               <option value="highest">الأعلى تقييمًا</option>
@@ -635,19 +635,19 @@ export default function Community() {
         {loading ? (
           <div className="space-y-4 py-4" role="status" aria-label="جارٍ تحميل التجارب">
             {Array.from({ length: 3 }).map((_, i) => (
-              <div key={i} className="animate-pulse rounded-2xl border border-stone-200 p-5 space-y-3">
-                <div className="flex items-center gap-3"><div className="h-10 w-10 rounded-full bg-stone-200" /><div className="space-y-1 flex-1"><div className="h-4 w-24 rounded bg-stone-200" /><div className="h-3 w-16 rounded bg-stone-100" /></div></div>
-                <div className="h-4 w-full rounded bg-stone-100" />
-                <div className="h-4 w-3/4 rounded bg-stone-100" />
+              <div key={i} className="animate-pulse rounded-2xl border border-stone-200 dark:border-stone-700 p-5 space-y-3">
+                <div className="flex items-center gap-3"><div className="h-10 w-10 rounded-full bg-stone-200 dark:bg-stone-700" /><div className="space-y-1 flex-1"><div className="h-4 w-24 rounded bg-stone-200 dark:bg-stone-700" /><div className="h-3 w-16 rounded bg-stone-100 dark:bg-stone-800" /></div></div>
+                <div className="h-4 w-full rounded bg-stone-100 dark:bg-stone-800" />
+                <div className="h-4 w-3/4 rounded bg-stone-100 dark:bg-stone-800" />
               </div>
             ))}
           </div>
         ) : fetchError && logs.length === 0 ? (
-          <div className="rounded-2xl border border-red-200 bg-red-50 py-10 text-center">
-            <p className="text-base text-red-700 mb-4">تعذّر تحميل التجارب. تحقق من اتصالك بالإنترنت.</p>
+          <div className="rounded-2xl border border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-900/20 py-10 text-center">
+            <p className="text-base text-red-700 dark:text-red-400 mb-4">تعذّر تحميل التجارب. تحقق من اتصالك بالإنترنت.</p>
             <button
               onClick={() => loadCommunityLogs()}
-              className="rounded-xl bg-red-100 px-6 py-2 text-sm font-bold text-red-700 hover:bg-red-200 transition-colors"
+              className="rounded-xl bg-red-100 px-6 py-2 text-sm font-bold text-red-700 dark:text-red-400 hover:bg-red-200 transition-colors"
             >
               إعادة المحاولة
             </button>
@@ -655,19 +655,19 @@ export default function Community() {
         ) : (
           <div className="space-y-4">
             {displayedLogs.length === 0 && (
-              <div className="rounded-2xl border border-stone-200 bg-stone-50 py-12 px-6 text-center">
-                <p className="text-sm font-bold text-stone-800">لا توجد تجارب لهذا الهدف بعد</p>
-                <p className="mt-1 text-xs text-stone-500">جرّب تصنيف مختلف أو شارك تجربتك</p>
+              <div className="rounded-2xl border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-900 py-12 px-6 text-center">
+                <p className="text-sm font-bold text-stone-800 dark:text-stone-200">لا توجد تجارب لهذا الهدف بعد</p>
+                <p className="mt-1 text-xs text-stone-500 dark:text-stone-400">جرّب تصنيف مختلف أو شارك تجربتك</p>
                 <button onClick={() => setFilterGoal('all')} className="mt-3 text-sm text-emerald-600 font-bold hover:underline">عرض الكل</button>
               </div>
             )}
             {isShowingSeeds && displayedLogs.length > 0 && (
-              <div className="rounded-2xl border-2 border-dashed border-emerald-200 bg-gradient-to-b from-emerald-50 to-white px-6 py-8 text-center">
-                <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-emerald-100">
+              <div className="rounded-2xl border-2 border-dashed border-emerald-200 dark:border-emerald-800 bg-gradient-to-b from-emerald-50 to-white dark:to-stone-950 px-6 py-8 text-center">
+                <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-emerald-100 dark:bg-emerald-900/30">
                   <MessageSquare className="h-8 w-8 text-emerald-600" />
                 </div>
-                <h3 className="text-xl font-bold text-stone-900">شارك تجربتك مع المجتمع</h3>
-                <p className="mx-auto mt-2 max-w-md text-sm leading-relaxed text-stone-600">
+                <h3 className="text-xl font-bold text-stone-900 dark:text-stone-100">شارك تجربتك مع المجتمع</h3>
+                <p className="mx-auto mt-2 max-w-md text-sm leading-relaxed text-stone-600 dark:text-stone-400">
                   التجارب أدناه أمثلة توضيحية فقط — أضف تجربتك الحقيقية لتكون أول مشاركة
                 </p>
                 {user && isPaid && (
@@ -684,11 +684,11 @@ export default function Community() {
             {displayedLogs.map((log) => {
               const isSeed = log.id.startsWith('seed-');
               return (
-              <div key={log.id} className="rounded-2xl border border-stone-200 bg-white p-6 shadow-sm transition-all hover:border-emerald-200 hover:shadow-md">
+              <div key={log.id} className="rounded-2xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 p-6 shadow-sm dark:shadow-stone-900/30 transition-all hover:border-emerald-200 dark:border-emerald-800 hover:shadow-md">
                 <div className="mb-3 flex flex-wrap items-start justify-between gap-2">
                   <div className="flex items-center gap-3">
-                    <div className="relative flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-emerald-100">
-                      <User className="h-5 w-5 text-emerald-700" />
+                    <div className="relative flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-emerald-100 dark:bg-emerald-900/30">
+                      <User className="h-5 w-5 text-emerald-700 dark:text-emerald-400" />
                       {log.is_subscriber && (
                         <span className="absolute -top-1 -start-1 flex h-5 items-center gap-0.5 rounded-full bg-emerald-600 px-1.5 text-[10px] font-bold text-white shadow" title="مشترك">
                           <BadgeCheck className="h-3 w-3" />
@@ -697,29 +697,29 @@ export default function Community() {
                     </div>
                     <div>
                       {log.is_subscriber && (
-                        <span className="me-1 inline-block rounded-full bg-emerald-100 px-2 py-0.5 text-[11px] font-bold text-emerald-700">مشترك</span>
+                        <span className="me-1 inline-block rounded-full bg-emerald-100 dark:bg-emerald-900/30 px-2 py-0.5 text-[11px] font-bold text-emerald-700 dark:text-emerald-400">مشترك</span>
                       )}
                       {isSeed && (
-                        <span className="inline-block mb-1 rounded-full border border-amber-300 bg-amber-50 px-2.5 py-0.5 text-xs font-medium text-amber-800">
+                        <span className="inline-block mb-1 rounded-full border border-amber-300 dark:border-amber-700 bg-amber-50 dark:bg-amber-900/20 px-2.5 py-0.5 text-xs font-medium text-amber-800 dark:text-amber-300">
                           تجربة توضيحية
                         </span>
                       )}
                       {(() => {
                         const peptide = allPeptides.find(p => p.nameEn.toLowerCase() === log.peptide_name.toLowerCase() || p.nameAr === log.peptide_name);
                         return peptide ? (
-                          <Link to={`/peptide/${peptide.id}`} className="inline-flex items-center gap-1.5 rounded-full border border-emerald-300 bg-emerald-100 px-3 py-1 text-sm font-bold text-emerald-800 shadow-sm hover:bg-emerald-200 transition-colors" dir="ltr">
+                          <Link to={`/peptide/${peptide.id}`} className="inline-flex items-center gap-1.5 rounded-full border border-emerald-300 dark:border-emerald-700 bg-emerald-100 dark:bg-emerald-900/30 px-3 py-1 text-sm font-bold text-emerald-800 dark:text-emerald-300 shadow-sm dark:shadow-stone-900/30 hover:bg-emerald-200 transition-colors" dir="ltr">
                             <FlaskConical className="h-3 w-3" />
                             {log.peptide_name}
                           </Link>
                         ) : (
-                          <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-300 bg-emerald-100 px-3 py-1 text-sm font-bold text-emerald-800 shadow-sm" dir="ltr">
+                          <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-300 dark:border-emerald-700 bg-emerald-100 dark:bg-emerald-900/30 px-3 py-1 text-sm font-bold text-emerald-800 dark:text-emerald-300 shadow-sm dark:shadow-stone-900/30" dir="ltr">
                             <FlaskConical className="h-3 w-3" />
                             {log.peptide_name}
                           </span>
                         );
                       })()}
                       {log.goal && (
-                        <span className="me-2 text-sm text-stone-700">— {log.goal}</span>
+                        <span className="me-2 text-sm text-stone-700 dark:text-stone-300">— {log.goal}</span>
                       )}
                     </div>
                   </div>
@@ -752,7 +752,7 @@ export default function Community() {
                           toast.success('تم الإبلاغ — سنراجع المحتوى');
                         }
                       }}
-                      className="rounded-lg p-2.5 min-h-[44px] min-w-[44px] text-stone-300 hover:text-red-500 hover:bg-red-50 transition-colors"
+                      className="rounded-lg p-2.5 min-h-[44px] min-w-[44px] text-stone-300 hover:text-red-500 dark:text-red-400 hover:bg-red-50 dark:bg-red-900/20 transition-colors"
                       aria-label="إبلاغ"
                     >
                       <Flag className="h-3.5 w-3.5" />
@@ -762,8 +762,8 @@ export default function Community() {
                 </div>
 
                 {log.protocol && (
-                  <div className="mb-3 rounded-lg bg-stone-50 p-3 text-sm text-stone-800">
-                    <span className="font-bold text-stone-900">البروتوكول: </span>
+                  <div className="mb-3 rounded-lg bg-stone-50 dark:bg-stone-900 p-3 text-sm text-stone-800 dark:text-stone-200">
+                    <span className="font-bold text-stone-900 dark:text-stone-100">البروتوكول: </span>
                     {(() => {
                       const isLong = (log.protocol?.length ?? 0) > 200;
                       const isExpanded = expandedPosts.has(log.id);
@@ -784,7 +784,7 @@ export default function Community() {
                   </div>
                 )}
 
-                <div className="text-base leading-relaxed text-stone-900">
+                <div className="text-base leading-relaxed text-stone-900 dark:text-stone-100">
                   {(() => {
                     const isLong = (log.results?.length ?? 0) > 200;
                     const isExpanded = expandedPosts.has(log.id);
@@ -805,7 +805,7 @@ export default function Community() {
                   })()}
                 </div>
 
-                <div className="mt-3 flex items-center gap-4 text-xs text-stone-700">
+                <div className="mt-3 flex items-center gap-4 text-xs text-stone-700 dark:text-stone-300">
                   <span className="flex items-center gap-1">
                     <Clock className="h-3.5 w-3.5" />
                     {log.duration_weeks} أسابيع
@@ -846,17 +846,17 @@ export default function Community() {
                 </div>
                 <Link
                   to={`/peptide/${allPeptides.find(p => p.nameEn === log.peptide_name)?.id ?? (log.peptide_name ?? '').toLowerCase().replace(/[/\s]+/g, '-')}`}
-                  className="mt-2 inline-flex min-h-[44px] items-center gap-1 text-xs font-bold text-emerald-600 hover:text-emerald-700"
+                  className="mt-2 inline-flex min-h-[44px] items-center gap-1 text-xs font-bold text-emerald-600 hover:text-emerald-700 dark:text-emerald-400"
                 >
                   ابدأ هذا البروتوكول ←
                 </Link>
 
                 {!isSeed && (
-                  <div className="mt-4 border-t border-stone-100 pt-3">
+                  <div className="mt-4 border-t border-stone-100 dark:border-stone-800 pt-3">
                     <button
                       type="button"
                       onClick={() => toggleReplies(log.id)}
-                      className="flex items-center gap-1.5 text-sm font-medium text-stone-500 hover:text-emerald-600 transition-colors"
+                      className="flex items-center gap-1.5 text-sm font-medium text-stone-500 dark:text-stone-400 hover:text-emerald-600 transition-colors"
                     >
                       <MessageCircle className="h-4 w-4" />
                       <span>{replyCountByPost[log.id] ?? 0} ردود</span>
@@ -867,7 +867,7 @@ export default function Community() {
                       <div className="mt-3 space-y-3">
                         {loadingReplies.has(log.id) ? (
                           <div className="flex items-center gap-2 text-sm text-stone-400">
-                            <span className="h-4 w-4 animate-spin rounded-full border-2 border-stone-200 border-t-emerald-500" />
+                            <span className="h-4 w-4 animate-spin rounded-full border-2 border-stone-200 dark:border-stone-700 border-t-emerald-500" />
                             جارٍ تحميل الردود...
                           </div>
                         ) : (
@@ -876,14 +876,14 @@ export default function Community() {
                               <p className="text-sm text-stone-400">لا توجد ردود بعد</p>
                             )}
                             {(repliesByPost[log.id] ?? []).map(reply => (
-                              <div key={reply.id} className="flex gap-2.5 rounded-xl bg-stone-50 p-3">
-                                <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-stone-200">
-                                  <User className="h-3.5 w-3.5 text-stone-500" />
+                              <div key={reply.id} className="flex gap-2.5 rounded-xl bg-stone-50 dark:bg-stone-900 p-3">
+                                <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-stone-200 dark:bg-stone-700">
+                                  <User className="h-3.5 w-3.5 text-stone-500 dark:text-stone-400" />
                                 </div>
                                 <div className="min-w-0 flex-1">
                                   <div className="flex items-center gap-2">
                                     {reply.is_subscriber && (
-                                      <span className="inline-flex items-center gap-0.5 rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] font-bold text-emerald-700">
+                                      <span className="inline-flex items-center gap-0.5 rounded-full bg-emerald-100 dark:bg-emerald-900/30 px-2 py-0.5 text-[10px] font-bold text-emerald-700 dark:text-emerald-400">
                                         <BadgeCheck className="h-3 w-3" />
                                         مشترك
                                       </span>
@@ -895,14 +895,14 @@ export default function Community() {
                                       <button
                                         type="button"
                                         onClick={() => deleteReply(reply)}
-                                        className="me-auto rounded p-1 text-stone-300 hover:bg-red-50 hover:text-red-500 transition-colors"
+                                        className="me-auto rounded p-1 text-stone-300 hover:bg-red-50 dark:bg-red-900/20 hover:text-red-500 dark:text-red-400 transition-colors"
                                         aria-label="حذف الرد"
                                       >
                                         <Trash2 className="h-3 w-3" />
                                       </button>
                                     )}
                                   </div>
-                                  <p className="mt-1 text-sm text-stone-800 whitespace-pre-line">{reply.content}</p>
+                                  <p className="mt-1 text-sm text-stone-800 dark:text-stone-200 whitespace-pre-line">{reply.content}</p>
                                 </div>
                               </div>
                             ))}
@@ -917,7 +917,7 @@ export default function Community() {
                               placeholder="اكتب ردًا..."
                               maxLength={1000}
                               rows={1}
-                              className="flex-1 resize-none rounded-xl border border-stone-200 bg-white px-3 py-2 text-sm text-stone-900 placeholder:text-stone-400 focus:border-emerald-300 focus:outline-none focus:ring-1 focus:ring-emerald-100"
+                              className="flex-1 resize-none rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 px-3 py-2 text-sm text-stone-900 dark:text-stone-100 placeholder:text-stone-400 focus:border-emerald-300 dark:border-emerald-700 focus:outline-none focus:ring-1 focus:ring-emerald-100 dark:focus:ring-emerald-900"
                               onKeyDown={e => {
                                 if (e.key === 'Enter' && !e.shiftKey) {
                                   e.preventDefault();
@@ -965,7 +965,7 @@ export default function Community() {
                   }
                 }}
                 disabled={loadingMore}
-                className="flex w-full items-center justify-center gap-2 rounded-2xl border border-stone-200 bg-white py-4 text-sm font-bold text-stone-600 transition-all hover:border-emerald-300 hover:text-emerald-700 disabled:opacity-50"
+                className="flex w-full items-center justify-center gap-2 rounded-2xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 py-4 text-sm font-bold text-stone-600 dark:text-stone-400 transition-all hover:border-emerald-300 dark:border-emerald-700 hover:text-emerald-700 dark:text-emerald-400 disabled:opacity-50"
               >
                 {loadingMore ? 'جارٍ التحميل...' : 'تحميل المزيد'}
               </button>

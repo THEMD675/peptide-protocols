@@ -1,6 +1,9 @@
 html {
   color-scheme: light;
 }
+html.dark {
+  color-scheme: dark;
+}
 
 @tailwind base;
 @tailwind components;
@@ -51,6 +54,45 @@ html {
 
 }
 
+/* ═══ Dark mode CSS variables ═══ */
+html.dark {
+  --text: #f5f5f4;
+  --muted: #a8a29e;
+  --border: #292524;
+
+  --tw-background: 20 14% 4%;
+  --tw-foreground: 0 0% 96%;
+  --tw-card: 20 14% 10%;
+  --tw-card-foreground: 0 0% 96%;
+  --tw-popover: 20 14% 10%;
+  --tw-popover-foreground: 0 0% 96%;
+  --tw-primary: 160 84% 39%;
+  --tw-primary-foreground: 0 0% 100%;
+  --tw-secondary: 20 14% 14%;
+  --tw-secondary-foreground: 0 0% 96%;
+  --tw-muted: 20 14% 14%;
+  --tw-muted-foreground: 0 0% 64%;
+  --tw-accent: 20 14% 14%;
+  --tw-accent-foreground: 0 0% 96%;
+  --tw-destructive: 0 84% 60%;
+  --tw-destructive-foreground: 0 0% 100%;
+  --tw-success: 160 84% 39%;
+  --tw-success-foreground: 0 0% 100%;
+  --tw-border: 20 14% 18%;
+  --tw-input: 20 14% 18%;
+  --tw-ring: 160 84% 39%;
+
+  --divider: hsl(var(--tw-border) / 0.4);
+  --divider-soft: hsl(var(--tw-border) / 0.25);
+  --divider-strong: hsl(var(--tw-border) / 0.6);
+
+  --shadow-sm: 0 1px 2px 0 hsl(0 0% 0% / 0.2);
+  --shadow-md: 0 4px 6px -1px hsl(0 0% 0% / 0.3), 0 2px 4px -2px hsl(0 0% 0% / 0.2);
+  --shadow-lg: 0 10px 15px -3px hsl(0 0% 0% / 0.3), 0 4px 6px -4px hsl(0 0% 0% / 0.2);
+  --shadow-xl: 0 20px 25px -5px hsl(0 0% 0% / 0.3), 0 8px 10px -6px hsl(0 0% 0% / 0.2);
+  --shadow-glow: 0 0 40px -10px hsl(var(--tw-primary) / 0.3);
+}
+
 @media (min-width: 768px) {
   :root {
     --header-height: 4.5rem; /* 72px desktop */
@@ -92,6 +134,16 @@ html {
     padding-bottom: env(safe-area-inset-bottom);
   }
 
+  html.dark body {
+    background: #0c0a09;
+    color: #f5f5f4;
+  }
+
+  html.dark ::selection {
+    background-color: rgba(16, 185, 129, 0.3);
+    color: #d1fae5;
+  }
+
   input::placeholder,
   textarea::placeholder {
     opacity: 0.5;
@@ -117,6 +169,14 @@ html {
   .glass-card:hover {
     transform: translateY(-4px);
     box-shadow: 0 8px 32px rgba(16, 185, 129, 0.1);
+  }
+
+  :is(html.dark) .glass-card {
+    background: rgba(28, 25, 23, 0.8);
+    border: 1px solid rgba(41, 37, 36, 0.6);
+  }
+  :is(html.dark) .glass-card:hover {
+    box-shadow: 0 8px 32px rgba(16, 185, 129, 0.15);
   }
 
   /* ═══ Gradient utilities — remapped to emerald ═══ */
@@ -151,12 +211,12 @@ html {
 
 
   /* ═══ Evidence badges ═══ */
-  .evidence-excellent { @apply bg-emerald-100 text-emerald-800; }
-  .evidence-strong { @apply bg-blue-100 text-blue-800; }
-  .evidence-good { @apply bg-sky-100 text-sky-800; }
-  .evidence-moderate { @apply bg-amber-100 text-amber-800; }
-  .evidence-weak { @apply bg-orange-100 text-orange-800; }
-  .evidence-very-weak { @apply bg-red-100 text-red-800; }
+  .evidence-excellent { @apply bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-300; }
+  .evidence-strong { @apply bg-blue-100 text-blue-800 dark:bg-blue-900/40 dark:text-blue-300; }
+  .evidence-good { @apply bg-sky-100 text-sky-800 dark:bg-sky-900/40 dark:text-sky-300; }
+  .evidence-moderate { @apply bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300; }
+  .evidence-weak { @apply bg-orange-100 text-orange-800 dark:bg-orange-900/40 dark:text-orange-300; }
+  .evidence-very-weak { @apply bg-red-100 text-red-800 dark:bg-red-900/40 dark:text-red-300; }
 
 
   .paywall-blur {
@@ -172,6 +232,9 @@ html {
   .card-hover:hover {
     transform: translateY(-2px);
     box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+  }
+  :is(html.dark) .card-hover:hover {
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
   }
 
 }
@@ -227,6 +290,10 @@ html {
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
 ::-webkit-scrollbar-thumb:hover { background: var(--muted); }
+
+html.dark ::-webkit-scrollbar-track { background: #0c0a09; }
+html.dark ::-webkit-scrollbar-thumb { background: #44403c; }
+html.dark ::-webkit-scrollbar-thumb:hover { background: #57534e; }
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {

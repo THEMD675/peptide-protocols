@@ -53,7 +53,7 @@ function StarRating({
                 'transition-colors',
                 (hover || rating) >= star
                   ? 'fill-emerald-500 text-emerald-500'
-                  : 'fill-transparent text-stone-500',
+                  : 'fill-transparent text-stone-500 dark:text-stone-400',
               )}
               aria-hidden
             />
@@ -66,7 +66,7 @@ function StarRating({
                 'transition-colors',
                 rating >= star
                   ? 'fill-emerald-500 text-emerald-500'
-                  : 'fill-transparent text-stone-500',
+                  : 'fill-transparent text-stone-500 dark:text-stone-400',
               )}
             />
           </span>
@@ -238,13 +238,13 @@ export default function Reviews() {
           </h1>
 
           {reviews.length > 0 && (
-            <div className="mx-auto mt-6 flex max-w-sm flex-col items-center gap-2 rounded-2xl border border-emerald-200 bg-emerald-50 p-5">
+            <div className="mx-auto mt-6 flex max-w-sm flex-col items-center gap-2 rounded-2xl border border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-900/20 p-5">
               <div className="flex items-baseline gap-1">
-                <span className="text-4xl font-black text-emerald-700">{averageRating.toFixed(1)}</span>
-                <span className="text-lg font-bold text-stone-500">/5</span>
+                <span className="text-4xl font-black text-emerald-700 dark:text-emerald-400">{averageRating.toFixed(1)}</span>
+                <span className="text-lg font-bold text-stone-500 dark:text-stone-400">/5</span>
               </div>
               <StarRating rating={Math.round(averageRating)} />
-              <span className="text-sm font-medium text-stone-600">
+              <span className="text-sm font-medium text-stone-600 dark:text-stone-400">
                 ({reviews.length} تقييم)
               </span>
             </div>
@@ -253,10 +253,10 @@ export default function Reviews() {
 
         {/* Submit Review */}
         <div
-          className="mb-10 rounded-2xl border border-stone-200 bg-stone-50 p-6 md:p-8"
+          className="mb-10 rounded-2xl border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-900 p-6 md:p-8"
         >
           <h2
-            className="mb-5 text-lg font-bold text-stone-900"
+            className="mb-5 text-lg font-bold text-stone-900 dark:text-stone-100"
             
           >
             أضف تقييمك
@@ -264,7 +264,7 @@ export default function Reviews() {
 
           {!user ? (
             <div className="flex flex-col items-center gap-4 py-6 text-center">
-              <p className="text-sm text-stone-800">سجّل الدخول لإضافة تقييمك</p>
+              <p className="text-sm text-stone-800 dark:text-stone-200">سجّل الدخول لإضافة تقييمك</p>
               <Link
                 to="/login"
                 className="rounded-xl bg-emerald-600 px-8 py-3 text-sm font-bold text-white transition-all hover:bg-emerald-700"
@@ -274,7 +274,7 @@ export default function Reviews() {
             </div>
           ) : !subscription?.isProOrTrial ? (
             <div className="flex flex-col items-center gap-4 py-6 text-center">
-              <p className="text-sm text-stone-800">يجب أن تكون مشتركًا لإضافة تقييم</p>
+              <p className="text-sm text-stone-800 dark:text-stone-200">يجب أن تكون مشتركًا لإضافة تقييم</p>
               <Link
                 to="/pricing"
                 className="rounded-xl bg-emerald-600 px-8 py-3 text-sm font-bold text-white transition-all hover:bg-emerald-700"
@@ -287,15 +287,15 @@ export default function Reviews() {
               className="flex flex-col items-center gap-3 py-6 text-center"
             >
               <CheckCircle className="h-10 w-10 text-emerald-600" />
-              <p className="text-base font-bold text-stone-900">
+              <p className="text-base font-bold text-stone-900 dark:text-stone-100">
                 شكرًا! سيتم مراجعة تقييمك قبل النشر.
               </p>
             </div>
           ) : (
             <form onSubmit={handleSubmit} className="space-y-5">
               <div>
-                <label htmlFor="review-rating" className="mb-2 block text-sm font-medium text-stone-800">
-                  التقييم <span className="text-red-500" aria-hidden="true">*</span>
+                <label htmlFor="review-rating" className="mb-2 block text-sm font-medium text-stone-800 dark:text-stone-200">
+                  التقييم <span className="text-red-500 dark:text-red-400" aria-hidden="true">*</span>
                 </label>
                 <div id="review-rating">
                   <StarRating rating={rating} onRate={setRating} interactive />
@@ -303,8 +303,8 @@ export default function Reviews() {
               </div>
 
               <div>
-                <label htmlFor="review-text" className="mb-2 block text-sm font-medium text-stone-800">
-                  رأيك <span className="text-red-500" aria-hidden="true">*</span>
+                <label htmlFor="review-text" className="mb-2 block text-sm font-medium text-stone-800 dark:text-stone-200">
+                  رأيك <span className="text-red-500 dark:text-red-400" aria-hidden="true">*</span>
                 </label>
                 <textarea
                   id="review-text"
@@ -318,14 +318,14 @@ export default function Reviews() {
                   rows={4}
                   maxLength={1000}
                   className={cn(
-                    'w-full resize-none rounded-xl border border-stone-300 bg-stone-50 px-4 py-3',
-                    'text-sm text-stone-900 placeholder:text-stone-500',
-                    'transition-colors focus:border-emerald-300 focus:outline-none focus:ring-1 focus:ring-emerald-100',
+                    'w-full resize-none rounded-xl border border-stone-300 dark:border-stone-700 bg-stone-50 dark:bg-stone-900 px-4 py-3',
+                    'text-sm text-stone-900 dark:text-stone-100 placeholder:text-stone-500 dark:text-stone-400',
+                    'transition-colors focus:border-emerald-300 dark:border-emerald-700 focus:outline-none focus:ring-1 focus:ring-emerald-100 dark:focus:ring-emerald-900',
                   )}
                   style={{ overflow: 'hidden' }}
                 />
                 {text.length > 0 && (
-                  <p className="mt-1 text-start text-xs text-stone-500">{text.length}/1000</p>
+                  <p className="mt-1 text-start text-xs text-stone-500 dark:text-stone-400">{text.length}/1000</p>
                 )}
               </div>
 
@@ -357,22 +357,22 @@ export default function Reviews() {
         <div
         >
           <h2
-            className="mb-6 text-lg font-bold text-stone-900"
+            className="mb-6 text-lg font-bold text-stone-900 dark:text-stone-100"
             
           >
             التقييمات
           </h2>
 
           {reviews.length > 0 && (
-            <div className="mb-6 rounded-2xl border border-stone-200 bg-stone-50 p-5">
+            <div className="mb-6 rounded-2xl border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-900 p-5">
               <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:gap-8">
                 <div className="flex items-center gap-2">
-                  <span className="text-3xl font-black text-stone-900">
+                  <span className="text-3xl font-black text-stone-900 dark:text-stone-100">
                     {averageRating.toFixed(1)}
                   </span>
                   <StarRating rating={Math.round(averageRating)} size="sm" />
                 </div>
-                <span className="text-xs text-stone-600">
+                <span className="text-xs text-stone-600 dark:text-stone-400">
                   {reviews.length.toLocaleString('ar-u-nu-latn')} تقييم
                 </span>
                 <div className="flex-1 min-w-0 space-y-1.5">
@@ -381,16 +381,16 @@ export default function Reviews() {
                     const total = reviews.length;
                     return (
                       <div key={star} className="flex items-center gap-2">
-                        <span className="text-xs text-stone-600 w-6" dir="ltr">
+                        <span className="text-xs text-stone-600 dark:text-stone-400 w-6" dir="ltr">
                           {star}
                         </span>
-                        <div className="flex-1 h-2 min-w-0 overflow-hidden rounded-full bg-stone-200">
+                        <div className="flex-1 h-2 min-w-0 overflow-hidden rounded-full bg-stone-200 dark:bg-stone-700">
                           <div
                             className="h-2 rounded-full bg-emerald-500"
                             style={{ width: `${total > 0 ? (count / total) * 100 : 0}%` }}
                           />
                         </div>
-                        <span className="text-xs text-stone-600 w-5 tabular-nums">
+                        <span className="text-xs text-stone-600 dark:text-stone-400 w-5 tabular-nums">
                           {count}
                         </span>
                       </div>
@@ -404,31 +404,31 @@ export default function Reviews() {
           {loading ? (
             <div className="space-y-4 py-4" role="status" aria-label="جارٍ تحميل التقييمات">
               {Array.from({ length: 3 }).map((_, i) => (
-                <div key={i} className="animate-pulse rounded-2xl border border-stone-200 p-5 space-y-3">
-                  <div className="flex items-center gap-3"><div className="h-5 w-28 rounded bg-stone-200" /><div className="h-4 w-16 rounded bg-stone-100" /></div>
-                  <div className="h-4 w-full rounded bg-stone-100" />
-                  <div className="h-4 w-2/3 rounded bg-stone-100" />
+                <div key={i} className="animate-pulse rounded-2xl border border-stone-200 dark:border-stone-700 p-5 space-y-3">
+                  <div className="flex items-center gap-3"><div className="h-5 w-28 rounded bg-stone-200 dark:bg-stone-700" /><div className="h-4 w-16 rounded bg-stone-100 dark:bg-stone-800" /></div>
+                  <div className="h-4 w-full rounded bg-stone-100 dark:bg-stone-800" />
+                  <div className="h-4 w-2/3 rounded bg-stone-100 dark:bg-stone-800" />
                 </div>
               ))}
             </div>
           ) : fetchError ? (
-            <div className="rounded-2xl border border-red-200 bg-red-50 py-10 text-center">
+            <div className="rounded-2xl border border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-900/20 py-10 text-center">
               <AlertCircle className="mx-auto mb-3 h-10 w-10 text-red-400" />
-              <p className="text-base text-red-700">{fetchError}</p>
+              <p className="text-base text-red-700 dark:text-red-400">{fetchError}</p>
               <button
                 onClick={() => { setLoading(true); fetchReviews(); }}
-                className="mt-4 rounded-xl bg-red-100 px-6 py-2 text-sm font-bold text-red-700 hover:bg-red-200 transition-colors"
+                className="mt-4 rounded-xl bg-red-100 px-6 py-2 text-sm font-bold text-red-700 dark:text-red-400 hover:bg-red-200 transition-colors"
               >
                 إعادة المحاولة
               </button>
             </div>
           ) : reviews.length === 0 ? (
-            <div className="rounded-2xl border-2 border-dashed border-emerald-200 bg-gradient-to-b from-emerald-50 to-white py-20 px-8 text-center">
-              <div className="mx-auto mb-5 flex h-20 w-20 items-center justify-center rounded-2xl bg-emerald-100">
+            <div className="rounded-2xl border-2 border-dashed border-emerald-200 dark:border-emerald-800 bg-gradient-to-b from-emerald-50 to-white dark:to-stone-950 py-20 px-8 text-center">
+              <div className="mx-auto mb-5 flex h-20 w-20 items-center justify-center rounded-2xl bg-emerald-100 dark:bg-emerald-900/30">
                 <MessageCircle className="h-10 w-10 text-emerald-600" />
               </div>
-              <h3 className="text-2xl font-bold text-stone-900">لا توجد تقييمات بعد</h3>
-              <p className="mx-auto mt-3 max-w-md text-base leading-relaxed text-stone-600">
+              <h3 className="text-2xl font-bold text-stone-900 dark:text-stone-100">لا توجد تقييمات بعد</h3>
+              <p className="mx-auto mt-3 max-w-md text-base leading-relaxed text-stone-600 dark:text-stone-400">
                 كن أول من يشارك تجربته — تقييمك يساعد الآخرين على اتخاذ قرارهم بثقة وكن مرجعًا للمجتمع.
               </p>
               <button
@@ -444,23 +444,23 @@ export default function Reviews() {
               {reviews.map((review) => (
                 <div
                   key={review.id}
-                  className="rounded-2xl border border-stone-200 bg-stone-50 p-5 transition-all hover:border-emerald-200 hover:shadow-sm"
+                  className="rounded-2xl border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-900 p-5 transition-all hover:border-emerald-200 dark:border-emerald-800 hover:shadow-sm dark:shadow-stone-900/30"
                 >
                   <div className="mb-3 flex items-center justify-between">
                     <div className="flex items-center gap-2">
                       <StarRating rating={review.rating} size="sm" />
                       {review.is_subscriber && (
-                        <span className="flex items-center gap-1 rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] font-bold text-emerald-700">
+                        <span className="flex items-center gap-1 rounded-full bg-emerald-100 dark:bg-emerald-900/30 px-2 py-0.5 text-[10px] font-bold text-emerald-700 dark:text-emerald-400">
                           <BadgeCheck className="h-3 w-3" />
                           مشترك
                         </span>
                       )}
                     </div>
-                    <span className="text-xs text-stone-700">
+                    <span className="text-xs text-stone-700 dark:text-stone-300">
                       {formatDate(review.created_at)}
                     </span>
                   </div>
-                  <p className="text-sm leading-relaxed text-stone-800">
+                  <p className="text-sm leading-relaxed text-stone-800 dark:text-stone-200">
                     {review.body}
                   </p>
                 </div>
@@ -469,16 +469,16 @@ export default function Reviews() {
           )}
         </div>
 
-        <p className="mt-6 text-center text-xs text-stone-500">
+        <p className="mt-6 text-center text-xs text-stone-500 dark:text-stone-400">
           التقييمات من مشتركين مسجّلين
         </p>
 
-        <div className="mt-8 rounded-2xl border border-emerald-200 bg-emerald-50 p-6 text-center">
-          <p className="font-bold text-stone-900">جرّب بنفسك</p>
-          <p className="mt-1 text-sm text-stone-600">{TRIAL_DAYS} أيام تجربة مجانية — كل البروتوكولات والأدوات</p>
+        <div className="mt-8 rounded-2xl border border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-900/20 p-6 text-center">
+          <p className="font-bold text-stone-900 dark:text-stone-100">جرّب بنفسك</p>
+          <p className="mt-1 text-sm text-stone-600 dark:text-stone-400">{TRIAL_DAYS} أيام تجربة مجانية — كل البروتوكولات والأدوات</p>
           <div className="mt-4 flex flex-col gap-2 sm:flex-row sm:justify-center">
             <Link to="/signup?redirect=/pricing" className="rounded-full bg-emerald-600 px-6 py-2.5 text-sm font-bold text-white transition-colors hover:bg-emerald-700">ابدأ تجربتك المجانية</Link>
-            <Link to="/library" className="rounded-full border border-emerald-300 px-6 py-2.5 text-sm font-bold text-emerald-700 transition-colors hover:bg-emerald-100">تصفّح المكتبة</Link>
+            <Link to="/library" className="rounded-full border border-emerald-300 dark:border-emerald-700 px-6 py-2.5 text-sm font-bold text-emerald-700 dark:text-emerald-400 transition-colors hover:bg-emerald-100 dark:bg-emerald-900/30">تصفّح المكتبة</Link>
           </div>
         </div>
       </div>

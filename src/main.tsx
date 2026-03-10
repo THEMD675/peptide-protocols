@@ -44,13 +44,13 @@ if ('serviceWorker' in navigator && import.meta.env.PROD) {
       newSW.addEventListener('statechange', () => {
         if (newSW.state === 'installed' && navigator.serviceWorker.controller) {
           const el = document.createElement('div');
-          el.className = 'fixed bottom-4 start-4 end-4 z-50 mx-auto max-w-sm rounded-2xl border border-emerald-200 bg-white p-4 shadow-xl animate-slide-up print:hidden';
+          el.className = 'fixed bottom-4 start-4 end-4 z-50 mx-auto max-w-sm rounded-2xl border border-emerald-200 dark:border-emerald-800 bg-white dark:bg-stone-950 p-4 shadow-xl dark:shadow-stone-900/40 animate-slide-up print:hidden';
           el.dir = 'rtl';
           el.setAttribute('role', 'status');
           el.setAttribute('aria-live', 'polite');
           el.innerHTML = `
             <div class="flex items-center justify-between gap-3">
-              <p class="text-sm font-bold text-stone-900">تحديث جديد متاح</p>
+              <p class="text-sm font-bold text-stone-900 dark:text-stone-100">تحديث جديد متاح</p>
               <button id="pwa-update-btn" class="shrink-0 rounded-full bg-emerald-600 px-4 py-1.5 text-xs font-bold text-white hover:bg-emerald-700">تحديث</button>
             </div>
           `;

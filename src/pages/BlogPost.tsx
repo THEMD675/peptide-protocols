@@ -73,8 +73,8 @@ export default function BlogPost() {
   if (error || !post) {
     return (
       <div className="flex min-h-[50vh] flex-col items-center justify-center px-6 text-center">
-        <h2 className="mb-3 text-2xl font-bold text-stone-900">المقالة غير موجودة</h2>
-        <p className="mb-6 text-stone-600">لم نتمكن من العثور على هذه المقالة. قد تكون محذوفة أو غير منشورة.</p>
+        <h2 className="mb-3 text-2xl font-bold text-stone-900 dark:text-stone-100">المقالة غير موجودة</h2>
+        <p className="mb-6 text-stone-600 dark:text-stone-400">لم نتمكن من العثور على هذه المقالة. قد تكون محذوفة أو غير منشورة.</p>
         <Link to="/blog" className="rounded-full bg-emerald-600 px-8 py-3 font-bold text-white hover:bg-emerald-700 transition-colors">
           العودة للمدونة
         </Link>
@@ -113,7 +113,7 @@ export default function BlogPost() {
       </Helmet>
 
       <div className="mx-auto max-w-3xl px-4 py-8 md:px-6 md:py-12">
-        <Link to="/blog" className="mb-6 inline-flex items-center gap-2 text-sm font-bold text-emerald-600 hover:text-emerald-700 transition-colors">
+        <Link to="/blog" className="mb-6 inline-flex items-center gap-2 text-sm font-bold text-emerald-600 hover:text-emerald-700 dark:text-emerald-400 transition-colors">
           <ArrowRight className="h-4 w-4" />
           العودة للمدونة
         </Link>
@@ -130,11 +130,11 @@ export default function BlogPost() {
           />
         )}
 
-        <h1 className="mb-4 text-3xl font-bold leading-tight text-stone-900 md:text-4xl">
+        <h1 className="mb-4 text-3xl font-bold leading-tight text-stone-900 dark:text-stone-100 md:text-4xl">
           {post.title_ar}
         </h1>
 
-        <div className="mb-8 flex flex-wrap items-center gap-4 text-sm text-stone-500">
+        <div className="mb-8 flex flex-wrap items-center gap-4 text-sm text-stone-500 dark:text-stone-400">
           <div className="flex items-center gap-1.5">
             <User className="h-4 w-4" />
             {post.author}
@@ -153,20 +153,20 @@ export default function BlogPost() {
           )}
         </div>
 
-        <article className="text-stone-800 leading-relaxed text-[15px]">
+        <article className="text-stone-800 dark:text-stone-200 leading-relaxed text-[15px]">
           {renderMarkdown(post.content_ar) as ReactNode}
         </article>
 
         {/* Share Buttons */}
-        <div className="mt-10 flex flex-wrap items-center gap-3 border-t border-stone-200 pt-6">
-          <span className="text-sm font-bold text-stone-700">شارك المقالة:</span>
+        <div className="mt-10 flex flex-wrap items-center gap-3 border-t border-stone-200 dark:border-stone-700 pt-6">
+          <span className="text-sm font-bold text-stone-700 dark:text-stone-300">شارك المقالة:</span>
           <button
             onClick={() => {
               navigator.clipboard.writeText(`${SITE_URL}/blog/${post.slug}`);
               setCopied(true);
               setTimeout(() => setCopied(false), 2000);
             }}
-            className="inline-flex items-center gap-1.5 rounded-full border border-stone-200 bg-white px-4 py-2 text-sm font-medium text-stone-700 transition-colors hover:border-emerald-200 hover:text-emerald-700"
+            className="inline-flex items-center gap-1.5 rounded-full border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 px-4 py-2 text-sm font-medium text-stone-700 dark:text-stone-300 transition-colors hover:border-emerald-200 dark:border-emerald-800 hover:text-emerald-700 dark:text-emerald-400"
           >
             {copied ? <Check className="h-4 w-4 text-emerald-600" /> : <Link2 className="h-4 w-4" />}
             {copied ? 'تم النسخ!' : 'نسخ الرابط'}
@@ -175,7 +175,7 @@ export default function BlogPost() {
             href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(post.title_ar)}&url=${encodeURIComponent(`${SITE_URL}/blog/${post.slug}`)}`}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-1.5 rounded-full border border-stone-200 bg-white px-4 py-2 text-sm font-medium text-stone-700 transition-colors hover:border-sky-200 hover:text-sky-600"
+            className="inline-flex items-center gap-1.5 rounded-full border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 px-4 py-2 text-sm font-medium text-stone-700 dark:text-stone-300 transition-colors hover:border-sky-200 hover:text-sky-600"
           >
             𝕏
           </a>
@@ -183,7 +183,7 @@ export default function BlogPost() {
             href={`https://wa.me/?text=${encodeURIComponent(`${post.title_ar} — ${SITE_URL}/blog/${post.slug}`)}`}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-1.5 rounded-full border border-stone-200 bg-white px-4 py-2 text-sm font-medium text-stone-700 transition-colors hover:border-green-200 hover:text-green-600"
+            className="inline-flex items-center gap-1.5 rounded-full border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 px-4 py-2 text-sm font-medium text-stone-700 dark:text-stone-300 transition-colors hover:border-green-200 hover:text-green-600"
           >
             واتساب
           </a>
@@ -192,16 +192,16 @@ export default function BlogPost() {
         {/* Related Posts */}
         {relatedPosts.length > 0 && (
           <div className="mt-10">
-            <h2 className="mb-4 text-lg font-bold text-stone-900">مقالات ذات صلة</h2>
+            <h2 className="mb-4 text-lg font-bold text-stone-900 dark:text-stone-100">مقالات ذات صلة</h2>
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {relatedPosts.map((rp) => (
                 <Link
                   key={rp.id}
                   to={`/blog/${rp.slug}`}
-                  className="rounded-xl border border-stone-200 bg-white p-4 transition-all hover:border-emerald-200 hover:shadow-sm"
+                  className="rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 p-4 transition-all hover:border-emerald-200 dark:border-emerald-800 hover:shadow-sm dark:shadow-stone-900/30"
                 >
-                  <h3 className="text-sm font-bold text-stone-900 line-clamp-2">{rp.title_ar}</h3>
-                  <p className="mt-1 text-xs text-stone-500 line-clamp-2">{rp.excerpt_ar}</p>
+                  <h3 className="text-sm font-bold text-stone-900 dark:text-stone-100 line-clamp-2">{rp.title_ar}</h3>
+                  <p className="mt-1 text-xs text-stone-500 dark:text-stone-400 line-clamp-2">{rp.excerpt_ar}</p>
                   <time className="mt-2 block text-xs text-stone-400" dateTime={rp.published_at}>
                     {new Date(rp.published_at).toLocaleDateString('ar-SA', { year: 'numeric', month: 'long', day: 'numeric' })}
                   </time>
@@ -211,13 +211,13 @@ export default function BlogPost() {
           </div>
         )}
 
-        <div className="mt-12 rounded-2xl border border-emerald-200 bg-emerald-50 p-6 text-center">
-          <p className="text-lg font-bold text-stone-900">استكشف المزيد عن الببتيدات العلاجية</p>
+        <div className="mt-12 rounded-2xl border border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-900/20 p-6 text-center">
+          <p className="text-lg font-bold text-stone-900 dark:text-stone-100">استكشف المزيد عن الببتيدات العلاجية</p>
           <div className="mt-4 flex flex-wrap justify-center gap-3">
             <Link to="/library" className="rounded-full bg-emerald-600 px-6 py-2.5 text-sm font-bold text-white hover:bg-emerald-700 transition-colors">
               مكتبة الببتيدات
             </Link>
-            <Link to="/blog" className="rounded-full border border-emerald-300 px-6 py-2.5 text-sm font-bold text-emerald-700 hover:bg-emerald-100 transition-colors">
+            <Link to="/blog" className="rounded-full border border-emerald-300 dark:border-emerald-700 px-6 py-2.5 text-sm font-bold text-emerald-700 dark:text-emerald-400 hover:bg-emerald-100 dark:bg-emerald-900/30 transition-colors">
               المزيد من المقالات
             </Link>
           </div>

@@ -50,9 +50,9 @@ function getValueStatus(value: number, testId: string): 'low' | 'normal' | 'high
 }
 
 const STATUS_STYLES = {
-  low: 'bg-blue-50 text-blue-700 border-blue-200',
-  normal: 'bg-emerald-50 text-emerald-700 border-emerald-200',
-  high: 'bg-red-50 text-red-700 border-red-200',
+  low: 'bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400 border-blue-200',
+  normal: 'bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800',
+  high: 'bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400 border-red-200 dark:border-red-800',
 } as const;
 
 const STATUS_LABELS_AR = {
@@ -187,22 +187,22 @@ export default function LabResultsTracker() {
   if (!user) return null;
 
   return (
-    <div className="rounded-2xl border border-stone-200 bg-white p-5 shadow-sm">
+    <div className="rounded-2xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 p-5 shadow-sm dark:shadow-stone-900/30">
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-50">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-50 dark:bg-emerald-900/20">
             <FlaskConical className="h-5 w-5 text-emerald-600" />
           </div>
           <div>
-            <h3 className="text-sm font-bold text-stone-900">نتائج التحاليل</h3>
+            <h3 className="text-sm font-bold text-stone-900 dark:text-stone-100">نتائج التحاليل</h3>
             {results.length > 0 && (
-              <p className="text-xs text-stone-500">{results.length} نتيجة مسجّلة</p>
+              <p className="text-xs text-stone-500 dark:text-stone-400">{results.length} نتيجة مسجّلة</p>
             )}
           </div>
         </div>
         <button
           onClick={() => setShowForm(prev => !prev)}
-          className="flex items-center gap-1.5 rounded-lg border border-stone-200 px-3 py-1.5 text-xs font-bold text-stone-600 transition-colors hover:border-emerald-300 hover:text-emerald-700"
+          className="flex items-center gap-1.5 rounded-lg border border-stone-200 dark:border-stone-700 px-3 py-1.5 text-xs font-bold text-stone-600 dark:text-stone-400 transition-colors hover:border-emerald-300 dark:border-emerald-700 hover:text-emerald-700 dark:text-emerald-400"
         >
           {showForm ? (
             <>
@@ -222,12 +222,12 @@ export default function LabResultsTracker() {
       {showForm && (
         <div className="mb-5 space-y-3 rounded-xl border border-emerald-100 bg-emerald-50/30 p-4">
           <div>
-            <label className="mb-1 block text-xs font-bold text-stone-700">التحليل</label>
+            <label className="mb-1 block text-xs font-bold text-stone-700 dark:text-stone-300">التحليل</label>
             <select
               value={selectedTest}
               onChange={e => setSelectedTest(e.target.value as LabTestId)}
               aria-label="اختر التحليل"
-              className="w-full rounded-xl border border-stone-200 bg-white px-4 py-2.5 text-sm text-stone-900 focus:border-emerald-300 focus:outline-none focus:ring-2 focus:ring-emerald-100"
+              className="w-full rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 px-4 py-2.5 text-sm text-stone-900 dark:text-stone-100 focus:border-emerald-300 dark:border-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900"
             >
               {LAB_TESTS.map(t => (
                 <option key={t.id} value={t.id}>
@@ -239,7 +239,7 @@ export default function LabResultsTracker() {
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label htmlFor="lab-value" className="mb-1 block text-xs font-bold text-stone-700">القيمة</label>
+              <label htmlFor="lab-value" className="mb-1 block text-xs font-bold text-stone-700 dark:text-stone-300">القيمة</label>
               <div className="relative">
                 <input
                   id="lab-value"
@@ -251,22 +251,22 @@ export default function LabResultsTracker() {
                   step="any"
                   min="0"
                   dir="ltr"
-                  className="w-full rounded-xl border border-stone-200 bg-white px-4 py-2.5 text-sm text-stone-900 placeholder:text-stone-500 focus:border-emerald-300 focus:outline-none focus:ring-2 focus:ring-emerald-100"
+                  className="w-full rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 px-4 py-2.5 text-sm text-stone-900 dark:text-stone-100 placeholder:text-stone-500 dark:text-stone-400 focus:border-emerald-300 dark:border-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900"
                 />
                 {selectedMeta && (
-                  <span className="absolute end-3 top-1/2 -translate-y-1/2 text-xs text-stone-500">
+                  <span className="absolute end-3 top-1/2 -translate-y-1/2 text-xs text-stone-500 dark:text-stone-400">
                     {selectedMeta.unit}
                   </span>
                 )}
               </div>
               {selectedMeta && (
-                <p className="mt-1 text-[10px] text-stone-500">
+                <p className="mt-1 text-[10px] text-stone-500 dark:text-stone-400">
                   الطبيعي: {selectedMeta.normalMin}–{selectedMeta.normalMax}
                 </p>
               )}
             </div>
             <div>
-              <label className="mb-1 block text-xs font-bold text-stone-700">تاريخ التحليل</label>
+              <label className="mb-1 block text-xs font-bold text-stone-700 dark:text-stone-300">تاريخ التحليل</label>
               <input
                 type="date"
                 value={testedAt}
@@ -274,13 +274,13 @@ export default function LabResultsTracker() {
                 max={new Date().toISOString().slice(0, 10)}
                 dir="ltr"
                 aria-label="تاريخ التحليل"
-                className="w-full rounded-xl border border-stone-200 bg-white px-4 py-2.5 text-sm text-stone-900 focus:border-emerald-300 focus:outline-none focus:ring-2 focus:ring-emerald-100"
+                className="w-full rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 px-4 py-2.5 text-sm text-stone-900 dark:text-stone-100 focus:border-emerald-300 dark:border-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900"
               />
             </div>
           </div>
 
           <div>
-            <label htmlFor="lab-notes" className="mb-1 block text-xs font-bold text-stone-700">
+            <label htmlFor="lab-notes" className="mb-1 block text-xs font-bold text-stone-700 dark:text-stone-300">
               ملاحظات <span className="text-emerald-600 font-normal">اختياري</span>
             </label>
             <textarea
@@ -290,7 +290,7 @@ export default function LabResultsTracker() {
               placeholder="ملاحظات إضافية..."
               rows={2}
               maxLength={300}
-              className="w-full resize-none rounded-xl border border-stone-200 bg-white px-4 py-2.5 text-sm text-stone-900 placeholder:text-stone-500 focus:border-emerald-300 focus:outline-none focus:ring-2 focus:ring-emerald-100"
+              className="w-full resize-none rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 px-4 py-2.5 text-sm text-stone-900 dark:text-stone-100 placeholder:text-stone-500 dark:text-stone-400 focus:border-emerald-300 dark:border-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900"
             />
           </div>
 
@@ -317,10 +317,10 @@ export default function LabResultsTracker() {
           <Loader2 className="h-5 w-5 animate-spin text-emerald-600" />
         </div>
       ) : results.length === 0 ? (
-        <div className="rounded-xl border-2 border-dashed border-stone-200 py-8 text-center">
+        <div className="rounded-xl border-2 border-dashed border-stone-200 dark:border-stone-700 py-8 text-center">
           <FlaskConical className="mx-auto mb-2 h-8 w-8 text-stone-300" />
-          <p className="text-sm font-bold text-stone-500">لا توجد نتائج مسجّلة</p>
-          <p className="mt-1 text-xs text-stone-500">سجّل أول تحليل لبدء تتبّع صحتك</p>
+          <p className="text-sm font-bold text-stone-500 dark:text-stone-400">لا توجد نتائج مسجّلة</p>
+          <p className="mt-1 text-xs text-stone-500 dark:text-stone-400">سجّل أول تحليل لبدء تتبّع صحتك</p>
         </div>
       ) : (
         <div className="space-y-2">
@@ -333,11 +333,11 @@ export default function LabResultsTracker() {
 
             const prevValue = testResults.length >= 2 ? testResults[1].value : null;
             let TrendIcon = Minus;
-            let trendColor = 'text-stone-500';
+            let trendColor = 'text-stone-500 dark:text-stone-400';
             if (prevValue !== null) {
               if (latest.value > prevValue) {
                 TrendIcon = TrendingUp;
-                trendColor = status === 'high' ? 'text-red-500' : 'text-emerald-500';
+                trendColor = status === 'high' ? 'text-red-500 dark:text-red-400' : 'text-emerald-500';
               } else if (latest.value < prevValue) {
                 TrendIcon = TrendingDown;
                 trendColor = status === 'low' ? 'text-blue-500' : 'text-emerald-500';
@@ -345,23 +345,23 @@ export default function LabResultsTracker() {
             }
 
             return (
-              <div key={test.id} className="rounded-xl border border-stone-100 bg-stone-50/50 transition-all">
+              <div key={test.id} className="rounded-xl border border-stone-100 dark:border-stone-800 bg-stone-50/50 transition-all">
                 <button
                   onClick={() => setExpandedTest(isExpanded ? null : test.id)}
                   className="flex w-full items-center justify-between px-4 py-3 text-start"
                 >
                   <div className="flex items-center gap-3 min-w-0">
                     <div className="min-w-0">
-                      <p className="text-sm font-bold text-stone-900 truncate">{test.nameAr}</p>
-                      <p className="text-[11px] text-stone-500" dir="ltr">{test.nameEn}</p>
+                      <p className="text-sm font-bold text-stone-900 dark:text-stone-100 truncate">{test.nameAr}</p>
+                      <p className="text-[11px] text-stone-500 dark:text-stone-400" dir="ltr">{test.nameEn}</p>
                     </div>
                   </div>
                   <div className="flex items-center gap-2 shrink-0">
                     <TrendIcon className={cn('h-3.5 w-3.5', trendColor)} />
-                    <span className="text-sm font-bold text-stone-900 tabular-nums" dir="ltr">
+                    <span className="text-sm font-bold text-stone-900 dark:text-stone-100 tabular-nums" dir="ltr">
                       {latest.value}
                     </span>
-                    <span className="text-[10px] text-stone-500" dir="ltr">{test.unit}</span>
+                    <span className="text-[10px] text-stone-500 dark:text-stone-400" dir="ltr">{test.unit}</span>
                     <span className={cn(
                       'rounded-full border px-2 py-0.5 text-[10px] font-bold',
                       STATUS_STYLES[status],
@@ -369,30 +369,30 @@ export default function LabResultsTracker() {
                       {STATUS_LABELS_AR[status]}
                     </span>
                     <ChevronDown className={cn(
-                      'h-4 w-4 text-stone-500 transition-transform',
+                      'h-4 w-4 text-stone-500 dark:text-stone-400 transition-transform',
                       isExpanded && 'rotate-180',
                     )} />
                   </div>
                 </button>
 
                 {isExpanded && (
-                  <div className="border-t border-stone-100 px-4 pb-4">
+                  <div className="border-t border-stone-100 dark:border-stone-800 px-4 pb-4">
                     {hasTrend && <MiniTrendChart data={testResults} testId={test.id} />}
 
                     <div className="mt-3 space-y-1.5">
                       {testResults.map(r => {
                         const s = getValueStatus(r.value, test.id);
                         return (
-                          <div key={r.id} className="flex items-center justify-between rounded-lg bg-white px-3 py-2 text-xs">
+                          <div key={r.id} className="flex items-center justify-between rounded-lg bg-white dark:bg-stone-950 px-3 py-2 text-xs">
                             <div className="flex items-center gap-2">
                               <span className={cn(
                                 'h-2 w-2 rounded-full',
                                 s === 'normal' ? 'bg-emerald-400' : s === 'high' ? 'bg-red-400' : 'bg-blue-400',
                               )} />
-                              <span className="font-bold text-stone-900 tabular-nums" dir="ltr">{r.value} {test.unit}</span>
-                              {r.notes && <span className="text-stone-500 truncate max-w-[120px]">— {r.notes}</span>}
+                              <span className="font-bold text-stone-900 dark:text-stone-100 tabular-nums" dir="ltr">{r.value} {test.unit}</span>
+                              {r.notes && <span className="text-stone-500 dark:text-stone-400 truncate max-w-[120px]">— {r.notes}</span>}
                             </div>
-                            <span className="text-stone-500">
+                            <span className="text-stone-500 dark:text-stone-400">
                               {new Date(r.tested_at).toLocaleDateString('ar-u-nu-latn', { year: 'numeric', month: 'short', day: 'numeric' })}
                             </span>
                           </div>
@@ -401,7 +401,7 @@ export default function LabResultsTracker() {
                     </div>
 
                     {test && (
-                      <div className="mt-3 flex items-center gap-2 text-[10px] text-stone-500">
+                      <div className="mt-3 flex items-center gap-2 text-[10px] text-stone-500 dark:text-stone-400">
                         <span>المدى الطبيعي:</span>
                         <span dir="ltr" className="font-bold">{test.normalMin}–{test.normalMax} {test.unit}</span>
                       </div>

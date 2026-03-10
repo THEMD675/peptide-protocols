@@ -82,7 +82,7 @@ export default function SocialProofToast() {
 
   return (
     <div
-      className={`fixed bottom-24 start-4 z-40 max-w-xs rounded-xl border border-stone-200 bg-white px-4 py-3 shadow-lg transition-all duration-500 md:bottom-6 md:start-6 ${
+      className={`fixed bottom-24 start-4 z-40 max-w-xs rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 px-4 py-3 shadow-lg transition-all duration-500 md:bottom-6 md:start-6 ${
         visible
           ? 'translate-y-0 opacity-100'
           : 'translate-y-4 opacity-0 pointer-events-none'
@@ -91,10 +91,10 @@ export default function SocialProofToast() {
       aria-live="polite"
     >
       <div className="flex items-center gap-3">
-        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-emerald-100">
+        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-emerald-100 dark:bg-emerald-900/30">
           <Check className="h-4 w-4 text-emerald-600" />
         </div>
-        <p className="text-sm font-medium text-stone-800">{notification}</p>
+        <p className="text-sm font-medium text-stone-800 dark:text-stone-200">{notification}</p>
       </div>
     </div>
   );

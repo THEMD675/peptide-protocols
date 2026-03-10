@@ -102,13 +102,13 @@ function Pagination({ page, total, onChange }: { page: number; total: number; on
   if (pages <= 1) return null;
   return (
     <div className="flex items-center justify-center gap-1 pt-3">
-      <button disabled={page <= 1} onClick={() => onChange(page - 1)} className="rounded-lg border border-stone-200 px-3 py-1.5 text-xs font-medium text-stone-600 hover:bg-stone-50 disabled:opacity-40">&laquo;</button>
+      <button disabled={page <= 1} onClick={() => onChange(page - 1)} className="rounded-lg border border-stone-200 dark:border-stone-700 px-3 py-1.5 text-xs font-medium text-stone-600 dark:text-stone-400 hover:bg-stone-50 dark:hover:bg-stone-800 disabled:opacity-40">&laquo;</button>
       {Array.from({ length: pages }, (_, i) => i + 1).filter(p => p === 1 || p === pages || Math.abs(p - page) <= 2)
         .reduce<(number | 'e')[]>((a, p, i, arr) => { if (i > 0 && p - (arr[i - 1]) > 1) a.push('e'); a.push(p); return a; }, [])
         .map((p, i) => p === 'e' ? <span key={`e${i}`} className="px-1 text-xs text-stone-400">&hellip;</span> :
-          <button key={p} onClick={() => onChange(p)} className={cn('rounded-lg px-2.5 py-1.5 text-xs font-medium', page === p ? 'bg-emerald-100 text-emerald-700' : 'text-stone-600 hover:bg-stone-100')}>{p}</button>
+          <button key={p} onClick={() => onChange(p)} className={cn('rounded-lg px-2.5 py-1.5 text-xs font-medium', page === p ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400' : 'text-stone-600 dark:text-stone-400 hover:bg-stone-100 dark:hover:bg-stone-800')}>{p}</button>
         )}
-      <button disabled={page >= pages} onClick={() => onChange(page + 1)} className="rounded-lg border border-stone-200 px-3 py-1.5 text-xs font-medium text-stone-600 hover:bg-stone-50 disabled:opacity-40">&raquo;</button>
+      <button disabled={page >= pages} onClick={() => onChange(page + 1)} className="rounded-lg border border-stone-200 dark:border-stone-700 px-3 py-1.5 text-xs font-medium text-stone-600 dark:text-stone-400 hover:bg-stone-50 dark:hover:bg-stone-800 disabled:opacity-40">&raquo;</button>
     </div>
   );
 }
@@ -118,15 +118,15 @@ function Stat({ label, value, icon: I, sub, alert: a, trend }: {
   trend?: { dir: 'up' | 'down'; label: string };
 }) {
   return (
-    <div className={cn('rounded-xl border p-4', a ? 'border-red-200 bg-red-50' : 'border-stone-200 bg-white')}>
+    <div className={cn('rounded-xl border p-4', a ? 'border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-900/20' : 'border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950')}>
       <div className="flex items-center justify-between mb-2">
-        <span className="text-xs font-medium text-stone-500">{label}</span>
-        <I className={cn('h-4 w-4', a ? 'text-red-500' : 'text-emerald-500')} />
+        <span className="text-xs font-medium text-stone-500 dark:text-stone-400">{label}</span>
+        <I className={cn('h-4 w-4', a ? 'text-red-500 dark:text-red-400' : 'text-emerald-500')} />
       </div>
-      <p className={cn('text-2xl font-bold', a ? 'text-red-700' : 'text-stone-900')}>{value}</p>
+      <p className={cn('text-2xl font-bold', a ? 'text-red-700 dark:text-red-400' : 'text-stone-900 dark:text-stone-100')}>{value}</p>
       <div className="flex items-center gap-2 mt-1">
-        {sub && <p className="text-xs text-stone-500">{sub}</p>}
-        {trend && <span className={cn('inline-flex items-center gap-0.5 text-xs font-medium', trend.dir === 'up' ? 'text-emerald-600' : 'text-red-600')}>
+        {sub && <p className="text-xs text-stone-500 dark:text-stone-400">{sub}</p>}
+        {trend && <span className={cn('inline-flex items-center gap-0.5 text-xs font-medium', trend.dir === 'up' ? 'text-emerald-600' : 'text-red-600 dark:text-red-400')}>
           {trend.dir === 'up' ? <ArrowUpRight className="h-3 w-3" /> : <ArrowDownRight className="h-3 w-3" />}{trend.label}
         </span>}
       </div>
@@ -135,7 +135,7 @@ function Stat({ label, value, icon: I, sub, alert: a, trend }: {
 }
 
 function Badge({ status }: { status: string }) {
-  const s: Record<string, string> = { active: 'bg-emerald-100 text-emerald-700', trial: 'bg-blue-100 text-blue-700', expired: 'bg-stone-100 text-stone-600', cancelled: 'bg-stone-100 text-stone-600', past_due: 'bg-red-100 text-red-700', none: 'bg-stone-100 text-stone-500' };
+  const s: Record<string, string> = { active: 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400', trial: 'bg-blue-100 text-blue-700 dark:text-blue-400', expired: 'bg-stone-100 dark:bg-stone-800 text-stone-600 dark:text-stone-400', cancelled: 'bg-stone-100 dark:bg-stone-800 text-stone-600 dark:text-stone-400', past_due: 'bg-red-100 text-red-700 dark:text-red-400', none: 'bg-stone-100 dark:bg-stone-800 text-stone-500 dark:text-stone-400' };
   return <span className={cn('inline-block rounded-full px-2 py-0.5 text-xs font-medium', s[status] ?? s.none)}>{status}</span>;
 }
 
@@ -144,10 +144,10 @@ function Modal({ open, title, children, onClose }: { open: boolean; title: strin
   const titleId = 'modal-title';
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" onClick={onClose}>
-      <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl" onClick={e => e.stopPropagation()} role="dialog" aria-modal="true" aria-labelledby={titleId}>
+      <div className="w-full max-w-md rounded-2xl bg-white dark:bg-stone-950 p-6 shadow-xl dark:shadow-stone-900/40" onClick={e => e.stopPropagation()} role="dialog" aria-modal="true" aria-labelledby={titleId}>
         <div className="flex items-center justify-between mb-4">
-          <h3 id={titleId} className="text-lg font-bold text-stone-900">{title}</h3>
-          <button onClick={onClose} className="rounded-lg p-1 hover:bg-stone-100"><X className="h-5 w-5 text-stone-500" /></button>
+          <h3 id={titleId} className="text-lg font-bold text-stone-900 dark:text-stone-100">{title}</h3>
+          <button onClick={onClose} className="rounded-lg p-1 hover:bg-stone-100 dark:hover:bg-stone-800"><X className="h-5 w-5 text-stone-500 dark:text-stone-400" /></button>
         </div>
         {children}
       </div>
@@ -156,7 +156,7 @@ function Modal({ open, title, children, onClose }: { open: boolean; title: strin
 }
 
 const ACTIVITY_ICON: Record<string, React.ElementType> = { signup: Users, coach: MessageSquare, injection: Activity, community: Users, review: Star, enquiry: Mail };
-const ACTIVITY_COLOR: Record<string, string> = { signup: 'bg-emerald-100 text-emerald-600', coach: 'bg-violet-100 text-violet-600', injection: 'bg-blue-100 text-blue-600', community: 'bg-amber-100 text-amber-600', review: 'bg-yellow-100 text-yellow-600', enquiry: 'bg-rose-100 text-rose-600' };
+const ACTIVITY_COLOR: Record<string, string> = { signup: 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600', coach: 'bg-violet-100 text-violet-600', injection: 'bg-blue-100 text-blue-600', community: 'bg-amber-100 text-amber-600', review: 'bg-yellow-100 text-yellow-600', enquiry: 'bg-rose-100 text-rose-600' };
 
 // ========================================================
 // MAIN
@@ -446,12 +446,12 @@ export default function Admin() {
   // --- Render gates ---
   // Client-side admin email whitelist guard
   if (user && !ADMIN_EMAILS.includes(user.email ?? '')) return (
-    <div className="flex min-h-screen items-center justify-center bg-stone-50">
+    <div className="flex min-h-screen items-center justify-center bg-stone-50 dark:bg-stone-900">
       <Helmet><title>404 | pptides</title></Helmet>
       <div className="text-center px-4">
         <h1 className="text-6xl font-bold text-stone-200 mb-4">404</h1>
-        <p className="text-lg font-bold text-stone-900 mb-2">الصفحة غير موجودة</p>
-        <p className="text-sm text-stone-600 mb-6">الصفحة التي تبحث عنها غير موجودة.</p>
+        <p className="text-lg font-bold text-stone-900 dark:text-stone-100 mb-2">الصفحة غير موجودة</p>
+        <p className="text-sm text-stone-600 dark:text-stone-400 mb-6">الصفحة التي تبحث عنها غير موجودة.</p>
         <Link to="/" className="inline-flex items-center gap-2 rounded-full bg-emerald-600 px-6 py-3 text-sm font-bold text-white hover:bg-emerald-700 transition-colors">
           الرئيسية
         </Link>
@@ -459,28 +459,28 @@ export default function Admin() {
     </div>
   );
   if (forbidden) return (
-    <div className="flex min-h-screen items-center justify-center bg-stone-50" lang="en">
+    <div className="flex min-h-screen items-center justify-center bg-stone-50 dark:bg-stone-900" lang="en">
       <Helmet><title>Admin | pptides</title></Helmet>
       <div className="text-center px-4">
         <Shield className="mx-auto h-12 w-12 text-stone-300 mb-4" />
-        <h1 className="text-xl font-bold text-stone-900 mb-2">Access Denied</h1>
-        <p className="text-sm text-stone-600 mb-6">You don&apos;t have permission to access the admin area.</p>
+        <h1 className="text-xl font-bold text-stone-900 dark:text-stone-100 mb-2">Access Denied</h1>
+        <p className="text-sm text-stone-600 dark:text-stone-400 mb-6">You don&apos;t have permission to access the admin area.</p>
         <Link to="/dashboard" className="inline-flex items-center gap-2 rounded-full bg-emerald-600 px-6 py-3 text-sm font-bold text-white hover:bg-emerald-700 transition-colors">
           Back to Dashboard
         </Link>
       </div>
     </div>
   );
-  if (loading) return <div className="flex min-h-screen items-center justify-center"><Helmet><title>Admin | pptides</title></Helmet><div className="h-8 w-8 animate-spin rounded-full border-4 border-emerald-200 border-t-emerald-600" /></div>;
+  if (loading) return <div className="flex min-h-screen items-center justify-center"><Helmet><title>Admin | pptides</title></Helmet><div className="h-8 w-8 animate-spin rounded-full border-4 border-emerald-200 dark:border-emerald-800 border-t-emerald-600" /></div>;
   if (error || !stats) return (
-    <div className="flex min-h-screen items-center justify-center bg-stone-50">
+    <div className="flex min-h-screen items-center justify-center bg-stone-50 dark:bg-stone-900">
       <Helmet><title>Admin | pptides</title></Helmet>
       <div className="text-center px-4">
         <AlertTriangle className="mx-auto h-12 w-12 text-red-400 mb-4" />
-        <p className="text-red-600 mb-4">{error}</p>
+        <p className="text-red-600 dark:text-red-400 mb-4">{error}</p>
         <div className="flex flex-wrap justify-center gap-3">
           <button onClick={fetchStats} className="rounded-full bg-emerald-600 px-6 py-3 text-sm font-bold text-white hover:bg-emerald-700">Retry</button>
-          <Link to="/dashboard" className="rounded-full border-2 border-stone-300 px-6 py-3 text-sm font-bold text-stone-800 hover:bg-stone-50">Back to Dashboard</Link>
+          <Link to="/dashboard" className="rounded-full border-2 border-stone-300 dark:border-stone-700 px-6 py-3 text-sm font-bold text-stone-800 dark:text-stone-200 hover:bg-stone-50 dark:hover:bg-stone-800">Back to Dashboard</Link>
         </div>
       </div>
     </div>
@@ -503,29 +503,29 @@ export default function Admin() {
   ];
 
   return (
-    <div className="min-h-screen bg-stone-50" lang="en">
+    <div className="min-h-screen bg-stone-50 dark:bg-stone-900" lang="en">
       <Helmet><title>Admin Dashboard | pptides</title></Helmet>
 
       {/* ===================== HEADER ===================== */}
-      <div className="sticky top-[64px] md:top-[72px] z-30 bg-white border-b border-stone-200 px-4 py-3">
+      <div className="sticky top-[64px] md:top-[72px] z-30 bg-white dark:bg-stone-950 border-b border-stone-200 dark:border-stone-700 px-4 py-3">
         <div className="max-w-6xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <Link to="/dashboard" className="text-xs font-medium text-stone-500 hover:text-emerald-600 transition-colors shrink-0">← Dashboard</Link>
+            <Link to="/dashboard" className="text-xs font-medium text-stone-500 dark:text-stone-400 hover:text-emerald-600 transition-colors shrink-0">← Dashboard</Link>
             <div>
-            <h1 className="text-lg font-bold text-stone-900 flex items-center gap-2">
+            <h1 className="text-lg font-bold text-stone-900 dark:text-stone-100 flex items-center gap-2">
               Control Center
-              {critAlerts > 0 && <span className="rounded-full bg-red-100 px-2 py-0.5 text-xs font-bold text-red-700">{critAlerts}</span>}
+              {critAlerts > 0 && <span className="rounded-full bg-red-100 px-2 py-0.5 text-xs font-bold text-red-700 dark:text-red-400">{critAlerts}</span>}
             </h1>
-            {lastFetched && <p className="text-[10px] text-stone-500">Updated {lastFetched.toLocaleTimeString('en-GB')}</p>}
+            {lastFetched && <p className="text-[10px] text-stone-500 dark:text-stone-400">Updated {lastFetched.toLocaleTimeString('en-GB')}</p>}
             </div>
           </div>
           <div className="flex items-center gap-2">
             <button onClick={() => { setEmailTo(''); setEmailSubject(''); setEmailBody(''); setModal('send_email'); setModalTarget(null); }}
-              className="flex items-center gap-1.5 rounded-lg border border-stone-200 px-3 py-1.5 text-xs font-medium text-stone-600 hover:bg-stone-50">
+              className="flex items-center gap-1.5 rounded-lg border border-stone-200 dark:border-stone-700 px-3 py-1.5 text-xs font-medium text-stone-600 dark:text-stone-400 hover:bg-stone-50 dark:hover:bg-stone-800">
               <Send className="h-3.5 w-3.5" /> Email
             </button>
             <button onClick={fetchStats} disabled={loading}
-              className="flex items-center gap-1.5 rounded-lg border border-stone-200 px-3 py-1.5 text-xs font-medium text-stone-600 hover:bg-stone-50">
+              className="flex items-center gap-1.5 rounded-lg border border-stone-200 dark:border-stone-700 px-3 py-1.5 text-xs font-medium text-stone-600 dark:text-stone-400 hover:bg-stone-50 dark:hover:bg-stone-800">
               <RefreshCw className={cn('h-3.5 w-3.5', loading && 'animate-spin')} /> Refresh
             </button>
           </div>
@@ -534,11 +534,11 @@ export default function Admin() {
           {tabs.map(t => (
             <button key={t.key} onClick={() => setTab(t.key)} className={cn(
               'flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium whitespace-nowrap transition-colors',
-              tab === t.key ? 'bg-emerald-100 text-emerald-700' : 'text-stone-600 hover:bg-stone-100'
+              tab === t.key ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400' : 'text-stone-600 dark:text-stone-400 hover:bg-stone-100 dark:hover:bg-stone-800'
             )}>
               {t.dot && <span className="h-1.5 w-1.5 rounded-full bg-red-500" />}
               {t.label}
-              {t.count != null && <span className={cn('rounded-full px-1.5 py-0.5 text-[10px] font-bold', tab === t.key ? 'bg-emerald-600 text-white' : 'bg-stone-200 text-stone-600')}>{t.count}</span>}
+              {t.count != null && <span className={cn('rounded-full px-1.5 py-0.5 text-[10px] font-bold', tab === t.key ? 'bg-emerald-600 text-white' : 'bg-stone-200 dark:bg-stone-700 text-stone-600 dark:text-stone-400')}>{t.count}</span>}
             </button>
           ))}
         </div>
@@ -555,7 +555,7 @@ export default function Admin() {
               <div className="space-y-2">
                 {stats.alerts.map((a, i) => {
                   const Ic = a.severity === 'critical' ? AlertCircle : a.severity === 'warning' ? AlertTriangle : Info;
-                  const c = a.severity === 'critical' ? 'border-red-200 bg-red-50 text-red-800' : a.severity === 'warning' ? 'border-amber-200 bg-amber-50 text-amber-800' : 'border-blue-200 bg-blue-50 text-blue-800';
+                  const c = a.severity === 'critical' ? 'border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-900/20 text-red-800' : a.severity === 'warning' ? 'border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-900/20 text-amber-800 dark:text-amber-300' : 'border-blue-200 bg-blue-50 dark:bg-blue-900/20 text-blue-800';
                   return (
                     <div key={i} className={cn('flex items-start gap-3 rounded-xl border p-3', c)}>
                       <Ic className="h-4 w-4 mt-0.5 shrink-0" />
@@ -603,19 +603,19 @@ export default function Admin() {
               );
               const max = Math.max(...counts, 1);
               return (
-                <div className="rounded-xl border border-stone-200 bg-white p-4">
-                  <h3 className="text-xs font-bold text-stone-700 mb-4 flex items-center gap-1.5">
+                <div className="rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 p-4">
+                  <h3 className="text-xs font-bold text-stone-700 dark:text-stone-300 mb-4 flex items-center gap-1.5">
                     <TrendingUp className="h-3.5 w-3.5 text-emerald-500" /> Signups This Month
                   </h3>
                   <div className="flex items-end gap-3">
                     {counts.map((c, i) => (
                       <div key={i} className="flex-1 flex flex-col items-center gap-1">
-                        <span className="text-xs font-bold text-stone-700">{c}</span>
+                        <span className="text-xs font-bold text-stone-700 dark:text-stone-300">{c}</span>
                         <div
                           className="w-full rounded-t-md bg-emerald-500"
                           style={{ height: `${Math.max(Math.round((c / max) * BAR_MAX_PX), c > 0 ? 4 : 2)}px` }}
                         />
-                        <span className="text-[10px] text-stone-500">
+                        <span className="text-[10px] text-stone-500 dark:text-stone-400">
                           {weeks[i].start.getDate()}/{weeks[i].start.getMonth() + 1}
                         </span>
                       </div>
@@ -628,32 +628,32 @@ export default function Admin() {
             {/* Funnel + Trials + Health */}
             <div className="grid md:grid-cols-3 gap-4">
               {/* Funnel */}
-              <div className="rounded-xl border border-stone-200 bg-white p-4">
-                <h3 className="text-xs font-bold text-stone-700 mb-3 flex items-center gap-1.5"><TrendingUp className="h-3.5 w-3.5 text-emerald-500" /> Funnel</h3>
-                {[{ l: 'Signups', v: stats.funnel.totalSignups, c: 'bg-stone-200' }, { l: 'Trial', v: stats.funnel.trialStarts, c: 'bg-blue-200' }, { l: 'Paid', v: stats.funnel.paidConversions, c: 'bg-emerald-200' }].map(s => (
+              <div className="rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 p-4">
+                <h3 className="text-xs font-bold text-stone-700 dark:text-stone-300 mb-3 flex items-center gap-1.5"><TrendingUp className="h-3.5 w-3.5 text-emerald-500" /> Funnel</h3>
+                {[{ l: 'Signups', v: stats.funnel.totalSignups, c: 'bg-stone-200 dark:bg-stone-700' }, { l: 'Trial', v: stats.funnel.trialStarts, c: 'bg-blue-200' }, { l: 'Paid', v: stats.funnel.paidConversions, c: 'bg-emerald-200' }].map(s => (
                   <div key={s.l} className="mb-2">
-                    <div className="flex justify-between text-xs mb-1"><span className="text-stone-600">{s.l}</span><span className="font-bold">{s.v}</span></div>
-                    <div className="h-2 rounded-full bg-stone-100 overflow-hidden"><div className={cn('h-full rounded-full', s.c)} style={{ width: `${Math.max((s.v / Math.max(stats.funnel.totalSignups, 1)) * 100, 2)}%` }} /></div>
+                    <div className="flex justify-between text-xs mb-1"><span className="text-stone-600 dark:text-stone-400">{s.l}</span><span className="font-bold">{s.v}</span></div>
+                    <div className="h-2 rounded-full bg-stone-100 dark:bg-stone-800 overflow-hidden"><div className={cn('h-full rounded-full', s.c)} style={{ width: `${Math.max((s.v / Math.max(stats.funnel.totalSignups, 1)) * 100, 2)}%` }} /></div>
                   </div>
                 ))}
-                <div className="flex gap-4 mt-3 pt-3 border-t border-stone-100">
-                  <div className="text-center flex-1"><p className="text-lg font-bold">{stats.funnel.signupToTrial}%</p><p className="text-[10px] text-stone-500">Sign &rarr; Trial</p></div>
-                  <div className="text-center flex-1"><p className="text-lg font-bold">{stats.funnel.trialToPaid}%</p><p className="text-[10px] text-stone-500">Trial &rarr; Paid</p></div>
+                <div className="flex gap-4 mt-3 pt-3 border-t border-stone-100 dark:border-stone-800">
+                  <div className="text-center flex-1"><p className="text-lg font-bold">{stats.funnel.signupToTrial}%</p><p className="text-[10px] text-stone-500 dark:text-stone-400">Sign &rarr; Trial</p></div>
+                  <div className="text-center flex-1"><p className="text-lg font-bold">{stats.funnel.trialToPaid}%</p><p className="text-[10px] text-stone-500 dark:text-stone-400">Trial &rarr; Paid</p></div>
                 </div>
               </div>
 
               {/* Active Trials */}
-              <div className="rounded-xl border border-stone-200 bg-white p-4">
-                <h3 className="text-xs font-bold text-stone-700 mb-3 flex items-center gap-1.5"><Clock className="h-3.5 w-3.5 text-blue-500" /> Active Trials</h3>
-                {stats.recentUsers.filter(u => u.subscription?.status === 'trial').length === 0 ? <p className="text-sm text-stone-500">No active trials</p> :
+              <div className="rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 p-4">
+                <h3 className="text-xs font-bold text-stone-700 dark:text-stone-300 mb-3 flex items-center gap-1.5"><Clock className="h-3.5 w-3.5 text-blue-500" /> Active Trials</h3>
+                {stats.recentUsers.filter(u => u.subscription?.status === 'trial').length === 0 ? <p className="text-sm text-stone-500 dark:text-stone-400">No active trials</p> :
                   stats.recentUsers.filter(u => u.subscription?.status === 'trial').map(u => {
                     const tl = trialLeft(u.subscription?.trial_ends_at ?? null);
                     return (
                       <div key={u.id} className="flex items-center justify-between text-sm mb-2">
-                        <span className="font-mono text-xs text-stone-700 truncate max-w-[140px]">{u.email}</span>
+                        <span className="font-mono text-xs text-stone-700 dark:text-stone-300 truncate max-w-[140px]">{u.email}</span>
                         <div className="flex items-center gap-1">
-                          {tl && <span className={cn('rounded-full px-2 py-0.5 text-xs font-medium', tl.urgent ? 'bg-red-100 text-red-700' : 'bg-blue-100 text-blue-700')}>{tl.text}</span>}
-                          <button onClick={() => openUserAction('extend_trial', u)} className="rounded p-1 hover:bg-stone-100" title="Extend"><CalendarPlus className="h-3.5 w-3.5 text-emerald-600" /></button>
+                          {tl && <span className={cn('rounded-full px-2 py-0.5 text-xs font-medium', tl.urgent ? 'bg-red-100 text-red-700 dark:text-red-400' : 'bg-blue-100 text-blue-700 dark:text-blue-400')}>{tl.text}</span>}
+                          <button onClick={() => openUserAction('extend_trial', u)} className="rounded p-1 hover:bg-stone-100 dark:hover:bg-stone-800" title="Extend"><CalendarPlus className="h-3.5 w-3.5 text-emerald-600" /></button>
                         </div>
                       </div>
                     );
@@ -661,19 +661,19 @@ export default function Admin() {
               </div>
 
               {/* Quick Actions */}
-              <div className="rounded-xl border border-stone-200 bg-white p-4">
-                <h3 className="text-xs font-bold text-stone-700 mb-3 flex items-center gap-1.5"><Zap className="h-3.5 w-3.5 text-amber-500" /> Quick Actions</h3>
+              <div className="rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 p-4">
+                <h3 className="text-xs font-bold text-stone-700 dark:text-stone-300 mb-3 flex items-center gap-1.5"><Zap className="h-3.5 w-3.5 text-amber-500" /> Quick Actions</h3>
                 <div className="space-y-2">
-                  <button onClick={runHealthCheck} disabled={healthLoading} className="w-full flex items-center gap-2 rounded-lg border border-stone-200 px-3 py-2 text-xs font-medium text-stone-700 hover:bg-stone-50 disabled:opacity-50">
-                    {healthLoading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Heart className="h-3.5 w-3.5 text-red-500" />} Run Health Check
+                  <button onClick={runHealthCheck} disabled={healthLoading} className="w-full flex items-center gap-2 rounded-lg border border-stone-200 dark:border-stone-700 px-3 py-2 text-xs font-medium text-stone-700 dark:text-stone-300 hover:bg-stone-50 dark:hover:bg-stone-800 disabled:opacity-50">
+                    {healthLoading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Heart className="h-3.5 w-3.5 text-red-500 dark:text-red-400" />} Run Health Check
                   </button>
-                  <button onClick={() => { setEmailTo(''); setEmailSubject(''); setEmailBody(''); setModal('send_email'); setModalTarget(null); }} className="w-full flex items-center gap-2 rounded-lg border border-stone-200 px-3 py-2 text-xs font-medium text-stone-700 hover:bg-stone-50">
+                  <button onClick={() => { setEmailTo(''); setEmailSubject(''); setEmailBody(''); setModal('send_email'); setModalTarget(null); }} className="w-full flex items-center gap-2 rounded-lg border border-stone-200 dark:border-stone-700 px-3 py-2 text-xs font-medium text-stone-700 dark:text-stone-300 hover:bg-stone-50 dark:hover:bg-stone-800">
                     <Send className="h-3.5 w-3.5 text-blue-500" /> Send Email
                   </button>
-                  <button onClick={() => exportCSV('users')} className="w-full flex items-center gap-2 rounded-lg border border-stone-200 px-3 py-2 text-xs font-medium text-stone-700 hover:bg-stone-50">
+                  <button onClick={() => exportCSV('users')} className="w-full flex items-center gap-2 rounded-lg border border-stone-200 dark:border-stone-700 px-3 py-2 text-xs font-medium text-stone-700 dark:text-stone-300 hover:bg-stone-50 dark:hover:bg-stone-800">
                     <Download className="h-3.5 w-3.5 text-emerald-500" /> Export Users CSV
                   </button>
-                  <button onClick={() => exportCSV('subscriptions')} className="w-full flex items-center gap-2 rounded-lg border border-stone-200 px-3 py-2 text-xs font-medium text-stone-700 hover:bg-stone-50">
+                  <button onClick={() => exportCSV('subscriptions')} className="w-full flex items-center gap-2 rounded-lg border border-stone-200 dark:border-stone-700 px-3 py-2 text-xs font-medium text-stone-700 dark:text-stone-300 hover:bg-stone-50 dark:hover:bg-stone-800">
                     <Download className="h-3.5 w-3.5 text-emerald-500" /> Export Subscriptions
                   </button>
                 </div>
@@ -705,70 +705,70 @@ export default function Admin() {
           return (
             <div className="space-y-3">
               <div className="flex flex-wrap gap-2 items-center">
-                <label className="flex items-center gap-2 text-sm text-stone-600">
+                <label className="flex items-center gap-2 text-sm text-stone-600 dark:text-stone-400">
                   <span>From</span>
                   <input type="date" value={dateFrom} onChange={e => { setDateFrom(e.target.value); setUsersPage(1); }}
-                    className="rounded-lg border border-stone-200 bg-white px-3 py-2 text-sm outline-none focus:border-emerald-300" aria-label="Joined from date" />
+                    className="rounded-lg border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 px-3 py-2 text-sm outline-none focus:border-emerald-300 dark:border-emerald-700" aria-label="Joined from date" />
                 </label>
-                <label className="flex items-center gap-2 text-sm text-stone-600">
+                <label className="flex items-center gap-2 text-sm text-stone-600 dark:text-stone-400">
                   <span>To</span>
                   <input type="date" value={dateTo} onChange={e => { setDateTo(e.target.value); setUsersPage(1); }}
-                    className="rounded-lg border border-stone-200 bg-white px-3 py-2 text-sm outline-none focus:border-emerald-300" aria-label="Joined to date" />
+                    className="rounded-lg border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 px-3 py-2 text-sm outline-none focus:border-emerald-300 dark:border-emerald-700" aria-label="Joined to date" />
                 </label>
               </div>
               <div className="flex flex-col sm:flex-row gap-2">
                 <input type="text" placeholder="Search email..." value={userSearch} onChange={e => { setUserSearch(e.target.value); setUsersPage(1); }}
-                  className="flex-1 rounded-lg border border-stone-200 bg-white px-3 py-2 text-sm outline-none focus:border-emerald-300" dir="ltr" />
+                  className="flex-1 rounded-lg border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 px-3 py-2 text-sm outline-none focus:border-emerald-300 dark:border-emerald-700" dir="ltr" />
                 <div className="flex gap-1 overflow-x-auto">
                   {(['all', 'active', 'trial', 'expired', 'none'] as UserFilter[]).map(f => (
-                    <button key={f} onClick={() => { setUserFilter(f); setUsersPage(1); }} className={cn('rounded-lg px-3 py-1.5 text-xs font-medium whitespace-nowrap', userFilter === f ? 'bg-emerald-100 text-emerald-700' : 'bg-stone-100 text-stone-600 hover:bg-stone-200')}>
+                    <button key={f} onClick={() => { setUserFilter(f); setUsersPage(1); }} className={cn('rounded-lg px-3 py-1.5 text-xs font-medium whitespace-nowrap', userFilter === f ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400' : 'bg-stone-100 dark:bg-stone-800 text-stone-600 dark:text-stone-400 hover:bg-stone-200 dark:bg-stone-700')}>
                       {f === 'all' ? 'All' : f === 'active' ? 'Paid' : f === 'trial' ? 'Trial' : f === 'expired' ? 'Churned' : 'Free'}
                     </button>
                   ))}
                 </div>
-                <button onClick={() => exportCSV('users')} className="flex items-center gap-1 rounded-lg border border-stone-200 px-3 py-1.5 text-xs font-medium text-stone-600 hover:bg-stone-50">
+                <button onClick={() => exportCSV('users')} className="flex items-center gap-1 rounded-lg border border-stone-200 dark:border-stone-700 px-3 py-1.5 text-xs font-medium text-stone-600 dark:text-stone-400 hover:bg-stone-50 dark:hover:bg-stone-800">
                   <Download className="h-3.5 w-3.5" /> CSV
                 </button>
-                <button onClick={() => { setEmailSubject(''); setEmailBody(''); setBulkAudience('all'); setModal('bulk_email'); }} className="flex items-center gap-1 rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-1.5 text-xs font-medium text-emerald-700 hover:bg-emerald-100">
+                <button onClick={() => { setEmailSubject(''); setEmailBody(''); setBulkAudience('all'); setModal('bulk_email'); }} className="flex items-center gap-1 rounded-lg border border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-900/20 px-3 py-1.5 text-xs font-medium text-emerald-700 dark:text-emerald-400 hover:bg-emerald-100 dark:bg-emerald-900/30">
                   <Mail className="h-3.5 w-3.5" /> Bulk Email
                 </button>
               </div>
-              <p className="text-xs text-stone-500">{filtered.length} users{stats.pagination ? ` (${stats.pagination.totalFilteredUsers} total${stats.pagination.searchQuery ? `, searching "${stats.pagination.searchQuery}"` : ''})` : ''}</p>
-              <div className="overflow-x-auto rounded-xl border border-stone-200 bg-white">
+              <p className="text-xs text-stone-500 dark:text-stone-400">{filtered.length} users{stats.pagination ? ` (${stats.pagination.totalFilteredUsers} total${stats.pagination.searchQuery ? `, searching "${stats.pagination.searchQuery}"` : ''})` : ''}</p>
+              <div className="overflow-x-auto rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950">
                 <table className="w-full text-sm">
                   <thead>
-                    <tr className="border-b border-stone-200 bg-stone-50">
-                      <th className="px-3 py-2 text-start font-medium text-stone-600">Email</th>
-                      <th className="px-3 py-2 text-start font-medium text-stone-600">Provider</th>
-                      <th className="px-3 py-2 text-start font-medium text-stone-600">Status</th>
-                      <th className="px-3 py-2 text-start font-medium text-stone-600">Tier</th>
-                      <th className="px-3 py-2 text-start font-medium text-stone-600">Trial</th>
-                      <th className="px-3 py-2 text-start font-medium text-stone-600">Joined</th>
-                      <th className="px-3 py-2 text-start font-medium text-stone-600">Last Seen</th>
-                      <th className="px-3 py-2 text-start font-medium text-stone-600">Actions</th>
+                    <tr className="border-b border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-900">
+                      <th className="px-3 py-2 text-start font-medium text-stone-600 dark:text-stone-400">Email</th>
+                      <th className="px-3 py-2 text-start font-medium text-stone-600 dark:text-stone-400">Provider</th>
+                      <th className="px-3 py-2 text-start font-medium text-stone-600 dark:text-stone-400">Status</th>
+                      <th className="px-3 py-2 text-start font-medium text-stone-600 dark:text-stone-400">Tier</th>
+                      <th className="px-3 py-2 text-start font-medium text-stone-600 dark:text-stone-400">Trial</th>
+                      <th className="px-3 py-2 text-start font-medium text-stone-600 dark:text-stone-400">Joined</th>
+                      <th className="px-3 py-2 text-start font-medium text-stone-600 dark:text-stone-400">Last Seen</th>
+                      <th className="px-3 py-2 text-start font-medium text-stone-600 dark:text-stone-400">Actions</th>
                     </tr>
                   </thead>
                   <tbody>
                     {paged.map(u => {
                       const tl = u.subscription?.status === 'trial' ? trialLeft(u.subscription?.trial_ends_at ?? null) : null;
                       return (
-                        <tr key={u.id} className="border-b border-stone-100 hover:bg-stone-50">
-                          <td className="px-3 py-2 font-mono text-xs"><button onClick={() => fetchUserDetail(u.id)} className="text-emerald-700 hover:underline">{u.email}</button>{!u.confirmed && <span className="ms-1 text-[10px] text-amber-600">(unconf)</span>}</td>
-                          <td className="px-3 py-2 text-xs"><span className={cn('rounded-full px-2 py-0.5 text-xs', u.provider === 'google' ? 'bg-blue-50 text-blue-700' : 'bg-stone-100 text-stone-600')}>{u.provider}</span></td>
+                        <tr key={u.id} className="border-b border-stone-100 dark:border-stone-800 hover:bg-stone-50 dark:hover:bg-stone-800">
+                          <td className="px-3 py-2 font-mono text-xs"><button onClick={() => fetchUserDetail(u.id)} className="text-emerald-700 dark:text-emerald-400 hover:underline">{u.email}</button>{!u.confirmed && <span className="ms-1 text-[10px] text-amber-600">(unconf)</span>}</td>
+                          <td className="px-3 py-2 text-xs"><span className={cn('rounded-full px-2 py-0.5 text-xs', u.provider === 'google' ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400' : 'bg-stone-100 dark:bg-stone-800 text-stone-600 dark:text-stone-400')}>{u.provider}</span></td>
                           <td className="px-3 py-2"><Badge status={u.subscription?.status ?? 'none'} /></td>
                           <td className="px-3 py-2 text-xs">{u.subscription?.tier ?? '—'}</td>
-                          <td className="px-3 py-2 text-xs">{tl ? <span className={cn('rounded-full px-2 py-0.5 text-xs font-medium', tl.urgent ? 'bg-red-100 text-red-700' : 'bg-blue-100 text-blue-700')}>{tl.text}</span> : '—'}</td>
-                          <td className="px-3 py-2 text-xs text-stone-500">{new Date(u.created_at).toLocaleDateString('en-GB')}</td>
-                          <td className="px-3 py-2 text-xs text-stone-500">{u.last_sign_in_at ? timeAgo(u.last_sign_in_at) : '—'}</td>
+                          <td className="px-3 py-2 text-xs">{tl ? <span className={cn('rounded-full px-2 py-0.5 text-xs font-medium', tl.urgent ? 'bg-red-100 text-red-700 dark:text-red-400' : 'bg-blue-100 text-blue-700 dark:text-blue-400')}>{tl.text}</span> : '—'}</td>
+                          <td className="px-3 py-2 text-xs text-stone-500 dark:text-stone-400">{new Date(u.created_at).toLocaleDateString('en-GB')}</td>
+                          <td className="px-3 py-2 text-xs text-stone-500 dark:text-stone-400">{u.last_sign_in_at ? timeAgo(u.last_sign_in_at) : '—'}</td>
                           <td className="px-3 py-2">
                             <div className="flex items-center gap-0.5">
-                              <button onClick={() => openUserAction('extend_trial', u)} title="Extend trial" className="rounded p-1 hover:bg-emerald-50"><CalendarPlus className="h-3.5 w-3.5 text-emerald-600" /></button>
-                              <button onClick={() => openUserAction('grant_sub', u)} title="Grant subscription" className="rounded p-1 hover:bg-blue-50"><CreditCard className="h-3.5 w-3.5 text-blue-600" /></button>
+                              <button onClick={() => openUserAction('extend_trial', u)} title="Extend trial" className="rounded p-1 hover:bg-emerald-50 dark:bg-emerald-900/20"><CalendarPlus className="h-3.5 w-3.5 text-emerald-600" /></button>
+                              <button onClick={() => openUserAction('grant_sub', u)} title="Grant subscription" className="rounded p-1 hover:bg-blue-50 dark:bg-blue-900/20"><CreditCard className="h-3.5 w-3.5 text-blue-600" /></button>
                               <button onClick={() => { setEmailTo(u.email); setEmailSubject(''); setEmailBody(''); setModal('send_email'); setModalTarget(u); }} title="Send email" className="rounded p-1 hover:bg-violet-50"><Mail className="h-3.5 w-3.5 text-violet-600" /></button>
                               {(u.subscription?.status === 'active' || u.subscription?.status === 'trial') && (
-                                <button onClick={() => openUserAction('cancel_sub', u)} title="Cancel subscription" className="rounded p-1 hover:bg-amber-50"><XCircle className="h-3.5 w-3.5 text-amber-600" /></button>
+                                <button onClick={() => openUserAction('cancel_sub', u)} title="Cancel subscription" className="rounded p-1 hover:bg-amber-50 dark:bg-amber-900/20"><XCircle className="h-3.5 w-3.5 text-amber-600" /></button>
                               )}
-                              <button onClick={() => openUserAction('confirm_suspend', u)} title="Suspend" className="rounded p-1 hover:bg-red-50"><Ban className="h-3.5 w-3.5 text-red-400" /></button>
+                              <button onClick={() => openUserAction('confirm_suspend', u)} title="Suspend" className="rounded p-1 hover:bg-red-50 dark:bg-red-900/20"><Ban className="h-3.5 w-3.5 text-red-400" /></button>
                               <button onClick={async () => { try { await adminAction({ action: 'unsuspend_user', user_id: u.id }); toast.success(`${u.email} unsuspended`); fetchStats(); } catch { toast.error('Unsuspend failed'); } }} title="Unsuspend" className="rounded p-1 hover:bg-green-50"><ShieldCheck className="h-3.5 w-3.5 text-green-600" /></button>
                               <button onClick={async () => {
                                 const id = window.prompt('Enter payment_intent_id (pi_...) or charge_id (ch_...)');
@@ -778,8 +778,8 @@ export default function Admin() {
                                   await adminAction(payload);
                                   toast.success('Refund initiated');
                                 } catch (e) { toast.error(e instanceof Error ? e.message : 'Refund failed'); }
-                              }} title="Refund payment" className="rounded p-1 hover:bg-amber-50"><RotateCcw className="h-3.5 w-3.5 text-amber-600" /></button>
-                              <button onClick={() => openUserAction('confirm_delete', u)} title="Delete" className="rounded p-1 hover:bg-red-50"><Trash2 className="h-3.5 w-3.5 text-red-400" /></button>
+                              }} title="Refund payment" className="rounded p-1 hover:bg-amber-50 dark:bg-amber-900/20"><RotateCcw className="h-3.5 w-3.5 text-amber-600" /></button>
+                              <button onClick={() => openUserAction('confirm_delete', u)} title="Delete" className="rounded p-1 hover:bg-red-50 dark:bg-red-900/20"><Trash2 className="h-3.5 w-3.5 text-red-400" /></button>
                             </div>
                           </td>
                         </tr>
@@ -796,15 +796,15 @@ export default function Admin() {
         {/* ===================== ACTIVITY ===================== */}
         {tab === 'activity' && (
           <div className="space-y-3">
-            <h2 className="text-sm font-bold text-stone-700">Activity Feed</h2>
-            {stats.activityFeed.length === 0 ? <div className="rounded-xl border border-stone-200 bg-white p-8 text-center"><Activity className="mx-auto h-8 w-8 text-stone-300 mb-2" /><p className="text-sm text-stone-500">No recent activity</p></div> : (
-              <div className="rounded-xl border border-stone-200 bg-white divide-y divide-stone-100">
+            <h2 className="text-sm font-bold text-stone-700 dark:text-stone-300">Activity Feed</h2>
+            {stats.activityFeed.length === 0 ? <div className="rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 p-8 text-center"><Activity className="mx-auto h-8 w-8 text-stone-300 mb-2" /><p className="text-sm text-stone-500 dark:text-stone-400">No recent activity</p></div> : (
+              <div className="rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 divide-y divide-stone-100 dark:divide-stone-800">
                 {stats.activityFeed.map((item, i) => {
                   const Ic = ACTIVITY_ICON[item.type] ?? Activity;
                   return (
                     <div key={i} className="flex items-center gap-3 px-4 py-3">
-                      <div className={cn('rounded-full p-1.5', ACTIVITY_COLOR[item.type] ?? 'bg-stone-100 text-stone-600')}><Ic className="h-3.5 w-3.5" /></div>
-                      <div className="flex-1 min-w-0"><p className="text-sm text-stone-800">{item.description}</p>{item.email && <p className="text-xs text-stone-500 font-mono truncate">{item.email}</p>}</div>
+                      <div className={cn('rounded-full p-1.5', ACTIVITY_COLOR[item.type] ?? 'bg-stone-100 dark:bg-stone-800 text-stone-600 dark:text-stone-400')}><Ic className="h-3.5 w-3.5" /></div>
+                      <div className="flex-1 min-w-0"><p className="text-sm text-stone-800 dark:text-stone-200">{item.description}</p>{item.email && <p className="text-xs text-stone-500 dark:text-stone-400 font-mono truncate">{item.email}</p>}</div>
                       <span className="text-xs text-stone-400 whitespace-nowrap">{timeAgo(item.created_at)}</span>
                     </div>
                   );
@@ -817,23 +817,23 @@ export default function Admin() {
         {/* ===================== REVIEWS ===================== */}
         {tab === 'reviews' && (
           <div className="space-y-3">
-            <h2 className="text-sm font-bold text-stone-700">Pending Reviews ({stats.pendingReviews.length})</h2>
-            {stats.pendingReviews.length === 0 ? <div className="rounded-xl border border-stone-200 bg-white p-8 text-center"><Star className="mx-auto h-8 w-8 text-stone-300 mb-2" /><p className="text-sm text-stone-500">No pending reviews</p></div> :
+            <h2 className="text-sm font-bold text-stone-700 dark:text-stone-300">Pending Reviews ({stats.pendingReviews.length})</h2>
+            {stats.pendingReviews.length === 0 ? <div className="rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 p-8 text-center"><Star className="mx-auto h-8 w-8 text-stone-300 mb-2" /><p className="text-sm text-stone-500 dark:text-stone-400">No pending reviews</p></div> :
               stats.pendingReviews.map(r => (
-                <div key={r.id} className="rounded-xl border border-stone-200 bg-white p-4">
+                <div key={r.id} className="rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 p-4">
                   <div className="flex items-center justify-between mb-2">
-                    <span className="font-medium text-stone-900">{r.name}</span>
+                    <span className="font-medium text-stone-900 dark:text-stone-100">{r.name}</span>
                     <div className="flex gap-0.5">{[1,2,3,4,5].map(s => <Star key={s} className={cn('h-4 w-4', s <= r.rating ? 'fill-amber-400 text-amber-400' : 'text-stone-300')} />)}</div>
                   </div>
-                  <p className="text-sm text-stone-700">{r.content}</p>
+                  <p className="text-sm text-stone-700 dark:text-stone-300">{r.content}</p>
                   <div className="flex items-center justify-between mt-3">
-                    <p className="text-xs text-stone-500">{timeAgo(r.created_at)}</p>
+                    <p className="text-xs text-stone-500 dark:text-stone-400">{timeAgo(r.created_at)}</p>
                     <div className="flex gap-2">
                       <button onClick={async () => { setApprovingReviewId(r.id); try { await adminAction({ action: 'approve_review', review_id: r.id }); toast.success('Approved'); fetchStats(); } catch { toast.error('Failed'); } finally { setApprovingReviewId(null); } }}
                         disabled={approvingReviewId === r.id}
                         className="rounded-lg bg-emerald-600 px-3 py-1.5 text-xs font-bold text-white hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1">{(approvingReviewId === r.id) ? <><Loader2 className="h-3 w-3 animate-spin" /> Approving...</> : 'Approve'}</button>
                       <button onClick={async () => { if (!confirm('Delete?')) return; try { await adminAction({ action: 'delete_review', review_id: r.id }); toast.success('Deleted'); fetchStats(); } catch { toast.error('Failed'); } }}
-                        className="rounded-lg border border-red-200 px-3 py-1.5 text-xs font-bold text-red-600 hover:bg-red-50">Delete</button>
+                        className="rounded-lg border border-red-200 dark:border-red-800 px-3 py-1.5 text-xs font-bold text-red-600 dark:text-red-400 hover:bg-red-50 dark:bg-red-900/20">Delete</button>
                     </div>
                   </div>
                 </div>
@@ -844,22 +844,22 @@ export default function Admin() {
         {/* ===================== ENQUIRIES ===================== */}
         {tab === 'enquiries' && (
           <div className="space-y-3">
-            <h2 className="text-sm font-bold text-stone-700">Enquiries ({stats.enquiries.length})</h2>
-            {stats.enquiries.length === 0 ? <div className="rounded-xl border border-stone-200 bg-white p-8 text-center"><Mail className="mx-auto h-8 w-8 text-stone-300 mb-2" /><p className="text-sm text-stone-500">No enquiries</p></div> :
+            <h2 className="text-sm font-bold text-stone-700 dark:text-stone-300">Enquiries ({stats.enquiries.length})</h2>
+            {stats.enquiries.length === 0 ? <div className="rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 p-8 text-center"><Mail className="mx-auto h-8 w-8 text-stone-300 mb-2" /><p className="text-sm text-stone-500 dark:text-stone-400">No enquiries</p></div> :
               stats.enquiries.map(eq => (
-                <div key={eq.id} className={cn('rounded-xl border bg-white p-4', eq.status === 'pending' ? 'border-amber-200' : 'border-stone-200')}>
+                <div key={eq.id} className={cn('rounded-xl border bg-white dark:bg-stone-950 p-4', eq.status === 'pending' ? 'border-amber-200 dark:border-amber-800' : 'border-stone-200 dark:border-stone-700')}>
                   <div className="flex items-center justify-between mb-2">
-                    <div><span className="font-mono text-xs text-stone-500">{eq.email}</span>{eq.peptide_name && <span className="ms-2 rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-medium text-emerald-700">{eq.peptide_name}</span>}</div>
-                    <span className={cn('rounded-full px-2 py-0.5 text-xs font-medium', eq.status === 'pending' ? 'bg-amber-100 text-amber-700' : 'bg-emerald-100 text-emerald-700')}>{eq.status}</span>
+                    <div><span className="font-mono text-xs text-stone-500 dark:text-stone-400">{eq.email}</span>{eq.peptide_name && <span className="ms-2 rounded-full bg-emerald-100 dark:bg-emerald-900/30 px-2 py-0.5 text-xs font-medium text-emerald-700 dark:text-emerald-400">{eq.peptide_name}</span>}</div>
+                    <span className={cn('rounded-full px-2 py-0.5 text-xs font-medium', eq.status === 'pending' ? 'bg-amber-100 text-amber-700 dark:text-amber-400' : 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400')}>{eq.status}</span>
                   </div>
-                  <p className="text-sm font-bold text-stone-900 mb-1">{eq.subject}</p>
-                  <p className="text-sm text-stone-700 whitespace-pre-wrap">{eq.message}</p>
-                  {eq.admin_notes && <div className="mt-2 rounded-lg bg-emerald-50 border border-emerald-100 p-3"><p className="text-xs font-medium text-emerald-700 mb-1">Reply:</p><p className="text-sm text-emerald-800 whitespace-pre-wrap">{eq.admin_notes}</p></div>}
+                  <p className="text-sm font-bold text-stone-900 dark:text-stone-100 mb-1">{eq.subject}</p>
+                  <p className="text-sm text-stone-700 dark:text-stone-300 whitespace-pre-wrap">{eq.message}</p>
+                  {eq.admin_notes && <div className="mt-2 rounded-lg bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-100 p-3"><p className="text-xs font-medium text-emerald-700 dark:text-emerald-400 mb-1">Reply:</p><p className="text-sm text-emerald-800 dark:text-emerald-300 whitespace-pre-wrap">{eq.admin_notes}</p></div>}
                   {replyingTo === eq.id ? (
                     <div className="mt-3 space-y-2">
-                      <textarea value={replyText} onChange={e => setReplyText(e.target.value)} placeholder="Type reply..." rows={3} className="w-full rounded-lg border border-stone-200 bg-white px-3 py-2 text-sm outline-none focus:border-emerald-300 resize-y" dir="ltr" />
+                      <textarea value={replyText} onChange={e => setReplyText(e.target.value)} placeholder="Type reply..." rows={3} className="w-full rounded-lg border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 px-3 py-2 text-sm outline-none focus:border-emerald-300 dark:border-emerald-700 resize-y" dir="ltr" />
                       <div className="flex gap-2 justify-end">
-                        <button onClick={() => { setReplyingTo(null); setReplyText(''); }} className="flex items-center gap-1 rounded-lg border border-stone-200 px-3 py-1.5 text-xs font-medium text-stone-600 hover:bg-stone-50"><X className="h-3 w-3" /> Cancel</button>
+                        <button onClick={() => { setReplyingTo(null); setReplyText(''); }} className="flex items-center gap-1 rounded-lg border border-stone-200 dark:border-stone-700 px-3 py-1.5 text-xs font-medium text-stone-600 dark:text-stone-400 hover:bg-stone-50 dark:hover:bg-stone-800"><X className="h-3 w-3" /> Cancel</button>
                         <button disabled={replySending || !replyText.trim()} onClick={async () => {
                           setReplySending(true);
                           try {
@@ -884,7 +884,7 @@ export default function Admin() {
                     </div>
                   ) : (
                     <div className="flex items-center justify-between mt-3">
-                      <p className="text-xs text-stone-500">{timeAgo(eq.created_at)}</p>
+                      <p className="text-xs text-stone-500 dark:text-stone-400">{timeAgo(eq.created_at)}</p>
                       <button onClick={() => { setReplyingTo(eq.id); setReplyText(eq.admin_notes ?? ''); }} className="flex items-center gap-1 rounded-lg bg-emerald-600 px-3 py-1.5 text-xs font-bold text-white hover:bg-emerald-700"><Reply className="h-3 w-3" /> {eq.admin_notes ? 'Edit' : 'Reply'}</button>
                     </div>
                   )}
@@ -897,11 +897,11 @@ export default function Admin() {
         {tab === 'emails' && (
           <div className="space-y-3">
             <div className="flex items-center justify-between">
-              <h2 className="text-sm font-bold text-stone-700">Email List ({stats.emailList.length})</h2>
-              <button onClick={() => exportCSV('email_list')} className="flex items-center gap-1 rounded-lg border border-stone-200 px-3 py-1.5 text-xs font-medium text-stone-600 hover:bg-stone-50"><Download className="h-3.5 w-3.5" /> Export</button>
+              <h2 className="text-sm font-bold text-stone-700 dark:text-stone-300">Email List ({stats.emailList.length})</h2>
+              <button onClick={() => exportCSV('email_list')} className="flex items-center gap-1 rounded-lg border border-stone-200 dark:border-stone-700 px-3 py-1.5 text-xs font-medium text-stone-600 dark:text-stone-400 hover:bg-stone-50 dark:hover:bg-stone-800"><Download className="h-3.5 w-3.5" /> Export</button>
             </div>
-            {stats.emailList.length === 0 ? <div className="rounded-xl border border-stone-200 bg-white p-8 text-center"><Mail className="mx-auto h-8 w-8 text-stone-300 mb-2" /><p className="text-sm text-stone-500">No subscribers</p></div> :
-              <div className="overflow-x-auto rounded-xl border border-stone-200 bg-white"><table className="w-full text-sm"><thead><tr className="border-b border-stone-200 bg-stone-50"><th className="px-3 py-2 text-start font-medium text-stone-600">Email</th><th className="px-3 py-2 text-start font-medium text-stone-600">Date</th></tr></thead><tbody>{stats.emailList.map(e => <tr key={e.id} className="border-b border-stone-100 hover:bg-stone-50"><td className="px-3 py-2 font-mono text-xs">{e.email}</td><td className="px-3 py-2 text-xs text-stone-500">{timeAgo(e.created_at)}</td></tr>)}</tbody></table></div>}
+            {stats.emailList.length === 0 ? <div className="rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 p-8 text-center"><Mail className="mx-auto h-8 w-8 text-stone-300 mb-2" /><p className="text-sm text-stone-500 dark:text-stone-400">No subscribers</p></div> :
+              <div className="overflow-x-auto rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950"><table className="w-full text-sm"><thead><tr className="border-b border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-900"><th className="px-3 py-2 text-start font-medium text-stone-600 dark:text-stone-400">Email</th><th className="px-3 py-2 text-start font-medium text-stone-600 dark:text-stone-400">Date</th></tr></thead><tbody>{stats.emailList.map(e => <tr key={e.id} className="border-b border-stone-100 dark:border-stone-800 hover:bg-stone-50 dark:hover:bg-stone-800"><td className="px-3 py-2 font-mono text-xs">{e.email}</td><td className="px-3 py-2 text-xs text-stone-500 dark:text-stone-400">{timeAgo(e.created_at)}</td></tr>)}</tbody></table></div>}
           </div>
         )}
 
@@ -912,12 +912,12 @@ export default function Admin() {
           return (
             <div className="space-y-3">
               <div className="flex items-center justify-between">
-                <h2 className="text-sm font-bold text-stone-700">Emails Sent ({logs.length})</h2>
+                <h2 className="text-sm font-bold text-stone-700 dark:text-stone-300">Emails Sent ({logs.length})</h2>
                 {logs.length > 0 && <span className="text-xs text-emerald-600 font-medium">{logs.filter(l => l.status === 'sent').length} delivered</span>}
               </div>
-              {logs.length === 0 ? <div className="rounded-xl border border-amber-200 bg-amber-50 p-6 text-center"><AlertTriangle className="mx-auto h-8 w-8 text-amber-400 mb-2" /><p className="text-sm font-medium text-amber-800">No email logs</p><p className="text-xs text-amber-600 mt-1">Resend may not be configured</p></div> : (
-                <><div className="overflow-x-auto rounded-xl border border-stone-200 bg-white"><table className="w-full text-sm"><thead><tr className="border-b border-stone-200 bg-stone-50"><th className="px-3 py-2 text-start font-medium text-stone-600">To</th><th className="px-3 py-2 text-start font-medium text-stone-600">Type</th><th className="px-3 py-2 text-start font-medium text-stone-600">Status</th><th className="px-3 py-2 text-start font-medium text-stone-600">When</th></tr></thead>
-                <tbody>{paged.map(l => <tr key={l.id} className="border-b border-stone-100 hover:bg-stone-50"><td className="px-3 py-2 font-mono text-xs">{l.email}</td><td className="px-3 py-2 text-xs"><span className="rounded-full bg-stone-100 px-2 py-0.5 text-xs">{l.type}</span></td><td className="px-3 py-2"><span className={cn('rounded-full px-2 py-0.5 text-xs font-medium', l.status === 'sent' ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-700')}>{l.status}</span></td><td className="px-3 py-2 text-xs text-stone-500">{timeAgo(l.created_at)}</td></tr>)}</tbody></table></div>
+              {logs.length === 0 ? <div className="rounded-xl border border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-900/20 p-6 text-center"><AlertTriangle className="mx-auto h-8 w-8 text-amber-400 mb-2" /><p className="text-sm font-medium text-amber-800 dark:text-amber-300">No email logs</p><p className="text-xs text-amber-600 mt-1">Resend may not be configured</p></div> : (
+                <><div className="overflow-x-auto rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950"><table className="w-full text-sm"><thead><tr className="border-b border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-900"><th className="px-3 py-2 text-start font-medium text-stone-600 dark:text-stone-400">To</th><th className="px-3 py-2 text-start font-medium text-stone-600 dark:text-stone-400">Type</th><th className="px-3 py-2 text-start font-medium text-stone-600 dark:text-stone-400">Status</th><th className="px-3 py-2 text-start font-medium text-stone-600 dark:text-stone-400">When</th></tr></thead>
+                <tbody>{paged.map(l => <tr key={l.id} className="border-b border-stone-100 dark:border-stone-800 hover:bg-stone-50 dark:hover:bg-stone-800"><td className="px-3 py-2 font-mono text-xs">{l.email}</td><td className="px-3 py-2 text-xs"><span className="rounded-full bg-stone-100 dark:bg-stone-800 px-2 py-0.5 text-xs">{l.type}</span></td><td className="px-3 py-2"><span className={cn('rounded-full px-2 py-0.5 text-xs font-medium', l.status === 'sent' ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400' : 'bg-red-100 text-red-700 dark:text-red-400')}>{l.status}</span></td><td className="px-3 py-2 text-xs text-stone-500 dark:text-stone-400">{timeAgo(l.created_at)}</td></tr>)}</tbody></table></div>
                 <Pagination page={emailLogsPage} total={logs.length} onChange={setEmailLogsPage} /></>)}
             </div>
           );
@@ -932,13 +932,13 @@ export default function Admin() {
           const lastEvent = stats.webhookEvents.length ? stats.webhookEvents.reduce((a, b) => new Date(b.processed_at).getTime() > new Date(a.processed_at).getTime() ? b : a) : null;
           return (
           <div className="space-y-3">
-            <h2 className="text-sm font-bold text-stone-700">Webhook Events ({stats.webhookEvents.length})</h2>
+            <h2 className="text-sm font-bold text-stone-700 dark:text-stone-300">Webhook Events ({stats.webhookEvents.length})</h2>
             {stats.webhookEvents.length > 0 && (
-              <p className="text-xs text-stone-600" dir="rtl">آخر 24 ساعة: {count24h} أحداث | آخر 7 أيام: {count7d} أحداث | آخر حدث: {lastEvent ? timeAgo(lastEvent.processed_at) : '—'}</p>
+              <p className="text-xs text-stone-600 dark:text-stone-400" dir="rtl">آخر 24 ساعة: {count24h} أحداث | آخر 7 أيام: {count7d} أحداث | آخر حدث: {lastEvent ? timeAgo(lastEvent.processed_at) : '—'}</p>
             )}
-            {stats.webhookEvents.length === 0 ? <div className="rounded-xl border border-amber-200 bg-amber-50 p-6 text-center"><AlertTriangle className="mx-auto h-8 w-8 text-amber-400 mb-2" /><p className="text-sm font-medium text-amber-800">No events recorded</p><p className="text-xs text-amber-600 mt-1">Stripe webhooks may not be configured</p></div> :
-              <div className="overflow-x-auto rounded-xl border border-stone-200 bg-white"><table className="w-full text-sm"><thead><tr className="border-b border-stone-200 bg-stone-50"><th className="px-3 py-2 text-start font-medium text-stone-600">Event</th><th className="px-3 py-2 text-start font-medium text-stone-600">ID</th><th className="px-3 py-2 text-start font-medium text-stone-600">When</th></tr></thead>
-              <tbody>{stats.webhookEvents.map(ev => <tr key={ev.event_id} className="border-b border-stone-100 hover:bg-stone-50"><td className="px-3 py-2 text-xs"><span className={cn('rounded-full px-2 py-0.5 text-xs font-medium', ev.event_type.includes('succeeded') || ev.event_type.includes('paid') ? 'bg-emerald-100 text-emerald-700' : ev.event_type.includes('failed') ? 'bg-red-100 text-red-700' : 'bg-stone-100 text-stone-700')}>{ev.event_type}</span></td><td className="px-3 py-2 font-mono text-xs text-stone-500">{ev.event_id?.slice(0, 24)}</td><td className="px-3 py-2 text-xs text-stone-500">{timeAgo(ev.processed_at)}</td></tr>)}</tbody></table></div>}
+            {stats.webhookEvents.length === 0 ? <div className="rounded-xl border border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-900/20 p-6 text-center"><AlertTriangle className="mx-auto h-8 w-8 text-amber-400 mb-2" /><p className="text-sm font-medium text-amber-800 dark:text-amber-300">No events recorded</p><p className="text-xs text-amber-600 mt-1">Stripe webhooks may not be configured</p></div> :
+              <div className="overflow-x-auto rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950"><table className="w-full text-sm"><thead><tr className="border-b border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-900"><th className="px-3 py-2 text-start font-medium text-stone-600 dark:text-stone-400">Event</th><th className="px-3 py-2 text-start font-medium text-stone-600 dark:text-stone-400">ID</th><th className="px-3 py-2 text-start font-medium text-stone-600 dark:text-stone-400">When</th></tr></thead>
+              <tbody>{stats.webhookEvents.map(ev => <tr key={ev.event_id} className="border-b border-stone-100 dark:border-stone-800 hover:bg-stone-50 dark:hover:bg-stone-800"><td className="px-3 py-2 text-xs"><span className={cn('rounded-full px-2 py-0.5 text-xs font-medium', ev.event_type.includes('succeeded') || ev.event_type.includes('paid') ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400' : ev.event_type.includes('failed') ? 'bg-red-100 text-red-700 dark:text-red-400' : 'bg-stone-100 dark:bg-stone-800 text-stone-700 dark:text-stone-300')}>{ev.event_type}</span></td><td className="px-3 py-2 font-mono text-xs text-stone-500 dark:text-stone-400">{ev.event_id?.slice(0, 24)}</td><td className="px-3 py-2 text-xs text-stone-500 dark:text-stone-400">{timeAgo(ev.processed_at)}</td></tr>)}</tbody></table></div>}
           </div>
           );
         })()}
@@ -947,37 +947,37 @@ export default function Admin() {
         {tab === 'health' && (
           <div className="space-y-4">
             <div className="flex flex-wrap items-center justify-between gap-3">
-              <h2 className="text-sm font-bold text-stone-700">System Health</h2>
+              <h2 className="text-sm font-bold text-stone-700 dark:text-stone-300">System Health</h2>
               <div className="flex gap-2">
                 <button onClick={runHealthCheck} disabled={healthLoading} className="flex items-center gap-1.5 rounded-lg bg-emerald-600 px-4 py-2 text-xs font-bold text-white hover:bg-emerald-700 disabled:opacity-50">
                   {healthLoading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Heart className="h-3.5 w-3.5" />} Health
                 </button>
-                <button onClick={runStripeVerify} disabled={stripeVerifyLoading} className="flex items-center gap-1.5 rounded-lg border border-stone-200 px-4 py-2 text-xs font-bold text-stone-700 hover:bg-stone-50 disabled:opacity-50">
+                <button onClick={runStripeVerify} disabled={stripeVerifyLoading} className="flex items-center gap-1.5 rounded-lg border border-stone-200 dark:border-stone-700 px-4 py-2 text-xs font-bold text-stone-700 dark:text-stone-300 hover:bg-stone-50 dark:hover:bg-stone-800 disabled:opacity-50">
                   {stripeVerifyLoading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <CreditCard className="h-3.5 w-3.5" />} Stripe
                 </button>
               </div>
             </div>
             {!health ? (
-              <div className="rounded-xl border border-stone-200 bg-white p-8 text-center">
+              <div className="rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 p-8 text-center">
                 <Heart className="mx-auto h-8 w-8 text-stone-300 mb-2" />
-                <p className="text-sm text-stone-500">Click "Run Check" to test all services</p>
+                <p className="text-sm text-stone-500 dark:text-stone-400">Click "Run Check" to test all services</p>
               </div>
             ) : (
               <div className="space-y-3">
-                <div className={cn('rounded-xl border p-4 text-center', health.status === 'healthy' ? 'border-emerald-200 bg-emerald-50' : health.status === 'degraded' ? 'border-amber-200 bg-amber-50' : 'border-red-200 bg-red-50')}>
-                  <p className={cn('text-xl font-bold', health.status === 'healthy' ? 'text-emerald-700' : health.status === 'degraded' ? 'text-amber-700' : 'text-red-700')}>
+                <div className={cn('rounded-xl border p-4 text-center', health.status === 'healthy' ? 'border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-900/20' : health.status === 'degraded' ? 'border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-900/20' : 'border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-900/20')}>
+                  <p className={cn('text-xl font-bold', health.status === 'healthy' ? 'text-emerald-700 dark:text-emerald-400' : health.status === 'degraded' ? 'text-amber-700 dark:text-amber-400' : 'text-red-700 dark:text-red-400')}>
                     {health.status === 'healthy' ? 'All Systems Healthy' : health.status === 'degraded' ? 'Degraded' : 'Unhealthy'}
                   </p>
-                  <p className="text-xs text-stone-500 mt-1">{new Date(health.timestamp).toLocaleString('en-GB')}</p>
+                  <p className="text-xs text-stone-500 dark:text-stone-400 mt-1">{new Date(health.timestamp).toLocaleString('en-GB')}</p>
                 </div>
                 <div className="grid sm:grid-cols-2 gap-3">
                   {Object.entries(health.checks).map(([name, c]) => (
-                    <div key={name} className={cn('rounded-xl border p-4', c.status === 'ok' ? 'border-stone-200 bg-white' : c.status === 'warning' ? 'border-amber-200 bg-amber-50' : 'border-red-200 bg-red-50')}>
+                    <div key={name} className={cn('rounded-xl border p-4', c.status === 'ok' ? 'border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950' : c.status === 'warning' ? 'border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-900/20' : 'border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-900/20')}>
                       <div className="flex items-center justify-between mb-1">
-                        <span className="text-sm font-medium text-stone-800 capitalize">{name.replace(/_/g, ' ')}</span>
-                        {c.status === 'ok' ? <CheckCircle className="h-4 w-4 text-emerald-500" /> : c.status === 'warning' ? <AlertTriangle className="h-4 w-4 text-amber-500" /> : <XCircle className="h-4 w-4 text-red-500" />}
+                        <span className="text-sm font-medium text-stone-800 dark:text-stone-200 capitalize">{name.replace(/_/g, ' ')}</span>
+                        {c.status === 'ok' ? <CheckCircle className="h-4 w-4 text-emerald-500" /> : c.status === 'warning' ? <AlertTriangle className="h-4 w-4 text-amber-500" /> : <XCircle className="h-4 w-4 text-red-500 dark:text-red-400" />}
                       </div>
-                      <p className="text-xs text-stone-600">{c.detail}</p>
+                      <p className="text-xs text-stone-600 dark:text-stone-400">{c.detail}</p>
                       {c.ms > 0 && <p className="text-[10px] text-stone-400 mt-1">{c.ms}ms</p>}
                     </div>
                   ))}
@@ -986,11 +986,11 @@ export default function Admin() {
             )}
             {stripeVerify && (
               <div className="mt-6 space-y-3">
-                <h3 className="text-sm font-bold text-stone-700 flex items-center gap-2"><CreditCard className="h-4 w-4" /> Stripe Verification</h3>
-                <div className={cn('rounded-xl border p-4', stripeVerify.status === 'ok' ? 'border-emerald-200 bg-emerald-50' : 'border-amber-200 bg-amber-50')}>
-                  <p className={cn('font-bold', stripeVerify.status === 'ok' ? 'text-emerald-700' : 'text-amber-700')}>{stripeVerify.status === 'ok' ? 'Prices + webhooks OK' : 'Issues found'}</p>
-                  <pre className="mt-2 text-xs overflow-x-auto bg-white/60 p-3 rounded-lg">{JSON.stringify(stripeVerify.prices, null, 2)}</pre>
-                  {stripeVerify.missingEvents?.length > 0 && <p className="text-xs text-amber-700 mt-2">Missing events: {stripeVerify.missingEvents.join(', ')}</p>}
+                <h3 className="text-sm font-bold text-stone-700 dark:text-stone-300 flex items-center gap-2"><CreditCard className="h-4 w-4" /> Stripe Verification</h3>
+                <div className={cn('rounded-xl border p-4', stripeVerify.status === 'ok' ? 'border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-900/20' : 'border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-900/20')}>
+                  <p className={cn('font-bold', stripeVerify.status === 'ok' ? 'text-emerald-700 dark:text-emerald-400' : 'text-amber-700 dark:text-amber-400')}>{stripeVerify.status === 'ok' ? 'Prices + webhooks OK' : 'Issues found'}</p>
+                  <pre className="mt-2 text-xs overflow-x-auto bg-white dark:bg-stone-950/60 p-3 rounded-lg">{JSON.stringify(stripeVerify.prices, null, 2)}</pre>
+                  {stripeVerify.missingEvents?.length > 0 && <p className="text-xs text-amber-700 dark:text-amber-400 mt-2">Missing events: {stripeVerify.missingEvents.join(', ')}</p>}
                 </div>
               </div>
             )}
@@ -1001,38 +1001,38 @@ export default function Admin() {
         {tab === 'audit' && (
           <div className="space-y-3">
             <div className="flex items-center justify-between">
-              <h2 className="text-sm font-bold text-stone-700 flex items-center gap-1.5"><ClipboardList className="h-4 w-4 text-stone-500" /> Audit Log</h2>
-              <button onClick={fetchAuditLog} disabled={auditLoading} className="flex items-center gap-1.5 rounded-lg border border-stone-200 px-3 py-1.5 text-xs font-medium text-stone-600 hover:bg-stone-50 disabled:opacity-50">
+              <h2 className="text-sm font-bold text-stone-700 dark:text-stone-300 flex items-center gap-1.5"><ClipboardList className="h-4 w-4 text-stone-500 dark:text-stone-400" /> Audit Log</h2>
+              <button onClick={fetchAuditLog} disabled={auditLoading} className="flex items-center gap-1.5 rounded-lg border border-stone-200 dark:border-stone-700 px-3 py-1.5 text-xs font-medium text-stone-600 dark:text-stone-400 hover:bg-stone-50 dark:hover:bg-stone-800 disabled:opacity-50">
                 {auditLoading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <RefreshCw className="h-3.5 w-3.5" />} Refresh
               </button>
             </div>
             {auditLoading && auditLog.length === 0 ? (
               <div className="flex justify-center py-12"><Loader2 className="h-6 w-6 animate-spin text-stone-400" /></div>
             ) : auditLog.length === 0 ? (
-              <div className="rounded-xl border border-stone-200 bg-white p-8 text-center">
+              <div className="rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 p-8 text-center">
                 <ClipboardList className="mx-auto h-8 w-8 text-stone-300 mb-2" />
-                <p className="text-sm text-stone-500">No audit log entries yet</p>
+                <p className="text-sm text-stone-500 dark:text-stone-400">No audit log entries yet</p>
               </div>
             ) : (
-              <div className="overflow-x-auto rounded-xl border border-stone-200 bg-white">
+              <div className="overflow-x-auto rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950">
                 <table className="w-full text-sm">
                   <thead>
-                    <tr className="border-b border-stone-200 bg-stone-50">
-                      <th className="px-3 py-2 text-start font-medium text-stone-600">Date</th>
-                      <th className="px-3 py-2 text-start font-medium text-stone-600">Admin</th>
-                      <th className="px-3 py-2 text-start font-medium text-stone-600">Action</th>
-                      <th className="px-3 py-2 text-start font-medium text-stone-600">Target</th>
-                      <th className="px-3 py-2 text-start font-medium text-stone-600">Details</th>
+                    <tr className="border-b border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-900">
+                      <th className="px-3 py-2 text-start font-medium text-stone-600 dark:text-stone-400">Date</th>
+                      <th className="px-3 py-2 text-start font-medium text-stone-600 dark:text-stone-400">Admin</th>
+                      <th className="px-3 py-2 text-start font-medium text-stone-600 dark:text-stone-400">Action</th>
+                      <th className="px-3 py-2 text-start font-medium text-stone-600 dark:text-stone-400">Target</th>
+                      <th className="px-3 py-2 text-start font-medium text-stone-600 dark:text-stone-400">Details</th>
                     </tr>
                   </thead>
                   <tbody>
                     {auditLog.map(entry => (
-                      <tr key={entry.id} className="border-b border-stone-100 hover:bg-stone-50">
-                        <td className="px-3 py-2 text-xs text-stone-500 whitespace-nowrap">{new Date(entry.created_at).toLocaleString('en-GB')}</td>
+                      <tr key={entry.id} className="border-b border-stone-100 dark:border-stone-800 hover:bg-stone-50 dark:hover:bg-stone-800">
+                        <td className="px-3 py-2 text-xs text-stone-500 dark:text-stone-400 whitespace-nowrap">{new Date(entry.created_at).toLocaleString('en-GB')}</td>
                         <td className="px-3 py-2 font-mono text-xs">{entry.admin_email}</td>
-                        <td className="px-3 py-2 text-xs"><span className="rounded-full bg-stone-100 px-2 py-0.5 text-xs font-medium text-stone-700">{entry.action}</span></td>
-                        <td className="px-3 py-2 font-mono text-xs text-stone-500">{entry.target_user_id ? entry.target_user_id.slice(0, 8) + '...' : '—'}</td>
-                        <td className="px-3 py-2 text-xs text-stone-500 max-w-[300px] truncate">{entry.details ? JSON.stringify(entry.details) : '—'}</td>
+                        <td className="px-3 py-2 text-xs"><span className="rounded-full bg-stone-100 dark:bg-stone-800 px-2 py-0.5 text-xs font-medium text-stone-700 dark:text-stone-300">{entry.action}</span></td>
+                        <td className="px-3 py-2 font-mono text-xs text-stone-500 dark:text-stone-400">{entry.target_user_id ? entry.target_user_id.slice(0, 8) + '...' : '—'}</td>
+                        <td className="px-3 py-2 text-xs text-stone-500 dark:text-stone-400 max-w-[300px] truncate">{entry.details ? JSON.stringify(entry.details) : '—'}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -1047,11 +1047,11 @@ export default function Admin() {
 
       {/* Extend Trial */}
       <Modal open={modal === 'extend_trial'} title="Extend Trial" onClose={() => setModal(null)}>
-        <p className="text-sm text-stone-600 mb-3">Extend trial for <span className="font-mono font-bold">{modalTarget?.email}</span></p>
-        <label className="block text-xs font-medium text-stone-600 mb-1">Days to add</label>
-        <input type="number" min={1} max={90} value={extendDays} onChange={e => setExtendDays(Number(e.target.value))} className="w-full rounded-lg border border-stone-200 px-3 py-2 text-sm mb-4" />
+        <p className="text-sm text-stone-600 dark:text-stone-400 mb-3">Extend trial for <span className="font-mono font-bold">{modalTarget?.email}</span></p>
+        <label className="block text-xs font-medium text-stone-600 dark:text-stone-400 mb-1">Days to add</label>
+        <input type="number" min={1} max={90} value={extendDays} onChange={e => setExtendDays(Number(e.target.value))} className="w-full rounded-lg border border-stone-200 dark:border-stone-700 px-3 py-2 text-sm mb-4" />
         <div className="flex gap-2 justify-end">
-          <button onClick={() => setModal(null)} className="rounded-lg border border-stone-200 px-4 py-2 text-xs font-medium text-stone-600">Cancel</button>
+          <button onClick={() => setModal(null)} className="rounded-lg border border-stone-200 dark:border-stone-700 px-4 py-2 text-xs font-medium text-stone-600 dark:text-stone-400">Cancel</button>
           <button onClick={handleExtendTrial} disabled={actionLoading} className="rounded-lg bg-emerald-600 px-4 py-2 text-xs font-bold text-white disabled:opacity-50">
             {actionLoading ? 'Extending...' : `Extend ${extendDays} days`}
           </button>
@@ -1060,16 +1060,16 @@ export default function Admin() {
 
       {/* Grant Subscription */}
       <Modal open={modal === 'grant_sub'} title="Grant Subscription" onClose={() => setModal(null)}>
-        <p className="text-sm text-stone-600 mb-3">Grant to <span className="font-mono font-bold">{modalTarget?.email}</span></p>
-        <label className="block text-xs font-medium text-stone-600 mb-1">Tier</label>
-        <select value={grantTier} onChange={e => setGrantTier(e.target.value as 'essentials' | 'elite')} className="w-full rounded-lg border border-stone-200 px-3 py-2 text-sm mb-3">
+        <p className="text-sm text-stone-600 dark:text-stone-400 mb-3">Grant to <span className="font-mono font-bold">{modalTarget?.email}</span></p>
+        <label className="block text-xs font-medium text-stone-600 dark:text-stone-400 mb-1">Tier</label>
+        <select value={grantTier} onChange={e => setGrantTier(e.target.value as 'essentials' | 'elite')} className="w-full rounded-lg border border-stone-200 dark:border-stone-700 px-3 py-2 text-sm mb-3">
           <option value="essentials">Essentials ({PRICING.essentials.label})</option>
           <option value="elite">Elite ({PRICING.elite.label})</option>
         </select>
-        <label className="block text-xs font-medium text-stone-600 mb-1">Duration (days)</label>
-        <input type="number" min={1} max={365} value={grantDuration} onChange={e => setGrantDuration(Number(e.target.value))} className="w-full rounded-lg border border-stone-200 px-3 py-2 text-sm mb-4" />
+        <label className="block text-xs font-medium text-stone-600 dark:text-stone-400 mb-1">Duration (days)</label>
+        <input type="number" min={1} max={365} value={grantDuration} onChange={e => setGrantDuration(Number(e.target.value))} className="w-full rounded-lg border border-stone-200 dark:border-stone-700 px-3 py-2 text-sm mb-4" />
         <div className="flex gap-2 justify-end">
-          <button onClick={() => setModal(null)} className="rounded-lg border border-stone-200 px-4 py-2 text-xs font-medium text-stone-600">Cancel</button>
+          <button onClick={() => setModal(null)} className="rounded-lg border border-stone-200 dark:border-stone-700 px-4 py-2 text-xs font-medium text-stone-600 dark:text-stone-400">Cancel</button>
           <button onClick={handleGrantSub} disabled={actionLoading} className="rounded-lg bg-emerald-600 px-4 py-2 text-xs font-bold text-white disabled:opacity-50">
             {actionLoading ? 'Granting...' : 'Grant'}
           </button>
@@ -1078,10 +1078,10 @@ export default function Admin() {
 
       {/* Cancel Subscription */}
       <Modal open={modal === 'cancel_sub'} title="Cancel Subscription" onClose={() => setModal(null)}>
-        <p className="text-sm text-stone-600 mb-3">Cancel subscription for <span className="font-mono font-bold">{modalTarget?.email}</span>?</p>
+        <p className="text-sm text-stone-600 dark:text-stone-400 mb-3">Cancel subscription for <span className="font-mono font-bold">{modalTarget?.email}</span>?</p>
         <p className="text-xs text-amber-600 mb-4">This will set cancel_at_period_end on Stripe and mark as cancelled in DB.</p>
         <div className="flex gap-2 justify-end">
-          <button onClick={() => setModal(null)} className="rounded-lg border border-stone-200 px-4 py-2 text-xs font-medium text-stone-600">No</button>
+          <button onClick={() => setModal(null)} className="rounded-lg border border-stone-200 dark:border-stone-700 px-4 py-2 text-xs font-medium text-stone-600 dark:text-stone-400">No</button>
           <button onClick={handleCancelSub} disabled={actionLoading} className="rounded-lg bg-amber-600 px-4 py-2 text-xs font-bold text-white disabled:opacity-50">
             {actionLoading ? 'Cancelling...' : 'Cancel Subscription'}
           </button>
@@ -1090,14 +1090,14 @@ export default function Admin() {
 
       {/* Send Email */}
       <Modal open={modal === 'send_email'} title="Send Email" onClose={() => setModal(null)}>
-        <label className="block text-xs font-medium text-stone-600 mb-1">To</label>
-        <input type="email" value={emailTo} onChange={e => setEmailTo(e.target.value)} placeholder="user@example.com" className="w-full rounded-lg border border-stone-200 px-3 py-2 text-sm mb-3" dir="ltr" />
-        <label className="block text-xs font-medium text-stone-600 mb-1">Subject</label>
-        <input type="text" value={emailSubject} onChange={e => setEmailSubject(e.target.value)} placeholder="Subject" className="w-full rounded-lg border border-stone-200 px-3 py-2 text-sm mb-3" dir="ltr" />
-        <label className="block text-xs font-medium text-stone-600 mb-1">Body</label>
-        <textarea value={emailBody} onChange={e => setEmailBody(e.target.value)} placeholder="Email content..." rows={4} className="w-full rounded-lg border border-stone-200 px-3 py-2 text-sm mb-4 resize-y" dir="ltr" />
+        <label className="block text-xs font-medium text-stone-600 dark:text-stone-400 mb-1">To</label>
+        <input type="email" value={emailTo} onChange={e => setEmailTo(e.target.value)} placeholder="user@example.com" className="w-full rounded-lg border border-stone-200 dark:border-stone-700 px-3 py-2 text-sm mb-3" dir="ltr" />
+        <label className="block text-xs font-medium text-stone-600 dark:text-stone-400 mb-1">Subject</label>
+        <input type="text" value={emailSubject} onChange={e => setEmailSubject(e.target.value)} placeholder="Subject" className="w-full rounded-lg border border-stone-200 dark:border-stone-700 px-3 py-2 text-sm mb-3" dir="ltr" />
+        <label className="block text-xs font-medium text-stone-600 dark:text-stone-400 mb-1">Body</label>
+        <textarea value={emailBody} onChange={e => setEmailBody(e.target.value)} placeholder="Email content..." rows={4} className="w-full rounded-lg border border-stone-200 dark:border-stone-700 px-3 py-2 text-sm mb-4 resize-y" dir="ltr" />
         <div className="flex gap-2 justify-end">
-          <button onClick={() => setModal(null)} className="rounded-lg border border-stone-200 px-4 py-2 text-xs font-medium text-stone-600">Cancel</button>
+          <button onClick={() => setModal(null)} className="rounded-lg border border-stone-200 dark:border-stone-700 px-4 py-2 text-xs font-medium text-stone-600 dark:text-stone-400">Cancel</button>
           <button onClick={handleSendEmail} disabled={actionLoading || !emailTo || !emailSubject || !emailBody} className="rounded-lg bg-emerald-600 px-4 py-2 text-xs font-bold text-white disabled:opacity-50">
             {actionLoading ? 'Sending...' : 'Send'}
           </button>
@@ -1106,19 +1106,19 @@ export default function Admin() {
 
       {/* Bulk Email */}
       <Modal open={modal === 'bulk_email'} title="Bulk Email" onClose={() => setModal(null)}>
-        <label className="block text-xs font-medium text-stone-600 mb-1">Audience</label>
-        <select value={bulkAudience} onChange={e => setBulkAudience(e.target.value as 'all' | 'trial' | 'active' | 'expired')} aria-label="Audience" className="w-full rounded-lg border border-stone-200 px-3 py-2 text-sm mb-3">
+        <label className="block text-xs font-medium text-stone-600 dark:text-stone-400 mb-1">Audience</label>
+        <select value={bulkAudience} onChange={e => setBulkAudience(e.target.value as 'all' | 'trial' | 'active' | 'expired')} aria-label="Audience" className="w-full rounded-lg border border-stone-200 dark:border-stone-700 px-3 py-2 text-sm mb-3">
           <option value="all">All users</option>
           <option value="trial">Trial users</option>
           <option value="active">Active subscribers</option>
           <option value="expired">Expired users</option>
         </select>
-        <label className="block text-xs font-medium text-stone-600 mb-1">Subject</label>
-        <input type="text" value={emailSubject} onChange={e => setEmailSubject(e.target.value)} placeholder="Subject" className="w-full rounded-lg border border-stone-200 px-3 py-2 text-sm mb-3" dir="ltr" />
-        <label className="block text-xs font-medium text-stone-600 mb-1">Body</label>
-        <textarea value={emailBody} onChange={e => setEmailBody(e.target.value)} placeholder="Email content..." rows={4} className="w-full rounded-lg border border-stone-200 px-3 py-2 text-sm mb-4 resize-y" dir="ltr" />
+        <label className="block text-xs font-medium text-stone-600 dark:text-stone-400 mb-1">Subject</label>
+        <input type="text" value={emailSubject} onChange={e => setEmailSubject(e.target.value)} placeholder="Subject" className="w-full rounded-lg border border-stone-200 dark:border-stone-700 px-3 py-2 text-sm mb-3" dir="ltr" />
+        <label className="block text-xs font-medium text-stone-600 dark:text-stone-400 mb-1">Body</label>
+        <textarea value={emailBody} onChange={e => setEmailBody(e.target.value)} placeholder="Email content..." rows={4} className="w-full rounded-lg border border-stone-200 dark:border-stone-700 px-3 py-2 text-sm mb-4 resize-y" dir="ltr" />
         <div className="flex gap-2 justify-end">
-          <button onClick={() => setModal(null)} className="rounded-lg border border-stone-200 px-4 py-2 text-xs font-medium text-stone-600">Cancel</button>
+          <button onClick={() => setModal(null)} className="rounded-lg border border-stone-200 dark:border-stone-700 px-4 py-2 text-xs font-medium text-stone-600 dark:text-stone-400">Cancel</button>
           <button onClick={handleBulkEmail} disabled={actionLoading || !emailSubject || !emailBody} className="rounded-lg bg-emerald-600 px-4 py-2 text-xs font-bold text-white disabled:opacity-50">
             {actionLoading ? 'Sending...' : 'Send to All'}
           </button>
@@ -1127,10 +1127,10 @@ export default function Admin() {
 
       {/* Suspend User */}
       <Modal open={modal === 'confirm_suspend'} title="Suspend User" onClose={() => setModal(null)}>
-        <p className="text-sm text-stone-600 mb-3">Suspend <span className="font-mono font-bold text-red-600">{modalTarget?.email}</span>?</p>
-        <p className="text-xs text-red-600 mb-4">This bans the user from logging in and expires their subscription.</p>
+        <p className="text-sm text-stone-600 dark:text-stone-400 mb-3">Suspend <span className="font-mono font-bold text-red-600 dark:text-red-400">{modalTarget?.email}</span>?</p>
+        <p className="text-xs text-red-600 dark:text-red-400 mb-4">This bans the user from logging in and expires their subscription.</p>
         <div className="flex gap-2 justify-end">
-          <button onClick={() => setModal(null)} className="rounded-lg border border-stone-200 px-4 py-2 text-xs font-medium text-stone-600">Cancel</button>
+          <button onClick={() => setModal(null)} className="rounded-lg border border-stone-200 dark:border-stone-700 px-4 py-2 text-xs font-medium text-stone-600 dark:text-stone-400">Cancel</button>
           <button onClick={handleSuspend} disabled={actionLoading} className="rounded-lg bg-red-600 px-4 py-2 text-xs font-bold text-white disabled:opacity-50">
             {actionLoading ? 'Suspending...' : 'Suspend'}
           </button>
@@ -1139,10 +1139,10 @@ export default function Admin() {
 
       {/* Delete User */}
       <Modal open={modal === 'confirm_delete'} title="Delete User" onClose={() => setModal(null)}>
-        <p className="text-sm text-stone-600 mb-3">Permanently delete <span className="font-mono font-bold text-red-600">{modalTarget?.email}</span>?</p>
-        <p className="text-xs text-red-600 mb-4">This cancels their Stripe subscription, deletes all their data from every table, and removes their auth account. This CANNOT be undone.</p>
+        <p className="text-sm text-stone-600 dark:text-stone-400 mb-3">Permanently delete <span className="font-mono font-bold text-red-600 dark:text-red-400">{modalTarget?.email}</span>?</p>
+        <p className="text-xs text-red-600 dark:text-red-400 mb-4">This cancels their Stripe subscription, deletes all their data from every table, and removes their auth account. This CANNOT be undone.</p>
         <div className="flex gap-2 justify-end">
-          <button onClick={() => setModal(null)} className="rounded-lg border border-stone-200 px-4 py-2 text-xs font-medium text-stone-600">Cancel</button>
+          <button onClick={() => setModal(null)} className="rounded-lg border border-stone-200 dark:border-stone-700 px-4 py-2 text-xs font-medium text-stone-600 dark:text-stone-400">Cancel</button>
           <button onClick={handleDelete} disabled={actionLoading} className="rounded-lg bg-red-600 px-4 py-2 text-xs font-bold text-white disabled:opacity-50">
             {actionLoading ? 'Deleting...' : 'Delete Forever'}
           </button>
@@ -1152,10 +1152,10 @@ export default function Admin() {
       {/* User Detail */}
       {userDetailOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" onClick={() => setUserDetailOpen(false)}>
-          <div className="w-full max-w-2xl max-h-[85vh] overflow-y-auto rounded-2xl bg-white p-6 shadow-xl" onClick={e => e.stopPropagation()} role="dialog" aria-modal="true">
+          <div className="w-full max-w-2xl max-h-[85vh] overflow-y-auto rounded-2xl bg-white dark:bg-stone-950 p-6 shadow-xl dark:shadow-stone-900/40" onClick={e => e.stopPropagation()} role="dialog" aria-modal="true">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-bold text-stone-900">User Detail</h3>
-              <button onClick={() => setUserDetailOpen(false)} title="Close" className="rounded-lg p-1 hover:bg-stone-100"><X className="h-5 w-5 text-stone-500" /></button>
+              <h3 className="text-lg font-bold text-stone-900 dark:text-stone-100">User Detail</h3>
+              <button onClick={() => setUserDetailOpen(false)} title="Close" className="rounded-lg p-1 hover:bg-stone-100 dark:hover:bg-stone-800"><X className="h-5 w-5 text-stone-500 dark:text-stone-400" /></button>
             </div>
             {userDetailLoading ? (
               <div className="flex justify-center py-12"><Loader2 className="h-6 w-6 animate-spin text-stone-400" /></div>
@@ -1165,51 +1165,51 @@ export default function Admin() {
                 <div className="space-y-5">
                   {/* User Info */}
                   <section>
-                    <h4 className="text-xs font-bold text-stone-500 uppercase tracking-wide mb-2">User Info</h4>
+                    <h4 className="text-xs font-bold text-stone-500 dark:text-stone-400 uppercase tracking-wide mb-2">User Info</h4>
                     <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-sm">
-                      <span className="text-stone-500">Email</span><span className="font-mono">{ud.user.email}</span>
-                      <span className="text-stone-500">Provider</span><span>{ud.user.provider}</span>
-                      <span className="text-stone-500">Confirmed</span><span>{ud.user.confirmed ? 'Yes' : 'No'}</span>
-                      <span className="text-stone-500">Joined</span><span>{new Date(ud.user.created_at).toLocaleDateString('en-GB')}</span>
-                      <span className="text-stone-500">Last Login</span><span>{ud.user.last_sign_in_at ? timeAgo(ud.user.last_sign_in_at) : '—'}</span>
-                      {ud.user.banned_until && <><span className="text-stone-500">Banned Until</span><span className="text-red-600">{ud.user.banned_until}</span></>}
-                      <span className="text-stone-500">Coach Requests</span><span>{ud.ai_coach_request_count}</span>
+                      <span className="text-stone-500 dark:text-stone-400">Email</span><span className="font-mono">{ud.user.email}</span>
+                      <span className="text-stone-500 dark:text-stone-400">Provider</span><span>{ud.user.provider}</span>
+                      <span className="text-stone-500 dark:text-stone-400">Confirmed</span><span>{ud.user.confirmed ? 'Yes' : 'No'}</span>
+                      <span className="text-stone-500 dark:text-stone-400">Joined</span><span>{new Date(ud.user.created_at).toLocaleDateString('en-GB')}</span>
+                      <span className="text-stone-500 dark:text-stone-400">Last Login</span><span>{ud.user.last_sign_in_at ? timeAgo(ud.user.last_sign_in_at) : '—'}</span>
+                      {ud.user.banned_until && <><span className="text-stone-500 dark:text-stone-400">Banned Until</span><span className="text-red-600 dark:text-red-400">{ud.user.banned_until}</span></>}
+                      <span className="text-stone-500 dark:text-stone-400">Coach Requests</span><span>{ud.ai_coach_request_count}</span>
                     </div>
                   </section>
 
                   {/* Subscription */}
                   <section>
-                    <h4 className="text-xs font-bold text-stone-500 uppercase tracking-wide mb-2">Subscription</h4>
+                    <h4 className="text-xs font-bold text-stone-500 dark:text-stone-400 uppercase tracking-wide mb-2">Subscription</h4>
                     {ud.subscription ? (
                       <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-sm">
-                        <span className="text-stone-500">Status</span><span><Badge status={ud.subscription.status} /></span>
-                        <span className="text-stone-500">Tier</span><span>{ud.subscription.tier || '—'}</span>
-                        <span className="text-stone-500">Period End</span><span>{ud.subscription.current_period_end ? new Date(ud.subscription.current_period_end).toLocaleDateString('en-GB') : '—'}</span>
-                        <span className="text-stone-500">Trial Ends</span><span>{ud.subscription.trial_ends_at ? new Date(ud.subscription.trial_ends_at).toLocaleDateString('en-GB') : '—'}</span>
-                        <span className="text-stone-500">Stripe Sub</span><span className="font-mono text-xs truncate">{ud.subscription.stripe_subscription_id || '—'}</span>
-                        <span className="text-stone-500">Stripe Customer</span><span className="font-mono text-xs truncate">{ud.subscription.stripe_customer_id || '—'}</span>
+                        <span className="text-stone-500 dark:text-stone-400">Status</span><span><Badge status={ud.subscription.status} /></span>
+                        <span className="text-stone-500 dark:text-stone-400">Tier</span><span>{ud.subscription.tier || '—'}</span>
+                        <span className="text-stone-500 dark:text-stone-400">Period End</span><span>{ud.subscription.current_period_end ? new Date(ud.subscription.current_period_end).toLocaleDateString('en-GB') : '—'}</span>
+                        <span className="text-stone-500 dark:text-stone-400">Trial Ends</span><span>{ud.subscription.trial_ends_at ? new Date(ud.subscription.trial_ends_at).toLocaleDateString('en-GB') : '—'}</span>
+                        <span className="text-stone-500 dark:text-stone-400">Stripe Sub</span><span className="font-mono text-xs truncate">{ud.subscription.stripe_subscription_id || '—'}</span>
+                        <span className="text-stone-500 dark:text-stone-400">Stripe Customer</span><span className="font-mono text-xs truncate">{ud.subscription.stripe_customer_id || '—'}</span>
                       </div>
-                    ) : <p className="text-sm text-stone-500">No subscription</p>}
+                    ) : <p className="text-sm text-stone-500 dark:text-stone-400">No subscription</p>}
                   </section>
 
                   {/* Recent Injections */}
                   <section>
-                    <h4 className="text-xs font-bold text-stone-500 uppercase tracking-wide mb-2">Recent Injections ({ud.injection_logs.length})</h4>
+                    <h4 className="text-xs font-bold text-stone-500 dark:text-stone-400 uppercase tracking-wide mb-2">Recent Injections ({ud.injection_logs.length})</h4>
                     {ud.injection_logs.length === 0 ? <p className="text-sm text-stone-400">None</p> : (
-                      <div className="overflow-x-auto rounded-lg border border-stone-200">
+                      <div className="overflow-x-auto rounded-lg border border-stone-200 dark:border-stone-700">
                         <table className="w-full text-xs">
-                          <thead><tr className="border-b border-stone-200 bg-stone-50">
-                            <th className="px-2 py-1.5 text-start font-medium text-stone-600">Peptide</th>
-                            <th className="px-2 py-1.5 text-start font-medium text-stone-600">Dose</th>
-                            <th className="px-2 py-1.5 text-start font-medium text-stone-600">Site</th>
-                            <th className="px-2 py-1.5 text-start font-medium text-stone-600">Date</th>
+                          <thead><tr className="border-b border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-900">
+                            <th className="px-2 py-1.5 text-start font-medium text-stone-600 dark:text-stone-400">Peptide</th>
+                            <th className="px-2 py-1.5 text-start font-medium text-stone-600 dark:text-stone-400">Dose</th>
+                            <th className="px-2 py-1.5 text-start font-medium text-stone-600 dark:text-stone-400">Site</th>
+                            <th className="px-2 py-1.5 text-start font-medium text-stone-600 dark:text-stone-400">Date</th>
                           </tr></thead>
                           <tbody>{ud.injection_logs.map((l, i) => (
-                            <tr key={i} className="border-b border-stone-100">
+                            <tr key={i} className="border-b border-stone-100 dark:border-stone-800">
                               <td className="px-2 py-1.5">{String(l.peptide_name ?? l.protocol_name ?? '—')}</td>
                               <td className="px-2 py-1.5">{String(l.dose ?? l.dosage ?? '—')}{l.unit ? ` ${l.unit}` : ''}</td>
                               <td className="px-2 py-1.5">{String(l.injection_site ?? l.site ?? '—')}</td>
-                              <td className="px-2 py-1.5 text-stone-500">{l.created_at ? timeAgo(String(l.created_at)) : '—'}</td>
+                              <td className="px-2 py-1.5 text-stone-500 dark:text-stone-400">{l.created_at ? timeAgo(String(l.created_at)) : '—'}</td>
                             </tr>
                           ))}</tbody>
                         </table>
@@ -1219,24 +1219,24 @@ export default function Admin() {
 
                   {/* Wellness Logs */}
                   <section>
-                    <h4 className="text-xs font-bold text-stone-500 uppercase tracking-wide mb-2">Wellness Logs ({ud.wellness_logs.length})</h4>
+                    <h4 className="text-xs font-bold text-stone-500 dark:text-stone-400 uppercase tracking-wide mb-2">Wellness Logs ({ud.wellness_logs.length})</h4>
                     {ud.wellness_logs.length === 0 ? <p className="text-sm text-stone-400">None</p> : (
-                      <div className="overflow-x-auto rounded-lg border border-stone-200">
+                      <div className="overflow-x-auto rounded-lg border border-stone-200 dark:border-stone-700">
                         <table className="w-full text-xs">
-                          <thead><tr className="border-b border-stone-200 bg-stone-50">
-                            <th className="px-2 py-1.5 text-start font-medium text-stone-600">Energy</th>
-                            <th className="px-2 py-1.5 text-start font-medium text-stone-600">Sleep</th>
-                            <th className="px-2 py-1.5 text-start font-medium text-stone-600">Mood</th>
-                            <th className="px-2 py-1.5 text-start font-medium text-stone-600">Notes</th>
-                            <th className="px-2 py-1.5 text-start font-medium text-stone-600">Date</th>
+                          <thead><tr className="border-b border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-900">
+                            <th className="px-2 py-1.5 text-start font-medium text-stone-600 dark:text-stone-400">Energy</th>
+                            <th className="px-2 py-1.5 text-start font-medium text-stone-600 dark:text-stone-400">Sleep</th>
+                            <th className="px-2 py-1.5 text-start font-medium text-stone-600 dark:text-stone-400">Mood</th>
+                            <th className="px-2 py-1.5 text-start font-medium text-stone-600 dark:text-stone-400">Notes</th>
+                            <th className="px-2 py-1.5 text-start font-medium text-stone-600 dark:text-stone-400">Date</th>
                           </tr></thead>
                           <tbody>{ud.wellness_logs.map((l, i) => (
-                            <tr key={i} className="border-b border-stone-100">
+                            <tr key={i} className="border-b border-stone-100 dark:border-stone-800">
                               <td className="px-2 py-1.5">{String(l.energy ?? l.energy_level ?? '—')}</td>
                               <td className="px-2 py-1.5">{String(l.sleep ?? l.sleep_quality ?? '—')}</td>
                               <td className="px-2 py-1.5">{String(l.mood ?? '—')}</td>
                               <td className="px-2 py-1.5 max-w-[120px] truncate">{String(l.notes ?? '—')}</td>
-                              <td className="px-2 py-1.5 text-stone-500">{l.created_at ? timeAgo(String(l.created_at)) : '—'}</td>
+                              <td className="px-2 py-1.5 text-stone-500 dark:text-stone-400">{l.created_at ? timeAgo(String(l.created_at)) : '—'}</td>
                             </tr>
                           ))}</tbody>
                         </table>
@@ -1246,14 +1246,14 @@ export default function Admin() {
 
                   {/* Side Effects */}
                   <section>
-                    <h4 className="text-xs font-bold text-stone-500 uppercase tracking-wide mb-2">Side Effects ({ud.side_effect_logs.length})</h4>
+                    <h4 className="text-xs font-bold text-stone-500 dark:text-stone-400 uppercase tracking-wide mb-2">Side Effects ({ud.side_effect_logs.length})</h4>
                     {ud.side_effect_logs.length === 0 ? <p className="text-sm text-stone-400">None</p> : (
                       <ul className="space-y-1">
                         {ud.side_effect_logs.map((s, i) => (
-                          <li key={i} className="rounded-lg border border-stone-100 px-3 py-2 text-xs">
+                          <li key={i} className="rounded-lg border border-stone-100 dark:border-stone-800 px-3 py-2 text-xs">
                             <span className="font-medium">{String(s.side_effect ?? s.effect ?? s.type ?? '—')}</span>
-                            {s.severity && <span className={cn('ms-2 rounded-full px-2 py-0.5 text-[10px] font-medium', String(s.severity) === 'severe' ? 'bg-red-100 text-red-700' : String(s.severity) === 'moderate' ? 'bg-amber-100 text-amber-700' : 'bg-stone-100 text-stone-600')}>{String(s.severity)}</span>}
-                            {s.notes && <span className="ms-2 text-stone-500">{String(s.notes)}</span>}
+                            {s.severity && <span className={cn('ms-2 rounded-full px-2 py-0.5 text-[10px] font-medium', String(s.severity) === 'severe' ? 'bg-red-100 text-red-700 dark:text-red-400' : String(s.severity) === 'moderate' ? 'bg-amber-100 text-amber-700 dark:text-amber-400' : 'bg-stone-100 dark:bg-stone-800 text-stone-600 dark:text-stone-400')}>{String(s.severity)}</span>}
+                            {s.notes && <span className="ms-2 text-stone-500 dark:text-stone-400">{String(s.notes)}</span>}
                             <span className="ms-2 text-stone-400">{s.created_at ? timeAgo(String(s.created_at)) : ''}</span>
                           </li>
                         ))}
@@ -1263,11 +1263,11 @@ export default function Admin() {
 
                   {/* Active Protocols */}
                   <section>
-                    <h4 className="text-xs font-bold text-stone-500 uppercase tracking-wide mb-2">Protocols ({ud.user_protocols.length})</h4>
+                    <h4 className="text-xs font-bold text-stone-500 dark:text-stone-400 uppercase tracking-wide mb-2">Protocols ({ud.user_protocols.length})</h4>
                     {ud.user_protocols.length === 0 ? <p className="text-sm text-stone-400">None</p> : (
                       <ul className="space-y-1">
                         {ud.user_protocols.map((p, i) => (
-                          <li key={i} className="flex items-center justify-between rounded-lg border border-stone-100 px-3 py-2 text-xs">
+                          <li key={i} className="flex items-center justify-between rounded-lg border border-stone-100 dark:border-stone-800 px-3 py-2 text-xs">
                             <span className="font-medium">{String(p.protocol_name ?? p.name ?? p.peptide_name ?? '—')}</span>
                             {p.status && <Badge status={String(p.status)} />}
                           </li>
@@ -1279,12 +1279,12 @@ export default function Admin() {
                   {/* Enquiries */}
                   {ud.enquiries.length > 0 && (
                     <section>
-                      <h4 className="text-xs font-bold text-stone-500 uppercase tracking-wide mb-2">Enquiries ({ud.enquiries.length})</h4>
+                      <h4 className="text-xs font-bold text-stone-500 dark:text-stone-400 uppercase tracking-wide mb-2">Enquiries ({ud.enquiries.length})</h4>
                       <ul className="space-y-1">
                         {ud.enquiries.map((eq, i) => (
-                          <li key={i} className="rounded-lg border border-stone-100 px-3 py-2 text-xs">
+                          <li key={i} className="rounded-lg border border-stone-100 dark:border-stone-800 px-3 py-2 text-xs">
                             <span className="font-medium">{String(eq.subject ?? '—')}</span>
-                            <span className={cn('ms-2 rounded-full px-2 py-0.5 text-[10px] font-medium', eq.status === 'pending' ? 'bg-amber-100 text-amber-700' : 'bg-emerald-100 text-emerald-700')}>{String(eq.status)}</span>
+                            <span className={cn('ms-2 rounded-full px-2 py-0.5 text-[10px] font-medium', eq.status === 'pending' ? 'bg-amber-100 text-amber-700 dark:text-amber-400' : 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400')}>{String(eq.status)}</span>
                             <span className="ms-2 text-stone-400">{eq.created_at ? timeAgo(String(eq.created_at)) : ''}</span>
                           </li>
                         ))}
@@ -1295,12 +1295,12 @@ export default function Admin() {
                   {/* Email Logs */}
                   {ud.email_logs.length > 0 && (
                     <section>
-                      <h4 className="text-xs font-bold text-stone-500 uppercase tracking-wide mb-2">Email Logs ({ud.email_logs.length})</h4>
+                      <h4 className="text-xs font-bold text-stone-500 dark:text-stone-400 uppercase tracking-wide mb-2">Email Logs ({ud.email_logs.length})</h4>
                       <ul className="space-y-1">
                         {ud.email_logs.map((el, i) => (
-                          <li key={i} className="flex items-center justify-between rounded-lg border border-stone-100 px-3 py-2 text-xs">
+                          <li key={i} className="flex items-center justify-between rounded-lg border border-stone-100 dark:border-stone-800 px-3 py-2 text-xs">
                             <span>{String(el.type ?? '—')}</span>
-                            <span className={cn('rounded-full px-2 py-0.5 text-[10px] font-medium', el.status === 'sent' ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-700')}>{String(el.status)}</span>
+                            <span className={cn('rounded-full px-2 py-0.5 text-[10px] font-medium', el.status === 'sent' ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400' : 'bg-red-100 text-red-700 dark:text-red-400')}>{String(el.status)}</span>
                             <span className="text-stone-400">{el.created_at ? timeAgo(String(el.created_at)) : ''}</span>
                           </li>
                         ))}
@@ -1310,14 +1310,14 @@ export default function Admin() {
 
                   {/* Notes */}
                   <section>
-                    <h4 className="text-xs font-bold text-stone-500 uppercase tracking-wide mb-2">ملاحظات</h4>
+                    <h4 className="text-xs font-bold text-stone-500 dark:text-stone-400 uppercase tracking-wide mb-2">ملاحظات</h4>
                     {userNotesLoading ? (
                       <div className="flex justify-center py-4"><Loader2 className="h-4 w-4 animate-spin text-stone-400" /></div>
                     ) : userNotes.length > 0 ? (
                       <ul className="space-y-2 mb-3">
                         {userNotes.map(n => (
-                          <li key={n.id} className="rounded-lg border border-stone-100 px-3 py-2">
-                            <p className="text-sm text-stone-800 whitespace-pre-wrap">{n.note}</p>
+                          <li key={n.id} className="rounded-lg border border-stone-100 dark:border-stone-800 px-3 py-2">
+                            <p className="text-sm text-stone-800 dark:text-stone-200 whitespace-pre-wrap">{n.note}</p>
                             <div className="mt-1 flex items-center gap-2 text-[10px] text-stone-400">
                               <span className="font-mono">{n.admin_email}</span>
                               <span>{timeAgo(n.created_at)}</span>
@@ -1333,7 +1333,7 @@ export default function Admin() {
                       onChange={e => setNewNote(e.target.value)}
                       placeholder="Add a note..."
                       rows={2}
-                      className="w-full rounded-lg border border-stone-200 bg-white px-3 py-2 text-sm outline-none focus:border-emerald-300 resize-y"
+                      className="w-full rounded-lg border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 px-3 py-2 text-sm outline-none focus:border-emerald-300 dark:border-emerald-700 resize-y"
                       dir="ltr"
                     />
                     <div className="flex justify-end mt-2">

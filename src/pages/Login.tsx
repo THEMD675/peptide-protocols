@@ -336,12 +336,12 @@ export default function Login() {
 
   if (pendingVerification) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-white px-4">
+      <div className="flex min-h-screen items-center justify-center bg-white dark:bg-stone-950 px-4">
         <Helmet><title>تأكيد البريد الإلكتروني | pptides</title></Helmet>
         <div className="w-full max-w-md">
-          <div className="overflow-hidden rounded-2xl border border-stone-200 bg-white shadow-lg">
+          <div className="overflow-hidden rounded-2xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 shadow-lg">
             <div className="bg-emerald-600 px-6 pb-6 pt-8 text-center">
-              <div className="mx-auto mb-3 flex h-16 w-16 items-center justify-center rounded-full bg-white/20">
+              <div className="mx-auto mb-3 flex h-16 w-16 items-center justify-center rounded-full bg-white dark:bg-stone-950/20">
                 <svg className="h-8 w-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} aria-hidden="true">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                 </svg>
@@ -351,16 +351,16 @@ export default function Login() {
               <p className="mt-1 text-sm font-bold text-white" dir="ltr">{email}</p>
             </div>
             <div className="px-6 pb-8 pt-6 text-center">
-              <p className="mb-2 text-sm text-stone-600">اضغط على الرابط في البريد لتفعيل حسابك وبدء التجربة المجانية.</p>
-              <p className="mb-6 text-xs text-stone-500">لم يصلك البريد؟ تحقق من مجلد البريد المزعج (Spam).</p>
+              <p className="mb-2 text-sm text-stone-600 dark:text-stone-400">اضغط على الرابط في البريد لتفعيل حسابك وبدء التجربة المجانية.</p>
+              <p className="mb-6 text-xs text-stone-500 dark:text-stone-400">لم يصلك البريد؟ تحقق من مجلد البريد المزعج (Spam).</p>
               <button
                 onClick={handleResendVerification}
                 disabled={resendLoading || resendCooldown > 0}
-                className="mb-4 w-full rounded-full border-2 border-emerald-600 py-3 text-sm font-bold text-emerald-600 transition-colors hover:bg-emerald-50 disabled:opacity-50"
+                className="mb-4 w-full rounded-full border-2 border-emerald-600 py-3 text-sm font-bold text-emerald-600 transition-colors hover:bg-emerald-50 dark:bg-emerald-900/20 disabled:opacity-50"
               >
                 {resendLoading ? (
                   <span className="inline-flex items-center gap-2">
-                    <span className="h-4 w-4 animate-spin rounded-full border-2 border-emerald-300 border-t-emerald-600" />
+                    <span className="h-4 w-4 animate-spin rounded-full border-2 border-emerald-300 dark:border-emerald-700 border-t-emerald-600" />
                     جارٍ الإرسال...
                   </span>
                 ) : resendCooldown > 0 ? (
@@ -371,7 +371,7 @@ export default function Login() {
               </button>
               <button
                 onClick={() => { setPendingVerification(false); setTab('login'); }}
-                className="text-sm font-medium text-stone-500 hover:text-stone-700 transition-colors"
+                className="text-sm font-medium text-stone-500 dark:text-stone-400 hover:text-stone-700 dark:text-stone-300 transition-colors"
               >
                 العودة لتسجيل الدخول
               </button>
@@ -384,20 +384,20 @@ export default function Login() {
 
   if (isRecovery) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-white px-4">
+      <div className="flex min-h-screen items-center justify-center bg-white dark:bg-stone-950 px-4">
         <Helmet><title>تغيير كلمة المرور | pptides</title></Helmet>
         <div className="w-full max-w-md">
-          <div className="overflow-hidden rounded-2xl border border-stone-200 bg-white shadow-lg">
+          <div className="overflow-hidden rounded-2xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 shadow-lg">
             <div className="bg-emerald-600 px-6 pb-6 pt-8 text-center">
               <h1 className="mb-1 text-2xl font-bold text-white">تغيير كلمة المرور</h1>
               <p className="text-sm text-white/70">أدخل كلمة مرور جديدة لحسابك</p>
             </div>
             <div className="px-6 pb-8 pt-6">
-              {error && <div role="alert" className="mb-4 rounded-lg bg-red-50 px-4 py-3 text-sm text-red-700">{error}</div>}
+              {error && <div role="alert" className="mb-4 rounded-lg bg-red-50 dark:bg-red-900/20 px-4 py-3 text-sm text-red-700 dark:text-red-400">{error}</div>}
               {resetMessage && <div role="status" aria-live="polite" className="mb-4 rounded-lg bg-green-50 px-4 py-3 text-sm text-green-700">{resetMessage}</div>}
               <form onSubmit={handleUpdatePassword} className="space-y-4">
                 <div>
-                  <label htmlFor="recovery-password" className="mb-1.5 block text-sm font-medium text-stone-900">كلمة المرور الجديدة</label>
+                  <label htmlFor="recovery-password" className="mb-1.5 block text-sm font-medium text-stone-900 dark:text-stone-100">كلمة المرور الجديدة</label>
                   {/* Bug 7 fix: add show/hide toggle for recovery password field */}
                   <div className="relative">
                     <input
@@ -409,12 +409,12 @@ export default function Login() {
                       dir="ltr"
                       minLength={8}
                       autoComplete="new-password"
-                      className="w-full rounded-xl border border-stone-200 bg-white px-4 py-3 ps-12 text-left text-stone-900 placeholder:text-stone-500 outline-none transition-shadow focus:border-emerald-300 focus:ring-2 focus:ring-emerald-100"
+                      className="w-full rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 px-4 py-3 ps-12 text-left text-stone-900 dark:text-stone-100 placeholder:text-stone-500 dark:text-stone-400 outline-none transition-shadow focus:border-emerald-300 dark:border-emerald-700 focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900"
                     />
                     <button
                       type="button"
                       onClick={() => setShowNewPassword(v => !v)}
-                      className="absolute start-3 top-1/2 -translate-y-1/2 p-2 min-w-[44px] min-h-[44px] flex items-center justify-center text-stone-500 hover:text-stone-600 transition-colors"
+                      className="absolute start-3 top-1/2 -translate-y-1/2 p-2 min-w-[44px] min-h-[44px] flex items-center justify-center text-stone-500 dark:text-stone-400 hover:text-stone-600 dark:text-stone-400 transition-colors"
                       aria-label={showNewPassword ? 'إخفاء كلمة المرور' : 'إظهار كلمة المرور'}
                     >
                       {showNewPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
@@ -438,7 +438,7 @@ export default function Login() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-white px-4">
+    <div className="flex min-h-screen items-center justify-center bg-white dark:bg-stone-950 px-4">
       <Helmet>
         <title>{tab === 'login' ? 'تسجيل الدخول' : 'إنشاء حساب'} | pptides</title>
         <meta name="description" content="سجّل دخولك أو أنشئ حساب جديد للوصول إلى مكتبة الببتيدات وحاسبة الجرعات والمدرب الذكي." />
@@ -446,7 +446,7 @@ export default function Login() {
         <meta property="og:description" content="سجّل دخولك أو أنشئ حساب جديد للوصول إلى مكتبة الببتيدات وحاسبة الجرعات والمدرب الذكي." />
       </Helmet>
       <div className="w-full max-w-md">
-        <div className="overflow-hidden rounded-2xl border border-stone-200 bg-white shadow-lg">
+        <div className="overflow-hidden rounded-2xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 shadow-lg">
           <div className="bg-emerald-600 px-6 pb-6 pt-8 text-center">
             <h1 className="mb-1 text-2xl font-bold text-white">
               {tab === 'login' ? 'مرحبًا بعودتك' : 'أنشئ حسابك'}
@@ -459,7 +459,7 @@ export default function Login() {
           </div>
 
           {/* Bug 8 fix: add role="tablist" + role="tab" + aria-selected for screen reader support */}
-          <div className="flex border-b border-stone-200" role="tablist" aria-label="نوع العملية">
+          <div className="flex border-b border-stone-200 dark:border-stone-700" role="tablist" aria-label="نوع العملية">
             {(['login', 'signup'] as const).map((t) => (
               <button
                 key={t}
@@ -468,7 +468,7 @@ export default function Login() {
                 onClick={() => { setTab(t); setError(''); setResetMessage(''); }}
                 className={cn(
                   'relative flex-1 py-3.5 text-center text-sm font-semibold transition-colors',
-                  tab === t ? 'text-emerald-600' : 'text-stone-600 transition-colors hover:text-stone-900'
+                  tab === t ? 'text-emerald-600' : 'text-stone-600 dark:text-stone-400 transition-colors hover:text-stone-900 dark:text-stone-100'
                 )}
               >
                 {t === 'login' ? 'تسجيل الدخول' : 'إنشاء حساب'}
@@ -483,15 +483,15 @@ export default function Login() {
               <>
                 <div ref={googleBtnRef} className="mb-4 flex justify-center [&>div]:!w-full" />
                 <div className="mb-4 flex items-center gap-3">
-                  <div className="h-px flex-1 bg-stone-200" />
-                  <span className="text-xs text-stone-500">أو</span>
-                  <div className="h-px flex-1 bg-stone-200" />
+                  <div className="h-px flex-1 bg-stone-200 dark:bg-stone-700" />
+                  <span className="text-xs text-stone-500 dark:text-stone-400">أو</span>
+                  <div className="h-px flex-1 bg-stone-200 dark:bg-stone-700" />
                 </div>
               </>
             )}
 
             {error && (
-              <div role="alert" className="mb-4 rounded-lg bg-red-50 px-4 py-3 text-sm text-red-700">
+              <div role="alert" className="mb-4 rounded-lg bg-red-50 dark:bg-red-900/20 px-4 py-3 text-sm text-red-700 dark:text-red-400">
                 {error}
               </div>
             )}
@@ -504,15 +504,15 @@ export default function Login() {
             )}
 
             {infoMessage && (
-              <div role="status" aria-live="polite" className="mb-4 rounded-lg bg-blue-50 px-4 py-3 text-sm text-blue-700">
+              <div role="status" aria-live="polite" className="mb-4 rounded-lg bg-blue-50 dark:bg-blue-900/20 px-4 py-3 text-sm text-blue-700 dark:text-blue-400">
                 {infoMessage}
               </div>
             )}
 
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <label htmlFor="email" className="mb-1.5 block text-sm font-medium text-stone-900">
-                  البريد الإلكتروني <span className="text-red-500" aria-hidden="true">*</span>
+                <label htmlFor="email" className="mb-1.5 block text-sm font-medium text-stone-900 dark:text-stone-100">
+                  البريد الإلكتروني <span className="text-red-500 dark:text-red-400" aria-hidden="true">*</span>
                 </label>
                 <input
                   id="email"
@@ -523,13 +523,13 @@ export default function Login() {
                   autoFocus
                   autoComplete="email"
                   dir="ltr"
-                  className="w-full rounded-xl border border-stone-200 bg-white px-4 py-3 text-left text-stone-900 placeholder:text-stone-500 outline-none transition-shadow focus:border-emerald-300 focus:ring-2 focus:ring-emerald-100"
+                  className="w-full rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 px-4 py-3 text-left text-stone-900 dark:text-stone-100 placeholder:text-stone-500 dark:text-stone-400 outline-none transition-shadow focus:border-emerald-300 dark:border-emerald-700 focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900"
                 />
               </div>
 
               <div>
-                <label htmlFor="password" className="mb-1.5 block text-sm font-medium text-stone-900">
-                  كلمة المرور <span className="text-red-500" aria-hidden="true">*</span>
+                <label htmlFor="password" className="mb-1.5 block text-sm font-medium text-stone-900 dark:text-stone-100">
+                  كلمة المرور <span className="text-red-500 dark:text-red-400" aria-hidden="true">*</span>
                 </label>
                 <div className="relative">
                   <input
@@ -541,12 +541,12 @@ export default function Login() {
                     autoComplete={tab === 'login' ? 'current-password' : 'new-password'}
                     dir="ltr"
                     {...(tab === 'signup' ? { minLength: 8 } : {})}
-                    className="w-full rounded-xl border border-stone-200 bg-white px-4 py-3 ps-12 text-left text-stone-900 placeholder:text-stone-500 outline-none transition-shadow focus:border-emerald-300 focus:ring-2 focus:ring-emerald-100"
+                    className="w-full rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 px-4 py-3 ps-12 text-left text-stone-900 dark:text-stone-100 placeholder:text-stone-500 dark:text-stone-400 outline-none transition-shadow focus:border-emerald-300 dark:border-emerald-700 focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900"
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(v => !v)}
-                    className="absolute start-3 top-1/2 -translate-y-1/2 p-2 min-w-[44px] min-h-[44px] flex items-center justify-center text-stone-500 hover:text-stone-600 transition-colors"
+                    className="absolute start-3 top-1/2 -translate-y-1/2 p-2 min-w-[44px] min-h-[44px] flex items-center justify-center text-stone-500 dark:text-stone-400 hover:text-stone-600 dark:text-stone-400 transition-colors"
                     aria-label={showPassword ? 'إخفاء كلمة المرور' : 'إظهار كلمة المرور'}
                   >
                     {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
@@ -558,15 +558,15 @@ export default function Login() {
                   const hasNumber = /\d/.test(password);
                   return (
                     <ul className="mt-2 space-y-1 text-xs" aria-label="متطلبات كلمة المرور">
-                      <li className={cn('flex items-center gap-2', hasMinLength ? 'text-emerald-600' : 'text-stone-500')}>
+                      <li className={cn('flex items-center gap-2', hasMinLength ? 'text-emerald-600' : 'text-stone-500 dark:text-stone-400')}>
                         {hasMinLength ? <span aria-hidden>✓</span> : <span aria-hidden>○</span>}
                         8 أحرف على الأقل
                       </li>
-                      <li className={cn('flex items-center gap-2', hasLetter ? 'text-emerald-600' : 'text-stone-500')}>
+                      <li className={cn('flex items-center gap-2', hasLetter ? 'text-emerald-600' : 'text-stone-500 dark:text-stone-400')}>
                         {hasLetter ? <span aria-hidden>✓</span> : <span aria-hidden>○</span>}
                         حرف واحد على الأقل
                       </li>
-                      <li className={cn('flex items-center gap-2', hasNumber ? 'text-emerald-600' : 'text-stone-500')}>
+                      <li className={cn('flex items-center gap-2', hasNumber ? 'text-emerald-600' : 'text-stone-500 dark:text-stone-400')}>
                         {hasNumber ? <span aria-hidden>✓</span> : <span aria-hidden>○</span>}
                         رقم واحد على الأقل
                       </li>
@@ -604,7 +604,7 @@ export default function Login() {
                 ) : tab === 'login' ? 'تسجيل الدخول' : 'إنشاء حساب'}
               </button>
 
-              <p className="text-center text-sm text-stone-700">
+              <p className="text-center text-sm text-stone-700 dark:text-stone-300">
                 {tab === 'login' ? (
                   <>
                     ليس لديك حساب؟{' '}

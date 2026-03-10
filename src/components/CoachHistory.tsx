@@ -94,14 +94,14 @@ export default function CoachHistory({
     <div className="mb-4">
       <button
         onClick={() => setOpen(v => !v)}
-        className="flex w-full items-center justify-between rounded-xl border border-stone-200 bg-white px-4 py-3 min-h-[44px] text-start transition-colors hover:bg-stone-50"
+        className="flex w-full items-center justify-between rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 px-4 py-3 min-h-[44px] text-start transition-colors hover:bg-stone-50 dark:hover:bg-stone-800"
         aria-expanded={open}
       >
         <div className="flex items-center gap-2">
-          <History className="h-4 w-4 text-stone-500" />
-          <span className="text-sm font-bold text-stone-700">المحادثات السابقة</span>
+          <History className="h-4 w-4 text-stone-500 dark:text-stone-400" />
+          <span className="text-sm font-bold text-stone-700 dark:text-stone-300">المحادثات السابقة</span>
           {conversations.length > 0 && (
-            <span className="rounded-full bg-stone-100 px-2 py-0.5 text-[10px] font-bold text-stone-500">
+            <span className="rounded-full bg-stone-100 dark:bg-stone-800 px-2 py-0.5 text-[10px] font-bold text-stone-500 dark:text-stone-400">
               {conversations.length}
             </span>
           )}
@@ -110,20 +110,20 @@ export default function CoachHistory({
       </button>
 
       {open && (
-        <div className="mt-2 rounded-xl border border-stone-200 bg-white overflow-hidden animate-fade-in">
+        <div className="mt-2 rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 overflow-hidden animate-fade-in">
           {loading ? (
             <div className="p-4 space-y-2">
               {[0, 1, 2].map(i => (
-                <div key={i} className="h-12 animate-pulse rounded-lg bg-stone-100" />
+                <div key={i} className="h-12 animate-pulse rounded-lg bg-stone-100 dark:bg-stone-800" />
               ))}
             </div>
           ) : conversations.length === 0 ? (
             <div className="px-4 py-6 text-center">
               <MessageSquare className="mx-auto mb-2 h-8 w-8 text-stone-300" />
-              <p className="text-sm text-stone-500">لا توجد محادثات سابقة</p>
+              <p className="text-sm text-stone-500 dark:text-stone-400">لا توجد محادثات سابقة</p>
             </div>
           ) : (
-            <div className="max-h-96 overflow-y-auto divide-y divide-stone-100">
+            <div className="max-h-96 overflow-y-auto divide-y divide-stone-100 dark:divide-stone-800">
               {conversations.map(conv => {
                 const topic = extractTopic(conv.messages);
                 const msgCount = conv.messages.length;
@@ -138,8 +138,8 @@ export default function CoachHistory({
                       >
                         <ChevronLeft className={cn('h-4 w-4 shrink-0 text-stone-400 transition-transform', isExpanded && '-rotate-90')} />
                         <div className="min-w-0 flex-1">
-                          <p className="text-sm font-bold text-stone-800 truncate">{topic}</p>
-                          <p className="text-[10px] text-stone-500">
+                          <p className="text-sm font-bold text-stone-800 dark:text-stone-200 truncate">{topic}</p>
+                          <p className="text-[10px] text-stone-500 dark:text-stone-400">
                             {msgCount} رسالة · {formatDate(conv.updated_at)}
                           </p>
                         </div>
@@ -147,21 +147,21 @@ export default function CoachHistory({
                       <div className="flex items-center gap-1 shrink-0">
                         <button
                           onClick={() => onLoadConversation(conv.messages)}
-                          className="rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-1.5 text-xs font-bold text-emerald-700 transition-colors hover:bg-emerald-100 min-h-[36px]"
+                          className="rounded-lg border border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-900/20 px-3 py-1.5 text-xs font-bold text-emerald-700 dark:text-emerald-400 transition-colors hover:bg-emerald-100 dark:bg-emerald-900/30 min-h-[36px]"
                         >
                           فتح
                         </button>
                         {confirmDeleteId === conv.id ? (
                           <button
                             onClick={() => deleteConversation(conv.id)}
-                            className="rounded-lg border border-red-300 bg-red-50 px-3 py-1.5 text-xs font-bold text-red-600 transition-colors hover:bg-red-100 min-h-[36px]"
+                            className="rounded-lg border border-red-300 bg-red-50 dark:bg-red-900/20 px-3 py-1.5 text-xs font-bold text-red-600 dark:text-red-400 transition-colors hover:bg-red-100 min-h-[36px]"
                           >
                             تأكيد
                           </button>
                         ) : (
                           <button
                             onClick={() => setConfirmDeleteId(conv.id)}
-                            className="flex items-center justify-center rounded-lg p-2 text-stone-400 transition-colors hover:bg-stone-100 hover:text-red-500 min-h-[36px] min-w-[36px]"
+                            className="flex items-center justify-center rounded-lg p-2 text-stone-400 transition-colors hover:bg-stone-100 dark:hover:bg-stone-800 hover:text-red-500 dark:text-red-400 min-h-[36px] min-w-[36px]"
                             aria-label="حذف"
                           >
                             <Trash2 className="h-4 w-4" />
@@ -171,14 +171,14 @@ export default function CoachHistory({
                     </div>
 
                     {isExpanded && (
-                      <div className="border-t border-stone-100 bg-stone-50/50 px-4 py-3 space-y-3 max-h-64 overflow-y-auto">
+                      <div className="border-t border-stone-100 dark:border-stone-800 bg-stone-50/50 px-4 py-3 space-y-3 max-h-64 overflow-y-auto">
                         {conv.messages.map((msg, i) => (
                           <div key={i} className={cn('flex', msg.role === 'user' ? 'justify-start' : 'justify-end')}>
                             <div className={cn(
                               'max-w-[85%] rounded-xl px-4 py-2 text-xs leading-relaxed',
                               msg.role === 'user'
                                 ? 'bg-emerald-600 text-white rounded-br-sm'
-                                : 'border border-stone-200 bg-white text-stone-800 rounded-bl-sm',
+                                : 'border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 text-stone-800 dark:text-stone-200 rounded-bl-sm',
                             )}>
                               {msg.role === 'user' ? (
                                 <p className="whitespace-pre-wrap">

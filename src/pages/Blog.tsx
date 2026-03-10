@@ -97,7 +97,7 @@ export default function Blog() {
             <FileText className="h-7 w-7 text-emerald-600" />
           </div>
           <h1 className="text-3xl font-bold md:text-4xl">المدونة</h1>
-          <p className="mt-2 text-base text-stone-600">مقالات ودلائل مبنية على الأدلة العلمية</p>
+          <p className="mt-2 text-base text-stone-600 dark:text-stone-400">مقالات ودلائل مبنية على الأدلة العلمية</p>
         </div>
 
         {/* Search + Tag Filter */}
@@ -111,12 +111,12 @@ export default function Blog() {
                 value={search}
                 onChange={e => setSearch(e.target.value)}
                 placeholder="ابحث في المقالات..."
-                className="w-full rounded-xl border border-stone-200 bg-white py-2.5 pe-4 ps-10 text-sm text-stone-900 placeholder:text-stone-400 focus:border-emerald-300 focus:outline-none focus:ring-2 focus:ring-emerald-100"
+                className="w-full rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 py-2.5 pe-4 ps-10 text-sm text-stone-900 dark:text-stone-100 placeholder:text-stone-400 focus:border-emerald-300 dark:border-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900"
               />
               {search && (
                 <button
                   onClick={() => setSearch('')}
-                  className="absolute end-3 top-1/2 -translate-y-1/2 rounded p-0.5 text-stone-400 hover:text-stone-600"
+                  className="absolute end-3 top-1/2 -translate-y-1/2 rounded p-0.5 text-stone-400 hover:text-stone-600 dark:text-stone-400"
                   aria-label="مسح البحث"
                 >
                   <X className="h-3.5 w-3.5" />
@@ -133,8 +133,8 @@ export default function Blog() {
                     className={cn(
                       'shrink-0 rounded-full border px-4 py-1.5 text-sm font-medium transition-all',
                       !activeTag
-                        ? 'border-emerald-400 bg-emerald-50 text-emerald-800'
-                        : 'border-stone-200 bg-white text-stone-600 hover:border-emerald-200'
+                        ? 'border-emerald-400 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-800 dark:text-emerald-300'
+                        : 'border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 text-stone-600 dark:text-stone-400 hover:border-emerald-200 dark:border-emerald-800'
                     )}
                   >
                     الكل
@@ -146,8 +146,8 @@ export default function Blog() {
                       className={cn(
                         'shrink-0 inline-flex items-center gap-1.5 rounded-full border px-4 py-1.5 text-sm font-medium transition-all',
                         activeTag === tag
-                          ? 'border-emerald-400 bg-emerald-50 text-emerald-800'
-                          : 'border-stone-200 bg-white text-stone-600 hover:border-emerald-200'
+                          ? 'border-emerald-400 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-800 dark:text-emerald-300'
+                          : 'border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 text-stone-600 dark:text-stone-400 hover:border-emerald-200 dark:border-emerald-800'
                       )}
                     >
                       <Tag className="h-3 w-3" />
@@ -163,34 +163,34 @@ export default function Blog() {
         {loading && (
           <div className="space-y-5">
             {[1, 2, 3].map(i => (
-              <div key={i} className="animate-pulse rounded-2xl border border-stone-200 bg-white p-6">
-                <div className="h-5 w-3/4 rounded bg-stone-200" />
-                <div className="mt-3 h-4 w-full rounded bg-stone-100" />
-                <div className="mt-2 h-4 w-2/3 rounded bg-stone-100" />
-                <div className="mt-4 h-3 w-24 rounded bg-stone-100" />
+              <div key={i} className="animate-pulse rounded-2xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 p-6">
+                <div className="h-5 w-3/4 rounded bg-stone-200 dark:bg-stone-700" />
+                <div className="mt-3 h-4 w-full rounded bg-stone-100 dark:bg-stone-800" />
+                <div className="mt-2 h-4 w-2/3 rounded bg-stone-100 dark:bg-stone-800" />
+                <div className="mt-4 h-3 w-24 rounded bg-stone-100 dark:bg-stone-800" />
               </div>
             ))}
           </div>
         )}
 
         {error && (
-          <div className="rounded-2xl border border-red-200 bg-red-50 p-8 text-center">
+          <div className="rounded-2xl border border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-900/20 p-8 text-center">
             <p className="font-bold text-red-800">تعذّر تحميل المقالات</p>
-            <p className="mt-2 text-sm text-red-600">حاول تحديث الصفحة</p>
+            <p className="mt-2 text-sm text-red-600 dark:text-red-400">حاول تحديث الصفحة</p>
           </div>
         )}
 
         {!loading && !error && posts.length === 0 && (
-          <div className="rounded-2xl border border-stone-200 bg-stone-50 p-8 text-center">
-            <p className="font-bold text-stone-700">لا توجد مقالات حاليًا</p>
-            <p className="mt-2 text-sm text-stone-500">سنضيف مقالات جديدة قريبًا</p>
+          <div className="rounded-2xl border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-900 p-8 text-center">
+            <p className="font-bold text-stone-700 dark:text-stone-300">لا توجد مقالات حاليًا</p>
+            <p className="mt-2 text-sm text-stone-500 dark:text-stone-400">سنضيف مقالات جديدة قريبًا</p>
           </div>
         )}
 
         {!loading && !error && posts.length > 0 && filteredPosts.length === 0 && (
-          <div className="rounded-2xl border border-stone-200 bg-stone-50 p-8 text-center">
-            <p className="font-bold text-stone-700">لا توجد نتائج</p>
-            <p className="mt-2 text-sm text-stone-500">جرّب كلمة بحث مختلفة أو اختر تصنيفًا آخر</p>
+          <div className="rounded-2xl border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-900 p-8 text-center">
+            <p className="font-bold text-stone-700 dark:text-stone-300">لا توجد نتائج</p>
+            <p className="mt-2 text-sm text-stone-500 dark:text-stone-400">جرّب كلمة بحث مختلفة أو اختر تصنيفًا آخر</p>
             <button
               onClick={() => { setSearch(''); setActiveTag(null); }}
               className="mt-3 text-sm font-bold text-emerald-600 hover:underline"
@@ -206,7 +206,7 @@ export default function Blog() {
               <Link
                 key={post.id}
                 to={`/blog/${post.slug}`}
-                className="block overflow-hidden rounded-2xl border border-stone-200 bg-white shadow-sm transition-shadow hover:shadow-md"
+                className="block overflow-hidden rounded-2xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 shadow-sm dark:shadow-stone-900/30 transition-shadow hover:shadow-md"
               >
                 <article>
                   {post.cover_image_url && (
@@ -221,9 +221,9 @@ export default function Blog() {
                     />
                   )}
                   <div className="p-6">
-                  <h2 className="text-lg font-bold text-stone-900">{post.title_ar}</h2>
-                  <p className="mt-2 text-sm leading-relaxed text-stone-600">{post.excerpt_ar}</p>
-                  <div className="mt-4 flex flex-wrap items-center gap-3 text-xs text-stone-500">
+                  <h2 className="text-lg font-bold text-stone-900 dark:text-stone-100">{post.title_ar}</h2>
+                  <p className="mt-2 text-sm leading-relaxed text-stone-600 dark:text-stone-400">{post.excerpt_ar}</p>
+                  <div className="mt-4 flex flex-wrap items-center gap-3 text-xs text-stone-500 dark:text-stone-400">
                     <div className="flex items-center gap-1.5">
                       <CalendarDays className="h-3.5 w-3.5" />
                       <time dateTime={post.published_at}>
@@ -240,8 +240,8 @@ export default function Blog() {
                             className={cn(
                               'cursor-pointer rounded-full px-2 py-0.5 transition-colors',
                               activeTag === tag
-                                ? 'bg-emerald-100 text-emerald-700'
-                                : 'bg-stone-100 hover:bg-emerald-50 hover:text-emerald-700'
+                                ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400'
+                                : 'bg-stone-100 dark:bg-stone-800 hover:bg-emerald-50 dark:bg-emerald-900/20 hover:text-emerald-700 dark:text-emerald-400'
                             )}
                           >
                             {tag}

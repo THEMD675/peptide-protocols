@@ -113,15 +113,15 @@ export default function PushNotificationPrompt() {
   if (loading) return null;
 
   return (
-    <div className="mb-8 rounded-2xl border border-emerald-200 bg-white p-5 shadow-sm">
+    <div className="mb-8 rounded-2xl border border-emerald-200 dark:border-emerald-800 bg-white dark:bg-stone-950 p-5 shadow-sm dark:shadow-stone-900/30">
       <div className="flex items-center justify-between gap-4">
         <div className="flex items-center gap-3">
-          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-emerald-100">
+          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-emerald-100 dark:bg-emerald-900/30">
             <Bell className="h-6 w-6 text-emerald-600" />
           </div>
           <div>
-            <h3 className="font-bold text-stone-900">تنبيهات الحقن</h3>
-            <p className="text-sm text-stone-600">
+            <h3 className="font-bold text-stone-900 dark:text-stone-100">تنبيهات الحقن</h3>
+            <p className="text-sm text-stone-600 dark:text-stone-400">
               {subscribed ? 'التنبيهات مفعّلة — ستتلقى تذكيرات بوقت جرعتك' : 'لا تنسَ جرعتك'}
             </p>
           </div>
@@ -130,7 +130,7 @@ export default function PushNotificationPrompt() {
           <button
             onClick={handleDisable}
             disabled={isDisabling}
-            className="flex items-center gap-2 rounded-full border border-stone-200 px-4 py-2.5 text-sm font-bold text-stone-600 transition-colors hover:bg-stone-50 hover:text-red-600 disabled:opacity-50"
+            className="flex items-center gap-2 rounded-full border border-stone-200 dark:border-stone-700 px-4 py-2.5 text-sm font-bold text-stone-600 dark:text-stone-400 transition-colors hover:bg-stone-50 dark:hover:bg-stone-800 hover:text-red-600 dark:text-red-400 disabled:opacity-50"
           >
             {isDisabling ? <Loader2 className="h-4 w-4 animate-spin" /> : <BellOff className="h-4 w-4" />}
             إلغاء التنبيهات

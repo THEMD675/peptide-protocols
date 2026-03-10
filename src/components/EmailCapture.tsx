@@ -65,9 +65,9 @@ export default function EmailCapture() {
 
   if (status === 'success') {
     return (
-      <div className="rounded-2xl border border-emerald-300 bg-emerald-50 p-8 text-center">
+      <div className="rounded-2xl border border-emerald-300 dark:border-emerald-700 bg-emerald-50 dark:bg-emerald-900/20 p-8 text-center">
         <CheckCircle className="mx-auto mb-3 h-10 w-10 text-emerald-600" />
-        <p className="text-lg font-bold text-emerald-700">
+        <p className="text-lg font-bold text-emerald-700 dark:text-emerald-400">
           شكرًا! تم تسجيل بريدك بنجاح
         </p>
         <p className="mt-2 text-sm text-emerald-600">شكرًا! سنرسل لك آخر التحديثات</p>
@@ -76,14 +76,14 @@ export default function EmailCapture() {
   }
 
   return (
-    <div className="rounded-2xl border border-emerald-300 bg-white/5 p-6">
+    <div className="rounded-2xl border border-emerald-300 dark:border-emerald-700 bg-white dark:bg-stone-950/5 p-6">
       <form
         onSubmit={handleSubmit}
         aria-label="الاشتراك في القائمة البريدية"
         className="flex flex-col sm:flex-row items-center gap-3 w-full max-w-lg mx-auto"
       >
         <div className="relative flex-1 w-full">
-          <Mail className="absolute start-3 top-1/2 -translate-y-1/2 h-5 w-5 text-stone-500" />
+          <Mail className="absolute start-3 top-1/2 -translate-y-1/2 h-5 w-5 text-stone-500 dark:text-stone-400" />
           <input
             type="email"
             value={email}
@@ -91,7 +91,7 @@ export default function EmailCapture() {
             placeholder="name@example.com"
             aria-label="البريد الإلكتروني"
             required
-            className="w-full rounded-full bg-white/10 border border-white/20 py-3.5 ps-11 pe-4 text-white placeholder:text-white/40 outline-none focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100 transition-all"
+            className="w-full rounded-full bg-white dark:bg-stone-950/10 border border-white/20 py-3.5 ps-11 pe-4 text-white placeholder:text-white/40 outline-none focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900 transition-all"
           />
           <input
             type="text"

@@ -568,21 +568,21 @@ export default function Coach() {
       <div className="mx-auto max-w-3xl px-4 py-8 md:px-6 md:py-12">
         <div className="mb-6 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-100">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-100 dark:bg-emerald-900/30">
               <Bot className="h-5 w-5 text-emerald-600" />
             </div>
             <div>
               <h1 className="text-lg font-bold">استشاري الببتيدات</h1>
-              <p className="text-xs text-stone-500">
+              <p className="text-xs text-stone-500 dark:text-stone-400">
                 {limit === Infinity ? 'بروتوكول مخصّص لحالتك' : `${Math.max(0, limit - userMsgCount)} رسائل متبقية من ${limit}`}
               </p>
             </div>
           </div>
           {intakeStep === 'done' && messages.length === 0 && (
-            <div className="text-xs text-stone-500">جاهز لمساعدتك</div>
+            <div className="text-xs text-stone-500 dark:text-stone-400">جاهز لمساعدتك</div>
           )}
           {intakeStep === 'done' && messages.length > 0 && (
-            <button onClick={handleResetClick} className={cn('flex items-center gap-1.5 rounded-lg border px-3 py-2 text-xs font-medium transition-colors', confirmReset ? 'border-red-300 bg-red-50 text-red-600 hover:bg-red-100' : 'border-stone-200 bg-white text-stone-600 hover:bg-stone-50')}>
+            <button onClick={handleResetClick} className={cn('flex items-center gap-1.5 rounded-lg border px-3 py-2 text-xs font-medium transition-colors', confirmReset ? 'border-red-300 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 hover:bg-red-100' : 'border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 text-stone-600 dark:text-stone-400 hover:bg-stone-50 dark:hover:bg-stone-800')}>
               <RotateCcw className="h-3.5 w-3.5" />
               {confirmReset ? 'تأكيد' : 'استشارة جديدة'}
             </button>
@@ -599,14 +599,14 @@ export default function Coach() {
           />
         )}
 
-        <div className="rounded-2xl border border-stone-200 bg-white overflow-hidden shadow-sm">
+        <div className="rounded-2xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 overflow-hidden shadow-sm dark:shadow-stone-900/30">
           <div ref={scrollRef} role="log" aria-label="محادثة المدرب الذكي" aria-live="polite" className="max-h-[65dvh] overflow-y-auto p-5 space-y-4 bg-stone-50/50">
 
             {/* DeepSeek consent — one-time */}
             {showDeepSeekConsent && (
-              <div className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+              <div className="rounded-xl border border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-900/20 px-4 py-3 text-sm text-amber-900 dark:text-amber-200">
                 <p className="font-medium">المدرب يستخدم DeepSeek AI لتحليل بياناتك وتقديم النصائح. بالمتابعة توافق على مشاركة بيانات الحقن مع DeepSeek.</p>
-                <button onClick={setConsentGiven} className="mt-2 text-xs font-bold text-amber-700 underline hover:no-underline">أوافق ومتابعة</button>
+                <button onClick={setConsentGiven} className="mt-2 text-xs font-bold text-amber-700 dark:text-amber-400 underline hover:no-underline">أوافق ومتابعة</button>
               </div>
             )}
 
@@ -615,11 +615,11 @@ export default function Coach() {
               <div className="space-y-4">
                 {/* Coach greeting */}
                 <div className="flex justify-end">
-                  <div className="max-w-[88%] rounded-2xl rounded-bl-md border border-stone-200 bg-white px-5 py-3">
-                    <p className="text-sm leading-relaxed text-stone-800">
+                  <div className="max-w-[88%] rounded-2xl rounded-bl-md border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 px-5 py-3">
+                    <p className="text-sm leading-relaxed text-stone-800 dark:text-stone-200">
                       <strong>مرحبًا!</strong> أنا مستشارك المتخصص في الببتيدات العلاجية. سأساعدك في تصميم بروتوكول مخصّص بناءً على هدفك وحالتك.
                     </p>
-                    <p className="mt-2 text-sm text-stone-800">اختر هدفك وسأصمّم لك بروتوكول مخصّص، أو <button onClick={() => setIntakeStep('done')} className="font-bold text-emerald-600 hover:underline">اسأل مباشرة</button></p>
+                    <p className="mt-2 text-sm text-stone-800 dark:text-stone-200">اختر هدفك وسأصمّم لك بروتوكول مخصّص، أو <button onClick={() => setIntakeStep('done')} className="font-bold text-emerald-600 hover:underline">اسأل مباشرة</button></p>
                   </div>
                 </div>
 
@@ -627,9 +627,9 @@ export default function Coach() {
                 <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 md:grid-cols-3 max-w-[88%]">
                   {GOALS.map(g => (
                     <button key={g.id} onClick={() => { setIntake(p => ({ ...p, goal: g.id, goalLabel: g.label })); if (intakeStep === 'goal') setIntakeStep('experience'); }}
-                      className={cn('flex flex-col items-center gap-1.5 rounded-xl border p-3 text-center transition-all', intake.goal === g.id ? 'border-emerald-400 bg-emerald-50 ring-2 ring-emerald-100' : 'border-stone-200 bg-white hover:border-emerald-300')}>
-                      <g.Icon className={cn('h-5 w-5', intake.goal === g.id ? 'text-emerald-600' : 'text-stone-500')} />
-                      <span className="text-xs font-bold text-stone-800">{g.label}</span>
+                      className={cn('flex flex-col items-center gap-1.5 rounded-xl border p-3 text-center transition-all', intake.goal === g.id ? 'border-emerald-400 bg-emerald-50 dark:bg-emerald-900/20 ring-2 ring-emerald-100' : 'border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 hover:border-emerald-300 dark:border-emerald-700')}>
+                      <g.Icon className={cn('h-5 w-5', intake.goal === g.id ? 'text-emerald-600' : 'text-stone-500 dark:text-stone-400')} />
+                      <span className="text-xs font-bold text-stone-800 dark:text-stone-200">{g.label}</span>
                     </button>
                   ))}
                 </div>
@@ -643,20 +643,20 @@ export default function Coach() {
                       </div>
                     </div>
                     <div className="flex justify-end animate-fade-up">
-                      <div className="max-w-[88%] rounded-2xl rounded-bl-md border border-stone-200 bg-white px-5 py-3">
-                        <p className="text-sm text-stone-800">ممتاز — <strong>{intake.goalLabel}</strong>. لديّ بروتوكولات فعّالة لهذا الهدف. <strong>ما مستوى خبرتك مع الببتيدات؟</strong></p>
+                      <div className="max-w-[88%] rounded-2xl rounded-bl-md border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 px-5 py-3">
+                        <p className="text-sm text-stone-800 dark:text-stone-200">ممتاز — <strong>{intake.goalLabel}</strong>. لديّ بروتوكولات فعّالة لهذا الهدف. <strong>ما مستوى خبرتك مع الببتيدات؟</strong></p>
                       </div>
                     </div>
                     <div className="grid gap-2 max-w-[88%]">
                       {EXPERIENCE_OPTIONS.map(o => (
                         <button key={o.id} onClick={() => { setIntake(p => ({ ...p, experience: o.id })); if (intakeStep === 'experience') setIntakeStep('injection'); }}
-                          className={cn('rounded-xl border px-4 py-3 text-start transition-all', intake.experience === o.id ? 'border-emerald-400 bg-emerald-50 ring-2 ring-emerald-100' : 'border-stone-200 bg-white hover:border-emerald-300')}>
-                          <span className="text-sm font-bold text-stone-800">{o.label}</span>
-                          <span className="block text-xs text-stone-500 mt-0.5">{o.desc}</span>
+                          className={cn('rounded-xl border px-4 py-3 text-start transition-all', intake.experience === o.id ? 'border-emerald-400 bg-emerald-50 dark:bg-emerald-900/20 ring-2 ring-emerald-100' : 'border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 hover:border-emerald-300 dark:border-emerald-700')}>
+                          <span className="text-sm font-bold text-stone-800 dark:text-stone-200">{o.label}</span>
+                          <span className="block text-xs text-stone-500 dark:text-stone-400 mt-0.5">{o.desc}</span>
                         </button>
                       ))}
                       {intakeStep === 'experience' && (
-                        <button onClick={() => setIntakeStep('goal')} className="mt-1 flex items-center gap-1 min-h-[44px] text-sm text-stone-500 hover:text-stone-800 transition-colors">
+                        <button onClick={() => setIntakeStep('goal')} className="mt-1 flex items-center gap-1 min-h-[44px] text-sm text-stone-500 dark:text-stone-400 hover:text-stone-800 dark:text-stone-200 transition-colors">
                           <ArrowRight className="h-3 w-3 shrink-0" /> رجوع
                         </button>
                       )}
@@ -673,8 +673,8 @@ export default function Coach() {
                       </div>
                     </div>
                     <div className="flex justify-end animate-fade-up">
-                      <div className="max-w-[88%] rounded-2xl rounded-bl-md border border-stone-200 bg-white px-5 py-3">
-                        <p className="text-sm text-stone-800">
+                      <div className="max-w-[88%] rounded-2xl rounded-bl-md border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 px-5 py-3">
+                        <p className="text-sm text-stone-800 dark:text-stone-200">
                           {intake.experience === 'beginner' ? 'ممتاز، سأختار لك خيارًا آمنًا وسهلًا للبداية.' : intake.experience === 'advanced' ? 'لديك خبرة — سأقدّم لك بروتوكولًا متقدمًا.' : 'جيد، لديك أساس نبني عليه.'}
                           {' '}<strong>هل تتقبّل الحقن؟</strong>
                         </p>
@@ -683,13 +683,13 @@ export default function Coach() {
                     <div className="grid gap-2 max-w-[88%]">
                       {INJECTION_OPTIONS.map(o => (
                         <button key={o.id} onClick={() => { setIntake(p => ({ ...p, injection: o.id })); if (intakeStep === 'injection') setIntakeStep('details'); }}
-                          className={cn('rounded-xl border px-4 py-3 text-start transition-all', intake.injection === o.id ? 'border-emerald-400 bg-emerald-50 ring-2 ring-emerald-100' : 'border-stone-200 bg-white hover:border-emerald-300')}>
-                          <span className="text-sm font-bold text-stone-800">{o.label}</span>
-                          <span className="block text-xs text-stone-500 mt-0.5">{o.desc}</span>
+                          className={cn('rounded-xl border px-4 py-3 text-start transition-all', intake.injection === o.id ? 'border-emerald-400 bg-emerald-50 dark:bg-emerald-900/20 ring-2 ring-emerald-100' : 'border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 hover:border-emerald-300 dark:border-emerald-700')}>
+                          <span className="text-sm font-bold text-stone-800 dark:text-stone-200">{o.label}</span>
+                          <span className="block text-xs text-stone-500 dark:text-stone-400 mt-0.5">{o.desc}</span>
                         </button>
                       ))}
                       {intakeStep === 'injection' && (
-                        <button onClick={() => setIntakeStep('experience')} className="mt-1 flex items-center gap-1 min-h-[44px] text-sm text-stone-500 hover:text-stone-800 transition-colors">
+                        <button onClick={() => setIntakeStep('experience')} className="mt-1 flex items-center gap-1 min-h-[44px] text-sm text-stone-500 dark:text-stone-400 hover:text-stone-800 dark:text-stone-200 transition-colors">
                           <ArrowRight className="h-3 w-3 shrink-0" /> رجوع
                         </button>
                       )}
@@ -706,19 +706,19 @@ export default function Coach() {
                       </div>
                     </div>
                     <div className="flex justify-end animate-fade-up">
-                      <div className="max-w-[88%] rounded-2xl rounded-bl-md border border-stone-200 bg-white px-5 py-3">
-                        <p className="text-sm text-stone-800">لدي صورة واضحة الآن. آخر شي — إذا أردت أن تعطيني عمرك أو أي أدوية تتناولها، سيكون البروتوكول أدق. <strong>أو اضغط "صمّم بروتوكولي" مباشرة.</strong></p>
+                      <div className="max-w-[88%] rounded-2xl rounded-bl-md border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 px-5 py-3">
+                        <p className="text-sm text-stone-800 dark:text-stone-200">لدي صورة واضحة الآن. آخر شي — إذا أردت أن تعطيني عمرك أو أي أدوية تتناولها، سيكون البروتوكول أدق. <strong>أو اضغط "صمّم بروتوكولي" مباشرة.</strong></p>
                       </div>
                     </div>
                     <div className="animate-fade-up space-y-3 max-w-[88%]">
                       <div className="grid gap-3 sm:grid-cols-2">
                         <div>
-                          <label htmlFor="coach-age" className="mb-1 block text-xs font-medium text-stone-600">العمر تقريبًا</label>
-                          <input id="coach-age" type="number" inputMode="numeric" min={16} max={120} value={intake.age} onChange={e => setIntake(p => ({ ...p, age: e.target.value }))} placeholder="مثال: 32" dir="ltr" className="w-full rounded-xl border border-stone-200 bg-white px-3 py-2.5 text-sm text-stone-900 placeholder:text-stone-500 focus:border-emerald-300 focus:outline-none focus:ring-2 focus:ring-emerald-100" />
+                          <label htmlFor="coach-age" className="mb-1 block text-xs font-medium text-stone-600 dark:text-stone-400">العمر تقريبًا</label>
+                          <input id="coach-age" type="number" inputMode="numeric" min={16} max={120} value={intake.age} onChange={e => setIntake(p => ({ ...p, age: e.target.value }))} placeholder="مثال: 32" dir="ltr" className="w-full rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 px-3 py-2.5 text-sm text-stone-900 dark:text-stone-100 placeholder:text-stone-500 dark:text-stone-400 focus:border-emerald-300 dark:border-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900" />
                         </div>
                         <div>
-                          <label htmlFor="coach-medications" className="mb-1 block text-xs font-medium text-stone-600">أدوية أو مكملات حالية</label>
-                          <input id="coach-medications" type="text" value={intake.medications} onChange={e => setIntake(p => ({ ...p, medications: e.target.value }))} placeholder="مثال: فيتامين D، كرياتين" className="w-full rounded-xl border border-stone-200 bg-white px-3 py-2.5 text-sm text-stone-900 placeholder:text-stone-500 focus:border-emerald-300 focus:outline-none focus:ring-2 focus:ring-emerald-100" />
+                          <label htmlFor="coach-medications" className="mb-1 block text-xs font-medium text-stone-600 dark:text-stone-400">أدوية أو مكملات حالية</label>
+                          <input id="coach-medications" type="text" value={intake.medications} onChange={e => setIntake(p => ({ ...p, medications: e.target.value }))} placeholder="مثال: فيتامين D، كرياتين" className="w-full rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 px-3 py-2.5 text-sm text-stone-900 dark:text-stone-100 placeholder:text-stone-500 dark:text-stone-400 focus:border-emerald-300 dark:border-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900" />
                         </div>
                       </div>
                       <button onClick={submitIntake} disabled={isLoading}
@@ -727,7 +727,7 @@ export default function Coach() {
                         صمّم بروتوكولي المخصّص
                         <ArrowLeft className="h-4 w-4" />
                       </button>
-                      <button onClick={() => setIntakeStep('injection')} className="mt-1 flex items-center gap-1 min-h-[44px] text-sm text-stone-500 hover:text-stone-800 transition-colors">
+                      <button onClick={() => setIntakeStep('injection')} className="mt-1 flex items-center gap-1 min-h-[44px] text-sm text-stone-500 dark:text-stone-400 hover:text-stone-800 dark:text-stone-200 transition-colors">
                         <ArrowRight className="h-3 w-3 shrink-0" /> رجوع
                       </button>
                     </div>
@@ -745,7 +745,7 @@ export default function Coach() {
                       {user?.email?.charAt(0).toUpperCase() ?? '؟'}
                     </div>
                   )}
-                  <div className={cn('max-w-[88%] rounded-2xl px-5 py-3', msg.role === 'user' ? 'primary-gradient rounded-br-md' : 'rounded-bl-md border border-stone-200 bg-white')}>
+                  <div className={cn('max-w-[88%] rounded-2xl px-5 py-3', msg.role === 'user' ? 'primary-gradient rounded-br-md' : 'rounded-bl-md border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950')}>
                     {msg.role === 'user' ? (
                       <p className="text-sm leading-relaxed whitespace-pre-wrap text-white">{
                         msg.content.startsWith('USER PROFILE')
@@ -753,7 +753,7 @@ export default function Coach() {
                           : msg.content
                       }</p>
                     ) : msg.content.startsWith('__ERROR') ? (
-                      <div className="text-sm text-stone-800">
+                      <div className="text-sm text-stone-800 dark:text-stone-200">
                         <p className="mb-2">{
                           msg.content === '__ERROR__:429' ? 'لقد تجاوزت الحد المسموح. حاول بعد قليل.' :
                           msg.content === '__ERROR__:403' ? 'انتهت صلاحية جلستك. أعد تسجيل الدخول.' :
@@ -777,14 +777,14 @@ export default function Coach() {
                               sendToAI(messages[lastUserIdx].content);
                             }
                           }}
-                          className="inline-flex items-center gap-1.5 rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-1.5 text-xs font-bold text-emerald-700 transition-colors hover:bg-emerald-100"
+                          className="inline-flex items-center gap-1.5 rounded-lg border border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-900/20 px-3 py-1.5 text-xs font-bold text-emerald-700 dark:text-emerald-400 transition-colors hover:bg-emerald-100 dark:bg-emerald-900/30"
                         >
                           <RotateCcw className="h-3 w-3" />
                           إعادة المحاولة
                         </button>
                       </div>
                     ) : (
-                      <div className="text-sm leading-relaxed text-stone-800" style={{ overflowWrap: 'anywhere', wordBreak: 'break-word' }}>
+                      <div className="text-sm leading-relaxed text-stone-800 dark:text-stone-200" style={{ overflowWrap: 'anywhere', wordBreak: 'break-word' }}>
                         <MarkdownBubble content={msg.content} />
                         {isLoading && i === messages.length - 1 && msg.content.length > 0 && (
                           <span className="inline-block w-2 h-4 bg-emerald-600 animate-pulse align-text-bottom me-0.5" />
@@ -810,7 +810,7 @@ export default function Coach() {
                           toast.error('تعذّر نسخ المحتوى إلى الحافظة');
                         }
                       }}
-                      className="inline-flex items-center gap-1 rounded-lg border border-stone-200 bg-white px-3 py-1.5 text-xs font-medium text-stone-500 transition-colors hover:bg-stone-50 hover:text-stone-700"
+                      className="inline-flex items-center gap-1 rounded-lg border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 px-3 py-1.5 text-xs font-medium text-stone-500 dark:text-stone-400 transition-colors hover:bg-stone-50 dark:hover:bg-stone-800 hover:text-stone-700 dark:text-stone-300"
                     >
                       {copiedIdx === i ? <Check className="h-3 w-3 text-emerald-500" /> : <Copy className="h-3 w-3" />}
                       {copiedIdx === i ? 'تم' : 'نسخ'}
@@ -829,7 +829,7 @@ export default function Coach() {
                           printWindow.print();
                         }
                       }}
-                      className="inline-flex items-center gap-1 rounded-full border border-stone-200 px-3 py-1.5 text-xs font-medium text-stone-600 transition-colors hover:bg-stone-50"
+                      className="inline-flex items-center gap-1 rounded-full border border-stone-200 dark:border-stone-700 px-3 py-1.5 text-xs font-medium text-stone-600 dark:text-stone-400 transition-colors hover:bg-stone-50 dark:hover:bg-stone-800"
                     >
                       <Printer className="h-3 w-3" /> طباعة
                     </button>
@@ -837,7 +837,7 @@ export default function Coach() {
                       href={`https://wa.me/?text=${encodeURIComponent(`بروتوكول من pptides:\n\n${msg.content.slice(0, 500)}\n\nاقرأ المزيد: ${SITE_URL}`)}`}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1 rounded-lg border border-emerald-200 bg-emerald-50 px-2 py-1 text-xs font-medium text-emerald-700 transition-colors hover:bg-emerald-100"
+                      className="inline-flex items-center gap-1 rounded-lg border border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-900/20 px-2 py-1 text-xs font-medium text-emerald-700 dark:text-emerald-400 transition-colors hover:bg-emerald-100 dark:bg-emerald-900/30"
                     >
                       <svg className="h-3 w-3" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
                       واتساب
@@ -860,7 +860,7 @@ export default function Coach() {
                             toast.error('تعذّر نسخ المحتوى إلى الحافظة');
                           }
                         }}
-                        className="inline-flex items-center gap-1 rounded-lg border border-stone-200 bg-white px-3 py-1.5 text-xs font-medium text-stone-500 transition-colors hover:bg-stone-50 hover:text-stone-700"
+                        className="inline-flex items-center gap-1 rounded-lg border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 px-3 py-1.5 text-xs font-medium text-stone-500 dark:text-stone-400 transition-colors hover:bg-stone-50 dark:hover:bg-stone-800 hover:text-stone-700 dark:text-stone-300"
                       >
                         {copiedIdx === i ? <Check className="h-3 w-3 text-emerald-500" /> : <Copy className="h-3 w-3" />}
                         {copiedIdx === i ? 'تم' : 'نسخ'}
@@ -879,7 +879,7 @@ export default function Coach() {
                             printWindow.print();
                           }
                         }}
-                        className="flex items-center gap-1 rounded-full border border-stone-200 px-3 py-1.5 text-xs font-medium text-stone-600 transition-colors hover:bg-stone-50"
+                        className="flex items-center gap-1 rounded-full border border-stone-200 dark:border-stone-700 px-3 py-1.5 text-xs font-medium text-stone-600 dark:text-stone-400 transition-colors hover:bg-stone-50 dark:hover:bg-stone-800"
                       >
                         <Printer className="h-3 w-3" /> طباعة
                       </button>
@@ -887,7 +887,7 @@ export default function Coach() {
                         href={`https://wa.me/?text=${encodeURIComponent(`بروتوكول من pptides:\n\n${msg.content.slice(0, 500)}\n\nاقرأ المزيد: ${SITE_URL}`)}`}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="inline-flex items-center gap-1 rounded-lg border border-emerald-200 bg-emerald-50 px-2 py-1 text-xs font-medium text-emerald-700 transition-colors hover:bg-emerald-100"
+                        className="inline-flex items-center gap-1 rounded-lg border border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-900/20 px-2 py-1 text-xs font-medium text-emerald-700 dark:text-emerald-400 transition-colors hover:bg-emerald-100 dark:bg-emerald-900/30"
                       >
                         <svg className="h-3 w-3" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
                         واتساب
@@ -899,29 +899,29 @@ export default function Coach() {
                       )}
                     </div>
                     {/* Divider + Row 2 — Secondary contextual (horizontally scrollable) */}
-                    <div className="border-t border-stone-200 pt-2">
+                    <div className="border-t border-stone-200 dark:border-stone-700 pt-2">
                       <div className="overflow-x-auto flex flex-nowrap gap-1.5 pb-0.5 -mx-0.5">
                         {peptideActions.map(p => (
-                          <Link key={p.id} to={`/peptide/${p.id}`} className="inline-flex items-center gap-1 rounded-lg border border-emerald-200 bg-emerald-50 px-2.5 py-1 text-xs font-semibold text-emerald-700 transition-colors hover:bg-emerald-100 shrink-0">
+                          <Link key={p.id} to={`/peptide/${p.id}`} className="inline-flex items-center gap-1 rounded-lg border border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-900/20 px-2.5 py-1 text-xs font-semibold text-emerald-700 dark:text-emerald-400 transition-colors hover:bg-emerald-100 dark:bg-emerald-900/30 shrink-0">
                             <FlaskConical className="h-3 w-3" />{p.nameAr}
                           </Link>
                         ))}
                         {peptideActions.length > 0 && (
-                          <Link to={`/calculator?peptide=${encodeURIComponent(peptideActions[0]?.nameEn ?? '')}`} className="inline-flex items-center gap-1 rounded-lg border border-stone-200 bg-white px-2.5 py-1 text-xs font-semibold text-stone-600 transition-colors hover:bg-stone-50 shrink-0">
+                          <Link to={`/calculator?peptide=${encodeURIComponent(peptideActions[0]?.nameEn ?? '')}`} className="inline-flex items-center gap-1 rounded-lg border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 px-2.5 py-1 text-xs font-semibold text-stone-600 dark:text-stone-400 transition-colors hover:bg-stone-50 dark:hover:bg-stone-800 shrink-0">
                             <Calculator className="h-3 w-3" />احسب الجرعة
                           </Link>
                         )}
                         {peptideActions.length >= 2 && (
-                          <Link to="/interactions" className="inline-flex items-center gap-1 rounded-lg border border-stone-200 bg-white px-2.5 py-1 text-xs font-semibold text-stone-600 transition-colors hover:bg-stone-50 shrink-0">
+                          <Link to="/interactions" className="inline-flex items-center gap-1 rounded-lg border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 px-2.5 py-1 text-xs font-semibold text-stone-600 dark:text-stone-400 transition-colors hover:bg-stone-50 dark:hover:bg-stone-800 shrink-0">
                             <Shield className="h-3 w-3" />فحص التعارض
                           </Link>
                         )}
                         {peptideActions.length > 0 && (
-                          <Link to={`/tracker?peptide=${encodeURIComponent(peptideActions[0]?.nameEn ?? '')}`} className="inline-flex items-center gap-1 rounded-lg border border-stone-200 bg-white px-2.5 py-1 text-xs font-semibold text-stone-600 transition-colors hover:bg-stone-50 shrink-0">
+                          <Link to={`/tracker?peptide=${encodeURIComponent(peptideActions[0]?.nameEn ?? '')}`} className="inline-flex items-center gap-1 rounded-lg border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 px-2.5 py-1 text-xs font-semibold text-stone-600 dark:text-stone-400 transition-colors hover:bg-stone-50 dark:hover:bg-stone-800 shrink-0">
                             <Sparkles className="h-3 w-3" />سجّل حقنة
                           </Link>
                         )}
-                        <Link to="/guide" className="inline-flex items-center gap-1 rounded-lg border border-stone-200 bg-white px-2.5 py-1 text-xs font-semibold text-stone-600 transition-colors hover:bg-stone-50 shrink-0">
+                        <Link to="/guide" className="inline-flex items-center gap-1 rounded-lg border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 px-2.5 py-1 text-xs font-semibold text-stone-600 dark:text-stone-400 transition-colors hover:bg-stone-50 dark:hover:bg-stone-800 shrink-0">
                           <BookOpen className="h-3 w-3" />دليل الحقن
                         </Link>
                       </div>
@@ -933,14 +933,14 @@ export default function Coach() {
 
             {isLoading && messages.length > 0 && messages[messages.length - 1].role === 'assistant' && messages[messages.length - 1].content === '' && (
               <div className="flex justify-end">
-                <div className="rounded-2xl rounded-bl-md border border-stone-200 bg-white px-5 py-4 min-w-0 sm:min-w-[200px]">
+                <div className="rounded-2xl rounded-bl-md border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 px-5 py-4 min-w-0 sm:min-w-[200px]">
                   <div className="flex items-center gap-3">
                     <div className="flex gap-1">
                       <span className="h-2 w-2 rounded-full bg-emerald-400 animate-bounce" style={{ animationDelay: '0ms' }} />
                       <span className="h-2 w-2 rounded-full bg-emerald-400 animate-bounce" style={{ animationDelay: '150ms' }} />
                       <span className="h-2 w-2 rounded-full bg-emerald-400 animate-bounce" style={{ animationDelay: '300ms' }} />
                     </div>
-                    <span className="text-xs text-stone-500">
+                    <span className="text-xs text-stone-500 dark:text-stone-400">
                       {loadingStage === 0 ? 'يحلّل حالتك...' : loadingStage === 1 ? 'يبني البروتوكول...' : 'يحسب الجرعات...'}
                     </span>
                   </div>
@@ -951,23 +951,23 @@ export default function Coach() {
 
           {/* ═══ INPUT AREA ═══ */}
           {intakeStep === 'done' && (
-            <div className="border-t border-stone-200 bg-white p-4">
+            <div className="border-t border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 p-4">
               {limitReached ? (
                 subscription.tier === 'essentials' ? (
-                <div className="rounded-xl border-2 border-emerald-400 bg-gradient-to-b from-emerald-50 to-white p-6 text-center shadow-sm">
+                <div className="rounded-xl border-2 border-emerald-400 bg-gradient-to-b from-emerald-50 to-white dark:to-stone-950 p-6 text-center shadow-sm dark:shadow-stone-900/30">
                   <Crown className="mx-auto mb-3 h-8 w-8 text-emerald-600" />
-                  <p className="text-lg font-bold text-stone-900">لقد وصلت للحد الأقصى</p>
-                  <p className="mt-2 text-sm text-stone-600">ترقَّ إلى Elite لاستشارات بلا حدود</p>
+                  <p className="text-lg font-bold text-stone-900 dark:text-stone-100">لقد وصلت للحد الأقصى</p>
+                  <p className="mt-2 text-sm text-stone-600 dark:text-stone-400">ترقَّ إلى Elite لاستشارات بلا حدود</p>
                   <Link to="/pricing?plan=elite" className="mt-4 inline-flex items-center gap-2 rounded-full bg-emerald-600 px-8 py-3 text-sm font-bold text-white transition-colors hover:bg-emerald-700">
                     <Crown className="h-4 w-4" />
                     ترقية إلى Elite
                   </Link>
                 </div>
                 ) : (
-                <div className="rounded-xl border-2 border-emerald-200 bg-emerald-50 p-5 text-center">
+                <div className="rounded-xl border-2 border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-900/20 p-5 text-center">
                   <Sparkles className="mx-auto mb-2 h-6 w-6 text-emerald-600" />
-                  <p className="font-bold text-stone-900">{hasAccess ? 'وصلت حد الأسئلة لهذه الجلسة' : 'أعجبتك الاستشارة؟'}</p>
-                  <p className="mt-1 text-sm text-stone-600">{!isElite && (hasAccess ? 'ترقَّ إلى Elite لاستشارات بلا حدود.' : 'اشترك للحصول على استشارات مخصّصة.')}</p>
+                  <p className="font-bold text-stone-900 dark:text-stone-100">{hasAccess ? 'وصلت حد الأسئلة لهذه الجلسة' : 'أعجبتك الاستشارة؟'}</p>
+                  <p className="mt-1 text-sm text-stone-600 dark:text-stone-400">{!isElite && (hasAccess ? 'ترقَّ إلى Elite لاستشارات بلا حدود.' : 'اشترك للحصول على استشارات مخصّصة.')}</p>
                   {!isElite && <button onClick={async () => { try { if (hasAccess) await upgradeTo('elite'); else navigate('/pricing'); } catch { /* non-blocking */ } }} className="mt-3 rounded-full bg-emerald-600 px-8 py-2.5 text-sm font-bold text-white transition-colors hover:bg-emerald-700">{hasAccess ? 'ترقَّ إلى Elite' : 'اشترك الآن'}</button>}
                 </div>
                 )
@@ -975,8 +975,8 @@ export default function Coach() {
                 <>
                   {/* Value preview — when messages empty (first visit) */}
                   {messages.length === 0 && !isLoading && (
-                    <div className="mb-6 rounded-2xl border border-emerald-200 bg-emerald-50/50 p-5">
-                      <h3 className="text-base font-bold text-stone-900 mb-3">المدرب الذكي — مثال على محادثة</h3>
+                    <div className="mb-6 rounded-2xl border border-emerald-200 dark:border-emerald-800 bg-emerald-50/50 p-5">
+                      <h3 className="text-base font-bold text-stone-900 dark:text-stone-100 mb-3">المدرب الذكي — مثال على محادثة</h3>
                       <div className="space-y-3 mb-4">
                         <div className="flex justify-start">
                           <div className="primary-gradient rounded-2xl rounded-br-md px-4 py-2.5 max-w-[85%]">
@@ -984,21 +984,21 @@ export default function Coach() {
                           </div>
                         </div>
                         <div className="flex justify-end">
-                          <div className="rounded-2xl rounded-bl-md border border-stone-200 bg-white px-4 py-3 max-w-[85%]">
-                            <p className="text-sm text-stone-800 leading-relaxed">
+                          <div className="rounded-2xl rounded-bl-md border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 px-4 py-3 max-w-[85%]">
+                            <p className="text-sm text-stone-800 dark:text-stone-200 leading-relaxed">
                               ممتاز — BPC-157 مثالي للتعافي. البروتوكول: 250–500 mcg يوميًا تحت الجلد، 4–6 أسابيع. حقن في البطن أو الفخذ، دوّر المواقع. يفضّل على معدة فارغة لامتصاص أفضل...
                             </p>
                           </div>
                         </div>
                       </div>
-                      <p className="text-xs font-bold text-stone-600 mb-2">جرّب هذه الأسئلة:</p>
+                      <p className="text-xs font-bold text-stone-600 dark:text-stone-400 mb-2">جرّب هذه الأسئلة:</p>
                       <div className="flex flex-wrap gap-1.5">
                         {COACH_PREVIEW_SAMPLE_QS.map(q => (
                           <button
                             key={q}
                             onClick={() => sendToAI(q)}
                             disabled={isLoading}
-                            className={cn("rounded-full border border-emerald-200 bg-white px-3 py-1.5 min-h-[44px] text-xs font-medium text-emerald-700 transition-colors hover:bg-emerald-50", isLoading && "opacity-50 cursor-not-allowed")}
+                            className={cn("rounded-full border border-emerald-200 dark:border-emerald-800 bg-white dark:bg-stone-950 px-3 py-1.5 min-h-[44px] text-xs font-medium text-emerald-700 dark:text-emerald-400 transition-colors hover:bg-emerald-50 dark:bg-emerald-900/20", isLoading && "opacity-50 cursor-not-allowed")}
                           >
                             {q}
                           </button>
@@ -1009,12 +1009,12 @@ export default function Coach() {
                   {followUps.length > 0 && !isLoading && userMsgCount > 0 && (
                     <div className="mb-3 flex flex-wrap gap-1.5 justify-center">
                       {followUps.map(q => (
-                        <button key={q} onClick={() => sendToAI(q)} disabled={isLoading} className={cn("rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1.5 min-h-[44px] text-xs font-medium text-emerald-700 transition-colors hover:bg-emerald-100", isLoading && "opacity-50 cursor-not-allowed")}>{q}</button>
+                        <button key={q} onClick={() => sendToAI(q)} disabled={isLoading} className={cn("rounded-full border border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-900/20 px-3 py-1.5 min-h-[44px] text-xs font-medium text-emerald-700 dark:text-emerald-400 transition-colors hover:bg-emerald-100 dark:bg-emerald-900/30", isLoading && "opacity-50 cursor-not-allowed")}>{q}</button>
                       ))}
                     </div>
                   )}
                   {!isElite && userMsgCount > 0 && limit - userMsgCount > 0 && (
-                    <p className="mb-2 text-center text-xs text-stone-500">{arPlural(limit - userMsgCount, 'سؤال متبقي', 'سؤالان متبقيان', 'أسئلة متبقية')}</p>
+                    <p className="mb-2 text-center text-xs text-stone-500 dark:text-stone-400">{arPlural(limit - userMsgCount, 'سؤال متبقي', 'سؤالان متبقيان', 'أسئلة متبقية')}</p>
                   )}
                   <div className="flex items-end gap-3">
                     <textarea value={input} onChange={e => setInput(e.target.value)}
@@ -1023,7 +1023,7 @@ export default function Coach() {
                       placeholder="اسأل المزيد عن البروتوكول..." rows={1} maxLength={2000} disabled={isLoading}
                       dir="rtl"
                       aria-label="اكتب رسالتك"
-                      className={cn('flex-1 resize-none rounded-xl border border-stone-200 bg-stone-50 px-4 py-3 text-sm text-stone-900 placeholder:text-stone-500 focus:border-emerald-300 focus:outline-none focus:ring-2 focus:ring-emerald-100', isLoading && 'opacity-60')} />
+                      className={cn('flex-1 resize-none rounded-xl border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-900 px-4 py-3 text-sm text-stone-900 dark:text-stone-100 placeholder:text-stone-500 dark:text-stone-400 focus:border-emerald-300 dark:border-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900', isLoading && 'opacity-60')} />
                     <button onClick={() => sendToAI(input)} disabled={!input.trim() || isLoading}
                       className={cn('flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-emerald-600 transition-all', input.trim() && !isLoading ? 'hover:bg-emerald-700 active:scale-[0.98]' : 'opacity-40')}>
                       <Send className="h-5 w-5 text-white" /><span className="sr-only">إرسال</span>
@@ -1035,7 +1035,7 @@ export default function Coach() {
           )}
         </div>
 
-        <p className="mt-4 text-center text-xs text-stone-500">محتوى تعليمي بحثي — استشر طبيبك قبل استخدام أي ببتيد</p>
+        <p className="mt-4 text-center text-xs text-stone-500 dark:text-stone-400">محتوى تعليمي بحثي — استشر طبيبك قبل استخدام أي ببتيد</p>
       </div>
       {protocolWizardPeptide && (
         <ProtocolWizard peptideId={protocolWizardPeptide} onClose={() => setProtocolWizardPeptide(null)} />

@@ -37,10 +37,10 @@ export default function BaselineChecklist({ peptide, onAllChecked }: BaselineChe
   };
 
   return (
-    <div className="rounded-xl border border-amber-200 bg-amber-50 p-4">
+    <div className="rounded-xl border border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-900/20 p-4">
       <div className="flex items-center gap-2 mb-3">
         <FlaskConical className="h-4 w-4 text-amber-600" />
-        <p className="text-sm font-bold text-amber-900">قبل بدء البروتوكول</p>
+        <p className="text-sm font-bold text-amber-900 dark:text-amber-200">قبل بدء البروتوكول</p>
       </div>
       <div className="space-y-2">
         {items.map(item => {
@@ -51,7 +51,7 @@ export default function BaselineChecklist({ peptide, onAllChecked }: BaselineChe
               onClick={() => toggle(item.id)}
               className={cn(
                 'flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-start text-sm transition-all',
-                done ? 'bg-emerald-50 text-emerald-700' : 'bg-white text-stone-700 hover:bg-stone-50'
+                done ? 'bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-400' : 'bg-white dark:bg-stone-950 text-stone-700 dark:text-stone-300 hover:bg-stone-50 dark:hover:bg-stone-800'
               )}
             >
               {done ? <CheckCircle className="h-4 w-4 text-emerald-600 shrink-0" /> : <Circle className="h-4 w-4 text-stone-300 shrink-0" />}
@@ -61,9 +61,9 @@ export default function BaselineChecklist({ peptide, onAllChecked }: BaselineChe
         })}
       </div>
       <div className="mt-3 flex flex-wrap gap-2">
-        <Link to="/guide" className="text-xs font-bold text-amber-700 hover:underline">دليل الحقن ←</Link>
-        <Link to="/lab-guide" className="text-xs font-bold text-amber-700 hover:underline">دليل التحاليل ←</Link>
-        <Link to="/calculator" className="text-xs font-bold text-amber-700 hover:underline">حاسبة الجرعات ←</Link>
+        <Link to="/guide" className="text-xs font-bold text-amber-700 dark:text-amber-400 hover:underline">دليل الحقن ←</Link>
+        <Link to="/lab-guide" className="text-xs font-bold text-amber-700 dark:text-amber-400 hover:underline">دليل التحاليل ←</Link>
+        <Link to="/calculator" className="text-xs font-bold text-amber-700 dark:text-amber-400 hover:underline">حاسبة الجرعات ←</Link>
       </div>
     </div>
   );

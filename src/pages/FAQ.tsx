@@ -50,7 +50,7 @@ const faqSchema = {
 
 export default function FAQ() {
   return (
-    <div className="min-h-screen bg-white animate-fade-in">
+    <div className="min-h-screen bg-white dark:bg-stone-950 animate-fade-in">
       <Helmet>
         <title>الأسئلة الشائعة | pptides</title>
         <meta name="description" content="إجابات على الأسئلة الأكثر شيوعًا حول pptides: هل هذا استشارة طبية؟ هل الببتيدات قانونية؟ هل تبيعون ببتيدات؟ وأكثر." />
@@ -70,13 +70,13 @@ export default function FAQ() {
 
       <div className="mx-auto max-w-3xl px-4 pb-24 pt-8 md:px-6 md:pt-12">
         <div className="mb-12 text-center">
-          <div className="mx-auto mb-4 inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-100">
+          <div className="mx-auto mb-4 inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-100 dark:bg-emerald-900/30">
             <HelpCircle className="h-7 w-7 text-emerald-600" />
           </div>
-          <h1 className="mb-3 text-3xl font-bold text-stone-900 md:text-4xl">
+          <h1 className="mb-3 text-3xl font-bold text-stone-900 dark:text-stone-100 md:text-4xl">
             الأسئلة <span className="text-emerald-600">الشائعة</span>
           </h1>
-          <p className="mx-auto max-w-lg text-lg text-stone-600">
+          <p className="mx-auto max-w-lg text-lg text-stone-600 dark:text-stone-400">
             إجابات سريعة على أكثر الأسئلة شيوعًا
           </p>
         </div>
@@ -85,24 +85,24 @@ export default function FAQ() {
           {faqs.map((faq) => (
             <details
               key={faq.q}
-              className="group rounded-2xl border border-stone-200 bg-white transition-all hover:border-emerald-200 hover:shadow-sm"
+              className="group rounded-2xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 transition-all hover:border-emerald-200 dark:border-emerald-800 hover:shadow-sm dark:shadow-stone-900/30"
             >
-              <summary className="flex cursor-pointer items-center justify-between gap-4 p-5 text-base font-semibold text-stone-900 md:p-6">
+              <summary className="flex cursor-pointer items-center justify-between gap-4 p-5 text-base font-semibold text-stone-900 dark:text-stone-100 md:p-6">
                 <span>{faq.q}</span>
-                <ChevronDown className="h-5 w-5 shrink-0 text-stone-500 transition-transform group-open:rotate-180" />
+                <ChevronDown className="h-5 w-5 shrink-0 text-stone-500 dark:text-stone-400 transition-transform group-open:rotate-180" />
               </summary>
-              <p className="px-5 pb-5 text-sm leading-relaxed text-stone-700 md:px-6 md:pb-6">
+              <p className="px-5 pb-5 text-sm leading-relaxed text-stone-700 dark:text-stone-300 md:px-6 md:pb-6">
                 {faq.a}
               </p>
             </details>
           ))}
         </div>
 
-        <div className="mt-12 rounded-2xl border border-stone-200 bg-stone-50 p-8 text-center">
-          <p className="font-bold text-stone-900">لم تجد إجابة على سؤالك؟</p>
-          <p className="mt-1 text-sm text-stone-600">
+        <div className="mt-12 rounded-2xl border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-900 p-8 text-center">
+          <p className="font-bold text-stone-900 dark:text-stone-100">لم تجد إجابة على سؤالك؟</p>
+          <p className="mt-1 text-sm text-stone-600 dark:text-stone-400">
             تواصل معنا مباشرة عبر{' '}
-            <a href={`mailto:${SUPPORT_EMAIL}`} className="inline-flex min-h-[44px] items-center font-semibold text-emerald-600 underline underline-offset-2 hover:text-emerald-700">
+            <a href={`mailto:${SUPPORT_EMAIL}`} className="inline-flex min-h-[44px] items-center font-semibold text-emerald-600 underline underline-offset-2 hover:text-emerald-700 dark:text-emerald-400">
               {SUPPORT_EMAIL}
             </a>
           </p>
@@ -115,7 +115,7 @@ export default function FAQ() {
             </Link>
             <Link
               to="/library"
-              className="rounded-full border-2 border-stone-300 px-8 py-3 font-bold text-stone-800 transition-colors hover:bg-stone-100"
+              className="rounded-full border-2 border-stone-300 dark:border-stone-700 px-8 py-3 font-bold text-stone-800 dark:text-stone-200 transition-colors hover:bg-stone-100 dark:hover:bg-stone-800"
             >
               تصفّح المكتبة
             </Link>

@@ -39,19 +39,19 @@ export default function CookieConsent() {
   if (!visible) return null;
 
   return (
-    <div role="alertdialog" aria-label="ملفات تعريف الارتباط" className="fixed bottom-0 inset-x-0 z-[45] border-t border-stone-200 bg-white/95 backdrop-blur-xl shadow-[0_-4px_20px_rgba(0,0,0,0.08)] px-4 py-3 sm:px-6 sm:py-4 md:p-5 animate-slide-up pb-[env(safe-area-inset-bottom)]">
+    <div role="alertdialog" aria-label="ملفات تعريف الارتباط" className="fixed bottom-0 inset-x-0 z-[45] border-t border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950/95 backdrop-blur-xl shadow-[0_-4px_20px_rgba(0,0,0,0.08)] px-4 py-3 sm:px-6 sm:py-4 md:p-5 animate-slide-up pb-[env(safe-area-inset-bottom)]">
       <div className="mx-auto max-w-5xl">
-        <p className="text-sm font-bold text-stone-900 mb-2">ملفات تعريف الارتباط</p>
+        <p className="text-sm font-bold text-stone-900 dark:text-stone-100 mb-2">ملفات تعريف الارتباط</p>
 
         <div className="space-y-2 mb-3">
-          <label className="flex items-center gap-3 rounded-lg bg-stone-50 px-3 py-2">
+          <label className="flex items-center gap-3 rounded-lg bg-stone-50 dark:bg-stone-900 px-3 py-2">
             <input type="checkbox" checked disabled className="h-4 w-4 accent-emerald-600 rounded" />
             <div>
-              <span className="text-sm font-medium text-stone-800">أساسية</span>
-              <span className="text-xs text-stone-500 block">تسجيل الدخول والجلسة — مطلوبة لعمل الموقع</span>
+              <span className="text-sm font-medium text-stone-800 dark:text-stone-200">أساسية</span>
+              <span className="text-xs text-stone-500 dark:text-stone-400 block">تسجيل الدخول والجلسة — مطلوبة لعمل الموقع</span>
             </div>
           </label>
-          <label className="flex items-center gap-3 rounded-lg bg-stone-50 px-3 py-2 cursor-pointer">
+          <label className="flex items-center gap-3 rounded-lg bg-stone-50 dark:bg-stone-900 px-3 py-2 cursor-pointer">
             <input
               type="checkbox"
               checked={optionalChecked}
@@ -59,26 +59,26 @@ export default function CookieConsent() {
               className="h-4 w-4 accent-emerald-600 rounded"
             />
             <div>
-              <span className="text-sm font-medium text-stone-800">اختيارية</span>
-              <span className="text-xs text-stone-500 block">Google Analytics — لتحسين الأداء</span>
+              <span className="text-sm font-medium text-stone-800 dark:text-stone-200">اختيارية</span>
+              <span className="text-xs text-stone-500 dark:text-stone-400 block">Google Analytics — لتحسين الأداء</span>
             </div>
           </label>
         </div>
 
         <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-          <p className="text-xs text-stone-500">
-            <Link to="/privacy" className="text-emerald-600 underline underline-offset-2 transition-colors hover:text-emerald-700">سياسة الخصوصية</Link>
+          <p className="text-xs text-stone-500 dark:text-stone-400">
+            <Link to="/privacy" className="text-emerald-600 underline underline-offset-2 transition-colors hover:text-emerald-700 dark:text-emerald-400">سياسة الخصوصية</Link>
           </p>
           <div className="flex shrink-0 items-center gap-3">
             <button
               onClick={rejectOptional}
-              className="px-3 py-2 min-h-[44px] text-sm text-stone-500 underline underline-offset-2 transition-colors hover:text-stone-700"
+              className="px-3 py-2 min-h-[44px] text-sm text-stone-500 dark:text-stone-400 underline underline-offset-2 transition-colors hover:text-stone-700 dark:text-stone-300"
             >
               رفض الاختيارية
             </button>
             <button
               onClick={savePreferences}
-              className="shrink-0 rounded-full border border-emerald-600 px-5 py-2 min-h-[44px] text-sm font-bold text-emerald-600 transition-all hover:bg-emerald-50 active:scale-95"
+              className="shrink-0 rounded-full border border-emerald-600 px-5 py-2 min-h-[44px] text-sm font-bold text-emerald-600 transition-all hover:bg-emerald-50 dark:bg-emerald-900/20 active:scale-95"
             >
               حفظ التفضيلات
             </button>

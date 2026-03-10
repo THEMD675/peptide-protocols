@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { Link } from 'react-router-dom';
 import { toast } from 'sonner';
-import { Layers, Clock, DollarSign, BarChart3, Syringe, Calculator } from 'lucide-react';
+import { Layers, Clock, DollarSign, BarChart3, Syringe, Calculator, ArrowLeftRight } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import ProtocolWizard from '@/components/ProtocolWizard';
 import { PRICING, SITE_URL } from '@/lib/constants';
@@ -50,9 +50,9 @@ export default function Stacks() {
       {activeWizard && <ProtocolWizard peptideId={activeWizard} onClose={() => setActiveWizard(null)} />}
       {stackStartDialog && (
         <div role="dialog" aria-modal="true" className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" onClick={() => setStackStartDialog(null)}>
-          <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl" onClick={e => e.stopPropagation()}>
-            <h3 className="text-lg font-bold text-stone-900 mb-2">ابدأ البروتوكول: {stackStartDialog.stackName}</h3>
-            <p className="text-sm text-stone-600 mb-4">اختر الببتيد الذي تريد بدء بروتوكوله:</p>
+          <div className="w-full max-w-md rounded-2xl bg-white dark:bg-stone-950 p-6 shadow-xl dark:shadow-stone-900/40" onClick={e => e.stopPropagation()}>
+            <h3 className="text-lg font-bold text-stone-900 dark:text-stone-100 mb-2">ابدأ البروتوكول: {stackStartDialog.stackName}</h3>
+            <p className="text-sm text-stone-600 dark:text-stone-400 mb-4">اختر الببتيد الذي تريد بدء بروتوكوله:</p>
             <div className="space-y-2">
               {stackStartDialog.peptideIds.map(pid => {
                 const p = peptides.find(x => x.id === pid);
@@ -61,7 +61,7 @@ export default function Stacks() {
                     key={pid}
                     type="button"
                     onClick={() => { setActiveWizard(pid); setStackStartDialog(null); }}
-                    className="flex w-full items-center justify-between gap-2 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-bold text-emerald-800 transition-colors hover:bg-emerald-100"
+                    className="flex w-full items-center justify-between gap-2 rounded-xl border border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-900/20 px-4 py-3 text-sm font-bold text-emerald-800 dark:text-emerald-300 transition-colors hover:bg-emerald-100 dark:bg-emerald-900/30"
                   >
                     <span>{p.nameAr}</span>
                     <Syringe className="h-4 w-4 shrink-0" />
@@ -69,7 +69,7 @@ export default function Stacks() {
                 ) : null;
               })}
             </div>
-            <button onClick={() => setStackStartDialog(null)} className="mt-4 w-full rounded-xl border border-stone-200 py-2.5 text-sm font-bold text-stone-600 hover:bg-stone-50">
+            <button onClick={() => setStackStartDialog(null)} className="mt-4 w-full rounded-xl border border-stone-200 dark:border-stone-700 py-2.5 text-sm font-bold text-stone-600 dark:text-stone-400 hover:bg-stone-50 dark:hover:bg-stone-800">
               إلغاء
             </button>
           </div>
@@ -108,7 +108,7 @@ export default function Stacks() {
         <h1 className="text-3xl font-bold md:text-4xl text-emerald-600">
           البروتوكولات المُجمَّعة
         </h1>
-        <p className="mt-2 text-lg text-stone-600">
+        <p className="mt-2 text-lg text-stone-600 dark:text-stone-400">
           خلطات مُجرَّبة لأهداف محددة
         </p>
       </div>
@@ -142,43 +142,52 @@ export default function Stacks() {
               </h2>
 
               {/* Goal — always visible */}
-              <p className="mb-3 text-sm leading-relaxed text-stone-700">
+              <p className="mb-3 text-sm leading-relaxed text-stone-700 dark:text-stone-300">
                 {stack.goalAr}
               </p>
 
               {/* Stack meta — always visible */}
               {STACK_META[stack.id] && (
                 <div className="mb-4 flex flex-wrap gap-2">
-                  <span className="flex items-center gap-1 rounded-full border border-stone-200 bg-stone-50 px-2.5 py-1 text-sm font-medium text-stone-700">
+                  <span className="flex items-center gap-1 rounded-full border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-900 px-2.5 py-1 text-sm font-medium text-stone-700 dark:text-stone-300">
                     <BarChart3 className="h-3 w-3" />
                     {STACK_META[stack.id].difficulty}
                   </span>
-                  <span className="flex items-center gap-1 rounded-full border border-stone-200 bg-stone-50 px-2.5 py-1 text-sm font-medium text-stone-700">
+                  <span className="flex items-center gap-1 rounded-full border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-900 px-2.5 py-1 text-sm font-medium text-stone-700 dark:text-stone-300">
                     <DollarSign className="h-3 w-3" />
                     {STACK_META[stack.id].cost}
                   </span>
-                  <span className="flex items-center gap-1 rounded-full border border-stone-200 bg-stone-50 px-2.5 py-1 text-sm font-medium text-stone-700">
+                  <span className="flex items-center gap-1 rounded-full border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-900 px-2.5 py-1 text-sm font-medium text-stone-700 dark:text-stone-300">
                     <Clock className="h-3 w-3" />
                     {STACK_META[stack.id].duration}
                   </span>
                 </div>
               )}
 
-              {/* Peptide name chips — always visible */}
+              {/* Peptide chain — visual connections */}
               <div className="mb-4">
                 <h3 className="mb-2 text-xs font-bold tracking-wider">
                   الببتيدات
                 </h3>
-                <div className="flex flex-wrap gap-2">
-                  {stackPeptides.map((p) =>
+                <div className="flex flex-wrap items-center gap-1">
+                  {stackPeptides.map((p, idx) =>
                     p ? (
-                      <Link
-                        key={p.id}
-                        to={`/peptide/${p.id}`}
-                        className="rounded-lg bg-emerald-50 px-3 py-2 text-xs font-medium text-emerald-700 transition-all hover:bg-emerald-100 hover:shadow-sm"
-                      >
-                        {p.nameAr}
-                      </Link>
+                      <div key={p.id} className="flex items-center gap-1">
+                        <Link
+                          to={`/peptide/${p.id}`}
+                          className="group relative flex items-center gap-1.5 rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-xs font-medium text-emerald-700 transition-all hover:bg-emerald-100 hover:shadow-md hover:border-emerald-400 min-h-[36px]"
+                        >
+                          <span className="h-2 w-2 rounded-full bg-emerald-500 group-hover:animate-pulse" />
+                          {p.nameAr}
+                        </Link>
+                        {idx < stackPeptides.length - 1 && (
+                          <div className="flex items-center px-0.5">
+                            <div className="h-px w-3 bg-emerald-300" />
+                            <ArrowLeftRight className="h-3 w-3 text-emerald-400" />
+                            <div className="h-px w-3 bg-emerald-300" />
+                          </div>
+                        )}
+                      </div>
                     ) : null,
                   )}
                 </div>
@@ -191,19 +200,19 @@ export default function Stacks() {
                   tabIndex={!isPro ? -1 : undefined}
                   className={!isPro ? 'blur-[6px] pointer-events-none select-none max-h-32 overflow-hidden' : ''}
                 >
-                  <p className="mb-4 text-sm leading-relaxed text-stone-700">
+                  <p className="mb-4 text-sm leading-relaxed text-stone-700 dark:text-stone-300">
                     {stack.descriptionAr}
                   </p>
 
-                  <div className="rounded-xl bg-emerald-50/50 border border-emerald-100 p-4 text-sm leading-relaxed text-stone-700 space-y-4">
+                  <div className="rounded-xl bg-emerald-50/50 border border-emerald-100 p-4 text-sm leading-relaxed text-stone-700 dark:text-stone-300 space-y-4">
                     {stack.protocolAr.split(/\n\n+/).filter(Boolean).map((block, i) => {
                       const idx = block.indexOf('\n');
                       const firstLine = idx >= 0 ? block.slice(0, idx) : block;
                       const rest = idx >= 0 ? block.slice(idx + 1) : '';
                       const isPhaseHeader = /^(المرحلة \d|البروتوكول |البديل |الدورة\b|بروتوكول |دعم مساعد)/.test(firstLine.trim());
                       return (
-                        <div key={i} className="rounded-xl bg-white/50 p-3 py-2 border-s-2 border-emerald-300 ps-3">
-                          <span className={isPhaseHeader ? 'text-base font-bold text-stone-900 block mb-1' : ''}>{firstLine}</span>
+                        <div key={i} className="rounded-xl bg-white dark:bg-stone-950/50 p-3 py-2 border-s-2 border-emerald-300 dark:border-emerald-700 ps-3">
+                          <span className={isPhaseHeader ? 'text-base font-bold text-stone-900 dark:text-stone-100 block mb-1' : ''}>{firstLine}</span>
                           {rest ? <span className="whitespace-pre-line block">{rest}</span> : null}
                         </div>
                       );
@@ -221,14 +230,14 @@ export default function Stacks() {
                           setStackStartDialog({ peptideIds: stack.peptideIds, stackName: stack.nameAr });
                         }
                       }}
-                      className="inline-flex items-center gap-1.5 rounded-full bg-emerald-600 px-5 py-2.5 text-sm font-bold text-white hover:bg-emerald-700 transition-colors"
+                      className="inline-flex items-center gap-1.5 rounded-full bg-emerald-600 px-5 py-2.5 text-sm font-bold text-white hover:bg-emerald-700 transition-colors min-h-[44px]"
                     >
                       <Syringe className="h-3.5 w-3.5" />
                       {stack.peptideIds.length > 1 ? 'ابدأ البروتوكول' : `ابدأ بـ ${stackPeptides[0]?.nameAr ?? 'البروتوكول'}`}
                     </button>
                     <Link
                       to={`/calculator?peptide=${encodeURIComponent(stackPeptides[0]?.nameEn ?? '')}`}
-                      className="inline-flex items-center gap-1.5 rounded-full border border-stone-200 bg-white px-4 py-2 text-sm font-bold text-stone-700 hover:border-emerald-200 transition-colors"
+                      className="inline-flex items-center gap-1.5 rounded-full border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 px-4 py-2 text-sm font-bold text-stone-700 dark:text-stone-300 hover:border-emerald-200 dark:border-emerald-800 transition-colors"
                     >
                       <Calculator className="h-3.5 w-3.5" />
                       احسب الجرعة
@@ -247,7 +256,7 @@ export default function Stacks() {
                       </Link>
                       <Link
                         to="/coach"
-                        className="rounded-full border-2 border-emerald-300 px-5 py-2 text-sm font-bold text-emerald-700 transition-colors hover:bg-emerald-50"
+                        className="rounded-full border-2 border-emerald-300 dark:border-emerald-700 px-5 py-2 text-sm font-bold text-emerald-700 dark:text-emerald-400 transition-colors hover:bg-emerald-50 dark:bg-emerald-900/20"
                       >
                         اسأل المدرب الذكي
                       </Link>
@@ -261,12 +270,12 @@ export default function Stacks() {
       </div>
 
       {!isPro && (
-        <div className="mt-10 rounded-2xl border border-emerald-200 bg-emerald-50 p-6 text-center">
-          <p className="font-bold text-stone-900">اكتشف البروتوكولات الكاملة</p>
-          <p className="mt-1 text-sm text-stone-600">اشترك لفتح كل البروتوكولات المُجمَّعة مع الجرعات والتوقيت</p>
+        <div className="mt-10 rounded-2xl border border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-900/20 p-6 text-center">
+          <p className="font-bold text-stone-900 dark:text-stone-100">اكتشف البروتوكولات الكاملة</p>
+          <p className="mt-1 text-sm text-stone-600 dark:text-stone-400">اشترك لفتح كل البروتوكولات المُجمَّعة مع الجرعات والتوقيت</p>
           <div className="mt-4 flex flex-col gap-2 sm:flex-row sm:justify-center">
             <Link to="/pricing" className="rounded-full bg-emerald-600 px-6 py-2.5 text-sm font-bold text-white transition-colors hover:bg-emerald-700">اشترك — {PRICING.essentials.label}/شهريًا</Link>
-            <Link to="/coach" className="rounded-full border border-emerald-300 px-6 py-2.5 text-sm font-bold text-emerald-700 transition-colors hover:bg-emerald-100">اسأل المدرب الذكي</Link>
+            <Link to="/coach" className="rounded-full border border-emerald-300 dark:border-emerald-700 px-6 py-2.5 text-sm font-bold text-emerald-700 dark:text-emerald-400 transition-colors hover:bg-emerald-100 dark:bg-emerald-900/30">اسأل المدرب الذكي</Link>
           </div>
         </div>
       )}

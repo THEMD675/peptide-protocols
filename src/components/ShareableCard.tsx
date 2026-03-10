@@ -97,28 +97,28 @@ export default memo(function ShareableCard(props: ShareableCardProps) {
 
   return (
     <div>
-      <div ref={cardRef} className="rounded-2xl border-2 border-emerald-200 bg-gradient-to-br from-white to-emerald-50 p-6 text-center">
-        <p className="text-lg font-bold tracking-tight text-stone-900" dir="ltr" style={{letterSpacing: '-0.03em'}}>
+      <div ref={cardRef} className="rounded-2xl border-2 border-emerald-200 dark:border-emerald-800 bg-gradient-to-br from-white dark:from-stone-950 to-emerald-50 p-6 text-center">
+        <p className="text-lg font-bold tracking-tight text-stone-900 dark:text-stone-100" dir="ltr" style={{letterSpacing: '-0.03em'}}>
           pp<span className="text-emerald-600">tides</span>
         </p>
-        <h3 className="mt-3 text-xl font-black text-stone-900">{props.peptideName}</h3>
-        <p className="text-sm text-stone-500" dir="ltr">{props.peptideNameEn}</p>
+        <h3 className="mt-3 text-xl font-black text-stone-900 dark:text-stone-100">{props.peptideName}</h3>
+        <p className="text-sm text-stone-500 dark:text-stone-400" dir="ltr">{props.peptideNameEn}</p>
         <div className="mt-4 grid grid-cols-2 gap-3">
-          <div className="rounded-xl bg-white border border-stone-200 p-3">
-            <p className="text-xs text-stone-500">الجرعة</p>
+          <div className="rounded-xl bg-white dark:bg-stone-950 border border-stone-200 dark:border-stone-700 p-3">
+            <p className="text-xs text-stone-500 dark:text-stone-400">الجرعة</p>
             <p className="text-lg font-black text-emerald-600" dir="ltr">{props.dose} {props.unit}</p>
           </div>
-          <div className="rounded-xl bg-white border border-stone-200 p-3">
-            <p className="text-xs text-stone-500">التكرار</p>
-            <p className="text-sm font-bold text-stone-900">{FREQUENCY_LABELS[props.frequency] ?? props.frequency}</p>
+          <div className="rounded-xl bg-white dark:bg-stone-950 border border-stone-200 dark:border-stone-700 p-3">
+            <p className="text-xs text-stone-500 dark:text-stone-400">التكرار</p>
+            <p className="text-sm font-bold text-stone-900 dark:text-stone-100">{FREQUENCY_LABELS[props.frequency] ?? props.frequency}</p>
           </div>
-          <div className="rounded-xl bg-white border border-stone-200 p-3">
-            <p className="text-xs text-stone-500">التقدّم</p>
-            <p className="text-lg font-black text-stone-900">يوم {props.daysSinceStart}/{props.cycleWeeks * 7}</p>
+          <div className="rounded-xl bg-white dark:bg-stone-950 border border-stone-200 dark:border-stone-700 p-3">
+            <p className="text-xs text-stone-500 dark:text-stone-400">التقدّم</p>
+            <p className="text-lg font-black text-stone-900 dark:text-stone-100">يوم {props.daysSinceStart}/{props.cycleWeeks * 7}</p>
           </div>
           {props.adherencePercent != null && (
-            <div className="rounded-xl bg-white border border-stone-200 p-3">
-              <p className="text-xs text-stone-500">الالتزام</p>
+            <div className="rounded-xl bg-white dark:bg-stone-950 border border-stone-200 dark:border-stone-700 p-3">
+              <p className="text-xs text-stone-500 dark:text-stone-400">الالتزام</p>
               <p className="text-lg font-black text-emerald-600">{props.adherencePercent}%</p>
             </div>
           )}
@@ -153,14 +153,14 @@ export default memo(function ShareableCard(props: ShareableCardProps) {
         <button
           onClick={handleShare}
           aria-label="مشاركة"
-          className="flex items-center justify-center gap-2 rounded-xl border border-stone-200 px-4 py-2.5 text-sm font-bold text-stone-700 transition-colors hover:bg-stone-50"
+          className="flex items-center justify-center gap-2 rounded-xl border border-stone-200 dark:border-stone-700 px-4 py-2.5 text-sm font-bold text-stone-700 dark:text-stone-300 transition-colors hover:bg-stone-50 dark:hover:bg-stone-800"
         >
           <Share2 className="h-4 w-4" />
         </button>
         <button
           onClick={handleCopy}
           aria-label="نسخ"
-          className="flex items-center justify-center gap-2 rounded-xl border border-stone-200 px-4 py-2.5 text-sm font-bold text-stone-700 transition-colors hover:bg-stone-50"
+          className="flex items-center justify-center gap-2 rounded-xl border border-stone-200 dark:border-stone-700 px-4 py-2.5 text-sm font-bold text-stone-700 dark:text-stone-300 transition-colors hover:bg-stone-50 dark:hover:bg-stone-800"
         >
           {copied ? <Check className="h-4 w-4 text-emerald-600" /> : <Copy className="h-4 w-4" />}
         </button>

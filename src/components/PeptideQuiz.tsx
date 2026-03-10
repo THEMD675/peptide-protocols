@@ -177,32 +177,32 @@ export default function PeptideQuiz() {
     const hasCalcPreset = !ORAL_TOPICAL_IDS.has(rec.peptideId);
 
     return (
-      <div className="rounded-2xl border border-emerald-200 bg-emerald-50/50 p-6 shadow-lg shadow-emerald-600/5 md:p-8">
+      <div className="rounded-2xl border border-emerald-200 dark:border-emerald-800 bg-emerald-50/50 p-6 shadow-lg shadow-emerald-600/5 md:p-8">
         <div className="flex items-center gap-3 mb-4">
           <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-600">
             <CheckCircle className="h-5 w-5 text-white" />
           </div>
           <div>
-            <p className="text-sm font-bold text-emerald-800">توصيتنا لك</p>
+            <p className="text-sm font-bold text-emerald-800 dark:text-emerald-300">توصيتنا لك</p>
             <p className="text-xs text-emerald-600">بناءً على إجاباتك</p>
           </div>
         </div>
 
-        <div className="mb-4 rounded-xl border border-emerald-200 bg-white p-5">
+        <div className="mb-4 rounded-xl border border-emerald-200 dark:border-emerald-800 bg-white dark:bg-stone-950 p-5">
           <div className="flex items-center justify-between mb-2">
-            <h3 className="text-xl font-black text-stone-900">{rec.nameAr}</h3>
-            <span className="text-sm font-medium text-stone-500" dir="ltr">{rec.nameEn}</span>
+            <h3 className="text-xl font-black text-stone-900 dark:text-stone-100">{rec.nameAr}</h3>
+            <span className="text-sm font-medium text-stone-500 dark:text-stone-400" dir="ltr">{rec.nameEn}</span>
           </div>
-          <p className="text-sm text-stone-700 leading-relaxed">{rec.reason}</p>
+          <p className="text-sm text-stone-700 dark:text-stone-300 leading-relaxed">{rec.reason}</p>
           {peptideData?.dosageAr && (
-            <p className="mt-2 text-sm text-stone-600"><strong>الجرعة:</strong> {peptideData.dosageAr.split('.')[0]}</p>
+            <p className="mt-2 text-sm text-stone-600 dark:text-stone-400"><strong>الجرعة:</strong> {peptideData.dosageAr.split('.')[0]}</p>
           )}
           {peptideData?.costEstimate && (
-            <p className="mt-2 text-sm text-emerald-700 font-semibold">التكلفة التقريبية: {peptideData.costEstimate}</p>
+            <p className="mt-2 text-sm text-emerald-700 dark:text-emerald-400 font-semibold">التكلفة التقريبية: {peptideData.costEstimate}</p>
           )}
-          {peptideData?.timingAr && <p className="text-xs text-stone-500 mt-1">التوقيت: {peptideData.timingAr.split('.')[0]}</p>}
-          {peptideData?.cycleAr && <p className="text-xs text-stone-500">الدورة: {peptideData.cycleAr.split('.')[0]}</p>}
-          {peptideData?.administrationAr && <p className="text-xs text-stone-500">طريقة الحقن: {peptideData.administrationAr.split('.')[0]}</p>}
+          {peptideData?.timingAr && <p className="text-xs text-stone-500 dark:text-stone-400 mt-1">التوقيت: {peptideData.timingAr.split('.')[0]}</p>}
+          {peptideData?.cycleAr && <p className="text-xs text-stone-500 dark:text-stone-400">الدورة: {peptideData.cycleAr.split('.')[0]}</p>}
+          {peptideData?.administrationAr && <p className="text-xs text-stone-500 dark:text-stone-400">طريقة الحقن: {peptideData.administrationAr.split('.')[0]}</p>}
         </div>
 
         <div className="flex flex-col gap-3 sm:flex-row">
@@ -215,14 +215,14 @@ export default function PeptideQuiz() {
           </Link>
           <Link
             to={user ? '/coach' : '/signup?redirect=/coach'}
-            className="flex items-center justify-center gap-2 rounded-xl border border-emerald-200 bg-white px-5 py-3 text-sm font-bold text-emerald-700 transition-all hover:bg-emerald-50"
+            className="flex items-center justify-center gap-2 rounded-xl border border-emerald-200 dark:border-emerald-800 bg-white dark:bg-stone-950 px-5 py-3 text-sm font-bold text-emerald-700 dark:text-emerald-400 transition-all hover:bg-emerald-50 dark:bg-emerald-900/20"
           >
             صمّم بروتوكول مخصّص مع المدرب
           </Link>
           {hasCalcPreset && (
             <Link
               to={`/calculator?peptide=${encodeURIComponent(rec.nameEn)}`}
-              className="flex items-center justify-center gap-2 rounded-xl border border-stone-200 bg-white px-5 py-3 text-sm font-bold text-stone-700 transition-all hover:border-emerald-200 hover:shadow-sm"
+              className="flex items-center justify-center gap-2 rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 px-5 py-3 text-sm font-bold text-stone-700 dark:text-stone-300 transition-all hover:border-emerald-200 dark:border-emerald-800 hover:shadow-sm dark:shadow-stone-900/30"
             >
               <Calculator className="h-4 w-4" />
               احسب جرعة {rec.nameAr}
@@ -231,12 +231,12 @@ export default function PeptideQuiz() {
         </div>
 
         {rec.altId && rec.altName && (
-          <Link to={`/peptide/${rec.altId}`} className="mt-3 block text-center text-sm text-stone-500 hover:text-emerald-600 transition-colors">
+          <Link to={`/peptide/${rec.altId}`} className="mt-3 block text-center text-sm text-stone-500 dark:text-stone-400 hover:text-emerald-600 transition-colors">
             بديل آخر: <span className="font-bold">{rec.altName}</span>
           </Link>
         )}
         <div className="mt-4 flex items-center justify-center gap-4">
-          <button onClick={() => { setShowResult(false); setStep(STEPS.length - 1); }} className="min-h-[44px] px-2 text-sm text-stone-500 hover:text-stone-700 transition-colors">
+          <button onClick={() => { setShowResult(false); setStep(STEPS.length - 1); }} className="min-h-[44px] px-2 text-sm text-stone-500 dark:text-stone-400 hover:text-stone-700 dark:text-stone-300 transition-colors">
             غيّر إجابتك
           </button>
           <span className="text-stone-300">|</span>
@@ -251,29 +251,29 @@ export default function PeptideQuiz() {
   const currentStep = STEPS[step];
 
   return (
-    <div className="rounded-2xl border border-stone-200 bg-white p-6 shadow-lg shadow-emerald-600/5 md:p-8">
+    <div className="rounded-2xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 p-6 shadow-lg shadow-emerald-600/5 md:p-8">
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-100">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-100 dark:bg-emerald-900/30">
             <FlaskConical className="h-5 w-5 text-emerald-600" />
           </div>
           <div>
-            <p className="text-sm font-bold text-stone-900">أي ببتيد يناسبك؟</p>
-            <p className="text-xs text-stone-500">{step + 1} من {STEPS.length}</p>
+            <p className="text-sm font-bold text-stone-900 dark:text-stone-100">أي ببتيد يناسبك؟</p>
+            <p className="text-xs text-stone-500 dark:text-stone-400">{step + 1} من {STEPS.length}</p>
           </div>
         </div>
         {step > 0 && (
-          <button onClick={handleBack} className="flex items-center gap-1 min-h-[44px] text-sm text-stone-500 transition-colors hover:text-stone-800">
+          <button onClick={handleBack} className="flex items-center gap-1 min-h-[44px] text-sm text-stone-500 dark:text-stone-400 transition-colors hover:text-stone-800 dark:text-stone-200">
             <ArrowRight className="h-3 w-3 shrink-0" /> رجوع
           </button>
         )}
       </div>
 
-      <div className="mb-2 h-2 w-full rounded-full bg-stone-100" role="progressbar" aria-valuenow={step + 1} aria-valuemin={1} aria-valuemax={STEPS.length} aria-label="تقدّم الاختبار">
+      <div className="mb-2 h-2 w-full rounded-full bg-stone-100 dark:bg-stone-800" role="progressbar" aria-valuenow={step + 1} aria-valuemin={1} aria-valuemax={STEPS.length} aria-label="تقدّم الاختبار">
         <div className="h-2 rounded-full bg-emerald-500 transition-all duration-500 ease-out" style={{ width: `${((step + 1) / STEPS.length) * 100}%` }} />
       </div>
 
-      <h3 className="mb-5 text-lg font-bold text-stone-900">{currentStep.question}</h3>
+      <h3 className="mb-5 text-lg font-bold text-stone-900 dark:text-stone-100">{currentStep.question}</h3>
 
       <div className={cn('grid gap-2', step === 0 ? 'grid-cols-1 sm:grid-cols-2' : '')}>
         {currentStep.options.map((opt) => {
@@ -287,11 +287,11 @@ export default function PeptideQuiz() {
                 'w-full rounded-xl border text-sm font-medium transition-all',
                 Icon ? 'flex flex-col items-center gap-1.5 px-3 py-3 text-center' : 'px-5 py-3.5 text-start',
                 answers[step] === opt.id
-                  ? 'border-emerald-400 bg-emerald-50 text-emerald-800 ring-2 ring-emerald-100'
-                  : 'border-stone-200 bg-white text-stone-800 hover:border-emerald-300 transition-colors hover:bg-stone-50'
+                  ? 'border-emerald-400 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-800 dark:text-emerald-300 ring-2 ring-emerald-100'
+                  : 'border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 text-stone-800 dark:text-stone-200 hover:border-emerald-300 dark:border-emerald-700 transition-colors hover:bg-stone-50 dark:hover:bg-stone-800'
               )}
             >
-              {Icon && <Icon className={cn('h-5 w-5', answers[step] === opt.id ? 'text-emerald-600' : 'text-stone-500')} />}
+              {Icon && <Icon className={cn('h-5 w-5', answers[step] === opt.id ? 'text-emerald-600' : 'text-stone-500 dark:text-stone-400')} />}
               <span className="text-sm font-bold">{opt.label}</span>
             </button>
           );
@@ -302,7 +302,7 @@ export default function PeptideQuiz() {
           عرض نتائجك السابقة
         </button>
       )}
-      <Link to="/library" className="mt-4 flex min-h-[44px] items-center justify-center text-center text-sm text-stone-500 hover:text-stone-600 transition-colors">
+      <Link to="/library" className="mt-4 flex min-h-[44px] items-center justify-center text-center text-sm text-stone-500 dark:text-stone-400 hover:text-stone-600 dark:text-stone-400 transition-colors">
         تخطّي — تصفّح المكتبة مباشرة
       </Link>
     </div>

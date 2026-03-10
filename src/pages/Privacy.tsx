@@ -4,7 +4,7 @@ import { LEGAL_LAST_UPDATED, SUPPORT_EMAIL, SITE_URL } from '@/lib/constants';
 
 export default function Privacy() {
   return (
-    <div className="min-h-screen bg-white animate-fade-in">
+    <div className="min-h-screen bg-white dark:bg-stone-950 animate-fade-in">
       <Helmet>
         <title>سياسة الخصوصية | pptides</title>
         <meta name="description" content="سياسة الخصوصية لموقع pptides.com — كيف نحمي بياناتك الشخصية." />
@@ -27,12 +27,12 @@ export default function Privacy() {
         })}</script>
       </Helmet>
       <div className="mx-auto max-w-3xl px-4 pb-24 pt-8 md:px-6 md:pt-12">
-        <h1 className="mb-8 text-3xl font-bold text-stone-900 md:text-4xl">سياسة الخصوصية</h1>
-        <p className="mb-4 text-sm text-stone-500">آخر تحديث: {LEGAL_LAST_UPDATED}</p>
+        <h1 className="mb-8 text-3xl font-bold text-stone-900 dark:text-stone-100 md:text-4xl">سياسة الخصوصية</h1>
+        <p className="mb-4 text-sm text-stone-500 dark:text-stone-400">آخر تحديث: {LEGAL_LAST_UPDATED}</p>
 
-        <div className="space-y-8 text-stone-800 leading-relaxed">
+        <div className="space-y-8 text-stone-800 dark:text-stone-200 leading-relaxed">
           <section>
-            <h2 className="mb-3 text-xl font-bold text-stone-900">1. المعلومات التي نجمعها</h2>
+            <h2 className="mb-3 text-xl font-bold text-stone-900 dark:text-stone-100">1. المعلومات التي نجمعها</h2>
             <ul className="list-disc space-y-2 ps-6">
               <li>البريد الإلكتروني وكلمة المرور عند إنشاء الحساب</li>
               <li>بيانات الاشتراك والدفع (تُعالج عبر Stripe — لا نخزّن بيانات البطاقة)</li>
@@ -43,7 +43,7 @@ export default function Privacy() {
           </section>
 
           <section>
-            <h2 className="mb-3 text-xl font-bold text-stone-900">2. كيف نستخدم بياناتك</h2>
+            <h2 className="mb-3 text-xl font-bold text-stone-900 dark:text-stone-100">2. كيف نستخدم بياناتك</h2>
             <ul className="list-disc space-y-2 ps-6">
               <li>إدارة حسابك واشتراكك</li>
               <li>إرسال تحديثات المحتوى والعروض (يمكنك إلغاء الاشتراك في أي وقت)</li>
@@ -52,7 +52,7 @@ export default function Privacy() {
           </section>
 
           <section>
-            <h2 className="mb-3 text-xl font-bold text-stone-900">3. مزودو الخدمات الخارجيون</h2>
+            <h2 className="mb-3 text-xl font-bold text-stone-900 dark:text-stone-100">3. مزودو الخدمات الخارجيون</h2>
             <p className="mb-3">نستخدم مزودي خدمات خارجيين لتشغيل أجزاء من الموقع. كل مزود يعالج فقط البيانات اللازمة لتقديم خدمته:</p>
             <ul className="list-disc space-y-2 ps-6">
               <li><strong>Supabase</strong> — قاعدة البيانات والمصادقة، مع سياسات أمان على مستوى الصفوف (RLS)</li>
@@ -64,12 +64,12 @@ export default function Privacy() {
           </section>
 
           <section>
-            <h2 className="mb-3 text-xl font-bold text-stone-900">4. أمان البيانات</h2>
+            <h2 className="mb-3 text-xl font-bold text-stone-900 dark:text-stone-100">4. أمان البيانات</h2>
             <p>نستخدم تشفير SSL/TLS لحماية اتصالاتك. بيانات الدفع تُعالج حصريًا عبر Stripe ولا تمر عبر خوادمنا.</p>
           </section>
 
           <section>
-            <h2 className="mb-3 text-xl font-bold text-stone-900">5. حقوقك</h2>
+            <h2 className="mb-3 text-xl font-bold text-stone-900 dark:text-stone-100">5. حقوقك</h2>
             <ul className="list-disc space-y-2 ps-6">
               <li>حذف حسابك وجميع بياناتك في أي وقت</li>
               <li>إلغاء الاشتراك البريدي</li>
@@ -78,8 +78,8 @@ export default function Privacy() {
           </section>
 
           <section className="mb-8">
-            <h2 className="mb-3 text-xl font-bold text-stone-900">6. الاحتفاظ بالبيانات</h2>
-            <ul className="list-disc space-y-2 ps-6 text-stone-700 leading-relaxed">
+            <h2 className="mb-3 text-xl font-bold text-stone-900 dark:text-stone-100">6. الاحتفاظ بالبيانات</h2>
+            <ul className="list-disc space-y-2 ps-6 text-stone-700 dark:text-stone-300 leading-relaxed">
               <li>نحتفظ ببيانات حسابك طوال فترة اشتراكك النشط</li>
               <li>عند حذف حسابك، يتم حذف جميع بياناتك الشخصية نهائيًا</li>
               <li>سجلات الدفع تُحفظ لدى Stripe وفقًا لسياساتهم</li>
@@ -88,12 +88,12 @@ export default function Privacy() {
           </section>
 
           <section>
-            <h2 className="mb-3 text-xl font-bold text-stone-900">7. التواصل</h2>
+            <h2 className="mb-3 text-xl font-bold text-stone-900 dark:text-stone-100">7. التواصل</h2>
             <p>لأي استفسار حول الخصوصية: <a href={`mailto:${SUPPORT_EMAIL}`} className="inline-flex min-h-[44px] items-center text-emerald-600 underline">{SUPPORT_EMAIL}</a></p>
           </section>
         </div>
-        <div className="mt-8 border-t border-stone-200 pt-6 text-center">
-          <Link to="/" className="inline-flex min-h-[44px] items-center text-sm font-semibold text-emerald-600 transition-colors hover:text-emerald-700">→ العودة للصفحة الرئيسية</Link>
+        <div className="mt-8 border-t border-stone-200 dark:border-stone-700 pt-6 text-center">
+          <Link to="/" className="inline-flex min-h-[44px] items-center text-sm font-semibold text-emerald-600 transition-colors hover:text-emerald-700 dark:text-emerald-400">→ العودة للصفحة الرئيسية</Link>
         </div>
       </div>
     </div>

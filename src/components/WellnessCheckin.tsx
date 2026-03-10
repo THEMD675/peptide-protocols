@@ -28,19 +28,19 @@ const METRICS = [
 type MetricKey = (typeof METRICS)[number]['key'];
 
 const LEVEL_COLORS = [
-  'bg-red-100 text-red-700 border-red-300',
+  'bg-red-100 text-red-700 dark:text-red-400 border-red-300',
   'bg-orange-100 text-orange-700 border-orange-300',
   'bg-yellow-100 text-yellow-700 border-yellow-300',
   'bg-lime-100 text-lime-700 border-lime-300',
-  'bg-emerald-100 text-emerald-700 border-emerald-300',
+  'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 border-emerald-300 dark:border-emerald-700',
 ];
 
 const PAIN_COLORS = [
-  'bg-emerald-100 text-emerald-700 border-emerald-300',
+  'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 border-emerald-300 dark:border-emerald-700',
   'bg-lime-100 text-lime-700 border-lime-300',
   'bg-yellow-100 text-yellow-700 border-yellow-300',
   'bg-orange-100 text-orange-700 border-orange-300',
-  'bg-red-100 text-red-700 border-red-300',
+  'bg-red-100 text-red-700 dark:text-red-400 border-red-300',
 ];
 
 function getLastLogLabel(loggedAt: string): string {
@@ -161,23 +161,23 @@ export default function WellnessCheckin() {
   const isReadonly = !!todayEntry && !editing;
 
   return (
-    <div className="rounded-2xl border border-stone-200 bg-white p-5 shadow-sm">
+    <div className="rounded-2xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 p-5 shadow-sm dark:shadow-stone-900/30">
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-50">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-50 dark:bg-emerald-900/20">
             <HeartPulse className="h-5 w-5 text-emerald-600" />
           </div>
           <div>
-            <h3 className="text-sm font-bold text-stone-900">الحالة اليومية</h3>
+            <h3 className="text-sm font-bold text-stone-900 dark:text-stone-100">الحالة اليومية</h3>
             {lastEntry && (
-              <p className="text-xs text-stone-500">{getLastLogLabel(lastEntry.logged_at)}</p>
+              <p className="text-xs text-stone-500 dark:text-stone-400">{getLastLogLabel(lastEntry.logged_at)}</p>
             )}
           </div>
         </div>
         {isReadonly && (
           <button
             onClick={() => setEditing(true)}
-            className="flex items-center gap-1.5 rounded-lg border border-stone-200 px-3 py-1.5 text-xs font-bold text-stone-600 transition-colors hover:border-emerald-300 hover:text-emerald-700"
+            className="flex items-center gap-1.5 rounded-lg border border-stone-200 dark:border-stone-700 px-3 py-1.5 text-xs font-bold text-stone-600 dark:text-stone-400 transition-colors hover:border-emerald-300 dark:border-emerald-700 hover:text-emerald-700 dark:text-emerald-400"
           >
             <Pencil className="h-3 w-3" />
             تعديل
@@ -197,7 +197,7 @@ export default function WellnessCheckin() {
             return (
               <div key={metric.key}>
                 <div className="flex items-center justify-between mb-2">
-                  <span className="text-xs font-bold text-stone-700">{metric.label}</span>
+                  <span className="text-xs font-bold text-stone-700 dark:text-stone-300">{metric.label}</span>
                   <span className="text-sm">{metric.emojis[val - 1]}</span>
                 </div>
                 <div className="flex gap-1.5">
@@ -214,8 +214,8 @@ export default function WellnessCheckin() {
                         val === level
                           ? colors[level - 1]
                           : isReadonly
-                            ? 'border-stone-100 bg-stone-50 text-stone-300'
-                            : 'border-stone-200 bg-white text-stone-500 hover:border-stone-300',
+                            ? 'border-stone-100 dark:border-stone-800 bg-stone-50 dark:bg-stone-900 text-stone-300'
+                            : 'border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 text-stone-500 dark:text-stone-400 hover:border-stone-300 dark:border-stone-700',
                         !isReadonly && 'cursor-pointer active:scale-95',
                       )}
                     >
@@ -228,7 +228,7 @@ export default function WellnessCheckin() {
           })}
 
           <div>
-            <label htmlFor="wc-weight" className="mb-1 block text-xs font-bold text-stone-700">
+            <label htmlFor="wc-weight" className="mb-1 block text-xs font-bold text-stone-700 dark:text-stone-300">
               الوزن (كغ) <span className="text-emerald-600 font-normal">اختياري</span>
             </label>
             <input
@@ -243,12 +243,12 @@ export default function WellnessCheckin() {
               min="20"
               max="300"
               dir="ltr"
-              className="w-full rounded-xl border border-stone-200 bg-white px-4 py-2.5 text-sm text-stone-900 placeholder:text-stone-500 focus:border-emerald-300 focus:outline-none focus:ring-2 focus:ring-emerald-100 disabled:bg-stone-50 disabled:text-stone-500"
+              className="w-full rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 px-4 py-2.5 text-sm text-stone-900 dark:text-stone-100 placeholder:text-stone-500 dark:text-stone-400 focus:border-emerald-300 dark:border-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900 disabled:bg-stone-50 dark:bg-stone-900 disabled:text-stone-500 dark:text-stone-400"
             />
           </div>
 
           <div>
-            <label htmlFor="wc-notes" className="mb-1 block text-xs font-bold text-stone-700">
+            <label htmlFor="wc-notes" className="mb-1 block text-xs font-bold text-stone-700 dark:text-stone-300">
               ملاحظات <span className="text-emerald-600 font-normal">اختياري</span>
             </label>
             <textarea
@@ -259,7 +259,7 @@ export default function WellnessCheckin() {
               placeholder="كيف تشعر اليوم؟"
               rows={2}
               maxLength={200}
-              className="w-full resize-none rounded-xl border border-stone-200 bg-white px-4 py-2.5 text-sm text-stone-900 placeholder:text-stone-500 focus:border-emerald-300 focus:outline-none focus:ring-2 focus:ring-emerald-100 disabled:bg-stone-50 disabled:text-stone-500"
+              className="w-full resize-none rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 px-4 py-2.5 text-sm text-stone-900 dark:text-stone-100 placeholder:text-stone-500 dark:text-stone-400 focus:border-emerald-300 dark:border-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900 disabled:bg-stone-50 dark:bg-stone-900 disabled:text-stone-500 dark:text-stone-400"
             />
           </div>
 

@@ -108,11 +108,16 @@
     <link rel="apple-touch-icon" sizes="180x180" href="/icon-180.png" />
 
     <!-- Theme Color -->
-    <meta name="theme-color" content="#059669" />
+    <meta name="theme-color" content="#059669" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#0c0a09" media="(prefers-color-scheme: dark)" />
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="default" />
   </head>
   <body>
+    <script>
+      // Prevent flash of wrong theme — apply dark class before paint
+      (function(){try{var t=localStorage.getItem('pptides_theme');if(t==='dark'||(t==null&&window.matchMedia('(prefers-color-scheme:dark)').matches)){document.documentElement.classList.add('dark')}}catch(e){}})();
+    </script>
     <a href="#main-content" class="skip-link">تخطّي إلى المحتوى</a>
     <div id="root"></div>
     <noscript>

@@ -60,10 +60,10 @@ const NotFound = lazy(() => import('@/pages/NotFound'));
 function PageLoader() {
   return (
     <div className="flex min-h-[60vh] flex-col items-center justify-center gap-4 animate-fade-in" role="status" aria-label="جارٍ التحميل">
-      <div className="text-xl font-bold tracking-tight text-stone-900" dir="ltr" aria-label="pptides">
+      <div className="text-xl font-bold tracking-tight text-stone-900 dark:text-stone-100" dir="ltr" aria-label="pptides">
         <span aria-hidden="true">pp</span><span className="text-emerald-600" aria-hidden="true">tides</span>
       </div>
-      <div className="h-8 w-8 animate-spin rounded-full border-2 border-emerald-200 border-t-emerald-600" />
+      <div className="h-8 w-8 animate-spin rounded-full border-2 border-emerald-200 dark:border-emerald-800 border-t-emerald-600" />
     </div>
   );
 }
@@ -94,8 +94,8 @@ class ErrorBoundary extends Component<{ children: ReactNode }, { hasError: boole
     if (this.state.hasError) {
       return (
         <div role="alert" className="flex min-h-[50vh] flex-col items-center justify-center px-6 text-center">
-          <h2 className="mb-3 text-2xl font-bold text-stone-900">حدث خطأ غير متوقع</h2>
-          <p className="mb-6 text-stone-600">
+          <h2 className="mb-3 text-2xl font-bold text-stone-900 dark:text-stone-100">حدث خطأ غير متوقع</h2>
+          <p className="mb-6 text-stone-600 dark:text-stone-400">
             {this.state.isChunkError ? 'تم تحديث الموقع — يرجى تحديث الصفحة.' : 'نعتذر عن هذا الخطأ. يرجى تحديث الصفحة.'}
           </p>
           <button onClick={() => { this.setState({ reloading: true }); window.location.reload(); }} className="rounded-full bg-emerald-600 px-8 py-3 font-bold text-white hover:bg-emerald-700 transition-colors">
@@ -133,10 +133,10 @@ class RouteErrorBoundary extends Component<
       const canRetry = this.state.retryCount < 2;
       return (
         <div className="flex min-h-[50vh] flex-col items-center justify-center px-6 text-center">
-          <h2 className="mb-3 text-2xl font-bold text-stone-900">
+          <h2 className="mb-3 text-2xl font-bold text-stone-900 dark:text-stone-100">
             {this.props.fallbackTitle ?? 'حدث خطأ في هذه الصفحة'}
           </h2>
-          <p className="mb-6 text-stone-600">
+          <p className="mb-6 text-stone-600 dark:text-stone-400">
             {canRetry ? 'نعتذر عن هذا الخطأ. يمكنك المحاولة مرة أخرى.' : 'يبدو أن هناك مشكلة مستمرة. حاول تحديث الصفحة أو العودة للرئيسية.'}
           </p>
           <div className="flex gap-3">
@@ -155,7 +155,7 @@ class RouteErrorBoundary extends Component<
                 تحديث الصفحة
               </button>
             )}
-            <Link to="/" className="rounded-full border-2 border-stone-300 px-8 py-3 font-bold text-stone-800 hover:bg-stone-50 transition-colors">
+            <Link to="/" className="rounded-full border-2 border-stone-300 dark:border-stone-700 px-8 py-3 font-bold text-stone-800 dark:text-stone-200 hover:bg-stone-50 dark:hover:bg-stone-800 transition-colors">
               الرئيسية
             </Link>
           </div>
@@ -276,7 +276,7 @@ export default function App() {
     <BrowserRouter>
       <AuthProvider>
         <ErrorBoundary>
-          <div className="min-h-screen flex flex-col bg-white text-stone-900 overflow-x-hidden">
+          <div className="min-h-screen flex flex-col bg-white dark:bg-stone-950 text-stone-900 dark:text-stone-100 overflow-x-hidden">
           <OfflineBanner />
           <LazyFallback><Suspense fallback={null}><PaymentProcessing /></Suspense></LazyFallback>
           <Header />

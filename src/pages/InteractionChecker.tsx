@@ -127,13 +127,13 @@ export default function InteractionChecker() {
   if (authLoading) {
     return (
       <div className="flex min-h-[60vh] items-center justify-center">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-emerald-200 border-t-emerald-600" />
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-emerald-200 dark:border-emerald-800 border-t-emerald-600" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-white animate-fade-in">
+    <div className="min-h-screen bg-white dark:bg-stone-950 animate-fade-in">
       <Helmet>
         <title>فحص تعارضات الببتيدات | pptides</title>
         <meta name="description" content={`تحقق من أمان تجميع أي ببتيدين معًا. فحص التعارضات والتفاعلات بين ${PEPTIDE_COUNT}+ ببتيد.`} />
@@ -163,13 +163,13 @@ export default function InteractionChecker() {
 
       <div className="mx-auto max-w-2xl px-4 py-8 md:px-6 md:py-12">
         <div className="mb-10 text-center">
-          <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-100">
+          <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-100 dark:bg-emerald-900/30">
             <Shield className="h-7 w-7 text-emerald-600" />
           </div>
-          <h1 className="text-3xl font-bold text-stone-900 md:text-4xl">
+          <h1 className="text-3xl font-bold text-stone-900 dark:text-stone-100 md:text-4xl">
             فحص <span className="text-emerald-600">التعارضات</span>
           </h1>
-          <p className="mt-2 text-base text-stone-600">
+          <p className="mt-2 text-base text-stone-600 dark:text-stone-400">
             اختر ببتيدين لمعرفة إذا يمكن تجميعهما بأمان
           </p>
         </div>
@@ -177,12 +177,12 @@ export default function InteractionChecker() {
         <div className="mb-6 space-y-3">
           {selected.map((sel, idx) => (
             <div key={idx} className="flex items-center gap-2">
-              <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-xs font-bold text-emerald-700">{idx + 1}</span>
+              <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-emerald-100 dark:bg-emerald-900/30 text-xs font-bold text-emerald-700 dark:text-emerald-400">{idx + 1}</span>
               <select
                 value={sel}
                 onChange={(e) => updateSlot(idx, e.target.value)}
                 aria-label={`اختر الببتيد ${idx + 1}`}
-                className={cn('flex-1 rounded-xl border border-stone-300 bg-stone-50 px-4 py-3 text-sm focus:border-emerald-300 focus:outline-none focus:ring-2 focus:ring-emerald-100', sel ? 'text-stone-900' : 'text-stone-500 italic')}
+                className={cn('flex-1 rounded-xl border border-stone-300 dark:border-stone-700 bg-stone-50 dark:bg-stone-900 px-4 py-3 text-sm focus:border-emerald-300 dark:border-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900', sel ? 'text-stone-900 dark:text-stone-100' : 'text-stone-500 dark:text-stone-400 italic')}
               >
                 <option value="">اختر ببتيد...</option>
                 {sortedPeptides.map(p => {
@@ -193,18 +193,18 @@ export default function InteractionChecker() {
                 })}
               </select>
               {selected.length > 2 && (
-                <button onClick={() => removeSlot(idx)} aria-label="إزالة" className="flex items-center justify-center rounded-lg p-2 min-h-[44px] min-w-[44px] text-stone-500 hover:bg-red-50 transition-colors hover:text-red-500"><XCircle className="h-4 w-4" /></button>
+                <button onClick={() => removeSlot(idx)} aria-label="إزالة" className="flex items-center justify-center rounded-lg p-2 min-h-[44px] min-w-[44px] text-stone-500 dark:text-stone-400 hover:bg-red-50 dark:bg-red-900/20 transition-colors hover:text-red-500 dark:text-red-400"><XCircle className="h-4 w-4" /></button>
               )}
             </div>
           ))}
           <div className="flex gap-2">
           {selected.length < 5 && (
-            <button onClick={addSlot} className="flex flex-1 items-center justify-center gap-2 rounded-xl border-2 border-dashed border-stone-200 py-3 text-sm font-medium text-stone-500 hover:border-emerald-300 transition-colors hover:text-emerald-600">
+            <button onClick={addSlot} className="flex flex-1 items-center justify-center gap-2 rounded-xl border-2 border-dashed border-stone-200 dark:border-stone-700 py-3 text-sm font-medium text-stone-500 dark:text-stone-400 hover:border-emerald-300 dark:border-emerald-700 transition-colors hover:text-emerald-600">
               + أضف ببتيد آخر
             </button>
           )}
           {filledPeptides.length > 0 && (
-            <button onClick={resetAll} className="rounded-xl border border-stone-200 px-4 py-3 text-sm font-medium text-stone-500 hover:border-red-200 hover:text-red-500 transition-colors">
+            <button onClick={resetAll} className="rounded-xl border border-stone-200 dark:border-stone-700 px-4 py-3 text-sm font-medium text-stone-500 dark:text-stone-400 hover:border-red-200 dark:border-red-800 hover:text-red-500 dark:text-red-400 transition-colors">
               مسح الكل
             </button>
           )}
@@ -212,17 +212,17 @@ export default function InteractionChecker() {
         </div>
 
         {filledPeptides.length < 2 && (
-          <div className="rounded-2xl border-2 border-dashed border-stone-200 bg-stone-50 py-12 text-center">
+          <div className="rounded-2xl border-2 border-dashed border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-900 py-12 text-center">
             <Shield className="mx-auto mb-3 h-10 w-10 text-stone-300" />
-            <p className="text-sm font-bold text-stone-600">اختر ببتيدين أو أكثر لفحص التعارضات بينهما</p>
-            <p className="mt-1 text-sm text-stone-500">نتحقق من أمان الدمج بناءً على آليات العمل والأدلة العلمية</p>
+            <p className="text-sm font-bold text-stone-600 dark:text-stone-400">اختر ببتيدين أو أكثر لفحص التعارضات بينهما</p>
+            <p className="mt-1 text-sm text-stone-500 dark:text-stone-400">نتحقق من أمان الدمج بناءً على آليات العمل والأدلة العلمية</p>
           </div>
         )}
 
         {filledPeptides.length >= 2 && hasDuplicates && (
-          <div className="rounded-2xl border-2 border-dashed border-amber-200 bg-amber-50 py-12 text-center">
+          <div className="rounded-2xl border-2 border-dashed border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-900/20 py-12 text-center">
             <AlertTriangle className="mx-auto mb-3 h-10 w-10 text-amber-500" />
-            <p className="text-sm font-bold text-amber-800">اختر ببتيدات مختلفة لفحص التعارضات</p>
+            <p className="text-sm font-bold text-amber-800 dark:text-amber-300">اختر ببتيدات مختلفة لفحص التعارضات</p>
           </div>
         )}
 
@@ -230,27 +230,27 @@ export default function InteractionChecker() {
         {filledPeptides.length >= 2 && !hasDuplicates && (
           <div className={cn(
             'mb-6 rounded-2xl border-2 p-5',
-            hasAnyDanger ? 'border-red-300 bg-red-50' :
-            hasAnyWarning ? 'border-amber-300 bg-amber-50' :
-            'border-emerald-300 bg-emerald-50'
+            hasAnyDanger ? 'border-red-300 bg-red-50 dark:bg-red-900/20' :
+            hasAnyWarning ? 'border-amber-300 dark:border-amber-700 bg-amber-50 dark:bg-amber-900/20' :
+            'border-emerald-300 dark:border-emerald-700 bg-emerald-50 dark:bg-emerald-900/20'
           )}>
             {filledPeptides.length >= 3 && (
               <p className={cn(
                 'mb-3 text-center text-2xl font-black md:text-3xl',
-                hasAnyDanger ? 'text-red-700' : hasAnyWarning ? 'text-amber-700' : 'text-emerald-700'
+                hasAnyDanger ? 'text-red-700 dark:text-red-400' : hasAnyWarning ? 'text-amber-700 dark:text-amber-400' : 'text-emerald-700 dark:text-emerald-400'
               )}>
                 {hasAnyDanger ? 'التجميعة غير آمنة' : hasAnyWarning ? 'التجميعة تحتاج مراجعة' : 'التجميعة آمنة'}
               </p>
             )}
             <div className="flex items-center gap-3">
               {hasAnyDanger ? (
-                <XCircle className="h-7 w-7 text-red-600 shrink-0" />
+                <XCircle className="h-7 w-7 text-red-600 dark:text-red-400 shrink-0" />
               ) : hasAnyWarning ? (
                 <AlertTriangle className="h-7 w-7 text-amber-600 shrink-0" />
               ) : (
                 <CheckCircle className="h-7 w-7 text-emerald-600 shrink-0" />
               )}
-              <p className={cn('text-base font-bold', hasAnyDanger ? 'text-red-900' : hasAnyWarning ? 'text-amber-900' : 'text-emerald-900')}>
+              <p className={cn('text-base font-bold', hasAnyDanger ? 'text-red-900' : hasAnyWarning ? 'text-amber-900 dark:text-amber-200' : 'text-emerald-900')}>
                 {hasAnyDanger ? 'تعارض خطير — لا تجمع هذه التجميعة' :
                  hasAnyWarning ? 'يوجد تحذيرات — راجع التفاصيل' :
                  `التجميعة آمنة — ${filledPeptides.length} ببتيدات بدون تعارضات`}
@@ -267,30 +267,30 @@ export default function InteractionChecker() {
               const p2 = peptides.find(p => p.id === pair.id2);
               return (
                 <div key={idx} className={cn(
-                  'rounded-xl border p-4 transition-all hover:shadow-sm',
-                  !pair.result.safe ? 'border-red-200 bg-red-50/50' :
-                  pair.result.warning ? 'border-amber-200 bg-amber-50/50' :
-                  'border-emerald-200 bg-emerald-50/50'
+                  'rounded-xl border p-4 transition-all hover:shadow-sm dark:shadow-stone-900/30',
+                  !pair.result.safe ? 'border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-900/20/50' :
+                  pair.result.warning ? 'border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-900/20/50' :
+                  'border-emerald-200 dark:border-emerald-800 bg-emerald-50/50'
                 )}>
                   <div className="flex items-center gap-2 mb-2">
-                    {!pair.result.safe ? <XCircle className="h-4 w-4 text-red-500 shrink-0" /> :
+                    {!pair.result.safe ? <XCircle className="h-4 w-4 text-red-500 dark:text-red-400 shrink-0" /> :
                      pair.result.warning ? <AlertTriangle className="h-4 w-4 text-amber-500 shrink-0" /> :
                      <CheckCircle className="h-4 w-4 text-emerald-500 shrink-0" />}
-                    <span className="text-sm font-bold text-stone-900" dir="ltr">
+                    <span className="text-sm font-bold text-stone-900 dark:text-stone-100" dir="ltr">
                       <Link to={`/peptide/${pair.id1}`} className="hover:text-emerald-600 transition-colors">{p1?.nameEn}</Link>
                       <span> + </span>
                       <Link to={`/peptide/${pair.id2}`} className="hover:text-emerald-600 transition-colors">{p2?.nameEn}</Link>
                     </span>
                   </div>
-                  <p className="text-sm font-semibold text-stone-800">{pair.result.message}</p>
-                  <p className="text-sm text-stone-600 mt-1 leading-relaxed">{pair.result.details}</p>
+                  <p className="text-sm font-semibold text-stone-800 dark:text-stone-200">{pair.result.message}</p>
+                  <p className="text-sm text-stone-600 dark:text-stone-400 mt-1 leading-relaxed">{pair.result.details}</p>
                 </div>
               );
             })}
           </div>
         )}
 
-        <div className="mt-8 rounded-xl border border-stone-200 bg-stone-50 p-5 text-center text-sm text-stone-600 leading-relaxed">
+        <div className="mt-8 rounded-xl border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-900 p-5 text-center text-sm text-stone-600 dark:text-stone-400 leading-relaxed">
           هذه الأداة تعليمية وليست بديلًا عن الاستشارة الطبية. قاعدة بيانات التعارضات لا تشمل جميع التعارضات المحتملة — استشر مختصًا قبل تجميع أي بروتوكول.
         </div>
 
@@ -298,10 +298,10 @@ export default function InteractionChecker() {
           <Link to="/calculator" className="inline-flex items-center gap-2 rounded-full bg-emerald-600 px-5 py-2.5 text-sm font-bold text-white transition-colors hover:bg-emerald-700">
             احسب الجرعة
           </Link>
-          <Link to="/tracker" className="inline-flex items-center gap-2 rounded-full border border-emerald-300 px-5 py-2.5 text-sm font-bold text-emerald-700 transition-colors hover:bg-emerald-100">
+          <Link to="/tracker" className="inline-flex items-center gap-2 rounded-full border border-emerald-300 dark:border-emerald-700 px-5 py-2.5 text-sm font-bold text-emerald-700 dark:text-emerald-400 transition-colors hover:bg-emerald-100 dark:bg-emerald-900/30">
             سجّل في المتتبع
           </Link>
-          <Link to="/coach" className="inline-flex items-center gap-2 rounded-full border border-emerald-300 px-5 py-2.5 text-sm font-bold text-emerald-700 transition-colors hover:bg-emerald-100">
+          <Link to="/coach" className="inline-flex items-center gap-2 rounded-full border border-emerald-300 dark:border-emerald-700 px-5 py-2.5 text-sm font-bold text-emerald-700 dark:text-emerald-400 transition-colors hover:bg-emerald-100 dark:bg-emerald-900/30">
             اسأل المدرب الذكي
           </Link>
           <Link to="/library" className="inline-flex min-h-[44px] items-center text-sm font-medium text-emerald-600 hover:underline">

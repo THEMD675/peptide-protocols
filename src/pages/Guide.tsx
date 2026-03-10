@@ -137,7 +137,7 @@ export default function Guide() {
         <h1 className="text-3xl font-bold md:text-4xl text-emerald-600">
           الدليل العملي
         </h1>
-        <p className="mt-2 text-lg text-stone-600">
+        <p className="mt-2 text-lg text-stone-600 dark:text-stone-400">
           من التحضير إلى التنفيذ
         </p>
       </div>
@@ -153,7 +153,7 @@ export default function Guide() {
           </div>
 
           <BlurredSection isPro={isPro}>
-            <div className="overflow-x-auto rounded-2xl border border-stone-200">
+            <div className="overflow-x-auto rounded-2xl border border-stone-200 dark:border-stone-700">
               <table className="w-full text-sm">
                 <thead>
                   <tr className="bg-emerald-500">
@@ -165,7 +165,7 @@ export default function Guide() {
                   {requiredTools.map((tool, i) => (
                     <tr
                       key={tool.name}
-                      className={cn("border-t transition-colors hover:bg-stone-50", i % 2 === 0 && "bg-stone-50")}
+                      className={cn("border-t transition-colors hover:bg-stone-50 dark:hover:bg-stone-800", i % 2 === 0 && "bg-stone-50 dark:bg-stone-900")}
                     >
                       <td className="px-4 py-3 font-bold">
                         {tool.name}
@@ -228,7 +228,7 @@ export default function Guide() {
 
           <BlurredSection isPro={isPro}>
             {/* Visual injection site diagram */}
-            <div className="mb-6 rounded-2xl border border-stone-200 bg-stone-50 p-6">
+            <div className="mb-6 rounded-2xl border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-900 p-6">
               <div className="flex flex-col items-center gap-4 sm:flex-row sm:items-start sm:gap-8">
                 <svg viewBox="0 0 200 400" className="h-64 w-auto shrink-0" role="img" aria-label="مواقع الحقن تحت الجلد">
                   {/* Body outline */}
@@ -251,9 +251,9 @@ export default function Guide() {
                 </svg>
                 <div className="flex-1 space-y-3">
                   {injectionSites.map((row) => (
-                    <div key={row.site} className="rounded-xl border border-stone-200 bg-white p-4 shadow-sm">
-                      <h4 className="text-sm font-bold text-stone-900">{row.site}</h4>
-                      <p className="mt-1 text-xs leading-relaxed text-stone-600">{row.desc}</p>
+                    <div key={row.site} className="rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 p-4 shadow-sm dark:shadow-stone-900/30">
+                      <h4 className="text-sm font-bold text-stone-900 dark:text-stone-100">{row.site}</h4>
+                      <p className="mt-1 text-xs leading-relaxed text-stone-600 dark:text-stone-400">{row.desc}</p>
                     </div>
                   ))}
                 </div>
@@ -273,7 +273,7 @@ export default function Guide() {
 
           <BlurredSection isPro={isPro}>
             <div
-              className="rounded-2xl border border-stone-200 bg-white p-6 shadow-sm"
+              className="rounded-2xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 p-6 shadow-sm dark:shadow-stone-900/30"
             >
               <ul className="space-y-3">
                 {importantRules.map((rule) => (
@@ -302,7 +302,7 @@ export default function Guide() {
             <div className="grid gap-4 sm:grid-cols-3">
               {otherRoutes.map((route) => (
                 <div key={route.title} className="glass-card primary-border flex flex-col p-5">
-                  <h3 className="mb-1 text-base font-bold text-stone-900">
+                  <h3 className="mb-1 text-base font-bold text-stone-900 dark:text-stone-100">
                     {route.title}
                   </h3>
                   <span className="mb-3 text-xs font-semibold text-emerald-600">
@@ -320,7 +320,7 @@ export default function Guide() {
 
       {/* ═══════ TROUBLESHOOTING FAQ ═══════ */}
       <section className="mt-12">
-        <h2 className="mb-6 text-2xl font-bold text-stone-900">مشاكل شائعة وحلولها</h2>
+        <h2 className="mb-6 text-2xl font-bold text-stone-900 dark:text-stone-100">مشاكل شائعة وحلولها</h2>
         <div className="space-y-3">
           {[
             { q: 'حقنت فقاعة هواء — هل هذا خطير؟', a: 'لا. فقاعات الهواء الصغيرة في الحقن تحت الجلد (SubQ) غير ضارة. يمتصها الجسم بشكل طبيعي. فقط تأكد من طرد الفقاعات الكبيرة قبل الحقن عن طريق النقر على السيرنج برفق.' },
@@ -330,34 +330,34 @@ export default function Guide() {
             { q: 'نسيت الحقن 3 أيام — ماذا أفعل؟', a: 'لا تضاعف الجرعة. استأنف الجرعة العادية من حيث توقفت. معظم الببتيدات لا تحتاج "تعويض". الاستمرارية أهم من الكمال.' },
             { q: 'أشعر بغثيان بعد حقن Semaglutide', a: 'الغثيان شائع جدًا مع GLP-1 (44% من المستخدمين). جرّب: تقليل الجرعة، الحقن قبل النوم بدل الصباح، تناول وجبات صغيرة وخفيفة، وتجنب الأطعمة الدهنية. يتحسن عادة خلال 2-3 أسابيع.' },
           ].map((faq) => (
-            <details key={faq.q} className="group rounded-2xl border border-stone-200 bg-white transition-all hover:border-amber-200">
-              <summary className="flex cursor-pointer items-center justify-between px-5 py-4 text-sm font-bold text-stone-900 [&::-webkit-details-marker]:hidden">
+            <details key={faq.q} className="group rounded-2xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 transition-all hover:border-amber-200 dark:border-amber-800">
+              <summary className="flex cursor-pointer items-center justify-between px-5 py-4 text-sm font-bold text-stone-900 dark:text-stone-100 [&::-webkit-details-marker]:hidden">
                 <span className="flex items-center gap-2">{faq.q}</span>
               </summary>
-              <p className="px-5 pb-4 text-sm leading-relaxed text-stone-700">{faq.a}</p>
+              <p className="px-5 pb-4 text-sm leading-relaxed text-stone-700 dark:text-stone-300">{faq.a}</p>
             </details>
           ))}
         </div>
       </section>
 
-      <div className="mt-12 rounded-2xl border border-emerald-200 bg-emerald-50 p-6 text-center">
+      <div className="mt-12 rounded-2xl border border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-900/20 p-6 text-center">
         {isPro ? (
           <>
-            <p className="font-bold text-stone-900">الخطوة التالية</p>
-            <p className="mt-1 text-sm text-stone-600">تعلّمت الحقن — الآن تأكد من تحاليلك واحسب جرعتك</p>
+            <p className="font-bold text-stone-900 dark:text-stone-100">الخطوة التالية</p>
+            <p className="mt-1 text-sm text-stone-600 dark:text-stone-400">تعلّمت الحقن — الآن تأكد من تحاليلك واحسب جرعتك</p>
             <div className="mt-4 flex flex-col gap-2 sm:flex-row sm:justify-center">
               <Link to="/lab-guide" className="rounded-full bg-emerald-600 px-6 py-2.5 text-sm font-bold text-white transition-colors hover:bg-emerald-700">دليل التحاليل</Link>
-              <Link to="/calculator" className="rounded-full border border-emerald-300 px-6 py-2.5 text-sm font-bold text-emerald-700 transition-colors hover:bg-emerald-100">حاسبة الجرعات</Link>
-              <Link to="/tracker" className="rounded-full border border-emerald-300 px-6 py-2.5 text-sm font-bold text-emerald-700 transition-colors hover:bg-emerald-100">سجّل أول حقنة</Link>
+              <Link to="/calculator" className="rounded-full border border-emerald-300 dark:border-emerald-700 px-6 py-2.5 text-sm font-bold text-emerald-700 dark:text-emerald-400 transition-colors hover:bg-emerald-100 dark:bg-emerald-900/30">حاسبة الجرعات</Link>
+              <Link to="/tracker" className="rounded-full border border-emerald-300 dark:border-emerald-700 px-6 py-2.5 text-sm font-bold text-emerald-700 dark:text-emerald-400 transition-colors hover:bg-emerald-100 dark:bg-emerald-900/30">سجّل أول حقنة</Link>
             </div>
           </>
         ) : (
           <>
-            <p className="font-bold text-stone-900">جاهز تبدأ أول بروتوكول؟</p>
-            <p className="mt-1 text-sm text-stone-600">اشترك للوصول إلى الدليل الكامل مع كل البروتوكولات</p>
+            <p className="font-bold text-stone-900 dark:text-stone-100">جاهز تبدأ أول بروتوكول؟</p>
+            <p className="mt-1 text-sm text-stone-600 dark:text-stone-400">اشترك للوصول إلى الدليل الكامل مع كل البروتوكولات</p>
             <div className="mt-4 flex flex-col gap-2 sm:flex-row sm:justify-center">
               <Link to="/pricing" className="rounded-full bg-emerald-600 px-6 py-2.5 text-sm font-bold text-white transition-colors hover:bg-emerald-700">اشترك — {PRICING.essentials.label}/شهريًا</Link>
-              <Link to="/calculator" className="rounded-full border border-emerald-300 px-6 py-2.5 text-sm font-bold text-emerald-700 transition-colors hover:bg-emerald-100">جرّب الحاسبة مجانًا</Link>
+              <Link to="/calculator" className="rounded-full border border-emerald-300 dark:border-emerald-700 px-6 py-2.5 text-sm font-bold text-emerald-700 dark:text-emerald-400 transition-colors hover:bg-emerald-100 dark:bg-emerald-900/30">جرّب الحاسبة مجانًا</Link>
             </div>
           </>
         )}

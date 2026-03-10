@@ -25,8 +25,48 @@ function normalizeLetterForSort(c: string): number {
   return i >= 0 ? i + 1 : 999;
 }
 
+/** Highlight matching text with emerald background */
+function HighlightedText({ text, query }: { text: string; query: string }) {
+  if (!query.trim()) return <>{text}</>;
+
+  const normalizedQuery = stripDiacritics(query.trim().toLowerCase());
+  const normalizedText = stripDiacritics(text.toLowerCase());
+
+  const parts: { text: string; highlighted: boolean }[] = [];
+  let lastIndex = 0;
+
+  let searchIdx = normalizedText.indexOf(normalizedQuery, lastIndex);
+  while (searchIdx !== -1) {
+    if (searchIdx > lastIndex) {
+      parts.push({ text: text.slice(lastIndex, searchIdx), highlighted: false });
+    }
+    parts.push({ text: text.slice(searchIdx, searchIdx + normalizedQuery.length), highlighted: true });
+    lastIndex = searchIdx + normalizedQuery.length;
+    searchIdx = normalizedText.indexOf(normalizedQuery, lastIndex);
+  }
+
+  if (lastIndex < text.length) {
+    parts.push({ text: text.slice(lastIndex), highlighted: false });
+  }
+
+  if (parts.length === 0) return <>{text}</>;
+
+  return (
+    <>
+      {parts.map((part, i) =>
+        part.highlighted ? (
+          <mark key={i} className="rounded bg-emerald-100 px-0.5 text-emerald-900">{part.text}</mark>
+        ) : (
+          <span key={i}>{part.text}</span>
+        )
+      )}
+    </>
+  );
+}
+
 export default function Glossary() {
   const [search, setSearch] = useState('');
+  const [activeLetter, setActiveLetter] = useState<string | null>(null);
 
   const filtered = useMemo(() => {
     if (!search.trim()) return TERMS;
@@ -51,8 +91,11 @@ export default function Glossary() {
   }, [filtered]);
 
   const scrollToLetter = useCallback((letter: string) => {
+    setActiveLetter(letter);
     const el = document.getElementById(`glossary-${letter}`);
     el?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    // Reset active state after animation
+    setTimeout(() => setActiveLetter(null), 1500);
   }, []);
 
   return (
@@ -91,7 +134,7 @@ export default function Glossary() {
       </div>
 
       {/* Search */}
-      <div className="relative mb-8">
+      <div className="relative mb-6">
         {!search && <Search className="absolute start-4 top-1/2 h-5 w-5 -translate-y-1/2 text-stone-500" />}
         <input
           type="text"
@@ -99,7 +142,7 @@ export default function Glossary() {
           onChange={(e) => setSearch(e.target.value)}
           placeholder="ابحث عن مصطلح..."
           aria-label="البحث في المصطلحات"
-          className="w-full rounded-2xl border border-stone-300 bg-stone-50 py-4 ps-12 pe-10 text-sm text-stone-900 placeholder:text-stone-500 focus:border-emerald-300 focus:outline-none focus:ring-1 focus:ring-emerald-100"
+          className="w-full rounded-2xl border border-stone-300 bg-stone-50 py-4 ps-12 pe-10 text-sm text-stone-900 placeholder:text-stone-500 focus:border-emerald-300 focus:outline-none focus:ring-2 focus:ring-emerald-100 transition-colors"
         />
         {search && (
           <button
@@ -117,19 +160,25 @@ export default function Glossary() {
         {search.trim() ? `${filtered.length} نتيجة` : `${TERMS.length} مصطلح`}
       </p>
 
-      {/* Alphabet jump bar — only when not searching */}
+      {/* Alphabet jump bar — sticky, always visible when not searching */}
       {!search.trim() && grouped.length > 0 && (
-        <div className="mb-6 flex flex-wrap justify-center gap-1.5" role="navigation" aria-label="القفز حسب الحرف">
-          {grouped.map(({ letter }) => (
-            <button
-              key={letter}
-              type="button"
-              onClick={() => scrollToLetter(letter)}
-              className="flex h-9 w-9 min-w-[36px] items-center justify-center rounded-lg border border-stone-200 bg-white text-sm font-bold text-stone-700 transition-colors hover:border-emerald-300 hover:bg-emerald-50 hover:text-emerald-700"
-            >
-              {letter}
-            </button>
-          ))}
+        <div className="sticky top-16 z-20 -mx-4 mb-6 bg-white/90 backdrop-blur-md px-4 py-3 border-b border-stone-100 rounded-b-xl" role="navigation" aria-label="القفز حسب الحرف">
+          <div className="flex flex-wrap justify-center gap-1.5">
+            {grouped.map(({ letter }) => (
+              <button
+                key={letter}
+                type="button"
+                onClick={() => scrollToLetter(letter)}
+                className={`flex h-10 w-10 min-w-[40px] items-center justify-center rounded-xl text-sm font-bold transition-all min-h-[44px] ${
+                  activeLetter === letter
+                    ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-200 scale-110'
+                    : 'border border-stone-200 bg-white text-stone-700 hover:border-emerald-300 hover:bg-emerald-50 hover:text-emerald-700'
+                }`}
+              >
+                {letter}
+              </button>
+            ))}
+          </div>
         </div>
       )}
 
@@ -137,12 +186,12 @@ export default function Glossary() {
       {filtered.length === 0 ? (
         <div className="rounded-2xl border border-stone-200 bg-stone-50 py-16 text-center">
           <BookA className="mx-auto mb-3 h-8 w-8 text-stone-300" />
-          <p className="text-sm text-stone-500">لا توجد نتائج لـ "{search}"</p>
+          <p className="text-sm text-stone-500">لا توجد نتائج لـ &quot;{search}&quot;</p>
         </div>
       ) : (
         <div className="space-y-8">
           {grouped.map(({ letter, terms }) => (
-            <section key={letter} id={`glossary-${letter}`} className="scroll-mt-24">
+            <section key={letter} id={`glossary-${letter}`} className="scroll-mt-32">
               <h2 className="mb-4 flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-100 text-lg font-bold text-emerald-700">
                 {letter}
               </h2>
@@ -153,19 +202,25 @@ export default function Glossary() {
                     className="rounded-2xl border border-stone-200 border-s-2 border-s-emerald-300 bg-white p-5 shadow-sm transition-all hover:border-emerald-200 hover:shadow-md"
                   >
                     <dt className="flex items-baseline justify-between gap-3">
-                      <span className="text-base font-bold text-stone-900">{term.ar}</span>
-                      <span className="shrink-0 text-xs font-medium text-emerald-600" dir="ltr">{term.en}</span>
+                      <span className="text-base font-bold text-stone-900">
+                        <HighlightedText text={term.ar} query={search} />
+                      </span>
+                      <span className="shrink-0 text-xs font-medium text-emerald-600" dir="ltr">
+                        <HighlightedText text={term.en} query={search} />
+                      </span>
                     </dt>
-                    <dd className="mt-3 text-sm leading-relaxed text-stone-600">{term.definition}</dd>
+                    <dd className="mt-3 text-sm leading-relaxed text-stone-600">
+                      <HighlightedText text={term.definition} query={search} />
+                    </dd>
                     {term.relatedPeptides && term.relatedPeptides.length > 0 && (
-                      <div className="mt-2 flex flex-wrap gap-1.5">
+                      <div className="mt-3 flex flex-wrap gap-1.5">
                         {term.relatedPeptides.map((pid) => {
                           const p = allPeptides.find(x => x.id === pid);
                           return p ? (
                             <Link
                               key={pid}
                               to={`/peptide/${pid}`}
-                              className="inline-flex items-center gap-1 rounded-full border border-emerald-200 bg-emerald-50 px-2.5 py-1 text-xs font-medium text-emerald-700 transition-colors hover:bg-emerald-100"
+                              className="inline-flex items-center gap-1 rounded-full border border-emerald-200 bg-emerald-50 px-2.5 py-1 text-xs font-medium text-emerald-700 transition-colors hover:bg-emerald-100 min-h-[32px]"
                             >
                               <FlaskConical className="h-3 w-3" />
                               {p.nameEn}
@@ -181,13 +236,14 @@ export default function Glossary() {
           ))}
         </div>
       )}
+
       {/* CTA */}
       <div className="mt-12 rounded-2xl border border-emerald-200 bg-emerald-50 p-6 text-center">
         <p className="font-bold text-stone-900">مستعد تبدأ؟</p>
         <p className="mt-1 text-sm text-stone-600">تصفّح البروتوكولات الكاملة لـ {PEPTIDE_COUNT}+ ببتيد</p>
         <div className="mt-4 flex flex-col gap-2 sm:flex-row sm:justify-center">
-          <Link to="/library" className="rounded-full bg-emerald-600 px-6 py-2.5 text-sm font-bold text-white transition-colors hover:bg-emerald-700">تصفّح المكتبة</Link>
-          <Link to="/coach" className="rounded-full border border-emerald-300 px-6 py-2.5 text-sm font-bold text-emerald-700 transition-colors hover:bg-emerald-100">اسأل المدرب الذكي</Link>
+          <Link to="/library" className="rounded-full bg-emerald-600 px-6 py-2.5 text-sm font-bold text-white transition-colors hover:bg-emerald-700 min-h-[44px] inline-flex items-center justify-center">تصفّح المكتبة</Link>
+          <Link to="/coach" className="rounded-full border border-emerald-300 px-6 py-2.5 text-sm font-bold text-emerald-700 transition-colors hover:bg-emerald-100 min-h-[44px] inline-flex items-center justify-center">اسأل المدرب الذكي</Link>
         </div>
       </div>
     </div>

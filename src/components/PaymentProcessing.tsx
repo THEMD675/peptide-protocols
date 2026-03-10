@@ -63,7 +63,7 @@ export default function PaymentProcessing() {
   };
 
   return (
-    <div className="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-white px-6">
+    <div className="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-white dark:bg-stone-950 px-6">
       <div className="w-full max-w-sm text-center animate-fade-in">
         {stage === 'success' ? (
           <>
@@ -91,24 +91,24 @@ export default function PaymentProcessing() {
             `}</style>
 
             <p className="mb-2 text-5xl">🎉</p>
-            <h2 className="text-2xl font-bold text-stone-900">مبروك! أنت الآن عضو في pptides</h2>
-            <p className="mt-2 text-sm text-stone-600">اشتراكك مفعّل — ابدأ رحلتك الآن</p>
-            <div className="mt-4 rounded-xl bg-emerald-50 border border-emerald-200 px-4 py-3">
-              <p className="text-xs font-bold text-emerald-700 mb-1">فتحت لك:</p>
+            <h2 className="text-2xl font-bold text-stone-900 dark:text-stone-100">مبروك! أنت الآن عضو في pptides</h2>
+            <p className="mt-2 text-sm text-stone-600 dark:text-stone-400">اشتراكك مفعّل — ابدأ رحلتك الآن</p>
+            <div className="mt-4 rounded-xl bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 px-4 py-3">
+              <p className="text-xs font-bold text-emerald-700 dark:text-emerald-400 mb-1">فتحت لك:</p>
               <p className="text-xs text-emerald-600">المدرب الذكي، المكتبة الكاملة، حاسبة الجرعات، سجل الحقن، دليل التحاليل</p>
             </div>
             <div className="space-y-3 mt-6">
-              <button onClick={() => navigateTo('/library')} className="flex w-full items-center gap-3 rounded-xl border border-emerald-200 p-4 text-start font-bold text-emerald-700 hover:bg-emerald-50 transition-colors min-h-[44px]">
+              <button onClick={() => navigateTo('/library')} className="flex w-full items-center gap-3 rounded-xl border border-emerald-200 dark:border-emerald-800 p-4 text-start font-bold text-emerald-700 dark:text-emerald-400 hover:bg-emerald-50 dark:bg-emerald-900/20 transition-colors min-h-[44px]">
                 <BookOpen className="h-5 w-5 shrink-0" />
-                <div><p className="text-sm">تصفّح المكتبة</p><p className="text-xs font-normal text-stone-500">اكتشف {PEPTIDE_COUNT}+ ببتيد مع بروتوكولات كاملة</p></div>
+                <div><p className="text-sm">تصفّح المكتبة</p><p className="text-xs font-normal text-stone-500 dark:text-stone-400">اكتشف {PEPTIDE_COUNT}+ ببتيد مع بروتوكولات كاملة</p></div>
               </button>
-              <button onClick={() => navigateTo('/coach')} className="flex w-full items-center gap-3 rounded-xl border border-emerald-200 p-4 text-start font-bold text-emerald-700 hover:bg-emerald-50 transition-colors min-h-[44px]">
+              <button onClick={() => navigateTo('/coach')} className="flex w-full items-center gap-3 rounded-xl border border-emerald-200 dark:border-emerald-800 p-4 text-start font-bold text-emerald-700 dark:text-emerald-400 hover:bg-emerald-50 dark:bg-emerald-900/20 transition-colors min-h-[44px]">
                 <Bot className="h-5 w-5 shrink-0" />
-                <div><p className="text-sm">اسأل المدرب الذكي</p><p className="text-xs font-normal text-stone-500">احصل على بروتوكول مخصّص لأهدافك</p></div>
+                <div><p className="text-sm">اسأل المدرب الذكي</p><p className="text-xs font-normal text-stone-500 dark:text-stone-400">احصل على بروتوكول مخصّص لأهدافك</p></div>
               </button>
-              <button onClick={() => navigateTo('/calculator')} className="flex w-full items-center gap-3 rounded-xl border border-emerald-200 p-4 text-start font-bold text-emerald-700 hover:bg-emerald-50 transition-colors min-h-[44px]">
+              <button onClick={() => navigateTo('/calculator')} className="flex w-full items-center gap-3 rounded-xl border border-emerald-200 dark:border-emerald-800 p-4 text-start font-bold text-emerald-700 dark:text-emerald-400 hover:bg-emerald-50 dark:bg-emerald-900/20 transition-colors min-h-[44px]">
                 <Calculator className="h-5 w-5 shrink-0" />
-                <div><p className="text-sm">حاسبة الجرعات</p><p className="text-xs font-normal text-stone-500">احسب جرعتك بدقة على السيرنج</p></div>
+                <div><p className="text-sm">حاسبة الجرعات</p><p className="text-xs font-normal text-stone-500 dark:text-stone-400">احسب جرعتك بدقة على السيرنج</p></div>
               </button>
             </div>
             <button onClick={() => navigateTo('/dashboard')} className="mt-4 w-full rounded-full bg-emerald-600 py-3 text-sm font-bold text-white hover:bg-emerald-700 transition-colors min-h-[44px]">
@@ -118,12 +118,12 @@ export default function PaymentProcessing() {
         ) : stage === 'timeout' ? (
           <>
             <div className="mx-auto mb-6">
-              <div className="text-2xl font-bold tracking-tight text-stone-900" dir="ltr">
+              <div className="text-2xl font-bold tracking-tight text-stone-900 dark:text-stone-100" dir="ltr">
                 <span aria-hidden="true">pp</span><span className="text-emerald-600" aria-hidden="true">tides</span>
               </div>
             </div>
-            <h2 className="text-xl font-bold text-stone-900">لم نتمكن من التأكد من الدفع</h2>
-            <p className="mt-2 text-sm text-stone-600">إذا تم خصم المبلغ، سيتم تفعيل اشتراكك خلال دقائق. تواصل معنا إذا استمرت المشكلة:</p>
+            <h2 className="text-xl font-bold text-stone-900 dark:text-stone-100">لم نتمكن من التأكد من الدفع</h2>
+            <p className="mt-2 text-sm text-stone-600 dark:text-stone-400">إذا تم خصم المبلغ، سيتم تفعيل اشتراكك خلال دقائق. تواصل معنا إذا استمرت المشكلة:</p>
             <a href={`mailto:${SUPPORT_EMAIL}?subject=تفعيل الاشتراك`} className="mt-4 inline-block text-emerald-600 font-bold underline">{SUPPORT_EMAIL}</a>
             <button onClick={() => navigateTo('/dashboard')} className="mt-6 w-full rounded-full bg-emerald-600 py-3 text-sm font-bold text-white hover:bg-emerald-700 transition-colors">
               العودة للوحة التحكم
@@ -132,14 +132,14 @@ export default function PaymentProcessing() {
         ) : (
           <>
             <div className="mx-auto mb-6">
-              <div className="text-2xl font-bold tracking-tight text-stone-900" dir="ltr">
+              <div className="text-2xl font-bold tracking-tight text-stone-900 dark:text-stone-100" dir="ltr">
                 <span aria-hidden="true">pp</span><span className="text-emerald-600" aria-hidden="true">tides</span>
               </div>
             </div>
             <Loader2 className="mx-auto mb-4 h-10 w-10 animate-spin text-emerald-600" />
-            <h2 className="text-xl font-bold text-stone-900">جارٍ إعداد حسابك...</h2>
-            <p className="mt-2 text-sm text-stone-500">يرجى الانتظار بضع ثوانٍ</p>
-            <div role="progressbar" aria-valuenow={progress} aria-valuemin={0} aria-valuemax={100} aria-label="جاري تحميل..." className="mx-auto mt-6 h-1.5 w-48 overflow-hidden rounded-full bg-stone-200">
+            <h2 className="text-xl font-bold text-stone-900 dark:text-stone-100">جارٍ إعداد حسابك...</h2>
+            <p className="mt-2 text-sm text-stone-500 dark:text-stone-400">يرجى الانتظار بضع ثوانٍ</p>
+            <div role="progressbar" aria-valuenow={progress} aria-valuemin={0} aria-valuemax={100} aria-label="جاري تحميل..." className="mx-auto mt-6 h-1.5 w-48 overflow-hidden rounded-full bg-stone-200 dark:bg-stone-700">
               <div className="h-full rounded-full bg-emerald-500 transition-all duration-500" style={{ width: `${progress}%` }} />
             </div>
           </>
