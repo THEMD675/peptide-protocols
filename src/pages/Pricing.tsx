@@ -208,6 +208,15 @@ export default function Pricing() {
       </Helmet>
 
       <div className="mx-auto max-w-6xl px-4 pb-24 pt-8 md:px-6 md:pt-12">
+        {/* Urgency Banner */}
+        {showTrialMessaging && (
+          <div className="mb-8 rounded-xl border border-amber-200 bg-gradient-to-l from-amber-50 to-amber-100/50 px-5 py-3 text-center">
+            <p className="text-sm font-bold text-amber-800">
+              عرض محدود — التجربة المجانية متاحة لفترة محدودة
+            </p>
+          </div>
+        )}
+
         {/* Header */}
         <div className="mb-16 text-center">
           {showTrialMessaging && (
@@ -276,9 +285,9 @@ export default function Pricing() {
             </ul>
 
             {renderAction('essentials', false)}
-            <div className="mt-2 flex items-center justify-center gap-1.5 text-xs text-stone-500">
-              <Shield className="h-3.5 w-3.5" />
-              <span>ضمان استرداد كامل خلال {TRIAL_DAYS} أيام</span>
+            <div className="mt-3 flex flex-wrap items-center justify-center gap-3 text-xs text-stone-500">
+              <span className="flex items-center gap-1"><Lock className="h-3.5 w-3.5 text-emerald-600" /> دفع آمن عبر Stripe</span>
+              <span className="flex items-center gap-1"><Shield className="h-3.5 w-3.5 text-emerald-600" /> ضمان استرداد {TRIAL_DAYS} أيام</span>
             </div>
           </div>
 
@@ -330,9 +339,9 @@ export default function Pricing() {
             </div>
 
             {renderAction('elite', true)}
-            <div className="mt-2 flex items-center justify-center gap-1.5 text-xs text-stone-500">
-              <Shield className="h-3.5 w-3.5" />
-              <span>ضمان استرداد كامل خلال {TRIAL_DAYS} أيام</span>
+            <div className="mt-3 flex flex-wrap items-center justify-center gap-3 text-xs text-stone-500">
+              <span className="flex items-center gap-1"><Lock className="h-3.5 w-3.5 text-emerald-600" /> دفع آمن عبر Stripe</span>
+              <span className="flex items-center gap-1"><Shield className="h-3.5 w-3.5 text-emerald-600" /> ضمان استرداد {TRIAL_DAYS} أيام</span>
             </div>
           </div>
         </div>

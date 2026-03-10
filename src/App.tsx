@@ -21,6 +21,7 @@ const PaymentProcessing = lazy(() => import('@/components/PaymentProcessing'));
 const InstallPrompt = lazy(() => import('@/components/InstallPrompt'));
 const StickyScrollCTA = lazy(() => import('@/components/StickyScrollCTA'));
 const ExitIntentPopup = lazy(() => import('@/components/ExitIntentPopup'));
+const SocialProofToast = lazy(() => import('@/components/SocialProofToast'));
 const CookieConsent = lazy(() => import('@/components/CookieConsent'));
 
 const Login = lazy(() => import('@/pages/Login'));
@@ -264,6 +265,7 @@ function OverlayGate() {
       {ageVerified && <LazyFallback><Suspense fallback={null}><CookieConsent /></Suspense></LazyFallback>}
       {showSecondary && showPromos && <LazyFallback><Suspense fallback={null}><StickyScrollCTA /></Suspense></LazyFallback>}
       {showSecondary && showPromos && <LazyFallback><Suspense fallback={null}><ExitIntentPopup /></Suspense></LazyFallback>}
+      {showSecondary && <LazyFallback><Suspense fallback={null}><SocialProofToast /></Suspense></LazyFallback>}
     </>
   );
 }
