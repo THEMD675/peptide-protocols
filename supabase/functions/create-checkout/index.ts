@@ -162,14 +162,14 @@ serve(async (req) => {
       subscription_data: {
         trial_period_days: hadTrialOrSub ? undefined : 3,
         metadata: { tier, user_id: user.id, ...(referralCode ? { referral_code: referralCode } : {}) },
-        description: 'pptides Subscription',
+        description: `pptides — ${tier === 'elite' ? 'الباقة المتقدمة' : 'الباقة الأساسية'}`,
       },
       metadata: { tier, user_id: user.id, ...(referralCode ? { referral_code: referralCode } : {}) },
       success_url: `${appUrl}/dashboard?payment=success&tier=${tier}&session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${appUrl}/pricing?payment=cancelled`,
       allow_promotion_codes: true,
       custom_text: {
-        submit: { message: 'Powered by pptides' },
+        submit: { message: hadTrialOrSub ? 'اشتراكك يبدأ فورًا — إلغاء في أي وقت' : 'تجربة مجانية ٣ أيام — لن يتم خصم أي مبلغ الآن' },
       },
     })
 

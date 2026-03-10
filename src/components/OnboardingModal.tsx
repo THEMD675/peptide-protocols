@@ -1,19 +1,20 @@
 import { useState, useEffect, useCallback } from 'react';
 import FocusTrap from 'focus-trap-react';
-import { Sparkles, BookOpen, Calculator, Bot } from 'lucide-react';
+import { Sparkles, BookOpen, Calculator, Bot, Flame, Brain, Dumbbell, Heart, Zap, Leaf, Moon } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { TRIAL_DAYS } from '@/lib/constants';
+import { TRIAL_DAYS, PEPTIDE_COUNT } from '@/lib/constants';
+import { useAuth } from '@/contexts/AuthContext';
 
 const ONBOARDING_KEY = 'pptides_onboarded';
 
 const GOALS = [
-  { id: 'fat-loss', label: 'فقدان دهون وإنقاص وزن' },
-  { id: 'recovery', label: 'تعافي من إصابة أو أداء رياضي' },
-  { id: 'muscle', label: 'بناء عضل وقوة' },
-  { id: 'brain', label: 'تركيز وذاكرة وأداء ذهني' },
-  { id: 'hormones', label: 'تحسين هرمونات' },
-  { id: 'longevity', label: 'إطالة عمر ومكافحة شيخوخة' },
-  { id: 'gut-skin', label: 'بشرة أو أمعاء أو نوم' },
+  { id: 'fat-loss', label: 'فقدان دهون وإنقاص وزن', Icon: Flame },
+  { id: 'recovery', label: 'تعافي من إصابة أو أداء رياضي', Icon: Heart },
+  { id: 'muscle', label: 'بناء عضل وقوة', Icon: Dumbbell },
+  { id: 'brain', label: 'تركيز وذاكرة وأداء ذهني', Icon: Brain },
+  { id: 'hormones', label: 'تحسين هرمونات', Icon: Zap },
+  { id: 'longevity', label: 'إطالة عمر ومكافحة شيخوخة', Icon: Leaf },
+  { id: 'gut-skin', label: 'بشرة أو أمعاء أو نوم', Icon: Moon },
 ] as const;
 
 function getTrialPlan(goal: string) {
@@ -38,9 +39,12 @@ const GOAL_TO_CATEGORY: Record<string, string> = {
 };
 
 export default function OnboardingModal({ forceOpen, onClose: externalClose }: { forceOpen?: boolean; onClose?: () => void }) {
+  const { user } = useAuth();
   const [show, setShow] = useState(true);
   const [step, setStep] = useState<'goal' | 'plan'>('goal');
   const [selectedGoal, setSelectedGoal] = useState('');
+  const [animatePlan, setAnimatePlan] = useState(false);
+  const userName = user?.email?.split('@')[0]?.charAt(0).toUpperCase() + (user?.email?.split('@')[0]?.slice(1) ?? '') || '';
   useEffect(() => {
     if (forceOpen) { setShow(true); return; }
     try {
@@ -92,6 +96,7 @@ export default function OnboardingModal({ forceOpen, onClose: externalClose }: {
     } catch { /* expected */ }
     setSelectedGoal(goalId);
     setStep('plan');
+    setTimeout(() => setAnimatePlan(true), 100);
   };
 
   return (
