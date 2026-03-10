@@ -133,36 +133,36 @@ serve(async (req) => {
         let reminderType = ''
 
         if (daysSinceSignup >= 1 && daysSinceSignup <= 2) {
-          reminderType = 'day1'
-          subject = 'هل استكشفت المكتبة؟ — pptides'
-          body = `
-            <h1 style="color: #1c1917; font-size: 24px;">مرحبًا </h1>
-            <p>أنت الآن في اليوم الثاني من تجربتك المجانية.</p>
-            <p><strong>هل جرّبت هذه الأدوات؟</strong></p>
-            <ul>
-              <li> <a href="${APP_URL}/library" style="color: #059669;">تصفّح مكتبة الببتيدات</a></li>
-              <li> <a href="${APP_URL}/calculator" style="color: #059669;">احسب جرعتك بالحاسبة</a></li>
-              <li> <a href="${APP_URL}/coach" style="color: #059669;">اسأل المدرب الذكي</a></li>
-            </ul>
-            <p>استفد من كل يوم — تجربتك تنتهي خلال ${daysUntilExpiry} أيام.</p>
-          `
-        } else if (daysUntilExpiry === 1) {
+          // Day 1-2 reminders now handled by dedicated trial-day1 and trial-day2 functions
+          skipped++
+          continue
+        } else if (daysUntilExpiry === 1 || daysUntilExpiry === 0) {
           reminderType = 'last_day'
-          subject = ' آخر يوم في تجربتك — pptides'
+          subject = 'تجربتك تنتهي اليوم! — pptides'
           body = `
-            <h1 style="color: #1c1917; font-size: 24px;">تنتهي تجربتك المجانية غدًا</h1>
-            <p>غدًا ستفقد الوصول إلى:</p>
-            <ul>
-              <li> البروتوكولات الكاملة لـ ${PEPTIDE_COUNT} ببتيد</li>
-              <li> المدرب الذكي بالذكاء الاصطناعي</li>
-              <li> دليل التحاليل المخبرية</li>
-              <li> البروتوكولات المُجمَّعة</li>
-            </ul>
-            <p><strong>اشترك الآن وابدأ بـ ${ESSENTIALS_PRICE}/شهر فقط:</strong></p>
-            <a href="${APP_URL}/pricing" style="display: inline-block; background: #059669; color: white; padding: 14px 32px; border-radius: 9999px; text-decoration: none; font-weight: bold;">
-              اشترك الآن — ${ESSENTIALS_PRICE}/شهر
-            </a>
-            <p style="margin-top: 16px; color: #78716c;">ضمان استرداد كامل خلال ${TRIAL_DAYS} أيام. بدون مخاطرة.</p>
+            <h1 style="color: #1c1917; font-size: 24px;">⏰ تجربتك المجانية تنتهي اليوم!</h1>
+            <p style="color: #44403c; font-size: 16px; line-height: 1.8;">
+              شكرًا لتجربتك pptides. إليك ملخص ما استكشفته:
+            </p>
+            <div style="background: #f5f5f4; border-radius: 12px; padding: 20px; margin: 20px 0;">
+              <p style="margin: 8px 0; font-size: 15px;">📚 مكتبة ${PEPTIDE_COUNT}+ ببتيد بالبروتوكولات الكاملة</p>
+              <p style="margin: 8px 0; font-size: 15px;">🤖 المدرب الذكي — بروتوكولات مخصّصة لحالتك</p>
+              <p style="margin: 8px 0; font-size: 15px;">🧮 حاسبة الجرعات الدقيقة</p>
+              <p style="margin: 8px 0; font-size: 15px;">📊 تتبّع الحقن والبروتوكولات</p>
+              <p style="margin: 8px 0; font-size: 15px;">🔬 دليل التحاليل المخبرية</p>
+            </div>
+            <div style="background: #ecfdf5; border-radius: 12px; padding: 24px; margin: 20px 0; text-align: center;">
+              <p style="font-size: 14px; color: #44403c; margin: 0;">كل هذا مقابل:</p>
+              <p style="font-size: 36px; font-weight: 900; color: #059669; margin: 8px 0;">${ESSENTIALS_PRICE}<span style="font-size: 16px; font-weight: normal;">/شهر</span></p>
+              <p style="font-size: 14px; color: #78716c; margin: 4px 0;">أقل من قهوة واحدة في اليوم ☕</p>
+            </div>
+            <div style="text-align: center; margin: 24px 0;">
+              ${emailButton('اشترك الآن — احتفظ بوصولك', `${APP_URL}/pricing`)}
+            </div>
+            <div style="background: #fef3c7; border: 1px solid #fbbf24; border-radius: 12px; padding: 16px; margin: 20px 0; text-align: center;">
+              <p style="margin: 0; font-size: 15px; color: #92400e; font-weight: bold;">🛡️ ضمان استرداد كامل</p>
+              <p style="margin: 8px 0 0; font-size: 14px; color: #92400e;">إذا لم تعجبك الخدمة — استرد أموالك بالكامل. بدون أسئلة.</p>
+            </div>
           `
         } else if (daysUntilExpiry <= 0 && daysUntilExpiry >= -3) {
           reminderType = 'expired'

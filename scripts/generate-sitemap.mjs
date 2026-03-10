@@ -56,9 +56,34 @@ function extractPeptideIds() {
 }
 
 /**
+ * Fetch published blog post slugs from Supabase (best-effort at build time)
+ */
+async function fetchBlogSlugs() {
+  try {
+    const envPath = join(ROOT, '.env');
+    let envContent = '';
+    try { envContent = readFileSync(envPath, 'utf-8'); } catch { /* ok */ }
+    const supabaseUrl = envContent.match(/VITE_SUPABASE_URL=(.+)/)?.[1]?.trim() || process.env.VITE_SUPABASE_URL;
+    const supabaseKey = envContent.match(/VITE_SUPABASE_ANON_KEY=(.+)/)?.[1]?.trim() || process.env.VITE_SUPABASE_ANON_KEY;
+    if (!supabaseUrl || !supabaseKey) {
+      console.warn('Supabase env vars not found — skipping blog slugs in sitemap');
+      return [];
+    }
+    const url = `${supabaseUrl}/rest/v1/blog_posts?select=slug,published_at&is_published=eq.true&order=published_at.desc`;
+    const res = await fetch(url, { headers: { apikey: supabaseKey, Authorization: `Bearer ${supabaseKey}` }, signal: AbortSignal.timeout(10000) });
+    if (!res.ok) { console.warn(`Blog fetch failed: ${res.status}`); return []; }
+    const posts = await res.json();
+    return posts.map((p) => ({ slug: p.slug, date: p.published_at?.slice(0, 10) }));
+  } catch (e) {
+    console.warn('Blog fetch error (non-fatal):', e.message);
+    return [];
+  }
+}
+
+/**
  * Generate sitemap XML
  */
-function generateSitemap(peptideIds) {
+function generateSitemap(peptideIds, blogPosts) {
   const today = new Date().toISOString().slice(0, 10);
 
   const urls = [
@@ -74,6 +99,12 @@ function generateSitemap(peptideIds) {
     <lastmod>${today}</lastmod>
   </url>`
     ),
+    ...blogPosts.map(
+      (post) => `  <url>
+    <loc>${BASE_URL}/blog/${post.slug}</loc>
+    <lastmod>${post.date || today}</lastmod>
+  </url>`
+    ),
   ].join('\n');
 
   return `<?xml version="1.0" encoding="UTF-8"?>
@@ -83,12 +114,13 @@ ${urls}
 `;
 }
 
-function main() {
+async function main() {
   const peptideIds = extractPeptideIds();
-  const xml = generateSitemap(peptideIds);
+  const blogPosts = await fetchBlogSlugs();
+  const xml = generateSitemap(peptideIds, blogPosts);
   const outPath = join(ROOT, 'public', 'sitemap.xml');
   writeFileSync(outPath, xml, 'utf-8');
-  console.log(`Generated sitemap: ${outPath} (${STATIC_PAGES.length} static + ${peptideIds.length} peptide pages)`);
+  console.log(`Generated sitemap: ${outPath} (${STATIC_PAGES.length} static + ${peptideIds.length} peptide + ${blogPosts.length} blog pages)`);
 }
 
 main();

@@ -237,6 +237,51 @@ html.dark {
     box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
   }
 
+  /* ═══ Micro-interactions ═══ */
+
+  /* Button press feedback */
+  .btn-press {
+    transition: transform 150ms cubic-bezier(0.23, 1, 0.32, 1), box-shadow 150ms;
+  }
+  .btn-press:active {
+    transform: scale(0.96);
+  }
+
+  /* Card lift on hover */
+  .card-lift {
+    transition: transform 250ms cubic-bezier(0.23, 1, 0.32, 1), box-shadow 250ms cubic-bezier(0.23, 1, 0.32, 1);
+  }
+  .card-lift:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.08), 0 4px 12px rgba(0, 0, 0, 0.04);
+  }
+  :is(html.dark) .card-lift:hover {
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.35), 0 4px 12px rgba(0, 0, 0, 0.2);
+  }
+
+  /* Success checkmark animated */
+  .success-check {
+    animation: success-pop 0.4s cubic-bezier(0.23, 1, 0.32, 1) both;
+  }
+
+  /* Smooth accordion */
+  .accordion-content {
+    overflow: hidden;
+    transition: max-height 300ms cubic-bezier(0.23, 1, 0.32, 1), opacity 200ms ease;
+  }
+  .accordion-content[data-state="closed"] {
+    max-height: 0;
+    opacity: 0;
+  }
+  .accordion-content[data-state="open"] {
+    opacity: 1;
+  }
+
+  /* Tooltip */
+  .tooltip-bubble {
+    animation: tooltip-enter 0.2s cubic-bezier(0.23, 1, 0.32, 1) both;
+  }
+
 }
 
 /* fade-up and fade-in defined in tailwind.config.ts */
@@ -272,6 +317,25 @@ html.dark {
   from { opacity: 1; transform: translateY(100%); }
   to { opacity: 1; transform: translateY(0); }
 }
+
+@keyframes success-pop {
+  0% { opacity: 0; transform: scale(0.5); }
+  50% { transform: scale(1.15); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
+@keyframes tooltip-enter {
+  from { opacity: 0; transform: translateY(4px) scale(0.95); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes page-enter {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-page-enter { animation: page-enter 0.3s ease-out both; }
+.animate-success-check { animation: success-pop 0.4s cubic-bezier(0.23, 1, 0.32, 1) both; }
 
 
 .stagger-1 { animation-delay: 0.05s; }
