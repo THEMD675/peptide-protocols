@@ -67,24 +67,51 @@ export default function PaymentProcessing() {
       <div className="w-full max-w-sm text-center animate-fade-in">
         {stage === 'success' ? (
           <>
-            <CheckCircle className="mx-auto mb-4 h-16 w-16 text-emerald-500" />
-            <h2 className="text-2xl font-bold text-stone-900">مرحبًا بك في pptides!</h2>
+            {/* CSS Confetti */}
+            <div className="pointer-events-none fixed inset-0 z-[10000] overflow-hidden" aria-hidden="true">
+              {Array.from({ length: 40 }).map((_, i) => (
+                <div
+                  key={i}
+                  className="absolute w-2.5 h-2.5 rounded-full"
+                  style={{
+                    left: `${Math.random() * 100}%`,
+                    top: '-10px',
+                    backgroundColor: ['#10b981', '#0d9488', '#f59e0b', '#3b82f6', '#ef4444', '#8b5cf6'][i % 6],
+                    animation: `confetti-fall ${2 + Math.random() * 2}s ease-in ${Math.random() * 0.5}s forwards`,
+                    transform: `rotate(${Math.random() * 360}deg)`,
+                  }}
+                />
+              ))}
+            </div>
+            <style>{`
+              @keyframes confetti-fall {
+                0% { opacity: 1; transform: translateY(0) rotate(0deg) scale(1); }
+                100% { opacity: 0; transform: translateY(100vh) rotate(720deg) scale(0.5); }
+              }
+            `}</style>
+
+            <p className="mb-2 text-5xl">🎉</p>
+            <h2 className="text-2xl font-bold text-stone-900">مبروك! أنت الآن عضو في pptides</h2>
             <p className="mt-2 text-sm text-stone-600">اشتراكك مفعّل — ابدأ رحلتك الآن</p>
+            <div className="mt-4 rounded-xl bg-emerald-50 border border-emerald-200 px-4 py-3">
+              <p className="text-xs font-bold text-emerald-700 mb-1">فتحت لك:</p>
+              <p className="text-xs text-emerald-600">المدرب الذكي، المكتبة الكاملة، حاسبة الجرعات، سجل الحقن، دليل التحاليل</p>
+            </div>
             <div className="space-y-3 mt-6">
-              <button onClick={() => navigateTo('/library')} className="flex w-full items-center gap-3 rounded-xl border border-emerald-200 p-4 text-start font-bold text-emerald-700 hover:bg-emerald-50 transition-colors">
+              <button onClick={() => navigateTo('/library')} className="flex w-full items-center gap-3 rounded-xl border border-emerald-200 p-4 text-start font-bold text-emerald-700 hover:bg-emerald-50 transition-colors min-h-[44px]">
                 <BookOpen className="h-5 w-5 shrink-0" />
                 <div><p className="text-sm">تصفّح المكتبة</p><p className="text-xs font-normal text-stone-500">اكتشف {PEPTIDE_COUNT}+ ببتيد مع بروتوكولات كاملة</p></div>
               </button>
-              <button onClick={() => navigateTo('/coach')} className="flex w-full items-center gap-3 rounded-xl border border-emerald-200 p-4 text-start font-bold text-emerald-700 hover:bg-emerald-50 transition-colors">
+              <button onClick={() => navigateTo('/coach')} className="flex w-full items-center gap-3 rounded-xl border border-emerald-200 p-4 text-start font-bold text-emerald-700 hover:bg-emerald-50 transition-colors min-h-[44px]">
                 <Bot className="h-5 w-5 shrink-0" />
                 <div><p className="text-sm">اسأل المدرب الذكي</p><p className="text-xs font-normal text-stone-500">احصل على بروتوكول مخصّص لأهدافك</p></div>
               </button>
-              <button onClick={() => navigateTo('/calculator')} className="flex w-full items-center gap-3 rounded-xl border border-emerald-200 p-4 text-start font-bold text-emerald-700 hover:bg-emerald-50 transition-colors">
+              <button onClick={() => navigateTo('/calculator')} className="flex w-full items-center gap-3 rounded-xl border border-emerald-200 p-4 text-start font-bold text-emerald-700 hover:bg-emerald-50 transition-colors min-h-[44px]">
                 <Calculator className="h-5 w-5 shrink-0" />
                 <div><p className="text-sm">حاسبة الجرعات</p><p className="text-xs font-normal text-stone-500">احسب جرعتك بدقة على السيرنج</p></div>
               </button>
             </div>
-            <button onClick={() => navigateTo('/dashboard')} className="mt-4 w-full rounded-full bg-emerald-600 py-3 text-sm font-bold text-white hover:bg-emerald-700 transition-colors">
+            <button onClick={() => navigateTo('/dashboard')} className="mt-4 w-full rounded-full bg-emerald-600 py-3 text-sm font-bold text-white hover:bg-emerald-700 transition-colors min-h-[44px]">
               انتقل للوحة التحكم
             </button>
           </>

@@ -1188,50 +1188,137 @@ export default function Dashboard() {
         );
       })()}
 
-      {/* Goal-based recommendation — only visible in empty state */}
+      {/* ═══════ FIRST-TIME WELCOME EXPERIENCE ═══════ */}
       {!activity.loading && activity.logs.length === 0 && activeProtocols.length === 0 && (() => {
+        let userGoalLabel = '';
         try {
           const raw = localStorage.getItem(STORAGE_KEYS.QUIZ_ANSWERS);
-          if (!raw) return null;
-          const parsed = JSON.parse(raw);
-          const rec = GOAL_RECOMMENDATIONS[parsed.goal];
-          if (!rec) return null;
-          return (
-            <div className="mb-8 rounded-2xl border border-emerald-300 bg-gradient-to-b from-emerald-50 to-white p-6">
-              <div className="flex items-center gap-3 mb-3">
-                <Sparkles className="h-5 w-5 text-emerald-600" />
-                <h2 className="text-lg font-bold text-stone-900">توصية مخصّصة لك</h2>
+          if (raw) {
+            const parsed = JSON.parse(raw);
+            const goalMap: Record<string, string> = {
+              'fat-loss': 'فقدان الدهون', 'recovery': 'التعافي', 'muscle': 'بناء العضل',
+              'brain': 'الأداء الذهني', 'hormones': 'تحسين الهرمونات', 'longevity': 'إطالة العمر', 'gut-skin': 'البشرة والنوم',
+            };
+            userGoalLabel = goalMap[parsed.goal] ?? '';
+          }
+        } catch { /* ignore */ }
+
+        const rec = (() => {
+          try {
+            const raw = localStorage.getItem(STORAGE_KEYS.QUIZ_ANSWERS);
+            if (!raw) return null;
+            const parsed = JSON.parse(raw);
+            return GOAL_RECOMMENDATIONS[parsed.goal] ?? null;
+          } catch { return null; }
+        })();
+
+        return (
+          <>
+            {/* Welcome Hero */}
+            <div className="mb-8 rounded-2xl border border-emerald-200 bg-gradient-to-b from-emerald-50 via-white to-white p-8 text-center" style={{ animation: 'dash-welcome-in 0.6s ease-out' }}>
+              <p className="mb-2 text-4xl">🎉</p>
+              <h2 className="text-2xl font-bold text-stone-900 mb-2">مرحبًا بك في pptides!</h2>
+              {userGoalLabel && (
+                <p className="text-sm font-medium text-emerald-700 mb-1">هدفك: <span className="font-bold">{userGoalLabel}</span></p>
+              )}
+              <p className="text-sm text-stone-600 mb-4">{PEPTIDE_COUNT} ببتيد جاهزة لك — رحلتك تبدأ الآن</p>
+
+              {/* VIP Quick-Start Cards */}
+              <div className="grid gap-3 sm:grid-cols-3 mt-6 text-start">
+                <Link to="/library" className="group flex items-center gap-3 rounded-xl border border-emerald-200 bg-white p-4 transition-all hover:border-emerald-400 hover:shadow-md hover:-translate-y-0.5 min-h-[44px]">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-100 transition-colors group-hover:bg-emerald-200">
+                    <BookOpen className="h-5 w-5 text-emerald-600" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-bold text-stone-900">المكتبة</p>
+                    <p className="text-xs text-stone-500">اكتشف {PEPTIDE_COUNT}+ ببتيد</p>
+                  </div>
+                </Link>
+                <Link to="/coach" className="group flex items-center gap-3 rounded-xl border border-emerald-200 bg-white p-4 transition-all hover:border-emerald-400 hover:shadow-md hover:-translate-y-0.5 min-h-[44px]">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-100 transition-colors group-hover:bg-emerald-200">
+                    <Bot className="h-5 w-5 text-emerald-600" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-bold text-stone-900">المدرب الذكي</p>
+                    <p className="text-xs text-stone-500">جاهز لمساعدتك ٢٤/٧</p>
+                  </div>
+                </Link>
+                <Link to="/calculator" className="group flex items-center gap-3 rounded-xl border border-emerald-200 bg-white p-4 transition-all hover:border-emerald-400 hover:shadow-md hover:-translate-y-0.5 min-h-[44px]">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-100 transition-colors group-hover:bg-emerald-200">
+                    <Calculator className="h-5 w-5 text-emerald-600" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-bold text-stone-900">الحاسبة</p>
+                    <p className="text-xs text-stone-500">احسب جرعتك بدقة</p>
+                  </div>
+                </Link>
               </div>
-              <p className="text-sm text-stone-700 leading-relaxed mb-4">{rec.text}</p>
-              <Link
-                to={`/peptide/${rec.peptideId}`}
-                className="inline-flex items-center gap-2 rounded-full bg-emerald-600 px-6 py-2.5 text-sm font-bold text-white transition-all hover:bg-emerald-700"
-              >
-                ابدأ البروتوكول
+            </div>
+
+            {/* Goal-based recommendation */}
+            {rec && (
+              <div className="mb-8 rounded-2xl border border-emerald-300 bg-gradient-to-b from-emerald-50 to-white p-6">
+                <div className="flex items-center gap-3 mb-3">
+                  <Sparkles className="h-5 w-5 text-emerald-600" />
+                  <h2 className="text-lg font-bold text-stone-900">توصية مخصّصة لك</h2>
+                </div>
+                <p className="text-sm text-stone-700 leading-relaxed mb-4">{rec.text}</p>
+                <Link
+                  to={`/peptide/${rec.peptideId}`}
+                  className="inline-flex items-center gap-2 rounded-full bg-emerald-600 px-6 py-2.5 text-sm font-bold text-white transition-all hover:bg-emerald-700 min-h-[44px]"
+                >
+                  ابدأ البروتوكول
+                </Link>
+              </div>
+            )}
+
+            {/* Inviting Empty States */}
+            <div className="mb-8 grid gap-4 sm:grid-cols-3">
+              <Link to="/tracker" className="group rounded-2xl border-2 border-dashed border-emerald-200 bg-gradient-to-b from-emerald-50/50 to-white p-6 text-center transition-all hover:border-emerald-300 hover:shadow-sm min-h-[44px]">
+                <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-100 transition-transform group-hover:scale-110">
+                  <Syringe className="h-6 w-6 text-emerald-600" />
+                </div>
+                <p className="text-sm font-bold text-stone-900 mb-1">سجل الحقن</p>
+                <p className="text-xs text-stone-500 leading-relaxed">سجّل أول جرعة وابدأ بتتبع تقدمك</p>
+              </Link>
+              <Link to="/dashboard" className="group rounded-2xl border-2 border-dashed border-emerald-200 bg-gradient-to-b from-emerald-50/50 to-white p-6 text-center transition-all hover:border-emerald-300 hover:shadow-sm min-h-[44px]">
+                <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-2xl bg-blue-100 transition-transform group-hover:scale-110">
+                  <FlaskConical className="h-6 w-6 text-blue-600" />
+                </div>
+                <p className="text-sm font-bold text-stone-900 mb-1">التحاليل</p>
+                <p className="text-xs text-stone-500 leading-relaxed">أضف تحاليلك وشاهد التغيّرات مع الوقت</p>
+              </Link>
+              <Link to="/coach" className="group rounded-2xl border-2 border-dashed border-emerald-200 bg-gradient-to-b from-emerald-50/50 to-white p-6 text-center transition-all hover:border-emerald-300 hover:shadow-sm min-h-[44px]">
+                <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-2xl bg-amber-100 transition-transform group-hover:scale-110">
+                  <Bot className="h-6 w-6 text-amber-600" />
+                </div>
+                <p className="text-sm font-bold text-stone-900 mb-1">المدرب الذكي</p>
+                <p className="text-xs text-stone-500 leading-relaxed">اسأل المدرب الذكي — جاهز لمساعدتك ٢٤/٧</p>
               </Link>
             </div>
-          );
-        } catch { return null; }
+
+            <style>{`
+              @keyframes dash-welcome-in { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+            `}</style>
+          </>
+        );
       })()}
 
-      {!activity.loading && activity.logs.length === 0 && (
+      {/* Empty tracker state for users with NO first-time welcome (e.g. has coach requests but no logs) */}
+      {!activity.loading && activity.logs.length === 0 && activeProtocols.length > 0 && (
         <div className="mb-8 rounded-2xl border-2 border-dashed border-emerald-200 bg-gradient-to-b from-emerald-50 to-white p-8 text-center">
           <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-emerald-100">
             <Syringe className="h-8 w-8 text-emerald-600" />
           </div>
-          <h3 className="text-xl font-bold text-stone-900">رحلتك تبدأ الآن</h3>
+          <h3 className="text-xl font-bold text-stone-900">سجّل أول جرعة</h3>
           <p className="mx-auto mt-2 max-w-md text-sm leading-relaxed text-stone-600">
-            اختر ببتيد من المكتبة أو اسأل المدرب الذكي — وسنساعدك في بناء بروتوكولك الأول خطوة بخطوة.
+            لديك بروتوكولات نشطة — ابدأ بتسجيل جرعاتك لتتبع التقدم.
           </p>
           <div className="mt-5 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
-            <Link to="/library" className="inline-flex w-full max-w-xs items-center justify-center gap-2 rounded-full bg-emerald-600 px-6 py-3 text-sm font-bold text-white transition-colors hover:bg-emerald-700 sm:w-auto">
-              <BookOpen className="h-4 w-4" /> تصفّح المكتبة
-            </Link>
-            <Link to="/coach" className="inline-flex w-full max-w-xs items-center justify-center gap-2 rounded-full border-2 border-emerald-300 px-6 py-3 text-sm font-bold text-emerald-700 transition-colors hover:bg-emerald-100 sm:w-auto">
-              <Bot className="h-4 w-4" /> اسأل المدرب الذكي
+            <Link to="/tracker" className="inline-flex w-full max-w-xs items-center justify-center gap-2 rounded-full bg-emerald-600 px-6 py-3 text-sm font-bold text-white transition-colors hover:bg-emerald-700 sm:w-auto min-h-[44px]">
+              <Syringe className="h-4 w-4" /> سجّل جرعة
             </Link>
           </div>
-          <p className="mt-4 text-xs text-stone-500">أو <Link to="/calculator" className="text-emerald-600 font-semibold hover:underline">جرّب حاسبة الجرعات المجانية</Link></p>
         </div>
       )}
 

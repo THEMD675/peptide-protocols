@@ -265,18 +265,16 @@ export default function TrialBanner() {
       <div
         className={cn(
           'sticky top-[var(--header-height)] z-40 text-center py-2 px-4 relative',
-          isLastDay ? 'bg-red-600' : 'primary-gradient'
+          isLastDay ? 'bg-red-600' : ''
         )}
+        style={isLastDay ? undefined : { background: 'linear-gradient(135deg, #059669, #0d9488)' }}
       >
         <p
-          className={cn(
-            'text-sm font-semibold',
-            isLastDay ? 'text-white' : 'text-stone-900'
-          )}
+          className="text-sm font-semibold text-white"
         >
           {isLastDay ? (
             <>
-              آخر فرصة — تنتهي تجربتك المجانية اليوم
+              ⏰ آخر يوم في تجربتك — لا تفقد الوصول
               <span className="mx-2">—</span>
               <Link
                 to="/pricing"
@@ -287,7 +285,7 @@ export default function TrialBanner() {
             </>
           ) : (
             <>
-              تجربتك المجانية — متبقي {daysText}
+              🎁 هديتك: {daysText} تجربة كاملة — استمتع بكل المميزات
               <span className="mx-2">—</span>
               <Link
                 to="/pricing"
@@ -301,12 +299,7 @@ export default function TrialBanner() {
         <button
           onClick={handleDismiss}
           aria-label="إغلاق"
-          className={cn(
-            'absolute end-3 top-1/2 -translate-y-1/2 rounded-full p-1 transition-colors',
-            isLastDay
-              ? 'text-white/70 transition-colors hover:text-white hover:bg-white/10'
-              : 'text-stone-600/70 transition-colors hover:text-stone-900 hover:bg-black/5'
-          )}
+          className="absolute end-3 top-1/2 -translate-y-1/2 rounded-full p-1 transition-colors text-white/70 hover:text-white hover:bg-white/10"
         >
           <X className="h-4 w-4" />
         </button>

@@ -271,16 +271,20 @@ export default function Pricing() {
         <div className="grid gap-8 md:grid-cols-2">
           {/* Essentials */}
           <div
-            className="relative flex flex-col rounded-2xl border border-stone-300/60 bg-white p-8 md:p-10 transition-all duration-300 hover:shadow-lg hover:border-stone-400 hover:-translate-y-1"
+            className="relative flex flex-col rounded-2xl border-2 border-emerald-200 bg-white p-8 md:p-10 transition-all duration-300 hover:shadow-lg hover:border-emerald-300 hover:-translate-y-1"
           >
+            <span className="absolute -top-3.5 end-6 rounded-full bg-emerald-600 px-5 py-1.5 text-sm font-bold text-white">
+              الأكثر شعبية
+            </span>
             <h2 className="mb-0.5 text-2xl font-bold text-stone-900">Essentials</h2>
             <p className="mb-1 text-sm font-medium text-emerald-600">الأساسية</p>
             <p className="mb-6 text-stone-800">كل الأدوات الأساسية التي تحتاجها</p>
 
-            <div className="mb-2">
+            <div className="mb-1">
               <span className="text-3xl font-black text-stone-900 sm:text-5xl">{billingCycle === 'annual' ? PRICING.essentials.annualLabel : PRICING.essentials.label}</span>
               <span className="text-lg text-stone-800"> /{billingCycle === 'annual' ? 'سنويًا' : 'شهريًا'}</span>
             </div>
+            {billingCycle === 'monthly' && <p className="mb-1 text-xs font-bold text-emerald-600">~١.١ ر.س/يوم</p>}
             {billingCycle === 'monthly' && <p className="text-xs text-emerald-600 font-medium mt-1">سنوي: <span dir="ltr">{PRICING.essentials.annualLabel}</span>/سنة — وفّر 27%</p>}
             {billingCycle === 'annual' && <p className="text-xs text-emerald-600 font-medium mt-1">≈ {Math.round(PRICING.essentials.annualTotal / 12)} ر.س/شهر — وفّر 27%</p>}
             <div className="mb-6" />
@@ -304,7 +308,11 @@ export default function Pricing() {
           {/* Elite */}
           <div
             className="relative flex flex-col rounded-2xl border-2 border-emerald-200 bg-white p-8 shadow-xl shadow-emerald-600/5 md:p-10 transition-all duration-300 hover:shadow-2xl hover:-translate-y-1"
+            style={{ animation: 'pricing-elite-glow 3s ease-in-out infinite' }}
           >
+            <span className="absolute -top-3.5 start-6 rounded-full bg-amber-500 px-4 py-1.5 text-sm font-bold text-white">
+              للمحترفين
+            </span>
             <span className="absolute -top-3.5 end-6 rounded-full bg-emerald-600 px-5 py-1.5 text-sm font-bold text-white">
               الأفضل قيمة
             </span>
@@ -316,10 +324,11 @@ export default function Pricing() {
             <p className="mb-1 text-sm font-medium text-emerald-600">المتقدّمة</p>
             <p className="mb-6 text-stone-800">كل شيء + مدرب ذكي + استشارات شخصية</p>
 
-            <div className="mb-2">
+            <div className="mb-1">
               <span className="text-3xl font-black text-stone-900 sm:text-5xl">{billingCycle === 'annual' ? PRICING.elite.annualLabel : PRICING.elite.label}</span>
               <span className="text-lg text-stone-800"> /{billingCycle === 'annual' ? 'سنويًا' : 'شهريًا'}</span>
             </div>
+            {billingCycle === 'monthly' && <p className="mb-1 text-xs font-bold text-emerald-600">~١٢.٤ ر.س/يوم</p>}
             {billingCycle === 'monthly' && <p className="text-xs text-emerald-600 font-medium mt-1">سنوي: <span dir="ltr">{PRICING.elite.annualLabel}</span>/سنة — وفّر 33%</p>}
             {billingCycle === 'annual' && <p className="text-xs text-emerald-600 font-medium mt-1">≈ {Math.round(PRICING.elite.annualTotal / 12)} ر.س/شهر — وفّر 33%</p>}
             <div className="mb-4 inline-flex items-center gap-1.5 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-xs font-bold text-emerald-700">
@@ -635,6 +644,13 @@ export default function Pricing() {
           )}
         </div>
         )}
+
+        <style>{`
+          @keyframes pricing-elite-glow {
+            0%, 100% { box-shadow: 0 4px 6px -1px rgba(16,185,129,0.05), 0 0 0 0 rgba(16,185,129,0); }
+            50% { box-shadow: 0 10px 25px -5px rgba(16,185,129,0.12), 0 0 20px 0 rgba(16,185,129,0.06); }
+          }
+        `}</style>
 
         {/* Disclaimer */}
         <p

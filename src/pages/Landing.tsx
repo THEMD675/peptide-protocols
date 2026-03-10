@@ -565,10 +565,15 @@ export default function Landing() {
 
         <div className="mt-10 rounded-2xl border-2 border-emerald-200 bg-emerald-50 p-8 text-center">
           <p className="mb-1 text-lg text-stone-800">القيمة الإجمالية:</p>
-          <p className="mb-2 text-3xl font-extrabold text-stone-800 line-through">{VALUE_TOTAL}</p>
+          <p className="mb-2 text-4xl font-extrabold text-stone-400 line-through decoration-red-400 decoration-[3px]">{VALUE_TOTAL}</p>
           <p className="mb-1 text-lg text-stone-800">أنت تدفع فقط:</p>
           <p className="text-3xl font-black text-emerald-600 sm:text-5xl md:text-6xl">{PRICING.essentials.label}<span className="text-xl font-bold text-stone-800">/شهريًا</span></p>
+          <p className="mt-2 text-sm font-bold text-emerald-700">أقل من ريال واحد يوميًا</p>
           <span className="mt-3 inline-block rounded-full bg-emerald-600 px-5 py-1.5 text-sm font-bold text-white shadow-md">توفير 97% — وفّر {VALUE_SAVINGS_ESSENTIALS} شهريًا</span>
+          <div className="mt-4 flex flex-wrap items-center justify-center gap-3 text-xs text-stone-600">
+            <span className="flex items-center gap-1.5 rounded-full bg-white border border-emerald-200 px-3 py-1.5 font-medium">📚 أكثر من ١٠,٠٠٠ ساعة بحث</span>
+            {userCount >= 10 && <span className="flex items-center gap-1.5 rounded-full bg-white border border-emerald-200 px-3 py-1.5 font-medium">👥 يستخدمه {userCount} شخص في السعودية</span>}
+          </div>
           <p className="mt-4 text-sm text-stone-800">أو {PRICING.elite.label}/شهريًا للباقة المتقدمة مع المدرب الذكي + استشارات</p>
           <div className="mt-6 flex flex-col sm:flex-row items-center justify-center gap-3 text-sm">
             <span className="flex items-center gap-1.5 rounded-full bg-red-50 border border-red-200 px-4 py-2 font-bold text-red-700">

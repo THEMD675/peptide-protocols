@@ -103,45 +103,66 @@ export default function OnboardingModal({ forceOpen, onClose: externalClose }: {
     <div role="dialog" aria-modal="true" aria-labelledby={step === 'goal' ? 'onboarding-title-step1' : 'onboarding-title-step2'} className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4" onClick={handleClose}>
       <FocusTrap focusTrapOptions={{ allowOutsideClick: true }}>
         <div className="w-full max-w-md rounded-2xl bg-white p-8 shadow-2xl animate-fade-in" onClick={e => e.stopPropagation()}>
+          {/* Progress indicator */}
+          <div className="mb-5 flex items-center justify-center gap-2">
+            <div className={`h-1.5 w-8 rounded-full transition-all duration-300 ${step === 'goal' ? 'bg-emerald-600' : 'bg-emerald-200'}`} />
+            <div className={`h-1.5 w-8 rounded-full transition-all duration-300 ${step === 'plan' ? 'bg-emerald-600' : 'bg-emerald-200'}`} />
+          </div>
+          <p className="mb-4 text-center text-[11px] font-medium text-stone-400">
+            {step === 'goal' ? 'الخطوة ١ من ٢' : 'الخطوة ٢ من ٢'}
+          </p>
+
           {step === 'goal' ? (
             <>
-              <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-100">
+              <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-100" style={{ animation: 'onb-sparkle 2s ease-in-out infinite' }}>
                 <Sparkles className="h-7 w-7 text-emerald-600" />
               </div>
-              <h2 id="onboarding-title-step1" className="mb-2 text-center text-xl font-bold text-stone-900">مرحبًا في pptides</h2>
-              <p className="mb-6 text-center text-sm text-stone-600">ما هدفك الأساسي؟ سنساعدك في إيجاد الببتيد المناسب.</p>
+              <h2 id="onboarding-title-step1" className="mb-1 text-center text-xl font-bold text-stone-900">
+                {userName ? `أهلاً ${userName}، مرحبًا في pptides` : 'مرحبًا في pptides'}
+              </h2>
+              <p className="mb-1 text-center text-xs font-medium text-emerald-600">{PEPTIDE_COUNT}+ ببتيد تحت تصرفك</p>
+              <p className="mb-6 text-center text-sm text-stone-600">ما هدفك الأساسي؟ سنبني لك خطة مخصّصة.</p>
               <div className="space-y-2">
-                {GOALS.map((g) => (
+                {GOALS.map((g, i) => (
                   <button
                     key={g.id}
                     onClick={() => handleGoalSelect(g.id)}
-                    className="flex w-full items-center gap-3 rounded-xl border border-stone-200 px-4 py-3 text-sm font-medium text-stone-800 transition-all hover:border-emerald-300 hover:bg-emerald-50"
+                    className="flex w-full items-center gap-3 rounded-xl border border-stone-200 px-4 py-3 text-sm font-medium text-stone-800 transition-all hover:border-emerald-300 hover:bg-emerald-50 min-h-[44px]"
+                    style={{ animation: `onb-fade-in 0.3s ease-out ${i * 0.05}s both` }}
                   >
+                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-emerald-50">
+                      <g.Icon className="h-4 w-4 text-emerald-600" />
+                    </div>
                     {g.label}
                   </button>
                 ))}
               </div>
-              <button onClick={handleClose} className="mt-4 w-full text-center text-xs text-stone-500 hover:text-stone-600">
+              <button onClick={handleClose} className="mt-4 w-full min-h-[44px] text-center text-xs text-stone-500 hover:text-stone-600">
                 تخطّي
               </button>
             </>
           ) : (
             <>
-              <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-100">
+              <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-100" style={{ animation: 'onb-sparkle 2s ease-in-out infinite' }}>
                 <Sparkles className="h-7 w-7 text-emerald-600" />
               </div>
-              <h2 id="onboarding-title-step2" className="mb-2 text-center text-xl font-bold text-stone-900">خطتك لـ {TRIAL_DAYS} أيام</h2>
-              <p className="mb-6 text-center text-sm text-stone-600">استفد من تجربتك المجانية بأقصى قدر</p>
+              <h2 id="onboarding-title-step2" className="mb-1 text-center text-xl font-bold text-stone-900">
+                خطة مخصّصة لك ✨
+              </h2>
+              <p className="mb-1 text-center text-xs font-medium text-emerald-600">رحلتك في {TRIAL_DAYS} أيام — مصمّمة حسب هدفك</p>
+              <p className="mb-6 text-center text-sm text-stone-600">خارطة طريق VIP لتحقيق أفضل النتائج</p>
               <div className="space-y-3">
                 {getTrialPlan(selectedGoal).map((item, i) => (
                   <Link
                     key={i}
                     to={item.to}
                     onClick={handleClose}
-                    className="flex items-center gap-4 rounded-xl border border-stone-200 px-4 py-4 transition-all hover:border-emerald-300 hover:bg-emerald-50"
+                    className="flex items-center gap-4 rounded-xl border border-stone-200 px-4 py-4 transition-all hover:border-emerald-300 hover:bg-emerald-50 min-h-[44px]"
+                    style={{ animation: animatePlan ? `onb-fade-in 0.4s ease-out ${i * 0.15}s both` : undefined, opacity: animatePlan ? undefined : 0 }}
                   >
-                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-100">
+                    <div className="relative flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-100">
                       <item.icon className="h-5 w-5 text-emerald-600" />
+                      <span className="absolute -top-1 -end-1 flex h-5 w-5 items-center justify-center rounded-full bg-emerald-600 text-[10px] font-bold text-white">{i + 1}</span>
                     </div>
                     <div>
                       <p className="text-xs font-bold text-emerald-600">{item.day}</p>
@@ -152,12 +173,19 @@ export default function OnboardingModal({ forceOpen, onClose: externalClose }: {
               </div>
               <button
                 onClick={handleClose}
-                className="mt-5 w-full rounded-full bg-emerald-600 px-6 py-3 text-sm font-bold text-white transition-colors hover:bg-emerald-700"
+                className="mt-5 w-full rounded-full bg-emerald-600 px-6 py-3 text-sm font-bold text-white transition-colors hover:bg-emerald-700 min-h-[44px]"
+                style={{ animation: 'onb-pulse 2s ease-in-out infinite' }}
               >
                 ابدأ الاستكشاف
               </button>
             </>
           )}
+
+          <style>{`
+            @keyframes onb-fade-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+            @keyframes onb-sparkle { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
+            @keyframes onb-pulse { 0%, 100% { box-shadow: 0 0 0 0 rgba(16,185,129,0.4); } 50% { box-shadow: 0 0 0 8px rgba(16,185,129,0); } }
+          `}</style>
         </div>
       </FocusTrap>
     </div>
