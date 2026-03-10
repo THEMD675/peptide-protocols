@@ -152,6 +152,7 @@ $$;
 -- Had RLS enabled but no policies (implicitly locked to all clients).
 -- service_role bypasses RLS but adding explicit policy improves clarity.
 -- ----------------------------------------------------------------
+DROP POLICY IF EXISTS "service_role_only_abandoned_checkouts" ON public.abandoned_checkouts;
 CREATE POLICY "service_role_only_abandoned_checkouts"
   ON public.abandoned_checkouts
   AS PERMISSIVE FOR ALL TO service_role

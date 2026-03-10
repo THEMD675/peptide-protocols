@@ -325,9 +325,12 @@ serve(async (req) => {
 
         if (stripeSubId && amountPaid > 0) {
           try {
+            // FIX: pass p_clear_trial=true so trial_ends_at is cleared when a real payment is processed.
+            // Previously COALESCE would keep the stale trial_ends_at value even after conversion to paid.
             const { error, data: rows } = await supabase.rpc('update_subscription_by_stripe_id', {
               p_stripe_subscription_id: stripeSubId,
               p_status: 'active',
+              p_clear_trial: true,
             })
 
             if (error) {
