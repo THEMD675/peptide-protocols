@@ -69,21 +69,25 @@ export default memo(function ShareableCard(props: ShareableCardProps) {
         backgroundColor: '#ffffff',
         useCORS: true,
       });
-      canvas.toBlob(async (blob) => {
-        if (!blob) { toast.error('تعذّر إنشاء الصورة'); return; }
-        const file = new File([blob], `pptides-${props.peptideNameEn}.png`, { type: 'image/png' });
-        if (navigator.share && navigator.canShare?.({ files: [file] })) {
-          await navigator.share({ files: [file], title: `بروتوكول ${props.peptideName}` }).catch(() => {});
-        } else {
-          const url = URL.createObjectURL(blob);
-          const a = document.createElement('a');
-          a.href = url;
-          a.download = `pptides-${props.peptideNameEn}.png`;
-          a.click();
-          URL.revokeObjectURL(url);
-          toast.success('تم تحميل الصورة');
-        }
-      }, 'image/png');
+      // Promisify toBlob so the finally block waits for the full export to complete.
+      // Previously toBlob's callback was not awaited — setExporting(false) fired before
+      // the image was actually ready, causing the button to re-enable prematurely.
+      const blob = await new Promise<Blob | null>((resolve) =>
+        canvas.toBlob(resolve, 'image/png')
+      );
+      if (!blob) { toast.error('تعذّر إنشاء الصورة'); return; }
+      const file = new File([blob], `pptides-${props.peptideNameEn}.png`, { type: 'image/png' });
+      if (navigator.share && navigator.canShare?.({ files: [file] })) {
+        await navigator.share({ files: [file], title: `بروتوكول ${props.peptideName}` }).catch(() => {});
+      } else {
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `pptides-${props.peptideNameEn}.png`;
+        a.click();
+        URL.revokeObjectURL(url);
+        toast.success('تم تحميل الصورة');
+      }
     } catch {
       toast.error('تعذّر إنشاء الصورة');
     } finally {
