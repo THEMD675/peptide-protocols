@@ -1669,17 +1669,69 @@ export default function Tracker() {
           <div className="space-y-4">
             {logs.map((log) => {
               const isToday = new Date(log.logged_at).toDateString() === new Date().toDateString();
+              const colorClass = peptideColorMap[log.peptide_name] ?? 'border-s-emerald-500';
+              const isEditing = editingLog === log.id;
               return (
               <div
                 key={log.id}
-                className={cn('rounded-2xl border p-5 shadow-sm dark:shadow-stone-900/30 transition-all hover:shadow-md', isToday ? 'border-emerald-300 dark:border-emerald-700 border-s-4 bg-emerald-50/30' : 'border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950')}
+                className={cn('rounded-2xl border border-s-4 p-5 shadow-sm dark:shadow-stone-900/30 transition-all hover:shadow-md', colorClass, isToday ? 'border-t-emerald-300 border-e-emerald-300 border-b-emerald-300 dark:border-t-emerald-700 dark:border-e-emerald-700 dark:border-b-emerald-700 bg-emerald-50/30' : 'border-t-stone-200 border-e-stone-200 border-b-stone-200 dark:border-t-stone-700 dark:border-e-stone-700 dark:border-b-stone-700 bg-white dark:bg-stone-950')}
               >
+                {isEditing ? (
+                  /* Edit mode */
+                  <div className="space-y-3">
+                    <p className="text-sm font-bold text-stone-900 dark:text-stone-100" dir="ltr">{log.peptide_name}</p>
+                    <div className="flex gap-2">
+                      <div className="flex-1">
+                        <label className="text-xs text-stone-500 dark:text-stone-400 mb-1 block">الجرعة</label>
+                        <input type="number" inputMode="decimal" value={editDose} onChange={e => setEditDose(e.target.value)} dir="ltr" min="0" step="any" className="w-full rounded-lg border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 px-3 py-2 text-sm text-stone-900 dark:text-stone-100 focus:border-emerald-300 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900" />
+                      </div>
+                      <div className="w-20">
+                        <label className="text-xs text-stone-500 dark:text-stone-400 mb-1 block">الوحدة</label>
+                        <select value={editUnit} onChange={e => setEditUnit(e.target.value)} className="w-full rounded-lg border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 px-2 py-2 text-sm text-stone-900 dark:text-stone-100 focus:border-emerald-300 focus:outline-none">
+                          <option value="mcg">mcg</option>
+                          <option value="mg">mg</option>
+                        </select>
+                      </div>
+                    </div>
+                    <div>
+                      <label className="text-xs text-stone-500 dark:text-stone-400 mb-1 block">الموقع</label>
+                      <select value={editSite} onChange={e => setEditSite(e.target.value)} className="w-full rounded-lg border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 px-3 py-2 text-sm text-stone-900 dark:text-stone-100 focus:border-emerald-300 focus:outline-none">
+                        {INJECTION_SITES.map(s => <option key={s.value} value={s.value}>{s.label}</option>)}
+                      </select>
+                    </div>
+                    <div>
+                      <label className="text-xs text-stone-500 dark:text-stone-400 mb-1 block">التاريخ والوقت</label>
+                      <input type="datetime-local" value={editDate} onChange={e => setEditDate(e.target.value)} dir="ltr" className="w-full rounded-lg border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 px-3 py-2 text-sm text-stone-900 dark:text-stone-100 focus:border-emerald-300 focus:outline-none" />
+                    </div>
+                    <div className="flex gap-2">
+                      <button onClick={() => saveEdit(log.id)} disabled={editSaving} className="flex-1 flex items-center justify-center gap-1.5 rounded-lg bg-emerald-600 px-4 py-2.5 min-h-[44px] text-sm font-bold text-white transition-colors hover:bg-emerald-700 disabled:opacity-50">
+                        <Check className="h-4 w-4" />
+                        {editSaving ? 'جارٍ الحفظ...' : 'حفظ'}
+                      </button>
+                      <button onClick={() => setEditingLog(null)} className="flex items-center justify-center gap-1.5 rounded-lg border border-stone-200 dark:border-stone-700 px-4 py-2.5 min-h-[44px] text-sm font-bold text-stone-600 dark:text-stone-400 transition-colors hover:bg-stone-50 dark:hover:bg-stone-800">
+                        <X className="h-4 w-4" />
+                        إلغاء
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  /* View mode */
+                  <>
                   <div className="flex items-start justify-between mb-2">
                   <h3 className="font-bold text-stone-900 dark:text-stone-100" dir="ltr">{log.peptide_name}</h3>
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-1">
                     <span className="rounded-full bg-emerald-50 dark:bg-emerald-900/20 px-3 py-1 text-xs font-bold text-emerald-700 dark:text-emerald-400">
                       {log.dose} {log.dose_unit}
                     </span>
+                    {subscription.isProOrTrial && (
+                      <button
+                        onClick={() => startEditing(log)}
+                        className="flex items-center justify-center rounded-lg p-2 min-h-[44px] min-w-[44px] text-stone-300 dark:text-stone-500 transition-colors hover:bg-blue-50 dark:hover:bg-blue-900/20 hover:text-blue-500 dark:hover:text-blue-400"
+                        aria-label="تعديل"
+                      >
+                        <Pencil className="h-3.5 w-3.5" />
+                      </button>
+                    )}
                     {subscription.isProOrTrial && <button
                       onClick={() => {
                         setConfirmDialog({
@@ -1689,7 +1741,6 @@ export default function Tracker() {
                           onConfirm: async () => {
                             setConfirmBusy(true);
                             const deletedLog = logs.find(l => l.id === log.id);
-                            // Known limitation: concurrent deletes from multiple tabs may cause stale-state rollback position
                             setLogs(prev => prev.filter(l => l.id !== log.id));
                             const { error } = await supabase.from('injection_logs').delete().eq('id', log.id).eq('user_id', user.id);
                             if (error) {
@@ -1708,7 +1759,7 @@ export default function Tracker() {
                           },
                         });
                       }}
-                      className="flex items-center justify-center rounded-lg p-2 min-h-[44px] min-w-[44px] text-stone-300 transition-colors hover:bg-red-50 dark:bg-red-900/20 hover:text-red-500 dark:text-red-400"
+                      className="flex items-center justify-center rounded-lg p-2 min-h-[44px] min-w-[44px] text-stone-300 dark:text-stone-500 transition-colors hover:bg-red-50 dark:hover:bg-red-900/20 hover:text-red-500 dark:hover:text-red-400"
                       aria-label="حذف"
                     >
                       <Trash2 className="h-3.5 w-3.5" />
@@ -1739,6 +1790,8 @@ export default function Tracker() {
                     <FileText className="mt-0.5 h-3.5 w-3.5 shrink-0 text-stone-500 dark:text-stone-400" />
                     <p className="text-xs text-stone-600 dark:text-stone-400">{log.notes}</p>
                   </div>
+                )}
+                  </>
                 )}
               </div>
               );
