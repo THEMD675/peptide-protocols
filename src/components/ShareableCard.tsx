@@ -1,5 +1,5 @@
 import { memo, useRef, useCallback } from 'react';
-import { Share2, Copy, Check, MessageCircle, Download, Twitter } from 'lucide-react';
+import { Share2, Copy, Check, MessageCircle, Download, Twitter, Send } from 'lucide-react';
 import { useState } from 'react';
 import { toast } from 'sonner';
 import { SITE_URL, FREQUENCY_LABELS } from '@/lib/constants';
@@ -49,7 +49,7 @@ export default memo(function ShareableCard(props: ShareableCardProps) {
   };
 
   const handleWhatsApp = () => {
-    let shareText = shareBody + '\n\n' + SITE_URL;
+    let shareText = `شوف تقدّمي في بروتوكول الببتيدات 💉\n\n` + shareBody + '\n\n' + SITE_URL;
     try {
       const refCode = localStorage.getItem('pptides_referral_code') ?? localStorage.getItem('pptides_referral');
       if (refCode && /^PP-[A-Z0-9]{6}$/.test(refCode)) {
@@ -57,6 +57,11 @@ export default memo(function ShareableCard(props: ShareableCardProps) {
       }
     } catch { /* expected */ }
     window.open(`https://wa.me/?text=${encodeURIComponent(shareText)}`, '_blank', 'noopener,noreferrer');
+  };
+
+  const handleTelegram = () => {
+    const text = shareBody + '\n\n' + SITE_URL;
+    window.open(`https://t.me/share/url?url=${encodeURIComponent(SITE_URL)}&text=${encodeURIComponent(text)}`, '_blank', 'noopener,noreferrer');
   };
 
   const handleImageExport = useCallback(async () => {
@@ -149,6 +154,13 @@ export default memo(function ShareableCard(props: ShareableCardProps) {
           className="flex items-center justify-center gap-2 rounded-xl bg-black px-4 py-2.5 text-sm font-bold text-white transition-colors hover:bg-stone-800"
         >
           <Twitter className="h-4 w-4" />
+        </button>
+        <button
+          onClick={handleTelegram}
+          aria-label="مشاركة عبر تيليجرام"
+          className="flex items-center justify-center gap-2 rounded-xl border border-[#0088cc] bg-[#0088cc]/10 px-4 py-2.5 text-sm font-bold text-[#0088cc] transition-colors hover:bg-[#0088cc]/20"
+        >
+          <Send className="h-4 w-4" />
         </button>
         <button
           onClick={handleShare}

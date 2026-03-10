@@ -1,12 +1,13 @@
 import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
-import { ArrowRight, CalendarDays, User, Tag, Link2, Check } from 'lucide-react';
+import { ArrowRight, CalendarDays, User, Tag } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { SITE_URL } from '@/lib/constants';
 import { renderMarkdown } from '@/lib/markdown';
 import type { ReactNode } from 'react';
 import { GenericPageSkeleton } from '@/components/Skeletons';
+import ShareButtons from '@/components/ShareButtons';
 
 interface BlogPostData {
   id: string;
@@ -34,8 +35,6 @@ export default function BlogPost() {
   const [relatedPosts, setRelatedPosts] = useState<RelatedPost[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
-  const [copied, setCopied] = useState(false);
-
   useEffect(() => {
     if (!slug) return;
     let cancelled = false;
@@ -172,35 +171,14 @@ export default function BlogPost() {
         </article>
 
         {/* Share Buttons */}
-        <div className="mt-10 flex flex-wrap items-center gap-3 border-t border-stone-200 dark:border-stone-700 pt-6">
-          <span className="text-sm font-bold text-stone-700 dark:text-stone-300">شارك المقالة:</span>
-          <button
-            onClick={() => {
-              navigator.clipboard.writeText(`${SITE_URL}/blog/${post.slug}`);
-              setCopied(true);
-              setTimeout(() => setCopied(false), 2000);
-            }}
-            className="inline-flex items-center gap-1.5 rounded-full border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 px-4 py-2 text-sm font-medium text-stone-700 dark:text-stone-300 transition-colors hover:border-emerald-200 dark:border-emerald-800 hover:text-emerald-700 dark:text-emerald-400"
-          >
-            {copied ? <Check className="h-4 w-4 text-emerald-600" /> : <Link2 className="h-4 w-4" />}
-            {copied ? 'تم النسخ!' : 'نسخ الرابط'}
-          </button>
-          <a
-            href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(post.title_ar)}&url=${encodeURIComponent(`${SITE_URL}/blog/${post.slug}`)}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-1.5 rounded-full border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 px-4 py-2 text-sm font-medium text-stone-700 dark:text-stone-300 transition-colors hover:border-sky-200 hover:text-sky-600"
-          >
-            𝕏
-          </a>
-          <a
-            href={`https://wa.me/?text=${encodeURIComponent(`${post.title_ar} — ${SITE_URL}/blog/${post.slug}`)}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-1.5 rounded-full border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 px-4 py-2 text-sm font-medium text-stone-700 dark:text-stone-300 transition-colors hover:border-green-200 hover:text-green-600"
-          >
-            واتساب
-          </a>
+        <div className="mt-10 border-t border-stone-200 dark:border-stone-700 pt-6">
+          <p className="mb-3 text-sm font-bold text-stone-700 dark:text-stone-300">شارك المقالة:</p>
+          <ShareButtons
+            url={`${SITE_URL}/blog/${post.slug}`}
+            title={post.title_ar}
+            description={post.excerpt_ar}
+            showTelegram={true}
+          />
         </div>
 
         {/* Related Posts */}

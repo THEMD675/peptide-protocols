@@ -1,6 +1,6 @@
 import { useMemo, useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { ArrowRight, Shield, AlertTriangle, CheckCircle, Lock, Calculator, Bot, FlaskConical, Printer, MessageSquare, Star, Syringe, Share2, Play, ExternalLink, BookOpen } from 'lucide-react';
+import { ArrowRight, Shield, AlertTriangle, CheckCircle, Lock, Calculator, Bot, FlaskConical, Printer, MessageSquare, Star, Syringe, Play, ExternalLink, BookOpen } from 'lucide-react';
 import ProtocolWizard from '@/components/ProtocolWizard';
 import { toast } from 'sonner';
 import { Helmet } from 'react-helmet-async';
@@ -11,6 +11,7 @@ import { supabase } from '@/lib/supabase';
 import { PRICING, TRIAL_PEPTIDE_IDS, SITE_URL, PEPTIDE_COUNT } from '@/lib/constants';
 import { DOSE_PRESETS_MAP as DOSE_PRESETS } from '@/data/dose-presets';
 import { evidenceColors, evidenceLabels, categoryLabels } from '@/lib/peptide-labels';
+import ShareButtons from '@/components/ShareButtons';
 
 interface ProtocolRow {
   label: string;
@@ -269,7 +270,7 @@ export default function PeptideDetail() {
             </div>
 
             <div
-              className="flex items-center justify-between bg-stone-50/95 px-5 py-3"
+              className="flex items-center justify-between bg-stone-50/95 dark:bg-stone-800/95 px-5 py-3"
             >
               <div className="flex items-center gap-2">
                 <Shield className="h-4 w-4"  />
@@ -278,30 +279,6 @@ export default function PeptideDetail() {
                 </h2>
               </div>
               <div className="print:hidden flex items-center gap-2">
-                <button
-                  onClick={async () => {
-                    const shareData = {
-                      title: `${peptide.nameAr} — ${peptide.nameEn}`,
-                      text: peptide.summaryAr.slice(0, 200) + ' — اشترك في pptides.com للمزيد',
-                      url: window.location.href,
-                    };
-                    if (navigator.share) {
-                      try { await navigator.share(shareData); } catch { /* expected */ }
-                    } else {
-                      try {
-                        await navigator.clipboard.writeText(window.location.href);
-                        toast.success('تم نسخ الرابط');
-                      } catch {
-                        toast.error('تعذّر نسخ الرابط');
-                      }
-                    }
-                  }}
-                  aria-label="مشاركة البروتوكول"
-                  className="flex items-center gap-1.5 rounded-lg border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 px-3 py-2.5 min-h-[44px] text-xs font-medium text-stone-600 dark:text-stone-400 transition-colors hover:bg-stone-50 dark:hover:bg-stone-800"
-                >
-                  <Share2 className="h-3.5 w-3.5" />
-                  مشاركة
-                </button>
                 <button
                   onClick={() => window.print()}
                   className="flex items-center gap-1.5 rounded-lg border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 px-3 py-2.5 min-h-[44px] text-xs font-medium text-stone-600 dark:text-stone-400 transition-colors hover:bg-stone-50 dark:hover:bg-stone-800"
@@ -338,6 +315,17 @@ export default function PeptideDetail() {
                 ))}
               </tbody>
             </table></div>
+          </div>
+
+          {/* Share This Peptide */}
+          <div className="mt-6 rounded-2xl border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-900 p-5">
+            <p className="mb-3 text-sm font-bold text-stone-700 dark:text-stone-300">شارك هذا البروتوكول:</p>
+            <ShareButtons
+              url={`${SITE_URL}/peptide/${peptide.id}`}
+              title={`${peptide.nameAr} (${peptide.nameEn}) — بروتوكول كامل على pptides.com`}
+              description={peptide.summaryAr.slice(0, 200)}
+              showTelegram={true}
+            />
           </div>
 
           {/* Inline Quick Dose Calculator */}
@@ -463,7 +451,7 @@ export default function PeptideDetail() {
           {/* ── Locked peptide: tease first rows, blur rest with inline CTA ── */}
           <div className="overflow-hidden rounded-2xl border border-stone-300 dark:border-stone-700">
             <div
-              className="flex items-center justify-between bg-stone-50/95 px-5 py-3"
+              className="flex items-center justify-between bg-stone-50/95 dark:bg-stone-800/95 px-5 py-3"
             >
               <div className="flex items-center gap-2">
                 <Shield className="h-4 w-4" />
