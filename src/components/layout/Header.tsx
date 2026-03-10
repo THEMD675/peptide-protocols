@@ -6,6 +6,7 @@ import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
 import { peptideSearchIndex, type PeptideSearchEntry } from '@/data/peptide-search-index';
 import { ADMIN_EMAILS } from '@/lib/constants';
+import NotificationBell from '@/components/NotificationBell';
 
 const guestNavLinks = [
   { to: '/library', label: 'المكتبة' },
@@ -299,6 +300,8 @@ export default memo(function Header() {
                 </div>
               )}
             </div>
+
+            {user && <NotificationBell />}
 
             {user ? (
               <div ref={dropdownRef} className="relative">

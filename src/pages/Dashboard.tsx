@@ -36,6 +36,7 @@ import ShareableCard from '@/components/ShareableCard';
 import WellnessCheckin from '@/components/WellnessCheckin';
 const LabResultsTracker = lazy(() => import('@/components/LabResultsTracker'));
 import PushNotificationPrompt from '@/components/PushNotificationPrompt';
+import WeeklyProgressReport from '@/components/WeeklyProgressReport';
 import { AlertTriangle, HeartPulse } from 'lucide-react';
 import { peptides as allPeptides } from '@/data/peptides';
 import { labTests } from '@/data/peptides';
@@ -510,6 +511,9 @@ export default function Dashboard() {
           </Link>
         )}
       </div>
+
+      {/* Weekly Progress Report */}
+      <WeeklyProgressReport />
 
       {/* Re-open onboarding */}
       {showOnboardButton && (

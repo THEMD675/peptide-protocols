@@ -195,30 +195,45 @@ serve(async (req) => {
             }).catch(e => console.error('payment confirmation email failed:', e))
           }
 
-          // Update referral status + reward referrer when referred user pays
+          // Update referral status + reward referrer with a promo code when referred user pays
           if (userId) {
             const { data: userSub } = await supabase.from('subscriptions').select('referred_by').eq('user_id', userId).maybeSingle()
             if (userSub?.referred_by) {
               const { data: referral } = await supabase.from('referrals')
-                .update({ status: 'subscribed', converted_at: new Date().toISOString(), reward_given: true })
+                .select('referrer_id, reward_given')
                 .eq('referred_id', userId).eq('referral_code', userSub.referred_by)
-                .select('referrer_id').maybeSingle()
+                .maybeSingle()
 
-              if (referral?.referrer_id) {
-                const { data: referrerSub } = await supabase.from('subscriptions')
-                  .select('stripe_customer_id').eq('user_id', referral.referrer_id).maybeSingle()
-                if (referrerSub?.stripe_customer_id) {
-                  try {
-                    // SOURCE OF TRUTH: 3400 halalas = 34 SAR = 1 month Essentials free; override via REFERRAL_REWARD_HALALAS env
-                    const rewardHalalas = parseInt(Deno.env.get('REFERRAL_REWARD_HALALAS') ?? '3400', 10)
-                    await stripe.invoiceItems.create({
-                      customer: referrerSub.stripe_customer_id,
-                      amount: -rewardHalalas,
-                      currency: 'sar',
-                      description: 'مكافأة إحالة — شهر مجاني (referral reward)',
+              if (referral?.referrer_id && !referral.reward_given) {
+                try {
+                  // Create a unique single-use promotion code for the referrer
+                  const promoCode = await stripe.promotionCodes.create({
+                    coupon: 'referral_reward',
+                    max_redemptions: 1,
+                    metadata: { referrer_id: referral.referrer_id, referred_id: userId },
+                  })
+
+                  // Update referral record with reward info
+                  await supabase.from('referrals')
+                    .update({
+                      status: 'rewarded',
+                      converted_at: new Date().toISOString(),
+                      reward_given: true,
+                      reward_code: promoCode.code,
+                      stripe_promotion_code_id: promoCode.id,
                     })
-                  } catch (e) { console.error('referral reward failed:', e) }
-                }
+                    .eq('referred_id', userId).eq('referral_code', userSub.referred_by)
+
+                  // Notify the referrer
+                  await supabase.from('notifications').insert({
+                    user_id: referral.referrer_id,
+                    type: 'referral',
+                    title_ar: '🎁 مكافأة إحالة!',
+                    body_ar: `شكرًا! حصلت على شهر مجاني لأنك دعوت صديقًا. استخدم الكود: ${promoCode.code}`,
+                  })
+
+                  console.log('referral reward created:', promoCode.code, 'for referrer:', referral.referrer_id)
+                } catch (e) { console.error('referral reward failed:', e) }
               }
             }
           }

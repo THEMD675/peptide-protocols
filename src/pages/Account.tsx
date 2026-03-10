@@ -877,8 +877,10 @@ export default function Account() {
 
 function ReferralSection({ userId }: { userId?: string }) {
   const [code, setCode] = useState('');
-  const [stats, setStats] = useState({ total: 0, signedUp: 0, subscribed: 0 });
+  const [stats, setStats] = useState({ total: 0, signedUp: 0, rewarded: 0 });
+  const [rewardCodes, setRewardCodes] = useState<string[]>([]);
   const [copied, setCopied] = useState(false);
+  const [copiedReward, setCopiedReward] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
   const generateCode = useCallback(() => {
@@ -906,13 +908,14 @@ function ReferralSection({ userId }: { userId?: string }) {
       }
       setCode(refCode);
 
-      const { data: refs } = await supabase.from('referrals').select('status').eq('referrer_id', userId);
+      const { data: refs } = await supabase.from('referrals').select('status, reward_code').eq('referrer_id', userId);
       if (mounted && refs) {
         setStats({
           total: refs.length,
-          signedUp: refs.filter(r => r.status === 'signed_up' || r.status === 'subscribed').length,
-          subscribed: refs.filter(r => r.status === 'subscribed').length,
+          signedUp: refs.filter(r => r.status === 'signed_up' || r.status === 'subscribed' || r.status === 'rewarded').length,
+          rewarded: refs.filter(r => r.status === 'rewarded').length,
         });
+        setRewardCodes(refs.filter(r => r.reward_code).map(r => r.reward_code as string));
       }
       setLoading(false);
     })();
@@ -931,6 +934,15 @@ function ReferralSection({ userId }: { userId?: string }) {
     } catch { toast.error('تعذّر النسخ'); }
   };
 
+  const handleCopyReward = async (rewardCode: string) => {
+    try {
+      await navigator.clipboard.writeText(rewardCode);
+      setCopiedReward(rewardCode);
+      toast.success('تم نسخ كود المكافأة');
+      setTimeout(() => setCopiedReward(null), 2000);
+    } catch { toast.error('تعذّر النسخ'); }
+  };
+
   if (loading) return (
     <div className="rounded-2xl border border-stone-200 bg-white p-6 animate-pulse">
       <div className="h-5 w-32 bg-stone-200 rounded mb-3" />
@@ -944,9 +956,9 @@ function ReferralSection({ userId }: { userId?: string }) {
     <div className="rounded-2xl border border-emerald-200 bg-gradient-to-b from-emerald-50 to-white p-6">
       <div className="flex items-center gap-3 mb-1">
         <Gift className="h-5 w-5 text-emerald-600" />
-        <h2 className="text-lg font-bold text-stone-900">ادعُ أصدقاءك</h2>
+        <h2 className="text-lg font-bold text-stone-900">ادعُ صديقًا واحصل على شهر مجاني</h2>
       </div>
-      <p className="text-sm text-stone-600 mb-4">شارك رابط الإحالة واحصل على مكافآت عند اشتراك أصدقائك</p>
+      <p className="text-sm text-stone-600 mb-4">شارك رابط الإحالة — عندما يشترك صديقك، تحصل على كود خصم ١٠٠٪ لشهر كامل!</p>
 
       <div className="flex items-center gap-2 mb-4">
         <div className="flex-1 rounded-xl border border-stone-200 bg-white px-4 py-3 text-sm font-mono text-stone-700 truncate" dir="ltr">
@@ -980,6 +992,29 @@ function ReferralSection({ userId }: { userId?: string }) {
         </button>
       </div>
 
+      {/* Reward Codes */}
+      {rewardCodes.length > 0 && (
+        <div className="rounded-xl border border-emerald-300 bg-emerald-50 p-4 mb-4">
+          <p className="text-sm font-bold text-emerald-800 mb-2">🎁 أكواد المكافآت الخاصة بك</p>
+          <p className="text-xs text-emerald-700 mb-3">استخدم هذه الأكواد عند الدفع للحصول على شهر مجاني</p>
+          <div className="space-y-2">
+            {rewardCodes.map((rc) => (
+              <div key={rc} className="flex items-center gap-2">
+                <div className="flex-1 rounded-lg border border-emerald-200 bg-white px-3 py-2 text-sm font-mono font-bold text-emerald-700" dir="ltr">
+                  {rc}
+                </div>
+                <button
+                  onClick={() => handleCopyReward(rc)}
+                  className="shrink-0 rounded-lg border border-emerald-300 bg-white p-2 text-emerald-600 transition-colors hover:bg-emerald-50"
+                >
+                  {copiedReward === rc ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+                </button>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
       <div className="rounded-xl bg-stone-50 p-4">
         <p className="text-xs font-bold text-stone-500 mb-2">إحصائيات الإحالة</p>
         <div className="grid grid-cols-3 gap-3 text-center">
@@ -992,8 +1027,8 @@ function ReferralSection({ userId }: { userId?: string }) {
             <p className="text-xs text-stone-500">سجّلوا</p>
           </div>
           <div>
-            <p className="text-xl font-bold text-emerald-700">{stats.subscribed}</p>
-            <p className="text-xs text-stone-500">اشتركوا</p>
+            <p className="text-xl font-bold text-emerald-700">{stats.rewarded}</p>
+            <p className="text-xs text-stone-500">مكافآت</p>
           </div>
         </div>
       </div>

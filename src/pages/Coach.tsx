@@ -15,6 +15,7 @@ import { cn, arPlural } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
 import { SITE_URL } from '@/lib/constants';
 import ProtocolWizard from '@/components/ProtocolWizard';
+import CoachHistory from '@/components/CoachHistory';
 
 
 function extractPeptideActions(text: string) {
@@ -587,6 +588,16 @@ export default function Coach() {
             </button>
           )}
         </div>
+
+        {/* Coach History */}
+        {user && (
+          <CoachHistory
+            onLoadConversation={(msgs) => {
+              setMessages(msgs);
+              setIntakeStep('done');
+            }}
+          />
+        )}
 
         <div className="rounded-2xl border border-stone-200 bg-white overflow-hidden shadow-sm">
           <div ref={scrollRef} role="log" aria-label="محادثة المدرب الذكي" aria-live="polite" className="max-h-[65dvh] overflow-y-auto p-5 space-y-4 bg-stone-50/50">
