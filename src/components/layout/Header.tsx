@@ -183,6 +183,7 @@ export default memo(function Header() {
                     <button
                       onClick={() => setMoreOpen(v => !v)}
                       aria-expanded={moreOpen}
+                      aria-haspopup="true"
                       className={cn(
                         'rounded-lg px-3 py-2 text-sm font-medium transition-colors flex items-center gap-1',
                         tools.some(l => pathname.startsWith(l.to))
@@ -301,6 +302,9 @@ export default memo(function Header() {
               <div ref={dropdownRef} className="relative">
                 <button
                   onClick={() => setDropdownOpen((v) => !v)}
+                  aria-haspopup="true"
+                  aria-expanded={dropdownOpen}
+                  aria-label="قائمة الحساب"
                   className="flex items-center gap-1.5 rounded-full px-2 py-1 text-sm transition-colors hover:bg-stone-100"
                 >
                   <span className="flex h-8 w-8 items-center justify-center rounded-full bg-emerald-600 text-sm font-bold text-white">

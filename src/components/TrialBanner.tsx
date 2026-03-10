@@ -55,8 +55,9 @@ export default function TrialBanner() {
     );
   }
 
-  if (subscription.isPaidSubscriber) return null;
-
+  // past_due MUST be checked before the generic isPaidSubscriber guard below,
+  // because buildSubscription sets isPaidSubscriber=true for past_due users.
+  // Without this order, the payment-warning banner is never rendered.
   if (subscription.status === 'past_due') {
     let daysLeftText = '';
     if (subscription.currentPeriodEnd) {
@@ -75,6 +76,10 @@ export default function TrialBanner() {
       </div>
     );
   }
+
+  // Safety net: active subscribers with no special banner state (e.g. active status already
+  // returned null above; cancelledButActive is caught by the cancelled+isPaidSubscriber block).
+  if (subscription.isPaidSubscriber) return null;
 
   if (subscription.status === 'cancelled' && !subscription.isPaidSubscriber) {
     if (isFreePage) {
