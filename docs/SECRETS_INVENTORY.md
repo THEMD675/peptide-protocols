@@ -12,7 +12,6 @@
 |-----|---------|--------------|
 | `VITE_SUPABASE_URL` | ✅ | https://rxxzphwojutewvbfzgqd.supabase.co |
 | `VITE_SUPABASE_ANON_KEY` | ✅ | Supabase Dashboard → Project Settings → API |
-| `VITE_SENTRY_DSN` | — | sentry.io project |
 | `VITE_GA4_ID` | — | Google Analytics 4 |
 | `STRIPE_SECRET_KEY` | — | For `npm run verify-stripe` only; Supabase Dashboard → Edge Functions → Secrets |
 
@@ -73,7 +72,6 @@ supabase functions deploy admin-actions --no-verify-jwt
 |-----|---------|
 | `VITE_SUPABASE_URL` | Required |
 | `VITE_SUPABASE_ANON_KEY` | Required |
-| `VITE_SENTRY_DSN` | Optional — error tracking |
 | `VITE_GA4_ID` | Optional — analytics |
 
 ---
