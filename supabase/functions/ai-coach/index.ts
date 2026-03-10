@@ -445,10 +445,12 @@ serve(async (req) => {
               return
             }
             const text = new TextDecoder().decode(value)
+            // Parse lines first to accumulate content for leak detection, track [DONE]
+            let foundDone = false
             for (const line of text.split('\n')) {
               if (!line.startsWith('data: ')) continue
               const payload = line.slice(6).trim()
-              if (payload === '[DONE]') { controller.enqueue(encoder.encode('data: [DONE]\n\n')); controller.close(); return }
+              if (payload === '[DONE]') { foundDone = true; break }
               try {
                 const parsed = JSON.parse(payload)
                 const delta = parsed.choices?.[0]?.delta?.content
@@ -458,6 +460,18 @@ serve(async (req) => {
             if (containsPromptLeak(accumulatedContent)) {
               leaked = true
               controller.enqueue(encoder.encode(`data: ${JSON.stringify({ choices: [{ delta: { content: SANITIZED_RESPONSE } }] })}\n\ndata: [DONE]\n\n`))
+              controller.close()
+              return
+            }
+            if (foundDone) {
+              // FIX: forward content portion of this chunk BEFORE sending [DONE].
+              // Previously, the early `return` inside the [DONE] branch skipped
+              // `controller.enqueue(value)`, silently dropping any content token(s)
+              // that arrived in the same SSE chunk as [DONE].
+              const doneIdx = text.indexOf('data: [DONE]')
+              const contentPart = doneIdx > 0 ? text.slice(0, doneIdx) : ''
+              if (contentPart.trim()) controller.enqueue(encoder.encode(contentPart))
+              controller.enqueue(encoder.encode('data: [DONE]\n\n'))
               controller.close()
               return
             }

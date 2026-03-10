@@ -752,12 +752,18 @@ export default function Coach() {
                         }</p>
                         <button
                           onClick={() => {
-                            const lastUserMsg = [...messages].reverse().find(m => m.role === 'user');
-                            if (lastUserMsg) {
-                              const cleaned = messages.filter((_, idx) => idx < i);
+                            // FIX: `cleaned` must exclude the user message that triggered the
+                            // error (at i-1), not just the error itself (at i). The old code kept
+                            // the user message in `cleaned` then `sendToAI` appended it again,
+                            // duplicating it in conversation history.
+                            const lastUserIdx = messages
+                              .slice(0, i)
+                              .reduce((acc, m, idx) => (m.role === 'user' ? idx : acc), -1);
+                            if (lastUserIdx >= 0) {
+                              const cleaned = messages.slice(0, lastUserIdx);
                               setMessages(cleaned);
                               messagesRef.current = cleaned;
-                              sendToAI(lastUserMsg.content);
+                              sendToAI(messages[lastUserIdx].content);
                             }
                           }}
                           className="inline-flex items-center gap-1.5 rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-1.5 text-xs font-bold text-emerald-700 transition-colors hover:bg-emerald-100"
