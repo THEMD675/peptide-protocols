@@ -177,7 +177,7 @@ export default function PeptideTable() {
             <button
               onClick={() => setActiveCategory('all')}
               className={cn(
-                'rounded-full px-4 py-2 text-sm font-semibold transition-all',
+                'rounded-full px-4 py-2 min-h-[44px] text-sm font-semibold transition-all inline-flex items-center',
                 activeCategory === 'all'
                   ? 'primary-gradient text-white shadow-lg'
                   : 'border border-stone-300 dark:border-stone-700 bg-stone-50 dark:bg-stone-900 text-stone-800 dark:text-stone-200 hover:border-stone-300 dark:border-stone-700 transition-colors hover:text-stone-900 dark:text-stone-100'
@@ -190,7 +190,7 @@ export default function PeptideTable() {
                 key={cat.id}
                 onClick={() => setActiveCategory(cat.id)}
                 className={cn(
-                  'rounded-full px-4 py-2 text-sm font-semibold transition-all',
+                  'rounded-full px-4 py-2 min-h-[44px] text-sm font-semibold transition-all inline-flex items-center',
                   activeCategory === cat.id
                     ? 'primary-gradient text-white shadow-lg'
                     : 'border border-stone-300 dark:border-stone-700 bg-stone-50 dark:bg-stone-900 text-stone-800 dark:text-stone-200 hover:border-stone-300 dark:border-stone-700 transition-colors hover:text-stone-900 dark:text-stone-100'

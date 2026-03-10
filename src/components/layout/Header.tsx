@@ -322,7 +322,7 @@ export default memo(function Header() {
                   aria-haspopup="true"
                   aria-expanded={dropdownOpen}
                   aria-label="قائمة الحساب"
-                  className="flex items-center gap-1.5 rounded-full px-2 py-1 text-sm transition-colors hover:bg-stone-100 dark:hover:bg-stone-800"
+                  className="flex items-center gap-1.5 rounded-full px-2 py-1 min-h-[44px] text-sm transition-colors hover:bg-stone-100 dark:hover:bg-stone-800"
                 >
                   <span className="flex h-8 w-8 items-center justify-center rounded-full bg-emerald-600 text-sm font-bold text-white">
                     {initial}

@@ -202,7 +202,7 @@ export default function LabResultsTracker() {
         </div>
         <button
           onClick={() => setShowForm(prev => !prev)}
-          className="flex items-center gap-1.5 rounded-lg border border-stone-200 dark:border-stone-700 px-3 py-1.5 text-xs font-bold text-stone-600 dark:text-stone-400 transition-colors hover:border-emerald-300 dark:border-emerald-700 hover:text-emerald-700 dark:text-emerald-400"
+          className="flex items-center gap-1.5 rounded-lg border border-stone-200 dark:border-stone-700 px-3 py-1.5 text-xs font-bold text-stone-600 dark:text-stone-400 transition-colors hover:border-emerald-300 dark:border-emerald-700 hover:text-emerald-700 dark:text-emerald-400 min-h-[44px]"
         >
           {showForm ? (
             <>

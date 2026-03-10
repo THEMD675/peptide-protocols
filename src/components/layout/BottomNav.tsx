@@ -31,7 +31,7 @@ export default memo(function BottomNav() {
               to={to}
               aria-current={active ? 'page' : undefined}
               className={cn(
-                'flex min-h-[44px] flex-1 flex-col items-center justify-center gap-0.5 py-2 text-[10px] font-medium transition-colors',
+                'flex min-h-[56px] flex-1 flex-col items-center justify-center gap-1 py-2 text-[11px] font-medium transition-colors',
                 active ? 'text-emerald-600' : 'text-stone-500 dark:text-stone-400 active:text-stone-600 dark:text-stone-400',
               )}
             >

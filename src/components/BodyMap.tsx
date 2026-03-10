@@ -72,7 +72,7 @@ export default memo(function BodyMap({ selected, suggested: suggestedProp, onSel
             key={site.id}
             onClick={() => onSelect(site.id)}
             className={cn(
-              'rounded-full px-3 py-1 text-xs font-bold transition-all',
+              'rounded-full px-3 py-2 min-h-[44px] text-xs font-bold transition-all inline-flex items-center',
               selected === site.id
                 ? 'bg-emerald-600 text-white'
                 : suggested === site.id

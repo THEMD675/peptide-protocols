@@ -177,7 +177,7 @@ export default function WellnessCheckin() {
         {isReadonly && (
           <button
             onClick={() => setEditing(true)}
-            className="flex items-center gap-1.5 rounded-lg border border-stone-200 dark:border-stone-700 px-3 py-1.5 text-xs font-bold text-stone-600 dark:text-stone-400 transition-colors hover:border-emerald-300 dark:border-emerald-700 hover:text-emerald-700 dark:text-emerald-400"
+            className="flex items-center gap-1.5 rounded-lg border border-stone-200 dark:border-stone-700 px-3 py-1.5 text-xs font-bold text-stone-600 dark:text-stone-400 transition-colors hover:border-emerald-300 dark:border-emerald-700 hover:text-emerald-700 dark:text-emerald-400 min-h-[44px]"
           >
             <Pencil className="h-3 w-3" />
             تعديل
@@ -210,7 +210,7 @@ export default function WellnessCheckin() {
                         setValues(prev => ({ ...prev, [metric.key]: level }))
                       }
                       className={cn(
-                        'flex-1 rounded-lg border py-2 text-xs font-bold transition-all',
+                        'flex-1 rounded-lg border py-2 min-h-[44px] text-sm font-bold transition-all',
                         val === level
                           ? colors[level - 1]
                           : isReadonly

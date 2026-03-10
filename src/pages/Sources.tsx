@@ -89,7 +89,7 @@ function SourcingInterestForm() {
             {popularPeptides.map(p => (
               <button key={p.id} type="button" onClick={() => togglePeptide(p.id)}
                 className={cn(
-                  'rounded-full border px-3 py-1.5 text-xs font-medium transition-all min-h-[36px]',
+                  'rounded-full border px-3 py-1.5 text-xs font-medium transition-all min-h-[44px] inline-flex items-center',
                   selectedPeptides.includes(p.id)
                     ? 'border-emerald-400 bg-emerald-100 text-emerald-800'
                     : 'border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-900 text-stone-600 dark:text-stone-400 hover:border-stone-300 dark:hover:border-stone-600',
