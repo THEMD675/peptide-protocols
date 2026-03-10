@@ -39,10 +39,11 @@ serve(async (req) => {
       return jsonResponse({ error: 'Email service not configured' }, 500, corsHeaders)
     }
 
-    const body = await req.json() as { to?: string; subject?: string; reply?: string }
+    const body = await req.json() as { to?: string; subject?: string; reply?: string; enquiry_id?: string }
     const to = body?.to?.trim()
     const subject = body?.subject ?? 'رد على استفسارك — pptides'
     const reply = body?.reply?.trim()
+    const enquiryId = body?.enquiry_id?.trim() ?? null
     if (!to || !reply || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(to)) {
       return jsonResponse({ error: 'Invalid request: to and reply required' }, 400, corsHeaders)
     }
@@ -77,7 +78,7 @@ serve(async (req) => {
       return jsonResponse({ error: 'Email delivery failed' }, 502, corsHeaders)
     }
 
-    // Log the sent email
+    // Log the sent email and mark enquiry as replied
     if (supabaseServiceKey) {
       const serviceDb = getServiceClient()
       await serviceDb.from('email_logs').insert({
@@ -85,6 +86,15 @@ serve(async (req) => {
         type: 'enquiry_reply',
         status: 'sent',
       }).catch(e => console.error('email_logs insert failed:', e))
+
+      // Mark the enquiry as replied if an enquiry_id was provided
+      if (enquiryId) {
+        await serviceDb
+          .from('enquiries')
+          .update({ status: 'replied', updated_at: new Date().toISOString() })
+          .eq('id', enquiryId)
+          .catch(e => console.error('enquiry status update failed:', e))
+      }
     }
 
     return jsonResponse({ ok: true }, 200, corsHeaders)

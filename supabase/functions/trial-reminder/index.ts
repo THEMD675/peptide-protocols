@@ -302,6 +302,15 @@ serve(async (req) => {
     }
 
     // Weekly summary email for active subscribers
+    // getISOWeekKey returns e.g. "2026-W10" — ensures each user gets at most one per calendar week
+    const getISOWeekKey = (d: Date) => {
+      const x = new Date(d)
+      x.setHours(0, 0, 0, 0)
+      x.setDate(x.getDate() + 4 - (x.getDay() || 7))
+      const yearStart = new Date(x.getFullYear(), 0, 1)
+      const weekNo = Math.ceil((((x.getTime() - yearStart.getTime()) / 86400000) + 1) / 7)
+      return `${x.getFullYear()}-W${String(weekNo).padStart(2, '0')}`
+    }
     try {
     const { data: activeSubscribers } = await supabase
       .from('subscriptions')
@@ -370,7 +379,7 @@ serve(async (req) => {
 
           const { error: dedupErr } = await supabase
             .from('sent_reminders')
-            .insert({ user_id: sub.user_id, reminder_type: `weekly_summary_${now.toISOString().slice(0, 10)}` })
+            .insert({ user_id: sub.user_id, reminder_type: `weekly_summary_${getISOWeekKey(now)}` })
           if (dedupErr) continue
 
           await fetch('https://api.resend.com/emails', {
@@ -430,14 +439,6 @@ serve(async (req) => {
     // PRO8: Proactive coach check-in — active subscribers who haven't logged injection in 3+ days
     try {
     const threeDaysAgo = new Date(now.getTime() - 3 * 24 * 60 * 60 * 1000).toISOString()
-    const getISOWeekKey = (d: Date) => {
-      const x = new Date(d)
-      x.setHours(0, 0, 0, 0)
-      x.setDate(x.getDate() + 4 - (x.getDay() || 7))
-      const yearStart = new Date(x.getFullYear(), 0, 1)
-      const weekNo = Math.ceil((((x.getTime() - yearStart.getTime()) / 86400000) + 1) / 7)
-      return `${x.getFullYear()}-W${String(weekNo).padStart(2, '0')}`
-    }
     const inactiveCheckinWeekKey = `inactive_checkin_${getISOWeekKey(now)}`
     const { data: activeSubsForCheckin } = await supabase
       .from('subscriptions')

@@ -459,6 +459,7 @@ serve(async (req) => {
             }
             if (containsPromptLeak(accumulatedContent)) {
               leaked = true
+              reader.cancel().catch(() => {})
               controller.enqueue(encoder.encode(`data: ${JSON.stringify({ choices: [{ delta: { content: SANITIZED_RESPONSE } }] })}\n\ndata: [DONE]\n\n`))
               controller.close()
               return

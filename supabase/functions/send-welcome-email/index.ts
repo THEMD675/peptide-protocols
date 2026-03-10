@@ -73,7 +73,7 @@ serve(async (req) => {
         if ((count ?? 0) >= 3) {
           return new Response(JSON.stringify({ error: 'Email already sent' }), { status: 429, headers: { ...corsHeaders, 'Content-Type': 'application/json' } })
         }
-        serviceDb.from('rate_limits').insert({ user_id: user.id, endpoint: 'welcome-email' }).then(() => {}).catch(() => {})
+        await serviceDb.from('rate_limits').insert({ user_id: user.id, endpoint: 'welcome-email' }).catch(() => {})
       }
     } catch (rlErr) { console.error('rate limit check failed:', rlErr) }
 

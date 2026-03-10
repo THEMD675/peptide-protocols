@@ -95,7 +95,7 @@ serve(async (req) => {
       .from('injection_logs')
       .select('user_id')
       .in('user_id', pushUserIds)
-      .gte('created_at', yesterday)
+      .gte('logged_at', yesterday)
 
     const usersWithRecentLogs = new Set((recentLogs ?? []).map(l => l.user_id))
 
