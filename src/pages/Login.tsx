@@ -45,6 +45,7 @@ export default function Login() {
   const [loading, setLoading] = useState(false);
   const [resetMessage, setResetMessage] = useState('');
   const [infoMessage, setInfoMessage] = useState('');
+  const [showNewPassword, setShowNewPassword] = useState(false);
   const [failedAttempts, setFailedAttempts] = useState(() => {
     try { return parseInt(sessionStorage.getItem('pptides_failed_attempts') ?? '0', 10) || 0; } catch { return 0; }
   });
@@ -160,6 +161,12 @@ export default function Login() {
       return;
     }
 
+    // Bug 10 fix: client-side email format validation before hitting the API
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
+      setError('البريد الإلكتروني غير صحيح — تأكد من الكتابة');
+      return;
+    }
+
     if (TURNSTILE_SITE_KEY && !turnstileToken) {
       setError('يرجى إكمال التحقق الأمني');
       return;
@@ -196,7 +203,8 @@ export default function Login() {
         events.signup('email');
       }
       setFailedAttempts(0);
-      navigate(safeRedirect(new URLSearchParams(window.location.search).get('redirect')));
+      // Bug 1 fix: do NOT navigate here — the useEffect watching `user` handles redirect
+      // to honour the ?redirect= param once AuthContext sets user via onAuthStateChange.
     } catch (err: unknown) {
       const raw = err instanceof Error ? err.message : '';
       const msg = friendlyError(raw);
@@ -204,7 +212,7 @@ export default function Login() {
         setPendingVerification(true);
         return;
       } else if (raw.includes('already') || raw.includes('registered') || raw.includes('مسجّل')) {
-        toast.error(msg);
+        // Bug 4 fix: show inline error only — toast + inline was duplicate display
         setError(msg);
         setTab('login');
       } else {
@@ -226,7 +234,7 @@ export default function Login() {
     }
   };
 
-  // Google Sign-In via ID Token (no redirect/callback needed)
+  // Google Sign-In via ID Token (popup flow, no redirect/callback needed)
   useEffect(() => {
     if (!GOOGLE_CLIENT_ID) return;
     const initGoogle = () => {
@@ -242,7 +250,7 @@ export default function Login() {
             });
             if (error) throw error;
             events.login('google');
-            navigate(safeRedirect(new URLSearchParams(window.location.search).get('redirect')));
+            // Bug 1 fix: do NOT navigate here — useEffect watching `user` handles redirect
           } catch (err: unknown) {
             const msg = err instanceof Error ? err.message : '';
             setError(friendlyError(msg));
@@ -255,6 +263,8 @@ export default function Login() {
         itp_support: true,
       });
       if (googleBtnRef.current) {
+        // Bug 2 fix: clear container before each render to prevent duplicate buttons on tab switch
+        googleBtnRef.current.innerHTML = '';
         window.google.accounts.id.renderButton(googleBtnRef.current, {
           type: 'standard',
           shape: 'rectangular',
@@ -266,13 +276,20 @@ export default function Login() {
         });
       }
     };
-    if (window.google?.accounts?.id) { initGoogle(); return; }
+    if (window.google?.accounts?.id) {
+      initGoogle();
+      // Bug 3 fix: always return cleanup (no-op here since we didn't add a script)
+      return () => {};
+    }
     const script = document.createElement('script');
     script.src = 'https://accounts.google.com/gsi/client';
     script.async = true;
     script.onload = initGoogle;
     document.head.appendChild(script);
-  }, [tab, navigate]);
+    return () => {
+      if (script.parentNode) script.parentNode.removeChild(script);
+    };
+  }, [tab]);
 
   const handleResetPassword = async () => {
     setError('');
@@ -377,20 +394,32 @@ export default function Login() {
             </div>
             <div className="px-6 pb-8 pt-6">
               {error && <div role="alert" className="mb-4 rounded-lg bg-red-50 px-4 py-3 text-sm text-red-700">{error}</div>}
-              {resetMessage && <div className="mb-4 rounded-lg bg-green-50 px-4 py-3 text-sm text-green-700">{resetMessage}</div>}
+              {resetMessage && <div role="status" aria-live="polite" className="mb-4 rounded-lg bg-green-50 px-4 py-3 text-sm text-green-700">{resetMessage}</div>}
               <form onSubmit={handleUpdatePassword} className="space-y-4">
                 <div>
                   <label htmlFor="recovery-password" className="mb-1.5 block text-sm font-medium text-stone-900">كلمة المرور الجديدة</label>
-                  <input
-                    id="recovery-password"
-                    type="password"
-                    value={newPassword}
-                    onChange={(e) => setNewPassword(e.target.value)}
-                    placeholder="8 أحرف على الأقل"
-                    dir="ltr"
-                    minLength={8}
-                    className="w-full rounded-xl border border-stone-200 bg-white px-4 py-3 text-left text-stone-900 placeholder:text-stone-500 outline-none transition-shadow focus:border-emerald-300 focus:ring-2 focus:ring-emerald-100"
-                  />
+                  {/* Bug 7 fix: add show/hide toggle for recovery password field */}
+                  <div className="relative">
+                    <input
+                      id="recovery-password"
+                      type={showNewPassword ? 'text' : 'password'}
+                      value={newPassword}
+                      onChange={(e) => setNewPassword(e.target.value)}
+                      placeholder="8 أحرف على الأقل"
+                      dir="ltr"
+                      minLength={8}
+                      autoComplete="new-password"
+                      className="w-full rounded-xl border border-stone-200 bg-white px-4 py-3 ps-12 text-left text-stone-900 placeholder:text-stone-500 outline-none transition-shadow focus:border-emerald-300 focus:ring-2 focus:ring-emerald-100"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowNewPassword(v => !v)}
+                      className="absolute start-3 top-1/2 -translate-y-1/2 p-2 text-stone-500 hover:text-stone-600 transition-colors"
+                      aria-label={showNewPassword ? 'إخفاء كلمة المرور' : 'إظهار كلمة المرور'}
+                    >
+                      {showNewPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                    </button>
+                  </div>
                 </div>
                 <button type="submit" disabled={loading} className="w-full rounded-full bg-emerald-600 py-3.5 text-base font-bold text-white shadow transition-transform hover:bg-emerald-700 active:scale-[0.98] disabled:opacity-60">
                   {loading ? (
@@ -429,10 +458,13 @@ export default function Login() {
             </p>
           </div>
 
-          <div className="flex border-b border-stone-200">
+          {/* Bug 8 fix: add role="tablist" + role="tab" + aria-selected for screen reader support */}
+          <div className="flex border-b border-stone-200" role="tablist" aria-label="نوع العملية">
             {(['login', 'signup'] as const).map((t) => (
               <button
                 key={t}
+                role="tab"
+                aria-selected={tab === t}
                 onClick={() => { setTab(t); setError(''); setResetMessage(''); }}
                 className={cn(
                   'relative flex-1 py-3.5 text-center text-sm font-semibold transition-colors',
@@ -440,7 +472,7 @@ export default function Login() {
                 )}
               >
                 {t === 'login' ? 'تسجيل الدخول' : 'إنشاء حساب'}
-                {tab === t && <div className="absolute bottom-0 inset-x-0 h-0.5 bg-emerald-500" />}
+                {tab === t && <div className="absolute bottom-0 inset-x-0 h-0.5 bg-emerald-500" aria-hidden="true" />}
               </button>
             ))}
           </div>
@@ -464,14 +496,15 @@ export default function Login() {
               </div>
             )}
 
+            {/* Bug 9 fix: aria-live so screen readers announce dynamic success/info messages */}
             {resetMessage && (
-              <div className="mb-4 rounded-lg bg-green-50 px-4 py-3 text-sm text-green-700">
+              <div role="status" aria-live="polite" className="mb-4 rounded-lg bg-green-50 px-4 py-3 text-sm text-green-700">
                 {resetMessage}
               </div>
             )}
 
             {infoMessage && (
-              <div className="mb-4 rounded-lg bg-blue-50 px-4 py-3 text-sm text-blue-700">
+              <div role="status" aria-live="polite" className="mb-4 rounded-lg bg-blue-50 px-4 py-3 text-sm text-blue-700">
                 {infoMessage}
               </div>
             )}
@@ -560,7 +593,8 @@ export default function Login() {
 
               <button
                 type="submit"
-                disabled={loading || (TURNSTILE_SITE_KEY && !turnstileToken) || (tab === 'signup' && !(password.length >= 8 && /[a-zA-Z]/.test(password) && /\d/.test(password)))}
+                {/* Bug 6 fix: coerce to boolean to avoid string|boolean type error on disabled */}
+              disabled={loading || !!(TURNSTILE_SITE_KEY && !turnstileToken) || (tab === 'signup' && !(password.length >= 8 && /[a-zA-Z]/.test(password) && /\d/.test(password)))}
                 className="w-full rounded-full bg-emerald-600 py-3.5 text-base font-bold text-white shadow transition-transform hover:bg-emerald-700 hover:scale-[1.02] active:scale-[0.98] disabled:pointer-events-none disabled:opacity-60"
               >
                 {loading ? (
@@ -575,14 +609,15 @@ export default function Login() {
                 {tab === 'login' ? (
                   <>
                     ليس لديك حساب؟{' '}
-                    <button type="button" onClick={() => { setTab('signup'); setError(''); }} className="font-semibold text-emerald-600 hover:underline">
+                    {/* Bug 5 fix: also clear resetMessage on tab switch via bottom links */}
+                    <button type="button" onClick={() => { setTab('signup'); setError(''); setResetMessage(''); }} className="font-semibold text-emerald-600 hover:underline">
                       أنشئ حسابًا
                     </button>
                   </>
                 ) : (
                   <>
                     لديك حساب بالفعل؟{' '}
-                    <button type="button" onClick={() => { setTab('login'); setError(''); }} className="font-semibold text-emerald-600 hover:underline">
+                    <button type="button" onClick={() => { setTab('login'); setError(''); setResetMessage(''); }} className="font-semibold text-emerald-600 hover:underline">
                       سجّل الدخول
                     </button>
                   </>
