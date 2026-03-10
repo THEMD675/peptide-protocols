@@ -139,7 +139,7 @@ export const peptides: Peptide[] = [
     lastUpdated: 'Feb 2026',
     costEstimate: '563-938 ر.س/شهر',
     difficulty: 'beginner',
-    pubmedIds: ['28185735', '33567185', '35658024'],
+    pubmedIds: ['26308095', '34170647', '34305810'],
   },
   {
     id: 'tirzepatide',
@@ -162,7 +162,7 @@ export const peptides: Peptide[] = [
     isFree: false,
     summaryAr: 'أحدث وأقوى ببتيد لإنقاص الوزن — الناهض المزدوج الأول (GLP-1 + GIP) يحقق فقدان وزن يصل إلى 22.5%، متفوقًا على Semaglutide في التجارب المباشرة.',
     lastUpdated: 'Feb 2026',
-    pubmedIds: ['36058472', '37351564', '35658024'],
+    pubmedIds: ['38078870', '35658024', '34170647'],
     costEstimate: '750-1,500 ر.س/شهر',
     difficulty: 'intermediate',
   },
@@ -187,7 +187,7 @@ export const peptides: Peptide[] = [
     isFree: false,
     summaryAr: 'الجيل القادم — أول ناهض ثلاثي المستقبلات يستهدف GLP-1 وGIP والجلوكاجون معًا، محققًا فقدان وزن يصل إلى 24% في التجارب الأولية.',
     lastUpdated: 'Feb 2026',
-    pubmedIds: ['37351564', '37385268', '37840095'],
+    pubmedIds: ['37366315', '37385280', '38843460'],
     costEstimate: '750-1,313 ر.س/شهر',
     difficulty: 'advanced',
   },
@@ -212,7 +212,7 @@ export const peptides: Peptide[] = [
     isFree: false,
     summaryAr: 'ببتيد GHRH معتمد من FDA يستهدف الدهون الحشوية تحديدًا ويحفّز هرمون النمو بنمط فسيولوجي طبيعي — مثالي لتحسين تكوين الجسم.',
     lastUpdated: 'Feb 2026',
-    pubmedIds: ['20581223', '21143514', '33756511'],
+    pubmedIds: ['41476424', '21283099', '38905488'],
     costEstimate: '675-938 ر.س/شهر',
     difficulty: 'intermediate',
   },
@@ -237,7 +237,7 @@ export const peptides: Peptide[] = [
     isFree: false,
     summaryAr: 'جزء معزول من هرمون النمو يستهدف حرق الدهون فقط دون رفع سكر الدم أو IGF-1 — خيار آمن لكن أدلته البشرية محدودة.',
     lastUpdated: 'Feb 2026',
-    pubmedIds: ['16625817', '15134286', '11713213'],
+    pubmedIds: ['15134286', '41490200', '14685303'],
     costEstimate: '225-375 ر.س/شهر',
     difficulty: 'beginner',
   },
@@ -262,7 +262,7 @@ export const peptides: Peptide[] = [
     isFree: false,
     summaryAr: 'جزيء فموي يثبّط إنزيم NNMT لزيادة حرق الدهون ورفع NAD+ — واعد جدًا في الحيوانات لكنه يحتاج تجارب بشرية أكبر.',
     lastUpdated: 'Feb 2026',
-    pubmedIds: ['31310655', '32883729', '33622411'],
+    pubmedIds: ['29395804', '9643626', '32185724'],
     costEstimate: '300-450 ر.س/شهر',
     difficulty: 'beginner',
   },
@@ -293,7 +293,7 @@ export const peptides: Peptide[] = [
     lastUpdated: 'Feb 2026',
     costEstimate: '225-375 ر.س/شهر',
     difficulty: 'beginner',
-    pubmedIds: ['28540667', '29277456', '32065585'],
+    pubmedIds: ['40005999', '30915550', '34267654'],
   },
   {
     id: 'tb-500',
@@ -342,7 +342,7 @@ export const peptides: Peptide[] = [
     summaryAr: 'نظير GHRH يرفع هرمون النمو بشكل مستدام — يُدمج عادة مع Ipamorelin لتحفيز أمثل. تنبّه لاحمرار الوجه الناتج عن الهيستامين.',
     warningAr: 'نسخة DAC ترفع IGF-1 بشكل مستمر — راقب مستويات IGF-1 بانتظام. احمرار الوجه (flushing) طبيعي وليس رد فعل تحسسي.',
     lastUpdated: 'Feb 2026',
-    pubmedIds: ['16352683', '17018654', '38716080'],
+    pubmedIds: ['16352683', '21204297', '41476424'],
     costEstimate: '300-563 ر.س/شهر',
     difficulty: 'intermediate',
   },
@@ -367,7 +367,7 @@ export const peptides: Peptide[] = [
     isFree: false,
     summaryAr: 'أنظف ببتيد لتحفيز هرمون النمو — 5 أحماض أمينية فقط ترفع GH بدون رفع الكورتيزول أو البرولاكتين. الخيار الأول للمبتدئين.',
     lastUpdated: 'Feb 2026',
-    pubmedIds: ['9849822', '19289567', '16648303'],
+    pubmedIds: ['41476424', '41490200', '10373343'],
     costEstimate: '300-488 ر.س/شهر',
     difficulty: 'intermediate',
   },
@@ -394,7 +394,7 @@ export const peptides: Peptide[] = [
     costEstimate: '375-675 ر.س/شهر',
     difficulty: 'beginner',
     lastUpdated: 'Feb 2026',
-    pubmedIds: ['9519913', '9747758', '34952135'],
+    pubmedIds: ['41490200', '37688464', '32257855'],
   },
   {
     id: 'ghrp-2',
@@ -420,7 +420,7 @@ export const peptides: Peptide[] = [
     costEstimate: '225-375 ر.س/شهر',
     difficulty: 'intermediate',
     lastUpdated: 'Feb 2026',
-    pubmedIds: ['9349662', '10372574', '11078740'],
+    pubmedIds: ['28400207', '15230633', '30051972'],
   },
   {
     id: 'ghrp-6',
@@ -446,7 +446,7 @@ export const peptides: Peptide[] = [
     costEstimate: '188-338 ر.س/شهر',
     difficulty: 'intermediate',
     lastUpdated: 'Feb 2026',
-    pubmedIds: ['9349662', '8564915', '10372574'],
+    pubmedIds: ['41327290', '8887178', '24697286'],
   },
   {
     id: 'hexarelin',
@@ -472,7 +472,7 @@ export const peptides: Peptide[] = [
     costEstimate: '263-413 ر.س/شهر',
     difficulty: 'advanced',
     lastUpdated: 'Feb 2026',
-    pubmedIds: ['9349662', '8997247', '10372574'],
+    pubmedIds: ['28400207', '25278975', '18787392'],
   },
   {
     id: 'igf-1-lr3',
@@ -498,7 +498,7 @@ export const peptides: Peptide[] = [
     costEstimate: '563-1,125 ر.س/شهر',
     difficulty: 'advanced',
     lastUpdated: 'Feb 2026',
-    pubmedIds: ['9207799', '15531521', '37261455'],
+    pubmedIds: ['39679943', '37261455', '37114757'],
   },
   {
     id: 'follistatin-344',
@@ -523,7 +523,7 @@ export const peptides: Peptide[] = [
     costEstimate: '750-1,500 ر.س/دورة',
     difficulty: 'advanced',
     lastUpdated: 'Feb 2026',
-    pubmedIds: ['11459788', '17928935', '21852236'],
+    pubmedIds: ['31758732', '32671599', '27787698'],
   },
 
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -552,7 +552,7 @@ export const peptides: Peptide[] = [
     costEstimate: '300-450 ر.س/شهر',
     difficulty: 'intermediate',
     lastUpdated: 'Feb 2026',
-    pubmedIds: ['16126531', '21677020', '26154836'],
+    pubmedIds: ['26852256', '32427949', '30086862'],
   },
   {
     id: 'pt-141',
@@ -577,7 +577,7 @@ export const peptides: Peptide[] = [
     costEstimate: '56-94 ر.س/جرعة',
     difficulty: 'beginner',
     lastUpdated: 'Feb 2026',
-    pubmedIds: ['15809088', '16239188', '30328335'],
+    pubmedIds: ['15134289', '31369224', '31429064'],
   },
   {
     id: 'testicular-bioregulators',
@@ -602,7 +602,7 @@ export const peptides: Peptide[] = [
     costEstimate: '150-300 ر.س/دورة',
     difficulty: 'beginner',
     lastUpdated: 'Feb 2026',
-    pubmedIds: ['35457077', '34834147', '33993656'],
+    pubmedIds: ['30178547', '29179259', '9824503'],
   },
   {
     id: 'gnrh-triptorelin',
@@ -628,7 +628,7 @@ export const peptides: Peptide[] = [
     costEstimate: '113-188 ر.س/جرعة',
     difficulty: 'advanced',
     lastUpdated: 'Feb 2026',
-    pubmedIds: ['22165155', '27483193', '38875134'],
+    pubmedIds: ['6387490', '20166771', '38546114'],
   },
 
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -657,7 +657,7 @@ export const peptides: Peptide[] = [
     costEstimate: '150-225 ر.س/شهر',
     difficulty: 'beginner',
     lastUpdated: 'Feb 2026',
-    pubmedIds: ['24501387', '17974568'],
+    pubmedIds: ['40692165', '35080861', '40496623'],
   },
   {
     id: 'na-semax-amidate',
@@ -682,7 +682,7 @@ export const peptides: Peptide[] = [
     costEstimate: '188-300 ر.س/شهر',
     difficulty: 'intermediate',
     lastUpdated: 'Feb 2026',
-    pubmedIds: ['24501387', '17974568', '20655339'],
+    pubmedIds: ['29395804', '9643626', '32185724'],
   },
   {
     id: 'selank',
@@ -707,7 +707,7 @@ export const peptides: Peptide[] = [
     costEstimate: '150-263 ر.س/شهر',
     difficulty: 'beginner',
     lastUpdated: 'Feb 2026',
-    pubmedIds: ['18577752', '20228811', '32342318'],
+    pubmedIds: ['36322304', '31625062', '30255741'],
   },
   {
     id: 'dihexa',
@@ -733,7 +733,7 @@ export const peptides: Peptide[] = [
     costEstimate: '300-563 ر.س/شهر',
     difficulty: 'advanced',
     lastUpdated: 'Feb 2026',
-    pubmedIds: ['23994452', '25187433', '29733881'],
+    pubmedIds: ['41490200', '18097939', '25187433'],
   },
   {
     id: 'cerebrolysin',
@@ -758,7 +758,7 @@ export const peptides: Peptide[] = [
     costEstimate: '375-750 ر.س/دورة',
     difficulty: 'advanced',
     lastUpdated: 'Feb 2026',
-    pubmedIds: ['27133068', '23575332', '29959903'],
+    pubmedIds: ['37480458', '38737662', '34560919'],
   },
   {
     id: 'p21',
@@ -784,7 +784,7 @@ export const peptides: Peptide[] = [
     costEstimate: '225-375 ر.س/شهر',
     difficulty: 'advanced',
     lastUpdated: 'Feb 2026',
-    pubmedIds: ['28655344', '27400746', '24096296'],
+    pubmedIds: ['40480232', '38917788', '37463267'],
   },
 
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -813,7 +813,7 @@ export const peptides: Peptide[] = [
     lastUpdated: 'Feb 2026',
     costEstimate: '375-563 ر.س/دورة',
     difficulty: 'intermediate',
-    pubmedIds: ['14523363', '12937899'],
+    pubmedIds: ['41490200', '12937682', '12374906'],
   },
   {
     id: 'dsip',
@@ -838,7 +838,7 @@ export const peptides: Peptide[] = [
     costEstimate: '188-300 ر.س/شهر',
     difficulty: 'beginner',
     lastUpdated: 'Feb 2026',
-    pubmedIds: ['6303271', '7104877', '34500605'],
+    pubmedIds: ['16539679', '3550726', '39444618'],
   },
   {
     id: 'ss-31',
@@ -863,7 +863,7 @@ export const peptides: Peptide[] = [
     costEstimate: '750-1,500 ر.س/شهر',
     difficulty: 'advanced',
     lastUpdated: 'Feb 2026',
-    pubmedIds: ['26721388', '29150405', '33188728'],
+    pubmedIds: ['31747905', '39848110', '34480713'],
   },
   {
     id: 'mots-c',
@@ -889,7 +889,7 @@ export const peptides: Peptide[] = [
     costEstimate: '563-1,125 ر.س/شهر',
     difficulty: 'advanced',
     lastUpdated: 'Feb 2026',
-    pubmedIds: ['25738459', '30289772', '31146158'],
+    pubmedIds: ['25738459', '36761202', '39321430'],
   },
   {
     id: 'foxo4-dri',
@@ -915,7 +915,7 @@ export const peptides: Peptide[] = [
     costEstimate: '1,875+ ر.س/دورة',
     difficulty: 'advanced',
     lastUpdated: 'Feb 2026',
-    pubmedIds: ['28340339', '39994346', '39025385'],
+    pubmedIds: ['36515093', '33996787', '34877934'],
   },
   {
     id: 'thymalin',
@@ -940,7 +940,7 @@ export const peptides: Peptide[] = [
     costEstimate: '300-450 ر.س/دورة',
     difficulty: 'intermediate',
     lastUpdated: 'Feb 2026',
-    pubmedIds: ['14523363', '33575961', '33237528'],
+    pubmedIds: ['33237528', '12374906', '12577695'],
   },
   {
     id: 'thymosin-alpha-1',
@@ -965,7 +965,7 @@ export const peptides: Peptide[] = [
     costEstimate: '450-750 ر.س/شهر',
     difficulty: 'intermediate',
     lastUpdated: 'Feb 2026',
-    pubmedIds: ['17217127', '31998060', '32901573'],
+    pubmedIds: ['35364609', '11381492', '41373628'],
   },
 
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -992,7 +992,7 @@ export const peptides: Peptide[] = [
     isFree: true,
     summaryAr: 'أكثر ببتيدات البشرة دراسةً وأمانًا — مسحوق فموي يحفّز إنتاج الكولاجين الذاتي ويحسّن البشرة والمفاصل. سهل الاستخدام ومتوفر تجاريًا.',
     lastUpdated: 'Feb 2026',
-    pubmedIds: ['24401291', '25342893', '30681787'],
+    pubmedIds: ['24401291', '36044324', '28125203'],
     costEstimate: '75-150 ر.س/شهر',
     difficulty: 'beginner',
   },
@@ -1019,7 +1019,7 @@ export const peptides: Peptide[] = [
     costEstimate: '113-300 ر.س/شهر',
     difficulty: 'beginner',
     lastUpdated: 'Feb 2026',
-    pubmedIds: ['24508075', '22585403', '35083444'],
+    pubmedIds: ['29986520', '35083444', '39963574'],
   },
   {
     id: 'copper-peptides-topical',
@@ -1044,7 +1044,7 @@ export const peptides: Peptide[] = [
     costEstimate: '75-188 ر.س/شهر',
     difficulty: 'beginner',
     lastUpdated: 'Feb 2026',
-    pubmedIds: ['24508075', '22585403', '31603269'],
+    pubmedIds: ['40339657', '38026438', '15691601'],
   },
   {
     id: 'larazotide',
@@ -1069,7 +1069,7 @@ export const peptides: Peptide[] = [
     costEstimate: '375-675 ر.س/شهر',
     difficulty: 'intermediate',
     lastUpdated: 'Feb 2026',
-    pubmedIds: ['22504060', '25533660', '33730508'],
+    pubmedIds: ['33881350', '32332732', '34502335'],
   },
   {
     id: 'kpv',
@@ -1094,7 +1094,7 @@ export const peptides: Peptide[] = [
     costEstimate: '225-375 ر.س/شهر',
     difficulty: 'beginner',
     lastUpdated: 'Feb 2026',
-    pubmedIds: ['14683694', '18092346', '28143741'],
+    pubmedIds: ['28343991', '40073467', '35830641'],
   },
   {
     id: 'll-37',
@@ -1119,7 +1119,7 @@ export const peptides: Peptide[] = [
     costEstimate: '300-563 ر.س/شهر',
     difficulty: 'advanced',
     lastUpdated: 'Feb 2026',
-    pubmedIds: ['12829688', '14622130', '17194015'],
+    pubmedIds: ['38450615', '20049649', '40960088'],
   },
   {
     id: 'ara-290',
@@ -1144,7 +1144,7 @@ export const peptides: Peptide[] = [
     costEstimate: '375-750 ر.س/شهر',
     difficulty: 'advanced',
     lastUpdated: 'Feb 2026',
-    pubmedIds: ['24555851', '24603865', '25387363'],
+    pubmedIds: ['34343617', '25387363', '24529189'],
   },
   {
     id: 'melanotan-ii',
@@ -1170,7 +1170,7 @@ export const peptides: Peptide[] = [
     costEstimate: '113-188 ر.س/شهر',
     difficulty: 'advanced',
     lastUpdated: 'Feb 2026',
-    pubmedIds: ['10389042', '18538696', '34464955'],
+    pubmedIds: ['38285527', '31953620', '8637402'],
   },
 ];
 
