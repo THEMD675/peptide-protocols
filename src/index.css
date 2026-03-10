@@ -334,8 +334,66 @@ html.dark {
   to { opacity: 1; transform: translateY(0); }
 }
 
-.animate-page-enter { animation: page-enter 0.3s ease-out both; }
+@keyframes shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+.animate-page-enter { animation: page-enter 0.2s ease-out both; }
 .animate-success-check { animation: success-pop 0.4s cubic-bezier(0.23, 1, 0.32, 1) both; }
+
+/* ═══ Skeleton shimmer ═══ */
+.skeleton-shimmer {
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(16, 185, 129, 0.06) 40%,
+    rgba(16, 185, 129, 0.1) 50%,
+    rgba(16, 185, 129, 0.06) 60%,
+    transparent 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.8s ease-in-out infinite;
+}
+:is(html.dark) .skeleton-shimmer {
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(16, 185, 129, 0.08) 40%,
+    rgba(16, 185, 129, 0.14) 50%,
+    rgba(16, 185, 129, 0.08) 60%,
+    transparent 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.8s ease-in-out infinite;
+}
+
+/* ═══ Global button press feedback ═══ */
+button:not([disabled]):active,
+a[role="button"]:active,
+[type="submit"]:not([disabled]):active {
+  transform: scale(0.97);
+}
+button,
+a[role="button"],
+[type="submit"] {
+  transition: transform 100ms ease, background-color 150ms ease, color 150ms ease, box-shadow 150ms ease, border-color 150ms ease, opacity 150ms ease;
+}
+
+/* ═══ Smooth accordion with details/summary ═══ */
+details .details-content {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 250ms cubic-bezier(0.23, 1, 0.32, 1), opacity 200ms ease;
+  opacity: 0;
+}
+details[open] .details-content {
+  grid-template-rows: 1fr;
+  opacity: 1;
+}
+details .details-content > * {
+  overflow: hidden;
+}
 
 
 .stagger-1 { animation-delay: 0.05s; }

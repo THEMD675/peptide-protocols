@@ -11,6 +11,7 @@ import BottomNav from '@/components/layout/BottomNav';
 import TrialBanner from '@/components/TrialBanner';
 import BackToTop from '@/components/BackToTop';
 import ProtectedRoute from '@/components/ProtectedRoute';
+import PageTransition from '@/components/PageTransition';
 
 import {
   LibrarySkeleton, DashboardSkeleton, TrackerSkeleton, CoachSkeleton,
@@ -298,6 +299,7 @@ export default function App() {
           <CanonicalUrl />
           <Toaster position="top-center" richColors dir="rtl" visibleToasts={3} toastOptions={{ duration: 4000 }} />
           <main id="main-content" className="flex-1 pb-20 md:pb-0">
+            <PageTransition>
             <Routes>
               <Route path="/" element={<RouteErrorBoundary><HomeRedirect /></RouteErrorBoundary>} />
               <Route path="/login" element={<Suspense fallback={<PageLoader />}><RouteErrorBoundary fallbackTitle="خطأ في صفحة الدخول"><Login /></RouteErrorBoundary></Suspense>} />
@@ -333,6 +335,7 @@ export default function App() {
               <Route path="/logout" element={<LogoutRedirect />} />
               <Route path="*" element={<Suspense fallback={<PageLoader />}><NotFound /></Suspense>} />
             </Routes>
+            </PageTransition>
           </main>
           <BottomNav />
           <Footer />

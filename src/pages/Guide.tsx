@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { Link } from 'react-router-dom';
 import {
@@ -86,16 +86,27 @@ function BlurredSection({ isPro, isFree, children }: { isPro: boolean; isFree?: 
 
 function AccordionItem({ title, children, defaultOpen = false }: { title: string; children: React.ReactNode; defaultOpen?: boolean }) {
   const [open, setOpen] = useState(defaultOpen);
+  const contentRef = useRef<HTMLDivElement>(null);
+
   return (
-    <div className="rounded-2xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 overflow-hidden transition-all">
+    <div className="rounded-2xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 overflow-hidden transition-all card-hover">
       <button
         onClick={() => setOpen(!open)}
         className="flex w-full items-center justify-between px-5 py-4 text-start font-bold text-stone-900 dark:text-stone-100 hover:bg-stone-50 dark:hover:bg-stone-900 transition-colors"
+        aria-expanded={open}
       >
         <span>{title}</span>
         <ChevronDown className={cn('h-5 w-5 shrink-0 text-emerald-500 transition-transform duration-200', open && 'rotate-180')} />
       </button>
-      {open && <div className="px-5 pb-5 text-sm leading-relaxed text-stone-700 dark:text-stone-300 space-y-3">{children}</div>}
+      <div
+        ref={contentRef}
+        className="grid transition-all duration-250 ease-[cubic-bezier(0.23,1,0.32,1)]"
+        style={{ gridTemplateRows: open ? '1fr' : '0fr', opacity: open ? 1 : 0 }}
+      >
+        <div className="overflow-hidden">
+          <div className="px-5 pb-5 text-sm leading-relaxed text-stone-700 dark:text-stone-300 space-y-3">{children}</div>
+        </div>
+      </div>
     </div>
   );
 }
@@ -1191,11 +1202,13 @@ export default function Guide() {
             { q: 'نسيت الحقن 3 أيام — ماذا أفعل؟', a: 'لا تضاعف الجرعة. استأنف الجرعة العادية من حيث توقفت. معظم الببتيدات لا تحتاج "تعويض". الاستمرارية أهم من الكمال.' },
             { q: 'أشعر بغثيان بعد حقن Semaglutide', a: 'الغثيان شائع جدًا مع GLP-1 (44% من المستخدمين). جرّب: تقليل الجرعة، الحقن قبل النوم بدل الصباح، تناول وجبات صغيرة وخفيفة، وتجنب الأطعمة الدهنية. يتحسن عادة خلال 2-3 أسابيع.' },
           ].map((faq) => (
-            <details key={faq.q} className="group rounded-2xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 transition-all hover:border-amber-200 dark:hover:border-amber-800">
+            <details key={faq.q} className="group rounded-2xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 transition-all hover:border-amber-200 dark:hover:border-amber-800 card-hover">
               <summary className="flex cursor-pointer items-center justify-between px-5 py-4 text-sm font-bold text-stone-900 dark:text-stone-100 [&::-webkit-details-marker]:hidden">
                 <span className="flex items-center gap-2">{faq.q}</span>
               </summary>
-              <p className="px-5 pb-4 text-sm leading-relaxed text-stone-700 dark:text-stone-300">{faq.a}</p>
+              <div className="details-content">
+                <p className="px-5 pb-4 text-sm leading-relaxed text-stone-700 dark:text-stone-300">{faq.a}</p>
+              </div>
             </details>
           ))}
         </div>

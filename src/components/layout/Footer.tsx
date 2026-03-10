@@ -34,6 +34,7 @@ export default memo(function Footer() {
               <Link to="/library" className="min-h-[44px] flex items-center text-stone-600 dark:text-stone-400 transition-colors hover:text-emerald-600 active:text-emerald-700 dark:active:text-emerald-300">المكتبة</Link>
               <Link to="/calculator" className="min-h-[44px] flex items-center text-stone-600 dark:text-stone-400 transition-colors hover:text-emerald-600 active:text-emerald-700 dark:active:text-emerald-300">حاسبة الجرعات</Link>
               <Link to="/table" className="min-h-[44px] flex items-center text-stone-600 dark:text-stone-400 transition-colors hover:text-emerald-600 active:text-emerald-700 dark:active:text-emerald-300">جدول الببتيدات</Link>
+              <Link to="/compare" className="min-h-[44px] flex items-center text-stone-600 dark:text-stone-400 transition-colors hover:text-emerald-600 active:text-emerald-700 dark:active:text-emerald-300">مقارنة الببتيدات</Link>
               <Link to="/coach" className="min-h-[44px] flex items-center text-stone-600 dark:text-stone-400 transition-colors hover:text-emerald-600 active:text-emerald-700 dark:active:text-emerald-300">المدرب الذكي</Link>
               <Link to="/pricing" className="min-h-[44px] flex items-center text-stone-600 dark:text-stone-400 transition-colors hover:text-emerald-600 active:text-emerald-700 dark:active:text-emerald-300">الأسعار</Link>
             </nav>
@@ -48,8 +49,7 @@ export default memo(function Footer() {
               <Link to="/glossary" className="min-h-[44px] flex items-center text-stone-600 dark:text-stone-400 transition-colors hover:text-emerald-600 active:text-emerald-700 dark:active:text-emerald-300">المصطلحات</Link>
               <Link to="/interactions" className="min-h-[44px] flex items-center text-stone-600 dark:text-stone-400 transition-colors hover:text-emerald-600 active:text-emerald-700 dark:active:text-emerald-300">فحص التعارضات</Link>
               <Link to="/sources" className="min-h-[44px] flex items-center text-stone-600 dark:text-stone-400 transition-colors hover:text-emerald-600 active:text-emerald-700 dark:active:text-emerald-300">المصادر</Link>
-              <Link to="/community" className="min-h-[44px] flex items-center text-stone-600 dark:text-stone-400 transition-colors hover:text-emerald-600 active:text-emerald-700 dark:active:text-emerald-300">التجارب</Link>
-              <Link to="/community" className="min-h-[44px] flex items-center text-stone-600 dark:text-stone-400 transition-colors hover:text-emerald-600 active:text-emerald-700 dark:active:text-emerald-300">التقييمات</Link>
+              <Link to="/community" className="min-h-[44px] flex items-center text-stone-600 dark:text-stone-400 transition-colors hover:text-emerald-600 active:text-emerald-700 dark:active:text-emerald-300">التجارب والتقييمات</Link>
               <Link to="/blog" className="min-h-[44px] flex items-center text-stone-600 dark:text-stone-400 transition-colors hover:text-emerald-600 active:text-emerald-700 dark:active:text-emerald-300">المدونة</Link>
             </nav>
           </div>

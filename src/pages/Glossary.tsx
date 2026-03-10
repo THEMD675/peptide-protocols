@@ -73,7 +73,7 @@ function GlossaryCard({ term, search, allPeptides }: { term: GlossaryTerm; searc
 
   return (
     <div
-      className="rounded-2xl border border-stone-200 dark:border-stone-700 border-s-2 border-s-emerald-300 bg-white dark:bg-stone-900 p-5 shadow-sm dark:shadow-stone-900/30 transition-all hover:border-emerald-200 hover:shadow-md"
+      className="rounded-2xl border border-stone-200 dark:border-stone-700 border-s-2 border-s-emerald-300 bg-white dark:bg-stone-900 p-5 shadow-sm dark:shadow-stone-900/30 card-hover"
     >
       <dt
         className="flex items-center justify-between gap-3 cursor-pointer select-none"

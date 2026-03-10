@@ -2,7 +2,7 @@ import type React from 'react';
 import { cn } from '@/lib/utils';
 
 function Bone({ className, style }: { className?: string; style?: React.CSSProperties }) {
-  return <div className={cn('animate-pulse rounded-xl bg-stone-200 dark:bg-stone-700/70', className)} style={style} />;
+  return <div className={cn('animate-pulse rounded-xl bg-stone-200 dark:bg-stone-700/70 skeleton-shimmer', className)} style={style} />;
 }
 
 export function LibrarySkeleton() {

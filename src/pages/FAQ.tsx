@@ -277,15 +277,17 @@ export default function FAQ() {
                   {section.items.map((faq) => (
                     <details
                       key={faq.q}
-                      className="group rounded-2xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-900/50 transition-all hover:border-emerald-300 dark:hover:border-emerald-700 hover:shadow-sm"
+                      className="group rounded-2xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-900/50 transition-all hover:border-emerald-300 dark:hover:border-emerald-700 card-hover"
                     >
                       <summary className="flex cursor-pointer items-center justify-between gap-4 p-5 text-base font-semibold text-stone-900 dark:text-stone-100 md:p-6 min-h-[44px] select-none">
                         <span>{faq.q}</span>
-                        <ChevronDown className="h-5 w-5 shrink-0 text-stone-400 dark:text-stone-500 transition-transform group-open:rotate-180" />
+                        <ChevronDown className="h-5 w-5 shrink-0 text-stone-400 dark:text-stone-500 transition-transform duration-200 group-open:rotate-180" />
                       </summary>
-                      <p className="px-5 pb-5 text-sm leading-relaxed text-stone-700 dark:text-stone-300 md:px-6 md:pb-6">
-                        {faq.a}
-                      </p>
+                      <div className="details-content">
+                        <p className="px-5 pb-5 text-sm leading-relaxed text-stone-700 dark:text-stone-300 md:px-6 md:pb-6">
+                          {faq.a}
+                        </p>
+                      </div>
                     </details>
                   ))}
                 </div>
