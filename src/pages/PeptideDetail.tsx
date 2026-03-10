@@ -484,7 +484,7 @@ export default function PeptideDetail() {
                     dir="ltr"
                   >
                     <ExternalLink className="h-4 w-4 shrink-0 text-emerald-700" />
-                    <span>PubMed ID: {pmid}</span>
+                    <span>PubMed: {pmid}</span>
                   </a>
                 ))}
               </div>

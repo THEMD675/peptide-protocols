@@ -56,15 +56,15 @@ export default function FeatureComparisonTable() {
                 مجاني
               </th>
               <th className="px-4 py-4 text-center font-semibold text-stone-700 dark:text-stone-300 min-w-[120px]">
-                <span className="block">Essentials</span>
-                <span className="text-xs font-normal text-stone-500 dark:text-stone-400">الأساسية</span>
+                <span className="block">الأساسية</span>
+                <span className="text-xs font-normal text-stone-500 dark:text-stone-400">Essentials</span>
               </th>
               <th className="px-4 py-4 text-center min-w-[120px]">
                 <div className="flex items-center justify-center gap-1.5 font-semibold text-emerald-700 dark:text-emerald-400">
                   <Crown className="h-4 w-4" />
-                  <span>Elite</span>
+                  <span>المتقدّمة</span>
                 </div>
-                <span className="text-xs font-normal text-emerald-500">المتقدّمة</span>
+                <span className="text-xs font-normal text-emerald-500">Elite</span>
               </th>
             </tr>
           </thead>

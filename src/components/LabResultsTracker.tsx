@@ -396,7 +396,7 @@ function LabEntryForm({
             onChange={e => setTestDate(e.target.value)}
             max={new Date().toISOString().slice(0, 10)}
             dir="ltr"
-            className="w-full rounded-xl border border-stone-700 bg-stone-800 px-3 py-2.5 text-sm text-stone-100 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
+            className="w-full rounded-xl border border-stone-700 bg-stone-800 px-3 py-2.5 text-base text-stone-100 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
           />
         </div>
         <div>
@@ -409,7 +409,7 @@ function LabEntryForm({
             value={labName}
             onChange={e => setLabName(e.target.value)}
             placeholder="مثال: مختبرات البرج"
-            className="w-full rounded-xl border border-stone-700 bg-stone-800 px-3 py-2.5 text-sm text-stone-100 placeholder:text-stone-400 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
+            className="w-full rounded-xl border border-stone-700 bg-stone-800 px-3 py-2.5 text-base text-stone-100 placeholder:text-stone-400 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
           />
         </div>
       </div>
@@ -463,7 +463,7 @@ function LabEntryForm({
                     min="0"
                     dir="ltr"
                     className={cn(
-                      'w-24 rounded-lg border bg-stone-900 px-2.5 py-1.5 text-sm text-stone-100 text-center placeholder:text-stone-600 focus:outline-none focus:ring-2 transition-colors',
+                      'w-24 rounded-lg border bg-stone-900 px-2.5 py-1.5 text-base text-stone-100 text-center placeholder:text-stone-600 focus:outline-none focus:ring-2 transition-colors',
                       status === 'normal' ? 'border-emerald-500/50 focus:ring-emerald-500/20' :
                       status === 'borderLow' || status === 'borderHigh' ? 'border-amber-500/50 focus:ring-amber-500/20' :
                       status === 'low' || status === 'high' ? 'border-red-500/50 focus:ring-red-500/20' :
@@ -492,7 +492,7 @@ function LabEntryForm({
           placeholder="أي ملاحظات إضافية عن هذا التحليل..."
           rows={2}
           maxLength={500}
-          className="w-full resize-none rounded-xl border border-stone-700 bg-stone-800 px-3 py-2.5 text-sm text-stone-100 placeholder:text-stone-400 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
+          className="w-full resize-none rounded-xl border border-stone-700 bg-stone-800 px-3 py-2.5 text-base text-stone-100 placeholder:text-stone-400 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
         />
       </div>
 
