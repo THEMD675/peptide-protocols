@@ -195,7 +195,12 @@ export default function Pricing() {
         <meta property="og:type" content="website" />
         <meta property="og:url" content={`${SITE_URL}/pricing`} />
         <meta property="og:image" content={`${SITE_URL}/og-image.jpg`} />
+        <meta property="og:locale" content="ar_SA" />
+        <link rel="canonical" href={`${SITE_URL}/pricing`} />
         <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content={`أسعار pptides | ابدأ بتجربة ${TRIAL_DAYS} أيام مجانية`} />
+        <meta name="twitter:description" content={`Essentials ${PRICING.essentials.label}/شهر أو Elite ${PRICING.elite.label}/شهر. ضمان استرداد كامل.`} />
+        <meta name="twitter:image" content={`${SITE_URL}/og-image.jpg`} />
         <script type="application/ld+json">{JSON.stringify({
           "@context": "https://schema.org",
           "@type": "FAQPage",

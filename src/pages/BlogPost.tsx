@@ -92,7 +92,9 @@ export default function BlogPost() {
         <meta property="og:type" content="article" />
         <meta property="og:url" content={`${SITE_URL}/blog/${post.slug}`} />
         <meta property="og:image" content={post.cover_image_url || `${SITE_URL}/og-image.jpg`} />
+        <meta property="og:locale" content="ar_SA" />
         <meta property="article:published_time" content={post.published_at} />
+        <link rel="canonical" href={`${SITE_URL}/blog/${post.slug}`} />
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content={post.title_ar} />
         <meta name="twitter:description" content={post.excerpt_ar} />

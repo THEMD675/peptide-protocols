@@ -60,7 +60,11 @@ export default function FAQ() {
         <meta property="og:url" content={`${SITE_URL}/faq`} />
         <meta property="og:image" content={`${SITE_URL}/og-image.jpg`} />
         <meta property="og:locale" content="ar_SA" />
+        <link rel="canonical" href={`${SITE_URL}/faq`} />
         <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="الأسئلة الشائعة | pptides" />
+        <meta name="twitter:description" content="إجابات على الأسئلة الأكثر شيوعًا حول pptides والببتيدات." />
+        <meta name="twitter:image" content={`${SITE_URL}/og-image.jpg`} />
         <script type="application/ld+json">{JSON.stringify(faqSchema)}</script>
       </Helmet>
 

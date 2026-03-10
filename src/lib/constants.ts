@@ -1,22 +1,22 @@
-import { peptides } from '@/data/peptides';
+// PERF: These values are hardcoded to avoid importing peptides.ts (145KB) in the main bundle.
+// Update manually when adding/removing peptides or changing isFree/pubmedIds fields.
+// Last synced: 2025-03-10 (41 peptides, 6 free, 110 PubMed IDs)
 
-/** PERF2: peptides.ts (1394 lines) cannot be lazy-loaded — constants is imported by App.tsx and many pages (PEPTIDE_COUNT, FREE_PEPTIDE_IDS, TRIAL_PEPTIDE_IDS, PUBMED_*, VALUE_STACK). Splitting would require refactoring constants to avoid top-level peptides import. */
-/** Derived from peptides — never out of sync with isFree field */
-export const FREE_PEPTIDE_IDS = new Set(peptides.filter((p) => p.isFree).map((p) => p.id));
+/** Free peptide IDs — peptides with isFree: true in src/data/peptides.ts */
+export const FREE_PEPTIDE_IDS = new Set([
+  'semaglutide', 'bpc-157', 'kisspeptin-10', 'semax', 'epithalon', 'collagen-peptides',
+]);
 
 export const PRICING = {
   essentials: { monthly: 34, label: '34 ر.س', annualMonthly: Math.round(296 / 12), annualTotal: 296, annualLabel: '296 ر.س' },
   elite: { monthly: 371, label: '371 ر.س', annualMonthly: Math.round(2963 / 12), annualTotal: 2963, annualLabel: '2,963 ر.س' },
 } as const;
 
-export const PEPTIDE_COUNT = peptides.length;
+/** Total peptide count — update when adding/removing peptides */
+export const PEPTIDE_COUNT = 41;
 
-/** Unique PubMed IDs across all peptides — used for "X+ مصدر علمي" stats */
-const _pubmedSet = new Set<string>();
-for (const p of peptides) {
-  for (const id of p.pubmedIds ?? []) _pubmedSet.add(id);
-}
-export const PUBMED_SOURCE_COUNT = _pubmedSet.size;
+/** Unique PubMed ID count across all peptides — update when pubmedIds change */
+export const PUBMED_SOURCE_COUNT = 110;
 export const PUBMED_SOURCE_LABEL = `${PUBMED_SOURCE_COUNT}+`;
 
 export const FREQUENCY_LABELS: Record<string, string> = {

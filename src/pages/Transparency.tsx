@@ -7,14 +7,18 @@ export default function Transparency() {
   return (
     <div className="min-h-screen bg-white animate-fade-in">
       <Helmet>
-        <title>كيف نكسب المال | pptides</title>
-        <meta name="description" content="pptides منصة تعليمية بحتة. لا نبيع ببتيدات. اشتراكك هو مصدر دخلنا الوحيد." />
-        <meta property="og:title" content="كيف نكسب المال | pptides" />
-        <meta property="og:description" content="pptides منصة تعليمية بحتة. لا نبيع ببتيدات. اشتراكك هو مصدر دخلنا الوحيد." />
+        <title>كيف نكسب المال | شفافية كاملة | pptides</title>
+        <meta name="description" content="pptides منصة تعليمية بحتة — لا نبيع ببتيدات ولا نأخذ عمولات من الموردين. اشتراكك الشهري هو مصدر دخلنا الوحيد. شفافية كاملة مع مستخدمينا." />
+        <link rel="canonical" href={`${SITE_URL}/transparency`} />
+        <meta property="og:title" content="كيف نكسب المال | شفافية كاملة | pptides" />
+        <meta property="og:description" content="pptides منصة تعليمية بحتة — لا نبيع ببتيدات. اشتراكك هو مصدر دخلنا الوحيد." />
         <meta property="og:url" content={`${SITE_URL}/transparency`} />
         <meta property="og:locale" content="ar_SA" />
         <meta property="og:image" content={`${SITE_URL}/og-image.jpg`} />
         <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="كيف نكسب المال | شفافية كاملة | pptides" />
+        <meta name="twitter:description" content="pptides منصة تعليمية بحتة — لا نبيع ببتيدات. اشتراكك هو مصدر دخلنا الوحيد." />
+        <meta name="twitter:image" content={`${SITE_URL}/og-image.jpg`} />
         <script type="application/ld+json">{JSON.stringify({
           '@context': 'https://schema.org',
           '@type': 'AboutPage',

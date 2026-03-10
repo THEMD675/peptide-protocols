@@ -95,6 +95,7 @@ export default function PeptideDetail() {
         <meta property="og:url" content={`${SITE_URL}/peptide/${peptide.id}`} />
         <meta property="og:image" content={`${SITE_URL}/og-image.jpg`} />
         <meta property="og:locale" content="ar_SA" />
+        <link rel="canonical" href={`${SITE_URL}/peptide/${peptide.id}`} />
         <meta name="twitter:card" content="summary_large_image" />
         <script type="application/ld+json">{JSON.stringify({
           '@context': 'https://schema.org',

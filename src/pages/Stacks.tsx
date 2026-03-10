@@ -76,15 +76,19 @@ export default function Stacks() {
         </div>
       )}
       <Helmet>
-        <title>بروتوكولات ببتيدات مُجمَّعة | خلطات مُجرَّبة | pptides</title>
-        <meta name="description" content="بروتوكولات مُجمَّعة لأهداف محددة" />
+        <title>بروتوكولات ببتيدات مُجمَّعة | خلطات مُجرَّبة لأهداف محددة | pptides</title>
+        <meta name="description" content="خلطات ببتيدات مُجرَّبة بعناية لأهداف محددة — تعافٍ وإصلاح، أداء دماغي، طول عمر، فقدان دهون، وتعزيز النوم. بروتوكولات مبنية على الأدلة العلمية." />
+        <link rel="canonical" href={`${SITE_URL}/stacks`} />
         <meta property="og:title" content="البروتوكولات المُجمَّعة | pptides" />
-        <meta property="og:description" content="خلطات ببتيدات مُجرَّبة لأهداف محددة — تعافي، دماغ، طول عمر" />
+        <meta property="og:description" content="خلطات ببتيدات مُجرَّبة لأهداف محددة — تعافٍ، دماغ، طول عمر، فقدان دهون." />
         <meta property="og:url" content={`${SITE_URL}/stacks`} />
         <meta property="og:type" content="website" />
         <meta property="og:locale" content="ar_SA" />
         <meta property="og:image" content={`${SITE_URL}/og-image.jpg`} />
         <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="البروتوكولات المُجمَّعة | pptides" />
+        <meta name="twitter:description" content="خلطات ببتيدات مُجرَّبة لأهداف محددة — تعافٍ، دماغ، طول عمر، فقدان دهون." />
+        <meta name="twitter:image" content={`${SITE_URL}/og-image.jpg`} />
         <script type="application/ld+json">{JSON.stringify({
           '@context': 'https://schema.org',
           '@type': 'CollectionPage',

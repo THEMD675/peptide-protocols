@@ -98,7 +98,7 @@ const PeptideCard = memo(function PeptideCard({
             className={cn('flex items-center gap-1 rounded-full px-2.5 py-1.5 min-h-[44px] text-xs font-medium transition-colors', isCompare ? 'bg-emerald-100 text-emerald-700' : 'text-stone-500 hover:bg-stone-100 hover:text-stone-600')}
             aria-label={isCompare ? 'إزالة من المقارنة' : 'إضافة للمقارنة'}
           >
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-3.5 w-3.5">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-3.5 w-3.5" aria-hidden="true">
               <line x1="18" y1="20" x2="18" y2="10" /><line x1="12" y1="20" x2="12" y2="4" /><line x1="6" y1="20" x2="6" y2="14" />
             </svg>
             {isCompare ? 'مُختار' : 'قارن'}
@@ -394,7 +394,11 @@ export default function Library() {
         <meta property="og:type" content="website" />
         <meta property="og:url" content={`${SITE_URL}/library`} />
         <meta property="og:image" content={`${SITE_URL}/og-image.jpg`} />
+        <link rel="canonical" href={`${SITE_URL}/library`} />
         <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content={`مكتبة الببتيدات | ${PEPTIDE_COUNT} ببتيد علاجي | pptides`} />
+        <meta name="twitter:description" content={`تصفّح ${PEPTIDE_COUNT} ببتيد علاجي مع بروتوكولات كاملة وحاسبة جرعات.`} />
+        <meta name="twitter:image" content={`${SITE_URL}/og-image.jpg`} />
         <script type="application/ld+json">{JSON.stringify({
           "@context": "https://schema.org",
           "@type": "ItemList",

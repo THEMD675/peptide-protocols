@@ -177,6 +177,7 @@ export default function Landing() {
         <meta property="og:type" content="website" />
         <meta property="og:url" content={SITE_URL} />
         <meta property="og:image" content={`${SITE_URL}/og-image.jpg`} />
+        <link rel="canonical" href={SITE_URL} />
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content="pptides | أشمل دليل عربي للببتيدات العلاجية" />
         <meta name="twitter:description" content={`${PEPTIDE_COUNT} ببتيد علاجي مع بروتوكولات كاملة ومدرب ذكي.`} />
@@ -859,7 +860,7 @@ export default function Landing() {
         className="fixed bottom-24 end-4 z-40 flex h-14 w-14 items-center justify-center rounded-full bg-emerald-600 text-white shadow-lg shadow-emerald-600/30 transition-all hover:bg-emerald-700 hover:scale-110 md:bottom-6 md:end-6"
         aria-label="تواصل معنا"
       >
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/></svg>
       </a>
 
       {/* ═══════ EXIT INTENT POPUP ═══════ */}

@@ -7,12 +7,17 @@ export default function Quiz() {
     <div className="min-h-screen animate-fade-in">
       <Helmet>
         <title>اكتشف الببتيد المناسب لك | اختبار مجاني | pptides</title>
-        <meta name="description" content="اختبار قصير يحدد لك الببتيد الأفضل لهدفك — فقدان دهون، تعافٍ، نوم، أو بناء عضل. مجاني وسريع." />
+        <meta name="description" content="اختبار مجاني وسريع يحدد لك الببتيد الأفضل لهدفك الصحي — فقدان دهون، تعافٍ وإصلاح، تحسين النوم، أو بناء العضل والأداء. نتيجة فورية مبنية على علم." />
+        <link rel="canonical" href={`${SITE_URL}/quiz`} />
         <meta property="og:title" content="اكتشف الببتيد المناسب لك | pptides" />
-        <meta property="og:description" content="اختبار قصير يحدد لك الببتيد الأفضل لهدفك — فقدان دهون، تعافٍ، نوم، أو بناء عضل. مجاني وسريع." />
+        <meta property="og:description" content="اختبار مجاني وسريع يحدد لك الببتيد الأفضل لهدفك الصحي — نتيجة فورية." />
         <meta property="og:url" content={`${SITE_URL}/quiz`} />
         <meta property="og:image" content={`${SITE_URL}/og-image.jpg`} />
+        <meta property="og:locale" content="ar_SA" />
         <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="اكتشف الببتيد المناسب لك | pptides" />
+        <meta name="twitter:description" content="اختبار مجاني وسريع يحدد لك الببتيد الأفضل لهدفك — فقدان دهون، تعافٍ، نوم، أو بناء عضل." />
+        <meta name="twitter:image" content={`${SITE_URL}/og-image.jpg`} />
         <meta property="og:type" content="website" />
         <script type="application/ld+json">{JSON.stringify({
           '@context': 'https://schema.org',

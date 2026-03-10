@@ -98,15 +98,19 @@ export default function Guide() {
   return (
     <div className="mx-auto max-w-5xl px-4 pb-24 pt-8 md:px-6 md:pt-12 animate-fade-in">
       <Helmet>
-        <title>دليل التحضير والحقن | pptides</title>
-        <meta name="description" content="دليل التحضير والحقن خطوة بخطوة" />
+        <title>دليل تحضير وحقن الببتيدات خطوة بخطوة | pptides</title>
+        <meta name="description" content="دليل عملي شامل لتحضير وحقن الببتيدات بأمان — إذابة المسحوق، حساب الجرعة الدقيقة، اختيار موضع الحقن تحت الجلد، والتخزين الصحيح في الثلاجة." />
+        <link rel="canonical" href={`${SITE_URL}/guide`} />
         <meta property="og:title" content="دليل تحضير وحقن الببتيدات | pptides" />
-        <meta property="og:description" content="دليل عملي خطوة بخطوة لتحضير وحقن الببتيدات بأمان" />
+        <meta property="og:description" content="دليل عملي خطوة بخطوة لتحضير وحقن الببتيدات بأمان — الإذابة، الجرعة، الحقن، والتخزين." />
         <meta property="og:url" content={`${SITE_URL}/guide`} />
         <meta property="og:type" content="article" />
         <meta property="og:locale" content="ar_SA" />
         <meta property="og:image" content={`${SITE_URL}/og-image.jpg`} />
         <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="دليل تحضير وحقن الببتيدات | pptides" />
+        <meta name="twitter:description" content="دليل عملي خطوة بخطوة لتحضير وحقن الببتيدات بأمان — الإذابة، الجرعة، الحقن، والتخزين." />
+        <meta name="twitter:image" content={`${SITE_URL}/og-image.jpg`} />
         <script type="application/ld+json">{JSON.stringify({
           "@context": "https://schema.org",
           "@type": "HowTo",

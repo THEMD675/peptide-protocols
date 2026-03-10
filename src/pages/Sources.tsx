@@ -174,6 +174,9 @@ export default function Sources() {
         <meta property="og:locale" content="ar_SA" />
         <meta property="og:image" content={`${SITE_URL}/og-image.jpg`} />
         <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="المصادر الموثوقة للببتيدات | pptides" />
+        <meta name="twitter:description" content="معايير اختيار مورد ببتيدات موثوق — شهادات التحليل، النقاء ≥98%، السمعة المجتمعية، والشحن المبرّد." />
+        <meta name="twitter:image" content={`${SITE_URL}/og-image.jpg`} />
         <link rel="canonical" href={`${SITE_URL}/sources`} />
         <script type="application/ld+json">{JSON.stringify({
           '@context': 'https://schema.org',

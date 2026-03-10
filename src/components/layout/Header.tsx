@@ -4,7 +4,7 @@ import { Menu, X, User, LogOut, ChevronDown, Search } from 'lucide-react';
 import FocusTrap from 'focus-trap-react';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
-import { peptides, type Peptide } from '@/data/peptides';
+import { peptideSearchIndex, type PeptideSearchEntry } from '@/data/peptide-search-index';
 import { ADMIN_EMAILS } from '@/lib/constants';
 
 const guestNavLinks = [
@@ -53,7 +53,7 @@ export default memo(function Header() {
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [searchFocusIdx, setSearchFocusIdx] = useState(-1);
-  const peptidesList = useMemo(() => peptides.map(p => ({ id: p.id, nameAr: p.nameAr, nameEn: p.nameEn })), []);
+  const peptidesList = peptideSearchIndex;
   const dropdownRef = useRef<HTMLDivElement>(null);
   const moreDropdownRef = useRef<HTMLDivElement>(null);
   const searchRef = useRef<HTMLDivElement>(null);
@@ -72,7 +72,7 @@ export default memo(function Header() {
     if (searchQuery.trim().length >= 2 || peptidesList.length === 0) return [];
     try {
       const recentIds: string[] = JSON.parse(localStorage.getItem('pptides_recent_peptides') ?? '[]').slice(0, 5);
-      return recentIds.map((id: string) => peptidesList.find(p => p.id === id)).filter(Boolean) as Pick<Peptide, 'id' | 'nameAr' | 'nameEn'>[];
+      return recentIds.map((id: string) => peptidesList.find(p => p.id === id)).filter(Boolean) as PeptideSearchEntry[];
     } catch { return []; }
   }, [searchQuery, peptidesList]);
 

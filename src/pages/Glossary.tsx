@@ -58,15 +58,19 @@ export default function Glossary() {
   return (
     <div className="min-h-screen mx-auto max-w-4xl px-4 pb-24 pt-8 md:px-6 md:pt-12 animate-fade-in">
       <Helmet>
-        <title>مصطلحات الببتيدات | pptides</title>
-        <meta name="description" content="قاموس شامل لمصطلحات الببتيدات" />
-        <meta property="og:title" content="مصطلحات الببتيدات | pptides" />
-        <meta property="og:description" content="قاموس شامل لمصطلحات الببتيدات والطب الرياضي" />
+        <title>قاموس مصطلحات الببتيدات والبيوهاكينغ | pptides</title>
+        <meta name="description" content="قاموس عربي شامل لمصطلحات الببتيدات والطب الرياضي والبيوهاكينغ — تعريفات واضحة لكل مصطلح تقني من GH وIGF-1 إلى الببتيدات العصبية والمناعية." />
+        <link rel="canonical" href={`${SITE_URL}/glossary`} />
+        <meta property="og:title" content="قاموس مصطلحات الببتيدات | pptides" />
+        <meta property="og:description" content="قاموس عربي شامل لمصطلحات الببتيدات والطب الرياضي والبيوهاكينغ." />
         <meta property="og:url" content={`${SITE_URL}/glossary`} />
         <meta property="og:type" content="website" />
         <meta property="og:image" content={`${SITE_URL}/og-image.jpg`} />
-        <meta name="twitter:card" content="summary_large_image" />
         <meta property="og:locale" content="ar_SA" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="قاموس مصطلحات الببتيدات | pptides" />
+        <meta name="twitter:description" content="قاموس عربي شامل لمصطلحات الببتيدات والطب الرياضي والبيوهاكينغ." />
+        <meta name="twitter:image" content={`${SITE_URL}/og-image.jpg`} />
         <script type="application/ld+json">{JSON.stringify({
           "@context": "https://schema.org",
           "@type": "DefinedTermSet",

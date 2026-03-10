@@ -143,7 +143,11 @@ export default function InteractionChecker() {
         <meta property="og:type" content="website" />
         <meta property="og:locale" content="ar_SA" />
         <meta property="og:image" content={`${SITE_URL}/og-image.jpg`} />
+        <link rel="canonical" href={`${SITE_URL}/interactions`} />
         <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="فحص تعارضات الببتيدات | pptides" />
+        <meta name="twitter:description" content={`تحقق من أمان تجميع أي ببتيدين معًا — فحص التعارضات والتفاعلات بين ${PEPTIDE_COUNT}+ ببتيد.`} />
+        <meta name="twitter:image" content={`${SITE_URL}/og-image.jpg`} />
         <script type="application/ld+json">{JSON.stringify({
           '@context': 'https://schema.org',
           '@type': 'WebApplication',

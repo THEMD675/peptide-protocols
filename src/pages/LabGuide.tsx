@@ -48,15 +48,19 @@ export default function LabGuide() {
   return (
     <div className="mx-auto max-w-5xl px-4 pb-24 pt-8 md:px-6 md:pt-12 animate-fade-in">
       <Helmet>
-        <title>دليل التحاليل المخبرية | pptides</title>
-        <meta name="description" content="دليل التحاليل المخبرية للببتيدات" />
-        <meta property="og:title" content="دليل التحاليل المخبرية | pptides" />
-        <meta property="og:description" content="التحاليل الأساسية قبل وأثناء وبعد استخدام الببتيدات" />
+        <title>دليل التحاليل المخبرية قبل وأثناء الببتيدات | pptides</title>
+        <meta name="description" content="دليل شامل للتحاليل المخبرية الأساسية قبل وأثناء وبعد استخدام الببتيدات — هرمونات النمو، الغدة الدرقية، الكبد، الكلى، وتحاليل التقدم العلاجي." />
+        <link rel="canonical" href={`${SITE_URL}/lab-guide`} />
+        <meta property="og:title" content="دليل التحاليل المخبرية للببتيدات | pptides" />
+        <meta property="og:description" content="التحاليل الأساسية قبل وأثناء وبعد استخدام الببتيدات — دليل شامل ومبني على الأدلة." />
         <meta property="og:url" content={`${SITE_URL}/lab-guide`} />
         <meta property="og:type" content="article" />
         <meta property="og:locale" content="ar_SA" />
         <meta property="og:image" content={`${SITE_URL}/og-image.jpg`} />
         <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="دليل التحاليل المخبرية للببتيدات | pptides" />
+        <meta name="twitter:description" content="التحاليل الأساسية قبل وأثناء وبعد استخدام الببتيدات — دليل شامل ومبني على الأدلة." />
+        <meta name="twitter:image" content={`${SITE_URL}/og-image.jpg`} />
         <script type="application/ld+json">{JSON.stringify({
           '@context': 'https://schema.org',
           '@type': 'MedicalWebPage',

@@ -84,7 +84,7 @@ export default defineConfig({
           vendor: ['react', 'react-dom', 'react-router-dom'],
           supabase: ['@supabase/supabase-js'],
           ui: ['lucide-react', 'sonner', 'react-helmet-async'],
-
+          recharts: ['recharts'],
         },
       },
     },

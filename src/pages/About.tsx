@@ -14,15 +14,19 @@ export default function About() {
   return (
     <div className="min-h-screen bg-white animate-fade-in">
       <Helmet>
-        <title>عن pptides — أشمل دليل عربي للببتيدات | pptides</title>
-        <meta name="description" content="pptides: أول منصة عربية متخصصة في علم الببتيدات. بواسطة طبيب عام مع خبرة شخصية في البيبتيدات." />
-        <meta property="og:title" content="عن pptides — أشمل دليل عربي للببتيدات" />
-        <meta property="og:description" content="أول منصة عربية متخصصة في علم الببتيدات. بواسطة طبيب عام مع خبرة شخصية." />
+        <title>عن pptides — أول منصة عربية للببتيدات العلاجية | pptides</title>
+        <meta name="description" content="تعرّف على pptides: أول منصة عربية متخصصة في علم الببتيدات العلاجية، أُسِّست بواسطة طبيب عام بخبرة شخصية عميقة في البروتوكولات والبيوهاكينغ." />
+        <link rel="canonical" href={`${SITE_URL}/about`} />
+        <meta property="og:title" content="عن pptides — أول منصة عربية للببتيدات العلاجية" />
+        <meta property="og:description" content="أول منصة عربية متخصصة في علم الببتيدات — بروتوكولات كاملة، مدرب ذكي، بواسطة طبيب عام." />
         <meta property="og:type" content="website" />
         <meta property="og:url" content={`${SITE_URL}/about`} />
         <meta property="og:image" content={`${SITE_URL}/og-image.jpg`} />
         <meta property="og:locale" content="ar_SA" />
         <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="عن pptides — أول منصة عربية للببتيدات العلاجية" />
+        <meta name="twitter:description" content="أول منصة عربية متخصصة في علم الببتيدات — بروتوكولات كاملة، مدرب ذكي، بواسطة طبيب عام." />
+        <meta name="twitter:image" content={`${SITE_URL}/og-image.jpg`} />
         <script type="application/ld+json">
           {JSON.stringify({
             '@context': 'https://schema.org',

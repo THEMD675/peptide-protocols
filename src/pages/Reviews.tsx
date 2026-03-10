@@ -207,15 +207,19 @@ export default function Reviews() {
         </Helmet>
       )}
       <Helmet>
-        <title>تقييمات المستخدمين | pptides</title>
-        <meta name="description" content="اقرأ آراء وتقييمات المستخدمين عن دليل الببتيدات. شارك تجربتك وساعد الآخرين." />
-        <meta property="og:title" content="آراء المستخدمين | pptides" />
-        <meta property="og:description" content="تقييمات حقيقية من مستخدمي pptides" />
+        <title>تقييمات مستخدمي pptides | آراء حقيقية عن دليل الببتيدات</title>
+        <meta name="description" content="اقرأ آراء وتقييمات المستخدمين الحقيقية عن منصة pptides — أشمل دليل عربي للببتيدات العلاجية. شارك تجربتك وساعد المجتمع على الاستفادة أكثر." />
+        <link rel="canonical" href={`${SITE_URL}/reviews`} />
+        <meta property="og:title" content="تقييمات مستخدمي pptides | آراء حقيقية" />
+        <meta property="og:description" content="تقييمات حقيقية من مستخدمي pptides — الدليل العربي الأشمل للببتيدات." />
         <meta property="og:url" content={`${SITE_URL}/reviews`} />
         <meta property="og:type" content="website" />
         <meta property="og:locale" content="ar_SA" />
         <meta property="og:image" content={`${SITE_URL}/og-image.jpg`} />
         <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="تقييمات مستخدمي pptides | آراء حقيقية" />
+        <meta name="twitter:description" content="تقييمات حقيقية من مستخدمي pptides — الدليل العربي الأشمل للببتيدات." />
+        <meta name="twitter:image" content={`${SITE_URL}/og-image.jpg`} />
       </Helmet>
       <div className="mx-auto max-w-4xl px-4 pt-8 pb-24 md:px-6 md:pt-12">
         <div

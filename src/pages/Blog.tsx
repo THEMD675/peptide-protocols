@@ -69,7 +69,7 @@ export default function Blog() {
     <div className="min-h-screen animate-fade-in">
       <Helmet>
         <title>المدونة | مقالات عن الببتيدات العلاجية | pptides</title>
-        <meta name="description" content="مقالات ودلائل شاملة عن الببتيدات العلاجية، البروتوكولات، والأبحاث العلمية باللغة العربية." />
+        <meta name="description" content="مقالات ودلائل شاملة عن الببتيدات العلاجية — بروتوكولات، آليات عمل، أبحاث علمية محدّثة، وأدلة سريرية. المصدر العربي الأول لعلم الببتيدات." />
         <meta property="og:title" content="المدونة | pptides" />
         <meta property="og:description" content="مقالات ودلائل شاملة عن الببتيدات العلاجية باللغة العربية." />
         <meta property="og:type" content="website" />
@@ -215,6 +215,8 @@ export default function Blog() {
                       alt={post.title_ar}
                       className="h-48 w-full object-cover sm:h-56"
                       loading="lazy"
+                      width="800"
+                      height="192"
                       onError={e => { (e.target as HTMLImageElement).style.display = 'none'; }}
                     />
                   )}
