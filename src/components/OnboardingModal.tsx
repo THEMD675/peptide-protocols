@@ -150,7 +150,10 @@ export default function OnboardingModal({ forceOpen, onClose: externalClose }: {
                 خطة مخصّصة لك ✨
               </h2>
               <p className="mb-1 text-center text-xs font-medium text-emerald-600">رحلتك في {TRIAL_DAYS} أيام — مصمّمة حسب هدفك</p>
-              <p className="mb-6 text-center text-sm text-stone-600 dark:text-stone-400">خارطة طريق VIP لتحقيق أفضل النتائج</p>
+              <p className="mb-2 text-center text-sm text-stone-600 dark:text-stone-400">خارطة طريق VIP لتحقيق أفضل النتائج</p>
+              <p className="mb-6 text-center text-[11px] font-bold text-amber-600 bg-amber-50 dark:bg-amber-900/20 rounded-lg px-3 py-1.5 inline-block">
+                🎁 لديك {TRIAL_DAYS} أيام مجانية — استغل كل دقيقة!
+              </p>
               <div className="space-y-3">
                 {getTrialPlan(selectedGoal).map((item, i) => (
                   <Link
@@ -171,13 +174,14 @@ export default function OnboardingModal({ forceOpen, onClose: externalClose }: {
                   </Link>
                 ))}
               </div>
-              <button
+              <Link
+                to={getTrialPlan(selectedGoal)[0]?.to ?? '/library'}
                 onClick={handleClose}
-                className="mt-5 w-full rounded-full bg-emerald-600 px-6 py-3 text-sm font-bold text-white transition-colors hover:bg-emerald-700 min-h-[44px]"
+                className="mt-5 w-full rounded-full bg-emerald-600 px-6 py-3 text-sm font-bold text-white transition-colors hover:bg-emerald-700 min-h-[44px] inline-flex items-center justify-center"
                 style={{ animation: 'onb-pulse 2s ease-in-out infinite' }}
               >
-                ابدأ الاستكشاف
-              </button>
+                ابدأ الاستكشاف ←
+              </Link>
             </>
           )}
 

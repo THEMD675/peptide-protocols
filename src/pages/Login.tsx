@@ -7,6 +7,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
 import { cn } from '@/lib/utils';
 import { events } from '@/lib/analytics';
+import { TRIAL_DAYS } from '@/lib/constants';
 
 const TURNSTILE_SITE_KEY = import.meta.env.VITE_TURNSTILE_SITE_KEY ?? '';
 const GOOGLE_CLIENT_ID = '803062121443-7497cu9tfra080sr835benjs5gl9295o.apps.googleusercontent.com';
@@ -456,6 +457,12 @@ export default function Login() {
                 ? 'سجّل دخولك للوصول إلى مكتبة الببتيدات'
                 : 'ابدأ رحلتك مع دليل الببتيدات الشامل'}
             </p>
+            {tab === 'signup' && (
+              <p className="mt-2 text-xs font-semibold text-white/90 flex items-center justify-center gap-1.5">
+                <span className="inline-flex h-4 w-4 items-center justify-center rounded-full bg-white/20 text-[10px]">🎁</span>
+                تجربة {TRIAL_DAYS} أيام مجانية — إلغاء في أي وقت
+              </p>
+            )}
           </div>
 
           {/* Bug 8 fix: add role="tablist" + role="tab" + aria-selected for screen reader support */}

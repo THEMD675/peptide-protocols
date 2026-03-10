@@ -24,9 +24,7 @@ import {
   Gift,
 } from 'lucide-react';
 import EmailCapture from '@/components/EmailCapture';
-const ExitIntentPopup = lazy(() => import('@/components/ExitIntentPopup'));
 const PeptideQuiz = lazy(() => import('@/components/PeptideQuiz'));
-const StickyScrollCTA = lazy(() => import('@/components/StickyScrollCTA'));
 import { cn } from '@/lib/utils';
 import { PRICING, PEPTIDE_COUNT, PUBMED_SOURCE_LABEL, VALUE_TOTAL, VALUE_SAVINGS_ESSENTIALS, VALUE_STACK, SITE_URL, SUPPORT_EMAIL, STORAGE_KEYS, TRIAL_DAYS } from '@/lib/constants';
 
@@ -868,11 +866,7 @@ export default function Landing() {
         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/></svg>
       </a>
 
-      {/* ═══════ EXIT INTENT POPUP ═══════ */}
-      <Suspense fallback={null}><ExitIntentPopup /></Suspense>
-
-      {/* ═══════ STICKY SCROLL CTA ═══════ */}
-      <Suspense fallback={null}><StickyScrollCTA /></Suspense>
+      {/* EXIT INTENT + STICKY CTA handled globally by App.tsx OverlayGate — no duplicates here */}
     </div>
   );
 }

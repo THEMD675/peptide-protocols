@@ -397,6 +397,40 @@ export default function Dashboard() {
       {!activity.loading && activity.logs.length === 0 && activeProtocols.length === 0 && subscription.isProOrTrial && <OnboardingModal />}
       {showOnboarding && <OnboardingModal forceOpen onClose={() => setShowOnboarding(false)} />}
 
+      {/* New user hero — show for users with 0 activity, prominently guides first step */}
+      {!activity.loading && activity.logs.length === 0 && activeProtocols.length === 0 && subscription.isProOrTrial && (
+        <div className="mb-8 rounded-2xl border-2 border-emerald-200 dark:border-emerald-800 bg-gradient-to-b from-emerald-50 via-white dark:via-stone-950 to-white dark:to-stone-950 p-8 text-center shadow-lg shadow-emerald-600/5">
+          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-emerald-100 dark:bg-emerald-900/30">
+            <Sparkles className="h-8 w-8 text-emerald-600" />
+          </div>
+          <h2 className="mb-2 text-2xl font-bold text-stone-900 dark:text-stone-100">مرحبًا في pptides! 🎉</h2>
+          <p className="mb-6 text-stone-600 dark:text-stone-400">ابدأ رحلتك في 3 خطوات بسيطة</p>
+          <div className="grid gap-3 sm:grid-cols-3 text-start">
+            <Link to="/quiz" className="flex items-center gap-3 rounded-xl border border-emerald-200 dark:border-emerald-800 bg-white dark:bg-stone-950 px-4 py-4 transition-all hover:border-emerald-400 dark:hover:border-emerald-600 hover:shadow-md">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-600 text-white text-sm font-bold">1</div>
+              <div>
+                <p className="text-sm font-bold text-stone-900 dark:text-stone-100">اكتشف الأنسب لك</p>
+                <p className="text-xs text-stone-500 dark:text-stone-400">اختبار 30 ثانية</p>
+              </div>
+            </Link>
+            <Link to="/library" className="flex items-center gap-3 rounded-xl border border-emerald-200 dark:border-emerald-800 bg-white dark:bg-stone-950 px-4 py-4 transition-all hover:border-emerald-400 dark:hover:border-emerald-600 hover:shadow-md">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-600 text-white text-sm font-bold">2</div>
+              <div>
+                <p className="text-sm font-bold text-stone-900 dark:text-stone-100">تصفّح المكتبة</p>
+                <p className="text-xs text-stone-500 dark:text-stone-400">{PEPTIDE_COUNT}+ ببتيد</p>
+              </div>
+            </Link>
+            <Link to="/coach" className="flex items-center gap-3 rounded-xl border border-emerald-200 dark:border-emerald-800 bg-white dark:bg-stone-950 px-4 py-4 transition-all hover:border-emerald-400 dark:hover:border-emerald-600 hover:shadow-md">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-600 text-white text-sm font-bold">3</div>
+              <div>
+                <p className="text-sm font-bold text-stone-900 dark:text-stone-100">اسأل المدرب</p>
+                <p className="text-xs text-stone-500 dark:text-stone-400">بروتوكول مخصّص لك</p>
+              </div>
+            </Link>
+          </div>
+        </div>
+      )}
+
       {/* Expired / never-subscribed banner — read-only mode */}
       {!subscription.isProOrTrial && (
         <div className="mb-6 rounded-2xl border border-amber-300 dark:border-amber-700 bg-amber-50 dark:bg-amber-900/20 p-4 text-center">
