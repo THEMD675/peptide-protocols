@@ -75,7 +75,7 @@ export default function StickyScrollCTA() {
         <Link
           to={href}
           tabIndex={visible ? 0 : -1}
-          className="shrink-0 flex items-center gap-2 rounded-full bg-emerald-600 px-5 py-2.5 text-sm font-bold text-white transition-all hover:bg-emerald-700 active:scale-95"
+          className="shrink-0 flex items-center gap-2 rounded-full bg-emerald-600 px-5 py-2.5 text-sm font-bold text-white transition-all hover:bg-emerald-700 btn-press"
         >
           <span>{text}</span>
           <ArrowLeft className="h-4 w-4" />

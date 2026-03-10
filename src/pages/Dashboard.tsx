@@ -988,7 +988,7 @@ export default function Dashboard() {
                 <Link
                   key={peptide.id}
                   to={`/peptide/${peptide.id}`}
-                  className="group rounded-2xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 p-5 transition-all duration-200 hover:border-emerald-400 hover:shadow-lg hover:shadow-emerald-600/10 hover:-translate-y-1"
+                  className="group rounded-2xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 p-5 card-lift hover:border-emerald-400 hover:shadow-emerald-600/10"
                 >
                   <div className="flex items-center gap-3 mb-2">
                     <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-50 dark:bg-emerald-900/20 transition-colors group-hover:bg-emerald-100 dark:bg-emerald-900/30">
@@ -1368,7 +1368,7 @@ export default function Dashboard() {
             <Link
               key={link.to}
               to={link.to}
-              className="group flex items-center gap-4 rounded-2xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 p-5 transition-all duration-200 hover:border-emerald-400 hover:shadow-lg hover:shadow-emerald-600/10 hover:-translate-y-1"
+              className="group flex items-center gap-4 rounded-2xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 p-5 card-lift hover:border-emerald-400 hover:shadow-emerald-600/10"
             >
               <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-emerald-50 dark:bg-emerald-900/20 transition-colors group-hover:bg-emerald-100 dark:bg-emerald-900/30">
                 <link.Icon className="h-6 w-6 text-emerald-600" />

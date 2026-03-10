@@ -42,6 +42,7 @@ import { peptides as allPeptides } from '@/data/peptides';
 import { DOSE_PRESETS_MAP } from '@/data/dose-presets';
 import ProgressRing from '@/components/charts/ProgressRing';
 import SideEffectLog from '@/components/SideEffectLog';
+import Tooltip from '@/components/Tooltip';
 
 interface InjectionLog {
   id: string;
@@ -713,7 +714,14 @@ export default function Tracker() {
             {useHijri ? 'هجري' : 'ميلادي'}
           </button>
         </div>
-        <h1 className="text-3xl font-bold text-emerald-600 md:text-4xl">سجل الحقن</h1>
+        <div className="flex items-center justify-center gap-2">
+          <h1 className="text-3xl font-bold text-emerald-600 md:text-4xl">سجل الحقن</h1>
+          <Tooltip
+            content="سجّل كل حقنة هنا مع الجرعة والموقع. التطبيق يتتبّع سلسلة التزامك ويقترح تدوير مواقع الحقن تلقائيًا لتجنّب تلف الأنسجة."
+            firstTimeId="tracker-main"
+            position="bottom"
+          />
+        </div>
         <p className="mt-2 text-lg text-stone-600 dark:text-stone-400">تتبّع جرعاتك ومواقع الحقن</p>
       </div>
 
@@ -742,13 +750,16 @@ export default function Tracker() {
           </span>
           {timingTipsExpanded ? <ChevronUp className="h-4 w-4 text-stone-500 dark:text-stone-400" /> : <ChevronDown className="h-4 w-4 text-stone-500 dark:text-stone-400" />}
         </button>
-        {timingTipsExpanded && (
+        <div
+          className="overflow-hidden transition-all duration-300 ease-[cubic-bezier(0.23,1,0.32,1)]"
+          style={{ maxHeight: timingTipsExpanded ? '200px' : '0', opacity: timingTipsExpanded ? 1 : 0 }}
+        >
           <div className="border-t border-stone-200 dark:border-stone-700 px-4 py-4 text-sm text-stone-700 dark:text-stone-300 space-y-2">
             <p>• الحقن على معدة فارغة — يُفضل قبل الفجر أو بعد العشاء</p>
             <p>• ببتيدات هرمون النمو (CJC, Ipamorelin) — أفضل توقيت قبل النوم</p>
             <p>• BPC-157 — صباحًا ومساءً، يمكن ربطه بصلاة الفجر والعشاء</p>
           </div>
-        )}
+        </div>
       </div>
 
       {/* Active Protocol Cards — One-Tap Logging */}
@@ -764,7 +775,7 @@ export default function Tracker() {
               const totalWeeks = proto.cycle_weeks || 8;
               const todayLogged = logs.some(l => l.peptide_name === (peptide?.nameEn ?? proto.peptide_id) && new Date(l.logged_at).toDateString() === new Date().toDateString());
               return (
-                <div key={proto.id} className={cn('rounded-2xl border p-4 transition-all', todayLogged ? 'border-emerald-300 dark:border-emerald-700 bg-emerald-50/50' : 'border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950')}>
+                <div key={proto.id} className={cn('rounded-2xl border p-4 card-lift', todayLogged ? 'border-emerald-300 dark:border-emerald-700 bg-emerald-50/50' : 'border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950')}>
                   <div className="flex items-center gap-3">
                     <ProgressRing current={daysSinceStart} total={totalDays} size={56} />
                     <div className="flex-1 min-w-0">
@@ -809,7 +820,7 @@ export default function Tracker() {
                           'shrink-0 rounded-full px-4 py-2 text-sm font-bold transition-all',
                           todayLogged
                             ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 cursor-default'
-                            : 'bg-emerald-600 text-white hover:bg-emerald-700 active:scale-95'
+                            : 'btn-press bg-emerald-600 text-white hover:bg-emerald-700'
                         )}
                       >
                         {todayLogged ? 'تم اليوم' : 'سجّل'}
@@ -898,7 +909,7 @@ export default function Tracker() {
                   </select>
                   <button
                     onClick={() => { if (wizardPeptideId) setShowProtocolWizard(true); else toast.error('اختر ببتيدًا أولاً'); }}
-                    className="shrink-0 flex items-center gap-2 rounded-xl bg-emerald-600 px-5 py-2.5 text-sm font-bold text-white transition-all hover:bg-emerald-700 active:scale-95"
+                    className="shrink-0 flex items-center gap-2 rounded-xl bg-emerald-600 px-5 py-2.5 text-sm font-bold text-white transition-all hover:bg-emerald-700 btn-press"
                   >
                     <Play className="h-4 w-4" />
                     ابدأ

@@ -2,6 +2,7 @@ import { useState, useMemo, useEffect, useId, useCallback } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { Link, useSearchParams } from 'react-router-dom';
 import { Calculator, FlaskConical, Droplets, ChevronDown, ArrowLeft, BookOpen, Layers, Bot, Bookmark, Syringe, Shield, Play, Search, Share2, Zap } from 'lucide-react';
+import Tooltip from '@/components/Tooltip';
 import ProtocolWizard from '@/components/ProtocolWizard';
 import { peptides as allPeptides } from '@/data/peptides';
 import { toast } from 'sonner';
@@ -379,9 +380,16 @@ export default function DoseCalculator() {
           >
             <Calculator className="h-7 w-7 text-emerald-600" />
           </div>
-          <h1 className="text-3xl font-bold text-stone-900 dark:text-stone-100 md:text-4xl">
-            حاسبة جرعات الببتيدات
-          </h1>
+          <div className="flex items-center justify-center gap-2">
+            <h1 className="text-3xl font-bold text-stone-900 dark:text-stone-100 md:text-4xl">
+              حاسبة جرعات الببتيدات
+            </h1>
+            <Tooltip
+              content="أدخل حجم القارورة وكمية الماء والجرعة المطلوبة — الحاسبة تحسب لك عدد الوحدات في السرنج وكمية السحب بالضبط. اختر بروتوكولًا شائعًا للبدء السريع."
+              firstTimeId="calculator-main"
+              position="bottom"
+            />
+          </div>
           <p className="mt-2 text-base text-stone-600 dark:text-stone-400">
             أداة مجانية — احسب جرعتك بدقة خلال ثوانٍ
           </p>
@@ -538,24 +546,35 @@ export default function DoseCalculator() {
 
           {/* Input Fields */}
           <div className="mb-6 grid gap-5 md:grid-cols-3">
-            <InputField
-              label={`الجرعة المطلوبة (${doseUnit === 'mcg' ? 'مايكروغرام' : 'ملليغرام'})`}
-              value={doseValue}
-              onChange={setDoseValue}
-              unit={doseUnit === 'mcg' ? 'مكغ' : 'ملغ'}
-              step={doseUnit === 'mcg' ? 50 : 0.05}
-            />
-            <InputField
-              label="كمية الببتيد في القارورة (ملغ)"
-              value={vialMg}
-              onChange={setVialMg}
-              unit="ملغ"
-              step={1}
-            />
             <div className="space-y-2">
-              <label htmlFor="calc-water" className="block text-sm font-medium text-stone-800 dark:text-stone-200">
-                كمية الماء البكتيريوستاتك (مل)
-              </label>
+              <div className="flex items-center gap-1.5">
+                <InputField
+                  label={`الجرعة المطلوبة (${doseUnit === 'mcg' ? 'مايكروغرام' : 'ملليغرام'})`}
+                  value={doseValue}
+                  onChange={setDoseValue}
+                  unit={doseUnit === 'mcg' ? 'مكغ' : 'ملغ'}
+                  step={doseUnit === 'mcg' ? 50 : 0.05}
+                />
+              </div>
+            </div>
+            <div className="space-y-2">
+              <div className="flex items-center gap-1.5">
+                <InputField
+                  label="كمية الببتيد في القارورة (ملغ)"
+                  value={vialMg}
+                  onChange={setVialMg}
+                  unit="ملغ"
+                  step={1}
+                />
+              </div>
+            </div>
+            <div className="space-y-2">
+              <div className="flex items-center gap-1.5">
+                <label htmlFor="calc-water" className="block text-sm font-medium text-stone-800 dark:text-stone-200">
+                  كمية الماء البكتيريوستاتك (مل)
+                </label>
+                <Tooltip content="الماء البكتيريوستاتك هو ماء معقم يُضاف لإذابة الببتيد. كمية أكبر = تركيز أقل = سحب أسهل." position="bottom" />
+              </div>
               <div className="relative">
                 <input
                   id="calc-water"

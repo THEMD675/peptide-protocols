@@ -67,9 +67,18 @@ export default function Pricing() {
   const showTrialMessaging = !user || subscription?.status === 'none' || subscription?.status === 'trial';
   const [loadingPlan, setLoadingPlan] = useState<string | null>(null);
   const [billingCycle, setBillingCycle] = useState<'monthly' | 'annual'>('monthly');
+  const [userCount, setUserCount] = useState(0);
   const navigatingRef = useRef(false);
 
   useEffect(() => { navigatingRef.current = false; }, []);
+
+  useEffect(() => {
+    let mounted = true;
+    try { const c = localStorage.getItem('pptides_user_count'); if (c) setUserCount(Number(c)); } catch { /* expected */ }
+    supabase.from('subscriptions').select('id', { count: 'exact', head: true }).in('status', ['active', 'trial']).not('stripe_subscription_id', 'is', null)
+      .then(({ count }) => { if (mounted && count != null && count > 0) { setUserCount(count); try { localStorage.setItem('pptides_user_count', String(count)); } catch { /* expected */ } } });
+    return () => { mounted = false; };
+  }, []);
 
   useEffect(() => {
     if (searchParams.get('payment') === 'cancelled') {
@@ -205,15 +214,39 @@ export default function Pricing() {
         <meta name="twitter:title" content={`أسعار pptides | ابدأ بتجربة ${TRIAL_DAYS} أيام مجانية`} />
         <meta name="twitter:description" content={`Essentials ${PRICING.essentials.label}/شهر أو Elite ${PRICING.elite.label}/شهر. ضمان استرداد كامل.`} />
         <meta name="twitter:image" content={`${SITE_URL}/og-image.jpg`} />
-        <script type="application/ld+json">{JSON.stringify({
-          "@context": "https://schema.org",
-          "@type": "FAQPage",
-          "mainEntity": faqs.map(f => ({
-            "@type": "Question",
-            "name": f.q,
-            "acceptedAnswer": { "@type": "Answer", "text": f.a }
-          }))
-        })}</script>
+        <script type="application/ld+json">{JSON.stringify([
+          {
+            "@context": "https://schema.org",
+            "@type": "FAQPage",
+            "mainEntity": faqs.map(f => ({
+              "@type": "Question",
+              "name": f.q,
+              "acceptedAnswer": { "@type": "Answer", "text": f.a }
+            }))
+          },
+          {
+            "@context": "https://schema.org",
+            "@type": "Product",
+            "name": "pptides Essentials — الأساسية",
+            "description": `اشتراك يتضمن بطاقات بروتوكول كاملة لـ ${PEPTIDE_COUNT} ببتيد، حاسبة جرعات، دليل تحاليل مخبرية، وبروتوكولات مُجمَّعة.`,
+            "brand": { "@type": "Brand", "name": "pptides" },
+            "offers": [
+              { "@type": "Offer", "name": "شهري", "price": String(PRICING.essentials.monthly), "priceCurrency": "SAR", "availability": "https://schema.org/InStock", "url": `${SITE_URL}/pricing` },
+              { "@type": "Offer", "name": "سنوي", "price": String(PRICING.essentials.annualTotal), "priceCurrency": "SAR", "availability": "https://schema.org/InStock", "url": `${SITE_URL}/pricing` },
+            ],
+          },
+          {
+            "@context": "https://schema.org",
+            "@type": "Product",
+            "name": "pptides Elite — المتقدّمة",
+            "description": "اشتراك يتضمن كل مزايا Essentials بالإضافة إلى مدرب ذكي بالذكاء الاصطناعي 24/7، بروتوكولات مخصّصة، واستشارات بلا حدود.",
+            "brand": { "@type": "Brand", "name": "pptides" },
+            "offers": [
+              { "@type": "Offer", "name": "شهري", "price": String(PRICING.elite.monthly), "priceCurrency": "SAR", "availability": "https://schema.org/InStock", "url": `${SITE_URL}/pricing` },
+              { "@type": "Offer", "name": "سنوي", "price": String(PRICING.elite.annualTotal), "priceCurrency": "SAR", "availability": "https://schema.org/InStock", "url": `${SITE_URL}/pricing` },
+            ],
+          },
+        ])}</script>
       </Helmet>
 
       <div className="mx-auto max-w-6xl px-4 pb-24 pt-8 md:px-6 md:pt-12">
@@ -250,6 +283,12 @@ export default function Pricing() {
           <p className="mt-4 text-center text-sm font-medium text-stone-700 dark:text-stone-300">
             ضمان استرداد كامل + إلغاء في أي وقت + بدون التزام
           </p>
+          {userCount >= 10 && (
+            <p className="mt-4 flex items-center justify-center gap-2 text-sm text-stone-500 dark:text-stone-400">
+              <span className="relative flex h-2 w-2"><span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" /><span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500" /></span>
+              <span>أكثر من <strong className="text-stone-700 dark:text-stone-300">{userCount}</strong> مستخدم يثقون بنا</span>
+            </p>
+          )}
         </div>
 
         {/* Billing Toggle */}

@@ -202,6 +202,38 @@ export default function Landing() {
               'query-input': 'required name=search_term_string',
             },
           },
+          {
+            '@context': 'https://schema.org',
+            '@type': 'Product',
+            name: 'pptides Essentials — الأساسية',
+            description: `اشتراك شهري يتضمن بطاقات بروتوكول كاملة لـ ${PEPTIDE_COUNT} ببتيد، حاسبة جرعات، دليل تحاليل مخبرية، وبروتوكولات مُجمَّعة.`,
+            url: `${SITE_URL}/pricing`,
+            brand: { '@type': 'Brand', name: 'pptides' },
+            offers: {
+              '@type': 'Offer',
+              price: String(PRICING.essentials.monthly),
+              priceCurrency: 'SAR',
+              availability: 'https://schema.org/InStock',
+              url: `${SITE_URL}/pricing`,
+              priceValidUntil: new Date(Date.now() + 365 * 86400000).toISOString().slice(0, 10),
+            },
+          },
+          {
+            '@context': 'https://schema.org',
+            '@type': 'Product',
+            name: 'pptides Elite — المتقدّمة',
+            description: 'اشتراك شهري يتضمن كل مزايا Essentials بالإضافة إلى مدرب ذكي بالذكاء الاصطناعي 24/7، بروتوكولات مخصّصة، واستشارات بلا حدود.',
+            url: `${SITE_URL}/pricing`,
+            brand: { '@type': 'Brand', name: 'pptides' },
+            offers: {
+              '@type': 'Offer',
+              price: String(PRICING.elite.monthly),
+              priceCurrency: 'SAR',
+              availability: 'https://schema.org/InStock',
+              url: `${SITE_URL}/pricing`,
+              priceValidUntil: new Date(Date.now() + 365 * 86400000).toISOString().slice(0, 10),
+            },
+          },
         ])}</script>
       </Helmet>
 

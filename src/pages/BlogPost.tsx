@@ -99,17 +99,31 @@ export default function BlogPost() {
         <meta name="twitter:title" content={post.title_ar} />
         <meta name="twitter:description" content={post.excerpt_ar} />
         <meta name="twitter:image" content={post.cover_image_url || `${SITE_URL}/og-image.jpg`} />
-        <script type="application/ld+json">{JSON.stringify({
-          '@context': 'https://schema.org',
-          '@type': 'BlogPosting',
-          headline: post.title_ar,
-          description: post.excerpt_ar,
-          url: `${SITE_URL}/blog/${post.slug}`,
-          image: post.cover_image_url || `${SITE_URL}/og-image.jpg`,
-          datePublished: post.published_at,
-          inLanguage: 'ar',
-          publisher: { '@type': 'Organization', name: 'pptides', url: SITE_URL },
-        })}</script>
+        <script type="application/ld+json">{JSON.stringify([
+          {
+            '@context': 'https://schema.org',
+            '@type': 'Article',
+            headline: post.title_ar,
+            description: post.excerpt_ar,
+            url: `${SITE_URL}/blog/${post.slug}`,
+            image: post.cover_image_url || `${SITE_URL}/og-image.jpg`,
+            datePublished: post.published_at,
+            dateModified: post.published_at,
+            inLanguage: 'ar',
+            author: { '@type': 'Person', name: post.author },
+            publisher: { '@type': 'Organization', name: 'pptides', url: SITE_URL, logo: { '@type': 'ImageObject', url: `${SITE_URL}/og-image.jpg` } },
+            mainEntityOfPage: { '@type': 'WebPage', '@id': `${SITE_URL}/blog/${post.slug}` },
+          },
+          {
+            '@context': 'https://schema.org',
+            '@type': 'BreadcrumbList',
+            itemListElement: [
+              { '@type': 'ListItem', position: 1, name: 'الرئيسية', item: SITE_URL },
+              { '@type': 'ListItem', position: 2, name: 'المدونة', item: `${SITE_URL}/blog` },
+              { '@type': 'ListItem', position: 3, name: post.title_ar, item: `${SITE_URL}/blog/${post.slug}` },
+            ],
+          },
+        ])}</script>
       </Helmet>
 
       <div className="mx-auto max-w-3xl px-4 py-8 md:px-6 md:py-12">

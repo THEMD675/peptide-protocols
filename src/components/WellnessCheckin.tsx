@@ -216,7 +216,7 @@ export default function WellnessCheckin() {
                           : isReadonly
                             ? 'border-stone-100 dark:border-stone-800 bg-stone-50 dark:bg-stone-900 text-stone-300'
                             : 'border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 text-stone-500 dark:text-stone-400 hover:border-stone-300 dark:border-stone-700',
-                        !isReadonly && 'cursor-pointer active:scale-95',
+                        !isReadonly && 'cursor-pointer btn-press',
                       )}
                     >
                       {level}

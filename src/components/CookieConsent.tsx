@@ -78,13 +78,13 @@ export default function CookieConsent() {
             </button>
             <button
               onClick={savePreferences}
-              className="shrink-0 rounded-full border border-emerald-600 px-5 py-2 min-h-[44px] text-sm font-bold text-emerald-600 transition-all hover:bg-emerald-50 dark:bg-emerald-900/20 active:scale-95"
+              className="shrink-0 rounded-full border border-emerald-600 px-5 py-2 min-h-[44px] text-sm font-bold text-emerald-600 transition-all hover:bg-emerald-50 dark:bg-emerald-900/20 btn-press"
             >
               حفظ التفضيلات
             </button>
             <button
               onClick={acceptAll}
-              className="shrink-0 rounded-full bg-emerald-600 px-6 py-2 min-h-[44px] text-sm font-bold text-white transition-all hover:bg-emerald-700 active:scale-95"
+              className="shrink-0 rounded-full bg-emerald-600 px-6 py-2 min-h-[44px] text-sm font-bold text-white transition-all hover:bg-emerald-700 btn-press"
             >
               قبول الكل
             </button>

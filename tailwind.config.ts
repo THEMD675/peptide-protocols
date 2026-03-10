@@ -83,12 +83,22 @@ export default {
           "0%, 100%": { transform: "translateY(0)" },
           "50%": { transform: "translateY(-8px)" },
         },
+        "accordion-down": {
+          from: { height: "0", opacity: "0" },
+          to: { height: "var(--radix-accordion-content-height)", opacity: "1" },
+        },
+        "accordion-up": {
+          from: { height: "var(--radix-accordion-content-height)", opacity: "1" },
+          to: { height: "0", opacity: "0" },
+        },
       },
       animation: {
         "fade-up": "fade-up 0.6s ease-out forwards",
         "fade-in": "fade-in 0.4s ease-out forwards",
         "scale-in": "scale-in 0.5s ease-out forwards",
         float: "float 4s ease-in-out infinite",
+        "accordion-down": "accordion-down 0.3s cubic-bezier(0.23, 1, 0.32, 1)",
+        "accordion-up": "accordion-up 0.3s cubic-bezier(0.23, 1, 0.32, 1)",
       },
     },
   },

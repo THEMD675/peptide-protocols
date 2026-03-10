@@ -200,7 +200,7 @@ export default function SideEffectLog() {
                     type="button"
                     onClick={() => setSeverity(level)}
                     className={cn(
-                      'flex-1 rounded-lg border py-2 text-xs font-bold transition-all active:scale-95',
+                      'flex-1 rounded-lg border py-2 text-xs font-bold transition-all btn-press',
                       severity === level
                         ? SEVERITY_COLORS[level - 1]
                         : 'border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 text-stone-500 dark:text-stone-400 hover:border-stone-300 dark:border-stone-700',

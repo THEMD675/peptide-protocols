@@ -117,9 +117,12 @@ export default function NotificationBell() {
 
           <div className="max-h-80 overflow-y-auto">
             {notifications.length === 0 ? (
-              <div className="px-4 py-8 text-center">
-                <Bell className="mx-auto mb-2 h-8 w-8 text-stone-300" />
-                <p className="text-sm text-stone-500 dark:text-stone-400">لا توجد إشعارات</p>
+              <div className="px-4 py-10 text-center">
+                <div className="mx-auto mb-3 flex h-14 w-14 items-center justify-center rounded-2xl bg-stone-100 dark:bg-stone-800">
+                  <Bell className="h-7 w-7 text-stone-400" />
+                </div>
+                <p className="text-sm font-bold text-stone-700 dark:text-stone-300 mb-1">لا توجد إشعارات بعد</p>
+                <p className="text-xs text-stone-500 dark:text-stone-400">سنعلمك بالتحديثات المهمة وتذكيرات الجرعات</p>
               </div>
             ) : (
               notifications.map(n => (
