@@ -49,7 +49,7 @@ export default function Terms() {
 
           <section>
             <h2 className="mb-3 text-xl font-bold text-stone-900 dark:text-stone-100">3. سياسة الاسترداد</h2>
-            <p>نقدّم ضمان استرداد كامل خلال {TRIAL_DAYS} أيام من تاريخ الاشتراك. إذا لم تكن راضيًا، تواصل معنا عبر <a href={`mailto:${SUPPORT_EMAIL}`} className="inline-flex min-h-[44px] items-center text-emerald-600 underline">{SUPPORT_EMAIL}</a> واسترد أموالك بالكامل. بعد مرور {TRIAL_DAYS} أيام، لا يمكن استرداد المبالغ المدفوعة.</p>
+            <p>نقدّم ضمان استرداد كامل خلال {TRIAL_DAYS} أيام من تاريخ الاشتراك. إذا لم تكن راضيًا، تواصل معنا عبر <a href={`mailto:${SUPPORT_EMAIL}`} className="inline-flex min-h-[44px] items-center text-emerald-700 underline">{SUPPORT_EMAIL}</a> واسترد أموالك بالكامل. بعد مرور {TRIAL_DAYS} أيام، لا يمكن استرداد المبالغ المدفوعة.</p>
           </section>
 
           <section>
@@ -104,11 +104,11 @@ export default function Terms() {
 
           <section>
             <h2 className="mb-3 text-xl font-bold text-stone-900 dark:text-stone-100">13. التواصل</h2>
-            <p>لأي استفسار: <a href={`mailto:${SUPPORT_EMAIL}`} className="inline-flex min-h-[44px] items-center text-emerald-600 underline">{SUPPORT_EMAIL}</a></p>
+            <p>لأي استفسار: <a href={`mailto:${SUPPORT_EMAIL}`} className="inline-flex min-h-[44px] items-center text-emerald-700 underline">{SUPPORT_EMAIL}</a></p>
           </section>
         </div>
         <div className="mt-8 border-t border-stone-200 dark:border-stone-700 pt-6 text-center">
-          <Link to="/" className="inline-flex min-h-[44px] items-center text-sm font-semibold text-emerald-600 transition-colors hover:text-emerald-700 dark:text-emerald-400">→ العودة للصفحة الرئيسية</Link>
+          <Link to="/" className="inline-flex min-h-[44px] items-center text-sm font-semibold text-emerald-700 transition-colors hover:text-emerald-700 dark:text-emerald-400">→ العودة للصفحة الرئيسية</Link>
         </div>
       </div>
     </div>

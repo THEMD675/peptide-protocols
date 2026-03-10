@@ -569,7 +569,7 @@ export default function PeptideQuiz() {
             { icon: Zap, text: 'نتيجة فورية' },
           ].map(({ icon: Icon, text }) => (
             <div key={text} className="flex flex-col items-center gap-1.5 rounded-xl bg-stone-100 dark:bg-stone-800/50 p-3">
-              <Icon className="h-4 w-4 text-emerald-600" />
+              <Icon className="h-4 w-4 text-emerald-700" />
               <span className="text-xs font-bold text-stone-600 dark:text-stone-400">{text}</span>
             </div>
           ))}
@@ -586,7 +586,7 @@ export default function PeptideQuiz() {
         {hasPrevious && (
           <button
             onClick={loadPrevious}
-            className="mt-3 w-full text-center text-sm font-bold text-emerald-600 hover:underline transition-colors py-2"
+            className="mt-3 w-full text-center text-sm font-bold text-emerald-700 hover:underline transition-colors py-2"
           >
             عرض نتائجك السابقة
           </button>
@@ -618,14 +618,14 @@ export default function PeptideQuiz() {
             </div>
             <div>
               <p className="text-base font-black text-emerald-800 dark:text-emerald-300">بروتوكولك المخصّص</p>
-              <p className="text-xs text-emerald-600 dark:text-emerald-500">بناءً على إجاباتك</p>
+              <p className="text-xs text-emerald-700 dark:text-emerald-500">بناءً على إجاباتك</p>
             </div>
           </div>
 
           {/* Primary Peptide */}
           <div className="rounded-xl border border-emerald-200 dark:border-emerald-800 bg-white dark:bg-stone-950 p-5 mb-4">
             <div className="flex items-center gap-2 mb-1">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-600 bg-emerald-100 dark:bg-emerald-900/40 px-2 py-0.5 rounded-full">الببتيد الرئيسي</span>
+              <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-700 bg-emerald-100 dark:bg-emerald-900/40 px-2 py-0.5 rounded-full">الببتيد الرئيسي</span>
             </div>
             <div className="flex items-center justify-between mb-2">
               <h3 className="text-xl font-black text-stone-900 dark:text-stone-100">{result.primary.nameAr}</h3>
@@ -653,7 +653,7 @@ export default function PeptideQuiz() {
               </div>
               <div className="flex gap-2 items-start">
                 <span className="font-bold text-emerald-700 dark:text-emerald-400 shrink-0">التكلفة:</span>
-                <span className="text-emerald-600 dark:text-emerald-400 font-semibold">{result.monthlyCost}</span>
+                <span className="text-emerald-700 dark:text-emerald-400 font-semibold">{result.monthlyCost}</span>
               </div>
             </div>
           </div>
@@ -672,7 +672,7 @@ export default function PeptideQuiz() {
                     </div>
                     <p className="text-xs text-stone-500 dark:text-stone-400 leading-relaxed">{sp.reason}</p>
                     {spData?.costEstimate && (
-                      <p className="mt-1 text-xs text-emerald-600 dark:text-emerald-400">{spData.costEstimate}</p>
+                      <p className="mt-1 text-xs text-emerald-700 dark:text-emerald-400">{spData.costEstimate}</p>
                     )}
                   </div>
                 );
@@ -754,7 +754,7 @@ export default function PeptideQuiz() {
                   <Link
                     key={sp.peptideId}
                     to={`/peptide/${sp.peptideId}`}
-                    className="text-xs font-bold text-emerald-600 hover:text-emerald-700 transition-colors bg-emerald-50 dark:bg-emerald-900/20 px-3 py-1.5 rounded-full"
+                    className="text-xs font-bold text-emerald-700 hover:text-emerald-700 transition-colors bg-emerald-50 dark:bg-emerald-900/20 px-3 py-1.5 rounded-full"
                   >
                     {sp.nameAr}
                   </Link>
@@ -767,7 +767,7 @@ export default function PeptideQuiz() {
           <div className="mt-4 flex justify-center">
             <button
               onClick={handleReset}
-              className="text-sm text-stone-400 dark:text-stone-500 hover:text-emerald-600 transition-colors py-2"
+              className="text-sm text-stone-400 dark:text-stone-500 hover:text-emerald-700 transition-colors py-2"
             >
               أعد الاختبار من البداية
             </button>
@@ -860,7 +860,7 @@ export default function PeptideQuiz() {
                       'flex h-9 w-9 items-center justify-center rounded-lg shrink-0',
                       isSelected ? 'bg-emerald-100 dark:bg-emerald-800/40' : 'bg-stone-100 dark:bg-stone-800',
                     )}>
-                      <Icon className={cn('h-4.5 w-4.5', isSelected ? 'text-emerald-600' : 'text-stone-500 dark:text-stone-400')} />
+                      <Icon className={cn('h-4.5 w-4.5', isSelected ? 'text-emerald-700' : 'text-stone-500 dark:text-stone-400')} />
                     </div>
                   )}
                   {isMultiSelect && !Icon && (

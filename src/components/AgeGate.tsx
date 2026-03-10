@@ -39,7 +39,7 @@ export default function AgeGate() {
     >
       <div className="w-full sm:max-w-lg rounded-t-2xl sm:rounded-2xl bg-white dark:bg-stone-950 p-6 sm:p-8 text-center shadow-2xl animate-slide-up">
         <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-emerald-100 dark:bg-emerald-900/30">
-          <Shield className="h-6 w-6 text-emerald-600" aria-hidden="true" />
+          <Shield className="h-6 w-6 text-emerald-700" aria-hidden="true" />
         </div>
 
         <h2 id="age-gate-title" className="mb-2 text-xl font-bold text-stone-900 dark:text-stone-100">

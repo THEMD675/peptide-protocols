@@ -60,7 +60,7 @@ export default function Contact() {
   if (isLoading) {
     return (
       <div className="flex min-h-[60vh] items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-emerald-600" />
+        <Loader2 className="h-8 w-8 animate-spin text-emerald-700" />
       </div>
     );
   }
@@ -151,7 +151,7 @@ export default function Contact() {
             للاستفسارات العاجلة:{' '}
             <a
               href={`mailto:${SUPPORT_EMAIL}`}
-              className="font-medium text-emerald-600 dark:text-emerald-400 hover:underline"
+              className="font-medium text-emerald-700 dark:text-emerald-400 hover:underline"
             >
               {SUPPORT_EMAIL}
             </a>
@@ -201,7 +201,7 @@ export default function Contact() {
         {/* Header */}
         <div className="mb-10 text-center">
           <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-100 dark:bg-emerald-900/30">
-            <Mail className="h-7 w-7 text-emerald-600" />
+            <Mail className="h-7 w-7 text-emerald-700" />
           </div>
           <h1 className="mb-2 text-3xl font-bold text-stone-900 dark:text-stone-100">
             تواصل معنا
@@ -219,7 +219,7 @@ export default function Contact() {
           </div>
           <a
             href={`mailto:${SUPPORT_EMAIL}`}
-            className="inline-flex min-h-[44px] items-center gap-2 rounded-full border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-900 px-5 py-2.5 text-sm font-medium text-stone-700 dark:text-stone-300 transition-colors hover:border-emerald-300 dark:hover:border-emerald-700 hover:text-emerald-600 dark:hover:text-emerald-400"
+            className="inline-flex min-h-[44px] items-center gap-2 rounded-full border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-900 px-5 py-2.5 text-sm font-medium text-stone-700 dark:text-stone-300 transition-colors hover:border-emerald-300 dark:hover:border-emerald-700 hover:text-emerald-700 dark:hover:text-emerald-400"
           >
             <Mail className="h-4 w-4" />
             {SUPPORT_EMAIL}
@@ -341,7 +341,7 @@ export default function Contact() {
             عبر البريد مباشرة على{' '}
             <a
               href={`mailto:${SUPPORT_EMAIL}`}
-              className="font-medium text-emerald-600 dark:text-emerald-400 hover:underline"
+              className="font-medium text-emerald-700 dark:text-emerald-400 hover:underline"
             >
               {SUPPORT_EMAIL}
             </a>
@@ -352,7 +352,7 @@ export default function Contact() {
         <div className="mt-12">
           <div className="mb-6 flex items-center gap-3">
             <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-100 dark:bg-emerald-900/30">
-              <HelpCircle className="h-5 w-5 text-emerald-600" />
+              <HelpCircle className="h-5 w-5 text-emerald-700" />
             </div>
             <div>
               <h2 className="text-lg font-bold text-stone-900 dark:text-stone-100">
@@ -384,7 +384,7 @@ export default function Contact() {
           <div className="mt-4 text-center">
             <Link
               to="/faq"
-              className="inline-flex min-h-[44px] items-center gap-1 text-sm font-medium text-emerald-600 dark:text-emerald-400 hover:underline"
+              className="inline-flex min-h-[44px] items-center gap-1 text-sm font-medium text-emerald-700 dark:text-emerald-400 hover:underline"
             >
               عرض جميع الأسئلة الشائعة ←
             </Link>

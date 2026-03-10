@@ -130,7 +130,7 @@ export default function Blog() {
       <div className="mx-auto max-w-3xl px-4 py-8 md:px-6 md:py-12">
         <div className="mb-10 text-center">
           <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-500/10">
-            <FileText className="h-7 w-7 text-emerald-600" />
+            <FileText className="h-7 w-7 text-emerald-700" />
           </div>
           <h1 className="text-3xl font-bold md:text-4xl">المدونة</h1>
           <p className="mt-2 text-base text-stone-600 dark:text-stone-400">مقالات ودلائل مبنية على الأدلة العلمية</p>
@@ -249,7 +249,7 @@ export default function Blog() {
             <p className="mt-2 text-sm text-stone-500 dark:text-stone-400">جرّب كلمة بحث مختلفة أو اختر تصنيفًا آخر</p>
             <button
               onClick={() => { setSearch(''); setActiveTag(null); }}
-              className="mt-3 text-sm font-bold text-emerald-600 hover:underline"
+              className="mt-3 text-sm font-bold text-emerald-700 hover:underline"
             >
               إعادة ضبط الفلاتر
             </button>

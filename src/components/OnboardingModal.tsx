@@ -93,9 +93,17 @@ export default function OnboardingModal({ forceOpen, onClose: externalClose }: {
 
   const handleClose = useCallback(() => {
     try { localStorage.setItem(ONBOARDING_KEY, 'true'); } catch { /* expected */ }
+    // C13: Persist goals to Supabase user_profiles table
+    if (user && selectedGoal) {
+      supabase.from('user_profiles').upsert({
+        user_id: user.id,
+        onboarding_goals: { goal: selectedGoal, ts: Date.now() },
+        updated_at: new Date().toISOString(),
+      }, { onConflict: 'user_id' }).then(() => {}).catch(() => {});
+    }
     setShow(false);
     externalClose?.();
-  }, [externalClose]);
+  }, [externalClose, user, selectedGoal]);
 
   useEffect(() => {
     if (!show) return;
@@ -108,11 +116,15 @@ export default function OnboardingModal({ forceOpen, onClose: externalClose }: {
 
   const handleGoalSelect = (goalId: string) => {
     try {
-      const existing = localStorage.getItem('pptides_quiz_answers');
+      const existing = localStorage.getItem('pptides_quiz_results');
       const parsed = existing ? JSON.parse(existing) : {};
-      // eslint-disable-next-line react-hooks/purity -- event handler, not render
       const ts = Date.now();
-      localStorage.setItem('pptides_quiz_answers', JSON.stringify({ ...parsed, goal: goalId, ts }));
+      localStorage.setItem('pptides_quiz_results', JSON.stringify({
+        ...parsed,
+        goal: goalId,
+        answers: { ...(parsed.answers ?? {}), goal: goalId },
+        ts,
+      }));
     } catch { /* expected */ }
     setSelectedGoal(goalId);
     setStep('plan');
@@ -135,12 +147,12 @@ export default function OnboardingModal({ forceOpen, onClose: externalClose }: {
           {step === 'goal' ? (
             <>
               <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-100 dark:bg-emerald-900/30" style={{ animation: 'onb-sparkle 2s ease-in-out infinite' }}>
-                <Sparkles className="h-7 w-7 text-emerald-600" />
+                <Sparkles className="h-7 w-7 text-emerald-700" />
               </div>
               <h2 id="onboarding-title-step1" className="mb-1 text-center text-xl font-bold text-stone-900 dark:text-stone-100">
                 {userName ? `أهلاً ${userName}، مرحبًا في pptides` : 'مرحبًا في pptides'}
               </h2>
-              <p className="mb-1 text-center text-xs font-medium text-emerald-600">{PEPTIDE_COUNT}+ ببتيد تحت تصرفك</p>
+              <p className="mb-1 text-center text-xs font-medium text-emerald-700">{PEPTIDE_COUNT}+ ببتيد تحت تصرفك</p>
               <p className="mb-6 text-center text-sm text-stone-600 dark:text-stone-400">ما هدفك الأساسي؟ سنبني لك خطة مخصّصة.</p>
               <div className="space-y-2">
                 {GOALS.map((g, i) => (
@@ -151,7 +163,7 @@ export default function OnboardingModal({ forceOpen, onClose: externalClose }: {
                     style={{ animation: `onb-fade-in 0.3s ease-out ${i * 0.05}s both` }}
                   >
                     <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-emerald-50 dark:bg-emerald-900/20">
-                      <g.Icon className="h-4 w-4 text-emerald-600" />
+                      <g.Icon className="h-4 w-4 text-emerald-700" />
                     </div>
                     {g.label}
                   </button>
@@ -164,12 +176,16 @@ export default function OnboardingModal({ forceOpen, onClose: externalClose }: {
           ) : (
             <>
               <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-100 dark:bg-emerald-900/30" style={{ animation: 'onb-sparkle 2s ease-in-out infinite' }}>
-                <Sparkles className="h-7 w-7 text-emerald-600" />
+                <Sparkles className="h-7 w-7 text-emerald-700" />
               </div>
               <h2 id="onboarding-title-step2" className="mb-1 text-center text-xl font-bold text-stone-900 dark:text-stone-100">
                 خطة مخصّصة لك ✨
               </h2>
-              <p className="mb-1 text-center text-xs font-medium text-emerald-600">رحلتك في {TRIAL_DAYS} أيام — مصمّمة حسب هدفك</p>
+              {quizGoalLabel ? (
+                <p className="mb-1 text-center text-xs font-medium text-emerald-700">بناءً على اختبارك: <span className="font-bold">{quizGoalLabel}</span></p>
+              ) : (
+                <p className="mb-1 text-center text-xs font-medium text-emerald-700">رحلتك في {TRIAL_DAYS} أيام — مصمّمة حسب هدفك</p>
+              )}
               <p className="mb-2 text-center text-sm text-stone-600 dark:text-stone-400">خارطة طريق VIP لتحقيق أفضل النتائج</p>
               <p className="mb-6 text-center text-[11px] font-bold text-amber-600 bg-amber-50 dark:bg-amber-900/20 rounded-lg px-3 py-1.5 inline-block">
                 🎁 لديك {TRIAL_DAYS} أيام مجانية — استغل كل دقيقة!
@@ -184,11 +200,11 @@ export default function OnboardingModal({ forceOpen, onClose: externalClose }: {
                     style={{ animation: animatePlan ? `onb-fade-in 0.4s ease-out ${i * 0.15}s both` : undefined, opacity: animatePlan ? undefined : 0 }}
                   >
                     <div className="relative flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-100 dark:bg-emerald-900/30">
-                      <item.icon className="h-5 w-5 text-emerald-600" />
+                      <item.icon className="h-5 w-5 text-emerald-700" />
                       <span className="absolute -top-1 -end-1 flex h-5 w-5 items-center justify-center rounded-full bg-emerald-600 text-[10px] font-bold text-white">{i + 1}</span>
                     </div>
                     <div>
-                      <p className="text-xs font-bold text-emerald-600">{item.day}</p>
+                      <p className="text-xs font-bold text-emerald-700">{item.day}</p>
                       <p className="text-sm font-medium text-stone-800 dark:text-stone-200">{item.task}</p>
                     </div>
                   </Link>

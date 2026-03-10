@@ -104,10 +104,10 @@ export default function About() {
         {/* Hero */}
         <div className="mb-16 text-center">
           <div className="mx-auto mb-4 inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-100 dark:bg-emerald-900/30">
-            <Globe className="h-7 w-7 text-emerald-600" />
+            <Globe className="h-7 w-7 text-emerald-700" />
           </div>
           <h1 className="mb-4 text-3xl font-bold text-stone-900 dark:text-stone-100 md:text-4xl lg:text-5xl">
-            عن <span className="text-emerald-600">pptides</span>
+            عن <span className="text-emerald-700">pptides</span>
           </h1>
           <p className="mx-auto max-w-2xl text-lg leading-relaxed text-stone-600 dark:text-stone-400 md:text-xl">
             نؤمن أن كل شخص يستحق وصولاً سهلاً لمعلومات طبية موثوقة عن الببتيدات العلاجية
@@ -121,7 +121,7 @@ export default function About() {
               key={label}
               className="rounded-2xl border border-stone-200 dark:border-stone-800 bg-stone-50 dark:bg-stone-900/50 p-5 text-center"
             >
-              <div className="mb-1 text-2xl font-bold text-emerald-600 md:text-3xl">{value}</div>
+              <div className="mb-1 text-2xl font-bold text-emerald-700 md:text-3xl">{value}</div>
               <div className="text-sm text-stone-600 dark:text-stone-400">{label}</div>
             </div>
           ))}
@@ -132,7 +132,7 @@ export default function About() {
           <div className="rounded-2xl border border-emerald-200 dark:border-emerald-800 bg-gradient-to-br from-emerald-50 to-white dark:from-emerald-950/20 dark:to-stone-950 p-8 md:p-10">
             <div className="flex items-start gap-4">
               <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-emerald-100 dark:bg-emerald-900/30">
-                <BookOpen className="h-6 w-6 text-emerald-600" />
+                <BookOpen className="h-6 w-6 text-emerald-700" />
               </div>
               <div>
                 <h2 className="mb-4 text-xl font-bold text-stone-900 dark:text-stone-100 md:text-2xl">قصّتنا</h2>
@@ -160,7 +160,7 @@ export default function About() {
         {/* What Makes Us Different */}
         <section className="mb-16">
           <h2 className="mb-8 text-center text-2xl font-bold text-stone-900 dark:text-stone-100 md:text-3xl">
-            ما الذي يميّز <span className="text-emerald-600">pptides</span>؟
+            ما الذي يميّز <span className="text-emerald-700">pptides</span>؟
           </h2>
           <div className="grid gap-4 sm:grid-cols-2">
             {differentiators.map(({ icon: Icon, title, desc }) => (
@@ -169,7 +169,7 @@ export default function About() {
                 className="rounded-2xl border border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-950 p-6 transition-all hover:border-emerald-300 dark:hover:border-emerald-800 hover:shadow-md"
               >
                 <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-100 dark:bg-emerald-900/30">
-                  <Icon className="h-5 w-5 text-emerald-600" />
+                  <Icon className="h-5 w-5 text-emerald-700" />
                 </div>
                 <h3 className="mb-2 font-bold text-stone-900 dark:text-stone-100">{title}</h3>
                 <p className="text-sm leading-relaxed text-stone-600 dark:text-stone-400">{desc}</p>
@@ -183,7 +183,7 @@ export default function About() {
           <div className="rounded-2xl border border-stone-200 dark:border-stone-800 bg-stone-50 dark:bg-stone-900/50 p-8 md:p-10">
             <div className="flex items-start gap-4">
               <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-emerald-100 dark:bg-emerald-900/30">
-                <Users className="h-6 w-6 text-emerald-600" />
+                <Users className="h-6 w-6 text-emerald-700" />
               </div>
               <div>
                 <h2 className="mb-4 text-xl font-bold text-stone-900 dark:text-stone-100 md:text-2xl">فريقنا</h2>
@@ -219,7 +219,7 @@ export default function About() {
                 className="rounded-2xl border border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-950 p-6 text-center"
               >
                 <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-emerald-100 dark:bg-emerald-900/30">
-                  <Icon className="h-6 w-6 text-emerald-600" />
+                  <Icon className="h-6 w-6 text-emerald-700" />
                 </div>
                 <h3 className="mb-2 font-bold text-stone-900 dark:text-stone-100">{title}</h3>
                 <p className="text-sm leading-relaxed text-stone-600 dark:text-stone-400">{desc}</p>

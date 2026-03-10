@@ -153,9 +153,8 @@ function exportCSV(data: Peptide[], visibleCols: ColumnKey[]) {
   URL.revokeObjectURL(url);
 }
 
-async function exportPDF(data: Peptide[], visibleCols: ColumnKey[]) {
-  const { default: jsPDF } = await import('jspdf');
-  const { default: autoTable } = await import('jspdf-autotable');
+async function exportAsImage(data: Peptide[], visibleCols: ColumnKey[]) {
+  const html2canvas = (await import('html2canvas')).default;
 
   const colMap: Record<ColumnKey, (p: Peptide) => string> = {
     category: (p) => categories.find((c) => c.id === p.category)?.nameAr ?? p.category,
@@ -168,25 +167,46 @@ async function exportPDF(data: Peptide[], visibleCols: ColumnKey[]) {
     stack: (p) => p.stackAr,
   };
 
-  const doc = new jsPDF({ orientation: 'landscape', putOnlyUsedFonts: true });
   const headers = visibleCols.map((k) => ALL_COLUMNS.find((c) => c.key === k)!.label);
-  const body = data.map((p) => visibleCols.map((k) => colMap[k](p)));
+  const rows = data.map((p) => visibleCols.map((k) => colMap[k](p)));
 
-  autoTable(doc, {
-    head: [headers],
-    body,
-    styles: { font: 'helvetica', fontSize: 7, halign: 'right' },
-    headStyles: { fillColor: [16, 185, 129], halign: 'right' },
-    theme: 'grid',
-    margin: { top: 15 },
-    didDrawPage: (d: { pageNumber: number }) => {
-      doc.setFontSize(14);
-      doc.text('جدول الببتيدات — pptides.com', doc.internal.pageSize.getWidth() - 14, 10, { align: 'right' });
-      doc.setFontSize(8);
-      doc.text(`صفحة ${d.pageNumber}`, 14, doc.internal.pageSize.getHeight() - 8);
-    },
-  });
-  doc.save('peptide-table.pdf');
+  const container = document.createElement('div');
+  container.style.cssText = 'position:fixed;top:-9999px;right:0;width:1200px;padding:40px;background:#fff;direction:rtl;font-family:Cairo,sans-serif;';
+  container.innerHTML = `
+    <div style="text-align:center;margin-bottom:24px;">
+      <h1 style="font-size:24px;color:#059669;margin:0;">جدول الببتيدات — pptides.com</h1>
+      <p style="color:#78716c;font-size:14px;margin-top:8px;">${new Date().toLocaleDateString('ar-u-nu-latn', { year: 'numeric', month: 'long', day: 'numeric' })}</p>
+      <p style="color:#78716c;font-size:12px;">إجمالي: ${data.length} ببتيد</p>
+    </div>
+    <table style="width:100%;border-collapse:collapse;font-size:11px;">
+      <thead>
+        <tr style="background:#f5f5f4;border-bottom:2px solid #d6d3d1;">
+          ${headers.map(h => `<th style="padding:8px;text-align:right;">${h}</th>`).join('')}
+        </tr>
+      </thead>
+      <tbody>
+        ${rows.map((row, i) => `
+          <tr style="border-bottom:1px solid #e7e5e4;${i % 2 === 0 ? 'background:#fafaf9;' : ''}">
+            ${row.map(cell => `<td style="padding:6px 8px;">${cell}</td>`).join('')}
+          </tr>
+        `).join('')}
+      </tbody>
+    </table>
+    <p style="text-align:center;color:#a8a29e;font-size:10px;margin-top:24px;">pptides.com — تم التصدير تلقائيًا</p>
+  `;
+  document.body.appendChild(container);
+  const canvas = await html2canvas(container, { scale: 2, backgroundColor: '#ffffff' });
+  document.body.removeChild(container);
+  const blob = await new Promise<Blob | null>(resolve => canvas.toBlob(resolve, 'image/png'));
+  if (!blob) return;
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `peptide-table-${new Date().toISOString().slice(0, 10)}.png`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
 }
 
 // ── Dropdown component ─────────────────────────────────────
@@ -235,7 +255,7 @@ function MultiSelect({
                   type="checkbox"
                   checked={selected.includes(opt.value)}
                   onChange={() => toggle(opt.value)}
-                  className="h-4 w-4 rounded border-stone-300 text-emerald-600 focus:ring-emerald-500"
+                  className="h-4 w-4 rounded border-stone-300 text-emerald-700 focus:ring-emerald-500"
                 />
                 {opt.label}
               </label>
@@ -516,7 +536,7 @@ export default function PeptideTable() {
                           checked={visibleCols.includes(col.key)}
                           onChange={() => toggleCol(col.key)}
                           disabled={col.key === 'name'}
-                          className="h-4 w-4 rounded border-stone-300 text-emerald-600 focus:ring-emerald-500"
+                          className="h-4 w-4 rounded border-stone-300 text-emerald-700 focus:ring-emerald-500"
                         />
                         {col.label}
                       </label>
@@ -532,17 +552,17 @@ export default function PeptideTable() {
             {/* Export buttons */}
             <button
               onClick={() => exportCSV(filtered, visibleCols)}
-              className="flex min-h-[44px] items-center gap-2 rounded-xl border border-stone-300 dark:border-stone-700 bg-stone-50 dark:bg-stone-900 px-4 py-2 text-sm font-semibold text-stone-800 dark:text-stone-200 transition-colors hover:border-emerald-400 hover:text-emerald-600"
+              className="flex min-h-[44px] items-center gap-2 rounded-xl border border-stone-300 dark:border-stone-700 bg-stone-50 dark:bg-stone-900 px-4 py-2 text-sm font-semibold text-stone-800 dark:text-stone-200 transition-colors hover:border-emerald-400 hover:text-emerald-700"
             >
               <Download className="h-4 w-4" />
               تحميل CSV
             </button>
             <button
-              onClick={() => void exportPDF(filtered, visibleCols)}
-              className="flex min-h-[44px] items-center gap-2 rounded-xl border border-stone-300 dark:border-stone-700 bg-stone-50 dark:bg-stone-900 px-4 py-2 text-sm font-semibold text-stone-800 dark:text-stone-200 transition-colors hover:border-emerald-400 hover:text-emerald-600"
+              onClick={() => void exportAsImage(filtered, visibleCols)}
+              className="flex min-h-[44px] items-center gap-2 rounded-xl border border-stone-300 dark:border-stone-700 bg-stone-50 dark:bg-stone-900 px-4 py-2 text-sm font-semibold text-stone-800 dark:text-stone-200 transition-colors hover:border-emerald-400 hover:text-emerald-700"
             >
               <Download className="h-4 w-4" />
-              تحميل PDF
+              تحميل صورة
             </button>
           </div>
 
@@ -579,7 +599,7 @@ export default function PeptideTable() {
         {/* ━━━ COMPARE BAR ━━━ */}
         {compareIds.length > 0 && (
           <div className="sticky top-[110px] z-30 mb-4 flex items-center gap-3 rounded-xl border border-emerald-300 dark:border-emerald-700 bg-emerald-50 dark:bg-emerald-900/30 px-4 py-3 shadow-lg backdrop-blur-sm">
-            <GitCompareArrows className="h-5 w-5 text-emerald-600" />
+            <GitCompareArrows className="h-5 w-5 text-emerald-700" />
             <div className="flex flex-1 flex-wrap items-center gap-2">
               {compareIds.map((id) => {
                 const p = peptides.find((x) => x.id === id);
@@ -696,7 +716,7 @@ export default function PeptideTable() {
                               checked={isComparing}
                               onChange={() => toggleCompare(p.id)}
                               disabled={!isComparing && compareIds.length >= 3}
-                              className="h-4 w-4 rounded border-stone-300 text-emerald-600 focus:ring-emerald-500 cursor-pointer"
+                              className="h-4 w-4 rounded border-stone-300 text-emerald-700 focus:ring-emerald-500 cursor-pointer"
                               aria-label={`مقارنة ${p.nameAr}`}
                             />
                           </td>
@@ -720,7 +740,7 @@ export default function PeptideTable() {
                                 return (
                                   <td key={col.key} className={cn('sticky end-0 z-10 px-3 py-3', rowBg)}>
                                     <Link to={`/peptide/${p.id}`} className="group block" onClick={(e) => e.stopPropagation()}>
-                                      <span className="block font-bold text-stone-900 dark:text-stone-100 transition-colors group-hover:text-emerald-600 group-hover:underline">
+                                      <span className="block font-bold text-stone-900 dark:text-stone-100 transition-colors group-hover:text-emerald-700 group-hover:underline">
                                         {p.nameAr}
                                       </span>
                                       <span className="block text-xs text-stone-800 dark:text-stone-200">{p.nameEn}</span>
@@ -809,7 +829,7 @@ export default function PeptideTable() {
         {/* ━━━ SYNERGISTIC STACKS ━━━ */}
         <section className="mb-12">
           <div className="mb-6 flex items-center gap-3">
-            <Layers className="h-6 w-6 text-emerald-600" />
+            <Layers className="h-6 w-6 text-emerald-700" />
             <h2 className="text-xl font-extrabold text-stone-900 dark:text-stone-100 md:text-2xl">
               البروتوكولات المُركّبة{' '}
               <span className="text-stone-800 dark:text-stone-200 font-normal text-base">(Synergistic Stacks)</span>
@@ -875,7 +895,7 @@ export default function PeptideTable() {
         {/* ━━━ CATEGORY BREAKDOWNS ━━━ */}
         <section className="mb-12">
           <div className="mb-6 flex items-center gap-3">
-            <FlaskConical className="h-6 w-6 text-emerald-600" />
+            <FlaskConical className="h-6 w-6 text-emerald-700" />
             <h2 className="text-xl font-extrabold text-stone-900 dark:text-stone-100 md:text-2xl">تفصيل الفئات</h2>
           </div>
 
@@ -897,7 +917,7 @@ export default function PeptideTable() {
                   )}
                 >
                   <div className="mb-3 flex items-center gap-2">
-                    {(() => { const Icon = categoryIcons[cat.id]; return Icon ? <Icon className="h-5 w-5 text-emerald-600" /> : null; })()}
+                    {(() => { const Icon = categoryIcons[cat.id]; return Icon ? <Icon className="h-5 w-5 text-emerald-700" /> : null; })()}
                     <h3 className="text-base font-bold text-stone-900 dark:text-stone-100">{cat.nameAr}</h3>
                     <span className="me-auto rounded-full bg-stone-100 dark:bg-stone-800 px-2 py-0.5 text-xs font-semibold text-stone-800 dark:text-stone-200">
                       {cat.peptideCount} ببتيد

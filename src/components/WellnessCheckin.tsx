@@ -165,7 +165,7 @@ export default function WellnessCheckin() {
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-3">
           <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-50 dark:bg-emerald-900/20">
-            <HeartPulse className="h-5 w-5 text-emerald-600" />
+            <HeartPulse className="h-5 w-5 text-emerald-700" />
           </div>
           <div>
             <h3 className="text-sm font-bold text-stone-900 dark:text-stone-100">الحالة اليومية</h3>
@@ -187,7 +187,7 @@ export default function WellnessCheckin() {
 
       {loading ? (
         <div className="flex items-center justify-center py-8">
-          <Loader2 className="h-5 w-5 animate-spin text-emerald-600" />
+          <Loader2 className="h-5 w-5 animate-spin text-emerald-700" />
         </div>
       ) : (
         <div className="space-y-4">
@@ -229,7 +229,7 @@ export default function WellnessCheckin() {
 
           <div>
             <label htmlFor="wc-weight" className="mb-1 block text-sm font-bold text-stone-700 dark:text-stone-300">
-              الوزن (كغ) <span className="text-emerald-600 font-normal">اختياري</span>
+              الوزن (كغ) <span className="text-emerald-700 font-normal">اختياري</span>
             </label>
             <input
               id="wc-weight"
@@ -249,7 +249,7 @@ export default function WellnessCheckin() {
 
           <div>
             <label htmlFor="wc-notes" className="mb-1 block text-sm font-bold text-stone-700 dark:text-stone-300">
-              ملاحظات <span className="text-emerald-600 font-normal">اختياري</span>
+              ملاحظات <span className="text-emerald-700 font-normal">اختياري</span>
             </label>
             <textarea
               id="wc-notes"

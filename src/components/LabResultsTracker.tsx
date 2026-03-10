@@ -550,52 +550,57 @@ async function exportCSV(entries: LabEntry[]) {
   toast.success('تم تصدير النتائج بصيغة CSV');
 }
 
-async function exportPDF(entries: LabEntry[]) {
+async function exportAsImage(entries: LabEntry[]) {
   try {
-    const { default: jsPDF } = await import('jspdf');
-    const autoTableModule = await import('jspdf-autotable');
-    const autoTable = autoTableModule.default || autoTableModule.applyPlugin;
-
-    // Apply plugin if needed
-    if (typeof autoTable === 'function' && autoTable.length === 1) {
-      autoTable(jsPDF);
-    }
-
-    const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
-
-    // Title
-    doc.setFontSize(18);
-    doc.setTextColor(16, 185, 129);
-    doc.text('Lab Results Report - pptides.com', 14, 20);
-
-    doc.setFontSize(10);
-    doc.setTextColor(150, 150, 150);
-    doc.text(`Generated: ${new Date().toLocaleDateString('en-US')}`, 14, 28);
-
-    // Table
+    const html2canvas = (await import('html2canvas')).default;
     const biomarkerIds = BIOMARKERS.map(b => b.id);
-    const headers = ['Date', 'Lab', ...BIOMARKERS.map(b => `${b.nameEn} (${b.unit})`)];
+    const headers = ['التاريخ', 'المختبر', ...BIOMARKERS.map(b => `${b.nameAr} (${b.unit})`)];
     const rows = entries.map(e => [
       e.test_date,
       e.lab_name || '-',
       ...biomarkerIds.map(id => e.results[id]?.toString() || '-'),
     ]);
 
-    // Use autoTable on the doc instance
-    (doc as ReturnType<typeof jsPDF> & { autoTable: (opts: Record<string, unknown>) => void }).autoTable({
-      head: [headers],
-      body: rows,
-      startY: 35,
-      styles: { fontSize: 7, cellPadding: 2 },
-      headStyles: { fillColor: [16, 185, 129], textColor: 255, fontStyle: 'bold' },
-      alternateRowStyles: { fillColor: [245, 245, 245] },
-      margin: { left: 14, right: 14 },
-    });
-
-    doc.save(`lab-results-${new Date().toISOString().slice(0, 10)}.pdf`);
-    toast.success('تم تصدير النتائج بصيغة PDF');
+    const container = document.createElement('div');
+    container.style.cssText = 'position:fixed;top:-9999px;right:0;width:1400px;padding:40px;background:#fff;direction:rtl;font-family:Cairo,sans-serif;';
+    container.innerHTML = `
+      <div style="text-align:center;margin-bottom:24px;">
+        <h1 style="font-size:24px;color:#059669;margin:0;">نتائج التحاليل — pptides.com</h1>
+        <p style="color:#78716c;font-size:14px;margin-top:8px;">${new Date().toLocaleDateString('ar-u-nu-latn', { year: 'numeric', month: 'long', day: 'numeric' })}</p>
+        <p style="color:#78716c;font-size:12px;">إجمالي: ${entries.length} تحليل</p>
+      </div>
+      <table style="width:100%;border-collapse:collapse;font-size:10px;">
+        <thead>
+          <tr style="background:#f5f5f4;border-bottom:2px solid #d6d3d1;">
+            ${headers.map(h => `<th style="padding:6px 4px;text-align:center;white-space:nowrap;">${h}</th>`).join('')}
+          </tr>
+        </thead>
+        <tbody>
+          ${rows.map((row, i) => `
+            <tr style="border-bottom:1px solid #e7e5e4;${i % 2 === 0 ? 'background:#fafaf9;' : ''}">
+              ${row.map(cell => `<td style="padding:4px;text-align:center;">${cell}</td>`).join('')}
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
+      <p style="text-align:center;color:#a8a29e;font-size:10px;margin-top:24px;">pptides.com — تم التصدير تلقائيًا</p>
+    `;
+    document.body.appendChild(container);
+    const canvas = await html2canvas(container, { scale: 2, backgroundColor: '#ffffff' });
+    document.body.removeChild(container);
+    const blob = await new Promise<Blob | null>(resolve => canvas.toBlob(resolve, 'image/png'));
+    if (!blob) { toast.error('تعذّر إنشاء الصورة'); return; }
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `lab-results-${new Date().toISOString().slice(0, 10)}.png`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    toast.success('تم تصدير النتائج كصورة');
   } catch {
-    toast.error('تعذّر تصدير PDF');
+    toast.error('تعذّر تصدير النتائج');
   }
 }
 
@@ -685,9 +690,9 @@ export default function LabResultsTracker() {
                 <Download className="h-4 w-4" />
               </button>
               <button
-                onClick={() => exportPDF(entries)}
+                onClick={() => exportAsImage(entries)}
                 className="p-2 rounded-lg border border-stone-700 text-stone-400 hover:text-emerald-400 hover:border-emerald-500/30 transition-colors"
-                title="تصدير PDF"
+                title="حفظ كصورة"
               >
                 <FileText className="h-4 w-4" />
               </button>

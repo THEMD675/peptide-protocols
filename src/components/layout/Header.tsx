@@ -163,7 +163,7 @@ export default memo(function Header() {
             dir="ltr"
             aria-label="pptides"
             style={{letterSpacing:'-0.03em'}}
-          >pp<span className="text-emerald-600">tides</span>
+          >pp<span className="text-emerald-700">tides</span>
           </Link>
 
           <nav className="hidden items-center gap-1 md:flex">
@@ -271,7 +271,7 @@ export default memo(function Header() {
                       }}
                       placeholder="ابحث بالاسم..."
                       aria-label="بحث عن ببتيد"
-                      className="w-full rounded-lg border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-900 px-3 py-2 text-sm text-stone-900 dark:text-stone-100 placeholder:text-stone-500 dark:text-stone-400 outline-none focus:border-emerald-300 dark:border-emerald-700 focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900"
+                      className="w-full rounded-lg border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-900 px-3 py-2 text-base text-stone-900 dark:text-stone-100 placeholder:text-stone-500 dark:text-stone-400 outline-none focus:border-emerald-300 dark:border-emerald-700 focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900"
                     />
                   </div>
                   {recentPeptides.length > 0 && searchResults.length === 0 && (
@@ -314,7 +314,7 @@ export default memo(function Header() {
                   {searchQuery.trim().length >= 2 && searchResults.length === 0 && (
                     <div className="border-t border-stone-100 dark:border-stone-800 px-3 py-3 text-center text-xs text-stone-500 dark:text-stone-400">
                       لا توجد نتائج — جرّب اسمًا آخر
-                      <Link to="/library" onClick={() => { setSearchOpen(false); setSearchQuery(''); }} className="block text-xs text-emerald-600 hover:underline mt-1">تصفّح المكتبة</Link>
+                      <Link to="/library" onClick={() => { setSearchOpen(false); setSearchQuery(''); }} className="block text-xs text-emerald-700 hover:underline mt-1">تصفّح المكتبة</Link>
                     </div>
                   )}
                 </div>
@@ -448,7 +448,7 @@ export default memo(function Header() {
                 }}
                 placeholder="ابحث عن ببتيد..."
                 aria-label="بحث عن ببتيد"
-                className="w-full rounded-xl border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-900 py-2.5 min-h-[44px] ps-10 pe-4 text-sm text-stone-900 dark:text-stone-100 placeholder:text-stone-500 dark:text-stone-400 outline-none focus:border-emerald-300 dark:border-emerald-700 focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900"
+                className="w-full rounded-xl border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-900 py-2.5 min-h-[44px] ps-10 pe-4 text-base text-stone-900 dark:text-stone-100 placeholder:text-stone-500 dark:text-stone-400 outline-none focus:border-emerald-300 dark:border-emerald-700 focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900"
               />
               {searchQuery.trim().length === 1 && (
                 <p className="mt-1 text-center text-xs text-stone-500 dark:text-stone-400 py-1">اكتب حرفين على الأقل</p>

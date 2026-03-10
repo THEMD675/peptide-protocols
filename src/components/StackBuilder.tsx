@@ -9,7 +9,7 @@ import {
 } from 'lucide-react';
 import { peptides as allPeptides } from '@/data/peptides';
 import {
-  DANGEROUS_COMBOS, SYNERGISTIC_COMBOS, InteractionResult,
+  DANGEROUS_COMBOS, SYNERGISTIC_COMBOS, DRUG_INTERACTIONS, InteractionResult,
 } from '@/data/interactions';
 
 /* ── Helpers ─────────────────────────────────────────────── */
@@ -43,10 +43,18 @@ function checkInteractions(ids: string[]): InteractionResult[] {
       const key = makePairKey(ids[i], ids[j]);
       if (seen.has(key)) continue;
       seen.add(key);
-      // Check dangerous combos (including wildcard)
-      if (DANGEROUS_COMBOS[key]) {
-        results.push(DANGEROUS_COMBOS[key]);
-      } else {
+      // Check BOTH orderings for dangerous combos (keys in data may not be sorted)
+      const key1 = `${ids[i]}+${ids[j]}`;
+      const key2 = `${ids[j]}+${ids[i]}`;
+      let foundDangerous = false;
+      if (DANGEROUS_COMBOS[key1]) {
+        results.push(DANGEROUS_COMBOS[key1]);
+        foundDangerous = true;
+      } else if (DANGEROUS_COMBOS[key2]) {
+        results.push(DANGEROUS_COMBOS[key2]);
+        foundDangerous = true;
+      }
+      if (!foundDangerous) {
         // Check wildcard patterns like 'igf-1-lr3+*'
         for (const id of [ids[i], ids[j]]) {
           const wildcard = `${id}+*`;
@@ -55,9 +63,16 @@ function checkInteractions(ids: string[]): InteractionResult[] {
           }
         }
       }
-      // Check synergistic combos
-      if (SYNERGISTIC_COMBOS[key]) {
-        results.push(SYNERGISTIC_COMBOS[key]);
+      // Check BOTH orderings for drug interactions
+      const drugMatch = DRUG_INTERACTIONS[key1] ?? DRUG_INTERACTIONS[key2];
+      if (drugMatch) {
+        results.push(drugMatch);
+      }
+      // Check BOTH orderings for synergistic combos
+      if (SYNERGISTIC_COMBOS[key1]) {
+        results.push(SYNERGISTIC_COMBOS[key1]);
+      } else if (SYNERGISTIC_COMBOS[key2]) {
+        results.push(SYNERGISTIC_COMBOS[key2]);
       }
     }
   }
@@ -440,7 +455,7 @@ export default function StackBuilder() {
         <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-600">
           <Beaker className="h-7 w-7 text-white" />
         </div>
-        <h2 className="text-2xl font-bold md:text-3xl text-emerald-600">
+        <h2 className="text-2xl font-bold md:text-3xl text-emerald-700">
           بناء بروتوكولك الخاص
         </h2>
         <p className="mt-2 text-stone-600 dark:text-stone-400">
@@ -480,7 +495,7 @@ export default function StackBuilder() {
                 {gs.peptideIds.map((id) => {
                   const p = realPeptides.find((x) => x.id === id);
                   return p ? (
-                    <span key={id} className="rounded-full bg-emerald-500/10 px-2 py-0.5 text-[10px] font-medium text-emerald-600 dark:text-emerald-400">
+                    <span key={id} className="rounded-full bg-emerald-500/10 px-2 py-0.5 text-[10px] font-medium text-emerald-700 dark:text-emerald-400">
                       {p.nameAr}
                     </span>
                   ) : (
@@ -694,7 +709,7 @@ export default function StackBuilder() {
               <SafetyBadge safety={overallSafety} />
             </div>
             {interactions.length === 0 ? (
-              <p className="text-sm text-emerald-600 dark:text-emerald-400">لم يُكتشف أي تفاعل بين الببتيدات المختارة.</p>
+              <p className="text-sm text-emerald-700 dark:text-emerald-400">لم يُكتشف أي تفاعل بين الببتيدات المختارة.</p>
             ) : (
               <div className="space-y-2">
                 {interactions.map((inter, idx) => (
@@ -807,7 +822,7 @@ export default function StackBuilder() {
                     <div className="space-y-1.5">
                       {slot.items.map((item, idx) => (
                         <div key={idx} className="flex items-center justify-between text-xs">
-                          <span className="font-medium text-emerald-600 dark:text-emerald-400">{item.nameAr}</span>
+                          <span className="font-medium text-emerald-700 dark:text-emerald-400">{item.nameAr}</span>
                           <span className="text-stone-500 dark:text-stone-400">{item.routeAr} • {item.doseAr.slice(0, 50)}{item.doseAr.length > 50 ? '...' : ''}</span>
                         </div>
                       ))}
@@ -825,7 +840,7 @@ export default function StackBuilder() {
               {selectedPeptides.map((p) => (
                 <div key={p.id} className="rounded-xl border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-800 p-4">
                   <div className="flex items-center justify-between mb-2">
-                    <Link to={`/peptide/${p.id}`} className="text-sm font-bold text-emerald-600 dark:text-emerald-400 hover:underline">
+                    <Link to={`/peptide/${p.id}`} className="text-sm font-bold text-emerald-700 dark:text-emerald-400 hover:underline">
                       {p.nameAr}
                     </Link>
                     <span className="text-[10px] text-stone-400">{p.nameEn}</span>

@@ -130,7 +130,7 @@ function Stat({ label, value, icon: I, sub, alert: a, trend }: {
       <p className={cn('text-2xl font-bold', a ? 'text-red-700 dark:text-red-400' : 'text-stone-900 dark:text-stone-100')}>{value}</p>
       <div className="flex items-center gap-2 mt-1">
         {sub && <p className="text-xs text-stone-500 dark:text-stone-400">{sub}</p>}
-        {trend && <span className={cn('inline-flex items-center gap-0.5 text-xs font-medium', trend.dir === 'up' ? 'text-emerald-600' : 'text-red-600 dark:text-red-400')}>
+        {trend && <span className={cn('inline-flex items-center gap-0.5 text-xs font-medium', trend.dir === 'up' ? 'text-emerald-700' : 'text-red-600 dark:text-red-400')}>
           {trend.dir === 'up' ? <ArrowUpRight className="h-3 w-3" /> : <ArrowDownRight className="h-3 w-3" />}{trend.label}
         </span>}
       </div>
@@ -160,7 +160,7 @@ function Modal({ open, title, children, onClose }: { open: boolean; title: strin
 }
 
 const ACTIVITY_ICON: Record<string, React.ElementType> = { signup: Users, coach: MessageSquare, injection: Activity, community: Users, review: Star, enquiry: Mail };
-const ACTIVITY_COLOR: Record<string, string> = { signup: 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600', coach: 'bg-violet-100 text-violet-600', injection: 'bg-blue-100 text-blue-600', community: 'bg-amber-100 text-amber-600', review: 'bg-yellow-100 text-yellow-600', enquiry: 'bg-rose-100 text-rose-600' };
+const ACTIVITY_COLOR: Record<string, string> = { signup: 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700', coach: 'bg-violet-100 text-violet-600', injection: 'bg-blue-100 text-blue-600', community: 'bg-amber-100 text-amber-600', review: 'bg-yellow-100 text-yellow-600', enquiry: 'bg-rose-100 text-rose-600' };
 
 // ========================================================
 // MAIN
@@ -514,7 +514,7 @@ export default function Admin() {
       <div className="sticky top-[64px] md:top-[72px] z-30 bg-white dark:bg-stone-950 border-b border-stone-200 dark:border-stone-700 px-4 py-3">
         <div className="max-w-6xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <Link to="/dashboard" className="text-xs font-medium text-stone-500 dark:text-stone-400 hover:text-emerald-600 transition-colors shrink-0">← لوحة التحكم</Link>
+            <Link to="/dashboard" className="text-xs font-medium text-stone-500 dark:text-stone-400 hover:text-emerald-700 transition-colors shrink-0">← لوحة التحكم</Link>
             <div>
             <h1 className="text-lg font-bold text-stone-900 dark:text-stone-100 flex items-center gap-2">
               مركز التحكم
@@ -675,11 +675,11 @@ export default function Admin() {
                   </div>
                   <div className="flex gap-4 mt-3 pt-3 border-t border-stone-100 dark:border-stone-800">
                     <div className="text-center flex-1">
-                      <p className={cn('text-lg font-bold', stats.funnel.signupToTrial >= 20 ? 'text-emerald-600' : stats.funnel.signupToTrial >= 10 ? 'text-amber-600' : 'text-red-600')}>{stats.funnel.signupToTrial}%</p>
+                      <p className={cn('text-lg font-bold', stats.funnel.signupToTrial >= 20 ? 'text-emerald-700' : stats.funnel.signupToTrial >= 10 ? 'text-amber-600' : 'text-red-600')}>{stats.funnel.signupToTrial}%</p>
                       <p className="text-[10px] text-stone-500 dark:text-stone-400">تسجيل ← تجريبي</p>
                     </div>
                     <div className="text-center flex-1">
-                      <p className={cn('text-lg font-bold', stats.funnel.trialToPaid >= 30 ? 'text-emerald-600' : stats.funnel.trialToPaid >= 15 ? 'text-amber-600' : 'text-red-600')}>{stats.funnel.trialToPaid}%</p>
+                      <p className={cn('text-lg font-bold', stats.funnel.trialToPaid >= 30 ? 'text-emerald-700' : stats.funnel.trialToPaid >= 15 ? 'text-amber-600' : 'text-red-600')}>{stats.funnel.trialToPaid}%</p>
                       <p className="text-[10px] text-stone-500 dark:text-stone-400">تجريبي ← مدفوع</p>
                     </div>
                   </div>
@@ -713,7 +713,7 @@ export default function Admin() {
                         <span className="font-mono text-xs text-stone-700 dark:text-stone-300 truncate max-w-[200px]">{u.email}</span>
                         <div className="flex items-center gap-1">
                           {tl && <span className={cn('rounded-full px-2 py-0.5 text-xs font-medium', tl.urgent ? 'bg-red-100 text-red-700 dark:text-red-400' : 'bg-blue-100 text-blue-700 dark:text-blue-400')}>{tl.text}</span>}
-                          <button onClick={() => openUserAction('extend_trial', u)} className="rounded p-1 hover:bg-stone-100 dark:hover:bg-stone-800" title="تمديد"><CalendarPlus className="h-3.5 w-3.5 text-emerald-600" /></button>
+                          <button onClick={() => openUserAction('extend_trial', u)} className="rounded p-1 hover:bg-stone-100 dark:hover:bg-stone-800" title="تمديد"><CalendarPlus className="h-3.5 w-3.5 text-emerald-700" /></button>
                         </div>
                       </div>
                     );
@@ -825,7 +825,7 @@ export default function Admin() {
                           <td className="px-3 py-2 text-xs text-stone-500 dark:text-stone-400">{u.last_sign_in_at ? timeAgo(u.last_sign_in_at) : '—'}</td>
                           <td className="px-3 py-2">
                             <div className="flex items-center gap-0.5">
-                              <button onClick={() => openUserAction('extend_trial', u)} title="Extend trial" className="rounded p-1 hover:bg-emerald-50 dark:bg-emerald-900/20"><CalendarPlus className="h-3.5 w-3.5 text-emerald-600" /></button>
+                              <button onClick={() => openUserAction('extend_trial', u)} title="Extend trial" className="rounded p-1 hover:bg-emerald-50 dark:bg-emerald-900/20"><CalendarPlus className="h-3.5 w-3.5 text-emerald-700" /></button>
                               <button onClick={() => openUserAction('grant_sub', u)} title="Grant subscription" className="rounded p-1 hover:bg-blue-50 dark:bg-blue-900/20"><CreditCard className="h-3.5 w-3.5 text-blue-600" /></button>
                               <button onClick={() => { setEmailTo(u.email); setEmailSubject(''); setEmailBody(''); setModal('send_email'); setModalTarget(u); }} title="Send email" className="rounded p-1 hover:bg-violet-50"><Mail className="h-3.5 w-3.5 text-violet-600" /></button>
                               {(u.subscription?.status === 'active' || u.subscription?.status === 'trial') && (
@@ -976,7 +976,7 @@ export default function Admin() {
             <div className="space-y-3">
               <div className="flex items-center justify-between">
                 <h2 className="text-sm font-bold text-stone-700 dark:text-stone-300">Emails Sent ({logs.length})</h2>
-                {logs.length > 0 && <span className="text-xs text-emerald-600 font-medium">{logs.filter(l => l.status === 'sent').length} delivered</span>}
+                {logs.length > 0 && <span className="text-xs text-emerald-700 font-medium">{logs.filter(l => l.status === 'sent').length} delivered</span>}
               </div>
               {logs.length === 0 ? <div className="rounded-xl border border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-900/20 p-6 text-center"><AlertTriangle className="mx-auto h-8 w-8 text-amber-400 mb-2" /><p className="text-sm font-medium text-amber-800 dark:text-amber-300">No email logs</p><p className="text-xs text-amber-600 mt-1">Resend may not be configured</p></div> : (
                 <><div className="overflow-x-auto rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950"><table className="w-full text-sm"><thead><tr className="border-b border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-900"><th className="px-3 py-2 text-start font-medium text-stone-600 dark:text-stone-400">To</th><th className="px-3 py-2 text-start font-medium text-stone-600 dark:text-stone-400">Type</th><th className="px-3 py-2 text-start font-medium text-stone-600 dark:text-stone-400">Status</th><th className="px-3 py-2 text-start font-medium text-stone-600 dark:text-stone-400">When</th></tr></thead>

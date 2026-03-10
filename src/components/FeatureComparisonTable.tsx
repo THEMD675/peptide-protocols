@@ -41,7 +41,7 @@ export default function FeatureComparisonTable() {
         </span>
       </div>
       <h2 className="mb-4 text-center text-3xl font-bold text-stone-900 dark:text-stone-100 md:text-4xl">
-        ماذا تحصل في <span className="text-emerald-600">كل خطة؟</span>
+        ماذا تحصل في <span className="text-emerald-700">كل خطة؟</span>
       </h2>
       <p className="mx-auto mb-10 max-w-xl text-center text-stone-600 dark:text-stone-400">
         اختر الخطة المناسبة لاحتياجاتك — وابدأ بتجربة مجانية

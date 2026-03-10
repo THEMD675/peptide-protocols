@@ -204,7 +204,7 @@ export default function Compare() {
       {/* Header */}
       <div className="mb-8 text-center">
         <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-100 dark:bg-emerald-900/30">
-          <ArrowLeftRight className="h-7 w-7 text-emerald-600" />
+          <ArrowLeftRight className="h-7 w-7 text-emerald-700" />
         </div>
         <h1 className="mb-2 text-2xl font-black text-stone-900 dark:text-stone-100 md:text-3xl">
           مقارنة الببتيدات
@@ -230,7 +230,7 @@ export default function Compare() {
               onClick={handleShare}
               className="flex items-center gap-2 rounded-full border border-stone-200 dark:border-stone-700 px-4 py-2 text-xs font-bold text-stone-600 dark:text-stone-400 transition-colors hover:bg-stone-50 dark:hover:bg-stone-800"
             >
-              {copied ? <Check className="h-3.5 w-3.5 text-emerald-600" /> : <Share2 className="h-3.5 w-3.5" />}
+              {copied ? <Check className="h-3.5 w-3.5 text-emerald-700" /> : <Share2 className="h-3.5 w-3.5" />}
               {copied ? 'تم النسخ!' : 'مشاركة المقارنة'}
             </button>
           </div>
@@ -247,10 +247,10 @@ export default function Compare() {
                       <Link to={`/peptide/${p.id}`} className="group">
                         <div className="flex items-center gap-2 mb-1">
                           <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-emerald-50 dark:bg-emerald-900/20">
-                            <FlaskConical className="h-4 w-4 text-emerald-600" />
+                            <FlaskConical className="h-4 w-4 text-emerald-700" />
                           </div>
                           <div>
-                            <p className="text-sm font-bold text-stone-900 dark:text-stone-100 group-hover:text-emerald-600 transition-colors">
+                            <p className="text-sm font-bold text-stone-900 dark:text-stone-100 group-hover:text-emerald-700 transition-colors">
                               {p.nameAr}
                             </p>
                             <p className="text-xs text-stone-500 dark:text-stone-400">{p.nameEn}</p>
@@ -260,13 +260,13 @@ export default function Compare() {
                       <div className="mt-2 flex gap-2">
                         <Link
                           to={`/peptide/${p.id}`}
-                          className="text-[10px] font-semibold text-emerald-600 hover:underline"
+                          className="text-[10px] font-semibold text-emerald-700 hover:underline"
                         >
                           البروتوكول الكامل
                         </Link>
                         <Link
                           to={`/calculator?preset=${encodeURIComponent(p.nameEn)}`}
-                          className="text-[10px] font-semibold text-stone-500 dark:text-stone-400 hover:text-emerald-600 hover:underline"
+                          className="text-[10px] font-semibold text-stone-500 dark:text-stone-400 hover:text-emerald-700 hover:underline"
                         >
                           احسب الجرعة
                         </Link>
@@ -363,7 +363,7 @@ export default function Compare() {
               to={`/compare?p1=${p1}&p2=${p2}`}
               className="flex items-center gap-3 rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 p-4 transition-all hover:border-emerald-300 dark:hover:border-emerald-700 hover:shadow-md hover:-translate-y-0.5"
             >
-              <ArrowLeftRight className="h-5 w-5 shrink-0 text-emerald-600" />
+              <ArrowLeftRight className="h-5 w-5 shrink-0 text-emerald-700" />
               <span className="text-sm font-bold text-stone-800 dark:text-stone-200">{label}</span>
             </Link>
           ))}

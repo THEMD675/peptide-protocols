@@ -84,13 +84,14 @@ const QUICK_LINKS = [
 ];
 
 const GOAL_RECOMMENDATIONS: Record<string, { text: string; peptideId: string }> = {
-  'fat-loss': { text: 'ننصح ببروتوكول Retatrutide أو Tirzepatide لإنقاص الوزن', peptideId: 'retatrutide' },
+  'weight-loss': { text: 'ننصح ببروتوكول Retatrutide أو Tirzepatide لإنقاص الوزن', peptideId: 'retatrutide' },
   'recovery': { text: 'ننصح ببروتوكول BPC-157 + TB-500 للتعافي', peptideId: 'bpc-157' },
   'muscle': { text: 'ننصح ببروتوكول CJC-1295 + Ipamorelin للأداء والعضلات', peptideId: 'cjc-1295' },
-  'brain': { text: 'ننصح ببروتوكول Semax لتحسين التركيز والذاكرة', peptideId: 'semax' },
-  'hormones': { text: 'ننصح ببروتوكول CJC-1295 + Ipamorelin لتحسين الهرمونات', peptideId: 'cjc-1295' },
-  'longevity': { text: 'ننصح ببروتوكول Epithalon لإطالة العمر', peptideId: 'epithalon' },
-  'gut-skin': { text: 'ننصح ببروتوكول DSIP لتحسين النوم و BPC-157 للأمعاء', peptideId: 'dsip' },
+  'anti-aging': { text: 'ننصح ببروتوكول Epithalon لإطالة العمر', peptideId: 'epithalon' },
+  'sleep': { text: 'ننصح ببروتوكول DSIP لتحسين النوم', peptideId: 'dsip' },
+  'immunity': { text: 'ننصح ببروتوكول Thymosin Alpha-1 لتعزيز المناعة', peptideId: 'thymosin-alpha-1' },
+  'skin': { text: 'ننصح ببروتوكول GHK-Cu لنضارة البشرة', peptideId: 'ghk-cu' },
+  'general': { text: 'ننصح ببروتوكول BPC-157 + Semax للصحة العامة', peptideId: 'bpc-157' },
 };
 
 const GETTING_STARTED = [
@@ -118,14 +119,14 @@ const BADGES: { id: string; label: string; Icon: typeof Syringe; condition: (d: 
 ];
 
 const GOAL_TO_CATEGORY: Record<string, string> = {
-  'fat-loss': 'metabolic',
+  'weight-loss': 'metabolic',
+  'muscle': 'recovery',
+  'anti-aging': 'longevity',
   'recovery': 'recovery',
-  'muscle': 'hormonal',
-  'brain': 'brain',
-  'hormones': 'hormonal',
-  'longevity': 'longevity',
-  'gut-skin': 'skin-gut',
-  'skin-gut-sleep': 'skin-gut',
+  'sleep': 'longevity',
+  'immunity': 'longevity',
+  'skin': 'skin-gut',
+  'general': 'recovery',
 };
 
 
@@ -364,6 +365,31 @@ export default function Dashboard() {
     try { return localStorage.getItem('pptides_onboarded') === 'true'; } catch { return false; }
   }, []);
 
+  // C13: Sync onboarding goals from DB → localStorage on load
+  useEffect(() => {
+    if (!user?.id) return;
+    let mounted = true;
+    supabase.from('user_profiles').select('onboarding_goals').eq('user_id', user.id).maybeSingle()
+      .then(({ data }) => {
+        if (!mounted || !data?.onboarding_goals) return;
+        const dbGoals = data.onboarding_goals as { goal?: string; ts?: number };
+        if (!dbGoals.goal) return;
+        try {
+          const existing = localStorage.getItem('pptides_quiz_results');
+          if (!existing) {
+            // No local data — seed from DB
+            localStorage.setItem('pptides_quiz_results', JSON.stringify({
+              goal: dbGoals.goal,
+              answers: { goal: dbGoals.goal },
+              result: null,
+              ts: dbGoals.ts ?? Date.now(),
+            }));
+          }
+        } catch { /* expected */ }
+      }).catch(() => {});
+    return () => { mounted = false; };
+  }, [user?.id]);
+
   // Redirect trial users who haven't entered payment to /pricing
   // Skip redirect when returning from Stripe checkout (?payment=success)
   const params = new URLSearchParams(window.location.search);
@@ -397,40 +423,6 @@ export default function Dashboard() {
       {!activity.loading && activity.logs.length === 0 && activeProtocols.length === 0 && subscription.isProOrTrial && <OnboardingModal />}
       {showOnboarding && <OnboardingModal forceOpen onClose={() => setShowOnboarding(false)} />}
 
-      {/* New user hero — show for users with 0 activity, prominently guides first step */}
-      {!activity.loading && activity.logs.length === 0 && activeProtocols.length === 0 && subscription.isProOrTrial && (
-        <div className="mb-8 rounded-2xl border-2 border-emerald-200 dark:border-emerald-800 bg-gradient-to-b from-emerald-50 via-white dark:via-stone-950 to-white dark:to-stone-950 p-8 text-center shadow-lg shadow-emerald-600/5">
-          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-emerald-100 dark:bg-emerald-900/30">
-            <Sparkles className="h-8 w-8 text-emerald-600" />
-          </div>
-          <h2 className="mb-2 text-2xl font-bold text-stone-900 dark:text-stone-100">مرحبًا في pptides! 🎉</h2>
-          <p className="mb-6 text-stone-600 dark:text-stone-400">ابدأ رحلتك في 3 خطوات بسيطة</p>
-          <div className="grid gap-3 sm:grid-cols-3 text-start">
-            <Link to="/quiz" className="flex items-center gap-3 rounded-xl border border-emerald-200 dark:border-emerald-800 bg-white dark:bg-stone-950 px-4 py-4 transition-all hover:border-emerald-400 dark:hover:border-emerald-600 hover:shadow-md">
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-600 text-white text-sm font-bold">1</div>
-              <div>
-                <p className="text-sm font-bold text-stone-900 dark:text-stone-100">اكتشف الأنسب لك</p>
-                <p className="text-xs text-stone-500 dark:text-stone-400">اختبار 30 ثانية</p>
-              </div>
-            </Link>
-            <Link to="/library" className="flex items-center gap-3 rounded-xl border border-emerald-200 dark:border-emerald-800 bg-white dark:bg-stone-950 px-4 py-4 transition-all hover:border-emerald-400 dark:hover:border-emerald-600 hover:shadow-md">
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-600 text-white text-sm font-bold">2</div>
-              <div>
-                <p className="text-sm font-bold text-stone-900 dark:text-stone-100">تصفّح المكتبة</p>
-                <p className="text-xs text-stone-500 dark:text-stone-400">{PEPTIDE_COUNT}+ ببتيد</p>
-              </div>
-            </Link>
-            <Link to="/coach" className="flex items-center gap-3 rounded-xl border border-emerald-200 dark:border-emerald-800 bg-white dark:bg-stone-950 px-4 py-4 transition-all hover:border-emerald-400 dark:hover:border-emerald-600 hover:shadow-md">
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-600 text-white text-sm font-bold">3</div>
-              <div>
-                <p className="text-sm font-bold text-stone-900 dark:text-stone-100">اسأل المدرب</p>
-                <p className="text-xs text-stone-500 dark:text-stone-400">بروتوكول مخصّص لك</p>
-              </div>
-            </Link>
-          </div>
-        </div>
-      )}
-
       {/* Expired / never-subscribed banner — read-only mode */}
       {!subscription.isProOrTrial && (
         <div className="mb-6 rounded-2xl border border-amber-300 dark:border-amber-700 bg-amber-50 dark:bg-amber-900/20 p-4 text-center">
@@ -453,7 +445,7 @@ export default function Dashboard() {
       {/* Welcome Header */}
       <div className="mb-8">
         <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-100 dark:bg-emerald-900/30">
-          <LayoutDashboard className="h-7 w-7 text-emerald-600" />
+          <LayoutDashboard className="h-7 w-7 text-emerald-700" />
         </div>
         <div className="flex items-center justify-center gap-3 flex-wrap">
           <h1 className="text-3xl font-bold text-stone-900 dark:text-stone-100 md:text-4xl">
@@ -504,7 +496,7 @@ export default function Dashboard() {
       {/* Subscription Status Card */}
       <div className="mb-8 rounded-2xl border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-900 p-6">
         <div className="flex items-center gap-3 mb-3">
-          <Crown className="h-5 w-5 text-emerald-600" />
+          <Crown className="h-5 w-5 text-emerald-700" />
           <h2 className="text-lg font-bold text-stone-900 dark:text-stone-100">اشتراكك</h2>
         </div>
         <div className="flex flex-wrap items-center gap-4" role="status">
@@ -513,7 +505,7 @@ export default function Dashboard() {
             subscription.tier === 'elite'
               ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400'
               : subscription.tier === 'essentials'
-                ? 'bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600'
+                ? 'bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700'
                 : 'bg-stone-200 dark:bg-stone-700 text-stone-600 dark:text-stone-400',
           )}>
             {TIER_LABELS[subscription.tier] ?? subscription.tier}
@@ -595,7 +587,7 @@ export default function Dashboard() {
         <div className="mb-6 rounded-2xl border border-emerald-200 dark:border-emerald-800 bg-gradient-to-b from-emerald-50 to-white dark:to-stone-950 p-5 flex items-center justify-between gap-4">
           <div className="flex items-center gap-3">
             <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-emerald-100 dark:bg-emerald-900/30">
-              <Star className="h-6 w-6 text-emerald-600" />
+              <Star className="h-6 w-6 text-emerald-700" />
             </div>
             <div>
               <p className="font-bold text-stone-900 dark:text-stone-100">لقد سجّلت 7+ حقنة — شارك تجربتك وساعد الآخرين</p>
@@ -631,15 +623,15 @@ export default function Dashboard() {
           <div className="mb-8">
             <div className="grid grid-cols-3 gap-3 mb-3">
               <div className="rounded-xl border border-emerald-100 bg-gradient-to-b from-emerald-50 to-white dark:to-stone-950 p-3 text-center">
-                <p className="text-2xl font-black text-emerald-600">{total}</p>
+                <p className="text-2xl font-black text-emerald-700">{total}</p>
                 <p className="text-[11px] font-medium text-stone-500 dark:text-stone-400">حقنة مسجّلة</p>
               </div>
               <div className="rounded-xl border border-emerald-100 bg-gradient-to-b from-emerald-50 to-white dark:to-stone-950 p-3 text-center">
-                <p className="text-2xl font-black text-emerald-600">{activity.streak}</p>
+                <p className="text-2xl font-black text-emerald-700">{activity.streak}</p>
                 <p className="text-[11px] font-medium text-stone-500 dark:text-stone-400">يوم متتالي</p>
               </div>
               <div className="rounded-xl border border-emerald-100 bg-gradient-to-b from-emerald-50 to-white dark:to-stone-950 p-3 text-center">
-                <p className="text-2xl font-black text-emerald-600">{activeProtocols.length}</p>
+                <p className="text-2xl font-black text-emerald-700">{activeProtocols.length}</p>
                 <p className="text-[11px] font-medium text-stone-500 dark:text-stone-400">بروتوكول نشط</p>
               </div>
             </div>
@@ -647,7 +639,7 @@ export default function Dashboard() {
               <div className="rounded-xl border border-stone-100 dark:border-stone-800 bg-white dark:bg-stone-950 p-3">
                 <div className="flex items-center justify-between mb-1.5">
                   <p className="text-[11px] font-bold text-stone-600 dark:text-stone-400">الإنجاز التالي: {milestoneNext} حقنة</p>
-                  <p className="text-[11px] font-bold text-emerald-600">{milestoneProgress}%</p>
+                  <p className="text-[11px] font-bold text-emerald-700">{milestoneProgress}%</p>
                 </div>
                 <div className="h-2 w-full overflow-hidden rounded-full bg-stone-100 dark:bg-stone-800">
                   <div className="h-full rounded-full bg-emerald-500 transition-all duration-700" style={{ width: `${milestoneProgress}%` }} />
@@ -802,7 +794,7 @@ export default function Dashboard() {
                       <p className="font-bold text-stone-900 dark:text-stone-100 truncate">{peptide?.nameAr ?? proto.peptide_id}</p>
                       <p className="text-xs text-stone-500 dark:text-stone-400 mt-0.5" dir="ltr">{proto.dose} {proto.dose_unit} — {FREQUENCY_LABELS[proto.frequency] ?? proto.frequency}</p>
                       <p className="text-xs text-stone-500 dark:text-stone-400 mt-1">{daysLeft > 0 ? `${daysLeft} يوم متبقي` : 'انتهت الدورة'}</p>
-                      <p className="text-xs font-semibold text-emerald-600 mt-1">
+                      <p className="text-xs font-semibold text-emerald-700 mt-1">
                         الجرعة التالية: {getNextInjectionLabel(
                           peptide?.nameEn ?? proto.peptide_id,
                           proto.frequency,
@@ -855,7 +847,7 @@ export default function Dashboard() {
                     return (
                       <div className="mt-3 rounded-lg bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 px-3 py-2 text-xs text-emerald-700 dark:text-emerald-400">
                         دورة {peptide?.nameAr ?? proto.peptide_id} تقترب من النهاية — فكّر في{' '}
-                        <Link to={`/peptide/${nextPeptide.id}`} className="font-bold text-emerald-600 hover:underline">
+                        <Link to={`/peptide/${nextPeptide.id}`} className="font-bold text-emerald-700 hover:underline">
                           {nextPeptide.nameAr}
                         </Link>
                       </div>
@@ -910,7 +902,7 @@ export default function Dashboard() {
                     )}
                     <button
                       onClick={() => setShareProtocolId(proto.id)}
-                      className="flex items-center justify-center rounded-xl border border-stone-200 dark:border-stone-700 px-3 py-2.5 text-sm text-stone-500 dark:text-stone-400 transition-colors hover:bg-stone-50 dark:hover:bg-stone-800 hover:text-emerald-600"
+                      className="flex items-center justify-center rounded-xl border border-stone-200 dark:border-stone-700 px-3 py-2.5 text-sm text-stone-500 dark:text-stone-400 transition-colors hover:bg-stone-50 dark:hover:bg-stone-800 hover:text-emerald-700"
                       aria-label="مشاركة"
                     >
                       <TrendingUp className="h-4 w-4" />
@@ -938,7 +930,7 @@ export default function Dashboard() {
         return (
           <div className="mb-8 rounded-2xl border border-emerald-200 dark:border-emerald-800 bg-gradient-to-b from-emerald-50 to-white dark:to-stone-950 p-5 shadow-sm dark:shadow-stone-900/30">
             <div className="flex items-center gap-2 mb-3">
-              <Target className="h-5 w-5 text-emerald-600" />
+              <Target className="h-5 w-5 text-emerald-700" />
               <h2 className="text-lg font-bold text-stone-900 dark:text-stone-100">تحدي الأسبوع</h2>
             </div>
             <p className="text-sm text-stone-700 dark:text-stone-300 mb-3">سجّل حقنة كل يوم هذا الأسبوع</p>
@@ -949,7 +941,7 @@ export default function Dashboard() {
                   style={{ width: `${Math.round((daysLogged / 7) * 100)}%` }}
                 />
               </div>
-              <span className="text-sm font-black text-emerald-600 shrink-0" dir="ltr">{daysLogged}/7</span>
+              <span className="text-sm font-black text-emerald-700 shrink-0" dir="ltr">{daysLogged}/7</span>
             </div>
             {daysLogged >= 7 && (
               <p className="mt-2 text-xs font-bold text-emerald-700 dark:text-emerald-400">أحسنت! أكملت التحدي هذا الأسبوع</p>
@@ -963,7 +955,7 @@ export default function Dashboard() {
         const protocolPeptideIds = new Set(activeProtocols.map(p => p.peptide_id));
         let recommended: typeof allPeptides = [];
         try {
-          const raw = localStorage.getItem(STORAGE_KEYS.QUIZ_ANSWERS);
+          const raw = localStorage.getItem(STORAGE_KEYS.QUIZ_RESULTS);
           if (raw) {
             const parsed = JSON.parse(raw);
             const category = GOAL_TO_CATEGORY[parsed.goal];
@@ -992,7 +984,7 @@ export default function Dashboard() {
                 >
                   <div className="flex items-center gap-3 mb-2">
                     <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-50 dark:bg-emerald-900/20 transition-colors group-hover:bg-emerald-100 dark:bg-emerald-900/30">
-                      <FlaskConical className="h-5 w-5 text-emerald-600" />
+                      <FlaskConical className="h-5 w-5 text-emerald-700" />
                     </div>
                     <div className="min-w-0">
                       <p className="font-bold text-stone-900 dark:text-stone-100 truncate">{peptide.nameAr}</p>
@@ -1018,14 +1010,14 @@ export default function Dashboard() {
           {wellnessTrend.avg > 0 && (
             <div className="rounded-2xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 p-5 shadow-sm dark:shadow-stone-900/30">
               <div className="flex items-center gap-2 mb-2">
-                <HeartPulse className="h-5 w-5 text-emerald-600" />
+                <HeartPulse className="h-5 w-5 text-emerald-700" />
                 <h3 className="text-sm font-bold text-stone-900 dark:text-stone-100">معدل العافية (٧ أيام)</h3>
               </div>
               <div className="flex items-baseline gap-2">
                 <span className="text-2xl font-black text-stone-900 dark:text-stone-100">{wellnessTrend.avg}</span>
                 <span className="text-sm text-stone-500 dark:text-stone-400">/ 5</span>
                 {wellnessTrend.prevAvg > 0 && (
-                  <span className={cn('text-xs font-medium', wellnessTrend.avg >= wellnessTrend.prevAvg ? 'text-emerald-600' : 'text-amber-600')}>
+                  <span className={cn('text-xs font-medium', wellnessTrend.avg >= wellnessTrend.prevAvg ? 'text-emerald-700' : 'text-amber-600')}>
                     {wellnessTrend.avg >= wellnessTrend.prevAvg ? '↑' : '↓'} {Math.abs(wellnessTrend.avg - wellnessTrend.prevAvg).toFixed(1)} عن الأسبوع الماضي
                   </span>
                 )}
@@ -1101,7 +1093,7 @@ export default function Dashboard() {
               )}>
                 <div className="flex items-center gap-3">
                   {item.done ? (
-                    <CheckCircle2 className="h-5 w-5 text-emerald-600" />
+                    <CheckCircle2 className="h-5 w-5 text-emerald-700" />
                   ) : (
                     <Circle className="h-5 w-5 text-stone-300" />
                   )}
@@ -1118,7 +1110,7 @@ export default function Dashboard() {
                     سجّل الآن
                   </Link>
                 )}
-                {item.done && <span className="text-xs font-bold text-emerald-600">تم</span>}
+                {item.done && <span className="text-xs font-bold text-emerald-700">تم</span>}
               </div>
             ))}
           </div>
@@ -1166,7 +1158,7 @@ export default function Dashboard() {
           <div className="rounded-2xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 p-4">
             <div className="flex items-center justify-between mb-3">
               <h3 className="text-sm font-bold text-stone-900 dark:text-stone-100">آخر الحقن</h3>
-              <Link to="/tracker" className="text-xs font-semibold text-emerald-600 hover:underline">عرض الكل</Link>
+              <Link to="/tracker" className="text-xs font-semibold text-emerald-700 hover:underline">عرض الكل</Link>
             </div>
             <div className="space-y-2">
               {activity.logs.slice(0, 3).map(log => (
@@ -1230,12 +1222,12 @@ export default function Dashboard() {
       {!activity.loading && activity.logs.length === 0 && activeProtocols.length === 0 && (() => {
         let userGoalLabel = '';
         try {
-          const raw = localStorage.getItem(STORAGE_KEYS.QUIZ_ANSWERS);
+          const raw = localStorage.getItem(STORAGE_KEYS.QUIZ_RESULTS);
           if (raw) {
             const parsed = JSON.parse(raw);
             const goalMap: Record<string, string> = {
-              'fat-loss': 'فقدان الدهون', 'recovery': 'التعافي', 'muscle': 'بناء العضل',
-              'brain': 'الأداء الذهني', 'hormones': 'تحسين الهرمونات', 'longevity': 'إطالة العمر', 'gut-skin': 'البشرة والنوم',
+              'weight-loss': 'فقدان الوزن', 'muscle': 'بناء العضل', 'anti-aging': 'مقاومة الشيخوخة',
+              'recovery': 'التعافي', 'sleep': 'تحسين النوم', 'immunity': 'تعزيز المناعة', 'skin': 'صحة البشرة', 'general': 'صحة عامة',
             };
             userGoalLabel = goalMap[parsed.goal] ?? '';
           }
@@ -1243,7 +1235,7 @@ export default function Dashboard() {
 
         const rec = (() => {
           try {
-            const raw = localStorage.getItem(STORAGE_KEYS.QUIZ_ANSWERS);
+            const raw = localStorage.getItem(STORAGE_KEYS.QUIZ_RESULTS);
             if (!raw) return null;
             const parsed = JSON.parse(raw);
             return GOAL_RECOMMENDATIONS[parsed.goal] ?? null;
@@ -1265,7 +1257,7 @@ export default function Dashboard() {
               <div className="grid gap-3 sm:grid-cols-3 mt-6 text-start">
                 <Link to="/library" className="group flex items-center gap-3 rounded-xl border border-emerald-200 dark:border-emerald-800 bg-white dark:bg-stone-950 p-4 transition-all hover:border-emerald-400 hover:shadow-md hover:-translate-y-0.5 min-h-[44px]">
                   <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-100 dark:bg-emerald-900/30 transition-colors group-hover:bg-emerald-200">
-                    <BookOpen className="h-5 w-5 text-emerald-600" />
+                    <BookOpen className="h-5 w-5 text-emerald-700" />
                   </div>
                   <div>
                     <p className="text-sm font-bold text-stone-900 dark:text-stone-100">المكتبة</p>
@@ -1274,7 +1266,7 @@ export default function Dashboard() {
                 </Link>
                 <Link to="/coach" className="group flex items-center gap-3 rounded-xl border border-emerald-200 dark:border-emerald-800 bg-white dark:bg-stone-950 p-4 transition-all hover:border-emerald-400 hover:shadow-md hover:-translate-y-0.5 min-h-[44px]">
                   <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-100 dark:bg-emerald-900/30 transition-colors group-hover:bg-emerald-200">
-                    <Bot className="h-5 w-5 text-emerald-600" />
+                    <Bot className="h-5 w-5 text-emerald-700" />
                   </div>
                   <div>
                     <p className="text-sm font-bold text-stone-900 dark:text-stone-100">المدرب الذكي</p>
@@ -1283,7 +1275,7 @@ export default function Dashboard() {
                 </Link>
                 <Link to="/calculator" className="group flex items-center gap-3 rounded-xl border border-emerald-200 dark:border-emerald-800 bg-white dark:bg-stone-950 p-4 transition-all hover:border-emerald-400 hover:shadow-md hover:-translate-y-0.5 min-h-[44px]">
                   <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-100 dark:bg-emerald-900/30 transition-colors group-hover:bg-emerald-200">
-                    <Calculator className="h-5 w-5 text-emerald-600" />
+                    <Calculator className="h-5 w-5 text-emerald-700" />
                   </div>
                   <div>
                     <p className="text-sm font-bold text-stone-900 dark:text-stone-100">الحاسبة</p>
@@ -1297,7 +1289,7 @@ export default function Dashboard() {
             {rec && (
               <div className="mb-8 rounded-2xl border border-emerald-300 dark:border-emerald-700 bg-gradient-to-b from-emerald-50 to-white dark:to-stone-950 p-6">
                 <div className="flex items-center gap-3 mb-3">
-                  <Sparkles className="h-5 w-5 text-emerald-600" />
+                  <Sparkles className="h-5 w-5 text-emerald-700" />
                   <h2 className="text-lg font-bold text-stone-900 dark:text-stone-100">توصية مخصّصة لك</h2>
                 </div>
                 <p className="text-sm text-stone-700 dark:text-stone-300 leading-relaxed mb-4">{rec.text}</p>
@@ -1314,7 +1306,7 @@ export default function Dashboard() {
             <div className="mb-8 grid gap-4 sm:grid-cols-3">
               <Link to="/tracker" className="group rounded-2xl border-2 border-dashed border-emerald-200 dark:border-emerald-800 bg-gradient-to-b from-emerald-50/50 to-white dark:to-stone-950 p-6 text-center transition-all hover:border-emerald-300 dark:border-emerald-700 hover:shadow-sm dark:shadow-stone-900/30 min-h-[44px]">
                 <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-100 dark:bg-emerald-900/30 transition-transform group-hover:scale-110">
-                  <Syringe className="h-6 w-6 text-emerald-600" />
+                  <Syringe className="h-6 w-6 text-emerald-700" />
                 </div>
                 <p className="text-sm font-bold text-stone-900 dark:text-stone-100 mb-1">سجل الحقن</p>
                 <p className="text-xs text-stone-500 dark:text-stone-400 leading-relaxed">سجّل أول جرعة وابدأ بتتبع تقدمك</p>
@@ -1346,7 +1338,7 @@ export default function Dashboard() {
       {!activity.loading && activity.logs.length === 0 && activeProtocols.length > 0 && (
         <div className="mb-8 rounded-2xl border-2 border-dashed border-emerald-200 dark:border-emerald-800 bg-gradient-to-b from-emerald-50 to-white dark:to-stone-950 p-8 text-center">
           <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-emerald-100 dark:bg-emerald-900/30">
-            <Syringe className="h-8 w-8 text-emerald-600" />
+            <Syringe className="h-8 w-8 text-emerald-700" />
           </div>
           <h3 className="text-xl font-bold text-stone-900 dark:text-stone-100">سجّل أول جرعة</h3>
           <p className="mx-auto mt-2 max-w-md text-sm leading-relaxed text-stone-600 dark:text-stone-400">
@@ -1371,7 +1363,7 @@ export default function Dashboard() {
               className="group flex items-center gap-4 rounded-2xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 p-5 card-lift hover:border-emerald-400 hover:shadow-emerald-600/10"
             >
               <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-emerald-50 dark:bg-emerald-900/20 transition-colors group-hover:bg-emerald-100 dark:bg-emerald-900/30">
-                <link.Icon className="h-6 w-6 text-emerald-600" />
+                <link.Icon className="h-6 w-6 text-emerald-700" />
               </div>
               <div>
                 <p className="font-bold text-stone-900 dark:text-stone-100">{link.label}</p>
@@ -1403,7 +1395,7 @@ export default function Dashboard() {
                   )}
                 >
                   {done
-                    ? <CheckCircle2 className="h-5 w-5 shrink-0 text-emerald-600" />
+                    ? <CheckCircle2 className="h-5 w-5 shrink-0 text-emerald-700" />
                     : <Circle className="h-5 w-5 shrink-0 text-stone-300" />
                   }
                   <span className={cn("text-sm font-bold", done ? "text-emerald-700 dark:text-emerald-400" : "text-stone-700 dark:text-stone-300")}>
@@ -1423,7 +1415,7 @@ export default function Dashboard() {
                 to="/tracker"
                 className="flex items-center gap-3 rounded-xl border border-emerald-300 dark:border-emerald-700 bg-white dark:bg-stone-950 px-4 py-3 transition-all hover:shadow-sm dark:shadow-stone-900/30 hover:border-emerald-400"
               >
-                <Syringe className="h-5 w-5 shrink-0 text-emerald-600" />
+                <Syringe className="h-5 w-5 shrink-0 text-emerald-700" />
                 <div>
                   <p className="text-sm font-bold text-stone-900 dark:text-stone-100">سجّل حقنة اليوم</p>
                   <p className="text-xs text-stone-500 dark:text-stone-400">ببتيداتك النشطة: {activity.activePeptides.join(', ')}</p>
@@ -1434,7 +1426,7 @@ export default function Dashboard() {
                 to="/coach"
                 className="flex items-center gap-3 rounded-xl border border-emerald-300 dark:border-emerald-700 bg-white dark:bg-stone-950 px-4 py-3 transition-all hover:shadow-sm dark:shadow-stone-900/30 hover:border-emerald-400"
               >
-                <Bot className="h-5 w-5 shrink-0 text-emerald-600" />
+                <Bot className="h-5 w-5 shrink-0 text-emerald-700" />
                 <div>
                   <p className="text-sm font-bold text-stone-900 dark:text-stone-100">ابدأ استشارة مع المدرب الذكي</p>
                   <p className="text-xs text-stone-500 dark:text-stone-400">احصل على بروتوكول مخصّص لهدفك</p>
@@ -1451,7 +1443,7 @@ export default function Dashboard() {
                 <p className="text-xs text-stone-500 dark:text-stone-400">ساعد غيرك بنتائجك الحقيقية</p>
               </div>
             </Link>
-            <Link to="/quiz" className="block text-sm text-emerald-600 hover:underline">
+            <Link to="/quiz" className="block text-sm text-emerald-700 hover:underline">
               أعد اختبار الببتيد المناسب لك
             </Link>
           </div>

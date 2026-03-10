@@ -215,7 +215,7 @@ export default function SideEffectLog() {
             {activePeptideOptions.length > 0 && (
               <div>
                 <label className="mb-1 block text-sm font-bold text-stone-700 dark:text-stone-300">
-                  الببتيد <span className="text-emerald-600 font-normal">اختياري</span>
+                  الببتيد <span className="text-emerald-700 font-normal">اختياري</span>
                 </label>
                 <select
                   value={peptideId}
@@ -235,7 +235,7 @@ export default function SideEffectLog() {
 
             <div>
               <label htmlFor="se-notes" className="mb-1 block text-sm font-bold text-stone-700 dark:text-stone-300">
-                ملاحظات <span className="text-emerald-600 font-normal">اختياري</span>
+                ملاحظات <span className="text-emerald-700 font-normal">اختياري</span>
               </label>
               <textarea
                 id="se-notes"
@@ -270,7 +270,7 @@ export default function SideEffectLog() {
           {/* Recent entries */}
           {loading ? (
             <div className="flex items-center justify-center py-6">
-              <Loader2 className="h-5 w-5 animate-spin text-emerald-600" />
+              <Loader2 className="h-5 w-5 animate-spin text-emerald-700" />
             </div>
           ) : entries.length > 0 ? (
             <div className="space-y-2">

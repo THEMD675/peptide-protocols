@@ -214,10 +214,10 @@ export default function FAQ() {
         {/* Header */}
         <div className="mb-10 text-center">
           <div className="mx-auto mb-4 inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-100 dark:bg-emerald-900/30">
-            <HelpCircle className="h-7 w-7 text-emerald-600" />
+            <HelpCircle className="h-7 w-7 text-emerald-700" />
           </div>
           <h1 className="mb-3 text-3xl font-bold text-stone-900 dark:text-stone-100 md:text-4xl">
-            الأسئلة <span className="text-emerald-600">الشائعة</span>
+            الأسئلة <span className="text-emerald-700">الشائعة</span>
           </h1>
           <p className="mx-auto max-w-lg text-lg text-stone-600 dark:text-stone-400">
             إجابات شاملة على كل ما تحتاج معرفته عن pptides
@@ -244,7 +244,7 @@ export default function FAQ() {
             </p>
             <p className="mt-2 text-sm text-stone-500 dark:text-stone-400">
               جرّب كلمات بحث مختلفة أو{' '}
-              <Link to="/contact" className="font-medium text-emerald-600 hover:underline">
+              <Link to="/contact" className="font-medium text-emerald-700 hover:underline">
                 تواصل معنا
               </Link>
             </p>

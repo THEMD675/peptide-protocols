@@ -132,7 +132,7 @@ export default function WeeklyProgressReport() {
       >
         <div className="flex items-center gap-3">
           <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-100 dark:bg-emerald-900/30">
-            <TrendingUp className="h-5 w-5 text-emerald-600" />
+            <TrendingUp className="h-5 w-5 text-emerald-700" />
           </div>
           <div>
             <h2 className="text-base font-bold text-stone-900 dark:text-stone-100">تقرير الأسبوع</h2>
@@ -154,7 +154,7 @@ export default function WeeklyProgressReport() {
               <p className="text-2xl font-black text-stone-900 dark:text-stone-100">{data.injectionsThisWeek}</p>
               <p className="text-[10px] text-stone-500 dark:text-stone-400">حقنة هذا الأسبوع</p>
               {injDiff !== 0 && (
-                <p className={cn('mt-1 text-[10px] font-bold', injDiff > 0 ? 'text-emerald-600' : 'text-amber-600')}>
+                <p className={cn('mt-1 text-[10px] font-bold', injDiff > 0 ? 'text-emerald-700' : 'text-amber-600')}>
                   {injDiff > 0 ? `+${injDiff}` : injDiff} عن الأسبوع الماضي
                 </p>
               )}
@@ -214,7 +214,7 @@ export default function WeeklyProgressReport() {
               <>
                 {data.streak >= 7 ? (
                   <div className="flex items-center justify-center gap-2">
-                    {injDiff > 0 ? <TrendingUp className="h-4 w-4 text-emerald-600" /> : <TrendingDown className="h-4 w-4 text-emerald-600" />}
+                    {injDiff > 0 ? <TrendingUp className="h-4 w-4 text-emerald-700" /> : <TrendingDown className="h-4 w-4 text-emerald-700" />}
                     <p className="text-sm font-bold text-emerald-700 dark:text-emerald-400">ممتاز! سلسلة {data.streak} يوم — أداء استثنائي 🔥</p>
                   </div>
                 ) : (

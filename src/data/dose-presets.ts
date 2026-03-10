@@ -8,14 +8,19 @@ export interface DosePreset {
   waterMl: number;
   minDose: number;
   maxDose: number;
+  /** If true, dose is calculated as mcg/kg body weight */
+  weightBased?: boolean;
+  /** mcg/kg range for weight-based peptides */
+  mcgPerKgMin?: number;
+  mcgPerKgMax?: number;
 }
 
 export const DOSE_PRESETS: DosePreset[] = [
-  { name: 'BPC-157', dose: 250, unit: 'mcg', vialMg: 5, waterMl: 2, minDose: 100, maxDose: 500 },
-  { name: 'TB-500', dose: 2500, unit: 'mcg', vialMg: 10, waterMl: 2, minDose: 500, maxDose: 10000 },
+  { name: 'BPC-157', dose: 250, unit: 'mcg', vialMg: 5, waterMl: 2, minDose: 100, maxDose: 500, weightBased: true, mcgPerKgMin: 3, mcgPerKgMax: 10 },
+  { name: 'TB-500', dose: 2500, unit: 'mcg', vialMg: 10, waterMl: 2, minDose: 500, maxDose: 10000, weightBased: true, mcgPerKgMin: 5, mcgPerKgMax: 20 },
   { name: 'Semaglutide', dose: 250, unit: 'mcg', vialMg: 5, waterMl: 2, minDose: 250, maxDose: 2400 },
-  { name: 'CJC-1295', dose: 100, unit: 'mcg', vialMg: 2, waterMl: 2, minDose: 50, maxDose: 300 },
-  { name: 'Ipamorelin', dose: 200, unit: 'mcg', vialMg: 5, waterMl: 2, minDose: 100, maxDose: 300 },
+  { name: 'CJC-1295', dose: 100, unit: 'mcg', vialMg: 2, waterMl: 2, minDose: 50, maxDose: 300, weightBased: true, mcgPerKgMin: 1, mcgPerKgMax: 2 },
+  { name: 'Ipamorelin', dose: 200, unit: 'mcg', vialMg: 5, waterMl: 2, minDose: 100, maxDose: 300, weightBased: true, mcgPerKgMin: 1, mcgPerKgMax: 3 },
   { name: 'Tesamorelin', dose: 2000, unit: 'mcg', vialMg: 2, waterMl: 2, minDose: 1000, maxDose: 3000 },
   { name: 'PT-141', dose: 1750, unit: 'mcg', vialMg: 10, waterMl: 2, minDose: 500, maxDose: 2000 },
   { name: 'Semax', dose: 400, unit: 'mcg', vialMg: 3, waterMl: 1, minDose: 200, maxDose: 1000 },
@@ -42,6 +47,16 @@ export const DOSE_PRESETS: DosePreset[] = [
   { name: 'LL-37', dose: 200, unit: 'mcg', vialMg: 5, waterMl: 2, minDose: 100, maxDose: 400 },
   { name: 'ARA-290', dose: 2000, unit: 'mcg', vialMg: 5, waterMl: 2, minDose: 2000, maxDose: 4000 },
   { name: 'Selank', dose: 300, unit: 'mcg', vialMg: 5, waterMl: 1, minDose: 100, maxDose: 500 },
+  { name: '5-Amino-1MQ', dose: 100, unit: 'mg', vialMg: 50, waterMl: 1, minDose: 50, maxDose: 100 },
+  { name: 'Cerebrolysin', dose: 5000, unit: 'mcg', vialMg: 5, waterMl: 1, minDose: 2000, maxDose: 10000 },
+  { name: 'Collagen Peptides', dose: 10000, unit: 'mcg', vialMg: 10, waterMl: 1, minDose: 5000, maxDose: 20000 },
+  { name: 'Dihexa', dose: 20, unit: 'mg', vialMg: 20, waterMl: 1, minDose: 10, maxDose: 40 },
+  { name: 'FOXO4-DRI', dose: 5, unit: 'mg', vialMg: 10, waterMl: 2, minDose: 2, maxDose: 10 },
+  { name: 'Larazotide', dose: 500, unit: 'mcg', vialMg: 5, waterMl: 2, minDose: 250, maxDose: 1000 },
+  { name: 'Melanotan II', dose: 250, unit: 'mcg', vialMg: 10, waterMl: 2, minDose: 100, maxDose: 500 },
+  { name: 'NA-Semax-Amidate', dose: 400, unit: 'mcg', vialMg: 5, waterMl: 1, minDose: 200, maxDose: 1000 },
+  { name: 'Testicular Bioregulators', dose: 10, unit: 'mg', vialMg: 20, waterMl: 1, minDose: 10, maxDose: 20 },
+  { name: 'Copper Peptides Topical', dose: 200, unit: 'mcg', vialMg: 5, waterMl: 2, minDose: 100, maxDose: 500 },
 ];
 
 const PT141_PRESET = DOSE_PRESETS.find(p => p.name === 'PT-141');

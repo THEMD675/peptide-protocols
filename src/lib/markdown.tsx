@@ -4,6 +4,7 @@ import { cn } from '@/lib/utils';
 export const esc = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
 export const inlineMd = (s: string) =>
   esc(s)
+    .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer" class="text-emerald-700 dark:text-emerald-400 underline hover:text-emerald-800 dark:hover:text-emerald-300">$1</a>')
     .replace(/\*\*(.+?)\*\*/g, '<strong class="font-bold text-stone-900 dark:text-stone-100">$1</strong>')
     .replace(/\*(.+?)\*/g, '<em>$1</em>')
     .replace(/`(.+?)`/g, '<code class="rounded bg-stone-200 dark:bg-stone-700 px-1 py-0.5 text-xs font-mono">$1</code>');

@@ -213,19 +213,19 @@ function buildModules(): Module[] {
               </p>
               <div className="grid gap-3 sm:grid-cols-2">
                 <div className="rounded-xl border border-stone-200 dark:border-stone-700 p-4">
-                  <h5 className="font-bold text-emerald-600 mb-1">الارتباط بالمستقبل</h5>
+                  <h5 className="font-bold text-emerald-700 mb-1">الارتباط بالمستقبل</h5>
                   <p className="text-xs">الببتيد يرتبط بمستقبل محدد على سطح الخلية</p>
                 </div>
                 <div className="rounded-xl border border-stone-200 dark:border-stone-700 p-4">
-                  <h5 className="font-bold text-emerald-600 mb-1">تفعيل إشارة داخلية</h5>
+                  <h5 className="font-bold text-emerald-700 mb-1">تفعيل إشارة داخلية</h5>
                   <p className="text-xs">يُطلق سلسلة من الإشارات داخل الخلية</p>
                 </div>
                 <div className="rounded-xl border border-stone-200 dark:border-stone-700 p-4">
-                  <h5 className="font-bold text-emerald-600 mb-1">الاستجابة البيولوجية</h5>
+                  <h5 className="font-bold text-emerald-700 mb-1">الاستجابة البيولوجية</h5>
                   <p className="text-xs">الخلية تستجيب — إفراز هرمون، إصلاح نسيج، أو تنظيم مناعي</p>
                 </div>
                 <div className="rounded-xl border border-stone-200 dark:border-stone-700 p-4">
-                  <h5 className="font-bold text-emerald-600 mb-1">التحلل الطبيعي</h5>
+                  <h5 className="font-bold text-emerald-700 mb-1">التحلل الطبيعي</h5>
                   <p className="text-xs">الببتيد يتحلل بعد أداء مهمته — لا تراكم في الجسم</p>
                 </div>
               </div>
@@ -278,14 +278,14 @@ function buildModules(): Module[] {
                   { term: 'mcg (ميكروغرام)', def: 'وحدة قياس الجرعة الأكثر شيوعًا للببتيدات — 1 ملغ = 1000 ميكروغرام' },
                 ].map((item) => (
                   <div key={item.term} className="rounded-xl border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-900 p-3">
-                    <span className="font-bold text-emerald-600 text-sm">{item.term}</span>
+                    <span className="font-bold text-emerald-700 text-sm">{item.term}</span>
                     <p className="text-xs mt-1 text-stone-600 dark:text-stone-400">{item.def}</p>
                   </div>
                 ))}
               </div>
               <p className="text-sm">
                 لمزيد من المصطلحات، تصفّح{' '}
-                <Link to="/glossary" className="text-emerald-600 hover:underline font-bold">قاموس المصطلحات الكامل</Link>.
+                <Link to="/glossary" className="text-emerald-700 hover:underline font-bold">قاموس المصطلحات الكامل</Link>.
               </p>
             </div>
           ),
@@ -314,15 +314,15 @@ function buildModules(): Module[] {
               <div className="grid gap-3 sm:grid-cols-3">
                 <InfoCard icon={<Zap className="h-5 w-5 text-blue-500" />} title="CJC-1295">
                   <p>يحفّز إفراز GHRH بشكل مستمر. النسخة مع DAC تدوم أسبوعًا كاملًا. مثالي لبناء العضلات وتحسين النوم.</p>
-                  <Link to="/peptide/cjc-1295" className="text-emerald-600 hover:underline text-xs font-bold">← اقرأ المزيد</Link>
+                  <Link to="/peptide/cjc-1295" className="text-emerald-700 hover:underline text-xs font-bold">← اقرأ المزيد</Link>
                 </InfoCard>
                 <InfoCard icon={<Zap className="h-5 w-5 text-purple-500" />} title="Ipamorelin">
                   <p>أنظف محفّز لهرمون النمو — لا يرفع الكورتيزول أو البرولاكتين. مثالي للمبتدئين.</p>
-                  <Link to="/peptide/ipamorelin" className="text-emerald-600 hover:underline text-xs font-bold">← اقرأ المزيد</Link>
+                  <Link to="/peptide/ipamorelin" className="text-emerald-700 hover:underline text-xs font-bold">← اقرأ المزيد</Link>
                 </InfoCard>
                 <InfoCard icon={<Zap className="h-5 w-5 text-orange-500" />} title="GHRP-2 / GHRP-6">
                   <p>محفّزات قوية لـ Ghrelin. GHRP-6 يزيد الشهية بشكل ملحوظ. GHRP-2 أقوى في رفع GH.</p>
-                  <Link to="/peptide/ghrp-6" className="text-emerald-600 hover:underline text-xs font-bold">← اقرأ المزيد</Link>
+                  <Link to="/peptide/ghrp-6" className="text-emerald-700 hover:underline text-xs font-bold">← اقرأ المزيد</Link>
                 </InfoCard>
               </div>
             </div>
@@ -340,11 +340,11 @@ function buildModules(): Module[] {
               <div className="grid gap-3 sm:grid-cols-2">
                 <InfoCard icon={<Activity className="h-5 w-5 text-teal-500" />} title="Semaglutide (سيماغلوتايد)">
                   <p>الأشهر عالميًا (Ozempic / Wegovy). حقنة أسبوعية واحدة. فقدان وزن 15-20% في التجارب السريرية.</p>
-                  <Link to="/peptide/semaglutide" className="text-emerald-600 hover:underline text-xs font-bold">← اقرأ المزيد</Link>
+                  <Link to="/peptide/semaglutide" className="text-emerald-700 hover:underline text-xs font-bold">← اقرأ المزيد</Link>
                 </InfoCard>
                 <InfoCard icon={<Activity className="h-5 w-5 text-cyan-500" />} title="Tirzepatide (تيرزيباتايد)">
                   <p>ثنائي المستقبل (GLP-1 + GIP). أقوى من Semaglutide بنسبة ~5%. فقدان وزن يصل إلى 22%.</p>
-                  <Link to="/peptide/tirzepatide" className="text-emerald-600 hover:underline text-xs font-bold">← اقرأ المزيد</Link>
+                  <Link to="/peptide/tirzepatide" className="text-emerald-700 hover:underline text-xs font-bold">← اقرأ المزيد</Link>
                 </InfoCard>
               </div>
             </div>
@@ -362,11 +362,11 @@ function buildModules(): Module[] {
               <div className="grid gap-3 sm:grid-cols-2">
                 <InfoCard icon={<Heart className="h-5 w-5 text-red-500" />} title="BPC-157">
                   <p>ببتيد مشتق من عصارة المعدة. يسرّع شفاء الأوتار والعضلات والأمعاء. يمكن أخذه فمويًا أو بالحقن.</p>
-                  <Link to="/peptide/bpc-157" className="text-emerald-600 hover:underline text-xs font-bold">← اقرأ المزيد</Link>
+                  <Link to="/peptide/bpc-157" className="text-emerald-700 hover:underline text-xs font-bold">← اقرأ المزيد</Link>
                 </InfoCard>
                 <InfoCard icon={<Heart className="h-5 w-5 text-pink-500" />} title="TB-500 (Thymosin Beta-4)">
                   <p>يعزز بناء أوعية دموية جديدة وتجديد الأنسجة. فعّال جدًا للإصابات المزمنة.</p>
-                  <Link to="/peptide/tb-500" className="text-emerald-600 hover:underline text-xs font-bold">← اقرأ المزيد</Link>
+                  <Link to="/peptide/tb-500" className="text-emerald-700 hover:underline text-xs font-bold">← اقرأ المزيد</Link>
                 </InfoCard>
               </div>
             </div>
@@ -383,11 +383,11 @@ function buildModules(): Module[] {
               <div className="grid gap-3 sm:grid-cols-2">
                 <InfoCard icon={<Sparkles className="h-5 w-5 text-amber-500" />} title="Epithalon">
                   <p>يحفّز إنزيم التيلوميريز الذي يطيل التيلوميرات — حرفيًا يبطئ ساعة الشيخوخة الخلوية.</p>
-                  <Link to="/peptide/epithalon" className="text-emerald-600 hover:underline text-xs font-bold">← اقرأ المزيد</Link>
+                  <Link to="/peptide/epithalon" className="text-emerald-700 hover:underline text-xs font-bold">← اقرأ المزيد</Link>
                 </InfoCard>
                 <InfoCard icon={<Sparkles className="h-5 w-5 text-yellow-500" />} title="GHK-Cu">
                   <p>ببتيد نحاسي يحفّز إنتاج الكولاجين ويجدد البشرة. متوفر كسيروم موضعي أو حقن.</p>
-                  <Link to="/peptide/ghk-cu" className="text-emerald-600 hover:underline text-xs font-bold">← اقرأ المزيد</Link>
+                  <Link to="/peptide/ghk-cu" className="text-emerald-700 hover:underline text-xs font-bold">← اقرأ المزيد</Link>
                 </InfoCard>
               </div>
             </div>
@@ -404,16 +404,16 @@ function buildModules(): Module[] {
               <div className="grid gap-3 sm:grid-cols-2">
                 <InfoCard icon={<ShieldCheck className="h-5 w-5 text-indigo-500" />} title="Thymosin Alpha-1 (TA-1)">
                   <p>يعزز الخلايا التائية والخلايا القاتلة الطبيعية. معتمد طبيًا في أكثر من 35 دولة لعلاج التهاب الكبد B والسرطان.</p>
-                  <Link to="/peptide/thymosin-alpha-1" className="text-emerald-600 hover:underline text-xs font-bold">← اقرأ المزيد</Link>
+                  <Link to="/peptide/thymosin-alpha-1" className="text-emerald-700 hover:underline text-xs font-bold">← اقرأ المزيد</Link>
                 </InfoCard>
                 <InfoCard icon={<ShieldCheck className="h-5 w-5 text-violet-500" />} title="LL-37">
                   <p>ببتيد مضاد للميكروبات طبيعي. يقتل البكتيريا والفيروسات مباشرة ويُنظّم الاستجابة الالتهابية.</p>
-                  <Link to="/peptide/ll-37" className="text-emerald-600 hover:underline text-xs font-bold">← اقرأ المزيد</Link>
+                  <Link to="/peptide/ll-37" className="text-emerald-700 hover:underline text-xs font-bold">← اقرأ المزيد</Link>
                 </InfoCard>
               </div>
               <p className="text-sm">
                 استعرض جميع الببتيدات في{' '}
-                <Link to="/library" className="text-emerald-600 hover:underline font-bold">المكتبة الكاملة</Link>.
+                <Link to="/library" className="text-emerald-700 hover:underline font-bold">المكتبة الكاملة</Link>.
               </p>
             </div>
           ),
@@ -601,7 +601,7 @@ function buildModules(): Module[] {
               </ol>
               <p className="text-sm">
                 استخدم{' '}
-                <Link to="/calculator" className="text-emerald-600 hover:underline font-bold">حاسبة الجرعات</Link>
+                <Link to="/calculator" className="text-emerald-700 hover:underline font-bold">حاسبة الجرعات</Link>
                 {' '}لحساب كمية الماء والجرعة بدقة.
               </p>
             </div>
@@ -621,7 +621,7 @@ function buildModules(): Module[] {
                 <div className="rounded-xl border-2 border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-900/20 p-4">
                   <h5 className="font-bold text-emerald-700 dark:text-emerald-300 mb-2">💉 الببتيد المحلول (بعد الإذابة)</h5>
                   <p className="text-sm">الثلاجة حصرًا (2-8°م). لا تجمّده بعد الإذابة.</p>
-                  <p className="text-xs mt-2 text-emerald-600 dark:text-emerald-400">مع BAC water = 28-30 يومًا كحد أقصى</p>
+                  <p className="text-xs mt-2 text-emerald-700 dark:text-emerald-400">مع BAC water = 28-30 يومًا كحد أقصى</p>
                 </div>
               </div>
               <WarningBox>
@@ -729,7 +729,7 @@ function buildModules(): Module[] {
               </div>
               <p className="text-sm">
                 لمزيد من التفاصيل، راجع{' '}
-                <Link to="/lab-guide" className="text-emerald-600 hover:underline font-bold">دليل التحاليل الشامل</Link>.
+                <Link to="/lab-guide" className="text-emerald-700 hover:underline font-bold">دليل التحاليل الشامل</Link>.
               </p>
             </div>
           ),
@@ -842,7 +842,7 @@ function buildModules(): Module[] {
                   { goal: 'مكافحة الشيخوخة', peptide: 'Epithalon', why: 'بروتوكول قصير (10-20 يومًا). آمن جدًا.' },
                 ].map((item) => (
                   <div key={item.goal} className="glass-card primary-border p-4">
-                    <span className="text-xs font-bold text-emerald-600">🎯 {item.goal}</span>
+                    <span className="text-xs font-bold text-emerald-700">🎯 {item.goal}</span>
                     <h5 className="font-bold text-stone-900 dark:text-stone-100 mt-1">{item.peptide}</h5>
                     <p className="text-xs mt-1 text-stone-600 dark:text-stone-400">{item.why}</p>
                   </div>
@@ -933,11 +933,11 @@ function buildModules(): Module[] {
               </div>
               <p className="text-sm">
                 استكشف التركيبات الجاهزة في{' '}
-                <Link to="/stacks" className="text-emerald-600 hover:underline font-bold">بانِي البروتوكولات</Link>.
+                <Link to="/stacks" className="text-emerald-700 hover:underline font-bold">بانِي البروتوكولات</Link>.
               </p>
               <p className="text-sm">
                 تحقق من التفاعلات في{' '}
-                <Link to="/interactions" className="text-emerald-600 hover:underline font-bold">فاحص التفاعلات</Link>.
+                <Link to="/interactions" className="text-emerald-700 hover:underline font-bold">فاحص التفاعلات</Link>.
               </p>
             </div>
           ),
@@ -1036,7 +1036,7 @@ export default function Guide() {
         <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-500">
           <GraduationCap className="h-7 w-7 text-white" />
         </div>
-        <h1 className="text-3xl font-bold md:text-4xl text-emerald-600">مركز التعلّم</h1>
+        <h1 className="text-3xl font-bold md:text-4xl text-emerald-700">مركز التعلّم</h1>
         <p className="mt-2 text-lg text-stone-600 dark:text-stone-400">تعلّم كل شيء عن الببتيدات خطوة بخطوة</p>
       </div>
 
@@ -1046,7 +1046,7 @@ export default function Guide() {
           <span className="text-sm font-bold text-stone-700 dark:text-stone-300">
             التقدم: {completedCount} من {modules.length} وحدات
           </span>
-          <span className="text-sm text-emerald-600 font-bold">
+          <span className="text-sm text-emerald-700 font-bold">
             {Math.round((completedCount / modules.length) * 100)}%
           </span>
         </div>
@@ -1135,7 +1135,7 @@ export default function Guide() {
                   className="flex w-full items-center justify-between px-5 py-4 text-start font-bold text-stone-900 dark:text-stone-100 hover:bg-stone-50 dark:hover:bg-stone-900 transition-colors"
                 >
                   <span className="flex items-center gap-3">
-                    <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-emerald-500/10 text-xs font-bold text-emerald-600">
+                    <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-emerald-500/10 text-xs font-bold text-emerald-700">
                       {i + 1}
                     </span>
                     {section.title}

@@ -52,15 +52,35 @@ export default function BlogPost() {
         setError(true);
       } else {
         setPost(data);
-        // Fetch related posts (other published posts excluding this one)
-        const { data: related } = await supabase
-          .from('blog_posts')
-          .select('id, slug, title_ar, excerpt_ar, published_at')
-          .eq('is_published', true)
-          .neq('id', data.id)
-          .order('published_at', { ascending: false })
-          .limit(3);
-        if (!cancelled && related) setRelatedPosts(related);
+        // Fetch related posts — prefer posts with matching tags, fallback to newest
+        let related: RelatedPost[] = [];
+        const postTags = data.tags ?? [];
+        if (postTags.length > 0) {
+          // Find posts that share at least one tag with the current post
+          const { data: tagMatches } = await supabase
+            .from('blog_posts')
+            .select('id, slug, title_ar, excerpt_ar, published_at, tags')
+            .eq('is_published', true)
+            .neq('id', data.id)
+            .overlaps('tags', postTags)
+            .order('published_at', { ascending: false })
+            .limit(3);
+          if (tagMatches && tagMatches.length > 0) {
+            related = tagMatches;
+          }
+        }
+        // Fallback to newest posts if no tag matches found
+        if (related.length === 0) {
+          const { data: newest } = await supabase
+            .from('blog_posts')
+            .select('id, slug, title_ar, excerpt_ar, published_at')
+            .eq('is_published', true)
+            .neq('id', data.id)
+            .order('published_at', { ascending: false })
+            .limit(3);
+          if (newest) related = newest;
+        }
+        if (!cancelled) setRelatedPosts(related);
       }
       if (!cancelled) setLoading(false);
     })();
@@ -126,7 +146,7 @@ export default function BlogPost() {
       </Helmet>
 
       <div className="mx-auto max-w-3xl px-4 py-8 md:px-6 md:py-12">
-        <Link to="/blog" className="mb-6 inline-flex items-center gap-2 text-sm font-bold text-emerald-600 hover:text-emerald-700 dark:text-emerald-400 transition-colors">
+        <Link to="/blog" className="mb-6 inline-flex items-center gap-2 text-sm font-bold text-emerald-700 hover:text-emerald-700 dark:text-emerald-400 transition-colors">
           <ArrowRight className="h-4 w-4" />
           العودة للمدونة
         </Link>

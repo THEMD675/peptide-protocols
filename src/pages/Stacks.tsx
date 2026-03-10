@@ -106,7 +106,7 @@ export default function Stacks() {
         >
           <Layers className="h-7 w-7 text-white" />
         </div>
-        <h1 className="text-3xl font-bold md:text-4xl text-emerald-600">
+        <h1 className="text-3xl font-bold md:text-4xl text-emerald-700">
           البروتوكولات المُجمَّعة
         </h1>
         <p className="mt-2 text-lg text-stone-600 dark:text-stone-400">

@@ -108,7 +108,7 @@ export default function NotificationBell() {
             {unreadCount > 0 && (
               <button
                 onClick={markAllRead}
-                className="text-xs font-medium text-emerald-600 hover:underline"
+                className="text-xs font-medium text-emerald-700 hover:underline"
               >
                 تحديد الكل كمقروء
               </button>

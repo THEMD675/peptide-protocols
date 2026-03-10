@@ -93,7 +93,7 @@ function SourcingInterestForm() {
   if (submitted) {
     return (
       <section className="mt-10 rounded-2xl border-2 border-emerald-200 bg-emerald-50 p-8 text-center">
-        <CheckCircle className="mx-auto mb-3 h-10 w-10 text-emerald-600" />
+        <CheckCircle className="mx-auto mb-3 h-10 w-10 text-emerald-700" />
         <p className="text-lg font-bold text-stone-900">تم تسجيل اهتمامك</p>
         <p className="mt-2 text-sm text-stone-600">سنتواصل معك عند توفّر خدمة التوريد الموثوق</p>
       </section>
@@ -211,7 +211,7 @@ function ResearchStats() {
   const categoriesUsed = new Set(peptides.filter(p => p.pubmedIds?.length).map(p => p.category)).size;
 
   const stats = [
-    { icon: FileText, value: `${totalCitations}+`, label: 'مرجع علمي', color: 'text-emerald-600 dark:text-emerald-400', bg: 'bg-emerald-100 dark:bg-emerald-900/30' },
+    { icon: FileText, value: `${totalCitations}+`, label: 'مرجع علمي', color: 'text-emerald-700 dark:text-emerald-400', bg: 'bg-emerald-100 dark:bg-emerald-900/30' },
     { icon: FlaskConical, value: totalPeptides.toString(), label: 'ببتيد مُوثَّق', color: 'text-blue-600 dark:text-blue-400', bg: 'bg-blue-100 dark:bg-blue-900/30' },
     { icon: BookOpen, value: 'PubMed', label: 'قاعدة البيانات', color: 'text-purple-600 dark:text-purple-400', bg: 'bg-purple-100 dark:bg-purple-900/30' },
     { icon: BarChart3, value: categoriesUsed.toString(), label: 'فئات علاجية', color: 'text-amber-600 dark:text-amber-400', bg: 'bg-amber-100 dark:bg-amber-900/30' },
@@ -282,7 +282,7 @@ function CitationBrowser() {
   return (
     <section className="mb-10" aria-labelledby="citation-browser-heading">
       <div className="mb-6 flex items-center gap-3">
-        <Microscope className="h-6 w-6 shrink-0 text-emerald-600 dark:text-emerald-400" />
+        <Microscope className="h-6 w-6 shrink-0 text-emerald-700 dark:text-emerald-400" />
         <h2 id="citation-browser-heading" className="text-xl font-bold text-stone-900 dark:text-stone-100 md:text-2xl">
           مستعرض المراجع العلمية
         </h2>
@@ -392,7 +392,7 @@ function CitationBrowser() {
                     <span className="text-sm font-bold text-stone-900 dark:text-stone-100 group-hover:text-emerald-700 dark:group-hover:text-emerald-400" dir="ltr">
                       PMID: {citation.pmid}
                     </span>
-                    <ExternalLink className="h-3 w-3 text-emerald-600 dark:text-emerald-400 opacity-0 group-hover:opacity-100 transition-opacity" />
+                    <ExternalLink className="h-3 w-3 text-emerald-700 dark:text-emerald-400 opacity-0 group-hover:opacity-100 transition-opacity" />
                   </a>
                   <div className="mt-1 flex flex-wrap gap-1.5">
                     {citation.peptideNames.map((name, i) => (
@@ -436,7 +436,7 @@ function CitationBrowser() {
                           to={`/peptide/${pid}`}
                           className="flex items-center gap-3 rounded-lg border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-800 p-3 transition-all hover:border-emerald-300 dark:hover:border-emerald-700 hover:bg-emerald-50 dark:hover:bg-emerald-900/20"
                         >
-                          <FlaskConical className="h-4 w-4 shrink-0 text-emerald-600 dark:text-emerald-400" />
+                          <FlaskConical className="h-4 w-4 shrink-0 text-emerald-700 dark:text-emerald-400" />
                           <div>
                             <p className="text-sm font-bold text-stone-900 dark:text-stone-100">{citation.peptideNames[i]}</p>
                             <p className="text-xs text-stone-500 dark:text-stone-400" dir="ltr">{p?.nameEn}</p>
@@ -545,7 +545,7 @@ function PeptideCitationMap() {
                       rel="noopener noreferrer"
                       className="flex items-center gap-2 rounded-lg bg-stone-50 dark:bg-stone-800 px-3 py-2 text-xs transition-colors hover:bg-emerald-50 dark:hover:bg-emerald-900/20 group"
                     >
-                      <BookOpen className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400 shrink-0" />
+                      <BookOpen className="h-3.5 w-3.5 text-emerald-700 dark:text-emerald-400 shrink-0" />
                       <span className="font-medium text-stone-700 dark:text-stone-300 group-hover:text-emerald-700 dark:group-hover:text-emerald-400" dir="ltr">
                         PMID: {pmid}
                       </span>
@@ -619,7 +619,7 @@ function MethodologySection() {
               href="https://pubmed.ncbi.nlm.nih.gov/"
               target="_blank"
               rel="noopener noreferrer"
-              className="font-bold underline hover:text-emerald-600"
+              className="font-bold underline hover:text-emerald-700"
             >
               pubmed.ncbi.nlm.nih.gov
             </a>
@@ -670,11 +670,11 @@ export default function Sources() {
         {/* Header */}
         <div className="mb-8 text-center">
           <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-100 dark:bg-emerald-900/30">
-            <BookOpen className="h-7 w-7 text-emerald-600 dark:text-emerald-400" />
+            <BookOpen className="h-7 w-7 text-emerald-700 dark:text-emerald-400" />
           </div>
           <h1 className="text-3xl font-bold text-stone-900 dark:text-stone-100 md:text-4xl">
             المصادر{' '}
-            <span className="text-emerald-600 dark:text-emerald-400">العلمية</span>
+            <span className="text-emerald-700 dark:text-emerald-400">العلمية</span>
           </h1>
           <p className="mt-2 text-stone-600 dark:text-stone-400 max-w-2xl mx-auto">
             كل معلومة على pptides مدعومة بأبحاث محكّمة من PubMed — استكشف {allCitations.length}+ مرجع علمي يغطي {peptides.filter(p => p.pubmedIds?.length).length} ببتيد
@@ -718,7 +718,7 @@ export default function Sources() {
                   )}
                 >
                   <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-50 dark:bg-emerald-900/30">
-                    <Icon className="h-5 w-5 text-emerald-600 dark:text-emerald-400" aria-hidden="true" />
+                    <Icon className="h-5 w-5 text-emerald-700 dark:text-emerald-400" aria-hidden="true" />
                   </div>
                   <h3 className="mb-1 text-sm font-bold text-stone-900 dark:text-stone-100">{item.titleAr}</h3>
                   <span className="mb-2 block text-xs text-stone-700 dark:text-stone-400">{item.titleEn}</span>
@@ -747,7 +747,7 @@ export default function Sources() {
         <section>
           <div className="rounded-2xl border border-stone-300 dark:border-stone-700 bg-stone-50 dark:bg-stone-900 p-6 text-center">
             <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-emerald-50 dark:bg-emerald-900/30">
-              <Mail className="h-5 w-5 text-emerald-600 dark:text-emerald-400" aria-hidden="true" />
+              <Mail className="h-5 w-5 text-emerald-700 dark:text-emerald-400" aria-hidden="true" />
             </div>
             <h2 className="mb-2 text-lg font-bold text-stone-900 dark:text-stone-100">
               هل تعرف موردًا موثوقًا؟
@@ -757,7 +757,7 @@ export default function Sources() {
             </p>
             <a
               href={`mailto:${SUPPORT_EMAIL}`}
-              className="mt-3 inline-flex min-h-[44px] items-center text-sm font-semibold text-emerald-600 dark:text-emerald-400 transition-opacity hover:opacity-80"
+              className="mt-3 inline-flex min-h-[44px] items-center text-sm font-semibold text-emerald-700 dark:text-emerald-400 transition-opacity hover:opacity-80"
             >
               {SUPPORT_EMAIL}
             </a>

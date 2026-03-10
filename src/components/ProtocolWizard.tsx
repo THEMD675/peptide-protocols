@@ -28,7 +28,7 @@ function ShoppingList({ peptide, dose, unit, frequency, cycleWeeks }: { peptide:
         <li>• {totalDoses}x سيرنج إنسولين 31g</li>
         <li>• مسحات كحول</li>
       </ul>
-      {peptide.costEstimate && <p className="mt-2 text-xs font-bold text-emerald-600">التكلفة التقريبية: {peptide.costEstimate}</p>}
+      {peptide.costEstimate && <p className="mt-2 text-xs font-bold text-emerald-700">التكلفة التقريبية: {peptide.costEstimate}</p>}
     </div>
   );
 }
@@ -126,7 +126,7 @@ export default function ProtocolWizard({ peptideId, prefillDose, prefillUnit, on
           <div className="flex items-center justify-between mb-5">
             <div className="flex items-center gap-3">
               <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-100 dark:bg-emerald-900/30">
-                <Play className="h-5 w-5 text-emerald-600" />
+                <Play className="h-5 w-5 text-emerald-700" />
               </div>
               <div>
                 <h2 className="text-lg font-bold text-stone-900 dark:text-stone-100">ابدأ بروتوكول</h2>
@@ -218,7 +218,7 @@ export default function ProtocolWizard({ peptideId, prefillDose, prefillUnit, on
 
             {peptide.route && (
               <div className="flex items-center gap-4 rounded-xl bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 px-4 py-3">
-                <FlaskConical className="h-4 w-4 text-emerald-600 shrink-0" />
+                <FlaskConical className="h-4 w-4 text-emerald-700 shrink-0" />
                 <p className="text-xs text-emerald-700 dark:text-emerald-400">
                   طريقة الإعطاء: <strong>{peptide.route === 'subq' ? 'حقن تحت الجلد' : peptide.route === 'im' ? 'حقن عضلي' : peptide.route === 'nasal' ? 'بخاخ أنف' : peptide.route === 'oral' ? 'فموي' : 'موضعي'}</strong>
                 </p>

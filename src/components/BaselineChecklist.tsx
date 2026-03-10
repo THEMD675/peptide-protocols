@@ -54,7 +54,7 @@ export default function BaselineChecklist({ peptide, onAllChecked }: BaselineChe
                 done ? 'bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-400' : 'bg-white dark:bg-stone-950 text-stone-700 dark:text-stone-300 hover:bg-stone-50 dark:hover:bg-stone-800'
               )}
             >
-              {done ? <CheckCircle className="h-4 w-4 text-emerald-600 shrink-0" /> : <Circle className="h-4 w-4 text-stone-300 shrink-0" />}
+              {done ? <CheckCircle className="h-4 w-4 text-emerald-700 shrink-0" /> : <Circle className="h-4 w-4 text-stone-300 shrink-0" />}
               <span className={cn('flex-1', done && 'line-through')}>{item.label}</span>
             </button>
           );

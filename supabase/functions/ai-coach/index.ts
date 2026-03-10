@@ -38,6 +38,46 @@ async function checkRateLimit(userId: string, supabase: ReturnType<typeof create
   return true
 }
 
+// Tier-based rate limiting: Trial=5 total, Essentials=15/day, Elite=unlimited
+async function checkTierRateLimit(
+  userId: string,
+  tier: string | null,
+  isTrialValid: boolean,
+  hasFullAccess: boolean,
+  supabase: ReturnType<typeof createClient>,
+): Promise<{ allowed: boolean; message?: string }> {
+  // Elite: unlimited
+  if (hasFullAccess && tier === 'elite') return { allowed: true }
+
+  if (isTrialValid) {
+    // Trial: 5 messages total (lifetime)
+    const { count, error } = await supabase
+      .from('ai_coach_requests')
+      .select('id', { count: 'exact', head: true })
+      .eq('user_id', userId)
+    if (error) return { allowed: false, message: 'خطأ في التحقق — حاول مرة أخرى' }
+    if ((count ?? 0) >= 5) return { allowed: false, message: 'انتهت رسائل التجربة المجانية (5 رسائل). اشترك لمتابعة المحادثة.' }
+    return { allowed: true }
+  }
+
+  if (hasFullAccess) {
+    // Essentials (active/past_due/cancelledButPaid non-elite): 15 per day
+    const dayStart = new Date()
+    dayStart.setUTCHours(0, 0, 0, 0)
+    const { count, error } = await supabase
+      .from('ai_coach_requests')
+      .select('id', { count: 'exact', head: true })
+      .eq('user_id', userId)
+      .gte('created_at', dayStart.toISOString())
+    if (error) return { allowed: false, message: 'خطأ في التحقق — حاول مرة أخرى' }
+    if ((count ?? 0) >= 15) return { allowed: false, message: 'وصلت الحد اليومي (15 رسالة). حاول غدًا أو ترقّ لباقة Elite.' }
+    return { allowed: true }
+  }
+
+  // No access (expired, no subscription)
+  return { allowed: false, message: 'اشترك للوصول إلى المدرب الذكي.' }
+}
+
 
 const SYSTEM_PROMPT = `أنت خبير ببتيدات بخبرة 10 سنوات في pptides.com. لستَ روبوت محادثة عاديًا — أنت مستشار متمكّن يُعطي رأيه بثقة ويقول بالضبط ماذا يستخدم الشخص ومتى وكيف.
 
@@ -258,6 +298,15 @@ serve(async (req) => {
     const isActive = sub?.status === 'active' || sub?.status === 'past_due'
     const cancelledButPaid = sub?.status === 'cancelled' && sub?.current_period_end && new Date(sub.current_period_end) > now
     const hasFullAccess = isTrialValid || isActive || cancelledButPaid
+
+    // Tier-based rate limit check
+    const tierCheck = await checkTierRateLimit(user.id, sub?.tier ?? null, isTrialValid, hasFullAccess, supabase)
+    if (!tierCheck.allowed) {
+      return new Response(JSON.stringify({ error: tierCheck.message ?? 'وصلت حد الرسائل' }), {
+        status: 429,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      })
+    }
 
     let rawBody: string
     try {

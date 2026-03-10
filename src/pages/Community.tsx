@@ -735,10 +735,10 @@ export default function Community() {
         {/* Header */}
         <div className="mb-12 text-center">
           <div className="mx-auto mb-4 inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-100 dark:bg-emerald-900/30">
-            <MessageSquare className="h-7 w-7 text-emerald-600" />
+            <MessageSquare className="h-7 w-7 text-emerald-700" />
           </div>
           <h1 className="mb-3 text-3xl font-bold text-stone-900 dark:text-stone-100 md:text-4xl">
-            مجتمع <span className="text-emerald-600">الببتيدات</span>
+            مجتمع <span className="text-emerald-700">الببتيدات</span>
           </h1>
           <p className="mx-auto max-w-lg text-lg text-stone-600 dark:text-stone-400">
             شارك تجربتك. اقرأ تجارب الآخرين. تعلّم من بروتوكولات حقيقية.
@@ -764,7 +764,7 @@ export default function Community() {
                     onClick={() => setShowForm(true)}
                     className="w-full rounded-2xl border-2 border-dashed border-emerald-300 dark:border-emerald-700 bg-emerald-50/50 dark:bg-emerald-900/10 p-6 text-center transition-all hover:border-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-900/20"
                   >
-                    <Send className="mx-auto mb-2 h-6 w-6 text-emerald-600" />
+                    <Send className="mx-auto mb-2 h-6 w-6 text-emerald-700" />
                     <p className="font-bold text-stone-900 dark:text-stone-100">شارك تجربتك مع الببتيدات</p>
                     <p className="mt-1 text-sm text-stone-600 dark:text-stone-400">ساعد غيرك — شارك البروتوكول والنتائج</p>
                   </button>
@@ -1049,7 +1049,7 @@ export default function Community() {
                 {displayedLogs.length === 0 && !isShowingSeeds && (
                   <div className="rounded-2xl border-2 border-dashed border-emerald-200 dark:border-emerald-800 bg-gradient-to-b from-emerald-50/50 to-white dark:from-emerald-900/10 dark:to-stone-950 px-6 py-12 text-center">
                     <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-emerald-100 dark:bg-emerald-900/30">
-                      <Sparkles className="h-8 w-8 text-emerald-600" />
+                      <Sparkles className="h-8 w-8 text-emerald-700" />
                     </div>
                     <h3 className="text-xl font-bold text-stone-900 dark:text-stone-100 mb-2">كن أول من يشارك تجربته!</h3>
                     <p className="mx-auto max-w-md text-sm leading-relaxed text-stone-600 dark:text-stone-400 mb-4">
@@ -1078,7 +1078,7 @@ export default function Community() {
                 {isShowingSeeds && displayedLogs.length > 0 && (
                   <div className="rounded-2xl border-2 border-dashed border-emerald-200 dark:border-emerald-800 bg-gradient-to-b from-emerald-50/50 to-white dark:from-emerald-900/10 dark:to-stone-950 px-6 py-8 text-center">
                     <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-emerald-100 dark:bg-emerald-900/30">
-                      <Sparkles className="h-8 w-8 text-emerald-600" />
+                      <Sparkles className="h-8 w-8 text-emerald-700" />
                     </div>
                     <h3 className="text-xl font-bold text-stone-900 dark:text-stone-100">كن أول من يشارك تجربته!</h3>
                     <p className="mx-auto mt-2 max-w-md text-sm leading-relaxed text-stone-600 dark:text-stone-400">
@@ -1101,7 +1101,7 @@ export default function Community() {
                   <div className="rounded-2xl border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-900 py-12 px-6 text-center">
                     <p className="text-sm font-bold text-stone-700 dark:text-stone-300">لا توجد تجارب لهذا الهدف بعد</p>
                     <p className="mt-1 text-xs text-stone-500 dark:text-stone-400">جرّب تصنيف مختلف أو شارك تجربتك</p>
-                    <button onClick={() => { setFilterGoal('all'); setFilterPeptide(''); setSearchQuery(''); }} className="mt-3 text-sm text-emerald-600 font-bold hover:underline min-h-[44px]">عرض الكل</button>
+                    <button onClick={() => { setFilterGoal('all'); setFilterPeptide(''); setSearchQuery(''); }} className="mt-3 text-sm text-emerald-700 font-bold hover:underline min-h-[44px]">عرض الكل</button>
                   </div>
                 )}
 
@@ -1222,7 +1222,7 @@ export default function Community() {
                                 <button
                                   type="button"
                                   onClick={() => toggleExpand(`${log.id}_proto`)}
-                                  className="me-2 font-bold text-emerald-600 hover:underline"
+                                  className="me-2 font-bold text-emerald-700 hover:underline"
                                 >
                                   {isExpanded ? 'اقرأ أقل' : 'اقرأ المزيد'}
                                 </button>
@@ -1245,7 +1245,7 @@ export default function Community() {
                               <button
                                 type="button"
                                 onClick={() => toggleExpand(log.id)}
-                                className="me-2 font-bold text-emerald-600 hover:underline"
+                                className="me-2 font-bold text-emerald-700 hover:underline"
                               >
                                 {isExpanded ? 'اقرأ أقل' : 'اقرأ المزيد'}
                               </button>
@@ -1288,7 +1288,7 @@ export default function Community() {
                                 'flex items-center gap-1.5 rounded-full px-3 py-1.5 min-h-[36px] text-sm font-medium transition-all',
                                 upvotedPosts.has(log.id)
                                   ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400'
-                                  : 'text-stone-500 dark:text-stone-400 hover:bg-stone-100 dark:hover:bg-stone-800 hover:text-emerald-600'
+                                  : 'text-stone-500 dark:text-stone-400 hover:bg-stone-100 dark:hover:bg-stone-800 hover:text-emerald-700'
                               )}
                               disabled={upvotedPosts.has(log.id)}
                             >
@@ -1406,7 +1406,7 @@ export default function Community() {
                             </div>
                           ) : (
                             <div className="text-center py-2">
-                              <Link to="/login" className="text-sm font-medium text-emerald-600 hover:underline">
+                              <Link to="/login" className="text-sm font-medium text-emerald-700 hover:underline">
                                 سجّل الدخول للرد
                               </Link>
                             </div>

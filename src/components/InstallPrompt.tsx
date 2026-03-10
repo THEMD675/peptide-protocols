@@ -78,7 +78,7 @@ export default function InstallPrompt() {
     <div className="fixed top-20 start-4 end-4 z-40 mx-auto max-w-md animate-slide-up md:start-auto md:end-6 print:hidden">
       <div className="flex items-center gap-3 rounded-2xl border border-emerald-200 dark:border-emerald-800 bg-white dark:bg-stone-950 p-4 shadow-xl shadow-emerald-600/10">
         <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-100 dark:bg-emerald-900/30">
-          {showIOS ? <Share className="h-5 w-5 text-emerald-600" /> : <Download className="h-5 w-5 text-emerald-600" />}
+          {showIOS ? <Share className="h-5 w-5 text-emerald-700" /> : <Download className="h-5 w-5 text-emerald-700" />}
         </div>
         <div className="flex-1 min-w-0">
           <p className="text-sm font-bold text-stone-900 dark:text-stone-100">ثبّت pptides على جهازك</p>

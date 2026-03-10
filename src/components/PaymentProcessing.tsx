@@ -95,7 +95,7 @@ export default function PaymentProcessing() {
             <p className="mt-2 text-sm text-stone-600 dark:text-stone-400">اشتراكك مفعّل — ابدأ رحلتك الآن</p>
             <div className="mt-4 rounded-xl bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 px-4 py-3">
               <p className="text-xs font-bold text-emerald-700 dark:text-emerald-400 mb-1">فتحت لك:</p>
-              <p className="text-xs text-emerald-600">المدرب الذكي، المكتبة الكاملة، حاسبة الجرعات، سجل الحقن، دليل التحاليل</p>
+              <p className="text-xs text-emerald-700">المدرب الذكي، المكتبة الكاملة، حاسبة الجرعات، سجل الحقن، دليل التحاليل</p>
             </div>
             <div className="space-y-3 mt-6">
               <button onClick={() => navigateTo('/library')} className="flex w-full items-center gap-3 rounded-xl border border-emerald-200 dark:border-emerald-800 p-4 text-start font-bold text-emerald-700 dark:text-emerald-400 hover:bg-emerald-50 dark:bg-emerald-900/20 transition-colors min-h-[44px]">
@@ -119,12 +119,12 @@ export default function PaymentProcessing() {
           <>
             <div className="mx-auto mb-6">
               <div className="text-2xl font-bold tracking-tight text-stone-900 dark:text-stone-100" dir="ltr">
-                <span aria-hidden="true">pp</span><span className="text-emerald-600" aria-hidden="true">tides</span>
+                <span aria-hidden="true">pp</span><span className="text-emerald-700" aria-hidden="true">tides</span>
               </div>
             </div>
             <h2 className="text-xl font-bold text-stone-900 dark:text-stone-100">لم نتمكن من التأكد من الدفع</h2>
             <p className="mt-2 text-sm text-stone-600 dark:text-stone-400">إذا تم خصم المبلغ، سيتم تفعيل اشتراكك خلال دقائق. تواصل معنا إذا استمرت المشكلة:</p>
-            <a href={`mailto:${SUPPORT_EMAIL}?subject=تفعيل الاشتراك`} className="mt-4 inline-block text-emerald-600 font-bold underline">{SUPPORT_EMAIL}</a>
+            <a href={`mailto:${SUPPORT_EMAIL}?subject=تفعيل الاشتراك`} className="mt-4 inline-block text-emerald-700 font-bold underline">{SUPPORT_EMAIL}</a>
             <button onClick={() => navigateTo('/dashboard')} className="mt-6 w-full rounded-full bg-emerald-600 py-3 text-sm font-bold text-white hover:bg-emerald-700 transition-colors">
               العودة للوحة التحكم
             </button>
@@ -133,10 +133,10 @@ export default function PaymentProcessing() {
           <>
             <div className="mx-auto mb-6">
               <div className="text-2xl font-bold tracking-tight text-stone-900 dark:text-stone-100" dir="ltr">
-                <span aria-hidden="true">pp</span><span className="text-emerald-600" aria-hidden="true">tides</span>
+                <span aria-hidden="true">pp</span><span className="text-emerald-700" aria-hidden="true">tides</span>
               </div>
             </div>
-            <Loader2 className="mx-auto mb-4 h-10 w-10 animate-spin text-emerald-600" />
+            <Loader2 className="mx-auto mb-4 h-10 w-10 animate-spin text-emerald-700" />
             <h2 className="text-xl font-bold text-stone-900 dark:text-stone-100">جارٍ إعداد حسابك...</h2>
             <p className="mt-2 text-sm text-stone-500 dark:text-stone-400">يرجى الانتظار بضع ثوانٍ</p>
             <div role="progressbar" aria-valuenow={progress} aria-valuemin={0} aria-valuemax={100} aria-label="جاري تحميل..." className="mx-auto mt-6 h-1.5 w-48 overflow-hidden rounded-full bg-stone-200 dark:bg-stone-700">

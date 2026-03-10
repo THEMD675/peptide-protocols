@@ -104,11 +104,11 @@ export default function ShareButtons({
       {/* Copy Link */}
       <button
         onClick={handleCopyLink}
-        className={`${btnBase} border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 text-stone-700 dark:text-stone-300 hover:border-emerald-300 dark:hover:border-emerald-700 hover:text-emerald-600`}
+        className={`${btnBase} border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 text-stone-700 dark:text-stone-300 hover:border-emerald-300 dark:hover:border-emerald-700 hover:text-emerald-700`}
         aria-label="نسخ الرابط"
       >
         {copied ? (
-          <Check className="h-4 w-4 text-emerald-600" />
+          <Check className="h-4 w-4 text-emerald-700" />
         ) : (
           <Copy className="h-4 w-4" />
         )}

@@ -36,10 +36,10 @@ export default memo(function DoseTitrationTimeline({ schedule, currentWeek, unit
                 isPast ? 'bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800' :
                 'bg-white dark:bg-stone-950 border border-stone-200 dark:border-stone-700'
               )}>
-                <span className={cn('text-[10px] font-bold', isCurrent ? 'text-emerald-700 dark:text-emerald-400' : isPast ? 'text-emerald-600' : 'text-stone-500 dark:text-stone-400')}>
+                <span className={cn('text-[10px] font-bold', isCurrent ? 'text-emerald-700 dark:text-emerald-400' : isPast ? 'text-emerald-700' : 'text-stone-500 dark:text-stone-400')}>
                   أ{step.week}
                 </span>
-                <span className={cn('text-sm font-black', isCurrent ? 'text-emerald-800 dark:text-emerald-300' : isPast ? 'text-emerald-600' : 'text-stone-500 dark:text-stone-400')}>
+                <span className={cn('text-sm font-black', isCurrent ? 'text-emerald-800 dark:text-emerald-300' : isPast ? 'text-emerald-700' : 'text-stone-500 dark:text-stone-400')}>
                   {formatDose(step.doseMcg)}
                 </span>
                 <span className="text-[8px] text-stone-500 dark:text-stone-400">{displayUnit}</span>

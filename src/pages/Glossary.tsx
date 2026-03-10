@@ -85,7 +85,7 @@ function GlossaryCard({ term, search, allPeptides }: { term: GlossaryTerm; searc
           <span className="text-base font-bold text-stone-900 dark:text-stone-100">
             <HighlightedText text={term.ar} query={search} />
           </span>
-          <span className="shrink-0 text-xs font-medium text-emerald-600" dir="ltr">
+          <span className="shrink-0 text-xs font-medium text-emerald-700" dir="ltr">
             <HighlightedText text={term.en} query={search} />
           </span>
         </span>
@@ -184,9 +184,9 @@ export default function Glossary() {
       {/* Header */}
       <div className="mb-10 text-center">
         <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-100">
-          <BookA className="h-7 w-7 text-emerald-600" />
+          <BookA className="h-7 w-7 text-emerald-700" />
         </div>
-        <h1 className="text-3xl font-bold text-emerald-600 md:text-4xl">المصطلحات</h1>
+        <h1 className="text-3xl font-bold text-emerald-700 md:text-4xl">المصطلحات</h1>
         <p className="mt-2 text-lg text-stone-600">قاموس شامل لمصطلحات الببتيدات والبيوهاكينغ</p>
       </div>
 

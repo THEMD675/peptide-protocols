@@ -69,7 +69,7 @@ export default function TrialBanner() {
       <div role="dialog" aria-modal="true" aria-describedby="payment-wall-desc" className="fixed inset-0 z-50 flex items-center justify-center bg-stone-900/80 backdrop-blur-sm">
         <FocusTrap focusTrapOptions={{ allowOutsideClick: true }}>
         <div className="mx-4 w-full max-w-md rounded-2xl bg-white dark:bg-stone-950 p-10 text-center shadow-2xl" aria-labelledby="payment-wall-title">
-          <Shield className="mx-auto mb-4 h-12 w-12 text-emerald-600" />
+          <Shield className="mx-auto mb-4 h-12 w-12 text-emerald-700" />
           <h2 id="payment-wall-title" className="mb-3 text-2xl font-bold text-stone-900 dark:text-stone-100">
             أكمل إعداد حسابك
           </h2>
@@ -173,7 +173,7 @@ export default function TrialBanner() {
       <div role="dialog" aria-modal="true" aria-describedby="sub-modal-desc-expired" className="fixed inset-0 z-50 flex items-center justify-center bg-stone-900/80 backdrop-blur-sm">
         <FocusTrap focusTrapOptions={{ allowOutsideClick: true }}>
         <div className="mx-4 w-full max-w-md rounded-2xl bg-white dark:bg-stone-950 p-10 text-center shadow-2xl" aria-labelledby="trial-modal-title">
-          <Shield className="mx-auto mb-4 h-12 w-12 text-emerald-600" />
+          <Shield className="mx-auto mb-4 h-12 w-12 text-emerald-700" />
           <h2 id="trial-modal-title" className="mb-3 text-2xl font-bold text-stone-900 dark:text-stone-100">
             {modalTitle}
           </h2>
@@ -190,12 +190,12 @@ export default function TrialBanner() {
           </div>
           <div className="mt-6 flex flex-wrap justify-center gap-3 text-sm">
             <span className="text-stone-500 dark:text-stone-400">أو تصفّح المجاني:</span>
-            <Link to="/library" className="text-emerald-600 underline underline-offset-2 transition-colors hover:text-emerald-700 dark:text-emerald-400">المكتبة</Link>
-            <Link to="/calculator" className="text-emerald-600 underline underline-offset-2 transition-colors hover:text-emerald-700 dark:text-emerald-400">الحاسبة</Link>
-            <Link to="/interactions" className="text-emerald-600 underline underline-offset-2 transition-colors hover:text-emerald-700 dark:text-emerald-400">فحص التعارضات</Link>
-            <Link to="/glossary" className="text-emerald-600 underline underline-offset-2 transition-colors hover:text-emerald-700 dark:text-emerald-400">المصطلحات</Link>
-            <Link to="/sources" className="text-emerald-600 underline underline-offset-2 transition-colors hover:text-emerald-700 dark:text-emerald-400">المصادر</Link>
-            <Link to="/community" className="text-emerald-600 underline underline-offset-2 transition-colors hover:text-emerald-700 dark:text-emerald-400">التقييمات</Link>
+            <Link to="/library" className="text-emerald-700 underline underline-offset-2 transition-colors hover:text-emerald-700 dark:text-emerald-400">المكتبة</Link>
+            <Link to="/calculator" className="text-emerald-700 underline underline-offset-2 transition-colors hover:text-emerald-700 dark:text-emerald-400">الحاسبة</Link>
+            <Link to="/interactions" className="text-emerald-700 underline underline-offset-2 transition-colors hover:text-emerald-700 dark:text-emerald-400">فحص التعارضات</Link>
+            <Link to="/glossary" className="text-emerald-700 underline underline-offset-2 transition-colors hover:text-emerald-700 dark:text-emerald-400">المصطلحات</Link>
+            <Link to="/sources" className="text-emerald-700 underline underline-offset-2 transition-colors hover:text-emerald-700 dark:text-emerald-400">المصادر</Link>
+            <Link to="/community" className="text-emerald-700 underline underline-offset-2 transition-colors hover:text-emerald-700 dark:text-emerald-400">التقييمات</Link>
           </div>
           <button
             onClick={() => window.history.length > 1 ? window.history.back() : navigate('/')}
@@ -215,7 +215,7 @@ export default function TrialBanner() {
       <div role="dialog" aria-modal="true" aria-describedby="sub-modal-desc-none" className="fixed inset-0 z-50 flex items-center justify-center bg-stone-900/80 backdrop-blur-sm">
         <FocusTrap focusTrapOptions={{ allowOutsideClick: true }}>
         <div className="mx-4 w-full max-w-md rounded-2xl bg-white dark:bg-stone-950 p-10 text-center shadow-2xl" aria-labelledby="sub-modal-title">
-          <Shield className="mx-auto mb-4 h-12 w-12 text-emerald-600" />
+          <Shield className="mx-auto mb-4 h-12 w-12 text-emerald-700" />
           <h2 id="sub-modal-title" className="mb-3 text-2xl font-bold text-stone-900 dark:text-stone-100">
             محتوى للمشتركين فقط
           </h2>
@@ -232,9 +232,9 @@ export default function TrialBanner() {
           </div>
           <div className="mt-6 flex flex-wrap justify-center gap-3 text-sm">
             <span className="text-stone-500 dark:text-stone-400">أو تصفّح المجاني:</span>
-            <Link to="/calculator" className="text-emerald-600 underline underline-offset-2 transition-colors hover:text-emerald-700 dark:text-emerald-400">الحاسبة</Link>
-            <Link to="/library" className="text-emerald-600 underline underline-offset-2 transition-colors hover:text-emerald-700 dark:text-emerald-400">المكتبة</Link>
-            <Link to="/glossary" className="text-emerald-600 underline underline-offset-2 transition-colors hover:text-emerald-700 dark:text-emerald-400">المصطلحات</Link>
+            <Link to="/calculator" className="text-emerald-700 underline underline-offset-2 transition-colors hover:text-emerald-700 dark:text-emerald-400">الحاسبة</Link>
+            <Link to="/library" className="text-emerald-700 underline underline-offset-2 transition-colors hover:text-emerald-700 dark:text-emerald-400">المكتبة</Link>
+            <Link to="/glossary" className="text-emerald-700 underline underline-offset-2 transition-colors hover:text-emerald-700 dark:text-emerald-400">المصطلحات</Link>
           </div>
           <button
             onClick={() => window.history.length > 1 ? window.history.back() : navigate('/')}

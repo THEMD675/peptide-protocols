@@ -357,7 +357,7 @@ export default function Login() {
               <button
                 onClick={handleResendVerification}
                 disabled={resendLoading || resendCooldown > 0}
-                className="mb-4 w-full rounded-full border-2 border-emerald-600 py-3 text-sm font-bold text-emerald-600 transition-colors hover:bg-emerald-50 dark:bg-emerald-900/20 disabled:opacity-50"
+                className="mb-4 w-full rounded-full border-2 border-emerald-600 py-3 text-sm font-bold text-emerald-700 transition-colors hover:bg-emerald-50 dark:bg-emerald-900/20 disabled:opacity-50"
               >
                 {resendLoading ? (
                   <span className="inline-flex items-center gap-2">
@@ -410,7 +410,7 @@ export default function Login() {
                       dir="ltr"
                       minLength={8}
                       autoComplete="new-password"
-                      className="w-full rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 px-4 py-3 ps-12 text-left text-stone-900 dark:text-stone-100 placeholder:text-stone-500 dark:text-stone-400 outline-none transition-shadow focus:border-emerald-300 dark:border-emerald-700 focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900"
+                      className="w-full rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 px-4 py-3 ps-12 text-left text-base text-stone-900 dark:text-stone-100 placeholder:text-stone-500 dark:text-stone-400 outline-none transition-shadow focus:border-emerald-300 dark:border-emerald-700 focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900"
                     />
                     <button
                       type="button"
@@ -478,7 +478,7 @@ export default function Login() {
                 onClick={() => { setTab(t); setError(''); setResetMessage(''); }}
                 className={cn(
                   'relative flex-1 py-3.5 text-center text-sm font-semibold transition-colors',
-                  tab === t ? 'text-emerald-600' : 'text-stone-600 dark:text-stone-400 transition-colors hover:text-stone-900 dark:text-stone-100'
+                  tab === t ? 'text-emerald-700' : 'text-stone-600 dark:text-stone-400 transition-colors hover:text-stone-900 dark:text-stone-100'
                 )}
               >
                 {t === 'login' ? 'تسجيل الدخول' : 'إنشاء حساب'}
@@ -533,7 +533,7 @@ export default function Login() {
                   autoFocus
                   autoComplete="email"
                   dir="ltr"
-                  className="w-full rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 px-4 py-3 text-left text-stone-900 dark:text-stone-100 placeholder:text-stone-500 dark:text-stone-400 outline-none transition-shadow focus:border-emerald-300 dark:border-emerald-700 focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900"
+                  className="w-full rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 px-4 py-3 text-left text-base text-stone-900 dark:text-stone-100 placeholder:text-stone-500 dark:text-stone-400 outline-none transition-shadow focus:border-emerald-300 dark:border-emerald-700 focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900"
                 />
               </div>
 
@@ -551,7 +551,7 @@ export default function Login() {
                     autoComplete={tab === 'login' ? 'current-password' : 'new-password'}
                     dir="ltr"
                     {...(tab === 'signup' ? { minLength: 8 } : {})}
-                    className="w-full rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 px-4 py-3 ps-12 text-left text-stone-900 dark:text-stone-100 placeholder:text-stone-500 dark:text-stone-400 outline-none transition-shadow focus:border-emerald-300 dark:border-emerald-700 focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900"
+                    className="w-full rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 px-4 py-3 ps-12 text-left text-base text-stone-900 dark:text-stone-100 placeholder:text-stone-500 dark:text-stone-400 outline-none transition-shadow focus:border-emerald-300 dark:border-emerald-700 focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900"
                   />
                   <button
                     type="button"
@@ -568,15 +568,15 @@ export default function Login() {
                   const hasNumber = /\d/.test(password);
                   return (
                     <ul className="mt-2 space-y-1 text-xs" aria-label="متطلبات كلمة المرور">
-                      <li className={cn('flex items-center gap-2', hasMinLength ? 'text-emerald-600' : 'text-stone-500 dark:text-stone-400')}>
+                      <li className={cn('flex items-center gap-2', hasMinLength ? 'text-emerald-700' : 'text-stone-500 dark:text-stone-400')}>
                         {hasMinLength ? <span aria-hidden>✓</span> : <span aria-hidden>○</span>}
                         8 أحرف على الأقل
                       </li>
-                      <li className={cn('flex items-center gap-2', hasLetter ? 'text-emerald-600' : 'text-stone-500 dark:text-stone-400')}>
+                      <li className={cn('flex items-center gap-2', hasLetter ? 'text-emerald-700' : 'text-stone-500 dark:text-stone-400')}>
                         {hasLetter ? <span aria-hidden>✓</span> : <span aria-hidden>○</span>}
                         حرف واحد على الأقل
                       </li>
-                      <li className={cn('flex items-center gap-2', hasNumber ? 'text-emerald-600' : 'text-stone-500 dark:text-stone-400')}>
+                      <li className={cn('flex items-center gap-2', hasNumber ? 'text-emerald-700' : 'text-stone-500 dark:text-stone-400')}>
                         {hasNumber ? <span aria-hidden>✓</span> : <span aria-hidden>○</span>}
                         رقم واحد على الأقل
                       </li>
@@ -589,7 +589,7 @@ export default function Login() {
                       type="button"
                       onClick={handleResetPassword}
                       disabled={loading}
-                      className="min-h-[44px] text-sm font-medium text-emerald-600 hover:underline disabled:opacity-50"
+                      className="min-h-[44px] text-sm font-medium text-emerald-700 hover:underline disabled:opacity-50"
                     >
                       نسيت كلمة المرور؟
                     </button>
@@ -619,14 +619,14 @@ export default function Login() {
                   <>
                     ليس لديك حساب؟{' '}
                     {/* Bug 5 fix: also clear resetMessage on tab switch via bottom links */}
-                    <button type="button" onClick={() => { setTab('signup'); setError(''); setResetMessage(''); }} className="font-semibold text-emerald-600 hover:underline min-h-[44px] inline-flex items-center">
+                    <button type="button" onClick={() => { setTab('signup'); setError(''); setResetMessage(''); }} className="font-semibold text-emerald-700 hover:underline min-h-[44px] inline-flex items-center">
                       أنشئ حسابًا
                     </button>
                   </>
                 ) : (
                   <>
                     لديك حساب بالفعل؟{' '}
-                    <button type="button" onClick={() => { setTab('login'); setError(''); setResetMessage(''); }} className="font-semibold text-emerald-600 hover:underline min-h-[44px] inline-flex items-center">
+                    <button type="button" onClick={() => { setTab('login'); setError(''); setResetMessage(''); }} className="font-semibold text-emerald-700 hover:underline min-h-[44px] inline-flex items-center">
                       سجّل الدخول
                     </button>
                   </>

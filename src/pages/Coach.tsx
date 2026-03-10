@@ -212,7 +212,7 @@ export default function Coach() {
 
   function loadQuizAnswers(): { goal: string; experience: string; injection: string } | null {
     try {
-      const raw = localStorage.getItem('pptides_quiz_answers');
+      const raw = localStorage.getItem('pptides_quiz_results');
       if (!raw) return null;
       const data = JSON.parse(raw);
       if (Date.now() - (data.ts ?? 0) > 24 * 60 * 60 * 1000) return null;
@@ -264,19 +264,25 @@ export default function Coach() {
     try { const s = localStorage.getItem(storageKey); if (s) return JSON.parse(s).messages ?? []; } catch { /* expected */ } return [];
   });
 
-  // Hydrate from Supabase (overrides localStorage if server has data)
+  // Track current conversation row ID for multi-conversation support
+  const [conversationId, setConversationId] = useState<string | null>(null);
+
+  // Hydrate from Supabase (load most recent conversation)
   const supabaseLoadedRef = useRef(false);
   useEffect(() => {
     if (!user?.id || supabaseLoadedRef.current) return;
     supabaseLoadedRef.current = true;
     supabase
       .from('coach_conversations')
-      .select('messages')
+      .select('id, messages')
       .eq('user_id', user.id)
+      .order('updated_at', { ascending: false })
+      .limit(1)
       .maybeSingle()
       .then(({ data }) => {
         if (data?.messages && Array.isArray(data.messages) && data.messages.length > 0) {
           setMessages(data.messages as ChatMessage[]);
+          setConversationId(data.id);
           setIntakeStep('done');
         }
       })
@@ -312,16 +318,28 @@ export default function Coach() {
         try { localStorage.setItem(storageKey, JSON.stringify({ messages: trimmed, intake })); } catch { /* give up */ }
       }
     }
-    // Fire-and-forget upsert to Supabase for cross-device sync
+    // Fire-and-forget save to Supabase for cross-device sync (multi-conversation)
     if (user?.id && cleanMessages.length > 0) {
-      supabase
-        .from('coach_conversations')
-        .upsert(
-          { user_id: user.id, messages: cleanMessages, updated_at: new Date().toISOString() },
-          { onConflict: 'user_id' },
-        )
-        .then(() => {})
-        .catch(() => { /* cross-device sync failed — non-critical */ });
+      if (conversationId) {
+        // Update existing conversation row
+        supabase
+          .from('coach_conversations')
+          .update({ messages: cleanMessages, updated_at: new Date().toISOString() })
+          .eq('id', conversationId)
+          .then(() => {})
+          .catch(() => { /* cross-device sync failed — non-critical */ });
+      } else {
+        // Insert new conversation row
+        supabase
+          .from('coach_conversations')
+          .insert({ user_id: user.id, messages: cleanMessages, updated_at: new Date().toISOString() })
+          .select('id')
+          .single()
+          .then(({ data }) => {
+            if (data?.id) setConversationId(data.id);
+          })
+          .catch(() => { /* cross-device sync failed — non-critical */ });
+      }
     }
   }, [messages, intake, storageKey, isLoading, user?.id]);
 
@@ -533,9 +551,8 @@ export default function Coach() {
       sessionStorage.removeItem(`pptides_coach_intake_${user?.id ?? 'anon'}`);
       sessionStorage.removeItem(stepStorageKey);
     } catch { /* expected */ }
-    if (user?.id) {
-      supabase.from('coach_conversations').delete().eq('user_id', user.id).then(() => {}).catch(() => { /* conversation cleanup failed — non-critical */ });
-    }
+    // Clear current conversation ID so next save creates a new row
+    setConversationId(null);
     setConfirmReset(false);
   };
 
@@ -591,7 +608,7 @@ export default function Coach() {
         <div className="mb-6 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-100 dark:bg-emerald-900/30">
-              <Bot className="h-5 w-5 text-emerald-600" />
+              <Bot className="h-5 w-5 text-emerald-700" />
             </div>
             <div>
               <h1 className="text-lg font-bold">استشاري الببتيدات</h1>
@@ -641,7 +658,7 @@ export default function Coach() {
                     <p className="text-sm leading-relaxed text-stone-800 dark:text-stone-200">
                       <strong>مرحبًا!</strong> أنا مستشارك المتخصص في الببتيدات العلاجية. سأساعدك في تصميم بروتوكول مخصّص بناءً على هدفك وحالتك.
                     </p>
-                    <p className="mt-2 text-sm text-stone-800 dark:text-stone-200">اختر هدفك وسأصمّم لك بروتوكول مخصّص، أو <button onClick={() => setIntakeStep('done')} className="font-bold text-emerald-600 hover:underline">اسأل مباشرة</button></p>
+                    <p className="mt-2 text-sm text-stone-800 dark:text-stone-200">اختر هدفك وسأصمّم لك بروتوكول مخصّص، أو <button onClick={() => setIntakeStep('done')} className="font-bold text-emerald-700 hover:underline">اسأل مباشرة</button></p>
                   </div>
                 </div>
 
@@ -650,7 +667,7 @@ export default function Coach() {
                   {GOALS.map(g => (
                     <button key={g.id} onClick={() => { setIntake(p => ({ ...p, goal: g.id, goalLabel: g.label })); if (intakeStep === 'goal') setIntakeStep('experience'); }}
                       className={cn('flex flex-col items-center gap-1.5 rounded-xl border p-3 text-center transition-all', intake.goal === g.id ? 'border-emerald-400 bg-emerald-50 dark:bg-emerald-900/20 ring-2 ring-emerald-100' : 'border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 hover:border-emerald-300 dark:border-emerald-700')}>
-                      <g.Icon className={cn('h-5 w-5', intake.goal === g.id ? 'text-emerald-600' : 'text-stone-500 dark:text-stone-400')} />
+                      <g.Icon className={cn('h-5 w-5', intake.goal === g.id ? 'text-emerald-700' : 'text-stone-500 dark:text-stone-400')} />
                       <span className="text-xs font-bold text-stone-800 dark:text-stone-200">{g.label}</span>
                     </button>
                   ))}
@@ -736,11 +753,11 @@ export default function Coach() {
                       <div className="grid gap-3 sm:grid-cols-2">
                         <div>
                           <label htmlFor="coach-age" className="mb-1 block text-sm font-medium text-stone-600 dark:text-stone-400">العمر تقريبًا</label>
-                          <input id="coach-age" type="number" inputMode="numeric" min={16} max={120} value={intake.age} onChange={e => setIntake(p => ({ ...p, age: e.target.value }))} placeholder="مثال: 32" dir="ltr" className="w-full rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 px-3 py-2.5 text-sm text-stone-900 dark:text-stone-100 placeholder:text-stone-500 dark:text-stone-400 focus:border-emerald-300 dark:border-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900" />
+                          <input id="coach-age" type="number" inputMode="numeric" min={16} max={120} value={intake.age} onChange={e => setIntake(p => ({ ...p, age: e.target.value }))} placeholder="مثال: 32" dir="ltr" className="w-full rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 px-3 py-2.5 text-base text-stone-900 dark:text-stone-100 placeholder:text-stone-500 dark:text-stone-400 focus:border-emerald-300 dark:border-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900" />
                         </div>
                         <div>
                           <label htmlFor="coach-medications" className="mb-1 block text-sm font-medium text-stone-600 dark:text-stone-400">أدوية أو مكملات حالية</label>
-                          <input id="coach-medications" type="text" value={intake.medications} onChange={e => setIntake(p => ({ ...p, medications: e.target.value }))} placeholder="مثال: فيتامين D، كرياتين" className="w-full rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 px-3 py-2.5 text-sm text-stone-900 dark:text-stone-100 placeholder:text-stone-500 dark:text-stone-400 focus:border-emerald-300 dark:border-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900" />
+                          <input id="coach-medications" type="text" value={intake.medications} onChange={e => setIntake(p => ({ ...p, medications: e.target.value }))} placeholder="مثال: فيتامين D، كرياتين" className="w-full rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 px-3 py-2.5 text-base text-stone-900 dark:text-stone-100 placeholder:text-stone-500 dark:text-stone-400 focus:border-emerald-300 dark:border-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900" />
                         </div>
                       </div>
                       <button onClick={submitIntake} disabled={isLoading}
@@ -983,7 +1000,7 @@ export default function Coach() {
               {limitReached ? (
                 subscription.tier === 'essentials' ? (
                 <div className="rounded-xl border-2 border-emerald-400 bg-gradient-to-b from-emerald-50 to-white dark:to-stone-950 p-6 text-center shadow-sm dark:shadow-stone-900/30">
-                  <Crown className="mx-auto mb-3 h-8 w-8 text-emerald-600" />
+                  <Crown className="mx-auto mb-3 h-8 w-8 text-emerald-700" />
                   <p className="text-lg font-bold text-stone-900 dark:text-stone-100">لقد وصلت للحد الأقصى</p>
                   <p className="mt-2 text-sm text-stone-600 dark:text-stone-400">ترقَّ إلى Elite لاستشارات بلا حدود</p>
                   <Link to="/pricing?plan=elite" className="mt-4 inline-flex items-center gap-2 rounded-full bg-emerald-600 px-8 py-3 text-sm font-bold text-white transition-colors hover:bg-emerald-700">
@@ -993,7 +1010,7 @@ export default function Coach() {
                 </div>
                 ) : (
                 <div className="rounded-xl border-2 border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-900/20 p-5 text-center">
-                  <Sparkles className="mx-auto mb-2 h-6 w-6 text-emerald-600" />
+                  <Sparkles className="mx-auto mb-2 h-6 w-6 text-emerald-700" />
                   <p className="font-bold text-stone-900 dark:text-stone-100">{hasAccess ? 'وصلت حد الأسئلة لهذه الجلسة' : 'أعجبتك الاستشارة؟'}</p>
                   <p className="mt-1 text-sm text-stone-600 dark:text-stone-400">{!isElite && (hasAccess ? 'ترقَّ إلى Elite لاستشارات بلا حدود.' : 'اشترك للحصول على استشارات مخصّصة.')}</p>
                   {!isElite && <button onClick={async () => { try { if (hasAccess) await upgradeTo('elite'); else navigate('/pricing'); } catch { /* non-blocking */ } }} className="mt-3 rounded-full bg-emerald-600 px-8 py-2.5 text-sm font-bold text-white transition-colors hover:bg-emerald-700">{hasAccess ? 'ترقَّ إلى Elite' : 'اشترك الآن'}</button>}

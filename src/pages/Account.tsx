@@ -378,7 +378,7 @@ export default function Account() {
             {profilePicUrl ? (
               <img src={profilePicUrl} alt="صورة الملف الشخصي" width={80} height={80} className="h-full w-full object-cover" />
             ) : (
-              <User className="h-8 w-8 text-emerald-600" />
+              <User className="h-8 w-8 text-emerald-700" />
             )}
             <div className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity">
               {uploadingPic ? (
@@ -389,7 +389,7 @@ export default function Account() {
             </div>
           </button>
         </div>
-        <h1 className="text-3xl font-bold text-emerald-600 md:text-4xl">حسابي</h1>
+        <h1 className="text-3xl font-bold text-emerald-700 md:text-4xl">حسابي</h1>
         <p className="mt-2 text-lg text-stone-600 dark:text-stone-400">{profileDisplayName || user?.email || 'إدارة حسابك واشتراكك'}</p>
       </div>
 
@@ -398,7 +398,7 @@ export default function Account() {
         {usageStats && (
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
             <div className="rounded-2xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 p-4 text-center shadow-sm">
-              <Syringe className="mx-auto mb-1 h-5 w-5 text-emerald-600" />
+              <Syringe className="mx-auto mb-1 h-5 w-5 text-emerald-700" />
               <p className="text-2xl font-black text-stone-900 dark:text-stone-100">{usageStats.injections}</p>
               <p className="text-xs text-stone-500">حقنة مسجلة</p>
             </div>
@@ -423,7 +423,7 @@ export default function Account() {
         {/* Current Plan Card */}
         <div className="rounded-2xl border border-emerald-200 dark:border-emerald-800 bg-gradient-to-b from-emerald-50 to-white dark:from-emerald-950 dark:to-stone-950 p-6">
           <div className="flex items-center gap-3 mb-3">
-            <Crown className="h-5 w-5 text-emerald-600" />
+            <Crown className="h-5 w-5 text-emerald-700" />
             <h2 className="text-lg font-bold text-stone-900 dark:text-stone-100">خطتك الحالية</h2>
           </div>
           <div className="flex items-center gap-4">
@@ -439,7 +439,7 @@ export default function Account() {
               </p>
               <p className={cn(
                 'text-sm font-medium',
-                subscription.isProOrTrial ? 'text-emerald-600' : 'text-stone-500',
+                subscription.isProOrTrial ? 'text-emerald-700' : 'text-stone-500',
               )}>
                 {subscription.isProOrTrial && subscription.status === 'cancelled'
                   ? 'نشط'
@@ -469,7 +469,7 @@ export default function Account() {
         {/* Profile Card */}
         <div className="rounded-2xl border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-900 p-6">
           <div className="flex items-center gap-3 mb-4">
-            <UserCircle className="h-5 w-5 text-emerald-600" />
+            <UserCircle className="h-5 w-5 text-emerald-700" />
             <h2 className="text-lg font-bold text-stone-900 dark:text-stone-100">الملف الشخصي</h2>
           </div>
           {profileLoading ? (
@@ -540,7 +540,7 @@ export default function Account() {
         {/* Email Card */}
         <div className="rounded-2xl border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-900 p-6">
           <div className="flex items-center gap-3 mb-4">
-            <Mail className="h-5 w-5 text-emerald-600" />
+            <Mail className="h-5 w-5 text-emerald-700" />
             <h2 className="text-lg font-bold text-stone-900 dark:text-stone-100">البريد الإلكتروني</h2>
           </div>
           <p className="text-sm text-stone-700 dark:text-stone-300 mb-4" dir="ltr">{user.email}</p>
@@ -572,7 +572,7 @@ export default function Account() {
         {!isOAuthUser && (
         <div className="rounded-2xl border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-900 p-6">
           <div className="flex items-center gap-3 mb-4">
-            <KeyRound className="h-5 w-5 text-emerald-600" />
+            <KeyRound className="h-5 w-5 text-emerald-700" />
             <h2 className="text-lg font-bold text-stone-900 dark:text-stone-100">تغيير كلمة المرور</h2>
           </div>
           <form onSubmit={(e) => { e.preventDefault(); handleChangePassword(); }} className="flex flex-col gap-3">
@@ -617,7 +617,7 @@ export default function Account() {
         {/* Subscription Card */}
         <div className="rounded-2xl border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-900 p-6">
           <div className="flex items-center gap-3 mb-4">
-            <Crown className="h-5 w-5 text-emerald-600" />
+            <Crown className="h-5 w-5 text-emerald-700" />
             <h2 className="text-lg font-bold text-stone-900 dark:text-stone-100">الاشتراك</h2>
           </div>
           <div className="space-y-3">
@@ -628,7 +628,7 @@ export default function Account() {
                 subscription.tier === 'elite'
                   ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400'
                   : subscription.tier === 'essentials'
-                    ? 'bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600'
+                    ? 'bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700'
                     : 'bg-stone-200 dark:bg-stone-700 text-stone-600 dark:text-stone-400',
               )}>
                 {TIER_LABELS[subscription.tier] ?? subscription.tier}
@@ -674,7 +674,7 @@ export default function Account() {
               </div>
             )}
           </div>
-          {(subscription.isPaidSubscriber || subscription.isTrial || subscription.status === 'past_due') && (
+          {(subscription.isPaidSubscriber || (subscription.isTrial && subscription.hasStripeSubscription) || subscription.status === 'past_due') && (
             <>
               <button
                 onClick={async () => {
@@ -763,7 +763,7 @@ export default function Account() {
         {/* Data Export — GDPR Compliance */}
         <div className="rounded-2xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 p-6">
           <div className="flex items-center gap-3 mb-3">
-            <Download className="h-5 w-5 text-emerald-600" />
+            <Download className="h-5 w-5 text-emerald-700" />
             <h2 className="text-lg font-bold text-stone-900 dark:text-stone-100">تصدير بياناتي</h2>
           </div>
           <p className="text-sm text-stone-600 dark:text-stone-400 mb-4">حمّل نسخة كاملة من جميع بياناتك — حقك في نقل البيانات مكفول</p>
@@ -789,13 +789,19 @@ export default function Account() {
         {/* Actions */}
         <div className="space-y-3">
           {(subscription.isPaidSubscriber || subscription.isTrial) && subscription.status !== 'cancelled' && (
-            <button
-              onClick={() => { setShowCancelDialog(true); setCancelStep('survey'); setCancelReason(''); }}
-              className="flex w-full items-center justify-center gap-2 rounded-xl border border-stone-300 dark:border-stone-700 bg-white dark:bg-stone-950 px-6 py-3 text-sm font-bold text-stone-700 dark:text-stone-300 transition-all hover:bg-stone-50 dark:hover:bg-stone-800"
-            >
-              <LogOut className="h-4 w-4" />
-              {subscription.isTrial ? 'إلغاء التجربة' : 'إلغاء الاشتراك'}
-            </button>
+            subscription.isTrial && !subscription.hasStripeSubscription ? (
+              <div className="flex w-full items-center justify-center gap-2 rounded-xl border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-900 px-6 py-3 text-sm text-stone-500 dark:text-stone-400">
+                فترتك التجريبية ستنتهي تلقائياً
+              </div>
+            ) : (
+              <button
+                onClick={() => { setShowCancelDialog(true); setCancelStep('survey'); setCancelReason(''); }}
+                className="flex w-full items-center justify-center gap-2 rounded-xl border border-stone-300 dark:border-stone-700 bg-white dark:bg-stone-950 px-6 py-3 text-sm font-bold text-stone-700 dark:text-stone-300 transition-all hover:bg-stone-50 dark:hover:bg-stone-800"
+              >
+                <LogOut className="h-4 w-4" />
+                {subscription.isTrial ? 'إلغاء التجربة' : 'إلغاء الاشتراك'}
+              </button>
+            )
           )}
           <button
             onClick={() => setShowDeleteDialog(true)}
@@ -1106,7 +1112,7 @@ function ReferralSection({ userId }: { userId?: string }) {
   return (
     <div className="rounded-2xl border border-emerald-200 dark:border-emerald-800 bg-gradient-to-b from-emerald-50 to-white dark:to-stone-950 p-6">
       <div className="flex items-center gap-3 mb-1">
-        <Gift className="h-5 w-5 text-emerald-600" />
+        <Gift className="h-5 w-5 text-emerald-700" />
         <h2 className="text-lg font-bold text-stone-900 dark:text-stone-100">ادعُ صديقًا واحصل على شهر مجاني</h2>
       </div>
       <p className="text-sm text-stone-600 dark:text-stone-400 mb-4">شارك رابط الإحالة — عندما يشترك صديقك، تحصل على كود خصم ١٠٠٪ لشهر كامل!</p>
@@ -1115,7 +1121,7 @@ function ReferralSection({ userId }: { userId?: string }) {
         <div className="flex-1 rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 px-4 py-3 text-sm font-mono text-stone-700 dark:text-stone-300 truncate" dir="ltr">
           {shareUrl}
         </div>
-        <button onClick={handleCopy} className="shrink-0 rounded-xl border border-emerald-300 dark:border-emerald-700 bg-emerald-50 dark:bg-emerald-900/20 p-3 text-emerald-600 transition-colors hover:bg-emerald-100 dark:bg-emerald-900/30">
+        <button onClick={handleCopy} className="shrink-0 rounded-xl border border-emerald-300 dark:border-emerald-700 bg-emerald-50 dark:bg-emerald-900/20 p-3 text-emerald-700 transition-colors hover:bg-emerald-100 dark:bg-emerald-900/30">
           {copied ? <Check className="h-5 w-5" /> : <Copy className="h-5 w-5" />}
         </button>
       </div>
@@ -1156,7 +1162,7 @@ function ReferralSection({ userId }: { userId?: string }) {
                 </div>
                 <button
                   onClick={() => handleCopyReward(rc)}
-                  className="shrink-0 rounded-lg border border-emerald-300 dark:border-emerald-700 bg-white dark:bg-stone-950 p-2 text-emerald-600 transition-colors hover:bg-emerald-50 dark:bg-emerald-900/20"
+                  className="shrink-0 rounded-lg border border-emerald-300 dark:border-emerald-700 bg-white dark:bg-stone-950 p-2 text-emerald-700 transition-colors hover:bg-emerald-50 dark:bg-emerald-900/20"
                 >
                   {copiedReward === rc ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
                 </button>
@@ -1174,7 +1180,7 @@ function ReferralSection({ userId }: { userId?: string }) {
             <p className="text-xs text-stone-500 dark:text-stone-400">دعوات</p>
           </div>
           <div>
-            <p className="text-xl font-bold text-emerald-600">{stats.signedUp}</p>
+            <p className="text-xl font-bold text-emerald-700">{stats.signedUp}</p>
             <p className="text-xs text-stone-500 dark:text-stone-400">سجّلوا</p>
           </div>
           <div>
@@ -1198,7 +1204,7 @@ function SavedPeptides() {
     return (
       <div className="rounded-2xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 p-6">
         <div className="flex items-center gap-3 mb-4">
-          <Heart className="h-5 w-5 text-emerald-600" />
+          <Heart className="h-5 w-5 text-emerald-700" />
           <h2 className="text-lg font-bold text-stone-900 dark:text-stone-100">الببتيدات المحفوظة</h2>
         </div>
         <div className="space-y-3">
@@ -1213,7 +1219,7 @@ function SavedPeptides() {
   return (
     <div className="rounded-2xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 p-6">
       <div className="flex items-center gap-3 mb-4">
-        <Heart className="h-5 w-5 text-emerald-600" />
+        <Heart className="h-5 w-5 text-emerald-700" />
         <h2 className="text-lg font-bold text-stone-900 dark:text-stone-100">الببتيدات المحفوظة</h2>
         {savedPeptides.length > 0 && (
           <span className="rounded-full bg-emerald-100 dark:bg-emerald-900/30 px-2 py-0.5 text-xs font-bold text-emerald-700 dark:text-emerald-400">
@@ -1241,10 +1247,10 @@ function SavedPeptides() {
               className="group flex items-center gap-3 rounded-xl border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-900 p-3 transition-all hover:border-emerald-300 dark:hover:border-emerald-700"
             >
               <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-emerald-50 dark:bg-emerald-900/20">
-                <FlaskConical className="h-5 w-5 text-emerald-600" />
+                <FlaskConical className="h-5 w-5 text-emerald-700" />
               </div>
               <Link to={`/peptide/${p.id}`} className="min-w-0 flex-1">
-                <p className="font-bold text-stone-900 dark:text-stone-100 group-hover:text-emerald-600 transition-colors truncate">
+                <p className="font-bold text-stone-900 dark:text-stone-100 group-hover:text-emerald-700 transition-colors truncate">
                   {p.nameAr}
                 </p>
                 <p className="text-xs text-stone-500 dark:text-stone-400 truncate">{p.nameEn}</p>
@@ -1322,16 +1328,16 @@ function EnquiryForm({ userEmail, userId }: { userEmail?: string; userId?: strin
   return (
     <div className="rounded-2xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 p-6">
       <div className="flex items-center gap-3 mb-1">
-        <MessageSquare className="h-5 w-5 text-emerald-600" />
+        <MessageSquare className="h-5 w-5 text-emerald-700" />
         <h2 className="text-lg font-bold text-stone-900 dark:text-stone-100">استفسار خاص</h2>
       </div>
       <p className="text-sm text-stone-600 dark:text-stone-400 mb-4">هل لديك سؤال عن ببتيد معيّن أو بروتوكول؟ أرسل لنا وسنرد بأسرع وقت.</p>
 
       {sent ? (
         <div className="rounded-xl bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 p-4 text-center">
-          <Check className="mx-auto h-8 w-8 text-emerald-600 mb-2" />
+          <Check className="mx-auto h-8 w-8 text-emerald-700 mb-2" />
           <p className="text-sm font-bold text-emerald-800 dark:text-emerald-300">تم إرسال استفسارك</p>
-          <p className="text-xs text-emerald-600 mt-1">سنرد عليك على {userEmail} في أقرب وقت</p>
+          <p className="text-xs text-emerald-700 mt-1">سنرد عليك على {userEmail} في أقرب وقت</p>
         </div>
       ) : (
         <form onSubmit={handleSubmit} className="space-y-3">

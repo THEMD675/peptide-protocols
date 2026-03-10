@@ -347,7 +347,7 @@ function PeptideReferenceCard({ presetName }: { presetName: string }) {
   return (
     <div className="rounded-2xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 p-5">
       <div className="flex items-center gap-2 mb-4">
-        <Info className="h-4 w-4 text-emerald-600" />
+        <Info className="h-4 w-4 text-emerald-700" />
         <h3 className="text-sm font-bold text-stone-900 dark:text-stone-100">
           معلومات {peptide.nameAr} ({presetName})
         </h3>
@@ -482,11 +482,23 @@ export default function DoseCalculator() {
   const weightBasedDose = useMemo(() => {
     const preset = PEPTIDE_PRESETS.find(p => p.name === selectedPreset);
     if (!preset || !bodyWeight) return null;
+    const fullPreset = PEPTIDE_PRESETS_DATA.find(p => p.name === selectedPreset);
+    const isWeightBased = fullPreset?.weightBased && fullPreset.mcgPerKgMin && fullPreset.mcgPerKgMax;
+    if (isWeightBased) {
+      const mult = GOAL_MULTIPLIERS[goalLevel];
+      const rangeMid = (fullPreset.mcgPerKgMin! + fullPreset.mcgPerKgMax!) / 2;
+      const suggested = Math.round(rangeMid * bodyWeight * mult);
+      const clamped = Math.min(Math.max(suggested, preset.minDose), preset.maxDose);
+      const weightMin = Math.round(fullPreset.mcgPerKgMin! * bodyWeight);
+      const weightMax = Math.round(fullPreset.mcgPerKgMax! * bodyWeight);
+      return { suggested: clamped, min: preset.minDose, max: preset.maxDose, isWeightBased: true, mcgPerKgMin: fullPreset.mcgPerKgMin!, mcgPerKgMax: fullPreset.mcgPerKgMax!, weightMin, weightMax };
+    }
+    // Fixed-dose peptides — use preset dose × goal multiplier
     const baseDose = preset.dose;
     const mult = GOAL_MULTIPLIERS[goalLevel];
     const suggested = Math.round(baseDose * mult);
     const clamped = Math.min(Math.max(suggested, preset.minDose), preset.maxDose);
-    return { suggested: clamped, min: preset.minDose, max: preset.maxDose };
+    return { suggested: clamped, min: preset.minDose, max: preset.maxDose, isWeightBased: false };
   }, [selectedPreset, bodyWeight, goalLevel]);
 
   // ── Reconstitution results ──
@@ -640,7 +652,7 @@ export default function DoseCalculator() {
         {/* Header */}
         <div className="mb-8 text-center">
           <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-500/10">
-            <Calculator className="h-7 w-7 text-emerald-600" />
+            <Calculator className="h-7 w-7 text-emerald-700" />
           </div>
           <div className="flex items-center justify-center gap-2">
             <h1 className="text-3xl font-bold text-stone-900 dark:text-stone-100 md:text-4xl">
@@ -667,7 +679,7 @@ export default function DoseCalculator() {
                 'flex shrink-0 items-center gap-2 rounded-2xl px-4 py-3 min-h-[44px] text-sm font-medium transition-all',
                 activeTab === tab.id
                   ? 'bg-emerald-600 text-white shadow-md'
-                  : 'border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 text-stone-600 dark:text-stone-400 hover:border-emerald-300 hover:text-emerald-600',
+                  : 'border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 text-stone-600 dark:text-stone-400 hover:border-emerald-300 hover:text-emerald-700',
               )}
             >
               {tab.icon}
@@ -682,7 +694,7 @@ export default function DoseCalculator() {
             {/* Common Protocols Quick-Select */}
             <div className="mb-6">
               <div className="flex items-center justify-center gap-2 mb-3">
-                <Zap className="h-4 w-4 text-emerald-600" />
+                <Zap className="h-4 w-4 text-emerald-700" />
                 <h2 className="text-sm font-bold text-stone-900 dark:text-stone-100">بروتوكولات شائعة</h2>
               </div>
               <div className="flex gap-2 overflow-x-auto scrollbar-hide -mx-1 px-1 pb-1">
@@ -753,7 +765,7 @@ export default function DoseCalculator() {
                             'rounded-full border px-3 py-2 min-h-[44px] text-xs transition-all active:scale-[0.98] shrink-0',
                             selectedPreset === p.name
                               ? 'border-emerald-400 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-400 ring-2 ring-emerald-400 font-bold shadow-sm'
-                              : 'border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 text-stone-700 dark:text-stone-300 font-medium hover:border-emerald-300 hover:text-emerald-600',
+                              : 'border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 text-stone-700 dark:text-stone-300 font-medium hover:border-emerald-300 hover:text-emerald-700',
                           )}
                         >
                           {getPresetDisplayName(p.name)}
@@ -764,7 +776,7 @@ export default function DoseCalculator() {
                       <div className="mt-2 text-center">
                         <button
                           onClick={() => setShowAllPresets(true)}
-                          className="min-h-[44px] text-xs font-medium text-emerald-600 hover:text-emerald-700 dark:text-emerald-400 hover:underline"
+                          className="min-h-[44px] text-xs font-medium text-emerald-700 hover:text-emerald-700 dark:text-emerald-400 hover:underline"
                         >
                           عرض الكل ({PEPTIDE_PRESETS.length}+)
                         </button>
@@ -778,7 +790,7 @@ export default function DoseCalculator() {
             {/* Body Weight + Goal Level */}
             <div className="mb-6 rounded-2xl border border-emerald-200 dark:border-emerald-800 bg-emerald-50/30 dark:bg-emerald-900/10 p-5">
               <div className="flex items-center gap-2 mb-4">
-                <Scale className="h-4 w-4 text-emerald-600" />
+                <Scale className="h-4 w-4 text-emerald-700" />
                 <h3 className="text-sm font-bold text-stone-900 dark:text-stone-100">حساب حسب الوزن والهدف</h3>
               </div>
               <div className="grid gap-4 sm:grid-cols-2">
@@ -820,8 +832,20 @@ export default function DoseCalculator() {
                 <div className="mt-4 flex items-center justify-between rounded-xl bg-white dark:bg-stone-950 border border-stone-200 dark:border-stone-700 px-4 py-3">
                   <div>
                     <p className="text-xs text-stone-500 dark:text-stone-400">الجرعة المقترحة لـ {selectedPreset}</p>
-                    <p className="text-lg font-bold text-emerald-600">{weightBasedDose.suggested} مكغ</p>
-                    <p className="text-xs text-stone-500 dark:text-stone-400">النطاق: {weightBasedDose.min} – {weightBasedDose.max} مكغ</p>
+                    <p className="text-lg font-bold text-emerald-700">{weightBasedDose.suggested} مكغ</p>
+                    {weightBasedDose.isWeightBased ? (
+                      <>
+                        <p className="text-xs text-stone-500 dark:text-stone-400">
+                          حسب الوزن: {weightBasedDose.mcgPerKgMin}–{weightBasedDose.mcgPerKgMax} مكغ/كجم × {bodyWeight} كجم = {weightBasedDose.weightMin}–{weightBasedDose.weightMax} مكغ
+                        </p>
+                        <p className="text-xs text-stone-500 dark:text-stone-400">النطاق: {weightBasedDose.min} – {weightBasedDose.max} مكغ</p>
+                      </>
+                    ) : (
+                      <>
+                        <p className="text-xs text-amber-600 dark:text-amber-400">جرعة ثابتة — لا تعتمد على الوزن</p>
+                        <p className="text-xs text-stone-500 dark:text-stone-400">النطاق: {weightBasedDose.min} – {weightBasedDose.max} مكغ</p>
+                      </>
+                    )}
                   </div>
                   <button
                     onClick={() => {
@@ -929,7 +953,7 @@ export default function DoseCalculator() {
                     ) : (
                       <button
                         onClick={() => setWaterMl(recommendedWater)}
-                        className="text-xs text-emerald-600/70 transition-colors hover:underline"
+                        className="text-xs text-emerald-700/70 transition-colors hover:underline"
                       >
                         الكمية المُوصى بها: {recommendedWater} مل
                       </button>
@@ -975,7 +999,7 @@ export default function DoseCalculator() {
                 </div>
                 <div className="space-y-2">
                   <label htmlFor="calc-vial-price" className="block text-sm font-medium text-stone-800 dark:text-stone-200">
-                    سعر القارورة (ر.س) <span className="text-xs text-emerald-600 font-normal me-1">اختياري</span>
+                    سعر القارورة (ر.س) <span className="text-xs text-emerald-700 font-normal me-1">اختياري</span>
                   </label>
                   <input
                     id="calc-vial-price"
@@ -1071,7 +1095,7 @@ export default function DoseCalculator() {
                     <p className="text-xs font-semibold text-stone-500 dark:text-stone-400 mb-1">قوارير في الشهر</p>
                     <p className="text-lg font-bold text-stone-900 dark:text-stone-100">{Math.ceil(results.monthlyVials)} قوارير</p>
                     {results.monthlyCost > 0 ? (
-                      <p className="text-xs font-bold text-emerald-600 mt-1">~{Math.round(results.monthlyCost)} ر.س/شهر</p>
+                      <p className="text-xs font-bold text-emerald-700 mt-1">~{Math.round(results.monthlyCost)} ر.س/شهر</p>
                     ) : (
                       <p className="text-xs text-stone-500 dark:text-stone-400 mt-1">أدخل سعر القارورة لحساب التكلفة</p>
                     )}
@@ -1136,7 +1160,7 @@ export default function DoseCalculator() {
             {savedCalcs.length > 0 && (
               <div className="mb-6 rounded-2xl border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-900 p-5">
                 <h3 className="mb-3 text-sm font-bold text-stone-900 dark:text-stone-100">
-                  <Bookmark className="inline h-4 w-4 me-1 text-emerald-600" />
+                  <Bookmark className="inline h-4 w-4 me-1 text-emerald-700" />
                   حساباتك المحفوظة ({savedCalcs.length})
                 </h3>
                 <div className="grid gap-2 sm:grid-cols-2">
@@ -1167,7 +1191,7 @@ export default function DoseCalculator() {
           <div className="space-y-6">
             <div className="rounded-2xl border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-900 p-6 md:p-8">
               <div className="flex items-center gap-2 mb-6">
-                <FlaskConical className="h-5 w-5 text-emerald-600" />
+                <FlaskConical className="h-5 w-5 text-emerald-700" />
                 <h2 className="text-lg font-bold text-stone-900 dark:text-stone-100">حاسبة التخفيف (Reconstitution)</h2>
               </div>
 
@@ -1184,7 +1208,7 @@ export default function DoseCalculator() {
                         setReconTargetDose(p.dose);
                         setReconDoseUnit(p.unit);
                       }}
-                      className="shrink-0 rounded-full border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 px-3 py-2 min-h-[44px] text-xs font-medium text-stone-700 dark:text-stone-300 hover:border-emerald-300 hover:text-emerald-600 transition-all"
+                      className="shrink-0 rounded-full border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 px-3 py-2 min-h-[44px] text-xs font-medium text-stone-700 dark:text-stone-300 hover:border-emerald-300 hover:text-emerald-700 transition-all"
                     >
                       {getPresetDisplayName(p.name)}
                     </button>
@@ -1308,7 +1332,7 @@ export default function DoseCalculator() {
                   <p>• سيرنج 100 وحدة = 1 مل. كل علامة = 1 وحدة = 0.01 مل</p>
                   <p>• سيرنج 50 وحدة = 0.5 مل. كل علامة = 1 وحدة = 0.01 مل</p>
                   <p>• سيرنج 30 وحدة = 0.3 مل. كل علامة = 0.5 وحدة = 0.005 مل</p>
-                  <p className="font-bold text-emerald-600">💡 سيرنج أصغر = دقة أعلى. استخدم أصغر سيرنج يتسع لجرعتك.</p>
+                  <p className="font-bold text-emerald-700">💡 سيرنج أصغر = دقة أعلى. استخدم أصغر سيرنج يتسع لجرعتك.</p>
                 </div>
               </div>
             </div>
@@ -1316,7 +1340,7 @@ export default function DoseCalculator() {
             {/* Reference Table */}
             <div className="overflow-hidden rounded-2xl border border-stone-200 dark:border-stone-700">
               <div className="flex items-center gap-2 bg-stone-50/95 dark:bg-stone-800/95 px-5 py-3">
-                <FlaskConical className="h-4 w-4 text-emerald-600" />
+                <FlaskConical className="h-4 w-4 text-emerald-700" />
                 <h2 className="text-base font-bold text-stone-900 dark:text-stone-100">جدول مرجعي سريع</h2>
               </div>
               <div className="overflow-x-auto">
@@ -1337,7 +1361,7 @@ export default function DoseCalculator() {
                         <td className="px-4 py-3 text-sm text-stone-800 dark:text-stone-200">{row.waterMl} مل</td>
                         <td className="px-4 py-3 text-sm text-stone-800 dark:text-stone-200">{row.concentration.toLocaleString('ar-u-nu-latn')} مكغ/مل</td>
                         <td className="px-4 py-3 text-center text-sm text-stone-800 dark:text-stone-200">{row.dose100} مل</td>
-                        <td className="px-4 py-3 text-center text-sm font-semibold text-emerald-600">{row.dose250} مل</td>
+                        <td className="px-4 py-3 text-center text-sm font-semibold text-emerald-700">{row.dose250} مل</td>
                         <td className="px-4 py-3 text-center text-sm text-stone-800 dark:text-stone-200">{row.dose500} مل</td>
                       </tr>
                     ))}
@@ -1353,7 +1377,7 @@ export default function DoseCalculator() {
           <div className="space-y-6">
             <div className="rounded-2xl border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-900 p-6 md:p-8">
               <div className="flex items-center gap-2 mb-6">
-                <DollarSign className="h-5 w-5 text-emerald-600" />
+                <DollarSign className="h-5 w-5 text-emerald-700" />
                 <h2 className="text-lg font-bold text-stone-900 dark:text-stone-100">حاسبة التكلفة</h2>
                 <span className="text-xs text-stone-500 dark:text-stone-400">قارن تكلفة الببتيدات</span>
               </div>
@@ -1434,7 +1458,7 @@ export default function DoseCalculator() {
                         <tr key={i} className="border-b border-stone-200 dark:border-stone-700 last:border-b-0">
                           <td className="px-3 py-3 text-sm font-bold text-stone-900 dark:text-stone-100" dir="ltr">{r.peptide}</td>
                           <td className="px-3 py-3 text-sm text-stone-700 dark:text-stone-300">{r.pricePerVial} ر.س</td>
-                          <td className="px-3 py-3 text-sm text-emerald-600 font-bold">{fmt(r.costPerDose, 1)} ر.س</td>
+                          <td className="px-3 py-3 text-sm text-emerald-700 font-bold">{fmt(r.costPerDose, 1)} ر.س</td>
                           <td className="px-3 py-3 text-sm text-stone-700 dark:text-stone-300">{fmt(r.costPerWeek, 0)} ر.س</td>
                           <td className="px-3 py-3 text-sm font-bold text-stone-900 dark:text-stone-100">{fmt(r.costPerMonth, 0)} ر.س</td>
                           <td className="px-3 py-3 text-sm text-stone-700 dark:text-stone-300">{fmt(r.costPerCycle12w, 0)} ر.س</td>
@@ -1466,7 +1490,7 @@ export default function DoseCalculator() {
                   <div className="mt-6 grid gap-4 sm:grid-cols-2">
                     <div className="rounded-xl border border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-900/20 p-4">
                       <p className="text-xs text-emerald-700 dark:text-emerald-400 mb-1">الأقل تكلفة شهريًا</p>
-                      <p className="text-lg font-bold text-emerald-600" dir="ltr">{cheapest.peptide}</p>
+                      <p className="text-lg font-bold text-emerald-700" dir="ltr">{cheapest.peptide}</p>
                       <p className="text-sm text-stone-700 dark:text-stone-300">{fmt(cheapest.costPerMonth, 0)} ر.س/شهر</p>
                     </div>
                     <div className="rounded-xl border border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-900/20 p-4">
@@ -1486,7 +1510,7 @@ export default function DoseCalculator() {
           <div className="space-y-6">
             <div className="rounded-2xl border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-900 p-6 md:p-8">
               <div className="flex items-center gap-2 mb-6">
-                <ArrowLeftRight className="h-5 w-5 text-emerald-600" />
+                <ArrowLeftRight className="h-5 w-5 text-emerald-700" />
                 <h2 className="text-lg font-bold text-stone-900 dark:text-stone-100">محوّل الوحدات</h2>
               </div>
 
@@ -1554,7 +1578,7 @@ export default function DoseCalculator() {
               {/* Result */}
               <div className="rounded-2xl bg-emerald-50 dark:bg-emerald-900/20 border-2 border-emerald-300 dark:border-emerald-700 p-8 text-center">
                 <p className="text-sm text-stone-600 dark:text-stone-400 mb-2">النتيجة</p>
-                <p className="text-4xl font-bold text-emerald-600" dir="ltr">
+                <p className="text-4xl font-bold text-emerald-700" dir="ltr">
                   {isFinite(converterResult) && converterResult > 0
                     ? converterTo === 'mcg'
                       ? converterResult.toFixed(0)
@@ -1595,7 +1619,7 @@ export default function DoseCalculator() {
               className="flex w-full items-center justify-between px-6 py-4 min-h-[44px] transition-colors hover:bg-stone-100 dark:hover:bg-stone-800/80"
             >
               <div className="flex items-center gap-2">
-                <Droplets className="h-5 w-5 shrink-0 text-emerald-600" />
+                <Droplets className="h-5 w-5 shrink-0 text-emerald-700" />
                 <h2 className="text-base font-bold text-stone-900 dark:text-stone-100">كيف تستخدم هذه الحاسبة</h2>
               </div>
               <ChevronDown className={cn('h-5 w-5 text-stone-500 transition-transform duration-300', showFormulas && 'rotate-180')} />
@@ -1632,7 +1656,7 @@ export default function DoseCalculator() {
 
         {/* AI Coach CTA */}
         <div className="mb-8 rounded-2xl border-2 border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-900/20 p-6 text-center md:p-8">
-          <Bot className="mx-auto mb-3 h-8 w-8 text-emerald-600" />
+          <Bot className="mx-auto mb-3 h-8 w-8 text-emerald-700" />
           <h3 className="text-lg font-bold text-stone-900 dark:text-stone-100">مش متأكد من الجرعة أو التوقيت أو التجميع؟</h3>
           <p className="mt-2 text-sm text-stone-800 dark:text-stone-200">المدرب الذكي يعرف {PEPTIDE_COUNT}+ ببتيد — اسأله وجاوبك بالتفصيل.</p>
           <Link
@@ -1646,10 +1670,10 @@ export default function DoseCalculator() {
 
         {/* Cross-links */}
         <div className="grid gap-3 md:grid-cols-3">
-          <CrossLink to="/table" icon={<FlaskConical className="h-5 w-5 text-emerald-600" />} title="جدول الببتيدات الشامل" desc="تصفّح جميع الببتيدات والجرعات" />
-          <CrossLink to="/stacks" icon={<Layers className="h-5 w-5 text-emerald-600" />} title="البروتوكولات المُجمَّعة" desc="اكتشف أفضل التوليفات" />
-          <CrossLink to="/lab-guide" icon={<BookOpen className="h-5 w-5 text-emerald-600" />} title="دليل التحاليل المخبرية" desc="تحاليل ما قبل وبعد البروتوكول" />
-          <CrossLink to="/interactions" icon={<Shield className="h-5 w-5 text-emerald-600" />} title="فحص التعارضات" desc="تأكد من أمان تجميعتك" />
+          <CrossLink to="/table" icon={<FlaskConical className="h-5 w-5 text-emerald-700" />} title="جدول الببتيدات الشامل" desc="تصفّح جميع الببتيدات والجرعات" />
+          <CrossLink to="/stacks" icon={<Layers className="h-5 w-5 text-emerald-700" />} title="البروتوكولات المُجمَّعة" desc="اكتشف أفضل التوليفات" />
+          <CrossLink to="/lab-guide" icon={<BookOpen className="h-5 w-5 text-emerald-700" />} title="دليل التحاليل المخبرية" desc="تحاليل ما قبل وبعد البروتوكول" />
+          <CrossLink to="/interactions" icon={<Shield className="h-5 w-5 text-emerald-700" />} title="فحص التعارضات" desc="تأكد من أمان تجميعتك" />
         </div>
       </div>
 
@@ -1719,7 +1743,7 @@ function ResultCard({
   return (
     <div className="rounded-xl border border-stone-300 dark:border-stone-700 bg-stone-100 dark:bg-stone-800 p-4 text-center">
       <p className="mb-1 text-xs font-medium text-stone-800 dark:text-stone-200">{label}</p>
-      <p className="text-2xl font-bold text-emerald-600">{value}</p>
+      <p className="text-2xl font-bold text-emerald-700">{value}</p>
       <p className="mt-0.5 text-xs text-stone-800 dark:text-stone-200">{unit}</p>
     </div>
   );
@@ -1752,7 +1776,7 @@ function FormulaStep({
         <h3 className="text-sm font-semibold text-stone-800 dark:text-stone-200">{title}</h3>
       </div>
       <p className="mb-1 text-sm text-stone-800 dark:text-stone-200" dir="ltr">{formula}</p>
-      <p className="text-xs text-emerald-600/80" dir="ltr">{example}</p>
+      <p className="text-xs text-emerald-700/80" dir="ltr">{example}</p>
     </div>
   );
 }

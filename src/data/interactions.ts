@@ -92,6 +92,26 @@ export const DRUG_INTERACTIONS: Record<string, InteractionResult> = {
   'tb-500+aspirin': safeWarn('TB-500 + أسبرين — خطر نزيف خفيف', 'الأسبرين مميع دم خفيف + TB-500 يؤثر على الأوعية. خطر النزيف منخفض لكن موجود. راقب الكدمات.'),
 };
 
+/** Common medications that have known interactions with peptides */
+export interface MedicationItem {
+  id: string;
+  nameAr: string;
+  nameEn: string;
+}
+
+export const MEDICATIONS: MedicationItem[] = [
+  { id: 'metformin', nameAr: 'ميتفورمين', nameEn: 'Metformin' },
+  { id: 'insulin', nameAr: 'أنسولين', nameEn: 'Insulin' },
+  { id: 'warfarin', nameAr: 'وارفارين', nameEn: 'Warfarin' },
+  { id: 'immunosuppressants', nameAr: 'مثبطات المناعة', nameEn: 'Immunosuppressants' },
+  { id: 'ssri', nameAr: 'مضادات الاكتئاب (SSRI)', nameEn: 'SSRIs' },
+  { id: 'thyroid', nameAr: 'أدوية الغدة الدرقية', nameEn: 'Thyroid Medication' },
+  { id: 'statins', nameAr: 'ستاتينات (أدوية الكوليسترول)', nameEn: 'Statins' },
+  { id: 'nsaids', nameAr: 'مسكنات (إيبوبروفين، نابروكسين)', nameEn: 'NSAIDs' },
+  { id: 'antihypertensives', nameAr: 'أدوية الضغط', nameEn: 'Antihypertensives' },
+  { id: 'aspirin', nameAr: 'أسبرين', nameEn: 'Aspirin' },
+];
+
 export const GH_PEPTIDE_IDS = ['cjc-1295', 'ipamorelin', 'tesamorelin', 'sermorelin', 'ghrp-2', 'ghrp-6', 'hexarelin'];
 
 export const FAT_LOSS_PEPTIDE_IDS = ['semaglutide', 'tirzepatide', 'retatrutide', 'tesamorelin', 'aod-9604', '5-amino-1mq', 'mots-c'];

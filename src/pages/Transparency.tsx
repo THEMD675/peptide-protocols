@@ -64,10 +64,10 @@ export default function Transparency() {
         {/* Hero */}
         <div className="mb-12 text-center">
           <div className="mx-auto mb-4 inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-100 dark:bg-emerald-900/30">
-            <Shield className="h-7 w-7 text-emerald-600" />
+            <Shield className="h-7 w-7 text-emerald-700" />
           </div>
           <h1 className="mb-3 text-3xl font-bold text-stone-900 dark:text-stone-100 md:text-4xl lg:text-5xl">
-            الشفافية <span className="text-emerald-600">الكاملة</span>
+            الشفافية <span className="text-emerald-700">الكاملة</span>
           </h1>
           <p className="mx-auto max-w-lg text-lg text-stone-600 dark:text-stone-400">
             ثقتك أهم من أرباحنا — إليك بالضبط كيف نعمل وكيف نكسب المال
@@ -80,12 +80,12 @@ export default function Transparency() {
             <div className="rounded-2xl border border-emerald-200 dark:border-emerald-800 bg-gradient-to-br from-emerald-50 to-white dark:from-emerald-950/20 dark:to-stone-950 p-8">
               <div className="flex items-start gap-4">
                 <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-emerald-100 dark:bg-emerald-900/30">
-                  <CreditCard className="h-6 w-6 text-emerald-600" />
+                  <CreditCard className="h-6 w-6 text-emerald-700" />
                 </div>
                 <div>
                   <h2 className="mb-3 text-xl font-bold text-stone-900 dark:text-stone-100 md:text-2xl">كيف نكسب المال</h2>
                   <p className="text-base leading-relaxed text-stone-700 dark:text-stone-300">
-                    مصدر دخلنا الوحيد هو <strong className="text-emerald-600">اشتراكك</strong>. لا إعلانات.
+                    مصدر دخلنا الوحيد هو <strong className="text-emerald-700">اشتراكك</strong>. لا إعلانات.
                     لا عمولات. لا محتوى مموّل. لا بيع بيانات. عندما يكون اشتراكك هو مصدر دخلنا الوحيد،
                     يصبح هدفنا الوحيد تقديم أفضل محتوى ممكن — مصلحتنا مرتبطة بمصلحتك مباشرة.
                   </p>
@@ -101,7 +101,7 @@ export default function Transparency() {
               <ul className="space-y-3">
                 {whatWeDo.map((item) => (
                   <li key={item} className="flex items-start gap-3">
-                    <Check className="mt-0.5 h-5 w-5 shrink-0 text-emerald-600" />
+                    <Check className="mt-0.5 h-5 w-5 shrink-0 text-emerald-700" />
                     <span className="text-sm leading-relaxed text-stone-700 dark:text-stone-300">{item}</span>
                   </li>
                 ))}
@@ -126,7 +126,7 @@ export default function Transparency() {
             <div className="rounded-2xl border border-stone-200 dark:border-stone-800 bg-stone-50 dark:bg-stone-900/50 p-8">
               <div className="flex items-start gap-4">
                 <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-emerald-100 dark:bg-emerald-900/30">
-                  <FileSearch className="h-6 w-6 text-emerald-600" />
+                  <FileSearch className="h-6 w-6 text-emerald-700" />
                 </div>
                 <div>
                   <h2 className="mb-3 text-xl font-bold text-stone-900 dark:text-stone-100 md:text-2xl">معايير المحتوى</h2>
@@ -163,13 +163,13 @@ export default function Transparency() {
             <div className="rounded-2xl border border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-950 p-8">
               <div className="flex items-start gap-4">
                 <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-emerald-100 dark:bg-emerald-900/30">
-                  <Scale className="h-6 w-6 text-emerald-600" />
+                  <Scale className="h-6 w-6 text-emerald-700" />
                 </div>
                 <div>
                   <h2 className="mb-3 text-xl font-bold text-stone-900 dark:text-stone-100 md:text-2xl">فلسفة التسعير</h2>
                   <div className="space-y-4 text-base leading-relaxed text-stone-700 dark:text-stone-300">
                     <p>
-                      <strong className="text-emerald-600">34 ر.س شهريًا</strong> — أقل من سعر كوب قهوة يوميًا.
+                      <strong className="text-emerald-700">34 ر.س شهريًا</strong> — أقل من سعر كوب قهوة يوميًا.
                       اخترنا هذا السعر ليكون في متناول الجميع دون المساس بجودة المحتوى والأدوات.
                     </p>
                     <div>
@@ -211,7 +211,7 @@ export default function Transparency() {
             <div className="rounded-2xl border border-stone-200 dark:border-stone-800 bg-stone-50 dark:bg-stone-900/50 p-8">
               <div className="flex items-start gap-4">
                 <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-emerald-100 dark:bg-emerald-900/30">
-                  <Eye className="h-6 w-6 text-emerald-600" />
+                  <Eye className="h-6 w-6 text-emerald-700" />
                 </div>
                 <div className="w-full">
                   <h2 className="mb-4 text-xl font-bold text-stone-900 dark:text-stone-100 md:text-2xl">بياناتك وخصوصيتك</h2>
@@ -238,16 +238,16 @@ export default function Transparency() {
 
                   <div className="rounded-xl border border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-950/20 p-4">
                     <div className="flex items-start gap-3">
-                      <Trash2 className="mt-0.5 h-5 w-5 shrink-0 text-emerald-600" />
+                      <Trash2 className="mt-0.5 h-5 w-5 shrink-0 text-emerald-700" />
                       <div>
                         <div className="text-sm font-bold text-stone-900 dark:text-stone-100">حذف بياناتك بالكامل</div>
                         <p className="mt-1 text-sm text-stone-600 dark:text-stone-400">
                           يمكنك حذف حسابك وجميع بياناتك في أي وقت من{' '}
-                          <Link to="/account" className="font-semibold text-emerald-600 underline hover:text-emerald-700">
+                          <Link to="/account" className="font-semibold text-emerald-700 underline hover:text-emerald-700">
                             صفحة الحساب
                           </Link>
                           {' '}أو بمراسلتنا على{' '}
-                          <a href={`mailto:${SUPPORT_EMAIL}`} className="font-semibold text-emerald-600 underline hover:text-emerald-700">
+                          <a href={`mailto:${SUPPORT_EMAIL}`} className="font-semibold text-emerald-700 underline hover:text-emerald-700">
                             {SUPPORT_EMAIL}
                           </a>
                           . الحذف نهائي وفوري.
@@ -265,7 +265,7 @@ export default function Transparency() {
             <p className="mb-2 text-lg font-bold text-stone-900 dark:text-stone-100">أسئلة أخرى عن شفافيتنا؟</p>
             <p className="mb-6 text-sm text-stone-600 dark:text-stone-400">
               نرحب بأي استفسار — تواصل معنا مباشرة على{' '}
-              <a href={`mailto:${SUPPORT_EMAIL}`} className="inline-flex min-h-[44px] items-center font-semibold text-emerald-600 underline hover:text-emerald-700 dark:text-emerald-400">
+              <a href={`mailto:${SUPPORT_EMAIL}`} className="inline-flex min-h-[44px] items-center font-semibold text-emerald-700 underline hover:text-emerald-700 dark:text-emerald-400">
                 {SUPPORT_EMAIL}
               </a>
             </p>

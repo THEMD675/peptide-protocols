@@ -255,7 +255,7 @@ export default function Tracker() {
 
   const exportPDF = async () => {
     if (!user) return;
-    toast('جارٍ تجهيز ملف PDF...');
+    toast('جارٍ تجهيز الصورة...');
     try {
       const { data: allLogs, error } = await supabase
         .from('injection_logs')
@@ -304,7 +304,7 @@ export default function Tracker() {
       const canvas = await html2canvas(container, { scale: 2, backgroundColor: '#ffffff' });
       document.body.removeChild(container);
       const blob = await new Promise<Blob | null>(resolve => canvas.toBlob(resolve, 'image/png'));
-      if (!blob) { toast.error('تعذّر إنشاء PDF'); return; }
+      if (!blob) { toast.error('تعذّر إنشاء الصورة'); return; }
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
@@ -555,6 +555,7 @@ export default function Tracker() {
     if (!user || editSaving) return;
     const doseNum = parseFloat(editDose);
     if (isNaN(doseNum) || doseNum <= 0) { toast.error('أدخل جرعة صحيحة'); return; }
+    if (new Date(editDate).getTime() > Date.now() + 60000) { toast.error('لا يمكن تسجيل حقنة في المستقبل'); return; }
     setEditSaving(true);
     try {
       const { error } = await supabase
@@ -795,7 +796,7 @@ export default function Tracker() {
       <div className="mb-8 text-center">
         <div className="flex items-center justify-center gap-3 mb-4">
           <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-100 dark:bg-emerald-900/30">
-            <Syringe className="h-7 w-7 text-emerald-600" />
+            <Syringe className="h-7 w-7 text-emerald-700" />
           </div>
           <button
             type="button"
@@ -809,7 +810,7 @@ export default function Tracker() {
           </button>
         </div>
         <div className="flex items-center justify-center gap-2">
-          <h1 className="text-3xl font-bold text-emerald-600 md:text-4xl">سجل الحقن</h1>
+          <h1 className="text-3xl font-bold text-emerald-700 md:text-4xl">سجل الحقن</h1>
           <Tooltip
             content="سجّل كل حقنة هنا مع الجرعة والموقع. التطبيق يتتبّع سلسلة التزامك ويقترح تدوير مواقع الحقن تلقائيًا لتجنّب تلف الأنسجة."
             firstTimeId="tracker-main"
@@ -833,7 +834,7 @@ export default function Tracker() {
           <h3 className="text-sm font-bold text-stone-900 dark:text-stone-100 mb-3">📊 ملخص الشهر</h3>
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
             <div className="text-center">
-              <p className="text-2xl font-black text-emerald-600">{monthlySummary.totalInjections}</p>
+              <p className="text-2xl font-black text-emerald-700">{monthlySummary.totalInjections}</p>
               <p className="text-xs text-stone-500 dark:text-stone-400">حقنة هذا الشهر</p>
             </div>
             <div className="text-center">
@@ -872,7 +873,7 @@ export default function Tracker() {
           aria-expanded={timingTipsExpanded ? 'true' : 'false'}
         >
           <span className="flex items-center gap-2 font-bold text-stone-900 dark:text-stone-100">
-            <Info className="h-4 w-4 text-emerald-600" />
+            <Info className="h-4 w-4 text-emerald-700" />
             نصائح التوقيت
           </span>
           {timingTipsExpanded ? <ChevronUp className="h-4 w-4 text-stone-500 dark:text-stone-400" /> : <ChevronDown className="h-4 w-4 text-stone-500 dark:text-stone-400" />}
@@ -946,7 +947,7 @@ export default function Tracker() {
                         className={cn(
                           'shrink-0 rounded-full px-4 py-2 text-sm font-bold transition-all',
                           todayLogged
-                            ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 cursor-default'
+                            ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 cursor-default'
                             : 'btn-press bg-emerald-600 text-white hover:bg-emerald-700'
                         )}
                       >
@@ -1053,7 +1054,7 @@ export default function Tracker() {
           <>
           <div className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-5">
             <div className="rounded-2xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 p-4 text-center shadow-sm dark:shadow-stone-900/30">
-              <BarChart3 className="mx-auto mb-1 h-5 w-5 text-emerald-600" />
+              <BarChart3 className="mx-auto mb-1 h-5 w-5 text-emerald-700" />
               <p className="text-2xl font-black text-stone-900 dark:text-stone-100">{dashboardStats.totalInjections}</p>
               <p className="text-xs text-stone-500 dark:text-stone-400">إجمالي الحقن</p>
             </div>
@@ -1073,7 +1074,7 @@ export default function Tracker() {
               <p className="text-xs text-stone-500 dark:text-stone-400">ببتيدات مختلفة</p>
             </div>
             <div className="rounded-2xl border border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-900/20 p-4 text-center shadow-sm dark:shadow-stone-900/30 col-span-2 sm:col-span-1">
-              <Clock className="mx-auto mb-1 h-5 w-5 text-emerald-600" />
+              <Clock className="mx-auto mb-1 h-5 w-5 text-emerald-700" />
               <p className="text-2xl font-black text-emerald-700 dark:text-emerald-400">{dashboardStats.timeSinceLabel}</p>
               <p className="text-xs text-stone-500 dark:text-stone-400">آخر حقنة</p>
             </div>
@@ -1242,7 +1243,7 @@ export default function Tracker() {
       {siteRotationData && (
           <div className="mb-8 rounded-2xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 p-5 shadow-sm dark:shadow-stone-900/30">
             <div className="flex items-center gap-2 mb-3">
-              <MapPin className="h-4 w-4 text-emerald-600" />
+              <MapPin className="h-4 w-4 text-emerald-700" />
               <h3 className="text-sm font-bold text-stone-900 dark:text-stone-100">تدوير مواقع الحقن</h3>
             </div>
             <div className="grid grid-cols-2 gap-2 mb-3 sm:grid-cols-4">
@@ -1411,7 +1412,7 @@ export default function Tracker() {
                         type="checkbox"
                         checked={doseOutOfRangeConfirmed}
                         onChange={(e) => setDoseOutOfRangeConfirmed(e.target.checked)}
-                        className="rounded border-stone-300 dark:border-stone-700 text-emerald-600 focus:ring-emerald-500"
+                        className="rounded border-stone-300 dark:border-stone-700 text-emerald-700 focus:ring-emerald-500"
                       />
                       <span className="text-xs text-stone-700 dark:text-stone-300">أؤكد أن هذه الجرعة صحيحة</span>
                     </label>
@@ -1427,7 +1428,7 @@ export default function Tracker() {
                         type="checkbox"
                         checked={doseOutOfRangeConfirmed}
                         onChange={(e) => setDoseOutOfRangeConfirmed(e.target.checked)}
-                        className="rounded border-stone-300 dark:border-stone-700 text-emerald-600 focus:ring-emerald-500"
+                        className="rounded border-stone-300 dark:border-stone-700 text-emerald-700 focus:ring-emerald-500"
                       />
                       <span className="text-xs text-stone-700 dark:text-stone-300">أؤكد أن هذه الجرعة صحيحة</span>
                     </label>
@@ -1461,7 +1462,7 @@ export default function Tracker() {
             {/* Notes */}
             {/* Side Effect Quick-Log */}
             <div>
-              <label className="mb-1 block text-sm font-bold text-stone-700 dark:text-stone-300">أعراض جانبية <span className="text-xs text-emerald-600 font-normal me-1">اختياري</span></label>
+              <label className="mb-1 block text-sm font-bold text-stone-700 dark:text-stone-300">أعراض جانبية <span className="text-xs text-emerald-700 font-normal me-1">اختياري</span></label>
               <div className="flex flex-wrap gap-2">
                 {[
                   { value: 'none', label: 'لا يوجد', color: 'emerald' },
@@ -1489,7 +1490,7 @@ export default function Tracker() {
 
             {/* Photo Upload */}
             <div>
-              <label className="mb-1 block text-sm font-bold text-stone-700 dark:text-stone-300">صورة الحقنة <span className="text-xs text-emerald-600 font-normal me-1">اختياري</span></label>
+              <label className="mb-1 block text-sm font-bold text-stone-700 dark:text-stone-300">صورة الحقنة <span className="text-xs text-emerald-700 font-normal me-1">اختياري</span></label>
               <input
                 ref={photoInputRef}
                 type="file"
@@ -1513,7 +1514,7 @@ export default function Tracker() {
                 <button
                   type="button"
                   onClick={() => photoInputRef.current?.click()}
-                  className="flex items-center gap-2 rounded-xl border-2 border-dashed border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-900 px-4 py-3 text-sm text-stone-500 transition-all hover:border-emerald-300 hover:text-emerald-600"
+                  className="flex items-center gap-2 rounded-xl border-2 border-dashed border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-900 px-4 py-3 text-sm text-stone-500 transition-all hover:border-emerald-300 hover:text-emerald-700"
                 >
                   <Camera className="h-4 w-4" />
                   التقط أو اختر صورة
@@ -1522,7 +1523,7 @@ export default function Tracker() {
             </div>
 
             <div>
-              <label htmlFor="tracker-notes" className="mb-1 block text-sm font-bold text-stone-700 dark:text-stone-300">ملاحظات <span className="text-xs text-emerald-600 font-normal me-1">اختياري</span></label>
+              <label htmlFor="tracker-notes" className="mb-1 block text-sm font-bold text-stone-700 dark:text-stone-300">ملاحظات <span className="text-xs text-emerald-700 font-normal me-1">اختياري</span></label>
               <textarea
                 id="tracker-notes"
                 value={notes}
@@ -1594,7 +1595,7 @@ export default function Tracker() {
                 className="flex items-center gap-1.5 rounded-lg border border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-950 px-3 py-1.5 min-h-[44px] text-xs font-bold text-emerald-700 dark:text-emerald-400 transition-all hover:bg-emerald-100"
               >
                 <FileDown className="h-3.5 w-3.5" />
-                PDF
+                صورة
               </button>
             </div>
           )}
@@ -1627,7 +1628,7 @@ export default function Tracker() {
                 <Calendar className="h-7 w-7 text-emerald-500" />
               </div>
               <div className="flex h-20 w-20 items-center justify-center rounded-2xl bg-emerald-200 dark:bg-emerald-800/40 shadow-lg">
-                <Syringe className="h-10 w-10 text-emerald-600" />
+                <Syringe className="h-10 w-10 text-emerald-700" />
               </div>
               <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-100 dark:bg-emerald-900/30 rotate-6">
                 <TrendingUp className="h-7 w-7 text-emerald-500" />
@@ -1656,13 +1657,13 @@ export default function Tracker() {
               </Link>
             )}
             <div className="mt-6 flex flex-col items-center gap-2 sm:flex-row sm:justify-center">
-              <Link to="/coach" className="text-sm font-semibold text-emerald-600 hover:underline transition-colors">صمّم بروتوكول مع المدرب الذكي</Link>
+              <Link to="/coach" className="text-sm font-semibold text-emerald-700 hover:underline transition-colors">صمّم بروتوكول مع المدرب الذكي</Link>
               <span className="hidden sm:inline text-stone-300">|</span>
-              <Link to="/guide" className="text-sm font-semibold text-emerald-600 hover:underline transition-colors">تعلّم كيف تحقن</Link>
+              <Link to="/guide" className="text-sm font-semibold text-emerald-700 hover:underline transition-colors">تعلّم كيف تحقن</Link>
               <span className="hidden sm:inline text-stone-300">|</span>
-              <Link to="/calculator" className="text-sm font-semibold text-emerald-600 hover:underline transition-colors">احسب جرعتك</Link>
+              <Link to="/calculator" className="text-sm font-semibold text-emerald-700 hover:underline transition-colors">احسب جرعتك</Link>
               <span className="hidden sm:inline text-stone-300">|</span>
-              <Link to="/interactions" className="text-sm font-semibold text-emerald-600 hover:underline transition-colors">فحص التعارضات</Link>
+              <Link to="/interactions" className="text-sm font-semibold text-emerald-700 hover:underline transition-colors">فحص التعارضات</Link>
             </div>
           </div>
         ) : (
@@ -1683,11 +1684,11 @@ export default function Tracker() {
                     <div className="flex gap-2">
                       <div className="flex-1">
                         <label className="text-xs text-stone-500 dark:text-stone-400 mb-1 block">الجرعة</label>
-                        <input type="number" inputMode="decimal" value={editDose} onChange={e => setEditDose(e.target.value)} dir="ltr" min="0" step="any" className="w-full rounded-lg border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 px-3 py-2 text-sm text-stone-900 dark:text-stone-100 focus:border-emerald-300 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900" />
+                        <input type="number" inputMode="decimal" value={editDose} onChange={e => setEditDose(e.target.value)} dir="ltr" min="0" step="any" className="w-full rounded-lg border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 px-3 py-2 text-base text-stone-900 dark:text-stone-100 focus:border-emerald-300 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900" />
                       </div>
                       <div className="w-20">
                         <label className="text-xs text-stone-500 dark:text-stone-400 mb-1 block">الوحدة</label>
-                        <select value={editUnit} onChange={e => setEditUnit(e.target.value)} className="w-full rounded-lg border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 px-2 py-2 text-sm text-stone-900 dark:text-stone-100 focus:border-emerald-300 focus:outline-none">
+                        <select value={editUnit} onChange={e => setEditUnit(e.target.value)} className="w-full rounded-lg border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 px-2 py-2 text-base text-stone-900 dark:text-stone-100 focus:border-emerald-300 focus:outline-none">
                           <option value="mcg">mcg</option>
                           <option value="mg">mg</option>
                         </select>
@@ -1695,13 +1696,13 @@ export default function Tracker() {
                     </div>
                     <div>
                       <label className="text-xs text-stone-500 dark:text-stone-400 mb-1 block">الموقع</label>
-                      <select value={editSite} onChange={e => setEditSite(e.target.value)} className="w-full rounded-lg border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 px-3 py-2 text-sm text-stone-900 dark:text-stone-100 focus:border-emerald-300 focus:outline-none">
+                      <select value={editSite} onChange={e => setEditSite(e.target.value)} className="w-full rounded-lg border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 px-3 py-2 text-base text-stone-900 dark:text-stone-100 focus:border-emerald-300 focus:outline-none">
                         {INJECTION_SITES.map(s => <option key={s.value} value={s.value}>{s.label}</option>)}
                       </select>
                     </div>
                     <div>
                       <label className="text-xs text-stone-500 dark:text-stone-400 mb-1 block">التاريخ والوقت</label>
-                      <input type="datetime-local" value={editDate} onChange={e => setEditDate(e.target.value)} dir="ltr" className="w-full rounded-lg border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 px-3 py-2 text-sm text-stone-900 dark:text-stone-100 focus:border-emerald-300 focus:outline-none" />
+                      <input type="datetime-local" value={editDate} onChange={e => setEditDate(e.target.value)} dir="ltr" className="w-full rounded-lg border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 px-3 py-2 text-base text-stone-900 dark:text-stone-100 focus:border-emerald-300 focus:outline-none" />
                     </div>
                     <div className="flex gap-2">
                       <button onClick={() => saveEdit(log.id)} disabled={editSaving} className="flex-1 flex items-center justify-center gap-1.5 rounded-lg bg-emerald-600 px-4 py-2.5 min-h-[44px] text-sm font-bold text-white transition-colors hover:bg-emerald-700 disabled:opacity-50">

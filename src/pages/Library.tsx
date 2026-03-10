@@ -24,25 +24,25 @@ import { PRICING, PEPTIDE_COUNT, TRIAL_PEPTIDE_IDS, FREE_PEPTIDE_IDS, SITE_URL }
 import { categoryIcons, evidenceColors, evidenceLabels, evidenceDescriptions, categoryLabels, evidenceOrder } from '@/lib/peptide-labels';
 
 const GOAL_CATEGORY_MAP: Record<string, string> = {
-  'fat-loss': 'metabolic',
-  'recovery': 'recovery',
+  'weight-loss': 'metabolic',
   'muscle': 'recovery',
-  'brain': 'brain',
-  'hormones': 'hormonal',
-  'longevity': 'longevity',
-  'skin-gut-sleep': 'skin-gut',
-  'gut-skin': 'skin-gut',
+  'anti-aging': 'longevity',
+  'recovery': 'recovery',
+  'sleep': 'longevity',
+  'immunity': 'longevity',
+  'skin': 'skin-gut',
+  'general': 'recovery',
 };
 
 const GOAL_LABELS: Record<string, string> = {
-  'fat-loss': 'فقدان دهون',
-  'recovery': 'تعافي وإصابات',
+  'weight-loss': 'فقدان الوزن',
   'muscle': 'بناء عضل',
-  'brain': 'تركيز ودماغ',
-  'hormones': 'تحسين هرمونات',
-  'longevity': 'طول عمر',
-  'skin-gut-sleep': 'بشرة وأمعاء ونوم',
-  'gut-skin': 'بشرة وأمعاء ونوم',
+  'anti-aging': 'مقاومة الشيخوخة',
+  'recovery': 'تعافي وإصابات',
+  'sleep': 'تحسين النوم',
+  'immunity': 'تعزيز المناعة',
+  'skin': 'بشرة وأمعاء',
+  'general': 'صحة عامة',
 };
 
 const PeptideCard = memo(function PeptideCard({
@@ -110,7 +110,7 @@ const PeptideCard = memo(function PeptideCard({
             className="rounded-full p-2.5 min-h-[44px] min-w-[44px] transition-colors hover:bg-stone-100 dark:hover:bg-stone-800"
             aria-label={isFav ? 'إزالة من المحفوظات' : 'إضافة للمحفوظات'}
           >
-            {isFav ? <BookmarkCheck className="h-4 w-4 text-emerald-600" /> : <Bookmark className="h-4 w-4 text-stone-300" />}
+            {isFav ? <BookmarkCheck className="h-4 w-4 text-emerald-700" /> : <Bookmark className="h-4 w-4 text-stone-300" />}
           </button>
         </div>
       </div>
@@ -120,7 +120,7 @@ const PeptideCard = memo(function PeptideCard({
           className={cn(
             'text-lg font-bold transition-colors truncate',
             hasAccess
-              ? 'text-stone-900 dark:text-stone-100 group-hover:text-emerald-600'
+              ? 'text-stone-900 dark:text-stone-100 group-hover:text-emerald-700'
               : 'text-stone-900 dark:text-stone-100',
           )}
         >
@@ -180,7 +180,7 @@ const PeptideCard = memo(function PeptideCard({
               </span>
             )}
             {peptide.costEstimate && (
-              <span className="text-xs font-bold text-emerald-600" dir="ltr">{peptide.costEstimate}</span>
+              <span className="text-xs font-bold text-emerald-700" dir="ltr">{peptide.costEstimate}</span>
             )}
           </div>
         </div>
@@ -292,7 +292,7 @@ export default function Library() {
   useEffect(() => {
     if (searchParams.get('category')) return;
     try {
-      const raw = localStorage.getItem('pptides_quiz_answers');
+      const raw = localStorage.getItem('pptides_quiz_results');
       if (!raw) return;
       const { goal } = JSON.parse(raw);
       if (!goal) return;
@@ -401,7 +401,7 @@ export default function Library() {
           className="mb-10 text-center"
         >
           <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-500/10">
-            <FlaskConical className="h-7 w-7 text-emerald-600" />
+            <FlaskConical className="h-7 w-7 text-emerald-700" />
           </div>
           <h1
             className="text-3xl font-bold md:text-4xl"
@@ -416,10 +416,10 @@ export default function Library() {
         {/* Recommended for you */}
         {(() => {
           let quizGoal: string | null = null;
-          try { const q = localStorage.getItem('pptides_quiz_answers'); if (q) { const parsed = JSON.parse(q); quizGoal = parsed.goal; } } catch { /* expected */ }
+          try { const q = localStorage.getItem('pptides_quiz_results'); if (q) { const parsed = JSON.parse(q); quizGoal = parsed.goal; } } catch { /* expected */ }
           let recentIds: string[] = [];
           try { const r = localStorage.getItem('pptides_recent_peptides'); if (r) recentIds = JSON.parse(r); } catch { /* expected */ }
-          const goalMap: Record<string, string> = { 'fat-loss': 'metabolic', recovery: 'recovery', muscle: 'hormones', brain: 'brain', hormones: 'hormones', longevity: 'longevity', 'skin-gut-sleep': 'skin-gut' };
+          const goalMap: Record<string, string> = { 'weight-loss': 'metabolic', muscle: 'recovery', 'anti-aging': 'longevity', recovery: 'recovery', sleep: 'longevity', immunity: 'longevity', skin: 'skin-gut', general: 'recovery' };
           const category = quizGoal ? goalMap[quizGoal] : null;
           const recommended = category ? peptides.filter(p => p.category === category && !recentIds.includes(p.id)).slice(0, 3) : [];
           if (recommended.length === 0 && recentIds.length === 0) return null;
@@ -501,7 +501,7 @@ export default function Library() {
             className={cn(
               'flex items-center justify-center gap-2 rounded-xl border px-4 py-2.5 text-sm font-medium transition-colors sm:w-auto',
               showFilters
-                ? 'border-emerald-400 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600'
+                ? 'border-emerald-400 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700'
                 : 'border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 text-stone-800 dark:text-stone-200 transition-colors hover:border-stone-300 dark:border-stone-700',
             )}
           >
@@ -697,7 +697,7 @@ export default function Library() {
                   className="md:col-span-2"
                 >
                   <div className="flex flex-col items-center justify-center gap-4 rounded-2xl border-2 border-dashed border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-900/20 p-8 text-center">
-                    <Sparkles className="h-6 w-6 text-emerald-600" />
+                    <Sparkles className="h-6 w-6 text-emerald-700" />
                     <span className="text-lg font-bold text-stone-900 dark:text-stone-100">
                       اكتشف البروتوكولات الكاملة لـ {PEPTIDE_COUNT} ببتيد
                     </span>
@@ -783,7 +783,7 @@ export default function Library() {
                           <Link
                             to={`/calculator?preset=${encodeURIComponent(p.nameEn)}`}
                             onClick={() => setShowCompare(false)}
-                            className="text-xs text-emerald-600 hover:underline"
+                            className="text-xs text-emerald-700 hover:underline"
                           >
                             احسب الجرعة
                           </Link>
@@ -827,7 +827,7 @@ export default function Library() {
             <FocusTrap focusTrapOptions={{ allowOutsideClick: true }}>
             <div className="w-full max-w-md max-h-[90vh] overflow-y-auto rounded-2xl bg-white dark:bg-stone-950 p-6 sm:p-8 shadow-2xl text-center animate-fade-in" onClick={e => e.stopPropagation()}>
               <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-emerald-100 dark:bg-emerald-900/30">
-                <Lock className="h-7 w-7 text-emerald-600" />
+                <Lock className="h-7 w-7 text-emerald-700" />
               </div>
               <h3 className="mb-2 text-xl font-bold text-stone-900 dark:text-stone-100">{p.nameAr}</h3>
               <p className="mb-1 text-sm text-stone-500 dark:text-stone-400" dir="ltr">{p.nameEn}</p>
@@ -846,7 +846,7 @@ export default function Library() {
               <Link
                 to="/coach"
                 onClick={() => setUpsellPeptide(null)}
-                className="text-sm text-emerald-600 hover:underline"
+                className="text-sm text-emerald-700 hover:underline"
               >
                 أو اسأل المدرب الذكي عن {p.nameAr} مجانًا
               </Link>

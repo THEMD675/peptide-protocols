@@ -290,7 +290,7 @@ function getTestCategoryIcon(relatedCategories: string[]): { Icon: typeof Heart;
   if (relatedCategories.includes('brain')) return { Icon: Brain, color: 'text-amber-600', bgColor: 'bg-amber-100' };
   if (relatedCategories.includes('longevity')) return { Icon: Heart, color: 'text-rose-600', bgColor: 'bg-rose-100' };
   if (relatedCategories.includes('skin-gut')) return { Icon: FlaskConical, color: 'text-teal-600', bgColor: 'bg-teal-100' };
-  return { Icon: TestTube, color: 'text-emerald-600', bgColor: 'bg-emerald-100' };
+  return { Icon: TestTube, color: 'text-emerald-700', bgColor: 'bg-emerald-100' };
 }
 
 /** Visual bar showing where a value falls in the reference range */
@@ -405,7 +405,7 @@ function InteractiveReferenceRanges({ isPro, blurClass }: { isPro: boolean; blur
   return (
     <section>
       <div className="mb-4 flex items-center gap-3">
-        <Activity className="h-6 w-6 shrink-0 text-emerald-600" />
+        <Activity className="h-6 w-6 shrink-0 text-emerald-700" />
         <h2 className="text-2xl font-bold">النطاقات المرجعية التفاعلية</h2>
       </div>
 
@@ -446,7 +446,7 @@ function InteractiveReferenceRanges({ isPro, blurClass }: { isPro: boolean; blur
                   </div>
                   <div className="mt-1 flex justify-between text-[10px] text-stone-400" dir="ltr">
                     <span>{b.normalMin} {b.unit}</span>
-                    <span className="text-emerald-600 font-medium">النطاق الطبيعي</span>
+                    <span className="text-emerald-700 font-medium">النطاق الطبيعي</span>
                     <span>{b.normalMax} {b.unit}</span>
                   </div>
                 </div>
@@ -478,7 +478,7 @@ function InteractiveReferenceRanges({ isPro, blurClass }: { isPro: boolean; blur
 
                   <div className="rounded-xl bg-stone-50 dark:bg-stone-800 p-3">
                     <div className="flex items-center gap-1.5 mb-1.5">
-                      <FlaskConical className="h-3.5 w-3.5 text-emerald-600" />
+                      <FlaskConical className="h-3.5 w-3.5 text-emerald-700" />
                       <span className="text-xs font-bold text-stone-700 dark:text-stone-300">الببتيدات المؤثرة</span>
                     </div>
                     <div className="flex flex-wrap gap-1.5">
@@ -540,7 +540,7 @@ function TestPackages({ isPro, blurClass }: { isPro: boolean; blurClass: string 
   return (
     <section>
       <div className="mb-4 flex items-center gap-3">
-        <Package className="h-6 w-6 shrink-0 text-emerald-600" />
+        <Package className="h-6 w-6 shrink-0 text-emerald-700" />
         <h2 className="text-2xl font-bold">باقات التحاليل الموصى بها</h2>
       </div>
 
@@ -608,7 +608,7 @@ function TestPackages({ isPro, blurClass }: { isPro: boolean; blurClass: string 
               </div>
 
               {!isPro && (
-                <Link to="/pricing" className="mt-2 block text-center text-xs font-bold text-emerald-600 hover:underline">
+                <Link to="/pricing" className="mt-2 block text-center text-xs font-bold text-emerald-700 hover:underline">
                   اشترك لمعرفة التفاصيل
                 </Link>
               )}
@@ -625,7 +625,7 @@ function TestingTimeline() {
   return (
     <section>
       <div className="mb-4 flex items-center gap-3">
-        <Clock className="h-6 w-6 shrink-0 text-emerald-600" />
+        <Clock className="h-6 w-6 shrink-0 text-emerald-700" />
         <h2 className="text-2xl font-bold">جدول التحاليل الزمني</h2>
       </div>
 
@@ -720,7 +720,7 @@ function ResultsInterpreter({ isPro, blurClass }: { isPro: boolean; blurClass: s
   return (
     <section>
       <div className="mb-4 flex items-center gap-3">
-        <Beaker className="h-6 w-6 shrink-0 text-emerald-600" />
+        <Beaker className="h-6 w-6 shrink-0 text-emerald-700" />
         <h2 className="text-2xl font-bold">مفسّر النتائج</h2>
       </div>
       <p className="mb-4 text-sm text-stone-500">أدخل قيمة تحليلك واحصل على تفسير فوري</p>
@@ -763,7 +763,7 @@ function ResultsInterpreter({ isPro, blurClass }: { isPro: boolean; blurClass: s
           <RangeBar biomarker={biomarker} value={hasValue ? numericValue : undefined} />
           <div className="mt-1 flex justify-between text-[10px] text-stone-400" dir="ltr">
             <span>{biomarker.absMin}</span>
-            <span className="text-emerald-600">{biomarker.normalMin} — {biomarker.normalMax} {biomarker.unit}</span>
+            <span className="text-emerald-700">{biomarker.normalMin} — {biomarker.normalMax} {biomarker.unit}</span>
             <span>{biomarker.absMax}</span>
           </div>
         </div>
@@ -781,7 +781,7 @@ function ResultsInterpreter({ isPro, blurClass }: { isPro: boolean; blurClass: s
             {status === 'normal' ? (
               <div className="rounded-xl bg-emerald-50 dark:bg-emerald-900/20 p-4">
                 <div className="flex items-center gap-2 mb-1">
-                  <CheckCircle className="h-4 w-4 text-emerald-600" />
+                  <CheckCircle className="h-4 w-4 text-emerald-700" />
                   <span className="text-sm font-bold text-emerald-700 dark:text-emerald-400">نتيجة طبيعية ✓</span>
                 </div>
                 <p className="text-xs text-stone-600 dark:text-stone-400">
@@ -809,7 +809,7 @@ function ResultsInterpreter({ isPro, blurClass }: { isPro: boolean; blurClass: s
             )}
 
             <div className="flex items-center gap-2 text-xs">
-              <FlaskConical className="h-3.5 w-3.5 text-emerald-600" />
+              <FlaskConical className="h-3.5 w-3.5 text-emerald-700" />
               <span className="text-stone-500">الببتيدات المؤثرة:</span>
               <span className="font-medium text-stone-700 dark:text-stone-300">{biomarker.relatedPeptides.join('، ')}</span>
             </div>
@@ -839,7 +839,7 @@ function LabLocator() {
   return (
     <section>
       <div className="mb-4 flex items-center gap-3">
-        <MapPin className="h-6 w-6 shrink-0 text-emerald-600" />
+        <MapPin className="h-6 w-6 shrink-0 text-emerald-700" />
         <h2 className="text-2xl font-bold">مختبرات في السعودية</h2>
       </div>
       <p className="mb-4 text-sm text-stone-500">أشهر المختبرات مع أسعار تقريبية للباقات</p>
@@ -884,7 +884,7 @@ function LabLocator() {
             <div className="mt-3 pt-3 border-t border-stone-100 dark:border-stone-800">
               <p className="text-[11px] text-stone-500 text-center">{lab.notes}</p>
               {lab.homeVisit && (
-                <div className="mt-2 flex items-center justify-center gap-1 text-[10px] text-emerald-600">
+                <div className="mt-2 flex items-center justify-center gap-1 text-[10px] text-emerald-700">
                   <CheckCircle className="h-3 w-3" />
                   <span>زيارة منزلية متاحة</span>
                 </div>
@@ -956,7 +956,7 @@ export default function LabGuide() {
         <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-500">
           <TestTube className="h-7 w-7 text-white" />
         </div>
-        <h1 className="text-3xl font-bold md:text-4xl text-emerald-600">
+        <h1 className="text-3xl font-bold md:text-4xl text-emerald-700">
           دليل التحاليل المخبرية
         </h1>
         <p className="mt-2 text-lg text-stone-600">
@@ -1004,7 +1004,7 @@ export default function LabGuide() {
         {/* ── Original: Baseline tests with icons ── */}
         <section>
           <div className="mb-4 flex items-center gap-3">
-            <ClipboardList className="h-6 w-6 shrink-0 text-emerald-600" />
+            <ClipboardList className="h-6 w-6 shrink-0 text-emerald-700" />
             <h2 className="text-2xl font-bold">التحاليل الأساسية — تفصيل</h2>
           </div>
 
@@ -1054,7 +1054,7 @@ export default function LabGuide() {
                   </div>
                   {!isPro && (
                     <div className="mt-3">
-                      <Link to="/pricing" className="text-xs font-bold text-emerald-600 hover:underline">
+                      <Link to="/pricing" className="text-xs font-bold text-emerald-700 hover:underline">
                         اشترك لمعرفة التفاصيل <ArrowLeft className="inline h-3 w-3" />
                       </Link>
                     </div>

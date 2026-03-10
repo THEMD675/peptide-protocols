@@ -6,9 +6,15 @@ import { cn } from '@/lib/utils';
 import { peptides } from '@/data/peptides';
 import { categoryLabels } from '@/lib/peptide-labels';
 import { PEPTIDE_COUNT, SITE_URL } from '@/lib/constants';
-import { DANGEROUS_COMBOS, SYNERGISTIC_COMBOS, DRUG_INTERACTIONS, GH_PEPTIDE_IDS, FAT_LOSS_PEPTIDE_IDS, type InteractionResult, type SeverityLevel } from '@/data/interactions';
+import { DANGEROUS_COMBOS, SYNERGISTIC_COMBOS, DRUG_INTERACTIONS, GH_PEPTIDE_IDS, FAT_LOSS_PEPTIDE_IDS, MEDICATIONS, type InteractionResult, type SeverityLevel } from '@/data/interactions';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
+
+const MEDICATION_IDS = new Set(MEDICATIONS.map(m => m.id));
+
+function getMedicationName(id: string): string {
+  return MEDICATIONS.find(m => m.id === id)?.nameAr ?? id;
+}
 
 function checkInteraction(id1: string, id2: string): InteractionResult {
   const key1 = `${id1}+${id2}`;
@@ -24,6 +30,20 @@ function checkInteraction(id1: string, id2: string): InteractionResult {
 
   if (SYNERGISTIC_COMBOS[key1]) return SYNERGISTIC_COMBOS[key1];
   if (SYNERGISTIC_COMBOS[key2]) return SYNERGISTIC_COMBOS[key2];
+
+  // If both are medications, no interaction data
+  if (MEDICATION_IDS.has(id1) && MEDICATION_IDS.has(id2)) {
+    return { safe: true, warning: true, severity: 'warning' as SeverityLevel, severityAr: 'تحذير', message: `${getMedicationName(id1)} + ${getMedicationName(id2)} — لا توجد بيانات`, details: 'هذه الأداة مخصصة لفحص تعارضات الببتيدات مع الأدوية. لتعارضات الأدوية مع بعضها، استشر الصيدلي.' };
+  }
+
+  // If one is a medication with no specific interaction found
+  if (MEDICATION_IDS.has(id1) || MEDICATION_IDS.has(id2)) {
+    const medId = MEDICATION_IDS.has(id1) ? id1 : id2;
+    const pepId = MEDICATION_IDS.has(id1) ? id2 : id1;
+    const med = MEDICATIONS.find(m => m.id === medId);
+    const pep = peptides.find(p => p.id === pepId);
+    return { safe: true, warning: false, severity: 'safe' as SeverityLevel, severityAr: 'آمن', message: `${pep?.nameAr ?? pepId} + ${med?.nameAr ?? medId} — لا تعارض معروف`, details: 'لم نجد تعارضًا مسجّلًا بين هذا الببتيد وهذا الدواء. هذا لا يعني عدم وجود تعارض — استشر مختصًا دائمًا.' };
+  }
 
   const p1 = peptides.find(p => p.id === id1);
   const p2 = peptides.find(p => p.id === id2);
@@ -164,10 +184,10 @@ export default function InteractionChecker() {
       <div className="mx-auto max-w-2xl px-4 py-8 md:px-6 md:py-12">
         <div className="mb-10 text-center">
           <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-100 dark:bg-emerald-900/30">
-            <Shield className="h-7 w-7 text-emerald-600" />
+            <Shield className="h-7 w-7 text-emerald-700" />
           </div>
           <h1 className="text-3xl font-bold text-stone-900 dark:text-stone-100 md:text-4xl">
-            فحص <span className="text-emerald-600">التعارضات</span>
+            فحص <span className="text-emerald-700">التعارضات</span>
           </h1>
           <p className="mt-2 text-base text-stone-600 dark:text-stone-400">
             اختر ببتيدين لمعرفة إذا يمكن تجميعهما بأمان
@@ -184,13 +204,23 @@ export default function InteractionChecker() {
                 aria-label={`اختر الببتيد ${idx + 1}`}
                 className={cn('flex-1 rounded-xl border border-stone-300 dark:border-stone-700 bg-stone-50 dark:bg-stone-900 px-4 py-3 text-sm focus:border-emerald-300 dark:border-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900', sel ? 'text-stone-900 dark:text-stone-100' : 'text-stone-500 dark:text-stone-400 italic')}
               >
-                <option value="">اختر ببتيد...</option>
+                <option value="">اختر ببتيد أو دواء...</option>
+                <optgroup label="الببتيدات">
                 {sortedPeptides.map(p => {
                   const usedElsewhere = selected.some((s, i) => i !== idx && s === p.id);
                   return (
                     <option key={p.id} value={p.id} disabled={usedElsewhere}>{p.nameAr} ({p.nameEn}){usedElsewhere ? ' (محدد)' : ''}</option>
                   );
                 })}
+                </optgroup>
+                <optgroup label="الأدوية">
+                {MEDICATIONS.map(m => {
+                  const usedElsewhere = selected.some((s, i) => i !== idx && s === m.id);
+                  return (
+                    <option key={m.id} value={m.id} disabled={usedElsewhere}>{m.nameAr} ({m.nameEn}){usedElsewhere ? ' (محدد)' : ''}</option>
+                  );
+                })}
+                </optgroup>
               </select>
               {selected.length > 2 && (
                 <button onClick={() => removeSlot(idx)} aria-label="إزالة" className="flex items-center justify-center rounded-lg p-2 min-h-[44px] min-w-[44px] text-stone-500 dark:text-stone-400 hover:bg-red-50 dark:bg-red-900/20 transition-colors hover:text-red-500 dark:text-red-400"><XCircle className="h-4 w-4" /></button>
@@ -199,7 +229,7 @@ export default function InteractionChecker() {
           ))}
           <div className="flex gap-2">
           {selected.length < 5 && (
-            <button onClick={addSlot} className="flex flex-1 items-center justify-center gap-2 rounded-xl border-2 border-dashed border-stone-200 dark:border-stone-700 py-3 text-sm font-medium text-stone-500 dark:text-stone-400 hover:border-emerald-300 dark:border-emerald-700 transition-colors hover:text-emerald-600">
+            <button onClick={addSlot} className="flex flex-1 items-center justify-center gap-2 rounded-xl border-2 border-dashed border-stone-200 dark:border-stone-700 py-3 text-sm font-medium text-stone-500 dark:text-stone-400 hover:border-emerald-300 dark:border-emerald-700 transition-colors hover:text-emerald-700">
               + أضف ببتيد آخر
             </button>
           )}
@@ -248,7 +278,7 @@ export default function InteractionChecker() {
               ) : hasAnyWarning ? (
                 <AlertTriangle className="h-7 w-7 text-amber-600 shrink-0" />
               ) : (
-                <CheckCircle className="h-7 w-7 text-emerald-600 shrink-0" />
+                <CheckCircle className="h-7 w-7 text-emerald-700 shrink-0" />
               )}
               <p className={cn('text-base font-bold', hasAnyDanger ? 'text-red-900' : hasAnyWarning ? 'text-amber-900 dark:text-amber-200' : 'text-emerald-900')}>
                 {hasAnyDanger ? 'تعارض خطير — لا تجمع هذه التجميعة' :
@@ -265,6 +295,10 @@ export default function InteractionChecker() {
             {pairs.map((pair, idx) => {
               const p1 = peptides.find(p => p.id === pair.id1);
               const p2 = peptides.find(p => p.id === pair.id2);
+              const m1 = MEDICATIONS.find(m => m.id === pair.id1);
+              const m2 = MEDICATIONS.find(m => m.id === pair.id2);
+              const name1 = p1?.nameEn ?? m1?.nameEn ?? pair.id1;
+              const name2 = p2?.nameEn ?? m2?.nameEn ?? pair.id2;
               return (
                 <div key={idx} className={cn(
                   'rounded-xl border p-4 transition-all hover:shadow-sm dark:shadow-stone-900/30',
@@ -277,9 +311,9 @@ export default function InteractionChecker() {
                      pair.result.warning ? <AlertTriangle className="h-4 w-4 text-amber-500 shrink-0" /> :
                      <CheckCircle className="h-4 w-4 text-emerald-500 shrink-0" />}
                     <span className="text-sm font-bold text-stone-900 dark:text-stone-100" dir="ltr">
-                      <Link to={`/peptide/${pair.id1}`} className="hover:text-emerald-600 transition-colors">{p1?.nameEn}</Link>
+                      {p1 ? <Link to={`/peptide/${pair.id1}`} className="hover:text-emerald-700 transition-colors">{name1}</Link> : <span>{name1}</span>}
                       <span> + </span>
-                      <Link to={`/peptide/${pair.id2}`} className="hover:text-emerald-600 transition-colors">{p2?.nameEn}</Link>
+                      {p2 ? <Link to={`/peptide/${pair.id2}`} className="hover:text-emerald-700 transition-colors">{name2}</Link> : <span>{name2}</span>}
                     </span>
                     <span className={cn(
                       'ms-auto shrink-0 rounded-full px-2.5 py-0.5 text-xs font-bold',
@@ -312,7 +346,7 @@ export default function InteractionChecker() {
           <Link to="/coach" className="inline-flex items-center gap-2 rounded-full border border-emerald-300 dark:border-emerald-700 px-5 py-2.5 text-sm font-bold text-emerald-700 dark:text-emerald-400 transition-colors hover:bg-emerald-100 dark:bg-emerald-900/30">
             اسأل المدرب الذكي
           </Link>
-          <Link to="/library" className="inline-flex min-h-[44px] items-center text-sm font-medium text-emerald-600 hover:underline">
+          <Link to="/library" className="inline-flex min-h-[44px] items-center text-sm font-medium text-emerald-700 hover:underline">
             العودة للمكتبة
           </Link>
         </div>

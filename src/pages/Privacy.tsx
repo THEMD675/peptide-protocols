@@ -89,11 +89,11 @@ export default function Privacy() {
 
           <section>
             <h2 className="mb-3 text-xl font-bold text-stone-900 dark:text-stone-100">7. التواصل</h2>
-            <p>لأي استفسار حول الخصوصية: <a href={`mailto:${SUPPORT_EMAIL}`} className="inline-flex min-h-[44px] items-center text-emerald-600 underline">{SUPPORT_EMAIL}</a></p>
+            <p>لأي استفسار حول الخصوصية: <a href={`mailto:${SUPPORT_EMAIL}`} className="inline-flex min-h-[44px] items-center text-emerald-700 underline">{SUPPORT_EMAIL}</a></p>
           </section>
         </div>
         <div className="mt-8 border-t border-stone-200 dark:border-stone-700 pt-6 text-center">
-          <Link to="/" className="inline-flex min-h-[44px] items-center text-sm font-semibold text-emerald-600 transition-colors hover:text-emerald-700 dark:text-emerald-400">→ العودة للصفحة الرئيسية</Link>
+          <Link to="/" className="inline-flex min-h-[44px] items-center text-sm font-semibold text-emerald-700 transition-colors hover:text-emerald-700 dark:text-emerald-400">→ العودة للصفحة الرئيسية</Link>
         </div>
       </div>
     </div>

@@ -66,11 +66,11 @@ export default function EmailCapture() {
   if (status === 'success') {
     return (
       <div className="rounded-2xl border border-emerald-300 dark:border-emerald-700 bg-emerald-50 dark:bg-emerald-900/20 p-8 text-center">
-        <CheckCircle className="mx-auto mb-3 h-10 w-10 text-emerald-600" />
+        <CheckCircle className="mx-auto mb-3 h-10 w-10 text-emerald-700" />
         <p className="text-lg font-bold text-emerald-700 dark:text-emerald-400">
           شكرًا! تم تسجيل بريدك بنجاح
         </p>
-        <p className="mt-2 text-sm text-emerald-600">شكرًا! سنرسل لك آخر التحديثات</p>
+        <p className="mt-2 text-sm text-emerald-700">شكرًا! سنرسل لك آخر التحديثات</p>
       </div>
     );
   }

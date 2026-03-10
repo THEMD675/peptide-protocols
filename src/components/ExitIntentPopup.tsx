@@ -87,7 +87,7 @@ export default function ExitIntentPopup() {
         </button>
 
         <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-emerald-100 dark:bg-emerald-900/30">
-          <Gift className="h-8 w-8 text-emerald-600" />
+          <Gift className="h-8 w-8 text-emerald-700" />
         </div>
 
         <h2 id="exit-popup-title" className="mb-2 text-2xl font-bold text-stone-900 dark:text-stone-100">
@@ -107,7 +107,7 @@ export default function ExitIntentPopup() {
             </>
           ) : (
             <>
-              <span className="text-3xl font-black text-emerald-600">{TRIAL_DAYS} أيام</span>
+              <span className="text-3xl font-black text-emerald-700">{TRIAL_DAYS} أيام</span>
               <span className="text-stone-500 dark:text-stone-400">تجربة مجانية</span>
             </>
           )}

@@ -92,7 +92,7 @@ export default function SocialProofToast() {
     >
       <div className="flex items-center gap-3">
         <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-emerald-100 dark:bg-emerald-900/30">
-          <Check className="h-4 w-4 text-emerald-600" />
+          <Check className="h-4 w-4 text-emerald-700" />
         </div>
         <p className="text-sm font-medium text-stone-800 dark:text-stone-200">{notification}</p>
       </div>

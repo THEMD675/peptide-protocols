@@ -228,7 +228,7 @@ export default function Reviews() {
           <div
             className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-500/10"
           >
-            <MessageSquare className="h-7 w-7 text-emerald-600"  />
+            <MessageSquare className="h-7 w-7 text-emerald-700"  />
           </div>
           <h1
             className="text-3xl font-bold md:text-4xl"
@@ -286,7 +286,7 @@ export default function Reviews() {
             <div
               className="flex flex-col items-center gap-3 py-6 text-center"
             >
-              <CheckCircle className="h-10 w-10 text-emerald-600" />
+              <CheckCircle className="h-10 w-10 text-emerald-700" />
               <p className="text-base font-bold text-stone-900 dark:text-stone-100">
                 شكرًا! سيتم مراجعة تقييمك قبل النشر.
               </p>
@@ -425,7 +425,7 @@ export default function Reviews() {
           ) : reviews.length === 0 ? (
             <div className="rounded-2xl border-2 border-dashed border-emerald-200 dark:border-emerald-800 bg-gradient-to-b from-emerald-50 to-white dark:to-stone-950 py-20 px-8 text-center">
               <div className="mx-auto mb-5 flex h-20 w-20 items-center justify-center rounded-2xl bg-emerald-100 dark:bg-emerald-900/30">
-                <MessageCircle className="h-10 w-10 text-emerald-600" />
+                <MessageCircle className="h-10 w-10 text-emerald-700" />
               </div>
               <h3 className="text-2xl font-bold text-stone-900 dark:text-stone-100">لا توجد تقييمات بعد</h3>
               <p className="mx-auto mt-3 max-w-md text-base leading-relaxed text-stone-600 dark:text-stone-400">

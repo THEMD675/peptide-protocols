@@ -2,12 +2,20 @@ import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 
 export default function ProtectedRoute({ children }: { children: React.ReactNode }) {
-  const { user, isLoading } = useAuth();
+  const { user, subscription, isLoading } = useAuth();
   const location = useLocation();
 
   if (isLoading) return <div className="flex min-h-[50vh] items-center justify-center" role="status" aria-label="جارٍ التحميل"><div className="h-8 w-8 animate-spin rounded-full border-2 border-emerald-200 dark:border-emerald-800 border-t-emerald-600" /></div>;
   if (!user) return (
     <Navigate to={`/login?redirect=${encodeURIComponent(location.pathname + location.search)}`} replace />
   );
+
+  // If subscription expired/cancelled AND trial ended, redirect to pricing
+  if (!subscription.isProOrTrial) {
+    return (
+      <Navigate to="/pricing?expired=1" replace />
+    );
+  }
+
   return <>{children}</>;
 }

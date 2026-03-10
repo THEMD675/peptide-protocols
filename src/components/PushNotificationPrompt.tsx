@@ -117,7 +117,7 @@ export default function PushNotificationPrompt() {
       <div className="flex items-center justify-between gap-4">
         <div className="flex items-center gap-3">
           <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-emerald-100 dark:bg-emerald-900/30">
-            <Bell className="h-6 w-6 text-emerald-600" />
+            <Bell className="h-6 w-6 text-emerald-700" />
           </div>
           <div>
             <h3 className="font-bold text-stone-900 dark:text-stone-100">تنبيهات الحقن</h3>

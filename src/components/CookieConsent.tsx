@@ -67,7 +67,7 @@ export default function CookieConsent() {
 
         <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
           <p className="text-xs text-stone-500 dark:text-stone-400">
-            <Link to="/privacy" className="text-emerald-600 underline underline-offset-2 transition-colors hover:text-emerald-700 dark:text-emerald-400">سياسة الخصوصية</Link>
+            <Link to="/privacy" className="text-emerald-700 underline underline-offset-2 transition-colors hover:text-emerald-700 dark:text-emerald-400">سياسة الخصوصية</Link>
           </p>
           <div className="flex shrink-0 items-center gap-3">
             <button
@@ -78,7 +78,7 @@ export default function CookieConsent() {
             </button>
             <button
               onClick={savePreferences}
-              className="shrink-0 rounded-full border border-emerald-600 px-5 py-2 min-h-[44px] text-sm font-bold text-emerald-600 transition-all hover:bg-emerald-50 dark:bg-emerald-900/20 btn-press"
+              className="shrink-0 rounded-full border border-emerald-600 px-5 py-2 min-h-[44px] text-sm font-bold text-emerald-700 transition-all hover:bg-emerald-50 dark:bg-emerald-900/20 btn-press"
             >
               حفظ التفضيلات
             </button>
