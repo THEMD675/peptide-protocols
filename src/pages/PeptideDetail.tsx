@@ -120,6 +120,16 @@ export default function PeptideDetail() {
         <meta name="twitter:description" content={peptide.summaryAr.slice(0, 160)} />
         <script type="application/ld+json">{JSON.stringify({
           "@context": "https://schema.org",
+          "@type": "BreadcrumbList",
+          "itemListElement": [
+            { "@type": "ListItem", "position": 1, "name": "الرئيسية", "item": SITE_URL },
+            { "@type": "ListItem", "position": 2, "name": "المكتبة", "item": `${SITE_URL}/library` },
+            { "@type": "ListItem", "position": 3, "name": categoryLabels[peptide.category] ?? peptide.category, "item": `${SITE_URL}/library?category=${peptide.category}` },
+            { "@type": "ListItem", "position": 4, "name": peptide.nameAr, "item": `${SITE_URL}/peptide/${peptide.id}` },
+          ],
+        })}</script>
+        <script type="application/ld+json">{JSON.stringify({
+          "@context": "https://schema.org",
           "@type": "FAQPage",
           "mainEntity": [
             { "@type": "Question", "name": `ما هو ${peptide.nameEn}؟`, "acceptedAnswer": { "@type": "Answer", "text": peptide.summaryAr } },
