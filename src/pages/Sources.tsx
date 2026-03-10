@@ -155,7 +155,7 @@ function SourcingInterestForm() {
           {submitting ? 'جارٍ الإرسال...' : 'سجّل اهتمامك'}
         </button>
 
-        <p className="text-center text-xs text-stone-500 dark:text-stone-500">pptides لا تبيع ببتيدات حاليًا — نجمع الاهتمام لتوفير خدمة موثوقة مستقبلًا</p>
+        <p className="text-center text-xs text-stone-500 dark:text-stone-500 dark:text-stone-400">pptides لا تبيع ببتيدات حاليًا — نجمع الاهتمام لتوفير خدمة موثوقة مستقبلًا</p>
       </form>
     </section>
   );

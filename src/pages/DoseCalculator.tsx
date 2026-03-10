@@ -714,7 +714,7 @@ export default function DoseCalculator() {
                     <span className="text-lg">{proto.icon}</span>
                     <div className="text-start">
                       <p className="text-xs font-bold text-stone-900 dark:text-stone-100">{proto.name}</p>
-                      <p className="text-[10px] text-stone-500" dir="ltr">{proto.peptides.join(' + ')}</p>
+                      <p className="text-[10px] text-stone-500 dark:text-stone-400" dir="ltr">{proto.peptides.join(' + ')}</p>
                     </div>
                   </button>
                 ))}
@@ -731,7 +731,7 @@ export default function DoseCalculator() {
                   value={presetSearch}
                   onChange={(e) => setPresetSearch(e.target.value)}
                   placeholder="ابحث عن ببتيد..."
-                  className="w-full rounded-xl border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-900 px-4 py-2.5 ps-10 text-sm text-stone-800 dark:text-stone-200 placeholder:text-stone-500 dark:placeholder:text-stone-400 focus:border-emerald-300 focus:ring-1 focus:ring-emerald-200 outline-none"
+                  className="w-full rounded-xl border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-900 px-4 py-2.5 ps-10 text-sm text-stone-800 dark:text-stone-200 placeholder:text-stone-500 dark:text-stone-400 dark:placeholder:text-stone-400 focus:border-emerald-300 focus:ring-1 focus:ring-emerald-200 outline-none"
                   aria-label="ابحث عن ببتيد"
                 />
               </div>
@@ -1010,7 +1010,7 @@ export default function DoseCalculator() {
                     value={vialPrice || ''}
                     onChange={e => setVialPrice(Number(e.target.value))}
                     placeholder="مثال: 40"
-                    className="w-full rounded-xl border border-stone-300 dark:border-stone-700 bg-stone-50 dark:bg-stone-900 px-4 py-3 text-base text-stone-900 dark:text-stone-100 placeholder:text-stone-500 focus:border-emerald-300 focus:outline-none focus:ring-1 focus:ring-emerald-100"
+                    className="w-full rounded-xl border border-stone-300 dark:border-stone-700 bg-stone-50 dark:bg-stone-900 px-4 py-3 text-base text-stone-900 dark:text-stone-100 placeholder:text-stone-500 dark:text-stone-400 focus:border-emerald-300 focus:outline-none focus:ring-1 focus:ring-emerald-100"
                   />
                 </div>
               </div>
@@ -1297,7 +1297,7 @@ export default function DoseCalculator() {
                         <option key={i} value={i}>{opt.label}</option>
                       ))}
                     </select>
-                    <ChevronDown className="pointer-events-none absolute end-3 top-1/2 h-4 w-4 -translate-y-1/2 text-stone-500" />
+                    <ChevronDown className="pointer-events-none absolute end-3 top-1/2 h-4 w-4 -translate-y-1/2 text-stone-500 dark:text-stone-400" />
                   </div>
                 </div>
               </div>
@@ -1405,13 +1405,13 @@ export default function DoseCalculator() {
                         <option key={p.name} value={p.name}>{getPresetDisplayName(p.name)} ({p.name})</option>
                       ))}
                     </select>
-                    <ChevronDown className="pointer-events-none absolute end-3 top-1/2 h-4 w-4 -translate-y-1/2 text-stone-500" />
+                    <ChevronDown className="pointer-events-none absolute end-3 top-1/2 h-4 w-4 -translate-y-1/2 text-stone-500 dark:text-stone-400" />
                   </div>
                 </div>
                 <div className="space-y-2">
                   <label className="block text-xs font-medium text-stone-800 dark:text-stone-200">سعر القارورة (ر.س)</label>
                   <input type="number" inputMode="decimal" min={0} step={5} value={costPrice || ''} onChange={e => setCostPrice(Number(e.target.value))}
-                    placeholder="مثال: 40" className="w-full rounded-xl border border-stone-300 dark:border-stone-700 bg-white dark:bg-stone-950 px-4 py-3 text-sm text-stone-900 dark:text-stone-100 placeholder:text-stone-500 focus:border-emerald-300 focus:outline-none" aria-label="سعر القارورة" />
+                    placeholder="مثال: 40" className="w-full rounded-xl border border-stone-300 dark:border-stone-700 bg-white dark:bg-stone-950 px-4 py-3 text-sm text-stone-900 dark:text-stone-100 placeholder:text-stone-500 dark:text-stone-400 focus:border-emerald-300 focus:outline-none" aria-label="سعر القارورة" />
                 </div>
                 <div className="space-y-2">
                   <label className="block text-xs font-medium text-stone-800 dark:text-stone-200">حجم القارورة (ملغ)</label>
@@ -1622,7 +1622,7 @@ export default function DoseCalculator() {
                 <Droplets className="h-5 w-5 shrink-0 text-emerald-700" />
                 <h2 className="text-base font-bold text-stone-900 dark:text-stone-100">كيف تستخدم هذه الحاسبة</h2>
               </div>
-              <ChevronDown className={cn('h-5 w-5 text-stone-500 transition-transform duration-300', showFormulas && 'rotate-180')} />
+              <ChevronDown className={cn('h-5 w-5 text-stone-500 dark:text-stone-400 transition-transform duration-300', showFormulas && 'rotate-180')} />
             </button>
             {showFormulas && (
               <div className="space-y-4 px-6 pb-6">
@@ -1802,7 +1802,7 @@ function CrossLink({
         <p className="text-sm font-bold text-stone-800 dark:text-stone-200">{title}</p>
         <p className="text-xs text-stone-800 dark:text-stone-200">{desc}</p>
       </div>
-      <ArrowLeft className="h-4 w-4 text-stone-500 transition-transform group-hover:-translate-x-1" />
+      <ArrowLeft className="h-4 w-4 text-stone-500 dark:text-stone-400 transition-transform group-hover:-translate-x-1" />
     </Link>
   );
 }

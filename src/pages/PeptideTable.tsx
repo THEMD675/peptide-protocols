@@ -491,7 +491,7 @@ export default function PeptideTable() {
               onChange={(e) => setSearch(e.target.value)}
               placeholder="ابحث بالاسم عربي أو إنجليزي..."
               aria-label="ابحث في الببتيدات"
-              className="w-full rounded-xl border border-stone-300 dark:border-stone-700 bg-stone-50 dark:bg-stone-900 py-3 ps-10 pe-4 text-sm text-stone-900 dark:text-stone-100 placeholder:text-stone-500 dark:placeholder:text-stone-400 outline-none transition-colors focus:border-emerald-300 dark:focus:border-emerald-700 focus:ring-1 focus:ring-emerald-100 dark:focus:ring-emerald-900"
+              className="w-full rounded-xl border border-stone-300 dark:border-stone-700 bg-stone-50 dark:bg-stone-900 py-3 ps-10 pe-4 text-sm text-stone-900 dark:text-stone-100 placeholder:text-stone-500 dark:text-stone-400 dark:placeholder:text-stone-400 outline-none transition-colors focus:border-emerald-300 dark:focus:border-emerald-700 focus:ring-1 focus:ring-emerald-100 dark:focus:ring-emerald-900"
             />
           </div>
 
@@ -627,7 +627,7 @@ export default function PeptideTable() {
             )}
             <button
               onClick={() => setCompareIds([])}
-              className="text-xs font-semibold text-stone-500 hover:text-red-500"
+              className="text-xs font-semibold text-stone-500 dark:text-stone-400 hover:text-red-500"
             >
               مسح
             </button>

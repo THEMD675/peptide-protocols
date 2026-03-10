@@ -119,7 +119,7 @@ export default function Account() {
       const { data: urlData } = supabase.storage.from('user-uploads').getPublicUrl(path);
       const publicUrl = urlData?.publicUrl;
       if (publicUrl) {
-        await supabase.from('user_profiles').upsert({ user_id: user.id, avatar_url: publicUrl, updated_at: new Date().toISOString() }, { onConflict: 'user_id' });
+        await supabase.from('user_profiles').update({ avatar_url: publicUrl, updated_at: new Date().toISOString() }).eq('user_id', user.id);
         setProfilePicUrl(publicUrl + '?t=' + Date.now());
         toast.success('تم تحديث صورة الملف الشخصي');
       }
@@ -137,13 +137,12 @@ export default function Account() {
         setProfileSaving(false);
         return;
       }
-      const { error } = await supabase.from('user_profiles').upsert({
-        user_id: user.id,
+      const { error } = await supabase.from('user_profiles').update({
         display_name: profileDisplayName.trim() || null,
         weight_kg: weightNum,
         goals: profileGoals.length > 0 ? profileGoals : null,
         updated_at: new Date().toISOString(),
-      }, { onConflict: 'user_id' });
+      }).eq('user_id', user.id);
       if (error) throw error;
       toast.success('تم حفظ الملف الشخصي');
     } catch {
@@ -400,22 +399,22 @@ export default function Account() {
             <div className="rounded-2xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 p-4 text-center shadow-sm">
               <Syringe className="mx-auto mb-1 h-5 w-5 text-emerald-700" />
               <p className="text-2xl font-black text-stone-900 dark:text-stone-100">{usageStats.injections}</p>
-              <p className="text-xs text-stone-500">حقنة مسجلة</p>
+              <p className="text-xs text-stone-500 dark:text-stone-400">حقنة مسجلة</p>
             </div>
             <div className="rounded-2xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 p-4 text-center shadow-sm">
               <Calendar className="mx-auto mb-1 h-5 w-5 text-blue-500" />
               <p className="text-2xl font-black text-stone-900 dark:text-stone-100">{usageStats.protocols}</p>
-              <p className="text-xs text-stone-500">بروتوكول نشط</p>
+              <p className="text-xs text-stone-500 dark:text-stone-400">بروتوكول نشط</p>
             </div>
             <div className="rounded-2xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 p-4 text-center shadow-sm">
               <Bot className="mx-auto mb-1 h-5 w-5 text-purple-500" />
               <p className="text-2xl font-black text-stone-900 dark:text-stone-100">{usageStats.coachMessages}</p>
-              <p className="text-xs text-stone-500">رسالة مع المدرب</p>
+              <p className="text-xs text-stone-500 dark:text-stone-400">رسالة مع المدرب</p>
             </div>
             <div className="rounded-2xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 p-4 text-center shadow-sm">
               <BarChart3 className="mx-auto mb-1 h-5 w-5 text-orange-500" />
               <p className="text-sm font-bold text-stone-900 dark:text-stone-100 mt-1">{usageStats.memberSince || '—'}</p>
-              <p className="text-xs text-stone-500">عضو منذ</p>
+              <p className="text-xs text-stone-500 dark:text-stone-400">عضو منذ</p>
             </div>
           </div>
         )}
@@ -439,7 +438,7 @@ export default function Account() {
               </p>
               <p className={cn(
                 'text-sm font-medium',
-                subscription.isProOrTrial ? 'text-emerald-700' : 'text-stone-500',
+                subscription.isProOrTrial ? 'text-emerald-700' : 'text-stone-500 dark:text-stone-400',
               )}>
                 {subscription.isProOrTrial && subscription.status === 'cancelled'
                   ? 'نشط'
@@ -449,7 +448,7 @@ export default function Account() {
                 )}
               </p>
               {subscription.status === 'active' && subscription.currentPeriodEnd && (
-                <p className="text-xs text-stone-500 mt-1">
+                <p className="text-xs text-stone-500 dark:text-stone-400 mt-1">
                   يتجدد في {new Date(subscription.currentPeriodEnd).toLocaleDateString('ar-u-nu-latn')}
                 </p>
               )}
@@ -783,7 +782,7 @@ export default function Account() {
               تصدير CSV (سجل الحقن)
             </button>
           </div>
-          <p className="text-[11px] text-stone-500 dark:text-stone-500 mt-3 text-center">يشمل: سجل الحقن، البروتوكولات، العافية، التحاليل، الأعراض الجانبية، والملف الشخصي</p>
+          <p className="text-[11px] text-stone-500 dark:text-stone-500 dark:text-stone-400 mt-3 text-center">يشمل: سجل الحقن، البروتوكولات، العافية، التحاليل، الأعراض الجانبية، والملف الشخصي</p>
         </div>
 
         {/* Actions */}

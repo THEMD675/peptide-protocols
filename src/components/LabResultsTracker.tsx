@@ -402,14 +402,14 @@ function LabEntryForm({
         <div>
           <label className="mb-1.5 flex items-center gap-1.5 text-xs font-bold text-stone-300">
             <Building2 className="h-3.5 w-3.5" />
-            اسم المختبر <span className="text-stone-500 font-normal">اختياري</span>
+            اسم المختبر <span className="text-stone-400 font-normal">اختياري</span>
           </label>
           <input
             type="text"
             value={labName}
             onChange={e => setLabName(e.target.value)}
             placeholder="مثال: مختبرات البرج"
-            className="w-full rounded-xl border border-stone-700 bg-stone-800 px-3 py-2.5 text-sm text-stone-100 placeholder:text-stone-500 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
+            className="w-full rounded-xl border border-stone-700 bg-stone-800 px-3 py-2.5 text-sm text-stone-100 placeholder:text-stone-400 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
           />
         </div>
       </div>
@@ -445,9 +445,9 @@ function LabEntryForm({
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2">
                   <span className="text-sm font-bold text-stone-200 truncate">{bio.nameAr}</span>
-                  <span className="text-[10px] text-stone-500" dir="ltr">{bio.nameEn}</span>
+                  <span className="text-[10px] text-stone-400" dir="ltr">{bio.nameEn}</span>
                 </div>
-                <div className="text-[10px] text-stone-500 mt-0.5" dir="ltr">
+                <div className="text-[10px] text-stone-400 mt-0.5" dir="ltr">
                   {bio.normalMin}–{bio.normalMax} {bio.unit}
                 </div>
               </div>
@@ -471,7 +471,7 @@ function LabEntryForm({
                     )}
                   />
                 </div>
-                <span className="text-[10px] text-stone-500 w-14 text-start" dir="ltr">{bio.unit}</span>
+                <span className="text-[10px] text-stone-400 w-14 text-start" dir="ltr">{bio.unit}</span>
                 {status && (
                   <span className={cn('h-2 w-2 rounded-full shrink-0', STATUS_DOT[status])} />
                 )}
@@ -484,7 +484,7 @@ function LabEntryForm({
       {/* Notes */}
       <div>
         <label className="mb-1.5 block text-xs font-bold text-stone-300">
-          ملاحظات <span className="text-stone-500 font-normal">اختياري</span>
+          ملاحظات <span className="text-stone-400 font-normal">اختياري</span>
         </label>
         <textarea
           value={notes}
@@ -492,13 +492,13 @@ function LabEntryForm({
           placeholder="أي ملاحظات إضافية عن هذا التحليل..."
           rows={2}
           maxLength={500}
-          className="w-full resize-none rounded-xl border border-stone-700 bg-stone-800 px-3 py-2.5 text-sm text-stone-100 placeholder:text-stone-500 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
+          className="w-full resize-none rounded-xl border border-stone-700 bg-stone-800 px-3 py-2.5 text-sm text-stone-100 placeholder:text-stone-400 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
         />
       </div>
 
       {/* Submit */}
       <div className="flex items-center justify-between">
-        <span className="text-xs text-stone-500">
+        <span className="text-xs text-stone-400">
           {filledCount > 0 ? `${filledCount} قيمة مُدخلة` : 'لم يتم إدخال أي قيمة'}
         </span>
         <button
@@ -675,7 +675,7 @@ export default function LabResultsTracker() {
           <div>
             <h3 className="text-sm font-bold text-stone-100">نتائج التحاليل</h3>
             {entries.length > 0 && (
-              <p className="text-xs text-stone-500">{entries.length} تحليل مسجّل</p>
+              <p className="text-xs text-stone-400">{entries.length} تحليل مسجّل</p>
             )}
           </div>
         </div>
@@ -748,7 +748,7 @@ export default function LabResultsTracker() {
                 'flex-1 rounded-lg py-2 text-xs font-bold transition-all',
                 activeView === tab.id
                   ? 'bg-emerald-500/20 text-emerald-400'
-                  : 'text-stone-500 hover:text-stone-300'
+                  : 'text-stone-400 hover:text-stone-300'
               )}
             >
               {tab.label}
@@ -766,7 +766,7 @@ export default function LabResultsTracker() {
         <div className="rounded-xl border-2 border-dashed border-stone-700 py-12 text-center">
           <FlaskConical className="mx-auto mb-3 h-10 w-10 text-stone-600" />
           <p className="text-sm font-bold text-stone-400">لا توجد نتائج مسجّلة</p>
-          <p className="mt-1 text-xs text-stone-500">سجّل أول تحليل لبدء تتبّع صحتك</p>
+          <p className="mt-1 text-xs text-stone-400">سجّل أول تحليل لبدء تتبّع صحتك</p>
         </div>
       ) : activeView === 'results' ? (
         /* ─── Results View ──────────────────────────────────────────── */
@@ -795,7 +795,7 @@ export default function LabResultsTracker() {
                       <p className="text-sm font-bold text-stone-200">
                         {formatDate(entry.test_date)}
                       </p>
-                      <p className="text-[11px] text-stone-500">
+                      <p className="text-[11px] text-stone-400">
                         {entry.lab_name || 'تحليل'} — {resultKeys.length} فحص
                       </p>
                     </div>
@@ -807,7 +807,7 @@ export default function LabResultsTracker() {
                       </span>
                     )}
                     <ChevronDown className={cn(
-                      'h-4 w-4 text-stone-500 transition-transform',
+                      'h-4 w-4 text-stone-400 transition-transform',
                       isExpanded && 'rotate-180'
                     )} />
                   </div>
@@ -823,7 +823,7 @@ export default function LabResultsTracker() {
                       if (catBiomarkers.length === 0) return null;
                       return (
                         <div key={cat.id}>
-                          <p className="text-[10px] font-bold text-stone-500 mb-1.5">
+                          <p className="text-[10px] font-bold text-stone-400 mb-1.5">
                             {cat.icon} {cat.nameAr}
                           </p>
                           <div className="space-y-1">
@@ -904,11 +904,11 @@ export default function LabResultsTracker() {
                 <h4 className="text-sm font-bold text-stone-200">
                   {getBiomarker(selectedBiomarker)?.nameAr}
                 </h4>
-                <span className="text-[10px] text-stone-500" dir="ltr">
+                <span className="text-[10px] text-stone-400" dir="ltr">
                   {getBiomarker(selectedBiomarker)?.nameEn} ({getBiomarker(selectedBiomarker)?.unit})
                 </span>
               </div>
-              <p className="text-[10px] text-stone-500 mb-1" dir="ltr">
+              <p className="text-[10px] text-stone-400 mb-1" dir="ltr">
                 النطاق الطبيعي: {getBiomarker(selectedBiomarker)?.normalMin}–{getBiomarker(selectedBiomarker)?.normalMax} {getBiomarker(selectedBiomarker)?.unit}
               </p>
               <BiomarkerTrendChart entries={entries} biomarkerId={selectedBiomarker} />
@@ -924,15 +924,15 @@ export default function LabResultsTracker() {
                 return (
                   <div className="flex items-center gap-4 mt-3 pt-3 border-t border-stone-800">
                     <div className="text-center">
-                      <p className="text-[10px] text-stone-500">أحدث</p>
+                      <p className="text-[10px] text-stone-400">أحدث</p>
                       <p className="text-sm font-bold text-stone-200" dir="ltr">{latest}</p>
                     </div>
                     <div className="text-center">
-                      <p className="text-[10px] text-stone-500">أقدم</p>
+                      <p className="text-[10px] text-stone-400">أقدم</p>
                       <p className="text-sm font-bold text-stone-200" dir="ltr">{oldest}</p>
                     </div>
                     <div className="text-center">
-                      <p className="text-[10px] text-stone-500">التغيير</p>
+                      <p className="text-[10px] text-stone-400">التغيير</p>
                       <p className={cn(
                         'text-sm font-bold',
                         change > 0 ? 'text-emerald-400' : change < 0 ? 'text-red-400' : 'text-stone-400'
@@ -954,7 +954,7 @@ export default function LabResultsTracker() {
                 >
                   <div className="flex items-center justify-between mb-1">
                     <span className="text-xs font-bold text-stone-300">{bio.nameAr}</span>
-                    <span className="text-[10px] text-stone-500" dir="ltr">{bio.unit}</span>
+                    <span className="text-[10px] text-stone-400" dir="ltr">{bio.unit}</span>
                   </div>
                   <BiomarkerTrendChart entries={entries} biomarkerId={bio.id} />
                 </div>
@@ -969,7 +969,7 @@ export default function LabResultsTracker() {
             <div className="rounded-xl border border-stone-800 bg-stone-900/50 py-8 text-center">
               <Info className="mx-auto mb-2 h-8 w-8 text-stone-600" />
               <p className="text-sm font-bold text-stone-400">أضف تحليلين على الأقل لبدء التحليل الذكي</p>
-              <p className="mt-1 text-xs text-stone-500">نحتاج مقارنة النتائج لتقديم رؤى مفيدة</p>
+              <p className="mt-1 text-xs text-stone-400">نحتاج مقارنة النتائج لتقديم رؤى مفيدة</p>
             </div>
           ) : (
             insights.map((insight, i) => {
@@ -1003,13 +1003,13 @@ export default function LabResultsTracker() {
           {/* Legend */}
           {insights.length > 0 && (
             <div className="flex items-center gap-4 pt-3 border-t border-stone-800">
-              <div className="flex items-center gap-1.5 text-[10px] text-stone-500">
+              <div className="flex items-center gap-1.5 text-[10px] text-stone-400">
                 <CheckCircle className="h-3 w-3 text-emerald-400" /> تحسّن
               </div>
-              <div className="flex items-center gap-1.5 text-[10px] text-stone-500">
+              <div className="flex items-center gap-1.5 text-[10px] text-stone-400">
                 <AlertTriangle className="h-3 w-3 text-red-400" /> تنبيه
               </div>
-              <div className="flex items-center gap-1.5 text-[10px] text-stone-500">
+              <div className="flex items-center gap-1.5 text-[10px] text-stone-400">
                 <Info className="h-3 w-3 text-blue-400" /> اقتراح
               </div>
             </div>

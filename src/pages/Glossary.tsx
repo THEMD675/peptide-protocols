@@ -192,20 +192,20 @@ export default function Glossary() {
 
       {/* Search */}
       <div className="relative mb-6">
-        {!search && <Search className="absolute start-4 top-1/2 h-5 w-5 -translate-y-1/2 text-stone-500" />}
+        {!search && <Search className="absolute start-4 top-1/2 h-5 w-5 -translate-y-1/2 text-stone-500 dark:text-stone-400" />}
         <input
           type="text"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder="ابحث عن مصطلح..."
           aria-label="البحث في المصطلحات"
-          className="w-full rounded-2xl border border-stone-300 dark:border-stone-600 bg-stone-50 dark:bg-stone-800 py-4 ps-12 pe-10 text-sm text-stone-900 dark:text-stone-100 placeholder:text-stone-500 dark:placeholder:text-stone-400 focus:border-emerald-300 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900 transition-colors"
+          className="w-full rounded-2xl border border-stone-300 dark:border-stone-600 bg-stone-50 dark:bg-stone-800 py-4 ps-12 pe-10 text-sm text-stone-900 dark:text-stone-100 placeholder:text-stone-500 dark:text-stone-400 dark:placeholder:text-stone-400 focus:border-emerald-300 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900 transition-colors"
         />
         {search && (
           <button
             onClick={() => setSearch('')}
             aria-label="مسح البحث"
-            className="absolute start-4 top-1/2 -translate-y-1/2 text-stone-500 transition-colors hover:text-stone-700"
+            className="absolute start-4 top-1/2 -translate-y-1/2 text-stone-500 dark:text-stone-400 transition-colors hover:text-stone-700"
           >
             <X className="h-4 w-4" />
           </button>
@@ -213,7 +213,7 @@ export default function Glossary() {
       </div>
 
       {/* Results count */}
-      <p className="mb-4 text-sm text-stone-500">
+      <p className="mb-4 text-sm text-stone-500 dark:text-stone-400">
         {search.trim() ? `${filtered.length} نتيجة` : `${TERMS.length} مصطلح`}
       </p>
 
@@ -243,7 +243,7 @@ export default function Glossary() {
       {filtered.length === 0 ? (
         <div className="rounded-2xl border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-900 py-16 text-center">
           <BookA className="mx-auto mb-3 h-8 w-8 text-stone-300" />
-          <p className="text-sm text-stone-500">لا توجد نتائج لـ &quot;{search}&quot;</p>
+          <p className="text-sm text-stone-500 dark:text-stone-400">لا توجد نتائج لـ &quot;{search}&quot;</p>
         </div>
       ) : (
         <div className="space-y-8">

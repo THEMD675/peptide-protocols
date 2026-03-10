@@ -95,11 +95,10 @@ export default function OnboardingModal({ forceOpen, onClose: externalClose }: {
     try { localStorage.setItem(ONBOARDING_KEY, 'true'); } catch { /* expected */ }
     // C13: Persist goals to Supabase user_profiles table
     if (user && selectedGoal) {
-      supabase.from('user_profiles').upsert({
-        user_id: user.id,
+      supabase.from('user_profiles').update({
         onboarding_goals: { goal: selectedGoal, ts: Date.now() },
         updated_at: new Date().toISOString(),
-      }, { onConflict: 'user_id' }).then(() => {}).catch(() => {});
+      }).eq('user_id', user.id).then(() => {}).catch(() => {});
     }
     setShow(false);
     externalClose?.();

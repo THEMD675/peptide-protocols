@@ -765,7 +765,7 @@ function RelatedBlogPosts({ peptideNameEn, peptideNameAr }: { peptideNameEn: str
           >
             <h4 className="text-sm font-bold text-stone-900 dark:text-stone-100 group-hover:text-emerald-700 transition-colors line-clamp-2">{post.title_ar}</h4>
             <p className="mt-2 text-xs leading-relaxed text-stone-600 dark:text-stone-400 line-clamp-2">{post.excerpt_ar}</p>
-            <p className="mt-3 text-xs text-stone-400 dark:text-stone-500">{new Date(post.published_at).toLocaleDateString('ar-SA', { year: 'numeric', month: 'short', day: 'numeric' })}</p>
+            <p className="mt-3 text-xs text-stone-400 dark:text-stone-500 dark:text-stone-400">{new Date(post.published_at).toLocaleDateString('ar-SA', { year: 'numeric', month: 'short', day: 'numeric' })}</p>
           </Link>
         ))}
       </div>

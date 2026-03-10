@@ -436,7 +436,7 @@ function InteractiveReferenceRanges({ isPro, blurClass }: { isPro: boolean; blur
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center gap-2 flex-wrap">
                     <span className="font-bold text-stone-900">{b.nameAr}</span>
-                    <span className="text-xs text-stone-500" dir="ltr">{b.name}</span>
+                    <span className="text-xs text-stone-500 dark:text-stone-400" dir="ltr">{b.name}</span>
                     <span className="rounded-full bg-stone-100 px-2 py-0.5 text-[10px] font-medium text-stone-600 dark:bg-stone-800 dark:text-stone-400">
                       {b.categoryAr}
                     </span>
@@ -603,7 +603,7 @@ function TestPackages({ isPro, blurClass }: { isPro: boolean; blurClass: string 
                 )}
               </div>
 
-              <div className="mt-3 rounded-lg bg-stone-100/60 dark:bg-stone-800/40 px-3 py-1.5 text-center text-[10px] text-stone-500">
+              <div className="mt-3 rounded-lg bg-stone-100/60 dark:bg-stone-800/40 px-3 py-1.5 text-center text-[10px] text-stone-500 dark:text-stone-400">
                 {pkg.recommended}
               </div>
 
@@ -658,7 +658,7 @@ function TestingTimeline() {
                     {i === 0 && <span className="rounded-full bg-emerald-600 px-2 py-0.5 text-[10px] font-bold text-white">أساسي</span>}
                   </div>
                   <p className="text-xs text-stone-600 dark:text-stone-400">{step.description}</p>
-                  <div className="mt-2 flex items-center gap-1.5 text-[10px] text-stone-500">
+                  <div className="mt-2 flex items-center gap-1.5 text-[10px] text-stone-500 dark:text-stone-400">
                     <Package className="h-3 w-3" />
                     <span>{step.package}</span>
                   </div>
@@ -692,9 +692,9 @@ function TestingTimeline() {
                 </div>
                 <div className={cn('mt-3 w-full rounded-2xl border p-3', cardColors[step.color])}>
                   <h3 className="font-bold text-sm text-stone-900">{step.label}</h3>
-                  <span className="text-[10px] text-stone-500" dir="ltr">{step.labelEn}</span>
+                  <span className="text-[10px] text-stone-500 dark:text-stone-400" dir="ltr">{step.labelEn}</span>
                   <p className="mt-1.5 text-[11px] text-stone-600 dark:text-stone-400 leading-relaxed">{step.description}</p>
-                  <div className="mt-2 rounded-lg bg-white/60 dark:bg-stone-800/40 px-2 py-1 text-[10px] text-stone-500">
+                  <div className="mt-2 rounded-lg bg-white/60 dark:bg-stone-800/40 px-2 py-1 text-[10px] text-stone-500 dark:text-stone-400">
                     {step.package}
                   </div>
                 </div>
@@ -723,7 +723,7 @@ function ResultsInterpreter({ isPro, blurClass }: { isPro: boolean; blurClass: s
         <Beaker className="h-6 w-6 shrink-0 text-emerald-700" />
         <h2 className="text-2xl font-bold">مفسّر النتائج</h2>
       </div>
-      <p className="mb-4 text-sm text-stone-500">أدخل قيمة تحليلك واحصل على تفسير فوري</p>
+      <p className="mb-4 text-sm text-stone-500 dark:text-stone-400">أدخل قيمة تحليلك واحصل على تفسير فوري</p>
 
       <div className="rounded-2xl border border-stone-200 bg-white dark:border-stone-700 dark:bg-stone-900 p-5">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-end">
@@ -810,7 +810,7 @@ function ResultsInterpreter({ isPro, blurClass }: { isPro: boolean; blurClass: s
 
             <div className="flex items-center gap-2 text-xs">
               <FlaskConical className="h-3.5 w-3.5 text-emerald-700" />
-              <span className="text-stone-500">الببتيدات المؤثرة:</span>
+              <span className="text-stone-500 dark:text-stone-400">الببتيدات المؤثرة:</span>
               <span className="font-medium text-stone-700 dark:text-stone-300">{biomarker.relatedPeptides.join('، ')}</span>
             </div>
 
@@ -842,7 +842,7 @@ function LabLocator() {
         <MapPin className="h-6 w-6 shrink-0 text-emerald-700" />
         <h2 className="text-2xl font-bold">مختبرات في السعودية</h2>
       </div>
-      <p className="mb-4 text-sm text-stone-500">أشهر المختبرات مع أسعار تقريبية للباقات</p>
+      <p className="mb-4 text-sm text-stone-500 dark:text-stone-400">أشهر المختبرات مع أسعار تقريبية للباقات</p>
 
       <div className="grid gap-4 sm:grid-cols-3">
         {saudiLabs.map((lab) => (
@@ -853,7 +853,7 @@ function LabLocator() {
             <div className="text-center mb-4">
               <span className="text-3xl">{lab.logo}</span>
               <h3 className="mt-2 text-lg font-bold text-stone-900">{lab.name}</h3>
-              <span className="text-xs text-stone-500">{lab.nameEn}</span>
+              <span className="text-xs text-stone-500 dark:text-stone-400">{lab.nameEn}</span>
             </div>
 
             {/* Cities */}
@@ -882,7 +882,7 @@ function LabLocator() {
             </div>
 
             <div className="mt-3 pt-3 border-t border-stone-100 dark:border-stone-800">
-              <p className="text-[11px] text-stone-500 text-center">{lab.notes}</p>
+              <p className="text-[11px] text-stone-500 dark:text-stone-400 text-center">{lab.notes}</p>
               {lab.homeVisit && (
                 <div className="mt-2 flex items-center justify-center gap-1 text-[10px] text-emerald-700">
                   <CheckCircle className="h-3 w-3" />
@@ -903,7 +903,7 @@ function LabLocator() {
         ))}
       </div>
 
-      <div className="mt-4 rounded-xl bg-stone-100 dark:bg-stone-800 p-3 text-center text-xs text-stone-500">
+      <div className="mt-4 rounded-xl bg-stone-100 dark:bg-stone-800 p-3 text-center text-xs text-stone-500 dark:text-stone-400">
         <Info className="inline h-3 w-3 ml-1" />
         الأسعار تقريبية وقد تختلف حسب الفرع والعروض المتاحة — آخر تحديث مارس 2026
       </div>
@@ -1026,7 +1026,7 @@ export default function LabGuide() {
                     </div>
                     <div className="min-w-0 flex-1">
                       <h3 className="font-bold text-stone-900 leading-snug">{test.nameAr}</h3>
-                      <span className="text-xs text-stone-500" dir="ltr">{test.nameEn}</span>
+                      <span className="text-xs text-stone-500 dark:text-stone-400" dir="ltr">{test.nameEn}</span>
                     </div>
                   </div>
 

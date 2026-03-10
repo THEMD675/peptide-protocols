@@ -499,7 +499,7 @@ export default function StackBuilder() {
                       {p.nameAr}
                     </span>
                   ) : (
-                    <span key={id} className="rounded-full bg-stone-100 dark:bg-stone-800 px-2 py-0.5 text-[10px] font-medium text-stone-500">
+                    <span key={id} className="rounded-full bg-stone-100 dark:bg-stone-800 px-2 py-0.5 text-[10px] font-medium text-stone-500 dark:text-stone-400">
                       {id}
                     </span>
                   );
@@ -572,7 +572,7 @@ export default function StackBuilder() {
           <h3 className="text-lg font-bold text-stone-900 dark:text-stone-100 flex items-center gap-2">
             <Syringe className="h-5 w-5 text-emerald-500" />
             اختر الببتيدات
-            <span className="text-sm font-normal text-stone-500">({selectedIds.length}/{MAX_STACK_SIZE})</span>
+            <span className="text-sm font-normal text-stone-500 dark:text-stone-400">({selectedIds.length}/{MAX_STACK_SIZE})</span>
           </h3>
           <div className="flex gap-2">
             {savedStacks.length > 0 && (
@@ -606,7 +606,7 @@ export default function StackBuilder() {
               <div key={s.id} className="flex items-center justify-between rounded-lg bg-white dark:bg-stone-900 px-3 py-2 border border-stone-200 dark:border-stone-700">
                 <button type="button" onClick={() => handleLoadStack(s)} className="flex-1 text-start">
                   <span className="text-sm font-medium text-stone-900 dark:text-stone-100">{s.name}</span>
-                  <span className="block text-[10px] text-stone-500">{s.peptideIds.length} ببتيدات • {new Date(s.createdAt).toLocaleDateString('ar-SA')}</span>
+                  <span className="block text-[10px] text-stone-500 dark:text-stone-400">{s.peptideIds.length} ببتيدات • {new Date(s.createdAt).toLocaleDateString('ar-SA')}</span>
                 </button>
                 <button type="button" onClick={() => handleDelete(s.id)} className="p-1 text-red-400 hover:text-red-600">
                   <Trash2 className="h-3.5 w-3.5" />
@@ -847,24 +847,24 @@ export default function StackBuilder() {
                   </div>
                   <div className="grid gap-2 sm:grid-cols-2 text-xs text-stone-600 dark:text-stone-400">
                     <div>
-                      <span className="font-bold text-stone-500">الجرعة: </span>
+                      <span className="font-bold text-stone-500 dark:text-stone-400">الجرعة: </span>
                       <span className="line-clamp-2">{p.dosageAr}</span>
                     </div>
                     <div>
-                      <span className="font-bold text-stone-500">التوقيت: </span>
+                      <span className="font-bold text-stone-500 dark:text-stone-400">التوقيت: </span>
                       <span>{p.timingAr}</span>
                     </div>
                     <div>
-                      <span className="font-bold text-stone-500">التكرار: </span>
+                      <span className="font-bold text-stone-500 dark:text-stone-400">التكرار: </span>
                       <span>{getFrequencyLabel(p.frequency)}</span>
                     </div>
                     <div>
-                      <span className="font-bold text-stone-500">طريقة الإعطاء: </span>
+                      <span className="font-bold text-stone-500 dark:text-stone-400">طريقة الإعطاء: </span>
                       <span>{getRouteLabel(p.route)}</span>
                     </div>
                     {p.costEstimate && (
                       <div>
-                        <span className="font-bold text-stone-500">التكلفة: </span>
+                        <span className="font-bold text-stone-500 dark:text-stone-400">التكلفة: </span>
                         <span>{p.costEstimate}</span>
                       </div>
                     )}

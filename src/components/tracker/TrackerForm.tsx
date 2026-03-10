@@ -328,7 +328,7 @@ export default function TrackerForm({
             <button
               type="button"
               onClick={() => photoInputRef.current?.click()}
-              className="flex items-center gap-2 rounded-xl border-2 border-dashed border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-900 px-4 py-3 text-sm text-stone-500 transition-all hover:border-emerald-300 hover:text-emerald-700"
+              className="flex items-center gap-2 rounded-xl border-2 border-dashed border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-900 px-4 py-3 text-sm text-stone-500 dark:text-stone-400 transition-all hover:border-emerald-300 hover:text-emerald-700"
             >
               <Camera className="h-4 w-4" />
               التقط أو اختر صورة
