@@ -1257,11 +1257,6 @@ for (const p of peptides) {
   if (sd) Object.assign(p, sd);
 }
 
-// Derive category peptideCount from actual peptides — never out of sync
-for (const cat of categories) {
-  cat.peptideCount = peptides.filter((p) => p.category === cat.id).length;
-}
-
 // ── Categories (computed counts) ─────────────────────────────
 export const categories: Category[] = _categoriesBase.map((cat) => ({
   ...cat,
