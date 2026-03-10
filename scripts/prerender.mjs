@@ -9,7 +9,13 @@ import { readFileSync, writeFileSync, mkdirSync, existsSync } from 'fs';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
 import { createServer } from 'http';
-import puppeteer from 'puppeteer';
+let puppeteer;
+try {
+  puppeteer = (await import('puppeteer')).default;
+} catch {
+  console.log('Puppeteer not available — skipping prerender (SPA-only deploy)');
+  process.exit(0);
+}
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(__dirname, '..');
@@ -157,6 +163,7 @@ async function main() {
 }
 
 main().catch((err) => {
-  console.error('Prerender failed:', err);
-  process.exit(1);
+  console.warn('Prerender failed (non-fatal):', err.message);
+  // Don't fail the build — SPA still works without prerendered HTML
+  process.exit(0);
 });
