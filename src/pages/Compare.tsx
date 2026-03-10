@@ -184,6 +184,13 @@ export default function Compare() {
       <Helmet>
         <title>مقارنة الببتيدات | pptides</title>
         <meta name="description" content="قارن بين الببتيدات جنبًا إلى جنب — الجرعات، الفوائد، الأعراض الجانبية، والأسعار" />
+        <meta property="og:title" content="مقارنة الببتيدات | pptides" />
+        <meta property="og:description" content="قارن بين الببتيدات جنبًا إلى جنب — الجرعات، الفوائد، الأعراض الجانبية، والأسعار" />
+        <meta property="og:image" content={`${SITE_URL}/og-image.jpg`} />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="مقارنة الببتيدات | pptides" />
+        <meta name="twitter:description" content="قارن بين الببتيدات جنبًا إلى جنب — الجرعات والفوائد والأعراض" />
+        <meta name="twitter:image" content={`${SITE_URL}/og-image.jpg`} />
       </Helmet>
 
       {/* Header */}

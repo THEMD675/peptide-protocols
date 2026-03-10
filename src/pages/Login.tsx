@@ -7,7 +7,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
 import { cn } from '@/lib/utils';
 import { events } from '@/lib/analytics';
-import { TRIAL_DAYS } from '@/lib/constants';
+import { TRIAL_DAYS, SITE_URL } from '@/lib/constants';
 
 const TURNSTILE_SITE_KEY = import.meta.env.VITE_TURNSTILE_SITE_KEY ?? '';
 const GOOGLE_CLIENT_ID = '803062121443-7497cu9tfra080sr835benjs5gl9295o.apps.googleusercontent.com';
@@ -445,6 +445,9 @@ export default function Login() {
         <meta name="description" content="سجّل دخولك أو أنشئ حساب جديد للوصول إلى مكتبة الببتيدات وحاسبة الجرعات والمدرب الذكي." />
         <meta property="og:title" content={`${tab === 'login' ? 'تسجيل الدخول' : 'إنشاء حساب'} | pptides`} />
         <meta property="og:description" content="سجّل دخولك أو أنشئ حساب جديد للوصول إلى مكتبة الببتيدات وحاسبة الجرعات والمدرب الذكي." />
+        <meta property="og:image" content={`${SITE_URL}/og-image.jpg`} />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:image" content={`${SITE_URL}/og-image.jpg`} />
       </Helmet>
       <div className="w-full max-w-md">
         <div className="overflow-hidden rounded-2xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 shadow-lg">

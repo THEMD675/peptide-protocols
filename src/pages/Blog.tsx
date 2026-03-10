@@ -283,7 +283,7 @@ export default function Blog() {
                     <div className="flex items-center gap-1.5">
                       <CalendarDays className="h-3.5 w-3.5" />
                       <time dateTime={post.published_at}>
-                        {new Date(post.published_at).toLocaleDateString('ar-SA', { year: 'numeric', month: 'long', day: 'numeric' })}
+                        {new Date(post.published_at).toLocaleDateString('ar-u-nu-latn', { year: 'numeric', month: 'long', day: 'numeric' })}
                       </time>
                     </div>
                     {post.tags.length > 0 && (

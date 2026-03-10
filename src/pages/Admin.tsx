@@ -398,7 +398,7 @@ export default function Admin() {
   const exportCSV = async (table: string) => {
     try {
       const r = await adminAction({ action: 'export_csv', table });
-      if (!r.data?.length) { toast.error('No data'); return; }
+      if (!r.data?.length) { toast.error('لا توجد بيانات'); return; }
       const headers = Object.keys(r.data[0]);
       const csv = [headers.join(','), ...r.data.map((row: Record<string, unknown>) => headers.map(h => `"${String(row[h] ?? '').replace(/"/g, '""')}"`).join(','))].join('\n');
       const blob = new Blob([csv], { type: 'text/csv' });

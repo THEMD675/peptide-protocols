@@ -59,6 +59,7 @@ export default memo(function Footer() {
             <nav aria-label="قانوني" className="flex flex-col gap-0.5 text-sm">
               <Link to="/about" className="min-h-[44px] flex items-center text-stone-600 dark:text-stone-400 transition-colors hover:text-emerald-600 active:text-emerald-700 dark:active:text-emerald-300">عن pptides</Link>
               <Link to="/faq" className="min-h-[44px] flex items-center text-stone-600 dark:text-stone-400 transition-colors hover:text-emerald-600 active:text-emerald-700 dark:active:text-emerald-300">الأسئلة الشائعة</Link>
+              <Link to="/contact" className="min-h-[44px] flex items-center text-stone-600 dark:text-stone-400 transition-colors hover:text-emerald-600 active:text-emerald-700 dark:active:text-emerald-300">تواصل معنا</Link>
               <Link to="/privacy" className="min-h-[44px] flex items-center text-stone-600 dark:text-stone-400 transition-colors hover:text-emerald-600 active:text-emerald-700 dark:active:text-emerald-300">سياسة الخصوصية</Link>
               <Link to="/terms" className="min-h-[44px] flex items-center text-stone-600 dark:text-stone-400 transition-colors hover:text-emerald-600 active:text-emerald-700 dark:active:text-emerald-300">شروط الاستخدام</Link>
               <Link to="/transparency" className="min-h-[44px] flex items-center text-stone-600 dark:text-stone-400 transition-colors hover:text-emerald-600 active:text-emerald-700 dark:active:text-emerald-300">كيف نكسب المال</Link>

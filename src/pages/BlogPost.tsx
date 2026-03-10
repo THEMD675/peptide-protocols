@@ -155,7 +155,7 @@ export default function BlogPost() {
           <div className="flex items-center gap-1.5">
             <CalendarDays className="h-4 w-4" />
             <time dateTime={post.published_at}>
-              {new Date(post.published_at).toLocaleDateString('ar-SA', { year: 'numeric', month: 'long', day: 'numeric' })}
+              {new Date(post.published_at).toLocaleDateString('ar-u-nu-latn', { year: 'numeric', month: 'long', day: 'numeric' })}
             </time>
           </div>
           {post.tags.length > 0 && (
@@ -195,7 +195,7 @@ export default function BlogPost() {
                   <h3 className="text-sm font-bold text-stone-900 dark:text-stone-100 line-clamp-2">{rp.title_ar}</h3>
                   <p className="mt-1 text-xs text-stone-500 dark:text-stone-400 line-clamp-2">{rp.excerpt_ar}</p>
                   <time className="mt-2 block text-xs text-stone-400" dateTime={rp.published_at}>
-                    {new Date(rp.published_at).toLocaleDateString('ar-SA', { year: 'numeric', month: 'long', day: 'numeric' })}
+                    {new Date(rp.published_at).toLocaleDateString('ar-u-nu-latn', { year: 'numeric', month: 'long', day: 'numeric' })}
                   </time>
                 </Link>
               ))}
