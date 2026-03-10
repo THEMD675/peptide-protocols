@@ -433,7 +433,7 @@ function CitationBrowser() {
                       return (
                         <Link
                           key={pid}
-                          to={`/library/${pid}`}
+                          to={`/peptide/${pid}`}
                           className="flex items-center gap-3 rounded-lg border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-800 p-3 transition-all hover:border-emerald-300 dark:hover:border-emerald-700 hover:bg-emerald-50 dark:hover:bg-emerald-900/20"
                         >
                           <FlaskConical className="h-4 w-4 shrink-0 text-emerald-600 dark:text-emerald-400" />

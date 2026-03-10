@@ -3,7 +3,11 @@ import ReactDOM from 'react-dom/client';
 import App from './App';
 import './index.css';
 
+import { migrateQuizStorage } from '@/lib/quiz-migration';
 import { hasOptionalConsent } from '@/lib/cookie-utils';
+
+// Migrate old quiz/onboarding localStorage keys to unified key
+migrateQuizStorage();
 
 const hasConsent = hasOptionalConsent();
 

@@ -314,7 +314,7 @@ function buildModules(): Module[] {
               <div className="grid gap-3 sm:grid-cols-3">
                 <InfoCard icon={<Zap className="h-5 w-5 text-blue-500" />} title="CJC-1295">
                   <p>يحفّز إفراز GHRH بشكل مستمر. النسخة مع DAC تدوم أسبوعًا كاملًا. مثالي لبناء العضلات وتحسين النوم.</p>
-                  <Link to="/peptide/cjc-1295-dac" className="text-emerald-600 hover:underline text-xs font-bold">← اقرأ المزيد</Link>
+                  <Link to="/peptide/cjc-1295" className="text-emerald-600 hover:underline text-xs font-bold">← اقرأ المزيد</Link>
                 </InfoCard>
                 <InfoCard icon={<Zap className="h-5 w-5 text-purple-500" />} title="Ipamorelin">
                   <p>أنظف محفّز لهرمون النمو — لا يرفع الكورتيزول أو البرولاكتين. مثالي للمبتدئين.</p>

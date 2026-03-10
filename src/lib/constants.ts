@@ -65,7 +65,7 @@ export const STORAGE_KEYS = {
   AGE_VERIFIED: 'pptides_age_verified',
   COOKIE_CONSENT: 'pptides_cookie_consent',
   FAVORITES: 'pptides_favorites',
-  QUIZ_ANSWERS: 'pptides_quiz_answers',
+  QUIZ_RESULTS: 'pptides_quiz_results',
   CALC_HISTORY: 'pptides_calc_history',
   VISITED_PAGES: 'pptides_visited',
   COACH_HISTORY_PREFIX: 'pptides_coach_',

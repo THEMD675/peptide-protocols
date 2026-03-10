@@ -419,18 +419,18 @@ export default function PeptideQuiz() {
   // Load previous result
   const [hasPrevious] = useState(() => {
     try {
-      const s = localStorage.getItem('pptides_quiz_v2');
-      return !!s;
+      const s = localStorage.getItem('pptides_quiz_results');
+      return !!s && !!JSON.parse(s).result;
     } catch { return false; }
   });
 
   const loadPrevious = useCallback(() => {
     try {
-      const s = localStorage.getItem('pptides_quiz_v2');
+      const s = localStorage.getItem('pptides_quiz_results');
       if (s) {
-        const data = JSON.parse(s) as { answers: QuizAnswers; result: ProtocolResult };
-        setAnswers(data.answers);
-        setResult(data.result);
+        const data = JSON.parse(s);
+        if (data.answers) setAnswers(data.answers);
+        if (data.result) setResult(data.result);
         setPhase('result');
       }
     } catch { /* ignore */ }
@@ -438,7 +438,12 @@ export default function PeptideQuiz() {
 
   const saveResult = useCallback((a: QuizAnswers, r: ProtocolResult) => {
     try {
-      localStorage.setItem('pptides_quiz_v2', JSON.stringify({ answers: a, result: r, ts: Date.now() }));
+      localStorage.setItem('pptides_quiz_results', JSON.stringify({
+        goal: a.goal ?? null,
+        answers: a,
+        result: r,
+        ts: Date.now(),
+      }));
     } catch { /* ignore */ }
   }, []);
 

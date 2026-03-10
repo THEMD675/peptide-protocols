@@ -126,11 +126,19 @@ export default function Compare() {
   const [searchParams, setSearchParams] = useSearchParams();
   const [copied, setCopied] = useState(false);
 
-  const [ids, setIds] = useState<[string, string, string]>(() => [
-    searchParams.get('p1') ?? '',
-    searchParams.get('p2') ?? '',
-    searchParams.get('p3') ?? '',
-  ]);
+  const [ids, setIds] = useState<[string, string, string]>(() => {
+    // Support both ?ids=x,y,z and legacy ?p1=x&p2=y&p3=z
+    const idsParam = searchParams.get('ids');
+    if (idsParam) {
+      const parts = idsParam.split(',').map((s) => s.trim()).filter(Boolean);
+      return [parts[0] ?? '', parts[1] ?? '', parts[2] ?? ''] as [string, string, string];
+    }
+    return [
+      searchParams.get('p1') ?? '',
+      searchParams.get('p2') ?? '',
+      searchParams.get('p3') ?? '',
+    ] as [string, string, string];
+  });
 
   // Sync URL params when ids change
   useEffect(() => {
@@ -345,8 +353,8 @@ export default function Compare() {
           {[
             { p1: 'semaglutide', p2: 'tirzepatide', label: 'سيماغلوتايد vs تيرزيباتايد' },
             { p1: 'bpc-157', p2: 'tb-500', label: 'BPC-157 vs TB-500' },
-            { p1: 'cjc-1295-dac', p2: 'sermorelin', label: 'CJC-1295 vs سيرموريلين' },
-            { p1: 'kisspeptin-10', p2: 'enclomiphene', label: 'كيسبيبتين vs إنكلوميفين' },
+            { p1: 'cjc-1295', p2: 'sermorelin', label: 'CJC-1295 vs سيرموريلين' },
+            { p1: 'kisspeptin-10', p2: 'pt-141', label: 'كيسبيبتين vs PT-141' },
             { p1: 'epithalon', p2: 'ghk-cu', label: 'إبيتالون vs GHK-Cu' },
             { p1: 'semax', p2: 'selank', label: 'سيماكس vs سيلانك' },
           ].map(({ p1, p2, label }) => (

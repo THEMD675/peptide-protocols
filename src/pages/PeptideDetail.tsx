@@ -40,6 +40,23 @@ export default function PeptideDetail() {
     } catch { /* expected */ }
   }, [peptide]);
 
+  const similarPeptides = useMemo(() => {
+    if (!peptide) return [];
+    const sameCategory = peptides.filter((p) => p.id !== peptide.id && p.category === peptide.category);
+    if (sameCategory.length >= 3) return sameCategory.slice(0, 4);
+    const relatedCategoryMap: Record<string, string[]> = {
+      metabolic: ['hormonal', 'recovery'],
+      recovery: ['hormonal', 'metabolic'],
+      hormonal: ['recovery', 'metabolic'],
+      brain: ['longevity', 'recovery'],
+      longevity: ['brain', 'skin-gut'],
+      'skin-gut': ['longevity', 'recovery'],
+    };
+    const relatedCats = relatedCategoryMap[peptide.category] ?? [];
+    const extras = peptides.filter((p) => p.id !== peptide.id && p.category !== peptide.category && relatedCats.includes(p.category));
+    return [...sameCategory, ...extras].slice(0, 4);
+  }, [peptide]);
+
   if (!peptide) {
     return (
       <div className="flex min-h-[50vh] flex-col items-center justify-center px-6 text-center">
@@ -68,23 +85,6 @@ export default function PeptideDetail() {
     weak: { label: 'أدلة محدودة (بحوث حيوانية)', cls: 'border-stone-300 dark:border-stone-700 bg-stone-100 dark:bg-stone-800 text-stone-600 dark:text-stone-400' },
     'very-weak': { label: 'أدلة محدودة (بحوث حيوانية)', cls: 'border-stone-300 dark:border-stone-700 bg-stone-100 dark:bg-stone-800 text-stone-600 dark:text-stone-400' },
   } as Record<string, { label: string; cls: string }>)[peptide.evidenceLevel] ?? { label: 'أدلة محدودة', cls: 'border-stone-300 dark:border-stone-700 bg-stone-100 dark:bg-stone-800 text-stone-600 dark:text-stone-400' };
-
-  const similarPeptides = useMemo(() => {
-    const sameCategory = peptides.filter((p) => p.id !== peptide.id && p.category === peptide.category);
-    if (sameCategory.length >= 3) return sameCategory.slice(0, 4);
-    // Fill with related categories
-    const relatedCategoryMap: Record<string, string[]> = {
-      metabolic: ['hormonal', 'recovery'],
-      recovery: ['hormonal', 'metabolic'],
-      hormonal: ['recovery', 'metabolic'],
-      brain: ['longevity', 'recovery'],
-      longevity: ['brain', 'skin-gut'],
-      'skin-gut': ['longevity', 'recovery'],
-    };
-    const relatedCats = relatedCategoryMap[peptide.category] ?? [];
-    const extras = peptides.filter((p) => p.id !== peptide.id && p.category !== peptide.category && relatedCats.includes(p.category));
-    return [...sameCategory, ...extras].slice(0, 4);
-  }, [peptide]);
 
   const rows: ProtocolRow[] = [
     { label: 'الاسم العلمي', value: peptide.nameEn },

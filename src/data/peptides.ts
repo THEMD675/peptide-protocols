@@ -65,48 +65,42 @@ export interface LabTest {
 
 // ── Categories ──────────────────────────────────────────────
 
-export const categories: Category[] = [
+export const _categoriesBase: Omit<Category, 'peptideCount'>[] = [
   {
     id: 'metabolic',
     nameAr: 'الأيض وإدارة الوزن',
     descriptionAr: 'ببتيدات تستهدف تنظيم الشهية، حرق الدهون الحشوية، وتحسين حساسية الأنسولين لتحقيق تكوين جسماني أفضل.',
     icon: 'TrendingDown',
-    peptideCount: 0,
   },
   {
     id: 'recovery',
     nameAr: 'التعافي والأداء الرياضي',
     descriptionAr: 'ببتيدات تُسرّع شفاء الأوتار والأربطة والعضلات، وتعزز إفراز هرمون النمو الطبيعي لتحسين الأداء الرياضي.',
     icon: 'Heart',
-    peptideCount: 0,
   },
   {
     id: 'hormonal',
     nameAr: 'التستوستيرون والصحة الهرمونية',
     descriptionAr: 'ببتيدات تحفّز المحور الهرموني الطبيعي (HPG) لرفع التستوستيرون وتحسين الوظيفة الجنسية دون تثبيط الإنتاج الذاتي.',
     icon: 'Zap',
-    peptideCount: 0,
   },
   {
     id: 'brain',
     nameAr: 'الدماغ والجهاز العصبي',
     descriptionAr: 'ببتيدات عصبية تعزز التركيز والذاكرة وتحمي من التنكّس العصبي عبر زيادة عامل التغذية العصبية BDNF.',
     icon: 'Brain',
-    peptideCount: 0,
   },
   {
     id: 'longevity',
     nameAr: 'النوم وإطالة العمر الصحي',
     descriptionAr: 'ببتيدات تستهدف التيلوميرات وصحة الميتوكوندريا وجودة النوم العميق لإبطاء الشيخوخة البيولوجية.',
     icon: 'Clock',
-    peptideCount: 0,
   },
   {
     id: 'skin-gut',
     nameAr: 'البشرة والأمعاء والمناعة',
     descriptionAr: 'ببتيدات تدعم حاجز الأمعاء، تحفّز إنتاج الكولاجين، وتنظّم الاستجابة المناعية لصحة شاملة من الداخل.',
     icon: 'Shield',
-    peptideCount: 0,
   },
 ];
 
@@ -1267,6 +1261,12 @@ for (const p of peptides) {
 for (const cat of categories) {
   cat.peptideCount = peptides.filter((p) => p.category === cat.id).length;
 }
+
+// ── Categories (computed counts) ─────────────────────────────
+export const categories: Category[] = _categoriesBase.map((cat) => ({
+  ...cat,
+  peptideCount: peptides.filter((p) => p.category === cat.id).length,
+}));
 
 // ── Stacks (بروتوكولات مُركّبة) ─────────────────────────────
 

@@ -1,20 +1,23 @@
 import { useState, useEffect, useCallback } from 'react';
 import FocusTrap from 'focus-trap-react';
-import { Sparkles, BookOpen, Calculator, Bot, Flame, Brain, Dumbbell, Heart, Zap, Leaf, Moon } from 'lucide-react';
+import { Sparkles, BookOpen, Calculator, Bot, TrendingDown, Brain, Dumbbell, Heart, Zap, Clock, Shield, Moon } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { TRIAL_DAYS, PEPTIDE_COUNT } from '@/lib/constants';
 import { useAuth } from '@/contexts/AuthContext';
+import { supabase } from '@/lib/supabase';
 
 const ONBOARDING_KEY = 'pptides_onboarded';
 
+/** Canonical goal IDs — matches PeptideQuiz.tsx */
 const GOALS = [
-  { id: 'fat-loss', label: 'فقدان دهون وإنقاص وزن', Icon: Flame },
+  { id: 'weight-loss', label: 'فقدان دهون وإنقاص وزن', Icon: TrendingDown },
   { id: 'recovery', label: 'تعافي من إصابة أو أداء رياضي', Icon: Heart },
   { id: 'muscle', label: 'بناء عضل وقوة', Icon: Dumbbell },
-  { id: 'brain', label: 'تركيز وذاكرة وأداء ذهني', Icon: Brain },
-  { id: 'hormones', label: 'تحسين هرمونات', Icon: Zap },
-  { id: 'longevity', label: 'إطالة عمر ومكافحة شيخوخة', Icon: Leaf },
-  { id: 'gut-skin', label: 'بشرة أو أمعاء أو نوم', Icon: Moon },
+  { id: 'anti-aging', label: 'إطالة عمر ومكافحة شيخوخة', Icon: Clock },
+  { id: 'sleep', label: 'تحسين النوم', Icon: Moon },
+  { id: 'immunity', label: 'تعزيز المناعة', Icon: Shield },
+  { id: 'skin', label: 'بشرة أو أمعاء', Icon: Zap },
+  { id: 'general', label: 'صحة عامة وتحسين هرمونات', Icon: Brain },
 ] as const;
 
 function getTrialPlan(goal: string) {
@@ -27,15 +30,28 @@ function getTrialPlan(goal: string) {
   ];
 }
 
-/** Maps OnboardingModal goal id → Library category id (peptides.ts) */
+/** Maps canonical goal id → Library category id (peptides.ts) */
 const GOAL_TO_CATEGORY: Record<string, string> = {
-  'fat-loss': 'metabolic',
+  'weight-loss': 'metabolic',
+  'muscle': 'recovery',
+  'anti-aging': 'longevity',
   'recovery': 'recovery',
-  'muscle': 'hormonal',
-  'brain': 'brain',
-  'hormones': 'hormonal',
-  'longevity': 'longevity',
-  'gut-skin': 'skin-gut',
+  'sleep': 'longevity',
+  'immunity': 'longevity',
+  'skin': 'skin-gut',
+  'general': 'recovery',
+};
+
+/** Goal label map for displaying quiz results in onboarding */
+const GOAL_LABELS: Record<string, string> = {
+  'weight-loss': 'فقدان الوزن',
+  'muscle': 'بناء العضل',
+  'anti-aging': 'مقاومة الشيخوخة',
+  'recovery': 'التعافي',
+  'sleep': 'تحسين النوم',
+  'immunity': 'تعزيز المناعة',
+  'skin': 'صحة البشرة',
+  'general': 'صحة عامة',
 };
 
 export default function OnboardingModal({ forceOpen, onClose: externalClose }: { forceOpen?: boolean; onClose?: () => void }) {
@@ -43,6 +59,7 @@ export default function OnboardingModal({ forceOpen, onClose: externalClose }: {
   const [show, setShow] = useState(true);
   const [step, setStep] = useState<'goal' | 'plan'>('goal');
   const [selectedGoal, setSelectedGoal] = useState('');
+  const [quizGoalLabel, setQuizGoalLabel] = useState('');
   const [animatePlan, setAnimatePlan] = useState(false);
   const userName = user?.email?.split('@')[0]?.charAt(0).toUpperCase() + (user?.email?.split('@')[0]?.slice(1) ?? '') || '';
   useEffect(() => {
@@ -52,14 +69,17 @@ export default function OnboardingModal({ forceOpen, onClose: externalClose }: {
     } catch { /* expected */ }
   }, [forceOpen]);
 
+  // If user already took the quiz, skip the goal step
   useEffect(() => {
     try {
-      const saved = localStorage.getItem('pptides_quiz_answers');
+      const saved = localStorage.getItem('pptides_quiz_results');
       if (saved) {
         const parsed = JSON.parse(saved);
-        if (parsed.goal && parsed.ts && Date.now() - parsed.ts < 24 * 60 * 60 * 1000) {
+        if (parsed.goal) {
           setSelectedGoal(parsed.goal);
+          setQuizGoalLabel(GOAL_LABELS[parsed.goal] ?? '');
           setStep('plan');
+          setTimeout(() => setAnimatePlan(true), 100);
         }
       }
     } catch { /* expected */ }
