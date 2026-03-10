@@ -125,8 +125,16 @@ serve(async (req) => {
     if (action === 'update_subscription') {
       const userId = body.user_id as string
       const updates: Record<string, unknown> = {}
-      if (body.tier) updates.tier = body.tier
-      if (body.status) updates.status = body.status
+      const VALID_STATUSES = ['active', 'trial', 'cancelled', 'expired', 'past_due', 'none']
+      const VALID_TIERS = ['free', 'essentials', 'elite']
+      if (body.tier) {
+        if (!VALID_TIERS.includes(body.tier as string)) return json({ error: `Invalid tier: ${body.tier}. Must be one of: ${VALID_TIERS.join(', ')}` }, 400, cors)
+        updates.tier = body.tier
+      }
+      if (body.status) {
+        if (!VALID_STATUSES.includes(body.status as string)) return json({ error: `Invalid status: ${body.status}. Must be one of: ${VALID_STATUSES.join(', ')}` }, 400, cors)
+        updates.status = body.status
+      }
       if (!userId || Object.keys(updates).length === 0) return json({ error: 'Missing user_id or updates' }, 400, cors)
 
       updates.updated_at = new Date().toISOString()
@@ -260,8 +268,17 @@ serve(async (req) => {
         let emails: string[] = []
 
         if (audience === 'all') {
-          const { data: { users: allUsers } } = await admin.auth.admin.listUsers({ perPage: 1000 })
-          emails = (allUsers ?? []).map(u => u.email).filter((e): e is string => !!e)
+          // Paginate all users (listUsers returns max 1000 per page)
+          const collected: string[] = []
+          let pg = 1
+          while (true) {
+            const { data: { users: pageUsers }, error: pgErr } = await admin.auth.admin.listUsers({ page: pg, perPage: 1000 })
+            if (pgErr || !pageUsers || pageUsers.length === 0) break
+            pageUsers.forEach(u => { if (u.email) collected.push(u.email) })
+            if (pageUsers.length < 1000) break
+            pg++
+          }
+          emails = collected
         } else {
           const statusMap: Record<string, string> = { trial: 'trial', active: 'active', expired: 'expired' }
           const status = statusMap[audience]
@@ -382,9 +399,15 @@ serve(async (req) => {
     // VERIFY STRIPE (admin-triggered, no CRON_SECRET needed)
     // ================================================================
     if (action === 'verify_stripe') {
-      const EXPECTED = {
-        essentials: Deno.env.get('STRIPE_PRICE_ESSENTIALS') ?? 'price_1T6QrYAT1lRVVLw7UNdI4t2g',
-        elite: Deno.env.get('STRIPE_PRICE_ELITE') ?? 'price_1T6QrZAT1lRVVLw7qu0FZIWT',
+      // Only use env-configured price IDs — no hardcoded fallbacks that could silently verify wrong prices
+      const essentialsPriceId = Deno.env.get('STRIPE_PRICE_ESSENTIALS')
+      const elitePriceId = Deno.env.get('STRIPE_PRICE_ELITE')
+      const EXPECTED: Record<string, string> = {
+        ...(essentialsPriceId ? { essentials: essentialsPriceId } : {}),
+        ...(elitePriceId ? { elite: elitePriceId } : {}),
+      }
+      if (Object.keys(EXPECTED).length === 0) {
+        return json({ error: 'No price IDs configured — set STRIPE_PRICE_ESSENTIALS and STRIPE_PRICE_ELITE env vars' }, 500, cors)
       }
       const result: { prices: Record<string, unknown>; webhooks: unknown[]; eventsOk: boolean; missingEvents: string[] } = {
         prices: {},
@@ -612,8 +635,10 @@ serve(async (req) => {
 
     if (action === 'sync_email') {
       const userId = body.user_id as string
-      const newEmail = body.new_email as string
+      const newEmail = (body.new_email as string)?.trim().toLowerCase()
       if (!userId || !newEmail) return json({ error: 'Missing user_id or new_email' }, 400, cors)
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/
+      if (!emailRegex.test(newEmail)) return json({ error: 'Invalid email format' }, 400, cors)
       const { data: sub } = await admin.from('subscriptions').select('stripe_customer_id').eq('user_id', userId).maybeSingle()
       if (sub?.stripe_customer_id && stripeKey) {
         const stripe = new Stripe(stripeKey, { apiVersion: '2024-06-20' })

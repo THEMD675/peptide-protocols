@@ -31,8 +31,11 @@ serve(async (req) => {
       return jsonResponse({ error: 'Rate limited — try again shortly' }, 429, corsHeaders)
     }
 
-    async function getAllAuthUsers() {
-      const collected: typeof paginatedUsers = []
+    type AuthUser = Awaited<ReturnType<typeof admin.auth.admin.listUsers>>['data']['users'][number]
+    let paginatedUsers: AuthUser[] = []
+
+    async function getAllAuthUsers(): Promise<AuthUser[]> {
+      const collected: AuthUser[] = []
       let page = 1
       while (true) {
         const { data: { users }, error } = await admin.auth.admin.listUsers({ page, perPage: 1000 })
@@ -43,8 +46,6 @@ serve(async (req) => {
       }
       return collected
     }
-    type AuthUser = Awaited<ReturnType<typeof admin.auth.admin.listUsers>>['data']['users'][number]
-    let paginatedUsers: AuthUser[] = []
 
     const [
       ,

@@ -93,22 +93,43 @@ serve(async (req) => {
         try {
           await stripe.subscriptions.cancel(sub.stripe_subscription_id)
         } catch (e) {
-          console.error('delete-account: failed to cancel Stripe sub:', sub.stripe_subscription_id, e)
-          return new Response(JSON.stringify({
-            error: 'تعذّر إلغاء اشتراك Stripe. تواصل معنا لإكمال حذف حسابك.',
-            support: 'contact@pptides.com'
-          }), { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } })
+          const stripeErr = e as { code?: string; type?: string; message?: string }
+          // Idempotency: if sub is already cancelled / not found, treat as success and continue
+          const alreadyGone =
+            stripeErr.code === 'resource_missing' ||
+            stripeErr.message?.includes('No such subscription') ||
+            stripeErr.message?.includes('already been canceled') ||
+            stripeErr.message?.includes('already canceled')
+          if (alreadyGone) {
+            console.warn('delete-account: Stripe sub already cancelled/not found — continuing:', sub.stripe_subscription_id)
+          } else {
+            console.error('delete-account: failed to cancel Stripe sub:', sub.stripe_subscription_id, e)
+            return new Response(JSON.stringify({
+              error: 'تعذّر إلغاء اشتراك Stripe. تواصل معنا لإكمال حذف حسابك.',
+              support: 'contact@pptides.com'
+            }), { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } })
+          }
         }
       }
       if (sub.stripe_customer_id) {
         try {
           await stripe.customers.del(sub.stripe_customer_id)
         } catch (e) {
-          console.error('delete-account: failed to delete Stripe customer:', sub.stripe_customer_id, e)
-          return new Response(JSON.stringify({
-            error: 'تعذّر حذف عميل Stripe. تواصل معنا لإكمال حذف حسابك.',
-            support: 'contact@pptides.com'
-          }), { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } })
+          const stripeErr = e as { code?: string; type?: string; message?: string }
+          // Idempotency: if customer is already deleted / not found, treat as success and continue
+          const alreadyGone =
+            stripeErr.code === 'resource_missing' ||
+            stripeErr.message?.includes('No such customer') ||
+            stripeErr.message?.includes('already deleted')
+          if (alreadyGone) {
+            console.warn('delete-account: Stripe customer already deleted/not found — continuing:', sub.stripe_customer_id)
+          } else {
+            console.error('delete-account: failed to delete Stripe customer:', sub.stripe_customer_id, e)
+            return new Response(JSON.stringify({
+              error: 'تعذّر حذف عميل Stripe. تواصل معنا لإكمال حذف حسابك.',
+              support: 'contact@pptides.com'
+            }), { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } })
+          }
         }
       }
       stripeCleanupSucceeded = true
