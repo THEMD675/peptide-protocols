@@ -119,6 +119,7 @@ export const peptides: Peptide[] = [
   {
     id: 'semaglutide',
     nameAr: 'سيماغلوتايد',
+    descriptionAr: 'أشهر ببتيد معتمد لإنقاص الوزن — يحقق فقدان 15-20% من وزن الجسم عبر تقليل الشهية وتحسين حساسية الأنسولين، مع فوائد قلبية مثبتة.',
     nameEn: 'Semaglutide',
     category: 'metabolic',
     aminoAcids: 'ببتيد مُعدّل من 31 حمضًا أمينيًا مشابه لهرمون GLP-1 البشري مع تعديلات تُطيل نصف عمره إلى ~7 أيام',
@@ -144,6 +145,7 @@ export const peptides: Peptide[] = [
   {
     id: 'tirzepatide',
     nameAr: 'تيرزيباتايد',
+    descriptionAr: 'أحدث وأقوى ببتيد لإنقاص الوزن — الناهض المزدوج الأول (GLP-1 + GIP) يحقق فقدان وزن يصل إلى 22.5%، متفوقًا على Semaglutide في التجارب المباشرة.',
     nameEn: 'Tirzepatide',
     category: 'metabolic',
     aminoAcids: 'ببتيد مُعدّل من 39 حمضًا أمينيًا — أول ناهض مزدوج لمستقبلات GLP-1 و GIP',
@@ -169,6 +171,7 @@ export const peptides: Peptide[] = [
   {
     id: 'retatrutide',
     nameAr: 'ريتاتروتايد',
+    descriptionAr: 'الجيل القادم — أول ناهض ثلاثي المستقبلات يستهدف GLP-1 وGIP والجلوكاجون معًا، محققًا فقدان وزن يصل إلى 24% في التجارب الأولية.',
     nameEn: 'Retatrutide',
     category: 'metabolic',
     aminoAcids: 'ببتيد من 39 حمضًا أمينيًا — أول ناهض ثلاثي لمستقبلات GLP-1 وGIP والجلوكاجون',
@@ -194,6 +197,7 @@ export const peptides: Peptide[] = [
   {
     id: 'tesamorelin',
     nameAr: 'تيساموريلين',
+    descriptionAr: 'ببتيد GHRH معتمد من FDA يستهدف الدهون الحشوية تحديدًا ويحفّز هرمون النمو بنمط فسيولوجي طبيعي — مثالي لتحسين تكوين الجسم.',
     nameEn: 'Tesamorelin',
     category: 'metabolic',
     aminoAcids: '44 حمضًا أمينيًا — نظير مُعدّل لهرمون GHRH (هرمون إفراز هرمون النمو)',
@@ -219,6 +223,7 @@ export const peptides: Peptide[] = [
   {
     id: 'aod-9604',
     nameAr: 'AOD-9604',
+    descriptionAr: 'جزء معزول من هرمون النمو يستهدف حرق الدهون فقط دون رفع سكر الدم أو IGF-1 — خيار آمن لكن أدلته البشرية محدودة.',
     nameEn: 'AOD-9604',
     category: 'metabolic',
     aminoAcids: 'جزء من هرمون النمو البشري (الأحماض الأمينية 176-191) — 16 حمضًا أمينيًا مع رابطة ثنائية الكبريتيد',
@@ -244,6 +249,7 @@ export const peptides: Peptide[] = [
   {
     id: '5-amino-1mq',
     nameAr: '5-أمينو-1MQ',
+    descriptionAr: 'جزيء فموي يثبّط إنزيم NNMT لزيادة حرق الدهون ورفع NAD+ — واعد جدًا في الحيوانات لكنه يحتاج تجارب بشرية أكبر.',
     nameEn: '5-Amino-1MQ',
     category: 'metabolic',
     aminoAcids: 'جزيء صغير (ليس ببتيدًا تقليديًا) — مثبّط لإنزيم NNMT',
@@ -273,6 +279,7 @@ export const peptides: Peptide[] = [
   {
     id: 'bpc-157',
     nameAr: 'BPC-157',
+    descriptionAr: 'أشهر ببتيد تعافي في العالم — مشتق من العصارة المعدية البشرية، يُسرّع شفاء الأوتار والأربطة والأمعاء مع ملف أمان استثنائي.',
     nameEn: 'BPC-157',
     category: 'recovery',
     aminoAcids: '15 حمضًا أمينيًا — مشتق من بروتين الحماية الجسدية (Body Protection Compound) الموجود في العصارة المعدية البشرية',
@@ -298,6 +305,7 @@ export const peptides: Peptide[] = [
   {
     id: 'tb-500',
     nameAr: 'TB-500 (ثايموسين بيتا-4)',
+    descriptionAr: 'ببتيد تعافي جهازي قوي من الغدة الزعترية — يُسرّع شفاء العضلات والأنسجة الرخوة ويقلل الالتهاب. يشكّل مع BPC-157 أقوى مزيج تعافي متاح.',
     nameEn: 'TB-500',
     category: 'recovery',
     aminoAcids: '43 حمضًا أمينيًا — النسخة الصناعية من بروتين ثايموسين بيتا-4 الموجود طبيعيًا في الغدة الزعترية (Thymus) وجميع خلايا الجسم',
@@ -323,6 +331,7 @@ export const peptides: Peptide[] = [
   {
     id: 'cjc-1295',
     nameAr: 'CJC-1295',
+    descriptionAr: 'نظير GHRH يرفع هرمون النمو بشكل مستدام — يُدمج عادة مع Ipamorelin لتحفيز أمثل. تنبّه لاحمرار الوجه الناتج عن الهيستامين.',
     nameEn: 'CJC-1295',
     category: 'recovery',
     aminoAcids: '29 حمضًا أمينيًا — نظير مُعدّل لهرمون GHRH (هرمون إفراز هرمون النمو) مع إضافة DAC لإطالة العمر النصفي',
@@ -349,6 +358,7 @@ export const peptides: Peptide[] = [
   {
     id: 'ipamorelin',
     nameAr: 'إيباموريلين',
+    descriptionAr: 'أنظف ببتيد لتحفيز هرمون النمو — 5 أحماض أمينية فقط ترفع GH بدون رفع الكورتيزول أو البرولاكتين. الخيار الأول للمبتدئين.',
     nameEn: 'Ipamorelin',
     category: 'recovery',
     aminoAcids: '5 أحماض أمينية — ناهض انتقائي لمستقبل إفراز هرمون النمو (GHS-R/Ghrelin receptor)',
@@ -374,6 +384,7 @@ export const peptides: Peptide[] = [
   {
     id: 'sermorelin',
     nameAr: 'سيرموريلين',
+    descriptionAr: 'أقدم ببتيد GHRH وأكثرها أمانًا — كان معتمدًا من FDA سابقًا. يحفّز هرمون النمو بنمط طبيعي مع تاريخ استخدام يمتد لعقود.',
     nameEn: 'Sermorelin',
     category: 'recovery',
     aminoAcids: '29 حمضًا أمينيًا — أول 29 حمضًا من هرمون GHRH الطبيعي (44 حمضًا أمينيًا)',
@@ -399,6 +410,7 @@ export const peptides: Peptide[] = [
   {
     id: 'ghrp-2',
     nameAr: 'GHRP-2',
+    descriptionAr: 'ببتيد GHRP قوي يرفع هرمون النمو بشكل ملحوظ — أقوى من Ipamorelin لكن يرفع الشهية والكورتيزول بدرجة خفيفة.',
     nameEn: 'GHRP-2',
     category: 'recovery',
     aminoAcids: '6 أحماض أمينية — ببتيد إفراز هرمون النمو من الجيل الثاني',
@@ -425,6 +437,7 @@ export const peptides: Peptide[] = [
   {
     id: 'ghrp-6',
     nameAr: 'GHRP-6',
+    descriptionAr: 'أقوى GHRPs في تحفيز الشهية — مناسب لمن يريد زيادة الوزن والكتلة العضلية. أقل انتقائية من Ipamorelin.',
     nameEn: 'GHRP-6',
     category: 'recovery',
     aminoAcids: '6 أحماض أمينية — ببتيد إفراز هرمون النمو من الجيل الأول',
@@ -451,6 +464,7 @@ export const peptides: Peptide[] = [
   {
     id: 'hexarelin',
     nameAr: 'هيكساريلين',
+    descriptionAr: 'أقوى GHRP في تحفيز هرمون النمو — لكن يتطلب دورات قصيرة (4-6 أسابيع) بسبب التحمّل السريع. يُفضل للاستخدام التكتيكي.',
     nameEn: 'Hexarelin',
     category: 'recovery',
     aminoAcids: '6 أحماض أمينية — أقوى ببتيد GHRP من حيث تحفيز هرمون النمو',
@@ -477,6 +491,7 @@ export const peptides: Peptide[] = [
   {
     id: 'igf-1-lr3',
     nameAr: 'IGF-1 LR3',
+    descriptionAr: 'عامل نمو مباشر وقوي جدًا — يحفّز نمو العضلات بآلية مختلفة عن GHRPs. عالي الفعالية لكن يتطلب خبرة وحذر بسبب خطر هبوط السكر وتحفيز النمو.',
     nameEn: 'IGF-1 LR3',
     category: 'recovery',
     aminoAcids: '83 حمضًا أمينيًا — نسخة معدّلة من عامل النمو الشبيه بالأنسولين (IGF-1) مع استبدال Arg في الموقع 3 وإضافة 13 حمضًا أمينيًا',
@@ -503,6 +518,7 @@ export const peptides: Peptide[] = [
   {
     id: 'follistatin-344',
     nameAr: 'فوليستاتين 344',
+    descriptionAr: 'مُثبّط الميوستاتين — يرفع السقف الوراثي لبناء العضلات عبر تثبيط المكبح الطبيعي. مثير للاهتمام علميًا لكنه مكلف وتجاربه البشرية محدودة.',
     nameEn: 'Follistatin 344',
     category: 'recovery',
     aminoAcids: '344 حمضًا أمينيًا — بروتين كبير يرتبط بالميوستاتين ويثبّطه',
@@ -532,6 +548,7 @@ export const peptides: Peptide[] = [
   {
     id: 'kisspeptin-10',
     nameAr: 'كيسبيبتين-10',
+    descriptionAr: 'محفّز طبيعي للتستوستيرون يعمل من أعلى المحور الهرموني (Hypothalamus) — يرفع LH وFSH بأمان دون تثبيط الإنتاج الذاتي.',
     nameEn: 'Kisspeptin-10',
     category: 'hormonal',
     aminoAcids: '10 أحماض أمينية — الجزء النشط من بروتين Kisspeptin الذي يتحكم في بدء البلوغ والمحور الهرموني',
@@ -557,6 +574,7 @@ export const peptides: Peptide[] = [
   {
     id: 'pt-141',
     nameAr: 'PT-141 (بريميلانوتايد)',
+    descriptionAr: 'أول دواء معتمد من FDA يعمل على الدماغ لتحفيز الرغبة الجنسية — يختلف جذريًا عن الفياغرا. فعّال للجنسين عبر تفعيل مستقبلات الميلانوكورتين.',
     nameEn: 'PT-141 / Bremelanotide',
     category: 'hormonal',
     aminoAcids: '7 أحماض أمينية حلقية — ناهض لمستقبلات الميلانوكورتين (MC3R/MC4R)',
@@ -582,6 +600,7 @@ export const peptides: Peptide[] = [
   {
     id: 'testicular-bioregulators',
     nameAr: 'المنظمات الحيوية للخصية',
+    descriptionAr: 'ببتيدات قصيرة روسية المنشأ تعمل على مستوى الجينات لاستعادة وظيفة خلايا الخصية — بروتوكول قصير (10-30 يوم) يُكرر عدة مرات سنويًا.',
     nameEn: 'Testicular Bioregulators',
     category: 'hormonal',
     aminoAcids: 'ببتيدات قصيرة (2-4 أحماض أمينية) مستخلصة من أنسجة الخصية — تعمل كمنظمات حيوية على مستوى الجينات',
@@ -607,6 +626,7 @@ export const peptides: Peptide[] = [
   {
     id: 'gnrh-triptorelin',
     nameAr: 'GnRH / تريبتوريلين',
+    descriptionAr: 'أداة قوية لإعادة تشغيل المحور الهرموني — جرعة واحدة صغيرة تُطلق LH وFSH بقوة. يُستخدم بحذر شديد لأن الجرعة الزائدة تعكس التأثير.',
     nameEn: 'GnRH / Triptorelin',
     category: 'hormonal',
     aminoAcids: '10 أحماض أمينية — نظير مُعدّل لهرمون GnRH الطبيعي (هرمون إفراز الغدد التناسلية)',
@@ -637,6 +657,7 @@ export const peptides: Peptide[] = [
   {
     id: 'semax',
     nameAr: 'سيماكس',
+    descriptionAr: 'أقوى ببتيد لتعزيز التركيز والذاكرة — يرفع BDNF بشكل كبير ومعتمد كدواء في روسيا. بخاخ أنف سهل الاستخدام بدون حقن.',
     nameEn: 'Semax',
     category: 'brain',
     aminoAcids: '7 أحماض أمينية — مشتق مُعدّل من هرمون ACTH (الأحماض 4-10) مع إضافة Pro-Gly-Pro للاستقرار',
@@ -662,6 +683,7 @@ export const peptides: Peptide[] = [
   {
     id: 'na-semax-amidate',
     nameAr: 'NA-Semax-Amidate',
+    descriptionAr: 'النسخة المُحسّنة من Semax — تعديلات كيميائية تزيد النفاذية والاستقرار والقوة. خيار لمن يريد تأثيرًا أقوى من Semax العادي.',
     nameEn: 'NA-Semax-Amidate',
     category: 'brain',
     aminoAcids: '7 أحماض أمينية مع تعديلين: N-Acetyl في البداية وAmidate في النهاية — نسخة محسّنة من Semax',
@@ -687,6 +709,7 @@ export const peptides: Peptide[] = [
   {
     id: 'selank',
     nameAr: 'سيلانك',
+    descriptionAr: 'مضاد قلق طبيعي معتمد في روسيا — يقلل القلق دون نعاس أو إدمان أو تثبيط إدراكي. مشتق من Tuftsin المناعي مع فوائد مزدوجة للمزاج والمناعة.',
     nameEn: 'Selank',
     category: 'brain',
     aminoAcids: '7 أحماض أمينية — مشتق من بروتين Tuftsin المناعي الطبيعي مع إضافة Pro-Gly-Pro للاستقرار',
@@ -712,6 +735,7 @@ export const peptides: Peptide[] = [
   {
     id: 'dihexa',
     nameAr: 'ديهيكسا',
+    descriptionAr: 'ببتيد تجريبي "خارق القوة" في تحفيز المشابك العصبية — نتائج حيوانية مذهلة لكن بدون تجارب بشرية. للمتقدمين فقط.',
     nameEn: 'Dihexa',
     category: 'brain',
     aminoAcids: '6 أحماض أمينية — مشتق من Angiotensin IV. يُوصف بأنه أقوى 10 ملايين مرة من BDNF في تحفيز المشابك العصبية',
@@ -738,6 +762,7 @@ export const peptides: Peptide[] = [
   {
     id: 'cerebrolysin',
     nameAr: 'سيريبروليسين',
+    descriptionAr: 'مستخلص دماغ الخنزير المنقّى — أكثر من 200 تجربة سريرية ومعتمد في 44 دولة لعلاج السكتة والزهايمر. أقوى حماية عصبية متاحة لكنه يحتاج حقن IM أو IV.',
     nameEn: 'Cerebrolysin',
     category: 'brain',
     aminoAcids: 'مزيج من ببتيدات عصبية قصيرة وأحماض أمينية حرة — مستخلص من دماغ الخنزير المنقّى. يحتوي على عوامل تغذية عصبية طبيعية',
@@ -763,6 +788,7 @@ export const peptides: Peptide[] = [
   {
     id: 'p21',
     nameAr: 'P21',
+    descriptionAr: 'ببتيد تجريبي يحفّز تكوّن خلايا عصبية جديدة في الحصين — واعد لمكافحة الزهايمر لكن بدون تجارب بشرية حتى الآن.',
     nameEn: 'P21',
     category: 'brain',
     aminoAcids: '4 أحماض أمينية — ببتيد صناعي مشتق من منطقة نشطة في بروتين CNTF (عامل التغذية العصبية الهدبية)',
@@ -793,6 +819,7 @@ export const peptides: Peptide[] = [
   {
     id: 'epithalon',
     nameAr: 'إيبيثالون',
+    descriptionAr: 'ببتيد إطالة العمر الأشهر — 4 أحماض أمينية فقط تُنشّط التيلوميراز وتعيد ضبط الساعة البيولوجية. بيانات عمرها 40+ سنة تُظهر إطالة عمر الحيوانات بنسبة.',
     nameEn: 'Epithalon',
     category: 'longevity',
     aminoAcids: '4 أحماض أمينية فقط (Ala-Glu-Asp-Gly) — أقصر ببتيد نشط بيولوجيًا. مشتق من بروتين Epithalamin الطبيعي في الغدة الصنوبرية',
@@ -818,6 +845,7 @@ export const peptides: Peptide[] = [
   {
     id: 'dsip',
     nameAr: 'DSIP (ببتيد تحفيز النوم العميق)',
+    descriptionAr: 'ببتيد طبيعي يُعمّق النوم عبر تعزيز موجات دلتا — يحسّن جودة النوم دون إدمان. بخاخ أنف سهل الاستخدام.',
     nameEn: 'DSIP',
     category: 'longevity',
     aminoAcids: '9 أحماض أمينية — ببتيد تحفيز النوم دلتا (Delta Sleep-Inducing Peptide) الموجود طبيعيًا في الدماغ',
@@ -843,6 +871,7 @@ export const peptides: Peptide[] = [
   {
     id: 'ss-31',
     nameAr: 'SS-31 (إيلاميبريتايد)',
+    descriptionAr: 'أول دواء معتمد من FDA يستهدف الميتوكوندريا مباشرة — يُعيد شحن محطة الطاقة الخلوية عبر إصلاح الكارديوليبين. اختراق في علاج أمراض الشيخوخة.',
     nameEn: 'SS-31 / Elamipretide',
     category: 'longevity',
     aminoAcids: '4 أحماض أمينية (D-Arg-Dmt-Lys-Phe) — ببتيد صغير يستهدف الغشاء الداخلي للميتوكوندريا بشكل انتقائي',
@@ -868,6 +897,7 @@ export const peptides: Peptide[] = [
   {
     id: 'mots-c',
     nameAr: 'MOTS-c',
+    descriptionAr: 'أول "هرمون ميتوكوندري" مكتشف — يحاكي تأثيرات التمرين الرياضي ويحسّن حساسية الأنسولين. ببتيد ثوري لكنه يحتاج بحثًا بشريًا أكثر.',
     nameEn: 'MOTS-c',
     category: 'longevity',
     aminoAcids: '16 حمضًا أمينيًا — ببتيد مشفّر من الحمض النووي الميتوكوندري (mtDNA) وليس النووي. أول "هرمون ميتوكوندري" مكتشف',
@@ -894,6 +924,7 @@ export const peptides: Peptide[] = [
   {
     id: 'foxo4-dri',
     nameAr: 'FOXO4-DRI',
+    descriptionAr: 'ببتيد سنوليتيك ثوري يستهدف الخلايا الهَرِمة ويُحرّض موتها — نتائج مذهلة في الفئران لكن صفر تجارب بشرية. مكلف وتجريبي بالكامل.',
     nameEn: 'FOXO4-DRI',
     category: 'longevity',
     aminoAcids: 'ببتيد عكسي (D-Retro-Inverso) من 30 حمضًا أمينيًا — يحاكي بروتين FOXO4 لكن بتكوين عكسي يقاوم التكسّر',
@@ -920,6 +951,7 @@ export const peptides: Peptide[] = [
   {
     id: 'thymalin',
     nameAr: 'ثيمالين',
+    descriptionAr: 'مستخلص الغدة الزعترية — بروتوكول خافينسون الكلاسيكي لمكافحة الشيخوخة المناعية. دراسة بشرية أظهرت انخفاض الوفاة 50% خلال 6 سنوات.',
     nameEn: 'Thymalin',
     category: 'longevity',
     aminoAcids: 'مزيج من ببتيدات قصيرة مستخلصة من الغدة الزعترية (thymus) للعجول — يحتوي على عدة ببتيدات تنظيمية',
@@ -945,6 +977,7 @@ export const peptides: Peptide[] = [
   {
     id: 'thymosin-alpha-1',
     nameAr: 'ثايموسين ألفا-1',
+    descriptionAr: 'منظّم مناعي قوي معتمد في 35+ دولة — يُنشّط المراقبة المناعية ضد الفيروسات والأورام دون فرط نشاط. ملف أمان ممتاز مع عقود من الاستخدام السريري.',
     nameEn: 'Thymosin Alpha-1',
     category: 'longevity',
     aminoAcids: '28 حمضًا أمينيًا — ببتيد طبيعي تُفرزه الغدة الزعترية. مُعرّف ومنقّى (على عكس Thymalin الذي هو مستخلص خام)',
@@ -974,6 +1007,7 @@ export const peptides: Peptide[] = [
   {
     id: 'collagen-peptides',
     nameAr: 'ببتيدات الكولاجين',
+    descriptionAr: 'أكثر ببتيدات البشرة دراسةً وأمانًا — مسحوق فموي يحفّز إنتاج الكولاجين الذاتي ويحسّن البشرة والمفاصل. سهل الاستخدام ومتوفر تجاريًا.',
     nameEn: 'Collagen Peptides',
     category: 'skin-gut',
     aminoAcids: 'مزيج من ببتيدات قصيرة (2-20 حمض أميني) ناتجة عن تحلّل الكولاجين — غنية بـ Glycine وProline وHydroxyproline',
@@ -999,6 +1033,7 @@ export const peptides: Peptide[] = [
   {
     id: 'ghk-cu',
     nameAr: 'GHK-Cu (ببتيد النحاس)',
+    descriptionAr: 'ببتيد النحاس الطبيعي — يحفّز تجديد البشرة والشعر ويُعيد تنظيم الآلاف من الجينات نحو حالة أكثر شبابًا. متوفر موضعيًا وبالحقن.',
     nameEn: 'GHK-Cu',
     category: 'skin-gut',
     aminoAcids: '3 أحماض أمينية (Gly-His-Lys) مرتبطة بأيون نحاس (Cu²⁺) — ببتيد طبيعي يتناقص مع التقدم في العمر',
@@ -1024,6 +1059,7 @@ export const peptides: Peptide[] = [
   {
     id: 'copper-peptides-topical',
     nameAr: 'ببتيدات النحاس الموضعية',
+    descriptionAr: 'تركيبات موضعية محسّنة من ببتيدات النحاس — بديل لطيف للريتينول يحفّز الكولاجين ويُجدد البشرة بتهيّج أقل.',
     nameEn: 'Copper Peptides Topical',
     category: 'skin-gut',
     aminoAcids: 'مشتقات متنوعة من GHK-Cu مُحسّنة للاستخدام الموضعي — تشمل AHK-Cu و GHK-Cu في قواعد مختلفة',
@@ -1049,6 +1085,7 @@ export const peptides: Peptide[] = [
   {
     id: 'larazotide',
     nameAr: 'لارازوتايد',
+    descriptionAr: 'ببتيد يُصلح "تسريب الأمعاء" عبر تنظيم الوصلات المحكمة — في المرحلة الثالثة من التجارب السريرية لمرض السيلياك. يعمل موضعيًا في الأمعاء دون امتصاص.',
     nameEn: 'Larazotide',
     category: 'skin-gut',
     aminoAcids: '8 أحماض أمينية — ببتيد يُنظّم البروتين الدقيق للوصلات المحكمة (tight junctions) في بطانة الأمعاء',
@@ -1074,6 +1111,7 @@ export const peptides: Peptide[] = [
   {
     id: 'kpv',
     nameAr: 'KPV',
+    descriptionAr: 'مضاد التهاب طبيعي من 3 أحماض أمينية فقط — يستهدف التهاب الأمعاء عبر تثبيط NF-κB. جزء أساسي من بروتوكول إصلاح الأمعاء.',
     nameEn: 'KPV',
     category: 'skin-gut',
     aminoAcids: '3 أحماض أمينية فقط (Lys-Pro-Val) — مشتق من الجزء النشط لهرمون ألفا-MSH المضاد للالتهاب',
@@ -1099,6 +1137,7 @@ export const peptides: Peptide[] = [
   {
     id: 'll-37',
     nameAr: 'LL-37',
+    descriptionAr: 'المضاد الحيوي الطبيعي للجسم — يقتل البكتيريا ويُفكك الأغشية الحيوية. إنتاجه مرتبط بفيتامين D. خيار متقدم للعدوى المزمنة المقاومة.',
     nameEn: 'LL-37',
     category: 'skin-gut',
     aminoAcids: '37 حمضًا أمينيًا — ببتيد مضاد للميكروبات من عائلة الكاثيليسيدين (cathelicidin). يُنتجه الجسم طبيعيًا استجابةً لفيتامين D',
@@ -1124,6 +1163,7 @@ export const peptides: Peptide[] = [
   {
     id: 'ara-290',
     nameAr: 'ARA-290',
+    descriptionAr: 'ببتيد يحاكي الجانب الحامي من الإريثروبويتين — يُصلح الأعصاب ويقلل الالتهاب دون زيادة كريات الدم. خيار مبتكر لاعتلال الأعصاب.',
     nameEn: 'ARA-290',
     category: 'skin-gut',
     aminoAcids: '11 حمضًا أمينيًا — ببتيد صناعي يحاكي تأثير الإريثروبويتين (EPO) على الأنسجة دون التأثير على الدم',
@@ -1149,6 +1189,7 @@ export const peptides: Peptide[] = [
   {
     id: 'melanotan-ii',
     nameAr: 'ميلانوتان II',
+    descriptionAr: 'تحذير: ببتيد اسمرار البشرة الذي يحمل خطرًا حقيقيًا لتحفيز سرطان الجلد (ميلانوما). غير معتمد من أي جهة. المخاطر تفوق الفوائد بشكل كبير.',
     nameEn: 'Melanotan II',
     category: 'skin-gut',
     aminoAcids: '7 أحماض أمينية حلقية — ناهض غير انتقائي لمستقبلات الميلانوكورتين (MC1R-MC5R)',
