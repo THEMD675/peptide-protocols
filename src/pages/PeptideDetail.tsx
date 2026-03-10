@@ -29,6 +29,7 @@ export default function PeptideDetail() {
 
   const peptide = useMemo(() => peptides.find((p) => p.id === id), [id]);
   const [showProtocolWizard, setShowProtocolWizard] = useState(false);
+  const { isBookmarked, toggle: toggleBookmark } = useBookmarks();
 
   useEffect(() => {
     if (!peptide) return;
@@ -68,9 +69,11 @@ export default function PeptideDetail() {
     'very-weak': { label: 'أدلة محدودة (بحوث حيوانية)', cls: 'border-stone-300 dark:border-stone-700 bg-stone-100 dark:bg-stone-800 text-stone-600 dark:text-stone-400' },
   } as Record<string, { label: string; cls: string }>)[peptide.evidenceLevel] ?? { label: 'أدلة محدودة', cls: 'border-stone-300 dark:border-stone-700 bg-stone-100 dark:bg-stone-800 text-stone-600 dark:text-stone-400' };
 
-  const relatedPeptides = peptides.filter(
-    (p) => p.id !== peptide.id && (p.category === peptide.category || peptide.stackAr.toLowerCase().includes(p.nameEn.toLowerCase()))
-  ).slice(0, 4);
+  const relatedPeptides = useMemo(() => {
+    const sameCategory = peptides.filter((p) => p.id !== peptide.id && p.category === peptide.category);
+    const fromStack = peptides.filter((p) => p.id !== peptide.id && p.category !== peptide.category && peptide.stackAr.toLowerCase().includes(p.nameEn.toLowerCase()));
+    return [...sameCategory, ...fromStack].slice(0, 3);
+  }, [peptide]);
 
   const rows: ProtocolRow[] = [
     { label: 'الاسم العلمي', value: peptide.nameEn },
@@ -181,6 +184,19 @@ export default function PeptideDetail() {
             </div>
 
             <div className="flex flex-wrap items-center gap-2">
+              <button
+                type="button"
+                onClick={() => { toggleBookmark(peptide.id); }}
+                className={cn(
+                  'flex items-center justify-center rounded-full p-2.5 min-h-[44px] min-w-[44px] transition-all',
+                  isBookmarked(peptide.id)
+                    ? 'text-red-500 hover:text-red-600 scale-110'
+                    : 'text-stone-400 hover:text-red-400',
+                )}
+                aria-label={isBookmarked(peptide.id) ? 'إزالة من المحفوظات' : 'حفظ الببتيد'}
+              >
+                <Heart className={cn('h-6 w-6 transition-all', isBookmarked(peptide.id) && 'fill-current animate-pulse')} />
+              </button>
               {peptide.fdaApproved && (hasAccess || isFreeContent) && (
                 <span className="flex items-center gap-1.5 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-3 py-1 text-xs font-semibold text-emerald-400">
                   <CheckCircle className="h-3.5 w-3.5" />
@@ -400,7 +416,10 @@ export default function PeptideDetail() {
 
           {relatedPeptides.length > 0 && (
             <div className="mt-8">
-              <h3 className="mb-4 text-lg font-bold text-stone-900 dark:text-stone-100">ببتيدات ذات صلة</h3>
+              <h3 className="mb-4 flex items-center gap-2 text-lg font-bold text-stone-900 dark:text-stone-100">
+                <FlaskConical className="h-5 w-5 text-emerald-600" />
+                ببتيدات مشابهة
+              </h3>
               <div className="grid gap-3 sm:grid-cols-2">
                 {relatedPeptides.map((rp) => (
                   <Link

@@ -188,7 +188,7 @@ export default function Stacks() {
                       <div key={p.id} className="flex items-center gap-1">
                         <Link
                           to={`/peptide/${p.id}`}
-                          className="group relative flex items-center gap-1.5 rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-xs font-medium text-emerald-700 transition-all hover:bg-emerald-100 hover:shadow-md hover:border-emerald-400 min-h-[36px]"
+                          className="group relative flex items-center gap-1.5 rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-xs font-medium text-emerald-700 transition-all hover:bg-emerald-100 hover:shadow-md hover:border-emerald-400 min-h-[44px]"
                         >
                           <span className="h-2 w-2 rounded-full bg-emerald-500 group-hover:animate-pulse" />
                           {p.nameAr}
