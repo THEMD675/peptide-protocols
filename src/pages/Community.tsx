@@ -823,10 +823,8 @@ export default function Community() {
                         setUpvotedPosts(next);
                         try { localStorage.setItem('pptides_upvoted_posts', JSON.stringify([...next])); } catch { /* expected */ }
                         setLogs(prev => prev.map(l => l.id === log.id ? { ...l, upvotes: (l.upvotes ?? 0) + 1 } : l));
-                        const { error } = await supabase
-                          .from('community_logs')
-                          .update({ upvotes: (log.upvotes ?? 0) + 1 })
-                          .eq('id', log.id);
+                        const { data: rpcData, error } = await supabase
+                          .rpc('increment_upvote', { p_post_id: log.id, p_user_id: user.id });
                         if (error) {
                           setLogs(prev => prev.map(l => l.id === log.id ? { ...l, upvotes: (l.upvotes ?? 0) - 1 } : l));
                           const reverted = new Set(upvotedPosts);
