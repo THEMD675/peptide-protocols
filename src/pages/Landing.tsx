@@ -21,6 +21,7 @@ import {
   Star,
   Crown,
   ChevronDown,
+  Gift,
 } from 'lucide-react';
 import EmailCapture from '@/components/EmailCapture';
 import PeptideQuiz from '@/components/PeptideQuiz';
@@ -736,7 +737,19 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* Referral section removed — backend not ready */}
+      {/* ═══════ REFERRAL ═══════ */}
+      <section className="py-16 md:py-20">
+        <div className="mx-auto max-w-3xl px-6 text-center">
+          <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-500/10">
+            <Gift className="h-7 w-7 text-emerald-600" />
+          </div>
+          <h2 className="text-2xl font-bold md:text-3xl">ادعُ صديقًا واحصل على مكافأة</h2>
+          <p className="mt-3 text-stone-600">شارك رابطك الخاص مع أصدقائك — عند اشتراكهم، تحصل أنت وصديقك على خصم 30% لمدة شهر.</p>
+          <Link to="/login" className="mt-6 inline-flex items-center gap-2 rounded-full bg-emerald-600 px-8 py-3.5 text-base font-semibold text-white shadow-lg transition hover:bg-emerald-700">
+            سجّل دخولك لتحصل على رابطك
+          </Link>
+        </div>
+      </section>
 
       {/* ═══════ RISK REVERSAL (Hormozi) ═══════ */}
       <section className="bg-gradient-to-b from-white to-stone-50 py-24 md:py-32">
