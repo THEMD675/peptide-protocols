@@ -20,6 +20,7 @@ import {
   Flame,
   Repeat,
   Trash2,
+  Pencil,
   Download,
   ChevronLeft,
   ChevronRight,
@@ -32,6 +33,8 @@ import {
   FileDown,
   CalendarDays,
   CalendarRange,
+  Check,
+  X,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { events } from '@/lib/analytics';
@@ -530,6 +533,54 @@ export default function Tracker() {
     }
   };
 
+  // Edit state
+  const [editingLog, setEditingLog] = useState<string | null>(null);
+  const [editDose, setEditDose] = useState('');
+  const [editUnit, setEditUnit] = useState('mcg');
+  const [editSite, setEditSite] = useState('abdomen');
+  const [editDate, setEditDate] = useState('');
+  const [editSaving, setEditSaving] = useState(false);
+
+  const startEditing = (log: InjectionLog) => {
+    setEditingLog(log.id);
+    setEditDose(String(log.dose));
+    setEditUnit(log.dose_unit);
+    setEditSite(log.injection_site);
+    const d = new Date(log.logged_at);
+    d.setMinutes(d.getMinutes() - d.getTimezoneOffset());
+    setEditDate(d.toISOString().slice(0, 16));
+  };
+
+  const saveEdit = async (logId: string) => {
+    if (!user || editSaving) return;
+    const doseNum = parseFloat(editDose);
+    if (isNaN(doseNum) || doseNum <= 0) { toast.error('أدخل جرعة صحيحة'); return; }
+    setEditSaving(true);
+    try {
+      const { error } = await supabase
+        .from('injection_logs')
+        .update({
+          dose: doseNum,
+          dose_unit: editUnit,
+          injection_site: editSite,
+          logged_at: new Date(editDate).toISOString(),
+        })
+        .eq('id', logId)
+        .eq('user_id', user.id);
+      if (error) {
+        toast.error('تعذّر تعديل السجل — حاول مرة أخرى');
+      } else {
+        toast.success('تم تعديل السجل');
+        setEditingLog(null);
+        await fetchLogs();
+      }
+    } catch {
+      toast.error('تعذّر تعديل السجل');
+    } finally {
+      setEditSaving(false);
+    }
+  };
+
   const [fullStatsData, setFullStatsData] = useState<{ uniquePeptides: number; last7: number } | null>(null);
   const [allLogsForStats, setAllLogsForStats] = useState<InjectionLog[]>([]);
   useEffect(() => {
@@ -560,6 +611,49 @@ export default function Tracker() {
     const timeSinceLabel = daysSince > 0 ? `منذ ${daysSince} يوم` : hoursSince > 0 ? `منذ ${hoursSince} ساعة` : 'الآن';
     return { totalInjections, uniquePeptides, streak, last7, timeSinceLabel };
   }, [logs, allLogsForStats, totalCount, fullStatsData?.last7, fullStatsData?.uniquePeptides]);
+
+  // Monthly summary
+  const monthlySummary = useMemo(() => {
+    const src = allLogsForStats.length > 0 ? allLogsForStats : logs;
+    if (src.length === 0) return null;
+    const now = new Date();
+    const thisMonth = src.filter(l => {
+      const d = new Date(l.logged_at);
+      return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
+    });
+    if (thisMonth.length === 0) return null;
+    const totalInjections = thisMonth.length;
+    // Most used peptide
+    const peptideCounts: Record<string, number> = {};
+    thisMonth.forEach(l => { peptideCounts[l.peptide_name] = (peptideCounts[l.peptide_name] || 0) + 1; });
+    const mostUsed = Object.entries(peptideCounts).sort((a, b) => b[1] - a[1])[0];
+    // Average dose
+    const avgDose = thisMonth.reduce((sum, l) => sum + l.dose, 0) / thisMonth.length;
+    // Streak
+    const streak = computeStreak(src);
+    return {
+      totalInjections,
+      mostUsedPeptide: mostUsed?.[0] ?? '',
+      mostUsedCount: mostUsed?.[1] ?? 0,
+      avgDose: Math.round(avgDose * 10) / 10,
+      avgUnit: thisMonth[0]?.dose_unit ?? 'mcg',
+      streak,
+    };
+  }, [logs, allLogsForStats]);
+
+  // Peptide color map for log entries
+  const peptideColorMap = useMemo(() => {
+    const colors = [
+      'border-s-emerald-500', 'border-s-blue-500', 'border-s-purple-500',
+      'border-s-amber-500', 'border-s-rose-500', 'border-s-cyan-500',
+      'border-s-orange-500', 'border-s-indigo-500',
+    ];
+    const src = allLogsForStats.length > 0 ? allLogsForStats : logs;
+    const uniquePeptides = [...new Set(src.map(l => l.peptide_name))];
+    const map: Record<string, string> = {};
+    uniquePeptides.forEach((name, i) => { map[name] = colors[i % colors.length]; });
+    return map;
+  }, [logs, allLogsForStats]);
 
   const weeklyActivity = useMemo(() => {
     const src = allLogsForStats.length > 0 ? allLogsForStats : logs;
@@ -724,6 +818,39 @@ export default function Tracker() {
         </div>
         <p className="mt-2 text-lg text-stone-600 dark:text-stone-400">تتبّع جرعاتك ومواقع الحقن</p>
       </div>
+
+      {/* Prominent Streak Counter */}
+      {dashboardStats && dashboardStats.streak > 0 && (
+        <div className="mb-6 rounded-2xl bg-gradient-to-l from-orange-500 to-amber-500 p-5 text-center shadow-lg">
+          <p className="text-4xl font-black text-white">🔥 {dashboardStats.streak} أيام متتالية</p>
+          <p className="mt-1 text-sm font-medium text-white/80">استمر في الالتزام — أنت تبني عادة!</p>
+        </div>
+      )}
+
+      {/* Monthly Summary */}
+      {monthlySummary && (
+        <div className="mb-6 rounded-2xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 p-5 shadow-sm dark:shadow-stone-900/30">
+          <h3 className="text-sm font-bold text-stone-900 dark:text-stone-100 mb-3">📊 ملخص الشهر</h3>
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+            <div className="text-center">
+              <p className="text-2xl font-black text-emerald-600">{monthlySummary.totalInjections}</p>
+              <p className="text-xs text-stone-500 dark:text-stone-400">حقنة هذا الشهر</p>
+            </div>
+            <div className="text-center">
+              <p className="text-lg font-black text-stone-900 dark:text-stone-100 truncate" dir="ltr">{monthlySummary.mostUsedPeptide}</p>
+              <p className="text-xs text-stone-500 dark:text-stone-400">الأكثر استخدامًا ({monthlySummary.mostUsedCount}×)</p>
+            </div>
+            <div className="text-center">
+              <p className="text-2xl font-black text-blue-600">{monthlySummary.avgDose}</p>
+              <p className="text-xs text-stone-500 dark:text-stone-400">متوسط الجرعة ({monthlySummary.avgUnit})</p>
+            </div>
+            <div className="text-center">
+              <p className="text-2xl font-black text-orange-500">🔥 {monthlySummary.streak}</p>
+              <p className="text-xs text-stone-500 dark:text-stone-400">أيام متتالية</p>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Expired subscription banner — read-only mode */}
       {!subscription.isProOrTrial && (
@@ -1011,10 +1138,10 @@ export default function Tracker() {
 
       {/* Injection Heatmap — GitHub-style */}
       {heatmapData && (
-        <div className="mb-8 rounded-2xl border border-stone-200 bg-white p-5 shadow-sm">
+        <div className="mb-8 rounded-2xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-900 p-5 shadow-sm dark:shadow-stone-900/30">
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-sm font-bold text-stone-900">خريطة النشاط</h3>
-            <div className="flex rounded-xl border border-stone-200 bg-stone-50 p-0.5">
+            <div className="flex rounded-xl border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-800 p-0.5">
               <button
                 onClick={() => setHeatmapView('weekly')}
                 className={cn('flex items-center gap-1 rounded-lg px-3 py-1.5 text-xs font-medium transition-all', heatmapView === 'weekly' ? 'bg-emerald-600 text-white' : 'text-stone-600 hover:text-stone-900')}
@@ -1046,7 +1173,7 @@ export default function Tracker() {
                           className={cn(
                             'h-3 w-3 rounded-sm transition-colors',
                             isToday && 'ring-1 ring-emerald-400',
-                            intensity === 0 && 'bg-stone-100',
+                            intensity === 0 && 'bg-stone-100 dark:bg-stone-800',
                             intensity === 1 && 'bg-emerald-200',
                             intensity === 2 && 'bg-emerald-400',
                             intensity === 3 && 'bg-emerald-500',
@@ -1060,7 +1187,7 @@ export default function Tracker() {
               </div>
               <div className="flex items-center justify-end gap-1.5 mt-3 text-[10px] text-stone-500">
                 <span>أقل</span>
-                <div className="h-3 w-3 rounded-sm bg-stone-100" />
+                <div className="h-3 w-3 rounded-sm bg-stone-100 dark:bg-stone-800" />
                 <div className="h-3 w-3 rounded-sm bg-emerald-200" />
                 <div className="h-3 w-3 rounded-sm bg-emerald-400" />
                 <div className="h-3 w-3 rounded-sm bg-emerald-500" />
@@ -1085,7 +1212,7 @@ export default function Tracker() {
                           title={`${day.day}: ${day.count} حقنة`}
                           className={cn(
                             'h-3.5 w-3.5 rounded-sm transition-colors',
-                            intensity === 0 && 'bg-stone-100',
+                            intensity === 0 && 'bg-stone-100 dark:bg-stone-800',
                             intensity === 1 && 'bg-emerald-200',
                             intensity === 2 && 'bg-emerald-400',
                             intensity === 3 && 'bg-emerald-500',
@@ -1099,7 +1226,7 @@ export default function Tracker() {
               ))}
               <div className="flex items-center justify-end gap-1.5 text-[10px] text-stone-500">
                 <span>أقل</span>
-                <div className="h-3 w-3 rounded-sm bg-stone-100" />
+                <div className="h-3 w-3 rounded-sm bg-stone-100 dark:bg-stone-800" />
                 <div className="h-3 w-3 rounded-sm bg-emerald-200" />
                 <div className="h-3 w-3 rounded-sm bg-emerald-400" />
                 <div className="h-3 w-3 rounded-sm bg-emerald-500" />
@@ -1147,73 +1274,69 @@ export default function Tracker() {
 
       {/* Action Buttons — hide when empty or when subscription is expired */}
       {!showForm && logs.length > 0 && subscription.isProOrTrial && (
-        <div className="mb-8 flex gap-3">
-          <button
-            onClick={() => {
-              setShowForm(true);
-              setSite(suggestedSite);
-              if (!autoFilled && logs.length > 0 && !peptideName) {
-                const last = logs[0];
-                setPeptideName(last.peptide_name);
-                setDose(String(last.dose));
-                setUnit(last.dose_unit);
-                setAutoFilled(true);
-              }
-            }}
-            className="flex flex-1 items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-emerald-300 dark:border-emerald-700 bg-emerald-50 dark:bg-emerald-900/20 px-6 py-4 text-sm font-bold text-emerald-700 dark:text-emerald-400 transition-all hover:border-emerald-400 hover:bg-emerald-100 dark:bg-emerald-900/30"
-          >
-            <Plus className="h-5 w-5" />
-            حقنة جديدة
-          </button>
+        <div className="mb-8 space-y-3">
+          {/* Quick Log — one-tap to repeat last injection */}
           {logs.length > 0 && (
             <button
-              onClick={() => {
+              onClick={async () => {
+                if (!user || isSubmitting) return;
                 const last = logs[0];
-                setConfirmDialog({
-                  title: 'تكرار الحقنة الأخيرة',
-                  message: `تكرار حقنة ${last.peptide_name} — ${last.dose} ${last.dose_unit}؟`,
-                  onConfirm: async () => {
-                    if (!user) return;
-                    setConfirmDialog(null);
-                    setIsSubmitting(true);
-                    try {
-                      const now = new Date();
-                      const { error } = await supabase.from('injection_logs').insert({
-                        user_id: user.id,
-                        peptide_name: last.peptide_name,
-                        dose: last.dose,
-                        dose_unit: last.dose_unit,
-                        injection_site: suggestedSite,
-                        logged_at: now.toISOString(),
-                        notes: null,
-                      });
-                      if (error) {
-                        if (error?.message?.includes('JWT') || (error as { code?: string })?.code === '401' || error?.message?.includes('not authenticated')) {
-                          toast.error('انتهت الجلسة — أعد تسجيل الدخول');
-                        } else {
-                          toast.error('تعذّر حفظ الحقنة — تحقق من اتصالك وحاول مرة أخرى');
-                        }
-                        return;
-                      }
-                      await fetchLogs();
-                      toast.success(`تم تسجيل ${last.peptide_name} — ${last.dose} ${last.dose_unit}`);
-                      const newTotal = (totalCount || logs.length) + 1;
-                      celebrate(newTotal, computeStreak(logs, true));
-                    } catch {
+                setIsSubmitting(true);
+                try {
+                  const now = new Date();
+                  const { error } = await supabase.from('injection_logs').insert({
+                    user_id: user.id,
+                    peptide_name: last.peptide_name,
+                    dose: last.dose,
+                    dose_unit: last.dose_unit,
+                    injection_site: suggestedSite,
+                    logged_at: now.toISOString(),
+                    notes: null,
+                  });
+                  if (error) {
+                    if (error?.message?.includes('JWT') || (error as { code?: string })?.code === '401' || error?.message?.includes('not authenticated')) {
+                      toast.error('انتهت الجلسة — أعد تسجيل الدخول');
+                    } else {
                       toast.error('تعذّر حفظ الحقنة — تحقق من اتصالك وحاول مرة أخرى');
-                    } finally {
-                      setIsSubmitting(false);
                     }
-                  },
-                });
+                    return;
+                  }
+                  await fetchLogs();
+                  toast.success(`تم تسجيل ${last.peptide_name} — ${last.dose} ${last.dose_unit}`);
+                  const newTotal = (totalCount || logs.length) + 1;
+                  celebrate(newTotal, computeStreak(logs, true));
+                } catch {
+                  toast.error('تعذّر حفظ الحقنة — تحقق من اتصالك وحاول مرة أخرى');
+                } finally {
+                  setIsSubmitting(false);
+                }
               }}
               disabled={isSubmitting}
-              className="flex items-center justify-center gap-2 rounded-2xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 px-5 py-4 text-sm font-bold text-stone-700 dark:text-stone-300 transition-all hover:border-emerald-300 dark:border-emerald-700 hover:bg-stone-50 dark:hover:bg-stone-800 disabled:opacity-50"
+              className="flex w-full items-center justify-center gap-3 rounded-2xl bg-emerald-600 px-6 py-4 text-base font-bold text-white transition-all hover:bg-emerald-700 active:scale-[0.98] disabled:opacity-50 min-h-[56px] shadow-md"
             >
-              <Repeat className="h-4 w-4" />
-              كرّر الأخيرة
+              <Repeat className="h-5 w-5" />
+              <span>سجّل سريع — {logs[0]?.peptide_name} {logs[0]?.dose} {logs[0]?.dose_unit}</span>
             </button>
           )}
+          <div className="flex gap-3">
+            <button
+              onClick={() => {
+                setShowForm(true);
+                setSite(suggestedSite);
+                if (!autoFilled && logs.length > 0 && !peptideName) {
+                  const last = logs[0];
+                  setPeptideName(last.peptide_name);
+                  setDose(String(last.dose));
+                  setUnit(last.dose_unit);
+                  setAutoFilled(true);
+                }
+              }}
+              className="flex flex-1 items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-emerald-300 dark:border-emerald-700 bg-emerald-50 dark:bg-emerald-900/20 px-6 py-4 text-sm font-bold text-emerald-700 dark:text-emerald-400 transition-all hover:border-emerald-400 hover:bg-emerald-100 dark:hover:bg-emerald-900/30 min-h-[44px]"
+            >
+              <Plus className="h-5 w-5" />
+              حقنة جديدة
+            </button>
+          </div>
         </div>
       )}
 

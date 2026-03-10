@@ -60,7 +60,7 @@ function SourcingInterestForm() {
   }
 
   return (
-    <section className="mt-10 rounded-2xl border border-stone-200 bg-white p-6 md:p-8">
+    <section className="mt-10 rounded-2xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-900 p-6 md:p-8">
       <div className="mb-6 text-center">
         <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-emerald-100">
           <Package className="h-5 w-5 text-emerald-700" />
@@ -72,19 +72,19 @@ function SourcingInterestForm() {
       <form onSubmit={handleSubmit} className="space-y-5">
         <div className="grid gap-4 sm:grid-cols-2">
           <div>
-            <label htmlFor="src-email" className="mb-1 block text-sm font-medium text-stone-800">البريد الإلكتروني *</label>
+            <label htmlFor="src-email" className="mb-1 block text-sm font-medium text-stone-800 dark:text-stone-200">البريد الإلكتروني *</label>
             <input id="src-email" type="email" required value={email} onChange={e => setEmail(e.target.value)} placeholder="name@example.com"
-              className="w-full rounded-xl border border-stone-200 bg-stone-50 px-4 py-3 text-sm text-stone-900 placeholder:text-stone-400 focus:border-emerald-300 focus:outline-none focus:ring-2 focus:ring-emerald-100" />
+              className="w-full rounded-xl border border-stone-200 dark:border-stone-600 bg-stone-50 dark:bg-stone-800 px-4 py-3 text-sm text-stone-900 dark:text-stone-100 placeholder:text-stone-400 focus:border-emerald-300 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900" />
           </div>
           <div>
-            <label htmlFor="src-phone" className="mb-1 block text-sm font-medium text-stone-800">رقم التواصل (واتساب)</label>
+            <label htmlFor="src-phone" className="mb-1 block text-sm font-medium text-stone-800 dark:text-stone-200">رقم التواصل (واتساب)</label>
             <input id="src-phone" type="tel" value={phone} onChange={e => setPhone(e.target.value)} placeholder="+966 5X XXX XXXX" dir="ltr"
-              className="w-full rounded-xl border border-stone-200 bg-stone-50 px-4 py-3 text-sm text-stone-900 placeholder:text-stone-400 focus:border-emerald-300 focus:outline-none focus:ring-2 focus:ring-emerald-100" />
+              className="w-full rounded-xl border border-stone-200 dark:border-stone-600 bg-stone-50 dark:bg-stone-800 px-4 py-3 text-sm text-stone-900 dark:text-stone-100 placeholder:text-stone-400 focus:border-emerald-300 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900" />
           </div>
         </div>
 
         <div>
-          <p className="mb-2 text-sm font-medium text-stone-800">ما الببتيدات التي تبحث عنها؟ *</p>
+          <p className="mb-2 text-sm font-medium text-stone-800 dark:text-stone-200">ما الببتيدات التي تبحث عنها؟ *</p>
           <div className="flex flex-wrap gap-2">
             {popularPeptides.map(p => (
               <button key={p.id} type="button" onClick={() => togglePeptide(p.id)}
@@ -92,7 +92,7 @@ function SourcingInterestForm() {
                   'rounded-full border px-3 py-1.5 text-xs font-medium transition-all min-h-[36px]',
                   selectedPeptides.includes(p.id)
                     ? 'border-emerald-400 bg-emerald-100 text-emerald-800'
-                    : 'border-stone-200 bg-white text-stone-600 hover:border-stone-300',
+                    : 'border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-900 text-stone-600 dark:text-stone-400 hover:border-stone-300 dark:hover:border-stone-600',
                 )}
               >
                 {p.nameAr}
@@ -102,9 +102,9 @@ function SourcingInterestForm() {
         </div>
 
         <div>
-          <label htmlFor="src-notes" className="mb-1 block text-sm font-medium text-stone-800">ملاحظات إضافية</label>
+          <label htmlFor="src-notes" className="mb-1 block text-sm font-medium text-stone-800 dark:text-stone-200">ملاحظات إضافية</label>
           <textarea id="src-notes" rows={2} value={notes} onChange={e => setNotes(e.target.value)} placeholder="الكمية المطلوبة، الهدف، أي تفاصيل إضافية..."
-            className="w-full rounded-xl border border-stone-200 bg-stone-50 px-4 py-3 text-sm text-stone-900 placeholder:text-stone-400 focus:border-emerald-300 focus:outline-none focus:ring-2 focus:ring-emerald-100 resize-none" />
+            className="w-full rounded-xl border border-stone-200 dark:border-stone-600 bg-stone-50 dark:bg-stone-800 px-4 py-3 text-sm text-stone-900 dark:text-stone-100 placeholder:text-stone-400 focus:border-emerald-300 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900 resize-none" />
         </div>
 
         <button type="submit" disabled={submitting}
@@ -249,7 +249,7 @@ export default function Sources() {
 
         {/* Section 1: Criteria */}
         <section className="mb-10">
-          <div className="mb-4 rounded-xl border border-stone-200 bg-stone-50 p-4">
+          <div className="mb-4 rounded-xl border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-800 p-4">
             <p className="text-sm text-stone-700">
               <strong className="text-stone-900">تنويه:</strong> pptides منصة تعليمية — لا نبيع ببتيدات ولا نتحمل مسؤولية أي عملية شراء. المعايير أدناه لمساعدتك في اختيار مورد موثوق.
             </p>
@@ -265,8 +265,8 @@ export default function Sources() {
                 <div
                   key={item.titleEn}
                   className={cn(
-                    'group rounded-2xl border border-stone-300 bg-stone-50 p-5 transition-all',
-                    'hover:border-emerald-300 hover:bg-white'
+                    'group rounded-2xl border border-stone-300 dark:border-stone-700 bg-stone-50 dark:bg-stone-900 p-5 transition-all',
+                    'hover:border-emerald-300 hover:bg-white dark:hover:bg-stone-800'
                   )}
                 >
                   <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-50">
@@ -310,8 +310,8 @@ export default function Sources() {
                 className={cn(
                   'shrink-0 rounded-full border px-4 py-2 text-sm font-medium transition-all min-h-[44px]',
                   activeCategory === 'all'
-                    ? 'border-emerald-400 bg-emerald-50 text-emerald-800'
-                    : 'border-stone-200 bg-white text-stone-600 hover:border-emerald-200'
+                    ? 'border-emerald-400 bg-emerald-50 dark:bg-emerald-900/30 text-emerald-800 dark:text-emerald-300'
+                    : 'border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-900 text-stone-600 dark:text-stone-400 hover:border-emerald-200'
                 )}
               >
                 الكل ({scientificReferences.length})
@@ -327,8 +327,8 @@ export default function Sources() {
                     className={cn(
                       'shrink-0 rounded-full border px-4 py-2 text-sm font-medium transition-all min-h-[44px]',
                       activeCategory === cat
-                        ? `border-emerald-400 bg-emerald-50 text-emerald-800`
-                        : 'border-stone-200 bg-white text-stone-600 hover:border-emerald-200'
+                        ? `border-emerald-400 bg-emerald-50 dark:bg-emerald-900/30 text-emerald-800 dark:text-emerald-300`
+                        : 'border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-900 text-stone-600 dark:text-stone-400 hover:border-emerald-200'
                     )}
                   >
                     {meta.label} ({count})
@@ -361,7 +361,7 @@ export default function Sources() {
                           href={study.url}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="group flex items-start gap-4 rounded-xl border border-stone-200 bg-white p-4 transition-all hover:border-emerald-300 hover:bg-emerald-50 hover:shadow-sm"
+                          className="group flex items-start gap-4 rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-900 p-4 transition-all hover:border-emerald-300 hover:bg-emerald-50 dark:hover:bg-stone-800 hover:shadow-sm"
                         >
                           {/* PubMed icon */}
                           <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-emerald-100 transition-colors group-hover:bg-emerald-200">
@@ -402,7 +402,7 @@ export default function Sources() {
 
         {/* Section 4: Contact CTA */}
         <section>
-          <div className="rounded-2xl border border-stone-300 bg-stone-50 p-6 text-center">
+          <div className="rounded-2xl border border-stone-300 dark:border-stone-700 bg-stone-50 dark:bg-stone-900 p-6 text-center">
             <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-emerald-50">
               <Mail className="h-5 w-5 text-emerald-600" aria-hidden="true" />
             </div>

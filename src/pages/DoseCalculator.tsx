@@ -942,7 +942,7 @@ export default function DoseCalculator() {
           className="mb-8 overflow-hidden rounded-2xl border border-stone-200 dark:border-stone-700"
         >
           <div
-            className="flex items-center gap-2 bg-stone-50/95 px-5 py-3"
+            className="flex items-center gap-2 bg-stone-50/95 dark:bg-stone-800/95 px-5 py-3"
           >
             <FlaskConical className="h-4 w-4 text-emerald-600" />
             <h2 className="text-base font-bold text-stone-900 dark:text-stone-100">

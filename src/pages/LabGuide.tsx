@@ -157,7 +157,7 @@ export default function LabGuide() {
                   {/* Card */}
                   <div className={cn(
                     'flex-1 rounded-2xl border p-5 transition-all hover:shadow-md',
-                    i === 0 ? 'border-emerald-200 bg-emerald-50/50' : 'border-stone-200 bg-white'
+                    i === 0 ? 'border-emerald-200 bg-emerald-50/50 dark:border-emerald-800 dark:bg-emerald-900/20' : 'border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-900'
                   )}>
                     <div className="flex items-center gap-2 mb-1">
                       <span className="sm:hidden text-lg">{row.icon}</span>
@@ -198,7 +198,7 @@ export default function LabGuide() {
               return (
                 <div
                   key={test.id}
-                  className="rounded-2xl border border-stone-200 bg-white p-5 shadow-sm transition-all hover:border-emerald-200 hover:shadow-md"
+                  className="rounded-2xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-900 p-5 shadow-sm dark:shadow-stone-900/30 transition-all hover:border-emerald-200 hover:shadow-md"
                 >
                   <div className="mb-3 flex items-start gap-3">
                     <div className={cn('flex h-10 w-10 shrink-0 items-center justify-center rounded-xl', bgColor)}>
@@ -212,7 +212,7 @@ export default function LabGuide() {
 
                   <div className={blurClass} aria-hidden={!isPro || undefined}>
                     <p className="mb-2 text-sm leading-relaxed text-stone-600">{test.descriptionAr}</p>
-                    <div className="flex items-start gap-2 rounded-lg bg-stone-50 p-2.5 text-xs text-stone-700">
+                    <div className="flex items-start gap-2 rounded-lg bg-stone-50 dark:bg-stone-800 p-2.5 text-xs text-stone-700 dark:text-stone-300">
                       <Calendar className="mt-0.5 h-3.5 w-3.5 shrink-0 text-emerald-500" />
                       <span>{test.whenAr}</span>
                     </div>
@@ -253,7 +253,7 @@ export default function LabGuide() {
             <h2 className="text-2xl font-bold">النطاقات المرجعية</h2>
           </div>
 
-          <div className="relative overflow-x-auto scroll-fade rounded-2xl border border-stone-200">
+          <div className="relative overflow-x-auto scroll-fade rounded-2xl border border-stone-200 dark:border-stone-700">
             <table className="w-full text-sm">
               <caption className="sr-only">النطاقات المرجعية للتحاليل المخبرية</caption>
               <thead>
@@ -266,12 +266,12 @@ export default function LabGuide() {
               </thead>
               <tbody className={blurClass} aria-hidden={!isPro || undefined}>
                 {referenceRanges.map((row, i) => (
-                  <tr key={row.name} className={cn('border-t transition-colors hover:bg-stone-50', i % 2 === 0 && 'bg-stone-50')}>
+                  <tr key={row.name} className={cn('border-t dark:border-stone-700 transition-colors hover:bg-stone-50 dark:hover:bg-stone-800', i % 2 === 0 && 'bg-stone-50 dark:bg-stone-800/50')}>
                     <td className="whitespace-nowrap px-4 py-3 font-bold text-stone-900" dir="ltr">{row.name}</td>
                     <td className="px-4 py-3 font-mono text-emerald-700" dir="ltr">{row.range}</td>
                     <td className="px-4 py-3 text-stone-600">{row.unit}</td>
                     <td className="px-4 py-3">
-                      <span className="inline-block rounded-full bg-stone-100 px-2.5 py-0.5 text-xs font-medium text-stone-700">{row.category}</span>
+                      <span className="inline-block rounded-full bg-stone-100 dark:bg-stone-800 px-2.5 py-0.5 text-xs font-medium text-stone-700 dark:text-stone-300">{row.category}</span>
                     </td>
                   </tr>
                 ))}

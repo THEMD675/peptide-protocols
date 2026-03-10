@@ -29,7 +29,7 @@ function extractPeptideActions(text: string) {
   return found.slice(0, 4);
 }
 
-interface ChatMessage { role: 'user' | 'assistant'; content: string }
+interface ChatMessage { role: 'user' | 'assistant'; content: string; timestamp?: number }
 
 type IntakeStep = 'goal' | 'experience' | 'injection' | 'details' | 'done';
 
@@ -146,6 +146,28 @@ const COACH_PREVIEW_SAMPLE_QS = [
   'صمّم لي بروتوكول CJC-1295 + Ipamorelin',
   'أريد بروتوكول Semaglutide مع جدول جرعات',
 ];
+
+const CONVERSATION_STARTERS = [
+  'ما أفضل ببتيد للمبتدئين؟',
+  'اشرح لي الفرق بين BPC-157 و TB-500',
+  'أريد بروتوكول لفقدان الوزن',
+  'كيف أخزن الببتيدات بشكل صحيح؟',
+  'هل يمكنني الجمع بين عدة ببتيدات؟',
+];
+
+function formatMessageTime(ts?: number): string {
+  if (!ts) return '';
+  const now = new Date();
+  const date = new Date(ts);
+  const isToday = date.toDateString() === now.toDateString();
+  const yesterday = new Date(now);
+  yesterday.setDate(yesterday.getDate() - 1);
+  const isYesterday = date.toDateString() === yesterday.toDateString();
+  const timeStr = date.toLocaleTimeString('ar-u-nu-latn', { hour: 'numeric', minute: '2-digit', hour12: true });
+  if (isToday) return `اليوم ${timeStr}`;
+  if (isYesterday) return `أمس ${timeStr}`;
+  return `${date.toLocaleDateString('ar-u-nu-latn', { month: 'short', day: 'numeric' })} ${timeStr}`;
+}
 
 function getFollowUps(text: string, isFirstProtocol: boolean): string[] {
   if (!isFirstProtocol) {
@@ -359,7 +381,7 @@ export default function Coach() {
     abortRef.current?.abort();
     const controller = new AbortController();
     abortRef.current = controller;
-    const userMsg: ChatMessage = { role: 'user', content: trimmed };
+    const userMsg: ChatMessage = { role: 'user', content: trimmed, timestamp: Date.now() };
     const updated = [...messagesRef.current, userMsg];
     setMessages(updated);
     setInput('');
@@ -405,7 +427,7 @@ export default function Coach() {
       let buffer = '';
       streamTimeout = setTimeout(() => controller.abort(), 60_000);
 
-      setMessages(prev => [...prev, { role: 'assistant', content: '' }]);
+      setMessages(prev => [...prev, { role: 'assistant', content: '', timestamp: Date.now() }]);
 
       let streamDone = false;
       while (!streamDone) {
@@ -600,7 +622,7 @@ export default function Coach() {
         )}
 
         <div className="rounded-2xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 overflow-hidden shadow-sm dark:shadow-stone-900/30">
-          <div ref={scrollRef} role="log" aria-label="محادثة المدرب الذكي" aria-live="polite" className="max-h-[65dvh] overflow-y-auto p-5 space-y-4 bg-stone-50/50">
+          <div ref={scrollRef} role="log" aria-label="محادثة المدرب الذكي" aria-live="polite" className="max-h-[65dvh] overflow-y-auto p-5 space-y-4 bg-stone-50/50 dark:bg-stone-950/50">
 
             {/* DeepSeek consent — one-time */}
             {showDeepSeekConsent && (
@@ -793,8 +815,14 @@ export default function Coach() {
                     )}
                   </div>
                 </div>
+                {/* Timestamp */}
+                {msg.timestamp && !msg.content.startsWith('__ERROR') && (
+                  <p className={cn('mt-1 text-[10px] text-stone-400', msg.role === 'user' ? 'text-start ms-9' : 'text-end max-w-[88%] ms-auto')}>
+                    {formatMessageTime(msg.timestamp)}
+                  </p>
+                )}
                 {msg.role === 'assistant' && !msg.content.startsWith('__ERROR') && (
-                  <p className="mt-1 text-[10px] text-stone-400 text-end max-w-[88%] ms-auto">هذه معلومات تعليمية وليست نصيحة طبية — استشر طبيبك</p>
+                  <p className="mt-0.5 text-[10px] text-stone-400 text-end max-w-[88%] ms-auto">هذه معلومات تعليمية وليست نصيحة طبية — استشر طبيبك</p>
                 )}
                 {/* Action pills: for non-last messages, show Copy + WhatsApp only */}
                 {msg.role === 'assistant' && !isLoading && msg.content.length > 50 && i !== messages.length - 1 && (
@@ -973,32 +1001,20 @@ export default function Coach() {
                 )
               ) : (
                 <>
-                  {/* Value preview — when messages empty (first visit) */}
+                  {/* Conversation starters — when chat is empty */}
                   {messages.length === 0 && !isLoading && (
-                    <div className="mb-6 rounded-2xl border border-emerald-200 dark:border-emerald-800 bg-emerald-50/50 p-5">
-                      <h3 className="text-base font-bold text-stone-900 dark:text-stone-100 mb-3">المدرب الذكي — مثال على محادثة</h3>
-                      <div className="space-y-3 mb-4">
-                        <div className="flex justify-start">
-                          <div className="primary-gradient rounded-2xl rounded-br-md px-4 py-2.5 max-w-[85%]">
-                            <p className="text-sm font-bold text-white">أريد بروتوكول BPC-157 للتعافي من إصابة</p>
-                          </div>
-                        </div>
-                        <div className="flex justify-end">
-                          <div className="rounded-2xl rounded-bl-md border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 px-4 py-3 max-w-[85%]">
-                            <p className="text-sm text-stone-800 dark:text-stone-200 leading-relaxed">
-                              ممتاز — BPC-157 مثالي للتعافي. البروتوكول: 250–500 mcg يوميًا تحت الجلد، 4–6 أسابيع. حقن في البطن أو الفخذ، دوّر المواقع. يفضّل على معدة فارغة لامتصاص أفضل...
-                            </p>
-                          </div>
-                        </div>
-                      </div>
-                      <p className="text-xs font-bold text-stone-600 dark:text-stone-400 mb-2">جرّب هذه الأسئلة:</p>
-                      <div className="flex flex-wrap gap-1.5">
-                        {COACH_PREVIEW_SAMPLE_QS.map(q => (
+                    <div className="mb-4">
+                      <p className="text-sm font-bold text-stone-600 dark:text-stone-400 mb-3 text-center">ابدأ محادثتك مع المدرب الذكي</p>
+                      <div className="flex flex-wrap gap-2 justify-center">
+                        {CONVERSATION_STARTERS.map(q => (
                           <button
                             key={q}
                             onClick={() => sendToAI(q)}
                             disabled={isLoading}
-                            className={cn("rounded-full border border-emerald-200 dark:border-emerald-800 bg-white dark:bg-stone-950 px-3 py-1.5 min-h-[44px] text-xs font-medium text-emerald-700 dark:text-emerald-400 transition-colors hover:bg-emerald-50 dark:bg-emerald-900/20", isLoading && "opacity-50 cursor-not-allowed")}
+                            className={cn(
+                              "rounded-full border border-emerald-200 dark:border-emerald-800 bg-white dark:bg-stone-950 px-4 py-2.5 min-h-[44px] text-sm font-medium text-emerald-700 dark:text-emerald-400 transition-all hover:bg-emerald-50 dark:hover:bg-emerald-900/20 hover:border-emerald-400 dark:hover:border-emerald-600 hover:shadow-sm active:scale-[0.97]",
+                              isLoading && "opacity-50 cursor-not-allowed"
+                            )}
                           >
                             {q}
                           </button>
@@ -1035,7 +1051,7 @@ export default function Coach() {
           )}
         </div>
 
-        <p className="mt-4 text-center text-xs text-stone-500 dark:text-stone-400">محتوى تعليمي بحثي — استشر طبيبك قبل استخدام أي ببتيد</p>
+        <p className="mt-4 text-center text-xs text-stone-500 dark:text-stone-400">المدرب الذكي يقدم معلومات تعليمية فقط — استشر طبيبك دائماً</p>
       </div>
       {protocolWizardPeptide && (
         <ProtocolWizard peptideId={protocolWizardPeptide} onClose={() => setProtocolWizardPeptide(null)} />

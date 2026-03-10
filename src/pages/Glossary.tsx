@@ -142,7 +142,7 @@ export default function Glossary() {
           onChange={(e) => setSearch(e.target.value)}
           placeholder="ابحث عن مصطلح..."
           aria-label="البحث في المصطلحات"
-          className="w-full rounded-2xl border border-stone-300 bg-stone-50 py-4 ps-12 pe-10 text-sm text-stone-900 placeholder:text-stone-500 focus:border-emerald-300 focus:outline-none focus:ring-2 focus:ring-emerald-100 transition-colors"
+          className="w-full rounded-2xl border border-stone-300 dark:border-stone-600 bg-stone-50 dark:bg-stone-800 py-4 ps-12 pe-10 text-sm text-stone-900 dark:text-stone-100 placeholder:text-stone-500 dark:placeholder:text-stone-400 focus:border-emerald-300 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900 transition-colors"
         />
         {search && (
           <button
@@ -162,7 +162,7 @@ export default function Glossary() {
 
       {/* Alphabet jump bar — sticky, always visible when not searching */}
       {!search.trim() && grouped.length > 0 && (
-        <div className="sticky top-16 z-20 -mx-4 mb-6 bg-white/90 backdrop-blur-md px-4 py-3 border-b border-stone-100 rounded-b-xl" role="navigation" aria-label="القفز حسب الحرف">
+        <div className="sticky top-16 z-20 -mx-4 mb-6 bg-white/90 dark:bg-stone-950/90 backdrop-blur-md px-4 py-3 border-b border-stone-100 dark:border-stone-800 rounded-b-xl" role="navigation" aria-label="القفز حسب الحرف">
           <div className="flex flex-wrap justify-center gap-1.5">
             {grouped.map(({ letter }) => (
               <button
@@ -172,7 +172,7 @@ export default function Glossary() {
                 className={`flex h-10 w-10 min-w-[40px] items-center justify-center rounded-xl text-sm font-bold transition-all min-h-[44px] ${
                   activeLetter === letter
                     ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-200 scale-110'
-                    : 'border border-stone-200 bg-white text-stone-700 hover:border-emerald-300 hover:bg-emerald-50 hover:text-emerald-700'
+                    : 'border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-900 text-stone-700 dark:text-stone-300 hover:border-emerald-300 hover:bg-emerald-50 dark:hover:bg-stone-800 hover:text-emerald-700'
                 }`}
               >
                 {letter}
@@ -184,7 +184,7 @@ export default function Glossary() {
 
       {/* Terms Grid — grouped by letter */}
       {filtered.length === 0 ? (
-        <div className="rounded-2xl border border-stone-200 bg-stone-50 py-16 text-center">
+        <div className="rounded-2xl border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-900 py-16 text-center">
           <BookA className="mx-auto mb-3 h-8 w-8 text-stone-300" />
           <p className="text-sm text-stone-500">لا توجد نتائج لـ &quot;{search}&quot;</p>
         </div>
@@ -199,7 +199,7 @@ export default function Glossary() {
                 {terms.map((term) => (
                   <div
                     key={term.en}
-                    className="rounded-2xl border border-stone-200 border-s-2 border-s-emerald-300 bg-white p-5 shadow-sm transition-all hover:border-emerald-200 hover:shadow-md"
+                    className="rounded-2xl border border-stone-200 dark:border-stone-700 border-s-2 border-s-emerald-300 bg-white dark:bg-stone-900 p-5 shadow-sm dark:shadow-stone-900/30 transition-all hover:border-emerald-200 hover:shadow-md"
                   >
                     <dt className="flex items-baseline justify-between gap-3">
                       <span className="text-base font-bold text-stone-900">
