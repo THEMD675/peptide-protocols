@@ -24,7 +24,9 @@ import {
   Gift,
 } from 'lucide-react';
 import EmailCapture from '@/components/EmailCapture';
+import ExitIntentPopup from '@/components/ExitIntentPopup';
 import PeptideQuiz from '@/components/PeptideQuiz';
+import StickyScrollCTA from '@/components/StickyScrollCTA';
 import { cn } from '@/lib/utils';
 import { PRICING, PEPTIDE_COUNT, PUBMED_SOURCE_LABEL, VALUE_TOTAL, VALUE_SAVINGS_ESSENTIALS, VALUE_STACK, SITE_URL, SUPPORT_EMAIL, STORAGE_KEYS, TRIAL_DAYS } from '@/lib/constants';
 
@@ -620,7 +622,7 @@ export default function Landing() {
             ماذا يقول <span className="text-emerald-600">المستخدمون</span>
           </h2>
           <p className="mx-auto mb-12 max-w-xl text-center text-stone-800">
-            {userCount > 0 ? `انضم لـ ${userCount}+ مستخدم` : 'شارك تجربتك مع المجتمع'}
+            {userCount >= 10 ? `انضم لـ ${userCount}+ مستخدم يثقون بـ pptides` : 'آراء حقيقية من مجتمعنا'}
           </p>
 
           <div className="grid gap-6 md:grid-cols-3">
@@ -750,7 +752,7 @@ export default function Landing() {
               احصل على رابط إحالتك
             </Link>
           ) : (
-            <Link to="/signup" className="mt-6 inline-flex items-center gap-2 rounded-full bg-emerald-600 px-8 py-3.5 text-base font-semibold text-white shadow-lg transition hover:bg-emerald-700">
+            <Link to="/signup?redirect=/account" className="mt-6 inline-flex items-center gap-2 rounded-full bg-emerald-600 px-8 py-3.5 text-base font-semibold text-white shadow-lg transition hover:bg-emerald-700">
               سجّل الآن لتحصل على رابطك
             </Link>
           )}
@@ -864,6 +866,12 @@ export default function Landing() {
       >
         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/></svg>
       </a>
+
+      {/* ═══════ EXIT INTENT POPUP ═══════ */}
+      <ExitIntentPopup />
+
+      {/* ═══════ STICKY SCROLL CTA ═══════ */}
+      <StickyScrollCTA />
     </div>
   );
 }
