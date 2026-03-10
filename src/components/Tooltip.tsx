@@ -67,7 +67,7 @@ export default function Tooltip({ content, children, icon = true, position = 'to
         onFocus={show}
         onBlur={hide}
         onClick={() => setVisible(v => !v)}
-        className="inline-flex items-center justify-center rounded-full text-stone-400 hover:text-emerald-700 dark:text-stone-500 dark:text-stone-400 dark:hover:text-emerald-400 transition-colors focus:outline-none"
+        className="inline-flex items-center justify-center rounded-full text-stone-400 hover:text-emerald-700 dark:text-stone-400 dark:hover:text-emerald-400 transition-colors focus:outline-none"
         aria-label="مساعدة"
         aria-describedby={visible ? 'tooltip-content' : undefined}
       >

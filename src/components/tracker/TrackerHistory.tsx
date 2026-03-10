@@ -432,7 +432,7 @@ export default function TrackerHistory({
                             {log.dose} {log.dose_unit}
                           </span>
                           {isProOrTrial && (
-                            <button onClick={() => startEditing(log)} className="flex items-center justify-center rounded-lg p-2 min-h-[44px] min-w-[44px] text-stone-300 dark:text-stone-500 dark:text-stone-400 transition-colors hover:bg-blue-50 dark:hover:bg-blue-900/20 hover:text-blue-500 dark:hover:text-blue-400" aria-label="تعديل">
+                            <button onClick={() => startEditing(log)} className="flex items-center justify-center rounded-lg p-2 min-h-[44px] min-w-[44px] text-stone-300 dark:text-stone-400 transition-colors hover:bg-blue-50 dark:hover:bg-blue-900/20 hover:text-blue-500 dark:hover:text-blue-400" aria-label="تعديل">
                               <Pencil className="h-3.5 w-3.5" />
                             </button>
                           )}
@@ -464,7 +464,7 @@ export default function TrackerHistory({
                                   },
                                 });
                               }}
-                              className="flex items-center justify-center rounded-lg p-2 min-h-[44px] min-w-[44px] text-stone-300 dark:text-stone-500 dark:text-stone-400 transition-colors hover:bg-red-50 dark:hover:bg-red-900/20 hover:text-red-500 dark:hover:text-red-400"
+                              className="flex items-center justify-center rounded-lg p-2 min-h-[44px] min-w-[44px] text-stone-300 dark:text-stone-400 transition-colors hover:bg-red-50 dark:hover:bg-red-900/20 hover:text-red-500 dark:hover:text-red-400"
                               aria-label="حذف"
                             >
                               <Trash2 className="h-3.5 w-3.5" />

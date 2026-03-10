@@ -378,7 +378,7 @@ function LabEntryForm({
       {/* Header */}
       <div className="flex items-center justify-between">
         <h4 className="text-sm font-bold text-stone-100">إضافة نتائج تحليل جديدة</h4>
-        <button onClick={onCancel} className="p-1.5 rounded-lg hover:bg-stone-800 transition-colors">
+        <button onClick={onCancel} aria-label="إغلاق" className="p-1.5 rounded-lg hover:bg-stone-800 transition-colors">
           <X className="h-4 w-4 text-stone-400" />
         </button>
       </div>
@@ -686,6 +686,7 @@ export default function LabResultsTracker() {
                 onClick={() => exportCSV(entries)}
                 className="p-2 rounded-lg border border-stone-700 text-stone-400 hover:text-emerald-400 hover:border-emerald-500/30 transition-colors"
                 title="تصدير CSV"
+                aria-label="تصدير CSV"
               >
                 <Download className="h-4 w-4" />
               </button>
@@ -693,6 +694,7 @@ export default function LabResultsTracker() {
                 onClick={() => exportAsImage(entries)}
                 className="p-2 rounded-lg border border-stone-700 text-stone-400 hover:text-emerald-400 hover:border-emerald-500/30 transition-colors"
                 title="حفظ كصورة"
+                aria-label="حفظ كصورة"
               >
                 <FileText className="h-4 w-4" />
               </button>

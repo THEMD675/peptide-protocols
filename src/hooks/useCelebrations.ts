@@ -27,45 +27,34 @@ export function useCelebrations() {
     if (totalInjections === 1 && !celebrated['first_injection']) {
       markCelebration('first_injection');
       setTimeout(() => {
-        toast.success('حقنتك الأولى! بداية رحلتك مع الببتيدات', {
+        toast.success('🎉 مبروك! سجّلت أول حقنة لك', {
           duration: 5000,
-          description: 'سجّل كل حقنة لمتابعة تقدّمك والتزامك بالبروتوكول',
+          description: 'بداية رحلتك مع الببتيدات — سجّل كل حقنة لمتابعة تقدّمك',
         });
       }, 300);
       return;
     }
 
-    if (streak === 7 && !celebrated['streak_7']) {
-      markCelebration('streak_7');
-      setTimeout(() => {
-        toast.success('أسبوع كامل بدون انقطاع!', {
-          duration: 5000,
-          description: `${streak} أيام متتالية — التزامك ممتاز`,
-        });
-      }, 300);
-      return;
-    }
-
-    if (streak === 14 && !celebrated['streak_14']) {
-      markCelebration('streak_14');
-      setTimeout(() => {
-        toast.success('أسبوعان من الالتزام!', {
-          duration: 5000,
-          description: 'نتائجك تتراكم — استمر بنفس الوتيرة',
-        });
-      }, 300);
-      return;
-    }
-
-    if (streak === 30 && !celebrated['streak_30']) {
-      markCelebration('streak_30');
-      setTimeout(() => {
-        toast.success('شهر كامل من الالتزام!', {
-          duration: 5000,
-          description: 'إنجاز استثنائي — شارك تجربتك مع المجتمع',
-        });
-      }, 300);
-      return;
+    // Recurring streak celebrations every 7 days
+    if (streak >= 7 && streak % 7 === 0) {
+      const streakKey = `streak_${streak}`;
+      if (!celebrated[streakKey]) {
+        markCelebration(streakKey);
+        const msgs: Record<number, { title: string; desc: string }> = {
+          7: { title: '🔥 أسبوع كامل بدون انقطاع!', desc: `${streak} أيام متتالية — التزامك ممتاز` },
+          14: { title: '🔥 أسبوعان من الالتزام!', desc: 'نتائجك تتراكم — استمر بنفس الوتيرة' },
+          21: { title: '🔥 ٣ أسابيع متواصلة!', desc: 'عادتك تتشكّل — لا تتوقف الآن' },
+          30: { title: '🏆 شهر كامل من الالتزام!', desc: 'إنجاز استثنائي — شارك تجربتك مع المجتمع' },
+        };
+        const msg = msgs[streak] || {
+          title: `🔥 ${streak} يوم متتالي! استمر!`,
+          desc: 'التزامك مثال يُحتذى',
+        };
+        setTimeout(() => {
+          toast.success(msg.title, { duration: 5000, description: msg.desc });
+        }, 300);
+        return;
+      }
     }
 
     if (totalInjections >= 10 && !celebrated['ten_injections']) {

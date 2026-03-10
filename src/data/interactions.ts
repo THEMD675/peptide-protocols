@@ -90,6 +90,25 @@ export const DRUG_INTERACTIONS: Record<string, InteractionResult> = {
   // Aspirin specific
   'bpc-157+aspirin': safe('BPC-157 + أسبرين — حماية المعدة', 'BPC-157 يحمي بطانة المعدة من تأثير الأسبرين المُضر. تجميعة مفيدة خصوصًا مع الاستخدام طويل المدى.'),
   'tb-500+aspirin': safeWarn('TB-500 + أسبرين — خطر نزيف خفيف', 'الأسبرين مميع دم خفيف + TB-500 يؤثر على الأوعية. خطر النزيف منخفض لكن موجود. راقب الكدمات.'),
+  // Levothyroxine / thyroid interactions
+  'bpc-157+thyroid': safe('BPC-157 + ليفوثيروكسين — آمن', 'لا يوجد تفاعل معروف بين BPC-157 وأدوية الغدة الدرقية. BPC-157 لا يؤثر على امتصاص أو استقلاب ليفوثيروكسين.'),
+  'cjc-1295+thyroid': safeWarn('محفّز GH + أدوية الغدة — مراقبة TSH', 'هرمون النمو يُسرّع تحويل T4 إلى T3 مما قد يُغيّر احتياجك من ليفوثيروكسين. افحص TSH وFT4 كل 6-8 أسابيع عند بدء CJC-1295.'),
+  'ipamorelin+thyroid': safeWarn('محفّز GH + أدوية الغدة — مراقبة TSH', 'Ipamorelin يرفع هرمون النمو الذي يُسرّع تحويل T4 إلى T3. قد تحتاج لتعديل جرعة ليفوثيروكسين. راقب TSH بانتظام.'),
+  'tesamorelin+thyroid': safeWarn('GHRH + أدوية الغدة — مراقبة وظائف الغدة', 'Tesamorelin يحفّز GH بقوة. هرمون النمو يؤثر على استقلاب هرمونات الغدة الدرقية. تابع TSH وFT3 مع طبيبك.'),
+  'sermorelin+thyroid': safeWarn('GHRH + أدوية الغدة — مراقبة TSH', 'Sermorelin يحفّز إفراز هرمون النمو الذي يؤثر على تحويل T4→T3. راقب وظائف الغدة الدرقية بانتظام.'),
+  'retatrutide+thyroid': safeWarn('GLP-1 ثلاثي + أدوية الغدة — امتصاص', 'مثل Semaglutide وTirzepatide — يبطئ إفراغ المعدة وقد يُقلل امتصاص ليفوثيروكسين. خذ دواء الغدة على معدة فارغة صباحًا.'),
+  // Oral contraceptives
+  'semaglutide+oral-contraceptives': safeWarn('GLP-1 + حبوب منع الحمل — انتبهي للامتصاص', 'Semaglutide يبطئ إفراغ المعدة بشكل ملحوظ مما قد يُقلل امتصاص حبوب منع الحمل الفموية. استخدمي وسيلة إضافية (واقي) خلال أول 3 أشهر وعند زيادة الجرعة.'),
+  'tirzepatide+oral-contraceptives': safeWarn('GLP-1/GIP + حبوب منع الحمل — انتبهي للامتصاص', 'Tirzepatide يبطئ إفراغ المعدة. الدراسات أظهرت انخفاضًا في امتصاص حبوب منع الحمل. استخدمي وسيلة إضافية أو انتقلي لوسيلة غير فموية.'),
+  'retatrutide+oral-contraceptives': safeWarn('GLP-1 ثلاثي + حبوب منع الحمل — امتصاص', 'Retatrutide يبطئ الهضم عبر 3 مستقبلات. احتمال كبير لتقليل امتصاص الأدوية الفموية بما فيها حبوب منع الحمل. استخدمي وسيلة بديلة.'),
+  // Sulfonylureas (common Saudi diabetes meds)
+  'semaglutide+sulfonylureas': dangerWarn('GLP-1 + سلفونيل يوريا — هبوط سكر', 'الجمع بين Semaglutide وأدوية السلفونيل يوريا (غليميبيرايد، غليبينكلاميد) يرفع خطر هبوط السكر. قلّل جرعة السلفونيل يوريا بنسبة 50% عند بدء GLP-1.'),
+  'tirzepatide+sulfonylureas': dangerWarn('GLP-1/GIP + سلفونيل يوريا — هبوط سكر', 'Tirzepatide مع السلفونيل يوريا يزيد خطر هبوط السكر الحاد. قلّل جرعة السلفونيل يوريا واراقب الجلوكوز يوميًا.'),
+  // Diabetes combo - DPP-4 inhibitors
+  'semaglutide+dpp4-inhibitors': warn('GLP-1 + مثبطات DPP-4 — لا فائدة', 'مثبطات DPP-4 (سيتاغلبتين، فيلداغلبتين) تعمل على نفس مسار GLP-1. الجمع مع Semaglutide لا يُضيف فائدة وقد يزيد الآثار الجانبية. أوقف DPP-4 عند بدء GLP-1.'),
+  'tirzepatide+dpp4-inhibitors': warn('GLP-1/GIP + مثبطات DPP-4 — لا فائدة', 'Tirzepatide يعمل على GLP-1 وGIP. مثبطات DPP-4 مكرّرة ولا تُضيف شيئًا. أوقفها عند بدء Tirzepatide.'),
+  // Proton pump inhibitors (very common in Saudi)
+  'bpc-157+ppi': safe('BPC-157 + مثبطات مضخة البروتون — آمن وتكميلي', 'BPC-157 يُصلح بطانة المعدة طبيعيًا. مع PPIs (أوميبرازول، إيزوميبرازول) يعملان بآليات مختلفة. قد يُساعد BPC-157 في تقليل الاعتماد على PPIs.'),
 };
 
 /** Common medications that have known interactions with peptides */
@@ -110,6 +129,10 @@ export const MEDICATIONS: MedicationItem[] = [
   { id: 'nsaids', nameAr: 'مسكنات (إيبوبروفين، نابروكسين)', nameEn: 'NSAIDs' },
   { id: 'antihypertensives', nameAr: 'أدوية الضغط', nameEn: 'Antihypertensives' },
   { id: 'aspirin', nameAr: 'أسبرين', nameEn: 'Aspirin' },
+  { id: 'oral-contraceptives', nameAr: 'حبوب منع الحمل', nameEn: 'Oral Contraceptives' },
+  { id: 'sulfonylureas', nameAr: 'سلفونيل يوريا (غليميبيرايد)', nameEn: 'Sulfonylureas' },
+  { id: 'dpp4-inhibitors', nameAr: 'مثبطات DPP-4 (سيتاغلبتين)', nameEn: 'DPP-4 Inhibitors' },
+  { id: 'ppi', nameAr: 'مثبطات مضخة البروتون (أوميبرازول)', nameEn: 'Proton Pump Inhibitors (PPIs)' },
 ];
 
 export const GH_PEPTIDE_IDS = ['cjc-1295', 'ipamorelin', 'tesamorelin', 'sermorelin', 'ghrp-2', 'ghrp-6', 'hexarelin'];

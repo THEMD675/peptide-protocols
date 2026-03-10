@@ -786,7 +786,7 @@ export default function Account() {
               تصدير CSV (سجل الحقن)
             </button>
           </div>
-          <p className="text-[11px] text-stone-500 dark:text-stone-500 dark:text-stone-400 mt-3 text-center">يشمل: سجل الحقن، البروتوكولات، العافية، التحاليل، الأعراض الجانبية، والملف الشخصي</p>
+          <p className="text-[11px] text-stone-500 dark:text-stone-400 mt-3 text-center">يشمل: سجل الحقن، البروتوكولات، العافية، التحاليل، الأعراض الجانبية، والملف الشخصي</p>
         </div>
 
         {/* Actions */}

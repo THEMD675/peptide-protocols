@@ -1332,7 +1332,7 @@ export default function Community() {
                           ) : (
                             <>
                               {(repliesByPost[log.id] ?? []).length === 0 && (
-                                <p className="text-sm text-stone-400 dark:text-stone-500 dark:text-stone-400">لا توجد ردود بعد — كن أول من يرد!</p>
+                                <p className="text-sm text-stone-400 dark:text-stone-400">لا توجد ردود بعد — كن أول من يرد!</p>
                               )}
                               {(repliesByPost[log.id] ?? []).map(reply => (
                                 <div key={reply.id} className="flex gap-2.5 rounded-xl bg-stone-50 dark:bg-stone-900 p-3">

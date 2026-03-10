@@ -319,6 +319,7 @@ export default function TrackerForm({
               <button
                 type="button"
                 onClick={() => { setPhotoFile(null); setPhotoPreview(null); if (photoInputRef.current) photoInputRef.current.value = ''; }}
+                aria-label="إزالة الصورة"
                 className="absolute -top-2 -start-2 flex h-6 w-6 items-center justify-center rounded-full bg-red-500 text-white text-xs font-bold shadow"
               >
                 ×

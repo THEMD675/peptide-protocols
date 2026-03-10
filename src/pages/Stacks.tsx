@@ -122,7 +122,7 @@ export default function Stacks() {
       {/* Divider */}
       <div className="mb-10 flex items-center gap-4">
         <div className="h-px flex-1 bg-stone-200 dark:bg-stone-700" />
-        <span className="text-sm font-bold text-stone-400 dark:text-stone-500 dark:text-stone-400">بروتوكولات جاهزة</span>
+        <span className="text-sm font-bold text-stone-400 dark:text-stone-400">بروتوكولات جاهزة</span>
         <div className="h-px flex-1 bg-stone-200 dark:bg-stone-700" />
       </div>
 

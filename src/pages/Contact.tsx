@@ -291,7 +291,7 @@ export default function Contact() {
                   </option>
                 ))}
               </select>
-              <ChevronDown className="pointer-events-none absolute end-3 top-1/2 h-5 w-5 -translate-y-1/2 text-stone-400 dark:text-stone-500 dark:text-stone-400" />
+              <ChevronDown className="pointer-events-none absolute end-3 top-1/2 h-5 w-5 -translate-y-1/2 text-stone-400 dark:text-stone-400" />
             </div>
           </div>
 
@@ -331,7 +331,7 @@ export default function Contact() {
 
         {/* Info note */}
         <div className="mt-8 flex items-start gap-3 rounded-xl bg-stone-50 dark:bg-stone-900 border border-stone-200 dark:border-stone-700 p-4 text-sm text-stone-600 dark:text-stone-400">
-          <MessageSquare className="mt-0.5 h-5 w-5 flex-shrink-0 text-stone-400 dark:text-stone-500 dark:text-stone-400" />
+          <MessageSquare className="mt-0.5 h-5 w-5 flex-shrink-0 text-stone-400 dark:text-stone-400" />
           <p>
             نحرص على الرد خلال 24 ساعة في أيام العمل. للاستفسارات العاجلة، يمكنك مراسلتنا
             عبر البريد مباشرة على{' '}
@@ -368,7 +368,7 @@ export default function Contact() {
               >
                 <summary className="flex cursor-pointer items-center justify-between gap-4 p-4 text-sm font-semibold text-stone-900 dark:text-stone-100 min-h-[44px] select-none">
                   <span>{faq.q}</span>
-                  <ChevronDown className="h-4 w-4 shrink-0 text-stone-400 dark:text-stone-500 dark:text-stone-400 transition-transform group-open:rotate-180" />
+                  <ChevronDown className="h-4 w-4 shrink-0 text-stone-400 dark:text-stone-400 transition-transform group-open:rotate-180" />
                 </summary>
                 <p className="px-4 pb-4 text-sm leading-relaxed text-stone-600 dark:text-stone-400">
                   {faq.a}
