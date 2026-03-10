@@ -1,7 +1,12 @@
 import { useState, useMemo, useEffect, useId, useCallback } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { Link, useSearchParams } from 'react-router-dom';
-import { Calculator, FlaskConical, Droplets, ChevronDown, ArrowLeft, BookOpen, Layers, Bot, Bookmark, Syringe, Shield, Play, Search, Share2, Zap } from 'lucide-react';
+import {
+  Calculator, FlaskConical, Droplets, ChevronDown, ArrowLeft, BookOpen,
+  Layers, Bot, Bookmark, Syringe, Shield, Play, Search, Share2, Zap,
+  Scale, DollarSign, ArrowLeftRight, Info, Trash2, Clock, Target,
+  TrendingUp, Activity,
+} from 'lucide-react';
 import Tooltip from '@/components/Tooltip';
 import ProtocolWizard from '@/components/ProtocolWizard';
 import { peptides as allPeptides } from '@/data/peptides';
@@ -10,17 +15,82 @@ import { cn } from '@/lib/utils';
 import { PEPTIDE_COUNT, SITE_URL } from '@/lib/constants';
 import { DOSE_PRESETS as PEPTIDE_PRESETS_DATA, type DoseUnit } from '@/data/dose-presets';
 
+/* ─────────────── Types ─────────────── */
+
 interface SyringeOption {
   label: string;
   ml: number;
   units: number;
 }
 
+type TabId = 'dose' | 'reconstitution' | 'cost' | 'converter';
+
+type GoalLevel = 'therapeutic' | 'moderate' | 'aggressive';
+
+interface SavedCalc {
+  peptide: string;
+  dose: number;
+  unit: string;
+  vial: number;
+  water: number;
+  units: string;
+  ts: number;
+}
+
+interface CostEntry {
+  peptide: string;
+  pricePerVial: number;
+  vialMg: number;
+  doseMcg: number;
+  dosesPerDay: number;
+}
+
+/* ─────────────── Constants ─────────────── */
+
 const SYRINGE_OPTIONS: SyringeOption[] = [
   { label: '0.3 مل (30 وحدة)', ml: 0.3, units: 30 },
   { label: '0.5 مل (50 وحدة)', ml: 0.5, units: 50 },
   { label: '1.0 مل (100 وحدة)', ml: 1.0, units: 100 },
 ];
+
+const TABS: { id: TabId; label: string; icon: React.ReactNode }[] = [
+  { id: 'dose', label: 'حساب الجرعة', icon: <Calculator className="h-4 w-4" /> },
+  { id: 'reconstitution', label: 'حساب التخفيف', icon: <FlaskConical className="h-4 w-4" /> },
+  { id: 'cost', label: 'حساب التكلفة', icon: <DollarSign className="h-4 w-4" /> },
+  { id: 'converter', label: 'محوّل الوحدات', icon: <ArrowLeftRight className="h-4 w-4" /> },
+];
+
+const GOAL_LABELS: Record<GoalLevel, string> = {
+  therapeutic: 'علاجي',
+  moderate: 'متوسط',
+  aggressive: 'مكثّف',
+};
+
+const GOAL_MULTIPLIERS: Record<GoalLevel, number> = {
+  therapeutic: 0.6,
+  moderate: 1.0,
+  aggressive: 1.5,
+};
+
+const FREQUENCY_LABELS: Record<string, string> = {
+  od: 'مرة يوميًا',
+  bid: 'مرتين يوميًا',
+  weekly: 'مرة أسبوعيًا',
+  biweekly: 'مرتين أسبوعيًا',
+  prn: 'عند الحاجة',
+  'daily-10': '10 أيام متتالية',
+  'daily-20': '20 يوم متتالي',
+};
+
+const ROUTE_LABELS: Record<string, string> = {
+  subq: 'تحت الجلد',
+  im: 'عضلي',
+  nasal: 'أنفي (بخاخ)',
+  oral: 'فموي',
+  topical: 'موضعي',
+};
+
+/* ─────────────── Helpers ─────────────── */
 
 function getRecommendedWater(vialMg: number): number {
   if (vialMg <= 2) return 1;
@@ -30,6 +100,47 @@ function getRecommendedWater(vialMg: number): number {
   if (vialMg <= 30) return 6;
   return Math.ceil(vialMg / 5);
 }
+
+const fmt = (n: number, d = 2) => (isFinite(n) && n > 0 ? n.toFixed(d) : '—');
+
+/* ─────────────── Preset Data ─────────────── */
+
+const EXCLUDED_PEPTIDE_IDS = new Set(['melanotan-ii']);
+
+const PEPTIDE_PRESETS = PEPTIDE_PRESETS_DATA
+  .filter(p => {
+    const match = allPeptides.find(
+      pep => pep.nameEn === p.name || pep.nameEn.startsWith(p.name + ' ') || pep.nameEn.startsWith(p.name + '/'),
+    );
+    return !match || !EXCLUDED_PEPTIDE_IDS.has(match.id);
+  })
+  .map(p => ({
+    name: p.name, dose: p.dose, unit: p.unit, vial: p.vialMg, water: p.waterMl,
+    minDose: p.minDose, maxDose: p.maxDose,
+  }));
+
+const POPULAR_PRESET_COUNT = 8;
+
+function getPresetDisplayName(presetName: string): string {
+  const pep = allPeptides.find(
+    p =>
+      p.nameEn === presetName ||
+      p.nameEn.startsWith(presetName + ' ') ||
+      p.nameEn.startsWith(presetName + '/'),
+  );
+  return pep?.nameAr ?? presetName;
+}
+
+function findPeptideByPreset(presetName: string) {
+  return allPeptides.find(
+    p =>
+      p.nameEn === presetName ||
+      p.nameEn.startsWith(presetName + ' ') ||
+      p.nameEn.startsWith(presetName + '/'),
+  );
+}
+
+/* ─────────────── Reference Data ─────────────── */
 
 interface ReferenceRow {
   vialMg: number;
@@ -48,15 +159,23 @@ const referenceData: ReferenceRow[] = [
   { vialMg: 15, waterMl: 3, concentration: 5000, dose100: '0.02', dose250: '0.05', dose500: '0.10' },
 ];
 
+/* IU conversion factors for common peptides */
+const IU_FACTORS: Record<string, { factor: number; note: string }> = {
+  'HGH': { factor: 3, note: '1 mg = 3 IU' },
+  'Sermorelin': { factor: 3, note: '1 mg ≈ 3 IU' },
+  'IGF-1 LR3': { factor: 1, note: 'يُقاس بالمايكروغرام عادةً' },
+};
 
 /* ─────────────── Visual Syringe SVG ─────────────── */
 
 function SyringeVisual({
   drawUnits,
   syringeOption,
-}: {  
+  compact = false,
+}: {
   drawUnits: number;
   syringeOption: SyringeOption;
+  compact?: boolean;
 }) {
   const gradientId = useId();
   const totalUnits = syringeOption.units;
@@ -77,9 +196,7 @@ function SyringeVisual({
 
   const ticks: { y: number; label: string }[] = [];
   for (let i = 0; i <= tickCount; i++) {
-    const unitVal = totalUnits <= 30
-      ? i * 5
-      : i * 10;
+    const unitVal = totalUnits <= 30 ? i * 5 : i * 10;
     ticks.push({
       y: barrelTop + barrelHeight - i * tickInterval,
       label: String(unitVal),
@@ -88,12 +205,15 @@ function SyringeVisual({
 
   return (
     <div className="flex flex-col items-center gap-3">
-      <p className="text-sm font-bold text-stone-900 dark:text-stone-100">
+      <p className={cn("font-bold text-stone-900 dark:text-stone-100", compact ? "text-xs" : "text-sm")}>
         اسحب إلى: {displayUnits.toFixed(1)} وحدة
       </p>
       <svg
         viewBox="0 0 80 320"
-        className="drop-shadow-lg w-[80px] h-[320px] md:w-[100px] md:h-[400px]"
+        className={cn(
+          "drop-shadow-lg",
+          compact ? "w-[60px] h-[240px]" : "w-[80px] h-[320px] md:w-[100px] md:h-[400px]",
+        )}
         role="img"
         aria-label={`سيرنج يُظهر ${displayUnits.toFixed(1)} وحدة`}
       >
@@ -194,34 +314,68 @@ function SyringeVisual({
   );
 }
 
-/* ─────────────── Main Component ─────────────── */
+/* ─────────────── Peptide Reference Card ─────────────── */
 
-const EXCLUDED_PEPTIDE_IDS = new Set(['melanotan-ii']);
+function PeptideReferenceCard({ presetName }: { presetName: string }) {
+  const peptide = findPeptideByPreset(presetName);
+  const preset = PEPTIDE_PRESETS.find(p => p.name === presetName);
+  if (!peptide || !preset) return null;
 
-const PEPTIDE_PRESETS = PEPTIDE_PRESETS_DATA
-  .filter(p => {
-    const match = allPeptides.find(
-      pep => pep.nameEn === p.name || pep.nameEn.startsWith(p.name + ' ') || pep.nameEn.startsWith(p.name + '/'),
-    );
-    return !match || !EXCLUDED_PEPTIDE_IDS.has(match.id);
-  })
-  .map(p => ({
-    name: p.name, dose: p.dose, unit: p.unit, vial: p.vialMg, water: p.waterMl, minDose: p.minDose, maxDose: p.maxDose,
-  }));
+  const rows: { label: string; value: string; icon: React.ReactNode }[] = [
+    {
+      label: 'نطاق الجرعة',
+      value: `${preset.minDose} – ${preset.maxDose} مكغ`,
+      icon: <Target className="h-4 w-4 text-emerald-500" />,
+    },
+    ...(peptide.frequency ? [{
+      label: 'تكرار الجرعة',
+      value: FREQUENCY_LABELS[peptide.frequency] ?? peptide.frequency,
+      icon: <Clock className="h-4 w-4 text-blue-500" />,
+    }] : []),
+    ...(peptide.cycleDurationWeeks ? [{
+      label: 'مدة الدورة',
+      value: `${peptide.cycleDurationWeeks} أسابيع${peptide.restPeriodWeeks ? ` ← راحة ${peptide.restPeriodWeeks} أسابيع` : ''}`,
+      icon: <Activity className="h-4 w-4 text-purple-500" />,
+    }] : []),
+    ...(peptide.route ? [{
+      label: 'طريقة الإعطاء',
+      value: ROUTE_LABELS[peptide.route] ?? peptide.route,
+      icon: <Syringe className="h-4 w-4 text-orange-500" />,
+    }] : []),
+  ];
 
-const POPULAR_PRESET_COUNT = 8;
-
-function getPresetDisplayName(presetName: string): string {
-  const pep = allPeptides.find(
-    p =>
-      p.nameEn === presetName ||
-      p.nameEn.startsWith(presetName + ' ') ||
-      p.nameEn.startsWith(presetName + '/'),
+  return (
+    <div className="rounded-2xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 p-5">
+      <div className="flex items-center gap-2 mb-4">
+        <Info className="h-4 w-4 text-emerald-600" />
+        <h3 className="text-sm font-bold text-stone-900 dark:text-stone-100">
+          معلومات {peptide.nameAr} ({presetName})
+        </h3>
+      </div>
+      <div className="grid gap-3 sm:grid-cols-2">
+        {rows.map((row) => (
+          <div key={row.label} className="flex items-center gap-3 rounded-xl bg-stone-50 dark:bg-stone-900 p-3">
+            {row.icon}
+            <div>
+              <p className="text-xs text-stone-500 dark:text-stone-400">{row.label}</p>
+              <p className="text-sm font-bold text-stone-900 dark:text-stone-100">{row.value}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+      {peptide.warningAr && (
+        <div className="mt-3 rounded-xl border border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-900/20 p-3 text-xs text-amber-800 dark:text-amber-300">
+          <strong>تحذير:</strong> {peptide.warningAr}
+        </div>
+      )}
+    </div>
   );
-  return pep?.nameAr ?? presetName;
 }
 
+/* ─────────────── Main Component ─────────────── */
+
 export default function DoseCalculator() {
+  const [activeTab, setActiveTab] = useState<TabId>('dose');
   const [doseUnit, setDoseUnit] = useState<DoseUnit>('mcg');
   const [doseValue, setDoseValue] = useState(250);
   const [vialMg, setVialMg] = useState(5);
@@ -233,6 +387,52 @@ export default function DoseCalculator() {
   const [presetSearch, setPresetSearch] = useState('');
   const [showAllPresets, setShowAllPresets] = useState(false);
   const [searchParams] = useSearchParams();
+
+  // Dose tab extras
+  const [bodyWeight, setBodyWeight] = useState(80);
+  const [goalLevel, setGoalLevel] = useState<GoalLevel>('moderate');
+
+  // Reconstitution tab
+  const [reconVialMg, setReconVialMg] = useState(5);
+  const [reconWaterMl, setReconWaterMl] = useState(2);
+  const [reconTargetDose, setReconTargetDose] = useState(250);
+  const [reconDoseUnit, setReconDoseUnit] = useState<DoseUnit>('mcg');
+  const [reconSyringeIdx, setReconSyringeIdx] = useState(2);
+
+  // Cost tab
+  const [costEntries, setCostEntries] = useState<CostEntry[]>([]);
+  const [costPeptide, setCostPeptide] = useState('');
+  const [costPrice, setCostPrice] = useState(0);
+  const [costVialMg, setCostVialMg] = useState(5);
+  const [costDoseMcg, setCostDoseMcg] = useState(250);
+  const [costDosesPerDay, setCostDosesPerDay] = useState(1);
+
+  // Unit converter
+  const [converterFrom, setConverterFrom] = useState<'mcg' | 'mg' | 'iu'>('mcg');
+  const [converterTo, setConverterTo] = useState<'mcg' | 'mg' | 'iu'>('mg');
+  const [converterValue, setConverterValue] = useState(250);
+  const [converterPeptide, setConverterPeptide] = useState('HGH');
+
+  const [dosesPerDay, setDosesPerDay] = useState(1);
+  const [vialPrice, setVialPrice] = useState(0);
+
+  const [savedCalcs, setSavedCalcs] = useState<SavedCalc[]>(() => {
+    try {
+      const s = localStorage.getItem('pptides_calc_history');
+      return s ? JSON.parse(s) : [];
+    } catch {
+      return [];
+    }
+  });
+
+  const loadSavedCalc = (calc: SavedCalc) => {
+    setSelectedPreset(calc.peptide);
+    setDoseValue(calc.dose);
+    setDoseUnit(calc.unit as DoseUnit);
+    setVialMg(calc.vial);
+    setWaterMl(calc.water);
+    setActiveTab('dose');
+  };
 
   /* eslint-disable react-hooks/set-state-in-effect -- sync form state from URL params */
   useEffect(() => {
@@ -250,24 +450,6 @@ export default function DoseCalculator() {
   }, [searchParams, selectedPreset]);
   /* eslint-enable react-hooks/set-state-in-effect */
 
-  const syringe = SYRINGE_OPTIONS[syringeIdx];
-  const recommendedWater = getRecommendedWater(vialMg);
-
-  const [dosesPerDay, setDosesPerDay] = useState(1);
-  const [vialPrice, setVialPrice] = useState(0);
-
-  interface SavedCalc { peptide: string; dose: number; unit: string; vial: number; water: number; units: string; ts: number }
-  const [savedCalcs, setSavedCalcs] = useState<SavedCalc[]>(() => {
-    try { const s = localStorage.getItem('pptides_calc_history'); return s ? JSON.parse(s) : []; } catch { return []; }
-  });
-  const loadSavedCalc = (calc: SavedCalc) => {
-    setSelectedPreset(calc.peptide);
-    setDoseValue(calc.dose);
-    setDoseUnit(calc.unit as DoseUnit);
-    setVialMg(calc.vial);
-    setWaterMl(calc.water);
-  };
-
   /* eslint-disable react-hooks/set-state-in-effect -- auto-load last saved calc */
   useEffect(() => {
     if (selectedPreset) return;
@@ -277,20 +459,80 @@ export default function DoseCalculator() {
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
   /* eslint-enable react-hooks/set-state-in-effect */
 
+  const syringe = SYRINGE_OPTIONS[syringeIdx];
+  const recommendedWater = getRecommendedWater(vialMg);
+
+  // ── Main dose results ──
   const results = useMemo(() => {
     const doseMcg = doseUnit === 'mg' ? doseValue * 1000 : doseValue;
     if (!vialMg || !waterMl || !doseMcg || vialMg <= 0 || waterMl <= 0 || doseMcg <= 0) {
       return { concentration: 0, volumeMl: 0, syringeUnits: 0, dosesPerVial: 0, doseMcg, monthlyVials: 0, monthlyCost: 0, daysPerVial: 0 };
     }
     const concentration = (vialMg * 1000) / waterMl;
-    const volumeMl = doseMcg / concentration;
-    const syringeUnits = volumeMl * syringe.units / syringe.ml;
+    const volumeMl2 = doseMcg / concentration;
+    const syringeUnits = volumeMl2 * syringe.units / syringe.ml;
     const dosesPerVial = (vialMg * 1000) / doseMcg;
     const daysPerVial = dosesPerVial / dosesPerDay;
     const monthlyVials = 30 / daysPerVial;
     const monthlyCost = vialPrice > 0 ? monthlyVials * vialPrice : 0;
-    return { concentration, volumeMl, syringeUnits, dosesPerVial, doseMcg, monthlyVials, monthlyCost, daysPerVial };
+    return { concentration, volumeMl: volumeMl2, syringeUnits, dosesPerVial, doseMcg, monthlyVials, monthlyCost, daysPerVial };
   }, [doseUnit, doseValue, vialMg, waterMl, syringe, dosesPerDay, vialPrice]);
+
+  // ── Body-weight based dose suggestion ──
+  const weightBasedDose = useMemo(() => {
+    const preset = PEPTIDE_PRESETS.find(p => p.name === selectedPreset);
+    if (!preset || !bodyWeight) return null;
+    const baseDose = preset.dose;
+    const mult = GOAL_MULTIPLIERS[goalLevel];
+    const suggested = Math.round(baseDose * mult);
+    const clamped = Math.min(Math.max(suggested, preset.minDose), preset.maxDose);
+    return { suggested: clamped, min: preset.minDose, max: preset.maxDose };
+  }, [selectedPreset, bodyWeight, goalLevel]);
+
+  // ── Reconstitution results ──
+  const reconResults = useMemo(() => {
+    const doseMcg = reconDoseUnit === 'mg' ? reconTargetDose * 1000 : reconTargetDose;
+    if (!reconVialMg || !reconWaterMl || !doseMcg || reconVialMg <= 0 || reconWaterMl <= 0 || doseMcg <= 0) {
+      return { concentration: 0, volumeMl: 0, syringeUnits: 0, dosesPerVial: 0, doseMcg };
+    }
+    const reconSyringe = SYRINGE_OPTIONS[reconSyringeIdx];
+    const concentration = (reconVialMg * 1000) / reconWaterMl;
+    const volumeMl2 = doseMcg / concentration;
+    const syringeUnits = volumeMl2 * reconSyringe.units / reconSyringe.ml;
+    const dosesPerVial = (reconVialMg * 1000) / doseMcg;
+    return { concentration, volumeMl: volumeMl2, syringeUnits, dosesPerVial, doseMcg };
+  }, [reconVialMg, reconWaterMl, reconTargetDose, reconDoseUnit, reconSyringeIdx]);
+
+  // ── Converter result ──
+  const converterResult = useMemo(() => {
+    const iuFactor = IU_FACTORS[converterPeptide]?.factor ?? 3;
+    let valueMcg = converterValue;
+    if (converterFrom === 'mg') valueMcg = converterValue * 1000;
+    else if (converterFrom === 'iu') valueMcg = (converterValue / iuFactor) * 1000;
+
+    if (converterTo === 'mcg') return valueMcg;
+    if (converterTo === 'mg') return valueMcg / 1000;
+    return (valueMcg / 1000) * iuFactor; // IU
+  }, [converterValue, converterFrom, converterTo, converterPeptide]);
+
+  // ── Cost comparison results ──
+  const costResults = useMemo(() => {
+    return costEntries.map(entry => {
+      const dosesPerVial = (entry.vialMg * 1000) / entry.doseMcg;
+      const costPerDose = entry.pricePerVial / dosesPerVial;
+      const costPerWeek = costPerDose * entry.dosesPerDay * 7;
+      const costPerMonth = costPerWeek * (30 / 7);
+      const costPerCycle12w = costPerWeek * 12;
+      return {
+        ...entry,
+        dosesPerVial,
+        costPerDose,
+        costPerWeek,
+        costPerMonth,
+        costPerCycle12w,
+      };
+    });
+  }, [costEntries]);
 
   const saveCurrentCalc = useCallback(() => {
     if (!selectedPreset || !isFinite(results.syringeUnits) || results.syringeUnits <= 0) {
@@ -298,9 +540,9 @@ export default function DoseCalculator() {
       return;
     }
     const entry: SavedCalc = { peptide: selectedPreset, dose: doseValue, unit: doseUnit, vial: vialMg, water: waterMl, units: results.syringeUnits.toFixed(1), ts: Date.now() };
-    const updated = [entry, ...savedCalcs.filter(c => c.peptide !== selectedPreset)].slice(0, 5);
+    const updated = [entry, ...savedCalcs.filter(c => c.peptide !== selectedPreset)].slice(0, 10);
     setSavedCalcs(updated);
-    try { localStorage.setItem('pptides_calc_history', JSON.stringify(updated)); } catch { /* expected */ }
+    try { localStorage.setItem('pptides_calc_history', JSON.stringify(updated)); } catch { /* quota */ }
     toast.success(`تم حفظ حساب ${selectedPreset}`);
   }, [selectedPreset, doseValue, doseUnit, vialMg, waterMl, results.syringeUnits, savedCalcs]);
 
@@ -326,7 +568,6 @@ export default function DoseCalculator() {
     }
   }, [selectedPreset, doseValue, doseUnit, vialMg, waterMl, results]);
 
-  // Common protocols for quick-select
   const COMMON_PROTOCOLS = useMemo(() => [
     { name: 'فقدان الوزن', peptides: ['Semaglutide', 'Tirzepatide'], icon: '🏃‍♂️' },
     { name: 'بناء العضلات', peptides: ['CJC-1295/Ipamorelin', 'BPC-157'], icon: '💪' },
@@ -335,20 +576,45 @@ export default function DoseCalculator() {
     { name: 'النوم والاسترخاء', peptides: ['DSIP', 'Selank'], icon: '😴' },
   ], []);
 
-  const fmt = (n: number, d = 2) => (isFinite(n) && n > 0 ? n.toFixed(d) : '—');
+  const selectPreset = useCallback((presetName: string) => {
+    const preset = PEPTIDE_PRESETS.find(p => p.name === presetName);
+    if (!preset) return;
+    setSelectedPreset(preset.name);
+    setDoseUnit(preset.unit);
+    setDoseValue(preset.dose);
+    setVialMg(preset.vial);
+    setWaterMl(preset.water);
+    // Also sync reconstitution tab
+    setReconVialMg(preset.vial);
+    setReconWaterMl(preset.water);
+    setReconTargetDose(preset.dose);
+    setReconDoseUnit(preset.unit);
+  }, []);
+
+  const addCostEntry = useCallback(() => {
+    if (!costPeptide || costPrice <= 0) {
+      toast.error('أدخل الببتيد والسعر');
+      return;
+    }
+    setCostEntries(prev => [...prev, {
+      peptide: costPeptide,
+      pricePerVial: costPrice,
+      vialMg: costVialMg,
+      doseMcg: costDoseMcg,
+      dosesPerDay: costDosesPerDay,
+    }]);
+    toast.success(`تمت إضافة ${costPeptide}`);
+  }, [costPeptide, costPrice, costVialMg, costDoseMcg, costDosesPerDay]);
 
   return (
-    <div className="min-h-screen animate-fade-in" >
+    <div className="min-h-screen animate-fade-in">
       <Helmet>
         <title>حاسبة جرعات الببتيدات | احسب الجرعة بدقة | pptides</title>
         <meta
           name="description"
-          content="حاسبة مجانية لجرعات الببتيدات — احسب التركيز، الكمية بالمل، ووحدات السيرنج بدقة. أداة مجانية 100%. Free peptide reconstitution & dosage calculator."
+          content="أشمل حاسبة عربية لجرعات الببتيدات — حساب الجرعة، التخفيف، التكلفة، ومحوّل الوحدات. أداة مجانية 100%. Free peptide calculator."
         />
-        <meta
-          name="keywords"
-          content="حاسبة ببتيدات, peptide calculator, جرعات ببتيدات, BPC-157, reconstitution calculator, حاسبة جرعات"
-        />
+        <meta name="keywords" content="حاسبة ببتيدات, peptide calculator, جرعات ببتيدات, BPC-157, reconstitution calculator, حاسبة جرعات" />
         <meta property="og:title" content="حاسبة جرعات الببتيدات | pptides" />
         <meta property="og:description" content="احسب جرعتك بدقة خلال ثوانٍ — أداة مجانية لحساب جرعات 30+ ببتيد" />
         <meta property="og:url" content={`${SITE_URL}/calculator`} />
@@ -362,7 +628,7 @@ export default function DoseCalculator() {
           '@type': 'WebApplication',
           name: 'حاسبة جرعات الببتيدات',
           url: `${SITE_URL}/calculator`,
-          description: 'حاسبة مجانية لجرعات الببتيدات — احسب التركيز، الكمية بالمل، ووحدات السيرنج بدقة.',
+          description: 'أشمل حاسبة عربية لجرعات الببتيدات — حساب الجرعة، التخفيف، التكلفة، ومحوّل الوحدات.',
           applicationCategory: 'HealthApplication',
           operatingSystem: 'Web',
           offers: { '@type': 'Offer', price: '0', priceCurrency: 'SAR' },
@@ -372,12 +638,8 @@ export default function DoseCalculator() {
 
       <div className="mx-auto max-w-4xl px-4 py-8 md:px-6 md:py-12">
         {/* Header */}
-        <div
-          className="mb-10 text-center"
-        >
-          <div
-            className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-500/10"
-          >
+        <div className="mb-8 text-center">
+          <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-500/10">
             <Calculator className="h-7 w-7 text-emerald-600" />
           </div>
           <div className="flex items-center justify-center gap-2">
@@ -385,7 +647,7 @@ export default function DoseCalculator() {
               حاسبة جرعات الببتيدات
             </h1>
             <Tooltip
-              content="أدخل حجم القارورة وكمية الماء والجرعة المطلوبة — الحاسبة تحسب لك عدد الوحدات في السرنج وكمية السحب بالضبط. اختر بروتوكولًا شائعًا للبدء السريع."
+              content="أشمل حاسبة عربية — حساب الجرعة، التخفيف، التكلفة الشهرية، ومحوّل الوحدات. اختر بروتوكولًا شائعًا للبدء السريع."
               firstTimeId="calculator-main"
               position="bottom"
             />
@@ -395,159 +657,224 @@ export default function DoseCalculator() {
           </p>
         </div>
 
-        {/* Common Protocols Quick-Select */}
-        <div className="mb-8">
-          <div className="flex items-center justify-center gap-2 mb-3">
-            <Zap className="h-4 w-4 text-emerald-600" />
-            <h2 className="text-sm font-bold text-stone-900 dark:text-stone-100">بروتوكولات شائعة</h2>
-          </div>
-          <div className="flex gap-2 overflow-x-auto scrollbar-hide -mx-1 px-1 pb-1">
-            {COMMON_PROTOCOLS.map((proto) => (
-              <button
-                key={proto.name}
-                onClick={() => {
-                  const firstPeptide = proto.peptides[0];
-                  const preset = PEPTIDE_PRESETS.find(p => p.name === firstPeptide);
-                  if (preset) {
-                    setSelectedPreset(preset.name);
-                    setDoseUnit(preset.unit);
-                    setDoseValue(preset.dose);
-                    setVialMg(preset.vial);
-                    setWaterMl(preset.water);
-                    toast.success(`بروتوكول ${proto.name}: ${proto.peptides.join(' + ')}`);
-                  }
-                }}
-                className="flex shrink-0 items-center gap-2 rounded-2xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 px-4 py-3 text-sm font-medium text-stone-700 dark:text-stone-300 transition-all hover:border-emerald-300 hover:bg-emerald-50 dark:hover:bg-emerald-950 hover:shadow-sm"
-              >
-                <span className="text-lg">{proto.icon}</span>
-                <div className="text-start">
-                  <p className="text-xs font-bold text-stone-900 dark:text-stone-100">{proto.name}</p>
-                  <p className="text-[10px] text-stone-500" dir="ltr">{proto.peptides.join(' + ')}</p>
-                </div>
-              </button>
-            ))}
-          </div>
+        {/* ═══════════════ TABS ═══════════════ */}
+        <div className="mb-6 flex gap-1 overflow-x-auto scrollbar-hide -mx-1 px-1 pb-1">
+          {TABS.map((tab) => (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              className={cn(
+                'flex shrink-0 items-center gap-2 rounded-2xl px-4 py-3 min-h-[44px] text-sm font-medium transition-all',
+                activeTab === tab.id
+                  ? 'bg-emerald-600 text-white shadow-md'
+                  : 'border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 text-stone-600 dark:text-stone-400 hover:border-emerald-300 hover:text-emerald-600',
+              )}
+            >
+              {tab.icon}
+              <span>{tab.label}</span>
+            </button>
+          ))}
         </div>
 
-        {/* Peptide Preset Selector */}
-        <div className="mb-6">
-          <label className="mb-2 block text-sm font-bold text-stone-900 dark:text-stone-100 text-center">اختر الببتيد لتعبئة القيم تلقائيًا</label>
-          <div className="mb-3 relative">
-            <Search className="absolute end-3 top-1/2 h-4 w-4 -translate-y-1/2 text-stone-500 dark:text-stone-400" />
-            <input
-              type="text"
-              value={presetSearch}
-              onChange={(e) => setPresetSearch(e.target.value)}
-              placeholder="ابحث عن ببتيد..."
-              className="w-full rounded-xl border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-900 px-4 py-2.5 ps-10 text-sm text-stone-800 dark:text-stone-200 placeholder:text-stone-500 dark:text-stone-400 focus:border-emerald-300 dark:border-emerald-700 focus:ring-1 focus:ring-emerald-200 outline-none"
-              aria-label="ابحث عن ببتيد"
-            />
-          </div>
-          {(() => {
-            const normalize = (s: string) => s.replace(/[\u064B-\u065F\u0670]/g, '').toLowerCase();
-            const q = normalize(presetSearch.trim());
-            const filtered =
-              q === ''
-                ? PEPTIDE_PRESETS
-                : PEPTIDE_PRESETS.filter(
-                    (p) =>
-                      p.name.toLowerCase().includes(q) ||
-                      normalize(getPresetDisplayName(p.name)).includes(q),
-                  );
-            const isCollapsed = !showAllPresets && q === '';
-            const visible = isCollapsed ? filtered.slice(0, POPULAR_PRESET_COUNT) : filtered;
-            const hasMore = isCollapsed && filtered.length > POPULAR_PRESET_COUNT;
-            return (
-              <>
-                <div
-                  className={cn(
-                    'flex gap-2',
-                    isCollapsed ? 'overflow-x-auto flex-nowrap scrollbar-hide scroll-fade -mx-1 px-1' : 'flex-wrap justify-center',
-                  )}
-                >
-                  {visible.map((p) => (
-                    <button
-                      key={p.name}
-                      onClick={() => {
-                        setSelectedPreset(p.name);
-                        setDoseUnit(p.unit);
-                        setDoseValue(p.dose);
-                        setVialMg(p.vial);
-                        setWaterMl(p.water);
-                      }}
+        {/* ═══════════════ TAB 1: DOSE CALCULATOR ═══════════════ */}
+        {activeTab === 'dose' && (
+          <>
+            {/* Common Protocols Quick-Select */}
+            <div className="mb-6">
+              <div className="flex items-center justify-center gap-2 mb-3">
+                <Zap className="h-4 w-4 text-emerald-600" />
+                <h2 className="text-sm font-bold text-stone-900 dark:text-stone-100">بروتوكولات شائعة</h2>
+              </div>
+              <div className="flex gap-2 overflow-x-auto scrollbar-hide -mx-1 px-1 pb-1">
+                {COMMON_PROTOCOLS.map((proto) => (
+                  <button
+                    key={proto.name}
+                    onClick={() => {
+                      const firstPeptide = proto.peptides[0];
+                      const preset = PEPTIDE_PRESETS.find(p => p.name === firstPeptide);
+                      if (preset) {
+                        selectPreset(preset.name);
+                        toast.success(`بروتوكول ${proto.name}: ${proto.peptides.join(' + ')}`);
+                      }
+                    }}
+                    className="flex shrink-0 items-center gap-2 rounded-2xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 px-4 py-3 text-sm font-medium text-stone-700 dark:text-stone-300 transition-all hover:border-emerald-300 hover:bg-emerald-50 dark:hover:bg-emerald-950 hover:shadow-sm"
+                  >
+                    <span className="text-lg">{proto.icon}</span>
+                    <div className="text-start">
+                      <p className="text-xs font-bold text-stone-900 dark:text-stone-100">{proto.name}</p>
+                      <p className="text-[10px] text-stone-500" dir="ltr">{proto.peptides.join(' + ')}</p>
+                    </div>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Peptide Preset Selector */}
+            <div className="mb-6">
+              <label className="mb-2 block text-sm font-bold text-stone-900 dark:text-stone-100 text-center">اختر الببتيد لتعبئة القيم تلقائيًا</label>
+              <div className="mb-3 relative">
+                <Search className="absolute end-3 top-1/2 h-4 w-4 -translate-y-1/2 text-stone-500 dark:text-stone-400" />
+                <input
+                  type="text"
+                  value={presetSearch}
+                  onChange={(e) => setPresetSearch(e.target.value)}
+                  placeholder="ابحث عن ببتيد..."
+                  className="w-full rounded-xl border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-900 px-4 py-2.5 ps-10 text-sm text-stone-800 dark:text-stone-200 placeholder:text-stone-500 dark:placeholder:text-stone-400 focus:border-emerald-300 focus:ring-1 focus:ring-emerald-200 outline-none"
+                  aria-label="ابحث عن ببتيد"
+                />
+              </div>
+              {(() => {
+                const normalize = (s: string) => s.replace(/[\u064B-\u065F\u0670]/g, '').toLowerCase();
+                const q = normalize(presetSearch.trim());
+                const filtered =
+                  q === ''
+                    ? PEPTIDE_PRESETS
+                    : PEPTIDE_PRESETS.filter(
+                        (p) =>
+                          p.name.toLowerCase().includes(q) ||
+                          normalize(getPresetDisplayName(p.name)).includes(q),
+                      );
+                const isCollapsed = !showAllPresets && q === '';
+                const visible = isCollapsed ? filtered.slice(0, POPULAR_PRESET_COUNT) : filtered;
+                const hasMore = isCollapsed && filtered.length > POPULAR_PRESET_COUNT;
+                return (
+                  <>
+                    <div
                       className={cn(
-                        'rounded-full border px-3 py-2 min-h-[44px] text-xs transition-all active:scale-[0.98] shrink-0',
-                        selectedPreset === p.name
-                          ? 'border-emerald-400 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-400 ring-2 ring-emerald-400 font-bold shadow-sm dark:shadow-stone-900/30'
-                          : 'border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 text-stone-700 dark:text-stone-300 font-medium hover:border-emerald-300 dark:border-emerald-700 transition-colors hover:text-emerald-600',
+                        'flex gap-2',
+                        isCollapsed ? 'overflow-x-auto flex-nowrap scrollbar-hide scroll-fade -mx-1 px-1' : 'flex-wrap justify-center',
                       )}
                     >
-                      {getPresetDisplayName(p.name)}
-                    </button>
-                  ))}
-                </div>
-                {hasMore && (
-                  <div className="mt-2 text-center">
-                    <button
-                      onClick={() => setShowAllPresets(true)}
-                      className="min-h-[44px] text-xs font-medium text-emerald-600 hover:text-emerald-700 dark:text-emerald-400 hover:underline"
-                    >
-                      عرض الكل ({PEPTIDE_PRESETS.length}+)
-                    </button>
-                  </div>
-                )}
-              </>
-            );
-          })()}
-        </div>
-
-        {/* Calculator Card */}
-        <div
-          className="mb-8 rounded-2xl border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-900 p-6 md:p-8"
-        >
-          {/* Dose Unit Toggle */}
-          <div className="mb-6 flex items-center justify-center gap-1">
-            <span className="ms-3 text-sm text-stone-800 dark:text-stone-200">وحدة الجرعة:</span>
-            <div className="flex rounded-xl border border-stone-300 dark:border-stone-700 bg-stone-50 dark:bg-stone-900 p-1">
-              <button
-                onClick={() => {
-                  if (doseUnit === 'mg') {
-                    setDoseValue(prev => +(prev * 1000).toPrecision(10));
-                    setDoseUnit('mcg');
-                  }
-                }}
-                className={cn(
-                  'rounded-lg px-4 py-2 min-h-[44px] text-sm font-medium transition-all',
-                  doseUnit === 'mcg'
-                    ? 'bg-emerald-500 text-white'
-                    : 'text-stone-800 dark:text-stone-200 transition-colors hover:text-stone-800 dark:text-stone-200',
-                )}
-              >
-                مايكروغرام (mcg)
-              </button>
-              <button
-                onClick={() => {
-                  if (doseUnit === 'mcg') {
-                    setDoseValue(prev => +(prev / 1000).toPrecision(10));
-                    setDoseUnit('mg');
-                  }
-                }}
-                className={cn(
-                  'rounded-lg px-4 py-2 min-h-[44px] text-sm font-medium transition-all',
-                  doseUnit === 'mg'
-                    ? 'bg-emerald-500 text-white'
-                    : 'text-stone-800 dark:text-stone-200 transition-colors hover:text-stone-800 dark:text-stone-200',
-                )}
-              >
-                ملليغرام (mg)
-              </button>
+                      {visible.map((p) => (
+                        <button
+                          key={p.name}
+                          onClick={() => selectPreset(p.name)}
+                          className={cn(
+                            'rounded-full border px-3 py-2 min-h-[44px] text-xs transition-all active:scale-[0.98] shrink-0',
+                            selectedPreset === p.name
+                              ? 'border-emerald-400 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-400 ring-2 ring-emerald-400 font-bold shadow-sm'
+                              : 'border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 text-stone-700 dark:text-stone-300 font-medium hover:border-emerald-300 hover:text-emerald-600',
+                          )}
+                        >
+                          {getPresetDisplayName(p.name)}
+                        </button>
+                      ))}
+                    </div>
+                    {hasMore && (
+                      <div className="mt-2 text-center">
+                        <button
+                          onClick={() => setShowAllPresets(true)}
+                          className="min-h-[44px] text-xs font-medium text-emerald-600 hover:text-emerald-700 dark:text-emerald-400 hover:underline"
+                        >
+                          عرض الكل ({PEPTIDE_PRESETS.length}+)
+                        </button>
+                      </div>
+                    )}
+                  </>
+                );
+              })()}
             </div>
-          </div>
 
-          {/* Input Fields */}
-          <div className="mb-6 grid gap-5 md:grid-cols-3">
-            <div className="space-y-2">
-              <div className="flex items-center gap-1.5">
+            {/* Body Weight + Goal Level */}
+            <div className="mb-6 rounded-2xl border border-emerald-200 dark:border-emerald-800 bg-emerald-50/30 dark:bg-emerald-900/10 p-5">
+              <div className="flex items-center gap-2 mb-4">
+                <Scale className="h-4 w-4 text-emerald-600" />
+                <h3 className="text-sm font-bold text-stone-900 dark:text-stone-100">حساب حسب الوزن والهدف</h3>
+              </div>
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div className="space-y-2">
+                  <label className="block text-sm font-medium text-stone-800 dark:text-stone-200">وزن الجسم (كجم)</label>
+                  <input
+                    type="number"
+                    inputMode="decimal"
+                    min={30}
+                    max={200}
+                    step={1}
+                    value={bodyWeight}
+                    onChange={(e) => setBodyWeight(Math.max(0, Number(e.target.value) || 0))}
+                    className="w-full rounded-xl border border-stone-300 dark:border-stone-700 bg-white dark:bg-stone-950 px-4 py-3 text-base text-stone-900 dark:text-stone-100 focus:border-emerald-300 focus:outline-none focus:ring-1 focus:ring-emerald-200"
+                    aria-label="وزن الجسم"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="block text-sm font-medium text-stone-800 dark:text-stone-200">مستوى الهدف</label>
+                  <div className="flex rounded-xl border border-stone-300 dark:border-stone-700 bg-white dark:bg-stone-950 p-1">
+                    {(Object.keys(GOAL_LABELS) as GoalLevel[]).map(g => (
+                      <button
+                        key={g}
+                        onClick={() => setGoalLevel(g)}
+                        className={cn(
+                          'flex-1 rounded-lg py-2.5 min-h-[44px] text-xs font-medium transition-all',
+                          goalLevel === g
+                            ? g === 'aggressive' ? 'bg-red-500 text-white' : g === 'therapeutic' ? 'bg-blue-500 text-white' : 'bg-emerald-600 text-white'
+                            : 'text-stone-700 dark:text-stone-300 hover:text-stone-900',
+                        )}
+                      >
+                        {GOAL_LABELS[g]}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+              {weightBasedDose && selectedPreset && (
+                <div className="mt-4 flex items-center justify-between rounded-xl bg-white dark:bg-stone-950 border border-stone-200 dark:border-stone-700 px-4 py-3">
+                  <div>
+                    <p className="text-xs text-stone-500 dark:text-stone-400">الجرعة المقترحة لـ {selectedPreset}</p>
+                    <p className="text-lg font-bold text-emerald-600">{weightBasedDose.suggested} مكغ</p>
+                    <p className="text-xs text-stone-500 dark:text-stone-400">النطاق: {weightBasedDose.min} – {weightBasedDose.max} مكغ</p>
+                  </div>
+                  <button
+                    onClick={() => {
+                      setDoseUnit('mcg');
+                      setDoseValue(weightBasedDose.suggested);
+                    }}
+                    className="rounded-xl bg-emerald-600 px-4 py-2.5 min-h-[44px] text-sm font-bold text-white transition-colors hover:bg-emerald-700"
+                  >
+                    استخدم
+                  </button>
+                </div>
+              )}
+            </div>
+
+            {/* Calculator Card */}
+            <div className="mb-6 rounded-2xl border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-900 p-6 md:p-8">
+              {/* Dose Unit Toggle */}
+              <div className="mb-6 flex items-center justify-center gap-1">
+                <span className="ms-3 text-sm text-stone-800 dark:text-stone-200">وحدة الجرعة:</span>
+                <div className="flex rounded-xl border border-stone-300 dark:border-stone-700 bg-stone-50 dark:bg-stone-900 p-1">
+                  <button
+                    onClick={() => {
+                      if (doseUnit === 'mg') {
+                        setDoseValue(prev => +(prev * 1000).toPrecision(10));
+                        setDoseUnit('mcg');
+                      }
+                    }}
+                    className={cn(
+                      'rounded-lg px-4 py-2 min-h-[44px] text-sm font-medium transition-all',
+                      doseUnit === 'mcg' ? 'bg-emerald-500 text-white' : 'text-stone-800 dark:text-stone-200',
+                    )}
+                  >
+                    مايكروغرام (mcg)
+                  </button>
+                  <button
+                    onClick={() => {
+                      if (doseUnit === 'mcg') {
+                        setDoseValue(prev => +(prev / 1000).toPrecision(10));
+                        setDoseUnit('mg');
+                      }
+                    }}
+                    className={cn(
+                      'rounded-lg px-4 py-2 min-h-[44px] text-sm font-medium transition-all',
+                      doseUnit === 'mg' ? 'bg-emerald-500 text-white' : 'text-stone-800 dark:text-stone-200',
+                    )}
+                  >
+                    ملليغرام (mg)
+                  </button>
+                </div>
+              </div>
+
+              {/* Input Fields */}
+              <div className="mb-6 grid gap-5 md:grid-cols-3">
                 <InputField
                   label={`الجرعة المطلوبة (${doseUnit === 'mcg' ? 'مايكروغرام' : 'ملليغرام'})`}
                   value={doseValue}
@@ -555,10 +882,6 @@ export default function DoseCalculator() {
                   unit={doseUnit === 'mcg' ? 'مكغ' : 'ملغ'}
                   step={doseUnit === 'mcg' ? 50 : 0.05}
                 />
-              </div>
-            </div>
-            <div className="space-y-2">
-              <div className="flex items-center gap-1.5">
                 <InputField
                   label="كمية الببتيد في القارورة (ملغ)"
                   value={vialMg}
@@ -566,442 +889,746 @@ export default function DoseCalculator() {
                   unit="ملغ"
                   step={1}
                 />
-              </div>
-            </div>
-            <div className="space-y-2">
-              <div className="flex items-center gap-1.5">
-                <label htmlFor="calc-water" className="block text-sm font-medium text-stone-800 dark:text-stone-200">
-                  كمية الماء البكتيريوستاتك (مل)
-                </label>
-                <Tooltip content="الماء البكتيريوستاتك هو ماء معقم يُضاف لإذابة الببتيد. كمية أكبر = تركيز أقل = سحب أسهل." position="bottom" />
-              </div>
-              <div className="relative">
-                <input
-                  id="calc-water"
-                  type="number"
-                  inputMode="decimal"
-                  min={0.1}
-                  step={0.5}
-                  value={waterMl}
-                  onChange={(e) => setWaterMl(Math.max(0, Number(e.target.value) || 0))}
-                  aria-label="كمية الماء البكتيريوستاتك (مل)"
-                  className={cn(
-                    'w-full rounded-xl border border-stone-300 dark:border-stone-700 bg-stone-50 dark:bg-stone-900 px-4 py-3 pe-16',
-                    'text-base text-stone-900 dark:text-stone-100',
-                    'transition-colors focus:border-emerald-300 dark:border-emerald-700 focus:outline-none focus:ring-1 focus:ring-emerald-100 dark:focus:ring-emerald-900',
+                <div className="space-y-2">
+                  <div className="flex items-center gap-1.5">
+                    <label htmlFor="calc-water" className="block text-sm font-medium text-stone-800 dark:text-stone-200">
+                      كمية الماء البكتيريوستاتك (مل)
+                    </label>
+                    <Tooltip content="الماء البكتيريوستاتك هو ماء معقم يُضاف لإذابة الببتيد. كمية أكبر = تركيز أقل = سحب أسهل." position="bottom" />
+                  </div>
+                  <div className="relative">
+                    <input
+                      id="calc-water"
+                      type="number"
+                      inputMode="decimal"
+                      min={0.1}
+                      step={0.5}
+                      value={waterMl}
+                      onChange={(e) => setWaterMl(Math.max(0, Number(e.target.value) || 0))}
+                      aria-label="كمية الماء البكتيريوستاتك (مل)"
+                      className="w-full rounded-xl border border-stone-300 dark:border-stone-700 bg-stone-50 dark:bg-stone-900 px-4 py-3 pe-16 text-base text-stone-900 dark:text-stone-100 transition-colors focus:border-emerald-300 focus:outline-none focus:ring-1 focus:ring-emerald-100"
+                    />
+                    <span className="absolute end-3 top-1/2 -translate-y-1/2 text-xs text-stone-700 dark:text-stone-300">مل</span>
+                  </div>
+                  {waterMl === 0 && (
+                    <p className="mt-1 text-xs font-medium text-red-600 dark:text-red-400">أدخل كمية ماء أكبر من صفر</p>
                   )}
-                />
-                <span className="absolute end-3 top-1/2 -translate-y-1/2 text-xs text-stone-700 dark:text-stone-300">
-                  مل
-                </span>
+                  {waterMl !== recommendedWater && vialMg > 0 && waterMl > 0 && (
+                    !selectedPreset ? (
+                      <div className="mt-1 flex items-center gap-2 rounded-lg border border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-900/20 px-3 py-2">
+                        <span className="text-xs text-emerald-700 dark:text-emerald-400">
+                          الكمية الموصى بها: <strong>{recommendedWater} ml</strong>
+                        </span>
+                        <button
+                          onClick={() => setWaterMl(recommendedWater)}
+                          className="rounded-md bg-emerald-600 px-3 py-2 min-h-[44px] text-xs font-bold text-white transition-colors hover:bg-emerald-700"
+                        >
+                          تعبئة
+                        </button>
+                      </div>
+                    ) : (
+                      <button
+                        onClick={() => setWaterMl(recommendedWater)}
+                        className="text-xs text-emerald-600/70 transition-colors hover:underline"
+                      >
+                        الكمية المُوصى بها: {recommendedWater} مل
+                      </button>
+                    )
+                  )}
+                </div>
               </div>
-              {waterMl === 0 && (
-                <p className="mt-1 text-xs font-medium text-red-600 dark:text-red-400">أدخل كمية ماء أكبر من صفر</p>
+
+              {/* Syringe Size Selector */}
+              <div className="mb-8">
+                <label htmlFor="calc-syringe" className="mb-2 block text-sm font-medium text-stone-800 dark:text-stone-200">حجم السيرنج</label>
+                <div className="relative">
+                  <select
+                    id="calc-syringe"
+                    value={syringeIdx}
+                    onChange={(e) => setSyringeIdx(Number(e.target.value))}
+                    aria-label="حجم السيرنج"
+                    className="w-full appearance-none rounded-xl border border-stone-300 dark:border-stone-700 bg-stone-50 dark:bg-stone-900 px-4 py-3 pe-10 text-base text-stone-900 dark:text-stone-100 transition-colors focus:border-emerald-300 focus:outline-none focus:ring-1 focus:ring-emerald-100"
+                  >
+                    {SYRINGE_OPTIONS.map((opt, i) => (
+                      <option key={i} value={i} className="bg-white dark:bg-stone-950 text-stone-900 dark:text-stone-100">
+                        {opt.label}
+                      </option>
+                    ))}
+                  </select>
+                  <ChevronDown className="pointer-events-none absolute end-3 top-1/2 h-4 w-4 -translate-y-1/2 text-stone-700 dark:text-stone-300" />
+                </div>
+              </div>
+
+              {/* Frequency + Cost */}
+              <div className="mb-8 grid gap-5 md:grid-cols-2">
+                <div className="space-y-2">
+                  <label className="block text-sm font-medium text-stone-800 dark:text-stone-200">عدد الجرعات يوميًا</label>
+                  <div className="flex rounded-xl border border-stone-300 dark:border-stone-700 bg-stone-50 dark:bg-stone-900 p-1">
+                    {[1, 2, 3].map(n => (
+                      <button key={n} onClick={() => setDosesPerDay(n)}
+                        className={cn('flex-1 rounded-lg py-2 min-h-[44px] text-sm font-medium transition-all', dosesPerDay === n ? 'bg-emerald-600 text-white' : 'text-stone-700 dark:text-stone-300 hover:text-stone-900')}
+                      >
+                        {n}x / يوم
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <label htmlFor="calc-vial-price" className="block text-sm font-medium text-stone-800 dark:text-stone-200">
+                    سعر القارورة (ر.س) <span className="text-xs text-emerald-600 font-normal me-1">اختياري</span>
+                  </label>
+                  <input
+                    id="calc-vial-price"
+                    type="number"
+                    inputMode="decimal"
+                    min={0}
+                    step={5}
+                    value={vialPrice || ''}
+                    onChange={e => setVialPrice(Number(e.target.value))}
+                    placeholder="مثال: 40"
+                    className="w-full rounded-xl border border-stone-300 dark:border-stone-700 bg-stone-50 dark:bg-stone-900 px-4 py-3 text-base text-stone-900 dark:text-stone-100 placeholder:text-stone-500 focus:border-emerald-300 focus:outline-none focus:ring-1 focus:ring-emerald-100"
+                  />
+                </div>
+              </div>
+
+              {/* Results + Syringe Visual */}
+              <div className="flex flex-col items-stretch gap-6 md:flex-row">
+                <div className="grid flex-1 grid-cols-2 gap-4">
+                  <ResultCard label="التركيز" value={fmt(results.concentration, 0)} unit="مكغ/مل" />
+                  <ResultCard label="الكمية المطلوبة" value={fmt(results.volumeMl, 3)} unit="مل" />
+                  <ResultCard label="وحدات السيرنج" value={fmt(results.syringeUnits, 1)} unit={`وحدة (${syringe.label.split('(')[0].trim()})`} />
+                  <ResultCard label="عدد الجرعات في القارورة" value={fmt(results.dosesPerVial, 0)} unit="جرعة" />
+                </div>
+                <div className="flex items-center justify-center rounded-xl border border-stone-300 dark:border-stone-700 bg-stone-50 dark:bg-stone-900 px-4 py-6 min-h-[200px] md:w-[140px]">
+                  <SyringeVisual drawUnits={results.syringeUnits} syringeOption={syringe} />
+                </div>
+              </div>
+
+              {/* Overflow warning */}
+              {isFinite(results.syringeUnits) && results.syringeUnits > syringe.units && (
+                <div className="mt-4 rounded-xl border border-red-500/20 bg-red-500/5 px-4 py-3 text-center">
+                  <p className="text-sm text-red-600 dark:text-red-400">
+                    الجرعة تتجاوز سعة السيرنج ({syringe.units} وحدة). استخدم سيرنجًا أكبر أو أضف ماءً أقل.
+                  </p>
+                </div>
               )}
-              {waterMl !== recommendedWater && vialMg > 0 && waterMl > 0 && (
-                !selectedPreset ? (
-                  <div className="mt-1 flex items-center gap-2 rounded-lg border border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-900/20 px-3 py-2">
-                    <span className="text-xs text-emerald-700 dark:text-emerald-400">
-                      الكمية الموصى بها: <strong>{recommendedWater} ml</strong>
-                    </span>
+
+              {/* Reconstitution Guide */}
+              {selectedPreset && isFinite(results.syringeUnits) && results.syringeUnits > 0 && (
+                <div className="mt-6 rounded-2xl border border-emerald-200 dark:border-emerald-800 bg-emerald-50/50 dark:bg-emerald-900/10 p-5">
+                  <h3 className="mb-3 text-sm font-bold text-stone-900 dark:text-stone-100">دليل التحضير — {selectedPreset}</h3>
+                  <div className="space-y-3">
+                    <GuideStep step="1" text={`اسحب ${waterMl} ml ماء بكتيريوستاتي وأضفه على قارورة ${vialMg} mg ${selectedPreset}. أدخل الإبرة ببطء على جدار القارورة.`} />
+                    <GuideStep step="2" text="حرّك القارورة بلطف بحركة دائرية. لا ترجّها أبدًا. انتظر حتى يذوب المسحوق بالكامل (1-2 دقيقة)." />
+                    <GuideStep step="3" text={`بسرنجة إنسولين (${syringe.label})، اسحب ${fmt(results.syringeUnits, 1)} وحدة. هذه جرعتك (${doseUnit === 'mg' ? `${doseValue} mg` : `${doseValue} mcg`}).`} />
+                    <GuideStep step="4" text={`احقن تحت الجلد في البطن أو الفخذ. خزّن القارورة في الثلاجة 2-8°C — تصلح لـ ${vialMg >= 5 ? '28' : '14'} يوم بعد التحضير.`} />
+                  </div>
+                </div>
+              )}
+
+              {/* Dose safety warning */}
+              {selectedPreset && (() => {
+                const preset = PEPTIDE_PRESETS.find(p => p.name === selectedPreset);
+                if (!preset) return null;
+                const doseMcg = doseUnit === 'mg' ? doseValue * 1000 : doseValue;
+                if (doseMcg > preset.maxDose) {
+                  return (
+                    <div className="mt-4 rounded-xl border border-red-300 bg-red-50 dark:bg-red-900/20 px-4 py-3">
+                      <p className="text-sm font-bold text-red-800 dark:text-red-300">جرعة مرتفعة</p>
+                      <p className="text-xs text-red-600 dark:text-red-400 mt-1">الجرعة المدخلة ({doseMcg} mcg) تتجاوز الحد الأعلى الموصى به لـ {preset.name} ({preset.maxDose} mcg). استشر طبيبك.</p>
+                    </div>
+                  );
+                }
+                if (doseMcg < preset.minDose) {
+                  return (
+                    <div className="mt-4 rounded-xl border border-amber-300 dark:border-amber-700 bg-amber-50 dark:bg-amber-900/20 px-4 py-3">
+                      <p className="text-sm font-bold text-amber-800 dark:text-amber-300">جرعة منخفضة</p>
+                      <p className="text-xs text-amber-700 dark:text-amber-400 mt-1">الجرعة ({doseMcg} mcg) أقل من الحد الأدنى الفعّال لـ {preset.name} ({preset.minDose} mcg).</p>
+                    </div>
+                  );
+                }
+                return (
+                  <div className="mt-4 rounded-xl border border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-900/20 px-4 py-3">
+                    <p className="text-xs text-emerald-700 dark:text-emerald-400">✓ الجرعة ضمن النطاق الموصى به لـ {preset.name} ({preset.minDose}–{preset.maxDose} mcg)</p>
+                  </div>
+                );
+              })()}
+
+              {/* Monthly Planning */}
+              {isFinite(results.dosesPerVial) && results.dosesPerVial > 0 && (
+                <div className="mt-6 grid gap-4 sm:grid-cols-3">
+                  <div className="rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 p-4">
+                    <p className="text-xs font-semibold text-stone-500 dark:text-stone-400 mb-1">عمر القارورة</p>
+                    <p className="text-lg font-bold text-stone-900 dark:text-stone-100">
+                      {results.daysPerVial < 1 ? 'أقل من يوم' :
+                       results.daysPerVial <= 7 ? `${Math.floor(results.daysPerVial)} أيام` :
+                       `~${Math.floor(results.daysPerVial / 7)} أسابيع`}
+                    </p>
+                    <p className="text-xs text-stone-500 dark:text-stone-400 mt-1">{fmt(results.dosesPerVial, 0)} جرعة × {dosesPerDay}/يوم</p>
+                    <p className="text-xs text-amber-600 mt-1">خزّن في الثلاجة (2-8°C)</p>
+                  </div>
+                  <div className="rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 p-4">
+                    <p className="text-xs font-semibold text-stone-500 dark:text-stone-400 mb-1">قوارير في الشهر</p>
+                    <p className="text-lg font-bold text-stone-900 dark:text-stone-100">{Math.ceil(results.monthlyVials)} قوارير</p>
+                    {results.monthlyCost > 0 ? (
+                      <p className="text-xs font-bold text-emerald-600 mt-1">~{Math.round(results.monthlyCost)} ر.س/شهر</p>
+                    ) : (
+                      <p className="text-xs text-stone-500 dark:text-stone-400 mt-1">أدخل سعر القارورة لحساب التكلفة</p>
+                    )}
+                  </div>
+                  <div className="grid grid-cols-2 gap-2">
                     <button
-                      onClick={() => setWaterMl(recommendedWater)}
-                      className="rounded-md bg-emerald-600 px-3 py-2 min-h-[44px] text-xs font-bold text-white transition-colors hover:bg-emerald-700"
+                      onClick={saveCurrentCalc}
+                      className="flex flex-col items-center justify-center gap-1 rounded-xl border-2 border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-900/20 p-3 font-bold text-emerald-700 dark:text-emerald-400 transition-all hover:bg-emerald-100 hover:shadow-md min-h-[44px]"
                     >
-                      تعبئة
+                      <Bookmark className="h-4 w-4" />
+                      <span className="text-xs">احفظ</span>
+                    </button>
+                    <button
+                      onClick={shareCalculation}
+                      className="flex flex-col items-center justify-center gap-1 rounded-xl border-2 border-blue-200 dark:border-blue-800 bg-blue-50 dark:bg-blue-900/20 p-3 font-bold text-blue-700 dark:text-blue-400 transition-all hover:bg-blue-100 hover:shadow-md min-h-[44px]"
+                    >
+                      <Share2 className="h-4 w-4" />
+                      <span className="text-xs">شارك</span>
                     </button>
                   </div>
-                ) : (
-                  <button
-                    onClick={() => setWaterMl(recommendedWater)}
-                    className="text-xs text-emerald-600/70 transition-colors hover:underline"
+                </div>
+              )}
+
+              {/* CTAs */}
+              {selectedPreset && (
+                <div className="flex gap-3 mt-4 flex-wrap">
+                  <Link
+                    to={`/tracker?peptide=${encodeURIComponent(selectedPreset || 'Custom')}&dose=${doseValue}&unit=${doseUnit}`}
+                    className="flex flex-col items-center justify-center gap-1 rounded-xl border-2 border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 p-4 font-bold text-stone-700 dark:text-stone-300 transition-all hover:border-emerald-200 hover:text-emerald-700 hover:shadow-md min-w-[140px] min-h-[44px]"
                   >
-                    الكمية المُوصى بها: {recommendedWater} مل
-                  </button>
-                )
+                    <Syringe className="h-5 w-5" />
+                    <span className="text-sm">سجّل حقنة</span>
+                  </Link>
+                  <Link
+                    to="/guide"
+                    className="flex flex-col items-center justify-center gap-1 rounded-xl border-2 border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 p-4 font-bold text-stone-700 dark:text-stone-300 transition-all hover:border-emerald-200 hover:text-emerald-700 hover:shadow-md min-w-[140px] min-h-[44px]"
+                  >
+                    <BookOpen className="h-5 w-5" />
+                    <span className="text-sm">كيف أحقن؟</span>
+                  </Link>
+                  {findPeptideByPreset(selectedPreset) && (
+                    <button
+                      onClick={() => setShowProtocolWizard(true)}
+                      className="flex flex-col items-center justify-center gap-1 rounded-xl border-2 border-emerald-300 dark:border-emerald-700 bg-emerald-50 dark:bg-emerald-900/20 p-4 font-bold text-emerald-700 dark:text-emerald-400 transition-all hover:border-emerald-400 hover:bg-emerald-100 hover:shadow-md min-w-[140px] min-h-[44px]"
+                    >
+                      <Play className="h-5 w-5" />
+                      <span className="text-sm">ابدأ بروتوكول</span>
+                    </button>
+                  )}
+                </div>
               )}
             </div>
-          </div>
 
-          {/* Syringe Size Selector */}
-          <div className="mb-8">
-            <label htmlFor="calc-syringe" className="mb-2 block text-sm font-medium text-stone-800 dark:text-stone-200">
-              حجم السيرنج
-            </label>
-            <div className="relative">
-              <select
-                id="calc-syringe"
-                value={syringeIdx}
-                onChange={(e) => setSyringeIdx(Number(e.target.value))}
-                aria-label="حجم السيرنج"
-                className={cn(
-                  'w-full appearance-none rounded-xl border border-stone-300 dark:border-stone-700 bg-stone-50 dark:bg-stone-900 px-4 py-3 pe-10',
-                  'text-base text-stone-900 dark:text-stone-100',
-                  'transition-colors focus:border-emerald-300 dark:border-emerald-700 focus:outline-none focus:ring-1 focus:ring-emerald-100 dark:focus:ring-emerald-900',
-                )}
-              >
-                {SYRINGE_OPTIONS.map((opt, i) => (
-                  <option key={i} value={i} className="bg-white dark:bg-stone-950 text-stone-900 dark:text-stone-100">
-                    {opt.label}
-                  </option>
-                ))}
-              </select>
-              <ChevronDown className="pointer-events-none absolute end-3 top-1/2 h-4 w-4 -translate-y-1/2 text-stone-700 dark:text-stone-300" />
-            </div>
-          </div>
-
-          {/* Frequency + Cost */}
-          <div className="mb-8 grid gap-5 md:grid-cols-2">
-            <div className="space-y-2">
-              <label className="block text-sm font-medium text-stone-800 dark:text-stone-200">عدد الجرعات يوميًا</label>
-              <div className="flex rounded-xl border border-stone-300 dark:border-stone-700 bg-stone-50 dark:bg-stone-900 p-1">
-                {[1, 2, 3].map(n => (
-                  <button key={n} onClick={() => setDosesPerDay(n)}
-                    className={cn('flex-1 rounded-lg py-2 text-sm font-medium transition-all', dosesPerDay === n ? 'bg-emerald-600 text-white' : 'text-stone-700 dark:text-stone-300 hover:text-stone-900 dark:text-stone-100')}
-                  >
-                    {n}x / يوم
-                  </button>
-                ))}
+            {/* Peptide Reference Card */}
+            {selectedPreset && (
+              <div className="mb-6">
+                <PeptideReferenceCard presetName={selectedPreset} />
               </div>
-            </div>
-            <div className="space-y-2">
-              <label htmlFor="calc-vial-price" className="block text-sm font-medium text-stone-800 dark:text-stone-200">سعر القارورة (ر.س) <span className="text-xs text-emerald-600 font-normal me-1">اختياري</span></label>
-              <input id="calc-vial-price" type="number" inputMode="decimal" min={0} step={5} value={vialPrice || ''} onChange={e => setVialPrice(Number(e.target.value))} placeholder="مثال: 40"
-                className="w-full rounded-xl border border-stone-300 dark:border-stone-700 bg-stone-50 dark:bg-stone-900 px-4 py-3 text-base text-stone-900 dark:text-stone-100 placeholder:text-stone-500 dark:text-stone-400 focus:border-emerald-300 dark:border-emerald-700 focus:outline-none focus:ring-1 focus:ring-emerald-100 dark:focus:ring-emerald-900" />
-            </div>
-          </div>
+            )}
 
-          {/* Results + Syringe Visual */}
-          <div className="flex flex-col items-stretch gap-6 md:flex-row">
-            {/* Result Cards */}
-            <div className="grid flex-1 grid-cols-2 gap-4">
-              <ResultCard
-                label="التركيز"
-                value={fmt(results.concentration, 0)}
-                unit="مكغ/مل"
-              />
-              <ResultCard
-                label="الكمية المطلوبة"
-                value={fmt(results.volumeMl, 3)}
-                unit="مل"
-              />
-              <ResultCard
-                label="وحدات السيرنج"
-                value={fmt(results.syringeUnits, 1)}
-                unit={`وحدة (${syringe.label.split('(')[0].trim()})`}
-              />
-              <ResultCard
-                label="عدد الجرعات في القارورة"
-                value={fmt(results.dosesPerVial, 0)}
-                unit="جرعة"
-              />
-            </div>
-
-            {/* SVG Syringe */}
-            <div className="flex items-center justify-center rounded-xl border border-stone-300 dark:border-stone-700 bg-stone-50 dark:bg-stone-900 px-4 py-6 min-h-[200px] md:w-[140px]">
-              <SyringeVisual
-                drawUnits={results.syringeUnits}
-                syringeOption={syringe}
-              />
-            </div>
-          </div>
-
-          {/* Overflow warning */}
-          {isFinite(results.syringeUnits) && results.syringeUnits > syringe.units && (
-            <div
-              className="mt-4 rounded-xl border border-red-500/20 bg-red-500/5 px-4 py-3 text-center"
-            >
-              <p className="text-sm text-red-600 dark:text-red-400">
-                الجرعة تتجاوز سعة السيرنج ({syringe.units} وحدة). استخدم سيرنجًا أكبر أو أضف ماءً أقل.
-              </p>
-            </div>
-          )}
-
-          {/* Reconstitution Guide */}
-          {selectedPreset && isFinite(results.syringeUnits) && results.syringeUnits > 0 && (
-            <div className="mt-6 rounded-2xl border border-emerald-200 dark:border-emerald-800 bg-emerald-50/50 p-5">
-              <h3 className="mb-3 text-sm font-bold text-stone-900 dark:text-stone-100">دليل التحضير — {selectedPreset}</h3>
-              <div className="space-y-3">
-                <div className="flex items-start gap-3">
-                  <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-emerald-600 text-xs font-bold text-white">1</span>
-                  <p className="text-sm text-stone-700 dark:text-stone-300">اسحب <strong>{waterMl} ml</strong> ماء بكتيريوستاتي وأضفه على قارورة <strong>{vialMg} mg</strong> {selectedPreset}. أدخل الإبرة ببطء على جدار القارورة.</p>
-                </div>
-                <div className="flex items-start gap-3">
-                  <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-emerald-600 text-xs font-bold text-white">2</span>
-                  <p className="text-sm text-stone-700 dark:text-stone-300">حرّك القارورة بلطف بحركة دائرية. <strong>لا ترجّها أبدًا</strong>. انتظر حتى يذوب المسحوق بالكامل (1-2 دقيقة).</p>
-                </div>
-                <div className="flex items-start gap-3">
-                  <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-emerald-600 text-xs font-bold text-white">3</span>
-                  <p className="text-sm text-stone-700 dark:text-stone-300">بسرنجة إنسولين ({syringe.label})، اسحب <strong>{fmt(results.syringeUnits, 1)} وحدة</strong>. هذه جرعتك ({doseUnit === 'mg' ? `${doseValue} mg` : `${doseValue} mcg`}).</p>
-                </div>
-                <div className="flex items-start gap-3">
-                  <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-emerald-600 text-xs font-bold text-white">4</span>
-                  <p className="text-sm text-stone-700 dark:text-stone-300">احقن تحت الجلد في البطن أو الفخذ. خزّن القارورة في الثلاجة 2-8°C — تصلح لـ {vialMg >= 5 ? '28' : '14'} يوم بعد التحضير.</p>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* Dose safety warning */}
-          {selectedPreset && (() => {
-            const preset = PEPTIDE_PRESETS.find(p => p.name === selectedPreset);
-            if (!preset) return null;
-            const doseMcg = doseUnit === 'mg' ? doseValue * 1000 : doseValue;
-            if (doseMcg > preset.maxDose) {
-              return (
-                <div className="mt-4 rounded-xl border border-red-300 bg-red-50 dark:bg-red-900/20 px-4 py-3">
-                  <p className="text-sm font-bold text-red-800">جرعة مرتفعة</p>
-                  <p className="text-xs text-red-600 dark:text-red-400 mt-1">الجرعة المدخلة ({doseMcg} mcg) تتجاوز الحد الأعلى الموصى به لـ {preset.name} ({preset.maxDose} mcg). استشر طبيبك قبل استخدام هذه الجرعة.</p>
-                </div>
-              );
-            }
-            if (doseMcg < preset.minDose) {
-              return (
-                <div className="mt-4 rounded-xl border border-amber-300 dark:border-amber-700 bg-amber-50 dark:bg-amber-900/20 px-4 py-3">
-                  <p className="text-sm font-bold text-amber-800 dark:text-amber-300">جرعة منخفضة</p>
-                  <p className="text-xs text-amber-700 dark:text-amber-400 mt-1">الجرعة المدخلة ({doseMcg} mcg) أقل من الحد الأدنى الفعّال لـ {preset.name} ({preset.minDose} mcg). قد لا تحصل على النتيجة المطلوبة.</p>
-                </div>
-              );
-            }
-            return (
-              <div className="mt-4 rounded-xl border border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-900/20 px-4 py-3">
-                <p className="text-xs text-emerald-700 dark:text-emerald-400">الجرعة ضمن النطاق الموصى به لـ {preset.name} ({preset.minDose}-{preset.maxDose} mcg)</p>
-              </div>
-            );
-          })()}
-
-          {selectedPreset && (() => {
-            const p = allPeptides.find(x => x.nameEn === selectedPreset);
-            return p?.warningAr ? (
-              <div className="mt-3 rounded-xl border border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-900/20 p-3 text-xs text-amber-800 dark:text-amber-300">
-                <strong>تحذير:</strong> {p.warningAr}
-              </div>
-            ) : null;
-          })()}
-
-          {/* Monthly Planning */}
-          {isFinite(results.dosesPerVial) && results.dosesPerVial > 0 && (
-            <div className="mt-6 grid gap-4 sm:grid-cols-3">
-              <div className="rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 p-4">
-                <p className="text-xs font-semibold text-stone-500 dark:text-stone-400 mb-1">عمر القارورة</p>
-                <p className="text-lg font-bold text-stone-900 dark:text-stone-100">
-                  {results.daysPerVial < 1 ? 'أقل من يوم' :
-                   results.daysPerVial <= 7 ? `${Math.floor(results.daysPerVial)} أيام` :
-                   `~${Math.floor(results.daysPerVial / 7)} أسابيع`}
-                </p>
-                <p className="text-xs text-stone-500 dark:text-stone-400 mt-1">
-                  {fmt(results.dosesPerVial, 0)} جرعة × {dosesPerDay}/يوم
-                </p>
-                <p className="text-xs text-amber-600 mt-1">خزّن في الثلاجة (2-8°C) — تصلح لـ 28 يوم بعد التحضير</p>
-              </div>
-              <div className="rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 p-4">
-                <p className="text-xs font-semibold text-stone-500 dark:text-stone-400 mb-1">قوارير في الشهر</p>
-                <p className="text-lg font-bold text-stone-900 dark:text-stone-100">
-                  {Math.ceil(results.monthlyVials)} قوارير
-                </p>
-                {results.monthlyCost > 0 ? (
-                  <p className="text-xs font-bold text-emerald-600 mt-1">
-                    ~{Math.round(results.monthlyCost)} ر.س/شهر
-                  </p>
-                ) : (
-                  <p className="text-xs text-stone-500 dark:text-stone-400 mt-1">
-                    أدخل سعر القارورة لحساب التكلفة الشهرية
-                  </p>
-                )}
-              </div>
-              <button
-                onClick={saveCurrentCalc}
-                className="flex flex-col items-center justify-center gap-1 rounded-xl border-2 border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-900/20 p-4 font-bold text-emerald-700 dark:text-emerald-400 transition-all hover:bg-emerald-100 dark:bg-emerald-900/30 hover:shadow-md"
-              >
-                <Bookmark className="h-5 w-5" />
-                <span className="text-sm">احفظ الحساب</span>
-              </button>
-              <button
-                onClick={shareCalculation}
-                className="flex flex-col items-center justify-center gap-1 rounded-xl border-2 border-blue-200 dark:border-blue-800 bg-blue-50 dark:bg-blue-900/20 p-4 font-bold text-blue-700 dark:text-blue-400 transition-all hover:bg-blue-100 hover:shadow-md"
-              >
-                <Share2 className="h-5 w-5" />
-                <span className="text-sm">شارك الحساب</span>
-              </button>
-              <Link
-                to="/guide"
-                className="flex flex-col items-center justify-center gap-1 rounded-xl border-2 border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 p-4 font-bold text-stone-700 dark:text-stone-300 transition-all hover:border-emerald-200 dark:border-emerald-800 hover:text-emerald-700 dark:text-emerald-400 hover:shadow-md"
-              >
-                <BookOpen className="h-5 w-5" />
-                <span className="text-sm">كيف أحقن؟</span>
-              </Link>
-            </div>
-          )}
-
-          {/* CTAs — always visible when preset selected */}
-          {selectedPreset && (
-            <div className="flex gap-3 mt-4 flex-wrap">
-              <Link
-                to={`/tracker?peptide=${encodeURIComponent(selectedPreset || 'Custom')}&dose=${doseValue}&unit=${doseUnit}`}
-                className="flex flex-col items-center justify-center gap-1 rounded-xl border-2 border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 p-4 font-bold text-stone-700 dark:text-stone-300 transition-all hover:border-emerald-200 dark:border-emerald-800 hover:text-emerald-700 dark:text-emerald-400 hover:shadow-md min-w-[140px]"
-              >
-                <Syringe className="h-5 w-5" />
-                <span className="text-sm">سجّل حقنة</span>
-              </Link>
-              {allPeptides.find(p => p.nameEn === selectedPreset) && (
-                <button
-                  onClick={() => setShowProtocolWizard(true)}
-                  className="flex flex-col items-center justify-center gap-1 rounded-xl border-2 border-emerald-300 dark:border-emerald-700 bg-emerald-50 dark:bg-emerald-900/20 p-4 font-bold text-emerald-700 dark:text-emerald-400 transition-all hover:border-emerald-400 hover:bg-emerald-100 dark:bg-emerald-900/30 hover:shadow-md min-w-[140px]"
-                >
-                  <Play className="h-5 w-5" />
-                  <span className="text-sm">ابدأ بروتوكول</span>
-                </button>
-              )}
-            </div>
-          )}
-
-          {/* Saved Calculations */}
-          {savedCalcs.length > 0 && (
-            <div className="mt-6">
-              <h3 className="mb-3 text-sm font-bold text-stone-700 dark:text-stone-300">حساباتك المحفوظة</h3>
-              <div className="grid gap-2 sm:grid-cols-2">
-                {savedCalcs.map((calc, idx) => (
-                  <button
-                    key={`${calc.peptide}-${idx}`}
-                    onClick={() => loadSavedCalc(calc)}
-                    className={cn(
-                      'flex items-center justify-between rounded-xl border px-4 py-3 text-start transition-all hover:shadow-sm dark:shadow-stone-900/30',
-                      selectedPreset === calc.peptide ? 'border-emerald-400 bg-emerald-50 dark:bg-emerald-900/20' : 'border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 transition-colors hover:border-emerald-300 dark:border-emerald-700'
-                    )}
-                  >
-                    <div>
-                      <p className="text-sm font-bold text-stone-900 dark:text-stone-100" dir="ltr">{calc.peptide}</p>
-                      <p className="text-xs text-stone-500 dark:text-stone-400">{calc.dose} {calc.unit} — {calc.units} وحدة</p>
-                    </div>
-                    <span className="text-xs text-stone-500 dark:text-stone-400">{new Date(calc.ts).toLocaleDateString('ar-u-nu-latn', { month: 'short', day: 'numeric' })}</span>
-                  </button>
-                ))}
-              </div>
-            </div>
-          )}
-        </div>
-
-        {/* Expandable Formulas Section */}
-        <div
-          className="mb-8 rounded-2xl border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-900"
-        >
-          <button
-            onClick={() => setShowFormulas(!showFormulas)}
-            aria-expanded={showFormulas}
-            className="flex w-full items-center justify-between px-6 py-4 transition-colors hover:bg-stone-100 dark:hover:bg-stone-800/80"
-          >
-            <div className="flex items-center gap-2">
-              <Droplets className="h-5 w-5 shrink-0 text-emerald-600" />
-              <h2 className="text-base font-bold text-stone-900 dark:text-stone-100">
-                كيف تستخدم هذه الحاسبة
-              </h2>
-            </div>
-            <ChevronDown
-              className={cn(
-                'h-5 w-5 text-stone-500 dark:text-stone-400 transition-transform duration-300',
-                showFormulas && 'rotate-180',
-              )}
-            />
-          </button>
-
-            {showFormulas && (
-              <div
-                className="overflow-hidden"
-              >
-                <div className="space-y-4 px-6 pb-6">
-                  <FormulaStep
-                    step="1"
-                    title="حساب التركيز"
-                    formula="التركيز (مكغ/مل) = كمية الببتيد (ملغ) × 1000 ÷ كمية الماء (مل)"
-                    example={`(${vialMg} × 1000) ÷ ${waterMl} = ${fmt(results.concentration, 0)} مكغ/مل`}
-                  />
-                  <FormulaStep
-                    step="2"
-                    title="حساب الكمية المطلوبة"
-                    formula="الكمية (مل) = الجرعة المطلوبة (مكغ) ÷ التركيز (مكغ/مل)"
-                    example={`${results.doseMcg} ÷ ${fmt(results.concentration, 0)} = ${fmt(results.volumeMl, 3)} مل`}
-                  />
-                  <FormulaStep
-                    step="3"
-                    title="تحويل إلى وحدات السيرنج"
-                    formula={`وحدات السيرنج = الكمية (مل) ÷ سعة السيرنج (${syringe.ml} مل) × ${syringe.units}`}
-                    example={`${fmt(results.volumeMl, 3)} ÷ ${syringe.ml} × ${syringe.units} = ${fmt(results.syringeUnits, 1)} وحدة`}
-                  />
-                  <div className="rounded-xl border border-stone-300 dark:border-stone-700 bg-stone-50 dark:bg-stone-900 p-4">
-                    <p className="text-sm leading-relaxed text-stone-800 dark:text-stone-200">
-                      <strong className="text-stone-800 dark:text-stone-200">ملاحظة:</strong> هذه الحاسبة أداة تعليمية فقط. استشر طبيبك المختص قبل استخدام أي ببتيد. تأكد من جودة المنتج ونظافة بيئة التحضير.
-                    </p>
-                  </div>
+            {/* Saved Calculations */}
+            {savedCalcs.length > 0 && (
+              <div className="mb-6 rounded-2xl border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-900 p-5">
+                <h3 className="mb-3 text-sm font-bold text-stone-900 dark:text-stone-100">
+                  <Bookmark className="inline h-4 w-4 me-1 text-emerald-600" />
+                  حساباتك المحفوظة ({savedCalcs.length})
+                </h3>
+                <div className="grid gap-2 sm:grid-cols-2">
+                  {savedCalcs.map((calc, idx) => (
+                    <button
+                      key={`${calc.peptide}-${idx}`}
+                      onClick={() => loadSavedCalc(calc)}
+                      className={cn(
+                        'flex items-center justify-between rounded-xl border px-4 py-3 min-h-[44px] text-start transition-all hover:shadow-sm',
+                        selectedPreset === calc.peptide ? 'border-emerald-400 bg-emerald-50 dark:bg-emerald-900/20' : 'border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 hover:border-emerald-300'
+                      )}
+                    >
+                      <div>
+                        <p className="text-sm font-bold text-stone-900 dark:text-stone-100" dir="ltr">{calc.peptide}</p>
+                        <p className="text-xs text-stone-500 dark:text-stone-400">{calc.dose} {calc.unit} — {calc.units} وحدة</p>
+                      </div>
+                      <span className="text-xs text-stone-500 dark:text-stone-400">{new Date(calc.ts).toLocaleDateString('ar-u-nu-latn', { month: 'short', day: 'numeric' })}</span>
+                    </button>
+                  ))}
                 </div>
               </div>
             )}
-        </div>
+          </>
+        )}
 
-        {/* Reference Table */}
-        <div
-          className="mb-8 overflow-hidden rounded-2xl border border-stone-200 dark:border-stone-700"
-        >
-          <div
-            className="flex items-center gap-2 bg-stone-50/95 dark:bg-stone-800/95 px-5 py-3"
-          >
-            <FlaskConical className="h-4 w-4 text-emerald-600" />
-            <h2 className="text-base font-bold text-stone-900 dark:text-stone-100">
-              جدول مرجعي سريع
-            </h2>
-          </div>
+        {/* ═══════════════ TAB 2: RECONSTITUTION CALCULATOR ═══════════════ */}
+        {activeTab === 'reconstitution' && (
+          <div className="space-y-6">
+            <div className="rounded-2xl border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-900 p-6 md:p-8">
+              <div className="flex items-center gap-2 mb-6">
+                <FlaskConical className="h-5 w-5 text-emerald-600" />
+                <h2 className="text-lg font-bold text-stone-900 dark:text-stone-100">حاسبة التخفيف (Reconstitution)</h2>
+              </div>
 
-          <div className="overflow-x-auto">
-            <table className="w-full min-w-[600px]">
-              <thead>
-                <tr className="border-b border-stone-300 dark:border-stone-700 bg-white dark:bg-stone-950">
-                  {['القارورة', 'الماء', 'التركيز', '100 مكغ', '250 مكغ', '500 مكغ'].map(
-                    (h, i) => (
-                      <th
-                        key={i}
-                        scope="col"
-                        className={cn(
-                          'px-4 py-3 text-xs font-semibold text-stone-800 dark:text-stone-200',
-                          i < 3 ? 'text-start' : 'text-center',
-                        )}
-                      >
-                        {h}
-                      </th>
-                    ),
-                  )}
-                </tr>
-              </thead>
-              <tbody>
-                {referenceData.map((row, i) => (
-                  <tr
-                    key={i}
-                    className={cn(
-                      'border-b border-stone-200 dark:border-stone-700 last:border-b-0',
-                      i % 2 === 0 ? 'bg-stone-50 dark:bg-stone-900 border border-stone-300 dark:border-stone-700' : 'bg-transparent',
-                    )}
-                  >
-                    <td className="px-4 py-3 text-sm text-stone-800 dark:text-stone-200">{row.vialMg} ملغ</td>
-                    <td className="px-4 py-3 text-sm text-stone-800 dark:text-stone-200">{row.waterMl} مل</td>
-                    <td className="px-4 py-3 text-sm text-stone-800 dark:text-stone-200">
-                      {row.concentration.toLocaleString('ar-u-nu-latn')} مكغ/مل
-                    </td>
-                    <td className="px-4 py-3 text-center text-sm text-stone-800 dark:text-stone-200">
-                      {row.dose100} مل
-                    </td>
-                    <td
-                      className="px-4 py-3 text-center text-sm font-semibold"
-                      
+              {/* Quick Peptide Select for Recon */}
+              <div className="mb-6">
+                <label className="block text-sm font-medium text-stone-800 dark:text-stone-200 mb-2">اختر ببتيد (اختياري)</label>
+                <div className="flex gap-2 overflow-x-auto scrollbar-hide -mx-1 px-1 pb-1">
+                  {PEPTIDE_PRESETS.slice(0, 12).map(p => (
+                    <button
+                      key={p.name}
+                      onClick={() => {
+                        setReconVialMg(p.vial);
+                        setReconWaterMl(p.water);
+                        setReconTargetDose(p.dose);
+                        setReconDoseUnit(p.unit);
+                      }}
+                      className="shrink-0 rounded-full border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 px-3 py-2 min-h-[44px] text-xs font-medium text-stone-700 dark:text-stone-300 hover:border-emerald-300 hover:text-emerald-600 transition-all"
                     >
-                      {row.dose250} مل
-                    </td>
-                    <td className="px-4 py-3 text-center text-sm text-stone-800 dark:text-stone-200">
-                      {row.dose500} مل
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+                      {getPresetDisplayName(p.name)}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="grid gap-5 md:grid-cols-2">
+                {/* Vial Size */}
+                <div className="space-y-2">
+                  <label className="block text-sm font-medium text-stone-800 dark:text-stone-200">حجم القارورة (ملغ)</label>
+                  <div className="flex rounded-xl border border-stone-300 dark:border-stone-700 bg-stone-50 dark:bg-stone-900 p-1">
+                    {[5, 10, 15, 20, 30].map(mg => (
+                      <button key={mg} onClick={() => setReconVialMg(mg)}
+                        className={cn('flex-1 rounded-lg py-2.5 min-h-[44px] text-sm font-medium transition-all', reconVialMg === mg ? 'bg-emerald-600 text-white' : 'text-stone-700 dark:text-stone-300')}
+                      >
+                        {mg}
+                      </button>
+                    ))}
+                  </div>
+                  <input
+                    type="number" inputMode="decimal" min={0.5} step={0.5} value={reconVialMg}
+                    onChange={e => setReconVialMg(Math.max(0, Number(e.target.value) || 0))}
+                    className="w-full rounded-xl border border-stone-300 dark:border-stone-700 bg-white dark:bg-stone-950 px-4 py-3 text-base text-stone-900 dark:text-stone-100 focus:border-emerald-300 focus:outline-none focus:ring-1 focus:ring-emerald-200"
+                    placeholder="أو أدخل قيمة مخصصة"
+                    aria-label="حجم القارورة مخصص"
+                  />
+                </div>
+
+                {/* Water Volume */}
+                <div className="space-y-2">
+                  <label className="block text-sm font-medium text-stone-800 dark:text-stone-200">كمية الماء (مل)</label>
+                  <div className="flex rounded-xl border border-stone-300 dark:border-stone-700 bg-stone-50 dark:bg-stone-900 p-1">
+                    {[1, 2, 3, 5].map(ml => (
+                      <button key={ml} onClick={() => setReconWaterMl(ml)}
+                        className={cn('flex-1 rounded-lg py-2.5 min-h-[44px] text-sm font-medium transition-all', reconWaterMl === ml ? 'bg-emerald-600 text-white' : 'text-stone-700 dark:text-stone-300')}
+                      >
+                        {ml}
+                      </button>
+                    ))}
+                  </div>
+                  <input
+                    type="number" inputMode="decimal" min={0.1} step={0.5} value={reconWaterMl}
+                    onChange={e => setReconWaterMl(Math.max(0, Number(e.target.value) || 0))}
+                    className="w-full rounded-xl border border-stone-300 dark:border-stone-700 bg-white dark:bg-stone-950 px-4 py-3 text-base text-stone-900 dark:text-stone-100 focus:border-emerald-300 focus:outline-none focus:ring-1 focus:ring-emerald-200"
+                    placeholder="أو أدخل قيمة مخصصة"
+                    aria-label="كمية الماء مخصصة"
+                  />
+                </div>
+
+                {/* Target Dose */}
+                <div className="space-y-2">
+                  <label className="block text-sm font-medium text-stone-800 dark:text-stone-200">الجرعة المطلوبة</label>
+                  <div className="flex gap-2">
+                    <input
+                      type="number" inputMode="decimal" min={0} step={reconDoseUnit === 'mcg' ? 50 : 0.05}
+                      value={reconTargetDose}
+                      onChange={e => setReconTargetDose(Math.max(0, Number(e.target.value) || 0))}
+                      className="flex-1 rounded-xl border border-stone-300 dark:border-stone-700 bg-white dark:bg-stone-950 px-4 py-3 text-base text-stone-900 dark:text-stone-100 focus:border-emerald-300 focus:outline-none focus:ring-1 focus:ring-emerald-200"
+                      aria-label="الجرعة المطلوبة"
+                    />
+                    <div className="flex rounded-xl border border-stone-300 dark:border-stone-700 p-1">
+                      <button onClick={() => setReconDoseUnit('mcg')}
+                        className={cn('rounded-lg px-3 py-2 min-h-[44px] text-sm font-medium', reconDoseUnit === 'mcg' ? 'bg-emerald-500 text-white' : 'text-stone-700 dark:text-stone-300')}>
+                        mcg
+                      </button>
+                      <button onClick={() => setReconDoseUnit('mg')}
+                        className={cn('rounded-lg px-3 py-2 min-h-[44px] text-sm font-medium', reconDoseUnit === 'mg' ? 'bg-emerald-500 text-white' : 'text-stone-700 dark:text-stone-300')}>
+                        mg
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Syringe */}
+                <div className="space-y-2">
+                  <label className="block text-sm font-medium text-stone-800 dark:text-stone-200">حجم السيرنج</label>
+                  <div className="relative">
+                    <select
+                      value={reconSyringeIdx}
+                      onChange={e => setReconSyringeIdx(Number(e.target.value))}
+                      className="w-full appearance-none rounded-xl border border-stone-300 dark:border-stone-700 bg-white dark:bg-stone-950 px-4 py-3 pe-10 text-base text-stone-900 dark:text-stone-100 focus:border-emerald-300 focus:outline-none"
+                      aria-label="حجم السيرنج"
+                    >
+                      {SYRINGE_OPTIONS.map((opt, i) => (
+                        <option key={i} value={i}>{opt.label}</option>
+                      ))}
+                    </select>
+                    <ChevronDown className="pointer-events-none absolute end-3 top-1/2 h-4 w-4 -translate-y-1/2 text-stone-500" />
+                  </div>
+                </div>
+              </div>
+
+              {/* Reconstitution Results */}
+              <div className="mt-8 flex flex-col items-stretch gap-6 md:flex-row">
+                <div className="grid flex-1 grid-cols-2 gap-4">
+                  <ResultCard label="التركيز" value={fmt(reconResults.concentration, 0)} unit="مكغ/مل" />
+                  <ResultCard label="الكمية المطلوبة" value={fmt(reconResults.volumeMl, 3)} unit="مل" />
+                  <ResultCard label="وحدات السيرنج" value={fmt(reconResults.syringeUnits, 1)} unit="وحدة" />
+                  <ResultCard label="جرعات في القارورة" value={fmt(reconResults.dosesPerVial, 0)} unit="جرعة" />
+                </div>
+                <div className="flex items-center justify-center rounded-xl border border-stone-300 dark:border-stone-700 bg-stone-50 dark:bg-stone-900 px-4 py-6 min-h-[200px] md:w-[140px]">
+                  <SyringeVisual drawUnits={reconResults.syringeUnits} syringeOption={SYRINGE_OPTIONS[reconSyringeIdx]} />
+                </div>
+              </div>
+
+              {/* Overflow warning */}
+              {isFinite(reconResults.syringeUnits) && reconResults.syringeUnits > SYRINGE_OPTIONS[reconSyringeIdx].units && (
+                <div className="mt-4 rounded-xl border border-red-500/20 bg-red-500/5 px-4 py-3 text-center">
+                  <p className="text-sm text-red-600 dark:text-red-400">الجرعة تتجاوز سعة السيرنج! استخدم سيرنجًا أكبر أو أضف ماءً أقل.</p>
+                </div>
+              )}
+
+              {/* Insulin Syringe Explainer */}
+              <div className="mt-6 rounded-2xl border border-blue-200 dark:border-blue-800 bg-blue-50/50 dark:bg-blue-900/10 p-5">
+                <h3 className="text-sm font-bold text-stone-900 dark:text-stone-100 mb-3">
+                  <Syringe className="inline h-4 w-4 me-1 text-blue-500" />
+                  فهم وحدات سيرنج الإنسولين
+                </h3>
+                <div className="space-y-2 text-xs text-stone-700 dark:text-stone-300">
+                  <p>• سيرنج 100 وحدة = 1 مل. كل علامة = 1 وحدة = 0.01 مل</p>
+                  <p>• سيرنج 50 وحدة = 0.5 مل. كل علامة = 1 وحدة = 0.01 مل</p>
+                  <p>• سيرنج 30 وحدة = 0.3 مل. كل علامة = 0.5 وحدة = 0.005 مل</p>
+                  <p className="font-bold text-emerald-600">💡 سيرنج أصغر = دقة أعلى. استخدم أصغر سيرنج يتسع لجرعتك.</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Reference Table */}
+            <div className="overflow-hidden rounded-2xl border border-stone-200 dark:border-stone-700">
+              <div className="flex items-center gap-2 bg-stone-50/95 dark:bg-stone-800/95 px-5 py-3">
+                <FlaskConical className="h-4 w-4 text-emerald-600" />
+                <h2 className="text-base font-bold text-stone-900 dark:text-stone-100">جدول مرجعي سريع</h2>
+              </div>
+              <div className="overflow-x-auto">
+                <table className="w-full min-w-[600px]">
+                  <thead>
+                    <tr className="border-b border-stone-300 dark:border-stone-700 bg-white dark:bg-stone-950">
+                      {['القارورة', 'الماء', 'التركيز', '100 مكغ', '250 مكغ', '500 مكغ'].map((h, i) => (
+                        <th key={i} scope="col" className={cn('px-4 py-3 text-xs font-semibold text-stone-800 dark:text-stone-200', i < 3 ? 'text-start' : 'text-center')}>
+                          {h}
+                        </th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {referenceData.map((row, i) => (
+                      <tr key={i} className={cn('border-b border-stone-200 dark:border-stone-700 last:border-b-0', i % 2 === 0 ? 'bg-stone-50 dark:bg-stone-900' : 'bg-transparent')}>
+                        <td className="px-4 py-3 text-sm text-stone-800 dark:text-stone-200">{row.vialMg} ملغ</td>
+                        <td className="px-4 py-3 text-sm text-stone-800 dark:text-stone-200">{row.waterMl} مل</td>
+                        <td className="px-4 py-3 text-sm text-stone-800 dark:text-stone-200">{row.concentration.toLocaleString('ar-u-nu-latn')} مكغ/مل</td>
+                        <td className="px-4 py-3 text-center text-sm text-stone-800 dark:text-stone-200">{row.dose100} مل</td>
+                        <td className="px-4 py-3 text-center text-sm font-semibold text-emerald-600">{row.dose250} مل</td>
+                        <td className="px-4 py-3 text-center text-sm text-stone-800 dark:text-stone-200">{row.dose500} مل</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
           </div>
-        </div>
+        )}
+
+        {/* ═══════════════ TAB 3: COST CALCULATOR ═══════════════ */}
+        {activeTab === 'cost' && (
+          <div className="space-y-6">
+            <div className="rounded-2xl border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-900 p-6 md:p-8">
+              <div className="flex items-center gap-2 mb-6">
+                <DollarSign className="h-5 w-5 text-emerald-600" />
+                <h2 className="text-lg font-bold text-stone-900 dark:text-stone-100">حاسبة التكلفة</h2>
+                <span className="text-xs text-stone-500 dark:text-stone-400">قارن تكلفة الببتيدات</span>
+              </div>
+
+              {/* Add Entry Form */}
+              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 mb-6">
+                <div className="space-y-2">
+                  <label className="block text-xs font-medium text-stone-800 dark:text-stone-200">الببتيد</label>
+                  <div className="relative">
+                    <select
+                      value={costPeptide}
+                      onChange={e => {
+                        setCostPeptide(e.target.value);
+                        const p = PEPTIDE_PRESETS.find(pr => pr.name === e.target.value);
+                        if (p) {
+                          setCostVialMg(p.vial);
+                          setCostDoseMcg(p.unit === 'mg' ? p.dose * 1000 : p.dose);
+                        }
+                      }}
+                      className="w-full appearance-none rounded-xl border border-stone-300 dark:border-stone-700 bg-white dark:bg-stone-950 px-4 py-3 pe-10 text-sm text-stone-900 dark:text-stone-100 focus:border-emerald-300 focus:outline-none"
+                      aria-label="اختر الببتيد"
+                    >
+                      <option value="">اختر ببتيد...</option>
+                      {PEPTIDE_PRESETS.map(p => (
+                        <option key={p.name} value={p.name}>{getPresetDisplayName(p.name)} ({p.name})</option>
+                      ))}
+                    </select>
+                    <ChevronDown className="pointer-events-none absolute end-3 top-1/2 h-4 w-4 -translate-y-1/2 text-stone-500" />
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <label className="block text-xs font-medium text-stone-800 dark:text-stone-200">سعر القارورة (ر.س)</label>
+                  <input type="number" inputMode="decimal" min={0} step={5} value={costPrice || ''} onChange={e => setCostPrice(Number(e.target.value))}
+                    placeholder="مثال: 40" className="w-full rounded-xl border border-stone-300 dark:border-stone-700 bg-white dark:bg-stone-950 px-4 py-3 text-sm text-stone-900 dark:text-stone-100 placeholder:text-stone-500 focus:border-emerald-300 focus:outline-none" aria-label="سعر القارورة" />
+                </div>
+                <div className="space-y-2">
+                  <label className="block text-xs font-medium text-stone-800 dark:text-stone-200">حجم القارورة (ملغ)</label>
+                  <input type="number" inputMode="decimal" min={0.5} step={1} value={costVialMg} onChange={e => setCostVialMg(Number(e.target.value))}
+                    className="w-full rounded-xl border border-stone-300 dark:border-stone-700 bg-white dark:bg-stone-950 px-4 py-3 text-sm text-stone-900 dark:text-stone-100 focus:border-emerald-300 focus:outline-none" aria-label="حجم القارورة" />
+                </div>
+                <div className="space-y-2">
+                  <label className="block text-xs font-medium text-stone-800 dark:text-stone-200">الجرعة (مكغ)</label>
+                  <input type="number" inputMode="decimal" min={0} step={50} value={costDoseMcg} onChange={e => setCostDoseMcg(Number(e.target.value))}
+                    className="w-full rounded-xl border border-stone-300 dark:border-stone-700 bg-white dark:bg-stone-950 px-4 py-3 text-sm text-stone-900 dark:text-stone-100 focus:border-emerald-300 focus:outline-none" aria-label="الجرعة بالمايكروغرام" />
+                </div>
+                <div className="space-y-2">
+                  <label className="block text-xs font-medium text-stone-800 dark:text-stone-200">الجرعات/يوم</label>
+                  <div className="flex rounded-xl border border-stone-300 dark:border-stone-700 p-1">
+                    {[1, 2, 3].map(n => (
+                      <button key={n} onClick={() => setCostDosesPerDay(n)}
+                        className={cn('flex-1 rounded-lg py-2 min-h-[44px] text-sm font-medium', costDosesPerDay === n ? 'bg-emerald-600 text-white' : 'text-stone-700 dark:text-stone-300')}>
+                        {n}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                <div className="flex items-end">
+                  <button onClick={addCostEntry}
+                    className="w-full rounded-xl bg-emerald-600 px-4 py-3 min-h-[44px] text-sm font-bold text-white transition-colors hover:bg-emerald-700">
+                    + أضف للمقارنة
+                  </button>
+                </div>
+              </div>
+
+              {/* Cost Comparison Table */}
+              {costResults.length > 0 && (
+                <div className="overflow-x-auto rounded-xl border border-stone-200 dark:border-stone-700">
+                  <table className="w-full min-w-[700px]">
+                    <thead>
+                      <tr className="border-b border-stone-300 dark:border-stone-700 bg-white dark:bg-stone-950">
+                        {['الببتيد', 'السعر/قارورة', 'التكلفة/جرعة', 'التكلفة/أسبوع', 'التكلفة/شهر', 'دورة 12 أسبوع', ''].map((h, i) => (
+                          <th key={i} className="px-3 py-3 text-xs font-semibold text-stone-800 dark:text-stone-200 text-start">{h}</th>
+                        ))}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {costResults.map((r, i) => (
+                        <tr key={i} className="border-b border-stone-200 dark:border-stone-700 last:border-b-0">
+                          <td className="px-3 py-3 text-sm font-bold text-stone-900 dark:text-stone-100" dir="ltr">{r.peptide}</td>
+                          <td className="px-3 py-3 text-sm text-stone-700 dark:text-stone-300">{r.pricePerVial} ر.س</td>
+                          <td className="px-3 py-3 text-sm text-emerald-600 font-bold">{fmt(r.costPerDose, 1)} ر.س</td>
+                          <td className="px-3 py-3 text-sm text-stone-700 dark:text-stone-300">{fmt(r.costPerWeek, 0)} ر.س</td>
+                          <td className="px-3 py-3 text-sm font-bold text-stone-900 dark:text-stone-100">{fmt(r.costPerMonth, 0)} ر.س</td>
+                          <td className="px-3 py-3 text-sm text-stone-700 dark:text-stone-300">{fmt(r.costPerCycle12w, 0)} ر.س</td>
+                          <td className="px-3 py-3">
+                            <button onClick={() => setCostEntries(prev => prev.filter((_, j) => j !== i))}
+                              className="rounded-lg p-2 min-h-[44px] min-w-[44px] text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors" aria-label="حذف">
+                              <Trash2 className="h-4 w-4" />
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+
+              {costResults.length === 0 && (
+                <div className="text-center py-12 text-stone-500 dark:text-stone-400">
+                  <DollarSign className="mx-auto h-10 w-10 mb-3 opacity-30" />
+                  <p className="text-sm">أضف ببتيدات للمقارنة بينها</p>
+                </div>
+              )}
+
+              {/* Cost Summary */}
+              {costResults.length > 1 && (() => {
+                const cheapest = costResults.reduce((a, b) => a.costPerMonth < b.costPerMonth ? a : b);
+                const mostExpensive = costResults.reduce((a, b) => a.costPerMonth > b.costPerMonth ? a : b);
+                return (
+                  <div className="mt-6 grid gap-4 sm:grid-cols-2">
+                    <div className="rounded-xl border border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-900/20 p-4">
+                      <p className="text-xs text-emerald-700 dark:text-emerald-400 mb-1">الأقل تكلفة شهريًا</p>
+                      <p className="text-lg font-bold text-emerald-600" dir="ltr">{cheapest.peptide}</p>
+                      <p className="text-sm text-stone-700 dark:text-stone-300">{fmt(cheapest.costPerMonth, 0)} ر.س/شهر</p>
+                    </div>
+                    <div className="rounded-xl border border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-900/20 p-4">
+                      <p className="text-xs text-red-700 dark:text-red-400 mb-1">الأعلى تكلفة شهريًا</p>
+                      <p className="text-lg font-bold text-red-600" dir="ltr">{mostExpensive.peptide}</p>
+                      <p className="text-sm text-stone-700 dark:text-stone-300">{fmt(mostExpensive.costPerMonth, 0)} ر.س/شهر</p>
+                    </div>
+                  </div>
+                );
+              })()}
+            </div>
+          </div>
+        )}
+
+        {/* ═══════════════ TAB 4: UNIT CONVERTER ═══════════════ */}
+        {activeTab === 'converter' && (
+          <div className="space-y-6">
+            <div className="rounded-2xl border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-900 p-6 md:p-8">
+              <div className="flex items-center gap-2 mb-6">
+                <ArrowLeftRight className="h-5 w-5 text-emerald-600" />
+                <h2 className="text-lg font-bold text-stone-900 dark:text-stone-100">محوّل الوحدات</h2>
+              </div>
+
+              <div className="grid gap-5 md:grid-cols-3 mb-6">
+                {/* Value */}
+                <div className="space-y-2">
+                  <label className="block text-sm font-medium text-stone-800 dark:text-stone-200">القيمة</label>
+                  <input
+                    type="number"
+                    inputMode="decimal"
+                    min={0}
+                    step={converterFrom === 'mg' ? 0.1 : converterFrom === 'iu' ? 0.5 : 50}
+                    value={converterValue}
+                    onChange={e => setConverterValue(Math.max(0, Number(e.target.value) || 0))}
+                    className="w-full rounded-xl border border-stone-300 dark:border-stone-700 bg-white dark:bg-stone-950 px-4 py-3 text-base text-stone-900 dark:text-stone-100 focus:border-emerald-300 focus:outline-none focus:ring-1 focus:ring-emerald-200"
+                    aria-label="قيمة التحويل"
+                  />
+                </div>
+
+                {/* From */}
+                <div className="space-y-2">
+                  <label className="block text-sm font-medium text-stone-800 dark:text-stone-200">من</label>
+                  <div className="flex rounded-xl border border-stone-300 dark:border-stone-700 p-1">
+                    {(['mcg', 'mg', 'iu'] as const).map(u => (
+                      <button key={u} onClick={() => setConverterFrom(u)}
+                        className={cn('flex-1 rounded-lg py-2.5 min-h-[44px] text-sm font-medium transition-all', converterFrom === u ? 'bg-emerald-600 text-white' : 'text-stone-700 dark:text-stone-300')}>
+                        {u === 'mcg' ? 'مكغ' : u === 'mg' ? 'ملغ' : 'IU'}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* To */}
+                <div className="space-y-2">
+                  <label className="block text-sm font-medium text-stone-800 dark:text-stone-200">إلى</label>
+                  <div className="flex rounded-xl border border-stone-300 dark:border-stone-700 p-1">
+                    {(['mcg', 'mg', 'iu'] as const).map(u => (
+                      <button key={u} onClick={() => setConverterTo(u)}
+                        className={cn('flex-1 rounded-lg py-2.5 min-h-[44px] text-sm font-medium transition-all', converterTo === u ? 'bg-emerald-600 text-white' : 'text-stone-700 dark:text-stone-300')}>
+                        {u === 'mcg' ? 'مكغ' : u === 'mg' ? 'ملغ' : 'IU'}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              {/* IU Peptide Context */}
+              {(converterFrom === 'iu' || converterTo === 'iu') && (
+                <div className="mb-6 rounded-xl border border-amber-200 dark:border-amber-800 bg-amber-50/50 dark:bg-amber-900/10 p-4">
+                  <label className="block text-sm font-medium text-stone-800 dark:text-stone-200 mb-2">
+                    الببتيد (لتحويل IU)
+                  </label>
+                  <div className="flex rounded-xl border border-stone-300 dark:border-stone-700 bg-white dark:bg-stone-950 p-1">
+                    {Object.entries(IU_FACTORS).map(([name, data]) => (
+                      <button key={name} onClick={() => setConverterPeptide(name)}
+                        className={cn('flex-1 rounded-lg py-2.5 min-h-[44px] text-xs font-medium transition-all', converterPeptide === name ? 'bg-emerald-600 text-white' : 'text-stone-700 dark:text-stone-300')}>
+                        <span className="block">{name}</span>
+                        <span className="block text-[10px] opacity-70">{data.note}</span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Result */}
+              <div className="rounded-2xl bg-emerald-50 dark:bg-emerald-900/20 border-2 border-emerald-300 dark:border-emerald-700 p-8 text-center">
+                <p className="text-sm text-stone-600 dark:text-stone-400 mb-2">النتيجة</p>
+                <p className="text-4xl font-bold text-emerald-600" dir="ltr">
+                  {isFinite(converterResult) && converterResult > 0
+                    ? converterTo === 'mcg'
+                      ? converterResult.toFixed(0)
+                      : converterTo === 'mg'
+                      ? converterResult.toFixed(3)
+                      : converterResult.toFixed(1)
+                    : '—'}
+                </p>
+                <p className="text-lg text-stone-700 dark:text-stone-300 mt-1">
+                  {converterTo === 'mcg' ? 'مايكروغرام (mcg)' : converterTo === 'mg' ? 'ملليغرام (mg)' : 'وحدة دولية (IU)'}
+                </p>
+              </div>
+
+              {/* Quick Reference */}
+              <div className="mt-6 space-y-3">
+                <h3 className="text-sm font-bold text-stone-900 dark:text-stone-100">مرجع سريع</h3>
+                <div className="grid gap-2 sm:grid-cols-2">
+                  <QuickRef title="mcg ↔ mg" items={['1 mg = 1,000 mcg', '1 mcg = 0.001 mg', '250 mcg = 0.25 mg', '2,500 mcg = 2.5 mg']} />
+                  <QuickRef title="IU (هرمون النمو)" items={['1 mg HGH = 3 IU', '1 IU HGH = 0.33 mg', '4 IU = 1.33 mg', '10 IU = 3.33 mg']} />
+                </div>
+                <div className="rounded-xl border border-blue-200 dark:border-blue-800 bg-blue-50 dark:bg-blue-900/10 p-4">
+                  <p className="text-xs text-blue-800 dark:text-blue-300">
+                    <strong>ملاحظة:</strong> تحويل IU يختلف حسب الببتيد. القيم أعلاه خاصة بهرمون النمو (HGH). الإنسولين: 1 IU = وحدة بيولوجية مختلفة تمامًا.
+                    وحدات سيرنج الإنسولين ≠ وحدات IU — السيرنج يقيس الحجم (مل) وليس النشاط البيولوجي.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ═══════════════ FORMULAS (visible on dose tab) ═══════════════ */}
+        {activeTab === 'dose' && (
+          <div className="mb-8 rounded-2xl border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-900">
+            <button
+              onClick={() => setShowFormulas(!showFormulas)}
+              aria-expanded={showFormulas}
+              className="flex w-full items-center justify-between px-6 py-4 min-h-[44px] transition-colors hover:bg-stone-100 dark:hover:bg-stone-800/80"
+            >
+              <div className="flex items-center gap-2">
+                <Droplets className="h-5 w-5 shrink-0 text-emerald-600" />
+                <h2 className="text-base font-bold text-stone-900 dark:text-stone-100">كيف تستخدم هذه الحاسبة</h2>
+              </div>
+              <ChevronDown className={cn('h-5 w-5 text-stone-500 transition-transform duration-300', showFormulas && 'rotate-180')} />
+            </button>
+            {showFormulas && (
+              <div className="space-y-4 px-6 pb-6">
+                <FormulaStep
+                  step="1"
+                  title="حساب التركيز"
+                  formula="التركيز (مكغ/مل) = كمية الببتيد (ملغ) × 1000 ÷ كمية الماء (مل)"
+                  example={`(${vialMg} × 1000) ÷ ${waterMl} = ${fmt(results.concentration, 0)} مكغ/مل`}
+                />
+                <FormulaStep
+                  step="2"
+                  title="حساب الكمية المطلوبة"
+                  formula="الكمية (مل) = الجرعة المطلوبة (مكغ) ÷ التركيز (مكغ/مل)"
+                  example={`${results.doseMcg} ÷ ${fmt(results.concentration, 0)} = ${fmt(results.volumeMl, 3)} مل`}
+                />
+                <FormulaStep
+                  step="3"
+                  title="تحويل إلى وحدات السيرنج"
+                  formula={`وحدات السيرنج = الكمية (مل) ÷ سعة السيرنج (${syringe.ml} مل) × ${syringe.units}`}
+                  example={`${fmt(results.volumeMl, 3)} ÷ ${syringe.ml} × ${syringe.units} = ${fmt(results.syringeUnits, 1)} وحدة`}
+                />
+                <div className="rounded-xl border border-stone-300 dark:border-stone-700 bg-stone-50 dark:bg-stone-900 p-4">
+                  <p className="text-sm leading-relaxed text-stone-800 dark:text-stone-200">
+                    <strong>ملاحظة:</strong> هذه الحاسبة أداة تعليمية فقط. استشر طبيبك المختص قبل استخدام أي ببتيد.
+                  </p>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
 
         {/* AI Coach CTA */}
         <div className="mb-8 rounded-2xl border-2 border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-900/20 p-6 text-center md:p-8">
@@ -1010,7 +1637,7 @@ export default function DoseCalculator() {
           <p className="mt-2 text-sm text-stone-800 dark:text-stone-200">المدرب الذكي يعرف {PEPTIDE_COUNT}+ ببتيد — اسأله وجاوبك بالتفصيل.</p>
           <Link
             to="/coach"
-            className="mt-4 inline-flex items-center gap-2 rounded-full bg-emerald-600 px-8 py-3 text-sm font-bold text-white transition-all hover:bg-emerald-700"
+            className="mt-4 inline-flex items-center gap-2 rounded-full bg-emerald-600 px-8 py-3 min-h-[44px] text-sm font-bold text-white transition-all hover:bg-emerald-700"
           >
             <Bot className="h-4 w-4" />
             اسأل المدرب الذكي
@@ -1018,37 +1645,16 @@ export default function DoseCalculator() {
         </div>
 
         {/* Cross-links */}
-        <div
-          className="grid gap-3 md:grid-cols-3"
-        >
-          <CrossLink
-            to="/table"
-            icon={<FlaskConical className="h-5 w-5 text-emerald-600" />}
-            title="جدول الببتيدات الشامل"
-            desc="تصفّح جميع الببتيدات والجرعات"
-          />
-          <CrossLink
-            to="/stacks"
-            icon={<Layers className="h-5 w-5 text-emerald-600" />}
-            title="البروتوكولات المُجمَّعة"
-            desc="اكتشف أفضل التوليفات"
-          />
-          <CrossLink
-            to="/lab-guide"
-            icon={<BookOpen className="h-5 w-5 text-emerald-600" />}
-            title="دليل التحاليل المخبرية"
-            desc="تحاليل ما قبل وبعد البروتوكول"
-          />
-          <CrossLink
-            to="/interactions"
-            icon={<Shield className="h-5 w-5 text-emerald-600" />}
-            title="فحص التعارضات"
-            desc="تأكد من أمان تجميعتك"
-          />
+        <div className="grid gap-3 md:grid-cols-3">
+          <CrossLink to="/table" icon={<FlaskConical className="h-5 w-5 text-emerald-600" />} title="جدول الببتيدات الشامل" desc="تصفّح جميع الببتيدات والجرعات" />
+          <CrossLink to="/stacks" icon={<Layers className="h-5 w-5 text-emerald-600" />} title="البروتوكولات المُجمَّعة" desc="اكتشف أفضل التوليفات" />
+          <CrossLink to="/lab-guide" icon={<BookOpen className="h-5 w-5 text-emerald-600" />} title="دليل التحاليل المخبرية" desc="تحاليل ما قبل وبعد البروتوكول" />
+          <CrossLink to="/interactions" icon={<Shield className="h-5 w-5 text-emerald-600" />} title="فحص التعارضات" desc="تأكد من أمان تجميعتك" />
         </div>
       </div>
+
       {showProtocolWizard && selectedPreset && (() => {
-        const peptide = allPeptides.find(p => p.nameEn === selectedPreset);
+        const peptide = findPeptideByPreset(selectedPreset);
         if (!peptide) return null;
         const doseMcg = doseUnit === 'mg' ? doseValue * 1000 : doseValue;
         return (
@@ -1093,15 +1699,9 @@ function InputField({
           value={value}
           onChange={(e) => onChange(Math.max(0, Number(e.target.value) || 0))}
           aria-label={label}
-          className={cn(
-            'w-full rounded-xl border border-stone-300 dark:border-stone-700 bg-stone-50 dark:bg-stone-900 px-4 py-3 pe-16',
-            'text-base text-stone-900 dark:text-stone-100',
-            'transition-colors focus:border-emerald-300 dark:border-emerald-700 focus:outline-none focus:ring-1 focus:ring-emerald-100 dark:focus:ring-emerald-900',
-          )}
+          className="w-full rounded-xl border border-stone-300 dark:border-stone-700 bg-stone-50 dark:bg-stone-900 px-4 py-3 pe-16 text-base text-stone-900 dark:text-stone-100 transition-colors focus:border-emerald-300 focus:outline-none focus:ring-1 focus:ring-emerald-100"
         />
-        <span className="absolute end-3 top-1/2 -translate-y-1/2 text-xs text-stone-700 dark:text-stone-300">
-          {unit}
-        </span>
+        <span className="absolute end-3 top-1/2 -translate-y-1/2 text-xs text-stone-700 dark:text-stone-300">{unit}</span>
       </div>
     </div>
   );
@@ -1117,14 +1717,19 @@ function ResultCard({
   unit: string;
 }) {
   return (
-    <div
-      className="rounded-xl border border-stone-300 dark:border-stone-700 bg-stone-100 dark:bg-stone-800 p-4 text-center"
-    >
+    <div className="rounded-xl border border-stone-300 dark:border-stone-700 bg-stone-100 dark:bg-stone-800 p-4 text-center">
       <p className="mb-1 text-xs font-medium text-stone-800 dark:text-stone-200">{label}</p>
-      <p className="text-2xl font-bold text-emerald-600">
-        {value}
-      </p>
+      <p className="text-2xl font-bold text-emerald-600">{value}</p>
       <p className="mt-0.5 text-xs text-stone-800 dark:text-stone-200">{unit}</p>
+    </div>
+  );
+}
+
+function GuideStep({ step, text }: { step: string; text: string }) {
+  return (
+    <div className="flex items-start gap-3">
+      <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-emerald-600 text-xs font-bold text-white">{step}</span>
+      <p className="text-sm text-stone-700 dark:text-stone-300">{text}</p>
     </div>
   );
 }
@@ -1143,17 +1748,11 @@ function FormulaStep({
   return (
     <div className="rounded-xl border border-stone-300 dark:border-stone-700 bg-stone-50 dark:bg-stone-900 p-4">
       <div className="mb-2 flex items-center gap-2">
-        <span
-          className="flex h-6 w-6 items-center justify-center rounded-full bg-emerald-500 text-xs font-bold text-white"
-        >
-          {step}
-        </span>
+        <span className="flex h-6 w-6 items-center justify-center rounded-full bg-emerald-500 text-xs font-bold text-white">{step}</span>
         <h3 className="text-sm font-semibold text-stone-800 dark:text-stone-200">{title}</h3>
       </div>
       <p className="mb-1 text-sm text-stone-800 dark:text-stone-200" dir="ltr">{formula}</p>
-      <p className="text-xs text-emerald-600/80" dir="ltr">
-        {example}
-      </p>
+      <p className="text-xs text-emerald-600/80" dir="ltr">{example}</p>
     </div>
   );
 }
@@ -1172,20 +1771,27 @@ function CrossLink({
   return (
     <Link
       to={to}
-      className="group flex items-center gap-3 rounded-xl border border-stone-300 dark:border-stone-700 bg-stone-50 dark:bg-stone-900 p-4 transition-all hover:border-emerald-300 dark:border-emerald-700 hover:bg-stone-100 dark:hover:bg-stone-800"
+      className="group flex items-center gap-3 rounded-xl border border-stone-300 dark:border-stone-700 bg-stone-50 dark:bg-stone-900 p-4 transition-all hover:border-emerald-300 hover:bg-stone-100 dark:hover:bg-stone-800"
     >
-      <div
-        className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-emerald-500/10"
-      >
-        {icon}
-      </div>
+      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-emerald-500/10">{icon}</div>
       <div className="flex-1">
-        <p className="text-sm font-bold text-stone-800 dark:text-stone-200 group-transition-colors hover:text-stone-900 dark:text-stone-100">
-          {title}
-        </p>
+        <p className="text-sm font-bold text-stone-800 dark:text-stone-200">{title}</p>
         <p className="text-xs text-stone-800 dark:text-stone-200">{desc}</p>
       </div>
-      <ArrowLeft className="h-4 w-4 text-stone-500 dark:text-stone-400 transition-transform group-hover:-translate-x-1 group-hover:text-stone-800 dark:text-stone-200" />
+      <ArrowLeft className="h-4 w-4 text-stone-500 transition-transform group-hover:-translate-x-1" />
     </Link>
+  );
+}
+
+function QuickRef({ title, items }: { title: string; items: string[] }) {
+  return (
+    <div className="rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 p-4">
+      <p className="text-xs font-bold text-stone-900 dark:text-stone-100 mb-2" dir="ltr">{title}</p>
+      <div className="space-y-1">
+        {items.map((item, i) => (
+          <p key={i} className="text-xs text-stone-600 dark:text-stone-400" dir="ltr">{item}</p>
+        ))}
+      </div>
+    </div>
   );
 }
