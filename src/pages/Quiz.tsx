@@ -11,7 +11,7 @@ export default function Quiz() {
         <meta property="og:title" content="اكتشف الببتيد المناسب لك | pptides" />
         <meta property="og:description" content="اختبار قصير يحدد لك الببتيد الأفضل لهدفك — فقدان دهون، تعافٍ، نوم، أو بناء عضل. مجاني وسريع." />
         <meta property="og:url" content={`${SITE_URL}/quiz`} />
-        <meta property="og:image" content={`${SITE_URL}/og-image.png`} />
+        <meta property="og:image" content={`${SITE_URL}/og-image.jpg`} />
         <meta name="twitter:card" content="summary_large_image" />
         <meta property="og:type" content="website" />
         <script type="application/ld+json">{JSON.stringify({

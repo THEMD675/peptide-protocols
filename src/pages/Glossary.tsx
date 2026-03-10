@@ -64,7 +64,7 @@ export default function Glossary() {
         <meta property="og:description" content="قاموس شامل لمصطلحات الببتيدات والطب الرياضي" />
         <meta property="og:url" content={`${SITE_URL}/glossary`} />
         <meta property="og:type" content="website" />
-        <meta property="og:image" content={`${SITE_URL}/og-image.png`} />
+        <meta property="og:image" content={`${SITE_URL}/og-image.jpg`} />
         <meta name="twitter:card" content="summary_large_image" />
         <meta property="og:locale" content="ar_SA" />
         <script type="application/ld+json">{JSON.stringify({

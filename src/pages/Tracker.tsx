@@ -528,12 +528,12 @@ export default function Tracker() {
         <meta property="og:description" content="تتبّع جرعاتك ومواقع الحقن — سجل ذكي لبروتوكولات الببتيدات." />
         <meta property="og:type" content="website" />
         <meta property="og:url" content="https://pptides.com/tracker" />
-        <meta property="og:image" content="https://pptides.com/og-image.png" />
+        <meta property="og:image" content="https://pptides.com/og-image.jpg" />
         <meta property="og:locale" content="ar_SA" />
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content="سجل الحقن | pptides" />
         <meta name="twitter:description" content="تتبّع جرعاتك ومواقع الحقن — سجل ذكي لبروتوكولات الببتيدات." />
-        <meta name="twitter:image" content="https://pptides.com/og-image.png" />
+        <meta name="twitter:image" content="https://pptides.com/og-image.jpg" />
         <link rel="canonical" href="https://pptides.com/tracker" />
         <meta name="robots" content="noindex, nofollow" />
       </Helmet>

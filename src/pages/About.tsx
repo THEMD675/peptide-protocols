@@ -20,7 +20,7 @@ export default function About() {
         <meta property="og:description" content="أول منصة عربية متخصصة في علم الببتيدات. بواسطة طبيب عام مع خبرة شخصية." />
         <meta property="og:type" content="website" />
         <meta property="og:url" content={`${SITE_URL}/about`} />
-        <meta property="og:image" content={`${SITE_URL}/og-image.png`} />
+        <meta property="og:image" content={`${SITE_URL}/og-image.jpg`} />
         <meta property="og:locale" content="ar_SA" />
         <meta name="twitter:card" content="summary_large_image" />
         <script type="application/ld+json">

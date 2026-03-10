@@ -71,7 +71,7 @@ export default function PeptideTable() {
         <meta property="og:title" content={`جدول الببتيدات الشامل | ${PEPTIDE_COUNT} ببتيد | pptides`} />
         <meta property="og:description" content={`أشمل جدول مقارنة ببتيدات بالعربي — ${PEPTIDE_COUNT} ببتيد مع الجرعات والبروتوكولات.`} />
         <meta property="og:url" content={`${SITE_URL}/table`} />
-        <meta property="og:image" content={`${SITE_URL}/og-image.png`} />
+        <meta property="og:image" content={`${SITE_URL}/og-image.jpg`} />
         <meta name="twitter:card" content="summary_large_image" />
         <script type="application/ld+json">{JSON.stringify({
           '@context': 'https://schema.org',

@@ -173,18 +173,18 @@ export default function Landing() {
         <meta property="og:description" content={`${PEPTIDE_COUNT} ببتيد علاجي مع بروتوكولات كاملة، حاسبة جرعات، ومدرب ذكي. مبني على الأبحاث.`} />
         <meta property="og:type" content="website" />
         <meta property="og:url" content={SITE_URL} />
-        <meta property="og:image" content={`${SITE_URL}/og-image.png`} />
+        <meta property="og:image" content={`${SITE_URL}/og-image.jpg`} />
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content="pptides | أشمل دليل عربي للببتيدات العلاجية" />
         <meta name="twitter:description" content={`${PEPTIDE_COUNT} ببتيد علاجي مع بروتوكولات كاملة ومدرب ذكي.`} />
-        <meta name="twitter:image" content={`${SITE_URL}/og-image.png`} />
+        <meta name="twitter:image" content={`${SITE_URL}/og-image.jpg`} />
         <script type="application/ld+json">{JSON.stringify([
           {
             '@context': 'https://schema.org',
             '@type': 'Organization',
             name: 'pptides',
             url: SITE_URL,
-            logo: `${SITE_URL}/og-image.png`,
+            logo: `${SITE_URL}/og-image.jpg`,
             description: 'أول منصة عربية متخصصة في علم الببتيدات — بروتوكولات كاملة، مدرب ذكي، وحاسبة جرعات.',
             contactPoint: { '@type': 'ContactPoint', email: SUPPORT_EMAIL, contactType: 'customer service' },
           },

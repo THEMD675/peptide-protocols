@@ -58,7 +58,7 @@ export default function FAQ() {
         <meta property="og:description" content="إجابات على الأسئلة الأكثر شيوعًا حول pptides والببتيدات" />
         <meta property="og:type" content="website" />
         <meta property="og:url" content={`${SITE_URL}/faq`} />
-        <meta property="og:image" content={`${SITE_URL}/og-image.png`} />
+        <meta property="og:image" content={`${SITE_URL}/og-image.jpg`} />
         <meta property="og:locale" content="ar_SA" />
         <meta name="twitter:card" content="summary_large_image" />
         <script type="application/ld+json">{JSON.stringify(faqSchema)}</script>

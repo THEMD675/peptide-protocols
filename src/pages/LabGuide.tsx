@@ -55,7 +55,7 @@ export default function LabGuide() {
         <meta property="og:url" content={`${SITE_URL}/lab-guide`} />
         <meta property="og:type" content="article" />
         <meta property="og:locale" content="ar_SA" />
-        <meta property="og:image" content={`${SITE_URL}/og-image.png`} />
+        <meta property="og:image" content={`${SITE_URL}/og-image.jpg`} />
         <meta name="twitter:card" content="summary_large_image" />
         <script type="application/ld+json">{JSON.stringify({
           '@context': 'https://schema.org',

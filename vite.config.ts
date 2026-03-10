@@ -46,7 +46,7 @@ export default defineConfig({
         runtimeCaching: [
           // Must stay in sync with VITE_SUPABASE_URL — regex matches the Supabase project URL for REST API requests
           {
-            urlPattern: /^https:\/\/hexnuldwerzwbljorokw\.supabase\.co\/rest\//,
+            urlPattern: /^https:\/\/rxxzphwojutewvbfzgqd\.supabase\.co\/rest\//,
             handler: 'NetworkOnly',
           },
           {

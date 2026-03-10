@@ -93,7 +93,7 @@ export default function PeptideDetail() {
         <meta property="og:description" content={peptide.summaryAr} />
         <meta property="og:type" content="article" />
         <meta property="og:url" content={`${SITE_URL}/peptide/${peptide.id}`} />
-        <meta property="og:image" content={`${SITE_URL}/og-image.png`} />
+        <meta property="og:image" content={`${SITE_URL}/og-image.jpg`} />
         <meta property="og:locale" content="ar_SA" />
         <meta name="twitter:card" content="summary_large_image" />
         <script type="application/ld+json">{JSON.stringify({

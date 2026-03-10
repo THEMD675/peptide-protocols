@@ -91,19 +91,19 @@ export default function BlogPost() {
         <meta property="og:description" content={post.excerpt_ar} />
         <meta property="og:type" content="article" />
         <meta property="og:url" content={`${SITE_URL}/blog/${post.slug}`} />
-        <meta property="og:image" content={post.cover_image_url || `${SITE_URL}/og-image.png`} />
+        <meta property="og:image" content={post.cover_image_url || `${SITE_URL}/og-image.jpg`} />
         <meta property="article:published_time" content={post.published_at} />
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content={post.title_ar} />
         <meta name="twitter:description" content={post.excerpt_ar} />
-        <meta name="twitter:image" content={post.cover_image_url || `${SITE_URL}/og-image.png`} />
+        <meta name="twitter:image" content={post.cover_image_url || `${SITE_URL}/og-image.jpg`} />
         <script type="application/ld+json">{JSON.stringify({
           '@context': 'https://schema.org',
           '@type': 'BlogPosting',
           headline: post.title_ar,
           description: post.excerpt_ar,
           url: `${SITE_URL}/blog/${post.slug}`,
-          image: post.cover_image_url || `${SITE_URL}/og-image.png`,
+          image: post.cover_image_url || `${SITE_URL}/og-image.jpg`,
           datePublished: post.published_at,
           inLanguage: 'ar',
           publisher: { '@type': 'Organization', name: 'pptides', url: SITE_URL },
