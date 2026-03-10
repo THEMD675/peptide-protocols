@@ -337,7 +337,11 @@ export default function Community() {
   const filteredLogs = useMemo(() =>
     logs
       .filter(log => filterGoal === 'all' || log.goal === filterGoal)
-      .sort((a, b) => sortBy === 'highest' ? b.rating - a.rating : 0),
+      .sort((a, b) =>
+        sortBy === 'highest'
+          ? b.rating - a.rating
+          : new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+      ),
     [logs, filterGoal, sortBy]
   );
 

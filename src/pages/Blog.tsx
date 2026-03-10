@@ -1,9 +1,10 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { Link } from 'react-router-dom';
-import { FileText, CalendarDays, Tag } from 'lucide-react';
+import { FileText, CalendarDays, Tag, Search, X } from 'lucide-react';
 import { SITE_URL } from '@/lib/constants';
 import { supabase } from '@/lib/supabase';
+import { cn } from '@/lib/utils';
 
 interface BlogPost {
   id: string;
@@ -19,6 +20,8 @@ export default function Blog() {
   const [posts, setPosts] = useState<BlogPost[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
+  const [search, setSearch] = useState('');
+  const [activeTag, setActiveTag] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -32,7 +35,6 @@ export default function Blog() {
 
       if (cancelled) return;
       if (fetchError) {
-        void fetchError;
         setError(true);
       } else {
         setPosts(data ?? []);
@@ -41,6 +43,27 @@ export default function Blog() {
     })();
     return () => { cancelled = true; };
   }, []);
+
+  // Collect unique tags from all posts
+  const allTags = useMemo(() => {
+    const tagSet = new Set<string>();
+    posts.forEach(p => p.tags?.forEach(t => tagSet.add(t)));
+    return Array.from(tagSet).sort();
+  }, [posts]);
+
+  // Filter by search + active tag
+  const filteredPosts = useMemo(() => {
+    const q = search.trim().toLowerCase();
+    return posts.filter(p => {
+      const matchesTag = !activeTag || p.tags?.includes(activeTag);
+      const matchesSearch =
+        !q ||
+        p.title_ar.toLowerCase().includes(q) ||
+        p.excerpt_ar?.toLowerCase().includes(q) ||
+        p.tags?.some(t => t.toLowerCase().includes(q));
+      return matchesTag && matchesSearch;
+    });
+  }, [posts, search, activeTag]);
 
   return (
     <div className="min-h-screen animate-fade-in">
@@ -77,6 +100,66 @@ export default function Blog() {
           <p className="mt-2 text-base text-stone-600">مقالات ودلائل مبنية على الأدلة العلمية</p>
         </div>
 
+        {/* Search + Tag Filter */}
+        {!loading && !error && posts.length > 0 && (
+          <div className="mb-8 space-y-4">
+            {/* Search input */}
+            <div className="relative">
+              <Search className="pointer-events-none absolute start-3 top-1/2 h-4 w-4 -translate-y-1/2 text-stone-400" />
+              <input
+                type="search"
+                value={search}
+                onChange={e => setSearch(e.target.value)}
+                placeholder="ابحث في المقالات..."
+                className="w-full rounded-xl border border-stone-200 bg-white py-2.5 pe-4 ps-10 text-sm text-stone-900 placeholder:text-stone-400 focus:border-emerald-300 focus:outline-none focus:ring-2 focus:ring-emerald-100"
+              />
+              {search && (
+                <button
+                  onClick={() => setSearch('')}
+                  className="absolute end-3 top-1/2 -translate-y-1/2 rounded p-0.5 text-stone-400 hover:text-stone-600"
+                  aria-label="مسح البحث"
+                >
+                  <X className="h-3.5 w-3.5" />
+                </button>
+              )}
+            </div>
+
+            {/* Tag filter pills */}
+            {allTags.length > 0 && (
+              <div className="-mx-4 overflow-x-auto px-4">
+                <div className="flex flex-nowrap gap-2 pb-1">
+                  <button
+                    onClick={() => setActiveTag(null)}
+                    className={cn(
+                      'shrink-0 rounded-full border px-4 py-1.5 text-sm font-medium transition-all',
+                      !activeTag
+                        ? 'border-emerald-400 bg-emerald-50 text-emerald-800'
+                        : 'border-stone-200 bg-white text-stone-600 hover:border-emerald-200'
+                    )}
+                  >
+                    الكل
+                  </button>
+                  {allTags.map(tag => (
+                    <button
+                      key={tag}
+                      onClick={() => setActiveTag(activeTag === tag ? null : tag)}
+                      className={cn(
+                        'shrink-0 inline-flex items-center gap-1.5 rounded-full border px-4 py-1.5 text-sm font-medium transition-all',
+                        activeTag === tag
+                          ? 'border-emerald-400 bg-emerald-50 text-emerald-800'
+                          : 'border-stone-200 bg-white text-stone-600 hover:border-emerald-200'
+                      )}
+                    >
+                      <Tag className="h-3 w-3" />
+                      {tag}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
         {loading && (
           <div className="space-y-5">
             {[1, 2, 3].map(i => (
@@ -104,9 +187,22 @@ export default function Blog() {
           </div>
         )}
 
-        {!loading && !error && posts.length > 0 && (
+        {!loading && !error && posts.length > 0 && filteredPosts.length === 0 && (
+          <div className="rounded-2xl border border-stone-200 bg-stone-50 p-8 text-center">
+            <p className="font-bold text-stone-700">لا توجد نتائج</p>
+            <p className="mt-2 text-sm text-stone-500">جرّب كلمة بحث مختلفة أو اختر تصنيفًا آخر</p>
+            <button
+              onClick={() => { setSearch(''); setActiveTag(null); }}
+              className="mt-3 text-sm font-bold text-emerald-600 hover:underline"
+            >
+              إعادة ضبط الفلاتر
+            </button>
+          </div>
+        )}
+
+        {!loading && !error && filteredPosts.length > 0 && (
           <div className="space-y-5">
-            {posts.map((post) => (
+            {filteredPosts.map((post) => (
               <Link
                 key={post.id}
                 to={`/blog/${post.slug}`}
@@ -123,9 +219,22 @@ export default function Blog() {
                       </time>
                     </div>
                     {post.tags.length > 0 && (
-                      <div className="flex items-center gap-1.5">
+                      <div className="flex flex-wrap items-center gap-1.5">
                         <Tag className="h-3.5 w-3.5" />
-                        {post.tags.join('، ')}
+                        {post.tags.map(tag => (
+                          <span
+                            key={tag}
+                            onClick={e => { e.preventDefault(); setActiveTag(tag === activeTag ? null : tag); }}
+                            className={cn(
+                              'cursor-pointer rounded-full px-2 py-0.5 transition-colors',
+                              activeTag === tag
+                                ? 'bg-emerald-100 text-emerald-700'
+                                : 'bg-stone-100 hover:bg-emerald-50 hover:text-emerald-700'
+                            )}
+                          >
+                            {tag}
+                          </span>
+                        ))}
                       </div>
                     )}
                   </div>

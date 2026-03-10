@@ -251,7 +251,7 @@ export default function Pricing() {
             className={cn('relative h-7 w-14 rounded-full transition-colors', billingCycle === 'annual' ? 'bg-emerald-600' : 'bg-stone-300')}
             aria-label="تبديل بين شهري وسنوي"
           >
-            <span className={cn('absolute top-0.5 h-6 w-6 rounded-full bg-white shadow transition-all', billingCycle === 'annual' ? 'start-0.5' : 'end-0.5')} />
+            <span className={cn('absolute top-0.5 h-6 w-6 rounded-full bg-white shadow transition-all', billingCycle === 'annual' ? 'end-0.5' : 'start-0.5')} />
           </button>
           <span className={cn('text-sm font-semibold transition-colors', billingCycle === 'annual' ? 'text-emerald-600' : 'text-stone-500')}>
             سنوي <span className="text-xs text-emerald-600">(وفّر حتى 33%)</span>
