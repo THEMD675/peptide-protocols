@@ -256,12 +256,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         if (mapped) {
           await fetchSubscription(mapped.id);
           const displayName = (session.user.user_metadata?.full_name ?? session.user.user_metadata?.name) as string | undefined;
-          if (displayName && typeof displayName === 'string' && displayName.trim()) {
-            supabase.from('user_profiles').upsert(
-              { user_id: mapped.id, display_name: displayName.trim(), updated_at: new Date().toISOString() },
-              { onConflict: 'user_id' }
-            ).then(() => {}).catch(() => {});
-          }
+          // Always ensure user_profile exists — email signup users have no display_name metadata
+          supabase.from('user_profiles').upsert(
+            { user_id: mapped.id, display_name: (displayName && displayName.trim()) || session.user.email?.split('@')[0] || '', updated_at: new Date().toISOString() },
+            { onConflict: 'user_id' }
+          ).then(() => {}).catch(() => {});
         }
       }
       setIsLoading(false);
@@ -279,12 +278,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           if (mapped) {
             await fetchSubscription(mapped.id);
             const displayName = (session.user.user_metadata?.full_name ?? session.user.user_metadata?.name) as string | undefined;
-            if (displayName && typeof displayName === 'string' && displayName.trim()) {
-              supabase.from('user_profiles').upsert(
-                { user_id: mapped.id, display_name: displayName.trim(), updated_at: new Date().toISOString() },
-                { onConflict: 'user_id' }
-              ).then(() => {}).catch(() => {});
-            }
+            // Always ensure user_profile exists — email signup users have no display_name metadata
+            supabase.from('user_profiles').upsert(
+              { user_id: mapped.id, display_name: (displayName && displayName.trim()) || session.user.email?.split('@')[0] || '', updated_at: new Date().toISOString() },
+              { onConflict: 'user_id' }
+            ).then(() => {}).catch(() => {});
           }
         } else {
           if (event === 'SIGNED_OUT' && hadSessionRef.current) {
