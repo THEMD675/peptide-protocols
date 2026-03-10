@@ -25,6 +25,12 @@ function isDismissed(): boolean {
   } catch { return false; }
 }
 
+function shouldDelayForNewVisitor(): boolean {
+  try {
+    return !localStorage.getItem('pptides_visited');
+  } catch { return false; }
+}
+
 export default function InstallPrompt() {
   const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
   const [showIOS, setShowIOS] = useState(false);
@@ -50,7 +56,7 @@ export default function InstallPrompt() {
     };
   }, []);
 
-  if (dismissed || isStandalone()) return null;
+  if (dismissed || isStandalone() || shouldDelayForNewVisitor()) return null;
   if (!deferredPrompt && !showIOS) return null;
 
   const handleInstall = async () => {

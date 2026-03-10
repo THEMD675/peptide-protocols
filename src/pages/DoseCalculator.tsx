@@ -6,7 +6,7 @@ import ProtocolWizard from '@/components/ProtocolWizard';
 import { peptides as allPeptides } from '@/data/peptides';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
-import { PEPTIDE_COUNT, SITE_URL, USD_TO_SAR } from '@/lib/constants';
+import { PEPTIDE_COUNT, SITE_URL } from '@/lib/constants';
 import { DOSE_PRESETS as PEPTIDE_PRESETS_DATA, type DoseUnit } from '@/data/dose-presets';
 
 interface SyringeOption {
@@ -715,7 +715,7 @@ export default function DoseCalculator() {
                 </p>
                 {results.monthlyCost > 0 ? (
                   <p className="text-xs font-bold text-emerald-600 mt-1">
-                    ~{Math.round(results.monthlyCost * USD_TO_SAR)} ر.س/شهر
+                    ~{Math.round(results.monthlyCost)} ر.س/شهر
                   </p>
                 ) : (
                   <p className="text-xs text-stone-500 mt-1">

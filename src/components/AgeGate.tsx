@@ -13,7 +13,7 @@ export default function AgeGate() {
   });
 
   const handleVerified = () => {
-    try { localStorage.setItem(STORAGE_KEY, "true"); } catch { /* expected */ }
+    try { localStorage.setItem(STORAGE_KEY, "true"); localStorage.setItem('pptides_visited', '1'); } catch { /* expected */ }
     setVisible(false);
   };
 

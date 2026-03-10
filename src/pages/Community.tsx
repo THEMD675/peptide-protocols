@@ -658,9 +658,9 @@ export default function Community() {
                 <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-emerald-100">
                   <MessageSquare className="h-8 w-8 text-emerald-600" />
                 </div>
-                <h3 className="text-xl font-bold text-stone-900">كن أول من يشارك تجربته</h3>
+                <h3 className="text-xl font-bold text-stone-900">شارك تجربتك مع المجتمع</h3>
                 <p className="mx-auto mt-2 max-w-md text-sm leading-relaxed text-stone-600">
-                  التجارب أدناه توضيحية — شارك تجربتك الحقيقية وساعد المجتمع العربي
+                  التجارب أدناه أمثلة توضيحية فقط — أضف تجربتك الحقيقية لتكون أول مشاركة
                 </p>
                 {user && isPaid && (
                   <button

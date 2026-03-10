@@ -824,14 +824,7 @@ export default function Landing() {
             اشترك ليصلك كل جديد عن الببتيدات والتحديثات العلمية
           </p>
           <EmailCapture />
-          <div className="mt-8 text-start">
-            <h3 className="mb-3 text-sm font-bold text-white/70">ميزات قادمة قريبًا</h3>
-            <ul className="space-y-1.5 text-sm text-white/50">
-              <li>• تكامل تحاليل الدم</li>
-              <li>• دليل الموردين</li>
-              <li>• تحديات مجتمعية</li>
-            </ul>
-          </div>
+          {/* Coming soon section removed — signals incompleteness to cold visitors */}
         </div>
       </section>
 

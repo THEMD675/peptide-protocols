@@ -57,6 +57,9 @@ interface Recommendation {
   altName?: string;
 }
 
+// Oral/topical peptides have no injectable dose preset — hide calculator CTA for them
+const ORAL_TOPICAL_IDS = new Set(['collagen-peptides', '5-amino-1mq', 'copper-peptides-topical', 'larazotide', 'kpv']);
+
 function getRecommendation(answers: string[]): Recommendation {
   const [goal, experience, injection] = answers;
 
@@ -67,6 +70,7 @@ function getRecommendation(answers: string[]): Recommendation {
   }
 
   if (goal === 'recovery') {
+    if (injection === 'no') return { peptideId: 'bpc-157', nameAr: 'BPC-157', nameEn: 'BPC-157', reason: 'متوفر بكبسولات فموية مقاومة للحمض لصحة الأمعاء والتعافي الموضعي. بديل فعّال بدون حقن.', altId: 'kpv', altName: 'KPV' };
     if (experience === 'beginner') return { peptideId: 'bpc-157', nameAr: 'BPC-157', nameEn: 'BPC-157', reason: 'أشهر ببتيد تعافي — يُسرّع شفاء الأوتار والأربطة. ملف أمان ممتاز.', altId: 'tb-500', altName: 'TB-500' };
     return { peptideId: 'tb-500', nameAr: 'TB-500', nameEn: 'TB-500', reason: 'تعافي جهازي — يُرمّم العضلات والأنسجة. يُجمع مع BPC-157.', altId: 'bpc-157', altName: 'BPC-157' };
   }
@@ -169,6 +173,7 @@ export default function PeptideQuiz() {
   if (showResult) {
     const rec = getRecommendation(answers);
     const peptideData = allPeptides.find(p => p.id === rec.peptideId);
+    const hasCalcPreset = !ORAL_TOPICAL_IDS.has(rec.peptideId);
 
     return (
       <div className="rounded-2xl border border-emerald-200 bg-emerald-50/50 p-6 shadow-lg shadow-emerald-600/5 md:p-8">
@@ -213,13 +218,15 @@ export default function PeptideQuiz() {
           >
             صمّم بروتوكول مخصّص مع المدرب
           </Link>
-          <Link
-            to={`/calculator?peptide=${encodeURIComponent(rec.nameEn)}`}
-            className="flex items-center justify-center gap-2 rounded-xl border border-stone-200 bg-white px-5 py-3 text-sm font-bold text-stone-700 transition-all hover:border-emerald-200 hover:shadow-sm"
-          >
-            <Calculator className="h-4 w-4" />
-            احسب جرعة {rec.nameAr}
-          </Link>
+          {hasCalcPreset && (
+            <Link
+              to={`/calculator?peptide=${encodeURIComponent(rec.nameEn)}`}
+              className="flex items-center justify-center gap-2 rounded-xl border border-stone-200 bg-white px-5 py-3 text-sm font-bold text-stone-700 transition-all hover:border-emerald-200 hover:shadow-sm"
+            >
+              <Calculator className="h-4 w-4" />
+              احسب جرعة {rec.nameAr}
+            </Link>
+          )}
         </div>
 
         {rec.altId && rec.altName && (
