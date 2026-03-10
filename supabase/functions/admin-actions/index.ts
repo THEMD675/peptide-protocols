@@ -285,8 +285,17 @@ serve(async (req) => {
             const { data: subs } = await admin.from('subscriptions').select('user_id').eq('status', status)
             if (subs?.length) {
               const userIds = new Set(subs.map((s: { user_id: string }) => s.user_id))
-              const { data: { users: allUsers } } = await admin.auth.admin.listUsers({ perPage: 1000 })
-              emails = (allUsers ?? []).filter(u => userIds.has(u.id)).map(u => u.email).filter((e): e is string => !!e)
+              // Paginate all auth users (listUsers returns max 1000 per page)
+              const allUsers: typeof emails = []
+              let pg = 1
+              while (true) {
+                const { data: { users: pageUsers }, error: pgErr } = await admin.auth.admin.listUsers({ page: pg, perPage: 1000 })
+                if (pgErr || !pageUsers || pageUsers.length === 0) break
+                pageUsers.forEach(u => { if (u.email && userIds.has(u.id)) allUsers.push(u.email) })
+                if (pageUsers.length < 1000) break
+                pg++
+              }
+              emails = allUsers
             }
           }
         }

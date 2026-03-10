@@ -156,11 +156,36 @@ interface RecentLog {
 
 interface TodayItem { peptide: string; dose: number; dose_unit: string; done: boolean }
 
+const PAGE_SIZE = 100;
+
 function useRecentActivity(userId: string | undefined) {
   const [logs, setLogs] = useState<RecentLog[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [hasMore, setHasMore] = useState(false);
   const [totalCount, setTotalCount] = useState(0);
   const [uniquePeptidesCount, setUniquePeptidesCount] = useState(0);
+
+  const cutoff = useMemo(() => new Date(Date.now() - 35 * 24 * 60 * 60 * 1000).toISOString(), []);
+
+  const loadMore = useCallback(async () => {
+    if (!userId || loadingMore) return;
+    setLoadingMore(true);
+    const lastLog = logs[logs.length - 1];
+    const { data, error } = await supabase
+      .from('injection_logs')
+      .select('id, peptide_name, dose, dose_unit, logged_at')
+      .eq('user_id', userId)
+      .order('logged_at', { ascending: false })
+      .gte('logged_at', cutoff)
+      .lt('logged_at', lastLog.logged_at)
+      .limit(PAGE_SIZE);
+    if (data && !error) {
+      setLogs(prev => [...prev, ...data]);
+      setHasMore(data.length === PAGE_SIZE);
+    }
+    setLoadingMore(false);
+  }, [userId, logs, loadingMore, cutoff]);
 
   useEffect(() => {
     if (!userId) return;
@@ -170,11 +195,14 @@ function useRecentActivity(userId: string | undefined) {
       .select('id, peptide_name, dose, dose_unit, logged_at')
       .eq('user_id', userId)
       .order('logged_at', { ascending: false })
-      .gte('logged_at', new Date(Date.now() - 35 * 24 * 60 * 60 * 1000).toISOString())
-      .limit(5000)
+      .gte('logged_at', cutoff)
+      .limit(PAGE_SIZE)
       .then(({ data, error }) => {
         if (!mounted) return;
-        if (data && !error) setLogs(data);
+        if (data && !error) {
+          setLogs(data);
+          setHasMore(data.length === PAGE_SIZE);
+        }
         setLoading(false);
       })
       .catch(() => { if (mounted) setLoading(false); });
@@ -197,7 +225,7 @@ function useRecentActivity(userId: string | undefined) {
       })
       .catch(() => { /* uniquePeptidesCount non-critical — ignore */ });
     return () => { mounted = false; };
-  }, [userId]);
+  }, [userId, cutoff]);
 
   const activePeptides = [...new Set(logs.map(l => l.peptide_name))];
   const totalInjections = totalCount || logs.length;
@@ -235,7 +263,7 @@ function useRecentActivity(userId: string | undefined) {
     if (!(l.peptide_name in lastLogByPeptide)) lastLogByPeptide[l.peptide_name] = l.logged_at;
   });
 
-  return { logs: logs.slice(0, 5), allLogs: logs, loading, activePeptides, totalInjections, uniquePeptidesCount: displayUniquePeptides, streak, todayPlan, todayLogged, lastLogByPeptide };
+  return { logs: logs.slice(0, 5), allLogs: logs, loading, loadingMore, hasMore, loadMore, activePeptides, totalInjections, uniquePeptidesCount: displayUniquePeptides, streak, todayPlan, todayLogged, lastLogByPeptide };
 }
 
 interface ActiveProtocol {
@@ -1217,6 +1245,15 @@ export default function Dashboard() {
               <span className="h-2.5 w-2.5 rounded-sm bg-emerald-600" />
               <span>أكثر</span>
             </div>
+            {activity.hasMore && (
+              <button
+                onClick={activity.loadMore}
+                disabled={activity.loadingMore}
+                className="mt-3 w-full rounded-xl border border-stone-200 dark:border-stone-700 py-2.5 text-sm font-bold text-stone-600 dark:text-stone-400 transition-colors hover:bg-stone-50 dark:hover:bg-stone-800 disabled:opacity-50"
+              >
+                {activity.loadingMore ? 'جاري التحميل...' : 'تحميل المزيد'}
+              </button>
+            )}
           </div>
         );
       })()}

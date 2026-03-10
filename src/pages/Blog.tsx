@@ -16,9 +16,13 @@ interface BlogPost {
   cover_image_url: string | null;
 }
 
+const BLOG_PAGE_SIZE = 12;
+
 export default function Blog() {
   const [posts, setPosts] = useState<BlogPost[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [hasMore, setHasMore] = useState(false);
   const [error, setError] = useState<false | 'offline' | 'fetch'>(false);
   const [search, setSearch] = useState('');
   const [activeTag, setActiveTag] = useState<string | null>(null);
@@ -35,6 +39,7 @@ export default function Blog() {
         if (cached) {
           const { data } = JSON.parse(cached) as { data: BlogPost[] };
           setPosts(data);
+          setHasMore(false);
           setLoading(false);
           return () => { cancelled = true; };
         }
@@ -50,7 +55,7 @@ export default function Blog() {
         .select('id, slug, title_ar, excerpt_ar, published_at, tags, cover_image_url')
         .eq('is_published', true)
         .order('published_at', { ascending: false })
-        .limit(50);
+        .limit(BLOG_PAGE_SIZE);
 
       if (cancelled) return;
       if (fetchError) {
@@ -60,6 +65,7 @@ export default function Blog() {
           if (cached) {
             const { data: cachedData } = JSON.parse(cached) as { data: BlogPost[] };
             setPosts(cachedData);
+            setHasMore(false);
             setLoading(false);
             return;
           }
@@ -67,6 +73,7 @@ export default function Blog() {
         setError('fetch');
       } else {
         setPosts(data ?? []);
+        setHasMore((data ?? []).length === BLOG_PAGE_SIZE);
         // Cache for offline use
         try { localStorage.setItem('pptides_cache_blog_posts', JSON.stringify({ ts: Date.now(), data: data ?? [] })); } catch { /* quota */ }
       }
@@ -74,6 +81,31 @@ export default function Blog() {
     })();
     return () => { cancelled = true; };
   }, []);
+
+  const loadMorePosts = useCallback(async () => {
+    if (loadingMore || !hasMore || posts.length === 0) return;
+    setLoadingMore(true);
+    const lastPost = posts[posts.length - 1];
+    const { data } = await supabase
+      .from('blog_posts')
+      .select('id, slug, title_ar, excerpt_ar, published_at, tags, cover_image_url')
+      .eq('is_published', true)
+      .order('published_at', { ascending: false })
+      .lt('published_at', lastPost.published_at)
+      .limit(BLOG_PAGE_SIZE);
+    if (data) {
+      setPosts(prev => [...prev, ...data]);
+      setHasMore(data.length === BLOG_PAGE_SIZE);
+      // Update cache
+      try {
+        const cached = localStorage.getItem('pptides_cache_blog_posts');
+        const existing = cached ? (JSON.parse(cached) as { data: BlogPost[] }).data : [];
+        const merged = [...existing, ...data];
+        localStorage.setItem('pptides_cache_blog_posts', JSON.stringify({ ts: Date.now(), data: merged }));
+      } catch { /* quota */ }
+    }
+    setLoadingMore(false);
+  }, [loadingMore, hasMore, posts]);
 
   useEffect(() => {
     const cleanup = fetchPosts();
@@ -310,6 +342,17 @@ export default function Blog() {
                 </article>
               </Link>
             ))}
+            {hasMore && !search && !activeTag && (
+              <div className="pt-2 text-center">
+                <button
+                  onClick={loadMorePosts}
+                  disabled={loadingMore}
+                  className="inline-flex items-center gap-2 rounded-full border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 px-8 py-3 text-sm font-bold text-stone-700 dark:text-stone-300 transition-all hover:border-emerald-300 dark:hover:border-emerald-700 hover:shadow-sm disabled:opacity-50"
+                >
+                  {loadingMore ? 'جاري التحميل...' : 'تحميل المزيد'}
+                </button>
+              </div>
+            )}
           </div>
         )}
 
