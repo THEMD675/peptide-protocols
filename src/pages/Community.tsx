@@ -809,6 +809,7 @@ export default function Community() {
                     <button
                       type="button"
                       onClick={async () => {
+                        if (!user) { toast.error('سجّل الدخول للتفاعل مع التجارب'); return; }
                         if (upvotedPosts.has(log.id)) return;
                         const next = new Set(upvotedPosts).add(log.id);
                         setUpvotedPosts(next);

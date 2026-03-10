@@ -745,9 +745,15 @@ export default function Landing() {
           </div>
           <h2 className="text-2xl font-bold md:text-3xl">ادعُ صديقًا واحصل على مكافأة</h2>
           <p className="mt-3 text-stone-600">شارك رابطك الخاص مع أصدقائك — عند اشتراكهم، تحصل أنت وصديقك على خصم 30% لمدة شهر.</p>
-          <Link to="/login" className="mt-6 inline-flex items-center gap-2 rounded-full bg-emerald-600 px-8 py-3.5 text-base font-semibold text-white shadow-lg transition hover:bg-emerald-700">
-            سجّل دخولك لتحصل على رابطك
-          </Link>
+          {user ? (
+            <Link to="/account" className="mt-6 inline-flex items-center gap-2 rounded-full bg-emerald-600 px-8 py-3.5 text-base font-semibold text-white shadow-lg transition hover:bg-emerald-700">
+              احصل على رابط إحالتك
+            </Link>
+          ) : (
+            <Link to="/signup" className="mt-6 inline-flex items-center gap-2 rounded-full bg-emerald-600 px-8 py-3.5 text-base font-semibold text-white shadow-lg transition hover:bg-emerald-700">
+              سجّل الآن لتحصل على رابطك
+            </Link>
+          )}
         </div>
       </section>
 

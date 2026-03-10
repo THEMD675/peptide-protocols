@@ -122,6 +122,7 @@ export default function BlogPost() {
             alt={post.title_ar}
             className="mb-8 w-full rounded-2xl object-cover"
             loading="lazy"
+            onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
           />
         )}
 
