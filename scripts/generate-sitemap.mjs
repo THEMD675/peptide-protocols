@@ -34,6 +34,7 @@ const STATIC_PAGES = [
   '/blog',
   '/privacy',
   '/terms',
+  '/contact',
 ];
 
 /**
