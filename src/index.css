@@ -493,6 +493,18 @@ button:focus-visible {
   outline-offset: 2px;
 }
 
+@media (forced-colors: active) {
+  *:focus-visible {
+    outline: 2px solid Highlight;
+  }
+  .card-hover, .glass-card {
+    border: 1px solid ButtonText;
+  }
+  button, a, [role="button"] {
+    border: 1px solid ButtonText;
+  }
+}
+
 @supports (-webkit-touch-callout: none) {
   input, textarea, select { font-size: 16px !important; }
 }
