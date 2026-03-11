@@ -458,7 +458,7 @@ export default function Admin() {
     <div className="flex min-h-screen items-center justify-center bg-stone-50 dark:bg-stone-950">
       <Helmet><title>404 | pptides</title></Helmet>
       <div className="text-center px-4">
-        <h1 className="text-6xl font-bold text-stone-200 mb-4">404</h1>
+        <h1 className="text-4xl font-bold text-stone-200 mb-4 sm:text-6xl">404</h1>
         <p className="text-lg font-bold text-stone-900 dark:text-stone-100 mb-2">الصفحة غير موجودة</p>
         <p className="text-sm text-stone-600 dark:text-stone-300 mb-6">الصفحة التي تبحث عنها غير موجودة.</p>
         <Link to="/" className="inline-flex items-center gap-2 rounded-full bg-emerald-600 px-6 py-3 text-sm font-bold text-white hover:bg-emerald-700 transition-colors">

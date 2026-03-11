@@ -653,7 +653,7 @@ export default function Pricing() {
               }}
               disabled={loadingPlan === 'elite'}
               className={cn(
-                'btn-primary-glow inline-flex items-center gap-2 rounded-full bg-emerald-600 px-10 py-4 text-lg font-bold text-white transition-all hover:bg-emerald-700 active:scale-[0.98]',
+                'btn-primary-glow inline-flex w-full items-center justify-center gap-2 rounded-full bg-emerald-600 px-6 py-3 text-base font-bold text-white transition-all hover:bg-emerald-700 active:scale-[0.98] sm:w-auto sm:px-10 sm:py-4 sm:text-lg',
                 loadingPlan === 'elite' && 'opacity-70 pointer-events-none'
               )}
             >
@@ -672,7 +672,7 @@ export default function Pricing() {
           ) : (
             <Link
               to="/signup?redirect=/pricing"
-              className="btn-primary-glow inline-flex items-center gap-2 rounded-full bg-emerald-600 px-10 py-4 text-lg font-bold text-white transition-all hover:bg-emerald-700 active:scale-[0.98]"
+              className="btn-primary-glow inline-flex w-full items-center justify-center gap-2 rounded-full bg-emerald-600 px-6 py-3 text-base font-bold text-white transition-all hover:bg-emerald-700 active:scale-[0.98] sm:w-auto sm:px-10 sm:py-4 sm:text-lg"
             >
               <span>سجّل الآن — {TRIAL_DAYS} أيام مجانًا</span>
               <ArrowLeft className="h-5 w-5" />

@@ -398,7 +398,7 @@ export default function About() {
         <div className="text-center">
           <Link
             to="/pricing"
-            className="btn-primary-glow inline-flex items-center gap-2 rounded-xl bg-emerald-600 px-10 py-4 text-lg font-bold text-white transition-all hover:bg-emerald-700 active:scale-[0.98]"
+            className="btn-primary-glow inline-flex w-full items-center justify-center gap-2 rounded-xl bg-emerald-600 px-6 py-3 text-base font-bold text-white transition-all hover:bg-emerald-700 active:scale-[0.98] sm:w-auto sm:px-10 sm:py-4 sm:text-lg"
           >
             <span>ابدأ الآن — {PRICING.essentials.label}/شهريًا</span>
             <ArrowLeft className="h-5 w-5" />

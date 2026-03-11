@@ -711,7 +711,7 @@ export default function Landing() {
 
         <div className="mt-10 rounded-2xl border-2 border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-900/30 p-8 text-center">
           <p className="mb-1 text-lg text-stone-800 dark:text-stone-200">القيمة الإجمالية:</p>
-          <p className="mb-2 text-4xl font-extrabold text-stone-400 line-through decoration-red-400 decoration-[3px]">{VALUE_TOTAL}</p>
+          <p className="mb-2 text-2xl font-extrabold text-stone-400 line-through decoration-red-400 decoration-[3px] sm:text-4xl">{VALUE_TOTAL}</p>
           <p className="mb-1 text-lg text-stone-800 dark:text-stone-200">أنت تدفع فقط:</p>
           <p className="text-3xl font-black text-emerald-700 sm:text-5xl md:text-6xl">{PRICING.essentials.label}<span className="text-xl font-bold text-stone-800 dark:text-stone-200">/شهريًا</span></p>
           <p className="mt-2 text-sm font-bold text-emerald-700 dark:text-emerald-400">أقل من ريال واحد يوميًا</p>

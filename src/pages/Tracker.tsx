@@ -478,7 +478,7 @@ export default function Tracker() {
       {/* Prominent Streak Counter */}
       {dashboardStats && dashboardStats.streak > 0 && (
         <div className="mb-6 rounded-2xl bg-gradient-to-l from-orange-500 to-amber-500 p-5 text-center shadow-lg">
-          <p className="text-4xl font-black text-white">{dashboardStats.streak} أيام متتالية</p>
+          <p className="text-3xl font-black text-white sm:text-4xl">{dashboardStats.streak} أيام متتالية</p>
           <p className="mt-1 text-sm font-medium text-white/80">استمر في الالتزام — أنت تبني عادة!</p>
         </div>
       )}
