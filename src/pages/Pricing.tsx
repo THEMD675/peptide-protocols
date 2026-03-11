@@ -178,7 +178,7 @@ export default function Pricing() {
               <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />
               جارٍ التحويل لصفحة الدفع...
             </>
-          ) : `ابدأ تجربة ${TRIAL_DAYS} أيام مجانية`}
+          ) : `جرّب مجانًا ${TRIAL_DAYS} أيام — بدون أي رسوم`}
         </button>
       );
     }
@@ -195,7 +195,7 @@ export default function Pricing() {
             : 'border-2 border-stone-300 dark:border-stone-700 bg-white dark:bg-stone-950 text-stone-800 dark:text-stone-200 hover:border-emerald-200 dark:border-emerald-800 transition-colors hover:text-emerald-700 dark:text-emerald-400'
         )}
       >
-        ابدأ التجربة المجانية
+        سجّل الآن وجرّب مجانًا
       </Link>
     );
   };
@@ -256,7 +256,7 @@ export default function Pricing() {
         {showTrialMessaging && (
           <div className="mb-8 rounded-xl border border-amber-200 dark:border-amber-800 bg-gradient-to-l from-amber-50 to-amber-100/50 px-5 py-3 text-center">
             <p className="text-sm font-bold text-amber-800 dark:text-amber-300">
-              عرض محدود — التجربة المجانية متاحة لفترة محدودة
+              🔥 عرض محدود — التجربة المجانية متاحة لفترة محدودة فقط
             </p>
           </div>
         )}
@@ -266,15 +266,15 @@ export default function Pricing() {
           {showTrialMessaging && (
             <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-900/20 px-5 py-2 text-sm font-bold text-emerald-700 dark:text-emerald-400">
               <span className="relative flex h-2 w-2"><span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" /><span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500" /></span>
-              عرض تجريبي — جرّب {TRIAL_DAYS} أيام مجانًا
+              ✨ جرّب {TRIAL_DAYS} أيام مجانًا — ألغِ قبل ما تنخصم
             </div>
           )}
           <h1 className="mb-4 text-3xl font-bold text-stone-900 dark:text-stone-100 md:text-5xl lg:text-6xl">
-            استثمر في <span className="text-emerald-700">صحتك</span>
+            بروتوكولك الشخصي يبدأ <span className="text-emerald-700">من هنا</span>
           </h1>
           {showTrialMessaging && (
             <p className="mx-auto max-w-lg text-lg text-stone-600 dark:text-stone-400">
-              {TRIAL_DAYS} أيام تجربة مجانية مع كل اشتراك.
+              {TRIAL_DAYS} أيام مجانية — جرّب كل الأدوات بدون مخاطرة.
             </p>
           )}
           <div className="mt-6 flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-6 text-sm text-stone-500 dark:text-stone-400">
@@ -319,7 +319,7 @@ export default function Pricing() {
             </span>
             <h2 className="mb-0.5 text-2xl font-bold text-stone-900 dark:text-stone-100">Essentials</h2>
             <p className="mb-1 text-sm font-medium text-emerald-700">الأساسية</p>
-            <p className="mb-6 text-stone-800 dark:text-stone-200">كل الأدوات الأساسية التي تحتاجها</p>
+            <p className="mb-6 text-stone-800 dark:text-stone-200">كل ما تحتاجه لتبدأ بثقة وبروتوكول واضح</p>
 
             <div className="mb-1">
               <span className="text-3xl font-black text-stone-900 dark:text-stone-100 sm:text-5xl">{billingCycle === 'annual' ? PRICING.essentials.annualLabel : PRICING.essentials.label}</span>
@@ -363,7 +363,7 @@ export default function Pricing() {
               <h2 className="text-2xl font-bold text-stone-900 dark:text-stone-100">Elite</h2>
             </div>
             <p className="mb-1 text-sm font-medium text-emerald-700">المتقدّمة</p>
-            <p className="mb-6 text-stone-800 dark:text-stone-200">كل شيء + مدرب ذكي + استشارات شخصية</p>
+            <p className="mb-6 text-stone-800 dark:text-stone-200">مدربك الشخصي + بروتوكول مفصّل على حالتك</p>
 
             <div className="mb-1">
               <span className="text-3xl font-black text-stone-900 dark:text-stone-100 sm:text-5xl">{billingCycle === 'annual' ? PRICING.elite.annualLabel : PRICING.elite.label}</span>
@@ -518,7 +518,7 @@ export default function Pricing() {
             <div className="text-center sm:text-start">
               <p className="text-xl font-bold text-stone-900 dark:text-stone-100">ضمان استرداد كامل خلال {TRIAL_DAYS} أيام</p>
               <p className="mt-1 text-stone-800 dark:text-stone-200">
-                إذا لم يعجبك المحتوى — استرد أموالك بالكامل. بدون أسئلة. بدون شروط.
+                إذا لم يعجبك المحتوى خلال {TRIAL_DAYS} أيام — نرجّع لك كل ريال. بدون أسئلة. بدون شروط. المخاطرة علينا.
               </p>
             </div>
           </div>
@@ -667,7 +667,7 @@ export default function Pricing() {
                 </>
               ) : (
                 <>
-                  <span>ابدأ مع Elite المتقدّمة الآن</span>
+                  <span>انطلق مع Elite — ابدأ مجانًا</span>
                   <ArrowLeft className="h-5 w-5" />
                 </>
               )}
@@ -677,12 +677,12 @@ export default function Pricing() {
               to="/signup?redirect=/pricing"
               className="btn-primary-glow inline-flex items-center gap-2 rounded-full bg-emerald-600 px-10 py-4 text-lg font-bold text-white transition-all hover:bg-emerald-700 active:scale-[0.98]"
             >
-              <span>ابدأ تجربتك المجانية الآن</span>
+              <span>سجّل الآن — {TRIAL_DAYS} أيام مجانًا</span>
               <ArrowLeft className="h-5 w-5" />
             </Link>
           )}
           {showTrialMessaging && (
-            <p className="mt-4 text-sm text-stone-800 dark:text-stone-200">{TRIAL_DAYS} أيام مجانًا — إلغاء في أي وقت</p>
+            <p className="mt-4 text-sm text-stone-800 dark:text-stone-200">🛡️ {TRIAL_DAYS} أيام مجانًا — إلغاء بضغطة واحدة، بدون أسئلة</p>
           )}
         </div>
         )}
