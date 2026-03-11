@@ -243,14 +243,14 @@ export default function Stacks() {
                           setStackStartDialog({ peptideIds: stack.peptideIds, stackName: stack.nameAr });
                         }
                       }}
-                      className="inline-flex items-center gap-1.5 rounded-full bg-emerald-600 px-5 py-2.5 text-sm font-bold text-white hover:bg-emerald-700 transition-colors min-h-[44px]"
+                      className="inline-flex items-center gap-1.5 rounded-xl bg-emerald-600 px-6 py-3 text-sm font-bold text-white hover:bg-emerald-700 transition-colors min-h-[44px]"
                     >
                       <Syringe className="h-3.5 w-3.5" />
                       {stack.peptideIds.length > 1 ? 'ابدأ البروتوكول' : `ابدأ بـ ${stackPeptides[0]?.nameAr ?? 'البروتوكول'}`}
                     </button>
                     <Link
                       to={`/calculator?peptide=${encodeURIComponent(stackPeptides[0]?.nameEn ?? '')}`}
-                      className="inline-flex items-center gap-1.5 rounded-full border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 px-4 py-2 text-sm font-bold text-stone-700 dark:text-stone-200 hover:border-emerald-200 dark:border-emerald-800 transition-colors"
+                      className="inline-flex items-center gap-1.5 rounded-xl border border-stone-300 dark:border-stone-600 bg-white dark:bg-stone-900 px-6 py-3 text-sm font-bold text-stone-700 dark:text-stone-200 hover:border-emerald-300 transition-colors"
                     >
                       <Calculator className="h-3.5 w-3.5" />
                       احسب الجرعة
@@ -263,13 +263,13 @@ export default function Stacks() {
                     <div className="flex flex-col gap-2 sm:flex-row">
                       <Link
                         to="/pricing"
-                        className="rounded-full bg-emerald-600 px-5 py-2 text-sm font-bold text-white transition-colors hover:bg-emerald-700"
+                        className="rounded-xl bg-emerald-600 px-6 py-3 text-sm font-bold text-white transition-colors hover:bg-emerald-700"
                       >
                         اشترك — {PRICING.essentials.label}/شهريًا
                       </Link>
                       <Link
                         to="/coach"
-                        className="rounded-full border-2 border-emerald-300 dark:border-emerald-700 px-5 py-2 text-sm font-bold text-emerald-700 dark:text-emerald-400 transition-colors hover:bg-emerald-50 dark:bg-emerald-900/20"
+                        className="rounded-xl border border-stone-300 dark:border-stone-600 px-6 py-3 text-sm font-bold text-emerald-700 dark:text-emerald-400 transition-colors hover:bg-emerald-50 dark:hover:bg-emerald-900/20"
                       >
                         اسأل المدرب الذكي
                       </Link>
@@ -287,8 +287,8 @@ export default function Stacks() {
           <p className="font-bold text-stone-900 dark:text-stone-100">اكتشف البروتوكولات الكاملة</p>
           <p className="mt-1 text-sm text-stone-600 dark:text-stone-300">اشترك لفتح كل البروتوكولات المُجمَّعة مع الجرعات والتوقيت</p>
           <div className="mt-4 flex flex-col gap-2 sm:flex-row sm:justify-center">
-            <Link to="/pricing" className="rounded-full bg-emerald-600 px-6 py-2.5 text-sm font-bold text-white transition-colors hover:bg-emerald-700">اشترك — {PRICING.essentials.label}/شهريًا</Link>
-            <Link to="/coach" className="rounded-full border border-emerald-300 dark:border-emerald-700 px-6 py-2.5 text-sm font-bold text-emerald-700 dark:text-emerald-400 transition-colors hover:bg-emerald-100 dark:bg-emerald-900/30">اسأل المدرب الذكي</Link>
+            <Link to="/pricing" className="rounded-xl bg-emerald-600 px-6 py-3 text-sm font-bold text-white transition-colors hover:bg-emerald-700">اشترك — {PRICING.essentials.label}/شهريًا</Link>
+            <Link to="/coach" className="rounded-xl border border-stone-300 dark:border-stone-600 px-6 py-3 text-sm font-bold text-emerald-700 dark:text-emerald-400 transition-colors hover:bg-emerald-50 dark:hover:bg-emerald-900/20">اسأل المدرب الذكي</Link>
           </div>
         </div>
       )}

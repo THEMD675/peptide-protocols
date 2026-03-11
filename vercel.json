@@ -79,6 +79,12 @@
       ]
     }
   ],
+  "redirects": [
+    { "source": "/dose-calculator", "destination": "/calculator", "permanent": true },
+    { "source": "/dose-calculator/:path*", "destination": "/calculator/:path*", "permanent": true },
+    { "source": "/library/:id", "destination": "/peptide/:id", "permanent": true },
+    { "source": "/reviews", "destination": "/community", "permanent": true }
+  ],
   "rewrites": [
     { "source": "/api/(.*)", "destination": "/api/$1" },
     { "source": "/(.*)", "destination": "/index.html" }

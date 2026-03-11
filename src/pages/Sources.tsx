@@ -450,7 +450,7 @@ function CitationBrowser() {
                       href={`https://pubmed.ncbi.nlm.nih.gov/${citation.pmid}/`}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex items-center gap-2 rounded-full bg-emerald-600 px-4 py-2 text-xs font-bold text-white transition-colors hover:bg-emerald-700"
+                      className="inline-flex items-center gap-2 rounded-xl bg-emerald-600 px-4 py-2 text-xs font-bold text-white transition-colors hover:bg-emerald-700"
                     >
                       <ExternalLink className="h-3 w-3" />
                       فتح في PubMed
@@ -468,7 +468,7 @@ function CitationBrowser() {
         <div className="mt-4 text-center">
           <button
             onClick={() => setShowAllCitations(!showAllCitations)}
-            className="inline-flex items-center gap-2 rounded-full border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-800 px-6 py-2.5 text-sm font-medium text-stone-600 dark:text-stone-300 transition-all hover:border-emerald-300 hover:text-emerald-700 min-h-[44px]"
+            className="inline-flex items-center gap-2 rounded-xl border border-stone-300 dark:border-stone-600 bg-white dark:bg-stone-800 px-6 py-3 text-sm font-medium text-stone-600 dark:text-stone-300 transition-all hover:border-emerald-300 hover:text-emerald-700 min-h-[44px]"
           >
             {showAllCitations ? (
               <>
@@ -503,7 +503,7 @@ function PeptideCitationMap() {
     <section className="mb-10" aria-labelledby="peptide-map-heading">
       <div className="mb-6 flex items-center gap-3">
         <FlaskConical className="h-6 w-6 shrink-0 text-blue-600 dark:text-blue-400" />
-        <h2 id="peptide-map-heading" className="text-xl font-bold text-stone-900 dark:text-stone-100 md:text-2xl">
+        <h2 id="peptide-map-heading" className="text-2xl font-bold text-stone-900 dark:text-stone-100">
           خريطة الببتيدات والمراجع
         </h2>
       </div>
@@ -668,7 +668,7 @@ export default function Sources() {
 
       <div className="mx-auto max-w-5xl px-4 pt-8 pb-24 md:px-6 md:pt-12">
         {/* Header */}
-        <div className="mb-8 text-center">
+        <div className="mb-10 text-center">
           <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-100 dark:bg-emerald-900/30">
             <BookOpen className="h-7 w-7 text-emerald-700 dark:text-emerald-400" />
           </div>
@@ -702,7 +702,7 @@ export default function Sources() {
               <strong className="text-stone-900 dark:text-stone-100">تنويه:</strong> pptides منصة تعليمية — لا نبيع ببتيدات ولا نتحمل مسؤولية أي عملية شراء. المعايير أدناه لمساعدتك في اختيار مورد موثوق.
             </p>
           </div>
-          <h2 className="mb-6 text-xl font-bold text-stone-900 dark:text-stone-100 md:text-2xl">
+          <h2 className="mb-6 text-2xl font-bold text-stone-900 dark:text-stone-100">
             كيف تختار مورد ببتيدات موثوق؟
           </h2>
 

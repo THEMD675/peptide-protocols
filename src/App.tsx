@@ -1,5 +1,5 @@
 import { lazy, Suspense, useEffect, useState, useSyncExternalStore, Component, type ReactNode } from 'react';
-import { BrowserRouter, Routes, Route, Link, Navigate, useLocation, useNavigationType } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Link, Navigate, useLocation, useNavigationType, useParams } from 'react-router-dom';
 import { useAuth, AuthProvider } from '@/contexts/AuthContext';
 import { Helmet, HelmetProvider } from 'react-helmet-async';
 import { Toaster } from 'sonner';
@@ -237,6 +237,13 @@ function LogoutRedirect() {
   return null;
 }
 
+/** Redirect /library/:id → /peptide/:id (preserves all query params) */
+function LibraryIdRedirect() {
+  const { id } = useParams<{ id: string }>();
+  const { search } = useLocation();
+  return <Navigate to={`/peptide/${id ?? ''}${search}`} replace />;
+}
+
 const overlayListeners = new Set<() => void>();
 let origSetItem: Storage['setItem'] = () => {};
 try {
@@ -317,6 +324,9 @@ export default function App() {
               <Route path="/pricing" element={<Suspense fallback={<PricingSkeleton />}><RouteErrorBoundary fallbackTitle="خطأ في صفحة الأسعار"><Pricing /></RouteErrorBoundary></Suspense>} />
               <Route path="/coach" element={<ProtectedRoute><Suspense fallback={<CoachSkeleton />}><RouteErrorBoundary fallbackTitle="خطأ في المدرب الذكي"><Coach /></RouteErrorBoundary></Suspense></ProtectedRoute>} />
               <Route path="/reviews" element={<Navigate to="/community" replace />} />
+              {/* Legacy / alternative path redirects — never 404 */}
+              <Route path="/dose-calculator" element={<Navigate to="/calculator" replace />} />
+              <Route path="/library/:id" element={<LibraryIdRedirect />} />
               <Route path="/table" element={<Suspense fallback={<GenericPageSkeleton />}><RouteErrorBoundary fallbackTitle="خطأ في جدول الببتيدات"><PeptideTable /></RouteErrorBoundary></Suspense>} />
               <Route path="/sources" element={<Suspense fallback={<GenericPageSkeleton />}><RouteErrorBoundary fallbackTitle="خطأ في المصادر"><Sources /></RouteErrorBoundary></Suspense>} />
               <Route path="/community" element={<Suspense fallback={<GenericPageSkeleton />}><RouteErrorBoundary fallbackTitle="خطأ في المجتمع"><Community /></RouteErrorBoundary></Suspense>} />

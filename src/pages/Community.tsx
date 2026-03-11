@@ -908,7 +908,7 @@ export default function Community() {
                       <button
                         type="submit"
                         disabled={submitting || selectedPeptides.length === 0 || !results.trim()}
-                        className="flex-1 rounded-full bg-emerald-600 py-3 min-h-[44px] font-bold text-white transition-all hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="flex-1 rounded-xl bg-emerald-600 py-3 min-h-[44px] font-bold text-white transition-all hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed"
                       >
                         {submitting ? (
                           <span className="inline-flex items-center gap-2">
@@ -920,7 +920,7 @@ export default function Community() {
                       <button
                         type="button"
                         onClick={() => setShowForm(false)}
-                        className="rounded-full border border-stone-200 dark:border-stone-600 px-6 py-3 min-h-[44px] font-bold text-stone-600 dark:text-stone-300 transition-colors hover:bg-stone-50 dark:hover:bg-stone-800"
+                        className="rounded-xl border border-stone-300 dark:border-stone-600 px-6 py-3 min-h-[44px] font-bold text-stone-600 dark:text-stone-300 transition-colors hover:bg-stone-50 dark:hover:bg-stone-800"
                       >
                         إلغاء
                       </button>
@@ -934,7 +934,7 @@ export default function Community() {
             {!user && (
               <div className="mb-8 rounded-2xl border border-stone-200 dark:border-stone-600 bg-stone-50 dark:bg-stone-900 p-6 text-center">
                 <p className="font-bold text-stone-900 dark:text-stone-100">سجّل الدخول لمشاركة تجربتك</p>
-                <Link to="/login" className="mt-3 inline-block rounded-full bg-emerald-600 px-8 py-2.5 min-h-[44px] text-sm font-bold text-white transition-colors hover:bg-emerald-700">
+                <Link to="/login" className="mt-3 inline-block rounded-xl bg-emerald-600 px-6 py-3 min-h-[44px] text-sm font-bold text-white transition-colors hover:bg-emerald-700">
                   تسجيل الدخول
                 </Link>
               </div>
@@ -945,7 +945,7 @@ export default function Community() {
               <div className="mb-8 rounded-2xl border-2 border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-900/20 p-6 text-center">
                 <p className="font-bold text-stone-900 dark:text-stone-100">اشترك لمشاركة تجربتك مع المجتمع</p>
                 <p className="mt-1 text-sm text-stone-600 dark:text-stone-300">المشتركون فقط يمكنهم نشر تجاربهم</p>
-                <Link to="/pricing" className="mt-3 inline-block rounded-full bg-emerald-600 px-8 py-2.5 min-h-[44px] text-sm font-bold text-white transition-colors hover:bg-emerald-700">
+                <Link to="/pricing" className="mt-3 inline-block rounded-xl bg-emerald-600 px-6 py-3 min-h-[44px] text-sm font-bold text-white transition-colors hover:bg-emerald-700">
                   اشترك — {PRICING.essentials.label}/شهريًا
                 </Link>
               </div>
@@ -1077,7 +1077,7 @@ export default function Community() {
                     {user && isPaid && (
                       <button
                         onClick={() => setShowForm(true)}
-                        className="mt-6 inline-flex items-center gap-2 rounded-full bg-emerald-600 px-6 py-3 min-h-[44px] text-sm font-bold text-white transition-all hover:bg-emerald-700"
+                        className="mt-6 inline-flex items-center gap-2 rounded-xl bg-emerald-600 px-6 py-3 min-h-[44px] text-sm font-bold text-white transition-all hover:bg-emerald-700"
                       >
                         <Send className="h-4 w-4" />
                         شارك تجربتك الآن
@@ -1099,7 +1099,7 @@ export default function Community() {
                     {user && isPaid && (
                       <button
                         onClick={() => setShowForm(true)}
-                        className="mt-4 inline-flex items-center gap-2 rounded-full bg-emerald-600 px-6 py-3 min-h-[44px] text-sm font-bold text-white transition-all hover:bg-emerald-700"
+                        className="mt-4 inline-flex items-center gap-2 rounded-xl bg-emerald-600 px-6 py-3 min-h-[44px] text-sm font-bold text-white transition-all hover:bg-emerald-700"
                       >
                         <Send className="h-4 w-4" />
                         شارك تجربتك الآن

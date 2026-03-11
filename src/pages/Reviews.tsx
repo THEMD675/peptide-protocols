@@ -258,8 +258,7 @@ export default function Reviews() {
           className="mb-10 rounded-2xl border border-stone-200 dark:border-stone-600 bg-stone-50 dark:bg-stone-900 p-6 md:p-8"
         >
           <h2
-            className="mb-5 text-lg font-bold text-stone-900 dark:text-stone-100"
-            
+            className="mb-6 text-xl font-semibold text-stone-900 dark:text-stone-100"
           >
             أضف تقييمك
           </h2>

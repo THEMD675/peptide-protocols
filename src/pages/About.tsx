@@ -119,7 +119,7 @@ export default function About() {
           {stats.map(({ value, label }) => (
             <div
               key={label}
-              className="rounded-2xl border border-stone-200 dark:border-stone-800 bg-stone-50 dark:bg-stone-900/50 p-5 text-center"
+              className="rounded-2xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 p-5 text-center"
             >
               <div className="mb-1 text-2xl font-bold text-emerald-700 md:text-3xl">{value}</div>
               <div className="text-sm text-stone-600 dark:text-stone-300">{label}</div>
@@ -166,7 +166,7 @@ export default function About() {
             {differentiators.map(({ icon: Icon, title, desc }) => (
               <div
                 key={title}
-                className="rounded-2xl border border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-900 p-6 transition-all hover:border-emerald-300 dark:hover:border-emerald-800 hover:shadow-md"
+                className="rounded-2xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 p-6 transition-all hover:border-emerald-300 dark:hover:border-emerald-800 hover:shadow-md"
               >
                 <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-100 dark:bg-emerald-900/30">
                   <Icon className="h-5 w-5 text-emerald-700" />
@@ -180,7 +180,7 @@ export default function About() {
 
         {/* The Team */}
         <section className="mb-16">
-          <div className="rounded-2xl border border-stone-200 dark:border-stone-800 bg-stone-50 dark:bg-stone-900/50 p-8 md:p-10">
+          <div className="rounded-2xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 p-8 md:p-10">
             <div className="flex items-start gap-4">
               <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-emerald-100 dark:bg-emerald-900/30">
                 <Users className="h-6 w-6 text-emerald-700" />
@@ -216,7 +216,7 @@ export default function About() {
             {standards.map(({ icon: Icon, title, desc }) => (
               <div
                 key={title}
-                className="rounded-2xl border border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-900 p-6 text-center"
+                className="rounded-2xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 p-6 text-center"
               >
                 <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-emerald-100 dark:bg-emerald-900/30">
                   <Icon className="h-6 w-6 text-emerald-700" />
@@ -254,21 +254,21 @@ export default function About() {
         <div className="mb-12 flex flex-wrap justify-center gap-3">
           <Link
             to="/transparency"
-            className="inline-flex items-center gap-2 rounded-full border border-stone-300 dark:border-stone-600 px-6 py-3 text-sm font-bold text-stone-800 dark:text-stone-200 transition-colors hover:bg-stone-50 dark:hover:bg-stone-800"
+            className="inline-flex items-center gap-2 rounded-xl border border-stone-300 dark:border-stone-600 px-6 py-3 text-sm font-bold text-stone-800 dark:text-stone-200 transition-colors hover:bg-stone-50 dark:hover:bg-stone-800"
           >
             <Shield className="h-4 w-4" />
             <span>الشفافية</span>
           </Link>
           <Link
             to="/sources"
-            className="inline-flex items-center gap-2 rounded-full border border-stone-300 dark:border-stone-600 px-6 py-3 text-sm font-bold text-stone-800 dark:text-stone-200 transition-colors hover:bg-stone-50 dark:hover:bg-stone-800"
+            className="inline-flex items-center gap-2 rounded-xl border border-stone-300 dark:border-stone-600 px-6 py-3 text-sm font-bold text-stone-800 dark:text-stone-200 transition-colors hover:bg-stone-50 dark:hover:bg-stone-800"
           >
             <BookOpen className="h-4 w-4" />
             <span>المصادر العلمية</span>
           </Link>
           <Link
             to="/privacy"
-            className="inline-flex items-center gap-2 rounded-full border border-stone-300 dark:border-stone-600 px-6 py-3 text-sm font-bold text-stone-800 dark:text-stone-200 transition-colors hover:bg-stone-50 dark:hover:bg-stone-800"
+            className="inline-flex items-center gap-2 rounded-xl border border-stone-300 dark:border-stone-600 px-6 py-3 text-sm font-bold text-stone-800 dark:text-stone-200 transition-colors hover:bg-stone-50 dark:hover:bg-stone-800"
           >
             <Heart className="h-4 w-4" />
             <span>سياسة الخصوصية</span>
@@ -279,7 +279,7 @@ export default function About() {
         <div className="text-center">
           <Link
             to="/pricing"
-            className="btn-primary-glow inline-flex items-center gap-2 rounded-full bg-emerald-600 px-10 py-4 text-lg font-bold text-white transition-all hover:bg-emerald-700 active:scale-[0.98]"
+            className="btn-primary-glow inline-flex items-center gap-2 rounded-xl bg-emerald-600 px-10 py-4 text-lg font-bold text-white transition-all hover:bg-emerald-700 active:scale-[0.98]"
           >
             <span>ابدأ الآن</span>
             <ArrowLeft className="h-5 w-5" />

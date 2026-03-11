@@ -278,12 +278,12 @@ export default function Blog() {
               نعمل على كتابة مقالات علمية عميقة عن الببتيدات العلاجية. ترقّب المحتوى قريبًا.
             </p>
             <div className="mt-6 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
-              <a href="/library" className="inline-flex items-center gap-2 rounded-full bg-emerald-600 px-6 py-2.5 text-sm font-bold text-white transition-colors hover:bg-emerald-700">
+              <Link to="/library" className="inline-flex items-center gap-2 rounded-full bg-emerald-600 px-6 py-2.5 text-sm font-bold text-white transition-colors hover:bg-emerald-700">
                 تصفّح مكتبة الببتيدات
-              </a>
-              <a href="/coach" className="inline-flex items-center gap-2 rounded-full border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 px-6 py-2.5 text-sm font-bold text-stone-700 dark:text-stone-200 transition-colors hover:border-emerald-300 dark:hover:border-emerald-700">
+              </Link>
+              <Link to="/coach" className="inline-flex items-center gap-2 rounded-full border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 px-6 py-2.5 text-sm font-bold text-stone-700 dark:text-stone-200 transition-colors hover:border-emerald-300 dark:hover:border-emerald-700">
                 اسأل المدرب الذكي
-              </a>
+              </Link>
             </div>
           </div>
         )}

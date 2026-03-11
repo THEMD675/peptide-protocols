@@ -34,7 +34,7 @@ export interface AuthContextType {
   login: (email: string, password: string) => Promise<void>;
   signup: (email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
-  upgradeTo: (tier: 'essentials' | 'elite', billing?: 'monthly' | 'annual') => void;
+  upgradeTo: (tier: 'essentials' | 'elite', billing?: 'monthly' | 'annual') => Promise<void>;
   refreshSubscription: () => Promise<void>;
 }
 

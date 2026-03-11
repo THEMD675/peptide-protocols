@@ -428,7 +428,7 @@ export default function PeptideTable() {
             </div>
             <Link
               to="/pricing"
-              className="shrink-0 rounded-full bg-emerald-600 px-5 py-2 text-sm font-bold text-white hover:bg-emerald-700 transition-colors"
+              className="shrink-0 rounded-xl bg-emerald-600 px-6 py-2 text-sm font-bold text-white hover:bg-emerald-700 transition-colors"
             >
               عرض الباقات
             </Link>
@@ -436,11 +436,11 @@ export default function PeptideTable() {
         </div>
       )}
 
-      <div className="mx-auto max-w-[1440px] px-4 py-8 md:px-6 md:py-12">
+      <div className="mx-auto max-w-[1440px] px-4 pt-8 pb-24 md:px-6 md:pt-12">
 
         {/* ━━━ HEADER ━━━ */}
         <header className="mb-10 text-center">
-          <h1 className="text-3xl font-extrabold leading-tight text-stone-900 dark:text-stone-100 md:text-4xl lg:text-5xl">
+          <h1 className="text-3xl font-bold leading-tight text-stone-900 dark:text-stone-100 md:text-4xl">
             جدول الببتيدات{' '}
             <span className="primary-gradient bg-clip-text text-transparent">الشامل</span>
           </h1>

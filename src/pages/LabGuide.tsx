@@ -406,7 +406,7 @@ function InteractiveReferenceRanges({ isPro, blurClass }: { isPro: boolean; blur
 
   return (
     <section>
-      <div className="mb-4 flex items-center gap-3">
+      <div className="mb-6 flex items-center gap-3">
         <Activity className="h-6 w-6 shrink-0 text-emerald-700" />
         <h2 className="text-2xl font-bold">النطاقات المرجعية التفاعلية</h2>
       </div>
@@ -541,7 +541,7 @@ function TestPackages({ isPro, blurClass }: { isPro: boolean; blurClass: string 
 
   return (
     <section>
-      <div className="mb-4 flex items-center gap-3">
+      <div className="mb-6 flex items-center gap-3">
         <Package className="h-6 w-6 shrink-0 text-emerald-700" />
         <h2 className="text-2xl font-bold">باقات التحاليل الموصى بها</h2>
       </div>
@@ -626,7 +626,7 @@ function TestPackages({ isPro, blurClass }: { isPro: boolean; blurClass: string 
 function TestingTimeline() {
   return (
     <section>
-      <div className="mb-4 flex items-center gap-3">
+      <div className="mb-6 flex items-center gap-3">
         <Clock className="h-6 w-6 shrink-0 text-emerald-700" />
         <h2 className="text-2xl font-bold">جدول التحاليل الزمني</h2>
       </div>
@@ -721,7 +721,7 @@ function ResultsInterpreter({ isPro, blurClass }: { isPro: boolean; blurClass: s
 
   return (
     <section>
-      <div className="mb-4 flex items-center gap-3">
+      <div className="mb-6 flex items-center gap-3">
         <Beaker className="h-6 w-6 shrink-0 text-emerald-700" />
         <h2 className="text-2xl font-bold">مفسّر النتائج</h2>
       </div>
@@ -840,7 +840,7 @@ function ResultsInterpreter({ isPro, blurClass }: { isPro: boolean; blurClass: s
 function LabLocator() {
   return (
     <section>
-      <div className="mb-4 flex items-center gap-3">
+      <div className="mb-6 flex items-center gap-3">
         <MapPin className="h-6 w-6 shrink-0 text-emerald-700" />
         <h2 className="text-2xl font-bold">مختبرات في السعودية</h2>
       </div>
@@ -968,7 +968,7 @@ export default function LabGuide() {
 
       {/* ── Red flags — always visible (safety-critical) ── */}
       <section className="mb-10">
-        <div className="mb-4 flex items-center gap-3">
+        <div className="mb-6 flex items-center gap-3">
           <AlertTriangle className="h-6 w-6 shrink-0 text-red-500" />
           <h2 className="text-2xl font-bold text-red-600">
             علامات تحذيرية تستوجب التوقف الفوري
@@ -1005,7 +1005,7 @@ export default function LabGuide() {
 
         {/* ── Original: Baseline tests with icons ── */}
         <section>
-          <div className="mb-4 flex items-center gap-3">
+          <div className="mb-6 flex items-center gap-3">
             <ClipboardList className="h-6 w-6 shrink-0 text-emerald-700" />
             <h2 className="text-2xl font-bold">التحاليل الأساسية — تفصيل</h2>
           </div>
