@@ -33,7 +33,7 @@ export default function ShareButtons({
     try {
       await navigator.clipboard.writeText(url);
       setCopied(true);
-      toast.success('تم نسخ الرابط ✓');
+      toast.success('تم نسخ الرابط');
       events.shareClick('copy_link');
       setTimeout(() => setCopied(false), 2000);
     } catch {

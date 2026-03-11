@@ -23,6 +23,10 @@ import {
   Zap,
   ArrowLeft,
   ArrowRight,
+  Snowflake,
+  AlertTriangle,
+  Ban,
+  XCircle,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
@@ -614,7 +618,7 @@ function buildModules(): Module[] {
             <div className="space-y-4">
               <div className="grid gap-3 sm:grid-cols-2">
                 <div className="rounded-xl border-2 border-blue-200 dark:border-blue-800 bg-blue-50 dark:bg-blue-900/20 p-4">
-                  <h5 className="font-bold text-blue-700 dark:text-blue-300 mb-2">❄️ الببتيد المجفّد (غير محلول)</h5>
+                  <h5 className="font-bold text-blue-700 dark:text-blue-300 mb-2 flex items-center gap-1.5"><Snowflake className="h-4 w-4" /> الببتيد المجفّد (غير محلول)</h5>
                   <p className="text-sm">درجة حرارة الغرفة (أقل من 25°م) أو الثلاجة. يمكن تخزينه لأشهر.</p>
                   <p className="text-xs mt-2 text-blue-600 dark:text-blue-400">المجمّد (-20°م) = أطول فترة تخزين ممكنة</p>
                 </div>
@@ -650,7 +654,7 @@ function buildModules(): Module[] {
                       { state: 'مسحوق مجفّد (الثلاجة)', life: '1-2 سنة', note: 'الخيار الأفضل للتخزين الطويل' },
                       { state: 'مسحوق مجفّد (المجمّد)', life: '2+ سنة', note: 'لا تجمّد وتذيب مرات متعددة' },
                       { state: 'محلول + BAC water (الثلاجة)', life: '28-30 يومًا', note: 'الخيار الأكثر شيوعًا' },
-                      { state: 'محلول + ماء عادي (الثلاجة)', life: '3-5 أيام فقط', note: '⚠️ لا يُنصح به' },
+                      { state: 'محلول + ماء عادي (الثلاجة)', life: '3-5 أيام فقط', note: 'لا يُنصح به' },
                     ].map((row, i) => (
                       <tr key={row.state} className={cn('border-t', i % 2 === 0 && 'bg-stone-50 dark:bg-stone-900')}>
                         <td className="px-4 py-3 font-bold">{row.state}</td>
@@ -678,7 +682,7 @@ function buildModules(): Module[] {
                   { sign: 'جسيمات عائمة', desc: 'أي جسيمات أو رواسب مرئية = تلوث محتمل.' },
                 ].map((item) => (
                   <div key={item.sign} className="rounded-xl border border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-900/20 p-3">
-                    <span className="font-bold text-red-700 dark:text-red-300 text-sm">⛔ {item.sign}</span>
+                    <span className="font-bold text-red-700 dark:text-red-300 text-sm flex items-center gap-1"><Ban className="h-3.5 w-3.5" /> {item.sign}</span>
                     <p className="text-xs mt-1 text-red-600 dark:text-red-400">{item.desc}</p>
                   </div>
                 ))}
@@ -915,7 +919,7 @@ function buildModules(): Module[] {
               <p>بعض الببتيدات تعمل بشكل أفضل معًا (synergy). لكن هناك قواعد:</p>
               <div className="grid gap-3 sm:grid-cols-2">
                 <div className="rounded-xl border-2 border-emerald-200 dark:border-emerald-800 p-4">
-                  <h5 className="font-bold text-emerald-700 dark:text-emerald-300 mb-2">✅ تركيبات ممتازة</h5>
+                  <h5 className="font-bold text-emerald-700 dark:text-emerald-300 mb-2 flex items-center gap-1.5"><CheckCircle className="h-4 w-4" /> تركيبات ممتازة</h5>
                   <ul className="text-xs space-y-1">
                     <li>CJC-1295 + Ipamorelin (تآزر GH)</li>
                     <li>BPC-157 + TB-500 (شفاء شامل)</li>
@@ -923,7 +927,7 @@ function buildModules(): Module[] {
                   </ul>
                 </div>
                 <div className="rounded-xl border-2 border-red-200 dark:border-red-800 p-4">
-                  <h5 className="font-bold text-red-700 dark:text-red-300 mb-2">⚠️ تجنّب الدمج</h5>
+                  <h5 className="font-bold text-red-700 dark:text-red-300 mb-2 flex items-center gap-1.5"><AlertTriangle className="h-4 w-4" /> تجنّب الدمج</h5>
                   <ul className="text-xs space-y-1">
                     <li>عدة محفّزات GH معًا (فرط تحفيز)</li>
                     <li>Semaglutide + Tirzepatide (نفس المسار)</li>
@@ -1244,7 +1248,7 @@ export default function Guide() {
       <div className="mt-12 rounded-2xl border border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-900/20 p-6 text-center">
         {isPro ? (
           <>
-            <p className="font-bold text-stone-900 dark:text-stone-100">🎓 أكملت الدورة التعليمية!</p>
+            <p className="font-bold text-stone-900 dark:text-stone-100 flex items-center justify-center gap-2"><GraduationCap className="h-5 w-5 text-emerald-600" /> أكملت الدورة التعليمية!</p>
             <p className="mt-1 text-sm text-stone-600 dark:text-stone-300">الآن حان وقت التطبيق — حضّر أول جرعة واحسبها بدقة</p>
             <div className="mt-4 flex flex-col gap-2 sm:flex-row sm:justify-center">
               <Link to="/calculator" className="rounded-full bg-emerald-600 px-6 py-2.5 text-sm font-bold text-white transition-colors hover:bg-emerald-700">حاسبة الجرعات</Link>

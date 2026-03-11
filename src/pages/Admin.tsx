@@ -451,7 +451,7 @@ export default function Admin() {
   // --- Render gates ---
   // Client-side admin email whitelist guard
   if (user && !ADMIN_EMAILS.includes(user.email ?? '')) return (
-    <div className="flex min-h-screen items-center justify-center bg-stone-50 dark:bg-stone-900">
+    <div className="flex min-h-screen items-center justify-center bg-stone-50 dark:bg-stone-950">
       <Helmet><title>404 | pptides</title></Helmet>
       <div className="text-center px-4">
         <h1 className="text-6xl font-bold text-stone-200 mb-4">404</h1>
@@ -464,7 +464,7 @@ export default function Admin() {
     </div>
   );
   if (forbidden) return (
-    <div className="flex min-h-screen items-center justify-center bg-stone-50 dark:bg-stone-900" lang="en">
+    <div className="flex min-h-screen items-center justify-center bg-stone-50 dark:bg-stone-950" lang="en">
       <Helmet><title>Admin | pptides</title></Helmet>
       <div className="text-center px-4">
         <Shield className="mx-auto h-12 w-12 text-stone-300 mb-4" />
@@ -478,7 +478,7 @@ export default function Admin() {
   );
   if (loading) return <div className="flex min-h-screen items-center justify-center"><Helmet><title>Admin | pptides</title></Helmet><div className="h-8 w-8 animate-spin rounded-full border-4 border-emerald-200 dark:border-emerald-800 border-t-emerald-600" /></div>;
   if (error || !stats) return (
-    <div className="flex min-h-screen items-center justify-center bg-stone-50 dark:bg-stone-900">
+    <div className="flex min-h-screen items-center justify-center bg-stone-50 dark:bg-stone-950">
       <Helmet><title>Admin | pptides</title></Helmet>
       <div className="text-center px-4">
         <AlertTriangle className="mx-auto h-12 w-12 text-red-400 mb-4" />
@@ -508,7 +508,7 @@ export default function Admin() {
   ];
 
   return (
-    <div className="min-h-screen bg-stone-50 dark:bg-stone-900" lang="ar" dir="rtl">
+    <div className="min-h-screen bg-stone-50 dark:bg-stone-950" lang="ar" dir="rtl">
       <Helmet><title>لوحة التحكم | pptides</title></Helmet>
 
       {/* ===================== HEADER ===================== */}

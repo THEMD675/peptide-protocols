@@ -5,8 +5,10 @@ import {
   Beaker, Shield, ShieldAlert, ShieldCheck, ShieldX,
   Clock, DollarSign, BarChart3, Syringe, X, ChevronDown,
   Save, Share2, Trash2, Bookmark, Target, Search,
-  Sparkles, Calendar,
+  Sparkles, Calendar, Sun, Dumbbell, Moon, Scale, Dna, Activity,
+  AlertTriangle,
 } from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
 import { peptides as allPeptides } from '@/data/peptides';
 import {
   DANGEROUS_COMBOS, SYNERGISTIC_COMBOS, DRUG_INTERACTIONS, InteractionResult,
@@ -142,10 +144,10 @@ interface ScheduleSlot {
 }
 
 function buildSchedule(peps: typeof allPeptides): ScheduleSlot[] {
-  const morning: ScheduleSlot = { timeAr: '🌅 الصباح (على معدة فارغة)', items: [] };
-  const preworkout: ScheduleSlot = { timeAr: '🏋️ قبل التمرين', items: [] };
-  const evening: ScheduleSlot = { timeAr: '🌙 قبل النوم (معدة فارغة)', items: [] };
-  const anytime: ScheduleSlot = { timeAr: '⏰ في أي وقت', items: [] };
+  const morning: ScheduleSlot = { timeAr: 'الصباح (على معدة فارغة)', items: [] };
+  const preworkout: ScheduleSlot = { timeAr: 'قبل التمرين', items: [] };
+  const evening: ScheduleSlot = { timeAr: 'قبل النوم (معدة فارغة)', items: [] };
+  const anytime: ScheduleSlot = { timeAr: 'في أي وقت', items: [] };
 
   for (const p of peps) {
     const timing = (p.timingAr ?? '').toLowerCase();
@@ -199,7 +201,7 @@ export interface GoalStack {
   monthlyCostSAR: string;
   difficulty: 'مبتدئ' | 'متوسط' | 'متقدم';
   safetyNotes: string;
-  icon: string;
+  icon: LucideIcon;
 }
 
 export const goalStacks: GoalStack[] = [
@@ -217,7 +219,7 @@ export const goalStacks: GoalStack[] = [
     monthlyCostSAR: '1,200-2,000 ر.س',
     difficulty: 'متوسط',
     safetyNotes: 'ابدأ بجرعة منخفضة من Semaglutide. راقب مستوى السكر. حافظ على ترطيب كافي وبروتين عالي.',
-    icon: '⚖️',
+    icon: Scale,
   },
   {
     id: 'muscle-building',
@@ -232,7 +234,7 @@ export const goalStacks: GoalStack[] = [
     monthlyCostSAR: '600-1,050 ر.س',
     difficulty: 'متوسط',
     safetyNotes: 'خذ على معدة فارغة قبل النوم. راقب مستوى IGF-1 وسكر الدم. تمارين مقاومة ضرورية.',
-    icon: '💪',
+    icon: Dumbbell,
   },
   {
     id: 'anti-aging',
@@ -248,7 +250,7 @@ export const goalStacks: GoalStack[] = [
     monthlyCostSAR: '800-1,300 ر.س',
     difficulty: 'متقدم',
     safetyNotes: 'دورة Epithalon قصيرة ومحددة. لا تتجاوز 20 يوم. GHK-Cu يمكن استخدامه موضعيًا أو بالحقن.',
-    icon: '🧬',
+    icon: Dna,
   },
   {
     id: 'athletic-recovery',
@@ -263,7 +265,7 @@ export const goalStacks: GoalStack[] = [
     monthlyCostSAR: '525-825 ر.س',
     difficulty: 'مبتدئ',
     safetyNotes: 'أشهر تجميعة في مجتمع البايوهاكينغ. آمنة جدًا مع آليات عمل مكمّلة. حقن BPC-157 قريبًا من موضع الإصابة.',
-    icon: '🏃',
+    icon: Activity,
   },
   {
     id: 'sleep-improvement',
@@ -279,7 +281,7 @@ export const goalStacks: GoalStack[] = [
     monthlyCostSAR: '700-1,100 ر.س',
     difficulty: 'متوسط',
     safetyNotes: 'جميعها تؤخذ مساءً. Epithalon يعيد ضبط الميلاتونين. لا تخلط مع منومات أخرى.',
-    icon: '😴',
+    icon: Moon,
   },
   {
     id: 'immune-boost',
@@ -294,7 +296,7 @@ export const goalStacks: GoalStack[] = [
     monthlyCostSAR: '600-950 ر.س',
     difficulty: 'متوسط',
     safetyNotes: 'ممنوع مع مثبطات المناعة (بعد زرع أعضاء أو أمراض مناعية ذاتية). راقب علامات الالتهاب.',
-    icon: '🛡️',
+    icon: Shield,
   },
 ];
 
@@ -482,7 +484,7 @@ export default function StackBuilder() {
               }`}
             >
               <div className="flex w-full items-center justify-between">
-                <span className="text-2xl">{gs.icon}</span>
+                <gs.icon className="h-6 w-6 text-emerald-600 dark:text-emerald-400" />
                 <span className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${
                   gs.difficulty === 'مبتدئ' ? 'bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-400' :
                   gs.difficulty === 'متوسط' ? 'bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-400' :
@@ -522,7 +524,7 @@ export default function StackBuilder() {
           <div className="rounded-2xl border border-emerald-200 dark:border-emerald-800 bg-emerald-50/50 dark:bg-emerald-900/10 p-5 space-y-4">
             <div className="flex items-center justify-between">
               <h3 className="text-lg font-bold text-stone-900 dark:text-stone-100">
-                {gs.icon} {gs.nameAr}
+                <gs.icon className="h-5 w-5 inline-block mr-1.5 text-emerald-600 dark:text-emerald-400" />{gs.nameAr}
               </h3>
               <button type="button" onClick={() => setActiveGoalStack(null)} className="text-stone-400 hover:text-stone-600 dark:hover:text-stone-300">
                 <X className="h-5 w-5" />
@@ -559,7 +561,7 @@ export default function StackBuilder() {
               </div>
             </div>
             <div className="rounded-xl bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 p-3">
-              <p className="text-xs font-bold text-amber-700 dark:text-amber-400 mb-1">⚠️ ملاحظات السلامة</p>
+              <p className="text-xs font-bold text-amber-700 dark:text-amber-400 mb-1 flex items-center gap-1"><AlertTriangle className="h-3.5 w-3.5" /> ملاحظات السلامة</p>
               <p className="text-xs text-amber-600 dark:text-amber-400">{gs.safetyNotes}</p>
             </div>
           </div>

@@ -1,6 +1,6 @@
 import { Helmet } from 'react-helmet-async';
 import { Link } from 'react-router-dom';
-import { Check, X, Shield, CreditCard, FileSearch, Scale, Eye, Trash2, ArrowLeft, BookOpen } from 'lucide-react';
+import { Check, X, Shield, CreditCard, FileSearch, Scale, Eye, Trash2, ArrowLeft, BookOpen, CheckCircle, XCircle } from 'lucide-react';
 import { SITE_URL, SUPPORT_EMAIL, TRIAL_DAYS, PUBMED_SOURCE_COUNT } from '@/lib/constants';
 
 const whatWeDo = [
@@ -36,7 +36,7 @@ const dataNeverDo = [
 
 export default function Transparency() {
   return (
-    <div className="min-h-screen bg-white dark:bg-stone-900 animate-fade-in">
+    <div className="min-h-screen bg-white dark:bg-stone-950 animate-fade-in">
       <Helmet>
         <title>الشفافية — كيف نكسب المال ونحمي بياناتك | pptides</title>
         <meta name="description" content="pptides منصة تعليمية بحتة — لا نبيع ببتيدات ولا نأخذ عمولات من الموردين. اشتراكك الشهري هو مصدر دخلنا الوحيد. شفافية كاملة مع مستخدمينا." />
@@ -97,7 +97,7 @@ export default function Transparency() {
           {/* What we do / don't do */}
           <div className="grid gap-6 md:grid-cols-2">
             <section className="rounded-2xl border border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-900 p-6">
-              <h2 className="mb-4 text-lg font-bold text-stone-900 dark:text-stone-100">✅ ما نفعله</h2>
+              <h2 className="mb-4 text-lg font-bold text-stone-900 dark:text-stone-100 flex items-center gap-2"><CheckCircle className="h-5 w-5 text-emerald-600" /> ما نفعله</h2>
               <ul className="space-y-3">
                 {whatWeDo.map((item) => (
                   <li key={item} className="flex items-start gap-3">
@@ -109,7 +109,7 @@ export default function Transparency() {
             </section>
 
             <section className="rounded-2xl border border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-900 p-6">
-              <h2 className="mb-4 text-lg font-bold text-stone-900 dark:text-stone-100">❌ ما لا نفعله — أبدًا</h2>
+              <h2 className="mb-4 text-lg font-bold text-stone-900 dark:text-stone-100 flex items-center gap-2"><XCircle className="h-5 w-5 text-red-500" /> ما لا نفعله — أبدًا</h2>
               <ul className="space-y-3">
                 {whatWeDontDo.map((item) => (
                   <li key={item} className="flex items-start gap-3">

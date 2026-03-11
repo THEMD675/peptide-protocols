@@ -14,11 +14,11 @@ interface Notification {
   created_at: string;
 }
 
-const TYPE_EMOJI: Record<string, string> = {
-  blog: '📝',
-  streak: '🔥',
-  trial: '⏰',
-  achievement: '🏆',
+const TYPE_ICON: Record<string, LucideIcon> = {
+  blog: FileText,
+  streak: Flame,
+  trial: Clock,
+  achievement: Trophy,
 };
 
 export default function NotificationBell() {
@@ -137,7 +137,7 @@ export default function NotificationBell() {
                     !n.read && 'bg-emerald-50/50',
                   )}
                 >
-                  <span className="mt-0.5 text-lg shrink-0">{TYPE_EMOJI[n.type] ?? '🔔'}</span>
+                  {(() => { const Icon = TYPE_ICON[n.type] ?? Bell; return <Icon className="mt-0.5 h-5 w-5 shrink-0 text-stone-400" />; })()}
                   <div className="min-w-0 flex-1">
                     <p className={cn('text-sm', !n.read ? 'font-bold text-stone-900 dark:text-stone-100' : 'font-medium text-stone-700 dark:text-stone-200')}>
                       {n.title_ar}

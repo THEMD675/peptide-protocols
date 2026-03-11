@@ -2,6 +2,7 @@ import { useState, useMemo, useCallback, useEffect, memo } from 'react';
 import { useBookmarks } from '@/hooks/useBookmarks';
 import FocusTrap from 'focus-trap-react';
 import { Helmet } from 'react-helmet-async';
+import GuidedTour, { isTourDone } from '@/components/GuidedTour';
 import { Link, useSearchParams } from 'react-router-dom';
 import {
   Search,
@@ -307,6 +308,15 @@ export default function Library() {
 
   const [showFilters, setShowFilters] = useState(false);
   const { bookmarks: favorites, toggle: toggleFavorite } = useBookmarks();
+  const [runTour, setRunTour] = useState(false);
+
+  // Auto-trigger library tour on first visit
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (!isTourDone('library')) setRunTour(true);
+    }, 800);
+    return () => clearTimeout(timer);
+  }, []);
   const [compareIds, setCompareIds] = useState<string[]>(() => {
     try { const s = sessionStorage.getItem('pptides_compare'); return s ? JSON.parse(s) : []; } catch { return []; }
   });
@@ -395,6 +405,7 @@ export default function Library() {
           }))
         })}</script>
       </Helmet>
+      <GuidedTour tourId="library" run={runTour} onFinish={() => setRunTour(false)} />
       <div className="mx-auto max-w-7xl px-4 py-8 md:px-6 md:py-12">
         {/* Header */}
         <div
@@ -458,7 +469,7 @@ export default function Library() {
         <div
           className="mb-6 flex flex-wrap gap-2 items-center"
         >
-          <div className="relative flex-1">
+          <div className="relative flex-1" data-tour="library-search">
             <Search className="absolute end-3 top-1/2 h-4 w-4 -translate-y-1/2 text-stone-700 dark:text-stone-200" />
             <input
               type="text"
@@ -576,6 +587,7 @@ export default function Library() {
 
         {/* Category Tabs */}
         <div
+          data-tour="library-filters"
           className="mb-8 -mx-4 px-4 overflow-x-auto scrollbar-hide scroll-fade"
         >
           <div className="flex gap-2 pb-2 min-w-max">
@@ -674,22 +686,23 @@ export default function Library() {
             <div
               className="grid grid-cols-1 gap-5 md:grid-cols-2 md:gap-6 lg:grid-cols-3"
             >
-              {filtered.map((p) => (
-                <PeptideCard
-                  key={p.id}
-                  peptide={p}
-                  hasAccess={hasFullAccess || p.isFree || (isTrial && TRIAL_PEPTIDE_IDS.has(p.id))}
-                  onLockedClick={() => handleLockedClick(p.id)}
-                  isFav={favorites.has(p.id)}
-                  onToggleFav={() => toggleFavorite(p.id)}
-                  isCompare={compareIds.includes(p.id)}
-                  onToggleCompare={() => setCompareIds(prev => {
-                    if (prev.includes(p.id)) return prev.filter(x => x !== p.id);
-                    if (prev.length >= 3) { toast('الحد الأقصى 3 ببتيدات للمقارنة'); return prev; }
-                    return [...prev, p.id];
-                  })}
-                  isUsed={usedPeptides.has(p.nameEn)}
-                />
+              {filtered.map((p, idx) => (
+                <div key={p.id} {...(idx === 0 ? { 'data-tour': 'library-first-card' } : {})}>
+                  <PeptideCard
+                    peptide={p}
+                    hasAccess={hasFullAccess || p.isFree || (isTrial && TRIAL_PEPTIDE_IDS.has(p.id))}
+                    onLockedClick={() => handleLockedClick(p.id)}
+                    isFav={favorites.has(p.id)}
+                    onToggleFav={() => toggleFavorite(p.id)}
+                    isCompare={compareIds.includes(p.id)}
+                    onToggleCompare={() => setCompareIds(prev => {
+                      if (prev.includes(p.id)) return prev.filter(x => x !== p.id);
+                      if (prev.length >= 3) { toast('الحد الأقصى 3 ببتيدات للمقارنة'); return prev; }
+                      return [...prev, p.id];
+                    })}
+                    isUsed={usedPeptides.has(p.nameEn)}
+                  />
+                </div>
               ))}
 
               {(!hasFullAccess) && (

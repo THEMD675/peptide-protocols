@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import FocusTrap from 'focus-trap-react';
 import { useAuth } from '@/contexts/AuthContext';
-import { Shield, X } from 'lucide-react';
+import { Shield, X, Clock } from 'lucide-react';
 import { cn, arPlural } from '@/lib/utils';
 import { PRICING, PEPTIDE_COUNT, FREE_PEPTIDE_IDS } from '@/lib/constants';
 import { useNowMs } from '@/hooks/useNowMs';
@@ -274,7 +274,7 @@ export default function TrialBanner() {
         >
           {isLastDay ? (
             <>
-              ⏰ آخر يوم في تجربتك — لا تفقد الوصول
+              <Clock className="inline h-4 w-4 mr-1 align-text-bottom" /> آخر يوم في تجربتك — لا تفقد الوصول
               <span className="mx-2">—</span>
               <Link
                 to="/pricing"

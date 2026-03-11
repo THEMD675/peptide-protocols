@@ -4,7 +4,7 @@ import { LEGAL_LAST_UPDATED, SUPPORT_EMAIL, SITE_URL } from '@/lib/constants';
 
 export default function Privacy() {
   return (
-    <div className="min-h-screen bg-white dark:bg-stone-900 animate-fade-in">
+    <div className="min-h-screen bg-white dark:bg-stone-950 animate-fade-in">
       <Helmet>
         <title>سياسة الخصوصية | pptides</title>
         <meta name="description" content="سياسة الخصوصية لموقع pptides.com — كيف نحمي بياناتك الشخصية." />

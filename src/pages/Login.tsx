@@ -337,7 +337,7 @@ export default function Login() {
 
   if (pendingVerification) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-white dark:bg-stone-900 px-4">
+      <div className="flex min-h-screen items-center justify-center bg-white dark:bg-stone-950 px-4">
         <Helmet><title>تأكيد البريد الإلكتروني | pptides</title></Helmet>
         <div className="w-full max-w-md">
           <div className="overflow-hidden rounded-2xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 shadow-lg">
@@ -385,7 +385,7 @@ export default function Login() {
 
   if (isRecovery) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-white dark:bg-stone-900 px-4">
+      <div className="flex min-h-screen items-center justify-center bg-white dark:bg-stone-950 px-4">
         <Helmet><title>تغيير كلمة المرور | pptides</title></Helmet>
         <div className="w-full max-w-md">
           <div className="overflow-hidden rounded-2xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 shadow-lg">
@@ -439,7 +439,7 @@ export default function Login() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-white dark:bg-stone-900 px-4">
+    <div className="flex min-h-screen items-center justify-center bg-white dark:bg-stone-950 px-4">
       <Helmet>
         <title>{`${tab === 'login' ? 'تسجيل الدخول' : 'إنشاء حساب'} | pptides`}</title>
         <meta name="description" content="سجّل دخولك أو أنشئ حساب جديد للوصول إلى مكتبة الببتيدات وحاسبة الجرعات والمدرب الذكي." />

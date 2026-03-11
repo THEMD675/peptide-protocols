@@ -33,6 +33,7 @@ import {
   Crown,
   ChevronDown,
   Gift,
+  Users,
 } from 'lucide-react';
 const EmailCapture = lazy(() => import('@/components/EmailCapture'));
 const FeatureComparisonTable = lazy(() => import('@/components/FeatureComparisonTable'));
@@ -672,8 +673,8 @@ export default function Landing() {
           <p className="mt-2 text-sm font-bold text-emerald-700 dark:text-emerald-400">أقل من ريال واحد يوميًا</p>
           <span className="mt-3 inline-block rounded-full bg-emerald-600 px-5 py-1.5 text-sm font-bold text-white shadow-md">توفير 97% — وفّر {VALUE_SAVINGS_ESSENTIALS} شهريًا</span>
           <div className="mt-4 flex flex-wrap items-center justify-center gap-3 text-xs text-stone-600 dark:text-stone-300">
-            <span className="flex items-center gap-1.5 rounded-full bg-white dark:bg-stone-900 border border-emerald-200 dark:border-emerald-800 px-3 py-1.5 font-medium">📚 أكثر من ١٠,٠٠٠ ساعة بحث</span>
-            {userCount >= 10 && <span className="flex items-center gap-1.5 rounded-full bg-white dark:bg-stone-900 border border-emerald-200 dark:border-emerald-800 px-3 py-1.5 font-medium">👥 يستخدمه <AnimatedCounter end={userCount} /> شخص في السعودية</span>}
+            <span className="flex items-center gap-1.5 rounded-full bg-white dark:bg-stone-900 border border-emerald-200 dark:border-emerald-800 px-3 py-1.5 font-medium"><BookOpen className="h-3.5 w-3.5" /> أكثر من ١٠,٠٠٠ ساعة بحث</span>
+            {userCount >= 10 && <span className="flex items-center gap-1.5 rounded-full bg-white dark:bg-stone-900 border border-emerald-200 dark:border-emerald-800 px-3 py-1.5 font-medium"><Users className="h-3.5 w-3.5" /> يستخدمه <AnimatedCounter end={userCount} /> شخص في السعودية</span>}
           </div>
           <p className="mt-4 text-sm text-stone-800 dark:text-stone-200">أو {PRICING.elite.label}/شهريًا للباقة المتقدمة مع المدرب الذكي + استشارات</p>
           <div className="mt-6 flex flex-col sm:flex-row items-center justify-center gap-3 text-sm">

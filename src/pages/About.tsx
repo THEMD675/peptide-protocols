@@ -67,7 +67,7 @@ const standards = [
 
 export default function About() {
   return (
-    <div className="min-h-screen bg-white dark:bg-stone-900 animate-fade-in">
+    <div className="min-h-screen bg-white dark:bg-stone-950 animate-fade-in">
       <Helmet>
         <title>عن pptides — أول منصة عربية للببتيدات العلاجية | pptides</title>
         <meta name="description" content="تعرّف على pptides: أول منصة عربية متخصصة في علم الببتيدات العلاجية. أكثر من 63 ببتيد مع بروتوكولات كاملة، مدرب ذكي، وأدوات متقدمة." />

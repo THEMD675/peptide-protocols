@@ -5,8 +5,9 @@ import {
   Calculator, FlaskConical, Droplets, ChevronDown, ArrowLeft, BookOpen,
   Layers, Bot, Bookmark, Syringe, Shield, Play, Search, Share2, Zap,
   Scale, DollarSign, ArrowLeftRight, Info, Trash2, Clock, Target,
-  TrendingUp, Activity,
+  TrendingUp, Activity, Dumbbell, Heart, Timer, Moon, Lightbulb,
 } from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
 import Tooltip from '@/components/Tooltip';
 import ProtocolWizard from '@/components/ProtocolWizard';
 import { peptides as allPeptides } from '@/data/peptides';
@@ -580,12 +581,12 @@ export default function DoseCalculator() {
     }
   }, [selectedPreset, doseValue, doseUnit, vialMg, waterMl, results]);
 
-  const COMMON_PROTOCOLS = useMemo(() => [
-    { name: 'فقدان الوزن', peptides: ['Semaglutide', 'Tirzepatide'], icon: '🏃‍♂️' },
-    { name: 'بناء العضلات', peptides: ['CJC-1295/Ipamorelin', 'BPC-157'], icon: '💪' },
-    { name: 'التعافي', peptides: ['BPC-157', 'TB-500'], icon: '🩹' },
-    { name: 'مكافحة الشيخوخة', peptides: ['Epithalon', 'GHK-Cu'], icon: '⏳' },
-    { name: 'النوم والاسترخاء', peptides: ['DSIP', 'Selank'], icon: '😴' },
+  const COMMON_PROTOCOLS = useMemo<{ name: string; peptides: string[]; icon: LucideIcon }[]>(() => [
+    { name: 'فقدان الوزن', peptides: ['Semaglutide', 'Tirzepatide'], icon: Activity },
+    { name: 'بناء العضلات', peptides: ['CJC-1295/Ipamorelin', 'BPC-157'], icon: Dumbbell },
+    { name: 'التعافي', peptides: ['BPC-157', 'TB-500'], icon: Heart },
+    { name: 'مكافحة الشيخوخة', peptides: ['Epithalon', 'GHK-Cu'], icon: Timer },
+    { name: 'النوم والاسترخاء', peptides: ['DSIP', 'Selank'], icon: Moon },
   ], []);
 
   const selectPreset = useCallback((presetName: string) => {
@@ -711,7 +712,7 @@ export default function DoseCalculator() {
                     }}
                     className="flex shrink-0 items-center gap-2 rounded-2xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 px-4 py-3 text-sm font-medium text-stone-700 dark:text-stone-200 transition-all hover:border-emerald-300 hover:bg-emerald-50 dark:hover:bg-emerald-950 hover:shadow-sm"
                   >
-                    <span className="text-lg">{proto.icon}</span>
+                    <proto.icon className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
                     <div className="text-start">
                       <p className="text-xs font-bold text-stone-900 dark:text-stone-100">{proto.name}</p>
                       <p className="text-[10px] text-stone-500 dark:text-stone-300" dir="ltr">{proto.peptides.join(' + ')}</p>
@@ -1332,7 +1333,7 @@ export default function DoseCalculator() {
                   <p>• سيرنج 100 وحدة = 1 مل. كل علامة = 1 وحدة = 0.01 مل</p>
                   <p>• سيرنج 50 وحدة = 0.5 مل. كل علامة = 1 وحدة = 0.01 مل</p>
                   <p>• سيرنج 30 وحدة = 0.3 مل. كل علامة = 0.5 وحدة = 0.005 مل</p>
-                  <p className="font-bold text-emerald-700">💡 سيرنج أصغر = دقة أعلى. استخدم أصغر سيرنج يتسع لجرعتك.</p>
+                  <p className="font-bold text-emerald-700 flex items-center gap-1.5"><Lightbulb className="h-4 w-4 shrink-0" /> سيرنج أصغر = دقة أعلى. استخدم أصغر سيرنج يتسع لجرعتك.</p>
                 </div>
               </div>
             </div>

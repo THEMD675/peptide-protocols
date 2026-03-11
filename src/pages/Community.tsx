@@ -718,7 +718,7 @@ export default function Community() {
   const parsePeptideNames = (name: string) => name.split(',').map(s => s.trim()).filter(Boolean);
 
   return (
-    <div className="min-h-screen bg-white dark:bg-stone-900 animate-fade-in" dir="rtl">
+    <div className="min-h-screen bg-white dark:bg-stone-950 animate-fade-in" dir="rtl">
       <Helmet>
         <title>مجتمع الببتيدات | pptides</title>
         <meta name="description" content="شارك تجربتك مع الببتيدات واقرأ تجارب حقيقية من مستخدمين آخرين. بروتوكولات مُجرَّبة، نتائج فعلية، وتقييمات صادقة." />
@@ -1349,7 +1349,7 @@ export default function Community() {
                           ) : (
                             <>
                               {(repliesByPost[log.id] ?? []).length === 0 && (
-                                <p className="py-2 text-sm text-stone-400 dark:text-stone-500 italic">لا توجد ردود بعد — كن أول من يرد! 💬</p>
+                                <p className="py-2 text-sm text-stone-400 dark:text-stone-500 italic flex items-center gap-1.5">لا توجد ردود بعد — كن أول من يرد! <MessageCircle className="h-4 w-4" /></p>
                               )}
                               {(repliesByPost[log.id] ?? []).map(reply => (
                                 <div key={reply.id} className="flex gap-2.5 rounded-xl bg-stone-50 dark:bg-stone-900 p-3">

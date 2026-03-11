@@ -1,4 +1,5 @@
 import { Helmet } from 'react-helmet-async';
+import GuidedTour, { isTourDone } from '@/components/GuidedTour';
 import { Link, Navigate } from 'react-router-dom';
 import { useState, useEffect, useCallback, useMemo, lazy, Suspense, useRef } from 'react';
 import confetti from 'canvas-confetti';
@@ -75,13 +76,13 @@ const SEASONAL_TIPS: Record<number, string> = {
 };
 
 const QUICK_LINKS = [
-  { to: '/quiz', label: 'اختبار الببتيد', description: 'اكتشف الأنسب لك', Icon: Sparkles },
-  { to: '/coach', label: 'المدرب الذكي', description: 'اسأل خبير الببتيدات', Icon: Bot },
-  { to: '/tracker', label: 'سجل الحقن', description: 'تتبّع جرعاتك', Icon: Syringe },
-  { to: '/calculator', label: 'الحاسبة', description: 'احسب جرعتك بدقة', Icon: Calculator },
-  { to: '/library', label: 'المكتبة', description: `تصفّح ${PEPTIDE_COUNT}+ ببتيد`, Icon: BookOpen },
-  { to: '/lab-guide', label: 'دليل التحاليل', description: '11 تحليل أساسي', Icon: FlaskConical },
-  { to: '/table', label: 'الجدول المرجعي', description: 'جميع الببتيدات في جدول', Icon: Table2 },
+  { to: '/quiz', label: 'اختبار الببتيد', description: 'اكتشف الأنسب لك', Icon: Sparkles, tourId: undefined },
+  { to: '/coach', label: 'المدرب الذكي', description: 'اسأل خبير الببتيدات', Icon: Bot, tourId: 'dash-coach' },
+  { to: '/tracker', label: 'سجل الحقن', description: 'تتبّع جرعاتك', Icon: Syringe, tourId: 'dash-tracker' },
+  { to: '/calculator', label: 'الحاسبة', description: 'احسب جرعتك بدقة', Icon: Calculator, tourId: 'dash-calculator' },
+  { to: '/library', label: 'المكتبة', description: `تصفّح ${PEPTIDE_COUNT}+ ببتيد`, Icon: BookOpen, tourId: 'dash-library' },
+  { to: '/lab-guide', label: 'دليل التحاليل', description: '11 تحليل أساسي', Icon: FlaskConical, tourId: undefined },
+  { to: '/table', label: 'الجدول المرجعي', description: 'جميع الببتيدات في جدول', Icon: Table2, tourId: undefined },
 ];
 
 const GOAL_RECOMMENDATIONS: Record<string, { text: string; peptideId: string }> = {
@@ -395,6 +396,16 @@ export default function Dashboard() {
   const [shareProtocolId, setShareProtocolId] = useState<string | null>(null);
   const [showOnboarding, setShowOnboarding] = useState(false);
   const welcomeConfettiFired = useRef(false);
+  const [runTour, setRunTour] = useState(false);
+
+  // Auto-trigger dashboard tour for first-time users
+  useEffect(() => {
+    if (!user) return;
+    const timer = setTimeout(() => {
+      if (!isTourDone('dashboard')) setRunTour(true);
+    }, 1200);
+    return () => clearTimeout(timer);
+  }, [user]);
   const showOnboardButton = useMemo(() => {
     try { return localStorage.getItem('pptides_onboarded') === 'true'; } catch { return false; }
   }, []);
@@ -447,6 +458,8 @@ export default function Dashboard() {
 
   return (
     <div className="mx-auto max-w-5xl px-4 pb-24 pt-8 md:px-6 md:pt-12 animate-fade-in">
+      {/* Guided Tour */}
+      <GuidedTour tourId="dashboard" run={runTour} onFinish={() => setRunTour(false)} />
       <Helmet>
         <title>لوحة التحكم | pptides</title>
         <meta name="description" content="لوحة التحكم — أدواتك في مكان واحد" />
@@ -1429,6 +1442,7 @@ export default function Dashboard() {
             <Link
               key={link.to}
               to={link.to}
+              {...(link.tourId ? { 'data-tour': link.tourId } : {})}
               className="group flex items-center gap-4 rounded-2xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 p-5 card-lift hover:border-emerald-400 hover:shadow-emerald-600/10"
             >
               <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-emerald-50 dark:bg-emerald-900/20 transition-colors group-hover:bg-emerald-100 dark:bg-emerald-900/30">
