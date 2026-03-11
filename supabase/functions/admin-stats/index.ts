@@ -109,23 +109,15 @@ serve(async (req) => {
     const essentialsSubs = activeSubs.filter(s => s.tier === 'essentials')
     const eliteSubs = activeSubs.filter(s => s.tier === 'elite')
 
-    // MRR from real Stripe subscriptions, adjusted for billing interval
+    // MRR from real Stripe subscriptions, using billing_interval column
     const mrrEssentialsMonthly = parseFloat(Deno.env.get('MRR_ESSENTIALS_SAR') ?? '34')
     const mrrEliteMonthly = parseFloat(Deno.env.get('MRR_ELITE_SAR') ?? '371')
     const mrrEssentialsAnnual = parseFloat(Deno.env.get('MRR_ESSENTIALS_ANNUAL_SAR') ?? '296')
     const mrrEliteAnnual = parseFloat(Deno.env.get('MRR_ELITE_ANNUAL_SAR') ?? '2963')
-    const essentialsMonthly = essentialsSubs.filter(s => {
-      if (!s.current_period_end) return true
-      const periodMs = new Date(s.current_period_end).getTime() - (s.created_at ? new Date(s.created_at).getTime() : 0)
-      return periodMs < 60 * 86400000
-    })
-    const essentialsAnnual = essentialsSubs.filter(s => !essentialsMonthly.includes(s))
-    const eliteMonthly = eliteSubs.filter(s => {
-      if (!s.current_period_end) return true
-      const periodMs = new Date(s.current_period_end).getTime() - (s.created_at ? new Date(s.created_at).getTime() : 0)
-      return periodMs < 60 * 86400000
-    })
-    const eliteAnnual = eliteSubs.filter(s => !eliteMonthly.includes(s))
+    const essentialsMonthly = essentialsSubs.filter(s => s.billing_interval !== 'year')
+    const essentialsAnnual = essentialsSubs.filter(s => s.billing_interval === 'year')
+    const eliteMonthly = eliteSubs.filter(s => s.billing_interval !== 'year')
+    const eliteAnnual = eliteSubs.filter(s => s.billing_interval === 'year')
     const mrr = (essentialsMonthly.length * mrrEssentialsMonthly)
       + (essentialsAnnual.length * (mrrEssentialsAnnual / 12))
       + (eliteMonthly.length * mrrEliteMonthly)
@@ -287,6 +279,20 @@ serve(async (req) => {
       revenueByMonth.push({ month: monthStr, revenue: Math.round(monthRevenue) })
     }
 
+    // --- SIGNUPS BY DAY (last 30 days) ---
+    const signupsByDay: { date: string; signups: number }[] = []
+    for (let i = 29; i >= 0; i--) {
+      const d = new Date(now.getFullYear(), now.getMonth(), now.getDate() - i)
+      const dayStart = d.getTime()
+      const dayEnd = dayStart + 86400000
+      const dateStr = `${d.getDate()}/${d.getMonth() + 1}`
+      const count = users.filter(u => {
+        const t = new Date(u.created_at).getTime()
+        return t >= dayStart && t < dayEnd
+      }).length
+      signupsByDay.push({ date: dateStr, signups: count })
+    }
+
     const stats = {
       pagination: {
         page: pageParam,
@@ -337,6 +343,7 @@ serve(async (req) => {
       pendingReviews: pendingReviews.slice(0, 20),
       recentCommunity: community.slice(0, 20),
       revenueByMonth,
+      signupsByDay,
       emailList: emailList.slice(0, 50),
       enquiries: enquiriesData.slice(0, 30),
       emailLogs: emailLogsData.slice(0, 50),

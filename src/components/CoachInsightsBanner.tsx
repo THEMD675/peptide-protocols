@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { X, Sparkles, TrendingUp, AlertTriangle, Lightbulb, Target, Microscope } from 'lucide-react';
+import { X, Sparkles, TrendingUp, AlertTriangle, Lightbulb, Target, Microscope, Calendar, Heart, Zap } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { ProactiveInsight } from '@/hooks/useProactiveCoach';
 
@@ -9,6 +9,9 @@ const insightIcons: Record<ProactiveInsight['icon'], React.ElementType> = {
   'lightbulb': Lightbulb,
   'target': Target,
   'microscope': Microscope,
+  'calendar': Calendar,
+  'heart': Heart,
+  'zap': Zap,
 };
 
 const insightIconColors: Record<ProactiveInsight['icon'], string> = {
@@ -17,6 +20,9 @@ const insightIconColors: Record<ProactiveInsight['icon'], string> = {
   'lightbulb': 'text-yellow-600 dark:text-yellow-400',
   'target': 'text-blue-600 dark:text-blue-400',
   'microscope': 'text-purple-600 dark:text-purple-400',
+  'calendar': 'text-orange-600 dark:text-orange-400',
+  'heart': 'text-pink-600 dark:text-pink-400',
+  'zap': 'text-emerald-600 dark:text-emerald-400',
 };
 
 interface Props {
@@ -44,7 +50,7 @@ export default function CoachInsightsBanner({ insights, onInsightClick }: Props)
             'group flex w-full items-start gap-3 rounded-xl border px-4 py-3 text-start transition-all hover:shadow-sm',
             insight.icon === 'alert-triangle'
               ? 'border-amber-200 dark:border-amber-800 bg-amber-50/50 dark:bg-amber-900/10 hover:bg-amber-50 dark:hover:bg-amber-900/20'
-              : insight.icon === 'trending-up'
+              : insight.icon === 'trending-up' || insight.icon === 'zap'
               ? 'border-emerald-200 dark:border-emerald-800 bg-emerald-50/50 dark:bg-emerald-900/10 hover:bg-emerald-50 dark:hover:bg-emerald-900/20'
               : 'border-stone-200 dark:border-stone-700 bg-stone-50/50 dark:bg-stone-800/30 hover:bg-stone-50 dark:hover:bg-stone-800/50',
           )}

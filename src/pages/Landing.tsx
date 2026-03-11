@@ -4,6 +4,7 @@ import { Helmet } from 'react-helmet-async';
 import { Link, Navigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
+import { REFERRAL } from '@/constants/sales-copy';
 // BPC-157 data inlined to avoid loading the full 131KB peptides dataset on landing
 const BPC_157_PREVIEW = {
   nameAr: 'BPC-157',
@@ -932,15 +933,15 @@ export default function Landing() {
           <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-500/10">
             <Gift className="h-7 w-7 text-emerald-700 dark:text-emerald-400" />
           </div>
-          <h2 className="text-2xl font-bold text-stone-900 dark:text-stone-100 md:text-3xl">ادعُ صديقًا واحصل على مكافأة</h2>
-          <p className="mt-3 text-stone-600 dark:text-stone-300">عند اشتراك صديقك، يحصل على خصم 20% — وأنت تحصل على شهر مجاني!</p>
+          <h2 className="text-2xl font-bold text-stone-900 dark:text-stone-100 md:text-3xl">{REFERRAL.heading}</h2>
+          <p className="mt-3 text-stone-600 dark:text-stone-300">{REFERRAL.description}</p>
           {user ? (
             <Link to="/account" className="mt-6 inline-flex items-center gap-2 rounded-full bg-emerald-600 px-8 py-3.5 text-base font-semibold text-white shadow-lg transition hover:bg-emerald-700">
-              احصل على رابط إحالتك
+              {REFERRAL.ctaLoggedIn}
             </Link>
           ) : (
             <Link to="/signup?redirect=/account" className="mt-6 inline-flex items-center gap-2 rounded-full bg-emerald-600 px-8 py-3.5 text-base font-semibold text-white shadow-lg transition hover:bg-emerald-700">
-              سجّل الآن لتحصل على رابطك
+              {REFERRAL.ctaVisitor}
             </Link>
           )}
         </div>

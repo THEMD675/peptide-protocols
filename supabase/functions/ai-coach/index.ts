@@ -396,12 +396,15 @@ serve(async (req) => {
       })
     }
 
-    const [wellnessResult, labResult, protocolResult, sideEffectResult, profileResult] = await Promise.all([
-      supabase.from('wellness_logs').select('energy, sleep, pain, mood, appetite, logged_at').eq('user_id', user.id).order('logged_at', { ascending: false }).limit(5),
-      supabase.from('lab_results').select('test_id, value, unit, tested_at').eq('user_id', user.id).order('tested_at', { ascending: false }).limit(5),
+    const [wellnessResult, labResult, protocolResult, sideEffectResult, profileResult, lastConvResult, injectionResult, referralResult] = await Promise.all([
+      supabase.from('wellness_logs').select('energy, sleep, pain, mood, appetite, logged_at').eq('user_id', user.id).order('logged_at', { ascending: false }).limit(10),
+      supabase.from('lab_results').select('test_id, value, unit, tested_at').eq('user_id', user.id).order('tested_at', { ascending: false }).limit(10),
       supabase.from('user_protocols').select('peptide_id, dose, dose_unit, frequency, cycle_weeks, started_at, status').eq('user_id', user.id).order('started_at', { ascending: false }).limit(10),
       supabase.from('side_effect_logs').select('symptom, severity, peptide_id, notes, created_at').eq('user_id', user.id).order('created_at', { ascending: false }).limit(10),
-      supabase.from('user_profiles').select('goals, weight_kg').eq('user_id', user.id).maybeSingle(),
+      supabase.from('user_profiles').select('goals, weight_kg, onboarding_goals').eq('user_id', user.id).maybeSingle(),
+      supabase.from('coach_conversations').select('messages, updated_at').eq('user_id', user.id).order('updated_at', { ascending: false }).limit(2),
+      supabase.from('injection_logs').select('peptide_name, dose, dose_unit, logged_at').eq('user_id', user.id).order('logged_at', { ascending: false }).limit(20),
+      supabase.from('referrals').select('status, created_at').eq('referrer_id', user.id).limit(10),
     ])
 
     const wellnessData = wellnessResult.data ?? []
@@ -409,37 +412,137 @@ serve(async (req) => {
     const protocolData = protocolResult.data ?? []
     const sideEffectData = sideEffectResult.data ?? []
     const profileData = profileResult.data
+    const lastConvData = lastConvResult.data ?? []
+    const injectionData = injectionResult.data ?? []
+    const referralData = referralResult.data ?? []
 
     let userContextMsg = ''
+
+    // User profile and goals
     if (profileData?.goals) {
       userContextMsg += `\n\nأهداف المستخدم: ${Array.isArray(profileData.goals) ? profileData.goals.join(', ') : profileData.goals}`
       if (profileData.weight_kg) userContextMsg += ` | الوزن: ${profileData.weight_kg} كغ`
     }
+    if (profileData?.onboarding_goals) {
+      const og = profileData.onboarding_goals as { goal?: string }
+      if (og.goal) userContextMsg += `\nهدف الأونبوردينغ: ${og.goal}`
+    }
+
+    // Injection history with adherence analysis
+    if (injectionData.length > 0) {
+      const entries = injectionData.slice(0, 15).map(l =>
+        `${new Date(l.logged_at).toLocaleDateString('en-CA')}: ${l.peptide_name} ${l.dose}${l.dose_unit}`
+      ).join('\n')
+      userContextMsg += `\n\nسجل الحقن (آخر ${Math.min(injectionData.length, 15)}):\n${entries}`
+
+      // Calculate adherence insights
+      const lastLogDate = new Date(injectionData[0].logged_at)
+      const daysSinceLastLog = Math.floor((Date.now() - lastLogDate.getTime()) / (1000 * 60 * 60 * 24))
+      userContextMsg += `\nآخر حقنة: قبل ${daysSinceLastLog} يوم`
+
+      // Streak calculation
+      const daySet = new Set(injectionData.map(l => new Date(l.logged_at).toDateString()))
+      const d = new Date()
+      if (!daySet.has(d.toDateString())) d.setDate(d.getDate() - 1)
+      let streak = 0
+      while (daySet.has(d.toDateString())) { streak++; d.setDate(d.getDate() - 1) }
+      if (streak > 0) userContextMsg += `\nسلسلة الالتزام الحالية: ${streak} يوم متتالي`
+
+      // Unique peptides
+      const uniquePeptides = [...new Set(injectionData.map(l => l.peptide_name))]
+      userContextMsg += `\nببتيدات مستخدمة: ${uniquePeptides.join(', ')}`
+    }
+
+    // Protocols with progress analysis
     if (protocolData.length > 0) {
       const entries = protocolData.map(p => {
         const start = p.started_at ? new Date(p.started_at).toLocaleDateString('en-CA') : 'unknown'
-        return `${p.peptide_id}: ${p.dose}${p.dose_unit} ${p.frequency}, ${p.cycle_weeks}w cycle, started ${start}, status=${p.status}`
+        const daysIn = p.started_at ? Math.floor((Date.now() - new Date(p.started_at).getTime()) / (1000 * 60 * 60 * 24)) : 0
+        const totalDays = p.cycle_weeks * 7
+        const remaining = Math.max(totalDays - daysIn, 0)
+        return `${p.peptide_id}: ${p.dose}${p.dose_unit} ${p.frequency}, ${p.cycle_weeks}w cycle, started ${start}, day ${daysIn}/${totalDays}, ${remaining} days remaining, status=${p.status}`
       }).join('\n')
-      userContextMsg += `\n\nبروتوكولات المستخدم (الحالية والسابقة):\n${entries}`
+      userContextMsg += `\n\nبروتوكولات المستخدم (مع تحليل التقدم):\n${entries}`
     }
+
+    // Wellness trends with analysis
     if (wellnessData.length > 0) {
       const entries = wellnessData.map(w =>
         `${w.logged_at}: energy=${w.energy}, sleep=${w.sleep}, pain=${w.pain}, mood=${w.mood}, appetite=${w.appetite}`
       ).join('\n')
       userContextMsg += `\n\nبيانات العافية الأخيرة للمستخدم:\n${entries}`
+
+      // Calculate trends
+      if (wellnessData.length >= 4) {
+        const recent = wellnessData.slice(0, 3)
+        const older = wellnessData.slice(3, 7)
+        if (older.length > 0) {
+          const metrics = ['energy', 'sleep', 'pain', 'mood'] as const
+          const trends: string[] = []
+          for (const key of metrics) {
+            const avgRecent = recent.reduce((s, w) => s + (w[key] ?? 3), 0) / recent.length
+            const avgOlder = older.reduce((s, w) => s + (w[key] ?? 3), 0) / older.length
+            const change = Math.round(((avgRecent - avgOlder) / Math.max(avgOlder, 0.1)) * 100)
+            if (Math.abs(change) > 10) {
+              trends.push(`${key}: ${change > 0 ? '↑' : '↓'} ${Math.abs(change)}% (${avgOlder.toFixed(1)} → ${avgRecent.toFixed(1)})`)
+            }
+          }
+          if (trends.length > 0) {
+            userContextMsg += `\nاتجاهات العافية:\n${trends.join('\n')}`
+          }
+        }
+      }
     }
+
+    // Lab results
     if (labData.length > 0) {
       const entries = labData.map(l =>
         `${l.tested_at}: ${l.test_id} = ${l.value} ${l.unit ?? ''}`
       ).join('\n')
       userContextMsg += `\n\nنتائج التحاليل الأخيرة للمستخدم:\n${entries}`
     }
+
+    // Side effects
     if (sideEffectData.length > 0) {
       const entries = sideEffectData.map(s =>
         `${s.created_at}: ${s.symptom} (severity=${s.severity}/5)${s.peptide_id ? ` — ${s.peptide_id}` : ''}${s.notes ? ` — ${s.notes}` : ''}`
       ).join('\n')
       userContextMsg += `\n\nأعراض جانبية أبلغ عنها المستخدم:\n${entries}`
     }
+
+    // Last conversation context for smart follow-ups
+    if (lastConvData.length > 0 && lastConvData[0].messages) {
+      const prevMsgs = lastConvData[0].messages as Array<{ role: string; content: string }>
+      // Only include if this is a NEW conversation (first user message in current session)
+      if (userMsgCount <= 1 && prevMsgs.length > 0) {
+        const lastAssistant = [...prevMsgs].reverse().find(m => m.role === 'assistant')
+        const lastUser = [...prevMsgs].reverse().find(m => m.role === 'user')
+        if (lastAssistant && lastUser) {
+          const updatedAt = lastConvData[0].updated_at
+          const daysSince = Math.floor((Date.now() - new Date(updatedAt).getTime()) / (1000 * 60 * 60 * 24))
+          if (daysSince <= 7) {
+            userContextMsg += `\n\nآخر محادثة مع المستخدم (قبل ${daysSince} يوم):`
+            userContextMsg += `\nسأل: "${lastUser.content.slice(0, 200)}"`
+            userContextMsg += `\nأجبت: "${lastAssistant.content.slice(0, 300)}"`
+            userContextMsg += `\nإذا كانت أول رسالة في هذه الجلسة، ابدأ بمتابعة المحادثة السابقة: "في محادثتنا الأخيرة تحدثنا عن X — هل طبّقت النصائح؟" ثم أجب على سؤاله الجديد.`
+          }
+        }
+      }
+    }
+
+    // Referral activity
+    if (referralData.length > 0) {
+      const converted = referralData.filter(r => r.status === 'converted').length
+      const pending = referralData.filter(r => r.status === 'pending').length
+      userContextMsg += `\n\nنشاط الإحالة: ${referralData.length} إحالات (${converted} محولة, ${pending} معلقة)`
+    }
+
+    // Proactive context injection: time of day + date
+    const now = new Date()
+    const hour = now.getHours()
+    const timeContext = hour < 6 ? 'وقت متأخر من الليل' : hour < 12 ? 'صباحًا' : hour < 18 ? 'بعد الظهر' : 'مساءً'
+    userContextMsg += `\n\nالوقت الحالي: ${now.toLocaleDateString('ar-u-nu-latn', { weekday: 'long', month: 'long', day: 'numeric' })} (${timeContext})`
+    userContextMsg += `\nملاحظة: كن استباقيًا. ابدأ بتعليق ذكي على حالة المستخدم قبل الإجابة على سؤاله. اختم دائمًا بتوصية عملية محددة يقدر ينفذها اليوم.`
 
     const userMessages = messages.filter((m: { role: string }) => m.role !== 'system').slice(-MAX_CONTEXT_MESSAGES)
     const wantStream = stream === true

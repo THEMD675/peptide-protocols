@@ -17,6 +17,7 @@ import { SITE_URL, PRICING, TRIAL_DAYS } from '@/lib/constants';
 import ProtocolWizard from '@/components/ProtocolWizard';
 import CoachHistory from '@/components/CoachHistory';
 import CoachInsightsBanner from '@/components/CoachInsightsBanner';
+import DailyBriefingCard from '@/components/DailyBriefingCard';
 import { useProactiveCoach } from '@/hooks/useProactiveCoach';
 
 
@@ -250,7 +251,7 @@ export default function Coach() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
 
-  const { smartStarters, insights } = useProactiveCoach(user?.id);
+  const { smartStarters, insights, dailyBriefing } = useProactiveCoach(user?.id);
 
   // Build conversation starters: smart (proactive) first, then fallback to personalized/defaults
   const conversationStarters = useMemo(() => {
@@ -698,6 +699,14 @@ export default function Coach() {
 
         <div className="rounded-2xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 overflow-hidden shadow-sm dark:shadow-stone-900/30">
           <div ref={scrollRef} role="log" aria-label="محادثة المدرب الذكي" aria-live="polite" className="min-h-[320px] max-h-[65dvh] overflow-y-auto p-5 space-y-4 bg-stone-50/50 dark:bg-stone-950/50">
+
+            {/* Daily Briefing Card — personalized daily check-in */}
+            {intakeStep === 'done' && messages.length === 0 && dailyBriefing && (
+              <DailyBriefingCard
+                briefing={dailyBriefing}
+                onObservationClick={(text) => sendToAI(text)}
+              />
+            )}
 
             {/* Proactive Insights Banner — shows contextual insights based on user data */}
             {intakeStep === 'done' && messages.length === 0 && insights.length > 0 && (

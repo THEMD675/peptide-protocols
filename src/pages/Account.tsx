@@ -12,6 +12,7 @@ import { SUPPORT_EMAIL, STATUS_LABELS, TIER_LABELS, PEPTIDE_COUNT, SITE_URL, PRI
 import { useTheme } from '@/hooks/useTheme';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
+import { REFERRAL, RETENTION } from '@/constants/sales-copy';
 
 export default function Account() {
   const { user, subscription, logout, refreshSubscription, isLoading } = useAuth();
@@ -1091,10 +1092,10 @@ export default function Account() {
             <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-amber-100 dark:bg-amber-900/30">
               <AlertTriangle className="h-6 w-6 text-amber-600" />
             </div>
-            <h3 className="text-lg font-bold text-stone-900 dark:text-stone-100">هل أنت متأكد؟</h3>
+            <h3 className="text-lg font-bold text-stone-900 dark:text-stone-100">{RETENTION.heading}</h3>
             <div className="mt-4 rounded-xl border border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-900/20 p-4 mb-4">
-              <p className="text-sm font-bold text-emerald-800 dark:text-emerald-300 mb-2">عرض خاص لك!</p>
-              <p className="text-sm text-emerald-700 dark:text-emerald-400">نقدّر وجودك — خصم <strong>20%</strong> على اشتراكك القادم إذا بقيت معنا</p>
+              <p className="text-sm font-bold text-emerald-800 dark:text-emerald-300 mb-2">{RETENTION.offerBadge}</p>
+              <p className="text-sm text-emerald-700 dark:text-emerald-400">{RETENTION.offerBody}</p>
               <button
                 onClick={async () => {
                   try {
@@ -1320,7 +1321,7 @@ function ReferralSection({ userId }: { userId?: string }) {
         <Gift className="h-5 w-5 text-emerald-700" />
         <h2 className="text-lg font-bold text-stone-900 dark:text-stone-100">ادعُ صديقًا واحصل على شهر مجاني</h2>
       </div>
-      <p className="text-sm text-stone-600 dark:text-stone-300 mb-4">عند اشتراك صديقك، يحصل على خصم 20% — وأنت تحصل على شهر مجاني تلقائيًا!</p>
+      <p className="text-sm text-stone-600 dark:text-stone-300 mb-4">ادعُ صديقك — يحصل على خصم 40% على شهره الثاني، وأنت تحصل على شهر مجاني تلقائيًا!</p>
 
       <div className="flex items-center gap-2 mb-4">
         <div className="flex-1 rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 px-4 py-3 text-sm font-mono text-stone-700 dark:text-stone-200 truncate" dir="ltr">
@@ -1393,6 +1394,23 @@ function ReferralSection({ userId }: { userId?: string }) {
             <p className="text-xs text-stone-500 dark:text-stone-300">مكافآت</p>
           </div>
         </div>
+      </div>
+
+      {/* Referral reward cap indicator */}
+      <div className="mt-4 rounded-xl bg-stone-50 dark:bg-stone-900 p-3">
+        <div className="flex items-center justify-between mb-2">
+          <p className="text-xs font-bold text-stone-600 dark:text-stone-300">حد المكافآت: 5 إحالات</p>
+          <p className="text-xs font-mono text-stone-500 dark:text-stone-400">{Math.min(stats.rewarded, 5)}/5</p>
+        </div>
+        <div className="w-full h-2 rounded-full bg-stone-200 dark:bg-stone-700 overflow-hidden">
+          <div
+            className="h-full rounded-full bg-emerald-500 transition-all duration-500"
+            style={{ width: `${Math.min((stats.rewarded / 5) * 100, 100)}%` }}
+          />
+        </div>
+        {stats.rewarded >= 5 && (
+          <p className="text-[11px] text-amber-600 dark:text-amber-400 mt-1.5 text-center">🎉 وصلت للحد الأقصى من المكافآت!</p>
+        )}
       </div>
 
       <p className="text-[11px] text-stone-500 dark:text-stone-300 mt-3 text-center">كود الإحالة الخاص بك: <span className="font-mono font-bold" dir="ltr">{code}</span></p>

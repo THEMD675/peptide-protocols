@@ -231,6 +231,22 @@ export default function Login() {
 
     setLoading(true);
     try {
+      // Server-side Turnstile validation for signup
+      if (tab === 'signup' && TURNSTILE_SITE_KEY && turnstileToken) {
+        const validateRes = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/validate-turnstile`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ token: turnstileToken }),
+        });
+        const validateData = await validateRes.json().catch(() => ({ success: false }));
+        if (!validateRes.ok || !validateData.success) {
+          setError(validateData.error || 'فشل التحقق الأمني — حاول مرة أخرى');
+          resetTurnstile();
+          setLoading(false);
+          return;
+        }
+      }
+
       if (tab === 'login') {
         await login(email, password);
         events.login('email');

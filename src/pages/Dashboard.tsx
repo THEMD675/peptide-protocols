@@ -40,6 +40,8 @@ import ShareableCard from '@/components/ShareableCard';
 import WellnessCheckin from '@/components/WellnessCheckin';
 const LabResultsTracker = lazy(() => import('@/components/LabResultsTracker'));
 import PushNotificationPrompt from '@/components/PushNotificationPrompt';
+import DashboardCoachCards from '@/components/DashboardCoachCards';
+import { useProactiveCoach } from '@/hooks/useProactiveCoach';
 import WeeklyProgressReport from '@/components/WeeklyProgressReport';
 import { AlertTriangle, HeartPulse } from 'lucide-react';
 import { peptides as allPeptides } from '@/data/peptides';
@@ -398,6 +400,7 @@ export default function Dashboard() {
   const { protocols: activeProtocols, refetch: refetchProtocols } = useActiveProtocols(user?.id);
   const userReviewCount = useUserReviewCount(user?.id);
   const wellnessTrend = useWellnessTrend(user?.id);
+  const { dashboardCards } = useProactiveCoach(user?.id);
   const [shareProtocolId, setShareProtocolId] = useState<string | null>(null);
   // Fix 5: Initialize onboarding show state synchronously from localStorage to prevent flash
   const [showOnboarding, setShowOnboarding] = useState(false);
@@ -619,6 +622,11 @@ export default function Dashboard() {
       {/* Weekly Progress Report — only meaningful once user has logged something */}
       {!activity.loading && (activity.logs.length > 0 || activeProtocols.length > 0) && (
         <WeeklyProgressReport />
+      )}
+
+      {/* Coach Insight Cards — proactive coaching on Dashboard */}
+      {!activity.loading && dashboardCards.length > 0 && subscription.isProOrTrial && (
+        <DashboardCoachCards cards={dashboardCards} />
       )}
 
       {/* Re-open onboarding */}

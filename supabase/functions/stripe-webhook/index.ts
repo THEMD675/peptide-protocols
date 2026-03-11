@@ -81,7 +81,7 @@ serve(async (req) => {
         if (!userId && session.customer_email) {
           // Direct lookup by email — O(1) instead of paginating all users
           const { data: profileMatch } = await supabase
-            .from('profiles')
+            .from('user_profiles')
             .select('id')
             .eq('email', session.customer_email)
             .limit(1)
@@ -313,6 +313,14 @@ serve(async (req) => {
           tierUpdate = totalAmount >= eliteMinHalalas ? 'elite' : 'essentials'
         }
 
+        // Extract billing interval from Stripe price
+        let billingInterval: string | undefined
+        if (subscription.items?.data?.length) {
+          const priceInterval = subscription.items.data[0]?.price?.recurring?.interval
+          if (priceInterval === 'year') billingInterval = 'year'
+          else if (priceInterval === 'month') billingInterval = 'month'
+        }
+
         try {
           const rpcParams: Record<string, unknown> = {
             p_stripe_subscription_id: stripeSubId,
@@ -330,6 +338,17 @@ serve(async (req) => {
           } else if (!rows || rows.length === 0) {
             console.error('subscription.updated: zero rows matched stripe_subscription_id:', stripeSubId)
             dbFailed = true
+          }
+
+          // Store billing_interval separately (not in the existing RPC)
+          if (billingInterval) {
+            await supabase
+              .from('subscriptions')
+              .update({ billing_interval: billingInterval })
+              .eq('stripe_subscription_id', stripeSubId)
+              .then(({ error: biErr }) => {
+                if (biErr) console.error('billing_interval update failed:', biErr)
+              })
           }
         } catch (dbErr) {
           console.error('subscription.updated DB exception:', dbErr)
@@ -390,6 +409,42 @@ serve(async (req) => {
           } catch (dbErr) {
             console.error('invoice.paid DB exception:', dbErr)
             dbFailed = true
+          }
+
+          // REFERRAL FRIEND DISCOUNT: Apply 40% off to the referred user's NEXT (2nd) invoice
+          // This fires on the FIRST paid invoice for a referred user.
+          // We check: (a) user was referred, (b) this is their first payment, (c) discount not already applied.
+          if (!dbFailed) {
+            try {
+              const { data: subRow } = await supabase.from('subscriptions')
+                .select('user_id, referred_by, referral_friend_discount_applied')
+                .eq('stripe_subscription_id', stripeSubId)
+                .maybeSingle()
+
+              if (subRow?.referred_by && !subRow.referral_friend_discount_applied) {
+                // Verify this is from a valid referrer
+                const { data: referrerExists } = await supabase.from('subscriptions')
+                  .select('user_id')
+                  .eq('referral_code', subRow.referred_by)
+                  .maybeSingle()
+
+                if (referrerExists) {
+                  // Apply 40% coupon to the subscription for the NEXT billing cycle only
+                  await stripe.subscriptions.update(stripeSubId, {
+                    coupon: 'referral_friend_40_second',
+                  })
+                  console.log('referral friend 40% discount applied to next invoice for sub:', stripeSubId)
+
+                  // Mark as applied so we don't apply it again on subsequent invoices
+                  await supabase.from('subscriptions')
+                    .update({ referral_friend_discount_applied: true, updated_at: new Date().toISOString() })
+                    .eq('stripe_subscription_id', stripeSubId)
+                }
+              }
+            } catch (refErr) {
+              // Non-fatal: log but don't fail the webhook
+              console.error('invoice.paid: referral friend discount application failed:', refErr)
+            }
           }
         }
         break

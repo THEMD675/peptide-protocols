@@ -158,12 +158,14 @@ serve(async (req) => {
     const existingCustomerId = existingSub?.stripe_customer_id ?? null
 
     // Determine which coupon to apply (if any):
-    // 1. Referral friend discount takes priority when a valid referral code is present
-    // 2. Explicit coupon param (e.g. from win-back email) as fallback
-    // 3. If neither, allow manual promotion codes on the checkout page
+    // Referral: NO discount at checkout. Friend pays full price on first payment.
+    // The 40% friend discount is applied to their SECOND invoice via stripe-webhook (invoice.paid).
+    // Only explicit coupon params (e.g. retention_20_pct from win-back emails) apply at checkout.
     let checkoutDiscount: string | undefined
+    let validatedReferralCode: string | undefined
+
     if (referralCode) {
-      // Validate the referral code exists in the DB
+      // Validate the referral code exists in the DB — store in subscription metadata only
       const serviceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')
       if (serviceKey) {
         const adminDb = createClient(supabaseUrl, serviceKey)
@@ -172,11 +174,11 @@ serve(async (req) => {
           .eq('referral_code', referralCode)
           .maybeSingle()
         if (referrerSub) {
-          checkoutDiscount = 'referral_friend_20'
+          validatedReferralCode = referralCode
         }
       }
     }
-    if (!checkoutDiscount && couponParam) {
+    if (couponParam) {
       checkoutDiscount = couponParam
     }
 
@@ -189,10 +191,10 @@ serve(async (req) => {
       ...(existingCustomerId ? { customer: existingCustomerId } : { customer_email: user.email }),
       subscription_data: {
         trial_period_days: hadTrialOrSub ? undefined : 3,
-        metadata: { tier, user_id: user.id, ...(referralCode ? { referral_code: referralCode } : {}) },
+        metadata: { tier, user_id: user.id, ...(validatedReferralCode ? { referral_code: validatedReferralCode } : {}) },
         description: `pptides — ${tier === 'elite' ? 'الباقة المتقدمة' : 'الباقة الأساسية'}`,
       },
-      metadata: { tier, user_id: user.id, ...(referralCode ? { referral_code: referralCode } : {}) },
+      metadata: { tier, user_id: user.id, ...(validatedReferralCode ? { referral_code: validatedReferralCode } : {}) },
       success_url: `${appUrl}/dashboard?payment=success&tier=${tier}&session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${appUrl}/pricing?payment=cancelled`,
       // When a discount coupon is auto-applied, don't also allow manual promo codes (prevents stacking)

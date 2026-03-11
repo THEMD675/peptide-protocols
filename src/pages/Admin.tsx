@@ -53,6 +53,7 @@ interface AdminStats {
   emailList: Array<{ id: string; email: string; created_at: string }>;
   enquiries: Array<{ id: string; email: string; subject: string; peptide_name: string | null; message: string; status: string; admin_notes: string | null; created_at: string }>;
   revenueByMonth?: Array<{ month: string; revenue: number }>;
+  signupsByDay?: Array<{ date: string; signups: number }>;
   emailLogs: Array<{ id: string; email: string; type: string; status: string; created_at: string }>;
   webhookEvents: Array<{ id: string; event_type: string; event_id: string; processed_at: string }>;
 }
@@ -303,7 +304,7 @@ export default function Admin() {
       if (res.status === 403) { setForbidden(true); return; }
       if (!res.ok) throw new Error((await res.json().catch(() => ({}))).error ?? 'Failed');
       const d = await res.json();
-      setStats({ ...d, pagination: d.pagination ?? null, alerts: d.alerts ?? [], funnel: d.funnel ?? { totalSignups: 0, trialStarts: 0, paidConversions: 0, signupToTrial: 0, trialToPaid: 0 }, activityFeed: d.activityFeed ?? [], enquiries: d.enquiries ?? [], emailLogs: d.emailLogs ?? [], webhookEvents: d.webhookEvents ?? [], recentUsers: d.recentUsers ?? [], pendingReviews: d.pendingReviews ?? [], emailList: d.emailList ?? [], revenueByMonth: d.revenueByMonth ?? [] });
+      setStats({ ...d, pagination: d.pagination ?? null, alerts: d.alerts ?? [], funnel: d.funnel ?? { totalSignups: 0, trialStarts: 0, paidConversions: 0, signupToTrial: 0, trialToPaid: 0 }, activityFeed: d.activityFeed ?? [], enquiries: d.enquiries ?? [], emailLogs: d.emailLogs ?? [], webhookEvents: d.webhookEvents ?? [], recentUsers: d.recentUsers ?? [], pendingReviews: d.pendingReviews ?? [], emailList: d.emailList ?? [], revenueByMonth: d.revenueByMonth ?? [], signupsByDay: d.signupsByDay ?? [] });
       setLastFetched(new Date());
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Failed to load');
@@ -680,22 +681,7 @@ export default function Admin() {
 
             {/* ── Revenue & Signups Chart (Recharts) ── */}
             {(() => {
-              const now = new Date();
-              const days: { date: string; signups: number; label: string }[] = [];
-              for (let i = 29; i >= 0; i--) {
-                const d = new Date(now.getFullYear(), now.getMonth(), now.getDate() - i);
-                const dayStart = new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime();
-                const dayEnd = dayStart + 86400000;
-                const count = stats.recentUsers.filter(u => {
-                  const t = new Date(u.created_at).getTime();
-                  return t >= dayStart && t < dayEnd;
-                }).length;
-                days.push({
-                  date: `${d.getDate()}/${d.getMonth() + 1}`,
-                  signups: count,
-                  label: d.toLocaleDateString('ar-SA', { weekday: 'short', day: 'numeric', month: 'short' }),
-                });
-              }
+              const days = stats.signupsByDay ?? [];
               return (
                 <div className="rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 p-4">
                   <h3 className="text-xs font-bold text-stone-700 dark:text-stone-200 mb-4 flex items-center gap-1.5" dir="rtl">
@@ -1301,7 +1287,7 @@ export default function Admin() {
           const audienceCount = bulkAudience === 'all' ? o.totalUsers : bulkAudience === 'trial' ? o.trialSubscriptions : bulkAudience === 'active' ? o.activeSubscriptions : o.expiredSubscriptions;
           return audienceCount > 50 ? (
             <div className="rounded-lg border border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-900/20 p-3 mb-4">
-              <p className="text-xs font-medium text-amber-700 dark:text-amber-400">تنبيه: سيتم الإرسال إلى {audienceCount} مستخدم (الحد الأقصى 50 بريد لكل عملية)</p>
+              <p className="text-xs font-medium text-amber-700 dark:text-amber-400">تنبيه: سيتم الإرسال إلى {audienceCount} مستخدم (الحد الأقصى 200 بريد لكل عملية)</p>
             </div>
           ) : null;
         })()}

@@ -1,13 +1,15 @@
 import { useState, useRef, useEffect } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { Link, useSearchParams } from 'react-router-dom';
-import { Check, CheckCircle, Shield, Lock, CreditCard, RefreshCw, ChevronDown, MessageCircle, Crown, ArrowLeft, X } from 'lucide-react';
+import { Check, CheckCircle, Shield, Lock, CreditCard, RefreshCw, ChevronDown, MessageCircle, Crown, ArrowLeft, X, Gift } from 'lucide-react';
 import { toast } from 'sonner';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
 import { cn } from '@/lib/utils';
 import { PRICING, PEPTIDE_COUNT, TRIAL_DAYS, VALUE_TOTAL, VALUE_SAVINGS_ELITE, VALUE_STACK, SUPPORT_EMAIL, SITE_URL } from '@/lib/constants';
 import { events } from '@/lib/analytics';
+import { useSalesFlow } from '@/hooks/useSalesFlow';
+import { TRIAL, REFERRAL, WINBACK, UPGRADE, COMMON, RETENTION } from '@/constants/sales-copy';
 
 const essentialsFeatures = [
   `بطاقات البروتوكول الكاملة لـ ${PEPTIDE_COUNT} ببتيد`,
@@ -60,19 +62,20 @@ const faqs = [
 
 export default function Pricing() {
   const { user, subscription, upgradeTo } = useAuth();
+  const salesFlow = useSalesFlow();
+  const { offer, urlParams, checkoutCoupon, showTrialMessaging } = salesFlow;
 
   const isSubscribedTo = (tier: string) =>
     user && subscription?.status !== 'trial' && subscription?.isProOrTrial && subscription.tier === tier;
 
   const [searchParams, setSearchParams] = useSearchParams();
-  const showTrialMessaging = !user || subscription?.status === 'none' || subscription?.status === 'trial';
   const [loadingPlan, setLoadingPlan] = useState<string | null>(null);
   const [billingCycle, setBillingCycle] = useState<'monthly' | 'annual'>('monthly');
   const [userCount, setUserCount] = useState(0);
   const navigatingRef = useRef(false);
 
-  // Read coupon from URL params (e.g. /pricing?coupon=retention_20_pct from win-back emails)
-  const couponFromUrl = searchParams.get('coupon') || undefined;
+  // Unified coupon: from URL params via SalesFlowService
+  const couponFromUrl = checkoutCoupon || offer.coupon;
 
   useEffect(() => { navigatingRef.current = false; events.pricingView(); }, []);
 
@@ -87,24 +90,22 @@ export default function Pricing() {
 
   useEffect(() => {
     if (searchParams.get('payment') === 'cancelled') {
-      toast.error('تم إلغاء عملية الدفع — يمكنك المحاولة مرة أخرى');
+      toast.error(UPGRADE.paymentCancelled);
       setSearchParams({}, { replace: true });
     }
-    if (searchParams.get('setup') === '1') {
-      toast('أكمل إعداد حسابك لبدء التجربة المجانية', { duration: 6000 });
+    if (urlParams.isSetupFlow) {
+      toast(TRIAL.setupToast, { duration: 6000 });
       setSearchParams({}, { replace: true });
     }
-    if (searchParams.get('expired') === '1') {
+    if (urlParams.isExpiredFlow) {
       const isExpiredPaid = subscription?.status === 'expired' || subscription?.status === 'cancelled';
       toast.error(
-        isExpiredPaid
-          ? 'انتهى اشتراكك — جدّده للعودة إلى الوصول الكامل'
-          : 'انتهت فترة تجربتك المجانية — اختر خطة للاستمرار',
+        isExpiredPaid ? TRIAL.expiredPaidToast : TRIAL.expiredTrialToast,
         { duration: 7000 },
       );
       setSearchParams({}, { replace: true });
     }
-  }, [searchParams, setSearchParams]);
+  }, [searchParams, setSearchParams, urlParams.isSetupFlow, urlParams.isExpiredFlow, subscription?.status]);
 
   const renderAction = (planKey: 'essentials' | 'elite', isElite: boolean) => {
     const cancelledButActive = user && subscription?.status === 'cancelled' && subscription?.currentPeriodEnd && new Date(subscription.currentPeriodEnd) > new Date();
@@ -134,7 +135,7 @@ export default function Pricing() {
           )}
         >
           <RefreshCw className="h-5 w-5" />
-          تجديد الاشتراك
+          {RETENTION.renewCta}
         </button>
       );
     }
@@ -146,7 +147,7 @@ export default function Pricing() {
           'border border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-400'
         )}>
           <Check className="h-5 w-5" />
-          <span>اشتراكك الحالي</span>
+          <span>{UPGRADE.currentPlanBadge}</span>
         </div>
       );
     }
@@ -154,7 +155,7 @@ export default function Pricing() {
     if (user && subscription?.status !== 'trial' && subscription?.isProOrTrial && subscription.tier !== planKey) {
       return (
         <div className="text-center text-sm text-stone-500 dark:text-stone-300">
-          للتغيير تواصل معنا: <a href={`mailto:${SUPPORT_EMAIL}?subject=تغيير الباقة`} className="inline-flex min-h-[44px] items-center text-emerald-700 underline">{SUPPORT_EMAIL}</a>
+          {UPGRADE.changePlanText} <a href={`mailto:${SUPPORT_EMAIL}?subject=تغيير الباقة`} className="inline-flex min-h-[44px] items-center text-emerald-700 underline">{SUPPORT_EMAIL}</a>
         </div>
       );
     }
@@ -173,7 +174,7 @@ export default function Pricing() {
             } catch {
               navigatingRef.current = false;
               setLoadingPlan(null);
-              toast.error('تعذّر التحويل لصفحة الدفع — تحقق من اتصالك وحاول مرة أخرى');
+              toast.error(UPGRADE.checkoutError);
             }
           }}
           disabled={isLoading}
@@ -190,9 +191,9 @@ export default function Pricing() {
           {isLoading ? (
             <>
               <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />
-              جارٍ التحويل لصفحة الدفع...
+              {UPGRADE.checkoutRedirecting}
             </>
-          ) : `جرّب مجانًا ${TRIAL_DAYS} أيام — بدون أي رسوم`}
+          ) : TRIAL.ctaFree}
         </button>
       );
     }
@@ -209,7 +210,7 @@ export default function Pricing() {
             : 'border border-stone-300 dark:border-stone-600 bg-white dark:bg-stone-900 text-stone-800 dark:text-stone-200 hover:border-emerald-200 dark:hover:border-emerald-700 transition-colors hover:text-emerald-700 dark:text-emerald-400'
         )}
       >
-        سجّل الآن وجرّب مجانًا
+        {TRIAL.ctaSignup}
       </Link>
     );
   };
@@ -266,6 +267,26 @@ export default function Pricing() {
       </Helmet>
 
       <div className="mx-auto max-w-6xl px-4 pb-24 pt-8 md:px-6 md:pt-12">
+        {/* Contextual banners from SalesFlowService */}
+        {urlParams.referralCode && (
+          <div className="mb-6 rounded-2xl border border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-900/20 p-4 text-center">
+            <div className="flex items-center justify-center gap-2 mb-1">
+              <Gift className="h-5 w-5 text-emerald-700" />
+              <p className="text-sm font-bold text-emerald-800 dark:text-emerald-300">صديقك دعاك!</p>
+            </div>
+            <p className="text-sm text-emerald-700 dark:text-emerald-400">
+              {REFERRAL.friendBanner(urlParams.referralCode)}
+            </p>
+          </div>
+        )}
+        {urlParams.coupon && !urlParams.referralCode && (
+          <div className="mb-6 rounded-2xl border border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-900/20 p-4 text-center">
+            <p className="text-sm font-bold text-amber-800 dark:text-amber-300">
+              {WINBACK.couponBanner(offer.discountPercent ?? WINBACK.defaultPercent)}
+            </p>
+          </div>
+        )}
+
         {/* Header — clean, minimal, no emojis */}
         <div className="mb-12 text-center">
           <h1 className="mb-4 text-3xl font-bold text-stone-900 dark:text-stone-100 md:text-5xl">
@@ -273,7 +294,7 @@ export default function Pricing() {
           </h1>
           {showTrialMessaging && (
             <p className="mx-auto max-w-lg text-lg text-stone-600 dark:text-stone-300">
-              {TRIAL_DAYS} أيام مجانية — جرّب كل الأدوات بدون مخاطرة.
+              {TRIAL.subtitle}
             </p>
           )}
           {userCount > 0 && (
@@ -286,9 +307,9 @@ export default function Pricing() {
             </div>
           )}
           <div className="mt-6 flex flex-wrap items-center justify-center gap-4 sm:gap-6 text-sm text-stone-500 dark:text-stone-300">
-            <span className="flex items-center gap-1.5"><Check className="h-4 w-4 shrink-0 text-emerald-600" /> إلغاء في أي وقت</span>
-            <span className="flex items-center gap-1.5"><Shield className="h-4 w-4 shrink-0 text-emerald-600" /> ضمان استرداد {TRIAL_DAYS} أيام</span>
-            <span className="flex items-center gap-1.5"><Lock className="h-4 w-4 shrink-0 text-emerald-600" /> دفع آمن عبر Stripe</span>
+            <span className="flex items-center gap-1.5"><Check className="h-4 w-4 shrink-0 text-emerald-600" /> {COMMON.cancelAnytime}</span>
+            <span className="flex items-center gap-1.5"><Shield className="h-4 w-4 shrink-0 text-emerald-600" /> {COMMON.moneyBackGuarantee}</span>
+            <span className="flex items-center gap-1.5"><Lock className="h-4 w-4 shrink-0 text-emerald-600" /> {COMMON.safePayment}</span>
           </div>
         </div>
 
@@ -397,7 +418,7 @@ export default function Pricing() {
         </div>
 
         <p className="mt-8 text-center text-sm text-stone-800 dark:text-stone-200">
-          يمكنك الإلغاء في أي وقت — لا التزامات ولا رسوم مخفية
+          {COMMON.noCommitments}
         </p>
 
         {/* Free Tier Teaser */}
@@ -652,7 +673,7 @@ export default function Pricing() {
                 } catch {
                   navigatingRef.current = false;
                   setLoadingPlan(null);
-                  toast.error('تعذّر التحويل لصفحة الدفع — تحقق من اتصالك وحاول مرة أخرى');
+                  toast.error(UPGRADE.checkoutError);
                 }
               }}
               disabled={loadingPlan === 'elite'}
@@ -664,11 +685,11 @@ export default function Pricing() {
               {loadingPlan === 'elite' ? (
                 <>
                   <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />
-                  جارٍ التحويل لصفحة الدفع...
+                  {UPGRADE.checkoutRedirecting}
                 </>
               ) : (
                 <>
-                  <span>انطلق مع Elite — ابدأ مجانًا</span>
+                  <span>{TRIAL.bottomCta}</span>
                   <ArrowLeft className="h-5 w-5" />
                 </>
               )}
@@ -678,12 +699,12 @@ export default function Pricing() {
               to="/signup?redirect=/pricing"
               className="btn-primary-glow inline-flex w-full items-center justify-center gap-2 rounded-full bg-emerald-600 px-8 py-3.5 text-base font-semibold text-white transition-all hover:bg-emerald-700 active:scale-[0.98] sm:w-auto sm:px-10 sm:py-4 sm:text-lg"
             >
-              <span>سجّل الآن — {TRIAL_DAYS} أيام مجانًا</span>
+              <span>{TRIAL.signupBottomCta}</span>
               <ArrowLeft className="h-5 w-5" />
             </Link>
           )}
           {showTrialMessaging && (
-            <p className="mt-4 text-sm text-stone-800 dark:text-stone-200">{TRIAL_DAYS} أيام مجانًا — إلغاء بضغطة واحدة، بدون أسئلة</p>
+            <p className="mt-4 text-sm text-stone-800 dark:text-stone-200">{TRIAL.bottomCtaFinePrint}</p>
           )}
         </div>
         )}

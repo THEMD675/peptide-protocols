@@ -300,7 +300,7 @@ serve(async (req) => {
           }
         }
 
-        const batch = emails.slice(0, 50)
+        const batch = emails.slice(0, 200)
         let sent = 0, failed = 0
 
         for (const email of batch) {
