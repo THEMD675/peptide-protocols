@@ -1095,7 +1095,7 @@ export default function Dashboard() {
         const actualDoses = activity.allLogs.filter(l => l.peptide_name === (peptide?.nameEn ?? proto.peptide_id)).length;
         const adherence = daysSinceStart > 0 ? Math.min(Math.round((actualDoses / daysSinceStart) * 100), 100) : 0;
         return (
-          <div role="dialog" aria-modal="true" className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4" onClick={() => setShareProtocolId(null)}>
+          <div role="dialog" aria-modal="true" aria-label="مشاركة البروتوكول" className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4" onClick={() => setShareProtocolId(null)}>
             <div className="w-full max-w-sm" onClick={e => e.stopPropagation()}>
               <ShareableCard
                 peptideName={peptide?.nameAr ?? proto.peptide_id}

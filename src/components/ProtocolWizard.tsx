@@ -77,7 +77,7 @@ export default function ProtocolWizard({ peptideId, prefillDose, prefillUnit, on
   }, [onClose]);
 
   if (!peptide) return (
-    <div role="dialog" aria-modal="true" className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" onClick={onClose}>
+    <div role="dialog" aria-modal="true" aria-label="معالج البروتوكول" className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" onClick={onClose}>
       <div className="rounded-2xl bg-white dark:bg-stone-950 p-6 text-center" onClick={e => e.stopPropagation()}>
         <p className="text-stone-600 dark:text-stone-400">الببتيد غير موجود</p>
         <button onClick={onClose} className="mt-4 rounded-full bg-emerald-600 px-6 py-2 text-sm font-bold text-white">إغلاق</button>
@@ -120,7 +120,7 @@ export default function ProtocolWizard({ peptideId, prefillDose, prefillUnit, on
   };
 
   return (
-    <div role="dialog" aria-modal="true" className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4" onClick={onClose}>
+    <div role="dialog" aria-modal="true" aria-label="تفاصيل البروتوكول" className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4" onClick={onClose}>
       <FocusTrap focusTrapOptions={{ allowOutsideClick: true }}>
         <div className="w-full max-w-md max-h-[90vh] overflow-y-auto rounded-2xl bg-white dark:bg-stone-950 p-6 shadow-2xl animate-fade-in" onClick={e => e.stopPropagation()}>
           <div className="flex items-center justify-between mb-5">
