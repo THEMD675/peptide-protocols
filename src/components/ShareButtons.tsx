@@ -51,6 +51,7 @@ export default function ShareButtons({
       try {
         events.shareClick('native');
         await navigator.share(shareData);
+        toast.success('تمت المشاركة! 🎉', { duration: 3000 });
       } catch {
         /* user cancelled */
       }

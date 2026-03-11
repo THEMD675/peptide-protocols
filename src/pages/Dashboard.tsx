@@ -1,6 +1,7 @@
 import { Helmet } from 'react-helmet-async';
 import { Link, Navigate } from 'react-router-dom';
-import { useState, useEffect, useCallback, useMemo, lazy, Suspense } from 'react';
+import { useState, useEffect, useCallback, useMemo, lazy, Suspense, useRef } from 'react';
+import confetti from 'canvas-confetti';
 import { useNowMs } from '@/hooks/useNowMs';
 import {
   LayoutDashboard,
@@ -393,6 +394,7 @@ export default function Dashboard() {
   const wellnessTrend = useWellnessTrend(user?.id);
   const [shareProtocolId, setShareProtocolId] = useState<string | null>(null);
   const [showOnboarding, setShowOnboarding] = useState(false);
+  const welcomeConfettiFired = useRef(false);
   const showOnboardButton = useMemo(() => {
     try { return localStorage.getItem('pptides_onboarded') === 'true'; } catch { return false; }
   }, []);
@@ -1261,6 +1263,19 @@ export default function Dashboard() {
 
       {/* ═══════ FIRST-TIME WELCOME EXPERIENCE ═══════ */}
       {!activity.loading && activity.logs.length === 0 && activeProtocols.length === 0 && (() => {
+        // Fire welcome confetti once
+        if (!welcomeConfettiFired.current) {
+          welcomeConfettiFired.current = true;
+          const WELCOME_KEY = 'pptides_welcome_confetti';
+          try {
+            if (!localStorage.getItem(WELCOME_KEY)) {
+              localStorage.setItem(WELCOME_KEY, '1');
+              setTimeout(() => {
+                confetti({ particleCount: 60, spread: 80, origin: { y: 0.5 }, colors: ['#10b981', '#f59e0b', '#8b5cf6', '#3b82f6'], zIndex: 9999 });
+              }, 700);
+            }
+          } catch { /* Safari private */ }
+        }
         let userGoalLabel = '';
         try {
           const raw = localStorage.getItem(STORAGE_KEYS.QUIZ_RESULTS);
@@ -1296,7 +1311,7 @@ export default function Dashboard() {
 
               {/* VIP Quick-Start Cards */}
               <div className="grid gap-3 sm:grid-cols-2 mt-6 text-start">
-                <Link to="/guide" className="group flex items-center gap-3 rounded-xl border border-emerald-200 dark:border-emerald-800 bg-white dark:bg-stone-950 p-4 transition-all hover:border-emerald-400 hover:shadow-md hover:-translate-y-0.5 min-h-[44px]">
+                <Link to="/guide" className="group flex items-center gap-3 rounded-xl border border-emerald-200 dark:border-emerald-800 bg-white dark:bg-stone-950 p-4 transition-all hover:border-emerald-400 hover:shadow-md hover:-translate-y-0.5 min-h-[44px]" style={{ animation: 'dash-card-in 0.5s ease-out 0.3s both' }}>
                   <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-amber-100 dark:bg-amber-900/30 transition-colors group-hover:bg-amber-200">
                     <ClipboardList className="h-5 w-5 text-amber-700" />
                   </div>
@@ -1305,7 +1320,7 @@ export default function Dashboard() {
                     <p className="text-xs text-stone-500 dark:text-stone-400">ابدأ هنا — خطوة بخطوة</p>
                   </div>
                 </Link>
-                <Link to="/library" className="group flex items-center gap-3 rounded-xl border border-emerald-200 dark:border-emerald-800 bg-white dark:bg-stone-950 p-4 transition-all hover:border-emerald-400 hover:shadow-md hover:-translate-y-0.5 min-h-[44px]">
+                <Link to="/library" className="group flex items-center gap-3 rounded-xl border border-emerald-200 dark:border-emerald-800 bg-white dark:bg-stone-950 p-4 transition-all hover:border-emerald-400 hover:shadow-md hover:-translate-y-0.5 min-h-[44px]" style={{ animation: 'dash-card-in 0.5s ease-out 0.45s both' }}>
                   <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-100 dark:bg-emerald-900/30 transition-colors group-hover:bg-emerald-200">
                     <BookOpen className="h-5 w-5 text-emerald-700" />
                   </div>
@@ -1314,7 +1329,7 @@ export default function Dashboard() {
                     <p className="text-xs text-stone-500 dark:text-stone-400">اكتشف {PEPTIDE_COUNT}+ ببتيد</p>
                   </div>
                 </Link>
-                <Link to="/coach" className="group flex items-center gap-3 rounded-xl border border-emerald-200 dark:border-emerald-800 bg-white dark:bg-stone-950 p-4 transition-all hover:border-emerald-400 hover:shadow-md hover:-translate-y-0.5 min-h-[44px]">
+                <Link to="/coach" className="group flex items-center gap-3 rounded-xl border border-emerald-200 dark:border-emerald-800 bg-white dark:bg-stone-950 p-4 transition-all hover:border-emerald-400 hover:shadow-md hover:-translate-y-0.5 min-h-[44px]" style={{ animation: 'dash-card-in 0.5s ease-out 0.6s both' }}>
                   <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-100 dark:bg-emerald-900/30 transition-colors group-hover:bg-emerald-200">
                     <Bot className="h-5 w-5 text-emerald-700" />
                   </div>
@@ -1323,7 +1338,7 @@ export default function Dashboard() {
                     <p className="text-xs text-stone-500 dark:text-stone-400">جاهز لمساعدتك ٢٤/٧</p>
                   </div>
                 </Link>
-                <Link to="/calculator" className="group flex items-center gap-3 rounded-xl border border-emerald-200 dark:border-emerald-800 bg-white dark:bg-stone-950 p-4 transition-all hover:border-emerald-400 hover:shadow-md hover:-translate-y-0.5 min-h-[44px]">
+                <Link to="/calculator" className="group flex items-center gap-3 rounded-xl border border-emerald-200 dark:border-emerald-800 bg-white dark:bg-stone-950 p-4 transition-all hover:border-emerald-400 hover:shadow-md hover:-translate-y-0.5 min-h-[44px]" style={{ animation: 'dash-card-in 0.5s ease-out 0.75s both' }}>
                   <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-100 dark:bg-emerald-900/30 transition-colors group-hover:bg-emerald-200">
                     <Calculator className="h-5 w-5 text-emerald-700" />
                   </div>
@@ -1378,7 +1393,8 @@ export default function Dashboard() {
             </div>
 
             <style>{`
-              @keyframes dash-welcome-in { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+              @keyframes dash-welcome-in { from { opacity: 0; transform: translateY(16px) scale(0.97); } to { opacity: 1; transform: translateY(0) scale(1); } }
+              @keyframes dash-card-in { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
             `}</style>
           </>
         );

@@ -26,6 +26,7 @@ export default memo(function ShareableCard(props: ShareableCardProps) {
     if (navigator.share) {
       try {
         await navigator.share({ title: `بروتوكول ${props.peptideName}`, text: `${shareBody}\n\n${SITE_URL}` });
+        toast.success('تمت المشاركة بنجاح! 🎉', { duration: 3000 });
       } catch { /* user cancelled */ }
     } else {
       handleCopy();
