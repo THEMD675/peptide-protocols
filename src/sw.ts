@@ -2,13 +2,20 @@ import { cleanupOutdatedCaches, precacheAndRoute } from 'workbox-precaching';
 
 declare let self: ServiceWorkerGlobalScope;
 
-// Do NOT call skipWaiting() or clientsClaim() automatically.
-// The new SW waits until the user clicks "Update" in the toast,
-// which sends a SKIP_WAITING message. This prevents mid-session
-// asset swap that causes white screens.
+// Auto-skipWaiting after 30s if user hasn't clicked update toast.
+// Prevents stale code from persisting for days with broken queries.
+// The 30s delay avoids mid-render white screens.
+
+let skipWaitingTimer: ReturnType<typeof setTimeout> | null = null;
+
+self.addEventListener('install', () => {
+  // Auto-activate after 30 seconds
+  skipWaitingTimer = setTimeout(() => self.skipWaiting(), 30_000);
+});
 
 self.addEventListener('message', (event) => {
   if (event.data && event.data.type === 'SKIP_WAITING') {
+    if (skipWaitingTimer) clearTimeout(skipWaitingTimer);
     self.skipWaiting();
   }
 });
