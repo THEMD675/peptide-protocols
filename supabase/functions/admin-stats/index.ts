@@ -73,6 +73,7 @@ serve(async (req) => {
 
     const url = new URL(req.url)
     const searchQuery = url.searchParams.get('search')?.trim().toLowerCase() ?? ''
+    const filterParam = url.searchParams.get('filter')?.trim().toLowerCase() ?? '' // active | trial | expired | none
     const pageParam = Math.max(1, parseInt(url.searchParams.get('page') ?? '1', 10) || 1)
     const perPageParam = Math.min(100, Math.max(10, parseInt(url.searchParams.get('per_page') ?? '50', 10) || 50))
 
@@ -136,10 +137,24 @@ serve(async (req) => {
     const signupsWeek = users.filter(u => new Date(u.created_at) > weekAgo).length
     const signupsMonth = users.filter(u => new Date(u.created_at) > monthAgo).length
 
-    // Server-side paginated user list with search
-    const filteredUsers = searchQuery
+    // Server-side paginated user list with search + subscription filter
+    let filteredUsers = searchQuery
       ? users.filter(u => u.email?.toLowerCase().includes(searchQuery))
       : users.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+
+    // Apply subscription status filter if provided
+    if (filterParam) {
+      filteredUsers = filteredUsers.filter(u => {
+        const sub = subs.find(s => s.user_id === u.id)
+        const status = sub?.status ?? 'none'
+        if (filterParam === 'active') return status === 'active'
+        if (filterParam === 'trial') return status === 'trial'
+        if (filterParam === 'expired') return status === 'expired' || status === 'cancelled'
+        if (filterParam === 'none') return status === 'none' || !sub
+        return true
+      })
+    }
+
     const totalFilteredUsers = filteredUsers.length
     const recentUsersSource = filteredUsers.slice((pageParam - 1) * perPageParam, pageParam * perPageParam)
 

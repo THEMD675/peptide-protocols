@@ -279,9 +279,9 @@ export default function Admin() {
   useEffect(() => {
     if (searchTimerRef.current) clearTimeout(searchTimerRef.current);
     if (userSearch.length >= 3) {
-      searchTimerRef.current = setTimeout(() => fetchStats(userSearch), 500);
+      searchTimerRef.current = setTimeout(() => fetchStats(userSearch, undefined, userFilter), 500);
     } else if (userSearch.length === 0) {
-      fetchStats();
+      fetchStats(undefined, undefined, userFilter);
     }
     return () => { if (searchTimerRef.current) clearTimeout(searchTimerRef.current); };
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -1045,11 +1045,11 @@ export default function Admin() {
             )}
             {stripeVerify && (
               <div className="mt-6 space-y-3">
-                <h3 className="text-sm font-bold text-stone-700 dark:text-stone-200 flex items-center gap-2"><CreditCard className="h-4 w-4" /> Stripe Verification</h3>
+                <h3 className="text-sm font-bold text-stone-700 dark:text-stone-200 flex items-center gap-2"><CreditCard className="h-4 w-4" /> التحقق من Stripe</h3>
                 <div className={cn('rounded-xl border p-4', stripeVerify.status === 'ok' ? 'border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-900/20' : 'border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-900/20')}>
-                  <p className={cn('font-bold', stripeVerify.status === 'ok' ? 'text-emerald-700 dark:text-emerald-400' : 'text-amber-700 dark:text-amber-400')}>{stripeVerify.status === 'ok' ? 'Prices + webhooks OK' : 'Issues found'}</p>
+                  <p className={cn('font-bold', stripeVerify.status === 'ok' ? 'text-emerald-700 dark:text-emerald-400' : 'text-amber-700 dark:text-amber-400')}>{stripeVerify.status === 'ok' ? 'الأسعار + webhooks سليمة' : 'تم العثور على مشاكل'}</p>
                   <pre className="mt-2 text-xs overflow-x-auto bg-white dark:bg-stone-900/60 p-3 rounded-lg">{JSON.stringify(stripeVerify.prices, null, 2)}</pre>
-                  {stripeVerify.missingEvents?.length > 0 && <p className="text-xs text-amber-700 dark:text-amber-400 mt-2">Missing events: {stripeVerify.missingEvents.join(', ')}</p>}
+                  {stripeVerify.missingEvents?.length > 0 && <p className="text-xs text-amber-700 dark:text-amber-400 mt-2">أحداث مفقودة: {stripeVerify.missingEvents.join(', ')}</p>}
                 </div>
               </div>
             )}
@@ -1060,9 +1060,9 @@ export default function Admin() {
         {tab === 'audit' && (
           <div className="space-y-3">
             <div className="flex items-center justify-between">
-              <h2 className="text-sm font-bold text-stone-700 dark:text-stone-200 flex items-center gap-1.5"><ClipboardList className="h-4 w-4 text-stone-500 dark:text-stone-300" /> Audit Log</h2>
+              <h2 className="text-sm font-bold text-stone-700 dark:text-stone-200 flex items-center gap-1.5"><ClipboardList className="h-4 w-4 text-stone-500 dark:text-stone-300" /> سجل المراجعة</h2>
               <button onClick={fetchAuditLog} disabled={auditLoading} className="flex items-center gap-1.5 rounded-lg border border-stone-200 dark:border-stone-600 px-3 py-1.5 text-xs font-medium text-stone-600 dark:text-stone-300 hover:bg-stone-50 dark:hover:bg-stone-800 disabled:opacity-50">
-                {auditLoading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <RefreshCw className="h-3.5 w-3.5" />} Refresh
+                {auditLoading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <RefreshCw className="h-3.5 w-3.5" />} تحديث
               </button>
             </div>
             {auditLoading && auditLog.length === 0 ? (
@@ -1070,7 +1070,7 @@ export default function Admin() {
             ) : auditLog.length === 0 ? (
               <div className="rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 p-8 text-center">
                 <ClipboardList className="mx-auto h-8 w-8 text-stone-300 mb-2" />
-                <p className="text-sm text-stone-500 dark:text-stone-300">No audit log entries yet</p>
+                <p className="text-sm text-stone-500 dark:text-stone-300">لا توجد سجلات مراجعة بعد</p>
               </div>
             ) : (
               <>
@@ -1108,93 +1108,101 @@ export default function Admin() {
       {/* ===================== MODALS ===================== */}
 
       {/* Extend Trial */}
-      <Modal open={modal === 'extend_trial'} title="Extend Trial" onClose={() => setModal(null)}>
-        <p className="text-sm text-stone-600 dark:text-stone-300 mb-3">Extend trial for <span className="font-mono font-bold">{modalTarget?.email}</span></p>
-        <label className="block text-xs font-medium text-stone-600 dark:text-stone-300 mb-1">Days to add</label>
+      <Modal open={modal === 'extend_trial'} title="تمديد الفترة التجريبية" onClose={() => setModal(null)}>
+        <p className="text-sm text-stone-600 dark:text-stone-300 mb-3">تمديد الفترة التجريبية لـ <span className="font-mono font-bold">{modalTarget?.email}</span></p>
+        <label className="block text-xs font-medium text-stone-600 dark:text-stone-300 mb-1">عدد الأيام المضافة</label>
         <input type="number" min={1} max={90} value={extendDays} onChange={e => setExtendDays(Number(e.target.value))} className="w-full rounded-lg border border-stone-200 dark:border-stone-600 px-3 py-2 text-sm mb-4" />
         <div className="flex gap-2 justify-end">
-          <button onClick={() => setModal(null)} className="rounded-lg border border-stone-200 dark:border-stone-600 px-4 py-2 text-xs font-medium text-stone-600 dark:text-stone-300">Cancel</button>
+          <button onClick={() => setModal(null)} className="rounded-lg border border-stone-200 dark:border-stone-600 px-4 py-2 text-xs font-medium text-stone-600 dark:text-stone-300">إلغاء</button>
           <button onClick={handleExtendTrial} disabled={actionLoading} className="rounded-lg bg-emerald-600 px-4 py-2 text-xs font-bold text-white disabled:opacity-50">
-            {actionLoading ? 'Extending...' : `Extend ${extendDays} days`}
+            {actionLoading ? 'جارٍ التمديد...' : `تمديد ${extendDays} يوم`}
           </button>
         </div>
       </Modal>
 
       {/* Grant Subscription */}
-      <Modal open={modal === 'grant_sub'} title="Grant Subscription" onClose={() => setModal(null)}>
-        <p className="text-sm text-stone-600 dark:text-stone-300 mb-3">Grant to <span className="font-mono font-bold">{modalTarget?.email}</span></p>
-        <label className="block text-xs font-medium text-stone-600 dark:text-stone-300 mb-1">Tier</label>
+      <Modal open={modal === 'grant_sub'} title="منح اشتراك" onClose={() => setModal(null)}>
+        <p className="text-sm text-stone-600 dark:text-stone-300 mb-3">منح اشتراك لـ <span className="font-mono font-bold">{modalTarget?.email}</span></p>
+        <label className="block text-xs font-medium text-stone-600 dark:text-stone-300 mb-1">الباقة</label>
         <select value={grantTier} onChange={e => setGrantTier(e.target.value as 'essentials' | 'elite')} className="w-full rounded-lg border border-stone-200 dark:border-stone-600 px-3 py-2 text-sm mb-3">
-          <option value="essentials">Essentials ({PRICING.essentials.label})</option>
-          <option value="elite">Elite ({PRICING.elite.label})</option>
+          <option value="essentials">أساسي ({PRICING.essentials.label})</option>
+          <option value="elite">نخبة ({PRICING.elite.label})</option>
         </select>
-        <label className="block text-xs font-medium text-stone-600 dark:text-stone-300 mb-1">Duration (days)</label>
+        <label className="block text-xs font-medium text-stone-600 dark:text-stone-300 mb-1">المدة (أيام)</label>
         <input type="number" min={1} max={365} value={grantDuration} onChange={e => setGrantDuration(Number(e.target.value))} className="w-full rounded-lg border border-stone-200 dark:border-stone-600 px-3 py-2 text-sm mb-4" />
         <div className="flex gap-2 justify-end">
-          <button onClick={() => setModal(null)} className="rounded-lg border border-stone-200 dark:border-stone-600 px-4 py-2 text-xs font-medium text-stone-600 dark:text-stone-300">Cancel</button>
+          <button onClick={() => setModal(null)} className="rounded-lg border border-stone-200 dark:border-stone-600 px-4 py-2 text-xs font-medium text-stone-600 dark:text-stone-300">إلغاء</button>
           <button onClick={handleGrantSub} disabled={actionLoading} className="rounded-lg bg-emerald-600 px-4 py-2 text-xs font-bold text-white disabled:opacity-50">
-            {actionLoading ? 'Granting...' : 'Grant'}
+            {actionLoading ? 'جارٍ المنح...' : 'منح'}
           </button>
         </div>
       </Modal>
 
       {/* Cancel Subscription */}
-      <Modal open={modal === 'cancel_sub'} title="Cancel Subscription" onClose={() => setModal(null)}>
-        <p className="text-sm text-stone-600 dark:text-stone-300 mb-3">Cancel subscription for <span className="font-mono font-bold">{modalTarget?.email}</span>?</p>
-        <p className="text-xs text-amber-600 mb-4">This will set cancel_at_period_end on Stripe and mark as cancelled in DB.</p>
+      <Modal open={modal === 'cancel_sub'} title="إلغاء الاشتراك" onClose={() => setModal(null)}>
+        <p className="text-sm text-stone-600 dark:text-stone-300 mb-3">إلغاء الاشتراك لـ <span className="font-mono font-bold">{modalTarget?.email}</span>؟</p>
+        <p className="text-xs text-amber-600 mb-4">سيتم تعيين الإلغاء في نهاية الفترة على Stripe وتحديث الحالة في قاعدة البيانات.</p>
         <div className="flex gap-2 justify-end">
-          <button onClick={() => setModal(null)} className="rounded-lg border border-stone-200 dark:border-stone-600 px-4 py-2 text-xs font-medium text-stone-600 dark:text-stone-300">No</button>
+          <button onClick={() => setModal(null)} className="rounded-lg border border-stone-200 dark:border-stone-600 px-4 py-2 text-xs font-medium text-stone-600 dark:text-stone-300">لا</button>
           <button onClick={handleCancelSub} disabled={actionLoading} className="rounded-lg bg-amber-600 px-4 py-2 text-xs font-bold text-white disabled:opacity-50">
-            {actionLoading ? 'Cancelling...' : 'Cancel Subscription'}
+            {actionLoading ? 'جارٍ الإلغاء...' : 'إلغاء الاشتراك'}
           </button>
         </div>
       </Modal>
 
       {/* Send Email */}
-      <Modal open={modal === 'send_email'} title="Send Email" onClose={() => setModal(null)}>
-        <label className="block text-xs font-medium text-stone-600 dark:text-stone-300 mb-1">To</label>
+      <Modal open={modal === 'send_email'} title="إرسال بريد" onClose={() => setModal(null)}>
+        <label className="block text-xs font-medium text-stone-600 dark:text-stone-300 mb-1">إلى</label>
         <input type="email" value={emailTo} onChange={e => setEmailTo(e.target.value)} placeholder="user@example.com" className="w-full rounded-lg border border-stone-200 dark:border-stone-600 px-3 py-2 text-sm mb-3" dir="ltr" />
-        <label className="block text-xs font-medium text-stone-600 dark:text-stone-300 mb-1">Subject</label>
-        <input type="text" value={emailSubject} onChange={e => setEmailSubject(e.target.value)} placeholder="Subject" className="w-full rounded-lg border border-stone-200 dark:border-stone-600 px-3 py-2 text-sm mb-3" dir="ltr" />
-        <label className="block text-xs font-medium text-stone-600 dark:text-stone-300 mb-1">Body</label>
-        <textarea value={emailBody} onChange={e => setEmailBody(e.target.value)} placeholder="Email content..." rows={4} className="w-full rounded-lg border border-stone-200 dark:border-stone-600 px-3 py-2 text-sm mb-4 resize-y" dir="ltr" />
+        <label className="block text-xs font-medium text-stone-600 dark:text-stone-300 mb-1">الموضوع</label>
+        <input type="text" value={emailSubject} onChange={e => setEmailSubject(e.target.value)} placeholder="الموضوع" className="w-full rounded-lg border border-stone-200 dark:border-stone-600 px-3 py-2 text-sm mb-3" dir="ltr" />
+        <label className="block text-xs font-medium text-stone-600 dark:text-stone-300 mb-1">المحتوى</label>
+        <textarea value={emailBody} onChange={e => setEmailBody(e.target.value)} placeholder="محتوى البريد..." rows={4} className="w-full rounded-lg border border-stone-200 dark:border-stone-600 px-3 py-2 text-sm mb-4 resize-y" dir="ltr" />
         <div className="flex gap-2 justify-end">
-          <button onClick={() => setModal(null)} className="rounded-lg border border-stone-200 dark:border-stone-600 px-4 py-2 text-xs font-medium text-stone-600 dark:text-stone-300">Cancel</button>
+          <button onClick={() => setModal(null)} className="rounded-lg border border-stone-200 dark:border-stone-600 px-4 py-2 text-xs font-medium text-stone-600 dark:text-stone-300">إلغاء</button>
           <button onClick={handleSendEmail} disabled={actionLoading || !emailTo || !emailSubject || !emailBody} className="rounded-lg bg-emerald-600 px-4 py-2 text-xs font-bold text-white disabled:opacity-50">
-            {actionLoading ? 'Sending...' : 'Send'}
+            {actionLoading ? 'جارٍ الإرسال...' : 'إرسال'}
           </button>
         </div>
       </Modal>
 
       {/* Bulk Email */}
-      <Modal open={modal === 'bulk_email'} title="Bulk Email" onClose={() => setModal(null)}>
-        <label className="block text-xs font-medium text-stone-600 dark:text-stone-300 mb-1">Audience</label>
-        <select value={bulkAudience} onChange={e => setBulkAudience(e.target.value as 'all' | 'trial' | 'active' | 'expired')} aria-label="Audience" className="w-full rounded-lg border border-stone-200 dark:border-stone-600 px-3 py-2 text-sm mb-3">
-          <option value="all">All users</option>
-          <option value="trial">Trial users</option>
-          <option value="active">Active subscribers</option>
-          <option value="expired">Expired users</option>
+      <Modal open={modal === 'bulk_email'} title="بريد جماعي" onClose={() => setModal(null)}>
+        <label className="block text-xs font-medium text-stone-600 dark:text-stone-300 mb-1">الجمهور</label>
+        <select value={bulkAudience} onChange={e => setBulkAudience(e.target.value as 'all' | 'trial' | 'active' | 'expired')} aria-label="الجمهور" className="w-full rounded-lg border border-stone-200 dark:border-stone-600 px-3 py-2 text-sm mb-3">
+          <option value="all">جميع المستخدمين</option>
+          <option value="trial">مستخدمو الفترة التجريبية</option>
+          <option value="active">المشتركون الفعّالون</option>
+          <option value="expired">المنتهي اشتراكهم</option>
         </select>
-        <label className="block text-xs font-medium text-stone-600 dark:text-stone-300 mb-1">Subject</label>
-        <input type="text" value={emailSubject} onChange={e => setEmailSubject(e.target.value)} placeholder="Subject" className="w-full rounded-lg border border-stone-200 dark:border-stone-600 px-3 py-2 text-sm mb-3" dir="ltr" />
-        <label className="block text-xs font-medium text-stone-600 dark:text-stone-300 mb-1">Body</label>
-        <textarea value={emailBody} onChange={e => setEmailBody(e.target.value)} placeholder="Email content..." rows={4} className="w-full rounded-lg border border-stone-200 dark:border-stone-600 px-3 py-2 text-sm mb-4 resize-y" dir="ltr" />
+        <label className="block text-xs font-medium text-stone-600 dark:text-stone-300 mb-1">الموضوع</label>
+        <input type="text" value={emailSubject} onChange={e => setEmailSubject(e.target.value)} placeholder="الموضوع" className="w-full rounded-lg border border-stone-200 dark:border-stone-600 px-3 py-2 text-sm mb-3" dir="ltr" />
+        <label className="block text-xs font-medium text-stone-600 dark:text-stone-300 mb-1">المحتوى</label>
+        <textarea value={emailBody} onChange={e => setEmailBody(e.target.value)} placeholder="محتوى البريد..." rows={4} className="w-full rounded-lg border border-stone-200 dark:border-stone-600 px-3 py-2 text-sm mb-4 resize-y" dir="ltr" />
+        {(() => {
+          const audienceCount = bulkAudience === 'all' ? o.totalUsers : bulkAudience === 'trial' ? o.trialSubscriptions : bulkAudience === 'active' ? o.activeSubscriptions : o.expiredSubscriptions;
+          return audienceCount > 50 ? (
+            <div className="rounded-lg border border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-900/20 p-3 mb-4">
+              <p className="text-xs font-medium text-amber-700 dark:text-amber-400">⚠️ سيتم الإرسال إلى {audienceCount} مستخدم (الحد الأقصى 50 بريد لكل عملية)</p>
+            </div>
+          ) : null;
+        })()}
         <div className="flex gap-2 justify-end">
-          <button onClick={() => setModal(null)} className="rounded-lg border border-stone-200 dark:border-stone-600 px-4 py-2 text-xs font-medium text-stone-600 dark:text-stone-300">Cancel</button>
+          <button onClick={() => setModal(null)} className="rounded-lg border border-stone-200 dark:border-stone-600 px-4 py-2 text-xs font-medium text-stone-600 dark:text-stone-300">إلغاء</button>
           <button onClick={handleBulkEmail} disabled={actionLoading || !emailSubject || !emailBody} className="rounded-lg bg-emerald-600 px-4 py-2 text-xs font-bold text-white disabled:opacity-50">
-            {actionLoading ? 'Sending...' : 'Send to All'}
+            {actionLoading ? 'جارٍ الإرسال...' : 'إرسال للكل'}
           </button>
         </div>
       </Modal>
 
       {/* Suspend User */}
-      <Modal open={modal === 'confirm_suspend'} title="Suspend User" onClose={() => setModal(null)}>
-        <p className="text-sm text-stone-600 dark:text-stone-300 mb-3">Suspend <span className="font-mono font-bold text-red-600 dark:text-red-400">{modalTarget?.email}</span>?</p>
-        <p className="text-xs text-red-600 dark:text-red-400 mb-4">This bans the user from logging in and expires their subscription.</p>
+      <Modal open={modal === 'confirm_suspend'} title="إيقاف المستخدم" onClose={() => setModal(null)}>
+        <p className="text-sm text-stone-600 dark:text-stone-300 mb-3">إيقاف <span className="font-mono font-bold text-red-600 dark:text-red-400">{modalTarget?.email}</span>؟</p>
+        <p className="text-xs text-red-600 dark:text-red-400 mb-4">سيتم منع المستخدم من تسجيل الدخول وإنهاء اشتراكه.</p>
         <div className="flex gap-2 justify-end">
-          <button onClick={() => setModal(null)} className="rounded-lg border border-stone-200 dark:border-stone-600 px-4 py-2 text-xs font-medium text-stone-600 dark:text-stone-300">Cancel</button>
+          <button onClick={() => setModal(null)} className="rounded-lg border border-stone-200 dark:border-stone-600 px-4 py-2 text-xs font-medium text-stone-600 dark:text-stone-300">إلغاء</button>
           <button onClick={handleSuspend} disabled={actionLoading} className="rounded-lg bg-red-600 px-4 py-2 text-xs font-bold text-white disabled:opacity-50">
-            {actionLoading ? 'Suspending...' : 'Suspend'}
+            {actionLoading ? 'جارٍ الإيقاف...' : 'إيقاف'}
           </button>
         </div>
       </Modal>
@@ -1235,13 +1243,13 @@ export default function Admin() {
       </Modal>
 
       {/* Delete User */}
-      <Modal open={modal === 'confirm_delete'} title="Delete User" onClose={() => setModal(null)}>
-        <p className="text-sm text-stone-600 dark:text-stone-300 mb-3">Permanently delete <span className="font-mono font-bold text-red-600 dark:text-red-400">{modalTarget?.email}</span>?</p>
-        <p className="text-xs text-red-600 dark:text-red-400 mb-4">This cancels their Stripe subscription, deletes all their data from every table, and removes their auth account. This CANNOT be undone.</p>
+      <Modal open={modal === 'confirm_delete'} title="حذف المستخدم" onClose={() => setModal(null)}>
+        <p className="text-sm text-stone-600 dark:text-stone-300 mb-3">حذف نهائي لـ <span className="font-mono font-bold text-red-600 dark:text-red-400">{modalTarget?.email}</span>؟</p>
+        <p className="text-xs text-red-600 dark:text-red-400 mb-4">سيتم إلغاء اشتراك Stripe وحذف جميع البيانات من كل الجداول وإزالة حساب المصادقة. لا يمكن التراجع عن هذا الإجراء.</p>
         <div className="flex gap-2 justify-end">
-          <button onClick={() => setModal(null)} className="rounded-lg border border-stone-200 dark:border-stone-600 px-4 py-2 text-xs font-medium text-stone-600 dark:text-stone-300">Cancel</button>
+          <button onClick={() => setModal(null)} className="rounded-lg border border-stone-200 dark:border-stone-600 px-4 py-2 text-xs font-medium text-stone-600 dark:text-stone-300">إلغاء</button>
           <button onClick={handleDelete} disabled={actionLoading} className="rounded-lg bg-red-600 px-4 py-2 text-xs font-bold text-white disabled:opacity-50">
-            {actionLoading ? 'Deleting...' : 'Delete Forever'}
+            {actionLoading ? 'جارٍ الحذف...' : 'حذف نهائياً'}
           </button>
         </div>
       </Modal>
@@ -1251,8 +1259,8 @@ export default function Admin() {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" onClick={() => setUserDetailOpen(false)}>
           <div className="w-full max-w-2xl max-h-[85vh] overflow-y-auto rounded-2xl bg-white dark:bg-stone-900 p-6 shadow-xl dark:shadow-stone-900/40" onClick={e => e.stopPropagation()} role="dialog" aria-modal="true">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-bold text-stone-900 dark:text-stone-100">User Detail</h3>
-              <button onClick={() => setUserDetailOpen(false)} title="Close" aria-label="Close" className="flex items-center justify-center rounded-lg p-2 min-h-[44px] min-w-[44px] hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors"><X className="h-5 w-5 text-stone-500 dark:text-stone-300" /></button>
+              <h3 className="text-lg font-bold text-stone-900 dark:text-stone-100">تفاصيل المستخدم</h3>
+              <button onClick={() => setUserDetailOpen(false)} title="إغلاق" aria-label="إغلاق" className="flex items-center justify-center rounded-lg p-2 min-h-[44px] min-w-[44px] hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors"><X className="h-5 w-5 text-stone-500 dark:text-stone-300" /></button>
             </div>
             {userDetailLoading ? (
               <div className="flex justify-center py-12"><Loader2 className="h-6 w-6 animate-spin text-stone-400" /></div>
@@ -1262,44 +1270,44 @@ export default function Admin() {
                 <div className="space-y-5">
                   {/* User Info */}
                   <section>
-                    <h4 className="text-xs font-bold text-stone-500 dark:text-stone-300 uppercase tracking-wide mb-2">User Info</h4>
+                    <h4 className="text-xs font-bold text-stone-500 dark:text-stone-300 uppercase tracking-wide mb-2">معلومات المستخدم</h4>
                     <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-sm">
-                      <span className="text-stone-500 dark:text-stone-300">Email</span><span className="font-mono">{ud.user.email}</span>
-                      <span className="text-stone-500 dark:text-stone-300">Provider</span><span>{ud.user.provider}</span>
-                      <span className="text-stone-500 dark:text-stone-300">Confirmed</span><span>{ud.user.confirmed ? 'Yes' : 'No'}</span>
-                      <span className="text-stone-500 dark:text-stone-300">Joined</span><span>{new Date(ud.user.created_at).toLocaleDateString('en-GB')}</span>
-                      <span className="text-stone-500 dark:text-stone-300">Last Login</span><span>{ud.user.last_sign_in_at ? timeAgo(ud.user.last_sign_in_at) : '—'}</span>
-                      {ud.user.banned_until && <><span className="text-stone-500 dark:text-stone-300">Banned Until</span><span className="text-red-600 dark:text-red-400">{ud.user.banned_until}</span></>}
-                      <span className="text-stone-500 dark:text-stone-300">Coach Requests</span><span>{ud.ai_coach_request_count}</span>
+                      <span className="text-stone-500 dark:text-stone-300">البريد</span><span className="font-mono">{ud.user.email}</span>
+                      <span className="text-stone-500 dark:text-stone-300">المزوّد</span><span>{ud.user.provider}</span>
+                      <span className="text-stone-500 dark:text-stone-300">مؤكد</span><span>{ud.user.confirmed ? 'نعم' : 'لا'}</span>
+                      <span className="text-stone-500 dark:text-stone-300">الانضمام</span><span>{new Date(ud.user.created_at).toLocaleDateString('ar-SA')}</span>
+                      <span className="text-stone-500 dark:text-stone-300">آخر دخول</span><span>{ud.user.last_sign_in_at ? timeAgo(ud.user.last_sign_in_at) : '—'}</span>
+                      {ud.user.banned_until && <><span className="text-stone-500 dark:text-stone-300">محظور حتى</span><span className="text-red-600 dark:text-red-400">{ud.user.banned_until}</span></>}
+                      <span className="text-stone-500 dark:text-stone-300">طلبات المدرب</span><span>{ud.ai_coach_request_count}</span>
                     </div>
                   </section>
 
                   {/* Subscription */}
                   <section>
-                    <h4 className="text-xs font-bold text-stone-500 dark:text-stone-300 uppercase tracking-wide mb-2">Subscription</h4>
+                    <h4 className="text-xs font-bold text-stone-500 dark:text-stone-300 uppercase tracking-wide mb-2">الاشتراك</h4>
                     {ud.subscription ? (
                       <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-sm">
-                        <span className="text-stone-500 dark:text-stone-300">Status</span><span><Badge status={ud.subscription.status} /></span>
-                        <span className="text-stone-500 dark:text-stone-300">Tier</span><span>{ud.subscription.tier || '—'}</span>
-                        <span className="text-stone-500 dark:text-stone-300">Period End</span><span>{ud.subscription.current_period_end ? new Date(ud.subscription.current_period_end).toLocaleDateString('en-GB') : '—'}</span>
-                        <span className="text-stone-500 dark:text-stone-300">Trial Ends</span><span>{ud.subscription.trial_ends_at ? new Date(ud.subscription.trial_ends_at).toLocaleDateString('en-GB') : '—'}</span>
-                        <span className="text-stone-500 dark:text-stone-300">Stripe Sub</span><span className="font-mono text-xs truncate">{ud.subscription.stripe_subscription_id || '—'}</span>
-                        <span className="text-stone-500 dark:text-stone-300">Stripe Customer</span><span className="font-mono text-xs truncate">{ud.subscription.stripe_customer_id || '—'}</span>
+                        <span className="text-stone-500 dark:text-stone-300">الحالة</span><span><Badge status={ud.subscription.status} /></span>
+                        <span className="text-stone-500 dark:text-stone-300">الباقة</span><span>{ud.subscription.tier || '—'}</span>
+                        <span className="text-stone-500 dark:text-stone-300">نهاية الفترة</span><span>{ud.subscription.current_period_end ? new Date(ud.subscription.current_period_end).toLocaleDateString('ar-SA') : '—'}</span>
+                        <span className="text-stone-500 dark:text-stone-300">انتهاء التجربة</span><span>{ud.subscription.trial_ends_at ? new Date(ud.subscription.trial_ends_at).toLocaleDateString('ar-SA') : '—'}</span>
+                        <span className="text-stone-500 dark:text-stone-300">اشتراك Stripe</span><span className="font-mono text-xs truncate">{ud.subscription.stripe_subscription_id || '—'}</span>
+                        <span className="text-stone-500 dark:text-stone-300">عميل Stripe</span><span className="font-mono text-xs truncate">{ud.subscription.stripe_customer_id || '—'}</span>
                       </div>
-                    ) : <p className="text-sm text-stone-500 dark:text-stone-300">No subscription</p>}
+                    ) : <p className="text-sm text-stone-500 dark:text-stone-300">لا يوجد اشتراك</p>}
                   </section>
 
                   {/* Recent Injections */}
                   <section>
-                    <h4 className="text-xs font-bold text-stone-500 dark:text-stone-300 uppercase tracking-wide mb-2">Recent Injections ({ud.injection_logs.length})</h4>
-                    {ud.injection_logs.length === 0 ? <p className="text-sm text-stone-400">None</p> : (
+                    <h4 className="text-xs font-bold text-stone-500 dark:text-stone-300 uppercase tracking-wide mb-2">آخر الحقن ({ud.injection_logs.length})</h4>
+                    {ud.injection_logs.length === 0 ? <p className="text-sm text-stone-400">لا يوجد</p> : (
                       <div className="overflow-x-auto rounded-lg border border-stone-200 dark:border-stone-600">
                         <table className="w-full text-xs">
                           <thead><tr className="border-b border-stone-200 dark:border-stone-600 bg-stone-50 dark:bg-stone-900">
-                            <th className="px-2 py-1.5 text-start font-medium text-stone-600 dark:text-stone-300">Peptide</th>
-                            <th className="px-2 py-1.5 text-start font-medium text-stone-600 dark:text-stone-300">Dose</th>
-                            <th className="px-2 py-1.5 text-start font-medium text-stone-600 dark:text-stone-300">Site</th>
-                            <th className="px-2 py-1.5 text-start font-medium text-stone-600 dark:text-stone-300">Date</th>
+                            <th className="px-2 py-1.5 text-start font-medium text-stone-600 dark:text-stone-300">الببتيد</th>
+                            <th className="px-2 py-1.5 text-start font-medium text-stone-600 dark:text-stone-300">الجرعة</th>
+                            <th className="px-2 py-1.5 text-start font-medium text-stone-600 dark:text-stone-300">الموقع</th>
+                            <th className="px-2 py-1.5 text-start font-medium text-stone-600 dark:text-stone-300">التاريخ</th>
                           </tr></thead>
                           <tbody>{ud.injection_logs.map((l, i) => (
                             <tr key={i} className="border-b border-stone-100 dark:border-stone-800">
@@ -1316,16 +1324,16 @@ export default function Admin() {
 
                   {/* Wellness Logs */}
                   <section>
-                    <h4 className="text-xs font-bold text-stone-500 dark:text-stone-300 uppercase tracking-wide mb-2">Wellness Logs ({ud.wellness_logs.length})</h4>
-                    {ud.wellness_logs.length === 0 ? <p className="text-sm text-stone-400">None</p> : (
+                    <h4 className="text-xs font-bold text-stone-500 dark:text-stone-300 uppercase tracking-wide mb-2">سجلات العافية ({ud.wellness_logs.length})</h4>
+                    {ud.wellness_logs.length === 0 ? <p className="text-sm text-stone-400">لا يوجد</p> : (
                       <div className="overflow-x-auto rounded-lg border border-stone-200 dark:border-stone-600">
                         <table className="w-full text-xs">
                           <thead><tr className="border-b border-stone-200 dark:border-stone-600 bg-stone-50 dark:bg-stone-900">
-                            <th className="px-2 py-1.5 text-start font-medium text-stone-600 dark:text-stone-300">Energy</th>
-                            <th className="px-2 py-1.5 text-start font-medium text-stone-600 dark:text-stone-300">Sleep</th>
-                            <th className="px-2 py-1.5 text-start font-medium text-stone-600 dark:text-stone-300">Mood</th>
-                            <th className="px-2 py-1.5 text-start font-medium text-stone-600 dark:text-stone-300">Notes</th>
-                            <th className="px-2 py-1.5 text-start font-medium text-stone-600 dark:text-stone-300">Date</th>
+                            <th className="px-2 py-1.5 text-start font-medium text-stone-600 dark:text-stone-300">الطاقة</th>
+                            <th className="px-2 py-1.5 text-start font-medium text-stone-600 dark:text-stone-300">النوم</th>
+                            <th className="px-2 py-1.5 text-start font-medium text-stone-600 dark:text-stone-300">المزاج</th>
+                            <th className="px-2 py-1.5 text-start font-medium text-stone-600 dark:text-stone-300">ملاحظات</th>
+                            <th className="px-2 py-1.5 text-start font-medium text-stone-600 dark:text-stone-300">التاريخ</th>
                           </tr></thead>
                           <tbody>{ud.wellness_logs.map((l, i) => (
                             <tr key={i} className="border-b border-stone-100 dark:border-stone-800">
@@ -1343,8 +1351,8 @@ export default function Admin() {
 
                   {/* Side Effects */}
                   <section>
-                    <h4 className="text-xs font-bold text-stone-500 dark:text-stone-300 uppercase tracking-wide mb-2">Side Effects ({ud.side_effect_logs.length})</h4>
-                    {ud.side_effect_logs.length === 0 ? <p className="text-sm text-stone-400">None</p> : (
+                    <h4 className="text-xs font-bold text-stone-500 dark:text-stone-300 uppercase tracking-wide mb-2">الآثار الجانبية ({ud.side_effect_logs.length})</h4>
+                    {ud.side_effect_logs.length === 0 ? <p className="text-sm text-stone-400">لا يوجد</p> : (
                       <ul className="space-y-1">
                         {ud.side_effect_logs.map((s, i) => (
                           <li key={i} className="rounded-lg border border-stone-100 dark:border-stone-800 px-3 py-2 text-xs">
@@ -1360,8 +1368,8 @@ export default function Admin() {
 
                   {/* Active Protocols */}
                   <section>
-                    <h4 className="text-xs font-bold text-stone-500 dark:text-stone-300 uppercase tracking-wide mb-2">Protocols ({ud.user_protocols.length})</h4>
-                    {ud.user_protocols.length === 0 ? <p className="text-sm text-stone-400">None</p> : (
+                    <h4 className="text-xs font-bold text-stone-500 dark:text-stone-300 uppercase tracking-wide mb-2">البروتوكولات ({ud.user_protocols.length})</h4>
+                    {ud.user_protocols.length === 0 ? <p className="text-sm text-stone-400">لا يوجد</p> : (
                       <ul className="space-y-1">
                         {ud.user_protocols.map((p, i) => (
                           <li key={i} className="flex items-center justify-between rounded-lg border border-stone-100 dark:border-stone-800 px-3 py-2 text-xs">
@@ -1376,7 +1384,7 @@ export default function Admin() {
                   {/* Enquiries */}
                   {ud.enquiries.length > 0 && (
                     <section>
-                      <h4 className="text-xs font-bold text-stone-500 dark:text-stone-300 uppercase tracking-wide mb-2">Enquiries ({ud.enquiries.length})</h4>
+                      <h4 className="text-xs font-bold text-stone-500 dark:text-stone-300 uppercase tracking-wide mb-2">الاستفسارات ({ud.enquiries.length})</h4>
                       <ul className="space-y-1">
                         {ud.enquiries.map((eq, i) => (
                           <li key={i} className="rounded-lg border border-stone-100 dark:border-stone-800 px-3 py-2 text-xs">
@@ -1392,7 +1400,7 @@ export default function Admin() {
                   {/* Email Logs */}
                   {ud.email_logs.length > 0 && (
                     <section>
-                      <h4 className="text-xs font-bold text-stone-500 dark:text-stone-300 uppercase tracking-wide mb-2">Email Logs ({ud.email_logs.length})</h4>
+                      <h4 className="text-xs font-bold text-stone-500 dark:text-stone-300 uppercase tracking-wide mb-2">سجلات البريد ({ud.email_logs.length})</h4>
                       <ul className="space-y-1">
                         {ud.email_logs.map((el, i) => (
                           <li key={i} className="flex items-center justify-between rounded-lg border border-stone-100 dark:border-stone-800 px-3 py-2 text-xs">
@@ -1423,12 +1431,12 @@ export default function Admin() {
                         ))}
                       </ul>
                     ) : (
-                      <p className="text-sm text-stone-400 mb-3">No notes yet</p>
+                      <p className="text-sm text-stone-400 mb-3">لا توجد ملاحظات بعد</p>
                     )}
                     <textarea
                       value={newNote}
                       onChange={e => setNewNote(e.target.value)}
-                      placeholder="Add a note..."
+                      placeholder="أضف ملاحظة..."
                       rows={2}
                       className="w-full rounded-lg border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 px-3 py-2 text-sm outline-none focus:border-emerald-300 dark:border-emerald-700 resize-y"
                       dir="ltr"
@@ -1440,7 +1448,7 @@ export default function Admin() {
                           setNoteSaving(true);
                           try {
                             await adminAction({ action: 'add_user_note', user_id: ud.user.id, note: newNote.trim() });
-                            toast.success('Note saved');
+                            toast.success('تم حفظ الملاحظة');
                             setNewNote('');
                             fetchUserNotes(ud.user.id);
                           } catch (e) { toast.error(e instanceof Error ? e.message : 'Failed'); }
@@ -1448,7 +1456,7 @@ export default function Admin() {
                         }}
                         className="rounded-lg bg-emerald-600 px-4 py-1.5 text-xs font-bold text-white hover:bg-emerald-700 disabled:opacity-50"
                       >
-                        {noteSaving ? 'Saving...' : 'Save Note'}
+                        {noteSaving ? 'جارٍ الحفظ...' : 'حفظ الملاحظة'}
                       </button>
                     </div>
                   </section>
