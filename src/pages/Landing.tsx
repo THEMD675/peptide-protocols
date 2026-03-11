@@ -296,7 +296,7 @@ export default function Landing() {
         </div>
 
         <div className="relative mx-auto max-w-5xl px-6 pb-6 pt-10 text-center md:pt-16 md:pb-8">
-          <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-900/20 px-5 py-2 text-sm font-semibold text-emerald-700 dark:text-emerald-400">
+          <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-900/30 px-5 py-2 text-sm font-semibold text-emerald-700 dark:text-emerald-400">
             <Zap className="h-4 w-4" />
             <span>أول مرجع عربي شامل — {PEPTIDE_COUNT} ببتيد علاجي</span>
           </div>
@@ -369,7 +369,7 @@ export default function Landing() {
         <Link
           to="/calculator"
           aria-label="جرّب حاسبة الجرعات المجانية"
-          className="group inline-flex items-center gap-3 rounded-2xl border border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-900/20 px-6 py-3 transition-all hover:border-emerald-300 dark:border-emerald-700 hover:shadow-md"
+          className="group inline-flex items-center gap-3 rounded-2xl border border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-900/30 px-6 py-3 transition-all hover:border-emerald-300 dark:border-emerald-700 hover:shadow-md"
         >
           <Calculator className="h-5 w-5 text-emerald-700" aria-hidden="true" />
           <span className="text-sm font-semibold text-emerald-800 dark:text-emerald-300">جرّب حاسبة الجرعات المجانية — شاهد جرعتك بالضبط على السيرنج</span>
@@ -388,7 +388,7 @@ export default function Landing() {
 
       {/* ═══════ STATS BAR ═══════ */}
       <section className="relative z-10 mt-6 mx-auto max-w-5xl px-6" data-reveal>
-        <div className="grid grid-cols-2 gap-4 rounded-2xl border border-stone-300 dark:border-stone-600/60 bg-white dark:bg-stone-900 p-4 sm:grid-cols-3 sm:p-8 shadow-xl dark:shadow-stone-900/40 md:grid-cols-5 md:gap-0 md:divide-x md:divide-x-reverse md:divide-stone-100 dark:divide-stone-800">
+        <div className="grid grid-cols-2 gap-4 rounded-2xl border border-stone-300 dark:border-stone-600/60 bg-white dark:bg-stone-800 p-4 sm:grid-cols-3 sm:p-8 shadow-xl dark:shadow-stone-900/40 md:grid-cols-5 md:gap-0 md:divide-x md:divide-x-reverse md:divide-stone-100 dark:divide-stone-800">
           {STATS_BAR.map((s) => (
             <div key={s.label} className="flex flex-col items-center justify-center py-3 last:col-span-2 sm:last:col-span-1">
               <span className="text-3xl font-black text-emerald-700 md:text-4xl">{s.value}</span>
@@ -417,7 +417,7 @@ export default function Landing() {
               data-reveal
               style={{ transitionDelay: `${idx * 0.08}s` }}
               key={point}
-              className="flex items-start gap-4 rounded-2xl border border-stone-300 dark:border-stone-600 bg-stone-100 dark:bg-stone-800 p-6 transition-all hover:border-red-200 dark:hover:border-red-800 hover:bg-red-50 dark:hover:bg-red-900/20"
+              className="flex items-start gap-4 rounded-2xl border border-stone-300 dark:border-stone-600 bg-stone-100 dark:bg-stone-800/80 p-6 transition-all hover:border-red-200 dark:hover:border-red-800 hover:bg-red-50 dark:hover:bg-red-900/20"
             >
               <X className="mt-0.5 h-5 w-5 shrink-0 text-red-400" />
               <p className="text-base font-medium text-stone-800 dark:text-stone-200">{point}</p>
@@ -429,7 +429,7 @@ export default function Landing() {
           {SOLUTION_CHECKS.map((point) => (
             <div
               key={point}
-              className="flex items-start gap-4 rounded-2xl border border-emerald-200 dark:border-emerald-800 bg-emerald-50/50 p-6 transition-all hover:border-emerald-300 dark:border-emerald-700 hover:bg-emerald-50 dark:bg-emerald-900/20"
+              className="flex items-start gap-4 rounded-2xl border border-emerald-200 dark:border-emerald-800 bg-emerald-50/50 p-6 transition-all hover:border-emerald-300 dark:border-emerald-700 hover:bg-emerald-50 dark:bg-emerald-900/30"
             >
               <Check className="mt-0.5 h-5 w-5 shrink-0 text-emerald-500" />
               <p className="text-base font-medium text-stone-800 dark:text-stone-200">{point}</p>
@@ -448,7 +448,7 @@ export default function Landing() {
       <section className="cv-auto bg-gradient-to-b from-stone-50 dark:from-stone-900 to-white dark:to-stone-950 py-24 md:py-32" aria-label="مميزات pptides">
         <div className="mx-auto max-w-6xl px-6">
           <div className="mb-4 text-center">
-            <span className="inline-block rounded-full bg-emerald-50 dark:bg-emerald-900/20 px-4 py-1.5 text-sm font-semibold text-emerald-700 dark:text-emerald-400">الحل</span>
+            <span className="inline-block rounded-full bg-emerald-50 dark:bg-emerald-900/30 px-4 py-1.5 text-sm font-semibold text-emerald-700 dark:text-emerald-400">الحل</span>
           </div>
           <h2 className="mb-4 text-center text-4xl font-extrabold text-stone-900 dark:text-stone-100 md:text-5xl lg:text-6xl">
             كل ما تحتاجه في <span className="text-emerald-700">مكان واحد</span>
@@ -472,7 +472,7 @@ export default function Landing() {
                 <div
                   data-reveal
                   style={{ transitionDelay: `${idx * 0.07}s` }}
-                  className="group rounded-2xl border border-stone-300 dark:border-stone-600/60 bg-white dark:bg-stone-900 p-7 card-hover hover:border-emerald-200 dark:border-emerald-800 cursor-pointer"
+                  className="group rounded-2xl border border-stone-300 dark:border-stone-600/60 bg-white dark:bg-stone-800 p-7 card-hover hover:border-emerald-200 dark:border-emerald-800 cursor-pointer"
                 >
                   <div className="mb-5 inline-flex h-12 w-12 items-center justify-center rounded-xl bg-emerald-600 text-white shadow-md shadow-emerald-600/20">
                     <f.icon className="h-6 w-6" />
@@ -506,7 +506,7 @@ export default function Landing() {
         return (
           <section className="cv-auto mx-auto max-w-5xl px-6 py-16 md:py-24">
             <div className="mb-4 text-center">
-              <span className="inline-block rounded-full bg-emerald-50 dark:bg-emerald-900/20 px-4 py-1.5 text-sm font-semibold text-emerald-700 dark:text-emerald-400">شاهد بنفسك</span>
+              <span className="inline-block rounded-full bg-emerald-50 dark:bg-emerald-900/30 px-4 py-1.5 text-sm font-semibold text-emerald-700 dark:text-emerald-400">شاهد بنفسك</span>
             </div>
             <h2 className="mb-4 text-center text-4xl font-extrabold text-stone-900 dark:text-stone-100 md:text-5xl">
               هكذا تبدو <span className="text-emerald-700">بطاقة البروتوكول</span>
@@ -516,7 +516,7 @@ export default function Landing() {
             </p>
 
             <div className="overflow-hidden rounded-2xl border-2 border-emerald-200 dark:border-emerald-800 bg-white dark:bg-stone-900 shadow-xl shadow-emerald-600/5">
-              <div className="flex items-center justify-between border-b border-stone-200 dark:border-stone-600 bg-emerald-50 dark:bg-emerald-900/20 px-6 py-3">
+              <div className="flex items-center justify-between border-b border-stone-200 dark:border-stone-600 bg-emerald-50 dark:bg-emerald-900/30 px-6 py-3">
                 <div className="flex items-center gap-3">
                   <span className="rounded-full bg-emerald-600 px-3 py-1 text-xs font-bold text-white">مجاني</span>
                   <h3 className="text-lg font-bold text-stone-900 dark:text-stone-100">{bpc.nameAr}</h3>
@@ -562,7 +562,7 @@ export default function Landing() {
                   <Link to="/calculator?peptide=BPC-157" className="text-sm font-semibold text-emerald-700 transition-colors hover:text-emerald-700 dark:text-emerald-400 hover:underline flex items-center gap-1 min-h-[44px]">
                     احسب جرعتك بالحاسبة ←
                   </Link>
-                  <Link to="/peptide/bpc-157" className="rounded-full border border-emerald-300 dark:border-emerald-700 px-5 py-2.5 min-h-[44px] inline-flex items-center text-sm font-bold text-emerald-700 dark:text-emerald-400 transition-colors hover:bg-emerald-50 dark:bg-emerald-900/20">
+                  <Link to="/peptide/bpc-157" className="rounded-full border border-emerald-300 dark:border-emerald-700 px-5 py-2.5 min-h-[44px] inline-flex items-center text-sm font-bold text-emerald-700 dark:text-emerald-400 transition-colors hover:bg-emerald-50 dark:bg-emerald-900/30">
                     شاهد البطاقة كاملة
                   </Link>
                   <Link to={ctaLink} className="rounded-full bg-emerald-600 px-5 py-2.5 min-h-[44px] inline-flex items-center text-sm font-bold text-white transition-colors hover:bg-emerald-700 active:scale-[0.98]">
@@ -640,7 +640,7 @@ export default function Landing() {
       {/* ═══════ VALUE STACK (Hormozi) ═══════ */}
       <section className="cv-auto mx-auto max-w-4xl px-6 py-24 md:py-32">
         <div className="mb-4 text-center">
-          <span className="inline-block rounded-full bg-emerald-50 dark:bg-emerald-900/20 px-4 py-1.5 text-sm font-semibold text-emerald-700 dark:text-emerald-400">القيمة الحقيقية</span>
+          <span className="inline-block rounded-full bg-emerald-50 dark:bg-emerald-900/30 px-4 py-1.5 text-sm font-semibold text-emerald-700 dark:text-emerald-400">القيمة الحقيقية</span>
         </div>
         <h2 className="mb-4 text-center text-4xl font-extrabold text-stone-900 dark:text-stone-100 md:text-5xl lg:text-6xl">
           ماذا تحصل <span className="text-emerald-700">فعلًا؟</span>
@@ -664,7 +664,7 @@ export default function Landing() {
           ))}
         </div>
 
-        <div className="mt-10 rounded-2xl border-2 border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-900/20 p-8 text-center">
+        <div className="mt-10 rounded-2xl border-2 border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-900/30 p-8 text-center">
           <p className="mb-1 text-lg text-stone-800 dark:text-stone-200">القيمة الإجمالية:</p>
           <p className="mb-2 text-4xl font-extrabold text-stone-400 line-through decoration-red-400 decoration-[3px]">{VALUE_TOTAL}</p>
           <p className="mb-1 text-lg text-stone-800 dark:text-stone-200">أنت تدفع فقط:</p>
@@ -896,7 +896,7 @@ export default function Landing() {
               نحن واثقون من المحتوى لأننا نعرف أنه يعمل. المخاطرة علينا — وليس عليك.
             </p>
             <div className="mt-6">
-              <a href={`mailto:${SUPPORT_EMAIL}`} className="inline-flex items-center gap-2 rounded-full border border-emerald-300 dark:border-emerald-700 bg-emerald-50 dark:bg-emerald-900/20 px-5 py-2.5 text-sm font-bold text-emerald-700 dark:text-emerald-400 transition-colors hover:bg-emerald-100 dark:bg-emerald-900/30">
+              <a href={`mailto:${SUPPORT_EMAIL}`} className="inline-flex items-center gap-2 rounded-full border border-emerald-300 dark:border-emerald-700 bg-emerald-50 dark:bg-emerald-900/30 px-5 py-2.5 text-sm font-bold text-emerald-700 dark:text-emerald-400 transition-colors hover:bg-emerald-100 dark:bg-emerald-900/30">
                 {SUPPORT_EMAIL}
               </a>
             </div>
