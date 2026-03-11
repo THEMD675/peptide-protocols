@@ -53,6 +53,7 @@ interface TrackerStatsProps {
   logs: InjectionLog[];
   allLogsForStats: InjectionLog[];
   useHijri: boolean;
+  isLoading?: boolean;
 }
 
 const hijriFormatter = new Intl.DateTimeFormat('ar-SA-u-ca-islamic-umalqura', {
@@ -68,7 +69,38 @@ export default function TrackerStats({
   logs,
   allLogsForStats,
   useHijri,
+  isLoading = false,
 }: TrackerStatsProps) {
+  // Show layout-matching skeleton while Supabase data is fetching
+  if (isLoading) {
+    return (
+      <div className="mb-6 space-y-4 animate-fade-in">
+        {/* Stats grid skeleton — matches the 4-column stats layout */}
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+          {[0, 1, 2, 3].map(i => (
+            <div key={i} className="rounded-2xl border border-stone-200 dark:border-stone-600 p-4 space-y-2">
+              <div className="mx-auto h-5 w-5 rounded-full animate-pulse bg-stone-200 dark:bg-stone-700 skeleton-shimmer" />
+              <div className="mx-auto h-7 w-12 rounded animate-pulse bg-stone-200 dark:bg-stone-700 skeleton-shimmer" />
+              <div className="mx-auto h-3 w-16 rounded animate-pulse bg-stone-100 dark:bg-stone-800 skeleton-shimmer" />
+            </div>
+          ))}
+        </div>
+        {/* Monthly summary skeleton */}
+        <div className="rounded-2xl border border-stone-200 dark:border-stone-600 p-5 space-y-3">
+          <div className="h-5 w-28 rounded animate-pulse bg-stone-200 dark:bg-stone-700 skeleton-shimmer" />
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+            {[0, 1, 2, 3].map(i => (
+              <div key={i} className="text-center space-y-1">
+                <div className="mx-auto h-7 w-10 rounded animate-pulse bg-stone-200 dark:bg-stone-700 skeleton-shimmer" />
+                <div className="mx-auto h-3 w-16 rounded animate-pulse bg-stone-100 dark:bg-stone-800 skeleton-shimmer" />
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <>
       {/* Monthly Summary */}

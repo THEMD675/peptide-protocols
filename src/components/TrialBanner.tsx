@@ -5,7 +5,7 @@ const FocusTrap = lazy(() => import('focus-trap-react'));
 import { useAuth } from '@/contexts/AuthContext';
 import { Shield, X, Clock } from 'lucide-react';
 import { cn, arPlural } from '@/lib/utils';
-import { PRICING, PEPTIDE_COUNT, FREE_PEPTIDE_IDS } from '@/lib/constants';
+import { PRICING, PEPTIDE_COUNT, FREE_PEPTIDE_IDS, TRIAL_DAYS } from '@/lib/constants';
 import { useNowMs } from '@/hooks/useNowMs';
 
 const DISMISS_KEY = 'pptides_trial_banner_dismissed';
@@ -286,11 +286,11 @@ export default function TrialBanner() {
             </>
           ) : (
             <>
-              هديتك: {daysText} تجربة كاملة — استمتع بكل المميزات
+              تبقّى {daysText} في تجربتك المجانية — اشترك بـ {PRICING.essentials.label}/شهر قبل انتهاء الوصول
               <span className="mx-2">—</span>
               <Link
                 to="/pricing"
-                className="underline underline-offset-2 hover:opacity-80"
+                className="underline underline-offset-2 hover:opacity-80 font-bold"
               >
                 اشترك الآن
               </Link>

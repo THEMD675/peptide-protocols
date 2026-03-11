@@ -846,8 +846,9 @@ export default function Landing() {
           <div className="grid gap-8 md:grid-cols-2">
             {/* Essentials */}
             <div
-              className="relative flex flex-col rounded-2xl border border-stone-300 dark:border-stone-600/60 bg-white dark:bg-stone-900 p-8 transition-all duration-300 hover:shadow-lg hover:border-stone-400 dark:hover:border-stone-600 hover:-translate-y-1"
+              className="relative flex flex-col rounded-2xl border-2 border-emerald-200 dark:border-emerald-800 bg-white dark:bg-stone-900 p-8 transition-all duration-300 hover:shadow-lg hover:shadow-emerald-600/10 hover:-translate-y-1"
             >
+              <span className="absolute -top-3 end-6 rounded-full bg-emerald-600 px-4 py-1 text-xs font-bold text-white shadow-md">الأكثر شعبية</span>
               <h3 className="mb-0.5 text-xl font-bold text-stone-900 dark:text-stone-100">Essentials</h3>
               <p className="mb-1 text-xs font-medium text-emerald-700">الأساسية</p>
               <p className="mb-6 text-sm text-stone-800 dark:text-stone-200">كل الأدوات الأساسية</p>
@@ -872,7 +873,7 @@ export default function Landing() {
               </ul>
               <Link
                 to={user ? "/pricing" : "/signup?redirect=/pricing"}
-                className="inline-flex items-center justify-center rounded-full border-2 border-stone-300 dark:border-stone-600 px-6 py-3 text-base font-bold text-stone-800 dark:text-stone-200 transition-all hover:border-emerald-300 dark:hover:border-emerald-700 hover:text-emerald-700 dark:hover:text-emerald-400"
+                className="inline-flex items-center justify-center rounded-full bg-emerald-600 px-6 py-3 text-base font-bold text-white transition-all hover:bg-emerald-700 active:scale-[0.98]"
               >
                 {ctaTextShort}
               </Link>

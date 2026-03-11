@@ -491,6 +491,7 @@ export default function Tracker() {
         logs={logs}
         allLogsForStats={allLogsForStats}
         useHijri={useHijri}
+        isLoading={isLoadingLogs}
       />
 
       {/* Expired subscription banner */}

@@ -13,7 +13,7 @@ import { toast } from 'sonner';
 import { events } from '@/lib/analytics';
 import { cn, arPlural } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
-import { SITE_URL } from '@/lib/constants';
+import { SITE_URL, PRICING, TRIAL_DAYS } from '@/lib/constants';
 import ProtocolWizard from '@/components/ProtocolWizard';
 import CoachHistory from '@/components/CoachHistory';
 
@@ -856,7 +856,7 @@ export default function Coach() {
                     ) : msg.content.startsWith('__ERROR') ? (
                       <div className="text-sm text-stone-800 dark:text-stone-200">
                         <p className="mb-2">{
-                          msg.content === '__ERROR__:429' ? '⏱️ وصلت إلى حد الرسائل المسموح به. ترقَّ إلى Elite للحصول على استشارات غير محدودة.' :
+                          msg.content === '__ERROR__:429' ? `⏱️ وصلت إلى حد الرسائل. Elite يعطيك استشارات بلا حدود — ${PRICING.elite.label}/شهر، ${TRIAL_DAYS} أيام مجانًا.` :
                           msg.content === '__ERROR__:403' ? '🔑 انتهت صلاحية جلستك — أعد تسجيل الدخول للمتابعة.' :
                           msg.content === '__ERROR__:401' ? '🔐 سجّل دخولك أولًا للاستفادة من المدرب الذكي.' :
                           msg.content === '__ERROR__:500' ? '⚠️ خدمة المدرب الذكي غير متاحة حاليًا — حاول مرة أخرى بعد لحظات.' :
@@ -865,11 +865,11 @@ export default function Coach() {
                         <div className="flex flex-wrap gap-2">
                           {msg.content === '__ERROR__:429' && (
                             <Link
-                              to="/pricing?plan=elite"
+                              to={user ? '/pricing?plan=elite' : '/signup?redirect=/pricing'}
                               className="inline-flex items-center gap-1.5 rounded-lg bg-emerald-600 px-3 py-1.5 text-xs font-bold text-white transition-colors hover:bg-emerald-700"
                             >
                               <Crown className="h-3 w-3" />
-                              ترقية إلى Elite
+                              {user ? `ترقية إلى Elite — ${PRICING.elite.label}/شهر` : `ابدأ مجانًا — ${TRIAL_DAYS} أيام`}
                             </Link>
                           )}
                           {(msg.content === '__ERROR__:403' || msg.content === '__ERROR__:401') && (
@@ -1095,8 +1095,8 @@ export default function Coach() {
                 <div className="rounded-xl border-2 border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-900/20 p-5 text-center">
                   <Sparkles className="mx-auto mb-2 h-6 w-6 text-emerald-700" />
                   <p className="font-bold text-stone-900 dark:text-stone-100">{hasAccess ? 'وصلت حد الأسئلة لهذه الجلسة' : 'أعجبتك الاستشارة؟'}</p>
-                  <p className="mt-1 text-sm text-stone-600 dark:text-stone-300">{!isElite && (hasAccess ? 'ترقَّ إلى Elite لاستشارات بلا حدود.' : 'اشترك للحصول على استشارات مخصّصة.')}</p>
-                  {!isElite && <button onClick={async () => { try { if (hasAccess) await upgradeTo('elite'); else navigate('/pricing'); } catch { /* non-blocking */ } }} className="mt-3 rounded-full bg-emerald-600 px-8 py-2.5 text-sm font-bold text-white transition-colors hover:bg-emerald-700">{hasAccess ? 'ترقَّ إلى Elite' : 'اشترك الآن'}</button>}
+                  <p className="mt-1 text-sm text-stone-600 dark:text-stone-300">{!isElite && (hasAccess ? 'ترقَّ إلى Elite لاستشارات بلا حدود.' : `اشترك لاستشارات مخصّصة بلا حدود — ${TRIAL_DAYS} أيام مجانًا`)}</p>
+                  {!isElite && <button onClick={async () => { try { if (hasAccess) await upgradeTo('elite'); else navigate(user ? '/pricing' : '/signup?redirect=/pricing'); } catch { /* non-blocking */ } }} className="mt-3 rounded-full bg-emerald-600 px-8 py-2.5 text-sm font-bold text-white transition-colors hover:bg-emerald-700">{hasAccess ? 'ترقَّ إلى Elite' : `اشترك — ${PRICING.essentials.label}/شهر`}</button>}
                 </div>
                 )
               ) : (
