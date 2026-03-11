@@ -1,8 +1,10 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
+import type { LucideIcon } from 'lucide-react';
 import {
   Loader2, FlaskConical, Plus, ChevronDown, ChevronUp,
   TrendingUp, TrendingDown, Minus, Download, FileText, AlertTriangle,
-  CheckCircle, Info, Calendar, Building2, X
+  CheckCircle, Info, Calendar, Building2, X,
+  Syringe, Activity, Heart, Droplets, Flame, Droplet, Shield, Microscope
 } from 'lucide-react';
 import { toast } from 'sonner';
 import {
@@ -60,16 +62,16 @@ const BIOMARKERS: BiomarkerDef[] = [
   { id: 'platelets', nameAr: 'صفائح دموية', nameEn: 'Platelets', unit: '×10³/µL', normalMin: 150, normalMax: 400, borderLow: 130, borderHigh: 450, category: 'cbc', categoryAr: 'صورة الدم الكاملة' },
 ];
 
-const CATEGORIES = [
-  { id: 'hormones', nameAr: 'الهرمونات', icon: '💉' },
-  { id: 'thyroid', nameAr: 'الغدة الدرقية', icon: '🦋' },
-  { id: 'liver', nameAr: 'وظائف الكبد', icon: '🫁' },
-  { id: 'kidney', nameAr: 'وظائف الكلى', icon: '🫘' },
-  { id: 'metabolic', nameAr: 'الأيض', icon: '🔥' },
-  { id: 'lipids', nameAr: 'الدهون', icon: '🩸' },
-  { id: 'inflammation', nameAr: 'الالتهاب', icon: '🛡️' },
-  { id: 'cbc', nameAr: 'صورة الدم الكاملة', icon: '🔬' },
-] as const;
+const CATEGORIES: { id: string; nameAr: string; icon: LucideIcon }[] = [
+  { id: 'hormones', nameAr: 'الهرمونات', icon: Syringe },
+  { id: 'thyroid', nameAr: 'الغدة الدرقية', icon: Activity },
+  { id: 'liver', nameAr: 'وظائف الكبد', icon: Heart },
+  { id: 'kidney', nameAr: 'وظائف الكلى', icon: Droplets },
+  { id: 'metabolic', nameAr: 'الأيض', icon: Flame },
+  { id: 'lipids', nameAr: 'الدهون', icon: Droplet },
+  { id: 'inflammation', nameAr: 'الالتهاب', icon: Shield },
+  { id: 'cbc', nameAr: 'صورة الدم الكاملة', icon: Microscope },
+];
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 
@@ -427,7 +429,7 @@ function LabEntryForm({
                 : 'bg-stone-800 text-stone-400 border border-stone-700 hover:border-stone-600'
             )}
           >
-            <span>{cat.icon}</span>
+            <cat.icon className="h-3 w-3" />
             {cat.nameAr}
           </button>
         ))}
@@ -825,8 +827,8 @@ export default function LabResultsTracker() {
                       if (catBiomarkers.length === 0) return null;
                       return (
                         <div key={cat.id}>
-                          <p className="text-[10px] font-bold text-stone-400 mb-1.5">
-                            {cat.icon} {cat.nameAr}
+                          <p className="text-[10px] font-bold text-stone-400 mb-1.5 flex items-center gap-1">
+                            <cat.icon className="h-3 w-3" /> {cat.nameAr}
                           </p>
                           <div className="space-y-1">
                             {catBiomarkers.map(bio => {
@@ -859,8 +861,8 @@ export default function LabResultsTracker() {
                     })}
 
                     {entry.notes && (
-                      <p className="text-xs text-stone-400 pt-2 border-t border-stone-800">
-                        📝 {entry.notes}
+                      <p className="text-xs text-stone-400 pt-2 border-t border-stone-800 flex items-center gap-1">
+                        <FileText className="h-3 w-3 shrink-0" /> {entry.notes}
                       </p>
                     )}
 

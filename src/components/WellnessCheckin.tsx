@@ -18,11 +18,11 @@ interface WellnessEntry {
 }
 
 const METRICS = [
-  { key: 'energy', label: 'طاقة', emojis: ['😴', '🥱', '😐', '🙂', '⚡'] },
-  { key: 'sleep', label: 'نوم', emojis: ['😩', '😪', '😐', '😌', '😴'] },
-  { key: 'pain', label: 'ألم', emojis: ['😁', '🙂', '😐', '😣', '😖'] },
-  { key: 'mood', label: 'مزاج', emojis: ['😞', '😕', '😐', '🙂', '😄'] },
-  { key: 'appetite', label: 'شهية', emojis: ['🤢', '😶', '😐', '😋', '🤤'] },
+  { key: 'energy', label: 'طاقة' },
+  { key: 'sleep', label: 'نوم' },
+  { key: 'pain', label: 'ألم' },
+  { key: 'mood', label: 'مزاج' },
+  { key: 'appetite', label: 'شهية' },
 ] as const;
 
 type MetricKey = (typeof METRICS)[number]['key'];
@@ -198,7 +198,7 @@ export default function WellnessCheckin() {
               <div key={metric.key}>
                 <div className="flex items-center justify-between mb-2">
                   <span className="text-sm font-bold text-stone-700 dark:text-stone-200">{metric.label}</span>
-                  <span className="text-sm">{metric.emojis[val - 1]}</span>
+                  <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${(metric.key === 'pain' ? PAIN_COLORS : LEVEL_COLORS)[val - 1]}`}>{val}/5</span>
                 </div>
                 <div className="flex gap-1.5">
                   {[1, 2, 3, 4, 5].map(level => (
