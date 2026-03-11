@@ -100,7 +100,7 @@ export default function Stacks() {
         })}</script>
       </Helmet>
       {/* Header */}
-      <div className="mb-10 text-center">
+      <div className="mb-8 text-center">
         <div
           className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-500"
         >
@@ -112,6 +112,31 @@ export default function Stacks() {
         <p className="mt-2 text-lg text-stone-600 dark:text-stone-300">
           خلطات مُجرَّبة لأهداف محددة
         </p>
+      </div>
+
+      {/* Beginner intro */}
+      <div className="mb-10 grid gap-3 sm:grid-cols-3 text-center text-sm">
+        <div className="rounded-2xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-900 p-4">
+          <div className="mx-auto mb-2 flex h-9 w-9 items-center justify-center rounded-xl bg-emerald-100 dark:bg-emerald-900/30">
+            <BarChart3 className="h-4 w-4 text-emerald-600" />
+          </div>
+          <p className="font-bold text-stone-900 dark:text-stone-100 mb-0.5">ما هو البروتوكول؟</p>
+          <p className="text-xs text-stone-500 dark:text-stone-400">مجموعة ببتيدات تعمل معًا لتحقيق هدف واحد — تعافٍ، هرمونات، دماغ، أو طول عمر.</p>
+        </div>
+        <div className="rounded-2xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-900 p-4">
+          <div className="mx-auto mb-2 flex h-9 w-9 items-center justify-center rounded-xl bg-emerald-100 dark:bg-emerald-900/30">
+            <Clock className="h-4 w-4 text-emerald-600" />
+          </div>
+          <p className="font-bold text-stone-900 dark:text-stone-100 mb-0.5">كيف أبدأ؟</p>
+          <p className="text-xs text-stone-500 dark:text-stone-400">استخدم منشئ البروتوكول أدناه لاختيار هدفك، أو اختر من البروتوكولات الجاهزة.</p>
+        </div>
+        <div className="rounded-2xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-900 p-4">
+          <div className="mx-auto mb-2 flex h-9 w-9 items-center justify-center rounded-xl bg-emerald-100 dark:bg-emerald-900/30">
+            <Syringe className="h-4 w-4 text-emerald-600" />
+          </div>
+          <p className="font-bold text-stone-900 dark:text-stone-100 mb-0.5">مبتدئ؟</p>
+          <p className="text-xs text-stone-500 dark:text-stone-400">ابدأ بالبروتوكولات المُعلَّمة بـ "مبتدئ" — ببتيدات واحدة أو اثنين بجرعات بسيطة.</p>
+        </div>
       </div>
 
       {/* Interactive Stack Builder */}

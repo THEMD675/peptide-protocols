@@ -1233,24 +1233,45 @@ export default function DoseCalculator() {
                 <h2 className="text-lg font-bold text-stone-900 dark:text-stone-100">حاسبة التخفيف (Reconstitution)</h2>
               </div>
 
-              {/* Quick Peptide Select for Recon */}
+              {/* Quick Peptide Select for Recon — searchable, full list */}
               <div className="mb-6">
-                <label className="block text-sm font-medium text-stone-800 dark:text-stone-200 mb-2">اختر ببتيد (اختياري)</label>
-                <div className="flex gap-2 overflow-x-auto scrollbar-hide -mx-1 px-1 pb-1">
-                  {PEPTIDE_PRESETS.slice(0, 12).map(p => (
-                    <button
-                      key={p.name}
-                      onClick={() => {
-                        setReconVialMg(p.vial);
-                        setReconWaterMl(p.water);
-                        setReconTargetDose(p.dose);
-                        setReconDoseUnit(p.unit);
-                      }}
-                      className="shrink-0 rounded-full border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 px-3 py-2 min-h-[44px] text-xs font-medium text-stone-700 dark:text-stone-200 hover:border-emerald-300 hover:text-emerald-700 transition-all"
-                    >
-                      {getPresetDisplayName(p.name)}
-                    </button>
-                  ))}
+                <label className="block text-sm font-medium text-stone-800 dark:text-stone-200 mb-2">اختر ببتيد لتعبئة القيم تلقائيًا</label>
+                <div className="mb-2 relative">
+                  <Search className="absolute end-3 top-1/2 h-4 w-4 -translate-y-1/2 text-stone-500 dark:text-stone-300" />
+                  <input
+                    type="text"
+                    value={reconSearch}
+                    onChange={e => setReconSearch(e.target.value)}
+                    placeholder="ابحث عن ببتيد..."
+                    className="w-full rounded-xl border border-stone-200 dark:border-stone-600 bg-stone-50 dark:bg-stone-900 px-4 py-2.5 ps-10 text-sm text-stone-800 dark:text-stone-200 placeholder:text-stone-400 focus:border-emerald-300 focus:ring-1 focus:ring-emerald-200 outline-none"
+                    aria-label="بحث ببتيد للتخفيف"
+                  />
+                </div>
+                <div className="flex gap-2 flex-wrap">
+                  {(() => {
+                    const normalize = (s: string) => s.replace(/[\u064B-\u065F\u0670]/g, '').toLowerCase();
+                    const q = normalize(reconSearch.trim());
+                    const filtered = q === ''
+                      ? PEPTIDE_PRESETS
+                      : PEPTIDE_PRESETS.filter(p =>
+                          p.name.toLowerCase().includes(q) ||
+                          normalize(getPresetDisplayName(p.name)).includes(q),
+                        );
+                    return filtered.map(p => (
+                      <button
+                        key={p.name}
+                        onClick={() => {
+                          setReconVialMg(p.vial);
+                          setReconWaterMl(p.water);
+                          setReconTargetDose(p.dose);
+                          setReconDoseUnit(p.unit);
+                        }}
+                        className="shrink-0 rounded-full border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 px-3 py-2 min-h-[44px] text-xs font-medium text-stone-700 dark:text-stone-200 hover:border-emerald-300 hover:text-emerald-700 transition-all"
+                      >
+                        {getPresetDisplayName(p.name)}
+                      </button>
+                    ));
+                  })()}
                 </div>
               </div>
 
