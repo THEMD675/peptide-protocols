@@ -312,7 +312,7 @@ export default function Pricing() {
         <div className="grid gap-8 md:grid-cols-2">
           {/* Essentials */}
           <div
-            className="relative flex flex-col rounded-2xl border-2 border-emerald-200 dark:border-emerald-800 bg-white dark:bg-stone-950 p-8 md:p-10 transition-all duration-300 hover:shadow-lg hover:border-emerald-300 dark:border-emerald-700 hover:-translate-y-1"
+            className="pricing-card relative flex flex-col rounded-2xl border-2 border-emerald-200 dark:border-emerald-800 bg-white dark:bg-stone-950 p-8 md:p-10"
           >
             <span className="absolute -top-3.5 end-6 rounded-full bg-emerald-600 px-5 py-1.5 text-sm font-bold text-white">
               الأكثر شعبية
@@ -348,7 +348,7 @@ export default function Pricing() {
 
           {/* Elite */}
           <div
-            className="relative flex flex-col rounded-2xl border-2 border-emerald-200 dark:border-emerald-800 bg-white dark:bg-stone-950 p-8 shadow-xl shadow-emerald-600/5 md:p-10 transition-all duration-300 hover:shadow-2xl hover:-translate-y-1"
+            className="pricing-card pricing-card-featured relative flex flex-col rounded-2xl border-2 border-emerald-200 dark:border-emerald-800 bg-white dark:bg-stone-950 p-8 shadow-xl shadow-emerald-600/5 md:p-10"
             style={{ animation: 'pricing-elite-glow 3s ease-in-out infinite' }}
           >
             <span className="absolute -top-3.5 start-6 rounded-full bg-amber-500 px-4 py-1.5 text-sm font-bold text-white">

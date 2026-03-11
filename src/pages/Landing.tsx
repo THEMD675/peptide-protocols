@@ -1,4 +1,4 @@
-import { useState, useEffect, lazy, Suspense, useRef } from 'react';
+import { useState, useEffect, lazy, Suspense } from 'react';
 import { useScrollReveal } from '@/hooks/useScrollReveal';
 import { Helmet } from 'react-helmet-async';
 import { Link, Navigate } from 'react-router-dom';
@@ -301,7 +301,7 @@ export default function Landing() {
             <span>أول مرجع عربي شامل — {PEPTIDE_COUNT} ببتيد علاجي</span>
           </div>
 
-          <h1 className="mb-6 text-4xl font-extrabold leading-[1.3] text-stone-900 dark:text-stone-100 sm:text-5xl md:text-6xl lg:text-7xl">
+          <h1 className="mb-6 text-[clamp(1.875rem,8vw,4.5rem)] font-extrabold leading-[1.2] text-stone-900 dark:text-stone-100 sm:text-5xl md:text-6xl lg:text-7xl">
             توقّف عن التخمين.
             <br />
             <span className="text-emerald-700">ابدأ بالعلم.</span>
@@ -401,19 +401,21 @@ export default function Landing() {
 
       {/* ═══════ PROBLEM (Hormozi Agitation) ═══════ */}
       <section className="cv-auto mx-auto max-w-5xl px-6 py-24 md:py-32" aria-label="المشكلة التي نحلّها">
-        <div className="mb-4 text-center">
+        <div className="mb-4 text-center" data-reveal>
           <span className="inline-block rounded-full bg-red-50 dark:bg-red-900/20 px-4 py-1.5 text-sm font-semibold text-red-600 dark:text-red-400">المشكلة</span>
         </div>
-        <h2 className="mb-4 text-center text-3xl font-bold text-stone-900 dark:text-stone-100 md:text-4xl lg:text-5xl">
+        <h2 className="mb-4 text-center text-3xl font-bold text-stone-900 dark:text-stone-100 md:text-4xl lg:text-5xl" data-reveal>
           هل هذا أنت؟
         </h2>
-        <p className="mx-auto mb-12 max-w-2xl text-center text-lg text-stone-800 dark:text-stone-200">
+        <p className="mx-auto mb-12 max-w-2xl text-center text-lg text-stone-800 dark:text-stone-200" data-reveal>
           إذا أجبت &quot;نعم&quot; على أي من هذه — فأنت في المكان الصحيح.
         </p>
 
-        <div className="grid gap-4 sm:grid-cols-2">
-          {PAIN_POINTS.map((point) => (
+        <div className="grid gap-4 sm:grid-cols-2" data-stagger>
+          {PAIN_POINTS.map((point, idx) => (
             <div
+              data-reveal
+              style={{ transitionDelay: `${idx * 0.08}s` }}
               key={point}
               className="flex items-start gap-4 rounded-2xl border border-stone-300 dark:border-stone-600 bg-stone-100 dark:bg-stone-800 p-6 transition-all hover:border-red-200 dark:hover:border-red-800 hover:bg-red-50 dark:hover:bg-red-900/20"
             >
@@ -730,9 +732,9 @@ export default function Landing() {
             {userCount >= 10 ? <>انضم لـ <AnimatedCounter end={userCount} />+ مستخدم يثقون بـ pptides</> : 'آراء حقيقية من مجتمعنا'}
           </p>
 
-          <div className="grid gap-6 md:grid-cols-3">
-            {items.map((t) => (
-              <div key={t.name} className="rounded-2xl border border-stone-300 dark:border-stone-600/60 bg-white dark:bg-stone-950 p-7 transition-all duration-300 hover:border-emerald-200 dark:border-emerald-800 hover:shadow-lg hover:-translate-y-1">
+          <div className="grid gap-6 md:grid-cols-3" data-stagger>
+            {items.map((t, idx) => (
+              <div key={t.name} data-reveal style={{ transitionDelay: `${idx * 0.1}s` }} className="rounded-2xl border border-stone-300 dark:border-stone-600/60 bg-white dark:bg-stone-950 p-7 transition-shadow duration-300 hover:border-emerald-200 dark:hover:border-emerald-800 hover:shadow-lg hover:-translate-y-1">
                 <div className="mb-4 flex gap-1" dir="ltr">
                   {[1, 2, 3, 4, 5].map((s) => (
                     <Star key={s} className={cn('h-4 w-4', s <= t.rating ? 'fill-emerald-500 text-emerald-500' : 'fill-transparent text-stone-300')} />
@@ -959,13 +961,19 @@ export default function Landing() {
           </div>
           <Link
             to={ctaLink}
-            className="btn-primary-glow inline-flex items-center justify-center gap-2 rounded-full bg-emerald-600 px-10 py-4 text-lg font-bold text-white transition-all hover:bg-emerald-700 active:scale-[0.98]"
+            className="btn-primary-glow btn-hero inline-flex items-center justify-center gap-3 rounded-full bg-emerald-600 font-extrabold text-white transition-all hover:bg-emerald-700 active:scale-[0.98]"
           >
             <span>{user ? "اشترك الآن" : "ابدأ تجربتك المجانية"}</span>
-            <ArrowLeft className="h-5 w-5" />
+            <ArrowLeft className="h-6 w-6" />
           </Link>
-          <p className="mt-4 text-sm text-stone-800 dark:text-stone-200">{TRIAL_DAYS} أيام مجانًا — إلغاء في أي وقت — ضمان استرداد كامل</p>
-          <p className="mt-2 text-xs font-bold text-red-600 dark:text-red-400">السعر الحالي لن يستمر — ابدأ الآن قبل الزيادة</p>
+          <div className="mt-5 flex flex-wrap items-center justify-center gap-3">
+            <span className="flex items-center gap-1.5 text-sm font-medium text-stone-600 dark:text-stone-400"><CreditCard className="h-4 w-4 text-emerald-600" /> {TRIAL_DAYS} أيام مجانًا</span>
+            <span className="text-stone-300 dark:text-stone-600">·</span>
+            <span className="flex items-center gap-1.5 text-sm font-medium text-stone-600 dark:text-stone-400"><Shield className="h-4 w-4 text-emerald-600" /> ضمان استرداد كامل</span>
+            <span className="text-stone-300 dark:text-stone-600">·</span>
+            <span className="flex items-center gap-1.5 text-sm font-medium text-stone-600 dark:text-stone-400"><Lock className="h-4 w-4 text-emerald-600" /> إلغاء في أي وقت</span>
+          </div>
+          <p className="mt-3 text-xs font-bold text-red-600 dark:text-red-400">السعر الحالي لن يستمر — ابدأ الآن قبل الزيادة</p>
         </div>
       </section>
 

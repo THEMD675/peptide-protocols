@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
+import { useScrollReveal } from '@/hooks/useScrollReveal';
 import { Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import { Star, Send, MessageSquare, MessageCircle, CheckCircle, AlertCircle, BadgeCheck } from 'lucide-react';
@@ -77,6 +78,7 @@ function StarRating({
 }
 
 export default function Reviews() {
+  useScrollReveal();
   const { user, subscription } = useAuth();
   const [reviews, setReviews] = useState<Review[]>([]);
   const [loading, setLoading] = useState(true);
@@ -423,17 +425,29 @@ export default function Reviews() {
               </button>
             </div>
           ) : reviews.length === 0 ? (
-            <div className="rounded-2xl border-2 border-dashed border-emerald-200 dark:border-emerald-800 bg-gradient-to-b from-emerald-50 to-white dark:to-stone-950 py-20 px-8 text-center">
-              <div className="mx-auto mb-5 flex h-20 w-20 items-center justify-center rounded-2xl bg-emerald-100 dark:bg-emerald-900/30">
+            <div className="rounded-2xl border-2 border-dashed border-emerald-200 dark:border-emerald-800 bg-gradient-to-b from-emerald-50/80 to-white dark:from-emerald-900/10 dark:to-stone-950 py-16 px-8 text-center">
+              {/* Stars decoration */}
+              <div className="mb-5 flex items-center justify-center gap-1" dir="ltr" aria-hidden="true">
+                {[1,2,3,4,5].map(s => (
+                  <Star key={s} className="h-7 w-7 fill-emerald-300 text-emerald-300 dark:fill-emerald-700 dark:text-emerald-700" />
+                ))}
+              </div>
+              <div className="mx-auto mb-5 flex h-20 w-20 items-center justify-center rounded-2xl bg-emerald-100 dark:bg-emerald-900/30 ring-2 ring-emerald-200 dark:ring-emerald-800">
                 <MessageCircle className="h-10 w-10 text-emerald-700" />
               </div>
-              <h3 className="text-2xl font-bold text-stone-900 dark:text-stone-100">لا توجد تقييمات بعد</h3>
-              <p className="mx-auto mt-3 max-w-md text-base leading-relaxed text-stone-600 dark:text-stone-300">
-                كن أول من يشارك تجربته — تقييمك يساعد الآخرين على اتخاذ قرارهم بثقة وكن مرجعًا للمجتمع.
+              <h3 className="text-2xl font-bold text-stone-900 dark:text-stone-100">كن أول من يشارك تجربته</h3>
+              <p className="mx-auto mt-3 max-w-md text-base leading-relaxed text-stone-600 dark:text-stone-400">
+                تقييمك يساعد الآخرين على اتخاذ قرارهم بثقة — وأنت تبني مرجعًا حقيقيًا للمجتمع العربي.
               </p>
+              {/* Benefits of reviewing */}
+              <div className="mx-auto mt-6 max-w-xs space-y-2 text-sm text-stone-600 dark:text-stone-400">
+                <div className="flex items-center gap-2 justify-center"><CheckCircle className="h-4 w-4 shrink-0 text-emerald-600" /><span>رأيك يبقى مرجعًا للمجتمع</span></div>
+                <div className="flex items-center gap-2 justify-center"><CheckCircle className="h-4 w-4 shrink-0 text-emerald-600" /><span>يساعد المستخدمين الجدد</span></div>
+                <div className="flex items-center gap-2 justify-center"><CheckCircle className="h-4 w-4 shrink-0 text-emerald-600" /><span>يستغرق أقل من دقيقتين</span></div>
+              </div>
               <button
                 onClick={() => document.getElementById('review-rating')?.scrollIntoView({ behavior: 'smooth' })}
-                className="mt-6 inline-flex items-center gap-2 rounded-full bg-emerald-600 px-8 py-4 text-base font-bold text-white shadow-lg shadow-emerald-600/25 transition-all hover:bg-emerald-700 hover:shadow-emerald-600/30"
+                className="mt-8 inline-flex items-center gap-2 rounded-full bg-emerald-600 px-8 py-4 min-h-[52px] text-base font-bold text-white shadow-lg shadow-emerald-600/25 transition-all hover:bg-emerald-700 hover:shadow-emerald-600/35 active:scale-[0.98]"
               >
                 <Send className="h-5 w-5" />
                 اكتب تقييمك الآن

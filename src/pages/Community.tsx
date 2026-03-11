@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useMemo, useCallback } from 'react';
+import { useScrollReveal } from '@/hooks/useScrollReveal';
 import { Helmet } from 'react-helmet-async';
 import { Link, useSearchParams } from 'react-router-dom';
 import {
@@ -347,6 +348,7 @@ function Leaderboard({ leaders }: { leaders: LeaderEntry[] }) {
 /* ──────────────────── Main Component ──────────────────── */
 
 export default function Community() {
+  useScrollReveal();
   const { user, subscription } = useAuth();
   const [logs, setLogs] = useState<LogEntry[]>([]);
   const [loading, setLoading] = useState(true);
