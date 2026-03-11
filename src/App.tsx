@@ -5,6 +5,7 @@ import { Helmet, HelmetProvider } from 'react-helmet-async';
 import { Toaster } from 'sonner';
 import { SITE_URL, STORAGE_KEYS } from '@/lib/constants';
 import { hasOptionalConsent } from '@/lib/cookie-utils';
+import { events } from '@/lib/analytics';
 import { Sentry } from '@/lib/sentry';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
@@ -191,9 +192,7 @@ function ScrollToTop() {
 function TrackPageView() {
   const { pathname } = useLocation();
   useEffect(() => {
-    if (typeof window.gtag === 'function') {
-      window.gtag('event', 'page_view', { page_path: pathname });
-    }
+    events.pageView(pathname);
   }, [pathname]);
   return null;
 }

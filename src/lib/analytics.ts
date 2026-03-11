@@ -1,21 +1,111 @@
+import { supabase } from './supabase';
+
 declare global {
   interface Window {
     gtag?: (...args: unknown[]) => void;
   }
 }
 
+// Generate a session ID that persists for this browser session
+function getSessionId(): string {
+  const key = 'pptides_analytics_session';
+  let sid = sessionStorage.getItem(key);
+  if (!sid) {
+    sid = `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
+    sessionStorage.setItem(key, sid);
+  }
+  return sid;
+}
+
+// Batch queue to reduce DB writes
+let eventQueue: Array<{
+  event_name: string;
+  event_params: Record<string, unknown>;
+  page_path: string;
+  referrer: string;
+  session_id: string;
+  user_id?: string;
+}> = [];
+let flushTimer: ReturnType<typeof setTimeout> | null = null;
+
+async function flushEvents() {
+  if (eventQueue.length === 0) return;
+  const batch = eventQueue.splice(0, eventQueue.length);
+  try {
+    await supabase.from('analytics_events').insert(batch);
+  } catch {
+    /* analytics should never crash the app */
+  }
+}
+
+function queueEvent(event: string, params?: Record<string, unknown>) {
+  const userId = supabase.auth.getSession().then(s => s.data.session?.user?.id);
+  // Fire-and-forget user ID resolution
+  userId.then(uid => {
+    eventQueue.push({
+      event_name: event,
+      event_params: params || {},
+      page_path: typeof window !== 'undefined' ? window.location.pathname : '',
+      referrer: typeof document !== 'undefined' ? document.referrer : '',
+      session_id: getSessionId(),
+      ...(uid ? { user_id: uid } : {}),
+    });
+
+    // Flush every 3 seconds or when batch hits 10
+    if (eventQueue.length >= 10) {
+      if (flushTimer) clearTimeout(flushTimer);
+      flushTimer = null;
+      flushEvents();
+    } else if (!flushTimer) {
+      flushTimer = setTimeout(() => {
+        flushTimer = null;
+        flushEvents();
+      }, 3000);
+    }
+  }).catch(() => {
+    // If session fetch fails, still queue without user_id
+    eventQueue.push({
+      event_name: event,
+      event_params: params || {},
+      page_path: typeof window !== 'undefined' ? window.location.pathname : '',
+      referrer: typeof document !== 'undefined' ? document.referrer : '',
+      session_id: getSessionId(),
+    });
+  });
+}
+
+// Flush on page unload
+if (typeof window !== 'undefined') {
+  window.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'hidden') flushEvents();
+  });
+  window.addEventListener('beforeunload', () => flushEvents());
+}
+
 export function trackEvent(event: string, params?: Record<string, unknown>) {
   try {
+    // Send to GA4 if available
     if (typeof window !== 'undefined' && typeof window.gtag === 'function') {
       window.gtag('event', event, params);
     }
+    // Always send to Supabase
+    queueEvent(event, params);
   } catch { /* analytics should never crash the app */ }
 }
 
+export function trackPageView(path: string) {
+  trackEvent('page_view', { page_path: path });
+}
+
 export const events = {
+  // Page views
+  pageView: (path: string) => trackPageView(path),
+
   // Auth funnel
   signup: (method: 'email' | 'google') => trackEvent('sign_up', { method }),
   login: (method: 'email' | 'google') => trackEvent('login', { method }),
+  signupStart: () => trackEvent('signup_start'),
+  signupComplete: () => trackEvent('signup_complete'),
 
   // Quiz funnel
   quizStart: () => trackEvent('quiz_start'),
@@ -32,6 +122,8 @@ export const events = {
   injectionLog: (peptide: string) => trackEvent('injection_log', { peptide }),
   protocolStart: (peptide: string) => trackEvent('protocol_start', { peptide }),
   trackerView: () => trackEvent('tracker_view'),
+  calculatorUse: (peptide: string) => trackEvent('calculator_use', { peptide }),
+  searchUse: (query: string) => trackEvent('search_use', { query }),
 
   // Sharing & referrals
   referralShare: (method: string) => trackEvent('referral_share', { method }),
