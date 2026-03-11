@@ -8,7 +8,10 @@ import { SpeedInsights } from '@vercel/speed-insights/react';
 import { SITE_URL, STORAGE_KEYS } from '@/lib/constants';
 import { hasOptionalConsent } from '@/lib/cookie-utils';
 import { events } from '@/lib/analytics';
-import { Sentry } from '@/lib/sentry';
+// Lazy-load Sentry to keep it out of the critical JS bundle
+const lazySentryCapture = (error: Error, ctx?: Record<string, unknown>) => {
+  import('@sentry/react').then(S => S.captureException(error, ctx)).catch(() => {});
+};
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import BottomNav from '@/components/layout/BottomNav';
@@ -93,7 +96,7 @@ class ErrorBoundary extends Component<{ children: ReactNode }, { hasError: boole
       } catch { /* Safari private mode */ }
     }
     // Report to Sentry
-    Sentry.captureException(error, { contexts: { react: { componentStack: errorInfo.componentStack } } });
+    lazySentryCapture(error, { contexts: { react: { componentStack: errorInfo.componentStack } } });
   }
   render() {
     if (this.state.hasError) {
@@ -136,7 +139,7 @@ class RouteErrorBoundary extends Component<
     return { hasError: true, error };
   }
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
-    Sentry.captureException(error, { contexts: { react: { componentStack: errorInfo.componentStack } } });
+    lazySentryCapture(error, { contexts: { react: { componentStack: errorInfo.componentStack } } });
   }
   reset = () => this.setState(prev => ({ hasError: false, error: null, retryCount: prev.retryCount + 1 }));
   render() {

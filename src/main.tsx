@@ -5,10 +5,16 @@ import './index.css';
 
 import { migrateQuizStorage } from '@/lib/quiz-migration';
 import { hasOptionalConsent } from '@/lib/cookie-utils';
-import { initSentry } from '@/lib/sentry';
 
-// Initialize Sentry error tracking (production only, no PII)
-initSentry();
+// Defer Sentry init to after first paint (reduces main thread blocking)
+if (import.meta.env.PROD) {
+  const initSentryDeferred = () => import('@/lib/sentry').then(({ initSentry }) => initSentry());
+  if ('requestIdleCallback' in window) {
+    requestIdleCallback(initSentryDeferred);
+  } else {
+    setTimeout(initSentryDeferred, 2000);
+  }
+}
 
 // Migrate old quiz/onboarding localStorage keys to unified key
 migrateQuizStorage();
