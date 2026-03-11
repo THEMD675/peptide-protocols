@@ -68,6 +68,7 @@ export default function Login() {
   const resendIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const emailRef = useRef<HTMLInputElement>(null);
 
+  const navigate = useNavigate();
   const { login, signup, user } = useAuth();
   const googleBtnRef = useRef<HTMLDivElement>(null);
 
@@ -115,7 +116,6 @@ export default function Login() {
       if (script.parentNode) script.parentNode.removeChild(script);
     };
   }, []);
-  const navigate = useNavigate();
   const recoveryTimerRef = useRef<ReturnType<typeof setTimeout>>();
   useEffect(() => () => {
     clearTimeout(recoveryTimerRef.current);
