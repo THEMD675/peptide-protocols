@@ -55,7 +55,7 @@ export default function StickyScrollCTA() {
       aria-label="عرض الاشتراك"
       aria-hidden={!visible}
       className={cn(
-        'fixed bottom-0 inset-x-0 z-40 border-t border-emerald-200 dark:border-emerald-800/50 bg-white dark:bg-stone-950/95 backdrop-blur-xl shadow-[0_-4px_20px_rgba(0,0,0,0.08)] pb-[env(safe-area-inset-bottom)] transition-transform duration-300 ease-out',
+        'fixed bottom-14 md:bottom-0 inset-x-0 z-40 border-t border-emerald-200 dark:border-emerald-800/50 bg-white dark:bg-stone-950/95 backdrop-blur-xl shadow-[0_-4px_20px_rgba(0,0,0,0.08)] pb-[env(safe-area-inset-bottom)] transition-transform duration-300 ease-out',
         visible ? 'translate-y-0' : 'translate-y-full pointer-events-none',
       )}
     >

@@ -77,7 +77,7 @@ export default function ExitIntentPopup() {
   return (
     <div role="dialog" aria-modal="true" aria-labelledby="exit-popup-title" className="fixed inset-0 z-[9998] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4 animate-fade-in" onClick={(e) => { if (e.target === e.currentTarget) setVisible(false); }}>
       <FocusTrap focusTrapOptions={{ allowOutsideClick: true }}>
-      <div className="relative w-full max-w-md rounded-2xl bg-white dark:bg-stone-950 p-8 shadow-2xl text-center">
+      <div className="relative w-full max-w-md max-h-[90vh] overflow-y-auto rounded-2xl bg-white dark:bg-stone-950 p-8 shadow-2xl text-center">
         <button
           onClick={() => setVisible(false)}
           className="absolute top-4 end-4 flex items-center justify-center rounded-full min-h-[44px] min-w-[44px] text-stone-500 dark:text-stone-400 hover:text-stone-600 dark:text-stone-400 hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors"
