@@ -629,8 +629,8 @@ export default function StackBuilder() {
                   <span className="text-sm font-medium text-stone-900 dark:text-stone-100">{s.name}</span>
                   <span className="block text-[10px] text-stone-500 dark:text-stone-300">{s.peptideIds.length} ببتيدات • {new Date(s.createdAt).toLocaleDateString('ar-SA')}</span>
                 </button>
-                <button type="button" onClick={() => handleDelete(s.id)} className="p-1 text-red-400 hover:text-red-600">
-                  <Trash2 className="h-3.5 w-3.5" />
+                <button type="button" onClick={() => handleDelete(s.id)} aria-label={`حذف ${s.name}`} className="flex items-center justify-center rounded-lg p-2 min-h-[44px] min-w-[44px] text-red-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors">
+                  <Trash2 className="h-4 w-4" />
                 </button>
               </div>
             ))}

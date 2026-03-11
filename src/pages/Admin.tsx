@@ -151,7 +151,7 @@ function Modal({ open, title, children, onClose }: { open: boolean; title: strin
       <div className="w-full max-w-md rounded-2xl bg-white dark:bg-stone-900 p-6 shadow-xl dark:shadow-stone-900/40" onClick={e => e.stopPropagation()} role="dialog" aria-modal="true" aria-labelledby={titleId}>
         <div className="flex items-center justify-between mb-4">
           <h3 id={titleId} className="text-lg font-bold text-stone-900 dark:text-stone-100">{title}</h3>
-          <button onClick={onClose} className="rounded-lg p-1 hover:bg-stone-100 dark:hover:bg-stone-800"><X className="h-5 w-5 text-stone-500 dark:text-stone-300" /></button>
+          <button onClick={onClose} aria-label="إغلاق" className="flex items-center justify-center rounded-lg p-2 min-h-[44px] min-w-[44px] hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors"><X className="h-5 w-5 text-stone-500 dark:text-stone-300" /></button>
         </div>
         {children}
       </div>
@@ -714,7 +714,7 @@ export default function Admin() {
                         <span className="font-mono text-xs text-stone-700 dark:text-stone-200 truncate max-w-[200px]">{u.email}</span>
                         <div className="flex items-center gap-1">
                           {tl && <span className={cn('rounded-full px-2 py-0.5 text-xs font-medium', tl.urgent ? 'bg-red-100 text-red-700 dark:text-red-400' : 'bg-blue-100 text-blue-700 dark:text-blue-400')}>{tl.text}</span>}
-                          <button onClick={() => openUserAction('extend_trial', u)} className="rounded p-1 hover:bg-stone-100 dark:hover:bg-stone-800" title="تمديد"><CalendarPlus className="h-3.5 w-3.5 text-emerald-700" /></button>
+                          <button onClick={() => openUserAction('extend_trial', u)} className="rounded p-1.5 min-h-[36px] min-w-[36px] flex items-center justify-center hover:bg-stone-100 dark:hover:bg-stone-800" title="تمديد" aria-label="تمديد التجربة"><CalendarPlus className="h-3.5 w-3.5 text-emerald-700" /></button>
                         </div>
                       </div>
                     );
@@ -826,14 +826,14 @@ export default function Admin() {
                           <td className="px-3 py-2 text-xs text-stone-500 dark:text-stone-300">{u.last_sign_in_at ? timeAgo(u.last_sign_in_at) : '—'}</td>
                           <td className="px-3 py-2">
                             <div className="flex items-center gap-0.5">
-                              <button onClick={() => openUserAction('extend_trial', u)} title="Extend trial" className="rounded p-1 hover:bg-emerald-50 dark:bg-emerald-900/20"><CalendarPlus className="h-3.5 w-3.5 text-emerald-700" /></button>
-                              <button onClick={() => openUserAction('grant_sub', u)} title="Grant subscription" className="rounded p-1 hover:bg-blue-50 dark:bg-blue-900/20"><CreditCard className="h-3.5 w-3.5 text-blue-600" /></button>
-                              <button onClick={() => { setEmailTo(u.email); setEmailSubject(''); setEmailBody(''); setModal('send_email'); setModalTarget(u); }} title="Send email" className="rounded p-1 hover:bg-violet-50"><Mail className="h-3.5 w-3.5 text-violet-600" /></button>
+                              <button onClick={() => openUserAction('extend_trial', u)} title="Extend trial" aria-label="Extend trial" className="rounded p-1.5 min-h-[36px] min-w-[36px] flex items-center justify-center hover:bg-emerald-50 dark:hover:bg-emerald-900/20"><CalendarPlus className="h-3.5 w-3.5 text-emerald-700" /></button>
+                              <button onClick={() => openUserAction('grant_sub', u)} title="Grant subscription" aria-label="Grant subscription" className="rounded p-1.5 min-h-[36px] min-w-[36px] flex items-center justify-center hover:bg-blue-50 dark:hover:bg-blue-900/20"><CreditCard className="h-3.5 w-3.5 text-blue-600" /></button>
+                              <button onClick={() => { setEmailTo(u.email); setEmailSubject(''); setEmailBody(''); setModal('send_email'); setModalTarget(u); }} title="Send email" aria-label="Send email" className="rounded p-1.5 min-h-[36px] min-w-[36px] flex items-center justify-center hover:bg-violet-50 dark:hover:bg-violet-900/20"><Mail className="h-3.5 w-3.5 text-violet-600" /></button>
                               {(u.subscription?.status === 'active' || u.subscription?.status === 'trial') && (
-                                <button onClick={() => openUserAction('cancel_sub', u)} title="Cancel subscription" className="rounded p-1 hover:bg-amber-50 dark:bg-amber-900/20"><XCircle className="h-3.5 w-3.5 text-amber-600" /></button>
+                                <button onClick={() => openUserAction('cancel_sub', u)} title="Cancel subscription" aria-label="Cancel subscription" className="rounded p-1.5 min-h-[36px] min-w-[36px] flex items-center justify-center hover:bg-amber-50 dark:hover:bg-amber-900/20"><XCircle className="h-3.5 w-3.5 text-amber-600" /></button>
                               )}
-                              <button onClick={() => openUserAction('confirm_suspend', u)} title="Suspend" className="rounded p-1 hover:bg-red-50 dark:bg-red-900/20"><Ban className="h-3.5 w-3.5 text-red-400" /></button>
-                              <button onClick={async () => { try { await adminAction({ action: 'unsuspend_user', user_id: u.id }); toast.success(`${u.email} unsuspended`); fetchStats(); } catch { toast.error('Unsuspend failed'); } }} title="Unsuspend" className="rounded p-1 hover:bg-green-50"><ShieldCheck className="h-3.5 w-3.5 text-green-600" /></button>
+                              <button onClick={() => openUserAction('confirm_suspend', u)} title="Suspend" aria-label="Suspend user" className="rounded p-1.5 min-h-[36px] min-w-[36px] flex items-center justify-center hover:bg-red-50 dark:hover:bg-red-900/20"><Ban className="h-3.5 w-3.5 text-red-400" /></button>
+                              <button onClick={async () => { try { await adminAction({ action: 'unsuspend_user', user_id: u.id }); toast.success(`${u.email} unsuspended`); fetchStats(); } catch { toast.error('Unsuspend failed'); } }} title="Unsuspend" aria-label="Unsuspend user" className="rounded p-1.5 min-h-[36px] min-w-[36px] flex items-center justify-center hover:bg-green-50 dark:hover:bg-green-900/20"><ShieldCheck className="h-3.5 w-3.5 text-green-600" /></button>
                               <button onClick={async () => {
                                 const id = window.prompt('Enter payment_intent_id (pi_...) or charge_id (ch_...)');
                                 if (!id?.trim()) return;
@@ -842,8 +842,8 @@ export default function Admin() {
                                   await adminAction(payload);
                                   toast.success('Refund initiated');
                                 } catch (e) { toast.error(e instanceof Error ? e.message : 'Refund failed'); }
-                              }} title="Refund payment" className="rounded p-1 hover:bg-amber-50 dark:bg-amber-900/20"><RotateCcw className="h-3.5 w-3.5 text-amber-600" /></button>
-                              <button onClick={() => openUserAction('confirm_delete', u)} title="Delete" className="rounded p-1 hover:bg-red-50 dark:bg-red-900/20"><Trash2 className="h-3.5 w-3.5 text-red-400" /></button>
+                              }} title="Refund payment" aria-label="Refund payment" className="rounded p-1.5 min-h-[36px] min-w-[36px] flex items-center justify-center hover:bg-amber-50 dark:hover:bg-amber-900/20"><RotateCcw className="h-3.5 w-3.5 text-amber-600" /></button>
+                              <button onClick={() => openUserAction('confirm_delete', u)} title="Delete" aria-label="Delete user" className="rounded p-1.5 min-h-[36px] min-w-[36px] flex items-center justify-center hover:bg-red-50 dark:hover:bg-red-900/20"><Trash2 className="h-3.5 w-3.5 text-red-400" /></button>
                             </div>
                           </td>
                         </tr>

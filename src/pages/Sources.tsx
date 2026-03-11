@@ -295,18 +295,18 @@ function CitationBrowser() {
       <div className="mb-4 flex flex-col gap-3 sm:flex-row">
         {/* Search */}
         <div className="relative flex-1">
-          <Search className="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-stone-400" />
+          <Search className="absolute end-3 top-1/2 h-4 w-4 -translate-y-1/2 text-stone-400" />
           <input
             type="text"
             placeholder="ابحث بـ PubMed ID أو اسم الببتيد..."
             value={searchQuery}
             onChange={e => setSearchQuery(e.target.value)}
-            className="w-full rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-800 py-3 pr-10 pl-4 text-sm text-stone-900 dark:text-stone-100 placeholder:text-stone-400 focus:border-emerald-300 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900"
+            className="w-full rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-800 py-3 pe-10 ps-4 text-sm text-stone-900 dark:text-stone-100 placeholder:text-stone-400 focus:border-emerald-300 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900"
           />
           {searchQuery && (
             <button
               onClick={() => setSearchQuery('')}
-              className="absolute left-3 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-600 dark:text-stone-300"
+              className="absolute start-3 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-600 dark:text-stone-300"
             >
               <X className="h-4 w-4" />
             </button>

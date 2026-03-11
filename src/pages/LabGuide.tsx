@@ -906,7 +906,7 @@ function LabLocator() {
       </div>
 
       <div className="mt-4 rounded-xl bg-stone-100 dark:bg-stone-800 p-3 text-center text-xs text-stone-500 dark:text-stone-300">
-        <Info className="inline h-3 w-3 ml-1" />
+        <Info className="inline h-3 w-3 ms-1" />
         الأسعار تقريبية وقد تختلف حسب الفرع والعروض المتاحة — آخر تحديث مارس 2026
       </div>
     </section>

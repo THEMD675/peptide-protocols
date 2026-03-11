@@ -2,17 +2,19 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import FocusTrap from 'focus-trap-react';
 import { Helmet } from 'react-helmet-async';
 import { Link, Navigate, useNavigate, useLocation } from 'react-router-dom';
-import { User, Crown, LogOut, Trash2, AlertTriangle, Mail, ArrowUpCircle, KeyRound, XCircle, Download, CreditCard, Gift, Copy, Share2, Check, Send, MessageSquare, UserCircle, Camera, BarChart3, Syringe, Bot, Calendar, Heart, FlaskConical } from 'lucide-react';
+import { User, Crown, LogOut, Trash2, AlertTriangle, Mail, ArrowUpCircle, KeyRound, XCircle, Download, CreditCard, Gift, Copy, Share2, Check, Send, MessageSquare, UserCircle, Camera, BarChart3, Syringe, Bot, Calendar, Heart, FlaskConical, Moon, Sun, Chrome, Bell, BellOff } from 'lucide-react';
 import { useBookmarks } from '@/hooks/useBookmarks';
 import { peptidesLite as allPeptides } from '@/data/peptides-lite';
 import { toast } from 'sonner';
 import { cn, arPlural, sanitizeInput } from '@/lib/utils';
-import { SUPPORT_EMAIL, STATUS_LABELS, TIER_LABELS, PEPTIDE_COUNT, SITE_URL } from '@/lib/constants';
+import { SUPPORT_EMAIL, STATUS_LABELS, TIER_LABELS, PEPTIDE_COUNT, SITE_URL, PRICING } from '@/lib/constants';
+import { useTheme } from '@/hooks/useTheme';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
 
 export default function Account() {
   const { user, subscription, logout, refreshSubscription, isLoading } = useAuth();
+  const { theme, toggleTheme } = useTheme();
   const navigate = useNavigate();
   const location = useLocation();
   const [showCancelDialog, setShowCancelDialog] = useState(false);
@@ -27,6 +29,12 @@ export default function Account() {
   const [newEmail, setNewEmail] = useState('');
   const [emailLoading, setEmailLoading] = useState(false);
   const [deletePassword, setDeletePassword] = useState('');
+  const [notifEmail, setNotifEmail] = useState(() => {
+    try { return localStorage.getItem('pptides_notif_email') !== 'false'; } catch { return true; }
+  });
+  const [notifProduct, setNotifProduct] = useState(() => {
+    try { return localStorage.getItem('pptides_notif_product') !== 'false'; } catch { return true; }
+  });
 
   const [profileDisplayName, setProfileDisplayName] = useState('');
   const [profileWeight, setProfileWeight] = useState('');
@@ -90,22 +98,30 @@ export default function Account() {
   useEffect(() => {
     if (!user) return;
     let mounted = true;
-    Promise.all([
-      supabase.from('injection_logs').select('id', { count: 'exact', head: true }).eq('user_id', user.id),
-      supabase.from('user_protocols').select('id', { count: 'exact', head: true }).eq('user_id', user.id).eq('status', 'active'),
-      supabase.from('community_logs').select('id', { count: 'exact', head: true }).eq('user_id', user.id),
-    ]).then(([injRes, protoRes, coachRes]) => {
+    const loadStats = async () => {
+      const [injRes, protoRes, coachRes, authRes] = await Promise.all([
+        supabase.from('injection_logs').select('id', { count: 'exact', head: true }).eq('user_id', user.id),
+        supabase.from('user_protocols').select('id', { count: 'exact', head: true }).eq('user_id', user.id).eq('status', 'active'),
+        supabase.from('community_logs').select('id', { count: 'exact', head: true }).eq('user_id', user.id),
+        // Fix: UUID v4 first segment is random (not a timestamp) — get real created_at from auth
+        supabase.auth.getUser(),
+      ]);
       if (!mounted) return;
       if (injRes.error) console.error('injection_logs count failed:', injRes.error);
       if (protoRes.error) console.error('user_protocols count failed:', protoRes.error);
       if (coachRes.error) console.error('community_logs count failed:', coachRes.error);
+      const fullUser = authRes.data?.user;
+      const memberSinceDate = fullUser?.created_at
+        ? new Date(fullUser.created_at).toLocaleDateString('ar-u-nu-latn', { year: 'numeric', month: 'long' })
+        : new Date().toLocaleDateString('ar-u-nu-latn', { year: 'numeric', month: 'long' });
       setUsageStats({
         injections: injRes.count ?? 0,
         protocols: protoRes.count ?? 0,
         coachMessages: coachRes.count ?? 0,
-        memberSince: user.id ? new Date(parseInt(user.id.split('-')[0], 16) * 1000 || Date.now()).toLocaleDateString('ar-u-nu-latn', { year: 'numeric', month: 'long' }) : '',
+        memberSince: memberSinceDate,
       });
-    }).catch(() => {});
+    };
+    loadStats().catch(() => {});
     return () => { mounted = false; };
   }, [user]);
 
@@ -169,7 +185,23 @@ export default function Account() {
     return <Navigate to={`/login?redirect=${encodeURIComponent(location.pathname + location.search)}`} replace />;
   }
 
-  if (!user) return null;
+  if (isLoading || !user) {
+    return (
+      <div className="mx-auto max-w-3xl px-4 pb-24 pt-8 md:px-6 md:pt-12 animate-pulse">
+        <div className="mb-10 text-center">
+          <div className="mx-auto mb-4 h-20 w-20 rounded-full bg-stone-200 dark:bg-stone-700" />
+          <div className="mx-auto h-8 w-40 rounded-lg bg-stone-200 dark:bg-stone-700 mb-2" />
+          <div className="mx-auto h-4 w-56 rounded bg-stone-100 dark:bg-stone-800" />
+        </div>
+        <div className="space-y-6">
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+            {[1,2,3,4].map(i => <div key={i} className="h-24 rounded-2xl bg-stone-100 dark:bg-stone-800" />)}
+          </div>
+          {[1,2,3,4].map(i => <div key={i} className="h-40 rounded-2xl bg-stone-100 dark:bg-stone-800" />)}
+        </div>
+      </div>
+    );
+  }
 
   const handleChangeEmail = async () => {
     if (!newEmail.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(newEmail)) { toast.error('أدخل بريد إلكتروني صالح'); return; }
@@ -442,6 +474,13 @@ export default function Account() {
               <p className="text-xl font-black text-stone-900 dark:text-stone-100">
                 {TIER_LABELS[subscription.tier] ?? subscription.tier}
               </p>
+              {subscription.tier !== 'free' && (subscription.status === 'active' || subscription.status === 'trial') && (
+                <p className="text-xs font-bold text-emerald-600 mt-0.5" dir="ltr">
+                  {subscription.tier === 'elite'
+                    ? `${PRICING.elite.monthly} ر.س / شهر`
+                    : `${PRICING.essentials.monthly} ر.س / شهر`}
+                </p>
+              )}
               <p className={cn(
                 'text-sm font-medium',
                 subscription.isProOrTrial ? 'text-emerald-700' : 'text-stone-500 dark:text-stone-300',
@@ -624,6 +663,132 @@ export default function Account() {
         </div>
         )}
 
+        {/* Connected Accounts — for OAuth users (Google, etc.) */}
+        {isOAuthUser && (
+          <div className="rounded-2xl border border-stone-200 dark:border-stone-600 bg-stone-50 dark:bg-stone-900 p-6">
+            <div className="flex items-center gap-3 mb-4">
+              <Chrome className="h-5 w-5 text-emerald-700" />
+              <h2 className="text-lg font-bold text-stone-900 dark:text-stone-100">الحساب المرتبط</h2>
+            </div>
+            <div className="flex items-center gap-3 rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 p-4">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-blue-50 dark:bg-blue-900/20">
+                <Chrome className="h-5 w-5 text-blue-500" />
+              </div>
+              <div className="flex-1">
+                <p className="text-sm font-bold text-stone-900 dark:text-stone-100">
+                  {user.provider === 'google' ? 'Google' : user.provider}
+                </p>
+                <p className="text-xs text-stone-500 dark:text-stone-300">{user.email}</p>
+              </div>
+              <span className="rounded-full bg-emerald-100 dark:bg-emerald-900/30 px-2.5 py-1 text-xs font-bold text-emerald-700 dark:text-emerald-400">مرتبط</span>
+            </div>
+            <p className="text-xs text-stone-500 dark:text-stone-300 mt-3">تسجيل دخولك عبر {user.provider === 'google' ? 'Google' : user.provider} — لا توجد كلمة مرور محلية لهذا الحساب.</p>
+          </div>
+        )}
+
+        {/* Preferences: Theme + Notifications */}
+        <div className="rounded-2xl border border-stone-200 dark:border-stone-600 bg-stone-50 dark:bg-stone-900 p-6">
+          <div className="flex items-center gap-3 mb-4">
+            <Sun className="h-5 w-5 text-emerald-700" />
+            <h2 className="text-lg font-bold text-stone-900 dark:text-stone-100">التفضيلات</h2>
+          </div>
+          <div className="space-y-4">
+            {/* Theme toggle */}
+            <div className="flex items-center justify-between rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 p-4">
+              <div className="flex items-center gap-3">
+                {theme === 'dark'
+                  ? <Moon className="h-5 w-5 text-stone-500 dark:text-stone-300" />
+                  : <Sun className="h-5 w-5 text-amber-500" />}
+                <div>
+                  <p className="text-sm font-bold text-stone-900 dark:text-stone-100">المظهر</p>
+                  <p className="text-xs text-stone-500 dark:text-stone-300">{theme === 'dark' ? 'الوضع الداكن مفعّل' : 'الوضع الفاتح مفعّل'}</p>
+                </div>
+              </div>
+              <button
+                onClick={toggleTheme}
+                className={cn(
+                  'relative h-7 w-12 rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:ring-offset-2',
+                  theme === 'dark' ? 'bg-emerald-600' : 'bg-stone-300',
+                )}
+                aria-label="تبديل المظهر"
+                role="switch"
+                aria-checked={theme === 'dark'}
+              >
+                <span className={cn(
+                  'absolute top-1 h-5 w-5 rounded-full bg-white shadow transition-transform',
+                  theme === 'dark' ? 'translate-x-[-2px] rtl:translate-x-[2px]' : 'translate-x-[-22px] rtl:translate-x-[22px]',
+                )} />
+              </button>
+            </div>
+
+            {/* Email notifications */}
+            <div className="flex items-center justify-between rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 p-4">
+              <div className="flex items-center gap-3">
+                {notifEmail
+                  ? <Bell className="h-5 w-5 text-emerald-700" />
+                  : <BellOff className="h-5 w-5 text-stone-400" />}
+                <div>
+                  <p className="text-sm font-bold text-stone-900 dark:text-stone-100">إشعارات البريد الإلكتروني</p>
+                  <p className="text-xs text-stone-500 dark:text-stone-300">تحديثات الاشتراك والتذكيرات</p>
+                </div>
+              </div>
+              <button
+                onClick={() => {
+                  const next = !notifEmail;
+                  setNotifEmail(next);
+                  try { localStorage.setItem('pptides_notif_email', String(next)); } catch {}
+                  toast.success(next ? 'تم تفعيل إشعارات البريد' : 'تم إيقاف إشعارات البريد');
+                }}
+                className={cn(
+                  'relative h-7 w-12 rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:ring-offset-2',
+                  notifEmail ? 'bg-emerald-600' : 'bg-stone-300',
+                )}
+                aria-label="تبديل إشعارات البريد"
+                role="switch"
+                aria-checked={notifEmail}
+              >
+                <span className={cn(
+                  'absolute top-1 h-5 w-5 rounded-full bg-white shadow transition-transform',
+                  notifEmail ? 'translate-x-[-2px] rtl:translate-x-[2px]' : 'translate-x-[-22px] rtl:translate-x-[22px]',
+                )} />
+              </button>
+            </div>
+
+            {/* Product updates */}
+            <div className="flex items-center justify-between rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 p-4">
+              <div className="flex items-center gap-3">
+                {notifProduct
+                  ? <Bell className="h-5 w-5 text-blue-500" />
+                  : <BellOff className="h-5 w-5 text-stone-400" />}
+                <div>
+                  <p className="text-sm font-bold text-stone-900 dark:text-stone-100">تحديثات المنتج</p>
+                  <p className="text-xs text-stone-500 dark:text-stone-300">ببتيدات جديدة وميزات</p>
+                </div>
+              </div>
+              <button
+                onClick={() => {
+                  const next = !notifProduct;
+                  setNotifProduct(next);
+                  try { localStorage.setItem('pptides_notif_product', String(next)); } catch {}
+                  toast.success(next ? 'تم تفعيل تحديثات المنتج' : 'تم إيقاف تحديثات المنتج');
+                }}
+                className={cn(
+                  'relative h-7 w-12 rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:ring-offset-2',
+                  notifProduct ? 'bg-emerald-600' : 'bg-stone-300',
+                )}
+                aria-label="تبديل تحديثات المنتج"
+                role="switch"
+                aria-checked={notifProduct}
+              >
+                <span className={cn(
+                  'absolute top-1 h-5 w-5 rounded-full bg-white shadow transition-transform',
+                  notifProduct ? 'translate-x-[-2px] rtl:translate-x-[2px]' : 'translate-x-[-22px] rtl:translate-x-[22px]',
+                )} />
+              </button>
+            </div>
+          </div>
+        </div>
+
         {/* Subscription Card */}
         <div className="rounded-2xl border border-stone-200 dark:border-stone-600 bg-stone-50 dark:bg-stone-900 p-6">
           <div className="flex items-center gap-3 mb-4">
@@ -798,6 +963,15 @@ export default function Account() {
 
         {/* Actions */}
         <div className="space-y-3">
+          {/* Logout — always visible on account page */}
+          <button
+            onClick={async () => { await logout(); navigate('/login', { replace: true }); }}
+            className="flex w-full items-center justify-center gap-2 rounded-xl border border-stone-300 dark:border-stone-600 bg-white dark:bg-stone-900 px-6 py-3 text-sm font-bold text-stone-700 dark:text-stone-200 transition-all hover:bg-stone-50 dark:hover:bg-stone-800"
+          >
+            <LogOut className="h-4 w-4" />
+            تسجيل الخروج
+          </button>
+
           {(subscription.isPaidSubscriber || subscription.isTrial) && subscription.status !== 'cancelled' && (
             subscription.isTrial && !subscription.hasStripeSubscription ? (
               <div className="flex w-full items-center justify-center gap-2 rounded-xl border border-stone-200 dark:border-stone-600 bg-stone-50 dark:bg-stone-900 px-6 py-3 text-sm text-stone-500 dark:text-stone-300">
@@ -808,7 +982,7 @@ export default function Account() {
                 onClick={() => { setShowCancelDialog(true); setCancelStep('survey'); setCancelReason(''); }}
                 className="flex w-full items-center justify-center gap-2 rounded-xl border border-stone-300 dark:border-stone-600 bg-white dark:bg-stone-900 px-6 py-3 text-sm font-bold text-stone-700 dark:text-stone-200 transition-all hover:bg-stone-50 dark:hover:bg-stone-800"
               >
-                <LogOut className="h-4 w-4" />
+                <XCircle className="h-4 w-4" />
                 {subscription.isTrial ? 'إلغاء التجربة' : 'إلغاء الاشتراك'}
               </button>
             )
@@ -818,7 +992,7 @@ export default function Account() {
             className="flex w-full items-center justify-center gap-2 rounded-xl border border-red-200 dark:border-red-800 bg-white dark:bg-stone-900 px-6 py-3 text-sm font-bold text-red-600 dark:text-red-400 transition-all hover:bg-red-50 dark:bg-red-900/20"
           >
             <Trash2 className="h-4 w-4" />
-            حذف الحساب
+            حذف الحساب نهائيًا
           </button>
         </div>
       </div>
@@ -1026,7 +1200,7 @@ export default function Account() {
                 disabled={isProcessing || (deleteConfirmText !== 'حذف' && deleteConfirmText.toLowerCase() !== 'delete') || (!isOAuthUser && !deletePassword)}
                 className="flex-1 rounded-xl bg-red-600 px-4 py-2.5 text-sm font-bold text-white transition-all hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {isProcessing ? 'جارٍ الحذف...' : 'تسجيل الخروج وحذف الحساب'}
+                {isProcessing ? 'جارٍ الحذف...' : 'حذف حسابي نهائيًا'}
               </button>
               <button
                 onClick={closeDialogs}

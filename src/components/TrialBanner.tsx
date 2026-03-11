@@ -275,7 +275,7 @@ export default function TrialBanner() {
         >
           {isLastDay ? (
             <>
-              <Clock className="inline h-4 w-4 mr-1 align-text-bottom" /> آخر يوم في تجربتك — لا تفقد الوصول
+              <Clock className="inline h-4 w-4 me-1 align-text-bottom" /> آخر يوم في تجربتك — لا تفقد الوصول
               <span className="mx-2">—</span>
               <Link
                 to="/pricing"
