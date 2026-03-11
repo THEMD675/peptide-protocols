@@ -1029,6 +1029,32 @@ export default function Guide() {
             "courseWorkload": `PT${m.readingTime}M`,
           })),
         })}</script>
+        <script type="application/ld+json">{JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "HowTo",
+          "name": "خطوات الحقن تحت الجلد — دليل عملي",
+          "description": "دليل خطوة بخطوة للحقن الذاتي تحت الجلد للببتيدات بطريقة آمنة وصحيحة",
+          "inLanguage": "ar",
+          "totalTime": "PT5M",
+          "supply": [
+            { "@type": "HowToSupply", "name": "محقنة إنسولين (29-31 غيج)" },
+            { "@type": "HowToSupply", "name": "مسحات كحولية" },
+            { "@type": "HowToSupply", "name": "قارورة الببتيد المحضّر" },
+          ],
+          "tool": [
+            { "@type": "HowToTool", "name": "حاوية التخلص من الأدوات الحادة" },
+          ],
+          "step": [
+            { "@type": "HowToStep", "position": 1, "name": "غسل اليدين", "text": "بالماء والصابون لمدة 20 ثانية على الأقل. جفّف بمنشفة نظيفة." },
+            { "@type": "HowToStep", "position": 2, "name": "تعقيم الغطاء المطاطي", "text": "امسح غطاء قارورة الببتيد بمسحة كحولية واتركه يجف 10 ثوانٍ." },
+            { "@type": "HowToStep", "position": 3, "name": "سحب الجرعة", "text": "أدخل الإبرة في القارورة واسحب الكمية المطلوبة. تأكد من عدم وجود فقاعات هواء." },
+            { "@type": "HowToStep", "position": 4, "name": "تعقيم موقع الحقن", "text": "امسح المنطقة بمسحة كحولية بحركة دائرية من المركز للخارج." },
+            { "@type": "HowToStep", "position": 5, "name": "قرص الجلد", "text": "اقرص طية من الجلد بين الإبهام والسبابة لرفع طبقة الدهون عن العضلة." },
+            { "@type": "HowToStep", "position": 6, "name": "إدخال الإبرة بزاوية 45°", "text": "أدخل الإبرة بسرعة وثبات. الحركة السريعة أقل ألمًا." },
+            { "@type": "HowToStep", "position": 7, "name": "حقن المحلول ببطء", "text": "ادفع المكبس ببطء وثبات. انتظر 5 ثوانٍ بعد الانتهاء قبل سحب الإبرة." },
+            { "@type": "HowToStep", "position": 8, "name": "سحب الإبرة والضغط", "text": "اسحب الإبرة واضغط بلطف على الموقع بمسحة نظيفة. لا تفرك." },
+          ],
+        })}</script>
       </Helmet>
 
       {/* ═══ Header ═══ */}
