@@ -591,7 +591,7 @@ export default function Admin() {
             </div>
           </div>
           <div className="flex items-center gap-2">
-            <button onClick={() => { setEmailTo(''); setEmailSubject(''); setEmailBody(''); setModal('send_email'); setModalTarget(null); }}
+            <button onClick={() => { setEmailTo(''); setEmailSubject(''); setEmailBody(''); setEmailTemplate('custom'); setModal('send_email'); setModalTarget(null); }}
               className="flex items-center gap-1.5 rounded-lg border border-stone-200 dark:border-stone-600 px-3 py-1.5 text-xs font-medium text-stone-600 dark:text-stone-300 hover:bg-stone-50 dark:hover:bg-stone-800">
               <Send className="h-3.5 w-3.5" /> بريد
             </button>
@@ -842,10 +842,10 @@ export default function Admin() {
               <div className="rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 p-4">
                 <h3 className="text-xs font-bold text-stone-700 dark:text-stone-200 mb-3 flex items-center gap-1.5" dir="rtl"><Zap className="h-3.5 w-3.5 text-amber-500" /> إجراءات سريعة</h3>
                 <div className="space-y-2">
-                  <button onClick={() => { setEmailSubject(''); setEmailBody(''); setBulkAudience('all'); setModal('bulk_email'); }} className="w-full flex items-center gap-2 rounded-lg border border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-900/20 px-3 py-2 text-xs font-medium text-emerald-700 dark:text-emerald-400 hover:bg-emerald-100 dark:hover:bg-emerald-900/30">
+                  <button onClick={() => { setEmailSubject(''); setEmailBody(''); setBulkAudience('all'); setEmailTemplate('custom'); setModal('bulk_email'); }} className="w-full flex items-center gap-2 rounded-lg border border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-900/20 px-3 py-2 text-xs font-medium text-emerald-700 dark:text-emerald-400 hover:bg-emerald-100 dark:hover:bg-emerald-900/30">
                     <Mail className="h-3.5 w-3.5" /> إرسال بريد جماعي
                   </button>
-                  <button onClick={() => { setEmailTo(''); setEmailSubject(''); setEmailBody(''); setModal('send_email'); setModalTarget(null); }} className="w-full flex items-center gap-2 rounded-lg border border-stone-200 dark:border-stone-600 px-3 py-2 text-xs font-medium text-stone-700 dark:text-stone-200 hover:bg-stone-50 dark:hover:bg-stone-800">
+                  <button onClick={() => { setEmailTo(''); setEmailSubject(''); setEmailBody(''); setEmailTemplate('custom'); setModal('send_email'); setModalTarget(null); }} className="w-full flex items-center gap-2 rounded-lg border border-stone-200 dark:border-stone-600 px-3 py-2 text-xs font-medium text-stone-700 dark:text-stone-200 hover:bg-stone-50 dark:hover:bg-stone-800">
                     <Send className="h-3.5 w-3.5 text-blue-500" /> إرسال بريد إلكتروني
                   </button>
                   <button onClick={runHealthCheck} disabled={healthLoading} className="w-full flex items-center gap-2 rounded-lg border border-stone-200 dark:border-stone-600 px-3 py-2 text-xs font-medium text-stone-700 dark:text-stone-200 hover:bg-stone-50 dark:hover:bg-stone-800 disabled:opacity-50">
@@ -906,7 +906,7 @@ export default function Admin() {
                 <button onClick={() => exportCSV('users')} className="flex items-center gap-1 rounded-lg border border-stone-200 dark:border-stone-600 px-3 py-1.5 text-xs font-medium text-stone-600 dark:text-stone-300 hover:bg-stone-50 dark:hover:bg-stone-800">
                   <Download className="h-3.5 w-3.5" /> CSV
                 </button>
-                <button onClick={() => { setEmailSubject(''); setEmailBody(''); setBulkAudience('all'); setModal('bulk_email'); }} className="flex items-center gap-1 rounded-lg border border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-900/20 px-3 py-1.5 text-xs font-medium text-emerald-700 dark:text-emerald-400 hover:bg-emerald-100 dark:bg-emerald-900/30">
+                <button onClick={() => { setEmailSubject(''); setEmailBody(''); setBulkAudience('all'); setEmailTemplate('custom'); setModal('bulk_email'); }} className="flex items-center gap-1 rounded-lg border border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-900/20 px-3 py-1.5 text-xs font-medium text-emerald-700 dark:text-emerald-400 hover:bg-emerald-100 dark:bg-emerald-900/30">
                   <Mail className="h-3.5 w-3.5" /> بريد جماعي
                 </button>
               </div>
@@ -1328,7 +1328,36 @@ export default function Admin() {
       {/* Refund Payment */}
       <Modal open={modal === 'refund'} title="استرداد دفعة" onClose={() => setModal(null)}>
         <p className="text-sm text-stone-600 dark:text-stone-300 mb-3">استرداد للمستخدم <span className="font-mono font-bold">{modalTarget?.email}</span></p>
-        <label className="block text-xs font-medium text-stone-600 dark:text-stone-300 mb-1">رقم الدفعة (pi_... أو ch_...)</label>
+
+        {/* Auto-lookup payments */}
+        {paymentsLoading ? (
+          <div className="flex items-center gap-2 mb-3 text-xs text-stone-500 dark:text-stone-300">
+            <Loader2 className="h-3.5 w-3.5 animate-spin" /> جارٍ تحميل المدفوعات...
+          </div>
+        ) : userPayments.length > 0 ? (
+          <>
+            <label className="block text-xs font-medium text-stone-600 dark:text-stone-300 mb-1">اختر الدفعة</label>
+            <select
+              value={refundId}
+              onChange={e => setRefundId(e.target.value)}
+              className="w-full rounded-lg border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 px-3 py-2 text-sm mb-3 font-mono"
+              dir="ltr"
+            >
+              <option value="">— اختر دفعة —</option>
+              {userPayments.map(p => (
+                <option key={p.id} value={p.id}>
+                  {p.id.slice(0, 20)}... — {(p.amount / 100).toFixed(2)} {p.currency.toUpperCase()} — {new Date(p.created).toLocaleDateString('en-GB')} ({p.status})
+                </option>
+              ))}
+            </select>
+          </>
+        ) : (
+          <div className="rounded-lg border border-stone-200 dark:border-stone-600 bg-stone-50 dark:bg-stone-800 p-3 mb-3">
+            <p className="text-xs text-stone-500 dark:text-stone-300">لم يتم العثور على مدفوعات سابقة في Stripe</p>
+          </div>
+        )}
+
+        <label className="block text-xs font-medium text-stone-600 dark:text-stone-300 mb-1">أو أدخل رقم الدفعة يدوياً (pi_... أو ch_...)</label>
         <input
           type="text"
           value={refundId}
