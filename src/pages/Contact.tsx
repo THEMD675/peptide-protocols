@@ -60,7 +60,7 @@ export default function Contact() {
   if (isLoading) {
     // Show a layout-matching skeleton instead of a bare spinner to avoid flash
     return (
-      <div className="mx-auto max-w-2xl px-4 py-12 sm:py-16 animate-fade-in">
+      <div className="mx-auto max-w-2xl px-4 pt-12 pb-24 sm:pt-16 animate-fade-in">
         {/* Header skeleton */}
         <div className="mb-10 text-center">
           <div className="mx-auto mb-4 h-14 w-14 rounded-2xl animate-pulse bg-stone-200 dark:bg-stone-700 skeleton-shimmer" />
@@ -155,7 +155,7 @@ export default function Contact() {
         <Helmet>
           <title>تواصل معنا | pptides</title>
         </Helmet>
-        <div className="mx-auto max-w-2xl px-4 py-20 text-center">
+        <div className="mx-auto max-w-2xl px-4 pt-20 pb-24 text-center">
           {/* Success animation */}
           <div className="relative mx-auto mb-6 flex h-24 w-24 items-center justify-center">
             <span className="absolute inset-0 animate-ping rounded-full bg-emerald-200 dark:bg-emerald-800 opacity-30" />
@@ -219,7 +219,7 @@ export default function Contact() {
         </script>
       </Helmet>
 
-      <div className="mx-auto max-w-2xl px-4 py-12 sm:py-16">
+      <div className="mx-auto max-w-2xl px-4 pt-12 pb-24 sm:pt-16">
         {/* Header */}
         <div className="mb-10 text-center">
           <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-100 dark:bg-emerald-900/30">

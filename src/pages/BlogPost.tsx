@@ -152,7 +152,7 @@ export default function BlogPost() {
         ])}</script>
       </Helmet>
 
-      <div className="mx-auto max-w-3xl px-4 py-8 md:px-6 md:py-12">
+      <div className="mx-auto max-w-3xl px-4 pt-8 pb-24 md:px-6 md:pt-12">
         <Link to="/blog" className="mb-6 inline-flex items-center gap-2 text-sm font-bold text-emerald-700 hover:text-emerald-700 dark:text-emerald-400 transition-colors">
           <ArrowRight className="h-4 w-4" />
           العودة للمدونة

@@ -167,7 +167,7 @@ export default function PeptideDetail() {
         })}</script>
       </Helmet>
 
-      <div className="mx-auto max-w-4xl px-4 py-8 md:px-6 md:py-12">
+      <div className="mx-auto max-w-4xl px-4 pt-8 pb-24 md:px-6 md:pt-12">
         {/* Breadcrumbs */}
         <nav className="mb-4 flex items-center gap-1.5 text-sm text-stone-500 dark:text-stone-300" aria-label="breadcrumb">
           <Link to="/" className="hover:text-emerald-700 transition-colors">الرئيسية</Link>

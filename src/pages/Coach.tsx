@@ -659,7 +659,7 @@ export default function Coach() {
           inLanguage: 'ar',
         })}</script>
       </Helmet>
-      <div className="mx-auto max-w-3xl px-4 py-8 md:px-6 md:py-12">
+      <div className="mx-auto max-w-3xl px-4 pt-8 pb-24 md:px-6 md:pt-12">
         <div className="mb-6 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-100 dark:bg-emerald-900/30">

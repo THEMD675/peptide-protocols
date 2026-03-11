@@ -1238,7 +1238,7 @@ export default function Community() {
                             <Link
                               key={pName}
                               to={`/peptide/${peptide.id}`}
-                              className="inline-flex items-center gap-1 rounded-full border border-emerald-300 dark:border-emerald-700 bg-emerald-50 dark:bg-emerald-900/20 px-3 py-1.5 min-h-[36px] text-xs font-bold text-emerald-800 dark:text-emerald-300 hover:bg-emerald-100 dark:hover:bg-emerald-900/30 transition-colors"
+                              className="inline-flex items-center gap-1 rounded-full border border-emerald-300 dark:border-emerald-700 bg-emerald-50 dark:bg-emerald-900/20 px-3 py-1.5 min-h-[44px] text-xs font-bold text-emerald-800 dark:text-emerald-300 hover:bg-emerald-100 dark:hover:bg-emerald-900/30 transition-colors"
                               dir="ltr"
                             >
                               <FlaskConical className="h-3 w-3" />
@@ -1247,7 +1247,7 @@ export default function Community() {
                           ) : (
                             <span
                               key={pName}
-                              className="inline-flex items-center gap-1 rounded-full border border-emerald-300 dark:border-emerald-700 bg-emerald-50 dark:bg-emerald-900/20 px-3 py-1.5 min-h-[36px] text-xs font-bold text-emerald-800 dark:text-emerald-300"
+                              className="inline-flex items-center gap-1 rounded-full border border-emerald-300 dark:border-emerald-700 bg-emerald-50 dark:bg-emerald-900/20 px-3 py-1.5 min-h-[44px] text-xs font-bold text-emerald-800 dark:text-emerald-300"
                               dir="ltr"
                             >
                               <FlaskConical className="h-3 w-3" />
@@ -1256,7 +1256,7 @@ export default function Community() {
                           );
                         })}
                         {log.goal && (
-                          <span className="rounded-full border border-stone-200 dark:border-stone-600 bg-stone-50 dark:bg-stone-900 px-3 py-1.5 min-h-[36px] text-xs font-medium text-stone-600 dark:text-stone-300">
+                          <span className="rounded-full border border-stone-200 dark:border-stone-600 bg-stone-50 dark:bg-stone-900 px-3 py-1.5 min-h-[44px] text-xs font-medium text-stone-600 dark:text-stone-300">
                             {log.goal}
                           </span>
                         )}
@@ -1339,7 +1339,7 @@ export default function Community() {
                                 }
                               }}
                               className={cn(
-                                'flex items-center gap-1.5 rounded-full px-3 py-1.5 min-h-[36px] text-sm font-medium transition-all',
+                                'flex items-center gap-1.5 rounded-full px-3 py-1.5 min-h-[44px] text-sm font-medium transition-all',
                                 upvotedPosts.has(log.id)
                                   ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400'
                                   : 'text-stone-500 dark:text-stone-300 hover:bg-stone-100 dark:hover:bg-stone-800 hover:text-emerald-700'
@@ -1357,7 +1357,7 @@ export default function Community() {
                               type="button"
                               onClick={() => toggleReplies(log.id)}
                               className={cn(
-                                'flex items-center gap-1.5 rounded-full px-3 py-1.5 min-h-[36px] text-sm font-medium transition-all',
+                                'flex items-center gap-1.5 rounded-full px-3 py-1.5 min-h-[44px] text-sm font-medium transition-all',
                                 expandedReplies.has(log.id)
                                   ? 'bg-stone-100 dark:bg-stone-800 text-stone-700 dark:text-stone-200'
                                   : 'text-stone-500 dark:text-stone-300 hover:bg-stone-100 dark:hover:bg-stone-800'
@@ -1410,7 +1410,7 @@ export default function Community() {
                                           <button
                                             type="button"
                                             onClick={() => deleteReply(reply)}
-                                            className="rounded p-1 min-h-[36px] min-w-[36px] flex items-center justify-center text-stone-300 hover:bg-red-50 dark:hover:bg-red-900/20 hover:text-red-500 dark:hover:text-red-400 transition-colors"
+                                            className="rounded p-1.5 min-h-[44px] min-w-[44px] flex items-center justify-center text-stone-300 hover:bg-red-50 dark:hover:bg-red-900/20 hover:text-red-500 dark:hover:text-red-400 transition-colors"
                                             aria-label="حذف الرد"
                                           >
                                             <Trash2 className="h-3.5 w-3.5" />
@@ -1433,7 +1433,7 @@ export default function Community() {
                                                 toast.success('تم الإبلاغ — سنراجع الرد');
                                               }
                                             }}
-                                            className="rounded p-1 min-h-[36px] min-w-[36px] flex items-center justify-center text-stone-200 dark:text-stone-600 hover:bg-red-50 dark:hover:bg-red-900/20 hover:text-red-400 dark:hover:text-red-400 transition-colors"
+                                            className="rounded p-1.5 min-h-[44px] min-w-[44px] flex items-center justify-center text-stone-200 dark:text-stone-600 hover:bg-red-50 dark:hover:bg-red-900/20 hover:text-red-400 dark:hover:text-red-400 transition-colors"
                                             aria-label="إبلاغ عن الرد"
                                           >
                                             <Flag className="h-3 w-3" />

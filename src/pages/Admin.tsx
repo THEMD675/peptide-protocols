@@ -183,7 +183,7 @@ function Modal({ open, title, children, onClose }: { open: boolean; title: strin
   const titleId = 'modal-title';
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" onClick={onClose}>
-      <div className="w-full max-w-md rounded-2xl bg-white dark:bg-stone-900 p-6 shadow-xl dark:shadow-stone-900/40" onClick={e => e.stopPropagation()} role="dialog" aria-modal="true" aria-labelledby={titleId}>
+      <div className="w-full max-w-md max-h-[90vh] overflow-y-auto rounded-2xl bg-white dark:bg-stone-900 p-6 shadow-xl dark:shadow-stone-900/40" onClick={e => e.stopPropagation()} role="dialog" aria-modal="true" aria-labelledby={titleId}>
         <div className="flex items-center justify-between mb-4">
           <h3 id={titleId} className="text-lg font-bold text-stone-900 dark:text-stone-100">{title}</h3>
           <button onClick={onClose} aria-label="إغلاق" className="flex items-center justify-center rounded-lg p-2 min-h-[44px] min-w-[44px] hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors"><X className="h-5 w-5 text-stone-500 dark:text-stone-300" /></button>
@@ -617,7 +617,7 @@ export default function Admin() {
       </div>
 
       {/* ===================== CONTENT ===================== */}
-      <div className="max-w-6xl mx-auto px-4 py-6">
+      <div className="max-w-6xl mx-auto px-4 pt-6 pb-24">
 
         {/* ===================== OVERVIEW ===================== */}
         {tab === 'overview' && (
@@ -817,7 +817,7 @@ export default function Admin() {
                         <span className="font-mono text-xs text-stone-700 dark:text-stone-200 truncate max-w-[200px]">{u.email}</span>
                         <div className="flex items-center gap-1">
                           {tl && <span className={cn('rounded-full px-2 py-0.5 text-xs font-medium', tl.urgent ? 'bg-red-100 text-red-700 dark:text-red-400' : 'bg-blue-100 text-blue-700 dark:text-blue-400')}>{tl.text}</span>}
-                          <button onClick={() => openUserAction('extend_trial', u)} className="rounded p-1.5 min-h-[36px] min-w-[36px] flex items-center justify-center hover:bg-stone-100 dark:hover:bg-stone-800" title="تمديد" aria-label="تمديد التجربة"><CalendarPlus className="h-3.5 w-3.5 text-emerald-700" /></button>
+                          <button onClick={() => openUserAction('extend_trial', u)} className="rounded p-1.5 min-h-[44px] min-w-[44px] flex items-center justify-center hover:bg-stone-100 dark:hover:bg-stone-800" title="تمديد" aria-label="تمديد التجربة"><CalendarPlus className="h-3.5 w-3.5 text-emerald-700" /></button>
                         </div>
                       </div>
                     );
@@ -925,16 +925,16 @@ export default function Admin() {
                           <td className="px-3 py-2 text-xs text-stone-500 dark:text-stone-300">{u.last_sign_in_at ? timeAgo(u.last_sign_in_at) : '—'}</td>
                           <td className="px-3 py-2">
                             <div className="flex items-center gap-0.5">
-                              <button onClick={() => openUserAction('extend_trial', u)} title="تمديد التجربة" aria-label="تمديد التجربة" className="rounded p-1.5 min-h-[36px] min-w-[36px] flex items-center justify-center hover:bg-emerald-50 dark:hover:bg-emerald-900/20"><CalendarPlus className="h-3.5 w-3.5 text-emerald-700" /></button>
-                              <button onClick={() => openUserAction('grant_sub', u)} title="منح اشتراك" aria-label="منح اشتراك" className="rounded p-1.5 min-h-[36px] min-w-[36px] flex items-center justify-center hover:bg-blue-50 dark:hover:bg-blue-900/20"><CreditCard className="h-3.5 w-3.5 text-blue-600" /></button>
-                              <button onClick={() => { setEmailTo(u.email); setEmailSubject(''); setEmailBody(''); setModal('send_email'); setModalTarget(u); }} title="إرسال بريد" aria-label="إرسال بريد" className="rounded p-1.5 min-h-[36px] min-w-[36px] flex items-center justify-center hover:bg-violet-50 dark:hover:bg-violet-900/20"><Mail className="h-3.5 w-3.5 text-violet-600" /></button>
+                              <button onClick={() => openUserAction('extend_trial', u)} title="تمديد التجربة" aria-label="تمديد التجربة" className="rounded p-1.5 min-h-[44px] min-w-[44px] flex items-center justify-center hover:bg-emerald-50 dark:hover:bg-emerald-900/20"><CalendarPlus className="h-3.5 w-3.5 text-emerald-700" /></button>
+                              <button onClick={() => openUserAction('grant_sub', u)} title="منح اشتراك" aria-label="منح اشتراك" className="rounded p-1.5 min-h-[44px] min-w-[44px] flex items-center justify-center hover:bg-blue-50 dark:hover:bg-blue-900/20"><CreditCard className="h-3.5 w-3.5 text-blue-600" /></button>
+                              <button onClick={() => { setEmailTo(u.email); setEmailSubject(''); setEmailBody(''); setModal('send_email'); setModalTarget(u); }} title="إرسال بريد" aria-label="إرسال بريد" className="rounded p-1.5 min-h-[44px] min-w-[44px] flex items-center justify-center hover:bg-violet-50 dark:hover:bg-violet-900/20"><Mail className="h-3.5 w-3.5 text-violet-600" /></button>
                               {(u.subscription?.status === 'active' || u.subscription?.status === 'trial') && (
-                                <button onClick={() => openUserAction('cancel_sub', u)} title="إلغاء الاشتراك" aria-label="إلغاء الاشتراك" className="rounded p-1.5 min-h-[36px] min-w-[36px] flex items-center justify-center hover:bg-amber-50 dark:hover:bg-amber-900/20"><XCircle className="h-3.5 w-3.5 text-amber-600" /></button>
+                                <button onClick={() => openUserAction('cancel_sub', u)} title="إلغاء الاشتراك" aria-label="إلغاء الاشتراك" className="rounded p-1.5 min-h-[44px] min-w-[44px] flex items-center justify-center hover:bg-amber-50 dark:hover:bg-amber-900/20"><XCircle className="h-3.5 w-3.5 text-amber-600" /></button>
                               )}
-                              <button onClick={() => openUserAction('confirm_suspend', u)} title="إيقاف" aria-label="إيقاف المستخدم" className="rounded p-1.5 min-h-[36px] min-w-[36px] flex items-center justify-center hover:bg-red-50 dark:hover:bg-red-900/20"><Ban className="h-3.5 w-3.5 text-red-400" /></button>
-                              <button onClick={async () => { try { await adminAction({ action: 'unsuspend_user', user_id: u.id }); toast.success(`تم إلغاء إيقاف ${u.email}`); fetchStats(); } catch { toast.error('فشل إلغاء الإيقاف'); } }} title="إلغاء الإيقاف" aria-label="إلغاء إيقاف المستخدم" className="rounded p-1.5 min-h-[36px] min-w-[36px] flex items-center justify-center hover:bg-green-50 dark:hover:bg-green-900/20"><ShieldCheck className="h-3.5 w-3.5 text-green-600" /></button>
-                              <button onClick={() => { setRefundId(''); openUserAction('refund', u); fetchUserPayments(u.id); }} title="استرداد" aria-label="استرداد دفعة" className="rounded p-1.5 min-h-[36px] min-w-[36px] flex items-center justify-center hover:bg-amber-50 dark:hover:bg-amber-900/20"><RotateCcw className="h-3.5 w-3.5 text-amber-600" /></button>
-                              <button onClick={() => openUserAction('confirm_delete', u)} title="حذف" aria-label="حذف المستخدم" className="rounded p-1.5 min-h-[36px] min-w-[36px] flex items-center justify-center hover:bg-red-50 dark:hover:bg-red-900/20"><Trash2 className="h-3.5 w-3.5 text-red-400" /></button>
+                              <button onClick={() => openUserAction('confirm_suspend', u)} title="إيقاف" aria-label="إيقاف المستخدم" className="rounded p-1.5 min-h-[44px] min-w-[44px] flex items-center justify-center hover:bg-red-50 dark:hover:bg-red-900/20"><Ban className="h-3.5 w-3.5 text-red-400" /></button>
+                              <button onClick={async () => { try { await adminAction({ action: 'unsuspend_user', user_id: u.id }); toast.success(`تم إلغاء إيقاف ${u.email}`); fetchStats(); } catch { toast.error('فشل إلغاء الإيقاف'); } }} title="إلغاء الإيقاف" aria-label="إلغاء إيقاف المستخدم" className="rounded p-1.5 min-h-[44px] min-w-[44px] flex items-center justify-center hover:bg-green-50 dark:hover:bg-green-900/20"><ShieldCheck className="h-3.5 w-3.5 text-green-600" /></button>
+                              <button onClick={() => { setRefundId(''); openUserAction('refund', u); fetchUserPayments(u.id); }} title="استرداد" aria-label="استرداد دفعة" className="rounded p-1.5 min-h-[44px] min-w-[44px] flex items-center justify-center hover:bg-amber-50 dark:hover:bg-amber-900/20"><RotateCcw className="h-3.5 w-3.5 text-amber-600" /></button>
+                              <button onClick={() => openUserAction('confirm_delete', u)} title="حذف" aria-label="حذف المستخدم" className="rounded p-1.5 min-h-[44px] min-w-[44px] flex items-center justify-center hover:bg-red-50 dark:hover:bg-red-900/20"><Trash2 className="h-3.5 w-3.5 text-red-400" /></button>
                             </div>
                           </td>
                         </tr>

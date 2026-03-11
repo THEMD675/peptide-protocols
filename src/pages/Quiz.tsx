@@ -29,7 +29,7 @@ export default function Quiz() {
           inLanguage: 'ar',
         })}</script>
       </Helmet>
-      <div className="mx-auto max-w-2xl px-4 py-8 md:py-12">
+      <div className="mx-auto max-w-2xl px-4 pt-8 pb-24 md:pt-12">
         <PeptideQuiz />
       </div>
     </div>
