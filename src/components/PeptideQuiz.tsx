@@ -418,12 +418,16 @@ export default function PeptideQuiz() {
   const [saved, setSaved] = useState(false);
 
   // Load previous result
-  const [hasPrevious] = useState(() => {
+  const [previousData] = useState<{ result: ProtocolResult; goal?: string; ts?: number } | null>(() => {
     try {
       const s = localStorage.getItem('pptides_quiz_results');
-      return !!s && !!JSON.parse(s).result;
-    } catch { return false; }
+      if (!s) return null;
+      const data = JSON.parse(s);
+      if (!data.result) return null;
+      return { result: data.result, goal: data.goal ?? data.answers?.goal, ts: data.ts };
+    } catch { return null; }
   });
+  const hasPrevious = !!previousData;
 
   const loadPrevious = useCallback(() => {
     try {
@@ -585,21 +589,55 @@ export default function PeptideQuiz() {
           <ArrowLeft className="h-5 w-5" />
         </button>
 
-        {hasPrevious && (
-          <button
-            onClick={loadPrevious}
-            className="mt-3 w-full text-center text-sm font-bold text-emerald-700 hover:underline transition-colors py-2"
-          >
-            عرض نتائجك السابقة
-          </button>
+        {previousData && (
+          <div className="mt-6 rounded-xl border border-emerald-200 dark:border-emerald-800 bg-emerald-50/50 dark:bg-emerald-950/20 p-4">
+            <div className="flex items-center justify-between mb-3">
+              <p className="text-xs font-bold text-emerald-700 dark:text-emerald-400">نتيجتك السابقة</p>
+              {previousData.ts && (
+                <span className="text-[10px] text-stone-400">
+                  {new Date(previousData.ts).toLocaleDateString('ar-u-nu-latn', { month: 'short', day: 'numeric' })}
+                </span>
+              )}
+            </div>
+            <div className="flex items-center gap-3 mb-3">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-emerald-100 dark:bg-emerald-900/40">
+                <FlaskConical className="h-5 w-5 text-emerald-700 dark:text-emerald-400" />
+              </div>
+              <div className="min-w-0">
+                <p className="text-sm font-bold text-stone-900 dark:text-stone-100 truncate">{previousData.result.primary.nameAr}</p>
+                <p className="text-xs text-stone-500 dark:text-stone-400 truncate">{previousData.result.primary.nameEn}</p>
+              </div>
+            </div>
+            {previousData.result.supporting.length > 0 && (
+              <p className="text-xs text-stone-500 dark:text-stone-400 mb-3">
+                + {previousData.result.supporting.map(s => s.nameAr).join('، ')}
+              </p>
+            )}
+            <div className="flex gap-2">
+              <button
+                onClick={loadPrevious}
+                className="flex-1 rounded-lg bg-emerald-600 px-3 py-2 text-xs font-bold text-white transition-colors hover:bg-emerald-700"
+              >
+                عرض التفاصيل
+              </button>
+              <button
+                onClick={() => { events.quizStart(); setPhase('quiz'); }}
+                className="flex-1 rounded-lg border border-emerald-300 dark:border-emerald-700 px-3 py-2 text-xs font-bold text-emerald-700 dark:text-emerald-400 transition-colors hover:bg-emerald-100 dark:hover:bg-emerald-900/30"
+              >
+                أعد الاختبار
+              </button>
+            </div>
+          </div>
         )}
 
-        <Link
-          to="/library"
-          className="mt-2 flex items-center justify-center text-sm text-stone-400 dark:text-stone-400 hover:text-stone-600 dark:text-stone-400 transition-colors py-2"
-        >
-          تخطّي — تصفّح المكتبة مباشرة
-        </Link>
+        {!previousData && (
+          <Link
+            to="/library"
+            className="mt-2 flex items-center justify-center text-sm text-stone-400 dark:text-stone-400 hover:text-stone-600 dark:text-stone-400 transition-colors py-2"
+          >
+            تخطّي — تصفّح المكتبة مباشرة
+          </Link>
+        )}
       </div>
     );
   }
