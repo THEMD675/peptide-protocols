@@ -346,7 +346,7 @@ export default function Landing() {
       </section>
 
       {/* ═══════ PROBLEM (Hormozi Agitation) ═══════ */}
-      <section className="mx-auto max-w-5xl px-6 py-24 md:py-32">
+      <section className="cv-auto mx-auto max-w-5xl px-6 py-24 md:py-32">
         <div className="mb-4 text-center">
           <span className="inline-block rounded-full bg-red-50 dark:bg-red-900/20 px-4 py-1.5 text-sm font-semibold text-red-600 dark:text-red-400">المشكلة</span>
         </div>
@@ -389,7 +389,7 @@ export default function Landing() {
       </section>
 
       {/* ═══════ SOLUTION / FEATURES ═══════ */}
-      <section className="bg-gradient-to-b from-stone-50 dark:from-stone-900 to-white dark:to-stone-950 py-24 md:py-32">
+      <section className="cv-auto bg-gradient-to-b from-stone-50 dark:from-stone-900 to-white dark:to-stone-950 py-24 md:py-32">
         <div className="mx-auto max-w-6xl px-6">
           <div className="mb-4 text-center">
             <span className="inline-block rounded-full bg-emerald-50 dark:bg-emerald-900/20 px-4 py-1.5 text-sm font-semibold text-emerald-700 dark:text-emerald-400">الحل</span>
@@ -446,7 +446,7 @@ export default function Landing() {
       {(() => {
         const bpc = BPC_157_PREVIEW;
         return (
-          <section className="mx-auto max-w-5xl px-6 py-16 md:py-24">
+          <section className="cv-auto mx-auto max-w-5xl px-6 py-16 md:py-24">
             <div className="mb-4 text-center">
               <span className="inline-block rounded-full bg-emerald-50 dark:bg-emerald-900/20 px-4 py-1.5 text-sm font-semibold text-emerald-700 dark:text-emerald-400">شاهد بنفسك</span>
             </div>
@@ -518,7 +518,7 @@ export default function Landing() {
       })()}
 
       {/* ═══════ EVIDENCE / CREDIBILITY ═══════ */}
-      <section className="mx-auto max-w-5xl px-6 py-24 md:py-32">
+      <section className="cv-auto mx-auto max-w-5xl px-6 py-24 md:py-32">
         <div className="mb-4 text-center">
           <span className="inline-block rounded-full bg-blue-50 dark:bg-blue-900/20 px-4 py-1.5 text-sm font-semibold text-blue-700 dark:text-blue-400">مبني على الأبحاث</span>
         </div>
@@ -580,7 +580,7 @@ export default function Landing() {
       </section>
 
       {/* ═══════ VALUE STACK (Hormozi) ═══════ */}
-      <section className="mx-auto max-w-4xl px-6 py-24 md:py-32">
+      <section className="cv-auto mx-auto max-w-4xl px-6 py-24 md:py-32">
         <div className="mb-4 text-center">
           <span className="inline-block rounded-full bg-emerald-50 dark:bg-emerald-900/20 px-4 py-1.5 text-sm font-semibold text-emerald-700 dark:text-emerald-400">القيمة الحقيقية</span>
         </div>
@@ -630,7 +630,7 @@ export default function Landing() {
       </section>
 
       {/* ═══════ HOW IT WORKS ═══════ */}
-      <section className="bg-gradient-to-b from-white dark:from-stone-950 via-stone-50 dark:via-stone-900 to-stone-50 dark:to-stone-900 py-24 md:py-32">
+      <section className="cv-auto bg-gradient-to-b from-white dark:from-stone-950 via-stone-50 dark:via-stone-900 to-stone-50 dark:to-stone-900 py-24 md:py-32">
         <div className="mx-auto max-w-5xl px-6">
           <h2 className="mb-16 text-center text-3xl font-bold text-stone-900 dark:text-stone-100 md:text-4xl">
             ابدأ في <span className="text-emerald-700">3 خطوات</span>
@@ -666,7 +666,7 @@ export default function Landing() {
         ];
         const items = testimonials.length > 0 ? testimonials : fallback;
         return (
-        <section className="mx-auto max-w-5xl px-6 py-24 md:py-32">
+        <section className="cv-auto mx-auto max-w-5xl px-6 py-24 md:py-32">
           <h2 className="mb-4 text-center text-3xl font-bold text-stone-900 dark:text-stone-100 md:text-4xl">
             ماذا يقول <span className="text-emerald-700">المستخدمون</span>
           </h2>
@@ -695,7 +695,7 @@ export default function Landing() {
       })()}
 
       {/* ═══════ TRIAL BANNER ═══════ */}
-      <section className="mx-auto max-w-4xl px-6 py-8">
+      <section className="cv-auto mx-auto max-w-4xl px-6 py-8">
         <TrialCountdown />
       </section>
 
@@ -703,7 +703,7 @@ export default function Landing() {
       <FeatureComparisonTable />
 
       {/* ═══════ PRICING PREVIEW ═══════ */}
-      <section className="bg-gradient-to-b from-stone-50 dark:from-stone-900 to-white dark:to-stone-950 py-24 md:py-32">
+      <section className="cv-auto bg-gradient-to-b from-stone-50 dark:from-stone-900 to-white dark:to-stone-950 py-24 md:py-32">
         <div className="mx-auto max-w-5xl px-6">
           <div className="mb-6 text-center">
             <span className="inline-block rounded-full bg-emerald-100 dark:bg-emerald-900/30 px-4 py-1.5 text-sm font-bold text-emerald-700 dark:text-emerald-400">
@@ -798,7 +798,7 @@ export default function Landing() {
       </section>
 
       {/* ═══════ REFERRAL ═══════ */}
-      <section className="py-16 md:py-20">
+      <section className="cv-auto py-16 md:py-20">
         <div className="mx-auto max-w-3xl px-6 text-center">
           <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-500/10">
             <Gift className="h-7 w-7 text-emerald-700" />
@@ -818,7 +818,7 @@ export default function Landing() {
       </section>
 
       {/* ═══════ RISK REVERSAL (Hormozi) ═══════ */}
-      <section className="bg-gradient-to-b from-white dark:from-stone-950 to-stone-50 dark:to-stone-900 py-24 md:py-32">
+      <section className="cv-auto bg-gradient-to-b from-white dark:from-stone-950 to-stone-50 dark:to-stone-900 py-24 md:py-32">
         <div className="mx-auto max-w-3xl px-6 text-center">
           <div
           >
@@ -845,7 +845,7 @@ export default function Landing() {
       </section>
 
       {/* ═══════ FAQ ═══════ */}
-      <section className="mx-auto max-w-3xl px-6 py-16 md:py-24">
+      <section className="cv-auto mx-auto max-w-3xl px-6 py-16 md:py-24">
         <h2 className="mb-10 text-center text-3xl font-bold text-stone-900 dark:text-stone-100 md:text-4xl">
           أسئلة <span className="text-emerald-700">شائعة</span>
         </h2>
@@ -872,7 +872,7 @@ export default function Landing() {
       </section>
 
       {/* ═══════ EMAIL CAPTURE ═══════ */}
-      <section className="relative bg-stone-900 py-24">
+      <section className="cv-auto relative bg-stone-900 py-24">
         <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(16,185,129,0.08)_0%,transparent_60%)]" />
         <div className="relative mx-auto max-w-2xl px-6 text-center">
           <h2 className="mb-3 text-2xl font-bold text-white md:text-3xl">
@@ -887,7 +887,7 @@ export default function Landing() {
       </section>
 
       {/* ═══════ FINAL CTA ═══════ */}
-      <section className="bg-white dark:bg-stone-950 py-20">
+      <section className="cv-auto bg-white dark:bg-stone-950 py-20">
         <div className="mx-auto max-w-3xl px-6 text-center">
           <div className="mb-8 rounded-xl border border-amber-300 dark:border-amber-700 bg-amber-50 dark:bg-amber-900/20 p-5 text-start">
             <p className="text-sm font-bold text-amber-900 dark:text-amber-200 mb-2">تنويه طبي مهم</p>
