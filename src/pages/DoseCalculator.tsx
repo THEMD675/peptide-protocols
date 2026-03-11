@@ -183,6 +183,15 @@ function SyringeVisual({
   const clampedUnits = Math.min(Math.max(drawUnits, 0), totalUnits);
   const displayUnits = isFinite(clampedUnits) ? clampedUnits : 0;
 
+  // Resolve dark mode at render time — works because component re-renders on any state change
+  const isDark = typeof document !== 'undefined' && document.documentElement.classList.contains('dark');
+  const tickColor = isDark ? 'rgba(255,255,255,0.35)' : 'rgba(0,0,0,0.3)';
+  const tickColorStrong = isDark ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.2)';
+  const textColor = isDark ? 'rgba(255,255,255,0.55)' : 'rgba(0,0,0,0.5)';
+  const barrelFill = isDark ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.02)';
+  const plungerColor = isDark ? '#7b8fa1' : '#4a5568';
+  const plungerLightColor = isDark ? '#94a3b8' : '#718096';
+
   const barrelTop = 40;
   const barrelHeight = 240;
   const barrelWidth = 36;
@@ -219,9 +228,9 @@ function SyringeVisual({
         aria-label={`سيرنج يُظهر ${displayUnits.toFixed(1)} وحدة`}
       >
         {/* Plunger handle */}
-        <rect x={barrelX + 8} y={4} width={20} height={8} rx={2} fill="#4a5568" />
-        <rect x={barrelX + 14} y={12} width={8} height={barrelTop - 16} fill="#4a5568" />
-        <rect x={barrelX + 6} y={barrelTop - 6} width={24} height={6} rx={1} fill="#718096" />
+        <rect x={barrelX + 8} y={4} width={20} height={8} rx={2} fill={plungerColor} />
+        <rect x={barrelX + 14} y={12} width={8} height={barrelTop - 16} fill={plungerColor} />
+        <rect x={barrelX + 6} y={barrelTop - 6} width={24} height={6} rx={1} fill={plungerLightColor} />
 
         {/* Barrel outline */}
         <rect
@@ -230,8 +239,8 @@ function SyringeVisual({
           width={barrelWidth}
           height={barrelHeight}
           rx={4}
-          fill="rgba(0,0,0,0.02)"
-          stroke="rgba(0,0,0,0.2)"
+          fill={barrelFill}
+          stroke={tickColorStrong}
           strokeWidth={1.5}
         />
 
@@ -257,14 +266,14 @@ function SyringeVisual({
               y1={t.y}
               x2={barrelX + barrelWidth + (i % 2 === 0 ? 10 : 6)}
               y2={t.y}
-              stroke="rgba(0,0,0,0.3)"
+              stroke={tickColor}
               strokeWidth={i % 2 === 0 ? 1 : 0.5}
             />
             {i % 2 === 0 && (
               <text
                 x={barrelX + barrelWidth + 13}
                 y={t.y + 3}
-                fill="rgba(0,0,0,0.5)"
+                fill={textColor}
                 fontSize="8"
                 fontFamily="Cairo, sans-serif"
               >
@@ -292,14 +301,14 @@ function SyringeVisual({
         )}
 
         {/* Needle hub */}
-        <rect x={barrelX + 12} y={barrelTop + barrelHeight} width={12} height={8} rx={1} fill="#718096" />
+        <rect x={barrelX + 12} y={barrelTop + barrelHeight} width={12} height={8} rx={1} fill={plungerLightColor} />
         {/* Needle */}
         <line
           x1={barrelX + 18}
           y1={barrelTop + barrelHeight + 8}
           x2={barrelX + 18}
           y2={barrelTop + barrelHeight + 30}
-          stroke="#a0aec0"
+          stroke={isDark ? '#94a3b8' : '#a0aec0'}
           strokeWidth={1.5}
           strokeLinecap="round"
         />
@@ -387,6 +396,7 @@ export default function DoseCalculator() {
   const [showProtocolWizard, setShowProtocolWizard] = useState(false);
   const [presetSearch, setPresetSearch] = useState('');
   const [showAllPresets, setShowAllPresets] = useState(false);
+  const [reconSearch, setReconSearch] = useState('');
   const [searchParams] = useSearchParams();
 
   // Dose tab extras
@@ -987,13 +997,27 @@ export default function DoseCalculator() {
               {/* Frequency + Cost */}
               <div className="mb-8 grid gap-5 md:grid-cols-2">
                 <div className="space-y-2">
-                  <label className="block text-sm font-medium text-stone-800 dark:text-stone-200">عدد الجرعات يوميًا</label>
-                  <div className="flex rounded-xl border border-stone-300 dark:border-stone-600 bg-stone-50 dark:bg-stone-900 p-1">
-                    {[1, 2, 3].map(n => (
-                      <button key={n} onClick={() => setDosesPerDay(n)}
-                        className={cn('flex-1 rounded-lg py-2 min-h-[44px] text-sm font-medium transition-all', dosesPerDay === n ? 'bg-emerald-600 text-white' : 'text-stone-700 dark:text-stone-200 hover:text-stone-900')}
+                  <label className="block text-sm font-medium text-stone-800 dark:text-stone-200">تكرار الجرعة</label>
+                  <div className="flex gap-1 overflow-x-auto scrollbar-hide -mx-1 px-1 pb-1">
+                    {([
+                      { label: '3×/أسبوع', value: 3 / 7, hint: '3 مرات أسبوعيًا' },
+                      { label: 'يوم/يوم', value: 0.5, hint: 'يوم بعد يوم (EOD)' },
+                      { label: 'يوميًا', value: 1, hint: 'مرة كل يوم' },
+                      { label: '2×/يوم', value: 2, hint: 'مرتين يوميًا' },
+                      { label: '3×/يوم', value: 3, hint: '3 مرات يوميًا' },
+                    ] as const).map(opt => (
+                      <button
+                        key={opt.value}
+                        onClick={() => setDosesPerDay(opt.value)}
+                        title={opt.hint}
+                        className={cn(
+                          'shrink-0 rounded-xl px-3 py-2 min-h-[44px] text-xs font-medium transition-all border',
+                          Math.abs(dosesPerDay - opt.value) < 0.01
+                            ? 'bg-emerald-600 border-emerald-600 text-white'
+                            : 'border-stone-300 dark:border-stone-600 bg-stone-50 dark:bg-stone-900 text-stone-700 dark:text-stone-200 hover:border-emerald-300',
+                        )}
                       >
-                        {n}x / يوم
+                        {opt.label}
                       </button>
                     ))}
                   </div>
@@ -1054,27 +1078,37 @@ export default function DoseCalculator() {
               {/* Dose safety warning */}
               {selectedPreset && (() => {
                 const preset = PEPTIDE_PRESETS.find(p => p.name === selectedPreset);
-                if (!preset) return null;
+                const fullPreset = PEPTIDE_PRESETS_DATA.find(p => p.name === selectedPreset);
+                if (!preset || !fullPreset) return null;
+                // Normalize everything to mcg for comparison (preset min/max are in the preset's native unit)
                 const doseMcg = doseUnit === 'mg' ? doseValue * 1000 : doseValue;
-                if (doseMcg > preset.maxDose) {
+                const minMcg = fullPreset.unit === 'mg' ? preset.minDose * 1000 : preset.minDose;
+                const maxMcg = fullPreset.unit === 'mg' ? preset.maxDose * 1000 : preset.maxDose;
+                const rangeDisplay = fullPreset.unit === 'mg'
+                  ? `${preset.minDose}–${preset.maxDose} mg`
+                  : `${preset.minDose}–${preset.maxDose} mcg`;
+                const doseDisplay = fullPreset.unit === 'mg'
+                  ? `${doseValue} ${doseUnit}`
+                  : `${doseMcg} mcg`;
+                if (doseMcg > maxMcg) {
                   return (
                     <div className="mt-4 rounded-xl border border-red-300 bg-red-50 dark:bg-red-900/20 px-4 py-3">
-                      <p className="text-sm font-bold text-red-800 dark:text-red-300">جرعة مرتفعة</p>
-                      <p className="text-xs text-red-600 dark:text-red-400 mt-1">الجرعة المدخلة ({doseMcg} mcg) تتجاوز الحد الأعلى الموصى به لـ {preset.name} ({preset.maxDose} mcg). استشر طبيبك.</p>
+                      <p className="text-sm font-bold text-red-800 dark:text-red-300">⚠️ جرعة مرتفعة — استشر طبيبك</p>
+                      <p className="text-xs text-red-600 dark:text-red-400 mt-1">الجرعة المدخلة ({doseDisplay}) تتجاوز الحد الأعلى الموصى به لـ {preset.name} ({rangeDisplay}).</p>
                     </div>
                   );
                 }
-                if (doseMcg < preset.minDose) {
+                if (doseMcg < minMcg) {
                   return (
                     <div className="mt-4 rounded-xl border border-amber-300 dark:border-amber-700 bg-amber-50 dark:bg-amber-900/20 px-4 py-3">
                       <p className="text-sm font-bold text-amber-800 dark:text-amber-300">جرعة منخفضة</p>
-                      <p className="text-xs text-amber-700 dark:text-amber-400 mt-1">الجرعة ({doseMcg} mcg) أقل من الحد الأدنى الفعّال لـ {preset.name} ({preset.minDose} mcg).</p>
+                      <p className="text-xs text-amber-700 dark:text-amber-400 mt-1">الجرعة ({doseDisplay}) أقل من الحد الأدنى الفعّال لـ {preset.name} ({rangeDisplay}).</p>
                     </div>
                   );
                 }
                 return (
                   <div className="mt-4 rounded-xl border border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-900/20 px-4 py-3">
-                    <p className="text-xs text-emerald-700 dark:text-emerald-400">✓ الجرعة ضمن النطاق الموصى به لـ {preset.name} ({preset.minDose}–{preset.maxDose} mcg)</p>
+                    <p className="text-xs text-emerald-700 dark:text-emerald-400">✓ الجرعة ضمن النطاق الموصى به لـ {preset.name} ({rangeDisplay})</p>
                   </div>
                 );
               })()}
@@ -1089,7 +1123,10 @@ export default function DoseCalculator() {
                        results.daysPerVial <= 7 ? `${Math.floor(results.daysPerVial)} أيام` :
                        `~${Math.floor(results.daysPerVial / 7)} أسابيع`}
                     </p>
-                    <p className="text-xs text-stone-500 dark:text-stone-300 mt-1">{fmt(results.dosesPerVial, 0)} جرعة × {dosesPerDay}/يوم</p>
+                    <p className="text-xs text-stone-500 dark:text-stone-300 mt-1">
+                      {fmt(results.dosesPerVial, 0)} جرعة ×{' '}
+                      {Math.abs(dosesPerDay - 3 / 7) < 0.01 ? '3×/أسبوع' : Math.abs(dosesPerDay - 0.5) < 0.01 ? 'يوم/يوم' : `${dosesPerDay}/يوم`}
+                    </p>
                     <p className="text-xs text-amber-600 mt-1">خزّن في الثلاجة (2-8°C)</p>
                   </div>
                   <div className="rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 p-4">

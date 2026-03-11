@@ -211,7 +211,7 @@ export default function Stacks() {
                 <div
                   aria-hidden={!isPro}
                   tabIndex={!isPro ? -1 : undefined}
-                  className={!isPro ? 'blur-[6px] pointer-events-none select-none max-h-32 overflow-hidden' : ''}
+                  className={!isPro ? 'blur-[6px] pointer-events-none select-none max-h-40 overflow-hidden' : ''}
                 >
                   <p className="mb-4 text-sm leading-relaxed text-stone-700 dark:text-stone-200">
                     {stack.descriptionAr}
@@ -258,18 +258,26 @@ export default function Stacks() {
                   </div>
                 </div>
 
+                {/* Tier gate — overlay directly on blurred content */}
                 {!isPro && (
-                  <div className="mt-4 flex items-center justify-center">
+                  <div className="absolute inset-0 flex flex-col items-center justify-center rounded-xl bg-white/70 dark:bg-stone-900/80 backdrop-blur-sm p-4 text-center">
+                    <div className="mb-2 flex h-10 w-10 items-center justify-center rounded-full bg-emerald-100 dark:bg-emerald-900/40">
+                      <svg className="h-5 w-5 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                      </svg>
+                    </div>
+                    <p className="mb-1 text-sm font-bold text-stone-900 dark:text-stone-100">اشترك لفتح البروتوكول الكامل</p>
+                    <p className="mb-3 text-xs text-stone-500 dark:text-stone-400">الجرعات، التوقيت، ومراحل البروتوكول</p>
                     <div className="flex flex-col gap-2 sm:flex-row">
                       <Link
                         to="/pricing"
-                        className="rounded-xl bg-emerald-600 px-6 py-3 text-sm font-bold text-white transition-colors hover:bg-emerald-700"
+                        className="rounded-xl bg-emerald-600 px-5 py-2.5 text-sm font-bold text-white transition-colors hover:bg-emerald-700"
                       >
                         اشترك — {PRICING.essentials.label}/شهريًا
                       </Link>
                       <Link
                         to="/coach"
-                        className="rounded-xl border border-stone-300 dark:border-stone-600 px-6 py-3 text-sm font-bold text-emerald-700 dark:text-emerald-400 transition-colors hover:bg-emerald-50 dark:hover:bg-emerald-900/20"
+                        className="rounded-xl border border-stone-300 dark:border-stone-600 px-5 py-2.5 text-sm font-bold text-emerald-700 dark:text-emerald-400 transition-colors hover:bg-emerald-50 dark:hover:bg-emerald-900/20"
                       >
                         اسأل المدرب الذكي
                       </Link>

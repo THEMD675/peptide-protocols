@@ -428,6 +428,11 @@ export default function StackBuilder() {
 
   const loadGoalStack = (stack: GoalStack) => {
     const validIds = stack.peptideIds.filter((id) => realPeptides.some((p) => p.id === id));
+    if (selectedIds.length > 0 && activeGoalStack !== stack.id) {
+      // Confirm overwrite only when user has a custom selection
+      const confirmed = window.confirm('سيتم استبدال بروتوكولك الحالي. هل تريد المتابعة؟');
+      if (!confirmed) return;
+    }
     setSelectedIds(validIds.slice(0, MAX_STACK_SIZE));
     setActiveGoalStack(stack.id);
   };
@@ -465,6 +470,20 @@ export default function StackBuilder() {
         </p>
       </div>
 
+      {/* ── What is a Stack? ────────────────────────────── */}
+      <div className="rounded-2xl border border-emerald-200 dark:border-emerald-800 bg-emerald-50/60 dark:bg-emerald-900/10 p-4 flex gap-3 items-start">
+        <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-emerald-100 dark:bg-emerald-900/40">
+          <Sparkles className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
+        </div>
+        <div>
+          <p className="text-sm font-bold text-stone-900 dark:text-stone-100 mb-0.5">ما هو البروتوكول؟</p>
+          <p className="text-xs text-stone-600 dark:text-stone-300 leading-relaxed">
+            البروتوكول هو مجموعة من الببتيدات تعمل معًا لتحقيق هدف محدد — كالتعافي السريع، بناء العضل، أو مقاومة الشيخوخة. 
+            <span className="font-medium text-emerald-700 dark:text-emerald-400"> ابدأ باختيار هدفك</span> من الكروت أدناه، أو قم ببناء بروتوكول مخصص يدويًا.
+          </p>
+        </div>
+      </div>
+
       {/* ── Goal-Based Quick Stacks ─────────────────────── */}
       <div>
         <h3 className="mb-4 text-lg font-bold text-stone-900 dark:text-stone-100 flex items-center gap-2">
@@ -492,7 +511,7 @@ export default function StackBuilder() {
                 }`}>{gs.difficulty}</span>
               </div>
               <span className="text-base font-bold text-stone-900 dark:text-stone-100">{gs.nameAr}</span>
-              <span className="text-xs text-stone-500 dark:text-stone-300 line-clamp-2">{gs.goalAr}</span>
+              <span className="text-xs text-stone-500 dark:text-stone-300 line-clamp-3">{gs.goalAr}</span>
               <div className="flex flex-wrap gap-1.5 mt-1">
                 {gs.peptideIds.map((id) => {
                   const p = realPeptides.find((x) => x.id === id);
@@ -523,8 +542,8 @@ export default function StackBuilder() {
         return (
           <div className="rounded-2xl border border-emerald-200 dark:border-emerald-800 bg-emerald-50/50 dark:bg-emerald-900/10 p-5 space-y-4">
             <div className="flex items-center justify-between">
-              <h3 className="text-lg font-bold text-stone-900 dark:text-stone-100">
-                <gs.icon className="h-5 w-5 inline-block mr-1.5 text-emerald-600 dark:text-emerald-400" />{gs.nameAr}
+              <h3 className="text-lg font-bold text-stone-900 dark:text-stone-100 flex items-center gap-2">
+                <gs.icon className="h-5 w-5 shrink-0 text-emerald-600 dark:text-emerald-400" />{gs.nameAr}
               </h3>
               <button type="button" onClick={() => setActiveGoalStack(null)} className="text-stone-400 hover:text-stone-600 dark:hover:text-stone-300">
                 <X className="h-5 w-5" />
@@ -692,6 +711,33 @@ export default function StackBuilder() {
         )}
       </div>
 
+      {/* ── Empty State ────────────────────────────────── */}
+      {selectedIds.length === 0 && (
+        <div className="rounded-2xl border-2 border-dashed border-stone-200 dark:border-stone-700 bg-stone-50/50 dark:bg-stone-900/30 p-8 text-center">
+          <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-stone-100 dark:bg-stone-800">
+            <Target className="h-6 w-6 text-stone-400" />
+          </div>
+          <h4 className="text-base font-bold text-stone-700 dark:text-stone-200 mb-1">لم تختر أي ببتيد بعد</h4>
+          <p className="text-sm text-stone-500 dark:text-stone-400 mb-5">ابدأ ببساطة — اتبع الخطوات التالية:</p>
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-3 text-start">
+            <div className="flex items-start gap-2 rounded-xl bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-700 px-4 py-3 max-w-[200px]">
+              <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-emerald-500 text-xs font-bold text-white">١</span>
+              <span className="text-xs text-stone-600 dark:text-stone-300">اختر هدفك من الكروت أعلاه</span>
+            </div>
+            <div className="text-stone-300 dark:text-stone-600 text-lg hidden sm:block">←</div>
+            <div className="flex items-start gap-2 rounded-xl bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-700 px-4 py-3 max-w-[200px]">
+              <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-emerald-500 text-xs font-bold text-white">٢</span>
+              <span className="text-xs text-stone-600 dark:text-stone-300">أو اختر ببتيدات يدويًا من القائمة</span>
+            </div>
+            <div className="text-stone-300 dark:text-stone-600 text-lg hidden sm:block">←</div>
+            <div className="flex items-start gap-2 rounded-xl bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-700 px-4 py-3 max-w-[200px]">
+              <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-emerald-500 text-xs font-bold text-white">٣</span>
+              <span className="text-xs text-stone-600 dark:text-stone-300">راجع السلامة والتكلفة والجدول</span>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* ── Results Panel ──────────────────────────────── */}
       {selectedIds.length > 0 && (
         <div className="space-y-4">
@@ -708,10 +754,18 @@ export default function StackBuilder() {
                 <Shield className="h-5 w-5" />
                 فحص السلامة
               </h3>
-              <SafetyBadge safety={overallSafety} />
+              {selectedIds.length >= 2 && <SafetyBadge safety={overallSafety} />}
             </div>
-            {interactions.length === 0 ? (
-              <p className="text-sm text-emerald-700 dark:text-emerald-400">لم يُكتشف أي تفاعل بين الببتيدات المختارة.</p>
+            {selectedIds.length < 2 ? (
+              <p className="text-sm text-stone-500 dark:text-stone-400 flex items-center gap-2">
+                <AlertTriangle className="h-4 w-4 text-amber-400 shrink-0" />
+                أضف ببتيدًا ثانيًا لفحص التفاعلات بين الببتيدات المختارة.
+              </p>
+            ) : interactions.length === 0 ? (
+              <p className="text-sm text-emerald-700 dark:text-emerald-400 flex items-center gap-2">
+                <ShieldCheck className="h-4 w-4 shrink-0" />
+                لم يُكتشف أي تفاعل سلبي بين الببتيدات المختارة.
+              </p>
             ) : (
               <div className="space-y-2">
                 {interactions.map((inter, idx) => (
@@ -731,7 +785,7 @@ export default function StackBuilder() {
                        <ShieldCheck className="h-4 w-4 text-emerald-500" />}
                       <span className="text-sm font-bold text-stone-900 dark:text-stone-100">{inter.message}</span>
                     </div>
-                    <p className="text-xs text-stone-600 dark:text-stone-300 me-6">{inter.details}</p>
+                    <p className="text-xs text-stone-600 dark:text-stone-300 ms-6">{inter.details}</p>
                   </div>
                 ))}
               </div>
@@ -762,7 +816,11 @@ export default function StackBuilder() {
               <p className="text-lg font-bold text-stone-900 dark:text-stone-100">
                 ~{Math.round(weeklyInjections)} حقنة/أسبوع
               </p>
-              <p className="text-[10px] text-stone-400">~{Math.round(weeklyInjections / 7)} يوميًا</p>
+              {weeklyInjections >= 7 ? (
+                <p className="text-[10px] text-stone-400">~{Math.round(weeklyInjections / 7)} يوميًا</p>
+              ) : (
+                <p className="text-[10px] text-stone-400">كل {Math.round(7 / weeklyInjections)} أيام</p>
+              )}
             </div>
 
             {/* Peptide Count */}
