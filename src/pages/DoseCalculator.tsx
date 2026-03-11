@@ -67,6 +67,12 @@ const GOAL_LABELS: Record<GoalLevel, string> = {
   aggressive: 'مكثّف',
 };
 
+const GOAL_SUBTITLES: Record<GoalLevel, string> = {
+  therapeutic: 'جرعة آمنة للمبتدئين (60% من المعيار)',
+  moderate: 'الجرعة القياسية الموصى بها (100%)',
+  aggressive: 'للمتقدمين — خطر أعلى (150%)',
+};
+
 const GOAL_MULTIPLIERS: Record<GoalLevel, number> = {
   therapeutic: 0.6,
   moderate: 1.0,
@@ -826,17 +832,24 @@ export default function DoseCalculator() {
                       <button
                         key={g}
                         onClick={() => setGoalLevel(g)}
+                        title={GOAL_SUBTITLES[g]}
                         className={cn(
-                          'flex-1 rounded-lg py-2.5 min-h-[44px] text-xs font-medium transition-all',
+                          'flex-1 rounded-lg py-2 min-h-[44px] text-xs font-medium transition-all flex flex-col items-center gap-0.5',
                           goalLevel === g
                             ? g === 'aggressive' ? 'bg-red-500 text-white' : g === 'therapeutic' ? 'bg-blue-500 text-white' : 'bg-emerald-600 text-white'
                             : 'text-stone-700 dark:text-stone-200 hover:text-stone-900',
                         )}
                       >
-                        {GOAL_LABELS[g]}
+                        <span>{GOAL_LABELS[g]}</span>
+                        <span className={cn('text-[9px] leading-tight opacity-80', goalLevel === g ? 'opacity-90' : 'opacity-60')}>
+                          {g === 'therapeutic' ? 'مبتدئ' : g === 'moderate' ? 'معيار' : '⚠️ متقدم'}
+                        </span>
                       </button>
                     ))}
                   </div>
+                  {goalLevel !== 'moderate' && (
+                    <p className="text-xs text-stone-500 dark:text-stone-300">{GOAL_SUBTITLES[goalLevel]}</p>
+                  )}
                 </div>
               </div>
               {weightBasedDose && selectedPreset && (

@@ -751,9 +751,24 @@ export default function Community() {
           <h1 className="mb-3 text-3xl font-bold text-stone-900 dark:text-stone-100 md:text-4xl">
             مجتمع <span className="text-emerald-700">الببتيدات</span>
           </h1>
-          <p className="mx-auto max-w-lg text-lg text-stone-600 dark:text-stone-300">
-            شارك تجربتك. اقرأ تجارب الآخرين. تعلّم من بروتوكولات حقيقية.
+          <p className="mx-auto max-w-lg text-lg text-stone-600 dark:text-stone-300 mb-8">
+            مجتمع عربي متخصص يضم مشتركين يشاركون تجاربهم الحقيقية مع الببتيدات — بروتوكولات مُجرَّبة، نتائج فعلية، تقييمات صادقة.
           </p>
+          {/* Value prop pills */}
+          <div className="flex flex-wrap justify-center gap-4">
+            <div className="flex items-center gap-2 rounded-full border border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-900/20 px-4 py-2">
+              <Shield className="h-4 w-4 text-emerald-700 dark:text-emerald-400 shrink-0" />
+              <span className="text-sm font-medium text-stone-700 dark:text-stone-200">مشتركون موثَّقون فقط</span>
+            </div>
+            <div className="flex items-center gap-2 rounded-full border border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-900/20 px-4 py-2">
+              <Users className="h-4 w-4 text-emerald-700 dark:text-emerald-400 shrink-0" />
+              <span className="text-sm font-medium text-stone-700 dark:text-stone-200">مشاركات مجهولة الهوية</span>
+            </div>
+            <div className="flex items-center gap-2 rounded-full border border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-900/20 px-4 py-2">
+              <FlaskRound className="h-4 w-4 text-emerald-700 dark:text-emerald-400 shrink-0" />
+              <span className="text-sm font-medium text-stone-700 dark:text-stone-200">بروتوكولات وجرعات دقيقة</span>
+            </div>
+          </div>
         </div>
 
         {/* Success banner */}
@@ -939,14 +954,37 @@ export default function Community() {
               </div>
             )}
 
-            {/* Not subscribed */}
+            {/* Not subscribed — locked form preview */}
             {user && !isPaid && (
-              <div className="mb-8 rounded-2xl border-2 border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-900/20 p-6 text-center">
-                <p className="font-bold text-stone-900 dark:text-stone-100">اشترك لمشاركة تجربتك مع المجتمع</p>
-                <p className="mt-1 text-sm text-stone-600 dark:text-stone-300">المشتركون فقط يمكنهم نشر تجاربهم</p>
-                <Link to="/pricing" className="mt-3 inline-block rounded-xl bg-emerald-600 px-6 py-3 min-h-[44px] text-sm font-bold text-white transition-colors hover:bg-emerald-700">
-                  اشترك — {PRICING.essentials.label}/شهريًا
-                </Link>
+              <div className="mb-8 overflow-hidden rounded-2xl border-2 border-emerald-200 dark:border-emerald-800">
+                {/* Preview of the form — blurred + locked */}
+                <div className="relative">
+                  <div className="pointer-events-none select-none opacity-40 blur-[2px] p-6 space-y-4 bg-white dark:bg-stone-900">
+                    <div className="h-24 rounded-xl border border-stone-200 dark:border-stone-600 bg-stone-50 dark:bg-stone-800" />
+                    <div className="flex gap-2">
+                      {['BPC-157', 'Semaglutide', 'GHK-Cu'].map(p => (
+                        <span key={p} className="rounded-full bg-emerald-100 dark:bg-emerald-900/30 px-3 py-1 text-xs font-bold text-emerald-700">{p}</span>
+                      ))}
+                    </div>
+                    <div className="h-10 rounded-xl bg-emerald-600 opacity-50" />
+                  </div>
+                  {/* Overlay */}
+                  <div className="absolute inset-0 flex flex-col items-center justify-center bg-white/80 dark:bg-stone-900/80 p-6 text-center backdrop-blur-[1px]">
+                    <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-emerald-100 dark:bg-emerald-900/30">
+                      <Send className="h-5 w-5 text-emerald-700" />
+                    </div>
+                    <p className="mb-1 font-bold text-stone-900 dark:text-stone-100">شارك تجربتك مع المجتمع</p>
+                    <p className="mb-1 text-sm text-stone-600 dark:text-stone-300">اشترك للوصول الكامل للمجتمع</p>
+                    <ul className="mb-4 mt-2 text-start text-xs text-stone-600 dark:text-stone-300 space-y-1">
+                      <li className="flex items-center gap-1.5"><BadgeCheck className="h-3.5 w-3.5 text-emerald-600 shrink-0" />نشر تجاربك وبروتوكولاتك</li>
+                      <li className="flex items-center gap-1.5"><BadgeCheck className="h-3.5 w-3.5 text-emerald-600 shrink-0" />الرد على تجارب الآخرين</li>
+                      <li className="flex items-center gap-1.5"><BadgeCheck className="h-3.5 w-3.5 text-emerald-600 shrink-0" />التفاعل والتصويت على الأفضل</li>
+                    </ul>
+                    <Link to="/pricing" className="inline-block rounded-xl bg-emerald-600 px-6 py-3 min-h-[44px] text-sm font-bold text-white transition-colors hover:bg-emerald-700">
+                      اشترك — {PRICING.essentials.label}/شهريًا
+                    </Link>
+                  </div>
+                </div>
               </div>
             )}
 
@@ -1284,7 +1322,7 @@ export default function Community() {
                             <button
                               type="button"
                               onClick={async () => {
-                                if (!user) { toast.error('سجّل الدخول للتفاعل مع التجارب'); return; }
+                                if (!user) { toast('سجّل الدخول للتفاعل مع التجارب', { action: { label: 'تسجيل الدخول', onClick: () => window.location.href = '/login' } }); return; }
                                 if (upvotedPosts.has(log.id)) return;
                                 const next = new Set(upvotedPosts).add(log.id);
                                 setUpvotedPosts(next);
@@ -1367,16 +1405,41 @@ export default function Community() {
                                         </span>
                                       )}
                                       <span className="text-xs text-stone-400">{relativeTimeAr(reply.created_at)}</span>
-                                      {user && user.id === reply.user_id && (
-                                        <button
-                                          type="button"
-                                          onClick={() => deleteReply(reply)}
-                                          className="me-auto rounded p-1 min-h-[44px] min-w-[44px] flex items-center justify-center text-stone-300 hover:bg-red-50 dark:hover:bg-red-900/20 hover:text-red-500 dark:hover:text-red-400 transition-colors"
-                                          aria-label="حذف الرد"
-                                        >
-                                          <Trash2 className="h-3.5 w-3.5" />
-                                        </button>
-                                      )}
+                                      <div className="me-auto flex items-center gap-1">
+                                        {user && user.id === reply.user_id && (
+                                          <button
+                                            type="button"
+                                            onClick={() => deleteReply(reply)}
+                                            className="rounded p-1 min-h-[36px] min-w-[36px] flex items-center justify-center text-stone-300 hover:bg-red-50 dark:hover:bg-red-900/20 hover:text-red-500 dark:hover:text-red-400 transition-colors"
+                                            aria-label="حذف الرد"
+                                          >
+                                            <Trash2 className="h-3.5 w-3.5" />
+                                          </button>
+                                        )}
+                                        {user && user.id !== reply.user_id && (
+                                          <button
+                                            type="button"
+                                            onClick={async () => {
+                                              const { error } = await supabase.from('reports').insert({
+                                                user_id: user.id,
+                                                target_type: 'community_reply',
+                                                target_id: reply.id,
+                                              });
+                                              if (error && error.code === '23505') {
+                                                toast('سبق لك الإبلاغ عن هذا الرد');
+                                              } else if (error) {
+                                                toast.error('تعذّر الإبلاغ. حاول مرة أخرى.');
+                                              } else {
+                                                toast.success('تم الإبلاغ — سنراجع الرد');
+                                              }
+                                            }}
+                                            className="rounded p-1 min-h-[36px] min-w-[36px] flex items-center justify-center text-stone-200 dark:text-stone-600 hover:bg-red-50 dark:hover:bg-red-900/20 hover:text-red-400 dark:hover:text-red-400 transition-colors"
+                                            aria-label="إبلاغ عن الرد"
+                                          >
+                                            <Flag className="h-3 w-3" />
+                                          </button>
+                                        )}
+                                      </div>
                                     </div>
                                     <p className="mt-1 text-sm text-stone-800 dark:text-stone-200 whitespace-pre-line">{reply.content}</p>
                                   </div>
