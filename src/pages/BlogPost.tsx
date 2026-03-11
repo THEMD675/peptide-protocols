@@ -87,7 +87,7 @@ export default function BlogPost() {
     return () => { cancelled = true; };
   }, [slug]);
 
-  if (loading) return <GenericPageSkeleton />;
+  if (loading) return <div className="min-h-screen"><GenericPageSkeleton /></div>;
 
   if (error || !post) {
     return (
@@ -152,15 +152,18 @@ export default function BlogPost() {
         </Link>
 
         {post.cover_image_url && (
-          <img
-            src={post.cover_image_url}
-            alt={post.title_ar}
-            className="mb-8 w-full rounded-2xl object-cover h-56 sm:h-72 md:h-80"
-            loading="lazy"
-            width="800"
-            height="224"
-            onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
-          />
+          <div className="mb-8 w-full aspect-[16/7] sm:aspect-[16/6] md:aspect-[5/2] overflow-hidden rounded-2xl bg-stone-100 dark:bg-stone-800">
+            <img
+              src={post.cover_image_url}
+              alt={post.title_ar}
+              className="h-full w-full object-cover"
+              loading="eager"
+              fetchPriority="high"
+              width="800"
+              height="320"
+              onError={(e) => { (e.target as HTMLImageElement).parentElement!.style.display = 'none'; }}
+            />
+          </div>
         )}
 
         <h1 className="mb-4 text-3xl font-bold leading-tight text-stone-900 dark:text-stone-100 md:text-4xl">

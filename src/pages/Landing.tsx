@@ -3,7 +3,17 @@ import { Helmet } from 'react-helmet-async';
 import { Link, Navigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
-import { peptides } from '@/data/peptides';
+// BPC-157 data inlined to avoid loading the full 131KB peptides dataset on landing
+const BPC_157_PREVIEW = {
+  nameAr: 'BPC-157',
+  nameEn: 'BPC-157',
+  dosageAr: '250-500 ميكروغرام مرة إلى مرتين يوميًا. للإصابات الحادة: 500 ميكروغرام مرتين يوميًا. للصيانة: 250 ميكروغرام مرة واحدة.',
+  timingAr: 'يُفضل تقسيم الجرعة على مرتين (صباحًا ومساءً). يمكن حقنه بالقرب من مكان الإصابة (site injection) لتأثير موضعي أقوى.',
+  cycleAr: '4-6 أسابيع استخدام ثم 2-4 أسابيع راحة. يمكن التكرار حسب الحاجة. للأمعاء: دورات أطول (8-12 أسبوع) قد تكون ضرورية.',
+  administrationAr: 'حقن تحت الجلد (Sub-Q) بالقرب من الإصابة أو في البطن. يتوفر أيضًا بشكل فموي (كبسولات) لمشاكل الجهاز الهضمي — الشكل الفموي فعّال للأمعاء لأنه مقاوم للحمض المعدي بطبيعته.',
+  stackAr: 'يُدمج مع TB-500 (المزيج الذهبي للتعافي). يمكن إضافة GHK-Cu لتعزيز شفاء البشرة والأنسجة الرخوة.',
+  costEstimate: '225-375 ر.س/شهر',
+} as const;
 import {
   FlaskConical,
   Calculator,
@@ -434,8 +444,7 @@ export default function Landing() {
 
       {/* ═══════ PRODUCT PREVIEW — SHOW DON'T TELL ═══════ */}
       {(() => {
-        const bpc = peptides.find(p => p.id === 'bpc-157');
-        if (!bpc) return null;
+        const bpc = BPC_157_PREVIEW;
         return (
           <section className="mx-auto max-w-5xl px-6 py-16 md:py-24">
             <div className="mb-4 text-center">

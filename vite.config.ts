@@ -80,12 +80,25 @@ export default defineConfig({
     sourcemap: 'hidden',
     rollupOptions: {
       output: {
-        manualChunks: {
-          vendor: ['react', 'react-dom', 'react-router-dom'],
-          supabase: ['@supabase/supabase-js'],
-          ui: ['lucide-react', 'sonner', 'react-helmet-async'],
-          recharts: ['recharts'],
-          'focus-trap': ['focus-trap-react', 'focus-trap', 'tabbable'],
+        manualChunks(id) {
+          // Core vendor
+          if (id.includes('node_modules/react-dom') || id.includes('node_modules/react/') || id.includes('node_modules/react-router'))
+            return 'vendor';
+          // Supabase
+          if (id.includes('node_modules/@supabase'))
+            return 'supabase';
+          // UI utilities (must come before recharts to keep clsx/tailwind-merge out of heavy chunks)
+          if (id.includes('node_modules/lucide-react') || id.includes('node_modules/sonner') || id.includes('node_modules/react-helmet-async') || id.includes('node_modules/clsx') || id.includes('node_modules/tailwind-merge'))
+            return 'ui';
+          // Heavy chart lib — lazy loaded only
+          if (id.includes('node_modules/recharts') || id.includes('node_modules/d3-'))
+            return 'recharts';
+          // html2canvas — lazy loaded only
+          if (id.includes('node_modules/html2canvas'))
+            return 'html2canvas';
+          // Focus trap — lazy loaded
+          if (id.includes('node_modules/focus-trap') || id.includes('node_modules/tabbable'))
+            return 'focus-trap';
         },
       },
     },
