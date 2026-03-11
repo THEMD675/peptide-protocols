@@ -1270,9 +1270,11 @@ export default function Dashboard() {
           try {
             if (!localStorage.getItem(WELCOME_KEY)) {
               localStorage.setItem(WELCOME_KEY, '1');
-              setTimeout(() => {
-                confetti({ particleCount: 60, spread: 80, origin: { y: 0.5 }, colors: ['#10b981', '#f59e0b', '#8b5cf6', '#3b82f6'], zIndex: 9999 });
-              }, 700);
+              if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                setTimeout(() => {
+                  confetti({ particleCount: 60, spread: 80, origin: { y: 0.5 }, colors: ['#10b981', '#f59e0b', '#8b5cf6', '#3b82f6'], zIndex: 9999 });
+                }, 700);
+              }
             }
           } catch { /* Safari private */ }
         }
