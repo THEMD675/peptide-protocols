@@ -3,6 +3,8 @@ import { BrowserRouter, Routes, Route, Link, Navigate, useLocation, useNavigatio
 import { useAuth, AuthProvider } from '@/contexts/AuthContext';
 import { Helmet, HelmetProvider } from 'react-helmet-async';
 import { Toaster } from 'sonner';
+import { Analytics } from '@vercel/analytics/react';
+import { SpeedInsights } from '@vercel/speed-insights/react';
 import { SITE_URL, STORAGE_KEYS } from '@/lib/constants';
 import { hasOptionalConsent } from '@/lib/cookie-utils';
 import { events } from '@/lib/analytics';
@@ -340,6 +342,8 @@ export default function App() {
           <BackToTop />
           <OverlayGate />
           <LazyFallback><Suspense fallback={null}><InstallPrompt /></Suspense></LazyFallback>
+          <Analytics />
+          <SpeedInsights />
         </div>
         </ErrorBoundary>
       </AuthProvider>
