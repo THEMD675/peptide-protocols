@@ -1,6 +1,7 @@
 import { Helmet } from 'react-helmet-async';
 import { Link } from 'react-router-dom';
-import { ChevronDown, HelpCircle, Search } from 'lucide-react';
+import { ChevronDown, HelpCircle, Search, Dna, CreditCard, Microscope, Bot, Lock } from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
 import { useState, useMemo } from 'react';
 import { SITE_URL, SUPPORT_EMAIL, TRIAL_DAYS, PRICING, PEPTIDE_COUNT } from '@/lib/constants';
 
@@ -11,14 +12,14 @@ interface FAQItem {
 
 interface FAQSection {
   title: string;
-  icon: string;
+  icon: LucideIcon;
   items: FAQItem[];
 }
 
 const sections: FAQSection[] = [
   {
     title: 'عن pptides',
-    icon: '🧬',
+    icon: Dna,
     items: [
       {
         q: 'ما هو pptides؟',
@@ -44,7 +45,7 @@ const sections: FAQSection[] = [
   },
   {
     title: 'الاشتراك والأسعار',
-    icon: '💳',
+    icon: CreditCard,
     items: [
       {
         q: 'كم تكلفة الاشتراك؟',
@@ -82,7 +83,7 @@ const sections: FAQSection[] = [
   },
   {
     title: 'الببتيدات',
-    icon: '🔬',
+    icon: Microscope,
     items: [
       {
         q: 'ما هي الببتيدات العلاجية؟',
@@ -116,7 +117,7 @@ const sections: FAQSection[] = [
   },
   {
     title: 'المدرب الذكي',
-    icon: '🤖',
+    icon: Bot,
     items: [
       {
         q: 'كيف يعمل المدرب الذكي؟',
@@ -134,7 +135,7 @@ const sections: FAQSection[] = [
   },
   {
     title: 'الخصوصية والأمان',
-    icon: '🔒',
+    icon: Lock,
     items: [
       {
         q: 'هل بياناتي محمية؟',
@@ -255,8 +256,8 @@ export default function FAQ() {
                 <div
                   className="mb-4 flex w-full items-center gap-3 text-start min-h-[44px]"
                 >
-                  <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-100 dark:bg-emerald-900/30 text-lg">
-                    {section.icon}
+                  <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-100 dark:bg-emerald-900/30">
+                    <section.icon className="h-5 w-5 text-emerald-700" />
                   </span>
                   <h2 className="text-xl font-bold text-stone-900 dark:text-stone-100">
                     {section.title}

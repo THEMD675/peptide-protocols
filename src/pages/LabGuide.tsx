@@ -183,7 +183,7 @@ const testPackages: { id: string; nameAr: string; price: string; color: string; 
   },
 ];
 
-const timelineSteps = [
+const timelineSteps: { id: string; label: string; labelEn: string; week: number; description: string; package: string; icon: LucideIcon; color: string }[] = [
   {
     id: 'baseline',
     label: 'قبل البدء',
@@ -191,7 +191,7 @@ const timelineSteps = [
     week: 0,
     description: 'خط الأساس — جميع التحاليل الأساسية قبل أول جرعة',
     package: 'الفحص الشامل (مرة واحدة)',
-    icon: '🔬',
+    icon: Microscope,
     color: 'emerald',
   },
   {
@@ -201,7 +201,7 @@ const timelineSteps = [
     week: 6,
     description: 'أول متابعة — التحقق من الاستجابة والسلامة',
     package: 'فحص الببتيدات',
-    icon: '📊',
+    icon: BarChart2,
     color: 'blue',
   },
   {
@@ -211,7 +211,7 @@ const timelineSteps = [
     week: 12,
     description: 'إعادة تقييم شاملة — تعديل الجرعات حسب النتائج',
     package: 'الفحص الشامل',
-    icon: '🔄',
+    icon: RefreshCw,
     color: 'amber',
   },
   {
@@ -221,7 +221,7 @@ const timelineSteps = [
     week: 24,
     description: 'مراجعة نصف سنوية — تقييم فعالية البروتوكول',
     package: 'الفحص الشامل',
-    icon: '📅',
+    icon: Calendar,
     color: 'purple',
   },
   {
@@ -231,16 +231,16 @@ const timelineSteps = [
     week: 30,
     description: 'فحص ما بعد البروتوكول — التأكد من عودة القيم لطبيعتها',
     package: 'فحص الببتيدات',
-    icon: '✅',
+    icon: CheckCircle,
     color: 'rose',
   },
 ];
 
-const saudiLabs = [
+const saudiLabs: { name: string; nameEn: string; logo: LucideIcon; website: string; cities: string[]; basicPrice: string; peptidePrice: string; fullPrice: string; notes: string; homeVisit: boolean }[] = [
   {
     name: 'معامل البرج',
     nameEn: 'Al Borg Laboratories',
-    logo: '🏥',
+    logo: Building2,
     website: 'https://www.alborglaboratories.com',
     cities: ['الرياض', 'جدة', 'الدمام', 'مكة', 'المدينة'],
     basicPrice: '~180 ر.س',
@@ -252,7 +252,7 @@ const saudiLabs = [
   {
     name: 'مختبرات دلة',
     nameEn: 'Dallah Labs',
-    logo: '🔬',
+    logo: Microscope,
     website: 'https://www.dallahlabs.com',
     cities: ['الرياض', 'جدة', 'الخبر'],
     basicPrice: '~200 ر.س',
@@ -264,7 +264,7 @@ const saudiLabs = [
   {
     name: 'مختبرات المختبر',
     nameEn: 'Al Mokhtar Labs',
-    logo: '🧪',
+    logo: FlaskConical,
     website: 'https://www.almokhtabar.com',
     cities: ['الرياض', 'جدة', 'الدمام', 'أبها'],
     basicPrice: '~190 ر.س',
@@ -561,7 +561,7 @@ function TestPackages({ isPro, blurClass }: { isPro: boolean; blurClass: string 
               )}
             >
               <div className="text-center">
-                <span className="text-3xl">{pkg.icon}</span>
+                <pkg.icon className="h-8 w-8 mx-auto text-stone-600 dark:text-stone-300" />
                 <h3 className="mt-2 text-lg font-bold text-stone-900 dark:text-stone-100">{pkg.nameAr}</h3>
                 <div className={cn('mt-1 text-2xl font-black', c.text)}>{pkg.price}</div>
                 {pkg.id === 'peptide' && (
@@ -652,7 +652,7 @@ function TestingTimeline() {
                   'relative z-10 flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border-2 text-lg',
                   colors[step.color]
                 )}>
-                  {step.icon}
+                  <step.icon className="h-5 w-5" />
                 </div>
                 <div className={cn('flex-1 rounded-2xl border p-4', colors[step.color])}>
                   <div className="flex items-center gap-2 mb-1">
@@ -690,7 +690,7 @@ function TestingTimeline() {
             return (
               <div key={step.id} className="flex flex-col items-center text-center">
                 <div className={cn('relative z-10 h-12 w-12 flex items-center justify-center rounded-full border-4 border-white dark:border-stone-900 shadow-md text-lg', dotColors[step.color])}>
-                  <span className="drop-shadow-md">{step.icon}</span>
+                  <step.icon className="h-5 w-5 text-white" />
                 </div>
                 <div className={cn('mt-3 w-full rounded-2xl border p-3', cardColors[step.color])}>
                   <h3 className="font-bold text-sm text-stone-900 dark:text-stone-100">{step.label}</h3>
@@ -853,7 +853,7 @@ function LabLocator() {
             className="rounded-2xl border border-stone-200 bg-white dark:border-stone-600 dark:bg-stone-900 p-5 transition-all hover:border-emerald-200 hover:shadow-md"
           >
             <div className="text-center mb-4">
-              <span className="text-3xl">{lab.logo}</span>
+              <lab.logo className="h-8 w-8 text-stone-600 dark:text-stone-300" />
               <h3 className="mt-2 text-lg font-bold text-stone-900 dark:text-stone-100">{lab.name}</h3>
               <span className="text-xs text-stone-500 dark:text-stone-300">{lab.nameEn}</span>
             </div>

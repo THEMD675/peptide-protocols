@@ -257,7 +257,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }, 15000);
 
     supabase.auth.getSession().then(async ({ data: { session } }) => {
-      clearTimeout(timeout);
       if (session?.user) {
         hadSessionRef.current = true;
         const mapped = mapUser(session.user);
@@ -276,6 +275,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           }).catch(() => {});
         }
       }
+      // FIX: Cancel timeout AFTER all async work (including fetchSubscription) completes,
+      // so the 15s safety net still fires if fetchSubscription stalls (e.g. retries on slow network).
+      clearTimeout(timeout);
       setIsLoading(false);
     }).catch(() => {
       clearTimeout(timeout);

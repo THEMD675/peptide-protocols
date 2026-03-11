@@ -649,9 +649,9 @@ export default function DoseCalculator() {
         })}</script>
       </Helmet>
 
-      <div className="mx-auto max-w-4xl px-4 py-8 md:px-6 md:py-12">
+      <div className="mx-auto max-w-4xl px-4 pt-8 pb-24 md:px-6 md:pt-12">
         {/* Header */}
-        <div className="mb-8 text-center">
+        <div className="mb-10 text-center">
           <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-500/10">
             <Calculator className="h-7 w-7 text-emerald-700" />
           </div>
@@ -1662,7 +1662,7 @@ export default function DoseCalculator() {
           <p className="mt-2 text-sm text-stone-800 dark:text-stone-200">المدرب الذكي يعرف {PEPTIDE_COUNT}+ ببتيد — اسأله وجاوبك بالتفصيل.</p>
           <Link
             to="/coach"
-            className="mt-4 inline-flex items-center gap-2 rounded-full bg-emerald-600 px-8 py-3 min-h-[44px] text-sm font-bold text-white transition-all hover:bg-emerald-700"
+            className="mt-4 inline-flex items-center gap-2 rounded-xl bg-emerald-600 px-6 py-3 min-h-[44px] text-sm font-bold text-white transition-all hover:bg-emerald-700"
           >
             <Bot className="h-4 w-4" />
             اسأل المدرب الذكي

@@ -14,6 +14,7 @@ import {
   ChevronDown,
   ChevronUp,
   Repeat,
+  Calendar,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { events } from '@/lib/analytics';
@@ -441,7 +442,7 @@ export default function Tracker() {
             title={useHijri ? 'عرض بالتوقيت الميلادي' : 'عرض بالتوقيت الهجري'}
             aria-label={useHijri ? 'تبديل للتوقيت الميلادي' : 'تبديل للتوقيت الهجري'}
           >
-            <span aria-hidden>📅</span>
+            <Calendar className="h-4 w-4" aria-hidden="true" />
             {useHijri ? 'هجري' : 'ميلادي'}
           </button>
         </div>

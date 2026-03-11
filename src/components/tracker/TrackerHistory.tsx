@@ -388,7 +388,7 @@ export default function TrackerHistory({
                 >
                   {isEditing ? (
                     <div className="space-y-3">
-                      <p className="text-sm font-bold text-stone-900 dark:text-stone-100" dir="ltr">{log.peptide_name}</p>
+                      <p className="text-sm font-bold text-stone-900 dark:text-stone-100 truncate" dir="ltr">{log.peptide_name}</p>
                       <div className="flex gap-2">
                         <div className="flex-1">
                           <label className="text-xs text-stone-500 dark:text-stone-300 mb-1 block">الجرعة</label>
@@ -426,7 +426,7 @@ export default function TrackerHistory({
                   ) : (
                     <>
                       <div className="flex items-start justify-between mb-2">
-                        <h3 className="font-bold text-stone-900 dark:text-stone-100" dir="ltr">{log.peptide_name}</h3>
+                        <h3 className="font-bold text-stone-900 dark:text-stone-100 truncate min-w-0 flex-1 me-2" dir="ltr">{log.peptide_name}</h3>
                         <div className="flex items-center gap-1">
                           <span className="rounded-full bg-emerald-50 dark:bg-emerald-900/20 px-3 py-1 text-xs font-bold text-emerald-700 dark:text-emerald-400">
                             {log.dose} {log.dose_unit}

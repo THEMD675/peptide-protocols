@@ -188,7 +188,7 @@ export default function Compare() {
   };
 
   return (
-    <div dir="rtl" className="mx-auto max-w-5xl px-4 py-8 md:px-6">
+    <div dir="rtl" className="mx-auto max-w-5xl px-4 pt-8 pb-24 md:px-6 md:pt-12">
       <Helmet>
         <title>مقارنة الببتيدات | pptides</title>
         <meta name="description" content="قارن بين الببتيدات جنبًا إلى جنب — الجرعات، الفوائد، الأعراض الجانبية، والأسعار" />
@@ -206,16 +206,16 @@ export default function Compare() {
         <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-100 dark:bg-emerald-900/30">
           <ArrowLeftRight className="h-7 w-7 text-emerald-700" />
         </div>
-        <h1 className="mb-2 text-2xl font-black text-stone-900 dark:text-stone-100 md:text-3xl">
+        <h1 className="mb-2 text-3xl font-bold text-stone-900 dark:text-stone-100 md:text-4xl">
           مقارنة الببتيدات
         </h1>
-        <p className="text-sm text-stone-600 dark:text-stone-300">
+        <p className="mt-2 text-base text-stone-600 dark:text-stone-300">
           اختر 2-3 ببتيدات لمقارنتها جنبًا إلى جنب
         </p>
       </div>
 
       {/* Selectors */}
-      <div className="mb-8 grid gap-4 sm:grid-cols-3">
+      <div className="mb-10 grid gap-4 sm:grid-cols-3">
         <PeptideSelector label="الببتيد الأول" value={ids[0]} onChange={(v) => setId(0, v)} exclude={excludeFor(0)} />
         <PeptideSelector label="الببتيد الثاني" value={ids[1]} onChange={(v) => setId(1, v)} exclude={excludeFor(1)} />
         <PeptideSelector label="الببتيد الثالث (اختياري)" value={ids[2]} onChange={(v) => setId(2, v)} exclude={excludeFor(2)} />
@@ -228,7 +228,7 @@ export default function Compare() {
           <div className="mb-4 flex justify-end">
             <button
               onClick={handleShare}
-              className="flex items-center gap-2 rounded-full border border-stone-200 dark:border-stone-600 px-4 py-2 text-xs font-bold text-stone-600 dark:text-stone-300 transition-colors hover:bg-stone-50 dark:hover:bg-stone-800"
+              className="flex items-center gap-2 rounded-xl border border-stone-300 dark:border-stone-600 px-4 py-2 text-xs font-bold text-stone-600 dark:text-stone-300 transition-colors hover:bg-stone-50 dark:hover:bg-stone-800"
             >
               {copied ? <Check className="h-3.5 w-3.5 text-emerald-700" /> : <Share2 className="h-3.5 w-3.5" />}
               {copied ? 'تم النسخ!' : 'مشاركة المقارنة'}
@@ -324,7 +324,7 @@ export default function Compare() {
           <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
             <Link
               to={`/interactions?p1=${ids[0]}&p2=${ids[1]}`}
-              className="inline-flex items-center gap-2 rounded-full border border-emerald-300 dark:border-emerald-700 px-5 py-2.5 text-sm font-bold text-emerald-700 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 transition-colors"
+              className="inline-flex items-center gap-2 rounded-xl border border-stone-300 dark:border-stone-600 px-6 py-3 text-sm font-bold text-emerald-700 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 transition-colors"
             >
               فحص التعارضات بين هذه الببتيدات
             </Link>
@@ -338,7 +338,7 @@ export default function Compare() {
           </p>
           <Link
             to="/library"
-            className="mt-4 inline-flex items-center gap-2 rounded-full bg-emerald-600 px-6 py-2.5 text-sm font-bold text-white hover:bg-emerald-700 transition-colors"
+            className="mt-4 inline-flex items-center gap-2 rounded-xl bg-emerald-600 px-6 py-3 text-sm font-bold text-white hover:bg-emerald-700 transition-colors"
           >
             <BookOpen className="h-4 w-4" />
             تصفّح المكتبة
@@ -348,7 +348,7 @@ export default function Compare() {
 
       {/* Popular comparisons */}
       <div className="mt-12">
-        <h2 className="mb-4 text-lg font-bold text-stone-900 dark:text-stone-100">مقارنات شائعة</h2>
+        <h2 className="mb-6 text-2xl font-bold text-stone-900 dark:text-stone-100">مقارنات شائعة</h2>
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {[
             { p1: 'semaglutide', p2: 'tirzepatide', label: 'سيماغلوتايد vs تيرزيباتايد' },
