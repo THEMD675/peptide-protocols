@@ -56,7 +56,11 @@ const GOAL_LABELS: Record<string, string> = {
 
 export default function OnboardingModal({ forceOpen, onClose: externalClose }: { forceOpen?: boolean; onClose?: () => void }) {
   const { user } = useAuth();
-  const [show, setShow] = useState(true);
+  // Fix 5: Initialize show state synchronously from localStorage to prevent flash
+  const [show, setShow] = useState(() => {
+    if (forceOpen) return true;
+    try { return localStorage.getItem(ONBOARDING_KEY) !== 'true'; } catch { return true; }
+  });
   const [step, setStep] = useState<'goal' | 'plan'>('goal');
   const [selectedGoal, setSelectedGoal] = useState('');
   const [quizGoalLabel, setQuizGoalLabel] = useState('');
@@ -64,9 +68,6 @@ export default function OnboardingModal({ forceOpen, onClose: externalClose }: {
   const userName = user?.email?.split('@')[0]?.charAt(0).toUpperCase() + (user?.email?.split('@')[0]?.slice(1) ?? '') || '';
   useEffect(() => {
     if (forceOpen) { setShow(true); return; }
-    try {
-      setShow(localStorage.getItem(ONBOARDING_KEY) !== 'true');
-    } catch { /* expected */ }
   }, [forceOpen]);
 
   // If user already took the quiz, skip the goal step
@@ -91,12 +92,14 @@ export default function OnboardingModal({ forceOpen, onClose: externalClose }: {
     }
   }, [show]);
 
-  const handleClose = useCallback(() => {
+  // Fix 4: "complete" marks onboarding as permanently done (skip button, completing plan)
+  const handleComplete = useCallback(() => {
     try { localStorage.setItem(ONBOARDING_KEY, 'true'); } catch { /* expected */ }
     // C13: Persist goals to Supabase user_profiles table
     if (user && selectedGoal) {
       supabase.from('user_profiles').update({
         onboarding_goals: { goal: selectedGoal, ts: Date.now() },
+        onboarding_completed_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
       }).eq('user_id', user.id).then(() => {}).catch((e) => { console.error('OnboardingModal: failed to persist goals', e); });
     }
@@ -104,12 +107,26 @@ export default function OnboardingModal({ forceOpen, onClose: externalClose }: {
     externalClose?.();
   }, [externalClose, user, selectedGoal]);
 
+  // Fix 4: "dismiss" just hides the modal temporarily — it will reappear on next visit
+  // unless forceOpen (re-open button), in which case dismiss also completes
+  const handleDismiss = useCallback(() => {
+    if (forceOpen) {
+      // When user explicitly re-opened onboarding, dismiss = close
+      setShow(false);
+      externalClose?.();
+    } else {
+      // First visit: backdrop click just hides temporarily, doesn't mark complete
+      setShow(false);
+      externalClose?.();
+    }
+  }, [forceOpen, externalClose]);
+
   useEffect(() => {
     if (!show) return;
-    const handler = (e: KeyboardEvent) => { if (e.key === 'Escape') handleClose(); };
+    const handler = (e: KeyboardEvent) => { if (e.key === 'Escape') handleDismiss(); };
     document.addEventListener('keydown', handler);
     return () => document.removeEventListener('keydown', handler);
-  }, [show, handleClose]);
+  }, [show, handleDismiss]);
 
   if (!show) return null;
 
@@ -132,7 +149,7 @@ export default function OnboardingModal({ forceOpen, onClose: externalClose }: {
   };
 
   return (
-    <div role="dialog" aria-modal="true" aria-labelledby={step === 'goal' ? 'onboarding-title-step1' : 'onboarding-title-step2'} className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4" onClick={handleClose}>
+    <div role="dialog" aria-modal="true" aria-labelledby={step === 'goal' ? 'onboarding-title-step1' : 'onboarding-title-step2'} className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4" onClick={handleDismiss}>
       <FocusTrap focusTrapOptions={{ allowOutsideClick: true }}>
         <div className="w-full max-w-md max-h-[90vh] overflow-y-auto rounded-2xl bg-white dark:bg-stone-900 p-6 sm:p-8 shadow-2xl animate-fade-in" onClick={e => e.stopPropagation()}>
           {/* Progress indicator */}
@@ -169,7 +186,7 @@ export default function OnboardingModal({ forceOpen, onClose: externalClose }: {
                   </button>
                 ))}
               </div>
-              <button onClick={handleClose} className="mt-4 w-full min-h-[44px] text-center text-xs text-stone-500 dark:text-stone-300 hover:text-stone-600 dark:text-stone-300">
+              <button onClick={handleComplete} className="mt-4 w-full min-h-[44px] text-center text-xs text-stone-500 dark:text-stone-300 hover:text-stone-600 dark:text-stone-300">
                 تخطّي
               </button>
             </>
@@ -195,7 +212,7 @@ export default function OnboardingModal({ forceOpen, onClose: externalClose }: {
                   <Link
                     key={i}
                     to={item.to}
-                    onClick={handleClose}
+                    onClick={handleComplete}
                     className="flex items-center gap-4 rounded-xl border border-stone-200 dark:border-stone-600 px-4 py-4 transition-all hover:border-emerald-300 dark:border-emerald-700 hover:bg-emerald-50 dark:bg-emerald-900/20 min-h-[44px]"
                     style={{ animation: animatePlan ? `onb-fade-in 0.4s ease-out ${i * 0.15}s both` : undefined, opacity: animatePlan ? undefined : 0 }}
                   >
@@ -212,7 +229,7 @@ export default function OnboardingModal({ forceOpen, onClose: externalClose }: {
               </div>
               <Link
                 to={getTrialPlan(selectedGoal)[0]?.to ?? '/library'}
-                onClick={handleClose}
+                onClick={handleComplete}
                 className="mt-5 w-full rounded-full bg-emerald-600 px-6 py-3 text-sm font-bold text-white transition-colors hover:bg-emerald-700 min-h-[44px] inline-flex items-center justify-center"
                 style={{ animation: 'onb-pulse 2s ease-in-out infinite' }}
               >

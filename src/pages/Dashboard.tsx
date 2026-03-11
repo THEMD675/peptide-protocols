@@ -399,7 +399,11 @@ export default function Dashboard() {
   const userReviewCount = useUserReviewCount(user?.id);
   const wellnessTrend = useWellnessTrend(user?.id);
   const [shareProtocolId, setShareProtocolId] = useState<string | null>(null);
+  // Fix 5: Initialize onboarding show state synchronously from localStorage to prevent flash
   const [showOnboarding, setShowOnboarding] = useState(false);
+  const onboardingCompleted = useMemo(() => {
+    try { return localStorage.getItem('pptides_onboarded') === 'true'; } catch { return false; }
+  }, []);
   const [confirmEndId, setConfirmEndId] = useState<string | null>(null);
   const welcomeConfettiFired = useRef(false);
   const [runTour, setRunTour] = useState(false);
@@ -451,10 +455,12 @@ export default function Dashboard() {
   }, [user?.id]);
 
   // Redirect trial users who haven't entered payment to /pricing
+  // Fix 1 & 2: Only redirect AFTER onboarding is completed — new users need to see onboarding first
+  // Fix 3: Admin-granted accounts skip pricing redirect entirely
   // Skip redirect when returning from Stripe checkout (?payment=success)
   const params = new URLSearchParams(window.location.search);
   const isPaymentCallback = params.get('payment') === 'success';
-  if (subscription.needsPaymentSetup && !isPaymentCallback) {
+  if (subscription.needsPaymentSetup && !isPaymentCallback && !subscription.isAdminGrant && onboardingCompleted) {
     return <Navigate to="/pricing?setup=1" replace />;
   }
 
@@ -483,7 +489,8 @@ export default function Dashboard() {
         <meta name="robots" content="noindex, nofollow" />
       </Helmet>
 
-      {!activity.loading && activity.logs.length === 0 && activeProtocols.length === 0 && subscription.isProOrTrial && <OnboardingModal />}
+      {/* Fix 3: Admin accounts skip onboarding; Fix 1: show onboarding for new trial users before pricing redirect */}
+      {!activity.loading && activity.logs.length === 0 && activeProtocols.length === 0 && subscription.isProOrTrial && !subscription.isAdminGrant && <OnboardingModal />}
       {showOnboarding && <OnboardingModal forceOpen onClose={() => setShowOnboarding(false)} />}
 
       {/* Expired / never-subscribed banner — read-only mode */}
