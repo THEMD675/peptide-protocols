@@ -37,7 +37,7 @@ export default function AgeGate() {
       aria-labelledby="age-gate-title"
       className="fixed inset-0 z-[9999] flex items-end sm:items-center justify-center bg-stone-900/60 backdrop-blur-sm p-0 sm:p-4 animate-fade-in"
     >
-      <div className="w-full sm:max-w-lg rounded-t-2xl sm:rounded-2xl bg-white dark:bg-stone-950 p-6 sm:p-8 text-center shadow-2xl animate-slide-up">
+      <div className="w-full sm:max-w-lg rounded-t-2xl sm:rounded-2xl bg-white dark:bg-stone-900 p-6 sm:p-8 text-center shadow-2xl animate-slide-up">
         <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-emerald-100 dark:bg-emerald-900/30">
           <Shield className="h-6 w-6 text-emerald-700" aria-hidden="true" />
         </div>

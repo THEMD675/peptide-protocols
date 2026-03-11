@@ -47,7 +47,7 @@ export default function FeatureComparisonTable() {
         اختر الخطة المناسبة لاحتياجاتك — وابدأ بتجربة مجانية
       </p>
 
-      <div className="overflow-x-auto rounded-2xl border border-stone-200 dark:border-stone-600/60 bg-white dark:bg-stone-950 shadow-lg dark:shadow-stone-900/40">
+      <div className="overflow-x-auto rounded-2xl border border-stone-200 dark:border-stone-600/60 bg-white dark:bg-stone-900 shadow-lg dark:shadow-stone-900/40">
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-stone-200 dark:border-stone-600 bg-stone-50 dark:bg-stone-900">
@@ -74,7 +74,7 @@ export default function FeatureComparisonTable() {
                 key={row.feature}
                 className={cn(
                   'border-b border-stone-100 dark:border-stone-800 last:border-b-0 transition-colors',
-                  i % 2 === 0 ? 'bg-white dark:bg-stone-950' : 'bg-stone-50/50 dark:bg-stone-900/30'
+                  i % 2 === 0 ? 'bg-white dark:bg-stone-900' : 'bg-stone-50/50 dark:bg-stone-900/30'
                 )}
               >
                 <td className="px-5 py-3.5 font-medium text-stone-800 dark:text-stone-200">{row.feature}</td>

@@ -291,7 +291,7 @@ export default function App() {
     <BrowserRouter>
       <AuthProvider>
         <ErrorBoundary>
-          <div className="min-h-screen flex flex-col bg-white dark:bg-stone-950 text-stone-900 dark:text-stone-100 overflow-x-hidden">
+          <div className="min-h-screen flex flex-col bg-white dark:bg-stone-900 text-stone-900 dark:text-stone-100 overflow-x-hidden">
           <a href="#main-content" className="skip-link">تخطي إلى المحتوى الرئيسي</a>
           <OfflineBanner />
           <LazyFallback><Suspense fallback={null}><PaymentProcessing /></Suspense></LazyFallback>

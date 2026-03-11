@@ -402,22 +402,22 @@ export default function Account() {
         {/* Usage Stats Dashboard */}
         {usageStats && (
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-            <div className="rounded-2xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950 p-4 text-center shadow-sm">
+            <div className="rounded-2xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 p-4 text-center shadow-sm">
               <Syringe className="mx-auto mb-1 h-5 w-5 text-emerald-700" />
               <p className="text-2xl font-black text-stone-900 dark:text-stone-100">{usageStats.injections}</p>
               <p className="text-xs text-stone-500 dark:text-stone-300">حقنة مسجلة</p>
             </div>
-            <div className="rounded-2xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950 p-4 text-center shadow-sm">
+            <div className="rounded-2xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 p-4 text-center shadow-sm">
               <Calendar className="mx-auto mb-1 h-5 w-5 text-blue-500" />
               <p className="text-2xl font-black text-stone-900 dark:text-stone-100">{usageStats.protocols}</p>
               <p className="text-xs text-stone-500 dark:text-stone-300">بروتوكول نشط</p>
             </div>
-            <div className="rounded-2xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950 p-4 text-center shadow-sm">
+            <div className="rounded-2xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 p-4 text-center shadow-sm">
               <Bot className="mx-auto mb-1 h-5 w-5 text-purple-500" />
               <p className="text-2xl font-black text-stone-900 dark:text-stone-100">{usageStats.coachMessages}</p>
               <p className="text-xs text-stone-500 dark:text-stone-300">رسالة مع المدرب</p>
             </div>
-            <div className="rounded-2xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950 p-4 text-center shadow-sm">
+            <div className="rounded-2xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 p-4 text-center shadow-sm">
               <BarChart3 className="mx-auto mb-1 h-5 w-5 text-orange-500" />
               <p className="text-sm font-bold text-stone-900 dark:text-stone-100 mt-1">{usageStats.memberSince || '—'}</p>
               <p className="text-xs text-stone-500 dark:text-stone-300">عضو منذ</p>
@@ -492,7 +492,7 @@ export default function Account() {
                   onChange={(e) => setProfileDisplayName(e.target.value)}
                   placeholder="اسمك أو لقبك"
                   maxLength={100}
-                  className="w-full rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950 px-4 py-3 text-base text-stone-900 dark:text-stone-100 placeholder:text-stone-500 dark:text-stone-300 focus:border-emerald-300 dark:border-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900"
+                  className="w-full rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 px-4 py-3 text-base text-stone-900 dark:text-stone-100 placeholder:text-stone-500 dark:text-stone-300 focus:border-emerald-300 dark:border-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900"
                 />
               </div>
               <div>
@@ -508,7 +508,7 @@ export default function Account() {
                   onChange={(e) => setProfileWeight(e.target.value)}
                   placeholder="مثال: 75"
                   dir="ltr"
-                  className="w-full rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950 px-4 py-3 text-base text-stone-900 dark:text-stone-100 placeholder:text-stone-500 dark:text-stone-300 focus:border-emerald-300 dark:border-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900"
+                  className="w-full rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 px-4 py-3 text-base text-stone-900 dark:text-stone-100 placeholder:text-stone-500 dark:text-stone-300 focus:border-emerald-300 dark:border-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900"
                 />
               </div>
               <div>
@@ -523,7 +523,7 @@ export default function Account() {
                         'rounded-full px-4 py-2 text-xs font-bold transition-colors',
                         profileGoals.includes(g.id)
                           ? 'bg-emerald-600 text-white'
-                          : 'border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950 text-stone-600 dark:text-stone-300 hover:border-emerald-300 dark:border-emerald-700 hover:bg-emerald-50 dark:bg-emerald-900/20',
+                          : 'border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 text-stone-600 dark:text-stone-300 hover:border-emerald-300 dark:border-emerald-700 hover:bg-emerald-50 dark:bg-emerald-900/20',
                       )}
                     >
                       {g.label}
@@ -560,7 +560,7 @@ export default function Account() {
                 placeholder="name@example.com"
                 dir="ltr"
                 autoComplete="email"
-                className="w-full rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950 px-4 py-3 text-left text-base text-stone-900 dark:text-stone-100 placeholder:text-stone-500 dark:text-stone-300 focus:border-emerald-300 dark:border-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900"
+                className="w-full rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 px-4 py-3 text-left text-base text-stone-900 dark:text-stone-100 placeholder:text-stone-500 dark:text-stone-300 focus:border-emerald-300 dark:border-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900"
               />
             </div>
             <button
@@ -591,7 +591,7 @@ export default function Account() {
                 placeholder="كلمة المرور الحالية"
                 dir="ltr"
                 autoComplete="current-password"
-                className="w-full rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950 px-4 py-3 text-left text-base text-stone-900 dark:text-stone-100 placeholder:text-stone-500 dark:text-stone-300 focus:outline-none focus:border-emerald-300 dark:border-emerald-700 focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900"
+                className="w-full rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 px-4 py-3 text-left text-base text-stone-900 dark:text-stone-100 placeholder:text-stone-500 dark:text-stone-300 focus:outline-none focus:border-emerald-300 dark:border-emerald-700 focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900"
               />
             </div>
             <div>
@@ -605,7 +605,7 @@ export default function Account() {
                 dir="ltr"
                 minLength={8}
                 autoComplete="new-password"
-                className="w-full rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950 px-4 py-3 text-left text-base text-stone-900 dark:text-stone-100 placeholder:text-stone-500 dark:text-stone-300 focus:outline-none focus:border-emerald-300 dark:border-emerald-700 focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900"
+                className="w-full rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 px-4 py-3 text-left text-base text-stone-900 dark:text-stone-100 placeholder:text-stone-500 dark:text-stone-300 focus:outline-none focus:border-emerald-300 dark:border-emerald-700 focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900"
               />
             </div>
             <button
@@ -717,7 +717,7 @@ export default function Account() {
                     toast.success('تم إرسال طلب الاسترداد — سنتواصل معك قريبًا');
                   } catch { toast.error('تعذّر إرسال طلب الاسترداد. حاول مرة أخرى.'); }
                 }}
-                className="mt-3 flex w-full items-center justify-center gap-2 rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950 px-6 py-3 text-sm font-bold text-stone-700 dark:text-stone-200 transition-all hover:bg-stone-50 dark:hover:bg-stone-800"
+                className="mt-3 flex w-full items-center justify-center gap-2 rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 px-6 py-3 text-sm font-bold text-stone-700 dark:text-stone-200 transition-all hover:bg-stone-50 dark:hover:bg-stone-800"
               >
                 طلب استرداد
               </button>
@@ -766,7 +766,7 @@ export default function Account() {
         <EnquiryForm userEmail={user?.email} userId={user?.id} />
 
         {/* Data Export — GDPR Compliance */}
-        <div className="rounded-2xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950 p-6">
+        <div className="rounded-2xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 p-6">
           <div className="flex items-center gap-3 mb-3">
             <Download className="h-5 w-5 text-emerald-700" />
             <h2 className="text-lg font-bold text-stone-900 dark:text-stone-100">تصدير بياناتي</h2>
@@ -801,7 +801,7 @@ export default function Account() {
             ) : (
               <button
                 onClick={() => { setShowCancelDialog(true); setCancelStep('survey'); setCancelReason(''); }}
-                className="flex w-full items-center justify-center gap-2 rounded-xl border border-stone-300 dark:border-stone-600 bg-white dark:bg-stone-950 px-6 py-3 text-sm font-bold text-stone-700 dark:text-stone-200 transition-all hover:bg-stone-50 dark:hover:bg-stone-800"
+                className="flex w-full items-center justify-center gap-2 rounded-xl border border-stone-300 dark:border-stone-600 bg-white dark:bg-stone-900 px-6 py-3 text-sm font-bold text-stone-700 dark:text-stone-200 transition-all hover:bg-stone-50 dark:hover:bg-stone-800"
               >
                 <LogOut className="h-4 w-4" />
                 {subscription.isTrial ? 'إلغاء التجربة' : 'إلغاء الاشتراك'}
@@ -810,7 +810,7 @@ export default function Account() {
           )}
           <button
             onClick={() => setShowDeleteDialog(true)}
-            className="flex w-full items-center justify-center gap-2 rounded-xl border border-red-200 dark:border-red-800 bg-white dark:bg-stone-950 px-6 py-3 text-sm font-bold text-red-600 dark:text-red-400 transition-all hover:bg-red-50 dark:bg-red-900/20"
+            className="flex w-full items-center justify-center gap-2 rounded-xl border border-red-200 dark:border-red-800 bg-white dark:bg-stone-900 px-6 py-3 text-sm font-bold text-red-600 dark:text-red-400 transition-all hover:bg-red-50 dark:bg-red-900/20"
           >
             <Trash2 className="h-4 w-4" />
             حذف الحساب
@@ -822,7 +822,7 @@ export default function Account() {
       {showCancelDialog && cancelStep === 'survey' && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm px-4 animate-fade-in" onClick={() => { setShowCancelDialog(false); setCancelStep(null); }}>
           <FocusTrap focusTrapOptions={{ allowOutsideClick: true }}>
-          <div role="dialog" aria-modal="true" className="w-full max-w-md max-h-[90vh] overflow-y-auto rounded-2xl bg-white dark:bg-stone-950 p-6 shadow-xl dark:shadow-stone-900/40" onClick={e => e.stopPropagation()}>
+          <div role="dialog" aria-modal="true" className="w-full max-w-md max-h-[90vh] overflow-y-auto rounded-2xl bg-white dark:bg-stone-900 p-6 shadow-xl dark:shadow-stone-900/40" onClick={e => e.stopPropagation()}>
             <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-amber-100 dark:bg-amber-900/30">
               <AlertTriangle className="h-6 w-6 text-amber-600" />
             </div>
@@ -850,7 +850,7 @@ export default function Account() {
                     'flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2',
                     cancelReason === opt.id ? 'border-emerald-500 bg-emerald-500' : 'border-stone-300 dark:border-stone-600',
                   )}>
-                    {cancelReason === opt.id && <span className="h-2 w-2 rounded-full bg-white dark:bg-stone-950" />}
+                    {cancelReason === opt.id && <span className="h-2 w-2 rounded-full bg-white dark:bg-stone-900" />}
                   </span>
                   {opt.label}
                 </button>
@@ -892,7 +892,7 @@ export default function Account() {
       {showCancelDialog && cancelStep === 'retention' && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm px-4 animate-fade-in" onClick={() => { setShowCancelDialog(false); setCancelStep(null); }}>
           <FocusTrap focusTrapOptions={{ allowOutsideClick: true }}>
-          <div role="dialog" aria-modal="true" className="w-full max-w-md max-h-[90vh] overflow-y-auto rounded-2xl bg-white dark:bg-stone-950 p-6 shadow-xl dark:shadow-stone-900/40" onClick={e => e.stopPropagation()}>
+          <div role="dialog" aria-modal="true" className="w-full max-w-md max-h-[90vh] overflow-y-auto rounded-2xl bg-white dark:bg-stone-900 p-6 shadow-xl dark:shadow-stone-900/40" onClick={e => e.stopPropagation()}>
             <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-amber-100 dark:bg-amber-900/30">
               <AlertTriangle className="h-6 w-6 text-amber-600" />
             </div>
@@ -979,7 +979,7 @@ export default function Account() {
       {showDeleteDialog && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm px-4 animate-fade-in" onClick={closeDialogs}>
           <FocusTrap focusTrapOptions={{ allowOutsideClick: true }}>
-          <div role="dialog" aria-modal="true" className="w-full max-w-md max-h-[90vh] overflow-y-auto rounded-2xl bg-white dark:bg-stone-950 p-6 shadow-xl dark:shadow-stone-900/40" onClick={e => e.stopPropagation()}>
+          <div role="dialog" aria-modal="true" className="w-full max-w-md max-h-[90vh] overflow-y-auto rounded-2xl bg-white dark:bg-stone-900 p-6 shadow-xl dark:shadow-stone-900/40" onClick={e => e.stopPropagation()}>
             <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-red-100">
               <Trash2 className="h-6 w-6 text-red-600 dark:text-red-400" />
             </div>
@@ -1110,7 +1110,7 @@ function ReferralSection({ userId }: { userId?: string }) {
   };
 
   if (loading) return (
-    <div className="rounded-2xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950 p-6 animate-pulse">
+    <div className="rounded-2xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 p-6 animate-pulse">
       <div className="h-5 w-32 bg-stone-200 dark:bg-stone-700 rounded mb-3" />
       <div className="h-3 w-48 bg-stone-100 dark:bg-stone-800 rounded mb-4" />
       <div className="h-10 w-full bg-stone-100 dark:bg-stone-800 rounded-xl mb-3" />
@@ -1127,7 +1127,7 @@ function ReferralSection({ userId }: { userId?: string }) {
       <p className="text-sm text-stone-600 dark:text-stone-300 mb-4">شارك رابط الإحالة — عندما يشترك صديقك، تحصل على كود خصم ١٠٠٪ لشهر كامل!</p>
 
       <div className="flex items-center gap-2 mb-4">
-        <div className="flex-1 rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950 px-4 py-3 text-sm font-mono text-stone-700 dark:text-stone-200 truncate" dir="ltr">
+        <div className="flex-1 rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 px-4 py-3 text-sm font-mono text-stone-700 dark:text-stone-200 truncate" dir="ltr">
           {shareUrl}
         </div>
         <button onClick={handleCopy} className="shrink-0 rounded-xl border border-emerald-300 dark:border-emerald-700 bg-emerald-50 dark:bg-emerald-900/20 p-3 text-emerald-700 transition-colors hover:bg-emerald-100 dark:bg-emerald-900/30">
@@ -1151,7 +1151,7 @@ function ReferralSection({ userId }: { userId?: string }) {
               try { await navigator.share({ title: 'pptides — دليل الببتيدات', text: shareText, url: shareUrl }); } catch { /* cancelled */ }
             } else { handleCopy(); }
           }}
-          className="flex-1 flex items-center justify-center gap-2 rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950 px-4 py-2.5 text-sm font-bold text-stone-700 dark:text-stone-200 transition-colors hover:bg-stone-50 dark:hover:bg-stone-800"
+          className="flex-1 flex items-center justify-center gap-2 rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 px-4 py-2.5 text-sm font-bold text-stone-700 dark:text-stone-200 transition-colors hover:bg-stone-50 dark:hover:bg-stone-800"
         >
           <Share2 className="h-4 w-4" />
           مشاركة
@@ -1166,12 +1166,12 @@ function ReferralSection({ userId }: { userId?: string }) {
           <div className="space-y-2">
             {rewardCodes.map((rc) => (
               <div key={rc} className="flex items-center gap-2">
-                <div className="flex-1 rounded-lg border border-emerald-200 dark:border-emerald-800 bg-white dark:bg-stone-950 px-3 py-2 text-sm font-mono font-bold text-emerald-700 dark:text-emerald-400" dir="ltr">
+                <div className="flex-1 rounded-lg border border-emerald-200 dark:border-emerald-800 bg-white dark:bg-stone-900 px-3 py-2 text-sm font-mono font-bold text-emerald-700 dark:text-emerald-400" dir="ltr">
                   {rc}
                 </div>
                 <button
                   onClick={() => handleCopyReward(rc)}
-                  className="shrink-0 rounded-lg border border-emerald-300 dark:border-emerald-700 bg-white dark:bg-stone-950 p-2 text-emerald-700 transition-colors hover:bg-emerald-50 dark:bg-emerald-900/20"
+                  className="shrink-0 rounded-lg border border-emerald-300 dark:border-emerald-700 bg-white dark:bg-stone-900 p-2 text-emerald-700 transition-colors hover:bg-emerald-50 dark:bg-emerald-900/20"
                 >
                   {copiedReward === rc ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
                 </button>
@@ -1211,7 +1211,7 @@ function SavedPeptides() {
 
   if (isLoading) {
     return (
-      <div className="rounded-2xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950 p-6">
+      <div className="rounded-2xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 p-6">
         <div className="flex items-center gap-3 mb-4">
           <Heart className="h-5 w-5 text-emerald-700" />
           <h2 className="text-lg font-bold text-stone-900 dark:text-stone-100">الببتيدات المحفوظة</h2>
@@ -1226,7 +1226,7 @@ function SavedPeptides() {
   }
 
   return (
-    <div className="rounded-2xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950 p-6">
+    <div className="rounded-2xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 p-6">
       <div className="flex items-center gap-3 mb-4">
         <Heart className="h-5 w-5 text-emerald-700" />
         <h2 className="text-lg font-bold text-stone-900 dark:text-stone-100">الببتيدات المحفوظة</h2>
@@ -1335,7 +1335,7 @@ function EnquiryForm({ userEmail, userId }: { userEmail?: string; userId?: strin
   };
 
   return (
-    <div className="rounded-2xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950 p-6">
+    <div className="rounded-2xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 p-6">
       <div className="flex items-center gap-3 mb-1">
         <MessageSquare className="h-5 w-5 text-emerald-700" />
         <h2 className="text-lg font-bold text-stone-900 dark:text-stone-100">استفسار خاص</h2>
@@ -1360,7 +1360,7 @@ function EnquiryForm({ userEmail, userId }: { userEmail?: string; userId?: strin
               placeholder="مثال: BPC-157"
               dir="ltr"
               maxLength={100}
-              className="w-full rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950 px-4 py-2.5 text-sm text-stone-900 dark:text-stone-100 placeholder:text-stone-500 dark:text-stone-300 outline-none focus:border-emerald-300 dark:border-emerald-700 focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900"
+              className="w-full rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 px-4 py-2.5 text-sm text-stone-900 dark:text-stone-100 placeholder:text-stone-500 dark:text-stone-300 outline-none focus:border-emerald-300 dark:border-emerald-700 focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900"
             />
           </div>
           <div>
@@ -1372,7 +1372,7 @@ function EnquiryForm({ userEmail, userId }: { userEmail?: string; userId?: strin
               onChange={e => setSubject(e.target.value)}
               placeholder="جرعة، تعارض، بروتوكول..."
               maxLength={200}
-              className="w-full rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950 px-4 py-2.5 text-sm text-stone-900 dark:text-stone-100 placeholder:text-stone-500 dark:text-stone-300 outline-none focus:border-emerald-300 dark:border-emerald-700 focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900"
+              className="w-full rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 px-4 py-2.5 text-sm text-stone-900 dark:text-stone-100 placeholder:text-stone-500 dark:text-stone-300 outline-none focus:border-emerald-300 dark:border-emerald-700 focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900"
             />
           </div>
           <div>
@@ -1385,7 +1385,7 @@ function EnquiryForm({ userEmail, userId }: { userEmail?: string; userId?: strin
               rows={4}
               maxLength={2000}
               required
-              className="w-full rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950 px-4 py-2.5 text-sm text-stone-900 dark:text-stone-100 placeholder:text-stone-500 dark:text-stone-300 outline-none resize-none focus:border-emerald-300 dark:border-emerald-700 focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900"
+              className="w-full rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 px-4 py-2.5 text-sm text-stone-900 dark:text-stone-100 placeholder:text-stone-500 dark:text-stone-300 outline-none resize-none focus:border-emerald-300 dark:border-emerald-700 focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900"
             />
             <p className="text-[10px] text-stone-500 dark:text-stone-300 mt-1 text-left" dir="ltr">{message.length}/2000</p>
           </div>

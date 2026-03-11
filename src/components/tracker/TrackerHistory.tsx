@@ -306,7 +306,7 @@ export default function TrackerHistory({
           <h2 className="text-xl font-bold text-stone-900 dark:text-stone-100">السجل</h2>
           {logs.length > 0 && (
             <div className="flex gap-2">
-              <button onClick={exportCSV} className="flex items-center gap-1.5 rounded-lg border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950 px-3 py-1.5 min-h-[44px] text-xs font-bold text-stone-600 dark:text-stone-300 transition-all hover:border-emerald-300 hover:text-emerald-700">
+              <button onClick={exportCSV} className="flex items-center gap-1.5 rounded-lg border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 px-3 py-1.5 min-h-[44px] text-xs font-bold text-stone-600 dark:text-stone-300 transition-all hover:border-emerald-300 hover:text-emerald-700">
                 <Download className="h-3.5 w-3.5" />
                 CSV
               </button>
@@ -384,7 +384,7 @@ export default function TrackerHistory({
               return (
                 <div
                   key={log.id}
-                  className={cn('rounded-2xl border border-s-4 p-5 shadow-sm dark:shadow-stone-900/30 transition-all hover:shadow-md', colorClass, isToday ? 'border-t-emerald-300 border-e-emerald-300 border-b-emerald-300 dark:border-t-emerald-700 dark:border-e-emerald-700 dark:border-b-emerald-700 bg-emerald-50/30' : 'border-t-stone-200 border-e-stone-200 border-b-stone-200 dark:border-t-stone-700 dark:border-e-stone-700 dark:border-b-stone-700 bg-white dark:bg-stone-950')}
+                  className={cn('rounded-2xl border border-s-4 p-5 shadow-sm dark:shadow-stone-900/30 transition-all hover:shadow-md', colorClass, isToday ? 'border-t-emerald-300 border-e-emerald-300 border-b-emerald-300 dark:border-t-emerald-700 dark:border-e-emerald-700 dark:border-b-emerald-700 bg-emerald-50/30' : 'border-t-stone-200 border-e-stone-200 border-b-stone-200 dark:border-t-stone-700 dark:border-e-stone-700 dark:border-b-stone-700 bg-white dark:bg-stone-900')}
                 >
                   {isEditing ? (
                     <div className="space-y-3">
@@ -392,11 +392,11 @@ export default function TrackerHistory({
                       <div className="flex gap-2">
                         <div className="flex-1">
                           <label className="text-xs text-stone-500 dark:text-stone-300 mb-1 block">الجرعة</label>
-                          <input type="number" inputMode="decimal" value={editDose} onChange={e => setEditDose(e.target.value)} dir="ltr" min="0" step="any" className="w-full rounded-lg border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950 px-3 py-2 text-base text-stone-900 dark:text-stone-100 focus:border-emerald-300 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900" />
+                          <input type="number" inputMode="decimal" value={editDose} onChange={e => setEditDose(e.target.value)} dir="ltr" min="0" step="any" className="w-full rounded-lg border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 px-3 py-2 text-base text-stone-900 dark:text-stone-100 focus:border-emerald-300 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900" />
                         </div>
                         <div className="w-20">
                           <label className="text-xs text-stone-500 dark:text-stone-300 mb-1 block">الوحدة</label>
-                          <select value={editUnit} onChange={e => setEditUnit(e.target.value)} className="w-full rounded-lg border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950 px-2 py-2 text-base text-stone-900 dark:text-stone-100 focus:border-emerald-300 focus:outline-none">
+                          <select value={editUnit} onChange={e => setEditUnit(e.target.value)} className="w-full rounded-lg border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 px-2 py-2 text-base text-stone-900 dark:text-stone-100 focus:border-emerald-300 focus:outline-none">
                             <option value="mcg">mcg</option>
                             <option value="mg">mg</option>
                           </select>
@@ -404,13 +404,13 @@ export default function TrackerHistory({
                       </div>
                       <div>
                         <label className="text-xs text-stone-500 dark:text-stone-300 mb-1 block">الموقع</label>
-                        <select value={editSite} onChange={e => setEditSite(e.target.value)} className="w-full rounded-lg border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950 px-3 py-2 text-base text-stone-900 dark:text-stone-100 focus:border-emerald-300 focus:outline-none">
+                        <select value={editSite} onChange={e => setEditSite(e.target.value)} className="w-full rounded-lg border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 px-3 py-2 text-base text-stone-900 dark:text-stone-100 focus:border-emerald-300 focus:outline-none">
                           {INJECTION_SITES.map(s => <option key={s.value} value={s.value}>{s.label}</option>)}
                         </select>
                       </div>
                       <div>
                         <label className="text-xs text-stone-500 dark:text-stone-300 mb-1 block">التاريخ والوقت</label>
-                        <input type="datetime-local" value={editDate} onChange={e => setEditDate(e.target.value)} dir="ltr" className="w-full rounded-lg border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950 px-3 py-2 text-base text-stone-900 dark:text-stone-100 focus:border-emerald-300 focus:outline-none" />
+                        <input type="datetime-local" value={editDate} onChange={e => setEditDate(e.target.value)} dir="ltr" className="w-full rounded-lg border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 px-3 py-2 text-base text-stone-900 dark:text-stone-100 focus:border-emerald-300 focus:outline-none" />
                       </div>
                       <div className="flex gap-2">
                         <button onClick={() => saveEdit(log.id)} disabled={editSaving} className="flex-1 flex items-center justify-center gap-1.5 rounded-lg bg-emerald-600 px-4 py-2.5 min-h-[44px] text-sm font-bold text-white transition-colors hover:bg-emerald-700 disabled:opacity-50">
@@ -506,7 +506,7 @@ export default function TrackerHistory({
               <button
                 onClick={fetchMore}
                 disabled={isLoadingMore}
-                className="flex w-full items-center justify-center gap-2 rounded-2xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950 py-4 text-sm font-bold text-stone-600 dark:text-stone-300 transition-all hover:border-emerald-300 dark:border-emerald-700 hover:text-emerald-700 dark:text-emerald-400 disabled:opacity-50"
+                className="flex w-full items-center justify-center gap-2 rounded-2xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 py-4 text-sm font-bold text-stone-600 dark:text-stone-300 transition-all hover:border-emerald-300 dark:border-emerald-700 hover:text-emerald-700 dark:text-emerald-400 disabled:opacity-50"
               >
                 {isLoadingMore ? (
                   <span className="flex items-center justify-center gap-2" role="status" aria-label="جارٍ تحميل السجلات">
@@ -526,7 +526,7 @@ export default function TrackerHistory({
       {confirmDialog && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4 animate-fade-in" onClick={() => setConfirmDialog(null)}>
           <FocusTrap focusTrapOptions={{ allowOutsideClick: true }}>
-            <div role="dialog" aria-modal="true" aria-label="تأكيد الحذف" className="w-full max-w-sm rounded-2xl bg-white dark:bg-stone-950 p-6 shadow-2xl" onClick={e => e.stopPropagation()}>
+            <div role="dialog" aria-modal="true" aria-label="تأكيد الحذف" className="w-full max-w-sm rounded-2xl bg-white dark:bg-stone-900 p-6 shadow-2xl" onClick={e => e.stopPropagation()}>
               <h3 className="text-lg font-bold text-stone-900 dark:text-stone-100 mb-2">{confirmDialog.title}</h3>
               <p className="text-sm text-stone-600 dark:text-stone-300 mb-6">{confirmDialog.message}</p>
               <div className="flex gap-3">

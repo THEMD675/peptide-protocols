@@ -153,7 +153,7 @@ export default function SideEffectLog() {
   const activePeptideOptions = allPeptides.filter(p => activePeptideIds.has(p.id));
 
   return (
-    <div className="rounded-2xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950 shadow-sm dark:shadow-stone-900/30">
+    <div className="rounded-2xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 shadow-sm dark:shadow-stone-900/30">
       <button
         onClick={() => setIsOpen(prev => !prev)}
         className="flex w-full items-center justify-between p-5 text-start"
@@ -187,7 +187,7 @@ export default function SideEffectLog() {
                 onChange={e => setSymptom(e.target.value)}
                 placeholder="مثال: صداع، غثيان، احمرار..."
                 maxLength={100}
-                className="w-full rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950 px-4 py-2.5 text-base text-stone-900 dark:text-stone-100 placeholder:text-stone-500 dark:text-stone-300 focus:border-emerald-300 dark:border-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900"
+                className="w-full rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 px-4 py-2.5 text-base text-stone-900 dark:text-stone-100 placeholder:text-stone-500 dark:text-stone-300 focus:border-emerald-300 dark:border-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900"
               />
             </div>
 
@@ -203,7 +203,7 @@ export default function SideEffectLog() {
                       'flex-1 rounded-lg border py-2 min-h-[44px] text-xs font-bold transition-all btn-press',
                       severity === level
                         ? SEVERITY_COLORS[level - 1]
-                        : 'border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950 text-stone-500 dark:text-stone-300 hover:border-stone-300 dark:border-stone-600',
+                        : 'border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 text-stone-500 dark:text-stone-300 hover:border-stone-300 dark:border-stone-600',
                     )}
                   >
                     {SEVERITY_LABELS[level - 1]}
@@ -221,7 +221,7 @@ export default function SideEffectLog() {
                   value={peptideId}
                   onChange={e => setPeptideId(e.target.value)}
                   aria-label="اختر الببتيد"
-                  className="w-full rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950 px-4 py-2.5 text-base text-stone-900 dark:text-stone-100 focus:border-emerald-300 dark:border-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900"
+                  className="w-full rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 px-4 py-2.5 text-base text-stone-900 dark:text-stone-100 focus:border-emerald-300 dark:border-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900"
                 >
                   <option value="">غير محدد</option>
                   {activePeptideOptions.map(p => (
@@ -244,7 +244,7 @@ export default function SideEffectLog() {
                 placeholder="تفاصيل إضافية..."
                 rows={2}
                 maxLength={200}
-                className="w-full resize-none rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950 px-4 py-2.5 text-base text-stone-900 dark:text-stone-100 placeholder:text-stone-500 dark:text-stone-300 focus:border-emerald-300 dark:border-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900"
+                className="w-full resize-none rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 px-4 py-2.5 text-base text-stone-900 dark:text-stone-100 placeholder:text-stone-500 dark:text-stone-300 focus:border-emerald-300 dark:border-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900"
               />
             </div>
 

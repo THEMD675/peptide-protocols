@@ -69,7 +69,7 @@ function PeptideSelector({
           'flex w-full items-center justify-between gap-2 rounded-xl border px-4 py-3 text-sm transition-colors',
           value
             ? 'border-emerald-300 dark:border-emerald-700 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-800 dark:text-emerald-300 font-bold'
-            : 'border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950 text-stone-500 dark:text-stone-300',
+            : 'border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 text-stone-500 dark:text-stone-300',
         )}
       >
         <span className="truncate">{selected ? `${selected.nameAr} — ${selected.nameEn}` : 'اختر ببتيدًا...'}</span>
@@ -88,7 +88,7 @@ function PeptideSelector({
       </button>
 
       {open && (
-        <div className="absolute inset-x-0 top-full z-30 mt-1 max-h-64 overflow-hidden rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950 shadow-xl dark:shadow-stone-900/40 animate-fade-in">
+        <div className="absolute inset-x-0 top-full z-30 mt-1 max-h-64 overflow-hidden rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 shadow-xl dark:shadow-stone-900/40 animate-fade-in">
           <div className="p-2">
             <input
               autoFocus
@@ -286,7 +286,7 @@ export default function Compare() {
                         isDiff
                           ? 'bg-amber-50/60 dark:bg-amber-900/10'
                           : i % 2 === 0
-                            ? 'bg-white dark:bg-stone-950'
+                            ? 'bg-white dark:bg-stone-900'
                             : 'bg-stone-50/50 dark:bg-stone-900/30',
                       )}
                     >
@@ -361,7 +361,7 @@ export default function Compare() {
             <Link
               key={`${p1}-${p2}`}
               to={`/compare?p1=${p1}&p2=${p2}`}
-              className="flex items-center gap-3 rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950 p-4 transition-all hover:border-emerald-300 dark:hover:border-emerald-700 hover:shadow-md hover:-translate-y-0.5"
+              className="flex items-center gap-3 rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 p-4 transition-all hover:border-emerald-300 dark:hover:border-emerald-700 hover:shadow-md hover:-translate-y-0.5"
             >
               <ArrowLeftRight className="h-5 w-5 shrink-0 text-emerald-700" />
               <span className="text-sm font-bold text-stone-800 dark:text-stone-200">{label}</span>

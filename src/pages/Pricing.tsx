@@ -169,7 +169,7 @@ export default function Pricing() {
             'hover:scale-[1.02] active:scale-[0.98]',
             isElite
               ? 'btn-primary-glow bg-emerald-600 text-white transition-colors hover:bg-emerald-700'
-              : 'border-2 border-stone-300 dark:border-stone-600 bg-white dark:bg-stone-950 text-stone-800 dark:text-stone-200 hover:border-emerald-200 dark:hover:border-emerald-700 transition-colors hover:text-emerald-700 dark:text-emerald-400',
+              : 'border-2 border-stone-300 dark:border-stone-600 bg-white dark:bg-stone-900 text-stone-800 dark:text-stone-200 hover:border-emerald-200 dark:hover:border-emerald-700 transition-colors hover:text-emerald-700 dark:text-emerald-400',
             isLoading && 'opacity-70 pointer-events-none'
           )}
         >
@@ -192,7 +192,7 @@ export default function Pricing() {
           'hover:scale-[1.02] active:scale-[0.98]',
           isElite
             ? 'btn-primary-glow bg-emerald-600 text-white transition-colors hover:bg-emerald-700'
-            : 'border-2 border-stone-300 dark:border-stone-600 bg-white dark:bg-stone-950 text-stone-800 dark:text-stone-200 hover:border-emerald-200 dark:hover:border-emerald-700 transition-colors hover:text-emerald-700 dark:text-emerald-400'
+            : 'border-2 border-stone-300 dark:border-stone-600 bg-white dark:bg-stone-900 text-stone-800 dark:text-stone-200 hover:border-emerald-200 dark:hover:border-emerald-700 transition-colors hover:text-emerald-700 dark:text-emerald-400'
         )}
       >
         سجّل الآن وجرّب مجانًا
@@ -295,16 +295,18 @@ export default function Pricing() {
 
         {/* Billing Toggle */}
         <div className="mt-8 flex items-center justify-center gap-4">
-          <span className={cn('text-sm font-semibold transition-colors', billingCycle === 'monthly' ? 'text-stone-900 dark:text-stone-100' : 'text-stone-500 dark:text-stone-300')}>شهري</span>
+          <span className={cn('text-sm font-semibold transition-colors duration-200', billingCycle === 'monthly' ? 'text-stone-900 dark:text-stone-100' : 'text-stone-500 dark:text-stone-300')}>شهري</span>
           <button
             onClick={() => setBillingCycle(billingCycle === 'monthly' ? 'annual' : 'monthly')}
-            className={cn('relative h-7 w-14 rounded-full transition-colors', billingCycle === 'annual' ? 'bg-emerald-600' : 'bg-stone-300 dark:bg-stone-600')}
+            className={cn('relative h-8 w-16 rounded-full transition-all duration-300 ease-in-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2', billingCycle === 'annual' ? 'bg-emerald-600 shadow-md shadow-emerald-500/30' : 'bg-stone-300 dark:bg-stone-600')}
             aria-label="تبديل بين شهري وسنوي"
+            aria-checked={billingCycle === 'annual'}
+            role="switch"
           >
-            <span className={cn('absolute top-0.5 h-6 w-6 rounded-full bg-white dark:bg-stone-950 shadow transition-all', billingCycle === 'annual' ? 'end-0.5' : 'start-0.5')} />
+            <span className={cn('billing-toggle-thumb absolute top-1 h-6 w-6 rounded-full bg-white shadow-md', billingCycle === 'annual' ? 'end-1' : 'start-1')} />
           </button>
-          <span className={cn('text-sm font-semibold transition-colors', billingCycle === 'annual' ? 'text-emerald-700' : 'text-stone-500 dark:text-stone-300')}>
-            سنوي <span className="text-xs text-emerald-700">(وفّر حتى 33%)</span>
+          <span className={cn('text-sm font-semibold transition-colors duration-200', billingCycle === 'annual' ? 'text-emerald-700' : 'text-stone-500 dark:text-stone-300')}>
+            سنوي <span className={cn('text-xs font-bold rounded-full px-2 py-0.5 transition-all duration-200', billingCycle === 'annual' ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400' : 'text-emerald-600')}>(وفّر حتى 33%)</span>
           </span>
         </div>
 
@@ -312,18 +314,18 @@ export default function Pricing() {
         <div className="grid gap-8 md:grid-cols-2">
           {/* Essentials */}
           <div
-            className="pricing-card relative flex flex-col rounded-2xl border-2 border-emerald-200 dark:border-emerald-800 bg-white dark:bg-stone-950 p-8 md:p-10"
+            className="pricing-card relative flex flex-col rounded-2xl border-2 border-emerald-200 dark:border-emerald-800 bg-white dark:bg-stone-900 p-8 shadow-lg md:p-10"
           >
-            <span className="absolute -top-3.5 end-6 rounded-full bg-emerald-600 px-5 py-1.5 text-sm font-bold text-white">
+            <span className="absolute -top-3.5 end-6 rounded-full bg-emerald-600 px-5 py-1.5 text-sm font-bold text-white shadow-md">
               الأكثر شعبية
             </span>
             <h2 className="mb-0.5 text-2xl font-bold text-stone-900 dark:text-stone-100">Essentials</h2>
             <p className="mb-1 text-sm font-medium text-emerald-700">الأساسية</p>
-            <p className="mb-6 text-stone-800 dark:text-stone-200">كل ما تحتاجه لتبدأ بثقة وبروتوكول واضح</p>
+            <p className="mb-6 text-stone-600 dark:text-stone-300">كل ما تحتاجه لتبدأ بثقة وبروتوكول واضح</p>
 
             <div className="mb-1">
-              <span className="text-3xl font-black text-stone-900 dark:text-stone-100 sm:text-5xl">{billingCycle === 'annual' ? PRICING.essentials.annualLabel : PRICING.essentials.label}</span>
-              <span className="text-lg text-stone-800 dark:text-stone-200"> /{billingCycle === 'annual' ? 'سنويًا' : 'شهريًا'}</span>
+              <span className="price-huge text-stone-900 dark:text-stone-100">{billingCycle === 'annual' ? PRICING.essentials.annualLabel : PRICING.essentials.label}</span>
+              <span className="text-lg text-stone-600 dark:text-stone-300"> /{billingCycle === 'annual' ? 'سنويًا' : 'شهريًا'}</span>
             </div>
             {billingCycle === 'monthly' && <p className="mb-1 text-xs font-bold text-emerald-700">~١.١ ر.س/يوم</p>}
             {billingCycle === 'monthly' && <p className="text-xs text-emerald-700 font-medium mt-1">سنوي: <span dir="ltr">{PRICING.essentials.annualLabel}</span>/سنة — وفّر 27%</p>}
@@ -348,7 +350,7 @@ export default function Pricing() {
 
           {/* Elite */}
           <div
-            className="pricing-card pricing-card-featured relative flex flex-col rounded-2xl border-2 border-emerald-200 dark:border-emerald-800 bg-white dark:bg-stone-950 p-8 shadow-xl shadow-emerald-600/5 md:p-10"
+            className="pricing-card pricing-card-featured relative flex flex-col rounded-2xl border-2 border-emerald-300 dark:border-emerald-700 bg-white dark:bg-stone-900 p-8 md:p-10"
             style={{ animation: 'pricing-elite-glow 3s ease-in-out infinite' }}
           >
             <span className="absolute -top-3.5 start-6 rounded-full bg-amber-500 px-4 py-1.5 text-sm font-bold text-white">
@@ -366,8 +368,8 @@ export default function Pricing() {
             <p className="mb-6 text-stone-800 dark:text-stone-200">مدربك الشخصي + بروتوكول مفصّل على حالتك</p>
 
             <div className="mb-1">
-              <span className="text-3xl font-black text-stone-900 dark:text-stone-100 sm:text-5xl">{billingCycle === 'annual' ? PRICING.elite.annualLabel : PRICING.elite.label}</span>
-              <span className="text-lg text-stone-800 dark:text-stone-200"> /{billingCycle === 'annual' ? 'سنويًا' : 'شهريًا'}</span>
+              <span className="price-huge text-stone-900 dark:text-stone-100">{billingCycle === 'annual' ? PRICING.elite.annualLabel : PRICING.elite.label}</span>
+              <span className="text-lg text-stone-600 dark:text-stone-300"> /{billingCycle === 'annual' ? 'سنويًا' : 'شهريًا'}</span>
             </div>
             {billingCycle === 'monthly' && <p className="mb-1 text-xs font-bold text-emerald-700">~١٢.٤ ر.س/يوم</p>}
             {billingCycle === 'monthly' && <p className="text-xs text-emerald-700 font-medium mt-1">سنوي: <span dir="ltr">{PRICING.elite.annualLabel}</span>/سنة — وفّر 33%</p>}
@@ -394,7 +396,7 @@ export default function Pricing() {
                   <div className="rounded-2xl rounded-bl-md bg-emerald-600 px-4 py-2 text-xs text-white">أفضل ببتيد للتعافي؟</div>
                 </div>
                 <div className="flex justify-start">
-                  <div className="rounded-2xl rounded-br-md border border-emerald-200 dark:border-emerald-800 bg-white dark:bg-stone-950 px-4 py-2 text-xs text-stone-800 dark:text-stone-200">أنصحك بـ BPC-157 — يُسرّع شفاء الأنسجة والأوتار. الجرعة: 250-500 mcg يوميًا...</div>
+                  <div className="rounded-2xl rounded-br-md border border-emerald-200 dark:border-emerald-800 bg-white dark:bg-stone-900 px-4 py-2 text-xs text-stone-800 dark:text-stone-200">أنصحك بـ BPC-157 — يُسرّع شفاء الأنسجة والأوتار. الجرعة: 250-500 mcg يوميًا...</div>
                 </div>
               </div>
             </div>
@@ -414,10 +416,10 @@ export default function Pricing() {
         {/* Feature Comparison Table */}
         <div className="mt-12">
           <h2 className="mb-6 text-center text-2xl font-bold text-stone-900 dark:text-stone-100">مقارنة الباقات</h2>
-          <div className="overflow-x-auto rounded-2xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950">
+          <div className="overflow-x-auto rounded-2xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-stone-200 dark:border-stone-600 bg-stone-50 dark:bg-stone-900">
+                <tr className="border-b border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-800/50">
                   <th className="px-5 py-3 text-start font-semibold text-stone-700 dark:text-stone-200">الميزة</th>
                   <th className="px-5 py-3 text-center font-semibold text-stone-700 dark:text-stone-200">Essentials<br /><span className="text-xs font-normal text-stone-500 dark:text-stone-300">الأساسية</span></th>
                   <th className="px-5 py-3 text-center font-semibold text-emerald-700 dark:text-emerald-400">Elite<br /><span className="text-xs font-normal text-emerald-500">المتقدّمة</span></th>
@@ -434,7 +436,7 @@ export default function Pricing() {
                   { feature: 'بروتوكولات مخصّصة', essentials: false, elite: true },
                   { feature: 'دعم مخصّص عبر البريد', essentials: false, elite: true },
                 ] as const).map((row, i) => (
-                  <tr key={i} className={cn('border-b border-stone-100 dark:border-stone-800 last:border-b-0', i % 2 === 0 ? 'bg-white dark:bg-stone-950' : 'bg-stone-50/50')}>
+                  <tr key={i} className={cn('border-b border-stone-100 dark:border-stone-800 last:border-b-0', i % 2 === 0 ? 'bg-white dark:bg-stone-900' : 'bg-stone-50/50')}>
                     <td className="px-5 py-3 font-medium text-stone-800 dark:text-stone-200">{row.feature}</td>
                     <td className="px-5 py-3 text-center">
                       {row.essentials
@@ -464,7 +466,7 @@ export default function Pricing() {
             {valueStack.map((item, i) => (
               <div
                 key={i}
-                className="flex items-center justify-between rounded-xl border border-stone-300 dark:border-stone-600/60 bg-white dark:bg-stone-950 px-6 py-4"
+                className="flex items-center justify-between rounded-xl border border-stone-300 dark:border-stone-600/60 bg-white dark:bg-stone-900 px-6 py-4"
               >
                 <div className="flex items-center gap-3">
                   <Check className="h-5 w-5 shrink-0 text-emerald-700" />
@@ -535,7 +537,7 @@ export default function Pricing() {
             { icon: CreditCard, text: 'نقبل Visa و Mastercard و Apple Pay' },
             { icon: RefreshCw, text: 'إلغاء فوري — بدون رسوم مخفية' },
           ].map(({ icon: Icon, text }) => (
-            <div key={text} className="flex flex-col items-center gap-2 rounded-xl border border-stone-300 dark:border-stone-600/60 bg-white dark:bg-stone-950 p-5 text-center">
+            <div key={text} className="flex flex-col items-center gap-2 rounded-xl border border-stone-300 dark:border-stone-600/60 bg-white dark:bg-stone-900 p-5 text-center">
               <Icon className="h-6 w-6 text-emerald-700" />
               <p className="text-sm font-semibold text-stone-800 dark:text-stone-200">{text}</p>
             </div>
@@ -544,7 +546,7 @@ export default function Pricing() {
 
         {/* Contact */}
         <div
-          className="mt-8 rounded-xl border border-stone-300 dark:border-stone-600/60 bg-white dark:bg-stone-950 p-6 text-center"
+          className="mt-8 rounded-xl border border-stone-300 dark:border-stone-600/60 bg-white dark:bg-stone-900 p-6 text-center"
         >
           <MessageCircle className="mx-auto mb-3 h-6 w-6 text-emerald-700" />
           <p className="text-sm font-semibold text-stone-800 dark:text-stone-200">
@@ -559,7 +561,7 @@ export default function Pricing() {
             لماذا <span className="text-emerald-700">pptides</span> وليس المصادر المجانية؟
           </h2>
           <div className="grid gap-4 md:grid-cols-3">
-            <div className="rounded-2xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950 p-6">
+            <div className="rounded-2xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 p-6">
               <h3 className="mb-4 text-lg font-bold text-stone-900 dark:text-stone-100">المصادر المجانية</h3>
               <p className="mb-3 text-xs font-medium text-stone-500 dark:text-stone-300">Reddit / YouTube</p>
               <ul className="space-y-2.5 text-sm text-stone-600 dark:text-stone-300">
@@ -578,7 +580,7 @@ export default function Pricing() {
               </ul>
             </div>
 
-            <div className="rounded-2xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950 p-6">
+            <div className="rounded-2xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 p-6">
               <h3 className="mb-4 text-lg font-bold text-stone-900 dark:text-stone-100">العيادات</h3>
               <p className="mb-3 text-xs font-medium text-stone-500 dark:text-stone-300">استشارات مباشرة</p>
               <ul className="space-y-2.5 text-sm text-stone-600 dark:text-stone-300">
@@ -625,7 +627,7 @@ export default function Pricing() {
           <h2 className="mb-8 text-center text-2xl font-bold text-stone-900 dark:text-stone-100">أسئلة شائعة</h2>
           <div className="space-y-3">
             {faqs.map((faq) => (
-              <details key={faq.q} className="group rounded-2xl border border-stone-300 dark:border-stone-600/60 bg-white dark:bg-stone-950 transition-all hover:border-stone-400 dark:hover:border-stone-600/60">
+              <details key={faq.q} className="group rounded-2xl border border-stone-300 dark:border-stone-600/60 bg-white dark:bg-stone-900 transition-all hover:border-stone-400 dark:hover:border-stone-600/60">
                 <summary className="flex cursor-pointer items-center justify-between p-5 text-sm font-semibold text-stone-800 dark:text-stone-200">
                   <span>{faq.q}</span>
                   <ChevronDown className="h-4 w-4 text-stone-800 dark:text-stone-200 transition-transform group-open:rotate-180" />

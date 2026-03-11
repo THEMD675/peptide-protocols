@@ -122,7 +122,7 @@ function Stat({ label, value, icon: I, sub, alert: a, trend }: {
   trend?: { dir: 'up' | 'down'; label: string };
 }) {
   return (
-    <div className={cn('rounded-xl border p-4', a ? 'border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-900/20' : 'border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950')}>
+    <div className={cn('rounded-xl border p-4', a ? 'border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-900/20' : 'border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900')}>
       <div className="flex items-center justify-between mb-2">
         <span className="text-xs font-medium text-stone-500 dark:text-stone-300">{label}</span>
         <I className={cn('h-4 w-4', a ? 'text-red-500 dark:text-red-400' : 'text-emerald-500')} />
@@ -148,7 +148,7 @@ function Modal({ open, title, children, onClose }: { open: boolean; title: strin
   const titleId = 'modal-title';
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" onClick={onClose}>
-      <div className="w-full max-w-md rounded-2xl bg-white dark:bg-stone-950 p-6 shadow-xl dark:shadow-stone-900/40" onClick={e => e.stopPropagation()} role="dialog" aria-modal="true" aria-labelledby={titleId}>
+      <div className="w-full max-w-md rounded-2xl bg-white dark:bg-stone-900 p-6 shadow-xl dark:shadow-stone-900/40" onClick={e => e.stopPropagation()} role="dialog" aria-modal="true" aria-labelledby={titleId}>
         <div className="flex items-center justify-between mb-4">
           <h3 id={titleId} className="text-lg font-bold text-stone-900 dark:text-stone-100">{title}</h3>
           <button onClick={onClose} className="rounded-lg p-1 hover:bg-stone-100 dark:hover:bg-stone-800"><X className="h-5 w-5 text-stone-500 dark:text-stone-300" /></button>
@@ -512,7 +512,7 @@ export default function Admin() {
       <Helmet><title>لوحة التحكم | pptides</title></Helmet>
 
       {/* ===================== HEADER ===================== */}
-      <div className="sticky top-[64px] md:top-[72px] z-30 bg-white dark:bg-stone-950 border-b border-stone-200 dark:border-stone-600 px-4 py-3">
+      <div className="sticky top-[64px] md:top-[72px] z-30 bg-white dark:bg-stone-900 border-b border-stone-200 dark:border-stone-600 px-4 py-3">
         <div className="max-w-6xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-3">
             <Link to="/dashboard" className="text-xs font-medium text-stone-500 dark:text-stone-300 hover:text-emerald-700 transition-colors shrink-0">← لوحة التحكم</Link>
@@ -608,7 +608,7 @@ export default function Admin() {
                 });
               }
               return (
-                <div className="rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950 p-4">
+                <div className="rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 p-4">
                   <h3 className="text-xs font-bold text-stone-700 dark:text-stone-200 mb-4 flex items-center gap-1.5" dir="rtl">
                     <TrendingUp className="h-3.5 w-3.5 text-emerald-500" /> التسجيلات — آخر 30 يوم
                   </h3>
@@ -653,7 +653,7 @@ export default function Admin() {
                 { name: 'متراجع', nameEn: 'Churned', value: o.expiredSubscriptions, color: '#ef4444' },
               ];
               return (
-                <div className="rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950 p-4">
+                <div className="rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 p-4">
                   <h3 className="text-xs font-bold text-stone-700 dark:text-stone-200 mb-4 flex items-center gap-1.5" dir="rtl">
                     <TrendingUp className="h-3.5 w-3.5 text-emerald-500" /> قمع التحويل
                   </h3>
@@ -689,7 +689,7 @@ export default function Admin() {
             })()}
 
             {/* ── Content Stats ── */}
-            <div className="rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950 p-4">
+            <div className="rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 p-4">
               <h3 className="text-xs font-bold text-stone-700 dark:text-stone-200 mb-4 flex items-center gap-1.5" dir="rtl">
                 <Activity className="h-3.5 w-3.5 text-violet-500" /> إحصائيات المحتوى
               </h3>
@@ -704,7 +704,7 @@ export default function Admin() {
             {/* Trials + Quick Actions */}
             <div className="grid md:grid-cols-2 gap-4">
               {/* Active Trials */}
-              <div className="rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950 p-4">
+              <div className="rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 p-4">
                 <h3 className="text-xs font-bold text-stone-700 dark:text-stone-200 mb-3 flex items-center gap-1.5" dir="rtl"><Clock className="h-3.5 w-3.5 text-blue-500" /> الفترات التجريبية النشطة</h3>
                 {stats.recentUsers.filter(u => u.subscription?.status === 'trial').length === 0 ? <p className="text-sm text-stone-500 dark:text-stone-300">لا توجد فترات تجريبية نشطة</p> :
                   stats.recentUsers.filter(u => u.subscription?.status === 'trial').map(u => {
@@ -722,7 +722,7 @@ export default function Admin() {
               </div>
 
               {/* Quick Actions */}
-              <div className="rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950 p-4">
+              <div className="rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 p-4">
                 <h3 className="text-xs font-bold text-stone-700 dark:text-stone-200 mb-3 flex items-center gap-1.5" dir="rtl"><Zap className="h-3.5 w-3.5 text-amber-500" /> إجراءات سريعة</h3>
                 <div className="space-y-2">
                   <button onClick={() => { setEmailSubject(''); setEmailBody(''); setBulkAudience('all'); setModal('bulk_email'); }} className="w-full flex items-center gap-2 rounded-lg border border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-900/20 px-3 py-2 text-xs font-medium text-emerald-700 dark:text-emerald-400 hover:bg-emerald-100 dark:hover:bg-emerald-900/30">
@@ -772,17 +772,17 @@ export default function Admin() {
                 <label className="flex items-center gap-2 text-sm text-stone-600 dark:text-stone-300">
                   <span>From</span>
                   <input type="date" value={dateFrom} onChange={e => { setDateFrom(e.target.value); setUsersPage(1); }}
-                    className="rounded-lg border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950 px-3 py-2 text-sm outline-none focus:border-emerald-300 dark:border-emerald-700" aria-label="Joined from date" />
+                    className="rounded-lg border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 px-3 py-2 text-sm outline-none focus:border-emerald-300 dark:border-emerald-700" aria-label="Joined from date" />
                 </label>
                 <label className="flex items-center gap-2 text-sm text-stone-600 dark:text-stone-300">
                   <span>To</span>
                   <input type="date" value={dateTo} onChange={e => { setDateTo(e.target.value); setUsersPage(1); }}
-                    className="rounded-lg border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950 px-3 py-2 text-sm outline-none focus:border-emerald-300 dark:border-emerald-700" aria-label="Joined to date" />
+                    className="rounded-lg border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 px-3 py-2 text-sm outline-none focus:border-emerald-300 dark:border-emerald-700" aria-label="Joined to date" />
                 </label>
               </div>
               <div className="flex flex-col sm:flex-row gap-2">
                 <input type="text" placeholder="Search email..." value={userSearch} onChange={e => { setUserSearch(e.target.value); setUsersPage(1); }}
-                  className="flex-1 rounded-lg border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950 px-3 py-2 text-sm outline-none focus:border-emerald-300 dark:border-emerald-700" dir="ltr" />
+                  className="flex-1 rounded-lg border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 px-3 py-2 text-sm outline-none focus:border-emerald-300 dark:border-emerald-700" dir="ltr" />
                 <div className="flex gap-1 overflow-x-auto">
                   {(['all', 'active', 'trial', 'expired', 'none'] as UserFilter[]).map(f => (
                     <button key={f} onClick={() => { setUserFilter(f); setUsersPage(1); }} className={cn('rounded-lg px-3 py-1.5 text-xs font-medium whitespace-nowrap', userFilter === f ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400' : 'bg-stone-100 dark:bg-stone-800 text-stone-600 dark:text-stone-300 hover:bg-stone-200 dark:bg-stone-700')}>
@@ -798,7 +798,7 @@ export default function Admin() {
                 </button>
               </div>
               <p className="text-xs text-stone-500 dark:text-stone-300">{filtered.length} users{stats.pagination ? ` (${stats.pagination.totalFilteredUsers} total${stats.pagination.searchQuery ? `, searching "${stats.pagination.searchQuery}"` : ''})` : ''}</p>
-              <div className="overflow-x-auto rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950">
+              <div className="overflow-x-auto rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900">
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="border-b border-stone-200 dark:border-stone-600 bg-stone-50 dark:bg-stone-900">
@@ -861,8 +861,8 @@ export default function Admin() {
         {tab === 'activity' && (
           <div className="space-y-3">
             <h2 className="text-sm font-bold text-stone-700 dark:text-stone-200">Activity Feed</h2>
-            {stats.activityFeed.length === 0 ? <div className="rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950 p-8 text-center"><Activity className="mx-auto h-8 w-8 text-stone-300 mb-2" /><p className="text-sm text-stone-500 dark:text-stone-300">No recent activity</p></div> : (
-              <div className="rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950 divide-y divide-stone-100 dark:divide-stone-800">
+            {stats.activityFeed.length === 0 ? <div className="rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 p-8 text-center"><Activity className="mx-auto h-8 w-8 text-stone-300 mb-2" /><p className="text-sm text-stone-500 dark:text-stone-300">No recent activity</p></div> : (
+              <div className="rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 divide-y divide-stone-100 dark:divide-stone-800">
                 {stats.activityFeed.map((item, i) => {
                   const Ic = ACTIVITY_ICON[item.type] ?? Activity;
                   return (
@@ -882,9 +882,9 @@ export default function Admin() {
         {tab === 'reviews' && (
           <div className="space-y-3">
             <h2 className="text-sm font-bold text-stone-700 dark:text-stone-200">Pending Reviews ({stats.pendingReviews.length})</h2>
-            {stats.pendingReviews.length === 0 ? <div className="rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950 p-8 text-center"><Star className="mx-auto h-8 w-8 text-stone-300 mb-2" /><p className="text-sm text-stone-500 dark:text-stone-300">No pending reviews</p></div> :
+            {stats.pendingReviews.length === 0 ? <div className="rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 p-8 text-center"><Star className="mx-auto h-8 w-8 text-stone-300 mb-2" /><p className="text-sm text-stone-500 dark:text-stone-300">No pending reviews</p></div> :
               stats.pendingReviews.map(r => (
-                <div key={r.id} className="rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950 p-4">
+                <div key={r.id} className="rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 p-4">
                   <div className="flex items-center justify-between mb-2">
                     <span className="font-medium text-stone-900 dark:text-stone-100">{r.name}</span>
                     <div className="flex gap-0.5">{[1,2,3,4,5].map(s => <Star key={s} className={cn('h-4 w-4', s <= r.rating ? 'fill-amber-400 text-amber-400' : 'text-stone-300')} />)}</div>
@@ -909,9 +909,9 @@ export default function Admin() {
         {tab === 'enquiries' && (
           <div className="space-y-3">
             <h2 className="text-sm font-bold text-stone-700 dark:text-stone-200">Enquiries ({stats.enquiries.length})</h2>
-            {stats.enquiries.length === 0 ? <div className="rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950 p-8 text-center"><Mail className="mx-auto h-8 w-8 text-stone-300 mb-2" /><p className="text-sm text-stone-500 dark:text-stone-300">No enquiries</p></div> :
+            {stats.enquiries.length === 0 ? <div className="rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 p-8 text-center"><Mail className="mx-auto h-8 w-8 text-stone-300 mb-2" /><p className="text-sm text-stone-500 dark:text-stone-300">No enquiries</p></div> :
               stats.enquiries.map(eq => (
-                <div key={eq.id} className={cn('rounded-xl border bg-white dark:bg-stone-950 p-4', eq.status === 'pending' ? 'border-amber-200 dark:border-amber-800' : 'border-stone-200 dark:border-stone-600')}>
+                <div key={eq.id} className={cn('rounded-xl border bg-white dark:bg-stone-900 p-4', eq.status === 'pending' ? 'border-amber-200 dark:border-amber-800' : 'border-stone-200 dark:border-stone-600')}>
                   <div className="flex items-center justify-between mb-2">
                     <div><span className="font-mono text-xs text-stone-500 dark:text-stone-300">{eq.email}</span>{eq.peptide_name && <span className="ms-2 rounded-full bg-emerald-100 dark:bg-emerald-900/30 px-2 py-0.5 text-xs font-medium text-emerald-700 dark:text-emerald-400">{eq.peptide_name}</span>}</div>
                     <span className={cn('rounded-full px-2 py-0.5 text-xs font-medium', eq.status === 'pending' ? 'bg-amber-100 text-amber-700 dark:text-amber-400' : 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400')}>{eq.status}</span>
@@ -921,7 +921,7 @@ export default function Admin() {
                   {eq.admin_notes && <div className="mt-2 rounded-lg bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-100 p-3"><p className="text-xs font-medium text-emerald-700 dark:text-emerald-400 mb-1">Reply:</p><p className="text-sm text-emerald-800 dark:text-emerald-300 whitespace-pre-wrap">{eq.admin_notes}</p></div>}
                   {replyingTo === eq.id ? (
                     <div className="mt-3 space-y-2">
-                      <textarea value={replyText} onChange={e => setReplyText(e.target.value)} placeholder="Type reply..." rows={3} className="w-full rounded-lg border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950 px-3 py-2 text-sm outline-none focus:border-emerald-300 dark:border-emerald-700 resize-y" dir="ltr" />
+                      <textarea value={replyText} onChange={e => setReplyText(e.target.value)} placeholder="Type reply..." rows={3} className="w-full rounded-lg border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 px-3 py-2 text-sm outline-none focus:border-emerald-300 dark:border-emerald-700 resize-y" dir="ltr" />
                       <div className="flex gap-2 justify-end">
                         <button onClick={() => { setReplyingTo(null); setReplyText(''); }} className="flex items-center gap-1 rounded-lg border border-stone-200 dark:border-stone-600 px-3 py-1.5 text-xs font-medium text-stone-600 dark:text-stone-300 hover:bg-stone-50 dark:hover:bg-stone-800"><X className="h-3 w-3" /> Cancel</button>
                         <button disabled={replySending || !replyText.trim()} onClick={async () => {
@@ -964,8 +964,8 @@ export default function Admin() {
               <h2 className="text-sm font-bold text-stone-700 dark:text-stone-200">Email List ({stats.emailList.length})</h2>
               <button onClick={() => exportCSV('email_list')} className="flex items-center gap-1 rounded-lg border border-stone-200 dark:border-stone-600 px-3 py-1.5 text-xs font-medium text-stone-600 dark:text-stone-300 hover:bg-stone-50 dark:hover:bg-stone-800"><Download className="h-3.5 w-3.5" /> Export</button>
             </div>
-            {stats.emailList.length === 0 ? <div className="rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950 p-8 text-center"><Mail className="mx-auto h-8 w-8 text-stone-300 mb-2" /><p className="text-sm text-stone-500 dark:text-stone-300">No subscribers</p></div> :
-              <div className="overflow-x-auto rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950"><table className="w-full text-sm"><thead><tr className="border-b border-stone-200 dark:border-stone-600 bg-stone-50 dark:bg-stone-900"><th className="px-3 py-2 text-start font-medium text-stone-600 dark:text-stone-300">Email</th><th className="px-3 py-2 text-start font-medium text-stone-600 dark:text-stone-300">Date</th></tr></thead><tbody>{stats.emailList.map(e => <tr key={e.id} className="border-b border-stone-100 dark:border-stone-800 hover:bg-stone-50 dark:hover:bg-stone-800"><td className="px-3 py-2 font-mono text-xs">{e.email}</td><td className="px-3 py-2 text-xs text-stone-500 dark:text-stone-300">{timeAgo(e.created_at)}</td></tr>)}</tbody></table></div>}
+            {stats.emailList.length === 0 ? <div className="rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 p-8 text-center"><Mail className="mx-auto h-8 w-8 text-stone-300 mb-2" /><p className="text-sm text-stone-500 dark:text-stone-300">No subscribers</p></div> :
+              <div className="overflow-x-auto rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900"><table className="w-full text-sm"><thead><tr className="border-b border-stone-200 dark:border-stone-600 bg-stone-50 dark:bg-stone-900"><th className="px-3 py-2 text-start font-medium text-stone-600 dark:text-stone-300">Email</th><th className="px-3 py-2 text-start font-medium text-stone-600 dark:text-stone-300">Date</th></tr></thead><tbody>{stats.emailList.map(e => <tr key={e.id} className="border-b border-stone-100 dark:border-stone-800 hover:bg-stone-50 dark:hover:bg-stone-800"><td className="px-3 py-2 font-mono text-xs">{e.email}</td><td className="px-3 py-2 text-xs text-stone-500 dark:text-stone-300">{timeAgo(e.created_at)}</td></tr>)}</tbody></table></div>}
           </div>
         )}
 
@@ -980,7 +980,7 @@ export default function Admin() {
                 {logs.length > 0 && <span className="text-xs text-emerald-700 font-medium">{logs.filter(l => l.status === 'sent').length} delivered</span>}
               </div>
               {logs.length === 0 ? <div className="rounded-xl border border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-900/20 p-6 text-center"><AlertTriangle className="mx-auto h-8 w-8 text-amber-400 mb-2" /><p className="text-sm font-medium text-amber-800 dark:text-amber-300">No email logs</p><p className="text-xs text-amber-600 mt-1">Resend may not be configured</p></div> : (
-                <><div className="overflow-x-auto rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950"><table className="w-full text-sm"><thead><tr className="border-b border-stone-200 dark:border-stone-600 bg-stone-50 dark:bg-stone-900"><th className="px-3 py-2 text-start font-medium text-stone-600 dark:text-stone-300">To</th><th className="px-3 py-2 text-start font-medium text-stone-600 dark:text-stone-300">Type</th><th className="px-3 py-2 text-start font-medium text-stone-600 dark:text-stone-300">Status</th><th className="px-3 py-2 text-start font-medium text-stone-600 dark:text-stone-300">When</th></tr></thead>
+                <><div className="overflow-x-auto rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900"><table className="w-full text-sm"><thead><tr className="border-b border-stone-200 dark:border-stone-600 bg-stone-50 dark:bg-stone-900"><th className="px-3 py-2 text-start font-medium text-stone-600 dark:text-stone-300">To</th><th className="px-3 py-2 text-start font-medium text-stone-600 dark:text-stone-300">Type</th><th className="px-3 py-2 text-start font-medium text-stone-600 dark:text-stone-300">Status</th><th className="px-3 py-2 text-start font-medium text-stone-600 dark:text-stone-300">When</th></tr></thead>
                 <tbody>{paged.map(l => <tr key={l.id} className="border-b border-stone-100 dark:border-stone-800 hover:bg-stone-50 dark:hover:bg-stone-800"><td className="px-3 py-2 font-mono text-xs">{l.email}</td><td className="px-3 py-2 text-xs"><span className="rounded-full bg-stone-100 dark:bg-stone-800 px-2 py-0.5 text-xs">{l.type}</span></td><td className="px-3 py-2"><span className={cn('rounded-full px-2 py-0.5 text-xs font-medium', l.status === 'sent' ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400' : 'bg-red-100 text-red-700 dark:text-red-400')}>{l.status}</span></td><td className="px-3 py-2 text-xs text-stone-500 dark:text-stone-300">{timeAgo(l.created_at)}</td></tr>)}</tbody></table></div>
                 <Pagination page={emailLogsPage} total={logs.length} onChange={setEmailLogsPage} /></>)}
             </div>
@@ -1001,7 +1001,7 @@ export default function Admin() {
               <p className="text-xs text-stone-600 dark:text-stone-300" dir="rtl">آخر 24 ساعة: {count24h} أحداث | آخر 7 أيام: {count7d} أحداث | آخر حدث: {lastEvent ? timeAgo(lastEvent.processed_at) : '—'}</p>
             )}
             {stats.webhookEvents.length === 0 ? <div className="rounded-xl border border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-900/20 p-6 text-center"><AlertTriangle className="mx-auto h-8 w-8 text-amber-400 mb-2" /><p className="text-sm font-medium text-amber-800 dark:text-amber-300">No events recorded</p><p className="text-xs text-amber-600 mt-1">Stripe webhooks may not be configured</p></div> :
-              <div className="overflow-x-auto rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950"><table className="w-full text-sm"><thead><tr className="border-b border-stone-200 dark:border-stone-600 bg-stone-50 dark:bg-stone-900"><th className="px-3 py-2 text-start font-medium text-stone-600 dark:text-stone-300">Event</th><th className="px-3 py-2 text-start font-medium text-stone-600 dark:text-stone-300">ID</th><th className="px-3 py-2 text-start font-medium text-stone-600 dark:text-stone-300">When</th></tr></thead>
+              <div className="overflow-x-auto rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900"><table className="w-full text-sm"><thead><tr className="border-b border-stone-200 dark:border-stone-600 bg-stone-50 dark:bg-stone-900"><th className="px-3 py-2 text-start font-medium text-stone-600 dark:text-stone-300">Event</th><th className="px-3 py-2 text-start font-medium text-stone-600 dark:text-stone-300">ID</th><th className="px-3 py-2 text-start font-medium text-stone-600 dark:text-stone-300">When</th></tr></thead>
               <tbody>{stats.webhookEvents.map(ev => <tr key={ev.event_id} className="border-b border-stone-100 dark:border-stone-800 hover:bg-stone-50 dark:hover:bg-stone-800"><td className="px-3 py-2 text-xs"><span className={cn('rounded-full px-2 py-0.5 text-xs font-medium', ev.event_type.includes('succeeded') || ev.event_type.includes('paid') ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400' : ev.event_type.includes('failed') ? 'bg-red-100 text-red-700 dark:text-red-400' : 'bg-stone-100 dark:bg-stone-800 text-stone-700 dark:text-stone-200')}>{ev.event_type}</span></td><td className="px-3 py-2 font-mono text-xs text-stone-500 dark:text-stone-300">{ev.event_id?.slice(0, 24)}</td><td className="px-3 py-2 text-xs text-stone-500 dark:text-stone-300">{timeAgo(ev.processed_at)}</td></tr>)}</tbody></table></div>}
           </div>
           );
@@ -1022,7 +1022,7 @@ export default function Admin() {
               </div>
             </div>
             {!health ? (
-              <div className="rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950 p-8 text-center">
+              <div className="rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 p-8 text-center">
                 <Heart className="mx-auto h-8 w-8 text-stone-300 mb-2" />
                 <p className="text-sm text-stone-500 dark:text-stone-300">Click "Run Check" to test all services</p>
               </div>
@@ -1036,7 +1036,7 @@ export default function Admin() {
                 </div>
                 <div className="grid sm:grid-cols-2 gap-3">
                   {Object.entries(health.checks).map(([name, c]) => (
-                    <div key={name} className={cn('rounded-xl border p-4', c.status === 'ok' ? 'border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950' : c.status === 'warning' ? 'border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-900/20' : 'border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-900/20')}>
+                    <div key={name} className={cn('rounded-xl border p-4', c.status === 'ok' ? 'border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900' : c.status === 'warning' ? 'border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-900/20' : 'border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-900/20')}>
                       <div className="flex items-center justify-between mb-1">
                         <span className="text-sm font-medium text-stone-800 dark:text-stone-200 capitalize">{name.replace(/_/g, ' ')}</span>
                         {c.status === 'ok' ? <CheckCircle className="h-4 w-4 text-emerald-500" /> : c.status === 'warning' ? <AlertTriangle className="h-4 w-4 text-amber-500" /> : <XCircle className="h-4 w-4 text-red-500 dark:text-red-400" />}
@@ -1053,7 +1053,7 @@ export default function Admin() {
                 <h3 className="text-sm font-bold text-stone-700 dark:text-stone-200 flex items-center gap-2"><CreditCard className="h-4 w-4" /> Stripe Verification</h3>
                 <div className={cn('rounded-xl border p-4', stripeVerify.status === 'ok' ? 'border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-900/20' : 'border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-900/20')}>
                   <p className={cn('font-bold', stripeVerify.status === 'ok' ? 'text-emerald-700 dark:text-emerald-400' : 'text-amber-700 dark:text-amber-400')}>{stripeVerify.status === 'ok' ? 'Prices + webhooks OK' : 'Issues found'}</p>
-                  <pre className="mt-2 text-xs overflow-x-auto bg-white dark:bg-stone-950/60 p-3 rounded-lg">{JSON.stringify(stripeVerify.prices, null, 2)}</pre>
+                  <pre className="mt-2 text-xs overflow-x-auto bg-white dark:bg-stone-900/60 p-3 rounded-lg">{JSON.stringify(stripeVerify.prices, null, 2)}</pre>
                   {stripeVerify.missingEvents?.length > 0 && <p className="text-xs text-amber-700 dark:text-amber-400 mt-2">Missing events: {stripeVerify.missingEvents.join(', ')}</p>}
                 </div>
               </div>
@@ -1073,12 +1073,12 @@ export default function Admin() {
             {auditLoading && auditLog.length === 0 ? (
               <div className="flex justify-center py-12"><Loader2 className="h-6 w-6 animate-spin text-stone-400" /></div>
             ) : auditLog.length === 0 ? (
-              <div className="rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950 p-8 text-center">
+              <div className="rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 p-8 text-center">
                 <ClipboardList className="mx-auto h-8 w-8 text-stone-300 mb-2" />
                 <p className="text-sm text-stone-500 dark:text-stone-300">No audit log entries yet</p>
               </div>
             ) : (
-              <div className="overflow-x-auto rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950">
+              <div className="overflow-x-auto rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900">
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="border-b border-stone-200 dark:border-stone-600 bg-stone-50 dark:bg-stone-900">
@@ -1216,7 +1216,7 @@ export default function Admin() {
       {/* User Detail */}
       {userDetailOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" onClick={() => setUserDetailOpen(false)}>
-          <div className="w-full max-w-2xl max-h-[85vh] overflow-y-auto rounded-2xl bg-white dark:bg-stone-950 p-6 shadow-xl dark:shadow-stone-900/40" onClick={e => e.stopPropagation()} role="dialog" aria-modal="true">
+          <div className="w-full max-w-2xl max-h-[85vh] overflow-y-auto rounded-2xl bg-white dark:bg-stone-900 p-6 shadow-xl dark:shadow-stone-900/40" onClick={e => e.stopPropagation()} role="dialog" aria-modal="true">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-lg font-bold text-stone-900 dark:text-stone-100">User Detail</h3>
               <button onClick={() => setUserDetailOpen(false)} title="Close" className="rounded-lg p-1 hover:bg-stone-100 dark:hover:bg-stone-800"><X className="h-5 w-5 text-stone-500 dark:text-stone-300" /></button>
@@ -1397,7 +1397,7 @@ export default function Admin() {
                       onChange={e => setNewNote(e.target.value)}
                       placeholder="Add a note..."
                       rows={2}
-                      className="w-full rounded-lg border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950 px-3 py-2 text-sm outline-none focus:border-emerald-300 dark:border-emerald-700 resize-y"
+                      className="w-full rounded-lg border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 px-3 py-2 text-sm outline-none focus:border-emerald-300 dark:border-emerald-700 resize-y"
                       dir="ltr"
                     />
                     <div className="flex justify-end mt-2">

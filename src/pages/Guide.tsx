@@ -89,7 +89,7 @@ function AccordionItem({ title, children, defaultOpen = false }: { title: string
   const contentRef = useRef<HTMLDivElement>(null);
 
   return (
-    <div className="rounded-2xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950 overflow-hidden transition-all card-hover">
+    <div className="rounded-2xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 overflow-hidden transition-all card-hover">
       <button
         onClick={() => setOpen(!open)}
         className="flex w-full items-center justify-between px-5 py-4 text-start font-bold text-stone-900 dark:text-stone-100 hover:bg-stone-50 dark:hover:bg-stone-900 transition-colors"
@@ -504,7 +504,7 @@ function buildModules(): Module[] {
                       { site: 'الفخذ', desc: 'الجزء الأمامي-الجانبي من الفخذ. منطقة واسعة تسمح بتدوير المواقع بسهولة.' },
                       { site: 'أعلى الذراع', desc: 'الجزء الخلفي من أعلى الذراع. يحتاج مساعدة شخص آخر في بعض الأحيان.' },
                     ].map((row) => (
-                      <div key={row.site} className="rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950 p-4 shadow-sm dark:shadow-stone-900/30">
+                      <div key={row.site} className="rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 p-4 shadow-sm dark:shadow-stone-900/30">
                         <h5 className="text-sm font-bold text-stone-900 dark:text-stone-100">{row.site}</h5>
                         <p className="mt-1 text-xs leading-relaxed text-stone-600 dark:text-stone-300">{row.desc}</p>
                       </div>
@@ -520,7 +520,7 @@ function buildModules(): Module[] {
           title: 'أخطاء شائعة',
           content: (
             <div className="space-y-4">
-              <div className="rounded-2xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950 p-5">
+              <div className="rounded-2xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 p-5">
                 <ul className="space-y-3">
                   {[
                     'عدم تدوير مواقع الحقن — يسبب تليّف أو ضمور دهني',
@@ -1154,7 +1154,7 @@ export default function Guide() {
             {activeModule.sections.map((section, i) => (
               <div
                 key={section.id}
-                className="rounded-2xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950 overflow-hidden transition-all"
+                className="rounded-2xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 overflow-hidden transition-all"
               >
                 <button
                   onClick={() => toggleSection(section.id)}
@@ -1228,7 +1228,7 @@ export default function Guide() {
             { q: 'نسيت الحقن 3 أيام — ماذا أفعل؟', a: 'لا تضاعف الجرعة. استأنف الجرعة العادية من حيث توقفت. معظم الببتيدات لا تحتاج "تعويض". الاستمرارية أهم من الكمال.' },
             { q: 'أشعر بغثيان بعد حقن Semaglutide', a: 'الغثيان شائع جدًا مع GLP-1 (44% من المستخدمين). جرّب: تقليل الجرعة، الحقن قبل النوم بدل الصباح، تناول وجبات صغيرة وخفيفة، وتجنب الأطعمة الدهنية. يتحسن عادة خلال 2-3 أسابيع.' },
           ].map((faq) => (
-            <details key={faq.q} className="group rounded-2xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950 transition-all hover:border-amber-200 dark:hover:border-amber-800 card-hover">
+            <details key={faq.q} className="group rounded-2xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 transition-all hover:border-amber-200 dark:hover:border-amber-800 card-hover">
               <summary className="flex cursor-pointer items-center justify-between px-5 py-4 text-sm font-bold text-stone-900 dark:text-stone-100 [&::-webkit-details-marker]:hidden">
                 <span className="flex items-center gap-2">{faq.q}</span>
               </summary>

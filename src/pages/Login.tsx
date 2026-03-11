@@ -337,12 +337,12 @@ export default function Login() {
 
   if (pendingVerification) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-white dark:bg-stone-950 px-4">
+      <div className="flex min-h-screen items-center justify-center bg-white dark:bg-stone-900 px-4">
         <Helmet><title>تأكيد البريد الإلكتروني | pptides</title></Helmet>
         <div className="w-full max-w-md">
-          <div className="overflow-hidden rounded-2xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950 shadow-lg">
+          <div className="overflow-hidden rounded-2xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 shadow-lg">
             <div className="bg-emerald-600 px-6 pb-6 pt-8 text-center">
-              <div className="mx-auto mb-3 flex h-16 w-16 items-center justify-center rounded-full bg-white dark:bg-stone-950/20">
+              <div className="mx-auto mb-3 flex h-16 w-16 items-center justify-center rounded-full bg-white dark:bg-stone-900/20">
                 <svg className="h-8 w-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} aria-hidden="true">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                 </svg>
@@ -385,10 +385,10 @@ export default function Login() {
 
   if (isRecovery) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-white dark:bg-stone-950 px-4">
+      <div className="flex min-h-screen items-center justify-center bg-white dark:bg-stone-900 px-4">
         <Helmet><title>تغيير كلمة المرور | pptides</title></Helmet>
         <div className="w-full max-w-md">
-          <div className="overflow-hidden rounded-2xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950 shadow-lg">
+          <div className="overflow-hidden rounded-2xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 shadow-lg">
             <div className="bg-emerald-600 px-6 pb-6 pt-8 text-center">
               <h1 className="mb-1 text-2xl font-bold text-white">تغيير كلمة المرور</h1>
               <p className="text-sm text-white/70">أدخل كلمة مرور جديدة لحسابك</p>
@@ -410,7 +410,7 @@ export default function Login() {
                       dir="ltr"
                       minLength={8}
                       autoComplete="new-password"
-                      className="w-full rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950 px-4 py-3 ps-12 text-left text-base text-stone-900 dark:text-stone-100 placeholder:text-stone-500 dark:text-stone-300 outline-none transition-shadow focus:border-emerald-300 dark:border-emerald-700 focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900"
+                      className="w-full rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 px-4 py-3 ps-12 text-left text-base text-stone-900 dark:text-stone-100 placeholder:text-stone-500 dark:text-stone-300 outline-none transition-shadow focus:border-emerald-300 dark:border-emerald-700 focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900"
                     />
                     <button
                       type="button"
@@ -439,7 +439,7 @@ export default function Login() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-white dark:bg-stone-950 px-4">
+    <div className="flex min-h-screen items-center justify-center bg-white dark:bg-stone-900 px-4">
       <Helmet>
         <title>{`${tab === 'login' ? 'تسجيل الدخول' : 'إنشاء حساب'} | pptides`}</title>
         <meta name="description" content="سجّل دخولك أو أنشئ حساب جديد للوصول إلى مكتبة الببتيدات وحاسبة الجرعات والمدرب الذكي." />
@@ -450,7 +450,7 @@ export default function Login() {
         <meta name="twitter:image" content={`${SITE_URL}/og-image.jpg`} />
       </Helmet>
       <div className="w-full max-w-md">
-        <div className="overflow-hidden rounded-2xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950 shadow-lg">
+        <div className="overflow-hidden rounded-2xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 shadow-lg">
           <div className="bg-emerald-600 px-6 pb-6 pt-8 text-center">
             <h1 className="mb-1 text-2xl font-bold text-white">
               {tab === 'login' ? 'مرحبًا بعودتك' : 'أنشئ حسابك'}
@@ -533,7 +533,7 @@ export default function Login() {
                   autoFocus
                   autoComplete="email"
                   dir="ltr"
-                  className="w-full rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950 px-4 py-3 text-left text-base text-stone-900 dark:text-stone-100 placeholder:text-stone-500 dark:text-stone-300 outline-none transition-shadow focus:border-emerald-300 dark:border-emerald-700 focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900"
+                  className="w-full rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 px-4 py-3 text-left text-base text-stone-900 dark:text-stone-100 placeholder:text-stone-500 dark:text-stone-300 outline-none transition-shadow focus:border-emerald-300 dark:border-emerald-700 focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900"
                 />
               </div>
 
@@ -551,7 +551,7 @@ export default function Login() {
                     autoComplete={tab === 'login' ? 'current-password' : 'new-password'}
                     dir="ltr"
                     {...(tab === 'signup' ? { minLength: 8 } : {})}
-                    className="w-full rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950 px-4 py-3 ps-12 text-left text-base text-stone-900 dark:text-stone-100 placeholder:text-stone-500 dark:text-stone-300 outline-none transition-shadow focus:border-emerald-300 dark:border-emerald-700 focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900"
+                    className="w-full rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 px-4 py-3 ps-12 text-left text-base text-stone-900 dark:text-stone-100 placeholder:text-stone-500 dark:text-stone-300 outline-none transition-shadow focus:border-emerald-300 dark:border-emerald-700 focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900"
                   />
                   <button
                     type="button"

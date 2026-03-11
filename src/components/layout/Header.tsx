@@ -177,7 +177,7 @@ export default memo(function Header() {
                       <ChevronDown className={cn('h-3 w-3 transition-transform', moreOpen && 'rotate-180')} />
                     </button>
                     {moreOpen && (
-                      <div aria-label="الأدوات" className="absolute end-0 top-full mt-2 min-w-[200px] overflow-hidden rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950 py-1 shadow-xl dark:shadow-stone-900/40 animate-fade-in">
+                      <div aria-label="الأدوات" className="absolute end-0 top-full mt-2 min-w-[200px] overflow-hidden rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 py-1 shadow-xl dark:shadow-stone-900/40 animate-fade-in">
                         {tools.map(({ to, label }) => (
                           <Link
                             key={to}
@@ -247,7 +247,7 @@ export default memo(function Header() {
                 </button>
 
                 {dropdownOpen && (
-                  <div aria-label="قائمة الحساب" className="absolute end-0 top-full mt-2 min-w-[180px] overflow-hidden rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950 py-1 shadow-xl dark:shadow-stone-900/40 animate-fade-in">
+                  <div aria-label="قائمة الحساب" className="absolute end-0 top-full mt-2 min-w-[180px] overflow-hidden rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 py-1 shadow-xl dark:shadow-stone-900/40 animate-fade-in">
                     <p className="truncate border-b border-stone-200 dark:border-stone-600 px-4 py-2 text-sm text-stone-800 dark:text-stone-200">
                       {user.email}
                     </p>
@@ -330,7 +330,7 @@ export default memo(function Header() {
         <FocusTrap active={mobileOpen} focusTrapOptions={{ allowOutsideClick: true }}>
         <nav
           className={cn(
-            'absolute inset-y-0 end-0 flex w-[min(18rem,85vw)] flex-col border-s border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950 pt-16 shadow-2xl transition-all duration-300 ease-out',
+            'absolute inset-y-0 end-0 flex w-[min(18rem,85vw)] flex-col border-s border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 pt-16 shadow-2xl transition-all duration-300 ease-out',
             mobileOpen ? 'translate-x-0 opacity-100' : 'ltr:translate-x-full rtl:-translate-x-full opacity-0',
           )}
         >

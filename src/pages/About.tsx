@@ -67,7 +67,7 @@ const standards = [
 
 export default function About() {
   return (
-    <div className="min-h-screen bg-white dark:bg-stone-950 animate-fade-in">
+    <div className="min-h-screen bg-white dark:bg-stone-900 animate-fade-in">
       <Helmet>
         <title>عن pptides — أول منصة عربية للببتيدات العلاجية | pptides</title>
         <meta name="description" content="تعرّف على pptides: أول منصة عربية متخصصة في علم الببتيدات العلاجية. أكثر من 63 ببتيد مع بروتوكولات كاملة، مدرب ذكي، وأدوات متقدمة." />
@@ -166,7 +166,7 @@ export default function About() {
             {differentiators.map(({ icon: Icon, title, desc }) => (
               <div
                 key={title}
-                className="rounded-2xl border border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-950 p-6 transition-all hover:border-emerald-300 dark:hover:border-emerald-800 hover:shadow-md"
+                className="rounded-2xl border border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-900 p-6 transition-all hover:border-emerald-300 dark:hover:border-emerald-800 hover:shadow-md"
               >
                 <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-100 dark:bg-emerald-900/30">
                   <Icon className="h-5 w-5 text-emerald-700" />
@@ -216,7 +216,7 @@ export default function About() {
             {standards.map(({ icon: Icon, title, desc }) => (
               <div
                 key={title}
-                className="rounded-2xl border border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-950 p-6 text-center"
+                className="rounded-2xl border border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-900 p-6 text-center"
               >
                 <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-emerald-100 dark:bg-emerald-900/30">
                   <Icon className="h-6 w-6 text-emerald-700" />

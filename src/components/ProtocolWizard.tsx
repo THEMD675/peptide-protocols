@@ -78,7 +78,7 @@ export default function ProtocolWizard({ peptideId, prefillDose, prefillUnit, on
 
   if (!peptide) return (
     <div role="dialog" aria-modal="true" aria-label="معالج البروتوكول" className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" onClick={onClose}>
-      <div className="rounded-2xl bg-white dark:bg-stone-950 p-6 text-center" onClick={e => e.stopPropagation()}>
+      <div className="rounded-2xl bg-white dark:bg-stone-900 p-6 text-center" onClick={e => e.stopPropagation()}>
         <p className="text-stone-600 dark:text-stone-300">الببتيد غير موجود</p>
         <button onClick={onClose} className="mt-4 rounded-full bg-emerald-600 px-6 py-2 text-sm font-bold text-white">إغلاق</button>
       </div>
@@ -122,7 +122,7 @@ export default function ProtocolWizard({ peptideId, prefillDose, prefillUnit, on
   return (
     <div role="dialog" aria-modal="true" aria-label="تفاصيل البروتوكول" className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4" onClick={onClose}>
       <FocusTrap focusTrapOptions={{ allowOutsideClick: true }}>
-        <div className="w-full max-w-md max-h-[90vh] overflow-y-auto rounded-2xl bg-white dark:bg-stone-950 p-6 shadow-2xl animate-fade-in" onClick={e => e.stopPropagation()}>
+        <div className="w-full max-w-md max-h-[90vh] overflow-y-auto rounded-2xl bg-white dark:bg-stone-900 p-6 shadow-2xl animate-fade-in" onClick={e => e.stopPropagation()}>
           <div className="flex items-center justify-between mb-5">
             <div className="flex items-center gap-3">
               <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-100 dark:bg-emerald-900/30">
@@ -172,12 +172,12 @@ export default function ProtocolWizard({ peptideId, prefillDose, prefillUnit, on
                   max={50000}
                   step="any"
                   dir="ltr"
-                  className="w-full rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950 px-4 py-3 text-base text-stone-900 dark:text-stone-100 focus:border-emerald-300 dark:border-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900"
+                  className="w-full rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 px-4 py-3 text-base text-stone-900 dark:text-stone-100 focus:border-emerald-300 dark:border-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900"
                 />
               </div>
               <div className="w-24">
                 <label htmlFor="wizard-unit" className="mb-1 block text-sm font-bold text-stone-700 dark:text-stone-200">الوحدة</label>
-                <select id="wizard-unit" value={unit} onChange={e => setUnit(e.target.value)} className="w-full rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950 px-3 py-3 text-base text-stone-900 dark:text-stone-100 focus:border-emerald-300 dark:border-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900">
+                <select id="wizard-unit" value={unit} onChange={e => setUnit(e.target.value)} className="w-full rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 px-3 py-3 text-base text-stone-900 dark:text-stone-100 focus:border-emerald-300 dark:border-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900">
                   <option value="mcg">mcg</option>
                   <option value="mg">mg</option>
                 </select>
@@ -186,7 +186,7 @@ export default function ProtocolWizard({ peptideId, prefillDose, prefillUnit, on
 
             <div>
               <label htmlFor="wizard-frequency" className="mb-1 block text-sm font-bold text-stone-700 dark:text-stone-200">التكرار</label>
-              <select id="wizard-frequency" value={frequency} onChange={e => { const v = e.target.value; setFrequency(v as keyof typeof FREQUENCY_LABELS); }} className="w-full rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950 px-4 py-3 text-base text-stone-900 dark:text-stone-100 focus:border-emerald-300 dark:border-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900">
+              <select id="wizard-frequency" value={frequency} onChange={e => { const v = e.target.value; setFrequency(v as keyof typeof FREQUENCY_LABELS); }} className="w-full rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 px-4 py-3 text-base text-stone-900 dark:text-stone-100 focus:border-emerald-300 dark:border-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900">
                 {Object.entries(FREQUENCY_LABELS).map(([k, v]) => (
                   <option key={k} value={k}>{v}</option>
                 ))}
@@ -204,7 +204,7 @@ export default function ProtocolWizard({ peptideId, prefillDose, prefillUnit, on
                 min="1"
                 max="52"
                 dir="ltr"
-                className="w-full rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950 px-4 py-3 text-sm text-stone-900 dark:text-stone-100 focus:border-emerald-300 dark:border-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900"
+                className="w-full rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 px-4 py-3 text-sm text-stone-900 dark:text-stone-100 focus:border-emerald-300 dark:border-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900"
               />
             </div>
 

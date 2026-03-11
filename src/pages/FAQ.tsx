@@ -181,7 +181,7 @@ export default function FAQ() {
   }, [search]);
 
   return (
-    <div className="min-h-screen bg-white dark:bg-stone-950 animate-fade-in">
+    <div className="min-h-screen bg-white dark:bg-stone-900 animate-fade-in">
       <Helmet>
         <title>الأسئلة الشائعة | pptides</title>
         <meta

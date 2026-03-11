@@ -217,7 +217,7 @@ export default function Landing() {
   const ctaTextShort = user ? 'اختر خطتك' : 'ابدأ التجربة المجانية';
 
   return (
-    <div id="main-content" className="min-h-screen bg-white dark:bg-stone-950" role="main">
+    <div id="main-content" className="min-h-screen bg-white dark:bg-stone-900" role="main">
       <Helmet>
         <title>pptides | أشمل دليل عربي للببتيدات العلاجية</title>
         <meta name="description" content={`${PEPTIDE_COUNT} ببتيد علاجي مع بروتوكولات كاملة، حاسبة جرعات، ودليل تحاليل. أشمل دليل عربي مبني على الأبحاث.`} />
@@ -301,7 +301,7 @@ export default function Landing() {
             <span>أول مرجع عربي شامل — {PEPTIDE_COUNT} ببتيد علاجي</span>
           </div>
 
-          <h1 className="mb-6 text-[clamp(1.875rem,8vw,4.5rem)] font-extrabold leading-[1.2] text-stone-900 dark:text-stone-100 sm:text-5xl md:text-6xl lg:text-7xl">
+          <h1 className="mb-6 text-[clamp(2.25rem,8vw,4.5rem)] font-extrabold leading-[1.15] text-stone-900 dark:text-stone-100 sm:text-5xl md:text-6xl lg:text-7xl">
             توقّف عن التخمين.
             <br />
             <span className="text-emerald-700">ابدأ بالعلم.</span>
@@ -325,7 +325,7 @@ export default function Landing() {
             <Link
               to={ctaLink}
               aria-label={user ? 'اشترك الآن في pptides' : `ابدأ تجربتك المجانية ${TRIAL_DAYS} أيام في pptides`}
-              className="animate-cta-pulse btn-primary-glow btn-hero inline-flex w-full max-w-sm items-center justify-center gap-3 rounded-full bg-emerald-600 font-extrabold text-white transition-all duration-300 hover:bg-emerald-700 active:scale-[0.98] sm:w-auto"
+              className="btn-cta-gradient btn-hero inline-flex w-full max-w-sm items-center justify-center gap-3 rounded-full font-extrabold text-white sm:w-auto"
             >
               <span>{ctaText}</span>
               <ArrowLeft className="h-6 w-6" aria-hidden="true" />
@@ -333,7 +333,7 @@ export default function Landing() {
             <Link
               to="/library"
               aria-label="تصفّح مكتبة الببتيدات"
-              className="inline-flex w-full max-w-xs items-center justify-center rounded-full border-2 border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950 px-8 py-4 text-lg font-semibold text-stone-800 dark:text-stone-200 transition-all duration-300 hover:border-emerald-300 dark:hover:border-emerald-700 hover:text-emerald-700 dark:hover:text-emerald-400 active:scale-[0.98] sm:w-auto"
+              className="inline-flex w-full max-w-xs items-center justify-center rounded-full border-2 border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 px-8 py-4 text-lg font-semibold text-stone-800 dark:text-stone-200 transition-all duration-300 hover:border-emerald-300 dark:hover:border-emerald-700 hover:text-emerald-700 dark:hover:text-emerald-400 active:scale-[0.98] sm:w-auto"
             >
               تصفّح المكتبة
             </Link>
@@ -388,7 +388,7 @@ export default function Landing() {
 
       {/* ═══════ STATS BAR ═══════ */}
       <section className="relative z-10 mt-6 mx-auto max-w-5xl px-6" data-reveal>
-        <div className="grid grid-cols-2 gap-4 rounded-2xl border border-stone-300 dark:border-stone-600/60 bg-white dark:bg-stone-950 p-4 sm:grid-cols-3 sm:p-8 shadow-xl dark:shadow-stone-900/40 md:grid-cols-5 md:gap-0 md:divide-x md:divide-x-reverse md:divide-stone-100 dark:divide-stone-800">
+        <div className="grid grid-cols-2 gap-4 rounded-2xl border border-stone-300 dark:border-stone-600/60 bg-white dark:bg-stone-900 p-4 sm:grid-cols-3 sm:p-8 shadow-xl dark:shadow-stone-900/40 md:grid-cols-5 md:gap-0 md:divide-x md:divide-x-reverse md:divide-stone-100 dark:divide-stone-800">
           {STATS_BAR.map((s) => (
             <div key={s.label} className="flex flex-col items-center justify-center py-3 last:col-span-2 sm:last:col-span-1">
               <span className="text-3xl font-black text-emerald-700 md:text-4xl">{s.value}</span>
@@ -404,7 +404,7 @@ export default function Landing() {
         <div className="mb-4 text-center" data-reveal>
           <span className="inline-block rounded-full bg-red-50 dark:bg-red-900/20 px-4 py-1.5 text-sm font-semibold text-red-600 dark:text-red-400">المشكلة</span>
         </div>
-        <h2 className="mb-4 text-center text-3xl font-bold text-stone-900 dark:text-stone-100 md:text-4xl lg:text-5xl" data-reveal>
+        <h2 className="mb-4 text-center text-4xl font-extrabold text-stone-900 dark:text-stone-100 md:text-5xl lg:text-6xl" data-reveal>
           هل هذا أنت؟
         </h2>
         <p className="mx-auto mb-12 max-w-2xl text-center text-lg text-stone-800 dark:text-stone-200" data-reveal>
@@ -450,7 +450,7 @@ export default function Landing() {
           <div className="mb-4 text-center">
             <span className="inline-block rounded-full bg-emerald-50 dark:bg-emerald-900/20 px-4 py-1.5 text-sm font-semibold text-emerald-700 dark:text-emerald-400">الحل</span>
           </div>
-          <h2 className="mb-4 text-center text-3xl font-bold text-stone-900 dark:text-stone-100 md:text-4xl lg:text-5xl">
+          <h2 className="mb-4 text-center text-4xl font-extrabold text-stone-900 dark:text-stone-100 md:text-5xl lg:text-6xl">
             كل ما تحتاجه في <span className="text-emerald-700">مكان واحد</span>
           </h2>
           <p className="mx-auto mb-16 max-w-2xl text-center text-lg text-stone-800 dark:text-stone-200">
@@ -472,7 +472,7 @@ export default function Landing() {
                 <div
                   data-reveal
                   style={{ transitionDelay: `${idx * 0.07}s` }}
-                  className="group rounded-2xl border border-stone-300 dark:border-stone-600/60 bg-white dark:bg-stone-950 p-7 card-hover hover:border-emerald-200 dark:border-emerald-800 cursor-pointer"
+                  className="group rounded-2xl border border-stone-300 dark:border-stone-600/60 bg-white dark:bg-stone-900 p-7 card-hover hover:border-emerald-200 dark:border-emerald-800 cursor-pointer"
                 >
                   <div className="mb-5 inline-flex h-12 w-12 items-center justify-center rounded-xl bg-emerald-600 text-white shadow-md shadow-emerald-600/20">
                     <f.icon className="h-6 w-6" />
@@ -490,7 +490,7 @@ export default function Landing() {
           <div className="mt-14 text-center">
             <Link
               to={ctaLink}
-              className="btn-primary-glow inline-flex items-center justify-center gap-2 rounded-full bg-emerald-600 px-8 py-4 text-lg font-bold text-white transition-all hover:bg-emerald-700 active:scale-[0.98]"
+              className="btn-cta-gradient inline-flex items-center justify-center gap-2 rounded-full px-8 py-4 text-lg font-bold text-white"
             >
               <span>{ctaText}</span>
               <ArrowLeft className="h-5 w-5" />
@@ -508,14 +508,14 @@ export default function Landing() {
             <div className="mb-4 text-center">
               <span className="inline-block rounded-full bg-emerald-50 dark:bg-emerald-900/20 px-4 py-1.5 text-sm font-semibold text-emerald-700 dark:text-emerald-400">شاهد بنفسك</span>
             </div>
-            <h2 className="mb-4 text-center text-3xl font-bold text-stone-900 dark:text-stone-100 md:text-4xl">
+            <h2 className="mb-4 text-center text-4xl font-extrabold text-stone-900 dark:text-stone-100 md:text-5xl">
               هكذا تبدو <span className="text-emerald-700">بطاقة البروتوكول</span>
             </h2>
             <p className="mx-auto mb-10 max-w-xl text-center text-stone-800 dark:text-stone-200">
               هذا ما تحصل عليه لكل ببتيد — جرّب BPC-157 مجانًا
             </p>
 
-            <div className="overflow-hidden rounded-2xl border-2 border-emerald-200 dark:border-emerald-800 bg-white dark:bg-stone-950 shadow-xl shadow-emerald-600/5">
+            <div className="overflow-hidden rounded-2xl border-2 border-emerald-200 dark:border-emerald-800 bg-white dark:bg-stone-900 shadow-xl shadow-emerald-600/5">
               <div className="flex items-center justify-between border-b border-stone-200 dark:border-stone-600 bg-emerald-50 dark:bg-emerald-900/20 px-6 py-3">
                 <div className="flex items-center gap-3">
                   <span className="rounded-full bg-emerald-600 px-3 py-1 text-xs font-bold text-white">مجاني</span>
@@ -580,7 +580,7 @@ export default function Landing() {
         <div className="mb-4 text-center">
           <span className="inline-block rounded-full bg-blue-50 dark:bg-blue-900/20 px-4 py-1.5 text-sm font-semibold text-blue-700 dark:text-blue-400">مبني على الأبحاث</span>
         </div>
-        <h2 className="mb-4 text-center text-3xl font-bold text-stone-900 dark:text-stone-100 md:text-4xl lg:text-5xl">
+        <h2 className="mb-4 text-center text-4xl font-extrabold text-stone-900 dark:text-stone-100 md:text-5xl lg:text-6xl">
           ليس كلام — <span className="text-emerald-700">أدلة علمية</span>
         </h2>
         <p className="mx-auto mb-12 max-w-2xl text-center text-lg text-stone-800 dark:text-stone-200">
@@ -588,7 +588,7 @@ export default function Landing() {
         </p>
 
         <div className="grid gap-6 md:grid-cols-3">
-          <div className="rounded-2xl border border-stone-300 dark:border-stone-600 bg-white dark:bg-stone-950 p-6 shadow-sm dark:shadow-stone-900/30">
+          <div className="rounded-2xl border border-stone-300 dark:border-stone-600 bg-white dark:bg-stone-900 p-6 shadow-sm dark:shadow-stone-900/30">
             <div className="mb-3 flex items-center gap-2">
               <span className="flex h-8 w-8 items-center justify-center rounded-full bg-emerald-100 dark:bg-emerald-900/30 text-xs font-bold text-emerald-700 dark:text-emerald-400">FDA</span>
               <h3 className="font-bold text-stone-900 dark:text-stone-100">ببتيدات معتمدة من FDA</h3>
@@ -603,7 +603,7 @@ export default function Landing() {
             </ul>
           </div>
 
-          <div className="rounded-2xl border border-stone-300 dark:border-stone-600 bg-white dark:bg-stone-950 p-6 shadow-sm dark:shadow-stone-900/30">
+          <div className="rounded-2xl border border-stone-300 dark:border-stone-600 bg-white dark:bg-stone-900 p-6 shadow-sm dark:shadow-stone-900/30">
             <div className="mb-3 flex items-center gap-2">
               <span className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-100 text-xs font-bold text-blue-700 dark:text-blue-400">RCT</span>
               <h3 className="font-bold text-stone-900 dark:text-stone-100">تجارب سريرية مرجعية</h3>
@@ -617,7 +617,7 @@ export default function Landing() {
             </ul>
           </div>
 
-          <div className="rounded-2xl border border-stone-300 dark:border-stone-600 bg-white dark:bg-stone-950 p-6 shadow-sm dark:shadow-stone-900/30">
+          <div className="rounded-2xl border border-stone-300 dark:border-stone-600 bg-white dark:bg-stone-900 p-6 shadow-sm dark:shadow-stone-900/30">
             <div className="mb-3 flex items-center gap-2">
               <span className="flex h-8 w-8 items-center justify-center rounded-full bg-amber-100 text-xs font-bold text-amber-700 dark:text-amber-400">EL</span>
               <h3 className="font-bold text-stone-900 dark:text-stone-100">مستوى الدليل واضح</h3>
@@ -642,7 +642,7 @@ export default function Landing() {
         <div className="mb-4 text-center">
           <span className="inline-block rounded-full bg-emerald-50 dark:bg-emerald-900/20 px-4 py-1.5 text-sm font-semibold text-emerald-700 dark:text-emerald-400">القيمة الحقيقية</span>
         </div>
-        <h2 className="mb-4 text-center text-3xl font-bold text-stone-900 dark:text-stone-100 md:text-4xl lg:text-5xl">
+        <h2 className="mb-4 text-center text-4xl font-extrabold text-stone-900 dark:text-stone-100 md:text-5xl lg:text-6xl">
           ماذا تحصل <span className="text-emerald-700">فعلًا؟</span>
         </h2>
         <p className="mx-auto mb-12 max-w-xl text-center text-lg text-stone-800 dark:text-stone-200">
@@ -653,7 +653,7 @@ export default function Landing() {
           {VALUE_STACK.map((item) => (
             <div
               key={item.item}
-              className="flex items-center justify-between rounded-xl border border-stone-300 dark:border-stone-600/60 bg-white dark:bg-stone-950 px-6 py-4 transition-all hover:border-emerald-200 dark:border-emerald-800"
+              className="flex items-center justify-between rounded-xl border border-stone-300 dark:border-stone-600/60 bg-white dark:bg-stone-900 px-6 py-4 transition-all hover:border-emerald-200 dark:border-emerald-800"
             >
               <div className="flex items-center gap-3">
                 <Check className="h-5 w-5 shrink-0 text-emerald-700" />
@@ -672,8 +672,8 @@ export default function Landing() {
           <p className="mt-2 text-sm font-bold text-emerald-700 dark:text-emerald-400">أقل من ريال واحد يوميًا</p>
           <span className="mt-3 inline-block rounded-full bg-emerald-600 px-5 py-1.5 text-sm font-bold text-white shadow-md">توفير 97% — وفّر {VALUE_SAVINGS_ESSENTIALS} شهريًا</span>
           <div className="mt-4 flex flex-wrap items-center justify-center gap-3 text-xs text-stone-600 dark:text-stone-300">
-            <span className="flex items-center gap-1.5 rounded-full bg-white dark:bg-stone-950 border border-emerald-200 dark:border-emerald-800 px-3 py-1.5 font-medium">📚 أكثر من ١٠,٠٠٠ ساعة بحث</span>
-            {userCount >= 10 && <span className="flex items-center gap-1.5 rounded-full bg-white dark:bg-stone-950 border border-emerald-200 dark:border-emerald-800 px-3 py-1.5 font-medium">👥 يستخدمه <AnimatedCounter end={userCount} /> شخص في السعودية</span>}
+            <span className="flex items-center gap-1.5 rounded-full bg-white dark:bg-stone-900 border border-emerald-200 dark:border-emerald-800 px-3 py-1.5 font-medium">📚 أكثر من ١٠,٠٠٠ ساعة بحث</span>
+            {userCount >= 10 && <span className="flex items-center gap-1.5 rounded-full bg-white dark:bg-stone-900 border border-emerald-200 dark:border-emerald-800 px-3 py-1.5 font-medium">👥 يستخدمه <AnimatedCounter end={userCount} /> شخص في السعودية</span>}
           </div>
           <p className="mt-4 text-sm text-stone-800 dark:text-stone-200">أو {PRICING.elite.label}/شهريًا للباقة المتقدمة مع المدرب الذكي + استشارات</p>
           <div className="mt-6 flex flex-col sm:flex-row items-center justify-center gap-3 text-sm">
@@ -690,7 +690,7 @@ export default function Landing() {
       {/* ═══════ HOW IT WORKS ═══════ */}
       <section className="cv-auto bg-gradient-to-b from-white dark:from-stone-950 via-stone-50 dark:via-stone-900 to-stone-50 dark:to-stone-900 py-24 md:py-32">
         <div className="mx-auto max-w-5xl px-6">
-          <h2 className="mb-16 text-center text-3xl font-bold text-stone-900 dark:text-stone-100 md:text-4xl">
+          <h2 className="mb-16 text-center text-4xl font-extrabold text-stone-900 dark:text-stone-100 md:text-5xl">
             ابدأ في <span className="text-emerald-700">3 خطوات</span>
           </h2>
 
@@ -725,7 +725,7 @@ export default function Landing() {
         const items = testimonials.length > 0 ? testimonials : fallback;
         return (
         <section className="cv-auto mx-auto max-w-5xl px-6 py-24 md:py-32">
-          <h2 className="mb-4 text-center text-3xl font-bold text-stone-900 dark:text-stone-100 md:text-4xl">
+          <h2 className="mb-4 text-center text-4xl font-extrabold text-stone-900 dark:text-stone-100 md:text-5xl">
             ماذا يقول <span className="text-emerald-700">المستخدمون</span>
           </h2>
           <p className="mx-auto mb-12 max-w-xl text-center text-stone-800 dark:text-stone-200">
@@ -734,7 +734,7 @@ export default function Landing() {
 
           <div className="grid gap-6 md:grid-cols-3" data-stagger>
             {items.map((t, idx) => (
-              <div key={t.name} data-reveal style={{ transitionDelay: `${idx * 0.1}s` }} className="rounded-2xl border border-stone-300 dark:border-stone-600/60 bg-white dark:bg-stone-950 p-7 transition-shadow duration-300 hover:border-emerald-200 dark:hover:border-emerald-800 hover:shadow-lg hover:-translate-y-1">
+              <div key={t.name} data-reveal style={{ transitionDelay: `${idx * 0.1}s` }} className="rounded-2xl border border-stone-300 dark:border-stone-600/60 bg-white dark:bg-stone-900 p-7 transition-shadow duration-300 hover:border-emerald-200 dark:hover:border-emerald-800 hover:shadow-lg hover:-translate-y-1">
                 <div className="mb-4 flex gap-1" dir="ltr">
                   {[1, 2, 3, 4, 5].map((s) => (
                     <Star key={s} className={cn('h-4 w-4', s <= t.rating ? 'fill-emerald-500 text-emerald-500' : 'fill-transparent text-stone-300')} />
@@ -770,7 +770,7 @@ export default function Landing() {
               ابدأ بتجربة {TRIAL_DAYS} أيام مجانية
             </span>
           </div>
-          <h2 className="mb-4 text-center text-3xl font-bold text-stone-900 dark:text-stone-100 md:text-4xl lg:text-5xl">
+          <h2 className="mb-4 text-center text-4xl font-extrabold text-stone-900 dark:text-stone-100 md:text-5xl lg:text-6xl">
             اختر <span className="text-emerald-700">خطتك</span>
           </h2>
           <p className="mx-auto mb-14 max-w-lg text-center text-lg text-stone-800 dark:text-stone-200">
@@ -780,13 +780,13 @@ export default function Landing() {
           <div className="grid gap-8 md:grid-cols-2">
             {/* Essentials */}
             <div
-              className="relative flex flex-col rounded-2xl border border-stone-300 dark:border-stone-600/60 bg-white dark:bg-stone-950 p-8 transition-all duration-300 hover:shadow-lg hover:border-stone-400 dark:hover:border-stone-600 hover:-translate-y-1"
+              className="relative flex flex-col rounded-2xl border border-stone-300 dark:border-stone-600/60 bg-white dark:bg-stone-900 p-8 transition-all duration-300 hover:shadow-lg hover:border-stone-400 dark:hover:border-stone-600 hover:-translate-y-1"
             >
               <h3 className="mb-0.5 text-xl font-bold text-stone-900 dark:text-stone-100">Essentials</h3>
               <p className="mb-1 text-xs font-medium text-emerald-700">الأساسية</p>
               <p className="mb-6 text-sm text-stone-800 dark:text-stone-200">كل الأدوات الأساسية</p>
               <div className="mb-6">
-                <span className="text-3xl font-black text-stone-900 dark:text-stone-100 sm:text-5xl">{PRICING.essentials.label}</span>
+                <span className="price-huge text-stone-900 dark:text-stone-100">{PRICING.essentials.label}</span>
                 <span className="text-base text-stone-800 dark:text-stone-200"> /شهريًا</span>
               </div>
               <ul className="mb-8 flex-1 space-y-3">
@@ -814,7 +814,7 @@ export default function Landing() {
 
             {/* Elite */}
             <div
-              className="relative flex flex-col rounded-2xl border-2 border-emerald-200 dark:border-emerald-800 bg-white dark:bg-stone-950 p-8 shadow-lg shadow-emerald-600/5"
+              className="relative flex flex-col rounded-2xl border-2 border-emerald-200 dark:border-emerald-800 bg-white dark:bg-stone-900 p-8 shadow-lg shadow-emerald-600/5"
             >
               <span className="absolute -top-3 end-6 rounded-full bg-emerald-600 px-4 py-1 text-xs font-bold text-white">الأفضل قيمة</span>
               <div className="mb-0.5 flex items-center gap-2">
@@ -824,7 +824,7 @@ export default function Landing() {
               <p className="mb-1 text-xs font-medium text-emerald-700">المتقدّمة</p>
               <p className="mb-6 text-sm text-stone-800 dark:text-stone-200">كل شيء + مدرب ذكي + استشارات</p>
               <div className="mb-6">
-                <span className="text-3xl font-black text-stone-900 dark:text-stone-100 sm:text-5xl">{PRICING.elite.label}</span>
+                <span className="price-huge text-stone-900 dark:text-stone-100">{PRICING.elite.label}</span>
                 <span className="text-base text-stone-800 dark:text-stone-200"> /شهريًا</span>
               </div>
               <ul className="mb-8 flex-1 space-y-3">
@@ -843,7 +843,7 @@ export default function Landing() {
               </ul>
               <Link
                 to={user ? "/pricing" : "/signup?redirect=/pricing"}
-                className="btn-primary-glow inline-flex items-center justify-center rounded-full bg-emerald-600 px-6 py-3 text-base font-bold text-white transition-all hover:bg-emerald-700 active:scale-[0.98]"
+                className="btn-cta-gradient inline-flex items-center justify-center rounded-full px-6 py-3 text-base font-bold text-white"
               >
                 {ctaTextShort}
               </Link>
@@ -906,7 +906,7 @@ export default function Landing() {
 
       {/* ═══════ FAQ ═══════ */}
       <section className="cv-auto mx-auto max-w-3xl px-6 py-16 md:py-24" aria-label="الأسئلة الشائعة">
-        <h2 className="mb-10 text-center text-3xl font-bold text-stone-900 dark:text-stone-100 md:text-4xl">
+        <h2 className="mb-10 text-center text-4xl font-extrabold text-stone-900 dark:text-stone-100 md:text-5xl">
           أسئلة <span className="text-emerald-700">شائعة</span>
         </h2>
         <div className="space-y-3">
@@ -920,7 +920,7 @@ export default function Landing() {
             { q: '6 ببتيدات مجانية — بدون تسجيل؟', a: 'نعم! 6 ببتيد مع بروتوكول كامل متاح مجانًا بدون إنشاء حساب. جرّبها الآن من المكتبة.' },
             { q: 'ماذا أحصل بعد الاشتراك؟', a: `بروتوكولات كاملة لـ ${PEPTIDE_COUNT} ببتيد، حاسبة جرعات دقيقة، دليل تحاليل مخبرية، بروتوكولات مُجمَّعة، دليل حقن عملي، فحص تعارضات، ومدرب ذكي (في باقة Elite المتقدّمة).` },
           ].map((faq) => (
-            <details key={faq.q} className="group rounded-2xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950 transition-all hover:border-emerald-200 dark:border-emerald-800">
+            <details key={faq.q} className="group rounded-2xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 transition-all hover:border-emerald-200 dark:border-emerald-800">
               <summary className="flex cursor-pointer items-center justify-between px-6 py-5 text-base font-bold text-stone-900 dark:text-stone-100 [&::-webkit-details-marker]:hidden" aria-label={faq.q}>
                 {faq.q}
                 <ChevronDown className="h-4 w-4 shrink-0 text-stone-500 dark:text-stone-300 transition-transform group-open:rotate-180" aria-hidden="true" />
@@ -949,7 +949,7 @@ export default function Landing() {
       </section>
 
       {/* ═══════ FINAL CTA ═══════ */}
-      <section className="cv-auto bg-white dark:bg-stone-950 py-20">
+      <section className="cv-auto bg-white dark:bg-stone-900 py-20">
         <div className="mx-auto max-w-3xl px-6 text-center">
           <div className="mb-8 rounded-xl border border-amber-300 dark:border-amber-700 bg-amber-50 dark:bg-amber-900/20 p-5 text-start">
             <p className="text-sm font-bold text-amber-900 dark:text-amber-200 mb-2">تنويه طبي مهم</p>
@@ -961,7 +961,7 @@ export default function Landing() {
           </div>
           <Link
             to={ctaLink}
-            className="btn-primary-glow btn-hero inline-flex items-center justify-center gap-3 rounded-full bg-emerald-600 font-extrabold text-white transition-all hover:bg-emerald-700 active:scale-[0.98]"
+            className="btn-cta-gradient btn-hero inline-flex items-center justify-center gap-3 rounded-full font-extrabold text-white"
           >
             <span>{user ? "اشترك الآن" : "ابدأ تجربتك المجانية"}</span>
             <ArrowLeft className="h-6 w-6" />

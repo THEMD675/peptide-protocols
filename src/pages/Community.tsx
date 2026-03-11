@@ -312,7 +312,7 @@ function StarRating({ rating }: { rating: number }) {
 function Leaderboard({ leaders }: { leaders: LeaderEntry[] }) {
   if (leaders.length === 0) return null;
   return (
-    <div className="rounded-2xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950 p-5 shadow-sm dark:shadow-stone-900/30">
+    <div className="rounded-2xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 p-5 shadow-sm dark:shadow-stone-900/30">
       <div className="mb-4 flex items-center gap-2">
         <Trophy className="h-5 w-5 text-amber-500" />
         <h3 className="text-base font-bold text-stone-900 dark:text-stone-100">أكثر المشاركين</h3>
@@ -718,7 +718,7 @@ export default function Community() {
   const parsePeptideNames = (name: string) => name.split(',').map(s => s.trim()).filter(Boolean);
 
   return (
-    <div className="min-h-screen bg-white dark:bg-stone-950 animate-fade-in" dir="rtl">
+    <div className="min-h-screen bg-white dark:bg-stone-900 animate-fade-in" dir="rtl">
       <Helmet>
         <title>مجتمع الببتيدات | pptides</title>
         <meta name="description" content="شارك تجربتك مع الببتيدات واقرأ تجارب حقيقية من مستخدمين آخرين. بروتوكولات مُجرَّبة، نتائج فعلية، وتقييمات صادقة." />
@@ -781,7 +781,7 @@ export default function Community() {
                     <p className="mt-1 text-sm text-stone-600 dark:text-stone-300">ساعد غيرك — شارك البروتوكول والنتائج</p>
                   </button>
                 ) : (
-                  <form onSubmit={handleSubmit} className="rounded-2xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950 p-6 shadow-sm dark:shadow-stone-900/30 md:p-8">
+                  <form onSubmit={handleSubmit} className="rounded-2xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 p-6 shadow-sm dark:shadow-stone-900/30 md:p-8">
                     <div className="mb-6 flex items-center gap-3">
                       <div className={cn(
                         'flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-sm font-bold text-white',
@@ -853,7 +853,7 @@ export default function Community() {
                               'rounded-full border px-4 py-2 min-h-[44px] text-sm font-medium transition-all',
                               goal === g
                                 ? 'border-emerald-300 dark:border-emerald-700 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-800 dark:text-emerald-300'
-                                : 'border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950 text-stone-600 dark:text-stone-300 hover:border-emerald-200 dark:hover:border-emerald-800'
+                                : 'border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 text-stone-600 dark:text-stone-300 hover:border-emerald-200 dark:hover:border-emerald-800'
                             )}
                           >
                             {g}
@@ -962,7 +962,7 @@ export default function Community() {
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     placeholder="ابحث في التجارب..."
-                    className="w-full rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950 py-3 pe-4 ps-10 text-sm text-stone-900 dark:text-stone-100 placeholder:text-stone-400 focus:border-emerald-300 dark:focus:border-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900"
+                    className="w-full rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 py-3 pe-4 ps-10 text-sm text-stone-900 dark:text-stone-100 placeholder:text-stone-400 focus:border-emerald-300 dark:focus:border-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900"
                   />
                   {searchQuery && (
                     <button
@@ -990,7 +990,7 @@ export default function Community() {
                               'shrink-0 rounded-full border px-4 py-2 min-h-[44px] text-sm font-medium transition-all',
                               filterGoal === g
                                 ? 'border-emerald-400 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-800 dark:text-emerald-300'
-                                : 'border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950 text-stone-600 dark:text-stone-300 hover:border-emerald-200 dark:hover:border-emerald-800'
+                                : 'border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 text-stone-600 dark:text-stone-300 hover:border-emerald-200 dark:hover:border-emerald-800'
                             )}
                           >
                             {label}
@@ -1008,7 +1008,7 @@ export default function Community() {
                       value={filterPeptide}
                       onChange={(e) => setFilterPeptide(e.target.value)}
                       aria-label="فلترة حسب الببتيد"
-                      className="rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950 px-3 py-2 min-h-[44px] text-sm text-stone-700 dark:text-stone-200 focus:border-emerald-300 dark:focus:border-emerald-700 focus:outline-none"
+                      className="rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 px-3 py-2 min-h-[44px] text-sm text-stone-700 dark:text-stone-200 focus:border-emerald-300 dark:focus:border-emerald-700 focus:outline-none"
                     >
                       <option value="">كل الببتيدات</option>
                       {uniquePeptides.map(p => (
@@ -1022,7 +1022,7 @@ export default function Community() {
                     value={sortBy}
                     onChange={(e) => setSortBy(e.target.value as typeof validSorts[number])}
                     aria-label="ترتيب التجارب"
-                    className="rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950 px-3 py-2 min-h-[44px] text-sm text-stone-700 dark:text-stone-200 focus:border-emerald-300 dark:focus:border-emerald-700 focus:outline-none"
+                    className="rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 px-3 py-2 min-h-[44px] text-sm text-stone-700 dark:text-stone-200 focus:border-emerald-300 dark:focus:border-emerald-700 focus:outline-none"
                   >
                     <option value="newest">الأحدث</option>
                     <option value="highest">الأعلى تقييمًا</option>
@@ -1067,7 +1067,7 @@ export default function Community() {
                     <p className="mx-auto max-w-md text-sm leading-relaxed text-stone-600 dark:text-stone-300 mb-4">
                       شارك المجتمع تجربتك مع الببتيدات — أي ببتيد استخدمت، البروتوكول الذي اتبعته، والنتائج التي حصلت عليها.
                     </p>
-                    <div className="mx-auto max-w-sm rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950 p-4 text-start text-sm text-stone-600 dark:text-stone-300">
+                    <div className="mx-auto max-w-sm rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 p-4 text-start text-sm text-stone-600 dark:text-stone-300">
                       <p className="font-bold text-stone-900 dark:text-stone-100 mb-2">مثال على مشاركة:</p>
                       <p className="mb-1">🧪 <strong>الببتيد:</strong> BPC-157</p>
                       <p className="mb-1">🎯 <strong>الهدف:</strong> تعافي من إصابة</p>
@@ -1117,7 +1117,7 @@ export default function Community() {
                     <p className="text-base font-bold text-stone-800 dark:text-stone-200">لا توجد تجارب لهذا الهدف بعد</p>
                     <p className="mt-1.5 text-sm text-stone-500 dark:text-stone-300">كن أول من يشارك تجربته وتُلهم الآخرين</p>
                     <div className="mt-4 flex flex-col items-center gap-2 sm:flex-row sm:justify-center">
-                      <button onClick={() => { setFilterGoal('all'); setFilterPeptide(''); setSearchQuery(''); }} className="inline-flex min-h-[44px] items-center rounded-full border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950 px-5 py-2 text-sm font-bold text-stone-700 dark:text-stone-200 transition-colors hover:border-emerald-300 dark:hover:border-emerald-700">عرض الكل</button>
+                      <button onClick={() => { setFilterGoal('all'); setFilterPeptide(''); setSearchQuery(''); }} className="inline-flex min-h-[44px] items-center rounded-full border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 px-5 py-2 text-sm font-bold text-stone-700 dark:text-stone-200 transition-colors hover:border-emerald-300 dark:hover:border-emerald-700">عرض الكل</button>
                     </div>
                   </div>
                 )}
@@ -1129,7 +1129,7 @@ export default function Community() {
                   const replyCount = replyCountByPost[log.id] ?? 0;
 
                   return (
-                    <article key={log.id} className="rounded-2xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950 p-6 shadow-sm dark:shadow-stone-900/30 transition-all hover:border-emerald-200 dark:hover:border-emerald-800 hover:shadow-md">
+                    <article key={log.id} className="rounded-2xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 p-6 shadow-sm dark:shadow-stone-900/30 transition-all hover:border-emerald-200 dark:hover:border-emerald-800 hover:shadow-md">
                       {/* Post header */}
                       <div className="mb-4 flex items-start justify-between gap-2">
                         <div className="flex items-center gap-3">
@@ -1402,7 +1402,7 @@ export default function Community() {
                                   placeholder="اكتب ردًا..."
                                   maxLength={1000}
                                   rows={1}
-                                  className="flex-1 resize-none rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950 px-3 py-2 text-sm text-stone-900 dark:text-stone-100 placeholder:text-stone-400 focus:border-emerald-300 dark:focus:border-emerald-700 focus:outline-none focus:ring-1 focus:ring-emerald-100 dark:focus:ring-emerald-900"
+                                  className="flex-1 resize-none rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 px-3 py-2 text-sm text-stone-900 dark:text-stone-100 placeholder:text-stone-400 focus:border-emerald-300 dark:focus:border-emerald-700 focus:outline-none focus:ring-1 focus:ring-emerald-100 dark:focus:ring-emerald-900"
                                   onKeyDown={e => {
                                     if (e.key === 'Enter' && !e.shiftKey) {
                                       e.preventDefault();
@@ -1457,7 +1457,7 @@ export default function Community() {
                       }
                     }}
                     disabled={loadingMore}
-                    className="flex w-full items-center justify-center gap-2 rounded-2xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950 py-4 min-h-[44px] text-sm font-bold text-stone-600 dark:text-stone-300 transition-all hover:border-emerald-300 dark:hover:border-emerald-700 hover:text-emerald-700 dark:hover:text-emerald-400 disabled:opacity-50"
+                    className="flex w-full items-center justify-center gap-2 rounded-2xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 py-4 min-h-[44px] text-sm font-bold text-stone-600 dark:text-stone-300 transition-all hover:border-emerald-300 dark:hover:border-emerald-700 hover:text-emerald-700 dark:hover:text-emerald-400 disabled:opacity-50"
                   >
                     {loadingMore ? 'جارٍ التحميل...' : 'تحميل المزيد'}
                   </button>
@@ -1473,7 +1473,7 @@ export default function Community() {
 
             {/* Community stats */}
             {logs.length > 0 && (
-              <div className="rounded-2xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950 p-5 shadow-sm dark:shadow-stone-900/30">
+              <div className="rounded-2xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 p-5 shadow-sm dark:shadow-stone-900/30">
                 <h3 className="mb-3 text-base font-bold text-stone-900 dark:text-stone-100">إحصائيات المجتمع</h3>
                 <div className="space-y-2 text-sm">
                   <div className="flex justify-between">

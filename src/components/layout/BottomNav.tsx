@@ -21,7 +21,7 @@ export default memo(function BottomNav() {
   return (
     <nav
       aria-label="التنقل السريع"
-      className="fixed inset-x-0 bottom-0 z-30 border-t border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950 pb-[env(safe-area-inset-bottom)] md:hidden"
+      className="fixed inset-x-0 bottom-0 z-30 border-t border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 pb-[env(safe-area-inset-bottom)] md:hidden"
     >
       <div className="flex items-stretch">
         {tabs.map(({ to, icon: Icon, label }) => {

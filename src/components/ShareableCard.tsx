@@ -110,20 +110,20 @@ export default memo(function ShareableCard(props: ShareableCardProps) {
         <h3 className="mt-3 text-xl font-black text-stone-900 dark:text-stone-100">{props.peptideName}</h3>
         <p className="text-sm text-stone-500 dark:text-stone-300" dir="ltr">{props.peptideNameEn}</p>
         <div className="mt-4 grid grid-cols-2 gap-3">
-          <div className="rounded-xl bg-white dark:bg-stone-950 border border-stone-200 dark:border-stone-600 p-3">
+          <div className="rounded-xl bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-600 p-3">
             <p className="text-xs text-stone-500 dark:text-stone-300">الجرعة</p>
             <p className="text-lg font-black text-emerald-700" dir="ltr">{props.dose} {props.unit}</p>
           </div>
-          <div className="rounded-xl bg-white dark:bg-stone-950 border border-stone-200 dark:border-stone-600 p-3">
+          <div className="rounded-xl bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-600 p-3">
             <p className="text-xs text-stone-500 dark:text-stone-300">التكرار</p>
             <p className="text-sm font-bold text-stone-900 dark:text-stone-100">{FREQUENCY_LABELS[props.frequency] ?? props.frequency}</p>
           </div>
-          <div className="rounded-xl bg-white dark:bg-stone-950 border border-stone-200 dark:border-stone-600 p-3">
+          <div className="rounded-xl bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-600 p-3">
             <p className="text-xs text-stone-500 dark:text-stone-300">التقدّم</p>
             <p className="text-lg font-black text-stone-900 dark:text-stone-100">يوم {props.daysSinceStart}/{props.cycleWeeks * 7}</p>
           </div>
           {props.adherencePercent != null && (
-            <div className="rounded-xl bg-white dark:bg-stone-950 border border-stone-200 dark:border-stone-600 p-3">
+            <div className="rounded-xl bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-600 p-3">
               <p className="text-xs text-stone-500 dark:text-stone-300">الالتزام</p>
               <p className="text-lg font-black text-emerald-700">{props.adherencePercent}%</p>
             </div>

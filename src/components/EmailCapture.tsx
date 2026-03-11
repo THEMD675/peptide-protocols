@@ -76,7 +76,7 @@ export default function EmailCapture() {
   }
 
   return (
-    <div className="rounded-2xl border border-emerald-300 dark:border-emerald-700 bg-white dark:bg-stone-950/5 p-6">
+    <div className="rounded-2xl border border-emerald-300 dark:border-emerald-700 bg-white dark:bg-stone-900/5 p-6">
       <form
         onSubmit={handleSubmit}
         aria-label="الاشتراك في القائمة البريدية"
@@ -91,7 +91,7 @@ export default function EmailCapture() {
             placeholder="name@example.com"
             aria-label="البريد الإلكتروني"
             required
-            className="w-full rounded-full bg-white dark:bg-stone-950/10 border border-white/20 py-3.5 ps-11 pe-4 text-white placeholder:text-white/40 outline-none focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900 transition-all"
+            className="w-full rounded-full bg-white dark:bg-stone-900/10 border border-white/20 py-3.5 ps-11 pe-4 text-white placeholder:text-white/40 outline-none focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900 transition-all"
           />
           <input
             type="text"

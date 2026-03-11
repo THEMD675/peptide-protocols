@@ -36,7 +36,7 @@ const dataNeverDo = [
 
 export default function Transparency() {
   return (
-    <div className="min-h-screen bg-white dark:bg-stone-950 animate-fade-in">
+    <div className="min-h-screen bg-white dark:bg-stone-900 animate-fade-in">
       <Helmet>
         <title>الشفافية — كيف نكسب المال ونحمي بياناتك | pptides</title>
         <meta name="description" content="pptides منصة تعليمية بحتة — لا نبيع ببتيدات ولا نأخذ عمولات من الموردين. اشتراكك الشهري هو مصدر دخلنا الوحيد. شفافية كاملة مع مستخدمينا." />
@@ -96,7 +96,7 @@ export default function Transparency() {
 
           {/* What we do / don't do */}
           <div className="grid gap-6 md:grid-cols-2">
-            <section className="rounded-2xl border border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-950 p-6">
+            <section className="rounded-2xl border border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-900 p-6">
               <h2 className="mb-4 text-lg font-bold text-stone-900 dark:text-stone-100">✅ ما نفعله</h2>
               <ul className="space-y-3">
                 {whatWeDo.map((item) => (
@@ -108,7 +108,7 @@ export default function Transparency() {
               </ul>
             </section>
 
-            <section className="rounded-2xl border border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-950 p-6">
+            <section className="rounded-2xl border border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-900 p-6">
               <h2 className="mb-4 text-lg font-bold text-stone-900 dark:text-stone-100">❌ ما لا نفعله — أبدًا</h2>
               <ul className="space-y-3">
                 {whatWeDontDo.map((item) => (
@@ -160,7 +160,7 @@ export default function Transparency() {
 
           {/* Pricing Philosophy */}
           <section>
-            <div className="rounded-2xl border border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-950 p-8">
+            <div className="rounded-2xl border border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-900 p-8">
               <div className="flex items-start gap-4">
                 <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-emerald-100 dark:bg-emerald-900/30">
                   <Scale className="h-6 w-6 text-emerald-700" />
@@ -219,7 +219,7 @@ export default function Transparency() {
                   <h3 className="mb-3 font-bold text-stone-900 dark:text-stone-100">ما نجمعه ولماذا</h3>
                   <div className="mb-6 space-y-3">
                     {dataCollected.map(({ item, reason }) => (
-                      <div key={item} className="rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950 p-4">
+                      <div key={item} className="rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 p-4">
                         <div className="text-sm font-bold text-stone-900 dark:text-stone-100">{item}</div>
                         <div className="mt-1 text-sm text-stone-600 dark:text-stone-300">{reason}</div>
                       </div>
@@ -261,7 +261,7 @@ export default function Transparency() {
           </section>
 
           {/* Footer CTA */}
-          <div className="rounded-2xl border border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-950 p-8 text-center">
+          <div className="rounded-2xl border border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-900 p-8 text-center">
             <p className="mb-2 text-lg font-bold text-stone-900 dark:text-stone-100">أسئلة أخرى عن شفافيتنا؟</p>
             <p className="mb-6 text-sm text-stone-600 dark:text-stone-300">
               نرحب بأي استفسار — تواصل معنا مباشرة على{' '}

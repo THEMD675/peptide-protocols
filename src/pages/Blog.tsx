@@ -179,7 +179,7 @@ export default function Blog() {
                 value={search}
                 onChange={e => setSearch(e.target.value)}
                 placeholder="ابحث في المقالات..."
-                className="w-full rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950 py-2.5 pe-4 ps-10 text-sm text-stone-900 dark:text-stone-100 placeholder:text-stone-400 focus:border-emerald-300 dark:border-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900"
+                className="w-full rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-800 py-2.5 pe-4 ps-10 text-sm text-stone-900 dark:text-stone-100 placeholder:text-stone-400 dark:placeholder:text-stone-500 focus:border-emerald-400 dark:focus:border-emerald-600 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900/30 transition-colors min-h-[44px]"
               />
               {search && (
                 <button
@@ -202,7 +202,7 @@ export default function Blog() {
                       'shrink-0 rounded-full border px-4 py-2 min-h-[44px] text-sm font-medium transition-all',
                       !activeTag
                         ? 'border-emerald-400 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-800 dark:text-emerald-300'
-                        : 'border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950 text-stone-600 dark:text-stone-300 hover:border-emerald-200 dark:border-emerald-800'
+                        : 'border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 text-stone-600 dark:text-stone-300 hover:border-emerald-200 dark:border-emerald-800'
                     )}
                   >
                     الكل
@@ -215,7 +215,7 @@ export default function Blog() {
                         'shrink-0 inline-flex items-center gap-1.5 rounded-full border px-4 py-2 min-h-[44px] text-sm font-medium transition-all',
                         activeTag === tag
                           ? 'border-emerald-400 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-800 dark:text-emerald-300'
-                          : 'border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950 text-stone-600 dark:text-stone-300 hover:border-emerald-200 dark:border-emerald-800'
+                          : 'border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 text-stone-600 dark:text-stone-300 hover:border-emerald-200 dark:border-emerald-800'
                       )}
                     >
                       <Tag className="h-3 w-3" />
@@ -231,7 +231,7 @@ export default function Blog() {
         {loading && (
           <div className="space-y-5">
             {[1, 2, 3].map(i => (
-              <div key={i} className="animate-pulse rounded-2xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950 p-6">
+              <div key={i} className="animate-pulse rounded-2xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-900 p-6">
                 <div className="h-5 w-3/4 rounded bg-stone-200 dark:bg-stone-700" />
                 <div className="mt-3 h-4 w-full rounded bg-stone-100 dark:bg-stone-800" />
                 <div className="mt-2 h-4 w-2/3 rounded bg-stone-100 dark:bg-stone-800" />
@@ -281,7 +281,7 @@ export default function Blog() {
               <a href="/library" className="inline-flex items-center gap-2 rounded-full bg-emerald-600 px-6 py-2.5 text-sm font-bold text-white transition-colors hover:bg-emerald-700">
                 تصفّح مكتبة الببتيدات
               </a>
-              <a href="/coach" className="inline-flex items-center gap-2 rounded-full border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950 px-6 py-2.5 text-sm font-bold text-stone-700 dark:text-stone-200 transition-colors hover:border-emerald-300 dark:hover:border-emerald-700">
+              <a href="/coach" className="inline-flex items-center gap-2 rounded-full border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 px-6 py-2.5 text-sm font-bold text-stone-700 dark:text-stone-200 transition-colors hover:border-emerald-300 dark:hover:border-emerald-700">
                 اسأل المدرب الذكي
               </a>
             </div>
@@ -307,19 +307,21 @@ export default function Blog() {
               <Link
                 key={post.id}
                 to={`/blog/${post.slug}`}
-                className="block overflow-hidden rounded-2xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950 shadow-sm dark:shadow-stone-900/30 blog-card"
+                className="group block overflow-hidden rounded-2xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-900 shadow-sm dark:shadow-stone-900/40 blog-card transition-all duration-300 hover:shadow-lg hover:border-emerald-200 dark:hover:border-emerald-800"
               >
                 <article>
                   {post.cover_image_url && (
+                    <div className="overflow-hidden">
                     <img
                       src={post.cover_image_url}
                       alt={post.title_ar}
-                      className="h-48 w-full object-cover sm:h-56"
+                      className="blog-card-img h-48 w-full object-cover sm:h-56"
                       loading="lazy"
                       width="800"
                       height="192"
                       onError={e => { (e.target as HTMLImageElement).style.display = 'none'; }}
                     />
+                    </div>
                   )}
                   <div className="p-6">
                   <h2 className="text-lg font-bold text-stone-900 dark:text-stone-100">{post.title_ar}</h2>
@@ -360,7 +362,7 @@ export default function Blog() {
                 <button
                   onClick={loadMorePosts}
                   disabled={loadingMore}
-                  className="inline-flex items-center gap-2 rounded-full border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950 px-8 py-3 text-sm font-bold text-stone-700 dark:text-stone-200 transition-all hover:border-emerald-300 dark:hover:border-emerald-700 hover:shadow-sm disabled:opacity-50"
+                  className="inline-flex items-center gap-2 rounded-full border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 px-8 py-3 text-sm font-bold text-stone-700 dark:text-stone-200 transition-all hover:border-emerald-300 dark:hover:border-emerald-700 hover:shadow-sm disabled:opacity-50"
                 >
                   {loadingMore ? 'جاري التحميل...' : 'تحميل المزيد'}
                 </button>

@@ -63,7 +63,7 @@ export default function PaymentProcessing() {
   };
 
   return (
-    <div className="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-white dark:bg-stone-950 px-6">
+    <div className="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-white dark:bg-stone-900 px-6">
       <div className="w-full max-w-sm text-center animate-fade-in">
         {stage === 'success' ? (
           <>

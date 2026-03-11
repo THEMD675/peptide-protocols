@@ -670,7 +670,7 @@ export default function Dashboard() {
               </div>
             </div>
             {total > 0 && (
-              <div className="rounded-xl border border-stone-100 dark:border-stone-800 bg-white dark:bg-stone-950 p-3">
+              <div className="rounded-xl border border-stone-100 dark:border-stone-800 bg-white dark:bg-stone-900 p-3">
                 <div className="flex items-center justify-between mb-1.5">
                   <p className="text-[11px] font-bold text-stone-600 dark:text-stone-300">الإنجاز التالي: {milestoneNext} حقنة</p>
                   <p className="text-[11px] font-bold text-emerald-700">{milestoneProgress}%</p>
@@ -749,7 +749,7 @@ export default function Dashboard() {
             <div className="relative border-s-2 border-emerald-200 dark:border-emerald-800 ps-6 space-y-4">
               {journeyEvents.map((event, i) => (
                 <div key={i} className="relative">
-                  <div className="absolute -start-[9px] top-1 h-4 w-4 rounded-full border-2 border-emerald-400 bg-white dark:bg-stone-950" />
+                  <div className="absolute -start-[9px] top-1 h-4 w-4 rounded-full border-2 border-emerald-400 bg-white dark:bg-stone-900" />
                   <p className="text-sm font-bold text-stone-800 dark:text-stone-200">{event.text}</p>
                   {event.date && (
                     <p className="text-xs text-stone-500 dark:text-stone-300 mt-0.5">
@@ -821,7 +821,7 @@ export default function Dashboard() {
               const showLabReminder = daysSinceStart >= 21 && relatedLabs.length > 0;
 
               return (
-                <div key={proto.id} className="rounded-2xl border border-emerald-200 dark:border-emerald-800 bg-white dark:bg-stone-950 p-5 transition-all hover:shadow-md">
+                <div key={proto.id} className="rounded-2xl border border-emerald-200 dark:border-emerald-800 bg-white dark:bg-stone-900 p-5 transition-all hover:shadow-md">
                   <div className="flex items-start gap-4">
                     <ProgressRing current={daysSinceStart} total={totalDays} size={64} label={`يوم ${daysSinceStart}`} />
                     <div className="flex-1 min-w-0">
@@ -1014,7 +1014,7 @@ export default function Dashboard() {
                 <Link
                   key={peptide.id}
                   to={`/peptide/${peptide.id}`}
-                  className="group rounded-2xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950 p-5 card-lift hover:border-emerald-400 hover:shadow-emerald-600/10"
+                  className="group rounded-2xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 p-5 card-lift hover:border-emerald-400 hover:shadow-emerald-600/10"
                 >
                   <div className="flex items-center gap-3 mb-2">
                     <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-50 dark:bg-emerald-900/20 transition-colors group-hover:bg-emerald-100 dark:bg-emerald-900/30">
@@ -1042,7 +1042,7 @@ export default function Dashboard() {
       {wellnessTrend && (wellnessTrend.avg > 0 || wellnessTrend.sideEffects7d > 0) && (
         <div className="mb-8 grid gap-4 sm:grid-cols-2">
           {wellnessTrend.avg > 0 && (
-            <div className="rounded-2xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950 p-5 shadow-sm dark:shadow-stone-900/30">
+            <div className="rounded-2xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 p-5 shadow-sm dark:shadow-stone-900/30">
               <div className="flex items-center gap-2 mb-2">
                 <HeartPulse className="h-5 w-5 text-emerald-700" />
                 <h3 className="text-sm font-bold text-stone-900 dark:text-stone-100">معدل العافية (٧ أيام)</h3>
@@ -1123,7 +1123,7 @@ export default function Dashboard() {
             {activity.todayPlan.map(item => (
               <div key={item.peptide} className={cn(
                 'flex items-center justify-between rounded-2xl border px-5 py-4 transition-all',
-                item.done ? 'border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-900/20' : 'border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950'
+                item.done ? 'border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-900/20' : 'border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900'
               )}>
                 <div className="flex items-center gap-3">
                   {item.done ? (
@@ -1156,7 +1156,7 @@ export default function Dashboard() {
         <div className="mb-8">
           <h2 className="mb-4 text-xl font-bold text-stone-900 dark:text-stone-100">نشاطك</h2>
           <div className="grid grid-cols-2 gap-4 sm:grid-cols-4 mb-4">
-            <div className="rounded-2xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950 p-4 text-center shadow-sm dark:shadow-stone-900/30">
+            <div className="rounded-2xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 p-4 text-center shadow-sm dark:shadow-stone-900/30">
               <Clock className="mx-auto mb-1 h-5 w-5 text-emerald-500" />
               <p className="text-2xl font-black text-stone-900 dark:text-stone-100">
                 {(() => {
@@ -1173,23 +1173,23 @@ export default function Dashboard() {
               </p>
               <p className="text-xs text-stone-500 dark:text-stone-300">آخر حقنة منذ</p>
             </div>
-            <div className="rounded-2xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950 p-4 text-center shadow-sm dark:shadow-stone-900/30">
+            <div className="rounded-2xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 p-4 text-center shadow-sm dark:shadow-stone-900/30">
               <Flame className="mx-auto mb-1 h-5 w-5 text-orange-500" />
               <p className="text-2xl font-black text-stone-900 dark:text-stone-100">{activity.streak}</p>
               <p className="text-xs text-stone-500 dark:text-stone-300">أيام متتالية</p>
             </div>
-            <div className="rounded-2xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950 p-4 text-center shadow-sm dark:shadow-stone-900/30">
+            <div className="rounded-2xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 p-4 text-center shadow-sm dark:shadow-stone-900/30">
               <Syringe className="mx-auto mb-1 h-5 w-5 text-emerald-500" />
               <p className="text-2xl font-black text-stone-900 dark:text-stone-100">{activity.uniquePeptidesCount}</p>
               <p className="text-xs text-stone-500 dark:text-stone-300">ببتيدات نشطة</p>
             </div>
-            <div className="rounded-2xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950 p-4 text-center shadow-sm dark:shadow-stone-900/30">
+            <div className="rounded-2xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 p-4 text-center shadow-sm dark:shadow-stone-900/30">
               <TrendingUp className="mx-auto mb-1 h-5 w-5 text-blue-500" />
               <p className="text-2xl font-black text-stone-900 dark:text-stone-100">{activity.totalInjections}</p>
               <p className="text-xs text-stone-500 dark:text-stone-300">حقن مسجّلة</p>
             </div>
           </div>
-          <div className="rounded-2xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950 p-4">
+          <div className="rounded-2xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 p-4">
             <div className="flex items-center justify-between mb-3">
               <h3 className="text-sm font-bold text-stone-900 dark:text-stone-100">آخر الحقن</h3>
               <Link to="/tracker" className="text-xs font-semibold text-emerald-700 hover:underline">عرض الكل</Link>
@@ -1224,7 +1224,7 @@ export default function Dashboard() {
         }
 
         return (
-          <div className="mb-8 rounded-2xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950 p-5 shadow-sm dark:shadow-stone-900/30">
+          <div className="mb-8 rounded-2xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 p-5 shadow-sm dark:shadow-stone-900/30">
             <div className="flex items-center justify-between mb-3">
               <h3 className="text-sm font-bold text-stone-900 dark:text-stone-100">آخر 30 يوم</h3>
               <span className="text-xs text-stone-500 dark:text-stone-300">{days.filter(d => d.count > 0).length} يوم نشط</span>
@@ -1313,7 +1313,7 @@ export default function Dashboard() {
 
               {/* VIP Quick-Start Cards */}
               <div className="grid gap-3 sm:grid-cols-2 mt-6 text-start">
-                <Link to="/guide" className="group flex items-center gap-3 rounded-xl border border-emerald-200 dark:border-emerald-800 bg-white dark:bg-stone-950 p-4 transition-all hover:border-emerald-400 hover:shadow-md hover:-translate-y-0.5 min-h-[44px]" style={{ animation: 'dash-card-in 0.5s ease-out 0.3s both' }}>
+                <Link to="/guide" className="group flex items-center gap-3 rounded-xl border border-emerald-200 dark:border-emerald-800 bg-white dark:bg-stone-900 p-4 transition-all hover:border-emerald-400 hover:shadow-md hover:-translate-y-0.5 min-h-[44px]" style={{ animation: 'dash-card-in 0.5s ease-out 0.3s both' }}>
                   <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-amber-100 dark:bg-amber-900/30 transition-colors group-hover:bg-amber-200">
                     <ClipboardList className="h-5 w-5 text-amber-700" />
                   </div>
@@ -1322,7 +1322,7 @@ export default function Dashboard() {
                     <p className="text-xs text-stone-500 dark:text-stone-300">ابدأ هنا — خطوة بخطوة</p>
                   </div>
                 </Link>
-                <Link to="/library" className="group flex items-center gap-3 rounded-xl border border-emerald-200 dark:border-emerald-800 bg-white dark:bg-stone-950 p-4 transition-all hover:border-emerald-400 hover:shadow-md hover:-translate-y-0.5 min-h-[44px]" style={{ animation: 'dash-card-in 0.5s ease-out 0.45s both' }}>
+                <Link to="/library" className="group flex items-center gap-3 rounded-xl border border-emerald-200 dark:border-emerald-800 bg-white dark:bg-stone-900 p-4 transition-all hover:border-emerald-400 hover:shadow-md hover:-translate-y-0.5 min-h-[44px]" style={{ animation: 'dash-card-in 0.5s ease-out 0.45s both' }}>
                   <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-100 dark:bg-emerald-900/30 transition-colors group-hover:bg-emerald-200">
                     <BookOpen className="h-5 w-5 text-emerald-700" />
                   </div>
@@ -1331,7 +1331,7 @@ export default function Dashboard() {
                     <p className="text-xs text-stone-500 dark:text-stone-300">اكتشف {PEPTIDE_COUNT}+ ببتيد</p>
                   </div>
                 </Link>
-                <Link to="/coach" className="group flex items-center gap-3 rounded-xl border border-emerald-200 dark:border-emerald-800 bg-white dark:bg-stone-950 p-4 transition-all hover:border-emerald-400 hover:shadow-md hover:-translate-y-0.5 min-h-[44px]" style={{ animation: 'dash-card-in 0.5s ease-out 0.6s both' }}>
+                <Link to="/coach" className="group flex items-center gap-3 rounded-xl border border-emerald-200 dark:border-emerald-800 bg-white dark:bg-stone-900 p-4 transition-all hover:border-emerald-400 hover:shadow-md hover:-translate-y-0.5 min-h-[44px]" style={{ animation: 'dash-card-in 0.5s ease-out 0.6s both' }}>
                   <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-100 dark:bg-emerald-900/30 transition-colors group-hover:bg-emerald-200">
                     <Bot className="h-5 w-5 text-emerald-700" />
                   </div>
@@ -1340,7 +1340,7 @@ export default function Dashboard() {
                     <p className="text-xs text-stone-500 dark:text-stone-300">جاهز لمساعدتك ٢٤/٧</p>
                   </div>
                 </Link>
-                <Link to="/calculator" className="group flex items-center gap-3 rounded-xl border border-emerald-200 dark:border-emerald-800 bg-white dark:bg-stone-950 p-4 transition-all hover:border-emerald-400 hover:shadow-md hover:-translate-y-0.5 min-h-[44px]" style={{ animation: 'dash-card-in 0.5s ease-out 0.75s both' }}>
+                <Link to="/calculator" className="group flex items-center gap-3 rounded-xl border border-emerald-200 dark:border-emerald-800 bg-white dark:bg-stone-900 p-4 transition-all hover:border-emerald-400 hover:shadow-md hover:-translate-y-0.5 min-h-[44px]" style={{ animation: 'dash-card-in 0.5s ease-out 0.75s both' }}>
                   <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-100 dark:bg-emerald-900/30 transition-colors group-hover:bg-emerald-200">
                     <Calculator className="h-5 w-5 text-emerald-700" />
                   </div>
@@ -1428,7 +1428,7 @@ export default function Dashboard() {
             <Link
               key={link.to}
               to={link.to}
-              className="group flex items-center gap-4 rounded-2xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950 p-5 card-lift hover:border-emerald-400 hover:shadow-emerald-600/10"
+              className="group flex items-center gap-4 rounded-2xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 p-5 card-lift hover:border-emerald-400 hover:shadow-emerald-600/10"
             >
               <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-emerald-50 dark:bg-emerald-900/20 transition-colors group-hover:bg-emerald-100 dark:bg-emerald-900/30">
                 <link.Icon className="h-6 w-6 text-emerald-700" />
@@ -1459,7 +1459,7 @@ export default function Dashboard() {
                     "flex items-center gap-3 rounded-xl border px-4 py-3 transition-all hover:shadow-sm dark:shadow-stone-900/30",
                     done
                       ? "border-emerald-300 dark:border-emerald-700 bg-emerald-50 dark:bg-emerald-900/20"
-                      : "border-emerald-100 bg-white dark:bg-stone-950 transition-colors hover:border-emerald-300 dark:border-emerald-700"
+                      : "border-emerald-100 bg-white dark:bg-stone-900 transition-colors hover:border-emerald-300 dark:border-emerald-700"
                   )}
                 >
                   {done
@@ -1481,7 +1481,7 @@ export default function Dashboard() {
             {activity.activePeptides.length > 0 ? (
               <Link
                 to="/tracker"
-                className="flex items-center gap-3 rounded-xl border border-emerald-300 dark:border-emerald-700 bg-white dark:bg-stone-950 px-4 py-3 transition-all hover:shadow-sm dark:shadow-stone-900/30 hover:border-emerald-400"
+                className="flex items-center gap-3 rounded-xl border border-emerald-300 dark:border-emerald-700 bg-white dark:bg-stone-900 px-4 py-3 transition-all hover:shadow-sm dark:shadow-stone-900/30 hover:border-emerald-400"
               >
                 <Syringe className="h-5 w-5 shrink-0 text-emerald-700" />
                 <div>
@@ -1492,7 +1492,7 @@ export default function Dashboard() {
             ) : (
               <Link
                 to="/coach"
-                className="flex items-center gap-3 rounded-xl border border-emerald-300 dark:border-emerald-700 bg-white dark:bg-stone-950 px-4 py-3 transition-all hover:shadow-sm dark:shadow-stone-900/30 hover:border-emerald-400"
+                className="flex items-center gap-3 rounded-xl border border-emerald-300 dark:border-emerald-700 bg-white dark:bg-stone-900 px-4 py-3 transition-all hover:shadow-sm dark:shadow-stone-900/30 hover:border-emerald-400"
               >
                 <Bot className="h-5 w-5 shrink-0 text-emerald-700" />
                 <div>
@@ -1503,7 +1503,7 @@ export default function Dashboard() {
             )}
             <Link
               to="/community"
-              className="flex items-center gap-3 rounded-xl border border-emerald-100 bg-white dark:bg-stone-950 px-4 py-3 transition-all hover:shadow-sm dark:shadow-stone-900/30 hover:border-emerald-300 dark:border-emerald-700"
+              className="flex items-center gap-3 rounded-xl border border-emerald-100 bg-white dark:bg-stone-900 px-4 py-3 transition-all hover:shadow-sm dark:shadow-stone-900/30 hover:border-emerald-300 dark:border-emerald-700"
             >
               <TrendingUp className="h-5 w-5 shrink-0 text-blue-500" />
               <div>

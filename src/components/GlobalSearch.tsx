@@ -220,12 +220,12 @@ export default function GlobalSearch({ open, onClose }: Props) {
 
       {/* modal */}
       <div
-        className="relative w-full max-w-lg overflow-hidden rounded-2xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950 shadow-2xl dark:shadow-stone-900/60 animate-fade-in"
+        className="search-modal relative w-full max-w-lg overflow-hidden rounded-2xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-900 shadow-2xl dark:shadow-black/60 animate-fade-in"
         onClick={(e) => e.stopPropagation()}
       >
         {/* input */}
-        <div className="flex items-center gap-3 border-b border-stone-200 dark:border-stone-600 px-4 py-3">
-          <Search className="h-5 w-5 shrink-0 text-stone-400" />
+        <div className="flex items-center gap-3 border-b border-stone-200 dark:border-stone-700 px-4 py-3.5">
+          <Search className="h-5 w-5 shrink-0 text-stone-400 dark:text-stone-500" />
           <input
             ref={inputRef}
             type="text"
@@ -233,15 +233,15 @@ export default function GlobalSearch({ open, onClose }: Props) {
             onChange={(e) => setQuery(e.target.value)}
             onKeyDown={handleKey}
             placeholder="ابحث عن ببتيد، مصطلح، مقالة، أو صفحة..."
-            className="flex-1 bg-transparent text-base text-stone-900 dark:text-stone-100 placeholder:text-stone-400 outline-none focus:outline-none focus:ring-0"
+            className="flex-1 bg-transparent text-base text-stone-900 dark:text-stone-100 placeholder:text-stone-400 dark:placeholder:text-stone-500 outline-none focus:outline-none focus:ring-0"
             aria-label="بحث شامل"
           />
-          <kbd className="hidden rounded-md border border-stone-200 dark:border-stone-600 bg-stone-100 dark:bg-stone-800 px-1.5 py-0.5 text-[10px] font-medium text-stone-500 dark:text-stone-300 sm:inline">
+          <kbd className="hidden rounded-md border border-stone-200 dark:border-stone-700 bg-stone-100 dark:bg-stone-800 px-1.5 py-0.5 text-[10px] font-medium text-stone-500 dark:text-stone-400 sm:inline">
             ESC
           </kbd>
           <button
             onClick={onClose}
-            className="rounded-lg p-1 text-stone-400 hover:text-stone-600 dark:hover:text-stone-300 sm:hidden"
+            className="flex h-9 w-9 items-center justify-center rounded-lg text-stone-400 hover:bg-stone-100 dark:hover:bg-stone-800 hover:text-stone-600 dark:hover:text-stone-300 transition-colors sm:hidden"
             aria-label="إغلاق"
           >
             <X className="h-5 w-5" />
@@ -253,7 +253,7 @@ export default function GlobalSearch({ open, onClose }: Props) {
           {/* empty state: recent */}
           {query.trim().length < 2 && recentPeptides.length > 0 && (
             <div className="py-2">
-              <p className="px-4 py-1.5 text-xs font-bold text-stone-500 dark:text-stone-300">
+              <p className="px-4 py-1.5 text-xs font-bold text-stone-500 dark:text-stone-400 uppercase tracking-wider">
                 شوهدت مؤخرًا
               </p>
               {recentPeptides.map((p) => (
@@ -263,7 +263,7 @@ export default function GlobalSearch({ open, onClose }: Props) {
                     navigate(`/peptide/${p.id}`);
                     onClose();
                   }}
-                  className="flex w-full items-center gap-3 px-4 py-2.5 text-start text-sm transition-colors hover:bg-stone-50 dark:hover:bg-stone-800"
+                  className="flex w-full items-center gap-3 px-4 py-2.5 text-start text-sm transition-colors hover:bg-stone-50 dark:hover:bg-stone-800/80"
                 >
                   <FlaskConical className="h-4 w-4 shrink-0 text-emerald-600" />
                   <span className="font-bold text-stone-900 dark:text-stone-100">
@@ -307,8 +307,8 @@ export default function GlobalSearch({ open, onClose }: Props) {
             const Icon = TYPE_ICONS[type as ResultItem['type']];
             return (
               <div key={type} className="py-1">
-                <p className="flex items-center gap-2 px-4 py-1.5 text-xs font-bold text-stone-500 dark:text-stone-300">
-                  <Icon className="h-3.5 w-3.5" />
+                <p className="flex items-center gap-2 px-4 py-1.5 text-xs font-bold text-stone-500 dark:text-stone-400 uppercase tracking-wider">
+                  <Icon className="h-3.5 w-3.5 text-emerald-500" />
                   {TYPE_LABELS[type as ResultItem['type']]}
                 </p>
                 {items.map(({ idx, item }) => (
@@ -319,8 +319,8 @@ export default function GlobalSearch({ open, onClose }: Props) {
                     className={cn(
                       'flex w-full items-center gap-3 px-4 py-2.5 text-start text-sm transition-colors',
                       idx === focusIdx
-                        ? 'bg-emerald-50 dark:bg-emerald-900/20'
-                        : 'hover:bg-stone-50 dark:hover:bg-stone-800'
+                        ? 'bg-emerald-50 dark:bg-emerald-900/30 text-emerald-900 dark:text-emerald-100'
+                        : 'hover:bg-stone-50 dark:hover:bg-stone-800/80'
                     )}
                   >
                     {item.type === 'peptide' && (
@@ -370,12 +370,12 @@ export default function GlobalSearch({ open, onClose }: Props) {
 
         {/* footer */}
         {results.length > 0 && (
-          <div className="flex items-center justify-between border-t border-stone-200 dark:border-stone-600 px-4 py-2 text-[10px] text-stone-400">
-            <span>{results.length} نتيجة</span>
+          <div className="flex items-center justify-between border-t border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-800/50 px-4 py-2.5 text-[10px] text-stone-400 dark:text-stone-500">
+            <span className="font-medium">{results.length} نتيجة</span>
             <span className="flex items-center gap-2">
-              <kbd className="rounded border border-stone-200 dark:border-stone-600 px-1">↑↓</kbd>
+              <kbd className="rounded border border-stone-300 dark:border-stone-600 bg-white dark:bg-stone-700 px-1.5 py-0.5 text-stone-600 dark:text-stone-300">↑↓</kbd>
               للتنقل
-              <kbd className="rounded border border-stone-200 dark:border-stone-600 px-1">↵</kbd>
+              <kbd className="rounded border border-stone-300 dark:border-stone-600 bg-white dark:bg-stone-700 px-1.5 py-0.5 text-stone-600 dark:text-stone-300">↵</kbd>
               للفتح
             </span>
           </div>

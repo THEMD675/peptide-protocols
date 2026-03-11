@@ -22,10 +22,10 @@ export default function StickyScrollCTA() {
   useEffect(() => {
     let timer: ReturnType<typeof setTimeout>;
     const onScroll = () => {
-      if (window.scrollY > 800) {
+      if (window.scrollY > 600) {
         clearTimeout(timer);
-        timer = setTimeout(() => setVisible(true), 2000);
-      } else {
+        timer = setTimeout(() => setVisible(true), 1200);
+      } else if (window.scrollY < 300) {
         clearTimeout(timer);
         setVisible(false);
       }
@@ -55,7 +55,7 @@ export default function StickyScrollCTA() {
       aria-label="عرض الاشتراك"
       aria-hidden={!visible}
       className={cn(
-        'fixed bottom-14 md:bottom-0 inset-x-0 z-40 border-t border-emerald-200 dark:border-emerald-800/50 bg-white dark:bg-stone-950/95 backdrop-blur-xl shadow-[0_-4px_20px_rgba(0,0,0,0.08)] pb-[env(safe-area-inset-bottom)] transition-transform duration-300 ease-out',
+        'fixed bottom-14 md:bottom-0 inset-x-0 z-40 border-t border-emerald-300/60 dark:border-emerald-700/60 bg-white/95 dark:bg-stone-900/95 backdrop-blur-xl shadow-[0_-4px_24px_rgba(0,0,0,0.12)] dark:shadow-[0_-4px_24px_rgba(0,0,0,0.4)] pb-[env(safe-area-inset-bottom)] transition-transform duration-500 ease-out',
         visible ? 'translate-y-0' : 'translate-y-full pointer-events-none',
       )}
     >
@@ -75,7 +75,7 @@ export default function StickyScrollCTA() {
         <Link
           to={href}
           tabIndex={visible ? 0 : -1}
-          className="shrink-0 flex items-center gap-2 rounded-full bg-emerald-600 px-5 py-2.5 text-sm font-bold text-white transition-all hover:bg-emerald-700 btn-press"
+          className="shrink-0 flex items-center gap-2 rounded-full btn-cta-gradient px-5 py-2.5 text-sm font-bold text-white"
         >
           <span>{text}</span>
           <ArrowLeft className="h-4 w-4" />

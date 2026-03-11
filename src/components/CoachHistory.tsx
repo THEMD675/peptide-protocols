@@ -94,7 +94,7 @@ export default function CoachHistory({
     <div className="mb-4">
       <button
         onClick={() => setOpen(v => !v)}
-        className="flex w-full items-center justify-between rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950 px-4 py-3 min-h-[44px] text-start transition-colors hover:bg-stone-50 dark:hover:bg-stone-800"
+        className="flex w-full items-center justify-between rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 px-4 py-3 min-h-[44px] text-start transition-colors hover:bg-stone-50 dark:hover:bg-stone-800"
         aria-expanded={open}
       >
         <div className="flex items-center gap-2">
@@ -110,7 +110,7 @@ export default function CoachHistory({
       </button>
 
       {open && (
-        <div className="mt-2 rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950 overflow-hidden animate-fade-in">
+        <div className="mt-2 rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 overflow-hidden animate-fade-in">
           {loading ? (
             <div className="p-4 space-y-2">
               {[0, 1, 2].map(i => (
@@ -178,7 +178,7 @@ export default function CoachHistory({
                               'max-w-[85%] rounded-xl px-4 py-2 text-sm leading-relaxed',
                               msg.role === 'user'
                                 ? 'bg-emerald-600 text-white rounded-br-sm'
-                                : 'border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950 text-stone-800 dark:text-stone-200 rounded-bl-sm',
+                                : 'border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 text-stone-800 dark:text-stone-200 rounded-bl-sm',
                             )}>
                               {msg.role === 'user' ? (
                                 <p className="whitespace-pre-wrap">

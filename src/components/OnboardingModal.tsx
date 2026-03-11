@@ -133,7 +133,7 @@ export default function OnboardingModal({ forceOpen, onClose: externalClose }: {
   return (
     <div role="dialog" aria-modal="true" aria-labelledby={step === 'goal' ? 'onboarding-title-step1' : 'onboarding-title-step2'} className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4" onClick={handleClose}>
       <FocusTrap focusTrapOptions={{ allowOutsideClick: true }}>
-        <div className="w-full max-w-md max-h-[90vh] overflow-y-auto rounded-2xl bg-white dark:bg-stone-950 p-6 sm:p-8 shadow-2xl animate-fade-in" onClick={e => e.stopPropagation()}>
+        <div className="w-full max-w-md max-h-[90vh] overflow-y-auto rounded-2xl bg-white dark:bg-stone-900 p-6 sm:p-8 shadow-2xl animate-fade-in" onClick={e => e.stopPropagation()}>
           {/* Progress indicator */}
           <div className="mb-5 flex items-center justify-center gap-2">
             <div className={`h-1.5 w-8 rounded-full transition-all duration-300 ${step === 'goal' ? 'bg-emerald-600' : 'bg-emerald-200'}`} />

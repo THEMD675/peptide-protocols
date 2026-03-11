@@ -39,7 +39,7 @@ export default function CookieConsent() {
   if (!visible) return null;
 
   return (
-    <div role="alertdialog" aria-label="ملفات تعريف الارتباط" className="fixed bottom-14 md:bottom-0 inset-x-0 z-[45] border-t border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950/95 backdrop-blur-xl shadow-[0_-4px_20px_rgba(0,0,0,0.08)] px-4 py-3 sm:px-6 sm:py-4 md:p-5 animate-slide-up pb-[env(safe-area-inset-bottom)]">
+    <div role="alertdialog" aria-label="ملفات تعريف الارتباط" className="fixed bottom-14 md:bottom-0 inset-x-0 z-[45] border-t border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900/95 backdrop-blur-xl shadow-[0_-4px_20px_rgba(0,0,0,0.08)] px-4 py-3 sm:px-6 sm:py-4 md:p-5 animate-slide-up pb-[env(safe-area-inset-bottom)]">
       <div className="mx-auto max-w-5xl">
         <p className="text-sm font-bold text-stone-900 dark:text-stone-100 mb-2">ملفات تعريف الارتباط</p>
 

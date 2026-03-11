@@ -34,7 +34,7 @@ export default memo(function DoseTitrationTimeline({ schedule, currentWeek, unit
                 'flex flex-col items-center rounded-lg px-3 py-2 text-center min-w-[60px] transition-all',
                 isCurrent ? 'bg-emerald-100 dark:bg-emerald-900/30 border-2 border-emerald-400 ring-2 ring-emerald-100' :
                 isPast ? 'bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800' :
-                'bg-white dark:bg-stone-950 border border-stone-200 dark:border-stone-600'
+                'bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-600'
               )}>
                 <span className={cn('text-[10px] font-bold', isCurrent ? 'text-emerald-700 dark:text-emerald-400' : isPast ? 'text-emerald-700' : 'text-stone-500 dark:text-stone-300')}>
                   أ{step.week}

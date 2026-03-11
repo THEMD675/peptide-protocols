@@ -269,7 +269,7 @@ export default function PeptideDetail() {
           <div
             className="overflow-hidden rounded-2xl border border-stone-300 dark:border-stone-600"
           >
-            <div className="border-b border-stone-300 dark:border-stone-600 bg-white dark:bg-stone-950 p-4">
+            <div className="border-b border-stone-300 dark:border-stone-600 bg-white dark:bg-stone-900 p-4">
               <h3 className="mb-2 text-sm font-semibold text-stone-800 dark:text-stone-200">
                 مستوى الدليل العلمي
               </h3>
@@ -309,7 +309,7 @@ export default function PeptideDetail() {
               <div className="print:hidden flex items-center gap-2">
                 <button
                   onClick={() => window.print()}
-                  className="flex items-center gap-1.5 rounded-lg border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950 px-3 py-2.5 min-h-[44px] text-xs font-medium text-stone-600 dark:text-stone-300 transition-colors hover:bg-stone-50 dark:hover:bg-stone-800"
+                  className="flex items-center gap-1.5 rounded-lg border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 px-3 py-2.5 min-h-[44px] text-xs font-medium text-stone-600 dark:text-stone-300 transition-colors hover:bg-stone-50 dark:hover:bg-stone-800"
                 >
                   <Printer className="h-3.5 w-3.5" />
                   طباعة
@@ -369,14 +369,14 @@ export default function PeptideDetail() {
             </Link>
             <Link
               to={`/interactions?p1=${peptide.id}`}
-              className="flex items-center justify-center gap-2 rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950 px-5 py-3.5 text-sm font-bold text-stone-800 dark:text-stone-200 transition-all hover:border-emerald-200 dark:border-emerald-800 hover:shadow-md"
+              className="flex items-center justify-center gap-2 rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 px-5 py-3.5 text-sm font-bold text-stone-800 dark:text-stone-200 transition-all hover:border-emerald-200 dark:border-emerald-800 hover:shadow-md"
             >
               <Shield className="h-4 w-4" />
               فحص التعارضات
             </Link>
             <Link
               to={`/coach?peptide=${encodeURIComponent(peptide.nameAr)}`}
-              className="flex items-center justify-center gap-2 rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950 px-5 py-3.5 text-sm font-bold text-stone-800 dark:text-stone-200 transition-all hover:border-emerald-200 dark:border-emerald-800 hover:shadow-md"
+              className="flex items-center justify-center gap-2 rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 px-5 py-3.5 text-sm font-bold text-stone-800 dark:text-stone-200 transition-all hover:border-emerald-200 dark:border-emerald-800 hover:shadow-md"
             >
               <Bot className="h-4 w-4" />
               اسأل المدرب
@@ -390,7 +390,7 @@ export default function PeptideDetail() {
             </button>
             <Link
               to={`/tracker?peptide=${encodeURIComponent(peptide.nameEn)}`}
-              className="flex items-center justify-center gap-2 rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950 px-5 py-3.5 text-sm font-bold text-stone-800 dark:text-stone-200 transition-all hover:border-emerald-200 dark:border-emerald-800 hover:shadow-md"
+              className="flex items-center justify-center gap-2 rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 px-5 py-3.5 text-sm font-bold text-stone-800 dark:text-stone-200 transition-all hover:border-emerald-200 dark:border-emerald-800 hover:shadow-md"
             >
               <ArrowRight className="h-4 w-4" />
               سجّل حقنة
@@ -439,7 +439,7 @@ export default function PeptideDetail() {
                     <Link
                       key={rp.id}
                       to={`/peptide/${rp.id}`}
-                      className="group flex-shrink-0 w-[75vw] max-w-[280px] snap-start md:w-auto md:max-w-none rounded-2xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950 p-5 shadow-sm dark:shadow-stone-900/30 transition-all hover:border-emerald-300 dark:hover:border-emerald-700 hover:shadow-lg hover:shadow-emerald-600/10 hover:-translate-y-0.5"
+                      className="group flex-shrink-0 w-[75vw] max-w-[280px] snap-start md:w-auto md:max-w-none rounded-2xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 p-5 shadow-sm dark:shadow-stone-900/30 transition-all hover:border-emerald-300 dark:hover:border-emerald-700 hover:shadow-lg hover:shadow-emerald-600/10 hover:-translate-y-0.5"
                     >
                       <div className="mb-3 flex items-center justify-between">
                         <span className="flex items-center gap-1 rounded-full border border-stone-300 dark:border-stone-600 bg-stone-50 dark:bg-stone-900 px-2.5 py-0.5 text-xs font-medium text-stone-800 dark:text-stone-200">
@@ -480,7 +480,7 @@ export default function PeptideDetail() {
                     href={`https://pubmed.ncbi.nlm.nih.gov/${pmid}/`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center gap-3 rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950 p-3 text-sm text-stone-700 dark:text-stone-200 transition-all hover:border-emerald-300 dark:border-emerald-700 hover:shadow-sm dark:shadow-stone-900/30"
+                    className="flex items-center gap-3 rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 p-3 text-sm text-stone-700 dark:text-stone-200 transition-all hover:border-emerald-300 dark:border-emerald-700 hover:shadow-sm dark:shadow-stone-900/30"
                     dir="ltr"
                   >
                     <ExternalLink className="h-4 w-4 shrink-0 text-emerald-700" />
@@ -620,19 +620,19 @@ function InlineDoseCalc({ peptide }: { peptide: { nameEn: string } }) {
       </div>
 
       <div className="grid gap-3 sm:grid-cols-4">
-        <div className="rounded-xl border border-emerald-200 dark:border-emerald-800 bg-white dark:bg-stone-950 p-3 text-center">
+        <div className="rounded-xl border border-emerald-200 dark:border-emerald-800 bg-white dark:bg-stone-900 p-3 text-center">
           <p className="text-xs text-stone-500 dark:text-stone-300 mb-1">الجرعة</p>
           <p className="text-lg font-black text-stone-900 dark:text-stone-100">{preset.dose} <span className="text-xs font-bold">mcg</span></p>
         </div>
-        <div className="rounded-xl border border-emerald-200 dark:border-emerald-800 bg-white dark:bg-stone-950 p-3 text-center">
+        <div className="rounded-xl border border-emerald-200 dark:border-emerald-800 bg-white dark:bg-stone-900 p-3 text-center">
           <p className="text-xs text-stone-500 dark:text-stone-300 mb-1">اسحب في السيرنج (1مل)</p>
           <p className="text-lg font-black text-emerald-700 dark:text-emerald-400">{syringeUnits.toFixed(1)} <span className="text-xs font-bold">وحدة</span></p>
         </div>
-        <div className="rounded-xl border border-emerald-200 dark:border-emerald-800 bg-white dark:bg-stone-950 p-3 text-center">
+        <div className="rounded-xl border border-emerald-200 dark:border-emerald-800 bg-white dark:bg-stone-900 p-3 text-center">
           <p className="text-xs text-stone-500 dark:text-stone-300 mb-1">عدد الجرعات/قارورة</p>
           <p className="text-lg font-black text-stone-900 dark:text-stone-100">{dosesPerVial}</p>
         </div>
-        <div className="rounded-xl border border-emerald-200 dark:border-emerald-800 bg-white dark:bg-stone-950 p-3 text-center">
+        <div className="rounded-xl border border-emerald-200 dark:border-emerald-800 bg-white dark:bg-stone-900 p-3 text-center">
           <p className="text-xs text-stone-500 dark:text-stone-300 mb-1">القارورة</p>
           <p className="text-lg font-black text-stone-900 dark:text-stone-100">{preset.vialMg} <span className="text-xs font-bold">mg</span> + {preset.waterMl} <span className="text-xs font-bold">ml</span></p>
         </div>
@@ -761,7 +761,7 @@ function RelatedBlogPosts({ peptideNameEn, peptideNameAr }: { peptideNameEn: str
           <Link
             key={post.id}
             to={`/blog/${post.slug}`}
-            className="group rounded-2xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950 p-5 shadow-sm dark:shadow-stone-900/30 transition-all hover:border-emerald-300 dark:hover:border-emerald-700 hover:shadow-lg hover:shadow-emerald-600/10 hover:-translate-y-0.5"
+            className="group rounded-2xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 p-5 shadow-sm dark:shadow-stone-900/30 transition-all hover:border-emerald-300 dark:hover:border-emerald-700 hover:shadow-lg hover:shadow-emerald-600/10 hover:-translate-y-0.5"
           >
             <h4 className="text-sm font-bold text-stone-900 dark:text-stone-100 group-hover:text-emerald-700 transition-colors line-clamp-2">{post.title_ar}</h4>
             <p className="mt-2 text-xs leading-relaxed text-stone-600 dark:text-stone-300 line-clamp-2">{post.excerpt_ar}</p>

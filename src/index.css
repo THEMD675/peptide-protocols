@@ -123,7 +123,7 @@ html.dark {
     font-family: 'Cairo', 'Cairo Fallback', 'Inter', 'SF Pro Display', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
     background: #fff;
     color: var(--text);
-    line-height: 1.6;
+    line-height: 1.7;
     font-size: 1rem;
     direction: rtl;
     text-align: right;
@@ -135,7 +135,8 @@ html.dark {
   }
 
   html.dark body {
-    background: #0c0a09;
+    background: linear-gradient(to bottom, #0c0a09 85%, #111110 100%);
+    min-height: 100vh;
     color: #f5f5f4;
   }
 
@@ -645,7 +646,90 @@ button:focus-visible {
   box-shadow: 0 0 0 1px rgba(168, 162, 158, 0.2), 0 4px 12px rgba(0, 0, 0, 0.4);
 }
 
-/* Dark mode card surface lift */
+/* Dark mode card surface lift — stone-800 cards */
 :is(html.dark) [class*="dark:bg-stone-800"] {
   background-color: #302c28 !important;
+}
+
+/* ═══ DARK MODE CARD POP — makes bordered cards clearly visible against #0c0a09 body ═══ */
+/* Cards use bg-white dark:bg-stone-950 — which blends with body. Lift them to stone-900. */
+:is(html.dark) .rounded-2xl.border.bg-white,
+:is(html.dark) .rounded-2xl.border-2.bg-white,
+:is(html.dark) .rounded-xl.border.bg-white {
+  background-color: #1c1917 !important; /* stone-900 — visibly lighter than body #0c0a09 */
+  box-shadow: 0 0 0 0 transparent, inset 0 1px 0 0 rgba(255,255,255,0.03);
+}
+/* For cards explicitly set to dark:bg-stone-950 (same as body — invisible) */
+:is(html.dark) .rounded-2xl.border,
+:is(html.dark) .rounded-2xl.border-2 {
+  ring-color: rgba(87, 83, 78, 0.3); /* stone-600/30 */
+}
+
+/* ═══ Blog card image zoom on hover ═══ */
+.blog-card .blog-card-img {
+  transition: transform 400ms cubic-bezier(0.23, 1, 0.32, 1);
+  will-change: transform;
+}
+.blog-card:hover .blog-card-img {
+  transform: scale(1.06);
+}
+
+/* ═══ Primary CTA gradient ═══ */
+.btn-cta-gradient {
+  background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+  box-shadow: 0 4px 14px rgba(16, 185, 129, 0.25), 0 1px 3px rgba(0, 0, 0, 0.12);
+  transition: all 0.25s cubic-bezier(0.23, 1, 0.32, 1);
+}
+.btn-cta-gradient:hover {
+  background: linear-gradient(135deg, #047857 0%, #059669 100%);
+  box-shadow: 0 8px 20px rgba(16, 185, 129, 0.35), 0 2px 6px rgba(0, 0, 0, 0.15);
+  transform: translateY(-1px);
+}
+.btn-cta-gradient:active {
+  transform: translateY(0) scale(0.97);
+  box-shadow: 0 2px 8px rgba(16, 185, 129, 0.2);
+}
+
+/* ═══ Pricing card featured glow ═══ */
+.pricing-card-featured {
+  box-shadow: 0 0 0 1px rgba(16, 185, 129, 0.3),
+              0 8px 32px rgba(16, 185, 129, 0.12),
+              0 4px 12px rgba(0, 0, 0, 0.08);
+}
+:is(html.dark) .pricing-card-featured {
+  box-shadow: 0 0 0 1px rgba(16, 185, 129, 0.4),
+              0 8px 32px rgba(16, 185, 129, 0.15),
+              0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+/* ═══ Footer links underline ═══ */
+footer nav a:hover {
+  text-decoration: underline;
+  text-underline-offset: 4px;
+  text-decoration-color: currentColor;
+}
+
+/* ═══ Billing toggle smooth transition ═══ */
+.billing-toggle-thumb {
+  transition: all 300ms cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+/* ═══ Price display sizing ═══ */
+.price-huge {
+  font-size: clamp(2.5rem, 8vw, 4rem);
+  font-weight: 900;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+}
+
+/* ═══ Global search modal dark mode enhancement ═══ */
+:is(html.dark) .search-modal {
+  background-color: #1c1917 !important;
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(87, 83, 78, 0.3);
+}
+:is(html.dark) .search-result-hover:hover {
+  background-color: #292524 !important;
+}
+:is(html.dark) .search-result-focused {
+  background-color: #292524 !important;
 }

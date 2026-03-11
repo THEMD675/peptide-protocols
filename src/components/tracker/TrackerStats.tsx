@@ -72,7 +72,7 @@ export default function TrackerStats({
     <>
       {/* Monthly Summary */}
       {monthlySummary && (
-        <div className="mb-6 rounded-2xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950 p-5 shadow-sm dark:shadow-stone-900/30">
+        <div className="mb-6 rounded-2xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 p-5 shadow-sm dark:shadow-stone-900/30">
           <h3 className="text-sm font-bold text-stone-900 dark:text-stone-100 mb-3">📊 ملخص الشهر</h3>
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
             <div className="text-center">
@@ -99,22 +99,22 @@ export default function TrackerStats({
       {dashboardStats && (
         <>
           <div className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-5">
-            <div className="rounded-2xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950 p-4 text-center shadow-sm dark:shadow-stone-900/30">
+            <div className="rounded-2xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 p-4 text-center shadow-sm dark:shadow-stone-900/30">
               <BarChart3 className="mx-auto mb-1 h-5 w-5 text-emerald-700" />
               <p className="text-2xl font-black text-stone-900 dark:text-stone-100">{dashboardStats.totalInjections}</p>
               <p className="text-xs text-stone-500 dark:text-stone-300">إجمالي الحقن</p>
             </div>
-            <div className="rounded-2xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950 p-4 text-center shadow-sm dark:shadow-stone-900/30">
+            <div className="rounded-2xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 p-4 text-center shadow-sm dark:shadow-stone-900/30">
               <Flame className="mx-auto mb-1 h-5 w-5 text-orange-500" />
               <p className="text-2xl font-black text-stone-900 dark:text-stone-100">{dashboardStats.streak}</p>
               <p className="text-xs text-stone-500 dark:text-stone-300">أيام متتالية</p>
             </div>
-            <div className="rounded-2xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950 p-4 text-center shadow-sm dark:shadow-stone-900/30">
+            <div className="rounded-2xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 p-4 text-center shadow-sm dark:shadow-stone-900/30">
               <TrendingUp className="mx-auto mb-1 h-5 w-5 text-blue-500" />
               <p className="text-2xl font-black text-stone-900 dark:text-stone-100">{dashboardStats.last7}</p>
               <p className="text-xs text-stone-500 dark:text-stone-300">آخر 7 أيام</p>
             </div>
-            <div className="rounded-2xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950 p-4 text-center shadow-sm dark:shadow-stone-900/30">
+            <div className="rounded-2xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 p-4 text-center shadow-sm dark:shadow-stone-900/30">
               <Syringe className="mx-auto mb-1 h-5 w-5 text-purple-500" />
               <p className="text-2xl font-black text-stone-900 dark:text-stone-100">{dashboardStats.uniquePeptides}</p>
               <p className="text-xs text-stone-500 dark:text-stone-300">ببتيدات مختلفة</p>
@@ -127,7 +127,7 @@ export default function TrackerStats({
           </div>
           {/* Active days stat */}
           <div className="grid grid-cols-1 gap-3 mb-6">
-            <div className="rounded-2xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950 p-4 text-center">
+            <div className="rounded-2xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 p-4 text-center">
               <p className="text-2xl font-black text-stone-900 dark:text-stone-100">{new Set((allLogsForStats.length > 0 ? allLogsForStats : logs).map(l => new Date(l.logged_at).toDateString())).size}</p>
               <p className="text-xs text-stone-500 dark:text-stone-300">يوم نشط</p>
             </div>
@@ -137,7 +137,7 @@ export default function TrackerStats({
 
       {/* Weekly Activity Chart */}
       {weeklyActivity && (
-        <div className="mb-8 rounded-2xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950 p-5 shadow-sm dark:shadow-stone-900/30">
+        <div className="mb-8 rounded-2xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 p-5 shadow-sm dark:shadow-stone-900/30">
           <h3 className="mb-3 text-sm font-bold text-stone-900 dark:text-stone-100">نشاط الأسبوع</h3>
           <Suspense fallback={<div className="h-32 animate-pulse rounded-xl bg-stone-100 dark:bg-stone-800" />}>
             <ActivityChart data={weeklyActivity.days.map((day, i) => ({ day: day.slice(0, 3), count: weeklyActivity.weekCounts[i], isToday: i === weeklyActivity.todayIdx }))} />
@@ -154,7 +154,7 @@ export default function TrackerStats({
           dose: l.dose,
         }));
         return (
-          <div className="mb-8 rounded-2xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950 p-5 shadow-sm dark:shadow-stone-900/30">
+          <div className="mb-8 rounded-2xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 p-5 shadow-sm dark:shadow-stone-900/30">
             <h3 className="mb-3 text-sm font-bold text-stone-900 dark:text-stone-100">تاريخ جرعات {trendPeptide}</h3>
             <Suspense fallback={<div className="h-32 animate-pulse rounded-xl bg-stone-100 dark:bg-stone-800" />}>
               <DoseTrendChart data={trendData} unit={trendLogs[0]?.dose_unit ?? 'mcg'} />

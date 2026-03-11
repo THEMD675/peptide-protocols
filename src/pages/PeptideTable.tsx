@@ -470,7 +470,7 @@ export default function PeptideTable() {
               ].map((abbr) => (
                 <span
                   key={abbr.label}
-                  className="rounded-md border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950 px-2 py-1 text-stone-700 dark:text-stone-200"
+                  className="rounded-md border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 px-2 py-1 text-stone-700 dark:text-stone-200"
                 >
                   <span className="font-semibold text-stone-800 dark:text-stone-200">{abbr.label}</span>
                   {abbr.full && <span className="text-stone-800 dark:text-stone-200"> = {abbr.full}</span>}
@@ -692,7 +692,7 @@ export default function PeptideTable() {
                       const longTerm = isLongTerm(p.cycleAr);
                       const shouldBlur = !hasAccess && !p.isFree;
                       const isComparing = compareIds.includes(p.id);
-                      const rowBg = i % 2 === 0 ? 'bg-stone-50 dark:bg-stone-900' : 'bg-white dark:bg-stone-950';
+                      const rowBg = i % 2 === 0 ? 'bg-stone-50 dark:bg-stone-900' : 'bg-white dark:bg-stone-900';
 
                       return (
                         <tr
@@ -933,7 +933,7 @@ export default function PeptideTable() {
                         <Link
                           key={p.id}
                           to={`/peptide/${p.id}`}
-                          className="rounded-md border border-stone-300 dark:border-stone-600 bg-white dark:bg-stone-950/[0.05] px-2 py-1 text-xs font-medium text-stone-800 dark:text-stone-200 transition-colors hover:border-emerald-300 dark:hover:border-emerald-700 hover:text-stone-900 dark:hover:text-stone-100"
+                          className="rounded-md border border-stone-300 dark:border-stone-600 bg-white dark:bg-stone-900/[0.05] px-2 py-1 text-xs font-medium text-stone-800 dark:text-stone-200 transition-colors hover:border-emerald-300 dark:hover:border-emerald-700 hover:text-stone-900 dark:hover:text-stone-100"
                         >
                           {p.nameAr}
                         </Link>

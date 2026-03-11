@@ -11,8 +11,8 @@ function PLink(props: ComponentProps<typeof Link>) {
 
 export default memo(function Footer() {
   return (
-    <footer className="border-t border-stone-200 dark:border-stone-600 bg-stone-50 dark:bg-stone-900">
-      <div className="mx-auto max-w-7xl px-4 py-12 md:px-6 md:py-16">
+    <footer className="border-t border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-900">
+      <div className="mx-auto max-w-7xl px-4 py-16 md:px-6 md:py-20">
         <div className="grid gap-8 md:grid-cols-4">
           <div>
             <p className="text-lg font-bold text-stone-900 dark:text-stone-100" dir="ltr" role="img" aria-label="pptides">
@@ -37,38 +37,38 @@ export default memo(function Footer() {
           <div>
             <h4 className="mb-3 text-sm font-bold text-stone-900 dark:text-stone-100">المنتج</h4>
             <nav aria-label="المنتج" className="flex flex-col gap-0.5 text-sm">
-              <PLink to="/library" className="min-h-[44px] flex items-center text-stone-600 dark:text-stone-300 transition-colors hover:text-emerald-700 active:text-emerald-700 dark:active:text-emerald-300">المكتبة</PLink>
-              <PLink to="/calculator" className="min-h-[44px] flex items-center text-stone-600 dark:text-stone-300 transition-colors hover:text-emerald-700 active:text-emerald-700 dark:active:text-emerald-300">حاسبة الجرعات</PLink>
-              <PLink to="/table" className="min-h-[44px] flex items-center text-stone-600 dark:text-stone-300 transition-colors hover:text-emerald-700 active:text-emerald-700 dark:active:text-emerald-300">جدول الببتيدات</PLink>
-              <PLink to="/compare" className="min-h-[44px] flex items-center text-stone-600 dark:text-stone-300 transition-colors hover:text-emerald-700 active:text-emerald-700 dark:active:text-emerald-300">مقارنة الببتيدات</PLink>
-              <PLink to="/coach" className="min-h-[44px] flex items-center text-stone-600 dark:text-stone-300 transition-colors hover:text-emerald-700 active:text-emerald-700 dark:active:text-emerald-300">المدرب الذكي</PLink>
-              <PLink to="/pricing" className="min-h-[44px] flex items-center text-stone-600 dark:text-stone-300 transition-colors hover:text-emerald-700 active:text-emerald-700 dark:active:text-emerald-300">الأسعار</PLink>
+              <PLink to="/library" className="min-h-[44px] flex items-center text-stone-600 dark:text-stone-300 transition-colors hover:text-emerald-700 dark:hover:text-emerald-400 hover:underline underline-offset-4 active:text-emerald-700 dark:active:text-emerald-300">المكتبة</PLink>
+              <PLink to="/calculator" className="min-h-[44px] flex items-center text-stone-600 dark:text-stone-300 transition-colors hover:text-emerald-700 dark:hover:text-emerald-400 hover:underline underline-offset-4 active:text-emerald-700 dark:active:text-emerald-300">حاسبة الجرعات</PLink>
+              <PLink to="/table" className="min-h-[44px] flex items-center text-stone-600 dark:text-stone-300 transition-colors hover:text-emerald-700 dark:hover:text-emerald-400 hover:underline underline-offset-4 active:text-emerald-700 dark:active:text-emerald-300">جدول الببتيدات</PLink>
+              <PLink to="/compare" className="min-h-[44px] flex items-center text-stone-600 dark:text-stone-300 transition-colors hover:text-emerald-700 dark:hover:text-emerald-400 hover:underline underline-offset-4 active:text-emerald-700 dark:active:text-emerald-300">مقارنة الببتيدات</PLink>
+              <PLink to="/coach" className="min-h-[44px] flex items-center text-stone-600 dark:text-stone-300 transition-colors hover:text-emerald-700 dark:hover:text-emerald-400 hover:underline underline-offset-4 active:text-emerald-700 dark:active:text-emerald-300">المدرب الذكي</PLink>
+              <PLink to="/pricing" className="min-h-[44px] flex items-center text-stone-600 dark:text-stone-300 transition-colors hover:text-emerald-700 dark:hover:text-emerald-400 hover:underline underline-offset-4 active:text-emerald-700 dark:active:text-emerald-300">الأسعار</PLink>
             </nav>
           </div>
 
           <div>
             <h4 className="mb-3 text-sm font-bold text-stone-900 dark:text-stone-100">الموارد</h4>
             <nav aria-label="الموارد" className="flex flex-col gap-0.5 text-sm">
-              <PLink to="/stacks" className="min-h-[44px] flex items-center text-stone-600 dark:text-stone-300 transition-colors hover:text-emerald-700 active:text-emerald-700 dark:active:text-emerald-300">البروتوكولات المُجمَّعة</PLink>
-              <PLink to="/lab-guide" className="min-h-[44px] flex items-center text-stone-600 dark:text-stone-300 transition-colors hover:text-emerald-700 active:text-emerald-700 dark:active:text-emerald-300">دليل التحاليل</PLink>
-              <PLink to="/guide" className="min-h-[44px] flex items-center text-stone-600 dark:text-stone-300 transition-colors hover:text-emerald-700 active:text-emerald-700 dark:active:text-emerald-300">دليل الحقن</PLink>
-              <PLink to="/glossary" className="min-h-[44px] flex items-center text-stone-600 dark:text-stone-300 transition-colors hover:text-emerald-700 active:text-emerald-700 dark:active:text-emerald-300">المصطلحات</PLink>
-              <PLink to="/interactions" className="min-h-[44px] flex items-center text-stone-600 dark:text-stone-300 transition-colors hover:text-emerald-700 active:text-emerald-700 dark:active:text-emerald-300">فحص التعارضات</PLink>
-              <PLink to="/sources" className="min-h-[44px] flex items-center text-stone-600 dark:text-stone-300 transition-colors hover:text-emerald-700 active:text-emerald-700 dark:active:text-emerald-300">المصادر</PLink>
-              <PLink to="/community" className="min-h-[44px] flex items-center text-stone-600 dark:text-stone-300 transition-colors hover:text-emerald-700 active:text-emerald-700 dark:active:text-emerald-300">التجارب والتقييمات</PLink>
-              <PLink to="/blog" className="min-h-[44px] flex items-center text-stone-600 dark:text-stone-300 transition-colors hover:text-emerald-700 active:text-emerald-700 dark:active:text-emerald-300">المدونة</PLink>
+              <PLink to="/stacks" className="min-h-[44px] flex items-center text-stone-600 dark:text-stone-300 transition-colors hover:text-emerald-700 dark:hover:text-emerald-400 hover:underline underline-offset-4 active:text-emerald-700 dark:active:text-emerald-300">البروتوكولات المُجمَّعة</PLink>
+              <PLink to="/lab-guide" className="min-h-[44px] flex items-center text-stone-600 dark:text-stone-300 transition-colors hover:text-emerald-700 dark:hover:text-emerald-400 hover:underline underline-offset-4 active:text-emerald-700 dark:active:text-emerald-300">دليل التحاليل</PLink>
+              <PLink to="/guide" className="min-h-[44px] flex items-center text-stone-600 dark:text-stone-300 transition-colors hover:text-emerald-700 dark:hover:text-emerald-400 hover:underline underline-offset-4 active:text-emerald-700 dark:active:text-emerald-300">دليل الحقن</PLink>
+              <PLink to="/glossary" className="min-h-[44px] flex items-center text-stone-600 dark:text-stone-300 transition-colors hover:text-emerald-700 dark:hover:text-emerald-400 hover:underline underline-offset-4 active:text-emerald-700 dark:active:text-emerald-300">المصطلحات</PLink>
+              <PLink to="/interactions" className="min-h-[44px] flex items-center text-stone-600 dark:text-stone-300 transition-colors hover:text-emerald-700 dark:hover:text-emerald-400 hover:underline underline-offset-4 active:text-emerald-700 dark:active:text-emerald-300">فحص التعارضات</PLink>
+              <PLink to="/sources" className="min-h-[44px] flex items-center text-stone-600 dark:text-stone-300 transition-colors hover:text-emerald-700 dark:hover:text-emerald-400 hover:underline underline-offset-4 active:text-emerald-700 dark:active:text-emerald-300">المصادر</PLink>
+              <PLink to="/community" className="min-h-[44px] flex items-center text-stone-600 dark:text-stone-300 transition-colors hover:text-emerald-700 dark:hover:text-emerald-400 hover:underline underline-offset-4 active:text-emerald-700 dark:active:text-emerald-300">التجارب والتقييمات</PLink>
+              <PLink to="/blog" className="min-h-[44px] flex items-center text-stone-600 dark:text-stone-300 transition-colors hover:text-emerald-700 dark:hover:text-emerald-400 hover:underline underline-offset-4 active:text-emerald-700 dark:active:text-emerald-300">المدونة</PLink>
             </nav>
           </div>
 
           <div>
             <h4 className="mb-3 text-sm font-bold text-stone-900 dark:text-stone-100">قانوني</h4>
             <nav aria-label="قانوني" className="flex flex-col gap-0.5 text-sm">
-              <PLink to="/about" className="min-h-[44px] flex items-center text-stone-600 dark:text-stone-300 transition-colors hover:text-emerald-700 active:text-emerald-700 dark:active:text-emerald-300">عن pptides</PLink>
-              <PLink to="/faq" className="min-h-[44px] flex items-center text-stone-600 dark:text-stone-300 transition-colors hover:text-emerald-700 active:text-emerald-700 dark:active:text-emerald-300">الأسئلة الشائعة</PLink>
-              <PLink to="/contact" className="min-h-[44px] flex items-center text-stone-600 dark:text-stone-300 transition-colors hover:text-emerald-700 active:text-emerald-700 dark:active:text-emerald-300">تواصل معنا</PLink>
-              <PLink to="/privacy" className="min-h-[44px] flex items-center text-stone-600 dark:text-stone-300 transition-colors hover:text-emerald-700 active:text-emerald-700 dark:active:text-emerald-300">سياسة الخصوصية</PLink>
-              <PLink to="/terms" className="min-h-[44px] flex items-center text-stone-600 dark:text-stone-300 transition-colors hover:text-emerald-700 active:text-emerald-700 dark:active:text-emerald-300">شروط الاستخدام</PLink>
-              <PLink to="/transparency" className="min-h-[44px] flex items-center text-stone-600 dark:text-stone-300 transition-colors hover:text-emerald-700 active:text-emerald-700 dark:active:text-emerald-300">كيف نكسب المال</PLink>
+              <PLink to="/about" className="min-h-[44px] flex items-center text-stone-600 dark:text-stone-300 transition-colors hover:text-emerald-700 dark:hover:text-emerald-400 hover:underline underline-offset-4 active:text-emerald-700 dark:active:text-emerald-300">عن pptides</PLink>
+              <PLink to="/faq" className="min-h-[44px] flex items-center text-stone-600 dark:text-stone-300 transition-colors hover:text-emerald-700 dark:hover:text-emerald-400 hover:underline underline-offset-4 active:text-emerald-700 dark:active:text-emerald-300">الأسئلة الشائعة</PLink>
+              <PLink to="/contact" className="min-h-[44px] flex items-center text-stone-600 dark:text-stone-300 transition-colors hover:text-emerald-700 dark:hover:text-emerald-400 hover:underline underline-offset-4 active:text-emerald-700 dark:active:text-emerald-300">تواصل معنا</PLink>
+              <PLink to="/privacy" className="min-h-[44px] flex items-center text-stone-600 dark:text-stone-300 transition-colors hover:text-emerald-700 dark:hover:text-emerald-400 hover:underline underline-offset-4 active:text-emerald-700 dark:active:text-emerald-300">سياسة الخصوصية</PLink>
+              <PLink to="/terms" className="min-h-[44px] flex items-center text-stone-600 dark:text-stone-300 transition-colors hover:text-emerald-700 dark:hover:text-emerald-400 hover:underline underline-offset-4 active:text-emerald-700 dark:active:text-emerald-300">شروط الاستخدام</PLink>
+              <PLink to="/transparency" className="min-h-[44px] flex items-center text-stone-600 dark:text-stone-300 transition-colors hover:text-emerald-700 dark:hover:text-emerald-400 hover:underline underline-offset-4 active:text-emerald-700 dark:active:text-emerald-300">كيف نكسب المال</PLink>
               <button onClick={() => { try { localStorage.removeItem('pptides_cookie_consent'); } catch { /* storage unavailable */ } window.location.reload(); }} className="min-h-[44px] flex items-center text-start text-sm text-stone-600 dark:text-stone-300 hover:text-emerald-700 transition-colors">
                 إدارة ملفات تعريف الارتباط
               </button>
@@ -80,7 +80,7 @@ export default memo(function Footer() {
           </div>
         </div>
 
-        <div className="mt-10 border-t border-stone-200 dark:border-stone-600 pt-6 text-center">
+        <div className="mt-12 border-t border-stone-200 dark:border-stone-700 pt-8 text-center">
           <p className="text-xs text-stone-500 dark:text-stone-300">
             <span dir="ltr" className="inline" role="img" aria-label="pptides"><span aria-hidden="true">pp</span><span className="text-emerald-700" aria-hidden="true">tides</span></span> — جميع الحقوق محفوظة © {new Date().getFullYear()}
           </p>

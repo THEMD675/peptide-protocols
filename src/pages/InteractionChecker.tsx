@@ -153,7 +153,7 @@ export default function InteractionChecker() {
   }
 
   return (
-    <div className="min-h-screen bg-white dark:bg-stone-950 animate-fade-in">
+    <div className="min-h-screen bg-white dark:bg-stone-900 animate-fade-in">
       <Helmet>
         <title>فحص تعارضات الببتيدات | pptides</title>
         <meta name="description" content={`تحقق من أمان تجميع أي ببتيدين معًا. فحص التعارضات والتفاعلات بين ${PEPTIDE_COUNT}+ ببتيد.`} />

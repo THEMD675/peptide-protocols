@@ -213,7 +213,7 @@ export default function BlogPost() {
                 <Link
                   key={rp.id}
                   to={`/blog/${rp.slug}`}
-                  className="rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950 p-4 transition-all hover:border-emerald-200 dark:border-emerald-800 hover:shadow-sm dark:shadow-stone-900/30"
+                  className="rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 p-4 transition-all hover:border-emerald-200 dark:border-emerald-800 hover:shadow-sm dark:shadow-stone-900/30"
                 >
                   <h3 className="text-sm font-bold text-stone-900 dark:text-stone-100 line-clamp-2">{rp.title_ar}</h3>
                   <p className="mt-1 text-xs text-stone-500 dark:text-stone-300 line-clamp-2">{rp.excerpt_ar}</p>

@@ -130,7 +130,7 @@ export default function Contact() {
 
   if (submitted) {
     return (
-      <div className="min-h-screen bg-white dark:bg-stone-950 animate-fade-in">
+      <div className="min-h-screen bg-white dark:bg-stone-900 animate-fade-in">
         <Helmet>
           <title>تواصل معنا | pptides</title>
         </Helmet>
@@ -165,7 +165,7 @@ export default function Contact() {
   }
 
   return (
-    <div className="min-h-screen bg-white dark:bg-stone-950 animate-fade-in">
+    <div className="min-h-screen bg-white dark:bg-stone-900 animate-fade-in">
       <Helmet>
         <title>تواصل معنا | pptides</title>
         <meta
@@ -230,7 +230,7 @@ export default function Contact() {
         {/* Form */}
         <form
           onSubmit={handleSubmit}
-          className="space-y-5 rounded-2xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900/50 p-6 shadow-sm sm:p-8"
+          className="space-y-5 rounded-2xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-900 p-6 shadow-md dark:shadow-stone-900/50 sm:p-8"
         >
           {/* Name */}
           <div>
@@ -336,7 +336,7 @@ export default function Contact() {
         </form>
 
         {/* Info note */}
-        <div className="mt-8 flex items-start gap-3 rounded-xl bg-stone-50 dark:bg-stone-900 border border-stone-200 dark:border-stone-600 p-4 text-sm text-stone-600 dark:text-stone-300">
+        <div className="mt-8 flex items-start gap-3 rounded-xl bg-stone-50 dark:bg-stone-800/60 border border-stone-200 dark:border-stone-700 p-4 text-sm text-stone-600 dark:text-stone-300">
           <MessageSquare className="mt-0.5 h-5 w-5 flex-shrink-0 text-stone-400 dark:text-stone-300" />
           <p>
             نحرص على الرد خلال 24 ساعة في أيام العمل. للاستفسارات العاجلة، يمكنك مراسلتنا
@@ -370,7 +370,7 @@ export default function Contact() {
             {MINI_FAQ.map((faq) => (
               <details
                 key={faq.q}
-                className="group rounded-2xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900/50 transition-all hover:border-emerald-300 dark:hover:border-emerald-700"
+                className="group rounded-2xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-900 transition-all hover:border-emerald-300 dark:hover:border-emerald-700 dark:shadow-stone-900/30"
               >
                 <summary className="flex cursor-pointer items-center justify-between gap-4 p-4 text-sm font-semibold text-stone-900 dark:text-stone-100 min-h-[44px] select-none">
                   <span>{faq.q}</span>

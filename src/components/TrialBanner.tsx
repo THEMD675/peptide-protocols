@@ -68,7 +68,7 @@ export default function TrialBanner() {
     return (
       <div role="dialog" aria-modal="true" aria-describedby="payment-wall-desc" className="fixed inset-0 z-50 flex items-center justify-center bg-stone-900/80 backdrop-blur-sm">
         <FocusTrap focusTrapOptions={{ allowOutsideClick: true }}>
-        <div className="mx-4 w-full max-w-md max-h-[90vh] overflow-y-auto rounded-2xl bg-white dark:bg-stone-950 p-10 text-center shadow-2xl" aria-labelledby="payment-wall-title">
+        <div className="mx-4 w-full max-w-md max-h-[90vh] overflow-y-auto rounded-2xl bg-white dark:bg-stone-900 p-10 text-center shadow-2xl" aria-labelledby="payment-wall-title">
           <Shield className="mx-auto mb-4 h-12 w-12 text-emerald-700" />
           <h2 id="payment-wall-title" className="mb-3 text-2xl font-bold text-stone-900 dark:text-stone-100">
             أكمل إعداد حسابك
@@ -172,7 +172,7 @@ export default function TrialBanner() {
     return (
       <div role="dialog" aria-modal="true" aria-describedby="sub-modal-desc-expired" className="fixed inset-0 z-50 flex items-center justify-center bg-stone-900/80 backdrop-blur-sm">
         <FocusTrap focusTrapOptions={{ allowOutsideClick: true }}>
-        <div className="mx-4 w-full max-w-md max-h-[90vh] overflow-y-auto rounded-2xl bg-white dark:bg-stone-950 p-10 text-center shadow-2xl" aria-labelledby="trial-modal-title">
+        <div className="mx-4 w-full max-w-md max-h-[90vh] overflow-y-auto rounded-2xl bg-white dark:bg-stone-900 p-10 text-center shadow-2xl" aria-labelledby="trial-modal-title">
           <Shield className="mx-auto mb-4 h-12 w-12 text-emerald-700" />
           <h2 id="trial-modal-title" className="mb-3 text-2xl font-bold text-stone-900 dark:text-stone-100">
             {modalTitle}
@@ -214,7 +214,7 @@ export default function TrialBanner() {
     return (
       <div role="dialog" aria-modal="true" aria-describedby="sub-modal-desc-none" className="fixed inset-0 z-50 flex items-center justify-center bg-stone-900/80 backdrop-blur-sm">
         <FocusTrap focusTrapOptions={{ allowOutsideClick: true }}>
-        <div className="mx-4 w-full max-w-md max-h-[90vh] overflow-y-auto rounded-2xl bg-white dark:bg-stone-950 p-10 text-center shadow-2xl" aria-labelledby="sub-modal-title">
+        <div className="mx-4 w-full max-w-md max-h-[90vh] overflow-y-auto rounded-2xl bg-white dark:bg-stone-900 p-10 text-center shadow-2xl" aria-labelledby="sub-modal-title">
           <Shield className="mx-auto mb-4 h-12 w-12 text-emerald-700" />
           <h2 id="sub-modal-title" className="mb-3 text-2xl font-bold text-stone-900 dark:text-stone-100">
             محتوى للمشتركين فقط
@@ -299,7 +299,7 @@ export default function TrialBanner() {
         <button
           onClick={handleDismiss}
           aria-label="إغلاق"
-          className="absolute end-3 top-1/2 -translate-y-1/2 rounded-full p-1 transition-colors text-white/70 hover:text-white hover:bg-white dark:bg-stone-950/10"
+          className="absolute end-3 top-1/2 -translate-y-1/2 rounded-full p-1 transition-colors text-white/70 hover:text-white hover:bg-white dark:bg-stone-900/10"
         >
           <X className="h-4 w-4" />
         </button>

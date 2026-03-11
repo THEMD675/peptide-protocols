@@ -48,7 +48,7 @@ export default function BackToTop() {
       aria-label="العودة للأعلى"
       tabIndex={visible ? 0 : -1}
       className={cn(
-        'print:hidden fixed end-4 z-40 flex h-11 w-11 items-center justify-center rounded-full border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950/90 text-stone-500 dark:text-stone-300 shadow-sm dark:shadow-stone-900/30 backdrop-blur-sm transition-all duration-300 hover:border-stone-300 dark:border-stone-600 hover:text-stone-700 dark:text-stone-200 hover:shadow-md btn-press md:end-6',
+        'print:hidden fixed end-4 z-40 flex h-11 w-11 items-center justify-center rounded-full border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900/90 text-stone-500 dark:text-stone-300 shadow-sm dark:shadow-stone-900/30 backdrop-blur-sm transition-all duration-300 hover:border-stone-300 dark:border-stone-600 hover:text-stone-700 dark:text-stone-200 hover:shadow-md btn-press md:end-6',
         stickyCtaActive ? 'bottom-16' : 'bottom-6',
         visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4 pointer-events-none'
       )}

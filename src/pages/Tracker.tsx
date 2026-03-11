@@ -437,7 +437,7 @@ export default function Tracker() {
           <button
             type="button"
             onClick={toggleCalendar}
-            className="flex items-center gap-2 rounded-full border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950 px-4 py-2 text-sm font-medium text-stone-700 dark:text-stone-200 transition-all hover:border-emerald-300 dark:border-emerald-700 hover:bg-emerald-50 dark:bg-emerald-900/20 hover:text-emerald-700 dark:text-emerald-400"
+            className="flex items-center gap-2 rounded-full border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 px-4 py-2 text-sm font-medium text-stone-700 dark:text-stone-200 transition-all hover:border-emerald-300 dark:border-emerald-700 hover:bg-emerald-50 dark:bg-emerald-900/20 hover:text-emerald-700 dark:text-emerald-400"
             title={useHijri ? 'عرض بالتوقيت الميلادي' : 'عرض بالتوقيت الهجري'}
             aria-label={useHijri ? 'تبديل للتوقيت الميلادي' : 'تبديل للتوقيت الهجري'}
           >
@@ -507,7 +507,7 @@ export default function Tracker() {
               const totalWeeks = proto.cycle_weeks || 8;
               const todayLogged = logs.some(l => l.peptide_name === (peptide?.nameEn ?? proto.peptide_id) && new Date(l.logged_at).toDateString() === new Date().toDateString());
               return (
-                <div key={proto.id} className={cn('rounded-2xl border p-4 card-lift', todayLogged ? 'border-emerald-300 dark:border-emerald-700 bg-emerald-50/50' : 'border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950')}>
+                <div key={proto.id} className={cn('rounded-2xl border p-4 card-lift', todayLogged ? 'border-emerald-300 dark:border-emerald-700 bg-emerald-50/50' : 'border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900')}>
                   <div className="flex items-center gap-3">
                     <ProgressRing current={daysSinceStart} total={totalDays} size={56} />
                     <div className="flex-1 min-w-0">
@@ -601,7 +601,7 @@ export default function Tracker() {
                   <p className="text-xs text-stone-500 dark:text-stone-300 mt-1">اختر ببتيد وابدأ بروتوكول منظّم بجرعات وتذكيرات</p>
                 </div>
                 <div className="flex items-center gap-2 w-full sm:w-auto">
-                  <select value={wizardPeptideId} onChange={(e) => setWizardPeptideId(e.target.value)} className="flex-1 sm:w-48 rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950 px-3 py-2.5 text-base text-stone-900 dark:text-stone-100 focus:border-emerald-300 dark:border-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900" aria-label="اختر ببتيد للبروتوكول">
+                  <select value={wizardPeptideId} onChange={(e) => setWizardPeptideId(e.target.value)} className="flex-1 sm:w-48 rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 px-3 py-2.5 text-base text-stone-900 dark:text-stone-100 focus:border-emerald-300 dark:border-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900" aria-label="اختر ببتيد للبروتوكول">
                     <option value="">اختر ببتيد...</option>
                     {allPeptides.filter(p => p.id !== 'melanotan-ii').map(p => (<option key={p.id} value={p.id}>{p.nameAr}</option>))}
                   </select>
@@ -686,7 +686,7 @@ export default function Tracker() {
       {confirmDialog && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4 animate-fade-in" onClick={() => setConfirmDialog(null)}>
           <FocusTrap focusTrapOptions={{ allowOutsideClick: true }}>
-            <div role="dialog" aria-modal="true" className="w-full max-w-sm rounded-2xl bg-white dark:bg-stone-950 p-6 shadow-2xl" onClick={e => e.stopPropagation()}>
+            <div role="dialog" aria-modal="true" className="w-full max-w-sm rounded-2xl bg-white dark:bg-stone-900 p-6 shadow-2xl" onClick={e => e.stopPropagation()}>
               <h3 className="text-lg font-bold text-stone-900 dark:text-stone-100 mb-2">{confirmDialog.title}</h3>
               <p className="text-sm text-stone-600 dark:text-stone-300 mb-6">{confirmDialog.message}</p>
               <div className="flex gap-3">

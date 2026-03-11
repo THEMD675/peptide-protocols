@@ -71,7 +71,7 @@ const PeptideCard = memo(function PeptideCard({
       className={cn(
         'relative h-full overflow-hidden rounded-2xl border p-5 shadow-sm dark:shadow-stone-900/30 card-hover active:scale-[0.98]',
         hasAccess
-          ? 'border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950 hover:border-emerald-300 dark:border-emerald-700 hover:shadow-lg hover:shadow-emerald-600/10'
+          ? 'border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 hover:border-emerald-300 dark:border-emerald-700 hover:shadow-lg hover:shadow-emerald-600/10'
           : 'border-stone-200 dark:border-stone-600 bg-stone-50/50 hover:border-stone-300 dark:border-stone-600',
         isFav && 'border-s-4 border-s-emerald-400',
       )}
@@ -443,7 +443,7 @@ export default function Library() {
                   <p className="text-sm font-bold text-stone-700 dark:text-stone-200 mb-2">شاهدت مؤخرًا</p>
                   <div className="flex gap-2 overflow-x-auto pb-1">
                     {recentPeptides.map(p => (
-                      <Link key={p!.id} to={`/peptide/${p!.id}`} className="shrink-0 rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950 px-4 py-2.5 text-sm font-medium text-stone-700 dark:text-stone-200 hover:bg-stone-50 dark:hover:bg-stone-800 transition-colors whitespace-nowrap">
+                      <Link key={p!.id} to={`/peptide/${p!.id}`} className="shrink-0 rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 px-4 py-2.5 text-sm font-medium text-stone-700 dark:text-stone-200 hover:bg-stone-50 dark:hover:bg-stone-800 transition-colors whitespace-nowrap">
                         {p!.nameAr}
                       </Link>
                     ))}
@@ -488,7 +488,7 @@ export default function Library() {
             value={sortBy}
             onChange={(e) => setSortBy(e.target.value as 'default' | 'evidence' | 'alpha' | 'favorites')}
             aria-label="ترتيب"
-            className="rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950 px-3 py-2.5 text-sm text-stone-800 dark:text-stone-200 focus:border-emerald-300 dark:border-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900 sm:w-auto"
+            className="rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 px-3 py-2.5 text-sm text-stone-800 dark:text-stone-200 focus:border-emerald-300 dark:border-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900 sm:w-auto"
           >
             <option value="default">الترتيب الافتراضي</option>
             <option value="evidence">الأقوى دليلًا</option>
@@ -502,7 +502,7 @@ export default function Library() {
               'flex items-center justify-center gap-2 rounded-xl border px-4 py-2.5 text-sm font-medium transition-colors sm:w-auto',
               showFilters
                 ? 'border-emerald-400 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700'
-                : 'border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950 text-stone-800 dark:text-stone-200 transition-colors hover:border-stone-300 dark:border-stone-600',
+                : 'border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 text-stone-800 dark:text-stone-200 transition-colors hover:border-stone-300 dark:border-stone-600',
             )}
           >
             <Filter className="h-4 w-4" />
@@ -567,7 +567,7 @@ export default function Library() {
             </p>
             <button
               onClick={() => { setQuizGoalFilter(null); setActiveCategory('all'); }}
-              className="shrink-0 rounded-lg border border-emerald-200 dark:border-emerald-800 bg-white dark:bg-stone-950 px-3 py-2 min-h-[44px] text-xs font-bold text-emerald-700 dark:text-emerald-400 transition-colors hover:bg-emerald-100 dark:bg-emerald-900/30"
+              className="shrink-0 rounded-lg border border-emerald-200 dark:border-emerald-800 bg-white dark:bg-stone-900 px-3 py-2 min-h-[44px] text-xs font-bold text-emerald-700 dark:text-emerald-400 transition-colors hover:bg-emerald-100 dark:bg-emerald-900/30"
             >
               عرض الكل
             </button>
@@ -586,7 +586,7 @@ export default function Library() {
                 'shrink-0 rounded-full border px-4 py-2 min-h-[44px] text-sm font-medium transition-all',
                 activeCategory === 'all'
                   ? 'primary-gradient border-emerald-300 dark:border-emerald-700 text-white'
-                  : 'border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950 text-stone-800 dark:text-stone-200 hover:border-stone-300 dark:border-stone-600 transition-colors hover:text-stone-800 dark:text-stone-200',
+                  : 'border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 text-stone-800 dark:text-stone-200 hover:border-stone-300 dark:border-stone-600 transition-colors hover:text-stone-800 dark:text-stone-200',
               )}
             >
               الكل
@@ -598,7 +598,7 @@ export default function Library() {
                 'flex shrink-0 items-center gap-1.5 rounded-full border px-4 py-2 min-h-[44px] text-sm font-medium transition-all',
                 activeCategory === 'free'
                   ? 'primary-gradient border-emerald-300 dark:border-emerald-700 text-white'
-                  : 'border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950 text-stone-800 dark:text-stone-200 hover:border-stone-300 dark:border-stone-600 transition-colors hover:text-stone-800 dark:text-stone-200',
+                  : 'border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 text-stone-800 dark:text-stone-200 hover:border-stone-300 dark:border-stone-600 transition-colors hover:text-stone-800 dark:text-stone-200',
               )}
             >
               مجاني
@@ -610,7 +610,7 @@ export default function Library() {
                 'flex shrink-0 items-center gap-1.5 rounded-full border px-4 py-2 min-h-[44px] text-sm font-medium transition-all',
                 activeCategory === 'bookmarks'
                   ? 'primary-gradient border-emerald-300 dark:border-emerald-700 text-white'
-                  : 'border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950 text-stone-800 dark:text-stone-200 hover:border-stone-300 dark:border-stone-600 transition-colors hover:text-stone-800 dark:text-stone-200',
+                  : 'border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 text-stone-800 dark:text-stone-200 hover:border-stone-300 dark:border-stone-600 transition-colors hover:text-stone-800 dark:text-stone-200',
               )}
             >
               <Bookmark className="h-3.5 w-3.5" />
@@ -628,7 +628,7 @@ export default function Library() {
                     'flex shrink-0 items-center gap-1.5 rounded-full border px-4 py-2 min-h-[44px] text-sm font-medium transition-all',
                     active
                       ? 'primary-gradient border-emerald-300 dark:border-emerald-700 text-white'
-                      : 'border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950 text-stone-800 dark:text-stone-200 hover:border-stone-300 dark:border-stone-600 transition-colors hover:text-stone-800 dark:text-stone-200',
+                      : 'border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 text-stone-800 dark:text-stone-200 hover:border-stone-300 dark:border-stone-600 transition-colors hover:text-stone-800 dark:text-stone-200',
                   )}
                 >
                   {Icon && <Icon className="h-3.5 w-3.5" />}
@@ -645,7 +645,7 @@ export default function Library() {
           {(activeCategory !== 'all' || search.trim() !== '' || evidenceFilter !== 'all') && (
             <button
               onClick={() => { setActiveCategory('all'); setSearch(''); setEvidenceFilter('all'); setSortBy('default'); }}
-              className="flex items-center gap-1 rounded-lg border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950 px-3 py-1.5 min-h-[44px] text-xs font-medium text-stone-600 dark:text-stone-300 transition-colors hover:border-red-200 dark:border-red-800 hover:bg-red-50 dark:bg-red-900/20 hover:text-red-600 dark:text-red-400"
+              className="flex items-center gap-1 rounded-lg border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 px-3 py-1.5 min-h-[44px] text-xs font-medium text-stone-600 dark:text-stone-300 transition-colors hover:border-red-200 dark:border-red-800 hover:bg-red-50 dark:bg-red-900/20 hover:text-red-600 dark:text-red-400"
             >
               <X className="h-3 w-3" />
               مسح الفلاتر
@@ -736,7 +736,7 @@ export default function Library() {
 
       {/* Floating Compare Bar */}
       {compareIds.length >= 2 && (
-        <div className="fixed bottom-20 left-1/2 -translate-x-1/2 z-40 flex items-center gap-3 rounded-2xl border border-emerald-300 dark:border-emerald-700 bg-white dark:bg-stone-950/95 backdrop-blur-lg px-6 py-3 shadow-xl dark:shadow-stone-900/40 md:bottom-6 animate-slide-up">
+        <div className="fixed bottom-20 left-1/2 -translate-x-1/2 z-40 flex items-center gap-3 rounded-2xl border border-emerald-300 dark:border-emerald-700 bg-white dark:bg-stone-900/95 backdrop-blur-lg px-6 py-3 shadow-xl dark:shadow-stone-900/40 md:bottom-6 animate-slide-up">
           <span className="text-sm font-bold text-stone-900 dark:text-stone-100">قارن {compareIds.length} ببتيدات</span>
           <div className="flex gap-1.5">
             {compareIds.map(id => {
@@ -766,7 +766,7 @@ export default function Library() {
         return (
           <div className="fixed inset-0 z-50 flex items-start justify-center bg-black/50 backdrop-blur-sm p-4 overflow-y-auto" onClick={() => setShowCompare(false)} role="dialog" aria-modal="true" aria-label="مقارنة ببتيدات">
             <FocusTrap focusTrapOptions={{ allowOutsideClick: true }}>
-            <div className="w-full max-w-4xl my-8 rounded-2xl bg-white dark:bg-stone-950 shadow-2xl overflow-hidden animate-fade-in" onClick={e => e.stopPropagation()}>
+            <div className="w-full max-w-4xl my-8 rounded-2xl bg-white dark:bg-stone-900 shadow-2xl overflow-hidden animate-fade-in" onClick={e => e.stopPropagation()}>
               <div className="flex items-center justify-between border-b border-stone-200 dark:border-stone-600 px-6 py-4">
                 <h2 className="text-lg font-bold text-stone-900 dark:text-stone-100">مقارنة ببتيدات</h2>
                 <button onClick={() => setShowCompare(false)} aria-label="إغلاق" className="rounded-lg p-2 min-h-[44px] min-w-[44px] flex items-center justify-center text-stone-500 dark:text-stone-300 transition-colors hover:bg-stone-100 dark:hover:bg-stone-800"><X className="h-5 w-5" /></button>
@@ -793,7 +793,7 @@ export default function Library() {
                   </thead>
                   <tbody>
                     {rows.map((row, i) => (
-                      <tr key={row.label} className={cn('border-b border-stone-100 dark:border-stone-800', i % 2 === 0 ? 'bg-white dark:bg-stone-950' : 'bg-stone-50/50')}>
+                      <tr key={row.label} className={cn('border-b border-stone-100 dark:border-stone-800', i % 2 === 0 ? 'bg-white dark:bg-stone-900' : 'bg-stone-50/50')}>
                         <th scope="row" className="px-4 py-3 text-xs font-bold text-stone-700 dark:text-stone-200">{row.label}</th>
                         {items.map(p => (
                           <td key={p.id} className="px-4 py-3 text-xs text-stone-800 dark:text-stone-200 leading-relaxed">{row.get(p)}</td>
@@ -825,7 +825,7 @@ export default function Library() {
         return (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4" onClick={() => setUpsellPeptide(null)} role="dialog" aria-modal="true" aria-label="اشترك لفتح البروتوكول">
             <FocusTrap focusTrapOptions={{ allowOutsideClick: true }}>
-            <div className="w-full max-w-md max-h-[90vh] overflow-y-auto rounded-2xl bg-white dark:bg-stone-950 p-6 sm:p-8 shadow-2xl text-center animate-fade-in" onClick={e => e.stopPropagation()}>
+            <div className="w-full max-w-md max-h-[90vh] overflow-y-auto rounded-2xl bg-white dark:bg-stone-900 p-6 sm:p-8 shadow-2xl text-center animate-fade-in" onClick={e => e.stopPropagation()}>
               <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-emerald-100 dark:bg-emerald-900/30">
                 <Lock className="h-7 w-7 text-emerald-700" />
               </div>

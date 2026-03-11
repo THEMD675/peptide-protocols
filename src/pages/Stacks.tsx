@@ -51,7 +51,7 @@ export default function Stacks() {
       {activeWizard && <ProtocolWizard peptideId={activeWizard} onClose={() => setActiveWizard(null)} />}
       {stackStartDialog && (
         <div role="dialog" aria-modal="true" aria-label="بدء البروتوكول" className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" onClick={() => setStackStartDialog(null)}>
-          <div className="w-full max-w-md max-h-[90vh] overflow-y-auto rounded-2xl bg-white dark:bg-stone-950 p-6 shadow-xl dark:shadow-stone-900/40" onClick={e => e.stopPropagation()}>
+          <div className="w-full max-w-md max-h-[90vh] overflow-y-auto rounded-2xl bg-white dark:bg-stone-900 p-6 shadow-xl dark:shadow-stone-900/40" onClick={e => e.stopPropagation()}>
             <h3 className="text-lg font-bold text-stone-900 dark:text-stone-100 mb-2">ابدأ البروتوكول: {stackStartDialog.stackName}</h3>
             <p className="text-sm text-stone-600 dark:text-stone-300 mb-4">اختر الببتيد الذي تريد بدء بروتوكوله:</p>
             <div className="space-y-2">
@@ -224,7 +224,7 @@ export default function Stacks() {
                       const rest = idx >= 0 ? block.slice(idx + 1) : '';
                       const isPhaseHeader = /^(المرحلة \d|البروتوكول |البديل |الدورة\b|بروتوكول |دعم مساعد)/.test(firstLine.trim());
                       return (
-                        <div key={i} className="rounded-xl bg-white dark:bg-stone-950/50 p-3 py-2 border-s-2 border-emerald-300 dark:border-emerald-700 ps-3">
+                        <div key={i} className="rounded-xl bg-white dark:bg-stone-900/50 p-3 py-2 border-s-2 border-emerald-300 dark:border-emerald-700 ps-3">
                           <span className={isPhaseHeader ? 'text-base font-bold text-stone-900 dark:text-stone-100 block mb-1' : ''}>{firstLine}</span>
                           {rest ? <span className="whitespace-pre-line block">{rest}</span> : null}
                         </div>
@@ -250,7 +250,7 @@ export default function Stacks() {
                     </button>
                     <Link
                       to={`/calculator?peptide=${encodeURIComponent(stackPeptides[0]?.nameEn ?? '')}`}
-                      className="inline-flex items-center gap-1.5 rounded-full border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950 px-4 py-2 text-sm font-bold text-stone-700 dark:text-stone-200 hover:border-emerald-200 dark:border-emerald-800 transition-colors"
+                      className="inline-flex items-center gap-1.5 rounded-full border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 px-4 py-2 text-sm font-bold text-stone-700 dark:text-stone-200 hover:border-emerald-200 dark:border-emerald-800 transition-colors"
                     >
                       <Calculator className="h-3.5 w-3.5" />
                       احسب الجرعة

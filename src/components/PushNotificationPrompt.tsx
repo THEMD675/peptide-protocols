@@ -116,7 +116,7 @@ export default function PushNotificationPrompt() {
   if (loading) return null;
 
   return (
-    <div className="mb-8 rounded-2xl border border-emerald-200 dark:border-emerald-800 bg-white dark:bg-stone-950 p-5 shadow-sm dark:shadow-stone-900/30">
+    <div className="mb-8 rounded-2xl border border-emerald-200 dark:border-emerald-800 bg-white dark:bg-stone-900 p-5 shadow-sm dark:shadow-stone-900/30">
       <div className="flex items-center justify-between gap-4">
         <div className="flex items-center gap-3">
           <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-emerald-100 dark:bg-emerald-900/30">
