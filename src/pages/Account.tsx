@@ -1147,24 +1147,24 @@ export default function Account() {
                 disabled={isProcessing}
                 className="w-full rounded-xl border border-stone-300 dark:border-stone-600 px-4 py-2.5 text-sm font-bold text-stone-700 dark:text-stone-200 transition-all hover:bg-stone-50 dark:hover:bg-stone-800 disabled:opacity-50"
               >
-                {isProcessing ? 'جارٍ الإلغاء...' : 'متابعة الإلغاء'}
+                {isProcessing ? RETENTION.cancellingText : RETENTION.proceedCancel}
               </button>
               <button
                 type="button"
                 onClick={() => {
-                  toast.info('يمكنك إيقاف اشتراكك مؤقتًا لمدة شهر. تواصل معنا عبر contact@pptides.com لطلب الإيقاف.');
+                  toast.info(RETENTION.pauseToast);
                   setShowCancelDialog(false);
                   setCancelStep(null);
                 }}
                 className="w-full rounded-full border border-stone-200 dark:border-stone-600 py-3 text-sm font-bold text-stone-600 dark:text-stone-300 hover:bg-stone-50 dark:hover:bg-stone-800"
               >
-                إيقاف مؤقت
+                {RETENTION.pauseOption}
               </button>
               <button
                 onClick={() => { setShowCancelDialog(false); setCancelStep(null); }}
                 className="w-full rounded-full bg-emerald-600 px-4 py-2 text-sm font-medium text-white transition-all hover:bg-emerald-700"
               >
-                الاحتفاظ بالاشتراك
+                {RETENTION.keepCta}
               </button>
             </div>
           </div>
