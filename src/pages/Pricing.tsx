@@ -77,7 +77,7 @@ export default function Pricing() {
     let mounted = true;
     // eslint-disable-next-line react-hooks/set-state-in-effect
     try { const c = localStorage.getItem('pptides_user_count'); if (c) setUserCount(Number(c)); } catch { /* expected */ }
-    supabase.from('subscriptions').select('id', { count: 'exact', head: true }).in('status', ['active', 'trial']).not('stripe_subscription_id', 'is', null)
+    supabase.from('subscriptions').select('status', { count: 'exact', head: true }).in('status', ['active', 'trial']).not('stripe_subscription_id', 'is', null)
       .then(({ count }) => { if (mounted && count != null && count > 0) { setUserCount(count); try { localStorage.setItem('pptides_user_count', String(count)); } catch { /* expected */ } } });
     return () => { mounted = false; };
   }, []);

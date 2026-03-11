@@ -170,7 +170,7 @@ export default function Landing() {
       } catch { /* expected */ }
 
       Promise.all([
-        cacheValid ? Promise.resolve({ count: null, error: null }) : supabase.from('subscriptions').select('id', { count: 'exact', head: true }).in('status', ['active', 'trial']).not('stripe_subscription_id', 'is', null),
+        cacheValid ? Promise.resolve({ count: null, error: null }) : supabase.from('subscriptions').select('status', { count: 'exact', head: true }).in('status', ['active', 'trial']).not('stripe_subscription_id', 'is', null),
         reviewsCacheValid ? Promise.resolve({ data: null, error: null }) : supabase.from('reviews').select('body, rating, name, created_at').eq('is_approved', true).gte('rating', 4).order('created_at', { ascending: false }).limit(3),
       ]).then(([subsResult, reviewsResult]) => {
         if (!mounted) return;
