@@ -264,6 +264,29 @@ serve(async (req) => {
       trialToPaid: trialStarts > 0 ? Math.round((paidConversions / trialStarts) * 100) : 0,
     }
 
+    // --- REVENUE BY MONTH (last 12 months) ---
+    const revenueByMonth: { month: string; revenue: number }[] = []
+    for (let i = 11; i >= 0; i--) {
+      const d = new Date(now.getFullYear(), now.getMonth() - i, 1)
+      const monthStr = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`
+      const monthStart = d.getTime()
+      const nextMonth = new Date(d.getFullYear(), d.getMonth() + 1, 1).getTime()
+
+      let monthRevenue = 0
+      for (const s of paidSubs) {
+        if (!s.current_period_end) continue
+        const periodEnd = new Date(s.current_period_end).getTime()
+        const createdAt = new Date(s.created_at).getTime()
+        // Subscription was active in this month if it was created before month end
+        // and its period_end is >= month start (meaning it covers this month)
+        if (periodEnd >= monthStart && createdAt < nextMonth) {
+          if (s.tier === 'essentials') monthRevenue += mrrEssentialsMonthly
+          else if (s.tier === 'elite') monthRevenue += mrrEliteMonthly
+        }
+      }
+      revenueByMonth.push({ month: monthStr, revenue: Math.round(monthRevenue) })
+    }
+
     const stats = {
       pagination: {
         page: pageParam,
@@ -313,6 +336,7 @@ serve(async (req) => {
       recentLogs: logs.slice(0, 20),
       pendingReviews: pendingReviews.slice(0, 20),
       recentCommunity: community.slice(0, 20),
+      revenueByMonth,
       emailList: emailList.slice(0, 50),
       enquiries: enquiriesData.slice(0, 30),
       emailLogs: emailLogsData.slice(0, 50),

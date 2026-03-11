@@ -52,6 +52,7 @@ interface AdminStats {
   pendingReviews: Array<{ id: string; name: string; rating: number; content: string; created_at: string }>;
   emailList: Array<{ id: string; email: string; created_at: string }>;
   enquiries: Array<{ id: string; email: string; subject: string; peptide_name: string | null; message: string; status: string; admin_notes: string | null; created_at: string }>;
+  revenueByMonth?: Array<{ month: string; revenue: number }>;
   emailLogs: Array<{ id: string; email: string; type: string; status: string; created_at: string }>;
   webhookEvents: Array<{ id: string; event_type: string; event_id: string; processed_at: string }>;
 }
@@ -73,6 +74,37 @@ type UserFilter = 'all' | 'active' | 'trial' | 'expired' | 'none';
 type ModalType = 'extend_trial' | 'grant_sub' | 'send_email' | 'confirm_delete' | 'confirm_suspend' | 'cancel_sub' | 'bulk_email' | 'refund' | null;
 
 const PER_PAGE = 20;
+
+const EMAIL_TEMPLATES: { key: string; label: string; subject: string; body: string }[] = [
+  { key: 'custom', label: 'مخصص', subject: '', body: '' },
+  {
+    key: 'trial_ending',
+    label: 'تذكير انتهاء التجربة',
+    subject: 'اشتراكك التجريبي ينتهي قريبًا',
+    body: 'مرحبًا،\n\nنود تذكيرك بأن فترتك التجريبية المجانية على pptides.com ستنتهي قريبًا.\n\nلا تفوّت الوصول إلى بروتوكولات الببتيد المتقدمة والمدرب الذكي وجميع الميزات الحصرية.\n\nاشترك الآن للاستمرار بدون انقطاع:\nhttps://pptides.com/pricing\n\nفريق pptides',
+  },
+  {
+    key: 'winback',
+    label: 'عرض استعادة',
+    subject: 'نشتاق لك! عرض خاص',
+    body: 'مرحبًا،\n\nلاحظنا أنك لم تعد معنا في pptides.com ونشتاق لوجودك!\n\nلدينا عرض خاص لك: خصم 20% على أي باقة عند عودتك.\n\nاستخدم الكود: retention_20_pct عند الاشتراك\nhttps://pptides.com/pricing?coupon=retention_20_pct\n\nالعرض محدود — لا تفوّته!\n\nفريق pptides',
+  },
+  {
+    key: 'upsell',
+    label: 'ترقية للمتقدمة',
+    subject: 'اكتشف ميزات باقة Elite',
+    body: 'مرحبًا،\n\nشكرًا لاشتراكك في باقة الأساسيات! هل تعلم أن باقة Elite تمنحك:\n\n✅ بروتوكولات متقدمة حصرية\n✅ محادثات غير محدودة مع المدرب الذكي\n✅ تتبع متقدم للأعراض الجانبية\n✅ أولوية الدعم\n\nقم بالترقية الآن واستفد من كل الإمكانيات:\nhttps://pptides.com/pricing\n\nفريق pptides',
+  },
+];
+
+interface StripePayment {
+  id: string;
+  payment_intent: string | null;
+  amount: number;
+  currency: string;
+  status: string;
+  created: string;
+}
 
 // ========================================================
 // HELPERS
@@ -233,8 +265,13 @@ export default function Admin() {
   const [userDetailLoading, setUserDetailLoading] = useState(false);
   const [userDetailOpen, setUserDetailOpen] = useState(false);
 
+  // Email template
+  const [emailTemplate, setEmailTemplate] = useState('custom');
+
   // Refund
   const [refundId, setRefundId] = useState('');
+  const [userPayments, setUserPayments] = useState<StripePayment[]>([]);
+  const [paymentsLoading, setPaymentsLoading] = useState(false);
 
   // User notes
   const [userNotes, setUserNotes] = useState<Array<{ id: string; note: string; admin_email: string; created_at: string }>>([]);
@@ -266,7 +303,7 @@ export default function Admin() {
       if (res.status === 403) { setForbidden(true); return; }
       if (!res.ok) throw new Error((await res.json().catch(() => ({}))).error ?? 'Failed');
       const d = await res.json();
-      setStats({ ...d, pagination: d.pagination ?? null, alerts: d.alerts ?? [], funnel: d.funnel ?? { totalSignups: 0, trialStarts: 0, paidConversions: 0, signupToTrial: 0, trialToPaid: 0 }, activityFeed: d.activityFeed ?? [], enquiries: d.enquiries ?? [], emailLogs: d.emailLogs ?? [], webhookEvents: d.webhookEvents ?? [], recentUsers: d.recentUsers ?? [], pendingReviews: d.pendingReviews ?? [], emailList: d.emailList ?? [] });
+      setStats({ ...d, pagination: d.pagination ?? null, alerts: d.alerts ?? [], funnel: d.funnel ?? { totalSignups: 0, trialStarts: 0, paidConversions: 0, signupToTrial: 0, trialToPaid: 0 }, activityFeed: d.activityFeed ?? [], enquiries: d.enquiries ?? [], emailLogs: d.emailLogs ?? [], webhookEvents: d.webhookEvents ?? [], recentUsers: d.recentUsers ?? [], pendingReviews: d.pendingReviews ?? [], emailList: d.emailList ?? [], revenueByMonth: d.revenueByMonth ?? [] });
       setLastFetched(new Date());
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Failed to load');
@@ -382,6 +419,28 @@ export default function Admin() {
     } catch (e) { toast.error(e instanceof Error ? e.message : 'Failed'); }
     finally { setActionLoading(false); }
   };
+
+  const applyTemplate = (key: string) => {
+    setEmailTemplate(key);
+    const tpl = EMAIL_TEMPLATES.find(t => t.key === key);
+    if (tpl) {
+      setEmailSubject(tpl.subject);
+      setEmailBody(tpl.body);
+    }
+  };
+
+  const fetchUserPayments = useCallback(async (userId: string) => {
+    setPaymentsLoading(true);
+    setUserPayments([]);
+    try {
+      const r = await adminAction({ action: 'get_payments', user_id: userId });
+      setUserPayments(r.payments ?? []);
+    } catch {
+      setUserPayments([]);
+    } finally {
+      setPaymentsLoading(false);
+    }
+  }, [adminAction]);
 
   const runHealthCheck = async () => {
     setHealthLoading(true);
@@ -575,6 +634,29 @@ export default function Admin() {
                         <p className="text-sm font-medium">{a.message}</p>
                         {a.data?.emails && <p className="text-xs mt-1 opacity-80">{(a.data.emails as string[]).join(', ')}</p>}
                       </div>
+                      {a.type === 'trial_expiring' && a.data?.emails && (
+                        <button
+                          onClick={() => {
+                            const emails = a.data!.emails as string[];
+                            setBulkAudience('trial');
+                            const tpl = EMAIL_TEMPLATES.find(t => t.key === 'trial_ending')!;
+                            setEmailSubject(tpl.subject);
+                            setEmailBody(tpl.body);
+                            setEmailTemplate('trial_ending');
+                            // Pre-fill with specific emails by using send_email to 'bulk' with trial audience
+                            // But since bulk sends to all trial users, we use individual approach for targeted segment
+                            if (emails.length === 1) {
+                              setEmailTo(emails[0]);
+                              setModal('send_email');
+                            } else {
+                              setModal('bulk_email');
+                            }
+                          }}
+                          className="shrink-0 rounded-lg bg-emerald-600 px-3 py-1.5 text-xs font-bold text-white hover:bg-emerald-700 whitespace-nowrap"
+                        >
+                          أرسل بريد لهم
+                        </button>
+                      )}
                     </div>
                   );
                 })}
@@ -642,6 +724,34 @@ export default function Admin() {
                 </div>
               );
             })()}
+
+            {/* ── Revenue Over Time ── */}
+            {stats.revenueByMonth && stats.revenueByMonth.length > 0 && (
+              <div className="rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 p-4">
+                <h3 className="text-xs font-bold text-stone-700 dark:text-stone-200 mb-4 flex items-center gap-1.5" dir="rtl">
+                  <CreditCard className="h-3.5 w-3.5 text-emerald-500" /> الإيرادات الشهرية — آخر 12 شهر
+                </h3>
+                <div className="h-48 w-full">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <AreaChart data={stats.revenueByMonth} margin={{ top: 5, right: 5, left: -10, bottom: 0 }}>
+                      <defs>
+                        <linearGradient id="revenueGrad" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="5%" stopColor="#059669" stopOpacity={0.4} />
+                          <stop offset="95%" stopColor="#059669" stopOpacity={0} />
+                        </linearGradient>
+                      </defs>
+                      <XAxis dataKey="month" tick={{ fontSize: 10, fill: '#9ca3af' }} interval={1} />
+                      <YAxis tick={{ fontSize: 10, fill: '#9ca3af' }} allowDecimals={false} />
+                      <RTooltip
+                        contentStyle={{ background: 'rgba(0,0,0,0.85)', border: 'none', borderRadius: 8, fontSize: 12, color: '#fff' }}
+                        formatter={(value: number) => [`${value.toLocaleString()} ر.س`, 'الإيرادات']}
+                      />
+                      <Area type="monotone" dataKey="revenue" stroke="#059669" strokeWidth={2} fill="url(#revenueGrad)" />
+                    </AreaChart>
+                  </ResponsiveContainer>
+                </div>
+              </div>
+            )}
 
             {/* Stats grid */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
@@ -837,7 +947,7 @@ export default function Admin() {
                               )}
                               <button onClick={() => openUserAction('confirm_suspend', u)} title="إيقاف" aria-label="إيقاف المستخدم" className="rounded p-1.5 min-h-[36px] min-w-[36px] flex items-center justify-center hover:bg-red-50 dark:hover:bg-red-900/20"><Ban className="h-3.5 w-3.5 text-red-400" /></button>
                               <button onClick={async () => { try { await adminAction({ action: 'unsuspend_user', user_id: u.id }); toast.success(`تم إلغاء إيقاف ${u.email}`); fetchStats(); } catch { toast.error('فشل إلغاء الإيقاف'); } }} title="إلغاء الإيقاف" aria-label="إلغاء إيقاف المستخدم" className="rounded p-1.5 min-h-[36px] min-w-[36px] flex items-center justify-center hover:bg-green-50 dark:hover:bg-green-900/20"><ShieldCheck className="h-3.5 w-3.5 text-green-600" /></button>
-                              <button onClick={() => { setRefundId(''); openUserAction('refund', u); }} title="استرداد" aria-label="استرداد دفعة" className="rounded p-1.5 min-h-[36px] min-w-[36px] flex items-center justify-center hover:bg-amber-50 dark:hover:bg-amber-900/20"><RotateCcw className="h-3.5 w-3.5 text-amber-600" /></button>
+                              <button onClick={() => { setRefundId(''); openUserAction('refund', u); fetchUserPayments(u.id); }} title="استرداد" aria-label="استرداد دفعة" className="rounded p-1.5 min-h-[36px] min-w-[36px] flex items-center justify-center hover:bg-amber-50 dark:hover:bg-amber-900/20"><RotateCcw className="h-3.5 w-3.5 text-amber-600" /></button>
                               <button onClick={() => openUserAction('confirm_delete', u)} title="حذف" aria-label="حذف المستخدم" className="rounded p-1.5 min-h-[36px] min-w-[36px] flex items-center justify-center hover:bg-red-50 dark:hover:bg-red-900/20"><Trash2 className="h-3.5 w-3.5 text-red-400" /></button>
                             </div>
                           </td>
@@ -1154,6 +1264,10 @@ export default function Admin() {
       <Modal open={modal === 'send_email'} title="إرسال بريد" onClose={() => setModal(null)}>
         <label className="block text-xs font-medium text-stone-600 dark:text-stone-300 mb-1">إلى</label>
         <input type="email" value={emailTo} onChange={e => setEmailTo(e.target.value)} placeholder="user@example.com" className="w-full rounded-lg border border-stone-200 dark:border-stone-600 px-3 py-2 text-sm mb-3" dir="ltr" />
+        <label className="block text-xs font-medium text-stone-600 dark:text-stone-300 mb-1">قالب</label>
+        <select value={emailTemplate} onChange={e => applyTemplate(e.target.value)} className="w-full rounded-lg border border-stone-200 dark:border-stone-600 px-3 py-2 text-sm mb-3">
+          {EMAIL_TEMPLATES.map(t => <option key={t.key} value={t.key}>{t.label}</option>)}
+        </select>
         <label className="block text-xs font-medium text-stone-600 dark:text-stone-300 mb-1">الموضوع</label>
         <input type="text" value={emailSubject} onChange={e => setEmailSubject(e.target.value)} placeholder="الموضوع" className="w-full rounded-lg border border-stone-200 dark:border-stone-600 px-3 py-2 text-sm mb-3" dir="ltr" />
         <label className="block text-xs font-medium text-stone-600 dark:text-stone-300 mb-1">المحتوى</label>
@@ -1174,6 +1288,10 @@ export default function Admin() {
           <option value="trial">مستخدمو الفترة التجريبية</option>
           <option value="active">المشتركون الفعّالون</option>
           <option value="expired">المنتهي اشتراكهم</option>
+        </select>
+        <label className="block text-xs font-medium text-stone-600 dark:text-stone-300 mb-1">قالب</label>
+        <select value={emailTemplate} onChange={e => applyTemplate(e.target.value)} className="w-full rounded-lg border border-stone-200 dark:border-stone-600 px-3 py-2 text-sm mb-3">
+          {EMAIL_TEMPLATES.map(t => <option key={t.key} value={t.key}>{t.label}</option>)}
         </select>
         <label className="block text-xs font-medium text-stone-600 dark:text-stone-300 mb-1">الموضوع</label>
         <input type="text" value={emailSubject} onChange={e => setEmailSubject(e.target.value)} placeholder="الموضوع" className="w-full rounded-lg border border-stone-200 dark:border-stone-600 px-3 py-2 text-sm mb-3" dir="ltr" />

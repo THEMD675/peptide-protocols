@@ -74,12 +74,13 @@ serve(async (req) => {
 
     const userIds = activeUsers.map(u => u.user_id)
 
-    // Fetch users who have push subscriptions
+    // Fetch users who have push subscriptions and haven't opted out of product updates
     const { data: pushUsers, error: pushError } = await supabase
       .from('user_profiles')
-      .select('user_id, push_subscription')
+      .select('user_id, push_subscription, product_updates_enabled')
       .in('user_id', userIds)
       .not('push_subscription', 'is', null)
+      .neq('product_updates_enabled', false)
 
     if (pushError || !pushUsers || pushUsers.length === 0) {
       return new Response(JSON.stringify({ sent: 0, message: 'No users with push subscriptions' }), {

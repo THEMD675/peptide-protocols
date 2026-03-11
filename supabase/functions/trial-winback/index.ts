@@ -128,6 +128,22 @@ serve(async (req) => {
     const originalPrice = 34
     const discountedPrice = Math.round(originalPrice * 0.8) // 20% off = ~27 SAR
 
+    // Batch-fetch notification preferences
+    const expiredUserIds = expiredUsers.map(u => u.user_id)
+    const emailPrefsMap = new Map<string, boolean>()
+    for (let i = 0; i < expiredUserIds.length; i += 500) {
+      const chunk = expiredUserIds.slice(i, i + 500)
+      const { data: prefs } = await supabase
+        .from('user_profiles')
+        .select('user_id, email_notifications_enabled')
+        .in('user_id', chunk)
+      if (prefs) {
+        for (const p of prefs) {
+          emailPrefsMap.set(p.user_id, p.email_notifications_enabled ?? true)
+        }
+      }
+    }
+
     let sent = 0, skipped = 0, failed = 0
 
     for (const sub of expiredUsers) {
@@ -137,6 +153,9 @@ serve(async (req) => {
 
         const email = userIdToEmail.get(sub.user_id)
         if (!email) { skipped++; continue }
+
+        // Respect user's email notification preference
+        if (emailPrefsMap.get(sub.user_id) === false) { skipped++; continue }
 
         // Dedup
         const { error: dedupErr } = await supabase

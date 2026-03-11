@@ -133,7 +133,7 @@ export function buildSubscription(row: Record<string, unknown> | null): Subscrip
 
 
 function clearPptidesStorage() {
-  const PRESERVE = ['pptides_age_verified', 'pptides_cookie_consent'];
+  const PRESERVE = ['pptides_age_verified', 'pptides_cookie_consent', 'pptides_theme'];
   try {
     Object.keys(localStorage)
       .filter(k => k.startsWith('pptides_') && !PRESERVE.includes(k))
@@ -157,6 +157,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const fetchSubscription = useCallback(async (userId: string) => {
     try {
+      // Guard: only query subscriptions when there's a valid session (prevents 401 for logged-out users)
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        setSubscription(DEFAULT_SUBSCRIPTION);
+        return;
+      }
+
       const { data, error } = await fetchWithRetry(() =>
         supabase
           .from('subscriptions')

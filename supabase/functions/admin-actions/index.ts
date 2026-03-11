@@ -631,6 +631,34 @@ serve(async (req) => {
       return json({ ok: true, email_sent: emailSent }, 200, cors)
     }
 
+    // ================================================================
+    // GET PAYMENTS (for refund auto-lookup)
+    // ================================================================
+    if (action === 'get_payments') {
+      if (!stripeKey) return json({ error: 'Stripe not configured' }, 500, cors)
+      const userId = body.user_id as string
+      if (!userId) return json({ error: 'Missing user_id' }, 400, cors)
+
+      const { data: sub } = await admin.from('subscriptions')
+        .select('stripe_customer_id').eq('user_id', userId).maybeSingle()
+
+      if (!sub?.stripe_customer_id) return json({ error: 'لا يوجد عميل Stripe لهذا المستخدم' }, 404, cors)
+
+      const stripe = new Stripe(stripeKey, { apiVersion: '2024-06-20', timeout: 10000 })
+      const charges = await stripe.charges.list({ customer: sub.stripe_customer_id, limit: 5 })
+
+      const payments = charges.data.map((c: { id: string; payment_intent: string | null; amount: number; currency: string; status: string; created: number }) => ({
+        id: c.id,
+        payment_intent: c.payment_intent,
+        amount: c.amount,
+        currency: c.currency,
+        status: c.status,
+        created: new Date(c.created * 1000).toISOString(),
+      }))
+
+      return json({ ok: true, payments }, 200, cors)
+    }
+
     if (action === 'sync_email') {
       const userId = body.user_id as string
       const newEmail = (body.new_email as string)?.trim().toLowerCase()

@@ -30,12 +30,9 @@ export default function Account() {
   const [newEmail, setNewEmail] = useState('');
   const [emailLoading, setEmailLoading] = useState(false);
   const [deletePassword, setDeletePassword] = useState('');
-  const [notifEmail, setNotifEmail] = useState(() => {
-    try { return localStorage.getItem('pptides_notif_email') !== 'false'; } catch { return true; }
-  });
-  const [notifProduct, setNotifProduct] = useState(() => {
-    try { return localStorage.getItem('pptides_notif_product') !== 'false'; } catch { return true; }
-  });
+  const [notifEmail, setNotifEmail] = useState(true);
+  const [notifProduct, setNotifProduct] = useState(true);
+  const [notifLoading, setNotifLoading] = useState(false);
 
   const [profileDisplayName, setProfileDisplayName] = useState('');
   const [profileWeight, setProfileWeight] = useState('');
@@ -82,13 +79,15 @@ export default function Account() {
   useEffect(() => {
     if (!user) return;
     setProfileLoading(true);
-    supabase.from('user_profiles').select('display_name, weight_kg, goals, avatar_url').eq('user_id', user.id).maybeSingle()
+    supabase.from('user_profiles').select('display_name, weight_kg, goals, avatar_url, email_notifications_enabled, product_updates_enabled').eq('user_id', user.id).maybeSingle()
       .then(({ data, error }) => {
         if (!error && data) {
           setProfileDisplayName(data.display_name ?? '');
           setProfileWeight(data.weight_kg != null ? String(data.weight_kg) : '');
           setProfileGoals(Array.isArray(data.goals) ? data.goals : []);
           if (data.avatar_url) setProfilePicUrl(data.avatar_url);
+          setNotifEmail(data.email_notifications_enabled ?? true);
+          setNotifProduct(data.product_updates_enabled ?? true);
         }
       })
       .catch(() => { /* profile load failed — non-critical, defaults remain */ })
@@ -734,15 +733,23 @@ export default function Account() {
                 </div>
               </div>
               <button
-                onClick={() => {
+                disabled={notifLoading}
+                onClick={async () => {
+                  if (!user) return;
                   const next = !notifEmail;
-                  setNotifEmail(next);
-                  try { localStorage.setItem('pptides_notif_email', String(next)); } catch {}
-                  toast.success(next ? 'تم تفعيل إشعارات البريد' : 'تم إيقاف إشعارات البريد');
+                  setNotifLoading(true);
+                  try {
+                    const { error } = await supabase.from('user_profiles').update({ email_notifications_enabled: next, updated_at: new Date().toISOString() }).eq('user_id', user.id);
+                    if (error) throw error;
+                    setNotifEmail(next);
+                    toast.success(next ? 'تم تفعيل إشعارات البريد' : 'تم إيقاف إشعارات البريد');
+                  } catch { toast.error('تعذّر تحديث التفضيل — حاول مرة أخرى'); }
+                  finally { setNotifLoading(false); }
                 }}
                 className={cn(
                   'relative h-7 w-12 rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:ring-offset-2',
                   notifEmail ? 'bg-emerald-600' : 'bg-stone-300',
+                  notifLoading && 'opacity-50 cursor-wait',
                 )}
                 aria-label="تبديل إشعارات البريد"
                 role="switch"
@@ -767,15 +774,23 @@ export default function Account() {
                 </div>
               </div>
               <button
-                onClick={() => {
+                disabled={notifLoading}
+                onClick={async () => {
+                  if (!user) return;
                   const next = !notifProduct;
-                  setNotifProduct(next);
-                  try { localStorage.setItem('pptides_notif_product', String(next)); } catch {}
-                  toast.success(next ? 'تم تفعيل تحديثات المنتج' : 'تم إيقاف تحديثات المنتج');
+                  setNotifLoading(true);
+                  try {
+                    const { error } = await supabase.from('user_profiles').update({ product_updates_enabled: next, updated_at: new Date().toISOString() }).eq('user_id', user.id);
+                    if (error) throw error;
+                    setNotifProduct(next);
+                    toast.success(next ? 'تم تفعيل تحديثات المنتج' : 'تم إيقاف تحديثات المنتج');
+                  } catch { toast.error('تعذّر تحديث التفضيل — حاول مرة أخرى'); }
+                  finally { setNotifLoading(false); }
                 }}
                 className={cn(
                   'relative h-7 w-12 rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:ring-offset-2',
                   notifProduct ? 'bg-emerald-600' : 'bg-stone-300',
+                  notifLoading && 'opacity-50 cursor-wait',
                 )}
                 aria-label="تبديل تحديثات المنتج"
                 role="switch"

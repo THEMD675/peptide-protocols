@@ -99,6 +99,23 @@ serve(async (req) => {
       page++
     }
 
+    // Batch-fetch notification preferences from user_profiles
+    const allUserIds = trialUsers.map(u => u.user_id)
+    const emailPrefsMap = new Map<string, boolean>()
+    // Fetch in chunks of 500 to avoid query limits
+    for (let i = 0; i < allUserIds.length; i += 500) {
+      const chunk = allUserIds.slice(i, i + 500)
+      const { data: prefs } = await supabase
+        .from('user_profiles')
+        .select('user_id, email_notifications_enabled')
+        .in('user_id', chunk)
+      if (prefs) {
+        for (const p of prefs) {
+          emailPrefsMap.set(p.user_id, p.email_notifications_enabled ?? true)
+        }
+      }
+    }
+
     let sent = 0
     let skipped = 0
     let failed = 0
@@ -116,6 +133,13 @@ serve(async (req) => {
           skipped++
           continue
         }
+
+        // Respect user's email notification preference
+        if (emailPrefsMap.get(sub.user_id) === false) {
+          skipped++
+          continue
+        }
+
         const createdAt = new Date(sub.created_at)
         const trialEnds = new Date(sub.trial_ends_at)
 
@@ -305,12 +329,29 @@ serve(async (req) => {
       const WEEKLY_SUMMARY_LIMIT = 50
       let weeklySummaryProcessed = 0
 
+      // Batch-fetch notification prefs for active subscribers
+      const activeSubIds = activeSubscribers.map(u => u.user_id)
+      for (let i = 0; i < activeSubIds.length; i += 500) {
+        const chunk = activeSubIds.slice(i, i + 500)
+        const { data: prefs } = await supabase
+          .from('user_profiles')
+          .select('user_id, email_notifications_enabled')
+          .in('user_id', chunk)
+        if (prefs) {
+          for (const p of prefs) {
+            if (!emailPrefsMap.has(p.user_id)) emailPrefsMap.set(p.user_id, p.email_notifications_enabled ?? true)
+          }
+        }
+      }
+
       for (const sub of activeSubscribers) {
         if (weeklySummaryProcessed >= WEEKLY_SUMMARY_LIMIT) break
         weeklySummaryProcessed++
         try {
           const email = userIdToEmail.get(sub.user_id)
           if (!email) continue
+          // Respect user's email notification preference
+          if (emailPrefsMap.get(sub.user_id) === false) continue
 
           const { count: weeklyCount } = await supabase
             .from('injection_logs')
@@ -434,6 +475,8 @@ serve(async (req) => {
         try {
           const email = userIdToEmail.get(sub.user_id)
           if (!email) continue
+          // Respect user's email notification preference
+          if (emailPrefsMap.get(sub.user_id) === false) continue
           const { data: latestLog } = await supabase
             .from('injection_logs')
             .select('logged_at')
@@ -538,6 +581,8 @@ serve(async (req) => {
         try {
           const email = userIdToEmail.get(pd.user_id)
           if (!email) continue
+          // Respect user's email notification preference (dunning emails are still important but respect opt-out)
+          if (emailPrefsMap.get(pd.user_id) === false) continue
           const pastDueSince = pd.updated_at ? new Date(pd.updated_at) : new Date()
           const daysPastDue = Math.floor((now.getTime() - pastDueSince.getTime()) / 86400000)
 
@@ -601,10 +646,27 @@ serve(async (req) => {
       .select('user_id, status, updated_at')
       .in('status', ['expired', 'cancelled'])
     if (churnedUsers && churnedUsers.length > 0) {
+      // Batch-fetch notification prefs for churned users
+      const churnedIds = churnedUsers.map(u => u.user_id)
+      for (let i = 0; i < churnedIds.length; i += 500) {
+        const chunk = churnedIds.slice(i, i + 500)
+        const { data: prefs } = await supabase
+          .from('user_profiles')
+          .select('user_id, email_notifications_enabled')
+          .in('user_id', chunk)
+        if (prefs) {
+          for (const p of prefs) {
+            if (!emailPrefsMap.has(p.user_id)) emailPrefsMap.set(p.user_id, p.email_notifications_enabled ?? true)
+          }
+        }
+      }
+
       for (const cu of churnedUsers) {
         try {
           const email = userIdToEmail.get(cu.user_id)
           if (!email) continue
+          // Respect user's email notification preference
+          if (emailPrefsMap.get(cu.user_id) === false) continue
           const churned = cu.updated_at ? new Date(cu.updated_at) : new Date()
           const daysSinceChurn = Math.floor((now.getTime() - churned.getTime()) / 86400000)
           let winbackType = ''

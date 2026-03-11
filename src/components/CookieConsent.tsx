@@ -15,6 +15,16 @@ export default function CookieConsent() {
 
   const [optionalChecked, setOptionalChecked] = useState(true);
 
+  // Add bottom padding to body when banner is visible so it doesn't overlap mobile CTAs
+  useEffect(() => {
+    if (visible) {
+      document.body.classList.add('cookie-banner-visible');
+    } else {
+      document.body.classList.remove('cookie-banner-visible');
+    }
+    return () => document.body.classList.remove('cookie-banner-visible');
+  }, [visible]);
+
   const save = (prefs: CookiePreferences) => {
     try { localStorage.setItem(COOKIE_CONSENT_STORAGE_KEY, JSON.stringify(prefs)); } catch { /* expected */ }
     setVisible(false);

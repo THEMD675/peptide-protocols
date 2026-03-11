@@ -429,19 +429,27 @@ export default function Dashboard() {
     try { return localStorage.getItem('pptides_onboarded') === 'true'; } catch { return false; }
   }, []);
 
-  // C13: Sync onboarding goals from DB → localStorage on load
+  // C13: Sync onboarding goals + completion status from DB → localStorage on load
   useEffect(() => {
     if (!user?.id) return;
     let mounted = true;
-    supabase.from('user_profiles').select('onboarding_goals').eq('user_id', user.id).maybeSingle()
+    supabase.from('user_profiles').select('onboarding_goals, onboarding_completed_at').eq('user_id', user.id).maybeSingle()
       .then(({ data }) => {
-        if (!mounted || !data?.onboarding_goals) return;
-        const dbGoals = data.onboarding_goals as { goal?: string; ts?: number };
-        if (!dbGoals.goal) return;
+        if (!mounted || !data) return;
+        // Sync onboarding completion from DB → localStorage (survives clearing browser data)
+        if (data.onboarding_completed_at) {
+          try {
+            if (localStorage.getItem('pptides_onboarded') !== 'true') {
+              localStorage.setItem('pptides_onboarded', 'true');
+            }
+          } catch { /* expected */ }
+        }
+        // Sync quiz goals from DB → localStorage
+        const dbGoals = data.onboarding_goals as { goal?: string; ts?: number } | null;
+        if (!dbGoals?.goal) return;
         try {
           const existing = localStorage.getItem('pptides_quiz_results');
           if (!existing) {
-            // No local data — seed from DB
             localStorage.setItem('pptides_quiz_results', JSON.stringify({
               goal: dbGoals.goal,
               answers: { goal: dbGoals.goal },
