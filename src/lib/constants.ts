@@ -75,6 +75,8 @@ export const STORAGE_KEYS = {
   EXIT_POPUP: 'pptides_exit_popup_shown',
   USER_COUNT: 'pptides_user_count',
   USER_COUNT_TS: 'pptides_user_count_ts',
+  REVIEWS: 'pptides_reviews',
+  REVIEWS_TS: 'pptides_reviews_ts',
 } as const;
 
 /** Re-export from single source of truth — must match supabase-migration.sql trigger */
