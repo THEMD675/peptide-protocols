@@ -307,7 +307,7 @@ export default function Blog() {
               <Link
                 key={post.id}
                 to={`/blog/${post.slug}`}
-                className="block overflow-hidden rounded-2xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950 shadow-sm dark:shadow-stone-900/30 card-hover"
+                className="block overflow-hidden rounded-2xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950 shadow-sm dark:shadow-stone-900/30 blog-card"
               >
                 <article>
                   {post.cover_image_url && (

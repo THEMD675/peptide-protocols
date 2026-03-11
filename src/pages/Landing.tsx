@@ -1,4 +1,5 @@
-import { useState, useEffect, lazy, Suspense } from 'react';
+import { useState, useEffect, lazy, Suspense, useRef } from 'react';
+import { useScrollReveal } from '@/hooks/useScrollReveal';
 import { Helmet } from 'react-helmet-async';
 import { Link, Navigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
@@ -113,6 +114,7 @@ interface Testimonial {
 }
 
 export default function Landing() {
+  useScrollReveal();
   const { user, subscription, isLoading } = useAuth();
   const [userCount, setUserCount] = useState(() => {
     try {
@@ -311,11 +313,19 @@ export default function Landing() {
             مبني على الأبحاث — مصمّم للنتائج.
           </p>
 
+          {/* Urgency nudge */}
+          {!user && (
+            <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-amber-300 dark:border-amber-700 bg-amber-50 dark:bg-amber-900/20 px-4 py-2 text-sm font-bold text-amber-800 dark:text-amber-300 urgency-badge">
+              <span className="relative flex h-2 w-2 shrink-0" aria-hidden="true"><span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-amber-400 opacity-75" /><span className="relative inline-flex h-2 w-2 rounded-full bg-amber-500" /></span>
+              التجربة المجانية متاحة الآن — {TRIAL_DAYS} أيام بلا رسوم
+            </div>
+          )}
+
           <div className="flex flex-col items-center justify-center gap-3 sm:flex-row sm:gap-4">
             <Link
               to={ctaLink}
               aria-label={user ? 'اشترك الآن في pptides' : `ابدأ تجربتك المجانية ${TRIAL_DAYS} أيام في pptides`}
-              className="animate-cta-pulse btn-primary-glow inline-flex w-full max-w-sm items-center justify-center gap-3 rounded-full bg-emerald-600 px-10 py-5 text-xl font-bold text-white transition-all duration-300 hover:bg-emerald-700 active:scale-[0.98] sm:w-auto"
+              className="animate-cta-pulse btn-primary-glow btn-hero inline-flex w-full max-w-sm items-center justify-center gap-3 rounded-full bg-emerald-600 font-extrabold text-white transition-all duration-300 hover:bg-emerald-700 active:scale-[0.98] sm:w-auto"
             >
               <span>{ctaText}</span>
               <ArrowLeft className="h-6 w-6" aria-hidden="true" />
@@ -329,15 +339,20 @@ export default function Landing() {
             </Link>
           </div>
 
-          <div className="mt-8 flex flex-wrap items-center justify-center gap-4 sm:gap-6">
+          <div className="mt-8 flex flex-wrap items-center justify-center gap-3 sm:gap-5">
             <span className="flex items-center gap-2 text-sm font-medium text-stone-700 dark:text-stone-200">
               <CreditCard className="h-4 w-4 text-emerald-700" />
               تجربة {TRIAL_DAYS} أيام مجانية
             </span>
-            <span className="h-5 w-px bg-stone-300 dark:bg-stone-600/80" />
+            <span className="hidden sm:block h-5 w-px bg-stone-300 dark:bg-stone-600/80" />
             <span className="flex items-center gap-2 text-sm font-medium text-stone-700 dark:text-stone-200">
               <Shield className="h-4 w-4 text-emerald-700" />
               ضمان استرداد كامل
+            </span>
+            <span className="hidden sm:block h-5 w-px bg-stone-300 dark:bg-stone-600/80" />
+            <span className="flex items-center gap-2 text-sm font-medium text-stone-700 dark:text-stone-200">
+              <Lock className="h-4 w-4 text-emerald-700" />
+              إلغاء في أي وقت
             </span>
           </div>
           {userCount >= 10 && (
@@ -372,7 +387,7 @@ export default function Landing() {
       </section>
 
       {/* ═══════ STATS BAR ═══════ */}
-      <section className="relative z-10 mt-6 mx-auto max-w-5xl px-6">
+      <section className="relative z-10 mt-6 mx-auto max-w-5xl px-6" data-reveal>
         <div className="grid grid-cols-2 gap-4 rounded-2xl border border-stone-300 dark:border-stone-600/60 bg-white dark:bg-stone-950 p-4 sm:grid-cols-3 sm:p-8 shadow-xl dark:shadow-stone-900/40 md:grid-cols-5 md:gap-0 md:divide-x md:divide-x-reverse md:divide-stone-100 dark:divide-stone-800">
           {STATS_BAR.map((s) => (
             <div key={s.label} className="flex flex-col items-center justify-center py-3 last:col-span-2 sm:last:col-span-1">
@@ -440,8 +455,8 @@ export default function Landing() {
             بدل ما تدفع آلاف الدولارات على استشارات ومصادر متفرقة — كل شيء هنا.
           </p>
 
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {FEATURES.map((f) => {
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3" data-stagger>
+            {FEATURES.map((f, idx) => {
               const links: Record<string, string> = {
                 [`${PEPTIDE_COUNT} ببتيد مع بروتوكول كامل`]: '/library',
                 'حاسبة جرعات لا تخطئ': '/calculator',
@@ -453,6 +468,8 @@ export default function Landing() {
               const href = links[f.title];
               const Card = (
                 <div
+                  data-reveal
+                  style={{ transitionDelay: `${idx * 0.07}s` }}
                   className="group rounded-2xl border border-stone-300 dark:border-stone-600/60 bg-white dark:bg-stone-950 p-7 card-hover hover:border-emerald-200 dark:border-emerald-800 cursor-pointer"
                 >
                   <div className="mb-5 inline-flex h-12 w-12 items-center justify-center rounded-xl bg-emerald-600 text-white shadow-md shadow-emerald-600/20">

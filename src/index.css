@@ -447,6 +447,128 @@ html.dark ::-webkit-scrollbar-thumb:hover { background: #57534e; }
   * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
 }
 
+/* ═══ Scroll-reveal animations (IntersectionObserver-driven) ═══ */
+[data-reveal] {
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity 0.55s cubic-bezier(0.23, 1, 0.32, 1), transform 0.55s cubic-bezier(0.23, 1, 0.32, 1);
+}
+[data-reveal].is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+[data-reveal="fade"] {
+  transform: none;
+  transition: opacity 0.5s ease;
+}
+[data-reveal="scale"] {
+  transform: scale(0.95);
+  transition: opacity 0.5s ease, transform 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+}
+[data-reveal="scale"].is-visible {
+  transform: scale(1);
+}
+[data-reveal="left"] {
+  transform: translateX(24px);
+}
+[data-reveal="left"].is-visible {
+  transform: translateX(0);
+}
+/* Stagger children within a [data-stagger] container */
+[data-stagger] > *:nth-child(1) { transition-delay: 0.05s; }
+[data-stagger] > *:nth-child(2) { transition-delay: 0.12s; }
+[data-stagger] > *:nth-child(3) { transition-delay: 0.19s; }
+[data-stagger] > *:nth-child(4) { transition-delay: 0.26s; }
+[data-stagger] > *:nth-child(5) { transition-delay: 0.33s; }
+[data-stagger] > *:nth-child(6) { transition-delay: 0.40s; }
+
+/* ═══ Urgency pulse for CTAs (stronger) ═══ */
+.urgency-badge {
+  animation: urgency-pulse 2s ease-in-out infinite;
+}
+@keyframes urgency-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.3); }
+  50% { box-shadow: 0 0 0 6px rgba(16, 185, 129, 0); }
+}
+
+/* ═══ Enhanced hero CTA ═══ */
+.btn-hero {
+  min-height: 60px;
+  font-size: 1.125rem;
+  padding: 1rem 2.5rem;
+  border-radius: 9999px;
+  font-weight: 800;
+}
+@media (max-width: 640px) {
+  .btn-hero {
+    min-height: 56px;
+    font-size: 1rem;
+    padding: 0.875rem 1.5rem;
+  }
+}
+
+/* ═══ Mobile-specific touch target fixes ═══ */
+@media (max-width: 768px) {
+  /* Ensure all interactive elements are ≥44px */
+  a,
+  button,
+  [role="button"],
+  input[type="checkbox"],
+  input[type="radio"],
+  select {
+    min-height: 44px;
+  }
+
+  /* Prevent text overflow on small screens */
+  .hero-headline {
+    font-size: clamp(1.75rem, 8vw, 3.5rem);
+    line-height: 1.2;
+  }
+
+  /* Card grid on mobile */
+  .pricing-card-grid {
+    grid-template-columns: 1fr;
+  }
+
+  /* Tighter padding on mobile for cards */
+  .mobile-card-padding {
+    padding: 1.25rem;
+  }
+}
+
+/* ═══ Improved card hover for blog + pricing ═══ */
+.blog-card {
+  transition: transform 250ms cubic-bezier(0.23, 1, 0.32, 1),
+              box-shadow 250ms cubic-bezier(0.23, 1, 0.32, 1),
+              border-color 200ms ease;
+}
+.blog-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.08), 0 4px 12px rgba(16, 185, 129, 0.08);
+  border-color: rgba(16, 185, 129, 0.3);
+}
+:is(html.dark) .blog-card:hover {
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.4), 0 4px 12px rgba(16, 185, 129, 0.12);
+  border-color: rgba(16, 185, 129, 0.25);
+}
+
+.pricing-card {
+  transition: transform 300ms cubic-bezier(0.23, 1, 0.32, 1),
+              box-shadow 300ms cubic-bezier(0.23, 1, 0.32, 1),
+              border-color 200ms ease;
+}
+.pricing-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1), 0 8px 16px rgba(0, 0, 0, 0.05);
+}
+.pricing-card-featured:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 20px 40px rgba(16, 185, 129, 0.2), 0 8px 16px rgba(16, 185, 129, 0.1);
+}
+:is(html.dark) .pricing-card:hover {
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5), 0 8px 16px rgba(0, 0, 0, 0.3);
+}
+
 .scrollbar-hide {
   -ms-overflow-style: none;
   scrollbar-width: none;
@@ -513,4 +635,17 @@ button:focus-visible {
 .cv-auto {
   content-visibility: auto;
   contain-intrinsic-size: auto 600px;
+}
+
+/* Dark mode card elevation */
+:is(html.dark) .card-hover {
+  box-shadow: 0 0 0 1px rgba(168, 162, 158, 0.12), 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+:is(html.dark) .card-hover:hover {
+  box-shadow: 0 0 0 1px rgba(168, 162, 158, 0.2), 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+
+/* Dark mode card surface lift */
+:is(html.dark) [class*="dark:bg-stone-800"] {
+  background-color: #302c28 !important;
 }
