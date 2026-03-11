@@ -13,7 +13,7 @@ export const PRICING = {
 } as const;
 
 /** Total peptide count — update when adding/removing peptides */
-export const PEPTIDE_COUNT = 63;
+export const PEPTIDE_COUNT = 41;
 
 /** Unique PubMed ID count across all peptides — update when pubmedIds change */
 export const PUBMED_SOURCE_COUNT = 110;

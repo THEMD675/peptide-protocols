@@ -96,6 +96,7 @@ const GOAL_RECOMMENDATIONS: Record<string, { text: string; peptideId: string }> 
 
 const GETTING_STARTED = [
   { id: 'quiz', label: 'اكتشف الببتيد المناسب لك', to: '/quiz' },
+  { id: 'guide', label: 'اقرأ دليل الحقن العملي', to: '/guide' },
   { id: 'library', label: 'تصفّح مكتبة الببتيدات', to: '/library' },
   { id: 'calculator', label: 'جرّب حاسبة الجرعات', to: '/calculator' },
   { id: 'coach', label: 'اسأل المدرب الذكي', to: '/coach' },
@@ -1294,7 +1295,16 @@ export default function Dashboard() {
               <p className="text-sm text-stone-600 dark:text-stone-400 mb-4">{PEPTIDE_COUNT} ببتيد جاهزة لك — رحلتك تبدأ الآن</p>
 
               {/* VIP Quick-Start Cards */}
-              <div className="grid gap-3 sm:grid-cols-3 mt-6 text-start">
+              <div className="grid gap-3 sm:grid-cols-2 mt-6 text-start">
+                <Link to="/guide" className="group flex items-center gap-3 rounded-xl border border-emerald-200 dark:border-emerald-800 bg-white dark:bg-stone-950 p-4 transition-all hover:border-emerald-400 hover:shadow-md hover:-translate-y-0.5 min-h-[44px]">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-amber-100 dark:bg-amber-900/30 transition-colors group-hover:bg-amber-200">
+                    <ClipboardList className="h-5 w-5 text-amber-700" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-bold text-stone-900 dark:text-stone-100">دليل الحقن</p>
+                    <p className="text-xs text-stone-500 dark:text-stone-400">ابدأ هنا — خطوة بخطوة</p>
+                  </div>
+                </Link>
                 <Link to="/library" className="group flex items-center gap-3 rounded-xl border border-emerald-200 dark:border-emerald-800 bg-white dark:bg-stone-950 p-4 transition-all hover:border-emerald-400 hover:shadow-md hover:-translate-y-0.5 min-h-[44px]">
                   <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-100 dark:bg-emerald-900/30 transition-colors group-hover:bg-emerald-200">
                     <BookOpen className="h-5 w-5 text-emerald-700" />
