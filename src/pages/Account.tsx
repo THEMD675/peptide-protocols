@@ -1109,35 +1109,35 @@ export default function Account() {
                       body: JSON.stringify({ apply_coupon: true, reason: cancelReason }),
                     });
                     if (res.ok) {
-                      toast.success('تم تطبيق الخصم — 20% خصم على اشتراكك القادم!');
+                      toast.success(RETENTION.appliedToast);
                       setShowCancelDialog(false); setCancelStep(null);
                     } else {
-                      toast.error('تعذّر تطبيق الخصم — جرّب لاحقًا');
+                      toast.error(RETENTION.failedToast);
                     }
                   } catch { toast.error('خطأ في الاتصال'); } finally { setIsProcessing(false); }
                 }}
                 disabled={isProcessing}
                 className="mt-3 w-full rounded-full bg-emerald-600 px-4 py-2.5 text-sm font-bold text-white transition-all hover:bg-emerald-700 disabled:opacity-50"
               >
-                احصل على خصم 20%
+                {RETENTION.acceptCta}
               </button>
             </div>
             <div className="rounded-xl border border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-900/20 p-4">
-              <p className="text-sm font-bold text-red-800 mb-2">ستفقد:</p>
+              <p className="text-sm font-bold text-red-800 mb-2">{RETENTION.loseHeading}</p>
               <ul className="space-y-1.5">
                 <li className="flex items-center gap-2 text-sm text-red-700 dark:text-red-400">
                   <XCircle className="h-3.5 w-3.5 shrink-0 text-red-400" />
-                  الوصول إلى {PEPTIDE_COUNT}+ بروتوكول كامل
+                  {RETENTION.loseProtocols}
                 </li>
                 {subscription.tier === 'elite' && (
                   <li className="flex items-center gap-2 text-sm text-red-700 dark:text-red-400">
                     <XCircle className="h-3.5 w-3.5 shrink-0 text-red-400" />
-                    المدرب الذكي بالذكاء الاصطناعي
+                    {RETENTION.loseCoach}
                   </li>
                 )}
                 <li className="flex items-center gap-2 text-sm text-red-700 dark:text-red-400">
                   <XCircle className="h-3.5 w-3.5 shrink-0 text-red-400" />
-                  الوصول الكامل بعد انتهاء الفترة الحالية
+                  {RETENTION.loseAccess}
                 </li>
               </ul>
             </div>
