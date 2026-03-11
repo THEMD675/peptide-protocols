@@ -304,13 +304,24 @@ export default memo(function Header() {
                 )}
               </div>
             ) : (
-              <Link
-                to="/login"
-                onMouseEnter={() => prefetchRoute('/login')}
-                className="inline-flex min-h-[44px] items-center rounded-full bg-emerald-600 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-emerald-700 md:px-5 md:py-2 md:text-sm"
-              >
-                تسجيل الدخول
-              </Link>
+              // On auth pages (/login, /signup) show "Back to Home" instead of "Login"
+              // to avoid redundancy and confusion
+              ['/login', '/signup'].some(r => pathname.startsWith(r)) ? (
+                <Link
+                  to="/"
+                  className="inline-flex min-h-[44px] items-center rounded-full border border-stone-200 dark:border-stone-600 px-4 py-2 text-sm font-semibold text-stone-700 dark:text-stone-200 transition-colors hover:bg-stone-50 dark:hover:bg-stone-800 md:px-5 md:py-2 md:text-sm"
+                >
+                  الرئيسية
+                </Link>
+              ) : (
+                <Link
+                  to="/login"
+                  onMouseEnter={() => prefetchRoute('/login')}
+                  className="inline-flex min-h-[44px] items-center rounded-full bg-emerald-600 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-emerald-700 md:px-5 md:py-2 md:text-sm"
+                >
+                  تسجيل الدخول
+                </Link>
+              )
             )}
 
             <button

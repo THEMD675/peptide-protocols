@@ -449,6 +449,10 @@ html.dark ::-webkit-scrollbar-thumb:hover { background: #57534e; }
 }
 
 /* ═══ Scroll-reveal animations (IntersectionObserver-driven) ═══ */
+/* Immediately show content if JS is slow or user prefers reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  [data-reveal] { opacity: 1 !important; transform: none !important; }
+}
 [data-reveal] {
   opacity: 0;
   transform: translateY(24px);

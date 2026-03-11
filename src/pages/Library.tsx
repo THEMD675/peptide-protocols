@@ -7,7 +7,7 @@ import { Link, useSearchParams } from 'react-router-dom';
 import {
   Search,
   Lock,
-  Filter,
+
   FlaskConical,
   X,
   CheckCircle,
@@ -81,7 +81,10 @@ const PeptideCard = memo(function PeptideCard({
       <div className="mb-2 flex items-center justify-between">
         <div className="flex items-center gap-1">
           {!hasAccess && !peptide.isFree && (
-            <Lock className="h-3.5 w-3.5 text-stone-500 dark:text-stone-300" />
+            <span className="flex items-center gap-1 rounded-full bg-stone-100 dark:bg-stone-800 border border-stone-200 dark:border-stone-600 px-2 py-0.5 text-xs font-bold text-stone-500 dark:text-stone-400">
+              <Lock className="h-3 w-3" />
+              مقفل
+            </span>
           )}
           {peptide.isFree && !hasAccess && (
             <span className="rounded-full bg-emerald-100 dark:bg-emerald-900/30 px-2 py-0.5 text-xs font-bold text-emerald-700 dark:text-emerald-400">مجاني</span>
@@ -150,40 +153,52 @@ const PeptideCard = memo(function PeptideCard({
       </div>
 
       {(hasAccess || peptide.isFree) ? (
-        <p className="mb-4 line-clamp-2 text-sm leading-relaxed text-stone-800 dark:text-stone-200">
+        <p className="mb-3 line-clamp-2 text-sm leading-relaxed text-stone-800 dark:text-stone-200">
           {peptide.summaryAr}
         </p>
       ) : (
-        <div
-          className="relative mb-4 max-h-12 overflow-hidden [mask-image:linear-gradient(to_bottom,#000_20%,transparent_100%)] [-webkit-mask-image:linear-gradient(to_bottom,#000_20%,transparent_100%)]"
-        >
-          <p className="text-sm leading-relaxed text-stone-800 dark:text-stone-200">
-            {peptide.summaryAr.slice(0, 40)}...
+        <div className="mb-3">
+          <p className="text-sm leading-relaxed text-stone-500 dark:text-stone-400 line-clamp-2">
+            {(() => {
+              const max = 65;
+              if (peptide.summaryAr.length <= max) return peptide.summaryAr;
+              const cut = peptide.summaryAr.slice(0, max);
+              const lastSpace = cut.lastIndexOf(' ');
+              return (lastSpace > 30 ? cut.slice(0, lastSpace) : cut) + '...';
+            })()}
           </p>
         </div>
       )}
 
       {(hasAccess || peptide.isFree) && (
-        <div className="space-y-2">
-          <div className="flex items-center gap-1.5 text-stone-600 dark:text-stone-300">
-            <FlaskConical className="h-3 w-3" />
-            <span className="text-xs">{peptide.administrationAr.split('.')[0]}</span>
-          </div>
-          <div className="flex items-center justify-between gap-2">
-            {peptide.difficulty && (
-              <span className={cn(
-                'rounded-full px-2 py-0.5 text-xs font-bold border',
-                peptide.difficulty === 'beginner' ? 'border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-400' :
-                peptide.difficulty === 'intermediate' ? 'border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-400' :
-                'border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400'
-              )}>
-                {peptide.difficulty === 'beginner' ? 'مبتدئ' : peptide.difficulty === 'intermediate' ? 'متوسط' : 'متقدم'}
-              </span>
-            )}
-            {peptide.costEstimate && (
-              <span className="text-xs font-bold text-emerald-700" dir="ltr">{peptide.costEstimate}</span>
-            )}
-          </div>
+        <div className="mb-3 flex items-center gap-1.5 text-stone-600 dark:text-stone-300">
+          <FlaskConical className="h-3 w-3 shrink-0" />
+          <span className="text-xs truncate">{peptide.administrationAr.split('.')[0]}</span>
+        </div>
+      )}
+
+      {/* Cost + difficulty always visible — helps users decide what to unlock */}
+      <div className="mt-auto flex items-center justify-between gap-2 pt-1">
+        {peptide.difficulty && (
+          <span className={cn(
+            'rounded-full px-2 py-0.5 text-xs font-bold border',
+            peptide.difficulty === 'beginner' ? 'border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-400' :
+            peptide.difficulty === 'intermediate' ? 'border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-400' :
+            'border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400'
+          )}>
+            {peptide.difficulty === 'beginner' ? 'مبتدئ' : peptide.difficulty === 'intermediate' ? 'متوسط' : 'متقدم'}
+          </span>
+        )}
+        {peptide.costEstimate ? (
+          <span className="text-xs font-bold text-emerald-700 dark:text-emerald-400" dir="ltr">{peptide.costEstimate}</span>
+        ) : null}
+      </div>
+
+      {/* Lock CTA — only on locked non-free cards */}
+      {!hasAccess && !peptide.isFree && (
+        <div className="mt-2 flex items-center gap-1 text-xs text-stone-400 dark:text-stone-500">
+          <Lock className="h-3 w-3 shrink-0" />
+          <span>اشترك لقراءة البروتوكول الكامل</span>
         </div>
       )}
     </div>
@@ -306,7 +321,7 @@ export default function Library() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const [showFilters, setShowFilters] = useState(false);
+  // showFilters removed — evidence filter is now always visible inline
   const { bookmarks: favorites, toggle: toggleFavorite } = useBookmarks();
   const [runTour, setRunTour] = useState(false);
 
@@ -354,6 +369,17 @@ export default function Library() {
   const handleLockedClick = useCallback((peptideId?: string) => {
     setUpsellPeptide(peptideId ?? null);
   }, []);
+
+  // Counts for category tab badges — based on all peptides, not current filters
+  const categoryCounts = useMemo(() => {
+    const counts: Record<string, number> = { all: peptides.length, free: 0, bookmarks: 0 };
+    for (const p of peptides) {
+      counts[p.category] = (counts[p.category] ?? 0) + 1;
+      if (FREE_PEPTIDE_IDS.has(p.id)) counts.free++;
+      if (favorites.has(p.id)) counts.bookmarks++;
+    }
+    return counts;
+  }, [favorites]);
 
   const filtered = useMemo(() => {
     const stripDiacritics = (s: string) => s.normalize('NFD').replace(/[\u0610-\u061A\u064B-\u065F\u0670\u06D6-\u06DC\u06DF-\u06E4\u06E7-\u06E8\u06EA-\u06ED]/g, '');
@@ -476,18 +502,18 @@ export default function Library() {
         <div
           className="mb-6 flex flex-wrap gap-2 items-center"
         >
-          <div className="relative flex-1" data-tour="library-search">
-            <Search className="absolute end-3 top-1/2 h-4 w-4 -translate-y-1/2 text-stone-700 dark:text-stone-200" />
+          <div className="relative flex-1 min-w-[180px]" data-tour="library-search">
+            <Search className="absolute end-3 top-1/2 h-4 w-4 -translate-y-1/2 text-stone-400 dark:text-stone-500 pointer-events-none" />
             <input
               type="text"
               role="searchbox"
               aria-label="البحث في المكتبة"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              placeholder="ابحث عن ببتيد..."
+              placeholder="ابحث بالاسم أو الهدف..."
               className={cn(
-                'w-full rounded-xl border border-stone-200 dark:border-stone-600 bg-stone-50 dark:bg-stone-900 py-2.5 ps-10 pe-4',
-                'text-sm text-stone-900 dark:text-stone-100 placeholder:text-stone-500 dark:text-stone-300',
+                'w-full rounded-xl border border-stone-200 dark:border-stone-600 bg-stone-50 dark:bg-stone-900 py-2.5 ps-10 pe-10',
+                'text-sm text-stone-900 dark:text-stone-100 placeholder:text-stone-400 dark:placeholder:text-stone-500',
                 'transition-colors focus:border-emerald-300 dark:border-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900',
               )}
             />
@@ -495,12 +521,33 @@ export default function Library() {
               <button
                 onClick={() => setSearch('')}
                 aria-label="مسح البحث"
-                className="absolute start-3 top-1/2 -translate-y-1/2 text-stone-700 dark:text-stone-200 transition-colors hover:text-stone-800 dark:text-stone-200"
+                className="absolute start-3 top-1/2 -translate-y-1/2 rounded-full p-0.5 text-stone-400 dark:text-stone-500 transition-colors hover:text-stone-700 dark:hover:text-stone-200"
               >
                 <X className="h-4 w-4" />
               </button>
             )}
           </div>
+
+          {/* Evidence filter — always visible, no hidden panel */}
+          <select
+            value={evidenceFilter}
+            onChange={(e) => setEvidenceFilter(e.target.value)}
+            aria-label="مستوى الدليل العلمي"
+            className={cn(
+              'rounded-xl border px-3 py-2.5 text-sm focus:border-emerald-300 dark:border-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900',
+              evidenceFilter !== 'all'
+                ? 'border-emerald-300 dark:border-emerald-700 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-800 dark:text-emerald-300 font-medium'
+                : 'border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 text-stone-800 dark:text-stone-200',
+            )}
+          >
+            <option value="all">الدليل: الكل</option>
+            <option value="excellent">ممتاز فقط</option>
+            <option value="strong">قوي فأعلى</option>
+            <option value="good">جيد فأعلى</option>
+            <option value="moderate">متوسط فأعلى</option>
+            <option value="weak">ضعيف</option>
+            <option value="very-weak">ضعيف جدًا</option>
+          </select>
 
           <select
             value={sortBy}
@@ -513,52 +560,10 @@ export default function Library() {
             <option value="alpha">أبجدي (A-Z)</option>
             <option value="favorites">المفضلة أولًا</option>
           </select>
-
-          <button
-            onClick={() => setShowFilters((v) => !v)}
-            className={cn(
-              'flex items-center justify-center gap-2 rounded-xl border px-4 py-2.5 text-sm font-medium transition-colors sm:w-auto',
-              showFilters
-                ? 'border-emerald-400 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700'
-                : 'border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 text-stone-800 dark:text-stone-200 transition-colors hover:border-stone-300 dark:border-stone-600',
-            )}
-          >
-            <Filter className="h-4 w-4" />
-            تصفية
-          </button>
         </div>
 
-        {/* Evidence Filter Dropdown */}
-        <>
-          {showFilters && (
-            <div
-              className="mb-6 overflow-hidden"
-            >
-              <div className="rounded-xl border border-stone-200 dark:border-stone-600 bg-stone-50 dark:bg-stone-900 p-4">
-                <label className="mb-2 block text-xs font-medium text-stone-800 dark:text-stone-200">
-                  مستوى الدليل العلمي
-                </label>
-                <select
-                  value={evidenceFilter}
-                  onChange={(e) => setEvidenceFilter(e.target.value)}
-                  aria-label="مستوى الدليل العلمي"
-                  className="w-full rounded-lg border border-stone-200 dark:border-stone-600 bg-stone-50 dark:bg-stone-900 px-3 py-2 text-sm text-stone-900 dark:text-stone-100 focus:border-emerald-300 dark:border-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900 sm:w-auto"
-                >
-                  <option value="all">الكل</option>
-                  <option value="excellent">ممتاز</option>
-                  <option value="strong">قوي</option>
-                  <option value="good">جيد</option>
-                  <option value="moderate">متوسط</option>
-                  <option value="weak">ضعيف</option>
-                  <option value="very-weak">ضعيف جدًا</option>
-                </select>
-              </div>
-            </div>
-          )}
-        </>
-
-        {/* Best First Cycle — beginner section */}
-        {(() => {
+        {/* Best First Cycle — beginner section — only when browsing unfiltered */}
+        {activeCategory === 'all' && !search.trim() && evidenceFilter === 'all' && (() => {
           const beginnerIds = ['bpc-157', 'semaglutide', 'epithalon'] as const;
           const beginnerPeptides = beginnerIds.map(id => peptides.find(p => p.id === id)).filter(Boolean) as Peptide[];
           if (beginnerPeptides.length === 0) return null;
@@ -609,6 +614,9 @@ export default function Library() {
               )}
             >
               الكل
+              <span className={cn('ms-1.5 rounded-full px-1.5 py-0.5 text-xs font-bold', activeCategory === 'all' ? 'bg-white/20' : 'bg-stone-100 dark:bg-stone-800 text-stone-500 dark:text-stone-400')}>
+                {categoryCounts.all}
+              </span>
             </button>
             <button
               onClick={() => setActiveCategory('free')}
@@ -621,6 +629,9 @@ export default function Library() {
               )}
             >
               مجاني
+              <span className={cn('rounded-full px-1.5 py-0.5 text-xs font-bold', activeCategory === 'free' ? 'bg-white/20' : 'bg-stone-100 dark:bg-stone-800 text-stone-500 dark:text-stone-400')}>
+                {categoryCounts.free}
+              </span>
             </button>
             <button
               onClick={() => setActiveCategory('bookmarks')}
@@ -634,10 +645,16 @@ export default function Library() {
             >
               <Bookmark className="h-3.5 w-3.5" />
               المحفوظات
+              {categoryCounts.bookmarks > 0 && (
+                <span className={cn('rounded-full px-1.5 py-0.5 text-xs font-bold', activeCategory === 'bookmarks' ? 'bg-white/20' : 'bg-stone-100 dark:bg-stone-800 text-stone-500 dark:text-stone-400')}>
+                  {categoryCounts.bookmarks}
+                </span>
+              )}
             </button>
             {categories.map((cat) => {
               const Icon = categoryIcons[cat.id];
               const active = activeCategory === cat.id;
+              const count = categoryCounts[cat.id] ?? 0;
               return (
                 <button
                   key={cat.id}
@@ -652,6 +669,9 @@ export default function Library() {
                 >
                   {Icon && <Icon className="h-3.5 w-3.5" />}
                   {categoryLabels[cat.id]}
+                  <span className={cn('rounded-full px-1.5 py-0.5 text-xs font-bold', active ? 'bg-white/20' : 'bg-stone-100 dark:bg-stone-800 text-stone-500 dark:text-stone-400')}>
+                    {count}
+                  </span>
                 </button>
               );
             })}
@@ -739,17 +759,30 @@ export default function Library() {
             <div
               className="flex flex-col items-center justify-center py-16 text-center"
             >
-              <FlaskConical className="mb-4 h-12 w-12 text-stone-500 dark:text-stone-300" />
+              <FlaskConical className="mb-4 h-12 w-12 text-stone-300 dark:text-stone-600" />
               <p className="text-lg font-semibold text-stone-800 dark:text-stone-200">
                 {search.trim() ? `لا توجد نتائج لـ "${search}"` : 'لا توجد نتائج للفلاتر المحددة'}
               </p>
-              <p className="mt-1 text-sm text-stone-600 dark:text-stone-300">
-                {search.trim() ? 'جرّب كلمات بحث مختلفة أو اسأل المدرب الذكي' : 'جرّب تغيير التصنيف أو مستوى الدليل'}
+              <p className="mt-1 text-sm text-stone-500 dark:text-stone-400">
+                {search.trim()
+                  ? 'جرّب الاسم الإنجليزي أو كلمة أوسع — مثلاً "تعافي" أو "BPC"'
+                  : 'جرّب تغيير التصنيف أو مستوى الدليل أو امسح الفلاتر'}
               </p>
-              <Link to="/coach" className="mt-4 inline-flex items-center gap-2 rounded-full bg-emerald-600 px-6 py-2.5 text-sm font-bold text-white transition-colors hover:bg-emerald-700">
-                <Bot className="h-4 w-4" />
-                اسأل المدرب الذكي
-              </Link>
+              <div className="mt-5 flex flex-wrap justify-center gap-2">
+                {(activeCategory !== 'all' || search.trim() || evidenceFilter !== 'all') && (
+                  <button
+                    onClick={() => { setActiveCategory('all'); setSearch(''); setEvidenceFilter('all'); setSortBy('default'); }}
+                    className="flex items-center gap-1.5 rounded-full border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 px-4 py-2 text-sm font-medium text-stone-700 dark:text-stone-200 transition-colors hover:border-emerald-300 dark:hover:border-emerald-700"
+                  >
+                    <X className="h-3.5 w-3.5" />
+                    مسح الفلاتر وعرض الكل
+                  </button>
+                )}
+                <Link to="/coach" className="inline-flex items-center gap-2 rounded-full bg-emerald-600 px-5 py-2 text-sm font-bold text-white transition-colors hover:bg-emerald-700">
+                  <Bot className="h-4 w-4" />
+                  اسأل المدرب الذكي
+                </Link>
+              </div>
             </div>
           )}
       </div>

@@ -62,6 +62,7 @@ export default function Login() {
   const turnstileRef = useRef<HTMLDivElement>(null);
   const turnstileWidgetId = useRef<string | null>(null);
   const resendIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const emailRef = useRef<HTMLInputElement>(null);
 
   const { login, signup, user } = useAuth();
   const googleBtnRef = useRef<HTMLDivElement>(null);
@@ -296,7 +297,12 @@ export default function Login() {
     setError('');
     setResetMessage('');
     if (!email.trim()) {
-      setError('أدخل بريدك الإلكتروني أولاً');
+      setError('أدخل بريدك الإلكتروني أولاً ثم اضغط "نسيت كلمة المرور"');
+      // Scroll to and focus the email field so the user sees what to do
+      requestAnimationFrame(() => {
+        emailRef.current?.focus();
+        emailRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      });
       return;
     }
     setLoading(true);
@@ -488,13 +494,39 @@ export default function Login() {
           </div>
 
           <div className="px-6 pb-8 pt-6">
-            {/* Google Sign In — uses Google Identity Services (ID Token flow, no redirect needed) */}
+            {/* Google Sign In — custom Arabic button wraps the hidden GIS button for full locale control */}
             {GOOGLE_CLIENT_ID && (
               <>
-                <div ref={googleBtnRef} className="mb-4 flex justify-center [&>div]:!w-full" />
+                {/* Hidden GIS container — still needed to initialise the Google ID token flow */}
+                <div ref={googleBtnRef} className="hidden" aria-hidden="true" />
+
+                {/* Visible custom Arabic button */}
+                <button
+                  type="button"
+                  disabled={loading}
+                  onClick={() => {
+                    if (window.google?.accounts?.id) {
+                      window.google.accounts.id.prompt();
+                    }
+                  }}
+                  className="mb-4 flex w-full items-center justify-center gap-3 rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 px-4 py-3 text-sm font-semibold text-stone-700 dark:text-stone-200 shadow-sm transition-all hover:bg-stone-50 dark:hover:bg-stone-800 hover:border-stone-300 dark:hover:border-stone-500 disabled:opacity-60"
+                >
+                  {loading ? (
+                    <span className="h-5 w-5 animate-spin rounded-full border-2 border-stone-300 border-t-stone-600" />
+                  ) : (
+                    <svg className="h-5 w-5 shrink-0" viewBox="0 0 48 48" aria-hidden="true">
+                      <path fill="#4285F4" d="M46.5 24.5c0-1.6-.1-3.1-.4-4.5H24v8.5h12.7c-.6 3-2.3 5.5-4.9 7.2v6h7.9c4.6-4.2 7.2-10.5 7.2-17.2z"/>
+                      <path fill="#34A853" d="M24 48c6.5 0 11.9-2.1 15.9-5.8l-7.9-6c-2.1 1.4-4.9 2.3-8 2.3-6.1 0-11.3-4.1-13.2-9.7H2.7v6.2C6.7 42.8 14.8 48 24 48z"/>
+                      <path fill="#FBBC05" d="M10.8 28.8c-.5-1.4-.8-2.8-.8-4.3s.3-3 .8-4.3v-6.2H2.7C1 17.3 0 20.5 0 24s1 6.7 2.7 9.5l8.1-4.7z"/>
+                      <path fill="#EA4335" d="M24 9.5c3.4 0 6.5 1.2 8.9 3.5l6.6-6.6C35.9 2.4 30.4 0 24 0 14.8 0 6.7 5.2 2.7 12.7l8.1 4.7C12.7 13.6 17.9 9.5 24 9.5z"/>
+                    </svg>
+                  )}
+                  <span>{tab === 'login' ? 'تسجيل الدخول بـ Google' : 'إنشاء حساب بـ Google'}</span>
+                </button>
+
                 <div className="mb-4 flex items-center gap-3">
                   <div className="h-px flex-1 bg-stone-200 dark:bg-stone-700" />
-                  <span className="text-xs text-stone-500 dark:text-stone-300">أو</span>
+                  <span className="text-xs text-stone-500 dark:text-stone-300">أو بالبريد الإلكتروني</span>
                   <div className="h-px flex-1 bg-stone-200 dark:bg-stone-700" />
                 </div>
               </>
@@ -525,6 +557,7 @@ export default function Login() {
                   البريد الإلكتروني <span className="text-red-500 dark:text-red-400" aria-hidden="true">*</span>
                 </label>
                 <input
+                  ref={emailRef}
                   id="email"
                   type="email"
                   value={email}
@@ -566,21 +599,53 @@ export default function Login() {
                   const hasMinLength = password.length >= 8;
                   const hasLetter = /[a-zA-Z]/.test(password);
                   const hasNumber = /\d/.test(password);
+                  const metCount = [hasMinLength, hasLetter, hasNumber].filter(Boolean).length;
+                  const strengthLabel = metCount === 0 ? '' : metCount === 1 ? 'ضعيفة' : metCount === 2 ? 'متوسطة' : 'قوية';
+                  const strengthColor = metCount === 1 ? 'bg-red-500' : metCount === 2 ? 'bg-yellow-500' : 'bg-emerald-500';
                   return (
-                    <ul className="mt-2 space-y-1 text-xs" aria-label="متطلبات كلمة المرور">
-                      <li className={cn('flex items-center gap-2', hasMinLength ? 'text-emerald-700' : 'text-stone-500 dark:text-stone-300')}>
-                        {hasMinLength ? <span aria-hidden>✓</span> : <span aria-hidden>○</span>}
-                        8 أحرف على الأقل
-                      </li>
-                      <li className={cn('flex items-center gap-2', hasLetter ? 'text-emerald-700' : 'text-stone-500 dark:text-stone-300')}>
-                        {hasLetter ? <span aria-hidden>✓</span> : <span aria-hidden>○</span>}
-                        حرف واحد على الأقل
-                      </li>
-                      <li className={cn('flex items-center gap-2', hasNumber ? 'text-emerald-700' : 'text-stone-500 dark:text-stone-300')}>
-                        {hasNumber ? <span aria-hidden>✓</span> : <span aria-hidden>○</span>}
-                        رقم واحد على الأقل
-                      </li>
-                    </ul>
+                    <div className="mt-2 space-y-2">
+                      {/* Visual password strength bar */}
+                      {password.length > 0 && (
+                        <div className="space-y-1">
+                          <div className="flex gap-1" role="progressbar" aria-valuenow={metCount} aria-valuemin={0} aria-valuemax={3} aria-label={`قوة كلمة المرور: ${strengthLabel}`}>
+                            {[1, 2, 3].map(i => (
+                              <div
+                                key={i}
+                                className={cn(
+                                  'h-1.5 flex-1 rounded-full transition-all duration-300',
+                                  metCount >= i ? strengthColor : 'bg-stone-200 dark:bg-stone-700'
+                                )}
+                              />
+                            ))}
+                          </div>
+                          {strengthLabel && (
+                            <p className={cn('text-xs font-medium', metCount === 1 ? 'text-red-600' : metCount === 2 ? 'text-yellow-600' : 'text-emerald-700')}>
+                              كلمة المرور {strengthLabel}
+                            </p>
+                          )}
+                        </div>
+                      )}
+                      <ul className="space-y-1 text-xs" aria-label="متطلبات كلمة المرور">
+                        <li className={cn('flex items-center gap-2', hasMinLength ? 'text-emerald-700' : 'text-stone-500 dark:text-stone-300')}>
+                          <span className={cn('flex h-4 w-4 shrink-0 items-center justify-center rounded-full text-[10px] font-bold', hasMinLength ? 'bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700' : 'bg-stone-100 dark:bg-stone-800 text-stone-400')} aria-hidden>
+                            {hasMinLength ? '✓' : '○'}
+                          </span>
+                          8 أحرف على الأقل
+                        </li>
+                        <li className={cn('flex items-center gap-2', hasLetter ? 'text-emerald-700' : 'text-stone-500 dark:text-stone-300')}>
+                          <span className={cn('flex h-4 w-4 shrink-0 items-center justify-center rounded-full text-[10px] font-bold', hasLetter ? 'bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700' : 'bg-stone-100 dark:bg-stone-800 text-stone-400')} aria-hidden>
+                            {hasLetter ? '✓' : '○'}
+                          </span>
+                          حرف واحد على الأقل
+                        </li>
+                        <li className={cn('flex items-center gap-2', hasNumber ? 'text-emerald-700' : 'text-stone-500 dark:text-stone-300')}>
+                          <span className={cn('flex h-4 w-4 shrink-0 items-center justify-center rounded-full text-[10px] font-bold', hasNumber ? 'bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700' : 'bg-stone-100 dark:bg-stone-800 text-stone-400')} aria-hidden>
+                            {hasNumber ? '✓' : '○'}
+                          </span>
+                          رقم واحد على الأقل
+                        </li>
+                      </ul>
+                    </div>
                   );
                 })()}
                 {tab === 'login' && (
@@ -603,8 +668,8 @@ export default function Login() {
 
               <button
                 type="submit"
-              disabled={loading || !!(TURNSTILE_SITE_KEY && !turnstileToken) || (tab === 'signup' && !(password.length >= 8 && /[a-zA-Z]/.test(password) && /\d/.test(password)))}
-                className="w-full rounded-full bg-emerald-600 py-3.5 text-base font-bold text-white shadow transition-transform hover:bg-emerald-700 hover:scale-[1.02] active:scale-[0.98] disabled:pointer-events-none disabled:opacity-60"
+                disabled={loading || !!(TURNSTILE_SITE_KEY && !turnstileToken) || (tab === 'signup' && !(password.length >= 8 && /[a-zA-Z]/.test(password) && /\d/.test(password)))}
+                className="w-full rounded-full bg-emerald-600 py-3.5 text-base font-bold text-white shadow transition-transform hover:bg-emerald-700 hover:scale-[1.02] active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed"
               >
                 {loading ? (
                   <span className="inline-flex items-center gap-2">
@@ -613,6 +678,20 @@ export default function Login() {
                   </span>
                 ) : tab === 'login' ? 'تسجيل الدخول' : 'إنشاء حساب'}
               </button>
+
+              {/* Terms & Privacy acceptance — shown on signup tab */}
+              {tab === 'signup' && (
+                <p className="text-center text-xs text-stone-500 dark:text-stone-400 leading-relaxed">
+                  بإنشاء حساب، أنت توافق على{' '}
+                  <a href="/terms" target="_blank" rel="noopener noreferrer" className="text-emerald-700 hover:underline">
+                    شروط الاستخدام
+                  </a>
+                  {' '}و{' '}
+                  <a href="/privacy" target="_blank" rel="noopener noreferrer" className="text-emerald-700 hover:underline">
+                    سياسة الخصوصية
+                  </a>
+                </p>
+              )}
 
               <p className="text-center text-sm text-stone-700 dark:text-stone-200">
                 {tab === 'login' ? (

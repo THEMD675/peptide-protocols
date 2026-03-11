@@ -299,7 +299,7 @@ export default function Landing() {
         <div className="relative mx-auto max-w-5xl px-6 pb-6 pt-10 text-center md:pt-16 md:pb-8">
           <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-900/30 px-5 py-2 text-sm font-semibold text-emerald-700 dark:text-emerald-400">
             <Zap className="h-4 w-4" />
-            <span>أول مرجع عربي شامل — {PEPTIDE_COUNT} ببتيد علاجي</span>
+            <span>أول <strong>منصة عربية</strong> للببتيدات العلاجية — {PEPTIDE_COUNT} ببتيد</span>
           </div>
 
           <h1 className="mb-6 text-[clamp(2.25rem,8vw,4.5rem)] font-extrabold leading-[1.15] text-stone-900 dark:text-stone-100 sm:text-5xl md:text-6xl lg:text-7xl">
@@ -356,12 +356,45 @@ export default function Landing() {
               إلغاء في أي وقت
             </span>
           </div>
-          {userCount >= 10 && (
+          {userCount >= 1 && (
             <p className="mt-4 flex items-center justify-center gap-2 text-sm text-stone-500 dark:text-stone-300">
               <span className="relative flex h-2 w-2" aria-hidden="true"><span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" /><span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500" /></span>
               <span>انضم إلى <strong className="text-stone-700 dark:text-stone-200"><AnimatedCounter end={userCount} />+</strong> مستخدم يثقون بـ pptides</span>
             </p>
           )}
+
+          {/* ═══ Product peek — show the actual product in 3 cells ═══ */}
+          <div className="mt-10 mx-auto max-w-xl overflow-hidden rounded-2xl border border-stone-200 dark:border-stone-700 shadow-2xl shadow-stone-900/5 dark:shadow-emerald-500/5" aria-hidden="true">
+            <div className="flex items-center justify-between bg-stone-50 dark:bg-stone-800 border-b border-stone-200 dark:border-stone-700 px-4 py-2.5">
+              <div className="flex gap-1.5">
+                <span className="h-3 w-3 rounded-full bg-red-400/80" />
+                <span className="h-3 w-3 rounded-full bg-amber-400/80" />
+                <span className="h-3 w-3 rounded-full bg-emerald-400/80" />
+              </div>
+              <span className="text-xs font-semibold text-stone-500 dark:text-stone-400">بطاقة البروتوكول — BPC-157</span>
+              <span className="rounded-full bg-emerald-100 dark:bg-emerald-900/40 px-2 py-0.5 text-xs font-bold text-emerald-700 dark:text-emerald-400">مجاني</span>
+            </div>
+            <div className="grid grid-cols-3 divide-x divide-x-reverse divide-stone-100 dark:divide-stone-700 bg-white dark:bg-stone-900">
+              <div className="p-3 text-center">
+                <p className="mb-1 text-xs text-stone-400 dark:text-stone-500">الجرعة</p>
+                <p className="text-sm font-bold text-stone-900 dark:text-stone-100">250–500 mcg</p>
+                <p className="text-xs text-stone-400 dark:text-stone-500">مرتين / يوم</p>
+              </div>
+              <div className="bg-emerald-50/60 dark:bg-emerald-900/20 p-3 text-center">
+                <p className="mb-1 text-xs text-stone-400 dark:text-stone-500">الدورة</p>
+                <p className="text-sm font-bold text-emerald-700 dark:text-emerald-400">4–6 أسابيع</p>
+                <p className="text-xs text-stone-400 dark:text-stone-500">ثم راحة أسبوعين</p>
+              </div>
+              <div className="p-3 text-center">
+                <p className="mb-1 text-xs text-stone-400 dark:text-stone-500">مستوى الدليل</p>
+                <span className="inline-block rounded-full bg-emerald-100 dark:bg-emerald-900/40 px-2 py-0.5 text-xs font-bold text-emerald-700 dark:text-emerald-400">قوي ✓</span>
+              </div>
+            </div>
+            <div className="flex items-center justify-between bg-stone-50 dark:bg-stone-800/60 px-4 py-2 border-t border-stone-100 dark:border-stone-700">
+              <span className="text-xs text-stone-500 dark:text-stone-400">التعافي وإصلاح الأنسجة</span>
+              <Link to="/peptide/bpc-157" className="text-xs font-semibold text-emerald-700 dark:text-emerald-400 hover:underline">بطاقة واحدة من {PEPTIDE_COUNT} ←</Link>
+            </div>
+          </div>
         </div>
       </section>
 
@@ -381,11 +414,6 @@ export default function Landing() {
           {' — بدون تسجيل. تصفّحها الآن.'}
         </p>
       </div>
-
-      {/* ═══════ PEPTIDE QUIZ — First interaction ═══════ */}
-      <section id="quiz" className="relative z-10 mx-auto max-w-2xl px-6 pb-10">
-        <Suspense fallback={<div className="h-40" />}><PeptideQuiz /></Suspense>
-      </section>
 
       {/* ═══════ STATS BAR ═══════ */}
       <section className="relative z-10 mt-6 mx-auto max-w-5xl px-6" data-reveal>
@@ -443,6 +471,11 @@ export default function Landing() {
             <span className="text-emerald-700">الخبر الجيد:</span> صنعنا الحل.
           </p>
         </div>
+      </section>
+
+      {/* ═══════ PEPTIDE QUIZ — after the problem, conversion intent at its peak ═══════ */}
+      <section id="quiz" className="cv-auto mx-auto max-w-2xl px-6 py-10">
+        <Suspense fallback={<div className="min-h-[360px] rounded-2xl bg-stone-100 dark:bg-stone-800 animate-pulse" />}><PeptideQuiz /></Suspense>
       </section>
 
       {/* ═══════ SOLUTION / FEATURES ═══════ */}
@@ -713,6 +746,17 @@ export default function Landing() {
               </div>
             ))}
           </div>
+
+          <div className="mt-14 text-center">
+            <Link
+              to={ctaLink}
+              className="btn-cta-gradient inline-flex items-center justify-center gap-2 rounded-full px-8 py-4 text-lg font-bold text-white"
+            >
+              <span>{ctaText}</span>
+              <ArrowLeft className="h-5 w-5" />
+            </Link>
+            <p className="mt-3 text-sm text-stone-500 dark:text-stone-400">{TRIAL_DAYS} أيام مجانية — لا يلزم بطاقة ائتمان</p>
+          </div>
         </div>
       </section>
 
@@ -729,9 +773,16 @@ export default function Landing() {
           <h2 className="mb-4 text-center text-4xl font-extrabold text-stone-900 dark:text-stone-100 md:text-5xl">
             ماذا يقول <span className="text-emerald-700">المستخدمون</span>
           </h2>
-          <p className="mx-auto mb-12 max-w-xl text-center text-stone-800 dark:text-stone-200">
-            {userCount >= 10 ? <>انضم لـ <AnimatedCounter end={userCount} />+ مستخدم يثقون بـ pptides</> : 'آراء حقيقية من مجتمعنا'}
-          </p>
+          <div className="mx-auto mb-12 flex flex-col items-center gap-3">
+            <div className="flex items-center gap-1.5" dir="ltr">
+              {[1,2,3,4,5].map(s => <Star key={s} className="h-5 w-5 fill-emerald-500 text-emerald-500" />)}
+              <span className="mr-2 text-sm font-bold text-stone-700 dark:text-stone-200">5.0</span>
+              <span className="text-sm text-stone-500 dark:text-stone-400">— تقييمات موثّقة من مستخدمينا</span>
+            </div>
+            <p className="text-center text-stone-800 dark:text-stone-200">
+              {userCount >= 1 ? <>انضم لـ <AnimatedCounter end={userCount} />+ مستخدم يثقون بـ pptides</> : 'آراء حقيقية من مجتمعنا'}
+            </p>
+          </div>
 
           <div className="grid gap-6 md:grid-cols-3" data-stagger>
             {items.map((t, idx) => (
@@ -933,13 +984,13 @@ export default function Landing() {
       </section>
 
       {/* ═══════ EMAIL CAPTURE ═══════ */}
-      <section className="cv-auto relative bg-stone-900 py-24">
-        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(16,185,129,0.08)_0%,transparent_60%)]" />
+      <section className="cv-auto relative bg-stone-900 dark:bg-stone-900 dark:border-y dark:border-stone-800 py-24">
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(16,185,129,0.12)_0%,transparent_60%)]" />
         <div className="relative mx-auto max-w-2xl px-6 text-center">
           <h2 className="mb-3 text-2xl font-bold text-white md:text-3xl">
             ابقَ على <span className="text-emerald-400">اطلاع</span>
           </h2>
-          <p className="mx-auto mb-6 max-w-md text-sm text-white/50">
+          <p className="mx-auto mb-6 max-w-md text-sm text-white/75">
             اشترك ليصلك كل جديد عن الببتيدات والتحديثات العلمية
           </p>
           <Suspense fallback={<div className="h-24 animate-pulse rounded-2xl bg-stone-800" aria-hidden="true" />}>
@@ -978,13 +1029,14 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* Floating WhatsApp / Help Button */}
+      {/* Floating Help Button */}
       <a
         href={`mailto:${SUPPORT_EMAIL}`}
-        className="fixed bottom-24 end-4 z-40 flex h-14 w-14 items-center justify-center rounded-full bg-emerald-600 text-white shadow-lg shadow-emerald-600/30 transition-all hover:bg-emerald-700 hover:scale-110 md:bottom-6 md:end-6"
-        aria-label="تواصل معنا"
+        className="fixed bottom-24 end-4 z-40 flex items-center gap-2 rounded-full bg-emerald-600 px-4 py-3 text-white shadow-lg shadow-emerald-600/30 transition-all hover:bg-emerald-700 hover:scale-105 active:scale-95 md:bottom-6 md:end-6"
+        aria-label="تواصل معنا عبر البريد الإلكتروني"
       >
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/></svg>
+        <span className="text-xs font-bold">مساعدة</span>
       </a>
 
       {/* EXIT INTENT + STICKY CTA handled globally by App.tsx OverlayGate — no duplicates here */}
