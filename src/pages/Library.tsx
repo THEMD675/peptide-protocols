@@ -317,6 +317,13 @@ export default function Library() {
     }, 800);
     return () => clearTimeout(timer);
   }, []);
+
+  // Re-trigger tour via header "?" button
+  useEffect(() => {
+    const handler = () => setRunTour(true);
+    window.addEventListener('pptides:retrigger-tour', handler);
+    return () => window.removeEventListener('pptides:retrigger-tour', handler);
+  }, []);
   const [compareIds, setCompareIds] = useState<string[]>(() => {
     try { const s = sessionStorage.getItem('pptides_compare'); return s ? JSON.parse(s) : []; } catch { return []; }
   });

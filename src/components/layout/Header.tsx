@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect, memo, lazy, Suspense } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 // useNavigate removed — GlobalSearch handles navigation internally
-import { Menu, X, User, LogOut, ChevronDown, Search, Moon, Sun } from 'lucide-react';
+import { Menu, X, User, LogOut, ChevronDown, Search, Moon, Sun, HelpCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const FocusTrap = lazy(() => import('focus-trap-react'));
@@ -204,6 +204,18 @@ export default memo(function Header() {
           </nav>
 
           <div className="flex items-center gap-3">
+            {/* Guided Tour Help Button — only for signed-in users */}
+            {user && (
+              <button
+                onClick={() => window.dispatchEvent(new CustomEvent('pptides:retrigger-tour'))}
+                aria-label="جولة إرشادية"
+                title="جولة إرشادية"
+                className="flex items-center justify-center rounded-lg p-2.5 min-h-[44px] min-w-[44px] text-stone-500 dark:text-stone-300 transition-colors hover:bg-stone-100 dark:hover:bg-stone-800 hover:text-emerald-700"
+              >
+                <HelpCircle className="h-4 w-4" />
+              </button>
+            )}
+
             {/* Theme Toggle */}
             <button
               onClick={toggleTheme}

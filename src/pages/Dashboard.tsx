@@ -406,6 +406,13 @@ export default function Dashboard() {
     }, 1200);
     return () => clearTimeout(timer);
   }, [user]);
+
+  // Re-trigger tour via header "?" button
+  useEffect(() => {
+    const handler = () => setRunTour(true);
+    window.addEventListener('pptides:retrigger-tour', handler);
+    return () => window.removeEventListener('pptides:retrigger-tour', handler);
+  }, []);
   const showOnboardButton = useMemo(() => {
     try { return localStorage.getItem('pptides_onboarded') === 'true'; } catch { return false; }
   }, []);

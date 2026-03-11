@@ -5,8 +5,10 @@ import {
   TestTube, AlertTriangle, Calendar, ClipboardList, Heart, Brain,
   Droplets, Activity, FlaskConical, ArrowLeft, MapPin, ChevronDown,
   ChevronUp, Search, CheckCircle, Info, Package, Clock, Building2,
-  Beaker, TrendingUp, TrendingDown,
+  Beaker, TrendingUp, TrendingDown, Droplet, Dna, Microscope, BarChart2,
+  RefreshCw,
 } from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
 import { PRICING, SITE_URL } from '@/lib/constants';
@@ -145,13 +147,13 @@ const biomarkers: BiomarkerInfo[] = [
   },
 ];
 
-const testPackages = [
+const testPackages: { id: string; nameAr: string; price: string; color: string; icon: LucideIcon; tests: string[]; testsAr: string[]; description: string; recommended: string }[] = [
   {
     id: 'basic',
     nameAr: 'الفحص الأساسي',
     price: '~200 ر.س',
     color: 'emerald',
-    icon: '🩸',
+    icon: Droplet,
     tests: ['CBC', 'ALT', 'AST', 'Creatinine', 'eGFR', 'Fasting Glucose'],
     testsAr: ['تعداد دم كامل', 'إنزيمات الكبد', 'وظائف الكلى', 'سكر صائم'],
     description: 'الحد الأدنى لأي شخص يبدأ بالببتيدات — يغطي السلامة الأساسية',
@@ -162,7 +164,7 @@ const testPackages = [
     nameAr: 'فحص الببتيدات',
     price: '~400 ر.س',
     color: 'blue',
-    icon: '🧬',
+    icon: Dna,
     tests: ['CBC', 'ALT', 'AST', 'Creatinine', 'eGFR', 'Fasting Glucose', 'HbA1c', 'IGF-1', 'TSH', 'Free T3', 'Free T4', 'Total Cholesterol', 'LDL', 'HDL'],
     testsAr: ['كل الأساسي', 'IGF-1', 'الغدة الدرقية', 'الدهون', 'السكر التراكمي'],
     description: 'الفحص المثالي لمستخدمي ببتيدات هرمون النمو والأيض',
@@ -173,7 +175,7 @@ const testPackages = [
     nameAr: 'الفحص الشامل',
     price: '~700 ر.س',
     color: 'purple',
-    icon: '🔬',
+    icon: Microscope,
     tests: ['CBC', 'ALT', 'AST', 'GGT', 'Creatinine', 'BUN', 'eGFR', 'Fasting Glucose', 'Fasting Insulin', 'HbA1c', 'HOMA-IR', 'IGF-1', 'Total Testosterone', 'Free Testosterone', 'LH', 'FSH', 'Prolactin', 'TSH', 'Free T3', 'Free T4', 'Total Cholesterol', 'LDL', 'HDL', 'Triglycerides', 'Vitamin D', 'hs-CRP', 'Ferritin'],
     testsAr: ['كل شيء', 'هرمونات كاملة', 'أنسولين صائم', 'HOMA-IR', 'فيتامين د', 'الالتهاب', 'الحديد'],
     description: 'تغطية شاملة لجميع الببتيدات — الأفضل للمحترفين والبروتوكولات المتقدمة',
