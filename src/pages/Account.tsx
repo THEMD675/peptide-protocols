@@ -395,32 +395,32 @@ export default function Account() {
           </button>
         </div>
         <h1 className="text-3xl font-bold text-emerald-700 md:text-4xl">حسابي</h1>
-        <p className="mt-2 text-lg text-stone-600 dark:text-stone-400">{profileDisplayName || user?.email || 'إدارة حسابك واشتراكك'}</p>
+        <p className="mt-2 text-lg text-stone-600 dark:text-stone-300">{profileDisplayName || user?.email || 'إدارة حسابك واشتراكك'}</p>
       </div>
 
       <div className="space-y-6">
         {/* Usage Stats Dashboard */}
         {usageStats && (
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-            <div className="rounded-2xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 p-4 text-center shadow-sm">
+            <div className="rounded-2xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950 p-4 text-center shadow-sm">
               <Syringe className="mx-auto mb-1 h-5 w-5 text-emerald-700" />
               <p className="text-2xl font-black text-stone-900 dark:text-stone-100">{usageStats.injections}</p>
-              <p className="text-xs text-stone-500 dark:text-stone-400">حقنة مسجلة</p>
+              <p className="text-xs text-stone-500 dark:text-stone-300">حقنة مسجلة</p>
             </div>
-            <div className="rounded-2xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 p-4 text-center shadow-sm">
+            <div className="rounded-2xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950 p-4 text-center shadow-sm">
               <Calendar className="mx-auto mb-1 h-5 w-5 text-blue-500" />
               <p className="text-2xl font-black text-stone-900 dark:text-stone-100">{usageStats.protocols}</p>
-              <p className="text-xs text-stone-500 dark:text-stone-400">بروتوكول نشط</p>
+              <p className="text-xs text-stone-500 dark:text-stone-300">بروتوكول نشط</p>
             </div>
-            <div className="rounded-2xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 p-4 text-center shadow-sm">
+            <div className="rounded-2xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950 p-4 text-center shadow-sm">
               <Bot className="mx-auto mb-1 h-5 w-5 text-purple-500" />
               <p className="text-2xl font-black text-stone-900 dark:text-stone-100">{usageStats.coachMessages}</p>
-              <p className="text-xs text-stone-500 dark:text-stone-400">رسالة مع المدرب</p>
+              <p className="text-xs text-stone-500 dark:text-stone-300">رسالة مع المدرب</p>
             </div>
-            <div className="rounded-2xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 p-4 text-center shadow-sm">
+            <div className="rounded-2xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950 p-4 text-center shadow-sm">
               <BarChart3 className="mx-auto mb-1 h-5 w-5 text-orange-500" />
               <p className="text-sm font-bold text-stone-900 dark:text-stone-100 mt-1">{usageStats.memberSince || '—'}</p>
-              <p className="text-xs text-stone-500 dark:text-stone-400">عضو منذ</p>
+              <p className="text-xs text-stone-500 dark:text-stone-300">عضو منذ</p>
             </div>
           </div>
         )}
@@ -444,7 +444,7 @@ export default function Account() {
               </p>
               <p className={cn(
                 'text-sm font-medium',
-                subscription.isProOrTrial ? 'text-emerald-700' : 'text-stone-500 dark:text-stone-400',
+                subscription.isProOrTrial ? 'text-emerald-700' : 'text-stone-500 dark:text-stone-300',
               )}>
                 {subscription.isProOrTrial && subscription.status === 'cancelled'
                   ? 'نشط'
@@ -454,7 +454,7 @@ export default function Account() {
                 )}
               </p>
               {subscription.status === 'active' && subscription.currentPeriodEnd && (
-                <p className="text-xs text-stone-500 dark:text-stone-400 mt-1">
+                <p className="text-xs text-stone-500 dark:text-stone-300 mt-1">
                   يتجدد في {new Date(subscription.currentPeriodEnd).toLocaleDateString('ar-u-nu-latn')}
                 </p>
               )}
@@ -472,7 +472,7 @@ export default function Account() {
         </div>
 
         {/* Profile Card */}
-        <div className="rounded-2xl border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-900 p-6">
+        <div className="rounded-2xl border border-stone-200 dark:border-stone-600 bg-stone-50 dark:bg-stone-900 p-6">
           <div className="flex items-center gap-3 mb-4">
             <UserCircle className="h-5 w-5 text-emerald-700" />
             <h2 className="text-lg font-bold text-stone-900 dark:text-stone-100">الملف الشخصي</h2>
@@ -492,7 +492,7 @@ export default function Account() {
                   onChange={(e) => setProfileDisplayName(e.target.value)}
                   placeholder="اسمك أو لقبك"
                   maxLength={100}
-                  className="w-full rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 px-4 py-3 text-base text-stone-900 dark:text-stone-100 placeholder:text-stone-500 dark:text-stone-400 focus:border-emerald-300 dark:border-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900"
+                  className="w-full rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950 px-4 py-3 text-base text-stone-900 dark:text-stone-100 placeholder:text-stone-500 dark:text-stone-300 focus:border-emerald-300 dark:border-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900"
                 />
               </div>
               <div>
@@ -508,7 +508,7 @@ export default function Account() {
                   onChange={(e) => setProfileWeight(e.target.value)}
                   placeholder="مثال: 75"
                   dir="ltr"
-                  className="w-full rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 px-4 py-3 text-base text-stone-900 dark:text-stone-100 placeholder:text-stone-500 dark:text-stone-400 focus:border-emerald-300 dark:border-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900"
+                  className="w-full rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950 px-4 py-3 text-base text-stone-900 dark:text-stone-100 placeholder:text-stone-500 dark:text-stone-300 focus:border-emerald-300 dark:border-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900"
                 />
               </div>
               <div>
@@ -523,7 +523,7 @@ export default function Account() {
                         'rounded-full px-4 py-2 text-xs font-bold transition-colors',
                         profileGoals.includes(g.id)
                           ? 'bg-emerald-600 text-white'
-                          : 'border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 text-stone-600 dark:text-stone-400 hover:border-emerald-300 dark:border-emerald-700 hover:bg-emerald-50 dark:bg-emerald-900/20',
+                          : 'border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950 text-stone-600 dark:text-stone-300 hover:border-emerald-300 dark:border-emerald-700 hover:bg-emerald-50 dark:bg-emerald-900/20',
                       )}
                     >
                       {g.label}
@@ -543,7 +543,7 @@ export default function Account() {
         </div>
 
         {/* Email Card */}
-        <div className="rounded-2xl border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-900 p-6">
+        <div className="rounded-2xl border border-stone-200 dark:border-stone-600 bg-stone-50 dark:bg-stone-900 p-6">
           <div className="flex items-center gap-3 mb-4">
             <Mail className="h-5 w-5 text-emerald-700" />
             <h2 className="text-lg font-bold text-stone-900 dark:text-stone-100">البريد الإلكتروني</h2>
@@ -560,7 +560,7 @@ export default function Account() {
                 placeholder="name@example.com"
                 dir="ltr"
                 autoComplete="email"
-                className="w-full rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 px-4 py-3 text-left text-base text-stone-900 dark:text-stone-100 placeholder:text-stone-500 dark:text-stone-400 focus:border-emerald-300 dark:border-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900"
+                className="w-full rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950 px-4 py-3 text-left text-base text-stone-900 dark:text-stone-100 placeholder:text-stone-500 dark:text-stone-300 focus:border-emerald-300 dark:border-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900"
               />
             </div>
             <button
@@ -575,7 +575,7 @@ export default function Account() {
 
         {/* Change Password — only for email users; OAuth users have no password */}
         {!isOAuthUser && (
-        <div className="rounded-2xl border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-900 p-6">
+        <div className="rounded-2xl border border-stone-200 dark:border-stone-600 bg-stone-50 dark:bg-stone-900 p-6">
           <div className="flex items-center gap-3 mb-4">
             <KeyRound className="h-5 w-5 text-emerald-700" />
             <h2 className="text-lg font-bold text-stone-900 dark:text-stone-100">تغيير كلمة المرور</h2>
@@ -591,7 +591,7 @@ export default function Account() {
                 placeholder="كلمة المرور الحالية"
                 dir="ltr"
                 autoComplete="current-password"
-                className="w-full rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 px-4 py-3 text-left text-base text-stone-900 dark:text-stone-100 placeholder:text-stone-500 dark:text-stone-400 focus:outline-none focus:border-emerald-300 dark:border-emerald-700 focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900"
+                className="w-full rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950 px-4 py-3 text-left text-base text-stone-900 dark:text-stone-100 placeholder:text-stone-500 dark:text-stone-300 focus:outline-none focus:border-emerald-300 dark:border-emerald-700 focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900"
               />
             </div>
             <div>
@@ -605,7 +605,7 @@ export default function Account() {
                 dir="ltr"
                 minLength={8}
                 autoComplete="new-password"
-                className="w-full rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 px-4 py-3 text-left text-base text-stone-900 dark:text-stone-100 placeholder:text-stone-500 dark:text-stone-400 focus:outline-none focus:border-emerald-300 dark:border-emerald-700 focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900"
+                className="w-full rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950 px-4 py-3 text-left text-base text-stone-900 dark:text-stone-100 placeholder:text-stone-500 dark:text-stone-300 focus:outline-none focus:border-emerald-300 dark:border-emerald-700 focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900"
               />
             </div>
             <button
@@ -620,27 +620,27 @@ export default function Account() {
         )}
 
         {/* Subscription Card */}
-        <div className="rounded-2xl border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-900 p-6">
+        <div className="rounded-2xl border border-stone-200 dark:border-stone-600 bg-stone-50 dark:bg-stone-900 p-6">
           <div className="flex items-center gap-3 mb-4">
             <Crown className="h-5 w-5 text-emerald-700" />
             <h2 className="text-lg font-bold text-stone-900 dark:text-stone-100">الاشتراك</h2>
           </div>
           <div className="space-y-3">
             <div className="flex items-center justify-between">
-              <span className="text-sm text-stone-600 dark:text-stone-400">الباقة</span>
+              <span className="text-sm text-stone-600 dark:text-stone-300">الباقة</span>
               <span className={cn(
                 'rounded-full px-3 py-1 text-xs font-bold',
                 subscription.tier === 'elite'
                   ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400'
                   : subscription.tier === 'essentials'
                     ? 'bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700'
-                    : 'bg-stone-200 dark:bg-stone-700 text-stone-600 dark:text-stone-400',
+                    : 'bg-stone-200 dark:bg-stone-700 text-stone-600 dark:text-stone-300',
               )}>
                 {TIER_LABELS[subscription.tier] ?? subscription.tier}
               </span>
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-sm text-stone-600 dark:text-stone-400">الحالة</span>
+              <span className="text-sm text-stone-600 dark:text-stone-300">الحالة</span>
               <span className={cn(
                 'rounded-full px-3 py-1 text-xs font-bold',
                 subscription.isProOrTrial
@@ -649,7 +649,7 @@ export default function Account() {
                     ? 'bg-amber-100 text-amber-700 dark:text-amber-400'
                     : subscription.status === 'expired'
                       ? 'bg-red-100 text-red-700 dark:text-red-400'
-                      : 'bg-stone-200 dark:bg-stone-700 text-stone-600 dark:text-stone-400',
+                      : 'bg-stone-200 dark:bg-stone-700 text-stone-600 dark:text-stone-300',
               )}>
                 {subscription.isProOrTrial && subscription.status === 'cancelled'
                   ? 'نشط'
@@ -658,7 +658,7 @@ export default function Account() {
             </div>
             {subscription.status === 'active' && subscription.currentPeriodEnd && (
               <div className="flex items-center justify-between">
-                <span className="text-sm text-stone-600 dark:text-stone-400">يتجدد في</span>
+                <span className="text-sm text-stone-600 dark:text-stone-300">يتجدد في</span>
                 <span className="text-sm font-bold text-stone-700 dark:text-stone-200">
                   {new Date(subscription.currentPeriodEnd).toLocaleDateString('ar-u-nu-latn')}
                 </span>
@@ -666,7 +666,7 @@ export default function Account() {
             )}
             {subscription.status === 'cancelled' && subscription.currentPeriodEnd && (
               <div className="flex items-center justify-between">
-                <span className="text-sm text-stone-600 dark:text-stone-400">ينتهي الوصول في</span>
+                <span className="text-sm text-stone-600 dark:text-stone-300">ينتهي الوصول في</span>
                 <span className="text-sm font-bold text-amber-600">
                   {new Date(subscription.currentPeriodEnd).toLocaleDateString('ar-u-nu-latn')}
                 </span>
@@ -674,7 +674,7 @@ export default function Account() {
             )}
             {subscription.status === 'trial' && subscription.trialDaysLeft > 0 && (
               <div className="flex items-center justify-between">
-                <span className="text-sm text-stone-600 dark:text-stone-400">الأيام المتبقية</span>
+                <span className="text-sm text-stone-600 dark:text-stone-300">الأيام المتبقية</span>
                 <span className="text-sm font-bold text-amber-600">{arPlural(subscription.trialDaysLeft, 'يوم واحد', 'يومان', 'أيام')}</span>
               </div>
             )}
@@ -717,7 +717,7 @@ export default function Account() {
                     toast.success('تم إرسال طلب الاسترداد — سنتواصل معك قريبًا');
                   } catch { toast.error('تعذّر إرسال طلب الاسترداد. حاول مرة أخرى.'); }
                 }}
-                className="mt-3 flex w-full items-center justify-center gap-2 rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 px-6 py-3 text-sm font-bold text-stone-700 dark:text-stone-200 transition-all hover:bg-stone-50 dark:hover:bg-stone-800"
+                className="mt-3 flex w-full items-center justify-center gap-2 rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950 px-6 py-3 text-sm font-bold text-stone-700 dark:text-stone-200 transition-all hover:bg-stone-50 dark:hover:bg-stone-800"
               >
                 طلب استرداد
               </button>
@@ -766,12 +766,12 @@ export default function Account() {
         <EnquiryForm userEmail={user?.email} userId={user?.id} />
 
         {/* Data Export — GDPR Compliance */}
-        <div className="rounded-2xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 p-6">
+        <div className="rounded-2xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950 p-6">
           <div className="flex items-center gap-3 mb-3">
             <Download className="h-5 w-5 text-emerald-700" />
             <h2 className="text-lg font-bold text-stone-900 dark:text-stone-100">تصدير بياناتي</h2>
           </div>
-          <p className="text-sm text-stone-600 dark:text-stone-400 mb-4">حمّل نسخة كاملة من جميع بياناتك — حقك في نقل البيانات مكفول</p>
+          <p className="text-sm text-stone-600 dark:text-stone-300 mb-4">حمّل نسخة كاملة من جميع بياناتك — حقك في نقل البيانات مكفول</p>
           <div className="grid gap-3 sm:grid-cols-2">
             <button
               onClick={() => handleExportData('json')}
@@ -782,26 +782,26 @@ export default function Account() {
             </button>
             <button
               onClick={() => handleExportData('csv')}
-              className="flex items-center justify-center gap-2 rounded-xl border border-stone-300 dark:border-stone-700 px-6 py-3 text-sm font-bold text-stone-700 dark:text-stone-200 transition-all hover:bg-stone-50 dark:hover:bg-stone-800"
+              className="flex items-center justify-center gap-2 rounded-xl border border-stone-300 dark:border-stone-600 px-6 py-3 text-sm font-bold text-stone-700 dark:text-stone-200 transition-all hover:bg-stone-50 dark:hover:bg-stone-800"
             >
               <Download className="h-4 w-4" />
               تصدير CSV (سجل الحقن)
             </button>
           </div>
-          <p className="text-[11px] text-stone-500 dark:text-stone-400 mt-3 text-center">يشمل: سجل الحقن، البروتوكولات، العافية، التحاليل، الأعراض الجانبية، والملف الشخصي</p>
+          <p className="text-[11px] text-stone-500 dark:text-stone-300 mt-3 text-center">يشمل: سجل الحقن، البروتوكولات، العافية، التحاليل، الأعراض الجانبية، والملف الشخصي</p>
         </div>
 
         {/* Actions */}
         <div className="space-y-3">
           {(subscription.isPaidSubscriber || subscription.isTrial) && subscription.status !== 'cancelled' && (
             subscription.isTrial && !subscription.hasStripeSubscription ? (
-              <div className="flex w-full items-center justify-center gap-2 rounded-xl border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-900 px-6 py-3 text-sm text-stone-500 dark:text-stone-400">
+              <div className="flex w-full items-center justify-center gap-2 rounded-xl border border-stone-200 dark:border-stone-600 bg-stone-50 dark:bg-stone-900 px-6 py-3 text-sm text-stone-500 dark:text-stone-300">
                 فترتك التجريبية ستنتهي تلقائياً
               </div>
             ) : (
               <button
                 onClick={() => { setShowCancelDialog(true); setCancelStep('survey'); setCancelReason(''); }}
-                className="flex w-full items-center justify-center gap-2 rounded-xl border border-stone-300 dark:border-stone-700 bg-white dark:bg-stone-950 px-6 py-3 text-sm font-bold text-stone-700 dark:text-stone-200 transition-all hover:bg-stone-50 dark:hover:bg-stone-800"
+                className="flex w-full items-center justify-center gap-2 rounded-xl border border-stone-300 dark:border-stone-600 bg-white dark:bg-stone-950 px-6 py-3 text-sm font-bold text-stone-700 dark:text-stone-200 transition-all hover:bg-stone-50 dark:hover:bg-stone-800"
               >
                 <LogOut className="h-4 w-4" />
                 {subscription.isTrial ? 'إلغاء التجربة' : 'إلغاء الاشتراك'}
@@ -827,7 +827,7 @@ export default function Account() {
               <AlertTriangle className="h-6 w-6 text-amber-600" />
             </div>
             <h3 className="text-lg font-bold text-stone-900 dark:text-stone-100">لماذا تريد الإلغاء؟</h3>
-            <p className="mt-1 text-sm text-stone-600 dark:text-stone-400">ساعدنا في تحسين الخدمة — اختر السبب الرئيسي</p>
+            <p className="mt-1 text-sm text-stone-600 dark:text-stone-300">ساعدنا في تحسين الخدمة — اختر السبب الرئيسي</p>
             <div className="mt-4 space-y-2">
               {[
                 { id: 'too_expensive', label: 'السعر مرتفع' },
@@ -843,12 +843,12 @@ export default function Account() {
                     'flex w-full items-center gap-3 rounded-xl border px-4 py-3 text-sm font-medium transition-all',
                     cancelReason === opt.id
                       ? 'border-emerald-400 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-800 dark:text-emerald-300'
-                      : 'border-stone-200 dark:border-stone-700 text-stone-700 dark:text-stone-200 hover:border-stone-300 dark:border-stone-700 hover:bg-stone-50 dark:hover:bg-stone-800',
+                      : 'border-stone-200 dark:border-stone-600 text-stone-700 dark:text-stone-200 hover:border-stone-300 dark:border-stone-600 hover:bg-stone-50 dark:hover:bg-stone-800',
                   )}
                 >
                   <span className={cn(
                     'flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2',
-                    cancelReason === opt.id ? 'border-emerald-500 bg-emerald-500' : 'border-stone-300 dark:border-stone-700',
+                    cancelReason === opt.id ? 'border-emerald-500 bg-emerald-500' : 'border-stone-300 dark:border-stone-600',
                   )}>
                     {cancelReason === opt.id && <span className="h-2 w-2 rounded-full bg-white dark:bg-stone-950" />}
                   </span>
@@ -948,7 +948,7 @@ export default function Account() {
               <button
                 onClick={handleCancelSubscription}
                 disabled={isProcessing}
-                className="w-full rounded-xl border border-stone-300 dark:border-stone-700 px-4 py-2.5 text-sm font-bold text-stone-700 dark:text-stone-200 transition-all hover:bg-stone-50 dark:hover:bg-stone-800 disabled:opacity-50"
+                className="w-full rounded-xl border border-stone-300 dark:border-stone-600 px-4 py-2.5 text-sm font-bold text-stone-700 dark:text-stone-200 transition-all hover:bg-stone-50 dark:hover:bg-stone-800 disabled:opacity-50"
               >
                 {isProcessing ? 'جارٍ الإلغاء...' : 'متابعة الإلغاء'}
               </button>
@@ -959,7 +959,7 @@ export default function Account() {
                   setShowCancelDialog(false);
                   setCancelStep(null);
                 }}
-                className="w-full rounded-full border border-stone-200 dark:border-stone-700 py-3 text-sm font-bold text-stone-600 dark:text-stone-400 hover:bg-stone-50 dark:hover:bg-stone-800"
+                className="w-full rounded-full border border-stone-200 dark:border-stone-600 py-3 text-sm font-bold text-stone-600 dark:text-stone-300 hover:bg-stone-50 dark:hover:bg-stone-800"
               >
                 إيقاف مؤقت
               </button>
@@ -984,7 +984,7 @@ export default function Account() {
               <Trash2 className="h-6 w-6 text-red-600 dark:text-red-400" />
             </div>
             <h3 className="text-lg font-bold text-stone-900 dark:text-stone-100">حذف الحساب</h3>
-            <p className="mt-2 text-sm text-stone-600 dark:text-stone-400">
+            <p className="mt-2 text-sm text-stone-600 dark:text-stone-300">
               سيتم حذف حسابك وجميع بياناتك نهائيًا. إذا كان لديك اشتراك نشط، سيتم إلغاؤه فورًا. هذا الإجراء لا يمكن التراجع عنه.
             </p>
             <div className="mt-4">
@@ -997,7 +997,7 @@ export default function Account() {
                 onChange={(e) => setDeleteConfirmText(e.target.value)}
                 placeholder="حذف"
                 dir="auto"
-                className="w-full rounded-xl border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-900 px-4 py-2.5 text-sm text-stone-900 dark:text-stone-100 placeholder:text-stone-500 dark:text-stone-400 focus:outline-none focus:border-red-300 focus:ring-2 focus:ring-red-100"
+                className="w-full rounded-xl border border-stone-200 dark:border-stone-600 bg-stone-50 dark:bg-stone-900 px-4 py-2.5 text-sm text-stone-900 dark:text-stone-100 placeholder:text-stone-500 dark:text-stone-300 focus:outline-none focus:border-red-300 focus:ring-2 focus:ring-red-100"
               />
             </div>
             {!isOAuthUser && (
@@ -1010,7 +1010,7 @@ export default function Account() {
                   placeholder="أدخل كلمة المرور للتأكيد"
                   dir="ltr"
                   autoComplete="current-password"
-                  className="w-full rounded-xl border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-900 px-4 py-2.5 text-sm text-stone-900 dark:text-stone-100 placeholder:text-stone-500 dark:text-stone-400 focus:outline-none focus:border-red-300 focus:ring-2 focus:ring-red-100"
+                  className="w-full rounded-xl border border-stone-200 dark:border-stone-600 bg-stone-50 dark:bg-stone-900 px-4 py-2.5 text-sm text-stone-900 dark:text-stone-100 placeholder:text-stone-500 dark:text-stone-300 focus:outline-none focus:border-red-300 focus:ring-2 focus:ring-red-100"
                 />
               </div>
             )}
@@ -1024,7 +1024,7 @@ export default function Account() {
               </button>
               <button
                 onClick={closeDialogs}
-                className="flex-1 rounded-xl border border-stone-300 dark:border-stone-700 px-4 py-2.5 text-sm font-bold text-stone-700 dark:text-stone-200 transition-all hover:bg-stone-50 dark:hover:bg-stone-800"
+                className="flex-1 rounded-xl border border-stone-300 dark:border-stone-600 px-4 py-2.5 text-sm font-bold text-stone-700 dark:text-stone-200 transition-all hover:bg-stone-50 dark:hover:bg-stone-800"
               >
                 تراجع
               </button>
@@ -1110,7 +1110,7 @@ function ReferralSection({ userId }: { userId?: string }) {
   };
 
   if (loading) return (
-    <div className="rounded-2xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 p-6 animate-pulse">
+    <div className="rounded-2xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950 p-6 animate-pulse">
       <div className="h-5 w-32 bg-stone-200 dark:bg-stone-700 rounded mb-3" />
       <div className="h-3 w-48 bg-stone-100 dark:bg-stone-800 rounded mb-4" />
       <div className="h-10 w-full bg-stone-100 dark:bg-stone-800 rounded-xl mb-3" />
@@ -1124,10 +1124,10 @@ function ReferralSection({ userId }: { userId?: string }) {
         <Gift className="h-5 w-5 text-emerald-700" />
         <h2 className="text-lg font-bold text-stone-900 dark:text-stone-100">ادعُ صديقًا واحصل على شهر مجاني</h2>
       </div>
-      <p className="text-sm text-stone-600 dark:text-stone-400 mb-4">شارك رابط الإحالة — عندما يشترك صديقك، تحصل على كود خصم ١٠٠٪ لشهر كامل!</p>
+      <p className="text-sm text-stone-600 dark:text-stone-300 mb-4">شارك رابط الإحالة — عندما يشترك صديقك، تحصل على كود خصم ١٠٠٪ لشهر كامل!</p>
 
       <div className="flex items-center gap-2 mb-4">
-        <div className="flex-1 rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 px-4 py-3 text-sm font-mono text-stone-700 dark:text-stone-200 truncate" dir="ltr">
+        <div className="flex-1 rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950 px-4 py-3 text-sm font-mono text-stone-700 dark:text-stone-200 truncate" dir="ltr">
           {shareUrl}
         </div>
         <button onClick={handleCopy} className="shrink-0 rounded-xl border border-emerald-300 dark:border-emerald-700 bg-emerald-50 dark:bg-emerald-900/20 p-3 text-emerald-700 transition-colors hover:bg-emerald-100 dark:bg-emerald-900/30">
@@ -1151,7 +1151,7 @@ function ReferralSection({ userId }: { userId?: string }) {
               try { await navigator.share({ title: 'pptides — دليل الببتيدات', text: shareText, url: shareUrl }); } catch { /* cancelled */ }
             } else { handleCopy(); }
           }}
-          className="flex-1 flex items-center justify-center gap-2 rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 px-4 py-2.5 text-sm font-bold text-stone-700 dark:text-stone-200 transition-colors hover:bg-stone-50 dark:hover:bg-stone-800"
+          className="flex-1 flex items-center justify-center gap-2 rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950 px-4 py-2.5 text-sm font-bold text-stone-700 dark:text-stone-200 transition-colors hover:bg-stone-50 dark:hover:bg-stone-800"
         >
           <Share2 className="h-4 w-4" />
           مشاركة
@@ -1182,24 +1182,24 @@ function ReferralSection({ userId }: { userId?: string }) {
       )}
 
       <div className="rounded-xl bg-stone-50 dark:bg-stone-900 p-4">
-        <p className="text-xs font-bold text-stone-500 dark:text-stone-400 mb-2">إحصائيات الإحالة</p>
+        <p className="text-xs font-bold text-stone-500 dark:text-stone-300 mb-2">إحصائيات الإحالة</p>
         <div className="grid grid-cols-3 gap-3 text-center">
           <div>
             <p className="text-xl font-bold text-stone-900 dark:text-stone-100">{stats.total}</p>
-            <p className="text-xs text-stone-500 dark:text-stone-400">دعوات</p>
+            <p className="text-xs text-stone-500 dark:text-stone-300">دعوات</p>
           </div>
           <div>
             <p className="text-xl font-bold text-emerald-700">{stats.signedUp}</p>
-            <p className="text-xs text-stone-500 dark:text-stone-400">سجّلوا</p>
+            <p className="text-xs text-stone-500 dark:text-stone-300">سجّلوا</p>
           </div>
           <div>
             <p className="text-xl font-bold text-emerald-700 dark:text-emerald-400">{stats.rewarded}</p>
-            <p className="text-xs text-stone-500 dark:text-stone-400">مكافآت</p>
+            <p className="text-xs text-stone-500 dark:text-stone-300">مكافآت</p>
           </div>
         </div>
       </div>
 
-      <p className="text-[11px] text-stone-500 dark:text-stone-400 mt-3 text-center">كود الإحالة الخاص بك: <span className="font-mono font-bold" dir="ltr">{code}</span></p>
+      <p className="text-[11px] text-stone-500 dark:text-stone-300 mt-3 text-center">كود الإحالة الخاص بك: <span className="font-mono font-bold" dir="ltr">{code}</span></p>
     </div>
   );
 }
@@ -1211,7 +1211,7 @@ function SavedPeptides() {
 
   if (isLoading) {
     return (
-      <div className="rounded-2xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 p-6">
+      <div className="rounded-2xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950 p-6">
         <div className="flex items-center gap-3 mb-4">
           <Heart className="h-5 w-5 text-emerald-700" />
           <h2 className="text-lg font-bold text-stone-900 dark:text-stone-100">الببتيدات المحفوظة</h2>
@@ -1226,7 +1226,7 @@ function SavedPeptides() {
   }
 
   return (
-    <div className="rounded-2xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 p-6">
+    <div className="rounded-2xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950 p-6">
       <div className="flex items-center gap-3 mb-4">
         <Heart className="h-5 w-5 text-emerald-700" />
         <h2 className="text-lg font-bold text-stone-900 dark:text-stone-100">الببتيدات المحفوظة</h2>
@@ -1238,9 +1238,9 @@ function SavedPeptides() {
       </div>
 
       {savedPeptides.length === 0 ? (
-        <div className="rounded-xl border border-dashed border-stone-300 dark:border-stone-700 bg-stone-50 dark:bg-stone-900/50 px-6 py-8 text-center">
-          <Heart className="mx-auto mb-3 h-8 w-8 text-stone-300 dark:text-stone-400" />
-          <p className="text-sm text-stone-500 dark:text-stone-400 mb-3">لم تحفظ أي ببتيدات بعد</p>
+        <div className="rounded-xl border border-dashed border-stone-300 dark:border-stone-600 bg-stone-50 dark:bg-stone-900/50 px-6 py-8 text-center">
+          <Heart className="mx-auto mb-3 h-8 w-8 text-stone-300 dark:text-stone-300" />
+          <p className="text-sm text-stone-500 dark:text-stone-300 mb-3">لم تحفظ أي ببتيدات بعد</p>
           <Link
             to="/library"
             className="inline-flex items-center gap-2 rounded-full bg-emerald-600 px-5 py-2 text-sm font-bold text-white hover:bg-emerald-700 transition-colors"
@@ -1253,7 +1253,7 @@ function SavedPeptides() {
           {savedPeptides.map((p) => (
             <div
               key={p.id}
-              className="group flex items-center gap-3 rounded-xl border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-900 p-3 transition-all hover:border-emerald-300 dark:hover:border-emerald-700"
+              className="group flex items-center gap-3 rounded-xl border border-stone-200 dark:border-stone-600 bg-stone-50 dark:bg-stone-900 p-3 transition-all hover:border-emerald-300 dark:hover:border-emerald-700"
             >
               <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-emerald-50 dark:bg-emerald-900/20">
                 <FlaskConical className="h-5 w-5 text-emerald-700" />
@@ -1262,7 +1262,7 @@ function SavedPeptides() {
                 <p className="font-bold text-stone-900 dark:text-stone-100 group-hover:text-emerald-700 transition-colors truncate">
                   {p.nameAr}
                 </p>
-                <p className="text-xs text-stone-500 dark:text-stone-400 truncate">{p.nameEn}</p>
+                <p className="text-xs text-stone-500 dark:text-stone-300 truncate">{p.nameEn}</p>
               </Link>
               <button
                 type="button"
@@ -1335,12 +1335,12 @@ function EnquiryForm({ userEmail, userId }: { userEmail?: string; userId?: strin
   };
 
   return (
-    <div className="rounded-2xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 p-6">
+    <div className="rounded-2xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950 p-6">
       <div className="flex items-center gap-3 mb-1">
         <MessageSquare className="h-5 w-5 text-emerald-700" />
         <h2 className="text-lg font-bold text-stone-900 dark:text-stone-100">استفسار خاص</h2>
       </div>
-      <p className="text-sm text-stone-600 dark:text-stone-400 mb-4">هل لديك سؤال عن ببتيد معيّن أو بروتوكول؟ أرسل لنا وسنرد بأسرع وقت.</p>
+      <p className="text-sm text-stone-600 dark:text-stone-300 mb-4">هل لديك سؤال عن ببتيد معيّن أو بروتوكول؟ أرسل لنا وسنرد بأسرع وقت.</p>
 
       {sent ? (
         <div className="rounded-xl bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 p-4 text-center">
@@ -1351,7 +1351,7 @@ function EnquiryForm({ userEmail, userId }: { userEmail?: string; userId?: strin
       ) : (
         <form onSubmit={handleSubmit} className="space-y-3">
           <div>
-            <label htmlFor="enquiry-peptide" className="mb-1 block text-xs font-medium text-stone-600 dark:text-stone-400">الببتيد (اختياري)</label>
+            <label htmlFor="enquiry-peptide" className="mb-1 block text-xs font-medium text-stone-600 dark:text-stone-300">الببتيد (اختياري)</label>
             <input
               id="enquiry-peptide"
               type="text"
@@ -1360,11 +1360,11 @@ function EnquiryForm({ userEmail, userId }: { userEmail?: string; userId?: strin
               placeholder="مثال: BPC-157"
               dir="ltr"
               maxLength={100}
-              className="w-full rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 px-4 py-2.5 text-sm text-stone-900 dark:text-stone-100 placeholder:text-stone-500 dark:text-stone-400 outline-none focus:border-emerald-300 dark:border-emerald-700 focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900"
+              className="w-full rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950 px-4 py-2.5 text-sm text-stone-900 dark:text-stone-100 placeholder:text-stone-500 dark:text-stone-300 outline-none focus:border-emerald-300 dark:border-emerald-700 focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900"
             />
           </div>
           <div>
-            <label htmlFor="enquiry-subject" className="mb-1 block text-xs font-medium text-stone-600 dark:text-stone-400">الموضوع</label>
+            <label htmlFor="enquiry-subject" className="mb-1 block text-xs font-medium text-stone-600 dark:text-stone-300">الموضوع</label>
             <input
               id="enquiry-subject"
               type="text"
@@ -1372,11 +1372,11 @@ function EnquiryForm({ userEmail, userId }: { userEmail?: string; userId?: strin
               onChange={e => setSubject(e.target.value)}
               placeholder="جرعة، تعارض، بروتوكول..."
               maxLength={200}
-              className="w-full rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 px-4 py-2.5 text-sm text-stone-900 dark:text-stone-100 placeholder:text-stone-500 dark:text-stone-400 outline-none focus:border-emerald-300 dark:border-emerald-700 focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900"
+              className="w-full rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950 px-4 py-2.5 text-sm text-stone-900 dark:text-stone-100 placeholder:text-stone-500 dark:text-stone-300 outline-none focus:border-emerald-300 dark:border-emerald-700 focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900"
             />
           </div>
           <div>
-            <label htmlFor="enquiry-message" className="mb-1 block text-xs font-medium text-stone-600 dark:text-stone-400">رسالتك <span className="text-red-500 dark:text-red-400">*</span></label>
+            <label htmlFor="enquiry-message" className="mb-1 block text-xs font-medium text-stone-600 dark:text-stone-300">رسالتك <span className="text-red-500 dark:text-red-400">*</span></label>
             <textarea
               id="enquiry-message"
               value={message}
@@ -1385,9 +1385,9 @@ function EnquiryForm({ userEmail, userId }: { userEmail?: string; userId?: strin
               rows={4}
               maxLength={2000}
               required
-              className="w-full rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 px-4 py-2.5 text-sm text-stone-900 dark:text-stone-100 placeholder:text-stone-500 dark:text-stone-400 outline-none resize-none focus:border-emerald-300 dark:border-emerald-700 focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900"
+              className="w-full rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950 px-4 py-2.5 text-sm text-stone-900 dark:text-stone-100 placeholder:text-stone-500 dark:text-stone-300 outline-none resize-none focus:border-emerald-300 dark:border-emerald-700 focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900"
             />
-            <p className="text-[10px] text-stone-500 dark:text-stone-400 mt-1 text-left" dir="ltr">{message.length}/2000</p>
+            <p className="text-[10px] text-stone-500 dark:text-stone-300 mt-1 text-left" dir="ltr">{message.length}/2000</p>
           </div>
           <button
             type="submit"
@@ -1411,15 +1411,15 @@ function EnquiryForm({ userEmail, userId }: { userEmail?: string; userId?: strin
 
       {history.length > 0 && (
         <div className="mt-4 border-t border-stone-100 dark:border-stone-800 pt-4">
-          <p className="text-xs font-bold text-stone-600 dark:text-stone-400 mb-2">استفساراتك السابقة</p>
+          <p className="text-xs font-bold text-stone-600 dark:text-stone-300 mb-2">استفساراتك السابقة</p>
           <div className="space-y-2">
             {history.map(h => (
               <div key={h.id} className="flex items-center justify-between rounded-lg border border-stone-100 dark:border-stone-800 bg-stone-50 dark:bg-stone-900 px-3 py-2">
                 <div className="min-w-0 flex-1">
                   <p className="text-xs font-medium text-stone-800 dark:text-stone-200 truncate">{h.subject}</p>
-                  <p className="text-[10px] text-stone-500 dark:text-stone-400">{new Date(h.created_at).toLocaleDateString('ar-u-nu-latn')}</p>
+                  <p className="text-[10px] text-stone-500 dark:text-stone-300">{new Date(h.created_at).toLocaleDateString('ar-u-nu-latn')}</p>
                 </div>
-                <span className={cn('shrink-0 rounded-full px-2 py-0.5 text-[10px] font-bold', h.status === 'replied' ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400' : h.status === 'closed' ? 'bg-stone-200 dark:bg-stone-700 text-stone-600 dark:text-stone-400' : 'bg-amber-100 text-amber-700 dark:text-amber-400')}>{h.status === 'replied' ? 'تم الرد' : h.status === 'closed' ? 'مغلق' : 'قيد المراجعة'}</span>
+                <span className={cn('shrink-0 rounded-full px-2 py-0.5 text-[10px] font-bold', h.status === 'replied' ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400' : h.status === 'closed' ? 'bg-stone-200 dark:bg-stone-700 text-stone-600 dark:text-stone-300' : 'bg-amber-100 text-amber-700 dark:text-amber-400')}>{h.status === 'replied' ? 'تم الرد' : h.status === 'closed' ? 'مغلق' : 'قيد المراجعة'}</span>
               </div>
             ))}
           </div>

@@ -124,7 +124,7 @@ export default function PushNotificationPrompt() {
           </div>
           <div>
             <h3 className="font-bold text-stone-900 dark:text-stone-100">تنبيهات الحقن</h3>
-            <p className="text-sm text-stone-600 dark:text-stone-400">
+            <p className="text-sm text-stone-600 dark:text-stone-300">
               {subscribed ? 'التنبيهات مفعّلة — ستتلقى تذكيرات بوقت جرعتك' : 'لا تنسَ جرعتك'}
             </p>
           </div>
@@ -133,7 +133,7 @@ export default function PushNotificationPrompt() {
           <button
             onClick={handleDisable}
             disabled={isDisabling}
-            className="flex items-center gap-2 rounded-full border border-stone-200 dark:border-stone-700 px-4 py-2.5 text-sm font-bold text-stone-600 dark:text-stone-400 transition-colors hover:bg-stone-50 dark:hover:bg-stone-800 hover:text-red-600 dark:text-red-400 disabled:opacity-50"
+            className="flex items-center gap-2 rounded-full border border-stone-200 dark:border-stone-600 px-4 py-2.5 text-sm font-bold text-stone-600 dark:text-stone-300 transition-colors hover:bg-stone-50 dark:hover:bg-stone-800 hover:text-red-600 dark:text-red-400 disabled:opacity-50"
           >
             {isDisabling ? <Loader2 className="h-4 w-4 animate-spin" /> : <BellOff className="h-4 w-4" />}
             إلغاء التنبيهات

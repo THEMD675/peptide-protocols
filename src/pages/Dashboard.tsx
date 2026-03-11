@@ -504,7 +504,7 @@ export default function Dashboard() {
               <div className="flex items-center gap-2">
                 <span className={cn(
                   'rounded-full px-3 py-1 text-xs font-bold',
-                  activity.totalInjections >= 50 ? 'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400' : activity.totalInjections >= 10 ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400' : 'bg-stone-100 dark:bg-stone-800 text-stone-600 dark:text-stone-400',
+                  activity.totalInjections >= 50 ? 'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400' : activity.totalInjections >= 10 ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400' : 'bg-stone-100 dark:bg-stone-800 text-stone-600 dark:text-stone-300',
                 )}>
                   {level}
                 </span>
@@ -520,7 +520,7 @@ export default function Dashboard() {
             );
           })()}
         </div>
-        <p className="mt-2 text-lg text-stone-600 dark:text-stone-400">
+        <p className="mt-2 text-lg text-stone-600 dark:text-stone-300">
           {activeProtocols.length > 0
             ? `لديك ${activeProtocols.length} بروتوكول نشط — استمر في الالتزام`
             : 'ابدأ من هنا — كل أدواتك في مكان واحد'}
@@ -528,7 +528,7 @@ export default function Dashboard() {
       </div>)}
 
       {/* Subscription Status Card */}
-      <div className="mb-8 rounded-2xl border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-900 p-6">
+      <div className="mb-8 rounded-2xl border border-stone-200 dark:border-stone-600 bg-stone-50 dark:bg-stone-900 p-6">
         <div className="flex items-center gap-3 mb-3">
           <Crown className="h-5 w-5 text-emerald-700" />
           <h2 className="text-lg font-bold text-stone-900 dark:text-stone-100">اشتراكك</h2>
@@ -540,7 +540,7 @@ export default function Dashboard() {
               ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400'
               : subscription.tier === 'essentials'
                 ? 'bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700'
-                : 'bg-stone-200 dark:bg-stone-700 text-stone-600 dark:text-stone-400',
+                : 'bg-stone-200 dark:bg-stone-700 text-stone-600 dark:text-stone-300',
           )}>
             {TIER_LABELS[subscription.tier] ?? subscription.tier}
           </span>
@@ -550,7 +550,7 @@ export default function Dashboard() {
               ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400'
               : subscription.status === 'past_due'
                 ? 'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400'
-                : 'bg-stone-200 dark:bg-stone-700 text-stone-600 dark:text-stone-400',
+                : 'bg-stone-200 dark:bg-stone-700 text-stone-600 dark:text-stone-300',
           )}>
             {subscription.isProOrTrial && subscription.status === 'cancelled'
               ? 'نشط'
@@ -597,7 +597,7 @@ export default function Dashboard() {
             <p className="text-xs font-bold text-emerald-700 dark:text-emerald-400 mb-1">نصيحة اليوم</p>
             <p className="text-sm text-stone-700 dark:text-stone-200 leading-relaxed">{DAILY_TIPS[tipIndex]}</p>
             {seasonalTip && (
-              <p className="mt-2 text-xs text-stone-500 dark:text-stone-400 border-t border-emerald-100 pt-2">{seasonalTip}</p>
+              <p className="mt-2 text-xs text-stone-500 dark:text-stone-300 border-t border-emerald-100 pt-2">{seasonalTip}</p>
             )}
           </div>
         );
@@ -625,7 +625,7 @@ export default function Dashboard() {
             </div>
             <div>
               <p className="font-bold text-stone-900 dark:text-stone-100">لقد سجّلت 7+ حقنة — شارك تجربتك وساعد الآخرين</p>
-              <p className="text-sm text-stone-600 dark:text-stone-400">تقييمك يساعد المجتمع على اتخاذ قرارات واعية</p>
+              <p className="text-sm text-stone-600 dark:text-stone-300">تقييمك يساعد المجتمع على اتخاذ قرارات واعية</p>
             </div>
           </div>
           <Link to="/community" className="shrink-0 rounded-full bg-emerald-600 px-5 py-2.5 text-sm font-bold text-white transition-colors hover:bg-emerald-700">
@@ -658,21 +658,21 @@ export default function Dashboard() {
             <div className="grid grid-cols-3 gap-3 mb-3">
               <div className="rounded-xl border border-emerald-100 bg-gradient-to-b from-emerald-50 to-white dark:to-stone-950 p-3 text-center">
                 <p className="text-2xl font-black text-emerald-700">{total}</p>
-                <p className="text-[11px] font-medium text-stone-500 dark:text-stone-400">حقنة مسجّلة</p>
+                <p className="text-[11px] font-medium text-stone-500 dark:text-stone-300">حقنة مسجّلة</p>
               </div>
               <div className="rounded-xl border border-emerald-100 bg-gradient-to-b from-emerald-50 to-white dark:to-stone-950 p-3 text-center">
                 <p className="text-2xl font-black text-emerald-700">{activity.streak}</p>
-                <p className="text-[11px] font-medium text-stone-500 dark:text-stone-400">يوم متتالي</p>
+                <p className="text-[11px] font-medium text-stone-500 dark:text-stone-300">يوم متتالي</p>
               </div>
               <div className="rounded-xl border border-emerald-100 bg-gradient-to-b from-emerald-50 to-white dark:to-stone-950 p-3 text-center">
                 <p className="text-2xl font-black text-emerald-700">{activeProtocols.length}</p>
-                <p className="text-[11px] font-medium text-stone-500 dark:text-stone-400">بروتوكول نشط</p>
+                <p className="text-[11px] font-medium text-stone-500 dark:text-stone-300">بروتوكول نشط</p>
               </div>
             </div>
             {total > 0 && (
               <div className="rounded-xl border border-stone-100 dark:border-stone-800 bg-white dark:bg-stone-950 p-3">
                 <div className="flex items-center justify-between mb-1.5">
-                  <p className="text-[11px] font-bold text-stone-600 dark:text-stone-400">الإنجاز التالي: {milestoneNext} حقنة</p>
+                  <p className="text-[11px] font-bold text-stone-600 dark:text-stone-300">الإنجاز التالي: {milestoneNext} حقنة</p>
                   <p className="text-[11px] font-bold text-emerald-700">{milestoneProgress}%</p>
                 </div>
                 <div className="h-2 w-full overflow-hidden rounded-full bg-stone-100 dark:bg-stone-800">
@@ -705,7 +705,7 @@ export default function Dashboard() {
                 </div>
               ))}
               {unearned.map(badge => (
-                <div key={badge.id} className="flex items-center gap-2 rounded-full border border-stone-200 dark:border-stone-700 bg-stone-100 dark:bg-stone-800 px-4 py-2 text-sm font-medium text-stone-400">
+                <div key={badge.id} className="flex items-center gap-2 rounded-full border border-stone-200 dark:border-stone-600 bg-stone-100 dark:bg-stone-800 px-4 py-2 text-sm font-medium text-stone-400">
                   <Lock className="h-3.5 w-3.5" />
                   {badge.label}
                 </div>
@@ -752,7 +752,7 @@ export default function Dashboard() {
                   <div className="absolute -start-[9px] top-1 h-4 w-4 rounded-full border-2 border-emerald-400 bg-white dark:bg-stone-950" />
                   <p className="text-sm font-bold text-stone-800 dark:text-stone-200">{event.text}</p>
                   {event.date && (
-                    <p className="text-xs text-stone-500 dark:text-stone-400 mt-0.5">
+                    <p className="text-xs text-stone-500 dark:text-stone-300 mt-0.5">
                       {new Date(event.date).toLocaleDateString('ar-u-nu-latn', { month: 'short', day: 'numeric', year: 'numeric' })}
                     </p>
                   )}
@@ -826,8 +826,8 @@ export default function Dashboard() {
                     <ProgressRing current={daysSinceStart} total={totalDays} size={64} label={`يوم ${daysSinceStart}`} />
                     <div className="flex-1 min-w-0">
                       <p className="font-bold text-stone-900 dark:text-stone-100 truncate">{peptide?.nameAr ?? proto.peptide_id}</p>
-                      <p className="text-xs text-stone-500 dark:text-stone-400 mt-0.5" dir="ltr">{proto.dose} {proto.dose_unit} — {FREQUENCY_LABELS[proto.frequency] ?? proto.frequency}</p>
-                      <p className="text-xs text-stone-500 dark:text-stone-400 mt-1">{daysLeft > 0 ? `${daysLeft} يوم متبقي` : 'انتهت الدورة'}</p>
+                      <p className="text-xs text-stone-500 dark:text-stone-300 mt-0.5" dir="ltr">{proto.dose} {proto.dose_unit} — {FREQUENCY_LABELS[proto.frequency] ?? proto.frequency}</p>
+                      <p className="text-xs text-stone-500 dark:text-stone-300 mt-1">{daysLeft > 0 ? `${daysLeft} يوم متبقي` : 'انتهت الدورة'}</p>
                       <p className="text-xs font-semibold text-emerald-700 mt-1">
                         الجرعة التالية: {getNextInjectionLabel(
                           peptide?.nameEn ?? proto.peptide_id,
@@ -926,17 +926,17 @@ export default function Dashboard() {
                               toast.error('تعذّر إنهاء البروتوكول — تحقق من اتصالك وحاول مرة أخرى');
                             }
                           }}
-                          className="text-xs text-stone-500 dark:text-stone-400 hover:text-red-500 dark:text-red-400 transition-colors"
+                          className="text-xs text-stone-500 dark:text-stone-300 hover:text-red-500 dark:text-red-400 transition-colors"
                         >
                           أنهِ البروتوكول
                         </button>
                       </>
                     ) : (
-                      <span className="flex-1 text-center text-xs text-stone-500 dark:text-stone-400">وضع القراءة فقط</span>
+                      <span className="flex-1 text-center text-xs text-stone-500 dark:text-stone-300">وضع القراءة فقط</span>
                     )}
                     <button
                       onClick={() => setShareProtocolId(proto.id)}
-                      className="flex items-center justify-center rounded-xl border border-stone-200 dark:border-stone-700 px-3 py-2.5 text-sm text-stone-500 dark:text-stone-400 transition-colors hover:bg-stone-50 dark:hover:bg-stone-800 hover:text-emerald-700"
+                      className="flex items-center justify-center rounded-xl border border-stone-200 dark:border-stone-600 px-3 py-2.5 text-sm text-stone-500 dark:text-stone-300 transition-colors hover:bg-stone-50 dark:hover:bg-stone-800 hover:text-emerald-700"
                       aria-label="مشاركة"
                     >
                       <TrendingUp className="h-4 w-4" />
@@ -1014,7 +1014,7 @@ export default function Dashboard() {
                 <Link
                   key={peptide.id}
                   to={`/peptide/${peptide.id}`}
-                  className="group rounded-2xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 p-5 card-lift hover:border-emerald-400 hover:shadow-emerald-600/10"
+                  className="group rounded-2xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950 p-5 card-lift hover:border-emerald-400 hover:shadow-emerald-600/10"
                 >
                   <div className="flex items-center gap-3 mb-2">
                     <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-50 dark:bg-emerald-900/20 transition-colors group-hover:bg-emerald-100 dark:bg-emerald-900/30">
@@ -1022,10 +1022,10 @@ export default function Dashboard() {
                     </div>
                     <div className="min-w-0">
                       <p className="font-bold text-stone-900 dark:text-stone-100 truncate">{peptide.nameAr}</p>
-                      <p className="text-xs text-stone-500 dark:text-stone-400" dir="ltr">{peptide.nameEn}</p>
+                      <p className="text-xs text-stone-500 dark:text-stone-300" dir="ltr">{peptide.nameEn}</p>
                     </div>
                   </div>
-                  <p className="text-xs text-stone-600 dark:text-stone-400 line-clamp-2 leading-relaxed">{peptide.summaryAr}</p>
+                  <p className="text-xs text-stone-600 dark:text-stone-300 line-clamp-2 leading-relaxed">{peptide.summaryAr}</p>
                 </Link>
               ))}
             </div>
@@ -1042,14 +1042,14 @@ export default function Dashboard() {
       {wellnessTrend && (wellnessTrend.avg > 0 || wellnessTrend.sideEffects7d > 0) && (
         <div className="mb-8 grid gap-4 sm:grid-cols-2">
           {wellnessTrend.avg > 0 && (
-            <div className="rounded-2xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 p-5 shadow-sm dark:shadow-stone-900/30">
+            <div className="rounded-2xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950 p-5 shadow-sm dark:shadow-stone-900/30">
               <div className="flex items-center gap-2 mb-2">
                 <HeartPulse className="h-5 w-5 text-emerald-700" />
                 <h3 className="text-sm font-bold text-stone-900 dark:text-stone-100">معدل العافية (٧ أيام)</h3>
               </div>
               <div className="flex items-baseline gap-2">
                 <span className="text-2xl font-black text-stone-900 dark:text-stone-100">{wellnessTrend.avg}</span>
-                <span className="text-sm text-stone-500 dark:text-stone-400">/ 5</span>
+                <span className="text-sm text-stone-500 dark:text-stone-300">/ 5</span>
                 {wellnessTrend.prevAvg > 0 && (
                   <span className={cn('text-xs font-medium', wellnessTrend.avg >= wellnessTrend.prevAvg ? 'text-emerald-700' : 'text-amber-600')}>
                     {wellnessTrend.avg >= wellnessTrend.prevAvg ? '↑' : '↓'} {Math.abs(wellnessTrend.avg - wellnessTrend.prevAvg).toFixed(1)} عن الأسبوع الماضي
@@ -1107,7 +1107,7 @@ export default function Dashboard() {
                 daysSinceStart={daysSinceStart}
                 adherencePercent={adherence}
               />
-              <button onClick={() => setShareProtocolId(null)} className="mt-3 w-full rounded-xl border border-stone-200 dark:border-stone-700 py-2.5 text-sm font-bold text-stone-600 dark:text-stone-400 transition-colors hover:bg-stone-50 dark:hover:bg-stone-800">
+              <button onClick={() => setShareProtocolId(null)} className="mt-3 w-full rounded-xl border border-stone-200 dark:border-stone-600 py-2.5 text-sm font-bold text-stone-600 dark:text-stone-300 transition-colors hover:bg-stone-50 dark:hover:bg-stone-800">
                 إغلاق
               </button>
             </div>
@@ -1123,7 +1123,7 @@ export default function Dashboard() {
             {activity.todayPlan.map(item => (
               <div key={item.peptide} className={cn(
                 'flex items-center justify-between rounded-2xl border px-5 py-4 transition-all',
-                item.done ? 'border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-900/20' : 'border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950'
+                item.done ? 'border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-900/20' : 'border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950'
               )}>
                 <div className="flex items-center gap-3">
                   {item.done ? (
@@ -1133,7 +1133,7 @@ export default function Dashboard() {
                   )}
                   <div>
                     <p className={cn('text-sm font-bold', item.done ? 'text-emerald-700 dark:text-emerald-400' : 'text-stone-900 dark:text-stone-100')} dir="ltr">{item.peptide}</p>
-                    <p className="text-xs text-stone-500 dark:text-stone-400">{item.dose} {item.dose_unit}</p>
+                    <p className="text-xs text-stone-500 dark:text-stone-300">{item.dose} {item.dose_unit}</p>
                   </div>
                 </div>
                 {!item.done && (
@@ -1156,7 +1156,7 @@ export default function Dashboard() {
         <div className="mb-8">
           <h2 className="mb-4 text-xl font-bold text-stone-900 dark:text-stone-100">نشاطك</h2>
           <div className="grid grid-cols-2 gap-4 sm:grid-cols-4 mb-4">
-            <div className="rounded-2xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 p-4 text-center shadow-sm dark:shadow-stone-900/30">
+            <div className="rounded-2xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950 p-4 text-center shadow-sm dark:shadow-stone-900/30">
               <Clock className="mx-auto mb-1 h-5 w-5 text-emerald-500" />
               <p className="text-2xl font-black text-stone-900 dark:text-stone-100">
                 {(() => {
@@ -1171,25 +1171,25 @@ export default function Dashboard() {
                   return `${days} يوم`;
                 })()}
               </p>
-              <p className="text-xs text-stone-500 dark:text-stone-400">آخر حقنة منذ</p>
+              <p className="text-xs text-stone-500 dark:text-stone-300">آخر حقنة منذ</p>
             </div>
-            <div className="rounded-2xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 p-4 text-center shadow-sm dark:shadow-stone-900/30">
+            <div className="rounded-2xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950 p-4 text-center shadow-sm dark:shadow-stone-900/30">
               <Flame className="mx-auto mb-1 h-5 w-5 text-orange-500" />
               <p className="text-2xl font-black text-stone-900 dark:text-stone-100">{activity.streak}</p>
-              <p className="text-xs text-stone-500 dark:text-stone-400">أيام متتالية</p>
+              <p className="text-xs text-stone-500 dark:text-stone-300">أيام متتالية</p>
             </div>
-            <div className="rounded-2xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 p-4 text-center shadow-sm dark:shadow-stone-900/30">
+            <div className="rounded-2xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950 p-4 text-center shadow-sm dark:shadow-stone-900/30">
               <Syringe className="mx-auto mb-1 h-5 w-5 text-emerald-500" />
               <p className="text-2xl font-black text-stone-900 dark:text-stone-100">{activity.uniquePeptidesCount}</p>
-              <p className="text-xs text-stone-500 dark:text-stone-400">ببتيدات نشطة</p>
+              <p className="text-xs text-stone-500 dark:text-stone-300">ببتيدات نشطة</p>
             </div>
-            <div className="rounded-2xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 p-4 text-center shadow-sm dark:shadow-stone-900/30">
+            <div className="rounded-2xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950 p-4 text-center shadow-sm dark:shadow-stone-900/30">
               <TrendingUp className="mx-auto mb-1 h-5 w-5 text-blue-500" />
               <p className="text-2xl font-black text-stone-900 dark:text-stone-100">{activity.totalInjections}</p>
-              <p className="text-xs text-stone-500 dark:text-stone-400">حقن مسجّلة</p>
+              <p className="text-xs text-stone-500 dark:text-stone-300">حقن مسجّلة</p>
             </div>
           </div>
-          <div className="rounded-2xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 p-4">
+          <div className="rounded-2xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950 p-4">
             <div className="flex items-center justify-between mb-3">
               <h3 className="text-sm font-bold text-stone-900 dark:text-stone-100">آخر الحقن</h3>
               <Link to="/tracker" className="text-xs font-semibold text-emerald-700 hover:underline">عرض الكل</Link>
@@ -1199,9 +1199,9 @@ export default function Dashboard() {
                 <div key={log.id} className="flex items-center justify-between rounded-lg bg-stone-50 dark:bg-stone-900 px-3 py-2">
                   <div>
                     <span className="text-sm font-bold text-stone-900 dark:text-stone-100" dir="ltr">{log.peptide_name}</span>
-                    <span className="me-2 text-xs text-stone-500 dark:text-stone-400">{log.dose} {log.dose_unit}</span>
+                    <span className="me-2 text-xs text-stone-500 dark:text-stone-300">{log.dose} {log.dose_unit}</span>
                   </div>
-                  <span className="text-xs text-stone-500 dark:text-stone-400">
+                  <span className="text-xs text-stone-500 dark:text-stone-300">
                     {new Date(log.logged_at).toLocaleDateString('ar-u-nu-latn', { month: 'short', day: 'numeric' })}
                   </span>
                 </div>
@@ -1224,10 +1224,10 @@ export default function Dashboard() {
         }
 
         return (
-          <div className="mb-8 rounded-2xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 p-5 shadow-sm dark:shadow-stone-900/30">
+          <div className="mb-8 rounded-2xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950 p-5 shadow-sm dark:shadow-stone-900/30">
             <div className="flex items-center justify-between mb-3">
               <h3 className="text-sm font-bold text-stone-900 dark:text-stone-100">آخر 30 يوم</h3>
-              <span className="text-xs text-stone-500 dark:text-stone-400">{days.filter(d => d.count > 0).length} يوم نشط</span>
+              <span className="text-xs text-stone-500 dark:text-stone-300">{days.filter(d => d.count > 0).length} يوم نشط</span>
             </div>
             <div className="grid grid-cols-6 sm:grid-cols-10 gap-1">
               {days.map((d, i) => (
@@ -1240,7 +1240,7 @@ export default function Dashboard() {
                 )} title={`${d.date.toLocaleDateString('ar-u-nu-latn', { month: 'short', day: 'numeric' })}: ${d.count} حقن`} />
               ))}
             </div>
-            <div className="mt-2 flex items-center justify-end gap-1 text-xs text-stone-500 dark:text-stone-400">
+            <div className="mt-2 flex items-center justify-end gap-1 text-xs text-stone-500 dark:text-stone-300">
               <span>أقل</span>
               <span className="h-2.5 w-2.5 rounded-sm bg-stone-100 dark:bg-stone-800" />
               <span className="h-2.5 w-2.5 rounded-sm bg-emerald-200" />
@@ -1252,7 +1252,7 @@ export default function Dashboard() {
               <button
                 onClick={activity.loadMore}
                 disabled={activity.loadingMore}
-                className="mt-3 w-full rounded-xl border border-stone-200 dark:border-stone-700 py-2.5 text-sm font-bold text-stone-600 dark:text-stone-400 transition-colors hover:bg-stone-50 dark:hover:bg-stone-800 disabled:opacity-50"
+                className="mt-3 w-full rounded-xl border border-stone-200 dark:border-stone-600 py-2.5 text-sm font-bold text-stone-600 dark:text-stone-300 transition-colors hover:bg-stone-50 dark:hover:bg-stone-800 disabled:opacity-50"
               >
                 {activity.loadingMore ? 'جاري التحميل...' : 'تحميل المزيد'}
               </button>
@@ -1309,7 +1309,7 @@ export default function Dashboard() {
               {userGoalLabel && (
                 <p className="text-sm font-medium text-emerald-700 dark:text-emerald-400 mb-1">هدفك: <span className="font-bold">{userGoalLabel}</span></p>
               )}
-              <p className="text-sm text-stone-600 dark:text-stone-400 mb-4">{PEPTIDE_COUNT} ببتيد جاهزة لك — رحلتك تبدأ الآن</p>
+              <p className="text-sm text-stone-600 dark:text-stone-300 mb-4">{PEPTIDE_COUNT} ببتيد جاهزة لك — رحلتك تبدأ الآن</p>
 
               {/* VIP Quick-Start Cards */}
               <div className="grid gap-3 sm:grid-cols-2 mt-6 text-start">
@@ -1319,7 +1319,7 @@ export default function Dashboard() {
                   </div>
                   <div>
                     <p className="text-sm font-bold text-stone-900 dark:text-stone-100">دليل الحقن</p>
-                    <p className="text-xs text-stone-500 dark:text-stone-400">ابدأ هنا — خطوة بخطوة</p>
+                    <p className="text-xs text-stone-500 dark:text-stone-300">ابدأ هنا — خطوة بخطوة</p>
                   </div>
                 </Link>
                 <Link to="/library" className="group flex items-center gap-3 rounded-xl border border-emerald-200 dark:border-emerald-800 bg-white dark:bg-stone-950 p-4 transition-all hover:border-emerald-400 hover:shadow-md hover:-translate-y-0.5 min-h-[44px]" style={{ animation: 'dash-card-in 0.5s ease-out 0.45s both' }}>
@@ -1328,7 +1328,7 @@ export default function Dashboard() {
                   </div>
                   <div>
                     <p className="text-sm font-bold text-stone-900 dark:text-stone-100">المكتبة</p>
-                    <p className="text-xs text-stone-500 dark:text-stone-400">اكتشف {PEPTIDE_COUNT}+ ببتيد</p>
+                    <p className="text-xs text-stone-500 dark:text-stone-300">اكتشف {PEPTIDE_COUNT}+ ببتيد</p>
                   </div>
                 </Link>
                 <Link to="/coach" className="group flex items-center gap-3 rounded-xl border border-emerald-200 dark:border-emerald-800 bg-white dark:bg-stone-950 p-4 transition-all hover:border-emerald-400 hover:shadow-md hover:-translate-y-0.5 min-h-[44px]" style={{ animation: 'dash-card-in 0.5s ease-out 0.6s both' }}>
@@ -1337,7 +1337,7 @@ export default function Dashboard() {
                   </div>
                   <div>
                     <p className="text-sm font-bold text-stone-900 dark:text-stone-100">المدرب الذكي</p>
-                    <p className="text-xs text-stone-500 dark:text-stone-400">جاهز لمساعدتك ٢٤/٧</p>
+                    <p className="text-xs text-stone-500 dark:text-stone-300">جاهز لمساعدتك ٢٤/٧</p>
                   </div>
                 </Link>
                 <Link to="/calculator" className="group flex items-center gap-3 rounded-xl border border-emerald-200 dark:border-emerald-800 bg-white dark:bg-stone-950 p-4 transition-all hover:border-emerald-400 hover:shadow-md hover:-translate-y-0.5 min-h-[44px]" style={{ animation: 'dash-card-in 0.5s ease-out 0.75s both' }}>
@@ -1346,7 +1346,7 @@ export default function Dashboard() {
                   </div>
                   <div>
                     <p className="text-sm font-bold text-stone-900 dark:text-stone-100">الحاسبة</p>
-                    <p className="text-xs text-stone-500 dark:text-stone-400">احسب جرعتك بدقة</p>
+                    <p className="text-xs text-stone-500 dark:text-stone-300">احسب جرعتك بدقة</p>
                   </div>
                 </Link>
               </div>
@@ -1376,21 +1376,21 @@ export default function Dashboard() {
                   <Syringe className="h-6 w-6 text-emerald-700" />
                 </div>
                 <p className="text-sm font-bold text-stone-900 dark:text-stone-100 mb-1">سجل الحقن</p>
-                <p className="text-xs text-stone-500 dark:text-stone-400 leading-relaxed">سجّل أول جرعة وابدأ بتتبع تقدمك</p>
+                <p className="text-xs text-stone-500 dark:text-stone-300 leading-relaxed">سجّل أول جرعة وابدأ بتتبع تقدمك</p>
               </Link>
               <Link to="/dashboard" className="group rounded-2xl border-2 border-dashed border-emerald-200 dark:border-emerald-800 bg-gradient-to-b from-emerald-50/50 to-white dark:to-stone-950 p-6 text-center transition-all hover:border-emerald-300 dark:border-emerald-700 hover:shadow-sm dark:shadow-stone-900/30 min-h-[44px]">
                 <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-2xl bg-blue-100 dark:bg-blue-900/30 transition-transform group-hover:scale-110">
                   <FlaskConical className="h-6 w-6 text-blue-600 dark:text-blue-400" />
                 </div>
                 <p className="text-sm font-bold text-stone-900 dark:text-stone-100 mb-1">التحاليل</p>
-                <p className="text-xs text-stone-500 dark:text-stone-400 leading-relaxed">أضف تحاليلك وشاهد التغيّرات مع الوقت</p>
+                <p className="text-xs text-stone-500 dark:text-stone-300 leading-relaxed">أضف تحاليلك وشاهد التغيّرات مع الوقت</p>
               </Link>
               <Link to="/coach" className="group rounded-2xl border-2 border-dashed border-emerald-200 dark:border-emerald-800 bg-gradient-to-b from-emerald-50/50 to-white dark:to-stone-950 p-6 text-center transition-all hover:border-emerald-300 dark:border-emerald-700 hover:shadow-sm dark:shadow-stone-900/30 min-h-[44px]">
                 <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-2xl bg-amber-100 dark:bg-amber-900/30 transition-transform group-hover:scale-110">
                   <Bot className="h-6 w-6 text-amber-600 dark:text-amber-400" />
                 </div>
                 <p className="text-sm font-bold text-stone-900 dark:text-stone-100 mb-1">المدرب الذكي</p>
-                <p className="text-xs text-stone-500 dark:text-stone-400 leading-relaxed">اسأل المدرب الذكي — جاهز لمساعدتك ٢٤/٧</p>
+                <p className="text-xs text-stone-500 dark:text-stone-300 leading-relaxed">اسأل المدرب الذكي — جاهز لمساعدتك ٢٤/٧</p>
               </Link>
             </div>
 
@@ -1409,7 +1409,7 @@ export default function Dashboard() {
             <Syringe className="h-8 w-8 text-emerald-700" />
           </div>
           <h3 className="text-xl font-bold text-stone-900 dark:text-stone-100">سجّل أول جرعة</h3>
-          <p className="mx-auto mt-2 max-w-md text-sm leading-relaxed text-stone-600 dark:text-stone-400">
+          <p className="mx-auto mt-2 max-w-md text-sm leading-relaxed text-stone-600 dark:text-stone-300">
             لديك بروتوكولات نشطة — ابدأ بتسجيل جرعاتك لتتبع التقدم.
           </p>
           <div className="mt-5 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
@@ -1428,14 +1428,14 @@ export default function Dashboard() {
             <Link
               key={link.to}
               to={link.to}
-              className="group flex items-center gap-4 rounded-2xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 p-5 card-lift hover:border-emerald-400 hover:shadow-emerald-600/10"
+              className="group flex items-center gap-4 rounded-2xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950 p-5 card-lift hover:border-emerald-400 hover:shadow-emerald-600/10"
             >
               <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-emerald-50 dark:bg-emerald-900/20 transition-colors group-hover:bg-emerald-100 dark:bg-emerald-900/30">
                 <link.Icon className="h-6 w-6 text-emerald-700" />
               </div>
               <div>
                 <p className="font-bold text-stone-900 dark:text-stone-100">{link.label}</p>
-                <p className="text-xs text-stone-500 dark:text-stone-400">{link.description}</p>
+                <p className="text-xs text-stone-500 dark:text-stone-300">{link.description}</p>
               </div>
             </Link>
           ))}
@@ -1446,7 +1446,7 @@ export default function Dashboard() {
       {visited.size < GETTING_STARTED.length ? (
         <div className="rounded-2xl border border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-900/20 p-6">
           <h2 className="mb-4 text-lg font-bold text-stone-900 dark:text-stone-100">ابدأ هنا</h2>
-          <p className="mb-4 text-sm text-stone-600 dark:text-stone-400">أكمل هذه الخطوات للاستفادة القصوى من pptides</p>
+          <p className="mb-4 text-sm text-stone-600 dark:text-stone-300">أكمل هذه الخطوات للاستفادة القصوى من pptides</p>
           <div className="space-y-3">
             {GETTING_STARTED.map((step, i) => {
               const done = visited.has(step.id);
@@ -1486,7 +1486,7 @@ export default function Dashboard() {
                 <Syringe className="h-5 w-5 shrink-0 text-emerald-700" />
                 <div>
                   <p className="text-sm font-bold text-stone-900 dark:text-stone-100">سجّل حقنة اليوم</p>
-                  <p className="text-xs text-stone-500 dark:text-stone-400">ببتيداتك النشطة: {activity.activePeptides.join(', ')}</p>
+                  <p className="text-xs text-stone-500 dark:text-stone-300">ببتيداتك النشطة: {activity.activePeptides.join(', ')}</p>
                 </div>
               </Link>
             ) : (
@@ -1497,7 +1497,7 @@ export default function Dashboard() {
                 <Bot className="h-5 w-5 shrink-0 text-emerald-700" />
                 <div>
                   <p className="text-sm font-bold text-stone-900 dark:text-stone-100">ابدأ استشارة مع المدرب الذكي</p>
-                  <p className="text-xs text-stone-500 dark:text-stone-400">احصل على بروتوكول مخصّص لهدفك</p>
+                  <p className="text-xs text-stone-500 dark:text-stone-300">احصل على بروتوكول مخصّص لهدفك</p>
                 </div>
               </Link>
             )}
@@ -1508,7 +1508,7 @@ export default function Dashboard() {
               <TrendingUp className="h-5 w-5 shrink-0 text-blue-500" />
               <div>
                 <p className="text-sm font-bold text-stone-700 dark:text-stone-200">شارك تجربتك مع المجتمع</p>
-                <p className="text-xs text-stone-500 dark:text-stone-400">ساعد غيرك بنتائجك الحقيقية</p>
+                <p className="text-xs text-stone-500 dark:text-stone-300">ساعد غيرك بنتائجك الحقيقية</p>
               </div>
             </Link>
             <Link to="/quiz" className="block text-sm text-emerald-700 hover:underline">

@@ -340,7 +340,7 @@ export default function Tracker() {
       const count = injectionDays.get(day) ?? 0;
       const isToday = isCurrentMonth && day === now.getDate();
       cells.push(
-        <div key={day} className={cn('relative flex flex-col items-center justify-center rounded-lg py-1.5 text-xs transition-colors', isToday ? 'ring-2 ring-emerald-400 font-bold' : '', count > 0 ? 'bg-emerald-50 dark:bg-emerald-900/20 text-emerald-800 dark:text-emerald-300 font-semibold' : 'text-stone-500 dark:text-stone-400')}>
+        <div key={day} className={cn('relative flex flex-col items-center justify-center rounded-lg py-1.5 text-xs transition-colors', isToday ? 'ring-2 ring-emerald-400 font-bold' : '', count > 0 ? 'bg-emerald-50 dark:bg-emerald-900/20 text-emerald-800 dark:text-emerald-300 font-semibold' : 'text-stone-500 dark:text-stone-300')}>
           <span>{day}</span>
           {count > 0 && (<div className="flex gap-0.5 mt-0.5">{Array.from({ length: Math.min(count, 3) }).map((_, i) => (<span key={i} className="h-1 w-1 rounded-full bg-emerald-500" />))}</div>)}
         </div>
@@ -437,7 +437,7 @@ export default function Tracker() {
           <button
             type="button"
             onClick={toggleCalendar}
-            className="flex items-center gap-2 rounded-full border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 px-4 py-2 text-sm font-medium text-stone-700 dark:text-stone-200 transition-all hover:border-emerald-300 dark:border-emerald-700 hover:bg-emerald-50 dark:bg-emerald-900/20 hover:text-emerald-700 dark:text-emerald-400"
+            className="flex items-center gap-2 rounded-full border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950 px-4 py-2 text-sm font-medium text-stone-700 dark:text-stone-200 transition-all hover:border-emerald-300 dark:border-emerald-700 hover:bg-emerald-50 dark:bg-emerald-900/20 hover:text-emerald-700 dark:text-emerald-400"
             title={useHijri ? 'عرض بالتوقيت الميلادي' : 'عرض بالتوقيت الهجري'}
             aria-label={useHijri ? 'تبديل للتوقيت الميلادي' : 'تبديل للتوقيت الهجري'}
           >
@@ -449,7 +449,7 @@ export default function Tracker() {
           <h1 className="text-3xl font-bold text-emerald-700 md:text-4xl">سجل الحقن</h1>
           <Tooltip content="سجّل كل حقنة هنا مع الجرعة والموقع. التطبيق يتتبّع سلسلة التزامك ويقترح تدوير مواقع الحقن تلقائيًا لتجنّب تلف الأنسجة." firstTimeId="tracker-main" position="bottom" />
         </div>
-        <p className="mt-2 text-lg text-stone-600 dark:text-stone-400">تتبّع جرعاتك ومواقع الحقن</p>
+        <p className="mt-2 text-lg text-stone-600 dark:text-stone-300">تتبّع جرعاتك ومواقع الحقن</p>
       </div>
 
       {/* Prominent Streak Counter */}
@@ -480,13 +480,13 @@ export default function Tracker() {
       )}
 
       {/* Timing Tips */}
-      <div className="mb-6 rounded-2xl border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-900 overflow-hidden">
+      <div className="mb-6 rounded-2xl border border-stone-200 dark:border-stone-600 bg-stone-50 dark:bg-stone-900 overflow-hidden">
         <button type="button" onClick={() => setTimingTipsExpanded((p) => !p)} className="flex w-full items-center justify-between px-4 py-3 text-start transition-colors hover:bg-stone-100 dark:hover:bg-stone-800" aria-expanded={timingTipsExpanded ? 'true' : 'false'}>
           <span className="flex items-center gap-2 font-bold text-stone-900 dark:text-stone-100"><Info className="h-4 w-4 text-emerald-700" />نصائح التوقيت</span>
-          {timingTipsExpanded ? <ChevronUp className="h-4 w-4 text-stone-500 dark:text-stone-400" /> : <ChevronDown className="h-4 w-4 text-stone-500 dark:text-stone-400" />}
+          {timingTipsExpanded ? <ChevronUp className="h-4 w-4 text-stone-500 dark:text-stone-300" /> : <ChevronDown className="h-4 w-4 text-stone-500 dark:text-stone-300" />}
         </button>
         <div className="overflow-hidden transition-all duration-300 ease-[cubic-bezier(0.23,1,0.32,1)]" style={{ maxHeight: timingTipsExpanded ? '200px' : '0', opacity: timingTipsExpanded ? 1 : 0 }}>
-          <div className="border-t border-stone-200 dark:border-stone-700 px-4 py-4 text-sm text-stone-700 dark:text-stone-200 space-y-2">
+          <div className="border-t border-stone-200 dark:border-stone-600 px-4 py-4 text-sm text-stone-700 dark:text-stone-200 space-y-2">
             <p>• الحقن على معدة فارغة — يُفضل قبل الفجر أو بعد العشاء</p>
             <p>• ببتيدات هرمون النمو (CJC, Ipamorelin) — أفضل توقيت قبل النوم</p>
             <p>• BPC-157 — صباحًا ومساءً، يمكن ربطه بصلاة الفجر والعشاء</p>
@@ -507,14 +507,14 @@ export default function Tracker() {
               const totalWeeks = proto.cycle_weeks || 8;
               const todayLogged = logs.some(l => l.peptide_name === (peptide?.nameEn ?? proto.peptide_id) && new Date(l.logged_at).toDateString() === new Date().toDateString());
               return (
-                <div key={proto.id} className={cn('rounded-2xl border p-4 card-lift', todayLogged ? 'border-emerald-300 dark:border-emerald-700 bg-emerald-50/50' : 'border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950')}>
+                <div key={proto.id} className={cn('rounded-2xl border p-4 card-lift', todayLogged ? 'border-emerald-300 dark:border-emerald-700 bg-emerald-50/50' : 'border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950')}>
                   <div className="flex items-center gap-3">
                     <ProgressRing current={daysSinceStart} total={totalDays} size={56} />
                     <div className="flex-1 min-w-0">
                       <p className="font-bold text-stone-900 dark:text-stone-100 truncate">{peptide?.nameAr ?? proto.peptide_id}</p>
-                      <p className="text-xs text-stone-500 dark:text-stone-400" dir="ltr">{proto.dose} {proto.dose_unit}</p>
-                      <p className="text-xs text-stone-500 dark:text-stone-400">الأسبوع {weekNumber} من {totalWeeks}</p>
-                      <p className="text-xs text-stone-500 dark:text-stone-400">بدأ {formatDate(proto.started_at, useHijri)}</p>
+                      <p className="text-xs text-stone-500 dark:text-stone-300" dir="ltr">{proto.dose} {proto.dose_unit}</p>
+                      <p className="text-xs text-stone-500 dark:text-stone-300">الأسبوع {weekNumber} من {totalWeeks}</p>
+                      <p className="text-xs text-stone-500 dark:text-stone-300">بدأ {formatDate(proto.started_at, useHijri)}</p>
                       {subscription.isProOrTrial && (
                         <button
                           onClick={() => setConfirmDialog({
@@ -529,7 +529,7 @@ export default function Tracker() {
                               setConfirmDialog(null);
                             },
                           })}
-                          className="text-xs text-stone-500 dark:text-stone-400 hover:text-red-500 dark:text-red-400 transition-colors"
+                          className="text-xs text-stone-500 dark:text-stone-300 hover:text-red-500 dark:text-red-400 transition-colors"
                         >
                           أنهِ البروتوكول
                         </button>
@@ -540,7 +540,7 @@ export default function Tracker() {
                         {todayLogged ? 'تم اليوم' : 'سجّل'}
                       </button>
                     ) : (
-                      <span className="shrink-0 rounded-full bg-stone-100 dark:bg-stone-800 px-4 py-2 text-xs text-stone-500 dark:text-stone-400">قراءة فقط</span>
+                      <span className="shrink-0 rounded-full bg-stone-100 dark:bg-stone-800 px-4 py-2 text-xs text-stone-500 dark:text-stone-300">قراءة فقط</span>
                     )}
                   </div>
                   {daysSinceStart >= totalDays && (
@@ -598,10 +598,10 @@ export default function Tracker() {
               <div className="flex flex-col sm:flex-row items-center gap-4">
                 <div className="flex-1 text-center sm:text-start">
                   <h3 className="text-sm font-bold text-stone-900 dark:text-stone-100">بدء بروتوكول جديد</h3>
-                  <p className="text-xs text-stone-500 dark:text-stone-400 mt-1">اختر ببتيد وابدأ بروتوكول منظّم بجرعات وتذكيرات</p>
+                  <p className="text-xs text-stone-500 dark:text-stone-300 mt-1">اختر ببتيد وابدأ بروتوكول منظّم بجرعات وتذكيرات</p>
                 </div>
                 <div className="flex items-center gap-2 w-full sm:w-auto">
-                  <select value={wizardPeptideId} onChange={(e) => setWizardPeptideId(e.target.value)} className="flex-1 sm:w-48 rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 px-3 py-2.5 text-base text-stone-900 dark:text-stone-100 focus:border-emerald-300 dark:border-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900" aria-label="اختر ببتيد للبروتوكول">
+                  <select value={wizardPeptideId} onChange={(e) => setWizardPeptideId(e.target.value)} className="flex-1 sm:w-48 rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950 px-3 py-2.5 text-base text-stone-900 dark:text-stone-100 focus:border-emerald-300 dark:border-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900" aria-label="اختر ببتيد للبروتوكول">
                     <option value="">اختر ببتيد...</option>
                     {allPeptides.filter(p => p.id !== 'melanotan-ii').map(p => (<option key={p.id} value={p.id}>{p.nameAr}</option>))}
                   </select>
@@ -688,12 +688,12 @@ export default function Tracker() {
           <FocusTrap focusTrapOptions={{ allowOutsideClick: true }}>
             <div role="dialog" aria-modal="true" className="w-full max-w-sm rounded-2xl bg-white dark:bg-stone-950 p-6 shadow-2xl" onClick={e => e.stopPropagation()}>
               <h3 className="text-lg font-bold text-stone-900 dark:text-stone-100 mb-2">{confirmDialog.title}</h3>
-              <p className="text-sm text-stone-600 dark:text-stone-400 mb-6">{confirmDialog.message}</p>
+              <p className="text-sm text-stone-600 dark:text-stone-300 mb-6">{confirmDialog.message}</p>
               <div className="flex gap-3">
                 <button onClick={confirmDialog.onConfirm} disabled={confirmBusy} className={cn('flex-1 rounded-xl px-4 py-2.5 text-sm font-bold text-white disabled:opacity-50', confirmDialog.isDestructive ? 'bg-red-600 transition-colors hover:bg-red-700' : 'bg-emerald-600 transition-colors hover:bg-emerald-700')}>
                   {confirmBusy ? 'جارٍ التنفيذ...' : 'تأكيد'}
                 </button>
-                <button onClick={() => setConfirmDialog(null)} className="flex-1 rounded-xl border border-stone-200 dark:border-stone-700 px-4 py-2.5 text-sm font-bold text-stone-700 dark:text-stone-200 transition-colors hover:bg-stone-50 dark:hover:bg-stone-800">
+                <button onClick={() => setConfirmDialog(null)} className="flex-1 rounded-xl border border-stone-200 dark:border-stone-600 px-4 py-2.5 text-sm font-bold text-stone-700 dark:text-stone-200 transition-colors hover:bg-stone-50 dark:hover:bg-stone-800">
                   إلغاء
                 </button>
               </div>

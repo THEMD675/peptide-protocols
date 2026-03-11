@@ -220,11 +220,11 @@ export default function GlobalSearch({ open, onClose }: Props) {
 
       {/* modal */}
       <div
-        className="relative w-full max-w-lg overflow-hidden rounded-2xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 shadow-2xl dark:shadow-stone-900/60 animate-fade-in"
+        className="relative w-full max-w-lg overflow-hidden rounded-2xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950 shadow-2xl dark:shadow-stone-900/60 animate-fade-in"
         onClick={(e) => e.stopPropagation()}
       >
         {/* input */}
-        <div className="flex items-center gap-3 border-b border-stone-200 dark:border-stone-700 px-4 py-3">
+        <div className="flex items-center gap-3 border-b border-stone-200 dark:border-stone-600 px-4 py-3">
           <Search className="h-5 w-5 shrink-0 text-stone-400" />
           <input
             ref={inputRef}
@@ -236,7 +236,7 @@ export default function GlobalSearch({ open, onClose }: Props) {
             className="flex-1 bg-transparent text-base text-stone-900 dark:text-stone-100 placeholder:text-stone-400 outline-none focus:outline-none focus:ring-0"
             aria-label="بحث شامل"
           />
-          <kbd className="hidden rounded-md border border-stone-200 dark:border-stone-700 bg-stone-100 dark:bg-stone-800 px-1.5 py-0.5 text-[10px] font-medium text-stone-500 dark:text-stone-400 sm:inline">
+          <kbd className="hidden rounded-md border border-stone-200 dark:border-stone-600 bg-stone-100 dark:bg-stone-800 px-1.5 py-0.5 text-[10px] font-medium text-stone-500 dark:text-stone-300 sm:inline">
             ESC
           </kbd>
           <button
@@ -253,7 +253,7 @@ export default function GlobalSearch({ open, onClose }: Props) {
           {/* empty state: recent */}
           {query.trim().length < 2 && recentPeptides.length > 0 && (
             <div className="py-2">
-              <p className="px-4 py-1.5 text-xs font-bold text-stone-500 dark:text-stone-400">
+              <p className="px-4 py-1.5 text-xs font-bold text-stone-500 dark:text-stone-300">
                 شوهدت مؤخرًا
               </p>
               {recentPeptides.map((p) => (
@@ -269,7 +269,7 @@ export default function GlobalSearch({ open, onClose }: Props) {
                   <span className="font-bold text-stone-900 dark:text-stone-100">
                     {p.nameAr}
                   </span>
-                  <span className="text-xs text-stone-500 dark:text-stone-400">
+                  <span className="text-xs text-stone-500 dark:text-stone-300">
                     {p.nameEn}
                   </span>
                 </button>
@@ -279,7 +279,7 @@ export default function GlobalSearch({ open, onClose }: Props) {
 
           {/* empty: type more */}
           {query.trim().length === 1 && (
-            <p className="px-4 py-6 text-center text-sm text-stone-500 dark:text-stone-400">
+            <p className="px-4 py-6 text-center text-sm text-stone-500 dark:text-stone-300">
               اكتب حرفين على الأقل للبحث...
             </p>
           )}
@@ -287,7 +287,7 @@ export default function GlobalSearch({ open, onClose }: Props) {
           {/* no results */}
           {query.trim().length >= 2 && results.length === 0 && (
             <div className="px-4 py-8 text-center">
-              <p className="text-sm text-stone-500 dark:text-stone-400">
+              <p className="text-sm text-stone-500 dark:text-stone-300">
                 لا توجد نتائج لـ &quot;{query}&quot;
               </p>
               <button
@@ -307,7 +307,7 @@ export default function GlobalSearch({ open, onClose }: Props) {
             const Icon = TYPE_ICONS[type as ResultItem['type']];
             return (
               <div key={type} className="py-1">
-                <p className="flex items-center gap-2 px-4 py-1.5 text-xs font-bold text-stone-500 dark:text-stone-400">
+                <p className="flex items-center gap-2 px-4 py-1.5 text-xs font-bold text-stone-500 dark:text-stone-300">
                   <Icon className="h-3.5 w-3.5" />
                   {TYPE_LABELS[type as ResultItem['type']]}
                 </p>
@@ -328,7 +328,7 @@ export default function GlobalSearch({ open, onClose }: Props) {
                         <span className="font-bold text-stone-900 dark:text-stone-100">
                           {item.data.nameAr}
                         </span>
-                        <span className="text-xs text-stone-500 dark:text-stone-400">
+                        <span className="text-xs text-stone-500 dark:text-stone-300">
                           {item.data.nameEn}
                         </span>
                       </>
@@ -338,7 +338,7 @@ export default function GlobalSearch({ open, onClose }: Props) {
                         <span className="font-bold text-stone-900 dark:text-stone-100">
                           {item.data.ar}
                         </span>
-                        <span className="text-xs text-stone-500 dark:text-stone-400 line-clamp-1">
+                        <span className="text-xs text-stone-500 dark:text-stone-300 line-clamp-1">
                           {item.data.en}
                         </span>
                       </>
@@ -353,7 +353,7 @@ export default function GlobalSearch({ open, onClose }: Props) {
                         <span className="font-bold text-stone-900 dark:text-stone-100">
                           {item.data.label}
                         </span>
-                        <span className="text-xs text-stone-500 dark:text-stone-400">
+                        <span className="text-xs text-stone-500 dark:text-stone-300">
                           {item.data.desc}
                         </span>
                       </>
@@ -370,12 +370,12 @@ export default function GlobalSearch({ open, onClose }: Props) {
 
         {/* footer */}
         {results.length > 0 && (
-          <div className="flex items-center justify-between border-t border-stone-200 dark:border-stone-700 px-4 py-2 text-[10px] text-stone-400">
+          <div className="flex items-center justify-between border-t border-stone-200 dark:border-stone-600 px-4 py-2 text-[10px] text-stone-400">
             <span>{results.length} نتيجة</span>
             <span className="flex items-center gap-2">
-              <kbd className="rounded border border-stone-200 dark:border-stone-700 px-1">↑↓</kbd>
+              <kbd className="rounded border border-stone-200 dark:border-stone-600 px-1">↑↓</kbd>
               للتنقل
-              <kbd className="rounded border border-stone-200 dark:border-stone-700 px-1">↵</kbd>
+              <kbd className="rounded border border-stone-200 dark:border-stone-600 px-1">↵</kbd>
               للفتح
             </span>
           </div>

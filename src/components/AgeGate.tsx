@@ -46,7 +46,7 @@ export default function AgeGate() {
           محتوى تعليمي للبالغين
         </h2>
 
-        <p className="mb-6 text-sm leading-relaxed text-stone-600 dark:text-stone-400">
+        <p className="mb-6 text-sm leading-relaxed text-stone-600 dark:text-stone-300">
           pptides يحتوي على معلومات بحثية عن الببتيدات العلاجية. بالمتابعة، تؤكد أن عمرك 18 عامًا أو أكثر.
         </p>
 
@@ -60,13 +60,13 @@ export default function AgeGate() {
 
           <button
             onClick={handleUnder}
-            className="w-full rounded-xl border border-stone-200 dark:border-stone-700 px-6 py-3 text-sm font-medium text-stone-500 dark:text-stone-400 transition-colors hover:bg-stone-50 dark:hover:bg-stone-800"
+            className="w-full rounded-xl border border-stone-200 dark:border-stone-600 px-6 py-3 text-sm font-medium text-stone-500 dark:text-stone-300 transition-colors hover:bg-stone-50 dark:hover:bg-stone-800"
           >
             عمري أقل من 18
           </button>
         </div>
 
-        <p className="mt-4 text-xs text-stone-500 dark:text-stone-400">
+        <p className="mt-4 text-xs text-stone-500 dark:text-stone-300">
           هذا المحتوى لأغراض تعليمية فقط ولا يُعدّ نصيحة طبية
         </p>
       </div>

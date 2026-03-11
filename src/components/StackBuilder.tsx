@@ -458,7 +458,7 @@ export default function StackBuilder() {
         <h2 className="text-2xl font-bold md:text-3xl text-emerald-700">
           بناء بروتوكولك الخاص
         </h2>
-        <p className="mt-2 text-stone-600 dark:text-stone-400">
+        <p className="mt-2 text-stone-600 dark:text-stone-300">
           اختر حتى {MAX_STACK_SIZE} ببتيدات وشاهد التكلفة والتفاعلات والجدول الزمني
         </p>
       </div>
@@ -478,7 +478,7 @@ export default function StackBuilder() {
               className={`group relative flex flex-col items-start gap-2 rounded-2xl border p-4 text-start transition-all hover:shadow-md ${
                 activeGoalStack === gs.id
                   ? 'border-emerald-400 dark:border-emerald-600 bg-emerald-50 dark:bg-emerald-900/20 shadow-sm'
-                  : 'border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-900 hover:border-emerald-300 dark:hover:border-emerald-700'
+                  : 'border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 hover:border-emerald-300 dark:hover:border-emerald-700'
               }`}
             >
               <div className="flex w-full items-center justify-between">
@@ -490,7 +490,7 @@ export default function StackBuilder() {
                 }`}>{gs.difficulty}</span>
               </div>
               <span className="text-base font-bold text-stone-900 dark:text-stone-100">{gs.nameAr}</span>
-              <span className="text-xs text-stone-500 dark:text-stone-400 line-clamp-2">{gs.goalAr}</span>
+              <span className="text-xs text-stone-500 dark:text-stone-300 line-clamp-2">{gs.goalAr}</span>
               <div className="flex flex-wrap gap-1.5 mt-1">
                 {gs.peptideIds.map((id) => {
                   const p = realPeptides.find((x) => x.id === id);
@@ -499,13 +499,13 @@ export default function StackBuilder() {
                       {p.nameAr}
                     </span>
                   ) : (
-                    <span key={id} className="rounded-full bg-stone-100 dark:bg-stone-800 px-2 py-0.5 text-[10px] font-medium text-stone-500 dark:text-stone-400">
+                    <span key={id} className="rounded-full bg-stone-100 dark:bg-stone-800 px-2 py-0.5 text-[10px] font-medium text-stone-500 dark:text-stone-300">
                       {id}
                     </span>
                   );
                 })}
               </div>
-              <div className="flex items-center gap-3 mt-auto pt-2 text-[11px] text-stone-500 dark:text-stone-400">
+              <div className="flex items-center gap-3 mt-auto pt-2 text-[11px] text-stone-500 dark:text-stone-300">
                 <span className="flex items-center gap-1"><DollarSign className="h-3 w-3" />{gs.monthlyCostSAR}</span>
                 <span className="flex items-center gap-1"><Clock className="h-3 w-3" />{gs.durationAr}</span>
               </div>
@@ -528,22 +528,22 @@ export default function StackBuilder() {
                 <X className="h-5 w-5" />
               </button>
             </div>
-            <p className="text-sm text-stone-600 dark:text-stone-400">{gs.goalAr}</p>
+            <p className="text-sm text-stone-600 dark:text-stone-300">{gs.goalAr}</p>
             <div className="grid gap-3 sm:grid-cols-2">
-              <div className="rounded-xl bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-700 p-3 space-y-2">
-                <h4 className="text-xs font-bold text-stone-500 dark:text-stone-400">الجرعات</h4>
+              <div className="rounded-xl bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-600 p-3 space-y-2">
+                <h4 className="text-xs font-bold text-stone-500 dark:text-stone-300">الجرعات</h4>
                 {Object.entries(gs.doses).map(([id, dose]) => {
                   const p = realPeptides.find((x) => x.id === id);
                   return (
                     <div key={id} className="flex items-center justify-between text-sm">
                       <span className="font-medium text-stone-900 dark:text-stone-100">{p?.nameAr ?? id}</span>
-                      <span className="text-stone-500 dark:text-stone-400 text-xs">{dose}</span>
+                      <span className="text-stone-500 dark:text-stone-300 text-xs">{dose}</span>
                     </div>
                   );
                 })}
               </div>
-              <div className="rounded-xl bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-700 p-3 space-y-2">
-                <h4 className="text-xs font-bold text-stone-500 dark:text-stone-400">التفاصيل</h4>
+              <div className="rounded-xl bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-600 p-3 space-y-2">
+                <h4 className="text-xs font-bold text-stone-500 dark:text-stone-300">التفاصيل</h4>
                 <div className="flex items-center gap-2 text-sm">
                   <Clock className="h-3.5 w-3.5 text-emerald-500" />
                   <span className="text-stone-700 dark:text-stone-200">المدة: {gs.durationAr}</span>
@@ -567,19 +567,19 @@ export default function StackBuilder() {
       })()}
 
       {/* ── Peptide Selector ───────────────────────────── */}
-      <div className="rounded-2xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-900 p-5 space-y-4">
+      <div className="rounded-2xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 p-5 space-y-4">
         <div className="flex items-center justify-between">
           <h3 className="text-lg font-bold text-stone-900 dark:text-stone-100 flex items-center gap-2">
             <Syringe className="h-5 w-5 text-emerald-500" />
             اختر الببتيدات
-            <span className="text-sm font-normal text-stone-500 dark:text-stone-400">({selectedIds.length}/{MAX_STACK_SIZE})</span>
+            <span className="text-sm font-normal text-stone-500 dark:text-stone-300">({selectedIds.length}/{MAX_STACK_SIZE})</span>
           </h3>
           <div className="flex gap-2">
             {savedStacks.length > 0 && (
               <button
                 type="button"
                 onClick={() => setShowSaved(!showSaved)}
-                className="flex items-center gap-1 rounded-full border border-stone-200 dark:border-stone-700 px-3 py-1.5 text-xs font-medium text-stone-600 dark:text-stone-400 hover:bg-stone-50 dark:hover:bg-stone-800 transition-colors"
+                className="flex items-center gap-1 rounded-full border border-stone-200 dark:border-stone-600 px-3 py-1.5 text-xs font-medium text-stone-600 dark:text-stone-300 hover:bg-stone-50 dark:hover:bg-stone-800 transition-colors"
               >
                 <Bookmark className="h-3 w-3" />
                 المحفوظة ({savedStacks.length})
@@ -600,13 +600,13 @@ export default function StackBuilder() {
 
         {/* Saved stacks drawer */}
         {showSaved && (
-          <div className="rounded-xl border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-800 p-3 space-y-2">
-            <h4 className="text-xs font-bold text-stone-500 dark:text-stone-400">البروتوكولات المحفوظة</h4>
+          <div className="rounded-xl border border-stone-200 dark:border-stone-600 bg-stone-50 dark:bg-stone-800 p-3 space-y-2">
+            <h4 className="text-xs font-bold text-stone-500 dark:text-stone-300">البروتوكولات المحفوظة</h4>
             {savedStacks.map((s) => (
-              <div key={s.id} className="flex items-center justify-between rounded-lg bg-white dark:bg-stone-900 px-3 py-2 border border-stone-200 dark:border-stone-700">
+              <div key={s.id} className="flex items-center justify-between rounded-lg bg-white dark:bg-stone-900 px-3 py-2 border border-stone-200 dark:border-stone-600">
                 <button type="button" onClick={() => handleLoadStack(s)} className="flex-1 text-start">
                   <span className="text-sm font-medium text-stone-900 dark:text-stone-100">{s.name}</span>
-                  <span className="block text-[10px] text-stone-500 dark:text-stone-400">{s.peptideIds.length} ببتيدات • {new Date(s.createdAt).toLocaleDateString('ar-SA')}</span>
+                  <span className="block text-[10px] text-stone-500 dark:text-stone-300">{s.peptideIds.length} ببتيدات • {new Date(s.createdAt).toLocaleDateString('ar-SA')}</span>
                 </button>
                 <button type="button" onClick={() => handleDelete(s.id)} className="p-1 text-red-400 hover:text-red-600">
                   <Trash2 className="h-3.5 w-3.5" />
@@ -621,15 +621,15 @@ export default function StackBuilder() {
           <button
             type="button"
             onClick={() => setDropdownOpen(!dropdownOpen)}
-            className="flex w-full items-center justify-between rounded-xl border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-800 px-4 py-3 text-sm text-stone-700 dark:text-stone-200 hover:border-emerald-300 dark:hover:border-emerald-700 transition-colors"
+            className="flex w-full items-center justify-between rounded-xl border border-stone-200 dark:border-stone-600 bg-stone-50 dark:bg-stone-800 px-4 py-3 text-sm text-stone-700 dark:text-stone-200 hover:border-emerald-300 dark:hover:border-emerald-700 transition-colors"
           >
             <span>{selectedIds.length === 0 ? 'اختر ببتيدات...' : `${selectedIds.length} ببتيد مختار`}</span>
             <ChevronDown className={`h-4 w-4 transition-transform ${dropdownOpen ? 'rotate-180' : ''}`} />
           </button>
 
           {dropdownOpen && (
-            <div className="absolute z-30 mt-1 w-full rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-900 shadow-xl max-h-72 overflow-hidden">
-              <div className="sticky top-0 bg-white dark:bg-stone-900 border-b border-stone-200 dark:border-stone-700 p-2">
+            <div className="absolute z-30 mt-1 w-full rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 shadow-xl max-h-72 overflow-hidden">
+              <div className="sticky top-0 bg-white dark:bg-stone-900 border-b border-stone-200 dark:border-stone-600 p-2">
                 <div className="relative">
                   <Search className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-stone-400" />
                   <input
@@ -637,7 +637,7 @@ export default function StackBuilder() {
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     placeholder="ابحث عن ببتيد..."
-                    className="w-full rounded-lg border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-800 py-2 pe-10 ps-3 text-sm text-stone-900 dark:text-stone-100 placeholder:text-stone-400 focus:border-emerald-400 focus:outline-none"
+                    className="w-full rounded-lg border border-stone-200 dark:border-stone-600 bg-stone-50 dark:bg-stone-800 py-2 pe-10 ps-3 text-sm text-stone-900 dark:text-stone-100 placeholder:text-stone-400 focus:border-emerald-400 focus:outline-none"
                   />
                 </div>
               </div>
@@ -655,7 +655,7 @@ export default function StackBuilder() {
                         isSelected
                           ? 'bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 font-medium'
                           : isDisabled
-                          ? 'text-stone-300 dark:text-stone-400 cursor-not-allowed'
+                          ? 'text-stone-300 dark:text-stone-300 cursor-not-allowed'
                           : 'text-stone-700 dark:text-stone-200 hover:bg-stone-50 dark:hover:bg-stone-800'
                       }`}
                     >
@@ -729,7 +729,7 @@ export default function StackBuilder() {
                        <ShieldCheck className="h-4 w-4 text-emerald-500" />}
                       <span className="text-sm font-bold text-stone-900 dark:text-stone-100">{inter.message}</span>
                     </div>
-                    <p className="text-xs text-stone-600 dark:text-stone-400 me-6">{inter.details}</p>
+                    <p className="text-xs text-stone-600 dark:text-stone-300 me-6">{inter.details}</p>
                   </div>
                 ))}
               </div>
@@ -739,10 +739,10 @@ export default function StackBuilder() {
           {/* Stats Grid */}
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {/* Cost */}
-            <div className="rounded-2xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-900 p-4">
+            <div className="rounded-2xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 p-4">
               <div className="flex items-center gap-2 mb-2">
                 <DollarSign className="h-4 w-4 text-emerald-500" />
-                <span className="text-xs font-bold text-stone-500 dark:text-stone-400">التكلفة الشهرية التقريبية</span>
+                <span className="text-xs font-bold text-stone-500 dark:text-stone-300">التكلفة الشهرية التقريبية</span>
               </div>
               <p className="text-lg font-bold text-stone-900 dark:text-stone-100">
                 {totalCost.min > 0
@@ -752,10 +752,10 @@ export default function StackBuilder() {
             </div>
 
             {/* Injections */}
-            <div className="rounded-2xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-900 p-4">
+            <div className="rounded-2xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 p-4">
               <div className="flex items-center gap-2 mb-2">
                 <Syringe className="h-4 w-4 text-emerald-500" />
-                <span className="text-xs font-bold text-stone-500 dark:text-stone-400">الحقن أسبوعيًا</span>
+                <span className="text-xs font-bold text-stone-500 dark:text-stone-300">الحقن أسبوعيًا</span>
               </div>
               <p className="text-lg font-bold text-stone-900 dark:text-stone-100">
                 ~{Math.round(weeklyInjections)} حقنة/أسبوع
@@ -764,10 +764,10 @@ export default function StackBuilder() {
             </div>
 
             {/* Peptide Count */}
-            <div className="rounded-2xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-900 p-4">
+            <div className="rounded-2xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 p-4">
               <div className="flex items-center gap-2 mb-2">
                 <Beaker className="h-4 w-4 text-emerald-500" />
-                <span className="text-xs font-bold text-stone-500 dark:text-stone-400">عدد الببتيدات</span>
+                <span className="text-xs font-bold text-stone-500 dark:text-stone-300">عدد الببتيدات</span>
               </div>
               <p className="text-lg font-bold text-stone-900 dark:text-stone-100">
                 {selectedIds.length} من {MAX_STACK_SIZE}
@@ -775,14 +775,14 @@ export default function StackBuilder() {
             </div>
 
             {/* Routes */}
-            <div className="rounded-2xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-900 p-4">
+            <div className="rounded-2xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 p-4">
               <div className="flex items-center gap-2 mb-2">
                 <BarChart3 className="h-4 w-4 text-emerald-500" />
-                <span className="text-xs font-bold text-stone-500 dark:text-stone-400">طرق الإعطاء</span>
+                <span className="text-xs font-bold text-stone-500 dark:text-stone-300">طرق الإعطاء</span>
               </div>
               <div className="flex flex-wrap gap-1">
                 {[...new Set(selectedPeptides.map((p) => p.route))].map((r) => (
-                  <span key={r ?? 'default'} className="rounded-full bg-stone-100 dark:bg-stone-800 px-2 py-0.5 text-[10px] font-medium text-stone-600 dark:text-stone-400">
+                  <span key={r ?? 'default'} className="rounded-full bg-stone-100 dark:bg-stone-800 px-2 py-0.5 text-[10px] font-medium text-stone-600 dark:text-stone-300">
                     {getRouteLabel(r)}
                   </span>
                 ))}
@@ -792,7 +792,7 @@ export default function StackBuilder() {
 
           {/* Combined Benefits */}
           {combinedBenefits.length > 0 && (
-            <div className="rounded-2xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-900 p-5">
+            <div className="rounded-2xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 p-5">
               <h3 className="mb-3 font-bold text-stone-900 dark:text-stone-100 flex items-center gap-2">
                 <Sparkles className="h-5 w-5 text-emerald-500" />
                 الفوائد المجمّعة
@@ -810,20 +810,20 @@ export default function StackBuilder() {
 
           {/* Suggested Schedule */}
           {suggestedSchedule.length > 0 && (
-            <div className="rounded-2xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-900 p-5">
+            <div className="rounded-2xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 p-5">
               <h3 className="mb-3 font-bold text-stone-900 dark:text-stone-100 flex items-center gap-2">
                 <Calendar className="h-5 w-5 text-emerald-500" />
                 الجدول اليومي المقترح
               </h3>
               <div className="space-y-3">
                 {suggestedSchedule.map((slot) => (
-                  <div key={slot.timeAr} className="rounded-xl border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-800 p-3">
+                  <div key={slot.timeAr} className="rounded-xl border border-stone-200 dark:border-stone-600 bg-stone-50 dark:bg-stone-800 p-3">
                     <h4 className="text-sm font-bold text-stone-900 dark:text-stone-100 mb-2">{slot.timeAr}</h4>
                     <div className="space-y-1.5">
                       {slot.items.map((item, idx) => (
                         <div key={idx} className="flex items-center justify-between text-xs">
                           <span className="font-medium text-emerald-700 dark:text-emerald-400">{item.nameAr}</span>
-                          <span className="text-stone-500 dark:text-stone-400">{item.routeAr} • {item.doseAr.slice(0, 50)}{item.doseAr.length > 50 ? '...' : ''}</span>
+                          <span className="text-stone-500 dark:text-stone-300">{item.routeAr} • {item.doseAr.slice(0, 50)}{item.doseAr.length > 50 ? '...' : ''}</span>
                         </div>
                       ))}
                     </div>
@@ -834,37 +834,37 @@ export default function StackBuilder() {
           )}
 
           {/* Individual Peptide Details */}
-          <div className="rounded-2xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-900 p-5">
+          <div className="rounded-2xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 p-5">
             <h3 className="mb-4 font-bold text-stone-900 dark:text-stone-100">الجدول والتفاصيل</h3>
             <div className="space-y-3">
               {selectedPeptides.map((p) => (
-                <div key={p.id} className="rounded-xl border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-800 p-4">
+                <div key={p.id} className="rounded-xl border border-stone-200 dark:border-stone-600 bg-stone-50 dark:bg-stone-800 p-4">
                   <div className="flex items-center justify-between mb-2">
                     <Link to={`/peptide/${p.id}`} className="text-sm font-bold text-emerald-700 dark:text-emerald-400 hover:underline">
                       {p.nameAr}
                     </Link>
                     <span className="text-[10px] text-stone-400">{p.nameEn}</span>
                   </div>
-                  <div className="grid gap-2 sm:grid-cols-2 text-xs text-stone-600 dark:text-stone-400">
+                  <div className="grid gap-2 sm:grid-cols-2 text-xs text-stone-600 dark:text-stone-300">
                     <div>
-                      <span className="font-bold text-stone-500 dark:text-stone-400">الجرعة: </span>
+                      <span className="font-bold text-stone-500 dark:text-stone-300">الجرعة: </span>
                       <span className="line-clamp-2">{p.dosageAr}</span>
                     </div>
                     <div>
-                      <span className="font-bold text-stone-500 dark:text-stone-400">التوقيت: </span>
+                      <span className="font-bold text-stone-500 dark:text-stone-300">التوقيت: </span>
                       <span>{p.timingAr}</span>
                     </div>
                     <div>
-                      <span className="font-bold text-stone-500 dark:text-stone-400">التكرار: </span>
+                      <span className="font-bold text-stone-500 dark:text-stone-300">التكرار: </span>
                       <span>{getFrequencyLabel(p.frequency)}</span>
                     </div>
                     <div>
-                      <span className="font-bold text-stone-500 dark:text-stone-400">طريقة الإعطاء: </span>
+                      <span className="font-bold text-stone-500 dark:text-stone-300">طريقة الإعطاء: </span>
                       <span>{getRouteLabel(p.route)}</span>
                     </div>
                     {p.costEstimate && (
                       <div>
-                        <span className="font-bold text-stone-500 dark:text-stone-400">التكلفة: </span>
+                        <span className="font-bold text-stone-500 dark:text-stone-300">التكلفة: </span>
                         <span>{p.costEstimate}</span>
                       </div>
                     )}
@@ -875,13 +875,13 @@ export default function StackBuilder() {
           </div>
 
           {/* Save & Share */}
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-center rounded-2xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-900 p-5">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center rounded-2xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 p-5">
             <input
               type="text"
               value={stackName}
               onChange={(e) => setStackName(e.target.value)}
               placeholder="اسم البروتوكول (اختياري)"
-              className="flex-1 rounded-xl border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-800 px-4 py-2.5 text-sm text-stone-900 dark:text-stone-100 placeholder:text-stone-400 focus:border-emerald-400 focus:outline-none"
+              className="flex-1 rounded-xl border border-stone-200 dark:border-stone-600 bg-stone-50 dark:bg-stone-800 px-4 py-2.5 text-sm text-stone-900 dark:text-stone-100 placeholder:text-stone-400 focus:border-emerald-400 focus:outline-none"
             />
             <div className="flex gap-2">
               <button
@@ -895,7 +895,7 @@ export default function StackBuilder() {
               <button
                 type="button"
                 onClick={handleShareLink}
-                className="inline-flex items-center gap-1.5 rounded-full border border-stone-200 dark:border-stone-700 px-4 py-2.5 text-sm font-bold text-stone-600 dark:text-stone-400 hover:bg-stone-50 dark:hover:bg-stone-800 transition-colors"
+                className="inline-flex items-center gap-1.5 rounded-full border border-stone-200 dark:border-stone-600 px-4 py-2.5 text-sm font-bold text-stone-600 dark:text-stone-300 hover:bg-stone-50 dark:hover:bg-stone-800 transition-colors"
               >
                 <Share2 className="h-3.5 w-3.5" />
                 شارك

@@ -76,7 +76,7 @@ export default function TrialBanner() {
           <p id="payment-wall-desc" className="mb-2 text-stone-700 dark:text-stone-200">
             أكمل إعداد حسابك لبدء التجربة المجانية
           </p>
-          <p className="mb-6 text-sm text-stone-500 dark:text-stone-400">
+          <p className="mb-6 text-sm text-stone-500 dark:text-stone-300">
             لن يتم خصم أي مبلغ خلال 3 أيام — يمكنك الإلغاء في أي وقت
           </p>
           <div className="flex flex-col gap-3">
@@ -89,7 +89,7 @@ export default function TrialBanner() {
           </div>
           <button
             onClick={() => window.history.length > 1 ? window.history.back() : navigate('/')}
-            className="mt-4 min-h-[44px] px-3 py-2 text-sm text-stone-500 dark:text-stone-400 hover:text-stone-600 dark:text-stone-400 transition-colors"
+            className="mt-4 min-h-[44px] px-3 py-2 text-sm text-stone-500 dark:text-stone-300 hover:text-stone-600 dark:text-stone-300 transition-colors"
           >
             رجوع
           </button>
@@ -189,7 +189,7 @@ export default function TrialBanner() {
             </Link>
           </div>
           <div className="mt-6 flex flex-wrap justify-center gap-3 text-sm">
-            <span className="text-stone-500 dark:text-stone-400">أو تصفّح المجاني:</span>
+            <span className="text-stone-500 dark:text-stone-300">أو تصفّح المجاني:</span>
             <Link to="/library" className="text-emerald-700 underline underline-offset-2 transition-colors hover:text-emerald-700 dark:text-emerald-400">المكتبة</Link>
             <Link to="/calculator" className="text-emerald-700 underline underline-offset-2 transition-colors hover:text-emerald-700 dark:text-emerald-400">الحاسبة</Link>
             <Link to="/interactions" className="text-emerald-700 underline underline-offset-2 transition-colors hover:text-emerald-700 dark:text-emerald-400">فحص التعارضات</Link>
@@ -199,7 +199,7 @@ export default function TrialBanner() {
           </div>
           <button
             onClick={() => window.history.length > 1 ? window.history.back() : navigate('/')}
-            className="mt-4 min-h-[44px] px-3 py-2 text-sm text-stone-500 dark:text-stone-400 hover:text-stone-600 dark:text-stone-400 transition-colors"
+            className="mt-4 min-h-[44px] px-3 py-2 text-sm text-stone-500 dark:text-stone-300 hover:text-stone-600 dark:text-stone-300 transition-colors"
           >
             رجوع
           </button>
@@ -231,14 +231,14 @@ export default function TrialBanner() {
             </Link>
           </div>
           <div className="mt-6 flex flex-wrap justify-center gap-3 text-sm">
-            <span className="text-stone-500 dark:text-stone-400">أو تصفّح المجاني:</span>
+            <span className="text-stone-500 dark:text-stone-300">أو تصفّح المجاني:</span>
             <Link to="/calculator" className="text-emerald-700 underline underline-offset-2 transition-colors hover:text-emerald-700 dark:text-emerald-400">الحاسبة</Link>
             <Link to="/library" className="text-emerald-700 underline underline-offset-2 transition-colors hover:text-emerald-700 dark:text-emerald-400">المكتبة</Link>
             <Link to="/glossary" className="text-emerald-700 underline underline-offset-2 transition-colors hover:text-emerald-700 dark:text-emerald-400">المصطلحات</Link>
           </div>
           <button
             onClick={() => window.history.length > 1 ? window.history.back() : navigate('/')}
-            className="mt-4 min-h-[44px] px-3 py-2 text-sm text-stone-500 dark:text-stone-400 hover:text-stone-600 dark:text-stone-400 transition-colors"
+            className="mt-4 min-h-[44px] px-3 py-2 text-sm text-stone-500 dark:text-stone-300 hover:text-stone-600 dark:text-stone-300 transition-colors"
           >
             رجوع
           </button>

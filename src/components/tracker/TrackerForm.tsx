@@ -176,7 +176,7 @@ export default function TrackerForm({
   const submitDisabled = isSubmitting || (!!isOutOfRange && !doseOutOfRangeConfirmed);
 
   return (
-    <form onSubmit={handleSubmit} className="mb-8 rounded-2xl border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-900 p-6">
+    <form onSubmit={handleSubmit} className="mb-8 rounded-2xl border border-stone-200 dark:border-stone-600 bg-stone-50 dark:bg-stone-900 p-6">
       <h2 className="mb-4 text-lg font-bold text-stone-900 dark:text-stone-100">تسجيل حقنة جديدة</h2>
       <div className="space-y-4">
         {/* Peptide Name */}
@@ -187,7 +187,7 @@ export default function TrackerForm({
             value={peptideName}
             onChange={(e) => setPeptideName(e.target.value)}
             required
-            className="w-full rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 px-4 py-3 text-base text-stone-900 dark:text-stone-100 focus:border-emerald-300 dark:border-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900"
+            className="w-full rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950 px-4 py-3 text-base text-stone-900 dark:text-stone-100 focus:border-emerald-300 dark:border-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900"
           >
             <option value="">اختر الببتيد...</option>
             {allPeptides.filter(p => p.id !== 'melanotan-ii').map(p => (
@@ -211,7 +211,7 @@ export default function TrackerForm({
               min="0"
               step="any"
               dir="ltr"
-              className="w-full rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 px-4 py-3 text-base text-stone-900 dark:text-stone-100 placeholder:text-stone-500 dark:text-stone-400 focus:border-emerald-300 dark:border-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900"
+              className="w-full rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950 px-4 py-3 text-base text-stone-900 dark:text-stone-100 placeholder:text-stone-500 dark:text-stone-300 focus:border-emerald-300 dark:border-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900"
             />
           </div>
           <div className="w-28">
@@ -221,7 +221,7 @@ export default function TrackerForm({
               value={unit}
               onChange={(e) => setUnit(e.target.value)}
               aria-label="وحدة الجرعة"
-              className="w-full rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 px-4 py-3 text-base text-stone-900 dark:text-stone-100 focus:border-emerald-300 dark:border-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900"
+              className="w-full rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950 px-4 py-3 text-base text-stone-900 dark:text-stone-100 focus:border-emerald-300 dark:border-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900"
             >
               <option value="mcg">mcg</option>
               <option value="mg">mg</option>
@@ -240,7 +240,7 @@ export default function TrackerForm({
               <div className="space-y-2">
                 <p className="text-xs font-bold text-red-600 dark:text-red-400 flex items-center gap-1">الجرعة أعلى من الحد الأقصى الموصى به ({preset.maxDose} mcg)</p>
                 <label className="flex items-center gap-2 cursor-pointer">
-                  <input type="checkbox" checked={doseOutOfRangeConfirmed} onChange={(e) => setDoseOutOfRangeConfirmed(e.target.checked)} className="rounded border-stone-300 dark:border-stone-700 text-emerald-700 focus:ring-emerald-500" />
+                  <input type="checkbox" checked={doseOutOfRangeConfirmed} onChange={(e) => setDoseOutOfRangeConfirmed(e.target.checked)} className="rounded border-stone-300 dark:border-stone-600 text-emerald-700 focus:ring-emerald-500" />
                   <span className="text-xs text-stone-700 dark:text-stone-200">أؤكد أن هذه الجرعة صحيحة</span>
                 </label>
               </div>
@@ -251,7 +251,7 @@ export default function TrackerForm({
               <div className="space-y-2">
                 <p className="text-xs font-bold text-amber-600 flex items-center gap-1">الجرعة أقل من الحد الأدنى الموصى به ({preset.minDose} mcg)</p>
                 <label className="flex items-center gap-2 cursor-pointer">
-                  <input type="checkbox" checked={doseOutOfRangeConfirmed} onChange={(e) => setDoseOutOfRangeConfirmed(e.target.checked)} className="rounded border-stone-300 dark:border-stone-700 text-emerald-700 focus:ring-emerald-500" />
+                  <input type="checkbox" checked={doseOutOfRangeConfirmed} onChange={(e) => setDoseOutOfRangeConfirmed(e.target.checked)} className="rounded border-stone-300 dark:border-stone-600 text-emerald-700 focus:ring-emerald-500" />
                   <span className="text-xs text-stone-700 dark:text-stone-200">أؤكد أن هذه الجرعة صحيحة</span>
                 </label>
               </div>
@@ -277,7 +277,7 @@ export default function TrackerForm({
             required
             aria-label="التاريخ والوقت"
             dir="ltr"
-            className="w-full rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 px-4 py-3 text-base text-stone-900 dark:text-stone-100 focus:border-emerald-300 dark:border-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900"
+            className="w-full rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950 px-4 py-3 text-base text-stone-900 dark:text-stone-100 focus:border-emerald-300 dark:border-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900"
           />
         </div>
 
@@ -300,7 +300,7 @@ export default function TrackerForm({
                   'rounded-full px-3 py-2.5 min-h-[44px] text-xs font-bold transition-all',
                   sideEffect === opt.value
                     ? opt.color === 'emerald' ? 'bg-emerald-600 text-white' : 'bg-amber-500 text-white'
-                    : 'border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 text-stone-600 dark:text-stone-400 hover:border-stone-300 dark:border-stone-700'
+                    : 'border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950 text-stone-600 dark:text-stone-300 hover:border-stone-300 dark:border-stone-600'
                 )}
               >
                 {opt.label}
@@ -329,7 +329,7 @@ export default function TrackerForm({
             <button
               type="button"
               onClick={() => photoInputRef.current?.click()}
-              className="flex items-center gap-2 rounded-xl border-2 border-dashed border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-900 px-4 py-3 text-sm text-stone-500 dark:text-stone-400 transition-all hover:border-emerald-300 hover:text-emerald-700"
+              className="flex items-center gap-2 rounded-xl border-2 border-dashed border-stone-200 dark:border-stone-600 bg-stone-50 dark:bg-stone-900 px-4 py-3 text-sm text-stone-500 dark:text-stone-300 transition-all hover:border-emerald-300 hover:text-emerald-700"
             >
               <Camera className="h-4 w-4" />
               التقط أو اختر صورة
@@ -347,9 +347,9 @@ export default function TrackerForm({
             placeholder="ملاحظات إضافية..."
             rows={3}
             maxLength={200}
-            className="w-full resize-none rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 px-4 py-3 text-base text-stone-900 dark:text-stone-100 placeholder:text-stone-500 dark:text-stone-400 focus:border-emerald-300 dark:border-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900"
+            className="w-full resize-none rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950 px-4 py-3 text-base text-stone-900 dark:text-stone-100 placeholder:text-stone-500 dark:text-stone-300 focus:border-emerald-300 dark:border-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900"
           />
-          <p className={cn('mt-1 text-start text-xs', notes.length >= 180 ? 'text-amber-600' : 'text-stone-500 dark:text-stone-400')}>{notes.length}/200</p>
+          <p className={cn('mt-1 text-start text-xs', notes.length >= 180 ? 'text-amber-600' : 'text-stone-500 dark:text-stone-300')}>{notes.length}/200</p>
         </div>
 
         <div className="flex gap-3">
@@ -370,7 +370,7 @@ export default function TrackerForm({
           <button
             type="button"
             onClick={onCancel}
-            className="rounded-xl border border-stone-200 dark:border-stone-700 px-6 py-3 text-sm font-bold text-stone-700 dark:text-stone-200 transition-all hover:bg-stone-50 dark:hover:bg-stone-800"
+            className="rounded-xl border border-stone-200 dark:border-stone-600 px-6 py-3 text-sm font-bold text-stone-700 dark:text-stone-200 transition-all hover:bg-stone-50 dark:hover:bg-stone-800"
           >
             إلغاء
           </button>

@@ -145,12 +145,12 @@ export default function Contact() {
           <h1 className="mb-3 text-2xl font-bold text-stone-900 dark:text-stone-100">
             تم إرسال رسالتك بنجاح ✨
           </h1>
-          <p className="text-lg text-stone-600 dark:text-stone-400">شكرًا لتواصلك معنا</p>
+          <p className="text-lg text-stone-600 dark:text-stone-300">شكرًا لتواصلك معنا</p>
           <div className="mx-auto mt-6 inline-flex items-center gap-2 rounded-full border border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-900/30 px-5 py-2.5 text-sm font-bold text-emerald-700 dark:text-emerald-300">
             <Clock className="h-4 w-4" />
             نرد خلال 24 ساعة
           </div>
-          <p className="mt-6 text-sm text-stone-500 dark:text-stone-400">
+          <p className="mt-6 text-sm text-stone-500 dark:text-stone-300">
             للاستفسارات العاجلة:{' '}
             <a
               href={`mailto:${SUPPORT_EMAIL}`}
@@ -207,7 +207,7 @@ export default function Contact() {
           <h1 className="mb-2 text-3xl font-bold text-stone-900 dark:text-stone-100">
             تواصل معنا
           </h1>
-          <p className="text-stone-600 dark:text-stone-400">
+          <p className="text-stone-600 dark:text-stone-300">
             لديك سؤال أو اقتراح؟ نسعد بسماع رأيك
           </p>
         </div>
@@ -220,7 +220,7 @@ export default function Contact() {
           </div>
           <a
             href={`mailto:${SUPPORT_EMAIL}`}
-            className="inline-flex min-h-[44px] items-center gap-2 rounded-full border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-900 px-5 py-2.5 text-sm font-medium text-stone-700 dark:text-stone-200 transition-colors hover:border-emerald-300 dark:hover:border-emerald-700 hover:text-emerald-700 dark:hover:text-emerald-400"
+            className="inline-flex min-h-[44px] items-center gap-2 rounded-full border border-stone-200 dark:border-stone-600 bg-stone-50 dark:bg-stone-900 px-5 py-2.5 text-sm font-medium text-stone-700 dark:text-stone-200 transition-colors hover:border-emerald-300 dark:hover:border-emerald-700 hover:text-emerald-700 dark:hover:text-emerald-400"
           >
             <Mail className="h-4 w-4" />
             {SUPPORT_EMAIL}
@@ -230,7 +230,7 @@ export default function Contact() {
         {/* Form */}
         <form
           onSubmit={handleSubmit}
-          className="space-y-5 rounded-2xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-900/50 p-6 shadow-sm sm:p-8"
+          className="space-y-5 rounded-2xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900/50 p-6 shadow-sm sm:p-8"
         >
           {/* Name */}
           <div>
@@ -248,7 +248,7 @@ export default function Contact() {
               onChange={(e) => { setName(e.target.value); clearFieldError('name'); }}
               onBlur={() => handleBlur('name', name)}
               placeholder="اسمك الكريم"
-              className={`w-full rounded-xl border bg-stone-50 dark:bg-stone-800 px-4 py-3 text-stone-900 dark:text-stone-100 placeholder:text-stone-400 dark:placeholder:text-stone-500 dark:text-stone-400 focus:outline-none focus:ring-2 transition-colors min-h-[44px] ${fieldErrors.name ? 'border-red-400 dark:border-red-600 focus:border-red-500 focus:ring-red-200 dark:focus:ring-red-800' : 'border-stone-300 dark:border-stone-600 focus:border-emerald-500 focus:ring-emerald-200 dark:focus:ring-emerald-800'}`}
+              className={`w-full rounded-xl border bg-stone-50 dark:bg-stone-800 px-4 py-3 text-stone-900 dark:text-stone-100 placeholder:text-stone-400 dark:placeholder:text-stone-500 dark:text-stone-300 focus:outline-none focus:ring-2 transition-colors min-h-[44px] ${fieldErrors.name ? 'border-red-400 dark:border-red-600 focus:border-red-500 focus:ring-red-200 dark:focus:ring-red-800' : 'border-stone-300 dark:border-stone-600 focus:border-emerald-500 focus:ring-emerald-200 dark:focus:ring-emerald-800'}`}
             />
             {fieldErrors.name && <p className="mt-1 text-sm text-red-600 dark:text-red-400">{fieldErrors.name}</p>}
           </div>
@@ -269,7 +269,7 @@ export default function Contact() {
               onChange={(e) => { setEmail(e.target.value); clearFieldError('email'); }}
               onBlur={() => handleBlur('email', email)}
               placeholder="name@example.com"
-              className={`w-full rounded-xl border bg-stone-50 dark:bg-stone-800 px-4 py-3 text-stone-900 dark:text-stone-100 placeholder:text-stone-400 dark:placeholder:text-stone-500 dark:text-stone-400 focus:outline-none focus:ring-2 transition-colors min-h-[44px] ${fieldErrors.email ? 'border-red-400 dark:border-red-600 focus:border-red-500 focus:ring-red-200 dark:focus:ring-red-800' : 'border-stone-300 dark:border-stone-600 focus:border-emerald-500 focus:ring-emerald-200 dark:focus:ring-emerald-800'}`}
+              className={`w-full rounded-xl border bg-stone-50 dark:bg-stone-800 px-4 py-3 text-stone-900 dark:text-stone-100 placeholder:text-stone-400 dark:placeholder:text-stone-500 dark:text-stone-300 focus:outline-none focus:ring-2 transition-colors min-h-[44px] ${fieldErrors.email ? 'border-red-400 dark:border-red-600 focus:border-red-500 focus:ring-red-200 dark:focus:ring-red-800' : 'border-stone-300 dark:border-stone-600 focus:border-emerald-500 focus:ring-emerald-200 dark:focus:ring-emerald-800'}`}
             />
             {fieldErrors.email && <p className="mt-1 text-sm text-red-600 dark:text-red-400">{fieldErrors.email}</p>}
           </div>
@@ -296,7 +296,7 @@ export default function Contact() {
                   </option>
                 ))}
               </select>
-              <ChevronDown className="pointer-events-none absolute end-3 top-1/2 h-5 w-5 -translate-y-1/2 text-stone-400 dark:text-stone-400" />
+              <ChevronDown className="pointer-events-none absolute end-3 top-1/2 h-5 w-5 -translate-y-1/2 text-stone-400 dark:text-stone-300" />
             </div>
           </div>
 
@@ -316,7 +316,7 @@ export default function Contact() {
               value={message}
               onChange={(e) => setMessage(e.target.value)}
               placeholder="اكتب رسالتك هنا..."
-              className="w-full resize-none rounded-xl border border-stone-300 dark:border-stone-600 bg-stone-50 dark:bg-stone-800 px-4 py-3 text-stone-900 dark:text-stone-100 placeholder:text-stone-400 dark:placeholder:text-stone-500 dark:text-stone-400 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-200 dark:focus:ring-emerald-800 transition-colors"
+              className="w-full resize-none rounded-xl border border-stone-300 dark:border-stone-600 bg-stone-50 dark:bg-stone-800 px-4 py-3 text-stone-900 dark:text-stone-100 placeholder:text-stone-400 dark:placeholder:text-stone-500 dark:text-stone-300 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-200 dark:focus:ring-emerald-800 transition-colors"
             />
           </div>
 
@@ -336,8 +336,8 @@ export default function Contact() {
         </form>
 
         {/* Info note */}
-        <div className="mt-8 flex items-start gap-3 rounded-xl bg-stone-50 dark:bg-stone-900 border border-stone-200 dark:border-stone-700 p-4 text-sm text-stone-600 dark:text-stone-400">
-          <MessageSquare className="mt-0.5 h-5 w-5 flex-shrink-0 text-stone-400 dark:text-stone-400" />
+        <div className="mt-8 flex items-start gap-3 rounded-xl bg-stone-50 dark:bg-stone-900 border border-stone-200 dark:border-stone-600 p-4 text-sm text-stone-600 dark:text-stone-300">
+          <MessageSquare className="mt-0.5 h-5 w-5 flex-shrink-0 text-stone-400 dark:text-stone-300" />
           <p>
             نحرص على الرد خلال 24 ساعة في أيام العمل. للاستفسارات العاجلة، يمكنك مراسلتنا
             عبر البريد مباشرة على{' '}
@@ -360,7 +360,7 @@ export default function Contact() {
               <h2 className="text-lg font-bold text-stone-900 dark:text-stone-100">
                 قبل أن تتواصل معنا
               </h2>
-              <p className="text-sm text-stone-500 dark:text-stone-400">
+              <p className="text-sm text-stone-500 dark:text-stone-300">
                 ربما تجد إجابتك هنا
               </p>
             </div>
@@ -370,13 +370,13 @@ export default function Contact() {
             {MINI_FAQ.map((faq) => (
               <details
                 key={faq.q}
-                className="group rounded-2xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-900/50 transition-all hover:border-emerald-300 dark:hover:border-emerald-700"
+                className="group rounded-2xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900/50 transition-all hover:border-emerald-300 dark:hover:border-emerald-700"
               >
                 <summary className="flex cursor-pointer items-center justify-between gap-4 p-4 text-sm font-semibold text-stone-900 dark:text-stone-100 min-h-[44px] select-none">
                   <span>{faq.q}</span>
-                  <ChevronDown className="h-4 w-4 shrink-0 text-stone-400 dark:text-stone-400 transition-transform group-open:rotate-180" />
+                  <ChevronDown className="h-4 w-4 shrink-0 text-stone-400 dark:text-stone-300 transition-transform group-open:rotate-180" />
                 </summary>
-                <p className="px-4 pb-4 text-sm leading-relaxed text-stone-600 dark:text-stone-400">
+                <p className="px-4 pb-4 text-sm leading-relaxed text-stone-600 dark:text-stone-300">
                   {faq.a}
                 </p>
               </details>

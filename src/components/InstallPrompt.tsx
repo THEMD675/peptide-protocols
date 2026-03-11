@@ -82,7 +82,7 @@ export default function InstallPrompt() {
         </div>
         <div className="flex-1 min-w-0">
           <p className="text-sm font-bold text-stone-900 dark:text-stone-100">ثبّت pptides على جهازك</p>
-          <p className="text-xs text-stone-500 dark:text-stone-400">
+          <p className="text-xs text-stone-500 dark:text-stone-300">
             {showIOS ? 'اضغط على زر المشاركة ثم "إضافة إلى الشاشة الرئيسية"' : 'وصول سريع بدون متصفح'}
           </p>
         </div>
@@ -96,7 +96,7 @@ export default function InstallPrompt() {
         )}
         <button
           onClick={handleDismiss}
-          className="shrink-0 flex items-center justify-center rounded-full min-h-[44px] min-w-[44px] text-stone-500 dark:text-stone-400 transition-colors hover:bg-stone-100 dark:hover:bg-stone-800 hover:text-stone-600 dark:text-stone-400"
+          className="shrink-0 flex items-center justify-center rounded-full min-h-[44px] min-w-[44px] text-stone-500 dark:text-stone-300 transition-colors hover:bg-stone-100 dark:hover:bg-stone-800 hover:text-stone-600 dark:text-stone-300"
           aria-label="إغلاق"
         >
           <X className="h-4 w-4" />

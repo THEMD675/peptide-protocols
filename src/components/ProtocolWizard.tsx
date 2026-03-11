@@ -20,9 +20,9 @@ function ShoppingList({ peptide, dose, unit, frequency, cycleWeeks }: { peptide:
   const dosesPerVial = Math.floor((vialMg * 1000) / doseMcg);
   const vialsNeeded = Math.ceil(totalDoses / Math.max(dosesPerVial, 1));
   return (
-    <div className="rounded-xl border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-900 px-4 py-3">
+    <div className="rounded-xl border border-stone-200 dark:border-stone-600 bg-stone-50 dark:bg-stone-900 px-4 py-3">
       <p className="text-xs font-bold text-stone-700 dark:text-stone-200 mb-2">قائمة التسوّق المقدّرة:</p>
-      <ul className="space-y-1 text-xs text-stone-600 dark:text-stone-400">
+      <ul className="space-y-1 text-xs text-stone-600 dark:text-stone-300">
         <li>• {vialsNeeded}x قارورة {peptide.nameEn} {vialMg}mg</li>
         <li>• 1x ماء بكتيريوستاتيك 30ml</li>
         <li>• {totalDoses}x سيرنج إنسولين 31g</li>
@@ -79,7 +79,7 @@ export default function ProtocolWizard({ peptideId, prefillDose, prefillUnit, on
   if (!peptide) return (
     <div role="dialog" aria-modal="true" aria-label="معالج البروتوكول" className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" onClick={onClose}>
       <div className="rounded-2xl bg-white dark:bg-stone-950 p-6 text-center" onClick={e => e.stopPropagation()}>
-        <p className="text-stone-600 dark:text-stone-400">الببتيد غير موجود</p>
+        <p className="text-stone-600 dark:text-stone-300">الببتيد غير موجود</p>
         <button onClick={onClose} className="mt-4 rounded-full bg-emerald-600 px-6 py-2 text-sm font-bold text-white">إغلاق</button>
       </div>
     </div>
@@ -130,10 +130,10 @@ export default function ProtocolWizard({ peptideId, prefillDose, prefillUnit, on
               </div>
               <div>
                 <h2 className="text-lg font-bold text-stone-900 dark:text-stone-100">ابدأ بروتوكول</h2>
-                <p className="text-sm text-stone-500 dark:text-stone-400">{peptide.nameAr} ({peptide.nameEn})</p>
+                <p className="text-sm text-stone-500 dark:text-stone-300">{peptide.nameAr} ({peptide.nameEn})</p>
               </div>
             </div>
-            <button onClick={onClose} aria-label="إغلاق" className="rounded-lg p-2 min-h-[44px] min-w-[44px] flex items-center justify-center text-stone-500 dark:text-stone-400 hover:bg-stone-100 dark:hover:bg-stone-800 hover:text-stone-600 dark:text-stone-400 transition-colors">
+            <button onClick={onClose} aria-label="إغلاق" className="rounded-lg p-2 min-h-[44px] min-w-[44px] flex items-center justify-center text-stone-500 dark:text-stone-300 hover:bg-stone-100 dark:hover:bg-stone-800 hover:text-stone-600 dark:text-stone-300 transition-colors">
               <X className="h-5 w-5" />
             </button>
           </div>
@@ -172,12 +172,12 @@ export default function ProtocolWizard({ peptideId, prefillDose, prefillUnit, on
                   max={50000}
                   step="any"
                   dir="ltr"
-                  className="w-full rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 px-4 py-3 text-base text-stone-900 dark:text-stone-100 focus:border-emerald-300 dark:border-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900"
+                  className="w-full rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950 px-4 py-3 text-base text-stone-900 dark:text-stone-100 focus:border-emerald-300 dark:border-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900"
                 />
               </div>
               <div className="w-24">
                 <label htmlFor="wizard-unit" className="mb-1 block text-sm font-bold text-stone-700 dark:text-stone-200">الوحدة</label>
-                <select id="wizard-unit" value={unit} onChange={e => setUnit(e.target.value)} className="w-full rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 px-3 py-3 text-base text-stone-900 dark:text-stone-100 focus:border-emerald-300 dark:border-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900">
+                <select id="wizard-unit" value={unit} onChange={e => setUnit(e.target.value)} className="w-full rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950 px-3 py-3 text-base text-stone-900 dark:text-stone-100 focus:border-emerald-300 dark:border-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900">
                   <option value="mcg">mcg</option>
                   <option value="mg">mg</option>
                 </select>
@@ -186,7 +186,7 @@ export default function ProtocolWizard({ peptideId, prefillDose, prefillUnit, on
 
             <div>
               <label htmlFor="wizard-frequency" className="mb-1 block text-sm font-bold text-stone-700 dark:text-stone-200">التكرار</label>
-              <select id="wizard-frequency" value={frequency} onChange={e => { const v = e.target.value; setFrequency(v as keyof typeof FREQUENCY_LABELS); }} className="w-full rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 px-4 py-3 text-base text-stone-900 dark:text-stone-100 focus:border-emerald-300 dark:border-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900">
+              <select id="wizard-frequency" value={frequency} onChange={e => { const v = e.target.value; setFrequency(v as keyof typeof FREQUENCY_LABELS); }} className="w-full rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950 px-4 py-3 text-base text-stone-900 dark:text-stone-100 focus:border-emerald-300 dark:border-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900">
                 {Object.entries(FREQUENCY_LABELS).map(([k, v]) => (
                   <option key={k} value={k}>{v}</option>
                 ))}
@@ -204,13 +204,13 @@ export default function ProtocolWizard({ peptideId, prefillDose, prefillUnit, on
                 min="1"
                 max="52"
                 dir="ltr"
-                className="w-full rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 px-4 py-3 text-sm text-stone-900 dark:text-stone-100 focus:border-emerald-300 dark:border-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900"
+                className="w-full rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950 px-4 py-3 text-sm text-stone-900 dark:text-stone-100 focus:border-emerald-300 dark:border-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900"
               />
             </div>
 
-            <div className="flex items-center gap-4 rounded-xl bg-stone-50 dark:bg-stone-900 border border-stone-200 dark:border-stone-700 px-4 py-3">
-              <Calendar className="h-4 w-4 text-stone-500 dark:text-stone-400 shrink-0" />
-              <div className="text-xs text-stone-600 dark:text-stone-400">
+            <div className="flex items-center gap-4 rounded-xl bg-stone-50 dark:bg-stone-900 border border-stone-200 dark:border-stone-600 px-4 py-3">
+              <Calendar className="h-4 w-4 text-stone-500 dark:text-stone-300 shrink-0" />
+              <div className="text-xs text-stone-600 dark:text-stone-300">
                 <span>ينتهي تقريبًا: </span>
                 <strong className="text-stone-900 dark:text-stone-100">{endDate.toLocaleDateString('ar-u-nu-latn', { year: 'numeric', month: 'long', day: 'numeric' })}</strong>
               </div>

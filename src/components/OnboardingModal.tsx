@@ -152,13 +152,13 @@ export default function OnboardingModal({ forceOpen, onClose: externalClose }: {
                 {userName ? `أهلاً ${userName}، مرحبًا في pptides` : 'مرحبًا في pptides'}
               </h2>
               <p className="mb-1 text-center text-xs font-medium text-emerald-700">{PEPTIDE_COUNT}+ ببتيد تحت تصرفك</p>
-              <p className="mb-6 text-center text-sm text-stone-600 dark:text-stone-400">ما هدفك الأساسي؟ سنبني لك خطة مخصّصة.</p>
+              <p className="mb-6 text-center text-sm text-stone-600 dark:text-stone-300">ما هدفك الأساسي؟ سنبني لك خطة مخصّصة.</p>
               <div className="space-y-2">
                 {GOALS.map((g, i) => (
                   <button
                     key={g.id}
                     onClick={() => handleGoalSelect(g.id)}
-                    className="flex w-full items-center gap-3 rounded-xl border border-stone-200 dark:border-stone-700 px-4 py-3 text-sm font-medium text-stone-800 dark:text-stone-200 transition-all hover:border-emerald-300 dark:border-emerald-700 hover:bg-emerald-50 dark:bg-emerald-900/20 min-h-[44px]"
+                    className="flex w-full items-center gap-3 rounded-xl border border-stone-200 dark:border-stone-600 px-4 py-3 text-sm font-medium text-stone-800 dark:text-stone-200 transition-all hover:border-emerald-300 dark:border-emerald-700 hover:bg-emerald-50 dark:bg-emerald-900/20 min-h-[44px]"
                     style={{ animation: `onb-fade-in 0.3s ease-out ${i * 0.05}s both` }}
                   >
                     <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-emerald-50 dark:bg-emerald-900/20">
@@ -168,7 +168,7 @@ export default function OnboardingModal({ forceOpen, onClose: externalClose }: {
                   </button>
                 ))}
               </div>
-              <button onClick={handleClose} className="mt-4 w-full min-h-[44px] text-center text-xs text-stone-500 dark:text-stone-400 hover:text-stone-600 dark:text-stone-400">
+              <button onClick={handleClose} className="mt-4 w-full min-h-[44px] text-center text-xs text-stone-500 dark:text-stone-300 hover:text-stone-600 dark:text-stone-300">
                 تخطّي
               </button>
             </>
@@ -185,7 +185,7 @@ export default function OnboardingModal({ forceOpen, onClose: externalClose }: {
               ) : (
                 <p className="mb-1 text-center text-xs font-medium text-emerald-700">رحلتك في {TRIAL_DAYS} أيام — مصمّمة حسب هدفك</p>
               )}
-              <p className="mb-2 text-center text-sm text-stone-600 dark:text-stone-400">خارطة طريق VIP لتحقيق أفضل النتائج</p>
+              <p className="mb-2 text-center text-sm text-stone-600 dark:text-stone-300">خارطة طريق VIP لتحقيق أفضل النتائج</p>
               <p className="mb-6 text-center text-[11px] font-bold text-amber-600 bg-amber-50 dark:bg-amber-900/20 rounded-lg px-3 py-1.5 inline-block">
                 🎁 لديك {TRIAL_DAYS} أيام مجانية — استغل كل دقيقة!
               </p>
@@ -195,7 +195,7 @@ export default function OnboardingModal({ forceOpen, onClose: externalClose }: {
                     key={i}
                     to={item.to}
                     onClick={handleClose}
-                    className="flex items-center gap-4 rounded-xl border border-stone-200 dark:border-stone-700 px-4 py-4 transition-all hover:border-emerald-300 dark:border-emerald-700 hover:bg-emerald-50 dark:bg-emerald-900/20 min-h-[44px]"
+                    className="flex items-center gap-4 rounded-xl border border-stone-200 dark:border-stone-600 px-4 py-4 transition-all hover:border-emerald-300 dark:border-emerald-700 hover:bg-emerald-50 dark:bg-emerald-900/20 min-h-[44px]"
                     style={{ animation: animatePlan ? `onb-fade-in 0.4s ease-out ${i * 0.15}s both` : undefined, opacity: animatePlan ? undefined : 0 }}
                   >
                     <div className="relative flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-100 dark:bg-emerald-900/30">

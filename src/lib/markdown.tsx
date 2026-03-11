@@ -47,12 +47,12 @@ export function renderMarkdown(text: string) {
     if (tableRows.length > 0) {
       const [headerRow, ...bodyRows] = tableRows;
       elements.push(
-        <div key={`tbl-${elements.length}`} className="my-3 overflow-x-auto rounded-xl border border-stone-200 dark:border-stone-700">
+        <div key={`tbl-${elements.length}`} className="my-3 overflow-x-auto rounded-xl border border-stone-200 dark:border-stone-600">
           <table className="w-full text-sm">
             <thead>
               <tr className="bg-stone-100 dark:bg-stone-800">
                 {headerRow.map((cell, ci) => (
-                  <th key={ci} className={cn('px-3 py-2 border-b border-stone-200 dark:border-stone-700 font-bold text-stone-700 dark:text-stone-200 text-start', ci === 0 && 'w-[35%]')} dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(inlineMd(cell)) }} />
+                  <th key={ci} className={cn('px-3 py-2 border-b border-stone-200 dark:border-stone-600 font-bold text-stone-700 dark:text-stone-200 text-start', ci === 0 && 'w-[35%]')} dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(inlineMd(cell)) }} />
                 ))}
               </tr>
             </thead>
@@ -102,13 +102,13 @@ export function renderMarkdown(text: string) {
       flushTable();
     }
 
-    if (line === '---') { flushList(); elements.push(<hr key={`hr-${i}`} className="my-3 border-stone-200 dark:border-stone-700" />); continue; }
+    if (line === '---') { flushList(); elements.push(<hr key={`hr-${i}`} className="my-3 border-stone-200 dark:border-stone-600" />); continue; }
     if (line.startsWith('###')) { flushList(); elements.push(<h4 key={i} className="mt-4 mb-1 font-bold text-emerald-700 dark:text-emerald-400 text-base">{line.replace(/^###\s*/, '')}</h4>); continue; }
     if (line.startsWith('##')) { flushList(); elements.push(<h3 key={i} className="mt-4 mb-1 text-base font-bold text-stone-900 dark:text-stone-100">{line.replace(/^##\s*/, '')}</h3>); continue; }
     if (line.startsWith('#')) { flushList(); elements.push(<h3 key={i} className="mt-4 mb-1 text-base font-bold text-stone-900 dark:text-stone-100">{line.replace(/^#\s*/, '')}</h3>); continue; }
     if (/^\d+\.\s/.test(line)) { if (listItems.length === 0) listType = 'ol'; listItems.push(line.replace(/^\d+\.\s*/, '')); continue; }
     if (/^[-*]\s/.test(line)) { if (listItems.length === 0) listType = 'ul'; listItems.push(line.replace(/^[-*]\s*/, '')); continue; }
-    if (line.startsWith('⚠') || line.startsWith('تنبيه') || line.startsWith('ملاحظة')) { flushList(); elements.push(<p key={i} className="my-2 text-xs text-stone-500 dark:text-stone-400 italic">{line}</p>); continue; }
+    if (line.startsWith('⚠') || line.startsWith('تنبيه') || line.startsWith('ملاحظة')) { flushList(); elements.push(<p key={i} className="my-2 text-xs text-stone-500 dark:text-stone-300 italic">{line}</p>); continue; }
     flushList();
     elements.push(<p key={i} className="my-1" dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(inlineMd(line)) }} />);
   }

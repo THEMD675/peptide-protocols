@@ -91,7 +91,7 @@ export default function NotificationBell() {
     <div ref={ref} className="relative">
       <button
         onClick={() => setOpen(v => !v)}
-        className="relative flex min-h-[44px] min-w-[44px] items-center justify-center rounded-lg p-2.5 text-stone-500 dark:text-stone-400 transition-colors hover:bg-stone-100 dark:hover:bg-stone-800 hover:text-stone-700 dark:text-stone-200"
+        className="relative flex min-h-[44px] min-w-[44px] items-center justify-center rounded-lg p-2.5 text-stone-500 dark:text-stone-300 transition-colors hover:bg-stone-100 dark:hover:bg-stone-800 hover:text-stone-700 dark:text-stone-200"
         aria-label="الإشعارات"
         aria-expanded={open}
       >
@@ -104,7 +104,7 @@ export default function NotificationBell() {
       </button>
 
       {open && (
-        <div className="absolute end-0 top-full z-50 mt-2 w-[calc(100vw-2rem)] max-w-sm overflow-hidden rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 shadow-xl dark:shadow-stone-900/40 animate-fade-in">
+        <div className="absolute end-0 top-full z-50 mt-2 w-[calc(100vw-2rem)] max-w-sm overflow-hidden rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950 shadow-xl dark:shadow-stone-900/40 animate-fade-in">
           <div className="flex items-center justify-between border-b border-stone-100 dark:border-stone-800 px-4 py-3">
             <h3 className="text-sm font-bold text-stone-900 dark:text-stone-100">الإشعارات</h3>
             {unreadCount > 0 && (
@@ -124,7 +124,7 @@ export default function NotificationBell() {
                   <Bell className="h-7 w-7 text-stone-400" />
                 </div>
                 <p className="text-sm font-bold text-stone-700 dark:text-stone-200 mb-1">لا توجد إشعارات بعد</p>
-                <p className="text-xs text-stone-500 dark:text-stone-400">سنعلمك بالتحديثات المهمة وتذكيرات الجرعات</p>
+                <p className="text-xs text-stone-500 dark:text-stone-300">سنعلمك بالتحديثات المهمة وتذكيرات الجرعات</p>
               </div>
             ) : (
               notifications.map(n => (
@@ -141,7 +141,7 @@ export default function NotificationBell() {
                     <p className={cn('text-sm', !n.read ? 'font-bold text-stone-900 dark:text-stone-100' : 'font-medium text-stone-700 dark:text-stone-200')}>
                       {n.title_ar}
                     </p>
-                    <p className="mt-0.5 text-xs text-stone-500 dark:text-stone-400 line-clamp-2">{n.body_ar}</p>
+                    <p className="mt-0.5 text-xs text-stone-500 dark:text-stone-300 line-clamp-2">{n.body_ar}</p>
                     <p className="mt-1 text-[10px] text-stone-400">
                       {formatTimeAgo(n.created_at)}
                     </p>

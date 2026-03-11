@@ -120,7 +120,7 @@ export default memo(function Header() {
           'fixed inset-x-0 top-0 z-50 transition-all duration-300',
           'h-[var(--header-height)]',
           scrolled
-            ? 'border-b border-stone-200/50 dark:border-stone-700/50 bg-stone-50/90 dark:bg-stone-950/90 backdrop-blur-2xl shadow-sm dark:shadow-stone-900/30'
+            ? 'border-b border-stone-200/50 dark:border-stone-600/50 bg-stone-50/90 dark:bg-stone-950/90 backdrop-blur-2xl shadow-sm dark:shadow-stone-900/30'
             : 'bg-white/80 dark:bg-stone-950/80 backdrop-blur-md',
         )}
       >
@@ -177,7 +177,7 @@ export default memo(function Header() {
                       <ChevronDown className={cn('h-3 w-3 transition-transform', moreOpen && 'rotate-180')} />
                     </button>
                     {moreOpen && (
-                      <div aria-label="الأدوات" className="absolute end-0 top-full mt-2 min-w-[200px] overflow-hidden rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 py-1 shadow-xl dark:shadow-stone-900/40 animate-fade-in">
+                      <div aria-label="الأدوات" className="absolute end-0 top-full mt-2 min-w-[200px] overflow-hidden rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950 py-1 shadow-xl dark:shadow-stone-900/40 animate-fade-in">
                         {tools.map(({ to, label }) => (
                           <Link
                             key={to}
@@ -207,7 +207,7 @@ export default memo(function Header() {
             {/* Theme Toggle */}
             <button
               onClick={toggleTheme}
-              className="flex items-center justify-center rounded-lg p-2.5 min-h-[44px] min-w-[44px] text-stone-500 dark:text-stone-400 transition-colors hover:bg-stone-100 dark:hover:bg-stone-800 hover:text-stone-700 dark:hover:text-stone-200"
+              className="flex items-center justify-center rounded-lg p-2.5 min-h-[44px] min-w-[44px] text-stone-500 dark:text-stone-300 transition-colors hover:bg-stone-100 dark:hover:bg-stone-800 hover:text-stone-700 dark:hover:text-stone-200"
               aria-label={isDark ? 'تبديل إلى الوضع الفاتح' : 'تبديل إلى الوضع الداكن'}
             >
               {isDark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
@@ -216,11 +216,11 @@ export default memo(function Header() {
             {/* Global Search */}
             <button
               onClick={() => setSearchOpen(true)}
-              className="flex items-center gap-1.5 rounded-lg p-2.5 min-h-[44px] min-w-[44px] text-stone-500 dark:text-stone-400 transition-colors hover:bg-stone-100 dark:hover:bg-stone-800 hover:text-stone-700 dark:text-stone-200"
+              className="flex items-center gap-1.5 rounded-lg p-2.5 min-h-[44px] min-w-[44px] text-stone-500 dark:text-stone-300 transition-colors hover:bg-stone-100 dark:hover:bg-stone-800 hover:text-stone-700 dark:text-stone-200"
               aria-label="بحث"
             >
               <Search className="h-4 w-4" />
-              <kbd className="hidden rounded-md border border-stone-200 dark:border-stone-700 bg-stone-100 dark:bg-stone-800 px-1 py-0.5 text-[10px] font-medium text-stone-400 lg:inline">⌘K</kbd>
+              <kbd className="hidden rounded-md border border-stone-200 dark:border-stone-600 bg-stone-100 dark:bg-stone-800 px-1 py-0.5 text-[10px] font-medium text-stone-400 lg:inline">⌘K</kbd>
             </button>
             <GlobalSearch open={searchOpen} onClose={() => setSearchOpen(false)} />
 
@@ -247,8 +247,8 @@ export default memo(function Header() {
                 </button>
 
                 {dropdownOpen && (
-                  <div aria-label="قائمة الحساب" className="absolute end-0 top-full mt-2 min-w-[180px] overflow-hidden rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 py-1 shadow-xl dark:shadow-stone-900/40 animate-fade-in">
-                    <p className="truncate border-b border-stone-200 dark:border-stone-700 px-4 py-2 text-sm text-stone-800 dark:text-stone-200">
+                  <div aria-label="قائمة الحساب" className="absolute end-0 top-full mt-2 min-w-[180px] overflow-hidden rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950 py-1 shadow-xl dark:shadow-stone-900/40 animate-fade-in">
+                    <p className="truncate border-b border-stone-200 dark:border-stone-600 px-4 py-2 text-sm text-stone-800 dark:text-stone-200">
                       {user.email}
                     </p>
                     <Link
@@ -269,7 +269,7 @@ export default memo(function Header() {
                     <Link
                       to="/admin"
                       onClick={() => setDropdownOpen(false)}
-                      className="flex w-full items-center gap-2 px-4 py-2.5 min-h-[44px] text-sm text-stone-500 dark:text-stone-400 transition-colors hover:bg-stone-50 dark:hover:bg-stone-800"
+                      className="flex w-full items-center gap-2 px-4 py-2.5 min-h-[44px] text-sm text-stone-500 dark:text-stone-300 transition-colors hover:bg-stone-50 dark:hover:bg-stone-800"
                       title="لوحة الإدارة"
                     >
                       لوحة الإدارة
@@ -330,7 +330,7 @@ export default memo(function Header() {
         <FocusTrap active={mobileOpen} focusTrapOptions={{ allowOutsideClick: true }}>
         <nav
           className={cn(
-            'absolute inset-y-0 end-0 flex w-[min(18rem,85vw)] flex-col border-s border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 pt-16 shadow-2xl transition-all duration-300 ease-out',
+            'absolute inset-y-0 end-0 flex w-[min(18rem,85vw)] flex-col border-s border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950 pt-16 shadow-2xl transition-all duration-300 ease-out',
             mobileOpen ? 'translate-x-0 opacity-100' : 'ltr:translate-x-full rtl:-translate-x-full opacity-0',
           )}
         >
@@ -338,7 +338,7 @@ export default memo(function Header() {
             {/* Mobile Search */}
             <button
               onClick={() => { setMobileOpen(false); setSearchOpen(true); }}
-              className="flex w-full items-center gap-3 rounded-xl border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-900 px-4 py-2.5 min-h-[44px] mb-3 text-sm text-stone-500 dark:text-stone-400"
+              className="flex w-full items-center gap-3 rounded-xl border border-stone-200 dark:border-stone-600 bg-stone-50 dark:bg-stone-900 px-4 py-2.5 min-h-[44px] mb-3 text-sm text-stone-500 dark:text-stone-300"
             >
               <Search className="h-4 w-4 shrink-0" />
               ابحث عن ببتيد، مصطلح، مقالة...
@@ -366,11 +366,11 @@ export default memo(function Header() {
               onClick={toggleTheme}
               className="flex w-full items-center gap-3 rounded-lg px-4 py-3 text-sm font-medium text-stone-800 dark:text-stone-200 transition-colors hover:bg-stone-50 dark:hover:bg-stone-800"
             >
-              {isDark ? <Sun className="h-4 w-4 text-amber-400" /> : <Moon className="h-4 w-4 text-stone-500 dark:text-stone-400" />}
+              {isDark ? <Sun className="h-4 w-4 text-amber-400" /> : <Moon className="h-4 w-4 text-stone-500 dark:text-stone-300" />}
               {isDark ? 'الوضع الفاتح' : 'الوضع الداكن'}
             </button>
             <div className="my-2 h-px bg-stone-200 dark:bg-stone-700" />
-            <p className="px-4 py-1 text-xs font-bold text-stone-500 dark:text-stone-400">الأدوات</p>
+            <p className="px-4 py-1 text-xs font-bold text-stone-500 dark:text-stone-300">الأدوات</p>
             {(user ? userToolLinks : guestToolLinks).map(({ to, label }) => {
               const active = pathname.startsWith(to);
               return (
@@ -391,7 +391,7 @@ export default memo(function Header() {
             })}
           </div>
 
-          <div className="border-t border-stone-200 dark:border-stone-700 px-4 py-4">
+          <div className="border-t border-stone-200 dark:border-stone-600 px-4 py-4">
             {user ? (
               <div className="space-y-3">
                 <div className="flex items-center gap-3">
@@ -412,7 +412,7 @@ export default memo(function Header() {
                 <Link
                   to="/admin"
                   onClick={() => setMobileOpen(false)}
-                  className="flex w-full items-center gap-2 rounded-lg px-4 py-2.5 min-h-[44px] text-sm text-stone-500 dark:text-stone-400 transition-colors hover:bg-stone-50 dark:hover:bg-stone-800"
+                  className="flex w-full items-center gap-2 rounded-lg px-4 py-2.5 min-h-[44px] text-sm text-stone-500 dark:text-stone-300 transition-colors hover:bg-stone-50 dark:hover:bg-stone-800"
                 >
                   لوحة الإدارة
                 </Link>

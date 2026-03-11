@@ -232,7 +232,7 @@ function MultiSelect({
     <div className="relative">
       <button
         onClick={() => setOpen(!open)}
-        className="flex min-h-[44px] items-center gap-2 rounded-xl border border-stone-300 dark:border-stone-700 bg-stone-50 dark:bg-stone-900 px-4 py-2 text-sm text-stone-800 dark:text-stone-200 transition-colors hover:border-emerald-400"
+        className="flex min-h-[44px] items-center gap-2 rounded-xl border border-stone-300 dark:border-stone-600 bg-stone-50 dark:bg-stone-900 px-4 py-2 text-sm text-stone-800 dark:text-stone-200 transition-colors hover:border-emerald-400"
       >
         {label}
         {selected.length > 0 && (
@@ -245,7 +245,7 @@ function MultiSelect({
       {open && (
         <>
           <div className="fixed inset-0 z-40" onClick={() => setOpen(false)} />
-          <div className="absolute start-0 top-full z-50 mt-1 w-56 rounded-xl border border-stone-300 dark:border-stone-700 bg-white dark:bg-stone-900 p-2 shadow-xl">
+          <div className="absolute start-0 top-full z-50 mt-1 w-56 rounded-xl border border-stone-300 dark:border-stone-600 bg-white dark:bg-stone-900 p-2 shadow-xl">
             {options.map((opt) => (
               <label
                 key={opt.value}
@@ -444,19 +444,19 @@ export default function PeptideTable() {
             جدول الببتيدات{' '}
             <span className="primary-gradient bg-clip-text text-transparent">الشامل</span>
           </h1>
-          <p className="mx-auto mt-3 max-w-2xl text-base text-stone-600 dark:text-stone-400 md:text-lg">
+          <p className="mx-auto mt-3 max-w-2xl text-base text-stone-600 dark:text-stone-300 md:text-lg">
             دليل مقارنة سريع لجميع الببتيدات مع الجرعات والتوقيت والدورات والتجميع
           </p>
         </header>
 
         {/* ━━━ COLLAPSIBLE GUIDE ━━━ */}
-        <details className="mb-6 rounded-xl border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-900">
+        <details className="mb-6 rounded-xl border border-stone-200 dark:border-stone-600 bg-stone-50 dark:bg-stone-900">
           <summary className="flex cursor-pointer items-center gap-2 px-5 py-3 text-sm font-bold text-stone-700 dark:text-stone-200 transition-colors hover:text-stone-900 dark:text-stone-100">
             <BookOpen className="h-4 w-4" />
             دليل استخدام الجدول والاختصارات
           </summary>
-          <div className="border-t border-stone-200 dark:border-stone-700 px-5 py-4 space-y-4">
-            <p className="text-xs leading-relaxed text-stone-600 dark:text-stone-400">
+          <div className="border-t border-stone-200 dark:border-stone-600 px-5 py-4 space-y-4">
+            <p className="text-xs leading-relaxed text-stone-600 dark:text-stone-300">
               استخدم البحث أو الفئات للتصفية. اضغط على اسم أي ببتيد لصفحته الكاملة. اضغط رأس العمود للترتيب. حدد ببتيدات للمقارنة السريعة.
             </p>
             <div className="flex flex-wrap gap-2 text-xs">
@@ -470,7 +470,7 @@ export default function PeptideTable() {
               ].map((abbr) => (
                 <span
                   key={abbr.label}
-                  className="rounded-md border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 px-2 py-1 text-stone-700 dark:text-stone-200"
+                  className="rounded-md border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950 px-2 py-1 text-stone-700 dark:text-stone-200"
                 >
                   <span className="font-semibold text-stone-800 dark:text-stone-200">{abbr.label}</span>
                   {abbr.full && <span className="text-stone-800 dark:text-stone-200"> = {abbr.full}</span>}
@@ -491,7 +491,7 @@ export default function PeptideTable() {
               onChange={(e) => setSearch(e.target.value)}
               placeholder="ابحث بالاسم عربي أو إنجليزي..."
               aria-label="ابحث في الببتيدات"
-              className="w-full rounded-xl border border-stone-300 dark:border-stone-700 bg-stone-50 dark:bg-stone-900 py-3 ps-10 pe-4 text-sm text-stone-900 dark:text-stone-100 placeholder:text-stone-500 dark:text-stone-400 dark:placeholder:text-stone-400 outline-none transition-colors focus:border-emerald-300 dark:focus:border-emerald-700 focus:ring-1 focus:ring-emerald-100 dark:focus:ring-emerald-900"
+              className="w-full rounded-xl border border-stone-300 dark:border-stone-600 bg-stone-50 dark:bg-stone-900 py-3 ps-10 pe-4 text-sm text-stone-900 dark:text-stone-100 placeholder:text-stone-500 dark:text-stone-300 dark:placeholder:text-stone-400 outline-none transition-colors focus:border-emerald-300 dark:focus:border-emerald-700 focus:ring-1 focus:ring-emerald-100 dark:focus:ring-emerald-900"
             />
           </div>
 
@@ -514,7 +514,7 @@ export default function PeptideTable() {
             <div className="relative">
               <button
                 onClick={() => setShowColPicker(!showColPicker)}
-                className="flex min-h-[44px] items-center gap-2 rounded-xl border border-stone-300 dark:border-stone-700 bg-stone-50 dark:bg-stone-900 px-4 py-2 text-sm text-stone-800 dark:text-stone-200 transition-colors hover:border-emerald-400"
+                className="flex min-h-[44px] items-center gap-2 rounded-xl border border-stone-300 dark:border-stone-600 bg-stone-50 dark:bg-stone-900 px-4 py-2 text-sm text-stone-800 dark:text-stone-200 transition-colors hover:border-emerald-400"
               >
                 <Columns3 className="h-4 w-4" />
                 الأعمدة
@@ -522,7 +522,7 @@ export default function PeptideTable() {
               {showColPicker && (
                 <>
                   <div className="fixed inset-0 z-40" onClick={() => setShowColPicker(false)} />
-                  <div className="absolute start-0 top-full z-50 mt-1 w-56 rounded-xl border border-stone-300 dark:border-stone-700 bg-white dark:bg-stone-900 p-2 shadow-xl">
+                  <div className="absolute start-0 top-full z-50 mt-1 w-56 rounded-xl border border-stone-300 dark:border-stone-600 bg-white dark:bg-stone-900 p-2 shadow-xl">
                     {ALL_COLUMNS.map((col) => (
                       <label
                         key={col.key}
@@ -552,14 +552,14 @@ export default function PeptideTable() {
             {/* Export buttons */}
             <button
               onClick={() => exportCSV(filtered, visibleCols)}
-              className="flex min-h-[44px] items-center gap-2 rounded-xl border border-stone-300 dark:border-stone-700 bg-stone-50 dark:bg-stone-900 px-4 py-2 text-sm font-semibold text-stone-800 dark:text-stone-200 transition-colors hover:border-emerald-400 hover:text-emerald-700"
+              className="flex min-h-[44px] items-center gap-2 rounded-xl border border-stone-300 dark:border-stone-600 bg-stone-50 dark:bg-stone-900 px-4 py-2 text-sm font-semibold text-stone-800 dark:text-stone-200 transition-colors hover:border-emerald-400 hover:text-emerald-700"
             >
               <Download className="h-4 w-4" />
               تحميل CSV
             </button>
             <button
               onClick={() => void exportAsImage(filtered, visibleCols)}
-              className="flex min-h-[44px] items-center gap-2 rounded-xl border border-stone-300 dark:border-stone-700 bg-stone-50 dark:bg-stone-900 px-4 py-2 text-sm font-semibold text-stone-800 dark:text-stone-200 transition-colors hover:border-emerald-400 hover:text-emerald-700"
+              className="flex min-h-[44px] items-center gap-2 rounded-xl border border-stone-300 dark:border-stone-600 bg-stone-50 dark:bg-stone-900 px-4 py-2 text-sm font-semibold text-stone-800 dark:text-stone-200 transition-colors hover:border-emerald-400 hover:text-emerald-700"
             >
               <Download className="h-4 w-4" />
               تحميل صورة
@@ -569,7 +569,7 @@ export default function PeptideTable() {
           {/* Active filter pills */}
           {activeFilterCount > 0 && (
             <div className="flex flex-wrap items-center gap-2">
-              <span className="text-xs font-semibold text-stone-500 dark:text-stone-400">فلاتر نشطة:</span>
+              <span className="text-xs font-semibold text-stone-500 dark:text-stone-300">فلاتر نشطة:</span>
               {selectedCategories.map((c) => (
                 <span key={c} className="inline-flex items-center gap-1 rounded-full bg-emerald-100 dark:bg-emerald-900/30 px-3 py-1 text-xs font-semibold text-emerald-800 dark:text-emerald-300">
                   {categories.find((cat) => cat.id === c)?.nameAr}
@@ -612,7 +612,7 @@ export default function PeptideTable() {
                   </span>
                 ) : null;
               })}
-              <span className="text-xs text-stone-500 dark:text-stone-400">
+              <span className="text-xs text-stone-500 dark:text-stone-300">
                 {compareIds.length < 2 ? `اختر ${2 - compareIds.length} أخرى` : ''}
                 {compareIds.length >= 2 && compareIds.length < 3 ? ' (أو أضف واحد)' : ''}
               </span>
@@ -627,7 +627,7 @@ export default function PeptideTable() {
             )}
             <button
               onClick={() => setCompareIds([])}
-              className="text-xs font-semibold text-stone-500 dark:text-stone-400 hover:text-red-500"
+              className="text-xs font-semibold text-stone-500 dark:text-stone-300 hover:text-red-500"
             >
               مسح
             </button>
@@ -637,9 +637,9 @@ export default function PeptideTable() {
         {/* ━━━ THE TABLE ━━━ */}
         <section className="mb-12">
           <p className="mb-2 md:hidden">
-            <span className="inline-flex items-center gap-2 rounded-full bg-stone-100 dark:bg-stone-800 px-4 py-1.5 text-sm font-medium text-stone-500 dark:text-stone-400 animate-pulse">← اسحب لمشاهدة المزيد →</span>
+            <span className="inline-flex items-center gap-2 rounded-full bg-stone-100 dark:bg-stone-800 px-4 py-1.5 text-sm font-medium text-stone-500 dark:text-stone-300 animate-pulse">← اسحب لمشاهدة المزيد →</span>
           </p>
-          <div className="overflow-hidden rounded-2xl border border-stone-200 dark:border-stone-700 bg-stone-100 dark:bg-stone-800 shadow-2xl">
+          <div className="overflow-hidden rounded-2xl border border-stone-200 dark:border-stone-600 bg-stone-100 dark:bg-stone-800 shadow-2xl">
             <div className="overflow-x-auto scroll-fade">
               <table className="w-full min-w-[900px] border-collapse text-xs md:text-sm" aria-label="جدول الببتيدات">
                 <thead className="sticky top-0 z-10">
@@ -681,7 +681,7 @@ export default function PeptideTable() {
                   {filtered.length === 0 ? (
                     <tr>
                       <td colSpan={visibleColumns.length + 1} className="px-4 py-16 text-center text-stone-800 dark:text-stone-200">
-                        <Search className="mx-auto mb-2 h-8 w-8 text-stone-500 dark:text-stone-400" />
+                        <Search className="mx-auto mb-2 h-8 w-8 text-stone-500 dark:text-stone-300" />
                         لا توجد نتائج — جرّب بحثًا مختلفًا أو اختر فئة أخرى
                       </td>
                     </tr>
@@ -845,7 +845,7 @@ export default function PeptideTable() {
               return (
                 <div
                   key={stack.id}
-                  className="group rounded-xl border border-stone-300 dark:border-stone-700 bg-stone-50 dark:bg-stone-900 p-5 transition-all hover:border-emerald-300 dark:hover:border-emerald-700 hover:bg-stone-100 dark:hover:bg-stone-800"
+                  className="group rounded-xl border border-stone-300 dark:border-stone-600 bg-stone-50 dark:bg-stone-900 p-5 transition-all hover:border-emerald-300 dark:hover:border-emerald-700 hover:bg-stone-100 dark:hover:bg-stone-800"
                 >
                   <h3 className="mb-1 text-base font-bold text-stone-900 dark:text-stone-100">{stack.nameAr}</h3>
                   <p className="mb-3 text-xs text-stone-800 dark:text-stone-200">{stack.nameEn}</p>
@@ -913,7 +913,7 @@ export default function PeptideTable() {
                   key={cat.id}
                   className={cn(
                     'rounded-xl border bg-stone-50 dark:bg-stone-900 p-5',
-                    catColor?.border ?? 'border-stone-300 dark:border-stone-700'
+                    catColor?.border ?? 'border-stone-300 dark:border-stone-600'
                   )}
                 >
                   <div className="mb-3 flex items-center gap-2">
@@ -933,7 +933,7 @@ export default function PeptideTable() {
                         <Link
                           key={p.id}
                           to={`/peptide/${p.id}`}
-                          className="rounded-md border border-stone-300 dark:border-stone-700 bg-white dark:bg-stone-950/[0.05] px-2 py-1 text-xs font-medium text-stone-800 dark:text-stone-200 transition-colors hover:border-emerald-300 dark:hover:border-emerald-700 hover:text-stone-900 dark:hover:text-stone-100"
+                          className="rounded-md border border-stone-300 dark:border-stone-600 bg-white dark:bg-stone-950/[0.05] px-2 py-1 text-xs font-medium text-stone-800 dark:text-stone-200 transition-colors hover:border-emerald-300 dark:hover:border-emerald-700 hover:text-stone-900 dark:hover:text-stone-100"
                         >
                           {p.nameAr}
                         </Link>
@@ -977,7 +977,7 @@ export default function PeptideTable() {
                 { title: 'الدورات ضرورية', text: 'معظم الببتيدات تحتاج فترات راحة بين دورات الاستخدام. الاستخدام المستمر دون راحة قد يُقلل الفعالية أو يزيد المخاطر. التزم بدورات الاستخدام والراحة المذكورة.' },
                 { title: 'الوضع القانوني', text: 'الوضع القانوني للببتيدات يختلف حسب البلد. بعضها معتمد من FDA وبعضها بحثي فقط. تحقق من القوانين المحلية في بلدك قبل الشراء أو الاستخدام.' },
               ].map((w) => (
-                <div key={w.title} className="rounded-lg border border-stone-300 dark:border-stone-700 bg-stone-50 dark:bg-stone-900 p-3">
+                <div key={w.title} className="rounded-lg border border-stone-300 dark:border-stone-600 bg-stone-50 dark:bg-stone-900 p-3">
                   <h4 className="mb-1 text-xs font-bold text-stone-800 dark:text-stone-200">{w.title}</h4>
                   <p>{w.text}</p>
                 </div>
@@ -989,7 +989,7 @@ export default function PeptideTable() {
         {/* ━━━ CTA ━━━ */}
         <div className="mt-10 rounded-2xl border border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-900/20 p-6 text-center">
           <p className="font-bold text-stone-900 dark:text-stone-100">اخترت ببتيداتك؟</p>
-          <p className="mt-1 text-sm text-stone-600 dark:text-stone-400">تحقق من التعارضات بينها واحسب الجرعة الدقيقة</p>
+          <p className="mt-1 text-sm text-stone-600 dark:text-stone-300">تحقق من التعارضات بينها واحسب الجرعة الدقيقة</p>
           <div className="mt-4 flex flex-col gap-2 sm:flex-row sm:justify-center">
             <Link to="/interactions" className="rounded-full bg-emerald-600 px-6 py-2.5 text-sm font-bold text-white transition-colors hover:bg-emerald-700">فحص التعارضات</Link>
             <Link to="/calculator" className="rounded-full border border-emerald-300 dark:border-emerald-700 px-6 py-2.5 text-sm font-bold text-emerald-700 dark:text-emerald-400 transition-colors hover:bg-emerald-100 dark:hover:bg-emerald-900/30">حاسبة الجرعات</Link>

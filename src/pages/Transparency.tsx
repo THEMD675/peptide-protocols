@@ -69,7 +69,7 @@ export default function Transparency() {
           <h1 className="mb-3 text-3xl font-bold text-stone-900 dark:text-stone-100 md:text-4xl lg:text-5xl">
             الشفافية <span className="text-emerald-700">الكاملة</span>
           </h1>
-          <p className="mx-auto max-w-lg text-lg text-stone-600 dark:text-stone-400">
+          <p className="mx-auto max-w-lg text-lg text-stone-600 dark:text-stone-300">
             ثقتك أهم من أرباحنا — إليك بالضبط كيف نعمل وكيف نكسب المال
           </p>
         </div>
@@ -219,9 +219,9 @@ export default function Transparency() {
                   <h3 className="mb-3 font-bold text-stone-900 dark:text-stone-100">ما نجمعه ولماذا</h3>
                   <div className="mb-6 space-y-3">
                     {dataCollected.map(({ item, reason }) => (
-                      <div key={item} className="rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 p-4">
+                      <div key={item} className="rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950 p-4">
                         <div className="text-sm font-bold text-stone-900 dark:text-stone-100">{item}</div>
-                        <div className="mt-1 text-sm text-stone-600 dark:text-stone-400">{reason}</div>
+                        <div className="mt-1 text-sm text-stone-600 dark:text-stone-300">{reason}</div>
                       </div>
                     ))}
                   </div>
@@ -241,7 +241,7 @@ export default function Transparency() {
                       <Trash2 className="mt-0.5 h-5 w-5 shrink-0 text-emerald-700" />
                       <div>
                         <div className="text-sm font-bold text-stone-900 dark:text-stone-100">حذف بياناتك بالكامل</div>
-                        <p className="mt-1 text-sm text-stone-600 dark:text-stone-400">
+                        <p className="mt-1 text-sm text-stone-600 dark:text-stone-300">
                           يمكنك حذف حسابك وجميع بياناتك في أي وقت من{' '}
                           <Link to="/account" className="font-semibold text-emerald-700 underline hover:text-emerald-700">
                             صفحة الحساب
@@ -263,7 +263,7 @@ export default function Transparency() {
           {/* Footer CTA */}
           <div className="rounded-2xl border border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-950 p-8 text-center">
             <p className="mb-2 text-lg font-bold text-stone-900 dark:text-stone-100">أسئلة أخرى عن شفافيتنا؟</p>
-            <p className="mb-6 text-sm text-stone-600 dark:text-stone-400">
+            <p className="mb-6 text-sm text-stone-600 dark:text-stone-300">
               نرحب بأي استفسار — تواصل معنا مباشرة على{' '}
               <a href={`mailto:${SUPPORT_EMAIL}`} className="inline-flex min-h-[44px] items-center font-semibold text-emerald-700 underline hover:text-emerald-700 dark:text-emerald-400">
                 {SUPPORT_EMAIL}
@@ -279,14 +279,14 @@ export default function Transparency() {
               </Link>
               <Link
                 to="/about"
-                className="inline-flex items-center gap-2 rounded-full border border-stone-300 dark:border-stone-700 px-6 py-3 text-sm font-bold text-stone-800 dark:text-stone-200 transition-colors hover:bg-stone-50 dark:hover:bg-stone-800"
+                className="inline-flex items-center gap-2 rounded-full border border-stone-300 dark:border-stone-600 px-6 py-3 text-sm font-bold text-stone-800 dark:text-stone-200 transition-colors hover:bg-stone-50 dark:hover:bg-stone-800"
               >
                 <BookOpen className="h-4 w-4" />
                 <span>عن pptides</span>
               </Link>
               <Link
                 to="/privacy"
-                className="inline-flex items-center gap-2 rounded-full border border-stone-300 dark:border-stone-700 px-6 py-3 text-sm font-bold text-stone-800 dark:text-stone-200 transition-colors hover:bg-stone-50 dark:hover:bg-stone-800"
+                className="inline-flex items-center gap-2 rounded-full border border-stone-300 dark:border-stone-600 px-6 py-3 text-sm font-bold text-stone-800 dark:text-stone-200 transition-colors hover:bg-stone-50 dark:hover:bg-stone-800"
               >
                 <Shield className="h-4 w-4" />
                 <span>سياسة الخصوصية</span>

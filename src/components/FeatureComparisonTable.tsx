@@ -28,7 +28,7 @@ function CellContent({ value }: { value: string | boolean }) {
   return value ? (
     <Check className="mx-auto h-5 w-5 text-emerald-500" />
   ) : (
-    <X className="mx-auto h-5 w-5 text-stone-300 dark:text-stone-400" />
+    <X className="mx-auto h-5 w-5 text-stone-300 dark:text-stone-300" />
   );
 }
 
@@ -43,21 +43,21 @@ export default function FeatureComparisonTable() {
       <h2 className="mb-4 text-center text-3xl font-bold text-stone-900 dark:text-stone-100 md:text-4xl">
         ماذا تحصل في <span className="text-emerald-700">كل خطة؟</span>
       </h2>
-      <p className="mx-auto mb-10 max-w-xl text-center text-stone-600 dark:text-stone-400">
+      <p className="mx-auto mb-10 max-w-xl text-center text-stone-600 dark:text-stone-300">
         اختر الخطة المناسبة لاحتياجاتك — وابدأ بتجربة مجانية
       </p>
 
-      <div className="overflow-x-auto rounded-2xl border border-stone-200 dark:border-stone-700/60 bg-white dark:bg-stone-950 shadow-lg dark:shadow-stone-900/40">
+      <div className="overflow-x-auto rounded-2xl border border-stone-200 dark:border-stone-600/60 bg-white dark:bg-stone-950 shadow-lg dark:shadow-stone-900/40">
         <table className="w-full text-sm">
           <thead>
-            <tr className="border-b border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-900">
+            <tr className="border-b border-stone-200 dark:border-stone-600 bg-stone-50 dark:bg-stone-900">
               <th className="px-5 py-4 text-start font-semibold text-stone-700 dark:text-stone-200 min-w-[140px]">الميزة</th>
-              <th className="px-4 py-4 text-center font-semibold text-stone-500 dark:text-stone-400 min-w-[100px]">
+              <th className="px-4 py-4 text-center font-semibold text-stone-500 dark:text-stone-300 min-w-[100px]">
                 مجاني
               </th>
               <th className="px-4 py-4 text-center font-semibold text-stone-700 dark:text-stone-200 min-w-[120px]">
                 <span className="block">الأساسية</span>
-                <span className="text-xs font-normal text-stone-500 dark:text-stone-400">Essentials</span>
+                <span className="text-xs font-normal text-stone-500 dark:text-stone-300">Essentials</span>
               </th>
               <th className="px-4 py-4 text-center min-w-[120px]">
                 <div className="flex items-center justify-center gap-1.5 font-semibold text-emerald-700 dark:text-emerald-400">

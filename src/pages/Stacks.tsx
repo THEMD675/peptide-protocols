@@ -53,7 +53,7 @@ export default function Stacks() {
         <div role="dialog" aria-modal="true" aria-label="بدء البروتوكول" className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" onClick={() => setStackStartDialog(null)}>
           <div className="w-full max-w-md max-h-[90vh] overflow-y-auto rounded-2xl bg-white dark:bg-stone-950 p-6 shadow-xl dark:shadow-stone-900/40" onClick={e => e.stopPropagation()}>
             <h3 className="text-lg font-bold text-stone-900 dark:text-stone-100 mb-2">ابدأ البروتوكول: {stackStartDialog.stackName}</h3>
-            <p className="text-sm text-stone-600 dark:text-stone-400 mb-4">اختر الببتيد الذي تريد بدء بروتوكوله:</p>
+            <p className="text-sm text-stone-600 dark:text-stone-300 mb-4">اختر الببتيد الذي تريد بدء بروتوكوله:</p>
             <div className="space-y-2">
               {stackStartDialog.peptideIds.map(pid => {
                 const p = peptides.find(x => x.id === pid);
@@ -70,7 +70,7 @@ export default function Stacks() {
                 ) : null;
               })}
             </div>
-            <button onClick={() => setStackStartDialog(null)} className="mt-4 w-full rounded-xl border border-stone-200 dark:border-stone-700 py-2.5 text-sm font-bold text-stone-600 dark:text-stone-400 hover:bg-stone-50 dark:hover:bg-stone-800">
+            <button onClick={() => setStackStartDialog(null)} className="mt-4 w-full rounded-xl border border-stone-200 dark:border-stone-600 py-2.5 text-sm font-bold text-stone-600 dark:text-stone-300 hover:bg-stone-50 dark:hover:bg-stone-800">
               إلغاء
             </button>
           </div>
@@ -109,7 +109,7 @@ export default function Stacks() {
         <h1 className="text-3xl font-bold md:text-4xl text-emerald-700">
           البروتوكولات المُجمَّعة
         </h1>
-        <p className="mt-2 text-lg text-stone-600 dark:text-stone-400">
+        <p className="mt-2 text-lg text-stone-600 dark:text-stone-300">
           خلطات مُجرَّبة لأهداف محددة
         </p>
       </div>
@@ -122,7 +122,7 @@ export default function Stacks() {
       {/* Divider */}
       <div className="mb-10 flex items-center gap-4">
         <div className="h-px flex-1 bg-stone-200 dark:bg-stone-700" />
-        <span className="text-sm font-bold text-stone-400 dark:text-stone-400">بروتوكولات جاهزة</span>
+        <span className="text-sm font-bold text-stone-400 dark:text-stone-300">بروتوكولات جاهزة</span>
         <div className="h-px flex-1 bg-stone-200 dark:bg-stone-700" />
       </div>
 
@@ -162,15 +162,15 @@ export default function Stacks() {
               {/* Stack meta — always visible */}
               {STACK_META[stack.id] && (
                 <div className="mb-4 flex flex-wrap gap-2">
-                  <span className="flex items-center gap-1 rounded-full border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-900 px-2.5 py-1 text-sm font-medium text-stone-700 dark:text-stone-200">
+                  <span className="flex items-center gap-1 rounded-full border border-stone-200 dark:border-stone-600 bg-stone-50 dark:bg-stone-900 px-2.5 py-1 text-sm font-medium text-stone-700 dark:text-stone-200">
                     <BarChart3 className="h-3 w-3" />
                     {STACK_META[stack.id].difficulty}
                   </span>
-                  <span className="flex items-center gap-1 rounded-full border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-900 px-2.5 py-1 text-sm font-medium text-stone-700 dark:text-stone-200">
+                  <span className="flex items-center gap-1 rounded-full border border-stone-200 dark:border-stone-600 bg-stone-50 dark:bg-stone-900 px-2.5 py-1 text-sm font-medium text-stone-700 dark:text-stone-200">
                     <DollarSign className="h-3 w-3" />
                     {STACK_META[stack.id].cost}
                   </span>
-                  <span className="flex items-center gap-1 rounded-full border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-900 px-2.5 py-1 text-sm font-medium text-stone-700 dark:text-stone-200">
+                  <span className="flex items-center gap-1 rounded-full border border-stone-200 dark:border-stone-600 bg-stone-50 dark:bg-stone-900 px-2.5 py-1 text-sm font-medium text-stone-700 dark:text-stone-200">
                     <Clock className="h-3 w-3" />
                     {STACK_META[stack.id].duration}
                   </span>
@@ -250,7 +250,7 @@ export default function Stacks() {
                     </button>
                     <Link
                       to={`/calculator?peptide=${encodeURIComponent(stackPeptides[0]?.nameEn ?? '')}`}
-                      className="inline-flex items-center gap-1.5 rounded-full border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 px-4 py-2 text-sm font-bold text-stone-700 dark:text-stone-200 hover:border-emerald-200 dark:border-emerald-800 transition-colors"
+                      className="inline-flex items-center gap-1.5 rounded-full border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950 px-4 py-2 text-sm font-bold text-stone-700 dark:text-stone-200 hover:border-emerald-200 dark:border-emerald-800 transition-colors"
                     >
                       <Calculator className="h-3.5 w-3.5" />
                       احسب الجرعة
@@ -285,7 +285,7 @@ export default function Stacks() {
       {!isPro && (
         <div className="mt-10 rounded-2xl border border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-900/20 p-6 text-center">
           <p className="font-bold text-stone-900 dark:text-stone-100">اكتشف البروتوكولات الكاملة</p>
-          <p className="mt-1 text-sm text-stone-600 dark:text-stone-400">اشترك لفتح كل البروتوكولات المُجمَّعة مع الجرعات والتوقيت</p>
+          <p className="mt-1 text-sm text-stone-600 dark:text-stone-300">اشترك لفتح كل البروتوكولات المُجمَّعة مع الجرعات والتوقيت</p>
           <div className="mt-4 flex flex-col gap-2 sm:flex-row sm:justify-center">
             <Link to="/pricing" className="rounded-full bg-emerald-600 px-6 py-2.5 text-sm font-bold text-white transition-colors hover:bg-emerald-700">اشترك — {PRICING.essentials.label}/شهريًا</Link>
             <Link to="/coach" className="rounded-full border border-emerald-300 dark:border-emerald-700 px-6 py-2.5 text-sm font-bold text-emerald-700 dark:text-emerald-400 transition-colors hover:bg-emerald-100 dark:bg-emerald-900/30">اسأل المدرب الذكي</Link>

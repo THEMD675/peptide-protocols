@@ -153,7 +153,7 @@ export default function SideEffectLog() {
   const activePeptideOptions = allPeptides.filter(p => activePeptideIds.has(p.id));
 
   return (
-    <div className="rounded-2xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 shadow-sm dark:shadow-stone-900/30">
+    <div className="rounded-2xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950 shadow-sm dark:shadow-stone-900/30">
       <button
         onClick={() => setIsOpen(prev => !prev)}
         className="flex w-full items-center justify-between p-5 text-start"
@@ -164,13 +164,13 @@ export default function SideEffectLog() {
           </div>
           <div>
             <h3 className="text-sm font-bold text-stone-900 dark:text-stone-100">أعراض جانبية</h3>
-            <p className="text-xs text-stone-500 dark:text-stone-400">سجّل وتابع الأعراض</p>
+            <p className="text-xs text-stone-500 dark:text-stone-300">سجّل وتابع الأعراض</p>
           </div>
         </div>
         {isOpen ? (
-          <ChevronUp className="h-5 w-5 text-stone-500 dark:text-stone-400" />
+          <ChevronUp className="h-5 w-5 text-stone-500 dark:text-stone-300" />
         ) : (
-          <ChevronDown className="h-5 w-5 text-stone-500 dark:text-stone-400" />
+          <ChevronDown className="h-5 w-5 text-stone-500 dark:text-stone-300" />
         )}
       </button>
 
@@ -187,7 +187,7 @@ export default function SideEffectLog() {
                 onChange={e => setSymptom(e.target.value)}
                 placeholder="مثال: صداع، غثيان، احمرار..."
                 maxLength={100}
-                className="w-full rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 px-4 py-2.5 text-base text-stone-900 dark:text-stone-100 placeholder:text-stone-500 dark:text-stone-400 focus:border-emerald-300 dark:border-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900"
+                className="w-full rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950 px-4 py-2.5 text-base text-stone-900 dark:text-stone-100 placeholder:text-stone-500 dark:text-stone-300 focus:border-emerald-300 dark:border-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900"
               />
             </div>
 
@@ -203,7 +203,7 @@ export default function SideEffectLog() {
                       'flex-1 rounded-lg border py-2 min-h-[44px] text-xs font-bold transition-all btn-press',
                       severity === level
                         ? SEVERITY_COLORS[level - 1]
-                        : 'border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 text-stone-500 dark:text-stone-400 hover:border-stone-300 dark:border-stone-700',
+                        : 'border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950 text-stone-500 dark:text-stone-300 hover:border-stone-300 dark:border-stone-600',
                     )}
                   >
                     {SEVERITY_LABELS[level - 1]}
@@ -221,7 +221,7 @@ export default function SideEffectLog() {
                   value={peptideId}
                   onChange={e => setPeptideId(e.target.value)}
                   aria-label="اختر الببتيد"
-                  className="w-full rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 px-4 py-2.5 text-base text-stone-900 dark:text-stone-100 focus:border-emerald-300 dark:border-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900"
+                  className="w-full rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950 px-4 py-2.5 text-base text-stone-900 dark:text-stone-100 focus:border-emerald-300 dark:border-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900"
                 >
                   <option value="">غير محدد</option>
                   {activePeptideOptions.map(p => (
@@ -244,7 +244,7 @@ export default function SideEffectLog() {
                 placeholder="تفاصيل إضافية..."
                 rows={2}
                 maxLength={200}
-                className="w-full resize-none rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 px-4 py-2.5 text-base text-stone-900 dark:text-stone-100 placeholder:text-stone-500 dark:text-stone-400 focus:border-emerald-300 dark:border-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900"
+                className="w-full resize-none rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950 px-4 py-2.5 text-base text-stone-900 dark:text-stone-100 placeholder:text-stone-500 dark:text-stone-300 focus:border-emerald-300 dark:border-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900"
               />
             </div>
 
@@ -274,7 +274,7 @@ export default function SideEffectLog() {
             </div>
           ) : entries.length > 0 ? (
             <div className="space-y-2">
-              <h4 className="text-xs font-bold text-stone-500 dark:text-stone-400">آخر الأعراض</h4>
+              <h4 className="text-xs font-bold text-stone-500 dark:text-stone-300">آخر الأعراض</h4>
               {entries.slice(0, 10).map(entry => {
                 const peptide = entry.peptide_id
                   ? allPeptides.find(p => p.id === entry.peptide_id)
@@ -296,12 +296,12 @@ export default function SideEffectLog() {
                           {SEVERITY_LABELS[entry.severity - 1]}
                         </span>
                       </div>
-                      <div className="mt-1 flex items-center gap-2 text-xs text-stone-500 dark:text-stone-400">
+                      <div className="mt-1 flex items-center gap-2 text-xs text-stone-500 dark:text-stone-300">
                         {peptide && <span>{peptide.nameAr}</span>}
                         <span>{formatDate(entry.created_at)}</span>
                       </div>
                       {entry.notes && (
-                        <p className="mt-1 text-xs text-stone-500 dark:text-stone-400">{entry.notes}</p>
+                        <p className="mt-1 text-xs text-stone-500 dark:text-stone-300">{entry.notes}</p>
                       )}
                     </div>
                     <button
@@ -322,7 +322,7 @@ export default function SideEffectLog() {
               })}
             </div>
           ) : (
-            <p className="text-center text-xs text-stone-500 dark:text-stone-400 py-4">لا توجد أعراض مسجّلة</p>
+            <p className="text-center text-xs text-stone-500 dark:text-stone-300 py-4">لا توجد أعراض مسجّلة</p>
           )}
 
           {/* Correlation summary — group by peptide, show for 2+ */}
@@ -341,7 +341,7 @@ export default function SideEffectLog() {
             if (correlated.length === 0) return null;
             return (
               <div className="mt-4 pt-4 border-t border-stone-100 dark:border-stone-800">
-                <h4 className="text-xs font-bold text-stone-500 dark:text-stone-400 mb-2">ملخص الارتباط</h4>
+                <h4 className="text-xs font-bold text-stone-500 dark:text-stone-300 mb-2">ملخص الارتباط</h4>
                 <div className="space-y-1.5">
                   {correlated.map(({ name, count }) => (
                     <p key={name} className="text-sm text-amber-700 dark:text-amber-400 font-medium">

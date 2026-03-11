@@ -21,7 +21,7 @@ export default memo(function BottomNav() {
   return (
     <nav
       aria-label="التنقل السريع"
-      className="fixed inset-x-0 bottom-0 z-30 border-t border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 pb-[env(safe-area-inset-bottom)] md:hidden"
+      className="fixed inset-x-0 bottom-0 z-30 border-t border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950 pb-[env(safe-area-inset-bottom)] md:hidden"
     >
       <div className="flex items-stretch">
         {tabs.map(({ to, icon: Icon, label }) => {
@@ -35,7 +35,7 @@ export default memo(function BottomNav() {
               onMouseEnter={() => prefetchRoute(to)}
               className={cn(
                 'flex min-h-[56px] flex-1 flex-col items-center justify-center gap-1 py-2 text-[11px] font-medium transition-colors',
-                active ? 'text-emerald-700' : 'text-stone-500 dark:text-stone-400 active:text-stone-600 dark:text-stone-400',
+                active ? 'text-emerald-700' : 'text-stone-500 dark:text-stone-300 active:text-stone-600 dark:text-stone-300',
               )}
             >
               <Icon className="h-5 w-5" />

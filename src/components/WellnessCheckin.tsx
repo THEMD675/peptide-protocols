@@ -161,7 +161,7 @@ export default function WellnessCheckin() {
   const isReadonly = !!todayEntry && !editing;
 
   return (
-    <div className="rounded-2xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 p-5 shadow-sm dark:shadow-stone-900/30">
+    <div className="rounded-2xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950 p-5 shadow-sm dark:shadow-stone-900/30">
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-3">
           <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-50 dark:bg-emerald-900/20">
@@ -170,14 +170,14 @@ export default function WellnessCheckin() {
           <div>
             <h3 className="text-sm font-bold text-stone-900 dark:text-stone-100">الحالة اليومية</h3>
             {lastEntry && (
-              <p className="text-xs text-stone-500 dark:text-stone-400">{getLastLogLabel(lastEntry.logged_at)}</p>
+              <p className="text-xs text-stone-500 dark:text-stone-300">{getLastLogLabel(lastEntry.logged_at)}</p>
             )}
           </div>
         </div>
         {isReadonly && (
           <button
             onClick={() => setEditing(true)}
-            className="flex items-center gap-1.5 rounded-lg border border-stone-200 dark:border-stone-700 px-3 py-1.5 text-xs font-bold text-stone-600 dark:text-stone-400 transition-colors hover:border-emerald-300 dark:border-emerald-700 hover:text-emerald-700 dark:text-emerald-400 min-h-[44px]"
+            className="flex items-center gap-1.5 rounded-lg border border-stone-200 dark:border-stone-600 px-3 py-1.5 text-xs font-bold text-stone-600 dark:text-stone-300 transition-colors hover:border-emerald-300 dark:border-emerald-700 hover:text-emerald-700 dark:text-emerald-400 min-h-[44px]"
           >
             <Pencil className="h-3 w-3" />
             تعديل
@@ -215,7 +215,7 @@ export default function WellnessCheckin() {
                           ? colors[level - 1]
                           : isReadonly
                             ? 'border-stone-100 dark:border-stone-800 bg-stone-50 dark:bg-stone-900 text-stone-300'
-                            : 'border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 text-stone-500 dark:text-stone-400 hover:border-stone-300 dark:border-stone-700',
+                            : 'border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950 text-stone-500 dark:text-stone-300 hover:border-stone-300 dark:border-stone-600',
                         !isReadonly && 'cursor-pointer btn-press',
                       )}
                     >
@@ -243,7 +243,7 @@ export default function WellnessCheckin() {
               min="20"
               max="300"
               dir="ltr"
-              className="w-full rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 px-4 py-2.5 text-base text-stone-900 dark:text-stone-100 placeholder:text-stone-500 dark:text-stone-400 focus:border-emerald-300 dark:border-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900 disabled:bg-stone-50 dark:bg-stone-900 disabled:text-stone-500 dark:text-stone-400"
+              className="w-full rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950 px-4 py-2.5 text-base text-stone-900 dark:text-stone-100 placeholder:text-stone-500 dark:text-stone-300 focus:border-emerald-300 dark:border-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900 disabled:bg-stone-50 dark:bg-stone-900 disabled:text-stone-500 dark:text-stone-300"
             />
           </div>
 
@@ -259,7 +259,7 @@ export default function WellnessCheckin() {
               placeholder="كيف تشعر اليوم؟"
               rows={2}
               maxLength={200}
-              className="w-full resize-none rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 px-4 py-2.5 text-base text-stone-900 dark:text-stone-100 placeholder:text-stone-500 dark:text-stone-400 focus:border-emerald-300 dark:border-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900 disabled:bg-stone-50 dark:bg-stone-900 disabled:text-stone-500 dark:text-stone-400"
+              className="w-full resize-none rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950 px-4 py-2.5 text-base text-stone-900 dark:text-stone-100 placeholder:text-stone-500 dark:text-stone-300 focus:border-emerald-300 dark:border-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900 disabled:bg-stone-50 dark:bg-stone-900 disabled:text-stone-500 dark:text-stone-300"
             />
           </div>
 

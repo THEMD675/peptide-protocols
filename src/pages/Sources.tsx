@@ -95,19 +95,19 @@ function SourcingInterestForm() {
       <section className="mt-10 rounded-2xl border-2 border-emerald-200 bg-emerald-50 p-8 text-center">
         <CheckCircle className="mx-auto mb-3 h-10 w-10 text-emerald-700" />
         <p className="text-lg font-bold text-stone-900 dark:text-stone-100">تم تسجيل اهتمامك</p>
-        <p className="mt-2 text-sm text-stone-600 dark:text-stone-400">سنتواصل معك عند توفّر خدمة التوريد الموثوق</p>
+        <p className="mt-2 text-sm text-stone-600 dark:text-stone-300">سنتواصل معك عند توفّر خدمة التوريد الموثوق</p>
       </section>
     );
   }
 
   return (
-    <section className="mt-10 rounded-2xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-900 p-6 md:p-8">
+    <section className="mt-10 rounded-2xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 p-6 md:p-8">
       <div className="mb-6 text-center">
         <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-emerald-100 dark:bg-emerald-900/30">
           <Package className="h-5 w-5 text-emerald-700 dark:text-emerald-400" />
         </div>
         <h2 className="text-xl font-bold text-stone-900 dark:text-stone-100">تبحث عن مورّد موثوق؟</h2>
-        <p className="mt-2 text-sm text-stone-600 dark:text-stone-400">نعمل على توفير خدمة توريد ببتيدات موثوقة للمنطقة العربية. سجّل اهتمامك وسنتواصل معك عند الإطلاق.</p>
+        <p className="mt-2 text-sm text-stone-600 dark:text-stone-300">نعمل على توفير خدمة توريد ببتيدات موثوقة للمنطقة العربية. سجّل اهتمامك وسنتواصل معك عند الإطلاق.</p>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-5">
@@ -133,7 +133,7 @@ function SourcingInterestForm() {
                   'rounded-full border px-3 py-1.5 text-xs font-medium transition-all min-h-[44px] inline-flex items-center',
                   selectedPeptides.includes(p.id)
                     ? 'border-emerald-400 bg-emerald-100 text-emerald-800 dark:border-emerald-600 dark:bg-emerald-900/40 dark:text-emerald-300'
-                    : 'border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-900 text-stone-600 dark:text-stone-400 hover:border-stone-300 dark:hover:border-stone-600',
+                    : 'border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 text-stone-600 dark:text-stone-300 hover:border-stone-300 dark:hover:border-stone-600',
                 )}
               >
                 {p.nameAr}
@@ -155,7 +155,7 @@ function SourcingInterestForm() {
           {submitting ? 'جارٍ الإرسال...' : 'سجّل اهتمامك'}
         </button>
 
-        <p className="text-center text-xs text-stone-500 dark:text-stone-400">pptides لا تبيع ببتيدات حاليًا — نجمع الاهتمام لتوفير خدمة موثوقة مستقبلًا</p>
+        <p className="text-center text-xs text-stone-500 dark:text-stone-300">pptides لا تبيع ببتيدات حاليًا — نجمع الاهتمام لتوفير خدمة موثوقة مستقبلًا</p>
       </form>
     </section>
   );
@@ -222,13 +222,13 @@ function ResearchStats() {
       {stats.map(({ icon: Icon, value, label, color, bg }) => (
         <div
           key={label}
-          className="rounded-2xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-900 p-4 text-center transition-all hover:border-emerald-300 dark:hover:border-emerald-700"
+          className="rounded-2xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 p-4 text-center transition-all hover:border-emerald-300 dark:hover:border-emerald-700"
         >
           <div className={cn('mx-auto mb-2 flex h-10 w-10 items-center justify-center rounded-xl', bg)}>
             <Icon className={cn('h-5 w-5', color)} />
           </div>
           <p className={cn('text-2xl font-bold', color)}>{value}</p>
-          <p className="mt-1 text-xs text-stone-500 dark:text-stone-400">{label}</p>
+          <p className="mt-1 text-xs text-stone-500 dark:text-stone-300">{label}</p>
         </div>
       ))}
     </div>
@@ -301,12 +301,12 @@ function CitationBrowser() {
             placeholder="ابحث بـ PubMed ID أو اسم الببتيد..."
             value={searchQuery}
             onChange={e => setSearchQuery(e.target.value)}
-            className="w-full rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-800 py-3 pr-10 pl-4 text-sm text-stone-900 dark:text-stone-100 placeholder:text-stone-400 focus:border-emerald-300 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900"
+            className="w-full rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-800 py-3 pr-10 pl-4 text-sm text-stone-900 dark:text-stone-100 placeholder:text-stone-400 focus:border-emerald-300 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900"
           />
           {searchQuery && (
             <button
               onClick={() => setSearchQuery('')}
-              className="absolute left-3 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-600 dark:text-stone-400"
+              className="absolute left-3 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-600 dark:text-stone-300"
             >
               <X className="h-4 w-4" />
             </button>
@@ -319,7 +319,7 @@ function CitationBrowser() {
           <select
             value={selectedPeptideFilter}
             onChange={e => setSelectedPeptideFilter(e.target.value)}
-            className="appearance-none rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-800 py-3 pr-10 pl-8 text-sm text-stone-900 dark:text-stone-100 focus:border-emerald-300 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900 min-w-[180px]"
+            className="appearance-none rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-800 py-3 pr-10 pl-8 text-sm text-stone-900 dark:text-stone-100 focus:border-emerald-300 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900 min-w-[180px]"
           >
             <option value="all">كل الببتيدات</option>
             {peptideOptions.map(p => (
@@ -338,7 +338,7 @@ function CitationBrowser() {
             'inline-flex items-center gap-2 rounded-xl border px-4 py-3 text-sm font-medium transition-all min-h-[44px]',
             sortOrder === 'peptides'
               ? 'border-emerald-400 bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400'
-              : 'border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-800 text-stone-600 dark:text-stone-400 hover:border-emerald-200'
+              : 'border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-800 text-stone-600 dark:text-stone-300 hover:border-emerald-200'
           )}
         >
           <ArrowUpDown className="h-4 w-4" />
@@ -347,7 +347,7 @@ function CitationBrowser() {
       </div>
 
       {/* Results count */}
-      <p className="mb-4 text-sm text-stone-500 dark:text-stone-400">
+      <p className="mb-4 text-sm text-stone-500 dark:text-stone-300">
         {filteredCitations.length === allCitations.length
           ? `عرض ${displayedCitations.length} من ${allCitations.length} مرجع`
           : `${filteredCitations.length} نتيجة`}
@@ -365,7 +365,7 @@ function CitationBrowser() {
                 'rounded-xl border transition-all',
                 isExpanded
                   ? 'border-emerald-300 dark:border-emerald-700 bg-emerald-50/50 dark:bg-emerald-900/10'
-                  : 'border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-900 hover:border-emerald-200 dark:hover:border-emerald-800'
+                  : 'border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 hover:border-emerald-200 dark:hover:border-emerald-800'
               )}
             >
               {/* Main row */}
@@ -398,7 +398,7 @@ function CitationBrowser() {
                     {citation.peptideNames.map((name, i) => (
                       <span
                         key={citation.peptideIds[i]}
-                        className="rounded-full bg-stone-100 dark:bg-stone-800 px-2 py-0.5 text-[11px] font-medium text-stone-600 dark:text-stone-400"
+                        className="rounded-full bg-stone-100 dark:bg-stone-800 px-2 py-0.5 text-[11px] font-medium text-stone-600 dark:text-stone-300"
                       >
                         {name}
                       </span>
@@ -416,7 +416,7 @@ function CitationBrowser() {
                 {/* Expand toggle */}
                 <button
                   onClick={() => setExpandedPmid(isExpanded ? null : citation.pmid)}
-                  className="shrink-0 rounded-lg p-2 text-stone-400 hover:bg-stone-100 dark:hover:bg-stone-800 hover:text-stone-600 dark:text-stone-400 transition-colors"
+                  className="shrink-0 rounded-lg p-2 text-stone-400 hover:bg-stone-100 dark:hover:bg-stone-800 hover:text-stone-600 dark:text-stone-300 transition-colors"
                   aria-label={isExpanded ? 'إغلاق التفاصيل' : 'عرض التفاصيل'}
                 >
                   {isExpanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
@@ -425,7 +425,7 @@ function CitationBrowser() {
 
               {/* Expanded details */}
               {isExpanded && (
-                <div className="border-t border-stone-200 dark:border-stone-700 px-4 pb-4 pt-3">
+                <div className="border-t border-stone-200 dark:border-stone-600 px-4 pb-4 pt-3">
                   <p className="mb-3 text-sm font-medium text-stone-700 dark:text-stone-200">الببتيدات المرتبطة بهذا المرجع:</p>
                   <div className="grid gap-2 sm:grid-cols-2">
                     {citation.peptideIds.map((pid, i) => {
@@ -434,12 +434,12 @@ function CitationBrowser() {
                         <Link
                           key={pid}
                           to={`/peptide/${pid}`}
-                          className="flex items-center gap-3 rounded-lg border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-800 p-3 transition-all hover:border-emerald-300 dark:hover:border-emerald-700 hover:bg-emerald-50 dark:hover:bg-emerald-900/20"
+                          className="flex items-center gap-3 rounded-lg border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-800 p-3 transition-all hover:border-emerald-300 dark:hover:border-emerald-700 hover:bg-emerald-50 dark:hover:bg-emerald-900/20"
                         >
                           <FlaskConical className="h-4 w-4 shrink-0 text-emerald-700 dark:text-emerald-400" />
                           <div>
                             <p className="text-sm font-bold text-stone-900 dark:text-stone-100">{citation.peptideNames[i]}</p>
-                            <p className="text-xs text-stone-500 dark:text-stone-400" dir="ltr">{p?.nameEn}</p>
+                            <p className="text-xs text-stone-500 dark:text-stone-300" dir="ltr">{p?.nameEn}</p>
                           </div>
                         </Link>
                       );
@@ -468,7 +468,7 @@ function CitationBrowser() {
         <div className="mt-4 text-center">
           <button
             onClick={() => setShowAllCitations(!showAllCitations)}
-            className="inline-flex items-center gap-2 rounded-full border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-800 px-6 py-2.5 text-sm font-medium text-stone-600 dark:text-stone-400 transition-all hover:border-emerald-300 hover:text-emerald-700 min-h-[44px]"
+            className="inline-flex items-center gap-2 rounded-full border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-800 px-6 py-2.5 text-sm font-medium text-stone-600 dark:text-stone-300 transition-all hover:border-emerald-300 hover:text-emerald-700 min-h-[44px]"
           >
             {showAllCitations ? (
               <>
@@ -507,7 +507,7 @@ function PeptideCitationMap() {
           خريطة الببتيدات والمراجع
         </h2>
       </div>
-      <p className="mb-4 text-sm text-stone-600 dark:text-stone-400">
+      <p className="mb-4 text-sm text-stone-600 dark:text-stone-300">
         اضغط على أي ببتيد لعرض مراجعه العلمية في PubMed
       </p>
 
@@ -517,7 +517,7 @@ function PeptideCitationMap() {
           const count = p.pubmedIds?.length || 0;
 
           return (
-            <div key={p.id} className="rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-900 transition-all hover:border-emerald-200 dark:hover:border-emerald-800">
+            <div key={p.id} className="rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 transition-all hover:border-emerald-200 dark:hover:border-emerald-800">
               <button
                 onClick={() => setExpandedPeptide(isExpanded ? null : p.id)}
                 className="flex w-full items-center gap-3 p-3 text-right"
@@ -527,7 +527,7 @@ function PeptideCitationMap() {
                 </div>
                 <div className="min-w-0 flex-1">
                   <p className="text-sm font-bold text-stone-900 dark:text-stone-100">{p.nameAr}</p>
-                  <p className="text-xs text-stone-500 dark:text-stone-400" dir="ltr">{p.nameEn}</p>
+                  <p className="text-xs text-stone-500 dark:text-stone-300" dir="ltr">{p.nameEn}</p>
                 </div>
                 <span className="shrink-0 rounded-full bg-emerald-100 dark:bg-emerald-900/30 px-2 py-0.5 text-xs font-bold text-emerald-700 dark:text-emerald-400">
                   {count}
@@ -536,7 +536,7 @@ function PeptideCitationMap() {
               </button>
 
               {isExpanded && p.pubmedIds && (
-                <div className="border-t border-stone-200 dark:border-stone-700 p-3 space-y-1.5">
+                <div className="border-t border-stone-200 dark:border-stone-600 p-3 space-y-1.5">
                   {p.pubmedIds.map(pmid => (
                     <a
                       key={pmid}
@@ -597,7 +597,7 @@ function MethodologySection() {
         </h2>
       </div>
 
-      <div className="rounded-2xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-900 p-6">
+      <div className="rounded-2xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 p-6">
         <div className="grid gap-6 sm:grid-cols-2">
           {steps.map(({ icon: Icon, title, description }) => (
             <div key={title} className="flex gap-4">
@@ -606,7 +606,7 @@ function MethodologySection() {
               </div>
               <div>
                 <h3 className="text-sm font-bold text-stone-900 dark:text-stone-100">{title}</h3>
-                <p className="mt-1 text-sm leading-relaxed text-stone-600 dark:text-stone-400">{description}</p>
+                <p className="mt-1 text-sm leading-relaxed text-stone-600 dark:text-stone-300">{description}</p>
               </div>
             </div>
           ))}
@@ -676,7 +676,7 @@ export default function Sources() {
             المصادر{' '}
             <span className="text-emerald-700 dark:text-emerald-400">العلمية</span>
           </h1>
-          <p className="mt-2 text-stone-600 dark:text-stone-400 max-w-2xl mx-auto">
+          <p className="mt-2 text-stone-600 dark:text-stone-300 max-w-2xl mx-auto">
             كل معلومة على pptides مدعومة بأبحاث محكّمة من PubMed — استكشف {allCitations.length}+ مرجع علمي يغطي {peptides.filter(p => p.pubmedIds?.length).length} ببتيد
           </p>
         </div>
@@ -697,7 +697,7 @@ export default function Sources() {
 
         {/* Section: Sourcing Criteria */}
         <section className="mb-10">
-          <div className="mb-4 rounded-xl border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-800 p-4">
+          <div className="mb-4 rounded-xl border border-stone-200 dark:border-stone-600 bg-stone-50 dark:bg-stone-800 p-4">
             <p className="text-sm text-stone-700 dark:text-stone-200">
               <strong className="text-stone-900 dark:text-stone-100">تنويه:</strong> pptides منصة تعليمية — لا نبيع ببتيدات ولا نتحمل مسؤولية أي عملية شراء. المعايير أدناه لمساعدتك في اختيار مورد موثوق.
             </p>
@@ -713,7 +713,7 @@ export default function Sources() {
                 <div
                   key={item.titleEn}
                   className={cn(
-                    'group rounded-2xl border border-stone-300 dark:border-stone-700 bg-stone-50 dark:bg-stone-900 p-5 transition-all',
+                    'group rounded-2xl border border-stone-300 dark:border-stone-600 bg-stone-50 dark:bg-stone-900 p-5 transition-all',
                     'hover:border-emerald-300 hover:bg-white dark:hover:bg-stone-800'
                   )}
                 >
@@ -721,7 +721,7 @@ export default function Sources() {
                     <Icon className="h-5 w-5 text-emerald-700 dark:text-emerald-400" aria-hidden="true" />
                   </div>
                   <h3 className="mb-1 text-sm font-bold text-stone-900 dark:text-stone-100">{item.titleAr}</h3>
-                  <span className="mb-2 block text-xs text-stone-700 dark:text-stone-400">{item.titleEn}</span>
+                  <span className="mb-2 block text-xs text-stone-700 dark:text-stone-300">{item.titleEn}</span>
                   <p className="text-sm leading-relaxed text-stone-800 dark:text-stone-200">{item.descriptionAr}</p>
                 </div>
               );
@@ -745,7 +745,7 @@ export default function Sources() {
 
         {/* Contact CTA */}
         <section>
-          <div className="rounded-2xl border border-stone-300 dark:border-stone-700 bg-stone-50 dark:bg-stone-900 p-6 text-center">
+          <div className="rounded-2xl border border-stone-300 dark:border-stone-600 bg-stone-50 dark:bg-stone-900 p-6 text-center">
             <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-emerald-50 dark:bg-emerald-900/30">
               <Mail className="h-5 w-5 text-emerald-700 dark:text-emerald-400" aria-hidden="true" />
             </div>
@@ -769,7 +769,7 @@ export default function Sources() {
 
         <div className="mt-10 rounded-2xl border border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-900/20 p-6 text-center">
           <p className="font-bold text-stone-900 dark:text-stone-100">جاهز تختار بروتوكولك؟</p>
-          <p className="mt-1 text-sm text-stone-600 dark:text-stone-400">تصفّح مكتبة الببتيدات واحسب جرعتك</p>
+          <p className="mt-1 text-sm text-stone-600 dark:text-stone-300">تصفّح مكتبة الببتيدات واحسب جرعتك</p>
           <div className="mt-4 flex flex-col gap-2 sm:flex-row sm:justify-center">
             <Link to="/library" className="rounded-full bg-emerald-600 px-6 py-2.5 text-sm font-bold text-white transition-colors hover:bg-emerald-700 min-h-[44px] inline-flex items-center justify-center">تصفّح المكتبة</Link>
             <Link to="/calculator" className="rounded-full border border-emerald-300 dark:border-emerald-700 px-6 py-2.5 text-sm font-bold text-emerald-700 dark:text-emerald-400 transition-colors hover:bg-emerald-100 dark:hover:bg-emerald-900/30 min-h-[44px] inline-flex items-center justify-center">حاسبة الجرعات</Link>

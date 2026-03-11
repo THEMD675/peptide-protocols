@@ -80,7 +80,7 @@ export default function ExitIntentPopup() {
       <div className="relative w-full max-w-md max-h-[90vh] overflow-y-auto rounded-2xl bg-white dark:bg-stone-950 p-8 shadow-2xl text-center">
         <button
           onClick={() => setVisible(false)}
-          className="absolute top-4 end-4 flex items-center justify-center rounded-full min-h-[44px] min-w-[44px] text-stone-500 dark:text-stone-400 hover:text-stone-600 dark:text-stone-400 hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors"
+          className="absolute top-4 end-4 flex items-center justify-center rounded-full min-h-[44px] min-w-[44px] text-stone-500 dark:text-stone-300 hover:text-stone-600 dark:text-stone-300 hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors"
           aria-label="إغلاق"
         >
           <X className="h-5 w-5" />
@@ -103,12 +103,12 @@ export default function ExitIntentPopup() {
           {subscription?.isTrial ? (
             <>
               <span className="text-3xl font-black text-amber-600">{subscription.trialDaysLeft}</span>
-              <span className="text-stone-500 dark:text-stone-400">{arPlural(subscription.trialDaysLeft, 'يوم متبقي', 'يومان متبقيان', 'أيام متبقية')}</span>
+              <span className="text-stone-500 dark:text-stone-300">{arPlural(subscription.trialDaysLeft, 'يوم متبقي', 'يومان متبقيان', 'أيام متبقية')}</span>
             </>
           ) : (
             <>
               <span className="text-3xl font-black text-emerald-700">{TRIAL_DAYS} أيام</span>
-              <span className="text-stone-500 dark:text-stone-400">تجربة مجانية</span>
+              <span className="text-stone-500 dark:text-stone-300">تجربة مجانية</span>
             </>
           )}
         </div>
@@ -124,7 +124,7 @@ export default function ExitIntentPopup() {
 
         <button
           onClick={() => setVisible(false)}
-          className="rounded-full border border-stone-200 dark:border-stone-700 px-5 py-2 text-sm text-stone-500 dark:text-stone-400 hover:text-stone-700 dark:text-stone-200 hover:border-stone-300 dark:border-stone-700 transition-colors"
+          className="rounded-full border border-stone-200 dark:border-stone-600 px-5 py-2 text-sm text-stone-500 dark:text-stone-300 hover:text-stone-700 dark:text-stone-200 hover:border-stone-300 dark:border-stone-600 transition-colors"
         >
           لا شكرًا
         </button>

@@ -93,7 +93,7 @@ export default function BlogPost() {
     return (
       <div className="flex min-h-[50vh] flex-col items-center justify-center px-6 text-center">
         <h2 className="mb-3 text-2xl font-bold text-stone-900 dark:text-stone-100">المقالة غير موجودة</h2>
-        <p className="mb-6 text-stone-600 dark:text-stone-400">لم نتمكن من العثور على هذه المقالة. قد تكون محذوفة أو غير منشورة.</p>
+        <p className="mb-6 text-stone-600 dark:text-stone-300">لم نتمكن من العثور على هذه المقالة. قد تكون محذوفة أو غير منشورة.</p>
         <Link to="/blog" className="rounded-full bg-emerald-600 px-8 py-3 font-bold text-white hover:bg-emerald-700 transition-colors">
           العودة للمدونة
         </Link>
@@ -170,7 +170,7 @@ export default function BlogPost() {
           {post.title_ar}
         </h1>
 
-        <div className="mb-8 flex flex-wrap items-center gap-4 text-sm text-stone-500 dark:text-stone-400">
+        <div className="mb-8 flex flex-wrap items-center gap-4 text-sm text-stone-500 dark:text-stone-300">
           <div className="flex items-center gap-1.5">
             <User className="h-4 w-4" />
             {post.author}
@@ -194,7 +194,7 @@ export default function BlogPost() {
         </article>
 
         {/* Share Buttons */}
-        <div className="mt-10 border-t border-stone-200 dark:border-stone-700 pt-6">
+        <div className="mt-10 border-t border-stone-200 dark:border-stone-600 pt-6">
           <p className="mb-3 text-sm font-bold text-stone-700 dark:text-stone-200">شارك المقالة:</p>
           <ShareButtons
             url={`${SITE_URL}/blog/${post.slug}`}
@@ -213,10 +213,10 @@ export default function BlogPost() {
                 <Link
                   key={rp.id}
                   to={`/blog/${rp.slug}`}
-                  className="rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 p-4 transition-all hover:border-emerald-200 dark:border-emerald-800 hover:shadow-sm dark:shadow-stone-900/30"
+                  className="rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950 p-4 transition-all hover:border-emerald-200 dark:border-emerald-800 hover:shadow-sm dark:shadow-stone-900/30"
                 >
                   <h3 className="text-sm font-bold text-stone-900 dark:text-stone-100 line-clamp-2">{rp.title_ar}</h3>
-                  <p className="mt-1 text-xs text-stone-500 dark:text-stone-400 line-clamp-2">{rp.excerpt_ar}</p>
+                  <p className="mt-1 text-xs text-stone-500 dark:text-stone-300 line-clamp-2">{rp.excerpt_ar}</p>
                   <time className="mt-2 block text-xs text-stone-400" dateTime={rp.published_at}>
                     {new Date(rp.published_at).toLocaleDateString('ar-u-nu-latn', { year: 'numeric', month: 'long', day: 'numeric' })}
                   </time>

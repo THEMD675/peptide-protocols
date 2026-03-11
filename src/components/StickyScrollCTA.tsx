@@ -63,14 +63,14 @@ export default function StickyScrollCTA() {
         <button
           onClick={handleDismiss}
           tabIndex={visible ? 0 : -1}
-          className="shrink-0 flex items-center justify-center rounded-full min-h-[44px] min-w-[44px] text-stone-500 dark:text-stone-400 transition-colors hover:bg-stone-100 dark:hover:bg-stone-800 hover:text-stone-600 dark:text-stone-400"
+          className="shrink-0 flex items-center justify-center rounded-full min-h-[44px] min-w-[44px] text-stone-500 dark:text-stone-300 transition-colors hover:bg-stone-100 dark:hover:bg-stone-800 hover:text-stone-600 dark:text-stone-300"
           aria-label="إغلاق"
         >
           <X className="h-4 w-4" />
         </button>
         <div className="flex-1 min-w-0">
           <p className="text-sm font-bold text-stone-900 dark:text-stone-100 line-clamp-1">{PEPTIDE_COUNT}+ ببتيد مع بروتوكولات كاملة</p>
-          <p className="text-xs text-stone-600 dark:text-stone-400">{TRIAL_DAYS} أيام مجانًا — إلغاء في أي وقت</p>
+          <p className="text-xs text-stone-600 dark:text-stone-300">{TRIAL_DAYS} أيام مجانًا — إلغاء في أي وقت</p>
         </div>
         <Link
           to={href}

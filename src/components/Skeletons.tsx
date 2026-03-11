@@ -25,7 +25,7 @@ export function LibrarySkeleton() {
       <Bone className="mb-4 h-5 w-20" />
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
         {Array.from({ length: 6 }).map((_, i) => (
-          <div key={i} className="rounded-2xl border border-stone-200 dark:border-stone-700 p-5 space-y-3">
+          <div key={i} className="rounded-2xl border border-stone-200 dark:border-stone-600 p-5 space-y-3">
             <div className="flex justify-between">
               <div className="space-y-2 flex-1">
                 <Bone className="h-6 w-32" />
@@ -53,7 +53,7 @@ export function DashboardSkeleton() {
         <Bone className="h-8 w-52" />
         <Bone className="mt-2 h-5 w-36" />
       </div>
-      <div className="mb-8 rounded-2xl border border-stone-200 dark:border-stone-700 p-6">
+      <div className="mb-8 rounded-2xl border border-stone-200 dark:border-stone-600 p-6">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <Bone className="h-6 w-20 rounded-full" />
@@ -64,7 +64,7 @@ export function DashboardSkeleton() {
       </div>
       <div className="mb-8 grid grid-cols-2 gap-3 sm:grid-cols-4">
         {Array.from({ length: 4 }).map((_, i) => (
-          <div key={i} className="rounded-2xl border border-stone-200 dark:border-stone-700 p-4 space-y-2">
+          <div key={i} className="rounded-2xl border border-stone-200 dark:border-stone-600 p-4 space-y-2">
             <Bone className="mx-auto h-5 w-5 rounded-full" />
             <Bone className="mx-auto h-7 w-12" />
             <Bone className="mx-auto h-4 w-20" />
@@ -74,7 +74,7 @@ export function DashboardSkeleton() {
       <Bone className="mb-4 h-6 w-32" />
       <div className="space-y-3">
         {Array.from({ length: 3 }).map((_, i) => (
-          <div key={i} className="rounded-2xl border border-stone-200 dark:border-stone-700 p-4 flex items-center justify-between">
+          <div key={i} className="rounded-2xl border border-stone-200 dark:border-stone-600 p-4 flex items-center justify-between">
             <div className="flex items-center gap-3">
               <Bone className="h-10 w-10 rounded-full" />
               <div className="space-y-1">
@@ -89,7 +89,7 @@ export function DashboardSkeleton() {
       <Bone className="mt-8 mb-4 h-6 w-36" />
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-6">
         {Array.from({ length: 6 }).map((_, i) => (
-          <div key={i} className="rounded-2xl border border-stone-200 dark:border-stone-700 p-4 space-y-2">
+          <div key={i} className="rounded-2xl border border-stone-200 dark:border-stone-600 p-4 space-y-2">
             <Bone className="mx-auto h-8 w-8 rounded-xl" />
             <Bone className="mx-auto h-4 w-16" />
             <Bone className="mx-auto h-3 w-20" />
@@ -110,14 +110,14 @@ export function TrackerSkeleton() {
       </div>
       <div className="mb-8 grid grid-cols-2 gap-3 sm:grid-cols-5">
         {Array.from({ length: 5 }).map((_, i) => (
-          <div key={i} className="rounded-2xl border border-stone-200 dark:border-stone-700 p-4 space-y-2">
+          <div key={i} className="rounded-2xl border border-stone-200 dark:border-stone-600 p-4 space-y-2">
             <Bone className="mx-auto h-5 w-5 rounded-full" />
             <Bone className="mx-auto h-6 w-10" />
             <Bone className="mx-auto h-3 w-16" />
           </div>
         ))}
       </div>
-      <div className="mb-8 rounded-2xl border border-stone-200 dark:border-stone-700 p-5 space-y-3">
+      <div className="mb-8 rounded-2xl border border-stone-200 dark:border-stone-600 p-5 space-y-3">
         <Bone className="h-5 w-28" />
         <div className="flex items-end gap-2 h-20">
           {(() => {
@@ -130,7 +130,7 @@ export function TrackerSkeleton() {
       </div>
       <div className="space-y-3">
         {Array.from({ length: 3 }).map((_, i) => (
-          <div key={i} className="rounded-2xl border border-stone-200 dark:border-stone-700 p-5 space-y-2">
+          <div key={i} className="rounded-2xl border border-stone-200 dark:border-stone-600 p-5 space-y-2">
             <div className="flex justify-between">
               <Bone className="h-5 w-28" />
               <Bone className="h-6 w-20 rounded-full" />
@@ -160,7 +160,7 @@ export function CoachSkeleton() {
           <Bone className="h-24 w-4/5 rounded-2xl rounded-br-md" />
         </div>
       </div>
-      <div className="mt-6 rounded-2xl border border-stone-200 dark:border-stone-700 p-4">
+      <div className="mt-6 rounded-2xl border border-stone-200 dark:border-stone-600 p-4">
         <Bone className="h-5 w-32 mb-3" />
         <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
           {Array.from({ length: 4 }).map((_, i) => (
@@ -205,7 +205,7 @@ export function PricingSkeleton() {
       </div>
       <div className="grid gap-8 md:grid-cols-2">
         {Array.from({ length: 2 }).map((_, i) => (
-          <div key={i} className="rounded-2xl border border-stone-200 dark:border-stone-700 p-8 space-y-4">
+          <div key={i} className="rounded-2xl border border-stone-200 dark:border-stone-600 p-8 space-y-4">
             <Bone className="h-7 w-28" />
             <Bone className="h-5 w-40" />
             <Bone className="h-12 w-32" />

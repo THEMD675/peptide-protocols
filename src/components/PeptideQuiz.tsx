@@ -563,7 +563,7 @@ export default function PeptideQuiz() {
         <h2 className="text-2xl md:text-3xl font-black text-center text-stone-900 dark:text-stone-100 mb-3 leading-tight">
           اكتشف البروتوكول المثالي لك
         </h2>
-        <p className="text-center text-stone-500 dark:text-stone-400 mb-8 text-sm md:text-base max-w-md mx-auto leading-relaxed">
+        <p className="text-center text-stone-500 dark:text-stone-300 mb-8 text-sm md:text-base max-w-md mx-auto leading-relaxed">
           اختبار علمي مُخصّص يحدد لك الببتيدات الأنسب لأهدافك الصحية، مستوى خبرتك، وميزانيتك.
         </p>
 
@@ -576,7 +576,7 @@ export default function PeptideQuiz() {
           ].map(({ icon: Icon, text }) => (
             <div key={text} className="flex flex-col items-center gap-1.5 rounded-xl bg-stone-100 dark:bg-stone-800/50 p-3">
               <Icon className="h-4 w-4 text-emerald-700" />
-              <span className="text-xs font-bold text-stone-600 dark:text-stone-400">{text}</span>
+              <span className="text-xs font-bold text-stone-600 dark:text-stone-300">{text}</span>
             </div>
           ))}
         </div>
@@ -605,11 +605,11 @@ export default function PeptideQuiz() {
               </div>
               <div className="min-w-0">
                 <p className="text-sm font-bold text-stone-900 dark:text-stone-100 truncate">{previousData.result.primary.nameAr}</p>
-                <p className="text-xs text-stone-500 dark:text-stone-400 truncate">{previousData.result.primary.nameEn}</p>
+                <p className="text-xs text-stone-500 dark:text-stone-300 truncate">{previousData.result.primary.nameEn}</p>
               </div>
             </div>
             {previousData.result.supporting.length > 0 && (
-              <p className="text-xs text-stone-500 dark:text-stone-400 mb-3">
+              <p className="text-xs text-stone-500 dark:text-stone-300 mb-3">
                 + {previousData.result.supporting.map(s => s.nameAr).join('، ')}
               </p>
             )}
@@ -633,7 +633,7 @@ export default function PeptideQuiz() {
         {!previousData && (
           <Link
             to="/library"
-            className="mt-2 flex items-center justify-center text-sm text-stone-400 dark:text-stone-400 hover:text-stone-600 dark:text-stone-400 transition-colors py-2"
+            className="mt-2 flex items-center justify-center text-sm text-stone-400 dark:text-stone-300 hover:text-stone-600 dark:text-stone-300 transition-colors py-2"
           >
             تخطّي — تصفّح المكتبة مباشرة
           </Link>
@@ -678,18 +678,18 @@ export default function PeptideQuiz() {
               {primaryData?.dosageAr && (
                 <div className="flex gap-2 items-start">
                   <span className="font-bold text-stone-700 dark:text-stone-200 shrink-0">الجرعة:</span>
-                  <span className="text-stone-600 dark:text-stone-400">{primaryData.dosageAr.split('.')[0]}</span>
+                  <span className="text-stone-600 dark:text-stone-300">{primaryData.dosageAr.split('.')[0]}</span>
                 </div>
               )}
               {primaryData?.timingAr && (
                 <div className="flex gap-2 items-start">
                   <span className="font-bold text-stone-700 dark:text-stone-200 shrink-0">التوقيت:</span>
-                  <span className="text-stone-600 dark:text-stone-400">{primaryData.timingAr.split('.')[0]}</span>
+                  <span className="text-stone-600 dark:text-stone-300">{primaryData.timingAr.split('.')[0]}</span>
                 </div>
               )}
               <div className="flex gap-2 items-start">
                 <span className="font-bold text-stone-700 dark:text-stone-200 shrink-0">المدة:</span>
-                <span className="text-stone-600 dark:text-stone-400">{result.protocolDuration}</span>
+                <span className="text-stone-600 dark:text-stone-300">{result.protocolDuration}</span>
               </div>
               <div className="flex gap-2 items-start">
                 <span className="font-bold text-emerald-700 dark:text-emerald-400 shrink-0">التكلفة:</span>
@@ -701,7 +701,7 @@ export default function PeptideQuiz() {
           {/* Supporting Peptides */}
           {result.supporting.length > 0 && (
             <div className="space-y-3 mb-4">
-              <p className="text-xs font-bold text-stone-500 dark:text-stone-400 uppercase tracking-wider">ببتيدات داعمة</p>
+              <p className="text-xs font-bold text-stone-500 dark:text-stone-300 uppercase tracking-wider">ببتيدات داعمة</p>
               {result.supporting.map(sp => {
                 const spData = allPeptides.find(p => p.id === sp.peptideId);
                 return (
@@ -710,7 +710,7 @@ export default function PeptideQuiz() {
                       <h4 className="text-base font-bold text-stone-900 dark:text-stone-100">{sp.nameAr}</h4>
                       <span className="text-xs text-stone-400" dir="ltr">{sp.nameEn}</span>
                     </div>
-                    <p className="text-xs text-stone-500 dark:text-stone-400 leading-relaxed">{sp.reason}</p>
+                    <p className="text-xs text-stone-500 dark:text-stone-300 leading-relaxed">{sp.reason}</p>
                     {spData?.costEstimate && (
                       <p className="mt-1 text-xs text-emerald-700 dark:text-emerald-400">{spData.costEstimate}</p>
                     )}
@@ -751,7 +751,7 @@ export default function PeptideQuiz() {
             {hasCalcPreset && (
               <Link
                 to={`/calculator?peptide=${encodeURIComponent(result.primary.nameEn)}`}
-                className="flex items-center justify-center gap-2 rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 px-5 py-3 text-sm font-bold text-stone-700 dark:text-stone-200 transition-all hover:border-emerald-300 dark:hover:border-emerald-700"
+                className="flex items-center justify-center gap-2 rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950 px-5 py-3 text-sm font-bold text-stone-700 dark:text-stone-200 transition-all hover:border-emerald-300 dark:hover:border-emerald-700"
               >
                 <Calculator className="h-4 w-4" />
                 احسب جرعة {result.primary.nameAr}
@@ -765,7 +765,7 @@ export default function PeptideQuiz() {
                   'flex-1 flex items-center justify-center gap-2 rounded-xl border px-4 py-3 text-sm font-bold transition-all',
                   saved
                     ? 'border-emerald-300 dark:border-emerald-700 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-400'
-                    : 'border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 text-stone-700 dark:text-stone-200 hover:border-emerald-300 dark:hover:border-emerald-700',
+                    : 'border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950 text-stone-700 dark:text-stone-200 hover:border-emerald-300 dark:hover:border-emerald-700',
                 )}
               >
                 {saved ? <CheckCircle className="h-4 w-4" /> : <Bookmark className="h-4 w-4" />}
@@ -776,7 +776,7 @@ export default function PeptideQuiz() {
 
           {/* Share */}
           <div className="mt-4 pt-4 border-t border-stone-200 dark:border-stone-800">
-            <p className="text-xs text-stone-400 dark:text-stone-400 mb-2 text-center">شارك نتيجتك</p>
+            <p className="text-xs text-stone-400 dark:text-stone-300 mb-2 text-center">شارك نتيجتك</p>
             <ShareButtons
               url={`${SITE_URL}/quiz`}
               title={`نتيجة اختبار الببتيدات: ${result.primary.nameAr} 💉`}
@@ -788,7 +788,7 @@ export default function PeptideQuiz() {
           {/* Supporting links */}
           {result.supporting.length > 0 && (
             <div className="mt-4 pt-3 border-t border-stone-200 dark:border-stone-800">
-              <p className="text-xs text-stone-400 dark:text-stone-400 mb-2">تعرّف على الببتيدات الداعمة:</p>
+              <p className="text-xs text-stone-400 dark:text-stone-300 mb-2">تعرّف على الببتيدات الداعمة:</p>
               <div className="flex flex-wrap gap-2">
                 {result.supporting.map(sp => (
                   <Link
@@ -807,7 +807,7 @@ export default function PeptideQuiz() {
           <div className="mt-4 flex justify-center">
             <button
               onClick={handleReset}
-              className="text-sm text-stone-400 dark:text-stone-400 hover:text-emerald-700 transition-colors py-2"
+              className="text-sm text-stone-400 dark:text-stone-300 hover:text-emerald-700 transition-colors py-2"
             >
               أعد الاختبار من البداية
             </button>
@@ -816,7 +816,7 @@ export default function PeptideQuiz() {
 
         {/* Medical Disclaimer */}
         <div className="rounded-xl bg-stone-100 dark:bg-stone-900/50 p-4 text-center">
-          <p className="text-[11px] text-stone-400 dark:text-stone-400 leading-relaxed">
+          <p className="text-[11px] text-stone-400 dark:text-stone-300 leading-relaxed">
             هذا الاختبار تعليمي فقط ولا يُغني عن استشارة الطبيب. لا تبدأ أي بروتوكول بدون إشراف طبي متخصص.
           </p>
         </div>
@@ -836,12 +836,12 @@ export default function PeptideQuiz() {
       <div className="flex items-center justify-between mb-5">
         <button
           onClick={handleBack}
-          className="flex items-center gap-1 min-h-[44px] text-sm text-stone-400 dark:text-stone-400 transition-colors hover:text-stone-700 dark:hover:text-stone-300"
+          className="flex items-center gap-1 min-h-[44px] text-sm text-stone-400 dark:text-stone-300 transition-colors hover:text-stone-700 dark:hover:text-stone-300"
         >
           <ArrowRight className="h-3.5 w-3.5 shrink-0" />
           رجوع
         </button>
-        <span className="text-xs text-stone-400 dark:text-stone-400 font-medium">
+        <span className="text-xs text-stone-400 dark:text-stone-300 font-medium">
           {step + 1} من {STEPS.length}
         </span>
       </div>
@@ -866,7 +866,7 @@ export default function PeptideQuiz() {
         <div>
           <h3 className="text-lg font-black text-stone-900 dark:text-stone-100 mb-1">{currentStep.question}</h3>
           {currentStep.subtitle && (
-            <p className="text-xs text-stone-400 dark:text-stone-400 mb-5">{currentStep.subtitle}</p>
+            <p className="text-xs text-stone-400 dark:text-stone-300 mb-5">{currentStep.subtitle}</p>
           )}
 
           {/* Options */}
@@ -900,7 +900,7 @@ export default function PeptideQuiz() {
                       'flex h-9 w-9 items-center justify-center rounded-lg shrink-0',
                       isSelected ? 'bg-emerald-100 dark:bg-emerald-800/40' : 'bg-stone-100 dark:bg-stone-800',
                     )}>
-                      <Icon className={cn('h-4.5 w-4.5', isSelected ? 'text-emerald-700' : 'text-stone-500 dark:text-stone-400')} />
+                      <Icon className={cn('h-4.5 w-4.5', isSelected ? 'text-emerald-700' : 'text-stone-500 dark:text-stone-300')} />
                     </div>
                   )}
                   {isMultiSelect && !Icon && (
@@ -916,7 +916,7 @@ export default function PeptideQuiz() {
                   <div className={currentStep.id === 'goal' ? '' : 'flex-1 text-start'}>
                     <span className="text-sm font-bold block">{opt.label}</span>
                     {opt.description && (
-                      <span className="text-[11px] text-stone-400 dark:text-stone-400 block mt-0.5">{opt.description}</span>
+                      <span className="text-[11px] text-stone-400 dark:text-stone-300 block mt-0.5">{opt.description}</span>
                     )}
                   </div>
                 </button>
@@ -941,7 +941,7 @@ export default function PeptideQuiz() {
       {/* Skip to library */}
       <Link
         to="/library"
-        className="mt-5 flex items-center justify-center text-xs text-stone-400 dark:text-stone-400 hover:text-stone-600 dark:text-stone-400 transition-colors py-2"
+        className="mt-5 flex items-center justify-center text-xs text-stone-400 dark:text-stone-300 hover:text-stone-600 dark:text-stone-300 transition-colors py-2"
       >
         تخطّي — تصفّح المكتبة مباشرة
       </Link>

@@ -165,7 +165,7 @@ export default function Blog() {
             <FileText className="h-7 w-7 text-emerald-700" />
           </div>
           <h1 className="text-3xl font-bold md:text-4xl">المدونة</h1>
-          <p className="mt-2 text-base text-stone-600 dark:text-stone-400">مقالات ودلائل مبنية على الأدلة العلمية</p>
+          <p className="mt-2 text-base text-stone-600 dark:text-stone-300">مقالات ودلائل مبنية على الأدلة العلمية</p>
         </div>
 
         {/* Search + Tag Filter */}
@@ -179,12 +179,12 @@ export default function Blog() {
                 value={search}
                 onChange={e => setSearch(e.target.value)}
                 placeholder="ابحث في المقالات..."
-                className="w-full rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 py-2.5 pe-4 ps-10 text-sm text-stone-900 dark:text-stone-100 placeholder:text-stone-400 focus:border-emerald-300 dark:border-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900"
+                className="w-full rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950 py-2.5 pe-4 ps-10 text-sm text-stone-900 dark:text-stone-100 placeholder:text-stone-400 focus:border-emerald-300 dark:border-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900"
               />
               {search && (
                 <button
                   onClick={() => setSearch('')}
-                  className="absolute end-3 top-1/2 -translate-y-1/2 rounded p-0.5 text-stone-400 hover:text-stone-600 dark:text-stone-400"
+                  className="absolute end-3 top-1/2 -translate-y-1/2 rounded p-0.5 text-stone-400 hover:text-stone-600 dark:text-stone-300"
                   aria-label="مسح البحث"
                 >
                   <X className="h-3.5 w-3.5" />
@@ -202,7 +202,7 @@ export default function Blog() {
                       'shrink-0 rounded-full border px-4 py-2 min-h-[44px] text-sm font-medium transition-all',
                       !activeTag
                         ? 'border-emerald-400 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-800 dark:text-emerald-300'
-                        : 'border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 text-stone-600 dark:text-stone-400 hover:border-emerald-200 dark:border-emerald-800'
+                        : 'border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950 text-stone-600 dark:text-stone-300 hover:border-emerald-200 dark:border-emerald-800'
                     )}
                   >
                     الكل
@@ -215,7 +215,7 @@ export default function Blog() {
                         'shrink-0 inline-flex items-center gap-1.5 rounded-full border px-4 py-2 min-h-[44px] text-sm font-medium transition-all',
                         activeTag === tag
                           ? 'border-emerald-400 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-800 dark:text-emerald-300'
-                          : 'border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 text-stone-600 dark:text-stone-400 hover:border-emerald-200 dark:border-emerald-800'
+                          : 'border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950 text-stone-600 dark:text-stone-300 hover:border-emerald-200 dark:border-emerald-800'
                       )}
                     >
                       <Tag className="h-3 w-3" />
@@ -231,7 +231,7 @@ export default function Blog() {
         {loading && (
           <div className="space-y-5">
             {[1, 2, 3].map(i => (
-              <div key={i} className="animate-pulse rounded-2xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 p-6">
+              <div key={i} className="animate-pulse rounded-2xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950 p-6">
                 <div className="h-5 w-3/4 rounded bg-stone-200 dark:bg-stone-700" />
                 <div className="mt-3 h-4 w-full rounded bg-stone-100 dark:bg-stone-800" />
                 <div className="mt-2 h-4 w-2/3 rounded bg-stone-100 dark:bg-stone-800" />
@@ -269,19 +269,19 @@ export default function Blog() {
         )}
 
         {!loading && !error && posts.length === 0 && (
-          <div className="rounded-2xl border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-900/50 px-8 py-14 text-center">
+          <div className="rounded-2xl border border-stone-200 dark:border-stone-600 bg-stone-50 dark:bg-stone-900/50 px-8 py-14 text-center">
             <div className="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-2xl bg-emerald-50 dark:bg-emerald-900/20 ring-1 ring-emerald-200 dark:ring-emerald-800">
               <FileText className="h-8 w-8 text-emerald-600 dark:text-emerald-400" />
             </div>
             <h3 className="text-xl font-bold text-stone-900 dark:text-stone-100">لا توجد مقالات بعد</h3>
-            <p className="mx-auto mt-2 max-w-sm text-sm leading-relaxed text-stone-500 dark:text-stone-400">
+            <p className="mx-auto mt-2 max-w-sm text-sm leading-relaxed text-stone-500 dark:text-stone-300">
               نعمل على كتابة مقالات علمية عميقة عن الببتيدات العلاجية. ترقّب المحتوى قريبًا.
             </p>
             <div className="mt-6 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
               <a href="/library" className="inline-flex items-center gap-2 rounded-full bg-emerald-600 px-6 py-2.5 text-sm font-bold text-white transition-colors hover:bg-emerald-700">
                 تصفّح مكتبة الببتيدات
               </a>
-              <a href="/coach" className="inline-flex items-center gap-2 rounded-full border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 px-6 py-2.5 text-sm font-bold text-stone-700 dark:text-stone-200 transition-colors hover:border-emerald-300 dark:hover:border-emerald-700">
+              <a href="/coach" className="inline-flex items-center gap-2 rounded-full border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950 px-6 py-2.5 text-sm font-bold text-stone-700 dark:text-stone-200 transition-colors hover:border-emerald-300 dark:hover:border-emerald-700">
                 اسأل المدرب الذكي
               </a>
             </div>
@@ -289,9 +289,9 @@ export default function Blog() {
         )}
 
         {!loading && !error && posts.length > 0 && filteredPosts.length === 0 && (
-          <div className="rounded-2xl border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-900 p-8 text-center">
+          <div className="rounded-2xl border border-stone-200 dark:border-stone-600 bg-stone-50 dark:bg-stone-900 p-8 text-center">
             <p className="font-bold text-stone-700 dark:text-stone-200">لا توجد نتائج</p>
-            <p className="mt-2 text-sm text-stone-500 dark:text-stone-400">جرّب كلمة بحث مختلفة أو اختر تصنيفًا آخر</p>
+            <p className="mt-2 text-sm text-stone-500 dark:text-stone-300">جرّب كلمة بحث مختلفة أو اختر تصنيفًا آخر</p>
             <button
               onClick={() => { setSearch(''); setActiveTag(null); }}
               className="mt-3 text-sm font-bold text-emerald-700 hover:underline"
@@ -307,7 +307,7 @@ export default function Blog() {
               <Link
                 key={post.id}
                 to={`/blog/${post.slug}`}
-                className="block overflow-hidden rounded-2xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 shadow-sm dark:shadow-stone-900/30 card-hover"
+                className="block overflow-hidden rounded-2xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950 shadow-sm dark:shadow-stone-900/30 card-hover"
               >
                 <article>
                   {post.cover_image_url && (
@@ -323,8 +323,8 @@ export default function Blog() {
                   )}
                   <div className="p-6">
                   <h2 className="text-lg font-bold text-stone-900 dark:text-stone-100">{post.title_ar}</h2>
-                  <p className="mt-2 text-sm leading-relaxed text-stone-600 dark:text-stone-400">{post.excerpt_ar}</p>
-                  <div className="mt-4 flex flex-wrap items-center gap-3 text-xs text-stone-500 dark:text-stone-400">
+                  <p className="mt-2 text-sm leading-relaxed text-stone-600 dark:text-stone-300">{post.excerpt_ar}</p>
+                  <div className="mt-4 flex flex-wrap items-center gap-3 text-xs text-stone-500 dark:text-stone-300">
                     <div className="flex items-center gap-1.5">
                       <CalendarDays className="h-3.5 w-3.5" />
                       <time dateTime={post.published_at}>
@@ -342,7 +342,7 @@ export default function Blog() {
                               'cursor-pointer rounded-full px-2 py-0.5 transition-colors',
                               activeTag === tag
                                 ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400'
-                                : 'bg-stone-100 dark:bg-stone-800 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 text-stone-600 dark:text-stone-400 hover:text-emerald-700 dark:hover:text-emerald-400'
+                                : 'bg-stone-100 dark:bg-stone-800 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 text-stone-600 dark:text-stone-300 hover:text-emerald-700 dark:hover:text-emerald-400'
                             )}
                           >
                             {tag}
@@ -360,7 +360,7 @@ export default function Blog() {
                 <button
                   onClick={loadMorePosts}
                   disabled={loadingMore}
-                  className="inline-flex items-center gap-2 rounded-full border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 px-8 py-3 text-sm font-bold text-stone-700 dark:text-stone-200 transition-all hover:border-emerald-300 dark:hover:border-emerald-700 hover:shadow-sm disabled:opacity-50"
+                  className="inline-flex items-center gap-2 rounded-full border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950 px-8 py-3 text-sm font-bold text-stone-700 dark:text-stone-200 transition-all hover:border-emerald-300 dark:hover:border-emerald-700 hover:shadow-sm disabled:opacity-50"
                 >
                   {loadingMore ? 'جاري التحميل...' : 'تحميل المزيد'}
                 </button>

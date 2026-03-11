@@ -73,7 +73,7 @@ function GlossaryCard({ term, search, allPeptides }: { term: GlossaryTerm; searc
 
   return (
     <div
-      className="rounded-2xl border border-stone-200 dark:border-stone-700 border-s-2 border-s-emerald-300 bg-white dark:bg-stone-900 p-5 shadow-sm dark:shadow-stone-900/30 card-hover"
+      className="rounded-2xl border border-stone-200 dark:border-stone-600 border-s-2 border-s-emerald-300 bg-white dark:bg-stone-900 p-5 shadow-sm dark:shadow-stone-900/30 card-hover"
     >
       <dt
         className="flex items-center justify-between gap-3 cursor-pointer select-none focus-visible:outline-2 focus-visible:outline-emerald-500 focus-visible:outline-offset-2 rounded-lg"
@@ -95,7 +95,7 @@ function GlossaryCard({ term, search, allPeptides }: { term: GlossaryTerm; searc
           <ChevronDown className={`h-4 w-4 shrink-0 text-stone-400 transition-transform ${open ? 'rotate-180' : ''}`} />
         )}
       </dt>
-      <dd className="mt-3 text-sm leading-relaxed text-stone-600 dark:text-stone-400">
+      <dd className="mt-3 text-sm leading-relaxed text-stone-600 dark:text-stone-300">
         {search.trim() || !isLong || open ? (
           <HighlightedText text={term.definition} query={search} />
         ) : (
@@ -189,25 +189,25 @@ export default function Glossary() {
           <BookA className="h-7 w-7 text-emerald-700" />
         </div>
         <h1 className="text-3xl font-bold text-emerald-700 md:text-4xl">المصطلحات</h1>
-        <p className="mt-2 text-lg text-stone-600 dark:text-stone-400">قاموس شامل لمصطلحات الببتيدات والبيوهاكينغ</p>
+        <p className="mt-2 text-lg text-stone-600 dark:text-stone-300">قاموس شامل لمصطلحات الببتيدات والبيوهاكينغ</p>
       </div>
 
       {/* Search */}
       <div className="relative mb-6">
-        {!search && <Search className="absolute start-4 top-1/2 h-5 w-5 -translate-y-1/2 text-stone-500 dark:text-stone-400" />}
+        {!search && <Search className="absolute start-4 top-1/2 h-5 w-5 -translate-y-1/2 text-stone-500 dark:text-stone-300" />}
         <input
           type="text"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder="ابحث عن مصطلح..."
           aria-label="البحث في المصطلحات"
-          className="w-full rounded-2xl border border-stone-300 dark:border-stone-600 bg-stone-50 dark:bg-stone-800 py-4 ps-12 pe-10 text-sm text-stone-900 dark:text-stone-100 placeholder:text-stone-500 dark:text-stone-400 dark:placeholder:text-stone-400 focus:border-emerald-300 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900 transition-colors"
+          className="w-full rounded-2xl border border-stone-300 dark:border-stone-600 bg-stone-50 dark:bg-stone-800 py-4 ps-12 pe-10 text-sm text-stone-900 dark:text-stone-100 placeholder:text-stone-500 dark:text-stone-300 dark:placeholder:text-stone-400 focus:border-emerald-300 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900 transition-colors"
         />
         {search && (
           <button
             onClick={() => setSearch('')}
             aria-label="مسح البحث"
-            className="absolute start-4 top-1/2 -translate-y-1/2 text-stone-500 dark:text-stone-400 transition-colors hover:text-stone-700"
+            className="absolute start-4 top-1/2 -translate-y-1/2 text-stone-500 dark:text-stone-300 transition-colors hover:text-stone-700"
           >
             <X className="h-4 w-4" />
           </button>
@@ -215,7 +215,7 @@ export default function Glossary() {
       </div>
 
       {/* Results count */}
-      <p className="mb-4 text-sm text-stone-500 dark:text-stone-400">
+      <p className="mb-4 text-sm text-stone-500 dark:text-stone-300">
         {search.trim() ? `${filtered.length} نتيجة` : `${TERMS.length} مصطلح`}
       </p>
 
@@ -231,7 +231,7 @@ export default function Glossary() {
                 className={`flex h-10 w-10 min-w-[40px] items-center justify-center rounded-xl text-sm font-bold transition-all min-h-[44px] ${
                   activeLetter === letter
                     ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-200 scale-110'
-                    : 'border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-900 text-stone-700 dark:text-stone-200 hover:border-emerald-300 hover:bg-emerald-50 dark:hover:bg-stone-800 hover:text-emerald-700'
+                    : 'border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 text-stone-700 dark:text-stone-200 hover:border-emerald-300 hover:bg-emerald-50 dark:hover:bg-stone-800 hover:text-emerald-700'
                 }`}
               >
                 {letter}
@@ -243,9 +243,9 @@ export default function Glossary() {
 
       {/* Terms Grid — grouped by letter */}
       {filtered.length === 0 ? (
-        <div className="rounded-2xl border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-900 py-16 text-center">
+        <div className="rounded-2xl border border-stone-200 dark:border-stone-600 bg-stone-50 dark:bg-stone-900 py-16 text-center">
           <BookA className="mx-auto mb-3 h-8 w-8 text-stone-300" />
-          <p className="text-sm text-stone-500 dark:text-stone-400">لا توجد نتائج لـ &quot;{search}&quot;</p>
+          <p className="text-sm text-stone-500 dark:text-stone-300">لا توجد نتائج لـ &quot;{search}&quot;</p>
         </div>
       ) : (
         <div className="space-y-8">
@@ -267,7 +267,7 @@ export default function Glossary() {
       {/* CTA */}
       <div className="mt-12 rounded-2xl border border-emerald-200 bg-emerald-50 p-6 text-center">
         <p className="font-bold text-stone-900 dark:text-stone-100">مستعد تبدأ؟</p>
-        <p className="mt-1 text-sm text-stone-600 dark:text-stone-400">تصفّح البروتوكولات الكاملة لـ {PEPTIDE_COUNT}+ ببتيد</p>
+        <p className="mt-1 text-sm text-stone-600 dark:text-stone-300">تصفّح البروتوكولات الكاملة لـ {PEPTIDE_COUNT}+ ببتيد</p>
         <div className="mt-4 flex flex-col gap-2 sm:flex-row sm:justify-center">
           <Link to="/library" className="rounded-full bg-emerald-600 px-6 py-2.5 text-sm font-bold text-white transition-colors hover:bg-emerald-700 min-h-[44px] inline-flex items-center justify-center">تصفّح المكتبة</Link>
           <Link to="/coach" className="rounded-full border border-emerald-300 px-6 py-2.5 text-sm font-bold text-emerald-700 transition-colors hover:bg-emerald-100 min-h-[44px] inline-flex items-center justify-center">اسأل المدرب الذكي</Link>

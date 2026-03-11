@@ -217,30 +217,30 @@ export default function FAQ() {
           <h1 className="mb-3 text-3xl font-bold text-stone-900 dark:text-stone-100 md:text-4xl">
             الأسئلة <span className="text-emerald-700">الشائعة</span>
           </h1>
-          <p className="mx-auto max-w-lg text-lg text-stone-600 dark:text-stone-400">
+          <p className="mx-auto max-w-lg text-lg text-stone-600 dark:text-stone-300">
             إجابات شاملة على كل ما تحتاج معرفته عن pptides
           </p>
         </div>
 
         {/* Search */}
         <div className="relative mb-10">
-          <Search className="pointer-events-none absolute start-4 top-1/2 h-5 w-5 -translate-y-1/2 text-stone-400 dark:text-stone-400" />
+          <Search className="pointer-events-none absolute start-4 top-1/2 h-5 w-5 -translate-y-1/2 text-stone-400 dark:text-stone-300" />
           <input
             type="text"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="ابحث في الأسئلة الشائعة..."
-            className="w-full rounded-2xl border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-900 py-3.5 pe-4 ps-12 text-stone-900 dark:text-stone-100 placeholder:text-stone-400 dark:placeholder:text-stone-500 dark:text-stone-400 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-200 dark:focus:ring-emerald-800 transition-colors min-h-[44px]"
+            className="w-full rounded-2xl border border-stone-200 dark:border-stone-600 bg-stone-50 dark:bg-stone-900 py-3.5 pe-4 ps-12 text-stone-900 dark:text-stone-100 placeholder:text-stone-400 dark:placeholder:text-stone-500 dark:text-stone-300 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-200 dark:focus:ring-emerald-800 transition-colors min-h-[44px]"
           />
         </div>
 
         {/* Sections */}
         {filtered.length === 0 ? (
-          <div className="rounded-2xl border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-900 p-10 text-center">
+          <div className="rounded-2xl border border-stone-200 dark:border-stone-600 bg-stone-50 dark:bg-stone-900 p-10 text-center">
             <p className="text-lg font-semibold text-stone-700 dark:text-stone-200">
               لم نجد نتائج لـ &quot;{search}&quot;
             </p>
-            <p className="mt-2 text-sm text-stone-500 dark:text-stone-400">
+            <p className="mt-2 text-sm text-stone-500 dark:text-stone-300">
               جرّب كلمات بحث مختلفة أو{' '}
               <Link to="/contact" className="font-medium text-emerald-700 hover:underline">
                 تواصل معنا
@@ -261,7 +261,7 @@ export default function FAQ() {
                   <h2 className="text-xl font-bold text-stone-900 dark:text-stone-100">
                     {section.title}
                   </h2>
-                  <span className="ms-auto rounded-full bg-stone-100 dark:bg-stone-800 px-2.5 py-0.5 text-xs font-medium text-stone-600 dark:text-stone-400">
+                  <span className="ms-auto rounded-full bg-stone-100 dark:bg-stone-800 px-2.5 py-0.5 text-xs font-medium text-stone-600 dark:text-stone-300">
                     {section.items.length}
                   </span>
                 </div>
@@ -271,11 +271,11 @@ export default function FAQ() {
                   {section.items.map((faq) => (
                     <details
                       key={faq.q}
-                      className="group rounded-2xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-900/50 transition-all hover:border-emerald-300 dark:hover:border-emerald-700 card-hover"
+                      className="group rounded-2xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900/50 transition-all hover:border-emerald-300 dark:hover:border-emerald-700 card-hover"
                     >
                       <summary className="flex cursor-pointer items-center justify-between gap-4 p-5 text-base font-semibold text-stone-900 dark:text-stone-100 md:p-6 min-h-[44px] select-none">
                         <span>{faq.q}</span>
-                        <ChevronDown className="h-5 w-5 shrink-0 text-stone-400 dark:text-stone-400 transition-transform duration-200 group-open:rotate-180" />
+                        <ChevronDown className="h-5 w-5 shrink-0 text-stone-400 dark:text-stone-300 transition-transform duration-200 group-open:rotate-180" />
                       </summary>
                       <div className="details-content">
                         <p className="px-5 pb-5 text-sm leading-relaxed text-stone-700 dark:text-stone-200 md:px-6 md:pb-6">
@@ -291,11 +291,11 @@ export default function FAQ() {
         )}
 
         {/* Bottom CTA */}
-        <div className="mt-14 rounded-2xl border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-900 p-8 text-center">
+        <div className="mt-14 rounded-2xl border border-stone-200 dark:border-stone-600 bg-stone-50 dark:bg-stone-900 p-8 text-center">
           <p className="text-lg font-bold text-stone-900 dark:text-stone-100">
             لم تجد إجابة على سؤالك؟
           </p>
-          <p className="mt-2 text-sm text-stone-600 dark:text-stone-400">
+          <p className="mt-2 text-sm text-stone-600 dark:text-stone-300">
             تواصل معنا مباشرة وسنرد خلال 24 ساعة
           </p>
           <div className="mt-6 flex flex-wrap justify-center gap-3">

@@ -94,14 +94,14 @@ export default function CoachHistory({
     <div className="mb-4">
       <button
         onClick={() => setOpen(v => !v)}
-        className="flex w-full items-center justify-between rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 px-4 py-3 min-h-[44px] text-start transition-colors hover:bg-stone-50 dark:hover:bg-stone-800"
+        className="flex w-full items-center justify-between rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950 px-4 py-3 min-h-[44px] text-start transition-colors hover:bg-stone-50 dark:hover:bg-stone-800"
         aria-expanded={open}
       >
         <div className="flex items-center gap-2">
-          <History className="h-4 w-4 text-stone-500 dark:text-stone-400" />
+          <History className="h-4 w-4 text-stone-500 dark:text-stone-300" />
           <span className="text-sm font-bold text-stone-700 dark:text-stone-200">المحادثات السابقة</span>
           {conversations.length > 0 && (
-            <span className="rounded-full bg-stone-100 dark:bg-stone-800 px-2 py-0.5 text-[10px] font-bold text-stone-500 dark:text-stone-400">
+            <span className="rounded-full bg-stone-100 dark:bg-stone-800 px-2 py-0.5 text-[10px] font-bold text-stone-500 dark:text-stone-300">
               {conversations.length}
             </span>
           )}
@@ -110,7 +110,7 @@ export default function CoachHistory({
       </button>
 
       {open && (
-        <div className="mt-2 rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 overflow-hidden animate-fade-in">
+        <div className="mt-2 rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950 overflow-hidden animate-fade-in">
           {loading ? (
             <div className="p-4 space-y-2">
               {[0, 1, 2].map(i => (
@@ -120,7 +120,7 @@ export default function CoachHistory({
           ) : conversations.length === 0 ? (
             <div className="px-4 py-6 text-center">
               <MessageSquare className="mx-auto mb-2 h-8 w-8 text-stone-300" />
-              <p className="text-sm text-stone-500 dark:text-stone-400">لا توجد محادثات سابقة</p>
+              <p className="text-sm text-stone-500 dark:text-stone-300">لا توجد محادثات سابقة</p>
             </div>
           ) : (
             <div className="max-h-96 overflow-y-auto divide-y divide-stone-100 dark:divide-stone-800">
@@ -139,7 +139,7 @@ export default function CoachHistory({
                         <ChevronLeft className={cn('h-4 w-4 shrink-0 text-stone-400 transition-transform', isExpanded && '-rotate-90')} />
                         <div className="min-w-0 flex-1">
                           <p className="text-sm font-bold text-stone-800 dark:text-stone-200 truncate">{topic}</p>
-                          <p className="text-[10px] text-stone-500 dark:text-stone-400">
+                          <p className="text-[10px] text-stone-500 dark:text-stone-300">
                             {msgCount} رسالة · {formatDate(conv.updated_at)}
                           </p>
                         </div>
@@ -178,7 +178,7 @@ export default function CoachHistory({
                               'max-w-[85%] rounded-xl px-4 py-2 text-sm leading-relaxed',
                               msg.role === 'user'
                                 ? 'bg-emerald-600 text-white rounded-br-sm'
-                                : 'border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 text-stone-800 dark:text-stone-200 rounded-bl-sm',
+                                : 'border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950 text-stone-800 dark:text-stone-200 rounded-bl-sm',
                             )}>
                               {msg.role === 'user' ? (
                                 <p className="whitespace-pre-wrap">

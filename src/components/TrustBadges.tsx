@@ -13,7 +13,7 @@ export default function TrustBadges() {
       {BADGES.map((badge) => (
         <div
           key={badge.text}
-          className="flex items-center gap-2 rounded-full border border-stone-200 dark:border-stone-700/60 bg-white/80 dark:bg-stone-900/60 px-4 py-2 text-sm font-medium text-stone-700 dark:text-stone-200 backdrop-blur-sm"
+          className="flex items-center gap-2 rounded-full border border-stone-200 dark:border-stone-600/60 bg-white/80 dark:bg-stone-900/60 px-4 py-2 text-sm font-medium text-stone-700 dark:text-stone-200 backdrop-blur-sm"
         >
           <badge.icon className="h-4 w-4 shrink-0 text-emerald-700" />
           <span>{badge.text}</span>

@@ -53,7 +53,7 @@ function StarRating({
                 'transition-colors',
                 (hover || rating) >= star
                   ? 'fill-emerald-500 text-emerald-500'
-                  : 'fill-transparent text-stone-500 dark:text-stone-400',
+                  : 'fill-transparent text-stone-500 dark:text-stone-300',
               )}
               aria-hidden
             />
@@ -66,7 +66,7 @@ function StarRating({
                 'transition-colors',
                 rating >= star
                   ? 'fill-emerald-500 text-emerald-500'
-                  : 'fill-transparent text-stone-500 dark:text-stone-400',
+                  : 'fill-transparent text-stone-500 dark:text-stone-300',
               )}
             />
           </span>
@@ -241,10 +241,10 @@ export default function Reviews() {
             <div className="mx-auto mt-6 flex max-w-sm flex-col items-center gap-2 rounded-2xl border border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-900/20 p-5">
               <div className="flex items-baseline gap-1">
                 <span className="text-4xl font-black text-emerald-700 dark:text-emerald-400">{averageRating.toFixed(1)}</span>
-                <span className="text-lg font-bold text-stone-500 dark:text-stone-400">/5</span>
+                <span className="text-lg font-bold text-stone-500 dark:text-stone-300">/5</span>
               </div>
               <StarRating rating={Math.round(averageRating)} />
-              <span className="text-sm font-medium text-stone-600 dark:text-stone-400">
+              <span className="text-sm font-medium text-stone-600 dark:text-stone-300">
                 ({reviews.length} تقييم)
               </span>
             </div>
@@ -253,7 +253,7 @@ export default function Reviews() {
 
         {/* Submit Review */}
         <div
-          className="mb-10 rounded-2xl border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-900 p-6 md:p-8"
+          className="mb-10 rounded-2xl border border-stone-200 dark:border-stone-600 bg-stone-50 dark:bg-stone-900 p-6 md:p-8"
         >
           <h2
             className="mb-5 text-lg font-bold text-stone-900 dark:text-stone-100"
@@ -318,14 +318,14 @@ export default function Reviews() {
                   rows={4}
                   maxLength={1000}
                   className={cn(
-                    'w-full resize-none rounded-xl border border-stone-300 dark:border-stone-700 bg-stone-50 dark:bg-stone-900 px-4 py-3',
-                    'text-sm text-stone-900 dark:text-stone-100 placeholder:text-stone-500 dark:text-stone-400',
+                    'w-full resize-none rounded-xl border border-stone-300 dark:border-stone-600 bg-stone-50 dark:bg-stone-900 px-4 py-3',
+                    'text-sm text-stone-900 dark:text-stone-100 placeholder:text-stone-500 dark:text-stone-300',
                     'transition-colors focus:border-emerald-300 dark:border-emerald-700 focus:outline-none focus:ring-1 focus:ring-emerald-100 dark:focus:ring-emerald-900',
                   )}
                   style={{ overflow: 'hidden' }}
                 />
                 {text.length > 0 && (
-                  <p className="mt-1 text-start text-xs text-stone-500 dark:text-stone-400">{text.length}/1000</p>
+                  <p className="mt-1 text-start text-xs text-stone-500 dark:text-stone-300">{text.length}/1000</p>
                 )}
               </div>
 
@@ -364,7 +364,7 @@ export default function Reviews() {
           </h2>
 
           {reviews.length > 0 && (
-            <div className="mb-6 rounded-2xl border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-900 p-5">
+            <div className="mb-6 rounded-2xl border border-stone-200 dark:border-stone-600 bg-stone-50 dark:bg-stone-900 p-5">
               <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:gap-8">
                 <div className="flex items-center gap-2">
                   <span className="text-3xl font-black text-stone-900 dark:text-stone-100">
@@ -372,7 +372,7 @@ export default function Reviews() {
                   </span>
                   <StarRating rating={Math.round(averageRating)} size="sm" />
                 </div>
-                <span className="text-xs text-stone-600 dark:text-stone-400">
+                <span className="text-xs text-stone-600 dark:text-stone-300">
                   {reviews.length.toLocaleString('ar-u-nu-latn')} تقييم
                 </span>
                 <div className="flex-1 min-w-0 space-y-1.5">
@@ -381,7 +381,7 @@ export default function Reviews() {
                     const total = reviews.length;
                     return (
                       <div key={star} className="flex items-center gap-2">
-                        <span className="text-xs text-stone-600 dark:text-stone-400 w-6" dir="ltr">
+                        <span className="text-xs text-stone-600 dark:text-stone-300 w-6" dir="ltr">
                           {star}
                         </span>
                         <div className="flex-1 h-2 min-w-0 overflow-hidden rounded-full bg-stone-200 dark:bg-stone-700">
@@ -390,7 +390,7 @@ export default function Reviews() {
                             style={{ width: `${total > 0 ? (count / total) * 100 : 0}%` }}
                           />
                         </div>
-                        <span className="text-xs text-stone-600 dark:text-stone-400 w-5 tabular-nums">
+                        <span className="text-xs text-stone-600 dark:text-stone-300 w-5 tabular-nums">
                           {count}
                         </span>
                       </div>
@@ -404,7 +404,7 @@ export default function Reviews() {
           {loading ? (
             <div className="space-y-4 py-4" role="status" aria-label="جارٍ تحميل التقييمات">
               {Array.from({ length: 3 }).map((_, i) => (
-                <div key={i} className="animate-pulse rounded-2xl border border-stone-200 dark:border-stone-700 p-5 space-y-3">
+                <div key={i} className="animate-pulse rounded-2xl border border-stone-200 dark:border-stone-600 p-5 space-y-3">
                   <div className="flex items-center gap-3"><div className="h-5 w-28 rounded bg-stone-200 dark:bg-stone-700" /><div className="h-4 w-16 rounded bg-stone-100 dark:bg-stone-800" /></div>
                   <div className="h-4 w-full rounded bg-stone-100 dark:bg-stone-800" />
                   <div className="h-4 w-2/3 rounded bg-stone-100 dark:bg-stone-800" />
@@ -428,7 +428,7 @@ export default function Reviews() {
                 <MessageCircle className="h-10 w-10 text-emerald-700" />
               </div>
               <h3 className="text-2xl font-bold text-stone-900 dark:text-stone-100">لا توجد تقييمات بعد</h3>
-              <p className="mx-auto mt-3 max-w-md text-base leading-relaxed text-stone-600 dark:text-stone-400">
+              <p className="mx-auto mt-3 max-w-md text-base leading-relaxed text-stone-600 dark:text-stone-300">
                 كن أول من يشارك تجربته — تقييمك يساعد الآخرين على اتخاذ قرارهم بثقة وكن مرجعًا للمجتمع.
               </p>
               <button
@@ -444,7 +444,7 @@ export default function Reviews() {
               {reviews.map((review) => (
                 <div
                   key={review.id}
-                  className="rounded-2xl border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-900 p-5 transition-all hover:border-emerald-200 dark:border-emerald-800 hover:shadow-sm dark:shadow-stone-900/30"
+                  className="rounded-2xl border border-stone-200 dark:border-stone-600 bg-stone-50 dark:bg-stone-900 p-5 transition-all hover:border-emerald-200 dark:border-emerald-800 hover:shadow-sm dark:shadow-stone-900/30"
                 >
                   <div className="mb-3 flex items-center justify-between">
                     <div className="flex items-center gap-2">
@@ -469,13 +469,13 @@ export default function Reviews() {
           )}
         </div>
 
-        <p className="mt-6 text-center text-xs text-stone-500 dark:text-stone-400">
+        <p className="mt-6 text-center text-xs text-stone-500 dark:text-stone-300">
           التقييمات من مشتركين مسجّلين
         </p>
 
         <div className="mt-8 rounded-2xl border border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-900/20 p-6 text-center">
           <p className="font-bold text-stone-900 dark:text-stone-100">جرّب بنفسك</p>
-          <p className="mt-1 text-sm text-stone-600 dark:text-stone-400">{TRIAL_DAYS} أيام تجربة مجانية — كل البروتوكولات والأدوات</p>
+          <p className="mt-1 text-sm text-stone-600 dark:text-stone-300">{TRIAL_DAYS} أيام تجربة مجانية — كل البروتوكولات والأدوات</p>
           <div className="mt-4 flex flex-col gap-2 sm:flex-row sm:justify-center">
             <Link to="/signup?redirect=/pricing" className="rounded-full bg-emerald-600 px-6 py-2.5 text-sm font-bold text-white transition-colors hover:bg-emerald-700">ابدأ تجربتك المجانية</Link>
             <Link to="/library" className="rounded-full border border-emerald-300 dark:border-emerald-700 px-6 py-2.5 text-sm font-bold text-emerald-700 dark:text-emerald-400 transition-colors hover:bg-emerald-100 dark:bg-emerald-900/30">تصفّح المكتبة</Link>

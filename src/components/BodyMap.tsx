@@ -77,7 +77,7 @@ export default memo(function BodyMap({ selected, suggested: suggestedProp, onSel
                 ? 'bg-emerald-600 text-white'
                 : suggested === site.id
                   ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 border border-emerald-300 dark:border-emerald-700'
-                  : 'bg-stone-100 dark:bg-stone-800 text-stone-600 dark:text-stone-400 hover:bg-stone-200 dark:bg-stone-700'
+                  : 'bg-stone-100 dark:bg-stone-800 text-stone-600 dark:text-stone-300 hover:bg-stone-200 dark:bg-stone-700'
             )}
           >
             {site.label}

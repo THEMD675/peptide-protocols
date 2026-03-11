@@ -67,7 +67,7 @@ export default function Tooltip({ content, children, icon = true, position = 'to
         onFocus={show}
         onBlur={hide}
         onClick={() => setVisible(v => !v)}
-        className="inline-flex items-center justify-center rounded-full text-stone-400 hover:text-emerald-700 dark:text-stone-400 dark:hover:text-emerald-400 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/50 focus-visible:ring-offset-1"
+        className="inline-flex items-center justify-center rounded-full text-stone-400 hover:text-emerald-700 dark:text-stone-300 dark:hover:text-emerald-400 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/50 focus-visible:ring-offset-1"
         aria-label="مساعدة"
         aria-describedby={visible ? 'tooltip-content' : undefined}
       >
@@ -78,7 +78,7 @@ export default function Tooltip({ content, children, icon = true, position = 'to
           id="tooltip-content"
           role="tooltip"
           className={cn(
-            'tooltip-bubble absolute z-50 w-64 rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-900 px-4 py-3 text-xs leading-relaxed text-stone-700 dark:text-stone-200 shadow-lg',
+            'tooltip-bubble absolute z-50 w-64 rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 px-4 py-3 text-xs leading-relaxed text-stone-700 dark:text-stone-200 shadow-lg',
             position === 'top' ? 'bottom-full mb-2' : 'top-full mt-2',
             'end-0',
           )}
@@ -86,7 +86,7 @@ export default function Tooltip({ content, children, icon = true, position = 'to
           {content}
           <div
             className={cn(
-              'absolute h-2 w-2 rotate-45 border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-900',
+              'absolute h-2 w-2 rotate-45 border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900',
               position === 'top'
                 ? 'top-full -mt-1 end-4 border-b border-e'
                 : 'bottom-full -mb-1 end-4 border-t border-s',

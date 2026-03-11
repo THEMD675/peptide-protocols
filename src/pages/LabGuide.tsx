@@ -417,7 +417,7 @@ function InteractiveReferenceRanges({ isPro, blurClass }: { isPro: boolean; blur
           placeholder="ابحث عن تحليل..."
           value={filter}
           onChange={(e) => setFilter(e.target.value)}
-          className="w-full rounded-xl border border-stone-200 bg-white py-2.5 pe-4 ps-10 text-sm dark:border-stone-700 dark:bg-stone-900 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+          className="w-full rounded-xl border border-stone-200 bg-white py-2.5 pe-4 ps-10 text-sm dark:border-stone-600 dark:bg-stone-900 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
         />
       </div>
 
@@ -427,7 +427,7 @@ function InteractiveReferenceRanges({ isPro, blurClass }: { isPro: boolean; blur
           return (
             <div
               key={b.id}
-              className="rounded-2xl border border-stone-200 bg-white dark:border-stone-700 dark:bg-stone-900 overflow-hidden transition-all hover:border-emerald-200"
+              className="rounded-2xl border border-stone-200 bg-white dark:border-stone-600 dark:bg-stone-900 overflow-hidden transition-all hover:border-emerald-200"
             >
               <button
                 onClick={() => setExpandedId(isExpanded ? null : b.id)}
@@ -436,8 +436,8 @@ function InteractiveReferenceRanges({ isPro, blurClass }: { isPro: boolean; blur
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center gap-2 flex-wrap">
                     <span className="font-bold text-stone-900 dark:text-stone-100">{b.nameAr}</span>
-                    <span className="text-xs text-stone-500 dark:text-stone-400" dir="ltr">{b.name}</span>
-                    <span className="rounded-full bg-stone-100 px-2 py-0.5 text-[10px] font-medium text-stone-600 dark:bg-stone-800 dark:text-stone-400">
+                    <span className="text-xs text-stone-500 dark:text-stone-300" dir="ltr">{b.name}</span>
+                    <span className="rounded-full bg-stone-100 px-2 py-0.5 text-[10px] font-medium text-stone-600 dark:bg-stone-800 dark:text-stone-300">
                       {b.categoryAr}
                     </span>
                   </div>
@@ -465,14 +465,14 @@ function InteractiveReferenceRanges({ isPro, blurClass }: { isPro: boolean; blur
                         <TrendingDown className="h-3.5 w-3.5 text-amber-600" />
                         <span className="text-xs font-bold text-amber-700 dark:text-amber-400">إذا كان منخفضاً</span>
                       </div>
-                      <p className="text-xs text-stone-600 dark:text-stone-400">{b.lowImplication}</p>
+                      <p className="text-xs text-stone-600 dark:text-stone-300">{b.lowImplication}</p>
                     </div>
                     <div className="rounded-xl bg-red-50 dark:bg-red-900/20 p-3">
                       <div className="flex items-center gap-1.5 mb-1">
                         <TrendingUp className="h-3.5 w-3.5 text-red-600" />
                         <span className="text-xs font-bold text-red-700 dark:text-red-400">إذا كان مرتفعاً</span>
                       </div>
-                      <p className="text-xs text-stone-600 dark:text-stone-400">{b.highImplication}</p>
+                      <p className="text-xs text-stone-600 dark:text-stone-300">{b.highImplication}</p>
                     </div>
                   </div>
 
@@ -494,7 +494,7 @@ function InteractiveReferenceRanges({ isPro, blurClass }: { isPro: boolean; blur
                     <Calendar className="mt-0.5 h-3.5 w-3.5 shrink-0 text-blue-600" />
                     <div>
                       <span className="text-xs font-bold text-blue-700 dark:text-blue-400">متى تحلّل؟</span>
-                      <p className="text-xs text-stone-600 dark:text-stone-400">{b.whenToTest}</p>
+                      <p className="text-xs text-stone-600 dark:text-stone-300">{b.whenToTest}</p>
                     </div>
                   </div>
 
@@ -569,7 +569,7 @@ function TestPackages({ isPro, blurClass }: { isPro: boolean; blurClass: string 
                 )}
               </div>
 
-              <p className="mt-3 text-center text-xs text-stone-600 dark:text-stone-400">
+              <p className="mt-3 text-center text-xs text-stone-600 dark:text-stone-300">
                 {pkg.description}
               </p>
 
@@ -593,7 +593,7 @@ function TestPackages({ isPro, blurClass }: { isPro: boolean; blurClass: string 
                   <div className="mt-2 rounded-xl bg-white/60 dark:bg-stone-800/60 p-3">
                     <ul className="space-y-1">
                       {pkg.tests.map(t => (
-                        <li key={t} className="flex items-center gap-1.5 text-[11px] text-stone-600 dark:text-stone-400">
+                        <li key={t} className="flex items-center gap-1.5 text-[11px] text-stone-600 dark:text-stone-300">
                           <CheckCircle className="h-3 w-3 shrink-0 text-emerald-500" />
                           <span dir="ltr">{t}</span>
                         </li>
@@ -603,7 +603,7 @@ function TestPackages({ isPro, blurClass }: { isPro: boolean; blurClass: string 
                 )}
               </div>
 
-              <div className="mt-3 rounded-lg bg-stone-100/60 dark:bg-stone-800/40 px-3 py-1.5 text-center text-[10px] text-stone-500 dark:text-stone-400">
+              <div className="mt-3 rounded-lg bg-stone-100/60 dark:bg-stone-800/40 px-3 py-1.5 text-center text-[10px] text-stone-500 dark:text-stone-300">
                 {pkg.recommended}
               </div>
 
@@ -657,8 +657,8 @@ function TestingTimeline() {
                     <h3 className="font-bold text-stone-900 dark:text-stone-100">{step.label}</h3>
                     {i === 0 && <span className="rounded-full bg-emerald-600 px-2 py-0.5 text-[10px] font-bold text-white">أساسي</span>}
                   </div>
-                  <p className="text-xs text-stone-600 dark:text-stone-400">{step.description}</p>
-                  <div className="mt-2 flex items-center gap-1.5 text-[10px] text-stone-500 dark:text-stone-400">
+                  <p className="text-xs text-stone-600 dark:text-stone-300">{step.description}</p>
+                  <div className="mt-2 flex items-center gap-1.5 text-[10px] text-stone-500 dark:text-stone-300">
                     <Package className="h-3 w-3" />
                     <span>{step.package}</span>
                   </div>
@@ -692,9 +692,9 @@ function TestingTimeline() {
                 </div>
                 <div className={cn('mt-3 w-full rounded-2xl border p-3', cardColors[step.color])}>
                   <h3 className="font-bold text-sm text-stone-900 dark:text-stone-100">{step.label}</h3>
-                  <span className="text-[10px] text-stone-500 dark:text-stone-400" dir="ltr">{step.labelEn}</span>
-                  <p className="mt-1.5 text-[11px] text-stone-600 dark:text-stone-400 leading-relaxed">{step.description}</p>
-                  <div className="mt-2 rounded-lg bg-white/60 dark:bg-stone-800/40 px-2 py-1 text-[10px] text-stone-500 dark:text-stone-400">
+                  <span className="text-[10px] text-stone-500 dark:text-stone-300" dir="ltr">{step.labelEn}</span>
+                  <p className="mt-1.5 text-[11px] text-stone-600 dark:text-stone-300 leading-relaxed">{step.description}</p>
+                  <div className="mt-2 rounded-lg bg-white/60 dark:bg-stone-800/40 px-2 py-1 text-[10px] text-stone-500 dark:text-stone-300">
                     {step.package}
                   </div>
                 </div>
@@ -723,17 +723,17 @@ function ResultsInterpreter({ isPro, blurClass }: { isPro: boolean; blurClass: s
         <Beaker className="h-6 w-6 shrink-0 text-emerald-700" />
         <h2 className="text-2xl font-bold">مفسّر النتائج</h2>
       </div>
-      <p className="mb-4 text-sm text-stone-500 dark:text-stone-400">أدخل قيمة تحليلك واحصل على تفسير فوري</p>
+      <p className="mb-4 text-sm text-stone-500 dark:text-stone-300">أدخل قيمة تحليلك واحصل على تفسير فوري</p>
 
-      <div className="rounded-2xl border border-stone-200 bg-white dark:border-stone-700 dark:bg-stone-900 p-5">
+      <div className="rounded-2xl border border-stone-200 bg-white dark:border-stone-600 dark:bg-stone-900 p-5">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-end">
           {/* Biomarker selector */}
           <div className="flex-1">
-            <label className="mb-1.5 block text-xs font-bold text-stone-600 dark:text-stone-400">اختر التحليل</label>
+            <label className="mb-1.5 block text-xs font-bold text-stone-600 dark:text-stone-300">اختر التحليل</label>
             <select
               value={selectedBiomarker}
               onChange={(e) => { setSelectedBiomarker(e.target.value); setInputValue(''); }}
-              className="w-full rounded-xl border border-stone-200 bg-stone-50 py-2.5 px-3 text-sm dark:border-stone-700 dark:bg-stone-800 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+              className="w-full rounded-xl border border-stone-200 bg-stone-50 py-2.5 px-3 text-sm dark:border-stone-600 dark:bg-stone-800 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
             >
               {biomarkers.map(b => (
                 <option key={b.id} value={b.id}>{b.nameAr} ({b.name})</option>
@@ -743,7 +743,7 @@ function ResultsInterpreter({ isPro, blurClass }: { isPro: boolean; blurClass: s
 
           {/* Value input */}
           <div className="w-full sm:w-48">
-            <label className="mb-1.5 block text-xs font-bold text-stone-600 dark:text-stone-400">
+            <label className="mb-1.5 block text-xs font-bold text-stone-600 dark:text-stone-300">
               القيمة <span className="text-stone-400" dir="ltr">({biomarker.unit})</span>
             </label>
             <input
@@ -752,7 +752,7 @@ function ResultsInterpreter({ isPro, blurClass }: { isPro: boolean; blurClass: s
               placeholder={`${biomarker.normalMin} - ${biomarker.normalMax}`}
               value={inputValue}
               onChange={(e) => setInputValue(e.target.value)}
-              className="w-full rounded-xl border border-stone-200 bg-stone-50 py-2.5 px-3 text-sm dark:border-stone-700 dark:bg-stone-800 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+              className="w-full rounded-xl border border-stone-200 bg-stone-50 py-2.5 px-3 text-sm dark:border-stone-600 dark:bg-stone-800 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
               dir="ltr"
             />
           </div>
@@ -784,7 +784,7 @@ function ResultsInterpreter({ isPro, blurClass }: { isPro: boolean; blurClass: s
                   <CheckCircle className="h-4 w-4 text-emerald-700" />
                   <span className="text-sm font-bold text-emerald-700 dark:text-emerald-400">نتيجة طبيعية ✓</span>
                 </div>
-                <p className="text-xs text-stone-600 dark:text-stone-400">
+                <p className="text-xs text-stone-600 dark:text-stone-300">
                   قيمتك ضمن النطاق الطبيعي ({biomarker.normalMin}-{biomarker.normalMax} {biomarker.unit}). استمر بالمتابعة الدورية.
                 </p>
               </div>
@@ -799,7 +799,7 @@ function ResultsInterpreter({ isPro, blurClass }: { isPro: boolean; blurClass: s
                     {status === 'low' ? 'قيمة منخفضة' : 'قيمة مرتفعة'}
                   </span>
                 </div>
-                <p className="text-xs text-stone-600 dark:text-stone-400 mb-2">
+                <p className="text-xs text-stone-600 dark:text-stone-300 mb-2">
                   {status === 'low' ? biomarker.lowImplication : biomarker.highImplication}
                 </p>
                 <div className="rounded-lg bg-white/60 dark:bg-stone-800/40 p-2.5 text-xs text-stone-700 dark:text-stone-200">
@@ -810,7 +810,7 @@ function ResultsInterpreter({ isPro, blurClass }: { isPro: boolean; blurClass: s
 
             <div className="flex items-center gap-2 text-xs">
               <FlaskConical className="h-3.5 w-3.5 text-emerald-700" />
-              <span className="text-stone-500 dark:text-stone-400">الببتيدات المؤثرة:</span>
+              <span className="text-stone-500 dark:text-stone-300">الببتيدات المؤثرة:</span>
               <span className="font-medium text-stone-700 dark:text-stone-200">{biomarker.relatedPeptides.join('، ')}</span>
             </div>
 
@@ -842,24 +842,24 @@ function LabLocator() {
         <MapPin className="h-6 w-6 shrink-0 text-emerald-700" />
         <h2 className="text-2xl font-bold">مختبرات في السعودية</h2>
       </div>
-      <p className="mb-4 text-sm text-stone-500 dark:text-stone-400">أشهر المختبرات مع أسعار تقريبية للباقات</p>
+      <p className="mb-4 text-sm text-stone-500 dark:text-stone-300">أشهر المختبرات مع أسعار تقريبية للباقات</p>
 
       <div className="grid gap-4 sm:grid-cols-3">
         {saudiLabs.map((lab) => (
           <div
             key={lab.nameEn}
-            className="rounded-2xl border border-stone-200 bg-white dark:border-stone-700 dark:bg-stone-900 p-5 transition-all hover:border-emerald-200 hover:shadow-md"
+            className="rounded-2xl border border-stone-200 bg-white dark:border-stone-600 dark:bg-stone-900 p-5 transition-all hover:border-emerald-200 hover:shadow-md"
           >
             <div className="text-center mb-4">
               <span className="text-3xl">{lab.logo}</span>
               <h3 className="mt-2 text-lg font-bold text-stone-900 dark:text-stone-100">{lab.name}</h3>
-              <span className="text-xs text-stone-500 dark:text-stone-400">{lab.nameEn}</span>
+              <span className="text-xs text-stone-500 dark:text-stone-300">{lab.nameEn}</span>
             </div>
 
             {/* Cities */}
             <div className="flex flex-wrap justify-center gap-1 mb-4">
               {lab.cities.map(city => (
-                <span key={city} className="rounded-full bg-stone-100 dark:bg-stone-800 px-2 py-0.5 text-[10px] text-stone-600 dark:text-stone-400">
+                <span key={city} className="rounded-full bg-stone-100 dark:bg-stone-800 px-2 py-0.5 text-[10px] text-stone-600 dark:text-stone-300">
                   {city}
                 </span>
               ))}
@@ -868,21 +868,21 @@ function LabLocator() {
             {/* Pricing */}
             <div className="space-y-2">
               <div className="flex justify-between items-center text-xs">
-                <span className="text-stone-600 dark:text-stone-400">الأساسي</span>
+                <span className="text-stone-600 dark:text-stone-300">الأساسي</span>
                 <span className="font-bold text-emerald-700 dark:text-emerald-400">{lab.basicPrice}</span>
               </div>
               <div className="flex justify-between items-center text-xs">
-                <span className="text-stone-600 dark:text-stone-400">الببتيدات</span>
+                <span className="text-stone-600 dark:text-stone-300">الببتيدات</span>
                 <span className="font-bold text-blue-700 dark:text-blue-400">{lab.peptidePrice}</span>
               </div>
               <div className="flex justify-between items-center text-xs">
-                <span className="text-stone-600 dark:text-stone-400">الشامل</span>
+                <span className="text-stone-600 dark:text-stone-300">الشامل</span>
                 <span className="font-bold text-purple-700 dark:text-purple-400">{lab.fullPrice}</span>
               </div>
             </div>
 
             <div className="mt-3 pt-3 border-t border-stone-100 dark:border-stone-800">
-              <p className="text-[11px] text-stone-500 dark:text-stone-400 text-center">{lab.notes}</p>
+              <p className="text-[11px] text-stone-500 dark:text-stone-300 text-center">{lab.notes}</p>
               {lab.homeVisit && (
                 <div className="mt-2 flex items-center justify-center gap-1 text-[10px] text-emerald-700">
                   <CheckCircle className="h-3 w-3" />
@@ -903,7 +903,7 @@ function LabLocator() {
         ))}
       </div>
 
-      <div className="mt-4 rounded-xl bg-stone-100 dark:bg-stone-800 p-3 text-center text-xs text-stone-500 dark:text-stone-400">
+      <div className="mt-4 rounded-xl bg-stone-100 dark:bg-stone-800 p-3 text-center text-xs text-stone-500 dark:text-stone-300">
         <Info className="inline h-3 w-3 ml-1" />
         الأسعار تقريبية وقد تختلف حسب الفرع والعروض المتاحة — آخر تحديث مارس 2026
       </div>
@@ -959,7 +959,7 @@ export default function LabGuide() {
         <h1 className="text-3xl font-bold md:text-4xl text-emerald-700">
           دليل التحاليل المخبرية
         </h1>
-        <p className="mt-2 text-lg text-stone-600 dark:text-stone-400">
+        <p className="mt-2 text-lg text-stone-600 dark:text-stone-300">
           التحاليل الأساسية قبل وأثناء وبعد استخدام الببتيدات
         </p>
       </div>
@@ -1018,7 +1018,7 @@ export default function LabGuide() {
               return (
                 <div
                   key={test.id}
-                  className="rounded-2xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-900 p-5 shadow-sm dark:shadow-stone-900/30 transition-all hover:border-emerald-200 hover:shadow-md"
+                  className="rounded-2xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 p-5 shadow-sm dark:shadow-stone-900/30 transition-all hover:border-emerald-200 hover:shadow-md"
                 >
                   <div className="mb-3 flex items-start gap-3">
                     <div className={cn('flex h-10 w-10 shrink-0 items-center justify-center rounded-xl', bgColor)}>
@@ -1026,12 +1026,12 @@ export default function LabGuide() {
                     </div>
                     <div className="min-w-0 flex-1">
                       <h3 className="font-bold text-stone-900 dark:text-stone-100 leading-snug">{test.nameAr}</h3>
-                      <span className="text-xs text-stone-500 dark:text-stone-400" dir="ltr">{test.nameEn}</span>
+                      <span className="text-xs text-stone-500 dark:text-stone-300" dir="ltr">{test.nameEn}</span>
                     </div>
                   </div>
 
                   <div className={blurClass} aria-hidden={!isPro || undefined}>
-                    <p className="mb-2 text-sm leading-relaxed text-stone-600 dark:text-stone-400">{test.descriptionAr}</p>
+                    <p className="mb-2 text-sm leading-relaxed text-stone-600 dark:text-stone-300">{test.descriptionAr}</p>
                     <div className="flex items-start gap-2 rounded-lg bg-stone-50 dark:bg-stone-800 p-2.5 text-xs text-stone-700 dark:text-stone-200">
                       <Calendar className="mt-0.5 h-3.5 w-3.5 shrink-0 text-emerald-500" />
                       <span>{test.whenAr}</span>
@@ -1069,7 +1069,7 @@ export default function LabGuide() {
       {/* CTA footer */}
       <div className="mt-12 rounded-2xl border border-emerald-200 bg-emerald-50 dark:border-emerald-800 dark:bg-emerald-900/20 p-6 text-center">
         <p className="font-bold text-stone-900 dark:text-stone-100">الخطوة التالية</p>
-        <p className="mt-1 text-sm text-stone-600 dark:text-stone-400">عرفت تحاليلك — الآن احسب جرعتك أو تعلّم طريقة الحقن</p>
+        <p className="mt-1 text-sm text-stone-600 dark:text-stone-300">عرفت تحاليلك — الآن احسب جرعتك أو تعلّم طريقة الحقن</p>
         <div className="mt-4 flex flex-col gap-2 sm:flex-row sm:justify-center">
           <Link to="/calculator" className="rounded-full bg-emerald-600 px-6 py-2.5 text-sm font-bold text-white transition-colors hover:bg-emerald-700 min-h-[44px] inline-flex items-center justify-center">حاسبة الجرعات</Link>
           <Link to="/guide" className="rounded-full border border-emerald-300 px-6 py-2.5 text-sm font-bold text-emerald-700 transition-colors hover:bg-emerald-100 min-h-[44px] inline-flex items-center justify-center">دليل التحضير والحقن</Link>

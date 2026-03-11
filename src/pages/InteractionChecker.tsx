@@ -189,7 +189,7 @@ export default function InteractionChecker() {
           <h1 className="text-3xl font-bold text-stone-900 dark:text-stone-100 md:text-4xl">
             فحص <span className="text-emerald-700">التعارضات</span>
           </h1>
-          <p className="mt-2 text-base text-stone-600 dark:text-stone-400">
+          <p className="mt-2 text-base text-stone-600 dark:text-stone-300">
             اختر ببتيدين لمعرفة إذا يمكن تجميعهما بأمان
           </p>
         </div>
@@ -202,7 +202,7 @@ export default function InteractionChecker() {
                 value={sel}
                 onChange={(e) => updateSlot(idx, e.target.value)}
                 aria-label={`اختر الببتيد ${idx + 1}`}
-                className={cn('flex-1 rounded-xl border border-stone-300 dark:border-stone-700 bg-stone-50 dark:bg-stone-900 px-4 py-3 text-sm focus:border-emerald-300 dark:border-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900', sel ? 'text-stone-900 dark:text-stone-100' : 'text-stone-500 dark:text-stone-400 italic')}
+                className={cn('flex-1 rounded-xl border border-stone-300 dark:border-stone-600 bg-stone-50 dark:bg-stone-900 px-4 py-3 text-sm focus:border-emerald-300 dark:border-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900', sel ? 'text-stone-900 dark:text-stone-100' : 'text-stone-500 dark:text-stone-300 italic')}
               >
                 <option value="">اختر ببتيد أو دواء...</option>
                 <optgroup label="الببتيدات">
@@ -223,18 +223,18 @@ export default function InteractionChecker() {
                 </optgroup>
               </select>
               {selected.length > 2 && (
-                <button onClick={() => removeSlot(idx)} aria-label="إزالة" className="flex items-center justify-center rounded-lg p-2 min-h-[44px] min-w-[44px] text-stone-500 dark:text-stone-400 hover:bg-red-50 dark:bg-red-900/20 transition-colors hover:text-red-500 dark:text-red-400"><XCircle className="h-4 w-4" /></button>
+                <button onClick={() => removeSlot(idx)} aria-label="إزالة" className="flex items-center justify-center rounded-lg p-2 min-h-[44px] min-w-[44px] text-stone-500 dark:text-stone-300 hover:bg-red-50 dark:bg-red-900/20 transition-colors hover:text-red-500 dark:text-red-400"><XCircle className="h-4 w-4" /></button>
               )}
             </div>
           ))}
           <div className="flex gap-2">
           {selected.length < 5 && (
-            <button onClick={addSlot} className="flex flex-1 items-center justify-center gap-2 rounded-xl border-2 border-dashed border-stone-200 dark:border-stone-700 py-3 text-sm font-medium text-stone-500 dark:text-stone-400 hover:border-emerald-300 dark:border-emerald-700 transition-colors hover:text-emerald-700">
+            <button onClick={addSlot} className="flex flex-1 items-center justify-center gap-2 rounded-xl border-2 border-dashed border-stone-200 dark:border-stone-600 py-3 text-sm font-medium text-stone-500 dark:text-stone-300 hover:border-emerald-300 dark:border-emerald-700 transition-colors hover:text-emerald-700">
               + أضف ببتيد آخر
             </button>
           )}
           {filledPeptides.length > 0 && (
-            <button onClick={resetAll} className="rounded-xl border border-stone-200 dark:border-stone-700 px-4 py-3 text-sm font-medium text-stone-500 dark:text-stone-400 hover:border-red-200 dark:border-red-800 hover:text-red-500 dark:text-red-400 transition-colors">
+            <button onClick={resetAll} className="rounded-xl border border-stone-200 dark:border-stone-600 px-4 py-3 text-sm font-medium text-stone-500 dark:text-stone-300 hover:border-red-200 dark:border-red-800 hover:text-red-500 dark:text-red-400 transition-colors">
               مسح الكل
             </button>
           )}
@@ -242,10 +242,10 @@ export default function InteractionChecker() {
         </div>
 
         {filledPeptides.length < 2 && (
-          <div className="rounded-2xl border-2 border-dashed border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-900 py-12 text-center">
+          <div className="rounded-2xl border-2 border-dashed border-stone-200 dark:border-stone-600 bg-stone-50 dark:bg-stone-900 py-12 text-center">
             <Shield className="mx-auto mb-3 h-10 w-10 text-stone-300 dark:text-stone-600" />
-            <p className="text-sm font-bold text-stone-600 dark:text-stone-400">اختر ببتيدين أو أكثر لفحص التعارضات بينهما</p>
-            <p className="mt-1 text-sm text-stone-500 dark:text-stone-400">نتحقق من أمان الدمج بناءً على آليات العمل والأدلة العلمية</p>
+            <p className="text-sm font-bold text-stone-600 dark:text-stone-300">اختر ببتيدين أو أكثر لفحص التعارضات بينهما</p>
+            <p className="mt-1 text-sm text-stone-500 dark:text-stone-300">نتحقق من أمان الدمج بناءً على آليات العمل والأدلة العلمية</p>
           </div>
         )}
 
@@ -325,14 +325,14 @@ export default function InteractionChecker() {
                     </span>
                   </div>
                   <p className="text-sm font-semibold text-stone-800 dark:text-stone-200">{pair.result.message}</p>
-                  <p className="text-sm text-stone-600 dark:text-stone-400 mt-1 leading-relaxed">{pair.result.details}</p>
+                  <p className="text-sm text-stone-600 dark:text-stone-300 mt-1 leading-relaxed">{pair.result.details}</p>
                 </div>
               );
             })}
           </div>
         )}
 
-        <div className="mt-8 rounded-xl border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-900 p-5 text-center text-sm text-stone-600 dark:text-stone-400 leading-relaxed">
+        <div className="mt-8 rounded-xl border border-stone-200 dark:border-stone-600 bg-stone-50 dark:bg-stone-900 p-5 text-center text-sm text-stone-600 dark:text-stone-300 leading-relaxed">
           هذه الأداة تعليمية وليست بديلًا عن الاستشارة الطبية. قاعدة بيانات التعارضات لا تشمل جميع التعارضات المحتملة — استشر مختصًا قبل تجميع أي بروتوكول.
         </div>
 

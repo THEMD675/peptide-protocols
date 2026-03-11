@@ -306,7 +306,7 @@ export default function TrackerHistory({
           <h2 className="text-xl font-bold text-stone-900 dark:text-stone-100">السجل</h2>
           {logs.length > 0 && (
             <div className="flex gap-2">
-              <button onClick={exportCSV} className="flex items-center gap-1.5 rounded-lg border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 px-3 py-1.5 min-h-[44px] text-xs font-bold text-stone-600 dark:text-stone-400 transition-all hover:border-emerald-300 hover:text-emerald-700">
+              <button onClick={exportCSV} className="flex items-center gap-1.5 rounded-lg border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950 px-3 py-1.5 min-h-[44px] text-xs font-bold text-stone-600 dark:text-stone-300 transition-all hover:border-emerald-300 hover:text-emerald-700">
                 <Download className="h-3.5 w-3.5" />
                 CSV
               </button>
@@ -321,7 +321,7 @@ export default function TrackerHistory({
         {isLoadingLogs ? (
           <div className="space-y-3 py-4" role="status" aria-label="جارٍ تحميل السجلات">
             {Array.from({ length: 3 }).map((_, i) => (
-              <div key={i} className="animate-pulse rounded-2xl border border-stone-200 dark:border-stone-700 p-5 space-y-2">
+              <div key={i} className="animate-pulse rounded-2xl border border-stone-200 dark:border-stone-600 p-5 space-y-2">
                 <div className="flex justify-between"><div className="h-5 w-28 rounded bg-stone-200 dark:bg-stone-700" /><div className="h-6 w-20 rounded-full bg-stone-100 dark:bg-stone-800" /></div>
                 <div className="h-4 w-40 rounded bg-stone-100 dark:bg-stone-800" />
                 <div className="h-4 w-32 rounded bg-stone-100 dark:bg-stone-800" />
@@ -347,7 +347,7 @@ export default function TrackerHistory({
               </div>
             </div>
             <h3 className="text-2xl font-black text-stone-900 dark:text-stone-100">سجّل أول حقنة لك 💉</h3>
-            <p className="mx-auto mt-3 max-w-md text-sm leading-relaxed text-stone-600 dark:text-stone-400">
+            <p className="mx-auto mt-3 max-w-md text-sm leading-relaxed text-stone-600 dark:text-stone-300">
               {isProOrTrial
                 ? 'ابدأ بتسجيل حقنتك الأولى — سنتتبّع جرعاتك، ندير تدوير مواقع الحقن، ونعرض لك خريطة حرارية وإحصائيات التزامك بالبروتوكول.'
                 : 'اشترك لبدء تسجيل حقنك وتتبّع جرعاتك.'}
@@ -391,33 +391,33 @@ export default function TrackerHistory({
                       <p className="text-sm font-bold text-stone-900 dark:text-stone-100" dir="ltr">{log.peptide_name}</p>
                       <div className="flex gap-2">
                         <div className="flex-1">
-                          <label className="text-xs text-stone-500 dark:text-stone-400 mb-1 block">الجرعة</label>
-                          <input type="number" inputMode="decimal" value={editDose} onChange={e => setEditDose(e.target.value)} dir="ltr" min="0" step="any" className="w-full rounded-lg border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 px-3 py-2 text-base text-stone-900 dark:text-stone-100 focus:border-emerald-300 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900" />
+                          <label className="text-xs text-stone-500 dark:text-stone-300 mb-1 block">الجرعة</label>
+                          <input type="number" inputMode="decimal" value={editDose} onChange={e => setEditDose(e.target.value)} dir="ltr" min="0" step="any" className="w-full rounded-lg border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950 px-3 py-2 text-base text-stone-900 dark:text-stone-100 focus:border-emerald-300 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900" />
                         </div>
                         <div className="w-20">
-                          <label className="text-xs text-stone-500 dark:text-stone-400 mb-1 block">الوحدة</label>
-                          <select value={editUnit} onChange={e => setEditUnit(e.target.value)} className="w-full rounded-lg border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 px-2 py-2 text-base text-stone-900 dark:text-stone-100 focus:border-emerald-300 focus:outline-none">
+                          <label className="text-xs text-stone-500 dark:text-stone-300 mb-1 block">الوحدة</label>
+                          <select value={editUnit} onChange={e => setEditUnit(e.target.value)} className="w-full rounded-lg border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950 px-2 py-2 text-base text-stone-900 dark:text-stone-100 focus:border-emerald-300 focus:outline-none">
                             <option value="mcg">mcg</option>
                             <option value="mg">mg</option>
                           </select>
                         </div>
                       </div>
                       <div>
-                        <label className="text-xs text-stone-500 dark:text-stone-400 mb-1 block">الموقع</label>
-                        <select value={editSite} onChange={e => setEditSite(e.target.value)} className="w-full rounded-lg border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 px-3 py-2 text-base text-stone-900 dark:text-stone-100 focus:border-emerald-300 focus:outline-none">
+                        <label className="text-xs text-stone-500 dark:text-stone-300 mb-1 block">الموقع</label>
+                        <select value={editSite} onChange={e => setEditSite(e.target.value)} className="w-full rounded-lg border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950 px-3 py-2 text-base text-stone-900 dark:text-stone-100 focus:border-emerald-300 focus:outline-none">
                           {INJECTION_SITES.map(s => <option key={s.value} value={s.value}>{s.label}</option>)}
                         </select>
                       </div>
                       <div>
-                        <label className="text-xs text-stone-500 dark:text-stone-400 mb-1 block">التاريخ والوقت</label>
-                        <input type="datetime-local" value={editDate} onChange={e => setEditDate(e.target.value)} dir="ltr" className="w-full rounded-lg border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 px-3 py-2 text-base text-stone-900 dark:text-stone-100 focus:border-emerald-300 focus:outline-none" />
+                        <label className="text-xs text-stone-500 dark:text-stone-300 mb-1 block">التاريخ والوقت</label>
+                        <input type="datetime-local" value={editDate} onChange={e => setEditDate(e.target.value)} dir="ltr" className="w-full rounded-lg border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950 px-3 py-2 text-base text-stone-900 dark:text-stone-100 focus:border-emerald-300 focus:outline-none" />
                       </div>
                       <div className="flex gap-2">
                         <button onClick={() => saveEdit(log.id)} disabled={editSaving} className="flex-1 flex items-center justify-center gap-1.5 rounded-lg bg-emerald-600 px-4 py-2.5 min-h-[44px] text-sm font-bold text-white transition-colors hover:bg-emerald-700 disabled:opacity-50">
                           <Check className="h-4 w-4" />
                           {editSaving ? 'جارٍ الحفظ...' : 'حفظ'}
                         </button>
-                        <button onClick={() => setEditingLog(null)} className="flex items-center justify-center gap-1.5 rounded-lg border border-stone-200 dark:border-stone-700 px-4 py-2.5 min-h-[44px] text-sm font-bold text-stone-600 dark:text-stone-400 transition-colors hover:bg-stone-50 dark:hover:bg-stone-800">
+                        <button onClick={() => setEditingLog(null)} className="flex items-center justify-center gap-1.5 rounded-lg border border-stone-200 dark:border-stone-600 px-4 py-2.5 min-h-[44px] text-sm font-bold text-stone-600 dark:text-stone-300 transition-colors hover:bg-stone-50 dark:hover:bg-stone-800">
                           <X className="h-4 w-4" />
                           إلغاء
                         </button>
@@ -432,7 +432,7 @@ export default function TrackerHistory({
                             {log.dose} {log.dose_unit}
                           </span>
                           {isProOrTrial && (
-                            <button onClick={() => startEditing(log)} className="flex items-center justify-center rounded-lg p-2 min-h-[44px] min-w-[44px] text-stone-300 dark:text-stone-400 transition-colors hover:bg-blue-50 dark:hover:bg-blue-900/20 hover:text-blue-500 dark:hover:text-blue-400" aria-label="تعديل">
+                            <button onClick={() => startEditing(log)} className="flex items-center justify-center rounded-lg p-2 min-h-[44px] min-w-[44px] text-stone-300 dark:text-stone-300 transition-colors hover:bg-blue-50 dark:hover:bg-blue-900/20 hover:text-blue-500 dark:hover:text-blue-400" aria-label="تعديل">
                               <Pencil className="h-3.5 w-3.5" />
                             </button>
                           )}
@@ -464,7 +464,7 @@ export default function TrackerHistory({
                                   },
                                 });
                               }}
-                              className="flex items-center justify-center rounded-lg p-2 min-h-[44px] min-w-[44px] text-stone-300 dark:text-stone-400 transition-colors hover:bg-red-50 dark:hover:bg-red-900/20 hover:text-red-500 dark:hover:text-red-400"
+                              className="flex items-center justify-center rounded-lg p-2 min-h-[44px] min-w-[44px] text-stone-300 dark:text-stone-300 transition-colors hover:bg-red-50 dark:hover:bg-red-900/20 hover:text-red-500 dark:hover:text-red-400"
                               aria-label="حذف"
                             >
                               <Trash2 className="h-3.5 w-3.5" />
@@ -472,7 +472,7 @@ export default function TrackerHistory({
                           )}
                         </div>
                       </div>
-                      <div className="flex flex-wrap gap-4 text-xs text-stone-500 dark:text-stone-400">
+                      <div className="flex flex-wrap gap-4 text-xs text-stone-500 dark:text-stone-300">
                         <span className="flex items-center gap-1">
                           <MapPin className="h-3.5 w-3.5" />
                           {SITE_LABELS[log.injection_site] ?? log.injection_site}
@@ -488,13 +488,13 @@ export default function TrackerHistory({
                       </div>
                       {log.photo_url && (
                         <div className="mt-3">
-                          <img src={log.photo_url} alt="صورة الحقنة" width={80} height={80} className="h-20 w-20 rounded-xl object-cover border border-stone-200 dark:border-stone-700" loading="lazy" />
+                          <img src={log.photo_url} alt="صورة الحقنة" width={80} height={80} className="h-20 w-20 rounded-xl object-cover border border-stone-200 dark:border-stone-600" loading="lazy" />
                         </div>
                       )}
                       {log.notes && (
                         <div className="mt-3 flex items-start gap-2 rounded-lg bg-stone-50 dark:bg-stone-900 px-3 py-2">
-                          <FileText className="mt-0.5 h-3.5 w-3.5 shrink-0 text-stone-500 dark:text-stone-400" />
-                          <p className="text-xs text-stone-600 dark:text-stone-400">{log.notes}</p>
+                          <FileText className="mt-0.5 h-3.5 w-3.5 shrink-0 text-stone-500 dark:text-stone-300" />
+                          <p className="text-xs text-stone-600 dark:text-stone-300">{log.notes}</p>
                         </div>
                       )}
                     </>
@@ -506,7 +506,7 @@ export default function TrackerHistory({
               <button
                 onClick={fetchMore}
                 disabled={isLoadingMore}
-                className="flex w-full items-center justify-center gap-2 rounded-2xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 py-4 text-sm font-bold text-stone-600 dark:text-stone-400 transition-all hover:border-emerald-300 dark:border-emerald-700 hover:text-emerald-700 dark:text-emerald-400 disabled:opacity-50"
+                className="flex w-full items-center justify-center gap-2 rounded-2xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950 py-4 text-sm font-bold text-stone-600 dark:text-stone-300 transition-all hover:border-emerald-300 dark:border-emerald-700 hover:text-emerald-700 dark:text-emerald-400 disabled:opacity-50"
               >
                 {isLoadingMore ? (
                   <span className="flex items-center justify-center gap-2" role="status" aria-label="جارٍ تحميل السجلات">
@@ -528,7 +528,7 @@ export default function TrackerHistory({
           <FocusTrap focusTrapOptions={{ allowOutsideClick: true }}>
             <div role="dialog" aria-modal="true" aria-label="تأكيد الحذف" className="w-full max-w-sm rounded-2xl bg-white dark:bg-stone-950 p-6 shadow-2xl" onClick={e => e.stopPropagation()}>
               <h3 className="text-lg font-bold text-stone-900 dark:text-stone-100 mb-2">{confirmDialog.title}</h3>
-              <p className="text-sm text-stone-600 dark:text-stone-400 mb-6">{confirmDialog.message}</p>
+              <p className="text-sm text-stone-600 dark:text-stone-300 mb-6">{confirmDialog.message}</p>
               <div className="flex gap-3">
                 <button
                   onClick={() => confirmDialog.onConfirm()}
@@ -542,7 +542,7 @@ export default function TrackerHistory({
                 </button>
                 <button
                   onClick={() => setConfirmDialog(null)}
-                  className="flex-1 rounded-xl border border-stone-200 dark:border-stone-700 px-4 py-3 min-h-[44px] text-sm font-bold text-stone-700 dark:text-stone-200 transition-all hover:bg-stone-50 dark:hover:bg-stone-800"
+                  className="flex-1 rounded-xl border border-stone-200 dark:border-stone-600 px-4 py-3 min-h-[44px] text-sm font-bold text-stone-700 dark:text-stone-200 transition-all hover:bg-stone-50 dark:hover:bg-stone-800"
                 >
                   إلغاء
                 </button>

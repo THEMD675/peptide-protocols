@@ -71,8 +71,8 @@ const PeptideCard = memo(function PeptideCard({
       className={cn(
         'relative h-full overflow-hidden rounded-2xl border p-5 shadow-sm dark:shadow-stone-900/30 card-hover active:scale-[0.98]',
         hasAccess
-          ? 'border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 hover:border-emerald-300 dark:border-emerald-700 hover:shadow-lg hover:shadow-emerald-600/10'
-          : 'border-stone-200 dark:border-stone-700 bg-stone-50/50 hover:border-stone-300 dark:border-stone-700',
+          ? 'border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950 hover:border-emerald-300 dark:border-emerald-700 hover:shadow-lg hover:shadow-emerald-600/10'
+          : 'border-stone-200 dark:border-stone-600 bg-stone-50/50 hover:border-stone-300 dark:border-stone-600',
         isFav && 'border-s-4 border-s-emerald-400',
       )}
     >
@@ -80,7 +80,7 @@ const PeptideCard = memo(function PeptideCard({
       <div className="mb-2 flex items-center justify-between">
         <div className="flex items-center gap-1">
           {!hasAccess && !peptide.isFree && (
-            <Lock className="h-3.5 w-3.5 text-stone-500 dark:text-stone-400" />
+            <Lock className="h-3.5 w-3.5 text-stone-500 dark:text-stone-300" />
           )}
           {peptide.isFree && !hasAccess && (
             <span className="rounded-full bg-emerald-100 dark:bg-emerald-900/30 px-2 py-0.5 text-xs font-bold text-emerald-700 dark:text-emerald-400">مجاني</span>
@@ -96,7 +96,7 @@ const PeptideCard = memo(function PeptideCard({
           <button
             type="button"
             onClick={(e) => { e.preventDefault(); e.stopPropagation(); onToggleCompare(); }}
-            className={cn('flex items-center gap-1 rounded-full px-2.5 py-1.5 min-h-[44px] text-xs font-medium transition-colors', isCompare ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400' : 'text-stone-500 dark:text-stone-400 hover:bg-stone-100 dark:hover:bg-stone-800 hover:text-stone-600 dark:text-stone-400')}
+            className={cn('flex items-center gap-1 rounded-full px-2.5 py-1.5 min-h-[44px] text-xs font-medium transition-colors', isCompare ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400' : 'text-stone-500 dark:text-stone-300 hover:bg-stone-100 dark:hover:bg-stone-800 hover:text-stone-600 dark:text-stone-300')}
             aria-label={isCompare ? 'إزالة من المقارنة' : 'إضافة للمقارنة'}
           >
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-3.5 w-3.5" aria-hidden="true">
@@ -133,7 +133,7 @@ const PeptideCard = memo(function PeptideCard({
       </div>
 
       <div className="mb-3 flex flex-wrap items-center gap-2">
-        <span className="flex items-center gap-1 rounded-full border border-stone-300 dark:border-stone-700 bg-stone-50 dark:bg-stone-900 px-2.5 py-0.5 text-xs font-medium text-stone-800 dark:text-stone-200">
+        <span className="flex items-center gap-1 rounded-full border border-stone-300 dark:border-stone-600 bg-stone-50 dark:bg-stone-900 px-2.5 py-0.5 text-xs font-medium text-stone-800 dark:text-stone-200">
           {Icon && <Icon className="h-3 w-3" />}
           {categoryLabels[peptide.category]}
         </span>
@@ -164,7 +164,7 @@ const PeptideCard = memo(function PeptideCard({
 
       {(hasAccess || peptide.isFree) && (
         <div className="space-y-2">
-          <div className="flex items-center gap-1.5 text-stone-600 dark:text-stone-400">
+          <div className="flex items-center gap-1.5 text-stone-600 dark:text-stone-300">
             <FlaskConical className="h-3 w-3" />
             <span className="text-xs">{peptide.administrationAr.split('.')[0]}</span>
           </div>
@@ -408,7 +408,7 @@ export default function Library() {
           >
             مكتبة الببتيدات
           </h1>
-          <p className="mt-2 text-base text-stone-600 dark:text-stone-400">
+          <p className="mt-2 text-base text-stone-600 dark:text-stone-300">
             استكشف البروتوكولات المبنية على الأدلة العلمية
           </p>
         </div>
@@ -443,7 +443,7 @@ export default function Library() {
                   <p className="text-sm font-bold text-stone-700 dark:text-stone-200 mb-2">شاهدت مؤخرًا</p>
                   <div className="flex gap-2 overflow-x-auto pb-1">
                     {recentPeptides.map(p => (
-                      <Link key={p!.id} to={`/peptide/${p!.id}`} className="shrink-0 rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 px-4 py-2.5 text-sm font-medium text-stone-700 dark:text-stone-200 hover:bg-stone-50 dark:hover:bg-stone-800 transition-colors whitespace-nowrap">
+                      <Link key={p!.id} to={`/peptide/${p!.id}`} className="shrink-0 rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950 px-4 py-2.5 text-sm font-medium text-stone-700 dark:text-stone-200 hover:bg-stone-50 dark:hover:bg-stone-800 transition-colors whitespace-nowrap">
                         {p!.nameAr}
                       </Link>
                     ))}
@@ -468,8 +468,8 @@ export default function Library() {
               onChange={(e) => setSearch(e.target.value)}
               placeholder="ابحث عن ببتيد..."
               className={cn(
-                'w-full rounded-xl border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-900 py-2.5 ps-10 pe-4',
-                'text-sm text-stone-900 dark:text-stone-100 placeholder:text-stone-500 dark:text-stone-400',
+                'w-full rounded-xl border border-stone-200 dark:border-stone-600 bg-stone-50 dark:bg-stone-900 py-2.5 ps-10 pe-4',
+                'text-sm text-stone-900 dark:text-stone-100 placeholder:text-stone-500 dark:text-stone-300',
                 'transition-colors focus:border-emerald-300 dark:border-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900',
               )}
             />
@@ -488,7 +488,7 @@ export default function Library() {
             value={sortBy}
             onChange={(e) => setSortBy(e.target.value as 'default' | 'evidence' | 'alpha' | 'favorites')}
             aria-label="ترتيب"
-            className="rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 px-3 py-2.5 text-sm text-stone-800 dark:text-stone-200 focus:border-emerald-300 dark:border-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900 sm:w-auto"
+            className="rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950 px-3 py-2.5 text-sm text-stone-800 dark:text-stone-200 focus:border-emerald-300 dark:border-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900 sm:w-auto"
           >
             <option value="default">الترتيب الافتراضي</option>
             <option value="evidence">الأقوى دليلًا</option>
@@ -502,7 +502,7 @@ export default function Library() {
               'flex items-center justify-center gap-2 rounded-xl border px-4 py-2.5 text-sm font-medium transition-colors sm:w-auto',
               showFilters
                 ? 'border-emerald-400 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700'
-                : 'border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 text-stone-800 dark:text-stone-200 transition-colors hover:border-stone-300 dark:border-stone-700',
+                : 'border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950 text-stone-800 dark:text-stone-200 transition-colors hover:border-stone-300 dark:border-stone-600',
             )}
           >
             <Filter className="h-4 w-4" />
@@ -516,7 +516,7 @@ export default function Library() {
             <div
               className="mb-6 overflow-hidden"
             >
-              <div className="rounded-xl border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-900 p-4">
+              <div className="rounded-xl border border-stone-200 dark:border-stone-600 bg-stone-50 dark:bg-stone-900 p-4">
                 <label className="mb-2 block text-xs font-medium text-stone-800 dark:text-stone-200">
                   مستوى الدليل العلمي
                 </label>
@@ -524,7 +524,7 @@ export default function Library() {
                   value={evidenceFilter}
                   onChange={(e) => setEvidenceFilter(e.target.value)}
                   aria-label="مستوى الدليل العلمي"
-                  className="w-full rounded-lg border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-900 px-3 py-2 text-sm text-stone-900 dark:text-stone-100 focus:border-emerald-300 dark:border-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900 sm:w-auto"
+                  className="w-full rounded-lg border border-stone-200 dark:border-stone-600 bg-stone-50 dark:bg-stone-900 px-3 py-2 text-sm text-stone-900 dark:text-stone-100 focus:border-emerald-300 dark:border-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900 sm:w-auto"
                 >
                   <option value="all">الكل</option>
                   <option value="excellent">ممتاز</option>
@@ -586,7 +586,7 @@ export default function Library() {
                 'shrink-0 rounded-full border px-4 py-2 min-h-[44px] text-sm font-medium transition-all',
                 activeCategory === 'all'
                   ? 'primary-gradient border-emerald-300 dark:border-emerald-700 text-white'
-                  : 'border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 text-stone-800 dark:text-stone-200 hover:border-stone-300 dark:border-stone-700 transition-colors hover:text-stone-800 dark:text-stone-200',
+                  : 'border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950 text-stone-800 dark:text-stone-200 hover:border-stone-300 dark:border-stone-600 transition-colors hover:text-stone-800 dark:text-stone-200',
               )}
             >
               الكل
@@ -598,7 +598,7 @@ export default function Library() {
                 'flex shrink-0 items-center gap-1.5 rounded-full border px-4 py-2 min-h-[44px] text-sm font-medium transition-all',
                 activeCategory === 'free'
                   ? 'primary-gradient border-emerald-300 dark:border-emerald-700 text-white'
-                  : 'border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 text-stone-800 dark:text-stone-200 hover:border-stone-300 dark:border-stone-700 transition-colors hover:text-stone-800 dark:text-stone-200',
+                  : 'border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950 text-stone-800 dark:text-stone-200 hover:border-stone-300 dark:border-stone-600 transition-colors hover:text-stone-800 dark:text-stone-200',
               )}
             >
               مجاني
@@ -610,7 +610,7 @@ export default function Library() {
                 'flex shrink-0 items-center gap-1.5 rounded-full border px-4 py-2 min-h-[44px] text-sm font-medium transition-all',
                 activeCategory === 'bookmarks'
                   ? 'primary-gradient border-emerald-300 dark:border-emerald-700 text-white'
-                  : 'border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 text-stone-800 dark:text-stone-200 hover:border-stone-300 dark:border-stone-700 transition-colors hover:text-stone-800 dark:text-stone-200',
+                  : 'border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950 text-stone-800 dark:text-stone-200 hover:border-stone-300 dark:border-stone-600 transition-colors hover:text-stone-800 dark:text-stone-200',
               )}
             >
               <Bookmark className="h-3.5 w-3.5" />
@@ -628,7 +628,7 @@ export default function Library() {
                     'flex shrink-0 items-center gap-1.5 rounded-full border px-4 py-2 min-h-[44px] text-sm font-medium transition-all',
                     active
                       ? 'primary-gradient border-emerald-300 dark:border-emerald-700 text-white'
-                      : 'border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 text-stone-800 dark:text-stone-200 hover:border-stone-300 dark:border-stone-700 transition-colors hover:text-stone-800 dark:text-stone-200',
+                      : 'border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950 text-stone-800 dark:text-stone-200 hover:border-stone-300 dark:border-stone-600 transition-colors hover:text-stone-800 dark:text-stone-200',
                   )}
                 >
                   {Icon && <Icon className="h-3.5 w-3.5" />}
@@ -645,7 +645,7 @@ export default function Library() {
           {(activeCategory !== 'all' || search.trim() !== '' || evidenceFilter !== 'all') && (
             <button
               onClick={() => { setActiveCategory('all'); setSearch(''); setEvidenceFilter('all'); setSortBy('default'); }}
-              className="flex items-center gap-1 rounded-lg border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 px-3 py-1.5 min-h-[44px] text-xs font-medium text-stone-600 dark:text-stone-400 transition-colors hover:border-red-200 dark:border-red-800 hover:bg-red-50 dark:bg-red-900/20 hover:text-red-600 dark:text-red-400"
+              className="flex items-center gap-1 rounded-lg border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950 px-3 py-1.5 min-h-[44px] text-xs font-medium text-stone-600 dark:text-stone-300 transition-colors hover:border-red-200 dark:border-red-800 hover:bg-red-50 dark:bg-red-900/20 hover:text-red-600 dark:text-red-400"
             >
               <X className="h-3 w-3" />
               مسح الفلاتر
@@ -657,7 +657,7 @@ export default function Library() {
         {isLoading ? (
           <div className="grid grid-cols-1 gap-5 md:grid-cols-2 md:gap-6 lg:grid-cols-3">
             {Array.from({ length: 6 }).map((_, i) => (
-              <div key={i} className="animate-pulse rounded-2xl border border-stone-200 dark:border-stone-700 p-5 space-y-3">
+              <div key={i} className="animate-pulse rounded-2xl border border-stone-200 dark:border-stone-600 p-5 space-y-3">
                 <div className="flex justify-between">
                   <div className="space-y-2 flex-1"><div className="h-6 w-32 rounded bg-stone-200 dark:bg-stone-700" /><div className="h-4 w-24 rounded bg-stone-100 dark:bg-stone-800" /></div>
                   <div className="h-8 w-16 rounded-full bg-stone-100 dark:bg-stone-800" />
@@ -719,11 +719,11 @@ export default function Library() {
             <div
               className="flex flex-col items-center justify-center py-16 text-center"
             >
-              <FlaskConical className="mb-4 h-12 w-12 text-stone-500 dark:text-stone-400" />
+              <FlaskConical className="mb-4 h-12 w-12 text-stone-500 dark:text-stone-300" />
               <p className="text-lg font-semibold text-stone-800 dark:text-stone-200">
                 {search.trim() ? `لا توجد نتائج لـ "${search}"` : 'لا توجد نتائج للفلاتر المحددة'}
               </p>
-              <p className="mt-1 text-sm text-stone-600 dark:text-stone-400">
+              <p className="mt-1 text-sm text-stone-600 dark:text-stone-300">
                 {search.trim() ? 'جرّب كلمات بحث مختلفة أو اسأل المدرب الذكي' : 'جرّب تغيير التصنيف أو مستوى الدليل'}
               </p>
               <Link to="/coach" className="mt-4 inline-flex items-center gap-2 rounded-full bg-emerald-600 px-6 py-2.5 text-sm font-bold text-white transition-colors hover:bg-emerald-700">
@@ -745,7 +745,7 @@ export default function Library() {
             })}
           </div>
           <Link to={`/compare?${compareIds.map((id, i) => `p${i + 1}=${id}`).join('&')}`} className="rounded-xl bg-emerald-600 px-5 py-2 text-sm font-bold text-white transition-colors hover:bg-emerald-700">عرض المقارنة</Link>
-          <button onClick={() => setCompareIds([])} className="rounded-xl border border-stone-200 dark:border-stone-700 px-3 py-2 text-xs font-bold text-stone-600 dark:text-stone-400 transition-colors hover:bg-stone-50 dark:hover:bg-stone-800">مسح</button>
+          <button onClick={() => setCompareIds([])} className="rounded-xl border border-stone-200 dark:border-stone-600 px-3 py-2 text-xs font-bold text-stone-600 dark:text-stone-300 transition-colors hover:bg-stone-50 dark:hover:bg-stone-800">مسح</button>
         </div>
       )}
 
@@ -767,19 +767,19 @@ export default function Library() {
           <div className="fixed inset-0 z-50 flex items-start justify-center bg-black/50 backdrop-blur-sm p-4 overflow-y-auto" onClick={() => setShowCompare(false)} role="dialog" aria-modal="true" aria-label="مقارنة ببتيدات">
             <FocusTrap focusTrapOptions={{ allowOutsideClick: true }}>
             <div className="w-full max-w-4xl my-8 rounded-2xl bg-white dark:bg-stone-950 shadow-2xl overflow-hidden animate-fade-in" onClick={e => e.stopPropagation()}>
-              <div className="flex items-center justify-between border-b border-stone-200 dark:border-stone-700 px-6 py-4">
+              <div className="flex items-center justify-between border-b border-stone-200 dark:border-stone-600 px-6 py-4">
                 <h2 className="text-lg font-bold text-stone-900 dark:text-stone-100">مقارنة ببتيدات</h2>
-                <button onClick={() => setShowCompare(false)} aria-label="إغلاق" className="rounded-lg p-2 min-h-[44px] min-w-[44px] flex items-center justify-center text-stone-500 dark:text-stone-400 transition-colors hover:bg-stone-100 dark:hover:bg-stone-800"><X className="h-5 w-5" /></button>
+                <button onClick={() => setShowCompare(false)} aria-label="إغلاق" className="rounded-lg p-2 min-h-[44px] min-w-[44px] flex items-center justify-center text-stone-500 dark:text-stone-300 transition-colors hover:bg-stone-100 dark:hover:bg-stone-800"><X className="h-5 w-5" /></button>
               </div>
               <div className="overflow-x-auto">
                 <table className="w-full min-w-[600px]">
                   <thead>
-                    <tr className="border-b border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-900">
-                      <th scope="col" className="px-4 py-3 text-start text-xs font-bold text-stone-500 dark:text-stone-400 w-[160px]">المعيار</th>
+                    <tr className="border-b border-stone-200 dark:border-stone-600 bg-stone-50 dark:bg-stone-900">
+                      <th scope="col" className="px-4 py-3 text-start text-xs font-bold text-stone-500 dark:text-stone-300 w-[160px]">المعيار</th>
                       {items.map(p => (
                         <th key={p.id} scope="col" className="px-4 py-3 text-start">
                           <p className="text-sm font-bold text-stone-900 dark:text-stone-100">{p.nameAr}</p>
-                          <p className="text-xs text-stone-500 dark:text-stone-400">{p.nameEn}</p>
+                          <p className="text-xs text-stone-500 dark:text-stone-300">{p.nameEn}</p>
                           <Link
                             to={`/calculator?preset=${encodeURIComponent(p.nameEn)}`}
                             onClick={() => setShowCompare(false)}
@@ -803,7 +803,7 @@ export default function Library() {
                   </tbody>
                 </table>
               </div>
-              <div className="flex items-center justify-center gap-3 border-t border-stone-200 dark:border-stone-700 px-6 py-4">
+              <div className="flex items-center justify-center gap-3 border-t border-stone-200 dark:border-stone-600 px-6 py-4">
                 <Link
                   to={`/interactions?p1=${compareIds[0]}&p2=${compareIds[1]}`}
                   onClick={() => setShowCompare(false)}
@@ -830,7 +830,7 @@ export default function Library() {
                 <Lock className="h-7 w-7 text-emerald-700" />
               </div>
               <h3 className="mb-2 text-xl font-bold text-stone-900 dark:text-stone-100">{p.nameAr}</h3>
-              <p className="mb-1 text-sm text-stone-500 dark:text-stone-400" dir="ltr">{p.nameEn}</p>
+              <p className="mb-1 text-sm text-stone-500 dark:text-stone-300" dir="ltr">{p.nameEn}</p>
               <p className="mb-4 text-sm text-stone-700 dark:text-stone-200 leading-relaxed line-clamp-2">{p.summaryAr}</p>
               <div className="mb-5 rounded-xl bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 p-4">
                 <p className="text-sm text-emerald-800 dark:text-emerald-300 font-semibold mb-1">البروتوكول الكامل يتضمن:</p>
@@ -856,7 +856,7 @@ export default function Library() {
                 if (fallback.length === 0) return null;
                 return (
                   <div className="mt-4 border-t border-stone-100 dark:border-stone-800 pt-4">
-                    <p className="mb-2 text-xs font-bold text-stone-500 dark:text-stone-400">ببتيدات مجانية يمكنك تصفّحها:</p>
+                    <p className="mb-2 text-xs font-bold text-stone-500 dark:text-stone-300">ببتيدات مجانية يمكنك تصفّحها:</p>
                     <div className="flex flex-wrap justify-center gap-2">
                       {fallback.map(f => (
                         <Link key={f.id} to={`/peptide/${f.id}`} onClick={() => setUpsellPeptide(null)} className="rounded-full border border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-900/20 px-3 py-2 min-h-[44px] inline-flex items-center text-xs font-bold text-emerald-700 dark:text-emerald-400 transition-colors hover:bg-emerald-100 dark:bg-emerald-900/30">

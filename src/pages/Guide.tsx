@@ -89,7 +89,7 @@ function AccordionItem({ title, children, defaultOpen = false }: { title: string
   const contentRef = useRef<HTMLDivElement>(null);
 
   return (
-    <div className="rounded-2xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 overflow-hidden transition-all card-hover">
+    <div className="rounded-2xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950 overflow-hidden transition-all card-hover">
       <button
         onClick={() => setOpen(!open)}
         className="flex w-full items-center justify-between px-5 py-4 text-start font-bold text-stone-900 dark:text-stone-100 hover:bg-stone-50 dark:hover:bg-stone-900 transition-colors"
@@ -212,19 +212,19 @@ function buildModules(): Module[] {
                 مما يُطلق سلسلة من التفاعلات البيولوجية. كل ببتيد له "مفتاح" فريد يفتح "قفل" محدد في الجسم.
               </p>
               <div className="grid gap-3 sm:grid-cols-2">
-                <div className="rounded-xl border border-stone-200 dark:border-stone-700 p-4">
+                <div className="rounded-xl border border-stone-200 dark:border-stone-600 p-4">
                   <h5 className="font-bold text-emerald-700 mb-1">الارتباط بالمستقبل</h5>
                   <p className="text-xs">الببتيد يرتبط بمستقبل محدد على سطح الخلية</p>
                 </div>
-                <div className="rounded-xl border border-stone-200 dark:border-stone-700 p-4">
+                <div className="rounded-xl border border-stone-200 dark:border-stone-600 p-4">
                   <h5 className="font-bold text-emerald-700 mb-1">تفعيل إشارة داخلية</h5>
                   <p className="text-xs">يُطلق سلسلة من الإشارات داخل الخلية</p>
                 </div>
-                <div className="rounded-xl border border-stone-200 dark:border-stone-700 p-4">
+                <div className="rounded-xl border border-stone-200 dark:border-stone-600 p-4">
                   <h5 className="font-bold text-emerald-700 mb-1">الاستجابة البيولوجية</h5>
                   <p className="text-xs">الخلية تستجيب — إفراز هرمون، إصلاح نسيج، أو تنظيم مناعي</p>
                 </div>
-                <div className="rounded-xl border border-stone-200 dark:border-stone-700 p-4">
+                <div className="rounded-xl border border-stone-200 dark:border-stone-600 p-4">
                   <h5 className="font-bold text-emerald-700 mb-1">التحلل الطبيعي</h5>
                   <p className="text-xs">الببتيد يتحلل بعد أداء مهمته — لا تراكم في الجسم</p>
                 </div>
@@ -277,9 +277,9 @@ function buildModules(): Module[] {
                   { term: 'IU (وحدة دولية)', def: 'وحدة قياس تُستخدم لبعض الببتيدات مثل HGH وHCG' },
                   { term: 'mcg (ميكروغرام)', def: 'وحدة قياس الجرعة الأكثر شيوعًا للببتيدات — 1 ملغ = 1000 ميكروغرام' },
                 ].map((item) => (
-                  <div key={item.term} className="rounded-xl border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-900 p-3">
+                  <div key={item.term} className="rounded-xl border border-stone-200 dark:border-stone-600 bg-stone-50 dark:bg-stone-900 p-3">
                     <span className="font-bold text-emerald-700 text-sm">{item.term}</span>
-                    <p className="text-xs mt-1 text-stone-600 dark:text-stone-400">{item.def}</p>
+                    <p className="text-xs mt-1 text-stone-600 dark:text-stone-300">{item.def}</p>
                   </div>
                 ))}
               </div>
@@ -435,7 +435,7 @@ function buildModules(): Module[] {
           title: 'الأدوات المطلوبة',
           content: (
             <div className="space-y-4">
-              <div className="overflow-x-auto rounded-2xl border border-stone-200 dark:border-stone-700">
+              <div className="overflow-x-auto rounded-2xl border border-stone-200 dark:border-stone-600">
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="bg-emerald-500">
@@ -495,7 +495,7 @@ function buildModules(): Module[] {
           title: 'مواقع الحقن',
           content: (
             <div className="space-y-4">
-              <div className="rounded-2xl border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-900 p-6">
+              <div className="rounded-2xl border border-stone-200 dark:border-stone-600 bg-stone-50 dark:bg-stone-900 p-6">
                 <div className="flex flex-col items-center gap-4 sm:flex-row sm:items-start sm:gap-8">
                   <BodyDiagram />
                   <div className="flex-1 space-y-3">
@@ -504,9 +504,9 @@ function buildModules(): Module[] {
                       { site: 'الفخذ', desc: 'الجزء الأمامي-الجانبي من الفخذ. منطقة واسعة تسمح بتدوير المواقع بسهولة.' },
                       { site: 'أعلى الذراع', desc: 'الجزء الخلفي من أعلى الذراع. يحتاج مساعدة شخص آخر في بعض الأحيان.' },
                     ].map((row) => (
-                      <div key={row.site} className="rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 p-4 shadow-sm dark:shadow-stone-900/30">
+                      <div key={row.site} className="rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950 p-4 shadow-sm dark:shadow-stone-900/30">
                         <h5 className="text-sm font-bold text-stone-900 dark:text-stone-100">{row.site}</h5>
-                        <p className="mt-1 text-xs leading-relaxed text-stone-600 dark:text-stone-400">{row.desc}</p>
+                        <p className="mt-1 text-xs leading-relaxed text-stone-600 dark:text-stone-300">{row.desc}</p>
                       </div>
                     ))}
                   </div>
@@ -520,7 +520,7 @@ function buildModules(): Module[] {
           title: 'أخطاء شائعة',
           content: (
             <div className="space-y-4">
-              <div className="rounded-2xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 p-5">
+              <div className="rounded-2xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950 p-5">
                 <ul className="space-y-3">
                   {[
                     'عدم تدوير مواقع الحقن — يسبب تليّف أو ضمور دهني',
@@ -558,7 +558,7 @@ function buildModules(): Module[] {
                   <li>دوخة شديدة أو إغماء بعد الحقن</li>
                 </ul>
               </WarningBox>
-              <p className="text-sm text-stone-600 dark:text-stone-400">
+              <p className="text-sm text-stone-600 dark:text-stone-300">
                 هذا الدليل تعليمي فقط ولا يُغني عن الاستشارة الطبية المتخصصة.
                 استشر طبيبك قبل بدء أي بروتوكول ببتيدات.
               </p>
@@ -635,7 +635,7 @@ function buildModules(): Module[] {
           title: 'مدة الصلاحية',
           content: (
             <div className="space-y-4">
-              <div className="overflow-x-auto rounded-2xl border border-stone-200 dark:border-stone-700">
+              <div className="overflow-x-auto rounded-2xl border border-stone-200 dark:border-stone-600">
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="bg-emerald-500">
@@ -718,11 +718,11 @@ function buildModules(): Module[] {
                   { test: 'Thyroid Panel (TSH, fT3, fT4)', why: 'بعض الببتيدات تؤثر على الغدة الدرقية' },
                   { test: 'Testosterone (Total + Free)', why: 'إذا كنت تستخدم محفّزات GH' },
                 ].map((item) => (
-                  <div key={item.test} className="flex items-start gap-3 rounded-xl border border-stone-200 dark:border-stone-700 p-3">
+                  <div key={item.test} className="flex items-start gap-3 rounded-xl border border-stone-200 dark:border-stone-600 p-3">
                     <CheckCircle className="h-4 w-4 shrink-0 text-emerald-500 mt-0.5" />
                     <div>
                       <span className="font-bold text-sm">{item.test}</span>
-                      <p className="text-xs text-stone-600 dark:text-stone-400">{item.why}</p>
+                      <p className="text-xs text-stone-600 dark:text-stone-300">{item.why}</p>
                     </div>
                   </div>
                 ))}
@@ -765,7 +765,7 @@ function buildModules(): Module[] {
           content: (
             <div className="space-y-4">
               <p>لا تقارن نتائجك بالمعدل "الطبيعي" فقط — المعدل الطبيعي واسع جدًا. ابحث عن المعدل "الأمثل":</p>
-              <div className="overflow-x-auto rounded-2xl border border-stone-200 dark:border-stone-700">
+              <div className="overflow-x-auto rounded-2xl border border-stone-200 dark:border-stone-600">
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="bg-emerald-500">
@@ -844,7 +844,7 @@ function buildModules(): Module[] {
                   <div key={item.goal} className="glass-card primary-border p-4">
                     <span className="text-xs font-bold text-emerald-700">🎯 {item.goal}</span>
                     <h5 className="font-bold text-stone-900 dark:text-stone-100 mt-1">{item.peptide}</h5>
-                    <p className="text-xs mt-1 text-stone-600 dark:text-stone-400">{item.why}</p>
+                    <p className="text-xs mt-1 text-stone-600 dark:text-stone-300">{item.why}</p>
                   </div>
                 ))}
               </div>
@@ -880,7 +880,7 @@ function buildModules(): Module[] {
                 معظم الببتيدات لا تحتاج استخدامًا مستمرًا. الدورات (On/Off cycles) تحافظ على حساسية المستقبلات
                 وتمنع التحمّل (tolerance).
               </p>
-              <div className="overflow-x-auto rounded-2xl border border-stone-200 dark:border-stone-700">
+              <div className="overflow-x-auto rounded-2xl border border-stone-200 dark:border-stone-600">
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="bg-emerald-500">
@@ -1063,7 +1063,7 @@ export default function Guide() {
           <GraduationCap className="h-7 w-7 text-white" />
         </div>
         <h1 className="text-3xl font-bold md:text-4xl text-emerald-700">مركز التعلّم</h1>
-        <p className="mt-2 text-lg text-stone-600 dark:text-stone-400">تعلّم كل شيء عن الببتيدات خطوة بخطوة</p>
+        <p className="mt-2 text-lg text-stone-600 dark:text-stone-300">تعلّم كل شيء عن الببتيدات خطوة بخطوة</p>
       </div>
 
       {/* ═══ Progress Bar ═══ */}
@@ -1097,7 +1097,7 @@ export default function Guide() {
                   ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-500/20'
                   : progress[m.id]
                     ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 hover:bg-emerald-200 dark:hover:bg-emerald-900/50'
-                    : 'bg-stone-100 dark:bg-stone-800 text-stone-600 dark:text-stone-400 hover:bg-stone-200 dark:hover:bg-stone-700'
+                    : 'bg-stone-100 dark:bg-stone-800 text-stone-600 dark:text-stone-300 hover:bg-stone-200 dark:hover:bg-stone-700'
               )}
             >
               {progress[m.id] && i !== activeModuleIndex && (
@@ -1120,11 +1120,11 @@ export default function Guide() {
                 <h2 className="text-2xl font-bold text-stone-900 dark:text-stone-100">
                   الوحدة {activeModule.number}: {activeModule.title}
                 </h2>
-                <p className="text-sm text-stone-500 dark:text-stone-400 mt-1">{activeModule.titleEn}</p>
+                <p className="text-sm text-stone-500 dark:text-stone-300 mt-1">{activeModule.titleEn}</p>
               </div>
             </div>
             <div className="flex items-center gap-3">
-              <span className="flex items-center gap-1 text-xs text-stone-500 dark:text-stone-400">
+              <span className="flex items-center gap-1 text-xs text-stone-500 dark:text-stone-300">
                 <Clock className="h-4 w-4" />
                 {activeModule.readingTime} دقائق
               </span>
@@ -1139,7 +1139,7 @@ export default function Guide() {
               ) : (
                 <button
                   onClick={() => markComplete(activeModule.id)}
-                  className="rounded-full border border-stone-300 dark:border-stone-600 px-3 py-1.5 text-xs font-bold text-stone-600 dark:text-stone-400 hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors"
+                  className="rounded-full border border-stone-300 dark:border-stone-600 px-3 py-1.5 text-xs font-bold text-stone-600 dark:text-stone-300 hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors"
                 >
                   تعيين كمكتمل
                 </button>
@@ -1154,7 +1154,7 @@ export default function Guide() {
             {activeModule.sections.map((section, i) => (
               <div
                 key={section.id}
-                className="rounded-2xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 overflow-hidden transition-all"
+                className="rounded-2xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950 overflow-hidden transition-all"
               >
                 <button
                   onClick={() => toggleSection(section.id)}
@@ -1186,7 +1186,7 @@ export default function Guide() {
             className={cn(
               'flex items-center gap-2 rounded-xl px-5 py-3 text-sm font-bold transition-colors',
               activeModuleIndex === 0
-                ? 'text-stone-400 dark:text-stone-400 cursor-not-allowed'
+                ? 'text-stone-400 dark:text-stone-300 cursor-not-allowed'
                 : 'bg-stone-100 dark:bg-stone-800 text-stone-700 dark:text-stone-200 hover:bg-stone-200 dark:hover:bg-stone-700'
             )}
           >
@@ -1228,7 +1228,7 @@ export default function Guide() {
             { q: 'نسيت الحقن 3 أيام — ماذا أفعل؟', a: 'لا تضاعف الجرعة. استأنف الجرعة العادية من حيث توقفت. معظم الببتيدات لا تحتاج "تعويض". الاستمرارية أهم من الكمال.' },
             { q: 'أشعر بغثيان بعد حقن Semaglutide', a: 'الغثيان شائع جدًا مع GLP-1 (44% من المستخدمين). جرّب: تقليل الجرعة، الحقن قبل النوم بدل الصباح، تناول وجبات صغيرة وخفيفة، وتجنب الأطعمة الدهنية. يتحسن عادة خلال 2-3 أسابيع.' },
           ].map((faq) => (
-            <details key={faq.q} className="group rounded-2xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 transition-all hover:border-amber-200 dark:hover:border-amber-800 card-hover">
+            <details key={faq.q} className="group rounded-2xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950 transition-all hover:border-amber-200 dark:hover:border-amber-800 card-hover">
               <summary className="flex cursor-pointer items-center justify-between px-5 py-4 text-sm font-bold text-stone-900 dark:text-stone-100 [&::-webkit-details-marker]:hidden">
                 <span className="flex items-center gap-2">{faq.q}</span>
               </summary>
@@ -1245,7 +1245,7 @@ export default function Guide() {
         {isPro ? (
           <>
             <p className="font-bold text-stone-900 dark:text-stone-100">🎓 أكملت الدورة التعليمية!</p>
-            <p className="mt-1 text-sm text-stone-600 dark:text-stone-400">الآن حان وقت التطبيق — حضّر أول جرعة واحسبها بدقة</p>
+            <p className="mt-1 text-sm text-stone-600 dark:text-stone-300">الآن حان وقت التطبيق — حضّر أول جرعة واحسبها بدقة</p>
             <div className="mt-4 flex flex-col gap-2 sm:flex-row sm:justify-center">
               <Link to="/calculator" className="rounded-full bg-emerald-600 px-6 py-2.5 text-sm font-bold text-white transition-colors hover:bg-emerald-700">حاسبة الجرعات</Link>
               <Link to="/stacks" className="rounded-full border border-emerald-300 dark:border-emerald-700 px-6 py-2.5 text-sm font-bold text-emerald-700 dark:text-emerald-400 transition-colors hover:bg-emerald-100 dark:hover:bg-emerald-900/30">بانِي البروتوكولات</Link>
@@ -1256,7 +1256,7 @@ export default function Guide() {
         ) : (
           <>
             <p className="font-bold text-stone-900 dark:text-stone-100">جاهز تبدأ أول بروتوكول؟</p>
-            <p className="mt-1 text-sm text-stone-600 dark:text-stone-400">اشترك للوصول إلى الدليل الكامل مع كل البروتوكولات</p>
+            <p className="mt-1 text-sm text-stone-600 dark:text-stone-300">اشترك للوصول إلى الدليل الكامل مع كل البروتوكولات</p>
             <div className="mt-4 flex flex-col gap-2 sm:flex-row sm:justify-center">
               <Link to="/pricing" className="rounded-full bg-emerald-600 px-6 py-2.5 text-sm font-bold text-white transition-colors hover:bg-emerald-700">اشترك — {PRICING.essentials.label}/شهريًا</Link>
               <Link to="/calculator" className="rounded-full border border-emerald-300 dark:border-emerald-700 px-6 py-2.5 text-sm font-bold text-emerald-700 dark:text-emerald-400 transition-colors hover:bg-emerald-100 dark:hover:bg-emerald-900/30">جرّب الحاسبة مجانًا</Link>

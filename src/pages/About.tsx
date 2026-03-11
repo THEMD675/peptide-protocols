@@ -109,7 +109,7 @@ export default function About() {
           <h1 className="mb-4 text-3xl font-bold text-stone-900 dark:text-stone-100 md:text-4xl lg:text-5xl">
             عن <span className="text-emerald-700">pptides</span>
           </h1>
-          <p className="mx-auto max-w-2xl text-lg leading-relaxed text-stone-600 dark:text-stone-400 md:text-xl">
+          <p className="mx-auto max-w-2xl text-lg leading-relaxed text-stone-600 dark:text-stone-300 md:text-xl">
             نؤمن أن كل شخص يستحق وصولاً سهلاً لمعلومات طبية موثوقة عن الببتيدات العلاجية
           </p>
         </div>
@@ -122,7 +122,7 @@ export default function About() {
               className="rounded-2xl border border-stone-200 dark:border-stone-800 bg-stone-50 dark:bg-stone-900/50 p-5 text-center"
             >
               <div className="mb-1 text-2xl font-bold text-emerald-700 md:text-3xl">{value}</div>
-              <div className="text-sm text-stone-600 dark:text-stone-400">{label}</div>
+              <div className="text-sm text-stone-600 dark:text-stone-300">{label}</div>
             </div>
           ))}
         </div>
@@ -172,7 +172,7 @@ export default function About() {
                   <Icon className="h-5 w-5 text-emerald-700" />
                 </div>
                 <h3 className="mb-2 font-bold text-stone-900 dark:text-stone-100">{title}</h3>
-                <p className="text-sm leading-relaxed text-stone-600 dark:text-stone-400">{desc}</p>
+                <p className="text-sm leading-relaxed text-stone-600 dark:text-stone-300">{desc}</p>
               </div>
             ))}
           </div>
@@ -197,7 +197,7 @@ export default function About() {
                     تجربته ومعرفته إلى محتوى تعليمي منظّم. الفريق التقني يعمل على تطوير أدوات ذكية
                     تجعل المعلومات المعقدة سهلة الوصول والاستخدام.
                   </p>
-                  <p className="text-sm text-stone-500 dark:text-stone-400">
+                  <p className="text-sm text-stone-500 dark:text-stone-300">
                     لأسباب مهنية وقانونية، نحافظ على خصوصية أعضاء الفريق مع التأكيد على الخلفية
                     الطبية والعلمية لكل المحتوى المنشور.
                   </p>
@@ -222,7 +222,7 @@ export default function About() {
                   <Icon className="h-6 w-6 text-emerald-700" />
                 </div>
                 <h3 className="mb-2 font-bold text-stone-900 dark:text-stone-100">{title}</h3>
-                <p className="text-sm leading-relaxed text-stone-600 dark:text-stone-400">{desc}</p>
+                <p className="text-sm leading-relaxed text-stone-600 dark:text-stone-300">{desc}</p>
               </div>
             ))}
           </div>
@@ -254,21 +254,21 @@ export default function About() {
         <div className="mb-12 flex flex-wrap justify-center gap-3">
           <Link
             to="/transparency"
-            className="inline-flex items-center gap-2 rounded-full border border-stone-300 dark:border-stone-700 px-6 py-3 text-sm font-bold text-stone-800 dark:text-stone-200 transition-colors hover:bg-stone-50 dark:hover:bg-stone-800"
+            className="inline-flex items-center gap-2 rounded-full border border-stone-300 dark:border-stone-600 px-6 py-3 text-sm font-bold text-stone-800 dark:text-stone-200 transition-colors hover:bg-stone-50 dark:hover:bg-stone-800"
           >
             <Shield className="h-4 w-4" />
             <span>الشفافية</span>
           </Link>
           <Link
             to="/sources"
-            className="inline-flex items-center gap-2 rounded-full border border-stone-300 dark:border-stone-700 px-6 py-3 text-sm font-bold text-stone-800 dark:text-stone-200 transition-colors hover:bg-stone-50 dark:hover:bg-stone-800"
+            className="inline-flex items-center gap-2 rounded-full border border-stone-300 dark:border-stone-600 px-6 py-3 text-sm font-bold text-stone-800 dark:text-stone-200 transition-colors hover:bg-stone-50 dark:hover:bg-stone-800"
           >
             <BookOpen className="h-4 w-4" />
             <span>المصادر العلمية</span>
           </Link>
           <Link
             to="/privacy"
-            className="inline-flex items-center gap-2 rounded-full border border-stone-300 dark:border-stone-700 px-6 py-3 text-sm font-bold text-stone-800 dark:text-stone-200 transition-colors hover:bg-stone-50 dark:hover:bg-stone-800"
+            className="inline-flex items-center gap-2 rounded-full border border-stone-300 dark:border-stone-600 px-6 py-3 text-sm font-bold text-stone-800 dark:text-stone-200 transition-colors hover:bg-stone-50 dark:hover:bg-stone-800"
           >
             <Heart className="h-4 w-4" />
             <span>سياسة الخصوصية</span>
@@ -284,7 +284,7 @@ export default function About() {
             <span>ابدأ الآن</span>
             <ArrowLeft className="h-5 w-5" />
           </Link>
-          <p className="mt-4 text-sm text-stone-500 dark:text-stone-400">{TRIAL_DAYS} أيام تجربة مجانية — إلغاء في أي وقت</p>
+          <p className="mt-4 text-sm text-stone-500 dark:text-stone-300">{TRIAL_DAYS} أيام تجربة مجانية — إلغاء في أي وقت</p>
         </div>
       </div>
     </div>

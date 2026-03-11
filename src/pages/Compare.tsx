@@ -61,7 +61,7 @@ function PeptideSelector({
 
   return (
     <div className="relative">
-      <p className="mb-1.5 text-xs font-bold text-stone-500 dark:text-stone-400">{label}</p>
+      <p className="mb-1.5 text-xs font-bold text-stone-500 dark:text-stone-300">{label}</p>
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
@@ -69,7 +69,7 @@ function PeptideSelector({
           'flex w-full items-center justify-between gap-2 rounded-xl border px-4 py-3 text-sm transition-colors',
           value
             ? 'border-emerald-300 dark:border-emerald-700 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-800 dark:text-emerald-300 font-bold'
-            : 'border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 text-stone-500 dark:text-stone-400',
+            : 'border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950 text-stone-500 dark:text-stone-300',
         )}
       >
         <span className="truncate">{selected ? `${selected.nameAr} — ${selected.nameEn}` : 'اختر ببتيدًا...'}</span>
@@ -88,7 +88,7 @@ function PeptideSelector({
       </button>
 
       {open && (
-        <div className="absolute inset-x-0 top-full z-30 mt-1 max-h-64 overflow-hidden rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 shadow-xl dark:shadow-stone-900/40 animate-fade-in">
+        <div className="absolute inset-x-0 top-full z-30 mt-1 max-h-64 overflow-hidden rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950 shadow-xl dark:shadow-stone-900/40 animate-fade-in">
           <div className="p-2">
             <input
               autoFocus
@@ -96,12 +96,12 @@ function PeptideSelector({
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="ابحث..."
-              className="w-full rounded-lg border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-900 px-3 py-2 text-sm text-stone-900 dark:text-stone-100 placeholder:text-stone-400 outline-none focus:border-emerald-300 dark:focus:border-emerald-700"
+              className="w-full rounded-lg border border-stone-200 dark:border-stone-600 bg-stone-50 dark:bg-stone-900 px-3 py-2 text-sm text-stone-900 dark:text-stone-100 placeholder:text-stone-400 outline-none focus:border-emerald-300 dark:focus:border-emerald-700"
             />
           </div>
           <div className="max-h-48 overflow-y-auto">
             {filtered.length === 0 ? (
-              <p className="px-4 py-3 text-center text-xs text-stone-500 dark:text-stone-400">لا توجد نتائج</p>
+              <p className="px-4 py-3 text-center text-xs text-stone-500 dark:text-stone-300">لا توجد نتائج</p>
             ) : (
               filtered.map((p) => (
                 <button
@@ -111,7 +111,7 @@ function PeptideSelector({
                   className="flex w-full items-center gap-3 px-4 py-2.5 text-start text-sm transition-colors hover:bg-stone-50 dark:hover:bg-stone-800"
                 >
                   <span className="font-bold text-stone-900 dark:text-stone-100">{p.nameAr}</span>
-                  <span className="text-xs text-stone-500 dark:text-stone-400">{p.nameEn}</span>
+                  <span className="text-xs text-stone-500 dark:text-stone-300">{p.nameEn}</span>
                 </button>
               ))
             )}
@@ -209,7 +209,7 @@ export default function Compare() {
         <h1 className="mb-2 text-2xl font-black text-stone-900 dark:text-stone-100 md:text-3xl">
           مقارنة الببتيدات
         </h1>
-        <p className="text-sm text-stone-600 dark:text-stone-400">
+        <p className="text-sm text-stone-600 dark:text-stone-300">
           اختر 2-3 ببتيدات لمقارنتها جنبًا إلى جنب
         </p>
       </div>
@@ -228,18 +228,18 @@ export default function Compare() {
           <div className="mb-4 flex justify-end">
             <button
               onClick={handleShare}
-              className="flex items-center gap-2 rounded-full border border-stone-200 dark:border-stone-700 px-4 py-2 text-xs font-bold text-stone-600 dark:text-stone-400 transition-colors hover:bg-stone-50 dark:hover:bg-stone-800"
+              className="flex items-center gap-2 rounded-full border border-stone-200 dark:border-stone-600 px-4 py-2 text-xs font-bold text-stone-600 dark:text-stone-300 transition-colors hover:bg-stone-50 dark:hover:bg-stone-800"
             >
               {copied ? <Check className="h-3.5 w-3.5 text-emerald-700" /> : <Share2 className="h-3.5 w-3.5" />}
               {copied ? 'تم النسخ!' : 'مشاركة المقارنة'}
             </button>
           </div>
 
-          <div className="overflow-x-auto rounded-2xl border border-stone-200 dark:border-stone-700 shadow-sm dark:shadow-stone-900/30">
+          <div className="overflow-x-auto rounded-2xl border border-stone-200 dark:border-stone-600 shadow-sm dark:shadow-stone-900/30">
             <table className="w-full min-w-[600px]">
               <thead>
-                <tr className="border-b border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-900">
-                  <th scope="col" className="px-4 py-4 text-start text-xs font-bold text-stone-500 dark:text-stone-400 w-[140px]">
+                <tr className="border-b border-stone-200 dark:border-stone-600 bg-stone-50 dark:bg-stone-900">
+                  <th scope="col" className="px-4 py-4 text-start text-xs font-bold text-stone-500 dark:text-stone-300 w-[140px]">
                     المعيار
                   </th>
                   {selectedPeptides.map((p) => (
@@ -253,7 +253,7 @@ export default function Compare() {
                             <p className="text-sm font-bold text-stone-900 dark:text-stone-100 group-hover:text-emerald-700 transition-colors">
                               {p.nameAr}
                             </p>
-                            <p className="text-xs text-stone-500 dark:text-stone-400">{p.nameEn}</p>
+                            <p className="text-xs text-stone-500 dark:text-stone-300">{p.nameEn}</p>
                           </div>
                         </div>
                       </Link>
@@ -266,7 +266,7 @@ export default function Compare() {
                         </Link>
                         <Link
                           to={`/calculator?preset=${encodeURIComponent(p.nameEn)}`}
-                          className="text-[10px] font-semibold text-stone-500 dark:text-stone-400 hover:text-emerald-700 hover:underline"
+                          className="text-[10px] font-semibold text-stone-500 dark:text-stone-300 hover:text-emerald-700 hover:underline"
                         >
                           احسب الجرعة
                         </Link>
@@ -331,9 +331,9 @@ export default function Compare() {
           </div>
         </>
       ) : (
-        <div className="rounded-2xl border border-dashed border-stone-300 dark:border-stone-700 bg-stone-50 dark:bg-stone-900/50 px-6 py-16 text-center">
-          <ArrowLeftRight className="mx-auto mb-4 h-10 w-10 text-stone-300 dark:text-stone-400" />
-          <p className="text-sm text-stone-500 dark:text-stone-400">
+        <div className="rounded-2xl border border-dashed border-stone-300 dark:border-stone-600 bg-stone-50 dark:bg-stone-900/50 px-6 py-16 text-center">
+          <ArrowLeftRight className="mx-auto mb-4 h-10 w-10 text-stone-300 dark:text-stone-300" />
+          <p className="text-sm text-stone-500 dark:text-stone-300">
             اختر ببتيدين على الأقل من القوائم أعلاه لبدء المقارنة
           </p>
           <Link
@@ -361,7 +361,7 @@ export default function Compare() {
             <Link
               key={`${p1}-${p2}`}
               to={`/compare?p1=${p1}&p2=${p2}`}
-              className="flex items-center gap-3 rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 p-4 transition-all hover:border-emerald-300 dark:hover:border-emerald-700 hover:shadow-md hover:-translate-y-0.5"
+              className="flex items-center gap-3 rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950 p-4 transition-all hover:border-emerald-300 dark:hover:border-emerald-700 hover:shadow-md hover:-translate-y-0.5"
             >
               <ArrowLeftRight className="h-5 w-5 shrink-0 text-emerald-700" />
               <span className="text-sm font-bold text-stone-800 dark:text-stone-200">{label}</span>

@@ -28,7 +28,7 @@ export default function Terms() {
       </Helmet>
       <div className="mx-auto max-w-3xl px-4 pb-24 pt-8 md:px-6 md:pt-12">
         <h1 className="mb-8 text-3xl font-bold text-stone-900 dark:text-stone-100 md:text-4xl">شروط الاستخدام</h1>
-        <p className="mb-4 text-sm text-stone-500 dark:text-stone-400">آخر تحديث: {LEGAL_LAST_UPDATED}</p>
+        <p className="mb-4 text-sm text-stone-500 dark:text-stone-300">آخر تحديث: {LEGAL_LAST_UPDATED}</p>
 
         <div className="space-y-8 text-stone-800 dark:text-stone-200 leading-relaxed">
           <section>
@@ -107,7 +107,7 @@ export default function Terms() {
             <p>لأي استفسار: <a href={`mailto:${SUPPORT_EMAIL}`} className="inline-flex min-h-[44px] items-center text-emerald-700 underline">{SUPPORT_EMAIL}</a></p>
           </section>
         </div>
-        <div className="mt-8 border-t border-stone-200 dark:border-stone-700 pt-6 text-center">
+        <div className="mt-8 border-t border-stone-200 dark:border-stone-600 pt-6 text-center">
           <Link to="/" className="inline-flex min-h-[44px] items-center text-sm font-semibold text-emerald-700 transition-colors hover:text-emerald-700 dark:text-emerald-400">→ العودة للصفحة الرئيسية</Link>
         </div>
       </div>

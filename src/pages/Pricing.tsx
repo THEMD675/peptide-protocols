@@ -139,7 +139,7 @@ export default function Pricing() {
 
     if (user && subscription?.status !== 'trial' && subscription?.isProOrTrial && subscription.tier !== planKey) {
       return (
-        <div className="text-center text-sm text-stone-500 dark:text-stone-400">
+        <div className="text-center text-sm text-stone-500 dark:text-stone-300">
           للتغيير تواصل معنا: <a href={`mailto:${SUPPORT_EMAIL}?subject=تغيير الباقة`} className="inline-flex min-h-[44px] items-center text-emerald-700 underline">{SUPPORT_EMAIL}</a>
         </div>
       );
@@ -169,7 +169,7 @@ export default function Pricing() {
             'hover:scale-[1.02] active:scale-[0.98]',
             isElite
               ? 'btn-primary-glow bg-emerald-600 text-white transition-colors hover:bg-emerald-700'
-              : 'border-2 border-stone-300 dark:border-stone-700 bg-white dark:bg-stone-950 text-stone-800 dark:text-stone-200 hover:border-emerald-200 dark:hover:border-emerald-700 transition-colors hover:text-emerald-700 dark:text-emerald-400',
+              : 'border-2 border-stone-300 dark:border-stone-600 bg-white dark:bg-stone-950 text-stone-800 dark:text-stone-200 hover:border-emerald-200 dark:hover:border-emerald-700 transition-colors hover:text-emerald-700 dark:text-emerald-400',
             isLoading && 'opacity-70 pointer-events-none'
           )}
         >
@@ -192,7 +192,7 @@ export default function Pricing() {
           'hover:scale-[1.02] active:scale-[0.98]',
           isElite
             ? 'btn-primary-glow bg-emerald-600 text-white transition-colors hover:bg-emerald-700'
-            : 'border-2 border-stone-300 dark:border-stone-700 bg-white dark:bg-stone-950 text-stone-800 dark:text-stone-200 hover:border-emerald-200 dark:hover:border-emerald-700 transition-colors hover:text-emerald-700 dark:text-emerald-400'
+            : 'border-2 border-stone-300 dark:border-stone-600 bg-white dark:bg-stone-950 text-stone-800 dark:text-stone-200 hover:border-emerald-200 dark:hover:border-emerald-700 transition-colors hover:text-emerald-700 dark:text-emerald-400'
         )}
       >
         سجّل الآن وجرّب مجانًا
@@ -273,11 +273,11 @@ export default function Pricing() {
             بروتوكولك الشخصي يبدأ <span className="text-emerald-700">من هنا</span>
           </h1>
           {showTrialMessaging && (
-            <p className="mx-auto max-w-lg text-lg text-stone-600 dark:text-stone-400">
+            <p className="mx-auto max-w-lg text-lg text-stone-600 dark:text-stone-300">
               {TRIAL_DAYS} أيام مجانية — جرّب كل الأدوات بدون مخاطرة.
             </p>
           )}
-          <div className="mt-6 flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-6 text-sm text-stone-500 dark:text-stone-400">
+          <div className="mt-6 flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-6 text-sm text-stone-500 dark:text-stone-300">
             <span className="flex items-center gap-1.5"><Check className="h-4 w-4 shrink-0 text-emerald-500" /> إلغاء في أي وقت</span>
             <span className="flex items-center gap-1.5"><Shield className="h-4 w-4 shrink-0 text-emerald-500" /> ضمان استرداد {TRIAL_DAYS} أيام</span>
             <span className="flex items-center gap-1.5"><Lock className="h-4 w-4 shrink-0 text-emerald-500" /> دفع آمن عبر Stripe</span>
@@ -286,7 +286,7 @@ export default function Pricing() {
             ضمان استرداد كامل + إلغاء في أي وقت + بدون التزام
           </p>
           {userCount >= 10 && (
-            <p className="mt-4 flex items-center justify-center gap-2 text-sm text-stone-500 dark:text-stone-400">
+            <p className="mt-4 flex items-center justify-center gap-2 text-sm text-stone-500 dark:text-stone-300">
               <span className="relative flex h-2 w-2"><span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" /><span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500" /></span>
               <span>أكثر من <strong className="text-stone-700 dark:text-stone-200">{userCount}</strong> مستخدم يثقون بنا</span>
             </p>
@@ -295,7 +295,7 @@ export default function Pricing() {
 
         {/* Billing Toggle */}
         <div className="mt-8 flex items-center justify-center gap-4">
-          <span className={cn('text-sm font-semibold transition-colors', billingCycle === 'monthly' ? 'text-stone-900 dark:text-stone-100' : 'text-stone-500 dark:text-stone-400')}>شهري</span>
+          <span className={cn('text-sm font-semibold transition-colors', billingCycle === 'monthly' ? 'text-stone-900 dark:text-stone-100' : 'text-stone-500 dark:text-stone-300')}>شهري</span>
           <button
             onClick={() => setBillingCycle(billingCycle === 'monthly' ? 'annual' : 'monthly')}
             className={cn('relative h-7 w-14 rounded-full transition-colors', billingCycle === 'annual' ? 'bg-emerald-600' : 'bg-stone-300 dark:bg-stone-600')}
@@ -303,7 +303,7 @@ export default function Pricing() {
           >
             <span className={cn('absolute top-0.5 h-6 w-6 rounded-full bg-white dark:bg-stone-950 shadow transition-all', billingCycle === 'annual' ? 'end-0.5' : 'start-0.5')} />
           </button>
-          <span className={cn('text-sm font-semibold transition-colors', billingCycle === 'annual' ? 'text-emerald-700' : 'text-stone-500 dark:text-stone-400')}>
+          <span className={cn('text-sm font-semibold transition-colors', billingCycle === 'annual' ? 'text-emerald-700' : 'text-stone-500 dark:text-stone-300')}>
             سنوي <span className="text-xs text-emerald-700">(وفّر حتى 33%)</span>
           </span>
         </div>
@@ -340,7 +340,7 @@ export default function Pricing() {
             </ul>
 
             {renderAction('essentials', false)}
-            <div className="mt-3 flex flex-wrap items-center justify-center gap-3 text-xs text-stone-500 dark:text-stone-400">
+            <div className="mt-3 flex flex-wrap items-center justify-center gap-3 text-xs text-stone-500 dark:text-stone-300">
               <span className="flex items-center gap-1"><Lock className="h-3.5 w-3.5 text-emerald-700" /> دفع آمن عبر Stripe</span>
               <span className="flex items-center gap-1"><Shield className="h-3.5 w-3.5 text-emerald-700" /> ضمان استرداد {TRIAL_DAYS} أيام</span>
             </div>
@@ -400,7 +400,7 @@ export default function Pricing() {
             </div>
 
             {renderAction('elite', true)}
-            <div className="mt-3 flex flex-wrap items-center justify-center gap-3 text-xs text-stone-500 dark:text-stone-400">
+            <div className="mt-3 flex flex-wrap items-center justify-center gap-3 text-xs text-stone-500 dark:text-stone-300">
               <span className="flex items-center gap-1"><Lock className="h-3.5 w-3.5 text-emerald-700" /> دفع آمن عبر Stripe</span>
               <span className="flex items-center gap-1"><Shield className="h-3.5 w-3.5 text-emerald-700" /> ضمان استرداد {TRIAL_DAYS} أيام</span>
             </div>
@@ -414,12 +414,12 @@ export default function Pricing() {
         {/* Feature Comparison Table */}
         <div className="mt-12">
           <h2 className="mb-6 text-center text-2xl font-bold text-stone-900 dark:text-stone-100">مقارنة الباقات</h2>
-          <div className="overflow-x-auto rounded-2xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950">
+          <div className="overflow-x-auto rounded-2xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-900">
+                <tr className="border-b border-stone-200 dark:border-stone-600 bg-stone-50 dark:bg-stone-900">
                   <th className="px-5 py-3 text-start font-semibold text-stone-700 dark:text-stone-200">الميزة</th>
-                  <th className="px-5 py-3 text-center font-semibold text-stone-700 dark:text-stone-200">Essentials<br /><span className="text-xs font-normal text-stone-500 dark:text-stone-400">الأساسية</span></th>
+                  <th className="px-5 py-3 text-center font-semibold text-stone-700 dark:text-stone-200">Essentials<br /><span className="text-xs font-normal text-stone-500 dark:text-stone-300">الأساسية</span></th>
                   <th className="px-5 py-3 text-center font-semibold text-emerald-700 dark:text-emerald-400">Elite<br /><span className="text-xs font-normal text-emerald-500">المتقدّمة</span></th>
                 </tr>
               </thead>
@@ -458,13 +458,13 @@ export default function Pricing() {
           className="mt-20"
         >
           <h2 className="mb-8 text-center text-2xl font-bold text-stone-900 dark:text-stone-100 md:text-3xl">
-            ماذا تحصل مع <span className="text-emerald-700">Essentials</span> <span className="text-stone-500 dark:text-stone-400">(الأساسية)</span>؟
+            ماذا تحصل مع <span className="text-emerald-700">Essentials</span> <span className="text-stone-500 dark:text-stone-300">(الأساسية)</span>؟
           </h2>
           <div className="space-y-2">
             {valueStack.map((item, i) => (
               <div
                 key={i}
-                className="flex items-center justify-between rounded-xl border border-stone-300 dark:border-stone-700/60 bg-white dark:bg-stone-950 px-6 py-4"
+                className="flex items-center justify-between rounded-xl border border-stone-300 dark:border-stone-600/60 bg-white dark:bg-stone-950 px-6 py-4"
               >
                 <div className="flex items-center gap-3">
                   <Check className="h-5 w-5 shrink-0 text-emerald-700" />
@@ -485,7 +485,7 @@ export default function Pricing() {
           className="mt-16"
         >
           <h2 className="mb-8 text-center text-2xl font-bold text-stone-900 dark:text-stone-100 md:text-3xl">
-            ماذا يضيف <span className="text-emerald-700">Elite</span> <span className="text-stone-500 dark:text-stone-400">(المتقدّمة)</span>؟
+            ماذا يضيف <span className="text-emerald-700">Elite</span> <span className="text-stone-500 dark:text-stone-300">(المتقدّمة)</span>؟
           </h2>
           <div className="space-y-2">
             {eliteValueStack.map((item, i) => (
@@ -535,7 +535,7 @@ export default function Pricing() {
             { icon: CreditCard, text: 'نقبل Visa و Mastercard و Apple Pay' },
             { icon: RefreshCw, text: 'إلغاء فوري — بدون رسوم مخفية' },
           ].map(({ icon: Icon, text }) => (
-            <div key={text} className="flex flex-col items-center gap-2 rounded-xl border border-stone-300 dark:border-stone-700/60 bg-white dark:bg-stone-950 p-5 text-center">
+            <div key={text} className="flex flex-col items-center gap-2 rounded-xl border border-stone-300 dark:border-stone-600/60 bg-white dark:bg-stone-950 p-5 text-center">
               <Icon className="h-6 w-6 text-emerald-700" />
               <p className="text-sm font-semibold text-stone-800 dark:text-stone-200">{text}</p>
             </div>
@@ -544,7 +544,7 @@ export default function Pricing() {
 
         {/* Contact */}
         <div
-          className="mt-8 rounded-xl border border-stone-300 dark:border-stone-700/60 bg-white dark:bg-stone-950 p-6 text-center"
+          className="mt-8 rounded-xl border border-stone-300 dark:border-stone-600/60 bg-white dark:bg-stone-950 p-6 text-center"
         >
           <MessageCircle className="mx-auto mb-3 h-6 w-6 text-emerald-700" />
           <p className="text-sm font-semibold text-stone-800 dark:text-stone-200">
@@ -559,10 +559,10 @@ export default function Pricing() {
             لماذا <span className="text-emerald-700">pptides</span> وليس المصادر المجانية؟
           </h2>
           <div className="grid gap-4 md:grid-cols-3">
-            <div className="rounded-2xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 p-6">
+            <div className="rounded-2xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950 p-6">
               <h3 className="mb-4 text-lg font-bold text-stone-900 dark:text-stone-100">المصادر المجانية</h3>
-              <p className="mb-3 text-xs font-medium text-stone-500 dark:text-stone-400">Reddit / YouTube</p>
-              <ul className="space-y-2.5 text-sm text-stone-600 dark:text-stone-400">
+              <p className="mb-3 text-xs font-medium text-stone-500 dark:text-stone-300">Reddit / YouTube</p>
+              <ul className="space-y-2.5 text-sm text-stone-600 dark:text-stone-300">
                 {[
                   'محتوى إنجليزي فقط',
                   'معلومات مبعثرة وغير منظّمة',
@@ -578,10 +578,10 @@ export default function Pricing() {
               </ul>
             </div>
 
-            <div className="rounded-2xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 p-6">
+            <div className="rounded-2xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-950 p-6">
               <h3 className="mb-4 text-lg font-bold text-stone-900 dark:text-stone-100">العيادات</h3>
-              <p className="mb-3 text-xs font-medium text-stone-500 dark:text-stone-400">استشارات مباشرة</p>
-              <ul className="space-y-2.5 text-sm text-stone-600 dark:text-stone-400">
+              <p className="mb-3 text-xs font-medium text-stone-500 dark:text-stone-300">استشارات مباشرة</p>
+              <ul className="space-y-2.5 text-sm text-stone-600 dark:text-stone-300">
                 {[
                   'مكلفة — 750 ر.س+ للجلسة',
                   'محدودة جغرافيًا',
@@ -625,7 +625,7 @@ export default function Pricing() {
           <h2 className="mb-8 text-center text-2xl font-bold text-stone-900 dark:text-stone-100">أسئلة شائعة</h2>
           <div className="space-y-3">
             {faqs.map((faq) => (
-              <details key={faq.q} className="group rounded-2xl border border-stone-300 dark:border-stone-700/60 bg-white dark:bg-stone-950 transition-all hover:border-stone-400 dark:hover:border-stone-600/60">
+              <details key={faq.q} className="group rounded-2xl border border-stone-300 dark:border-stone-600/60 bg-white dark:bg-stone-950 transition-all hover:border-stone-400 dark:hover:border-stone-600/60">
                 <summary className="flex cursor-pointer items-center justify-between p-5 text-sm font-semibold text-stone-800 dark:text-stone-200">
                   <span>{faq.q}</span>
                   <ChevronDown className="h-4 w-4 text-stone-800 dark:text-stone-200 transition-transform group-open:rotate-180" />
@@ -696,7 +696,7 @@ export default function Pricing() {
 
         {/* Disclaimer */}
         <p
-          className="mt-10 text-center text-sm text-stone-600 dark:text-stone-400 leading-relaxed"
+          className="mt-10 text-center text-sm text-stone-600 dark:text-stone-300 leading-relaxed"
         >
           تنويه طبي: المحتوى المقدّم في هذا الموقع لأغراض تعليمية فقط ولا يُعدّ بديلًا عن
           الاستشارة الطبية المتخصصة. استشر طبيبك قبل استخدام أي ببتيد أو مكمّل.
