@@ -6,7 +6,6 @@ import { Toaster } from 'sonner';
 import { Analytics } from '@vercel/analytics/react';
 import { SpeedInsights } from '@vercel/speed-insights/react';
 import { SITE_URL, STORAGE_KEYS } from '@/lib/constants';
-import { hasOptionalConsent } from '@/lib/cookie-utils';
 import { events } from '@/lib/analytics';
 // Lazy-load Sentry to keep it out of the critical JS bundle
 const lazySentryCapture = (error: Error, ctx?: Record<string, unknown>) => {
@@ -29,7 +28,6 @@ const PaymentProcessing = lazy(() => import('@/components/PaymentProcessing'));
 const InstallPrompt = lazy(() => import('@/components/InstallPrompt'));
 const StickyScrollCTA = lazy(() => import('@/components/StickyScrollCTA'));
 const ExitIntentPopup = lazy(() => import('@/components/ExitIntentPopup'));
-const SocialProofToast = lazy(() => import('@/components/SocialProofToast'));
 const CookieConsent = lazy(() => import('@/components/CookieConsent'));
 
 const Login = lazy(() => import('@/pages/Login'));
@@ -44,7 +42,6 @@ const Stacks = lazy(() => import('@/pages/Stacks'));
 const LabGuide = lazy(() => import('@/pages/LabGuide'));
 const Guide = lazy(() => import('@/pages/Guide'));
 const Coach = lazy(() => import('@/pages/Coach'));
-const Reviews = lazy(() => import('@/pages/Reviews'));
 const PeptideTable = lazy(() => import('@/pages/PeptideTable'));
 const Sources = lazy(() => import('@/pages/Sources'));
 const Community = lazy(() => import('@/pages/Community'));

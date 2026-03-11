@@ -1,5 +1,6 @@
 import { Helmet } from 'react-helmet-async';
-import GuidedTour, { isTourDone } from '@/components/GuidedTour';
+import GuidedTour from '@/components/GuidedTour';
+import { isTourDone } from '@/components/tour-utils';
 import { Link, Navigate } from 'react-router-dom';
 import { useState, useEffect, useCallback, useMemo, lazy, Suspense, useRef } from 'react';
 import confetti from 'canvas-confetti';

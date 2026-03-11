@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { History, ChevronDown, ChevronLeft, Trash2, MessageSquare } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { supabase } from '@/lib/supabase';
@@ -50,31 +50,32 @@ export default function CoachHistory({
   const [open, setOpen] = useState(false);
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
+  const [refreshSignal, setRefreshSignal] = useState(0);
+  const mountedRef = useRef(true);
 
-  const fetchHistory = useCallback(async () => {
+  const refreshHistory = useCallback(() => setRefreshSignal(s => s + 1), []);
+
+  useEffect(() => {
+    mountedRef.current = true;
     if (!user?.id) return;
-    // coach_conversations stores one row per user (current conversation)
-    // We treat each distinct session as a conversation
-    const { data } = await supabase
+    supabase
       .from('coach_conversations')
       .select('id, messages, updated_at')
       .eq('user_id', user.id)
       .order('updated_at', { ascending: false })
-      .limit(20);
-
-    if (data) {
-      // Filter out empty conversations
-      const valid = (data as CoachConversation[]).filter(
-        c => Array.isArray(c.messages) && c.messages.length > 0,
-      );
-      setConversations(valid);
-    }
-    setLoading(false);
-  }, [user?.id]);
-
-  useEffect(() => {
-    fetchHistory();
-  }, [fetchHistory]);
+      .limit(20)
+      .then(({ data }) => {
+        if (!mountedRef.current) return;
+        if (data) {
+          const valid = (data as CoachConversation[]).filter(
+            c => Array.isArray(c.messages) && c.messages.length > 0,
+          );
+          setConversations(valid);
+        }
+        setLoading(false);
+      });
+    return () => { mountedRef.current = false; };
+  }, [user, refreshSignal]);
 
   const deleteConversation = async (id: string) => {
     setConversations(prev => prev.filter(c => c.id !== id));
@@ -82,7 +83,7 @@ export default function CoachHistory({
     const { error } = await supabase.from('coach_conversations').delete().eq('id', id);
     if (error) {
       toast.error('تعذّر حذف المحادثة');
-      fetchHistory();
+      refreshHistory();
     } else {
       toast.success('تم حذف المحادثة');
     }

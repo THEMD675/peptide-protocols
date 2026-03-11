@@ -1,25 +1,15 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useMemo } from 'react';
 import Joyride, { type CallBackProps, type Step, STATUS, EVENTS } from 'react-joyride';
 import { useTheme } from '@/hooks/useTheme';
+import { type TourId, markTourDone } from '@/components/tour-utils';
 
 /* ─── Types ─────────────────────────────────────────────────── */
-export type TourId = 'dashboard' | 'library';
 
 interface GuidedTourProps {
   tourId: TourId;
   run: boolean;
   onFinish: () => void;
 }
-
-/* ─── Storage helpers ────────────────────────────────────────── */
-const STORAGE_KEY = (id: TourId) => `pptides_tour_done_${id}`;
-export const isTourDone = (id: TourId) => {
-  try { return localStorage.getItem(STORAGE_KEY(id)) === '1'; }
-  catch { return false; }
-};
-const markTourDone = (id: TourId) => {
-  try { localStorage.setItem(STORAGE_KEY(id), '1'); } catch { /* ok */ }
-};
 
 /* ─── Tour Step Definitions ──────────────────────────────────── */
 const DASHBOARD_STEPS: Step[] = [
@@ -88,7 +78,7 @@ function TourTooltip({
   index,
   size,
   backProps,
-  closeProps,
+  closeProps: _closeProps,
   primaryProps,
   skipProps,
   isLastStep,

@@ -2,7 +2,8 @@ import { useState, useMemo, useCallback, useEffect, memo } from 'react';
 import { useBookmarks } from '@/hooks/useBookmarks';
 import FocusTrap from 'focus-trap-react';
 import { Helmet } from 'react-helmet-async';
-import GuidedTour, { isTourDone } from '@/components/GuidedTour';
+import GuidedTour from '@/components/GuidedTour';
+import { isTourDone } from '@/components/tour-utils';
 import { Link, useSearchParams } from 'react-router-dom';
 import {
   Search,

@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, useCallback } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { Bell, FileText, Flame, Clock, Trophy } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -29,20 +29,20 @@ export default function NotificationBell() {
 
   const unreadCount = notifications.filter(n => !n.read).length;
 
-  const fetchNotifications = useCallback(async () => {
+  useEffect(() => {
     if (!user?.id) return;
-    const { data } = await supabase
+    let mounted = true;
+    supabase
       .from('notifications')
       .select('*')
       .eq('user_id', user.id)
       .order('created_at', { ascending: false })
-      .limit(20);
-    if (data) setNotifications(data as Notification[]);
-  }, [user?.id]);
-
-  useEffect(() => {
-    fetchNotifications();
-  }, [fetchNotifications]);
+      .limit(20)
+      .then(({ data }) => {
+        if (mounted && data) setNotifications(data as Notification[]);
+      });
+    return () => { mounted = false; };
+  }, [user]);
 
   // Real-time subscription
   useEffect(() => {
@@ -58,7 +58,7 @@ export default function NotificationBell() {
       )
       .subscribe();
     return () => { supabase.removeChannel(channel); };
-  }, [user?.id]);
+  }, [user]);
 
   // Close on outside click
   useEffect(() => {

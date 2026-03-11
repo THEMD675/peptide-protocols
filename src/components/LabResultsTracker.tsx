@@ -2,14 +2,14 @@ import { useState, useEffect, useCallback, useMemo } from 'react';
 import type { LucideIcon } from 'lucide-react';
 import {
   Loader2, FlaskConical, Plus, ChevronDown, ChevronUp,
-  TrendingUp, TrendingDown, Minus, Download, FileText, AlertTriangle,
+  TrendingUp, Download, FileText, AlertTriangle,
   CheckCircle, Info, Calendar, Building2, X,
   Syringe, Activity, Heart, Droplets, Flame, Droplet, Shield, Microscope
 } from 'lucide-react';
 import { toast } from 'sonner';
 import {
-  LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer,
-  ReferenceArea, CartesianGrid, Area, ComposedChart
+  Line, XAxis, YAxis, Tooltip, ResponsiveContainer,
+  ReferenceArea, CartesianGrid, ComposedChart
 } from 'recharts';
 import { cn, escapeHtml } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
@@ -100,14 +100,6 @@ function getValueStatus(value: number, biomarker: BiomarkerDef): ValueStatus {
   if (value > biomarker.normalMax) return 'borderHigh';
   return 'normal';
 }
-
-const STATUS_COLORS: Record<ValueStatus, string> = {
-  low: 'text-red-400',
-  borderLow: 'text-amber-400',
-  normal: 'text-emerald-400',
-  borderHigh: 'text-amber-400',
-  high: 'text-red-400',
-};
 
 const STATUS_BG: Record<ValueStatus, string> = {
   low: 'bg-red-500/10 border-red-500/30 text-red-400',
