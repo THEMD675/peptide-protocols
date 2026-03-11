@@ -104,7 +104,7 @@ export default function BlogPost() {
   return (
     <div className="min-h-screen animate-fade-in">
       <Helmet>
-        <title>{post.title_ar} | مدونة pptides</title>
+        <title>{`${post.title_ar} | مدونة pptides`}</title>
         <meta name="description" content={post.excerpt_ar} />
         <meta property="og:title" content={post.title_ar} />
         <meta property="og:description" content={post.excerpt_ar} />

@@ -441,7 +441,7 @@ export default function Login() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-white dark:bg-stone-950 px-4">
       <Helmet>
-        <title>{tab === 'login' ? 'تسجيل الدخول' : 'إنشاء حساب'} | pptides</title>
+        <title>{`${tab === 'login' ? 'تسجيل الدخول' : 'إنشاء حساب'} | pptides`}</title>
         <meta name="description" content="سجّل دخولك أو أنشئ حساب جديد للوصول إلى مكتبة الببتيدات وحاسبة الجرعات والمدرب الذكي." />
         <meta property="og:title" content={`${tab === 'login' ? 'تسجيل الدخول' : 'إنشاء حساب'} | pptides`} />
         <meta property="og:description" content="سجّل دخولك أو أنشئ حساب جديد للوصول إلى مكتبة الببتيدات وحاسبة الجرعات والمدرب الذكي." />

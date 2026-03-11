@@ -637,7 +637,7 @@ export default function Sources() {
   return (
     <div className="min-h-screen animate-fade-in" role="main" aria-label="المصادر العلمية">
       <Helmet>
-        <title>المصادر العلمية | pptides — {allCitations.length}+ مرجع من PubMed</title>
+        <title>{`المصادر العلمية | pptides — ${allCitations.length}+ مرجع من PubMed`}</title>
         <meta
           name="description"
           content={`مكتبة بحثية تضم ${allCitations.length}+ مرجع علمي من PubMed تغطي ${peptides.length} ببتيد. ابحث، صفّي، واستكشف الأدلة العلمية وراء كل بروتوكول.`}
