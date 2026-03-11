@@ -1076,7 +1076,7 @@ export default function Account() {
                 onClick={() => { setShowCancelDialog(false); setCancelStep(null); }}
                 className="w-full rounded-full bg-emerald-600 px-4 py-2 text-sm font-medium text-white transition-all hover:bg-emerald-700"
               >
-                الاحتفاظ بالاشتراك
+                {RETENTION.keepCta}
               </button>
             </div>
           </div>
@@ -1286,13 +1286,13 @@ function ReferralSection({ userId }: { userId?: string }) {
   }, [userId, generateCode]);
 
   const shareUrl = `${SITE_URL}/?ref=${code}`;
-  const shareText = `جرّب pptides — أشمل دليل عربي للببتيدات العلاجية مع مدرب ذكي وحاسبة جرعات\n${shareUrl}`;
+  const shareText = REFERRAL.shareText(shareUrl);
 
   const handleCopy = async () => {
     try {
       await navigator.clipboard.writeText(shareUrl);
       setCopied(true);
-      toast.success('تم نسخ رابط الإحالة');
+      toast.success(REFERRAL.copySuccess);
       setTimeout(() => setCopied(false), 2000);
     } catch { toast.error('تعذّر النسخ'); }
   };
@@ -1319,9 +1319,9 @@ function ReferralSection({ userId }: { userId?: string }) {
     <div className="rounded-2xl border border-emerald-200 dark:border-emerald-800 bg-gradient-to-b from-emerald-50 to-white dark:to-stone-950 p-6">
       <div className="flex items-center gap-3 mb-1">
         <Gift className="h-5 w-5 text-emerald-700" />
-        <h2 className="text-lg font-bold text-stone-900 dark:text-stone-100">ادعُ صديقًا واحصل على شهر مجاني</h2>
+        <h2 className="text-lg font-bold text-stone-900 dark:text-stone-100">{REFERRAL.accountHeading}</h2>
       </div>
-      <p className="text-sm text-stone-600 dark:text-stone-300 mb-4">ادعُ صديقك — يحصل على خصم 40% على شهره الثاني، وأنت تحصل على شهر مجاني تلقائيًا!</p>
+      <p className="text-sm text-stone-600 dark:text-stone-300 mb-4">{REFERRAL.accountDescription}</p>
 
       <div className="flex items-center gap-2 mb-4">
         <div className="flex-1 rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 px-4 py-3 text-sm font-mono text-stone-700 dark:text-stone-200 truncate" dir="ltr">
@@ -1358,8 +1358,8 @@ function ReferralSection({ userId }: { userId?: string }) {
       {/* Reward Codes */}
       {rewardCodes.length > 0 && (
         <div className="rounded-xl border border-emerald-300 dark:border-emerald-700 bg-emerald-50 dark:bg-emerald-900/20 p-4 mb-4">
-          <p className="text-sm font-bold text-emerald-800 dark:text-emerald-300 mb-2">أكواد المكافآت الخاصة بك</p>
-          <p className="text-xs text-emerald-700 dark:text-emerald-400 mb-3">استخدم هذه الأكواد عند الدفع للحصول على شهر مجاني</p>
+          <p className="text-sm font-bold text-emerald-800 dark:text-emerald-300 mb-2">{REFERRAL.rewardCodesTitle}</p>
+          <p className="text-xs text-emerald-700 dark:text-emerald-400 mb-3">{REFERRAL.rewardCodesDesc}</p>
           <div className="space-y-2">
             {rewardCodes.map((rc) => (
               <div key={rc} className="flex items-center gap-2">
@@ -1379,19 +1379,19 @@ function ReferralSection({ userId }: { userId?: string }) {
       )}
 
       <div className="rounded-xl bg-stone-50 dark:bg-stone-900 p-4">
-        <p className="text-xs font-bold text-stone-500 dark:text-stone-300 mb-2">إحصائيات الإحالة</p>
+        <p className="text-xs font-bold text-stone-500 dark:text-stone-300 mb-2">{REFERRAL.statsLabel}</p>
         <div className="grid grid-cols-3 gap-3 text-center">
           <div>
             <p className="text-xl font-bold text-stone-900 dark:text-stone-100">{stats.total}</p>
-            <p className="text-xs text-stone-500 dark:text-stone-300">دعوات</p>
+            <p className="text-xs text-stone-500 dark:text-stone-300">{REFERRAL.statsInvites}</p>
           </div>
           <div>
             <p className="text-xl font-bold text-emerald-700">{stats.signedUp}</p>
-            <p className="text-xs text-stone-500 dark:text-stone-300">سجّلوا</p>
+            <p className="text-xs text-stone-500 dark:text-stone-300">{REFERRAL.statsSignedUp}</p>
           </div>
           <div>
             <p className="text-xl font-bold text-emerald-700 dark:text-emerald-400">{stats.rewarded}</p>
-            <p className="text-xs text-stone-500 dark:text-stone-300">مكافآت</p>
+            <p className="text-xs text-stone-500 dark:text-stone-300">{REFERRAL.statsRewarded}</p>
           </div>
         </div>
       </div>

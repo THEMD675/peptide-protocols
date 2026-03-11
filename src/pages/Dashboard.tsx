@@ -46,6 +46,7 @@ import WeeklyProgressReport from '@/components/WeeklyProgressReport';
 import { AlertTriangle, HeartPulse } from 'lucide-react';
 import { peptides as allPeptides } from '@/data/peptides';
 import { labTests } from '@/data/peptides';
+import { UPGRADE } from '@/constants/sales-copy';
 
 const DAILY_TIPS = [
   'حقن BPC-157 على معدة فارغة يزيد من امتصاصه بشكل ملحوظ',
@@ -514,11 +515,11 @@ export default function Dashboard() {
           </p>
           <p className="text-xs text-amber-700 dark:text-amber-400 mb-3">
             {subscription.status === 'none' || subscription.status === undefined
-              ? 'اشترك للوصول إلى كل البروتوكولات والأدوات'
-              : 'اشترك للإضافة والتعديل'}
+              ? UPGRADE.noSubPrompt
+              : UPGRADE.genericPrompt}
           </p>
           <Link to="/pricing" className="inline-flex items-center gap-2 rounded-full bg-emerald-600 px-8 py-3.5 text-base font-semibold text-white transition-all hover:bg-emerald-700">
-            اشترك الآن
+            {UPGRADE.subscribeCta}
           </Link>
         </div>
       )}

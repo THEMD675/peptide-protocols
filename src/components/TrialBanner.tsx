@@ -7,6 +7,7 @@ import { Shield, X, Clock } from 'lucide-react';
 import { cn, arPlural } from '@/lib/utils';
 import { PRICING, PEPTIDE_COUNT, FREE_PEPTIDE_IDS } from '@/lib/constants';
 import { useNowMs } from '@/hooks/useNowMs';
+import { TRIAL, RETENTION, UPGRADE, COMMON } from '@/constants/sales-copy';
 
 const DISMISS_KEY = 'pptides_trial_banner_dismissed';
 
@@ -57,9 +58,9 @@ export default function TrialBanner() {
       return (
         <div className="sticky top-[var(--header-height)] z-40 bg-amber-500 text-center py-2.5 px-4">
           <p className="text-sm font-semibold text-white">
-            أدخل بيانات الدفع لتفعيل تجربتك المجانية — لن يتم خصم أي مبلغ خلال 3 أيام
+            {TRIAL.paymentWallBanner}
             <span className="mx-2">—</span>
-            <Link to="/pricing" className="underline underline-offset-2 hover:opacity-80">أكمل الإعداد</Link>
+            <Link to="/pricing" className="underline underline-offset-2 hover:opacity-80">{COMMON.completeSetup}</Link>
           </p>
         </div>
       );
@@ -72,20 +73,20 @@ export default function TrialBanner() {
         <div className="mx-4 w-full max-w-md max-h-[90vh] overflow-y-auto rounded-2xl bg-white dark:bg-stone-900 p-10 text-center shadow-2xl" aria-labelledby="payment-wall-title">
           <Shield className="mx-auto mb-4 h-12 w-12 text-emerald-700" />
           <h2 id="payment-wall-title" className="mb-3 text-2xl font-bold text-stone-900 dark:text-stone-100">
-            أكمل إعداد حسابك
+            {TRIAL.paymentWallTitle}
           </h2>
           <p id="payment-wall-desc" className="mb-2 text-stone-700 dark:text-stone-200">
-            أكمل إعداد حسابك لبدء التجربة المجانية
+            {TRIAL.paymentWallDesc}
           </p>
           <p className="mb-6 text-sm text-stone-500 dark:text-stone-300">
-            لن يتم خصم أي مبلغ خلال 3 أيام — يمكنك الإلغاء في أي وقت
+            {TRIAL.paymentWallFinePrint}
           </p>
           <div className="flex flex-col gap-3">
             <Link
               to="/pricing"
               className="inline-block rounded-full bg-emerald-600 px-10 py-3.5 font-bold text-white shadow-lg transition-all hover:bg-emerald-700 hover:scale-105 active:scale-[0.98]"
             >
-              أدخل بيانات الدفع
+              {TRIAL.paymentWallCta}
             </Link>
           </div>
           <button
@@ -104,8 +105,8 @@ export default function TrialBanner() {
     return (
       <div className="sticky top-[var(--header-height)] z-40 bg-amber-500 text-center py-2 px-4">
         <p className="text-sm font-semibold text-white">
-          اشتراكك ملغي — ستحتفظ بالوصول حتى نهاية الفترة الحالية.{' '}
-          <Link to="/pricing" className="underline underline-offset-2 hover:opacity-80">أعد الاشتراك</Link>
+          {RETENTION.cancelledBanner}{' '}
+          <Link to="/pricing" className="underline underline-offset-2 hover:opacity-80">{RETENTION.resubscribeCta}</Link>
         </p>
       </div>
     );
@@ -120,14 +121,14 @@ export default function TrialBanner() {
       const graceEnd = new Date(subscription.currentPeriodEnd).getTime() + 7 * 24 * 60 * 60 * 1000;
       const daysLeft = Math.max(0, Math.ceil((graceEnd - nowMs) / (1000 * 60 * 60 * 24)));
       if (daysLeft > 0) {
-        daysLeftText = ` متبقي ${daysLeft} ${daysLeft <= 2 ? (daysLeft === 1 ? 'يوم' : 'يومان') : 'أيام'} لتحديث وسيلة الدفع.`;
+        daysLeftText = UPGRADE.pastDueDaysLeft(daysLeft);
       }
     }
     return (
       <div className="sticky top-[var(--header-height)] z-40 bg-amber-600 text-center py-2 px-4">
         <p className="text-sm font-semibold text-white">
-          تعذّر تحصيل الدفعة —{daysLeftText} يرجى تحديث وسيلة الدفع لتجنّب فقدان الوصول.{' '}
-          <Link to="/account" className="underline underline-offset-2 hover:opacity-80">إعدادات الحساب</Link>
+          {UPGRADE.pastDueBanner}{daysLeftText} يرجى تحديث وسيلة الدفع لتجنّب فقدان الوصول.{' '}
+          <Link to="/account" className="underline underline-offset-2 hover:opacity-80">{UPGRADE.pastDueUpdateCta}</Link>
         </p>
       </div>
     );
@@ -142,7 +143,7 @@ export default function TrialBanner() {
       return (
         <div className="sticky top-[var(--header-height)] z-40 bg-amber-600 text-center py-2.5 px-4">
           <p className="text-sm font-semibold text-white">
-            تم إلغاء اشتراكك — <Link to="/pricing" className="underline underline-offset-2 hover:opacity-80">أعد الاشتراك</Link>
+            {RETENTION.cancelledBannerNoAccess} — <Link to="/pricing" className="underline underline-offset-2 hover:opacity-80">{RETENTION.resubscribeCta}</Link>
           </p>
         </div>
       );
@@ -155,8 +156,8 @@ export default function TrialBanner() {
     (subscription.status === 'trial' && subscription.trialDaysLeft <= 0)
   ) {
     const isTrial = subscription.status === 'trial' || (subscription.status === 'expired' && subscription.tier === 'free');
-    const bannerText = isTrial ? 'انتهت تجربتك المجانية — اشترك للوصول لكل المحتوى' : 'انتهت صلاحية اشتراكك — جدّد للوصول لكل المحتوى';
-    const modalTitle = isTrial ? 'انتهت تجربتك المجانية' : 'انتهت صلاحية اشتراكك';
+    const bannerText = isTrial ? TRIAL.expiredBannerTrial : TRIAL.expiredBannerPaid;
+    const modalTitle = isTrial ? TRIAL.expiredModalTitleTrial : TRIAL.expiredModalTitlePaid;
 
     if (isFreePage) {
       return (
@@ -179,7 +180,7 @@ export default function TrialBanner() {
             {modalTitle}
           </h2>
           <p id="sub-modal-desc-expired" className="mb-4 text-stone-700 dark:text-stone-200">
-            لا تخسر تقدّمك — اشترك الآن للاحتفاظ ببياناتك والوصول لـ {PEPTIDE_COUNT}+ بروتوكول، المدرب الذكي، وجميع الأدوات
+            {TRIAL.expiredModalBody}
           </p>
           <div className="flex flex-col gap-3">
             <Link
@@ -218,17 +219,17 @@ export default function TrialBanner() {
         <div className="mx-4 w-full max-w-md max-h-[90vh] overflow-y-auto rounded-2xl bg-white dark:bg-stone-900 p-10 text-center shadow-2xl" aria-labelledby="sub-modal-title">
           <Shield className="mx-auto mb-4 h-12 w-12 text-emerald-700" />
           <h2 id="sub-modal-title" className="mb-3 text-2xl font-bold text-stone-900 dark:text-stone-100">
-            محتوى للمشتركين فقط
+            {UPGRADE.subscribersOnlyTitle}
           </h2>
           <p id="sub-modal-desc-none" className="mb-4 text-stone-700 dark:text-stone-200">
-            اشترك للوصول إلى {PEPTIDE_COUNT}+ بروتوكول، المدرب الذكي، وجميع الأدوات
+            {UPGRADE.subscribersOnlyBody}
           </p>
           <div className="flex flex-col gap-3">
             <Link
               to="/pricing"
               className="inline-block rounded-full bg-emerald-600 px-10 py-3.5 font-bold text-white shadow-lg transition-all hover:bg-emerald-700 hover:scale-105 active:scale-[0.98]"
             >
-              ابدأ تجربتك المجانية
+              {TRIAL.startTrialCta}
             </Link>
           </div>
           <div className="mt-6 flex flex-wrap justify-center gap-3 text-sm">
@@ -275,24 +276,24 @@ export default function TrialBanner() {
         >
           {isLastDay ? (
             <>
-              <Clock className="inline h-4 w-4 me-1 align-text-bottom" /> آخر يوم في تجربتك — لا تفقد الوصول
+              <Clock className="inline h-4 w-4 me-1 align-text-bottom" /> {TRIAL.bannerLastDay}
               <span className="mx-2">—</span>
               <Link
                 to="/pricing"
                 className="underline underline-offset-2 hover:opacity-80"
               >
-                اشترك الآن
+                {UPGRADE.subscribeCta}
               </Link>
             </>
           ) : (
             <>
-              تبقّى {daysText} في تجربتك المجانية — اشترك بـ {PRICING.essentials.label}/شهر قبل انتهاء الوصول
+              {TRIAL.bannerDaysLeft(daysText)}
               <span className="mx-2">—</span>
               <Link
                 to="/pricing"
                 className="underline underline-offset-2 hover:opacity-80 font-bold"
               >
-                اشترك الآن
+                {UPGRADE.subscribeCta}
               </Link>
             </>
           )}
