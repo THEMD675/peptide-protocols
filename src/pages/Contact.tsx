@@ -116,8 +116,13 @@ export default function Contact() {
       if (error) throw error;
       setTimeout(() => setSubmitted(true), 600);
       toast.success('تم إرسال رسالتك بنجاح');
-    } catch {
-      toast.error('تعذّر إرسال الرسالة — حاول مرة أخرى');
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : String(err);
+      if (msg.includes('P0429') || msg.includes('Rate limit')) {
+        toast.error('لقد أرسلت رسائل كثيرة — حاول مرة أخرى لاحقاً');
+      } else {
+        toast.error('تعذّر إرسال الرسالة — حاول مرة أخرى');
+      }
     } finally {
       setSubmitting(false);
     }

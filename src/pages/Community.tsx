@@ -548,7 +548,11 @@ export default function Community() {
       is_subscriber: isSub,
     });
     if (error) {
-      toast.error('تعذّر إرسال الرد');
+      if (error.code === 'P0429' || error.message?.includes('Rate limit')) {
+        toast.error('لقد أرسلت ردود كثيرة — حاول مرة أخرى لاحقاً');
+      } else {
+        toast.error('تعذّر إرسال الرد');
+      }
       setRepliesByPost(prev => ({ ...prev, [postId]: (prev[postId] ?? []).filter(r => r.id !== optimistic.id) }));
       setReplyCountByPost(prev => ({ ...prev, [postId]: Math.max(0, (prev[postId] ?? 1) - 1) }));
       setReplyText(prev => ({ ...prev, [postId]: content }));
@@ -604,7 +608,11 @@ export default function Community() {
       if (!mountedRef.current) return;
 
       if (error) {
-        toast.error('تعذّر نشر تجربتك — تحقق من البيانات وحاول مرة أخرى');
+        if (error.code === 'P0429' || error.message?.includes('Rate limit')) {
+          toast.error('لقد نشرت تجارب كثيرة — حاول مرة أخرى لاحقاً');
+        } else {
+          toast.error('تعذّر نشر تجربتك — تحقق من البيانات وحاول مرة أخرى');
+        }
         return;
       }
 
