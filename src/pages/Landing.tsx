@@ -720,7 +720,7 @@ export default function Landing() {
             <span className="flex items-center gap-1.5 rounded-full bg-white dark:bg-stone-900 border border-emerald-200 dark:border-emerald-800 px-3 py-1.5 font-medium"><BookOpen className="h-3.5 w-3.5" /> أكثر من ١٠,٠٠٠ ساعة بحث</span>
             {userCount >= 10 && <span className="flex items-center gap-1.5 rounded-full bg-white dark:bg-stone-900 border border-emerald-200 dark:border-emerald-800 px-3 py-1.5 font-medium"><Users className="h-3.5 w-3.5" /> يستخدمه <AnimatedCounter end={userCount} /> شخص في السعودية</span>}
           </div>
-          <p className="mt-4 text-sm text-stone-800 dark:text-stone-200">أو {PRICING.elite.label}/شهريًا للباقة المتقدمة مع المدرب الذكي + استشارات</p>
+          <p className="mt-4 text-sm text-stone-800 dark:text-stone-200">أو {PRICING.elite.label}/شهريًا للباقة المتقدّمة مع المدرب الذكي + استشارات</p>
           <div className="mt-6 flex flex-col sm:flex-row items-center justify-center gap-3 text-sm">
             <span className="flex items-center gap-1.5 rounded-full bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 px-4 py-2 font-bold text-red-700 dark:text-red-400">
               <Zap className="h-4 w-4" /> السعر الحالي لفترة محدودة

@@ -75,7 +75,7 @@ serve(async (req) => {
       // Sync trial_end with Stripe if subscription has stripe_subscription_id (DB is primary; log but don't fail)
       if (sub.stripe_subscription_id && stripeKey) {
         try {
-          const stripe = new Stripe(stripeKey, { apiVersion: '2024-06-20' })
+          const stripe = new Stripe(stripeKey, { apiVersion: '2024-06-20', timeout: 10000 })
           await stripe.subscriptions.update(sub.stripe_subscription_id, {
             trial_end: Math.floor(newEnd.getTime() / 1000),
           })
@@ -154,7 +154,7 @@ serve(async (req) => {
         .select('stripe_subscription_id, status').eq('user_id', userId).maybeSingle()
 
       if (sub?.stripe_subscription_id && stripeKey) {
-        const stripe = new Stripe(stripeKey, { apiVersion: '2024-06-20' })
+        const stripe = new Stripe(stripeKey, { apiVersion: '2024-06-20', timeout: 10000 })
         try {
           await stripe.subscriptions.update(sub.stripe_subscription_id, { cancel_at_period_end: true })
         } catch (e) {
@@ -179,7 +179,7 @@ serve(async (req) => {
       const chargeId = body.charge_id as string
       if (!paymentIntentId && !chargeId) return json({ error: 'Missing payment_intent_id or charge_id' }, 400, cors)
 
-      const stripe = new Stripe(stripeKey, { apiVersion: '2024-06-20' })
+      const stripe = new Stripe(stripeKey, { apiVersion: '2024-06-20', timeout: 10000 })
       const refund = await stripe.refunds.create({
         ...(paymentIntentId ? { payment_intent: paymentIntentId } : { charge: chargeId }),
         reason: 'requested_by_customer',
@@ -229,7 +229,7 @@ serve(async (req) => {
         .select('stripe_subscription_id, stripe_customer_id').eq('user_id', userId).maybeSingle()
 
       if (sub && stripeKey) {
-        const stripe = new Stripe(stripeKey, { apiVersion: '2024-06-20' })
+        const stripe = new Stripe(stripeKey, { apiVersion: '2024-06-20', timeout: 10000 })
         if (sub.stripe_subscription_id) {
           await stripe.subscriptions.cancel(sub.stripe_subscription_id).catch(e => console.error('stripe sub cancel:', e))
         }
@@ -359,7 +359,7 @@ serve(async (req) => {
       const stripeStart = Date.now()
       try {
         if (!stripeKey) throw new Error('STRIPE_SECRET_KEY not set')
-        const stripe = new Stripe(stripeKey, { apiVersion: '2024-06-20' })
+        const stripe = new Stripe(stripeKey, { apiVersion: '2024-06-20', timeout: 10000 })
         await stripe.balance.retrieve()
         checks.stripe = { status: 'ok', detail: 'connected', ms: Date.now() - stripeStart }
       } catch (e) { checks.stripe = { status: stripeKey ? 'error' : 'warning', detail: String(e), ms: Date.now() - stripeStart } }
@@ -419,7 +419,7 @@ serve(async (req) => {
         missingEvents: [],
       }
       if (!stripeKey) return json({ error: 'STRIPE_SECRET_KEY not set', ...result }, 500, cors)
-      const stripe = new Stripe(stripeKey, { apiVersion: '2024-06-20' })
+      const stripe = new Stripe(stripeKey, { apiVersion: '2024-06-20', timeout: 10000 })
       try {
         for (const [tier, priceId] of Object.entries(EXPECTED)) {
           const price = await stripe.prices.retrieve(priceId, { expand: ['product'] })
@@ -639,7 +639,7 @@ serve(async (req) => {
       if (!emailRegex.test(newEmail)) return json({ error: 'Invalid email format' }, 400, cors)
       const { data: sub } = await admin.from('subscriptions').select('stripe_customer_id').eq('user_id', userId).maybeSingle()
       if (sub?.stripe_customer_id && stripeKey) {
-        const stripe = new Stripe(stripeKey, { apiVersion: '2024-06-20' })
+        const stripe = new Stripe(stripeKey, { apiVersion: '2024-06-20', timeout: 10000 })
         try {
           await stripe.customers.update(sub.stripe_customer_id, { email: newEmail })
         } catch (e) { console.error('sync_email Stripe error:', e) }

@@ -4,7 +4,7 @@ import Stripe from 'https://esm.sh/stripe@14.14.0?target=deno'
 import { sendEmail } from '../_shared/send-email.ts'
 
 const stripeKey = Deno.env.get('STRIPE_SECRET_KEY') ?? ''
-const stripe = new Stripe(stripeKey, { apiVersion: '2024-06-20' })
+const stripe = new Stripe(stripeKey, { apiVersion: '2024-06-20', timeout: 10000 })
 const supabaseUrl = Deno.env.get('SUPABASE_URL') ?? ''
 const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
 

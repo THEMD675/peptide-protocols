@@ -37,6 +37,7 @@ export async function sendEmail(payload: EmailPayload): Promise<{ ok: boolean; e
   if (RESEND_API_KEY && RESEND_API_KEY.startsWith('re_')) {
     try {
       const res = await fetch('https://api.resend.com/emails', {
+        signal: AbortSignal.timeout(10000), // 10s timeout — prevents hanging until Supabase's 150s kill
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -79,18 +80,24 @@ export async function sendEmail(payload: EmailPayload): Promise<{ ok: boolean; e
         },
       })
 
-      await client.send({
-        from: FROM_EMAIL_SMTP,
-        to: payload.to,
-        subject: payload.subject,
-        content: 'Please view this email in an HTML-capable client.',
-        html: payload.html,
-        headers: {
-          'Reply-To': payload.replyTo || 'contact@pptides.com',
-          'List-Unsubscribe': '<mailto:contact@pptides.com?subject=unsubscribe>',
-          'List-Unsubscribe-Post': 'List-Unsubscribe=One-Click',
-        },
-      })
+      const smtpTimeout = new Promise<never>((_, reject) =>
+        setTimeout(() => reject(new Error('SMTP timeout after 15s')), 15000)
+      )
+      await Promise.race([
+        client.send({
+          from: FROM_EMAIL_SMTP,
+          to: payload.to,
+          subject: payload.subject,
+          content: 'Please view this email in an HTML-capable client.',
+          html: payload.html,
+          headers: {
+            'Reply-To': payload.replyTo || 'contact@pptides.com',
+            'List-Unsubscribe': '<mailto:contact@pptides.com?subject=unsubscribe>',
+            'List-Unsubscribe-Post': 'List-Unsubscribe=One-Click',
+          },
+        }),
+        smtpTimeout,
+      ])
 
       await client.close()
       return { ok: true }

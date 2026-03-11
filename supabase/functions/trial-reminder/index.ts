@@ -300,7 +300,14 @@ serve(async (req) => {
     if (activeSubscribers && activeSubscribers.length > 0) {
       const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000).toISOString()
 
+      // Safety cap: each user needs ~4 DB queries + 1 email send. At 50ms/query that's ~200ms/user.
+      // Cap at 50 to stay well under Supabase's 150s edge function timeout.
+      const WEEKLY_SUMMARY_LIMIT = 50
+      let weeklySummaryProcessed = 0
+
       for (const sub of activeSubscribers) {
+        if (weeklySummaryProcessed >= WEEKLY_SUMMARY_LIMIT) break
+        weeklySummaryProcessed++
         try {
           const email = userIdToEmail.get(sub.user_id)
           if (!email) continue
@@ -415,9 +422,15 @@ serve(async (req) => {
       .eq('status', 'active')
     let inactiveCheckinSent = 0
     const INACTIVE_CHECKIN_LIMIT = 20
+    // Safety: each iteration does 1 injection_logs query + possible dedup + email send.
+    // Cap total iterations to 200 to prevent timeout when scanning large subscriber lists.
+    const INACTIVE_CHECKIN_SCAN_LIMIT = 200
+    let inactiveCheckinScanned = 0
     if (activeSubsForCheckin && activeSubsForCheckin.length > 0) {
       for (const sub of activeSubsForCheckin) {
         if (inactiveCheckinSent >= INACTIVE_CHECKIN_LIMIT) break
+        if (inactiveCheckinScanned >= INACTIVE_CHECKIN_SCAN_LIMIT) break
+        inactiveCheckinScanned++
         try {
           const email = userIdToEmail.get(sub.user_id)
           if (!email) continue

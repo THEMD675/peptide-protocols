@@ -435,11 +435,11 @@ export default function Reviews() {
                 <MessageCircle className="h-10 w-10 text-emerald-700" />
               </div>
               <h3 className="text-2xl font-bold text-stone-900 dark:text-stone-100">كن أول من يشارك تجربته</h3>
-              <p className="mx-auto mt-3 max-w-md text-base leading-relaxed text-stone-600 dark:text-stone-400">
+              <p className="mx-auto mt-3 max-w-md text-base leading-relaxed text-stone-600 dark:text-stone-300">
                 تقييمك يساعد الآخرين على اتخاذ قرارهم بثقة — وأنت تبني مرجعًا حقيقيًا للمجتمع العربي.
               </p>
               {/* Benefits of reviewing */}
-              <div className="mx-auto mt-6 max-w-xs space-y-2 text-sm text-stone-600 dark:text-stone-400">
+              <div className="mx-auto mt-6 max-w-xs space-y-2 text-sm text-stone-600 dark:text-stone-300">
                 <div className="flex items-center gap-2 justify-center"><CheckCircle className="h-4 w-4 shrink-0 text-emerald-600" /><span>رأيك يبقى مرجعًا للمجتمع</span></div>
                 <div className="flex items-center gap-2 justify-center"><CheckCircle className="h-4 w-4 shrink-0 text-emerald-600" /><span>يساعد المستخدمين الجدد</span></div>
                 <div className="flex items-center gap-2 justify-center"><CheckCircle className="h-4 w-4 shrink-0 text-emerald-600" /><span>يستغرق أقل من دقيقتين</span></div>

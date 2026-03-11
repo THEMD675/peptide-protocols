@@ -40,7 +40,7 @@ serve(async (req) => {
   if (!Deno.env.get('STRIPE_PRICE_ESSENTIALS_ANNUAL')) missingPriceIds.push('STRIPE_PRICE_ESSENTIALS_ANNUAL')
   if (!Deno.env.get('STRIPE_PRICE_ELITE_ANNUAL')) missingPriceIds.push('STRIPE_PRICE_ELITE_ANNUAL')
 
-  const stripe = new Stripe(stripeKey, { apiVersion: '2024-06-20' })
+  const stripe = new Stripe(stripeKey, { apiVersion: '2024-06-20', timeout: 10000 })
   const result: { prices: Record<string, unknown>; webhooks: unknown[]; eventsOk: boolean; missingEvents: string[] } = {
     prices: {},
     webhooks: [],

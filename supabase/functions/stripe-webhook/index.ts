@@ -6,7 +6,7 @@ import { sendEmail } from '../_shared/send-email.ts'
 
 const TRIAL_DAYS = 3 // Keep in sync with src/config/trial.ts
 const stripeKey = Deno.env.get('STRIPE_SECRET_KEY') ?? ''
-const stripe = new Stripe(stripeKey, { apiVersion: '2024-06-20' })
+const stripe = new Stripe(stripeKey, { apiVersion: '2024-06-20', timeout: 10000 })
 const endpointSecret = Deno.env.get('STRIPE_WEBHOOK_SECRET') ?? ''
 
 const supabaseUrl = Deno.env.get('SUPABASE_URL') ?? ''

@@ -7,7 +7,7 @@ import {
 } from 'lucide-react';
 import { useState } from 'react';
 import { cn } from '@/lib/utils';
-import { SITE_URL, PEPTIDE_COUNT, SUPPORT_EMAIL, TRIAL_DAYS, PUBMED_SOURCE_COUNT, PRICING } from '@/lib/constants';
+import { SITE_URL, PEPTIDE_COUNT, SUPPORT_EMAIL, TRIAL_DAYS, PUBMED_SOURCE_COUNT } from '@/lib/constants';
 
 const stats = [
   { value: `${PEPTIDE_COUNT}+`, label: 'ببتيد مع بروتوكول كامل' },
@@ -362,7 +362,7 @@ export default function About() {
           <p className="mb-4 text-sm text-stone-600 dark:text-stone-300">سؤال؟ اقتراح؟ ملاحظة؟ نرحب بكل رسالة.</p>
           <a
             href={`mailto:${SUPPORT_EMAIL}`}
-            className="inline-flex min-h-[44px] items-center gap-2 rounded-xl bg-emerald-600 px-6 py-3 text-sm font-bold text-white transition-colors hover:bg-emerald-700"
+            className="inline-flex min-h-[44px] items-center gap-2 rounded-full bg-emerald-600 px-6 py-3 text-sm font-bold text-white transition-colors hover:bg-emerald-700"
           >
             <Mail className="h-4 w-4" />
             {SUPPORT_EMAIL}
@@ -373,21 +373,21 @@ export default function About() {
         <div className="mb-12 flex flex-wrap justify-center gap-3">
           <Link
             to="/transparency"
-            className="inline-flex items-center gap-2 rounded-xl border border-stone-300 dark:border-stone-600 px-6 py-3 text-sm font-bold text-stone-800 dark:text-stone-200 transition-colors hover:bg-stone-50 dark:hover:bg-stone-800"
+            className="inline-flex items-center gap-2 rounded-full border border-stone-300 dark:border-stone-600 px-6 py-3 text-sm font-bold text-stone-800 dark:text-stone-200 transition-colors hover:bg-stone-50 dark:hover:bg-stone-800"
           >
             <Shield className="h-4 w-4" />
             <span>الشفافية</span>
           </Link>
           <Link
             to="/sources"
-            className="inline-flex items-center gap-2 rounded-xl border border-stone-300 dark:border-stone-600 px-6 py-3 text-sm font-bold text-stone-800 dark:text-stone-200 transition-colors hover:bg-stone-50 dark:hover:bg-stone-800"
+            className="inline-flex items-center gap-2 rounded-full border border-stone-300 dark:border-stone-600 px-6 py-3 text-sm font-bold text-stone-800 dark:text-stone-200 transition-colors hover:bg-stone-50 dark:hover:bg-stone-800"
           >
             <BookOpen className="h-4 w-4" />
             <span>المصادر العلمية</span>
           </Link>
           <Link
             to="/privacy"
-            className="inline-flex items-center gap-2 rounded-xl border border-stone-300 dark:border-stone-600 px-6 py-3 text-sm font-bold text-stone-800 dark:text-stone-200 transition-colors hover:bg-stone-50 dark:hover:bg-stone-800"
+            className="inline-flex items-center gap-2 rounded-full border border-stone-300 dark:border-stone-600 px-6 py-3 text-sm font-bold text-stone-800 dark:text-stone-200 transition-colors hover:bg-stone-50 dark:hover:bg-stone-800"
           >
             <Shield className="h-4 w-4" />
             <span>سياسة الخصوصية</span>
@@ -397,13 +397,13 @@ export default function About() {
         {/* CTA */}
         <div className="text-center">
           <Link
-            to="/pricing"
-            className="btn-primary-glow inline-flex w-full items-center justify-center gap-2 rounded-xl bg-emerald-600 px-6 py-3 text-base font-bold text-white transition-all hover:bg-emerald-700 active:scale-[0.98] sm:w-auto sm:px-10 sm:py-4 sm:text-lg"
+            to="/signup?redirect=/pricing"
+            className="btn-primary-glow inline-flex w-full items-center justify-center gap-2 rounded-full bg-emerald-600 px-6 py-3 text-base font-bold text-white transition-all hover:bg-emerald-700 active:scale-[0.98] sm:w-auto sm:px-10 sm:py-4 sm:text-lg"
           >
-            <span>ابدأ الآن — {PRICING.essentials.label}/شهريًا</span>
+            <span>ابدأ تجربتك المجانية</span>
             <ArrowLeft className="h-5 w-5" />
           </Link>
-          <p className="mt-4 text-sm text-stone-500 dark:text-stone-300">{TRIAL_DAYS} أيام تجربة مجانية — إلغاء في أي وقت</p>
+          <p className="mt-4 text-sm text-stone-500 dark:text-stone-300">{TRIAL_DAYS} أيام مجانًا — إلغاء في أي وقت، بدون أسئلة</p>
         </div>
       </div>
     </div>

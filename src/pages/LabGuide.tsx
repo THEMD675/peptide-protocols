@@ -829,7 +829,7 @@ function ResultsInterpreter({ isPro, blurClass }: { isPro: boolean; blurClass: s
               className="inline-flex items-center gap-1.5 rounded-full bg-emerald-100 dark:bg-emerald-900/30 px-3 py-1.5 text-xs font-bold text-emerald-700 dark:text-emerald-400 hover:bg-emerald-200 transition-colors"
             >
               <TrendingUp className="h-3 w-3" />
-              سجّل النتيجة في متتبع التحاليل
+              سجّل النتيجة في سجل الحقن
             </Link>
 
             {!isPro && (

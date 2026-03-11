@@ -245,7 +245,7 @@ export default function FAQ() {
           )}
         </div>
         {search.trim() && (
-          <p className="mb-6 text-sm text-stone-500 dark:text-stone-400">
+          <p className="mb-6 text-sm text-stone-500 dark:text-stone-300">
             {filtered.flatMap(s => s.items).length} نتيجة للبحث عن &ldquo;{search}&rdquo;
           </p>
         )}

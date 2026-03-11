@@ -341,7 +341,7 @@ export default function InteractionChecker() {
             احسب الجرعة
           </Link>
           <Link to="/tracker" className="inline-flex items-center gap-2 rounded-full border border-emerald-300 dark:border-emerald-700 px-5 py-2.5 text-sm font-bold text-emerald-700 dark:text-emerald-400 transition-colors hover:bg-emerald-100 dark:bg-emerald-900/30">
-            سجّل في المتتبع
+            سجّل في سجل الحقن
           </Link>
           <Link to="/coach" className="inline-flex items-center gap-2 rounded-full border border-emerald-300 dark:border-emerald-700 px-5 py-2.5 text-sm font-bold text-emerald-700 dark:text-emerald-400 transition-colors hover:bg-emerald-100 dark:bg-emerald-900/30">
             اسأل المدرب الذكي

@@ -412,7 +412,7 @@ export default function PeptideDetail() {
               className="flex items-center justify-center gap-2 rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 px-5 py-3.5 text-sm font-bold text-stone-800 dark:text-stone-200 transition-all hover:border-emerald-200 dark:border-emerald-800 hover:shadow-md"
             >
               <Bot className="h-4 w-4" />
-              اسأل المدرب
+              اسأل المدرب الذكي
             </Link>
             <button
               onClick={() => setShowProtocolWizard(true)}
@@ -437,7 +437,7 @@ export default function PeptideDetail() {
               className="flex-shrink-0 flex items-center gap-2 rounded-full bg-emerald-600 px-6 py-3 text-sm font-bold text-white transition-all hover:bg-emerald-700 shadow-md hover:shadow-lg"
             >
               <ArrowRight className="h-4 w-4" />
-              أضف إلى المتتبع
+              أضف إلى سجل الحقن
             </Link>
           </div>
 

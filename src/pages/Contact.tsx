@@ -163,7 +163,7 @@ export default function Contact() {
               <CheckCircle className="h-10 w-10 text-white" />
             </span>
           </div>
-          <h1 className="mb-3 text-2xl font-bold text-stone-900 dark:text-stone-100">
+          <h1 className="mb-3 text-3xl font-bold text-stone-900 dark:text-stone-100">
             تم إرسال رسالتك بنجاح
           </h1>
           <p className="text-lg text-stone-600 dark:text-stone-300">شكرًا لتواصلك معنا</p>
