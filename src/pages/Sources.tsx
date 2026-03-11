@@ -7,7 +7,7 @@ import {
   FileText, ChevronDown, ChevronUp, X, Microscope, GraduationCap, ArrowUpDown,
 } from 'lucide-react';
 import { toast } from 'sonner';
-import { cn } from '@/lib/utils';
+import { cn, sanitizeInput } from '@/lib/utils';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
 import { SUPPORT_EMAIL, SITE_URL } from '@/lib/constants';
@@ -75,10 +75,10 @@ function SourcingInterestForm() {
     try {
       const { error } = await supabase.from('enquiries').insert({
         user_id: user?.id ?? null,
-        email: email.trim(),
+        email: email.trim().slice(0, 320),
         subject: 'sourcing_interest',
-        peptide_name: selectedPeptides.join(', '),
-        message: `رقم التواصل: ${phone || 'لم يُذكر'}\n\nالببتيدات المطلوبة: ${selectedPeptides.join(', ')}\n\nملاحظات: ${notes || 'لا يوجد'}`,
+        peptide_name: selectedPeptides.join(', ').slice(0, 500),
+        message: sanitizeInput(`رقم التواصل: ${phone || 'لم يُذكر'}\n\nالببتيدات المطلوبة: ${selectedPeptides.join(', ')}\n\nملاحظات: ${notes || 'لا يوجد'}`, 5000),
       });
       if (error) throw error;
       setSubmitted(true);

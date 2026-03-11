@@ -15,6 +15,7 @@ import { supabase } from '@/lib/supabase';
 import { SITE_URL, SUPPORT_EMAIL } from '@/lib/constants';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
+import { sanitizeInput } from '@/lib/utils';
 
 const SUBJECTS = [
   { value: '', label: 'اختر الموضوع...' },
@@ -108,10 +109,9 @@ export default function Contact() {
     try {
       const { error } = await supabase.from('enquiries').insert({
         user_id: user?.id ?? null,
-        name: name.trim(),
-        email: email.trim(),
-        subject: subject.trim(),
-        message: message.trim(),
+        email: email.trim().slice(0, 320),
+        subject: sanitizeInput(subject, 200),
+        message: sanitizeInput(`${name.trim() ? `الاسم: ${name.trim()}\n\n` : ''}${message}`, 5000),
       });
       if (error) throw error;
       setTimeout(() => setSubmitted(true), 600);
@@ -312,6 +312,7 @@ export default function Contact() {
               id="contact-message"
               required
               rows={5}
+              maxLength={5000}
               value={message}
               onChange={(e) => setMessage(e.target.value)}
               placeholder="اكتب رسالتك هنا..."

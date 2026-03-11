@@ -14,3 +14,8 @@ export function arPlural(count: number, singular: string, dual: string, plural: 
   if (n >= 3 && n <= 10) return `${n} ${plural}`;
   return `${n} ${accusative ?? singular}`;
 }
+
+/** Strip HTML tags and limit length — use before any DB insert of user text */
+export function sanitizeInput(s: string, maxLength = 2000): string {
+  return s.trim().replace(/<[^>]+>/g, '').slice(0, maxLength);
+}

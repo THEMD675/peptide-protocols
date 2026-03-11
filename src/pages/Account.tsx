@@ -6,7 +6,7 @@ import { User, Crown, LogOut, Trash2, AlertTriangle, Mail, ArrowUpCircle, KeyRou
 import { useBookmarks } from '@/hooks/useBookmarks';
 import { peptides as allPeptides } from '@/data/peptides';
 import { toast } from 'sonner';
-import { cn, arPlural } from '@/lib/utils';
+import { cn, arPlural, sanitizeInput } from '@/lib/utils';
 import { SUPPORT_EMAIL, STATUS_LABELS, TIER_LABELS, PEPTIDE_COUNT, SITE_URL } from '@/lib/constants';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
@@ -708,9 +708,9 @@ export default function Account() {
                   try {
                     const { error } = await supabase.from('enquiries').insert({
                       user_id: user.id,
-                      email: user.email,
+                      email: user.email?.slice(0, 320),
                       subject: 'refund_request',
-                      message: 'طلب استرداد أموال',
+                      message: sanitizeInput('طلب استرداد أموال', 5000),
                       peptide_name: null,
                     });
                     if (error) throw error;
@@ -863,9 +863,9 @@ export default function Account() {
                   try {
                     await supabase.from('enquiries').insert({
                       user_id: user.id,
-                      email: user.email,
+                      email: user.email?.slice(0, 320),
                       subject: 'cancel_reason',
-                      message: cancelReason,
+                      message: sanitizeInput(cancelReason, 5000),
                       peptide_name: null,
                     });
                   } catch { /* non-blocking */ }
@@ -1308,10 +1308,10 @@ function EnquiryForm({ userEmail, userId }: { userEmail?: string; userId?: strin
       const subjectText = subject.trim() || 'استفسار عام';
       const { error } = await supabase.from('enquiries').insert({
         user_id: userId,
-        email: userEmail,
-        subject: subjectText,
-        peptide_name: peptide.trim() || null,
-        message: message.trim(),
+        email: userEmail?.slice(0, 320),
+        subject: sanitizeInput(subjectText, 200),
+        peptide_name: peptide.trim().slice(0, 200) || null,
+        message: sanitizeInput(message, 5000),
       });
 
       if (error) {
