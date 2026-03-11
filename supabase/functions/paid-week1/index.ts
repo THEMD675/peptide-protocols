@@ -140,14 +140,14 @@ serve(async (req) => {
                 <p style="margin: 8px 0 0; color: #44403c; font-size: 15px; line-height: 1.7;">
                   قبل بدء أي بروتوكول، تحتاج تحاليل خط أساس. دليلنا يشرح بالضبط ماذا تطلب من طبيبك.
                 </p>
-                <a href="${APP_URL}/blog/lab-guide" style="color: #059669; font-size: 14px; font-weight: bold; text-decoration: none;">اقرأ دليل التحاليل ←</a>
+                <a href="${APP_URL}/lab-guide" style="color: #059669; font-size: 14px; font-weight: bold; text-decoration: none;">اقرأ دليل التحاليل ←</a>
               </div>
               <div>
                 <p style="margin: 0; font-size: 18px; font-weight: bold; color: #059669;">الخطوة 3: اختر أول ببتيد لك 💉</p>
                 <p style="margin: 8px 0 0; color: #44403c; font-size: 15px; line-height: 1.7;">
                   لا تعرف من أين تبدأ؟ دليل المبتدئين يساعدك تختار البروتوكول المناسب لهدفك.
                 </p>
-                <a href="${APP_URL}/blog/beginner-guide" style="color: #059669; font-size: 14px; font-weight: bold; text-decoration: none;">دليل المبتدئين ←</a>
+                <a href="${APP_URL}/blog/beginners-guide-therapeutic-peptides" style="color: #059669; font-size: 14px; font-weight: bold; text-decoration: none;">دليل المبتدئين ←</a>
               </div>
             </div>
 

@@ -131,7 +131,7 @@ serve(async (req) => {
                 ادعُ صديقًا واحدًا لـ pptides — إذا اشترك، تحصل على شهر مجاني هدية منّا.<br/>
                 رابط الدعوة الخاص بك موجود في صفحة حسابك.
               </p>
-              ${emailButton('احصل على رابط الدعوة', `${APP_URL}/account/referral`)}
+              ${emailButton('احصل على رابط الدعوة', `${APP_URL}/account`)}
             </div>
 
             <div style="background: #ecfdf5; border-radius: 12px; padding: 24px; margin: 24px 0;">
@@ -142,7 +142,7 @@ serve(async (req) => {
                 <p style="margin: 8px 0 0; color: #44403c; font-size: 14px; line-height: 1.7;">
                   تعمّق في بروتوكولات TB-500 و Thymosin Alpha-1 وكيف تعمل مع BPC-157.
                 </p>
-                <a href="${APP_URL}/library?tag=recovery" style="color: #059669; font-size: 14px; font-weight: bold; text-decoration: none;">اقرأ المزيد ←</a>
+                <a href="${APP_URL}/library?category=recovery" style="color: #059669; font-size: 14px; font-weight: bold; text-decoration: none;">اقرأ المزيد ←</a>
               </div>
 
               <div style="margin-bottom: 20px; padding-bottom: 20px; border-bottom: 1px solid #d1fae5;">
@@ -150,7 +150,7 @@ serve(async (req) => {
                 <p style="margin: 8px 0 0; color: #44403c; font-size: 14px; line-height: 1.7;">
                   CJC-1295 + Ipamorelin + MK-677 — متى تجمع ومتى تختار واحد فقط؟
                 </p>
-                <a href="${APP_URL}/library?tag=growth-hormone" style="color: #059669; font-size: 14px; font-weight: bold; text-decoration: none;">اقرأ المزيد ←</a>
+                <a href="${APP_URL}/library?category=hormonal" style="color: #059669; font-size: 14px; font-weight: bold; text-decoration: none;">اقرأ المزيد ←</a>
               </div>
 
               <div>
@@ -158,7 +158,7 @@ serve(async (req) => {
                 <p style="margin: 8px 0 0; color: #44403c; font-size: 14px; line-height: 1.7;">
                   Epitalon و GHK-Cu — أحدث الأبحاث عن الببتيدات المضادة للشيخوخة.
                 </p>
-                <a href="${APP_URL}/library?tag=anti-aging" style="color: #059669; font-size: 14px; font-weight: bold; text-decoration: none;">اقرأ المزيد ←</a>
+                <a href="${APP_URL}/library?category=longevity" style="color: #059669; font-size: 14px; font-weight: bold; text-decoration: none;">اقرأ المزيد ←</a>
               </div>
             </div>
 
@@ -170,7 +170,7 @@ serve(async (req) => {
             </div>
 
             <div style="text-align: center; margin: 28px 0;">
-              ${emailButton('شارك واحصل على شهر مجاني', `${APP_URL}/account/referral`)}
+              ${emailButton('شارك واحصل على شهر مجاني', `${APP_URL}/account`)}
             </div>
           `),
           replyTo: 'contact@pptides.com',

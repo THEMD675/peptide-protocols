@@ -150,7 +150,7 @@ serve(async (req) => {
                 <p style="margin: 8px 0 0; color: #44403c; font-size: 14px; line-height: 1.7;">
                   التخزين الخاطئ = ببتيد تالف. تعلّم كيف تحفظ ببتيداتك بالطريقة الصحيحة.
                 </p>
-                <a href="${APP_URL}/blog/storage-guide" style="color: #059669; font-size: 14px; font-weight: bold; text-decoration: none;">اقرأ دليل التخزين ←</a>
+                <a href="${APP_URL}/blog/peptide-storage-guide" style="color: #059669; font-size: 14px; font-weight: bold; text-decoration: none;">اقرأ دليل التخزين ←</a>
               </div>
             </div>
 

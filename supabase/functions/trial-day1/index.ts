@@ -134,17 +134,17 @@ serve(async (req) => {
               <div style="margin-bottom: 16px; padding-bottom: 16px; border-bottom: 1px solid #d1fae5;">
                 <p style="margin: 0; font-size: 18px; font-weight: bold; color: #059669;">1. BPC-157</p>
                 <p style="margin: 4px 0 0; color: #44403c; font-size: 14px;">ببتيد التعافي — يُستخدم لدعم شفاء الأنسجة والجهاز الهضمي</p>
-                <a href="${APP_URL}/library/bpc-157" style="color: #059669; font-size: 13px; font-weight: bold;">اقرأ البروتوكول الكامل ←</a>
+                <a href="${APP_URL}/peptide/bpc-157" style="color: #059669; font-size: 13px; font-weight: bold;">اقرأ البروتوكول الكامل ←</a>
               </div>
               <div style="margin-bottom: 16px; padding-bottom: 16px; border-bottom: 1px solid #d1fae5;">
                 <p style="margin: 0; font-size: 18px; font-weight: bold; color: #059669;">2. Semaglutide</p>
                 <p style="margin: 4px 0 0; color: #44403c; font-size: 14px;">ببتيد إدارة الوزن — الأكثر بحثًا في العالم العربي</p>
-                <a href="${APP_URL}/library/semaglutide" style="color: #059669; font-size: 13px; font-weight: bold;">اقرأ البروتوكول الكامل ←</a>
+                <a href="${APP_URL}/peptide/semaglutide" style="color: #059669; font-size: 13px; font-weight: bold;">اقرأ البروتوكول الكامل ←</a>
               </div>
               <div>
                 <p style="margin: 0; font-size: 18px; font-weight: bold; color: #059669;">3. CJC-1295</p>
                 <p style="margin: 4px 0 0; color: #44403c; font-size: 14px;">ببتيد هرمون النمو — لدعم التعافي وبناء العضلات</p>
-                <a href="${APP_URL}/library/cjc-1295" style="color: #059669; font-size: 13px; font-weight: bold;">اقرأ البروتوكول الكامل ←</a>
+                <a href="${APP_URL}/peptide/cjc-1295" style="color: #059669; font-size: 13px; font-weight: bold;">اقرأ البروتوكول الكامل ←</a>
               </div>
             </div>
 
