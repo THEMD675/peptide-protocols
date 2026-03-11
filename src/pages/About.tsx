@@ -362,7 +362,7 @@ export default function About() {
           <p className="mb-4 text-sm text-stone-600 dark:text-stone-300">سؤال؟ اقتراح؟ ملاحظة؟ نرحب بكل رسالة.</p>
           <a
             href={`mailto:${SUPPORT_EMAIL}`}
-            className="inline-flex min-h-[44px] items-center gap-2 rounded-full bg-emerald-600 px-6 py-3 text-sm font-bold text-white transition-colors hover:bg-emerald-700"
+            className="inline-flex min-h-[44px] items-center gap-2 rounded-full bg-emerald-600 px-8 py-3.5 text-base font-semibold text-white transition-colors hover:bg-emerald-700"
           >
             <Mail className="h-4 w-4" />
             {SUPPORT_EMAIL}

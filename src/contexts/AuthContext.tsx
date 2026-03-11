@@ -36,7 +36,7 @@ export interface AuthContextType {
   login: (email: string, password: string) => Promise<void>;
   signup: (email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
-  upgradeTo: (tier: 'essentials' | 'elite', billing?: 'monthly' | 'annual') => Promise<void>;
+  upgradeTo: (tier: 'essentials' | 'elite', billing?: 'monthly' | 'annual', coupon?: string) => Promise<void>;
   refreshSubscription: () => Promise<void>;
 }
 
@@ -451,7 +451,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return () => clearInterval(interval);
   }, [user, subscription.status, subscription.trialDaysLeft, fetchSubscription]);
 
-  const upgradeTo = useCallback(async (tier: 'essentials' | 'elite', billing: 'monthly' | 'annual' = 'monthly') => {
+  const upgradeTo = useCallback(async (tier: 'essentials' | 'elite', billing: 'monthly' | 'annual' = 'monthly', coupon?: string) => {
     try {
       const session = await supabase.auth.getSession();
       const token = session.data.session?.access_token;
@@ -464,6 +464,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       try { const r = localStorage.getItem('pptides_referral'); if (r && /^PP-[A-Z0-9]{6}$/.test(r)) referralCode = r; } catch { /* expected */ }
       const body: Record<string, unknown> = { tier, billing };
       if (referralCode) body.referralCode = referralCode;
+      if (coupon) body.coupon = coupon;
 
       const res = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/create-checkout`, {
         method: 'POST',

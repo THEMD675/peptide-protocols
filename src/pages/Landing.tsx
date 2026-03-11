@@ -344,7 +344,7 @@ export default function Landing() {
             <Link
               to="/library"
               aria-label="تصفّح مكتبة الببتيدات"
-              className="inline-flex w-full max-w-xs items-center justify-center rounded-full border-2 border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 px-8 py-4 text-lg font-semibold text-stone-800 dark:text-stone-200 transition-all duration-300 hover:border-emerald-300 dark:hover:border-emerald-700 hover:text-emerald-700 dark:hover:text-emerald-400 active:scale-[0.98] sm:w-auto"
+              className="inline-flex w-full max-w-xs items-center justify-center rounded-full border border-stone-300 dark:border-stone-600 bg-white dark:bg-stone-900 px-6 py-3 text-sm font-medium text-stone-800 dark:text-stone-200 transition-all duration-300 hover:border-emerald-300 dark:hover:border-emerald-700 hover:text-emerald-700 dark:hover:text-emerald-400 active:scale-[0.98] sm:w-auto"
             >
               تصفّح المكتبة
             </Link>
@@ -532,7 +532,7 @@ export default function Landing() {
           <div className="mt-14 text-center">
             <Link
               to={ctaLink}
-              className="btn-cta-gradient inline-flex items-center justify-center gap-2 rounded-full px-8 py-4 text-lg font-bold text-white"
+              className="btn-cta-gradient inline-flex items-center justify-center gap-2 rounded-full px-8 py-3.5 text-base font-semibold text-white"
             >
               <span>{ctaText}</span>
               <ArrowLeft className="h-5 w-5" />
@@ -763,7 +763,7 @@ export default function Landing() {
           <div className="mt-14 text-center">
             <Link
               to={ctaLink}
-              className="btn-cta-gradient inline-flex items-center justify-center gap-2 rounded-full px-8 py-4 text-lg font-bold text-white"
+              className="btn-cta-gradient inline-flex items-center justify-center gap-2 rounded-full px-8 py-3.5 text-base font-semibold text-white"
             >
               <span>{ctaText}</span>
               <ArrowLeft className="h-5 w-5" />
@@ -875,7 +875,7 @@ export default function Landing() {
               </ul>
               <Link
                 to={user ? "/pricing" : "/signup?redirect=/pricing"}
-                className="inline-flex items-center justify-center rounded-full bg-emerald-600 px-6 py-3 text-base font-bold text-white transition-all hover:bg-emerald-700 active:scale-[0.98]"
+                className="inline-flex items-center justify-center rounded-full bg-emerald-600 px-8 py-3.5 text-base font-semibold text-white transition-all hover:bg-emerald-700 active:scale-[0.98]"
               >
                 {ctaTextShort}
               </Link>
@@ -912,7 +912,7 @@ export default function Landing() {
               </ul>
               <Link
                 to={user ? "/pricing" : "/signup?redirect=/pricing"}
-                className="btn-cta-gradient inline-flex items-center justify-center rounded-full px-6 py-3 text-base font-bold text-white"
+                className="btn-cta-gradient inline-flex items-center justify-center rounded-full px-8 py-3.5 text-base font-semibold text-white"
               >
                 {ctaTextShort}
               </Link>
@@ -933,7 +933,7 @@ export default function Landing() {
             <Gift className="h-7 w-7 text-emerald-700 dark:text-emerald-400" />
           </div>
           <h2 className="text-2xl font-bold text-stone-900 dark:text-stone-100 md:text-3xl">ادعُ صديقًا واحصل على مكافأة</h2>
-          <p className="mt-3 text-stone-600 dark:text-stone-300">شارك رابطك الخاص مع أصدقائك — عند اشتراكهم، تحصل أنت وصديقك على خصم 30% لمدة شهر.</p>
+          <p className="mt-3 text-stone-600 dark:text-stone-300">عند اشتراك صديقك، يحصل على خصم 20% — وأنت تحصل على شهر مجاني!</p>
           {user ? (
             <Link to="/account" className="mt-6 inline-flex items-center gap-2 rounded-full bg-emerald-600 px-8 py-3.5 text-base font-semibold text-white shadow-lg transition hover:bg-emerald-700">
               احصل على رابط إحالتك

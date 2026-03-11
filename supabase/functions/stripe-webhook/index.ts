@@ -217,21 +217,47 @@ serve(async (req) => {
                       .update({ status: 'converted', converted_at: new Date().toISOString() })
                       .eq('referred_id', userId).eq('referral_code', userSub.referred_by)
                   } else {
-                    // Create a unique single-use promotion code for the referrer
-                    const promoCode = await stripe.promotionCodes.create({
-                      coupon: 'referral_reward',
-                      max_redemptions: 1,
-                      metadata: { referrer_id: referral.referrer_id, referred_id: userId },
-                    })
+                    // Auto-apply the referral_reward coupon directly to the referrer's subscription
+                    // (no manual promo code needed — reward is automatic)
+                    const { data: referrerSub } = await supabase.from('subscriptions')
+                      .select('stripe_subscription_id')
+                      .eq('user_id', referral.referrer_id)
+                      .maybeSingle()
 
-                    // Update referral record with reward info
+                    let rewardApplied = false
+                    if (referrerSub?.stripe_subscription_id) {
+                      try {
+                        await stripe.subscriptions.update(referrerSub.stripe_subscription_id, {
+                          coupon: 'referral_reward',
+                        })
+                        rewardApplied = true
+                        console.log('referral reward auto-applied to subscription:', referrerSub.stripe_subscription_id, 'for referrer:', referral.referrer_id)
+                      } catch (couponErr) {
+                        console.error('referral reward auto-apply failed, falling back to promo code:', couponErr)
+                      }
+                    }
+
+                    // Fallback: create a manual promo code if auto-apply failed (e.g. no active sub)
+                    let rewardCode: string | undefined
+                    let promoId: string | undefined
+                    if (!rewardApplied) {
+                      const promoCode = await stripe.promotionCodes.create({
+                        coupon: 'referral_reward',
+                        max_redemptions: 1,
+                        metadata: { referrer_id: referral.referrer_id, referred_id: userId },
+                      })
+                      rewardCode = promoCode.code
+                      promoId = promoCode.id
+                      console.log('referral reward promo code created (fallback):', promoCode.code, 'for referrer:', referral.referrer_id)
+                    }
+
+                    // Update referral record
                     await supabase.from('referrals')
                       .update({
                         status: 'rewarded',
                         converted_at: new Date().toISOString(),
                         reward_given: true,
-                        reward_code: promoCode.code,
-                        stripe_promotion_code_id: promoCode.id,
+                        ...(rewardCode ? { reward_code: rewardCode, stripe_promotion_code_id: promoId } : {}),
                       })
                       .eq('referred_id', userId).eq('referral_code', userSub.referred_by)
 
@@ -240,10 +266,10 @@ serve(async (req) => {
                       user_id: referral.referrer_id,
                       type: 'referral',
                       title_ar: '🎁 مكافأة إحالة!',
-                      body_ar: `شكرًا! حصلت على شهر مجاني لأنك دعوت صديقًا. استخدم الكود: ${promoCode.code}`,
+                      body_ar: rewardApplied
+                        ? 'شكرًا! تم تطبيق شهر مجاني على اشتراكك تلقائيًا لأنك دعوت صديقًا.'
+                        : `شكرًا! حصلت على شهر مجاني لأنك دعوت صديقًا. استخدم الكود: ${rewardCode}`,
                     })
-
-                    console.log('referral reward created:', promoCode.code, 'for referrer:', referral.referrer_id)
                   }
                 } catch (e) { console.error('referral reward failed:', e) }
               }

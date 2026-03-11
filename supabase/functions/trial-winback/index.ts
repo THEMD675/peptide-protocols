@@ -162,10 +162,7 @@ serve(async (req) => {
             <div style="background: #ecfdf5; border-radius: 12px; padding: 24px; margin: 20px 0; text-align: center;">
               <p style="font-size: 14px; color: #78716c; margin: 0; text-decoration: line-through;">${ESSENTIALS_PRICE}/شهر</p>
               <p style="font-size: 32px; font-weight: 900; color: #059669; margin: 8px 0;">${discountedPrice} ر.س<span style="font-size: 16px; font-weight: normal;">/الشهر الأول</span></p>
-              <p style="font-size: 13px; color: #44403c; margin: 4px 0;">استخدم الكود عند الاشتراك:</p>
-              <div style="background: white; border: 2px dashed #059669; border-radius: 8px; padding: 12px; margin: 12px auto; max-width: 200px;">
-                <p style="margin: 0; font-size: 20px; font-weight: 900; color: #059669; letter-spacing: 2px;">retention_20_pct</p>
-              </div>
+              <p style="font-size: 13px; color: #44403c; margin: 4px 0;">الخصم يُطبَّق تلقائيًا عند الضغط على الزر أدناه</p>
             </div>
 
             <p style="color: #44403c; font-size: 15px; line-height: 1.8; font-weight: bold;">ما الذي ستحصل عليه:</p>

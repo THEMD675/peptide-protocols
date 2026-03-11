@@ -844,7 +844,7 @@ export default function Coach() {
                         </div>
                       </div>
                       <button onClick={submitIntake} disabled={isLoading}
-                        className={cn("w-full flex items-center justify-center gap-2 rounded-xl bg-emerald-600 px-6 py-3.5 text-sm font-bold text-white transition-all hover:bg-emerald-700 active:scale-[0.98]", isLoading && "opacity-60 cursor-not-allowed")}>
+                        className={cn("w-full flex items-center justify-center gap-2 rounded-full bg-emerald-600 px-8 py-3.5 text-base font-semibold text-white transition-all hover:bg-emerald-700 active:scale-[0.98]", isLoading && "opacity-60 cursor-not-allowed")}>
                         <Bot className="h-4 w-4" />
                         صمّم بروتوكولي المخصّص
                         <ArrowLeft className="h-4 w-4" />

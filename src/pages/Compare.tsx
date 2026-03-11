@@ -623,7 +623,7 @@ export default function Compare() {
 
           <Link
             to="/library"
-            className="mt-6 inline-flex items-center gap-2 rounded-xl bg-emerald-600 px-6 py-3 text-sm font-bold text-white hover:bg-emerald-700 transition-colors"
+            className="mt-6 inline-flex items-center gap-2 rounded-full bg-emerald-600 px-8 py-3.5 text-base font-semibold text-white hover:bg-emerald-700 transition-colors"
           >
             <BookOpen className="h-4 w-4" />
             تصفّح المكتبة

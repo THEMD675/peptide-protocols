@@ -652,7 +652,7 @@ export default function Tracker() {
                     <option value="">اختر ببتيد...</option>
                     {allPeptides.filter(p => p.id !== 'melanotan-ii').map(p => (<option key={p.id} value={p.id}>{p.nameAr}</option>))}
                   </select>
-                  <button onClick={() => { if (wizardPeptideId) setShowProtocolWizard(true); else toast.error('اختر ببتيدًا أولاً'); }} className="shrink-0 flex items-center gap-2 rounded-xl bg-emerald-600 px-5 py-2.5 text-sm font-bold text-white transition-all hover:bg-emerald-700 btn-press">
+                  <button onClick={() => { if (wizardPeptideId) setShowProtocolWizard(true); else toast.error('اختر ببتيدًا أولاً'); }} className="shrink-0 flex items-center gap-2 rounded-full bg-emerald-600 px-4 py-2 text-sm font-medium text-white transition-all hover:bg-emerald-700 btn-press">
                     <Play className="h-4 w-4" />
                     ابدأ
                   </button>
@@ -751,7 +751,7 @@ export default function Tracker() {
               <h3 className="text-lg font-bold text-stone-900 dark:text-stone-100 mb-2">{confirmDialog.title}</h3>
               <p className="text-sm text-stone-600 dark:text-stone-300 mb-6">{confirmDialog.message}</p>
               <div className="flex gap-3">
-                <button onClick={confirmDialog.onConfirm} disabled={confirmBusy} className={cn('flex-1 rounded-xl px-4 py-2.5 text-sm font-bold text-white disabled:opacity-50', confirmDialog.isDestructive ? 'bg-red-600 transition-colors hover:bg-red-700' : 'bg-emerald-600 transition-colors hover:bg-emerald-700')}>
+                <button onClick={confirmDialog.onConfirm} disabled={confirmBusy} className={cn('flex-1 rounded-full px-4 py-2 text-sm font-medium text-white disabled:opacity-50', confirmDialog.isDestructive ? 'bg-red-600 transition-colors hover:bg-red-700' : 'bg-emerald-600 transition-colors hover:bg-emerald-700')}>
                   {confirmBusy ? 'جارٍ التنفيذ...' : 'تأكيد'}
                 </button>
                 <button onClick={() => setConfirmDialog(null)} className="flex-1 rounded-xl border border-stone-200 dark:border-stone-600 px-4 py-2.5 text-sm font-bold text-stone-700 dark:text-stone-200 transition-colors hover:bg-stone-50 dark:hover:bg-stone-800">

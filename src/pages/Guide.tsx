@@ -74,7 +74,7 @@ function BlurredSection({ isPro, isFree, children }: { isPro: boolean; isFree?: 
     <div className="relative">
       <div aria-hidden="true" className="blur-sm pointer-events-none select-none">{children}</div>
       <div className="absolute inset-0 z-10 flex items-center justify-center">
-        <Link to="/pricing" className="rounded-xl bg-emerald-600 px-6 py-2 text-sm font-bold text-white hover:bg-emerald-700 transition-colors">
+        <Link to="/pricing" className="rounded-full bg-emerald-600 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-700 transition-colors">
           اشترك للوصول الكامل
         </Link>
       </div>
@@ -1184,7 +1184,7 @@ export default function Guide() {
           {activeModuleIndex < modules.length - 1 ? (
             <button
               onClick={goNext}
-              className="flex items-center gap-2 rounded-xl bg-emerald-500 px-5 py-3 text-sm font-bold text-white hover:bg-emerald-600 transition-colors shadow-lg shadow-emerald-500/20"
+              className="flex items-center gap-2 rounded-full bg-emerald-600 px-8 py-3.5 text-base font-semibold text-white hover:bg-emerald-700 transition-colors shadow-lg shadow-emerald-500/20"
             >
               التالي
               <ArrowLeft className="h-4 w-4" />
@@ -1193,7 +1193,7 @@ export default function Guide() {
             <div className="flex items-center gap-2">
               <button
                 onClick={() => markComplete(activeModule.id)}
-                className="flex items-center gap-2 rounded-xl bg-emerald-500 px-5 py-3 text-sm font-bold text-white hover:bg-emerald-600 transition-colors shadow-lg shadow-emerald-500/20"
+                className="flex items-center gap-2 rounded-full bg-emerald-600 px-8 py-3.5 text-base font-semibold text-white hover:bg-emerald-700 transition-colors shadow-lg shadow-emerald-500/20"
               >
                 <CheckCircle className="h-4 w-4" />
                 إنهاء الدورة
@@ -1235,7 +1235,7 @@ export default function Guide() {
             <p className="font-bold text-stone-900 dark:text-stone-100 flex items-center justify-center gap-2"><GraduationCap className="h-5 w-5 text-emerald-600" /> أكملت الدورة التعليمية!</p>
             <p className="mt-1 text-sm text-stone-600 dark:text-stone-300">الآن حان وقت التطبيق — حضّر أول جرعة واحسبها بدقة</p>
             <div className="mt-4 flex flex-col gap-2 sm:flex-row sm:justify-center">
-              <Link to="/calculator" className="rounded-xl bg-emerald-600 px-6 py-3 text-sm font-bold text-white transition-colors hover:bg-emerald-700">حاسبة الجرعات</Link>
+              <Link to="/calculator" className="rounded-full bg-emerald-600 px-8 py-3.5 text-base font-semibold text-white transition-colors hover:bg-emerald-700">حاسبة الجرعات</Link>
               <Link to="/stacks" className="rounded-xl border border-stone-300 dark:border-stone-600 px-6 py-3 text-sm font-bold text-emerald-700 dark:text-emerald-400 transition-colors hover:bg-emerald-50 dark:hover:bg-emerald-900/20">بانِي البروتوكولات</Link>
               <Link to="/lab-guide" className="rounded-xl border border-stone-300 dark:border-stone-600 px-6 py-3 text-sm font-bold text-emerald-700 dark:text-emerald-400 transition-colors hover:bg-emerald-50 dark:hover:bg-emerald-900/20">دليل التحاليل</Link>
               <Link to="/tracker" className="rounded-xl border border-stone-300 dark:border-stone-600 px-6 py-3 text-sm font-bold text-emerald-700 dark:text-emerald-400 transition-colors hover:bg-emerald-50 dark:hover:bg-emerald-900/20">سجّل أول حقنة</Link>
@@ -1246,7 +1246,7 @@ export default function Guide() {
             <p className="font-bold text-stone-900 dark:text-stone-100">جاهز تبدأ أول بروتوكول؟</p>
             <p className="mt-1 text-sm text-stone-600 dark:text-stone-300">اشترك للوصول إلى الدليل الكامل مع كل البروتوكولات</p>
             <div className="mt-4 flex flex-col gap-2 sm:flex-row sm:justify-center">
-              <Link to="/pricing" className="rounded-xl bg-emerald-600 px-6 py-3 text-sm font-bold text-white transition-colors hover:bg-emerald-700">اشترك — {PRICING.essentials.label}/شهريًا</Link>
+              <Link to="/pricing" className="rounded-full bg-emerald-600 px-8 py-3.5 text-base font-semibold text-white transition-colors hover:bg-emerald-700">اشترك — {PRICING.essentials.label}/شهريًا</Link>
               <Link to="/calculator" className="rounded-xl border border-stone-300 dark:border-stone-600 px-6 py-3 text-sm font-bold text-emerald-700 dark:text-emerald-400 transition-colors hover:bg-emerald-50 dark:hover:bg-emerald-900/20">جرّب الحاسبة مجانًا</Link>
             </div>
           </>

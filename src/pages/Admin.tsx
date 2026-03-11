@@ -81,22 +81,22 @@ const PER_PAGE = 20;
 function timeAgo(d: string): string {
   const ms = Date.now() - new Date(d).getTime();
   const m = Math.floor(ms / 60000);
-  if (m < 1) return 'just now';
-  if (m < 60) return `${m}m ago`;
+  if (m < 1) return 'الآن';
+  if (m < 60) return `منذ ${m} د`;
   const h = Math.floor(m / 60);
-  if (h < 24) return `${h}h ago`;
+  if (h < 24) return `منذ ${h} س`;
   const days = Math.floor(h / 24);
-  if (days < 7) return `${days}d ago`;
-  return new Date(d).toLocaleDateString('en-GB');
+  if (days < 7) return `منذ ${days} ي`;
+  return new Date(d).toLocaleDateString('ar-SA');
 }
 
 function trialLeft(t: string | null): { text: string; urgent: boolean } | null {
   if (!t) return null;
   const ms = new Date(t).getTime() - Date.now();
-  if (ms < 0) return { text: 'expired', urgent: true };
+  if (ms < 0) return { text: 'منتهي', urgent: true };
   const h = Math.floor(ms / 3600000);
-  if (h < 48) return { text: `${h}h left`, urgent: true };
-  return { text: `${Math.floor(h / 24)}d left`, urgent: false };
+  if (h < 48) return { text: `${h} ساعة متبقية`, urgent: true };
+  return { text: `${Math.floor(h / 24)} يوم متبقي`, urgent: false };
 }
 
 // ========================================================
@@ -249,7 +249,7 @@ export default function Admin() {
   }, []);
 
   // --- Fetch stats ---
-  const fetchStats = useCallback(async (search?: string, page?: number) => {
+  const fetchStats = useCallback(async (search?: string, page?: number, filter?: UserFilter) => {
     if (!user) return;
     setLoading(true);
     setError('');
@@ -259,6 +259,7 @@ export default function Admin() {
       const url = new URL(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/admin-stats`);
       if (search) url.searchParams.set('search', search);
       if (page) url.searchParams.set('page', String(page));
+      if (filter && filter !== 'all') url.searchParams.set('filter', filter);
       const res = await fetch(url.toString(), {
         headers: { Authorization: `Bearer ${token}`, apikey: import.meta.env.VITE_SUPABASE_ANON_KEY },
       });
@@ -305,7 +306,7 @@ export default function Admin() {
     setActionLoading(true);
     try {
       const r = await adminAction({ action: 'extend_trial', user_id: modalTarget.id, days: extendDays });
-      toast.success(`Trial extended to ${new Date(r.trial_ends_at).toLocaleDateString('en-GB')}`);
+      toast.success(`تم تمديد التجربة حتى ${new Date(r.trial_ends_at).toLocaleDateString('ar-SA')}`);
       setModal(null);
       fetchStats();
     } catch (e) { toast.error(e instanceof Error ? e.message : 'Failed'); }
@@ -317,7 +318,7 @@ export default function Admin() {
     setActionLoading(true);
     try {
       await adminAction({ action: 'grant_subscription', user_id: modalTarget.id, tier: grantTier, duration_days: grantDuration });
-      toast.success(`${grantTier} subscription granted for ${grantDuration} days`);
+      toast.success(`تم منح اشتراك ${grantTier === 'essentials' ? 'أساسي' : 'نخبة'} لمدة ${grantDuration} يوم`);
       setModal(null);
       fetchStats();
     } catch (e) { toast.error(e instanceof Error ? e.message : 'Failed'); }
@@ -329,7 +330,7 @@ export default function Admin() {
     setActionLoading(true);
     try {
       await adminAction({ action: 'cancel_subscription', user_id: modalTarget.id });
-      toast.success('Subscription cancelled');
+      toast.success('تم إلغاء الاشتراك');
       setModal(null);
       fetchStats();
     } catch (e) { toast.error(e instanceof Error ? e.message : 'Failed'); }
@@ -341,7 +342,7 @@ export default function Admin() {
     setActionLoading(true);
     try {
       await adminAction({ action: 'suspend_user', user_id: modalTarget.id });
-      toast.success(`${modalTarget.email} suspended`);
+      toast.success(`تم إيقاف ${modalTarget.email}`);
       setModal(null);
       fetchStats();
     } catch (e) { toast.error(e instanceof Error ? e.message : 'Failed'); }
@@ -353,7 +354,7 @@ export default function Admin() {
     setActionLoading(true);
     try {
       await adminAction({ action: 'delete_user', user_id: modalTarget.id });
-      toast.success(`${modalTarget.email} deleted`);
+      toast.success(`تم حذف ${modalTarget.email}`);
       setModal(null);
       fetchStats();
     } catch (e) { toast.error(e instanceof Error ? e.message : 'Failed'); }
@@ -364,7 +365,7 @@ export default function Admin() {
     setActionLoading(true);
     try {
       await adminAction({ action: 'send_email', to: emailTo, subject: emailSubject, text: emailBody });
-      toast.success(`Email sent to ${emailTo}`);
+      toast.success(`تم إرسال البريد إلى ${emailTo}`);
       setModal(null);
       setEmailTo(''); setEmailSubject(''); setEmailBody('');
     } catch (e) { toast.error(e instanceof Error ? e.message : 'Failed'); }
@@ -375,7 +376,7 @@ export default function Admin() {
     setActionLoading(true);
     try {
       const r = await adminAction({ action: 'send_email', to: 'bulk', audience: bulkAudience, subject: emailSubject, text: emailBody });
-      toast.success(`Sent ${r.sent} emails (${r.failed} failed)`);
+      toast.success(`تم إرسال ${r.sent} بريد (${r.failed} فشل)`);
       setModal(null);
       setEmailSubject(''); setEmailBody('');
     } catch (e) { toast.error(e instanceof Error ? e.message : 'Failed'); }
@@ -387,8 +388,8 @@ export default function Admin() {
     try {
       const r = await adminAction({ action: 'health_check' });
       setHealth(r);
-      toast.success(`Health: ${r.status}`);
-    } catch (e) { toast.error(e instanceof Error ? e.message : 'Health check failed'); }
+      toast.success(`الحالة: ${r.status === 'healthy' ? 'سليم' : r.status === 'degraded' ? 'منخفض' : 'غير سليم'}`);
+    } catch (e) { toast.error(e instanceof Error ? e.message : 'فشل فحص النظام'); }
     finally { setHealthLoading(false); }
   };
 
@@ -397,8 +398,8 @@ export default function Admin() {
     try {
       const r = await adminAction({ action: 'verify_stripe' });
       setStripeVerify(r);
-      toast.success(`Stripe: ${r.status}`);
-    } catch (e) { toast.error(e instanceof Error ? e.message : 'Stripe verify failed'); }
+      toast.success(`Stripe: ${r.status === 'ok' ? 'سليم' : 'مشاكل'}`);
+    } catch (e) { toast.error(e instanceof Error ? e.message : 'فشل التحقق من Stripe'); }
     finally { setStripeVerifyLoading(false); }
   };
 
@@ -413,8 +414,8 @@ export default function Admin() {
       const a = document.createElement('a');
       a.href = url; a.download = `${table}_${new Date().toISOString().slice(0, 10)}.csv`;
       a.click(); URL.revokeObjectURL(url);
-      toast.success(`${r.count} rows exported`);
-    } catch (e) { toast.error(e instanceof Error ? e.message : 'Export failed'); }
+      toast.success(`تم تصدير ${r.count} صف`);
+    } catch (e) { toast.error(e instanceof Error ? e.message : 'فشل التصدير'); }
   };
 
   const fetchAuditLog = useCallback(async () => {
@@ -422,7 +423,7 @@ export default function Admin() {
     try {
       const r = await adminAction({ action: 'get_audit_log' });
       setAuditLog(r.data ?? []);
-    } catch (e) { toast.error(e instanceof Error ? e.message : 'Failed to load audit log'); }
+    } catch (e) { toast.error(e instanceof Error ? e.message : 'فشل تحميل سجل المراجعة'); }
     finally { setAuditLoading(false); }
   }, [adminAction]);
 
@@ -447,7 +448,7 @@ export default function Admin() {
       const r = await adminAction({ action: 'get_user_detail', user_id: userId });
       setUserDetail(r as UserDetail);
       fetchUserNotes(userId);
-    } catch (e) { toast.error(e instanceof Error ? e.message : 'Failed to load user detail'); setUserDetailOpen(false); }
+    } catch (e) { toast.error(e instanceof Error ? e.message : 'فشل تحميل تفاصيل المستخدم'); setUserDetailOpen(false); }
     finally { setUserDetailLoading(false); }
   }, [adminAction, fetchUserNotes]);
 
@@ -470,14 +471,14 @@ export default function Admin() {
     </div>
   );
   if (forbidden) return (
-    <div className="flex min-h-screen items-center justify-center bg-stone-50 dark:bg-stone-950" lang="en">
-      <Helmet><title>Admin | pptides</title></Helmet>
+    <div className="flex min-h-screen items-center justify-center bg-stone-50 dark:bg-stone-950" lang="ar" dir="rtl">
+      <Helmet><title>لوحة التحكم | pptides</title></Helmet>
       <div className="text-center px-4">
         <Shield className="mx-auto h-12 w-12 text-stone-300 mb-4" />
-        <h1 className="text-xl font-bold text-stone-900 dark:text-stone-100 mb-2">Access Denied</h1>
-        <p className="text-sm text-stone-600 dark:text-stone-300 mb-6">You don&apos;t have permission to access the admin area.</p>
+        <h1 className="text-xl font-bold text-stone-900 dark:text-stone-100 mb-2">الوصول مرفوض</h1>
+        <p className="text-sm text-stone-600 dark:text-stone-300 mb-6">ليس لديك صلاحية للوصول إلى لوحة التحكم.</p>
         <Link to="/dashboard" className="inline-flex items-center gap-2 rounded-full bg-emerald-600 px-6 py-3 text-sm font-bold text-white hover:bg-emerald-700 transition-colors">
-          Back to Dashboard
+          العودة للوحة التحكم
         </Link>
       </div>
     </div>
@@ -490,8 +491,8 @@ export default function Admin() {
         <AlertTriangle className="mx-auto h-12 w-12 text-red-400 mb-4" />
         <p className="text-red-600 dark:text-red-400 mb-4">{error}</p>
         <div className="flex flex-wrap justify-center gap-3">
-          <button onClick={fetchStats} className="rounded-full bg-emerald-600 px-6 py-3 text-sm font-bold text-white hover:bg-emerald-700">Retry</button>
-          <Link to="/dashboard" className="rounded-full border-2 border-stone-300 dark:border-stone-600 px-6 py-3 text-sm font-bold text-stone-800 dark:text-stone-200 hover:bg-stone-50 dark:hover:bg-stone-800">Back to Dashboard</Link>
+          <button onClick={fetchStats} className="rounded-full bg-emerald-600 px-6 py-3 text-sm font-bold text-white hover:bg-emerald-700">إعادة المحاولة</button>
+          <Link to="/dashboard" className="rounded-full border-2 border-stone-300 dark:border-stone-600 px-6 py-3 text-sm font-bold text-stone-800 dark:text-stone-200 hover:bg-stone-50 dark:hover:bg-stone-800">العودة للوحة التحكم</Link>
         </div>
       </div>
     </div>
@@ -755,10 +756,6 @@ export default function Admin() {
         {/* ===================== USERS ===================== */}
         {tab === 'users' && (() => {
           const filtered = stats.recentUsers.filter(u => {
-            if (userFilter === 'all') return true;
-            const s = u.subscription?.status ?? 'none';
-            return userFilter === 'active' ? s === 'active' : userFilter === 'trial' ? s === 'trial' : userFilter === 'expired' ? (s === 'expired' || s === 'cancelled') : (s === 'none' || !u.subscription);
-          }).filter(u => {
             if (!dateFrom && !dateTo) return true;
             const joined = new Date(u.created_at).getTime();
             if (dateFrom) {
@@ -776,22 +773,22 @@ export default function Admin() {
             <div className="space-y-3">
               <div className="flex flex-wrap gap-2 items-center">
                 <label className="flex items-center gap-2 text-sm text-stone-600 dark:text-stone-300">
-                  <span>From</span>
+                  <span>من</span>
                   <input type="date" value={dateFrom} onChange={e => { setDateFrom(e.target.value); setUsersPage(1); }}
-                    className="rounded-lg border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 px-3 py-2 text-sm outline-none focus:border-emerald-300 dark:border-emerald-700" aria-label="Joined from date" />
+                    className="rounded-lg border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 px-3 py-2 text-sm outline-none focus:border-emerald-300 dark:border-emerald-700" aria-label="تاريخ الانضمام من" />
                 </label>
                 <label className="flex items-center gap-2 text-sm text-stone-600 dark:text-stone-300">
-                  <span>To</span>
+                  <span>إلى</span>
                   <input type="date" value={dateTo} onChange={e => { setDateTo(e.target.value); setUsersPage(1); }}
-                    className="rounded-lg border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 px-3 py-2 text-sm outline-none focus:border-emerald-300 dark:border-emerald-700" aria-label="Joined to date" />
+                    className="rounded-lg border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 px-3 py-2 text-sm outline-none focus:border-emerald-300 dark:border-emerald-700" aria-label="تاريخ الانضمام إلى" />
                 </label>
               </div>
               <div className="flex flex-col sm:flex-row gap-2">
-                <input type="text" placeholder="Search email..." value={userSearch} onChange={e => { setUserSearch(e.target.value); setUsersPage(1); }} aria-label="Search users by email"
+                <input type="text" placeholder="بحث بالبريد الإلكتروني..." value={userSearch} onChange={e => { setUserSearch(e.target.value); setUsersPage(1); }} aria-label="بحث بالبريد الإلكتروني"
                   className="flex-1 rounded-lg border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 px-3 py-2 text-sm outline-none focus:border-emerald-300 dark:border-emerald-700 focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900" dir="ltr" />
                 <div className="flex gap-1 overflow-x-auto">
                   {(['all', 'active', 'trial', 'expired', 'none'] as UserFilter[]).map(f => (
-                    <button key={f} onClick={() => { setUserFilter(f); setUsersPage(1); }} className={cn('rounded-lg px-3 py-1.5 text-xs font-medium whitespace-nowrap', userFilter === f ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400' : 'bg-stone-100 dark:bg-stone-800 text-stone-600 dark:text-stone-300 hover:bg-stone-200 dark:bg-stone-700')}>
+                    <button key={f} onClick={() => { setUserFilter(f); setUsersPage(1); fetchStats(userSearch || undefined, 1, f); }} className={cn('rounded-lg px-3 py-1.5 text-xs font-medium whitespace-nowrap', userFilter === f ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400' : 'bg-stone-100 dark:bg-stone-800 text-stone-600 dark:text-stone-300 hover:bg-stone-200 dark:bg-stone-700')}>
                       {f === 'all' ? 'الكل' : f === 'active' ? 'مدفوع' : f === 'trial' ? 'تجريبي' : f === 'expired' ? 'منتهي' : 'مجاني'}
                     </button>
                   ))}
@@ -800,10 +797,10 @@ export default function Admin() {
                   <Download className="h-3.5 w-3.5" /> CSV
                 </button>
                 <button onClick={() => { setEmailSubject(''); setEmailBody(''); setBulkAudience('all'); setModal('bulk_email'); }} className="flex items-center gap-1 rounded-lg border border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-900/20 px-3 py-1.5 text-xs font-medium text-emerald-700 dark:text-emerald-400 hover:bg-emerald-100 dark:bg-emerald-900/30">
-                  <Mail className="h-3.5 w-3.5" /> Bulk Email
+                  <Mail className="h-3.5 w-3.5" /> بريد جماعي
                 </button>
               </div>
-              <p className="text-xs text-stone-500 dark:text-stone-300">{filtered.length} users{stats.pagination ? ` (${stats.pagination.totalFilteredUsers} total${stats.pagination.searchQuery ? `, searching "${stats.pagination.searchQuery}"` : ''})` : ''}</p>
+              <p className="text-xs text-stone-500 dark:text-stone-300">{filtered.length} مستخدم{stats.pagination ? ` (${stats.pagination.totalFilteredUsers} إجمالي${stats.pagination.searchQuery ? `، بحث "${stats.pagination.searchQuery}"` : ''})` : ''}</p>
               <div className="overflow-x-auto rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900">
                 <table className="w-full text-sm">
                   <thead>
@@ -823,7 +820,7 @@ export default function Admin() {
                       const tl = u.subscription?.status === 'trial' ? trialLeft(u.subscription?.trial_ends_at ?? null) : null;
                       return (
                         <tr key={u.id} className="border-b border-stone-100 dark:border-stone-800 hover:bg-stone-50 dark:hover:bg-stone-800">
-                          <td className="px-3 py-2 font-mono text-xs"><button onClick={() => fetchUserDetail(u.id)} className="text-emerald-700 dark:text-emerald-400 hover:underline">{u.email}</button>{!u.confirmed && <span className="ms-1 text-[10px] text-amber-600">(unconf)</span>}</td>
+                          <td className="px-3 py-2 font-mono text-xs"><button onClick={() => fetchUserDetail(u.id)} className="text-emerald-700 dark:text-emerald-400 hover:underline">{u.email}</button>{!u.confirmed && <span className="ms-1 text-[10px] text-amber-600">(غير مؤكد)</span>}</td>
                           <td className="px-3 py-2 text-xs"><span className={cn('rounded-full px-2 py-0.5 text-xs', u.provider === 'google' ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400' : 'bg-stone-100 dark:bg-stone-800 text-stone-600 dark:text-stone-300')}>{u.provider}</span></td>
                           <td className="px-3 py-2"><Badge status={u.subscription?.status ?? 'none'} /></td>
                           <td className="px-3 py-2 text-xs">{u.subscription?.tier ?? '—'}</td>
@@ -832,16 +829,16 @@ export default function Admin() {
                           <td className="px-3 py-2 text-xs text-stone-500 dark:text-stone-300">{u.last_sign_in_at ? timeAgo(u.last_sign_in_at) : '—'}</td>
                           <td className="px-3 py-2">
                             <div className="flex items-center gap-0.5">
-                              <button onClick={() => openUserAction('extend_trial', u)} title="Extend trial" aria-label="Extend trial" className="rounded p-1.5 min-h-[36px] min-w-[36px] flex items-center justify-center hover:bg-emerald-50 dark:hover:bg-emerald-900/20"><CalendarPlus className="h-3.5 w-3.5 text-emerald-700" /></button>
-                              <button onClick={() => openUserAction('grant_sub', u)} title="Grant subscription" aria-label="Grant subscription" className="rounded p-1.5 min-h-[36px] min-w-[36px] flex items-center justify-center hover:bg-blue-50 dark:hover:bg-blue-900/20"><CreditCard className="h-3.5 w-3.5 text-blue-600" /></button>
-                              <button onClick={() => { setEmailTo(u.email); setEmailSubject(''); setEmailBody(''); setModal('send_email'); setModalTarget(u); }} title="Send email" aria-label="Send email" className="rounded p-1.5 min-h-[36px] min-w-[36px] flex items-center justify-center hover:bg-violet-50 dark:hover:bg-violet-900/20"><Mail className="h-3.5 w-3.5 text-violet-600" /></button>
+                              <button onClick={() => openUserAction('extend_trial', u)} title="تمديد التجربة" aria-label="تمديد التجربة" className="rounded p-1.5 min-h-[36px] min-w-[36px] flex items-center justify-center hover:bg-emerald-50 dark:hover:bg-emerald-900/20"><CalendarPlus className="h-3.5 w-3.5 text-emerald-700" /></button>
+                              <button onClick={() => openUserAction('grant_sub', u)} title="منح اشتراك" aria-label="منح اشتراك" className="rounded p-1.5 min-h-[36px] min-w-[36px] flex items-center justify-center hover:bg-blue-50 dark:hover:bg-blue-900/20"><CreditCard className="h-3.5 w-3.5 text-blue-600" /></button>
+                              <button onClick={() => { setEmailTo(u.email); setEmailSubject(''); setEmailBody(''); setModal('send_email'); setModalTarget(u); }} title="إرسال بريد" aria-label="إرسال بريد" className="rounded p-1.5 min-h-[36px] min-w-[36px] flex items-center justify-center hover:bg-violet-50 dark:hover:bg-violet-900/20"><Mail className="h-3.5 w-3.5 text-violet-600" /></button>
                               {(u.subscription?.status === 'active' || u.subscription?.status === 'trial') && (
-                                <button onClick={() => openUserAction('cancel_sub', u)} title="Cancel subscription" aria-label="Cancel subscription" className="rounded p-1.5 min-h-[36px] min-w-[36px] flex items-center justify-center hover:bg-amber-50 dark:hover:bg-amber-900/20"><XCircle className="h-3.5 w-3.5 text-amber-600" /></button>
+                                <button onClick={() => openUserAction('cancel_sub', u)} title="إلغاء الاشتراك" aria-label="إلغاء الاشتراك" className="rounded p-1.5 min-h-[36px] min-w-[36px] flex items-center justify-center hover:bg-amber-50 dark:hover:bg-amber-900/20"><XCircle className="h-3.5 w-3.5 text-amber-600" /></button>
                               )}
-                              <button onClick={() => openUserAction('confirm_suspend', u)} title="Suspend" aria-label="Suspend user" className="rounded p-1.5 min-h-[36px] min-w-[36px] flex items-center justify-center hover:bg-red-50 dark:hover:bg-red-900/20"><Ban className="h-3.5 w-3.5 text-red-400" /></button>
-                              <button onClick={async () => { try { await adminAction({ action: 'unsuspend_user', user_id: u.id }); toast.success(`${u.email} unsuspended`); fetchStats(); } catch { toast.error('Unsuspend failed'); } }} title="Unsuspend" aria-label="Unsuspend user" className="rounded p-1.5 min-h-[36px] min-w-[36px] flex items-center justify-center hover:bg-green-50 dark:hover:bg-green-900/20"><ShieldCheck className="h-3.5 w-3.5 text-green-600" /></button>
-                              <button onClick={() => { setRefundId(''); openUserAction('refund', u); }} title="استرداد" aria-label="Refund payment" className="rounded p-1.5 min-h-[36px] min-w-[36px] flex items-center justify-center hover:bg-amber-50 dark:hover:bg-amber-900/20"><RotateCcw className="h-3.5 w-3.5 text-amber-600" /></button>
-                              <button onClick={() => openUserAction('confirm_delete', u)} title="Delete" aria-label="Delete user" className="rounded p-1.5 min-h-[36px] min-w-[36px] flex items-center justify-center hover:bg-red-50 dark:hover:bg-red-900/20"><Trash2 className="h-3.5 w-3.5 text-red-400" /></button>
+                              <button onClick={() => openUserAction('confirm_suspend', u)} title="إيقاف" aria-label="إيقاف المستخدم" className="rounded p-1.5 min-h-[36px] min-w-[36px] flex items-center justify-center hover:bg-red-50 dark:hover:bg-red-900/20"><Ban className="h-3.5 w-3.5 text-red-400" /></button>
+                              <button onClick={async () => { try { await adminAction({ action: 'unsuspend_user', user_id: u.id }); toast.success(`تم إلغاء إيقاف ${u.email}`); fetchStats(); } catch { toast.error('فشل إلغاء الإيقاف'); } }} title="إلغاء الإيقاف" aria-label="إلغاء إيقاف المستخدم" className="rounded p-1.5 min-h-[36px] min-w-[36px] flex items-center justify-center hover:bg-green-50 dark:hover:bg-green-900/20"><ShieldCheck className="h-3.5 w-3.5 text-green-600" /></button>
+                              <button onClick={() => { setRefundId(''); openUserAction('refund', u); }} title="استرداد" aria-label="استرداد دفعة" className="rounded p-1.5 min-h-[36px] min-w-[36px] flex items-center justify-center hover:bg-amber-50 dark:hover:bg-amber-900/20"><RotateCcw className="h-3.5 w-3.5 text-amber-600" /></button>
+                              <button onClick={() => openUserAction('confirm_delete', u)} title="حذف" aria-label="حذف المستخدم" className="rounded p-1.5 min-h-[36px] min-w-[36px] flex items-center justify-center hover:bg-red-50 dark:hover:bg-red-900/20"><Trash2 className="h-3.5 w-3.5 text-red-400" /></button>
                             </div>
                           </td>
                         </tr>
@@ -859,7 +856,7 @@ export default function Admin() {
         {tab === 'activity' && (
           <div className="space-y-3">
             <h2 className="text-sm font-bold text-stone-700 dark:text-stone-200">سجل النشاط</h2>
-            {stats.activityFeed.length === 0 ? <div className="rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 p-8 text-center"><Activity className="mx-auto h-8 w-8 text-stone-300 mb-2" /><p className="text-sm text-stone-500 dark:text-stone-300">No recent activity</p></div> : (
+            {stats.activityFeed.length === 0 ? <div className="rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 p-8 text-center"><Activity className="mx-auto h-8 w-8 text-stone-300 mb-2" /><p className="text-sm text-stone-500 dark:text-stone-300">لا يوجد نشاط حديث</p></div> : (
               <div className="rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 divide-y divide-stone-100 dark:divide-stone-800">
                 {stats.activityFeed.map((item, i) => {
                   const Ic = ACTIVITY_ICON[item.type] ?? Activity;
@@ -880,7 +877,7 @@ export default function Admin() {
         {tab === 'reviews' && (
           <div className="space-y-3">
             <h2 className="text-sm font-bold text-stone-700 dark:text-stone-200">المراجعات المعلّقة ({stats.pendingReviews.length})</h2>
-            {stats.pendingReviews.length === 0 ? <div className="rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 p-8 text-center"><Star className="mx-auto h-8 w-8 text-stone-300 mb-2" /><p className="text-sm text-stone-500 dark:text-stone-300">No pending reviews</p></div> :
+            {stats.pendingReviews.length === 0 ? <div className="rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 p-8 text-center"><Star className="mx-auto h-8 w-8 text-stone-300 mb-2" /><p className="text-sm text-stone-500 dark:text-stone-300">لا توجد مراجعات معلقة</p></div> :
               stats.pendingReviews.map(r => (
                 <div key={r.id} className="rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 p-4">
                   <div className="flex items-center justify-between mb-2">
@@ -907,7 +904,7 @@ export default function Admin() {
         {tab === 'enquiries' && (
           <div className="space-y-3">
             <h2 className="text-sm font-bold text-stone-700 dark:text-stone-200">الاستفسارات ({stats.enquiries.length})</h2>
-            {stats.enquiries.length === 0 ? <div className="rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 p-8 text-center"><Mail className="mx-auto h-8 w-8 text-stone-300 mb-2" /><p className="text-sm text-stone-500 dark:text-stone-300">No enquiries</p></div> :
+            {stats.enquiries.length === 0 ? <div className="rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 p-8 text-center"><Mail className="mx-auto h-8 w-8 text-stone-300 mb-2" /><p className="text-sm text-stone-500 dark:text-stone-300">لا توجد استفسارات</p></div> :
               stats.enquiries.map(eq => (
                 <div key={eq.id} className={cn('rounded-xl border bg-white dark:bg-stone-900 p-4', eq.status === 'pending' ? 'border-amber-200 dark:border-amber-800' : 'border-stone-200 dark:border-stone-600')}>
                   <div className="flex items-center justify-between mb-2">
@@ -916,12 +913,12 @@ export default function Admin() {
                   </div>
                   <p className="text-sm font-bold text-stone-900 dark:text-stone-100 mb-1">{eq.subject}</p>
                   <p className="text-sm text-stone-700 dark:text-stone-200 whitespace-pre-wrap">{eq.message}</p>
-                  {eq.admin_notes && <div className="mt-2 rounded-lg bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-100 p-3"><p className="text-xs font-medium text-emerald-700 dark:text-emerald-400 mb-1">Reply:</p><p className="text-sm text-emerald-800 dark:text-emerald-300 whitespace-pre-wrap">{eq.admin_notes}</p></div>}
+                  {eq.admin_notes && <div className="mt-2 rounded-lg bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-100 p-3"><p className="text-xs font-medium text-emerald-700 dark:text-emerald-400 mb-1">الرد:</p><p className="text-sm text-emerald-800 dark:text-emerald-300 whitespace-pre-wrap">{eq.admin_notes}</p></div>}
                   {replyingTo === eq.id ? (
                     <div className="mt-3 space-y-2">
-                      <textarea value={replyText} onChange={e => setReplyText(e.target.value)} placeholder="Type reply..." rows={3} className="w-full rounded-lg border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 px-3 py-2 text-sm outline-none focus:border-emerald-300 dark:border-emerald-700 resize-y" dir="ltr" />
+                      <textarea value={replyText} onChange={e => setReplyText(e.target.value)} placeholder="اكتب الرد..." rows={3} className="w-full rounded-lg border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 px-3 py-2 text-sm outline-none focus:border-emerald-300 dark:border-emerald-700 resize-y" dir="ltr" />
                       <div className="flex gap-2 justify-end">
-                        <button onClick={() => { setReplyingTo(null); setReplyText(''); }} className="flex items-center gap-1 rounded-lg border border-stone-200 dark:border-stone-600 px-3 py-1.5 text-xs font-medium text-stone-600 dark:text-stone-300 hover:bg-stone-50 dark:hover:bg-stone-800"><X className="h-3 w-3" /> Cancel</button>
+                        <button onClick={() => { setReplyingTo(null); setReplyText(''); }} className="flex items-center gap-1 rounded-lg border border-stone-200 dark:border-stone-600 px-3 py-1.5 text-xs font-medium text-stone-600 dark:text-stone-300 hover:bg-stone-50 dark:hover:bg-stone-800"><X className="h-3 w-3" /> إلغاء</button>
                         <button disabled={replySending || !replyText.trim()} onClick={async () => {
                           setReplySending(true);
                           try {

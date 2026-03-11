@@ -230,7 +230,7 @@ export default function OnboardingModal({ forceOpen, onClose: externalClose }: {
               <Link
                 to={getTrialPlan(selectedGoal)[0]?.to ?? '/library'}
                 onClick={handleComplete}
-                className="mt-5 w-full rounded-full bg-emerald-600 px-6 py-3 text-sm font-bold text-white transition-colors hover:bg-emerald-700 min-h-[44px] inline-flex items-center justify-center"
+                className="mt-5 w-full rounded-full bg-emerald-600 px-8 py-3.5 text-base font-semibold text-white transition-colors hover:bg-emerald-700 min-h-[44px] inline-flex items-center justify-center"
                 style={{ animation: 'onb-pulse 2s ease-in-out infinite' }}
               >
                 ابدأ الاستكشاف ←

@@ -268,7 +268,7 @@ export default function Reviews() {
               <p className="text-sm text-stone-800 dark:text-stone-200">سجّل الدخول لإضافة تقييمك</p>
               <Link
                 to="/login"
-                className="rounded-xl bg-emerald-600 px-8 py-3 text-sm font-bold text-white transition-all hover:bg-emerald-700"
+                className="rounded-full bg-emerald-600 px-8 py-3.5 text-base font-semibold text-white transition-all hover:bg-emerald-700"
               >
                 تسجيل الدخول
               </Link>
@@ -278,7 +278,7 @@ export default function Reviews() {
               <p className="text-sm text-stone-800 dark:text-stone-200">يجب أن تكون مشتركًا لإضافة تقييم</p>
               <Link
                 to="/pricing"
-                className="rounded-xl bg-emerald-600 px-8 py-3 text-sm font-bold text-white transition-all hover:bg-emerald-700"
+                className="rounded-full bg-emerald-600 px-8 py-3.5 text-base font-semibold text-white transition-all hover:bg-emerald-700"
               >
                 اشترك الآن
               </Link>
@@ -334,8 +334,8 @@ export default function Reviews() {
                 type="submit"
                 disabled={rating === 0 || !text.trim() || submitting}
                 className={cn(
-                  'flex items-center justify-center gap-2 rounded-xl bg-emerald-600 px-8 py-3',
-                  'text-sm font-bold text-white transition-all',
+                  'flex items-center justify-center gap-2 rounded-full bg-emerald-600 px-8 py-3.5',
+                  'text-base font-semibold text-white transition-all',
                   rating > 0 && text.trim()
                     ? 'hover:bg-emerald-700'
                     : 'cursor-not-allowed opacity-40',

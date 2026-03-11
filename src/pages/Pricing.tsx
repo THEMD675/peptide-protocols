@@ -71,6 +71,9 @@ export default function Pricing() {
   const [userCount, setUserCount] = useState(0);
   const navigatingRef = useRef(false);
 
+  // Read coupon from URL params (e.g. /pricing?coupon=retention_20_pct from win-back emails)
+  const couponFromUrl = searchParams.get('coupon') || undefined;
+
   useEffect(() => { navigatingRef.current = false; events.pricingView(); }, []);
 
   useEffect(() => {
@@ -126,8 +129,8 @@ export default function Pricing() {
         <button
           onClick={openPortal}
           className={cn(
-            'inline-flex w-full items-center justify-center gap-2 rounded-full px-6 py-3.5 font-bold',
-            'border-2 border-amber-300 dark:border-amber-700 bg-amber-50 dark:bg-amber-900/20 text-amber-800 dark:text-amber-300 hover:bg-amber-100 transition-colors'
+            'inline-flex w-full items-center justify-center gap-2 rounded-full px-8 py-3.5 text-base font-semibold',
+            'border border-amber-300 dark:border-amber-700 bg-amber-50 dark:bg-amber-900/20 text-amber-800 dark:text-amber-300 hover:bg-amber-100 transition-colors'
           )}
         >
           <RefreshCw className="h-5 w-5" />
@@ -166,7 +169,7 @@ export default function Pricing() {
             setLoadingPlan(planKey);
             events.checkoutStart(planKey, billingCycle);
             try {
-              await upgradeTo(planKey, billingCycle);
+              await upgradeTo(planKey, billingCycle, couponFromUrl);
             } catch {
               navigatingRef.current = false;
               setLoadingPlan(null);
@@ -175,12 +178,12 @@ export default function Pricing() {
           }}
           disabled={isLoading}
           className={cn(
-            'inline-flex w-full items-center justify-center gap-2 rounded-full px-6 py-3.5',
-            'font-bold transition-all duration-300',
+            'inline-flex w-full items-center justify-center gap-2 rounded-full px-8 py-3.5',
+            'text-base font-semibold transition-all duration-300',
             'hover:scale-[1.02] active:scale-[0.98]',
             isElite
               ? 'btn-primary-glow bg-emerald-600 text-white transition-colors hover:bg-emerald-700'
-              : 'border-2 border-stone-300 dark:border-stone-600 bg-white dark:bg-stone-900 text-stone-800 dark:text-stone-200 hover:border-emerald-200 dark:hover:border-emerald-700 transition-colors hover:text-emerald-700 dark:text-emerald-400',
+              : 'border border-stone-300 dark:border-stone-600 bg-white dark:bg-stone-900 text-stone-800 dark:text-stone-200 hover:border-emerald-200 dark:hover:border-emerald-700 transition-colors hover:text-emerald-700 dark:text-emerald-400',
             isLoading && 'opacity-70 pointer-events-none'
           )}
         >
@@ -198,12 +201,12 @@ export default function Pricing() {
       <Link
         to="/signup?redirect=/pricing"
         className={cn(
-          'inline-flex w-full items-center justify-center rounded-full px-6 py-3.5',
-          'font-bold transition-all duration-300',
+          'inline-flex w-full items-center justify-center rounded-full px-8 py-3.5',
+          'text-base font-semibold transition-all duration-300',
           'hover:scale-[1.02] active:scale-[0.98]',
           isElite
             ? 'btn-primary-glow bg-emerald-600 text-white transition-colors hover:bg-emerald-700'
-            : 'border-2 border-stone-300 dark:border-stone-600 bg-white dark:bg-stone-900 text-stone-800 dark:text-stone-200 hover:border-emerald-200 dark:hover:border-emerald-700 transition-colors hover:text-emerald-700 dark:text-emerald-400'
+            : 'border border-stone-300 dark:border-stone-600 bg-white dark:bg-stone-900 text-stone-800 dark:text-stone-200 hover:border-emerald-200 dark:hover:border-emerald-700 transition-colors hover:text-emerald-700 dark:text-emerald-400'
         )}
       >
         سجّل الآن وجرّب مجانًا
@@ -645,7 +648,7 @@ export default function Pricing() {
                 setLoadingPlan('elite');
                 events.checkoutStart('elite', billingCycle);
                 try {
-                  await upgradeTo('elite', billingCycle);
+                  await upgradeTo('elite', billingCycle, couponFromUrl);
                 } catch {
                   navigatingRef.current = false;
                   setLoadingPlan(null);
@@ -654,7 +657,7 @@ export default function Pricing() {
               }}
               disabled={loadingPlan === 'elite'}
               className={cn(
-                'btn-primary-glow inline-flex w-full items-center justify-center gap-2 rounded-full bg-emerald-600 px-6 py-3 text-base font-bold text-white transition-all hover:bg-emerald-700 active:scale-[0.98] sm:w-auto sm:px-10 sm:py-4 sm:text-lg',
+                'btn-primary-glow inline-flex w-full items-center justify-center gap-2 rounded-full bg-emerald-600 px-8 py-3.5 text-base font-semibold text-white transition-all hover:bg-emerald-700 active:scale-[0.98] sm:w-auto sm:px-10 sm:py-4 sm:text-lg',
                 loadingPlan === 'elite' && 'opacity-70 pointer-events-none'
               )}
             >
@@ -673,7 +676,7 @@ export default function Pricing() {
           ) : (
             <Link
               to="/signup?redirect=/pricing"
-              className="btn-primary-glow inline-flex w-full items-center justify-center gap-2 rounded-full bg-emerald-600 px-6 py-3 text-base font-bold text-white transition-all hover:bg-emerald-700 active:scale-[0.98] sm:w-auto sm:px-10 sm:py-4 sm:text-lg"
+              className="btn-primary-glow inline-flex w-full items-center justify-center gap-2 rounded-full bg-emerald-600 px-8 py-3.5 text-base font-semibold text-white transition-all hover:bg-emerald-700 active:scale-[0.98] sm:w-auto sm:px-10 sm:py-4 sm:text-lg"
             >
               <span>سجّل الآن — {TRIAL_DAYS} أيام مجانًا</span>
               <ArrowLeft className="h-5 w-5" />

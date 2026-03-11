@@ -722,7 +722,7 @@ export default function DoseCalculator() {
                       setDoseUnit('mcg');
                       setDoseValue(weightBasedDose.suggested);
                     }}
-                    className="rounded-xl bg-emerald-600 px-4 py-2.5 min-h-[44px] text-sm font-bold text-white transition-colors hover:bg-emerald-700"
+                    className="rounded-full bg-emerald-600 px-4 py-2 min-h-[44px] text-sm font-medium text-white transition-colors hover:bg-emerald-700"
                   >
                     استخدم
                   </button>
@@ -1400,7 +1400,7 @@ export default function DoseCalculator() {
                 </div>
                 <div className="flex items-end">
                   <button onClick={addCostEntry}
-                    className="w-full rounded-xl bg-emerald-600 px-4 py-3 min-h-[44px] text-sm font-bold text-white transition-colors hover:bg-emerald-700">
+                    className="w-full rounded-full bg-emerald-600 px-4 py-2 min-h-[44px] text-sm font-medium text-white transition-colors hover:bg-emerald-700">
                     + أضف للمقارنة
                   </button>
                 </div>
@@ -1625,7 +1625,7 @@ export default function DoseCalculator() {
           <p className="mt-2 text-sm text-stone-800 dark:text-stone-200">المدرب الذكي يعرف {PEPTIDE_COUNT}+ ببتيد — اسأله وجاوبك بالتفصيل.</p>
           <Link
             to="/coach"
-            className="mt-4 inline-flex items-center gap-2 rounded-xl bg-emerald-600 px-6 py-3 min-h-[44px] text-sm font-bold text-white transition-all hover:bg-emerald-700"
+            className="mt-4 inline-flex items-center gap-2 rounded-full bg-emerald-600 px-8 py-3.5 min-h-[44px] text-base font-semibold text-white transition-all hover:bg-emerald-700"
           >
             <Bot className="h-4 w-4" />
             اسأل المدرب الذكي

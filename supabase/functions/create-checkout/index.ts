@@ -74,7 +74,7 @@ serve(async (req) => {
       }
     }
 
-    let body: { tier?: string; billing?: string; referralCode?: string }
+    let body: { tier?: string; billing?: string; referralCode?: string; coupon?: string }
     try { body = await req.json() } catch {
       return new Response(JSON.stringify({ error: 'Invalid request body' }), {
         status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -83,6 +83,7 @@ serve(async (req) => {
     const tier = body.tier as string
     const billing = body.billing === 'annual' ? 'annual' : 'monthly'
     const referralCode = (body.referralCode && /^PP-[A-Z0-9]{6}$/.test(String(body.referralCode))) ? String(body.referralCode) : undefined
+    const couponParam = body.coupon && /^[a-zA-Z0-9_]+$/.test(String(body.coupon)) ? String(body.coupon) : undefined
     if (!tier || !PRICE_IDS[tier]) {
       return new Response(JSON.stringify({ error: 'Invalid tier' }), {
         status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -156,6 +157,29 @@ serve(async (req) => {
 
     const existingCustomerId = existingSub?.stripe_customer_id ?? null
 
+    // Determine which coupon to apply (if any):
+    // 1. Referral friend discount takes priority when a valid referral code is present
+    // 2. Explicit coupon param (e.g. from win-back email) as fallback
+    // 3. If neither, allow manual promotion codes on the checkout page
+    let checkoutDiscount: string | undefined
+    if (referralCode) {
+      // Validate the referral code exists in the DB
+      const serviceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')
+      if (serviceKey) {
+        const adminDb = createClient(supabaseUrl, serviceKey)
+        const { data: referrerSub } = await adminDb.from('subscriptions')
+          .select('user_id')
+          .eq('referral_code', referralCode)
+          .maybeSingle()
+        if (referrerSub) {
+          checkoutDiscount = 'referral_friend_20'
+        }
+      }
+    }
+    if (!checkoutDiscount && couponParam) {
+      checkoutDiscount = couponParam
+    }
+
     const session = await stripe.checkout.sessions.create({
       mode: 'subscription',
       payment_method_types: ['card'],
@@ -171,7 +195,10 @@ serve(async (req) => {
       metadata: { tier, user_id: user.id, ...(referralCode ? { referral_code: referralCode } : {}) },
       success_url: `${appUrl}/dashboard?payment=success&tier=${tier}&session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${appUrl}/pricing?payment=cancelled`,
-      allow_promotion_codes: true,
+      // When a discount coupon is auto-applied, don't also allow manual promo codes (prevents stacking)
+      ...(checkoutDiscount
+        ? { discounts: [{ coupon: checkoutDiscount }] }
+        : { allow_promotion_codes: true }),
       custom_text: {
         submit: { message: hadTrialOrSub ? 'اشتراكك يبدأ فورًا — إلغاء في أي وقت' : 'تجربة مجانية ٣ أيام — لن يتم خصم أي مبلغ الآن' },
       },

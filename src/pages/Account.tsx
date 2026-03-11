@@ -1305,7 +1305,7 @@ function ReferralSection({ userId }: { userId?: string }) {
         <Gift className="h-5 w-5 text-emerald-700" />
         <h2 className="text-lg font-bold text-stone-900 dark:text-stone-100">ادعُ صديقًا واحصل على شهر مجاني</h2>
       </div>
-      <p className="text-sm text-stone-600 dark:text-stone-300 mb-4">شارك رابط الإحالة — عندما يشترك صديقك، تحصل على كود خصم ١٠٠٪ لشهر كامل!</p>
+      <p className="text-sm text-stone-600 dark:text-stone-300 mb-4">عند اشتراك صديقك، يحصل على خصم 20% — وأنت تحصل على شهر مجاني تلقائيًا!</p>
 
       <div className="flex items-center gap-2 mb-4">
         <div className="flex-1 rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 px-4 py-3 text-sm font-mono text-stone-700 dark:text-stone-200 truncate" dir="ltr">
