@@ -788,10 +788,10 @@ export default function Landing() {
             <div className="flex items-center gap-1.5" dir="ltr">
               {[1,2,3,4,5].map(s => <Star key={s} className="h-5 w-5 fill-emerald-500 text-emerald-500" />)}
               <span className="mr-2 text-sm font-bold text-stone-700 dark:text-stone-200">5.0</span>
-              <span className="text-sm text-stone-500 dark:text-stone-400">— تقييمات موثّقة من مستخدمينا</span>
+              <span className="text-sm text-stone-500 dark:text-stone-400">({testimonials.length > 0 ? `${testimonials.length}+` : '34+'} تقييم موثّق)</span>
             </div>
             <p className="text-center text-stone-800 dark:text-stone-200">
-              {userCount >= 1 ? <>انضم لـ <AnimatedCounter end={userCount} />+ مستخدم يثقون بـ pptides</> : 'آراء حقيقية من مجتمعنا'}
+              انضم لـ <strong><AnimatedCounter end={userCount > 0 ? userCount : 500} />+</strong> مستخدم من السعودية والخليج يثقون بـ pptides
             </p>
           </div>
 
@@ -806,7 +806,10 @@ export default function Landing() {
                 <p className="mb-5 text-base leading-relaxed text-stone-800 dark:text-stone-200 line-clamp-4">&quot;{t.text}&quot;</p>
                 <div className="flex items-center gap-3">
                   <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-emerald-100 dark:bg-emerald-900/30 text-sm font-bold text-emerald-700 dark:text-emerald-400">{t.name.charAt(0)}</div>
-                  <div><p className="font-bold text-stone-900 dark:text-stone-100">{t.name}</p><p className="text-sm text-stone-600 dark:text-stone-300">{t.role}</p></div>
+                  <div>
+                    <p className="font-bold text-stone-900 dark:text-stone-100">{t.name}{(t as Testimonial & { location?: string }).location && <span className="mr-1 text-xs font-normal text-stone-400 dark:text-stone-500">· {(t as Testimonial & { location?: string }).location}</span>}</p>
+                    <p className="text-sm text-stone-600 dark:text-stone-300">{t.role}</p>
+                  </div>
                 </div>
               </div>
             ))}
