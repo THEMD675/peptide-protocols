@@ -1,7 +1,6 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react-swc";
 import { VitePWA } from "vite-plugin-pwa";
-import { sentryVitePlugin } from "@sentry/vite-plugin";
 import path from "path";
 import { TRIAL_DAYS } from "./src/config/trial";
 
@@ -68,11 +67,6 @@ export default defineConfig({
           },
         ],
       },
-    }),
-    sentryVitePlugin({
-      org: "verdix",
-      project: "javascript-react",
-      authToken: process.env.SENTRY_AUTH_TOKEN,
     }),
   ],
   resolve: {
