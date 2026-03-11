@@ -323,19 +323,19 @@ export default function Landing() {
             <Link
               to="/library"
               aria-label="تصفّح مكتبة الببتيدات"
-              className="inline-flex w-full max-w-xs items-center justify-center rounded-full border-2 border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 px-8 py-4 text-lg font-semibold text-stone-800 dark:text-stone-200 transition-all duration-300 hover:border-emerald-300 dark:border-emerald-700 hover:text-emerald-700 dark:text-emerald-400 active:scale-[0.98] sm:w-auto"
+              className="inline-flex w-full max-w-xs items-center justify-center rounded-full border-2 border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 px-8 py-4 text-lg font-semibold text-stone-800 dark:text-stone-200 transition-all duration-300 hover:border-emerald-300 dark:hover:border-emerald-700 hover:text-emerald-700 dark:hover:text-emerald-400 active:scale-[0.98] sm:w-auto"
             >
               تصفّح المكتبة
             </Link>
           </div>
 
           <div className="mt-8 flex flex-wrap items-center justify-center gap-4 sm:gap-6">
-            <span className="flex items-center gap-2 text-sm font-medium text-stone-700 dark:text-stone-300">
+            <span className="flex items-center gap-2 text-sm font-medium text-stone-700 dark:text-stone-200">
               <CreditCard className="h-4 w-4 text-emerald-700" />
               تجربة {TRIAL_DAYS} أيام مجانية
             </span>
             <span className="h-5 w-px bg-stone-300 dark:bg-stone-600/80" />
-            <span className="flex items-center gap-2 text-sm font-medium text-stone-700 dark:text-stone-300">
+            <span className="flex items-center gap-2 text-sm font-medium text-stone-700 dark:text-stone-200">
               <Shield className="h-4 w-4 text-emerald-700" />
               ضمان استرداد كامل
             </span>
@@ -343,7 +343,7 @@ export default function Landing() {
           {userCount >= 10 && (
             <p className="mt-4 flex items-center justify-center gap-2 text-sm text-stone-500 dark:text-stone-400">
               <span className="relative flex h-2 w-2" aria-hidden="true"><span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" /><span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500" /></span>
-              <span>انضم إلى <strong className="text-stone-700 dark:text-stone-300"><AnimatedCounter end={userCount} />+</strong> مستخدم يثقون بـ pptides</span>
+              <span>انضم إلى <strong className="text-stone-700 dark:text-stone-200"><AnimatedCounter end={userCount} />+</strong> مستخدم يثقون بـ pptides</span>
             </p>
           )}
         </div>
@@ -400,7 +400,7 @@ export default function Landing() {
           {PAIN_POINTS.map((point) => (
             <div
               key={point}
-              className="flex items-start gap-4 rounded-2xl border border-stone-300 dark:border-stone-700 bg-stone-100 dark:bg-stone-800 p-6 transition-all hover:border-red-200 dark:border-red-800 hover:bg-red-50 dark:bg-red-900/20/30"
+              className="flex items-start gap-4 rounded-2xl border border-stone-300 dark:border-stone-700 bg-stone-100 dark:bg-stone-800 p-6 transition-all hover:border-red-200 dark:hover:border-red-800 hover:bg-red-50 dark:hover:bg-red-900/20"
             >
               <X className="mt-0.5 h-5 w-5 shrink-0 text-red-400" />
               <p className="text-base font-medium text-stone-800 dark:text-stone-200">{point}</p>
@@ -606,14 +606,14 @@ export default function Landing() {
             <p className="mb-3 text-sm text-stone-800 dark:text-stone-200">كل ببتيد مصنّف حسب قوة الدليل العلمي:</p>
             <div className="space-y-2">
               <div className="flex items-center gap-2"><span className="rounded-full bg-emerald-100 dark:bg-emerald-900/30 px-2.5 py-0.5 text-xs font-bold text-emerald-800 dark:text-emerald-300">ممتاز</span><span className="text-sm text-stone-800 dark:text-stone-200">تجارب سريرية كبرى + اعتماد FDA</span></div>
-              <div className="flex items-center gap-2"><span className="rounded-full bg-blue-100 px-2.5 py-0.5 text-xs font-bold text-blue-800">قوي</span><span className="text-sm text-stone-800 dark:text-stone-200">تجارب بشرية متعددة</span></div>
-              <div className="flex items-center gap-2"><span className="rounded-full bg-sky-100 px-2.5 py-0.5 text-xs font-bold text-sky-800">جيد</span><span className="text-sm text-stone-800 dark:text-stone-200">دراسات بشرية محدودة</span></div>
+              <div className="flex items-center gap-2"><span className="rounded-full bg-blue-100 dark:bg-blue-900/30 px-2.5 py-0.5 text-xs font-bold text-blue-800 dark:text-blue-300">قوي</span><span className="text-sm text-stone-800 dark:text-stone-200">تجارب بشرية متعددة</span></div>
+              <div className="flex items-center gap-2"><span className="rounded-full bg-sky-100 dark:bg-sky-900/30 px-2.5 py-0.5 text-xs font-bold text-sky-800 dark:text-sky-300">جيد</span><span className="text-sm text-stone-800 dark:text-stone-200">دراسات بشرية محدودة</span></div>
               <div className="flex items-center gap-2"><span className="rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-bold text-amber-800 dark:text-amber-300">متوسط</span><span className="text-sm text-stone-800 dark:text-stone-200">دراسات حيوانية + تقارير بشرية</span></div>
             </div>
           </div>
         </div>
 
-        <p className="mt-8 text-center text-sm text-stone-700 dark:text-stone-300">
+        <p className="mt-8 text-center text-sm text-stone-700 dark:text-stone-200">
           كل معلومة في المكتبة مربوطة بمرجعها العلمي. <Link to="/sources" className="text-emerald-700 font-semibold underline hover:text-emerald-700 dark:text-emerald-400 transition-colors inline-flex items-center min-h-[44px]">اطّلع على المصادر</Link>
         </p>
       </section>
@@ -787,7 +787,7 @@ export default function Landing() {
               </ul>
               <Link
                 to={user ? "/pricing" : "/signup?redirect=/pricing"}
-                className="inline-flex items-center justify-center rounded-full border-2 border-stone-300 dark:border-stone-700 px-6 py-3 text-base font-bold text-stone-800 dark:text-stone-200 transition-all hover:border-emerald-200 dark:border-emerald-800 hover:text-emerald-700 dark:text-emerald-400"
+                className="inline-flex items-center justify-center rounded-full border-2 border-stone-300 dark:border-stone-700 px-6 py-3 text-base font-bold text-stone-800 dark:text-stone-200 transition-all hover:border-emerald-300 dark:hover:border-emerald-700 hover:text-emerald-700 dark:hover:text-emerald-400"
               >
                 {ctaTextShort}
               </Link>
@@ -906,7 +906,7 @@ export default function Landing() {
                 {faq.q}
                 <ChevronDown className="h-4 w-4 shrink-0 text-stone-500 dark:text-stone-400 transition-transform group-open:rotate-180" aria-hidden="true" />
               </summary>
-              <p className="px-6 pb-5 text-sm leading-relaxed text-stone-700 dark:text-stone-300">{faq.a}</p>
+              <p className="px-6 pb-5 text-sm leading-relaxed text-stone-700 dark:text-stone-200">{faq.a}</p>
             </details>
           ))}
         </div>

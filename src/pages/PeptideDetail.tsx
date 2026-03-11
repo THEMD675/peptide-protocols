@@ -347,7 +347,7 @@ export default function PeptideDetail() {
 
           {/* Share This Peptide */}
           <div className="mt-6 rounded-2xl border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-900 p-5">
-            <p className="mb-3 text-sm font-bold text-stone-700 dark:text-stone-300">شارك هذا البروتوكول:</p>
+            <p className="mb-3 text-sm font-bold text-stone-700 dark:text-stone-200">شارك هذا البروتوكول:</p>
             <ShareButtons
               url={`${SITE_URL}/peptide/${peptide.id}`}
               title={`${peptide.nameAr} (${peptide.nameEn}) — بروتوكول كامل على pptides.com`}
@@ -480,7 +480,7 @@ export default function PeptideDetail() {
                     href={`https://pubmed.ncbi.nlm.nih.gov/${pmid}/`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center gap-3 rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 p-3 text-sm text-stone-700 dark:text-stone-300 transition-all hover:border-emerald-300 dark:border-emerald-700 hover:shadow-sm dark:shadow-stone-900/30"
+                    className="flex items-center gap-3 rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 p-3 text-sm text-stone-700 dark:text-stone-200 transition-all hover:border-emerald-300 dark:border-emerald-700 hover:shadow-sm dark:shadow-stone-900/30"
                     dir="ltr"
                   >
                     <ExternalLink className="h-4 w-4 shrink-0 text-emerald-700" />

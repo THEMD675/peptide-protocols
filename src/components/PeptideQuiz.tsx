@@ -671,24 +671,24 @@ export default function PeptideQuiz() {
               <h3 className="text-xl font-black text-stone-900 dark:text-stone-100">{result.primary.nameAr}</h3>
               <span className="text-sm font-medium text-stone-400" dir="ltr">{result.primary.nameEn}</span>
             </div>
-            <p className="text-sm text-stone-600 dark:text-stone-300 leading-relaxed mb-3">{result.primary.reason}</p>
+            <p className="text-sm text-stone-600 dark:text-stone-200 leading-relaxed mb-3">{result.primary.reason}</p>
 
             {/* Dosing */}
             <div className="space-y-2 text-sm">
               {primaryData?.dosageAr && (
                 <div className="flex gap-2 items-start">
-                  <span className="font-bold text-stone-700 dark:text-stone-300 shrink-0">الجرعة:</span>
+                  <span className="font-bold text-stone-700 dark:text-stone-200 shrink-0">الجرعة:</span>
                   <span className="text-stone-600 dark:text-stone-400">{primaryData.dosageAr.split('.')[0]}</span>
                 </div>
               )}
               {primaryData?.timingAr && (
                 <div className="flex gap-2 items-start">
-                  <span className="font-bold text-stone-700 dark:text-stone-300 shrink-0">التوقيت:</span>
+                  <span className="font-bold text-stone-700 dark:text-stone-200 shrink-0">التوقيت:</span>
                   <span className="text-stone-600 dark:text-stone-400">{primaryData.timingAr.split('.')[0]}</span>
                 </div>
               )}
               <div className="flex gap-2 items-start">
-                <span className="font-bold text-stone-700 dark:text-stone-300 shrink-0">المدة:</span>
+                <span className="font-bold text-stone-700 dark:text-stone-200 shrink-0">المدة:</span>
                 <span className="text-stone-600 dark:text-stone-400">{result.protocolDuration}</span>
               </div>
               <div className="flex gap-2 items-start">
@@ -751,7 +751,7 @@ export default function PeptideQuiz() {
             {hasCalcPreset && (
               <Link
                 to={`/calculator?peptide=${encodeURIComponent(result.primary.nameEn)}`}
-                className="flex items-center justify-center gap-2 rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 px-5 py-3 text-sm font-bold text-stone-700 dark:text-stone-300 transition-all hover:border-emerald-300 dark:hover:border-emerald-700"
+                className="flex items-center justify-center gap-2 rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 px-5 py-3 text-sm font-bold text-stone-700 dark:text-stone-200 transition-all hover:border-emerald-300 dark:hover:border-emerald-700"
               >
                 <Calculator className="h-4 w-4" />
                 احسب جرعة {result.primary.nameAr}
@@ -765,7 +765,7 @@ export default function PeptideQuiz() {
                   'flex-1 flex items-center justify-center gap-2 rounded-xl border px-4 py-3 text-sm font-bold transition-all',
                   saved
                     ? 'border-emerald-300 dark:border-emerald-700 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-400'
-                    : 'border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 text-stone-700 dark:text-stone-300 hover:border-emerald-300 dark:hover:border-emerald-700',
+                    : 'border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 text-stone-700 dark:text-stone-200 hover:border-emerald-300 dark:hover:border-emerald-700',
                 )}
               >
                 {saved ? <CheckCircle className="h-4 w-4" /> : <Bookmark className="h-4 w-4" />}

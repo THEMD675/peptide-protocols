@@ -542,7 +542,7 @@ export default function TrackerHistory({
                 </button>
                 <button
                   onClick={() => setConfirmDialog(null)}
-                  className="flex-1 rounded-xl border border-stone-200 dark:border-stone-700 px-4 py-3 min-h-[44px] text-sm font-bold text-stone-700 dark:text-stone-300 transition-all hover:bg-stone-50 dark:hover:bg-stone-800"
+                  className="flex-1 rounded-xl border border-stone-200 dark:border-stone-700 px-4 py-3 min-h-[44px] text-sm font-bold text-stone-700 dark:text-stone-200 transition-all hover:bg-stone-50 dark:hover:bg-stone-800"
                 >
                   إلغاء
                 </button>

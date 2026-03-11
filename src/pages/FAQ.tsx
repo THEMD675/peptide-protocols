@@ -237,7 +237,7 @@ export default function FAQ() {
         {/* Sections */}
         {filtered.length === 0 ? (
           <div className="rounded-2xl border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-900 p-10 text-center">
-            <p className="text-lg font-semibold text-stone-700 dark:text-stone-300">
+            <p className="text-lg font-semibold text-stone-700 dark:text-stone-200">
               لم نجد نتائج لـ &quot;{search}&quot;
             </p>
             <p className="mt-2 text-sm text-stone-500 dark:text-stone-400">
@@ -278,7 +278,7 @@ export default function FAQ() {
                         <ChevronDown className="h-5 w-5 shrink-0 text-stone-400 dark:text-stone-400 transition-transform duration-200 group-open:rotate-180" />
                       </summary>
                       <div className="details-content">
-                        <p className="px-5 pb-5 text-sm leading-relaxed text-stone-700 dark:text-stone-300 md:px-6 md:pb-6">
+                        <p className="px-5 pb-5 text-sm leading-relaxed text-stone-700 dark:text-stone-200 md:px-6 md:pb-6">
                           {faq.a}
                         </p>
                       </div>

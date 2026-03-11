@@ -428,7 +428,7 @@ export default function Library() {
             <div className="mb-6">
               {recommended.length > 0 && (
                 <div className="mb-4">
-                  <p className="text-sm font-bold text-stone-700 dark:text-stone-300 mb-2">مُوصى لك بناءً على هدفك</p>
+                  <p className="text-sm font-bold text-stone-700 dark:text-stone-200 mb-2">مُوصى لك بناءً على هدفك</p>
                   <div className="flex gap-2 overflow-x-auto pb-1">
                     {recommended.map(p => (
                       <Link key={p!.id} to={`/peptide/${p!.id}`} className="shrink-0 rounded-xl border border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-900/20 px-4 py-2.5 text-sm font-bold text-emerald-700 dark:text-emerald-400 hover:bg-emerald-100 dark:bg-emerald-900/30 transition-colors whitespace-nowrap">
@@ -440,10 +440,10 @@ export default function Library() {
               )}
               {recentPeptides.length > 0 && (
                 <div>
-                  <p className="text-sm font-bold text-stone-700 dark:text-stone-300 mb-2">شاهدت مؤخرًا</p>
+                  <p className="text-sm font-bold text-stone-700 dark:text-stone-200 mb-2">شاهدت مؤخرًا</p>
                   <div className="flex gap-2 overflow-x-auto pb-1">
                     {recentPeptides.map(p => (
-                      <Link key={p!.id} to={`/peptide/${p!.id}`} className="shrink-0 rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 px-4 py-2.5 text-sm font-medium text-stone-700 dark:text-stone-300 hover:bg-stone-50 dark:hover:bg-stone-800 transition-colors whitespace-nowrap">
+                      <Link key={p!.id} to={`/peptide/${p!.id}`} className="shrink-0 rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 px-4 py-2.5 text-sm font-medium text-stone-700 dark:text-stone-200 hover:bg-stone-50 dark:hover:bg-stone-800 transition-colors whitespace-nowrap">
                         {p!.nameAr}
                       </Link>
                     ))}
@@ -459,7 +459,7 @@ export default function Library() {
           className="mb-6 flex flex-wrap gap-2 items-center"
         >
           <div className="relative flex-1">
-            <Search className="absolute end-3 top-1/2 h-4 w-4 -translate-y-1/2 text-stone-700 dark:text-stone-300" />
+            <Search className="absolute end-3 top-1/2 h-4 w-4 -translate-y-1/2 text-stone-700 dark:text-stone-200" />
             <input
               type="text"
               role="searchbox"
@@ -477,7 +477,7 @@ export default function Library() {
               <button
                 onClick={() => setSearch('')}
                 aria-label="مسح البحث"
-                className="absolute start-3 top-1/2 -translate-y-1/2 text-stone-700 dark:text-stone-300 transition-colors hover:text-stone-800 dark:text-stone-200"
+                className="absolute start-3 top-1/2 -translate-y-1/2 text-stone-700 dark:text-stone-200 transition-colors hover:text-stone-800 dark:text-stone-200"
               >
                 <X className="h-4 w-4" />
               </button>
@@ -546,7 +546,7 @@ export default function Library() {
           if (beginnerPeptides.length === 0) return null;
           return (
             <div className="mb-8">
-              <p className="text-sm font-bold text-stone-700 dark:text-stone-300 mb-3">أفضل دورة أولى</p>
+              <p className="text-sm font-bold text-stone-700 dark:text-stone-200 mb-3">أفضل دورة أولى</p>
               <div className="flex gap-2 overflow-x-auto pb-1">
                 {beginnerPeptides.map(p => (
                   <Link key={p.id} to={`/peptide/${p.id}`} className="shrink-0 rounded-xl border border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-900/20 px-4 py-2.5 text-sm font-bold text-emerald-700 dark:text-emerald-400 hover:bg-emerald-100 dark:bg-emerald-900/30 transition-colors whitespace-nowrap flex items-center gap-2">
@@ -794,7 +794,7 @@ export default function Library() {
                   <tbody>
                     {rows.map((row, i) => (
                       <tr key={row.label} className={cn('border-b border-stone-100 dark:border-stone-800', i % 2 === 0 ? 'bg-white dark:bg-stone-950' : 'bg-stone-50/50')}>
-                        <th scope="row" className="px-4 py-3 text-xs font-bold text-stone-700 dark:text-stone-300">{row.label}</th>
+                        <th scope="row" className="px-4 py-3 text-xs font-bold text-stone-700 dark:text-stone-200">{row.label}</th>
                         {items.map(p => (
                           <td key={p.id} className="px-4 py-3 text-xs text-stone-800 dark:text-stone-200 leading-relaxed">{row.get(p)}</td>
                         ))}
@@ -831,7 +831,7 @@ export default function Library() {
               </div>
               <h3 className="mb-2 text-xl font-bold text-stone-900 dark:text-stone-100">{p.nameAr}</h3>
               <p className="mb-1 text-sm text-stone-500 dark:text-stone-400" dir="ltr">{p.nameEn}</p>
-              <p className="mb-4 text-sm text-stone-700 dark:text-stone-300 leading-relaxed line-clamp-2">{p.summaryAr}</p>
+              <p className="mb-4 text-sm text-stone-700 dark:text-stone-200 leading-relaxed line-clamp-2">{p.summaryAr}</p>
               <div className="mb-5 rounded-xl bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 p-4">
                 <p className="text-sm text-emerald-800 dark:text-emerald-300 font-semibold mb-1">البروتوكول الكامل يتضمن:</p>
                 <p className="text-xs text-emerald-700 dark:text-emerald-400">الجرعة الدقيقة • التوقيت المثالي • الأعراض الجانبية • التجميعات • التخزين • التحاليل المطلوبة</p>

@@ -181,7 +181,7 @@ export default function TrackerForm({
       <div className="space-y-4">
         {/* Peptide Name */}
         <div>
-          <label htmlFor="tracker-peptide" className="mb-1 block text-sm font-bold text-stone-700 dark:text-stone-300">اسم الببتيد</label>
+          <label htmlFor="tracker-peptide" className="mb-1 block text-sm font-bold text-stone-700 dark:text-stone-200">اسم الببتيد</label>
           <select
             id="tracker-peptide"
             value={peptideName}
@@ -199,7 +199,7 @@ export default function TrackerForm({
         {/* Dose + Unit */}
         <div className="flex gap-3">
           <div className="flex-1">
-            <label htmlFor="tracker-dose" className="mb-1 block text-sm font-bold text-stone-700 dark:text-stone-300">الجرعة</label>
+            <label htmlFor="tracker-dose" className="mb-1 block text-sm font-bold text-stone-700 dark:text-stone-200">الجرعة</label>
             <input
               id="tracker-dose"
               type="number"
@@ -215,7 +215,7 @@ export default function TrackerForm({
             />
           </div>
           <div className="w-28">
-            <label htmlFor="tracker-unit" className="mb-1 block text-sm font-bold text-stone-700 dark:text-stone-300">الوحدة</label>
+            <label htmlFor="tracker-unit" className="mb-1 block text-sm font-bold text-stone-700 dark:text-stone-200">الوحدة</label>
             <select
               id="tracker-unit"
               value={unit}
@@ -241,7 +241,7 @@ export default function TrackerForm({
                 <p className="text-xs font-bold text-red-600 dark:text-red-400 flex items-center gap-1">الجرعة أعلى من الحد الأقصى الموصى به ({preset.maxDose} mcg)</p>
                 <label className="flex items-center gap-2 cursor-pointer">
                   <input type="checkbox" checked={doseOutOfRangeConfirmed} onChange={(e) => setDoseOutOfRangeConfirmed(e.target.checked)} className="rounded border-stone-300 dark:border-stone-700 text-emerald-700 focus:ring-emerald-500" />
-                  <span className="text-xs text-stone-700 dark:text-stone-300">أؤكد أن هذه الجرعة صحيحة</span>
+                  <span className="text-xs text-stone-700 dark:text-stone-200">أؤكد أن هذه الجرعة صحيحة</span>
                 </label>
               </div>
             );
@@ -252,7 +252,7 @@ export default function TrackerForm({
                 <p className="text-xs font-bold text-amber-600 flex items-center gap-1">الجرعة أقل من الحد الأدنى الموصى به ({preset.minDose} mcg)</p>
                 <label className="flex items-center gap-2 cursor-pointer">
                   <input type="checkbox" checked={doseOutOfRangeConfirmed} onChange={(e) => setDoseOutOfRangeConfirmed(e.target.checked)} className="rounded border-stone-300 dark:border-stone-700 text-emerald-700 focus:ring-emerald-500" />
-                  <span className="text-xs text-stone-700 dark:text-stone-300">أؤكد أن هذه الجرعة صحيحة</span>
+                  <span className="text-xs text-stone-700 dark:text-stone-200">أؤكد أن هذه الجرعة صحيحة</span>
                 </label>
               </div>
             );
@@ -262,13 +262,13 @@ export default function TrackerForm({
 
         {/* Injection Site — Body Map */}
         <div>
-          <label className="mb-1 block text-sm font-bold text-stone-700 dark:text-stone-300">موقع الحقن</label>
+          <label className="mb-1 block text-sm font-bold text-stone-700 dark:text-stone-200">موقع الحقن</label>
           <BodyMap selected={site} suggested={suggestedSite} onSelect={(s) => setSite(s)} />
         </div>
 
         {/* Date/Time */}
         <div>
-          <label htmlFor="tracker-datetime" className="mb-1 block text-sm font-bold text-stone-700 dark:text-stone-300">التاريخ والوقت</label>
+          <label htmlFor="tracker-datetime" className="mb-1 block text-sm font-bold text-stone-700 dark:text-stone-200">التاريخ والوقت</label>
           <input
             id="tracker-datetime"
             type="datetime-local"
@@ -283,7 +283,7 @@ export default function TrackerForm({
 
         {/* Side Effect Quick-Log */}
         <div>
-          <label className="mb-1 block text-sm font-bold text-stone-700 dark:text-stone-300">أعراض جانبية <span className="text-xs text-emerald-700 font-normal me-1">اختياري</span></label>
+          <label className="mb-1 block text-sm font-bold text-stone-700 dark:text-stone-200">أعراض جانبية <span className="text-xs text-emerald-700 font-normal me-1">اختياري</span></label>
           <div className="flex flex-wrap gap-2">
             {[
               { value: 'none', label: 'لا يوجد', color: 'emerald' },
@@ -311,7 +311,7 @@ export default function TrackerForm({
 
         {/* Photo Upload */}
         <div>
-          <label className="mb-1 block text-sm font-bold text-stone-700 dark:text-stone-300">صورة الحقنة <span className="text-xs text-emerald-700 font-normal me-1">اختياري</span></label>
+          <label className="mb-1 block text-sm font-bold text-stone-700 dark:text-stone-200">صورة الحقنة <span className="text-xs text-emerald-700 font-normal me-1">اختياري</span></label>
           <input ref={photoInputRef} type="file" accept="image/*" capture="environment" onChange={handlePhotoSelect} className="hidden" />
           {photoPreview ? (
             <div className="relative inline-block">
@@ -339,7 +339,7 @@ export default function TrackerForm({
 
         {/* Notes */}
         <div>
-          <label htmlFor="tracker-notes" className="mb-1 block text-sm font-bold text-stone-700 dark:text-stone-300">ملاحظات <span className="text-xs text-emerald-700 font-normal me-1">اختياري</span></label>
+          <label htmlFor="tracker-notes" className="mb-1 block text-sm font-bold text-stone-700 dark:text-stone-200">ملاحظات <span className="text-xs text-emerald-700 font-normal me-1">اختياري</span></label>
           <textarea
             id="tracker-notes"
             value={notes}
@@ -370,7 +370,7 @@ export default function TrackerForm({
           <button
             type="button"
             onClick={onCancel}
-            className="rounded-xl border border-stone-200 dark:border-stone-700 px-6 py-3 text-sm font-bold text-stone-700 dark:text-stone-300 transition-all hover:bg-stone-50 dark:hover:bg-stone-800"
+            className="rounded-xl border border-stone-200 dark:border-stone-700 px-6 py-3 text-sm font-bold text-stone-700 dark:text-stone-200 transition-all hover:bg-stone-50 dark:hover:bg-stone-800"
           >
             إلغاء
           </button>

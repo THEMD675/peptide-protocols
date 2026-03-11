@@ -169,7 +169,7 @@ export default function Pricing() {
             'hover:scale-[1.02] active:scale-[0.98]',
             isElite
               ? 'btn-primary-glow bg-emerald-600 text-white transition-colors hover:bg-emerald-700'
-              : 'border-2 border-stone-300 dark:border-stone-700 bg-white dark:bg-stone-950 text-stone-800 dark:text-stone-200 hover:border-emerald-200 dark:border-emerald-800 transition-colors hover:text-emerald-700 dark:text-emerald-400',
+              : 'border-2 border-stone-300 dark:border-stone-700 bg-white dark:bg-stone-950 text-stone-800 dark:text-stone-200 hover:border-emerald-200 dark:hover:border-emerald-700 transition-colors hover:text-emerald-700 dark:text-emerald-400',
             isLoading && 'opacity-70 pointer-events-none'
           )}
         >
@@ -192,7 +192,7 @@ export default function Pricing() {
           'hover:scale-[1.02] active:scale-[0.98]',
           isElite
             ? 'btn-primary-glow bg-emerald-600 text-white transition-colors hover:bg-emerald-700'
-            : 'border-2 border-stone-300 dark:border-stone-700 bg-white dark:bg-stone-950 text-stone-800 dark:text-stone-200 hover:border-emerald-200 dark:border-emerald-800 transition-colors hover:text-emerald-700 dark:text-emerald-400'
+            : 'border-2 border-stone-300 dark:border-stone-700 bg-white dark:bg-stone-950 text-stone-800 dark:text-stone-200 hover:border-emerald-200 dark:hover:border-emerald-700 transition-colors hover:text-emerald-700 dark:text-emerald-400'
         )}
       >
         سجّل الآن وجرّب مجانًا
@@ -282,13 +282,13 @@ export default function Pricing() {
             <span className="flex items-center gap-1.5"><Shield className="h-4 w-4 shrink-0 text-emerald-500" /> ضمان استرداد {TRIAL_DAYS} أيام</span>
             <span className="flex items-center gap-1.5"><Lock className="h-4 w-4 shrink-0 text-emerald-500" /> دفع آمن عبر Stripe</span>
           </div>
-          <p className="mt-4 text-center text-sm font-medium text-stone-700 dark:text-stone-300">
+          <p className="mt-4 text-center text-sm font-medium text-stone-700 dark:text-stone-200">
             ضمان استرداد كامل + إلغاء في أي وقت + بدون التزام
           </p>
           {userCount >= 10 && (
             <p className="mt-4 flex items-center justify-center gap-2 text-sm text-stone-500 dark:text-stone-400">
               <span className="relative flex h-2 w-2"><span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" /><span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500" /></span>
-              <span>أكثر من <strong className="text-stone-700 dark:text-stone-300">{userCount}</strong> مستخدم يثقون بنا</span>
+              <span>أكثر من <strong className="text-stone-700 dark:text-stone-200">{userCount}</strong> مستخدم يثقون بنا</span>
             </p>
           )}
         </div>
@@ -418,8 +418,8 @@ export default function Pricing() {
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-900">
-                  <th className="px-5 py-3 text-start font-semibold text-stone-700 dark:text-stone-300">الميزة</th>
-                  <th className="px-5 py-3 text-center font-semibold text-stone-700 dark:text-stone-300">Essentials<br /><span className="text-xs font-normal text-stone-500 dark:text-stone-400">الأساسية</span></th>
+                  <th className="px-5 py-3 text-start font-semibold text-stone-700 dark:text-stone-200">الميزة</th>
+                  <th className="px-5 py-3 text-center font-semibold text-stone-700 dark:text-stone-200">Essentials<br /><span className="text-xs font-normal text-stone-500 dark:text-stone-400">الأساسية</span></th>
                   <th className="px-5 py-3 text-center font-semibold text-emerald-700 dark:text-emerald-400">Elite<br /><span className="text-xs font-normal text-emerald-500">المتقدّمة</span></th>
                 </tr>
               </thead>

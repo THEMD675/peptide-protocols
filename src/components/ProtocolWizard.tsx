@@ -21,7 +21,7 @@ function ShoppingList({ peptide, dose, unit, frequency, cycleWeeks }: { peptide:
   const vialsNeeded = Math.ceil(totalDoses / Math.max(dosesPerVial, 1));
   return (
     <div className="rounded-xl border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-900 px-4 py-3">
-      <p className="text-xs font-bold text-stone-700 dark:text-stone-300 mb-2">قائمة التسوّق المقدّرة:</p>
+      <p className="text-xs font-bold text-stone-700 dark:text-stone-200 mb-2">قائمة التسوّق المقدّرة:</p>
       <ul className="space-y-1 text-xs text-stone-600 dark:text-stone-400">
         <li>• {vialsNeeded}x قارورة {peptide.nameEn} {vialMg}mg</li>
         <li>• 1x ماء بكتيريوستاتيك 30ml</li>
@@ -160,7 +160,7 @@ export default function ProtocolWizard({ peptideId, prefillDose, prefillUnit, on
             )}
             <div className="flex gap-3">
               <div className="flex-1">
-                <label htmlFor="wizard-dose" className="mb-1 block text-sm font-bold text-stone-700 dark:text-stone-300">الجرعة</label>
+                <label htmlFor="wizard-dose" className="mb-1 block text-sm font-bold text-stone-700 dark:text-stone-200">الجرعة</label>
                 <input
                   id="wizard-dose"
                   type="number"
@@ -176,7 +176,7 @@ export default function ProtocolWizard({ peptideId, prefillDose, prefillUnit, on
                 />
               </div>
               <div className="w-24">
-                <label htmlFor="wizard-unit" className="mb-1 block text-sm font-bold text-stone-700 dark:text-stone-300">الوحدة</label>
+                <label htmlFor="wizard-unit" className="mb-1 block text-sm font-bold text-stone-700 dark:text-stone-200">الوحدة</label>
                 <select id="wizard-unit" value={unit} onChange={e => setUnit(e.target.value)} className="w-full rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 px-3 py-3 text-base text-stone-900 dark:text-stone-100 focus:border-emerald-300 dark:border-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900">
                   <option value="mcg">mcg</option>
                   <option value="mg">mg</option>
@@ -185,7 +185,7 @@ export default function ProtocolWizard({ peptideId, prefillDose, prefillUnit, on
             </div>
 
             <div>
-              <label htmlFor="wizard-frequency" className="mb-1 block text-sm font-bold text-stone-700 dark:text-stone-300">التكرار</label>
+              <label htmlFor="wizard-frequency" className="mb-1 block text-sm font-bold text-stone-700 dark:text-stone-200">التكرار</label>
               <select id="wizard-frequency" value={frequency} onChange={e => { const v = e.target.value; setFrequency(v as keyof typeof FREQUENCY_LABELS); }} className="w-full rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 px-4 py-3 text-base text-stone-900 dark:text-stone-100 focus:border-emerald-300 dark:border-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900">
                 {Object.entries(FREQUENCY_LABELS).map(([k, v]) => (
                   <option key={k} value={k}>{v}</option>
@@ -194,7 +194,7 @@ export default function ProtocolWizard({ peptideId, prefillDose, prefillUnit, on
             </div>
 
             <div>
-              <label htmlFor="wizard-cycle" className="mb-1 block text-sm font-bold text-stone-700 dark:text-stone-300">مدة الدورة (أسابيع)</label>
+              <label htmlFor="wizard-cycle" className="mb-1 block text-sm font-bold text-stone-700 dark:text-stone-200">مدة الدورة (أسابيع)</label>
               <input
                 id="wizard-cycle"
                 type="number"

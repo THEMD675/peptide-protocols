@@ -504,7 +504,7 @@ export default function Dashboard() {
               <div className="flex items-center gap-2">
                 <span className={cn(
                   'rounded-full px-3 py-1 text-xs font-bold',
-                  activity.totalInjections >= 50 ? 'bg-amber-100 text-amber-700 dark:text-amber-400' : activity.totalInjections >= 10 ? 'bg-blue-100 text-blue-700 dark:text-blue-400' : 'bg-stone-100 dark:bg-stone-800 text-stone-600 dark:text-stone-400',
+                  activity.totalInjections >= 50 ? 'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400' : activity.totalInjections >= 10 ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400' : 'bg-stone-100 dark:bg-stone-800 text-stone-600 dark:text-stone-400',
                 )}>
                   {level}
                 </span>
@@ -549,7 +549,7 @@ export default function Dashboard() {
             subscription.isProOrTrial
               ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400'
               : subscription.status === 'past_due'
-                ? 'bg-amber-100 text-amber-700 dark:text-amber-400'
+                ? 'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400'
                 : 'bg-stone-200 dark:bg-stone-700 text-stone-600 dark:text-stone-400',
           )}>
             {subscription.isProOrTrial && subscription.status === 'cancelled'
@@ -595,7 +595,7 @@ export default function Dashboard() {
         return (
           <div className="mb-6 rounded-2xl border border-emerald-100 bg-emerald-50/50 p-4">
             <p className="text-xs font-bold text-emerald-700 dark:text-emerald-400 mb-1">نصيحة اليوم</p>
-            <p className="text-sm text-stone-700 dark:text-stone-300 leading-relaxed">{DAILY_TIPS[tipIndex]}</p>
+            <p className="text-sm text-stone-700 dark:text-stone-200 leading-relaxed">{DAILY_TIPS[tipIndex]}</p>
             {seasonalTip && (
               <p className="mt-2 text-xs text-stone-500 dark:text-stone-400 border-t border-emerald-100 pt-2">{seasonalTip}</p>
             )}
@@ -967,7 +967,7 @@ export default function Dashboard() {
               <Target className="h-5 w-5 text-emerald-700" />
               <h2 className="text-lg font-bold text-stone-900 dark:text-stone-100">تحدي الأسبوع</h2>
             </div>
-            <p className="text-sm text-stone-700 dark:text-stone-300 mb-3">سجّل حقنة كل يوم هذا الأسبوع</p>
+            <p className="text-sm text-stone-700 dark:text-stone-200 mb-3">سجّل حقنة كل يوم هذا الأسبوع</p>
             <div className="flex items-center gap-3">
               <div className="flex-1 h-3 overflow-hidden rounded-full bg-stone-100 dark:bg-stone-800">
                 <div
@@ -1359,7 +1359,7 @@ export default function Dashboard() {
                   <Sparkles className="h-5 w-5 text-emerald-700" />
                   <h2 className="text-lg font-bold text-stone-900 dark:text-stone-100">توصية مخصّصة لك</h2>
                 </div>
-                <p className="text-sm text-stone-700 dark:text-stone-300 leading-relaxed mb-4">{rec.text}</p>
+                <p className="text-sm text-stone-700 dark:text-stone-200 leading-relaxed mb-4">{rec.text}</p>
                 <Link
                   to={`/peptide/${rec.peptideId}`}
                   className="inline-flex items-center gap-2 rounded-full bg-emerald-600 px-6 py-2.5 text-sm font-bold text-white transition-all hover:bg-emerald-700 min-h-[44px]"
@@ -1379,15 +1379,15 @@ export default function Dashboard() {
                 <p className="text-xs text-stone-500 dark:text-stone-400 leading-relaxed">سجّل أول جرعة وابدأ بتتبع تقدمك</p>
               </Link>
               <Link to="/dashboard" className="group rounded-2xl border-2 border-dashed border-emerald-200 dark:border-emerald-800 bg-gradient-to-b from-emerald-50/50 to-white dark:to-stone-950 p-6 text-center transition-all hover:border-emerald-300 dark:border-emerald-700 hover:shadow-sm dark:shadow-stone-900/30 min-h-[44px]">
-                <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-2xl bg-blue-100 transition-transform group-hover:scale-110">
-                  <FlaskConical className="h-6 w-6 text-blue-600" />
+                <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-2xl bg-blue-100 dark:bg-blue-900/30 transition-transform group-hover:scale-110">
+                  <FlaskConical className="h-6 w-6 text-blue-600 dark:text-blue-400" />
                 </div>
                 <p className="text-sm font-bold text-stone-900 dark:text-stone-100 mb-1">التحاليل</p>
                 <p className="text-xs text-stone-500 dark:text-stone-400 leading-relaxed">أضف تحاليلك وشاهد التغيّرات مع الوقت</p>
               </Link>
               <Link to="/coach" className="group rounded-2xl border-2 border-dashed border-emerald-200 dark:border-emerald-800 bg-gradient-to-b from-emerald-50/50 to-white dark:to-stone-950 p-6 text-center transition-all hover:border-emerald-300 dark:border-emerald-700 hover:shadow-sm dark:shadow-stone-900/30 min-h-[44px]">
-                <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-2xl bg-amber-100 transition-transform group-hover:scale-110">
-                  <Bot className="h-6 w-6 text-amber-600" />
+                <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-2xl bg-amber-100 dark:bg-amber-900/30 transition-transform group-hover:scale-110">
+                  <Bot className="h-6 w-6 text-amber-600 dark:text-amber-400" />
                 </div>
                 <p className="text-sm font-bold text-stone-900 dark:text-stone-100 mb-1">المدرب الذكي</p>
                 <p className="text-xs text-stone-500 dark:text-stone-400 leading-relaxed">اسأل المدرب الذكي — جاهز لمساعدتك ٢٤/٧</p>
@@ -1466,7 +1466,7 @@ export default function Dashboard() {
                     ? <CheckCircle2 className="h-5 w-5 shrink-0 text-emerald-700" />
                     : <Circle className="h-5 w-5 shrink-0 text-stone-300" />
                   }
-                  <span className={cn("text-sm font-bold", done ? "text-emerald-700 dark:text-emerald-400" : "text-stone-700 dark:text-stone-300")}>
+                  <span className={cn("text-sm font-bold", done ? "text-emerald-700 dark:text-emerald-400" : "text-stone-700 dark:text-stone-200")}>
                     {i + 1}. {step.label}
                   </span>
                 </Link>
@@ -1507,7 +1507,7 @@ export default function Dashboard() {
             >
               <TrendingUp className="h-5 w-5 shrink-0 text-blue-500" />
               <div>
-                <p className="text-sm font-bold text-stone-700 dark:text-stone-300">شارك تجربتك مع المجتمع</p>
+                <p className="text-sm font-bold text-stone-700 dark:text-stone-200">شارك تجربتك مع المجتمع</p>
                 <p className="text-xs text-stone-500 dark:text-stone-400">ساعد غيرك بنتائجك الحقيقية</p>
               </div>
             </Link>

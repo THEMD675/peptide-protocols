@@ -73,7 +73,7 @@ export default function TrialBanner() {
           <h2 id="payment-wall-title" className="mb-3 text-2xl font-bold text-stone-900 dark:text-stone-100">
             أكمل إعداد حسابك
           </h2>
-          <p id="payment-wall-desc" className="mb-2 text-stone-700 dark:text-stone-300">
+          <p id="payment-wall-desc" className="mb-2 text-stone-700 dark:text-stone-200">
             أكمل إعداد حسابك لبدء التجربة المجانية
           </p>
           <p className="mb-6 text-sm text-stone-500 dark:text-stone-400">
@@ -177,7 +177,7 @@ export default function TrialBanner() {
           <h2 id="trial-modal-title" className="mb-3 text-2xl font-bold text-stone-900 dark:text-stone-100">
             {modalTitle}
           </h2>
-          <p id="sub-modal-desc-expired" className="mb-4 text-stone-700 dark:text-stone-300">
+          <p id="sub-modal-desc-expired" className="mb-4 text-stone-700 dark:text-stone-200">
             لا تخسر تقدّمك — اشترك الآن للاحتفاظ ببياناتك والوصول لـ {PEPTIDE_COUNT}+ بروتوكول، المدرب الذكي، وجميع الأدوات
           </p>
           <div className="flex flex-col gap-3">
@@ -219,7 +219,7 @@ export default function TrialBanner() {
           <h2 id="sub-modal-title" className="mb-3 text-2xl font-bold text-stone-900 dark:text-stone-100">
             محتوى للمشتركين فقط
           </h2>
-          <p id="sub-modal-desc-none" className="mb-4 text-stone-700 dark:text-stone-300">
+          <p id="sub-modal-desc-none" className="mb-4 text-stone-700 dark:text-stone-200">
             اشترك للوصول إلى {PEPTIDE_COUNT}+ بروتوكول، المدرب الذكي، وجميع الأدوات
           </p>
           <div className="flex flex-col gap-3">

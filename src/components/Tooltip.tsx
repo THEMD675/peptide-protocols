@@ -78,7 +78,7 @@ export default function Tooltip({ content, children, icon = true, position = 'to
           id="tooltip-content"
           role="tooltip"
           className={cn(
-            'tooltip-bubble absolute z-50 w-64 rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-900 px-4 py-3 text-xs leading-relaxed text-stone-700 dark:text-stone-300 shadow-lg',
+            'tooltip-bubble absolute z-50 w-64 rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-900 px-4 py-3 text-xs leading-relaxed text-stone-700 dark:text-stone-200 shadow-lg',
             position === 'top' ? 'bottom-full mb-2' : 'top-full mt-2',
             'end-0',
           )}

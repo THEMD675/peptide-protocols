@@ -709,7 +709,7 @@ export default function DoseCalculator() {
                         toast.success(`بروتوكول ${proto.name}: ${proto.peptides.join(' + ')}`);
                       }
                     }}
-                    className="flex shrink-0 items-center gap-2 rounded-2xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 px-4 py-3 text-sm font-medium text-stone-700 dark:text-stone-300 transition-all hover:border-emerald-300 hover:bg-emerald-50 dark:hover:bg-emerald-950 hover:shadow-sm"
+                    className="flex shrink-0 items-center gap-2 rounded-2xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 px-4 py-3 text-sm font-medium text-stone-700 dark:text-stone-200 transition-all hover:border-emerald-300 hover:bg-emerald-50 dark:hover:bg-emerald-950 hover:shadow-sm"
                   >
                     <span className="text-lg">{proto.icon}</span>
                     <div className="text-start">
@@ -765,7 +765,7 @@ export default function DoseCalculator() {
                             'rounded-full border px-3 py-2 min-h-[44px] text-xs transition-all active:scale-[0.98] shrink-0',
                             selectedPreset === p.name
                               ? 'border-emerald-400 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-400 ring-2 ring-emerald-400 font-bold shadow-sm'
-                              : 'border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 text-stone-700 dark:text-stone-300 font-medium hover:border-emerald-300 hover:text-emerald-700',
+                              : 'border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 text-stone-700 dark:text-stone-200 font-medium hover:border-emerald-300 hover:text-emerald-700',
                           )}
                         >
                           {getPresetDisplayName(p.name)}
@@ -819,7 +819,7 @@ export default function DoseCalculator() {
                           'flex-1 rounded-lg py-2.5 min-h-[44px] text-xs font-medium transition-all',
                           goalLevel === g
                             ? g === 'aggressive' ? 'bg-red-500 text-white' : g === 'therapeutic' ? 'bg-blue-500 text-white' : 'bg-emerald-600 text-white'
-                            : 'text-stone-700 dark:text-stone-300 hover:text-stone-900',
+                            : 'text-stone-700 dark:text-stone-200 hover:text-stone-900',
                         )}
                       >
                         {GOAL_LABELS[g]}
@@ -932,7 +932,7 @@ export default function DoseCalculator() {
                       aria-label="كمية الماء البكتيريوستاتك (مل)"
                       className="w-full rounded-xl border border-stone-300 dark:border-stone-700 bg-stone-50 dark:bg-stone-900 px-4 py-3 pe-16 text-base text-stone-900 dark:text-stone-100 transition-colors focus:border-emerald-300 focus:outline-none focus:ring-1 focus:ring-emerald-100"
                     />
-                    <span className="absolute end-3 top-1/2 -translate-y-1/2 text-xs text-stone-700 dark:text-stone-300">مل</span>
+                    <span className="absolute end-3 top-1/2 -translate-y-1/2 text-xs text-stone-700 dark:text-stone-200">مل</span>
                   </div>
                   {waterMl === 0 && (
                     <p className="mt-1 text-xs font-medium text-red-600 dark:text-red-400">أدخل كمية ماء أكبر من صفر</p>
@@ -979,7 +979,7 @@ export default function DoseCalculator() {
                       </option>
                     ))}
                   </select>
-                  <ChevronDown className="pointer-events-none absolute end-3 top-1/2 h-4 w-4 -translate-y-1/2 text-stone-700 dark:text-stone-300" />
+                  <ChevronDown className="pointer-events-none absolute end-3 top-1/2 h-4 w-4 -translate-y-1/2 text-stone-700 dark:text-stone-200" />
                 </div>
               </div>
 
@@ -990,7 +990,7 @@ export default function DoseCalculator() {
                   <div className="flex rounded-xl border border-stone-300 dark:border-stone-700 bg-stone-50 dark:bg-stone-900 p-1">
                     {[1, 2, 3].map(n => (
                       <button key={n} onClick={() => setDosesPerDay(n)}
-                        className={cn('flex-1 rounded-lg py-2 min-h-[44px] text-sm font-medium transition-all', dosesPerDay === n ? 'bg-emerald-600 text-white' : 'text-stone-700 dark:text-stone-300 hover:text-stone-900')}
+                        className={cn('flex-1 rounded-lg py-2 min-h-[44px] text-sm font-medium transition-all', dosesPerDay === n ? 'bg-emerald-600 text-white' : 'text-stone-700 dark:text-stone-200 hover:text-stone-900')}
                       >
                         {n}x / يوم
                       </button>
@@ -1124,14 +1124,14 @@ export default function DoseCalculator() {
                 <div className="flex gap-3 mt-4 flex-wrap">
                   <Link
                     to={`/tracker?peptide=${encodeURIComponent(selectedPreset || 'Custom')}&dose=${doseValue}&unit=${doseUnit}`}
-                    className="flex flex-col items-center justify-center gap-1 rounded-xl border-2 border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 p-4 font-bold text-stone-700 dark:text-stone-300 transition-all hover:border-emerald-200 hover:text-emerald-700 hover:shadow-md min-w-[140px] min-h-[44px]"
+                    className="flex flex-col items-center justify-center gap-1 rounded-xl border-2 border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 p-4 font-bold text-stone-700 dark:text-stone-200 transition-all hover:border-emerald-200 hover:text-emerald-700 hover:shadow-md min-w-[140px] min-h-[44px]"
                   >
                     <Syringe className="h-5 w-5" />
                     <span className="text-sm">سجّل حقنة</span>
                   </Link>
                   <Link
                     to="/guide"
-                    className="flex flex-col items-center justify-center gap-1 rounded-xl border-2 border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 p-4 font-bold text-stone-700 dark:text-stone-300 transition-all hover:border-emerald-200 hover:text-emerald-700 hover:shadow-md min-w-[140px] min-h-[44px]"
+                    className="flex flex-col items-center justify-center gap-1 rounded-xl border-2 border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 p-4 font-bold text-stone-700 dark:text-stone-200 transition-all hover:border-emerald-200 hover:text-emerald-700 hover:shadow-md min-w-[140px] min-h-[44px]"
                   >
                     <BookOpen className="h-5 w-5" />
                     <span className="text-sm">كيف أحقن؟</span>
@@ -1208,7 +1208,7 @@ export default function DoseCalculator() {
                         setReconTargetDose(p.dose);
                         setReconDoseUnit(p.unit);
                       }}
-                      className="shrink-0 rounded-full border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 px-3 py-2 min-h-[44px] text-xs font-medium text-stone-700 dark:text-stone-300 hover:border-emerald-300 hover:text-emerald-700 transition-all"
+                      className="shrink-0 rounded-full border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 px-3 py-2 min-h-[44px] text-xs font-medium text-stone-700 dark:text-stone-200 hover:border-emerald-300 hover:text-emerald-700 transition-all"
                     >
                       {getPresetDisplayName(p.name)}
                     </button>
@@ -1223,7 +1223,7 @@ export default function DoseCalculator() {
                   <div className="flex rounded-xl border border-stone-300 dark:border-stone-700 bg-stone-50 dark:bg-stone-900 p-1">
                     {[5, 10, 15, 20, 30].map(mg => (
                       <button key={mg} onClick={() => setReconVialMg(mg)}
-                        className={cn('flex-1 rounded-lg py-2.5 min-h-[44px] text-sm font-medium transition-all', reconVialMg === mg ? 'bg-emerald-600 text-white' : 'text-stone-700 dark:text-stone-300')}
+                        className={cn('flex-1 rounded-lg py-2.5 min-h-[44px] text-sm font-medium transition-all', reconVialMg === mg ? 'bg-emerald-600 text-white' : 'text-stone-700 dark:text-stone-200')}
                       >
                         {mg}
                       </button>
@@ -1244,7 +1244,7 @@ export default function DoseCalculator() {
                   <div className="flex rounded-xl border border-stone-300 dark:border-stone-700 bg-stone-50 dark:bg-stone-900 p-1">
                     {[1, 2, 3, 5].map(ml => (
                       <button key={ml} onClick={() => setReconWaterMl(ml)}
-                        className={cn('flex-1 rounded-lg py-2.5 min-h-[44px] text-sm font-medium transition-all', reconWaterMl === ml ? 'bg-emerald-600 text-white' : 'text-stone-700 dark:text-stone-300')}
+                        className={cn('flex-1 rounded-lg py-2.5 min-h-[44px] text-sm font-medium transition-all', reconWaterMl === ml ? 'bg-emerald-600 text-white' : 'text-stone-700 dark:text-stone-200')}
                       >
                         {ml}
                       </button>
@@ -1272,11 +1272,11 @@ export default function DoseCalculator() {
                     />
                     <div className="flex rounded-xl border border-stone-300 dark:border-stone-700 p-1">
                       <button onClick={() => setReconDoseUnit('mcg')}
-                        className={cn('rounded-lg px-3 py-2 min-h-[44px] text-sm font-medium', reconDoseUnit === 'mcg' ? 'bg-emerald-500 text-white' : 'text-stone-700 dark:text-stone-300')}>
+                        className={cn('rounded-lg px-3 py-2 min-h-[44px] text-sm font-medium', reconDoseUnit === 'mcg' ? 'bg-emerald-500 text-white' : 'text-stone-700 dark:text-stone-200')}>
                         mcg
                       </button>
                       <button onClick={() => setReconDoseUnit('mg')}
-                        className={cn('rounded-lg px-3 py-2 min-h-[44px] text-sm font-medium', reconDoseUnit === 'mg' ? 'bg-emerald-500 text-white' : 'text-stone-700 dark:text-stone-300')}>
+                        className={cn('rounded-lg px-3 py-2 min-h-[44px] text-sm font-medium', reconDoseUnit === 'mg' ? 'bg-emerald-500 text-white' : 'text-stone-700 dark:text-stone-200')}>
                         mg
                       </button>
                     </div>
@@ -1328,7 +1328,7 @@ export default function DoseCalculator() {
                   <Syringe className="inline h-4 w-4 me-1 text-blue-500" />
                   فهم وحدات سيرنج الإنسولين
                 </h3>
-                <div className="space-y-2 text-xs text-stone-700 dark:text-stone-300">
+                <div className="space-y-2 text-xs text-stone-700 dark:text-stone-200">
                   <p>• سيرنج 100 وحدة = 1 مل. كل علامة = 1 وحدة = 0.01 مل</p>
                   <p>• سيرنج 50 وحدة = 0.5 مل. كل علامة = 1 وحدة = 0.01 مل</p>
                   <p>• سيرنج 30 وحدة = 0.3 مل. كل علامة = 0.5 وحدة = 0.005 مل</p>
@@ -1428,7 +1428,7 @@ export default function DoseCalculator() {
                   <div className="flex rounded-xl border border-stone-300 dark:border-stone-700 p-1">
                     {[1, 2, 3].map(n => (
                       <button key={n} onClick={() => setCostDosesPerDay(n)}
-                        className={cn('flex-1 rounded-lg py-2 min-h-[44px] text-sm font-medium', costDosesPerDay === n ? 'bg-emerald-600 text-white' : 'text-stone-700 dark:text-stone-300')}>
+                        className={cn('flex-1 rounded-lg py-2 min-h-[44px] text-sm font-medium', costDosesPerDay === n ? 'bg-emerald-600 text-white' : 'text-stone-700 dark:text-stone-200')}>
                         {n}
                       </button>
                     ))}
@@ -1457,11 +1457,11 @@ export default function DoseCalculator() {
                       {costResults.map((r, i) => (
                         <tr key={i} className="border-b border-stone-200 dark:border-stone-700 last:border-b-0">
                           <td className="px-3 py-3 text-sm font-bold text-stone-900 dark:text-stone-100" dir="ltr">{r.peptide}</td>
-                          <td className="px-3 py-3 text-sm text-stone-700 dark:text-stone-300">{r.pricePerVial} ر.س</td>
+                          <td className="px-3 py-3 text-sm text-stone-700 dark:text-stone-200">{r.pricePerVial} ر.س</td>
                           <td className="px-3 py-3 text-sm text-emerald-700 font-bold">{fmt(r.costPerDose, 1)} ر.س</td>
-                          <td className="px-3 py-3 text-sm text-stone-700 dark:text-stone-300">{fmt(r.costPerWeek, 0)} ر.س</td>
+                          <td className="px-3 py-3 text-sm text-stone-700 dark:text-stone-200">{fmt(r.costPerWeek, 0)} ر.س</td>
                           <td className="px-3 py-3 text-sm font-bold text-stone-900 dark:text-stone-100">{fmt(r.costPerMonth, 0)} ر.س</td>
-                          <td className="px-3 py-3 text-sm text-stone-700 dark:text-stone-300">{fmt(r.costPerCycle12w, 0)} ر.س</td>
+                          <td className="px-3 py-3 text-sm text-stone-700 dark:text-stone-200">{fmt(r.costPerCycle12w, 0)} ر.س</td>
                           <td className="px-3 py-3">
                             <button onClick={() => setCostEntries(prev => prev.filter((_, j) => j !== i))}
                               className="rounded-lg p-2 min-h-[44px] min-w-[44px] text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors" aria-label="حذف">
@@ -1491,12 +1491,12 @@ export default function DoseCalculator() {
                     <div className="rounded-xl border border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-900/20 p-4">
                       <p className="text-xs text-emerald-700 dark:text-emerald-400 mb-1">الأقل تكلفة شهريًا</p>
                       <p className="text-lg font-bold text-emerald-700" dir="ltr">{cheapest.peptide}</p>
-                      <p className="text-sm text-stone-700 dark:text-stone-300">{fmt(cheapest.costPerMonth, 0)} ر.س/شهر</p>
+                      <p className="text-sm text-stone-700 dark:text-stone-200">{fmt(cheapest.costPerMonth, 0)} ر.س/شهر</p>
                     </div>
                     <div className="rounded-xl border border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-900/20 p-4">
                       <p className="text-xs text-red-700 dark:text-red-400 mb-1">الأعلى تكلفة شهريًا</p>
                       <p className="text-lg font-bold text-red-600" dir="ltr">{mostExpensive.peptide}</p>
-                      <p className="text-sm text-stone-700 dark:text-stone-300">{fmt(mostExpensive.costPerMonth, 0)} ر.س/شهر</p>
+                      <p className="text-sm text-stone-700 dark:text-stone-200">{fmt(mostExpensive.costPerMonth, 0)} ر.س/شهر</p>
                     </div>
                   </div>
                 );
@@ -1536,7 +1536,7 @@ export default function DoseCalculator() {
                   <div className="flex rounded-xl border border-stone-300 dark:border-stone-700 p-1">
                     {(['mcg', 'mg', 'iu'] as const).map(u => (
                       <button key={u} onClick={() => setConverterFrom(u)}
-                        className={cn('flex-1 rounded-lg py-2.5 min-h-[44px] text-sm font-medium transition-all', converterFrom === u ? 'bg-emerald-600 text-white' : 'text-stone-700 dark:text-stone-300')}>
+                        className={cn('flex-1 rounded-lg py-2.5 min-h-[44px] text-sm font-medium transition-all', converterFrom === u ? 'bg-emerald-600 text-white' : 'text-stone-700 dark:text-stone-200')}>
                         {u === 'mcg' ? 'مكغ' : u === 'mg' ? 'ملغ' : 'IU'}
                       </button>
                     ))}
@@ -1549,7 +1549,7 @@ export default function DoseCalculator() {
                   <div className="flex rounded-xl border border-stone-300 dark:border-stone-700 p-1">
                     {(['mcg', 'mg', 'iu'] as const).map(u => (
                       <button key={u} onClick={() => setConverterTo(u)}
-                        className={cn('flex-1 rounded-lg py-2.5 min-h-[44px] text-sm font-medium transition-all', converterTo === u ? 'bg-emerald-600 text-white' : 'text-stone-700 dark:text-stone-300')}>
+                        className={cn('flex-1 rounded-lg py-2.5 min-h-[44px] text-sm font-medium transition-all', converterTo === u ? 'bg-emerald-600 text-white' : 'text-stone-700 dark:text-stone-200')}>
                         {u === 'mcg' ? 'مكغ' : u === 'mg' ? 'ملغ' : 'IU'}
                       </button>
                     ))}
@@ -1566,7 +1566,7 @@ export default function DoseCalculator() {
                   <div className="flex rounded-xl border border-stone-300 dark:border-stone-700 bg-white dark:bg-stone-950 p-1">
                     {Object.entries(IU_FACTORS).map(([name, data]) => (
                       <button key={name} onClick={() => setConverterPeptide(name)}
-                        className={cn('flex-1 rounded-lg py-2.5 min-h-[44px] text-xs font-medium transition-all', converterPeptide === name ? 'bg-emerald-600 text-white' : 'text-stone-700 dark:text-stone-300')}>
+                        className={cn('flex-1 rounded-lg py-2.5 min-h-[44px] text-xs font-medium transition-all', converterPeptide === name ? 'bg-emerald-600 text-white' : 'text-stone-700 dark:text-stone-200')}>
                         <span className="block">{name}</span>
                         <span className="block text-[10px] opacity-70">{data.note}</span>
                       </button>
@@ -1587,7 +1587,7 @@ export default function DoseCalculator() {
                       : converterResult.toFixed(1)
                     : '—'}
                 </p>
-                <p className="text-lg text-stone-700 dark:text-stone-300 mt-1">
+                <p className="text-lg text-stone-700 dark:text-stone-200 mt-1">
                   {converterTo === 'mcg' ? 'مايكروغرام (mcg)' : converterTo === 'mg' ? 'ملليغرام (mg)' : 'وحدة دولية (IU)'}
                 </p>
               </div>
@@ -1725,7 +1725,7 @@ function InputField({
           aria-label={label}
           className="w-full rounded-xl border border-stone-300 dark:border-stone-700 bg-stone-50 dark:bg-stone-900 px-4 py-3 pe-16 text-base text-stone-900 dark:text-stone-100 transition-colors focus:border-emerald-300 focus:outline-none focus:ring-1 focus:ring-emerald-100"
         />
-        <span className="absolute end-3 top-1/2 -translate-y-1/2 text-xs text-stone-700 dark:text-stone-300">{unit}</span>
+        <span className="absolute end-3 top-1/2 -translate-y-1/2 text-xs text-stone-700 dark:text-stone-200">{unit}</span>
       </div>
     </div>
   );
@@ -1753,7 +1753,7 @@ function GuideStep({ step, text }: { step: string; text: string }) {
   return (
     <div className="flex items-start gap-3">
       <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-emerald-600 text-xs font-bold text-white">{step}</span>
-      <p className="text-sm text-stone-700 dark:text-stone-300">{text}</p>
+      <p className="text-sm text-stone-700 dark:text-stone-200">{text}</p>
     </div>
   );
 }

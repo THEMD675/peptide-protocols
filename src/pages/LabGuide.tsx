@@ -435,7 +435,7 @@ function InteractiveReferenceRanges({ isPro, blurClass }: { isPro: boolean; blur
               >
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center gap-2 flex-wrap">
-                    <span className="font-bold text-stone-900">{b.nameAr}</span>
+                    <span className="font-bold text-stone-900 dark:text-stone-100">{b.nameAr}</span>
                     <span className="text-xs text-stone-500 dark:text-stone-400" dir="ltr">{b.name}</span>
                     <span className="rounded-full bg-stone-100 px-2 py-0.5 text-[10px] font-medium text-stone-600 dark:bg-stone-800 dark:text-stone-400">
                       {b.categoryAr}
@@ -479,7 +479,7 @@ function InteractiveReferenceRanges({ isPro, blurClass }: { isPro: boolean; blur
                   <div className="rounded-xl bg-stone-50 dark:bg-stone-800 p-3">
                     <div className="flex items-center gap-1.5 mb-1.5">
                       <FlaskConical className="h-3.5 w-3.5 text-emerald-700" />
-                      <span className="text-xs font-bold text-stone-700 dark:text-stone-300">الببتيدات المؤثرة</span>
+                      <span className="text-xs font-bold text-stone-700 dark:text-stone-200">الببتيدات المؤثرة</span>
                     </div>
                     <div className="flex flex-wrap gap-1.5">
                       {b.relatedPeptides.map(p => (
@@ -560,7 +560,7 @@ function TestPackages({ isPro, blurClass }: { isPro: boolean; blurClass: string 
             >
               <div className="text-center">
                 <span className="text-3xl">{pkg.icon}</span>
-                <h3 className="mt-2 text-lg font-bold text-stone-900">{pkg.nameAr}</h3>
+                <h3 className="mt-2 text-lg font-bold text-stone-900 dark:text-stone-100">{pkg.nameAr}</h3>
                 <div className={cn('mt-1 text-2xl font-black', c.text)}>{pkg.price}</div>
                 {pkg.id === 'peptide' && (
                   <span className="mt-1 inline-block rounded-full bg-blue-600 px-2.5 py-0.5 text-[10px] font-bold text-white">
@@ -576,7 +576,7 @@ function TestPackages({ isPro, blurClass }: { isPro: boolean; blurClass: string 
               <div className={cn('mt-3', blurClass)} aria-hidden={!isPro || undefined}>
                 <div className="flex flex-wrap justify-center gap-1">
                   {pkg.testsAr.map(t => (
-                    <span key={t} className="rounded-full bg-white/70 dark:bg-stone-800/70 px-2 py-0.5 text-[10px] font-medium text-stone-700 dark:text-stone-300">
+                    <span key={t} className="rounded-full bg-white/70 dark:bg-stone-800/70 px-2 py-0.5 text-[10px] font-medium text-stone-700 dark:text-stone-200">
                       {t}
                     </span>
                   ))}
@@ -654,7 +654,7 @@ function TestingTimeline() {
                 </div>
                 <div className={cn('flex-1 rounded-2xl border p-4', colors[step.color])}>
                   <div className="flex items-center gap-2 mb-1">
-                    <h3 className="font-bold text-stone-900">{step.label}</h3>
+                    <h3 className="font-bold text-stone-900 dark:text-stone-100">{step.label}</h3>
                     {i === 0 && <span className="rounded-full bg-emerald-600 px-2 py-0.5 text-[10px] font-bold text-white">أساسي</span>}
                   </div>
                   <p className="text-xs text-stone-600 dark:text-stone-400">{step.description}</p>
@@ -691,7 +691,7 @@ function TestingTimeline() {
                   <span className="drop-shadow-md">{step.icon}</span>
                 </div>
                 <div className={cn('mt-3 w-full rounded-2xl border p-3', cardColors[step.color])}>
-                  <h3 className="font-bold text-sm text-stone-900">{step.label}</h3>
+                  <h3 className="font-bold text-sm text-stone-900 dark:text-stone-100">{step.label}</h3>
                   <span className="text-[10px] text-stone-500 dark:text-stone-400" dir="ltr">{step.labelEn}</span>
                   <p className="mt-1.5 text-[11px] text-stone-600 dark:text-stone-400 leading-relaxed">{step.description}</p>
                   <div className="mt-2 rounded-lg bg-white/60 dark:bg-stone-800/40 px-2 py-1 text-[10px] text-stone-500 dark:text-stone-400">
@@ -773,7 +773,7 @@ function ResultsInterpreter({ isPro, blurClass }: { isPro: boolean; blurClass: s
           <div className={cn('mt-4 space-y-3 animate-fade-in', blurClass)} aria-hidden={!isPro || undefined}>
             <div className="flex items-center gap-2">
               <StatusBadge status={status} />
-              <span className="text-sm font-bold text-stone-900" dir="ltr">
+              <span className="text-sm font-bold text-stone-900 dark:text-stone-100" dir="ltr">
                 {numericValue} {biomarker.unit}
               </span>
             </div>
@@ -802,7 +802,7 @@ function ResultsInterpreter({ isPro, blurClass }: { isPro: boolean; blurClass: s
                 <p className="text-xs text-stone-600 dark:text-stone-400 mb-2">
                   {status === 'low' ? biomarker.lowImplication : biomarker.highImplication}
                 </p>
-                <div className="rounded-lg bg-white/60 dark:bg-stone-800/40 p-2.5 text-xs text-stone-700 dark:text-stone-300">
+                <div className="rounded-lg bg-white/60 dark:bg-stone-800/40 p-2.5 text-xs text-stone-700 dark:text-stone-200">
                   <strong>التوصية:</strong> استشر طبيبك المتخصص وأعد التحليل بعد 4-6 أسابيع. قد تحتاج لتعديل الجرعة أو إيقاف البروتوكول مؤقتاً.
                 </div>
               </div>
@@ -811,7 +811,7 @@ function ResultsInterpreter({ isPro, blurClass }: { isPro: boolean; blurClass: s
             <div className="flex items-center gap-2 text-xs">
               <FlaskConical className="h-3.5 w-3.5 text-emerald-700" />
               <span className="text-stone-500 dark:text-stone-400">الببتيدات المؤثرة:</span>
-              <span className="font-medium text-stone-700 dark:text-stone-300">{biomarker.relatedPeptides.join('، ')}</span>
+              <span className="font-medium text-stone-700 dark:text-stone-200">{biomarker.relatedPeptides.join('، ')}</span>
             </div>
 
             <Link
@@ -852,7 +852,7 @@ function LabLocator() {
           >
             <div className="text-center mb-4">
               <span className="text-3xl">{lab.logo}</span>
-              <h3 className="mt-2 text-lg font-bold text-stone-900">{lab.name}</h3>
+              <h3 className="mt-2 text-lg font-bold text-stone-900 dark:text-stone-100">{lab.name}</h3>
               <span className="text-xs text-stone-500 dark:text-stone-400">{lab.nameEn}</span>
             </div>
 
@@ -895,7 +895,7 @@ function LabLocator() {
               href={lab.website}
               target="_blank"
               rel="noopener noreferrer"
-              className="mt-3 block rounded-xl bg-stone-100 dark:bg-stone-800 py-2 text-center text-xs font-bold text-stone-700 dark:text-stone-300 hover:bg-stone-200 dark:hover:bg-stone-700 transition-colors"
+              className="mt-3 block rounded-xl bg-stone-100 dark:bg-stone-800 py-2 text-center text-xs font-bold text-stone-700 dark:text-stone-200 hover:bg-stone-200 dark:hover:bg-stone-700 transition-colors"
             >
               زيارة الموقع ↗
             </a>
@@ -959,7 +959,7 @@ export default function LabGuide() {
         <h1 className="text-3xl font-bold md:text-4xl text-emerald-700">
           دليل التحاليل المخبرية
         </h1>
-        <p className="mt-2 text-lg text-stone-600">
+        <p className="mt-2 text-lg text-stone-600 dark:text-stone-400">
           التحاليل الأساسية قبل وأثناء وبعد استخدام الببتيدات
         </p>
       </div>
@@ -1025,14 +1025,14 @@ export default function LabGuide() {
                       <Icon className={cn('h-5 w-5', color)} />
                     </div>
                     <div className="min-w-0 flex-1">
-                      <h3 className="font-bold text-stone-900 leading-snug">{test.nameAr}</h3>
+                      <h3 className="font-bold text-stone-900 dark:text-stone-100 leading-snug">{test.nameAr}</h3>
                       <span className="text-xs text-stone-500 dark:text-stone-400" dir="ltr">{test.nameEn}</span>
                     </div>
                   </div>
 
                   <div className={blurClass} aria-hidden={!isPro || undefined}>
-                    <p className="mb-2 text-sm leading-relaxed text-stone-600">{test.descriptionAr}</p>
-                    <div className="flex items-start gap-2 rounded-lg bg-stone-50 dark:bg-stone-800 p-2.5 text-xs text-stone-700 dark:text-stone-300">
+                    <p className="mb-2 text-sm leading-relaxed text-stone-600 dark:text-stone-400">{test.descriptionAr}</p>
+                    <div className="flex items-start gap-2 rounded-lg bg-stone-50 dark:bg-stone-800 p-2.5 text-xs text-stone-700 dark:text-stone-200">
                       <Calendar className="mt-0.5 h-3.5 w-3.5 shrink-0 text-emerald-500" />
                       <span>{test.whenAr}</span>
                     </div>
@@ -1068,8 +1068,8 @@ export default function LabGuide() {
 
       {/* CTA footer */}
       <div className="mt-12 rounded-2xl border border-emerald-200 bg-emerald-50 dark:border-emerald-800 dark:bg-emerald-900/20 p-6 text-center">
-        <p className="font-bold text-stone-900">الخطوة التالية</p>
-        <p className="mt-1 text-sm text-stone-600">عرفت تحاليلك — الآن احسب جرعتك أو تعلّم طريقة الحقن</p>
+        <p className="font-bold text-stone-900 dark:text-stone-100">الخطوة التالية</p>
+        <p className="mt-1 text-sm text-stone-600 dark:text-stone-400">عرفت تحاليلك — الآن احسب جرعتك أو تعلّم طريقة الحقن</p>
         <div className="mt-4 flex flex-col gap-2 sm:flex-row sm:justify-center">
           <Link to="/calculator" className="rounded-full bg-emerald-600 px-6 py-2.5 text-sm font-bold text-white transition-colors hover:bg-emerald-700 min-h-[44px] inline-flex items-center justify-center">حاسبة الجرعات</Link>
           <Link to="/guide" className="rounded-full border border-emerald-300 px-6 py-2.5 text-sm font-bold text-emerald-700 transition-colors hover:bg-emerald-100 min-h-[44px] inline-flex items-center justify-center">دليل التحضير والحقن</Link>

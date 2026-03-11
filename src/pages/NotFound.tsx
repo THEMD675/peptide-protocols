@@ -92,7 +92,7 @@ export default function NotFound() {
           <Link
             key={link.to}
             to={link.to}
-            className="flex flex-col items-center gap-2 rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-900 p-4 text-stone-700 dark:text-stone-300 hover:border-emerald-300 dark:hover:border-emerald-700 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 transition-colors"
+            className="flex flex-col items-center gap-2 rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-900 p-4 text-stone-700 dark:text-stone-200 hover:border-emerald-300 dark:hover:border-emerald-700 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 transition-colors"
           >
             <link.icon className="h-5 w-5 text-emerald-700" />
             <span className="text-sm font-bold">{link.label}</span>

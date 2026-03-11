@@ -84,7 +84,7 @@ export default function Transparency() {
                 </div>
                 <div>
                   <h2 className="mb-3 text-xl font-bold text-stone-900 dark:text-stone-100 md:text-2xl">كيف نكسب المال</h2>
-                  <p className="text-base leading-relaxed text-stone-700 dark:text-stone-300">
+                  <p className="text-base leading-relaxed text-stone-700 dark:text-stone-200">
                     مصدر دخلنا الوحيد هو <strong className="text-emerald-700">اشتراكك</strong>. لا إعلانات.
                     لا عمولات. لا محتوى مموّل. لا بيع بيانات. عندما يكون اشتراكك هو مصدر دخلنا الوحيد،
                     يصبح هدفنا الوحيد تقديم أفضل محتوى ممكن — مصلحتنا مرتبطة بمصلحتك مباشرة.
@@ -102,7 +102,7 @@ export default function Transparency() {
                 {whatWeDo.map((item) => (
                   <li key={item} className="flex items-start gap-3">
                     <Check className="mt-0.5 h-5 w-5 shrink-0 text-emerald-700" />
-                    <span className="text-sm leading-relaxed text-stone-700 dark:text-stone-300">{item}</span>
+                    <span className="text-sm leading-relaxed text-stone-700 dark:text-stone-200">{item}</span>
                   </li>
                 ))}
               </ul>
@@ -114,7 +114,7 @@ export default function Transparency() {
                 {whatWeDontDo.map((item) => (
                   <li key={item} className="flex items-start gap-3">
                     <X className="mt-0.5 h-5 w-5 shrink-0 text-red-400" />
-                    <span className="text-sm leading-relaxed text-stone-700 dark:text-stone-300">{item}</span>
+                    <span className="text-sm leading-relaxed text-stone-700 dark:text-stone-200">{item}</span>
                   </li>
                 ))}
               </ul>
@@ -130,7 +130,7 @@ export default function Transparency() {
                 </div>
                 <div>
                   <h2 className="mb-3 text-xl font-bold text-stone-900 dark:text-stone-100 md:text-2xl">معايير المحتوى</h2>
-                  <div className="space-y-4 text-base leading-relaxed text-stone-700 dark:text-stone-300">
+                  <div className="space-y-4 text-base leading-relaxed text-stone-700 dark:text-stone-200">
                     <div>
                       <h3 className="mb-1 font-bold text-stone-900 dark:text-stone-100">كيف نبحث البروتوكولات</h3>
                       <p>
@@ -167,7 +167,7 @@ export default function Transparency() {
                 </div>
                 <div>
                   <h2 className="mb-3 text-xl font-bold text-stone-900 dark:text-stone-100 md:text-2xl">فلسفة التسعير</h2>
-                  <div className="space-y-4 text-base leading-relaxed text-stone-700 dark:text-stone-300">
+                  <div className="space-y-4 text-base leading-relaxed text-stone-700 dark:text-stone-200">
                     <p>
                       <strong className="text-emerald-700">34 ر.س شهريًا</strong> — أقل من سعر كوب قهوة يوميًا.
                       اخترنا هذا السعر ليكون في متناول الجميع دون المساس بجودة المحتوى والأدوات.
@@ -231,7 +231,7 @@ export default function Transparency() {
                     {dataNeverDo.map((item) => (
                       <li key={item} className="flex items-start gap-3">
                         <X className="mt-0.5 h-5 w-5 shrink-0 text-red-400" />
-                        <span className="text-sm leading-relaxed text-stone-700 dark:text-stone-300">{item}</span>
+                        <span className="text-sm leading-relaxed text-stone-700 dark:text-stone-200">{item}</span>
                       </li>
                     ))}
                   </ul>

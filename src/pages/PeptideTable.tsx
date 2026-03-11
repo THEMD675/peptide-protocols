@@ -451,7 +451,7 @@ export default function PeptideTable() {
 
         {/* ━━━ COLLAPSIBLE GUIDE ━━━ */}
         <details className="mb-6 rounded-xl border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-900">
-          <summary className="flex cursor-pointer items-center gap-2 px-5 py-3 text-sm font-bold text-stone-700 dark:text-stone-300 transition-colors hover:text-stone-900 dark:text-stone-100">
+          <summary className="flex cursor-pointer items-center gap-2 px-5 py-3 text-sm font-bold text-stone-700 dark:text-stone-200 transition-colors hover:text-stone-900 dark:text-stone-100">
             <BookOpen className="h-4 w-4" />
             دليل استخدام الجدول والاختصارات
           </summary>
@@ -470,7 +470,7 @@ export default function PeptideTable() {
               ].map((abbr) => (
                 <span
                   key={abbr.label}
-                  className="rounded-md border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 px-2 py-1 text-stone-700 dark:text-stone-300"
+                  className="rounded-md border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 px-2 py-1 text-stone-700 dark:text-stone-200"
                 >
                   <span className="font-semibold text-stone-800 dark:text-stone-200">{abbr.label}</span>
                   {abbr.full && <span className="text-stone-800 dark:text-stone-200"> = {abbr.full}</span>}
@@ -821,7 +821,7 @@ export default function PeptideTable() {
           </div>
 
           {/* Results count */}
-          <div className="mt-3 text-center text-xs text-stone-700 dark:text-stone-300">
+          <div className="mt-3 text-center text-xs text-stone-700 dark:text-stone-200">
             عرض {filtered.length} ببتيد من أصل {peptides.length}
           </div>
         </section>
@@ -868,7 +868,7 @@ export default function PeptideTable() {
                   </div>
 
                   <div className="mb-3">
-                    <span className="text-xs font-bold tracking-wider text-stone-700 dark:text-stone-300">الهدف</span>
+                    <span className="text-xs font-bold tracking-wider text-stone-700 dark:text-stone-200">الهدف</span>
                     <p
                       className={cn('mt-1 text-xs leading-relaxed text-stone-800 dark:text-stone-200', !hasAccess && blurClass)}
                       aria-hidden={!hasAccess || undefined}
@@ -878,7 +878,7 @@ export default function PeptideTable() {
                   </div>
 
                   <div>
-                    <span className="text-xs font-bold tracking-wider text-stone-700 dark:text-stone-300">البروتوكول</span>
+                    <span className="text-xs font-bold tracking-wider text-stone-700 dark:text-stone-200">البروتوكول</span>
                     <p
                       className={cn('mt-1 line-clamp-4 whitespace-pre-line text-xs leading-relaxed text-stone-800 dark:text-stone-200', !hasAccess && blurClass)}
                       aria-hidden={!hasAccess || undefined}
@@ -927,7 +927,7 @@ export default function PeptideTable() {
                   <p className="mb-4 text-xs leading-relaxed text-stone-800 dark:text-stone-200">{cat.descriptionAr}</p>
 
                   <div className="mb-4">
-                    <span className="mb-2 block text-xs font-bold tracking-wider text-stone-700 dark:text-stone-300">الببتيدات</span>
+                    <span className="mb-2 block text-xs font-bold tracking-wider text-stone-700 dark:text-stone-200">الببتيدات</span>
                     <div className="flex flex-wrap gap-1.5">
                       {catPeptides.map((p) => (
                         <Link
@@ -942,7 +942,7 @@ export default function PeptideTable() {
                   </div>
 
                   <div>
-                    <span className="mb-2 block text-xs font-bold tracking-wider text-stone-700 dark:text-stone-300">ملاحظات تجميع رئيسية</span>
+                    <span className="mb-2 block text-xs font-bold tracking-wider text-stone-700 dark:text-stone-200">ملاحظات تجميع رئيسية</span>
                     <ul className="space-y-1.5">
                       {stackingNotes.map((sn, idx) => (
                         <li key={idx} className="text-xs leading-relaxed text-stone-800 dark:text-stone-200">

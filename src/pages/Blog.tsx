@@ -269,15 +269,28 @@ export default function Blog() {
         )}
 
         {!loading && !error && posts.length === 0 && (
-          <div className="rounded-2xl border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-900 p-8 text-center">
-            <p className="font-bold text-stone-700 dark:text-stone-300">لا توجد مقالات حاليًا</p>
-            <p className="mt-2 text-sm text-stone-500 dark:text-stone-400">سنضيف مقالات جديدة قريبًا</p>
+          <div className="rounded-2xl border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-900/50 px-8 py-14 text-center">
+            <div className="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-2xl bg-emerald-50 dark:bg-emerald-900/20 ring-1 ring-emerald-200 dark:ring-emerald-800">
+              <FileText className="h-8 w-8 text-emerald-600 dark:text-emerald-400" />
+            </div>
+            <h3 className="text-xl font-bold text-stone-900 dark:text-stone-100">لا توجد مقالات بعد</h3>
+            <p className="mx-auto mt-2 max-w-sm text-sm leading-relaxed text-stone-500 dark:text-stone-400">
+              نعمل على كتابة مقالات علمية عميقة عن الببتيدات العلاجية. ترقّب المحتوى قريبًا.
+            </p>
+            <div className="mt-6 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
+              <a href="/library" className="inline-flex items-center gap-2 rounded-full bg-emerald-600 px-6 py-2.5 text-sm font-bold text-white transition-colors hover:bg-emerald-700">
+                تصفّح مكتبة الببتيدات
+              </a>
+              <a href="/coach" className="inline-flex items-center gap-2 rounded-full border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 px-6 py-2.5 text-sm font-bold text-stone-700 dark:text-stone-200 transition-colors hover:border-emerald-300 dark:hover:border-emerald-700">
+                اسأل المدرب الذكي
+              </a>
+            </div>
           </div>
         )}
 
         {!loading && !error && posts.length > 0 && filteredPosts.length === 0 && (
           <div className="rounded-2xl border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-900 p-8 text-center">
-            <p className="font-bold text-stone-700 dark:text-stone-300">لا توجد نتائج</p>
+            <p className="font-bold text-stone-700 dark:text-stone-200">لا توجد نتائج</p>
             <p className="mt-2 text-sm text-stone-500 dark:text-stone-400">جرّب كلمة بحث مختلفة أو اختر تصنيفًا آخر</p>
             <button
               onClick={() => { setSearch(''); setActiveTag(null); }}
@@ -329,7 +342,7 @@ export default function Blog() {
                               'cursor-pointer rounded-full px-2 py-0.5 transition-colors',
                               activeTag === tag
                                 ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400'
-                                : 'bg-stone-100 dark:bg-stone-800 hover:bg-emerald-50 dark:bg-emerald-900/20 hover:text-emerald-700 dark:text-emerald-400'
+                                : 'bg-stone-100 dark:bg-stone-800 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 text-stone-600 dark:text-stone-400 hover:text-emerald-700 dark:hover:text-emerald-400'
                             )}
                           >
                             {tag}
@@ -347,7 +360,7 @@ export default function Blog() {
                 <button
                   onClick={loadMorePosts}
                   disabled={loadingMore}
-                  className="inline-flex items-center gap-2 rounded-full border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 px-8 py-3 text-sm font-bold text-stone-700 dark:text-stone-300 transition-all hover:border-emerald-300 dark:hover:border-emerald-700 hover:shadow-sm disabled:opacity-50"
+                  className="inline-flex items-center gap-2 rounded-full border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 px-8 py-3 text-sm font-bold text-stone-700 dark:text-stone-200 transition-all hover:border-emerald-300 dark:hover:border-emerald-700 hover:shadow-sm disabled:opacity-50"
                 >
                   {loadingMore ? 'جاري التحميل...' : 'تحميل المزيد'}
                 </button>

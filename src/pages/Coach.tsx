@@ -875,12 +875,12 @@ export default function Coach() {
                 </div>
                 {/* Timestamp */}
                 {msg.timestamp && !msg.content.startsWith('__ERROR') && (
-                  <p className={cn('mt-1 text-[10px] text-stone-400', msg.role === 'user' ? 'text-start ms-9' : 'text-end max-w-[88%] ms-auto')}>
+                  <p className={cn('mt-1 text-[10px] text-stone-400 dark:text-stone-500', msg.role === 'user' ? 'text-start ms-9' : 'text-end max-w-[88%] ms-auto')}>
                     {formatMessageTime(msg.timestamp)}
                   </p>
                 )}
                 {msg.role === 'assistant' && !msg.content.startsWith('__ERROR') && (
-                  <p className="mt-0.5 text-[10px] text-stone-400 text-end max-w-[88%] ms-auto">هذه معلومات تعليمية وليست نصيحة طبية — استشر طبيبك</p>
+                  <p className="mt-0.5 text-[10px] text-stone-400 dark:text-stone-500 text-end max-w-[88%] ms-auto">هذه معلومات تعليمية وليست نصيحة طبية — استشر طبيبك</p>
                 )}
                 {/* Action pills: for non-last messages, show Copy + WhatsApp only */}
                 {msg.role === 'assistant' && !isLoading && msg.content.length > 50 && i !== messages.length - 1 && (
@@ -896,7 +896,7 @@ export default function Coach() {
                           toast.error('تعذّر نسخ المحتوى إلى الحافظة');
                         }
                       }}
-                      className="inline-flex items-center gap-1 rounded-lg border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 px-3 py-1.5 text-xs font-medium text-stone-500 dark:text-stone-400 transition-colors hover:bg-stone-50 dark:hover:bg-stone-800 hover:text-stone-700 dark:text-stone-300"
+                      className="inline-flex items-center gap-1 rounded-lg border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 px-3 py-1.5 text-xs font-medium text-stone-500 dark:text-stone-400 transition-colors hover:bg-stone-50 dark:hover:bg-stone-800 hover:text-stone-700 dark:text-stone-200"
                     >
                       {copiedIdx === i ? <Check className="h-3 w-3 text-emerald-500" /> : <Copy className="h-3 w-3" />}
                       {copiedIdx === i ? 'تم' : 'نسخ'}
@@ -946,7 +946,7 @@ export default function Coach() {
                             toast.error('تعذّر نسخ المحتوى إلى الحافظة');
                           }
                         }}
-                        className="inline-flex items-center gap-1 rounded-lg border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 px-3 py-1.5 text-xs font-medium text-stone-500 dark:text-stone-400 transition-colors hover:bg-stone-50 dark:hover:bg-stone-800 hover:text-stone-700 dark:text-stone-300"
+                        className="inline-flex items-center gap-1 rounded-lg border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 px-3 py-1.5 text-xs font-medium text-stone-500 dark:text-stone-400 transition-colors hover:bg-stone-50 dark:hover:bg-stone-800 hover:text-stone-700 dark:text-stone-200"
                       >
                         {copiedIdx === i ? <Check className="h-3 w-3 text-emerald-500" /> : <Copy className="h-3 w-3" />}
                         {copiedIdx === i ? 'تم' : 'نسخ'}

@@ -93,7 +93,7 @@ export default function ExitIntentPopup() {
         <h2 id="exit-popup-title" className="mb-2 text-2xl font-bold text-stone-900 dark:text-stone-100">
           {subscription?.isTrial ? 'تجربتك تنتهي قريبًا' : 'لحظة — لا تفوّت الفرصة'}
         </h2>
-        <p className="mb-1 text-stone-700 dark:text-stone-300">
+        <p className="mb-1 text-stone-700 dark:text-stone-200">
           {subscription?.isTrial
             ? `تبقى ${subscription.trialDaysLeft} ${arPlural(subscription.trialDaysLeft, 'يوم واحد', 'يومان', 'أيام')} — اشترك الآن ولا تخسر وصولك`
             : `${PEPTIDE_COUNT}+ ببتيد مع بروتوكولات كاملة، حاسبة جرعات، ومدرب ذكي`
@@ -124,7 +124,7 @@ export default function ExitIntentPopup() {
 
         <button
           onClick={() => setVisible(false)}
-          className="rounded-full border border-stone-200 dark:border-stone-700 px-5 py-2 text-sm text-stone-500 dark:text-stone-400 hover:text-stone-700 dark:text-stone-300 hover:border-stone-300 dark:border-stone-700 transition-colors"
+          className="rounded-full border border-stone-200 dark:border-stone-700 px-5 py-2 text-sm text-stone-500 dark:text-stone-400 hover:text-stone-700 dark:text-stone-200 hover:border-stone-300 dark:border-stone-700 transition-colors"
         >
           لا شكرًا
         </button>

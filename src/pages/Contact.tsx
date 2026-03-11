@@ -220,7 +220,7 @@ export default function Contact() {
           </div>
           <a
             href={`mailto:${SUPPORT_EMAIL}`}
-            className="inline-flex min-h-[44px] items-center gap-2 rounded-full border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-900 px-5 py-2.5 text-sm font-medium text-stone-700 dark:text-stone-300 transition-colors hover:border-emerald-300 dark:hover:border-emerald-700 hover:text-emerald-700 dark:hover:text-emerald-400"
+            className="inline-flex min-h-[44px] items-center gap-2 rounded-full border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-900 px-5 py-2.5 text-sm font-medium text-stone-700 dark:text-stone-200 transition-colors hover:border-emerald-300 dark:hover:border-emerald-700 hover:text-emerald-700 dark:hover:text-emerald-400"
           >
             <Mail className="h-4 w-4" />
             {SUPPORT_EMAIL}
@@ -236,7 +236,7 @@ export default function Contact() {
           <div>
             <label
               htmlFor="contact-name"
-              className="mb-1.5 block text-sm font-medium text-stone-700 dark:text-stone-300"
+              className="mb-1.5 block text-sm font-medium text-stone-700 dark:text-stone-200"
             >
               الاسم <span className="text-red-500">*</span>
             </label>
@@ -257,7 +257,7 @@ export default function Contact() {
           <div>
             <label
               htmlFor="contact-email"
-              className="mb-1.5 block text-sm font-medium text-stone-700 dark:text-stone-300"
+              className="mb-1.5 block text-sm font-medium text-stone-700 dark:text-stone-200"
             >
               البريد الإلكتروني <span className="text-red-500">*</span>
             </label>
@@ -278,7 +278,7 @@ export default function Contact() {
           <div>
             <label
               htmlFor="contact-subject"
-              className="mb-1.5 block text-sm font-medium text-stone-700 dark:text-stone-300"
+              className="mb-1.5 block text-sm font-medium text-stone-700 dark:text-stone-200"
             >
               الموضوع <span className="text-red-500">*</span>
             </label>
@@ -304,7 +304,7 @@ export default function Contact() {
           <div>
             <label
               htmlFor="contact-message"
-              className="mb-1.5 block text-sm font-medium text-stone-700 dark:text-stone-300"
+              className="mb-1.5 block text-sm font-medium text-stone-700 dark:text-stone-200"
             >
               الرسالة <span className="text-red-500">*</span>
             </label>

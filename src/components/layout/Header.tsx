@@ -189,7 +189,7 @@ export default memo(function Header() {
                               'block px-4 py-2.5 text-sm transition-colors hover:bg-stone-50 dark:hover:bg-stone-800',
                               pathname.startsWith(to)
                                 ? 'text-emerald-700 dark:text-emerald-400 font-medium'
-                                : 'text-stone-700 dark:text-stone-300 transition-colors hover:text-stone-900 dark:text-stone-100',
+                                : 'text-stone-700 dark:text-stone-200 transition-colors hover:text-stone-900 dark:text-stone-100',
                             )}
                           >
                             {label}
@@ -216,7 +216,7 @@ export default memo(function Header() {
             {/* Global Search */}
             <button
               onClick={() => setSearchOpen(true)}
-              className="flex items-center gap-1.5 rounded-lg p-2.5 min-h-[44px] min-w-[44px] text-stone-500 dark:text-stone-400 transition-colors hover:bg-stone-100 dark:hover:bg-stone-800 hover:text-stone-700 dark:text-stone-300"
+              className="flex items-center gap-1.5 rounded-lg p-2.5 min-h-[44px] min-w-[44px] text-stone-500 dark:text-stone-400 transition-colors hover:bg-stone-100 dark:hover:bg-stone-800 hover:text-stone-700 dark:text-stone-200"
               aria-label="بحث"
             >
               <Search className="h-4 w-4" />

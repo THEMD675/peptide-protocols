@@ -86,7 +86,7 @@ export default function ShareButtons({
         target="_blank"
         rel="noopener noreferrer"
         onClick={() => events.shareClick('twitter')}
-        className={`${btnBase} border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 text-stone-700 dark:text-stone-300 hover:border-stone-400 dark:hover:border-stone-500`}
+        className={`${btnBase} border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 text-stone-700 dark:text-stone-200 hover:border-stone-400 dark:hover:border-stone-500`}
         aria-label="مشاركة عبر تويتر"
       >
         <span className="text-base font-bold leading-none">𝕏</span>
@@ -100,7 +100,7 @@ export default function ShareButtons({
           target="_blank"
           rel="noopener noreferrer"
           onClick={() => events.shareClick('telegram')}
-          className={`${btnBase} border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 text-stone-700 dark:text-stone-300 hover:border-[#0088cc] hover:text-[#0088cc]`}
+          className={`${btnBase} border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 text-stone-700 dark:text-stone-200 hover:border-[#0088cc] hover:text-[#0088cc]`}
           aria-label="مشاركة عبر تيليجرام"
         >
           <Send className="h-4 w-4" />
@@ -111,7 +111,7 @@ export default function ShareButtons({
       {/* Copy Link */}
       <button
         onClick={handleCopyLink}
-        className={`${btnBase} border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 text-stone-700 dark:text-stone-300 hover:border-emerald-300 dark:hover:border-emerald-700 hover:text-emerald-700`}
+        className={`${btnBase} border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 text-stone-700 dark:text-stone-200 hover:border-emerald-300 dark:hover:border-emerald-700 hover:text-emerald-700`}
         aria-label="نسخ الرابط"
       >
         {copied ? (
@@ -126,7 +126,7 @@ export default function ShareButtons({
       {'share' in navigator && (
         <button
           onClick={handleNativeShare}
-          className={`${btnBase} border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 text-stone-700 dark:text-stone-300 hover:border-emerald-300 dark:hover:border-emerald-700`}
+          className={`${btnBase} border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 text-stone-700 dark:text-stone-200 hover:border-emerald-300 dark:hover:border-emerald-700`}
           aria-label="مشاركة"
         >
           <Share2 className="h-4 w-4" />

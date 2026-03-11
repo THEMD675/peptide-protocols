@@ -484,7 +484,7 @@ export default function Account() {
           ) : (
             <form onSubmit={(e) => { e.preventDefault(); handleSaveProfile(); }} className="space-y-4">
               <div>
-                <label htmlFor="profile-display-name" className="mb-1.5 block text-sm font-medium text-stone-700 dark:text-stone-300">الاسم المعروض</label>
+                <label htmlFor="profile-display-name" className="mb-1.5 block text-sm font-medium text-stone-700 dark:text-stone-200">الاسم المعروض</label>
                 <input
                   id="profile-display-name"
                   type="text"
@@ -496,7 +496,7 @@ export default function Account() {
                 />
               </div>
               <div>
-                <label htmlFor="profile-weight" className="mb-1.5 block text-sm font-medium text-stone-700 dark:text-stone-300">الوزن (كجم)</label>
+                <label htmlFor="profile-weight" className="mb-1.5 block text-sm font-medium text-stone-700 dark:text-stone-200">الوزن (كجم)</label>
                 <input
                   id="profile-weight"
                   type="number"
@@ -512,7 +512,7 @@ export default function Account() {
                 />
               </div>
               <div>
-                <label className="mb-2 block text-sm font-medium text-stone-700 dark:text-stone-300">الأهداف</label>
+                <label className="mb-2 block text-sm font-medium text-stone-700 dark:text-stone-200">الأهداف</label>
                 <div className="flex flex-wrap gap-2">
                   {PROFILE_GOALS.map((g) => (
                     <button
@@ -548,10 +548,10 @@ export default function Account() {
             <Mail className="h-5 w-5 text-emerald-700" />
             <h2 className="text-lg font-bold text-stone-900 dark:text-stone-100">البريد الإلكتروني</h2>
           </div>
-          <p className="text-sm text-stone-700 dark:text-stone-300 mb-4" dir="ltr">{user.email}</p>
+          <p className="text-sm text-stone-700 dark:text-stone-200 mb-4" dir="ltr">{user.email}</p>
           <form onSubmit={(e) => { e.preventDefault(); handleChangeEmail(); }} className="flex flex-col gap-3 sm:flex-row sm:items-end">
             <div className="flex-1">
-              <label htmlFor="new-email" className="mb-1.5 block text-sm font-medium text-stone-700 dark:text-stone-300">بريد إلكتروني جديد</label>
+              <label htmlFor="new-email" className="mb-1.5 block text-sm font-medium text-stone-700 dark:text-stone-200">بريد إلكتروني جديد</label>
               <input
                 id="new-email"
                 type="email"
@@ -582,7 +582,7 @@ export default function Account() {
           </div>
           <form onSubmit={(e) => { e.preventDefault(); handleChangePassword(); }} className="flex flex-col gap-3">
             <div>
-              <label htmlFor="account-current-password" className="mb-1.5 block text-sm font-medium text-stone-700 dark:text-stone-300">كلمة المرور الحالية</label>
+              <label htmlFor="account-current-password" className="mb-1.5 block text-sm font-medium text-stone-700 dark:text-stone-200">كلمة المرور الحالية</label>
               <input
                 id="account-current-password"
                 type="password"
@@ -595,7 +595,7 @@ export default function Account() {
               />
             </div>
             <div>
-              <label htmlFor="account-new-password" className="mb-1.5 block text-sm font-medium text-stone-700 dark:text-stone-300">كلمة المرور الجديدة</label>
+              <label htmlFor="account-new-password" className="mb-1.5 block text-sm font-medium text-stone-700 dark:text-stone-200">كلمة المرور الجديدة</label>
               <input
                 id="account-new-password"
                 type="password"
@@ -659,7 +659,7 @@ export default function Account() {
             {subscription.status === 'active' && subscription.currentPeriodEnd && (
               <div className="flex items-center justify-between">
                 <span className="text-sm text-stone-600 dark:text-stone-400">يتجدد في</span>
-                <span className="text-sm font-bold text-stone-700 dark:text-stone-300">
+                <span className="text-sm font-bold text-stone-700 dark:text-stone-200">
                   {new Date(subscription.currentPeriodEnd).toLocaleDateString('ar-u-nu-latn')}
                 </span>
               </div>
@@ -717,7 +717,7 @@ export default function Account() {
                     toast.success('تم إرسال طلب الاسترداد — سنتواصل معك قريبًا');
                   } catch { toast.error('تعذّر إرسال طلب الاسترداد. حاول مرة أخرى.'); }
                 }}
-                className="mt-3 flex w-full items-center justify-center gap-2 rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 px-6 py-3 text-sm font-bold text-stone-700 dark:text-stone-300 transition-all hover:bg-stone-50 dark:hover:bg-stone-800"
+                className="mt-3 flex w-full items-center justify-center gap-2 rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 px-6 py-3 text-sm font-bold text-stone-700 dark:text-stone-200 transition-all hover:bg-stone-50 dark:hover:bg-stone-800"
               >
                 طلب استرداد
               </button>
@@ -782,7 +782,7 @@ export default function Account() {
             </button>
             <button
               onClick={() => handleExportData('csv')}
-              className="flex items-center justify-center gap-2 rounded-xl border border-stone-300 dark:border-stone-700 px-6 py-3 text-sm font-bold text-stone-700 dark:text-stone-300 transition-all hover:bg-stone-50 dark:hover:bg-stone-800"
+              className="flex items-center justify-center gap-2 rounded-xl border border-stone-300 dark:border-stone-700 px-6 py-3 text-sm font-bold text-stone-700 dark:text-stone-200 transition-all hover:bg-stone-50 dark:hover:bg-stone-800"
             >
               <Download className="h-4 w-4" />
               تصدير CSV (سجل الحقن)
@@ -801,7 +801,7 @@ export default function Account() {
             ) : (
               <button
                 onClick={() => { setShowCancelDialog(true); setCancelStep('survey'); setCancelReason(''); }}
-                className="flex w-full items-center justify-center gap-2 rounded-xl border border-stone-300 dark:border-stone-700 bg-white dark:bg-stone-950 px-6 py-3 text-sm font-bold text-stone-700 dark:text-stone-300 transition-all hover:bg-stone-50 dark:hover:bg-stone-800"
+                className="flex w-full items-center justify-center gap-2 rounded-xl border border-stone-300 dark:border-stone-700 bg-white dark:bg-stone-950 px-6 py-3 text-sm font-bold text-stone-700 dark:text-stone-200 transition-all hover:bg-stone-50 dark:hover:bg-stone-800"
               >
                 <LogOut className="h-4 w-4" />
                 {subscription.isTrial ? 'إلغاء التجربة' : 'إلغاء الاشتراك'}
@@ -823,7 +823,7 @@ export default function Account() {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm px-4 animate-fade-in" onClick={() => { setShowCancelDialog(false); setCancelStep(null); }}>
           <FocusTrap focusTrapOptions={{ allowOutsideClick: true }}>
           <div role="dialog" aria-modal="true" className="w-full max-w-md max-h-[90vh] overflow-y-auto rounded-2xl bg-white dark:bg-stone-950 p-6 shadow-xl dark:shadow-stone-900/40" onClick={e => e.stopPropagation()}>
-            <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-amber-100">
+            <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-amber-100 dark:bg-amber-900/30">
               <AlertTriangle className="h-6 w-6 text-amber-600" />
             </div>
             <h3 className="text-lg font-bold text-stone-900 dark:text-stone-100">لماذا تريد الإلغاء؟</h3>
@@ -843,7 +843,7 @@ export default function Account() {
                     'flex w-full items-center gap-3 rounded-xl border px-4 py-3 text-sm font-medium transition-all',
                     cancelReason === opt.id
                       ? 'border-emerald-400 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-800 dark:text-emerald-300'
-                      : 'border-stone-200 dark:border-stone-700 text-stone-700 dark:text-stone-300 hover:border-stone-300 dark:border-stone-700 hover:bg-stone-50 dark:hover:bg-stone-800',
+                      : 'border-stone-200 dark:border-stone-700 text-stone-700 dark:text-stone-200 hover:border-stone-300 dark:border-stone-700 hover:bg-stone-50 dark:hover:bg-stone-800',
                   )}
                 >
                   <span className={cn(
@@ -893,7 +893,7 @@ export default function Account() {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm px-4 animate-fade-in" onClick={() => { setShowCancelDialog(false); setCancelStep(null); }}>
           <FocusTrap focusTrapOptions={{ allowOutsideClick: true }}>
           <div role="dialog" aria-modal="true" className="w-full max-w-md max-h-[90vh] overflow-y-auto rounded-2xl bg-white dark:bg-stone-950 p-6 shadow-xl dark:shadow-stone-900/40" onClick={e => e.stopPropagation()}>
-            <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-amber-100">
+            <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-amber-100 dark:bg-amber-900/30">
               <AlertTriangle className="h-6 w-6 text-amber-600" />
             </div>
             <h3 className="text-lg font-bold text-stone-900 dark:text-stone-100">هل أنت متأكد؟</h3>
@@ -948,7 +948,7 @@ export default function Account() {
               <button
                 onClick={handleCancelSubscription}
                 disabled={isProcessing}
-                className="w-full rounded-xl border border-stone-300 dark:border-stone-700 px-4 py-2.5 text-sm font-bold text-stone-700 dark:text-stone-300 transition-all hover:bg-stone-50 dark:hover:bg-stone-800 disabled:opacity-50"
+                className="w-full rounded-xl border border-stone-300 dark:border-stone-700 px-4 py-2.5 text-sm font-bold text-stone-700 dark:text-stone-200 transition-all hover:bg-stone-50 dark:hover:bg-stone-800 disabled:opacity-50"
               >
                 {isProcessing ? 'جارٍ الإلغاء...' : 'متابعة الإلغاء'}
               </button>
@@ -988,7 +988,7 @@ export default function Account() {
               سيتم حذف حسابك وجميع بياناتك نهائيًا. إذا كان لديك اشتراك نشط، سيتم إلغاؤه فورًا. هذا الإجراء لا يمكن التراجع عنه.
             </p>
             <div className="mt-4">
-              <label className="mb-1.5 block text-sm font-medium text-stone-700 dark:text-stone-300">
+              <label className="mb-1.5 block text-sm font-medium text-stone-700 dark:text-stone-200">
                 اكتب <span className="font-bold text-red-600 dark:text-red-400">حذف</span> أو <span className="font-bold text-red-600 dark:text-red-400">delete</span> للتأكيد
               </label>
               <input
@@ -1002,7 +1002,7 @@ export default function Account() {
             </div>
             {!isOAuthUser && (
               <div className="mt-3">
-                <label className="mb-1.5 block text-sm font-medium text-stone-700 dark:text-stone-300">كلمة المرور</label>
+                <label className="mb-1.5 block text-sm font-medium text-stone-700 dark:text-stone-200">كلمة المرور</label>
                 <input
                   type="password"
                   value={deletePassword}
@@ -1024,7 +1024,7 @@ export default function Account() {
               </button>
               <button
                 onClick={closeDialogs}
-                className="flex-1 rounded-xl border border-stone-300 dark:border-stone-700 px-4 py-2.5 text-sm font-bold text-stone-700 dark:text-stone-300 transition-all hover:bg-stone-50 dark:hover:bg-stone-800"
+                className="flex-1 rounded-xl border border-stone-300 dark:border-stone-700 px-4 py-2.5 text-sm font-bold text-stone-700 dark:text-stone-200 transition-all hover:bg-stone-50 dark:hover:bg-stone-800"
               >
                 تراجع
               </button>
@@ -1127,7 +1127,7 @@ function ReferralSection({ userId }: { userId?: string }) {
       <p className="text-sm text-stone-600 dark:text-stone-400 mb-4">شارك رابط الإحالة — عندما يشترك صديقك، تحصل على كود خصم ١٠٠٪ لشهر كامل!</p>
 
       <div className="flex items-center gap-2 mb-4">
-        <div className="flex-1 rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 px-4 py-3 text-sm font-mono text-stone-700 dark:text-stone-300 truncate" dir="ltr">
+        <div className="flex-1 rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 px-4 py-3 text-sm font-mono text-stone-700 dark:text-stone-200 truncate" dir="ltr">
           {shareUrl}
         </div>
         <button onClick={handleCopy} className="shrink-0 rounded-xl border border-emerald-300 dark:border-emerald-700 bg-emerald-50 dark:bg-emerald-900/20 p-3 text-emerald-700 transition-colors hover:bg-emerald-100 dark:bg-emerald-900/30">
@@ -1151,7 +1151,7 @@ function ReferralSection({ userId }: { userId?: string }) {
               try { await navigator.share({ title: 'pptides — دليل الببتيدات', text: shareText, url: shareUrl }); } catch { /* cancelled */ }
             } else { handleCopy(); }
           }}
-          className="flex-1 flex items-center justify-center gap-2 rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 px-4 py-2.5 text-sm font-bold text-stone-700 dark:text-stone-300 transition-colors hover:bg-stone-50 dark:hover:bg-stone-800"
+          className="flex-1 flex items-center justify-center gap-2 rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 px-4 py-2.5 text-sm font-bold text-stone-700 dark:text-stone-200 transition-colors hover:bg-stone-50 dark:hover:bg-stone-800"
         >
           <Share2 className="h-4 w-4" />
           مشاركة
@@ -1239,7 +1239,7 @@ function SavedPeptides() {
 
       {savedPeptides.length === 0 ? (
         <div className="rounded-xl border border-dashed border-stone-300 dark:border-stone-700 bg-stone-50 dark:bg-stone-900/50 px-6 py-8 text-center">
-          <Heart className="mx-auto mb-3 h-8 w-8 text-stone-300 dark:text-stone-600" />
+          <Heart className="mx-auto mb-3 h-8 w-8 text-stone-300 dark:text-stone-400" />
           <p className="text-sm text-stone-500 dark:text-stone-400 mb-3">لم تحفظ أي ببتيدات بعد</p>
           <Link
             to="/library"

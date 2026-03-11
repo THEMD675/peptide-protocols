@@ -155,22 +155,22 @@ export default function Stacks() {
               </h2>
 
               {/* Goal — always visible */}
-              <p className="mb-3 text-sm leading-relaxed text-stone-700 dark:text-stone-300">
+              <p className="mb-3 text-sm leading-relaxed text-stone-700 dark:text-stone-200">
                 {stack.goalAr}
               </p>
 
               {/* Stack meta — always visible */}
               {STACK_META[stack.id] && (
                 <div className="mb-4 flex flex-wrap gap-2">
-                  <span className="flex items-center gap-1 rounded-full border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-900 px-2.5 py-1 text-sm font-medium text-stone-700 dark:text-stone-300">
+                  <span className="flex items-center gap-1 rounded-full border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-900 px-2.5 py-1 text-sm font-medium text-stone-700 dark:text-stone-200">
                     <BarChart3 className="h-3 w-3" />
                     {STACK_META[stack.id].difficulty}
                   </span>
-                  <span className="flex items-center gap-1 rounded-full border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-900 px-2.5 py-1 text-sm font-medium text-stone-700 dark:text-stone-300">
+                  <span className="flex items-center gap-1 rounded-full border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-900 px-2.5 py-1 text-sm font-medium text-stone-700 dark:text-stone-200">
                     <DollarSign className="h-3 w-3" />
                     {STACK_META[stack.id].cost}
                   </span>
-                  <span className="flex items-center gap-1 rounded-full border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-900 px-2.5 py-1 text-sm font-medium text-stone-700 dark:text-stone-300">
+                  <span className="flex items-center gap-1 rounded-full border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-900 px-2.5 py-1 text-sm font-medium text-stone-700 dark:text-stone-200">
                     <Clock className="h-3 w-3" />
                     {STACK_META[stack.id].duration}
                   </span>
@@ -213,11 +213,11 @@ export default function Stacks() {
                   tabIndex={!isPro ? -1 : undefined}
                   className={!isPro ? 'blur-[6px] pointer-events-none select-none max-h-32 overflow-hidden' : ''}
                 >
-                  <p className="mb-4 text-sm leading-relaxed text-stone-700 dark:text-stone-300">
+                  <p className="mb-4 text-sm leading-relaxed text-stone-700 dark:text-stone-200">
                     {stack.descriptionAr}
                   </p>
 
-                  <div className="rounded-xl bg-emerald-50/50 border border-emerald-100 p-4 text-sm leading-relaxed text-stone-700 dark:text-stone-300 space-y-4">
+                  <div className="rounded-xl bg-emerald-50/50 border border-emerald-100 p-4 text-sm leading-relaxed text-stone-700 dark:text-stone-200 space-y-4">
                     {stack.protocolAr.split(/\n\n+/).filter(Boolean).map((block, i) => {
                       const idx = block.indexOf('\n');
                       const firstLine = idx >= 0 ? block.slice(0, idx) : block;
@@ -250,7 +250,7 @@ export default function Stacks() {
                     </button>
                     <Link
                       to={`/calculator?peptide=${encodeURIComponent(stackPeptides[0]?.nameEn ?? '')}`}
-                      className="inline-flex items-center gap-1.5 rounded-full border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 px-4 py-2 text-sm font-bold text-stone-700 dark:text-stone-300 hover:border-emerald-200 dark:border-emerald-800 transition-colors"
+                      className="inline-flex items-center gap-1.5 rounded-full border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 px-4 py-2 text-sm font-bold text-stone-700 dark:text-stone-200 hover:border-emerald-200 dark:border-emerald-800 transition-colors"
                     >
                       <Calculator className="h-3.5 w-3.5" />
                       احسب الجرعة

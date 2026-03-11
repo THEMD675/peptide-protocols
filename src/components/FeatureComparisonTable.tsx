@@ -23,12 +23,12 @@ const FEATURES: FeatureRow[] = [
 
 function CellContent({ value }: { value: string | boolean }) {
   if (typeof value === 'string') {
-    return <span className="text-xs font-medium text-stone-700 dark:text-stone-300">{value}</span>;
+    return <span className="text-xs font-medium text-stone-700 dark:text-stone-200">{value}</span>;
   }
   return value ? (
     <Check className="mx-auto h-5 w-5 text-emerald-500" />
   ) : (
-    <X className="mx-auto h-5 w-5 text-stone-300 dark:text-stone-600" />
+    <X className="mx-auto h-5 w-5 text-stone-300 dark:text-stone-400" />
   );
 }
 
@@ -51,11 +51,11 @@ export default function FeatureComparisonTable() {
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-900">
-              <th className="px-5 py-4 text-start font-semibold text-stone-700 dark:text-stone-300 min-w-[140px]">الميزة</th>
+              <th className="px-5 py-4 text-start font-semibold text-stone-700 dark:text-stone-200 min-w-[140px]">الميزة</th>
               <th className="px-4 py-4 text-center font-semibold text-stone-500 dark:text-stone-400 min-w-[100px]">
                 مجاني
               </th>
-              <th className="px-4 py-4 text-center font-semibold text-stone-700 dark:text-stone-300 min-w-[120px]">
+              <th className="px-4 py-4 text-center font-semibold text-stone-700 dark:text-stone-200 min-w-[120px]">
                 <span className="block">الأساسية</span>
                 <span className="text-xs font-normal text-stone-500 dark:text-stone-400">Essentials</span>
               </th>

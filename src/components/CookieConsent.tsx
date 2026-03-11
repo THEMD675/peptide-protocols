@@ -72,7 +72,7 @@ export default function CookieConsent() {
           <div className="flex shrink-0 items-center gap-3">
             <button
               onClick={rejectOptional}
-              className="px-3 py-2 min-h-[44px] text-sm text-stone-500 dark:text-stone-400 underline underline-offset-2 transition-colors hover:text-stone-700 dark:text-stone-300"
+              className="px-3 py-2 min-h-[44px] text-sm text-stone-500 dark:text-stone-400 underline underline-offset-2 transition-colors hover:text-stone-700 dark:text-stone-200"
             >
               رفض الاختيارية
             </button>

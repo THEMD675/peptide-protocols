@@ -546,15 +546,15 @@ export default function StackBuilder() {
                 <h4 className="text-xs font-bold text-stone-500 dark:text-stone-400">التفاصيل</h4>
                 <div className="flex items-center gap-2 text-sm">
                   <Clock className="h-3.5 w-3.5 text-emerald-500" />
-                  <span className="text-stone-700 dark:text-stone-300">المدة: {gs.durationAr}</span>
+                  <span className="text-stone-700 dark:text-stone-200">المدة: {gs.durationAr}</span>
                 </div>
                 <div className="flex items-center gap-2 text-sm">
                   <DollarSign className="h-3.5 w-3.5 text-emerald-500" />
-                  <span className="text-stone-700 dark:text-stone-300">التكلفة: {gs.monthlyCostSAR}/شهر</span>
+                  <span className="text-stone-700 dark:text-stone-200">التكلفة: {gs.monthlyCostSAR}/شهر</span>
                 </div>
                 <div className="flex items-center gap-2 text-sm">
                   <BarChart3 className="h-3.5 w-3.5 text-emerald-500" />
-                  <span className="text-stone-700 dark:text-stone-300">المستوى: {gs.difficulty}</span>
+                  <span className="text-stone-700 dark:text-stone-200">المستوى: {gs.difficulty}</span>
                 </div>
               </div>
             </div>
@@ -621,7 +621,7 @@ export default function StackBuilder() {
           <button
             type="button"
             onClick={() => setDropdownOpen(!dropdownOpen)}
-            className="flex w-full items-center justify-between rounded-xl border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-800 px-4 py-3 text-sm text-stone-700 dark:text-stone-300 hover:border-emerald-300 dark:hover:border-emerald-700 transition-colors"
+            className="flex w-full items-center justify-between rounded-xl border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-800 px-4 py-3 text-sm text-stone-700 dark:text-stone-200 hover:border-emerald-300 dark:hover:border-emerald-700 transition-colors"
           >
             <span>{selectedIds.length === 0 ? 'اختر ببتيدات...' : `${selectedIds.length} ببتيد مختار`}</span>
             <ChevronDown className={`h-4 w-4 transition-transform ${dropdownOpen ? 'rotate-180' : ''}`} />
@@ -655,8 +655,8 @@ export default function StackBuilder() {
                         isSelected
                           ? 'bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 font-medium'
                           : isDisabled
-                          ? 'text-stone-300 dark:text-stone-600 cursor-not-allowed'
-                          : 'text-stone-700 dark:text-stone-300 hover:bg-stone-50 dark:hover:bg-stone-800'
+                          ? 'text-stone-300 dark:text-stone-400 cursor-not-allowed'
+                          : 'text-stone-700 dark:text-stone-200 hover:bg-stone-50 dark:hover:bg-stone-800'
                       }`}
                     >
                       <span>{p.nameAr} <span className="text-xs text-stone-400">({p.nameEn})</span></span>
@@ -799,7 +799,7 @@ export default function StackBuilder() {
               </h3>
               <ul className="space-y-2">
                 {combinedBenefits.map((benefit, idx) => (
-                  <li key={idx} className="flex items-start gap-2 text-sm text-stone-700 dark:text-stone-300">
+                  <li key={idx} className="flex items-start gap-2 text-sm text-stone-700 dark:text-stone-200">
                     <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-emerald-500" />
                     <span>{benefit}</span>
                   </li>

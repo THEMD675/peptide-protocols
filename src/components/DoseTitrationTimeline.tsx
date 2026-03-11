@@ -20,7 +20,7 @@ export default memo(function DoseTitrationTimeline({ schedule, currentWeek, unit
 
   return (
     <div className="rounded-xl border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-900 p-4">
-      <p className="mb-3 text-xs font-bold text-stone-700 dark:text-stone-300">جدول زيادة الجرعة</p>
+      <p className="mb-3 text-xs font-bold text-stone-700 dark:text-stone-200">جدول زيادة الجرعة</p>
       <div className="flex items-center gap-1 overflow-x-auto pb-1">
         {schedule.map((step, i) => {
           const isNext = i < schedule.length - 1 && schedule[i + 1];

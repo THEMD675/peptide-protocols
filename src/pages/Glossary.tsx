@@ -189,7 +189,7 @@ export default function Glossary() {
           <BookA className="h-7 w-7 text-emerald-700" />
         </div>
         <h1 className="text-3xl font-bold text-emerald-700 md:text-4xl">المصطلحات</h1>
-        <p className="mt-2 text-lg text-stone-600">قاموس شامل لمصطلحات الببتيدات والبيوهاكينغ</p>
+        <p className="mt-2 text-lg text-stone-600 dark:text-stone-400">قاموس شامل لمصطلحات الببتيدات والبيوهاكينغ</p>
       </div>
 
       {/* Search */}
@@ -231,7 +231,7 @@ export default function Glossary() {
                 className={`flex h-10 w-10 min-w-[40px] items-center justify-center rounded-xl text-sm font-bold transition-all min-h-[44px] ${
                   activeLetter === letter
                     ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-200 scale-110'
-                    : 'border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-900 text-stone-700 dark:text-stone-300 hover:border-emerald-300 hover:bg-emerald-50 dark:hover:bg-stone-800 hover:text-emerald-700'
+                    : 'border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-900 text-stone-700 dark:text-stone-200 hover:border-emerald-300 hover:bg-emerald-50 dark:hover:bg-stone-800 hover:text-emerald-700'
                 }`}
               >
                 {letter}
@@ -266,8 +266,8 @@ export default function Glossary() {
 
       {/* CTA */}
       <div className="mt-12 rounded-2xl border border-emerald-200 bg-emerald-50 p-6 text-center">
-        <p className="font-bold text-stone-900">مستعد تبدأ؟</p>
-        <p className="mt-1 text-sm text-stone-600">تصفّح البروتوكولات الكاملة لـ {PEPTIDE_COUNT}+ ببتيد</p>
+        <p className="font-bold text-stone-900 dark:text-stone-100">مستعد تبدأ؟</p>
+        <p className="mt-1 text-sm text-stone-600 dark:text-stone-400">تصفّح البروتوكولات الكاملة لـ {PEPTIDE_COUNT}+ ببتيد</p>
         <div className="mt-4 flex flex-col gap-2 sm:flex-row sm:justify-center">
           <Link to="/library" className="rounded-full bg-emerald-600 px-6 py-2.5 text-sm font-bold text-white transition-colors hover:bg-emerald-700 min-h-[44px] inline-flex items-center justify-center">تصفّح المكتبة</Link>
           <Link to="/coach" className="rounded-full border border-emerald-300 px-6 py-2.5 text-sm font-bold text-emerald-700 transition-colors hover:bg-emerald-100 min-h-[44px] inline-flex items-center justify-center">اسأل المدرب الذكي</Link>

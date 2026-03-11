@@ -136,7 +136,7 @@ export default function About() {
               </div>
               <div>
                 <h2 className="mb-4 text-xl font-bold text-stone-900 dark:text-stone-100 md:text-2xl">قصّتنا</h2>
-                <div className="space-y-4 text-base leading-relaxed text-stone-700 dark:text-stone-300">
+                <div className="space-y-4 text-base leading-relaxed text-stone-700 dark:text-stone-200">
                   <p>
                     في 2026، لاحظنا فجوة واضحة: المحتوى العلمي عن الببتيدات العلاجية متوفر بالإنجليزية فقط،
                     مبعثر بين منتديات ومقاطع فيديو بدون تنظيم أو مراجعة علمية. المستخدم العربي المهتم
@@ -187,7 +187,7 @@ export default function About() {
               </div>
               <div>
                 <h2 className="mb-4 text-xl font-bold text-stone-900 dark:text-stone-100 md:text-2xl">فريقنا</h2>
-                <div className="space-y-4 text-base leading-relaxed text-stone-700 dark:text-stone-300">
+                <div className="space-y-4 text-base leading-relaxed text-stone-700 dark:text-stone-200">
                   <p>
                     فريق من الباحثين والمطورين يجمع بين الخلفية الطبية والخبرة التقنية. كل عضو في الفريق
                     يشارك نفس الشغف: تقديم معلومات دقيقة وموثوقة عن الببتيدات العلاجية للعالم العربي.
@@ -240,7 +240,7 @@ export default function About() {
                 <p className="text-base font-semibold leading-relaxed text-stone-800 dark:text-stone-200">
                   pptides.com منصة تعليمية وليست بديلاً عن الاستشارة الطبية.
                 </p>
-                <p className="mt-3 text-sm leading-relaxed text-stone-700 dark:text-stone-300">
+                <p className="mt-3 text-sm leading-relaxed text-stone-700 dark:text-stone-200">
                   المحتوى المنشور على المنصة مخصّص للأغراض التعليمية فقط ولا يُعتبر نصيحة طبية أو
                   وصفة علاجية. استشر طبيبك المعالج دائمًا قبل البدء بأي بروتوكول. لا نتحمل مسؤولية
                   أي قرار يُتخذ بناءً على المعلومات المنشورة دون إشراف طبي مختص.

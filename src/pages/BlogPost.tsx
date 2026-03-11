@@ -195,7 +195,7 @@ export default function BlogPost() {
 
         {/* Share Buttons */}
         <div className="mt-10 border-t border-stone-200 dark:border-stone-700 pt-6">
-          <p className="mb-3 text-sm font-bold text-stone-700 dark:text-stone-300">شارك المقالة:</p>
+          <p className="mb-3 text-sm font-bold text-stone-700 dark:text-stone-200">شارك المقالة:</p>
           <ShareButtons
             url={`${SITE_URL}/blog/${post.slug}`}
             title={post.title_ar}

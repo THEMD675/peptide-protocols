@@ -99,7 +99,7 @@ export default function CoachHistory({
       >
         <div className="flex items-center gap-2">
           <History className="h-4 w-4 text-stone-500 dark:text-stone-400" />
-          <span className="text-sm font-bold text-stone-700 dark:text-stone-300">المحادثات السابقة</span>
+          <span className="text-sm font-bold text-stone-700 dark:text-stone-200">المحادثات السابقة</span>
           {conversations.length > 0 && (
             <span className="rounded-full bg-stone-100 dark:bg-stone-800 px-2 py-0.5 text-[10px] font-bold text-stone-500 dark:text-stone-400">
               {conversations.length}

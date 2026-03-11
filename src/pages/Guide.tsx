@@ -104,7 +104,7 @@ function AccordionItem({ title, children, defaultOpen = false }: { title: string
         style={{ gridTemplateRows: open ? '1fr' : '0fr', opacity: open ? 1 : 0 }}
       >
         <div className="overflow-hidden">
-          <div className="px-5 pb-5 text-sm leading-relaxed text-stone-700 dark:text-stone-300 space-y-3">{children}</div>
+          <div className="px-5 pb-5 text-sm leading-relaxed text-stone-700 dark:text-stone-200 space-y-3">{children}</div>
         </div>
       </div>
     </div>
@@ -118,7 +118,7 @@ function InfoCard({ icon, title, children }: { icon: React.ReactNode; title: str
         {icon}
         <h4 className="font-bold text-stone-900 dark:text-stone-100">{title}</h4>
       </div>
-      <div className="text-sm leading-relaxed text-stone-700 dark:text-stone-300 space-y-2">{children}</div>
+      <div className="text-sm leading-relaxed text-stone-700 dark:text-stone-200 space-y-2">{children}</div>
     </div>
   );
 }
@@ -1069,7 +1069,7 @@ export default function Guide() {
       {/* ═══ Progress Bar ═══ */}
       <div className="mb-8">
         <div className="flex items-center justify-between mb-2">
-          <span className="text-sm font-bold text-stone-700 dark:text-stone-300">
+          <span className="text-sm font-bold text-stone-700 dark:text-stone-200">
             التقدم: {completedCount} من {modules.length} وحدات
           </span>
           <span className="text-sm text-emerald-700 font-bold">
@@ -1169,7 +1169,7 @@ export default function Guide() {
                   <ChevronDown className={cn('h-5 w-5 shrink-0 text-emerald-500 transition-transform duration-200', openSections[section.id] && 'rotate-180')} />
                 </button>
                 {openSections[section.id] && (
-                  <div className="px-5 pb-5 text-sm leading-relaxed text-stone-700 dark:text-stone-300">
+                  <div className="px-5 pb-5 text-sm leading-relaxed text-stone-700 dark:text-stone-200">
                     {section.content}
                   </div>
                 )}
@@ -1186,8 +1186,8 @@ export default function Guide() {
             className={cn(
               'flex items-center gap-2 rounded-xl px-5 py-3 text-sm font-bold transition-colors',
               activeModuleIndex === 0
-                ? 'text-stone-400 dark:text-stone-600 cursor-not-allowed'
-                : 'bg-stone-100 dark:bg-stone-800 text-stone-700 dark:text-stone-300 hover:bg-stone-200 dark:hover:bg-stone-700'
+                ? 'text-stone-400 dark:text-stone-400 cursor-not-allowed'
+                : 'bg-stone-100 dark:bg-stone-800 text-stone-700 dark:text-stone-200 hover:bg-stone-200 dark:hover:bg-stone-700'
             )}
           >
             <ArrowRight className="h-4 w-4" />
@@ -1233,7 +1233,7 @@ export default function Guide() {
                 <span className="flex items-center gap-2">{faq.q}</span>
               </summary>
               <div className="details-content">
-                <p className="px-5 pb-4 text-sm leading-relaxed text-stone-700 dark:text-stone-300">{faq.a}</p>
+                <p className="px-5 pb-4 text-sm leading-relaxed text-stone-700 dark:text-stone-200">{faq.a}</p>
               </div>
             </details>
           ))}

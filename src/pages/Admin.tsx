@@ -609,7 +609,7 @@ export default function Admin() {
               }
               return (
                 <div className="rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 p-4">
-                  <h3 className="text-xs font-bold text-stone-700 dark:text-stone-300 mb-4 flex items-center gap-1.5" dir="rtl">
+                  <h3 className="text-xs font-bold text-stone-700 dark:text-stone-200 mb-4 flex items-center gap-1.5" dir="rtl">
                     <TrendingUp className="h-3.5 w-3.5 text-emerald-500" /> التسجيلات — آخر 30 يوم
                   </h3>
                   <div className="h-48 w-full">
@@ -654,7 +654,7 @@ export default function Admin() {
               ];
               return (
                 <div className="rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 p-4">
-                  <h3 className="text-xs font-bold text-stone-700 dark:text-stone-300 mb-4 flex items-center gap-1.5" dir="rtl">
+                  <h3 className="text-xs font-bold text-stone-700 dark:text-stone-200 mb-4 flex items-center gap-1.5" dir="rtl">
                     <TrendingUp className="h-3.5 w-3.5 text-emerald-500" /> قمع التحويل
                   </h3>
                   <div className="h-52 w-full">
@@ -690,7 +690,7 @@ export default function Admin() {
 
             {/* ── Content Stats ── */}
             <div className="rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 p-4">
-              <h3 className="text-xs font-bold text-stone-700 dark:text-stone-300 mb-4 flex items-center gap-1.5" dir="rtl">
+              <h3 className="text-xs font-bold text-stone-700 dark:text-stone-200 mb-4 flex items-center gap-1.5" dir="rtl">
                 <Activity className="h-3.5 w-3.5 text-violet-500" /> إحصائيات المحتوى
               </h3>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
@@ -705,13 +705,13 @@ export default function Admin() {
             <div className="grid md:grid-cols-2 gap-4">
               {/* Active Trials */}
               <div className="rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 p-4">
-                <h3 className="text-xs font-bold text-stone-700 dark:text-stone-300 mb-3 flex items-center gap-1.5" dir="rtl"><Clock className="h-3.5 w-3.5 text-blue-500" /> الفترات التجريبية النشطة</h3>
+                <h3 className="text-xs font-bold text-stone-700 dark:text-stone-200 mb-3 flex items-center gap-1.5" dir="rtl"><Clock className="h-3.5 w-3.5 text-blue-500" /> الفترات التجريبية النشطة</h3>
                 {stats.recentUsers.filter(u => u.subscription?.status === 'trial').length === 0 ? <p className="text-sm text-stone-500 dark:text-stone-400">لا توجد فترات تجريبية نشطة</p> :
                   stats.recentUsers.filter(u => u.subscription?.status === 'trial').map(u => {
                     const tl = trialLeft(u.subscription?.trial_ends_at ?? null);
                     return (
                       <div key={u.id} className="flex items-center justify-between text-sm mb-2">
-                        <span className="font-mono text-xs text-stone-700 dark:text-stone-300 truncate max-w-[200px]">{u.email}</span>
+                        <span className="font-mono text-xs text-stone-700 dark:text-stone-200 truncate max-w-[200px]">{u.email}</span>
                         <div className="flex items-center gap-1">
                           {tl && <span className={cn('rounded-full px-2 py-0.5 text-xs font-medium', tl.urgent ? 'bg-red-100 text-red-700 dark:text-red-400' : 'bg-blue-100 text-blue-700 dark:text-blue-400')}>{tl.text}</span>}
                           <button onClick={() => openUserAction('extend_trial', u)} className="rounded p-1 hover:bg-stone-100 dark:hover:bg-stone-800" title="تمديد"><CalendarPlus className="h-3.5 w-3.5 text-emerald-700" /></button>
@@ -723,21 +723,21 @@ export default function Admin() {
 
               {/* Quick Actions */}
               <div className="rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 p-4">
-                <h3 className="text-xs font-bold text-stone-700 dark:text-stone-300 mb-3 flex items-center gap-1.5" dir="rtl"><Zap className="h-3.5 w-3.5 text-amber-500" /> إجراءات سريعة</h3>
+                <h3 className="text-xs font-bold text-stone-700 dark:text-stone-200 mb-3 flex items-center gap-1.5" dir="rtl"><Zap className="h-3.5 w-3.5 text-amber-500" /> إجراءات سريعة</h3>
                 <div className="space-y-2">
                   <button onClick={() => { setEmailSubject(''); setEmailBody(''); setBulkAudience('all'); setModal('bulk_email'); }} className="w-full flex items-center gap-2 rounded-lg border border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-900/20 px-3 py-2 text-xs font-medium text-emerald-700 dark:text-emerald-400 hover:bg-emerald-100 dark:hover:bg-emerald-900/30">
                     <Mail className="h-3.5 w-3.5" /> إرسال بريد جماعي
                   </button>
-                  <button onClick={() => { setEmailTo(''); setEmailSubject(''); setEmailBody(''); setModal('send_email'); setModalTarget(null); }} className="w-full flex items-center gap-2 rounded-lg border border-stone-200 dark:border-stone-700 px-3 py-2 text-xs font-medium text-stone-700 dark:text-stone-300 hover:bg-stone-50 dark:hover:bg-stone-800">
+                  <button onClick={() => { setEmailTo(''); setEmailSubject(''); setEmailBody(''); setModal('send_email'); setModalTarget(null); }} className="w-full flex items-center gap-2 rounded-lg border border-stone-200 dark:border-stone-700 px-3 py-2 text-xs font-medium text-stone-700 dark:text-stone-200 hover:bg-stone-50 dark:hover:bg-stone-800">
                     <Send className="h-3.5 w-3.5 text-blue-500" /> إرسال بريد إلكتروني
                   </button>
-                  <button onClick={runHealthCheck} disabled={healthLoading} className="w-full flex items-center gap-2 rounded-lg border border-stone-200 dark:border-stone-700 px-3 py-2 text-xs font-medium text-stone-700 dark:text-stone-300 hover:bg-stone-50 dark:hover:bg-stone-800 disabled:opacity-50">
+                  <button onClick={runHealthCheck} disabled={healthLoading} className="w-full flex items-center gap-2 rounded-lg border border-stone-200 dark:border-stone-700 px-3 py-2 text-xs font-medium text-stone-700 dark:text-stone-200 hover:bg-stone-50 dark:hover:bg-stone-800 disabled:opacity-50">
                     {healthLoading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Heart className="h-3.5 w-3.5 text-red-500 dark:text-red-400" />} فحص صحة النظام
                   </button>
-                  <button onClick={() => exportCSV('users')} className="w-full flex items-center gap-2 rounded-lg border border-stone-200 dark:border-stone-700 px-3 py-2 text-xs font-medium text-stone-700 dark:text-stone-300 hover:bg-stone-50 dark:hover:bg-stone-800">
+                  <button onClick={() => exportCSV('users')} className="w-full flex items-center gap-2 rounded-lg border border-stone-200 dark:border-stone-700 px-3 py-2 text-xs font-medium text-stone-700 dark:text-stone-200 hover:bg-stone-50 dark:hover:bg-stone-800">
                     <Download className="h-3.5 w-3.5 text-emerald-500" /> تصدير المستخدمين CSV
                   </button>
-                  <button onClick={() => exportCSV('subscriptions')} className="w-full flex items-center gap-2 rounded-lg border border-stone-200 dark:border-stone-700 px-3 py-2 text-xs font-medium text-stone-700 dark:text-stone-300 hover:bg-stone-50 dark:hover:bg-stone-800">
+                  <button onClick={() => exportCSV('subscriptions')} className="w-full flex items-center gap-2 rounded-lg border border-stone-200 dark:border-stone-700 px-3 py-2 text-xs font-medium text-stone-700 dark:text-stone-200 hover:bg-stone-50 dark:hover:bg-stone-800">
                     <Download className="h-3.5 w-3.5 text-emerald-500" /> تصدير الاشتراكات
                   </button>
                 </div>
@@ -860,7 +860,7 @@ export default function Admin() {
         {/* ===================== ACTIVITY ===================== */}
         {tab === 'activity' && (
           <div className="space-y-3">
-            <h2 className="text-sm font-bold text-stone-700 dark:text-stone-300">Activity Feed</h2>
+            <h2 className="text-sm font-bold text-stone-700 dark:text-stone-200">Activity Feed</h2>
             {stats.activityFeed.length === 0 ? <div className="rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 p-8 text-center"><Activity className="mx-auto h-8 w-8 text-stone-300 mb-2" /><p className="text-sm text-stone-500 dark:text-stone-400">No recent activity</p></div> : (
               <div className="rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 divide-y divide-stone-100 dark:divide-stone-800">
                 {stats.activityFeed.map((item, i) => {
@@ -881,7 +881,7 @@ export default function Admin() {
         {/* ===================== REVIEWS ===================== */}
         {tab === 'reviews' && (
           <div className="space-y-3">
-            <h2 className="text-sm font-bold text-stone-700 dark:text-stone-300">Pending Reviews ({stats.pendingReviews.length})</h2>
+            <h2 className="text-sm font-bold text-stone-700 dark:text-stone-200">Pending Reviews ({stats.pendingReviews.length})</h2>
             {stats.pendingReviews.length === 0 ? <div className="rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 p-8 text-center"><Star className="mx-auto h-8 w-8 text-stone-300 mb-2" /><p className="text-sm text-stone-500 dark:text-stone-400">No pending reviews</p></div> :
               stats.pendingReviews.map(r => (
                 <div key={r.id} className="rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 p-4">
@@ -889,7 +889,7 @@ export default function Admin() {
                     <span className="font-medium text-stone-900 dark:text-stone-100">{r.name}</span>
                     <div className="flex gap-0.5">{[1,2,3,4,5].map(s => <Star key={s} className={cn('h-4 w-4', s <= r.rating ? 'fill-amber-400 text-amber-400' : 'text-stone-300')} />)}</div>
                   </div>
-                  <p className="text-sm text-stone-700 dark:text-stone-300">{r.content}</p>
+                  <p className="text-sm text-stone-700 dark:text-stone-200">{r.content}</p>
                   <div className="flex items-center justify-between mt-3">
                     <p className="text-xs text-stone-500 dark:text-stone-400">{timeAgo(r.created_at)}</p>
                     <div className="flex gap-2">
@@ -908,7 +908,7 @@ export default function Admin() {
         {/* ===================== ENQUIRIES ===================== */}
         {tab === 'enquiries' && (
           <div className="space-y-3">
-            <h2 className="text-sm font-bold text-stone-700 dark:text-stone-300">Enquiries ({stats.enquiries.length})</h2>
+            <h2 className="text-sm font-bold text-stone-700 dark:text-stone-200">Enquiries ({stats.enquiries.length})</h2>
             {stats.enquiries.length === 0 ? <div className="rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 p-8 text-center"><Mail className="mx-auto h-8 w-8 text-stone-300 mb-2" /><p className="text-sm text-stone-500 dark:text-stone-400">No enquiries</p></div> :
               stats.enquiries.map(eq => (
                 <div key={eq.id} className={cn('rounded-xl border bg-white dark:bg-stone-950 p-4', eq.status === 'pending' ? 'border-amber-200 dark:border-amber-800' : 'border-stone-200 dark:border-stone-700')}>
@@ -917,7 +917,7 @@ export default function Admin() {
                     <span className={cn('rounded-full px-2 py-0.5 text-xs font-medium', eq.status === 'pending' ? 'bg-amber-100 text-amber-700 dark:text-amber-400' : 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400')}>{eq.status}</span>
                   </div>
                   <p className="text-sm font-bold text-stone-900 dark:text-stone-100 mb-1">{eq.subject}</p>
-                  <p className="text-sm text-stone-700 dark:text-stone-300 whitespace-pre-wrap">{eq.message}</p>
+                  <p className="text-sm text-stone-700 dark:text-stone-200 whitespace-pre-wrap">{eq.message}</p>
                   {eq.admin_notes && <div className="mt-2 rounded-lg bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-100 p-3"><p className="text-xs font-medium text-emerald-700 dark:text-emerald-400 mb-1">Reply:</p><p className="text-sm text-emerald-800 dark:text-emerald-300 whitespace-pre-wrap">{eq.admin_notes}</p></div>}
                   {replyingTo === eq.id ? (
                     <div className="mt-3 space-y-2">
@@ -961,7 +961,7 @@ export default function Admin() {
         {tab === 'emails' && (
           <div className="space-y-3">
             <div className="flex items-center justify-between">
-              <h2 className="text-sm font-bold text-stone-700 dark:text-stone-300">Email List ({stats.emailList.length})</h2>
+              <h2 className="text-sm font-bold text-stone-700 dark:text-stone-200">Email List ({stats.emailList.length})</h2>
               <button onClick={() => exportCSV('email_list')} className="flex items-center gap-1 rounded-lg border border-stone-200 dark:border-stone-700 px-3 py-1.5 text-xs font-medium text-stone-600 dark:text-stone-400 hover:bg-stone-50 dark:hover:bg-stone-800"><Download className="h-3.5 w-3.5" /> Export</button>
             </div>
             {stats.emailList.length === 0 ? <div className="rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 p-8 text-center"><Mail className="mx-auto h-8 w-8 text-stone-300 mb-2" /><p className="text-sm text-stone-500 dark:text-stone-400">No subscribers</p></div> :
@@ -976,7 +976,7 @@ export default function Admin() {
           return (
             <div className="space-y-3">
               <div className="flex items-center justify-between">
-                <h2 className="text-sm font-bold text-stone-700 dark:text-stone-300">Emails Sent ({logs.length})</h2>
+                <h2 className="text-sm font-bold text-stone-700 dark:text-stone-200">Emails Sent ({logs.length})</h2>
                 {logs.length > 0 && <span className="text-xs text-emerald-700 font-medium">{logs.filter(l => l.status === 'sent').length} delivered</span>}
               </div>
               {logs.length === 0 ? <div className="rounded-xl border border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-900/20 p-6 text-center"><AlertTriangle className="mx-auto h-8 w-8 text-amber-400 mb-2" /><p className="text-sm font-medium text-amber-800 dark:text-amber-300">No email logs</p><p className="text-xs text-amber-600 mt-1">Resend may not be configured</p></div> : (
@@ -996,13 +996,13 @@ export default function Admin() {
           const lastEvent = stats.webhookEvents.length ? stats.webhookEvents.reduce((a, b) => new Date(b.processed_at).getTime() > new Date(a.processed_at).getTime() ? b : a) : null;
           return (
           <div className="space-y-3">
-            <h2 className="text-sm font-bold text-stone-700 dark:text-stone-300">Webhook Events ({stats.webhookEvents.length})</h2>
+            <h2 className="text-sm font-bold text-stone-700 dark:text-stone-200">Webhook Events ({stats.webhookEvents.length})</h2>
             {stats.webhookEvents.length > 0 && (
               <p className="text-xs text-stone-600 dark:text-stone-400" dir="rtl">آخر 24 ساعة: {count24h} أحداث | آخر 7 أيام: {count7d} أحداث | آخر حدث: {lastEvent ? timeAgo(lastEvent.processed_at) : '—'}</p>
             )}
             {stats.webhookEvents.length === 0 ? <div className="rounded-xl border border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-900/20 p-6 text-center"><AlertTriangle className="mx-auto h-8 w-8 text-amber-400 mb-2" /><p className="text-sm font-medium text-amber-800 dark:text-amber-300">No events recorded</p><p className="text-xs text-amber-600 mt-1">Stripe webhooks may not be configured</p></div> :
               <div className="overflow-x-auto rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950"><table className="w-full text-sm"><thead><tr className="border-b border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-900"><th className="px-3 py-2 text-start font-medium text-stone-600 dark:text-stone-400">Event</th><th className="px-3 py-2 text-start font-medium text-stone-600 dark:text-stone-400">ID</th><th className="px-3 py-2 text-start font-medium text-stone-600 dark:text-stone-400">When</th></tr></thead>
-              <tbody>{stats.webhookEvents.map(ev => <tr key={ev.event_id} className="border-b border-stone-100 dark:border-stone-800 hover:bg-stone-50 dark:hover:bg-stone-800"><td className="px-3 py-2 text-xs"><span className={cn('rounded-full px-2 py-0.5 text-xs font-medium', ev.event_type.includes('succeeded') || ev.event_type.includes('paid') ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400' : ev.event_type.includes('failed') ? 'bg-red-100 text-red-700 dark:text-red-400' : 'bg-stone-100 dark:bg-stone-800 text-stone-700 dark:text-stone-300')}>{ev.event_type}</span></td><td className="px-3 py-2 font-mono text-xs text-stone-500 dark:text-stone-400">{ev.event_id?.slice(0, 24)}</td><td className="px-3 py-2 text-xs text-stone-500 dark:text-stone-400">{timeAgo(ev.processed_at)}</td></tr>)}</tbody></table></div>}
+              <tbody>{stats.webhookEvents.map(ev => <tr key={ev.event_id} className="border-b border-stone-100 dark:border-stone-800 hover:bg-stone-50 dark:hover:bg-stone-800"><td className="px-3 py-2 text-xs"><span className={cn('rounded-full px-2 py-0.5 text-xs font-medium', ev.event_type.includes('succeeded') || ev.event_type.includes('paid') ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400' : ev.event_type.includes('failed') ? 'bg-red-100 text-red-700 dark:text-red-400' : 'bg-stone-100 dark:bg-stone-800 text-stone-700 dark:text-stone-200')}>{ev.event_type}</span></td><td className="px-3 py-2 font-mono text-xs text-stone-500 dark:text-stone-400">{ev.event_id?.slice(0, 24)}</td><td className="px-3 py-2 text-xs text-stone-500 dark:text-stone-400">{timeAgo(ev.processed_at)}</td></tr>)}</tbody></table></div>}
           </div>
           );
         })()}
@@ -1011,12 +1011,12 @@ export default function Admin() {
         {tab === 'health' && (
           <div className="space-y-4">
             <div className="flex flex-wrap items-center justify-between gap-3">
-              <h2 className="text-sm font-bold text-stone-700 dark:text-stone-300">System Health</h2>
+              <h2 className="text-sm font-bold text-stone-700 dark:text-stone-200">System Health</h2>
               <div className="flex gap-2">
                 <button onClick={runHealthCheck} disabled={healthLoading} className="flex items-center gap-1.5 rounded-lg bg-emerald-600 px-4 py-2 text-xs font-bold text-white hover:bg-emerald-700 disabled:opacity-50">
                   {healthLoading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Heart className="h-3.5 w-3.5" />} Health
                 </button>
-                <button onClick={runStripeVerify} disabled={stripeVerifyLoading} className="flex items-center gap-1.5 rounded-lg border border-stone-200 dark:border-stone-700 px-4 py-2 text-xs font-bold text-stone-700 dark:text-stone-300 hover:bg-stone-50 dark:hover:bg-stone-800 disabled:opacity-50">
+                <button onClick={runStripeVerify} disabled={stripeVerifyLoading} className="flex items-center gap-1.5 rounded-lg border border-stone-200 dark:border-stone-700 px-4 py-2 text-xs font-bold text-stone-700 dark:text-stone-200 hover:bg-stone-50 dark:hover:bg-stone-800 disabled:opacity-50">
                   {stripeVerifyLoading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <CreditCard className="h-3.5 w-3.5" />} Stripe
                 </button>
               </div>
@@ -1050,7 +1050,7 @@ export default function Admin() {
             )}
             {stripeVerify && (
               <div className="mt-6 space-y-3">
-                <h3 className="text-sm font-bold text-stone-700 dark:text-stone-300 flex items-center gap-2"><CreditCard className="h-4 w-4" /> Stripe Verification</h3>
+                <h3 className="text-sm font-bold text-stone-700 dark:text-stone-200 flex items-center gap-2"><CreditCard className="h-4 w-4" /> Stripe Verification</h3>
                 <div className={cn('rounded-xl border p-4', stripeVerify.status === 'ok' ? 'border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-900/20' : 'border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-900/20')}>
                   <p className={cn('font-bold', stripeVerify.status === 'ok' ? 'text-emerald-700 dark:text-emerald-400' : 'text-amber-700 dark:text-amber-400')}>{stripeVerify.status === 'ok' ? 'Prices + webhooks OK' : 'Issues found'}</p>
                   <pre className="mt-2 text-xs overflow-x-auto bg-white dark:bg-stone-950/60 p-3 rounded-lg">{JSON.stringify(stripeVerify.prices, null, 2)}</pre>
@@ -1065,7 +1065,7 @@ export default function Admin() {
         {tab === 'audit' && (
           <div className="space-y-3">
             <div className="flex items-center justify-between">
-              <h2 className="text-sm font-bold text-stone-700 dark:text-stone-300 flex items-center gap-1.5"><ClipboardList className="h-4 w-4 text-stone-500 dark:text-stone-400" /> Audit Log</h2>
+              <h2 className="text-sm font-bold text-stone-700 dark:text-stone-200 flex items-center gap-1.5"><ClipboardList className="h-4 w-4 text-stone-500 dark:text-stone-400" /> Audit Log</h2>
               <button onClick={fetchAuditLog} disabled={auditLoading} className="flex items-center gap-1.5 rounded-lg border border-stone-200 dark:border-stone-700 px-3 py-1.5 text-xs font-medium text-stone-600 dark:text-stone-400 hover:bg-stone-50 dark:hover:bg-stone-800 disabled:opacity-50">
                 {auditLoading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <RefreshCw className="h-3.5 w-3.5" />} Refresh
               </button>
@@ -1094,7 +1094,7 @@ export default function Admin() {
                       <tr key={entry.id} className="border-b border-stone-100 dark:border-stone-800 hover:bg-stone-50 dark:hover:bg-stone-800">
                         <td className="px-3 py-2 text-xs text-stone-500 dark:text-stone-400 whitespace-nowrap">{new Date(entry.created_at).toLocaleString('en-GB')}</td>
                         <td className="px-3 py-2 font-mono text-xs">{entry.admin_email}</td>
-                        <td className="px-3 py-2 text-xs"><span className="rounded-full bg-stone-100 dark:bg-stone-800 px-2 py-0.5 text-xs font-medium text-stone-700 dark:text-stone-300">{entry.action}</span></td>
+                        <td className="px-3 py-2 text-xs"><span className="rounded-full bg-stone-100 dark:bg-stone-800 px-2 py-0.5 text-xs font-medium text-stone-700 dark:text-stone-200">{entry.action}</span></td>
                         <td className="px-3 py-2 font-mono text-xs text-stone-500 dark:text-stone-400">{entry.target_user_id ? entry.target_user_id.slice(0, 8) + '...' : '—'}</td>
                         <td className="px-3 py-2 text-xs text-stone-500 dark:text-stone-400 max-w-[300px] truncate">{entry.details ? JSON.stringify(entry.details) : '—'}</td>
                       </tr>

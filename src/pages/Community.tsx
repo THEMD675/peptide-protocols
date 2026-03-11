@@ -279,7 +279,7 @@ function StarRatingInput({ value, onChange }: { value: number; onChange: (v: num
               'h-6 w-6 transition-colors',
               r <= (hover || value)
                 ? 'fill-amber-400 text-amber-400'
-                : 'fill-transparent text-stone-300 dark:text-stone-600'
+                : 'fill-transparent text-stone-300 dark:text-stone-400'
             )}
           />
         </button>
@@ -298,7 +298,7 @@ function StarRating({ rating }: { rating: number }) {
           key={s}
           className={cn(
             'h-3.5 w-3.5',
-            s <= rating ? 'fill-amber-400 text-amber-400' : 'fill-transparent text-stone-300 dark:text-stone-600'
+            s <= rating ? 'fill-amber-400 text-amber-400' : 'fill-transparent text-stone-300 dark:text-stone-400'
           )}
         />
       ))}
@@ -332,7 +332,7 @@ function Leaderboard({ leaders }: { leaders: LeaderEntry[] }) {
               {leader.display_initial}
             </div>
             <div className="flex-1 min-w-0">
-              <span className="text-sm font-medium text-stone-700 dark:text-stone-300">عضو مجتمع</span>
+              <span className="text-sm font-medium text-stone-700 dark:text-stone-200">عضو مجتمع</span>
             </div>
             <span className="inline-flex items-center rounded-full bg-emerald-100 dark:bg-emerald-900/30 px-2.5 py-0.5 text-xs font-bold text-emerald-700 dark:text-emerald-400">
               {leader.post_count} {leader.post_count === 1 ? 'مشاركة' : leader.post_count === 2 ? 'مشاركتان' : 'مشاركات'}
@@ -965,7 +965,7 @@ export default function Community() {
                   {searchQuery && (
                     <button
                       onClick={() => setSearchQuery('')}
-                      className="absolute left-3 top-1/2 -translate-y-1/2 rounded p-1 text-stone-400 hover:text-stone-600 transition-colors"
+                      className="absolute left-3 top-1/2 -translate-y-1/2 rounded p-1 text-stone-400 dark:text-stone-500 hover:text-stone-600 dark:hover:text-stone-400 transition-colors"
                       aria-label="مسح البحث"
                     >
                       <X className="h-4 w-4" />
@@ -1006,7 +1006,7 @@ export default function Community() {
                       value={filterPeptide}
                       onChange={(e) => setFilterPeptide(e.target.value)}
                       aria-label="فلترة حسب الببتيد"
-                      className="rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 px-3 py-2 min-h-[44px] text-sm text-stone-700 dark:text-stone-300 focus:border-emerald-300 dark:focus:border-emerald-700 focus:outline-none"
+                      className="rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 px-3 py-2 min-h-[44px] text-sm text-stone-700 dark:text-stone-200 focus:border-emerald-300 dark:focus:border-emerald-700 focus:outline-none"
                     >
                       <option value="">كل الببتيدات</option>
                       {uniquePeptides.map(p => (
@@ -1020,7 +1020,7 @@ export default function Community() {
                     value={sortBy}
                     onChange={(e) => setSortBy(e.target.value as typeof validSorts[number])}
                     aria-label="ترتيب التجارب"
-                    className="rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 px-3 py-2 min-h-[44px] text-sm text-stone-700 dark:text-stone-300 focus:border-emerald-300 dark:focus:border-emerald-700 focus:outline-none"
+                    className="rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 px-3 py-2 min-h-[44px] text-sm text-stone-700 dark:text-stone-200 focus:border-emerald-300 dark:focus:border-emerald-700 focus:outline-none"
                   >
                     <option value="newest">الأحدث</option>
                     <option value="highest">الأعلى تقييمًا</option>
@@ -1108,10 +1108,15 @@ export default function Community() {
 
                 {/* No results for current filter */}
                 {displayedLogs.length === 0 && isShowingSeeds && (
-                  <div className="rounded-2xl border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-900 py-12 px-6 text-center">
-                    <p className="text-sm font-bold text-stone-700 dark:text-stone-300">لا توجد تجارب لهذا الهدف بعد</p>
-                    <p className="mt-1 text-xs text-stone-500 dark:text-stone-400">جرّب تصنيف مختلف أو شارك تجربتك</p>
-                    <button onClick={() => { setFilterGoal('all'); setFilterPeptide(''); setSearchQuery(''); }} className="mt-3 text-sm text-emerald-700 font-bold hover:underline min-h-[44px]">عرض الكل</button>
+                  <div className="rounded-2xl border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-900/50 px-6 py-12 text-center">
+                    <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-stone-100 dark:bg-stone-800">
+                      <MessageSquare className="h-7 w-7 text-stone-400 dark:text-stone-500" />
+                    </div>
+                    <p className="text-base font-bold text-stone-800 dark:text-stone-200">لا توجد تجارب لهذا الهدف بعد</p>
+                    <p className="mt-1.5 text-sm text-stone-500 dark:text-stone-400">كن أول من يشارك تجربته وتُلهم الآخرين</p>
+                    <div className="mt-4 flex flex-col items-center gap-2 sm:flex-row sm:justify-center">
+                      <button onClick={() => { setFilterGoal('all'); setFilterPeptide(''); setSearchQuery(''); }} className="inline-flex min-h-[44px] items-center rounded-full border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 px-5 py-2 text-sm font-bold text-stone-700 dark:text-stone-200 transition-colors hover:border-emerald-300 dark:hover:border-emerald-700">عرض الكل</button>
+                    </div>
                   </div>
                 )}
 
@@ -1177,7 +1182,7 @@ export default function Community() {
                                   toast.success('تم الإبلاغ — سنراجع المحتوى');
                                 }
                               }}
-                              className="rounded-lg p-2.5 min-h-[44px] min-w-[44px] text-stone-300 dark:text-stone-600 hover:text-red-500 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
+                              className="rounded-lg p-2.5 min-h-[44px] min-w-[44px] text-stone-300 dark:text-stone-400 hover:text-red-500 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
                               aria-label="إبلاغ"
                             >
                               <Flag className="h-3.5 w-3.5" />
@@ -1220,7 +1225,7 @@ export default function Community() {
 
                       {/* Protocol */}
                       {log.protocol && (
-                        <div className="mb-3 rounded-xl bg-stone-50 dark:bg-stone-900 p-3 text-sm text-stone-700 dark:text-stone-300">
+                        <div className="mb-3 rounded-xl bg-stone-50 dark:bg-stone-900 p-3 text-sm text-stone-700 dark:text-stone-200">
                           <span className="font-bold text-stone-900 dark:text-stone-100">البروتوكول: </span>
                           {(() => {
                             const isLong = (log.protocol?.length ?? 0) > 200;
@@ -1315,7 +1320,7 @@ export default function Community() {
                               className={cn(
                                 'flex items-center gap-1.5 rounded-full px-3 py-1.5 min-h-[36px] text-sm font-medium transition-all',
                                 expandedReplies.has(log.id)
-                                  ? 'bg-stone-100 dark:bg-stone-800 text-stone-700 dark:text-stone-300'
+                                  ? 'bg-stone-100 dark:bg-stone-800 text-stone-700 dark:text-stone-200'
                                   : 'text-stone-500 dark:text-stone-400 hover:bg-stone-100 dark:hover:bg-stone-800'
                               )}
                             >
@@ -1342,7 +1347,7 @@ export default function Community() {
                           ) : (
                             <>
                               {(repliesByPost[log.id] ?? []).length === 0 && (
-                                <p className="text-sm text-stone-400 dark:text-stone-400">لا توجد ردود بعد — كن أول من يرد!</p>
+                                <p className="py-2 text-sm text-stone-400 dark:text-stone-500 italic">لا توجد ردود بعد — كن أول من يرد! 💬</p>
                               )}
                               {(repliesByPost[log.id] ?? []).map(reply => (
                                 <div key={reply.id} className="flex gap-2.5 rounded-xl bg-stone-50 dark:bg-stone-900 p-3">

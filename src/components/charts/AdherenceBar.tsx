@@ -11,7 +11,7 @@ export default memo(function AdherenceBar({ scheduled, actual }: AdherenceBarPro
   return (
     <div className="space-y-1">
       <div className="flex items-center justify-between text-xs">
-        <span className="font-bold text-stone-700 dark:text-stone-300">الالتزام</span>
+        <span className="font-bold text-stone-700 dark:text-stone-200">الالتزام</span>
         <span className="font-black text-emerald-700">{percent}%</span>
       </div>
       <div className="h-2 w-full overflow-hidden rounded-full bg-stone-200 dark:bg-stone-700" role="progressbar" aria-valuenow={percent} aria-valuemin={0} aria-valuemax={100} aria-label={`الالتزام ${percent}%`}>

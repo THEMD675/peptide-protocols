@@ -456,7 +456,7 @@ export default function Reviews() {
                         </span>
                       )}
                     </div>
-                    <span className="text-xs text-stone-700 dark:text-stone-300">
+                    <span className="text-xs text-stone-700 dark:text-stone-200">
                       {formatDate(review.created_at)}
                     </span>
                   </div>

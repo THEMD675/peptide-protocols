@@ -91,7 +91,7 @@ export default function NotificationBell() {
     <div ref={ref} className="relative">
       <button
         onClick={() => setOpen(v => !v)}
-        className="relative flex min-h-[44px] min-w-[44px] items-center justify-center rounded-lg p-2.5 text-stone-500 dark:text-stone-400 transition-colors hover:bg-stone-100 dark:hover:bg-stone-800 hover:text-stone-700 dark:text-stone-300"
+        className="relative flex min-h-[44px] min-w-[44px] items-center justify-center rounded-lg p-2.5 text-stone-500 dark:text-stone-400 transition-colors hover:bg-stone-100 dark:hover:bg-stone-800 hover:text-stone-700 dark:text-stone-200"
         aria-label="الإشعارات"
         aria-expanded={open}
       >
@@ -123,7 +123,7 @@ export default function NotificationBell() {
                 <div className="mx-auto mb-3 flex h-14 w-14 items-center justify-center rounded-2xl bg-stone-100 dark:bg-stone-800">
                   <Bell className="h-7 w-7 text-stone-400" />
                 </div>
-                <p className="text-sm font-bold text-stone-700 dark:text-stone-300 mb-1">لا توجد إشعارات بعد</p>
+                <p className="text-sm font-bold text-stone-700 dark:text-stone-200 mb-1">لا توجد إشعارات بعد</p>
                 <p className="text-xs text-stone-500 dark:text-stone-400">سنعلمك بالتحديثات المهمة وتذكيرات الجرعات</p>
               </div>
             ) : (
@@ -138,7 +138,7 @@ export default function NotificationBell() {
                 >
                   <span className="mt-0.5 text-lg shrink-0">{TYPE_EMOJI[n.type] ?? '🔔'}</span>
                   <div className="min-w-0 flex-1">
-                    <p className={cn('text-sm', !n.read ? 'font-bold text-stone-900 dark:text-stone-100' : 'font-medium text-stone-700 dark:text-stone-300')}>
+                    <p className={cn('text-sm', !n.read ? 'font-bold text-stone-900 dark:text-stone-100' : 'font-medium text-stone-700 dark:text-stone-200')}>
                       {n.title_ar}
                     </p>
                     <p className="mt-0.5 text-xs text-stone-500 dark:text-stone-400 line-clamp-2">{n.body_ar}</p>

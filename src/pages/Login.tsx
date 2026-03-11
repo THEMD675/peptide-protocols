@@ -372,7 +372,7 @@ export default function Login() {
               </button>
               <button
                 onClick={() => { setPendingVerification(false); setTab('login'); }}
-                className="text-sm font-medium text-stone-500 dark:text-stone-400 hover:text-stone-700 dark:text-stone-300 transition-colors"
+                className="text-sm font-medium text-stone-500 dark:text-stone-400 hover:text-stone-700 dark:text-stone-200 transition-colors"
               >
                 العودة لتسجيل الدخول
               </button>
@@ -614,7 +614,7 @@ export default function Login() {
                 ) : tab === 'login' ? 'تسجيل الدخول' : 'إنشاء حساب'}
               </button>
 
-              <p className="text-center text-sm text-stone-700 dark:text-stone-300">
+              <p className="text-center text-sm text-stone-700 dark:text-stone-200">
                 {tab === 'login' ? (
                   <>
                     ليس لديك حساب؟{' '}

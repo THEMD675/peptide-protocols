@@ -437,7 +437,7 @@ export default function Tracker() {
           <button
             type="button"
             onClick={toggleCalendar}
-            className="flex items-center gap-2 rounded-full border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 px-4 py-2 text-sm font-medium text-stone-700 dark:text-stone-300 transition-all hover:border-emerald-300 dark:border-emerald-700 hover:bg-emerald-50 dark:bg-emerald-900/20 hover:text-emerald-700 dark:text-emerald-400"
+            className="flex items-center gap-2 rounded-full border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 px-4 py-2 text-sm font-medium text-stone-700 dark:text-stone-200 transition-all hover:border-emerald-300 dark:border-emerald-700 hover:bg-emerald-50 dark:bg-emerald-900/20 hover:text-emerald-700 dark:text-emerald-400"
             title={useHijri ? 'عرض بالتوقيت الميلادي' : 'عرض بالتوقيت الهجري'}
             aria-label={useHijri ? 'تبديل للتوقيت الميلادي' : 'تبديل للتوقيت الهجري'}
           >
@@ -486,7 +486,7 @@ export default function Tracker() {
           {timingTipsExpanded ? <ChevronUp className="h-4 w-4 text-stone-500 dark:text-stone-400" /> : <ChevronDown className="h-4 w-4 text-stone-500 dark:text-stone-400" />}
         </button>
         <div className="overflow-hidden transition-all duration-300 ease-[cubic-bezier(0.23,1,0.32,1)]" style={{ maxHeight: timingTipsExpanded ? '200px' : '0', opacity: timingTipsExpanded ? 1 : 0 }}>
-          <div className="border-t border-stone-200 dark:border-stone-700 px-4 py-4 text-sm text-stone-700 dark:text-stone-300 space-y-2">
+          <div className="border-t border-stone-200 dark:border-stone-700 px-4 py-4 text-sm text-stone-700 dark:text-stone-200 space-y-2">
             <p>• الحقن على معدة فارغة — يُفضل قبل الفجر أو بعد العشاء</p>
             <p>• ببتيدات هرمون النمو (CJC, Ipamorelin) — أفضل توقيت قبل النوم</p>
             <p>• BPC-157 — صباحًا ومساءً، يمكن ربطه بصلاة الفجر والعشاء</p>
@@ -693,7 +693,7 @@ export default function Tracker() {
                 <button onClick={confirmDialog.onConfirm} disabled={confirmBusy} className={cn('flex-1 rounded-xl px-4 py-2.5 text-sm font-bold text-white disabled:opacity-50', confirmDialog.isDestructive ? 'bg-red-600 transition-colors hover:bg-red-700' : 'bg-emerald-600 transition-colors hover:bg-emerald-700')}>
                   {confirmBusy ? 'جارٍ التنفيذ...' : 'تأكيد'}
                 </button>
-                <button onClick={() => setConfirmDialog(null)} className="flex-1 rounded-xl border border-stone-200 dark:border-stone-700 px-4 py-2.5 text-sm font-bold text-stone-700 dark:text-stone-300 transition-colors hover:bg-stone-50 dark:hover:bg-stone-800">
+                <button onClick={() => setConfirmDialog(null)} className="flex-1 rounded-xl border border-stone-200 dark:border-stone-700 px-4 py-2.5 text-sm font-bold text-stone-700 dark:text-stone-200 transition-colors hover:bg-stone-50 dark:hover:bg-stone-800">
                   إلغاء
                 </button>
               </div>

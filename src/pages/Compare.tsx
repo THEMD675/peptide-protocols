@@ -294,7 +294,7 @@ export default function Compare() {
                         scope="row"
                         className={cn(
                           'px-4 py-3.5 text-xs font-bold',
-                          isDiff ? 'text-amber-800 dark:text-amber-300' : 'text-stone-700 dark:text-stone-300',
+                          isDiff ? 'text-amber-800 dark:text-amber-300' : 'text-stone-700 dark:text-stone-200',
                         )}
                       >
                         {row.label}
@@ -332,7 +332,7 @@ export default function Compare() {
         </>
       ) : (
         <div className="rounded-2xl border border-dashed border-stone-300 dark:border-stone-700 bg-stone-50 dark:bg-stone-900/50 px-6 py-16 text-center">
-          <ArrowLeftRight className="mx-auto mb-4 h-10 w-10 text-stone-300 dark:text-stone-600" />
+          <ArrowLeftRight className="mx-auto mb-4 h-10 w-10 text-stone-300 dark:text-stone-400" />
           <p className="text-sm text-stone-500 dark:text-stone-400">
             اختر ببتيدين على الأقل من القوائم أعلاه لبدء المقارنة
           </p>

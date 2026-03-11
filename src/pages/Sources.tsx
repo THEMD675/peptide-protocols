@@ -94,8 +94,8 @@ function SourcingInterestForm() {
     return (
       <section className="mt-10 rounded-2xl border-2 border-emerald-200 bg-emerald-50 p-8 text-center">
         <CheckCircle className="mx-auto mb-3 h-10 w-10 text-emerald-700" />
-        <p className="text-lg font-bold text-stone-900">تم تسجيل اهتمامك</p>
-        <p className="mt-2 text-sm text-stone-600">سنتواصل معك عند توفّر خدمة التوريد الموثوق</p>
+        <p className="text-lg font-bold text-stone-900 dark:text-stone-100">تم تسجيل اهتمامك</p>
+        <p className="mt-2 text-sm text-stone-600 dark:text-stone-400">سنتواصل معك عند توفّر خدمة التوريد الموثوق</p>
       </section>
     );
   }
@@ -306,7 +306,7 @@ function CitationBrowser() {
           {searchQuery && (
             <button
               onClick={() => setSearchQuery('')}
-              className="absolute left-3 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-600"
+              className="absolute left-3 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-600 dark:text-stone-400"
             >
               <X className="h-4 w-4" />
             </button>
@@ -416,7 +416,7 @@ function CitationBrowser() {
                 {/* Expand toggle */}
                 <button
                   onClick={() => setExpandedPmid(isExpanded ? null : citation.pmid)}
-                  className="shrink-0 rounded-lg p-2 text-stone-400 hover:bg-stone-100 dark:hover:bg-stone-800 hover:text-stone-600 transition-colors"
+                  className="shrink-0 rounded-lg p-2 text-stone-400 hover:bg-stone-100 dark:hover:bg-stone-800 hover:text-stone-600 dark:text-stone-400 transition-colors"
                   aria-label={isExpanded ? 'إغلاق التفاصيل' : 'عرض التفاصيل'}
                 >
                   {isExpanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
@@ -426,7 +426,7 @@ function CitationBrowser() {
               {/* Expanded details */}
               {isExpanded && (
                 <div className="border-t border-stone-200 dark:border-stone-700 px-4 pb-4 pt-3">
-                  <p className="mb-3 text-sm font-medium text-stone-700 dark:text-stone-300">الببتيدات المرتبطة بهذا المرجع:</p>
+                  <p className="mb-3 text-sm font-medium text-stone-700 dark:text-stone-200">الببتيدات المرتبطة بهذا المرجع:</p>
                   <div className="grid gap-2 sm:grid-cols-2">
                     {citation.peptideIds.map((pid, i) => {
                       const p = peptides.find(pp => pp.id === pid);
@@ -546,7 +546,7 @@ function PeptideCitationMap() {
                       className="flex items-center gap-2 rounded-lg bg-stone-50 dark:bg-stone-800 px-3 py-2 text-xs transition-colors hover:bg-emerald-50 dark:hover:bg-emerald-900/20 group"
                     >
                       <BookOpen className="h-3.5 w-3.5 text-emerald-700 dark:text-emerald-400 shrink-0" />
-                      <span className="font-medium text-stone-700 dark:text-stone-300 group-hover:text-emerald-700 dark:group-hover:text-emerald-400" dir="ltr">
+                      <span className="font-medium text-stone-700 dark:text-stone-200 group-hover:text-emerald-700 dark:group-hover:text-emerald-400" dir="ltr">
                         PMID: {pmid}
                       </span>
                       <ExternalLink className="h-3 w-3 text-stone-400 mr-auto opacity-0 group-hover:opacity-100 transition-opacity" />
@@ -698,7 +698,7 @@ export default function Sources() {
         {/* Section: Sourcing Criteria */}
         <section className="mb-10">
           <div className="mb-4 rounded-xl border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-800 p-4">
-            <p className="text-sm text-stone-700 dark:text-stone-300">
+            <p className="text-sm text-stone-700 dark:text-stone-200">
               <strong className="text-stone-900 dark:text-stone-100">تنويه:</strong> pptides منصة تعليمية — لا نبيع ببتيدات ولا نتحمل مسؤولية أي عملية شراء. المعايير أدناه لمساعدتك في اختيار مورد موثوق.
             </p>
           </div>
@@ -722,7 +722,7 @@ export default function Sources() {
                   </div>
                   <h3 className="mb-1 text-sm font-bold text-stone-900 dark:text-stone-100">{item.titleAr}</h3>
                   <span className="mb-2 block text-xs text-stone-700 dark:text-stone-400">{item.titleEn}</span>
-                  <p className="text-sm leading-relaxed text-stone-800 dark:text-stone-300">{item.descriptionAr}</p>
+                  <p className="text-sm leading-relaxed text-stone-800 dark:text-stone-200">{item.descriptionAr}</p>
                 </div>
               );
             })}
@@ -736,7 +736,7 @@ export default function Sources() {
               <AlertTriangle className="h-5 w-5 text-amber-600 dark:text-amber-400" />
               <h2 className="text-lg font-bold text-amber-600 dark:text-amber-400">ملاحظة مهمة</h2>
             </div>
-            <p className="text-sm leading-relaxed text-stone-800 dark:text-stone-300">
+            <p className="text-sm leading-relaxed text-stone-800 dark:text-stone-200">
               هذه القائمة لأغراض تعليمية فقط. لا نبيع ببتيدات ولا نتحمل مسؤولية أي عملية شراء.
               تحقق من القوانين المحلية في بلدك قبل الشراء.
             </p>
@@ -752,7 +752,7 @@ export default function Sources() {
             <h2 className="mb-2 text-lg font-bold text-stone-900 dark:text-stone-100">
               هل تعرف موردًا موثوقًا؟
             </h2>
-            <p className="mx-auto max-w-md text-sm leading-relaxed text-stone-800 dark:text-stone-300">
+            <p className="mx-auto max-w-md text-sm leading-relaxed text-stone-800 dark:text-stone-200">
               إذا كنت تعرف موردًا يستوفي هذه المعايير، أرسل لنا على
             </p>
             <a
