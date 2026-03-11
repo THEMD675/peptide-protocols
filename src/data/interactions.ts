@@ -109,6 +109,27 @@ export const DRUG_INTERACTIONS: Record<string, InteractionResult> = {
   'tirzepatide+dpp4-inhibitors': warn('GLP-1/GIP + مثبطات DPP-4 — لا فائدة', 'Tirzepatide يعمل على GLP-1 وGIP. مثبطات DPP-4 مكرّرة ولا تُضيف شيئًا. أوقفها عند بدء Tirzepatide.'),
   // Proton pump inhibitors (very common in Saudi)
   'bpc-157+ppi': safe('BPC-157 + مثبطات مضخة البروتون — آمن وتكميلي', 'BPC-157 يُصلح بطانة المعدة طبيعيًا. مع PPIs (أوميبرازول، إيزوميبرازول) يعملان بآليات مختلفة. قد يُساعد BPC-157 في تقليل الاعتماد على PPIs.'),
+  // SGLT2 inhibitors (very common Saudi diabetes meds — empagliflozin, dapagliflozin)
+  'semaglutide+sglt2-inhibitors': safeWarn('GLP-1 + مثبطات SGLT2 — مراقبة الجفاف والسكر', 'الجمع بين Semaglutide ومثبطات SGLT2 (إمباغليفلوزين، داباغليفلوزين) شائع وفعّال لكن يرفع خطر الجفاف وهبوط السكر. اشرب ماء كافي وراقب الجلوكوز. قد تحتاج تقليل الجرعة.'),
+  'tirzepatide+sglt2-inhibitors': safeWarn('GLP-1/GIP + مثبطات SGLT2 — مراقبة الجفاف', 'Tirzepatide مع إمباغليفلوزين/داباغليفلوزين فعّال لكن كلاهما يسبب الجفاف. غثيان GLP-1 + إدرار SGLT2 = خطر جفاف مرتفع. اشرب 2-3 لتر ماء يوميًا.'),
+  'retatrutide+sglt2-inhibitors': safeWarn('GLP-1 ثلاثي + مثبطات SGLT2 — جفاف وسكر', 'Retatrutide يخفض السكر عبر 3 مسارات + SGLT2 تُخرج السكر عبر البول. خطر هبوط سكر وجفاف. تابع مع طبيبك.'),
+  // DOACs — Direct Oral Anticoagulants (replacing warfarin in modern practice)
+  'bpc-157+doac': dangerWarn('BPC-157 + مميعات دم حديثة — خطر نزيف', 'BPC-157 يؤثر على نظام أكسيد النيتريك والتخثر. مع DOACs (ريفاروكسابان، أبيكسابان، إدوكسابان) يزيد خطر النزيف. استشر طبيبك قبل الاستخدام.'),
+  'tb-500+doac': dangerWarn('TB-500 + مميعات دم حديثة — خطر نزيف', 'TB-500 يُعزز تكوين أوعية دموية جديدة. مع DOACs (ريفاروكسابان، أبيكسابان) يزيد خطر النزيف. تجنّب الجمع.'),
+  // Corticosteroids + immune peptides
+  'thymosin-alpha-1+corticosteroids': safeWarn('Thymosin Alpha-1 + كورتيزون — تعارض جزئي', 'الكورتيزون (بريدنيزون، ديكساميثازون) يثبّط المناعة، Thymosin Alpha-1 يُنشّطها. تأثيرات متعاكسة. إذا تأخذ كورتيزون لفترة طويلة، فائدة Thymosin Alpha-1 تقل. استشر طبيبك.'),
+  'll-37+corticosteroids': safeWarn('LL-37 + كورتيزون — تأثير متعاكس', 'LL-37 مضاد ميكروبي ومنشّط مناعي. الكورتيزون يثبّط المناعة. الجمع يُقلل فعالية LL-37.'),
+  // PDE5 inhibitors + PT-141 (very important safety interaction)
+  'pt-141+pde5-inhibitors': dangerWarn('PT-141 + فياغرا/سياليس — هبوط ضغط', 'PT-141 (Bremelanotide) مع مثبطات PDE5 (سيلدينافيل، تادالافيل) يسبب هبوط ضغط حاد. لا تأخذهم بنفس اليوم. انتظر 24 ساعة بين PT-141 والفياغرا.'),
+  // GH peptides + diabetes meds (GH raises blood sugar)
+  'cjc-1295+metformin': safeWarn('محفّز GH + ميتفورمين — مراقبة السكر', 'هرمون النمو يرفع مقاومة الأنسولين ويزيد سكر الدم. مع الميتفورمين تحتاج مراقبة الجلوكوز. GH يعاكس عمل الميتفورمين جزئيًا.'),
+  'ipamorelin+metformin': safeWarn('GHRP + ميتفورمين — مراقبة السكر', 'Ipamorelin يرفع هرمون النمو الذي يزيد مقاومة الأنسولين. مع الميتفورمين راقب السكر خصوصًا صباحًا.'),
+  'tesamorelin+metformin': safeWarn('GHRH + ميتفورمين — مراقبة السكر', 'Tesamorelin يرفع GH بقوة مما يزيد مقاومة الأنسولين. أظهرت الدراسات ارتفاع طفيف في HbA1c. راقب سكرك.'),
+  'cjc-1295+insulin': dangerWarn('محفّز GH + أنسولين — تعقيد سكر', 'هرمون النمو يرفع السكر والأنسولين يخفضه. الجمع يُعقّد التحكم بالسكر. تحتاج مراقبة دقيقة وتعديل جرعات متكرر. لا تجمعهم بدون إشراف طبي.'),
+  'ipamorelin+insulin': dangerWarn('GHRP + أنسولين — تعقيد سكر', 'Ipamorelin يرفع GH الذي يرفع السكر. مع الأنسولين الخارجي يصعب التحكم بالجرعة. استشر طبيبك.'),
+  // Anticoagulants — heparin specific
+  'bpc-157+heparin': dangerWarn('BPC-157 + هيبارين — خطر نزيف', 'BPC-157 يؤثر على منظومة التخثر وأكسيد النيتريك. مع الهيبارين (بما فيه إينوكسابارين/كليكسان) يزيد خطر النزيف. أوقف BPC-157 قبل أي عملية جراحية بأسبوع.'),
+  'tb-500+heparin': dangerWarn('TB-500 + هيبارين — خطر نزيف', 'TB-500 يُعزز الأوعية الجديدة ويؤثر على التئام الجروح. مع الهيبارين يزيد خطر النزيف والكدمات. تجنّب الجمع.'),
 };
 
 /** Common medications that have known interactions with peptides */
@@ -133,6 +154,11 @@ export const MEDICATIONS: MedicationItem[] = [
   { id: 'sulfonylureas', nameAr: 'سلفونيل يوريا (غليميبيرايد)', nameEn: 'Sulfonylureas' },
   { id: 'dpp4-inhibitors', nameAr: 'مثبطات DPP-4 (سيتاغلبتين)', nameEn: 'DPP-4 Inhibitors' },
   { id: 'ppi', nameAr: 'مثبطات مضخة البروتون (أوميبرازول)', nameEn: 'Proton Pump Inhibitors (PPIs)' },
+  { id: 'sglt2-inhibitors', nameAr: 'مثبطات SGLT2 (إمباغليفلوزين، داباغليفلوزين)', nameEn: 'SGLT2 Inhibitors' },
+  { id: 'doac', nameAr: 'مميعات دم حديثة (ريفاروكسابان، أبيكسابان)', nameEn: 'DOACs (Rivaroxaban, Apixaban)' },
+  { id: 'corticosteroids', nameAr: 'كورتيزون (بريدنيزون، ديكساميثازون)', nameEn: 'Corticosteroids' },
+  { id: 'pde5-inhibitors', nameAr: 'فياغرا / سياليس (سيلدينافيل، تادالافيل)', nameEn: 'PDE5 Inhibitors (Viagra/Cialis)' },
+  { id: 'heparin', nameAr: 'هيبارين / كليكسان (إينوكسابارين)', nameEn: 'Heparin / Enoxaparin' },
 ];
 
 export const GH_PEPTIDE_IDS = ['cjc-1295', 'ipamorelin', 'tesamorelin', 'sermorelin', 'ghrp-2', 'ghrp-6', 'hexarelin'];
