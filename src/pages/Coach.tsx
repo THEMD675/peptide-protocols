@@ -147,13 +147,53 @@ const COACH_PREVIEW_SAMPLE_QS = [
   'أريد بروتوكول Semaglutide مع جدول جرعات',
 ];
 
-const CONVERSATION_STARTERS = [
+const DEFAULT_STARTERS = [
   'ما أفضل ببتيد للمبتدئين؟',
   'اشرح لي الفرق بين BPC-157 و TB-500',
   'أريد بروتوكول لفقدان الوزن',
   'كيف أخزن الببتيدات بشكل صحيح؟',
   'هل يمكنني الجمع بين عدة ببتيدات؟',
 ];
+
+const GOAL_STARTERS: Record<string, string[]> = {
+  'fat-loss': ['ما أفضل ببتيد لحرق الدهون؟', 'كيف أجمع بين Semaglutide وببتيد آخر؟', 'ما الجرعة المثالية لـ Tesamorelin؟'],
+  'weight-loss': ['ما أفضل ببتيد لحرق الدهون؟', 'كيف أجمع بين Semaglutide وببتيد آخر؟', 'ما الجرعة المثالية لـ Tesamorelin؟'],
+  recovery: ['كيف أستخدم BPC-157 للإصابات؟', 'ما الفرق بين BPC-157 و TB-500 للتعافي؟', 'متى أبدأ بروتوكول التعافي بعد الإصابة؟'],
+  muscle: ['ما أفضل ببتيد لبناء العضل؟', 'كيف أستخدم CJC-1295 مع Ipamorelin؟', 'ما جدول الجرعات لهرمون النمو؟'],
+  brain: ['ما أفضل ببتيد للتركيز الذهني؟', 'كيف أستخدم Semax للأداء العقلي؟', 'هل Dihexa آمن للاستخدام اليومي؟'],
+  longevity: ['ما أفضل ببتيد لمقاومة الشيخوخة؟', 'كيف أستخدم Epitalon؟', 'ما بروتوكول NAD+ مع الببتيدات؟'],
+  hormones: ['كيف أحسّن هرموناتي بالببتيدات؟', 'ما الفرق بين GHRP-6 و GHRP-2؟', 'هل Kisspeptin مناسب لي؟'],
+  'gut-skin': ['كيف أستخدم BPC-157 لصحة الأمعاء؟', 'ما أفضل ببتيد للبشرة؟', 'هل GHK-Cu يساعد في تجديد البشرة؟'],
+  'anti-aging': ['ما أفضل ببتيد لمقاومة الشيخوخة؟', 'كيف أستخدم Epitalon؟', 'ما بروتوكول GHK-Cu للبشرة والشعر؟'],
+  sleep: ['ما أفضل ببتيد لتحسين النوم؟', 'كيف أستخدم DSIP للنوم العميق؟', 'هل CJC-1295 يحسّن جودة النوم؟'],
+  immunity: ['ما أفضل ببتيد لتقوية المناعة؟', 'كيف أستخدم Thymosin Alpha-1؟', 'ما الفرق بين TA1 و BPC-157 للمناعة؟'],
+  skin: ['ما أفضل ببتيد لنضارة البشرة؟', 'كيف أستخدم GHK-Cu موضعياً؟', 'هل Melanotan آمن للتسمير؟'],
+  general: ['ما أفضل ببتيد للمبتدئين؟', 'كيف أختار البروتوكول المناسب؟', 'ما أهم التحاليل قبل البدء؟'],
+};
+
+function getPersonalizedStarters(): string[] {
+  try {
+    const raw = localStorage.getItem('pptides_quiz_results');
+    if (!raw) return DEFAULT_STARTERS;
+    const data = JSON.parse(raw);
+    const goal = data.goal ?? data.answers?.goal;
+    const primaryName = data.result?.primary?.nameAr;
+
+    const goalPrompts = goal && GOAL_STARTERS[goal] ? GOAL_STARTERS[goal] : [];
+
+    // If they have a primary peptide from quiz, add a personalized prompt
+    const peptidePrompt = primaryName
+      ? [`أريد بروتوكول كامل لـ ${primaryName}`]
+      : [];
+
+    // Combine: 1 peptide-specific + 2 goal-specific + 2 defaults (deduplicated, max 5)
+    const combined = [...peptidePrompt, ...goalPrompts, ...DEFAULT_STARTERS];
+    const seen = new Set<string>();
+    return combined.filter(s => { if (seen.has(s)) return false; seen.add(s); return true; }).slice(0, 5);
+  } catch {
+    return DEFAULT_STARTERS;
+  }
+}
 
 function formatMessageTime(ts?: number): string {
   if (!ts) return '';
@@ -208,6 +248,7 @@ export default function Coach() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
 
+  const conversationStarters = useMemo(() => getPersonalizedStarters(), []);
   const storageKey = `pptides_coach_${user?.id ?? 'anon'}`;
 
   function loadQuizAnswers(): { goal: string; experience: string; injection: string } | null {
@@ -1023,7 +1064,7 @@ export default function Coach() {
                     <div className="mb-4">
                       <p className="text-sm font-bold text-stone-600 dark:text-stone-400 mb-3 text-center">ابدأ محادثتك مع المدرب الذكي</p>
                       <div className="flex flex-wrap gap-2 justify-center">
-                        {CONVERSATION_STARTERS.map(q => (
+                        {conversationStarters.map(q => (
                           <button
                             key={q}
                             onClick={() => sendToAI(q)}
