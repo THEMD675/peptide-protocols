@@ -16,7 +16,6 @@ interface TooltipProps {
 
 export default function Tooltip({ content, children, icon = true, position = 'top', firstTimeId, className }: TooltipProps) {
   const [visible, setVisible] = useState(false);
-  const [autoShown, setAutoShown] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
   const timeoutRef = useRef<ReturnType<typeof setTimeout>>();
 
@@ -28,7 +27,6 @@ export default function Tooltip({ content, children, icon = true, position = 'to
       if (localStorage.getItem(key)) return;
       const t = setTimeout(() => {
         setVisible(true);
-        setAutoShown(true);
         localStorage.setItem(key, '1');
         // Auto-hide after 4 seconds
         setTimeout(() => setVisible(false), 4000);

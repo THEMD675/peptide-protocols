@@ -5,7 +5,7 @@ const FocusTrap = lazy(() => import('focus-trap-react'));
 import { useAuth } from '@/contexts/AuthContext';
 import { Shield, X, Clock } from 'lucide-react';
 import { cn, arPlural } from '@/lib/utils';
-import { PRICING, PEPTIDE_COUNT, FREE_PEPTIDE_IDS, TRIAL_DAYS } from '@/lib/constants';
+import { PRICING, PEPTIDE_COUNT, FREE_PEPTIDE_IDS } from '@/lib/constants';
 import { useNowMs } from '@/hooks/useNowMs';
 
 const DISMISS_KEY = 'pptides_trial_banner_dismissed';

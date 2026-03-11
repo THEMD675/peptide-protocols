@@ -27,7 +27,6 @@ export default function ShareButtons({
 
   const whatsappText = `شوف هذا المقال عن الببتيدات \n${title}\n${url}`;
   const tweetText = `${title}\n${url}`;
-  const telegramText = `${title}\n${url}`;
 
   const handleCopyLink = async () => {
     try {

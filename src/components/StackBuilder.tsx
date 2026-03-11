@@ -5,7 +5,7 @@ import {
   Beaker, Shield, ShieldAlert, ShieldCheck, ShieldX,
   Clock, DollarSign, BarChart3, Syringe, X, ChevronDown,
   Save, Share2, Trash2, Bookmark, Target, Search,
-  Sparkles, Calendar, Sun, Dumbbell, Moon, Scale, Dna, Activity,
+  Sparkles, Calendar, Dumbbell, Moon, Scale, Dna, Activity,
   AlertTriangle,
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
@@ -204,6 +204,7 @@ export interface GoalStack {
   icon: LucideIcon;
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const goalStacks: GoalStack[] = [
   {
     id: 'weight-loss',
@@ -313,6 +314,26 @@ function saveStacks(stacks: SavedStack[]) {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(stacks));
 }
 
+/* ── Sub-components ──────────────────────────────────────── */
+
+function SafetyBadge({ safety }: { safety: 'safe' | 'warning' | 'dangerous' }) {
+  if (safety === 'dangerous') return (
+    <span className="inline-flex items-center gap-1 rounded-full bg-red-100 dark:bg-red-900/30 px-3 py-1 text-xs font-bold text-red-700 dark:text-red-400">
+      <ShieldX className="h-3.5 w-3.5" /> خطير
+    </span>
+  );
+  if (safety === 'warning') return (
+    <span className="inline-flex items-center gap-1 rounded-full bg-amber-100 dark:bg-amber-900/30 px-3 py-1 text-xs font-bold text-amber-700 dark:text-amber-400">
+      <ShieldAlert className="h-3.5 w-3.5" /> تحذير
+    </span>
+  );
+  return (
+    <span className="inline-flex items-center gap-1 rounded-full bg-emerald-100 dark:bg-emerald-900/30 px-3 py-1 text-xs font-bold text-emerald-700 dark:text-emerald-400">
+      <ShieldCheck className="h-3.5 w-3.5" /> آمن
+    </span>
+  );
+}
+
 /* ── Component ───────────────────────────────────────────── */
 
 export default function StackBuilder() {
@@ -331,8 +352,10 @@ export default function StackBuilder() {
     const urlPeptides = searchParams.get('stack');
     if (urlPeptides) {
       const ids = urlPeptides.split(',').filter((id) => realPeptides.some((p) => p.id === id));
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       if (ids.length > 0) setSelectedIds(ids.slice(0, MAX_STACK_SIZE));
     }
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setSavedStacks(loadSavedStacks());
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 

@@ -1,9 +1,9 @@
 import { Helmet } from 'react-helmet-async';
 import { Link } from 'react-router-dom';
 import {
-  Globe, BookOpen, Stethoscope, ArrowLeft, Shield, FlaskConical,
-  Brain, Syringe, Calculator, Users, FileCheck, RefreshCw, MessageSquare,
-  AlertTriangle, Sparkles, GraduationCap, Heart, Lock, Star, ChevronDown, Mail,
+  Globe, BookOpen, ArrowLeft, Shield, FlaskConical,
+  Brain, Calculator, Users, FileCheck, RefreshCw, MessageSquare,
+  AlertTriangle, Sparkles, GraduationCap, Lock, Star, ChevronDown, Mail,
 } from 'lucide-react';
 import { useState } from 'react';
 import { cn } from '@/lib/utils';

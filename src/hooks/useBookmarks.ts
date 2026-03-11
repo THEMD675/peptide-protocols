@@ -28,6 +28,7 @@ export function useBookmarks(): {
   useEffect(() => {
     if (!user) return;
     let mounted = true;
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setIsLoading(true);
 
     supabase
