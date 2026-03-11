@@ -749,7 +749,7 @@ export default function Dashboard() {
               </div>
             ) : (
               <div className="rounded-xl border border-dashed border-emerald-200 dark:border-emerald-800 bg-emerald-50/50 dark:bg-emerald-900/10 p-3 text-center">
-                <p className="text-xs font-bold text-emerald-700 dark:text-emerald-400">ابدأ بتسجيل أول جرعة لتتبع تقدمك 💉</p>
+                <p className="text-xs font-bold text-emerald-700 dark:text-emerald-400">ابدأ بتسجيل أول جرعة لتتبع تقدمك</p>
                 <Link to="/tracker" className="mt-1.5 inline-block text-xs font-medium text-emerald-600 hover:underline">اذهب إلى سجل الحقن ←</Link>
               </div>
             )}

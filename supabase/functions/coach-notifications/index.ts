@@ -104,7 +104,7 @@ serve(async (req) => {
         .limit(1)
 
       if (!recentLogs || recentLogs.length === 0) {
-        const title = 'تذكير من مدربك الذكي 💉'
+        const title = 'تذكير من مدربك الذكي'
         const body = `لم تسجّل حقنة ${peptide} منذ 3 أيام — الالتزام بالبروتوكول مهم للحصول على أفضل النتائج. سجّل حقنتك اليوم!`
         const key = `${userId}:${title}`
         if (!recentSet.has(key)) {
@@ -120,7 +120,7 @@ serve(async (req) => {
         const daysRemaining = Math.floor((endDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24))
 
         if (daysRemaining > 0 && daysRemaining <= 7) {
-          const title = `دورة ${peptide} توشك على الانتهاء 🎯`
+          const title = `دورة ${peptide} توشك على الانتهاء`
           const body = `باقي ${daysRemaining} أيام على نهاية دورتك. اسأل المدرب الذكي عن الخطوة التالية — هل تحتاج فترة راحة أو دورة جديدة؟`
           const key = `${userId}:${title}`
           if (!recentSet.has(key)) {
@@ -138,7 +138,7 @@ serve(async (req) => {
       .gte('created_at', twentyFourHoursAgo)
 
     for (const se of (recentSideEffects ?? [])) {
-      const title = 'المدرب الذكي لاحظ عرضًا جانبيًا 🔬'
+      const title = 'المدرب الذكي لاحظ عرضًا جانبيًا'
       const body = `سجّلت "${se.symptom}"${se.peptide_id ? ` مع ${se.peptide_id}` : ''} — تحدّث مع المدرب الذكي للحصول على نصيحة مخصصة لحالتك.`
       const key = `${se.user_id}:${title}`
       if (!recentSet.has(key)) {

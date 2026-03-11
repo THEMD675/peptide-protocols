@@ -688,7 +688,7 @@ export default function DoseCalculator() {
                       >
                         <span>{GOAL_LABELS[g]}</span>
                         <span className={cn('text-[9px] leading-tight opacity-80', goalLevel === g ? 'opacity-90' : 'opacity-60')}>
-                          {g === 'therapeutic' ? 'مبتدئ' : g === 'moderate' ? 'معيار' : '⚠️ متقدم'}
+                          {g === 'therapeutic' ? 'مبتدئ' : g === 'moderate' ? 'معيار' : 'متقدم'}
                         </span>
                       </button>
                     ))}
@@ -968,7 +968,7 @@ export default function DoseCalculator() {
                 if (doseMcg > maxMcg) {
                   return (
                     <div className="mt-4 rounded-xl border border-red-300 bg-red-50 dark:bg-red-900/20 px-4 py-3">
-                      <p className="text-sm font-bold text-red-800 dark:text-red-300">⚠️ جرعة مرتفعة — استشر طبيبك</p>
+                      <p className="text-sm font-bold text-red-800 dark:text-red-300">جرعة مرتفعة — استشر طبيبك</p>
                       <p className="text-xs text-red-600 dark:text-red-400 mt-1">الجرعة المدخلة ({doseDisplay}) تتجاوز الحد الأعلى الموصى به لـ {preset.name} ({rangeDisplay}).</p>
                     </div>
                   );

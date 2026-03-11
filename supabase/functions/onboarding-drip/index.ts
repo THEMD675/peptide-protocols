@@ -34,7 +34,7 @@ const dripEmails: DripEmail[] = [
   {
     key: 'welcome_enhanced',
     delayHours: 0,
-    subject: 'مرحبًا في pptides! 🧬',
+    subject: 'مرحبًا في pptides!',
     buildHtml: () => `
       <h1 style="color: #1c1917; font-size: 24px;">مرحبًا بك في pptides!</h1>
       <p style="color: #44403c; font-size: 16px; line-height: 1.8;">
@@ -42,16 +42,16 @@ const dripEmails: DripEmail[] = [
       </p>
       <div style="background: #ecfdf5; border-radius: 12px; padding: 20px; margin: 20px 0;">
         <p style="margin: 8px 0; font-size: 15px; color: #44403c;">
-          <strong style="color: #059669;">🧬 ${PEPTIDE_COUNT}+ ببتيد</strong> — بروتوكولات كاملة مدعومة بأبحاث PubMed
+          <strong style="color: #059669;">${PEPTIDE_COUNT}+ ببتيد</strong> — بروتوكولات كاملة مدعومة بأبحاث PubMed
         </p>
         <p style="margin: 8px 0; font-size: 15px; color: #44403c;">
           <strong style="color: #059669;">🤖 المدرب الذكي</strong> — اسأل أي سؤال واحصل على إجابة فورية
         </p>
         <p style="margin: 8px 0; font-size: 15px; color: #44403c;">
-          <strong style="color: #059669;">💊 حاسبة الجرعات</strong> — جرعتك بالضبط على السيرنج
+          <strong style="color: #059669;">حاسبة الجرعات</strong> — جرعتك بالضبط على السيرنج
         </p>
         <p style="margin: 8px 0; font-size: 15px; color: #44403c;">
-          <strong style="color: #059669;">⚠️ فاحص التفاعلات</strong> — تأكد من سلامة بروتوكولك
+          <strong style="color: #059669;">فاحص التفاعلات</strong> — تأكد من سلامة بروتوكولك
         </p>
       </div>
       <div style="text-align: center; margin: 24px 0;">
@@ -113,13 +113,13 @@ const dripEmails: DripEmail[] = [
           </p>
         </div>
         <div style="background: #ecfdf5; border-radius: 12px; padding: 20px; margin: 12px 0;">
-          <p style="font-size: 18px; font-weight: bold; color: #059669; margin: 0 0 8px;">💊 حاسبة الجرعات</p>
+          <p style="font-size: 18px; font-weight: bold; color: #059669; margin: 0 0 8px;">حاسبة الجرعات</p>
           <p style="color: #44403c; font-size: 15px; margin: 0;">
             أدخل الببتيد وتركيز المحلول وشاهد الجرعة بالضبط على السيرنج — بدون حسابات يدوية.
           </p>
         </div>
         <div style="background: #ecfdf5; border-radius: 12px; padding: 20px; margin: 12px 0;">
-          <p style="font-size: 18px; font-weight: bold; color: #059669; margin: 0 0 8px;">⚠️ فاحص التفاعلات</p>
+          <p style="font-size: 18px; font-weight: bold; color: #059669; margin: 0 0 8px;">فاحص التفاعلات</p>
           <p style="color: #44403c; font-size: 15px; margin: 0;">
             تأكد من أن الببتيدات التي تستخدمها متوافقة مع بعضها — سلامتك أولاً.
           </p>
@@ -175,16 +175,16 @@ const dripEmails: DripEmail[] = [
       </p>
       <div style="background: #f5f5f4; border-radius: 12px; padding: 20px; margin: 20px 0;">
         <p style="margin: 8px 0; font-size: 15px; color: #44403c;">
-          ❌ بروتوكولات ${PEPTIDE_COUNT}+ ببتيد مع جرعات وتوقيت دقيق
+          - بروتوكولات ${PEPTIDE_COUNT}+ ببتيد مع جرعات وتوقيت دقيق
         </p>
         <p style="margin: 8px 0; font-size: 15px; color: #44403c;">
-          ❌ المدرب الذكي — إجابات فورية على أسئلتك
+          - المدرب الذكي — إجابات فورية على أسئلتك
         </p>
         <p style="margin: 8px 0; font-size: 15px; color: #44403c;">
-          ❌ حاسبة الجرعات وفاحص التفاعلات
+          - حاسبة الجرعات وفاحص التفاعلات
         </p>
         <p style="margin: 8px 0; font-size: 15px; color: #44403c;">
-          ❌ تحديثات مستمرة بأحدث الأبحاث العلمية
+          - تحديثات مستمرة بأحدث الأبحاث العلمية
         </p>
       </div>
       <p style="color: #44403c; font-size: 16px; line-height: 1.8;">

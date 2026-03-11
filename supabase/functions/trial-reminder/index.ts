@@ -173,7 +173,7 @@ serve(async (req) => {
               <p style="margin: 8px 0; font-size: 15px;">🤖 المدرب الذكي — بروتوكولات مخصّصة لحالتك</p>
               <p style="margin: 8px 0; font-size: 15px;">🧮 حاسبة الجرعات الدقيقة</p>
               <p style="margin: 8px 0; font-size: 15px;">📊 تتبّع الحقن والبروتوكولات</p>
-              <p style="margin: 8px 0; font-size: 15px;">🔬 دليل التحاليل المخبرية</p>
+              <p style="margin: 8px 0; font-size: 15px;">دليل التحاليل المخبرية</p>
             </div>
             <div style="background: #ecfdf5; border-radius: 12px; padding: 24px; margin: 20px 0; text-align: center;">
               <p style="font-size: 14px; color: #44403c; margin: 0;">كل هذا مقابل:</p>

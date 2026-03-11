@@ -117,9 +117,9 @@ serve(async (req) => {
 
         const emailResult = await sendEmail({
           to: email,
-          subject: 'مبروك! رحلتك مع الببتيدات تبدأ الآن 🎉 — pptides',
+          subject: 'مبروك! رحلتك مع الببتيدات تبدأ الآن — pptides',
           html: emailWrapper(`
-            <h1 style="color: #1c1917; font-size: 24px;">مبروك! رحلتك مع الببتيدات تبدأ الآن 🎉</h1>
+            <h1 style="color: #1c1917; font-size: 24px;">مبروك! رحلتك مع الببتيدات تبدأ الآن</h1>
             <p style="color: #44403c; font-size: 16px; line-height: 1.8;">
               أهلاً بك في عائلة pptides! اشتراكك مفعّل الآن وأمامك عالم كامل من البروتوكولات العلاجية.
             </p>
@@ -136,14 +136,14 @@ serve(async (req) => {
                 <a href="${APP_URL}/tracker" style="color: #059669; font-size: 14px; font-weight: bold; text-decoration: none;">ابدأ التتبع ←</a>
               </div>
               <div style="margin-bottom: 20px; padding-bottom: 20px; border-bottom: 1px solid #d1fae5;">
-                <p style="margin: 0; font-size: 18px; font-weight: bold; color: #059669;">الخطوة 2: اعمل تحاليلك الأساسية 🔬</p>
+                <p style="margin: 0; font-size: 18px; font-weight: bold; color: #059669;">الخطوة 2: اعمل تحاليلك الأساسية</p>
                 <p style="margin: 8px 0 0; color: #44403c; font-size: 15px; line-height: 1.7;">
                   قبل بدء أي بروتوكول، تحتاج تحاليل خط أساس. دليلنا يشرح بالضبط ماذا تطلب من طبيبك.
                 </p>
                 <a href="${APP_URL}/lab-guide" style="color: #059669; font-size: 14px; font-weight: bold; text-decoration: none;">اقرأ دليل التحاليل ←</a>
               </div>
               <div>
-                <p style="margin: 0; font-size: 18px; font-weight: bold; color: #059669;">الخطوة 3: اختر أول ببتيد لك 💉</p>
+                <p style="margin: 0; font-size: 18px; font-weight: bold; color: #059669;">الخطوة 3: اختر أول ببتيد لك</p>
                 <p style="margin: 8px 0 0; color: #44403c; font-size: 15px; line-height: 1.7;">
                   لا تعرف من أين تبدأ؟ دليل المبتدئين يساعدك تختار البروتوكول المناسب لهدفك.
                 </p>
@@ -152,7 +152,7 @@ serve(async (req) => {
             </div>
 
             <div style="background: #fef3c7; border: 1px solid #fbbf24; border-radius: 12px; padding: 16px; margin: 20px 0; text-align: center;">
-              <p style="margin: 0; font-size: 15px; color: #92400e; font-weight: bold;">💡 نصيحة سريعة</p>
+              <p style="margin: 0; font-size: 15px; color: #92400e; font-weight: bold;">نصيحة سريعة</p>
               <p style="margin: 8px 0 0; font-size: 14px; color: #92400e;">لا تبدأ أكثر من ببتيد واحد في نفس الوقت — ابدأ بواحد وراقب النتائج قبل الإضافة.</p>
             </div>
 

@@ -128,9 +128,9 @@ serve(async (req) => {
 
         const emailResult = await sendEmail({
           to: user.email,
-          subject: 'اشتقنالك! ببتيداتك تنتظرك 💪 — pptides',
+          subject: 'اشتقنالك! ببتيداتك تنتظرك — pptides',
           html: emailWrapper(`
-            <h1 style="color: #1c1917; font-size: 24px;">اشتقنالك! 💪</h1>
+            <h1 style="color: #1c1917; font-size: 24px;">اشتقنالك!</h1>
             <p style="color: #44403c; font-size: 16px; line-height: 1.8;">
               لاحظنا إنك ما زرت pptides من فترة — وحابين نذكّرك إن اشتراكك مفعّل وكل الأدوات جاهزة لك.
             </p>
@@ -154,7 +154,7 @@ serve(async (req) => {
                 <a href="${APP_URL}/calculator" style="color: #059669; font-size: 14px; font-weight: bold; text-decoration: none;">احسب جرعتك ←</a>
               </div>
               <div>
-                <p style="margin: 0; font-size: 18px; font-weight: bold; color: #059669;">💉 متتبع الحقن (Injection Tracker)</p>
+                <p style="margin: 0; font-size: 18px; font-weight: bold; color: #059669;">متتبع الحقن (Injection Tracker)</p>
                 <p style="margin: 8px 0 0; color: #44403c; font-size: 15px; line-height: 1.7;">
                   سجّل كل حقنة، تابع سلسلة الالتزام، وشوف تقدّمك البصري — ما يضيع عليك شيء.
                 </p>
@@ -163,7 +163,7 @@ serve(async (req) => {
             </div>
 
             <p style="color: #44403c; font-size: 16px; line-height: 1.8;">
-              رحلتك مع الببتيدات تستاهل متابعة — ارجع وكمّل من حيث وقفت! 🚀
+              رحلتك مع الببتيدات تستاهل متابعة — ارجع وكمّل من حيث وقفت! —
             </p>
 
             <div style="text-align: center; margin: 28px 0;">

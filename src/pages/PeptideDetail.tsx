@@ -201,7 +201,7 @@ export default function PeptideDetail() {
             {[
               { href: '#overview', label: 'نظرة عامة' },
               { href: '#protocol', label: 'البروتوكول' },
-              { href: '#safety', label: '⚠️ السلامة' },
+              { href: '#safety', label: 'السلامة' },
               { href: '#dose-calc', label: 'حاسبة الجرعة' },
               { href: '#tracker-cta', label: 'المتتبع' },
               { href: '#references', label: 'المراجع' },
@@ -568,7 +568,7 @@ export default function PeptideDetail() {
               </div>
               <p className="text-base font-bold text-stone-900 dark:text-stone-100">اشترك لعرض البروتوكول الكامل</p>
               <div className="flex flex-wrap justify-center gap-2 text-xs text-stone-500 dark:text-stone-300">
-                {['⏱ التوقيت', '🔄 مدة الدورة والراحة', '💉 طريقة الإعطاء', '⚠️ الأعراض الجانبية', '🚫 موانع الاستخدام', '🧪 التجميع', '📦 التخزين'].map((field) => (
+                {['التوقيت', 'مدة الدورة والراحة', 'طريقة الإعطاء', 'الأعراض الجانبية', 'موانع الاستخدام', 'التجميع', 'التخزين'].map((field) => (
                   <span key={field} className="rounded-full border border-stone-200 dark:border-stone-600 bg-stone-50 dark:bg-stone-900 px-2.5 py-1">{field}</span>
                 ))}
               </div>

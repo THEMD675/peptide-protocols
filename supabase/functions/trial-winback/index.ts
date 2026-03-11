@@ -186,11 +186,11 @@ serve(async (req) => {
 
             <p style="color: #44403c; font-size: 15px; line-height: 1.8; font-weight: bold;">ما الذي ستحصل عليه:</p>
             <div style="margin: 12px 0 20px;">
-              <p style="margin: 6px 0; font-size: 14px; color: #44403c;">✅ مكتبة ${PEPTIDE_COUNT}+ ببتيد بالبروتوكولات الكاملة</p>
-              <p style="margin: 6px 0; font-size: 14px; color: #44403c;">✅ المدرب الذكي بالذكاء الاصطناعي</p>
-              <p style="margin: 6px 0; font-size: 14px; color: #44403c;">✅ حاسبة الجرعات الدقيقة</p>
-              <p style="margin: 6px 0; font-size: 14px; color: #44403c;">✅ تتبّع الحقن والبروتوكولات</p>
-              <p style="margin: 6px 0; font-size: 14px; color: #44403c;">✅ دليل التحاليل المخبرية</p>
+              <p style="margin: 6px 0; font-size: 14px; color: #44403c;">- مكتبة ${PEPTIDE_COUNT}+ ببتيد بالبروتوكولات الكاملة</p>
+              <p style="margin: 6px 0; font-size: 14px; color: #44403c;">- المدرب الذكي بالذكاء الاصطناعي</p>
+              <p style="margin: 6px 0; font-size: 14px; color: #44403c;">- حاسبة الجرعات الدقيقة</p>
+              <p style="margin: 6px 0; font-size: 14px; color: #44403c;">- تتبّع الحقن والبروتوكولات</p>
+              <p style="margin: 6px 0; font-size: 14px; color: #44403c;">- دليل التحاليل المخبرية</p>
             </div>
 
             ${blogPostsHtml}

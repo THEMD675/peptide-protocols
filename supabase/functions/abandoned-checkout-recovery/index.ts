@@ -107,12 +107,12 @@ serve(async (req) => {
       // Send recovery email
       const emailResult = await sendEmail({
         to: record.email,
-        subject: 'ما زلنا ننتظرك 🧬',
+        subject: 'ما زلنا ننتظرك',
         html: emailWrapper(`
             <h1 style="color: #1c1917; font-size: 24px;">ما زلنا ننتظرك!</h1>
             <p style="color: #44403c; font-size: 16px; line-height: 1.8;">لاحظنا أنك بدأت رحلتك مع pptides لكن لم تكمل الاشتراك.</p>
             <div style="background: #ecfdf5; border-radius: 12px; padding: 20px; margin: 20px 0;">
-              <p style="margin: 8px 0; font-size: 15px; color: #44403c;"><strong style="color: #059669;">🧬 تجربة مجانية ٣ أيام</strong> — استكشف مكتبة الببتيدات الكاملة بدون أي التزام</p>
+              <p style="margin: 8px 0; font-size: 15px; color: #44403c;"><strong style="color: #059669;">تجربة مجانية ٣ أيام</strong> — استكشف مكتبة الببتيدات الكاملة بدون أي التزام</p>
               <p style="margin: 8px 0; font-size: 15px; color: #44403c;"><strong style="color: #059669;">🤖 المدرب الذكي</strong> — احصل على بروتوكول مخصّص لأهدافك الصحية</p>
               <p style="margin: 8px 0; font-size: 15px; color: #44403c;"><strong style="color: #059669;">📚 محتوى علمي موثّق</strong> — أشمل دليل عربي للببتيدات العلاجية</p>
             </div>

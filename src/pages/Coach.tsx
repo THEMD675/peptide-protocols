@@ -877,11 +877,11 @@ export default function Coach() {
                     ) : msg.content.startsWith('__ERROR') ? (
                       <div className="text-sm text-stone-800 dark:text-stone-200">
                         <p className="mb-2">{
-                          msg.content === '__ERROR__:429' ? `⏱️ وصلت إلى حد الرسائل. Elite يعطيك استشارات بلا حدود — ${PRICING.elite.label}/شهر، ${TRIAL_DAYS} أيام مجانًا.` :
-                          msg.content === '__ERROR__:403' ? '🔑 انتهت صلاحية جلستك — أعد تسجيل الدخول للمتابعة.' :
-                          msg.content === '__ERROR__:401' ? '🔐 سجّل دخولك أولًا للاستفادة من المدرب الذكي.' :
-                          msg.content === '__ERROR__:500' ? '⚠️ خدمة المدرب الذكي غير متاحة حاليًا — حاول مرة أخرى بعد لحظات.' :
-                          '⚠️ خدمة المدرب الذكي غير متاحة حاليًا — حاول مرة أخرى لاحقًا'
+                          msg.content === '__ERROR__:429' ? `وصلت إلى حد الرسائل. Elite يعطيك استشارات بلا حدود — ${PRICING.elite.label}/شهر، ${TRIAL_DAYS} أيام مجانًا.` :
+                          msg.content === '__ERROR__:403' ? 'انتهت صلاحية جلستك — أعد تسجيل الدخول للمتابعة.' :
+                          msg.content === '__ERROR__:401' ? 'سجّل دخولك أولًا للاستفادة من المدرب الذكي.' :
+                          msg.content === '__ERROR__:500' ? 'خدمة المدرب الذكي غير متاحة حاليًا — حاول مرة أخرى بعد لحظات.' :
+                          'خدمة المدرب الذكي غير متاحة حاليًا — حاول مرة أخرى لاحقًا'
                         }</p>
                         <div className="flex flex-wrap gap-2">
                           {msg.content === '__ERROR__:429' && (

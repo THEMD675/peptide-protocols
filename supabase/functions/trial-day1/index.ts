@@ -149,7 +149,7 @@ serve(async (req) => {
             </div>
 
             <div style="background: #fef3c7; border: 1px solid #fbbf24; border-radius: 12px; padding: 16px; margin: 20px 0; text-align: center;">
-              <p style="margin: 0; font-size: 15px; color: #92400e; font-weight: bold;">💡 هل تعرف أي ببتيد يناسب هدفك؟</p>
+              <p style="margin: 0; font-size: 15px; color: #92400e; font-weight: bold;">هل تعرف أي ببتيد يناسب هدفك؟</p>
               <p style="margin: 8px 0 0; font-size: 14px; color: #92400e;">اسأل المدرب الذكي — يحلل حالتك ويقترح البروتوكول المناسب</p>
             </div>
 

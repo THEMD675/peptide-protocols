@@ -117,18 +117,18 @@ serve(async (req) => {
 
         const emailResult = await sendEmail({
           to: email,
-          subject: 'شهر كامل! إليك تقريرك 📈 — pptides',
+          subject: 'شهر كامل! إليك تقريرك — pptides',
           html: emailWrapper(`
-            <h1 style="color: #1c1917; font-size: 24px;">شهر كامل! إليك خلاصة رحلتك 📈</h1>
+            <h1 style="color: #1c1917; font-size: 24px;">شهر كامل! إليك خلاصة رحلتك</h1>
             <p style="color: #44403c; font-size: 16px; line-height: 1.8;">
               مبروك على إكمال شهرك الأول مع pptides! هذا إنجاز حقيقي — معظم الناس لا يلتزمون بعد الأسبوع الأول.
             </p>
 
             <div style="background: #ecfdf5; border-radius: 12px; padding: 24px; margin: 24px 0;">
-              <p style="margin: 0 0 16px; font-size: 17px; font-weight: bold; color: #059669;">🚀 خطواتك القادمة</p>
+              <p style="margin: 0 0 16px; font-size: 17px; font-weight: bold; color: #059669;">خطواتك القادمة</p>
 
               <div style="margin-bottom: 20px; padding-bottom: 20px; border-bottom: 1px solid #d1fae5;">
-                <p style="margin: 0; font-size: 16px; font-weight: bold; color: #1c1917;">🧬 استكشف الستاكات (التوليفات)</p>
+                <p style="margin: 0; font-size: 16px; font-weight: bold; color: #1c1917;">استكشف الستاكات (التوليفات)</p>
                 <p style="margin: 8px 0 0; color: #44403c; font-size: 14px; line-height: 1.7;">
                   بعد شهر من الخبرة، أنت جاهز للمستوى التالي. اكتشف كيف تجمع ببتيدات مختلفة لنتائج أقوى.
                 </p>

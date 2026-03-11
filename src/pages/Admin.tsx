@@ -93,7 +93,7 @@ const EMAIL_TEMPLATES: { key: string; label: string; subject: string; body: stri
     key: 'upsell',
     label: 'ترقية للمتقدمة',
     subject: 'اكتشف ميزات باقة Elite',
-    body: 'مرحبًا،\n\nشكرًا لاشتراكك في باقة الأساسيات! هل تعلم أن باقة Elite تمنحك:\n\n✅ بروتوكولات متقدمة حصرية\n✅ محادثات غير محدودة مع المدرب الذكي\n✅ تتبع متقدم للأعراض الجانبية\n✅ أولوية الدعم\n\nقم بالترقية الآن واستفد من كل الإمكانيات:\nhttps://pptides.com/pricing\n\nفريق pptides',
+    body: 'مرحبًا،\n\nشكرًا لاشتراكك في باقة الأساسيات! هل تعلم أن باقة Elite تمنحك:\n\n- بروتوكولات متقدمة حصرية\n- محادثات غير محدودة مع المدرب الذكي\n- تتبع متقدم للأعراض الجانبية\n- أولوية الدعم\n\nقم بالترقية الآن واستفد من كل الإمكانيات:\nhttps://pptides.com/pricing\n\nفريق pptides',
   },
 ];
 
@@ -1301,7 +1301,7 @@ export default function Admin() {
           const audienceCount = bulkAudience === 'all' ? o.totalUsers : bulkAudience === 'trial' ? o.trialSubscriptions : bulkAudience === 'active' ? o.activeSubscriptions : o.expiredSubscriptions;
           return audienceCount > 50 ? (
             <div className="rounded-lg border border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-900/20 p-3 mb-4">
-              <p className="text-xs font-medium text-amber-700 dark:text-amber-400">⚠️ سيتم الإرسال إلى {audienceCount} مستخدم (الحد الأقصى 50 بريد لكل عملية)</p>
+              <p className="text-xs font-medium text-amber-700 dark:text-amber-400">تنبيه: سيتم الإرسال إلى {audienceCount} مستخدم (الحد الأقصى 50 بريد لكل عملية)</p>
             </div>
           ) : null;
         })()}

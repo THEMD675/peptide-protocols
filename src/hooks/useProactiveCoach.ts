@@ -3,7 +3,7 @@ import { supabase } from '@/lib/supabase';
 
 export interface ProactiveInsight {
   id: string;
-  icon: '📈' | '⚠️' | '💡' | '🎯' | '🔬';
+  icon: 'trending-up' | 'alert-triangle' | 'lightbulb' | 'target' | 'microscope';
   text: string;
   priority: number; // higher = show first
 }
@@ -146,7 +146,7 @@ function generateInsights(data: UserProactiveData): ProactiveInsight[] {
     const proto = data.activeProtocols[0];
     insights.push({
       id: 'wellness-up',
-      icon: '📈',
+      icon: 'trending-up',
       text: `بناءً على بياناتك: طاقتك تحسّنت ${data.wellnessTrend.change}% منذ بدأت ${proto.peptide_id}`,
       priority: 90,
     });
@@ -156,7 +156,7 @@ function generateInsights(data: UserProactiveData): ProactiveInsight[] {
   if (data.wellnessTrend?.direction === 'down') {
     insights.push({
       id: 'wellness-down',
-      icon: '⚠️',
+      icon: 'alert-triangle',
       text: `انتبه: مستوى طاقتك انخفض ${data.wellnessTrend.change}% — خلّنا نراجع بروتوكولك`,
       priority: 95,
     });
@@ -166,7 +166,7 @@ function generateInsights(data: UserProactiveData): ProactiveInsight[] {
   if (data.lastInjectionDaysAgo !== null && data.lastInjectionDaysAgo >= 3 && data.activeProtocols.length > 0) {
     insights.push({
       id: 'missing-logs',
-      icon: '⚠️',
+      icon: 'alert-triangle',
       text: `تنبيه: لم تسجّل حقنتك منذ ${data.lastInjectionDaysAgo} أيام — الالتزام مهم للنتائج`,
       priority: 100,
     });
@@ -178,7 +178,7 @@ function generateInsights(data: UserProactiveData): ProactiveInsight[] {
     if (igf && igf.value < 150) {
       insights.push({
         id: 'low-igf',
-        icon: '💡',
+        icon: 'lightbulb',
         text: 'اقتراح: بما أن IGF-1 عندك منخفض، جرّب CJC-1295 + Ipamorelin',
         priority: 85,
       });
@@ -193,7 +193,7 @@ function generateInsights(data: UserProactiveData): ProactiveInsight[] {
       if (remaining > 0 && remaining <= 1) {
         insights.push({
           id: `cycle-end-${proto.peptide_id}`,
-          icon: '🎯',
+          icon: 'target',
           text: `دورة ${proto.peptide_id} توشك على الانتهاء — خلّني أقترح الخطوة التالية`,
           priority: 92,
         });
@@ -206,7 +206,7 @@ function generateInsights(data: UserProactiveData): ProactiveInsight[] {
     const se = data.recentSideEffects[0];
     insights.push({
       id: 'side-effect',
-      icon: '🔬',
+      icon: 'microscope',
       text: `سجّلت عرض "${se.symptom}" مؤخرًا — تبي نناقش حلول أو تعديل الجرعة؟`,
       priority: 88,
     });

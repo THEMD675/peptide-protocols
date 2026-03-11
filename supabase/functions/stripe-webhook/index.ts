@@ -521,9 +521,9 @@ serve(async (req) => {
           const customerEmail = (customer && !customer.deleted) ? customer.email : 'unknown'
           sendEmail({
             to: adminEmail,
-            subject: '⚠️ نزاع دفع جديد — pptides',
+            subject: 'تنبيه: نزاع دفع جديد — pptides',
             html: emailWrapper(`
-                <h1 style="color: #dc2626; font-size: 24px;">⚠️ نزاع دفع جديد</h1>
+                <h1 style="color: #dc2626; font-size: 24px;">تنبيه: نزاع دفع جديد</h1>
                 <p><strong>العميل:</strong> ${customerEmail}</p>
                 <p><strong>المبلغ:</strong> ${(dispute.amount / 100).toFixed(2)} ${dispute.currency?.toUpperCase()}</p>
                 <p><strong>السبب:</strong> ${dispute.reason ?? 'غير محدد'}</p>
