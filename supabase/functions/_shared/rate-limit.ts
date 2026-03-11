@@ -1,6 +1,10 @@
 /**
  * Shared rate limiting for edge functions.
- * Uses the rate_limits table in Supabase.
+ *
+ * Uses check_and_record_rate_limit() — an atomic PostgreSQL RPC that wraps
+ * the count-check and insert in a single transaction-scoped advisory lock,
+ * eliminating the race condition that allowed concurrent requests to bypass
+ * the limit via the old non-atomic count-then-insert approach.
  */
 
 import { type SupabaseClient } from 'https://esm.sh/@supabase/supabase-js@2'
@@ -23,8 +27,12 @@ interface RateLimitOptions {
 }
 
 /**
- * Check and record a rate limit entry.
+ * Atomically check and record a rate-limit entry.
  * Returns true if the request is allowed, false if rate-limited.
+ *
+ * Uses check_and_record_rate_limit() RPC which acquires a transaction-scoped
+ * advisory lock, making the check+insert atomic and race-condition-free.
+ * Falls back to deny (fail-closed) on any DB error.
  */
 export async function checkRateLimit(
   supabase: SupabaseClient,
@@ -33,43 +41,22 @@ export async function checkRateLimit(
   const { endpoint, identifier, windowSeconds, maxRequests } = options
 
   try {
-    const windowStart = new Date(Date.now() - windowSeconds * 1000).toISOString()
+    const isUser = isUuid(identifier)
 
-    // Use user_id (uuid) or ip_address (text) based on identifier format
-    const record = isUuid(identifier)
-      ? { user_id: identifier, ip_address: null }
-      : { user_id: null, ip_address: identifier }
-
-    const query = supabase
-      .from('rate_limits')
-      .select('id', { count: 'exact', head: true })
-      .eq('endpoint', endpoint)
-      .gte('created_at', windowStart)
-
-    const { count, error } = isUuid(identifier)
-      ? await query.eq('user_id', identifier)
-      : await query.eq('ip_address', identifier)
+    const { data, error } = await supabase.rpc('check_and_record_rate_limit', {
+      p_endpoint:   endpoint,
+      p_user_id:    isUser ? identifier : null,
+      p_ip_address: isUser ? null : identifier,
+      p_window_sec: windowSeconds,
+      p_max_req:    maxRequests,
+    })
 
     if (error) {
-      console.error(`rate-limit check failed for ${endpoint}:`, error.message)
+      console.error(`rate-limit RPC failed for ${endpoint}:`, error.message)
       return false // fail closed — deny on DB errors
     }
 
-    if ((count ?? 0) >= maxRequests) return false
-
-    // Record this request. Note: non-atomic with count check — concurrent requests
-    // may both pass; acceptable for typical rate-limit use. For strict atomicity,
-    // use an RPC that does check-and-insert in a single transaction.
-    const { error: insertError } = await supabase
-      .from('rate_limits')
-      .insert({ ...record, endpoint })
-
-    if (insertError) {
-      console.error(`rate-limit insert failed for ${endpoint}:`, insertError.message)
-      return false // fail closed
-    }
-
-    return true
+    return data === true
   } catch (e) {
     console.error(`rate-limit error for ${endpoint}:`, e)
     return false // fail closed

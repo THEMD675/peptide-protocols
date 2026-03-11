@@ -19,3 +19,18 @@ export function arPlural(count: number, singular: string, dual: string, plural: 
 export function sanitizeInput(s: string, maxLength = 2000): string {
   return s.trim().replace(/<[^>]+>/g, '').slice(0, maxLength);
 }
+
+/**
+ * Escape HTML special characters — use when inserting user-supplied data
+ * into innerHTML template strings (e.g. PDF export canvases).
+ * Prevents XSS via stored data rendered into hidden DOM nodes.
+ */
+export function escapeHtml(s: string | number | null | undefined): string {
+  if (s == null) return '';
+  return String(s)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#x27;');
+}

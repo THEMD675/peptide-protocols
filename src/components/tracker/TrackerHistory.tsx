@@ -18,7 +18,7 @@ import {
   X,
 } from 'lucide-react';
 import { toast } from 'sonner';
-import { cn } from '@/lib/utils';
+import { cn, escapeHtml } from '@/lib/utils';
 import { supabase } from '@/lib/supabase';
 
 interface InjectionLog {
@@ -242,11 +242,11 @@ export default function TrackerHistory({
           <tbody>
             ${rows.slice(0, 200).map((l, i) => `
               <tr style="border-bottom:1px solid #e7e5e4;${i % 2 === 0 ? 'background:#fafaf9;' : ''}">
-                <td style="padding:6px 8px;" dir="ltr">${l.peptide_name}</td>
-                <td style="padding:6px 8px;text-align:center;">${l.dose} ${l.dose_unit}</td>
-                <td style="padding:6px 8px;text-align:center;">${SITE_LABELS[l.injection_site] ?? l.injection_site}</td>
-                <td style="padding:6px 8px;text-align:center;">${formatDate(l.logged_at, useHijri)}</td>
-                <td style="padding:6px 8px;text-align:center;">${formatTime(l.logged_at)}</td>
+                <td style="padding:6px 8px;" dir="ltr">${escapeHtml(l.peptide_name)}</td>
+                <td style="padding:6px 8px;text-align:center;">${escapeHtml(l.dose)} ${escapeHtml(l.dose_unit)}</td>
+                <td style="padding:6px 8px;text-align:center;">${escapeHtml(SITE_LABELS[l.injection_site] ?? l.injection_site)}</td>
+                <td style="padding:6px 8px;text-align:center;">${escapeHtml(formatDate(l.logged_at, useHijri))}</td>
+                <td style="padding:6px 8px;text-align:center;">${escapeHtml(formatTime(l.logged_at))}</td>
               </tr>
             `).join('')}
           </tbody>

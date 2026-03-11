@@ -11,7 +11,7 @@ import {
   LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer,
   ReferenceArea, CartesianGrid, Area, ComposedChart
 } from 'recharts';
-import { cn } from '@/lib/utils';
+import { cn, escapeHtml } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
 
@@ -583,7 +583,7 @@ async function exportAsImage(entries: LabEntry[]) {
         <tbody>
           ${rows.map((row, i) => `
             <tr style="border-bottom:1px solid #e7e5e4;${i % 2 === 0 ? 'background:#fafaf9;' : ''}">
-              ${row.map(cell => `<td style="padding:4px;text-align:center;">${cell}</td>`).join('')}
+              ${row.map(cell => `<td style="padding:4px;text-align:center;">${escapeHtml(cell)}</td>`).join('')}
             </tr>
           `).join('')}
         </tbody>
