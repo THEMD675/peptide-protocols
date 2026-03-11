@@ -369,7 +369,7 @@ function BlurredOverlay() {
       <Link
         to="/pricing"
         aria-label="اشترك لفتح هذا المحتوى"
-        className="rounded-full bg-emerald-600 px-5 py-2 text-sm font-bold text-white transition-colors hover:bg-emerald-700"
+        className="rounded-xl bg-emerald-600 px-6 py-2 text-sm font-bold text-white transition-colors hover:bg-emerald-700"
       >
         اشترك — {PRICING.essentials.label}/شهريًا
       </Link>
@@ -1073,10 +1073,10 @@ export default function LabGuide() {
         <p className="font-bold text-stone-900 dark:text-stone-100">الخطوة التالية</p>
         <p className="mt-1 text-sm text-stone-600 dark:text-stone-300">عرفت تحاليلك — الآن احسب جرعتك أو تعلّم طريقة الحقن</p>
         <div className="mt-4 flex flex-col gap-2 sm:flex-row sm:justify-center">
-          <Link to="/calculator" className="rounded-full bg-emerald-600 px-6 py-2.5 text-sm font-bold text-white transition-colors hover:bg-emerald-700 min-h-[44px] inline-flex items-center justify-center">حاسبة الجرعات</Link>
-          <Link to="/guide" className="rounded-full border border-emerald-300 px-6 py-2.5 text-sm font-bold text-emerald-700 transition-colors hover:bg-emerald-100 min-h-[44px] inline-flex items-center justify-center">دليل التحضير والحقن</Link>
-          <Link to="/tracker" className="rounded-full border border-emerald-300 px-6 py-2.5 text-sm font-bold text-emerald-700 transition-colors hover:bg-emerald-100 min-h-[44px] inline-flex items-center justify-center">متتبع التحاليل</Link>
-          <Link to="/coach" className="rounded-full border border-emerald-300 px-6 py-2.5 text-sm font-bold text-emerald-700 transition-colors hover:bg-emerald-100 min-h-[44px] inline-flex items-center justify-center">اسأل المدرب الذكي</Link>
+          <Link to="/calculator" className="rounded-xl bg-emerald-600 px-6 py-3 text-sm font-bold text-white transition-colors hover:bg-emerald-700 min-h-[44px] inline-flex items-center justify-center">حاسبة الجرعات</Link>
+          <Link to="/guide" className="rounded-xl border border-stone-300 dark:border-stone-600 px-6 py-3 text-sm font-bold text-emerald-700 transition-colors hover:bg-emerald-50 min-h-[44px] inline-flex items-center justify-center">دليل التحضير والحقن</Link>
+          <Link to="/tracker" className="rounded-xl border border-stone-300 dark:border-stone-600 px-6 py-3 text-sm font-bold text-emerald-700 transition-colors hover:bg-emerald-50 min-h-[44px] inline-flex items-center justify-center">متتبع التحاليل</Link>
+          <Link to="/coach" className="rounded-xl border border-stone-300 dark:border-stone-600 px-6 py-3 text-sm font-bold text-emerald-700 transition-colors hover:bg-emerald-50 min-h-[44px] inline-flex items-center justify-center">اسأل المدرب الذكي</Link>
         </div>
       </div>
     </div>
