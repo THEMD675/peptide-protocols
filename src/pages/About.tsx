@@ -298,6 +298,77 @@ export default function About() {
           </div>
         </section>
 
+        {/* Social Proof — Testimonials */}
+        <section className="mb-16">
+          <h2 className="mb-8 text-center text-2xl font-bold text-stone-900 dark:text-stone-100 md:text-3xl">
+            ماذا يقول <span className="text-emerald-700">مستخدمونا</span>
+          </h2>
+          <div className="grid gap-4 md:grid-cols-3">
+            {testimonials.map(({ text, author, role, rating }) => (
+              <div
+                key={author}
+                className="rounded-2xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 p-6 flex flex-col gap-3"
+              >
+                <div className="flex gap-0.5">
+                  {Array.from({ length: rating }).map((_, i) => (
+                    <Star key={i} className="h-4 w-4 fill-amber-400 text-amber-400" />
+                  ))}
+                </div>
+                <p className="text-sm leading-relaxed text-stone-700 dark:text-stone-200 flex-1">"{text}"</p>
+                <div>
+                  <p className="text-sm font-bold text-stone-900 dark:text-stone-100">{author}</p>
+                  <p className="text-xs text-stone-500 dark:text-stone-300">{role}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* FAQ */}
+        <section className="mb-16">
+          <h2 className="mb-8 text-center text-2xl font-bold text-stone-900 dark:text-stone-100 md:text-3xl">
+            أسئلة شائعة
+          </h2>
+          <div className="space-y-3">
+            {faqs.map((faq, i) => (
+              <div
+                key={i}
+                className="rounded-2xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 overflow-hidden"
+              >
+                <button
+                  onClick={() => setOpenFaq(openFaq === i ? null : i)}
+                  className="flex w-full items-center justify-between px-6 py-4 text-start font-bold text-stone-900 dark:text-stone-100 hover:bg-stone-50 dark:hover:bg-stone-800 transition-colors"
+                  aria-expanded={openFaq === i}
+                >
+                  <span>{faq.q}</span>
+                  <ChevronDown className={cn('h-5 w-5 shrink-0 text-emerald-500 transition-transform duration-200', openFaq === i && 'rotate-180')} />
+                </button>
+                {openFaq === i && (
+                  <div className="px-6 pb-5 text-sm leading-relaxed text-stone-700 dark:text-stone-200">
+                    {faq.a}
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* Contact CTA */}
+        <section className="mb-12 rounded-2xl border border-stone-200 dark:border-stone-600 bg-stone-50 dark:bg-stone-900 p-8 text-center">
+          <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-emerald-100 dark:bg-emerald-900/30">
+            <Mail className="h-5 w-5 text-emerald-700" />
+          </div>
+          <h2 className="mb-2 text-lg font-bold text-stone-900 dark:text-stone-100">تواصل معنا</h2>
+          <p className="mb-4 text-sm text-stone-600 dark:text-stone-300">سؤال؟ اقتراح؟ ملاحظة؟ نرحب بكل رسالة.</p>
+          <a
+            href={`mailto:${SUPPORT_EMAIL}`}
+            className="inline-flex min-h-[44px] items-center gap-2 rounded-xl bg-emerald-600 px-6 py-3 text-sm font-bold text-white transition-colors hover:bg-emerald-700"
+          >
+            <Mail className="h-4 w-4" />
+            {SUPPORT_EMAIL}
+          </a>
+        </section>
+
         {/* Links */}
         <div className="mb-12 flex flex-wrap justify-center gap-3">
           <Link
@@ -318,7 +389,7 @@ export default function About() {
             to="/privacy"
             className="inline-flex items-center gap-2 rounded-xl border border-stone-300 dark:border-stone-600 px-6 py-3 text-sm font-bold text-stone-800 dark:text-stone-200 transition-colors hover:bg-stone-50 dark:hover:bg-stone-800"
           >
-            <Heart className="h-4 w-4" />
+            <Shield className="h-4 w-4" />
             <span>سياسة الخصوصية</span>
           </Link>
         </div>
@@ -329,7 +400,7 @@ export default function About() {
             to="/pricing"
             className="btn-primary-glow inline-flex items-center gap-2 rounded-xl bg-emerald-600 px-10 py-4 text-lg font-bold text-white transition-all hover:bg-emerald-700 active:scale-[0.98]"
           >
-            <span>ابدأ الآن</span>
+            <span>ابدأ الآن — {PRICING.essentials.label}/شهريًا</span>
             <ArrowLeft className="h-5 w-5" />
           </Link>
           <p className="mt-4 text-sm text-stone-500 dark:text-stone-300">{TRIAL_DAYS} أيام تجربة مجانية — إلغاء في أي وقت</p>
