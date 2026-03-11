@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
-import { Eye, EyeOff } from 'lucide-react';
+import { Eye, EyeOff, Shield } from 'lucide-react';
 import { toast } from 'sonner';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
@@ -462,7 +462,7 @@ export default function Login() {
             </p>
             {tab === 'signup' && (
               <p className="mt-2 text-xs font-semibold text-white/90 flex items-center justify-center gap-1.5">
-                <span className="inline-flex h-4 w-4 items-center justify-center rounded-full bg-white/20 text-[10px]">🎁</span>
+                <Shield className="h-3.5 w-3.5" />
                 تجربة {TRIAL_DAYS} أيام مجانية — إلغاء في أي وقت
               </p>
             )}
