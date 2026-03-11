@@ -76,9 +76,11 @@ function GlossaryCard({ term, search, allPeptides }: { term: GlossaryTerm; searc
       className="rounded-2xl border border-stone-200 dark:border-stone-700 border-s-2 border-s-emerald-300 bg-white dark:bg-stone-900 p-5 shadow-sm dark:shadow-stone-900/30 card-hover"
     >
       <dt
-        className="flex items-center justify-between gap-3 cursor-pointer select-none"
+        className="flex items-center justify-between gap-3 cursor-pointer select-none focus-visible:outline-2 focus-visible:outline-emerald-500 focus-visible:outline-offset-2 rounded-lg"
         onClick={() => setOpen(o => !o)}
+        onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setOpen(o => !o); } }}
         role="button"
+        tabIndex={0}
         aria-expanded={open}
       >
         <span className="flex items-baseline gap-3 min-w-0">

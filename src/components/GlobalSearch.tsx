@@ -233,7 +233,7 @@ export default function GlobalSearch({ open, onClose }: Props) {
             onChange={(e) => setQuery(e.target.value)}
             onKeyDown={handleKey}
             placeholder="ابحث عن ببتيد، مصطلح، مقالة، أو صفحة..."
-            className="flex-1 bg-transparent text-base text-stone-900 dark:text-stone-100 placeholder:text-stone-400 outline-none"
+            className="flex-1 bg-transparent text-base text-stone-900 dark:text-stone-100 placeholder:text-stone-400 outline-none focus:outline-none focus:ring-0"
             aria-label="بحث شامل"
           />
           <kbd className="hidden rounded-md border border-stone-200 dark:border-stone-700 bg-stone-100 dark:bg-stone-800 px-1.5 py-0.5 text-[10px] font-medium text-stone-500 dark:text-stone-400 sm:inline">
