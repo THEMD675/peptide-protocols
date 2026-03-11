@@ -217,7 +217,7 @@ export default function Landing() {
   const ctaTextShort = user ? 'اختر خطتك' : 'ابدأ التجربة المجانية';
 
   return (
-    <div id="main-content" className="min-h-screen bg-white dark:bg-stone-900" role="main">
+    <div id="main-content" className="min-h-screen bg-white dark:bg-stone-950" role="main">
       <Helmet>
         <title>pptides | أشمل دليل عربي للببتيدات العلاجية</title>
         <meta name="description" content={`${PEPTIDE_COUNT} ببتيد علاجي مع بروتوكولات كاملة، حاسبة جرعات، ودليل تحاليل. أشمل دليل عربي مبني على الأبحاث.`} />
