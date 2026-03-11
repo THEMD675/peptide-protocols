@@ -6,7 +6,7 @@ import { cn } from '@/lib/utils';
 
 const FocusTrap = lazy(() => import('focus-trap-react'));
 import { useAuth } from '@/contexts/AuthContext';
-import { ADMIN_EMAILS } from '@/lib/constants';
+import { ADMIN_EMAILS, TIER_LABELS, STATUS_LABELS } from '@/lib/constants';
 import NotificationBell from '@/components/NotificationBell';
 import { useTheme } from '@/hooks/useTheme';
 const GlobalSearch = lazy(() => import('@/components/GlobalSearch'));
@@ -52,7 +52,8 @@ import { prefetchRoute } from '@/lib/prefetch';
 
 export default memo(function Header() {
   const { pathname } = useLocation();
-  const { user, logout, isLoading: authLoading } = useAuth();
+  const { user, logout, subscription, isLoading: authLoading } = useAuth();
+  const [confirmingLogout, setConfirmingLogout] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [moreOpen, setMoreOpen] = useState(false);
@@ -94,8 +95,13 @@ export default memo(function Header() {
     queueMicrotask(() => {
       setMobileOpen(false);
       setMoreOpen(false);
+      setConfirmingLogout(false);
     });
   }, [pathname]);
+
+  // Reset logout confirmation when menus close
+  useEffect(() => { if (!dropdownOpen) setConfirmingLogout(false); }, [dropdownOpen]);
+  useEffect(() => { if (!mobileOpen) setConfirmingLogout(false); }, [mobileOpen]);
 
   useEffect(() => {
     if (!mobileOpen) return;
@@ -112,6 +118,18 @@ export default memo(function Header() {
   const initial = user?.email?.charAt(0).toUpperCase() ?? '';
   const navLinks = authLoading ? [] : user ? userNavLinks : guestNavLinks;
   const logoHref = user ? '/dashboard' : '/';
+
+  // Subscription tier badge helpers
+  const tierLabel = subscription ? (TIER_LABELS[subscription.tier] ?? subscription.tier) : null;
+  const statusLabel = subscription ? (STATUS_LABELS[subscription.status] ?? subscription.status) : null;
+  const tierBadgeColor = subscription?.tier === 'elite'
+    ? 'bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-400'
+    : subscription?.tier === 'essentials'
+      ? 'bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-400'
+      : 'bg-stone-100 dark:bg-stone-800 text-stone-500 dark:text-stone-300';
+  const displayTier = subscription?.status === 'trial'
+    ? `${statusLabel} · ${tierLabel}`
+    : tierLabel;
 
   return (
     <>
@@ -260,9 +278,14 @@ export default memo(function Header() {
 
                 {dropdownOpen && (
                   <div aria-label="قائمة الحساب" className="absolute end-0 top-full mt-2 min-w-[180px] overflow-hidden rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 py-1 shadow-xl dark:shadow-stone-900/40 animate-fade-in">
-                    <p className="truncate border-b border-stone-200 dark:border-stone-600 px-4 py-2 text-sm text-stone-800 dark:text-stone-200">
-                      {user.email}
-                    </p>
+                    <div className="border-b border-stone-200 dark:border-stone-600 px-4 py-2">
+                      <p className="truncate text-sm text-stone-800 dark:text-stone-200">{user.email}</p>
+                      {displayTier && (
+                        <span className={cn('mt-1 inline-block rounded-full px-2 py-0.5 text-[11px] font-semibold', tierBadgeColor)}>
+                          {displayTier}
+                        </span>
+                      )}
+                    </div>
                     <Link
                       to="/dashboard"
                       onClick={() => setDropdownOpen(false)}
@@ -288,18 +311,33 @@ export default memo(function Header() {
                     </Link>
                     )}
                     <div className="my-1 h-px bg-stone-200 dark:bg-stone-700" />
-                    <button
-                      onClick={() => {
-                        if (window.confirm('هل تريد تسجيل الخروج؟')) {
-                          logout();
-                          setDropdownOpen(false);
-                        }
-                      }}
-                      className="flex w-full items-center gap-2 px-4 py-2.5 min-h-[44px] text-sm text-red-500 dark:text-red-400 transition-colors hover:bg-stone-50 dark:hover:bg-stone-800"
-                    >
-                      <LogOut className="h-4 w-4" />
-                      تسجيل الخروج
-                    </button>
+                    {confirmingLogout ? (
+                      <div className="px-4 py-2.5">
+                        <p className="mb-2 text-xs text-stone-600 dark:text-stone-300">تأكيد تسجيل الخروج؟</p>
+                        <div className="flex gap-2">
+                          <button
+                            onClick={() => { logout(); setDropdownOpen(false); setConfirmingLogout(false); }}
+                            className="flex-1 rounded-lg bg-red-500 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-red-600"
+                          >
+                            نعم، خروج
+                          </button>
+                          <button
+                            onClick={() => setConfirmingLogout(false)}
+                            className="flex-1 rounded-lg border border-stone-200 dark:border-stone-600 py-1.5 text-xs font-semibold text-stone-700 dark:text-stone-200 transition-colors hover:bg-stone-50 dark:hover:bg-stone-800"
+                          >
+                            إلغاء
+                          </button>
+                        </div>
+                      </div>
+                    ) : (
+                      <button
+                        onClick={() => setConfirmingLogout(true)}
+                        className="flex w-full items-center gap-2 px-4 py-2.5 min-h-[44px] text-sm text-red-500 dark:text-red-400 transition-colors hover:bg-stone-50 dark:hover:bg-stone-800"
+                      >
+                        <LogOut className="h-4 w-4" />
+                        تسجيل الخروج
+                      </button>
+                    )}
                   </div>
                 )}
               </div>
@@ -352,6 +390,9 @@ export default memo(function Header() {
         <Suspense fallback={null}>
         <FocusTrap active={mobileOpen} focusTrapOptions={{ allowOutsideClick: true }}>
         <nav
+          role="dialog"
+          aria-modal="true"
+          aria-label="القائمة الرئيسية"
           className={cn(
             'absolute inset-y-0 end-0 flex w-[min(18rem,85vw)] flex-col border-s border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 pt-16 shadow-2xl transition-all duration-300 ease-out',
             mobileOpen ? 'translate-x-0 opacity-100' : 'ltr:translate-x-full rtl:-translate-x-full opacity-0',
@@ -386,7 +427,7 @@ export default memo(function Header() {
             })}
             {/* Mobile Theme Toggle */}
             <button
-              onClick={toggleTheme}
+              onClick={() => { toggleTheme(); }}
               className="flex w-full items-center gap-3 rounded-lg px-4 py-3 text-sm font-medium text-stone-800 dark:text-stone-200 transition-colors hover:bg-stone-50 dark:hover:bg-stone-800"
             >
               {isDark ? <Sun className="h-4 w-4 text-amber-400" /> : <Moon className="h-4 w-4 text-stone-500 dark:text-stone-300" />}
@@ -418,10 +459,17 @@ export default memo(function Header() {
             {user ? (
               <div className="space-y-3">
                 <div className="flex items-center gap-3">
-                  <span className="flex h-9 w-9 items-center justify-center rounded-full bg-emerald-600 text-sm font-bold text-white">
+                  <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-emerald-600 text-sm font-bold text-white">
                     {initial}
                   </span>
-                  <span className="truncate text-sm text-stone-800 dark:text-stone-200">{user.email}</span>
+                  <div className="min-w-0">
+                    <p className="truncate text-sm text-stone-800 dark:text-stone-200">{user.email}</p>
+                    {displayTier && (
+                      <span className={cn('mt-0.5 inline-block rounded-full px-2 py-0.5 text-[11px] font-semibold', tierBadgeColor)}>
+                        {displayTier}
+                      </span>
+                    )}
+                  </div>
                 </div>
                 <Link
                   to="/account"
@@ -440,18 +488,33 @@ export default memo(function Header() {
                   لوحة الإدارة
                 </Link>
                 )}
-                <button
-                  onClick={() => {
-                    if (window.confirm('هل تريد تسجيل الخروج؟')) {
-                      logout();
-                      setMobileOpen(false);
-                    }
-                  }}
-                  className="flex w-full items-center gap-2 rounded-lg px-4 py-2.5 min-h-[44px] text-sm text-red-500 dark:text-red-400 transition-colors hover:bg-stone-50 dark:hover:bg-stone-800"
-                >
-                  <LogOut className="h-4 w-4" />
-                  تسجيل الخروج
-                </button>
+                {confirmingLogout ? (
+                  <div className="rounded-lg border border-stone-200 dark:border-stone-600 p-3">
+                    <p className="mb-2 text-xs text-stone-600 dark:text-stone-300">تأكيد تسجيل الخروج؟</p>
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => { logout(); setMobileOpen(false); setConfirmingLogout(false); }}
+                        className="flex-1 rounded-lg bg-red-500 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-red-600"
+                      >
+                        نعم، خروج
+                      </button>
+                      <button
+                        onClick={() => setConfirmingLogout(false)}
+                        className="flex-1 rounded-lg border border-stone-200 dark:border-stone-600 py-1.5 text-xs font-semibold text-stone-700 dark:text-stone-200 transition-colors hover:bg-stone-50 dark:hover:bg-stone-800"
+                      >
+                        إلغاء
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <button
+                    onClick={() => setConfirmingLogout(true)}
+                    className="flex w-full items-center gap-2 rounded-lg px-4 py-2.5 min-h-[44px] text-sm text-red-500 dark:text-red-400 transition-colors hover:bg-stone-50 dark:hover:bg-stone-800"
+                  >
+                    <LogOut className="h-4 w-4" />
+                    تسجيل الخروج
+                  </button>
+                )}
               </div>
             ) : (
               <Link
@@ -469,7 +532,7 @@ export default memo(function Header() {
         </Suspense>
       </div>
 
-      <div className="h-[var(--header-height)]" />
+      <div className="h-[var(--header-height)]" aria-hidden="true" />
     </>
   );
 });

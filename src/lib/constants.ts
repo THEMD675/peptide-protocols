@@ -1,10 +1,10 @@
 // PERF: These values are hardcoded to avoid importing peptides.ts (145KB) in the main bundle.
 // Update manually when adding/removing peptides or changing isFree/pubmedIds fields.
-// Last synced: 2026-03-11 (48 peptides, 6 free, 110 PubMed IDs)
+// Last synced: 2026-03-11 (47 peptides, 7 free, 127 PubMed IDs)
 
 /** Free peptide IDs — peptides with isFree: true in src/data/peptides.ts */
 export const FREE_PEPTIDE_IDS = new Set([
-  'semaglutide', 'bpc-157', 'kisspeptin-10', 'semax', 'epithalon', 'collagen-peptides',
+  'semaglutide', 'bpc-157', 'kisspeptin-10', 'semax', 'epithalon', 'collagen-peptides', 'snap-8',
 ]);
 
 export const PRICING = {
@@ -13,10 +13,10 @@ export const PRICING = {
 } as const;
 
 /** Total peptide count — update when adding/removing peptides */
-export const PEPTIDE_COUNT = 48;
+export const PEPTIDE_COUNT = 47;
 
 /** Unique PubMed ID count across all peptides — update when pubmedIds change */
-export const PUBMED_SOURCE_COUNT = 110;
+export const PUBMED_SOURCE_COUNT = 127;
 export const PUBMED_SOURCE_LABEL = `${PUBMED_SOURCE_COUNT}+`;
 
 export const FREQUENCY_LABELS: Record<string, string> = {

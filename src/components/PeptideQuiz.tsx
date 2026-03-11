@@ -8,7 +8,7 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
-import { PRICING } from '@/lib/constants';
+import { PRICING, TRIAL_DAYS } from '@/lib/constants';
 import { supabase } from '@/lib/supabase';
 import { events } from '@/lib/analytics';
 import { peptides as allPeptides } from '@/data/peptides';
@@ -742,10 +742,10 @@ export default function PeptideQuiz() {
           {/* CTAs */}
           <div className="flex flex-col gap-3">
             <Link
-              to={user ? `/peptide/${result.primary.peptideId}?start=1` : `/signup?redirect=/peptide/${result.primary.peptideId}%3Fstart%3D1`}
+              to={user ? `/peptide/${result.primary.peptideId}?start=1` : `/signup?redirect=/pricing`}
               className="flex items-center justify-center gap-2 rounded-xl bg-emerald-600 px-5 py-3.5 text-white font-bold transition-all hover:bg-emerald-700 active:scale-[0.98] shadow-lg shadow-emerald-600/20"
             >
-              ابدأ هذا البروتوكول
+              {user ? 'ابدأ هذا البروتوكول' : `ابدأ بروتوكولك — ${TRIAL_DAYS} أيام مجانًا`}
               <ArrowLeft className="h-4 w-4" />
             </Link>
 
@@ -822,7 +822,7 @@ export default function PeptideQuiz() {
               ابدأ بروتوكولك الكامل مع <span className="text-emerald-700">pptides</span>
             </p>
             <p className="text-sm text-stone-500 dark:text-stone-300 mb-4">
-              وصول لـ {PRICING.essentials.label}/شهر فقط — أو جرّب {3} أيام مجانًا
+              جرّب {TRIAL_DAYS} أيام مجانًا — بدون بطاقة ائتمان. بعدها {PRICING.essentials.label}/شهر فقط
             </p>
             <div className="flex flex-col sm:flex-row gap-2 justify-center">
               <Link

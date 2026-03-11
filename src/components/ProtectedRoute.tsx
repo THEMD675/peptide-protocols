@@ -12,7 +12,10 @@ export default function ProtectedRoute({ children, requiresSubscription = true }
   const { user, subscription, isLoading } = useAuth();
   const location = useLocation();
 
-  if (isLoading) return <div className="flex min-h-[50vh] items-center justify-center" role="status" aria-label="جارٍ التحميل"><div className="h-8 w-8 animate-spin rounded-full border-2 border-emerald-200 dark:border-emerald-800 border-t-emerald-600" /></div>;
+  // Return null during auth loading — the parent Suspense fallback (DashboardSkeleton,
+  // TrackerSkeleton, etc.) already shows a layout-matching skeleton. A generic spinner
+  // here would cause a visible flash: skeleton → spinner → content.
+  if (isLoading) return null;
   if (!user) return (
     <Navigate to={`/login?redirect=${encodeURIComponent(location.pathname + location.search)}`} replace />
   );

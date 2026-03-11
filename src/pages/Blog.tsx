@@ -5,6 +5,7 @@ import { FileText, CalendarDays, Tag, Search, X, ArrowLeft } from 'lucide-react'
 import { SITE_URL } from '@/lib/constants';
 import { supabase } from '@/lib/supabase';
 import { cn } from '@/lib/utils';
+import { GenericPageSkeleton } from '@/components/Skeletons';
 
 interface BlogPost {
   id: string;
@@ -231,11 +232,18 @@ export default function Blog() {
         {loading && (
           <div className="space-y-5">
             {[1, 2, 3].map(i => (
-              <div key={i} className="animate-pulse rounded-2xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-900 p-6">
-                <div className="h-5 w-3/4 rounded bg-stone-200 dark:bg-stone-700" />
-                <div className="mt-3 h-4 w-full rounded bg-stone-100 dark:bg-stone-800" />
-                <div className="mt-2 h-4 w-2/3 rounded bg-stone-100 dark:bg-stone-800" />
-                <div className="mt-4 h-3 w-24 rounded bg-stone-100 dark:bg-stone-800" />
+              <div key={i} className="overflow-hidden rounded-2xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-900">
+                {/* Cover image placeholder — matches the h-48 actual image */}
+                <div className="h-48 w-full animate-pulse rounded-t-2xl bg-stone-200 dark:bg-stone-700 skeleton-shimmer sm:h-56" />
+                <div className="p-6 space-y-3">
+                  <div className="h-5 w-3/4 rounded-lg animate-pulse bg-stone-200 dark:bg-stone-700 skeleton-shimmer" />
+                  <div className="h-4 w-full rounded-lg animate-pulse bg-stone-100 dark:bg-stone-800 skeleton-shimmer" />
+                  <div className="h-4 w-2/3 rounded-lg animate-pulse bg-stone-100 dark:bg-stone-800 skeleton-shimmer" />
+                  <div className="flex items-center gap-3 mt-2">
+                    <div className="h-3 w-24 rounded animate-pulse bg-stone-100 dark:bg-stone-800 skeleton-shimmer" />
+                    <div className="h-5 w-16 rounded-full animate-pulse bg-stone-100 dark:bg-stone-800 skeleton-shimmer" />
+                  </div>
+                </div>
               </div>
             ))}
           </div>
@@ -317,6 +325,7 @@ export default function Blog() {
                       alt={post.title_ar}
                       className="blog-card-img h-48 w-full object-cover sm:h-56"
                       loading="lazy"
+                      decoding="async"
                       width="800"
                       height="192"
                       onError={e => { (e.target as HTMLImageElement).style.display = 'none'; }}

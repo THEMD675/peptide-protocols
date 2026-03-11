@@ -6,7 +6,6 @@ import {
   CheckCircle,
   Mail,
   MessageSquare,
-  Loader2,
   Clock,
   ChevronDown,
   HelpCircle,
@@ -59,9 +58,30 @@ export default function Contact() {
   }, [user?.email, email]);
 
   if (isLoading) {
+    // Show a layout-matching skeleton instead of a bare spinner to avoid flash
     return (
-      <div className="flex min-h-[60vh] items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-emerald-700" />
+      <div className="mx-auto max-w-2xl px-4 py-12 sm:py-16 animate-fade-in">
+        {/* Header skeleton */}
+        <div className="mb-10 text-center">
+          <div className="mx-auto mb-4 h-14 w-14 rounded-2xl animate-pulse bg-stone-200 dark:bg-stone-700 skeleton-shimmer" />
+          <div className="mx-auto h-8 w-40 rounded-lg animate-pulse bg-stone-200 dark:bg-stone-700 skeleton-shimmer" />
+          <div className="mx-auto mt-2 h-5 w-64 rounded-lg animate-pulse bg-stone-100 dark:bg-stone-800 skeleton-shimmer" />
+        </div>
+        {/* Badges skeleton */}
+        <div className="mb-8 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
+          <div className="h-10 w-36 rounded-full animate-pulse bg-stone-100 dark:bg-stone-800 skeleton-shimmer" />
+          <div className="h-10 w-48 rounded-full animate-pulse bg-stone-100 dark:bg-stone-800 skeleton-shimmer" />
+        </div>
+        {/* Form card skeleton */}
+        <div className="space-y-5 rounded-2xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-900 p-6 sm:p-8">
+          {[1, 2, 3, 4].map(i => (
+            <div key={i} className="space-y-1.5">
+              <div className="h-4 w-24 rounded animate-pulse bg-stone-200 dark:bg-stone-700 skeleton-shimmer" />
+              <div className="h-12 w-full rounded-xl animate-pulse bg-stone-100 dark:bg-stone-800 skeleton-shimmer" />
+            </div>
+          ))}
+          <div className="h-12 w-full rounded-xl animate-pulse bg-emerald-100 dark:bg-emerald-900/20 skeleton-shimmer" />
+        </div>
       </div>
     );
   }

@@ -664,16 +664,21 @@ export default function Dashboard() {
         </div>
       )}
 
-      {/* Loading skeleton while activity data fetches */}
+      {/* Loading skeleton while activity data fetches — uses shimmer for consistency */}
       {activity.loading && (
-        <div className="mb-8 animate-pulse space-y-4">
+        <div className="mb-8 space-y-4 animate-fade-in">
           <div className="grid grid-cols-3 gap-3">
             {[0, 1, 2].map(i => (
-              <div key={i} className="h-20 rounded-xl bg-stone-200 dark:bg-stone-700" />
+              <div key={i} className="h-20 rounded-xl animate-pulse bg-stone-200 dark:bg-stone-700 skeleton-shimmer" />
             ))}
           </div>
-          <div className="h-10 rounded-xl bg-stone-200 dark:bg-stone-700" />
-          <div className="h-24 rounded-2xl bg-stone-200 dark:bg-stone-700" />
+          <div className="h-10 rounded-xl animate-pulse bg-stone-200 dark:bg-stone-700 skeleton-shimmer" />
+          <div className="h-24 rounded-2xl animate-pulse bg-stone-200 dark:bg-stone-700 skeleton-shimmer" />
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+            {[0, 1, 2, 3].map(i => (
+              <div key={i} className="h-24 rounded-2xl animate-pulse bg-stone-200 dark:bg-stone-700 skeleton-shimmer" />
+            ))}
+          </div>
         </div>
       )}
 
@@ -1152,7 +1157,17 @@ export default function Dashboard() {
       {/* Lab Results Tracker */}
       {subscription.isProOrTrial && (
         <div className="mb-8">
-          <Suspense fallback={<div className="h-40 animate-pulse rounded-2xl bg-stone-100 dark:bg-stone-800" />}><LabResultsTracker /></Suspense>
+          <Suspense fallback={
+          <div className="rounded-2xl border border-stone-200 dark:border-stone-700 p-6 space-y-3 animate-fade-in">
+            <div className="h-6 w-36 rounded-lg animate-pulse bg-stone-200 dark:bg-stone-700 skeleton-shimmer" />
+            <div className="h-4 w-64 rounded animate-pulse bg-stone-100 dark:bg-stone-800 skeleton-shimmer" />
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+              {[0,1,2].map(i => (
+                <div key={i} className="h-20 rounded-xl animate-pulse bg-stone-100 dark:bg-stone-800 skeleton-shimmer" />
+              ))}
+            </div>
+          </div>
+        }><LabResultsTracker /></Suspense>
         </div>
       )}
 

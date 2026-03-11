@@ -42,6 +42,7 @@ export default memo(function Footer() {
               <PLink to="/table" className="min-h-[44px] flex items-center text-stone-600 dark:text-stone-300 transition-colors hover:text-emerald-700 dark:hover:text-emerald-400 hover:underline underline-offset-4 active:text-emerald-700 dark:active:text-emerald-300">جدول الببتيدات</PLink>
               <PLink to="/compare" className="min-h-[44px] flex items-center text-stone-600 dark:text-stone-300 transition-colors hover:text-emerald-700 dark:hover:text-emerald-400 hover:underline underline-offset-4 active:text-emerald-700 dark:active:text-emerald-300">مقارنة الببتيدات</PLink>
               <PLink to="/coach" className="min-h-[44px] flex items-center text-stone-600 dark:text-stone-300 transition-colors hover:text-emerald-700 dark:hover:text-emerald-400 hover:underline underline-offset-4 active:text-emerald-700 dark:active:text-emerald-300">المدرب الذكي</PLink>
+              <PLink to="/quiz" className="min-h-[44px] flex items-center text-stone-600 dark:text-stone-300 transition-colors hover:text-emerald-700 dark:hover:text-emerald-400 hover:underline underline-offset-4 active:text-emerald-700 dark:active:text-emerald-300">اختبار الببتيدات</PLink>
               <PLink to="/pricing" className="min-h-[44px] flex items-center text-stone-600 dark:text-stone-300 transition-colors hover:text-emerald-700 dark:hover:text-emerald-400 hover:underline underline-offset-4 active:text-emerald-700 dark:active:text-emerald-300">الأسعار</PLink>
             </nav>
           </div>

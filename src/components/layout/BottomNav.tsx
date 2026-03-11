@@ -34,11 +34,14 @@ export default memo(function BottomNav() {
               onTouchStart={() => prefetchRoute(to)}
               onMouseEnter={() => prefetchRoute(to)}
               className={cn(
-                'flex min-h-[56px] flex-1 flex-col items-center justify-center gap-1 py-2 text-[11px] font-medium transition-colors',
-                active ? 'text-emerald-700' : 'text-stone-500 dark:text-stone-300 active:text-stone-600 dark:text-stone-300',
+                'relative flex min-h-[56px] flex-1 flex-col items-center justify-center gap-1 py-2 text-[11px] font-medium transition-colors',
+                active ? 'text-emerald-700 dark:text-emerald-400' : 'text-stone-500 dark:text-stone-400 active:text-stone-600',
               )}
             >
-              <Icon className="h-5 w-5" />
+              {active && (
+                <span className="absolute top-1.5 h-1 w-8 rounded-full bg-emerald-600 dark:bg-emerald-500" aria-hidden="true" />
+              )}
+              <Icon className={cn('h-5 w-5', active && 'mt-1')} />
               <span>{label}</span>
             </Link>
           );
