@@ -3,6 +3,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { LayoutDashboard, Syringe, BookOpen, Bot } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { cn } from '@/lib/utils';
+import { prefetchRoute } from '@/lib/prefetch';
 
 const tabs = [
   { to: '/dashboard', icon: LayoutDashboard, label: 'لوحة المعلومات' },
@@ -30,6 +31,8 @@ export default memo(function BottomNav() {
               key={to}
               to={to}
               aria-current={active ? 'page' : undefined}
+              onTouchStart={() => prefetchRoute(to)}
+              onMouseEnter={() => prefetchRoute(to)}
               className={cn(
                 'flex min-h-[56px] flex-1 flex-col items-center justify-center gap-1 py-2 text-[11px] font-medium transition-colors',
                 active ? 'text-emerald-700' : 'text-stone-500 dark:text-stone-400 active:text-stone-600 dark:text-stone-400',

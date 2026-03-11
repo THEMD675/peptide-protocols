@@ -48,13 +48,7 @@ const userToolLinks = [
   { to: '/sources', label: 'المصادر العلمية' },
 ] as const;
 
-const prefetchMap: Record<string, () => Promise<unknown>> = {
-  '/library': () => import('@/pages/Library'),
-  '/pricing': () => import('@/pages/Pricing'),
-  '/calculator': () => import('@/pages/DoseCalculator'),
-  '/coach': () => import('@/pages/Coach'),
-  '/login': () => import('@/pages/Login'),
-};
+import { prefetchRoute } from '@/lib/prefetch';
 
 export default memo(function Header() {
   const { pathname } = useLocation();
@@ -148,7 +142,7 @@ export default memo(function Header() {
                   key={to}
                   to={to}
                   aria-current={active ? 'page' : undefined}
-                  onMouseEnter={() => prefetchMap[to]?.()}
+                  onMouseEnter={() => prefetchRoute(to)}
                   className={cn(
                     'relative rounded-lg px-3 py-2 text-sm font-medium transition-colors',
                     active
@@ -189,7 +183,7 @@ export default memo(function Header() {
                             key={to}
                             to={to}
                             aria-current={pathname.startsWith(to) ? 'page' : undefined}
-                            onMouseEnter={() => prefetchMap[to]?.()}
+                            onMouseEnter={() => prefetchRoute(to)}
                             onClick={() => setMoreOpen(false)}
                             className={cn(
                               'block px-4 py-2.5 text-sm transition-colors hover:bg-stone-50 dark:hover:bg-stone-800',
@@ -300,7 +294,7 @@ export default memo(function Header() {
             ) : (
               <Link
                 to="/login"
-                onMouseEnter={() => prefetchMap['/login']?.()}
+                onMouseEnter={() => prefetchRoute('/login')}
                 className="inline-flex min-h-[44px] items-center rounded-full bg-emerald-600 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-emerald-700 md:px-5 md:py-2 md:text-sm"
               >
                 تسجيل الدخول
