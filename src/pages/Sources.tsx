@@ -328,7 +328,7 @@ function CitationBrowser() {
               </option>
             ))}
           </select>
-          <ChevronDown className="absolute start-3 top-1/2 h-4 w-4 -translate-y-1/2 text-stone-400 pointer-events-none" />
+          <ChevronDown className="absolute end-3 top-1/2 h-4 w-4 -translate-y-1/2 text-stone-400 pointer-events-none" />
         </div>
 
         {/* Sort Toggle */}
