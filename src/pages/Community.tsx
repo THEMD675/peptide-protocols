@@ -525,7 +525,7 @@ export default function Community() {
   }, [repliesByPost, loadReplies]);
 
   const submitReply = useCallback(async (postId: string) => {
-    const content = (replyText[postId] ?? '').trim();
+    const content = (replyText[postId] ?? '').trim().replace(/<[^>]+>/g, '').slice(0, 500);
     if (!user || !content) return;
     setSubmittingReply(prev => new Set(prev).add(postId));
     const isSub = subscription?.isProOrTrial ?? false;
@@ -588,13 +588,15 @@ export default function Community() {
     try {
       const dur = Math.max(1, Math.min(52, durationWeeks));
       const peptideStr = selectedPeptides.join(', ');
+      // Sanitize user inputs: strip HTML, limit length
+      const sanitize = (s: string, max: number) => s.trim().replace(/<[^>]+>/g, '').slice(0, max);
       const { error } = await supabase.from('community_logs').insert({
         user_id: user.id,
         peptide_name: peptideStr,
-        goal,
-        protocol: protocol.trim(),
+        goal: sanitize(goal, 200),
+        protocol: sanitize(protocol, 1000),
         duration_weeks: dur,
-        results: results.trim(),
+        results: sanitize(results, 2000),
         rating,
         is_subscriber: isPaid,
       });

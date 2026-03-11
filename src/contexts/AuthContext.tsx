@@ -266,7 +266,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           await fetchSubscription(mapped.id);
           const displayName = (session.user.user_metadata?.full_name ?? session.user.user_metadata?.name) as string | undefined;
           // Always ensure user_profile exists — email signup users have no display_name metadata
-          const dn = (displayName && displayName.trim()) || session.user.email?.split('@')[0] || '';
+          const dn = ((displayName && displayName.trim()) || session.user.email?.split('@')[0] || '').replace(/<[^>]+>/g, '').slice(0, 50);
           supabase.from('user_profiles').select('user_id').eq('user_id', mapped.id).maybeSingle().then(({ data: existing }) => {
             if (existing) {
               supabase.from('user_profiles').update({ display_name: dn, updated_at: new Date().toISOString() }).eq('user_id', mapped.id).then(() => {}).catch(() => {});
@@ -292,7 +292,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             await fetchSubscription(mapped.id);
             const displayName = (session.user.user_metadata?.full_name ?? session.user.user_metadata?.name) as string | undefined;
             // Always ensure user_profile exists — email signup users have no display_name metadata
-            const dn2 = (displayName && displayName.trim()) || session.user.email?.split('@')[0] || '';
+            const dn2 = ((displayName && displayName.trim()) || session.user.email?.split('@')[0] || '').replace(/<[^>]+>/g, '').slice(0, 50);
             supabase.from('user_profiles').select('user_id').eq('user_id', mapped.id).maybeSingle().then(({ data: existing }) => {
               if (existing) {
                 supabase.from('user_profiles').update({ display_name: dn2, updated_at: new Date().toISOString() }).eq('user_id', mapped.id).then(() => {}).catch(() => {});

@@ -141,8 +141,10 @@ export default function Account() {
         setProfileSaving(false);
         return;
       }
+      // Sanitize display name: strip HTML tags, limit to 50 chars
+      const sanitizedName = profileDisplayName.trim().replace(/<[^>]+>/g, '').slice(0, 50) || null;
       const { error } = await supabase.from('user_profiles').update({
-        display_name: profileDisplayName.trim() || null,
+        display_name: sanitizedName,
         weight_kg: weightNum,
         goals: profileGoals.length > 0 ? profileGoals : null,
         updated_at: new Date().toISOString(),
