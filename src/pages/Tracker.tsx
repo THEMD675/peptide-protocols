@@ -295,9 +295,11 @@ export default function Tracker() {
     const peptideCounts: Record<string, number> = {};
     thisMonth.forEach(l => { peptideCounts[l.peptide_name] = (peptideCounts[l.peptide_name] || 0) + 1; });
     const mostUsed = Object.entries(peptideCounts).sort((a, b) => b[1] - a[1])[0];
-    const avgDose = thisMonth.reduce((sum, l) => sum + l.dose, 0) / thisMonth.length;
+    const units = new Set(thisMonth.map(l => l.dose_unit));
+    const avgDose = units.size === 1 ? Math.round((thisMonth.reduce((sum, l) => sum + l.dose, 0) / thisMonth.length) * 10) / 10 : null;
+    const avgUnit = units.size === 1 ? (thisMonth[0]?.dose_unit ?? 'mcg') : null;
     const streak = computeStreak(src);
-    return { totalInjections, mostUsedPeptide: mostUsed?.[0] ?? '', mostUsedCount: mostUsed?.[1] ?? 0, avgDose: Math.round(avgDose * 10) / 10, avgUnit: thisMonth[0]?.dose_unit ?? 'mcg', streak };
+    return { totalInjections, mostUsedPeptide: mostUsed?.[0] ?? '', mostUsedCount: mostUsed?.[1] ?? 0, avgDose, avgUnit, streak };
   }, [logs, allLogsForStats]);
 
   const weeklyActivity = useMemo(() => {
@@ -319,6 +321,26 @@ export default function Tracker() {
     uniquePeptides.forEach((name, i) => { map[name] = colors[i % colors.length]; });
     return map;
   }, [logs, allLogsForStats]);
+
+  // Protocol adherence: expected vs actual injections this week
+  const adherenceData = useMemo(() => {
+    if (activeProtocols.length === 0) return null;
+    const freqPerWeek: Record<string, number> = {
+      qd: 7, daily: 7, bid: 14, tid: 21,
+      eod: 4, '3x': 3, '3xweek': 3, '2x': 2, '2xweek': 2,
+      weekly: 1, monthly: 0,
+    };
+    const src = allLogsForStats.length > 0 ? allLogsForStats : logs;
+    const weekAgo = Date.now() - 7 * 86_400_000;
+    return activeProtocols.map(proto => {
+      const peptide = allPeptides.find(p => p.id === proto.peptide_id);
+      const pepName = peptide?.nameEn ?? proto.peptide_id;
+      const expected = freqPerWeek[proto.frequency] ?? 7;
+      const actual = src.filter(l => l.peptide_name === pepName && new Date(l.logged_at).getTime() > weekAgo).length;
+      const missed = Math.max(0, expected - actual);
+      return { nameAr: peptide?.nameAr ?? proto.peptide_id, expected, actual, missed };
+    }).filter(item => item.expected > 0);
+  }, [activeProtocols, allLogsForStats, logs]);
 
   // Calendar + heatmap data
   const calendarData = useMemo(() => {
@@ -591,6 +613,38 @@ export default function Tracker() {
         </div>
       )}
 
+      {/* Protocol Adherence Widget */}
+      {adherenceData && adherenceData.length > 0 && (
+        <div className="mb-8 rounded-2xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 p-5 shadow-sm">
+          <h2 className="mb-3 text-sm font-bold text-stone-900 dark:text-stone-100 flex items-center gap-2">
+            <Calendar className="h-4 w-4 text-emerald-700" />
+            الالتزام بالبروتوكول — آخر 7 أيام
+          </h2>
+          <div className="space-y-3">
+            {adherenceData.map((item, idx) => {
+              const pct = item.expected > 0 ? Math.min(100, Math.round((item.actual / item.expected) * 100)) : 100;
+              const color = pct >= 80 ? 'bg-emerald-500' : pct >= 50 ? 'bg-amber-400' : 'bg-red-400';
+              return (
+                <div key={idx}>
+                  <div className="flex items-center justify-between mb-1">
+                    <span className="text-xs font-bold text-stone-700 dark:text-stone-200">{item.nameAr}</span>
+                    <span className="text-xs text-stone-500 dark:text-stone-400">
+                      {item.actual}/{item.expected} حقنة
+                      {item.missed > 0 && (
+                        <span className="ms-2 text-red-500 font-bold">({item.missed} فائتة)</span>
+                      )}
+                    </span>
+                  </div>
+                  <div className="h-2 w-full rounded-full bg-stone-100 dark:bg-stone-800 overflow-hidden">
+                    <div className={`h-2 rounded-full transition-all ${color}`} style={{ width: `${pct}%` }} />
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
       {/* Start New Protocol */}
       {subscription.isProOrTrial && (
         <div className="mb-8">
@@ -682,6 +736,20 @@ export default function Tracker() {
           }
         }}
       />
+
+      {/* Floating Action Button — always-visible log entry point */}
+      {subscription.isProOrTrial && !showForm && user && (
+        <div className="fixed bottom-6 left-0 right-0 z-40 flex justify-center pointer-events-none">
+          <button
+            onClick={() => { setShowForm(true); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
+            className="pointer-events-auto flex items-center gap-2 rounded-full bg-emerald-600 px-7 py-3.5 text-sm font-bold text-white shadow-2xl ring-4 ring-emerald-200/60 dark:ring-emerald-800/60 transition-all hover:bg-emerald-700 active:scale-95"
+            aria-label="سجّل حقنة جديدة"
+          >
+            <Plus className="h-5 w-5" />
+            سجّل حقنة
+          </button>
+        </div>
+      )}
 
       {/* Protocol confirm dialog */}
       {confirmDialog && (

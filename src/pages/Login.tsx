@@ -44,6 +44,10 @@ export default function Login() {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  // Separate loading state for Google sign-in so it doesn't share with email form submit
+  const [googleLoading, setGoogleLoading] = useState(false);
+  // Separate loading state for "forgot password" so it doesn't spin the main submit button
+  const [resetLoading, setResetLoading] = useState(false);
   const [resetMessage, setResetMessage] = useState('');
   const [infoMessage, setInfoMessage] = useState('');
   const [showNewPassword, setShowNewPassword] = useState(false);
@@ -66,6 +70,18 @@ export default function Login() {
 
   const { login, signup, user } = useAuth();
   const googleBtnRef = useRef<HTMLDivElement>(null);
+
+  /** Switch tab, sync URL, clear errors + password, refocus email */
+  const switchTab = useCallback((newTab: Tab) => {
+    setTab(newTab);
+    setError('');
+    setResetMessage('');
+    setInfoMessage('');
+    // Clear password so a short login password doesn't silently disable the signup button
+    setPassword('');
+    navigate(newTab === 'login' ? '/login' : '/signup', { replace: true });
+    requestAnimationFrame(() => emailRef.current?.focus());
+  }, [navigate]);
 
   const resetTurnstile = useCallback(() => {
     if (turnstileWidgetId.current && window.turnstile) {
@@ -127,6 +143,23 @@ export default function Login() {
     return () => subscription.unsubscribe();
   }, []);
 
+  // Handle URL-based info messages (e.g. after email verification redirect)
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const msg = params.get('message');
+    if (msg === 'verified') {
+      setInfoMessage('✓ تم تأكيد بريدك الإلكتروني — سجّل دخولك الآن');
+      const url = new URL(window.location.href);
+      url.searchParams.delete('message');
+      window.history.replaceState({}, '', url.toString());
+    } else if (msg === 'expired') {
+      setInfoMessage('انتهت صلاحية الرابط — أدخل بريدك وانقر "نسيت كلمة المرور" للحصول على رابط جديد');
+      const url = new URL(window.location.href);
+      url.searchParams.delete('message');
+      window.history.replaceState({}, '', url.toString());
+    }
+  }, []);
+
   const handleUpdatePassword = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newPassword.trim() || newPassword.length < 8) {
@@ -141,7 +174,8 @@ export default function Login() {
       setIsRecovery(false);
       setResetMessage('تم تغيير كلمة المرور بنجاح');
       setNewPassword('');
-      recoveryTimerRef.current = setTimeout(() => navigate('/'), 1500);
+      // Redirect to dashboard (not landing page) after successful password reset
+      recoveryTimerRef.current = setTimeout(() => navigate('/dashboard'), 1500);
     } catch (err: unknown) {
       setError(err instanceof Error ? friendlyError(err.message) : 'تعذّر إتمام العملية — تحقق من اتصالك وحاول مرة أخرى');
     } finally {
@@ -214,9 +248,9 @@ export default function Login() {
         setPendingVerification(true);
         return;
       } else if (raw.includes('already') || raw.includes('registered') || raw.includes('مسجّل')) {
-        // Bug 4 fix: show inline error only — toast + inline was duplicate display
+        // Show inline error only and switch to login tab
         setError(msg);
-        setTab('login');
+        switchTab('login');
       } else {
         setError(msg);
       }
@@ -244,7 +278,7 @@ export default function Login() {
         client_id: GOOGLE_CLIENT_ID,
         callback: async (response: { credential: string }) => {
           setError('');
-          setLoading(true);
+          setGoogleLoading(true);
           try {
             const { error } = await supabase.auth.signInWithIdToken({
               provider: 'google',
@@ -252,13 +286,13 @@ export default function Login() {
             });
             if (error) throw error;
             events.login('google');
-            // Bug 1 fix: do NOT navigate here — useEffect watching `user` handles redirect
+            // useEffect watching `user` handles redirect
           } catch (err: unknown) {
             const msg = err instanceof Error ? err.message : '';
             setError(friendlyError(msg));
             toast.error('تعذّر الدخول بـ Google — جرّب البريد وكلمة المرور');
           } finally {
-            setLoading(false);
+            setGoogleLoading(false);
           }
         },
         auto_select: false,
@@ -298,14 +332,14 @@ export default function Login() {
     setResetMessage('');
     if (!email.trim()) {
       setError('أدخل بريدك الإلكتروني أولاً ثم اضغط "نسيت كلمة المرور"');
-      // Scroll to and focus the email field so the user sees what to do
       requestAnimationFrame(() => {
         emailRef.current?.focus();
         emailRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
       });
       return;
     }
-    setLoading(true);
+    // Use separate resetLoading so the main submit button isn't affected
+    setResetLoading(true);
     try {
       const { error } = await supabase.auth.resetPasswordForEmail(email, {
         redirectTo: `${window.location.origin}/login`,
@@ -315,7 +349,7 @@ export default function Login() {
     } catch (err: unknown) {
       setError(err instanceof Error ? friendlyError(err.message) : 'تعذّر إتمام العملية — تحقق من اتصالك وحاول مرة أخرى');
     } finally {
-      setLoading(false);
+      setResetLoading(false);
     }
   };
 
@@ -377,7 +411,7 @@ export default function Login() {
                 )}
               </button>
               <button
-                onClick={() => { setPendingVerification(false); setTab('login'); }}
+                onClick={() => { setPendingVerification(false); switchTab('login'); }}
                 className="text-sm font-medium text-stone-500 dark:text-stone-300 hover:text-stone-700 dark:text-stone-200 transition-colors"
               >
                 العودة لتسجيل الدخول
@@ -481,7 +515,7 @@ export default function Login() {
                 key={t}
                 role="tab"
                 aria-selected={tab === t}
-                onClick={() => { setTab(t); setError(''); setResetMessage(''); }}
+                onClick={() => switchTab(t)}
                 className={cn(
                   'relative flex-1 py-3.5 text-center text-sm font-semibold transition-colors',
                   tab === t ? 'text-emerald-700' : 'text-stone-600 dark:text-stone-300 transition-colors hover:text-stone-900 dark:text-stone-100'
@@ -503,15 +537,17 @@ export default function Login() {
                 {/* Visible custom Arabic button */}
                 <button
                   type="button"
-                  disabled={loading}
+                  disabled={loading || googleLoading}
                   onClick={() => {
                     if (window.google?.accounts?.id) {
                       window.google.accounts.id.prompt();
+                    } else {
+                      toast.error('جارٍ تحميل Google — انتظر لحظة وحاول مرة أخرى');
                     }
                   }}
                   className="mb-4 flex w-full items-center justify-center gap-3 rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 px-4 py-3 text-sm font-semibold text-stone-700 dark:text-stone-200 shadow-sm transition-all hover:bg-stone-50 dark:hover:bg-stone-800 hover:border-stone-300 dark:hover:border-stone-500 disabled:opacity-60"
                 >
-                  {loading ? (
+                  {googleLoading ? (
                     <span className="h-5 w-5 animate-spin rounded-full border-2 border-stone-300 border-t-stone-600" />
                   ) : (
                     <svg className="h-5 w-5 shrink-0" viewBox="0 0 48 48" aria-hidden="true">
@@ -653,10 +689,17 @@ export default function Login() {
                     <button
                       type="button"
                       onClick={handleResetPassword}
-                      disabled={loading}
-                      className="min-h-[44px] text-sm font-medium text-emerald-700 hover:underline disabled:opacity-50"
+                      disabled={resetLoading}
+                      className="inline-flex items-center gap-1.5 min-h-[44px] text-sm font-medium text-emerald-700 hover:underline disabled:opacity-50"
                     >
-                      نسيت كلمة المرور؟
+                      {resetLoading ? (
+                        <>
+                          <span className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-emerald-300 border-t-emerald-600" />
+                          جارٍ الإرسال...
+                        </>
+                      ) : (
+                        'نسيت كلمة المرور؟'
+                      )}
                     </button>
                   </div>
                 )}
@@ -669,6 +712,11 @@ export default function Login() {
               <button
                 type="submit"
                 disabled={loading || !!(TURNSTILE_SITE_KEY && !turnstileToken) || (tab === 'signup' && !(password.length >= 8 && /[a-zA-Z]/.test(password) && /\d/.test(password)))}
+                title={
+                  tab === 'signup' && !(password.length >= 8 && /[a-zA-Z]/.test(password) && /\d/.test(password))
+                    ? 'أكمل متطلبات كلمة المرور أدناه أولًا'
+                    : undefined
+                }
                 className="w-full rounded-full bg-emerald-600 py-3.5 text-base font-bold text-white shadow transition-transform hover:bg-emerald-700 hover:scale-[1.02] active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed"
               >
                 {loading ? (
@@ -698,14 +746,14 @@ export default function Login() {
                   <>
                     ليس لديك حساب؟{' '}
                     {/* Bug 5 fix: also clear resetMessage on tab switch via bottom links */}
-                    <button type="button" onClick={() => { setTab('signup'); setError(''); setResetMessage(''); }} className="font-semibold text-emerald-700 hover:underline min-h-[44px] inline-flex items-center">
+                    <button type="button" onClick={() => switchTab('signup')} className="font-semibold text-emerald-700 hover:underline min-h-[44px] inline-flex items-center">
                       أنشئ حسابًا
                     </button>
                   </>
                 ) : (
                   <>
                     لديك حساب بالفعل؟{' '}
-                    <button type="button" onClick={() => { setTab('login'); setError(''); setResetMessage(''); }} className="font-semibold text-emerald-700 hover:underline min-h-[44px] inline-flex items-center">
+                    <button type="button" onClick={() => switchTab('login')} className="font-semibold text-emerald-700 hover:underline min-h-[44px] inline-flex items-center">
                       سجّل الدخول
                     </button>
                   </>

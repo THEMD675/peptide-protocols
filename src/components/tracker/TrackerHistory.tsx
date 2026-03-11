@@ -283,7 +283,12 @@ export default function TrackerHistory({
             disabled={isSubmitting}
             className="flex w-full items-center justify-center gap-3 rounded-2xl bg-emerald-600 px-6 py-4 text-base font-bold text-white transition-all hover:bg-emerald-700 active:scale-[0.98] disabled:opacity-50 min-h-[56px] shadow-md"
           >
-            <span>سجّل سريع — {logs[0]?.peptide_name} {logs[0]?.dose} {logs[0]?.dose_unit}</span>
+            <Syringe className="h-5 w-5 shrink-0" />
+            <span>
+              سجّل سريع — {logs[0]?.peptide_name} {logs[0]?.dose} {logs[0]?.dose_unit}
+              <span className="mx-2 opacity-60">·</span>
+              <span className="opacity-90">{SITE_LABELS[suggestedSite] ?? suggestedSite}</span>
+            </span>
           </button>
           <div className="flex gap-3">
             <button

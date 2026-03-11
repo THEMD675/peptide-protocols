@@ -5,6 +5,7 @@ import {
   TrendingUp,
   Syringe,
   Clock,
+  CalendarCheck,
 } from 'lucide-react';
 
 const ActivityChart = lazy(() => import('@/components/charts/ActivityChart'));
@@ -22,8 +23,8 @@ interface MonthlySummary {
   totalInjections: number;
   mostUsedPeptide: string;
   mostUsedCount: number;
-  avgDose: number;
-  avgUnit: string;
+  avgDose: number | null;
+  avgUnit: string | null;
   streak: number;
 }
 
@@ -84,8 +85,17 @@ export default function TrackerStats({
               <p className="text-xs text-stone-500 dark:text-stone-300">الأكثر استخدامًا ({monthlySummary.mostUsedCount}×)</p>
             </div>
             <div className="text-center">
-              <p className="text-2xl font-black text-blue-600">{monthlySummary.avgDose}</p>
-              <p className="text-xs text-stone-500 dark:text-stone-300">متوسط الجرعة ({monthlySummary.avgUnit})</p>
+              {monthlySummary.avgDose != null ? (
+                <>
+                  <p className="text-2xl font-black text-blue-600">{monthlySummary.avgDose}</p>
+                  <p className="text-xs text-stone-500 dark:text-stone-300">متوسط الجرعة ({monthlySummary.avgUnit})</p>
+                </>
+              ) : (
+                <>
+                  <p className="text-lg font-black text-stone-400 dark:text-stone-500">—</p>
+                  <p className="text-xs text-stone-500 dark:text-stone-300">متوسط الجرعة (ببتيدات متعددة)</p>
+                </>
+              )}
             </div>
             <div className="text-center">
               <p className="text-2xl font-black text-orange-500">{monthlySummary.streak}</p>
@@ -98,7 +108,7 @@ export default function TrackerStats({
       {/* Stats Dashboard */}
       {dashboardStats && (
         <>
-          <div className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-5">
+          <div className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-3">
             <div className="rounded-2xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 p-4 text-center shadow-sm dark:shadow-stone-900/30">
               <BarChart3 className="mx-auto mb-1 h-5 w-5 text-emerald-700" />
               <p className="text-2xl font-black text-stone-900 dark:text-stone-100">{dashboardStats.totalInjections}</p>
@@ -119,17 +129,15 @@ export default function TrackerStats({
               <p className="text-2xl font-black text-stone-900 dark:text-stone-100">{dashboardStats.uniquePeptides}</p>
               <p className="text-xs text-stone-500 dark:text-stone-300">ببتيدات مختلفة</p>
             </div>
-            <div className="rounded-2xl border border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-900/20 p-4 text-center shadow-sm dark:shadow-stone-900/30 col-span-2 sm:col-span-1">
+            <div className="rounded-2xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 p-4 text-center shadow-sm dark:shadow-stone-900/30">
+              <CalendarCheck className="mx-auto mb-1 h-5 w-5 text-teal-500" />
+              <p className="text-2xl font-black text-stone-900 dark:text-stone-100">{new Set((allLogsForStats.length > 0 ? allLogsForStats : logs).map(l => new Date(l.logged_at).toDateString())).size}</p>
+              <p className="text-xs text-stone-500 dark:text-stone-300">يوم نشط</p>
+            </div>
+            <div className="rounded-2xl border border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-900/20 p-4 text-center shadow-sm dark:shadow-stone-900/30">
               <Clock className="mx-auto mb-1 h-5 w-5 text-emerald-700" />
               <p className="text-2xl font-black text-emerald-700 dark:text-emerald-400">{dashboardStats.timeSinceLabel}</p>
               <p className="text-xs text-stone-500 dark:text-stone-300">آخر حقنة</p>
-            </div>
-          </div>
-          {/* Active days stat */}
-          <div className="grid grid-cols-1 gap-3 mb-6">
-            <div className="rounded-2xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 p-4 text-center">
-              <p className="text-2xl font-black text-stone-900 dark:text-stone-100">{new Set((allLogsForStats.length > 0 ? allLogsForStats : logs).map(l => new Date(l.logged_at).toDateString())).size}</p>
-              <p className="text-xs text-stone-500 dark:text-stone-300">يوم نشط</p>
             </div>
           </div>
         </>

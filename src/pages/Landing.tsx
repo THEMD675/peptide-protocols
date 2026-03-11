@@ -46,7 +46,8 @@ import { PRICING, PEPTIDE_COUNT, PUBMED_SOURCE_LABEL, VALUE_TOTAL, VALUE_SAVINGS
 
 
 const PAIN_POINTS = [
-  'تضيّع ساعات تبحث في Reddit و YouTube عن معلومات متناقضة',
+  'سمعت عن الببتيدات ولا تعرف من أين تبدأ — الإنترنت مليان معلومات متضاربة',
+  'تضيّع ساعات تبحث في Reddit و YouTube عن معلومات متناقضة بالإنجليزي',
   'لا تعرف أي ببتيد يناسب هدفك — فقدان دهون؟ بناء عضل؟ تعافٍ؟',
   'خائف تحقن نفسك بجرعة خاطئة وتدفع الثمن من صحتك',
   'لا يوجد مرجع عربي واحد يجمع كل شيء بمكان واحد',
@@ -112,6 +113,8 @@ interface Testimonial {
   name: string;
   role: string;
   rating: number;
+  location?: string;
+  result?: string;
 }
 
 export default function Landing() {

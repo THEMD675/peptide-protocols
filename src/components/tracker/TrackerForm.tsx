@@ -47,6 +47,7 @@ export default function TrackerForm({
   });
   const [notes, setNotes] = useState('');
   const [sideEffect, setSideEffect] = useState('none');
+  const [customSideEffect, setCustomSideEffect] = useState('');
   const [doseOutOfRangeConfirmed, setDoseOutOfRangeConfirmed] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [photoFile, setPhotoFile] = useState<File | null>(null);
@@ -121,7 +122,9 @@ export default function TrackerForm({
     (document.activeElement as HTMLElement)?.blur();
     setIsSubmitting(true);
     try {
-      const sideEffectLabel = sideEffect !== 'none' ? `أعراض جانبية: ${sideEffect}` : '';
+      const sideEffectLabel = sideEffect !== 'none'
+        ? `أعراض جانبية: ${sideEffect === 'other' ? (customSideEffect.trim() || 'أخرى') : sideEffect}`
+        : '';
       const combinedNotes = [notes.trim(), sideEffectLabel].filter(Boolean).join('\n') || null;
       const photoUrl = await uploadPhoto();
       const insertData: Record<string, unknown> = {
@@ -291,6 +294,7 @@ export default function TrackerForm({
               { value: 'nausea', label: 'غثيان', color: 'amber' },
               { value: 'redness', label: 'احمرار', color: 'amber' },
               { value: 'fatigue', label: 'إرهاق', color: 'amber' },
+              { value: 'other', label: 'أخرى', color: 'stone' },
             ].map(opt => (
               <button
                 key={opt.value}
@@ -299,7 +303,7 @@ export default function TrackerForm({
                 className={cn(
                   'rounded-full px-3 py-2.5 min-h-[44px] text-xs font-bold transition-all',
                   sideEffect === opt.value
-                    ? opt.color === 'emerald' ? 'bg-emerald-600 text-white' : 'bg-amber-500 text-white'
+                    ? opt.color === 'emerald' ? 'bg-emerald-600 text-white' : opt.color === 'stone' ? 'bg-stone-700 text-white' : 'bg-amber-500 text-white'
                     : 'border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 text-stone-600 dark:text-stone-300 hover:border-stone-300 dark:border-stone-600'
                 )}
               >
@@ -307,6 +311,16 @@ export default function TrackerForm({
               </button>
             ))}
           </div>
+          {sideEffect === 'other' && (
+            <input
+              type="text"
+              value={customSideEffect}
+              onChange={(e) => setCustomSideEffect(e.target.value)}
+              placeholder="اكتب الأعراض الجانبية..."
+              maxLength={60}
+              className="mt-2 w-full rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 px-4 py-2.5 text-sm text-stone-900 dark:text-stone-100 placeholder:text-stone-500 focus:border-emerald-300 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900"
+            />
+          )}
         </div>
 
         {/* Photo Upload */}

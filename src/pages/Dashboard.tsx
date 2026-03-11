@@ -24,6 +24,7 @@ import {
   Trophy,
   ClipboardList,
   Lock,
+  AlertCircle,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { cn, arPlural } from '@/lib/utils';
@@ -164,6 +165,7 @@ const PAGE_SIZE = 100;
 function useRecentActivity(userId: string | undefined) {
   const [logs, setLogs] = useState<RecentLog[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
   const [loadingMore, setLoadingMore] = useState(false);
   const [hasMore, setHasMore] = useState(false);
   const [totalCount, setTotalCount] = useState(0);
@@ -200,15 +202,17 @@ function useRecentActivity(userId: string | undefined) {
       .order('logged_at', { ascending: false })
       .gte('logged_at', cutoff)
       .limit(PAGE_SIZE)
-      .then(({ data, error }) => {
+      .then(({ data, error: fetchError }) => {
         if (!mounted) return;
-        if (data && !error) {
+        if (fetchError) {
+          setError(true);
+        } else if (data) {
           setLogs(data);
           setHasMore(data.length === PAGE_SIZE);
         }
         setLoading(false);
       })
-      .catch(() => { if (mounted) setLoading(false); });
+      .catch(() => { if (mounted) { setError(true); setLoading(false); } });
     supabase
       .from('injection_logs')
       .select('id', { count: 'exact', head: true })
@@ -266,7 +270,7 @@ function useRecentActivity(userId: string | undefined) {
     if (!(l.peptide_name in lastLogByPeptide)) lastLogByPeptide[l.peptide_name] = l.logged_at;
   });
 
-  return { logs: logs.slice(0, 5), allLogs: logs, loading, loadingMore, hasMore, loadMore, activePeptides, totalInjections, uniquePeptidesCount: displayUniquePeptides, streak, todayPlan, todayLogged, lastLogByPeptide };
+  return { logs: logs.slice(0, 5), allLogs: logs, loading, error, loadingMore, hasMore, loadMore, activePeptides, totalInjections, uniquePeptidesCount: displayUniquePeptides, streak, todayPlan, todayLogged, lastLogByPeptide };
 }
 
 interface ActiveProtocol {
@@ -395,17 +399,20 @@ export default function Dashboard() {
   const wellnessTrend = useWellnessTrend(user?.id);
   const [shareProtocolId, setShareProtocolId] = useState<string | null>(null);
   const [showOnboarding, setShowOnboarding] = useState(false);
+  const [confirmEndId, setConfirmEndId] = useState<string | null>(null);
   const welcomeConfettiFired = useRef(false);
   const [runTour, setRunTour] = useState(false);
 
-  // Auto-trigger dashboard tour for first-time users
+  // Auto-trigger dashboard tour for first-time users — but NOT while onboarding modal is open
+  // (new users would get modal + tour simultaneously which is overwhelming)
+  const isNewUserWithNoData = !activity.loading && activity.logs.length === 0 && activeProtocols.length === 0;
   useEffect(() => {
-    if (!user) return;
+    if (!user || isNewUserWithNoData || activity.loading) return;
     const timer = setTimeout(() => {
-      if (!isTourDone('dashboard')) setRunTour(true);
+      if (!isTourDone('dashboard') && !showOnboarding) setRunTour(true);
     }, 1200);
     return () => clearTimeout(timer);
-  }, [user]);
+  }, [user, isNewUserWithNoData, activity.loading, showOnboarding]);
 
   // Re-trigger tour via header "?" button
   useEffect(() => {
@@ -460,7 +467,7 @@ export default function Dashboard() {
 
   if (!user) return null;
 
-  const rawName = user.email?.split('@')[0] ?? 'مستخدم';
+  const rawName = (user.email?.split('@')[0] ?? 'مستخدم').replace(/[._\-+]/g, ' ').split(' ')[0];
   const displayName = rawName.charAt(0).toUpperCase() + rawName.slice(1);
 
   return (
@@ -593,8 +600,10 @@ export default function Dashboard() {
         )}
       </div>
 
-      {/* Weekly Progress Report */}
-      <WeeklyProgressReport />
+      {/* Weekly Progress Report — only meaningful once user has logged something */}
+      {!activity.loading && (activity.logs.length > 0 || activeProtocols.length > 0) && (
+        <WeeklyProgressReport />
+      )}
 
       {/* Re-open onboarding */}
       {showOnboardButton && (
@@ -668,6 +677,23 @@ export default function Dashboard() {
         </div>
       )}
 
+      {/* Error state — Supabase fetch failed */}
+      {!activity.loading && activity.error && (
+        <div className="mb-8 rounded-2xl border border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-900/20 p-6 flex flex-col items-center gap-4 text-center">
+          <AlertCircle className="h-10 w-10 text-red-500 dark:text-red-400" />
+          <div>
+            <p className="font-bold text-red-800 dark:text-red-200">تعذّر تحميل بياناتك</p>
+            <p className="mt-1 text-sm text-red-600 dark:text-red-400">تحقق من اتصالك بالإنترنت وأعد المحاولة</p>
+          </div>
+          <button
+            onClick={() => window.location.reload()}
+            className="inline-flex items-center gap-2 rounded-full bg-red-600 px-5 py-2.5 text-sm font-bold text-white hover:bg-red-700 transition-colors"
+          >
+            أعد المحاولة
+          </button>
+        </div>
+      )}
+
       {/* Journey Stats */}
       {!activity.loading && (activity.logs.length > 0 || activeProtocols.length > 0) && (() => {
         const total = activity.totalInjections ?? activity.logs.length;
@@ -690,7 +716,7 @@ export default function Dashboard() {
                 <p className="text-[11px] font-medium text-stone-500 dark:text-stone-300">بروتوكول نشط</p>
               </div>
             </div>
-            {total > 0 && (
+            {total > 0 ? (
               <div className="rounded-xl border border-stone-100 dark:border-stone-800 bg-white dark:bg-stone-900 p-3">
                 <div className="flex items-center justify-between mb-1.5">
                   <p className="text-[11px] font-bold text-stone-600 dark:text-stone-300">الإنجاز التالي: {milestoneNext} حقنة</p>
@@ -699,6 +725,11 @@ export default function Dashboard() {
                 <div className="h-2 w-full overflow-hidden rounded-full bg-stone-100 dark:bg-stone-800">
                   <div className="h-full rounded-full bg-emerald-500 transition-all duration-700" style={{ width: `${milestoneProgress}%` }} />
                 </div>
+              </div>
+            ) : (
+              <div className="rounded-xl border border-dashed border-emerald-200 dark:border-emerald-800 bg-emerald-50/50 dark:bg-emerald-900/10 p-3 text-center">
+                <p className="text-xs font-bold text-emerald-700 dark:text-emerald-400">ابدأ بتسجيل أول جرعة لتتبع تقدمك 💉</p>
+                <Link to="/tracker" className="mt-1.5 inline-block text-xs font-medium text-emerald-600 hover:underline">اذهب إلى سجل الحقن ←</Link>
               </div>
             )}
           </div>
@@ -932,25 +963,43 @@ export default function Dashboard() {
                           <Syringe className="h-4 w-4" />
                           سجّل جرعة اليوم
                         </Link>
-                        <button
-                          onClick={async () => {
-                            if (!window.confirm('هل تريد إنهاء هذا البروتوكول؟ لا يمكن التراجع.')) return;
-                            const { error } = await supabase
-                              .from('user_protocols')
-                              .update({ status: 'completed', updated_at: new Date().toISOString() })
-                              .eq('id', proto.id)
-                              .eq('user_id', user.id);
-                            if (!error) {
-                              toast.success(`تم إنهاء بروتوكول ${peptide?.nameAr ?? proto.peptide_id}`);
-                              refetchProtocols();
-                            } else {
-                              toast.error('تعذّر إنهاء البروتوكول — تحقق من اتصالك وحاول مرة أخرى');
-                            }
-                          }}
-                          className="text-xs text-stone-500 dark:text-stone-300 hover:text-red-500 dark:text-red-400 transition-colors"
-                        >
-                          أنهِ البروتوكول
-                        </button>
+                        {confirmEndId === proto.id ? (
+                          <div className="flex items-center gap-2">
+                            <span className="text-xs text-stone-600 dark:text-stone-300">هل أنت متأكد؟</span>
+                            <button
+                              onClick={async () => {
+                                setConfirmEndId(null);
+                                const { error: endErr } = await supabase
+                                  .from('user_protocols')
+                                  .update({ status: 'completed', updated_at: new Date().toISOString() })
+                                  .eq('id', proto.id)
+                                  .eq('user_id', user.id);
+                                if (!endErr) {
+                                  toast.success(`تم إنهاء بروتوكول ${peptide?.nameAr ?? proto.peptide_id}`);
+                                  refetchProtocols();
+                                } else {
+                                  toast.error('تعذّر إنهاء البروتوكول — تحقق من اتصالك وحاول مرة أخرى');
+                                }
+                              }}
+                              className="text-xs font-bold text-red-600 hover:text-red-700 transition-colors"
+                            >
+                              نعم، أنهِه
+                            </button>
+                            <button
+                              onClick={() => setConfirmEndId(null)}
+                              className="text-xs text-stone-500 dark:text-stone-300 hover:text-stone-700 transition-colors"
+                            >
+                              إلغاء
+                            </button>
+                          </div>
+                        ) : (
+                          <button
+                            onClick={() => setConfirmEndId(proto.id)}
+                            className="text-xs text-stone-500 dark:text-stone-300 hover:text-red-500 dark:text-red-400 transition-colors"
+                          >
+                            أنهِ البروتوكول
+                          </button>
+                        )}
                       </>
                     ) : (
                       <span className="flex-1 text-center text-xs text-stone-500 dark:text-stone-300">وضع القراءة فقط</span>
@@ -1325,7 +1374,7 @@ export default function Dashboard() {
           <>
             {/* Welcome Hero */}
             <div className="mb-8 rounded-2xl border border-emerald-200 dark:border-emerald-800 bg-gradient-to-b from-emerald-50 via-white to-white dark:to-stone-950 p-8 text-center" style={{ animation: 'dash-welcome-in 0.6s ease-out' }}>
-              <div className="mx-auto mb-2 flex h-12 w-12 items-center justify-center rounded-full bg-emerald-100 dark:bg-emerald-900/30"><CheckCircle className="h-8 w-8 text-emerald-600" /></div>
+              <div className="mx-auto mb-2 flex h-12 w-12 items-center justify-center rounded-full bg-emerald-100 dark:bg-emerald-900/30"><CheckCircle2 className="h-8 w-8 text-emerald-600" /></div>
               <h2 className="text-2xl font-bold text-stone-900 dark:text-stone-100 mb-2">مرحبًا بك في pptides!</h2>
               {userGoalLabel && (
                 <p className="text-sm font-medium text-emerald-700 dark:text-emerald-400 mb-1">هدفك: <span className="font-bold">{userGoalLabel}</span></p>
@@ -1399,12 +1448,12 @@ export default function Dashboard() {
                 <p className="text-sm font-bold text-stone-900 dark:text-stone-100 mb-1">سجل الحقن</p>
                 <p className="text-xs text-stone-500 dark:text-stone-300 leading-relaxed">سجّل أول جرعة وابدأ بتتبع تقدمك</p>
               </Link>
-              <Link to="/dashboard" className="group rounded-2xl border-2 border-dashed border-emerald-200 dark:border-emerald-800 bg-gradient-to-b from-emerald-50/50 to-white dark:to-stone-950 p-6 text-center transition-all hover:border-emerald-300 dark:border-emerald-700 hover:shadow-sm dark:shadow-stone-900/30 min-h-[44px]">
+              <Link to="/lab-guide" className="group rounded-2xl border-2 border-dashed border-emerald-200 dark:border-emerald-800 bg-gradient-to-b from-emerald-50/50 to-white dark:to-stone-950 p-6 text-center transition-all hover:border-emerald-300 dark:border-emerald-700 hover:shadow-sm dark:shadow-stone-900/30 min-h-[44px]">
                 <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-2xl bg-blue-100 dark:bg-blue-900/30 transition-transform group-hover:scale-110">
                   <FlaskConical className="h-6 w-6 text-blue-600 dark:text-blue-400" />
                 </div>
-                <p className="text-sm font-bold text-stone-900 dark:text-stone-100 mb-1">التحاليل</p>
-                <p className="text-xs text-stone-500 dark:text-stone-300 leading-relaxed">أضف تحاليلك وشاهد التغيّرات مع الوقت</p>
+                <p className="text-sm font-bold text-stone-900 dark:text-stone-100 mb-1">دليل التحاليل</p>
+                <p className="text-xs text-stone-500 dark:text-stone-300 leading-relaxed">اكتشف التحاليل المهمة قبل بدء بروتوكولك</p>
               </Link>
               <Link to="/coach" className="group rounded-2xl border-2 border-dashed border-emerald-200 dark:border-emerald-800 bg-gradient-to-b from-emerald-50/50 to-white dark:to-stone-950 p-6 text-center transition-all hover:border-emerald-300 dark:border-emerald-700 hover:shadow-sm dark:shadow-stone-900/30 min-h-[44px]">
                 <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-2xl bg-amber-100 dark:bg-amber-900/30 transition-transform group-hover:scale-110">

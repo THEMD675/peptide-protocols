@@ -523,7 +523,7 @@ export default function Coach() {
       if (!accumulated) {
         setMessages(prev => {
           const copy = [...prev];
-          copy[copy.length - 1] = { role: 'assistant', content: 'لم أتمكن من إنشاء رد. حاول مرة أخرى بصياغة مختلفة.' };
+          copy[copy.length - 1] = { role: 'assistant', content: '__ERROR__:500' };
           return copy;
         });
       }
@@ -680,13 +680,13 @@ export default function Coach() {
         )}
 
         <div className="rounded-2xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 overflow-hidden shadow-sm dark:shadow-stone-900/30">
-          <div ref={scrollRef} role="log" aria-label="محادثة المدرب الذكي" aria-live="polite" className="max-h-[65dvh] overflow-y-auto p-5 space-y-4 bg-stone-50/50 dark:bg-stone-950/50">
+          <div ref={scrollRef} role="log" aria-label="محادثة المدرب الذكي" aria-live="polite" className="min-h-[320px] max-h-[65dvh] overflow-y-auto p-5 space-y-4 bg-stone-50/50 dark:bg-stone-950/50">
 
             {/* DeepSeek consent — one-time */}
             {showDeepSeekConsent && (
               <div className="rounded-xl border border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-900/20 px-4 py-3 text-sm text-amber-900 dark:text-amber-200">
-                <p className="font-medium">المدرب يستخدم DeepSeek AI لتحليل بياناتك وتقديم النصائح. بالمتابعة توافق على مشاركة بيانات الحقن مع DeepSeek.</p>
-                <button onClick={setConsentGiven} className="mt-2 text-xs font-bold text-amber-700 dark:text-amber-400 underline hover:no-underline">أوافق ومتابعة</button>
+                <p className="font-medium">🔒 للإفصاح: يعتمد المدرب الذكي على نموذج DeepSeek AI لتوليد الردود. رسائلك تُعالَج على خوادمهم بشكل مشفّر — لا يتم تخزين بياناتك الشخصية أو مشاركتها مع أطراف ثالثة.</p>
+                <button onClick={setConsentGiven} className="mt-2 text-xs font-bold text-amber-700 dark:text-amber-400 underline hover:no-underline">فهمت — ابدأ المحادثة</button>
               </div>
             )}
 
@@ -704,15 +704,32 @@ export default function Coach() {
                 </div>
 
                 {/* Step 1: Goal */}
-                <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 md:grid-cols-3 max-w-[88%]">
-                  {GOALS.map(g => (
+                <div className="flex flex-wrap gap-2 max-w-[88%]">
+                  {GOALS.map((g, idx) => (
                     <button key={g.id} onClick={() => { setIntake(p => ({ ...p, goal: g.id, goalLabel: g.label })); if (intakeStep === 'goal') setIntakeStep('experience'); }}
-                      className={cn('flex flex-col items-center gap-1.5 rounded-xl border p-3 text-center transition-all', intake.goal === g.id ? 'border-emerald-400 bg-emerald-50 dark:bg-emerald-900/20 ring-2 ring-emerald-100' : 'border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 hover:border-emerald-300 dark:border-emerald-700')}>
+                      className={cn(
+                        'flex flex-col items-center gap-1.5 rounded-xl border p-3 text-center transition-all',
+                        // Even distribution: 2 per row on mobile, 3 per row on sm+, last item fills remaining
+                        idx === GOALS.length - 1 && GOALS.length % 3 !== 0
+                          ? 'flex-1 min-w-[calc(50%-4px)]'
+                          : 'w-[calc(50%-4px)] sm:w-[calc(33.333%-6px)]',
+                        intake.goal === g.id ? 'border-emerald-400 bg-emerald-50 dark:bg-emerald-900/20 ring-2 ring-emerald-100' : 'border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 hover:border-emerald-300 dark:border-emerald-700')}>
                       <g.Icon className={cn('h-5 w-5', intake.goal === g.id ? 'text-emerald-700' : 'text-stone-500 dark:text-stone-300')} />
                       <span className="text-xs font-bold text-stone-800 dark:text-stone-200">{g.label}</span>
                     </button>
                   ))}
                 </div>
+                {/* Persistent skip button — always visible during intake */}
+                {intakeStep === 'goal' && (
+                  <div className="max-w-[88%] flex justify-center mt-1">
+                    <button
+                      onClick={() => setIntakeStep('done')}
+                      className="rounded-full border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 px-4 py-2 text-xs font-medium text-stone-500 dark:text-stone-300 hover:text-emerald-700 hover:border-emerald-300 transition-colors"
+                    >
+                      ✍️ تخطّ الإعداد — اسأل مباشرة
+                    </button>
+                  </div>
+                )}
 
                 {/* User's goal answer + Coach's next question */}
                 {(intakeStep === 'experience' || intakeStep === 'injection' || intakeStep === 'details') && (
@@ -835,33 +852,54 @@ export default function Coach() {
                     ) : msg.content.startsWith('__ERROR') ? (
                       <div className="text-sm text-stone-800 dark:text-stone-200">
                         <p className="mb-2">{
-                          msg.content === '__ERROR__:429' ? 'لقد تجاوزت الحد المسموح. حاول بعد قليل.' :
-                          msg.content === '__ERROR__:403' ? 'انتهت صلاحية جلستك. أعد تسجيل الدخول.' :
-                          msg.content === '__ERROR__:401' ? 'يرجى تسجيل الدخول أولًا.' :
-                          msg.content === '__ERROR__:500' ? 'خدمة المدرب الذكي غير متاحة حاليًا — حاول مرة أخرى لاحقًا' :
-                          'خدمة المدرب الذكي غير متاحة حاليًا — حاول مرة أخرى لاحقًا'
+                          msg.content === '__ERROR__:429' ? '⏱️ وصلت إلى حد الرسائل المسموح به. ترقَّ إلى Elite للحصول على استشارات غير محدودة.' :
+                          msg.content === '__ERROR__:403' ? '🔑 انتهت صلاحية جلستك — أعد تسجيل الدخول للمتابعة.' :
+                          msg.content === '__ERROR__:401' ? '🔐 سجّل دخولك أولًا للاستفادة من المدرب الذكي.' :
+                          msg.content === '__ERROR__:500' ? '⚠️ خدمة المدرب الذكي غير متاحة حاليًا — حاول مرة أخرى بعد لحظات.' :
+                          '⚠️ خدمة المدرب الذكي غير متاحة حاليًا — حاول مرة أخرى لاحقًا'
                         }</p>
-                        <button
-                          onClick={() => {
-                            // FIX: `cleaned` must exclude the user message that triggered the
-                            // error (at i-1), not just the error itself (at i). The old code kept
-                            // the user message in `cleaned` then `sendToAI` appended it again,
-                            // duplicating it in conversation history.
-                            const lastUserIdx = messages
-                              .slice(0, i)
-                              .reduce((acc, m, idx) => (m.role === 'user' ? idx : acc), -1);
-                            if (lastUserIdx >= 0) {
-                              const cleaned = messages.slice(0, lastUserIdx);
-                              setMessages(cleaned);
-                              messagesRef.current = cleaned;
-                              sendToAI(messages[lastUserIdx].content);
-                            }
-                          }}
-                          className="inline-flex items-center gap-1.5 rounded-lg border border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-900/20 px-3 py-1.5 text-xs font-bold text-emerald-700 dark:text-emerald-400 transition-colors hover:bg-emerald-100 dark:bg-emerald-900/30"
-                        >
-                          <RotateCcw className="h-3 w-3" />
-                          إعادة المحاولة
-                        </button>
+                        <div className="flex flex-wrap gap-2">
+                          {msg.content === '__ERROR__:429' && (
+                            <Link
+                              to="/pricing?plan=elite"
+                              className="inline-flex items-center gap-1.5 rounded-lg bg-emerald-600 px-3 py-1.5 text-xs font-bold text-white transition-colors hover:bg-emerald-700"
+                            >
+                              <Crown className="h-3 w-3" />
+                              ترقية إلى Elite
+                            </Link>
+                          )}
+                          {(msg.content === '__ERROR__:403' || msg.content === '__ERROR__:401') && (
+                            <Link
+                              to="/login"
+                              className="inline-flex items-center gap-1.5 rounded-lg border border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-900/20 px-3 py-1.5 text-xs font-bold text-emerald-700 dark:text-emerald-400 transition-colors hover:bg-emerald-100"
+                            >
+                              تسجيل الدخول
+                            </Link>
+                          )}
+                          {msg.content !== '__ERROR__:429' && (
+                            <button
+                              onClick={() => {
+                                // FIX: `cleaned` must exclude the user message that triggered the
+                                // error (at i-1), not just the error itself (at i). The old code kept
+                                // the user message in `cleaned` then `sendToAI` appended it again,
+                                // duplicating it in conversation history.
+                                const lastUserIdx = messages
+                                  .slice(0, i)
+                                  .reduce((acc, m, idx) => (m.role === 'user' ? idx : acc), -1);
+                                if (lastUserIdx >= 0) {
+                                  const cleaned = messages.slice(0, lastUserIdx);
+                                  setMessages(cleaned);
+                                  messagesRef.current = cleaned;
+                                  sendToAI(messages[lastUserIdx].content);
+                                }
+                              }}
+                              className="inline-flex items-center gap-1.5 rounded-lg border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 px-3 py-1.5 text-xs font-bold text-stone-600 dark:text-stone-300 transition-colors hover:bg-stone-50 dark:hover:bg-stone-800"
+                            >
+                              <RotateCcw className="h-3 w-3" />
+                              إعادة المحاولة
+                            </button>
+                          )}
+                        </div>
                       </div>
                     ) : (
                       <div className="text-sm leading-relaxed text-stone-800 dark:text-stone-200" style={{ overflowWrap: 'anywhere', wordBreak: 'break-word' }}>
