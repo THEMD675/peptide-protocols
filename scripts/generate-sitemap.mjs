@@ -13,28 +13,30 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(__dirname, '..');
 const BASE_URL = 'https://pptides.com';
 
+// Each entry: [path, changefreq, priority]
 const STATIC_PAGES = [
-  '/',
-  '/library',
-  '/calculator',
-  '/table',
-  '/pricing',
-  '/stacks',
-  '/lab-guide',
-  '/guide',
-  '/glossary',
-  '/interactions',
-  '/sources',
-  '/community',
-  '/reviews',
-  '/quiz',
-  '/about',
-  '/transparency',
-  '/faq',
-  '/blog',
-  '/privacy',
-  '/terms',
-  '/contact',
+  ['/', 'weekly', '1.0'],
+  ['/library', 'weekly', '0.9'],
+  ['/pricing', 'monthly', '0.9'],
+  ['/calculator', 'monthly', '0.8'],
+  ['/table', 'monthly', '0.8'],
+  ['/compare', 'monthly', '0.8'],
+  ['/stacks', 'weekly', '0.8'],
+  ['/lab-guide', 'monthly', '0.8'],
+  ['/guide', 'monthly', '0.8'],
+  ['/blog', 'daily', '0.8'],
+  ['/glossary', 'monthly', '0.7'],
+  ['/interactions', 'monthly', '0.7'],
+  ['/sources', 'monthly', '0.7'],
+  ['/community', 'weekly', '0.7'],
+  ['/reviews', 'weekly', '0.7'],
+  ['/quiz', 'monthly', '0.7'],
+  ['/about', 'monthly', '0.6'],
+  ['/transparency', 'monthly', '0.6'],
+  ['/faq', 'monthly', '0.6'],
+  ['/contact', 'yearly', '0.5'],
+  ['/privacy', 'yearly', '0.4'],
+  ['/terms', 'yearly', '0.4'],
 ];
 
 /**
@@ -88,21 +90,27 @@ function generateSitemap(peptideIds, blogPosts) {
 
   const urls = [
     ...STATIC_PAGES.map(
-      (path) => `  <url>
+      ([path, changefreq, priority]) => `  <url>
     <loc>${BASE_URL}${path}</loc>
     <lastmod>${today}</lastmod>
+    <changefreq>${changefreq}</changefreq>
+    <priority>${priority}</priority>
   </url>`
     ),
     ...peptideIds.map(
       (id) => `  <url>
     <loc>${BASE_URL}/peptide/${id}</loc>
     <lastmod>${today}</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
   </url>`
     ),
     ...blogPosts.map(
       (post) => `  <url>
     <loc>${BASE_URL}/blog/${post.slug}</loc>
     <lastmod>${post.date || today}</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
   </url>`
     ),
   ].join('\n');
