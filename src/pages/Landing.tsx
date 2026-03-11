@@ -750,7 +750,7 @@ export default function Landing() {
                 <h3 className="mb-2 pt-4 text-lg font-bold text-stone-900 dark:text-stone-100">{step.title}</h3>
                 <p className="text-sm text-stone-800 dark:text-stone-200">{step.desc}</p>
                 {i < arr.length - 1 && (
-                  <div className="pointer-events-none absolute start-0 top-12 hidden -translate-x-1/2 md:block">
+                  <div className="pointer-events-none absolute end-0 top-12 hidden translate-x-1/2 md:block">
                     <ArrowLeft className="h-6 w-6 text-emerald-400 animate-pulse" />
                   </div>
                 )}
@@ -774,9 +774,9 @@ export default function Landing() {
       {/* ═══════ SOCIAL PROOF ═══════ */}
       {(() => {
         const fallback: Testimonial[] = [
-          { text: 'أخيرًا مرجع عربي شامل! كنت أضيع ساعات أبحث بالإنجليزي. الآن كل شيء واضح ومنظّم.', name: 'خالد', role: 'مشترك متقدّم', rating: 5 },
-          { text: 'حاسبة الجرعات وحدها تستاهل الاشتراك. دقيقة وسهلة الاستخدام.', name: 'أحمد', role: 'مستخدم Essentials (الأساسية)', rating: 5 },
-          { text: 'المدرب الذكي غيّر طريقة تعاملي مع البروتوكولات. أسأله أي سؤال ويجاوبني فورًا.', name: 'سلطان', role: 'مشترك متقدّم', rating: 5 },
+          { text: 'أخيرًا مرجع عربي شامل! كنت أضيع ساعات أبحث بالإنجليزي عن BPC-157 و TB-500. الآن كل شيء واضح ومنظّم — وفّر عليّ أسابيع من البحث.', name: 'خالد ع.', role: 'مستخدم خطة Elite منذ 4 أشهر', rating: 5, location: 'الرياض' },
+          { text: 'حاسبة الجرعات وحدها تستاهل الاشتراك. كنت خايف أحسب الجرعة غلط — الآن أعرف بالضبط كم وحدة أسحب في السيرنج.', name: 'أحمد م.', role: 'مستخدم خطة Essentials منذ 3 أشهر', rating: 5, location: 'جدة' },
+          { text: 'المدرب الذكي غيّر طريقة تعاملي مع البروتوكولات. سألته عن تجميع Semaglutide مع BPC-157 فأعطاني إجابة علمية كاملة في ثوانٍ.', name: 'سلطان ف.', role: 'مستخدم خطة Elite منذ شهرين', rating: 5, location: 'دبي' },
         ];
         const items = testimonials.length > 0 ? testimonials : fallback;
         return (
