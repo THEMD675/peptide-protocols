@@ -849,11 +849,10 @@ export default function Landing() {
           <div className="grid gap-8 md:grid-cols-2">
             {/* Essentials */}
             <div
-              className="relative flex flex-col rounded-2xl border-2 border-emerald-200 dark:border-emerald-800 bg-white dark:bg-stone-900 p-8 transition-all duration-300 hover:shadow-lg hover:shadow-emerald-600/10 hover:-translate-y-1"
+              className="relative flex flex-col overflow-visible rounded-2xl border-2 border-emerald-200 dark:border-emerald-800 bg-white dark:bg-stone-900 p-8 pt-10 transition-all duration-300 hover:shadow-lg hover:shadow-emerald-600/10 hover:-translate-y-1"
             >
-              <span className="absolute -top-3 end-6 rounded-full bg-emerald-600 px-4 py-1 text-xs font-bold text-white shadow-md">الأكثر شعبية</span>
-              <h3 className="mb-0.5 text-xl font-bold text-stone-900 dark:text-stone-100">Essentials</h3>
-              <p className="mb-1 text-xs font-medium text-emerald-700 dark:text-emerald-400">الأساسية</p>
+              <span className="absolute -top-3 end-4 z-10 rounded-full bg-emerald-600 px-4 py-1 text-xs font-bold text-white shadow-md">الأكثر شعبية</span>
+              <h3 className="mb-1 text-xl font-bold text-stone-900 dark:text-stone-100">الأساسية</h3>
               <p className="mb-6 text-sm text-stone-800 dark:text-stone-200">كل الأدوات الأساسية</p>
               <div className="mb-6">
                 <span className="price-huge text-stone-900 dark:text-stone-100">{PRICING.essentials.label}</span>
@@ -884,14 +883,10 @@ export default function Landing() {
 
             {/* Elite */}
             <div
-              className="relative flex flex-col rounded-2xl border-2 border-emerald-200 dark:border-emerald-800 bg-white dark:bg-stone-900 p-8 shadow-lg shadow-emerald-600/5"
+              className="relative flex flex-col overflow-visible rounded-2xl border-2 border-emerald-200 dark:border-emerald-800 bg-white dark:bg-stone-900 p-8 pt-10 shadow-lg shadow-emerald-600/5"
             >
-              <span className="absolute -top-3 end-6 rounded-full bg-emerald-600 px-4 py-1 text-xs font-bold text-white">الأفضل قيمة</span>
-              <div className="mb-0.5 flex items-center gap-2">
-                <Crown className="h-5 w-5 text-emerald-700 dark:text-emerald-400" />
-                <h3 className="text-xl font-bold text-stone-900 dark:text-stone-100">Elite</h3>
-              </div>
-              <p className="mb-1 text-xs font-medium text-emerald-700 dark:text-emerald-400">المتقدّمة</p>
+              <span className="absolute -top-3 end-4 z-10 rounded-full bg-emerald-600 px-4 py-1 text-xs font-bold text-white">الأفضل قيمة</span>
+              <h3 className="mb-1 text-xl font-bold text-stone-900 dark:text-stone-100">المتقدّمة</h3>
               <p className="mb-6 text-sm text-stone-800 dark:text-stone-200">كل شيء + مدرب ذكي + استشارات</p>
               <div className="mb-6">
                 <span className="price-huge text-stone-900 dark:text-stone-100">{PRICING.elite.label}</span>
@@ -899,7 +894,7 @@ export default function Landing() {
               </div>
               <ul className="mb-8 flex-1 space-y-3">
                 {[
-                  'كل مزايا Essentials (الأساسية)',
+                  'كل مزايا الأساسية',
                   'مدرب ذكي بالذكاء الاصطناعي 24/7',
                   'بروتوكولات مخصّصة لأهدافك',
                   'استشارات بلا حدود',

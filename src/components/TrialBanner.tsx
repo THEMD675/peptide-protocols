@@ -60,7 +60,7 @@ export default function TrialBanner() {
           <p className="text-sm font-semibold text-white">
             {TRIAL.paymentWallBanner}
             <span className="mx-2">—</span>
-            <Link to="/pricing" className="underline underline-offset-2 hover:opacity-80">{COMMON.completeSetup}</Link>
+            <Link to="/pricing" className="font-bold underline underline-offset-2 bg-white/20 rounded px-2 py-0.5 hover:bg-white/30 transition-colors">{COMMON.completeSetup}</Link>
           </p>
         </div>
       );
@@ -280,7 +280,7 @@ export default function TrialBanner() {
               <span className="mx-2">—</span>
               <Link
                 to="/pricing"
-                className="underline underline-offset-2 hover:opacity-80"
+                className="font-bold underline underline-offset-2 bg-white/20 rounded px-2 py-0.5 hover:bg-white/30 transition-colors"
               >
                 {UPGRADE.subscribeCta}
               </Link>
@@ -291,7 +291,7 @@ export default function TrialBanner() {
               <span className="mx-2">—</span>
               <Link
                 to="/pricing"
-                className="underline underline-offset-2 hover:opacity-80 font-bold"
+                className="font-bold underline underline-offset-2 bg-white/20 rounded px-2 py-0.5 hover:bg-white/30 transition-colors"
               >
                 {UPGRADE.subscribeCta}
               </Link>

@@ -21,7 +21,7 @@ const essentialsFeatures = [
 ];
 
 const eliteFeatures = [
-  'كل مزايا Essentials (الأساسية)',
+  'كل مزايا الأساسية',
   'مدرب ذكي بالذكاء الاصطناعي 24/7',
   'بروتوكولات مخصّصة لأهدافك وحالتك الشخصية',
   'استشارات بلا حدود — لا حد للأسئلة',
@@ -39,8 +39,8 @@ const eliteValueStack = [
 
 const faqs = [
   {
-    q: 'ما الفرق بين Essentials و Elite؟',
-    a: 'Essentials (الأساسية) يعطيك كل الأدوات والمعلومات. Elite (المتقدّمة) يضيف المدرب الذكي بلا حدود، بروتوكولات مخصّصة، ودعم مخصّص عبر البريد. إذا تريد استشارات كثيرة ومتابعة — Elite (المتقدّمة) هو الخيار.',
+    q: 'ما الفرق بين الأساسية و المتقدّمة؟',
+    a: 'الأساسية تعطيك كل الأدوات والمعلومات. المتقدّمة تضيف المدرب الذكي بلا حدود، بروتوكولات مخصّصة، ودعم مخصّص عبر البريد. إذا تريد استشارات كثيرة ومتابعة — المتقدّمة هي الخيار.',
   },
   {
     q: 'هل بياناتي آمنة؟',
@@ -216,7 +216,7 @@ export default function Pricing() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-white dark:from-stone-950 via-stone-50 dark:via-stone-900 to-white dark:to-stone-950 animate-fade-in">
+    <div className="min-h-screen bg-gradient-to-b from-white dark:from-stone-950 via-stone-50 dark:via-stone-900 to-white dark:to-stone-950 animate-fade-in pb-28">
       <Helmet>
         <title>أسعار واشتراكات الببتيدات | pptides</title>
         <meta name="description" content={`اختر خطتك: Essentials ${PRICING.essentials.label}/شهر أو Elite ${PRICING.elite.label}/شهر. ${TRIAL_DAYS} أيام تجربة مجانية. ضمان استرداد كامل.`} />
@@ -306,7 +306,7 @@ export default function Pricing() {
               {userCount.toLocaleString('ar-SA')}+ مشترك نشط الآن
             </div>
           )}
-          <div className="mt-6 flex flex-wrap items-center justify-center gap-4 sm:gap-6 text-sm text-stone-500 dark:text-stone-300">
+          <div className="mt-6 flex flex-col items-center gap-2 sm:flex-row sm:justify-center sm:gap-6 text-sm text-stone-500 dark:text-stone-300">
             <span className="flex items-center gap-1.5"><Check className="h-4 w-4 shrink-0 text-emerald-600" /> {COMMON.cancelAnytime}</span>
             <span className="flex items-center gap-1.5"><Shield className="h-4 w-4 shrink-0 text-emerald-600" /> {COMMON.moneyBackGuarantee}</span>
             <span className="flex items-center gap-1.5"><Lock className="h-4 w-4 shrink-0 text-emerald-600" /> {COMMON.safePayment}</span>
@@ -314,19 +314,20 @@ export default function Pricing() {
         </div>
 
         {/* Billing Toggle */}
-        <div className="mt-8 flex items-center justify-center gap-4">
+        <div className="mt-8 flex items-center justify-center gap-3">
           <span className={cn('text-sm font-semibold transition-colors duration-200', billingCycle === 'monthly' ? 'text-stone-900 dark:text-stone-100' : 'text-stone-500 dark:text-stone-300')}>شهري</span>
           <button
             onClick={() => setBillingCycle(billingCycle === 'monthly' ? 'annual' : 'monthly')}
-            className={cn('relative h-8 w-16 rounded-full transition-all duration-300 ease-in-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2', billingCycle === 'annual' ? 'bg-emerald-600 shadow-md shadow-emerald-500/30' : 'bg-stone-300 dark:bg-stone-600')}
+            className={cn('relative h-8 w-16 shrink-0 rounded-full transition-all duration-300 ease-in-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2', billingCycle === 'annual' ? 'bg-emerald-600 shadow-md shadow-emerald-500/30' : 'bg-stone-300 dark:bg-stone-600')}
             aria-label="تبديل بين شهري وسنوي"
             aria-checked={billingCycle === 'annual'}
             role="switch"
           >
             <span className={cn('billing-toggle-thumb absolute top-1 h-6 w-6 rounded-full bg-white shadow-md', billingCycle === 'annual' ? 'end-1' : 'start-1')} />
           </button>
-          <span className={cn('text-sm font-semibold transition-colors duration-200', billingCycle === 'annual' ? 'text-emerald-700' : 'text-stone-500 dark:text-stone-300')}>
-            سنوي <span className={cn('text-xs font-bold rounded-full px-2 py-0.5 transition-all duration-200', billingCycle === 'annual' ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400' : 'text-emerald-600')}>(وفّر حتى 33%)</span>
+          <span className={cn('flex items-center gap-1.5 text-sm font-semibold transition-colors duration-200', billingCycle === 'annual' ? 'text-emerald-700' : 'text-stone-500 dark:text-stone-300')}>
+            سنوي
+            <span className={cn('inline-flex items-center text-xs font-bold rounded-full px-2 py-0.5 leading-none transition-all duration-200', billingCycle === 'annual' ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400' : 'text-emerald-600')}>وفّر حتى 33%</span>
           </span>
         </div>
 
@@ -334,23 +335,22 @@ export default function Pricing() {
         <div className="grid gap-8 md:grid-cols-2">
           {/* Essentials */}
           <div
-            className="pricing-card relative flex flex-col rounded-2xl border-2 border-emerald-200 dark:border-emerald-800 bg-white dark:bg-stone-900 p-8 shadow-lg md:p-10"
+            className="pricing-card relative flex flex-col overflow-visible rounded-2xl border-2 border-emerald-200 dark:border-emerald-800 bg-white dark:bg-stone-900 p-8 pt-10 shadow-lg md:p-10 md:pt-12"
           >
-            <span className="absolute -top-3.5 end-6 rounded-full bg-emerald-600 px-5 py-1.5 text-sm font-bold text-white shadow-md">
+            <span className="absolute -top-3 end-4 z-10 rounded-full bg-emerald-600 px-5 py-1.5 text-sm font-bold text-white shadow-md">
               الأكثر شعبية
             </span>
-            <h2 className="mb-0.5 text-2xl font-bold text-stone-900 dark:text-stone-100">Essentials</h2>
-            <p className="mb-1 text-sm font-medium text-emerald-700">الأساسية</p>
+            <h2 className="mb-1 text-2xl font-bold text-stone-900 dark:text-stone-100">الأساسية</h2>
             <p className="mb-6 text-stone-600 dark:text-stone-300">كل ما تحتاجه لتبدأ بثقة وبروتوكول واضح</p>
 
             <div className="mb-1">
               <span className="price-huge text-stone-900 dark:text-stone-100">{billingCycle === 'annual' ? PRICING.essentials.annualLabel : PRICING.essentials.label}</span>
               <span className="text-lg text-stone-600 dark:text-stone-300"> /{billingCycle === 'annual' ? 'سنويًا' : 'شهريًا'}</span>
             </div>
-            {billingCycle === 'monthly' && <p className="mb-1 text-xs font-bold text-emerald-700">~١.١ ر.س/يوم</p>}
-            {billingCycle === 'monthly' && <p className="text-xs text-emerald-700 font-medium mt-1">سنوي: <span dir="ltr">{PRICING.essentials.annualLabel}</span>/سنة — وفّر 27%</p>}
-            {billingCycle === 'annual' && <p className="text-xs text-emerald-700 font-medium mt-1">≈ {Math.round(PRICING.essentials.annualTotal / 12)} ر.س/شهر — وفّر 27%</p>}
-            <div className="mb-6" />
+            {billingCycle === 'monthly' && <p className="mb-2 text-xs font-bold text-emerald-700">~١.١ ر.س/يوم</p>}
+            {billingCycle === 'monthly' && <p className="mb-2 text-xs text-emerald-700 font-medium">سنوي: <span dir="ltr">{PRICING.essentials.annualLabel}</span>/سنة — وفّر 27%</p>}
+            {billingCycle === 'annual' && <p className="mb-2 text-xs text-emerald-700 font-medium">≈ {Math.round(PRICING.essentials.annualTotal / 12)} ر.س/شهر — وفّر 27%</p>}
+            <div className="mb-4" />
 
             <ul className="mb-8 flex-1 space-y-3">
               {essentialsFeatures.map((f) => (
@@ -366,26 +366,23 @@ export default function Pricing() {
 
           {/* Elite */}
           <div
-            className="pricing-card pricing-card-featured relative flex flex-col rounded-2xl border-2 border-emerald-300 dark:border-emerald-700 bg-white dark:bg-stone-900 p-8 md:p-10"
+            className="pricing-card pricing-card-featured relative flex flex-col overflow-visible rounded-2xl border-2 border-emerald-300 dark:border-emerald-700 bg-white dark:bg-stone-900 p-8 pt-10 md:p-10 md:pt-12"
             style={{ animation: 'pricing-elite-glow 3s ease-in-out infinite' }}
           >
-            <span className="absolute -top-3.5 end-6 rounded-full bg-emerald-600 px-5 py-1.5 text-sm font-bold text-white">
+            <span className="absolute -top-3 end-4 z-10 rounded-full bg-emerald-600 px-5 py-1.5 text-sm font-bold text-white">
               الأفضل قيمة
             </span>
 
-            <div className="mb-0.5">
-              <h2 className="text-2xl font-bold text-stone-900 dark:text-stone-100">Elite</h2>
-            </div>
-            <p className="mb-1 text-sm font-medium text-emerald-700">المتقدّمة</p>
+            <h2 className="mb-1 text-2xl font-bold text-stone-900 dark:text-stone-100">المتقدّمة</h2>
             <p className="mb-6 text-stone-800 dark:text-stone-200">مدربك الشخصي + بروتوكول مفصّل على حالتك</p>
 
             <div className="mb-1">
               <span className="price-huge text-stone-900 dark:text-stone-100">{billingCycle === 'annual' ? PRICING.elite.annualLabel : PRICING.elite.label}</span>
               <span className="text-lg text-stone-600 dark:text-stone-300"> /{billingCycle === 'annual' ? 'سنويًا' : 'شهريًا'}</span>
             </div>
-            {billingCycle === 'monthly' && <p className="mb-1 text-xs font-bold text-emerald-700">~١٢.٤ ر.س/يوم</p>}
-            {billingCycle === 'monthly' && <p className="text-xs text-emerald-700 font-medium mt-1">سنوي: <span dir="ltr">{PRICING.elite.annualLabel}</span>/سنة — وفّر 33%</p>}
-            {billingCycle === 'annual' && <p className="text-xs text-emerald-700 font-medium mt-1">≈ {Math.round(PRICING.elite.annualTotal / 12)} ر.س/شهر — وفّر 33%</p>}
+            {billingCycle === 'monthly' && <p className="mb-2 text-xs font-bold text-emerald-700">~١٢.٤ ر.س/يوم</p>}
+            {billingCycle === 'monthly' && <p className="mb-2 text-xs text-emerald-700 font-medium">سنوي: <span dir="ltr">{PRICING.elite.annualLabel}</span>/سنة — وفّر 33%</p>}
+            {billingCycle === 'annual' && <p className="mb-2 text-xs text-emerald-700 font-medium">≈ {Math.round(PRICING.elite.annualTotal / 12)} ر.س/شهر — وفّر 33%</p>}
             <div className="mb-2" />
 
             <ul className="mb-8 flex-1 space-y-3">
@@ -441,8 +438,8 @@ export default function Pricing() {
               <thead>
                 <tr className="border-b border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-800/50">
                   <th className="px-5 py-3 text-start font-semibold text-stone-700 dark:text-stone-200">الميزة</th>
-                  <th className="px-5 py-3 text-center font-semibold text-stone-700 dark:text-stone-200">Essentials<br /><span className="text-xs font-normal text-stone-500 dark:text-stone-300">الأساسية</span></th>
-                  <th className="px-5 py-3 text-center font-semibold text-emerald-700 dark:text-emerald-400">Elite<br /><span className="text-xs font-normal text-emerald-500">المتقدّمة</span></th>
+                  <th className="px-5 py-3 text-center font-semibold text-stone-700 dark:text-stone-200">الأساسية</th>
+                  <th className="px-5 py-3 text-center font-semibold text-emerald-700 dark:text-emerald-400">المتقدّمة</th>
                 </tr>
               </thead>
               <tbody>
@@ -480,7 +477,7 @@ export default function Pricing() {
           className="mt-20"
         >
           <h2 className="mb-8 text-center text-2xl font-bold text-stone-900 dark:text-stone-100 md:text-3xl">
-            ماذا تحصل مع <span className="text-emerald-700">Essentials</span> <span className="text-stone-500 dark:text-stone-300">(الأساسية)</span>؟
+            ماذا تحصل مع <span className="text-emerald-700">الأساسية</span>؟
           </h2>
           <div className="space-y-2">
             {valueStack.map((item, i) => (
@@ -507,7 +504,7 @@ export default function Pricing() {
           className="mt-16"
         >
           <h2 className="mb-8 text-center text-2xl font-bold text-stone-900 dark:text-stone-100 md:text-3xl">
-            ماذا يضيف <span className="text-emerald-700">Elite</span> <span className="text-stone-500 dark:text-stone-300">(المتقدّمة)</span>؟
+            ماذا يضيف <span className="text-emerald-700">المتقدّمة</span>؟
           </h2>
           <div className="space-y-2">
             {eliteValueStack.map((item, i) => (
