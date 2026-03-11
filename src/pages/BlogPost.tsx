@@ -166,6 +166,7 @@ export default function BlogPost() {
               className="h-full w-full object-cover"
               loading="eager"
               fetchPriority="high"
+              decoding="async"
               width="800"
               height="320"
               onError={(e) => { (e.target as HTMLImageElement).parentElement!.style.display = 'none'; }}

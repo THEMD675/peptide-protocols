@@ -6,14 +6,12 @@ import { useCelebrations } from '@/hooks/useCelebrations';
 import ProtocolWizard from '@/components/ProtocolWizard';
 import {
   Syringe,
-  Loader2,
   Plus,
   Play,
   Info,
   AlertTriangle,
   ChevronDown,
   ChevronUp,
-  Repeat,
   Calendar,
 } from 'lucide-react';
 import { toast } from 'sonner';
@@ -42,13 +40,6 @@ interface InjectionLog {
 }
 
 type HeatmapView = 'weekly' | 'monthly';
-
-const SITE_LABELS: Record<string, string> = {
-  abdomen: 'البطن',
-  thigh: 'الفخذ',
-  arm: 'الذراع',
-  glute: 'المؤخرة',
-};
 
 const hijriFormatter = new Intl.DateTimeFormat('ar-SA-u-ca-islamic-umalqura', {
   day: 'numeric',

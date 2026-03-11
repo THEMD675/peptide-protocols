@@ -14,6 +14,15 @@ export default function PaymentProcessing() {
   const [stage, setStage] = useState<'loading' | 'success' | 'timeout'>('loading');
   const [progress, setProgress] = useState(10);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const [confettiParticles] = useState(() =>
+    Array.from({ length: 40 }, (_, i) => ({
+      left: Math.random() * 100,
+      color: ['#10b981', '#0d9488', '#f59e0b', '#3b82f6', '#ef4444', '#8b5cf6'][i % 6],
+      duration: 2 + Math.random() * 2,
+      delay: Math.random() * 0.5,
+      rotation: Math.random() * 360,
+    }))
+  );
 
   useEffect(() => {
     if (!visible) return;
@@ -69,16 +78,16 @@ export default function PaymentProcessing() {
           <>
             {/* CSS Confetti */}
             <div className="pointer-events-none fixed inset-0 z-[10000] overflow-hidden" aria-hidden="true">
-              {Array.from({ length: 40 }).map((_, i) => (
+              {confettiParticles.map((p, i) => (
                 <div
                   key={i}
                   className="absolute w-2.5 h-2.5 rounded-full"
                   style={{
-                    left: `${Math.random() * 100}%`,
+                    left: `${p.left}%`,
                     top: '-10px',
-                    backgroundColor: ['#10b981', '#0d9488', '#f59e0b', '#3b82f6', '#ef4444', '#8b5cf6'][i % 6],
-                    animation: `confetti-fall ${2 + Math.random() * 2}s ease-in ${Math.random() * 0.5}s forwards`,
-                    transform: `rotate(${Math.random() * 360}deg)`,
+                    backgroundColor: p.color,
+                    animation: `confetti-fall ${p.duration}s ease-in ${p.delay}s forwards`,
+                    transform: `rotate(${p.rotation}deg)`,
                   }}
                 />
               ))}

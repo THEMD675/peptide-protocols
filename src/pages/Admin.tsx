@@ -1,4 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
+
+const TH_CLASS = 'px-3 py-2 text-start font-medium text-stone-600 dark:text-stone-300';
 import { Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import { useAuth } from '@/contexts/AuthContext';
@@ -806,14 +808,14 @@ export default function Admin() {
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="border-b border-stone-200 dark:border-stone-600 bg-stone-50 dark:bg-stone-900">
-                      <th className="px-3 py-2 text-start font-medium text-stone-600 dark:text-stone-300">البريد</th>
-                      <th className="px-3 py-2 text-start font-medium text-stone-600 dark:text-stone-300">المزوّد</th>
-                      <th className="px-3 py-2 text-start font-medium text-stone-600 dark:text-stone-300">الحالة</th>
-                      <th className="px-3 py-2 text-start font-medium text-stone-600 dark:text-stone-300">الباقة</th>
-                      <th className="px-3 py-2 text-start font-medium text-stone-600 dark:text-stone-300">التجربة</th>
-                      <th className="px-3 py-2 text-start font-medium text-stone-600 dark:text-stone-300">الانضمام</th>
-                      <th className="px-3 py-2 text-start font-medium text-stone-600 dark:text-stone-300">آخر نشاط</th>
-                      <th className="px-3 py-2 text-start font-medium text-stone-600 dark:text-stone-300">إجراءات</th>
+                      <th className={TH_CLASS}>البريد</th>
+                      <th className={TH_CLASS}>المزوّد</th>
+                      <th className={TH_CLASS}>الحالة</th>
+                      <th className={TH_CLASS}>الباقة</th>
+                      <th className={TH_CLASS}>التجربة</th>
+                      <th className={TH_CLASS}>الانضمام</th>
+                      <th className={TH_CLASS}>آخر نشاط</th>
+                      <th className={TH_CLASS}>إجراءات</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -961,7 +963,7 @@ export default function Admin() {
               <button onClick={() => exportCSV('email_list')} className="flex items-center gap-1 rounded-lg border border-stone-200 dark:border-stone-600 px-3 py-1.5 text-xs font-medium text-stone-600 dark:text-stone-300 hover:bg-stone-50 dark:hover:bg-stone-800"><Download className="h-3.5 w-3.5" /> Export</button>
             </div>
             {stats.emailList.length === 0 ? <div className="rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 p-8 text-center"><Mail className="mx-auto h-8 w-8 text-stone-300 mb-2" /><p className="text-sm text-stone-500 dark:text-stone-300">No subscribers</p></div> :
-              <div className="overflow-x-auto rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900"><table className="w-full text-sm"><thead><tr className="border-b border-stone-200 dark:border-stone-600 bg-stone-50 dark:bg-stone-900"><th className="px-3 py-2 text-start font-medium text-stone-600 dark:text-stone-300">Email</th><th className="px-3 py-2 text-start font-medium text-stone-600 dark:text-stone-300">Date</th></tr></thead><tbody>{stats.emailList.map(e => <tr key={e.id} className="border-b border-stone-100 dark:border-stone-800 hover:bg-stone-50 dark:hover:bg-stone-800"><td className="px-3 py-2 font-mono text-xs">{e.email}</td><td className="px-3 py-2 text-xs text-stone-500 dark:text-stone-300">{timeAgo(e.created_at)}</td></tr>)}</tbody></table></div>}
+              <div className="overflow-x-auto rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900"><table className="w-full text-sm"><thead><tr className="border-b border-stone-200 dark:border-stone-600 bg-stone-50 dark:bg-stone-900"><th className={TH_CLASS}>Email</th><th className={TH_CLASS}>Date</th></tr></thead><tbody>{stats.emailList.map(e => <tr key={e.id} className="border-b border-stone-100 dark:border-stone-800 hover:bg-stone-50 dark:hover:bg-stone-800"><td className="px-3 py-2 font-mono text-xs">{e.email}</td><td className="px-3 py-2 text-xs text-stone-500 dark:text-stone-300">{timeAgo(e.created_at)}</td></tr>)}</tbody></table></div>}
           </div>
         )}
 
@@ -976,7 +978,7 @@ export default function Admin() {
                 {logs.length > 0 && <span className="text-xs text-emerald-700 font-medium">{logs.filter(l => l.status === 'sent').length} delivered</span>}
               </div>
               {logs.length === 0 ? <div className="rounded-xl border border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-900/20 p-6 text-center"><AlertTriangle className="mx-auto h-8 w-8 text-amber-400 mb-2" /><p className="text-sm font-medium text-amber-800 dark:text-amber-300">No email logs</p><p className="text-xs text-amber-600 mt-1">Resend may not be configured</p></div> : (
-                <><div className="overflow-x-auto rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900"><table className="w-full text-sm"><thead><tr className="border-b border-stone-200 dark:border-stone-600 bg-stone-50 dark:bg-stone-900"><th className="px-3 py-2 text-start font-medium text-stone-600 dark:text-stone-300">To</th><th className="px-3 py-2 text-start font-medium text-stone-600 dark:text-stone-300">Type</th><th className="px-3 py-2 text-start font-medium text-stone-600 dark:text-stone-300">Status</th><th className="px-3 py-2 text-start font-medium text-stone-600 dark:text-stone-300">When</th></tr></thead>
+                <><div className="overflow-x-auto rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900"><table className="w-full text-sm"><thead><tr className="border-b border-stone-200 dark:border-stone-600 bg-stone-50 dark:bg-stone-900"><th className={TH_CLASS}>To</th><th className={TH_CLASS}>Type</th><th className={TH_CLASS}>Status</th><th className={TH_CLASS}>When</th></tr></thead>
                 <tbody>{paged.map(l => <tr key={l.id} className="border-b border-stone-100 dark:border-stone-800 hover:bg-stone-50 dark:hover:bg-stone-800"><td className="px-3 py-2 font-mono text-xs">{l.email}</td><td className="px-3 py-2 text-xs"><span className="rounded-full bg-stone-100 dark:bg-stone-800 px-2 py-0.5 text-xs">{l.type}</span></td><td className="px-3 py-2"><span className={cn('rounded-full px-2 py-0.5 text-xs font-medium', l.status === 'sent' ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400' : 'bg-red-100 text-red-700 dark:text-red-400')}>{l.status}</span></td><td className="px-3 py-2 text-xs text-stone-500 dark:text-stone-300">{timeAgo(l.created_at)}</td></tr>)}</tbody></table></div>
                 <Pagination page={emailLogsPage} total={logs.length} onChange={setEmailLogsPage} /></>)}
             </div>
@@ -997,7 +999,7 @@ export default function Admin() {
               <p className="text-xs text-stone-600 dark:text-stone-300" dir="rtl">آخر 24 ساعة: {count24h} أحداث | آخر 7 أيام: {count7d} أحداث | آخر حدث: {lastEvent ? timeAgo(lastEvent.processed_at) : '—'}</p>
             )}
             {stats.webhookEvents.length === 0 ? <div className="rounded-xl border border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-900/20 p-6 text-center"><AlertTriangle className="mx-auto h-8 w-8 text-amber-400 mb-2" /><p className="text-sm font-medium text-amber-800 dark:text-amber-300">No events recorded</p><p className="text-xs text-amber-600 mt-1">Stripe webhooks may not be configured</p></div> :
-              <div className="overflow-x-auto rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900"><table className="w-full text-sm"><thead><tr className="border-b border-stone-200 dark:border-stone-600 bg-stone-50 dark:bg-stone-900"><th className="px-3 py-2 text-start font-medium text-stone-600 dark:text-stone-300">Event</th><th className="px-3 py-2 text-start font-medium text-stone-600 dark:text-stone-300">ID</th><th className="px-3 py-2 text-start font-medium text-stone-600 dark:text-stone-300">When</th></tr></thead>
+              <div className="overflow-x-auto rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900"><table className="w-full text-sm"><thead><tr className="border-b border-stone-200 dark:border-stone-600 bg-stone-50 dark:bg-stone-900"><th className={TH_CLASS}>Event</th><th className={TH_CLASS}>ID</th><th className={TH_CLASS}>When</th></tr></thead>
               <tbody>{stats.webhookEvents.map(ev => <tr key={ev.event_id} className="border-b border-stone-100 dark:border-stone-800 hover:bg-stone-50 dark:hover:bg-stone-800"><td className="px-3 py-2 text-xs"><span className={cn('rounded-full px-2 py-0.5 text-xs font-medium', ev.event_type.includes('succeeded') || ev.event_type.includes('paid') ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400' : ev.event_type.includes('failed') ? 'bg-red-100 text-red-700 dark:text-red-400' : 'bg-stone-100 dark:bg-stone-800 text-stone-700 dark:text-stone-200')}>{ev.event_type}</span></td><td className="px-3 py-2 font-mono text-xs text-stone-500 dark:text-stone-300">{ev.event_id?.slice(0, 24)}</td><td className="px-3 py-2 text-xs text-stone-500 dark:text-stone-300">{timeAgo(ev.processed_at)}</td></tr>)}</tbody></table></div>}
           </div>
           );
@@ -1079,11 +1081,11 @@ export default function Admin() {
                   <table className="w-full text-sm">
                     <thead>
                       <tr className="border-b border-stone-200 dark:border-stone-600 bg-stone-50 dark:bg-stone-900">
-                        <th className="px-3 py-2 text-start font-medium text-stone-600 dark:text-stone-300">التاريخ</th>
-                        <th className="px-3 py-2 text-start font-medium text-stone-600 dark:text-stone-300">المشرف</th>
-                        <th className="px-3 py-2 text-start font-medium text-stone-600 dark:text-stone-300">الإجراء</th>
-                        <th className="px-3 py-2 text-start font-medium text-stone-600 dark:text-stone-300">المستهدف</th>
-                        <th className="px-3 py-2 text-start font-medium text-stone-600 dark:text-stone-300">التفاصيل</th>
+                        <th className={TH_CLASS}>التاريخ</th>
+                        <th className={TH_CLASS}>المشرف</th>
+                        <th className={TH_CLASS}>الإجراء</th>
+                        <th className={TH_CLASS}>المستهدف</th>
+                        <th className={TH_CLASS}>التفاصيل</th>
                       </tr>
                     </thead>
                     <tbody>

@@ -23,8 +23,10 @@
       .card { background: #1c1917; border-color: #292524; }
       .btn { background: #059669; }
       .btn:hover { background: #047857; }
+      .btn:disabled { background: #047857; opacity: 0.7; }
       .subtitle { color: #a8a29e; }
       .icon-bg { background: #1a2e23; }
+      .retry-status { color: #6ee7b7; }
     }
     .card {
       max-width: 400px;
@@ -66,8 +68,18 @@
     }
     .btn:hover { background: #047857; }
     .btn:active { transform: scale(0.96); }
+    .btn:disabled { cursor: default; opacity: 0.7; transform: none; }
     .logo { font-size: 1.125rem; font-weight: 800; letter-spacing: -0.5px; color: #1c1917; margin-bottom: 2rem; }
     .logo span { color: #059669; }
+    .retry-status {
+      margin-top: 1rem;
+      font-size: 0.75rem;
+      color: #059669;
+      min-height: 1.25rem;
+      transition: opacity 0.3s;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .spin { animation: spin 1s linear infinite; display: inline-block; }
     @media (prefers-color-scheme: dark) {
       .logo { color: #f5f5f4; }
     }
@@ -83,10 +95,79 @@
     </div>
     <h1>أنت غير متصل بالإنترنت</h1>
     <p class="subtitle">تحقق من اتصالك بالإنترنت وحاول مرة أخرى. بعض المحتوى متاح في وضع عدم الاتصال.</p>
-    <button class="btn" onclick="window.location.reload()">
+    <button class="btn" id="retryBtn" onclick="manualRetry()">
       <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182"/></svg>
       حاول مرة أخرى
     </button>
+    <div class="retry-status" id="retryStatus"></div>
   </div>
+
+  <script>
+    var retryCount = 0;
+    var retryTimer = null;
+    var RETRY_INTERVALS = [5000, 10000, 15000, 30000, 60000]; // escalating back-off
+
+    function setStatus(msg) {
+      document.getElementById('retryStatus').textContent = msg;
+    }
+
+    function scheduleRetry() {
+      var delay = RETRY_INTERVALS[Math.min(retryCount, RETRY_INTERVALS.length - 1)];
+      var secs = Math.round(delay / 1000);
+      setStatus('إعادة المحاولة خلال ' + secs + ' ثانية…');
+      retryTimer = setTimeout(autoRetry, delay);
+    }
+
+    function autoRetry() {
+      retryCount++;
+      setStatus('جارٍ التحقق من الاتصال…');
+      // Attempt a lightweight HEAD request to verify connectivity
+      fetch('/favicon.ico', { method: 'HEAD', cache: 'no-store' })
+        .then(function(res) {
+          if (res.ok || res.status === 304) {
+            setStatus('✓ تم استعادة الاتصال! جارٍ إعادة التوجيه…');
+            setTimeout(function() { window.location.href = '/'; }, 800);
+          } else {
+            scheduleRetry();
+          }
+        })
+        .catch(function() {
+          scheduleRetry();
+        });
+    }
+
+    function manualRetry() {
+      clearTimeout(retryTimer);
+      var btn = document.getElementById('retryBtn');
+      btn.disabled = true;
+      setStatus('جارٍ التحقق…');
+      fetch('/favicon.ico', { method: 'HEAD', cache: 'no-store' })
+        .then(function(res) {
+          if (res.ok || res.status === 304) {
+            setStatus('✓ تم استعادة الاتصال! جارٍ إعادة التوجيه…');
+            setTimeout(function() { window.location.href = '/'; }, 800);
+          } else {
+            btn.disabled = false;
+            setStatus('لا يزال الاتصال منقطعًا.');
+            scheduleRetry();
+          }
+        })
+        .catch(function() {
+          btn.disabled = false;
+          setStatus('لا يزال الاتصال منقطعًا.');
+          scheduleRetry();
+        });
+    }
+
+    // Auto-reload the moment the browser knows it's back online
+    window.addEventListener('online', function() {
+      clearTimeout(retryTimer);
+      setStatus('✓ تم استعادة الاتصال! جارٍ إعادة التوجيه…');
+      setTimeout(function() { window.location.href = '/'; }, 500);
+    });
+
+    // Start the retry loop after a short delay
+    setTimeout(scheduleRetry, 3000);
+  </script>
 </body>
 </html>

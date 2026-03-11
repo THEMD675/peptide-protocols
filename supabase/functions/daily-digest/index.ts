@@ -112,6 +112,7 @@ serve(async (req) => {
     const pushUrl = `${supabaseUrl}/functions/v1/send-push`
     const pushRes = await fetch(pushUrl, {
       method: 'POST',
+      signal: AbortSignal.timeout(30000),
       headers: {
         'Content-Type': 'application/json',
         'x-cron-secret': expectedSecret,

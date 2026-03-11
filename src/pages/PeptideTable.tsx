@@ -726,7 +726,6 @@ export default function PeptideTable() {
 
                           {/* Dynamic columns */}
                           {visibleColumns.map((col) => {
-                            const isName = col.key === 'name';
                             const blur = col.blurrable && shouldBlur;
 
                             switch (col.key) {

@@ -66,7 +66,7 @@ serve(async (req) => {
     const { data: subscribers, error: queryError } = await supabase
       .from('subscriptions')
       .select('user_id')
-      .in('status', ['active', 'trialing'])
+      .in('status', ['active', 'trial'])
 
     if (queryError) {
       console.error('reengagement-email: subscriptions query failed:', queryError)

@@ -387,16 +387,6 @@ function InteractiveReferenceRanges({ isPro, blurClass }: { isPro: boolean; blur
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [filter, setFilter] = useState('');
 
-  const categories = useMemo(() => {
-    const cats = new Map<string, BiomarkerInfo[]>();
-    for (const b of biomarkers) {
-      const arr = cats.get(b.categoryAr) ?? [];
-      arr.push(b);
-      cats.set(b.categoryAr, arr);
-    }
-    return cats;
-  }, []);
-
   const filtered = useMemo(() => {
     if (!filter) return biomarkers;
     const q = filter.toLowerCase();
@@ -680,7 +670,7 @@ function TestingTimeline() {
 
         {/* Desktop: horizontal timeline */}
         <div className="hidden sm:grid sm:grid-cols-5 gap-3">
-          {timelineSteps.map((step, i) => {
+          {timelineSteps.map((step) => {
             const dotColors: Record<string, string> = {
               emerald: 'bg-emerald-500',
               blue: 'bg-blue-500',

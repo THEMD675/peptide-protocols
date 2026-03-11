@@ -117,6 +117,7 @@ export default function OnboardingModal({ forceOpen, onClose: externalClose }: {
     try {
       const existing = localStorage.getItem('pptides_quiz_results');
       const parsed = existing ? JSON.parse(existing) : {};
+      // eslint-disable-next-line react-hooks/purity
       const ts = Date.now();
       localStorage.setItem('pptides_quiz_results', JSON.stringify({
         ...parsed,

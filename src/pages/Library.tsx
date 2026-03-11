@@ -8,7 +8,7 @@ import { Link, useSearchParams } from 'react-router-dom';
 import {
   Search,
   Lock,
-
+  BarChart2,
   FlaskConical,
   X,
   CheckCircle,
@@ -104,9 +104,7 @@ const PeptideCard = memo(function PeptideCard({
             className={cn('flex items-center gap-1 rounded-full px-2.5 py-1.5 min-h-[44px] text-xs font-medium transition-colors', isCompare ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400' : 'text-stone-500 dark:text-stone-300 hover:bg-stone-100 dark:hover:bg-stone-800 hover:text-stone-600 dark:text-stone-300')}
             aria-label={isCompare ? 'إزالة من المقارنة' : 'إضافة للمقارنة'}
           >
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-3.5 w-3.5" aria-hidden="true">
-              <line x1="18" y1="20" x2="18" y2="10" /><line x1="12" y1="20" x2="12" y2="4" /><line x1="6" y1="20" x2="6" y2="14" />
-            </svg>
+            <BarChart2 className="h-3.5 w-3.5" aria-hidden="true" />
             {isCompare ? 'مُختار' : 'قارن'}
           </button>
           <button

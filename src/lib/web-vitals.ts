@@ -1,4 +1,4 @@
-import { onCLS, onLCP, onTTFB, onINP, type Metric } from 'web-vitals'
+import { onCLS, onFCP, onLCP, onTTFB, onINP, type Metric } from 'web-vitals'
 
 function sendToAnalytics(metric: Metric) {
   if (typeof window !== 'undefined' && window.gtag) {
@@ -13,7 +13,8 @@ function sendToAnalytics(metric: Metric) {
 
 export function initWebVitals() {
   onCLS(sendToAnalytics)
-  onLCP(sendToAnalytics)
-  onTTFB(sendToAnalytics)
-  onINP(sendToAnalytics) // INP replaced FID in web-vitals v4+
+  onFCP(sendToAnalytics)   // First Contentful Paint
+  onLCP(sendToAnalytics)   // Largest Contentful Paint
+  onTTFB(sendToAnalytics)  // Time to First Byte
+  onINP(sendToAnalytics)   // Interaction to Next Paint (replaces FID in v4+)
 }

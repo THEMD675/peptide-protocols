@@ -324,6 +324,7 @@ export default function StackBuilder() {
   const [stackName, setStackName] = useState('');
   const [showSaved, setShowSaved] = useState(false);
   const [activeGoalStack, setActiveGoalStack] = useState<string | null>(null);
+  const [pendingGoalStack, setPendingGoalStack] = useState<GoalStack | null>(null);
 
   // Load from URL params on mount
   useEffect(() => {

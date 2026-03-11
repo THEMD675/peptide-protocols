@@ -50,39 +50,23 @@ export default defineConfig({
         start_url: '/',
         scope: '/',
         icons: [
+          { src: '/icon-16.png',  sizes: '16x16',   type: 'image/png' },
+          { src: '/icon-32.png',  sizes: '32x32',   type: 'image/png' },
+          { src: '/icon-96.png',  sizes: '96x96',   type: 'image/png' },
+          { src: '/icon-144.png', sizes: '144x144', type: 'image/png' },
+          { src: '/icon-180.png', sizes: '180x180', type: 'image/png' },
           { src: '/icon-192.png', sizes: '192x192', type: 'image/png' },
+          { src: '/icon-256.png', sizes: '256x256', type: 'image/png' },
           { src: '/icon-512.png', sizes: '512x512', type: 'image/png' },
           { src: '/icon-512.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' },
         ],
       },
+      // NOTE: With injectManifest strategy, runtime caching MUST live in sw.ts —
+      // the workbox.runtimeCaching / navigateFallback blocks here are silently
+      // ignored. Font caching and navigation fallback are handled in sw.ts.
       workbox: {
-        cleanupOutdatedCaches: true,
-        navigateFallback: '/index.html',
-        navigateFallbackDenylist: [/^\/api/, /^\/rest/, /^\/_vercel/, /^\/dashboard/, /^\/tracker/, /^\/coach/, /^\/account/, /^\/admin/],
+        // Only globPatterns is used by injectManifest to build __WB_MANIFEST
         globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
-        runtimeCaching: [
-          // Must stay in sync with VITE_SUPABASE_URL — regex matches the Supabase project URL for REST API requests
-          {
-            urlPattern: /^https:\/\/rxxzphwojutewvbfzgqd\.supabase\.co\/rest\//,
-            handler: 'NetworkOnly',
-          },
-          {
-            urlPattern: /^https:\/\/fonts\.googleapis\.com\//,
-            handler: 'CacheFirst',
-            options: {
-              cacheName: 'google-fonts-stylesheets',
-              expiration: { maxEntries: 10, maxAgeSeconds: 60 * 60 * 24 * 365 },
-            },
-          },
-          {
-            urlPattern: /^https:\/\/fonts\.gstatic\.com\//,
-            handler: 'CacheFirst',
-            options: {
-              cacheName: 'google-fonts-webfonts',
-              expiration: { maxEntries: 30, maxAgeSeconds: 60 * 60 * 24 * 365 },
-            },
-          },
-        ],
       },
     }),
   ],

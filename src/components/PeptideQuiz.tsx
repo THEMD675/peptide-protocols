@@ -4,7 +4,7 @@ import {
   ArrowLeft, ArrowRight, CheckCircle, FlaskConical,
   TrendingDown, Heart, Brain, Zap, Clock, Shield,
   Syringe, Pill, SprayCan, Dumbbell, Moon, Sparkles,
-  Activity, AlertTriangle, Bookmark, Share2, Calculator,
+  Activity, AlertTriangle, Bookmark, Calculator,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
@@ -382,6 +382,7 @@ function SlideTransition({ children, stepKey, direction }: { children: ReactNode
 
   useEffect(() => {
     if (stepKey !== currentKey) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setVisible(false);
       const timer = setTimeout(() => {
         setCurrentKey(stepKey);

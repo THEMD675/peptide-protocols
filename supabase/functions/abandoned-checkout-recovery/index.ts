@@ -5,6 +5,7 @@ import { emailWrapper, emailButton } from '../_shared/email-template.ts'
 import { sendEmail } from '../_shared/send-email.ts'
 const supabaseUrl = Deno.env.get('SUPABASE_URL') ?? ''
 const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
+const APP_URL = Deno.env.get('APP_URL') ?? 'https://pptides.com'
 
 function constantTimeCompare(a: string, b: string): boolean {
   if (a.length !== b.length) return false
@@ -117,7 +118,7 @@ serve(async (req) => {
             </div>
             <p style="color: #44403c; font-size: 16px; line-height: 1.8;">ابدأ تجربتك المجانية اليوم — إلغاء في أي وقت خلال ٣ أيام بدون أي رسوم.</p>
             <div style="text-align: center; margin: 24px 0;">
-              ${emailButton('ابدأ التجربة المجانية', 'https://pptides.com/pricing')}
+              ${emailButton('ابدأ التجربة المجانية', `${APP_URL}/pricing`)}
             </div>
             <p style="color: #78716c; font-size: 13px;">إذا كنت بحاجة للمساعدة: contact@pptides.com</p>
           `),

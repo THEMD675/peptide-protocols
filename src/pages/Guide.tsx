@@ -1,15 +1,10 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useCallback } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { Link } from 'react-router-dom';
 import {
-  FlaskConical,
-  BookOpen,
-  Shield,
   AlertCircle,
   CheckCircle,
   ChevronDown,
-  ChevronLeft,
-  ChevronRight,
   Clock,
   Beaker,
   Syringe,
@@ -26,7 +21,6 @@ import {
   Snowflake,
   AlertTriangle,
   Ban,
-  XCircle,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
@@ -83,33 +77,6 @@ function BlurredSection({ isPro, isFree, children }: { isPro: boolean; isFree?: 
         <Link to="/pricing" className="rounded-xl bg-emerald-600 px-6 py-2 text-sm font-bold text-white hover:bg-emerald-700 transition-colors">
           اشترك للوصول الكامل
         </Link>
-      </div>
-    </div>
-  );
-}
-
-function AccordionItem({ title, children, defaultOpen = false }: { title: string; children: React.ReactNode; defaultOpen?: boolean }) {
-  const [open, setOpen] = useState(defaultOpen);
-  const contentRef = useRef<HTMLDivElement>(null);
-
-  return (
-    <div className="rounded-2xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 overflow-hidden transition-all card-hover">
-      <button
-        onClick={() => setOpen(!open)}
-        className="flex w-full items-center justify-between px-5 py-4 text-start font-bold text-stone-900 dark:text-stone-100 hover:bg-stone-50 dark:hover:bg-stone-900 transition-colors"
-        aria-expanded={open}
-      >
-        <span>{title}</span>
-        <ChevronDown className={cn('h-5 w-5 shrink-0 text-emerald-500 transition-transform duration-200', open && 'rotate-180')} />
-      </button>
-      <div
-        ref={contentRef}
-        className="grid transition-all duration-250 ease-[cubic-bezier(0.23,1,0.32,1)]"
-        style={{ gridTemplateRows: open ? '1fr' : '0fr', opacity: open ? 1 : 0 }}
-      >
-        <div className="overflow-hidden">
-          <div className="px-5 pb-5 text-sm leading-relaxed text-stone-700 dark:text-stone-200 space-y-3">{children}</div>
-        </div>
       </div>
     </div>
   );
@@ -961,34 +928,34 @@ export default function Guide() {
 
   const modules = buildModules();
   const [activeModuleIndex, setActiveModuleIndex] = useState(0);
-  const [progress, setProgressState] = useState<Record<string, boolean>>({});
+  const [progress, setProgressState] = useState<Record<string, boolean>>(getProgress);
   // Auto-open the first section of the initially-active module
   const [openSections, setOpenSections] = useState<Record<string, boolean>>(() => {
     const firstSection = buildModules()[0]?.sections?.[0];
     return firstSection ? { [firstSection.id]: true } : {};
   });
 
-  useEffect(() => {
-    setProgressState(getProgress());
-  }, []);
-
   const activeModule = modules[activeModuleIndex];
   const completedCount = modules.filter((m) => progress[m.id]).length;
 
+  // eslint-disable-next-line react-hooks/preserve-manual-memoization
   const markComplete = useCallback((moduleId: string) => {
     setProgress(moduleId, true);
     setProgressState((prev) => ({ ...prev, [moduleId]: true }));
   }, []);
 
+  // eslint-disable-next-line react-hooks/preserve-manual-memoization
   const markIncomplete = useCallback((moduleId: string) => {
     setProgress(moduleId, false);
     setProgressState((prev) => ({ ...prev, [moduleId]: false }));
   }, []);
 
+  // eslint-disable-next-line react-hooks/preserve-manual-memoization
   const toggleSection = useCallback((sectionId: string) => {
     setOpenSections((prev) => ({ ...prev, [sectionId]: !prev[sectionId] }));
   }, []);
 
+  // eslint-disable-next-line react-hooks/preserve-manual-memoization
   const goNext = useCallback(() => {
     if (activeModuleIndex < modules.length - 1) {
       markComplete(activeModule.id);
@@ -1001,6 +968,7 @@ export default function Guide() {
     }
   }, [activeModuleIndex, modules, activeModule.id, markComplete]);
 
+  // eslint-disable-next-line react-hooks/preserve-manual-memoization
   const goPrev = useCallback(() => {
     if (activeModuleIndex > 0) {
       const prevIdx = activeModuleIndex - 1;
@@ -1037,7 +1005,7 @@ export default function Guide() {
           "description": "دليل تعليمي شامل عن الببتيدات العلاجية باللغة العربية",
           "inLanguage": "ar",
           "provider": { "@type": "Organization", "name": "pptides" },
-          "hasCourseInstance": modules.map((m, i) => ({
+          "hasCourseInstance": modules.map((m) => ({
             "@type": "CourseInstance",
             "name": m.title,
             "courseWorkload": `PT${m.readingTime}M`,

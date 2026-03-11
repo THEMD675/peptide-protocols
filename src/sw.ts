@@ -1,4 +1,8 @@
 import { cleanupOutdatedCaches, precacheAndRoute } from 'workbox-precaching';
+import { registerRoute, NavigationRoute } from 'workbox-routing';
+import { CacheFirst, NetworkFirst } from 'workbox-strategies';
+import { ExpirationPlugin } from 'workbox-expiration';
+import { CacheableResponsePlugin } from 'workbox-cacheable-response';
 
 declare let self: ServiceWorkerGlobalScope;
 
@@ -8,15 +12,27 @@ declare let self: ServiceWorkerGlobalScope;
 
 let skipWaitingTimer: ReturnType<typeof setTimeout> | null = null;
 
-self.addEventListener('install', () => {
+// ═══ Install: precache app shell + offline fallback ═══
+self.addEventListener('install', (event) => {
   // Auto-activate after 30 seconds
   skipWaitingTimer = setTimeout(() => self.skipWaiting(), 30_000);
+
+  // Cache the offline page on install
+  event.waitUntil(
+    caches.open(OFFLINE_CACHE).then((cache) => cache.add(OFFLINE_PAGE))
+  );
 });
 
 self.addEventListener('message', (event) => {
   if (event.data && event.data.type === 'SKIP_WAITING') {
     if (skipWaitingTimer) clearTimeout(skipWaitingTimer);
     self.skipWaiting();
+  }
+  if (event.data?.type === 'QUEUE_INJECTION') {
+    event.waitUntil(queueInjection(event.data.payload));
+  }
+  if (event.data?.type === 'ONLINE') {
+    event.waitUntil(syncPendingInjections());
   }
 });
 
@@ -25,38 +41,67 @@ precacheAndRoute(self.__WB_MANIFEST);
 
 // ═══ Offline fallback page ═══
 const OFFLINE_PAGE = '/offline.html';
-const OFFLINE_CACHE = 'pptides-offline-v1';
+const OFFLINE_CACHE = 'pptides-offline-v2';
 
-// Cache the offline page on install
-self.addEventListener('install', (event) => {
-  event.waitUntil(
-    caches.open(OFFLINE_CACHE).then((cache) => cache.add(OFFLINE_PAGE))
-  );
-});
+// ═══ Runtime caching: Google Fonts ═══
+// NOTE: These must live in sw.ts (not vite.config.ts workbox section)
+// because injectManifest strategy only injects __WB_MANIFEST; workbox
+// plugin-level runtimeCaching is silently ignored with injectManifest.
 
-// Serve offline fallback for navigation requests that fail
-self.addEventListener('fetch', (event) => {
-  if (event.request.mode !== 'navigate') return;
+registerRoute(
+  ({ url }) => url.origin === 'https://fonts.googleapis.com',
+  new CacheFirst({
+    cacheName: 'google-fonts-stylesheets',
+    plugins: [
+      new CacheableResponsePlugin({ statuses: [0, 200] }),
+      new ExpirationPlugin({ maxEntries: 10, maxAgeSeconds: 60 * 60 * 24 * 365 }),
+    ],
+  })
+);
 
-  event.respondWith(
-    fetch(event.request).catch(async () => {
+registerRoute(
+  ({ url }) => url.origin === 'https://fonts.gstatic.com',
+  new CacheFirst({
+    cacheName: 'google-fonts-webfonts',
+    plugins: [
+      new CacheableResponsePlugin({ statuses: [0, 200] }),
+      new ExpirationPlugin({ maxEntries: 30, maxAgeSeconds: 60 * 60 * 24 * 365 }),
+    ],
+  })
+);
+
+// ═══ Navigation fallback: app shell for all non-API routes ═══
+// Serve offline.html when a navigation request fails (no network, no precache match)
+const navigationRoute = new NavigationRoute(
+  async ({ request }) => {
+    try {
+      return await fetch(request);
+    } catch {
       const cache = await caches.open(OFFLINE_CACHE);
       const offlineResponse = await cache.match(OFFLINE_PAGE);
-      return offlineResponse ?? new Response('غير متصل', { status: 503, headers: { 'Content-Type': 'text/plain;charset=utf-8' } });
-    })
-  );
-});
+      return (
+        offlineResponse ??
+        new Response('غير متصل', {
+          status: 503,
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        })
+      );
+    }
+  },
+  {
+    // Never intercept API / server-side routes
+    denylist: [
+      /^\/api\//,
+      /^\/rest\//,
+      /^\/_vercel\//,
+    ],
+  }
+);
+registerRoute(navigationRoute);
 
 // ═══ Background Sync for injection logs ═══
 const SYNC_TAG = 'sync-injection-logs';
 const PENDING_STORE = 'pptides-pending-injections';
-
-// Queue injection logs when offline
-self.addEventListener('message', (event) => {
-  if (event.data?.type === 'QUEUE_INJECTION') {
-    event.waitUntil(queueInjection(event.data.payload));
-  }
-});
 
 async function queueInjection(payload: Record<string, unknown>) {
   const cache = await caches.open(PENDING_STORE);
@@ -100,6 +145,7 @@ async function syncPendingInjections() {
   for (const item of pending) {
     try {
       const { _queued_at, ...payload } = item;
+      void _queued_at;
       const response = await fetch(`${(item as { _supabase_url?: string })._supabase_url ?? ''}/rest/v1/injection_logs`, {
         method: 'POST',
         headers: {
@@ -136,13 +182,6 @@ async function syncPendingInjections() {
     });
   }
 }
-
-// Also attempt sync when coming back online
-self.addEventListener('message', (event) => {
-  if (event.data?.type === 'ONLINE') {
-    event.waitUntil(syncPendingInjections());
-  }
-});
 
 // ═══ Push notifications ═══
 self.addEventListener('push', (event) => {

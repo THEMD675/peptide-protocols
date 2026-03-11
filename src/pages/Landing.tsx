@@ -34,6 +34,7 @@ import {
   ChevronDown,
   Gift,
   Users,
+  MessageCircle,
 } from 'lucide-react';
 const EmailCapture = lazy(() => import('@/components/EmailCapture'));
 const FeatureComparisonTable = lazy(() => import('@/components/FeatureComparisonTable'));
@@ -127,6 +128,7 @@ export default function Landing() {
     } catch { return 0; }
   });
   const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
+  const [priceValidUntil] = useState(() => new Date(Date.now() + 365 * 86400000).toISOString().slice(0, 10));
   const shouldRedirect = !isLoading && user && subscription.isProOrTrial;
 
   useEffect(() => {
@@ -271,7 +273,7 @@ export default function Landing() {
               priceCurrency: 'SAR',
               availability: 'https://schema.org/InStock',
               url: `${SITE_URL}/pricing`,
-              priceValidUntil: new Date(Date.now() + 365 * 86400000).toISOString().slice(0, 10),
+              priceValidUntil,
             },
           },
           {
@@ -287,7 +289,7 @@ export default function Landing() {
               priceCurrency: 'SAR',
               availability: 'https://schema.org/InStock',
               url: `${SITE_URL}/pricing`,
-              priceValidUntil: new Date(Date.now() + 365 * 86400000).toISOString().slice(0, 10),
+              priceValidUntil,
             },
           },
         ])}</script>
@@ -1050,7 +1052,7 @@ export default function Landing() {
         className="fixed bottom-24 end-4 z-40 flex items-center gap-2 rounded-full bg-emerald-600 px-4 py-3 text-white shadow-lg shadow-emerald-600/30 transition-all hover:bg-emerald-700 hover:scale-105 active:scale-95 md:bottom-6 md:end-6"
         aria-label="تواصل معنا عبر البريد الإلكتروني"
       >
-        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/></svg>
+        <MessageCircle className="h-5 w-5" aria-hidden="true" />
         <span className="text-xs font-bold">مساعدة</span>
       </a>
 

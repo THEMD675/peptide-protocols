@@ -94,104 +94,65 @@ function TourTooltip({
   isLastStep: boolean;
   isDark: boolean;
 }) {
-  const bg = isDark ? '#1c1917' : '#ffffff';
-  const text = isDark ? '#e7e5e4' : '#1c1917';
-  const subText = isDark ? '#a8a29e' : '#78716c';
-  const border = isDark ? '#44403c' : '#e7e5e4';
-
   return (
     <div
       dir="rtl"
-      style={{
-        background: bg,
-        color: text,
-        borderRadius: '1rem',
-        border: `1px solid ${border}`,
-        boxShadow: isDark
-          ? '0 20px 40px rgba(0,0,0,0.5)'
-          : '0 20px 40px rgba(0,0,0,0.12)',
-        padding: '1.25rem 1.5rem',
-        maxWidth: '320px',
-        minWidth: '260px',
-        animation: 'tour-in 0.22s cubic-bezier(0.34,1.56,0.64,1)',
-        fontFamily: 'inherit',
-      }}
+      className={[
+        'rounded-2xl border px-6 py-5 font-[inherit]',
+        'max-w-[320px] min-w-[260px]',
+        '[animation:tour-in_0.22s_cubic-bezier(0.34,1.56,0.64,1)]',
+        isDark
+          ? 'bg-stone-950 text-stone-200 border-stone-700 shadow-[0_20px_40px_rgba(0,0,0,0.5)]'
+          : 'bg-white text-stone-900 border-stone-200 shadow-[0_20px_40px_rgba(0,0,0,0.12)]',
+      ].join(' ')}
     >
       {/* Step counter */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem' }}>
-        <span style={{ fontSize: '0.7rem', fontWeight: 700, color: '#10b981', letterSpacing: '0.05em' }}>
+      <div className="mb-3 flex items-center justify-between">
+        <span className="text-[0.7rem] font-bold tracking-[0.05em] text-emerald-500">
           {index + 1} / {size}
         </span>
         <button
           {...(skipProps as React.ButtonHTMLAttributes<HTMLButtonElement>)}
-          style={{
-            background: 'none',
-            border: 'none',
-            cursor: 'pointer',
-            padding: '0.25rem',
-            color: subText,
-            fontSize: '0.75rem',
-            fontFamily: 'inherit',
-          }}
+          className={[
+            'cursor-pointer rounded p-1 text-xs font-[inherit]',
+            isDark ? 'text-stone-400 hover:text-stone-300' : 'text-stone-500 hover:text-stone-700',
+          ].join(' ')}
         >
           تخطي
         </button>
       </div>
 
       {/* Progress bar */}
-      <div style={{ height: '3px', background: isDark ? '#44403c' : '#f5f5f4', borderRadius: '2px', marginBottom: '1rem', overflow: 'hidden' }}>
+      <div className={['mb-4 h-[3px] overflow-hidden rounded-sm', isDark ? 'bg-stone-700' : 'bg-stone-100'].join(' ')}>
         <div
-          style={{
-            height: '100%',
-            width: `${((index + 1) / size) * 100}%`,
-            background: 'linear-gradient(90deg, #10b981, #059669)',
-            borderRadius: '2px',
-            transition: 'width 0.4s ease',
-          }}
+          className="h-full rounded-sm bg-gradient-to-r from-emerald-500 to-emerald-600 transition-[width] duration-[400ms] ease-in-out"
+          style={{ width: `${((index + 1) / size) * 100}%` }}
         />
       </div>
 
       {/* Content */}
-      <p style={{ fontSize: '0.9rem', lineHeight: '1.6', color: text, margin: 0, fontWeight: 500 }}>
+      <p className={['m-0 text-[0.9rem] font-medium leading-relaxed', isDark ? 'text-stone-200' : 'text-stone-900'].join(' ')}>
         {step.content as string}
       </p>
 
       {/* Actions */}
-      <div style={{ display: 'flex', gap: '0.5rem', marginTop: '1.25rem', justifyContent: 'flex-start' }}>
+      <div className="mt-5 flex gap-2">
         {index > 0 && (
           <button
             {...(backProps as React.ButtonHTMLAttributes<HTMLButtonElement>)}
-            style={{
-              padding: '0.5rem 1rem',
-              borderRadius: '999px',
-              border: `1px solid ${border}`,
-              background: 'transparent',
-              color: text,
-              fontSize: '0.8rem',
-              fontWeight: 600,
-              cursor: 'pointer',
-              fontFamily: 'inherit',
-              transition: 'background 0.15s',
-            }}
+            className={[
+              'cursor-pointer rounded-full px-4 py-2 text-[0.8rem] font-semibold font-[inherit] transition-colors duration-150',
+              isDark
+                ? 'border border-stone-700 bg-transparent text-stone-200 hover:bg-stone-800'
+                : 'border border-stone-200 bg-transparent text-stone-900 hover:bg-stone-50',
+            ].join(' ')}
           >
             السابق
           </button>
         )}
         <button
           {...(primaryProps as React.ButtonHTMLAttributes<HTMLButtonElement>)}
-          style={{
-            padding: '0.5rem 1.25rem',
-            borderRadius: '999px',
-            border: 'none',
-            background: 'linear-gradient(135deg, #10b981, #059669)',
-            color: '#fff',
-            fontSize: '0.8rem',
-            fontWeight: 700,
-            cursor: 'pointer',
-            fontFamily: 'inherit',
-            boxShadow: '0 4px 12px rgba(16,185,129,0.35)',
-            transition: 'transform 0.15s, box-shadow 0.15s',
-          }}
+          className="cursor-pointer rounded-full border-0 bg-gradient-to-br from-emerald-500 to-emerald-600 px-5 py-2 text-[0.8rem] font-bold font-[inherit] text-white shadow-[0_4px_12px_rgba(16,185,129,0.35)] transition-[transform,box-shadow] duration-150 hover:scale-[1.02] hover:shadow-[0_6px_16px_rgba(16,185,129,0.45)]"
         >
           {isLastStep ? 'ابدأ الآن!' : 'التالي'}
         </button>

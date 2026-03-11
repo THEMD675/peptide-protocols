@@ -117,9 +117,9 @@ serve(async (req) => {
 
         const emailResult = await sendEmail({
           to: email,
-          subject: 'أسبوعك الأول — كيف كانت التجربة؟ — pptides',
+          subject: 'أسبوعك الثاني — كيف كانت التجربة؟ — pptides',
           html: emailWrapper(`
-            <h1 style="color: #1c1917; font-size: 24px;">أسبوعك الأول — كيف كانت التجربة؟ 🤔</h1>
+            <h1 style="color: #1c1917; font-size: 24px;">أسبوعك الثاني — كيف كانت التجربة؟ 🤔</h1>
             <p style="color: #44403c; font-size: 16px; line-height: 1.8;">
               مرّ أسبوعان على اشتراكك! نتمنى أنك بدأت تستكشف عالم الببتيدات العلاجية.
             </p>
