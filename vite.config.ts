@@ -76,14 +76,21 @@ export default defineConfig({
     ...(process.env.SENTRY_AUTH_TOKEN
       ? [
           sentryVitePlugin({
-            org: process.env.SENTRY_ORG ?? 'verdix',
-            project: process.env.SENTRY_PROJECT ?? 'javascript-react',
-            authToken: process.env.SENTRY_AUTH_TOKEN,
+            // Trim values — Vercel env pull sometimes appends literal \n
+            org: (process.env.SENTRY_ORG ?? 'verdix').trim(),
+            project: (process.env.SENTRY_PROJECT ?? 'javascript-react').trim(),
+            authToken: process.env.SENTRY_AUTH_TOKEN.trim(),
+            // Only upload source maps; skip release management (handled separately if needed)
             release: { inject: false, create: false, finalize: false },
+            // Delete .map files after upload so they are never publicly served
             sourcemaps: {
               filesToDeleteAfterUpload: ['./dist/assets/**/*.js.map'],
             },
             telemetry: false,
+            // Non-fatal: don't fail the build if Sentry upload has issues
+            errorHandler: (err) => {
+              console.warn('[sentry-vite-plugin] Non-fatal warning:', err);
+            },
           }),
         ]
       : []),
