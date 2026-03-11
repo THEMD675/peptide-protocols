@@ -104,8 +104,38 @@
     <link rel="dns-prefetch" href="https://rxxzphwojutewvbfzgqd.supabase.co" />
     <link rel="dns-prefetch" href="https://js.stripe.com" />
     <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
-    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" />
     <link rel="preload" as="font" type="font/woff2" crossorigin href="https://fonts.gstatic.com/s/cairo/v31/SLXVc1nY6HkvangtZmpQdkhzfH5lkSscQyyS8p4_RHH1.woff2" />
+    <style>
+      /* Critical font-face with size-adjust fallback to prevent CLS */
+      @font-face {
+        font-family: 'Cairo';
+        font-style: normal;
+        font-weight: 400 900;
+        font-display: swap;
+        src: url(https://fonts.gstatic.com/s/cairo/v31/SLXVc1nY6HkvangtZmpQdkhzfH5lkSscQyyS8p4_RHH1.woff2) format('woff2');
+        unicode-range: U+0600-06FF, U+0750-077F, U+0870-088E, U+0890-0891, U+0898-08E1, U+08E3-08FF, U+200C-200E, U+2010-2011, U+204F, U+2E41, U+FB50-FDFF, U+FE70-FE9F, U+10D00-10D3F, U+10EFD-10EFF, U+1EE00-1EEFF;
+      }
+      @font-face {
+        font-family: 'Cairo Fallback';
+        src: local('Arial');
+        size-adjust: 97%;
+        ascent-override: 105%;
+        descent-override: 35%;
+        line-gap-override: 0%;
+      }
+      /* Inline critical skeleton */
+      #root:empty { display:flex; flex-direction:column; min-height:100vh; background:#fafaf9; }
+      .dark #root:empty { background:#0c0a09; }
+      #root:empty::before {
+        content:''; display:block; height:64px; background:#059669; flex-shrink:0;
+      }
+      #root:empty::after {
+        content:'pptides'; display:flex; align-items:center; justify-content:center;
+        flex:1; font-family:'Cairo Fallback',Arial,sans-serif; font-size:28px; font-weight:700;
+        color:#059669; opacity:0.5; animation:pulse 1.5s ease-in-out infinite;
+      }
+      @keyframes pulse { 0%,100%{opacity:0.3} 50%{opacity:0.6} }
+    </style>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet" media="print" onload="this.media='all'" />
 
     <!-- Favicon -->

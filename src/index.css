@@ -120,7 +120,7 @@ html.dark {
   [id] { scroll-margin-top: calc(var(--header-height) + 1rem); }
 
   body {
-    font-family: 'Cairo', 'Inter', 'SF Pro Display', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+    font-family: 'Cairo', 'Cairo Fallback', 'Inter', 'SF Pro Display', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
     background: #fff;
     color: var(--text);
     line-height: 1.6;
