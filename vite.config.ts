@@ -1,6 +1,7 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react-swc";
 import { VitePWA } from "vite-plugin-pwa";
+import { sentryVitePlugin } from "@sentry/vite-plugin";
 import path from "path";
 import { TRIAL_DAYS } from "./src/config/trial";
 
@@ -69,6 +70,23 @@ export default defineConfig({
         globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
       },
     }),
+    // Sentry source map upload — only runs when SENTRY_AUTH_TOKEN is set (CI / Vercel build)
+    // sourcemap mode is set to 'hidden' above when this runs, so .map files are
+    // generated, uploaded, then deleted — never served to the browser.
+    ...(process.env.SENTRY_AUTH_TOKEN
+      ? [
+          sentryVitePlugin({
+            org: process.env.SENTRY_ORG ?? 'verdix',
+            project: process.env.SENTRY_PROJECT ?? 'javascript-react',
+            authToken: process.env.SENTRY_AUTH_TOKEN,
+            release: { inject: false, create: false, finalize: false },
+            sourcemaps: {
+              filesToDeleteAfterUpload: ['./dist/assets/**/*.js.map'],
+            },
+            telemetry: false,
+          }),
+        ]
+      : []),
   ],
   resolve: {
     alias: {
@@ -77,7 +95,8 @@ export default defineConfig({
   },
   build: {
     target: 'es2020',
-    sourcemap: false,
+    // Hidden sourcemaps: uploaded to Sentry but not served to the browser
+    sourcemap: process.env.SENTRY_AUTH_TOKEN ? 'hidden' : false,
     rollupOptions: {
       output: {
         manualChunks(id) {

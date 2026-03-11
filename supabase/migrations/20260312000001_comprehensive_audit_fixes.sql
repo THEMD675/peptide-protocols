@@ -206,8 +206,8 @@ GRANT  SELECT (status, tier) ON public.subscriptions TO anon;
 
 -- ============================================================
 -- FIX 5: user-uploads storage bucket — RLS policies
--- Storage buckets are managed via the storage schema.
--- Ensure the bucket exists and has proper policies.
+-- Storage RLS is enforced on storage.objects (not a policies table).
+-- Policies are CREATE POLICY statements on storage.objects.
 -- ============================================================
 
 -- Create the bucket if it doesn't exist
@@ -215,44 +215,49 @@ INSERT INTO storage.buckets (id, name, public)
 VALUES ('user-uploads', 'user-uploads', false)
 ON CONFLICT (id) DO NOTHING;
 
--- Remove any existing storage policies for this bucket
-DELETE FROM storage.policies WHERE bucket_id = 'user-uploads';
+-- Drop old policies if they exist
+DROP POLICY IF EXISTS "Users can upload own files"   ON storage.objects;
+DROP POLICY IF EXISTS "Users can read own files"     ON storage.objects;
+DROP POLICY IF EXISTS "Users can delete own files"   ON storage.objects;
+DROP POLICY IF EXISTS "Service role full access"     ON storage.objects;
 
--- Policy: authenticated users can upload to their own folder
-INSERT INTO storage.policies (name, bucket_id, operation, definition)
-VALUES (
-  'Users can upload own files',
-  'user-uploads',
-  'INSERT',
-  'auth.uid()::text = (storage.foldername(name))[1]'
-);
+-- Authenticated users can upload into their own folder: user-uploads/<user_id>/...
+CREATE POLICY "Users can upload own files"
+  ON storage.objects
+  FOR INSERT
+  TO authenticated
+  WITH CHECK (
+    bucket_id = 'user-uploads'
+    AND (storage.foldername(name))[1] = auth.uid()::text
+  );
 
--- Policy: authenticated users can read their own files
-INSERT INTO storage.policies (name, bucket_id, operation, definition)
-VALUES (
-  'Users can read own files',
-  'user-uploads',
-  'SELECT',
-  'auth.uid()::text = (storage.foldername(name))[1]'
-);
+-- Authenticated users can read their own files
+CREATE POLICY "Users can read own files"
+  ON storage.objects
+  FOR SELECT
+  TO authenticated
+  USING (
+    bucket_id = 'user-uploads'
+    AND (storage.foldername(name))[1] = auth.uid()::text
+  );
 
--- Policy: authenticated users can delete their own files
-INSERT INTO storage.policies (name, bucket_id, operation, definition)
-VALUES (
-  'Users can delete own files',
-  'user-uploads',
-  'DELETE',
-  'auth.uid()::text = (storage.foldername(name))[1]'
-);
+-- Authenticated users can delete their own files
+CREATE POLICY "Users can delete own files"
+  ON storage.objects
+  FOR DELETE
+  TO authenticated
+  USING (
+    bucket_id = 'user-uploads'
+    AND (storage.foldername(name))[1] = auth.uid()::text
+  );
 
--- Policy: service_role has full access
-INSERT INTO storage.policies (name, bucket_id, operation, definition)
-VALUES (
-  'Service role full access',
-  'user-uploads',
-  'ALL',
-  'true'
-);
+-- Service role has full access to all files (for admin/deletion)
+CREATE POLICY "Service role full access to user-uploads"
+  ON storage.objects
+  FOR ALL
+  TO service_role
+  USING (bucket_id = 'user-uploads')
+  WITH CHECK (bucket_id = 'user-uploads');
 
 
 -- ============================================================

@@ -430,12 +430,20 @@ export default function StackBuilder() {
   const loadGoalStack = (stack: GoalStack) => {
     const validIds = stack.peptideIds.filter((id) => realPeptides.some((p) => p.id === id));
     if (selectedIds.length > 0 && activeGoalStack !== stack.id) {
-      // Confirm overwrite only when user has a custom selection
-      const confirmed = window.confirm('سيتم استبدال بروتوكولك الحالي. هل تريد المتابعة؟');
-      if (!confirmed) return;
+      // Show inline confirmation instead of window.confirm
+      setPendingGoalStack(stack);
+      return;
     }
     setSelectedIds(validIds.slice(0, MAX_STACK_SIZE));
     setActiveGoalStack(stack.id);
+  };
+
+  const confirmLoadGoalStack = () => {
+    if (!pendingGoalStack) return;
+    const validIds = pendingGoalStack.peptideIds.filter((id) => realPeptides.some((p) => p.id === id));
+    setSelectedIds(validIds.slice(0, MAX_STACK_SIZE));
+    setActiveGoalStack(pendingGoalStack.id);
+    setPendingGoalStack(null);
   };
 
   const SafetyBadge = ({ safety }: { safety: 'safe' | 'warning' | 'dangerous' }) => {
@@ -535,6 +543,32 @@ export default function StackBuilder() {
           ))}
         </div>
       </div>
+
+      {/* ── Inline overwrite confirmation ─────────────── */}
+      {pendingGoalStack && (
+        <div className="mb-4 rounded-xl border border-amber-400/40 bg-amber-50 dark:bg-amber-900/20 px-4 py-3 flex items-center gap-3">
+          <AlertTriangle className="h-4 w-4 shrink-0 text-amber-500" />
+          <p className="flex-1 text-sm text-amber-800 dark:text-amber-300">
+            سيتم استبدال بروتوكولك الحالي بـ «{pendingGoalStack.nameAr}». هل تريد المتابعة؟
+          </p>
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={confirmLoadGoalStack}
+              className="rounded-lg bg-amber-500 px-3 py-1.5 text-xs font-bold text-white hover:bg-amber-600 transition-colors"
+            >
+              تأكيد
+            </button>
+            <button
+              type="button"
+              onClick={() => setPendingGoalStack(null)}
+              className="rounded-lg border border-amber-400/40 px-3 py-1.5 text-xs font-bold text-amber-700 dark:text-amber-400 hover:bg-amber-100 dark:hover:bg-amber-900/30 transition-colors"
+            >
+              إلغاء
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* ── Goal Stack Detail ──────────────────────────── */}
       {activeGoalStack && (() => {

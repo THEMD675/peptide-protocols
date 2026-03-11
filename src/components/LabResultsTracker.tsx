@@ -416,6 +416,8 @@ function LabEntryForm({
           <button
             key={cat.id}
             onClick={() => setActiveCategory(cat.id)}
+            aria-label={`فئة: ${cat.nameAr}`}
+            aria-pressed={activeCategory === cat.id}
             className={cn(
               'flex items-center gap-1.5 whitespace-nowrap rounded-lg px-3 py-2 text-xs font-bold transition-all shrink-0',
               activeCategory === cat.id
@@ -501,6 +503,7 @@ function LabEntryForm({
         <button
           onClick={handleSubmit}
           disabled={isSubmitting || filledCount === 0}
+          aria-label="حفظ نتائج التحاليل"
           className="flex items-center gap-2 rounded-xl bg-emerald-600 px-6 py-2.5 text-sm font-bold text-white transition-all hover:bg-emerald-500 disabled:opacity-40 disabled:cursor-not-allowed"
         >
           {isSubmitting ? (
@@ -699,6 +702,8 @@ export default function LabResultsTracker() {
           )}
           <button
             onClick={() => setShowForm(prev => !prev)}
+            aria-label={showForm ? 'إلغاء إدخال التحليل' : 'إضافة تحليل جديد'}
+            aria-expanded={showForm}
             className={cn(
               'flex items-center gap-1.5 rounded-xl px-3 py-2 text-xs font-bold transition-all min-h-[44px]',
               showForm
@@ -743,6 +748,8 @@ export default function LabResultsTracker() {
             <button
               key={tab.id}
               onClick={() => setActiveView(tab.id)}
+              aria-label={`عرض ${tab.label}`}
+              aria-pressed={activeView === tab.id}
               className={cn(
                 'flex-1 rounded-lg py-2 text-xs font-bold transition-all',
                 activeView === tab.id
@@ -784,6 +791,8 @@ export default function LabResultsTracker() {
               <div key={entry.id} className="rounded-xl border border-stone-800 bg-stone-900/50 overflow-hidden transition-all">
                 <button
                   onClick={() => setExpandedEntry(isExpanded ? null : entry.id)}
+                  aria-label={isExpanded ? `طي نتائج ${formatDate(entry.test_date)}` : `توسيع نتائج ${formatDate(entry.test_date)}`}
+                  aria-expanded={isExpanded}
                   className="flex w-full items-center justify-between px-4 py-3 text-start hover:bg-stone-800/30 transition-colors"
                 >
                   <div className="flex items-center gap-3">
@@ -864,6 +873,7 @@ export default function LabResultsTracker() {
                     <div className="flex justify-end pt-2">
                       <button
                         onClick={() => handleDelete(entry.id)}
+                        aria-label={`حذف نتائج تحليل ${formatDate(entry.test_date)}`}
                         className="min-h-[44px] px-3 text-[10px] text-red-400/60 hover:text-red-400 transition-colors"
                       >
                         حذف هذا التحليل
@@ -884,6 +894,8 @@ export default function LabResultsTracker() {
               <button
                 key={bio.id}
                 onClick={() => setSelectedBiomarker(selectedBiomarker === bio.id ? null : bio.id)}
+                aria-label={selectedBiomarker === bio.id ? `إلغاء تحديد ${bio.nameAr}` : `عرض اتجاه ${bio.nameAr}`}
+                aria-pressed={selectedBiomarker === bio.id}
                 className={cn(
                   'whitespace-nowrap rounded-lg px-3 py-1.5 text-[11px] font-bold transition-all shrink-0 border',
                   selectedBiomarker === bio.id

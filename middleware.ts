@@ -74,7 +74,9 @@ export default function middleware(request: Request) {
 }
 
 export const config = {
+  // Exclude static assets, API routes, and Vercel internals from bot-detection middleware.
+  // _next/* paths are excluded for safety even though this is a Vite project (no-op but harmless).
   matcher: [
-    '/((?!_next/static|_next/image|favicon\\.ico|assets/|api/).*)',
+    '/((?!_vercel|_next/static|_next/image|favicon\\.ico|assets/|api/).*)',
   ],
 };
