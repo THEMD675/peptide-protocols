@@ -1414,10 +1414,10 @@ const STRUCTURED_DATA: Record<string, Partial<Pick<Peptide, 'doseMcg' | 'doseMax
   'snap-8': { frequency: 'bid', route: 'topical' },
 };
 
-for (const p of peptides) {
+peptides.forEach((p) => {
   const sd = STRUCTURED_DATA[p.id];
   if (sd) Object.assign(p, sd);
-}
+});
 
 // ── Categories (computed counts) ─────────────────────────────
 export const categories: Category[] = _categoriesBase.map((cat) => ({

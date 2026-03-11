@@ -18,7 +18,7 @@ function getSessionId(): string {
 }
 
 // Batch queue to reduce DB writes
-let eventQueue: Array<{
+const eventQueue: Array<{
   event_name: string;
   event_params: Record<string, unknown>;
   page_path: string;

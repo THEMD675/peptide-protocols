@@ -212,5 +212,35 @@ export const peptideSearchIndex: PeptideSearchEntry[] = [
     "id": "melanotan-ii",
     "nameAr": "ميلانوتان II",
     "nameEn": "Melanotan II"
+  },
+  {
+    "id": "orforglipron",
+    "nameAr": "أورفورغليبرون",
+    "nameEn": "Orforglipron"
+  },
+  {
+    "id": "mk-677",
+    "nameAr": "إيبوتاموران (MK-677)",
+    "nameEn": "MK-677 / Ibutamoren"
+  },
+  {
+    "id": "humanin",
+    "nameAr": "هيومانين",
+    "nameEn": "Humanin"
+  },
+  {
+    "id": "vip",
+    "nameAr": "VIP (الببتيد المعوي الفعّال)",
+    "nameEn": "VIP (Vasoactive Intestinal Peptide)"
+  },
+  {
+    "id": "oxytocin",
+    "nameAr": "أوكسيتوسين",
+    "nameEn": "Oxytocin"
+  },
+  {
+    "id": "snap-8",
+    "nameAr": "سناب-8 (أرجيريلين)",
+    "nameEn": "SNAP-8 / Argireline"
   }
 ];
