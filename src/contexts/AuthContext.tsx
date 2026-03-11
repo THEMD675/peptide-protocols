@@ -19,6 +19,8 @@ export interface Subscription {
   hasStripeSubscription: boolean;
   /** true when user is in trial but hasn't entered a credit card yet */
   needsPaymentSetup: boolean;
+  /** true when subscription was granted manually (admin), not via Stripe */
+  isAdminGrant: boolean;
 }
 
 interface User {
@@ -47,6 +49,7 @@ const DEFAULT_SUBSCRIPTION: Subscription = {
   isTrial: false,
   hasStripeSubscription: false,
   needsPaymentSetup: false,
+  isAdminGrant: false,
 };
 
 // eslint-disable-next-line react-refresh/only-export-components
@@ -123,8 +126,9 @@ export function buildSubscription(row: Record<string, unknown> | null): Subscrip
 
   const hasStripeSubscription = !!(row.stripe_subscription_id);
   const needsPaymentSetup = isTrial && !hasStripeSubscription;
+  const isAdminGrant = row.grant_source === 'admin' || (!hasStripeSubscription && status === 'active' && tier !== 'free' && !isTrial);
 
-  return { status, tier, trialDaysLeft, isProOrTrial, isPaidSubscriber, isTrial, currentPeriodEnd, hasStripeSubscription, needsPaymentSetup };
+  return { status, tier, trialDaysLeft, isProOrTrial, isPaidSubscriber, isTrial, currentPeriodEnd, hasStripeSubscription, needsPaymentSetup, isAdminGrant };
 }
 
 

@@ -973,7 +973,7 @@ export default function Account() {
             تسجيل الخروج
           </button>
 
-          {(subscription.isPaidSubscriber || subscription.isTrial) && subscription.status !== 'cancelled' && (
+          {(subscription.isPaidSubscriber || subscription.isTrial) && subscription.status !== 'cancelled' && !subscription.isAdminGrant && (
             subscription.isTrial && !subscription.hasStripeSubscription ? (
               <div className="flex w-full items-center justify-center gap-2 rounded-xl border border-stone-200 dark:border-stone-600 bg-stone-50 dark:bg-stone-900 px-6 py-3 text-sm text-stone-500 dark:text-stone-300">
                 فترتك التجريبية ستنتهي تلقائياً
