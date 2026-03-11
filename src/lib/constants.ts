@@ -13,7 +13,7 @@ export const PRICING = {
 } as const;
 
 /** Total peptide count — update when adding/removing peptides */
-export const PEPTIDE_COUNT = 41;
+export const PEPTIDE_COUNT = 48;
 
 /** Unique PubMed ID count across all peptides — update when pubmedIds change */
 export const PUBMED_SOURCE_COUNT = 110;
@@ -83,7 +83,7 @@ export const SITE_URL = 'https://pptides.com';
 
 // VALUE_STACK prices are marketing estimates, not derived from PRICING. Update manually when pricing changes.
 export const VALUE_STACK = [
-  { item: `مكتبة ${PEPTIDE_COUNT} ببتيد مع بروتوكولات كاملة`, value: '559 ر.س' },
+  { item: `مكتبة ${PEPTIDE_COUNT} ببتيد مع بروتوكولات كاملة`, value: '679 ر.س' },
   { item: 'حاسبة جرعات دقيقة (مايكروغرام + سيرنج)', value: '109 ر.س' },
   { item: 'دليل تحاليل مخبرية شامل', value: '146 ر.س' },
   { item: 'دليل تحضير وحقن عملي', value: '71 ر.س' },
