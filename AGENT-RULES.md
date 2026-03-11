@@ -223,7 +223,18 @@ Run this BEFORE every deploy:
 
 ---
 
-## RULE 10: When in Doubt
+## RULE 10: NEVER Touch Browser Auth or Stripe Dashboard
+
+- ❌ NEVER open Stripe Dashboard in a browser
+- ❌ NEVER trigger OAuth flows, 2FA prompts, or login pages
+- ❌ NEVER use Puppeteer/CDP to login to any service
+- ✅ ALL Stripe operations via API (curl + secret key from Supabase secrets)
+- ✅ ALL Supabase operations via CLI or REST API
+- ✅ ALL changes via code edits, not UI clicks
+
+**Ameer gets 2FA notifications on his phone. Triggering auth flows wastes his time and breaks trust.**
+
+## RULE 11: When in Doubt
 
 1. Read this file again
 2. Read QA-RULES.md
