@@ -538,11 +538,25 @@ export default function Login() {
                 <button
                   type="button"
                   disabled={loading || googleLoading}
-                  onClick={() => {
+                  onClick={async () => {
+                    // Primary: try Google One Tap prompt
                     if (window.google?.accounts?.id) {
-                      window.google.accounts.id.prompt();
+                      window.google.accounts.id.prompt((notification: { isNotDisplayed: () => boolean; isSkippedMoment: () => boolean }) => {
+                        // If One Tap failed silently (dismissed, cooldown, cookies blocked), fall back to OAuth redirect
+                        if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
+                          supabase.auth.signInWithOAuth({
+                            provider: 'google',
+                            options: { redirectTo: `${window.location.origin}/dashboard` },
+                          });
+                        }
+                      });
                     } else {
-                      toast.error('جارٍ تحميل Google — انتظر لحظة وحاول مرة أخرى');
+                      // GIS script not loaded — go straight to OAuth redirect
+                      setGoogleLoading(true);
+                      await supabase.auth.signInWithOAuth({
+                        provider: 'google',
+                        options: { redirectTo: `${window.location.origin}/dashboard` },
+                      });
                     }
                   }}
                   className="mb-4 flex w-full items-center justify-center gap-3 rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 px-4 py-3 text-sm font-semibold text-stone-700 dark:text-stone-200 shadow-sm transition-all hover:bg-stone-50 dark:hover:bg-stone-800 hover:border-stone-300 dark:hover:border-stone-500 disabled:opacity-60"
