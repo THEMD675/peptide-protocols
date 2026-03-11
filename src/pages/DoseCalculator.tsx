@@ -871,6 +871,22 @@ export default function DoseCalculator() {
               )}
             </div>
 
+            {/* Empty-state guidance — shown when no peptide selected and no saved calcs */}
+            {!selectedPreset && savedCalcs.length === 0 && (
+              <div className="mb-6 rounded-2xl border-2 border-dashed border-emerald-300 dark:border-emerald-700 bg-emerald-50/40 dark:bg-emerald-900/10 p-6 text-center">
+                <Calculator className="mx-auto mb-3 h-8 w-8 text-emerald-500 opacity-70" />
+                <p className="text-base font-bold text-stone-900 dark:text-stone-100 mb-1">ابدأ باختيار ببتيد 👆</p>
+                <p className="text-sm text-stone-600 dark:text-stone-300">اختر ببتيدًا من القائمة أعلاه لتعبئة جميع القيم تلقائيًا، أو أدخل القيم يدويًا أدناه.</p>
+                <div className="mt-3 flex justify-center gap-3 text-xs text-stone-500 dark:text-stone-300">
+                  <span>① اختر ببتيد</span>
+                  <span>→</span>
+                  <span>② عدّل الجرعة</span>
+                  <span>→</span>
+                  <span>③ اقرأ النتيجة</span>
+                </div>
+              </div>
+            )}
+
             {/* Calculator Card */}
             <div className="mb-6 rounded-2xl border border-stone-200 dark:border-stone-600 bg-stone-50 dark:bg-stone-900 p-6 md:p-8">
               {/* Dose Unit Toggle */}
@@ -1373,6 +1389,36 @@ export default function DoseCalculator() {
                   <SyringeVisual drawUnits={reconResults.syringeUnits} syringeOption={SYRINGE_OPTIONS[reconSyringeIdx]} />
                 </div>
               </div>
+
+              {/* Copy / Share reconstitution result */}
+              {isFinite(reconResults.syringeUnits) && reconResults.syringeUnits > 0 && (
+                <div className="mt-4 flex gap-3 justify-end">
+                  <button
+                    onClick={async () => {
+                      const reconSyringe = SYRINGE_OPTIONS[reconSyringeIdx];
+                      const text =
+                        `نتيجة حاسبة التخفيف (pptides):\n` +
+                        `القارورة: ${reconVialMg} mg | الماء: ${reconWaterMl} ml\n` +
+                        `التركيز: ${fmt(reconResults.concentration, 0)} مكغ/مل\n` +
+                        `الجرعة المطلوبة: ${reconTargetDose} ${reconDoseUnit}\n` +
+                        `اسحب إلى: ${fmt(reconResults.syringeUnits, 1)} وحدة (${fmt(reconResults.volumeMl, 3)} ml)\n` +
+                        `جرعات في القارورة: ${fmt(reconResults.dosesPerVial, 0)}\n` +
+                        `السيرنج: ${reconSyringe.label}\n\n` +
+                        `${SITE_URL}/calculator`;
+                      if (navigator.share) {
+                        try { await navigator.share({ title: 'نتيجة حاسبة التخفيف', text }); } catch { /* cancelled */ }
+                      } else {
+                        try { await navigator.clipboard.writeText(text); toast.success('تم نسخ النتيجة'); }
+                        catch { toast.error('تعذّر النسخ'); }
+                      }
+                    }}
+                    className="flex items-center gap-2 rounded-xl border border-blue-200 dark:border-blue-800 bg-blue-50 dark:bg-blue-900/20 px-4 py-2 min-h-[44px] text-sm font-bold text-blue-700 dark:text-blue-400 transition-all hover:bg-blue-100"
+                  >
+                    <Share2 className="h-4 w-4" />
+                    شارك / انسخ النتيجة
+                  </button>
+                </div>
+              )}
 
               {/* Overflow warning */}
               {isFinite(reconResults.syringeUnits) && reconResults.syringeUnits > SYRINGE_OPTIONS[reconSyringeIdx].units && (

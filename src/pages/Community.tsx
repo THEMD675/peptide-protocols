@@ -5,7 +5,7 @@ import { Link, useSearchParams } from 'react-router-dom';
 import {
   MessageSquare, Send, Clock, FlaskConical, User, Flag, Star, MessageCircle,
   ChevronDown, ChevronUp, Trash2, BadgeCheck, ThumbsUp, Search, X, Trophy,
-  Sparkles,
+  Sparkles, Loader2, Shield, Users, FlaskRound,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { useAuth } from '@/contexts/AuthContext';
@@ -111,10 +111,9 @@ function getAvatarColor(userId: string): string {
 }
 
 function getInitial(userId: string): string {
-  // For real users we show first char of their ID (we don't expose emails)
-  // Seeds get a flask icon handled in JSX
+  // Show "م" (anonymous) for all users — UUIDs don't have meaningful initials
   if (!userId) return '?';
-  return userId.charAt(0).toUpperCase();
+  return 'م';
 }
 
 function relativeTimeAr(dateStr: string): string {
