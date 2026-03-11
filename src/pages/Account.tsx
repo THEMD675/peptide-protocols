@@ -447,7 +447,7 @@ export default function Account() {
                 subscription.isProOrTrial ? 'text-emerald-700' : 'text-stone-500 dark:text-stone-300',
               )}>
                 {subscription.isProOrTrial && subscription.status === 'cancelled'
-                  ? 'نشط'
+                  ? 'نشط (ملغي — ينتهي الوصول قريبًا)'
                   : STATUS_LABELS[subscription.status] ?? subscription.status}
                 {subscription.status === 'trial' && subscription.trialDaysLeft > 0 && (
                   <span className="text-amber-600 ms-2">({arPlural(subscription.trialDaysLeft, 'يوم واحد', 'يومان', 'أيام')} متبقية)</span>
@@ -456,6 +456,11 @@ export default function Account() {
               {subscription.status === 'active' && subscription.currentPeriodEnd && (
                 <p className="text-xs text-stone-500 dark:text-stone-300 mt-1">
                   يتجدد في {new Date(subscription.currentPeriodEnd).toLocaleDateString('ar-u-nu-latn')}
+                </p>
+              )}
+              {subscription.status === 'cancelled' && subscription.currentPeriodEnd && (
+                <p className="text-xs text-amber-600 mt-1">
+                  وصولك ينتهي في {new Date(subscription.currentPeriodEnd).toLocaleDateString('ar-u-nu-latn')}
                 </p>
               )}
             </div>
@@ -908,7 +913,8 @@ export default function Account() {
                     if (!sub?.stripe_subscription_id) { toast.error('لم نجد اشتراكك في Stripe'); return; }
                     const res = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/cancel-subscription`, {
                       method: 'POST',
-                      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}` },
+                      signal: AbortSignal.timeout(15000),
+                      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}`, apikey: import.meta.env.VITE_SUPABASE_ANON_KEY },
                       body: JSON.stringify({ apply_coupon: true, reason: cancelReason }),
                     });
                     if (res.ok) {

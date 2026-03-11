@@ -1,7 +1,14 @@
 import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 
-export default function ProtectedRoute({ children }: { children: React.ReactNode }) {
+interface ProtectedRouteProps {
+  children: React.ReactNode;
+  /** When false, only requires login — does not enforce active subscription.
+   *  Use for pages like /account that logged-in users must always be able to reach. */
+  requiresSubscription?: boolean;
+}
+
+export default function ProtectedRoute({ children, requiresSubscription = true }: ProtectedRouteProps) {
   const { user, subscription, isLoading } = useAuth();
   const location = useLocation();
 
@@ -11,7 +18,8 @@ export default function ProtectedRoute({ children }: { children: React.ReactNode
   );
 
   // If subscription expired/cancelled AND trial ended, redirect to pricing
-  if (!subscription.isProOrTrial) {
+  // Exception: pages that only require login (e.g. /account) must always be reachable.
+  if (requiresSubscription && !subscription.isProOrTrial) {
     return (
       <Navigate to="/pricing?expired=1" replace />
     );

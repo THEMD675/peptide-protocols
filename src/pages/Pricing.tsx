@@ -91,7 +91,13 @@ export default function Pricing() {
       setSearchParams({}, { replace: true });
     }
     if (searchParams.get('expired') === '1') {
-      toast.error('انتهت فترة تجربتك المجانية — اختر خطة للاستمرار', { duration: 7000 });
+      const isExpiredPaid = subscription?.status === 'expired' || subscription?.status === 'cancelled';
+      toast.error(
+        isExpiredPaid
+          ? 'انتهى اشتراكك — جدّده للعودة إلى الوصول الكامل'
+          : 'انتهت فترة تجربتك المجانية — اختر خطة للاستمرار',
+        { duration: 7000 },
+      );
       setSearchParams({}, { replace: true });
     }
   }, [searchParams, setSearchParams]);
