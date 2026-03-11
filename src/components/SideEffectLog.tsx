@@ -4,7 +4,7 @@ import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
-import { peptides as allPeptides } from '@/data/peptides';
+import { peptidesLite as allPeptides } from '@/data/peptides-lite';
 
 interface SideEffectEntry {
   id: string;

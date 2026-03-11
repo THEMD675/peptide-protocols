@@ -2,7 +2,7 @@ import { useState, useRef, useEffect, useCallback, memo, useMemo, type ElementTy
 import { Helmet } from 'react-helmet-async';
 import { Link, useSearchParams, useNavigate } from 'react-router-dom';
 import { supabase } from '@/lib/supabase';
-import { peptides as allPeptides } from '@/data/peptides';
+import { peptidesLite as allPeptides } from '@/data/peptides-lite';
 import { renderMarkdown, renderMarkdownToHtml } from '@/lib/markdown';
 import {
   Bot, Send, Sparkles, TrendingDown, Heart, Dumbbell, Brain,

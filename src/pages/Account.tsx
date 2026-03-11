@@ -4,7 +4,7 @@ import { Helmet } from 'react-helmet-async';
 import { Link, Navigate, useNavigate, useLocation } from 'react-router-dom';
 import { User, Crown, LogOut, Trash2, AlertTriangle, Mail, ArrowUpCircle, KeyRound, XCircle, Download, CreditCard, Gift, Copy, Share2, Check, Send, MessageSquare, UserCircle, Camera, BarChart3, Syringe, Bot, Calendar, Heart, FlaskConical } from 'lucide-react';
 import { useBookmarks } from '@/hooks/useBookmarks';
-import { peptides as allPeptides } from '@/data/peptides';
+import { peptidesLite as allPeptides } from '@/data/peptides-lite';
 import { toast } from 'sonner';
 import { cn, arPlural, sanitizeInput } from '@/lib/utils';
 import { SUPPORT_EMAIL, STATUS_LABELS, TIER_LABELS, PEPTIDE_COUNT, SITE_URL } from '@/lib/constants';

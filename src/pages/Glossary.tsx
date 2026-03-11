@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 import { BookA, Search, X, FlaskConical, ChevronDown } from 'lucide-react';
 import { PEPTIDE_COUNT, SITE_URL } from '@/lib/constants';
 import { GLOSSARY_TERMS as TERMS, type GlossaryTerm } from '@/data/glossary';
-import { peptides as allPeptides } from '@/data/peptides';
+import { peptidesLite as allPeptides } from '@/data/peptides-lite';
 
 const stripDiacritics = (s: string) => s.replace(/[\u0610-\u061A\u064B-\u065F\u0670\u06D6-\u06DC\u06DF-\u06E4\u06E7-\u06E8\u06EA-\u06ED]/g, '');
 

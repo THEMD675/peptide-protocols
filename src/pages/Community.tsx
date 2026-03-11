@@ -11,7 +11,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { PRICING, SITE_URL, SUPPORT_EMAIL } from '@/lib/constants';
 import { supabase } from '@/lib/supabase';
 import { cn } from '@/lib/utils';
-import { peptides as allPeptides } from '@/data/peptides';
+import { peptidesLite as allPeptides } from '@/data/peptides-lite';
 
 /* ──────────────────── Types ──────────────────── */
 

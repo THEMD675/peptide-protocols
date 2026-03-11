@@ -3,7 +3,7 @@ import { Helmet } from 'react-helmet-async';
 import { Link, useSearchParams } from 'react-router-dom';
 import { AlertTriangle, CheckCircle, XCircle, Shield } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { peptides } from '@/data/peptides';
+import { peptidesLite as peptides } from '@/data/peptides-lite';
 import { categoryLabels } from '@/lib/peptide-labels';
 import { PEPTIDE_COUNT, SITE_URL } from '@/lib/constants';
 import { DANGEROUS_COMBOS, SYNERGISTIC_COMBOS, DRUG_INTERACTIONS, GH_PEPTIDE_IDS, FAT_LOSS_PEPTIDE_IDS, MEDICATIONS, type InteractionResult, type SeverityLevel } from '@/data/interactions';

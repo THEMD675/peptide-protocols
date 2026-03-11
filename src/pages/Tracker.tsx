@@ -20,7 +20,7 @@ import { events } from '@/lib/analytics';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
-import { peptides as allPeptides } from '@/data/peptides';
+import { peptidesLite as allPeptides } from '@/data/peptides-lite';
 import ProgressRing from '@/components/charts/ProgressRing';
 import SideEffectLog from '@/components/SideEffectLog';
 import Tooltip from '@/components/Tooltip';
