@@ -33,10 +33,10 @@ import {
   ChevronDown,
   Gift,
 } from 'lucide-react';
-import EmailCapture from '@/components/EmailCapture';
+const EmailCapture = lazy(() => import('@/components/EmailCapture'));
+const FeatureComparisonTable = lazy(() => import('@/components/FeatureComparisonTable'));
 import TrustBadges from '@/components/TrustBadges';
 import AnimatedCounter from '@/components/AnimatedCounter';
-import FeatureComparisonTable from '@/components/FeatureComparisonTable';
 import TrialCountdown from '@/components/TrialCountdown';
 const PeptideQuiz = lazy(() => import('@/components/PeptideQuiz'));
 import { cn } from '@/lib/utils';
@@ -137,40 +137,76 @@ export default function Landing() {
 
   useEffect(() => {
     let mounted = true;
-    let cached: string | null = null;
-    try { cached = sessionStorage.getItem(STORAGE_KEYS.USER_COUNT_TS) ?? sessionStorage.getItem('pptides_user_count_ts'); } catch { /* Safari private */ }
-    const cacheValid = cached && Date.now() - Number(cached) < 5 * 60 * 1000;
-    Promise.all([
-      cacheValid ? Promise.resolve({ count: null, error: null }) : supabase.from('subscriptions').select('id', { count: 'exact', head: true }).in('status', ['active', 'trial']).not('stripe_subscription_id', 'is', null),
-      supabase.from('reviews').select('body, rating, name, created_at').eq('is_approved', true).gte('rating', 4).order('created_at', { ascending: false }).limit(3),
-    ]).then(([subsResult, reviewsResult]) => {
+
+    // Hydrate reviews from sessionStorage cache immediately (before fetch)
+    try {
+      const cachedReviews = sessionStorage.getItem(STORAGE_KEYS.REVIEWS);
+      const cachedReviewsTs = sessionStorage.getItem(STORAGE_KEYS.REVIEWS_TS);
+      if (cachedReviews && cachedReviewsTs && Date.now() - Number(cachedReviewsTs) < 30 * 60 * 1000) {
+        const parsed = JSON.parse(cachedReviews) as Testimonial[];
+        if (parsed.length > 0) setTestimonials(parsed);
+      }
+    } catch { /* expected */ }
+
+    const fetchData = () => {
       if (!mounted) return;
-      if (!subsResult.error && subsResult.count != null && subsResult.count > 0) {
-        setUserCount(subsResult.count);
-        try {
-          localStorage.setItem(STORAGE_KEYS.USER_COUNT, String(subsResult.count));
-          localStorage.setItem(STORAGE_KEYS.USER_COUNT_TS, String(Date.now()));
-          sessionStorage.setItem('pptides_user_count', String(subsResult.count));
-          sessionStorage.setItem('pptides_user_count_ts', String(Date.now()));
-        } catch { /* expected */ }
-      } else if (subsResult.error) {
-        try {
-          const cachedCount = localStorage.getItem(STORAGE_KEYS.USER_COUNT);
-          setUserCount(Number(cachedCount) || 0);
-        } catch {
-          setUserCount(0);
+      let cached: string | null = null;
+      try { cached = sessionStorage.getItem(STORAGE_KEYS.USER_COUNT_TS) ?? sessionStorage.getItem('pptides_user_count_ts'); } catch { /* Safari private */ }
+      const cacheValid = cached && Date.now() - Number(cached) < 5 * 60 * 1000;
+
+      // Check if reviews are still cache-valid (fetched above) to skip re-fetching
+      let reviewsCacheValid = false;
+      try {
+        const rts = sessionStorage.getItem(STORAGE_KEYS.REVIEWS_TS);
+        reviewsCacheValid = !!rts && Date.now() - Number(rts) < 30 * 60 * 1000;
+      } catch { /* expected */ }
+
+      Promise.all([
+        cacheValid ? Promise.resolve({ count: null, error: null }) : supabase.from('subscriptions').select('id', { count: 'exact', head: true }).in('status', ['active', 'trial']).not('stripe_subscription_id', 'is', null),
+        reviewsCacheValid ? Promise.resolve({ data: null, error: null }) : supabase.from('reviews').select('body, rating, name, created_at').eq('is_approved', true).gte('rating', 4).order('created_at', { ascending: false }).limit(3),
+      ]).then(([subsResult, reviewsResult]) => {
+        if (!mounted) return;
+        if (!subsResult.error && subsResult.count != null && subsResult.count > 0) {
+          setUserCount(subsResult.count);
+          try {
+            localStorage.setItem(STORAGE_KEYS.USER_COUNT, String(subsResult.count));
+            localStorage.setItem(STORAGE_KEYS.USER_COUNT_TS, String(Date.now()));
+            sessionStorage.setItem('pptides_user_count', String(subsResult.count));
+            sessionStorage.setItem('pptides_user_count_ts', String(Date.now()));
+          } catch { /* expected */ }
+        } else if (subsResult.error) {
+          try {
+            const cachedCount = localStorage.getItem(STORAGE_KEYS.USER_COUNT);
+            setUserCount(Number(cachedCount) || 0);
+          } catch {
+            setUserCount(0);
+          }
         }
-      }
-      if (!reviewsResult.error && reviewsResult.data && reviewsResult.data.length > 0) {
-        setTestimonials(reviewsResult.data.map((r) => ({
-          text: r.body,
-          name: r.name ?? 'مستخدم',
-          role: `تقييم ${r.rating}/5`,
-          rating: r.rating,
-        })));
-      }
-    }).catch(() => { /* network error — data not critical for landing */ });
-    return () => { mounted = false; };
+        if (!reviewsResult.error && reviewsResult.data && reviewsResult.data.length > 0) {
+          const mapped = reviewsResult.data.map((r) => ({
+            text: r.body,
+            name: r.name ?? 'مستخدم',
+            role: `تقييم ${r.rating}/5`,
+            rating: r.rating,
+          }));
+          setTestimonials(mapped);
+          try {
+            sessionStorage.setItem(STORAGE_KEYS.REVIEWS, JSON.stringify(mapped));
+            sessionStorage.setItem(STORAGE_KEYS.REVIEWS_TS, String(Date.now()));
+          } catch { /* expected */ }
+        }
+      }).catch(() => { /* network error — data not critical for landing */ });
+    };
+
+    // Defer Supabase calls until after first paint so hero renders immediately
+    let handle: number | ReturnType<typeof setTimeout>;
+    if (typeof requestIdleCallback !== 'undefined') {
+      handle = requestIdleCallback(fetchData, { timeout: 2000 }) as unknown as number;
+      return () => { mounted = false; cancelIdleCallback(handle as number); };
+    } else {
+      handle = setTimeout(fetchData, 0);
+      return () => { mounted = false; clearTimeout(handle as ReturnType<typeof setTimeout>); };
+    }
   }, []);
   if (shouldRedirect) return <Navigate to="/dashboard" replace />;
 
@@ -179,7 +215,7 @@ export default function Landing() {
   const ctaTextShort = user ? 'اختر خطتك' : 'ابدأ التجربة المجانية';
 
   return (
-    <div className="min-h-screen bg-white dark:bg-stone-950">
+    <div id="main-content" className="min-h-screen bg-white dark:bg-stone-950" role="main">
       <Helmet>
         <title>pptides | أشمل دليل عربي للببتيدات العلاجية</title>
         <meta name="description" content={`${PEPTIDE_COUNT} ببتيد علاجي مع بروتوكولات كاملة، حاسبة جرعات، ودليل تحاليل. أشمل دليل عربي مبني على الأبحاث.`} />
@@ -278,13 +314,15 @@ export default function Landing() {
           <div className="flex flex-col items-center justify-center gap-3 sm:flex-row sm:gap-4">
             <Link
               to={ctaLink}
+              aria-label={user ? 'اشترك الآن في pptides' : `ابدأ تجربتك المجانية ${TRIAL_DAYS} أيام في pptides`}
               className="animate-cta-pulse btn-primary-glow inline-flex w-full max-w-sm items-center justify-center gap-3 rounded-full bg-emerald-600 px-10 py-5 text-xl font-bold text-white transition-all duration-300 hover:bg-emerald-700 active:scale-[0.98] sm:w-auto"
             >
               <span>{ctaText}</span>
-              <ArrowLeft className="h-6 w-6" />
+              <ArrowLeft className="h-6 w-6" aria-hidden="true" />
             </Link>
             <Link
               to="/library"
+              aria-label="تصفّح مكتبة الببتيدات"
               className="inline-flex w-full max-w-xs items-center justify-center rounded-full border-2 border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 px-8 py-4 text-lg font-semibold text-stone-800 dark:text-stone-200 transition-all duration-300 hover:border-emerald-300 dark:border-emerald-700 hover:text-emerald-700 dark:text-emerald-400 active:scale-[0.98] sm:w-auto"
             >
               تصفّح المكتبة
@@ -304,7 +342,7 @@ export default function Landing() {
           </div>
           {userCount >= 10 && (
             <p className="mt-4 flex items-center justify-center gap-2 text-sm text-stone-500 dark:text-stone-400">
-              <span className="relative flex h-2 w-2"><span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" /><span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500" /></span>
+              <span className="relative flex h-2 w-2" aria-hidden="true"><span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" /><span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500" /></span>
               <span>انضم إلى <strong className="text-stone-700 dark:text-stone-300"><AnimatedCounter end={userCount} />+</strong> مستخدم يثقون بـ pptides</span>
             </p>
           )}
@@ -315,11 +353,12 @@ export default function Landing() {
       <div className="mx-auto max-w-lg px-6 pb-4 text-center">
         <Link
           to="/calculator"
+          aria-label="جرّب حاسبة الجرعات المجانية"
           className="group inline-flex items-center gap-3 rounded-2xl border border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-900/20 px-6 py-3 transition-all hover:border-emerald-300 dark:border-emerald-700 hover:shadow-md"
         >
-          <Calculator className="h-5 w-5 text-emerald-700" />
+          <Calculator className="h-5 w-5 text-emerald-700" aria-hidden="true" />
           <span className="text-sm font-semibold text-emerald-800 dark:text-emerald-300">جرّب حاسبة الجرعات المجانية — شاهد جرعتك بالضبط على السيرنج</span>
-          <ArrowLeft className="h-4 w-4 text-emerald-500 transition-transform group-hover:-translate-x-1" />
+          <ArrowLeft className="h-4 w-4 text-emerald-500 transition-transform group-hover:-translate-x-1" aria-hidden="true" />
         </Link>
         <p className="mt-3 text-sm text-stone-500 dark:text-stone-400">
           <Link to="/library" className="inline-flex min-h-[44px] items-center font-semibold text-emerald-700 hover:underline">6 ببتيدات مجانية بالكامل</Link>
@@ -346,7 +385,7 @@ export default function Landing() {
       </section>
 
       {/* ═══════ PROBLEM (Hormozi Agitation) ═══════ */}
-      <section className="cv-auto mx-auto max-w-5xl px-6 py-24 md:py-32">
+      <section className="cv-auto mx-auto max-w-5xl px-6 py-24 md:py-32" aria-label="المشكلة التي نحلّها">
         <div className="mb-4 text-center">
           <span className="inline-block rounded-full bg-red-50 dark:bg-red-900/20 px-4 py-1.5 text-sm font-semibold text-red-600 dark:text-red-400">المشكلة</span>
         </div>
@@ -389,7 +428,7 @@ export default function Landing() {
       </section>
 
       {/* ═══════ SOLUTION / FEATURES ═══════ */}
-      <section className="cv-auto bg-gradient-to-b from-stone-50 dark:from-stone-900 to-white dark:to-stone-950 py-24 md:py-32">
+      <section className="cv-auto bg-gradient-to-b from-stone-50 dark:from-stone-900 to-white dark:to-stone-950 py-24 md:py-32" aria-label="مميزات pptides">
         <div className="mx-auto max-w-6xl px-6">
           <div className="mb-4 text-center">
             <span className="inline-block rounded-full bg-emerald-50 dark:bg-emerald-900/20 px-4 py-1.5 text-sm font-semibold text-emerald-700 dark:text-emerald-400">الحل</span>
@@ -518,7 +557,7 @@ export default function Landing() {
       })()}
 
       {/* ═══════ EVIDENCE / CREDIBILITY ═══════ */}
-      <section className="cv-auto mx-auto max-w-5xl px-6 py-24 md:py-32">
+      <section className="cv-auto mx-auto max-w-5xl px-6 py-24 md:py-32" aria-label="الأدلة العلمية">
         <div className="mb-4 text-center">
           <span className="inline-block rounded-full bg-blue-50 dark:bg-blue-900/20 px-4 py-1.5 text-sm font-semibold text-blue-700 dark:text-blue-400">مبني على الأبحاث</span>
         </div>
@@ -700,7 +739,9 @@ export default function Landing() {
       </section>
 
       {/* ═══════ FEATURE COMPARISON TABLE ═══════ */}
-      <FeatureComparisonTable />
+      <Suspense fallback={<div className="h-64 mx-6 animate-pulse rounded-2xl bg-stone-100 dark:bg-stone-800" aria-hidden="true" />}>
+        <FeatureComparisonTable />
+      </Suspense>
 
       {/* ═══════ PRICING PREVIEW ═══════ */}
       <section className="cv-auto bg-gradient-to-b from-stone-50 dark:from-stone-900 to-white dark:to-stone-950 py-24 md:py-32">
@@ -845,7 +886,7 @@ export default function Landing() {
       </section>
 
       {/* ═══════ FAQ ═══════ */}
-      <section className="cv-auto mx-auto max-w-3xl px-6 py-16 md:py-24">
+      <section className="cv-auto mx-auto max-w-3xl px-6 py-16 md:py-24" aria-label="الأسئلة الشائعة">
         <h2 className="mb-10 text-center text-3xl font-bold text-stone-900 dark:text-stone-100 md:text-4xl">
           أسئلة <span className="text-emerald-700">شائعة</span>
         </h2>
@@ -861,9 +902,9 @@ export default function Landing() {
             { q: 'ماذا أحصل بعد الاشتراك؟', a: `بروتوكولات كاملة لـ ${PEPTIDE_COUNT} ببتيد، حاسبة جرعات دقيقة، دليل تحاليل مخبرية، بروتوكولات مُجمَّعة، دليل حقن عملي، فحص تعارضات، ومدرب ذكي (في باقة Elite المتقدّمة).` },
           ].map((faq) => (
             <details key={faq.q} className="group rounded-2xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 transition-all hover:border-emerald-200 dark:border-emerald-800">
-              <summary className="flex cursor-pointer items-center justify-between px-6 py-5 text-base font-bold text-stone-900 dark:text-stone-100 [&::-webkit-details-marker]:hidden">
+              <summary className="flex cursor-pointer items-center justify-between px-6 py-5 text-base font-bold text-stone-900 dark:text-stone-100 [&::-webkit-details-marker]:hidden" aria-label={faq.q}>
                 {faq.q}
-                <ChevronDown className="h-4 w-4 shrink-0 text-stone-500 dark:text-stone-400 transition-transform group-open:rotate-180" />
+                <ChevronDown className="h-4 w-4 shrink-0 text-stone-500 dark:text-stone-400 transition-transform group-open:rotate-180" aria-hidden="true" />
               </summary>
               <p className="px-6 pb-5 text-sm leading-relaxed text-stone-700 dark:text-stone-300">{faq.a}</p>
             </details>
@@ -881,7 +922,9 @@ export default function Landing() {
           <p className="mx-auto mb-6 max-w-md text-sm text-white/50">
             اشترك ليصلك كل جديد عن الببتيدات والتحديثات العلمية
           </p>
-          <EmailCapture />
+          <Suspense fallback={<div className="h-24 animate-pulse rounded-2xl bg-stone-800" aria-hidden="true" />}>
+            <EmailCapture />
+          </Suspense>
           {/* Coming soon section removed — signals incompleteness to cold visitors */}
         </div>
       </section>
