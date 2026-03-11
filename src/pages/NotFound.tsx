@@ -75,13 +75,13 @@ export default function NotFound() {
       {/* Search Bar */}
       <form onSubmit={handleSearch} className="w-full max-w-md mb-10">
         <div className="relative">
-          <Search className="absolute right-4 top-1/2 -translate-y-1/2 h-5 w-5 text-stone-400" />
+          <Search className="absolute start-4 top-1/2 -translate-y-1/2 h-5 w-5 text-stone-400" />
           <input
             type="search"
             value={query}
             onChange={e => setQuery(e.target.value)}
             placeholder="ابحث عن ببتيد أو موضوع..."
-            className="w-full rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 pr-12 pl-4 py-3 text-stone-900 dark:text-stone-100 placeholder-stone-400 dark:placeholder-stone-500 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-shadow"
+            className="w-full rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 ps-12 pe-4 py-3 text-stone-900 dark:text-stone-100 placeholder-stone-400 dark:placeholder-stone-500 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-shadow"
           />
         </div>
       </form>

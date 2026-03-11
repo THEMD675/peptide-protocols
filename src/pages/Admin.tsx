@@ -781,8 +781,8 @@ export default function Admin() {
                 </label>
               </div>
               <div className="flex flex-col sm:flex-row gap-2">
-                <input type="text" placeholder="Search email..." value={userSearch} onChange={e => { setUserSearch(e.target.value); setUsersPage(1); }}
-                  className="flex-1 rounded-lg border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 px-3 py-2 text-sm outline-none focus:border-emerald-300 dark:border-emerald-700" dir="ltr" />
+                <input type="text" placeholder="Search email..." value={userSearch} onChange={e => { setUserSearch(e.target.value); setUsersPage(1); }} aria-label="Search users by email"
+                  className="flex-1 rounded-lg border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 px-3 py-2 text-sm outline-none focus:border-emerald-300 dark:border-emerald-700 focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900" dir="ltr" />
                 <div className="flex gap-1 overflow-x-auto">
                   {(['all', 'active', 'trial', 'expired', 'none'] as UserFilter[]).map(f => (
                     <button key={f} onClick={() => { setUserFilter(f); setUsersPage(1); }} className={cn('rounded-lg px-3 py-1.5 text-xs font-medium whitespace-nowrap', userFilter === f ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400' : 'bg-stone-100 dark:bg-stone-800 text-stone-600 dark:text-stone-300 hover:bg-stone-200 dark:bg-stone-700')}>
@@ -1219,7 +1219,7 @@ export default function Admin() {
           <div className="w-full max-w-2xl max-h-[85vh] overflow-y-auto rounded-2xl bg-white dark:bg-stone-900 p-6 shadow-xl dark:shadow-stone-900/40" onClick={e => e.stopPropagation()} role="dialog" aria-modal="true">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-lg font-bold text-stone-900 dark:text-stone-100">User Detail</h3>
-              <button onClick={() => setUserDetailOpen(false)} title="Close" className="rounded-lg p-1 hover:bg-stone-100 dark:hover:bg-stone-800"><X className="h-5 w-5 text-stone-500 dark:text-stone-300" /></button>
+              <button onClick={() => setUserDetailOpen(false)} title="Close" aria-label="Close" className="flex items-center justify-center rounded-lg p-2 min-h-[44px] min-w-[44px] hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors"><X className="h-5 w-5 text-stone-500 dark:text-stone-300" /></button>
             </div>
             {userDetailLoading ? (
               <div className="flex justify-center py-12"><Loader2 className="h-6 w-6 animate-spin text-stone-400" /></div>

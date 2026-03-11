@@ -993,7 +993,7 @@ export default function Community() {
               <div className="mb-6 space-y-3">
                 {/* Search */}
                 <div className="relative">
-                  <Search className="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-stone-400" />
+                  <Search className="absolute start-3 top-1/2 h-4 w-4 -translate-y-1/2 text-stone-400" />
                   <input
                     type="text"
                     value={searchQuery}
@@ -1004,7 +1004,7 @@ export default function Community() {
                   {searchQuery && (
                     <button
                       onClick={() => setSearchQuery('')}
-                      className="absolute left-3 top-1/2 -translate-y-1/2 rounded p-1 text-stone-400 dark:text-stone-500 hover:text-stone-600 dark:hover:text-stone-400 transition-colors"
+                      className="absolute end-3 top-1/2 -translate-y-1/2 rounded p-1 text-stone-400 dark:text-stone-500 hover:text-stone-600 dark:hover:text-stone-400 transition-colors"
                       aria-label="مسح البحث"
                     >
                       <X className="h-4 w-4" />

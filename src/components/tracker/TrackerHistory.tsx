@@ -397,11 +397,11 @@ export default function TrackerHistory({
                       <div className="flex gap-2">
                         <div className="flex-1">
                           <label className="text-xs text-stone-500 dark:text-stone-300 mb-1 block">الجرعة</label>
-                          <input type="number" inputMode="decimal" value={editDose} onChange={e => setEditDose(e.target.value)} dir="ltr" min="0" step="any" className="w-full rounded-lg border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 px-3 py-2 text-base text-stone-900 dark:text-stone-100 focus:border-emerald-300 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900" />
+                          <input type="number" inputMode="decimal" value={editDose} onChange={e => setEditDose(e.target.value)} dir="ltr" min="0" step="any" aria-label="الجرعة" className="w-full rounded-lg border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 px-3 py-2 text-base text-stone-900 dark:text-stone-100 focus:border-emerald-300 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900" />
                         </div>
                         <div className="w-20">
                           <label className="text-xs text-stone-500 dark:text-stone-300 mb-1 block">الوحدة</label>
-                          <select value={editUnit} onChange={e => setEditUnit(e.target.value)} className="w-full rounded-lg border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 px-2 py-2 text-base text-stone-900 dark:text-stone-100 focus:border-emerald-300 focus:outline-none">
+                          <select value={editUnit} onChange={e => setEditUnit(e.target.value)} aria-label="وحدة الجرعة" className="w-full rounded-lg border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 px-2 py-2 text-base text-stone-900 dark:text-stone-100 focus:border-emerald-300 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900">
                             <option value="mcg">mcg</option>
                             <option value="mg">mg</option>
                           </select>
@@ -409,13 +409,13 @@ export default function TrackerHistory({
                       </div>
                       <div>
                         <label className="text-xs text-stone-500 dark:text-stone-300 mb-1 block">الموقع</label>
-                        <select value={editSite} onChange={e => setEditSite(e.target.value)} className="w-full rounded-lg border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 px-3 py-2 text-base text-stone-900 dark:text-stone-100 focus:border-emerald-300 focus:outline-none">
+                        <select value={editSite} onChange={e => setEditSite(e.target.value)} aria-label="موقع الحقن" className="w-full rounded-lg border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 px-3 py-2 text-base text-stone-900 dark:text-stone-100 focus:border-emerald-300 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900">
                           {INJECTION_SITES.map(s => <option key={s.value} value={s.value}>{s.label}</option>)}
                         </select>
                       </div>
                       <div>
                         <label className="text-xs text-stone-500 dark:text-stone-300 mb-1 block">التاريخ والوقت</label>
-                        <input type="datetime-local" value={editDate} onChange={e => setEditDate(e.target.value)} dir="ltr" className="w-full rounded-lg border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 px-3 py-2 text-base text-stone-900 dark:text-stone-100 focus:border-emerald-300 focus:outline-none" />
+                        <input type="datetime-local" value={editDate} onChange={e => setEditDate(e.target.value)} dir="ltr" aria-label="التاريخ والوقت" className="w-full rounded-lg border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 px-3 py-2 text-base text-stone-900 dark:text-stone-100 focus:border-emerald-300 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900" />
                       </div>
                       <div className="flex gap-2">
                         <button onClick={() => saveEdit(log.id)} disabled={editSaving} className="flex-1 flex items-center justify-center gap-1.5 rounded-lg bg-emerald-600 px-4 py-2.5 min-h-[44px] text-sm font-bold text-white transition-colors hover:bg-emerald-700 disabled:opacity-50">

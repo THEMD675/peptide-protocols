@@ -892,9 +892,9 @@ export default function DoseCalculator() {
                 <p className="text-sm text-stone-600 dark:text-stone-300">اختر ببتيدًا من القائمة أعلاه لتعبئة جميع القيم تلقائيًا، أو أدخل القيم يدويًا أدناه.</p>
                 <div className="mt-3 flex justify-center gap-3 text-xs text-stone-500 dark:text-stone-300">
                   <span>① اختر ببتيد</span>
-                  <span>→</span>
+                  <span>←</span>
                   <span>② عدّل الجرعة</span>
-                  <span>→</span>
+                  <span>←</span>
                   <span>③ اقرأ النتيجة</span>
                 </div>
               </div>
@@ -1378,7 +1378,7 @@ export default function DoseCalculator() {
                     <select
                       value={reconSyringeIdx}
                       onChange={e => setReconSyringeIdx(Number(e.target.value))}
-                      className="w-full appearance-none rounded-xl border border-stone-300 dark:border-stone-600 bg-white dark:bg-stone-900 px-4 py-3 pe-10 text-base text-stone-900 dark:text-stone-100 focus:border-emerald-300 focus:outline-none"
+                      className="w-full appearance-none rounded-xl border border-stone-300 dark:border-stone-600 bg-white dark:bg-stone-900 px-4 py-3 pe-10 text-base text-stone-900 dark:text-stone-100 focus:border-emerald-300 focus:outline-none focus:ring-1 focus:ring-emerald-200"
                       aria-label="حجم السيرنج"
                     >
                       {SYRINGE_OPTIONS.map((opt, i) => (
@@ -1515,7 +1515,7 @@ export default function DoseCalculator() {
                           setCostDoseMcg(p.unit === 'mg' ? p.dose * 1000 : p.dose);
                         }
                       }}
-                      className="w-full appearance-none rounded-xl border border-stone-300 dark:border-stone-600 bg-white dark:bg-stone-900 px-4 py-3 pe-10 text-sm text-stone-900 dark:text-stone-100 focus:border-emerald-300 focus:outline-none"
+                      className="w-full appearance-none rounded-xl border border-stone-300 dark:border-stone-600 bg-white dark:bg-stone-900 px-4 py-3 pe-10 text-sm text-stone-900 dark:text-stone-100 focus:border-emerald-300 focus:outline-none focus:ring-1 focus:ring-emerald-200"
                       aria-label="اختر الببتيد"
                     >
                       <option value="">اختر ببتيد...</option>
@@ -1529,17 +1529,17 @@ export default function DoseCalculator() {
                 <div className="space-y-2">
                   <label className="block text-xs font-medium text-stone-800 dark:text-stone-200">سعر القارورة (ر.س)</label>
                   <input type="number" inputMode="decimal" min={0} step={5} value={costPrice || ''} onChange={e => setCostPrice(Number(e.target.value))}
-                    placeholder="مثال: 40" className="w-full rounded-xl border border-stone-300 dark:border-stone-600 bg-white dark:bg-stone-900 px-4 py-3 text-sm text-stone-900 dark:text-stone-100 placeholder:text-stone-500 dark:text-stone-300 focus:border-emerald-300 focus:outline-none" aria-label="سعر القارورة" />
+                    placeholder="مثال: 40" className="w-full rounded-xl border border-stone-300 dark:border-stone-600 bg-white dark:bg-stone-900 px-4 py-3 text-sm text-stone-900 dark:text-stone-100 placeholder:text-stone-500 dark:text-stone-300 focus:border-emerald-300 focus:outline-none focus:ring-1 focus:ring-emerald-200" aria-label="سعر القارورة" />
                 </div>
                 <div className="space-y-2">
                   <label className="block text-xs font-medium text-stone-800 dark:text-stone-200">حجم القارورة (ملغ)</label>
                   <input type="number" inputMode="decimal" min={0.5} step={1} value={costVialMg} onChange={e => setCostVialMg(Number(e.target.value))}
-                    className="w-full rounded-xl border border-stone-300 dark:border-stone-600 bg-white dark:bg-stone-900 px-4 py-3 text-sm text-stone-900 dark:text-stone-100 focus:border-emerald-300 focus:outline-none" aria-label="حجم القارورة" />
+                    className="w-full rounded-xl border border-stone-300 dark:border-stone-600 bg-white dark:bg-stone-900 px-4 py-3 text-sm text-stone-900 dark:text-stone-100 focus:border-emerald-300 focus:outline-none focus:ring-1 focus:ring-emerald-200" aria-label="حجم القارورة" />
                 </div>
                 <div className="space-y-2">
                   <label className="block text-xs font-medium text-stone-800 dark:text-stone-200">الجرعة (مكغ)</label>
                   <input type="number" inputMode="decimal" min={0} step={50} value={costDoseMcg} onChange={e => setCostDoseMcg(Number(e.target.value))}
-                    className="w-full rounded-xl border border-stone-300 dark:border-stone-600 bg-white dark:bg-stone-900 px-4 py-3 text-sm text-stone-900 dark:text-stone-100 focus:border-emerald-300 focus:outline-none" aria-label="الجرعة بالمايكروغرام" />
+                    className="w-full rounded-xl border border-stone-300 dark:border-stone-600 bg-white dark:bg-stone-900 px-4 py-3 text-sm text-stone-900 dark:text-stone-100 focus:border-emerald-300 focus:outline-none focus:ring-1 focus:ring-emerald-200" aria-label="الجرعة بالمايكروغرام" />
                 </div>
                 <div className="space-y-2">
                   <label className="block text-xs font-medium text-stone-800 dark:text-stone-200">الجرعات/يوم</label>

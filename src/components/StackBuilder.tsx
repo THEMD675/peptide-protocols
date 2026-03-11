@@ -652,13 +652,14 @@ export default function StackBuilder() {
             <div className="absolute z-30 mt-1 w-full rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 shadow-xl max-h-72 overflow-hidden">
               <div className="sticky top-0 bg-white dark:bg-stone-900 border-b border-stone-200 dark:border-stone-600 p-2">
                 <div className="relative">
-                  <Search className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-stone-400" />
+                  <Search className="absolute start-3 top-1/2 -translate-y-1/2 h-4 w-4 text-stone-400" />
                   <input
                     type="text"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     placeholder="ابحث عن ببتيد..."
-                    className="w-full rounded-lg border border-stone-200 dark:border-stone-600 bg-stone-50 dark:bg-stone-800 py-2 pe-10 ps-3 text-sm text-stone-900 dark:text-stone-100 placeholder:text-stone-400 focus:border-emerald-400 focus:outline-none"
+                    aria-label="البحث عن ببتيد"
+                    className="w-full rounded-lg border border-stone-200 dark:border-stone-600 bg-stone-50 dark:bg-stone-800 py-2 pe-10 ps-3 text-sm text-stone-900 dark:text-stone-100 placeholder:text-stone-400 focus:border-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900"
                   />
                 </div>
               </div>
@@ -941,7 +942,8 @@ export default function StackBuilder() {
               value={stackName}
               onChange={(e) => setStackName(e.target.value)}
               placeholder="اسم البروتوكول (اختياري)"
-              className="flex-1 rounded-xl border border-stone-200 dark:border-stone-600 bg-stone-50 dark:bg-stone-800 px-4 py-2.5 text-sm text-stone-900 dark:text-stone-100 placeholder:text-stone-400 focus:border-emerald-400 focus:outline-none"
+              aria-label="اسم البروتوكول"
+              className="flex-1 rounded-xl border border-stone-200 dark:border-stone-600 bg-stone-50 dark:bg-stone-800 px-4 py-2.5 text-sm text-stone-900 dark:text-stone-100 placeholder:text-stone-400 focus:border-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900"
             />
             <div className="flex gap-2">
               <button

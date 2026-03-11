@@ -192,7 +192,8 @@ function PeptideSelector({
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="ابحث بالاسم العربي أو الإنجليزي..."
-              className="w-full rounded-lg border border-stone-200 dark:border-stone-600 bg-stone-50 dark:bg-stone-800 px-3 py-2 text-sm text-stone-900 dark:text-stone-100 placeholder:text-stone-400 outline-none focus:border-emerald-300 dark:focus:border-emerald-700"
+              aria-label="البحث عن ببتيد للمقارنة"
+              className="w-full rounded-lg border border-stone-200 dark:border-stone-600 bg-stone-50 dark:bg-stone-800 px-3 py-2 text-sm text-stone-900 dark:text-stone-100 placeholder:text-stone-400 outline-none focus:border-emerald-300 dark:focus:border-emerald-700 focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900"
             />
           </div>
           <div className="flex items-center justify-between px-3 pb-1">
@@ -464,7 +465,7 @@ export default function Compare() {
                   {/* Sticky criterion header */}
                   <th
                     scope="col"
-                    className="sticky right-0 z-10 bg-stone-50 dark:bg-stone-900 px-4 py-4 text-start text-xs font-bold text-stone-500 dark:text-stone-300 w-[130px] shadow-[1px_0_0_0_rgb(0_0_0_/_0.06)] dark:shadow-[1px_0_0_0_rgb(255_255_255_/_0.04)]"
+                    className="sticky start-0 z-10 bg-stone-50 dark:bg-stone-900 px-4 py-4 text-start text-xs font-bold text-stone-500 dark:text-stone-300 w-[130px] shadow-[1px_0_0_0_rgb(0_0_0_/_0.06)] dark:shadow-[1px_0_0_0_rgb(255_255_255_/_0.04)]"
                   >
                     المعيار
                   </th>
@@ -531,7 +532,7 @@ export default function Compare() {
                         <th
                           scope="row"
                           className={cn(
-                            'sticky right-0 z-10 px-4 py-3.5 text-xs font-bold text-start shadow-[1px_0_0_0_rgb(0_0_0_/_0.06)] dark:shadow-[1px_0_0_0_rgb(255_255_255_/_0.04)]',
+                            'sticky start-0 z-10 px-4 py-3.5 text-xs font-bold text-start shadow-[1px_0_0_0_rgb(0_0_0_/_0.06)] dark:shadow-[1px_0_0_0_rgb(255_255_255_/_0.04)]',
                             isDiff
                               ? 'bg-amber-50 dark:bg-amber-900/20 text-amber-800 dark:text-amber-300'
                               : i % 2 === 0

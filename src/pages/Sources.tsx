@@ -295,18 +295,18 @@ function CitationBrowser() {
       <div className="mb-4 flex flex-col gap-3 sm:flex-row">
         {/* Search */}
         <div className="relative flex-1">
-          <Search className="absolute end-3 top-1/2 h-4 w-4 -translate-y-1/2 text-stone-400" />
+          <Search className="absolute start-3 top-1/2 h-4 w-4 -translate-y-1/2 text-stone-400" />
           <input
             type="text"
             placeholder="ابحث بـ PubMed ID أو اسم الببتيد..."
             value={searchQuery}
             onChange={e => setSearchQuery(e.target.value)}
-            className="w-full rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-800 py-3 pe-10 ps-4 text-sm text-stone-900 dark:text-stone-100 placeholder:text-stone-400 focus:border-emerald-300 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900"
+            className="w-full rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-800 py-3 ps-10 pe-4 text-sm text-stone-900 dark:text-stone-100 placeholder:text-stone-400 focus:border-emerald-300 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900"
           />
           {searchQuery && (
             <button
               onClick={() => setSearchQuery('')}
-              className="absolute start-3 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-600 dark:text-stone-300"
+              className="absolute end-3 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-600 dark:text-stone-300"
             >
               <X className="h-4 w-4" />
             </button>
@@ -315,11 +315,11 @@ function CitationBrowser() {
 
         {/* Peptide Filter */}
         <div className="relative">
-          <Filter className="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-stone-400 pointer-events-none" />
+          <Filter className="absolute start-3 top-1/2 h-4 w-4 -translate-y-1/2 text-stone-400 pointer-events-none" />
           <select
             value={selectedPeptideFilter}
             onChange={e => setSelectedPeptideFilter(e.target.value)}
-            className="appearance-none rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-800 py-3 pr-10 pl-8 text-sm text-stone-900 dark:text-stone-100 focus:border-emerald-300 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900 min-w-[180px]"
+            className="appearance-none rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-800 py-3 ps-10 pe-8 text-sm text-stone-900 dark:text-stone-100 focus:border-emerald-300 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900 min-w-[180px]"
           >
             <option value="all">كل الببتيدات</option>
             {peptideOptions.map(p => (
@@ -328,7 +328,7 @@ function CitationBrowser() {
               </option>
             ))}
           </select>
-          <ChevronDown className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-stone-400 pointer-events-none" />
+          <ChevronDown className="absolute start-3 top-1/2 h-4 w-4 -translate-y-1/2 text-stone-400 pointer-events-none" />
         </div>
 
         {/* Sort Toggle */}
@@ -520,7 +520,7 @@ function PeptideCitationMap() {
             <div key={p.id} className="rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 transition-all hover:border-emerald-200 dark:hover:border-emerald-800">
               <button
                 onClick={() => setExpandedPeptide(isExpanded ? null : p.id)}
-                className="flex w-full items-center gap-3 p-3 text-right"
+                className="flex w-full items-center gap-3 p-3 text-start"
               >
                 <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-blue-50 dark:bg-blue-900/30">
                   <FlaskConical className="h-4 w-4 text-blue-600 dark:text-blue-400" />

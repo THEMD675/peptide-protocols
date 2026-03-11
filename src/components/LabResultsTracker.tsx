@@ -380,7 +380,7 @@ function LabEntryForm({
       {/* Header */}
       <div className="flex items-center justify-between">
         <h4 className="text-sm font-bold text-stone-100">إضافة نتائج تحليل جديدة</h4>
-        <button onClick={onCancel} aria-label="إغلاق" className="p-1.5 rounded-lg hover:bg-stone-800 transition-colors">
+        <button onClick={onCancel} aria-label="إغلاق" className="flex items-center justify-center p-2 min-h-[44px] min-w-[44px] rounded-lg hover:bg-stone-800 transition-colors">
           <X className="h-4 w-4 text-stone-400" />
         </button>
       </div>
@@ -388,11 +388,12 @@ function LabEntryForm({
       {/* Date & Lab */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <div>
-          <label className="mb-1.5 flex items-center gap-1.5 text-xs font-bold text-stone-300">
-            <Calendar className="h-3.5 w-3.5" />
+          <label htmlFor="lab-test-date" className="mb-1.5 flex items-center gap-1.5 text-xs font-bold text-stone-300">
+            <Calendar className="h-3.5 w-3.5" aria-hidden="true" />
             تاريخ التحليل
           </label>
           <input
+            id="lab-test-date"
             type="date"
             value={testDate}
             onChange={e => setTestDate(e.target.value)}
@@ -402,11 +403,12 @@ function LabEntryForm({
           />
         </div>
         <div>
-          <label className="mb-1.5 flex items-center gap-1.5 text-xs font-bold text-stone-300">
-            <Building2 className="h-3.5 w-3.5" />
+          <label htmlFor="lab-name" className="mb-1.5 flex items-center gap-1.5 text-xs font-bold text-stone-300">
+            <Building2 className="h-3.5 w-3.5" aria-hidden="true" />
             اسم المختبر <span className="text-stone-400 font-normal">اختياري</span>
           </label>
           <input
+            id="lab-name"
             type="text"
             value={labName}
             onChange={e => setLabName(e.target.value)}
@@ -485,10 +487,11 @@ function LabEntryForm({
 
       {/* Notes */}
       <div>
-        <label className="mb-1.5 block text-xs font-bold text-stone-300">
+        <label htmlFor="lab-notes" className="mb-1.5 block text-xs font-bold text-stone-300">
           ملاحظات <span className="text-stone-400 font-normal">اختياري</span>
         </label>
         <textarea
+          id="lab-notes"
           value={notes}
           onChange={e => setNotes(e.target.value)}
           placeholder="أي ملاحظات إضافية عن هذا التحليل..."
@@ -869,7 +872,7 @@ export default function LabResultsTracker() {
                     <div className="flex justify-end pt-2">
                       <button
                         onClick={() => handleDelete(entry.id)}
-                        className="text-[10px] text-red-400/60 hover:text-red-400 transition-colors"
+                        className="min-h-[44px] px-3 text-[10px] text-red-400/60 hover:text-red-400 transition-colors"
                       >
                         حذف هذا التحليل
                       </button>
