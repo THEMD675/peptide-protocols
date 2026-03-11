@@ -152,7 +152,7 @@ serve(async (req) => {
 
     const emailResult = await sendEmail({
       to: FORWARD_TO,
-      subject: `[pptides] ${subject ?? '(no subject)'} — from ${from}`,
+      subject: `[pptides] ${(subject ?? '(no subject)').replace(/^\[pptides\]\s*/g, '').replace(/\s*— from .+$/g, '')} — from ${from}`,
       html: forwardHtml,
       replyTo: from,
     })
