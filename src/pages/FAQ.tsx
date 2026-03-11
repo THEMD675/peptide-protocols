@@ -317,7 +317,7 @@ export default function FAQ() {
           <div className="mt-6 flex flex-wrap justify-center gap-3">
             <Link
               to="/contact"
-              className="inline-flex min-h-[44px] items-center rounded-full bg-emerald-600 px-8 py-3 font-bold text-white transition-colors hover:bg-emerald-700"
+              className="inline-flex min-h-[44px] items-center rounded-full bg-emerald-600 px-8 py-3.5 text-base font-semibold text-white transition-colors hover:bg-emerald-700"
             >
               تواصل معنا
             </Link>

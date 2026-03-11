@@ -506,7 +506,7 @@ export default function Dashboard() {
               ? 'اشترك للوصول إلى كل البروتوكولات والأدوات'
               : 'اشترك للإضافة والتعديل'}
           </p>
-          <Link to="/pricing" className="inline-flex items-center gap-2 rounded-full bg-emerald-600 px-6 py-2.5 text-sm font-bold text-white transition-all hover:bg-emerald-700">
+          <Link to="/pricing" className="inline-flex items-center gap-2 rounded-full bg-emerald-600 px-8 py-3.5 text-base font-semibold text-white transition-all hover:bg-emerald-700">
             اشترك الآن
           </Link>
         </div>
@@ -601,7 +601,7 @@ export default function Dashboard() {
         {!subscription.isProOrTrial && (
           <Link
             to="/pricing"
-            className="mt-4 inline-flex items-center gap-2 rounded-full bg-emerald-600 px-6 py-2.5 text-sm font-bold text-white transition-all hover:bg-emerald-700"
+            className="mt-4 inline-flex items-center gap-2 rounded-full bg-emerald-600 px-8 py-3.5 text-base font-semibold text-white transition-all hover:bg-emerald-700"
           >
             ابدأ تجربتك المجانية
           </Link>
@@ -971,7 +971,7 @@ export default function Dashboard() {
                       <>
                         <Link
                           to={`/tracker?peptide=${encodeURIComponent(peptide?.nameEn ?? proto.peptide_id)}`}
-                          className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-emerald-600 px-4 py-2.5 text-sm font-bold text-white transition-colors hover:bg-emerald-700"
+                          className="flex flex-1 items-center justify-center gap-2 rounded-full bg-emerald-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-emerald-700"
                         >
                           <Syringe className="h-4 w-4" />
                           سجّل جرعة اليوم
@@ -1455,7 +1455,7 @@ export default function Dashboard() {
                 <p className="text-sm text-stone-700 dark:text-stone-200 leading-relaxed mb-4">{rec.text}</p>
                 <Link
                   to={`/peptide/${rec.peptideId}`}
-                  className="inline-flex items-center gap-2 rounded-full bg-emerald-600 px-6 py-2.5 text-sm font-bold text-white transition-all hover:bg-emerald-700 min-h-[44px]"
+                  className="inline-flex items-center gap-2 rounded-full bg-emerald-600 px-8 py-3.5 text-base font-semibold text-white transition-all hover:bg-emerald-700 min-h-[44px]"
                 >
                   ابدأ البروتوكول
                 </Link>

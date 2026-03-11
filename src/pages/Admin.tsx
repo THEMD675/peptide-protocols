@@ -464,7 +464,7 @@ export default function Admin() {
         <h1 className="text-4xl font-bold text-stone-200 mb-4 sm:text-6xl">404</h1>
         <p className="text-lg font-bold text-stone-900 dark:text-stone-100 mb-2">الصفحة غير موجودة</p>
         <p className="text-sm text-stone-600 dark:text-stone-300 mb-6">الصفحة التي تبحث عنها غير موجودة.</p>
-        <Link to="/" className="inline-flex items-center gap-2 rounded-full bg-emerald-600 px-6 py-3 text-sm font-bold text-white hover:bg-emerald-700 transition-colors">
+        <Link to="/" className="inline-flex items-center gap-2 rounded-full bg-emerald-600 px-8 py-3.5 text-base font-semibold text-white hover:bg-emerald-700 transition-colors">
           الرئيسية
         </Link>
       </div>
@@ -477,7 +477,7 @@ export default function Admin() {
         <Shield className="mx-auto h-12 w-12 text-stone-300 mb-4" />
         <h1 className="text-xl font-bold text-stone-900 dark:text-stone-100 mb-2">الوصول مرفوض</h1>
         <p className="text-sm text-stone-600 dark:text-stone-300 mb-6">ليس لديك صلاحية للوصول إلى لوحة التحكم.</p>
-        <Link to="/dashboard" className="inline-flex items-center gap-2 rounded-full bg-emerald-600 px-6 py-3 text-sm font-bold text-white hover:bg-emerald-700 transition-colors">
+        <Link to="/dashboard" className="inline-flex items-center gap-2 rounded-full bg-emerald-600 px-8 py-3.5 text-base font-semibold text-white hover:bg-emerald-700 transition-colors">
           العودة للوحة التحكم
         </Link>
       </div>
@@ -491,7 +491,7 @@ export default function Admin() {
         <AlertTriangle className="mx-auto h-12 w-12 text-red-400 mb-4" />
         <p className="text-red-600 dark:text-red-400 mb-4">{error}</p>
         <div className="flex flex-wrap justify-center gap-3">
-          <button onClick={fetchStats} className="rounded-full bg-emerald-600 px-6 py-3 text-sm font-bold text-white hover:bg-emerald-700">إعادة المحاولة</button>
+          <button onClick={fetchStats} className="rounded-full bg-emerald-600 px-8 py-3.5 text-base font-semibold text-white hover:bg-emerald-700">إعادة المحاولة</button>
           <Link to="/dashboard" className="rounded-full border-2 border-stone-300 dark:border-stone-600 px-6 py-3 text-sm font-bold text-stone-800 dark:text-stone-200 hover:bg-stone-50 dark:hover:bg-stone-800">العودة للوحة التحكم</Link>
         </div>
       </div>
@@ -932,19 +932,19 @@ export default function Admin() {
                             });
                             const updateData = await updateRes.json();
                             if (!updateRes.ok) throw new Error(updateData.error ?? 'Failed');
-                            toast.success(updateData.email_sent ? 'Reply sent' : 'Reply saved (email failed)');
+                            toast.success(updateData.email_sent ? 'تم إرسال الرد' : 'تم حفظ الرد (فشل إرسال البريد)');
                             setReplyingTo(null); setReplyText(''); fetchStats();
                           } catch (e) { toast.error(e instanceof Error ? e.message : 'Failed'); }
                           finally { setReplySending(false); }
                         }} className="flex items-center gap-1 rounded-lg bg-emerald-600 px-3 py-1.5 text-xs font-bold text-white hover:bg-emerald-700 disabled:opacity-50">
-                          <Send className="h-3 w-3" /> {replySending ? 'Sending...' : 'Send'}
+                          <Send className="h-3 w-3" /> {replySending ? 'جارٍ الإرسال...' : 'إرسال'}
                         </button>
                       </div>
                     </div>
                   ) : (
                     <div className="flex items-center justify-between mt-3">
                       <p className="text-xs text-stone-500 dark:text-stone-300">{timeAgo(eq.created_at)}</p>
-                      <button onClick={() => { setReplyingTo(eq.id); setReplyText(eq.admin_notes ?? ''); }} className="flex items-center gap-1 rounded-lg bg-emerald-600 px-3 py-1.5 text-xs font-bold text-white hover:bg-emerald-700"><Reply className="h-3 w-3" /> {eq.admin_notes ? 'Edit' : 'Reply'}</button>
+                      <button onClick={() => { setReplyingTo(eq.id); setReplyText(eq.admin_notes ?? ''); }} className="flex items-center gap-1 rounded-lg bg-emerald-600 px-3 py-1.5 text-xs font-bold text-white hover:bg-emerald-700"><Reply className="h-3 w-3" /> {eq.admin_notes ? 'تعديل' : 'رد'}</button>
                     </div>
                   )}
                 </div>
@@ -956,11 +956,11 @@ export default function Admin() {
         {tab === 'emails' && (
           <div className="space-y-3">
             <div className="flex items-center justify-between">
-              <h2 className="text-sm font-bold text-stone-700 dark:text-stone-200">Email List ({stats.emailList.length})</h2>
-              <button onClick={() => exportCSV('email_list')} className="flex items-center gap-1 rounded-lg border border-stone-200 dark:border-stone-600 px-3 py-1.5 text-xs font-medium text-stone-600 dark:text-stone-300 hover:bg-stone-50 dark:hover:bg-stone-800"><Download className="h-3.5 w-3.5" /> Export</button>
+              <h2 className="text-sm font-bold text-stone-700 dark:text-stone-200">قائمة البريد ({stats.emailList.length})</h2>
+              <button onClick={() => exportCSV('email_list')} className="flex items-center gap-1 rounded-lg border border-stone-200 dark:border-stone-600 px-3 py-1.5 text-xs font-medium text-stone-600 dark:text-stone-300 hover:bg-stone-50 dark:hover:bg-stone-800"><Download className="h-3.5 w-3.5" /> تصدير</button>
             </div>
-            {stats.emailList.length === 0 ? <div className="rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 p-8 text-center"><Mail className="mx-auto h-8 w-8 text-stone-300 mb-2" /><p className="text-sm text-stone-500 dark:text-stone-300">No subscribers</p></div> :
-              <div className="overflow-x-auto rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900"><table className="w-full text-sm"><thead><tr className="border-b border-stone-200 dark:border-stone-600 bg-stone-50 dark:bg-stone-900"><th className={TH_CLASS}>Email</th><th className={TH_CLASS}>Date</th></tr></thead><tbody>{stats.emailList.map(e => <tr key={e.id} className="border-b border-stone-100 dark:border-stone-800 hover:bg-stone-50 dark:hover:bg-stone-800"><td className="px-3 py-2 font-mono text-xs">{e.email}</td><td className="px-3 py-2 text-xs text-stone-500 dark:text-stone-300">{timeAgo(e.created_at)}</td></tr>)}</tbody></table></div>}
+            {stats.emailList.length === 0 ? <div className="rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 p-8 text-center"><Mail className="mx-auto h-8 w-8 text-stone-300 mb-2" /><p className="text-sm text-stone-500 dark:text-stone-300">لا يوجد مشتركين</p></div> :
+              <div className="overflow-x-auto rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900"><table className="w-full text-sm"><thead><tr className="border-b border-stone-200 dark:border-stone-600 bg-stone-50 dark:bg-stone-900"><th className={TH_CLASS}>البريد</th><th className={TH_CLASS}>التاريخ</th></tr></thead><tbody>{stats.emailList.map(e => <tr key={e.id} className="border-b border-stone-100 dark:border-stone-800 hover:bg-stone-50 dark:hover:bg-stone-800"><td className="px-3 py-2 font-mono text-xs">{e.email}</td><td className="px-3 py-2 text-xs text-stone-500 dark:text-stone-300">{timeAgo(e.created_at)}</td></tr>)}</tbody></table></div>}
           </div>
         )}
 
@@ -971,11 +971,11 @@ export default function Admin() {
           return (
             <div className="space-y-3">
               <div className="flex items-center justify-between">
-                <h2 className="text-sm font-bold text-stone-700 dark:text-stone-200">Emails Sent ({logs.length})</h2>
-                {logs.length > 0 && <span className="text-xs text-emerald-700 font-medium">{logs.filter(l => l.status === 'sent').length} delivered</span>}
+                <h2 className="text-sm font-bold text-stone-700 dark:text-stone-200">البريد المرسل ({logs.length})</h2>
+                {logs.length > 0 && <span className="text-xs text-emerald-700 font-medium">{logs.filter(l => l.status === 'sent').length} تم التسليم</span>}
               </div>
-              {logs.length === 0 ? <div className="rounded-xl border border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-900/20 p-6 text-center"><AlertTriangle className="mx-auto h-8 w-8 text-amber-400 mb-2" /><p className="text-sm font-medium text-amber-800 dark:text-amber-300">No email logs</p><p className="text-xs text-amber-600 mt-1">Resend may not be configured</p></div> : (
-                <><div className="overflow-x-auto rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900"><table className="w-full text-sm"><thead><tr className="border-b border-stone-200 dark:border-stone-600 bg-stone-50 dark:bg-stone-900"><th className={TH_CLASS}>To</th><th className={TH_CLASS}>Type</th><th className={TH_CLASS}>Status</th><th className={TH_CLASS}>When</th></tr></thead>
+              {logs.length === 0 ? <div className="rounded-xl border border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-900/20 p-6 text-center"><AlertTriangle className="mx-auto h-8 w-8 text-amber-400 mb-2" /><p className="text-sm font-medium text-amber-800 dark:text-amber-300">لا توجد سجلات بريد</p><p className="text-xs text-amber-600 mt-1">قد لا يكون Resend مُعدّاً</p></div> : (
+                <><div className="overflow-x-auto rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900"><table className="w-full text-sm"><thead><tr className="border-b border-stone-200 dark:border-stone-600 bg-stone-50 dark:bg-stone-900"><th className={TH_CLASS}>إلى</th><th className={TH_CLASS}>النوع</th><th className={TH_CLASS}>الحالة</th><th className={TH_CLASS}>متى</th></tr></thead>
                 <tbody>{paged.map(l => <tr key={l.id} className="border-b border-stone-100 dark:border-stone-800 hover:bg-stone-50 dark:hover:bg-stone-800"><td className="px-3 py-2 font-mono text-xs">{l.email}</td><td className="px-3 py-2 text-xs"><span className="rounded-full bg-stone-100 dark:bg-stone-800 px-2 py-0.5 text-xs">{l.type}</span></td><td className="px-3 py-2"><span className={cn('rounded-full px-2 py-0.5 text-xs font-medium', l.status === 'sent' ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400' : 'bg-red-100 text-red-700 dark:text-red-400')}>{l.status}</span></td><td className="px-3 py-2 text-xs text-stone-500 dark:text-stone-300">{timeAgo(l.created_at)}</td></tr>)}</tbody></table></div>
                 <Pagination page={emailLogsPage} total={logs.length} onChange={setEmailLogsPage} /></>)}
             </div>
@@ -991,12 +991,12 @@ export default function Admin() {
           const lastEvent = stats.webhookEvents.length ? stats.webhookEvents.reduce((a, b) => new Date(b.processed_at).getTime() > new Date(a.processed_at).getTime() ? b : a) : null;
           return (
           <div className="space-y-3">
-            <h2 className="text-sm font-bold text-stone-700 dark:text-stone-200">Webhook Events ({stats.webhookEvents.length})</h2>
+            <h2 className="text-sm font-bold text-stone-700 dark:text-stone-200">أحداث الدفع ({stats.webhookEvents.length})</h2>
             {stats.webhookEvents.length > 0 && (
               <p className="text-xs text-stone-600 dark:text-stone-300" dir="rtl">آخر 24 ساعة: {count24h} أحداث | آخر 7 أيام: {count7d} أحداث | آخر حدث: {lastEvent ? timeAgo(lastEvent.processed_at) : '—'}</p>
             )}
-            {stats.webhookEvents.length === 0 ? <div className="rounded-xl border border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-900/20 p-6 text-center"><AlertTriangle className="mx-auto h-8 w-8 text-amber-400 mb-2" /><p className="text-sm font-medium text-amber-800 dark:text-amber-300">No events recorded</p><p className="text-xs text-amber-600 mt-1">Stripe webhooks may not be configured</p></div> :
-              <div className="overflow-x-auto rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900"><table className="w-full text-sm"><thead><tr className="border-b border-stone-200 dark:border-stone-600 bg-stone-50 dark:bg-stone-900"><th className={TH_CLASS}>Event</th><th className={TH_CLASS}>ID</th><th className={TH_CLASS}>When</th></tr></thead>
+            {stats.webhookEvents.length === 0 ? <div className="rounded-xl border border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-900/20 p-6 text-center"><AlertTriangle className="mx-auto h-8 w-8 text-amber-400 mb-2" /><p className="text-sm font-medium text-amber-800 dark:text-amber-300">لم يتم تسجيل أحداث</p><p className="text-xs text-amber-600 mt-1">قد لا تكون Stripe webhooks مُعدّة</p></div> :
+              <div className="overflow-x-auto rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900"><table className="w-full text-sm"><thead><tr className="border-b border-stone-200 dark:border-stone-600 bg-stone-50 dark:bg-stone-900"><th className={TH_CLASS}>الحدث</th><th className={TH_CLASS}>المعرّف</th><th className={TH_CLASS}>متى</th></tr></thead>
               <tbody>{stats.webhookEvents.map(ev => <tr key={ev.event_id} className="border-b border-stone-100 dark:border-stone-800 hover:bg-stone-50 dark:hover:bg-stone-800"><td className="px-3 py-2 text-xs"><span className={cn('rounded-full px-2 py-0.5 text-xs font-medium', ev.event_type.includes('succeeded') || ev.event_type.includes('paid') ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400' : ev.event_type.includes('failed') ? 'bg-red-100 text-red-700 dark:text-red-400' : 'bg-stone-100 dark:bg-stone-800 text-stone-700 dark:text-stone-200')}>{ev.event_type}</span></td><td className="px-3 py-2 font-mono text-xs text-stone-500 dark:text-stone-300">{ev.event_id?.slice(0, 24)}</td><td className="px-3 py-2 text-xs text-stone-500 dark:text-stone-300">{timeAgo(ev.processed_at)}</td></tr>)}</tbody></table></div>}
           </div>
           );
@@ -1006,10 +1006,10 @@ export default function Admin() {
         {tab === 'health' && (
           <div className="space-y-4">
             <div className="flex flex-wrap items-center justify-between gap-3">
-              <h2 className="text-sm font-bold text-stone-700 dark:text-stone-200">System Health</h2>
+              <h2 className="text-sm font-bold text-stone-700 dark:text-stone-200">صحة النظام</h2>
               <div className="flex gap-2">
                 <button onClick={runHealthCheck} disabled={healthLoading} className="flex items-center gap-1.5 rounded-lg bg-emerald-600 px-4 py-2 text-xs font-bold text-white hover:bg-emerald-700 disabled:opacity-50">
-                  {healthLoading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Heart className="h-3.5 w-3.5" />} Health
+                  {healthLoading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Heart className="h-3.5 w-3.5" />} فحص
                 </button>
                 <button onClick={runStripeVerify} disabled={stripeVerifyLoading} className="flex items-center gap-1.5 rounded-lg border border-stone-200 dark:border-stone-600 px-4 py-2 text-xs font-bold text-stone-700 dark:text-stone-200 hover:bg-stone-50 dark:hover:bg-stone-800 disabled:opacity-50">
                   {stripeVerifyLoading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <CreditCard className="h-3.5 w-3.5" />} Stripe
@@ -1019,13 +1019,13 @@ export default function Admin() {
             {!health ? (
               <div className="rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 p-8 text-center">
                 <Heart className="mx-auto h-8 w-8 text-stone-300 mb-2" />
-                <p className="text-sm text-stone-500 dark:text-stone-300">Click "Run Check" to test all services</p>
+                <p className="text-sm text-stone-500 dark:text-stone-300">اضغط &quot;فحص&quot; لاختبار جميع الخدمات</p>
               </div>
             ) : (
               <div className="space-y-3">
                 <div className={cn('rounded-xl border p-4 text-center', health.status === 'healthy' ? 'border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-900/20' : health.status === 'degraded' ? 'border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-900/20' : 'border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-900/20')}>
                   <p className={cn('text-xl font-bold', health.status === 'healthy' ? 'text-emerald-700 dark:text-emerald-400' : health.status === 'degraded' ? 'text-amber-700 dark:text-amber-400' : 'text-red-700 dark:text-red-400')}>
-                    {health.status === 'healthy' ? 'All Systems Healthy' : health.status === 'degraded' ? 'Degraded' : 'Unhealthy'}
+                    {health.status === 'healthy' ? 'جميع الأنظمة تعمل بشكل سليم' : health.status === 'degraded' ? 'أداء منخفض' : 'غير سليم'}
                   </p>
                   <p className="text-xs text-stone-500 dark:text-stone-300 mt-1">{new Date(health.timestamp).toLocaleString('en-GB')}</p>
                 </div>

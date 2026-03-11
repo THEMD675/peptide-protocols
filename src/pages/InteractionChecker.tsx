@@ -337,7 +337,7 @@ export default function InteractionChecker() {
         </div>
 
         <div className="mt-6 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
-          <Link to="/calculator" className="inline-flex items-center gap-2 rounded-full bg-emerald-600 px-5 py-2.5 text-sm font-bold text-white transition-colors hover:bg-emerald-700">
+          <Link to="/calculator" className="inline-flex items-center gap-2 rounded-full bg-emerald-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-emerald-700">
             احسب الجرعة
           </Link>
           <Link to="/tracker" className="inline-flex items-center gap-2 rounded-full border border-emerald-300 dark:border-emerald-700 px-5 py-2.5 text-sm font-bold text-emerald-700 dark:text-emerald-400 transition-colors hover:bg-emerald-100 dark:bg-emerald-900/30">

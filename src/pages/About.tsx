@@ -398,7 +398,7 @@ export default function About() {
         <div className="text-center">
           <Link
             to="/signup?redirect=/pricing"
-            className="btn-primary-glow inline-flex w-full items-center justify-center gap-2 rounded-full bg-emerald-600 px-6 py-3 text-base font-bold text-white transition-all hover:bg-emerald-700 active:scale-[0.98] sm:w-auto sm:px-10 sm:py-4 sm:text-lg"
+            className="btn-primary-glow inline-flex w-full items-center justify-center gap-2 rounded-full bg-emerald-600 px-8 py-3.5 text-base font-semibold text-white transition-all hover:bg-emerald-700 active:scale-[0.98] sm:w-auto sm:px-10 sm:py-4 sm:text-lg"
           >
             <span>ابدأ تجربتك المجانية</span>
             <ArrowLeft className="h-5 w-5" />

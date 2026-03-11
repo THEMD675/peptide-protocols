@@ -94,7 +94,7 @@ export default function BlogPost() {
       <div className="flex min-h-[50vh] flex-col items-center justify-center px-6 text-center">
         <h2 className="mb-3 text-2xl font-bold text-stone-900 dark:text-stone-100">المقالة غير موجودة</h2>
         <p className="mb-6 text-stone-600 dark:text-stone-300">لم نتمكن من العثور على هذه المقالة. قد تكون محذوفة أو غير منشورة.</p>
-        <Link to="/blog" className="rounded-full bg-emerald-600 px-8 py-3 font-bold text-white hover:bg-emerald-700 transition-colors">
+        <Link to="/blog" className="rounded-full bg-emerald-600 px-8 py-3.5 text-base font-semibold text-white hover:bg-emerald-700 transition-colors">
           العودة للمدونة
         </Link>
       </div>
@@ -241,7 +241,7 @@ export default function BlogPost() {
         <div className="mt-12 rounded-2xl border border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-900/20 p-6 text-center">
           <p className="text-lg font-bold text-stone-900 dark:text-stone-100">استكشف المزيد عن الببتيدات العلاجية</p>
           <div className="mt-4 flex flex-wrap justify-center gap-3">
-            <Link to="/library" className="rounded-full bg-emerald-600 px-6 py-2.5 text-sm font-bold text-white hover:bg-emerald-700 transition-colors">
+            <Link to="/library" className="rounded-full bg-emerald-600 px-8 py-3.5 text-base font-semibold text-white hover:bg-emerald-700 transition-colors">
               مكتبة الببتيدات
             </Link>
             <Link to="/blog" className="rounded-full border border-emerald-300 dark:border-emerald-700 px-6 py-2.5 text-sm font-bold text-emerald-700 dark:text-emerald-400 hover:bg-emerald-100 dark:bg-emerald-900/30 transition-colors">

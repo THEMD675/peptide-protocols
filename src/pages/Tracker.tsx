@@ -490,7 +490,7 @@ export default function Tracker() {
         <div className="mb-6 rounded-2xl border border-amber-300 dark:border-amber-700 bg-amber-50 dark:bg-amber-900/20 p-4 text-center">
           <p className="text-sm font-bold text-amber-800 dark:text-amber-300 mb-1">اشتراكك منتهي — بياناتك محفوظة</p>
           <p className="text-xs text-amber-700 dark:text-amber-400 mb-3">اشترك للإضافة والتعديل</p>
-          <Link to="/pricing" className="inline-flex items-center gap-2 rounded-full bg-emerald-600 px-6 py-2.5 text-sm font-bold text-white transition-all hover:bg-emerald-700">اشترك الآن</Link>
+          <Link to="/pricing" className="inline-flex items-center gap-2 rounded-full bg-emerald-600 px-8 py-3.5 text-base font-semibold text-white transition-all hover:bg-emerald-700">اشترك الآن</Link>
         </div>
       )}
 
@@ -568,7 +568,7 @@ export default function Tracker() {
                           const text = `أكملت دورة ${pepName} على pptides! — ${totalDays} يوم — ${injCount} حقنة. pptides.com`;
                           try { if (navigator.share) { await navigator.share({ text }); } else { await navigator.clipboard.writeText(text); toast.success('تم نسخ الرسالة'); } } catch { /* user cancelled */ }
                         }}
-                        className="inline-flex items-center gap-2 rounded-full bg-emerald-600 px-5 py-2 text-sm font-bold text-white transition-colors hover:bg-emerald-700"
+                        className="inline-flex items-center gap-2 rounded-full bg-emerald-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-emerald-700"
                       >
                         شارك إنجازك
                       </button>
@@ -734,7 +734,7 @@ export default function Tracker() {
         <div className="fixed bottom-6 left-0 right-0 z-40 flex justify-center pointer-events-none">
           <button
             onClick={() => { setShowForm(true); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
-            className="pointer-events-auto flex items-center gap-2 rounded-full bg-emerald-600 px-7 py-3.5 text-sm font-bold text-white shadow-2xl ring-4 ring-emerald-200/60 dark:ring-emerald-800/60 transition-all hover:bg-emerald-700 active:scale-95"
+            className="pointer-events-auto flex items-center gap-2 rounded-full bg-emerald-600 px-8 py-3.5 text-base font-semibold text-white shadow-2xl ring-4 ring-emerald-200/60 dark:ring-emerald-800/60 transition-all hover:bg-emerald-700 active:scale-95"
             aria-label="سجّل حقنة جديدة"
           >
             <Plus className="h-5 w-5" />

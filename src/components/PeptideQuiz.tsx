@@ -584,7 +584,7 @@ export default function PeptideQuiz() {
 
         <button
           onClick={() => { events.quizStart(); setPhase('quiz'); }}
-          className="w-full flex items-center justify-center gap-2 rounded-xl bg-emerald-600 px-6 py-4 text-white font-bold text-base transition-all hover:bg-emerald-700 active:scale-[0.98] shadow-lg shadow-emerald-600/20"
+          className="w-full flex items-center justify-center gap-2 rounded-full bg-emerald-600 px-8 py-3.5 text-white font-semibold text-base transition-all hover:bg-emerald-700 active:scale-[0.98] shadow-lg shadow-emerald-600/20"
         >
           ابدأ الاختبار
           <ArrowLeft className="h-5 w-5" />
@@ -744,7 +744,7 @@ export default function PeptideQuiz() {
           <div className="flex flex-col gap-3">
             <Link
               to={user ? `/peptide/${result.primary.peptideId}?start=1` : `/signup?redirect=/pricing`}
-              className="flex items-center justify-center gap-2 rounded-xl bg-emerald-600 px-5 py-3.5 text-white font-bold transition-all hover:bg-emerald-700 active:scale-[0.98] shadow-lg shadow-emerald-600/20"
+              className="flex items-center justify-center gap-2 rounded-full bg-emerald-600 px-8 py-3.5 text-white font-semibold transition-all hover:bg-emerald-700 active:scale-[0.98] shadow-lg shadow-emerald-600/20"
             >
               {user ? 'ابدأ هذا البروتوكول' : `ابدأ بروتوكولك — ${TRIAL_DAYS} أيام مجانًا`}
               <ArrowLeft className="h-4 w-4" />
@@ -831,7 +831,7 @@ export default function PeptideQuiz() {
             <div className="flex flex-col sm:flex-row gap-2 justify-center">
               <Link
                 to="/signup?redirect=/pricing"
-                className="flex items-center justify-center gap-2 rounded-xl bg-emerald-600 px-5 py-3 text-sm font-bold text-white transition-all hover:bg-emerald-700 active:scale-[0.98] shadow-lg shadow-emerald-600/20"
+                className="flex items-center justify-center gap-2 rounded-full bg-emerald-600 px-8 py-3.5 text-base font-semibold text-white transition-all hover:bg-emerald-700 active:scale-[0.98] shadow-lg shadow-emerald-600/20"
               >
                 ابدأ تجربتك المجانية
                 <ArrowLeft className="h-4 w-4" />
@@ -961,7 +961,7 @@ export default function PeptideQuiz() {
             <button
               onClick={handleMultiSelectContinue}
               disabled={answers.healthIssues.length === 0}
-              className="mt-4 w-full flex items-center justify-center gap-2 rounded-xl bg-emerald-600 px-5 py-3.5 text-white font-bold transition-all hover:bg-emerald-700 active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed shadow-lg shadow-emerald-600/20"
+              className="mt-4 w-full flex items-center justify-center gap-2 rounded-full bg-emerald-600 px-8 py-3.5 text-white font-semibold transition-all hover:bg-emerald-700 active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed shadow-lg shadow-emerald-600/20"
             >
               التالي
               <ArrowLeft className="h-4 w-4" />

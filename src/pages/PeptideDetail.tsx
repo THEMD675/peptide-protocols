@@ -77,7 +77,7 @@ export default function PeptideDetail() {
         </Helmet>
         <h1 className="mb-3 text-2xl font-bold text-stone-900 dark:text-stone-100">الببتيد غير موجود</h1>
         <p className="mb-6 text-stone-600 dark:text-stone-300">لم يتم العثور على ببتيد بهذا المعرّف.</p>
-        <Link to="/library" className="rounded-full bg-emerald-600 px-8 py-3 font-bold text-white hover:bg-emerald-700 transition-colors">
+        <Link to="/library" className="rounded-full bg-emerald-600 px-8 py-3.5 text-base font-semibold text-white hover:bg-emerald-700 transition-colors">
           تصفّح المكتبة
         </Link>
       </div>
@@ -415,7 +415,7 @@ export default function PeptideDetail() {
             </Link>
             <button
               onClick={() => setShowProtocolWizard(true)}
-              className="flex items-center justify-center gap-2 rounded-xl bg-emerald-600 px-5 py-3.5 text-sm font-bold text-white transition-all hover:bg-emerald-700"
+              className="flex items-center justify-center gap-2 rounded-full bg-emerald-600 px-8 py-3.5 text-base font-semibold text-white transition-all hover:bg-emerald-700"
             >
               <Play className="h-4 w-4" />
               ابدأ بروتوكول
@@ -433,7 +433,7 @@ export default function PeptideDetail() {
             </div>
             <Link
               to={`/tracker?peptide=${encodeURIComponent(peptide.nameEn)}`}
-              className="flex-shrink-0 flex items-center gap-2 rounded-full bg-emerald-600 px-6 py-3 text-sm font-bold text-white transition-all hover:bg-emerald-700 shadow-md hover:shadow-lg"
+              className="flex-shrink-0 flex items-center gap-2 rounded-full bg-emerald-600 px-8 py-3.5 text-base font-semibold text-white transition-all hover:bg-emerald-700 shadow-md hover:shadow-lg"
             >
               <ArrowRight className="h-4 w-4" />
               أضف إلى سجل الحقن
@@ -574,7 +574,7 @@ export default function PeptideDetail() {
               </div>
               <Link
                 to="/pricing"
-                className="mt-2 rounded-full bg-emerald-600 px-8 py-3 text-sm font-bold text-white transition-all hover:bg-emerald-700 shadow-md"
+                className="mt-2 rounded-full bg-emerald-600 px-8 py-3.5 text-base font-semibold text-white transition-all hover:bg-emerald-700 shadow-md"
               >
                 افتح البروتوكول الكامل — {PRICING.essentials.label}/شهريًا
               </Link>

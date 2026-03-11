@@ -1107,7 +1107,7 @@ export default function Coach() {
                   <Crown className="mx-auto mb-3 h-8 w-8 text-emerald-700" />
                   <p className="text-lg font-bold text-stone-900 dark:text-stone-100">لقد وصلت للحد الأقصى</p>
                   <p className="mt-2 text-sm text-stone-600 dark:text-stone-300">ترقَّ إلى Elite لاستشارات بلا حدود</p>
-                  <Link to="/pricing?plan=elite" className="mt-4 inline-flex items-center gap-2 rounded-full bg-emerald-600 px-8 py-3 text-sm font-bold text-white transition-colors hover:bg-emerald-700">
+                  <Link to="/pricing?plan=elite" className="mt-4 inline-flex items-center gap-2 rounded-full bg-emerald-600 px-8 py-3.5 text-base font-semibold text-white transition-colors hover:bg-emerald-700">
                     <Crown className="h-4 w-4" />
                     ترقية إلى Elite
                   </Link>
@@ -1117,7 +1117,7 @@ export default function Coach() {
                   <Sparkles className="mx-auto mb-2 h-6 w-6 text-emerald-700" />
                   <p className="font-bold text-stone-900 dark:text-stone-100">{hasAccess ? 'وصلت حد الأسئلة لهذه الجلسة' : 'أعجبتك الاستشارة؟'}</p>
                   <p className="mt-1 text-sm text-stone-600 dark:text-stone-300">{!isElite && (hasAccess ? 'ترقَّ إلى Elite لاستشارات بلا حدود.' : `اشترك لاستشارات مخصّصة بلا حدود — ${TRIAL_DAYS} أيام مجانًا`)}</p>
-                  {!isElite && <button onClick={async () => { try { if (hasAccess) await upgradeTo('elite'); else navigate(user ? '/pricing' : '/signup?redirect=/pricing'); } catch { /* non-blocking */ } }} className="mt-3 rounded-full bg-emerald-600 px-8 py-2.5 text-sm font-bold text-white transition-colors hover:bg-emerald-700">{hasAccess ? 'ترقَّ إلى Elite' : `اشترك — ${PRICING.essentials.label}/شهر`}</button>}
+                  {!isElite && <button onClick={async () => { try { if (hasAccess) await upgradeTo('elite'); else navigate(user ? '/pricing' : '/signup?redirect=/pricing'); } catch { /* non-blocking */ } }} className="mt-3 rounded-full bg-emerald-600 px-8 py-3.5 text-base font-semibold text-white transition-colors hover:bg-emerald-700">{hasAccess ? 'ترقَّ إلى Elite' : `اشترك — ${PRICING.essentials.label}/شهر`}</button>}
                 </div>
                 )
               ) : (

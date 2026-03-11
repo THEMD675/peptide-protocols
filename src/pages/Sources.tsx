@@ -149,7 +149,7 @@ function SourcingInterestForm() {
         </div>
 
         <button type="submit" disabled={submitting}
-          className="flex w-full items-center justify-center gap-2 rounded-xl bg-emerald-600 px-6 py-3.5 text-sm font-bold text-white transition-all hover:bg-emerald-700 active:scale-[0.98] disabled:opacity-50 min-h-[44px]"
+          className="flex w-full items-center justify-center gap-2 rounded-full bg-emerald-600 px-8 py-3.5 text-base font-semibold text-white transition-all hover:bg-emerald-700 active:scale-[0.98] disabled:opacity-50 min-h-[44px]"
         >
           {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
           {submitting ? 'جارٍ الإرسال...' : 'سجّل اهتمامك'}
@@ -464,7 +464,7 @@ function CitationBrowser() {
                       href={`https://pubmed.ncbi.nlm.nih.gov/${citation.pmid}/`}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex items-center gap-2 rounded-xl bg-emerald-600 px-4 py-2 text-xs font-bold text-white transition-colors hover:bg-emerald-700"
+                      className="inline-flex items-center gap-2 rounded-full bg-emerald-600 px-4 py-2 text-xs font-medium text-white transition-colors hover:bg-emerald-700"
                     >
                       <ExternalLink className="h-3 w-3" />
                       فتح في PubMed

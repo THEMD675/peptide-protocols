@@ -508,7 +508,7 @@ export default function Account() {
           {(subscription.status === 'expired' || subscription.status === 'none') && (
             <Link
               to="/pricing"
-              className="mt-4 flex items-center justify-center gap-2 rounded-full bg-emerald-600 px-6 py-3 text-sm font-bold text-white transition-all hover:bg-emerald-700"
+              className="mt-4 flex items-center justify-center gap-2 rounded-full bg-emerald-600 px-8 py-3.5 text-base font-semibold text-white transition-all hover:bg-emerald-700"
             >
               <ArrowUpCircle className="h-4 w-4" />
               اشترك الآن
@@ -579,7 +579,7 @@ export default function Account() {
               <button
                 type="submit"
                 disabled={profileSaving}
-                className="rounded-xl bg-emerald-600 px-6 py-3 text-sm font-bold text-white transition-colors hover:bg-emerald-700 active:scale-[0.98] disabled:opacity-50"
+                className="rounded-full bg-emerald-600 px-8 py-3.5 text-base font-semibold text-white transition-colors hover:bg-emerald-700 active:scale-[0.98] disabled:opacity-50"
               >
                 {profileSaving ? 'جارٍ الحفظ...' : 'حفظ الملف الشخصي'}
               </button>
@@ -611,7 +611,7 @@ export default function Account() {
             <button
               type="submit"
               disabled={emailLoading || !newEmail.trim()}
-              className="rounded-xl bg-emerald-600 px-6 py-3 text-sm font-bold text-white transition-colors hover:bg-emerald-700 active:scale-[0.98] disabled:opacity-50"
+              className="rounded-full bg-emerald-600 px-8 py-3.5 text-base font-semibold text-white transition-colors hover:bg-emerald-700 active:scale-[0.98] disabled:opacity-50"
             >
               {emailLoading ? <span className="inline-flex items-center gap-2"><span className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />جارٍ التغيير</span> : 'تغيير البريد'}
             </button>
@@ -656,7 +656,7 @@ export default function Account() {
             <button
               type="submit"
               disabled={passwordLoading || !newPassword || !currentPassword}
-              className="rounded-xl bg-emerald-600 px-6 py-3 text-sm font-bold text-white transition-all hover:bg-emerald-700 active:scale-[0.98] disabled:opacity-50"
+              className="rounded-full bg-emerald-600 px-8 py-3.5 text-base font-semibold text-white transition-all hover:bg-emerald-700 active:scale-[0.98] disabled:opacity-50"
             >
               {passwordLoading ? <span className="inline-flex items-center gap-2"><span className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />جارٍ التغيير</span> : 'تغيير كلمة المرور'}
             </button>
@@ -909,7 +909,7 @@ export default function Account() {
               </p>
               <Link
                 to="/pricing"
-                className="flex items-center justify-center gap-2 rounded-full bg-emerald-600 px-6 py-3 text-sm font-bold text-white transition-all hover:bg-emerald-700"
+                className="flex items-center justify-center gap-2 rounded-full bg-emerald-600 px-8 py-3.5 text-base font-semibold text-white transition-all hover:bg-emerald-700"
               >
                 <ArrowUpCircle className="h-4 w-4" />
                 {subscription.status === 'expired' ? 'جدّد اشتراكك الآن' : 'اشترك الآن'}
@@ -919,7 +919,7 @@ export default function Account() {
           {subscription.status !== 'expired' && subscription.status !== 'none' && subscription.tier !== 'elite' && (
             <Link
               to="/pricing"
-              className="mt-5 flex items-center justify-center gap-2 rounded-full bg-emerald-600 px-6 py-3 text-sm font-bold text-white transition-all hover:bg-emerald-700"
+              className="mt-5 flex items-center justify-center gap-2 rounded-full bg-emerald-600 px-8 py-3.5 text-base font-semibold text-white transition-all hover:bg-emerald-700"
             >
               <ArrowUpCircle className="h-4 w-4" />
               {subscription.status === 'cancelled' ? 'أعد الاشتراك' : 'ترقية الاشتراك'}
@@ -946,7 +946,7 @@ export default function Account() {
           <div className="grid gap-3 sm:grid-cols-2">
             <button
               onClick={() => handleExportData('json')}
-              className="flex items-center justify-center gap-2 rounded-xl bg-emerald-600 px-6 py-3 text-sm font-bold text-white transition-all hover:bg-emerald-700"
+              className="flex items-center justify-center gap-2 rounded-full bg-emerald-600 px-8 py-3.5 text-base font-semibold text-white transition-all hover:bg-emerald-700"
             >
               <Download className="h-4 w-4" />
               تصدير بياناتي (JSON)
@@ -1058,7 +1058,7 @@ export default function Account() {
               </button>
               <button
                 onClick={() => { setShowCancelDialog(false); setCancelStep(null); }}
-                className="w-full rounded-xl bg-emerald-600 px-4 py-2.5 text-sm font-bold text-white transition-all hover:bg-emerald-700"
+                className="w-full rounded-full bg-emerald-600 px-4 py-2 text-sm font-medium text-white transition-all hover:bg-emerald-700"
               >
                 الاحتفاظ بالاشتراك
               </button>
@@ -1146,7 +1146,7 @@ export default function Account() {
               </button>
               <button
                 onClick={() => { setShowCancelDialog(false); setCancelStep(null); }}
-                className="w-full rounded-xl bg-emerald-600 px-4 py-2.5 text-sm font-bold text-white transition-all hover:bg-emerald-700"
+                className="w-full rounded-full bg-emerald-600 px-4 py-2 text-sm font-medium text-white transition-all hover:bg-emerald-700"
               >
                 الاحتفاظ بالاشتراك
               </button>

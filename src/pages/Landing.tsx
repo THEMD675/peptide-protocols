@@ -612,7 +612,7 @@ export default function Landing() {
                   <Link to="/peptide/bpc-157" className="rounded-full border border-emerald-300 dark:border-emerald-700 px-5 py-2.5 min-h-[44px] inline-flex items-center text-sm font-bold text-emerald-700 dark:text-emerald-400 transition-colors hover:bg-emerald-50 dark:bg-emerald-900/30">
                     شاهد البطاقة كاملة
                   </Link>
-                  <Link to={ctaLink} className="rounded-full bg-emerald-600 px-5 py-2.5 min-h-[44px] inline-flex items-center text-sm font-bold text-white transition-colors hover:bg-emerald-700 active:scale-[0.98]">
+                  <Link to={ctaLink} className="rounded-full bg-emerald-600 px-4 py-2 min-h-[44px] inline-flex items-center text-sm font-bold text-white transition-colors hover:bg-emerald-700 active:scale-[0.98]">
                     {user ? 'اشترك الآن' : 'ابدأ تجربتك المجانية'}
                   </Link>
                 </div>

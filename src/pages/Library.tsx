@@ -742,7 +742,7 @@ export default function Library() {
                     </span>
                     <p className="text-sm text-stone-800 dark:text-stone-200">لست متأكدًا من اختيارك؟ اسأل المدرب الذكي — 3 أسئلة مجانية.</p>
                     <div className="flex flex-col gap-2 sm:flex-row">
-                      <Link to="/pricing" className="rounded-full bg-emerald-600 px-6 py-2.5 text-sm font-bold text-white transition-colors hover:bg-emerald-700">
+                      <Link to="/pricing" className="rounded-full bg-emerald-600 px-8 py-3.5 text-base font-semibold text-white transition-colors hover:bg-emerald-700">
                         اشترك — {PRICING.essentials.label}/شهريًا
                       </Link>
                       <Link to="/coach" className="rounded-full border-2 border-emerald-300 dark:border-emerald-700 px-6 py-2.5 text-sm font-bold text-emerald-700 dark:text-emerald-400 transition-colors hover:bg-emerald-100 dark:bg-emerald-900/30">
@@ -777,7 +777,7 @@ export default function Library() {
                     مسح الفلاتر وعرض الكل
                   </button>
                 )}
-                <Link to="/coach" className="inline-flex items-center gap-2 rounded-full bg-emerald-600 px-5 py-2 text-sm font-bold text-white transition-colors hover:bg-emerald-700">
+                <Link to="/coach" className="inline-flex items-center gap-2 rounded-full bg-emerald-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-emerald-700">
                   <Bot className="h-4 w-4" />
                   اسأل المدرب الذكي
                 </Link>
@@ -891,7 +891,7 @@ export default function Library() {
               <Link
                 to="/pricing"
                 onClick={() => setUpsellPeptide(null)}
-                className="mb-3 flex w-full items-center justify-center rounded-full bg-emerald-600 px-6 py-3.5 font-bold text-white hover:bg-emerald-700 transition-all"
+                className="mb-3 flex w-full items-center justify-center rounded-full bg-emerald-600 px-8 py-3.5 text-base font-semibold text-white hover:bg-emerald-700 transition-all"
               >
                 افتح البروتوكول — {PRICING.essentials.label}/شهريًا
               </Link>

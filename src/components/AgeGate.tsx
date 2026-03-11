@@ -63,7 +63,7 @@ export default function AgeGate() {
         <div className="flex flex-col gap-3">
           <button
             onClick={handleVerified}
-            className="w-full rounded-xl bg-emerald-600 px-6 py-3.5 text-base font-bold text-white transition-all hover:bg-emerald-700 active:scale-[0.98]"
+            className="w-full rounded-full bg-emerald-600 px-8 py-3.5 text-base font-semibold text-white transition-all hover:bg-emerald-700 active:scale-[0.98]"
           >
             أؤكد — عمري 18 أو أكثر
           </button>

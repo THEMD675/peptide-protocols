@@ -504,7 +504,7 @@ function LabEntryForm({
           onClick={handleSubmit}
           disabled={isSubmitting || filledCount === 0}
           aria-label="حفظ نتائج التحاليل"
-          className="flex items-center gap-2 rounded-xl bg-emerald-600 px-6 py-2.5 text-sm font-bold text-white transition-all hover:bg-emerald-500 disabled:opacity-40 disabled:cursor-not-allowed"
+          className="flex items-center gap-2 rounded-full bg-emerald-600 px-4 py-2 text-sm font-medium text-white transition-all hover:bg-emerald-500 disabled:opacity-40 disabled:cursor-not-allowed"
         >
           {isSubmitting ? (
             <>

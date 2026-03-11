@@ -429,7 +429,7 @@ export default function PeptideTable() {
             </div>
             <Link
               to="/pricing"
-              className="shrink-0 rounded-xl bg-emerald-600 px-6 py-2 text-sm font-bold text-white hover:bg-emerald-700 transition-colors"
+              className="shrink-0 rounded-full bg-emerald-600 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-700 transition-colors"
             >
               عرض الباقات
             </Link>
