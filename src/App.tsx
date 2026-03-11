@@ -5,6 +5,7 @@ import { Helmet, HelmetProvider } from 'react-helmet-async';
 import { Toaster } from 'sonner';
 import { SITE_URL, STORAGE_KEYS } from '@/lib/constants';
 import { hasOptionalConsent } from '@/lib/cookie-utils';
+import { Sentry } from '@/lib/sentry';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import BottomNav from '@/components/layout/BottomNav';
@@ -76,7 +77,7 @@ class ErrorBoundary extends Component<{ children: ReactNode }, { hasError: boole
     const isChunk = error.message?.includes('Loading chunk') || error.message?.includes('Failed to fetch dynamically imported');
     return { hasError: true, isChunkError: isChunk };
   }
-  componentDidCatch(_error: Error, _errorInfo: React.ErrorInfo) {
+  componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
     if (this.state.isChunkError) {
       try {
         const reloaded = sessionStorage.getItem('pptides_chunk_reload');
@@ -88,9 +89,8 @@ class ErrorBoundary extends Component<{ children: ReactNode }, { hasError: boole
         sessionStorage.removeItem('pptides_chunk_reload');
       } catch { /* Safari private mode */ }
     }
-    try {
-      if (hasOptionalConsent()) { /* consent-gated error reporting placeholder */ }
-    } catch { /* localStorage unavailable */ }
+    // Report to Sentry
+    Sentry.captureException(error, { contexts: { react: { componentStack: errorInfo.componentStack } } });
   }
   render() {
     if (this.state.hasError) {
@@ -132,10 +132,8 @@ class RouteErrorBoundary extends Component<
   static getDerivedStateFromError(error: Error) {
     return { hasError: true, error };
   }
-  componentDidCatch(_error: Error, _errorInfo: React.ErrorInfo) {
-    try {
-      if (hasOptionalConsent()) { /* consent-gated error reporting placeholder */ }
-    } catch { /* localStorage unavailable */ }
+  componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
+    Sentry.captureException(error, { contexts: { react: { componentStack: errorInfo.componentStack } } });
   }
   reset = () => this.setState(prev => ({ hasError: false, error: null, retryCount: prev.retryCount + 1 }));
   render() {

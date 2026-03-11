@@ -5,6 +5,10 @@ import './index.css';
 
 import { migrateQuizStorage } from '@/lib/quiz-migration';
 import { hasOptionalConsent } from '@/lib/cookie-utils';
+import { initSentry } from '@/lib/sentry';
+
+// Initialize Sentry error tracking (production only, no PII)
+initSentry();
 
 // Migrate old quiz/onboarding localStorage keys to unified key
 migrateQuizStorage();
