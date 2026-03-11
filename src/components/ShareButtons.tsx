@@ -25,7 +25,7 @@ export default function ShareButtons({
 }: ShareButtonsProps) {
   const [copied, setCopied] = useState(false);
 
-  const whatsappText = `شوف هذا المقال عن الببتيدات 💉\n${title}\n${url}`;
+  const whatsappText = `شوف هذا المقال عن الببتيدات \n${title}\n${url}`;
   const tweetText = `${title}\n${url}`;
   const telegramText = `${title}\n${url}`;
 
@@ -51,7 +51,7 @@ export default function ShareButtons({
       try {
         events.shareClick('native');
         await navigator.share(shareData);
-        toast.success('تمت المشاركة! 🎉', { duration: 3000 });
+        toast.success('تمت المشاركة!', { duration: 3000 });
       } catch {
         /* user cancelled */
       }

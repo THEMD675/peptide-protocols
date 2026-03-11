@@ -346,7 +346,7 @@ export default function TrackerHistory({
                 <TrendingUp className="h-7 w-7 text-emerald-500" />
               </div>
             </div>
-            <h3 className="text-2xl font-black text-stone-900 dark:text-stone-100">سجّل أول حقنة لك 💉</h3>
+            <h3 className="text-2xl font-black text-stone-900 dark:text-stone-100">سجّل أول حقنة لك</h3>
             <p className="mx-auto mt-3 max-w-md text-sm leading-relaxed text-stone-600 dark:text-stone-300">
               {isProOrTrial
                 ? 'ابدأ بتسجيل حقنتك الأولى — سنتتبّع جرعاتك، ندير تدوير مواقع الحقن، ونعرض لك خريطة حرارية وإحصائيات التزامك بالبروتوكول.'

@@ -760,7 +760,7 @@ export default function Community() {
         {/* Success banner */}
         {submitted && (
           <div className="mb-6 rounded-xl border border-emerald-300 dark:border-emerald-700 bg-emerald-50 dark:bg-emerald-900/20 p-4 text-center text-sm font-bold text-emerald-800 dark:text-emerald-300">
-            تم نشر تجربتك بنجاح — شكرًا لمشاركتك! 🎉
+            تم نشر تجربتك بنجاح — شكرًا لمشاركتك!
           </div>
         )}
 
@@ -1069,10 +1069,10 @@ export default function Community() {
                     </p>
                     <div className="mx-auto max-w-sm rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 p-4 text-start text-sm text-stone-600 dark:text-stone-300">
                       <p className="font-bold text-stone-900 dark:text-stone-100 mb-2">مثال على مشاركة:</p>
-                      <p className="mb-1">🧪 <strong>الببتيد:</strong> BPC-157</p>
-                      <p className="mb-1">🎯 <strong>الهدف:</strong> تعافي من إصابة</p>
-                      <p className="mb-1">📋 <strong>البروتوكول:</strong> 250mcg مرتين يوميًا لمدة 6 أسابيع</p>
-                      <p>⭐ <strong>النتيجة:</strong> تحسّن واضح بعد الأسبوع الثالث</p>
+                      <p className="mb-1"><strong>الببتيد:</strong> BPC-157</p>
+                      <p className="mb-1"><strong>الهدف:</strong> تعافي من إصابة</p>
+                      <p className="mb-1"><strong>البروتوكول:</strong> 250mcg مرتين يوميًا لمدة 6 أسابيع</p>
+                      <p><strong>النتيجة:</strong> تحسّن واضح بعد الأسبوع الثالث</p>
                     </div>
                     {user && isPaid && (
                       <button

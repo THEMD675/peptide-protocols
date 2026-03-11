@@ -86,7 +86,7 @@ export function useCelebrations() {
       markCelebration('first_injection');
       setTimeout(() => {
         fireConfetti();
-        toast.success('🎉 مبروك! سجّلت أول حقنة لك', {
+        toast.success('مبروك! سجّلت أول حقنة لك', {
           duration: 5000,
           description: 'بداية رحلتك مع الببتيدات — سجّل كل حقنة لمتابعة تقدّمك',
         });
@@ -100,13 +100,13 @@ export function useCelebrations() {
       if (!celebrated[streakKey]) {
         markCelebration(streakKey);
         const msgs: Record<number, { title: string; desc: string }> = {
-          7: { title: '🔥 أسبوع كامل بدون انقطاع!', desc: `${streak} أيام متتالية — التزامك ممتاز` },
-          14: { title: '🔥 أسبوعان من الالتزام!', desc: 'نتائجك تتراكم — استمر بنفس الوتيرة' },
-          21: { title: '🔥 ٣ أسابيع متواصلة!', desc: 'عادتك تتشكّل — لا تتوقف الآن' },
-          30: { title: '🏆 شهر كامل من الالتزام!', desc: 'إنجاز استثنائي — شارك تجربتك مع المجتمع' },
+          7: { title: 'أسبوع كامل بدون انقطاع!', desc: `${streak} أيام متتالية — التزامك ممتاز` },
+          14: { title: 'أسبوعان من الالتزام!', desc: 'نتائجك تتراكم — استمر بنفس الوتيرة' },
+          21: { title: '٣ أسابيع متواصلة!', desc: 'عادتك تتشكّل — لا تتوقف الآن' },
+          30: { title: 'شهر كامل من الالتزام!', desc: 'إنجاز استثنائي — شارك تجربتك مع المجتمع' },
         };
         const msg = msgs[streak] || {
-          title: `🔥 ${streak} يوم متتالي! استمر!`,
+          title: ` يوم متتالي! استمر!`,
           desc: 'التزامك مثال يُحتذى',
         };
         setTimeout(() => {
@@ -156,7 +156,7 @@ export function useCelebrations() {
       markCelebration('milestone_100');
       setTimeout(() => {
         fireGrandCelebration();
-        toast.success('🏆 100 حقنة! إنجاز استثنائي', {
+        toast.success('100 حقنة! إنجاز استثنائي', {
           duration: 6000,
           description: 'أنت من النخبة — شارك قصتك مع المجتمع',
         });

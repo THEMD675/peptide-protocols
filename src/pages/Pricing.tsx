@@ -256,24 +256,9 @@ export default function Pricing() {
       </Helmet>
 
       <div className="mx-auto max-w-6xl px-4 pb-24 pt-8 md:px-6 md:pt-12">
-        {/* Urgency Banner */}
-        {showTrialMessaging && (
-          <div className="mb-8 rounded-xl border border-amber-200 dark:border-amber-800 bg-gradient-to-l from-amber-50 to-amber-100/50 px-5 py-3 text-center">
-            <p className="text-sm font-bold text-amber-800 dark:text-amber-300">
-              🔥 عرض محدود — التجربة المجانية متاحة لفترة محدودة فقط
-            </p>
-          </div>
-        )}
-
-        {/* Header */}
-        <div className="mb-16 text-center">
-          {showTrialMessaging && (
-            <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-900/20 px-5 py-2 text-sm font-bold text-emerald-700 dark:text-emerald-400">
-              <span className="relative flex h-2 w-2"><span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" /><span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500" /></span>
-              ✨ جرّب {TRIAL_DAYS} أيام مجانًا — ألغِ قبل ما تنخصم
-            </div>
-          )}
-          <h1 className="mb-4 text-3xl font-bold text-stone-900 dark:text-stone-100 md:text-5xl lg:text-6xl">
+        {/* Header — clean, minimal, no emojis */}
+        <div className="mb-12 text-center">
+          <h1 className="mb-4 text-3xl font-bold text-stone-900 dark:text-stone-100 md:text-5xl">
             بروتوكولك الشخصي يبدأ <span className="text-emerald-700">من هنا</span>
           </h1>
           {showTrialMessaging && (
@@ -281,20 +266,11 @@ export default function Pricing() {
               {TRIAL_DAYS} أيام مجانية — جرّب كل الأدوات بدون مخاطرة.
             </p>
           )}
-          <div className="mt-6 flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-6 text-sm text-stone-500 dark:text-stone-300">
-            <span className="flex items-center gap-1.5"><Check className="h-4 w-4 shrink-0 text-emerald-500" /> إلغاء في أي وقت</span>
-            <span className="flex items-center gap-1.5"><Shield className="h-4 w-4 shrink-0 text-emerald-500" /> ضمان استرداد {TRIAL_DAYS} أيام</span>
-            <span className="flex items-center gap-1.5"><Lock className="h-4 w-4 shrink-0 text-emerald-500" /> دفع آمن عبر Stripe</span>
+          <div className="mt-6 flex flex-wrap items-center justify-center gap-4 sm:gap-6 text-sm text-stone-500 dark:text-stone-300">
+            <span className="flex items-center gap-1.5"><Check className="h-4 w-4 shrink-0 text-emerald-600" /> إلغاء في أي وقت</span>
+            <span className="flex items-center gap-1.5"><Shield className="h-4 w-4 shrink-0 text-emerald-600" /> ضمان استرداد {TRIAL_DAYS} أيام</span>
+            <span className="flex items-center gap-1.5"><Lock className="h-4 w-4 shrink-0 text-emerald-600" /> دفع آمن عبر Stripe</span>
           </div>
-          <p className="mt-4 text-center text-sm font-medium text-stone-700 dark:text-stone-200">
-            ضمان استرداد كامل + إلغاء في أي وقت + بدون التزام
-          </p>
-          {userCount >= 10 && (
-            <p className="mt-4 flex items-center justify-center gap-2 text-sm text-stone-500 dark:text-stone-300">
-              <span className="relative flex h-2 w-2"><span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" /><span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500" /></span>
-              <span>أكثر من <strong className="text-stone-700 dark:text-stone-200">{userCount}</strong> مستخدم يثقون بنا</span>
-            </p>
-          )}
         </div>
 
         {/* Billing Toggle */}
@@ -346,10 +322,6 @@ export default function Pricing() {
             </ul>
 
             {renderAction('essentials', false)}
-            <div className="mt-3 flex flex-wrap items-center justify-center gap-3 text-xs text-stone-500 dark:text-stone-300">
-              <span className="flex items-center gap-1"><Lock className="h-3.5 w-3.5 text-emerald-700" /> دفع آمن عبر Stripe</span>
-              <span className="flex items-center gap-1"><Shield className="h-3.5 w-3.5 text-emerald-700" /> ضمان استرداد {TRIAL_DAYS} أيام</span>
-            </div>
           </div>
 
           {/* Elite */}
@@ -357,15 +329,11 @@ export default function Pricing() {
             className="pricing-card pricing-card-featured relative flex flex-col rounded-2xl border-2 border-emerald-300 dark:border-emerald-700 bg-white dark:bg-stone-900 p-8 md:p-10"
             style={{ animation: 'pricing-elite-glow 3s ease-in-out infinite' }}
           >
-            <span className="absolute -top-3.5 start-6 rounded-full bg-amber-500 px-4 py-1.5 text-sm font-bold text-white">
-              للمحترفين
-            </span>
             <span className="absolute -top-3.5 end-6 rounded-full bg-emerald-600 px-5 py-1.5 text-sm font-bold text-white">
               الأفضل قيمة
             </span>
 
-            <div className="mb-0.5 flex items-center gap-2">
-              <Crown className="h-5 w-5 text-emerald-700" />
+            <div className="mb-0.5">
               <h2 className="text-2xl font-bold text-stone-900 dark:text-stone-100">Elite</h2>
             </div>
             <p className="mb-1 text-sm font-medium text-emerald-700">المتقدّمة</p>
@@ -378,10 +346,6 @@ export default function Pricing() {
             {billingCycle === 'monthly' && <p className="mb-1 text-xs font-bold text-emerald-700">~١٢.٤ ر.س/يوم</p>}
             {billingCycle === 'monthly' && <p className="text-xs text-emerald-700 font-medium mt-1">سنوي: <span dir="ltr">{PRICING.elite.annualLabel}</span>/سنة — وفّر 33%</p>}
             {billingCycle === 'annual' && <p className="text-xs text-emerald-700 font-medium mt-1">≈ {Math.round(PRICING.elite.annualTotal / 12)} ر.س/شهر — وفّر 33%</p>}
-            <div className="mb-4 inline-flex items-center gap-1.5 rounded-full border border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-900/20 px-3 py-1 text-xs font-bold text-emerald-700 dark:text-emerald-400">
-              <Crown className="h-3.5 w-3.5" />
-              الباقة الشاملة
-            </div>
             <div className="mb-2" />
 
             <ul className="mb-8 flex-1 space-y-3">
@@ -688,7 +652,7 @@ export default function Pricing() {
             </Link>
           )}
           {showTrialMessaging && (
-            <p className="mt-4 text-sm text-stone-800 dark:text-stone-200">🛡️ {TRIAL_DAYS} أيام مجانًا — إلغاء بضغطة واحدة، بدون أسئلة</p>
+            <p className="mt-4 text-sm text-stone-800 dark:text-stone-200">{TRIAL_DAYS} أيام مجانًا — إلغاء بضغطة واحدة، بدون أسئلة</p>
           )}
         </div>
         )}

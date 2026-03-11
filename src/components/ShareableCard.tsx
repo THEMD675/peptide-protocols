@@ -26,7 +26,7 @@ export default memo(function ShareableCard(props: ShareableCardProps) {
     if (navigator.share) {
       try {
         await navigator.share({ title: `بروتوكول ${props.peptideName}`, text: `${shareBody}\n\n${SITE_URL}` });
-        toast.success('تمت المشاركة بنجاح! 🎉', { duration: 3000 });
+        toast.success('تمت المشاركة بنجاح!', { duration: 3000 });
       } catch { /* user cancelled */ }
     } else {
       handleCopy();
@@ -50,7 +50,7 @@ export default memo(function ShareableCard(props: ShareableCardProps) {
   };
 
   const handleWhatsApp = () => {
-    let shareText = `شوف تقدّمي في بروتوكول الببتيدات 💉\n\n` + shareBody + '\n\n' + SITE_URL;
+    let shareText = `شوف تقدّمي في بروتوكول الببتيدات\n\n` + shareBody + '\n\n' + SITE_URL;
     try {
       const refCode = localStorage.getItem('pptides_referral_code') ?? localStorage.getItem('pptides_referral');
       if (refCode && /^PP-[A-Z0-9]{6}$/.test(refCode)) {

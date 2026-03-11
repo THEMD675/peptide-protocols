@@ -143,7 +143,7 @@ export default function Contact() {
             </span>
           </div>
           <h1 className="mb-3 text-2xl font-bold text-stone-900 dark:text-stone-100">
-            تم إرسال رسالتك بنجاح ✨
+            تم إرسال رسالتك بنجاح
           </h1>
           <p className="text-lg text-stone-600 dark:text-stone-300">شكرًا لتواصلك معنا</p>
           <div className="mx-auto mt-6 inline-flex items-center gap-2 rounded-full border border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-900/30 px-5 py-2.5 text-sm font-bold text-emerald-700 dark:text-emerald-300">

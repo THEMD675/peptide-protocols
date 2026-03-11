@@ -455,7 +455,7 @@ export default function Tracker() {
       {/* Prominent Streak Counter */}
       {dashboardStats && dashboardStats.streak > 0 && (
         <div className="mb-6 rounded-2xl bg-gradient-to-l from-orange-500 to-amber-500 p-5 text-center shadow-lg">
-          <p className="text-4xl font-black text-white">🔥 {dashboardStats.streak} أيام متتالية</p>
+          <p className="text-4xl font-black text-white">{dashboardStats.streak} أيام متتالية</p>
           <p className="mt-1 text-sm font-medium text-white/80">استمر في الالتزام — أنت تبني عادة!</p>
         </div>
       )}
@@ -550,7 +550,7 @@ export default function Tracker() {
                         onClick={async () => {
                           const pepName = peptide?.nameAr ?? proto.peptide_id;
                           const injCount = logs.filter(l => l.peptide_name === (peptide?.nameEn ?? proto.peptide_id)).length;
-                          const text = `أكملت دورة ${pepName} على pptides! 💪 ${totalDays} يوم — ${injCount} حقنة. pptides.com`;
+                          const text = `أكملت دورة ${pepName} على pptides! — ${totalDays} يوم — ${injCount} حقنة. pptides.com`;
                           try { if (navigator.share) { await navigator.share({ text }); } else { await navigator.clipboard.writeText(text); toast.success('تم نسخ الرسالة'); } } catch { /* user cancelled */ }
                         }}
                         className="inline-flex items-center gap-2 rounded-full bg-emerald-600 px-5 py-2 text-sm font-bold text-white transition-colors hover:bg-emerald-700"

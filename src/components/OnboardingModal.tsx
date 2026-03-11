@@ -178,7 +178,7 @@ export default function OnboardingModal({ forceOpen, onClose: externalClose }: {
                 <Sparkles className="h-7 w-7 text-emerald-700" />
               </div>
               <h2 id="onboarding-title-step2" className="mb-1 text-center text-xl font-bold text-stone-900 dark:text-stone-100">
-                خطة مخصّصة لك ✨
+                خطة مخصّصة لك
               </h2>
               {quizGoalLabel ? (
                 <p className="mb-1 text-center text-xs font-medium text-emerald-700">بناءً على اختبارك: <span className="font-bold">{quizGoalLabel}</span></p>

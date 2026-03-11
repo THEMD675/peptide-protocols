@@ -215,14 +215,14 @@ export default function WeeklyProgressReport() {
                 {data.streak >= 7 ? (
                   <div className="flex items-center justify-center gap-2">
                     {injDiff > 0 ? <TrendingUp className="h-4 w-4 text-emerald-700" /> : <TrendingDown className="h-4 w-4 text-emerald-700" />}
-                    <p className="text-sm font-bold text-emerald-700 dark:text-emerald-400">ممتاز! سلسلة {data.streak} يوم — أداء استثنائي 🔥</p>
+                    <p className="text-sm font-bold text-emerald-700 dark:text-emerald-400">ممتاز! سلسلة {data.streak} يوم — أداء استثنائي</p>
                   </div>
                 ) : (
-                  <p className="text-sm font-bold text-emerald-700 dark:text-emerald-400">أحسنت! استمر في الالتزام بالبروتوكول 💪</p>
+                  <p className="text-sm font-bold text-emerald-700 dark:text-emerald-400">أحسنت! استمر في الالتزام بالبروتوكول</p>
                 )}
               </>
             ) : (
-              <p className="text-sm font-bold text-amber-700 dark:text-amber-400">لنعد إلى المسار — سجّل جرعتك اليوم وابدأ سلسلة جديدة 🎯</p>
+              <p className="text-sm font-bold text-amber-700 dark:text-amber-400">لنعد إلى المسار — سجّل جرعتك اليوم وابدأ سلسلة جديدة</p>
             )}
           </div>
         </div>

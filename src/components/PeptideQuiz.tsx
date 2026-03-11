@@ -779,7 +779,7 @@ export default function PeptideQuiz() {
             <p className="text-xs text-stone-400 dark:text-stone-300 mb-2 text-center">شارك نتيجتك</p>
             <ShareButtons
               url={`${SITE_URL}/quiz`}
-              title={`نتيجة اختبار الببتيدات: ${result.primary.nameAr} 💉`}
+              title={`نتيجة اختبار الببتيدات: ${result.primary.nameAr}`}
               description={result.primary.reason}
               layout="row"
             />

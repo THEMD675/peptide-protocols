@@ -1305,7 +1305,7 @@ export default function Dashboard() {
           <>
             {/* Welcome Hero */}
             <div className="mb-8 rounded-2xl border border-emerald-200 dark:border-emerald-800 bg-gradient-to-b from-emerald-50 via-white to-white dark:to-stone-950 p-8 text-center" style={{ animation: 'dash-welcome-in 0.6s ease-out' }}>
-              <p className="mb-2 text-4xl">🎉</p>
+              <div className="mx-auto mb-2 flex h-12 w-12 items-center justify-center rounded-full bg-emerald-100 dark:bg-emerald-900/30"><CheckCircle className="h-8 w-8 text-emerald-600" /></div>
               <h2 className="text-2xl font-bold text-stone-900 dark:text-stone-100 mb-2">مرحبًا بك في pptides!</h2>
               {userGoalLabel && (
                 <p className="text-sm font-medium text-emerald-700 dark:text-emerald-400 mb-1">هدفك: <span className="font-bold">{userGoalLabel}</span></p>

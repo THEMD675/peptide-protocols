@@ -73,7 +73,7 @@ export default function TrackerStats({
       {/* Monthly Summary */}
       {monthlySummary && (
         <div className="mb-6 rounded-2xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 p-5 shadow-sm dark:shadow-stone-900/30">
-          <h3 className="text-sm font-bold text-stone-900 dark:text-stone-100 mb-3">📊 ملخص الشهر</h3>
+          <h3 className="text-sm font-bold text-stone-900 dark:text-stone-100 mb-3">ملخص الشهر</h3>
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
             <div className="text-center">
               <p className="text-2xl font-black text-emerald-700">{monthlySummary.totalInjections}</p>
@@ -88,7 +88,7 @@ export default function TrackerStats({
               <p className="text-xs text-stone-500 dark:text-stone-300">متوسط الجرعة ({monthlySummary.avgUnit})</p>
             </div>
             <div className="text-center">
-              <p className="text-2xl font-black text-orange-500">🔥 {monthlySummary.streak}</p>
+              <p className="text-2xl font-black text-orange-500">{monthlySummary.streak}</p>
               <p className="text-xs text-stone-500 dark:text-stone-300">أيام متتالية</p>
             </div>
           </div>

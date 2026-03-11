@@ -90,7 +90,7 @@ export default function PaymentProcessing() {
               }
             `}</style>
 
-            <p className="mb-2 text-5xl">🎉</p>
+            <CheckCircle className="mx-auto mb-2 h-12 w-12 text-emerald-600" />
             <h2 className="text-2xl font-bold text-stone-900 dark:text-stone-100">مبروك! أنت الآن عضو في pptides</h2>
             <p className="mt-2 text-sm text-stone-600 dark:text-stone-300">اشتراكك مفعّل — ابدأ رحلتك الآن</p>
             <div className="mt-4 rounded-xl bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 px-4 py-3">

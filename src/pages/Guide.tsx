@@ -619,7 +619,7 @@ function buildModules(): Module[] {
                   <p className="text-xs mt-2 text-blue-600 dark:text-blue-400">المجمّد (-20°م) = أطول فترة تخزين ممكنة</p>
                 </div>
                 <div className="rounded-xl border-2 border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-900/20 p-4">
-                  <h5 className="font-bold text-emerald-700 dark:text-emerald-300 mb-2">💉 الببتيد المحلول (بعد الإذابة)</h5>
+                  <h5 className="font-bold text-emerald-700 dark:text-emerald-300 mb-2">الببتيد المحلول (بعد الإذابة)</h5>
                   <p className="text-sm">الثلاجة حصرًا (2-8°م). لا تجمّده بعد الإذابة.</p>
                   <p className="text-xs mt-2 text-emerald-700 dark:text-emerald-400">مع BAC water = 28-30 يومًا كحد أقصى</p>
                 </div>
@@ -842,7 +842,7 @@ function buildModules(): Module[] {
                   { goal: 'مكافحة الشيخوخة', peptide: 'Epithalon', why: 'بروتوكول قصير (10-20 يومًا). آمن جدًا.' },
                 ].map((item) => (
                   <div key={item.goal} className="glass-card primary-border p-4">
-                    <span className="text-xs font-bold text-emerald-700">🎯 {item.goal}</span>
+                    <span className="text-xs font-bold text-emerald-700">{item.goal}</span>
                     <h5 className="font-bold text-stone-900 dark:text-stone-100 mt-1">{item.peptide}</h5>
                     <p className="text-xs mt-1 text-stone-600 dark:text-stone-300">{item.why}</p>
                   </div>
