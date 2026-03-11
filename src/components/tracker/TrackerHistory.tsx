@@ -324,12 +324,15 @@ export default function TrackerHistory({
         </div>
 
         {isLoadingLogs ? (
-          <div className="space-y-3 py-4" role="status" aria-label="جارٍ تحميل السجلات">
+          <div className="space-y-3 py-4 animate-fade-in" role="status" aria-label="جارٍ تحميل السجلات">
             {Array.from({ length: 3 }).map((_, i) => (
-              <div key={i} className="animate-pulse rounded-2xl border border-stone-200 dark:border-stone-600 p-5 space-y-2">
-                <div className="flex justify-between"><div className="h-5 w-28 rounded bg-stone-200 dark:bg-stone-700" /><div className="h-6 w-20 rounded-full bg-stone-100 dark:bg-stone-800" /></div>
-                <div className="h-4 w-40 rounded bg-stone-100 dark:bg-stone-800" />
-                <div className="h-4 w-32 rounded bg-stone-100 dark:bg-stone-800" />
+              <div key={i} className="rounded-2xl border border-stone-200 dark:border-stone-600 p-5 space-y-2">
+                <div className="flex justify-between">
+                  <div className="h-5 w-28 rounded animate-pulse bg-stone-200 dark:bg-stone-700 skeleton-shimmer" />
+                  <div className="h-6 w-20 rounded-full animate-pulse bg-stone-100 dark:bg-stone-800 skeleton-shimmer" />
+                </div>
+                <div className="h-4 w-40 rounded animate-pulse bg-stone-100 dark:bg-stone-800 skeleton-shimmer" />
+                <div className="h-4 w-32 rounded animate-pulse bg-stone-100 dark:bg-stone-800 skeleton-shimmer" />
               </div>
             ))}
           </div>

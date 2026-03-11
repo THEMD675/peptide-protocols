@@ -196,9 +196,9 @@ const PeptideCard = memo(function PeptideCard({
 
       {/* Lock CTA — only on locked non-free cards */}
       {!hasAccess && !peptide.isFree && (
-        <div className="mt-2 flex items-center gap-1 text-xs text-stone-400 dark:text-stone-500">
+        <div className="mt-2 rounded-lg bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 px-3 py-2 flex items-center gap-1.5 text-xs font-bold text-emerald-700 dark:text-emerald-400">
           <Lock className="h-3 w-3 shrink-0" />
-          <span>اشترك لقراءة البروتوكول الكامل</span>
+          <span>اشترك لفتح البروتوكول الكامل</span>
         </div>
       )}
     </div>

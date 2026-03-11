@@ -821,22 +821,25 @@ export default function PeptideQuiz() {
             <p className="text-base font-black text-stone-900 dark:text-stone-100 mb-1">
               ابدأ بروتوكولك الكامل مع <span className="text-emerald-700">pptides</span>
             </p>
-            <p className="text-sm text-stone-500 dark:text-stone-300 mb-4">
-              جرّب {TRIAL_DAYS} أيام مجانًا — بدون بطاقة ائتمان. بعدها {PRICING.essentials.label}/شهر فقط
+            <p className="text-sm text-stone-500 dark:text-stone-300 mb-1">
+              البروتوكول الكامل: الجرعة الدقيقة، التوقيت، التحاليل، والتجميعات
+            </p>
+            <p className="text-xs font-bold text-emerald-700 mb-4">
+              {TRIAL_DAYS} أيام مجانًا — بدون رسوم، إلغاء بضغطة واحدة
             </p>
             <div className="flex flex-col sm:flex-row gap-2 justify-center">
               <Link
                 to="/signup?redirect=/pricing"
                 className="flex items-center justify-center gap-2 rounded-xl bg-emerald-600 px-5 py-3 text-sm font-bold text-white transition-all hover:bg-emerald-700 active:scale-[0.98] shadow-lg shadow-emerald-600/20"
               >
-                ابدأ مجانًا الآن
+                ابدأ تجربتك المجانية
                 <ArrowLeft className="h-4 w-4" />
               </Link>
               <Link
                 to="/pricing"
                 className="flex items-center justify-center rounded-xl border border-stone-200 dark:border-stone-700 px-5 py-3 text-sm font-bold text-stone-700 dark:text-stone-200 transition-all hover:border-emerald-300 dark:hover:border-emerald-700"
               >
-                عرض الأسعار
+                عرض الأسعار — من {PRICING.essentials.label}/شهر
               </Link>
             </div>
           </div>
