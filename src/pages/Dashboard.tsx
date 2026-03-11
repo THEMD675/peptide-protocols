@@ -1625,6 +1625,20 @@ export default function Dashboard() {
             <Link to="/quiz" className="block text-sm text-emerald-700 hover:underline">
               أعد اختبار الببتيد المناسب لك
             </Link>
+            {subscription.isTrial && (
+              <Link
+                to="/pricing"
+                className="flex items-center gap-3 rounded-xl border border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-900/20 px-4 py-3 transition-all hover:shadow-sm hover:border-amber-300"
+              >
+                <Crown className="h-5 w-5 shrink-0 text-amber-600" />
+                <div>
+                  <p className="text-sm font-bold text-amber-800 dark:text-amber-300">ثبّت اشتراكك ولا تفقد تقدّمك</p>
+                  <p className="text-xs text-amber-700 dark:text-amber-400">
+                    {arPlural(subscription.trialDaysLeft, 'يوم واحد متبقي', 'يومان متبقيان', 'أيام متبقية')} في تجربتك المجانية
+                  </p>
+                </div>
+              </Link>
+            )}
           </div>
         </div>
       )}

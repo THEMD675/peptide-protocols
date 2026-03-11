@@ -8,6 +8,7 @@ import { supabase } from '@/lib/supabase';
 import { cn } from '@/lib/utils';
 import { events } from '@/lib/analytics';
 import { TRIAL_DAYS, SITE_URL } from '@/lib/constants';
+import { Gift } from 'lucide-react';
 
 const TURNSTILE_SITE_KEY = import.meta.env.VITE_TURNSTILE_SITE_KEY ?? '';
 const GOOGLE_CLIENT_ID = '803062121443-7497cu9tfra080sr835benjs5gl9295o.apps.googleusercontent.com';
@@ -71,6 +72,9 @@ export default function Login() {
   const navigate = useNavigate();
   const { login, signup, user } = useAuth();
   const googleBtnRef = useRef<HTMLDivElement>(null);
+  const [referralCode] = useState(() => {
+    try { const r = localStorage.getItem('pptides_referral'); return r && /^PP-[A-Z0-9]{6}$/.test(r) ? r : null; } catch { return null; }
+  });
 
   /** Switch tab, sync URL, clear errors + password, refocus email */
   const switchTab = useCallback((newTab: Tab) => {
@@ -517,10 +521,20 @@ export default function Login() {
                 : 'ابدأ رحلتك مع دليل الببتيدات الشامل'}
             </p>
             {tab === 'signup' && (
-              <p className="mt-2 text-xs font-semibold text-white/90 flex items-center justify-center gap-1.5">
-                <Shield className="h-3.5 w-3.5" />
-                تجربة {TRIAL_DAYS} أيام مجانية — إلغاء في أي وقت
-              </p>
+              <>
+                {referralCode && (
+                  <div className="mt-3 rounded-lg bg-white/15 backdrop-blur-sm px-4 py-2">
+                    <p className="text-xs font-bold text-white flex items-center justify-center gap-1.5">
+                      <Gift className="h-3.5 w-3.5" />
+                      صديقك دعاك! خصم 40% على شهرك الثاني
+                    </p>
+                  </div>
+                )}
+                <p className="mt-2 text-xs font-semibold text-white/90 flex items-center justify-center gap-1.5">
+                  <Shield className="h-3.5 w-3.5" />
+                  تجربة {TRIAL_DAYS} أيام مجانية — إلغاء في أي وقت
+                </p>
+              </>
             )}
           </div>
 
