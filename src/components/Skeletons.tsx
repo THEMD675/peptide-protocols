@@ -257,7 +257,7 @@ export function CalculatorSkeleton() {
 
 export function GenericPageSkeleton() {
   return (
-    <div className="mx-auto max-w-4xl px-4 py-8 md:px-6 md:py-12 animate-fade-in">
+    <div className="mx-auto min-h-[80vh] max-w-4xl px-4 py-8 md:px-6 md:py-12 animate-fade-in">
       <div className="mb-8 text-center">
         <Bone className="mx-auto h-8 w-48" />
         <Bone className="mx-auto mt-3 h-5 w-64" />

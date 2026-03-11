@@ -61,7 +61,7 @@ const NotFound = lazy(() => import('@/pages/NotFound'));
 
 function PageLoader() {
   return (
-    <div className="flex min-h-[60vh] flex-col items-center justify-center gap-4 animate-fade-in" role="status" aria-label="جارٍ التحميل">
+    <div className="flex min-h-[80vh] flex-col items-center justify-center gap-4 animate-fade-in" role="status" aria-label="جارٍ التحميل">
       <div className="text-xl font-bold tracking-tight text-stone-900 dark:text-stone-100" dir="ltr" aria-label="pptides">
         <span aria-hidden="true">pp</span><span className="text-emerald-700" aria-hidden="true">tides</span>
       </div>
