@@ -484,11 +484,6 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* ═══════ PEPTIDE QUIZ — after the problem, conversion intent at its peak ═══════ */}
-      <section id="quiz" className="cv-auto mx-auto max-w-2xl px-6 py-10">
-        <Suspense fallback={<div className="min-h-[360px] rounded-2xl bg-stone-100 dark:bg-stone-800 animate-pulse" />}><PeptideQuiz /></Suspense>
-      </section>
-
       {/* ═══════ SOLUTION / FEATURES ═══════ */}
       <section className="cv-auto bg-gradient-to-b from-stone-50 dark:from-stone-900 to-white dark:to-stone-950 py-24 md:py-32" aria-label="مميزات pptides">
         <div className="mx-auto max-w-6xl px-6">
@@ -543,6 +538,11 @@ export default function Landing() {
             <p className="mt-3 text-sm text-stone-500 dark:text-stone-300">{TRIAL_DAYS} أيام مجانية — إلغاء في أي وقت</p>
           </div>
         </div>
+      </section>
+
+      {/* ═══════ PEPTIDE QUIZ — after features, when user understands the value ═══════ */}
+      <section id="quiz" className="cv-auto mx-auto max-w-2xl px-6 py-10">
+        <Suspense fallback={<div className="min-h-[360px] rounded-2xl bg-stone-100 dark:bg-stone-800 animate-pulse" />}><PeptideQuiz /></Suspense>
       </section>
 
       {/* ═══════ PRODUCT PREVIEW — SHOW DON'T TELL ═══════ */}
