@@ -118,18 +118,64 @@
         descent-override: 35%;
         line-gap-override: 0%;
       }
-      /* Inline critical skeleton */
+      /* Inline critical skeleton — hero-matching layout */
       #root:empty { display:flex; flex-direction:column; min-height:100vh; background:#fafaf9; }
       .dark #root:empty { background:#0c0a09; }
+      /* Nav skeleton */
       #root:empty::before {
         content:''; display:block; height:64px; background:#059669; flex-shrink:0;
       }
+      /* Hero content skeleton using multi-layer background trick */
       #root:empty::after {
-        content:'pptides'; display:flex; align-items:center; justify-content:center;
-        flex:1; font-family:'Cairo Fallback',Arial,sans-serif; font-size:28px; font-weight:700;
-        color:#059669; opacity:0.5; animation:pulse 1.5s ease-in-out infinite;
+        content:'';
+        flex:1;
+        background-color:#fafaf9;
+        background-image:
+          /* pill badge */
+          linear-gradient(#d1fae5 0%,#d1fae5 100%),
+          /* headline line 1 */
+          linear-gradient(#e7e5e4 0%,#e7e5e4 100%),
+          /* headline line 2 */
+          linear-gradient(#e7e5e4 0%,#e7e5e4 100%),
+          /* sub-headline */
+          linear-gradient(#e7e5e4 0%,#e7e5e4 100%),
+          /* sub-headline line 2 */
+          linear-gradient(#e7e5e4 0%,#e7e5e4 100%),
+          /* CTA primary button */
+          linear-gradient(#059669 0%,#059669 100%),
+          /* CTA secondary button */
+          linear-gradient(#e7e5e4 0%,#e7e5e4 100%);
+        background-repeat: no-repeat;
+        background-size:
+          160px 32px,
+          55% 40px,
+          45% 40px,
+          60% 20px,
+          50% 20px,
+          220px 52px,
+          160px 52px;
+        background-position:
+          calc(50% - 0px) 40px,
+          calc(50% - 0px) 100px,
+          calc(50% - 0px) 156px,
+          calc(50% - 0px) 224px,
+          calc(50% - 0px) 256px,
+          calc(50% - 106px) 308px,
+          calc(50% + 110px) 308px;
+        animation:skeleton-shimmer 1.6s ease-in-out infinite;
       }
-      @keyframes pulse { 0%,100%{opacity:0.3} 50%{opacity:0.6} }
+      .dark #root:empty::after {
+        background-color:#0c0a09;
+        background-image:
+          linear-gradient(rgba(16,185,129,0.2) 0%,rgba(16,185,129,0.2) 100%),
+          linear-gradient(#292524 0%,#292524 100%),
+          linear-gradient(#292524 0%,#292524 100%),
+          linear-gradient(#292524 0%,#292524 100%),
+          linear-gradient(#292524 0%,#292524 100%),
+          linear-gradient(#047857 0%,#047857 100%),
+          linear-gradient(#292524 0%,#292524 100%);
+      }
+      @keyframes skeleton-shimmer { 0%,100%{opacity:0.7} 50%{opacity:1} }
     </style>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet" media="print" onload="this.media='all'" />
 
