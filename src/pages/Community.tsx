@@ -332,7 +332,7 @@ function Leaderboard({ leaders }: { leaders: LeaderEntry[] }) {
               {leader.display_initial}
             </div>
             <div className="flex-1 min-w-0">
-              <span className="text-sm font-medium text-stone-700 dark:text-stone-200">عضو مجتمع</span>
+              <span className="text-sm font-medium text-stone-700 dark:text-stone-200">عضو #{String(Math.abs(leader.user_id.split('').reduce((h, c) => ((h << 5) - h + c.charCodeAt(0)) | 0, 0)) % 9000 + 1000)}</span>
             </div>
             <span className="inline-flex items-center rounded-full bg-emerald-100 dark:bg-emerald-900/30 px-2.5 py-0.5 text-xs font-bold text-emerald-700 dark:text-emerald-400">
               {leader.post_count} {leader.post_count === 1 ? 'مشاركة' : leader.post_count === 2 ? 'مشاركتان' : 'مشاركات'}
@@ -475,7 +475,7 @@ export default function Community() {
           .map(([uid, count]) => ({
             user_id: uid,
             post_count: count,
-            display_initial: uid.charAt(0).toUpperCase(),
+            display_initial: 'م',
           }));
         setLeaders(sorted);
       }
@@ -801,7 +801,7 @@ export default function Community() {
                         'flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-sm font-bold text-white',
                         getAvatarColor(user.id)
                       )}>
-                        {user.email.charAt(0).toUpperCase()}
+                        م
                       </div>
                       <div>
                         <h3 className="text-lg font-bold text-stone-900 dark:text-stone-100">شارك تجربتك</h3>
@@ -1455,32 +1455,52 @@ export default function Community() {
                                 'flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-xs font-bold text-white mt-1',
                                 getAvatarColor(user.id)
                               )}>
-                                {user.email.charAt(0).toUpperCase()}
+                                م
                               </div>
-                              <div className="flex-1 flex gap-2">
-                                <textarea
-                                  value={replyText[log.id] ?? ''}
-                                  onChange={e => setReplyText(prev => ({ ...prev, [log.id]: e.target.value }))}
-                                  placeholder="اكتب ردًا..."
-                                  maxLength={1000}
-                                  rows={1}
-                                  className="flex-1 resize-none rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 px-3 py-2 text-sm text-stone-900 dark:text-stone-100 placeholder:text-stone-400 focus:border-emerald-300 dark:focus:border-emerald-700 focus:outline-none focus:ring-1 focus:ring-emerald-100 dark:focus:ring-emerald-900"
-                                  onKeyDown={e => {
-                                    if (e.key === 'Enter' && !e.shiftKey) {
-                                      e.preventDefault();
-                                      submitReply(log.id);
-                                    }
-                                  }}
-                                />
-                                <button
-                                  type="button"
-                                  onClick={() => submitReply(log.id)}
-                                  disabled={!(replyText[log.id] ?? '').trim() || submittingReply.has(log.id)}
-                                  className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-600 text-white transition-colors hover:bg-emerald-700 disabled:opacity-40 disabled:cursor-not-allowed min-h-[44px] min-w-[44px]"
-                                  aria-label="إرسال الرد"
-                                >
-                                  <Send className="h-4 w-4" />
-                                </button>
+                              <div className="flex-1 space-y-1">
+                                <div className="flex gap-2">
+                                  <textarea
+                                    value={replyText[log.id] ?? ''}
+                                    onChange={e => {
+                                      setReplyText(prev => ({ ...prev, [log.id]: e.target.value }));
+                                      e.target.style.height = 'auto';
+                                      e.target.style.height = e.target.scrollHeight + 'px';
+                                    }}
+                                    placeholder="اكتب ردًا... (Enter للإرسال، Shift+Enter لسطر جديد)"
+                                    maxLength={1000}
+                                    rows={1}
+                                    style={{ overflow: 'hidden' }}
+                                    className="flex-1 resize-none rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 px-3 py-2 text-sm text-stone-900 dark:text-stone-100 placeholder:text-stone-400 focus:border-emerald-300 dark:focus:border-emerald-700 focus:outline-none focus:ring-1 focus:ring-emerald-100 dark:focus:ring-emerald-900"
+                                    onKeyDown={e => {
+                                      if (e.key === 'Enter' && !e.shiftKey) {
+                                        e.preventDefault();
+                                        submitReply(log.id);
+                                      }
+                                    }}
+                                  />
+                                  <button
+                                    type="button"
+                                    onClick={() => submitReply(log.id)}
+                                    disabled={!(replyText[log.id] ?? '').trim() || submittingReply.has(log.id)}
+                                    className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-600 text-white transition-colors hover:bg-emerald-700 disabled:opacity-40 disabled:cursor-not-allowed min-h-[44px] min-w-[44px]"
+                                    aria-label="إرسال الرد"
+                                  >
+                                    {submittingReply.has(log.id)
+                                      ? <Loader2 className="h-4 w-4 animate-spin" />
+                                      : <Send className="h-4 w-4" />}
+                                  </button>
+                                </div>
+                                {/* Character counter */}
+                                {(replyText[log.id] ?? '').length > 0 && (
+                                  <p className={cn(
+                                    'text-end text-[11px]',
+                                    (replyText[log.id] ?? '').length > 900
+                                      ? 'text-amber-500 dark:text-amber-400'
+                                      : 'text-stone-400'
+                                  )}>
+                                    {(replyText[log.id] ?? '').length}/1000
+                                  </p>
+                                )}
                               </div>
                             </div>
                           ) : (
@@ -1521,7 +1541,9 @@ export default function Community() {
                     disabled={loadingMore}
                     className="flex w-full items-center justify-center gap-2 rounded-2xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 py-4 min-h-[44px] text-sm font-bold text-stone-600 dark:text-stone-300 transition-all hover:border-emerald-300 dark:hover:border-emerald-700 hover:text-emerald-700 dark:hover:text-emerald-400 disabled:opacity-50"
                   >
-                    {loadingMore ? 'جارٍ التحميل...' : 'تحميل المزيد'}
+                    {loadingMore ? (
+                      <><Loader2 className="h-4 w-4 animate-spin" /> جارٍ التحميل...</>
+                    ) : 'تحميل المزيد'}
                   </button>
                 )}
               </div>
