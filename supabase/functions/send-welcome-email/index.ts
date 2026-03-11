@@ -228,6 +228,14 @@ serve(async (req) => {
 
     const data = { ok: true }
 
+    // Mark welcome_enhanced drip as sent (so onboarding-drip skips Day 0)
+    if (serviceSupabase) {
+      serviceSupabase.from('drip_emails_sent')
+        .insert({ user_id: user.id, email_key: 'welcome_enhanced' })
+        .then(() => {})
+        .catch(() => {}) // ignore if table doesn't exist yet or duplicate
+    }
+
     // Handle referral tracking with service role (bypasses RLS)
     if (referralCode && /^PP-[A-Z0-9]{6}$/.test(referralCode) && serviceSupabase) {
       try {
