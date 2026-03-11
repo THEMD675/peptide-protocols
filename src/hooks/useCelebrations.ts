@@ -1,5 +1,6 @@
 import { useCallback } from 'react';
 import { toast } from 'sonner';
+import confetti from 'canvas-confetti';
 
 const CELEBRATION_KEY = 'pptides_celebrations';
 
@@ -20,6 +21,56 @@ function markCelebration(key: string) {
   } catch { /* expected */ }
 }
 
+/** Big burst — first injection, major milestones */
+function fireConfetti() {
+  const duration = 2500;
+  const end = Date.now() + duration;
+  const colors = ['#10b981', '#f59e0b', '#8b5cf6', '#ef4444', '#3b82f6'];
+
+  (function frame() {
+    confetti({
+      particleCount: 3,
+      angle: 60,
+      spread: 55,
+      origin: { x: 0, y: 0.7 },
+      colors,
+      zIndex: 9999,
+    });
+    confetti({
+      particleCount: 3,
+      angle: 120,
+      spread: 55,
+      origin: { x: 1, y: 0.7 },
+      colors,
+      zIndex: 9999,
+    });
+    if (Date.now() < end) requestAnimationFrame(frame);
+  })();
+}
+
+/** Quick burst — streak milestones, 10/25/50 injections */
+function fireStreakCelebration() {
+  confetti({
+    particleCount: 80,
+    spread: 70,
+    origin: { y: 0.6 },
+    colors: ['#f97316', '#ef4444', '#eab308'],
+    zIndex: 9999,
+  });
+}
+
+/** Grand finale — 100+ injections */
+function fireGrandCelebration() {
+  const defaults = { startVelocity: 30, spread: 360, ticks: 80, zIndex: 9999 };
+  function shoot() {
+    confetti({ ...defaults, particleCount: 40, origin: { x: Math.random() * 0.4 + 0.1, y: Math.random() * 0.3 } });
+    confetti({ ...defaults, particleCount: 40, origin: { x: Math.random() * 0.4 + 0.5, y: Math.random() * 0.3 } });
+  }
+  shoot();
+  setTimeout(shoot, 250);
+  setTimeout(shoot, 500);
+}
+
 export function useCelebrations() {
   const celebrate = useCallback((totalInjections: number, streak: number) => {
     const celebrated = getCelebrations();
@@ -27,6 +78,7 @@ export function useCelebrations() {
     if (totalInjections === 1 && !celebrated['first_injection']) {
       markCelebration('first_injection');
       setTimeout(() => {
+        fireConfetti();
         toast.success('🎉 مبروك! سجّلت أول حقنة لك', {
           duration: 5000,
           description: 'بداية رحلتك مع الببتيدات — سجّل كل حقنة لمتابعة تقدّمك',
@@ -51,6 +103,7 @@ export function useCelebrations() {
           desc: 'التزامك مثال يُحتذى',
         };
         setTimeout(() => {
+          fireStreakCelebration();
           toast.success(msg.title, { duration: 5000, description: msg.desc });
         }, 300);
         return;
@@ -60,6 +113,7 @@ export function useCelebrations() {
     if (totalInjections >= 10 && !celebrated['ten_injections']) {
       markCelebration('ten_injections');
       setTimeout(() => {
+        fireStreakCelebration();
         toast.success('10 حقنات مسجّلة!', {
           duration: 4000,
           description: 'أنت على الطريق الصحيح',
@@ -71,6 +125,7 @@ export function useCelebrations() {
     if (totalInjections >= 25 && !celebrated['milestone_25']) {
       markCelebration('milestone_25');
       setTimeout(() => {
+        fireStreakCelebration();
         toast.success('25 حقنة! أنت ملتزم بشكل رائع', {
           duration: 5000,
         });
@@ -81,6 +136,7 @@ export function useCelebrations() {
     if (totalInjections >= 50 && !celebrated['fifty_injections']) {
       markCelebration('fifty_injections');
       setTimeout(() => {
+        fireConfetti();
         toast.success('50 حقنة! مستخدم متقدّم', {
           duration: 4000,
           description: 'خبرتك تتزايد — شارك تجربتك لمساعدة الآخرين',
@@ -92,8 +148,10 @@ export function useCelebrations() {
     if (totalInjections >= 100 && !celebrated['milestone_100']) {
       markCelebration('milestone_100');
       setTimeout(() => {
-        toast.success('100 حقنة! إنجاز استثنائي', {
-          duration: 5000,
+        fireGrandCelebration();
+        toast.success('🏆 100 حقنة! إنجاز استثنائي', {
+          duration: 6000,
+          description: 'أنت من النخبة — شارك قصتك مع المجتمع',
         });
       }, 300);
     }
