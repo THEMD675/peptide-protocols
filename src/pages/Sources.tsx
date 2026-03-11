@@ -355,6 +355,20 @@ function CitationBrowser() {
 
       {/* Citation List */}
       <div className="space-y-2">
+        {filteredCitations.length === 0 && (
+          <div className="py-12 text-center rounded-2xl border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-900">
+            <Search className="mx-auto mb-3 h-8 w-8 text-stone-400" />
+            <p className="text-sm font-medium text-stone-500 dark:text-stone-300">
+              {searchQuery ? `لا توجد مراجع تطابق "${searchQuery}"` : 'لا توجد مراجع لهذا الببتيد'}
+            </p>
+            <button
+              onClick={() => { setSearchQuery(''); setSelectedPeptideFilter('all'); }}
+              className="mt-2 text-xs text-emerald-700 hover:underline"
+            >
+              مسح الفلاتر
+            </button>
+          </div>
+        )}
         {displayedCitations.map((citation) => {
           const isExpanded = expandedPmid === citation.pmid;
 
@@ -511,6 +525,12 @@ function PeptideCitationMap() {
         اضغط على أي ببتيد لعرض مراجعه العلمية في PubMed
       </p>
 
+      {peptidesWithCitations.length === 0 && (
+        <div className="py-12 text-center rounded-2xl border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-900">
+          <FlaskConical className="mx-auto mb-3 h-8 w-8 text-stone-400" />
+          <p className="text-sm text-stone-500 dark:text-stone-300">لا توجد ببتيدات مع مراجع علمية حتى الآن</p>
+        </div>
+      )}
       <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
         {peptidesWithCitations.map(p => {
           const isExpanded = expandedPeptide === p.id;

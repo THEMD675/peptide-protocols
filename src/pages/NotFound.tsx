@@ -49,7 +49,7 @@ export default function NotFound() {
   }, []);
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center py-16 px-6 animate-fade-in" dir="rtl">
+    <div id="main-content" className="min-h-screen flex flex-col items-center justify-center py-16 px-6 animate-fade-in" dir="rtl">
       <Helmet>
         <title>الصفحة غير موجودة | pptides</title>
         <meta name="robots" content="noindex" />

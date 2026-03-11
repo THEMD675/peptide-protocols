@@ -312,11 +312,12 @@ function RangeBar({ biomarker, value }: { biomarker: BiomarkerInfo; value?: numb
     else markerColor = 'bg-emerald-400';
   }
 
+  // Always render the bar LTR — it represents a numerical scale regardless of page direction
   return (
-    <div className="relative h-4 w-full rounded-full bg-stone-200 dark:bg-stone-700 overflow-hidden">
+    <div className="relative h-4 w-full rounded-full bg-stone-200 dark:bg-stone-700 overflow-hidden" dir="ltr">
       {/* Red low zone */}
       <div
-        className="absolute inset-y-0 start-0 bg-red-300/40 dark:bg-red-900/30"
+        className="absolute inset-y-0 left-0 bg-red-300/40 dark:bg-red-900/30"
         style={{ width: `${greenStart}%` }}
       />
       {/* Green normal zone */}
@@ -326,7 +327,7 @@ function RangeBar({ biomarker, value }: { biomarker: BiomarkerInfo; value?: numb
       />
       {/* Red high zone */}
       <div
-        className="absolute inset-y-0 end-0 bg-red-300/40 dark:bg-red-900/30"
+        className="absolute inset-y-0 right-0 bg-red-300/40 dark:bg-red-900/30"
         style={{ width: `${100 - greenEnd}%` }}
       />
       {/* Value marker */}
@@ -424,6 +425,13 @@ function InteractiveReferenceRanges({ isPro, blurClass }: { isPro: boolean; blur
       </div>
 
       <div className="relative space-y-3">
+        {filtered.length === 0 && (
+          <div className="py-12 text-center rounded-2xl border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-900">
+            <Search className="mx-auto mb-3 h-8 w-8 text-stone-400" />
+            <p className="text-sm font-medium text-stone-500 dark:text-stone-300">لا توجد تحاليل تطابق "{filter}"</p>
+            <button onClick={() => setFilter('')} className="mt-2 text-xs text-emerald-700 hover:underline">مسح البحث</button>
+          </div>
+        )}
         {filtered.map((b) => {
           const isExpanded = expandedId === b.id;
           return (

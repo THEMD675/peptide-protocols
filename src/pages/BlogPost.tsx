@@ -1,7 +1,7 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
-import { ArrowRight, CalendarDays, User, Tag } from 'lucide-react';
+import { ArrowRight, CalendarDays, User, Tag, Clock } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { SITE_URL } from '@/lib/constants';
 import { renderMarkdown } from '@/lib/markdown';
@@ -101,6 +101,9 @@ export default function BlogPost() {
     );
   }
 
+  // Estimated reading time (~200 Arabic words/min)
+  const readingTime = Math.max(1, Math.round(post.content_ar.trim().split(/\s+/).length / 200));
+
   return (
     <div className="min-h-screen animate-fade-in">
       <Helmet>
@@ -113,6 +116,10 @@ export default function BlogPost() {
         <meta property="og:image" content={post.cover_image_url || `${SITE_URL}/og-image.jpg`} />
         <meta property="og:locale" content="ar_SA" />
         <meta property="article:published_time" content={post.published_at} />
+        <meta property="article:author" content={post.author} />
+        {post.tags.map(tag => (
+          <meta key={tag} property="article:tag" content={tag} />
+        ))}
         <link rel="canonical" href={`${SITE_URL}/blog/${post.slug}`} />
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content={post.title_ar} />
@@ -187,6 +194,10 @@ export default function BlogPost() {
               {post.tags.join('، ')}
             </div>
           )}
+          <div className="flex items-center gap-1.5">
+            <Clock className="h-4 w-4" />
+            <span>{readingTime} دقيقة قراءة</span>
+          </div>
         </div>
 
         <article className="text-stone-800 dark:text-stone-200 leading-relaxed text-[15px]">

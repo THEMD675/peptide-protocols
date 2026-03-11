@@ -110,7 +110,7 @@ function GlossaryCard({ term, search, allPeptides }: { term: GlossaryTerm; searc
               <Link
                 key={pid}
                 to={`/peptide/${pid}`}
-                className="inline-flex items-center gap-1 rounded-full border border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-900/30 px-2.5 py-1.5 text-xs font-medium text-emerald-700 dark:text-emerald-400 transition-colors hover:bg-emerald-100 dark:hover:bg-emerald-900/50 min-h-[44px]"
+                className="inline-flex items-center gap-1 rounded-full border border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-900/30 px-2.5 py-1 text-xs font-medium text-emerald-700 dark:text-emerald-400 transition-colors hover:bg-emerald-100 dark:hover:bg-emerald-900/50"
               >
                 <FlaskConical className="h-3 w-3" />
                 {p.nameEn}
@@ -185,10 +185,10 @@ export default function Glossary() {
 
       {/* Header */}
       <div className="mb-10 text-center">
-        <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-100">
+        <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-100 dark:bg-emerald-900/30">
           <BookA className="h-7 w-7 text-emerald-700" />
         </div>
-        <h1 className="text-3xl font-bold text-emerald-700 md:text-4xl">المصطلحات</h1>
+        <h1 className="text-3xl font-bold text-emerald-700 dark:text-emerald-400 md:text-4xl">المصطلحات</h1>
         <p className="mt-2 text-lg text-stone-600 dark:text-stone-300">قاموس شامل لمصطلحات الببتيدات والبيوهاكينغ</p>
       </div>
 
@@ -265,7 +265,7 @@ export default function Glossary() {
       )}
 
       {/* CTA */}
-      <div className="mt-12 rounded-2xl border border-emerald-200 bg-emerald-50 p-6 text-center">
+      <div className="mt-12 rounded-2xl border border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-900/20 p-6 text-center">
         <p className="font-bold text-stone-900 dark:text-stone-100">مستعد تبدأ؟</p>
         <p className="mt-1 text-sm text-stone-600 dark:text-stone-300">تصفّح البروتوكولات الكاملة لـ {PEPTIDE_COUNT}+ ببتيد</p>
         <div className="mt-4 flex flex-col gap-2 sm:flex-row sm:justify-center">

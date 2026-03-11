@@ -7,7 +7,7 @@ const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY') ?? ''
 
 const APP_URL = Deno.env.get('APP_URL') ?? 'https://pptides.com'
 // SOURCE OF TRUTH: must match src/lib/constants.ts (peptides.length)
-const PEPTIDE_COUNT = parseInt(Deno.env.get('PEPTIDE_COUNT') ?? '63', 10)
+const PEPTIDE_COUNT = parseInt(Deno.env.get('PEPTIDE_COUNT') ?? '48', 10)
 // SOURCE OF TRUTH: 34 SAR = 1 month Essentials; override via ESSENTIALS_PRICE_DISPLAY env
 const ESSENTIALS_PRICE = Deno.env.get('ESSENTIALS_PRICE_DISPLAY') ?? '34 ر.س'
 import { getCorsHeaders, handleCorsPreflightIfOptions } from '../_shared/cors.ts'
@@ -175,8 +175,16 @@ serve(async (req) => {
       day: 'numeric',
     })
 
-    const rawName = name || email.split('@')[0]
-    const displayName = rawName
+    // If no name provided, derive a clean display name from the email prefix.
+    // Strip common separators and truncate so "john.doe+test123" becomes "John".
+    const rawName = name && name.trim()
+      ? name.trim()
+      : email.split('@')[0]
+          .split(/[._+\-]/)[0]  // take only the first segment (john from john.doe+test)
+          .replace(/\d+$/, '')  // strip trailing digits (user123 → user)
+    // Capitalize first letter for a friendly greeting
+    const cleanName = rawName.charAt(0).toUpperCase() + rawName.slice(1).toLowerCase()
+    const displayName = cleanName
       .replace(/&/g, '&amp;')
       .replace(/</g, '&lt;')
       .replace(/>/g, '&gt;')

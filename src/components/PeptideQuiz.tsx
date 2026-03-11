@@ -5,10 +5,10 @@ import {
   TrendingDown, Heart, Brain, Zap, Clock, Shield,
   Syringe, Pill, SprayCan, Dumbbell, Moon, Sparkles,
   Activity, AlertTriangle, Bookmark, Share2, Calculator,
-  ChevronLeft,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
+import { PRICING } from '@/lib/constants';
 import { supabase } from '@/lib/supabase';
 import { events } from '@/lib/analytics';
 import { peptides as allPeptides } from '@/data/peptides';
@@ -503,6 +503,7 @@ export default function PeptideQuiz() {
   }, [step, user, saveResult]);
 
   const handleMultiSelectContinue = useCallback(() => {
+    setDirection('forward');
     if (step >= STEPS.length - 1) {
       const protocol = getProtocol(answers);
       setResult(protocol);
@@ -510,7 +511,6 @@ export default function PeptideQuiz() {
       setPhase('result');
       events.quizComplete(answers.goal ?? 'general');
     } else {
-      setDirection('forward');
       setStep(s => s + 1);
     }
   }, [step, answers, saveResult]);
@@ -647,6 +647,7 @@ export default function PeptideQuiz() {
   if (phase === 'result' && result) {
     const primaryData = allPeptides.find(p => p.id === result.primary.peptideId);
     const hasCalcPreset = primaryData && !ORAL_NASAL_TOPICAL_IDS.has(result.primary.peptideId);
+    const showSubscribeCTA = !user;
 
     return (
       <div className="space-y-4 animate-fade-in">
@@ -813,6 +814,33 @@ export default function PeptideQuiz() {
             </button>
           </div>
         </div>
+
+        {/* Subscribe CTA for non-users */}
+        {showSubscribeCTA && (
+          <div className="rounded-2xl border-2 border-emerald-200 dark:border-emerald-800 bg-gradient-to-b from-emerald-50 to-white dark:from-emerald-950/30 dark:to-stone-950 p-6 text-center">
+            <p className="text-base font-black text-stone-900 dark:text-stone-100 mb-1">
+              ابدأ بروتوكولك الكامل مع <span className="text-emerald-700">pptides</span>
+            </p>
+            <p className="text-sm text-stone-500 dark:text-stone-300 mb-4">
+              وصول لـ {PRICING.essentials.label}/شهر فقط — أو جرّب {3} أيام مجانًا
+            </p>
+            <div className="flex flex-col sm:flex-row gap-2 justify-center">
+              <Link
+                to="/signup?redirect=/pricing"
+                className="flex items-center justify-center gap-2 rounded-xl bg-emerald-600 px-5 py-3 text-sm font-bold text-white transition-all hover:bg-emerald-700 active:scale-[0.98] shadow-lg shadow-emerald-600/20"
+              >
+                ابدأ مجانًا الآن
+                <ArrowLeft className="h-4 w-4" />
+              </Link>
+              <Link
+                to="/pricing"
+                className="flex items-center justify-center rounded-xl border border-stone-200 dark:border-stone-700 px-5 py-3 text-sm font-bold text-stone-700 dark:text-stone-200 transition-all hover:border-emerald-300 dark:hover:border-emerald-700"
+              >
+                عرض الأسعار
+              </Link>
+            </div>
+          </div>
+        )}
 
         {/* Medical Disclaimer */}
         <div className="rounded-xl bg-stone-100 dark:bg-stone-900/50 p-4 text-center">

@@ -272,6 +272,15 @@ export default function Pricing() {
               {TRIAL_DAYS} أيام مجانية — جرّب كل الأدوات بدون مخاطرة.
             </p>
           )}
+          {userCount > 0 && (
+            <div className="mt-4 inline-flex items-center gap-2 rounded-full border border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-900/20 px-4 py-1.5 text-sm font-semibold text-emerald-700 dark:text-emerald-400">
+              <span className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+                <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500" />
+              </span>
+              {userCount.toLocaleString('ar-SA')}+ مشترك نشط الآن
+            </div>
+          )}
           <div className="mt-6 flex flex-wrap items-center justify-center gap-4 sm:gap-6 text-sm text-stone-500 dark:text-stone-300">
             <span className="flex items-center gap-1.5"><Check className="h-4 w-4 shrink-0 text-emerald-600" /> إلغاء في أي وقت</span>
             <span className="flex items-center gap-1.5"><Shield className="h-4 w-4 shrink-0 text-emerald-600" /> ضمان استرداد {TRIAL_DAYS} أيام</span>
@@ -387,6 +396,18 @@ export default function Pricing() {
           يمكنك الإلغاء في أي وقت — لا التزامات ولا رسوم مخفية
         </p>
 
+        {/* Free Tier Teaser */}
+        <div className="mt-8 rounded-2xl border border-dashed border-stone-300 dark:border-stone-600 bg-stone-50 dark:bg-stone-900/50 p-5 text-center">
+          <p className="text-sm font-semibold text-stone-700 dark:text-stone-200">
+            هل تريد تجربة المنصة قبل الاشتراك؟{' '}
+            <Link to="/library" className="text-emerald-700 underline underline-offset-2">
+              تصفّح 6 ببتيدات مجانًا
+            </Link>{' '}
+            — بدون بطاقة بنكية
+          </p>
+          <p className="mt-1 text-xs text-stone-500 dark:text-stone-300">يشمل BPC-157 و Semaglutide و Epithalon وغيرها</p>
+        </div>
+
         {/* Feature Comparison Table */}
         <div className="mt-12">
           <h2 className="mb-6 text-center text-2xl font-bold text-stone-900 dark:text-stone-100">مقارنة الباقات</h2>
@@ -467,7 +488,7 @@ export default function Pricing() {
             {eliteValueStack.map((item, i) => (
               <div
                 key={i}
-                className="flex items-center justify-between rounded-xl border border-emerald-100 bg-emerald-50/30 px-6 py-4"
+                className="flex items-center justify-between rounded-xl border border-emerald-100 dark:border-emerald-800 bg-emerald-50/30 dark:bg-emerald-900/20 px-6 py-4"
               >
                 <div className="flex items-center gap-3">
                   <Crown className="h-5 w-5 shrink-0 text-emerald-700" />
@@ -485,7 +506,7 @@ export default function Pricing() {
 
         {/* Money-back guarantee */}
         <div
-          className="mt-16 rounded-2xl border-2 border-emerald-300 dark:border-emerald-700 bg-gradient-to-r from-emerald-50 to-emerald-100 p-8"
+          className="mt-16 rounded-2xl border-2 border-emerald-300 dark:border-emerald-700 bg-gradient-to-r from-emerald-50 to-emerald-100 dark:from-emerald-950/40 dark:to-emerald-900/20 p-8"
         >
           <div className="flex flex-col items-center gap-4 sm:flex-row sm:gap-6">
             <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full bg-emerald-200">

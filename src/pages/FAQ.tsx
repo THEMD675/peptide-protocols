@@ -224,16 +224,31 @@ export default function FAQ() {
         </div>
 
         {/* Search */}
-        <div className="relative mb-10">
+        <div className="relative mb-6">
           <Search className="pointer-events-none absolute start-4 top-1/2 h-5 w-5 -translate-y-1/2 text-stone-400 dark:text-stone-300" />
           <input
             type="text"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
+            onKeyDown={(e) => { if (e.key === 'Escape') setSearch(''); }}
             placeholder="ابحث في الأسئلة الشائعة..."
-            className="w-full rounded-2xl border border-stone-200 dark:border-stone-600 bg-stone-50 dark:bg-stone-900 py-3.5 pe-4 ps-12 text-stone-900 dark:text-stone-100 placeholder:text-stone-400 dark:placeholder:text-stone-500 dark:text-stone-300 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-200 dark:focus:ring-emerald-800 transition-colors min-h-[44px]"
+            className="w-full rounded-2xl border border-stone-200 dark:border-stone-600 bg-stone-50 dark:bg-stone-900 py-3.5 pe-12 ps-12 text-stone-900 dark:text-stone-100 placeholder:text-stone-400 dark:placeholder:text-stone-500 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-200 dark:focus:ring-emerald-800 transition-colors min-h-[44px]"
           />
+          {search && (
+            <button
+              onClick={() => setSearch('')}
+              aria-label="مسح البحث"
+              className="absolute end-4 top-1/2 -translate-y-1/2 flex h-6 w-6 items-center justify-center rounded-full bg-stone-200 dark:bg-stone-700 text-stone-500 dark:text-stone-300 transition-colors hover:bg-stone-300 dark:hover:bg-stone-600"
+            >
+              <span className="text-xs font-bold">✕</span>
+            </button>
+          )}
         </div>
+        {search.trim() && (
+          <p className="mb-6 text-sm text-stone-500 dark:text-stone-400">
+            {filtered.flatMap(s => s.items).length} نتيجة للبحث عن &ldquo;{search}&rdquo;
+          </p>
+        )}
 
         {/* Sections */}
         {filtered.length === 0 ? (

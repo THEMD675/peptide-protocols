@@ -12,7 +12,7 @@ import { sendEmail } from '../_shared/send-email.ts'
 const supabaseUrl = Deno.env.get('SUPABASE_URL') ?? ''
 const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
 const APP_URL = Deno.env.get('APP_URL') ?? 'https://pptides.com'
-const PEPTIDE_COUNT = parseInt(Deno.env.get('PEPTIDE_COUNT') ?? '63', 10)
+const PEPTIDE_COUNT = parseInt(Deno.env.get('PEPTIDE_COUNT') ?? '48', 10)
 
 function constantTimeCompare(a: string, b: string): boolean {
   if (a.length !== b.length) return false

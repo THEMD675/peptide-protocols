@@ -293,6 +293,7 @@ export default function PeptideTable() {
   const [visibleCols, setVisibleCols] = useState<ColumnKey[]>(loadVisibleCols);
   const [compareIds, setCompareIds] = useState<string[]>([]);
   const [showColPicker, setShowColPicker] = useState(false);
+  const [isExporting, setIsExporting] = useState(false);
 
   // Persist column visibility
   useEffect(() => {
@@ -484,7 +485,7 @@ export default function PeptideTable() {
         <section className="mb-6 space-y-4">
           {/* Search */}
           <div className="relative max-w-lg">
-            <Search className="absolute end-3 top-1/2 h-4 w-4 -translate-y-1/2 text-stone-800 dark:text-stone-200" />
+            <Search className="absolute start-3 top-1/2 h-4 w-4 -translate-y-1/2 text-stone-400 pointer-events-none" />
             <input
               type="text"
               value={search}
@@ -551,18 +552,20 @@ export default function PeptideTable() {
 
             {/* Export buttons */}
             <button
-              onClick={() => exportCSV(filtered, visibleCols)}
-              className="flex min-h-[44px] items-center gap-2 rounded-xl border border-stone-300 dark:border-stone-600 bg-stone-50 dark:bg-stone-900 px-4 py-2 text-sm font-semibold text-stone-800 dark:text-stone-200 transition-colors hover:border-emerald-400 hover:text-emerald-700"
+              onClick={() => { setIsExporting(true); try { exportCSV(filtered, visibleCols); } finally { setIsExporting(false); } }}
+              disabled={isExporting}
+              className="flex min-h-[44px] items-center gap-2 rounded-xl border border-stone-300 dark:border-stone-600 bg-stone-50 dark:bg-stone-900 px-4 py-2 text-sm font-semibold text-stone-800 dark:text-stone-200 transition-colors hover:border-emerald-400 hover:text-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <Download className="h-4 w-4" />
               تحميل CSV
             </button>
             <button
-              onClick={() => void exportAsImage(filtered, visibleCols)}
-              className="flex min-h-[44px] items-center gap-2 rounded-xl border border-stone-300 dark:border-stone-600 bg-stone-50 dark:bg-stone-900 px-4 py-2 text-sm font-semibold text-stone-800 dark:text-stone-200 transition-colors hover:border-emerald-400 hover:text-emerald-700"
+              onClick={async () => { setIsExporting(true); try { await exportAsImage(filtered, visibleCols); } finally { setIsExporting(false); } }}
+              disabled={isExporting}
+              className="flex min-h-[44px] items-center gap-2 rounded-xl border border-stone-300 dark:border-stone-600 bg-stone-50 dark:bg-stone-900 px-4 py-2 text-sm font-semibold text-stone-800 dark:text-stone-200 transition-colors hover:border-emerald-400 hover:text-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              <Download className="h-4 w-4" />
-              تحميل صورة
+              {isExporting ? <ArrowUpDown className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />}
+              {isExporting ? 'جارٍ التحميل...' : 'تحميل صورة'}
             </button>
           </div>
 
@@ -658,7 +661,7 @@ export default function PeptideTable() {
                           className={cn(
                             'border-b-2 border-emerald-200 dark:border-emerald-800 px-3 py-3.5 text-start text-xs font-bold tracking-wide',
                             isSticky
-                              ? 'sticky end-0 z-20 bg-gradient-to-l from-emerald-500 to-emerald-600 text-white'
+                              ? 'sticky start-0 z-20 bg-gradient-to-r from-emerald-500 to-emerald-600 text-white'
                               : 'text-white',
                             col.sortable && 'cursor-pointer select-none hover:bg-emerald-400/30 transition-colors'
                           )}
@@ -738,7 +741,7 @@ export default function PeptideTable() {
 
                               case 'name':
                                 return (
-                                  <td key={col.key} className={cn('sticky end-0 z-10 px-3 py-3', rowBg)}>
+                                  <td key={col.key} className={cn('sticky start-0 z-10 px-3 py-3 border-e border-stone-200 dark:border-stone-700', rowBg)}>
                                     <Link to={`/peptide/${p.id}`} className="group block" onClick={(e) => e.stopPropagation()}>
                                       <span className="block font-bold text-stone-900 dark:text-stone-100 transition-colors group-hover:text-emerald-700 group-hover:underline">
                                         {p.nameAr}

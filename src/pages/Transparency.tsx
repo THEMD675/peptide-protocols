@@ -1,7 +1,7 @@
 import { Helmet } from 'react-helmet-async';
 import { Link } from 'react-router-dom';
 import { Check, X, Shield, CreditCard, FileSearch, Scale, Eye, Trash2, ArrowLeft, BookOpen, CheckCircle, XCircle } from 'lucide-react';
-import { SITE_URL, SUPPORT_EMAIL, TRIAL_DAYS, PUBMED_SOURCE_COUNT } from '@/lib/constants';
+import { SITE_URL, SUPPORT_EMAIL, TRIAL_DAYS, PUBMED_SOURCE_COUNT, PRICING, LEGAL_LAST_UPDATED } from '@/lib/constants';
 
 const whatWeDo = [
   'نقدم محتوى تعليمي مبني على الأبحاث العلمية المحكّمة',
@@ -169,7 +169,7 @@ export default function Transparency() {
                   <h2 className="mb-3 text-xl font-bold text-stone-900 dark:text-stone-100 md:text-2xl">فلسفة التسعير</h2>
                   <div className="space-y-4 text-base leading-relaxed text-stone-700 dark:text-stone-200">
                     <p>
-                      <strong className="text-emerald-700">34 ر.س شهريًا</strong> — أقل من سعر كوب قهوة يوميًا.
+                      <strong className="text-emerald-700">{PRICING.essentials.label} شهريًا</strong> — أقل من سعر كوب قهوة يوميًا.
                       اخترنا هذا السعر ليكون في متناول الجميع دون المساس بجودة المحتوى والأدوات.
                     </p>
                     <div>
@@ -259,6 +259,11 @@ export default function Transparency() {
               </div>
             </div>
           </section>
+
+          {/* Last reviewed */}
+          <div className="text-center text-xs text-stone-400 dark:text-stone-500">
+            آخر مراجعة لهذه الصفحة: {LEGAL_LAST_UPDATED}
+          </div>
 
           {/* Footer CTA */}
           <div className="rounded-2xl border border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-900 p-8 text-center">

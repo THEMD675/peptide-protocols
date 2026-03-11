@@ -13,6 +13,7 @@ import {
 } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { SITE_URL, SUPPORT_EMAIL } from '@/lib/constants';
+import { TRIAL_DAYS } from '@/config/trial';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
 import { sanitizeInput } from '@/lib/utils';
@@ -35,7 +36,7 @@ const MINI_FAQ = [
   },
   {
     q: 'هل يمكنني استرداد أموالي؟',
-    a: 'نعم، لديك ضمان 3 أيام. تواصل معنا واسترد أموالك بالكامل.',
+    a: `نعم، لديك ضمان ${TRIAL_DAYS} أيام. تواصل معنا واسترد أموالك بالكامل.`,
   },
   {
     q: 'نسيت كلمة المرور',
@@ -287,8 +288,9 @@ export default function Contact() {
                 id="contact-subject"
                 required
                 value={subject}
-                onChange={(e) => setSubject(e.target.value)}
-                className="w-full appearance-none rounded-xl border border-stone-300 dark:border-stone-600 bg-stone-50 dark:bg-stone-800 px-4 py-3 pe-10 text-stone-900 dark:text-stone-100 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-200 dark:focus:ring-emerald-800 transition-colors min-h-[44px]"
+                onChange={(e) => { setSubject(e.target.value); clearFieldError('subject'); }}
+                onBlur={() => handleBlur('subject', subject)}
+                className={`w-full appearance-none rounded-xl border bg-stone-50 dark:bg-stone-800 px-4 py-3 pe-10 text-stone-900 dark:text-stone-100 focus:outline-none focus:ring-2 transition-colors min-h-[44px] ${fieldErrors.subject ? 'border-red-400 dark:border-red-600 focus:border-red-500 focus:ring-red-200 dark:focus:ring-red-800' : 'border-stone-300 dark:border-stone-600 focus:border-emerald-500 focus:ring-emerald-200 dark:focus:ring-emerald-800'}`}
               >
                 {SUBJECTS.map((s) => (
                   <option key={s.value} value={s.value}>
@@ -298,26 +300,34 @@ export default function Contact() {
               </select>
               <ChevronDown className="pointer-events-none absolute end-3 top-1/2 h-5 w-5 -translate-y-1/2 text-stone-400 dark:text-stone-300" />
             </div>
+            {fieldErrors.subject && <p className="mt-1 text-sm text-red-600 dark:text-red-400">{fieldErrors.subject}</p>}
           </div>
 
           {/* Message */}
           <div>
-            <label
-              htmlFor="contact-message"
-              className="mb-1.5 block text-sm font-medium text-stone-700 dark:text-stone-200"
-            >
-              الرسالة <span className="text-red-500">*</span>
-            </label>
+            <div className="mb-1.5 flex items-center justify-between">
+              <label
+                htmlFor="contact-message"
+                className="text-sm font-medium text-stone-700 dark:text-stone-200"
+              >
+                الرسالة <span className="text-red-500">*</span>
+              </label>
+              <span className={`text-xs tabular-nums ${message.length > 4500 ? 'text-amber-600 dark:text-amber-400' : 'text-stone-400 dark:text-stone-500'}`}>
+                {message.length}/5000
+              </span>
+            </div>
             <textarea
               id="contact-message"
               required
               rows={5}
               maxLength={5000}
               value={message}
-              onChange={(e) => setMessage(e.target.value)}
+              onChange={(e) => { setMessage(e.target.value); clearFieldError('message'); }}
+              onBlur={() => handleBlur('message', message)}
               placeholder="اكتب رسالتك هنا..."
-              className="w-full resize-none rounded-xl border border-stone-300 dark:border-stone-600 bg-stone-50 dark:bg-stone-800 px-4 py-3 text-stone-900 dark:text-stone-100 placeholder:text-stone-400 dark:placeholder:text-stone-500 dark:text-stone-300 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-200 dark:focus:ring-emerald-800 transition-colors"
+              className={`w-full resize-none rounded-xl border bg-stone-50 dark:bg-stone-800 px-4 py-3 text-stone-900 dark:text-stone-100 placeholder:text-stone-400 dark:placeholder:text-stone-500 focus:outline-none focus:ring-2 transition-colors ${fieldErrors.message ? 'border-red-400 dark:border-red-600 focus:border-red-500 focus:ring-red-200 dark:focus:ring-red-800' : 'border-stone-300 dark:border-stone-600 focus:border-emerald-500 focus:ring-emerald-200 dark:focus:ring-emerald-800'}`}
             />
+            {fieldErrors.message && <p className="mt-1 text-sm text-red-600 dark:text-red-400">{fieldErrors.message}</p>}
           </div>
 
           {/* Submit */}

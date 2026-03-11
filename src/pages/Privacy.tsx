@@ -88,8 +88,19 @@ export default function Privacy() {
           </section>
 
           <section>
-            <h2 className="mb-3 text-xl font-bold text-stone-900 dark:text-stone-100">7. التواصل</h2>
-            <p>لأي استفسار حول الخصوصية: <a href={`mailto:${SUPPORT_EMAIL}`} className="inline-flex min-h-[44px] items-center text-emerald-700 underline">{SUPPORT_EMAIL}</a></p>
+            <h2 className="mb-3 text-xl font-bold text-stone-900 dark:text-stone-100">7. سياسة ملفات الارتباط (Cookies)</h2>
+            <p className="mb-3">يستخدم موقعنا ملفات الارتباط (Cookies) لتحسين تجربتك. إليك أنواعها:</p>
+            <ul className="list-disc space-y-2 ps-6">
+              <li><strong>ملفات الارتباط الضرورية</strong> — لازمة لتشغيل الموقع (حالة الجلسة، المصادقة، اختيار الوضع الليلي). لا يمكن إيقافها.</li>
+              <li><strong>ملفات الارتباط التحليلية</strong> — نستخدم Google Analytics لفهم كيفية استخدام الزوار للموقع (الصفحات المزارة، مدة الجلسة). البيانات مجمّعة وغير شخصية.</li>
+              <li><strong>ملفات ارتباط الدفع</strong> — تُنشأ بواسطة Stripe عند إتمام عملية الدفع لضمان أمان المعاملة المالية.</li>
+            </ul>
+            <p className="mt-3">يمكنك إدارة ملفات الارتباط من إعدادات متصفحك. تعطيل ملفات الارتباط الضرورية قد يؤثر على عمل الموقع.</p>
+          </section>
+
+          <section>
+            <h2 className="mb-3 text-xl font-bold text-stone-900 dark:text-stone-100">8. التواصل</h2>
+            <p>لأي استفسار حول الخصوصية أو ملفات الارتباط: <a href={`mailto:${SUPPORT_EMAIL}`} className="inline-flex min-h-[44px] items-center text-emerald-700 underline">{SUPPORT_EMAIL}</a></p>
           </section>
         </div>
         <div className="mt-8 border-t border-stone-200 dark:border-stone-600 pt-6 text-center">

@@ -68,7 +68,7 @@ interface UserDetail {
 
 type Tab = 'overview' | 'users' | 'activity' | 'reviews' | 'enquiries' | 'emails' | 'email-logs' | 'payments' | 'health' | 'audit';
 type UserFilter = 'all' | 'active' | 'trial' | 'expired' | 'none';
-type ModalType = 'extend_trial' | 'grant_sub' | 'send_email' | 'confirm_delete' | 'confirm_suspend' | 'cancel_sub' | 'bulk_email' | null;
+type ModalType = 'extend_trial' | 'grant_sub' | 'send_email' | 'confirm_delete' | 'confirm_suspend' | 'cancel_sub' | 'bulk_email' | 'refund' | null;
 
 const PER_PAGE = 20;
 
@@ -224,11 +224,15 @@ export default function Admin() {
   // Audit log
   const [auditLog, setAuditLog] = useState<Array<{ id: string; admin_email: string; action: string; target_user_id: string | null; details: Record<string, unknown> | null; created_at: string }>>([]);
   const [auditLoading, setAuditLoading] = useState(false);
+  const [auditPage, setAuditPage] = useState(1);
 
   // User detail
   const [userDetail, setUserDetail] = useState<UserDetail | null>(null);
   const [userDetailLoading, setUserDetailLoading] = useState(false);
   const [userDetailOpen, setUserDetailOpen] = useState(false);
+
+  // Refund
+  const [refundId, setRefundId] = useState('');
 
   // User notes
   const [userNotes, setUserNotes] = useState<Array<{ id: string; note: string; admin_email: string; created_at: string }>>([]);
@@ -786,7 +790,7 @@ export default function Admin() {
                 <div className="flex gap-1 overflow-x-auto">
                   {(['all', 'active', 'trial', 'expired', 'none'] as UserFilter[]).map(f => (
                     <button key={f} onClick={() => { setUserFilter(f); setUsersPage(1); }} className={cn('rounded-lg px-3 py-1.5 text-xs font-medium whitespace-nowrap', userFilter === f ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400' : 'bg-stone-100 dark:bg-stone-800 text-stone-600 dark:text-stone-300 hover:bg-stone-200 dark:bg-stone-700')}>
-                      {f === 'all' ? 'All' : f === 'active' ? 'Paid' : f === 'trial' ? 'Trial' : f === 'expired' ? 'Churned' : 'Free'}
+                      {f === 'all' ? 'الكل' : f === 'active' ? 'مدفوع' : f === 'trial' ? 'تجريبي' : f === 'expired' ? 'منتهي' : 'مجاني'}
                     </button>
                   ))}
                 </div>
@@ -802,14 +806,14 @@ export default function Admin() {
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="border-b border-stone-200 dark:border-stone-600 bg-stone-50 dark:bg-stone-900">
-                      <th className="px-3 py-2 text-start font-medium text-stone-600 dark:text-stone-300">Email</th>
-                      <th className="px-3 py-2 text-start font-medium text-stone-600 dark:text-stone-300">Provider</th>
-                      <th className="px-3 py-2 text-start font-medium text-stone-600 dark:text-stone-300">Status</th>
-                      <th className="px-3 py-2 text-start font-medium text-stone-600 dark:text-stone-300">Tier</th>
-                      <th className="px-3 py-2 text-start font-medium text-stone-600 dark:text-stone-300">Trial</th>
-                      <th className="px-3 py-2 text-start font-medium text-stone-600 dark:text-stone-300">Joined</th>
-                      <th className="px-3 py-2 text-start font-medium text-stone-600 dark:text-stone-300">Last Seen</th>
-                      <th className="px-3 py-2 text-start font-medium text-stone-600 dark:text-stone-300">Actions</th>
+                      <th className="px-3 py-2 text-start font-medium text-stone-600 dark:text-stone-300">البريد</th>
+                      <th className="px-3 py-2 text-start font-medium text-stone-600 dark:text-stone-300">المزوّد</th>
+                      <th className="px-3 py-2 text-start font-medium text-stone-600 dark:text-stone-300">الحالة</th>
+                      <th className="px-3 py-2 text-start font-medium text-stone-600 dark:text-stone-300">الباقة</th>
+                      <th className="px-3 py-2 text-start font-medium text-stone-600 dark:text-stone-300">التجربة</th>
+                      <th className="px-3 py-2 text-start font-medium text-stone-600 dark:text-stone-300">الانضمام</th>
+                      <th className="px-3 py-2 text-start font-medium text-stone-600 dark:text-stone-300">آخر نشاط</th>
+                      <th className="px-3 py-2 text-start font-medium text-stone-600 dark:text-stone-300">إجراءات</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -834,15 +838,7 @@ export default function Admin() {
                               )}
                               <button onClick={() => openUserAction('confirm_suspend', u)} title="Suspend" aria-label="Suspend user" className="rounded p-1.5 min-h-[36px] min-w-[36px] flex items-center justify-center hover:bg-red-50 dark:hover:bg-red-900/20"><Ban className="h-3.5 w-3.5 text-red-400" /></button>
                               <button onClick={async () => { try { await adminAction({ action: 'unsuspend_user', user_id: u.id }); toast.success(`${u.email} unsuspended`); fetchStats(); } catch { toast.error('Unsuspend failed'); } }} title="Unsuspend" aria-label="Unsuspend user" className="rounded p-1.5 min-h-[36px] min-w-[36px] flex items-center justify-center hover:bg-green-50 dark:hover:bg-green-900/20"><ShieldCheck className="h-3.5 w-3.5 text-green-600" /></button>
-                              <button onClick={async () => {
-                                const id = window.prompt('Enter payment_intent_id (pi_...) or charge_id (ch_...)');
-                                if (!id?.trim()) return;
-                                try {
-                                  const payload = id.startsWith('ch_') ? { action: 'refund_payment' as const, charge_id: id.trim() } : { action: 'refund_payment' as const, payment_intent_id: id.trim() };
-                                  await adminAction(payload);
-                                  toast.success('Refund initiated');
-                                } catch (e) { toast.error(e instanceof Error ? e.message : 'Refund failed'); }
-                              }} title="Refund payment" aria-label="Refund payment" className="rounded p-1.5 min-h-[36px] min-w-[36px] flex items-center justify-center hover:bg-amber-50 dark:hover:bg-amber-900/20"><RotateCcw className="h-3.5 w-3.5 text-amber-600" /></button>
+                              <button onClick={() => { setRefundId(''); openUserAction('refund', u); }} title="استرداد" aria-label="Refund payment" className="rounded p-1.5 min-h-[36px] min-w-[36px] flex items-center justify-center hover:bg-amber-50 dark:hover:bg-amber-900/20"><RotateCcw className="h-3.5 w-3.5 text-amber-600" /></button>
                               <button onClick={() => openUserAction('confirm_delete', u)} title="Delete" aria-label="Delete user" className="rounded p-1.5 min-h-[36px] min-w-[36px] flex items-center justify-center hover:bg-red-50 dark:hover:bg-red-900/20"><Trash2 className="h-3.5 w-3.5 text-red-400" /></button>
                             </div>
                           </td>
@@ -860,7 +856,7 @@ export default function Admin() {
         {/* ===================== ACTIVITY ===================== */}
         {tab === 'activity' && (
           <div className="space-y-3">
-            <h2 className="text-sm font-bold text-stone-700 dark:text-stone-200">Activity Feed</h2>
+            <h2 className="text-sm font-bold text-stone-700 dark:text-stone-200">سجل النشاط</h2>
             {stats.activityFeed.length === 0 ? <div className="rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 p-8 text-center"><Activity className="mx-auto h-8 w-8 text-stone-300 mb-2" /><p className="text-sm text-stone-500 dark:text-stone-300">No recent activity</p></div> : (
               <div className="rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 divide-y divide-stone-100 dark:divide-stone-800">
                 {stats.activityFeed.map((item, i) => {
@@ -881,7 +877,7 @@ export default function Admin() {
         {/* ===================== REVIEWS ===================== */}
         {tab === 'reviews' && (
           <div className="space-y-3">
-            <h2 className="text-sm font-bold text-stone-700 dark:text-stone-200">Pending Reviews ({stats.pendingReviews.length})</h2>
+            <h2 className="text-sm font-bold text-stone-700 dark:text-stone-200">المراجعات المعلّقة ({stats.pendingReviews.length})</h2>
             {stats.pendingReviews.length === 0 ? <div className="rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 p-8 text-center"><Star className="mx-auto h-8 w-8 text-stone-300 mb-2" /><p className="text-sm text-stone-500 dark:text-stone-300">No pending reviews</p></div> :
               stats.pendingReviews.map(r => (
                 <div key={r.id} className="rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 p-4">
@@ -893,11 +889,11 @@ export default function Admin() {
                   <div className="flex items-center justify-between mt-3">
                     <p className="text-xs text-stone-500 dark:text-stone-300">{timeAgo(r.created_at)}</p>
                     <div className="flex gap-2">
-                      <button onClick={async () => { setApprovingReviewId(r.id); try { await adminAction({ action: 'approve_review', review_id: r.id }); toast.success('Approved'); fetchStats(); } catch { toast.error('Failed'); } finally { setApprovingReviewId(null); } }}
+                      <button onClick={async () => { setApprovingReviewId(r.id); try { await adminAction({ action: 'approve_review', review_id: r.id }); toast.success('تمت الموافقة'); fetchStats(); } catch { toast.error('فشل'); } finally { setApprovingReviewId(null); } }}
                         disabled={approvingReviewId === r.id}
-                        className="rounded-lg bg-emerald-600 px-3 py-1.5 text-xs font-bold text-white hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1">{(approvingReviewId === r.id) ? <><Loader2 className="h-3 w-3 animate-spin" /> Approving...</> : 'Approve'}</button>
-                      <button onClick={async () => { if (!confirm('Delete?')) return; try { await adminAction({ action: 'delete_review', review_id: r.id }); toast.success('Deleted'); fetchStats(); } catch { toast.error('Failed'); } }}
-                        className="rounded-lg border border-red-200 dark:border-red-800 px-3 py-1.5 text-xs font-bold text-red-600 dark:text-red-400 hover:bg-red-50 dark:bg-red-900/20">Delete</button>
+                        className="rounded-lg bg-emerald-600 px-3 py-1.5 text-xs font-bold text-white hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1">{(approvingReviewId === r.id) ? <><Loader2 className="h-3 w-3 animate-spin" /> جارٍ الموافقة...</> : 'موافقة'}</button>
+                      <button onClick={async () => { if (!confirm('حذف هذه المراجعة؟')) return; try { await adminAction({ action: 'delete_review', review_id: r.id }); toast.success('تم الحذف'); fetchStats(); } catch { toast.error('فشل'); } }}
+                        className="rounded-lg border border-red-200 dark:border-red-800 px-3 py-1.5 text-xs font-bold text-red-600 dark:text-red-400 hover:bg-red-50 dark:bg-red-900/20">حذف</button>
                     </div>
                   </div>
                 </div>
@@ -908,7 +904,7 @@ export default function Admin() {
         {/* ===================== ENQUIRIES ===================== */}
         {tab === 'enquiries' && (
           <div className="space-y-3">
-            <h2 className="text-sm font-bold text-stone-700 dark:text-stone-200">Enquiries ({stats.enquiries.length})</h2>
+            <h2 className="text-sm font-bold text-stone-700 dark:text-stone-200">الاستفسارات ({stats.enquiries.length})</h2>
             {stats.enquiries.length === 0 ? <div className="rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 p-8 text-center"><Mail className="mx-auto h-8 w-8 text-stone-300 mb-2" /><p className="text-sm text-stone-500 dark:text-stone-300">No enquiries</p></div> :
               stats.enquiries.map(eq => (
                 <div key={eq.id} className={cn('rounded-xl border bg-white dark:bg-stone-900 p-4', eq.status === 'pending' ? 'border-amber-200 dark:border-amber-800' : 'border-stone-200 dark:border-stone-600')}>
@@ -1078,30 +1074,33 @@ export default function Admin() {
                 <p className="text-sm text-stone-500 dark:text-stone-300">No audit log entries yet</p>
               </div>
             ) : (
-              <div className="overflow-x-auto rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900">
-                <table className="w-full text-sm">
-                  <thead>
-                    <tr className="border-b border-stone-200 dark:border-stone-600 bg-stone-50 dark:bg-stone-900">
-                      <th className="px-3 py-2 text-start font-medium text-stone-600 dark:text-stone-300">Date</th>
-                      <th className="px-3 py-2 text-start font-medium text-stone-600 dark:text-stone-300">Admin</th>
-                      <th className="px-3 py-2 text-start font-medium text-stone-600 dark:text-stone-300">Action</th>
-                      <th className="px-3 py-2 text-start font-medium text-stone-600 dark:text-stone-300">Target</th>
-                      <th className="px-3 py-2 text-start font-medium text-stone-600 dark:text-stone-300">Details</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {auditLog.map(entry => (
-                      <tr key={entry.id} className="border-b border-stone-100 dark:border-stone-800 hover:bg-stone-50 dark:hover:bg-stone-800">
-                        <td className="px-3 py-2 text-xs text-stone-500 dark:text-stone-300 whitespace-nowrap">{new Date(entry.created_at).toLocaleString('en-GB')}</td>
-                        <td className="px-3 py-2 font-mono text-xs">{entry.admin_email}</td>
-                        <td className="px-3 py-2 text-xs"><span className="rounded-full bg-stone-100 dark:bg-stone-800 px-2 py-0.5 text-xs font-medium text-stone-700 dark:text-stone-200">{entry.action}</span></td>
-                        <td className="px-3 py-2 font-mono text-xs text-stone-500 dark:text-stone-300">{entry.target_user_id ? entry.target_user_id.slice(0, 8) + '...' : '—'}</td>
-                        <td className="px-3 py-2 text-xs text-stone-500 dark:text-stone-300 max-w-[300px] truncate">{entry.details ? JSON.stringify(entry.details) : '—'}</td>
+              <>
+                <div className="overflow-x-auto rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900">
+                  <table className="w-full text-sm">
+                    <thead>
+                      <tr className="border-b border-stone-200 dark:border-stone-600 bg-stone-50 dark:bg-stone-900">
+                        <th className="px-3 py-2 text-start font-medium text-stone-600 dark:text-stone-300">التاريخ</th>
+                        <th className="px-3 py-2 text-start font-medium text-stone-600 dark:text-stone-300">المشرف</th>
+                        <th className="px-3 py-2 text-start font-medium text-stone-600 dark:text-stone-300">الإجراء</th>
+                        <th className="px-3 py-2 text-start font-medium text-stone-600 dark:text-stone-300">المستهدف</th>
+                        <th className="px-3 py-2 text-start font-medium text-stone-600 dark:text-stone-300">التفاصيل</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+                    </thead>
+                    <tbody>
+                      {auditLog.slice((auditPage - 1) * PER_PAGE, auditPage * PER_PAGE).map(entry => (
+                        <tr key={entry.id} className="border-b border-stone-100 dark:border-stone-800 hover:bg-stone-50 dark:hover:bg-stone-800">
+                          <td className="px-3 py-2 text-xs text-stone-500 dark:text-stone-300 whitespace-nowrap">{new Date(entry.created_at).toLocaleString('en-GB')}</td>
+                          <td className="px-3 py-2 font-mono text-xs">{entry.admin_email}</td>
+                          <td className="px-3 py-2 text-xs"><span className="rounded-full bg-stone-100 dark:bg-stone-800 px-2 py-0.5 text-xs font-medium text-stone-700 dark:text-stone-200">{entry.action}</span></td>
+                          <td className="px-3 py-2 font-mono text-xs text-stone-500 dark:text-stone-300">{entry.target_user_id ? entry.target_user_id.slice(0, 8) + '...' : '—'}</td>
+                          <td className="px-3 py-2 text-xs text-stone-500 dark:text-stone-300 max-w-[300px] truncate">{entry.details ? JSON.stringify(entry.details) : '—'}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+                <Pagination page={auditPage} total={auditLog.length} onChange={setAuditPage} />
+              </>
             )}
           </div>
         )}
@@ -1197,6 +1196,41 @@ export default function Admin() {
           <button onClick={() => setModal(null)} className="rounded-lg border border-stone-200 dark:border-stone-600 px-4 py-2 text-xs font-medium text-stone-600 dark:text-stone-300">Cancel</button>
           <button onClick={handleSuspend} disabled={actionLoading} className="rounded-lg bg-red-600 px-4 py-2 text-xs font-bold text-white disabled:opacity-50">
             {actionLoading ? 'Suspending...' : 'Suspend'}
+          </button>
+        </div>
+      </Modal>
+
+      {/* Refund Payment */}
+      <Modal open={modal === 'refund'} title="استرداد دفعة" onClose={() => setModal(null)}>
+        <p className="text-sm text-stone-600 dark:text-stone-300 mb-3">استرداد للمستخدم <span className="font-mono font-bold">{modalTarget?.email}</span></p>
+        <label className="block text-xs font-medium text-stone-600 dark:text-stone-300 mb-1">رقم الدفعة (pi_... أو ch_...)</label>
+        <input
+          type="text"
+          value={refundId}
+          onChange={e => setRefundId(e.target.value)}
+          placeholder="pi_... أو ch_..."
+          className="w-full rounded-lg border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 px-3 py-2 text-sm mb-4 font-mono"
+          dir="ltr"
+        />
+        <div className="flex gap-2 justify-end">
+          <button onClick={() => setModal(null)} className="rounded-lg border border-stone-200 dark:border-stone-600 px-4 py-2 text-xs font-medium text-stone-600 dark:text-stone-300">إلغاء</button>
+          <button
+            onClick={async () => {
+              const id = refundId.trim();
+              if (!id) return;
+              setActionLoading(true);
+              try {
+                const payload = id.startsWith('ch_') ? { action: 'refund_payment' as const, charge_id: id } : { action: 'refund_payment' as const, payment_intent_id: id };
+                await adminAction(payload);
+                toast.success('تم إطلاق طلب الاسترداد');
+                setModal(null);
+              } catch (e) { toast.error(e instanceof Error ? e.message : 'فشل الاسترداد'); }
+              finally { setActionLoading(false); }
+            }}
+            disabled={actionLoading || !refundId.trim()}
+            className="rounded-lg bg-amber-600 px-4 py-2 text-xs font-bold text-white disabled:opacity-50"
+          >
+            {actionLoading ? 'جارٍ الاسترداد...' : 'استرداد'}
           </button>
         </div>
       </Modal>

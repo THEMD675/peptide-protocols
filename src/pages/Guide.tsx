@@ -962,7 +962,11 @@ export default function Guide() {
   const modules = buildModules();
   const [activeModuleIndex, setActiveModuleIndex] = useState(0);
   const [progress, setProgressState] = useState<Record<string, boolean>>({});
-  const [openSections, setOpenSections] = useState<Record<string, boolean>>({});
+  // Auto-open the first section of the initially-active module
+  const [openSections, setOpenSections] = useState<Record<string, boolean>>(() => {
+    const firstSection = buildModules()[0]?.sections?.[0];
+    return firstSection ? { [firstSection.id]: true } : {};
+  });
 
   useEffect(() => {
     setProgressState(getProgress());
@@ -988,19 +992,25 @@ export default function Guide() {
   const goNext = useCallback(() => {
     if (activeModuleIndex < modules.length - 1) {
       markComplete(activeModule.id);
-      setActiveModuleIndex((i) => i + 1);
-      setOpenSections({});
+      const nextIdx = activeModuleIndex + 1;
+      setActiveModuleIndex(nextIdx);
+      // Auto-open first section of next module
+      const firstSection = modules[nextIdx]?.sections?.[0];
+      setOpenSections(firstSection ? { [firstSection.id]: true } : {});
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
-  }, [activeModuleIndex, modules.length, activeModule.id, markComplete]);
+  }, [activeModuleIndex, modules, activeModule.id, markComplete]);
 
   const goPrev = useCallback(() => {
     if (activeModuleIndex > 0) {
-      setActiveModuleIndex((i) => i - 1);
-      setOpenSections({});
+      const prevIdx = activeModuleIndex - 1;
+      setActiveModuleIndex(prevIdx);
+      // Auto-open first section of previous module
+      const firstSection = modules[prevIdx]?.sections?.[0];
+      setOpenSections(firstSection ? { [firstSection.id]: true } : {});
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
-  }, [activeModuleIndex]);
+  }, [activeModuleIndex, modules]);
 
   if (isLoading) return <GenericPageSkeleton />;
 
@@ -1094,7 +1104,12 @@ export default function Guide() {
           {modules.map((m, i) => (
             <button
               key={m.id}
-              onClick={() => { setActiveModuleIndex(i); setOpenSections({}); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
+              onClick={() => {
+                setActiveModuleIndex(i);
+                const firstSection = m.sections?.[0];
+                setOpenSections(firstSection ? { [firstSection.id]: true } : {});
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+              }}
               className={cn(
                 'flex items-center gap-2 rounded-xl px-4 py-3 text-sm font-bold transition-all whitespace-nowrap',
                 i === activeModuleIndex
@@ -1235,6 +1250,7 @@ export default function Guide() {
             <details key={faq.q} className="group rounded-2xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 transition-all hover:border-amber-200 dark:hover:border-amber-800 card-hover">
               <summary className="flex cursor-pointer items-center justify-between px-5 py-4 text-sm font-bold text-stone-900 dark:text-stone-100 [&::-webkit-details-marker]:hidden">
                 <span className="flex items-center gap-2">{faq.q}</span>
+                <ChevronDown className="h-4 w-4 shrink-0 text-emerald-500 transition-transform duration-200 group-open:rotate-180" />
               </summary>
               <div className="details-content">
                 <p className="px-5 pb-4 text-sm leading-relaxed text-stone-700 dark:text-stone-200">{faq.a}</p>

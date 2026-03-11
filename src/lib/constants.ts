@@ -1,6 +1,6 @@
 // PERF: These values are hardcoded to avoid importing peptides.ts (145KB) in the main bundle.
 // Update manually when adding/removing peptides or changing isFree/pubmedIds fields.
-// Last synced: 2025-03-10 (41 peptides, 6 free, 110 PubMed IDs)
+// Last synced: 2026-03-11 (48 peptides, 6 free, 110 PubMed IDs)
 
 /** Free peptide IDs — peptides with isFree: true in src/data/peptides.ts */
 export const FREE_PEPTIDE_IDS = new Set([

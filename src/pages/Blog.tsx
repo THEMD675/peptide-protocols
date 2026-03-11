@@ -1,7 +1,7 @@
 import { useEffect, useState, useMemo, useCallback } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { Link } from 'react-router-dom';
-import { FileText, CalendarDays, Tag, Search, X } from 'lucide-react';
+import { FileText, CalendarDays, Tag, Search, X, ArrowLeft } from 'lucide-react';
 import { SITE_URL } from '@/lib/constants';
 import { supabase } from '@/lib/supabase';
 import { cn } from '@/lib/utils';
@@ -164,7 +164,7 @@ export default function Blog() {
           <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-500/10">
             <FileText className="h-7 w-7 text-emerald-700" />
           </div>
-          <h1 className="text-3xl font-bold md:text-4xl">المدونة</h1>
+          <h1 className="text-3xl font-bold text-stone-900 dark:text-stone-100 md:text-4xl">المدونة</h1>
           <p className="mt-2 text-base text-stone-600 dark:text-stone-300">مقالات ودلائل مبنية على الأدلة العلمية</p>
         </div>
 
@@ -326,32 +326,38 @@ export default function Blog() {
                   <div className="p-6">
                   <h2 className="text-lg font-bold text-stone-900 dark:text-stone-100">{post.title_ar}</h2>
                   <p className="mt-2 text-sm leading-relaxed text-stone-600 dark:text-stone-300">{post.excerpt_ar}</p>
-                  <div className="mt-4 flex flex-wrap items-center gap-3 text-xs text-stone-500 dark:text-stone-300">
-                    <div className="flex items-center gap-1.5">
-                      <CalendarDays className="h-3.5 w-3.5" />
-                      <time dateTime={post.published_at}>
-                        {new Date(post.published_at).toLocaleDateString('ar-u-nu-latn', { year: 'numeric', month: 'long', day: 'numeric' })}
-                      </time>
-                    </div>
-                    {post.tags.length > 0 && (
-                      <div className="flex flex-wrap items-center gap-1.5">
-                        <Tag className="h-3.5 w-3.5" />
-                        {post.tags.map(tag => (
-                          <span
-                            key={tag}
-                            onClick={e => { e.preventDefault(); setActiveTag(tag === activeTag ? null : tag); }}
-                            className={cn(
-                              'cursor-pointer rounded-full px-2 py-0.5 transition-colors',
-                              activeTag === tag
-                                ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400'
-                                : 'bg-stone-100 dark:bg-stone-800 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 text-stone-600 dark:text-stone-300 hover:text-emerald-700 dark:hover:text-emerald-400'
-                            )}
-                          >
-                            {tag}
-                          </span>
-                        ))}
+                  <div className="mt-4 flex flex-wrap items-center justify-between gap-3 text-xs text-stone-500 dark:text-stone-300">
+                    <div className="flex flex-wrap items-center gap-3">
+                      <div className="flex items-center gap-1.5">
+                        <CalendarDays className="h-3.5 w-3.5" />
+                        <time dateTime={post.published_at}>
+                          {new Date(post.published_at).toLocaleDateString('ar-u-nu-latn', { year: 'numeric', month: 'long', day: 'numeric' })}
+                        </time>
                       </div>
-                    )}
+                      {post.tags.length > 0 && (
+                        <div className="flex flex-wrap items-center gap-1.5">
+                          <Tag className="h-3.5 w-3.5" />
+                          {post.tags.map(tag => (
+                            <span
+                              key={tag}
+                              onClick={e => { e.preventDefault(); setActiveTag(tag === activeTag ? null : tag); }}
+                              className={cn(
+                                'cursor-pointer rounded-full px-2 py-0.5 transition-colors',
+                                activeTag === tag
+                                  ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400'
+                                  : 'bg-stone-100 dark:bg-stone-800 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 text-stone-600 dark:text-stone-300 hover:text-emerald-700 dark:hover:text-emerald-400'
+                              )}
+                            >
+                              {tag}
+                            </span>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                    <span className="inline-flex items-center gap-1 font-semibold text-emerald-700 dark:text-emerald-400 group-hover:gap-2 transition-all">
+                      اقرأ المقالة
+                      <ArrowLeft className="h-3.5 w-3.5" />
+                    </span>
                   </div>
                   </div>
                 </article>
