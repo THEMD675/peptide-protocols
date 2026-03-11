@@ -1,6 +1,7 @@
 /**
- * Send transactional emails via SMTP (Gmail) or Resend API.
- * SMTP is the primary provider; Resend is fallback.
+ * Send transactional emails via Resend API (primary) or SMTP (Gmail fallback).
+ * Resend sends from pptides.com (has SPF+DKIM+DMARC = full auth).
+ * SMTP sends from amirisgroup.co (no SPF = emails may land in spam).
  */
 
 import { SMTPClient } from 'https://deno.land/x/denomailer@1.6.0/mod.ts'
@@ -10,8 +11,9 @@ const SMTP_HOST = Deno.env.get('SMTP_HOST') || 'smtp.gmail.com'
 const SMTP_PORT = parseInt(Deno.env.get('SMTP_PORT') || '465', 10)
 const SMTP_USER = Deno.env.get('SMTP_USER') || ''
 const SMTP_PASS = Deno.env.get('SMTP_PASS') || ''
-// SMTP (Gmail) uses amirisgroup.co; Resend uses pptides.com (has SPF+DKIM)
+// SMTP (Gmail) uses amirisgroup.co (NO SPF — use only as fallback)
 const FROM_EMAIL_SMTP = Deno.env.get('FROM_EMAIL') || 'pptides <contact@amirisgroup.co>'
+// Resend uses pptides.com (SPF+DKIM+DMARC all pass — preferred sender)
 const FROM_EMAIL_RESEND = Deno.env.get('FROM_EMAIL_RESEND') || 'pptides <contact@pptides.com>'
 
 interface EmailPayload {
@@ -22,12 +24,47 @@ interface EmailPayload {
 }
 
 /**
- * Send email via SMTP (preferred) or Resend API fallback.
+ * Send email via Resend API (preferred) or SMTP (Gmail) fallback.
  * Auth emails (signup confirm, password reset) use Supabase's built-in SMTP.
  * This function handles transactional emails (welcome, reminders, admin replies).
+ *
+ * Priority: Resend > SMTP because:
+ * - pptides.com has full SPF+DKIM+DMARC alignment (verified via Port25)
+ * - amirisgroup.co has NO SPF record → emails may be flagged as spam
  */
 export async function sendEmail(payload: EmailPayload): Promise<{ ok: boolean; error?: string }> {
-  // Try SMTP first (Gmail)
+  // Try Resend first (pptides.com — full email auth)
+  if (RESEND_API_KEY && RESEND_API_KEY.startsWith('re_')) {
+    try {
+      const res = await fetch('https://api.resend.com/emails', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${RESEND_API_KEY}`,
+        },
+        body: JSON.stringify({
+          from: FROM_EMAIL_RESEND,
+          to: payload.to,
+          subject: payload.subject,
+          html: payload.html,
+          ...(payload.replyTo ? { reply_to: payload.replyTo } : {}),
+          headers: {
+            'List-Unsubscribe': '<mailto:contact@pptides.com?subject=unsubscribe>',
+            'List-Unsubscribe-Post': 'List-Unsubscribe=One-Click',
+          },
+        }),
+      })
+      if (res.ok) return { ok: true }
+      const body = await res.text()
+      console.error('sendEmail: Resend API error:', res.status, body)
+      // Fall through to SMTP
+    } catch (err) {
+      console.error('sendEmail: Resend fetch error:', err)
+      // Fall through to SMTP
+    }
+  }
+
+  // Fallback: SMTP (Gmail — amirisgroup.co, no SPF)
   if (SMTP_USER && SMTP_PASS) {
     try {
       const client = new SMTPClient({
@@ -59,36 +96,6 @@ export async function sendEmail(payload: EmailPayload): Promise<{ ok: boolean; e
       return { ok: true }
     } catch (err) {
       console.error('sendEmail: SMTP error:', err)
-      // Fall through to Resend
-    }
-  }
-
-  // Try Resend as fallback
-  if (RESEND_API_KEY && RESEND_API_KEY.startsWith('re_')) {
-    try {
-      const res = await fetch('https://api.resend.com/emails', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${RESEND_API_KEY}`,
-        },
-        body: JSON.stringify({
-          from: FROM_EMAIL_RESEND,
-          to: payload.to,
-          subject: payload.subject,
-          html: payload.html,
-          ...(payload.replyTo ? { reply_to: payload.replyTo } : {}),
-          headers: {
-            'List-Unsubscribe': '<mailto:contact@pptides.com?subject=unsubscribe>',
-            'List-Unsubscribe-Post': 'List-Unsubscribe=One-Click',
-          },
-        }),
-      })
-      if (res.ok) return { ok: true }
-      const body = await res.text()
-      console.error('sendEmail: Resend API error:', res.status, body)
-    } catch (err) {
-      console.error('sendEmail: Resend fetch error:', err)
     }
   }
 
