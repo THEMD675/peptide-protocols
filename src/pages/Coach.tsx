@@ -654,7 +654,11 @@ export default function Coach() {
             <div>
               <h1 className="text-lg font-bold">استشاري الببتيدات</h1>
               <p className="text-xs text-stone-500 dark:text-stone-300">
-                {limit === Infinity ? 'بروتوكول مخصّص لحالتك' : `${Math.max(0, limit - userMsgCount)} رسائل متبقية من ${limit}`}
+                {limit === Infinity
+                  ? 'بروتوكول مخصّص لحالتك'
+                  : userMsgCount === 0
+                    ? 'اسأل أي سؤال عن الببتيدات'
+                    : `${Math.max(0, limit - userMsgCount)} رسائل متبقية من ${limit}`}
               </p>
             </div>
           </div>
@@ -1128,18 +1132,23 @@ export default function Coach() {
                   {!isElite && userMsgCount > 0 && limit - userMsgCount > 0 && (
                     <p className="mb-2 text-center text-xs text-stone-500 dark:text-stone-300">{arPlural(limit - userMsgCount, 'سؤال متبقي', 'سؤالان متبقيان', 'أسئلة متبقية')}</p>
                   )}
-                  <div className="flex items-end gap-3">
-                    <textarea value={input} onChange={e => setInput(e.target.value)}
-                      onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendToAI(input); } }}
-                      onInput={e => { const t = e.currentTarget; t.style.height = 'auto'; t.style.height = Math.min(t.scrollHeight, 120) + 'px'; }}
-                      placeholder="اسأل المزيد عن البروتوكول..." rows={1} maxLength={2000} disabled={isLoading}
-                      dir="rtl"
-                      aria-label="اكتب رسالتك"
-                      className={cn('flex-1 resize-none rounded-xl border border-stone-200 dark:border-stone-600 bg-stone-50 dark:bg-stone-900 px-4 py-3 text-sm text-stone-900 dark:text-stone-100 placeholder:text-stone-500 dark:text-stone-300 focus:border-emerald-300 dark:border-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900', isLoading && 'opacity-60')} />
-                    <button onClick={() => sendToAI(input)} disabled={!input.trim() || isLoading}
-                      className={cn('flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-emerald-600 transition-all', input.trim() && !isLoading ? 'hover:bg-emerald-700 active:scale-[0.98]' : 'opacity-40')}>
-                      <Send className="h-5 w-5 text-white" /><span className="sr-only">إرسال</span>
-                    </button>
+                  <div className="flex flex-col gap-1.5">
+                    <div className="flex items-end gap-3">
+                      <textarea value={input} onChange={e => setInput(e.target.value)}
+                        onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendToAI(input); } }}
+                        onInput={e => { const t = e.currentTarget; t.style.height = 'auto'; t.style.height = Math.min(t.scrollHeight, 120) + 'px'; }}
+                        placeholder="اكتب سؤالك هنا..." rows={2} maxLength={2000} disabled={isLoading}
+                        dir="rtl"
+                        aria-label="اكتب رسالتك"
+                        className={cn('flex-1 resize-none rounded-xl border border-stone-200 dark:border-stone-600 bg-stone-50 dark:bg-stone-900 px-4 py-3 text-sm text-stone-900 dark:text-stone-100 placeholder:text-stone-500 dark:text-stone-300 focus:border-emerald-300 dark:border-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900', isLoading && 'opacity-60')} />
+                      <button onClick={() => sendToAI(input)} disabled={!input.trim() || isLoading}
+                        className={cn('flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-emerald-600 transition-all', input.trim() && !isLoading ? 'hover:bg-emerald-700 active:scale-[0.98]' : 'opacity-40')}>
+                        <Send className="h-5 w-5 text-white" /><span className="sr-only">إرسال</span>
+                      </button>
+                    </div>
+                    <p className="text-[10px] text-stone-400 dark:text-stone-500 text-start px-1">
+                      ⏎ Enter للإرسال · Shift+Enter لسطر جديد
+                    </p>
                   </div>
                 </>
               )}

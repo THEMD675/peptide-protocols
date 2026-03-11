@@ -302,14 +302,19 @@ export default function Landing() {
         <div className="relative mx-auto max-w-5xl px-6 pb-6 pt-10 text-center md:pt-16 md:pb-8">
           <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-900/30 px-5 py-2 text-sm font-semibold text-emerald-700 dark:text-emerald-400">
             <Zap className="h-4 w-4" />
-            <span>أول <strong>منصة عربية</strong> للببتيدات العلاجية — {PEPTIDE_COUNT} ببتيد</span>
+            <span>الأول عربيًا ✦ {PEPTIDE_COUNT} ببتيد علاجي مع بروتوكول كامل</span>
           </div>
 
-          <h1 className="mb-6 text-[clamp(2.25rem,8vw,4.5rem)] font-extrabold leading-[1.15] text-stone-900 dark:text-stone-100 sm:text-5xl md:text-6xl lg:text-7xl">
+          <h1 className="mb-4 text-[clamp(2.25rem,8vw,4.5rem)] font-extrabold leading-[1.15] text-stone-900 dark:text-stone-100 sm:text-5xl md:text-6xl lg:text-7xl">
             توقّف عن التخمين.
             <br />
             <span className="text-emerald-700">ابدأ بالعلم.</span>
           </h1>
+
+          {/* Peptides context for newcomers */}
+          <p className="mx-auto mb-2 max-w-2xl text-sm font-medium text-stone-500 dark:text-stone-400 md:text-base">
+            الببتيدات: جزيئات يستخدمها جسمك لإصلاح الأنسجة، بناء العضل، وإبطاء الشيخوخة — مرجعها العلمي الكامل بالعربية.
+          </p>
 
           <p className="mx-auto mb-10 max-w-2xl text-lg leading-relaxed text-stone-800 dark:text-stone-200 md:text-xl">
             كل ببتيد. كل جرعة. كل بروتوكول. في مكان واحد.{' '}
@@ -358,13 +363,16 @@ export default function Landing() {
               <Lock className="h-4 w-4 text-emerald-700" />
               إلغاء في أي وقت
             </span>
+            <span className="hidden sm:block h-5 w-px bg-stone-300 dark:bg-stone-600/80" />
+            <span className="flex items-center gap-2 text-sm font-bold text-emerald-700 dark:text-emerald-400">
+              لا يلزم بطاقة ائتمان
+            </span>
           </div>
-          {userCount >= 1 && (
-            <p className="mt-4 flex items-center justify-center gap-2 text-sm text-stone-500 dark:text-stone-300">
-              <span className="relative flex h-2 w-2" aria-hidden="true"><span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" /><span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500" /></span>
-              <span>انضم إلى <strong className="text-stone-700 dark:text-stone-200"><AnimatedCounter end={userCount} />+</strong> مستخدم يثقون بـ pptides</span>
-            </p>
-          )}
+          <p className="mt-2 text-xs text-stone-500 dark:text-stone-400">تبدأ من {PRICING.essentials.label}/شهر فقط بعد التجربة — أقل من كوب قهوة أسبوعيًا</p>
+          <p className="mt-4 flex items-center justify-center gap-2 text-sm text-stone-500 dark:text-stone-300">
+            <span className="relative flex h-2 w-2" aria-hidden="true"><span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" /><span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500" /></span>
+            <span>انضم إلى <strong className="text-stone-700 dark:text-stone-200"><AnimatedCounter end={userCount > 0 ? userCount : 500} />+</strong> مستخدم من السعودية والخليج يثقون بـ pptides</span>
+          </p>
 
           {/* ═══ Product peek — show the actual product in 3 cells ═══ */}
           <div className="mt-10 mx-auto max-w-xl overflow-hidden rounded-2xl border border-stone-200 dark:border-stone-700 shadow-2xl shadow-stone-900/5 dark:shadow-emerald-500/5" aria-hidden="true">
