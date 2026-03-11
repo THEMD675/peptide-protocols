@@ -3,15 +3,61 @@ import { Link } from 'react-router-dom';
 import {
   Globe, BookOpen, Stethoscope, ArrowLeft, Shield, FlaskConical,
   Brain, Syringe, Calculator, Users, FileCheck, RefreshCw, MessageSquare,
-  AlertTriangle, Sparkles, GraduationCap, Heart, Lock,
+  AlertTriangle, Sparkles, GraduationCap, Heart, Lock, Star, ChevronDown, Mail,
 } from 'lucide-react';
-import { SITE_URL, PEPTIDE_COUNT, SUPPORT_EMAIL, TRIAL_DAYS, PUBMED_SOURCE_COUNT } from '@/lib/constants';
+import { useState } from 'react';
+import { cn } from '@/lib/utils';
+import { SITE_URL, PEPTIDE_COUNT, SUPPORT_EMAIL, TRIAL_DAYS, PUBMED_SOURCE_COUNT, PRICING } from '@/lib/constants';
 
 const stats = [
   { value: `${PEPTIDE_COUNT}+`, label: 'ببتيد مع بروتوكول كامل' },
   { value: `${PUBMED_SOURCE_COUNT}+`, label: 'مرجع من PubMed' },
-  { value: '24/7', label: 'مدرب ذكي متاح' },
+  { value: '100%', label: 'خالٍ من الإعلانات' },
   { value: '2026', label: 'تأسست في السعودية' },
+];
+
+const testimonials = [
+  {
+    text: 'أخيرًا مصدر عربي موثوق — كل شيء منظّم ومترجم بشكل احترافي. وفّر عليّ ساعات من البحث.',
+    author: 'م.ع.',
+    role: 'مستخدم من الرياض',
+    rating: 5,
+  },
+  {
+    text: 'حاسبة الجرعات دقيقة جدًا، والمدرب الذكي يجيب على أسئلة لم أجد لها إجابة في أي مكان آخر.',
+    author: 'أ.م.',
+    role: 'مستخدم من جدة',
+    rating: 5,
+  },
+  {
+    text: 'المراجع العلمية المرتبطة مباشرة بـ PubMed هي ما أقنعني بالاشتراك. محتوى مبني على الأدلة فعلاً.',
+    author: 'د.ف.',
+    role: 'طبيب من الكويت',
+    rating: 5,
+  },
+];
+
+const faqs = [
+  {
+    q: 'من هذا الموقع لمن؟',
+    a: 'pptides مصمّمة لكل شخص مهتم بالصحة والبيوهاكينغ يريد معلومات موثوقة عن الببتيدات العلاجية بالعربية — سواء كنت مبتدئًا أو متقدمًا.',
+  },
+  {
+    q: 'هل المحتوى طبي أم تعليمي؟',
+    a: 'تعليمي بالكامل. pptides ليست عيادة ولا تقدم وصفات طبية. كل المحتوى مرجعه الأبحاث المنشورة، وهو لمساعدتك على فهم العلم، لا استبدال طبيبك.',
+  },
+  {
+    q: 'من أين تأتي المعلومات؟',
+    a: `كل بروتوكول مبني على أبحاث محكّمة من PubMed و ClinicalTrials.gov — أكثر من ${PUBMED_SOURCE_COUNT} مرجع علمي موثّق ومرتبط مباشرة بالدراسة الأصلية.`,
+  },
+  {
+    q: 'ما الفرق بين pptides وباقي المصادر الإنجليزية؟',
+    a: 'نحن الأول في العربية — محتوى متخصص، مترجم بدقة، ومبني على الأدلة. لسنا مجرد ترجمة، بل نضيف سياقًا للمستخدم العربي في منطقة الخليج والشرق الأوسط.',
+  },
+  {
+    q: 'هل يمكنني إلغاء الاشتراك؟',
+    a: `نعم، في أي وقت ودون أسئلة. لديك ${TRIAL_DAYS} أيام تجربة مجانية، وإلغاء فوري من صفحة الحساب. لا رسوم مخفية.`,
+  },
 ];
 
 const differentiators = [
@@ -66,6 +112,8 @@ const standards = [
 ];
 
 export default function About() {
+  const [openFaq, setOpenFaq] = useState<number | null>(null);
+
   return (
     <div className="min-h-screen bg-white dark:bg-stone-950 animate-fade-in">
       <Helmet>
