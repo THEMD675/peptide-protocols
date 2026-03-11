@@ -1,6 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, lazy, Suspense } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import FocusTrap from 'focus-trap-react';
+
+const FocusTrap = lazy(() => import('focus-trap-react'));
 import { useAuth } from '@/contexts/AuthContext';
 import { Shield, X, Clock } from 'lucide-react';
 import { cn, arPlural } from '@/lib/utils';
@@ -67,7 +68,7 @@ export default function TrialBanner() {
     // Block access to all other pages — show a setup modal
     return (
       <div role="dialog" aria-modal="true" aria-describedby="payment-wall-desc" className="fixed inset-0 z-50 flex items-center justify-center bg-stone-900/80 backdrop-blur-sm">
-        <FocusTrap focusTrapOptions={{ allowOutsideClick: true }}>
+        <Suspense fallback={null}><FocusTrap focusTrapOptions={{ allowOutsideClick: true }}>
         <div className="mx-4 w-full max-w-md max-h-[90vh] overflow-y-auto rounded-2xl bg-white dark:bg-stone-900 p-10 text-center shadow-2xl" aria-labelledby="payment-wall-title">
           <Shield className="mx-auto mb-4 h-12 w-12 text-emerald-700" />
           <h2 id="payment-wall-title" className="mb-3 text-2xl font-bold text-stone-900 dark:text-stone-100">
@@ -94,7 +95,7 @@ export default function TrialBanner() {
             رجوع
           </button>
         </div>
-        </FocusTrap>
+        </FocusTrap></Suspense>
       </div>
     );
   }
@@ -171,7 +172,7 @@ export default function TrialBanner() {
 
     return (
       <div role="dialog" aria-modal="true" aria-describedby="sub-modal-desc-expired" className="fixed inset-0 z-50 flex items-center justify-center bg-stone-900/80 backdrop-blur-sm">
-        <FocusTrap focusTrapOptions={{ allowOutsideClick: true }}>
+        <Suspense fallback={null}><FocusTrap focusTrapOptions={{ allowOutsideClick: true }}>
         <div className="mx-4 w-full max-w-md max-h-[90vh] overflow-y-auto rounded-2xl bg-white dark:bg-stone-900 p-10 text-center shadow-2xl" aria-labelledby="trial-modal-title">
           <Shield className="mx-auto mb-4 h-12 w-12 text-emerald-700" />
           <h2 id="trial-modal-title" className="mb-3 text-2xl font-bold text-stone-900 dark:text-stone-100">
@@ -204,7 +205,7 @@ export default function TrialBanner() {
             رجوع
           </button>
         </div>
-        </FocusTrap>
+        </FocusTrap></Suspense>
       </div>
     );
   }
@@ -213,7 +214,7 @@ export default function TrialBanner() {
     if (isFreePage) return null;
     return (
       <div role="dialog" aria-modal="true" aria-describedby="sub-modal-desc-none" className="fixed inset-0 z-50 flex items-center justify-center bg-stone-900/80 backdrop-blur-sm">
-        <FocusTrap focusTrapOptions={{ allowOutsideClick: true }}>
+        <Suspense fallback={null}><FocusTrap focusTrapOptions={{ allowOutsideClick: true }}>
         <div className="mx-4 w-full max-w-md max-h-[90vh] overflow-y-auto rounded-2xl bg-white dark:bg-stone-900 p-10 text-center shadow-2xl" aria-labelledby="sub-modal-title">
           <Shield className="mx-auto mb-4 h-12 w-12 text-emerald-700" />
           <h2 id="sub-modal-title" className="mb-3 text-2xl font-bold text-stone-900 dark:text-stone-100">
@@ -243,7 +244,7 @@ export default function TrialBanner() {
             رجوع
           </button>
         </div>
-        </FocusTrap>
+        </FocusTrap></Suspense>
       </div>
     );
   }

@@ -9,7 +9,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { ADMIN_EMAILS } from '@/lib/constants';
 import NotificationBell from '@/components/NotificationBell';
 import { useTheme } from '@/hooks/useTheme';
-import GlobalSearch from '@/components/GlobalSearch';
+const GlobalSearch = lazy(() => import('@/components/GlobalSearch'));
 
 const guestNavLinks = [
   { to: '/library', label: 'المكتبة' },
@@ -234,7 +234,7 @@ export default memo(function Header() {
               <Search className="h-4 w-4" />
               <kbd className="hidden rounded-md border border-stone-200 dark:border-stone-600 bg-stone-100 dark:bg-stone-800 px-1 py-0.5 text-[10px] font-medium text-stone-400 lg:inline">⌘K</kbd>
             </button>
-            <GlobalSearch open={searchOpen} onClose={() => setSearchOpen(false)} />
+            <Suspense fallback={null}><GlobalSearch open={searchOpen} onClose={() => setSearchOpen(false)} /></Suspense>
 
             {user && <NotificationBell />}
 
