@@ -90,6 +90,10 @@ export default function Pricing() {
       toast('أكمل إعداد حسابك لبدء التجربة المجانية', { duration: 6000 });
       setSearchParams({}, { replace: true });
     }
+    if (searchParams.get('expired') === '1') {
+      toast.error('انتهت فترة تجربتك المجانية — اختر خطة للاستمرار', { duration: 7000 });
+      setSearchParams({}, { replace: true });
+    }
   }, [searchParams, setSearchParams]);
 
   const renderAction = (planKey: 'essentials' | 'elite', isElite: boolean) => {
