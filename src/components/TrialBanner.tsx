@@ -285,7 +285,7 @@ export default function TrialBanner() {
             </>
           ) : (
             <>
-              🎁 هديتك: {daysText} تجربة كاملة — استمتع بكل المميزات
+              هديتك: {daysText} تجربة كاملة — استمتع بكل المميزات
               <span className="mx-2">—</span>
               <Link
                 to="/pricing"

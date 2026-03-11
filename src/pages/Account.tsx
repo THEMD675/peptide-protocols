@@ -1161,7 +1161,7 @@ function ReferralSection({ userId }: { userId?: string }) {
       {/* Reward Codes */}
       {rewardCodes.length > 0 && (
         <div className="rounded-xl border border-emerald-300 dark:border-emerald-700 bg-emerald-50 dark:bg-emerald-900/20 p-4 mb-4">
-          <p className="text-sm font-bold text-emerald-800 dark:text-emerald-300 mb-2">🎁 أكواد المكافآت الخاصة بك</p>
+          <p className="text-sm font-bold text-emerald-800 dark:text-emerald-300 mb-2">أكواد المكافآت الخاصة بك</p>
           <p className="text-xs text-emerald-700 dark:text-emerald-400 mb-3">استخدم هذه الأكواد عند الدفع للحصول على شهر مجاني</p>
           <div className="space-y-2">
             {rewardCodes.map((rc) => (

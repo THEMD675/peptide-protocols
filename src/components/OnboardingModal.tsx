@@ -187,7 +187,7 @@ export default function OnboardingModal({ forceOpen, onClose: externalClose }: {
               )}
               <p className="mb-2 text-center text-sm text-stone-600 dark:text-stone-300">خارطة طريق VIP لتحقيق أفضل النتائج</p>
               <p className="mb-6 text-center text-[11px] font-bold text-amber-600 bg-amber-50 dark:bg-amber-900/20 rounded-lg px-3 py-1.5 inline-block">
-                🎁 لديك {TRIAL_DAYS} أيام مجانية — استغل كل دقيقة!
+                لديك {TRIAL_DAYS} أيام مجانية — استغل كل دقيقة!
               </p>
               <div className="space-y-3">
                 {getTrialPlan(selectedGoal).map((item, i) => (

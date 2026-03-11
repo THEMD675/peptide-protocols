@@ -1487,7 +1487,7 @@ export default function Community() {
                   <div className="flex justify-between">
                     <span className="text-stone-600 dark:text-stone-300">متوسط التقييم</span>
                     <span className="font-bold text-stone-900 dark:text-stone-100">
-                      {(logs.reduce((sum, l) => sum + l.rating, 0) / logs.length).toFixed(1)} ⭐
+                      {(logs.reduce((sum, l) => sum + l.rating, 0) / logs.length).toFixed(1)}
                     </span>
                   </div>
                 </div>
