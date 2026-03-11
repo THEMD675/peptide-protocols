@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { Bell, FileText, Flame, Clock, Trophy } from 'lucide-react';
+import { Bell, FileText, Flame, Clock, Trophy, Bot } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { supabase } from '@/lib/supabase';
@@ -7,7 +7,7 @@ import { useAuth } from '@/contexts/AuthContext';
 
 interface Notification {
   id: string;
-  type: 'blog' | 'streak' | 'trial' | 'achievement';
+  type: 'blog' | 'streak' | 'trial' | 'achievement' | 'coach';
   title_ar: string;
   body_ar: string;
   read: boolean;
@@ -19,6 +19,7 @@ const TYPE_ICON: Record<string, LucideIcon> = {
   streak: Flame,
   trial: Clock,
   achievement: Trophy,
+  coach: Bot,
 };
 
 export default function NotificationBell() {

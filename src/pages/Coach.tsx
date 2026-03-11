@@ -16,6 +16,8 @@ import { useAuth } from '@/contexts/AuthContext';
 import { SITE_URL, PRICING, TRIAL_DAYS } from '@/lib/constants';
 import ProtocolWizard from '@/components/ProtocolWizard';
 import CoachHistory from '@/components/CoachHistory';
+import CoachInsightsBanner from '@/components/CoachInsightsBanner';
+import { useProactiveCoach } from '@/hooks/useProactiveCoach';
 
 
 function extractPeptideActions(text: string) {
@@ -248,7 +250,18 @@ export default function Coach() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
 
-  const conversationStarters = useMemo(() => getPersonalizedStarters(), []);
+  const { smartStarters, insights } = useProactiveCoach(user?.id);
+
+  // Build conversation starters: smart (proactive) first, then fallback to personalized/defaults
+  const conversationStarters = useMemo(() => {
+    if (smartStarters.length > 0) {
+      const smart = smartStarters.map(s => s.text);
+      const fallback = getPersonalizedStarters().filter(s => !smart.includes(s));
+      return [...smart, ...fallback].slice(0, 5);
+    }
+    return getPersonalizedStarters();
+  }, [smartStarters]);
+
   const storageKey = `pptides_coach_${user?.id ?? 'anon'}`;
 
   function loadQuizAnswers(): { goal: string; experience: string; injection: string } | null {
@@ -685,6 +698,14 @@ export default function Coach() {
 
         <div className="rounded-2xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 overflow-hidden shadow-sm dark:shadow-stone-900/30">
           <div ref={scrollRef} role="log" aria-label="محادثة المدرب الذكي" aria-live="polite" className="min-h-[320px] max-h-[65dvh] overflow-y-auto p-5 space-y-4 bg-stone-50/50 dark:bg-stone-950/50">
+
+            {/* Proactive Insights Banner — shows contextual insights based on user data */}
+            {intakeStep === 'done' && messages.length === 0 && insights.length > 0 && (
+              <CoachInsightsBanner
+                insights={insights}
+                onInsightClick={(text) => sendToAI(text)}
+              />
+            )}
 
             {/* DeepSeek consent — one-time */}
             {showDeepSeekConsent && (

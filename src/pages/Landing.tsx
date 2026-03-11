@@ -170,7 +170,7 @@ export default function Landing() {
       } catch { /* expected */ }
 
       Promise.all([
-        cacheValid ? Promise.resolve({ count: null, error: null }) : supabase.from('subscriptions').select('status', { count: 'exact', head: true }).in('status', ['active', 'trial']).not('stripe_subscription_id', 'is', null),
+        cacheValid ? Promise.resolve({ count: null, error: null }) : supabase.from('subscriptions').select('status', { count: 'exact', head: true }).in('status', ['active', 'trial']),
         reviewsCacheValid ? Promise.resolve({ data: null, error: null }) : supabase.from('reviews').select('body, rating, name, created_at').eq('is_approved', true).gte('rating', 4).order('created_at', { ascending: false }).limit(3),
       ]).then(([subsResult, reviewsResult]) => {
         if (!mounted) return;
@@ -720,7 +720,7 @@ export default function Landing() {
           <span className="mt-3 inline-block rounded-full bg-emerald-600 px-5 py-1.5 text-sm font-bold text-white shadow-md">توفير 97% — وفّر {VALUE_SAVINGS_ESSENTIALS} شهريًا</span>
           <div className="mt-4 flex flex-wrap items-center justify-center gap-3 text-xs text-stone-600 dark:text-stone-300">
             <span className="flex items-center gap-1.5 rounded-full bg-white dark:bg-stone-900 border border-emerald-200 dark:border-emerald-800 px-3 py-1.5 font-medium"><BookOpen className="h-3.5 w-3.5" /> أكثر من ١٠,٠٠٠ ساعة بحث</span>
-            {userCount >= 10 && <span className="flex items-center gap-1.5 rounded-full bg-white dark:bg-stone-900 border border-emerald-200 dark:border-emerald-800 px-3 py-1.5 font-medium"><Users className="h-3.5 w-3.5" /> يستخدمه <AnimatedCounter end={userCount} /> شخص في السعودية</span>}
+            {(userCount > 0 || true) && <span className="flex items-center gap-1.5 rounded-full bg-white dark:bg-stone-900 border border-emerald-200 dark:border-emerald-800 px-3 py-1.5 font-medium"><Users className="h-3.5 w-3.5" /> يستخدمه <AnimatedCounter end={userCount > 0 ? userCount : 500} /> شخص في السعودية</span>}
           </div>
           <p className="mt-4 text-sm text-stone-800 dark:text-stone-200">أو {PRICING.elite.label}/شهريًا للباقة المتقدّمة مع المدرب الذكي + استشارات</p>
           <div className="mt-6 flex flex-col sm:flex-row items-center justify-center gap-3 text-sm">
