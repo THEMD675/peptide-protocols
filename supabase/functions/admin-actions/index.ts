@@ -4,7 +4,7 @@ import { handleCorsPreflightIfOptions, getCorsHeaders, jsonResponse as json } fr
 import { requireAdmin } from '../_shared/admin-auth.ts'
 import { getServiceClient, supabaseUrl, supabaseServiceKey } from '../_shared/supabase.ts'
 import { checkRateLimit } from '../_shared/rate-limit.ts'
-import { sendEmail } from '../_shared/send-email.ts'
+import { sendEmail, sendBatchEmails } from '../_shared/send-email.ts'
 
 const stripeKey = Deno.env.get('STRIPE_SECRET_KEY') ?? ''
 
@@ -349,21 +349,19 @@ serve(async (req) => {
           return json({ error: 'تم إرسال عدد كبير من الرسائل — حاول بعد ساعة', rateLimited: true }, 429, cors)
         }
 
-        let sent = 0, failed = 0
+        const emailContent = htmlBody || `<pre style="white-space: pre-wrap; font-family: inherit;">${escapeHtml(textBody ?? '')}</pre>`
+        const batchPayload = batch.map(email => ({
+          to: email,
+          subject,
+          html: emailContent,
+          replyTo: 'contact@pptides.com',
+          tags: [{ name: 'type', value: 'admin_bulk' }, { name: 'audience', value: audience }],
+        }))
+
+        const { sent, failed } = await sendBatchEmails(batchPayload)
 
         for (const email of batch) {
-          try {
-            const r = await sendEmail({
-              to: email,
-              subject,
-              html: htmlBody || `<pre style="white-space: pre-wrap; font-family: inherit;">${escapeHtml(textBody ?? '')}</pre>`,
-              replyTo: 'contact@pptides.com',
-            })
-            if (r.ok) sent++; else failed++
-            await admin.from('email_logs').insert({ email, type: 'admin_bulk', status: r.ok ? 'sent' : 'failed' }).catch(() => {})
-          } catch {
-            failed++
-          }
+          await admin.from('email_logs').insert({ email, type: 'admin_bulk', status: 'sent' }).catch(() => {})
         }
 
         // Log bulk send to audit log with details

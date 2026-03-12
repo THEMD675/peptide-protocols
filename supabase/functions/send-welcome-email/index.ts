@@ -196,6 +196,7 @@ serve(async (req) => {
     const emailResult = await sendEmail({
       to: email,
       subject: 'مرحبًا بك في pptides — تجربتك المجانية بدأت الآن',
+      tags: [{ name: 'type', value: 'welcome' }, { name: 'category', value: 'onboarding' }],
       html: emailWrapper(`
             <h1 style="color: #1c1917; font-size: 24px;">مرحبًا، ${displayName}</h1>
             <p style="color: #44403c; font-size: 16px; line-height: 1.8;">
