@@ -219,9 +219,9 @@ export default function Pricing() {
     <div className="min-h-screen bg-gradient-to-b from-white dark:from-stone-950 via-stone-50 dark:via-stone-900 to-white dark:to-stone-950 animate-fade-in pb-28">
       <Helmet>
         <title>أسعار واشتراكات الببتيدات | pptides</title>
-        <meta name="description" content={`اختر خطتك: Essentials ${PRICING.essentials.label}/شهر أو Elite ${PRICING.elite.label}/شهر. ${TRIAL_DAYS} أيام تجربة مجانية. ضمان استرداد كامل.`} />
+        <meta name="description" content={`اختر خطتك: الأساسية ${PRICING.essentials.label}/شهر أو المتقدّمة ${PRICING.elite.label}/شهر. ${TRIAL_DAYS} أيام تجربة مجانية. ضمان استرداد كامل.`} />
         <meta property="og:title" content={`أسعار pptides | ابدأ بتجربة ${TRIAL_DAYS} أيام مجانية`} />
-        <meta property="og:description" content={`Essentials ${PRICING.essentials.label}/شهر أو Elite ${PRICING.elite.label}/شهر. ضمان استرداد كامل.`} />
+        <meta property="og:description" content={`الأساسية ${PRICING.essentials.label}/شهر أو المتقدّمة ${PRICING.elite.label}/شهر. ضمان استرداد كامل.`} />
         <meta property="og:type" content="website" />
         <meta property="og:url" content={`${SITE_URL}/pricing`} />
         <meta property="og:image" content={`${SITE_URL}/og-image.jpg`} />
@@ -229,7 +229,7 @@ export default function Pricing() {
         <link rel="canonical" href={`${SITE_URL}/pricing`} />
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content={`أسعار pptides | ابدأ بتجربة ${TRIAL_DAYS} أيام مجانية`} />
-        <meta name="twitter:description" content={`Essentials ${PRICING.essentials.label}/شهر أو Elite ${PRICING.elite.label}/شهر. ضمان استرداد كامل.`} />
+        <meta name="twitter:description" content={`الأساسية ${PRICING.essentials.label}/شهر أو المتقدّمة ${PRICING.elite.label}/شهر. ضمان استرداد كامل.`} />
         <meta name="twitter:image" content={`${SITE_URL}/og-image.jpg`} />
         <script type="application/ld+json">{JSON.stringify([
           {
@@ -244,7 +244,7 @@ export default function Pricing() {
           {
             "@context": "https://schema.org",
             "@type": "Product",
-            "name": "pptides Essentials — الأساسية",
+            "name": "الأساسية — pptides",
             "description": `اشتراك يتضمن بطاقات بروتوكول كاملة لـ ${PEPTIDE_COUNT} ببتيد، حاسبة جرعات، دليل تحاليل مخبرية، وبروتوكولات مُجمَّعة.`,
             "brand": { "@type": "Brand", "name": "pptides" },
             "offers": [
@@ -255,8 +255,8 @@ export default function Pricing() {
           {
             "@context": "https://schema.org",
             "@type": "Product",
-            "name": "pptides Elite — المتقدّمة",
-            "description": "اشتراك يتضمن كل مزايا Essentials بالإضافة إلى مدرب ذكي بالذكاء الاصطناعي 24/7، بروتوكولات مخصّصة، واستشارات بلا حدود.",
+            "name": "المتقدّمة — pptides",
+            "description": "اشتراك يتضمن كل مزايا الأساسية بالإضافة إلى مدرب ذكي بالذكاء الاصطناعي 24/7، بروتوكولات مخصّصة، واستشارات بلا حدود.",
             "brand": { "@type": "Brand", "name": "pptides" },
             "offers": [
               { "@type": "Offer", "name": "شهري", "price": String(PRICING.elite.monthly), "priceCurrency": "SAR", "availability": "https://schema.org/InStock", "url": `${SITE_URL}/pricing` },
@@ -289,8 +289,8 @@ export default function Pricing() {
 
         {/* Header — clean, minimal, no emojis */}
         <div className="mb-12 text-center">
-          <h1 className="mb-4 text-3xl font-bold text-stone-900 dark:text-stone-100 md:text-5xl">
-            بروتوكولك الشخصي يبدأ <span className="text-emerald-700">من هنا</span>
+          <h1 className="mb-4 text-2xl font-bold text-stone-900 dark:text-stone-100 sm:text-3xl md:text-5xl leading-tight">
+            بروتوكولك الشخصي يبدأ من هنا
           </h1>
           {showTrialMessaging && (
             <p className="mx-auto max-w-lg text-lg text-stone-600 dark:text-stone-300">
@@ -337,7 +337,7 @@ export default function Pricing() {
           <div
             className="pricing-card relative flex flex-col overflow-visible rounded-2xl border-2 border-emerald-200 dark:border-emerald-800 bg-white dark:bg-stone-900 p-8 pt-10 shadow-lg md:p-10 md:pt-12"
           >
-            <span className="absolute -top-3 end-4 z-10 rounded-full bg-emerald-600 px-5 py-1.5 text-sm font-bold text-white shadow-md">
+            <span className="absolute -top-3 left-1/2 -translate-x-1/2 z-10 rounded-full bg-emerald-600 px-5 py-1.5 text-sm font-bold text-white shadow-md whitespace-nowrap">
               الأكثر شعبية
             </span>
             <h2 className="mb-1 text-2xl font-bold text-stone-900 dark:text-stone-100">الأساسية</h2>
@@ -369,7 +369,7 @@ export default function Pricing() {
             className="pricing-card pricing-card-featured relative flex flex-col overflow-visible rounded-2xl border-2 border-emerald-300 dark:border-emerald-700 bg-white dark:bg-stone-900 p-8 pt-10 md:p-10 md:pt-12"
             style={{ animation: 'pricing-elite-glow 3s ease-in-out infinite' }}
           >
-            <span className="absolute -top-3 end-4 z-10 rounded-full bg-emerald-600 px-5 py-1.5 text-sm font-bold text-white">
+            <span className="absolute -top-3 left-1/2 -translate-x-1/2 z-10 rounded-full bg-emerald-600 px-5 py-1.5 text-sm font-bold text-white shadow-md whitespace-nowrap">
               الأفضل قيمة
             </span>
 
