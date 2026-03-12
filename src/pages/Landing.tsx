@@ -368,7 +368,7 @@ export default function Landing() {
               {TRIAL_DAYS} أيام مجانية — إلغاء في أي وقت
             </span>
           </div>
-          <p className="mt-3 text-xs text-stone-500 dark:text-stone-300">تبدأ من {PRICING.essentials.label}/شهر فقط بعد التجربة</p>
+          <p className="mt-3 text-xs text-stone-600 dark:text-stone-300">تبدأ من {PRICING.essentials.label}/شهر فقط بعد التجربة</p>
           <p className="mt-4 flex items-center justify-center gap-2 text-sm text-stone-500 dark:text-stone-300">
             <span className="relative flex h-2 w-2 shrink-0" aria-hidden="true"><span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500" /></span>
             {userCount >= 50 ? <span>انضم إلى <strong className="text-stone-700 dark:text-stone-200"><AnimatedCounter end={userCount} />+</strong> مستخدم من السعودية والخليج يثقون بـ pptides</span> : <span>استنادًا إلى أحدث الأبحاث العلمية المحكّمة</span>}
@@ -387,17 +387,17 @@ export default function Landing() {
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-3 divide-y sm:divide-y-0 sm:divide-x sm:divide-x-reverse divide-stone-100 dark:divide-stone-700 bg-white dark:bg-stone-900">
               <div className="p-3 text-center">
-                <p className="mb-1 text-xs text-stone-400 dark:text-stone-300">الجرعة</p>
+                <p className="mb-1 text-xs text-stone-600 dark:text-stone-300">الجرعة</p>
                 <p className="text-sm font-bold text-stone-900 dark:text-stone-100">250–500 مايكروغرام</p>
-                <p className="text-xs text-stone-400 dark:text-stone-300">مرتين / يوم</p>
+                <p className="text-xs text-stone-600 dark:text-stone-300">مرتين / يوم</p>
               </div>
               <div className="bg-emerald-50/60 dark:bg-emerald-900/20 p-3 text-center">
-                <p className="mb-1 text-xs text-stone-400 dark:text-stone-300">الدورة</p>
+                <p className="mb-1 text-xs text-stone-600 dark:text-stone-300">الدورة</p>
                 <p className="text-sm font-bold text-emerald-700 dark:text-emerald-400">4–6 أسابيع</p>
-                <p className="text-xs text-stone-400 dark:text-stone-300">ثم راحة أسبوعين</p>
+                <p className="text-xs text-stone-600 dark:text-stone-300">ثم راحة أسبوعين</p>
               </div>
               <div className="p-3 text-center">
-                <p className="mb-1 text-xs text-stone-400 dark:text-stone-300">مستوى الدليل</p>
+                <p className="mb-1 text-xs text-stone-600 dark:text-stone-300">مستوى الدليل</p>
                 <span className="inline-block rounded-full bg-emerald-100 dark:bg-emerald-900/40 px-2 py-0.5 text-xs font-bold text-emerald-700 dark:text-emerald-400">قوي ✓</span>
               </div>
             </div>
@@ -797,7 +797,7 @@ export default function Landing() {
                 <div className="flex items-center gap-3">
                   <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-emerald-100 dark:bg-emerald-900/30 text-sm font-bold text-emerald-700 dark:text-emerald-400">{t.name.charAt(0)}</div>
                   <div>
-                    <p className="font-bold text-stone-900 dark:text-stone-100">{t.name}{t.location && <span className="me-1 text-xs font-normal text-stone-400 dark:text-stone-300">· {t.location}</span>}</p>
+                    <p className="font-bold text-stone-900 dark:text-stone-100">{t.name}{t.location && <span className="me-1 text-xs font-normal text-stone-500 dark:text-stone-300">· {t.location}</span>}</p>
                     <p className="text-sm text-stone-600 dark:text-stone-300">{t.role}</p>
                   </div>
                 </div>
@@ -984,7 +984,7 @@ export default function Landing() {
           <h2 className="mb-3 text-2xl font-bold text-white md:text-3xl">
             ابقَ على <span className="text-emerald-400">اطلاع</span>
           </h2>
-          <p className="mx-auto mb-6 max-w-md text-sm text-white/75">
+          <p className="mx-auto mb-6 max-w-md text-sm text-white/90">
             اشترك ليصلك كل جديد عن الببتيدات والتحديثات العلمية
           </p>
           <Suspense fallback={<div className="h-24 animate-pulse rounded-2xl bg-stone-800" aria-hidden="true" />}>

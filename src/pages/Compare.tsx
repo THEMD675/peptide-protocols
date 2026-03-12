@@ -94,7 +94,7 @@ function ExpandableCell({ text, isDiff }: { text: string; isDiff: boolean }) {
           onClick={() => setExpanded((v) => !v)}
           className={cn(
             'mt-1 block text-xs font-bold underline-offset-2 hover:underline transition-colors',
-            isDiff ? 'text-amber-600 dark:text-amber-400' : 'text-stone-400 dark:text-stone-300',
+            isDiff ? 'text-amber-600 dark:text-amber-400' : 'text-stone-500 dark:text-stone-300',
           )}
         >
           {expanded ? 'أقل ▲' : 'المزيد ▼'}
@@ -149,7 +149,7 @@ function PeptideSelector({
       <div className="mb-1.5 flex items-center gap-2">
         <p className="text-xs font-bold text-stone-500 dark:text-stone-300">{label}</p>
         {optional && (
-          <span className="rounded-full bg-stone-100 dark:bg-stone-800 px-2 py-0.5 text-xs text-stone-400 dark:text-stone-300">
+          <span className="rounded-full bg-stone-100 dark:bg-stone-800 px-2 py-0.5 text-xs text-stone-500 dark:text-stone-300">
             اختياري
           </span>
         )}
@@ -215,7 +215,7 @@ function PeptideSelector({
                   className="flex w-full items-center gap-3 px-4 py-2.5 text-start text-sm transition-colors hover:bg-emerald-50 dark:hover:bg-stone-800"
                 >
                   <span className="font-bold text-stone-900 dark:text-stone-100">{p.nameAr}</span>
-                  <span className="text-xs text-stone-400 dark:text-stone-300">{p.nameEn}</span>
+                  <span className="text-xs text-stone-500 dark:text-stone-300">{p.nameEn}</span>
                 </button>
               ))
             )}
@@ -449,7 +449,7 @@ export default function Compare() {
 
           {/* Scroll hint for mobile */}
           {canScrollTable && (
-            <div className="mb-2 flex items-center justify-end gap-1 text-[11px] text-stone-400 dark:text-stone-300 sm:hidden">
+            <div className="mb-2 flex items-center justify-end gap-1 text-[11px] text-stone-500 dark:text-stone-300 sm:hidden">
               <ChevronLeft className="h-3.5 w-3.5" />
               اسحب للجانب للمزيد
             </div>
@@ -569,7 +569,7 @@ export default function Compare() {
 
           {/* Diff legend */}
           {diffCount > 0 && (
-            <p className="mt-3 text-[11px] text-stone-400 dark:text-stone-300 text-end">
+            <p className="mt-3 text-[11px] text-stone-500 dark:text-stone-300 text-end">
               <span className="inline-flex items-center gap-1">
                 <span className="inline-block h-1.5 w-1.5 rounded-full bg-amber-500" />
                 الصفوف المضاءة تعني اختلافًا بين الببتيدات — {diffCount} من {COMPARE_ROWS.length} معيارًا مختلف
@@ -602,7 +602,7 @@ export default function Compare() {
 
           <div className="mb-4 flex items-center gap-3">
             <div className="flex-1 h-px bg-stone-200 dark:bg-stone-700" />
-            <p className="text-xs font-bold text-stone-400 dark:text-stone-300 shrink-0">أو ابدأ بمقارنة شائعة</p>
+            <p className="text-xs font-bold text-stone-500 dark:text-stone-300 shrink-0">أو ابدأ بمقارنة شائعة</p>
             <div className="flex-1 h-px bg-stone-200 dark:bg-stone-700" />
           </div>
 
@@ -616,7 +616,7 @@ export default function Compare() {
                 <ArrowLeftRight className="h-4 w-4 shrink-0 text-emerald-700" />
                 <div className="min-w-0">
                   <p className="text-xs font-bold text-stone-800 dark:text-stone-200 truncate">{label}</p>
-                  <p className="text-xs text-stone-400 dark:text-stone-300">{tag}</p>
+                  <p className="text-xs text-stone-500 dark:text-stone-300">{tag}</p>
                 </div>
               </Link>
             ))}
@@ -646,7 +646,7 @@ export default function Compare() {
               <ArrowLeftRight className="h-5 w-5 shrink-0 text-emerald-700" />
               <div className="min-w-0">
                 <p className="text-sm font-bold text-stone-800 dark:text-stone-200">{label}</p>
-                <p className="text-xs text-stone-400 dark:text-stone-300 mt-0.5">{tag}</p>
+                <p className="text-xs text-stone-500 dark:text-stone-300 mt-0.5">{tag}</p>
               </div>
             </Link>
           ))}

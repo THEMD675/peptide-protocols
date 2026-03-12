@@ -80,7 +80,7 @@ export default function DailyBriefingCard({ briefing, onObservationClick }: Prop
               </span>
             </button>
           ))}
-          <p className="text-xs text-stone-400 dark:text-stone-300 text-center mt-2">
+          <p className="text-xs text-stone-500 dark:text-stone-300 text-center mt-2">
             اضغط على أي ملاحظة لمناقشتها مع المدرب
           </p>
         </div>

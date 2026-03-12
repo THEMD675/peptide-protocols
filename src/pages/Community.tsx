@@ -1005,7 +1005,7 @@ export default function Community() {
                   {searchQuery && (
                     <button
                       onClick={() => setSearchQuery('')}
-                      className="absolute end-3 top-1/2 -translate-y-1/2 rounded p-1 text-stone-400 dark:text-stone-300 hover:text-stone-600 dark:hover:text-stone-400 transition-colors"
+                      className="absolute end-3 top-1/2 -translate-y-1/2 rounded p-1 text-stone-500 dark:text-stone-300 hover:text-stone-600 dark:hover:text-stone-400 transition-colors"
                       aria-label="مسح البحث"
                     >
                       <X className="h-4 w-4" />
@@ -1150,7 +1150,7 @@ export default function Community() {
                 {displayedLogs.length === 0 && isShowingSeeds && (
                   <div className="rounded-2xl border border-stone-200 dark:border-stone-600 bg-stone-50 dark:bg-stone-900/50 px-6 py-12 text-center">
                     <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-stone-100 dark:bg-stone-800">
-                      <MessageSquare className="h-7 w-7 text-stone-400 dark:text-stone-300" />
+                      <MessageSquare className="h-7 w-7 text-stone-500 dark:text-stone-300" />
                     </div>
                     <p className="text-base font-bold text-stone-800 dark:text-stone-200">لا توجد تجارب لهذا الهدف بعد</p>
                     <p className="mt-1.5 text-sm text-stone-500 dark:text-stone-300">كن أول من يشارك تجربته وتُلهم الآخرين</p>
@@ -1387,7 +1387,7 @@ export default function Community() {
                           ) : (
                             <>
                               {(repliesByPost[log.id] ?? []).length === 0 && (
-                                <p className="py-2 text-sm text-stone-400 dark:text-stone-300 italic flex items-center gap-1.5">لا توجد ردود بعد — كن أول من يرد! <MessageCircle className="h-4 w-4" /></p>
+                                <p className="py-2 text-sm text-stone-500 dark:text-stone-300 italic flex items-center gap-1.5">لا توجد ردود بعد — كن أول من يرد! <MessageCircle className="h-4 w-4" /></p>
                               )}
                               {(repliesByPost[log.id] ?? []).map(reply => (
                                 <div key={reply.id} className="flex gap-2.5 rounded-xl bg-stone-50 dark:bg-stone-900 p-3">

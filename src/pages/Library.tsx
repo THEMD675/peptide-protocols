@@ -502,7 +502,7 @@ export default function Library() {
           className="mb-6 flex flex-wrap gap-2 items-center"
         >
           <div className="relative flex-1 min-w-[180px]" data-tour="library-search">
-            <Search className="absolute end-3 top-1/2 h-4 w-4 -translate-y-1/2 text-stone-400 dark:text-stone-300 pointer-events-none" />
+            <Search className="absolute end-3 top-1/2 h-4 w-4 -translate-y-1/2 text-stone-500 dark:text-stone-300 pointer-events-none" />
             <input
               type="text"
               role="searchbox"
@@ -520,7 +520,7 @@ export default function Library() {
               <button
                 onClick={() => setSearch('')}
                 aria-label="مسح البحث"
-                className="absolute start-3 top-1/2 -translate-y-1/2 rounded-full p-0.5 text-stone-400 dark:text-stone-300 transition-colors hover:text-stone-700 dark:hover:text-stone-200"
+                className="absolute start-3 top-1/2 -translate-y-1/2 rounded-full p-0.5 text-stone-500 dark:text-stone-300 transition-colors hover:text-stone-700 dark:hover:text-stone-200"
               >
                 <X className="h-4 w-4" />
               </button>

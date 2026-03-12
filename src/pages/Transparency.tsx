@@ -261,7 +261,7 @@ export default function Transparency() {
           </section>
 
           {/* Last reviewed */}
-          <div className="text-center text-xs text-stone-400 dark:text-stone-300">
+          <div className="text-center text-xs text-stone-500 dark:text-stone-300">
             آخر مراجعة لهذه الصفحة: {LEGAL_LAST_UPDATED}
           </div>
 

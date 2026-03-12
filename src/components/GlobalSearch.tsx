@@ -225,7 +225,7 @@ export default function GlobalSearch({ open, onClose }: Props) {
       >
         {/* input */}
         <div className="flex items-center gap-3 border-b border-stone-200 dark:border-stone-700 px-4 py-3.5">
-          <Search className="h-5 w-5 shrink-0 text-stone-400 dark:text-stone-300" />
+          <Search className="h-5 w-5 shrink-0 text-stone-500 dark:text-stone-300" />
           <input
             ref={inputRef}
             type="text"
@@ -370,7 +370,7 @@ export default function GlobalSearch({ open, onClose }: Props) {
 
         {/* footer */}
         {results.length > 0 && (
-          <div className="flex items-center justify-between border-t border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-800/50 px-4 py-2.5 text-[10px] text-stone-400 dark:text-stone-300">
+          <div className="flex items-center justify-between border-t border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-800/50 px-4 py-2.5 text-[10px] text-stone-500 dark:text-stone-300">
             <span className="font-medium">{results.length} نتيجة</span>
             <span className="flex items-center gap-2">
               <kbd className="rounded border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-700 px-1.5 py-0.5 text-stone-600 dark:text-stone-300">↑↓</kbd>

@@ -1175,7 +1175,7 @@ export default function Guide() {
             className={cn(
               'flex items-center gap-2 rounded-xl px-5 py-3 text-sm font-bold transition-colors',
               activeModuleIndex === 0
-                ? 'text-stone-400 dark:text-stone-300 cursor-not-allowed'
+                ? 'text-stone-500 dark:text-stone-300 cursor-not-allowed'
                 : 'bg-stone-100 dark:bg-stone-800 text-stone-700 dark:text-stone-200 hover:bg-stone-200 dark:hover:bg-stone-700'
             )}
           >

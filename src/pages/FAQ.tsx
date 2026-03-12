@@ -225,7 +225,7 @@ export default function FAQ() {
 
         {/* Search */}
         <div className="relative mb-6">
-          <Search className="pointer-events-none absolute start-4 top-1/2 h-5 w-5 -translate-y-1/2 text-stone-400 dark:text-stone-300" />
+          <Search className="pointer-events-none absolute start-4 top-1/2 h-5 w-5 -translate-y-1/2 text-stone-500 dark:text-stone-300" />
           <input
             type="text"
             value={search}
@@ -291,7 +291,7 @@ export default function FAQ() {
                     >
                       <summary className="flex cursor-pointer items-center justify-between gap-4 p-5 text-base font-semibold text-stone-900 dark:text-stone-100 md:p-6 min-h-[44px] select-none">
                         <span>{faq.q}</span>
-                        <ChevronDown className="h-5 w-5 shrink-0 text-stone-400 dark:text-stone-300 transition-transform duration-200 group-open:rotate-180" />
+                        <ChevronDown className="h-5 w-5 shrink-0 text-stone-500 dark:text-stone-300 transition-transform duration-200 group-open:rotate-180" />
                       </summary>
                       <div className="details-content">
                         <p className="px-5 pb-5 text-sm leading-relaxed text-stone-700 dark:text-stone-200 md:px-6 md:pb-6">
