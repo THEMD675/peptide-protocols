@@ -68,6 +68,14 @@ export default function Pricing() {
   const isSubscribedTo = (tier: string) =>
     user && subscription?.status !== 'trial' && subscription?.isProOrTrial && subscription.tier === tier;
 
+  // FIX 4: Detect if user has already used their trial
+  const hasUsedTrial = user && subscription && (
+    subscription.status === 'active' ||
+    subscription.status === 'expired' ||
+    subscription.status === 'cancelled' ||
+    subscription.status === 'past_due'
+  );
+
   const [searchParams, setSearchParams] = useSearchParams();
   const [loadingPlan, setLoadingPlan] = useState<string | null>(null);
   const [billingCycle, setBillingCycle] = useState<'monthly' | 'annual'>('monthly');
@@ -193,7 +201,7 @@ export default function Pricing() {
               <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />
               {UPGRADE.checkoutRedirecting}
             </>
-          ) : TRIAL.ctaFree}
+          ) : hasUsedTrial ? 'اشترك الآن' : TRIAL.ctaFree}
         </button>
       );
     }
@@ -690,7 +698,7 @@ export default function Pricing() {
                 </>
               ) : (
                 <>
-                  <span>{TRIAL.bottomCta}</span>
+                  <span>{hasUsedTrial ? 'اشترك الآن' : TRIAL.bottomCta}</span>
                   <ArrowLeft className="h-5 w-5" />
                 </>
               )}

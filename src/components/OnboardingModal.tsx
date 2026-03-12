@@ -70,6 +70,20 @@ export default function OnboardingModal({ forceOpen, onClose: externalClose }: {
     if (forceOpen) { setShow(true); return; }
   }, [forceOpen]);
 
+  // FIX 2: Check DB for onboarding completion (survives localStorage clear)
+  useEffect(() => {
+    if (forceOpen || !user?.id) return;
+    // If localStorage already says completed, no need to check DB
+    try { if (localStorage.getItem(ONBOARDING_KEY) === 'true') return; } catch { /* expected */ }
+    supabase.from('user_profiles').select('onboarding_completed_at').eq('user_id', user.id).maybeSingle()
+      .then(({ data }) => {
+        if (data?.onboarding_completed_at) {
+          try { localStorage.setItem(ONBOARDING_KEY, 'true'); } catch { /* expected */ }
+          setShow(false);
+        }
+      }).catch(() => {});
+  }, [user?.id, forceOpen]);
+
   // If user already took the quiz, skip the goal step
   useEffect(() => {
     try {

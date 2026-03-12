@@ -97,6 +97,23 @@ serve(async (req) => {
     // Dedup: get recent coach notifications
     const userIds = [...new Set((activeProtocols ?? []).map(p => p.user_id))]
 
+    // FIX 3: Fetch notification preferences from user_profiles
+    const emailPrefsMap = new Map<string, boolean>()
+    const pushPrefsMap = new Map<string, boolean>()
+    for (let i = 0; i < userIds.length; i += 500) {
+      const chunk = userIds.slice(i, i + 500)
+      const { data: prefs } = await supabase
+        .from('user_profiles')
+        .select('user_id, email_notifications_enabled, product_updates_enabled')
+        .in('user_id', chunk)
+      if (prefs) {
+        for (const p of prefs) {
+          emailPrefsMap.set(p.user_id, p.email_notifications_enabled ?? true)
+          pushPrefsMap.set(p.user_id, p.product_updates_enabled ?? true)
+        }
+      }
+    }
+
     const { data: recentNotifs } = await supabase
       .from('notifications')
       .select('user_id, title_ar, created_at')
@@ -117,8 +134,13 @@ serve(async (req) => {
       const key = `${userId}:${title}`
       const set = dedup === 'weekly' ? recentSet7d : recentSet24h
       if (set.has(key)) return
+      // FIX 3: Respect notification preferences — skip users who opted out
+      if (emailPrefsMap.get(userId) === false) return
       notifications.push({ user_id: userId, type: 'coach', title_ar: title, body_ar: body })
-      pushTargets.push({ user_id: userId, title, body, url })
+      // Only add push target if user has product_updates_enabled
+      if (pushPrefsMap.get(userId) !== false) {
+        pushTargets.push({ user_id: userId, title, body, url })
+      }
       set.add(key)
     }
 
