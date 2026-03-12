@@ -42,7 +42,7 @@ export default memo(function DoseTitrationTimeline({ schedule, currentWeek, unit
                 <span className={cn('text-sm font-black', isCurrent ? 'text-emerald-800 dark:text-emerald-300' : isPast ? 'text-emerald-700' : 'text-stone-500 dark:text-stone-300')}>
                   {formatDose(step.doseMcg)}
                 </span>
-                <span className="text-[10px] text-stone-500 dark:text-stone-300">{displayUnit}</span>
+                <span className="text-xs text-stone-500 dark:text-stone-300">{displayUnit}</span>
               </div>
               {i < schedule.length - 1 && (
                 <div className={cn('h-0.5 w-4 shrink-0', isPast ? 'bg-emerald-400' : 'bg-stone-300 dark:bg-stone-600')} />

@@ -348,13 +348,13 @@ export default function PeptideDetail() {
                     <th
                       scope="row"
                       className={cn(
-                        'w-[35%] px-5 py-4 align-top text-sm font-semibold text-start',
+                        'w-[35%] px-5 py-5 align-top text-sm font-semibold text-start',
                         row.highlight ? 'text-emerald-700' : 'text-stone-800 dark:text-stone-200',
                       )}
                     >
                       {row.label}
                     </th>
-                    <td className="px-5 py-4 text-sm leading-relaxed text-stone-800 dark:text-stone-200">
+                    <td className="px-5 py-5 text-sm leading-relaxed text-stone-800 dark:text-stone-200">
                       {row.value}
                     </td>
                   </tr>
@@ -552,13 +552,13 @@ export default function PeptideDetail() {
                       <th
                         scope="row"
                         className={cn(
-                          'w-[35%] px-5 py-4 align-top text-sm font-semibold text-start',
+                          'w-[35%] px-5 py-5 align-top text-sm font-semibold text-start',
                           row.highlight ? 'text-emerald-700' : 'text-stone-800 dark:text-stone-200',
                         )}
                       >
                         {row.label}
                       </th>
-                      <td className="px-5 py-4 text-sm leading-relaxed text-stone-800 dark:text-stone-200">
+                      <td className="px-5 py-5 text-sm leading-relaxed text-stone-800 dark:text-stone-200">
                         {row.value}
                       </td>
                     </tr>

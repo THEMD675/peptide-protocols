@@ -58,7 +58,7 @@ export default function DailyBriefingCard({ briefing, onObservationClick }: Prop
         </div>
         <button
           onClick={() => setExpanded(!expanded)}
-          className="rounded-lg p-1.5 text-stone-400 transition-colors hover:bg-stone-100 dark:hover:bg-stone-800"
+          className="rounded-lg p-1.5 min-h-[44px] min-w-[44px] text-stone-400 transition-colors hover:bg-stone-100 dark:hover:bg-stone-800"
           aria-label={expanded ? 'طي' : 'توسيع'}
         >
           {expanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}

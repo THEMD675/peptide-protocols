@@ -411,6 +411,7 @@ export default function Account() {
           <button
             onClick={() => avatarInputRef.current?.click()}
             disabled={uploadingPic}
+            aria-label="تغيير الصورة الشخصية"
             className="group relative mx-auto flex h-20 w-20 items-center justify-center overflow-hidden rounded-full border-2 border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-950 transition-all hover:border-emerald-400"
           >
             {profilePicUrl ? (
@@ -1029,11 +1030,11 @@ export default function Account() {
       {showCancelDialog && cancelStep === 'survey' && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm px-4 animate-fade-in" onClick={() => { setShowCancelDialog(false); setCancelStep(null); }}>
           <FocusTrap focusTrapOptions={{ allowOutsideClick: true }}>
-          <div role="dialog" aria-modal="true" className="w-full max-w-md max-h-[90vh] overflow-y-auto rounded-2xl bg-white dark:bg-stone-900 p-6 shadow-xl dark:shadow-stone-900/40" onClick={e => e.stopPropagation()}>
+          <div role="dialog" aria-modal="true" aria-labelledby="cancel-dialog-title" className="w-full max-w-md max-h-[90vh] overflow-y-auto rounded-2xl bg-white dark:bg-stone-900 p-6 shadow-xl dark:shadow-stone-900/40" onClick={e => e.stopPropagation()}>
             <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-amber-100 dark:bg-amber-900/30">
               <AlertTriangle className="h-6 w-6 text-amber-600" />
             </div>
-            <h3 className="text-lg font-bold text-stone-900 dark:text-stone-100">لماذا تريد الإلغاء؟</h3>
+            <h3 id="cancel-dialog-title" className="text-lg font-bold text-stone-900 dark:text-stone-100">لماذا تريد الإلغاء؟</h3>
             <p className="mt-1 text-sm text-stone-600 dark:text-stone-300">ساعدنا في تحسين الخدمة — اختر السبب الرئيسي</p>
             <div className="mt-4 space-y-2">
               {[
@@ -1099,11 +1100,11 @@ export default function Account() {
       {showCancelDialog && cancelStep === 'retention' && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm px-4 animate-fade-in" onClick={() => { setShowCancelDialog(false); setCancelStep(null); }}>
           <FocusTrap focusTrapOptions={{ allowOutsideClick: true }}>
-          <div role="dialog" aria-modal="true" className="w-full max-w-md max-h-[90vh] overflow-y-auto rounded-2xl bg-white dark:bg-stone-900 p-6 shadow-xl dark:shadow-stone-900/40" onClick={e => e.stopPropagation()}>
+          <div role="dialog" aria-modal="true" aria-labelledby="cancel-dialog-title" className="w-full max-w-md max-h-[90vh] overflow-y-auto rounded-2xl bg-white dark:bg-stone-900 p-6 shadow-xl dark:shadow-stone-900/40" onClick={e => e.stopPropagation()}>
             <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-amber-100 dark:bg-amber-900/30">
               <AlertTriangle className="h-6 w-6 text-amber-600" />
             </div>
-            <h3 className="text-lg font-bold text-stone-900 dark:text-stone-100">{RETENTION.heading}</h3>
+            <h3 id="cancel-dialog-title" className="text-lg font-bold text-stone-900 dark:text-stone-100">{RETENTION.heading}</h3>
             <div className="mt-4 rounded-xl border border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-900/20 p-4 mb-4">
               <p className="text-sm font-bold text-emerald-800 dark:text-emerald-300 mb-2">{RETENTION.offerBadge}</p>
               <p className="text-sm text-emerald-700 dark:text-emerald-400">{RETENTION.offerBody}</p>
