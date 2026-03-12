@@ -39,7 +39,11 @@ self.addEventListener('activate', (event) => {
 });
 
 cleanupOutdatedCaches();
-precacheAndRoute(self.__WB_MANIFEST);
+// Filter out index.html from precache so navigation always hits network first
+const manifest = self.__WB_MANIFEST.filter(
+  (entry) => typeof entry === 'string' ? !entry.endsWith('index.html') : !entry.url.endsWith('index.html')
+);
+precacheAndRoute(manifest);
 
 // ═══ Offline fallback page ═══
 const OFFLINE_PAGE = '/offline.html';
