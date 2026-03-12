@@ -360,7 +360,7 @@ export default function Community() {
 
   const [upvotedPosts, setUpvotedPosts] = useState<Set<string>>(() => {
     try {
-      const stored = localStorage.getItem('pptides_upvoted_posts');
+      const stored = localStorage.getItem(`pptides_upvoted_${user?.id ?? 'anon'}`);
       return stored ? new Set(JSON.parse(stored)) : new Set();
     } catch { return new Set(); }
   });
@@ -564,7 +564,7 @@ export default function Community() {
   const deleteReply = useCallback(async (reply: Reply) => {
     setRepliesByPost(prev => ({ ...prev, [reply.post_id]: (prev[reply.post_id] ?? []).filter(r => r.id !== reply.id) }));
     setReplyCountByPost(prev => ({ ...prev, [reply.post_id]: Math.max(0, (prev[reply.post_id] ?? 1) - 1) }));
-    const { error } = await supabase.from('community_replies').delete().eq('id', reply.id);
+    const { error } = await supabase.from('community_replies').delete().eq('id', reply.id).eq('user_id', user?.id ?? '');
     if (error) {
       toast.error('تعذّر حذف الرد');
       await loadReplies(reply.post_id);
@@ -1327,7 +1327,7 @@ export default function Community() {
                                 if (upvotedPosts.has(log.id)) return;
                                 const next = new Set(upvotedPosts).add(log.id);
                                 setUpvotedPosts(next);
-                                try { localStorage.setItem('pptides_upvoted_posts', JSON.stringify([...next])); } catch { /* */ }
+                                try { localStorage.setItem(`pptides_upvoted_${user?.id ?? 'anon'}`, JSON.stringify([...next])); } catch { /* */ }
                                 setLogs(prev => prev.map(l => l.id === log.id ? { ...l, upvotes: (l.upvotes ?? 0) + 1 } : l));
                                 const { error } = await supabase
                                   .rpc('increment_upvote', { p_post_id: log.id, p_user_id: user.id });
@@ -1336,7 +1336,7 @@ export default function Community() {
                                   const reverted = new Set(upvotedPosts);
                                   reverted.delete(log.id);
                                   setUpvotedPosts(reverted);
-                                  try { localStorage.setItem('pptides_upvoted_posts', JSON.stringify([...reverted])); } catch { /* */ }
+                                  try { localStorage.setItem(`pptides_upvoted_${user?.id ?? 'anon'}`, JSON.stringify([...reverted])); } catch { /* */ }
                                 }
                               }}
                               className={cn(

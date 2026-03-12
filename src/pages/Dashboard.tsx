@@ -465,23 +465,18 @@ export default function Dashboard() {
     return () => { mounted = false; };
   }, [user?.id]);
 
-  // Redirect trial users who haven't entered payment to /pricing
-  // Fix 1 & 2: Only redirect AFTER onboarding is completed — new users need to see onboarding first
-  // Fix 3: Admin-granted accounts skip pricing redirect entirely
-  // Skip redirect when returning from Stripe checkout (?payment=success)
-  const params = new URLSearchParams(window.location.search);
-  const isPaymentCallback = params.get('payment') === 'success';
-  if (subscription.needsPaymentSetup && !isPaymentCallback && !subscription.isAdminGrant && onboardingCompleted) {
-    return <Navigate to="/pricing?setup=1" replace />;
-  }
-
-  // Payment polling handled by AuthContext on ?payment=success — no duplicate here
   useEffect(() => {
     if (shareProtocolId) {
       document.body.style.overflow = 'hidden';
       return () => { document.body.style.overflow = ''; };
     }
   }, [shareProtocolId]);
+
+  const params = new URLSearchParams(window.location.search);
+  const isPaymentCallback = params.get('payment') === 'success';
+  if (subscription.needsPaymentSetup && !isPaymentCallback && !subscription.isAdminGrant && onboardingCompleted) {
+    return <Navigate to="/pricing?setup=1" replace />;
+  }
 
   if (!user) return null;
 

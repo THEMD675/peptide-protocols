@@ -80,7 +80,7 @@ export default function CoachHistory({
   const deleteConversation = async (id: string) => {
     setConversations(prev => prev.filter(c => c.id !== id));
     setConfirmDeleteId(null);
-    const { error } = await supabase.from('coach_conversations').delete().eq('id', id);
+    const { error } = await supabase.from('coach_conversations').delete().eq('id', id).eq('user_id', user?.id ?? '');
     if (error) {
       toast.error('تعذّر حذف المحادثة');
       refreshHistory();

@@ -103,7 +103,7 @@ export default function Account() {
       const [injRes, protoRes, coachRes, authRes] = await Promise.all([
         supabase.from('injection_logs').select('id', { count: 'exact', head: true }).eq('user_id', user.id),
         supabase.from('user_protocols').select('id', { count: 'exact', head: true }).eq('user_id', user.id).eq('status', 'active'),
-        supabase.from('community_logs').select('id', { count: 'exact', head: true }).eq('user_id', user.id),
+        supabase.from('coach_conversations').select('id', { count: 'exact', head: true }).eq('user_id', user.id),
         // Fix: UUID v4 first segment is random (not a timestamp) — get real created_at from auth
         supabase.auth.getUser(),
       ]);

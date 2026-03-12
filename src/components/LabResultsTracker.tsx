@@ -639,8 +639,9 @@ export default function LabResultsTracker() {
   }, [fetchEntries]);
 
   const handleDelete = async (id: string) => {
+    if (!user) return;
     try {
-      const { error } = await supabase.from('lab_results').delete().eq('id', id);
+      const { error } = await supabase.from('lab_results').delete().eq('id', id).eq('user_id', user.id);
       if (error) throw error;
       toast.success('تم حذف النتيجة');
       await fetchEntries();
