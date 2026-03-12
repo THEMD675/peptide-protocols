@@ -217,7 +217,7 @@ const ORAL_NASAL_TOPICAL_IDS = new Set([
 function hasHealthConflict(peptideId: string, healthIssues: HealthIssueId[]): string | null {
   const peptide = allPeptides.find(p => p.id === peptideId);
   if (!peptide) return null;
-  const contra = peptide.contraindicationsAr.toLowerCase();
+  const contra = (peptide.contraindicationsAr ?? '').toLowerCase();
 
   if (healthIssues.includes('diabetes')) {
     if (['semaglutide', 'tirzepatide', 'retatrutide'].includes(peptideId)) {
@@ -325,7 +325,7 @@ function getProtocol(answers: QuizAnswers): ProtocolResult {
 
   // Build dosing schedule
   const pData = primary.peptide;
-  let dosingSchedule = pData.dosageAr.split('.')[0] + '.';
+  let dosingSchedule = (pData.dosageAr ?? 'اشترك لعرض الجرعة').split('.')[0] + '.';
   if (exp === 'beginner') {
     dosingSchedule += ' يُنصح بالبدء بأقل جرعة والزيادة تدريجياً.';
   }
@@ -352,7 +352,7 @@ function getProtocol(answers: QuizAnswers): ProtocolResult {
     warnings.push('ابدأ بجرعات منخفضة وزِد تدريجياً — الاستجابة تختلف مع العمر.');
   }
 
-  const cycleDur = pData.cycleAr ? pData.cycleAr.split('.')[0] + '.' : '8-12 أسبوع مبدئياً.';
+  const cycleDur = pData.cycleAr ? pData.cycleAr.split('.')[0] + '.' : 'اشترك لعرض مدة الدورة';
 
   return {
     primary: {
@@ -689,12 +689,10 @@ export default function PeptideQuiz() {
 
             {/* Dosing */}
             <div className="space-y-2 text-sm">
-              {primaryData?.dosageAr && (
-                <div className="flex gap-2 items-start">
+              <div className="flex gap-2 items-start">
                   <span className="font-bold text-stone-700 dark:text-stone-200 shrink-0">الجرعة:</span>
-                  <span className="text-stone-600 dark:text-stone-300">{primaryData.dosageAr.split('.')[0]}</span>
+                  <span className="text-stone-600 dark:text-stone-300">{primaryData?.dosageAr ? primaryData.dosageAr.split('.')[0] : 'اشترك لعرض الجرعة'}</span>
                 </div>
-              )}
               {primaryData?.timingAr && (
                 <div className="flex gap-2 items-start">
                   <span className="font-bold text-stone-700 dark:text-stone-200 shrink-0">التوقيت:</span>

@@ -967,11 +967,11 @@ export default function StackBuilder() {
                   <div className="grid gap-2 sm:grid-cols-2 text-xs text-stone-600 dark:text-stone-300">
                     <div>
                       <span className="font-bold text-stone-500 dark:text-stone-300">الجرعة: </span>
-                      <span className="line-clamp-2">{p.dosageAr}</span>
+                      <span className="line-clamp-2">{p.dosageAr ?? 'اشترك لعرض الجرعة'}</span>
                     </div>
                     <div>
                       <span className="font-bold text-stone-500 dark:text-stone-300">التوقيت: </span>
-                      <span>{p.timingAr}</span>
+                      <span>{p.timingAr ?? 'اشترك لعرض التوقيت'}</span>
                     </div>
                     <div>
                       <span className="font-bold text-stone-500 dark:text-stone-300">التكرار: </span>

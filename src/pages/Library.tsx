@@ -173,7 +173,7 @@ const PeptideCard = memo(function PeptideCard({
       {(hasAccess || peptide.isFree) && (
         <div className="mb-3 flex items-center gap-1.5 text-stone-600 dark:text-stone-300">
           <FlaskConical className="h-3 w-3 shrink-0" />
-          <span className="text-xs truncate">{peptide.administrationAr.split('.')[0]}</span>
+          <span className="text-xs truncate">{peptide.route ? ({'subq':'حقن تحت الجلد','im':'حقن عضلي','nasal':'بخاخ أنفي','oral':'عن طريق الفم','topical':'موضعي'}[peptide.route] ?? '—') : '—'}</span>
         </div>
       )}
 
@@ -395,9 +395,7 @@ export default function Library() {
         return (
           stripDiacritics(p.nameAr).includes(q) ||
           p.nameEn.toLowerCase().includes(q) ||
-          stripDiacritics(p.summaryAr).includes(q) ||
-          stripDiacritics(p.mechanismAr).includes(q) ||
-          stripDiacritics(p.dosageAr).includes(q)
+          stripDiacritics(p.summaryAr).includes(q)
         );
       }
       return true;
@@ -810,10 +808,10 @@ export default function Library() {
           { label: 'الاسم العلمي', get: (p: Peptide) => p.nameEn },
           { label: 'التصنيف', get: (p: Peptide) => categoryLabels[p.category] },
           { label: 'الدليل العلمي', get: (p: Peptide) => evidenceLabels[p.evidenceLevel] },
-          { label: 'الجرعة', get: (p: Peptide) => p.dosageAr },
-          { label: 'طريقة الإعطاء', get: (p: Peptide) => p.administrationAr.split('.')[0] },
-          { label: 'مدة الدورة', get: (p: Peptide) => p.cycleAr },
-          { label: 'الأعراض الجانبية', get: (p: Peptide) => p.sideEffectsAr },
+          { label: 'الجرعة', get: () => 'اشترك لعرض التفاصيل' },
+          { label: 'طريقة الإعطاء', get: (p: Peptide) => p.route ? ({'subq':'حقن تحت الجلد','im':'حقن عضلي','nasal':'بخاخ أنفي','oral':'فموي','topical':'موضعي'}[p.route] ?? '—') : '—' },
+          { label: 'مدة الدورة', get: () => 'اشترك لعرض التفاصيل' },
+          { label: 'الأعراض الجانبية', get: () => 'اشترك لعرض التفاصيل' },
           { label: 'التكلفة', get: (p: Peptide) => p.costEstimate ?? '—' },
           { label: 'المستوى', get: (p: Peptide) => p.difficulty === 'beginner' ? 'مبتدئ' : p.difficulty === 'intermediate' ? 'متوسط' : 'متقدم' },
         ];

@@ -38,15 +38,14 @@ const COMPARE_ROWS: CompareRow[] = [
   { key: 'category', label: 'التصنيف', get: (p) => categoryLabels[p.category] ?? p.category },
   { key: 'evidence', label: 'مستوى الأدلة', get: (p) => evidenceLabels[p.evidenceLevel] ?? p.evidenceLevel },
   { key: 'benefits', label: 'الفوائد الرئيسية', get: (p) => p.summaryAr.split('.').slice(0, 2).join('.') + '.' },
-  { key: 'dosage', label: 'نطاق الجرعة', get: (p) => p.dosageAr },
+  { key: 'dosage', label: 'نطاق الجرعة', get: () => 'اشترك لعرض التفاصيل', gated: true },
   {
     key: 'administration',
     label: 'طريقة الإعطاء',
-    get: (p) =>
-      p.route ? ROUTE_LABELS[p.route] ?? p.administrationAr.split('.')[0] : p.administrationAr.split('.')[0],
+    get: (p: Peptide) => p.route ? ROUTE_LABELS[p.route] ?? '—' : '—',
   },
-  { key: 'cycle', label: 'مدة الدورة', get: (p) => p.cycleAr },
-  { key: 'sideEffects', label: 'الأعراض الجانبية', get: (p) => p.sideEffectsAr },
+  { key: 'cycle', label: 'مدة الدورة', get: () => 'اشترك لعرض التفاصيل', gated: true },
+  { key: 'sideEffects', label: 'الأعراض الجانبية', get: () => 'اشترك لعرض التفاصيل', gated: true },
   { key: 'cost', label: 'نطاق السعر', get: (p) => p.costEstimate ?? '—' },
   { key: 'pubmed', label: 'مراجع PubMed', get: (p) => (p.pubmedIds ? `${p.pubmedIds.length} مرجع` : 'لا يوجد') },
   {

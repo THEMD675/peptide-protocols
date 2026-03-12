@@ -34,31 +34,16 @@ const routeLabels: Record<string, string> = {
 
 // ── Helpers ────────────────────────────────────────────────
 
-function isLongTerm(cycleAr: string): boolean {
-  return cycleAr.includes('مستمر');
+function isLongTerm(p: Peptide): boolean {
+  return (p.cycleDurationWeeks ?? 0) > 12;
 }
 
-/** Derive route label from route field or administrationAr text */
 function getRouteLabel(p: Peptide): string {
-  if (p.route) return routeLabels[p.route] ?? p.route;
-  const a = p.administrationAr.toLowerCase();
-  if (a.includes('sub-q') || a.includes('تحت الجلد')) return routeLabels.subq;
-  if (a.includes('عضلي') || a.includes('im')) return routeLabels.im;
-  if (a.includes('فموي') || a.includes('oral') || a.includes('كبسول')) return routeLabels.oral;
-  if (a.includes('أنف') || a.includes('nasal') || a.includes('بخاخ')) return routeLabels.nasal;
-  if (a.includes('موضعي') || a.includes('topical')) return routeLabels.topical;
-  return 'أخرى';
+  return p.route ? (routeLabels[p.route] ?? p.route) : 'أخرى';
 }
 
 function getRouteKey(p: Peptide): string {
-  if (p.route) return p.route;
-  const a = p.administrationAr.toLowerCase();
-  if (a.includes('sub-q') || a.includes('تحت الجلد')) return 'subq';
-  if (a.includes('عضلي') || a.includes('im')) return 'im';
-  if (a.includes('فموي') || a.includes('oral') || a.includes('كبسول')) return 'oral';
-  if (a.includes('أنف') || a.includes('nasal') || a.includes('بخاخ')) return 'nasal';
-  if (a.includes('موضعي') || a.includes('topical')) return 'topical';
-  return 'other';
+  return p.route ?? 'other';
 }
 
 // ── Column definitions ─────────────────────────────────────
@@ -117,7 +102,7 @@ function comparePeptides(a: Peptide, b: Peptide, key: ColumnKey, dir: SortDir): 
       cmp = getRouteLabel(a).localeCompare(getRouteLabel(b), 'ar');
       break;
     case 'cycle':
-      cmp = a.cycleAr.localeCompare(b.cycleAr, 'ar');
+      cmp = (a.cycleDurationWeeks ?? 0) - (b.cycleDurationWeeks ?? 0);
       break;
     default:
       break;
@@ -132,11 +117,11 @@ function exportCSV(data: Peptide[], visibleCols: ColumnKey[]) {
     category: (p) => categories.find((c) => c.id === p.category)?.nameAr ?? p.category,
     name: (p) => `${p.nameAr} (${p.nameEn})`,
     route: (p) => getRouteLabel(p),
-    dosage: (p) => p.dosageAr,
-    timing: (p) => p.timingAr,
-    cycle: (p) => p.cycleAr,
-    longterm: (p) => (isLongTerm(p.cycleAr) ? 'نعم' : 'تحتاج دورات'),
-    stack: (p) => p.stackAr,
+    dosage: () => 'اشترك لعرض التفاصيل',
+    timing: () => 'اشترك لعرض التفاصيل',
+    cycle: () => 'اشترك لعرض التفاصيل',
+    longterm: (p) => (isLongTerm(p) ? 'نعم' : 'تحتاج دورات'),
+    stack: () => 'اشترك لعرض التفاصيل',
   };
 
   const headers = visibleCols.map((k) => ALL_COLUMNS.find((c) => c.key === k)!.label);
@@ -160,11 +145,11 @@ async function exportAsImage(data: Peptide[], visibleCols: ColumnKey[]) {
     category: (p) => categories.find((c) => c.id === p.category)?.nameAr ?? p.category,
     name: (p) => `${p.nameAr} (${p.nameEn})`,
     route: (p) => getRouteLabel(p),
-    dosage: (p) => p.dosageAr,
-    timing: (p) => p.timingAr,
-    cycle: (p) => p.cycleAr,
-    longterm: (p) => (isLongTerm(p.cycleAr) ? 'نعم' : 'تحتاج دورات'),
-    stack: (p) => p.stackAr,
+    dosage: () => 'اشترك لعرض التفاصيل',
+    timing: () => 'اشترك لعرض التفاصيل',
+    cycle: () => 'اشترك لعرض التفاصيل',
+    longterm: (p) => (isLongTerm(p) ? 'نعم' : 'تحتاج دورات'),
+    stack: () => 'اشترك لعرض التفاصيل',
   };
 
   const headers = visibleCols.map((k) => ALL_COLUMNS.find((c) => c.key === k)!.label);
@@ -692,7 +677,7 @@ export default function PeptideTable() {
                     filtered.map((p, i) => {
                       const catColor = categoryColors[p.category] ?? categoryColors.metabolic;
                       const catName = categories.find((c) => c.id === p.category)?.nameAr ?? p.category;
-                      const longTerm = isLongTerm(p.cycleAr);
+                      const longTerm = isLongTerm(p);
                       const shouldBlur = !hasAccess && !p.isFree;
                       const isComparing = compareIds.includes(p.id);
                       const rowBg = i % 2 === 0 ? 'bg-stone-50 dark:bg-stone-900' : 'bg-white dark:bg-stone-900';
@@ -761,7 +746,7 @@ export default function PeptideTable() {
                                 return (
                                   <td key={col.key} className="px-3 py-3">
                                     <span className={cn('block leading-relaxed text-stone-800 dark:text-stone-200', blur && blurClass)} aria-hidden={blur || undefined}>
-                                      {p.dosageAr}
+                                      اشترك
                                     </span>
                                   </td>
                                 );
@@ -770,7 +755,7 @@ export default function PeptideTable() {
                                 return (
                                   <td key={col.key} className="px-3 py-3">
                                     <span className={cn('block leading-relaxed text-stone-800 dark:text-stone-200', blur && blurClass)} aria-hidden={blur || undefined}>
-                                      {p.timingAr}
+                                      اشترك
                                     </span>
                                   </td>
                                 );
@@ -779,7 +764,7 @@ export default function PeptideTable() {
                                 return (
                                   <td key={col.key} className="px-3 py-3">
                                     <span className={cn('block leading-relaxed text-stone-800 dark:text-stone-200', blur && blurClass)} aria-hidden={blur || undefined}>
-                                      {p.cycleAr}
+                                      اشترك
                                     </span>
                                   </td>
                                 );
@@ -804,7 +789,7 @@ export default function PeptideTable() {
                                 return (
                                   <td key={col.key} className="px-3 py-3">
                                     <span className={cn('block leading-relaxed text-stone-800 dark:text-stone-200', blur && blurClass)} aria-hidden={blur || undefined}>
-                                      {p.stackAr}
+                                      اشترك
                                     </span>
                                   </td>
                                 );
@@ -906,9 +891,8 @@ export default function PeptideTable() {
               const catPeptides = peptidesByCategory[cat.id] ?? [];
               const catColor = categoryColors[cat.id];
               const stackingNotes = catPeptides
-                .filter((p) => p.stackAr)
                 .slice(0, 3)
-                .map((p) => ({ name: p.nameAr, note: p.stackAr }));
+                .map((p) => ({ name: p.nameAr, note: 'اشترك لعرض التفاصيل' }));
 
               return (
                 <div
