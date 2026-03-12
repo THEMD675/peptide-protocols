@@ -60,16 +60,17 @@ serve(async (req) => {
     const supabase = createClient(supabaseUrl, supabaseServiceKey)
     const now = new Date()
 
-    // Find paid users who subscribed ~14 days ago (13-15 day window)
-    const minCreated = new Date(now.getTime() - 15 * 24 * 60 * 60 * 1000).toISOString()
-    const maxCreated = new Date(now.getTime() - 13 * 24 * 60 * 60 * 1000).toISOString()
+    // Find paid users whose current billing period started ~14 days ago (13-15 day window)
+    const minDate = new Date(now.getTime() - 15 * 24 * 60 * 60 * 1000).toISOString()
+    const maxDate = new Date(now.getTime() - 13 * 24 * 60 * 60 * 1000).toISOString()
 
     const { data: paidUsers, error: queryError } = await supabase
       .from('subscriptions')
-      .select('user_id, created_at')
+      .select('user_id, current_period_start, created_at')
       .eq('status', 'active')
-      .gte('created_at', minCreated)
-      .lte('created_at', maxCreated)
+      .not('stripe_subscription_id', 'is', null)
+      .gte('current_period_start', minDate)
+      .lte('current_period_start', maxDate)
 
     if (queryError) {
       console.error('paid-week2: query failed:', queryError)

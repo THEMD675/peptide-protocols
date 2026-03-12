@@ -125,9 +125,10 @@ function PeptideSelector({
   const selected = peptides.find((p) => p.id === value);
 
   const filtered = useMemo(() => {
-    const q = search.toLowerCase();
+    const strip = (s: string) => s.replace(/[\u064B-\u065F\u0670]/g, '').toLowerCase();
+    const q = strip(search);
     return peptides.filter(
-      (p) => !exclude.includes(p.id) && (p.nameAr.includes(search) || p.nameEn.toLowerCase().includes(q)),
+      (p) => !exclude.includes(p.id) && (strip(p.nameAr).includes(q) || p.nameEn.toLowerCase().includes(q)),
     );
   }, [search, exclude]);
 

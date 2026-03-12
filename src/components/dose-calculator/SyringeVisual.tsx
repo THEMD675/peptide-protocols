@@ -125,12 +125,12 @@ export default function SyringeVisual({
               y1={fillY}
               x2={barrelX + barrelWidth + 4}
               y2={fillY}
-              stroke="#10b981"
+              stroke={isDark ? "#34d399" : "#10b981"}
               strokeWidth={1.5}
               strokeDasharray="3,2"
               style={{ transition: 'y1 0.5s ease-out, y2 0.5s ease-out' }}
             />
-            <circle cx={barrelX - 4} cy={fillY} r={2} fill="#10b981" style={{ transition: 'cy 0.5s ease-out' }} />
+            <circle cx={barrelX - 4} cy={fillY} r={2} fill={isDark ? "#34d399" : "#10b981"} style={{ transition: 'cy 0.5s ease-out' }} />
           </>
         )}
 

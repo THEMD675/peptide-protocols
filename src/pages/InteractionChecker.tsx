@@ -296,6 +296,7 @@ export default function InteractionChecker() {
       </Helmet>
 
       <div className="mx-auto max-w-2xl px-4 pt-8 pb-24 md:px-6 md:pt-12">
+        <div className="mb-4 rounded-xl border border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-900/20 px-4 py-2 text-xs text-amber-700 dark:text-amber-400">قاعدة البيانات لا تشمل جميع التعارضات المحتملة — استشر مختصًا قبل تجميع أي بروتوكول</div>
         <div className="mb-10 text-center">
           <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-100 dark:bg-emerald-900/30">
             <Shield className="h-7 w-7 text-emerald-700" />
