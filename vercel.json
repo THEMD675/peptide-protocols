@@ -37,9 +37,10 @@
       ]
     },
     {
-      "source": "/(.*\\.woff2?)",
+      "source": "/f/(.*\\.woff2)",
       "headers": [
-        { "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }
+        { "key": "Cache-Control", "value": "public, max-age=31536000, immutable" },
+        { "key": "Content-Type", "value": "font/woff2" }
       ]
     },
     {
