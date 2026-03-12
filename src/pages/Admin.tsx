@@ -762,10 +762,10 @@ export default function Admin() {
             {/* ── User Funnel (color-coded) ── */}
             {(() => {
               const funnelData = [
-                { name: 'التسجيلات', nameEn: 'Signups', value: stats.funnel.totalSignups, color: '#6b7280' },
-                { name: 'فترة تجريبية', nameEn: 'Trial', value: stats.funnel.trialStarts, color: '#3b82f6' },
-                { name: 'مدفوع', nameEn: 'Paid', value: stats.funnel.paidConversions, color: '#10b981' },
-                { name: 'متراجع', nameEn: 'Churned', value: o.expiredSubscriptions, color: '#ef4444' },
+                { name: 'التسجيلات', nameEn: 'التسجيلات', value: stats.funnel.totalSignups, color: '#6b7280' },
+                { name: 'فترة تجريبية', nameEn: 'تجريبي', value: stats.funnel.trialStarts, color: '#3b82f6' },
+                { name: 'مدفوع', nameEn: 'مدفوع', value: stats.funnel.paidConversions, color: '#10b981' },
+                { name: 'متراجع', nameEn: 'إلغاء', value: o.expiredSubscriptions, color: '#ef4444' },
               ];
               return (
                 <div className="rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 p-4">

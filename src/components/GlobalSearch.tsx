@@ -90,7 +90,7 @@ export default function GlobalSearch({ open, onClose }: Props) {
           .from('blog_posts')
           .select('slug, title_ar, excerpt_ar')
           .eq('is_published', true)
-          .or(`title_ar.ilike.%${q.replace(/[{}]/g, '')}%,excerpt_ar.ilike.%${q.replace(/[{}]/g, '')}%,tags.cs.{${q.replace(/[{}]/g, '')}}`)
+          .or(`title_ar.ilike.%${q.replace(/[{}%_]/g, '')}%,excerpt_ar.ilike.%${q.replace(/[{}%_]/g, '')}%,tags.cs.{${q.replace(/[{}%_]/g, '')}}`)
           .limit(5);
         setBlogResults(data ?? []);
       } catch { setBlogResults([]); }
@@ -241,7 +241,7 @@ export default function GlobalSearch({ open, onClose }: Props) {
           </kbd>
           <button
             onClick={onClose}
-            className="flex h-9 w-9 items-center justify-center rounded-lg text-stone-400 hover:bg-stone-100 dark:hover:bg-stone-800 hover:text-stone-600 dark:hover:text-stone-300 transition-colors sm:hidden"
+            className="flex h-9 w-9 min-h-[44px] min-w-[44px] items-center justify-center rounded-lg text-stone-400 hover:bg-stone-100 dark:hover:bg-stone-800 hover:text-stone-600 dark:hover:text-stone-300 transition-colors sm:hidden"
             aria-label="إغلاق"
           >
             <X className="h-5 w-5" />

@@ -705,6 +705,7 @@ export default function Account() {
                   <p className="text-xs text-stone-500 dark:text-stone-300">{theme === 'dark' ? 'الوضع الداكن مفعّل' : 'الوضع الفاتح مفعّل'}</p>
                 </div>
               </div>
+              <div className="min-h-[44px] flex items-center">
               <button
                 onClick={toggleTheme}
                 className={cn(
@@ -720,6 +721,7 @@ export default function Account() {
                   theme === 'dark' ? 'translate-x-[-2px] rtl:translate-x-[2px]' : 'translate-x-[-22px] rtl:translate-x-[22px]',
                 )} />
               </button>
+              </div>
             </div>
 
             {/* Email notifications */}

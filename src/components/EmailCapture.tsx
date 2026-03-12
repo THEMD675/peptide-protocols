@@ -88,7 +88,7 @@ export default function EmailCapture() {
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            placeholder="example@email.com"
+            placeholder="بريدك@example.com"
             aria-label="البريد الإلكتروني"
             required
             className="w-full rounded-full bg-white dark:bg-stone-900/10 border border-white/20 py-3.5 ps-11 pe-4 text-white placeholder:text-white/40 outline-none focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900 transition-all"
@@ -111,7 +111,7 @@ export default function EmailCapture() {
           {status === 'loading' ? (
             <Loader2 className="h-5 w-5 animate-spin" />
           ) : cooldownRemaining > 0 ? (
-            <span>انتظر {cooldownRemaining} ثانية</span>
+            <span>انتظر {cooldownRemaining} ث</span>
           ) : (
             <>
               <span>اشترك</span>

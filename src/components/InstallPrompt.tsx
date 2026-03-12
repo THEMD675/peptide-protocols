@@ -89,7 +89,7 @@ export default function InstallPrompt() {
         {!showIOS && (
           <button
             onClick={handleInstall}
-            className="shrink-0 rounded-full bg-emerald-600 px-4 py-2 text-xs font-bold text-white transition-colors hover:bg-emerald-700"
+            className="shrink-0 rounded-full bg-emerald-600 px-4 py-2 min-h-[44px] text-xs font-bold text-white transition-colors hover:bg-emerald-700"
           >
             تثبيت
           </button>

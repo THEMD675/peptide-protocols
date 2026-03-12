@@ -553,7 +553,7 @@ export default function Tracker() {
                               setConfirmDialog(null);
                             },
                           })}
-                          className="text-xs text-stone-500 dark:text-stone-300 hover:text-red-500 dark:text-red-400 transition-colors"
+                          className="text-xs text-stone-500 dark:text-stone-300 hover:text-red-500 dark:text-red-400 transition-colors min-h-[44px]"
                         >
                           أنهِ البروتوكول
                         </button>

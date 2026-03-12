@@ -301,7 +301,7 @@ export default function TrialBanner() {
         <button
           onClick={handleDismiss}
           aria-label="إغلاق"
-          className="absolute end-3 top-1/2 -translate-y-1/2 rounded-full p-1 transition-colors text-white/70 hover:text-white hover:bg-white dark:bg-stone-900/10"
+          className="absolute end-3 top-1/2 -translate-y-1/2 rounded-full p-1 min-h-[44px] min-w-[44px] flex items-center justify-center transition-colors text-white/70 hover:text-white hover:bg-white dark:bg-stone-900/10"
         >
           <X className="h-4 w-4" />
         </button>

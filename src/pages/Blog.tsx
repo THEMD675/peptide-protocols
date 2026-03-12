@@ -186,7 +186,7 @@ export default function Blog() {
               {search && (
                 <button
                   onClick={() => setSearch('')}
-                  className="absolute end-3 top-1/2 -translate-y-1/2 rounded p-0.5 text-stone-400 hover:text-stone-600 dark:text-stone-300"
+                  className="absolute end-3 top-1/2 -translate-y-1/2 rounded p-2 min-h-[44px] min-w-[44px] flex items-center justify-center text-stone-400 hover:text-stone-600 dark:text-stone-300"
                   aria-label="مسح البحث"
                 >
                   <X className="h-3.5 w-3.5" />
