@@ -161,11 +161,9 @@ serve(async (req) => {
 
     const { error: deleteError } = await supabase.auth.admin.deleteUser(user.id)
     if (deleteError) {
-      console.error('delete-account: failed to delete auth user:', deleteError)
-      return new Response(JSON.stringify({ error: 'Failed to delete account' }), {
-        status: 500,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      })
+      console.error('CRITICAL: delete-account: user data deleted but auth user deletion failed. Manual cleanup needed for user_id:', user.id, deleteError)
+      // Data is already deleted (GDPR satisfied). Auth shell will be cleaned up manually.
+      // Don't return 500 — the user's data deletion request succeeded.
     }
 
     console.log(JSON.stringify({ action: 'delete_account', user_id: user.id, email: user.email ?? null, result: 'success', timestamp: new Date().toISOString() }))
