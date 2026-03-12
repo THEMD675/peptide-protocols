@@ -125,7 +125,7 @@ function TourTooltip({
       {/* Progress bar */}
       <div className={['mb-4 h-[3px] overflow-hidden rounded-sm', isDark ? 'bg-stone-700' : 'bg-stone-100'].join(' ')}>
         <div
-          className="h-full rounded-sm bg-gradient-to-r from-emerald-500 to-emerald-600 transition-[width] duration-[400ms] ease-in-out"
+          className="h-full rounded-sm bg-gradient-to-r from-emerald-500 to-emerald-600 transition-[width] duration-400 ease-in-out"
           style={{ width: `${((index + 1) / size) * 100}%` }}
         />
       </div>

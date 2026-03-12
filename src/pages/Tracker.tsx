@@ -500,7 +500,7 @@ export default function Tracker() {
           <span className="flex items-center gap-2 font-bold text-stone-900 dark:text-stone-100"><Info className="h-4 w-4 text-emerald-700" />نصائح التوقيت</span>
           {timingTipsExpanded ? <ChevronUp className="h-4 w-4 text-stone-500 dark:text-stone-300" /> : <ChevronDown className="h-4 w-4 text-stone-500 dark:text-stone-300" />}
         </button>
-        <div className="overflow-hidden transition-all duration-300 ease-[cubic-bezier(0.23,1,0.32,1)]" style={{ maxHeight: timingTipsExpanded ? '200px' : '0', opacity: timingTipsExpanded ? 1 : 0 }}>
+        <div className="overflow-hidden transition-all duration-300 ease-out" style={{ maxHeight: timingTipsExpanded ? '200px' : '0', opacity: timingTipsExpanded ? 1 : 0 }}>
           <div className="border-t border-stone-200 dark:border-stone-600 px-4 py-4 text-sm text-stone-700 dark:text-stone-200 space-y-2">
             <p>• الحقن على معدة فارغة — يُفضل قبل الفجر أو بعد العشاء</p>
             <p>• ببتيدات هرمون النمو (CJC, Ipamorelin) — أفضل توقيت قبل النوم</p>
