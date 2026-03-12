@@ -335,11 +335,13 @@ export default function Pricing() {
         <div className="grid gap-8 md:grid-cols-2">
           {/* Essentials */}
           <div
-            className="pricing-card relative flex flex-col overflow-visible rounded-2xl border-2 border-emerald-200 dark:border-emerald-800 bg-white dark:bg-stone-900 p-8 pt-10 shadow-lg md:p-10 md:pt-12"
+            className="pricing-card relative flex flex-col rounded-2xl border-2 border-emerald-200 dark:border-emerald-800 bg-white dark:bg-stone-900 p-8 shadow-lg md:p-10"
           >
-            <span className="absolute -top-3 left-1/2 -translate-x-1/2 z-10 rounded-full bg-emerald-600 px-5 py-1.5 text-sm font-bold text-white shadow-md whitespace-nowrap">
-              الأكثر شعبية
-            </span>
+            <div className="mb-4 flex justify-center">
+              <span className="rounded-full bg-emerald-600 px-5 py-1.5 text-sm font-bold text-white shadow-md">
+                الأكثر شعبية
+              </span>
+            </div>
             <h2 className="mb-1 text-2xl font-bold text-stone-900 dark:text-stone-100">الأساسية</h2>
             <p className="mb-6 text-stone-600 dark:text-stone-300">كل ما تحتاجه لتبدأ بثقة وبروتوكول واضح</p>
 
@@ -366,12 +368,14 @@ export default function Pricing() {
 
           {/* Elite */}
           <div
-            className="pricing-card pricing-card-featured relative flex flex-col overflow-visible rounded-2xl border-2 border-emerald-300 dark:border-emerald-700 bg-white dark:bg-stone-900 p-8 pt-10 md:p-10 md:pt-12"
+            className="pricing-card pricing-card-featured relative flex flex-col rounded-2xl border-2 border-emerald-300 dark:border-emerald-700 bg-white dark:bg-stone-900 p-8 md:p-10"
             style={{ animation: 'pricing-elite-glow 3s ease-in-out infinite' }}
           >
-            <span className="absolute -top-3 left-1/2 -translate-x-1/2 z-10 rounded-full bg-emerald-600 px-5 py-1.5 text-sm font-bold text-white shadow-md whitespace-nowrap">
-              الأفضل قيمة
-            </span>
+            <div className="mb-4 flex justify-center">
+              <span className="rounded-full bg-emerald-600 px-5 py-1.5 text-sm font-bold text-white shadow-md">
+                الأفضل قيمة
+              </span>
+            </div>
 
             <h2 className="mb-1 text-2xl font-bold text-stone-900 dark:text-stone-100">المتقدّمة</h2>
             <p className="mb-6 text-stone-800 dark:text-stone-200">مدربك الشخصي + بروتوكول مفصّل على حالتك</p>
