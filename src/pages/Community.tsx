@@ -1467,7 +1467,7 @@ export default function Community() {
                                       e.target.style.height = 'auto';
                                       e.target.style.height = e.target.scrollHeight + 'px';
                                     }}
-                                    placeholder="اكتب ردًا... (↵ للإرسال، Shift+↵ لسطر جديد)"
+                                    placeholder="اكتب ردًا... (↵ للإرسال، ⇧+↵ لسطر جديد)"
                                     maxLength={1000}
                                     rows={1}
                                     style={{ overflow: 'hidden' }}

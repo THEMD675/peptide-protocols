@@ -86,33 +86,8 @@ export function usePeptideProtocol(peptideId: string | undefined, isFree: boolea
         if (cancelled) return;
         if (rpcError) {
           console.warn('get_peptide_protocol error:', rpcError);
-          setError('تعذّر تحميل البروتوكول');
-          const fallback = fullPeptides.find(p => p.id === peptideId);
-          if (fallback) {
-            setProtocol({
-              dosage_ar: fallback.dosageAr,
-              timing_ar: fallback.timingAr,
-              cycle_ar: fallback.cycleAr,
-              administration_ar: fallback.administrationAr,
-              side_effects_ar: fallback.sideEffectsAr,
-              contraindications_ar: fallback.contraindicationsAr,
-              stack_ar: fallback.stackAr,
-              storage_ar: fallback.storageAr,
-              mechanism_ar: fallback.mechanismAr,
-              evidence_ar: fallback.evidenceAr,
-              dose_mcg: fallback.doseMcg ?? null,
-              dose_max_mcg: fallback.doseMaxMcg ?? null,
-              frequency: fallback.frequency ?? null,
-              cycle_duration_weeks: fallback.cycleDurationWeeks ?? null,
-              rest_period_weeks: fallback.restPeriodWeeks ?? null,
-              route: fallback.route ?? null,
-              weekly_schedule: fallback.weeklySchedule ?? null,
-              pubmed_ids: fallback.pubmedIds ?? null,
-              cost_estimate: fallback.costEstimate ?? null,
-              difficulty: fallback.difficulty ?? null,
-              warning_ar: fallback.warningAr ?? null,
-            });
-          }
+          setError('تعذّر تحميل البروتوكول — حاول مرة أخرى');
+          setProtocol(null);
         } else {
           setProtocol(data as PeptideProtocol);
         }

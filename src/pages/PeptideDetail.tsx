@@ -105,15 +105,15 @@ export default function PeptideDetail() {
   const rows: ProtocolRow[] = [
     { label: 'الاسم العلمي', value: peptide.nameEn },
     { label: 'عدد الأحماض الأمينية', value: peptide.aminoAcids },
-    { label: 'آلية العمل', value: proto?.mechanism_ar ?? peptide.mechanismAr },
-    { label: 'الجرعة الموصى بها', value: proto?.dosage_ar ?? peptide.dosageAr, highlight: true },
-    { label: 'توقيت الاستخدام', value: proto?.timing_ar ?? peptide.timingAr },
-    { label: 'مدة الدورة والراحة', value: proto?.cycle_ar ?? peptide.cycleAr },
-    { label: 'طريقة الإعطاء', value: proto?.administration_ar ?? peptide.administrationAr, highlight: true },
-    { label: 'الأعراض الجانبية المحتملة', value: proto?.side_effects_ar ?? peptide.sideEffectsAr },
-    { label: 'موانع الاستخدام', value: proto?.contraindications_ar ?? peptide.contraindicationsAr },
-    { label: 'التجميع الموصى به', value: proto?.stack_ar ?? peptide.stackAr },
-    { label: 'التخزين', value: proto?.storage_ar ?? peptide.storageAr },
+    { label: 'آلية العمل', value: proto?.mechanism_ar ?? '' },
+    { label: 'الجرعة الموصى بها', value: proto?.dosage_ar ?? '', highlight: true },
+    { label: 'توقيت الاستخدام', value: proto?.timing_ar ?? '' },
+    { label: 'مدة الدورة والراحة', value: proto?.cycle_ar ?? '' },
+    { label: 'طريقة الإعطاء', value: proto?.administration_ar ?? '', highlight: true },
+    { label: 'الأعراض الجانبية المحتملة', value: proto?.side_effects_ar ?? '' },
+    { label: 'موانع الاستخدام', value: proto?.contraindications_ar ?? '' },
+    { label: 'التجميع الموصى به', value: proto?.stack_ar ?? '' },
+    { label: 'التخزين', value: proto?.storage_ar ?? '' },
   ];
 
   return (
@@ -165,8 +165,8 @@ export default function PeptideDetail() {
           "@type": "FAQPage",
           "mainEntity": [
             { "@type": "Question", "name": `ما هو ${peptide.nameEn}؟`, "acceptedAnswer": { "@type": "Answer", "text": peptide.summaryAr } },
-            { "@type": "Question", "name": `ما هي جرعة ${peptide.nameEn}؟`, "acceptedAnswer": { "@type": "Answer", "text": peptide.dosageAr } },
-            { "@type": "Question", "name": `ما هي الأعراض الجانبية لـ ${peptide.nameEn}؟`, "acceptedAnswer": { "@type": "Answer", "text": peptide.sideEffectsAr } },
+            { "@type": "Question", "name": `ما هي جرعة ${peptide.nameEn}؟`, "acceptedAnswer": { "@type": "Answer", "text": proto?.dosage_ar ?? 'اشترك للاطلاع على الجرعة الكاملة.' } },
+            { "@type": "Question", "name": `ما هي الأعراض الجانبية لـ ${peptide.nameEn}؟`, "acceptedAnswer": { "@type": "Answer", "text": proto?.side_effects_ar ?? 'اشترك للاطلاع على الأعراض الجانبية.' } },
             { "@type": "Question", "name": `هل ${peptide.nameEn} معتمد من FDA؟`, "acceptedAnswer": { "@type": "Answer", "text": peptide.fdaApproved ? 'نعم، معتمد من FDA.' : 'لا، غير معتمد من FDA حاليًا. يُستخدم للأغراض البحثية.' } },
           ]
         })}</script>
@@ -373,15 +373,15 @@ export default function PeptideDetail() {
                 <AlertTriangle className="h-4 w-4 shrink-0 text-amber-600 dark:text-amber-400" />
                 <h3 className="text-sm font-bold text-amber-800 dark:text-amber-300">الأعراض الجانبية الشائعة</h3>
               </div>
-              <p className="text-sm leading-relaxed text-amber-800 dark:text-amber-200">{proto?.side_effects_ar ?? peptide.sideEffectsAr}</p>
+              <p className="text-sm leading-relaxed text-amber-800 dark:text-amber-200">{proto?.side_effects_ar ?? ''}</p>
             </div>
-            {(proto?.contraindications_ar ?? peptide.contraindicationsAr) && (
+            {(proto?.contraindications_ar) && (
               <div className="rounded-xl border border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-900/10 p-4">
                 <div className="mb-2 flex items-center gap-2">
                   <AlertTriangle className="h-4 w-4 shrink-0 text-red-600 dark:text-red-400" />
                   <h3 className="text-sm font-bold text-red-800 dark:text-red-300">موانع الاستخدام</h3>
                 </div>
-                <p className="text-sm leading-relaxed text-red-800 dark:text-red-200">{proto?.contraindications_ar ?? peptide.contraindicationsAr}</p>
+                <p className="text-sm leading-relaxed text-red-800 dark:text-red-200">{proto?.contraindications_ar ?? ''}</p>
               </div>
             )}
           </div>

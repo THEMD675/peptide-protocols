@@ -894,13 +894,18 @@ export default function Coach() {
                         }</p>
                         <div className="flex flex-wrap gap-2">
                           {msg.content === '__ERROR__:429' && (
-                            <Link
-                              to={user ? '/pricing?plan=elite' : '/signup?redirect=/pricing'}
+                            <button
+                              onClick={() => {
+                                const cleaned = messages.filter((_, j) => j !== i && j !== i - 1);
+                                setMessages(cleaned);
+                                if (i > 0 && messages[i - 1]?.role === 'user') {
+                                  sendToAI(messages[i - 1].content, cleaned);
+                                }
+                              }}
                               className="inline-flex items-center gap-1.5 rounded-lg bg-emerald-600 px-3 py-1.5 text-xs font-bold text-white transition-colors hover:bg-emerald-700"
                             >
-                              <Crown className="h-3 w-3" />
-                              {user ? `ترقية إلى المتقدّمة — ${PRICING.elite.label}/شهر` : `ابدأ مجانًا — ${TRIAL_DAYS} أيام`}
-                            </Link>
+                              أعد المحاولة
+                            </button>
                           )}
                           {(msg.content === '__ERROR__:403' || msg.content === '__ERROR__:401') && (
                             <Link
@@ -1177,7 +1182,7 @@ export default function Coach() {
                       </button>
                     </div>
                     <p className="text-xs text-stone-400 dark:text-stone-300 text-start px-1">
-                      ↵ للإرسال · Shift+↵ لسطر جديد
+                      ↵ للإرسال · ⇧+↵ لسطر جديد
                     </p>
                   </div>
                 </>

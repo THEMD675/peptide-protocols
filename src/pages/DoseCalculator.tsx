@@ -943,9 +943,9 @@ export default function DoseCalculator() {
                 <div className="mt-6 rounded-2xl border border-emerald-200 dark:border-emerald-800 bg-emerald-50/50 dark:bg-emerald-900/10 p-5">
                   <h3 className="mb-3 text-sm font-bold text-stone-900 dark:text-stone-100">دليل التحضير — {selectedPreset}</h3>
                   <div className="space-y-3">
-                    <GuideStep step="1" text={`اسحب ${waterMl} ml ماء بكتيريوستاتي وأضفه على قارورة ${vialMg} mg ${selectedPreset}. أدخل الإبرة ببطء على جدار القارورة.`} />
+                    <GuideStep step="1" text={`اسحب ${waterMl} مل ماء بكتيريوستاتي وأضفه على قارورة ${vialMg} ملغ ${selectedPreset}. أدخل الإبرة ببطء على جدار القارورة.`} />
                     <GuideStep step="2" text="حرّك القارورة بلطف بحركة دائرية. لا ترجّها أبدًا. انتظر حتى يذوب المسحوق بالكامل (1-2 دقيقة)." />
-                    <GuideStep step="3" text={`بسرنجة إنسولين (${syringe.label})، اسحب ${fmt(results.syringeUnits, 1)} وحدة. هذه جرعتك (${doseUnit === 'mg' ? `${doseValue} mg` : `${doseValue} mcg`}).`} />
+                    <GuideStep step="3" text={`بسرنجة إنسولين (${syringe.label})، اسحب ${fmt(results.syringeUnits, 1)} وحدة. هذه جرعتك (${doseUnit === 'mg' ? `${doseValue} ملغ` : `${doseValue} مايكروغرام`}).`} />
                     <GuideStep step="4" text={`احقن تحت الجلد في البطن أو الفخذ. خزّن القارورة في الثلاجة 2-8°C — تصلح لـ ${vialMg >= 5 ? '28' : '14'} يوم بعد التحضير.`} />
                   </div>
                 </div>

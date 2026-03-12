@@ -226,8 +226,8 @@ export default function TrackerForm({
               aria-label="وحدة الجرعة"
               className="w-full rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 px-4 py-3 text-base text-stone-900 dark:text-stone-100 focus:border-emerald-300 dark:border-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900"
             >
-              <option value="mcg">ميكروغرام (mcg)</option>
-              <option value="mg">ملغ (mg)</option>
+              <option value="mcg">مايكروغرام</option>
+              <option value="mg">ملغ</option>
             </select>
           </div>
         </div>
