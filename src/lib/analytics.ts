@@ -123,7 +123,11 @@ export const events = {
   protocolStart: (peptide: string) => trackEvent('protocol_start', { peptide }),
   trackerView: () => trackEvent('tracker_view'),
   calculatorUse: (peptide: string) => trackEvent('calculator_use', { peptide }),
-  searchUse: (query: string) => trackEvent('search_use', { query }),
+  searchUse: (query: string) => {
+    const healthTerms = /testosterone|إستروجين|هرمون|سكري|ضغط|كوليسترول|أنسولين|thyroid|diabetes|insulin|blood/i;
+    const sanitized = healthTerms.test(query) ? '[health_query]' : query;
+    trackEvent('search_use', { query: sanitized });
+  },
 
   // Sharing & referrals
   referralShare: (method: string) => trackEvent('referral_share', { method }),
