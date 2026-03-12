@@ -89,6 +89,6 @@
   ],
   "rewrites": [
     { "source": "/api/(.*)", "destination": "/api/$1" },
-    { "source": "/(.*)", "destination": "/index.html" }
+    { "source": "/((?!fonts|assets|icons|og-image|favicon|apple-touch|icon-|sw\\.js|workbox|manifest|robots|sitemap|offline).*)", "destination": "/index.html" }
   ]
 }
