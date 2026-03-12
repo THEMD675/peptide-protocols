@@ -329,7 +329,7 @@ export default function TrackerForm({
           <input ref={photoInputRef} type="file" accept="image/*" capture="environment" onChange={handlePhotoSelect} className="hidden" />
           {photoPreview ? (
             <div className="relative inline-block">
-              <img src={photoPreview} alt="معاينة" width={80} height={80} className="h-20 w-20 rounded-xl object-cover border border-stone-200" loading="lazy" />
+              <img src={photoPreview} alt="معاينة" width={80} height={80} className="h-20 w-20 rounded-xl object-cover border border-stone-200 dark:border-stone-700" loading="lazy" />
               <button
                 type="button"
                 onClick={() => { setPhotoFile(null); setPhotoPreview(null); if (photoInputRef.current) photoInputRef.current.value = ''; }}
