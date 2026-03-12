@@ -52,10 +52,10 @@ export default memo(function DoseTrendChart({ data, unit = 'mcg' }: DoseTrendCha
           <Line
             type="monotone"
             dataKey="dose"
-            stroke="#10b981"
+            stroke={isDark ? '#34d399' : '#10b981'}
             strokeWidth={2}
-            dot={{ r: 3, fill: '#10b981' }}
-            activeDot={{ r: 5, fill: '#059669' }}
+            dot={{ r: 3, fill: isDark ? '#34d399' : '#10b981' }}
+            activeDot={{ r: 5, fill: isDark ? '#6ee7b7' : '#059669' }}
           />
         </LineChart>
       </ResponsiveContainer>

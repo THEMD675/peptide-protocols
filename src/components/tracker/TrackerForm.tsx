@@ -241,10 +241,11 @@ export default function TrackerForm({
           if (isOverMax) {
             return (
               <div className="space-y-2">
-                <p className="text-xs font-bold text-red-600 dark:text-red-400 flex items-center gap-1">الجرعة أعلى من الحد الأقصى الموصى به ({preset.maxDose} mcg)</p>
+                <p className="text-xs font-bold text-red-600 dark:text-red-400 flex items-center gap-1">تحذير: الجرعة أعلى من الحد الأقصى الموصى به ({preset.maxDose} مايكروغرام)</p>
+                <p className="text-xs text-red-500 dark:text-red-400">جرعة خارج النطاق قد تسبب أعراضًا جانبية خطيرة — استشر طبيبك</p>
                 <label className="flex items-center gap-2 cursor-pointer">
                   <input type="checkbox" checked={doseOutOfRangeConfirmed} onChange={(e) => setDoseOutOfRangeConfirmed(e.target.checked)} className="rounded border-stone-300 dark:border-stone-600 text-emerald-700 focus:ring-emerald-500" />
-                  <span className="text-xs text-stone-700 dark:text-stone-200">أؤكد أن هذه الجرعة صحيحة</span>
+                  <span className="text-xs text-stone-700 dark:text-stone-200">أقر بأن هذه الجرعة بإشراف طبي</span>
                 </label>
               </div>
             );
@@ -252,10 +253,10 @@ export default function TrackerForm({
           if (isUnderMin) {
             return (
               <div className="space-y-2">
-                <p className="text-xs font-bold text-amber-600 flex items-center gap-1">الجرعة أقل من الحد الأدنى الموصى به ({preset.minDose} mcg)</p>
+                <p className="text-xs font-bold text-amber-600 dark:text-amber-400 flex items-center gap-1">الجرعة أقل من الحد الأدنى الموصى به ({preset.minDose} مايكروغرام)</p>
                 <label className="flex items-center gap-2 cursor-pointer">
                   <input type="checkbox" checked={doseOutOfRangeConfirmed} onChange={(e) => setDoseOutOfRangeConfirmed(e.target.checked)} className="rounded border-stone-300 dark:border-stone-600 text-emerald-700 focus:ring-emerald-500" />
-                  <span className="text-xs text-stone-700 dark:text-stone-200">أؤكد أن هذه الجرعة صحيحة</span>
+                  <span className="text-xs text-stone-700 dark:text-stone-200">أقر بأن هذه الجرعة بإشراف طبي</span>
                 </label>
               </div>
             );

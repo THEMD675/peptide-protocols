@@ -370,7 +370,7 @@ serve(async (req) => {
         trialElite: trialElite.length,
         mrr,
         arr: Math.round(mrr * 12),
-        arpu: activeSubs.length > 0 ? Math.round((mrr / activeSubs.length) * 100) / 100 : 0,
+        arpu: mrrEligibleSubs.length > 0 ? Math.round((mrr / mrrEligibleSubs.length) * 100) / 100 : 0,
         churnRate: (() => {
           const cancelledThisMonth = subs.filter(s =>
             (s.status === 'cancelled' || s.status === 'expired') &&
