@@ -174,7 +174,20 @@ serve(async (req) => {
           .eq('referral_code', referralCode)
           .maybeSingle()
         if (referrerSub) {
-          validatedReferralCode = referralCode
+          // FIX 5: Referral cap — max 10 referrals per user per month to prevent abuse
+          const monthAgo = new Date(Date.now() - 30 * 86400000).toISOString()
+          const { count: referralCount } = await adminDb.from('subscriptions')
+            .select('id', { count: 'exact', head: true })
+            .eq('referred_by', referrerSub.user_id)
+            .gte('created_at', monthAgo)
+          
+          const MAX_REFERRALS_PER_MONTH = 10
+          if ((referralCount ?? 0) < MAX_REFERRALS_PER_MONTH) {
+            validatedReferralCode = referralCode
+          } else {
+            console.log(`Referral cap reached for user ${referrerSub.user_id}: ${referralCount} referrals this month`)
+            // Don't fail the checkout — just skip the referral code silently
+          }
         }
       }
     }

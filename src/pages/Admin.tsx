@@ -54,6 +54,8 @@ interface AdminStats {
   enquiries: Array<{ id: string; email: string; subject: string; peptide_name: string | null; message: string; status: string; admin_notes: string | null; created_at: string }>;
   revenueByMonth?: Array<{ month: string; revenue: number }>;
   signupsByDay?: Array<{ date: string; signups: number }>;
+  signupsByWeek?: Array<{ date: string; signups: number }>;
+  signupsByMonth?: Array<{ date: string; signups: number }>;
   emailLogs: Array<{ id: string; email: string; type: string; status: string; created_at: string }>;
   webhookEvents: Array<{ id: string; event_type: string; event_id: string; processed_at: string }>;
 }
@@ -260,6 +262,7 @@ export default function Admin() {
   const [auditLog, setAuditLog] = useState<Array<{ id: string; admin_email: string; action: string; target_user_id: string | null; details: Record<string, unknown> | null; created_at: string }>>([]);
   const [auditLoading, setAuditLoading] = useState(false);
   const [auditPage, setAuditPage] = useState(1);
+  const [signupsPeriod, setSignupsPeriod] = useState<'daily' | 'weekly' | 'monthly'>('daily');
 
   // User detail
   const [userDetail, setUserDetail] = useState<UserDetail | null>(null);
@@ -304,7 +307,7 @@ export default function Admin() {
       if (res.status === 403) { setForbidden(true); return; }
       if (!res.ok) throw new Error((await res.json().catch(() => ({}))).error ?? 'فشلت العملية');
       const d = await res.json();
-      setStats({ ...d, pagination: d.pagination ?? null, alerts: d.alerts ?? [], funnel: d.funnel ?? { totalSignups: 0, trialStarts: 0, paidConversions: 0, signupToTrial: 0, trialToPaid: 0 }, activityFeed: d.activityFeed ?? [], enquiries: d.enquiries ?? [], emailLogs: d.emailLogs ?? [], webhookEvents: d.webhookEvents ?? [], recentUsers: d.recentUsers ?? [], pendingReviews: d.pendingReviews ?? [], emailList: d.emailList ?? [], revenueByMonth: d.revenueByMonth ?? [], signupsByDay: d.signupsByDay ?? [] });
+      setStats({ ...d, pagination: d.pagination ?? null, alerts: d.alerts ?? [], funnel: d.funnel ?? { totalSignups: 0, trialStarts: 0, paidConversions: 0, signupToTrial: 0, trialToPaid: 0 }, activityFeed: d.activityFeed ?? [], enquiries: d.enquiries ?? [], emailLogs: d.emailLogs ?? [], webhookEvents: d.webhookEvents ?? [], recentUsers: d.recentUsers ?? [], pendingReviews: d.pendingReviews ?? [], emailList: d.emailList ?? [], revenueByMonth: d.revenueByMonth ?? [], signupsByDay: d.signupsByDay ?? [], signupsByWeek: d.signupsByWeek ?? [], signupsByMonth: d.signupsByMonth ?? [] });
       setLastFetched(new Date());
     } catch (e) {
       setError(e instanceof Error ? e.message : 'تعذّر تحميل البيانات');
@@ -681,26 +684,37 @@ export default function Admin() {
 
             {/* ── Revenue & Signups Chart (Recharts) ── */}
             {(() => {
-              const days = stats.signupsByDay ?? [];
+              const chartData = signupsPeriod === 'weekly' ? (stats.signupsByWeek ?? []) : signupsPeriod === 'monthly' ? (stats.signupsByMonth ?? []) : (stats.signupsByDay ?? []);
+              const periodLabel = signupsPeriod === 'weekly' ? 'آخر 12 أسبوع' : signupsPeriod === 'monthly' ? 'آخر 12 شهر' : 'آخر 30 يوم';
+              const totalInPeriod = chartData.reduce((s, d) => s + d.signups, 0);
               return (
                 <div className="rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 p-4">
-                  <h3 className="text-xs font-bold text-stone-700 dark:text-stone-200 mb-4 flex items-center gap-1.5" dir="rtl">
-                    <TrendingUp className="h-3.5 w-3.5 text-emerald-500" /> التسجيلات — آخر 30 يوم
-                  </h3>
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-xs font-bold text-stone-700 dark:text-stone-200 flex items-center gap-1.5" dir="rtl">
+                      <TrendingUp className="h-3.5 w-3.5 text-emerald-500" /> التسجيلات — {periodLabel}
+                      <span className="text-[10px] font-normal text-stone-400 ms-1">({totalInPeriod} إجمالي)</span>
+                    </h3>
+                    <div className="flex gap-1">
+                      {(['daily', 'weekly', 'monthly'] as const).map(p => (
+                        <button key={p} onClick={() => setSignupsPeriod(p)} className={cn('rounded-lg px-2 py-1 text-[10px] font-medium', signupsPeriod === p ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400' : 'text-stone-500 dark:text-stone-300 hover:bg-stone-100 dark:hover:bg-stone-800')}>
+                          {p === 'daily' ? 'يومي' : p === 'weekly' ? 'أسبوعي' : 'شهري'}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
                   <div className="h-48 w-full">
                     <ResponsiveContainer width="100%" height="100%">
-                      <AreaChart data={days} margin={{ top: 5, right: 5, left: -20, bottom: 0 }}>
+                      <AreaChart data={chartData} margin={{ top: 5, right: 5, left: -20, bottom: 0 }}>
                         <defs>
                           <linearGradient id="signupGrad" x1="0" y1="0" x2="0" y2="1">
                             <stop offset="5%" stopColor="#10b981" stopOpacity={0.3} />
                             <stop offset="95%" stopColor="#10b981" stopOpacity={0} />
                           </linearGradient>
                         </defs>
-                        <XAxis dataKey="date" tick={{ fontSize: 10, fill: '#9ca3af' }} interval={4} />
+                        <XAxis dataKey="date" tick={{ fontSize: 10, fill: '#9ca3af' }} interval={signupsPeriod === 'daily' ? 4 : signupsPeriod === 'weekly' ? 1 : 1} />
                         <YAxis tick={{ fontSize: 10, fill: '#9ca3af' }} allowDecimals={false} />
                         <RTooltip
                           contentStyle={{ background: 'rgba(0,0,0,0.85)', border: 'none', borderRadius: 8, fontSize: 12, color: '#fff' }}
-                          labelFormatter={(_l: string, payload: Array<{ payload: { label: string } }>) => payload[0]?.payload?.label ?? _l}
                           formatter={(value: number) => [`${value} تسجيل`, 'التسجيلات']}
                         />
                         <Area type="monotone" dataKey="signups" stroke="#10b981" strokeWidth={2} fill="url(#signupGrad)" />
@@ -1285,15 +1299,28 @@ export default function Admin() {
         <textarea value={emailBody} onChange={e => setEmailBody(e.target.value)} placeholder="محتوى البريد..." rows={4} className="w-full rounded-lg border border-stone-200 dark:border-stone-600 px-3 py-2 text-sm mb-4 resize-y" dir="ltr" />
         {(() => {
           const audienceCount = bulkAudience === 'all' ? o.totalUsers : bulkAudience === 'trial' ? o.trialSubscriptions : bulkAudience === 'active' ? o.activeSubscriptions : o.expiredSubscriptions;
-          return audienceCount > 50 ? (
-            <div className="rounded-lg border border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-900/20 p-3 mb-4">
-              <p className="text-xs font-medium text-amber-700 dark:text-amber-400">تنبيه: سيتم الإرسال إلى {audienceCount} مستخدم (الحد الأقصى 200 بريد لكل عملية)</p>
+          const MAX_BATCH = 50;
+          return (
+            <div className="space-y-2 mb-4">
+              <div className="rounded-lg border border-stone-200 dark:border-stone-600 bg-stone-50 dark:bg-stone-800 p-3">
+                <p className="text-xs text-stone-600 dark:text-stone-300">
+                  <strong>{audienceCount}</strong> مستخدم مؤهل — سيتم إرسال <strong>{Math.min(audienceCount, MAX_BATCH)}</strong> بريد (الحد الأقصى {MAX_BATCH} لكل عملية)
+                </p>
+              </div>
+              {audienceCount > MAX_BATCH && (
+                <div className="rounded-lg border border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-900/20 p-3">
+                  <p className="text-xs font-medium text-amber-700 dark:text-amber-400">⚠️ يوجد {audienceCount} مستخدم لكن سيتم إرسال {MAX_BATCH} فقط لكل عملية لضمان الجودة. كرر العملية عند الحاجة.</p>
+                </div>
+              )}
             </div>
-          ) : null;
+          );
         })()}
         <div className="flex gap-2 justify-end">
           <button onClick={() => setModal(null)} className="rounded-lg border border-stone-200 dark:border-stone-600 px-4 py-2 text-xs font-medium text-stone-600 dark:text-stone-300">إلغاء</button>
-          <button onClick={handleBulkEmail} disabled={actionLoading || !emailSubject || !emailBody} className="rounded-lg bg-emerald-600 px-4 py-2 text-xs font-bold text-white disabled:opacity-50">
+          <button onClick={() => {
+            if (!confirm(`سيتم إرسال بريد جماعي لجمهور "${bulkAudience === 'all' ? 'الكل' : bulkAudience === 'trial' ? 'تجريبي' : bulkAudience === 'active' ? 'مدفوع' : 'منتهي'}". هل أنت متأكد؟`)) return;
+            handleBulkEmail();
+          }} disabled={actionLoading || !emailSubject || !emailBody} className="rounded-lg bg-emerald-600 px-4 py-2 text-xs font-bold text-white disabled:opacity-50">
             {actionLoading ? 'جارٍ الإرسال...' : 'إرسال للكل'}
           </button>
         </div>

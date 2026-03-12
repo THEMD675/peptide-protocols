@@ -300,7 +300,21 @@ serve(async (req) => {
           }
         }
 
-        const batch = emails.slice(0, 200)
+        // FIX 6: Bulk email safeguard — max 50 per batch with rate limiting
+        const MAX_BATCH_SIZE = 50
+        const batch = emails.slice(0, MAX_BATCH_SIZE)
+        
+        // Check if admin has sent too many bulk emails recently (max 3 batches per hour)
+        const bulkRlAllowed = await checkRateLimit(admin, {
+          endpoint: 'admin-bulk-email',
+          identifier: user.id,
+          windowSeconds: 3600,
+          maxRequests: 3,
+        })
+        if (!bulkRlAllowed) {
+          return json({ error: 'تم إرسال عدد كبير من الرسائل — حاول بعد ساعة', rateLimited: true }, 429, cors)
+        }
+
         let sent = 0, failed = 0
 
         for (const email of batch) {
@@ -318,7 +332,14 @@ serve(async (req) => {
           }
         }
 
-        return json({ ok: true, sent, failed, total: batch.length }, 200, cors)
+        // Log bulk send to audit log with details
+        admin.from('admin_audit_log').insert({
+          admin_email: user.email,
+          action: 'bulk_email_sent',
+          details: { audience, subject, total_recipients: emails.length, batch_size: batch.length, sent, failed },
+        }).catch(() => {})
+
+        return json({ ok: true, sent, failed, total: batch.length, totalEligible: emails.length, maxBatch: MAX_BATCH_SIZE }, 200, cors)
       }
 
       const emailResult = await sendEmail({

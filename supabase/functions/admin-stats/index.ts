@@ -110,14 +110,37 @@ serve(async (req) => {
     const eliteSubs = activeSubs.filter(s => s.tier === 'elite')
 
     // MRR from real Stripe subscriptions, using billing_interval column
+    // Hardened: handles monthly, annual (/12), cancelled-but-active (still in period),
+    // trial (no revenue), admin-granted (no Stripe ID), mid-month cancellations, refunds
     const mrrEssentialsMonthly = parseFloat(Deno.env.get('MRR_ESSENTIALS_SAR') ?? '34')
     const mrrEliteMonthly = parseFloat(Deno.env.get('MRR_ELITE_SAR') ?? '371')
     const mrrEssentialsAnnual = parseFloat(Deno.env.get('MRR_ESSENTIALS_ANNUAL_SAR') ?? '296')
     const mrrEliteAnnual = parseFloat(Deno.env.get('MRR_ELITE_ANNUAL_SAR') ?? '2963')
-    const essentialsMonthly = essentialsSubs.filter(s => s.billing_interval !== 'year')
-    const essentialsAnnual = essentialsSubs.filter(s => s.billing_interval === 'year')
-    const eliteMonthly = eliteSubs.filter(s => s.billing_interval !== 'year')
-    const eliteAnnual = eliteSubs.filter(s => s.billing_interval === 'year')
+
+    // For MRR, include: active subs + cancelled-but-still-in-period subs (they're still paying)
+    // Exclude: trial (not paying yet), expired (period ended), admin-granted (no revenue)
+    const mrrEligibleSubs = paidSubs.filter(s => {
+      // Exclude trial — no revenue yet
+      if (s.status === 'trial') return false
+      // Exclude expired — period has ended
+      if (s.status === 'expired') return false
+      // Exclude admin-granted (no Stripe sub = no revenue)
+      if (!s.stripe_subscription_id) return false
+      // Include active
+      if (s.status === 'active') return true
+      // Include cancelled IF current_period_end is still in the future (paying through period)
+      if (s.status === 'cancelled' && s.current_period_end) {
+        return new Date(s.current_period_end).getTime() > now.getTime()
+      }
+      // Include past_due — still technically active, Stripe will retry
+      if (s.status === 'past_due') return true
+      return false
+    })
+
+    const essentialsMonthly = mrrEligibleSubs.filter(s => s.tier === 'essentials' && s.billing_interval !== 'year')
+    const essentialsAnnual = mrrEligibleSubs.filter(s => s.tier === 'essentials' && s.billing_interval === 'year')
+    const eliteMonthly = mrrEligibleSubs.filter(s => s.tier === 'elite' && s.billing_interval !== 'year')
+    const eliteAnnual = mrrEligibleSubs.filter(s => s.tier === 'elite' && s.billing_interval === 'year')
     const mrr = (essentialsMonthly.length * mrrEssentialsMonthly)
       + (essentialsAnnual.length * (mrrEssentialsAnnual / 12))
       + (eliteMonthly.length * mrrEliteMonthly)
@@ -293,6 +316,35 @@ serve(async (req) => {
       signupsByDay.push({ date: dateStr, signups: count })
     }
 
+    // --- SIGNUPS BY WEEK (last 12 weeks) ---
+    const signupsByWeek: { date: string; signups: number }[] = []
+    for (let i = 11; i >= 0; i--) {
+      const weekEnd = new Date(now.getFullYear(), now.getMonth(), now.getDate() - i * 7)
+      const weekStart = new Date(weekEnd.getTime() - 7 * 86400000)
+      const wStart = weekStart.getTime()
+      const wEnd = weekEnd.getTime()
+      const label = `${weekStart.getDate()}/${weekStart.getMonth() + 1}`
+      const count = users.filter(u => {
+        const t = new Date(u.created_at).getTime()
+        return t >= wStart && t < wEnd
+      }).length
+      signupsByWeek.push({ date: label, signups: count })
+    }
+
+    // --- SIGNUPS BY MONTH (last 12 months) ---
+    const signupsByMonth: { date: string; signups: number }[] = []
+    for (let i = 11; i >= 0; i--) {
+      const d = new Date(now.getFullYear(), now.getMonth() - i, 1)
+      const monthStart = d.getTime()
+      const nextMonth = new Date(d.getFullYear(), d.getMonth() + 1, 1).getTime()
+      const monthStr = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`
+      const count = users.filter(u => {
+        const t = new Date(u.created_at).getTime()
+        return t >= monthStart && t < nextMonth
+      }).length
+      signupsByMonth.push({ date: monthStr, signups: count })
+    }
+
     const stats = {
       pagination: {
         page: pageParam,
@@ -344,6 +396,8 @@ serve(async (req) => {
       recentCommunity: community.slice(0, 20),
       revenueByMonth,
       signupsByDay,
+      signupsByWeek,
+      signupsByMonth,
       emailList: emailList.slice(0, 50),
       enquiries: enquiriesData.slice(0, 30),
       emailLogs: emailLogsData.slice(0, 50),
