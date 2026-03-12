@@ -5,7 +5,6 @@ import { useBookmarks } from '@/hooks/useBookmarks';
 import ProtocolWizard from '@/components/ProtocolWizard';
 import { Helmet } from 'react-helmet-async';
 import { cn } from '@/lib/utils';
-import { peptides } from '@/data/peptides';
 import { peptidesPublic } from '@/data/peptides-public';
 import { useAuth } from '@/contexts/AuthContext';
 import { usePeptideProtocol } from '@/hooks/usePeptideProtocol';
@@ -28,8 +27,7 @@ export default function PeptideDetail() {
   const isPaid = !isLoading && (subscription?.isPaidSubscriber ?? false);
   const isTrial = !isLoading && (subscription?.isTrial ?? false);
 
-  const peptidePublic = useMemo(() => peptidesPublic.find((p) => p.id === id), [id]);
-  const peptide = useMemo(() => peptides.find((p) => p.id === id), [id]);
+  const peptide = useMemo(() => peptidesPublic.find((p) => p.id === id), [id]);
   const { protocol, loading: protocolLoading } = usePeptideProtocol(id, peptidePublic?.isFree ?? false);
   const [showProtocolWizard, setShowProtocolWizard] = useState(false);
   const { isBookmarked, toggle: toggleBookmark } = useBookmarks();
@@ -88,7 +86,7 @@ export default function PeptideDetail() {
     );
   }
 
-  const isFreeContent = peptide?.isFree ?? peptidePublic?.isFree ?? false;
+  const isFreeContent = peptide?.isFree ?? false;
   const hasAccess = isFreeContent || !!protocol;
   const firstSentence = peptide.summaryAr?.includes('.') ? peptide.summaryAr.split('.')[0] + '.' : (peptide.summaryAr ?? '');
 

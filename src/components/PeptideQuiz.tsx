@@ -11,7 +11,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { PRICING, TRIAL_DAYS } from '@/lib/constants';
 import { supabase } from '@/lib/supabase';
 import { events } from '@/lib/analytics';
-import { peptides as allPeptides } from '@/data/peptides';
+import { peptidesPublic as allPeptides } from '@/data/peptides-public';
 import ShareButtons from '@/components/ShareButtons';
 import { SITE_URL } from '@/lib/constants';
 

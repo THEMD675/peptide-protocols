@@ -11,7 +11,7 @@ import {
 import type { LucideIcon } from 'lucide-react';
 import Tooltip from '@/components/Tooltip';
 import ProtocolWizard from '@/components/ProtocolWizard';
-import { peptides as allPeptides } from '@/data/peptides';
+import { peptidesPublic as allPeptides } from '@/data/peptides-public';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import { PEPTIDE_COUNT, SITE_URL } from '@/lib/constants';

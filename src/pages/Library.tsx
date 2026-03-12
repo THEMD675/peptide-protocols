@@ -19,7 +19,8 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
-import { peptides, categories, type Peptide } from '@/data/peptides';
+import { categories } from '@/data/peptides';
+import { peptidesPublic as peptides, type PeptidePublic as Peptide } from '@/data/peptides-public';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
 import { PRICING, PEPTIDE_COUNT, TRIAL_PEPTIDE_IDS, FREE_PEPTIDE_IDS, SITE_URL } from '@/lib/constants';

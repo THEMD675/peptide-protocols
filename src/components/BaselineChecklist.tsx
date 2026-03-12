@@ -2,7 +2,8 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { CheckCircle, Circle, FlaskConical, Syringe, TestTube, BookOpen } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { labTests, type Peptide } from '@/data/peptides';
+import { labTests } from '@/data/peptides';
+import { type PeptidePublic as Peptide } from '@/data/peptides-public';
 
 interface BaselineChecklistProps {
   peptide: Peptide;

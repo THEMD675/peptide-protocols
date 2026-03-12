@@ -7,8 +7,8 @@ import {
   X, GitCompareArrows,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { peptides, categories, stacks } from '@/data/peptides';
-import type { Peptide } from '@/data/peptides';
+import { categories, stacks } from '@/data/peptides';
+import { peptidesPublic as peptides, type PeptidePublic as Peptide } from '@/data/peptides-public';
 import { useAuth } from '@/contexts/AuthContext';
 import { PEPTIDE_COUNT, SITE_URL } from '@/lib/constants';
 import { categoryIcons } from '@/lib/peptide-labels';

@@ -12,7 +12,8 @@ import type { LucideIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
 import { PRICING, SITE_URL } from '@/lib/constants';
-import { labTests, peptides } from '@/data/peptides';
+import { labTests } from '@/data/peptides';
+import { peptidesPublic as peptides } from '@/data/peptides-public';
 import { GenericPageSkeleton } from '@/components/Skeletons';
 
 // ═══════════════════════════════════════════════════════════════

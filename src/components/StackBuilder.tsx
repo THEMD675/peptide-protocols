@@ -9,7 +9,7 @@ import {
   AlertTriangle,
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
-import { peptides as allPeptides } from '@/data/peptides';
+import { peptidesPublic as allPeptides } from '@/data/peptides-public';
 import {
   DANGEROUS_COMBOS, SYNERGISTIC_COMBOS, DRUG_INTERACTIONS, InteractionResult,
 } from '@/data/interactions';

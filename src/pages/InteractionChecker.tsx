@@ -4,7 +4,7 @@ import { Link, useSearchParams } from 'react-router-dom';
 import { AlertTriangle, CheckCircle, XCircle, Shield, Clock, Syringe, Lock } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { peptidesLite as peptides } from '@/data/peptides-lite';
-import { peptides as peptideFull } from '@/data/peptides';
+import { peptidesPublic as peptideFull } from '@/data/peptides-public';
 import { categoryLabels } from '@/lib/peptide-labels';
 import { PEPTIDE_COUNT, SITE_URL } from '@/lib/constants';
 import { DANGEROUS_COMBOS, SYNERGISTIC_COMBOS, DRUG_INTERACTIONS, GH_PEPTIDE_IDS, FAT_LOSS_PEPTIDE_IDS, MEDICATIONS, TIMING_NOTES, type InteractionResult, type SeverityLevel } from '@/data/interactions';

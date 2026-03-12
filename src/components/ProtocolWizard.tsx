@@ -5,7 +5,7 @@ import { X, Play, Calendar, FlaskConical } from 'lucide-react';
 import { toast } from 'sonner';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
-import { peptides, type Peptide } from '@/data/peptides';
+import { peptidesPublic as peptides, type PeptidePublic as Peptide } from '@/data/peptides-public';
 import { cn } from '@/lib/utils';
 import { FREQUENCY_LABELS } from '@/lib/constants';
 import BaselineChecklist from '@/components/BaselineChecklist';

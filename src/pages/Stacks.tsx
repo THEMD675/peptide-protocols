@@ -7,7 +7,8 @@ import { useAuth } from '@/contexts/AuthContext';
 import ProtocolWizard from '@/components/ProtocolWizard';
 import StackBuilder from '@/components/StackBuilder';
 import { PRICING, SITE_URL } from '@/lib/constants';
-import { stacks, peptides, categories } from '@/data/peptides';
+import { stacks, categories } from '@/data/peptides';
+import { peptidesPublic as peptides } from '@/data/peptides-public';
 import { GenericPageSkeleton } from '@/components/Skeletons';
 
 const STACK_META: Record<string, { difficulty: string; cost: string; duration: string }> = {

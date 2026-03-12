@@ -11,7 +11,7 @@ import { cn, sanitizeInput } from '@/lib/utils';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
 import { SUPPORT_EMAIL, SITE_URL } from '@/lib/constants';
-import { peptides } from '@/data/peptides';
+import { peptidesPublic as peptides } from '@/data/peptides-public';
 
 /* ─── Types ──────────────────────────────────────────────── */
 

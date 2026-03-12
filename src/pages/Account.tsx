@@ -1004,6 +1004,15 @@ export default function Account() {
               </button>
             )
           )}
+          {(subscription.isPaidSubscriber || subscription.isTrial) && (
+            <a
+              href={`mailto:${SUPPORT_EMAIL}?subject=${encodeURIComponent('طلب استرداد — pptides')}&body=${encodeURIComponent(`مرحبًا،\n\nأرغب في استرداد اشتراكي.\n\nالبريد: ${user?.email ?? ''}\n\nشكرًا`)}`}
+              className="flex w-full items-center justify-center gap-2 rounded-xl border border-amber-200 dark:border-amber-800 bg-white dark:bg-stone-900 px-6 py-3 text-sm font-bold text-amber-700 dark:text-amber-400 transition-all hover:bg-amber-50 dark:hover:bg-amber-900/20"
+            >
+              <CreditCard className="h-4 w-4" />
+              طلب استرداد
+            </a>
+          )}
           <button
             onClick={() => setShowDeleteDialog(true)}
             className="flex w-full items-center justify-center gap-2 rounded-xl border border-red-200 dark:border-red-800 bg-white dark:bg-stone-900 px-6 py-3 text-sm font-bold text-red-600 dark:text-red-400 transition-all hover:bg-red-50 dark:bg-red-900/20"

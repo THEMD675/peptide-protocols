@@ -15,7 +15,7 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
-import { peptides, type Peptide } from '@/data/peptides';
+import { peptidesPublic as peptides, type PeptidePublic as Peptide } from '@/data/peptides-public';
 import { categoryLabels, evidenceLabels } from '@/lib/peptide-labels';
 import { SITE_URL } from '@/lib/constants';
 

@@ -43,7 +43,7 @@ import DashboardCoachCards from '@/components/DashboardCoachCards';
 import { useProactiveCoach } from '@/hooks/useProactiveCoach';
 import WeeklyProgressReport from '@/components/WeeklyProgressReport';
 import { AlertTriangle, HeartPulse } from 'lucide-react';
-import { peptides as allPeptides } from '@/data/peptides';
+import { peptidesPublic as allPeptides } from '@/data/peptides-public';
 import { labTests } from '@/data/peptides';
 import { UPGRADE } from '@/constants/sales-copy';
 
