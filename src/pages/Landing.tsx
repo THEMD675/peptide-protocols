@@ -216,9 +216,10 @@ export default function Landing() {
   }, []);
   if (shouldRedirect) return <Navigate to="/dashboard" replace />;
 
-  const ctaLink = user ? '/pricing' : '/signup?redirect=/pricing';
-  const ctaText = user ? 'اشترك الآن' : 'ابدأ تجربتك المجانية';
-  const ctaTextShort = user ? 'اختر خطتك' : 'ابدأ التجربة المجانية';
+  const isSubscriber = user && subscription.isProOrTrial;
+  const ctaLink = isSubscriber ? '/dashboard' : user ? '/pricing' : '/signup?redirect=/pricing';
+  const ctaText = isSubscriber ? 'لوحة التحكم' : user ? 'اختر خطتك' : 'ابدأ تجربتك المجانية';
+  const ctaTextShort = isSubscriber ? 'لوحة التحكم' : user ? 'اختر خطتك' : 'ابدأ التجربة المجانية';
 
   return (
     <div id="main-content" className="min-h-screen bg-white dark:bg-stone-950" role="main">
