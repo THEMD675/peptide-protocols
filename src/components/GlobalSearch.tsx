@@ -225,7 +225,7 @@ export default function GlobalSearch({ open, onClose }: Props) {
       >
         {/* input */}
         <div className="flex items-center gap-3 border-b border-stone-200 dark:border-stone-700 px-4 py-3.5">
-          <Search className="h-5 w-5 shrink-0 text-stone-400 dark:text-stone-500" />
+          <Search className="h-5 w-5 shrink-0 text-stone-400 dark:text-stone-300" />
           <input
             ref={inputRef}
             type="text"
@@ -233,10 +233,10 @@ export default function GlobalSearch({ open, onClose }: Props) {
             onChange={(e) => setQuery(e.target.value)}
             onKeyDown={handleKey}
             placeholder="ابحث عن ببتيد، مصطلح، مقالة، أو صفحة..."
-            className="flex-1 bg-transparent text-base text-stone-900 dark:text-stone-100 placeholder:text-stone-400 dark:placeholder:text-stone-500 outline-none focus:outline-none focus:ring-0"
+            className="flex-1 bg-transparent text-base text-stone-900 dark:text-stone-100 placeholder:text-stone-400 dark:placeholder:text-stone-400 outline-none focus:outline-none focus:ring-0"
             aria-label="بحث شامل"
           />
-          <kbd className="hidden rounded-md border border-stone-200 dark:border-stone-700 bg-stone-100 dark:bg-stone-800 px-1.5 py-0.5 text-[10px] font-medium text-stone-500 dark:text-stone-400 sm:inline">
+          <kbd className="hidden rounded-md border border-stone-200 dark:border-stone-700 bg-stone-100 dark:bg-stone-800 px-1.5 py-0.5 text-[10px] font-medium text-stone-500 dark:text-stone-300 sm:inline">
             ESC
           </kbd>
           <button
@@ -253,7 +253,7 @@ export default function GlobalSearch({ open, onClose }: Props) {
           {/* empty state: recent */}
           {query.trim().length < 2 && recentPeptides.length > 0 && (
             <div className="py-2">
-              <p className="px-4 py-1.5 text-xs font-bold text-stone-500 dark:text-stone-400 uppercase tracking-wider">
+              <p className="px-4 py-1.5 text-xs font-bold text-stone-500 dark:text-stone-300 uppercase tracking-wider">
                 شوهدت مؤخرًا
               </p>
               {recentPeptides.map((p) => (
@@ -307,7 +307,7 @@ export default function GlobalSearch({ open, onClose }: Props) {
             const Icon = TYPE_ICONS[type as ResultItem['type']];
             return (
               <div key={type} className="py-1">
-                <p className="flex items-center gap-2 px-4 py-1.5 text-xs font-bold text-stone-500 dark:text-stone-400 uppercase tracking-wider">
+                <p className="flex items-center gap-2 px-4 py-1.5 text-xs font-bold text-stone-500 dark:text-stone-300 uppercase tracking-wider">
                   <Icon className="h-3.5 w-3.5 text-emerald-500" />
                   {TYPE_LABELS[type as ResultItem['type']]}
                 </p>
@@ -370,7 +370,7 @@ export default function GlobalSearch({ open, onClose }: Props) {
 
         {/* footer */}
         {results.length > 0 && (
-          <div className="flex items-center justify-between border-t border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-800/50 px-4 py-2.5 text-[10px] text-stone-400 dark:text-stone-500">
+          <div className="flex items-center justify-between border-t border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-800/50 px-4 py-2.5 text-[10px] text-stone-400 dark:text-stone-300">
             <span className="font-medium">{results.length} نتيجة</span>
             <span className="flex items-center gap-2">
               <kbd className="rounded border border-stone-300 dark:border-stone-600 bg-white dark:bg-stone-700 px-1.5 py-0.5 text-stone-600 dark:text-stone-300">↑↓</kbd>

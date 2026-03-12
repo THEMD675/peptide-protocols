@@ -81,7 +81,7 @@ export default function NotFound() {
             value={query}
             onChange={e => setQuery(e.target.value)}
             placeholder="ابحث عن ببتيد أو موضوع..."
-            className="w-full rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 ps-12 pe-4 py-3 text-stone-900 dark:text-stone-100 placeholder-stone-400 dark:placeholder-stone-500 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-shadow"
+            className="w-full rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 ps-12 pe-4 py-3 text-stone-900 dark:text-stone-100 placeholder-stone-400 dark:placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-shadow"
           />
         </div>
       </form>

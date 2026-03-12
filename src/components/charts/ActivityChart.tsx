@@ -1,5 +1,6 @@
 import { memo } from 'react';
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, Cell } from 'recharts';
+import { useTheme } from '../../hooks/useTheme';
 
 interface ActivityData {
   day: string;
@@ -12,7 +13,11 @@ interface ActivityChartProps {
 }
 
 export default memo(function ActivityChart({ data }: ActivityChartProps) {
+  const { isDark } = useTheme();
   if (data.length === 0) return null;
+
+  const tickColor = isDark ? '#d6d3d1' : '#78716c';
+  const emptyBarColor = isDark ? '#44403c' : '#e7e5e4';
 
   return (
     <div className="h-32 w-full" dir="ltr" role="img" aria-label="مخطط النشاط الأسبوعي">
@@ -20,18 +25,19 @@ export default memo(function ActivityChart({ data }: ActivityChartProps) {
         <BarChart data={data} margin={{ top: 5, right: 0, left: 0, bottom: 5 }}>
           <XAxis
             dataKey="day"
-            tick={{ fontSize: 10, fill: '#78716c' }}
+            tick={{ fontSize: 10, fill: tickColor }}
             tickLine={false}
             axisLine={false}
           />
           <YAxis hide />
           <Tooltip
             contentStyle={{
-              background: '#fff',
-              border: '1px solid #e7e5e4',
+              background: isDark ? '#1c1917' : '#fff',
+              border: `1px solid ${isDark ? '#57534e' : '#e7e5e4'}`,
               borderRadius: '12px',
               fontSize: '12px',
               direction: 'rtl',
+              color: isDark ? '#e7e5e4' : '#1c1917',
             }}
             formatter={(value: number) => [`${value} حقنة`, 'العدد']}
           />
@@ -39,7 +45,7 @@ export default memo(function ActivityChart({ data }: ActivityChartProps) {
             {data.map((entry, index) => (
               <Cell
                 key={index}
-                fill={entry.isToday ? '#10b981' : entry.count > 0 ? '#6ee7b7' : '#e7e5e4'}
+                fill={entry.isToday ? '#10b981' : entry.count > 0 ? '#6ee7b7' : emptyBarColor}
               />
             ))}
           </Bar>

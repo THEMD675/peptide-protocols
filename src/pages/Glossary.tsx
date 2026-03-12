@@ -221,7 +221,7 @@ export default function Glossary() {
 
       {/* Alphabet jump bar — sticky, always visible when not searching */}
       {!search.trim() && grouped.length > 0 && (
-        <div className="sticky top-16 z-20 -mx-4 mb-6 bg-white/90 dark:bg-stone-950/90 backdrop-blur-md px-4 py-3 border-b border-stone-100 dark:border-stone-800 rounded-b-xl" role="navigation" aria-label="القفز حسب الحرف">
+        <div className="sticky top-16 z-20 -mx-4 mb-6 bg-white/90 dark:bg-stone-950/90 backdrop-blur-md px-4 py-3 border-b border-stone-100 dark:border-stone-700 rounded-b-xl" role="navigation" aria-label="القفز حسب الحرف">
           <div className="flex flex-wrap justify-center gap-1.5">
             {grouped.map(({ letter }) => (
               <button

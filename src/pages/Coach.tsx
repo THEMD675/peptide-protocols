@@ -6,7 +6,7 @@ import { peptidesLite as allPeptides } from '@/data/peptides-lite';
 import { renderMarkdown, renderMarkdownToHtml } from '@/lib/markdown';
 import {
   Bot, Send, Sparkles, TrendingDown, Heart, Dumbbell, Brain,
-  Clock, Zap, Calculator, FlaskConical, Shield, RotateCcw, ArrowLeft, ArrowRight,
+  Clock, Zap, Calculator, FlaskConical, Shield, Lock, RotateCcw, ArrowLeft, ArrowRight,
   Copy, Check, BookOpen, Play, Printer, Crown,
 } from 'lucide-react';
 import { toast } from 'sonner';
@@ -719,7 +719,7 @@ export default function Coach() {
             {/* DeepSeek consent — one-time */}
             {showDeepSeekConsent && (
               <div className="rounded-xl border border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-900/20 px-4 py-3 text-sm text-amber-900 dark:text-amber-200">
-                <p className="font-medium">🔒 للإفصاح: يعتمد المدرب الذكي على نموذج DeepSeek AI لتوليد الردود. رسائلك تُعالَج على خوادمهم بشكل مشفّر — لا يتم تخزين بياناتك الشخصية أو مشاركتها مع أطراف ثالثة.</p>
+                <p className="font-medium flex items-start gap-2"><Lock className="h-4 w-4 shrink-0 mt-0.5 text-amber-600" /> للإفصاح: يعتمد المدرب الذكي على نموذج DeepSeek AI لتوليد الردود. رسائلك تُعالَج على خوادمهم بشكل مشفّر — لا يتم تخزين بياناتك الشخصية أو مشاركتها مع أطراف ثالثة.</p>
                 <button onClick={setConsentGiven} className="mt-2 text-xs font-bold text-amber-700 dark:text-amber-400 underline hover:no-underline">فهمت — ابدأ المحادثة</button>
               </div>
             )}
@@ -760,7 +760,7 @@ export default function Coach() {
                       onClick={() => setIntakeStep('done')}
                       className="rounded-full border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 px-4 py-2 text-xs font-medium text-stone-500 dark:text-stone-300 hover:text-emerald-700 hover:border-emerald-300 transition-colors"
                     >
-                      ✍️ تخطّ الإعداد — اسأل مباشرة
+                      تخطّ الإعداد — اسأل مباشرة
                     </button>
                   </div>
                 )}
@@ -947,12 +947,12 @@ export default function Coach() {
                 </div>
                 {/* Timestamp */}
                 {msg.timestamp && !msg.content.startsWith('__ERROR') && (
-                  <p className={cn('mt-1 text-[10px] text-stone-400 dark:text-stone-500', msg.role === 'user' ? 'text-start ms-9' : 'text-end max-w-[88%] ms-auto')}>
+                  <p className={cn('mt-1 text-[10px] text-stone-400 dark:text-stone-300', msg.role === 'user' ? 'text-start ms-9' : 'text-end max-w-[88%] ms-auto')}>
                     {formatMessageTime(msg.timestamp)}
                   </p>
                 )}
                 {msg.role === 'assistant' && !msg.content.startsWith('__ERROR') && (
-                  <p className="mt-0.5 text-[10px] text-stone-400 dark:text-stone-500 text-end max-w-[88%] ms-auto">هذه معلومات تعليمية وليست نصيحة طبية — استشر طبيبك</p>
+                  <p className="mt-0.5 text-[10px] text-stone-400 dark:text-stone-300 text-end max-w-[88%] ms-auto">هذه معلومات تعليمية وليست نصيحة طبية — استشر طبيبك</p>
                 )}
                 {/* Action pills: for non-last messages, show Copy + WhatsApp only */}
                 {msg.role === 'assistant' && !isLoading && msg.content.length > 50 && i !== messages.length - 1 && (
@@ -1176,8 +1176,8 @@ export default function Coach() {
                         <Send className="h-5 w-5 text-white" /><span className="sr-only">إرسال</span>
                       </button>
                     </div>
-                    <p className="text-[10px] text-stone-400 dark:text-stone-500 text-start px-1">
-                      ⏎ Enter للإرسال · Shift+Enter لسطر جديد
+                    <p className="text-[10px] text-stone-400 dark:text-stone-300 text-start px-1">
+                      Enter للإرسال · Shift+Enter لسطر جديد
                     </p>
                   </div>
                 </>

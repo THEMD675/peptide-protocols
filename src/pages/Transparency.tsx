@@ -96,7 +96,7 @@ export default function Transparency() {
 
           {/* What we do / don't do */}
           <div className="grid gap-6 md:grid-cols-2">
-            <section className="rounded-2xl border border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-900 p-6">
+            <section className="rounded-2xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-900 p-6">
               <h2 className="mb-4 text-lg font-bold text-stone-900 dark:text-stone-100 flex items-center gap-2"><CheckCircle className="h-5 w-5 text-emerald-600" /> ما نفعله</h2>
               <ul className="space-y-3">
                 {whatWeDo.map((item) => (
@@ -108,7 +108,7 @@ export default function Transparency() {
               </ul>
             </section>
 
-            <section className="rounded-2xl border border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-900 p-6">
+            <section className="rounded-2xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-900 p-6">
               <h2 className="mb-4 text-lg font-bold text-stone-900 dark:text-stone-100 flex items-center gap-2"><XCircle className="h-5 w-5 text-red-500" /> ما لا نفعله — أبدًا</h2>
               <ul className="space-y-3">
                 {whatWeDontDo.map((item) => (
@@ -123,7 +123,7 @@ export default function Transparency() {
 
           {/* Content Standards */}
           <section>
-            <div className="rounded-2xl border border-stone-200 dark:border-stone-800 bg-stone-50 dark:bg-stone-900/50 p-8">
+            <div className="rounded-2xl border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-900/50 p-8">
               <div className="flex items-start gap-4">
                 <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-emerald-100 dark:bg-emerald-900/30">
                   <FileSearch className="h-6 w-6 text-emerald-700" />
@@ -160,7 +160,7 @@ export default function Transparency() {
 
           {/* Pricing Philosophy */}
           <section>
-            <div className="rounded-2xl border border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-900 p-8">
+            <div className="rounded-2xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-900 p-8">
               <div className="flex items-start gap-4">
                 <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-emerald-100 dark:bg-emerald-900/30">
                   <Scale className="h-6 w-6 text-emerald-700" />
@@ -208,7 +208,7 @@ export default function Transparency() {
 
           {/* Data Privacy */}
           <section>
-            <div className="rounded-2xl border border-stone-200 dark:border-stone-800 bg-stone-50 dark:bg-stone-900/50 p-8">
+            <div className="rounded-2xl border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-900/50 p-8">
               <div className="flex items-start gap-4">
                 <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-emerald-100 dark:bg-emerald-900/30">
                   <Eye className="h-6 w-6 text-emerald-700" />
@@ -261,12 +261,12 @@ export default function Transparency() {
           </section>
 
           {/* Last reviewed */}
-          <div className="text-center text-xs text-stone-400 dark:text-stone-500">
+          <div className="text-center text-xs text-stone-400 dark:text-stone-300">
             آخر مراجعة لهذه الصفحة: {LEGAL_LAST_UPDATED}
           </div>
 
           {/* Footer CTA */}
-          <div className="rounded-2xl border border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-900 p-8 text-center">
+          <div className="rounded-2xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-900 p-8 text-center">
             <p className="mb-2 text-lg font-bold text-stone-900 dark:text-stone-100">أسئلة أخرى عن شفافيتنا؟</p>
             <p className="mb-6 text-sm text-stone-600 dark:text-stone-300">
               نرحب بأي استفسار — تواصل معنا مباشرة على{' '}

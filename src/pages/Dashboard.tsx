@@ -747,7 +747,7 @@ export default function Dashboard() {
               </div>
             </div>
             {total > 0 ? (
-              <div className="rounded-xl border border-stone-100 dark:border-stone-800 bg-white dark:bg-stone-900 p-3">
+              <div className="rounded-xl border border-stone-100 dark:border-stone-700 bg-white dark:bg-stone-900 p-3">
                 <div className="flex items-center justify-between mb-1.5">
                   <p className="text-[11px] font-bold text-stone-600 dark:text-stone-300">الإنجاز التالي: {milestoneNext} حقنة</p>
                   <p className="text-[11px] font-bold text-emerald-700">{milestoneProgress}%</p>

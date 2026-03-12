@@ -186,7 +186,7 @@ export function PeptideDetailSkeleton() {
       <Bone className="mt-6 h-20 w-full rounded-2xl" />
       <div className="mt-8 space-y-4">
         {Array.from({ length: 8 }).map((_, i) => (
-          <div key={i} className="flex border-b border-stone-100 dark:border-stone-800 py-3">
+          <div key={i} className="flex border-b border-stone-100 dark:border-stone-700 py-3">
             <Bone className="h-5 w-28 shrink-0" />
             <Bone className="h-5 flex-1 ms-4" />
           </div>

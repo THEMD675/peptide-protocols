@@ -137,11 +137,11 @@ export default function EnquiryForm({ userEmail, userId }: EnquiryFormProps) {
       )}
 
       {history.length > 0 && (
-        <div className="mt-4 border-t border-stone-100 dark:border-stone-800 pt-4">
+        <div className="mt-4 border-t border-stone-100 dark:border-stone-700 pt-4">
           <p className="text-xs font-bold text-stone-600 dark:text-stone-300 mb-2">استفساراتك السابقة</p>
           <div className="space-y-2">
             {history.map(h => (
-              <div key={h.id} className="flex items-center justify-between rounded-lg border border-stone-100 dark:border-stone-800 bg-stone-50 dark:bg-stone-900 px-3 py-2">
+              <div key={h.id} className="flex items-center justify-between rounded-lg border border-stone-100 dark:border-stone-700 bg-stone-50 dark:bg-stone-900 px-3 py-2">
                 <div className="min-w-0 flex-1">
                   <p className="text-xs font-medium text-stone-800 dark:text-stone-200 truncate">{h.subject}</p>
                   <p className="text-[10px] text-stone-500 dark:text-stone-300">{new Date(h.created_at).toLocaleDateString('ar-u-nu-latn')}</p>

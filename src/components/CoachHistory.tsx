@@ -172,7 +172,7 @@ export default function CoachHistory({
                     </div>
 
                     {isExpanded && (
-                      <div className="border-t border-stone-100 dark:border-stone-800 bg-stone-50/50 px-4 py-3 space-y-3 max-h-64 overflow-y-auto">
+                      <div className="border-t border-stone-100 dark:border-stone-700 bg-stone-50/50 px-4 py-3 space-y-3 max-h-64 overflow-y-auto">
                         {conv.messages.map((msg, i) => (
                           <div key={i} className={cn('flex', msg.role === 'user' ? 'justify-start' : 'justify-end')}>
                             <div className={cn(

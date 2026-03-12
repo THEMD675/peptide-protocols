@@ -60,7 +60,7 @@ export function renderMarkdown(text: string) {
               {bodyRows.map((cells, ri) => (
                 <tr key={ri} className={ri % 2 === 0 ? 'bg-stone-50 dark:bg-stone-900' : 'bg-white dark:bg-stone-900'}>
                   {cells.map((cell, ci) => (
-                    <td key={ci} className={cn('px-3 py-2 border-b border-stone-100 dark:border-stone-800', ci === 0 && 'font-bold text-stone-700 dark:text-stone-200 w-[35%]')} dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(inlineMd(cell)) }} />
+                    <td key={ci} className={cn('px-3 py-2 border-b border-stone-100 dark:border-stone-700', ci === 0 && 'font-bold text-stone-700 dark:text-stone-200 w-[35%]')} dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(inlineMd(cell)) }} />
                   ))}
                 </tr>
               ))}

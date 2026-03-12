@@ -35,7 +35,7 @@ export default memo(function BottomNav() {
               onMouseEnter={() => prefetchRoute(to)}
               className={cn(
                 'relative flex min-h-[56px] flex-1 flex-col items-center justify-center gap-1 py-2 text-[11px] font-medium transition-colors',
-                active ? 'text-emerald-700 dark:text-emerald-400' : 'text-stone-500 dark:text-stone-400 active:text-stone-600',
+                active ? 'text-emerald-700 dark:text-emerald-400' : 'text-stone-500 dark:text-stone-300 active:text-stone-600',
               )}
             >
               {active && (

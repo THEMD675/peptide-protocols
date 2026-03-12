@@ -1,5 +1,6 @@
 import { memo } from 'react';
 import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid } from 'recharts';
+import { useTheme } from '../../hooks/useTheme';
 
 interface DosePoint {
   date: string;
@@ -12,32 +13,38 @@ interface DoseTrendChartProps {
 }
 
 export default memo(function DoseTrendChart({ data, unit = 'mcg' }: DoseTrendChartProps) {
+  const { isDark } = useTheme();
   if (data.length < 2) return null;
+
+  const tickColor = isDark ? '#d6d3d1' : '#78716c';
+  const gridColor = isDark ? '#44403c' : '#e7e5e4';
+  const axisColor = isDark ? '#57534e' : '#d6d3d1';
 
   return (
     <div className="h-48 w-full" dir="ltr" role="img" aria-label={`مخطط اتجاه الجرعات — ${data.length} نقاط بيانات`}>
       <ResponsiveContainer width="100%" height="100%">
         <LineChart data={data} margin={{ top: 5, right: 10, left: 0, bottom: 5 }}>
-          <CartesianGrid strokeDasharray="3 3" stroke="#e7e5e4" />
+          <CartesianGrid strokeDasharray="3 3" stroke={gridColor} />
           <XAxis
             dataKey="date"
-            tick={{ fontSize: 11, fill: '#78716c' }}
+            tick={{ fontSize: 11, fill: tickColor }}
             tickLine={false}
-            axisLine={{ stroke: '#d6d3d1' }}
+            axisLine={{ stroke: axisColor }}
           />
           <YAxis
-            tick={{ fontSize: 11, fill: '#78716c' }}
+            tick={{ fontSize: 11, fill: tickColor }}
             tickLine={false}
             axisLine={false}
             width={40}
           />
           <Tooltip
             contentStyle={{
-              background: '#fff',
-              border: '1px solid #e7e5e4',
+              background: isDark ? '#1c1917' : '#fff',
+              border: `1px solid ${isDark ? '#57534e' : '#e7e5e4'}`,
               borderRadius: '12px',
               fontSize: '12px',
               direction: 'rtl',
+              color: isDark ? '#e7e5e4' : '#1c1917',
             }}
             formatter={(value: number) => [`${value} ${unit}`, 'الجرعة']}
             labelFormatter={(label) => `${label}`}

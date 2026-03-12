@@ -214,7 +214,7 @@ export default function WellnessCheckin() {
                         val === level
                           ? colors[level - 1]
                           : isReadonly
-                            ? 'border-stone-100 dark:border-stone-800 bg-stone-50 dark:bg-stone-900 text-stone-300'
+                            ? 'border-stone-100 dark:border-stone-700 bg-stone-50 dark:bg-stone-900 text-stone-300'
                             : 'border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 text-stone-500 dark:text-stone-300 hover:border-stone-300 dark:border-stone-600',
                         !isReadonly && 'cursor-pointer btn-press',
                       )}

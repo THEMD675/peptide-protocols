@@ -82,7 +82,7 @@ const PeptideCard = memo(function PeptideCard({
       <div className="mb-2 flex items-center justify-between">
         <div className="flex items-center gap-1">
           {!hasAccess && !peptide.isFree && (
-            <span className="flex items-center gap-1 rounded-full bg-stone-100 dark:bg-stone-800 border border-stone-200 dark:border-stone-600 px-2 py-0.5 text-xs font-bold text-stone-500 dark:text-stone-400">
+            <span className="flex items-center gap-1 rounded-full bg-stone-100 dark:bg-stone-800 border border-stone-200 dark:border-stone-600 px-2 py-0.5 text-xs font-bold text-stone-500 dark:text-stone-300">
               <Lock className="h-3 w-3" />
               مقفل
             </span>
@@ -157,7 +157,7 @@ const PeptideCard = memo(function PeptideCard({
         </p>
       ) : (
         <div className="mb-3">
-          <p className="text-sm leading-relaxed text-stone-500 dark:text-stone-400 line-clamp-2">
+          <p className="text-sm leading-relaxed text-stone-500 dark:text-stone-300 line-clamp-2">
             {(() => {
               const max = 65;
               if (peptide.summaryAr.length <= max) return peptide.summaryAr;
@@ -502,7 +502,7 @@ export default function Library() {
           className="mb-6 flex flex-wrap gap-2 items-center"
         >
           <div className="relative flex-1 min-w-[180px]" data-tour="library-search">
-            <Search className="absolute end-3 top-1/2 h-4 w-4 -translate-y-1/2 text-stone-400 dark:text-stone-500 pointer-events-none" />
+            <Search className="absolute end-3 top-1/2 h-4 w-4 -translate-y-1/2 text-stone-400 dark:text-stone-300 pointer-events-none" />
             <input
               type="text"
               role="searchbox"
@@ -512,7 +512,7 @@ export default function Library() {
               placeholder="ابحث بالاسم أو الهدف..."
               className={cn(
                 'w-full rounded-xl border border-stone-200 dark:border-stone-600 bg-stone-50 dark:bg-stone-900 py-3 ps-10 pe-10 min-h-[44px]',
-                'text-sm text-stone-900 dark:text-stone-100 placeholder:text-stone-400 dark:placeholder:text-stone-500',
+                'text-sm text-stone-900 dark:text-stone-100 placeholder:text-stone-400 dark:placeholder:text-stone-400',
                 'transition-colors focus:border-emerald-300 dark:border-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900',
               )}
             />
@@ -520,7 +520,7 @@ export default function Library() {
               <button
                 onClick={() => setSearch('')}
                 aria-label="مسح البحث"
-                className="absolute start-3 top-1/2 -translate-y-1/2 rounded-full p-0.5 text-stone-400 dark:text-stone-500 transition-colors hover:text-stone-700 dark:hover:text-stone-200"
+                className="absolute start-3 top-1/2 -translate-y-1/2 rounded-full p-0.5 text-stone-400 dark:text-stone-300 transition-colors hover:text-stone-700 dark:hover:text-stone-200"
               >
                 <X className="h-4 w-4" />
               </button>
@@ -613,7 +613,7 @@ export default function Library() {
               )}
             >
               الكل
-              <span className={cn('ms-1.5 rounded-full px-1.5 py-0.5 text-xs font-bold', activeCategory === 'all' ? 'bg-white/20' : 'bg-stone-100 dark:bg-stone-800 text-stone-500 dark:text-stone-400')}>
+              <span className={cn('ms-1.5 rounded-full px-1.5 py-0.5 text-xs font-bold', activeCategory === 'all' ? 'bg-white/20' : 'bg-stone-100 dark:bg-stone-800 text-stone-500 dark:text-stone-300')}>
                 {categoryCounts.all}
               </span>
             </button>
@@ -628,7 +628,7 @@ export default function Library() {
               )}
             >
               مجاني
-              <span className={cn('rounded-full px-1.5 py-0.5 text-xs font-bold', activeCategory === 'free' ? 'bg-white/20' : 'bg-stone-100 dark:bg-stone-800 text-stone-500 dark:text-stone-400')}>
+              <span className={cn('rounded-full px-1.5 py-0.5 text-xs font-bold', activeCategory === 'free' ? 'bg-white/20' : 'bg-stone-100 dark:bg-stone-800 text-stone-500 dark:text-stone-300')}>
                 {categoryCounts.free}
               </span>
             </button>
@@ -645,7 +645,7 @@ export default function Library() {
               <Bookmark className="h-3.5 w-3.5" />
               المحفوظات
               {categoryCounts.bookmarks > 0 && (
-                <span className={cn('rounded-full px-1.5 py-0.5 text-xs font-bold', activeCategory === 'bookmarks' ? 'bg-white/20' : 'bg-stone-100 dark:bg-stone-800 text-stone-500 dark:text-stone-400')}>
+                <span className={cn('rounded-full px-1.5 py-0.5 text-xs font-bold', activeCategory === 'bookmarks' ? 'bg-white/20' : 'bg-stone-100 dark:bg-stone-800 text-stone-500 dark:text-stone-300')}>
                   {categoryCounts.bookmarks}
                 </span>
               )}
@@ -668,7 +668,7 @@ export default function Library() {
                 >
                   {Icon && <Icon className="h-3.5 w-3.5" />}
                   {categoryLabels[cat.id]}
-                  <span className={cn('rounded-full px-1.5 py-0.5 text-xs font-bold', active ? 'bg-white/20' : 'bg-stone-100 dark:bg-stone-800 text-stone-500 dark:text-stone-400')}>
+                  <span className={cn('rounded-full px-1.5 py-0.5 text-xs font-bold', active ? 'bg-white/20' : 'bg-stone-100 dark:bg-stone-800 text-stone-500 dark:text-stone-300')}>
                     {count}
                   </span>
                 </button>
@@ -758,11 +758,11 @@ export default function Library() {
             <div
               className="flex flex-col items-center justify-center py-16 text-center"
             >
-              <FlaskConical className="mb-4 h-12 w-12 text-stone-300 dark:text-stone-600" />
+              <FlaskConical className="mb-4 h-12 w-12 text-stone-300 dark:text-stone-400" />
               <p className="text-lg font-semibold text-stone-800 dark:text-stone-200">
                 {search.trim() ? `لا توجد نتائج لـ "${search}"` : 'لا توجد نتائج للفلاتر المحددة'}
               </p>
-              <p className="mt-1 text-sm text-stone-500 dark:text-stone-400">
+              <p className="mt-1 text-sm text-stone-500 dark:text-stone-300">
                 {search.trim()
                   ? 'جرّب الاسم الإنجليزي أو كلمة أوسع — مثلاً "تعافي" أو "BPC"'
                   : 'جرّب تغيير التصنيف أو مستوى الدليل أو امسح الفلاتر'}
@@ -845,7 +845,7 @@ export default function Library() {
                   </thead>
                   <tbody>
                     {rows.map((row, i) => (
-                      <tr key={row.label} className={cn('border-b border-stone-100 dark:border-stone-800', i % 2 === 0 ? 'bg-white dark:bg-stone-900' : 'bg-stone-50/50')}>
+                      <tr key={row.label} className={cn('border-b border-stone-100 dark:border-stone-700', i % 2 === 0 ? 'bg-white dark:bg-stone-900' : 'bg-stone-50/50')}>
                         <th scope="row" className="px-4 py-3 text-xs font-bold text-stone-700 dark:text-stone-200">{row.label}</th>
                         {items.map(p => (
                           <td key={p.id} className="px-4 py-3 text-xs text-stone-800 dark:text-stone-200 leading-relaxed">{row.get(p)}</td>
@@ -907,7 +907,7 @@ export default function Library() {
                 const fallback = related.length === 0 ? peptides.filter(x => x.isFree && x.id !== p.id).slice(0, 2) : related;
                 if (fallback.length === 0) return null;
                 return (
-                  <div className="mt-4 border-t border-stone-100 dark:border-stone-800 pt-4">
+                  <div className="mt-4 border-t border-stone-100 dark:border-stone-700 pt-4">
                     <p className="mb-2 text-xs font-bold text-stone-500 dark:text-stone-300">ببتيدات مجانية يمكنك تصفّحها:</p>
                     <div className="flex flex-wrap justify-center gap-2">
                       {fallback.map(f => (

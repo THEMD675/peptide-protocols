@@ -25,7 +25,7 @@ export default memo(function ProgressRing({ current, total, size = 80, strokeWid
           fill="none"
           stroke="currentColor"
           strokeWidth={strokeWidth}
-          className="text-stone-200"
+          className="text-stone-200 dark:text-stone-700"
         />
         <circle
           cx={size / 2}

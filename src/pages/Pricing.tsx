@@ -453,7 +453,7 @@ export default function Pricing() {
                   { feature: 'بروتوكولات مخصّصة', essentials: false, elite: true },
                   { feature: 'دعم مخصّص عبر البريد', essentials: false, elite: true },
                 ] as const).map((row, i) => (
-                  <tr key={i} className={cn('border-b border-stone-100 dark:border-stone-800 last:border-b-0', i % 2 === 0 ? 'bg-white dark:bg-stone-900' : 'bg-stone-50/50')}>
+                  <tr key={i} className={cn('border-b border-stone-100 dark:border-stone-700 last:border-b-0', i % 2 === 0 ? 'bg-white dark:bg-stone-900' : 'bg-stone-50/50')}>
                     <td className="px-5 py-3 font-medium text-stone-800 dark:text-stone-200">{row.feature}</td>
                     <td className="px-5 py-3 text-center">
                       {row.essentials

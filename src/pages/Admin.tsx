@@ -777,7 +777,7 @@ export default function Admin() {
                       </BarChart>
                     </ResponsiveContainer>
                   </div>
-                  <div className="flex gap-4 mt-3 pt-3 border-t border-stone-100 dark:border-stone-800">
+                  <div className="flex gap-4 mt-3 pt-3 border-t border-stone-100 dark:border-stone-700">
                     <div className="text-center flex-1">
                       <p className={cn('text-lg font-bold', stats.funnel.signupToTrial >= 20 ? 'text-emerald-700' : stats.funnel.signupToTrial >= 10 ? 'text-amber-600' : 'text-red-600')}>{stats.funnel.signupToTrial}%</p>
                       <p className="text-[10px] text-stone-500 dark:text-stone-300">تسجيل ← تجريبي</p>
@@ -915,7 +915,7 @@ export default function Admin() {
                     {paged.map(u => {
                       const tl = u.subscription?.status === 'trial' ? trialLeft(u.subscription?.trial_ends_at ?? null) : null;
                       return (
-                        <tr key={u.id} className="border-b border-stone-100 dark:border-stone-800 hover:bg-stone-50 dark:hover:bg-stone-800">
+                        <tr key={u.id} className="border-b border-stone-100 dark:border-stone-700 hover:bg-stone-50 dark:hover:bg-stone-800">
                           <td className="px-3 py-2 font-mono text-xs"><button onClick={() => fetchUserDetail(u.id)} className="text-emerald-700 dark:text-emerald-400 hover:underline">{u.email}</button>{!u.confirmed && <span className="ms-1 text-[10px] text-amber-600">(غير مؤكد)</span>}</td>
                           <td className="px-3 py-2 text-xs"><span className={cn('rounded-full px-2 py-0.5 text-xs', u.provider === 'google' ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400' : 'bg-stone-100 dark:bg-stone-800 text-stone-600 dark:text-stone-300')}>{u.provider}</span></td>
                           <td className="px-3 py-2"><Badge status={u.subscription?.status ?? 'none'} /></td>
@@ -1056,7 +1056,7 @@ export default function Admin() {
               <button onClick={() => exportCSV('email_list')} className="flex items-center gap-1 rounded-lg border border-stone-200 dark:border-stone-600 px-3 py-1.5 text-xs font-medium text-stone-600 dark:text-stone-300 hover:bg-stone-50 dark:hover:bg-stone-800"><Download className="h-3.5 w-3.5" /> تصدير</button>
             </div>
             {stats.emailList.length === 0 ? <div className="rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 p-8 text-center"><Mail className="mx-auto h-8 w-8 text-stone-300 mb-2" /><p className="text-sm text-stone-500 dark:text-stone-300">لا يوجد مشتركين</p></div> :
-              <div className="overflow-x-auto rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900"><table className="w-full text-sm"><thead><tr className="border-b border-stone-200 dark:border-stone-600 bg-stone-50 dark:bg-stone-900"><th className={TH_CLASS}>البريد</th><th className={TH_CLASS}>التاريخ</th></tr></thead><tbody>{stats.emailList.map(e => <tr key={e.id} className="border-b border-stone-100 dark:border-stone-800 hover:bg-stone-50 dark:hover:bg-stone-800"><td className="px-3 py-2 font-mono text-xs">{e.email}</td><td className="px-3 py-2 text-xs text-stone-500 dark:text-stone-300">{timeAgo(e.created_at)}</td></tr>)}</tbody></table></div>}
+              <div className="overflow-x-auto rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900"><table className="w-full text-sm"><thead><tr className="border-b border-stone-200 dark:border-stone-600 bg-stone-50 dark:bg-stone-900"><th className={TH_CLASS}>البريد</th><th className={TH_CLASS}>التاريخ</th></tr></thead><tbody>{stats.emailList.map(e => <tr key={e.id} className="border-b border-stone-100 dark:border-stone-700 hover:bg-stone-50 dark:hover:bg-stone-800"><td className="px-3 py-2 font-mono text-xs">{e.email}</td><td className="px-3 py-2 text-xs text-stone-500 dark:text-stone-300">{timeAgo(e.created_at)}</td></tr>)}</tbody></table></div>}
           </div>
         )}
 
@@ -1072,7 +1072,7 @@ export default function Admin() {
               </div>
               {logs.length === 0 ? <div className="rounded-xl border border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-900/20 p-6 text-center"><AlertTriangle className="mx-auto h-8 w-8 text-amber-400 mb-2" /><p className="text-sm font-medium text-amber-800 dark:text-amber-300">لا توجد سجلات بريد</p><p className="text-xs text-amber-600 mt-1">قد لا يكون Resend مُعدّاً</p></div> : (
                 <><div className="overflow-x-auto rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900"><table className="w-full text-sm"><thead><tr className="border-b border-stone-200 dark:border-stone-600 bg-stone-50 dark:bg-stone-900"><th className={TH_CLASS}>إلى</th><th className={TH_CLASS}>النوع</th><th className={TH_CLASS}>الحالة</th><th className={TH_CLASS}>متى</th></tr></thead>
-                <tbody>{paged.map(l => <tr key={l.id} className="border-b border-stone-100 dark:border-stone-800 hover:bg-stone-50 dark:hover:bg-stone-800"><td className="px-3 py-2 font-mono text-xs">{l.email}</td><td className="px-3 py-2 text-xs"><span className="rounded-full bg-stone-100 dark:bg-stone-800 px-2 py-0.5 text-xs">{l.type}</span></td><td className="px-3 py-2"><span className={cn('rounded-full px-2 py-0.5 text-xs font-medium', l.status === 'sent' ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400' : 'bg-red-100 text-red-700 dark:text-red-400')}>{l.status}</span></td><td className="px-3 py-2 text-xs text-stone-500 dark:text-stone-300">{timeAgo(l.created_at)}</td></tr>)}</tbody></table></div>
+                <tbody>{paged.map(l => <tr key={l.id} className="border-b border-stone-100 dark:border-stone-700 hover:bg-stone-50 dark:hover:bg-stone-800"><td className="px-3 py-2 font-mono text-xs">{l.email}</td><td className="px-3 py-2 text-xs"><span className="rounded-full bg-stone-100 dark:bg-stone-800 px-2 py-0.5 text-xs">{l.type}</span></td><td className="px-3 py-2"><span className={cn('rounded-full px-2 py-0.5 text-xs font-medium', l.status === 'sent' ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400' : 'bg-red-100 text-red-700 dark:text-red-400')}>{l.status}</span></td><td className="px-3 py-2 text-xs text-stone-500 dark:text-stone-300">{timeAgo(l.created_at)}</td></tr>)}</tbody></table></div>
                 <Pagination page={emailLogsPage} total={logs.length} onChange={setEmailLogsPage} /></>)}
             </div>
           );
@@ -1093,7 +1093,7 @@ export default function Admin() {
             )}
             {stats.webhookEvents.length === 0 ? <div className="rounded-xl border border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-900/20 p-6 text-center"><AlertTriangle className="mx-auto h-8 w-8 text-amber-400 mb-2" /><p className="text-sm font-medium text-amber-800 dark:text-amber-300">لم يتم تسجيل أحداث</p><p className="text-xs text-amber-600 mt-1">قد لا تكون Stripe webhooks مُعدّة</p></div> :
               <div className="overflow-x-auto rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900"><table className="w-full text-sm"><thead><tr className="border-b border-stone-200 dark:border-stone-600 bg-stone-50 dark:bg-stone-900"><th className={TH_CLASS}>الحدث</th><th className={TH_CLASS}>المعرّف</th><th className={TH_CLASS}>متى</th></tr></thead>
-              <tbody>{stats.webhookEvents.map(ev => <tr key={ev.event_id} className="border-b border-stone-100 dark:border-stone-800 hover:bg-stone-50 dark:hover:bg-stone-800"><td className="px-3 py-2 text-xs"><span className={cn('rounded-full px-2 py-0.5 text-xs font-medium', ev.event_type.includes('succeeded') || ev.event_type.includes('paid') ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400' : ev.event_type.includes('failed') ? 'bg-red-100 text-red-700 dark:text-red-400' : 'bg-stone-100 dark:bg-stone-800 text-stone-700 dark:text-stone-200')}>{ev.event_type}</span></td><td className="px-3 py-2 font-mono text-xs text-stone-500 dark:text-stone-300">{ev.event_id?.slice(0, 24)}</td><td className="px-3 py-2 text-xs text-stone-500 dark:text-stone-300">{timeAgo(ev.processed_at)}</td></tr>)}</tbody></table></div>}
+              <tbody>{stats.webhookEvents.map(ev => <tr key={ev.event_id} className="border-b border-stone-100 dark:border-stone-700 hover:bg-stone-50 dark:hover:bg-stone-800"><td className="px-3 py-2 text-xs"><span className={cn('rounded-full px-2 py-0.5 text-xs font-medium', ev.event_type.includes('succeeded') || ev.event_type.includes('paid') ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400' : ev.event_type.includes('failed') ? 'bg-red-100 text-red-700 dark:text-red-400' : 'bg-stone-100 dark:bg-stone-800 text-stone-700 dark:text-stone-200')}>{ev.event_type}</span></td><td className="px-3 py-2 font-mono text-xs text-stone-500 dark:text-stone-300">{ev.event_id?.slice(0, 24)}</td><td className="px-3 py-2 text-xs text-stone-500 dark:text-stone-300">{timeAgo(ev.processed_at)}</td></tr>)}</tbody></table></div>}
           </div>
           );
         })()}
@@ -1183,7 +1183,7 @@ export default function Admin() {
                     </thead>
                     <tbody>
                       {auditLog.slice((auditPage - 1) * PER_PAGE, auditPage * PER_PAGE).map(entry => (
-                        <tr key={entry.id} className="border-b border-stone-100 dark:border-stone-800 hover:bg-stone-50 dark:hover:bg-stone-800">
+                        <tr key={entry.id} className="border-b border-stone-100 dark:border-stone-700 hover:bg-stone-50 dark:hover:bg-stone-800">
                           <td className="px-3 py-2 text-xs text-stone-500 dark:text-stone-300 whitespace-nowrap">{new Date(entry.created_at).toLocaleString('en-GB')}</td>
                           <td className="px-3 py-2 font-mono text-xs">{entry.admin_email}</td>
                           <td className="px-3 py-2 text-xs"><span className="rounded-full bg-stone-100 dark:bg-stone-800 px-2 py-0.5 text-xs font-medium text-stone-700 dark:text-stone-200">{entry.action}</span></td>
@@ -1443,7 +1443,7 @@ export default function Admin() {
                             <th className="px-2 py-1.5 text-start font-medium text-stone-600 dark:text-stone-300">التاريخ</th>
                           </tr></thead>
                           <tbody>{ud.injection_logs.map((l, i) => (
-                            <tr key={i} className="border-b border-stone-100 dark:border-stone-800">
+                            <tr key={i} className="border-b border-stone-100 dark:border-stone-700">
                               <td className="px-2 py-1.5">{String(l.peptide_name ?? l.protocol_name ?? '—')}</td>
                               <td className="px-2 py-1.5">{String(l.dose ?? l.dosage ?? '—')}{l.unit ? ` ${l.unit}` : ''}</td>
                               <td className="px-2 py-1.5">{String(l.injection_site ?? l.site ?? '—')}</td>
@@ -1469,7 +1469,7 @@ export default function Admin() {
                             <th className="px-2 py-1.5 text-start font-medium text-stone-600 dark:text-stone-300">التاريخ</th>
                           </tr></thead>
                           <tbody>{ud.wellness_logs.map((l, i) => (
-                            <tr key={i} className="border-b border-stone-100 dark:border-stone-800">
+                            <tr key={i} className="border-b border-stone-100 dark:border-stone-700">
                               <td className="px-2 py-1.5">{String(l.energy ?? l.energy_level ?? '—')}</td>
                               <td className="px-2 py-1.5">{String(l.sleep ?? l.sleep_quality ?? '—')}</td>
                               <td className="px-2 py-1.5">{String(l.mood ?? '—')}</td>
@@ -1488,7 +1488,7 @@ export default function Admin() {
                     {ud.side_effect_logs.length === 0 ? <p className="text-sm text-stone-400">لا يوجد</p> : (
                       <ul className="space-y-1">
                         {ud.side_effect_logs.map((s, i) => (
-                          <li key={i} className="rounded-lg border border-stone-100 dark:border-stone-800 px-3 py-2 text-xs">
+                          <li key={i} className="rounded-lg border border-stone-100 dark:border-stone-700 px-3 py-2 text-xs">
                             <span className="font-medium">{String(s.side_effect ?? s.effect ?? s.type ?? '—')}</span>
                             {s.severity && <span className={cn('ms-2 rounded-full px-2 py-0.5 text-[10px] font-medium', String(s.severity) === 'severe' ? 'bg-red-100 text-red-700 dark:text-red-400' : String(s.severity) === 'moderate' ? 'bg-amber-100 text-amber-700 dark:text-amber-400' : 'bg-stone-100 dark:bg-stone-800 text-stone-600 dark:text-stone-300')}>{String(s.severity)}</span>}
                             {s.notes && <span className="ms-2 text-stone-500 dark:text-stone-300">{String(s.notes)}</span>}
@@ -1505,7 +1505,7 @@ export default function Admin() {
                     {ud.user_protocols.length === 0 ? <p className="text-sm text-stone-400">لا يوجد</p> : (
                       <ul className="space-y-1">
                         {ud.user_protocols.map((p, i) => (
-                          <li key={i} className="flex items-center justify-between rounded-lg border border-stone-100 dark:border-stone-800 px-3 py-2 text-xs">
+                          <li key={i} className="flex items-center justify-between rounded-lg border border-stone-100 dark:border-stone-700 px-3 py-2 text-xs">
                             <span className="font-medium">{String(p.protocol_name ?? p.name ?? p.peptide_name ?? '—')}</span>
                             {p.status && <Badge status={String(p.status)} />}
                           </li>
@@ -1520,7 +1520,7 @@ export default function Admin() {
                       <h4 className="text-xs font-bold text-stone-500 dark:text-stone-300 uppercase tracking-wide mb-2">الاستفسارات ({ud.enquiries.length})</h4>
                       <ul className="space-y-1">
                         {ud.enquiries.map((eq, i) => (
-                          <li key={i} className="rounded-lg border border-stone-100 dark:border-stone-800 px-3 py-2 text-xs">
+                          <li key={i} className="rounded-lg border border-stone-100 dark:border-stone-700 px-3 py-2 text-xs">
                             <span className="font-medium">{String(eq.subject ?? '—')}</span>
                             <span className={cn('ms-2 rounded-full px-2 py-0.5 text-[10px] font-medium', eq.status === 'pending' ? 'bg-amber-100 text-amber-700 dark:text-amber-400' : 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400')}>{String(eq.status)}</span>
                             <span className="ms-2 text-stone-400">{eq.created_at ? timeAgo(String(eq.created_at)) : ''}</span>
@@ -1536,7 +1536,7 @@ export default function Admin() {
                       <h4 className="text-xs font-bold text-stone-500 dark:text-stone-300 uppercase tracking-wide mb-2">سجلات البريد ({ud.email_logs.length})</h4>
                       <ul className="space-y-1">
                         {ud.email_logs.map((el, i) => (
-                          <li key={i} className="flex items-center justify-between rounded-lg border border-stone-100 dark:border-stone-800 px-3 py-2 text-xs">
+                          <li key={i} className="flex items-center justify-between rounded-lg border border-stone-100 dark:border-stone-700 px-3 py-2 text-xs">
                             <span>{String(el.type ?? '—')}</span>
                             <span className={cn('rounded-full px-2 py-0.5 text-[10px] font-medium', el.status === 'sent' ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400' : 'bg-red-100 text-red-700 dark:text-red-400')}>{String(el.status)}</span>
                             <span className="text-stone-400">{el.created_at ? timeAgo(String(el.created_at)) : ''}</span>
@@ -1554,7 +1554,7 @@ export default function Admin() {
                     ) : userNotes.length > 0 ? (
                       <ul className="space-y-2 mb-3">
                         {userNotes.map(n => (
-                          <li key={n.id} className="rounded-lg border border-stone-100 dark:border-stone-800 px-3 py-2">
+                          <li key={n.id} className="rounded-lg border border-stone-100 dark:border-stone-700 px-3 py-2">
                             <p className="text-sm text-stone-800 dark:text-stone-200 whitespace-pre-wrap">{n.note}</p>
                             <div className="mt-1 flex items-center gap-2 text-[10px] text-stone-400">
                               <span className="font-mono">{n.admin_email}</span>

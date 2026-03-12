@@ -773,7 +773,7 @@ export default function Login() {
 
               {/* Terms & Privacy acceptance — shown on signup tab */}
               {tab === 'signup' && (
-                <p className="text-center text-xs text-stone-500 dark:text-stone-400 leading-relaxed">
+                <p className="text-center text-xs text-stone-500 dark:text-stone-300 leading-relaxed">
                   بإنشاء حساب، أنت توافق على{' '}
                   <a href="/terms" target="_blank" rel="noopener noreferrer" className="text-emerald-700 hover:underline">
                     شروط الاستخدام

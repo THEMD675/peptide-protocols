@@ -214,7 +214,7 @@ function PeptideMultiSelect({
       </div>
       {open && (
         <div className="absolute inset-x-0 top-full z-50 mt-1 max-h-60 overflow-auto rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 shadow-lg">
-          <div className="sticky top-0 bg-white dark:bg-stone-900 p-2 border-b border-stone-100 dark:border-stone-800">
+          <div className="sticky top-0 bg-white dark:bg-stone-900 p-2 border-b border-stone-100 dark:border-stone-700">
             <input
               type="text"
               value={search}
@@ -1004,7 +1004,7 @@ export default function Community() {
                   {searchQuery && (
                     <button
                       onClick={() => setSearchQuery('')}
-                      className="absolute end-3 top-1/2 -translate-y-1/2 rounded p-1 text-stone-400 dark:text-stone-500 hover:text-stone-600 dark:hover:text-stone-400 transition-colors"
+                      className="absolute end-3 top-1/2 -translate-y-1/2 rounded p-1 text-stone-400 dark:text-stone-300 hover:text-stone-600 dark:hover:text-stone-400 transition-colors"
                       aria-label="مسح البحث"
                     >
                       <X className="h-4 w-4" />
@@ -1149,7 +1149,7 @@ export default function Community() {
                 {displayedLogs.length === 0 && isShowingSeeds && (
                   <div className="rounded-2xl border border-stone-200 dark:border-stone-600 bg-stone-50 dark:bg-stone-900/50 px-6 py-12 text-center">
                     <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-stone-100 dark:bg-stone-800">
-                      <MessageSquare className="h-7 w-7 text-stone-400 dark:text-stone-500" />
+                      <MessageSquare className="h-7 w-7 text-stone-400 dark:text-stone-300" />
                     </div>
                     <p className="text-base font-bold text-stone-800 dark:text-stone-200">لا توجد تجارب لهذا الهدف بعد</p>
                     <p className="mt-1.5 text-sm text-stone-500 dark:text-stone-300">كن أول من يشارك تجربته وتُلهم الآخرين</p>
@@ -1309,7 +1309,7 @@ export default function Community() {
                       </div>
 
                       {/* Footer: meta + actions */}
-                      <div className="mt-4 flex items-center justify-between border-t border-stone-100 dark:border-stone-800 pt-3">
+                      <div className="mt-4 flex items-center justify-between border-t border-stone-100 dark:border-stone-700 pt-3">
                         <div className="flex items-center gap-4 text-xs text-stone-500 dark:text-stone-300">
                           <span className="flex items-center gap-1">
                             <Clock className="h-3.5 w-3.5" />
@@ -1377,7 +1377,7 @@ export default function Community() {
 
                       {/* Replies thread */}
                       {!isSeed && expandedReplies.has(log.id) && (
-                        <div className="mt-3 space-y-3 border-t border-stone-100 dark:border-stone-800 pt-3">
+                        <div className="mt-3 space-y-3 border-t border-stone-100 dark:border-stone-700 pt-3">
                           {loadingReplies.has(log.id) ? (
                             <div className="flex items-center gap-2 text-sm text-stone-400">
                               <span className="h-4 w-4 animate-spin rounded-full border-2 border-stone-200 dark:border-stone-600 border-t-emerald-500" />
@@ -1386,7 +1386,7 @@ export default function Community() {
                           ) : (
                             <>
                               {(repliesByPost[log.id] ?? []).length === 0 && (
-                                <p className="py-2 text-sm text-stone-400 dark:text-stone-500 italic flex items-center gap-1.5">لا توجد ردود بعد — كن أول من يرد! <MessageCircle className="h-4 w-4" /></p>
+                                <p className="py-2 text-sm text-stone-400 dark:text-stone-300 italic flex items-center gap-1.5">لا توجد ردود بعد — كن أول من يرد! <MessageCircle className="h-4 w-4" /></p>
                               )}
                               {(repliesByPost[log.id] ?? []).map(reply => (
                                 <div key={reply.id} className="flex gap-2.5 rounded-xl bg-stone-50 dark:bg-stone-900 p-3">
@@ -1433,7 +1433,7 @@ export default function Community() {
                                                 toast.success('تم الإبلاغ — سنراجع الرد');
                                               }
                                             }}
-                                            className="rounded p-1.5 min-h-[44px] min-w-[44px] flex items-center justify-center text-stone-200 dark:text-stone-600 hover:bg-red-50 dark:hover:bg-red-900/20 hover:text-red-400 dark:hover:text-red-400 transition-colors"
+                                            className="rounded p-1.5 min-h-[44px] min-w-[44px] flex items-center justify-center text-stone-200 dark:text-stone-400 hover:bg-red-50 dark:hover:bg-red-900/20 hover:text-red-400 dark:hover:text-red-400 transition-colors"
                                             aria-label="إبلاغ عن الرد"
                                           >
                                             <Flag className="h-3 w-3" />

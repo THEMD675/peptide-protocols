@@ -545,7 +545,7 @@ export default function PeptideQuiz() {
 
   if (phase === 'welcome') {
     return (
-      <div className="rounded-2xl border border-stone-200 dark:border-stone-800 bg-gradient-to-b from-stone-50 to-white dark:from-stone-900 dark:to-stone-950 p-8 md:p-10 shadow-xl shadow-emerald-900/5">
+      <div className="rounded-2xl border border-stone-200 dark:border-stone-700 bg-gradient-to-b from-stone-50 to-white dark:from-stone-900 dark:to-stone-950 p-8 md:p-10 shadow-xl shadow-emerald-900/5">
         {/* Icon cluster */}
         <div className="flex justify-center mb-8">
           <div className="relative">
@@ -707,7 +707,7 @@ export default function PeptideQuiz() {
               {result.supporting.map(sp => {
                 const spData = allPeptides.find(p => p.id === sp.peptideId);
                 return (
-                  <div key={sp.peptideId} className="rounded-xl border border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-900 p-4">
+                  <div key={sp.peptideId} className="rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-900 p-4">
                     <div className="flex items-center justify-between mb-1">
                       <h4 className="text-base font-bold text-stone-900 dark:text-stone-100">{sp.nameAr}</h4>
                       <span className="text-xs text-stone-400" dir="ltr">{sp.nameEn}</span>
@@ -777,7 +777,7 @@ export default function PeptideQuiz() {
           </div>
 
           {/* Share */}
-          <div className="mt-4 pt-4 border-t border-stone-200 dark:border-stone-800">
+          <div className="mt-4 pt-4 border-t border-stone-200 dark:border-stone-700">
             <p className="text-xs text-stone-400 dark:text-stone-300 mb-2 text-center">شارك نتيجتك</p>
             <ShareButtons
               url={`${SITE_URL}/quiz`}
@@ -789,7 +789,7 @@ export default function PeptideQuiz() {
 
           {/* Supporting links */}
           {result.supporting.length > 0 && (
-            <div className="mt-4 pt-3 border-t border-stone-200 dark:border-stone-800">
+            <div className="mt-4 pt-3 border-t border-stone-200 dark:border-stone-700">
               <p className="text-xs text-stone-400 dark:text-stone-300 mb-2">تعرّف على الببتيدات الداعمة:</p>
               <div className="flex flex-wrap gap-2">
                 {result.supporting.map(sp => (
@@ -863,7 +863,7 @@ export default function PeptideQuiz() {
   const progress = ((step + 1) / STEPS.length) * 100;
 
   return (
-    <div className="rounded-2xl border border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-900 p-6 md:p-8 shadow-xl shadow-emerald-900/5">
+    <div className="rounded-2xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-900 p-6 md:p-8 shadow-xl shadow-emerald-900/5">
       {/* Header */}
       <div className="flex items-center justify-between mb-5">
         <button
@@ -924,7 +924,7 @@ export default function PeptideQuiz() {
                       : 'flex items-center gap-3 px-5 py-3.5',
                     isSelected
                       ? 'border-emerald-400 dark:border-emerald-600 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-800 dark:text-emerald-300 ring-2 ring-emerald-200 dark:ring-emerald-800'
-                      : 'border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-900 text-stone-800 dark:text-stone-200 hover:border-emerald-300 dark:hover:border-emerald-700 hover:bg-stone-50 dark:hover:bg-stone-900',
+                      : 'border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-900 text-stone-800 dark:text-stone-200 hover:border-emerald-300 dark:hover:border-emerald-700 hover:bg-stone-50 dark:hover:bg-stone-900',
                   )}
                 >
                   {Icon && (

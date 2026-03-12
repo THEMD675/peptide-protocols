@@ -124,7 +124,7 @@ export default function TrackerStats({
                 </>
               ) : (
                 <>
-                  <p className="text-lg font-black text-stone-400 dark:text-stone-500">—</p>
+                  <p className="text-lg font-black text-stone-400 dark:text-stone-300">—</p>
                   <p className="text-xs text-stone-500 dark:text-stone-300">متوسط الجرعة (ببتيدات متعددة)</p>
                 </>
               )}

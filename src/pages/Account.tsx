@@ -1400,7 +1400,7 @@ function ReferralSection({ userId }: { userId?: string }) {
       <div className="mt-4 rounded-xl bg-stone-50 dark:bg-stone-900 p-3">
         <div className="flex items-center justify-between mb-2">
           <p className="text-xs font-bold text-stone-600 dark:text-stone-300">حد المكافآت: 5 إحالات</p>
-          <p className="text-xs font-mono text-stone-500 dark:text-stone-400">{Math.min(stats.rewarded, 5)}/5</p>
+          <p className="text-xs font-mono text-stone-500 dark:text-stone-300">{Math.min(stats.rewarded, 5)}/5</p>
         </div>
         <div className="w-full h-2 rounded-full bg-stone-200 dark:bg-stone-700 overflow-hidden">
           <div
@@ -1409,7 +1409,7 @@ function ReferralSection({ userId }: { userId?: string }) {
           />
         </div>
         {stats.rewarded >= 5 && (
-          <p className="text-[11px] text-amber-600 dark:text-amber-400 mt-1.5 text-center">🎉 وصلت للحد الأقصى من المكافآت!</p>
+          <p className="text-[11px] text-amber-600 dark:text-amber-400 mt-1.5 text-center">وصلت للحد الأقصى من المكافآت!</p>
         )}
       </div>
 

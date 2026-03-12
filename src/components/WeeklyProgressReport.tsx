@@ -149,7 +149,7 @@ export default function WeeklyProgressReport() {
           {/* Stats Grid */}
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
             {/* Injections This Week */}
-            <div className="rounded-xl border border-stone-100 dark:border-stone-800 bg-white dark:bg-stone-900 p-3 text-center">
+            <div className="rounded-xl border border-stone-100 dark:border-stone-700 bg-white dark:bg-stone-900 p-3 text-center">
               <Syringe className="mx-auto mb-1 h-5 w-5 text-emerald-500" />
               <p className="text-2xl font-black text-stone-900 dark:text-stone-100">{data.injectionsThisWeek}</p>
               <p className="text-[10px] text-stone-500 dark:text-stone-300">حقنة هذا الأسبوع</p>
@@ -161,7 +161,7 @@ export default function WeeklyProgressReport() {
             </div>
 
             {/* Streak */}
-            <div className="rounded-xl border border-stone-100 dark:border-stone-800 bg-white dark:bg-stone-900 p-3 text-center">
+            <div className="rounded-xl border border-stone-100 dark:border-stone-700 bg-white dark:bg-stone-900 p-3 text-center">
               <Flame className="mx-auto mb-1 h-5 w-5 text-orange-500" />
               <p className="text-2xl font-black text-stone-900 dark:text-stone-100">{data.streak}</p>
               <p className="text-[10px] text-stone-500 dark:text-stone-300">يوم متتالي</p>
@@ -169,7 +169,7 @@ export default function WeeklyProgressReport() {
 
             {/* Mood */}
             {data.avgMood > 0 && (
-              <div className="rounded-xl border border-stone-100 dark:border-stone-800 bg-white dark:bg-stone-900 p-3 text-center">
+              <div className="rounded-xl border border-stone-100 dark:border-stone-700 bg-white dark:bg-stone-900 p-3 text-center">
                 <Sparkles className="mx-auto mb-1 h-5 w-5 text-purple-500" />
                 <p className="text-2xl font-black text-stone-900 dark:text-stone-100">{data.avgMood}</p>
                 <p className="text-[10px] text-stone-500 dark:text-stone-300">معدل المزاج</p>
@@ -178,7 +178,7 @@ export default function WeeklyProgressReport() {
 
             {/* Energy */}
             {data.avgEnergy > 0 && (
-              <div className="rounded-xl border border-stone-100 dark:border-stone-800 bg-white dark:bg-stone-900 p-3 text-center">
+              <div className="rounded-xl border border-stone-100 dark:border-stone-700 bg-white dark:bg-stone-900 p-3 text-center">
                 <TrendingUp className="mx-auto mb-1 h-5 w-5 text-blue-500" />
                 <p className="text-2xl font-black text-stone-900 dark:text-stone-100">{data.avgEnergy}</p>
                 <p className="text-[10px] text-stone-500 dark:text-stone-300">معدل الطاقة</p>

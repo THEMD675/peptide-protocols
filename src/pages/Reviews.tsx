@@ -428,7 +428,7 @@ export default function Reviews() {
               {/* Stars decoration */}
               <div className="mb-5 flex items-center justify-center gap-1" dir="ltr" aria-hidden="true">
                 {[1,2,3,4,5].map(s => (
-                  <Star key={s} className="h-7 w-7 fill-emerald-300 text-emerald-300 dark:fill-emerald-700 dark:text-emerald-700" />
+                  <Star key={s} className="h-7 w-7 fill-emerald-300 text-emerald-300 dark:fill-emerald-400 dark:text-emerald-400" />
                 ))}
               </div>
               <div className="mx-auto mb-5 flex h-20 w-20 items-center justify-center rounded-2xl bg-emerald-100 dark:bg-emerald-900/30 ring-2 ring-emerald-200 dark:ring-emerald-800">

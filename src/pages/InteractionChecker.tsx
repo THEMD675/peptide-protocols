@@ -243,7 +243,7 @@ export default function InteractionChecker() {
 
         {filledPeptides.length < 2 && (
           <div className="rounded-2xl border-2 border-dashed border-stone-200 dark:border-stone-600 bg-stone-50 dark:bg-stone-900 py-12 text-center">
-            <Shield className="mx-auto mb-3 h-10 w-10 text-stone-300 dark:text-stone-600" />
+            <Shield className="mx-auto mb-3 h-10 w-10 text-stone-300 dark:text-stone-400" />
             <p className="text-sm font-bold text-stone-600 dark:text-stone-300">اختر ببتيدين أو أكثر لفحص التعارضات بينهما</p>
             <p className="mt-1 text-sm text-stone-500 dark:text-stone-300">نتحقق من أمان الدمج بناءً على آليات العمل والأدلة العلمية</p>
           </div>

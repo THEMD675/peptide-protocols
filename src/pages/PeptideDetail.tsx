@@ -488,10 +488,10 @@ export default function PeptideDetail() {
                 <BookOpen className="h-5 w-5 text-emerald-700" />
                 <h3 className="text-lg font-bold text-stone-900 dark:text-stone-100">
                   المراجع العلمية
-                  <span className="mr-2 text-sm font-normal text-stone-500 dark:text-stone-400">({peptide.pubmedIds.length} مرجع)</span>
+                  <span className="mr-2 text-sm font-normal text-stone-500 dark:text-stone-300">({peptide.pubmedIds.length} مرجع)</span>
                 </h3>
               </div>
-              <p className="mb-3 text-xs text-stone-500 dark:text-stone-400 flex items-center gap-1.5">
+              <p className="mb-3 text-xs text-stone-500 dark:text-stone-300 flex items-center gap-1.5">
                 <ExternalLink className="h-3 w-3 shrink-0" />
                 جميع المراجع أدناه مرتبطة مباشرةً بقاعدة بيانات PubMed (NCBI) — اضغط للتحقق والاطلاع على الدراسة الأصلية
               </p>
@@ -578,7 +578,7 @@ export default function PeptideDetail() {
               >
                 افتح البروتوكول الكامل — {PRICING.essentials.label}/شهريًا
               </Link>
-              <p className="text-xs text-stone-400 dark:text-stone-400">وصول فوري إلى {PEPTIDE_COUNT}+ ببتيد • إلغاء في أي وقت</p>
+              <p className="text-xs text-stone-400 dark:text-stone-300">وصول فوري إلى {PEPTIDE_COUNT}+ ببتيد • إلغاء في أي وقت</p>
             </div>
           </div>
 

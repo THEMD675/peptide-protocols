@@ -73,7 +73,7 @@ export default function FeatureComparisonTable() {
               <tr
                 key={row.feature}
                 className={cn(
-                  'border-b border-stone-100 dark:border-stone-800 last:border-b-0 transition-colors',
+                  'border-b border-stone-100 dark:border-stone-700 last:border-b-0 transition-colors',
                   i % 2 === 0 ? 'bg-white dark:bg-stone-900' : 'bg-stone-50/50 dark:bg-stone-900/30'
                 )}
               >

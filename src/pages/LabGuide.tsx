@@ -458,7 +458,7 @@ function InteractiveReferenceRanges({ isPro, blurClass }: { isPro: boolean; blur
               </button>
 
               {isExpanded && (
-                <div className={cn('border-t border-stone-100 dark:border-stone-800 p-4 space-y-3', blurClass)} aria-hidden={!isPro || undefined}>
+                <div className={cn('border-t border-stone-100 dark:border-stone-700 p-4 space-y-3', blurClass)} aria-hidden={!isPro || undefined}>
                   <div className="grid gap-3 sm:grid-cols-2">
                     <div className="rounded-xl bg-amber-50 dark:bg-amber-900/20 p-3">
                       <div className="flex items-center gap-1.5 mb-1">
@@ -881,7 +881,7 @@ function LabLocator() {
               </div>
             </div>
 
-            <div className="mt-3 pt-3 border-t border-stone-100 dark:border-stone-800">
+            <div className="mt-3 pt-3 border-t border-stone-100 dark:border-stone-700">
               <p className="text-[11px] text-stone-500 dark:text-stone-300 text-center">{lab.notes}</p>
               {lab.homeVisit && (
                 <div className="mt-2 flex items-center justify-center gap-1 text-[10px] text-emerald-700">

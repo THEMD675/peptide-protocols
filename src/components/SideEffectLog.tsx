@@ -175,7 +175,7 @@ export default function SideEffectLog() {
       </button>
 
       {isOpen && (
-        <div className="border-t border-stone-100 dark:border-stone-800 p-5 pt-4 space-y-5">
+        <div className="border-t border-stone-100 dark:border-stone-700 p-5 pt-4 space-y-5">
           {/* Quick-add form */}
           <div className="space-y-3">
             <div>
@@ -282,7 +282,7 @@ export default function SideEffectLog() {
                 return (
                   <div
                     key={entry.id}
-                    className="flex items-start justify-between rounded-xl border border-stone-100 dark:border-stone-800 bg-stone-50 dark:bg-stone-900 px-4 py-3"
+                    className="flex items-start justify-between rounded-xl border border-stone-100 dark:border-stone-700 bg-stone-50 dark:bg-stone-900 px-4 py-3"
                   >
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 flex-wrap">
@@ -340,7 +340,7 @@ export default function SideEffectLog() {
               });
             if (correlated.length === 0) return null;
             return (
-              <div className="mt-4 pt-4 border-t border-stone-100 dark:border-stone-800">
+              <div className="mt-4 pt-4 border-t border-stone-100 dark:border-stone-700">
                 <h4 className="text-xs font-bold text-stone-500 dark:text-stone-300 mb-2">ملخص الارتباط</h4>
                 <div className="space-y-1.5">
                   {correlated.map(({ name, count }) => (

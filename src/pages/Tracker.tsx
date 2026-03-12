@@ -620,7 +620,7 @@ export default function Tracker() {
                 <div key={idx}>
                   <div className="flex items-center justify-between mb-1">
                     <span className="text-xs font-bold text-stone-700 dark:text-stone-200">{item.nameAr}</span>
-                    <span className="text-xs text-stone-500 dark:text-stone-400">
+                    <span className="text-xs text-stone-500 dark:text-stone-300">
                       {item.actual}/{item.expected} حقنة
                       {item.missed > 0 && (
                         <span className="ms-2 text-red-500 font-bold">({item.missed} فائتة)</span>

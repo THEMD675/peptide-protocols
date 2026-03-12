@@ -777,18 +777,18 @@ export default function StackBuilder() {
             <Target className="h-6 w-6 text-stone-400" />
           </div>
           <h4 className="text-base font-bold text-stone-700 dark:text-stone-200 mb-1">لم تختر أي ببتيد بعد</h4>
-          <p className="text-sm text-stone-500 dark:text-stone-400 mb-5">ابدأ ببساطة — اتبع الخطوات التالية:</p>
+          <p className="text-sm text-stone-500 dark:text-stone-300 mb-5">ابدأ ببساطة — اتبع الخطوات التالية:</p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3 text-start">
             <div className="flex items-start gap-2 rounded-xl bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-700 px-4 py-3 max-w-[200px]">
               <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-emerald-500 text-xs font-bold text-white">١</span>
               <span className="text-xs text-stone-600 dark:text-stone-300">اختر هدفك من الكروت أعلاه</span>
             </div>
-            <div className="text-stone-300 dark:text-stone-600 text-lg hidden sm:block">←</div>
+            <div className="text-stone-300 dark:text-stone-400 text-lg hidden sm:block">←</div>
             <div className="flex items-start gap-2 rounded-xl bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-700 px-4 py-3 max-w-[200px]">
               <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-emerald-500 text-xs font-bold text-white">٢</span>
               <span className="text-xs text-stone-600 dark:text-stone-300">أو اختر ببتيدات يدويًا من القائمة</span>
             </div>
-            <div className="text-stone-300 dark:text-stone-600 text-lg hidden sm:block">←</div>
+            <div className="text-stone-300 dark:text-stone-400 text-lg hidden sm:block">←</div>
             <div className="flex items-start gap-2 rounded-xl bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-700 px-4 py-3 max-w-[200px]">
               <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-emerald-500 text-xs font-bold text-white">٣</span>
               <span className="text-xs text-stone-600 dark:text-stone-300">راجع السلامة والتكلفة والجدول</span>
@@ -816,7 +816,7 @@ export default function StackBuilder() {
               {selectedIds.length >= 2 && <SafetyBadge safety={overallSafety} />}
             </div>
             {selectedIds.length < 2 ? (
-              <p className="text-sm text-stone-500 dark:text-stone-400 flex items-center gap-2">
+              <p className="text-sm text-stone-500 dark:text-stone-300 flex items-center gap-2">
                 <AlertTriangle className="h-4 w-4 text-amber-400 shrink-0" />
                 أضف ببتيدًا ثانيًا لفحص التفاعلات بين الببتيدات المختارة.
               </p>

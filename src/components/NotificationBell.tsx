@@ -107,7 +107,7 @@ export default function NotificationBell() {
 
       {open && (
         <div className="absolute end-0 top-full z-50 mt-2 w-[calc(100vw-2rem)] max-w-sm overflow-hidden rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 shadow-xl dark:shadow-stone-900/40 animate-fade-in">
-          <div className="flex items-center justify-between border-b border-stone-100 dark:border-stone-800 px-4 py-3">
+          <div className="flex items-center justify-between border-b border-stone-100 dark:border-stone-700 px-4 py-3">
             <h3 className="text-sm font-bold text-stone-900 dark:text-stone-100">الإشعارات</h3>
             {unreadCount > 0 && (
               <button
