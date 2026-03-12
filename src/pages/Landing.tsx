@@ -279,7 +279,7 @@ export default function Landing() {
             '@context': 'https://schema.org',
             '@type': 'Product',
             name: 'pptides — المتقدّمة',
-            description: 'اشتراك شهري يتضمن كل مزايا الأساسية بالإضافة إلى مدرب ذكي بالذكاء الاصطناعي 24/7، بروتوكولات مخصّصة، واستشارات غير محدودة.',
+            description: 'اشتراك شهري يتضمن كل مزايا الأساسية بالإضافة إلى مدرب ذكي بالذكاء الاصطناعي 24/7، بروتوكولات مخصّصة، وعدد كبير من الاستشارات اليومية.',
             url: `${SITE_URL}/pricing`,
             brand: { '@type': 'Brand', name: 'pptides' },
             offers: {
@@ -334,7 +334,7 @@ export default function Landing() {
           <div className="flex flex-col items-center justify-center gap-3 sm:flex-row sm:gap-4">
             <Link
               to={ctaLink}
-              aria-label={user ? 'اشترك الآن في pptides' : `ابدأ تجربتك المجانية ${TRIAL_DAYS} أيام في pptides`}
+              aria-label={isSubscriber ? 'الذهاب إلى لوحة التحكم' : user ? 'اختر خطتك في pptides' : `ابدأ تجربتك المجانية ${TRIAL_DAYS} أيام في pptides`}
               className="btn-cta-gradient btn-hero inline-flex w-full max-w-sm items-center justify-center gap-3 rounded-full font-extrabold text-white sm:w-auto"
             >
               <span>{ctaText}</span>
@@ -612,7 +612,7 @@ export default function Landing() {
                     شاهد البطاقة كاملة
                   </Link>
                   <Link to={ctaLink} className="rounded-full bg-emerald-600 px-4 py-2 min-h-[44px] inline-flex items-center text-sm font-bold text-white transition-colors hover:bg-emerald-700 active:scale-[0.98]">
-                    {user ? 'اشترك الآن' : 'ابدأ تجربتك المجانية'}
+                    {ctaTextShort}
                   </Link>
                 </div>
               </div>
@@ -879,7 +879,7 @@ export default function Landing() {
                   'كل مزايا الأساسية',
                   'مدرب ذكي بالذكاء الاصطناعي 24/7',
                   'بروتوكولات مخصّصة لأهدافك',
-                  'استشارات غير محدودة',
+                  'عدد كبير من الاستشارات اليومية',
                   'دعم مخصّص عبر البريد',
                 ].map((f) => (
                   <li key={f} className="flex items-start gap-3 text-sm text-stone-800 dark:text-stone-200">
@@ -1010,7 +1010,7 @@ export default function Landing() {
             to={ctaLink}
             className="btn-cta-gradient btn-hero inline-flex items-center justify-center gap-3 rounded-full font-extrabold text-white"
           >
-            <span>{user ? "اشترك الآن" : "ابدأ تجربتك المجانية"}</span>
+            <span>{ctaText}</span>
             <ArrowLeft className="h-6 w-6" />
           </Link>
           <div className="mt-5 flex flex-wrap items-center justify-center gap-3">
