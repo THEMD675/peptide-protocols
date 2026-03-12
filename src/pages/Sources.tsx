@@ -741,7 +741,7 @@ export default function Sources() {
                     <Icon className="h-5 w-5 text-emerald-700 dark:text-emerald-400" aria-hidden="true" />
                   </div>
                   <h3 className="mb-1 text-sm font-bold text-stone-900 dark:text-stone-100">{item.titleAr}</h3>
-                  <span className="mb-2 block text-xs text-stone-700 dark:text-stone-300">{item.titleEn}</span>
+                  <span className="mb-2 block text-xs text-stone-700 dark:text-stone-300">{item.titleAr}</span>
                   <p className="text-sm leading-relaxed text-stone-800 dark:text-stone-200">{item.descriptionAr}</p>
                 </div>
               );

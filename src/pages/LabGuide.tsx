@@ -692,7 +692,7 @@ function TestingTimeline() {
                 </div>
                 <div className={cn('mt-3 w-full rounded-2xl border p-3', cardColors[step.color])}>
                   <h3 className="font-bold text-sm text-stone-900 dark:text-stone-100">{step.label}</h3>
-                  <span className="text-[10px] text-stone-500 dark:text-stone-300" dir="ltr">{step.labelEn}</span>
+                  <span className="text-[10px] text-stone-500 dark:text-stone-300">{step.label}</span>
                   <p className="mt-1.5 text-[11px] text-stone-600 dark:text-stone-300 leading-relaxed">{step.description}</p>
                   <div className="mt-2 rounded-lg bg-white/60 dark:bg-stone-800/40 px-2 py-1 text-[10px] text-stone-500 dark:text-stone-300">
                     {step.package}

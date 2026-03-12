@@ -49,7 +49,7 @@ export const TRIAL = {
   /** "Start free trial" button */
   startTrialCta: 'ابدأ تجربتك المجانية',
   /** Bottom CTA on pricing */
-  bottomCta: 'انطلق مع Elite — ابدأ مجانًا',
+  bottomCta: 'انطلق مع المتقدّمة — ابدأ مجانًا',
   /** Bottom CTA fine print */
   bottomCtaFinePrint: `${TRIAL_DAYS} أيام مجانًا — إلغاء بضغطة واحدة، بدون أسئلة`,
   /** Signup CTA bottom pricing */

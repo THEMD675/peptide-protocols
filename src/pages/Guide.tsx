@@ -772,7 +772,7 @@ function buildModules(): Module[] {
                 <p className="font-bold mb-2">أوقف البروتوكول وراجع طبيبك فورًا إذا:</p>
                 <ul className="list-disc list-inside space-y-1">
                   <li>IGF-1 أعلى من 350 ng/mL (خطر فرط هرمون النمو)</li>
-                  <li>Fasting glucose أعلى من 126 mg/dL بشكل مستمر</li>
+                  <li>سكر الدم الصائم أعلى من 126 mg/dL بشكل مستمر</li>
                   <li>ارتفاع مفاجئ في إنزيمات الكبد (ALT/AST) بأكثر من 3x</li>
                   <li>تنميل أو تورّم في اليدين والقدمين (متلازمة النفق الرسغي)</li>
                   <li>آلام مفاصل شديدة لم تكن موجودة قبل البروتوكول</li>
@@ -1107,7 +1107,7 @@ export default function Guide() {
                 <h2 className="text-2xl font-bold text-stone-900 dark:text-stone-100">
                   الوحدة {activeModule.number}: {activeModule.title}
                 </h2>
-                <p className="text-sm text-stone-500 dark:text-stone-300 mt-1">{activeModule.titleEn}</p>
+                <p className="text-sm text-stone-500 dark:text-stone-300 mt-1">{activeModule.title}</p>
               </div>
             </div>
             <div className="flex items-center gap-3">

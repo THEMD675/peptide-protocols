@@ -657,8 +657,8 @@ export default function Landing() {
               <li><strong>STEP 1-5</strong> — Semaglutide فقدان وزن 15-20%</li>
               <li><strong>SURMOUNT 1-4</strong> — Tirzepatide فقدان 22.5%</li>
               <li><strong>SELECT</strong> — خفض أحداث القلب 20%</li>
-              <li><strong>Phase 2 Retatrutide</strong> — فقدان 24%</li>
-              <li><strong>BDNF Studies</strong> — Semax يرفع BDNF 300-800%</li>
+              <li><strong>المرحلة الثانية Retatrutide</strong> — فقدان 24%</li>
+              <li><strong>دراسات BDNF</strong> — Semax يرفع BDNF 300-800%</li>
             </ul>
           </div>
 

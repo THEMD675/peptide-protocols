@@ -93,7 +93,7 @@ const EMAIL_TEMPLATES: { key: string; label: string; subject: string; body: stri
   {
     key: 'upsell',
     label: 'ترقية للمتقدمة',
-    subject: 'اكتشف ميزات باقة Elite',
+    subject: 'اكتشف ميزات الباقة المتقدّمة',
     body: 'مرحبًا،\n\nشكرًا لاشتراكك في باقة الأساسيات! هل تعلم أن باقة Elite تمنحك:\n\n- بروتوكولات متقدمة حصرية\n- محادثات غير محدودة مع المدرب الذكي\n- تتبع متقدم للأعراض الجانبية\n- أولوية الدعم\n\nقم بالترقية الآن واستفد من كل الإمكانيات:\nhttps://pptides.com/pricing\n\nفريق pptides',
   },
 ];
@@ -302,12 +302,12 @@ export default function Admin() {
         headers: { Authorization: `Bearer ${token}`, apikey: import.meta.env.VITE_SUPABASE_ANON_KEY },
       });
       if (res.status === 403) { setForbidden(true); return; }
-      if (!res.ok) throw new Error((await res.json().catch(() => ({}))).error ?? 'Failed');
+      if (!res.ok) throw new Error((await res.json().catch(() => ({}))).error ?? 'فشلت العملية');
       const d = await res.json();
       setStats({ ...d, pagination: d.pagination ?? null, alerts: d.alerts ?? [], funnel: d.funnel ?? { totalSignups: 0, trialStarts: 0, paidConversions: 0, signupToTrial: 0, trialToPaid: 0 }, activityFeed: d.activityFeed ?? [], enquiries: d.enquiries ?? [], emailLogs: d.emailLogs ?? [], webhookEvents: d.webhookEvents ?? [], recentUsers: d.recentUsers ?? [], pendingReviews: d.pendingReviews ?? [], emailList: d.emailList ?? [], revenueByMonth: d.revenueByMonth ?? [], signupsByDay: d.signupsByDay ?? [] });
       setLastFetched(new Date());
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Failed to load');
+      setError(e instanceof Error ? e.message : 'تعذّر تحميل البيانات');
     } finally { setLoading(false); }
   }, [user, getToken]);
 
@@ -347,7 +347,7 @@ export default function Admin() {
       toast.success(`تم تمديد التجربة حتى ${new Date(r.trial_ends_at).toLocaleDateString('ar-SA')}`);
       setModal(null);
       fetchStats();
-    } catch (e) { toast.error(e instanceof Error ? e.message : 'Failed'); }
+    } catch (e) { toast.error(e instanceof Error ? e.message : 'فشلت العملية'); }
     finally { setActionLoading(false); }
   };
 
@@ -359,7 +359,7 @@ export default function Admin() {
       toast.success(`تم منح اشتراك ${grantTier === 'essentials' ? 'أساسي' : 'نخبة'} لمدة ${grantDuration} يوم`);
       setModal(null);
       fetchStats();
-    } catch (e) { toast.error(e instanceof Error ? e.message : 'Failed'); }
+    } catch (e) { toast.error(e instanceof Error ? e.message : 'فشلت العملية'); }
     finally { setActionLoading(false); }
   };
 
@@ -371,7 +371,7 @@ export default function Admin() {
       toast.success('تم إلغاء الاشتراك');
       setModal(null);
       fetchStats();
-    } catch (e) { toast.error(e instanceof Error ? e.message : 'Failed'); }
+    } catch (e) { toast.error(e instanceof Error ? e.message : 'فشلت العملية'); }
     finally { setActionLoading(false); }
   };
 
@@ -383,7 +383,7 @@ export default function Admin() {
       toast.success(`تم إيقاف ${modalTarget.email}`);
       setModal(null);
       fetchStats();
-    } catch (e) { toast.error(e instanceof Error ? e.message : 'Failed'); }
+    } catch (e) { toast.error(e instanceof Error ? e.message : 'فشلت العملية'); }
     finally { setActionLoading(false); }
   };
 
@@ -395,7 +395,7 @@ export default function Admin() {
       toast.success(`تم حذف ${modalTarget.email}`);
       setModal(null);
       fetchStats();
-    } catch (e) { toast.error(e instanceof Error ? e.message : 'Failed'); }
+    } catch (e) { toast.error(e instanceof Error ? e.message : 'فشلت العملية'); }
     finally { setActionLoading(false); }
   };
 
@@ -406,7 +406,7 @@ export default function Admin() {
       toast.success(`تم إرسال البريد إلى ${emailTo}`);
       setModal(null);
       setEmailTo(''); setEmailSubject(''); setEmailBody('');
-    } catch (e) { toast.error(e instanceof Error ? e.message : 'Failed'); }
+    } catch (e) { toast.error(e instanceof Error ? e.message : 'فشلت العملية'); }
     finally { setActionLoading(false); }
   };
 
@@ -417,7 +417,7 @@ export default function Admin() {
       toast.success(`تم إرسال ${r.sent} بريد (${r.failed} فشل)`);
       setModal(null);
       setEmailSubject(''); setEmailBody('');
-    } catch (e) { toast.error(e instanceof Error ? e.message : 'Failed'); }
+    } catch (e) { toast.error(e instanceof Error ? e.message : 'فشلت العملية'); }
     finally { setActionLoading(false); }
   };
 
@@ -767,7 +767,7 @@ export default function Admin() {
                         <YAxis tick={{ fontSize: 10, fill: '#9ca3af' }} allowDecimals={false} />
                         <RTooltip
                           contentStyle={{ background: 'rgba(0,0,0,0.85)', border: 'none', borderRadius: 8, fontSize: 12, color: '#fff' }}
-                          formatter={(value: number, _name: string, props: { payload: { nameEn: string } }) => [`${value}`, props.payload.nameEn]}
+                          formatter={(value: number, _name: string, props: { payload: { name: string } }) => [`${value}`, props.payload.name]}
                         />
                         <Bar dataKey="value" radius={[6, 6, 0, 0]} maxBarSize={60}>
                           {funnelData.map((entry, index) => (
@@ -1027,10 +1027,10 @@ export default function Admin() {
                               body: JSON.stringify({ action: 'reply_enquiry', enquiry_id: eq.id, reply: replyText.trim(), to: eq.email, subject: `رد: ${eq.subject}` }),
                             });
                             const updateData = await updateRes.json();
-                            if (!updateRes.ok) throw new Error(updateData.error ?? 'Failed');
+                            if (!updateRes.ok) throw new Error(updateData.error ?? 'فشلت العملية');
                             toast.success(updateData.email_sent ? 'تم إرسال الرد' : 'تم حفظ الرد (فشل إرسال البريد)');
                             setReplyingTo(null); setReplyText(''); fetchStats();
-                          } catch (e) { toast.error(e instanceof Error ? e.message : 'Failed'); }
+                          } catch (e) { toast.error(e instanceof Error ? e.message : 'فشلت العملية'); }
                           finally { setReplySending(false); }
                         }} className="flex items-center gap-1 rounded-lg bg-emerald-600 px-3 py-1.5 text-xs font-bold text-white hover:bg-emerald-700 disabled:opacity-50">
                           <Send className="h-3 w-3" /> {replySending ? 'جارٍ الإرسال...' : 'إرسال'}
@@ -1584,7 +1584,7 @@ export default function Admin() {
                             toast.success('تم حفظ الملاحظة');
                             setNewNote('');
                             fetchUserNotes(ud.user.id);
-                          } catch (e) { toast.error(e instanceof Error ? e.message : 'Failed'); }
+                          } catch (e) { toast.error(e instanceof Error ? e.message : 'فشلت العملية'); }
                           finally { setNoteSaving(false); }
                         }}
                         className="rounded-lg bg-emerald-600 px-4 py-1.5 text-xs font-bold text-white hover:bg-emerald-700 disabled:opacity-50"
