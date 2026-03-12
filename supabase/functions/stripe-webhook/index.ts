@@ -12,6 +12,8 @@ const endpointSecret = Deno.env.get('STRIPE_WEBHOOK_SECRET') ?? ''
 const supabaseUrl = Deno.env.get('SUPABASE_URL') ?? ''
 const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
 const APP_URL = Deno.env.get('APP_URL') ?? 'https://pptides.com'
+const COUPON_REFERRAL_REWARD = Deno.env.get('COUPON_REFERRAL_REWARD') ?? 'referral_reward'
+const COUPON_REFERRAL_FRIEND = Deno.env.get('COUPON_REFERRAL_FRIEND') ?? 'referral_friend_40_second'
 
 function jsonResponse(body: Record<string, unknown>, status = 200) {
   return new Response(JSON.stringify(body), {
@@ -84,16 +86,24 @@ serve(async (req) => {
         const stripeSubscriptionId = session.subscription as string | null
 
         if (!userId && session.customer_email) {
-          // Direct lookup by email — O(1) instead of paginating all users
-          const { data: profileMatch } = await supabase
-            .from('user_profiles')
-            .select('id')
-            .eq('email', session.customer_email)
-            .limit(1)
-            .single()
-          if (profileMatch) {
-            userId = profileMatch.id
-            console.warn('checkout.session.completed: resolved user via email fallback:', session.customer_email)
+          const { data: { users: matchedUsers } } = await supabase.auth.admin.listUsers({ page: 1, perPage: 1 })
+            .then(async () => {
+              const allPages = []
+              let page = 1
+              while (true) {
+                const { data: { users }, error } = await supabase.auth.admin.listUsers({ page, perPage: 1000 })
+                if (error || !users?.length) break
+                allPages.push(...users)
+                if (users.length < 1000) break
+                page++
+              }
+              return { data: { users: allPages } }
+            })
+            .catch(() => ({ data: { users: [] as { id: string; email?: string }[] } }))
+          const emailMatch = matchedUsers.find((u: { email?: string }) => u.email === session.customer_email)
+          if (emailMatch) {
+            userId = emailMatch.id
+            console.warn('checkout.session.completed: resolved user via auth email fallback:', session.customer_email)
           }
         }
 
@@ -232,7 +242,7 @@ serve(async (req) => {
                     if (referrerSub?.stripe_subscription_id) {
                       try {
                         await stripe.subscriptions.update(referrerSub.stripe_subscription_id, {
-                          coupon: 'referral_reward',
+                          coupon: COUPON_REFERRAL_REWARD,
                         })
                         rewardApplied = true
                         console.log('referral reward auto-applied to subscription:', referrerSub.stripe_subscription_id, 'for referrer:', referral.referrer_id)
@@ -246,7 +256,7 @@ serve(async (req) => {
                     let promoId: string | undefined
                     if (!rewardApplied) {
                       const promoCode = await stripe.promotionCodes.create({
-                        coupon: 'referral_reward',
+                        coupon: COUPON_REFERRAL_REWARD,
                         max_redemptions: 1,
                         metadata: { referrer_id: referral.referrer_id, referred_id: userId },
                       })
@@ -435,7 +445,7 @@ serve(async (req) => {
                 if (referrerExists) {
                   // Apply 40% coupon to the subscription for the NEXT billing cycle only
                   await stripe.subscriptions.update(stripeSubId, {
-                    coupon: 'referral_friend_40_second',
+                    coupon: COUPON_REFERRAL_FRIEND,
                   })
                   console.log('referral friend 40% discount applied to next invoice for sub:', stripeSubId)
 
@@ -603,11 +613,22 @@ serve(async (req) => {
         const customerId = charge.customer as string
         if (customerId && (charge.refunded || charge.amount_refunded > 0)) {
           const isFullRefund = charge.refunded
-          const { error } = await supabase.from('subscriptions').update({
+          const invoiceId = charge.invoice as string | null
+          let subId: string | null = null
+          if (invoiceId) {
+            try {
+              const inv = await stripe.invoices.retrieve(invoiceId)
+              subId = inv.subscription as string | null
+            } catch { /* ignore */ }
+          }
+          const query = supabase.from('subscriptions').update({
             status: isFullRefund ? 'cancelled' : 'active',
             ...(isFullRefund && { tier: 'free' }),
             updated_at: new Date().toISOString(),
-          }).eq('stripe_customer_id', customerId)
+          })
+          const { error } = subId
+            ? await query.eq('stripe_subscription_id', subId)
+            : await query.eq('stripe_customer_id', customerId).limit(1)
           if (error) { console.error('charge.refunded DB error:', error); dbFailed = true }
           if (!isFullRefund) console.log('charge.refunded: partial refund — subscription kept active')
         }

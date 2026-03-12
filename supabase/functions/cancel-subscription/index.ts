@@ -8,6 +8,7 @@ const stripe = new Stripe(stripeKey, { apiVersion: '2024-06-20', timeout: 10000 
 const supabaseUrl = Deno.env.get('SUPABASE_URL') ?? ''
 const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
 const APP_URL = Deno.env.get('APP_URL') ?? 'https://pptides.com'
+const COUPON_RETENTION = Deno.env.get('COUPON_RETENTION') ?? 'retention_20_pct'
 
 import { getCorsHeaders, handleCorsPreflightIfOptions } from '../_shared/cors.ts'
 import { emailWrapper, emailButton } from '../_shared/email-template.ts'
@@ -95,9 +96,9 @@ serve(async (req) => {
       }
       try {
         await stripe.subscriptions.update(sub.stripe_subscription_id, {
-          coupon: 'retention_20_pct',
+          coupon: COUPON_RETENTION,
         })
-        return new Response(JSON.stringify({ ok: true, coupon: 'retention_20_pct' }), {
+        return new Response(JSON.stringify({ ok: true, coupon: COUPON_RETENTION }), {
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         })
       } catch (e) {

@@ -345,7 +345,7 @@ export default function App() {
               <Route path="/compare" element={<Suspense fallback={<GenericPageSkeleton />}><RouteErrorBoundary fallbackTitle="خطأ في المقارنة"><Compare /></RouteErrorBoundary></Suspense>} />
               <Route path="/blog" element={<Suspense fallback={<GenericPageSkeleton />}><RouteErrorBoundary fallbackTitle="خطأ في المدونة"><Blog /></RouteErrorBoundary></Suspense>} />
               <Route path="/blog/:slug" element={<Suspense fallback={<GenericPageSkeleton />}><RouteErrorBoundary fallbackTitle="خطأ في المقالة"><BlogPost /></RouteErrorBoundary></Suspense>} />
-              <Route path="/admin" element={<ProtectedRoute><Suspense fallback={<PageLoader />}><RouteErrorBoundary fallbackTitle="خطأ في لوحة الإدارة"><Admin /></RouteErrorBoundary></Suspense></ProtectedRoute>} />
+              <Route path="/admin" element={<ProtectedRoute requiresAdmin><Suspense fallback={<PageLoader />}><RouteErrorBoundary fallbackTitle="خطأ في لوحة الإدارة"><Admin /></RouteErrorBoundary></Suspense></ProtectedRoute>} />
               <Route path="/logout" element={<LogoutRedirect />} />
               <Route path="*" element={<Suspense fallback={<PageLoader />}><NotFound /></Suspense>} />
             </Routes>
