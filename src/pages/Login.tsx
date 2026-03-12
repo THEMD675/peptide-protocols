@@ -569,6 +569,9 @@ export default function Login() {
                   type="button"
                   disabled={loading || googleLoading}
                   onClick={async () => {
+                    // Respect ?redirect= param so Google sign-in from /signup?redirect=/pricing lands on /pricing
+                    const oauthRedirectPath = safeRedirect(new URLSearchParams(window.location.search).get('redirect'));
+                    const oauthRedirectTo = `${window.location.origin}${oauthRedirectPath}`;
                     // Primary: try Google One Tap prompt
                     if (window.google?.accounts?.id) {
                       window.google.accounts.id.prompt((notification: { isNotDisplayed: () => boolean; isSkippedMoment: () => boolean }) => {
@@ -576,7 +579,7 @@ export default function Login() {
                         if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
                           supabase.auth.signInWithOAuth({
                             provider: 'google',
-                            options: { redirectTo: `${window.location.origin}/dashboard` },
+                            options: { redirectTo: oauthRedirectTo },
                           });
                         }
                       });
@@ -585,7 +588,7 @@ export default function Login() {
                       setGoogleLoading(true);
                       await supabase.auth.signInWithOAuth({
                         provider: 'google',
-                        options: { redirectTo: `${window.location.origin}/dashboard` },
+                        options: { redirectTo: oauthRedirectTo },
                       });
                     }
                   }}

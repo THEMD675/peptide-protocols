@@ -278,7 +278,7 @@ export default function Landing() {
             '@context': 'https://schema.org',
             '@type': 'Product',
             name: 'pptides — المتقدّمة',
-            description: 'اشتراك شهري يتضمن كل مزايا Essentials بالإضافة إلى مدرب ذكي بالذكاء الاصطناعي 24/7، بروتوكولات مخصّصة، واستشارات بلا حدود.',
+            description: 'اشتراك شهري يتضمن كل مزايا الأساسية بالإضافة إلى مدرب ذكي بالذكاء الاصطناعي 24/7، بروتوكولات مخصّصة، واستشارات بلا حدود.',
             url: `${SITE_URL}/pricing`,
             brand: { '@type': 'Brand', name: 'pptides' },
             offers: {
@@ -964,7 +964,7 @@ export default function Landing() {
             { q: 'كيف ألغي اشتراكي؟', a: `يمكنك إلغاء اشتراكك في أي وقت من صفحة الحساب. تحتفظ بالوصول حتى نهاية فترة الدفع الحالية. ضمان استرداد كامل خلال ${TRIAL_DAYS} أيام.` },
             { q: 'هل الدفع آمن؟', a: 'نستخدم Stripe — أكبر منصة دفع في العالم. بياناتك مشفّرة ولا نحفظ بيانات بطاقتك. ندعم Visa و Mastercard و Apple Pay.' },
             { q: '6 ببتيدات مجانية — بدون تسجيل؟', a: 'نعم! 6 ببتيد مع بروتوكول كامل متاح مجانًا بدون إنشاء حساب. جرّبها الآن من المكتبة.' },
-            { q: 'ماذا أحصل بعد الاشتراك؟', a: `بروتوكولات كاملة لـ ${PEPTIDE_COUNT} ببتيد، حاسبة جرعات دقيقة، دليل تحاليل مخبرية، بروتوكولات مُجمَّعة، دليل حقن عملي، فحص تعارضات، ومدرب ذكي (في باقة Elite المتقدّمة).` },
+            { q: 'ماذا أحصل بعد الاشتراك؟', a: `بروتوكولات كاملة لـ ${PEPTIDE_COUNT} ببتيد، حاسبة جرعات دقيقة، دليل تحاليل مخبرية، بروتوكولات مُجمَّعة، دليل حقن عملي، فحص تعارضات، ومدرب ذكي (في الباقة المتقدّمة).` },
           ].map((faq) => (
             <details key={faq.q} className="group rounded-2xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 transition-all hover:border-emerald-200 dark:hover:border-emerald-800">
               <summary className="flex cursor-pointer items-center justify-between px-6 py-5 text-base font-bold text-stone-900 dark:text-stone-100 [&::-webkit-details-marker]:hidden" aria-label={faq.q}>
