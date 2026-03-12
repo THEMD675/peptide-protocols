@@ -1195,7 +1195,7 @@ export default function Community() {
                                 <span className="rounded-full bg-emerald-100 dark:bg-emerald-900/30 px-2 py-0.5 text-[11px] font-bold text-emerald-700 dark:text-emerald-400">مشترك</span>
                               )}
                               {isSeed && (
-                                <span className="rounded-full border border-amber-300 dark:border-amber-700 bg-amber-50 dark:bg-amber-900/20 px-2.5 py-0.5 text-xs font-medium text-amber-800 dark:text-amber-300">
+                                <span className="rounded-full border-2 border-amber-400 dark:border-amber-600 bg-amber-100 dark:bg-amber-900/30 px-3 py-1 text-xs font-bold text-amber-900 dark:text-amber-200">
                                   تجربة توضيحية
                                 </span>
                               )}

@@ -12,8 +12,11 @@
 |-----|---------|--------------|
 | `VITE_SUPABASE_URL` | ✅ | https://rxxzphwojutewvbfzgqd.supabase.co |
 | `VITE_SUPABASE_ANON_KEY` | ✅ | Supabase Dashboard → Project Settings → API |
-| `VITE_GA4_ID` | — | Google Analytics 4 |
-| `STRIPE_SECRET_KEY` | — | For `npm run verify-stripe` only; Supabase Dashboard → Edge Functions → Secrets |
+| `VITE_TURNSTILE_SITE_KEY` | ✅ | Cloudflare Turnstile Dashboard |
+| `VITE_VAPID_PUBLIC_KEY` | ✅ | Generated with web-push |
+| `VITE_SENTRY_DSN` | ✅ | Sentry Dashboard → Project Settings → DSN |
+| `VITE_GA4_ID` | ✅ | Google Analytics 4 → Measurement ID |
+| `STRIPE_SECRET_KEY` | — | For `pnpm verify-stripe` only; Supabase Dashboard → Edge Functions → Secrets |
 
 ---
 
