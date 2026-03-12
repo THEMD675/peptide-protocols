@@ -66,6 +66,7 @@ export default function BaselineChecklist({ peptide, onAllChecked }: BaselineChe
         <Link to="/lab-guide" className="text-xs font-bold text-amber-700 dark:text-amber-400 hover:underline">دليل التحاليل ←</Link>
         <Link to="/calculator" className="text-xs font-bold text-amber-700 dark:text-amber-400 hover:underline">حاسبة الجرعات ←</Link>
       </div>
+      <p className="mt-3 text-xs text-amber-700/70 dark:text-amber-400/60">هذه القائمة تعليمية ولا تغني عن استشارة طبيبك قبل بدء أي بروتوكول.</p>
     </div>
   );
 }
