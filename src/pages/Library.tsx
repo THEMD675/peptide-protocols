@@ -1,8 +1,8 @@
-import { useState, useMemo, useCallback, useEffect, memo } from 'react';
+import { useState, useMemo, useCallback, useEffect, memo, lazy, Suspense } from 'react';
 import { useBookmarks } from '@/hooks/useBookmarks';
-import FocusTrap from 'focus-trap-react';
+const FocusTrap = lazy(() => import('focus-trap-react'));
 import { Helmet } from 'react-helmet-async';
-import GuidedTour from '@/components/GuidedTour';
+const GuidedTour = lazy(() => import('@/components/GuidedTour'));
 import { isTourDone } from '@/components/tour-utils';
 import { Link, useSearchParams } from 'react-router-dom';
 import {
@@ -437,7 +437,7 @@ export default function Library() {
           }))
         })}</script>
       </Helmet>
-      <GuidedTour tourId="library" run={runTour} onFinish={() => setRunTour(false)} />
+      <Suspense fallback={null}><GuidedTour tourId="library" run={runTour} onFinish={() => setRunTour(false)} /></Suspense>
       <div className="mx-auto max-w-7xl px-4 pt-8 pb-24 md:px-6 md:pt-12">
         {/* Header */}
         <div
@@ -817,7 +817,7 @@ export default function Library() {
         ];
         return (
           <div className="fixed inset-0 z-50 flex items-start justify-center bg-black/50 backdrop-blur-sm p-4 overflow-y-auto" onClick={() => setShowCompare(false)} role="dialog" aria-modal="true" aria-label="مقارنة ببتيدات">
-            <FocusTrap focusTrapOptions={{ allowOutsideClick: true }}>
+            <Suspense fallback={null}><FocusTrap focusTrapOptions={{ allowOutsideClick: true }}>
             <div className="w-full max-w-4xl my-8 rounded-2xl bg-white dark:bg-stone-900 shadow-2xl overflow-hidden animate-fade-in" onClick={e => e.stopPropagation()}>
               <div className="flex items-center justify-between border-b border-stone-200 dark:border-stone-600 px-6 py-4">
                 <h2 className="text-lg font-bold text-stone-900 dark:text-stone-100">مقارنة ببتيدات</h2>
@@ -865,7 +865,7 @@ export default function Library() {
                 </Link>
               </div>
             </div>
-            </FocusTrap>
+            </FocusTrap></Suspense>
           </div>
         );
       })()}
@@ -876,7 +876,7 @@ export default function Library() {
         if (!p) return null;
         return (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4" onClick={() => setUpsellPeptide(null)} role="dialog" aria-modal="true" aria-label="اشترك لفتح البروتوكول">
-            <FocusTrap focusTrapOptions={{ allowOutsideClick: true }}>
+            <Suspense fallback={null}><FocusTrap focusTrapOptions={{ allowOutsideClick: true }}>
             <div className="w-full max-w-md max-h-[90vh] overflow-y-auto rounded-2xl bg-white dark:bg-stone-900 p-6 sm:p-8 shadow-2xl text-center animate-fade-in" onClick={e => e.stopPropagation()}>
               <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-emerald-100 dark:bg-emerald-900/30">
                 <Lock className="h-7 w-7 text-emerald-700" />
@@ -920,7 +920,7 @@ export default function Library() {
                 );
               })()}
             </div>
-            </FocusTrap>
+            </FocusTrap></Suspense>
           </div>
         );
       })()}

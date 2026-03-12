@@ -122,6 +122,12 @@ export default defineConfig({
           // html2canvas — lazy loaded only
           if (id.includes('node_modules/html2canvas'))
             return 'html2canvas';
+          // Sentry + rrweb — lazy loaded only (forced out of main bundle)
+          if (id.includes('node_modules/@sentry') || id.includes('node_modules/rrweb') || id.includes('node_modules/@rrweb'))
+            return 'sentry';
+          // react-joyride — lazy loaded for guided tours
+          if (id.includes('node_modules/react-joyride') || id.includes('node_modules/react-floater') || id.includes('node_modules/is-lite'))
+            return 'joyride';
           // Focus trap — lazy loaded
           if (id.includes('node_modules/focus-trap') || id.includes('node_modules/tabbable'))
             return 'focus-trap';

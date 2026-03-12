@@ -1,9 +1,8 @@
 import { Helmet } from 'react-helmet-async';
-import GuidedTour from '@/components/GuidedTour';
+const GuidedTour = lazy(() => import('@/components/GuidedTour'));
 import { isTourDone } from '@/components/tour-utils';
 import { Link, Navigate } from 'react-router-dom';
 import { useState, useEffect, useCallback, useMemo, lazy, Suspense, useRef } from 'react';
-import confetti from 'canvas-confetti';
 import { useNowMs } from '@/hooks/useNowMs';
 import {
   LayoutDashboard,
@@ -492,7 +491,7 @@ export default function Dashboard() {
   return (
     <div className="mx-auto max-w-5xl px-4 pb-24 pt-8 md:px-6 md:pt-12 animate-fade-in">
       {/* Guided Tour */}
-      <GuidedTour tourId="dashboard" run={runTour} onFinish={() => setRunTour(false)} />
+      <Suspense fallback={null}><GuidedTour tourId="dashboard" run={runTour} onFinish={() => setRunTour(false)} /></Suspense>
       <Helmet>
         <title>لوحة التحكم | pptides</title>
         <meta name="description" content="لوحة التحكم — أدواتك في مكان واحد" />
@@ -1382,7 +1381,7 @@ export default function Dashboard() {
               localStorage.setItem(WELCOME_KEY, '1');
               if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
                 setTimeout(() => {
-                  confetti({ particleCount: 60, spread: 80, origin: { y: 0.5 }, colors: ['#10b981', '#f59e0b', '#8b5cf6', '#3b82f6'], zIndex: 9999 });
+                  import('canvas-confetti').then(m => m.default({ particleCount: 60, spread: 80, origin: { y: 0.5 }, colors: ['#10b981', '#f59e0b', '#8b5cf6', '#3b82f6'], zIndex: 9999 }));
                 }, 700);
               }
             }

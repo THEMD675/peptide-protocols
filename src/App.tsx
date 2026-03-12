@@ -3,8 +3,8 @@ import { BrowserRouter, Routes, Route, Link, Navigate, useLocation, useNavigatio
 import { useAuth, AuthProvider } from '@/contexts/AuthContext';
 import { Helmet, HelmetProvider } from 'react-helmet-async';
 import { Toaster } from 'sonner';
-import { Analytics } from '@vercel/analytics/react';
-import { SpeedInsights } from '@vercel/speed-insights/react';
+const Analytics = lazy(() => import('@vercel/analytics/react').then(m => ({ default: m.Analytics })));
+const SpeedInsights = lazy(() => import('@vercel/speed-insights/react').then(m => ({ default: m.SpeedInsights })));
 import { SITE_URL, STORAGE_KEYS } from '@/lib/constants';
 import { events } from '@/lib/analytics';
 // Lazy-load Sentry to keep it out of the critical JS bundle
@@ -352,8 +352,8 @@ export default function App() {
           <BackToTop />
           <OverlayGate />
           <LazyFallback><Suspense fallback={null}><InstallPrompt /></Suspense></LazyFallback>
-          <Analytics />
-          <SpeedInsights />
+          <Suspense fallback={null}><Analytics /></Suspense>
+          <Suspense fallback={null}><SpeedInsights /></Suspense>
         </div>
         </ErrorBoundary>
       </AuthProvider>

@@ -1,6 +1,5 @@
 import { useCallback } from 'react';
 import { toast } from 'sonner';
-import confetti from 'canvas-confetti';
 
 const CELEBRATION_KEY = 'pptides_celebrations';
 
@@ -25,9 +24,14 @@ function prefersReducedMotion(): boolean {
   return typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 }
 
+async function getConfetti() {
+  return (await import('canvas-confetti')).default;
+}
+
 /** Big burst — first injection, major milestones */
-function fireConfetti() {
+async function fireConfetti() {
   if (prefersReducedMotion()) return;
+  const confetti = await getConfetti();
   const duration = 2500;
   const end = Date.now() + duration;
   const colors = ['#10b981', '#f59e0b', '#8b5cf6', '#ef4444', '#3b82f6'];
@@ -54,8 +58,9 @@ function fireConfetti() {
 }
 
 /** Quick burst — streak milestones, 10/25/50 injections */
-function fireStreakCelebration() {
+async function fireStreakCelebration() {
   if (prefersReducedMotion()) return;
+  const confetti = await getConfetti();
   confetti({
     particleCount: 80,
     spread: 70,
@@ -66,8 +71,9 @@ function fireStreakCelebration() {
 }
 
 /** Grand finale — 100+ injections */
-function fireGrandCelebration() {
+async function fireGrandCelebration() {
   if (prefersReducedMotion()) return;
+  const confetti = await getConfetti();
   const defaults = { startVelocity: 30, spread: 360, ticks: 80, zIndex: 9999 };
   function shoot() {
     confetti({ ...defaults, particleCount: 40, origin: { x: Math.random() * 0.4 + 0.1, y: Math.random() * 0.3 } });
