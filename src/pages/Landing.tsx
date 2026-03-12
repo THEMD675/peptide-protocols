@@ -388,7 +388,7 @@ export default function Landing() {
             <div className="grid grid-cols-1 sm:grid-cols-3 divide-y sm:divide-y-0 sm:divide-x sm:divide-x-reverse divide-stone-100 dark:divide-stone-700 bg-white dark:bg-stone-900">
               <div className="p-3 text-center">
                 <p className="mb-1 text-xs text-stone-400 dark:text-stone-300">الجرعة</p>
-                <p className="text-sm font-bold text-stone-900 dark:text-stone-100">250–500 mcg</p>
+                <p className="text-sm font-bold text-stone-900 dark:text-stone-100">250–500 مايكروغرام</p>
                 <p className="text-xs text-stone-400 dark:text-stone-300">مرتين / يوم</p>
               </div>
               <div className="bg-emerald-50/60 dark:bg-emerald-900/20 p-3 text-center">
