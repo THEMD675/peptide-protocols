@@ -790,7 +790,7 @@ export default function Library() {
 
       {/* Floating Compare Bar */}
       {compareIds.length >= 2 && (
-        <div className="fixed bottom-20 left-1/2 -translate-x-1/2 z-40 flex items-center gap-3 rounded-2xl border border-emerald-300 dark:border-emerald-700 bg-white dark:bg-stone-900/95 backdrop-blur-lg px-6 py-3 shadow-xl dark:shadow-stone-900/40 md:bottom-6 animate-slide-up">
+        <div className="fixed bottom-20 inset-x-0 mx-auto w-fit z-40 flex items-center gap-3 rounded-2xl border border-emerald-300 dark:border-emerald-700 bg-white dark:bg-stone-900/95 backdrop-blur-lg px-6 py-3 shadow-xl dark:shadow-stone-900/40 md:bottom-6 animate-slide-up">
           <span className="text-sm font-bold text-stone-900 dark:text-stone-100">قارن {compareIds.length} ببتيدات</span>
           <div className="flex gap-1.5">
             {compareIds.map(id => {

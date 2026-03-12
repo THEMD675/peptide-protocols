@@ -308,7 +308,7 @@ export default function App() {
           <ScrollToTop />
           <TrackPageView />
           <CanonicalUrl />
-          <Toaster position="top-center" richColors dir="rtl" visibleToasts={3} toastOptions={{ duration: 4000 }} />
+          <Toaster position="top-center" richColors dir="rtl" visibleToasts={3} toastOptions={{ duration: 6000 }} />
           <main id="main-content" className="flex-1 pb-20 md:pb-0">
             <PageTransition>
             <Routes>

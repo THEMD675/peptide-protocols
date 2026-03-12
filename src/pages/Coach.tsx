@@ -660,6 +660,9 @@ export default function Coach() {
         })}</script>
       </Helmet>
       <div className="mx-auto max-w-3xl px-4 pt-8 pb-24 md:px-6 md:pt-12">
+        <div className="mb-4 rounded-xl border border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-900/10 px-4 py-2.5 text-center text-xs text-amber-800 dark:text-amber-300" role="alert">
+          هذا المحتوى تعليمي بحثي ولا يُعدّ بديلًا عن الاستشارة الطبية. استشر طبيبك قبل استخدام أي ببتيد.
+        </div>
         <div className="mb-6 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-100 dark:bg-emerald-900/30">

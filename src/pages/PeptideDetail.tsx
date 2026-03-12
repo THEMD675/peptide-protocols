@@ -28,7 +28,7 @@ export default function PeptideDetail() {
   const isTrial = !isLoading && (subscription?.isTrial ?? false);
 
   const peptide = useMemo(() => peptidesPublic.find((p) => p.id === id), [id]);
-  const { protocol, loading: protocolLoading } = usePeptideProtocol(id, peptidePublic?.isFree ?? false);
+  const { protocol, loading: protocolLoading } = usePeptideProtocol(id, peptide?.isFree ?? false);
   const [showProtocolWizard, setShowProtocolWizard] = useState(false);
   const { isBookmarked, toggle: toggleBookmark } = useBookmarks();
 
@@ -43,19 +43,18 @@ export default function PeptideDetail() {
 
   const similarPeptides = useMemo(() => {
     if (!peptide) return [];
-    // First: peptides explicitly mentioned in the stack recommendation
-    const stackText = (peptide.stackAr ?? '').toLowerCase();
-    const stackedPeptides = peptides.filter((p) => {
+    const stackText = (protocol?.stack_ar ?? '').toLowerCase();
+    const stackedPeptides = stackText ? peptidesPublic.filter((p) => {
       if (p.id === peptide.id) return false;
       return (
         stackText.includes(p.id.toLowerCase()) ||
         stackText.includes(p.nameEn.toLowerCase()) ||
         (p.nameAr && stackText.includes(p.nameAr))
       );
-    });
+    }) : [];
     const stackedIds = new Set(stackedPeptides.map((p) => p.id));
 
-    const sameCategory = peptides.filter((p) => p.id !== peptide.id && !stackedIds.has(p.id) && p.category === peptide.category);
+    const sameCategory = peptidesPublic.filter((p) => p.id !== peptide.id && !stackedIds.has(p.id) && p.category === peptide.category);
     const relatedCategoryMap: Record<string, string[]> = {
       metabolic: ['hormonal', 'recovery'],
       recovery: ['hormonal', 'metabolic', 'skin-gut'],
@@ -65,10 +64,10 @@ export default function PeptideDetail() {
       'skin-gut': ['longevity', 'recovery'],
     };
     const relatedCats = relatedCategoryMap[peptide.category] ?? [];
-    const extras = peptides.filter((p) => p.id !== peptide.id && !stackedIds.has(p.id) && p.category !== peptide.category && relatedCats.includes(p.category));
+    const extras = peptidesPublic.filter((p) => p.id !== peptide.id && !stackedIds.has(p.id) && p.category !== peptide.category && relatedCats.includes(p.category));
 
     return [...stackedPeptides, ...sameCategory, ...extras].slice(0, 4);
-  }, [peptide]);
+  }, [peptide, protocol]);
 
   if (!peptide) {
     return (

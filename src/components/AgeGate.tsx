@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Shield } from "lucide-react";
 import { STORAGE_KEYS } from "@/lib/constants";
 
@@ -22,10 +22,27 @@ export default function AgeGate() {
     window.location.href = "https://www.google.com";
   };
 
+  const dialogRef = useRef<HTMLDivElement>(null);
+
   useEffect(() => {
     if (!visible) return;
     document.body.style.overflow = 'hidden';
+    dialogRef.current?.focus();
     return () => { document.body.style.overflow = ''; };
+  }, [visible]);
+
+  useEffect(() => {
+    if (!visible) return;
+    const trap = (e: KeyboardEvent) => {
+      if (e.key !== 'Tab') return;
+      const focusable = dialogRef.current?.querySelectorAll<HTMLElement>('button, [tabindex]');
+      if (!focusable?.length) return;
+      const first = focusable[0], last = focusable[focusable.length - 1];
+      if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+      else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+    };
+    document.addEventListener('keydown', trap);
+    return () => document.removeEventListener('keydown', trap);
   }, [visible]);
 
   if (!visible) return null;
@@ -38,7 +55,7 @@ export default function AgeGate() {
       aria-labelledby="age-gate-title"
       className="fixed inset-0 z-[9999] flex items-end sm:items-center justify-center bg-stone-900/60 backdrop-blur-sm p-0 sm:p-4 animate-fade-in"
     >
-      <div className="w-full sm:max-w-lg rounded-t-2xl sm:rounded-2xl bg-white dark:bg-stone-900 p-6 sm:p-8 text-center shadow-2xl animate-slide-up">
+      <div ref={dialogRef} tabIndex={-1} className="w-full sm:max-w-lg rounded-t-2xl sm:rounded-2xl bg-white dark:bg-stone-900 p-6 sm:p-8 text-center shadow-2xl animate-slide-up outline-none">
         <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-emerald-100 dark:bg-emerald-900/30">
           <Shield className="h-6 w-6 text-emerald-700" aria-hidden="true" />
         </div>
