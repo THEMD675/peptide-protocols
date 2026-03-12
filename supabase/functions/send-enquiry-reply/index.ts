@@ -52,6 +52,7 @@ serve(async (req) => {
     const emailResult = await sendEmail({
       to,
       subject,
+      tags: [{ name: 'type', value: 'enquiry_reply' }, { name: 'category', value: 'support' }],
       html: emailWrapper(`
             <h1 style="color: #1c1917; font-size: 20px;">رد على استفسارك</h1>
             <p style="color: #44403c; font-size: 16px; line-height: 1.8; white-space: pre-wrap;">${sanitizedReply}</p>

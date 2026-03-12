@@ -379,12 +379,13 @@ serve(async (req) => {
         subject,
         html: htmlBody || `<pre style="white-space: pre-wrap; font-family: inherit;">${escapeHtml(textBody ?? '')}</pre>`,
         replyTo: 'contact@pptides.com',
+        tags: [{ name: 'type', value: 'admin_manual' }, { name: 'category', value: 'admin' }],
       })
       if (!emailResult.ok) {
         return json({ error: `Email error: ${emailResult.error}` }, 502, cors)
       }
 
-      await admin.from('email_logs').insert({ email: to, type: 'admin_manual', status: 'sent' }).catch(() => {})
+      await admin.from('email_logs').insert({ email: to, type: 'admin_manual', status: 'sent', resend_id: emailResult.id }).catch(() => {})
       return json({ ok: true }, 200, cors)
     }
 
@@ -675,9 +676,10 @@ serve(async (req) => {
             subject,
             html: `<pre style="white-space: pre-wrap; font-family: inherit;">${escapeHtml(reply)}</pre>`,
             replyTo: 'contact@pptides.com',
+            tags: [{ name: 'type', value: 'enquiry_reply' }, { name: 'category', value: 'support' }],
           })
           emailSent = r.ok
-          await admin.from('email_logs').insert({ email: to, type: 'enquiry_reply', status: r.ok ? 'sent' : 'failed' }).catch(() => {})
+          await admin.from('email_logs').insert({ email: to, type: 'enquiry_reply', status: r.ok ? 'sent' : 'failed', resend_id: r.id }).catch(() => {})
         } catch { /* email failure is non-fatal */ }
       }
 

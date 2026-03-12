@@ -119,6 +119,7 @@ serve(async (req) => {
         const emailResult = await sendEmail({
           to: email,
           subject: 'مبروك! رحلتك مع الببتيدات تبدأ الآن — pptides',
+          tags: [{ name: 'type', value: 'paid_week1' }, { name: 'category', value: 'onboarding' }],
           html: emailWrapper(`
             <h1 style="color: #1c1917; font-size: 24px;">مبروك! رحلتك مع الببتيدات تبدأ الآن</h1>
             <p style="color: #44403c; font-size: 16px; line-height: 1.8;">

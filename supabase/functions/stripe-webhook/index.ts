@@ -179,6 +179,7 @@ serve(async (req) => {
             sendEmail({
               to: session.customer_email,
               subject: 'تم تفعيل اشتراكك في pptides',
+              tags: [{ name: 'type', value: 'subscription_activated' }, { name: 'category', value: 'transactional' }],
               html: emailWrapper(`
                   <h1 style="color: #1c1917; font-size: 24px;">مرحبًا بك في pptides!</h1>
                   <p style="color: #44403c; font-size: 16px; line-height: 1.8;">تم تفعيل اشتراكك في باقة <strong style="color: #059669;">${tier === 'elite' ? 'Elite' : 'Essentials'}</strong> بنجاح.</p>
@@ -484,6 +485,7 @@ serve(async (req) => {
               const emailResult = await sendEmail({
                 to: customerEmail,
                 subject: 'دفعتك لم تتم — يرجى تحديث بيانات الدفع',
+                tags: [{ name: 'type', value: 'payment_failed' }, { name: 'category', value: 'transactional' }],
                 html: emailWrapper(`
                       <h1 style="color: #1c1917; font-size: 24px;">دفعتك لم تتم</h1>
                       <p style="color: #44403c; font-size: 16px; line-height: 1.8;">لم تتم معالجة دفعتك. يرجى تحديث بيانات الدفع في حسابك لتجنّب فقدان الوصول.</p>
@@ -579,6 +581,7 @@ serve(async (req) => {
           sendEmail({
             to: adminEmail,
             subject: 'تنبيه: نزاع دفع جديد — pptides',
+            tags: [{ name: 'type', value: 'dispute_alert' }, { name: 'category', value: 'admin_alert' }],
             html: emailWrapper(`
                 <h1 style="color: #dc2626; font-size: 24px;">تنبيه: نزاع دفع جديد</h1>
                 <p><strong>العميل:</strong> ${customerEmail}</p>
@@ -616,6 +619,7 @@ serve(async (req) => {
             sendEmail({
               to: email,
               subject: 'تم استرداد أموالك — pptides',
+              tags: [{ name: 'type', value: 'refund' }, { name: 'category', value: 'transactional' }],
               html: emailWrapper(`
                   <h1 style="color: #1c1917; font-size: 24px;">تم استرداد أموالك</h1>
                   <p style="color: #44403c; font-size: 16px; line-height: 1.8;">تم معالجة استرداد أموالك بنجاح. سيظهر المبلغ في حسابك خلال 5-10 أيام عمل.</p>
@@ -646,6 +650,7 @@ serve(async (req) => {
             sendEmail({
               to: email,
               subject: 'تجربتك تنتهي قريبًا — لا تفقد وصولك',
+              tags: [{ name: 'type', value: 'trial_ending' }, { name: 'category', value: 'transactional' }],
               html: emailWrapper(`
                   <h1 style="color: #1c1917; font-size: 24px;">تجربتك تنتهي قريبًا</h1>
                   <p style="color: #44403c; font-size: 16px; line-height: 1.8;">سيتم تحصيل الدفعة تلقائيًا عند انتهاء التجربة. إذا لم ترغب بالاستمرار، يمكنك الإلغاء من حسابك.</p>

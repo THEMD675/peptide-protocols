@@ -85,12 +85,6 @@
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://pptides.com/reviews</loc>
-    <lastmod>2026-03-12</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
     <loc>https://pptides.com/quiz</loc>
     <lastmod>2026-03-12</lastmod>
     <changefreq>monthly</changefreq>

@@ -163,6 +163,7 @@ serve(async (req) => {
       subject: `[pptides] ${(subject ?? '(no subject)').replace(/^\[pptides\]\s*/g, '').replace(/\s*— from .+$/g, '')} — from ${from}`,
       html: forwardHtml,
       replyTo: from,
+      tags: [{ name: 'type', value: 'inbound_forward' }, { name: 'category', value: 'support' }],
     })
 
     if (!emailResult.ok) {

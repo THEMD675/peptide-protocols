@@ -108,6 +108,7 @@ serve(async (req) => {
       const emailResult = await sendEmail({
         to: record.email,
         subject: 'ما زلنا ننتظرك',
+        tags: [{ name: 'type', value: 'abandoned_checkout' }, { name: 'category', value: 'retention' }],
         html: emailWrapper(`
             <h1 style="color: #1c1917; font-size: 24px;">ما زلنا ننتظرك!</h1>
             <p style="color: #44403c; font-size: 16px; line-height: 1.8;">لاحظنا أنك بدأت رحلتك مع pptides لكن لم تكمل الاشتراك.</p>

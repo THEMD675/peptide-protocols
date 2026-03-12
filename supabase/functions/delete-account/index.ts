@@ -174,6 +174,7 @@ serve(async (req) => {
       sendEmail({
         to: user.email,
         subject: 'تم حذف حسابك في pptides',
+        tags: [{ name: 'type', value: 'account_deleted' }, { name: 'category', value: 'transactional' }],
         html: emailWrapper(`
             <h1 style="color: #1c1917; font-size: 24px;">تم حذف حسابك</h1>
             <p style="color: #44403c; font-size: 16px; line-height: 1.8;">تم حذف حسابك وجميع بياناتك من pptides بنجاح. إذا كان هذا خطأ، تواصل معنا فورًا.</p>

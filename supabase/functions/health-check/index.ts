@@ -124,6 +124,7 @@ serve(async (req) => {
       await sendEmail({
         to: 'contact@pptides.com',
         subject: 'pptides Health Check FAILED',
+        tags: [{ name: 'type', value: 'health_check_alert' }, { name: 'category', value: 'admin_alert' }],
         html: `<pre style="white-space: pre-wrap; font-family: monospace;">Health check detected errors:\n\n${errorDetails}\n\nFull report: ${JSON.stringify(checks, null, 2)}</pre>`,
       }).catch(e => console.error('Alert email failed:', e))
       await db.from('email_logs').insert({ email: 'contact@pptides.com', type: 'health_alert', status: 'sent' }).catch(() => {})

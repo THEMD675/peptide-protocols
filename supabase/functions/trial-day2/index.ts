@@ -124,6 +124,7 @@ serve(async (req) => {
         const emailResult = await sendEmail({
           to: email,
           subject: 'أنت لست وحدك — باقي يوم واحد في تجربتك — pptides',
+          tags: [{ name: 'type', value: 'trial_day2' }, { name: 'category', value: 'onboarding' }],
           html: emailWrapper(`
             <h1 style="color: #1c1917; font-size: 24px;">أنت لست وحدك في رحلة الببتيدات</h1>
 

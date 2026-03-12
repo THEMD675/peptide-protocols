@@ -227,6 +227,7 @@ serve(async (req) => {
       sendEmail({
         to: user.email,
         subject: 'تم إلغاء اشتراكك في pptides',
+        tags: [{ name: 'type', value: 'subscription_cancelled' }, { name: 'category', value: 'transactional' }],
         html: emailWrapper(`
             <h2 style="color:#1c1917;font-size:20px;">تم إلغاء اشتراكك</h2>
             <p style="color:#44403c;line-height:1.8;">ستحتفظ بالوصول حتى نهاية الفترة الحالية (${periodEnd.split('T')[0]}).</p>
