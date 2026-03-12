@@ -373,21 +373,21 @@ export default function About() {
         <div className="mb-12 flex flex-wrap justify-center gap-3">
           <Link
             to="/transparency"
-            className="inline-flex items-center gap-2 rounded-full border border-stone-300 dark:border-stone-600 px-6 py-3 text-sm font-bold text-stone-800 dark:text-stone-200 transition-colors hover:bg-stone-50 dark:hover:bg-stone-800"
+            className="inline-flex items-center gap-2 rounded-full border border-stone-200 dark:border-stone-700 px-6 py-3 text-sm font-bold text-stone-800 dark:text-stone-200 transition-colors hover:bg-stone-50 dark:hover:bg-stone-800"
           >
             <Shield className="h-4 w-4" />
             <span>الشفافية</span>
           </Link>
           <Link
             to="/sources"
-            className="inline-flex items-center gap-2 rounded-full border border-stone-300 dark:border-stone-600 px-6 py-3 text-sm font-bold text-stone-800 dark:text-stone-200 transition-colors hover:bg-stone-50 dark:hover:bg-stone-800"
+            className="inline-flex items-center gap-2 rounded-full border border-stone-200 dark:border-stone-700 px-6 py-3 text-sm font-bold text-stone-800 dark:text-stone-200 transition-colors hover:bg-stone-50 dark:hover:bg-stone-800"
           >
             <BookOpen className="h-4 w-4" />
             <span>المصادر العلمية</span>
           </Link>
           <Link
             to="/privacy"
-            className="inline-flex items-center gap-2 rounded-full border border-stone-300 dark:border-stone-600 px-6 py-3 text-sm font-bold text-stone-800 dark:text-stone-200 transition-colors hover:bg-stone-50 dark:hover:bg-stone-800"
+            className="inline-flex items-center gap-2 rounded-full border border-stone-200 dark:border-stone-700 px-6 py-3 text-sm font-bold text-stone-800 dark:text-stone-200 transition-colors hover:bg-stone-50 dark:hover:bg-stone-800"
           >
             <Shield className="h-4 w-4" />
             <span>سياسة الخصوصية</span>

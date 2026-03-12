@@ -327,9 +327,9 @@ export default function Landing() {
 
           {/* Urgency nudge */}
           {!user && (
-            <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-amber-300 dark:border-amber-700 bg-amber-50 dark:bg-amber-900/20 px-4 py-2 text-sm font-bold text-amber-800 dark:text-amber-300 urgency-badge">
-              <span className="relative flex h-2 w-2 shrink-0" aria-hidden="true"><span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-amber-400 opacity-75" /><span className="relative inline-flex h-2 w-2 rounded-full bg-amber-500" /></span>
-              التجربة المجانية متاحة الآن — {TRIAL_DAYS} أيام بلا رسوم
+            <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-900/20 px-4 py-2 text-sm font-medium text-emerald-800 dark:text-emerald-300">
+              <span className="relative flex h-2 w-2 shrink-0" aria-hidden="true"><span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500" /></span>
+              التجربة المجانية متاحة — {TRIAL_DAYS} أيام بلا رسوم
             </div>
           )}
 
@@ -725,11 +725,11 @@ export default function Landing() {
           </div>
           <p className="mt-4 text-sm text-stone-800 dark:text-stone-200">أو {PRICING.elite.label}/شهريًا للباقة المتقدّمة مع المدرب الذكي + استشارات</p>
           <div className="mt-6 flex flex-col sm:flex-row items-center justify-center gap-3 text-sm">
-            <span className="flex items-center gap-1.5 rounded-full bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 px-4 py-2 font-bold text-red-700 dark:text-red-400">
-              <Zap className="h-4 w-4" /> السعر الحالي لفترة محدودة
+            <span className="flex items-center gap-1.5 rounded-full bg-stone-100 dark:bg-stone-800 border border-stone-200 dark:border-stone-700 px-4 py-2 font-medium text-stone-700 dark:text-stone-300">
+              <Zap className="h-4 w-4 text-emerald-600" /> سعر تأسيسي للمشتركين الأوائل
             </span>
-            <span className="flex items-center gap-1.5 rounded-full bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 px-4 py-2 font-bold text-amber-700 dark:text-amber-400">
-              <Shield className="h-4 w-4" /> ضمان استرداد كامل — بدون مخاطرة
+            <span className="flex items-center gap-1.5 rounded-full bg-stone-100 dark:bg-stone-800 border border-stone-200 dark:border-stone-700 px-4 py-2 font-medium text-stone-700 dark:text-stone-300">
+              <Shield className="h-4 w-4 text-emerald-600" /> ضمان استرداد كامل
             </span>
           </div>
         </div>

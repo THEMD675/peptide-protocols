@@ -93,9 +93,9 @@ export default function PeptideDetail() {
     strong: { label: 'أدلة قوية', sublabel: 'تجارب سريرية متعددة على البشر', cls: 'border-emerald-300 dark:border-emerald-700 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-800 dark:text-emerald-300' },
     good: { label: 'أدلة جيدة', sublabel: 'دراسات سريرية أولية أو صغيرة الحجم', cls: 'border-teal-300 dark:border-teal-700 bg-teal-50 dark:bg-teal-900/20 text-teal-800 dark:text-teal-300' },
     moderate: { label: 'أدلة متوسطة', sublabel: 'دراسات أولية على البشر أو بيانات محدودة', cls: 'border-amber-300 dark:border-amber-700 bg-amber-50 dark:bg-amber-900/20 text-amber-800 dark:text-amber-300' },
-    weak: { label: 'أدلة محدودة', sublabel: 'دراسات حيوانية فقط — لا تجارب بشرية كافية', cls: 'border-stone-300 dark:border-stone-600 bg-stone-100 dark:bg-stone-800 text-stone-600 dark:text-stone-300' },
-    'very-weak': { label: 'أدلة ضعيفة جداً', sublabel: 'بحوث مخبرية ابتدائية فقط', cls: 'border-stone-300 dark:border-stone-600 bg-stone-100 dark:bg-stone-800 text-stone-600 dark:text-stone-300' },
-  } as Record<string, { label: string; cls: string; sublabel: string }>)[peptide.evidenceLevel] ?? { label: 'أدلة محدودة', sublabel: 'بيانات غير كافية', cls: 'border-stone-300 dark:border-stone-600 bg-stone-100 dark:bg-stone-800 text-stone-600 dark:text-stone-300' };
+    weak: { label: 'أدلة محدودة', sublabel: 'دراسات حيوانية فقط — لا تجارب بشرية كافية', cls: 'border-stone-200 dark:border-stone-700 bg-stone-100 dark:bg-stone-800 text-stone-600 dark:text-stone-300' },
+    'very-weak': { label: 'أدلة ضعيفة جداً', sublabel: 'بحوث مخبرية ابتدائية فقط', cls: 'border-stone-200 dark:border-stone-700 bg-stone-100 dark:bg-stone-800 text-stone-600 dark:text-stone-300' },
+  } as Record<string, { label: string; cls: string; sublabel: string }>)[peptide.evidenceLevel] ?? { label: 'أدلة محدودة', sublabel: 'بيانات غير كافية', cls: 'border-stone-200 dark:border-stone-700 bg-stone-100 dark:bg-stone-800 text-stone-600 dark:text-stone-300' };
 
   const rows: ProtocolRow[] = [
     { label: 'الاسم العلمي', value: peptide.nameEn },
@@ -307,7 +307,7 @@ export default function PeptideDetail() {
           {/* ── Subscriber: full protocol ── */}
           <div
             id="protocol"
-            className="overflow-hidden rounded-2xl border border-stone-300 dark:border-stone-600"
+            className="overflow-hidden rounded-2xl border border-stone-200 dark:border-stone-700"
           >
             <div
               className="flex items-center justify-between bg-stone-50/95 dark:bg-stone-800/95 px-5 py-3"
@@ -336,7 +336,7 @@ export default function PeptideDetail() {
                     key={row.label}
                     className={cn(
                       'border-b border-stone-200 dark:border-stone-600 last:border-b-0',
-                      i % 2 === 0 ? 'bg-stone-50 dark:bg-stone-900 border border-stone-300 dark:border-stone-600' : 'bg-transparent',
+                      i % 2 === 0 ? 'bg-stone-50 dark:bg-stone-900 border border-stone-200 dark:border-stone-700' : 'bg-transparent',
                     )}
                   >
                     <th
@@ -457,7 +457,7 @@ export default function PeptideDetail() {
                       className="group flex-shrink-0 w-[75vw] max-w-[280px] snap-start md:w-auto md:max-w-none rounded-2xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 p-5 shadow-sm dark:shadow-stone-900/30 transition-all hover:border-emerald-300 dark:hover:border-emerald-700 hover:shadow-lg hover:shadow-emerald-600/10 hover:-translate-y-0.5"
                     >
                       <div className="mb-3 flex items-center justify-between">
-                        <span className="flex items-center gap-1 rounded-full border border-stone-300 dark:border-stone-600 bg-stone-50 dark:bg-stone-900 px-2.5 py-0.5 text-xs font-medium text-stone-800 dark:text-stone-200">
+                        <span className="flex items-center gap-1 rounded-full border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-900 px-2.5 py-0.5 text-xs font-medium text-stone-800 dark:text-stone-200">
                           {CatIcon && <CatIcon className="h-3 w-3" />}
                           {categoryLabels[rp.category]}
                         </span>
@@ -518,7 +518,7 @@ export default function PeptideDetail() {
           <PeptideExperiences peptideNameEn={peptide.nameEn} />
         </>) : (<>
           {/* ── Locked peptide: tease first rows, blur rest with inline CTA ── */}
-          <div className="overflow-hidden rounded-2xl border border-stone-300 dark:border-stone-600">
+          <div className="overflow-hidden rounded-2xl border border-stone-200 dark:border-stone-700">
             <div
               className="flex items-center justify-between bg-stone-50/95 dark:bg-stone-800/95 px-5 py-3"
             >
@@ -540,7 +540,7 @@ export default function PeptideDetail() {
                       key={row.label}
                       className={cn(
                         'border-b border-stone-200 dark:border-stone-600 last:border-b-0',
-                        i % 2 === 0 ? 'bg-stone-50 dark:bg-stone-900 border border-stone-300 dark:border-stone-600' : 'bg-transparent',
+                        i % 2 === 0 ? 'bg-stone-50 dark:bg-stone-900 border border-stone-200 dark:border-stone-700' : 'bg-transparent',
                       )}
                     >
                       <th

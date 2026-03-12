@@ -940,7 +940,7 @@ export default function PeptideQuiz() {
                       'flex h-5 w-5 items-center justify-center rounded-md border-2 shrink-0 transition-all',
                       isSelected
                         ? 'border-emerald-500 bg-emerald-500'
-                        : 'border-stone-300 dark:border-stone-600',
+                        : 'border-stone-200 dark:border-stone-700',
                     )}>
                       {isSelected && <CheckCircle className="h-3 w-3 text-white" />}
                     </div>

@@ -373,9 +373,9 @@ export default function GlobalSearch({ open, onClose }: Props) {
           <div className="flex items-center justify-between border-t border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-800/50 px-4 py-2.5 text-[10px] text-stone-400 dark:text-stone-300">
             <span className="font-medium">{results.length} نتيجة</span>
             <span className="flex items-center gap-2">
-              <kbd className="rounded border border-stone-300 dark:border-stone-600 bg-white dark:bg-stone-700 px-1.5 py-0.5 text-stone-600 dark:text-stone-300">↑↓</kbd>
+              <kbd className="rounded border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-700 px-1.5 py-0.5 text-stone-600 dark:text-stone-300">↑↓</kbd>
               للتنقل
-              <kbd className="rounded border border-stone-300 dark:border-stone-600 bg-white dark:bg-stone-700 px-1.5 py-0.5 text-stone-600 dark:text-stone-300">↵</kbd>
+              <kbd className="rounded border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-700 px-1.5 py-0.5 text-stone-600 dark:text-stone-300">↵</kbd>
               للفتح
             </span>
           </div>

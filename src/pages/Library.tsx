@@ -74,7 +74,7 @@ const PeptideCard = memo(function PeptideCard({
         'relative h-full overflow-hidden rounded-2xl border p-5 shadow-sm dark:shadow-stone-900/30 card-hover active:scale-[0.98]',
         hasAccess
           ? 'border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 hover:border-emerald-300 dark:border-emerald-700 hover:shadow-lg hover:shadow-emerald-600/10'
-          : 'border-stone-200 dark:border-stone-600 bg-stone-50/50 hover:border-stone-300 dark:border-stone-600',
+          : 'border-stone-200 dark:border-stone-600 bg-stone-50/50 hover:border-stone-200 dark:border-stone-700',
         isFav && 'border-s-4 border-s-emerald-400',
       )}
     >
@@ -136,7 +136,7 @@ const PeptideCard = memo(function PeptideCard({
       </div>
 
       <div className="mb-3 flex flex-wrap items-center gap-2">
-        <span className="flex items-center gap-1 rounded-full border border-stone-300 dark:border-stone-600 bg-stone-50 dark:bg-stone-900 px-2.5 py-0.5 text-xs font-medium text-stone-800 dark:text-stone-200">
+        <span className="flex items-center gap-1 rounded-full border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-900 px-2.5 py-0.5 text-xs font-medium text-stone-800 dark:text-stone-200">
           {Icon && <Icon className="h-3 w-3" />}
           {categoryLabels[peptide.category]}
         </span>
@@ -609,7 +609,7 @@ export default function Library() {
                 'shrink-0 rounded-full border px-4 py-2 min-h-[44px] text-sm font-medium transition-all',
                 activeCategory === 'all'
                   ? 'primary-gradient border-emerald-300 dark:border-emerald-700 text-white'
-                  : 'border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 text-stone-800 dark:text-stone-200 hover:border-stone-300 dark:border-stone-600 transition-colors hover:text-stone-800 dark:text-stone-200',
+                  : 'border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 text-stone-800 dark:text-stone-200 hover:border-stone-200 dark:border-stone-700 transition-colors hover:text-stone-800 dark:text-stone-200',
               )}
             >
               الكل
@@ -624,7 +624,7 @@ export default function Library() {
                 'flex shrink-0 items-center gap-1.5 rounded-full border px-4 py-2 min-h-[44px] text-sm font-medium transition-all',
                 activeCategory === 'free'
                   ? 'primary-gradient border-emerald-300 dark:border-emerald-700 text-white'
-                  : 'border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 text-stone-800 dark:text-stone-200 hover:border-stone-300 dark:border-stone-600 transition-colors hover:text-stone-800 dark:text-stone-200',
+                  : 'border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 text-stone-800 dark:text-stone-200 hover:border-stone-200 dark:border-stone-700 transition-colors hover:text-stone-800 dark:text-stone-200',
               )}
             >
               مجاني
@@ -639,7 +639,7 @@ export default function Library() {
                 'flex shrink-0 items-center gap-1.5 rounded-full border px-4 py-2 min-h-[44px] text-sm font-medium transition-all',
                 activeCategory === 'bookmarks'
                   ? 'primary-gradient border-emerald-300 dark:border-emerald-700 text-white'
-                  : 'border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 text-stone-800 dark:text-stone-200 hover:border-stone-300 dark:border-stone-600 transition-colors hover:text-stone-800 dark:text-stone-200',
+                  : 'border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 text-stone-800 dark:text-stone-200 hover:border-stone-200 dark:border-stone-700 transition-colors hover:text-stone-800 dark:text-stone-200',
               )}
             >
               <Bookmark className="h-3.5 w-3.5" />
@@ -663,7 +663,7 @@ export default function Library() {
                     'flex shrink-0 items-center gap-1.5 rounded-full border px-4 py-2 min-h-[44px] text-sm font-medium transition-all',
                     active
                       ? 'primary-gradient border-emerald-300 dark:border-emerald-700 text-white'
-                      : 'border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 text-stone-800 dark:text-stone-200 hover:border-stone-300 dark:border-stone-600 transition-colors hover:text-stone-800 dark:text-stone-200',
+                      : 'border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 text-stone-800 dark:text-stone-200 hover:border-stone-200 dark:border-stone-700 transition-colors hover:text-stone-800 dark:text-stone-200',
                   )}
                 >
                   {Icon && <Icon className="h-3.5 w-3.5" />}

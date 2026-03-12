@@ -1072,9 +1072,9 @@ export default function LabGuide() {
         <p className="mt-1 text-sm text-stone-600 dark:text-stone-300">عرفت تحاليلك — الآن احسب جرعتك أو تعلّم طريقة الحقن</p>
         <div className="mt-4 flex flex-col gap-2 sm:flex-row sm:justify-center">
           <Link to="/calculator" className="rounded-full bg-emerald-600 px-8 py-3.5 text-base font-semibold text-white transition-colors hover:bg-emerald-700 min-h-[44px] inline-flex items-center justify-center">حاسبة الجرعات</Link>
-          <Link to="/guide" className="rounded-xl border border-stone-300 dark:border-stone-600 px-6 py-3 text-sm font-bold text-emerald-700 transition-colors hover:bg-emerald-50 min-h-[44px] inline-flex items-center justify-center">دليل التحضير والحقن</Link>
-          <Link to="/tracker" className="rounded-xl border border-stone-300 dark:border-stone-600 px-6 py-3 text-sm font-bold text-emerald-700 transition-colors hover:bg-emerald-50 min-h-[44px] inline-flex items-center justify-center">متتبع التحاليل</Link>
-          <Link to="/coach" className="rounded-xl border border-stone-300 dark:border-stone-600 px-6 py-3 text-sm font-bold text-emerald-700 transition-colors hover:bg-emerald-50 min-h-[44px] inline-flex items-center justify-center">اسأل المدرب الذكي</Link>
+          <Link to="/guide" className="rounded-xl border border-stone-200 dark:border-stone-700 px-6 py-3 text-sm font-bold text-emerald-700 transition-colors hover:bg-emerald-50 min-h-[44px] inline-flex items-center justify-center">دليل التحضير والحقن</Link>
+          <Link to="/tracker" className="rounded-xl border border-stone-200 dark:border-stone-700 px-6 py-3 text-sm font-bold text-emerald-700 transition-colors hover:bg-emerald-50 min-h-[44px] inline-flex items-center justify-center">متتبع التحاليل</Link>
+          <Link to="/coach" className="rounded-xl border border-stone-200 dark:border-stone-700 px-6 py-3 text-sm font-bold text-emerald-700 transition-colors hover:bg-emerald-50 min-h-[44px] inline-flex items-center justify-center">اسأل المدرب الذكي</Link>
         </div>
       </div>
     </div>

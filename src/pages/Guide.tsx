@@ -1126,7 +1126,7 @@ export default function Guide() {
               ) : (
                 <button
                   onClick={() => markComplete(activeModule.id)}
-                  className="rounded-full border border-stone-300 dark:border-stone-600 px-3 py-1.5 text-xs font-bold text-stone-600 dark:text-stone-300 hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors"
+                  className="rounded-full border border-stone-200 dark:border-stone-700 px-3 py-1.5 text-xs font-bold text-stone-600 dark:text-stone-300 hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors"
                 >
                   تعيين كمكتمل
                 </button>
@@ -1236,9 +1236,9 @@ export default function Guide() {
             <p className="mt-1 text-sm text-stone-600 dark:text-stone-300">الآن حان وقت التطبيق — حضّر أول جرعة واحسبها بدقة</p>
             <div className="mt-4 flex flex-col gap-2 sm:flex-row sm:justify-center">
               <Link to="/calculator" className="rounded-full bg-emerald-600 px-8 py-3.5 text-base font-semibold text-white transition-colors hover:bg-emerald-700">حاسبة الجرعات</Link>
-              <Link to="/stacks" className="rounded-xl border border-stone-300 dark:border-stone-600 px-6 py-3 text-sm font-bold text-emerald-700 dark:text-emerald-400 transition-colors hover:bg-emerald-50 dark:hover:bg-emerald-900/20">بانِي البروتوكولات</Link>
-              <Link to="/lab-guide" className="rounded-xl border border-stone-300 dark:border-stone-600 px-6 py-3 text-sm font-bold text-emerald-700 dark:text-emerald-400 transition-colors hover:bg-emerald-50 dark:hover:bg-emerald-900/20">دليل التحاليل</Link>
-              <Link to="/tracker" className="rounded-xl border border-stone-300 dark:border-stone-600 px-6 py-3 text-sm font-bold text-emerald-700 dark:text-emerald-400 transition-colors hover:bg-emerald-50 dark:hover:bg-emerald-900/20">سجّل أول حقنة</Link>
+              <Link to="/stacks" className="rounded-xl border border-stone-200 dark:border-stone-700 px-6 py-3 text-sm font-bold text-emerald-700 dark:text-emerald-400 transition-colors hover:bg-emerald-50 dark:hover:bg-emerald-900/20">بانِي البروتوكولات</Link>
+              <Link to="/lab-guide" className="rounded-xl border border-stone-200 dark:border-stone-700 px-6 py-3 text-sm font-bold text-emerald-700 dark:text-emerald-400 transition-colors hover:bg-emerald-50 dark:hover:bg-emerald-900/20">دليل التحاليل</Link>
+              <Link to="/tracker" className="rounded-xl border border-stone-200 dark:border-stone-700 px-6 py-3 text-sm font-bold text-emerald-700 dark:text-emerald-400 transition-colors hover:bg-emerald-50 dark:hover:bg-emerald-900/20">سجّل أول حقنة</Link>
             </div>
           </>
         ) : (
@@ -1247,7 +1247,7 @@ export default function Guide() {
             <p className="mt-1 text-sm text-stone-600 dark:text-stone-300">اشترك للوصول إلى الدليل الكامل مع كل البروتوكولات</p>
             <div className="mt-4 flex flex-col gap-2 sm:flex-row sm:justify-center">
               <Link to="/pricing" className="rounded-full bg-emerald-600 px-8 py-3.5 text-base font-semibold text-white transition-colors hover:bg-emerald-700">اشترك — {PRICING.essentials.label}/شهريًا</Link>
-              <Link to="/calculator" className="rounded-xl border border-stone-300 dark:border-stone-600 px-6 py-3 text-sm font-bold text-emerald-700 dark:text-emerald-400 transition-colors hover:bg-emerald-50 dark:hover:bg-emerald-900/20">جرّب الحاسبة مجانًا</Link>
+              <Link to="/calculator" className="rounded-xl border border-stone-200 dark:border-stone-700 px-6 py-3 text-sm font-bold text-emerald-700 dark:text-emerald-400 transition-colors hover:bg-emerald-50 dark:hover:bg-emerald-900/20">جرّب الحاسبة مجانًا</Link>
             </div>
           </>
         )}

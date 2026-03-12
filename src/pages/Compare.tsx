@@ -429,7 +429,7 @@ export default function Compare() {
                 'flex items-center gap-2 rounded-xl border px-4 py-2 text-xs font-bold transition-colors',
                 showDiffsOnly
                   ? 'border-amber-300 dark:border-amber-700 bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-300'
-                  : 'border-stone-300 dark:border-stone-600 text-stone-600 dark:text-stone-300 hover:bg-stone-50 dark:hover:bg-stone-800',
+                  : 'border-stone-200 dark:border-stone-700 text-stone-600 dark:text-stone-300 hover:bg-stone-50 dark:hover:bg-stone-800',
               )}
             >
               <SlidersHorizontal className="h-3.5 w-3.5" />
@@ -439,7 +439,7 @@ export default function Compare() {
             {/* Share button */}
             <button
               onClick={handleShare}
-              className="flex items-center gap-2 rounded-xl border border-stone-300 dark:border-stone-600 px-4 py-2 text-xs font-bold text-stone-600 dark:text-stone-300 transition-colors hover:bg-stone-50 dark:hover:bg-stone-800"
+              className="flex items-center gap-2 rounded-xl border border-stone-200 dark:border-stone-700 px-4 py-2 text-xs font-bold text-stone-600 dark:text-stone-300 transition-colors hover:bg-stone-50 dark:hover:bg-stone-800"
             >
               {copied ? <Check className="h-3.5 w-3.5 text-emerald-600" /> : <Share2 className="h-3.5 w-3.5" />}
               {copied ? 'تم النسخ!' : 'مشاركة المقارنة'}
@@ -580,7 +580,7 @@ export default function Compare() {
           <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
             <Link
               to={`/interactions?p1=${ids[0]}&p2=${ids[1]}`}
-              className="inline-flex items-center gap-2 rounded-xl border border-stone-300 dark:border-stone-600 px-6 py-3 text-sm font-bold text-emerald-700 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 transition-colors"
+              className="inline-flex items-center gap-2 rounded-xl border border-stone-200 dark:border-stone-700 px-6 py-3 text-sm font-bold text-emerald-700 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 transition-colors"
             >
               فحص التعارضات بين هذه الببتيدات
             </Link>
@@ -588,7 +588,7 @@ export default function Compare() {
         </div>
       ) : (
         /* Empty state */
-        <div className="rounded-2xl border border-dashed border-stone-300 dark:border-stone-600 bg-stone-50 dark:bg-stone-900/50 px-6 py-12 text-center">
+        <div className="rounded-2xl border border-dashed border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-900/50 px-6 py-12 text-center">
           <ArrowLeftRight className="mx-auto mb-4 h-10 w-10 text-stone-300 dark:text-stone-300" />
           <p className="text-sm font-bold text-stone-700 dark:text-stone-200 mb-1">
             {selectedCount === 0 ? 'ابدأ بالمقارنة' : 'اختر ببتيدًا آخر'}

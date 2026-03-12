@@ -323,7 +323,7 @@ export default function FAQ() {
             </Link>
             <a
               href={`mailto:${SUPPORT_EMAIL}`}
-              className="inline-flex min-h-[44px] items-center rounded-full border-2 border-stone-300 dark:border-stone-600 px-8 py-3 font-bold text-stone-800 dark:text-stone-200 transition-colors hover:bg-stone-100 dark:hover:bg-stone-800"
+              className="inline-flex min-h-[44px] items-center rounded-full border-2 border-stone-200 dark:border-stone-700 px-8 py-3 font-bold text-stone-800 dark:text-stone-200 transition-colors hover:bg-stone-100 dark:hover:bg-stone-800"
             >
               {SUPPORT_EMAIL}
             </a>

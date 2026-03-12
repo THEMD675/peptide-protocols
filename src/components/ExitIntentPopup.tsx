@@ -124,7 +124,7 @@ export default function ExitIntentPopup() {
 
         <button
           onClick={() => setVisible(false)}
-          className="rounded-full border border-stone-200 dark:border-stone-600 px-5 py-2 text-sm text-stone-500 dark:text-stone-300 hover:text-stone-700 dark:text-stone-200 hover:border-stone-300 dark:border-stone-600 transition-colors"
+          className="rounded-full border border-stone-200 dark:border-stone-600 px-5 py-2 text-sm text-stone-500 dark:text-stone-300 hover:text-stone-700 dark:text-stone-200 hover:border-stone-200 dark:border-stone-700 transition-colors"
         >
           لا شكرًا
         </button>

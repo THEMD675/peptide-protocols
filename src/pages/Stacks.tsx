@@ -275,7 +275,7 @@ export default function Stacks() {
                     </button>
                     <Link
                       to={`/calculator?peptide=${encodeURIComponent(stackPeptides[0]?.nameEn ?? '')}`}
-                      className="inline-flex items-center gap-1.5 rounded-xl border border-stone-300 dark:border-stone-600 bg-white dark:bg-stone-900 px-6 py-3 text-sm font-bold text-stone-700 dark:text-stone-200 hover:border-emerald-300 transition-colors"
+                      className="inline-flex items-center gap-1.5 rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-900 px-6 py-3 text-sm font-bold text-stone-700 dark:text-stone-200 hover:border-emerald-300 transition-colors"
                     >
                       <Calculator className="h-3.5 w-3.5" />
                       احسب الجرعة
@@ -302,7 +302,7 @@ export default function Stacks() {
                       </Link>
                       <Link
                         to="/coach"
-                        className="rounded-xl border border-stone-300 dark:border-stone-600 px-5 py-2.5 text-sm font-bold text-emerald-700 dark:text-emerald-400 transition-colors hover:bg-emerald-50 dark:hover:bg-emerald-900/20"
+                        className="rounded-xl border border-stone-200 dark:border-stone-700 px-5 py-2.5 text-sm font-bold text-emerald-700 dark:text-emerald-400 transition-colors hover:bg-emerald-50 dark:hover:bg-emerald-900/20"
                       >
                         اسأل المدرب الذكي
                       </Link>
@@ -321,7 +321,7 @@ export default function Stacks() {
           <p className="mt-1 text-sm text-stone-600 dark:text-stone-300">اشترك لفتح كل البروتوكولات المُجمَّعة مع الجرعات والتوقيت</p>
           <div className="mt-4 flex flex-col gap-2 sm:flex-row sm:justify-center">
             <Link to="/pricing" className="rounded-full bg-emerald-600 px-8 py-3.5 text-base font-semibold text-white transition-colors hover:bg-emerald-700">اشترك — {PRICING.essentials.label}/شهريًا</Link>
-            <Link to="/coach" className="rounded-xl border border-stone-300 dark:border-stone-600 px-6 py-3 text-sm font-bold text-emerald-700 dark:text-emerald-400 transition-colors hover:bg-emerald-50 dark:hover:bg-emerald-900/20">اسأل المدرب الذكي</Link>
+            <Link to="/coach" className="rounded-xl border border-stone-200 dark:border-stone-700 px-6 py-3 text-sm font-bold text-emerald-700 dark:text-emerald-400 transition-colors hover:bg-emerald-50 dark:hover:bg-emerald-900/20">اسأل المدرب الذكي</Link>
           </div>
         </div>
       )}

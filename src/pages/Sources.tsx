@@ -482,7 +482,7 @@ function CitationBrowser() {
         <div className="mt-4 text-center">
           <button
             onClick={() => setShowAllCitations(!showAllCitations)}
-            className="inline-flex items-center gap-2 rounded-xl border border-stone-300 dark:border-stone-600 bg-white dark:bg-stone-800 px-6 py-3 text-sm font-medium text-stone-600 dark:text-stone-300 transition-all hover:border-emerald-300 hover:text-emerald-700 min-h-[44px]"
+            className="inline-flex items-center gap-2 rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-800 px-6 py-3 text-sm font-medium text-stone-600 dark:text-stone-300 transition-all hover:border-emerald-300 hover:text-emerald-700 min-h-[44px]"
           >
             {showAllCitations ? (
               <>
@@ -733,7 +733,7 @@ export default function Sources() {
                 <div
                   key={item.titleEn}
                   className={cn(
-                    'group rounded-2xl border border-stone-300 dark:border-stone-600 bg-stone-50 dark:bg-stone-900 p-5 transition-all',
+                    'group rounded-2xl border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-900 p-5 transition-all',
                     'hover:border-emerald-300 hover:bg-white dark:hover:bg-stone-800'
                   )}
                 >
@@ -765,7 +765,7 @@ export default function Sources() {
 
         {/* Contact CTA */}
         <section>
-          <div className="rounded-2xl border border-stone-300 dark:border-stone-600 bg-stone-50 dark:bg-stone-900 p-6 text-center">
+          <div className="rounded-2xl border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-900 p-6 text-center">
             <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-emerald-50 dark:bg-emerald-900/30">
               <Mail className="h-5 w-5 text-emerald-700 dark:text-emerald-400" aria-hidden="true" />
             </div>

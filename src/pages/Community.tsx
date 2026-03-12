@@ -241,7 +241,7 @@ function PeptideMultiSelect({
                 'flex h-5 w-5 shrink-0 items-center justify-center rounded border text-xs',
                 selected.includes(p.nameEn)
                   ? 'border-emerald-500 bg-emerald-500 text-white'
-                  : 'border-stone-300 dark:border-stone-600'
+                  : 'border-stone-200 dark:border-stone-700'
               )}>
                 {selected.includes(p.nameEn) && '✓'}
               </span>
@@ -934,7 +934,7 @@ export default function Community() {
                       <button
                         type="button"
                         onClick={() => setShowForm(false)}
-                        className="rounded-xl border border-stone-300 dark:border-stone-600 px-6 py-3 min-h-[44px] font-bold text-stone-600 dark:text-stone-300 transition-colors hover:bg-stone-50 dark:hover:bg-stone-800"
+                        className="rounded-xl border border-stone-200 dark:border-stone-700 px-6 py-3 min-h-[44px] font-bold text-stone-600 dark:text-stone-300 transition-colors hover:bg-stone-50 dark:hover:bg-stone-800"
                       >
                         إلغاء
                       </button>

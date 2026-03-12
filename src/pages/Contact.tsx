@@ -269,7 +269,7 @@ export default function Contact() {
               onChange={(e) => { setName(e.target.value); clearFieldError('name'); }}
               onBlur={() => handleBlur('name', name)}
               placeholder="اسمك الكريم"
-              className={`w-full rounded-xl border bg-stone-50 dark:bg-stone-800 px-4 py-3 text-stone-900 dark:text-stone-100 placeholder:text-stone-400 dark:placeholder:text-stone-400 dark:text-stone-300 focus:outline-none focus:ring-2 transition-colors min-h-[44px] ${fieldErrors.name ? 'border-red-400 dark:border-red-600 focus:border-red-500 focus:ring-red-200 dark:focus:ring-red-800' : 'border-stone-300 dark:border-stone-600 focus:border-emerald-500 focus:ring-emerald-200 dark:focus:ring-emerald-800'}`}
+              className={`w-full rounded-xl border bg-stone-50 dark:bg-stone-800 px-4 py-3 text-stone-900 dark:text-stone-100 placeholder:text-stone-400 dark:placeholder:text-stone-400 dark:text-stone-300 focus:outline-none focus:ring-2 transition-colors min-h-[44px] ${fieldErrors.name ? 'border-red-400 dark:border-red-600 focus:border-red-500 focus:ring-red-200 dark:focus:ring-red-800' : 'border-stone-200 dark:border-stone-700 focus:border-emerald-500 focus:ring-emerald-200 dark:focus:ring-emerald-800'}`}
             />
             {fieldErrors.name && <p className="mt-1 text-sm text-red-600 dark:text-red-400">{fieldErrors.name}</p>}
           </div>
@@ -290,7 +290,7 @@ export default function Contact() {
               onChange={(e) => { setEmail(e.target.value); clearFieldError('email'); }}
               onBlur={() => handleBlur('email', email)}
               placeholder="name@example.com"
-              className={`w-full rounded-xl border bg-stone-50 dark:bg-stone-800 px-4 py-3 text-stone-900 dark:text-stone-100 placeholder:text-stone-400 dark:placeholder:text-stone-400 dark:text-stone-300 focus:outline-none focus:ring-2 transition-colors min-h-[44px] ${fieldErrors.email ? 'border-red-400 dark:border-red-600 focus:border-red-500 focus:ring-red-200 dark:focus:ring-red-800' : 'border-stone-300 dark:border-stone-600 focus:border-emerald-500 focus:ring-emerald-200 dark:focus:ring-emerald-800'}`}
+              className={`w-full rounded-xl border bg-stone-50 dark:bg-stone-800 px-4 py-3 text-stone-900 dark:text-stone-100 placeholder:text-stone-400 dark:placeholder:text-stone-400 dark:text-stone-300 focus:outline-none focus:ring-2 transition-colors min-h-[44px] ${fieldErrors.email ? 'border-red-400 dark:border-red-600 focus:border-red-500 focus:ring-red-200 dark:focus:ring-red-800' : 'border-stone-200 dark:border-stone-700 focus:border-emerald-500 focus:ring-emerald-200 dark:focus:ring-emerald-800'}`}
             />
             {fieldErrors.email && <p className="mt-1 text-sm text-red-600 dark:text-red-400">{fieldErrors.email}</p>}
           </div>
@@ -310,7 +310,7 @@ export default function Contact() {
                 value={subject}
                 onChange={(e) => { setSubject(e.target.value); clearFieldError('subject'); }}
                 onBlur={() => handleBlur('subject', subject)}
-                className={`w-full appearance-none rounded-xl border bg-stone-50 dark:bg-stone-800 px-4 py-3 pe-10 text-stone-900 dark:text-stone-100 focus:outline-none focus:ring-2 transition-colors min-h-[44px] ${fieldErrors.subject ? 'border-red-400 dark:border-red-600 focus:border-red-500 focus:ring-red-200 dark:focus:ring-red-800' : 'border-stone-300 dark:border-stone-600 focus:border-emerald-500 focus:ring-emerald-200 dark:focus:ring-emerald-800'}`}
+                className={`w-full appearance-none rounded-xl border bg-stone-50 dark:bg-stone-800 px-4 py-3 pe-10 text-stone-900 dark:text-stone-100 focus:outline-none focus:ring-2 transition-colors min-h-[44px] ${fieldErrors.subject ? 'border-red-400 dark:border-red-600 focus:border-red-500 focus:ring-red-200 dark:focus:ring-red-800' : 'border-stone-200 dark:border-stone-700 focus:border-emerald-500 focus:ring-emerald-200 dark:focus:ring-emerald-800'}`}
               >
                 {SUBJECTS.map((s) => (
                   <option key={s.value} value={s.value}>
@@ -345,7 +345,7 @@ export default function Contact() {
               onChange={(e) => { setMessage(e.target.value); clearFieldError('message'); }}
               onBlur={() => handleBlur('message', message)}
               placeholder="اكتب رسالتك هنا..."
-              className={`w-full resize-none rounded-xl border bg-stone-50 dark:bg-stone-800 px-4 py-3 text-stone-900 dark:text-stone-100 placeholder:text-stone-400 dark:placeholder:text-stone-400 focus:outline-none focus:ring-2 transition-colors ${fieldErrors.message ? 'border-red-400 dark:border-red-600 focus:border-red-500 focus:ring-red-200 dark:focus:ring-red-800' : 'border-stone-300 dark:border-stone-600 focus:border-emerald-500 focus:ring-emerald-200 dark:focus:ring-emerald-800'}`}
+              className={`w-full resize-none rounded-xl border bg-stone-50 dark:bg-stone-800 px-4 py-3 text-stone-900 dark:text-stone-100 placeholder:text-stone-400 dark:placeholder:text-stone-400 focus:outline-none focus:ring-2 transition-colors ${fieldErrors.message ? 'border-red-400 dark:border-red-600 focus:border-red-500 focus:ring-red-200 dark:focus:ring-red-800' : 'border-stone-200 dark:border-stone-700 focus:border-emerald-500 focus:ring-emerald-200 dark:focus:ring-emerald-800'}`}
             />
             {fieldErrors.message && <p className="mt-1 text-sm text-red-600 dark:text-red-400">{fieldErrors.message}</p>}
           </div>
