@@ -105,7 +105,10 @@ serve(async (req) => {
         const email = userIdToEmail.get(sub.user_id)
         if (!email) { skipped++; continue }
 
-        // Dedup check
+        // Skip if onboarding-drip already sent day1 email
+        const { data: dripSent } = await supabase.from('drip_emails_sent').select('id').eq('user_id', sub.user_id).eq('email_key', 'day1_explore').maybeSingle()
+        if (dripSent) { skipped++; continue }
+
         const { error: dedupErr } = await supabase
           .from('sent_reminders')
           .insert({ user_id: sub.user_id, reminder_type: 'trial_day1' })
