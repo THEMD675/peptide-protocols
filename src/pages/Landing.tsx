@@ -31,7 +31,6 @@ import {
   CreditCard,
   Zap,
   Star,
-  Crown,
   ChevronDown,
   Gift,
   Users,
@@ -115,7 +114,6 @@ interface Testimonial {
   role: string;
   rating: number;
   location?: string;
-  result?: string;
 }
 
 export default function Landing() {
@@ -263,7 +261,7 @@ export default function Landing() {
           {
             '@context': 'https://schema.org',
             '@type': 'Product',
-            name: 'pptides Essentials — الأساسية',
+            name: 'pptides — الأساسية',
             description: `اشتراك شهري يتضمن بطاقات بروتوكول كاملة لـ ${PEPTIDE_COUNT} ببتيد، حاسبة جرعات، دليل تحاليل مخبرية، وبروتوكولات مُجمَّعة.`,
             url: `${SITE_URL}/pricing`,
             brand: { '@type': 'Brand', name: 'pptides' },
@@ -279,7 +277,7 @@ export default function Landing() {
           {
             '@context': 'https://schema.org',
             '@type': 'Product',
-            name: 'pptides Elite — المتقدّمة',
+            name: 'pptides — المتقدّمة',
             description: 'اشتراك شهري يتضمن كل مزايا Essentials بالإضافة إلى مدرب ذكي بالذكاء الاصطناعي 24/7، بروتوكولات مخصّصة، واستشارات بلا حدود.',
             url: `${SITE_URL}/pricing`,
             brand: { '@type': 'Brand', name: 'pptides' },
@@ -760,7 +758,7 @@ export default function Landing() {
           <div className="mt-14 text-center">
             <Link
               to={ctaLink}
-              className="btn-cta-gradient inline-flex items-center justify-center gap-2 rounded-full px-8 py-3.5 text-base font-semibold text-white"
+              className="btn-cta-gradient inline-flex min-h-[44px] items-center justify-center gap-2 rounded-full px-8 py-3.5 text-base font-semibold text-white"
             >
               <span>{ctaText}</span>
               <ArrowLeft className="h-5 w-5" />
@@ -858,7 +856,7 @@ export default function Landing() {
               </ul>
               <Link
                 to={user ? "/pricing" : "/signup?redirect=/pricing"}
-                className="inline-flex items-center justify-center rounded-full bg-emerald-600 px-8 py-3.5 text-base font-semibold text-white transition-all hover:bg-emerald-700 active:scale-[0.98]"
+                className="inline-flex min-h-[44px] items-center justify-center rounded-full bg-emerald-600 px-8 py-3.5 text-base font-semibold text-white transition-all hover:bg-emerald-700 active:scale-[0.98]"
               >
                 {ctaTextShort}
               </Link>
@@ -891,7 +889,7 @@ export default function Landing() {
               </ul>
               <Link
                 to={user ? "/pricing" : "/signup?redirect=/pricing"}
-                className="btn-cta-gradient inline-flex items-center justify-center rounded-full px-8 py-3.5 text-base font-semibold text-white"
+                className="btn-cta-gradient inline-flex min-h-[44px] items-center justify-center rounded-full px-8 py-3.5 text-base font-semibold text-white"
               >
                 {ctaTextShort}
               </Link>
@@ -914,11 +912,11 @@ export default function Landing() {
           <h2 className="text-2xl font-bold text-stone-900 dark:text-stone-100 md:text-3xl">{REFERRAL.heading}</h2>
           <p className="mt-3 text-stone-600 dark:text-stone-300">{REFERRAL.description}</p>
           {user ? (
-            <Link to="/account" className="mt-6 inline-flex items-center gap-2 rounded-full bg-emerald-600 px-8 py-3.5 text-base font-semibold text-white shadow-lg transition hover:bg-emerald-700">
+            <Link to="/account" className="mt-6 inline-flex min-h-[44px] items-center gap-2 rounded-full bg-emerald-600 px-8 py-3.5 text-base font-semibold text-white shadow-lg transition hover:bg-emerald-700">
               {REFERRAL.ctaLoggedIn}
             </Link>
           ) : (
-            <Link to="/signup?redirect=/account" className="mt-6 inline-flex items-center gap-2 rounded-full bg-emerald-600 px-8 py-3.5 text-base font-semibold text-white shadow-lg transition hover:bg-emerald-700">
+            <Link to="/signup?redirect=/account" className="mt-6 inline-flex min-h-[44px] items-center gap-2 rounded-full bg-emerald-600 px-8 py-3.5 text-base font-semibold text-white shadow-lg transition hover:bg-emerald-700">
               {REFERRAL.ctaVisitor}
             </Link>
           )}
