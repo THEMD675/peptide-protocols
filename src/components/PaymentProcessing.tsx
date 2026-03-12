@@ -45,7 +45,6 @@ export default function PaymentProcessing() {
         setStage('success');
         setProgress(100);
         if (timerRef.current) clearInterval(timerRef.current);
-        // Clean URL so refresh doesn't re-show overlay
         try {
           const url = new URL(window.location.href);
           if (url.searchParams.has('payment')) {
@@ -54,6 +53,7 @@ export default function PaymentProcessing() {
             window.history.replaceState({}, '', clean);
           }
         } catch { /* ignore */ }
+        try { localStorage.removeItem('pptides_referral'); } catch { /* ignore */ }
       });
     }
   }, [visible, subscription]);
