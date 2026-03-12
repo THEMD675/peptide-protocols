@@ -649,7 +649,7 @@ export default function Login() {
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="name@example.com"
+                  placeholder="بريدك@example.com"
                   autoFocus
                   autoComplete="email"
                   dir="ltr"
