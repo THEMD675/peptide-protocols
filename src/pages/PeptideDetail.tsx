@@ -6,7 +6,9 @@ import ProtocolWizard from '@/components/ProtocolWizard';
 import { Helmet } from 'react-helmet-async';
 import { cn } from '@/lib/utils';
 import { peptides } from '@/data/peptides';
+import { peptidesPublic } from '@/data/peptides-public';
 import { useAuth } from '@/contexts/AuthContext';
+import { usePeptideProtocol } from '@/hooks/usePeptideProtocol';
 import { supabase } from '@/lib/supabase';
 import { PRICING, TRIAL_PEPTIDE_IDS, SITE_URL, PEPTIDE_COUNT } from '@/lib/constants';
 import { DOSE_PRESETS_MAP as DOSE_PRESETS } from '@/data/dose-presets';
@@ -26,7 +28,9 @@ export default function PeptideDetail() {
   const isPaid = !isLoading && (subscription?.isPaidSubscriber ?? false);
   const isTrial = !isLoading && (subscription?.isTrial ?? false);
 
+  const peptidePublic = useMemo(() => peptidesPublic.find((p) => p.id === id), [id]);
   const peptide = useMemo(() => peptides.find((p) => p.id === id), [id]);
+  const { protocol, loading: protocolLoading } = usePeptideProtocol(id, peptidePublic?.isFree ?? false);
   const [showProtocolWizard, setShowProtocolWizard] = useState(false);
   const { isBookmarked, toggle: toggleBookmark } = useBookmarks();
 
@@ -84,8 +88,8 @@ export default function PeptideDetail() {
     );
   }
 
-  const isFreeContent = peptide.isFree;
-  const hasAccess = isPaid || isFreeContent || (isTrial && TRIAL_PEPTIDE_IDS.has(peptide.id));
+  const isFreeContent = peptide?.isFree ?? peptidePublic?.isFree ?? false;
+  const hasAccess = isFreeContent || !!protocol;
   const firstSentence = peptide.summaryAr?.includes('.') ? peptide.summaryAr.split('.')[0] + '.' : (peptide.summaryAr ?? '');
 
   const evidenceMeter: { label: string; cls: string; sublabel: string } = ({
@@ -97,18 +101,19 @@ export default function PeptideDetail() {
     'very-weak': { label: 'أدلة ضعيفة جداً', sublabel: 'بحوث مخبرية ابتدائية فقط', cls: 'border-stone-200 dark:border-stone-700 bg-stone-100 dark:bg-stone-800 text-stone-600 dark:text-stone-300' },
   } as Record<string, { label: string; cls: string; sublabel: string }>)[peptide.evidenceLevel] ?? { label: 'أدلة محدودة', sublabel: 'بيانات غير كافية', cls: 'border-stone-200 dark:border-stone-700 bg-stone-100 dark:bg-stone-800 text-stone-600 dark:text-stone-300' };
 
+  const proto = protocol;
   const rows: ProtocolRow[] = [
     { label: 'الاسم العلمي', value: peptide.nameEn },
     { label: 'عدد الأحماض الأمينية', value: peptide.aminoAcids },
-    { label: 'آلية العمل', value: peptide.mechanismAr },
-    { label: 'الجرعة الموصى بها', value: peptide.dosageAr, highlight: true },
-    { label: 'توقيت الاستخدام', value: peptide.timingAr },
-    { label: 'مدة الدورة والراحة', value: peptide.cycleAr },
-    { label: 'طريقة الإعطاء', value: peptide.administrationAr, highlight: true },
-    { label: 'الأعراض الجانبية المحتملة', value: peptide.sideEffectsAr },
-    { label: 'موانع الاستخدام', value: peptide.contraindicationsAr },
-    { label: 'التجميع الموصى به', value: peptide.stackAr },
-    { label: 'التخزين', value: peptide.storageAr },
+    { label: 'آلية العمل', value: proto?.mechanism_ar ?? peptide.mechanismAr },
+    { label: 'الجرعة الموصى بها', value: proto?.dosage_ar ?? peptide.dosageAr, highlight: true },
+    { label: 'توقيت الاستخدام', value: proto?.timing_ar ?? peptide.timingAr },
+    { label: 'مدة الدورة والراحة', value: proto?.cycle_ar ?? peptide.cycleAr },
+    { label: 'طريقة الإعطاء', value: proto?.administration_ar ?? peptide.administrationAr, highlight: true },
+    { label: 'الأعراض الجانبية المحتملة', value: proto?.side_effects_ar ?? peptide.sideEffectsAr },
+    { label: 'موانع الاستخدام', value: proto?.contraindications_ar ?? peptide.contraindicationsAr },
+    { label: 'التجميع الموصى به', value: proto?.stack_ar ?? peptide.stackAr },
+    { label: 'التخزين', value: proto?.storage_ar ?? peptide.storageAr },
   ];
 
   return (
@@ -303,7 +308,11 @@ export default function PeptideDetail() {
         </div>
 
         {/* Protocol Content */}
-        {hasAccess ? (<>
+        {protocolLoading && !isFreeContent ? (
+          <div className="mt-6 flex items-center justify-center py-12">
+            <div className="h-8 w-8 animate-spin rounded-full border-4 border-emerald-200 border-t-emerald-600" />
+          </div>
+        ) : hasAccess ? (<>
           {/* ── Subscriber: full protocol ── */}
           <div
             id="protocol"
@@ -364,15 +373,15 @@ export default function PeptideDetail() {
                 <AlertTriangle className="h-4 w-4 shrink-0 text-amber-600 dark:text-amber-400" />
                 <h3 className="text-sm font-bold text-amber-800 dark:text-amber-300">الأعراض الجانبية الشائعة</h3>
               </div>
-              <p className="text-sm leading-relaxed text-amber-800 dark:text-amber-200">{peptide.sideEffectsAr}</p>
+              <p className="text-sm leading-relaxed text-amber-800 dark:text-amber-200">{proto?.side_effects_ar ?? peptide.sideEffectsAr}</p>
             </div>
-            {peptide.contraindicationsAr && (
+            {(proto?.contraindications_ar ?? peptide.contraindicationsAr) && (
               <div className="rounded-xl border border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-900/10 p-4">
                 <div className="mb-2 flex items-center gap-2">
                   <AlertTriangle className="h-4 w-4 shrink-0 text-red-600 dark:text-red-400" />
                   <h3 className="text-sm font-bold text-red-800 dark:text-red-300">موانع الاستخدام</h3>
                 </div>
-                <p className="text-sm leading-relaxed text-red-800 dark:text-red-200">{peptide.contraindicationsAr}</p>
+                <p className="text-sm leading-relaxed text-red-800 dark:text-red-200">{proto?.contraindications_ar ?? peptide.contraindicationsAr}</p>
               </div>
             )}
           </div>

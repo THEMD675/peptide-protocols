@@ -232,12 +232,9 @@ export default function Stacks() {
                 </div>
               </div>
 
-              {/* Description + Protocol — blurred for non-subscribers */}
+              {/* Description + Protocol — hidden for non-subscribers (not just blurred) */}
               <div className="relative flex-1">
-                <div
-                  aria-hidden={!isPro}
-                  tabIndex={!isPro ? -1 : undefined}
-                  className={!isPro ? 'blur-[6px] pointer-events-none select-none max-h-40 overflow-hidden' : ''}
+                {isPro ? <div
                 >
                   <p className="mb-4 text-sm leading-relaxed text-stone-700 dark:text-stone-200">
                     {stack.descriptionAr}
@@ -282,9 +279,8 @@ export default function Stacks() {
                       احسب الجرعة
                     </Link>
                   </div>
-                </div>
+                </div> : null}
 
-                {/* Tier gate — overlay directly on blurred content */}
                 {!isPro && (
                   <div className="absolute inset-0 flex flex-col items-center justify-center rounded-xl bg-white/70 dark:bg-stone-900/80 backdrop-blur-sm p-4 text-center">
                     <div className="mb-2 flex h-10 w-10 items-center justify-center rounded-full bg-emerald-100 dark:bg-emerald-900/40">
