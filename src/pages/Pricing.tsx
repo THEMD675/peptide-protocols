@@ -61,7 +61,7 @@ const faqs = [
 ];
 
 export default function Pricing() {
-  const { user, subscription, upgradeTo } = useAuth();
+  const { user, subscription, upgradeTo, isLoading: authLoading } = useAuth();
   const salesFlow = useSalesFlow();
   const { offer, urlParams, checkoutCoupon, showTrialMessaging } = salesFlow;
 
@@ -116,6 +116,9 @@ export default function Pricing() {
   }, [searchParams, setSearchParams, urlParams.isSetupFlow, urlParams.isExpiredFlow, subscription?.status]);
 
   const renderAction = (planKey: 'essentials' | 'elite', isElite: boolean) => {
+    if (authLoading) {
+      return <div className="h-[52px] w-full animate-pulse rounded-full bg-stone-200 dark:bg-stone-700" />;
+    }
     const cancelledButActive = user && subscription?.status === 'cancelled' && subscription?.currentPeriodEnd && new Date(subscription.currentPeriodEnd) > new Date();
     const openPortal = async () => {
       try {

@@ -104,7 +104,7 @@ export default function Login() {
         callback: (token: string) => setTurnstileToken(token),
         'error-callback': () => setTurnstileToken(null),
         'expired-callback': () => setTurnstileToken(null),
-        theme: 'light',
+        theme: document.documentElement.classList.contains('dark') ? 'dark' : 'light',
         size: 'flexible',
         language: 'ar',
       }) ?? null;
@@ -544,8 +544,10 @@ export default function Login() {
             {(['login', 'signup'] as const).map((t) => (
               <button
                 key={t}
+                id={`tab-${t}`}
                 role="tab"
                 aria-selected={tab === t}
+                aria-controls="login-tabpanel"
                 onClick={() => switchTab(t)}
                 className={cn(
                   'relative flex-1 py-3.5 text-center text-sm font-semibold transition-colors',
@@ -558,7 +560,7 @@ export default function Login() {
             ))}
           </div>
 
-          <div className="px-6 pb-8 pt-6">
+          <div className="px-6 pb-8 pt-6" role="tabpanel" aria-labelledby={`tab-${tab}`}>
             {/* Google Sign In — custom Arabic button wraps the hidden GIS button for full locale control */}
             {GOOGLE_CLIENT_ID && (
               <>
@@ -568,6 +570,7 @@ export default function Login() {
                 {/* Visible custom Arabic button */}
                 <button
                   type="button"
+                  aria-label="تسجيل الدخول عبر جوجل"
                   disabled={loading || googleLoading}
                   onClick={async () => {
                     // Respect ?redirect= param so Google sign-in from /signup?redirect=/pricing lands on /pricing

@@ -181,7 +181,7 @@ export default function Tracker() {
     if (!user || isSubmitting) return;
     setIsSubmitting(true);
     try {
-      const { error } = await supabase.from('injection_logs').insert({
+      const payload = {
         user_id: user.id,
         peptide_name: allPeptides.find(p => p.id === proto.peptide_id)?.nameEn ?? proto.peptide_id,
         dose: proto.dose,
@@ -189,9 +189,17 @@ export default function Tracker() {
         injection_site: suggestedSite,
         logged_at: new Date().toISOString(),
         protocol_id: proto.id,
-      });
+      };
+      const { error } = await supabase.from('injection_logs').insert(payload);
       if (error) {
-        if (error?.message?.includes('JWT') || (error as { code?: string })?.code === '401' || error?.message?.includes('not authenticated')) {
+        if (!navigator.onLine && navigator.serviceWorker?.controller) {
+          const session = await supabase.auth.getSession();
+          navigator.serviceWorker.controller.postMessage({
+            type: 'QUEUE_INJECTION',
+            payload: { ...payload, _supabase_url: import.meta.env.VITE_SUPABASE_URL, _anon_key: import.meta.env.VITE_SUPABASE_ANON_KEY, _access_token: session.data.session?.access_token },
+          });
+          toast.success('محفوظ للمزامنة عند الاتصال بالإنترنت');
+        } else if (error?.message?.includes('JWT') || (error as { code?: string })?.code === '401' || error?.message?.includes('not authenticated')) {
           toast.error('انتهت الجلسة — أعد تسجيل الدخول');
         } else {
           toast.error('تعذّر حفظ الحقنة — تحقق من اتصالك وحاول مرة أخرى');

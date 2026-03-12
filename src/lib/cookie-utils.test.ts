@@ -37,5 +37,15 @@ describe('cookie-utils', () => {
     it('returns false when no consent', () => {
       expect(hasOptionalConsent()).toBe(false)
     })
+
+    it('returns true when consent is accepted', () => {
+      localStorage.setItem(COOKIE_CONSENT_STORAGE_KEY, 'accepted')
+      expect(hasOptionalConsent()).toBe(true)
+    })
+
+    it('returns false when consent is rejected', () => {
+      localStorage.setItem(COOKIE_CONSENT_STORAGE_KEY, 'rejected')
+      expect(hasOptionalConsent()).toBe(false)
+    })
   })
 })

@@ -1,4 +1,5 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback, useRef, lazy, Suspense } from 'react';
+const FocusTrap = lazy(() => import('focus-trap-react'));
 
 const TH_CLASS = 'px-3 py-2 text-start font-medium text-stone-600 dark:text-stone-300';
 import { Link } from 'react-router-dom';
@@ -203,6 +204,8 @@ function Modal({ open, title, children, onClose }: { open: boolean; title: strin
   const titleId = 'modal-title';
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" onClick={onClose} onKeyDown={(e) => { if (e.key === 'Escape') onClose(); }} tabIndex={-1}>
+      <Suspense fallback={null}>
+      <FocusTrap focusTrapOptions={{ allowOutsideClick: true }}>
       <div className="w-full max-w-md max-h-[90vh] overflow-y-auto rounded-2xl bg-white dark:bg-stone-900 p-6 shadow-xl dark:shadow-stone-900/40" onClick={e => e.stopPropagation()} role="dialog" aria-modal="true" aria-labelledby={titleId}>
         <div className="flex items-center justify-between mb-4">
           <h3 id={titleId} className="text-lg font-bold text-stone-900 dark:text-stone-100">{title}</h3>
@@ -210,6 +213,8 @@ function Modal({ open, title, children, onClose }: { open: boolean; title: strin
         </div>
         {children}
       </div>
+      </FocusTrap>
+      </Suspense>
     </div>
   );
 }
