@@ -7,6 +7,7 @@ const stripeKey = Deno.env.get('STRIPE_SECRET_KEY') ?? ''
 const stripe = new Stripe(stripeKey, { apiVersion: '2024-06-20', timeout: 10000 })
 const supabaseUrl = Deno.env.get('SUPABASE_URL') ?? ''
 const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
+const APP_URL = Deno.env.get('APP_URL') ?? 'https://pptides.com'
 
 import { getCorsHeaders, handleCorsPreflightIfOptions } from '../_shared/cors.ts'
 import { emailWrapper, emailButton } from '../_shared/email-template.ts'
@@ -232,7 +233,7 @@ serve(async (req) => {
             <h2 style="color:#1c1917;font-size:20px;">تم إلغاء اشتراكك</h2>
             <p style="color:#44403c;line-height:1.8;">ستحتفظ بالوصول حتى نهاية الفترة الحالية (${periodEnd.split('T')[0]}).</p>
             <div style="text-align:center;margin:24px 0;">
-              ${emailButton('أعد الاشتراك', 'https://pptides.com/pricing')}
+              ${emailButton('أعد الاشتراك', '${APP_URL}/pricing')}
             </div>
           `),
         replyTo: 'contact@pptides.com',
