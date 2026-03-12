@@ -177,7 +177,7 @@ function useRecentActivity(userId: string | undefined) {
   const cutoff = useMemo(() => new Date(Date.now() - 35 * 24 * 60 * 60 * 1000).toISOString(), []);
 
   const loadMore = useCallback(async () => {
-    if (!userId || loadingMore) return;
+    if (!userId || loadingMore || logs.length === 0) return;
     setLoadingMore(true);
     const lastLog = logs[logs.length - 1];
     const { data, error } = await supabase
@@ -386,7 +386,7 @@ function useWellnessTrend(userId: string | undefined) {
         prevAvg: Math.round(avg(lastWeek.data ?? []) * 10) / 10,
         sideEffects7d: sides.count ?? 0,
       });
-    }).catch(() => {});
+    }).catch((e) => console.warn("Dashboard sync failed:", e));
     return () => { mounted = false; };
   }, [userId]);
   return trend;
@@ -461,7 +461,7 @@ export default function Dashboard() {
             }));
           }
         } catch { /* expected */ }
-      }).catch(() => {});
+      }).catch((e) => console.warn("Dashboard sync failed:", e));
     return () => { mounted = false; };
   }, [user?.id]);
 
@@ -560,7 +560,7 @@ export default function Dashboard() {
                     <div className="h-1.5 w-16 overflow-hidden rounded-full bg-stone-200 dark:bg-stone-700">
                       <div className="h-full rounded-full bg-emerald-500 transition-all" style={{ width: `${progress}%` }} />
                     </div>
-                    <span className="text-[10px] text-stone-400">{nextThreshold - activity.totalInjections} للتالي</span>
+                    <span className="text-xs text-stone-400">{nextThreshold - activity.totalInjections} للتالي</span>
                   </div>
                 )}
               </div>
@@ -691,7 +691,7 @@ export default function Dashboard() {
       {/* Loading skeleton while activity data fetches — uses shimmer for consistency */}
       {activity.loading && (
         <div className="mb-8 space-y-4 animate-fade-in">
-          <div className="grid grid-cols-3 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             {[0, 1, 2].map(i => (
               <div key={i} className="h-20 rounded-xl animate-pulse bg-stone-200 dark:bg-stone-700 skeleton-shimmer" />
             ))}
@@ -731,25 +731,25 @@ export default function Dashboard() {
         const milestoneProgress = milestonePrev === milestoneNext ? 100 : Math.round(((total - milestonePrev) / (milestoneNext - milestonePrev)) * 100);
         return (
           <div className="mb-8">
-            <div className="grid grid-cols-3 gap-3 mb-3">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-3">
               <div className="rounded-xl border border-emerald-100 bg-gradient-to-b from-emerald-50 to-white dark:to-stone-950 p-3 text-center">
                 <p className="text-2xl font-black text-emerald-700">{total}</p>
-                <p className="text-[11px] font-medium text-stone-500 dark:text-stone-300">حقنة مسجّلة</p>
+                <p className="text-xs font-medium text-stone-500 dark:text-stone-300">حقنة مسجّلة</p>
               </div>
               <div className="rounded-xl border border-emerald-100 bg-gradient-to-b from-emerald-50 to-white dark:to-stone-950 p-3 text-center">
                 <p className="text-2xl font-black text-emerald-700">{activity.streak}</p>
-                <p className="text-[11px] font-medium text-stone-500 dark:text-stone-300">يوم متتالي</p>
+                <p className="text-xs font-medium text-stone-500 dark:text-stone-300">يوم متتالي</p>
               </div>
               <div className="rounded-xl border border-emerald-100 bg-gradient-to-b from-emerald-50 to-white dark:to-stone-950 p-3 text-center">
                 <p className="text-2xl font-black text-emerald-700">{activeProtocols.length}</p>
-                <p className="text-[11px] font-medium text-stone-500 dark:text-stone-300">بروتوكول نشط</p>
+                <p className="text-xs font-medium text-stone-500 dark:text-stone-300">بروتوكول نشط</p>
               </div>
             </div>
             {total > 0 ? (
               <div className="rounded-xl border border-stone-100 dark:border-stone-700 bg-white dark:bg-stone-900 p-3">
                 <div className="flex items-center justify-between mb-1.5">
-                  <p className="text-[11px] font-bold text-stone-600 dark:text-stone-300">الإنجاز التالي: {milestoneNext} حقنة</p>
-                  <p className="text-[11px] font-bold text-emerald-700">{milestoneProgress}%</p>
+                  <p className="text-xs font-bold text-stone-600 dark:text-stone-300">الإنجاز التالي: {milestoneNext} حقنة</p>
+                  <p className="text-xs font-bold text-emerald-700">{milestoneProgress}%</p>
                 </div>
                 <div className="h-2 w-full overflow-hidden rounded-full bg-stone-100 dark:bg-stone-800">
                   <div className="h-full rounded-full bg-emerald-500 transition-all duration-700" style={{ width: `${milestoneProgress}%` }} />
@@ -932,14 +932,18 @@ export default function Dashboard() {
                       <button
                         onClick={async () => {
                           const text = `أكملت بروتوكول ${peptide?.nameAr ?? proto.peptide_id} (${proto.cycle_weeks} أسابيع) على pptides.com\n\npptides — أشمل دليل عربي للببتيدات العلاجية`;
-                          if (navigator.share) {
-                            await navigator.share({ title: 'شهادة إتمام بروتوكول', text }).catch(() => {});
-                          } else {
-                            await navigator.clipboard.writeText(text).catch(() => {});
-                            toast.success('تم نسخ الشهادة');
+                          try {
+                            if (navigator.share) {
+                              await navigator.share({ title: 'شهادة إتمام بروتوكول', text });
+                            } else {
+                              await navigator.clipboard.writeText(text);
+                              toast.success('تم نسخ الشهادة');
+                            }
+                          } catch {
+                            toast.error('تعذّر المشاركة');
                           }
                         }}
-                        className="mt-2 flex items-center gap-1.5 rounded-full bg-emerald-600 px-3 py-1.5 text-[11px] font-bold text-white hover:bg-emerald-700 transition-colors"
+                        className="mt-2 flex items-center gap-1.5 rounded-full bg-emerald-600 px-3 py-1.5 text-xs font-bold text-white hover:bg-emerald-700 transition-colors"
                       >
                         <Trophy className="h-3.5 w-3.5" />
                         شارك شهادة الإتمام

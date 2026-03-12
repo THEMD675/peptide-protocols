@@ -341,7 +341,7 @@ export default function Coach() {
           setIntakeStep('done');
         }
       })
-      .catch(() => {});
+      .catch((e) => { console.warn('Coach conversation load failed:', e); });
   }, [user?.id]);
   const DRAFT_KEY = 'pptides_coach_draft';
   const DEEPSEEK_CONSENT_KEY = 'pptides_deepseek_consent';
@@ -416,7 +416,7 @@ export default function Coach() {
   }, [input, DRAFT_KEY]);
 
   useEffect(() => { scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: 'smooth' }); }, [messages, intakeStep]);
-  useEffect(() => { if (user) buildUserContext(user.id).then(ctx => { userContextRef.current = ctx; }).catch(() => {}); }, [user]);
+  useEffect(() => { if (user) buildUserContext(user.id).then(ctx => { userContextRef.current = ctx; }).catch((e) => console.warn('Coach context build failed:', e)); }, [user]);
 
   // Migrate anon session data when user logs in (prevents loss on session expiry mid-form)
   useEffect(() => {
@@ -886,7 +886,7 @@ export default function Coach() {
                     ) : msg.content.startsWith('__ERROR') ? (
                       <div className="text-sm text-stone-800 dark:text-stone-200">
                         <p className="mb-2">{
-                          msg.content === '__ERROR__:429' ? `وصلت إلى حد الرسائل. الباقة المتقدّمة تعطيك استشارات بلا حدود — ${PRICING.elite.label}/شهر، ${TRIAL_DAYS} أيام مجانًا.` :
+                          msg.content === '__ERROR__:429' ? 'الخدمة مشغولة حاليًا — حاول مرة أخرى بعد دقيقة.' :
                           msg.content === '__ERROR__:403' ? 'انتهت صلاحية جلستك — أعد تسجيل الدخول للمتابعة.' :
                           msg.content === '__ERROR__:401' ? 'سجّل دخولك أولًا للاستفادة من المدرب الذكي.' :
                           msg.content === '__ERROR__:500' ? 'خدمة المدرب الذكي غير متاحة حاليًا — حاول مرة أخرى بعد لحظات.' :
@@ -1115,7 +1115,7 @@ export default function Coach() {
                 <div className="rounded-xl border-2 border-emerald-400 bg-gradient-to-b from-emerald-50 to-white dark:to-stone-950 p-6 text-center shadow-sm dark:shadow-stone-900/30">
                   <Crown className="mx-auto mb-3 h-8 w-8 text-emerald-700" />
                   <p className="text-lg font-bold text-stone-900 dark:text-stone-100">لقد وصلت للحد الأقصى</p>
-                  <p className="mt-2 text-sm text-stone-600 dark:text-stone-300">ترقَّ إلى المتقدّمة لاستشارات بلا حدود</p>
+                  <p className="mt-2 text-sm text-stone-600 dark:text-stone-300">ترقَّ إلى المتقدّمة لاستشارات غير محدودة</p>
                   <Link to="/pricing?plan=elite" className="mt-4 inline-flex items-center gap-2 rounded-full bg-emerald-600 px-8 py-3.5 text-base font-semibold text-white transition-colors hover:bg-emerald-700">
                     <Crown className="h-4 w-4" />
                     ترقية إلى المتقدّمة
@@ -1125,7 +1125,7 @@ export default function Coach() {
                 <div className="rounded-xl border-2 border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-900/20 p-5 text-center">
                   <Sparkles className="mx-auto mb-2 h-6 w-6 text-emerald-700" />
                   <p className="font-bold text-stone-900 dark:text-stone-100">{hasAccess ? 'وصلت حد الأسئلة لهذه الجلسة' : 'أعجبتك الاستشارة؟'}</p>
-                  <p className="mt-1 text-sm text-stone-600 dark:text-stone-300">{!isElite && (hasAccess ? 'ترقَّ إلى المتقدّمة لاستشارات بلا حدود.' : `اشترك لاستشارات مخصّصة بلا حدود — ${TRIAL_DAYS} أيام مجانًا`)}</p>
+                  <p className="mt-1 text-sm text-stone-600 dark:text-stone-300">{!isElite && (hasAccess ? 'ترقَّ إلى المتقدّمة لاستشارات غير محدودة.' : `اشترك لاستشارات مخصّصة بلا حدود — ${TRIAL_DAYS} أيام مجانًا`)}</p>
                   {!isElite && <button onClick={async () => { try { if (hasAccess) await upgradeTo('elite'); else navigate(user ? '/pricing' : '/signup?redirect=/pricing'); } catch { /* non-blocking */ } }} className="mt-3 rounded-full bg-emerald-600 px-8 py-3.5 text-base font-semibold text-white transition-colors hover:bg-emerald-700">{hasAccess ? 'ترقَّ إلى المتقدّمة' : `اشترك — ${PRICING.essentials.label}/شهر`}</button>}
                 </div>
                 )
@@ -1176,8 +1176,8 @@ export default function Coach() {
                         <Send className="h-5 w-5 text-white" /><span className="sr-only">إرسال</span>
                       </button>
                     </div>
-                    <p className="text-[10px] text-stone-400 dark:text-stone-300 text-start px-1">
-                      Enter للإرسال · Shift+Enter لسطر جديد
+                    <p className="text-xs text-stone-400 dark:text-stone-300 text-start px-1">
+                      ↵ للإرسال · Shift+↵ لسطر جديد
                     </p>
                   </div>
                 </>

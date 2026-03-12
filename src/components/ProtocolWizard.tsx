@@ -65,7 +65,7 @@ export default function ProtocolWizard({ peptideId, prefillDose, prefillUnit, on
       if (!mounted) return;
       if (!countRes.error) setExistingProtocols(countRes.count ?? 0);
       if (!dupeRes.error) setHasDuplicatePeptide((dupeRes.count ?? 0) > 0);
-    })().catch(() => {});
+    })().catch((e: unknown) => console.warn("silent catch:", e));
     return () => { mounted = false; };
   }, [user, peptideId]);
 

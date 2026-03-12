@@ -16,25 +16,19 @@ const MAX_CONTEXT_MESSAGES = 30
 const RATE_LIMIT_WINDOW_SECONDS = 60
 const RATE_LIMIT_MAX = 10
 
-// Uses ai_coach_requests table instead of _shared/rate-limit.ts: different fail behavior (insert-based dedup vs rate_limits),
-// different window/semantics, and this table doubles as usage tracking. Architectural cleanup not worth the risk.
+import { checkRateLimit as sharedCheckRateLimit } from '../_shared/rate-limit.ts'
+
 async function checkRateLimit(userId: string, supabase: ReturnType<typeof createClient>): Promise<boolean> {
-  const windowStart = new Date(Date.now() - RATE_LIMIT_WINDOW_SECONDS * 1000).toISOString()
-  const { count, error } = await supabase
-    .from('ai_coach_requests')
-    .select('id', { count: 'exact', head: true })
-    .eq('user_id', userId)
-    .gte('created_at', windowStart)
-
-  if (error) {
-    console.error('rate-limit check failed, denying request:', error.message)
-    return false
-  }
-
-  if ((count ?? 0) >= RATE_LIMIT_MAX) return false
+  const allowed = await sharedCheckRateLimit(supabase, {
+    endpoint: 'ai-coach',
+    identifier: userId,
+    windowSeconds: RATE_LIMIT_WINDOW_SECONDS,
+    maxRequests: RATE_LIMIT_MAX,
+  })
+  if (!allowed) return false
 
   const { error: insertErr } = await supabase.from('ai_coach_requests').insert({ user_id: userId })
-  if (insertErr) console.error('ai-coach: rate limit insert failed:', insertErr.message)
+  if (insertErr) console.warn('ai-coach: usage tracking insert failed:', insertErr.message)
   return true
 }
 

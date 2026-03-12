@@ -14,7 +14,7 @@ interface DoseTrendChartProps {
 
 export default memo(function DoseTrendChart({ data, unit = 'mcg' }: DoseTrendChartProps) {
   const { isDark } = useTheme();
-  if (data.length < 2) return null;
+  if (data.length < 2) return <p className="text-center text-xs text-stone-500 dark:text-stone-400 py-4">سجّل جرعتين على الأقل لعرض الرسم البياني</p>;
 
   const tickColor = isDark ? '#d6d3d1' : '#78716c';
   const gridColor = isDark ? '#44403c' : '#e7e5e4';

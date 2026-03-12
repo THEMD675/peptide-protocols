@@ -267,11 +267,11 @@ function generateDailyBriefing(data: UserProactiveData): DailyBriefing | null {
     // Check for notable values
     const igf = data.labHighlights.find(l => l.test_id.toLowerCase().includes('igf'));
     if (igf && igf.value < 150) {
-      observations.push(`بناءً على نتائجك: IGF-1 عند ${igf.value} ${igf.unit} — منخفض. اقتراحي: CJC-1295 + Ipamorelin.`);
+      observations.push(`بناءً على نتائجك: IGF-1 عند ${igf.value} ${igf.unit} — منخفض. اقتراح تعليمي: CJC-1295 + Ipamorelin. ⚠️ استشر طبيبك قبل البدء.`);
     }
     const testosterone = data.labHighlights.find(l => l.test_id.toLowerCase().includes('test'));
     if (testosterone && testosterone.value < 400) {
-      observations.push(`بناءً على نتائج مختبرك: التستوستيرون عند ${testosterone.value} ${testosterone.unit}. هل تريد مناقشة خيارات التحسين؟`);
+      observations.push(`بناءً على نتائج مختبرك: التستوستيرون عند ${testosterone.value} ${testosterone.unit}. ⚠️ هذا اقتراح تعليمي — استشر طبيبك قبل أي قرار علاجي.`);
     }
   }
 
@@ -487,7 +487,7 @@ function generateInsights(data: UserProactiveData): ProactiveInsight[] {
       insights.push({
         id: 'low-igf',
         icon: 'lightbulb',
-        text: `IGF-1 عندك ${igf.value} ${igf.unit} — منخفض. اقتراح: CJC-1295 + Ipamorelin`,
+        text: `IGF-1 عندك ${igf.value} ${igf.unit} — منخفض. اقتراح تعليمي: CJC-1295 + Ipamorelin ⚠️ استشر طبيبك`,
         priority: 85,
       });
     }

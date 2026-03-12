@@ -98,7 +98,7 @@ class ErrorBoundary extends Component<{ children: ReactNode }, { hasError: boole
   render() {
     if (this.state.hasError) {
       return (
-        <div role="alert" dir="rtl" className="flex min-h-[50vh] flex-col items-center justify-center px-6 text-center">
+        <div role="alert" aria-live="assertive" dir="rtl" className="flex min-h-[50vh] flex-col items-center justify-center px-6 text-center">
           <h2 className="mb-3 text-2xl font-bold text-stone-900 dark:text-stone-100">حدث خطأ غير متوقع</h2>
           <p className="mb-6 text-stone-600 dark:text-stone-300">
             {this.state.isChunkError ? 'تم تحديث الموقع — يرجى تحديث الصفحة.' : 'نعتذر عن هذا الخطأ. يرجى تحديث الصفحة أو العودة للرئيسية.'}
@@ -238,7 +238,8 @@ function LogoutRedirect() {
 function LibraryIdRedirect() {
   const { id } = useParams<{ id: string }>();
   const { search } = useLocation();
-  return <Navigate to={`/peptide/${id ?? ''}${search}`} replace />;
+  if (!id) return <Navigate to="/library" replace />;
+  return <Navigate to={`/peptide/${id}${search}`} replace />;
 }
 
 const overlayListeners = new Set<() => void>();

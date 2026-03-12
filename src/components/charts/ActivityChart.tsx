@@ -14,7 +14,7 @@ interface ActivityChartProps {
 
 export default memo(function ActivityChart({ data }: ActivityChartProps) {
   const { isDark } = useTheme();
-  if (data.length === 0) return null;
+  if (data.length === 0) return <p className="text-center text-xs text-stone-500 dark:text-stone-400 py-4">لا توجد بيانات نشاط بعد</p>;
 
   const tickColor = isDark ? '#d6d3d1' : '#78716c';
   const emptyBarColor = isDark ? '#44403c' : '#e7e5e4';

@@ -437,14 +437,14 @@ function InteractiveReferenceRanges({ isPro, blurClass }: { isPro: boolean; blur
                   <div className="flex items-center gap-2 flex-wrap">
                     <span className="font-bold text-stone-900 dark:text-stone-100">{b.nameAr}</span>
                     <span className="text-xs text-stone-500 dark:text-stone-300" dir="ltr">{b.name}</span>
-                    <span className="rounded-full bg-stone-100 px-2 py-0.5 text-[10px] font-medium text-stone-600 dark:bg-stone-800 dark:text-stone-300">
+                    <span className="rounded-full bg-stone-100 px-2 py-0.5 text-xs font-medium text-stone-600 dark:bg-stone-800 dark:text-stone-300">
                       {b.categoryAr}
                     </span>
                   </div>
                   <div className="mt-2">
                     <RangeBar biomarker={b} />
                   </div>
-                  <div className="mt-1 flex justify-between text-[10px] text-stone-400" dir="ltr">
+                  <div className="mt-1 flex justify-between text-xs text-stone-400" dir="ltr">
                     <span>{b.normalMin} {b.unit}</span>
                     <span className="text-emerald-700 font-medium">النطاق الطبيعي</span>
                     <span>{b.normalMax} {b.unit}</span>
@@ -483,7 +483,7 @@ function InteractiveReferenceRanges({ isPro, blurClass }: { isPro: boolean; blur
                     </div>
                     <div className="flex flex-wrap gap-1.5">
                       {b.relatedPeptides.map(p => (
-                        <span key={p} className="inline-block rounded-full border border-emerald-200 bg-emerald-50 px-2 py-0.5 text-[11px] font-medium text-emerald-700 dark:border-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-400">
+                        <span key={p} className="inline-block rounded-full border border-emerald-200 bg-emerald-50 px-2 py-0.5 text-xs font-medium text-emerald-700 dark:border-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-400">
                           {p}
                         </span>
                       ))}
@@ -563,7 +563,7 @@ function TestPackages({ isPro, blurClass }: { isPro: boolean; blurClass: string 
                 <h3 className="mt-2 text-lg font-bold text-stone-900 dark:text-stone-100">{pkg.nameAr}</h3>
                 <div className={cn('mt-1 text-2xl font-black', c.text)}>{pkg.price}</div>
                 {pkg.id === 'peptide' && (
-                  <span className="mt-1 inline-block rounded-full bg-blue-600 px-2.5 py-0.5 text-[10px] font-bold text-white">
+                  <span className="mt-1 inline-block rounded-full bg-blue-600 px-2.5 py-0.5 text-xs font-bold text-white">
                     الأكثر طلباً
                   </span>
                 )}
@@ -576,7 +576,7 @@ function TestPackages({ isPro, blurClass }: { isPro: boolean; blurClass: string 
               <div className={cn('mt-3', blurClass)} aria-hidden={!isPro || undefined}>
                 <div className="flex flex-wrap justify-center gap-1">
                   {pkg.testsAr.map(t => (
-                    <span key={t} className="rounded-full bg-white/70 dark:bg-stone-800/70 px-2 py-0.5 text-[10px] font-medium text-stone-700 dark:text-stone-200">
+                    <span key={t} className="rounded-full bg-white/70 dark:bg-stone-800/70 px-2 py-0.5 text-xs font-medium text-stone-700 dark:text-stone-200">
                       {t}
                     </span>
                   ))}
@@ -593,7 +593,7 @@ function TestPackages({ isPro, blurClass }: { isPro: boolean; blurClass: string 
                   <div className="mt-2 rounded-xl bg-white/60 dark:bg-stone-800/60 p-3">
                     <ul className="space-y-1">
                       {pkg.tests.map(t => (
-                        <li key={t} className="flex items-center gap-1.5 text-[11px] text-stone-600 dark:text-stone-300">
+                        <li key={t} className="flex items-center gap-1.5 text-xs text-stone-600 dark:text-stone-300">
                           <CheckCircle className="h-3 w-3 shrink-0 text-emerald-500" />
                           <span dir="ltr">{t}</span>
                         </li>
@@ -603,7 +603,7 @@ function TestPackages({ isPro, blurClass }: { isPro: boolean; blurClass: string 
                 )}
               </div>
 
-              <div className="mt-3 rounded-lg bg-stone-100/60 dark:bg-stone-800/40 px-3 py-1.5 text-center text-[10px] text-stone-500 dark:text-stone-300">
+              <div className="mt-3 rounded-lg bg-stone-100/60 dark:bg-stone-800/40 px-3 py-1.5 text-center text-xs text-stone-500 dark:text-stone-300">
                 {pkg.recommended}
               </div>
 
@@ -655,10 +655,10 @@ function TestingTimeline() {
                 <div className={cn('flex-1 rounded-2xl border p-4', colors[step.color])}>
                   <div className="flex items-center gap-2 mb-1">
                     <h3 className="font-bold text-stone-900 dark:text-stone-100">{step.label}</h3>
-                    {i === 0 && <span className="rounded-full bg-emerald-600 px-2 py-0.5 text-[10px] font-bold text-white">أساسي</span>}
+                    {i === 0 && <span className="rounded-full bg-emerald-600 px-2 py-0.5 text-xs font-bold text-white">أساسي</span>}
                   </div>
                   <p className="text-xs text-stone-600 dark:text-stone-300">{step.description}</p>
-                  <div className="mt-2 flex items-center gap-1.5 text-[10px] text-stone-500 dark:text-stone-300">
+                  <div className="mt-2 flex items-center gap-1.5 text-xs text-stone-500 dark:text-stone-300">
                     <Package className="h-3 w-3" />
                     <span>{step.package}</span>
                   </div>
@@ -692,9 +692,9 @@ function TestingTimeline() {
                 </div>
                 <div className={cn('mt-3 w-full rounded-2xl border p-3', cardColors[step.color])}>
                   <h3 className="font-bold text-sm text-stone-900 dark:text-stone-100">{step.label}</h3>
-                  <span className="text-[10px] text-stone-500 dark:text-stone-300">{step.label}</span>
-                  <p className="mt-1.5 text-[11px] text-stone-600 dark:text-stone-300 leading-relaxed">{step.description}</p>
-                  <div className="mt-2 rounded-lg bg-white/60 dark:bg-stone-800/40 px-2 py-1 text-[10px] text-stone-500 dark:text-stone-300">
+                  <span className="text-xs text-stone-500 dark:text-stone-300">{step.label}</span>
+                  <p className="mt-1.5 text-xs text-stone-600 dark:text-stone-300 leading-relaxed">{step.description}</p>
+                  <div className="mt-2 rounded-lg bg-white/60 dark:bg-stone-800/40 px-2 py-1 text-xs text-stone-500 dark:text-stone-300">
                     {step.package}
                   </div>
                 </div>
@@ -761,7 +761,7 @@ function ResultsInterpreter({ isPro, blurClass }: { isPro: boolean; blurClass: s
         {/* Visual range bar */}
         <div className="mt-4">
           <RangeBar biomarker={biomarker} value={hasValue ? numericValue : undefined} />
-          <div className="mt-1 flex justify-between text-[10px] text-stone-400" dir="ltr">
+          <div className="mt-1 flex justify-between text-xs text-stone-400" dir="ltr">
             <span>{biomarker.absMin}</span>
             <span className="text-emerald-700">{biomarker.normalMin} — {biomarker.normalMax} {biomarker.unit}</span>
             <span>{biomarker.absMax}</span>
@@ -859,7 +859,7 @@ function LabLocator() {
             {/* Cities */}
             <div className="flex flex-wrap justify-center gap-1 mb-4">
               {lab.cities.map(city => (
-                <span key={city} className="rounded-full bg-stone-100 dark:bg-stone-800 px-2 py-0.5 text-[10px] text-stone-600 dark:text-stone-300">
+                <span key={city} className="rounded-full bg-stone-100 dark:bg-stone-800 px-2 py-0.5 text-xs text-stone-600 dark:text-stone-300">
                   {city}
                 </span>
               ))}
@@ -882,9 +882,9 @@ function LabLocator() {
             </div>
 
             <div className="mt-3 pt-3 border-t border-stone-100 dark:border-stone-700">
-              <p className="text-[11px] text-stone-500 dark:text-stone-300 text-center">{lab.notes}</p>
+              <p className="text-xs text-stone-500 dark:text-stone-300 text-center">{lab.notes}</p>
               {lab.homeVisit && (
-                <div className="mt-2 flex items-center justify-center gap-1 text-[10px] text-emerald-700">
+                <div className="mt-2 flex items-center justify-center gap-1 text-xs text-emerald-700">
                   <CheckCircle className="h-3 w-3" />
                   <span>زيارة منزلية متاحة</span>
                 </div>
@@ -905,7 +905,7 @@ function LabLocator() {
 
       <div className="mt-4 rounded-xl bg-stone-100 dark:bg-stone-800 p-3 text-center text-xs text-stone-500 dark:text-stone-300">
         <Info className="inline h-3 w-3 ms-1" />
-        الأسعار تقريبية وقد تختلف حسب الفرع والعروض المتاحة — آخر تحديث مارس 2026
+        الأسعار تقريبية وقد تختلف حسب الفرع والعروض المتاحة
       </div>
     </section>
   );

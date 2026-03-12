@@ -172,7 +172,7 @@ export default function InteractionChecker() {
           hasAutoFilled.current = true;
         }
       })
-      .catch(() => {});
+      .catch((e: unknown) => console.warn("silent catch:", e));
     return () => { mounted = false; };
   }, [user, selected]);
 
@@ -394,7 +394,7 @@ export default function InteractionChecker() {
               ) : (
                 <CheckCircle className="h-7 w-7 text-emerald-700 shrink-0" />
               )}
-              <p className={cn('text-base font-bold', hasAnyDanger ? 'text-red-900' : hasAnyWarning ? 'text-amber-900 dark:text-amber-200' : 'text-emerald-900')}>
+              <p className={cn('text-base font-bold', hasAnyDanger ? 'text-red-900 dark:text-red-300' : hasAnyWarning ? 'text-amber-900 dark:text-amber-200' : 'text-emerald-900 dark:text-emerald-300')}>
                 {hasAnyDanger ? 'تعارض خطير — لا تجمع هذه التجميعة' :
                  hasAnyWarning ? 'يوجد تحذيرات — راجع التفاصيل' :
                  `التجميعة آمنة — ${filledPeptides.length} ببتيدات بدون تعارضات`}

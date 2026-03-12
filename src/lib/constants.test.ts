@@ -15,7 +15,7 @@ describe('constants', () => {
   describe('FREE_PEPTIDE_IDS', () => {
     it('is a Set with 6 items', () => {
       expect(FREE_PEPTIDE_IDS).toBeInstanceOf(Set)
-      expect(FREE_PEPTIDE_IDS.size).toBe(6)
+      expect(FREE_PEPTIDE_IDS.size).toBe(7)
     })
   })
 

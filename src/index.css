@@ -422,9 +422,8 @@ html.dark ::-webkit-scrollbar-thumb:hover { background: #57534e; }
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
-    animation-duration: 0.01s !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0s !important;
+    animation: none !important;
+    transition: none !important;
   }
 }
 
@@ -742,10 +741,10 @@ footer nav a:hover {
 
 /* ═══ Cookie consent banner mobile spacing ═══ */
 body.cookie-banner-visible {
-  padding-bottom: 280px; /* clear the cookie banner on mobile */
+  padding-bottom: 220px;
 }
 @media (min-width: 768px) {
   body.cookie-banner-visible {
-    padding-bottom: 160px;
+    padding-bottom: 120px;
   }
 }

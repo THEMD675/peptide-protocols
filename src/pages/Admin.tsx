@@ -19,6 +19,24 @@ import {
 import { cn } from '@/lib/utils';
 import { PRICING } from '@/lib/constants';
 
+const STATUS_AR: Record<string, string> = {
+  active: 'نشط', trial: 'تجريبي', expired: 'منتهي', cancelled: 'ملغي',
+  past_due: 'متأخر', none: 'بدون', pending: 'معلق', replied: 'تم الرد',
+  sent: 'مرسل', failed: 'فشل', succeeded: 'ناجح',
+  severe: 'شديد', moderate: 'متوسط', mild: 'خفيف', google: 'جوجل',
+};
+
+const ACTION_AR: Record<string, string> = {
+  extend_trial: 'تمديد التجربة', grant_subscription: 'منح اشتراك',
+  update_subscription: 'تحديث اشتراك', cancel_subscription: 'إلغاء اشتراك',
+  suspend_user: 'تعليق مستخدم', unsuspend_user: 'إلغاء التعليق',
+  delete_user: 'حذف مستخدم', send_email: 'إرسال بريد',
+  approve_review: 'قبول مراجعة', delete_review: 'حذف مراجعة',
+  reply_enquiry: 'الرد على استفسار', refund_payment: 'استرداد دفعة',
+  health_check: 'فحص النظام', verify_stripe: 'فحص Stripe',
+  export_csv: 'تصدير CSV', bulk_email_sent: 'بريد جماعي',
+};
+
 // ========================================================
 // TYPES
 // ========================================================
@@ -177,14 +195,14 @@ function Stat({ label, value, icon: I, sub, alert: a, trend }: {
 
 function Badge({ status }: { status: string }) {
   const s: Record<string, string> = { active: 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400', trial: 'bg-blue-100 text-blue-700 dark:text-blue-400', expired: 'bg-stone-100 dark:bg-stone-800 text-stone-600 dark:text-stone-300', cancelled: 'bg-stone-100 dark:bg-stone-800 text-stone-600 dark:text-stone-300', past_due: 'bg-red-100 text-red-700 dark:text-red-400', none: 'bg-stone-100 dark:bg-stone-800 text-stone-500 dark:text-stone-300' };
-  return <span className={cn('inline-block rounded-full px-2 py-0.5 text-xs font-medium', s[status] ?? s.none)}>{status}</span>;
+  return <span className={cn('inline-block rounded-full px-2 py-0.5 text-xs font-medium', s[status] ?? s.none)}>{STATUS_AR[status] ?? status}</span>;
 }
 
 function Modal({ open, title, children, onClose }: { open: boolean; title: string; children: React.ReactNode; onClose: () => void }) {
   if (!open) return null;
   const titleId = 'modal-title';
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" onClick={onClose}>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" onClick={onClose} onKeyDown={(e) => { if (e.key === 'Escape') onClose(); }} tabIndex={-1}>
       <div className="w-full max-w-md max-h-[90vh] overflow-y-auto rounded-2xl bg-white dark:bg-stone-900 p-6 shadow-xl dark:shadow-stone-900/40" onClick={e => e.stopPropagation()} role="dialog" aria-modal="true" aria-labelledby={titleId}>
         <div className="flex items-center justify-between mb-4">
           <h3 id={titleId} className="text-lg font-bold text-stone-900 dark:text-stone-100">{title}</h3>
@@ -605,15 +623,15 @@ export default function Admin() {
             </button>
           </div>
         </div>
-        <div className="max-w-6xl mx-auto flex gap-1 mt-3 overflow-x-auto">
+        <div className="max-w-6xl mx-auto flex gap-1 mt-3 overflow-x-auto" role="tablist" aria-label="أقسام لوحة التحكم">
           {tabs.map(t => (
-            <button key={t.key} onClick={() => setTab(t.key)} className={cn(
+            <button key={t.key} role="tab" aria-selected={tab === t.key} aria-controls={`panel-${t.key}`} onClick={() => setTab(t.key)} className={cn(
               'flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium whitespace-nowrap transition-colors',
               tab === t.key ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400' : 'text-stone-600 dark:text-stone-300 hover:bg-stone-100 dark:hover:bg-stone-800'
             )}>
               {t.dot && <span className="h-1.5 w-1.5 rounded-full bg-red-500" />}
               {t.label}
-              {t.count != null && <span className={cn('rounded-full px-1.5 py-0.5 text-[10px] font-bold', tab === t.key ? 'bg-emerald-600 text-white' : 'bg-stone-200 dark:bg-stone-700 text-stone-600 dark:text-stone-300')}>{t.count}</span>}
+              {t.count != null && <span className={cn('rounded-full px-1.5 py-0.5 text-xs font-bold', tab === t.key ? 'bg-emerald-600 text-white' : 'bg-stone-200 dark:bg-stone-700 text-stone-600 dark:text-stone-300')}>{t.count}</span>}
             </button>
           ))}
         </div>
@@ -935,7 +953,7 @@ export default function Admin() {
                           <td className="px-3 py-2"><Badge status={u.subscription?.status ?? 'none'} /></td>
                           <td className="px-3 py-2 text-xs">{u.subscription?.tier ?? '—'}</td>
                           <td className="px-3 py-2 text-xs">{tl ? <span className={cn('rounded-full px-2 py-0.5 text-xs font-medium', tl.urgent ? 'bg-red-100 text-red-700 dark:text-red-400' : 'bg-blue-100 text-blue-700 dark:text-blue-400')}>{tl.text}</span> : '—'}</td>
-                          <td className="px-3 py-2 text-xs text-stone-500 dark:text-stone-300">{new Date(u.created_at).toLocaleDateString('en-GB')}</td>
+                          <td className="px-3 py-2 text-xs text-stone-500 dark:text-stone-300">{new Date(u.created_at).toLocaleDateString('ar-u-nu-latn')}</td>
                           <td className="px-3 py-2 text-xs text-stone-500 dark:text-stone-300">{u.last_sign_in_at ? timeAgo(u.last_sign_in_at) : '—'}</td>
                           <td className="px-3 py-2">
                             <div className="flex items-center gap-0.5">
@@ -1026,7 +1044,7 @@ export default function Admin() {
                   {eq.admin_notes && <div className="mt-2 rounded-lg bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-100 p-3"><p className="text-xs font-medium text-emerald-700 dark:text-emerald-400 mb-1">الرد:</p><p className="text-sm text-emerald-800 dark:text-emerald-300 whitespace-pre-wrap">{eq.admin_notes}</p></div>}
                   {replyingTo === eq.id ? (
                     <div className="mt-3 space-y-2">
-                      <textarea value={replyText} onChange={e => setReplyText(e.target.value)} placeholder="اكتب الرد..." rows={3} className="w-full rounded-lg border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 px-3 py-2 text-sm outline-none focus:border-emerald-300 dark:border-emerald-700 resize-y" dir="ltr" />
+                      <textarea value={replyText} onChange={e => setReplyText(e.target.value)} placeholder="اكتب الرد..." rows={3} className="w-full rounded-lg border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 px-3 py-2 text-sm outline-none focus:border-emerald-300 dark:border-emerald-700 resize-y" dir="auto" />
                       <div className="flex gap-2 justify-end">
                         <button onClick={() => { setReplyingTo(null); setReplyText(''); }} className="flex items-center gap-1 rounded-lg border border-stone-200 dark:border-stone-600 px-3 py-1.5 text-xs font-medium text-stone-600 dark:text-stone-300 hover:bg-stone-50 dark:hover:bg-stone-800"><X className="h-3 w-3" /> إلغاء</button>
                         <button disabled={replySending || !replyText.trim()} onClick={async () => {
@@ -1137,7 +1155,7 @@ export default function Admin() {
                   <p className={cn('text-xl font-bold', health.status === 'healthy' ? 'text-emerald-700 dark:text-emerald-400' : health.status === 'degraded' ? 'text-amber-700 dark:text-amber-400' : 'text-red-700 dark:text-red-400')}>
                     {health.status === 'healthy' ? 'جميع الأنظمة تعمل بشكل سليم' : health.status === 'degraded' ? 'أداء منخفض' : 'غير سليم'}
                   </p>
-                  <p className="text-xs text-stone-500 dark:text-stone-300 mt-1">{new Date(health.timestamp).toLocaleString('en-GB')}</p>
+                  <p className="text-xs text-stone-500 dark:text-stone-300 mt-1">{new Date(health.timestamp).toLocaleString('ar-u-nu-latn')}</p>
                 </div>
                 <div className="grid sm:grid-cols-2 gap-3">
                   {Object.entries(health.checks).map(([name, c]) => (
@@ -1198,7 +1216,7 @@ export default function Admin() {
                     <tbody>
                       {auditLog.slice((auditPage - 1) * PER_PAGE, auditPage * PER_PAGE).map(entry => (
                         <tr key={entry.id} className="border-b border-stone-100 dark:border-stone-700 hover:bg-stone-50 dark:hover:bg-stone-800">
-                          <td className="px-3 py-2 text-xs text-stone-500 dark:text-stone-300 whitespace-nowrap">{new Date(entry.created_at).toLocaleString('en-GB')}</td>
+                          <td className="px-3 py-2 text-xs text-stone-500 dark:text-stone-300 whitespace-nowrap">{new Date(entry.created_at).toLocaleString('ar-u-nu-latn')}</td>
                           <td className="px-3 py-2 font-mono text-xs">{entry.admin_email}</td>
                           <td className="px-3 py-2 text-xs"><span className="rounded-full bg-stone-100 dark:bg-stone-800 px-2 py-0.5 text-xs font-medium text-stone-700 dark:text-stone-200">{entry.action}</span></td>
                           <td className="px-3 py-2 font-mono text-xs text-stone-500 dark:text-stone-300">{entry.target_user_id ? entry.target_user_id.slice(0, 8) + '...' : '—'}</td>
@@ -1269,9 +1287,9 @@ export default function Admin() {
           {EMAIL_TEMPLATES.map(t => <option key={t.key} value={t.key}>{t.label}</option>)}
         </select>
         <label className="block text-xs font-medium text-stone-600 dark:text-stone-300 mb-1">الموضوع</label>
-        <input type="text" value={emailSubject} onChange={e => setEmailSubject(e.target.value)} placeholder="الموضوع" className="w-full rounded-lg border border-stone-200 dark:border-stone-600 px-3 py-2 text-sm mb-3" dir="ltr" />
+        <input type="text" value={emailSubject} onChange={e => setEmailSubject(e.target.value)} placeholder="الموضوع" className="w-full rounded-lg border border-stone-200 dark:border-stone-600 px-3 py-2 text-sm mb-3" dir="auto" />
         <label className="block text-xs font-medium text-stone-600 dark:text-stone-300 mb-1">المحتوى</label>
-        <textarea value={emailBody} onChange={e => setEmailBody(e.target.value)} placeholder="محتوى البريد..." rows={4} className="w-full rounded-lg border border-stone-200 dark:border-stone-600 px-3 py-2 text-sm mb-4 resize-y" dir="ltr" />
+        <textarea value={emailBody} onChange={e => setEmailBody(e.target.value)} placeholder="محتوى البريد..." rows={4} className="w-full rounded-lg border border-stone-200 dark:border-stone-600 px-3 py-2 text-sm mb-4 resize-y" dir="auto" />
         <div className="flex gap-2 justify-end">
           <button onClick={() => setModal(null)} className="rounded-lg border border-stone-200 dark:border-stone-600 px-4 py-2 text-xs font-medium text-stone-600 dark:text-stone-300">إلغاء</button>
           <button onClick={handleSendEmail} disabled={actionLoading || !emailTo || !emailSubject || !emailBody} className="rounded-lg bg-emerald-600 px-4 py-2 text-xs font-bold text-white disabled:opacity-50">
@@ -1294,9 +1312,9 @@ export default function Admin() {
           {EMAIL_TEMPLATES.map(t => <option key={t.key} value={t.key}>{t.label}</option>)}
         </select>
         <label className="block text-xs font-medium text-stone-600 dark:text-stone-300 mb-1">الموضوع</label>
-        <input type="text" value={emailSubject} onChange={e => setEmailSubject(e.target.value)} placeholder="الموضوع" className="w-full rounded-lg border border-stone-200 dark:border-stone-600 px-3 py-2 text-sm mb-3" dir="ltr" />
+        <input type="text" value={emailSubject} onChange={e => setEmailSubject(e.target.value)} placeholder="الموضوع" className="w-full rounded-lg border border-stone-200 dark:border-stone-600 px-3 py-2 text-sm mb-3" dir="auto" />
         <label className="block text-xs font-medium text-stone-600 dark:text-stone-300 mb-1">المحتوى</label>
-        <textarea value={emailBody} onChange={e => setEmailBody(e.target.value)} placeholder="محتوى البريد..." rows={4} className="w-full rounded-lg border border-stone-200 dark:border-stone-600 px-3 py-2 text-sm mb-4 resize-y" dir="ltr" />
+        <textarea value={emailBody} onChange={e => setEmailBody(e.target.value)} placeholder="محتوى البريد..." rows={4} className="w-full rounded-lg border border-stone-200 dark:border-stone-600 px-3 py-2 text-sm mb-4 resize-y" dir="auto" />
         {(() => {
           const audienceCount = bulkAudience === 'all' ? o.totalUsers : bulkAudience === 'trial' ? o.trialSubscriptions : bulkAudience === 'active' ? o.activeSubscriptions : o.expiredSubscriptions;
           const MAX_BATCH = 50;
@@ -1359,7 +1377,7 @@ export default function Admin() {
               <option value="">— اختر دفعة —</option>
               {userPayments.map(p => (
                 <option key={p.id} value={p.id}>
-                  {p.id.slice(0, 20)}... — {(p.amount / 100).toFixed(2)} {p.currency.toUpperCase()} — {new Date(p.created).toLocaleDateString('en-GB')} ({p.status})
+                  {p.id.slice(0, 20)}... — {(p.amount / 100).toFixed(2)} {p.currency.toUpperCase()} — {new Date(p.created).toLocaleDateString('ar-u-nu-latn')} ({p.status})
                 </option>
               ))}
             </select>
@@ -1599,7 +1617,7 @@ export default function Admin() {
                       placeholder="أضف ملاحظة..."
                       rows={2}
                       className="w-full rounded-lg border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 px-3 py-2 text-sm outline-none focus:border-emerald-300 dark:border-emerald-700 resize-y"
-                      dir="ltr"
+                      dir="auto"
                     />
                     <div className="flex justify-end mt-2">
                       <button

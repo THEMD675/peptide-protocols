@@ -145,10 +145,9 @@ export default memo(function Header() {
         <div className="mx-auto flex h-full max-w-7xl items-center justify-between px-4 md:px-6">
           <Link
             to={logoHref}
-            className="min-h-[44px] shrink-0 leading-[44px] text-xl font-bold text-stone-900 dark:text-stone-100 md:text-2xl"
+            className="min-h-[44px] shrink-0 leading-[44px] text-xl font-bold text-stone-900 dark:text-stone-100 md:text-2xl tracking-tight"
             dir="ltr"
             aria-label="pptides"
-            style={{letterSpacing:'-0.03em'}}
           >pp<span className="text-emerald-700">tides</span>
           </Link>
 

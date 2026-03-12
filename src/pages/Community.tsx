@@ -11,7 +11,7 @@ import { toast } from 'sonner';
 import { useAuth } from '@/contexts/AuthContext';
 import { PRICING, SITE_URL, SUPPORT_EMAIL } from '@/lib/constants';
 import { supabase } from '@/lib/supabase';
-import { cn } from '@/lib/utils';
+import { cn, sanitizeInput } from '@/lib/utils';
 import { peptidesLite as allPeptides } from '@/data/peptides-lite';
 
 /* ──────────────────── Types ──────────────────── */
@@ -526,7 +526,7 @@ export default function Community() {
   }, [repliesByPost, loadReplies]);
 
   const submitReply = useCallback(async (postId: string) => {
-    const content = (replyText[postId] ?? '').trim().replace(/<[^>]+>/g, '').slice(0, 500);
+    const content = sanitizeInput((replyText[postId] ?? '').trim(), 500);
     if (!user || !content) return;
     setSubmittingReply(prev => new Set(prev).add(postId));
     const isSub = subscription?.isProOrTrial ?? false;
@@ -594,7 +594,7 @@ export default function Community() {
       const dur = Math.max(1, Math.min(52, durationWeeks));
       const peptideStr = selectedPeptides.join(', ');
       // Sanitize user inputs: strip HTML, limit length
-      const sanitize = (s: string, max: number) => s.trim().replace(/<[^>]+>/g, '').slice(0, max);
+      const sanitize = (s: string, max: number) => sanitizeInput(s.trim(), max);
       const { error } = await supabase.from('community_logs').insert({
         user_id: user.id,
         peptide_name: peptideStr,
@@ -743,6 +743,7 @@ export default function Community() {
       </Helmet>
 
       <div className="mx-auto max-w-6xl px-4 pb-24 pt-8 md:px-6 md:pt-12">
+        <div className="mb-4 rounded-xl border border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-900/20 px-4 py-2 text-xs text-amber-700 dark:text-amber-400">محتوى تعليمي — استشر طبيبك قبل استخدام أي ببتيد</div>
         {/* Header */}
         <div className="mb-12 text-center">
           <div className="mx-auto mb-4 inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-100 dark:bg-emerald-900/30">
@@ -1466,7 +1467,7 @@ export default function Community() {
                                       e.target.style.height = 'auto';
                                       e.target.style.height = e.target.scrollHeight + 'px';
                                     }}
-                                    placeholder="اكتب ردًا... (Enter للإرسال، Shift+Enter لسطر جديد)"
+                                    placeholder="اكتب ردًا... (↵ للإرسال، Shift+↵ لسطر جديد)"
                                     maxLength={1000}
                                     rows={1}
                                     style={{ overflow: 'hidden' }}

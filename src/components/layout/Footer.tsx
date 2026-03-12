@@ -70,7 +70,7 @@ export default memo(function Footer() {
               <PLink to="/privacy" className="min-h-[44px] flex items-center text-stone-600 dark:text-stone-300 transition-colors hover:text-emerald-700 dark:hover:text-emerald-400 hover:underline underline-offset-4 active:text-emerald-700 dark:active:text-emerald-300">سياسة الخصوصية</PLink>
               <PLink to="/terms" className="min-h-[44px] flex items-center text-stone-600 dark:text-stone-300 transition-colors hover:text-emerald-700 dark:hover:text-emerald-400 hover:underline underline-offset-4 active:text-emerald-700 dark:active:text-emerald-300">شروط الاستخدام</PLink>
               <PLink to="/transparency" className="min-h-[44px] flex items-center text-stone-600 dark:text-stone-300 transition-colors hover:text-emerald-700 dark:hover:text-emerald-400 hover:underline underline-offset-4 active:text-emerald-700 dark:active:text-emerald-300">كيف نكسب المال</PLink>
-              <button onClick={() => { try { localStorage.removeItem('pptides_cookie_consent'); } catch { /* storage unavailable */ } window.location.reload(); }} className="min-h-[44px] flex items-center text-start text-sm text-stone-600 dark:text-stone-300 hover:text-emerald-700 transition-colors">
+              <button onClick={() => { try { localStorage.removeItem('pptides_cookie_consent'); } catch { /* storage unavailable */ } window.location.reload(); }} className="min-h-[44px] flex items-center text-start text-sm text-stone-600 dark:text-stone-300 hover:text-emerald-700 transition-colors" aria-label="إعدادات ملفات الارتباط">
                 إدارة ملفات تعريف الارتباط
               </button>
             </nav>

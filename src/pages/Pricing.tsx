@@ -24,7 +24,7 @@ const eliteFeatures = [
   'كل مزايا الأساسية',
   'مدرب ذكي بالذكاء الاصطناعي 24/7',
   'بروتوكولات مخصّصة لأهدافك وحالتك الشخصية',
-  'استشارات بلا حدود — لا حد للأسئلة',
+  'استشارات غير محدودة — لا حد للأسئلة',
   'دعم مخصّص عبر البريد',
 ];
 
@@ -33,7 +33,7 @@ const valueStack = VALUE_STACK;
 const eliteValueStack = [
   { item: 'مدرب ذكاء اصطناعي شخصي', value: '184 ر.س/شهر' },
   { item: 'بروتوكول مخصّص حسب حالتك', value: '371 ر.س' },
-  { item: 'استشارات بلا حدود', value: '109 ر.س/شهر' },
+  { item: 'استشارات غير محدودة', value: '109 ر.س/شهر' },
   { item: 'دعم مخصّص عبر البريد', value: '71 ر.س/شهر' },
 ];
 
@@ -52,7 +52,7 @@ const faqs = [
   },
   {
     q: 'هل يمكنني الإلغاء في أي وقت؟',
-    a: `نعم. يمكنك طلب إلغاء الاشتراك من حسابك. لإيقاف الدفعات المستقبلية، تواصل معنا عبر ${SUPPORT_EMAIL}.`,
+    a: 'نعم. يمكنك إلغاء اشتراكك في أي وقت من صفحة الحساب. يتوقف التجديد التلقائي فورًا ويمكنك الاستمرار حتى نهاية الفترة المدفوعة.',
   },
   {
     q: 'كيف تعمل التجربة المجانية؟',
@@ -264,7 +264,7 @@ export default function Pricing() {
             "@context": "https://schema.org",
             "@type": "Product",
             "name": "المتقدّمة — pptides",
-            "description": "اشتراك يتضمن كل مزايا الأساسية بالإضافة إلى مدرب ذكي بالذكاء الاصطناعي 24/7، بروتوكولات مخصّصة، واستشارات بلا حدود.",
+            "description": "اشتراك يتضمن كل مزايا الأساسية بالإضافة إلى مدرب ذكي بالذكاء الاصطناعي 24/7، بروتوكولات مخصّصة، واستشارات غير محدودة.",
             "brand": { "@type": "Brand", "name": "pptides" },
             "offers": [
               { "@type": "Offer", "name": "شهري", "price": String(PRICING.elite.monthly), "priceCurrency": "SAR", "availability": "https://schema.org/InStock", "url": `${SITE_URL}/pricing` },
@@ -435,7 +435,7 @@ export default function Pricing() {
           <p className="text-sm font-semibold text-stone-700 dark:text-stone-200">
             هل تريد تجربة المنصة قبل الاشتراك؟{' '}
             <Link to="/library" className="text-emerald-700 underline underline-offset-2">
-              تصفّح 6 ببتيدات مجانًا
+              تصفّح 7 ببتيدات مجانًا
             </Link>{' '}
             — بدون بطاقة بنكية
           </p>
@@ -461,7 +461,7 @@ export default function Pricing() {
                   { feature: 'دليل التحاليل المخبرية', essentials: true, elite: true },
                   { feature: 'البروتوكولات المُجمَّعة حسب الهدف', essentials: true, elite: true },
                   { feature: 'المدرب الذكي', essentials: false, elite: true },
-                  { feature: 'استشارات بلا حدود', essentials: false, elite: true },
+                  { feature: 'استشارات غير محدودة', essentials: false, elite: true },
                   { feature: 'بروتوكولات مخصّصة', essentials: false, elite: true },
                   { feature: 'دعم مخصّص عبر البريد', essentials: false, elite: true },
                 ] as const).map((row, i) => (

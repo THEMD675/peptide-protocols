@@ -12,7 +12,7 @@ pptides is an Arabic-first web app for therapeutic peptide education. It serves 
 
 ### Key Features
 
-- **41+ peptides** with full protocols (dosing, cycles, side effects, evidence levels)
+- **47 peptides** with full protocols (dosing, cycles, side effects, evidence levels)
 - **Dose calculator** with syringe unit conversion
 - **AI coach** (DeepSeek-powered) for personalized protocol guidance
 - **Lab guide** for pre/during/post bloodwork
@@ -21,7 +21,7 @@ pptides is an Arabic-first web app for therapeutic peptide education. It serves 
 - **Protocol wizard** for guided protocol building
 - **Quiz** for peptide knowledge assessment
 - **Blog** with educational content
-- **PWA** — installable, works offline
+- **PWA** — installable with push notifications
 
 ---
 

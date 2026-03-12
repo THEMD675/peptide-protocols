@@ -59,7 +59,13 @@ serve(async (req) => {
     }
 
     const serviceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')
-    if (serviceKey) {
+    if (!serviceKey) {
+      console.error('SUPABASE_SERVICE_ROLE_KEY not set — cannot enforce rate limits')
+      return new Response(JSON.stringify({ error: 'Server misconfigured' }), {
+        status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      })
+    }
+    {
       const adminDb = createClient(supabaseUrl, serviceKey)
       const allowed = await checkRateLimit(adminDb, {
         endpoint: 'create-checkout',

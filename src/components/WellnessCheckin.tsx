@@ -29,17 +29,17 @@ type MetricKey = (typeof METRICS)[number]['key'];
 
 const LEVEL_COLORS = [
   'bg-red-100 text-red-700 dark:text-red-400 border-red-300',
-  'bg-orange-100 text-orange-700 border-orange-300',
-  'bg-yellow-100 text-yellow-700 border-yellow-300',
-  'bg-lime-100 text-lime-700 border-lime-300',
+  'bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-400 border-orange-300 dark:border-orange-700',
+  'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400 border-yellow-300 dark:border-yellow-700',
+  'bg-lime-100 dark:bg-lime-900/30 text-lime-700 dark:text-lime-400 border-lime-300 dark:border-lime-700',
   'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 border-emerald-300 dark:border-emerald-700',
 ];
 
 const PAIN_COLORS = [
   'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 border-emerald-300 dark:border-emerald-700',
-  'bg-lime-100 text-lime-700 border-lime-300',
-  'bg-yellow-100 text-yellow-700 border-yellow-300',
-  'bg-orange-100 text-orange-700 border-orange-300',
+  'bg-lime-100 dark:bg-lime-900/30 text-lime-700 dark:text-lime-400 border-lime-300 dark:border-lime-700',
+  'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400 border-yellow-300 dark:border-yellow-700',
+  'bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-400 border-orange-300 dark:border-orange-700',
   'bg-red-100 text-red-700 dark:text-red-400 border-red-300',
 ];
 
@@ -98,7 +98,7 @@ export default function WellnessCheckin() {
         setWeight(entry.weight_kg != null ? String(entry.weight_kg) : '');
         setNotes(entry.notes ?? '');
       }
-    } catch {
+    } catch (e) { console.warn("caught:", e);
       // silently ignored
     } finally {
       setLoading(false);
@@ -149,7 +149,7 @@ export default function WellnessCheckin() {
 
       setEditing(false);
       await fetchLatest();
-    } catch {
+    } catch (e) { console.warn("caught:", e);
       toast.error('تعذّر حفظ الحالة — حاول مرة أخرى');
     } finally {
       setIsSubmitting(false);

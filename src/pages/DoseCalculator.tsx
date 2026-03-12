@@ -795,9 +795,10 @@ export default function DoseCalculator() {
                 <InputField
                   label="كمية الببتيد في القارورة (ملغ)"
                   value={vialMg}
-                  onChange={setVialMg}
+                  onChange={(v) => setVialMg(Math.max(0.1, v))}
                   unit="ملغ"
                   step={1}
+                  min={0.1}
                 />
                 <div className="space-y-2">
                   <div className="flex items-center gap-1.5">
@@ -827,7 +828,7 @@ export default function DoseCalculator() {
                     !selectedPreset ? (
                       <div className="mt-1 flex items-center gap-2 rounded-lg border border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-900/20 px-3 py-2">
                         <span className="text-xs text-emerald-700 dark:text-emerald-400">
-                          الكمية الموصى بها: <strong>{recommendedWater} ml</strong>
+                          الكمية الموصى بها: <strong>{recommendedWater} مل</strong>
                         </span>
                         <button
                           onClick={() => setWaterMl(recommendedWater)}
@@ -876,7 +877,7 @@ export default function DoseCalculator() {
                   <div className="flex gap-1 overflow-x-auto scrollbar-hide -mx-1 px-1 pb-1">
                     {([
                       { label: '3×/أسبوع', value: 3 / 7, hint: '3 مرات أسبوعيًا' },
-                      { label: 'يوم/يوم', value: 0.5, hint: 'يوم بعد يوم (EOD)' },
+                      { label: 'يوم/يوم', value: 0.5, hint: 'يوم بعد يوم (كل يومين)' },
                       { label: 'يوميًا', value: 1, hint: 'مرة كل يوم' },
                       { label: '2×/يوم', value: 2, hint: 'مرتين يوميًا' },
                       { label: '3×/يوم', value: 3, hint: '3 مرات يوميًا' },
@@ -1707,7 +1708,7 @@ function ResultCard({
   return (
     <div className="rounded-xl border border-stone-200 dark:border-stone-700 bg-stone-100 dark:bg-stone-800 p-4 text-center">
       <p className="mb-1 text-xs font-medium text-stone-800 dark:text-stone-200">{label}</p>
-      <p className="text-2xl font-bold text-emerald-700">{value}</p>
+      <p className="text-2xl font-bold text-emerald-700 dark:text-emerald-400">{value}</p>
       <p className="mt-0.5 text-xs text-stone-800 dark:text-stone-200">{unit}</p>
     </div>
   );

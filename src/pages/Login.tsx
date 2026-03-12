@@ -11,7 +11,7 @@ import { TRIAL_DAYS, SITE_URL } from '@/lib/constants';
 import { Gift } from 'lucide-react';
 
 const TURNSTILE_SITE_KEY = import.meta.env.VITE_TURNSTILE_SITE_KEY ?? '';
-const GOOGLE_CLIENT_ID = '803062121443-7497cu9tfra080sr835benjs5gl9295o.apps.googleusercontent.com';
+const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID ?? '803062121443-7497cu9tfra080sr835benjs5gl9295o.apps.googleusercontent.com';
 
 type Tab = 'login' | 'signup';
 
@@ -279,9 +279,10 @@ export default function Login() {
         const next = failedAttempts + 1;
         setFailedAttempts(next);
         if (next >= 5) {
-          setLockoutUntil(Date.now() + 30000);
-          setFailedAttempts(0);
-          toast.error('محاولات كثيرة — انتظر 30 ثانية');
+          const lockoutMs = Math.min(30000 * Math.pow(2, Math.floor(next / 5) - 1), 900000);
+          setLockoutUntil(Date.now() + lockoutMs);
+          const lockoutSec = Math.ceil(lockoutMs / 1000);
+          toast.error(`محاولات كثيرة — انتظر ${lockoutSec >= 60 ? `${Math.ceil(lockoutSec / 60)} دقيقة` : `${lockoutSec} ثانية`}`);
         }
       }
       resetTurnstile();
@@ -413,7 +414,7 @@ export default function Login() {
             </div>
             <div className="px-6 pb-8 pt-6 text-center">
               <p className="mb-2 text-sm text-stone-600 dark:text-stone-300">اضغط على الرابط في البريد لتفعيل حسابك وبدء التجربة المجانية.</p>
-              <p className="mb-6 text-xs text-stone-500 dark:text-stone-300">لم يصلك البريد؟ تحقق من مجلد البريد المزعج (Spam).</p>
+              <p className="mb-6 text-xs text-stone-500 dark:text-stone-300">لم يصلك البريد؟ تحقق من مجلد البريد المزعج.</p>
               <button
                 onClick={handleResendVerification}
                 disabled={resendLoading || resendCooldown > 0}
@@ -455,7 +456,7 @@ export default function Login() {
             </div>
             <div className="px-6 pb-8 pt-6">
               {error && <div role="alert" className="mb-4 rounded-lg bg-red-50 dark:bg-red-900/20 px-4 py-3 text-sm text-red-700 dark:text-red-400">{error}</div>}
-              {resetMessage && <div role="status" aria-live="polite" className="mb-4 rounded-lg bg-green-50 px-4 py-3 text-sm text-green-700">{resetMessage}</div>}
+              {resetMessage && <div role="status" aria-live="polite" className="mb-4 rounded-lg bg-green-50 dark:bg-green-900/20 px-4 py-3 text-sm text-green-700 dark:text-green-300">{resetMessage}</div>}
               <form onSubmit={handleUpdatePassword} className="space-y-4">
                 <div>
                   <label htmlFor="recovery-password" className="mb-1.5 block text-sm font-medium text-stone-900 dark:text-stone-100">كلمة المرور الجديدة</label>
@@ -623,7 +624,7 @@ export default function Login() {
 
             {/* Bug 9 fix: aria-live so screen readers announce dynamic success/info messages */}
             {resetMessage && (
-              <div role="status" aria-live="polite" className="mb-4 rounded-lg bg-green-50 px-4 py-3 text-sm text-green-700">
+              <div role="status" aria-live="polite" className="mb-4 rounded-lg bg-green-50 dark:bg-green-900/20 px-4 py-3 text-sm text-green-700 dark:text-green-300">
                 {resetMessage}
               </div>
             )}

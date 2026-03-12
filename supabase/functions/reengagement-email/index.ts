@@ -144,7 +144,7 @@ serve(async (req) => {
                 <p style="margin: 8px 0 0; color: #44403c; font-size: 15px; line-height: 1.7;">
                   اسأل أي سؤال عن الببتيدات واحصل على إجابة فورية مبنية على أحدث الأبحاث — مدربك الشخصي متاح ٢٤/٧.
                 </p>
-                <a href="${APP_URL}/ai-coach" style="color: #059669; font-size: 14px; font-weight: bold; text-decoration: none;">جرّب المدرب الذكي ←</a>
+                <a href="${APP_URL}/coach" style="color: #059669; font-size: 14px; font-weight: bold; text-decoration: none;">جرّب المدرب الذكي ←</a>
               </div>
               <div style="margin-bottom: 20px; padding-bottom: 20px; border-bottom: 1px solid #d1fae5;">
                 <p style="margin: 0; font-size: 18px; font-weight: bold; color: #059669;">🧮 حاسبة الجرعات (Dose Calculator)</p>

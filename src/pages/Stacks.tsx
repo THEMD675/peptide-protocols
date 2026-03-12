@@ -48,6 +48,7 @@ export default function Stacks() {
 
   return (
     <div className="mx-auto max-w-6xl px-4 pb-24 pt-8 md:px-6 md:pt-12 animate-fade-in">
+      <div className="mb-4 rounded-xl border border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-900/20 px-4 py-2 text-xs text-amber-700 dark:text-amber-400">محتوى تعليمي — استشر طبيبك قبل استخدام أي ببتيد</div>
       {activeWizard && <ProtocolWizard peptideId={activeWizard} onClose={() => setActiveWizard(null)} />}
       {stackStartDialog && (
         <div role="dialog" aria-modal="true" aria-label="بدء البروتوكول" className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" onClick={() => setStackStartDialog(null)}>
@@ -213,7 +214,7 @@ export default function Stacks() {
                       <div key={p.id} className="flex items-center gap-1">
                         <Link
                           to={`/peptide/${p.id}`}
-                          className="group relative flex items-center gap-1.5 rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-xs font-medium text-emerald-700 transition-all hover:bg-emerald-100 hover:shadow-md hover:border-emerald-400 min-h-[44px]"
+                          className="group relative flex items-center gap-1.5 rounded-lg border border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-900/20 px-3 py-2 text-xs font-medium text-emerald-700 dark:text-emerald-400 transition-all hover:bg-emerald-100 dark:hover:bg-emerald-900/30 hover:shadow-md hover:border-emerald-400 min-h-[44px]"
                         >
                           <span className="h-2 w-2 rounded-full bg-emerald-500 group-hover:animate-pulse" />
                           {p.nameAr}

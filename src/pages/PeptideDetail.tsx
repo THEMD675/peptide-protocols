@@ -86,7 +86,7 @@ export default function PeptideDetail() {
 
   const isFreeContent = peptide.isFree;
   const hasAccess = isPaid || isFreeContent || (isTrial && TRIAL_PEPTIDE_IDS.has(peptide.id));
-  const firstSentence = peptide.summaryAr.split('.')[0] + '.';
+  const firstSentence = peptide.summaryAr?.includes('.') ? peptide.summaryAr.split('.')[0] + '.' : (peptide.summaryAr ?? '');
 
   const evidenceMeter: { label: string; cls: string; sublabel: string } = ({
     excellent: { label: 'أدلة ممتازة', sublabel: 'معتمد FDA أو تجارب سريرية كبرى عشوائية', cls: 'border-emerald-300 dark:border-emerald-700 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-800 dark:text-emerald-300' },
@@ -176,7 +176,7 @@ export default function PeptideDetail() {
           <span>/</span>
           <Link to={`/library?category=${peptide.category}`} className="hover:text-emerald-700 transition-colors">{categoryLabels[peptide.category] ?? peptide.category}</Link>
           <span>/</span>
-          <span className="text-stone-800 dark:text-stone-200 font-medium truncate max-w-[140px]" title={peptide.nameAr}>{peptide.nameAr}</span>
+          <span className="text-stone-800 dark:text-stone-200 font-medium truncate max-w-[200px] sm:max-w-[300px]" title={peptide.nameAr}>{peptide.nameAr}</span>
         </nav>
 
         <div className="mb-4 rounded-xl border border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-900/20 px-4 py-2 text-xs text-amber-700 dark:text-amber-400">

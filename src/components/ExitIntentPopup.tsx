@@ -87,7 +87,7 @@ export default function ExitIntentPopup() {
         </button>
 
         <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-emerald-100 dark:bg-emerald-900/30">
-          <Gift className="h-8 w-8 text-emerald-700" />
+          <Gift className="h-8 w-8 text-emerald-700 dark:text-emerald-400" />
         </div>
 
         <h2 id="exit-popup-title" className="mb-2 text-2xl font-bold text-stone-900 dark:text-stone-100">
@@ -124,7 +124,7 @@ export default function ExitIntentPopup() {
 
         <button
           onClick={() => setVisible(false)}
-          className="rounded-full border border-stone-200 dark:border-stone-600 px-5 py-2 text-sm text-stone-500 dark:text-stone-300 hover:text-stone-700 dark:text-stone-200 hover:border-stone-200 dark:border-stone-700 transition-colors"
+          className="rounded-full border border-stone-200 dark:border-stone-600 px-5 py-2 min-h-[44px] text-sm text-stone-500 dark:text-stone-300 hover:text-stone-700 dark:text-stone-200 hover:border-stone-200 dark:border-stone-700 transition-colors"
         >
           لا شكرًا
         </button>

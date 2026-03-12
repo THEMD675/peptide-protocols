@@ -39,7 +39,8 @@ export default function NotificationBell() {
       .eq('user_id', user.id)
       .order('created_at', { ascending: false })
       .limit(20)
-      .then(({ data }) => {
+      .then(({ data, error }) => {
+        if (error) console.warn('notifications fetch failed:', error);
         if (mounted && data) setNotifications(data as Notification[]);
       });
     return () => { mounted = false; };

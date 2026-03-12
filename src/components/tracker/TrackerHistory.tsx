@@ -405,8 +405,8 @@ export default function TrackerHistory({
                         <div className="w-20">
                           <label className="text-xs text-stone-500 dark:text-stone-300 mb-1 block">الوحدة</label>
                           <select value={editUnit} onChange={e => setEditUnit(e.target.value)} aria-label="وحدة الجرعة" className="w-full rounded-lg border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 px-2 py-2 text-base text-stone-900 dark:text-stone-100 focus:border-emerald-300 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900">
-                            <option value="mcg">mcg</option>
-                            <option value="mg">mg</option>
+                            <option value="mcg">ميكروغرام (mcg)</option>
+                            <option value="mg">ملغ (mg)</option>
                           </select>
                         </div>
                       </div>

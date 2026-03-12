@@ -53,7 +53,7 @@ registerRoute(
   new CacheFirst({
     cacheName: 'google-fonts-stylesheets',
     plugins: [
-      new CacheableResponsePlugin({ statuses: [0, 200] }),
+      new CacheableResponsePlugin({ statuses: [200] }),
       new ExpirationPlugin({ maxEntries: 10, maxAgeSeconds: 60 * 60 * 24 * 365 }),
     ],
   })
@@ -64,7 +64,7 @@ registerRoute(
   new CacheFirst({
     cacheName: 'google-fonts-webfonts',
     plugins: [
-      new CacheableResponsePlugin({ statuses: [0, 200] }),
+      new CacheableResponsePlugin({ statuses: [200] }),
       new ExpirationPlugin({ maxEntries: 30, maxAgeSeconds: 60 * 60 * 24 * 365 }),
     ],
   })

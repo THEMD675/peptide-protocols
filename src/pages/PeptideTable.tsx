@@ -16,12 +16,12 @@ import { categoryIcons } from '@/lib/peptide-labels';
 // ── Colour maps ────────────────────────────────────────────
 
 const categoryColors: Record<string, { badge: string; border: string }> = {
-  metabolic: { badge: 'bg-orange-100 text-orange-800 border-orange-300', border: 'border-orange-200' },
-  recovery: { badge: 'bg-blue-100 text-blue-800 border-blue-300', border: 'border-blue-200' },
-  hormonal: { badge: 'bg-purple-100 text-purple-800 border-purple-300', border: 'border-purple-200' },
-  brain: { badge: 'bg-pink-100 text-pink-800 border-pink-300', border: 'border-pink-200' },
+  metabolic: { badge: 'bg-orange-100 dark:bg-orange-900/30 text-orange-800 dark:text-orange-300 border-orange-300 dark:border-orange-700', border: 'border-orange-200 dark:border-orange-800' },
+  recovery: { badge: 'bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300 border-blue-300 dark:border-blue-700', border: 'border-blue-200 dark:border-blue-800' },
+  hormonal: { badge: 'bg-purple-100 dark:bg-purple-900/30 text-purple-800 dark:text-purple-300 border-purple-300 dark:border-purple-700', border: 'border-purple-200 dark:border-purple-800' },
+  brain: { badge: 'bg-pink-100 dark:bg-pink-900/30 text-pink-800 dark:text-pink-300 border-pink-300 dark:border-pink-700', border: 'border-pink-200 dark:border-pink-800' },
   longevity: { badge: 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-800 dark:text-emerald-300 border-emerald-300 dark:border-emerald-700', border: 'border-emerald-200 dark:border-emerald-800' },
-  'skin-gut': { badge: 'bg-teal-100 text-teal-800 border-teal-300', border: 'border-teal-200' },
+  'skin-gut': { badge: 'bg-teal-100 dark:bg-teal-900/30 text-teal-800 dark:text-teal-300 border-teal-300 dark:border-teal-700', border: 'border-teal-200 dark:border-teal-800' },
 };
 
 const routeLabels: Record<string, string> = {
@@ -148,7 +148,7 @@ function exportCSV(data: Peptide[], visibleCols: ColumnKey[]) {
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
-  a.download = 'peptide-table.csv';
+  a.download = 'جدول-الببتيدات.csv';
   a.click();
   URL.revokeObjectURL(url);
 }
@@ -202,7 +202,7 @@ async function exportAsImage(data: Peptide[], visibleCols: ColumnKey[]) {
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
-  a.download = `peptide-table-${new Date().toISOString().slice(0, 10)}.png`;
+  a.download = `جدول-الببتيدات-${new Date().toISOString().slice(0, 10)}.png`;
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);
@@ -834,7 +834,7 @@ export default function PeptideTable() {
             <Layers className="h-6 w-6 text-emerald-700" />
             <h2 className="text-xl font-extrabold text-stone-900 dark:text-stone-100 md:text-2xl">
               البروتوكولات المُركّبة{' '}
-              <span className="text-stone-800 dark:text-stone-200 font-normal text-base">(Synergistic Stacks)</span>
+              <span className="text-stone-800 dark:text-stone-200 font-normal text-base">(التكامل التآزري)</span>
             </h2>
           </div>
 

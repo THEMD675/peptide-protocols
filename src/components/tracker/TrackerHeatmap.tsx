@@ -127,7 +127,7 @@ export default function TrackerHeatmap({
                   </div>
                 ))}
               </div>
-              <div className="flex items-center justify-end gap-1.5 mt-3 text-[10px] text-stone-500 dark:text-stone-300">
+              <div className="flex items-center justify-end gap-1.5 mt-3 text-xs text-stone-500 dark:text-stone-300">
                 <span>أقل</span>
                 <div className="h-3 w-3 rounded-sm bg-stone-100 dark:bg-stone-800" />
                 <div className="h-3 w-3 rounded-sm bg-emerald-200" />
@@ -166,7 +166,7 @@ export default function TrackerHeatmap({
                   </div>
                 </div>
               ))}
-              <div className="flex items-center justify-end gap-1.5 text-[10px] text-stone-500 dark:text-stone-300">
+              <div className="flex items-center justify-end gap-1.5 text-xs text-stone-500 dark:text-stone-300">
                 <span>أقل</span>
                 <div className="h-3 w-3 rounded-sm bg-stone-100 dark:bg-stone-800" />
                 <div className="h-3 w-3 rounded-sm bg-emerald-200" />

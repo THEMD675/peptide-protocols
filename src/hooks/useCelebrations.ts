@@ -112,7 +112,7 @@ export function useCelebrations() {
           30: { title: 'شهر كامل من الالتزام!', desc: 'إنجاز استثنائي — شارك تجربتك مع المجتمع' },
         };
         const msg = msgs[streak] || {
-          title: ` يوم متتالي! استمر!`,
+          title: `${streak} يوم متتالي! استمر!`,
           desc: 'التزامك مثال يُحتذى',
         };
         setTimeout(() => {

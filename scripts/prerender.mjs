@@ -33,6 +33,7 @@ const STATIC_ROUTES = [
   '/guide',
   '/glossary',
   '/interactions',
+  '/compare',
   '/sources',
   '/community',
   '/reviews',

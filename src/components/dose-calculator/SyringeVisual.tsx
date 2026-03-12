@@ -109,7 +109,7 @@ export default function SyringeVisual({
                 x={barrelX + barrelWidth + 13}
                 y={t.y + 3}
                 fill={textColor}
-                fontSize="8"
+                fontSize="10"
                 fontFamily="Cairo, sans-serif"
               >
                 {t.label}

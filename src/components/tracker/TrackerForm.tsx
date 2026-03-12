@@ -107,7 +107,7 @@ export default function TrackerForm({
       if (error) { console.warn('Photo upload failed:', error.message); return null; }
       const { data: urlData } = supabase.storage.from('user-uploads').getPublicUrl(path);
       return urlData?.publicUrl ?? null;
-    } catch { return null; }
+    } catch (e) { console.warn('Photo upload failed:', e); return null; }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -226,8 +226,8 @@ export default function TrackerForm({
               aria-label="وحدة الجرعة"
               className="w-full rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 px-4 py-3 text-base text-stone-900 dark:text-stone-100 focus:border-emerald-300 dark:border-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900"
             >
-              <option value="mcg">mcg</option>
-              <option value="mg">mg</option>
+              <option value="mcg">ميكروغرام (mcg)</option>
+              <option value="mg">ملغ (mg)</option>
             </select>
           </div>
         </div>

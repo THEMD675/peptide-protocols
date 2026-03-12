@@ -49,6 +49,7 @@ export default function Contact() {
   const [email, setEmail] = useState(user?.email ?? '');
   const [subject, setSubject] = useState('');
   const [message, setMessage] = useState('');
+  const [hp, setHp] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
@@ -126,6 +127,7 @@ export default function Contact() {
       return;
     }
 
+    if (hp) return;
     setSubmitting(true);
     try {
       const { error } = await supabase.from('enquiries').insert({
@@ -253,6 +255,7 @@ export default function Contact() {
           onSubmit={handleSubmit}
           className="space-y-5 rounded-2xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-900 p-6 shadow-md dark:shadow-stone-900/50 sm:p-8"
         >
+          <input type="text" value={hp} onChange={e => setHp(e.target.value)} tabIndex={-1} autoComplete="off" aria-hidden="true" className="absolute opacity-0 h-0 w-0 overflow-hidden pointer-events-none" />
           {/* Name */}
           <div>
             <label
@@ -418,7 +421,7 @@ export default function Contact() {
               to="/faq"
               className="inline-flex min-h-[44px] items-center gap-1 text-sm font-medium text-emerald-700 dark:text-emerald-400 hover:underline"
             >
-              عرض جميع الأسئلة الشائعة ←
+              عرض جميع الأسئلة الشائعة →
             </Link>
           </div>
         </div>

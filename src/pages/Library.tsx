@@ -324,11 +324,11 @@ export default function Library() {
   const { bookmarks: favorites, toggle: toggleFavorite } = useBookmarks();
   const [runTour, setRunTour] = useState(false);
 
-  // Auto-trigger library tour on first visit
+  // Auto-trigger library tour on first visit (delayed to let user orient)
   useEffect(() => {
     const timer = setTimeout(() => {
       if (!isTourDone('library')) setRunTour(true);
-    }, 800);
+    }, 3000);
     return () => clearTimeout(timer);
   }, []);
 
@@ -411,7 +411,7 @@ export default function Library() {
     <div className="min-h-screen animate-fade-in" >
       <Helmet>
         <title>{`مكتبة الببتيدات | ${PEPTIDE_COUNT} ببتيد علاجي مع بروتوكولات كاملة | pptides`}</title>
-        <meta name="description" content={`تصفّح ${PEPTIDE_COUNT} ببتيد علاجي مع شرح مفصّل للآليات والجرعات والآثار الجانبية. Browse ${PEPTIDE_COUNT} therapeutic peptides with detailed protocols.`} />
+        <meta name="description" content={`تصفّح ${PEPTIDE_COUNT} ببتيد علاجي مع بروتوكولات مفصّلة تشمل الجرعات والآثار الجانبية وطرق الحقن والدورات العلاجية`} />
         <meta property="og:locale" content="ar_SA" />
         <meta property="og:title" content={`مكتبة الببتيدات | ${PEPTIDE_COUNT} ببتيد علاجي | pptides`} />
         <meta property="og:description" content={`تصفّح ${PEPTIDE_COUNT} ببتيد علاجي مع بروتوكولات كاملة وحاسبة جرعات.`} />
@@ -439,6 +439,7 @@ export default function Library() {
       </Helmet>
       <Suspense fallback={null}><GuidedTour tourId="library" run={runTour} onFinish={() => setRunTour(false)} /></Suspense>
       <div className="mx-auto max-w-7xl px-4 pt-8 pb-24 md:px-6 md:pt-12">
+        <div className="mb-4 rounded-xl border border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-900/20 px-4 py-2 text-xs text-amber-700 dark:text-amber-400">محتوى تعليمي — استشر طبيبك قبل استخدام أي ببتيد</div>
         {/* Header */}
         <div
           className="mb-10 text-center"
@@ -556,7 +557,7 @@ export default function Library() {
           >
             <option value="default">الترتيب الافتراضي</option>
             <option value="evidence">الأقوى دليلًا</option>
-            <option value="alpha">أبجدي (A-Z)</option>
+            <option value="alpha">أبجدي (أ-ي)</option>
             <option value="favorites">المفضلة أولًا</option>
           </select>
         </div>

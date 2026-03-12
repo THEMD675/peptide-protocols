@@ -43,20 +43,27 @@ serve(async (req) => {
 
   const supabase = createClient(supabaseUrl, supabaseServiceKey)
 
-  // Verify cron secret or admin auth
+  // Verify cron secret or admin auth — reject unauthenticated requests
   const authHeader = req.headers.get('authorization')
+  const cronSecretHeader = req.headers.get('x-cron-secret')
   const cronSecret = Deno.env.get('CRON_SECRET')
-  if (cronSecret && authHeader !== `Bearer ${cronSecret}`) {
-    const token = authHeader?.replace('Bearer ', '')
+
+  let authorized = false
+  if (cronSecret && (authHeader === `Bearer ${cronSecret}` || cronSecretHeader === cronSecret)) {
+    authorized = true
+  } else if (authHeader) {
+    const token = authHeader.replace('Bearer ', '')
     if (token) {
       const { data: { user }, error } = await supabase.auth.getUser(token)
-      if (error || !user) {
-        return new Response(JSON.stringify({ error: 'Unauthorized' }), {
-          status: 401,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        })
-      }
+      if (!error && user) authorized = true
     }
+  }
+
+  if (!authorized) {
+    return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+      status: 401,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    })
   }
 
   try {
@@ -374,7 +381,8 @@ serve(async (req) => {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
-              'Authorization': `Bearer ${supabaseServiceKey}`,
+              'Authorization': `Bearer ${cronSecret || supabaseServiceKey}`,
+              'x-cron-secret': cronSecret || '',
             },
             body: JSON.stringify({
               user_id: uid,

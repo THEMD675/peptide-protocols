@@ -536,7 +536,7 @@ export default function StackBuilder() {
             >
               <div className="flex w-full items-center justify-between">
                 <gs.icon className="h-6 w-6 text-emerald-600 dark:text-emerald-400" />
-                <span className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${
+                <span className={`rounded-full px-2 py-0.5 text-xs font-bold ${
                   gs.difficulty === 'مبتدئ' ? 'bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-400' :
                   gs.difficulty === 'متوسط' ? 'bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-400' :
                   'bg-red-100 dark:bg-red-900/40 text-red-700 dark:text-red-400'
@@ -548,17 +548,17 @@ export default function StackBuilder() {
                 {gs.peptideIds.map((id) => {
                   const p = realPeptides.find((x) => x.id === id);
                   return p ? (
-                    <span key={id} className="rounded-full bg-emerald-500/10 px-2 py-0.5 text-[10px] font-medium text-emerald-700 dark:text-emerald-400">
+                    <span key={id} className="rounded-full bg-emerald-500/10 px-2 py-0.5 text-xs font-medium text-emerald-700 dark:text-emerald-400">
                       {p.nameAr}
                     </span>
                   ) : (
-                    <span key={id} className="rounded-full bg-stone-100 dark:bg-stone-800 px-2 py-0.5 text-[10px] font-medium text-stone-500 dark:text-stone-300">
+                    <span key={id} className="rounded-full bg-stone-100 dark:bg-stone-800 px-2 py-0.5 text-xs font-medium text-stone-500 dark:text-stone-300">
                       {id}
                     </span>
                   );
                 })}
               </div>
-              <div className="flex items-center gap-3 mt-auto pt-2 text-[11px] text-stone-500 dark:text-stone-300">
+              <div className="flex items-center gap-3 mt-auto pt-2 text-xs text-stone-500 dark:text-stone-300">
                 <span className="flex items-center gap-1"><DollarSign className="h-3 w-3" />{gs.monthlyCostSAR}</span>
                 <span className="flex items-center gap-1"><Clock className="h-3 w-3" />{gs.durationAr}</span>
               </div>
@@ -685,7 +685,7 @@ export default function StackBuilder() {
               <div key={s.id} className="flex items-center justify-between rounded-lg bg-white dark:bg-stone-900 px-3 py-2 border border-stone-200 dark:border-stone-600">
                 <button type="button" onClick={() => handleLoadStack(s)} className="flex-1 text-start">
                   <span className="text-sm font-medium text-stone-900 dark:text-stone-100">{s.name}</span>
-                  <span className="block text-[10px] text-stone-500 dark:text-stone-300">{s.peptideIds.length} ببتيدات • {new Date(s.createdAt).toLocaleDateString('ar-SA')}</span>
+                  <span className="block text-xs text-stone-500 dark:text-stone-300">{s.peptideIds.length} ببتيدات • {new Date(s.createdAt).toLocaleDateString('ar-SA')}</span>
                 </button>
                 <button type="button" onClick={() => handleDelete(s.id)} aria-label={`حذف ${s.name}`} className="flex items-center justify-center rounded-lg p-2 min-h-[44px] min-w-[44px] text-red-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors">
                   <Trash2 className="h-4 w-4" />
@@ -876,9 +876,9 @@ export default function StackBuilder() {
                 ~{Math.round(weeklyInjections)} حقنة/أسبوع
               </p>
               {weeklyInjections >= 7 ? (
-                <p className="text-[10px] text-stone-400">~{Math.round(weeklyInjections / 7)} يوميًا</p>
+                <p className="text-xs text-stone-400">~{Math.round(weeklyInjections / 7)} يوميًا</p>
               ) : (
-                <p className="text-[10px] text-stone-400">كل {Math.round(7 / weeklyInjections)} أيام</p>
+                <p className="text-xs text-stone-400">كل {Math.round(7 / weeklyInjections)} أيام</p>
               )}
             </div>
 
@@ -901,7 +901,7 @@ export default function StackBuilder() {
               </div>
               <div className="flex flex-wrap gap-1">
                 {[...new Set(selectedPeptides.map((p) => p.route))].map((r) => (
-                  <span key={r ?? 'default'} className="rounded-full bg-stone-100 dark:bg-stone-800 px-2 py-0.5 text-[10px] font-medium text-stone-600 dark:text-stone-300">
+                  <span key={r ?? 'default'} className="rounded-full bg-stone-100 dark:bg-stone-800 px-2 py-0.5 text-xs font-medium text-stone-600 dark:text-stone-300">
                     {getRouteLabel(r)}
                   </span>
                 ))}
@@ -962,7 +962,7 @@ export default function StackBuilder() {
                     <Link to={`/peptide/${p.id}`} className="text-sm font-bold text-emerald-700 dark:text-emerald-400 hover:underline">
                       {p.nameAr}
                     </Link>
-                    <span className="text-[10px] text-stone-400">{p.nameEn}</span>
+                    <span className="text-xs text-stone-400">{p.nameEn}</span>
                   </div>
                   <div className="grid gap-2 sm:grid-cols-2 text-xs text-stone-600 dark:text-stone-300">
                     <div>

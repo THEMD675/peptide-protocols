@@ -67,7 +67,7 @@ export default function SideEffectLog() {
         .limit(50);
 
       if (!error && data) setEntries(data as SideEffectEntry[]);
-    } catch {
+    } catch (e) { console.warn("caught:", e);
       // silently ignored
     } finally {
       setLoading(false);
@@ -83,7 +83,7 @@ export default function SideEffectLog() {
         .eq('user_id', user.id)
         .eq('status', 'active');
       if (!error && data) setActiveProtocols(data);
-    } catch {
+    } catch (e) { console.warn("caught:", e);
       // silently ignored
     }
   }, [user]);
@@ -118,7 +118,7 @@ export default function SideEffectLog() {
       setPeptideId('');
       setNotes('');
       await fetchEntries();
-    } catch {
+    } catch (e) { console.warn("caught:", e);
       toast.error('تعذّر حفظ العرض — حاول مرة أخرى');
     } finally {
       setIsSubmitting(false);

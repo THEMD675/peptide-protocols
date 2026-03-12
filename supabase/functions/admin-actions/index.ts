@@ -8,6 +8,10 @@ import { sendEmail } from '../_shared/send-email.ts'
 
 const stripeKey = Deno.env.get('STRIPE_SECRET_KEY') ?? ''
 
+function escapeHtml(str: string): string {
+  return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;')
+}
+
 serve(async (req) => {
   const preflight = handleCorsPreflightIfOptions(req)
   if (preflight) return preflight
@@ -194,11 +198,26 @@ serve(async (req) => {
       const userId = body.user_id as string
       if (!userId) return json({ error: 'Missing user_id' }, 400, cors)
 
-      const { error } = await admin.auth.admin.updateUserById(userId, { ban_duration: '87600h' }) // 10 years
+      // Cancel Stripe subscription first (so user is not charged while banned)
+      const { data: sub } = await admin.from('subscriptions')
+        .select('stripe_subscription_id, status').eq('user_id', userId).maybeSingle()
+      if (sub?.stripe_subscription_id && stripeKey) {
+        const stripe = new Stripe(stripeKey, { apiVersion: '2024-06-20', timeout: 10000 })
+        try {
+          await stripe.subscriptions.cancel(sub.stripe_subscription_id)
+        } catch (e) {
+          console.error('Stripe cancel during suspend failed:', e)
+        }
+      }
+
+      const { error } = await admin.auth.admin.updateUserById(userId, { ban_duration: '87600h' })
       if (error) return json({ error: error.message }, 500, cors)
 
-      // Also expire their subscription
-      await admin.from('subscriptions').update({ status: 'expired', updated_at: new Date().toISOString() }).eq('user_id', userId)
+      await admin.from('subscriptions').update({
+        status: 'expired',
+        pre_suspend_status: sub?.status ?? null,
+        updated_at: new Date().toISOString(),
+      }).eq('user_id', userId)
       return json({ ok: true }, 200, cors)
     }
 
@@ -211,7 +230,19 @@ serve(async (req) => {
 
       const { error } = await admin.auth.admin.updateUserById(userId, { ban_duration: 'none' })
       if (error) return json({ error: error.message }, 500, cors)
-      return json({ ok: true }, 200, cors)
+
+      // Restore pre-suspension subscription status if available
+      const { data: sub } = await admin.from('subscriptions')
+        .select('pre_suspend_status').eq('user_id', userId).maybeSingle()
+      if (sub?.pre_suspend_status) {
+        await admin.from('subscriptions').update({
+          status: sub.pre_suspend_status,
+          pre_suspend_status: null,
+          updated_at: new Date().toISOString(),
+        }).eq('user_id', userId)
+      }
+
+      return json({ ok: true, restored_status: sub?.pre_suspend_status ?? null }, 200, cors)
     }
 
     // ================================================================
@@ -238,14 +269,17 @@ serve(async (req) => {
         }
       }
 
-      // Delete user data via RPC
+      // Delete user data via RPC — abort if this fails to prevent orphaned Stripe data
       const { error: rpcErr } = await admin.rpc('delete_user_data', {
         p_user_id: userId,
         p_user_email: targetUser?.email ?? null,
       })
-      if (rpcErr) console.error('delete_user_data RPC failed:', rpcErr)
+      if (rpcErr) {
+        console.error('delete_user_data RPC failed — aborting auth deletion:', rpcErr)
+        return json({ error: `Data cleanup failed: ${rpcErr.message}. Auth user NOT deleted.` }, 500, cors)
+      }
 
-      // Delete auth user
+      // Delete auth user (only after data cleanup succeeded)
       const { error: deleteErr } = await admin.auth.admin.deleteUser(userId)
       if (deleteErr) return json({ error: deleteErr.message }, 500, cors)
 
@@ -322,7 +356,7 @@ serve(async (req) => {
             const r = await sendEmail({
               to: email,
               subject,
-              html: htmlBody || `<pre style="white-space: pre-wrap; font-family: inherit;">${textBody}</pre>`,
+              html: htmlBody || `<pre style="white-space: pre-wrap; font-family: inherit;">${escapeHtml(textBody ?? '')}</pre>`,
               replyTo: 'contact@pptides.com',
             })
             if (r.ok) sent++; else failed++
@@ -345,7 +379,7 @@ serve(async (req) => {
       const emailResult = await sendEmail({
         to,
         subject,
-        html: htmlBody || `<pre style="white-space: pre-wrap; font-family: inherit;">${textBody}</pre>`,
+        html: htmlBody || `<pre style="white-space: pre-wrap; font-family: inherit;">${escapeHtml(textBody ?? '')}</pre>`,
         replyTo: 'contact@pptides.com',
       })
       if (!emailResult.ok) {
@@ -641,7 +675,7 @@ serve(async (req) => {
           const r = await sendEmail({
             to,
             subject,
-            html: `<pre style="white-space: pre-wrap; font-family: inherit;">${reply}</pre>`,
+            html: `<pre style="white-space: pre-wrap; font-family: inherit;">${escapeHtml(reply)}</pre>`,
             replyTo: 'contact@pptides.com',
           })
           emailSent = r.ok

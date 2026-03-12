@@ -278,7 +278,7 @@ export default function Landing() {
             '@context': 'https://schema.org',
             '@type': 'Product',
             name: 'pptides — المتقدّمة',
-            description: 'اشتراك شهري يتضمن كل مزايا الأساسية بالإضافة إلى مدرب ذكي بالذكاء الاصطناعي 24/7، بروتوكولات مخصّصة، واستشارات بلا حدود.',
+            description: 'اشتراك شهري يتضمن كل مزايا الأساسية بالإضافة إلى مدرب ذكي بالذكاء الاصطناعي 24/7، بروتوكولات مخصّصة، واستشارات غير محدودة.',
             url: `${SITE_URL}/pricing`,
             brand: { '@type': 'Brand', name: 'pptides' },
             offers: {
@@ -365,13 +365,13 @@ export default function Landing() {
             </span>
             <span className="hidden sm:block h-5 w-px bg-stone-300 dark:bg-stone-600/80" />
             <span className="flex items-center gap-2 text-sm font-bold text-emerald-700 dark:text-emerald-400">
-              لا يلزم بطاقة ائتمان
+              {TRIAL_DAYS} أيام مجانية — إلغاء في أي وقت
             </span>
           </div>
           <p className="mt-3 text-xs text-stone-500 dark:text-stone-300">تبدأ من {PRICING.essentials.label}/شهر فقط بعد التجربة</p>
           <p className="mt-4 flex items-center justify-center gap-2 text-sm text-stone-500 dark:text-stone-300">
             <span className="relative flex h-2 w-2 shrink-0" aria-hidden="true"><span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500" /></span>
-            <span>انضم إلى <strong className="text-stone-700 dark:text-stone-200"><AnimatedCounter end={userCount > 0 ? userCount : 500} />+</strong> مستخدم من السعودية والخليج يثقون بـ pptides</span>
+            {userCount >= 50 ? <span>انضم إلى <strong className="text-stone-700 dark:text-stone-200"><AnimatedCounter end={userCount} />+</strong> مستخدم من السعودية والخليج يثقون بـ pptides</span> : <span>استنادًا إلى أحدث الأبحاث العلمية المحكّمة</span>}
           </p>
 
           {/* ═══ Product peek — show the actual product in 3 cells ═══ */}
@@ -421,7 +421,7 @@ export default function Landing() {
           <ArrowLeft className="h-4 w-4 text-emerald-500 transition-transform group-hover:-translate-x-1" aria-hidden="true" />
         </Link>
         <p className="mt-3 text-sm text-stone-500 dark:text-stone-300">
-          <Link to="/library" className="inline-flex min-h-[44px] items-center font-semibold text-emerald-700 dark:text-emerald-400 hover:underline">6 ببتيدات مجانية بالكامل</Link>
+          <Link to="/library" className="inline-flex min-h-[44px] items-center font-semibold text-emerald-700 dark:text-emerald-400 hover:underline">7 ببتيدات مجانية بالكامل</Link>
           {' — بدون تسجيل. تصفّحها الآن.'}
         </p>
       </div>
@@ -718,7 +718,7 @@ export default function Landing() {
           <span className="mt-3 inline-block rounded-full bg-emerald-600 px-5 py-1.5 text-sm font-bold text-white shadow-md">توفير 97% — وفّر {VALUE_SAVINGS_ESSENTIALS} شهريًا</span>
           <div className="mt-4 flex flex-wrap items-center justify-center gap-3 text-xs text-stone-600 dark:text-stone-300">
             <span className="flex items-center gap-1.5 rounded-full bg-white dark:bg-stone-900 border border-emerald-200 dark:border-emerald-800 px-3 py-1.5 font-medium"><BookOpen className="h-3.5 w-3.5" /> أكثر من ١٠,٠٠٠ ساعة بحث</span>
-            <span className="flex items-center gap-1.5 rounded-full bg-white dark:bg-stone-900 border border-emerald-200 dark:border-emerald-800 px-3 py-1.5 font-medium"><Users className="h-3.5 w-3.5" /> <AnimatedCounter end={userCount > 0 ? userCount : 500} />+ مستخدم</span>
+            {userCount >= 50 && <span className="flex items-center gap-1.5 rounded-full bg-white dark:bg-stone-900 border border-emerald-200 dark:border-emerald-800 px-3 py-1.5 font-medium"><Users className="h-3.5 w-3.5" /> <AnimatedCounter end={userCount} />+ مستخدم</span>}
           </div>
           <p className="mt-4 text-sm text-stone-800 dark:text-stone-200">أو {PRICING.elite.label}/شهريًا للباقة المتقدّمة مع المدرب الذكي + استشارات</p>
           <div className="mt-6 flex items-center justify-center">
@@ -763,7 +763,7 @@ export default function Landing() {
               <span>{ctaText}</span>
               <ArrowLeft className="h-5 w-5" />
             </Link>
-            <p className="mt-3 text-sm text-stone-500 dark:text-stone-300">{TRIAL_DAYS} أيام مجانية — لا يلزم بطاقة ائتمان</p>
+            <p className="mt-3 text-sm text-stone-500 dark:text-stone-300">{TRIAL_DAYS} أيام مجانية — إلغاء في أي وقت بدون رسوم</p>
           </div>
         </div>
       </section>
@@ -777,11 +777,11 @@ export default function Landing() {
           <div className="mx-auto mb-12 flex flex-col items-center gap-3">
             <div className="flex items-center gap-1.5" dir="ltr">
               {[1,2,3,4,5].map(s => <Star key={s} className="h-5 w-5 fill-emerald-500 text-emerald-500" />)}
-              <span className="mr-2 text-sm font-bold text-stone-700 dark:text-stone-200">5.0</span>
+              <span className="me-2 text-sm font-bold text-stone-700 dark:text-stone-200">5.0</span>
               <span className="text-sm text-stone-500 dark:text-stone-300">({testimonials.length}+ تقييم موثّق)</span>
             </div>
             <p className="text-center text-stone-800 dark:text-stone-200">
-              انضم لـ <strong><AnimatedCounter end={userCount > 0 ? userCount : 500} />+</strong> مستخدم من السعودية والخليج يثقون بـ pptides
+              {userCount >= 50 ? <>انضم لـ <strong><AnimatedCounter end={userCount} />+</strong> مستخدم من السعودية والخليج يثقون بـ pptides</> : <>مبني على أحدث الدراسات والأبحاث العلمية المحكّمة</>}
             </p>
           </div>
 
@@ -878,7 +878,7 @@ export default function Landing() {
                   'كل مزايا الأساسية',
                   'مدرب ذكي بالذكاء الاصطناعي 24/7',
                   'بروتوكولات مخصّصة لأهدافك',
-                  'استشارات بلا حدود',
+                  'استشارات غير محدودة',
                   'دعم مخصّص عبر البريد',
                 ].map((f) => (
                   <li key={f} className="flex items-start gap-3 text-sm text-stone-800 dark:text-stone-200">
@@ -963,7 +963,7 @@ export default function Landing() {
             { q: 'هل الببتيدات حلال؟', a: 'معظم الببتيدات العلاجية مصنّعة كيميائيًا ولا تحتوي مكونات حيوانية. ببتيدات الكولاجين قد تكون مشتقة من مصادر بحرية أو حيوانية — تحقق من المصدر.' },
             { q: 'كيف ألغي اشتراكي؟', a: `يمكنك إلغاء اشتراكك في أي وقت من صفحة الحساب. تحتفظ بالوصول حتى نهاية فترة الدفع الحالية. ضمان استرداد كامل خلال ${TRIAL_DAYS} أيام.` },
             { q: 'هل الدفع آمن؟', a: 'نستخدم Stripe — أكبر منصة دفع في العالم. بياناتك مشفّرة ولا نحفظ بيانات بطاقتك. ندعم Visa و Mastercard و Apple Pay.' },
-            { q: '6 ببتيدات مجانية — بدون تسجيل؟', a: 'نعم! 6 ببتيد مع بروتوكول كامل متاح مجانًا بدون إنشاء حساب. جرّبها الآن من المكتبة.' },
+            { q: '7 ببتيدات مجانية — بدون تسجيل؟', a: 'نعم! 7 ببتيدات مع بروتوكول كامل متاحة مجانًا بدون إنشاء حساب. جرّبها الآن من المكتبة.' },
             { q: 'ماذا أحصل بعد الاشتراك؟', a: `بروتوكولات كاملة لـ ${PEPTIDE_COUNT} ببتيد، حاسبة جرعات دقيقة، دليل تحاليل مخبرية، بروتوكولات مُجمَّعة، دليل حقن عملي، فحص تعارضات، ومدرب ذكي (في الباقة المتقدّمة).` },
           ].map((faq) => (
             <details key={faq.q} className="group rounded-2xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 transition-all hover:border-emerald-200 dark:hover:border-emerald-800">

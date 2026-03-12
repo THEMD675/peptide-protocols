@@ -399,7 +399,7 @@ function SlideTransition({ children, stepKey, direction }: { children: ReactNode
     <div
       className={cn(
         'transition-all duration-300 ease-out',
-        visible ? 'opacity-100 translate-x-0' : direction === 'forward' ? 'opacity-0 -translate-x-4' : 'opacity-0 translate-x-4',
+        visible ? 'opacity-100 translate-x-0' : direction === 'forward' ? 'opacity-0 translate-x-4' : 'opacity-0 -translate-x-4',
       )}
     >
       {children}
@@ -412,11 +412,22 @@ function SlideTransition({ children, stepKey, direction }: { children: ReactNode
 export default function PeptideQuiz() {
   const { user } = useAuth();
   const [phase, setPhase] = useState<'welcome' | 'quiz' | 'result'>('welcome');
-  const [step, setStep] = useState(0);
+  const [step, setStep] = useState(() => {
+    try { return parseInt(sessionStorage.getItem('pptides_quiz_step') ?? '0', 10) || 0; } catch { return 0; }
+  });
   const [direction, setDirection] = useState<'forward' | 'backward'>('forward');
-  const [answers, setAnswers] = useState<QuizAnswers>({ healthIssues: [] });
+  const [answers, setAnswers] = useState<QuizAnswers>(() => {
+    try { const s = sessionStorage.getItem('pptides_quiz_progress'); return s ? JSON.parse(s) : { healthIssues: [] }; } catch { return { healthIssues: [] }; }
+  });
   const [result, setResult] = useState<ProtocolResult | null>(null);
   const [saved, setSaved] = useState(false);
+
+  useEffect(() => {
+    try { sessionStorage.setItem('pptides_quiz_step', String(step)); } catch { /* expected */ }
+  }, [step]);
+  useEffect(() => {
+    try { sessionStorage.setItem('pptides_quiz_progress', JSON.stringify(answers)); } catch { /* expected */ }
+  }, [answers]);
 
   // Load previous result
   const [previousData] = useState<{ result: ProtocolResult; goal?: string; ts?: number } | null>(() => {
@@ -531,6 +542,7 @@ export default function PeptideQuiz() {
     setAnswers({ healthIssues: [] });
     setResult(null);
     setSaved(false);
+    try { sessionStorage.removeItem('pptides_quiz_step'); sessionStorage.removeItem('pptides_quiz_progress'); } catch { /* expected */ }
   }, []);
 
   const handleSaveResult = useCallback(() => {

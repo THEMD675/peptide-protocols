@@ -64,9 +64,13 @@ serve(async (req) => {
     const { error: dedupError } = await supabase
       .from('processed_webhook_events')
       .insert({ event_id: event.id, event_type: event.type })
-    if (dedupError && dedupError.code === '23505') {
-      console.log('stripe-webhook: duplicate event skipped:', event.id)
-      return jsonResponse({ received: true, duplicate: true })
+    if (dedupError) {
+      if (dedupError.code === '23505') {
+        console.log('stripe-webhook: duplicate event skipped:', event.id)
+        return jsonResponse({ received: true, duplicate: true })
+      }
+      console.error('stripe-webhook: dedup insert failed (non-duplicate):', dedupError)
+      return jsonResponse({ error: 'Dedup check failed' }, 500)
     }
 
     let dbFailed = false
@@ -119,9 +123,7 @@ serve(async (req) => {
               }
             }
           } catch (fetchErr) {
-            console.error('checkout: failed to fetch subscription from Stripe — defaulting to trial:', fetchErr)
-            checkoutStatus = 'trial'
-            trialEndsAt = new Date(Date.now() + TRIAL_DAYS * 86400000).toISOString()
+            console.error('checkout: failed to fetch subscription from Stripe — NOT defaulting to trial:', fetchErr)
           }
         }
 

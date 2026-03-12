@@ -11,7 +11,7 @@ export default function PaymentProcessing() {
     if (typeof window === 'undefined') return false;
     return new URLSearchParams(window.location.search).get('payment') === 'success';
   });
-  const [stage, setStage] = useState<'loading' | 'success' | 'timeout'>('loading');
+  const [stage, setStage] = useState<'loading' | 'success' | 'timeout' | 'error'>('loading');
   const [progress, setProgress] = useState(10);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const [confettiParticles] = useState(() =>

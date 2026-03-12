@@ -159,6 +159,7 @@ export default function Glossary() {
 
   return (
     <div className="min-h-screen mx-auto max-w-4xl px-4 pb-24 pt-8 md:px-6 md:pt-12 animate-fade-in">
+        <div className="mb-4 rounded-xl border border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-900/20 px-4 py-2 text-xs text-amber-700 dark:text-amber-400">محتوى تعليمي — استشر طبيبك قبل استخدام أي ببتيد</div>
       <Helmet>
         <title>قاموس مصطلحات الببتيدات والبيوهاكينغ | pptides</title>
         <meta name="description" content="قاموس عربي شامل لمصطلحات الببتيدات والطب الرياضي والبيوهاكينغ — تعريفات واضحة لكل مصطلح تقني من GH وIGF-1 إلى الببتيدات العصبية والمناعية." />

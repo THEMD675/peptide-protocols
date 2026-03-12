@@ -90,7 +90,7 @@ export default function GlobalSearch({ open, onClose }: Props) {
           .from('blog_posts')
           .select('slug, title_ar, excerpt_ar')
           .eq('is_published', true)
-          .or(`title_ar.ilike.%${q}%,excerpt_ar.ilike.%${q}%,tags.cs.{${q}}`)
+          .or(`title_ar.ilike.%${q.replace(/[{}]/g, '')}%,excerpt_ar.ilike.%${q.replace(/[{}]/g, '')}%,tags.cs.{${q.replace(/[{}]/g, '')}}`)
           .limit(5);
         setBlogResults(data ?? []);
       } catch { setBlogResults([]); }

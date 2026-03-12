@@ -1,20 +1,11 @@
 import { useState, useEffect } from "react";
 import { Shield } from "lucide-react";
+import { STORAGE_KEYS } from "@/lib/constants";
 
-const STORAGE_KEY = "pptides_age_verified";
-
-// Auth pages handle their own flow — no need to gate them before they've even entered the site
-const AUTH_ROUTES = ['/login', '/signup'];
+const STORAGE_KEY = STORAGE_KEYS.AGE_VERIFIED;
 
 export default function AgeGate() {
-  const isAuthRoute = AUTH_ROUTES.some(r => window.location.pathname.startsWith(r));
-
   const [visible, setVisible] = useState(() => {
-    // Never block auth pages — auto-accept so signup/login is friction-free
-    if (isAuthRoute) {
-      try { localStorage.setItem(STORAGE_KEY, "true"); } catch { /* expected */ }
-      return false;
-    }
     try {
       return localStorage.getItem(STORAGE_KEY) !== "true";
     } catch {

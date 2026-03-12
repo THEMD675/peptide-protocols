@@ -8,7 +8,7 @@ const APP_URL = Deno.env.get('APP_URL') ?? 'https://pptides.com'
 // SOURCE OF TRUTH: 34 SAR = 1 month Essentials; override via ESSENTIALS_PRICE_DISPLAY env
 const ESSENTIALS_PRICE = Deno.env.get('ESSENTIALS_PRICE_DISPLAY') ?? '34 ر.س'
 // SOURCE OF TRUTH: match src/lib/constants.ts (peptides.length); override via PEPTIDE_COUNT env
-const PEPTIDE_COUNT = parseInt(Deno.env.get('PEPTIDE_COUNT') ?? '48', 10)
+const PEPTIDE_COUNT = parseInt(Deno.env.get('PEPTIDE_COUNT') ?? '47', 10)
 
 function constantTimeCompare(a: string, b: string): boolean {
   if (a.length !== b.length) return false

@@ -73,19 +73,19 @@ const dripEmails: DripEmail[] = [
       </p>
       <div style="background: #ecfdf5; border-radius: 12px; padding: 20px; margin: 20px 0;">
         <p style="margin: 10px 0; font-size: 15px;">
-          <strong style="color: #059669;">1.</strong> <a href="${APP_URL}/peptides/bpc-157" style="color: #059669; font-weight: bold;">BPC-157</a> — الببتيد الأشهر للتعافي والالتهابات
+          <strong style="color: #059669;">1.</strong> <a href="${APP_URL}/peptide/bpc-157" style="color: #059669; font-weight: bold;">BPC-157</a> — الببتيد الأشهر للتعافي والالتهابات
         </p>
         <p style="margin: 10px 0; font-size: 15px;">
-          <strong style="color: #059669;">2.</strong> <a href="${APP_URL}/peptides/tb-500" style="color: #059669; font-weight: bold;">TB-500</a> — لتسريع شفاء الأنسجة والمفاصل
+          <strong style="color: #059669;">2.</strong> <a href="${APP_URL}/peptide/tb-500" style="color: #059669; font-weight: bold;">TB-500</a> — لتسريع شفاء الأنسجة والمفاصل
         </p>
         <p style="margin: 10px 0; font-size: 15px;">
-          <strong style="color: #059669;">3.</strong> <a href="${APP_URL}/peptides/ghk-cu" style="color: #059669; font-weight: bold;">GHK-Cu</a> — لتجديد البشرة ومكافحة الشيخوخة
+          <strong style="color: #059669;">3.</strong> <a href="${APP_URL}/peptide/ghk-cu" style="color: #059669; font-weight: bold;">GHK-Cu</a> — لتجديد البشرة ومكافحة الشيخوخة
         </p>
         <p style="margin: 10px 0; font-size: 15px;">
-          <strong style="color: #059669;">4.</strong> <a href="${APP_URL}/peptides/semaglutide" style="color: #059669; font-weight: bold;">Semaglutide</a> — الأكثر طلبًا لإدارة الوزن
+          <strong style="color: #059669;">4.</strong> <a href="${APP_URL}/peptide/semaglutide" style="color: #059669; font-weight: bold;">Semaglutide</a> — الأكثر طلبًا لإدارة الوزن
         </p>
         <p style="margin: 10px 0; font-size: 15px;">
-          <strong style="color: #059669;">5.</strong> <a href="${APP_URL}/peptides/cjc-1295" style="color: #059669; font-weight: bold;">CJC-1295</a> — لتحفيز هرمون النمو بشكل طبيعي
+          <strong style="color: #059669;">5.</strong> <a href="${APP_URL}/peptide/cjc-1295" style="color: #059669; font-weight: bold;">CJC-1295</a> — لتحفيز هرمون النمو بشكل طبيعي
         </p>
       </div>
       <p style="color: #44403c; font-size: 16px;">

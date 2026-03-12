@@ -65,7 +65,7 @@ export default function CoachInsightsBanner({ insights, onInsightClick }: Props)
             aria-label="إخفاء"
             onClick={e => { e.stopPropagation(); setDismissed(prev => new Set(prev).add(insight.id)); }}
             onKeyDown={e => { if (e.key === 'Enter') { e.stopPropagation(); setDismissed(prev => new Set(prev).add(insight.id)); } }}
-            className="mt-0.5 shrink-0 rounded-full p-1 text-stone-400 opacity-0 transition-opacity group-hover:opacity-100 hover:bg-stone-200 dark:hover:bg-stone-700"
+            className="mt-0.5 shrink-0 rounded-full p-1 min-h-[44px] min-w-[44px] flex items-center justify-center text-stone-400 hover:bg-stone-200 dark:hover:bg-stone-700"
           >
             <X className="h-3 w-3" />
           </span>

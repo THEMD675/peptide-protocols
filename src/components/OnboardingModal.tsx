@@ -81,7 +81,7 @@ export default function OnboardingModal({ forceOpen, onClose: externalClose }: {
           try { localStorage.setItem(ONBOARDING_KEY, 'true'); } catch { /* expected */ }
           setShow(false);
         }
-      }).catch(() => {});
+      }).catch((e: unknown) => console.warn("silent catch:", e));
   }, [user?.id, forceOpen]);
 
   // If user already took the quiz, skip the goal step
@@ -124,16 +124,8 @@ export default function OnboardingModal({ forceOpen, onClose: externalClose }: {
   // Fix 4: "dismiss" just hides the modal temporarily — it will reappear on next visit
   // unless forceOpen (re-open button), in which case dismiss also completes
   const handleDismiss = useCallback(() => {
-    if (forceOpen) {
-      // When user explicitly re-opened onboarding, dismiss = close
-      setShow(false);
-      externalClose?.();
-    } else {
-      // First visit: backdrop click just hides temporarily, doesn't mark complete
-      setShow(false);
-      externalClose?.();
-    }
-  }, [forceOpen, externalClose]);
+    handleComplete();
+  }, [handleComplete]);
 
   useEffect(() => {
     if (!show) return;

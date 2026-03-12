@@ -72,7 +72,7 @@ export default memo(function ShareableCard(props: ShareableCardProps) {
       const html2canvas = (await import('html2canvas')).default;
       const canvas = await html2canvas(cardRef.current, {
         scale: 2,
-        backgroundColor: '#ffffff',
+        backgroundColor: document.documentElement.classList.contains('dark') ? '#1c1917' : '#ffffff',
         useCORS: true,
       });
       // Promisify toBlob so the finally block waits for the full export to complete.
@@ -84,7 +84,7 @@ export default memo(function ShareableCard(props: ShareableCardProps) {
       if (!blob) { toast.error('تعذّر إنشاء الصورة'); return; }
       const file = new File([blob], `pptides-${props.peptideNameEn}.png`, { type: 'image/png' });
       if (navigator.share && navigator.canShare?.({ files: [file] })) {
-        await navigator.share({ files: [file], title: `بروتوكول ${props.peptideName}` }).catch(() => {});
+        await navigator.share({ files: [file], title: `بروتوكول ${props.peptideName}` }).catch((e: unknown) => console.warn("silent catch:", e));
       } else {
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
@@ -140,15 +140,15 @@ export default memo(function ShareableCard(props: ShareableCardProps) {
           <Download className="h-4 w-4" />
           {exporting ? 'جارٍ...' : 'صورة'}
         </button>
-        <a
-          href="#"
-          onClick={(e) => { e.preventDefault(); handleWhatsApp(); }}
+        <button
+          type="button"
+          onClick={() => handleWhatsApp()}
           aria-label="مشاركة عبر واتساب"
           className="flex items-center justify-center gap-2 rounded-xl bg-[#25D366] px-4 py-2.5 text-sm font-bold text-white transition-colors hover:bg-[#20bd5a]"
         >
           <MessageCircle className="h-4 w-4" />
           واتساب
-        </a>
+        </button>
         <button
           onClick={handleTwitter}
           aria-label="مشاركة عبر تويتر"

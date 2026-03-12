@@ -94,7 +94,7 @@ function ExpandableCell({ text, isDiff }: { text: string; isDiff: boolean }) {
           type="button"
           onClick={() => setExpanded((v) => !v)}
           className={cn(
-            'mt-1 block text-[10px] font-bold underline-offset-2 hover:underline transition-colors',
+            'mt-1 block text-xs font-bold underline-offset-2 hover:underline transition-colors',
             isDiff ? 'text-amber-600 dark:text-amber-400' : 'text-stone-400 dark:text-stone-300',
           )}
         >
@@ -149,7 +149,7 @@ function PeptideSelector({
       <div className="mb-1.5 flex items-center gap-2">
         <p className="text-xs font-bold text-stone-500 dark:text-stone-300">{label}</p>
         {optional && (
-          <span className="rounded-full bg-stone-100 dark:bg-stone-800 px-2 py-0.5 text-[10px] text-stone-400 dark:text-stone-300">
+          <span className="rounded-full bg-stone-100 dark:bg-stone-800 px-2 py-0.5 text-xs text-stone-400 dark:text-stone-300">
             اختياري
           </span>
         )}
@@ -197,7 +197,7 @@ function PeptideSelector({
             />
           </div>
           <div className="flex items-center justify-between px-3 pb-1">
-            <p className="text-[10px] text-stone-400">{filtered.length} ببتيد متاح</p>
+            <p className="text-xs text-stone-400">{filtered.length} ببتيد متاح</p>
           </div>
           <div className="max-h-48 overflow-y-auto">
             {filtered.length === 0 ? (
@@ -329,6 +329,7 @@ export default function Compare() {
 
   return (
     <div dir="rtl" className="mx-auto max-w-5xl px-4 pt-8 pb-24 md:px-6 md:pt-12">
+        <div className="mb-4 rounded-xl border border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-900/20 px-4 py-2 text-xs text-amber-700 dark:text-amber-400">محتوى تعليمي — استشر طبيبك قبل استخدام أي ببتيد</div>
       <Helmet>
         <title>مقارنة الببتيدات | pptides</title>
         <meta
@@ -450,7 +451,7 @@ export default function Compare() {
           {canScrollTable && (
             <div className="mb-2 flex items-center justify-end gap-1 text-[11px] text-stone-400 dark:text-stone-300 sm:hidden">
               <ChevronLeft className="h-3.5 w-3.5" />
-              اسحب يسارًا للمزيد
+              اسحب للجانب للمزيد
             </div>
           )}
 
@@ -487,13 +488,13 @@ export default function Compare() {
                       <div className="mt-2 flex gap-3">
                         <Link
                           to={`/peptide/${p.id}`}
-                          className="text-[10px] font-semibold text-emerald-700 hover:underline"
+                          className="text-xs font-semibold text-emerald-700 hover:underline"
                         >
                           البروتوكول الكامل
                         </Link>
                         <Link
                           to={`/calculator?preset=${encodeURIComponent(p.nameEn)}`}
-                          className="text-[10px] font-semibold text-stone-500 dark:text-stone-300 hover:text-emerald-700 hover:underline"
+                          className="text-xs font-semibold text-stone-500 dark:text-stone-300 hover:text-emerald-700 hover:underline"
                         >
                           احسب الجرعة
                         </Link>
@@ -579,7 +580,7 @@ export default function Compare() {
           {/* Action bar */}
           <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
             <Link
-              to={`/interactions?p1=${ids[0]}&p2=${ids[1]}`}
+              to={`/interactions?${ids.map((id, i) => `p${i + 1}=${id}`).join('&')}`}
               className="inline-flex items-center gap-2 rounded-xl border border-stone-200 dark:border-stone-700 px-6 py-3 text-sm font-bold text-emerald-700 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 transition-colors"
             >
               فحص التعارضات بين هذه الببتيدات
@@ -615,7 +616,7 @@ export default function Compare() {
                 <ArrowLeftRight className="h-4 w-4 shrink-0 text-emerald-700" />
                 <div className="min-w-0">
                   <p className="text-xs font-bold text-stone-800 dark:text-stone-200 truncate">{label}</p>
-                  <p className="text-[10px] text-stone-400 dark:text-stone-300">{tag}</p>
+                  <p className="text-xs text-stone-400 dark:text-stone-300">{tag}</p>
                 </div>
               </Link>
             ))}

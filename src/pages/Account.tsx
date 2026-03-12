@@ -122,7 +122,7 @@ export default function Account() {
         memberSince: memberSinceDate,
       });
     };
-    loadStats().catch(() => {});
+    loadStats().catch((e: unknown) => console.warn("silent catch:", e));
     return () => { mounted = false; };
   }, [user]);
 
@@ -221,7 +221,7 @@ export default function Account() {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}` },
           body: JSON.stringify({ action: 'sync_email', user_id: user.id, new_email: newEmail.trim().toLowerCase() }),
-        }).catch(() => {});
+        }).catch((e: unknown) => console.warn("silent catch:", e));
       }
       toast.success('تم إرسال رابط تأكيد للبريد الجديد. سيتم تحديث بريدك في Stripe تلقائيًا');
       setNewEmail('');
@@ -292,12 +292,12 @@ export default function Account() {
           if (/^[=+\-@\t\r]/.test(escaped)) return `"\t${escaped}"`;
           return `"${escaped}"`;
         };
-        const headers = 'Date,Time,Peptide,Dose,Unit,Site,Notes';
+        const headers = 'التاريخ,الوقت,الببتيد,الجرعة,الوحدة,موقع الحقن,ملاحظات';
         const rows = logs.map(l => {
           const d = new Date(l.logged_at as string);
           return [
-            escapeCSV(d.toLocaleDateString('en-CA')),
-            escapeCSV(d.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })),
+            escapeCSV(d.toLocaleDateString('ar-u-nu-latn')),
+            escapeCSV(d.toLocaleTimeString('ar-u-nu-latn', { hour: '2-digit', minute: '2-digit' })),
             escapeCSV(l.peptide_name),
             escapeCSV(l.dose),
             escapeCSV(l.dose_unit),
@@ -1260,13 +1260,8 @@ function ReferralSection({ userId }: { userId?: string }) {
       let refCode = sub?.referral_code;
       if (!refCode) {
         refCode = generateCode();
-        if (sub) {
-          const { error: updErr } = await supabase.from('subscriptions').update({ referral_code: refCode }).eq('user_id', userId);
-          if (updErr) console.error('referral code update failed:', updErr);
-        } else {
-          const { error: insErr } = await supabase.from('subscriptions').insert({ user_id: userId, status: 'none', tier: 'free', referral_code: refCode });
-          if (insErr) console.error('referral code insert failed:', insErr);
-        }
+        const { error: rpcErr } = await supabase.rpc('set_referral_code', { p_code: refCode });
+        if (rpcErr) console.error('set_referral_code RPC failed:', rpcErr);
       }
       setCode(refCode);
 
@@ -1311,7 +1306,7 @@ function ReferralSection({ userId }: { userId?: string }) {
       <div className="h-5 w-32 bg-stone-200 dark:bg-stone-700 rounded mb-3" />
       <div className="h-3 w-48 bg-stone-100 dark:bg-stone-800 rounded mb-4" />
       <div className="h-10 w-full bg-stone-100 dark:bg-stone-800 rounded-xl mb-3" />
-      <div className="grid grid-cols-3 gap-3"><div className="h-16 bg-stone-100 dark:bg-stone-800 rounded-xl" /><div className="h-16 bg-stone-100 dark:bg-stone-800 rounded-xl" /><div className="h-16 bg-stone-100 dark:bg-stone-800 rounded-xl" /></div>
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3"><div className="h-16 bg-stone-100 dark:bg-stone-800 rounded-xl" /><div className="h-16 bg-stone-100 dark:bg-stone-800 rounded-xl" /><div className="h-16 bg-stone-100 dark:bg-stone-800 rounded-xl" /></div>
     </div>
   );
 
@@ -1380,7 +1375,7 @@ function ReferralSection({ userId }: { userId?: string }) {
 
       <div className="rounded-xl bg-stone-50 dark:bg-stone-900 p-4">
         <p className="text-xs font-bold text-stone-500 dark:text-stone-300 mb-2">{REFERRAL.statsLabel}</p>
-        <div className="grid grid-cols-3 gap-3 text-center">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-center">
           <div>
             <p className="text-xl font-bold text-stone-900 dark:text-stone-100">{stats.total}</p>
             <p className="text-xs text-stone-500 dark:text-stone-300">{REFERRAL.statsInvites}</p>

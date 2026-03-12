@@ -261,72 +261,94 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [user, fetchSubscription, navigate]);
 
   const hadSessionRef = useRef(false);
+  const initDoneRef = useRef(false);
+  const fetchingRef = useRef(false);
 
   useEffect(() => {
-    const timeout = setTimeout(() => {
-      setIsLoading(false);
-    }, 15000);
+    let timeout: ReturnType<typeof setTimeout>;
 
-    supabase.auth.getSession().then(async ({ data: { session } }) => {
+    const syncProfile = (userId: string, su: SupabaseUser) => {
+      const displayName = (su.user_metadata?.full_name ?? su.user_metadata?.name) as string | undefined;
+      const dn = ((displayName && displayName.trim()) || su.email?.split('@')[0] || '').replace(/<[^>]+>/g, '').slice(0, 50);
+      supabase.from('user_profiles').select('user_id').eq('user_id', userId).maybeSingle().then(({ data: existing }) => {
+        if (existing) {
+          supabase.from('user_profiles').update({ display_name: dn, updated_at: new Date().toISOString() }).eq('user_id', userId).catch((e) => console.warn('profile update failed:', e));
+        } else {
+          supabase.from('user_profiles').insert({ user_id: userId, display_name: dn, updated_at: new Date().toISOString() }).catch((e) => console.warn('profile insert failed:', e));
+        }
+      }).catch((e) => console.warn('profile check failed:', e));
+    };
+
+    const handleSession = async (session: Session | null, event?: string) => {
       if (session?.user) {
         hadSessionRef.current = true;
         const mapped = mapUser(session.user);
         setUser(mapped);
-        if (mapped) {
-          await fetchSubscription(mapped.id);
-          const displayName = (session.user.user_metadata?.full_name ?? session.user.user_metadata?.name) as string | undefined;
-          // Always ensure user_profile exists — email signup users have no display_name metadata
-          const dn = ((displayName && displayName.trim()) || session.user.email?.split('@')[0] || '').replace(/<[^>]+>/g, '').slice(0, 50);
-          supabase.from('user_profiles').select('user_id').eq('user_id', mapped.id).maybeSingle().then(({ data: existing }) => {
-            if (existing) {
-              supabase.from('user_profiles').update({ display_name: dn, updated_at: new Date().toISOString() }).eq('user_id', mapped.id).then(() => {}).catch(() => {});
-            } else {
-              supabase.from('user_profiles').insert({ user_id: mapped.id, display_name: dn, updated_at: new Date().toISOString() }).then(() => {}).catch(() => {});
-            }
-          }).catch(() => {});
+        if (mapped && !fetchingRef.current) {
+          fetchingRef.current = true;
+          try {
+            await fetchSubscription(mapped.id);
+          } finally {
+            fetchingRef.current = false;
+          }
+          syncProfile(mapped.id, session.user);
         }
+      } else {
+        if (event === 'SIGNED_OUT' && hadSessionRef.current) {
+          const currentPath = window.location.pathname + window.location.search;
+          navigate(`/login?redirect=${encodeURIComponent(currentPath)}`, { replace: true });
+        }
+        hadSessionRef.current = false;
+        setUser(null);
+        setSubscription(DEFAULT_SUBSCRIPTION);
+        if (event === 'SIGNED_OUT') clearPptidesStorage();
       }
-      // FIX: Cancel timeout AFTER all async work (including fetchSubscription) completes,
-      // so the 15s safety net still fires if fetchSubscription stalls (e.g. retries on slow network).
-      clearTimeout(timeout);
-      setIsLoading(false);
-    }).catch(() => {
-      clearTimeout(timeout);
-      setIsLoading(false);
-    });
+    };
+
+    const welcomeEmailSentRef = { current: false };
 
     const { data: { subscription: authListener } } = supabase.auth.onAuthStateChange(
       async (event: string, session: Session | null) => {
-        if (session?.user) {
-          hadSessionRef.current = true;
-          const mapped = mapUser(session.user);
-          setUser(mapped);
-          if (mapped) {
-            await fetchSubscription(mapped.id);
-            const displayName = (session.user.user_metadata?.full_name ?? session.user.user_metadata?.name) as string | undefined;
-            // Always ensure user_profile exists — email signup users have no display_name metadata
-            const dn2 = ((displayName && displayName.trim()) || session.user.email?.split('@')[0] || '').replace(/<[^>]+>/g, '').slice(0, 50);
-            supabase.from('user_profiles').select('user_id').eq('user_id', mapped.id).maybeSingle().then(({ data: existing }) => {
-              if (existing) {
-                supabase.from('user_profiles').update({ display_name: dn2, updated_at: new Date().toISOString() }).eq('user_id', mapped.id).then(() => {}).catch(() => {});
-              } else {
-                supabase.from('user_profiles').insert({ user_id: mapped.id, display_name: dn2, updated_at: new Date().toISOString() }).then(() => {}).catch(() => {});
-              }
-            }).catch(() => {});
-          }
-        } else {
-          if (event === 'SIGNED_OUT' && hadSessionRef.current) {
-            const currentPath = window.location.pathname + window.location.search;
-            navigate(`/login?redirect=${encodeURIComponent(currentPath)}`, { replace: true });
-          }
-          hadSessionRef.current = false;
-          setUser(null);
-          setSubscription(DEFAULT_SUBSCRIPTION);
-          clearPptidesStorage();
+        if (event === 'INITIAL_SESSION') {
+          clearTimeout(timeout);
+          await handleSession(session, event);
+          initDoneRef.current = true;
+          setIsLoading(false);
+          return;
         }
-        setIsLoading(false);
+
+        if (event === 'SIGNED_IN' && session?.user && !welcomeEmailSentRef.current) {
+          const provider = session.user.app_metadata?.provider;
+          if (provider === 'google') {
+            welcomeEmailSentRef.current = true;
+            const edgeFnUrl = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/send-welcome-email`;
+            fetch(edgeFnUrl, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${session.access_token}`,
+                apikey: import.meta.env.VITE_SUPABASE_ANON_KEY,
+              },
+              body: JSON.stringify({ email: session.user.email, name: session.user.user_metadata?.full_name ?? '' }),
+            }).catch((e) => console.warn('Google welcome email failed:', e));
+          }
+        }
+
+        await handleSession(session, event);
+        if (!initDoneRef.current) {
+          initDoneRef.current = true;
+          setIsLoading(false);
+        }
       }
     );
+
+    timeout = setTimeout(() => {
+      if (!initDoneRef.current) {
+        console.warn('Auth init timeout (15s) — resolving with current state');
+        initDoneRef.current = true;
+        setIsLoading(false);
+      }
+    }, 15000);
 
     return () => { authListener.unsubscribe(); clearTimeout(timeout); };
   }, [fetchSubscription, navigate]);

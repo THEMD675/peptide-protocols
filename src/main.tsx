@@ -6,8 +6,8 @@ import './index.css';
 import { migrateQuizStorage } from '@/lib/quiz-migration';
 import { hasOptionalConsent } from '@/lib/cookie-utils';
 
-// Defer Sentry init to after first paint (reduces main thread blocking)
-if (import.meta.env.PROD) {
+// Defer Sentry init to after first paint, gated behind cookie consent
+if (import.meta.env.PROD && hasOptionalConsent()) {
   const initSentryDeferred = () => import('@/lib/sentry').then(({ initSentry }) => initSentry());
   if ('requestIdleCallback' in window) {
     requestIdleCallback(initSentryDeferred);
@@ -21,8 +21,8 @@ migrateQuizStorage();
 
 const hasConsent = hasOptionalConsent();
 
-// Web Vitals — always track (no PII, pure performance metrics)
-if (import.meta.env.PROD) {
+// Web Vitals — gated behind consent
+if (hasConsent && import.meta.env.PROD) {
   import('@/lib/web-vitals').then(({ initWebVitals }) => initWebVitals()).catch(() => {});
 }
 

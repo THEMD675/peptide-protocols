@@ -123,7 +123,7 @@ export default function Tracker() {
     if (error) console.error('active protocols query failed:', error);
     if (!error && data) setActiveProtocols(data);
   }, [user]);
-  useEffect(() => { fetchActiveProtocols().catch(() => {}); }, [fetchActiveProtocols]);
+  useEffect(() => { fetchActiveProtocols().catch((e: unknown) => console.warn("silent catch:", e)); }, [fetchActiveProtocols]);
 
   // Suggested injection site
   const suggestedSite = useMemo(() => {
@@ -159,7 +159,7 @@ export default function Tracker() {
 
   useEffect(() => {
     if (!user) return;
-    fetchLogs().catch(() => {});
+    fetchLogs().catch((e: unknown) => console.warn("silent catch:", e));
   }, [user, fetchLogs]);
 
   const fetchMore = async () => {
@@ -259,7 +259,7 @@ export default function Tracker() {
       const unique = new Set((pepRes.data ?? []).map((r: { peptide_name: string }) => r.peptide_name)).size;
       setFullStatsData({ uniquePeptides: unique, last7: weekRes.count ?? 0 });
       setAllLogsForStats((allRes.data as InjectionLog[]) ?? []);
-    }).catch(() => {});
+    }).catch((e: unknown) => console.warn("silent catch:", e));
     return () => { mounted = false; };
   }, [user, logs.length]);
 
@@ -425,6 +425,7 @@ export default function Tracker() {
 
   return (
     <div className="mx-auto max-w-3xl px-4 pb-24 pt-8 md:px-6 md:pt-12 animate-fade-in">
+        <div className="mb-4 rounded-xl border border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-900/20 px-4 py-2 text-xs text-amber-700 dark:text-amber-400">محتوى تعليمي — استشر طبيبك قبل استخدام أي ببتيد</div>
       <Helmet>
         <title>سجل الحقن | تتبّع جرعاتك | pptides</title>
         <meta name="description" content="تتبّع جرعاتك ومواقع الحقن — سجل ذكي لبروتوكولات الببتيدات." />
@@ -731,7 +732,7 @@ export default function Tracker() {
 
       {/* Floating Action Button — always-visible log entry point */}
       {subscription.isProOrTrial && !showForm && user && (
-        <div className="fixed bottom-6 left-0 right-0 z-40 flex justify-center pointer-events-none">
+        <div className="fixed bottom-6 inset-x-0 z-40 flex justify-center pointer-events-none">
           <button
             onClick={() => { setShowForm(true); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
             className="pointer-events-auto flex items-center gap-2 rounded-full bg-emerald-600 px-8 py-3.5 text-base font-semibold text-white shadow-2xl ring-4 ring-emerald-200/60 dark:ring-emerald-800/60 transition-all hover:bg-emerald-700 active:scale-95"
