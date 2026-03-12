@@ -1,6 +1,6 @@
 import { memo } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { LayoutDashboard, Syringe, BookOpen, Bot } from 'lucide-react';
+import { LayoutDashboard, Syringe, BookOpen, Bot, FlaskConical } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { cn } from '@/lib/utils';
 import { prefetchRoute } from '@/lib/prefetch';
@@ -9,6 +9,7 @@ const tabs = [
   { to: '/dashboard', icon: LayoutDashboard, label: 'لوحة المعلومات' },
   { to: '/tracker', icon: Syringe, label: 'المتابعة' },
   { to: '/library', icon: BookOpen, label: 'المكتبة' },
+  { to: '/interactions', icon: FlaskConical, label: 'التعارضات' },
   { to: '/coach', icon: Bot, label: 'المدرب' },
 ] as const;
 
