@@ -10,12 +10,11 @@ declare let self: ServiceWorkerGlobalScope;
 // Prevents stale code from persisting for days with broken queries.
 // The 30s delay avoids mid-render white screens.
 
-let skipWaitingTimer: ReturnType<typeof setTimeout> | null = null;
 
 // ═══ Install: precache app shell + offline fallback ═══
 self.addEventListener('install', (event) => {
-  // Auto-activate after 30 seconds
-  skipWaitingTimer = setTimeout(() => self.skipWaiting(), 30_000);
+  // Activate immediately — no 30s delay. Prevents stale content from old SW.
+  self.skipWaiting();
 
   // Cache the offline page on install
   event.waitUntil(
@@ -25,7 +24,6 @@ self.addEventListener('install', (event) => {
 
 self.addEventListener('message', (event) => {
   if (event.data && event.data.type === 'SKIP_WAITING') {
-    if (skipWaitingTimer) clearTimeout(skipWaitingTimer);
     self.skipWaiting();
   }
   if (event.data?.type === 'QUEUE_INJECTION') {
@@ -34,6 +32,10 @@ self.addEventListener('message', (event) => {
   if (event.data?.type === 'ONLINE') {
     event.waitUntil(syncPendingInjections());
   }
+});
+
+self.addEventListener('activate', (event) => {
+  event.waitUntil(self.clients.claim());
 });
 
 cleanupOutdatedCaches();
