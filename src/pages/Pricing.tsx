@@ -153,21 +153,37 @@ export default function Pricing() {
 
     if (isSubscribedTo(planKey)) {
       return (
-        <div className={cn(
-          'inline-flex items-center justify-center gap-2 rounded-full px-6 py-3 font-bold',
-          'border border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-400'
-        )}>
-          <Check className="h-5 w-5" />
-          <span>{UPGRADE.currentPlanBadge}</span>
+        <div className="space-y-2">
+          <div className={cn(
+            'inline-flex w-full items-center justify-center gap-2 rounded-full px-6 py-3 font-bold',
+            'border border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-400'
+          )}>
+            <Check className="h-5 w-5" />
+            <span>{UPGRADE.currentPlanBadge}</span>
+          </div>
+          <button
+            onClick={openPortal}
+            className="w-full text-center text-sm font-medium text-emerald-700 dark:text-emerald-400 hover:underline min-h-[44px]"
+          >
+            إدارة الاشتراك
+          </button>
         </div>
       );
     }
 
     if (user && subscription?.status !== 'trial' && subscription?.isProOrTrial && subscription.tier !== planKey) {
       return (
-        <div className="text-center text-sm text-stone-500 dark:text-stone-300">
-          {UPGRADE.changePlanText} <a href={`mailto:${SUPPORT_EMAIL}?subject=تغيير الباقة`} className="inline-flex min-h-[44px] items-center text-emerald-700 underline">{SUPPORT_EMAIL}</a>
-        </div>
+        <button
+          onClick={openPortal}
+          className={cn(
+            'inline-flex w-full items-center justify-center gap-2 rounded-full px-8 py-3.5 text-base font-semibold transition-all',
+            isElite
+              ? 'bg-emerald-600 text-white hover:bg-emerald-700'
+              : 'border border-stone-300 dark:border-stone-600 text-stone-700 dark:text-stone-200 hover:bg-stone-50 dark:hover:bg-stone-800'
+          )}
+        >
+          {isElite ? 'ترقية إلى المتقدّمة' : 'تغيير إلى الأساسية'}
+        </button>
       );
     }
 
