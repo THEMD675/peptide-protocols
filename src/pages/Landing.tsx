@@ -797,7 +797,7 @@ export default function Landing() {
                 <div className="flex items-center gap-3">
                   <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-emerald-100 dark:bg-emerald-900/30 text-sm font-bold text-emerald-700 dark:text-emerald-400">{t.name.charAt(0)}</div>
                   <div>
-                    <p className="font-bold text-stone-900 dark:text-stone-100">{t.name}{t.location && <span className="mr-1 text-xs font-normal text-stone-400 dark:text-stone-300">· {t.location}</span>}</p>
+                    <p className="font-bold text-stone-900 dark:text-stone-100">{t.name}{t.location && <span className="me-1 text-xs font-normal text-stone-400 dark:text-stone-300">· {t.location}</span>}</p>
                     <p className="text-sm text-stone-600 dark:text-stone-300">{t.role}</p>
                   </div>
                 </div>

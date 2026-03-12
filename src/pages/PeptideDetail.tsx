@@ -488,7 +488,7 @@ export default function PeptideDetail() {
                 <BookOpen className="h-5 w-5 text-emerald-700" />
                 <h3 className="text-lg font-bold text-stone-900 dark:text-stone-100">
                   المراجع العلمية
-                  <span className="mr-2 text-sm font-normal text-stone-500 dark:text-stone-300">({peptide.pubmedIds.length} مرجع)</span>
+                  <span className="me-2 text-sm font-normal text-stone-500 dark:text-stone-300">({peptide.pubmedIds.length} مرجع)</span>
                 </h3>
               </div>
               <p className="mb-3 text-xs text-stone-500 dark:text-stone-300 flex items-center gap-1.5">
