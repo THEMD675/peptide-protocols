@@ -1,6 +1,8 @@
-import { useEffect, useRef, type ReactNode } from 'react';
+import { useEffect, useRef, lazy, Suspense, type ReactNode } from 'react';
 import { X } from 'lucide-react';
 import { cn } from '@/lib/utils';
+
+const FocusTrap = lazy(() => import('focus-trap-react'));
 
 interface ModalProps {
   open: boolean;
@@ -32,6 +34,8 @@ export default function Modal({ open, title, children, onClose, maxWidth = 'max-
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" onClick={onClose}>
+      <Suspense fallback={null}>
+      <FocusTrap focusTrapOptions={{ allowOutsideClick: true }}>
       <div
         ref={dialogRef}
         tabIndex={-1}
@@ -53,6 +57,8 @@ export default function Modal({ open, title, children, onClose, maxWidth = 'max-
         </div>
         {children}
       </div>
+      </FocusTrap>
+      </Suspense>
     </div>
   );
 }

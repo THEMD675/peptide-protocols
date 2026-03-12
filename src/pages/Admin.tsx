@@ -1,5 +1,6 @@
-import { useState, useEffect, useCallback, useRef, lazy, Suspense } from 'react';
-const FocusTrap = lazy(() => import('focus-trap-react'));
+import { useState, useEffect, useCallback, useRef } from 'react';
+import Modal from '@/components/ui/Modal';
+import Badge from '@/components/ui/Badge';
 
 const TH_CLASS = 'px-3 py-2 text-start font-medium text-stone-600 dark:text-stone-300';
 import { Link } from 'react-router-dom';
@@ -20,12 +21,7 @@ import {
 import { cn } from '@/lib/utils';
 import { PRICING } from '@/lib/constants';
 
-const STATUS_AR: Record<string, string> = {
-  active: 'نشط', trial: 'تجريبي', expired: 'منتهي', cancelled: 'ملغي',
-  past_due: 'متأخر', none: 'بدون', pending: 'معلق', replied: 'تم الرد',
-  sent: 'مرسل', failed: 'فشل', succeeded: 'ناجح',
-  severe: 'شديد', moderate: 'متوسط', mild: 'خفيف', google: 'جوجل',
-};
+import { STATUS_AR } from '@/components/ui/Badge';
 
 const ACTION_AR: Record<string, string> = {
   extend_trial: 'تمديد التجربة', grant_subscription: 'منح اشتراك',
@@ -194,30 +190,9 @@ function Stat({ label, value, icon: I, sub, alert: a, trend }: {
   );
 }
 
-function Badge({ status }: { status: string }) {
-  const s: Record<string, string> = { active: 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400', trial: 'bg-blue-100 text-blue-700 dark:text-blue-400', expired: 'bg-stone-100 dark:bg-stone-800 text-stone-600 dark:text-stone-300', cancelled: 'bg-stone-100 dark:bg-stone-800 text-stone-600 dark:text-stone-300', past_due: 'bg-red-100 text-red-700 dark:text-red-400', none: 'bg-stone-100 dark:bg-stone-800 text-stone-500 dark:text-stone-300' };
-  return <span className={cn('inline-block rounded-full px-2 py-0.5 text-xs font-medium', s[status] ?? s.none)}>{STATUS_AR[status] ?? status}</span>;
-}
+// Badge imported from @/components/ui/Badge (shared component with Arabic labels + dark mode)
 
-function Modal({ open, title, children, onClose }: { open: boolean; title: string; children: React.ReactNode; onClose: () => void }) {
-  if (!open) return null;
-  const titleId = 'modal-title';
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" onClick={onClose} onKeyDown={(e) => { if (e.key === 'Escape') onClose(); }} tabIndex={-1}>
-      <Suspense fallback={null}>
-      <FocusTrap focusTrapOptions={{ allowOutsideClick: true }}>
-      <div className="w-full max-w-md max-h-[90vh] overflow-y-auto rounded-2xl bg-white dark:bg-stone-900 p-6 shadow-xl dark:shadow-stone-900/40" onClick={e => e.stopPropagation()} role="dialog" aria-modal="true" aria-labelledby={titleId}>
-        <div className="flex items-center justify-between mb-4">
-          <h3 id={titleId} className="text-lg font-bold text-stone-900 dark:text-stone-100">{title}</h3>
-          <button onClick={onClose} aria-label="إغلاق" className="flex items-center justify-center rounded-lg p-2 min-h-[44px] min-w-[44px] hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors"><X className="h-5 w-5 text-stone-500 dark:text-stone-300" /></button>
-        </div>
-        {children}
-      </div>
-      </FocusTrap>
-      </Suspense>
-    </div>
-  );
-}
+// Modal imported from @/components/ui/Modal (shared component with FocusTrap, Escape, aria-modal)
 
 const ACTIVITY_ICON: Record<string, React.ElementType> = { signup: Users, coach: MessageSquare, injection: Activity, community: Users, review: Star, enquiry: Mail };
 const ACTIVITY_COLOR: Record<string, string> = { signup: 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700', coach: 'bg-violet-100 text-violet-600', injection: 'bg-blue-100 text-blue-600', community: 'bg-amber-100 text-amber-600', review: 'bg-yellow-100 text-yellow-600', enquiry: 'bg-rose-100 text-rose-600' };
