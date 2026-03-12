@@ -98,8 +98,8 @@ export default function WellnessCheckin() {
         setWeight(entry.weight_kg != null ? String(entry.weight_kg) : '');
         setNotes(entry.notes ?? '');
       }
-    } catch (e) { console.warn("caught:", e);
-      // silently ignored
+    } catch (e) {
+      console.warn('wellness save failed:', e);
     } finally {
       setLoading(false);
     }

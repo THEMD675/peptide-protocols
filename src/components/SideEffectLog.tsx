@@ -67,8 +67,8 @@ export default function SideEffectLog() {
         .limit(50);
 
       if (!error && data) setEntries(data as SideEffectEntry[]);
-    } catch (e) { console.warn("caught:", e);
-      // silently ignored
+    } catch (e) {
+      console.warn('side effect fetch failed:', e);
     } finally {
       setLoading(false);
     }
@@ -83,8 +83,8 @@ export default function SideEffectLog() {
         .eq('user_id', user.id)
         .eq('status', 'active');
       if (!error && data) setActiveProtocols(data);
-    } catch (e) { console.warn("caught:", e);
-      // silently ignored
+    } catch (e) {
+      console.warn('side effect fetch failed:', e);
     }
   }, [user]);
 

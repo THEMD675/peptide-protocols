@@ -42,7 +42,8 @@ export default function NotificationBell() {
       .then(({ data, error }) => {
         if (error) console.warn('notifications fetch failed:', error);
         if (mounted && data) setNotifications(data as Notification[]);
-      });
+      })
+      .catch(e => console.warn('notifications fetch failed:', e));
     return () => { mounted = false; };
   }, [user]);
 

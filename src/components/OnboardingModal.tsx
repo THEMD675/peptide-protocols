@@ -59,7 +59,7 @@ export default function OnboardingModal({ forceOpen, onClose: externalClose }: {
   // Fix 5: Initialize show state synchronously from localStorage to prevent flash
   const [show, setShow] = useState(() => {
     if (forceOpen) return true;
-    try { return localStorage.getItem(ONBOARDING_KEY) !== 'true'; } catch { return true; }
+    try { return localStorage.getItem(ONBOARDING_KEY) !== 'true'; } catch (e) { console.warn('onboarding:', e); return true; }
   });
   const [step, setStep] = useState<'goal' | 'plan'>('goal');
   const [selectedGoal, setSelectedGoal] = useState('');
@@ -74,11 +74,11 @@ export default function OnboardingModal({ forceOpen, onClose: externalClose }: {
   useEffect(() => {
     if (forceOpen || !user?.id) return;
     // If localStorage already says completed, no need to check DB
-    try { if (localStorage.getItem(ONBOARDING_KEY) === 'true') return; } catch { /* expected */ }
+    try { if (localStorage.getItem(ONBOARDING_KEY) === 'true') return; } catch (e) { console.warn('onboarding:', e); }
     supabase.from('user_profiles').select('onboarding_completed_at').eq('user_id', user.id).maybeSingle()
       .then(({ data }) => {
         if (data?.onboarding_completed_at) {
-          try { localStorage.setItem(ONBOARDING_KEY, 'true'); } catch { /* expected */ }
+          try { localStorage.setItem(ONBOARDING_KEY, 'true'); } catch (e) { console.warn('onboarding:', e); }
           setShow(false);
         }
       }).catch((e: unknown) => console.warn("silent catch:", e));
@@ -97,7 +97,7 @@ export default function OnboardingModal({ forceOpen, onClose: externalClose }: {
           setTimeout(() => setAnimatePlan(true), 100);
         }
       }
-    } catch { /* expected */ }
+    } catch (e) { console.warn('onboarding:', e); }
   }, []);
   useEffect(() => {
     if (show) {
@@ -108,7 +108,7 @@ export default function OnboardingModal({ forceOpen, onClose: externalClose }: {
 
   // Fix 4: "complete" marks onboarding as permanently done (skip button, completing plan)
   const handleComplete = useCallback(() => {
-    try { localStorage.setItem(ONBOARDING_KEY, 'true'); } catch { /* expected */ }
+    try { localStorage.setItem(ONBOARDING_KEY, 'true'); } catch (e) { console.warn('onboarding:', e); }
     // C13: Persist goals to Supabase user_profiles table
     if (user && selectedGoal) {
       supabase.from('user_profiles').update({
@@ -148,7 +148,7 @@ export default function OnboardingModal({ forceOpen, onClose: externalClose }: {
         answers: { ...(parsed.answers ?? {}), goal: goalId },
         ts,
       }));
-    } catch { /* expected */ }
+    } catch (e) { console.warn('onboarding:', e); }
     setSelectedGoal(goalId);
     setStep('plan');
     setTimeout(() => setAnimatePlan(true), 100);

@@ -680,7 +680,8 @@ export function useProactiveCoach(userId: string | undefined) {
         setDashboardCards(generateDashboardCoachingCards(data));
         setLoading(false);
       })
-      .catch(() => {
+      .catch((e) => {
+        console.warn('proactive coach failed:', e);
         if (mounted) setLoading(false);
       });
 

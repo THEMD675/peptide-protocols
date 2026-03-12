@@ -64,14 +64,14 @@ export default function TrackerForm({
         sessionStorage.setItem('pptides_tracker_form_draft', JSON.stringify({
           peptide: peptideName, dose, unit, site, notes,
         }));
-      } catch { /* Safari private / quota */ }
+      } catch (e) { console.warn('tracker draft failed:', e); }
     }
   }, [peptideName, dose, unit, site, notes]);
 
   // Restore draft
   useEffect(() => {
     let draft: string | null = null;
-    try { draft = sessionStorage.getItem('pptides_tracker_form_draft'); } catch { /* Safari private */ }
+    try { draft = sessionStorage.getItem('pptides_tracker_form_draft'); } catch (e) { console.warn('tracker draft failed:', e); }
     if (draft && !peptideName) {
       try {
         const d = JSON.parse(draft);
@@ -80,7 +80,7 @@ export default function TrackerForm({
         setUnit(d.unit ?? 'mcg');
         setSite(d.site ?? 'abdomen');
         setNotes(d.notes ?? '');
-      } catch { /* ignore invalid draft */ }
+      } catch (e) { console.warn('tracker draft failed:', e); }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);

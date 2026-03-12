@@ -18,7 +18,8 @@ export function useBookmarks(): {
     try {
       const stored = localStorage.getItem('pptides_favorites');
       return stored ? new Set(JSON.parse(stored)) : new Set();
-    } catch {
+    } catch (e) {
+      console.warn('bookmark op failed:', e);
       return new Set();
     }
   });
@@ -44,7 +45,8 @@ export function useBookmarks(): {
             try {
               const stored = localStorage.getItem('pptides_favorites');
               return stored ? (JSON.parse(stored) as string[]) : [];
-            } catch {
+            } catch (e) {
+              console.warn('bookmark op failed:', e);
               return [];
             }
           })();
@@ -63,17 +65,18 @@ export function useBookmarks(): {
                   toSync.forEach((s) => slugs.add(s));
                   setBookmarks(slugs);
                   // Clear localStorage after sync
-                  try { localStorage.removeItem('pptides_favorites'); } catch { /* */ }
+                  try { localStorage.removeItem('pptides_favorites'); } catch (e) { console.warn('bookmark op failed:', e); }
                 }
               });
           } else {
             setBookmarks(slugs);
-            try { localStorage.removeItem('pptides_favorites'); } catch { /* */ }
+            try { localStorage.removeItem('pptides_favorites'); } catch (e) { console.warn('bookmark op failed:', e); }
           }
         }
         setIsLoading(false);
       })
-      .catch(() => {
+      .catch((e) => {
+        console.warn('bookmark op failed:', e);
         if (mounted) setIsLoading(false);
       });
 
@@ -116,7 +119,7 @@ export function useBookmarks(): {
           // localStorage fallback
           try {
             localStorage.setItem('pptides_favorites', JSON.stringify([...next]));
-          } catch { /* */ }
+          } catch (e) { console.warn('bookmark op failed:', e); }
         }
 
         return next;

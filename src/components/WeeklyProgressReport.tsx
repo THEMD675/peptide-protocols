@@ -108,7 +108,8 @@ export default function WeeklyProgressReport() {
         topSideEffects,
       });
       setLoading(false);
-    }).catch(() => {
+    }).catch((e) => {
+      console.warn('weekly report fetch failed:', e);
       if (mounted) setLoading(false);
     });
 
