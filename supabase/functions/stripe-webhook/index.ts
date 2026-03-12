@@ -189,7 +189,7 @@ serve(async (req) => {
                     <p style="margin: 8px 0; font-size: 15px;"><strong style="color: #059669;">المدرب الذكي:</strong> اسأل <a href="${APP_URL}/coach" style="color: #059669; font-weight: bold;">المدرب</a> عن بروتوكول مخصّص</p>
                   </div>
                   <div style="text-align: center; margin: 24px 0;">
-                    ${emailButton('ابدأ الآن', '${APP_URL}/dashboard')}
+                    ${emailButton('ابدأ الآن', `${APP_URL}/dashboard`)}
                   </div>
                   <p style="color: #78716c; font-size: 13px;">ضمان استرداد كامل خلال ${TRIAL_DAYS} أيام — تواصل معنا: contact@pptides.com</p>
                 `),
@@ -491,7 +491,7 @@ serve(async (req) => {
                       <h1 style="color: #1c1917; font-size: 24px;">دفعتك لم تتم</h1>
                       <p style="color: #44403c; font-size: 16px; line-height: 1.8;">لم تتم معالجة دفعتك. يرجى تحديث بيانات الدفع في حسابك لتجنّب فقدان الوصول.</p>
                       <div style="text-align: center; margin: 24px 0;">
-                        ${emailButton('تحديث بيانات الدفع', '${APP_URL}/account')}
+                        ${emailButton('تحديث بيانات الدفع', `${APP_URL}/account`)}
                       </div>
                       <p style="color: #78716c; font-size: 13px;">إذا كنت بحاجة للمساعدة: contact@pptides.com</p>
                     `),
@@ -656,7 +656,7 @@ serve(async (req) => {
                   <h1 style="color: #1c1917; font-size: 24px;">تجربتك تنتهي قريبًا</h1>
                   <p style="color: #44403c; font-size: 16px; line-height: 1.8;">سيتم تحصيل الدفعة تلقائيًا عند انتهاء التجربة. إذا لم ترغب بالاستمرار، يمكنك الإلغاء من حسابك.</p>
                   <div style="text-align: center; margin: 24px 0;">
-                    ${emailButton('تصفّح pptides', '${APP_URL}/dashboard')}
+                    ${emailButton('تصفّح pptides', `${APP_URL}/dashboard`)}
                   </div>
                 `),
               replyTo: 'contact@pptides.com',

@@ -233,7 +233,7 @@ serve(async (req) => {
             <h2 style="color:#1c1917;font-size:20px;">تم إلغاء اشتراكك</h2>
             <p style="color:#44403c;line-height:1.8;">ستحتفظ بالوصول حتى نهاية الفترة الحالية (${periodEnd.split('T')[0]}).</p>
             <div style="text-align:center;margin:24px 0;">
-              ${emailButton('أعد الاشتراك', '${APP_URL}/pricing')}
+              ${emailButton('أعد الاشتراك', `${APP_URL}/pricing`)}
             </div>
           `),
         replyTo: 'contact@pptides.com',
