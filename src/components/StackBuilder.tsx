@@ -859,9 +859,9 @@ export default function StackBuilder() {
               </p>
               {weeklyInjections >= 7 ? (
                 <p className="text-xs text-stone-400">~{Math.round(weeklyInjections / 7)} يوميًا</p>
-              ) : (
+              ) : weeklyInjections > 0 ? (
                 <p className="text-xs text-stone-400">كل {Math.round(7 / weeklyInjections)} أيام</p>
-              )}
+              ) : null}
             </div>
 
             {/* Peptide Count */}
