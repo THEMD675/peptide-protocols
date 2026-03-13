@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useCallback } from 'react';
+import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { toast } from 'sonner';
 import {
@@ -127,7 +127,7 @@ function extractBenefits(peps: typeof allPeptides): string[] {
     // Use summaryAr - take the first sentence/phrase before the long dash
     const summary = p.summaryAr ?? '';
     const parts = summary.split('—');
-    if (parts.length > 1) {
+    if (parts.length >= 2 && parts[1]) {
       // Second part typically has the key benefit
       const benefit = parts[1].trim().split('.')[0].trim();
       if (benefit && benefit.length > 5) benefits.push(`${p.nameAr}: ${benefit}`);
@@ -352,6 +352,9 @@ export default function StackBuilder() {
   const [activeGoalStack, setActiveGoalStack] = useState<string | null>(null);
   const [pendingGoalStack, setPendingGoalStack] = useState<GoalStack | null>(null);
 
+  // Ref to break circular URL ↔ selectedIds sync
+  const syncSource = useRef<'url' | 'user' | null>(null);
+
   // Load saved stacks on mount
   useEffect(() => {
     setSavedStacks(loadSavedStacks());
@@ -360,9 +363,14 @@ export default function StackBuilder() {
   // Reactive URL param reading — watches for external changes (e.g. "Use as Template" buttons)
   const stackParam = searchParams.get('stack');
   useEffect(() => {
+    if (syncSource.current === 'user') {
+      syncSource.current = null;
+      return;
+    }
     if (stackParam) {
       const ids = stackParam.split(',').filter((id) => realPeptides.some((p) => p.id === id)).slice(0, MAX_STACK_SIZE);
       if (ids.length > 0) {
+        syncSource.current = 'url';
         setSelectedIds(prev => {
           const same = prev.length === ids.length && prev.every((id, i) => id === ids[i]);
           return same ? prev : ids;
@@ -373,9 +381,14 @@ export default function StackBuilder() {
 
   // Update URL when selection changes
   useEffect(() => {
+    if (syncSource.current === 'url') {
+      syncSource.current = null;
+      return;
+    }
     const current = searchParams.get('stack') ?? '';
     const next = selectedIds.join(',');
-    if (next === current) return; // no-op — prevents circular update
+    if (next === current) return; // no-op
+    syncSource.current = 'user';
     if (selectedIds.length > 0) {
       setSearchParams({ stack: next }, { replace: true });
     } else {

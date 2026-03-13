@@ -143,7 +143,26 @@ serve(async (req) => {
       p_user_email: user.email ?? null,
     })
     if (rpcErr) {
-      console.error('delete-account: RPC delete_user_data failed:', rpcErr)
+      // CRITICAL: If Stripe was already cancelled/deleted but DB cleanup fails, the user is half-deleted.
+      // We cannot easily un-cancel Stripe, so log all recovery info for manual admin intervention.
+      // Recovery steps: admin must manually call delete_user_data RPC or delete rows from
+      // subscriptions, injection_logs, wellness_logs, side_effect_logs, user_protocols, etc. for this user_id.
+      if (stripeCleanupSucceeded) {
+        console.error(JSON.stringify({
+          severity: 'CRITICAL',
+          action: 'delete_account_half_deleted',
+          message: 'Stripe cancelled but DB delete failed — user is in inconsistent state',
+          user_id: user.id,
+          email: user.email ?? null,
+          stripe_subscription_id: sub?.stripe_subscription_id ?? null,
+          stripe_customer_id: sub?.stripe_customer_id ?? null,
+          rpc_error: rpcErr.message,
+          recovery: 'Admin must manually run delete_user_data RPC or clean DB rows + auth user for this user_id',
+          timestamp: new Date().toISOString(),
+        }))
+      } else {
+        console.error('delete-account: RPC delete_user_data failed:', rpcErr)
+      }
       const errorBody = stripeCleanupSucceeded
         ? {
             error: 'تم إلغاء اشتراكك بنجاح، لكن حذف بيانات حسابك فشل. راسلنا فورًا لإكمال الحذف: contact@pptides.com',
@@ -161,7 +180,20 @@ serve(async (req) => {
 
     const { error: deleteError } = await supabase.auth.admin.deleteUser(user.id)
     if (deleteError) {
-      console.error('CRITICAL: delete-account: user data deleted but auth user deletion failed. Manual cleanup needed for user_id:', user.id, deleteError)
+      // CRITICAL: DB data is gone but auth user still exists — orphaned auth record.
+      // Recovery: admin must manually call supabase.auth.admin.deleteUser(user_id).
+      console.error(JSON.stringify({
+        severity: 'CRITICAL',
+        action: 'delete_account_auth_orphaned',
+        message: 'User data deleted but auth.users deletion failed — orphaned auth record',
+        user_id: user.id,
+        email: user.email ?? null,
+        stripe_subscription_id: sub?.stripe_subscription_id ?? null,
+        stripe_customer_id: sub?.stripe_customer_id ?? null,
+        auth_error: deleteError.message,
+        recovery: 'Admin must manually delete auth user via supabase.auth.admin.deleteUser()',
+        timestamp: new Date().toISOString(),
+      }))
       return new Response(JSON.stringify({
         error: 'تم حذف بياناتك لكن فشل إزالة حسابك بالكامل — تواصل معنا: contact@pptides.com',
         partial: true,

@@ -1149,6 +1149,48 @@ export default function Dashboard() {
         );
       })()}
 
+      {/* Protocol cycle complete — computed client-side */}
+      {activeProtocols.length > 0 && (() => {
+        const completed = activeProtocols.filter(proto => {
+          const startDate = new Date(proto.started_at);
+          const elapsed = nowMs - startDate.getTime();
+          const cycleDuration = proto.cycle_weeks * 7 * 86400000;
+          return elapsed >= cycleDuration;
+        });
+        if (completed.length === 0) return null;
+        return (
+          <div className="mb-6 space-y-3">
+            {completed.map(proto => {
+              const peptide = allPeptides.find(p => p.id === proto.peptide_id);
+              const nameAr = peptide?.nameAr ?? proto.peptide_id;
+              return (
+                <div key={`complete-${proto.id}`} className="rounded-2xl border-2 border-emerald-400 dark:border-emerald-600 bg-emerald-50 dark:bg-emerald-900/20 p-5 shadow-sm dark:shadow-stone-900/30">
+                  <div className="flex flex-wrap items-center justify-between gap-4">
+                    <div>
+                      <div className="flex items-center gap-2 mb-1">
+                        <CheckCircle2 className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
+                        <p className="font-bold text-emerald-800 dark:text-emerald-300">
+                          انتهت دورة البروتوكول — {nameAr}
+                        </p>
+                      </div>
+                      <p className="mt-1 text-sm text-emerald-700 dark:text-emerald-400">
+                        أكملت {proto.cycle_weeks} أسابيع. {peptide?.restPeriodWeeks ? `فترة راحة موصى بها: ${peptide.restPeriodWeeks} أسابيع.` : ''} ابدأ دورة جديدة أو جرّب ببتيد آخر.
+                      </p>
+                    </div>
+                    <Link
+                      to={`/peptide/${proto.peptide_id}`}
+                      className="shrink-0 rounded-full bg-emerald-600 px-5 py-2.5 text-sm font-bold text-white transition-colors hover:bg-emerald-700"
+                    >
+                      ابدأ دورة جديدة
+                    </Link>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        );
+      })()}
+
       {/* Active Protocols */}
       {activeProtocols.length > 0 && (
         <div className="mb-8">

@@ -318,7 +318,7 @@ function RangeBar({ biomarker, value }: { biomarker: BiomarkerInfo; value?: numb
     <div className="relative h-4 w-full rounded-full bg-stone-200 dark:bg-stone-700 overflow-hidden" dir="ltr">
       {/* Red low zone */}
       <div
-        className="absolute inset-y-0 left-0 bg-red-300/40 dark:bg-red-900/30"
+        className="absolute inset-y-0 start-0 bg-red-300/40 dark:bg-red-900/30"
         style={{ width: `${greenStart}%` }}
       />
       {/* Green normal zone */}
@@ -328,7 +328,7 @@ function RangeBar({ biomarker, value }: { biomarker: BiomarkerInfo; value?: numb
       />
       {/* Red high zone */}
       <div
-        className="absolute inset-y-0 right-0 bg-red-300/40 dark:bg-red-900/30"
+        className="absolute inset-y-0 end-0 bg-red-300/40 dark:bg-red-900/30"
         style={{ width: `${100 - greenEnd}%` }}
       />
       {/* Value marker */}

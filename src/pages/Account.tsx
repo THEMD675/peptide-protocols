@@ -221,7 +221,7 @@ export default function Account() {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${session.access_token}` },
             body: JSON.stringify({ action: 'sync_email', user_id: session.user.id, new_email: confirmedEmail.toLowerCase() }),
-          }).catch((e: unknown) => logError('Account: Stripe email sync failed', e));
+          }).catch((e: unknown) => { logError('Account: Stripe email sync failed', e); toast.error('تعذّر مزامنة البريد مع نظام الدفع'); });
         }
       },
     );

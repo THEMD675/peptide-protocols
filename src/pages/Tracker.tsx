@@ -200,7 +200,7 @@ export default function Tracker() {
         .range(0, PAGE_SIZE - 1);
       if (error) { setFetchError(true); }
       else {
-        const rows = (data as InjectionLog[]) ?? [];
+        const rows = (data ?? []) as InjectionLog[];
         setLogs(rows);
         if (count != null) setTotalCount(count);
         setHasMore(rows.length >= PAGE_SIZE);
@@ -233,7 +233,7 @@ export default function Tracker() {
       const from = logs.length;
       const { data, error } = await supabase.from('injection_logs').select('id, peptide_name, dose, dose_unit, injection_site, logged_at, notes, protocol_id').eq('user_id', user.id).order('logged_at', { ascending: false }).range(from, from + PAGE_SIZE - 1);
       if (error) { toast.error('تعذّر تحميل المزيد'); return; }
-      const rows = (data as InjectionLog[]) ?? [];
+      const rows = (data ?? []) as InjectionLog[];
       setLogs(prev => [...prev, ...rows]);
       setHasMore(rows.length >= PAGE_SIZE);
     } catch { toast.error('تعذّر تحميل المزيد. حاول مرة أخرى.'); }
@@ -330,7 +330,7 @@ export default function Tracker() {
     .then((allRes) => {
       if (!mounted) return;
       if (allRes.error) { logError('injection_logs full stats query failed:', allRes.error); return; }
-      const rows = (allRes.data as InjectionLog[]) ?? [];
+      const rows = (allRes.data ?? []) as InjectionLog[];
       const unique = new Set(rows.map(r => r.peptide_name)).size;
       const weekAgo = new Date(Date.now() - 7 * 86400000).toISOString();
       const last7 = rows.filter(r => r.logged_at >= weekAgo).length;
@@ -344,7 +344,7 @@ export default function Tracker() {
   const streak = useMemo(() => computeStreak(allLogsForStats), [allLogsForStats]);
 
   const dashboardStats = useMemo(() => {
-    if (logs.length === 0) return null;
+    if (!logs || logs.length === 0) return null;
     const totalInjections = totalCount || logs.length;
     const uniquePeptides = fullStatsData?.uniquePeptides ?? new Set(logs.map(l => l.peptide_name)).size;
     const last7 = fullStatsData?.last7 ?? logs.filter(l => Date.now() - new Date(l.logged_at).getTime() < 7 * 24 * 60 * 60 * 1000).length;

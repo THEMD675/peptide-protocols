@@ -252,6 +252,13 @@ export default function SideEffectLog() {
                   </button>
                 ))}
               </div>
+              {severity >= 4 && (
+                <div className="rounded-xl border border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-900/20 p-3 mt-2">
+                  <p className="text-sm font-bold text-red-800 dark:text-red-300">⚠ هذا عرض جانبي شديد — استشر طبيبك</p>
+                  <p className="text-xs text-red-700 dark:text-red-400 mt-1">هل تريد إيقاف البروتوكول مؤقتًا؟</p>
+                  <Link to="/coach" className="text-xs font-bold text-emerald-700 mt-1 inline-block">اسأل المدرب</Link>
+                </div>
+              )}
             </div>
 
             {activePeptideOptions.length > 0 && (

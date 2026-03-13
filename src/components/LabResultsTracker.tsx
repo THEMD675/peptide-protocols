@@ -635,9 +635,10 @@ export default function LabResultsTracker() {
         .limit(PAGE_SIZE);
 
       if (error) { toast.error('تعذّر تحميل نتائج التحاليل'); }
-      else if (data) {
-        setEntries(data as LabEntry[]);
-        setHasMore(data.length === PAGE_SIZE);
+      else {
+        const rows = (data ?? []) as LabEntry[];
+        setEntries(rows);
+        setHasMore(rows.length === PAGE_SIZE);
       }
     } catch {
       toast.error('تعذّر تحميل نتائج التحاليل');
@@ -657,9 +658,10 @@ export default function LabResultsTracker() {
         .order('test_date', { ascending: false })
         .range(entries.length, entries.length + PAGE_SIZE - 1);
 
-      if (!error && data) {
-        setEntries(prev => [...prev, ...(data as LabEntry[])]);
-        setHasMore(data.length === PAGE_SIZE);
+      if (!error) {
+        const rows = (data ?? []) as LabEntry[];
+        setEntries(prev => [...prev, ...rows]);
+        setHasMore(rows.length === PAGE_SIZE);
       }
     } catch { /* silent */ } finally {
       setLoadingMore(false);
@@ -846,7 +848,7 @@ export default function LabResultsTracker() {
                       <p className="text-sm font-bold text-stone-200">
                         {formatDate(entry.test_date)}
                       </p>
-                      <p className="text-[11px] text-stone-400">
+                      <p className="text-xs text-stone-400">
                         {entry.lab_name || 'تحليل'} — {resultKeys.length} فحص
                       </p>
                     </div>
@@ -894,7 +896,7 @@ export default function LabResultsTracker() {
                                       {val} {bio.unit}
                                     </span>
                                     <span className={cn(
-                                      'rounded-full border px-1.5 py-0.5 text-[9px] font-bold',
+                                      'rounded-full border px-1.5 py-0.5 text-xs font-bold',
                                       STATUS_BG[status]
                                     )}>
                                       {STATUS_LABELS_AR[status]}
@@ -951,7 +953,7 @@ export default function LabResultsTracker() {
                 aria-label={selectedBiomarker === bio.id ? `إلغاء تحديد ${bio.nameAr}` : `عرض اتجاه ${bio.nameAr}`}
                 aria-pressed={selectedBiomarker === bio.id}
                 className={cn(
-                  'whitespace-nowrap rounded-lg px-3 py-1.5 text-[11px] font-bold transition-all shrink-0 border',
+                  'whitespace-nowrap rounded-lg px-3 py-1.5 text-xs font-bold transition-all shrink-0 border',
                   selectedBiomarker === bio.id
                     ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30'
                     : 'bg-stone-900 text-stone-400 border-stone-800 hover:border-stone-600'

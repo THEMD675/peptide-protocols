@@ -77,6 +77,7 @@ export default function ProtocolWizard({ peptideId, prefillDose, prefillUnit, on
   const [existingProtocols, setExistingProtocols] = useState(0);
   const [hasDuplicatePeptide, setHasDuplicatePeptide] = useState(false);
   const [duplicateConfirmed, setDuplicateConfirmed] = useState(false);
+  const [countQueryFailed, setCountQueryFailed] = useState(false);
   const submittingRef = useRef(false);
   useEffect(() => {
     if (!user) return;
@@ -87,9 +88,16 @@ export default function ProtocolWizard({ peptideId, prefillDose, prefillUnit, on
         supabase.from('user_protocols').select('id', { count: 'exact', head: true }).eq('user_id', user.id).eq('status', 'active').eq('peptide_id', peptideId),
       ]);
       if (!mounted) return;
-      if (!countRes.error) setExistingProtocols(countRes.count ?? 0);
-      if (!dupeRes.error) setHasDuplicatePeptide((dupeRes.count ?? 0) > 0);
-    })().catch((e) => logError('protocol load failed:', e));
+      if (countRes.error || dupeRes.error) {
+        logError('protocol count query failed:', countRes.error ?? dupeRes.error);
+        setCountQueryFailed(true);
+        toast.error('تعذّر التحقق من البروتوكولات الحالية — حاول مرة أخرى');
+        return;
+      }
+      setCountQueryFailed(false);
+      setExistingProtocols(countRes.count ?? 0);
+      setHasDuplicatePeptide((dupeRes.count ?? 0) > 0);
+    })().catch((e) => { if (mounted) { logError('protocol load failed:', e); setCountQueryFailed(true); toast.error('تعذّر التحقق من البروتوكولات الحالية — حاول مرة أخرى'); } });
     return () => { mounted = false; };
   }, [user, peptideId]);
 
@@ -263,7 +271,7 @@ export default function ProtocolWizard({ peptideId, prefillDose, prefillUnit, on
 
           <button
             onClick={handleSubmit}
-            disabled={submitting || !dose || (hasDuplicatePeptide && !duplicateConfirmed)}
+            disabled={submitting || !dose || countQueryFailed || (hasDuplicatePeptide && !duplicateConfirmed)}
             className={cn(
               'mt-5 flex w-full items-center justify-center gap-2 rounded-full px-6 py-3.5 text-sm font-bold text-white transition-all',
               submitting ? 'bg-stone-400 cursor-not-allowed' : 'bg-emerald-600 hover:bg-emerald-700 active:scale-[0.98]'

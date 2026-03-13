@@ -328,8 +328,7 @@ export default function Admin() {
       fetchStats(undefined, undefined, userFilter);
     }
     return () => { if (searchTimerRef.current) clearTimeout(searchTimerRef.current); };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [userSearch, userFilter]);
+  }, [userSearch, userFilter, fetchStats]);
 
   // --- Admin action caller ---
   const adminAction = useCallback(async (body: Record<string, unknown>) => {

@@ -403,8 +403,7 @@ export default function Community() {
     if (validS !== sortBy) setSortBy(validS);
     if (pf !== filterPeptide) setFilterPeptide(pf);
     if (p.trim() && user && subscription?.isProOrTrial) setShowForm(true);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [searchParams]);
+  }, [searchParams, user, subscription]);
 
   const [hasMore, setHasMore] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);

@@ -61,7 +61,7 @@ export default function CookieConsent() {
 
   const acceptAll = () => save({ essential: true, optional: true });
   const savePreferences = () => save({ essential: true, optional: optionalChecked });
-  const rejectOptional = useCallback(() => save({ essential: true, optional: false }), []);
+  const rejectOptional = () => save({ essential: true, optional: false });
 
   useEffect(() => {
     if (!visible) return;
