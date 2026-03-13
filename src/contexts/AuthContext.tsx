@@ -560,7 +560,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if ('caches' in window) {
       caches.keys().then(names => names.forEach(name => {
         if (name.includes('supabase-api')) caches.delete(name);
-      })).catch(() => {});
+      })).catch(e => console.error('cache cleanup failed:', e));
     }
     try {
       clearPptidesStorage();

@@ -22,7 +22,7 @@ export default function EnquiryForm({ userEmail, userId }: EnquiryFormProps) {
     let mounted = true;
     supabase.from('enquiries').select('id, subject, status, created_at, peptide_name').eq('user_id', userId).order('created_at', { ascending: false }).limit(5)
       .then(({ data, error }) => { if (error) console.error('enquiries history query failed:', error); if (mounted && data) setHistory(data); })
-      .catch(() => {});
+      .catch(e => console.error('enquiries fetch failed:', e));
     return () => { mounted = false; };
   }, [userId, sent]);
 

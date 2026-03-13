@@ -216,7 +216,7 @@ export default function Tracker() {
       }
     }, 30_000);
     // 31.3: Auto-retry on network reconnection
-    const onOnline = () => { fetchLogs().catch(() => {}); };
+    const onOnline = () => { fetchLogs().catch(e => console.error('fetchLogs reconnect failed:', e)); };
     window.addEventListener('pptides:online', onOnline);
     return () => { clearTimeout(loadingTimeout); window.removeEventListener('pptides:online', onOnline); };
   }, [user, fetchLogs]);

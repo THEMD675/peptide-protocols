@@ -625,7 +625,7 @@ export default function Coach() {
       userContextRef.current = ctx;
       const prompt = buildPeptideRequestPrompt(p, intake.goal || intake.experience || intake.injection ? intake : null, ctx);
       sendToAI(prompt);
-    })().catch(() => {});
+    })().catch(e => console.error('auto-send failed:', e));
   }, [searchParams, user, sendToAI, messages.length, intake]);
 
   const submitIntake = useCallback(() => {

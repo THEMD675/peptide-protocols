@@ -13,7 +13,7 @@ const hasConsent = hasOptionalConsent();
 
 // Web Vitals — gated behind consent
 if (hasConsent && import.meta.env.PROD) {
-  import('@/lib/web-vitals').then(({ initWebVitals }) => initWebVitals()).catch(() => {});
+  import('@/lib/web-vitals').then(({ initWebVitals }) => initWebVitals()).catch(e => console.error('web-vitals init failed:', e));
 }
 
 if (hasConsent && import.meta.env.PROD) {
@@ -67,5 +67,5 @@ if ('serviceWorker' in navigator && import.meta.env.PROD) {
         }
       });
     });
-  }).catch(() => {});
+  }).catch(e => console.error('SW registration failed:', e));
 }

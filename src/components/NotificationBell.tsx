@@ -61,7 +61,7 @@ export default function NotificationBell() {
         .order('created_at', { ascending: false })
         .limit(20)
         .then(({ data }) => { if (data) setNotifications(data as Notification[]); })
-        .catch(() => {});
+        .catch(e => console.error('notification refetch failed:', e));
     };
 
     const channel = supabase
