@@ -24,7 +24,7 @@ export default function Pagination({ page, totalPages, onPageChange }: Paginatio
         onClick={() => onPageChange(page - 1)}
         disabled={page <= 1}
         aria-label="الصفحة السابقة"
-        className="rounded-lg px-3 py-1.5 min-h-[44px] text-sm font-medium text-stone-600 dark:text-stone-300 disabled:opacity-40 hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors"
+        className="rounded-lg px-3 py-1.5 min-h-[44px] text-sm font-medium text-stone-600 dark:text-stone-300 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors"
       >
         →
       </button>
@@ -52,7 +52,7 @@ export default function Pagination({ page, totalPages, onPageChange }: Paginatio
         onClick={() => onPageChange(page + 1)}
         disabled={page >= totalPages}
         aria-label="الصفحة التالية"
-        className="rounded-lg px-3 py-1.5 min-h-[44px] text-sm font-medium text-stone-600 dark:text-stone-300 disabled:opacity-40 hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors"
+        className="rounded-lg px-3 py-1.5 min-h-[44px] text-sm font-medium text-stone-600 dark:text-stone-300 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors"
       >
         ←
       </button>

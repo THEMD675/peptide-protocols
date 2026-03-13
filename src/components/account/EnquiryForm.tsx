@@ -119,7 +119,7 @@ export default function EnquiryForm({ userEmail, userId }: EnquiryFormProps) {
           <button
             type="submit"
             disabled={!message.trim() || sending}
-            className="w-full flex items-center justify-center gap-2 rounded-full bg-emerald-600 px-6 py-3 text-sm font-bold text-white transition-all hover:bg-emerald-700 disabled:opacity-50 disabled:pointer-events-none"
+            className="w-full flex items-center justify-center gap-2 rounded-full bg-emerald-600 px-6 py-3 text-sm font-bold text-white transition-all hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none"
           >
             {sending ? (
               <span className="inline-flex items-center gap-2">

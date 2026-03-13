@@ -410,6 +410,18 @@ export default function Dashboard() {
   const [confirmEndId, setConfirmEndId] = useState<string | null>(null);
   const welcomeConfettiFired = useRef(false);
   const [runTour, setRunTour] = useState(false);
+  const [showPremiumWelcome, setShowPremiumWelcome] = useState(false);
+
+  // 3.7: Show one-time premium welcome card after first payment
+  useEffect(() => {
+    if (
+      subscription.status === 'active' &&
+      !localStorage.getItem('pptides_premium_welcomed')
+    ) {
+      setShowPremiumWelcome(true);
+      localStorage.setItem('pptides_premium_welcomed', 'true');
+    }
+  }, [subscription.status]);
 
   // Auto-trigger dashboard tour for first-time users after onboarding completes
   const isNewUserWithNoData = !activity.loading && activity.logs.length === 0 && activeProtocols.length === 0;
@@ -671,6 +683,48 @@ export default function Dashboard() {
           </Link>
         )}
       </div>
+
+      {/* 3.7: Premium Welcome Card — one-time celebration after first payment */}
+      {showPremiumWelcome && (
+        <div className="mb-8 rounded-2xl border border-emerald-300 dark:border-emerald-700 bg-gradient-to-br from-emerald-50 to-teal-50 dark:from-emerald-950 dark:to-teal-950 p-6">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-xl font-black text-emerald-800 dark:text-emerald-200">
+              مرحباً بك في pptides Pro! 🎉
+            </h2>
+            <button
+              onClick={() => setShowPremiumWelcome(false)}
+              className="text-stone-400 hover:text-stone-600 dark:hover:text-stone-200 transition-colors text-lg font-bold px-2"
+              aria-label="إغلاق"
+            >
+              ✕
+            </button>
+          </div>
+          <p className="text-sm text-emerald-700 dark:text-emerald-300 mb-4">تم تفعيل اشتراكك — إليك أبرز الميزات المتاحة لك الآن:</p>
+          <div className="grid gap-3 sm:grid-cols-3">
+            <Link to="/coach" className="flex items-center gap-3 rounded-xl bg-white/70 dark:bg-stone-900/50 p-4 transition-all hover:bg-white dark:hover:bg-stone-800">
+              <Bot className="h-6 w-6 text-purple-500 shrink-0" />
+              <div>
+                <p className="text-sm font-bold text-stone-900 dark:text-stone-100">المدرب الذكي</p>
+                <p className="text-xs text-stone-500 dark:text-stone-300">اسأل أي سؤال عن الببتيدات</p>
+              </div>
+            </Link>
+            <Link to="/calculator" className="flex items-center gap-3 rounded-xl bg-white/70 dark:bg-stone-900/50 p-4 transition-all hover:bg-white dark:hover:bg-stone-800">
+              <Calculator className="h-6 w-6 text-blue-500 shrink-0" />
+              <div>
+                <p className="text-sm font-bold text-stone-900 dark:text-stone-100">الحاسبة</p>
+                <p className="text-xs text-stone-500 dark:text-stone-300">احسب جرعتك بدقة</p>
+              </div>
+            </Link>
+            <Link to="/protocols" className="flex items-center gap-3 rounded-xl bg-white/70 dark:bg-stone-900/50 p-4 transition-all hover:bg-white dark:hover:bg-stone-800">
+              <ClipboardList className="h-6 w-6 text-emerald-600 shrink-0" />
+              <div>
+                <p className="text-sm font-bold text-stone-900 dark:text-stone-100">البروتوكولات</p>
+                <p className="text-xs text-stone-500 dark:text-stone-300">أنشئ بروتوكولك المخصص</p>
+              </div>
+            </Link>
+          </div>
+        </div>
+      )}
 
       {/* Weekly Progress Report — only meaningful once user has logged something */}
       {!activity.loading && (activity.logs.length > 0 || activeProtocols.length > 0) && (
@@ -1418,7 +1472,7 @@ export default function Dashboard() {
               <button
                 onClick={activity.loadMore}
                 disabled={activity.loadingMore}
-                className="mt-3 w-full rounded-xl border border-stone-200 dark:border-stone-600 py-2.5 text-sm font-bold text-stone-600 dark:text-stone-300 transition-colors hover:bg-stone-50 dark:hover:bg-stone-800 disabled:opacity-50"
+                className="mt-3 w-full rounded-xl border border-stone-200 dark:border-stone-600 py-2.5 text-sm font-bold text-stone-600 dark:text-stone-300 transition-colors hover:bg-stone-50 dark:hover:bg-stone-800 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {activity.loadingMore ? 'جاري التحميل...' : 'تحميل المزيد'}
               </button>

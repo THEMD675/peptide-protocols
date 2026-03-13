@@ -454,7 +454,7 @@ export default function Login() {
               <button
                 onClick={handleResendVerification}
                 disabled={resendLoading || resendCooldown > 0}
-                className="mb-4 w-full rounded-full border-2 border-emerald-600 py-3 text-sm font-bold text-emerald-700 transition-colors hover:bg-emerald-50 dark:bg-emerald-900/20 disabled:opacity-50"
+                className="mb-4 w-full rounded-full border-2 border-emerald-600 py-3 text-sm font-bold text-emerald-700 transition-colors hover:bg-emerald-50 dark:bg-emerald-900/20 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {resendLoading ? (
                   <span className="inline-flex items-center gap-2">
@@ -519,7 +519,7 @@ export default function Login() {
                     </button>
                   </div>
                 </div>
-                <button type="submit" disabled={loading} className="w-full rounded-full bg-emerald-600 px-8 py-3.5 text-base font-semibold text-white shadow transition-transform hover:bg-emerald-700 active:scale-[0.98] disabled:opacity-60">
+                <button type="submit" disabled={loading} className="w-full rounded-full bg-emerald-600 px-8 py-3.5 text-base font-semibold text-white shadow transition-transform hover:bg-emerald-700 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed">
                   {loading ? (
                     <span className="inline-flex items-center gap-2">
                       <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />
@@ -632,7 +632,7 @@ export default function Login() {
                       });
                     }
                   }}
-                  className="mb-4 flex w-full items-center justify-center gap-3 rounded-full border border-stone-300 dark:border-stone-600 bg-white dark:bg-stone-900 px-6 py-3 text-sm font-medium text-stone-700 dark:text-stone-200 shadow-sm transition-all hover:bg-stone-50 dark:hover:bg-stone-800 hover:border-stone-300 dark:hover:border-stone-500 disabled:opacity-60"
+                  className="mb-4 flex w-full items-center justify-center gap-3 rounded-full border border-stone-300 dark:border-stone-600 bg-white dark:bg-stone-900 px-6 py-3 text-sm font-medium text-stone-700 dark:text-stone-200 shadow-sm transition-all hover:bg-stone-50 dark:hover:bg-stone-800 hover:border-stone-300 dark:hover:border-stone-500 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {googleLoading ? (
                     <span className="h-5 w-5 animate-spin rounded-full border-2 border-stone-300 border-t-stone-600" />
@@ -777,7 +777,7 @@ export default function Login() {
                       type="button"
                       onClick={handleResetPassword}
                       disabled={resetLoading}
-                      className="inline-flex items-center gap-1.5 min-h-[44px] text-sm font-medium text-emerald-700 hover:underline disabled:opacity-50"
+                      className="inline-flex items-center gap-1.5 min-h-[44px] text-sm font-medium text-emerald-700 hover:underline disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       {resetLoading ? (
                         <>
@@ -811,7 +811,7 @@ export default function Login() {
                     ? 'أكمل متطلبات كلمة المرور أدناه أولًا'
                     : undefined
                 }
-                className="w-full rounded-full bg-emerald-600 px-8 py-3.5 text-base font-semibold text-white shadow transition-transform hover:bg-emerald-700 hover:scale-[1.02] active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed"
+                className="w-full rounded-full bg-emerald-600 px-8 py-3.5 text-base font-semibold text-white shadow transition-transform hover:bg-emerald-700 hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {loading ? (
                   <span className="inline-flex items-center gap-2">

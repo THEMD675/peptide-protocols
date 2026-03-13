@@ -268,23 +268,36 @@ export default function Account() {
     finally { setPasswordLoading(false); }
   };
 
+  const [exportProgress, setExportProgress] = useState<{ done: number; total: number } | null>(null);
+
   const handleExportData = async (format: 'json' | 'csv' = 'json') => {
     if (!user) return;
-    toast('جارٍ تجهيز بياناتك...');
+    const totalQueries = 9;
+    let completed = 0;
+    setExportProgress({ done: 0, total: totalQueries });
+
+    const trackQuery = <T,>(promise: Promise<T>): Promise<T> =>
+      promise.then(res => {
+        completed++;
+        setExportProgress({ done: completed, total: totalQueries });
+        return res;
+      });
+
     try {
       const [logsRes, protosRes, reviewsRes, communityRes, subsRes, wellnessRes, labRes, sideEffectRes, profileRes] = await Promise.all([
-        supabase.from('injection_logs').select('*').eq('user_id', user.id),
-        supabase.from('user_protocols').select('*').eq('user_id', user.id),
-        supabase.from('reviews').select('*').eq('user_id', user.id),
-        supabase.from('community_logs').select('*').eq('user_id', user.id),
-        supabase.from('subscriptions').select('*').eq('user_id', user.id),
-        supabase.from('wellness_logs').select('*').eq('user_id', user.id),
-        supabase.from('lab_results').select('*').eq('user_id', user.id),
-        supabase.from('side_effect_logs').select('*').eq('user_id', user.id),
-        supabase.from('user_profiles').select('*').eq('user_id', user.id),
+        trackQuery(supabase.from('injection_logs').select('*').eq('user_id', user.id)),
+        trackQuery(supabase.from('user_protocols').select('*').eq('user_id', user.id)),
+        trackQuery(supabase.from('reviews').select('*').eq('user_id', user.id)),
+        trackQuery(supabase.from('community_logs').select('*').eq('user_id', user.id)),
+        trackQuery(supabase.from('subscriptions').select('*').eq('user_id', user.id)),
+        trackQuery(supabase.from('wellness_logs').select('*').eq('user_id', user.id)),
+        trackQuery(supabase.from('lab_results').select('*').eq('user_id', user.id)),
+        trackQuery(supabase.from('side_effect_logs').select('*').eq('user_id', user.id)),
+        trackQuery(supabase.from('user_profiles').select('*').eq('user_id', user.id)),
       ]);
       if (logsRes.error || protosRes.error || reviewsRes.error) {
         toast.error('تعذّر تحميل بعض البيانات. حاول مرة أخرى.');
+        setExportProgress(null);
         return;
       }
 
@@ -338,8 +351,10 @@ export default function Account() {
         };
         download(new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' }), `pptides-data-${new Date().toISOString().slice(0, 10)}.json`);
       }
+      setExportProgress(null);
       toast.success('تم تصدير بياناتك بنجاح');
     } catch {
+      setExportProgress(null);
       toast.error('تعذّر تصدير البيانات. حاول مرة أخرى.');
     }
   };
@@ -450,7 +465,7 @@ export default function Account() {
 
       <div className="space-y-6">
         {/* Usage Stats Dashboard */}
-        {usageStats && (
+        {usageStats ? (
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
             <div className="rounded-2xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 p-4 text-center shadow-sm">
               <Syringe className="mx-auto mb-1 h-5 w-5 text-emerald-700" />
@@ -472,6 +487,17 @@ export default function Account() {
               <p className="text-sm font-bold text-stone-900 dark:text-stone-100 mt-1">{usageStats.memberSince || '—'}</p>
               <p className="text-xs text-stone-500 dark:text-stone-300">عضو منذ</p>
             </div>
+          </div>
+        ) : user && (
+          /* 3.14: Skeleton loading placeholders for usage stats */
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+            {[0, 1, 2, 3].map(i => (
+              <div key={i} className="rounded-2xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 p-4 text-center shadow-sm animate-pulse">
+                <div className="mx-auto mb-1 h-5 w-5 rounded bg-stone-200 dark:bg-stone-700" />
+                <div className="mx-auto mt-2 h-7 w-10 rounded bg-stone-200 dark:bg-stone-700" />
+                <div className="mx-auto mt-2 h-3 w-16 rounded bg-stone-100 dark:bg-stone-800" />
+              </div>
+            ))}
           </div>
         )}
 
@@ -596,7 +622,7 @@ export default function Account() {
               <button
                 type="submit"
                 disabled={profileSaving}
-                className="rounded-full bg-emerald-600 px-8 py-3.5 text-base font-semibold text-white transition-colors hover:bg-emerald-700 active:scale-[0.98] disabled:opacity-50"
+                className="rounded-full bg-emerald-600 px-8 py-3.5 text-base font-semibold text-white transition-colors hover:bg-emerald-700 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {profileSaving ? 'جارٍ الحفظ...' : 'حفظ الملف الشخصي'}
               </button>
@@ -628,7 +654,7 @@ export default function Account() {
             <button
               type="submit"
               disabled={emailLoading || !newEmail.trim()}
-              className="rounded-full bg-emerald-600 px-8 py-3.5 text-base font-semibold text-white transition-colors hover:bg-emerald-700 active:scale-[0.98] disabled:opacity-50"
+              className="rounded-full bg-emerald-600 px-8 py-3.5 text-base font-semibold text-white transition-colors hover:bg-emerald-700 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {emailLoading ? <span className="inline-flex items-center gap-2"><span className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />جارٍ التغيير</span> : 'تغيير البريد'}
             </button>
@@ -673,7 +699,7 @@ export default function Account() {
             <button
               type="submit"
               disabled={passwordLoading || !newPassword || !currentPassword}
-              className="rounded-full bg-emerald-600 px-8 py-3.5 text-base font-semibold text-white transition-all hover:bg-emerald-700 active:scale-[0.98] disabled:opacity-50"
+              className="rounded-full bg-emerald-600 px-8 py-3.5 text-base font-semibold text-white transition-all hover:bg-emerald-700 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {passwordLoading ? <span className="inline-flex items-center gap-2"><span className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />جارٍ التغيير</span> : 'تغيير كلمة المرور'}
             </button>
@@ -822,6 +848,36 @@ export default function Account() {
                 )} />
               </button>
             </div>
+
+            {/* 3.12: Unsubscribe from all notifications */}
+            {(notifEmail || notifProduct) && (
+              <button
+                disabled={notifLoading}
+                onClick={async () => {
+                  if (!user) return;
+                  setNotifLoading(true);
+                  try {
+                    const { error } = await supabase.from('user_profiles').update({
+                      email_notifications_enabled: false,
+                      product_updates_enabled: false,
+                      updated_at: new Date().toISOString(),
+                    }).eq('user_id', user.id);
+                    if (error) throw error;
+                    setNotifEmail(false);
+                    setNotifProduct(false);
+                    toast.success('تم إيقاف جميع الإشعارات');
+                  } catch { toast.error('تعذّر تحديث التفضيل — حاول مرة أخرى'); }
+                  finally { setNotifLoading(false); }
+                }}
+                className={cn(
+                  'flex w-full items-center justify-center gap-2 rounded-xl border border-stone-300 dark:border-stone-600 bg-white dark:bg-stone-900 px-4 py-3 text-sm font-bold text-stone-600 dark:text-stone-300 transition-all hover:bg-stone-50 dark:hover:bg-stone-800',
+                  notifLoading && 'opacity-50 cursor-wait',
+                )}
+              >
+                <BellOff className="h-4 w-4" />
+                إيقاف جميع الإشعارات
+              </button>
+            )}
           </div>
         </div>
 
@@ -978,17 +1034,42 @@ export default function Account() {
             <h2 className="text-lg font-bold text-stone-900 dark:text-stone-100">تصدير بياناتي</h2>
           </div>
           <p className="text-sm text-stone-600 dark:text-stone-300 mb-4">حمّل نسخة كاملة من جميع بياناتك — حقك في نقل البيانات مكفول</p>
+          {/* 3.13: Export progress indicator */}
+          {exportProgress && (
+            <div className="mb-4 rounded-xl bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 p-4">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-sm font-bold text-emerald-700 dark:text-emerald-300">
+                  تصدير البيانات... ({exportProgress.done}/{exportProgress.total})
+                </span>
+                <span className="h-4 w-4 animate-spin rounded-full border-2 border-emerald-300 border-t-emerald-700" />
+              </div>
+              <div className="h-2 rounded-full bg-emerald-100 dark:bg-emerald-900/40 overflow-hidden">
+                <div
+                  className="h-full rounded-full bg-emerald-600 transition-all duration-300"
+                  style={{ width: `${Math.round((exportProgress.done / exportProgress.total) * 100)}%` }}
+                />
+              </div>
+            </div>
+          )}
           <div className="grid gap-3 sm:grid-cols-2">
             <button
               onClick={() => handleExportData('json')}
-              className="flex items-center justify-center gap-2 rounded-full bg-emerald-600 px-8 py-3.5 text-base font-semibold text-white transition-all hover:bg-emerald-700"
+              disabled={!!exportProgress}
+              className={cn(
+                'flex items-center justify-center gap-2 rounded-full bg-emerald-600 px-8 py-3.5 text-base font-semibold text-white transition-all hover:bg-emerald-700',
+                exportProgress && 'opacity-50 cursor-wait',
+              )}
             >
               <Download className="h-4 w-4" />
               تصدير بياناتي (JSON)
             </button>
             <button
               onClick={() => handleExportData('csv')}
-              className="flex items-center justify-center gap-2 rounded-xl border border-stone-300 dark:border-stone-600 px-6 py-3 text-sm font-bold text-stone-700 dark:text-stone-200 transition-all hover:bg-stone-50 dark:hover:bg-stone-800"
+              disabled={!!exportProgress}
+              className={cn(
+                'flex items-center justify-center gap-2 rounded-xl border border-stone-300 dark:border-stone-600 px-6 py-3 text-sm font-bold text-stone-700 dark:text-stone-200 transition-all hover:bg-stone-50 dark:hover:bg-stone-800',
+                exportProgress && 'opacity-50 cursor-wait',
+              )}
             >
               <Download className="h-4 w-4" />
               تصدير CSV (سجل الحقن)
@@ -1096,7 +1177,7 @@ export default function Account() {
                   setCancelStep('retention');
                 }}
                 disabled={!cancelReason}
-                className="w-full rounded-xl bg-stone-700 px-4 py-2.5 text-sm font-bold text-white transition-all hover:bg-stone-800 disabled:opacity-50"
+                className="w-full rounded-xl bg-stone-700 px-4 py-2.5 text-sm font-bold text-white transition-all hover:bg-stone-800 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 متابعة
               </button>
@@ -1145,7 +1226,7 @@ export default function Account() {
                   } catch { toast.error('خطأ في الاتصال'); } finally { setIsProcessing(false); }
                 }}
                 disabled={isProcessing}
-                className="mt-3 w-full rounded-full bg-emerald-600 px-4 py-2.5 text-sm font-bold text-white transition-all hover:bg-emerald-700 disabled:opacity-50"
+                className="mt-3 w-full rounded-full bg-emerald-600 px-4 py-2.5 text-sm font-bold text-white transition-all hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {RETENTION.acceptCta}
               </button>
@@ -1173,7 +1254,7 @@ export default function Account() {
               <button
                 onClick={handleCancelSubscription}
                 disabled={isProcessing}
-                className="w-full rounded-xl border border-stone-300 dark:border-stone-600 px-4 py-2.5 text-sm font-bold text-stone-700 dark:text-stone-200 transition-all hover:bg-stone-50 dark:hover:bg-stone-800 disabled:opacity-50"
+                className="w-full rounded-xl border border-stone-300 dark:border-stone-600 px-4 py-2.5 text-sm font-bold text-stone-700 dark:text-stone-200 transition-all hover:bg-stone-50 dark:hover:bg-stone-800 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isProcessing ? RETENTION.cancellingText : RETENTION.proceedCancel}
               </button>

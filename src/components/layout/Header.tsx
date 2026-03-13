@@ -403,6 +403,7 @@ export default memo(function Header() {
             {/* Mobile Search */}
             <button
               onClick={() => { setMobileOpen(false); setSearchOpen(true); }}
+              aria-label="بحث"
               className="flex w-full items-center gap-3 rounded-xl border border-stone-200 dark:border-stone-600 bg-stone-50 dark:bg-stone-900 px-4 py-2.5 min-h-[44px] mb-3 text-sm text-stone-500 dark:text-stone-300"
             >
               <Search className="h-4 w-4 shrink-0" />
@@ -429,6 +430,7 @@ export default memo(function Header() {
             {/* Mobile Theme Toggle */}
             <button
               onClick={() => { toggleTheme(); }}
+              aria-label={isDark ? 'تبديل إلى الوضع الفاتح' : 'تبديل إلى الوضع الداكن'}
               className="flex w-full items-center gap-3 rounded-lg px-4 py-3 text-sm font-medium text-stone-800 dark:text-stone-200 transition-colors hover:bg-stone-50 dark:hover:bg-stone-800"
             >
               {isDark ? <Sun className="h-4 w-4 text-amber-400" /> : <Moon className="h-4 w-4 text-stone-500 dark:text-stone-300" />}

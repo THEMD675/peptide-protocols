@@ -13,12 +13,14 @@ import {
   ChevronDown,
   ChevronUp,
   Calendar,
+  Gift,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { events } from '@/lib/analytics';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
+import { SITE_URL } from '@/lib/constants';
 import { peptidesLite as allPeptides } from '@/data/peptides-lite';
 import ProgressRing from '@/components/charts/ProgressRing';
 import SideEffectLog from '@/components/SideEffectLog';
@@ -107,6 +109,18 @@ export default function Tracker() {
     try { return !!new URLSearchParams(window.location.search).get('peptide'); } catch { return false; }
   });
   const [autoFilled, setAutoFilled] = useState(false);
+
+  // Referral code for streak milestone CTA
+  const [referralCode, setReferralCode] = useState<string | null>(null);
+  useEffect(() => {
+    if (!user || !subscription.isProOrTrial) return;
+    let mounted = true;
+    (async () => {
+      const { data } = await supabase.from('subscriptions').select('referral_code').eq('user_id', user.id).maybeSingle();
+      if (mounted && data?.referral_code) setReferralCode(data.referral_code);
+    })();
+    return () => { mounted = false; };
+  }, [user, subscription.isProOrTrial]);
 
   // Post-injection feedback card
   const [lastLoggedPeptide, setLastLoggedPeptide] = useState<string | null>(null);
@@ -501,6 +515,25 @@ export default function Tracker() {
         </div>
       )}
 
+      {/* Referral CTA at streak milestones (7, 14, 30 days) */}
+      {dashboardStats && [7, 14, 30].includes(dashboardStats.streak) && referralCode && (
+        <div className="mb-6 rounded-2xl border border-emerald-200 dark:border-emerald-800 bg-gradient-to-l from-emerald-50 to-amber-50 dark:from-emerald-950/30 dark:to-amber-950/20 p-4 text-center">
+          <Gift className="h-5 w-5 text-emerald-600 mx-auto mb-2" />
+          <p className="text-sm font-bold text-stone-900 dark:text-stone-100 mb-1">
+            {dashboardStats.streak} أيام متتالية! شارك إنجازك مع صديق
+          </p>
+          <p className="text-xs text-stone-500 dark:text-stone-400 mb-3">شارك مع صديق واحصل على أسبوع مجاني — صديقك يحصل على خصم 40%</p>
+          <a
+            href={`https://wa.me/?text=${encodeURIComponent(`حققت ${dashboardStats.streak} يوم التزام متتالي على pptides! جرّبه أنت أيضًا:\n${SITE_URL}/?ref=${referralCode}`)}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-2 rounded-full bg-emerald-600 px-6 py-2.5 text-sm font-semibold text-white transition-all hover:bg-emerald-700 active:scale-[0.98]"
+          >
+            شارك عبر واتساب
+          </a>
+        </div>
+      )}
+
       {/* Stats */}
       <TrackerStats
         dashboardStats={dashboardStats}
@@ -817,7 +850,7 @@ export default function Tracker() {
               <h3 className="text-lg font-bold text-stone-900 dark:text-stone-100 mb-2">{confirmDialog.title}</h3>
               <p className="text-sm text-stone-600 dark:text-stone-300 mb-6">{confirmDialog.message}</p>
               <div className="flex gap-3">
-                <button onClick={confirmDialog.onConfirm} disabled={confirmBusy} className={cn('flex-1 rounded-full px-4 py-2 text-sm font-medium text-white disabled:opacity-50', confirmDialog.isDestructive ? 'bg-red-600 transition-colors hover:bg-red-700' : 'bg-emerald-600 transition-colors hover:bg-emerald-700')}>
+                <button onClick={confirmDialog.onConfirm} disabled={confirmBusy} className={cn('flex-1 rounded-full px-4 py-2 text-sm font-medium text-white disabled:opacity-50 disabled:cursor-not-allowed', confirmDialog.isDestructive ? 'bg-red-600 transition-colors hover:bg-red-700' : 'bg-emerald-600 transition-colors hover:bg-emerald-700')}>
                   {confirmBusy ? 'جارٍ التنفيذ...' : 'تأكيد'}
                 </button>
                 <button onClick={() => setConfirmDialog(null)} className="flex-1 rounded-xl border border-stone-200 dark:border-stone-600 px-4 py-2.5 text-sm font-bold text-stone-700 dark:text-stone-200 transition-colors hover:bg-stone-50 dark:hover:bg-stone-800">

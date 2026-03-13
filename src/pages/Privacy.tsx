@@ -68,6 +68,7 @@ export default function Privacy() {
           <section>
             <h2 className="mb-3 text-xl font-bold text-stone-900 dark:text-stone-100">4. أمان البيانات</h2>
             <p>نستخدم تشفير SSL/TLS لحماية اتصالاتك. بيانات الدفع تُعالج حصريًا عبر Stripe ولا تمر عبر خوادمنا.</p>
+            <p className="mt-3">يتوافق موقعنا مع نظام حماية البيانات الشخصية السعودي (PDPL)</p>
           </section>
 
           <section>

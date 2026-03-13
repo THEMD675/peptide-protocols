@@ -135,7 +135,7 @@ export default memo(function ShareableCard(props: ShareableCardProps) {
         <button
           onClick={handleImageExport}
           disabled={exporting}
-          className="flex flex-1 items-center justify-center gap-2 rounded-full bg-emerald-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-emerald-700 disabled:opacity-60"
+          className="flex flex-1 items-center justify-center gap-2 rounded-full bg-emerald-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed"
         >
           <Download className="h-4 w-4" />
           {exporting ? 'جارٍ...' : 'صورة'}

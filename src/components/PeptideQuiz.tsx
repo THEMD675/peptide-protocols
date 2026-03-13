@@ -1,10 +1,10 @@
-import { useState, useCallback, useEffect, type ElementType, type ReactNode } from 'react';
-import { Link } from 'react-router-dom';
+import { useState, useCallback, useEffect, useRef, type ElementType, type ReactNode } from 'react';
+import { Link, useSearchParams } from 'react-router-dom';
 import {
   ArrowLeft, ArrowRight, CheckCircle, FlaskConical,
   TrendingDown, Heart, Brain, Zap, Clock, Shield,
   Syringe, Pill, SprayCan, Dumbbell, Moon, Sparkles,
-  Activity, AlertTriangle, Bookmark, Calculator,
+  Activity, AlertTriangle, Bookmark, Calculator, Gift,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
@@ -410,7 +410,8 @@ function SlideTransition({ children, stepKey, direction }: { children: ReactNode
 /* ─── Main Component ─────────────────────────────────── */
 
 export default function PeptideQuiz() {
-  const { user } = useAuth();
+  const { user, subscription } = useAuth();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [phase, setPhase] = useState<'welcome' | 'quiz' | 'result'>('welcome');
   const [step, setStep] = useState(() => {
     try { return parseInt(sessionStorage.getItem('pptides_quiz_step') ?? '0', 10) || 0; } catch { return 0; }
@@ -421,6 +422,53 @@ export default function PeptideQuiz() {
   });
   const [result, setResult] = useState<ProtocolResult | null>(null);
   const [saved, setSaved] = useState(false);
+  const [referralCode, setReferralCode] = useState<string | null>(null);
+  const resultRef = useRef<HTMLDivElement>(null);
+
+  // Fetch referral code for logged-in subscribers
+  useEffect(() => {
+    if (!user || !subscription.isProOrTrial) return;
+    let mounted = true;
+    (async () => {
+      const { data } = await supabase.from('subscriptions').select('referral_code').eq('user_id', user.id).maybeSingle();
+      if (mounted && data?.referral_code) setReferralCode(data.referral_code);
+    })();
+    return () => { mounted = false; };
+  }, [user, subscription.isProOrTrial]);
+
+  // On mount: if ?result= param exists, load saved result and scroll to it
+  useEffect(() => {
+    const resultParam = searchParams.get('result');
+    if (!resultParam) return;
+    try {
+      const s = localStorage.getItem('pptides_quiz_results');
+      if (s) {
+        const data = JSON.parse(s);
+        if (data.result && data.result.primary.peptideId === resultParam) {
+          if (data.answers) setAnswers(data.answers);
+          setResult(data.result);
+          setPhase('result');
+          setTimeout(() => resultRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
+          return;
+        }
+      }
+    } catch { /* ignore */ }
+    // If no saved result matches, check if the peptide exists and build a minimal result
+    const peptide = allPeptides.find(p => p.id === resultParam);
+    if (peptide) {
+      const minimalResult: ProtocolResult = {
+        primary: { peptideId: peptide.id, nameAr: peptide.nameAr, nameEn: peptide.nameEn, reason: peptide.summaryAr.split('.').slice(0, 2).join('.') + '.' },
+        supporting: [],
+        dosingSchedule: peptide.dosageAr ? peptide.dosageAr.split('.')[0] + '.' : 'اشترك لعرض الجرعة',
+        monthlyCost: peptide.costEstimate || 'غير محدد',
+        warnings: [],
+        protocolDuration: peptide.cycleAr ? peptide.cycleAr.split('.')[0] + '.' : 'اشترك لعرض مدة الدورة',
+      };
+      setResult(minimalResult);
+      setPhase('result');
+      setTimeout(() => resultRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
+    }
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     try { sessionStorage.setItem('pptides_quiz_step', String(step)); } catch { /* expected */ }
@@ -462,7 +510,9 @@ export default function PeptideQuiz() {
         ts: Date.now(),
       }));
     } catch { /* ignore */ }
-  }, []);
+    // Encode result peptide ID in URL
+    setSearchParams({ result: r.primary.peptideId }, { replace: true });
+  }, [setSearchParams]);
 
   const handleSelect = useCallback((optionId: string) => {
     const currentStep = STEPS[step];
@@ -542,8 +592,9 @@ export default function PeptideQuiz() {
     setAnswers({ healthIssues: [] });
     setResult(null);
     setSaved(false);
+    setSearchParams({}, { replace: true });
     try { sessionStorage.removeItem('pptides_quiz_step'); sessionStorage.removeItem('pptides_quiz_progress'); } catch { /* expected */ }
-  }, []);
+  }, [setSearchParams]);
 
   const handleSaveResult = useCallback(() => {
     if (result) {
@@ -663,7 +714,7 @@ export default function PeptideQuiz() {
     const showSubscribeCTA = !user;
 
     return (
-      <div className="space-y-4 animate-fade-in">
+      <div ref={resultRef} className="space-y-4 animate-fade-in">
         {/* Header */}
         <div className="rounded-2xl border border-emerald-200 dark:border-emerald-800 bg-gradient-to-b from-emerald-50 to-white dark:from-emerald-950/30 dark:to-stone-950 p-6 md:p-8 shadow-xl shadow-emerald-900/5">
           <div className="flex items-center gap-3 mb-5">
@@ -790,12 +841,31 @@ export default function PeptideQuiz() {
           <div className="mt-4 pt-4 border-t border-stone-200 dark:border-stone-700">
             <p className="text-xs text-stone-500 dark:text-stone-300 mb-2 text-center">شارك نتيجتك</p>
             <ShareButtons
-              url={`${SITE_URL}/quiz`}
+              url={`${SITE_URL}/quiz?result=${result.primary.peptideId}`}
               title={`نتيجة اختبار الببتيدات: ${result.primary.nameAr}`}
               description={result.primary.reason}
               layout="row"
             />
           </div>
+
+          {/* Referral CTA */}
+          {referralCode && (
+            <div className="mt-4 pt-4 border-t border-stone-200 dark:border-stone-700">
+              <div className="rounded-xl bg-gradient-to-l from-emerald-50 to-amber-50 dark:from-emerald-950/30 dark:to-amber-950/20 border border-emerald-200 dark:border-emerald-800 p-4 text-center">
+                <Gift className="h-5 w-5 text-emerald-600 mx-auto mb-2" />
+                <p className="text-sm font-bold text-stone-900 dark:text-stone-100 mb-1">شارك مع صديق واحصل على أسبوع مجاني</p>
+                <p className="text-xs text-stone-500 dark:text-stone-400 mb-3">صديقك يحصل على خصم 40% وأنت تحصل على شهر مجاني</p>
+                <a
+                  href={`https://wa.me/?text=${encodeURIComponent(`جرّب pptides — أشمل دليل عربي للببتيدات العلاجية\n${SITE_URL}/?ref=${referralCode}`)}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 rounded-full bg-emerald-600 px-6 py-2.5 text-sm font-semibold text-white transition-all hover:bg-emerald-700 active:scale-[0.98]"
+                >
+                  شارك عبر واتساب
+                </a>
+              </div>
+            </div>
+          )}
 
           {/* Supporting links */}
           {result.supporting.length > 0 && (
@@ -971,7 +1041,7 @@ export default function PeptideQuiz() {
             <button
               onClick={handleMultiSelectContinue}
               disabled={answers.healthIssues.length === 0}
-              className="mt-4 w-full flex items-center justify-center gap-2 rounded-full bg-emerald-600 px-8 py-3.5 text-white font-semibold transition-all hover:bg-emerald-700 active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed shadow-lg shadow-emerald-600/20"
+              className="mt-4 w-full flex items-center justify-center gap-2 rounded-full bg-emerald-600 px-8 py-3.5 text-white font-semibold transition-all hover:bg-emerald-700 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-emerald-600/20"
             >
               التالي
               <ArrowLeft className="h-4 w-4" />

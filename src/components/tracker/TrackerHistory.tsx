@@ -281,7 +281,7 @@ export default function TrackerHistory({
           <button
             onClick={onQuickRepeat}
             disabled={isSubmitting}
-            className="flex w-full items-center justify-center gap-3 rounded-2xl bg-emerald-600 px-6 py-4 text-base font-bold text-white transition-all hover:bg-emerald-700 active:scale-[0.98] disabled:opacity-50 min-h-[56px] shadow-md"
+            className="flex w-full items-center justify-center gap-3 rounded-2xl bg-emerald-600 px-6 py-4 text-base font-bold text-white transition-all hover:bg-emerald-700 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed min-h-[56px] shadow-md"
           >
             <Syringe className="h-5 w-5 shrink-0" />
             <span>
@@ -421,7 +421,7 @@ export default function TrackerHistory({
                         <input type="datetime-local" value={editDate} onChange={e => setEditDate(e.target.value)} dir="ltr" aria-label="التاريخ والوقت" className="w-full rounded-lg border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 px-3 py-2 text-base text-stone-900 dark:text-stone-100 focus:border-emerald-300 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900" />
                       </div>
                       <div className="flex gap-2">
-                        <button onClick={() => saveEdit(log.id)} disabled={editSaving} className="flex-1 flex items-center justify-center gap-1.5 rounded-lg bg-emerald-600 px-4 py-2.5 min-h-[44px] text-sm font-bold text-white transition-colors hover:bg-emerald-700 disabled:opacity-50">
+                        <button onClick={() => saveEdit(log.id)} disabled={editSaving} className="flex-1 flex items-center justify-center gap-1.5 rounded-lg bg-emerald-600 px-4 py-2.5 min-h-[44px] text-sm font-bold text-white transition-colors hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed">
                           <Check className="h-4 w-4" />
                           {editSaving ? 'جارٍ الحفظ...' : 'حفظ'}
                         </button>
@@ -514,7 +514,7 @@ export default function TrackerHistory({
               <button
                 onClick={fetchMore}
                 disabled={isLoadingMore}
-                className="flex w-full items-center justify-center gap-2 rounded-2xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 py-4 text-sm font-bold text-stone-600 dark:text-stone-300 transition-all hover:border-emerald-300 dark:border-emerald-700 hover:text-emerald-700 dark:text-emerald-400 disabled:opacity-50"
+                className="flex w-full items-center justify-center gap-2 rounded-2xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 py-4 text-sm font-bold text-stone-600 dark:text-stone-300 transition-all hover:border-emerald-300 dark:border-emerald-700 hover:text-emerald-700 dark:text-emerald-400 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isLoadingMore ? (
                   <span className="flex items-center justify-center gap-2" role="status" aria-label="جارٍ تحميل السجلات">
@@ -542,7 +542,7 @@ export default function TrackerHistory({
                   onClick={() => confirmDialog.onConfirm()}
                   disabled={confirmBusy}
                   className={cn(
-                    'flex-1 rounded-xl px-4 py-3 min-h-[44px] text-sm font-bold text-white transition-all disabled:opacity-50',
+                    'flex-1 rounded-xl px-4 py-3 min-h-[44px] text-sm font-bold text-white transition-all disabled:opacity-50 disabled:cursor-not-allowed',
                     confirmDialog.isDestructive ? 'bg-red-600 hover:bg-red-700' : 'bg-emerald-600 hover:bg-emerald-700'
                   )}
                 >

@@ -1483,7 +1483,7 @@ export default function Community() {
                                     type="button"
                                     onClick={() => submitReply(log.id)}
                                     disabled={!(replyText[log.id] ?? '').trim() || submittingReply.has(log.id)}
-                                    className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-600 text-white transition-colors hover:bg-emerald-700 disabled:opacity-40 disabled:cursor-not-allowed min-h-[44px] min-w-[44px]"
+                                    className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-600 text-white transition-colors hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed min-h-[44px] min-w-[44px]"
                                     aria-label="إرسال الرد"
                                   >
                                     {submittingReply.has(log.id)
@@ -1540,7 +1540,7 @@ export default function Community() {
                       }
                     }}
                     disabled={loadingMore}
-                    className="flex w-full items-center justify-center gap-2 rounded-2xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 py-4 min-h-[44px] text-sm font-bold text-stone-600 dark:text-stone-300 transition-all hover:border-emerald-300 dark:hover:border-emerald-700 hover:text-emerald-700 dark:hover:text-emerald-400 disabled:opacity-50"
+                    className="flex w-full items-center justify-center gap-2 rounded-2xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 py-4 min-h-[44px] text-sm font-bold text-stone-600 dark:text-stone-300 transition-all hover:border-emerald-300 dark:hover:border-emerald-700 hover:text-emerald-700 dark:hover:text-emerald-400 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     {loadingMore ? (
                       <><Loader2 className="h-4 w-4 animate-spin" /> جارٍ التحميل...</>
