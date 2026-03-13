@@ -626,25 +626,14 @@ export default function Login() {
                     // Respect ?redirect= param so Google sign-in from /signup?redirect=/pricing lands on /pricing
                     const oauthRedirectPath = safeRedirect(new URLSearchParams(window.location.search).get('redirect'));
                     const oauthRedirectTo = `${window.location.origin}${oauthRedirectPath}`;
-                    // Primary: try Google One Tap prompt
-                    if (window.google?.accounts?.id) {
-                      window.google.accounts.id.prompt((notification: { isNotDisplayed: () => boolean; isSkippedMoment: () => boolean }) => {
-                        // If One Tap failed silently (dismissed, cooldown, cookies blocked), fall back to OAuth redirect
-                        if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
-                          supabase.auth.signInWithOAuth({
-                            provider: 'google',
-                            options: { redirectTo: oauthRedirectTo },
-                          });
-                        }
-                      });
-                    } else {
-                      // GIS script not loaded — go straight to OAuth redirect
-                      setGoogleLoading(true);
-                      await supabase.auth.signInWithOAuth({
-                        provider: 'google',
-                        options: { redirectTo: oauthRedirectTo },
-                      });
-                    }
+                    // Always use OAuth redirect on button click — One Tap prompt() fires
+                    // its callback asynchronously which loses user gesture context and
+                    // causes browsers to block the redirect as a popup.
+                    setGoogleLoading(true);
+                    await supabase.auth.signInWithOAuth({
+                      provider: 'google',
+                      options: { redirectTo: oauthRedirectTo },
+                    });
                   }}
                   className="mb-4 flex w-full items-center justify-center gap-3 rounded-full border border-stone-300 dark:border-stone-600 bg-white dark:bg-stone-900 px-6 py-3 text-sm font-medium text-stone-700 dark:text-stone-200 shadow-sm transition-all hover:bg-stone-50 dark:hover:bg-stone-800 hover:border-stone-300 dark:hover:border-stone-500 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
