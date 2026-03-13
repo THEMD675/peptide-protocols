@@ -1122,6 +1122,22 @@ export default function Coach() {
           {/* ═══ INPUT AREA ═══ */}
           {intakeStep === 'done' && (
             <div className="border-t border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 p-4">
+              {/* Message limit badge */}
+              <div className="mb-3 flex justify-center">
+                {isTrial ? (
+                  <span className="inline-flex items-center gap-1.5 rounded-full bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 px-3 py-1 text-xs font-bold text-red-700 dark:text-red-400">
+                    {Math.max(0, 5 - userMsgCount)}/5 رسائل تجريبية
+                  </span>
+                ) : subscription.tier === 'essentials' ? (
+                  <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 px-3 py-1 text-xs font-bold text-amber-700 dark:text-amber-400">
+                    {Math.max(0, 15 - userMsgCount)}/15 يوم
+                  </span>
+                ) : subscription.tier === 'elite' ? (
+                  <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 px-3 py-1 text-xs font-bold text-emerald-700 dark:text-emerald-400">
+                    بلا حدود
+                  </span>
+                ) : null}
+              </div>
               {limitReached ? (
                 subscription.tier === 'essentials' ? (
                 <div className="rounded-xl border-2 border-emerald-400 bg-gradient-to-b from-emerald-50 to-white dark:to-stone-950 p-6 text-center shadow-sm dark:shadow-stone-900/30">

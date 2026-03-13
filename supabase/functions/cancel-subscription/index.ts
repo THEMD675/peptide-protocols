@@ -251,9 +251,10 @@ serve(async (req) => {
         tags: [{ name: 'type', value: 'subscription_cancelled' }, { name: 'category', value: 'transactional' }],
         html: emailWrapper(`
             <h2 style="color:#1c1917;font-size:20px;">تم إلغاء اشتراكك</h2>
-            <p style="color:#44403c;line-height:1.8;">ستحتفظ بالوصول حتى نهاية الفترة الحالية (${periodEnd.split('T')[0]}).</p>
+            <p style="color:#44403c;line-height:1.8;">نؤكّد إلغاء اشتراكك في pptides. ستحتفظ بالوصول الكامل حتى نهاية الفترة الحالية (${periodEnd.split('T')[0]}).</p>
+            <p style="color:#44403c;line-height:1.8;">نتمنى أن تكون تجربتك مفيدة. بابنا مفتوح دائمًا — يمكنك العودة في أي وقت وإعادة الاشتراك بضغطة واحدة.</p>
             <div style="text-align:center;margin:24px 0;">
-              ${emailButton('أعد الاشتراك', `${APP_URL}/pricing`)}
+              ${emailButton('العودة للاشتراك', `${APP_URL}/pricing`)}
             </div>
           `),
         replyTo: 'contact@pptides.com',

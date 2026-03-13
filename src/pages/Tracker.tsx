@@ -587,18 +587,36 @@ export default function Tracker() {
                   </div>
                   {daysSinceStart >= totalDays && (
                     <div className="mt-3 rounded-lg bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 px-3 py-3 text-center">
-                      <p className="text-sm font-bold text-emerald-700 dark:text-emerald-400 mb-2">أكملت الدورة بنجاح!</p>
-                      <button
-                        onClick={async () => {
-                          const pepName = peptide?.nameAr ?? proto.peptide_id;
-                          const injCount = logs.filter(l => l.peptide_name === (peptide?.nameEn ?? proto.peptide_id)).length;
-                          const text = `أكملت دورة ${pepName} على pptides! — ${totalDays} يوم — ${injCount} حقنة. pptides.com`;
-                          try { if (navigator.share) { await navigator.share({ text }); } else { await navigator.clipboard.writeText(text); toast.success('تم نسخ الرسالة'); } } catch { /* user cancelled */ }
-                        }}
-                        className="inline-flex items-center gap-2 rounded-full bg-emerald-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-emerald-700"
-                      >
-                        شارك إنجازك
-                      </button>
+                      <p className="text-sm font-bold text-emerald-700 dark:text-emerald-400 mb-1">دورة {peptide?.nameAr ?? proto.peptide_id} اكتملت — هل تريد بدء دورة جديدة؟</p>
+                      <div className="flex flex-wrap items-center justify-center gap-2 mt-2">
+                        <button
+                          onClick={() => setConfirmDialog({
+                            title: 'إنهاء الدورة',
+                            message: `سيتم تحديث بروتوكول ${peptide?.nameAr ?? proto.peptide_id} إلى "مكتمل". يمكنك بدء دورة جديدة بعدها.`,
+                            onConfirm: async () => {
+                              setConfirmBusy(true);
+                              const { error } = await supabase.from('user_protocols').update({ status: 'completed', updated_at: new Date().toISOString() }).eq('id', proto.id).eq('user_id', user!.id);
+                              if (!error) { toast.success('تم إكمال الدورة — يمكنك بدء دورة جديدة'); fetchActiveProtocols(); } else { toast.error('تعذّر تحديث البروتوكول'); }
+                              setConfirmBusy(false);
+                              setConfirmDialog(null);
+                            },
+                          })}
+                          className="inline-flex items-center gap-2 rounded-full bg-emerald-600 px-4 py-2 text-sm font-bold text-white transition-colors hover:bg-emerald-700"
+                        >
+                          أكمل الدورة وابدأ جديدة
+                        </button>
+                        <button
+                          onClick={async () => {
+                            const pepName = peptide?.nameAr ?? proto.peptide_id;
+                            const injCount = logs.filter(l => l.peptide_name === (peptide?.nameEn ?? proto.peptide_id)).length;
+                            const text = `أكملت دورة ${pepName} على pptides! — ${totalDays} يوم — ${injCount} حقنة. pptides.com`;
+                            try { if (navigator.share) { await navigator.share({ text }); } else { await navigator.clipboard.writeText(text); toast.success('تم نسخ الرسالة'); } } catch { /* user cancelled */ }
+                          }}
+                          className="inline-flex items-center gap-2 rounded-full border border-emerald-300 dark:border-emerald-700 px-4 py-2 text-sm font-medium text-emerald-700 dark:text-emerald-400 transition-colors hover:bg-emerald-100 dark:hover:bg-emerald-900/30"
+                        >
+                          شارك إنجازك
+                        </button>
+                      </div>
                     </div>
                   )}
                 </div>

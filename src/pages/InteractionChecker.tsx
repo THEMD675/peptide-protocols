@@ -126,6 +126,7 @@ export default function InteractionChecker() {
   const [searchParams] = useSearchParams();
   const hasAutoFilled = useRef(false);
   const hasTracked = useRef(false);
+  const [autoFilledFromProtocols, setAutoFilledFromProtocols] = useState(false);
   const [selected, setSelected] = useState<string[]>(() => {
     const p1 = searchParams.get('p1');
     const p2 = searchParams.get('p2');
@@ -158,8 +159,12 @@ export default function InteractionChecker() {
     if (next) queueMicrotask(() => setSelected(next!));
   }, [searchParams]);
 
+  // Auto-populate from user's active protocols
   useEffect(() => {
-    if (!user || selected.some(s => s !== '') || hasAutoFilled.current) return;
+    if (!user || hasAutoFilled.current) return;
+    // Skip auto-fill if URL params provided peptides
+    const hasUrlParams = searchParams.get('p1') !== null || searchParams.get('p2') !== null || searchParams.get('p') !== null || searchParams.get('peptide') !== null;
+    if (hasUrlParams) { hasAutoFilled.current = true; return; }
     let mounted = true;
     supabase
       .from('user_protocols')
@@ -167,14 +172,17 @@ export default function InteractionChecker() {
       .eq('user_id', user.id)
       .eq('status', 'active')
       .then(({ data, error }) => {
-        if (mounted && !error && data && data.length >= 2) {
-          setSelected(data.map(d => d.peptide_id).slice(0, 5));
-          hasAutoFilled.current = true;
-        }
+        if (!mounted || error || !data || data.length === 0) return;
+        hasAutoFilled.current = true;
+        const ids = data.map(d => d.peptide_id).slice(0, 5);
+        // Ensure at least 2 slots
+        const slots = ids.length >= 2 ? ids : [...ids, ...Array(2 - ids.length).fill('')];
+        setSelected(slots);
+        setAutoFilledFromProtocols(true);
       })
       .catch((e: unknown) => console.warn("silent catch:", e));
     return () => { mounted = false; };
-  }, [user, selected]);
+  }, [user, searchParams]);
 
   const addSlot = () => { if (selected.length < 5) setSelected(prev => [...prev, '']); };
   const removeSlot = (idx: number) => { if (selected.length > 2) setSelected(prev => prev.filter((_, i) => i !== idx)); };
@@ -308,6 +316,13 @@ export default function InteractionChecker() {
             اختر ببتيدين لمعرفة إذا يمكن تجميعهما بأمان
           </p>
         </div>
+
+        {autoFilledFromProtocols && (
+          <div className="mb-4 flex items-center gap-2 rounded-xl border border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-900/20 px-4 py-2.5">
+            <Syringe className="h-4 w-4 shrink-0 text-emerald-600" />
+            <p className="text-xs font-bold text-emerald-800 dark:text-emerald-300">تم تحميل ببتيداتك النشطة تلقائيًا من بروتوكولاتك</p>
+          </div>
+        )}
 
         <div className="mb-6 space-y-3">
           {selected.map((sel, idx) => (

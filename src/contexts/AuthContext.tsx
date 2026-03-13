@@ -173,6 +173,28 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       );
       if (error) {
         if (error?.message?.includes('JWT') || (error as Record<string, unknown>)?.status === 401) {
+          // Attempt session refresh before giving up
+          const { error: refreshError } = await supabase.auth.refreshSession();
+          if (!refreshError) {
+            toast.success('تم تجديد جلستك');
+            // Retry the subscription fetch with the refreshed session
+            try {
+              const { data: retryData, error: retryError } = await supabase
+                .from('subscriptions')
+                .select('*')
+                .eq('user_id', userId)
+                .maybeSingle();
+              if (!retryError) {
+                setSubscription(buildSubscription(retryData));
+                return;
+              }
+            } catch {
+              // Fall through to default subscription
+            }
+            setSubscription(DEFAULT_SUBSCRIPTION);
+            return;
+          }
+          // Refresh also failed — sign out
           toast.error('انتهت الجلسة — يرجى تسجيل الدخول مرة أخرى');
           await supabase.auth.signOut({ scope: 'local' });
           setUser(null);

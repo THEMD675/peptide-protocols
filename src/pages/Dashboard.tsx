@@ -527,6 +527,55 @@ export default function Dashboard() {
         </div>
       )}
 
+      {/* Past-due payment warning banner */}
+      {subscription.status === 'past_due' && (() => {
+        const periodEnd = subscription.currentPeriodEnd ? new Date(subscription.currentPeriodEnd) : null;
+        const graceDays = periodEnd
+          ? Math.max(0, Math.ceil((periodEnd.getTime() + 7 * 24 * 60 * 60 * 1000 - Date.now()) / (1000 * 60 * 60 * 24)))
+          : 0;
+        return (
+          <div className="mb-6 rounded-2xl border border-red-300 dark:border-red-700 bg-red-50 dark:bg-red-900/20 p-4 text-center">
+            <div className="flex items-center justify-center gap-2 mb-1">
+              <AlertTriangle className="h-5 w-5 text-red-600 dark:text-red-400" />
+              <p className="text-sm font-bold text-red-800 dark:text-red-300">
+                فشل الدفع — لديك {graceDays} {graceDays === 1 ? 'يوم' : 'أيام'} لتحديث بطاقتك
+              </p>
+            </div>
+            <p className="text-xs text-red-700 dark:text-red-400 mb-3">
+              حدّث معلومات الدفع لتجنّب انقطاع الخدمة
+            </p>
+            <button
+              onClick={async () => {
+                try {
+                  const { data: { session } } = await supabase.auth.getSession();
+                  const token = session?.access_token;
+                  if (!token) { toast.error('يرجى تسجيل الدخول'); return; }
+                  toast('جارٍ فتح إدارة الدفع...');
+                  const res = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/create-portal-session`, {
+                    method: 'POST',
+                    signal: AbortSignal.timeout(15000),
+                    headers: {
+                      'Content-Type': 'application/json',
+                      Authorization: `Bearer ${token}`,
+                      apikey: import.meta.env.VITE_SUPABASE_ANON_KEY,
+                    },
+                    body: JSON.stringify({}),
+                  });
+                  if (!res.ok) throw new Error('Portal request failed');
+                  const data = await res.json();
+                  if (data.url) window.location.href = data.url;
+                } catch {
+                  toast.error('تعذّر فتح صفحة إدارة الدفع — حاول مرة أخرى');
+                }
+              }}
+              className="inline-flex items-center gap-2 rounded-full bg-red-600 px-8 py-3 text-sm font-semibold text-white transition-all hover:bg-red-700"
+            >
+              تحديث بطاقة الدفع
+            </button>
+          </div>
+        );
+      })()}
+
       {/* Welcome Header — hidden for brand-new users (they see the first-time hero instead) */}
       {!((!activity.loading && activity.logs.length === 0 && activeProtocols.length === 0)) && (<div className="mb-8">
         <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-100 dark:bg-emerald-900/30">

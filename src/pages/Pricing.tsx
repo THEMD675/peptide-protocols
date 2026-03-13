@@ -379,6 +379,11 @@ export default function Pricing() {
           <span className={cn('flex items-center gap-1.5 text-sm font-semibold transition-colors duration-200', billingCycle === 'annual' ? 'text-emerald-700' : 'text-stone-500 dark:text-stone-300')}>
             سنوي
             <span className={cn('inline-flex items-center text-xs font-bold rounded-full px-2 py-0.5 leading-none transition-all duration-200', billingCycle === 'annual' ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400' : 'text-emerald-600')}>وفّر حتى 33%</span>
+            {billingCycle === 'annual' && (
+              <span className="inline-flex items-center text-xs font-bold rounded-full bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 px-2.5 py-0.5 leading-none animate-fade-in">
+                شهرين مجاناً — وفّر {PRICING.elite.monthly * 12 - PRICING.elite.annualTotal} ر.س
+              </span>
+            )}
           </span>
         </div>
 
