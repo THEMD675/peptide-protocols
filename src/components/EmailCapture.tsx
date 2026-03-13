@@ -124,7 +124,7 @@ export default function EmailCapture() {
         <p className="mt-3 text-center text-sm text-red-400" role="alert">{errorMsg}</p>
       )}
       <p className="mt-2 text-center text-xs text-stone-500 dark:text-stone-400">
-        بالاشتراك، أنت توافق على <Link to="/privacy" className="underline transition-colors hover:text-stone-700 dark:hover:text-stone-200">سياسة الخصوصية</Link>
+        بالاشتراك، أنت توافق على <Link to="/privacy" className="underline transition-colors hover:text-stone-700 dark:hover:text-stone-200">سياسة الخصوصية</Link>. يمكنك إلغاء الاشتراك في أي وقت من خلال رابط في البريد.
       </p>
     </div>
   );

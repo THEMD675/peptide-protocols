@@ -7,7 +7,7 @@ function Bone({ className, style }: { className?: string; style?: React.CSSPrope
 
 export function LibrarySkeleton() {
   return (
-    <div className="mx-auto max-w-7xl px-4 py-8 md:px-6 md:py-12 animate-fade-in">
+    <div role="status" aria-label="جارٍ تحميل المحتوى..." aria-busy="true" className="mx-auto max-w-7xl px-4 py-8 md:px-6 md:py-12 animate-fade-in">
       <div className="mb-8 text-center">
         <Bone className="mx-auto h-9 w-48 rounded-lg" />
         <Bone className="mx-auto mt-3 h-5 w-64 rounded-lg" />
@@ -48,7 +48,7 @@ export function LibrarySkeleton() {
 
 export function DashboardSkeleton() {
   return (
-    <div className="mx-auto max-w-5xl px-4 py-8 md:px-6 md:py-12 animate-fade-in">
+    <div role="status" aria-label="جارٍ تحميل المحتوى..." aria-busy="true" className="mx-auto max-w-5xl px-4 py-8 md:px-6 md:py-12 animate-fade-in">
       <div className="mb-8">
         <Bone className="h-8 w-52" />
         <Bone className="mt-2 h-5 w-36" />
@@ -102,7 +102,7 @@ export function DashboardSkeleton() {
 
 export function TrackerSkeleton() {
   return (
-    <div className="mx-auto max-w-3xl px-4 py-8 md:px-6 md:py-12 animate-fade-in">
+    <div role="status" aria-label="جارٍ تحميل المحتوى..." aria-busy="true" className="mx-auto max-w-3xl px-4 py-8 md:px-6 md:py-12 animate-fade-in">
       <div className="mb-8 text-center">
         <Bone className="mx-auto h-14 w-14 rounded-2xl" />
         <Bone className="mx-auto mt-4 h-8 w-40" />
@@ -146,7 +146,7 @@ export function TrackerSkeleton() {
 
 export function CoachSkeleton() {
   return (
-    <div className="mx-auto max-w-2xl px-4 py-8 md:px-6 md:py-12 animate-fade-in">
+    <div role="status" aria-label="جارٍ تحميل المحتوى..." aria-busy="true" className="mx-auto max-w-2xl px-4 py-8 md:px-6 md:py-12 animate-fade-in">
       <div className="mb-8 text-center">
         <Bone className="mx-auto h-14 w-14 rounded-2xl" />
         <Bone className="mx-auto mt-4 h-8 w-48" />
@@ -174,7 +174,7 @@ export function CoachSkeleton() {
 
 export function PeptideDetailSkeleton() {
   return (
-    <div className="mx-auto max-w-4xl px-4 py-8 md:px-6 md:py-12 animate-fade-in">
+    <div role="status" aria-label="جارٍ تحميل المحتوى..." aria-busy="true" className="mx-auto max-w-4xl px-4 py-8 md:px-6 md:py-12 animate-fade-in">
       <Bone className="mb-2 h-5 w-20" />
       <Bone className="h-9 w-48" />
       <Bone className="mt-1 h-5 w-32" />
@@ -198,7 +198,7 @@ export function PeptideDetailSkeleton() {
 
 export function PricingSkeleton() {
   return (
-    <div className="mx-auto max-w-5xl px-4 py-8 md:px-6 md:py-12 animate-fade-in">
+    <div role="status" aria-label="جارٍ تحميل المحتوى..." aria-busy="true" className="mx-auto max-w-5xl px-4 py-8 md:px-6 md:py-12 animate-fade-in">
       <div className="text-center mb-12">
         <Bone className="mx-auto h-9 w-40" />
         <Bone className="mx-auto mt-3 h-5 w-64" />
@@ -227,7 +227,7 @@ export function PricingSkeleton() {
 
 export function CalculatorSkeleton() {
   return (
-    <div className="mx-auto max-w-4xl px-4 py-8 md:px-6 md:py-12 animate-fade-in">
+    <div role="status" aria-label="جارٍ تحميل المحتوى..." aria-busy="true" className="mx-auto max-w-4xl px-4 py-8 md:px-6 md:py-12 animate-fade-in">
       <div className="mb-8 text-center">
         <Bone className="mx-auto h-14 w-14 rounded-2xl" />
         <Bone className="mx-auto mt-4 h-8 w-44" />
@@ -257,7 +257,7 @@ export function CalculatorSkeleton() {
 
 export function GenericPageSkeleton() {
   return (
-    <div className="mx-auto min-h-[80vh] max-w-4xl px-4 py-8 md:px-6 md:py-12 animate-fade-in">
+    <div role="status" aria-label="جارٍ تحميل المحتوى..." aria-busy="true" className="mx-auto min-h-[80vh] max-w-4xl px-4 py-8 md:px-6 md:py-12 animate-fade-in">
       <div className="mb-8 text-center">
         <Bone className="mx-auto h-8 w-48" />
         <Bone className="mx-auto mt-3 h-5 w-64" />

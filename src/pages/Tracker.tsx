@@ -523,6 +523,14 @@ export default function Tracker() {
         <div className="mb-6 rounded-2xl bg-gradient-to-l from-orange-500 to-amber-500 p-5 text-center shadow-lg">
           <p className="text-3xl font-black text-white sm:text-4xl">{dashboardStats.streak} أيام متتالية</p>
           <p className="mt-1 text-sm font-medium text-white/80">استمر في الالتزام — أنت تبني عادة!</p>
+          {(() => {
+            const freqArMap: Record<string, string> = { eod: 'كل يومين', '3x': '3 مرات أسبوعيًا', '3xweek': '3 مرات أسبوعيًا', '2x': 'مرتين أسبوعيًا', '2xweek': 'مرتين أسبوعيًا', weekly: 'أسبوعيًا', biweekly: 'كل أسبوعين', monthly: 'شهريًا' };
+            const nonDailyProto = activeProtocols.find(p => freqArMap[p.frequency]);
+            const activeFrequency = nonDailyProto ? freqArMap[nonDailyProto.frequency] : null;
+            return activeFrequency ? (
+              <p className="text-xs text-white/60 mt-0.5">بناءً على جدول الحقن {activeFrequency}</p>
+            ) : null;
+          })()}
         </div>
       )}
 

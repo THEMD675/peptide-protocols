@@ -349,9 +349,15 @@ function useActiveProtocols(userId: string | undefined) {
   useEffect(() => {
     if (!userId) return;
     let mounted = true;
+    let resolved = false;
     // eslint-disable-next-line react-hooks/set-state-in-effect -- async fetch with mounted guard
-    fetchProtocols().then(() => { if (!mounted) return; }).catch(() => { if (mounted) queueMicrotask(() => setLoading(false)); });
-    return () => { mounted = false; };
+    fetchProtocols().then(() => { if (mounted) resolved = true; }).catch(() => { if (mounted) { resolved = true; queueMicrotask(() => setLoading(false)); } });
+    const loadingTimeout = setTimeout(() => {
+      if (mounted && !resolved) {
+        setLoading(false);
+      }
+    }, 30000);
+    return () => { mounted = false; clearTimeout(loadingTimeout); };
   }, [userId, fetchProtocols]);
   return { protocols, loading, refetch: fetchProtocols };
 }

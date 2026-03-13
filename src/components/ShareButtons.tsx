@@ -28,7 +28,7 @@ export default function ShareButtons({
   const waUrl = `${url}${url.includes('?') ? '&' : '?'}utm_source=whatsapp&utm_medium=share`;
   const twUrl = `${url}${url.includes('?') ? '&' : '?'}utm_source=twitter&utm_medium=share`;
   const tgUrl = `${url}${url.includes('?') ? '&' : '?'}utm_source=telegram&utm_medium=share`;
-  const whatsappText = `شوف هذا المقال عن الببتيدات \n${title}\n${waUrl}`;
+  const whatsappText = `🧬 ${title}\n\n${waUrl}`;
   const tweetText = `${title}`;
 
   const handleCopyLink = async () => {

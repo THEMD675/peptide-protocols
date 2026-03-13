@@ -793,6 +793,22 @@ export default function Coach() {
             {/* ═══ INTAKE AS CONVERSATION ═══ */}
             {intakeStep !== 'done' && (
               <div className="space-y-4">
+                {/* Progress bar */}
+                {(() => {
+                  const intakeSteps: IntakeStep[] = ['goal', 'experience', 'injection', 'details'];
+                  const totalSteps = intakeSteps.length;
+                  const currentStep = Math.max(1, intakeSteps.indexOf(intakeStep) + 1);
+                  return (
+                    <div className="mb-4">
+                      <div className="flex justify-between text-xs text-stone-500 dark:text-stone-400 mb-1">
+                        <span>الخطوة {currentStep} من {totalSteps}</span>
+                      </div>
+                      <div className="h-1 rounded-full bg-stone-200 dark:bg-stone-700">
+                        <div className="h-1 rounded-full bg-emerald-500 transition-all" style={{ width: `${(currentStep / totalSteps) * 100}%` }} />
+                      </div>
+                    </div>
+                  );
+                })()}
                 {/* Coach greeting */}
                 <div className="flex justify-end">
                   <div className="max-w-[88%] rounded-2xl rounded-bl-md border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 px-5 py-3">

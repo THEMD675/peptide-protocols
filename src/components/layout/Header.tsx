@@ -153,7 +153,7 @@ export default memo(function Header() {
           >pp<span className="text-emerald-700">tides</span>
           </Link>
 
-          <nav className="hidden items-center gap-1 md:flex">
+          <nav aria-label="التنقل الرئيسي" className="hidden items-center gap-1 md:flex">
             {navLinks.map(({ to, label }) => {
               const active = to === '/' ? pathname === '/' : pathname.startsWith(to);
               return (
@@ -196,7 +196,7 @@ export default memo(function Header() {
                       <ChevronDown className={cn('h-3 w-3 transition-transform', moreOpen && 'rotate-180')} />
                     </button>
                     {moreOpen && (
-                      <div aria-label="الأدوات" className="absolute end-0 top-full mt-2 min-w-[200px] overflow-hidden rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 py-1 shadow-xl dark:shadow-stone-900/40 animate-fade-in">
+                      <nav aria-label="الأدوات" className="absolute end-0 top-full mt-2 min-w-[200px] overflow-hidden rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 py-1 shadow-xl dark:shadow-stone-900/40 animate-fade-in">
                         {tools.map(({ to, label }) => (
                           <Link
                             key={to}
@@ -214,7 +214,7 @@ export default memo(function Header() {
                             {label}
                           </Link>
                         ))}
-                      </div>
+                      </nav>
                     )}
                   </>
                 );
@@ -278,7 +278,7 @@ export default memo(function Header() {
                 </button>
 
                 {dropdownOpen && (
-                  <div aria-label="قائمة الحساب" className="absolute end-0 top-full mt-2 min-w-[180px] overflow-hidden rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 py-1 shadow-xl dark:shadow-stone-900/40 animate-fade-in">
+                  <nav aria-label="حسابي" className="absolute end-0 top-full mt-2 min-w-[180px] overflow-hidden rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 py-1 shadow-xl dark:shadow-stone-900/40 animate-fade-in">
                     <div className="border-b border-stone-200 dark:border-stone-600 px-4 py-2">
                       <p className="truncate text-sm text-stone-800 dark:text-stone-200">{user.email}</p>
                       {displayTier && (
@@ -339,7 +339,7 @@ export default memo(function Header() {
                         تسجيل الخروج
                       </button>
                     )}
-                  </div>
+                  </nav>
                 )}
               </div>
             ) : (

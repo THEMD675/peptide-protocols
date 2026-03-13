@@ -947,7 +947,7 @@ export default function DoseCalculator() {
 
               {/* Results + Syringe Visual */}
               <div className="flex flex-col items-stretch gap-6 md:flex-row">
-                <div className="grid flex-1 grid-cols-2 gap-4">
+                <div className="grid flex-1 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                   <ResultCard label="التركيز" value={fmt(results.concentration, 0)} unit="مكغ/مل" />
                   <ResultCard label="الكمية المطلوبة" value={fmt(results.volumeMl, 3)} unit="مل" />
                   <ResultCard label="وحدات السيرنج" value={fmt(results.syringeUnits, 1)} unit={`وحدة (${syringe.label.split('(')[0].trim()})`} />
@@ -1268,7 +1268,7 @@ export default function DoseCalculator() {
 
               {/* Reconstitution Results */}
               <div className="mt-8 flex flex-col items-stretch gap-6 md:flex-row">
-                <div className="grid flex-1 grid-cols-2 gap-4">
+                <div className="grid flex-1 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                   <ResultCard label="التركيز" value={fmt(reconResults.concentration, 0)} unit="مكغ/مل" />
                   <ResultCard label="الكمية المطلوبة" value={fmt(reconResults.volumeMl, 3)} unit="مل" />
                   <ResultCard label="وحدات السيرنج" value={fmt(reconResults.syringeUnits, 1)} unit="وحدة" />

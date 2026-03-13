@@ -16,6 +16,8 @@ interface BlogPost {
   cover_image_url: string | null;
 }
 
+const PLACEHOLDER_IMG = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='640' height='192' fill='%23d6d3d1'%3E%3Crect width='640' height='192'/%3E%3Ctext x='50%25' y='50%25' font-size='14' fill='%2378716c' text-anchor='middle' dy='.3em'%3E%D8%AA%D8%B9%D8%B0%D9%91%D8%B1 %D8%AA%D8%AD%D9%85%D9%8A%D9%84 %D8%A7%D9%84%D8%B5%D9%88%D8%B1%D8%A9%3C/text%3E%3C/svg%3E";
+
 const BLOG_PAGE_SIZE = 12;
 
 export default function Blog() {
@@ -329,7 +331,7 @@ export default function Blog() {
                       decoding="async"
                       width="800"
                       height="192"
-                      onError={e => { (e.target as HTMLImageElement).style.display = 'none'; }}
+                      onError={e => { const img = e.target as HTMLImageElement; img.src = PLACEHOLDER_IMG; img.alt = 'تعذّر تحميل الصورة'; img.classList.add('img-placeholder'); }}
                     />
                     </div>
                   )}
