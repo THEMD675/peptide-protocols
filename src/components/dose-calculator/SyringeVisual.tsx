@@ -20,6 +20,7 @@ export default function SyringeVisual({
 }: SyringeVisualProps) {
   const gradientId = useId();
   const totalUnits = syringeOption.units;
+  if (totalUnits <= 0) return null;
   const clampedUnits = Math.min(Math.max(drawUnits, 0), totalUnits);
   const displayUnits = isFinite(clampedUnits) ? clampedUnits : 0;
 

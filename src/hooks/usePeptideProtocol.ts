@@ -45,6 +45,7 @@ export function usePeptideProtocol(peptideId: string | undefined, isFree: boolea
     if (isFree) {
       const full = fullPeptides.find(p => p.id === peptideId);
       if (full) {
+        // eslint-disable-next-line react-hooks/set-state-in-effect -- sync init from static data
         setProtocol({
           dosage_ar: full.dosageAr,
           timing_ar: full.timingAr,

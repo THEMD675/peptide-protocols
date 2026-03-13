@@ -355,7 +355,6 @@ export default function StackBuilder() {
       // eslint-disable-next-line react-hooks/set-state-in-effect
       if (ids.length > 0) setSelectedIds(ids.slice(0, MAX_STACK_SIZE));
     }
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     setSavedStacks(loadSavedStacks());
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -467,24 +466,6 @@ export default function StackBuilder() {
     setSelectedIds(validIds.slice(0, MAX_STACK_SIZE));
     setActiveGoalStack(pendingGoalStack.id);
     setPendingGoalStack(null);
-  };
-
-  const SafetyBadge = ({ safety }: { safety: 'safe' | 'warning' | 'dangerous' }) => {
-    if (safety === 'dangerous') return (
-      <span className="inline-flex items-center gap-1 rounded-full bg-red-100 dark:bg-red-900/30 px-3 py-1 text-xs font-bold text-red-700 dark:text-red-400">
-        <ShieldX className="h-3.5 w-3.5" /> خطير
-      </span>
-    );
-    if (safety === 'warning') return (
-      <span className="inline-flex items-center gap-1 rounded-full bg-amber-100 dark:bg-amber-900/30 px-3 py-1 text-xs font-bold text-amber-700 dark:text-amber-400">
-        <ShieldAlert className="h-3.5 w-3.5" /> تحذير
-      </span>
-    );
-    return (
-      <span className="inline-flex items-center gap-1 rounded-full bg-emerald-100 dark:bg-emerald-900/30 px-3 py-1 text-xs font-bold text-emerald-700 dark:text-emerald-400">
-        <ShieldCheck className="h-3.5 w-3.5" /> آمن
-      </span>
-    );
   };
 
   return (

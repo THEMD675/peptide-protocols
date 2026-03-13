@@ -45,7 +45,7 @@ interface TrackerHeatmapProps {
 
 export default function TrackerHeatmap({
   calendarData,
-  calendarMonth,
+  calendarMonth: _calendarMonth,
   setCalendarMonth,
   heatmapData,
   heatmapView,

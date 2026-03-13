@@ -278,6 +278,7 @@ export default function TrackerForm({
             type="datetime-local"
             value={injectedAt}
             onChange={(e) => setInjectedAt(e.target.value)}
+            max={new Date().toISOString().slice(0, 16)}
             required
             aria-label="التاريخ والوقت"
             dir="ltr"

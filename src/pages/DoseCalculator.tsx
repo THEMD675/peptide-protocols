@@ -6,7 +6,7 @@ import {
   Calculator, FlaskConical, Droplets, ChevronDown, ArrowLeft, BookOpen,
   Layers, Bot, Bookmark, Syringe, Shield, Play, Search, Share2, Zap,
   Scale, DollarSign, ArrowLeftRight, Info, Trash2, Clock, Target,
-  TrendingUp, Activity, Dumbbell, Heart, Timer, Moon, Lightbulb,
+  Activity, Dumbbell, Heart, Timer, Moon, Lightbulb,
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import Tooltip from '@/components/Tooltip';

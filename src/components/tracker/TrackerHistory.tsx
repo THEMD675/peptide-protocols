@@ -109,7 +109,7 @@ export default function TrackerHistory({
   peptideColorMap,
   isProOrTrial,
   userId,
-  totalCount,
+  totalCount: _totalCount,
   setTotalCount,
   suggestedSite,
   showForm,

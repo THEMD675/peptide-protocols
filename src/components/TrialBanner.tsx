@@ -5,7 +5,7 @@ const FocusTrap = lazy(() => import('focus-trap-react'));
 import { useAuth } from '@/contexts/AuthContext';
 import { Shield, X, Clock } from 'lucide-react';
 import { cn, arPlural } from '@/lib/utils';
-import { PRICING, PEPTIDE_COUNT, FREE_PEPTIDE_IDS } from '@/lib/constants';
+import { PRICING, FREE_PEPTIDE_IDS } from '@/lib/constants';
 import { useNowMs } from '@/hooks/useNowMs';
 import { TRIAL, RETENTION, UPGRADE, COMMON } from '@/constants/sales-copy';
 

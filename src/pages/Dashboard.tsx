@@ -174,7 +174,7 @@ function useRecentActivity(userId: string | undefined) {
   const [totalCount, setTotalCount] = useState(0);
   const [uniquePeptidesCount, setUniquePeptidesCount] = useState(0);
 
-  const cutoff = useMemo(() => new Date(Date.now() - 35 * 24 * 60 * 60 * 1000).toISOString(), []);
+  const [cutoff] = useState(() => new Date(Date.now() - 35 * 24 * 60 * 60 * 1000).toISOString());
 
   const loadMore = useCallback(async () => {
     if (!userId || loadingMore || logs.length === 0) return;

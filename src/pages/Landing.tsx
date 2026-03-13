@@ -150,6 +150,7 @@ export default function Landing() {
       const cachedReviewsTs = sessionStorage.getItem(STORAGE_KEYS.REVIEWS_TS);
       if (cachedReviews && cachedReviewsTs && Date.now() - Number(cachedReviewsTs) < 30 * 60 * 1000) {
         const parsed = JSON.parse(cachedReviews) as Testimonial[];
+        // eslint-disable-next-line react-hooks/set-state-in-effect -- hydrate from cache
         if (parsed.length > 0) setTestimonials(parsed);
       }
     } catch { /* expected */ }

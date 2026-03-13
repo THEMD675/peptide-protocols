@@ -5,7 +5,6 @@ import { FileText, CalendarDays, Tag, Search, X, ArrowLeft } from 'lucide-react'
 import { SITE_URL } from '@/lib/constants';
 import { supabase } from '@/lib/supabase';
 import { cn } from '@/lib/utils';
-import { GenericPageSkeleton } from '@/components/Skeletons';
 
 interface BlogPost {
   id: string;
@@ -109,6 +108,7 @@ export default function Blog() {
   }, [loadingMore, hasMore, posts]);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- data fetching pattern
     const cleanup = fetchPosts();
     return cleanup;
   }, [fetchPosts]);

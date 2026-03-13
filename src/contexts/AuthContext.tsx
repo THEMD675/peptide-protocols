@@ -265,6 +265,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const fetchingRef = useRef(false);
 
   useEffect(() => {
+    // eslint-disable-next-line prefer-const -- reassigned on line below
     let timeout: ReturnType<typeof setTimeout>;
 
     const syncProfile = (userId: string, su: SupabaseUser) => {
@@ -318,20 +319,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }
 
         if (event === 'SIGNED_IN' && session?.user && !welcomeEmailSentRef.current) {
-          const provider = session.user.app_metadata?.provider;
-          if (provider === 'google') {
-            welcomeEmailSentRef.current = true;
-            const edgeFnUrl = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/send-welcome-email`;
-            fetch(edgeFnUrl, {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-                Authorization: `Bearer ${session.access_token}`,
-                apikey: import.meta.env.VITE_SUPABASE_ANON_KEY,
-              },
-              body: JSON.stringify({ email: session.user.email, name: session.user.user_metadata?.full_name ?? '' }),
-            }).catch((e) => console.warn('Google welcome email failed:', e));
-          }
+          welcomeEmailSentRef.current = true;
+          const edgeFnUrl = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/send-welcome-email`;
+          fetch(edgeFnUrl, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${session.access_token}`,
+              apikey: import.meta.env.VITE_SUPABASE_ANON_KEY,
+            },
+            body: JSON.stringify({ email: session.user.email, name: session.user.user_metadata?.full_name ?? '' }),
+          }).catch((e) => console.warn('Welcome email failed:', e));
         }
 
         await handleSession(session, event);

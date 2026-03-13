@@ -9,7 +9,7 @@ import { peptidesPublic } from '@/data/peptides-public';
 import { useAuth } from '@/contexts/AuthContext';
 import { usePeptideProtocol } from '@/hooks/usePeptideProtocol';
 import { supabase } from '@/lib/supabase';
-import { PRICING, TRIAL_PEPTIDE_IDS, SITE_URL, PEPTIDE_COUNT } from '@/lib/constants';
+import { PRICING, SITE_URL, PEPTIDE_COUNT } from '@/lib/constants';
 import { DOSE_PRESETS_MAP as DOSE_PRESETS } from '@/data/dose-presets';
 import { evidenceColors, evidenceLabels, categoryLabels, categoryIcons } from '@/lib/peptide-labels';
 import ShareButtons from '@/components/ShareButtons';
@@ -24,8 +24,8 @@ interface ProtocolRow {
 export default function PeptideDetail() {
   const { id } = useParams<{ id: string }>();
   const { subscription, isLoading } = useAuth();
-  const isPaid = !isLoading && (subscription?.isPaidSubscriber ?? false);
-  const isTrial = !isLoading && (subscription?.isTrial ?? false);
+  const _isPaid = !isLoading && (subscription?.isPaidSubscriber ?? false);
+  const _isTrial = !isLoading && (subscription?.isTrial ?? false);
 
   const peptide = useMemo(() => peptidesPublic.find((p) => p.id === id), [id]);
   const { protocol, loading: protocolLoading } = usePeptideProtocol(id, peptide?.isFree ?? false);

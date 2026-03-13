@@ -3,8 +3,8 @@ import { useScrollReveal } from '@/hooks/useScrollReveal';
 import { Helmet } from 'react-helmet-async';
 import { Link, useSearchParams } from 'react-router-dom';
 import {
-  MessageSquare, Send, Clock, FlaskConical, User, Flag, Star, MessageCircle,
-  ChevronDown, ChevronUp, Trash2, BadgeCheck, ThumbsUp, Search, X, Trophy,
+  MessageSquare, Send, Clock, FlaskConical, Flag, Star, MessageCircle,
+  Trash2, BadgeCheck, ThumbsUp, Search, X, Trophy,
   Sparkles, Loader2, Shield, Users, FlaskRound,
 } from 'lucide-react';
 import { toast } from 'sonner';

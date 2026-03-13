@@ -12,7 +12,14 @@ export default function ProtectedRoute({ children, requiresSubscription = true, 
   const { user, subscription, isLoading } = useAuth();
   const location = useLocation();
 
-  if (isLoading) return null;
+  if (isLoading) return (
+    <div className="flex min-h-screen items-center justify-center bg-stone-50 dark:bg-stone-950">
+      <div className="flex flex-col items-center gap-4">
+        <div className="h-10 w-10 animate-spin rounded-full border-4 border-emerald-200 border-t-emerald-600" />
+        <span className="text-sm text-stone-500 dark:text-stone-400">جارٍ التحميل…</span>
+      </div>
+    </div>
+  );
   if (!user) return (
     <Navigate to={`/login?redirect=${encodeURIComponent(location.pathname + location.search)}`} replace />
   );

@@ -4,11 +4,11 @@ import EnquiryForm from '@/components/account/EnquiryForm';
 import FocusTrap from 'focus-trap-react';
 import { Helmet } from 'react-helmet-async';
 import { Link, Navigate, useNavigate, useLocation } from 'react-router-dom';
-import { User, Crown, LogOut, Trash2, AlertTriangle, Mail, ArrowUpCircle, KeyRound, XCircle, Download, CreditCard, Gift, Copy, Share2, Check, Send, MessageSquare, UserCircle, Camera, BarChart3, Syringe, Bot, Calendar, Heart, FlaskConical, Moon, Sun, Chrome, Bell, BellOff } from 'lucide-react';
+import { User, Crown, LogOut, Trash2, AlertTriangle, Mail, ArrowUpCircle, KeyRound, XCircle, Download, CreditCard, Gift, Copy, Share2, Check, UserCircle, Camera, BarChart3, Syringe, Bot, Calendar, Moon, Sun, Chrome, Bell, BellOff } from 'lucide-react';
 
 import { toast } from 'sonner';
 import { cn, arPlural, sanitizeInput } from '@/lib/utils';
-import { SUPPORT_EMAIL, STATUS_LABELS, TIER_LABELS, PEPTIDE_COUNT, SITE_URL, PRICING } from '@/lib/constants';
+import { SUPPORT_EMAIL, STATUS_LABELS, TIER_LABELS, SITE_URL, PRICING } from '@/lib/constants';
 import { useTheme } from '@/hooks/useTheme';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
@@ -388,6 +388,7 @@ export default function Account() {
       });
       if (!res.ok) throw new Error();
       await logout();
+      navigate('/', { replace: true });
     } catch {
       toast.error(`تعذّر حذف الحساب — تواصل معنا: ${SUPPORT_EMAIL}`);
     } finally {

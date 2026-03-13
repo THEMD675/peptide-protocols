@@ -439,7 +439,7 @@ export default function PeptideQuiz() {
       return { result: data.result, goal: data.goal ?? data.answers?.goal, ts: data.ts };
     } catch { return null; }
   });
-  const hasPrevious = !!previousData;
+  const _hasPrevious = !!previousData;
 
   const loadPrevious = useCallback(() => {
     try {

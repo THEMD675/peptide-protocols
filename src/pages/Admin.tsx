@@ -21,8 +21,10 @@ import {
 import { cn } from '@/lib/utils';
 import { PRICING } from '@/lib/constants';
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars -- kept for future admin activity log
 import { STATUS_AR } from '@/components/ui/Badge';
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars -- kept for future admin activity log
 const ACTION_AR: Record<string, string> = {
   extend_trial: 'تمديد التجربة', grant_subscription: 'منح اشتراك',
   update_subscription: 'تحديث اشتراك', cancel_subscription: 'إلغاء اشتراك',

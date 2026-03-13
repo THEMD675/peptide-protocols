@@ -143,12 +143,22 @@ async function getSessionToken(): Promise<string> {
   return data.session?.access_token ?? '';
 }
 
-const COACH_PREVIEW_SAMPLE_QS = [
-  'أريد بروتوكول BPC-157 للتعافي من إصابة في الكتف',
-  'ما أفضل ببتيد لفقدان الوزن لمبتدئ؟',
-  'صمّم لي بروتوكول CJC-1295 + Ipamorelin',
-  'أريد بروتوكول Semaglutide مع جدول جرعات',
-];
+/** Arabic-friendly error messages keyed by __ERROR__ tag */
+const ERROR_MESSAGES: Record<string, string> = {
+  '__ERROR__:429': 'تم تجاوز الحد — حاول مرة أخرى لاحقاً',
+  '__ERROR__:403': 'انتهت صلاحية جلستك — أعد تسجيل الدخول للمتابعة.',
+  '__ERROR__:401': 'سجّل دخولك أولًا للاستفادة من المدرب الذكي.',
+  '__ERROR__:500': 'خدمة المدرب الذكي غير متاحة حاليًا — حاول مرة أخرى بعد لحظات.',
+  '__ERROR__:502': 'خدمة المدرب الذكي غير متاحة مؤقتاً — حاول مرة أخرى.',
+  '__ERROR__:503': 'الخدمة تحت الصيانة — حاول مرة أخرى بعد قليل.',
+  '__ERROR__:504': 'انتهت مهلة الاتصال — حاول مرة أخرى.',
+  '__ERROR__:408': 'انتهت مهلة الطلب — حاول مرة أخرى.',
+  '__ERROR__': 'خدمة المدرب الذكي غير متاحة حاليًا — حاول مرة أخرى لاحقًا',
+};
+
+function getErrorMessage(tag: string): string {
+  return ERROR_MESSAGES[tag] ?? ERROR_MESSAGES['__ERROR__'];
+}
 
 const DEFAULT_STARTERS = [
   'ما أفضل ببتيد للمبتدئين؟',
@@ -888,13 +898,7 @@ export default function Coach() {
                       }</p>
                     ) : msg.content.startsWith('__ERROR') ? (
                       <div className="text-sm text-stone-800 dark:text-stone-200">
-                        <p className="mb-2">{
-                          msg.content === '__ERROR__:429' ? 'الخدمة مشغولة حاليًا — حاول مرة أخرى بعد دقيقة.' :
-                          msg.content === '__ERROR__:403' ? 'انتهت صلاحية جلستك — أعد تسجيل الدخول للمتابعة.' :
-                          msg.content === '__ERROR__:401' ? 'سجّل دخولك أولًا للاستفادة من المدرب الذكي.' :
-                          msg.content === '__ERROR__:500' ? 'خدمة المدرب الذكي غير متاحة حاليًا — حاول مرة أخرى بعد لحظات.' :
-                          'خدمة المدرب الذكي غير متاحة حاليًا — حاول مرة أخرى لاحقًا'
-                        }</p>
+                        <p className="mb-2">{getErrorMessage(msg.content)}</p>
                         <div className="flex flex-wrap gap-2">
                           {msg.content === '__ERROR__:429' && (
                             <button

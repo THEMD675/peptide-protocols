@@ -91,7 +91,7 @@ export default function EmailCapture() {
             placeholder="بريدك@example.com"
             aria-label="البريد الإلكتروني"
             required
-            className="w-full rounded-full bg-white dark:bg-stone-900/10 border border-white/20 py-3.5 ps-11 pe-4 text-white placeholder:text-white/40 outline-none focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900 transition-all"
+            className="w-full rounded-full bg-white/10 dark:bg-white/5 border border-stone-300 dark:border-stone-600 py-3.5 ps-11 pe-4 text-stone-900 dark:text-white placeholder:text-stone-400 dark:placeholder:text-white/40 outline-none focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900 transition-all"
           />
           <input
             type="text"

@@ -54,7 +54,6 @@ function getTimeOfDayGreeting(): string {
 
 async function fetchProactiveData(userId: string): Promise<UserProactiveData> {
   const today = new Date().toDateString();
-  const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
 
   const [injRes, sideRes, labRes, wellRes, protoRes, userRes, convRes, profileRes, injCountRes] = await Promise.all([
     supabase.from('injection_logs').select('peptide_name, logged_at').eq('user_id', userId).order('logged_at', { ascending: false }).limit(30),
@@ -666,6 +665,7 @@ export function useProactiveCoach(userId: string | undefined) {
 
   useEffect(() => {
     if (!userId) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- early-return guard
       setLoading(false);
       return;
     }

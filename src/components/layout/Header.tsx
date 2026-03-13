@@ -59,7 +59,7 @@ export default memo(function Header() {
   const [moreOpen, setMoreOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
-  const { theme, toggleTheme, isDark } = useTheme();
+  const { toggleTheme, isDark } = useTheme();
   const dropdownRef = useRef<HTMLDivElement>(null);
   const moreDropdownRef = useRef<HTMLDivElement>(null);
 
@@ -100,7 +100,9 @@ export default memo(function Header() {
   }, [pathname]);
 
   // Reset logout confirmation when menus close
+  // eslint-disable-next-line react-hooks/set-state-in-effect -- intentional: derived reset
   useEffect(() => { if (!dropdownOpen) setConfirmingLogout(false); }, [dropdownOpen]);
+  // eslint-disable-next-line react-hooks/set-state-in-effect -- intentional: derived reset
   useEffect(() => { if (!mobileOpen) setConfirmingLogout(false); }, [mobileOpen]);
 
   useEffect(() => {

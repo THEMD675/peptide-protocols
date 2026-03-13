@@ -14,7 +14,7 @@ const DEFAULT_SUB = {
 }
 
 const trialSub = { ...DEFAULT_SUB, status: 'trial' as const, isTrial: true, isProOrTrial: true, trialDaysLeft: 2 }
-const activeSub = { ...DEFAULT_SUB, status: 'active' as const, isPaidSubscriber: true, isProOrTrial: true, tier: 'essentials' as const }
+const _activeSub = { ...DEFAULT_SUB, status: 'active' as const, isPaidSubscriber: true, isProOrTrial: true, tier: 'essentials' as const }
 const expiredSub = { ...DEFAULT_SUB, status: 'expired' as const }
 const adminSub = { ...DEFAULT_SUB, isAdminGrant: true, isProOrTrial: true }
 

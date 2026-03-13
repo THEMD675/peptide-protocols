@@ -82,8 +82,11 @@ export default function Pricing() {
   const [userCount, setUserCount] = useState(0);
   const navigatingRef = useRef(false);
 
-  // Unified coupon: from URL params via SalesFlowService
-  const couponFromUrl = checkoutCoupon || offer.coupon;
+  // Capture coupon on first render so setSearchParams({}) doesn't lose it
+  const initialCouponRef = useRef(searchParams.get('coupon') || undefined);
+
+  // Unified coupon: from URL params via SalesFlowService, fallback to initial capture
+  const couponFromUrl = checkoutCoupon || offer.coupon || initialCouponRef.current;
 
   useEffect(() => { navigatingRef.current = false; events.pricingView(); }, []);
 
