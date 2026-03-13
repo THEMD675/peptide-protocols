@@ -1,8 +1,8 @@
 import { cn } from '@/lib/utils';
 
 const STATUS_COLORS: Record<string, string> = {
-  active: 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400',
-  trial: 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400',
+  active: 'bg-emerald-100 dark:bg-emerald-900/50 text-emerald-700 dark:text-emerald-300',
+  trial: 'bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300',
   expired: 'bg-stone-100 dark:bg-stone-800 text-stone-600 dark:text-stone-300',
   cancelled: 'bg-stone-100 dark:bg-stone-800 text-stone-600 dark:text-stone-300',
   past_due: 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400',

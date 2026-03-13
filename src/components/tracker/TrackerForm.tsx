@@ -55,6 +55,7 @@ export default function TrackerForm({
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
   const photoInputRef = useRef<HTMLInputElement>(null);
   const nextDoseTimerRef = useRef<ReturnType<typeof setTimeout>>(null);
+  const formRef = useRef<HTMLFormElement>(null);
 
   // Cleanup timeout on unmount
   useEffect(() => {
@@ -157,7 +158,9 @@ export default function TrackerForm({
         if (error?.message?.includes('JWT') || (error as { code?: string })?.code === '401' || error?.message?.includes('not authenticated')) {
           toast.error('انتهت الجلسة — أعد تسجيل الدخول');
         } else {
-          toast.error('تعذّر حفظ الحقنة — تحقق من اتصالك وحاول مرة أخرى');
+          toast.error('تعذّر حفظ الحقنة — تحقق من اتصالك وحاول مرة أخرى', {
+            action: { label: 'أعد المحاولة', onClick: () => formRef.current?.requestSubmit() },
+          });
         }
         return;
       }
@@ -182,7 +185,9 @@ export default function TrackerForm({
       onCancel(); // close form
     } catch (err) {
       Sentry.captureException(err);
-      toast.error('تعذّر حفظ الحقنة — تحقق من اتصالك وحاول مرة أخرى');
+      toast.error('تعذّر حفظ الحقنة — تحقق من اتصالك وحاول مرة أخرى', {
+        action: { label: 'أعد المحاولة', onClick: () => formRef.current?.requestSubmit() },
+      });
     } finally {
       setIsSubmitting(false);
     }
@@ -195,7 +200,7 @@ export default function TrackerForm({
   const submitDisabled = isSubmitting || (!!isOutOfRange && !doseOutOfRangeConfirmed);
 
   return (
-    <form onSubmit={handleSubmit} className="mb-8 rounded-2xl border border-stone-200 dark:border-stone-600 bg-stone-50 dark:bg-stone-900 p-6">
+    <form ref={formRef} onSubmit={handleSubmit} className="mb-8 rounded-2xl border border-stone-200 dark:border-stone-600 bg-stone-50 dark:bg-stone-900 p-6">
       <h2 className="mb-4 text-lg font-bold text-stone-900 dark:text-stone-100">تسجيل حقنة جديدة</h2>
       <div className="space-y-4">
         {/* Peptide Name */}

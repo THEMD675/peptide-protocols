@@ -1265,7 +1265,7 @@ export default function Coach() {
                             onClick={() => sendToAI(q)}
                             disabled={isLoading}
                             className={cn(
-                              "rounded-full border border-emerald-200 dark:border-emerald-800 bg-white dark:bg-stone-900 px-4 py-2.5 min-h-[44px] text-sm font-medium text-emerald-700 dark:text-emerald-400 transition-all hover:bg-emerald-50 dark:hover:bg-emerald-900/20 hover:border-emerald-400 dark:hover:border-emerald-600 hover:shadow-sm active:scale-[0.97]",
+                              "rounded-full border border-emerald-200 dark:border-emerald-800 bg-white dark:bg-stone-900 px-4 py-2.5 min-h-[44px] text-sm font-medium text-emerald-700 dark:text-emerald-400 transition-all hover:bg-emerald-50 dark:hover:bg-emerald-900/20 hover:border-emerald-400 dark:hover:border-emerald-600 hover:shadow-sm active:scale-[0.98]",
                               isLoading && "opacity-50 cursor-not-allowed"
                             )}
                           >
