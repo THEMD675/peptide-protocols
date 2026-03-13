@@ -120,15 +120,17 @@ function extractPeptideNames() {
   const peptidesPath = join(ROOT, 'src', 'data', 'peptides.ts');
   const content = readFileSync(peptidesPath, 'utf-8');
   const names = {};
-  // Match: id: 'xxx', ... nameAr: 'yyy'
-  const blocks = content.split(/\n\s*\{/);
-  for (const block of blocks) {
-    const idMatch = block.match(/id:\s*['"]([^'"]+)['"]/);
-    const nameArMatch = block.match(/nameAr:\s*['"]([^'"]+)['"]/);
-    const nameMatch = block.match(/name:\s*['"]([^'"]+)['"]/);
-    if (idMatch) {
-      names[idMatch[1]] = nameArMatch ? nameArMatch[1] : (nameMatch ? nameMatch[1] : idMatch[1]);
-    }
+  // Only parse within the peptides array (between 'export const peptides' and 'const STRUCTURED_DATA')
+  const peptidesStart = content.indexOf('export const peptides: Peptide[] = [');
+  const peptidesEnd = content.indexOf('const STRUCTURED_DATA');
+  if (peptidesStart === -1 || peptidesEnd === -1) return names;
+  const section = content.slice(peptidesStart, peptidesEnd);
+  // Match objects that have both id and nameAr (peptide entries, not categories)
+  const idMatches = [...section.matchAll(/id:\s*['"]([^'"]+)['"]/g)];
+  const nameArMatches = [...section.matchAll(/nameAr:\s*['"]([^'"]+)['"]/g)];
+  // Pair them: each peptide object has id followed by nameAr
+  for (let i = 0; i < idMatches.length && i < nameArMatches.length; i++) {
+    names[idMatches[i][1]] = nameArMatches[i][1];
   }
   return names;
 }
