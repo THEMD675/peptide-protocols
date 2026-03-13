@@ -57,6 +57,11 @@ export const DOSE_PRESETS: DosePreset[] = [
   { name: 'NA-Semax-Amidate', dose: 400, unit: 'mcg', vialMg: 5, waterMl: 1, minDose: 200, maxDose: 1000 },
   { name: 'Testicular Bioregulators', dose: 10, unit: 'mg', vialMg: 20, waterMl: 1, minDose: 10, maxDose: 20 },
   { name: 'Copper Peptides Topical', dose: 200, unit: 'mcg', vialMg: 5, waterMl: 2, minDose: 100, maxDose: 500 },
+  { name: 'Humanin', dose: 200, unit: 'mcg', vialMg: 5, waterMl: 2, minDose: 100, maxDose: 500 },
+  { name: 'MK-677', dose: 25, unit: 'mg', vialMg: 25, waterMl: 0, minDose: 10, maxDose: 50 }, // oral — no reconstitution
+  { name: 'Oxytocin', dose: 10, unit: 'mcg', vialMg: 5, waterMl: 2, minDose: 5, maxDose: 20 },
+  { name: 'SNAP-8', dose: 10, unit: 'mcg', vialMg: 5, waterMl: 2, minDose: 5, maxDose: 50 }, // topical/cosmetic
+  { name: 'VIP', dose: 50, unit: 'mcg', vialMg: 5, waterMl: 2, minDose: 25, maxDose: 100 },
 ];
 
 const PT141_PRESET = DOSE_PRESETS.find(p => p.name === 'PT-141');

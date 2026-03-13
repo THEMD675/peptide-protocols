@@ -230,7 +230,7 @@ function MultiSelect({
       {open && (
         <>
           <div className="fixed inset-0 z-40" onClick={() => setOpen(false)} />
-          <div className="absolute start-0 top-full z-50 mt-1 w-56 rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-900 p-2 shadow-xl">
+          <div className="absolute start-0 top-full z-50 mt-1 w-[calc(100vw-2rem)] sm:w-56 max-w-56 rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-900 p-2 shadow-xl">
             {options.map((opt) => (
               <label
                 key={opt.value}
