@@ -18,7 +18,7 @@
 2. Health check sends alert email on failure to contact@pptides.com
 3. Run health check on schedule (set up cron in Supabase dashboard)
 4. Admin dashboard shows real-time user count, MRR, errors
-5. Sentry code ready but NOT ACTIVE — requires VITE_SENTRY_DSN env var in Vercel dashboard
+5. Sentry fully removed — error tracking via console.error only (no external dependency)
 6. Edge function errors logged with structured JSON format
 7. Stripe webhook failures return 500 so Stripe retries
 8. Payment polling has 20-attempt timeout with support email fallback
@@ -55,7 +55,7 @@
 37. OG image and meta tags on all pages
 38. favicon, apple-touch-icon, PWA icons all pptides branded
 39. Google Fonts loaded with display=swap (no FOIT)
-40. Build chunks: vendor, supabase, ui, sentry (optimal splitting)
+40. Build chunks: vendor, supabase, ui, recharts, html2canvas, joyride (optimal splitting)
 
 ### LIVE TEST CHECKLIST (https://pptides.com)
 - [ ] Landing, Library, Pricing load
