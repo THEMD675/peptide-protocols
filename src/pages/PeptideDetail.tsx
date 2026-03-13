@@ -74,6 +74,9 @@ export default function PeptideDetail() {
       <div className="flex min-h-[50vh] flex-col items-center justify-center px-6 text-center">
         <Helmet>
           <title>الببتيد غير موجود | pptides</title>
+          <meta name="description" content="لم يتم العثور على هذا الببتيد — تصفّح مكتبة الببتيدات العلاجية" />
+          <meta property="og:title" content="الببتيد غير موجود | pptides" />
+          <meta property="og:description" content="لم يتم العثور على هذا الببتيد — تصفّح مكتبة الببتيدات العلاجية" />
           <meta name="robots" content="noindex" />
         </Helmet>
         <h1 className="mb-3 text-2xl font-bold text-stone-900 dark:text-stone-100">الببتيد غير موجود</h1>

@@ -73,7 +73,12 @@ export default function TrackerForm({
         sessionStorage.setItem('pptides_tracker_form_draft', JSON.stringify({
           peptide: peptideName, dose, unit, site, notes,
         }));
-      } catch (e) { console.warn('tracker draft failed:', e); }
+      } catch (e) {
+        if (e instanceof DOMException && e.name === 'QuotaExceededError') {
+          try { sessionStorage.removeItem('pptides_tracker_form_draft'); } catch { /* ignore */ }
+        }
+        console.warn('tracker draft failed:', e);
+      }
     }
   }, [peptideName, dose, unit, site, notes]);
 
@@ -257,6 +262,8 @@ export default function TrackerForm({
             >
               <option value="mcg">مايكروغرام</option>
               <option value="mg">ملغ</option>
+              <option value="iu">وحدة دولية</option>
+              <option value="ml">مل</option>
             </select>
           </div>
         </div>

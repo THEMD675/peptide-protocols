@@ -62,7 +62,7 @@ export default function NotFound() {
         dir="ltr"
       >
         <span aria-hidden="true">pp</span>
-        <span className="text-emerald-700" aria-hidden="true">tides</span>
+        <span className="text-emerald-700 dark:text-emerald-400" aria-hidden="true">tides</span>
       </Link>
 
       {/* 404 Heading */}

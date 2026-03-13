@@ -129,7 +129,7 @@ export default function PaymentProcessing() {
           <>
             <div className="mx-auto mb-6">
               <div className="text-2xl font-bold tracking-tight text-stone-900 dark:text-stone-100" dir="ltr">
-                <span aria-hidden="true">pp</span><span className="text-emerald-700" aria-hidden="true">tides</span>
+                <span aria-hidden="true">pp</span><span className="text-emerald-700 dark:text-emerald-400" aria-hidden="true">tides</span>
               </div>
             </div>
             <h2 className="text-xl font-bold text-stone-900 dark:text-stone-100">لم نتمكن من التأكد من الدفع</h2>
@@ -143,7 +143,7 @@ export default function PaymentProcessing() {
           <>
             <div className="mx-auto mb-6">
               <div className="text-2xl font-bold tracking-tight text-stone-900 dark:text-stone-100" dir="ltr">
-                <span aria-hidden="true">pp</span><span className="text-emerald-700" aria-hidden="true">tides</span>
+                <span aria-hidden="true">pp</span><span className="text-emerald-700 dark:text-emerald-400" aria-hidden="true">tides</span>
               </div>
             </div>
             <Loader2 className="mx-auto mb-4 h-10 w-10 animate-spin text-emerald-700" />

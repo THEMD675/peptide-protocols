@@ -4,7 +4,9 @@ import { toast } from 'sonner';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
 
-const PUSH_SUPPORTED = typeof window !== 'undefined' && 'PushManager' in window;
+const PUSH_SUPPORTED = typeof window !== 'undefined' && 'PushManager' in window &&
+  // iOS Safari only supports push in standalone (Add to Home Screen) mode, not regular browser
+  !(('standalone' in navigator) && !(navigator as { standalone?: boolean }).standalone);
 
 export default function PushNotificationPrompt() {
   const { user, subscription } = useAuth();

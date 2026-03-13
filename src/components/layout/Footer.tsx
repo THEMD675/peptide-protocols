@@ -16,7 +16,7 @@ export default memo(function Footer() {
         <div className="grid gap-8 md:grid-cols-4">
           <div>
             <p className="text-lg font-bold text-stone-900 dark:text-stone-100" dir="ltr" role="img" aria-label="pptides">
-              <span aria-hidden="true">pp</span><span className="text-emerald-700" aria-hidden="true">tides</span>
+              <span aria-hidden="true">pp</span><span className="text-emerald-700 dark:text-emerald-400" aria-hidden="true">tides</span>
             </p>
             <p className="mt-2 text-sm text-stone-600 dark:text-stone-300 leading-relaxed">
               أشمل دليل عربي للببتيدات العلاجية. {PEPTIDE_COUNT}+ ببتيد مع بروتوكولات كاملة.
@@ -83,7 +83,7 @@ export default memo(function Footer() {
 
         <div className="mt-12 border-t border-stone-200 dark:border-stone-700 pt-8 text-center">
           <p className="text-xs text-stone-500 dark:text-stone-300">
-            <span dir="ltr" className="inline" role="img" aria-label="pptides"><span aria-hidden="true">pp</span><span className="text-emerald-700" aria-hidden="true">tides</span></span> — جميع الحقوق محفوظة © {new Date().getFullYear()}
+            <span dir="ltr" className="inline" role="img" aria-label="pptides"><span aria-hidden="true">pp</span><span className="text-emerald-700 dark:text-emerald-400" aria-hidden="true">tides</span></span> — جميع الحقوق محفوظة © {new Date().getFullYear()}
           </p>
           <p className="mt-2 text-sm text-stone-500 dark:text-stone-300 leading-relaxed">
             هذا المحتوى تعليمي ولا يُعدّ بديلًا عن الاستشارة الطبية. استشر طبيبك قبل استخدام أي ببتيد.
