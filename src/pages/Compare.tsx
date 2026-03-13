@@ -595,6 +595,24 @@ export default function Compare() {
             >
               فحص التعارضات بين هذه الببتيدات
             </Link>
+            <Link
+              to={`/calculator?preset=${encodeURIComponent(selectedPeptides[0]?.nameEn ?? '')}`}
+              className="inline-flex items-center gap-2 rounded-xl border border-stone-200 dark:border-stone-700 px-6 py-3 text-sm font-bold text-stone-700 dark:text-stone-200 hover:bg-stone-50 dark:hover:bg-stone-800 transition-colors"
+            >
+              احسب الجرعة
+            </Link>
+            <Link
+              to={`/coach?q=${encodeURIComponent(`قارنت بين ${selectedPeptides.map(p => p.nameAr).join(' و ')} — أيهم أنسب لي؟`)}`}
+              className="inline-flex items-center gap-2 rounded-xl border border-stone-200 dark:border-stone-700 px-6 py-3 text-sm font-bold text-stone-700 dark:text-stone-200 hover:bg-stone-50 dark:hover:bg-stone-800 transition-colors"
+            >
+              اسأل المدرب
+            </Link>
+            <Link
+              to="/tracker"
+              className="inline-flex items-center gap-2 rounded-xl border border-stone-200 dark:border-stone-700 px-6 py-3 text-sm font-bold text-stone-700 dark:text-stone-200 hover:bg-stone-50 dark:hover:bg-stone-800 transition-colors"
+            >
+              سجّل حقنة
+            </Link>
           </div>
         </div>
       ) : (

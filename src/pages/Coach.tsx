@@ -332,6 +332,7 @@ export default function Coach() {
   });
 
   // Track current conversation row ID for multi-conversation support
+  const saveFailedRef = useRef(false);
   const [conversationId, setConversationId] = useState<string | null>(null);
   const [convLoadError, setConvLoadError] = useState(false);
   const [isLoadingConversation, setIsLoadingConversation] = useState(false);
@@ -402,27 +403,33 @@ export default function Coach() {
         try { localStorage.setItem(storageKey, JSON.stringify({ messages: trimmed, intake })); } catch { /* give up */ }
       }
     }
-    // Fire-and-forget save to Supabase for cross-device sync (multi-conversation)
+    // Save to Supabase — warn user on failure so they know data is only in localStorage
     if (user?.id && cleanMessages.length > 0) {
+      const onSaveError = () => {
+        if (!saveFailedRef.current) {
+          saveFailedRef.current = true;
+          toast.warning('تعذّر حفظ المحادثة على الخادم — بياناتك محفوظة محليًا فقط. لا تمسح بيانات المتصفح.', { duration: 8000 });
+        }
+      };
       if (conversationId) {
-        // Update existing conversation row
         supabase
           .from('coach_conversations')
           .update({ messages: cleanMessages, updated_at: new Date().toISOString() })
           .eq('id', conversationId)
-          .then(() => {})
-          .catch(() => { /* cross-device sync failed — non-critical */ });
+          .then(({ error }) => { if (error) onSaveError(); else saveFailedRef.current = false; })
+          .catch(onSaveError);
       } else {
-        // Insert new conversation row
         supabase
           .from('coach_conversations')
           .insert({ user_id: user.id, messages: cleanMessages, updated_at: new Date().toISOString() })
           .select('id')
           .single()
-          .then(({ data }) => {
+          .then(({ data, error }) => {
+            if (error) { onSaveError(); return; }
             if (data?.id) setConversationId(data.id);
+            saveFailedRef.current = false;
           })
-          .catch(() => { /* cross-device sync failed — non-critical */ });
+          .catch(onSaveError);
       }
     }
   }, [messages, intake, storageKey, isLoading, user?.id]);

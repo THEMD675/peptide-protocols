@@ -5,7 +5,7 @@ import { Link, useSearchParams } from 'react-router-dom';
 import {
   MessageSquare, Send, Clock, FlaskConical, Flag, Star, MessageCircle,
   Trash2, BadgeCheck, ThumbsUp, Search, X, Trophy,
-  Sparkles, Loader2, Shield, Users, FlaskRound,
+  Sparkles, Loader2, Shield, Users, FlaskRound, Pencil,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { useAuth } from '@/contexts/AuthContext';
@@ -422,6 +422,58 @@ export default function Community() {
   const [replyText, setReplyText] = useState<Record<string, string>>({});
   const [submittingReply, setSubmittingReply] = useState<Set<string>>(new Set());
   const PAGE_SIZE = 50;
+
+  // Post edit/delete state
+  const [deletingPostId, setDeletingPostId] = useState<string | null>(null);
+  const [editingPostId, setEditingPostId] = useState<string | null>(null);
+  const [editResults, setEditResults] = useState('');
+  const [editSaving, setEditSaving] = useState(false);
+
+  const deletePost = useCallback(async (postId: string) => {
+    if (!user) return;
+    const prev = logs;
+    setLogs(l => l.filter(x => x.id !== postId));
+    setDeletingPostId(null);
+    const { error } = await supabase
+      .from('community_logs')
+      .delete()
+      .eq('id', postId)
+      .eq('user_id', user.id);
+    if (error) {
+      setLogs(prev);
+      toast.error('تعذّر حذف المشاركة');
+    } else {
+      toast.success('تم حذف المشاركة');
+    }
+  }, [user, logs]);
+
+  const startEditPost = useCallback((log: LogEntry) => {
+    setEditingPostId(log.id);
+    setEditResults(log.results);
+  }, []);
+
+  const saveEditPost = useCallback(async () => {
+    if (!user || !editingPostId || editSaving) return;
+    const trimmed = sanitizeInput(editResults.trim(), 2000);
+    if (!trimmed) { toast.error('النص مطلوب'); return; }
+    setEditSaving(true);
+    const prev = logs;
+    setLogs(l => l.map(x => x.id === editingPostId ? { ...x, results: trimmed } : x));
+    const { error } = await supabase
+      .from('community_logs')
+      .update({ results: trimmed })
+      .eq('id', editingPostId)
+      .eq('user_id', user.id);
+    if (error) {
+      setLogs(prev);
+      toast.error('تعذّر تعديل المشاركة');
+    } else {
+      toast.success('تم تعديل المشاركة');
+      setEditingPostId(null);
+      setEditResults('');
+    }
+    setEditSaving(false);
+  }, [user, editingPostId, editResults, editSaving, logs]);
 
   // Form state
   const DRAFT_KEY = 'pptides_community_draft';
@@ -1204,9 +1256,52 @@ export default function Community() {
                             <span className="text-xs text-stone-500 dark:text-stone-300">{relativeTimeAr(log.created_at)}</span>
                           </div>
                         </div>
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-1">
                           <StarRating rating={log.rating} />
-                          {!isSeed && (
+                          {/* Author actions: edit (24h) + delete */}
+                          {!isSeed && user && user.id === log.user_id && (
+                            <>
+                              {Date.now() - new Date(log.created_at).getTime() < 24 * 60 * 60 * 1000 && (
+                                <button
+                                  type="button"
+                                  onClick={() => startEditPost(log)}
+                                  className="rounded-lg p-2.5 min-h-[44px] min-w-[44px] text-stone-300 hover:text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 transition-colors"
+                                  aria-label="تعديل المشاركة"
+                                >
+                                  <Pencil className="h-3.5 w-3.5" />
+                                </button>
+                              )}
+                              {deletingPostId === log.id ? (
+                                <div className="flex items-center gap-1">
+                                  <button
+                                    type="button"
+                                    onClick={() => deletePost(log.id)}
+                                    className="rounded-lg px-2.5 py-1.5 min-h-[44px] text-xs font-bold text-red-600 bg-red-50 dark:bg-red-900/20 hover:bg-red-100 dark:hover:bg-red-900/30 transition-colors"
+                                  >
+                                    تأكيد الحذف
+                                  </button>
+                                  <button
+                                    type="button"
+                                    onClick={() => setDeletingPostId(null)}
+                                    className="rounded-lg px-2.5 py-1.5 min-h-[44px] text-xs font-bold text-stone-500 hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors"
+                                  >
+                                    إلغاء
+                                  </button>
+                                </div>
+                              ) : (
+                                <button
+                                  type="button"
+                                  onClick={() => setDeletingPostId(log.id)}
+                                  className="rounded-lg p-2.5 min-h-[44px] min-w-[44px] text-stone-300 hover:text-red-500 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
+                                  aria-label="حذف المشاركة"
+                                >
+                                  <Trash2 className="h-3.5 w-3.5" />
+                                </button>
+                              )}
+                            </>
+                          )}
+                          {/* Report — for other users */}
+                          {!isSeed && (!user || user.id !== log.user_id) && (
                             <button
                               onClick={async () => {
                                 if (!user) { toast('سجّل الدخول للإبلاغ عن محتوى'); return; }
@@ -1289,26 +1384,56 @@ export default function Community() {
                       )}
 
                       {/* Results */}
-                      <div className="text-base leading-relaxed text-stone-900 dark:text-stone-100">
-                        {(() => {
-                          const isLong = (log.results?.length ?? 0) > 200;
-                          const isExpanded = expandedPosts.has(log.id);
-                          if (!isLong) return <p>{log.results}</p>;
-                          const display = isExpanded ? log.results : `${log.results!.slice(0, 200)}...`;
-                          return (
-                            <p className={!isExpanded ? 'line-clamp-4' : ''}>
-                              {display}
-                              <button
-                                type="button"
-                                onClick={() => toggleExpand(log.id)}
-                                className="me-2 font-bold text-emerald-700 hover:underline"
-                              >
-                                {isExpanded ? 'اقرأ أقل' : 'اقرأ المزيد'}
-                              </button>
-                            </p>
-                          );
-                        })()}
-                      </div>
+                      {editingPostId === log.id ? (
+                        <div className="space-y-2">
+                          <textarea
+                            value={editResults}
+                            onChange={e => setEditResults(e.target.value)}
+                            maxLength={2000}
+                            rows={4}
+                            aria-label="تعديل نص المشاركة"
+                            className="w-full resize-none rounded-xl border border-emerald-300 dark:border-emerald-700 bg-stone-50 dark:bg-stone-900 px-4 py-3 text-base text-stone-900 dark:text-stone-100 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-500"
+                          />
+                          <div className="flex items-center gap-2 justify-end">
+                            <button
+                              type="button"
+                              onClick={() => { setEditingPostId(null); setEditResults(''); }}
+                              className="rounded-lg px-4 py-2 min-h-[44px] text-sm font-bold text-stone-500 hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors"
+                            >
+                              إلغاء
+                            </button>
+                            <button
+                              type="button"
+                              onClick={saveEditPost}
+                              disabled={editSaving || !editResults.trim()}
+                              className="rounded-lg bg-emerald-600 px-4 py-2 min-h-[44px] text-sm font-bold text-white hover:bg-emerald-700 disabled:opacity-50 transition-colors"
+                            >
+                              {editSaving ? 'جارٍ الحفظ...' : 'حفظ التعديل'}
+                            </button>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="text-base leading-relaxed text-stone-900 dark:text-stone-100">
+                          {(() => {
+                            const isLong = (log.results?.length ?? 0) > 200;
+                            const isExpanded = expandedPosts.has(log.id);
+                            if (!isLong) return <p>{log.results}</p>;
+                            const display = isExpanded ? log.results : `${log.results!.slice(0, 200)}...`;
+                            return (
+                              <p className={!isExpanded ? 'line-clamp-4' : ''}>
+                                {display}
+                                <button
+                                  type="button"
+                                  onClick={() => toggleExpand(log.id)}
+                                  className="me-2 font-bold text-emerald-700 hover:underline"
+                                >
+                                  {isExpanded ? 'اقرأ أقل' : 'اقرأ المزيد'}
+                                </button>
+                              </p>
+                            );
+                          })()}
+                        </div>
+                      )}
 
                       {/* Footer: meta + actions */}
                       <div className="mt-4 flex items-center justify-between border-t border-stone-100 dark:border-stone-700 pt-3">

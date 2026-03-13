@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
-import { ChevronDown, ChevronUp, Loader2, Plus, Trash2, AlertTriangle, Search, TrendingUp } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { ChevronDown, ChevronUp, Loader2, Plus, Trash2, AlertTriangle, Search, TrendingUp, Bot } from 'lucide-react';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
@@ -438,6 +439,17 @@ export default function SideEffectLog() {
             </div>
           ) : (
             <p className="text-center text-xs text-stone-500 dark:text-stone-300 py-4">لا توجد أعراض مسجّلة</p>
+          )}
+
+          {/* Ask Coach CTA */}
+          {!loading && entries.length > 0 && (
+            <Link
+              to={`/coach?q=${encodeURIComponent('سجّلت أعراض جانبية — هل يجب أن أقلق أو أعدّل البروتوكول؟')}`}
+              className="flex items-center justify-center gap-2 rounded-xl border border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-900/10 px-4 py-3 text-sm font-bold text-amber-700 dark:text-amber-400 transition-colors hover:bg-amber-100 dark:hover:bg-amber-900/20"
+            >
+              <Bot className="h-4 w-4" />
+              اسأل المدرب عن أعراضك
+            </Link>
           )}
 
           {/* Correlation summary — group by peptide, show for 2+ */}

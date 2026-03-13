@@ -4,13 +4,14 @@ import {
   Loader2, FlaskConical, Plus, ChevronDown, ChevronUp,
   TrendingUp, Download, FileText, AlertTriangle,
   CheckCircle, Info, Calendar, Building2, X,
-  Syringe, Activity, Heart, Droplets, Flame, Droplet, Shield, Microscope
+  Syringe, Activity, Heart, Droplets, Flame, Droplet, Shield, Microscope, Bot
 } from 'lucide-react';
 import { toast } from 'sonner';
 import {
   Line, XAxis, YAxis, Tooltip, ResponsiveContainer,
   ReferenceArea, CartesianGrid, ComposedChart
 } from 'recharts';
+import { Link } from 'react-router-dom';
 import { cn, escapeHtml } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
@@ -1077,6 +1078,17 @@ export default function LabResultsTracker() {
                 <Info className="h-3 w-3 text-blue-400" /> اقتراح
               </div>
             </div>
+          )}
+
+          {/* Ask Coach CTA */}
+          {entries.length > 0 && (
+            <Link
+              to={`/coach?q=${encodeURIComponent('نتائج تحاليلي — هل هناك ما يقلق؟ وما الخطوة التالية؟')}`}
+              className="mt-4 flex items-center justify-center gap-2 rounded-xl border border-emerald-500/30 bg-emerald-500/5 px-4 py-3 text-sm font-bold text-emerald-400 transition-colors hover:bg-emerald-500/10"
+            >
+              <Bot className="h-4 w-4" />
+              اسأل المدرب عن نتائجك
+            </Link>
           )}
         </div>
       )}
