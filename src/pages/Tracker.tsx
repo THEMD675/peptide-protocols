@@ -194,10 +194,12 @@ export default function Tracker() {
         .order('logged_at', { ascending: false })
         .range(0, PAGE_SIZE - 1);
       if (error) { setFetchError(true); }
-      const rows = (data as InjectionLog[]) ?? [];
-      setLogs(rows);
-      if (count != null) setTotalCount(count);
-      setHasMore(rows.length >= PAGE_SIZE);
+      else {
+        const rows = (data as InjectionLog[]) ?? [];
+        setLogs(rows);
+        if (count != null) setTotalCount(count);
+        setHasMore(rows.length >= PAGE_SIZE);
+      }
     } catch { setFetchError(true); }
     finally { fetchingLogsRef.current = false; setIsLoadingLogs(false); }
   }, [user]);
@@ -205,6 +207,18 @@ export default function Tracker() {
   useEffect(() => {
     if (!user) return;
     fetchLogs().catch((e: unknown) => console.warn("silent catch:", e));
+    // 31.7: Safety timeout — force error state if loading hangs beyond 30s
+    const loadingTimeout = setTimeout(() => {
+      if (fetchingLogsRef.current) {
+        fetchingLogsRef.current = false;
+        setIsLoadingLogs(false);
+        setFetchError(true);
+      }
+    }, 30_000);
+    // 31.3: Auto-retry on network reconnection
+    const onOnline = () => { fetchLogs().catch(() => {}); };
+    window.addEventListener('pptides:online', onOnline);
+    return () => { clearTimeout(loadingTimeout); window.removeEventListener('pptides:online', onOnline); };
   }, [user, fetchLogs]);
 
   const fetchMore = async () => {

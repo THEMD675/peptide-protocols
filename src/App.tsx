@@ -216,6 +216,7 @@ function OfflineBanner() {
     const goOnline = () => {
       setOffline(false);
       navigator.serviceWorker?.controller?.postMessage({ type: 'ONLINE' });
+      window.dispatchEvent(new CustomEvent('pptides:online'));
     };
     window.addEventListener('offline', goOffline);
     window.addEventListener('online', goOnline);

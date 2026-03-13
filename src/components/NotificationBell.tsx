@@ -47,20 +47,54 @@ export default function NotificationBell() {
     return () => { mounted = false; };
   }, [user]);
 
-  // Real-time subscription
+  // Real-time subscription with reconnection handling
   useEffect(() => {
     if (!user?.id) return;
+    let pollTimer: ReturnType<typeof setInterval> | null = null;
+    const userId = user.id;
+
+    const refetch = () => {
+      supabase
+        .from('notifications')
+        .select('id, type, title_ar, body_ar, read, created_at')
+        .eq('user_id', userId)
+        .order('created_at', { ascending: false })
+        .limit(20)
+        .then(({ data }) => { if (data) setNotifications(data as Notification[]); })
+        .catch(() => {});
+    };
+
     const channel = supabase
-      .channel(`notifications:${user.id}`)
+      .channel(`notifications:${userId}`)
       .on(
         'postgres_changes',
-        { event: 'INSERT', schema: 'public', table: 'notifications', filter: `user_id=eq.${user.id}` },
+        { event: 'INSERT', schema: 'public', table: 'notifications', filter: `user_id=eq.${userId}` },
         (payload) => {
           setNotifications(prev => [payload.new as Notification, ...prev]);
         },
       )
-      .subscribe();
-    return () => { supabase.removeChannel(channel); };
+      .subscribe((status) => {
+        if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT') {
+          // Start fallback polling on disconnect
+          if (!pollTimer) {
+            pollTimer = setInterval(refetch, 30_000);
+          }
+        } else if (status === 'SUBSCRIBED') {
+          // Connected — stop polling and refetch to catch missed notifications
+          if (pollTimer) { clearInterval(pollTimer); pollTimer = null; }
+          refetch();
+        }
+      });
+
+    // Also refetch when network comes back online
+    const onOnline = () => refetch();
+    window.addEventListener('pptides:online', onOnline);
+
+    return () => {
+      supabase.removeChannel(channel);
+      if (pollTimer) clearInterval(pollTimer);
+      window.removeEventListener('pptides:online', onOnline);
+    };
   }, [user]);
 
   // Close on outside click

@@ -364,7 +364,7 @@ export default function Coach() {
     supabaseLoadedRef.current = true;
     loadConversations();
   }, [user?.id, loadConversations]);
-  const DRAFT_KEY = 'pptides_coach_draft';
+  const DRAFT_KEY = `pptides_coach_draft_${user?.id ?? 'anon'}`;
   const DEEPSEEK_CONSENT_KEY = 'pptides_deepseek_consent';
   const [showDeepSeekConsent, setShowDeepSeekConsent] = useState(() => {
     try { return localStorage.getItem(DEEPSEEK_CONSENT_KEY) !== 'true'; } catch { return true; }
@@ -461,6 +461,7 @@ export default function Coach() {
   const normalizeDigits = (s: string) => s.replace(/[٠-٩]/g, d => String('٠١٢٣٤٥٦٧٨٩'.indexOf(d)));
 
   const abortRef = useRef<AbortController | null>(null);
+  const messageSeqRef = useRef(0);
   useEffect(() => () => { abortRef.current?.abort(); if (countdownRef.current) clearInterval(countdownRef.current); }, []);
 
   const setConsentGiven = useCallback(() => {
@@ -477,6 +478,7 @@ export default function Coach() {
     abortRef.current?.abort();
     const controller = new AbortController();
     abortRef.current = controller;
+    const seq = ++messageSeqRef.current;
     const userMsg: ChatMessage = { role: 'user', content: trimmed, timestamp: Date.now() };
     const updated = [...messagesRef.current, userMsg];
     setMessages(updated);
@@ -533,6 +535,7 @@ export default function Coach() {
 
       let streamDone = false;
       while (!streamDone) {
+        if (messageSeqRef.current !== seq) break; // New message sent, drop stale stream
         const { done, value } = await reader.read();
         if (done) break;
         buffer += decoder.decode(value, { stream: true });
