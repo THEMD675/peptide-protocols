@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { supabase } from '@/lib/supabase';
 import { SUPPORT_EMAIL } from '@/lib/constants';
-import { Sentry } from '@/lib/sentry';
 import { events } from '@/lib/analytics';
 import type { User as SupabaseUser, Session } from '@supabase/supabase-js';
 
@@ -225,7 +224,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           return;
         }
         // Non-JWT error — keep previous state, increment failure counter
-        Sentry.captureException(error);
+        console.error(error);
         subFetchFailCountRef.current += 1;
         toast.error('تعذّر تحديث حالة الاشتراك');
         if (subFetchFailCountRef.current >= 3) {
@@ -238,7 +237,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       subFetchFailCountRef.current = 0;
       setSubscription(buildSubscription(data));
     } catch (err) {
-      Sentry.captureException(err);
+      console.error(err);
       subFetchFailCountRef.current += 1;
       toast.error('تعذّر تحديث حالة الاشتراك');
       if (subFetchFailCountRef.current >= 3) {

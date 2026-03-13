@@ -7,10 +7,6 @@ const Analytics = lazy(() => import('@vercel/analytics/react').then(m => ({ defa
 const SpeedInsights = lazy(() => import('@vercel/speed-insights/react').then(m => ({ default: m.SpeedInsights })));
 import { SITE_URL, STORAGE_KEYS } from '@/lib/constants';
 import { events } from '@/lib/analytics';
-// Lazy-load Sentry to keep it out of the critical JS bundle
-const lazySentryCapture = (error: Error, ctx?: Record<string, unknown>) => {
-  import('@sentry/react').then(S => S.captureException(error, ctx)).catch(() => {});
-};
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import BottomNav from '@/components/layout/BottomNav';
@@ -92,8 +88,7 @@ class ErrorBoundary extends Component<{ children: ReactNode }, { hasError: boole
         sessionStorage.removeItem('pptides_chunk_reload');
       } catch { /* Safari private mode */ }
     }
-    // Report to Sentry
-    lazySentryCapture(error, { contexts: { react: { componentStack: errorInfo.componentStack } } });
+    console.error('[ErrorBoundary]', error);
   }
   render() {
     if (this.state.hasError) {
@@ -136,7 +131,7 @@ class RouteErrorBoundary extends Component<
     return { hasError: true, error };
   }
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
-    lazySentryCapture(error, { contexts: { react: { componentStack: errorInfo.componentStack } } });
+    console.error('[RouteErrorBoundary]', error);
   }
   reset = () => this.setState(prev => ({ hasError: false, error: null, retryCount: prev.retryCount + 1 }));
   render() {

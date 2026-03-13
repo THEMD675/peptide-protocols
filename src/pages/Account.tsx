@@ -12,7 +12,6 @@ import { SUPPORT_EMAIL, STATUS_LABELS, TIER_LABELS, SITE_URL, PRICING } from '@/
 import { useTheme } from '@/hooks/useTheme';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
-import { Sentry } from '@/lib/sentry';
 import { events } from '@/lib/analytics';
 import { REFERRAL, RETENTION } from '@/constants/sales-copy';
 import { COOKIE_CONSENT_STORAGE_KEY } from '@/lib/cookie-utils';
@@ -357,7 +356,7 @@ export default function Account() {
       setExportProgress(null);
       toast.success('تم تصدير بياناتك بنجاح');
     } catch (err) {
-      Sentry.captureException(err);
+      console.error(err);
       setExportProgress(null);
       toast.error('تعذّر تصدير البيانات. حاول مرة أخرى.');
     }
@@ -391,7 +390,7 @@ export default function Account() {
       await refreshSubscription();
       navigate('/account', { replace: true });
     } catch (err) {
-      Sentry.captureException(err);
+      console.error(err);
       toast.error(`تعذّر إلغاء الاشتراك — تواصل معنا: ${SUPPORT_EMAIL}`);
     } finally {
       setIsProcessing(false);

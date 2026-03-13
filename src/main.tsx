@@ -6,16 +6,6 @@ import './index.css';
 import { migrateQuizStorage } from '@/lib/quiz-migration';
 import { hasOptionalConsent } from '@/lib/cookie-utils';
 
-// Defer Sentry init to after first paint, gated behind cookie consent
-if (import.meta.env.PROD && hasOptionalConsent()) {
-  const initSentryDeferred = () => import('@/lib/sentry').then(({ initSentry }) => initSentry());
-  if ('requestIdleCallback' in window) {
-    requestIdleCallback(initSentryDeferred);
-  } else {
-    setTimeout(initSentryDeferred, 2000);
-  }
-}
-
 // Migrate old quiz/onboarding localStorage keys to unified key
 migrateQuizStorage();
 

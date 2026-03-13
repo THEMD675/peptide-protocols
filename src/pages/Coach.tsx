@@ -11,7 +11,6 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { events } from '@/lib/analytics';
-import { Sentry } from '@/lib/sentry';
 import { cn, arPlural } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
 import { SITE_URL, PRICING, TRIAL_DAYS } from '@/lib/constants';
@@ -353,7 +352,7 @@ export default function Coach() {
           setIntakeStep('done');
         }
       })
-      .catch((err) => { Sentry.captureException(err); setConvLoadError(true); });
+      .catch((err) => { console.error(err); setConvLoadError(true); });
   }, [user?.id]);
 
   // Reset supabaseLoadedRef when user changes (re-login)
@@ -574,7 +573,7 @@ export default function Coach() {
         });
       }
     } catch (err) {
-      Sentry.captureException(err);
+      console.error(err);
       const msg = err instanceof Error ? err.message : '';
       const statusMatch = msg.match(/^(\d+)/);
       const status = statusMatch ? statusMatch[1] : '';

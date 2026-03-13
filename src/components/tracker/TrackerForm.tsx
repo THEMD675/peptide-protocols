@@ -2,7 +2,6 @@ import { useState, useEffect, useRef } from 'react';
 import { Loader2, Camera } from 'lucide-react';
 import { toast } from 'sonner';
 import { cn, sanitizeInput } from '@/lib/utils';
-import { Sentry } from '@/lib/sentry';
 import { supabase } from '@/lib/supabase';
 import { peptidesLite as allPeptides } from '@/data/peptides-lite';
 import { DOSE_PRESETS_MAP } from '@/data/dose-presets';
@@ -194,7 +193,7 @@ export default function TrackerForm({
       celebrate(newTotal, computeStreak());
       onCancel(); // close form
     } catch (err) {
-      Sentry.captureException(err);
+      console.error(err);
       toast.error('تعذّر حفظ الحقنة — تحقق من اتصالك وحاول مرة أخرى', {
         action: { label: 'أعد المحاولة', onClick: () => formRef.current?.requestSubmit() },
       });
