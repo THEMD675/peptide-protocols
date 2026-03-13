@@ -33,6 +33,27 @@ const PAGE_INDEX = [
 const normalize = (s: string) =>
   s.replace(/[\u064B-\u065F\u0670]/g, '').toLowerCase();
 
+/** Normalize for fuzzy matching: strip hyphens, spaces, dashes for "bpc157" → "bpc157" matching "bpc-157" */
+const fuzzyNorm = (s: string) =>
+  normalize(s).replace(/[-\s_.]/g, '');
+
+/** Normalize Arabic alef/hamza variants: أ إ آ ا → ا */
+const normalizeAlef = (s: string) =>
+  s.replace(/[أإآ]/g, 'ا');
+
+/** Check if query matches text with fuzzy rules */
+const fuzzyMatch = (text: string, query: string): boolean => {
+  // Exact substring match (existing behavior)
+  const nText = normalize(text);
+  const nQuery = normalize(query);
+  if (nText.includes(nQuery)) return true;
+  // Fuzzy: strip hyphens/spaces (bpc157 matches bpc-157)
+  if (fuzzyNorm(text).includes(fuzzyNorm(query))) return true;
+  // Arabic alef normalization
+  if (normalizeAlef(nText).includes(normalizeAlef(nQuery))) return true;
+  return false;
+};
+
 type ResultItem =
   | { type: 'peptide'; data: PeptideSearchEntry }
   | { type: 'glossary'; data: GlossaryTerm }
@@ -105,18 +126,18 @@ export default function GlobalSearch({ open, onClose }: Props) {
 
     const items: ResultItem[] = [];
 
-    // peptides
+    // peptides — fuzzy match (handles bpc157 → BPC-157, Arabic alef variants)
     const peps = peptideSearchIndex.filter(
-      (p) => normalize(p.nameAr).includes(q) || p.nameEn.toLowerCase().includes(q)
+      (p) => fuzzyMatch(p.nameAr, query) || fuzzyMatch(p.nameEn, query)
     );
     for (const p of peps.slice(0, 5)) items.push({ type: 'peptide', data: p });
 
     // glossary
     const terms = GLOSSARY_TERMS.filter(
       (t) =>
-        normalize(t.ar).includes(q) ||
-        t.en.toLowerCase().includes(q) ||
-        normalize(t.definition).includes(q)
+        fuzzyMatch(t.ar, query) ||
+        fuzzyMatch(t.en, query) ||
+        fuzzyMatch(t.definition, query)
     );
     for (const t of terms.slice(0, 4)) items.push({ type: 'glossary', data: t });
 
@@ -126,8 +147,8 @@ export default function GlobalSearch({ open, onClose }: Props) {
     // pages
     const pages = PAGE_INDEX.filter(
       (p) =>
-        normalize(p.label).includes(q) ||
-        normalize(p.desc).includes(q) ||
+        fuzzyMatch(p.label, query) ||
+        fuzzyMatch(p.desc, query) ||
         p.to.toLowerCase().includes(q)
     );
     for (const p of pages.slice(0, 4)) items.push({ type: 'page', data: p });

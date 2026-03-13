@@ -508,7 +508,7 @@ export default function PeptideTable() {
               {showColPicker && (
                 <>
                   <div className="fixed inset-0 z-40" onClick={() => setShowColPicker(false)} />
-                  <div className="absolute start-0 top-full z-50 mt-1 w-56 rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-900 p-2 shadow-xl">
+                  <div className="absolute start-0 top-full z-50 mt-1 w-56 max-w-[calc(100vw-2rem)] rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-900 p-2 shadow-xl">
                     {ALL_COLUMNS.map((col) => (
                       <label
                         key={col.key}

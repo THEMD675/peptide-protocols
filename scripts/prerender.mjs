@@ -59,6 +59,30 @@ function extractPeptideIds() {
   return [...new Set(matches.map((m) => m[1]))];
 }
 
+/** Fetch published blog post slugs from Supabase for prerendering */
+async function fetchBlogSlugs() {
+  try {
+    const url = process.env.VITE_SUPABASE_URL;
+    const key = process.env.VITE_SUPABASE_ANON_KEY;
+    if (!url || !key) {
+      console.log('  Supabase env vars not set — skipping blog prerender');
+      return [];
+    }
+    const res = await fetch(`${url}/rest/v1/blog_posts?select=slug&is_published=eq.true`, {
+      headers: { apikey: key, Authorization: `Bearer ${key}` },
+    });
+    if (!res.ok) {
+      console.warn(`  Blog fetch failed (${res.status}) — skipping blog prerender`);
+      return [];
+    }
+    const posts = await res.json();
+    return posts.map((p) => p.slug).filter(Boolean);
+  } catch (err) {
+    console.warn('  Blog slug fetch error — skipping blog prerender:', err.message);
+    return [];
+  }
+}
+
 /** Serve dist/ on a random port and return { server, port } */
 function startServer() {
   return new Promise((resolve) => {
@@ -98,9 +122,11 @@ async function main() {
 
   // Collect all routes
   const peptideIds = extractPeptideIds();
+  const blogSlugs = await fetchBlogSlugs();
   const routes = [
     ...STATIC_ROUTES,
     ...peptideIds.map((id) => `/peptide/${id}`),
+    ...blogSlugs.map((slug) => `/blog/${slug}`),
   ];
 
   console.log(`Prerendering ${routes.length} routes...`);
