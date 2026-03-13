@@ -45,7 +45,7 @@ export default function NotificationBell() {
       })
       .catch(e => console.error('notifications fetch failed:', e));
     return () => { mounted = false; };
-  }, [user]);
+  }, [user?.id]);
 
   // Real-time subscription with reconnection handling
   useEffect(() => {
@@ -70,7 +70,11 @@ export default function NotificationBell() {
         'postgres_changes',
         { event: 'INSERT', schema: 'public', table: 'notifications', filter: `user_id=eq.${userId}` },
         (payload) => {
-          setNotifications(prev => [payload.new as Notification, ...prev]);
+          setNotifications(prev => {
+            const n = payload.new as Notification;
+            if (prev.some(p => p.id === n.id)) return prev;
+            return [n, ...prev];
+          });
         },
       )
       .subscribe((status) => {
@@ -95,7 +99,7 @@ export default function NotificationBell() {
       if (pollTimer) clearInterval(pollTimer);
       window.removeEventListener('pptides:online', onOnline);
     };
-  }, [user]);
+  }, [user?.id]);
 
   // Close on outside click
   useEffect(() => {
@@ -108,7 +112,7 @@ export default function NotificationBell() {
 
   const markAsRead = async (id: string) => {
     setNotifications(prev => prev.map(n => n.id === id ? { ...n, read: true } : n));
-    const { error } = await supabase.from('notifications').update({ read: true }).eq('id', id);
+    const { error } = await supabase.from('notifications').update({ read: true }).eq('id', id).eq('user_id', user!.id);
     if (error) console.error('notification mark-read failed:', error);
   };
 
