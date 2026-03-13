@@ -613,10 +613,14 @@ export default function LabResultsTracker() {
   const { user } = useAuth();
   const [entries, setEntries] = useState<LabEntry[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [hasMore, setHasMore] = useState(false);
   const [showForm, setShowForm] = useState(false);
   const [activeView, setActiveView] = useState<'results' | 'trends' | 'insights'>('results');
   const [expandedEntry, setExpandedEntry] = useState<string | null>(null);
   const [selectedBiomarker, setSelectedBiomarker] = useState<string | null>(null);
+
+  const PAGE_SIZE = 50;
 
   const fetchEntries = useCallback(async () => {
     if (!user) return;
@@ -627,16 +631,39 @@ export default function LabResultsTracker() {
         .select('id, user_id, test_date, lab_name, results, notes, created_at')
         .eq('user_id', user.id)
         .order('test_date', { ascending: false })
-        .limit(100);
+        .limit(PAGE_SIZE);
 
       if (error) { toast.error('تعذّر تحميل نتائج التحاليل'); }
-      else if (data) setEntries(data as LabEntry[]);
+      else if (data) {
+        setEntries(data as LabEntry[]);
+        setHasMore(data.length === PAGE_SIZE);
+      }
     } catch {
       toast.error('تعذّر تحميل نتائج التحاليل');
     } finally {
       setLoading(false);
     }
   }, [user]);
+
+  const loadMore = useCallback(async () => {
+    if (!user || loadingMore) return;
+    setLoadingMore(true);
+    try {
+      const { data, error } = await supabase
+        .from('lab_results')
+        .select('id, user_id, test_date, lab_name, results, notes, created_at')
+        .eq('user_id', user.id)
+        .order('test_date', { ascending: false })
+        .range(entries.length, entries.length + PAGE_SIZE - 1);
+
+      if (!error && data) {
+        setEntries(prev => [...prev, ...(data as LabEntry[])]);
+        setHasMore(data.length === PAGE_SIZE);
+      }
+    } catch { /* silent */ } finally {
+      setLoadingMore(false);
+    }
+  }, [user, entries.length, loadingMore]);
 
   useEffect(() => {
     fetchEntries();
@@ -774,10 +801,18 @@ export default function LabResultsTracker() {
           <Loader2 className="h-5 w-5 animate-spin text-emerald-500" />
         </div>
       ) : entries.length === 0 ? (
-        <div className="rounded-xl border-2 border-dashed border-stone-700 py-12 text-center">
-          <FlaskConical className="mx-auto mb-3 h-10 w-10 text-stone-600" />
-          <p className="text-sm font-bold text-stone-400">لا توجد نتائج مسجّلة</p>
-          <p className="mt-1 text-xs text-stone-400">سجّل أول تحليل لبدء تتبّع صحتك</p>
+        <div className="rounded-xl border-2 border-dashed border-emerald-700/50 bg-emerald-950/20 py-12 text-center">
+          <FlaskConical className="mx-auto mb-3 h-10 w-10 text-emerald-600" />
+          <p className="text-sm font-bold text-stone-300">لا توجد نتائج مسجّلة</p>
+          <p className="mt-1 text-xs text-stone-400 mb-4">سجّل أول تحليل لبدء تتبّع صحتك</p>
+          <button
+            type="button"
+            onClick={() => setShowForm(true)}
+            className="inline-flex items-center gap-2 rounded-xl bg-emerald-600 px-6 py-3 text-sm font-bold text-white transition-colors hover:bg-emerald-700"
+          >
+            <Plus className="h-4 w-4" />
+            أضف أول تحليل
+          </button>
         </div>
       ) : activeView === 'results' ? (
         /* ─── Results View ──────────────────────────────────────────── */
@@ -892,6 +927,16 @@ export default function LabResultsTracker() {
               </div>
             );
           })}
+          {hasMore && (
+            <button
+              type="button"
+              onClick={loadMore}
+              disabled={loadingMore}
+              className="w-full rounded-xl border border-stone-700 py-2.5 text-xs font-bold text-emerald-400 hover:bg-stone-800 transition-colors disabled:opacity-50"
+            >
+              {loadingMore ? <Loader2 className="mx-auto h-4 w-4 animate-spin" /> : 'تحميل المزيد'}
+            </button>
+          )}
         </div>
       ) : activeView === 'trends' ? (
         /* ─── Trends View ───────────────────────────────────────────── */

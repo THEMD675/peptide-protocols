@@ -1,5 +1,5 @@
-import { useState, useRef, useEffect } from 'react';
-import { Bell, FileText, Flame, Clock, Trophy, Bot } from 'lucide-react';
+import { useState, useRef, useEffect, useCallback } from 'react';
+import { Bell, FileText, Flame, Clock, Trophy, Bot, Loader2 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { supabase } from '@/lib/supabase';
@@ -28,9 +28,31 @@ export default function NotificationBell() {
   const { user } = useAuth();
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [open, setOpen] = useState(false);
+  const [hasMore, setHasMore] = useState(false);
+  const [loadingMore, setLoadingMore] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
+  const PAGE_SIZE = 20;
 
   const unreadCount = notifications.filter(n => !n.read).length;
+
+  const loadMore = useCallback(async () => {
+    if (!user?.id || loadingMore) return;
+    setLoadingMore(true);
+    try {
+      const { data } = await supabase
+        .from('notifications')
+        .select('id, type, title_ar, body_ar, read, created_at')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false })
+        .range(notifications.length, notifications.length + PAGE_SIZE - 1);
+      if (data) {
+        setNotifications(prev => [...prev, ...(data as Notification[])]);
+        setHasMore(data.length === PAGE_SIZE);
+      }
+    } catch { /* silent */ } finally {
+      setLoadingMore(false);
+    }
+  }, [user?.id, notifications.length, loadingMore]);
 
   useEffect(() => {
     if (!user?.id) return;
@@ -40,10 +62,13 @@ export default function NotificationBell() {
       .select('id, type, title_ar, body_ar, read, created_at')
       .eq('user_id', user.id)
       .order('created_at', { ascending: false })
-      .limit(20)
+      .limit(PAGE_SIZE)
       .then(({ data, error }) => {
         if (error) logError('notifications fetch failed:', error);
-        if (mounted && data) setNotifications(data as Notification[]);
+        if (mounted && data) {
+          setNotifications(data as Notification[]);
+          setHasMore(data.length === PAGE_SIZE);
+        }
       })
       .catch(e => logError('notifications fetch failed:', e));
     return () => { mounted = false; };
@@ -190,30 +215,42 @@ export default function NotificationBell() {
                 <p className="text-xs text-stone-500 dark:text-stone-300">سنعلمك بالتحديثات المهمة وتذكيرات الجرعات</p>
               </div>
             ) : (
-              notifications.map(n => (
-                <button
-                  key={n.id}
-                  onClick={() => { markAsRead(n.id); }}
-                  className={cn(
-                    'flex w-full gap-3 px-4 py-3 text-start transition-colors hover:bg-stone-50 dark:hover:bg-stone-800',
-                    !n.read && 'bg-emerald-50/50',
-                  )}
-                >
-                  {(() => { const Icon = TYPE_ICON[n.type] ?? Bell; return <Icon className="mt-0.5 h-5 w-5 shrink-0 text-stone-400" />; })()}
-                  <div className="min-w-0 flex-1">
-                    <p className={cn('text-sm', !n.read ? 'font-bold text-stone-900 dark:text-stone-100' : 'font-medium text-stone-700 dark:text-stone-200')}>
-                      {n.title_ar}
-                    </p>
-                    <p className="mt-0.5 text-xs text-stone-500 dark:text-stone-300 line-clamp-2">{n.body_ar}</p>
-                    <p className="mt-1 text-[10px] text-stone-400">
-                      {formatTimeAgo(n.created_at)}
-                    </p>
-                  </div>
-                  {!n.read && (
-                    <span className="mt-2 h-2 w-2 shrink-0 rounded-full bg-emerald-500" />
-                  )}
-                </button>
-              ))
+              <>
+                {notifications.map(n => (
+                  <button
+                    key={n.id}
+                    onClick={() => { markAsRead(n.id); }}
+                    className={cn(
+                      'flex w-full gap-3 px-4 py-3 text-start transition-colors hover:bg-stone-50 dark:hover:bg-stone-800',
+                      !n.read && 'bg-emerald-50/50',
+                    )}
+                  >
+                    {(() => { const Icon = TYPE_ICON[n.type] ?? Bell; return <Icon className="mt-0.5 h-5 w-5 shrink-0 text-stone-400" />; })()}
+                    <div className="min-w-0 flex-1">
+                      <p className={cn('text-sm', !n.read ? 'font-bold text-stone-900 dark:text-stone-100' : 'font-medium text-stone-700 dark:text-stone-200')}>
+                        {n.title_ar}
+                      </p>
+                      <p className="mt-0.5 text-xs text-stone-500 dark:text-stone-300 line-clamp-2">{n.body_ar}</p>
+                      <p className="mt-1 text-[10px] text-stone-400">
+                        {formatTimeAgo(n.created_at)}
+                      </p>
+                    </div>
+                    {!n.read && (
+                      <span className="mt-2 h-2 w-2 shrink-0 rounded-full bg-emerald-500" />
+                    )}
+                  </button>
+                ))}
+                {hasMore && (
+                  <button
+                    type="button"
+                    onClick={loadMore}
+                    disabled={loadingMore}
+                    className="flex w-full items-center justify-center gap-2 border-t border-stone-100 dark:border-stone-700 px-4 py-3 text-xs font-bold text-emerald-600 dark:text-emerald-400 hover:bg-stone-50 dark:hover:bg-stone-800 transition-colors disabled:opacity-50"
+                  >
+                    {loadingMore ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : 'تحميل المزيد'}
+                  </button>
+                )}
+              </>
             )}
           </div>
         </div>

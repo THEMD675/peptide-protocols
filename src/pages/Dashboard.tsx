@@ -825,6 +825,53 @@ export default function Dashboard() {
         </div>
       )}
 
+      {/* Getting Started Hero — promoted for new users who haven't completed all steps */}
+      {isNewUserWithNoData && visited.size < GETTING_STARTED.length && (
+        <div className="mb-8 rounded-2xl border-2 border-emerald-300 dark:border-emerald-700 bg-gradient-to-br from-emerald-50 to-teal-50 dark:from-emerald-950 dark:to-teal-950 p-6">
+          <div className="flex items-center gap-3 mb-2">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-100 dark:bg-emerald-900/30">
+              <Target className="h-5 w-5 text-emerald-700" />
+            </div>
+            <div>
+              <h2 className="text-lg font-bold text-stone-900 dark:text-stone-100">خطواتك الأولى</h2>
+              <p className="text-xs text-stone-500 dark:text-stone-300">{visited.size} من {GETTING_STARTED.length} مكتملة</p>
+            </div>
+          </div>
+          <div className="mb-4 h-2 overflow-hidden rounded-full bg-emerald-200 dark:bg-emerald-900/40">
+            <div
+              className="h-full rounded-full bg-emerald-500 transition-all duration-500"
+              style={{ width: `${(visited.size / GETTING_STARTED.length) * 100}%` }}
+            />
+          </div>
+          <div className="space-y-2">
+            {GETTING_STARTED.map((step, i) => {
+              const done = visited.has(step.id);
+              return (
+                <Link
+                  key={step.id}
+                  to={step.to}
+                  onClick={() => markVisited(step.id)}
+                  className={cn(
+                    "flex items-center gap-3 rounded-xl border px-4 py-3 transition-all hover:shadow-sm",
+                    done
+                      ? "border-emerald-300 dark:border-emerald-700 bg-emerald-100/50 dark:bg-emerald-900/30"
+                      : "border-white/80 dark:border-stone-700 bg-white dark:bg-stone-900 hover:border-emerald-300"
+                  )}
+                >
+                  {done
+                    ? <CheckCircle2 className="h-5 w-5 shrink-0 text-emerald-600" />
+                    : <Circle className="h-5 w-5 shrink-0 text-stone-300" />
+                  }
+                  <span className={cn("text-sm font-bold", done ? "text-emerald-700 dark:text-emerald-400 line-through" : "text-stone-700 dark:text-stone-200")}>
+                    {i + 1}. {step.label}
+                  </span>
+                </Link>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
       {/* Weekly Progress Report — only meaningful once user has logged something */}
       {!activity.loading && (activity.logs.length > 0 || activeProtocols.length > 0) && (
         <WeeklyProgressReport />

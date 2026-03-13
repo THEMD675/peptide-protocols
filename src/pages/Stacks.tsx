@@ -1,8 +1,8 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { Helmet } from 'react-helmet-async';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { toast } from 'sonner';
-import { Layers, Clock, DollarSign, BarChart3, Syringe, Calculator, ArrowLeftRight } from 'lucide-react';
+import { Layers, Clock, DollarSign, BarChart3, Syringe, Calculator, ArrowLeftRight, Sparkles } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import ProtocolWizard from '@/components/ProtocolWizard';
 import StackBuilder from '@/components/StackBuilder';
@@ -42,6 +42,14 @@ export default function Stacks() {
   const isPro = !isLoading && (subscription?.isProOrTrial ?? false);
   const [activeWizard, setActiveWizard] = useState<string | null>(null);
   const [stackStartDialog, setStackStartDialog] = useState<{ peptideIds: string[]; stackName: string } | null>(null);
+  const [, setSearchParams] = useSearchParams();
+  const builderRef = useRef<HTMLDivElement>(null);
+
+  const handleUseAsTemplate = (peptideIds: string[]) => {
+    setSearchParams({ stack: peptideIds.join(',') });
+    builderRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    toast.success('تم تحميل القالب في المنشئ');
+  };
 
   if (isLoading) {
     return <GenericPageSkeleton />;
@@ -142,7 +150,7 @@ export default function Stacks() {
       </div>
 
       {/* Interactive Stack Builder */}
-      <div className="mb-12">
+      <div className="mb-12" ref={builderRef}>
         <StackBuilder />
       </div>
 
@@ -154,13 +162,6 @@ export default function Stacks() {
       </div>
 
       {/* Cards grid */}
-      {stacks.length === 0 ? (
-        <div className="rounded-2xl border-2 border-dashed border-stone-200 dark:border-stone-700 bg-stone-50/50 dark:bg-stone-900/30 p-10 text-center">
-          <Layers className="mx-auto mb-3 h-10 w-10 text-stone-300 dark:text-stone-500" />
-          <p className="text-base font-bold text-stone-700 dark:text-stone-200 mb-2">أنشئ أول مجموعة لك</p>
-          <p className="text-sm text-stone-500 dark:text-stone-300 mb-4">استخدم منشئ البروتوكول أعلاه لاختيار ببتيداتك وحفظها كمجموعة</p>
-        </div>
-      ) : (
       <div className="grid gap-6 sm:grid-cols-2">
         {stacks.map((stack) => {
           const stackPeptides = stack.peptideIds
@@ -293,6 +294,14 @@ export default function Stacks() {
                       <Calculator className="h-3.5 w-3.5" />
                       احسب الجرعة
                     </Link>
+                    <button
+                      type="button"
+                      onClick={() => handleUseAsTemplate(stack.peptideIds)}
+                      className="inline-flex items-center gap-1.5 rounded-xl border border-emerald-200 dark:border-emerald-700 bg-emerald-50 dark:bg-emerald-900/20 px-6 py-3 text-sm font-bold text-emerald-700 dark:text-emerald-400 hover:bg-emerald-100 dark:hover:bg-emerald-900/30 transition-colors"
+                    >
+                      <Sparkles className="h-3.5 w-3.5" />
+                      استخدم كقالب
+                    </button>
                   </div>
                 </div> : null}
 
@@ -326,7 +335,6 @@ export default function Stacks() {
           );
         })}
       </div>
-      )}
 
       {!isPro && (
         <div className="mt-10 rounded-2xl border border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-900/20 p-6 text-center">

@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
-import { ArrowRight, CalendarDays, User, Tag, Clock } from 'lucide-react';
+import { ArrowRight, CalendarDays, User, Tag, Clock, Sparkles } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { SITE_URL } from '@/lib/constants';
+import { useAuth } from '@/contexts/AuthContext';
 import { renderMarkdown } from '@/lib/markdown';
 import type { ReactNode } from 'react';
 import { GenericPageSkeleton } from '@/components/Skeletons';
@@ -31,6 +32,7 @@ interface RelatedPost {
 
 export default function BlogPost() {
   const { slug } = useParams<{ slug: string }>();
+  const { subscription } = useAuth();
   const [post, setPost] = useState<BlogPostData | null>(null);
   const [relatedPosts, setRelatedPosts] = useState<RelatedPost[]>([]);
   const [loading, setLoading] = useState(true);
@@ -215,6 +217,25 @@ export default function BlogPost() {
             showTelegram={true}
           />
         </div>
+
+        {/* Conversion CTA — non-subscribers only */}
+        {!subscription?.isProOrTrial && (
+          <div className="mt-10 rounded-2xl border border-emerald-300 dark:border-emerald-700 bg-gradient-to-br from-emerald-50 to-teal-50 dark:from-emerald-950 dark:to-teal-950 p-6 text-center">
+            <Sparkles className="mx-auto mb-3 h-8 w-8 text-emerald-600" />
+            <h3 className="text-lg font-bold text-stone-900 dark:text-stone-100 mb-1">
+              مهتم بالببتيدات؟
+            </h3>
+            <p className="text-sm text-stone-600 dark:text-stone-300 mb-4">
+              احصل على بروتوكولات مخصّصة، مدرب ذكي، وأدوات تتبّع متقدّمة
+            </p>
+            <Link
+              to="/pricing"
+              className="inline-flex items-center gap-2 rounded-full bg-emerald-600 px-8 py-3.5 text-base font-semibold text-white transition-all hover:bg-emerald-700"
+            >
+              ابدأ تجربتك المجانية
+            </Link>
+          </div>
+        )}
 
         {/* Related Posts */}
         {relatedPosts.length > 0 && (

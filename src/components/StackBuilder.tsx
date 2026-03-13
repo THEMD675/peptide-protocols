@@ -352,16 +352,19 @@ export default function StackBuilder() {
   const [activeGoalStack, setActiveGoalStack] = useState<string | null>(null);
   const [pendingGoalStack, setPendingGoalStack] = useState<GoalStack | null>(null);
 
-  // Load from URL params on mount
+  // Load saved stacks on mount
   useEffect(() => {
-    const urlPeptides = searchParams.get('stack');
-    if (urlPeptides) {
-      const ids = urlPeptides.split(',').filter((id) => realPeptides.some((p) => p.id === id));
-      // eslint-disable-next-line react-hooks/set-state-in-effect
+    setSavedStacks(loadSavedStacks());
+  }, []);
+
+  // Reactive URL param reading — watches for external changes (e.g. "Use as Template" buttons)
+  const stackParam = searchParams.get('stack');
+  useEffect(() => {
+    if (stackParam) {
+      const ids = stackParam.split(',').filter((id) => realPeptides.some((p) => p.id === id));
       if (ids.length > 0) setSelectedIds(ids.slice(0, MAX_STACK_SIZE));
     }
-    setSavedStacks(loadSavedStacks());
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [stackParam]);
 
   // Update URL when selection changes
   useEffect(() => {
