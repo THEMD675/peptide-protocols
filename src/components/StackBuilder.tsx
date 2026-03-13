@@ -698,7 +698,7 @@ export default function StackBuilder() {
                     onChange={(e) => setSearchQuery(e.target.value)}
                     placeholder="ابحث عن ببتيد..."
                     aria-label="البحث عن ببتيد"
-                    className="w-full rounded-lg border border-stone-200 dark:border-stone-600 bg-stone-50 dark:bg-stone-800 py-2 pe-10 ps-3 text-sm text-stone-900 dark:text-stone-100 placeholder:text-stone-400 focus:border-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900"
+                    className="w-full rounded-lg border border-stone-200 dark:border-stone-600 bg-stone-50 dark:bg-stone-800 py-2 pe-10 ps-3 text-sm text-stone-900 dark:text-stone-100 placeholder:text-stone-500 focus:border-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900"
                   />
                 </div>
               </div>
@@ -982,7 +982,7 @@ export default function StackBuilder() {
               onChange={(e) => setStackName(e.target.value)}
               placeholder="اسم البروتوكول (اختياري)"
               aria-label="اسم البروتوكول"
-              className="flex-1 rounded-xl border border-stone-200 dark:border-stone-600 bg-stone-50 dark:bg-stone-800 px-4 py-2.5 text-sm text-stone-900 dark:text-stone-100 placeholder:text-stone-400 focus:border-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900"
+              className="flex-1 rounded-xl border border-stone-200 dark:border-stone-600 bg-stone-50 dark:bg-stone-800 px-4 py-2.5 text-sm text-stone-900 dark:text-stone-100 placeholder:text-stone-500 focus:border-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900"
             />
             <div className="flex gap-2">
               <button

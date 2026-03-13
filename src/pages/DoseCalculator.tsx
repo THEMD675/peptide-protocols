@@ -630,7 +630,7 @@ export default function DoseCalculator() {
                   value={presetSearch}
                   onChange={(e) => setPresetSearch(e.target.value)}
                   placeholder="ابحث عن ببتيد..."
-                  className="w-full rounded-xl border border-stone-200 dark:border-stone-600 bg-stone-50 dark:bg-stone-900 px-4 py-2.5 ps-10 text-sm text-stone-800 dark:text-stone-200 placeholder:text-stone-500 dark:text-stone-300 dark:placeholder:text-stone-400 focus:border-emerald-300 focus:ring-1 focus:ring-emerald-200 outline-none"
+                  className="w-full rounded-xl border border-stone-200 dark:border-stone-600 bg-stone-50 dark:bg-stone-900 px-4 py-2.5 ps-10 text-sm text-stone-800 dark:text-stone-200 placeholder:text-stone-500 dark:text-stone-300 dark:placeholder:text-stone-500 focus:border-emerald-300 focus:ring-1 focus:ring-emerald-200 outline-none"
                   aria-label="ابحث عن ببتيد"
                 />
               </div>
@@ -1156,7 +1156,7 @@ export default function DoseCalculator() {
                     value={reconSearch}
                     onChange={e => setReconSearch(e.target.value)}
                     placeholder="ابحث عن ببتيد..."
-                    className="w-full rounded-xl border border-stone-200 dark:border-stone-600 bg-stone-50 dark:bg-stone-900 px-4 py-2.5 ps-10 text-sm text-stone-800 dark:text-stone-200 placeholder:text-stone-400 focus:border-emerald-300 focus:ring-1 focus:ring-emerald-200 outline-none"
+                    className="w-full rounded-xl border border-stone-200 dark:border-stone-600 bg-stone-50 dark:bg-stone-900 px-4 py-2.5 ps-10 text-sm text-stone-800 dark:text-stone-200 placeholder:text-stone-500 focus:border-emerald-300 focus:ring-1 focus:ring-emerald-200 outline-none"
                     aria-label="بحث ببتيد للتخفيف"
                   />
                 </div>

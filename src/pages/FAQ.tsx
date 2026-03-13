@@ -232,7 +232,7 @@ export default function FAQ() {
             onChange={(e) => setSearch(e.target.value)}
             onKeyDown={(e) => { if (e.key === 'Escape') setSearch(''); }}
             placeholder="ابحث في الأسئلة الشائعة..."
-            className="w-full rounded-2xl border border-stone-200 dark:border-stone-600 bg-stone-50 dark:bg-stone-900 py-3.5 pe-12 ps-12 text-stone-900 dark:text-stone-100 placeholder:text-stone-400 dark:placeholder:text-stone-400 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-200 dark:focus:ring-emerald-800 transition-colors min-h-[44px]"
+            className="w-full rounded-2xl border border-stone-200 dark:border-stone-600 bg-stone-50 dark:bg-stone-900 py-3.5 pe-12 ps-12 text-stone-900 dark:text-stone-100 placeholder:text-stone-500 dark:placeholder:text-stone-500 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-200 dark:focus:ring-emerald-800 transition-colors min-h-[44px]"
           />
           {search && (
             <button
