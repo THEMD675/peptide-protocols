@@ -139,7 +139,7 @@ function timeAgo(d: string): string {
   if (h < 24) return `منذ ${h} س`;
   const days = Math.floor(h / 24);
   if (days < 7) return `منذ ${days} ي`;
-  return new Date(d).toLocaleDateString('ar-SA');
+  return new Date(d).toLocaleDateString('ar-u-nu-latn');
 }
 
 function trialLeft(t: string | null): { text: string; urgent: boolean } | null {
@@ -348,7 +348,7 @@ export default function Admin() {
     setActionLoading(true);
     try {
       const r = await adminAction({ action: 'extend_trial', user_id: modalTarget.id, days: extendDays });
-      toast.success(`تم تمديد التجربة حتى ${new Date(r.trial_ends_at).toLocaleDateString('ar-SA')}`);
+      toast.success(`تم تمديد التجربة حتى ${new Date(r.trial_ends_at).toLocaleDateString('ar-u-nu-latn')}`);
       setModal(null);
       fetchStats();
     } catch (e) { toast.error(e instanceof Error ? e.message : 'فشلت العملية'); }
@@ -606,7 +606,7 @@ export default function Admin() {
               مركز التحكم
               {critAlerts > 0 && <span className="rounded-full bg-red-100 px-2 py-0.5 text-xs font-bold text-red-700 dark:text-red-400">{critAlerts}</span>}
             </h1>
-            {lastFetched && <p className="text-[10px] text-stone-500 dark:text-stone-300">آخر تحديث {lastFetched.toLocaleTimeString('ar-SA')}</p>}
+            {lastFetched && <p className="text-[10px] text-stone-500 dark:text-stone-300">آخر تحديث {lastFetched.toLocaleTimeString('ar-u-nu-latn')}</p>}
             </div>
           </div>
           <div className="flex items-center gap-2">
@@ -1450,7 +1450,7 @@ export default function Admin() {
                       <span className="text-stone-500 dark:text-stone-300">البريد</span><span className="font-mono">{ud.user.email}</span>
                       <span className="text-stone-500 dark:text-stone-300">المزوّد</span><span>{ud.user.provider}</span>
                       <span className="text-stone-500 dark:text-stone-300">مؤكد</span><span>{ud.user.confirmed ? 'نعم' : 'لا'}</span>
-                      <span className="text-stone-500 dark:text-stone-300">الانضمام</span><span>{new Date(ud.user.created_at).toLocaleDateString('ar-SA')}</span>
+                      <span className="text-stone-500 dark:text-stone-300">الانضمام</span><span>{new Date(ud.user.created_at).toLocaleDateString('ar-u-nu-latn')}</span>
                       <span className="text-stone-500 dark:text-stone-300">آخر دخول</span><span>{ud.user.last_sign_in_at ? timeAgo(ud.user.last_sign_in_at) : '—'}</span>
                       {ud.user.banned_until && <><span className="text-stone-500 dark:text-stone-300">محظور حتى</span><span className="text-red-600 dark:text-red-400">{ud.user.banned_until}</span></>}
                       <span className="text-stone-500 dark:text-stone-300">طلبات المدرب</span><span>{ud.ai_coach_request_count}</span>
@@ -1464,8 +1464,8 @@ export default function Admin() {
                       <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-sm">
                         <span className="text-stone-500 dark:text-stone-300">الحالة</span><span><Badge status={ud.subscription.status} /></span>
                         <span className="text-stone-500 dark:text-stone-300">الباقة</span><span>{ud.subscription.tier || '—'}</span>
-                        <span className="text-stone-500 dark:text-stone-300">نهاية الفترة</span><span>{ud.subscription.current_period_end ? new Date(ud.subscription.current_period_end).toLocaleDateString('ar-SA') : '—'}</span>
-                        <span className="text-stone-500 dark:text-stone-300">انتهاء التجربة</span><span>{ud.subscription.trial_ends_at ? new Date(ud.subscription.trial_ends_at).toLocaleDateString('ar-SA') : '—'}</span>
+                        <span className="text-stone-500 dark:text-stone-300">نهاية الفترة</span><span>{ud.subscription.current_period_end ? new Date(ud.subscription.current_period_end).toLocaleDateString('ar-u-nu-latn') : '—'}</span>
+                        <span className="text-stone-500 dark:text-stone-300">انتهاء التجربة</span><span>{ud.subscription.trial_ends_at ? new Date(ud.subscription.trial_ends_at).toLocaleDateString('ar-u-nu-latn') : '—'}</span>
                         <span className="text-stone-500 dark:text-stone-300">اشتراك Stripe</span><span className="font-mono text-xs truncate">{ud.subscription.stripe_subscription_id || '—'}</span>
                         <span className="text-stone-500 dark:text-stone-300">عميل Stripe</span><span className="font-mono text-xs truncate">{ud.subscription.stripe_customer_id || '—'}</span>
                       </div>
