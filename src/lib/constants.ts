@@ -34,7 +34,7 @@ export const VALUE_TOTAL = '1,121 ر.س+';
 export const VALUE_SAVINGS_ESSENTIALS = '1,087 ر.س';
 export const VALUE_SAVINGS_ELITE = '750 ر.س+';
 
-export const REFERRAL_CODE_REGEX = /^PP-[A-Z0-9]{6}$/;
+export const REFERRAL_CODE_REGEX = /^PP-[A-Z0-9]{6}$/i;
 
 export const SUPPORT_EMAIL = 'contact@pptides.com';
 export const ADMIN_EMAILS = ['abdullah@amirisgroup.co', 'abdullahalameer@gmail.com', 'contact@pptides.com'];

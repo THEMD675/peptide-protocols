@@ -88,8 +88,8 @@ serve(async (req) => {
     }
     const tier = body.tier as string
     const billing = body.billing === 'annual' ? 'annual' : 'monthly'
-    const referralCode = (body.referralCode && /^PP-[A-Z0-9]{6}$/.test(String(body.referralCode))) ? String(body.referralCode) : undefined
-    const couponParam = body.coupon && /^[a-zA-Z0-9_]+$/.test(String(body.coupon)) ? String(body.coupon) : undefined
+    const referralCode = (body.referralCode && /^PP-[A-Z0-9]{6}$/i.test(String(body.referralCode))) ? String(body.referralCode).toUpperCase() : undefined
+    const couponParam = body.coupon && /^[a-zA-Z0-9_-]+$/.test(String(body.coupon)) ? String(body.coupon) : undefined
     if (!tier || !PRICE_IDS[tier]) {
       return new Response(JSON.stringify({ error: 'Invalid tier' }), {
         status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -163,7 +163,26 @@ serve(async (req) => {
       })
     }
 
-    const existingCustomerId = existingSub?.stripe_customer_id ?? null
+    let existingCustomerId = existingSub?.stripe_customer_id ?? null
+
+    // Prevent duplicate Stripe customers: if no customer_id in DB, search Stripe by email
+    if (!existingCustomerId && user.email) {
+      try {
+        const customers = await stripe.customers.list({ email: user.email, limit: 1 })
+        if (customers.data.length > 0) {
+          existingCustomerId = customers.data[0].id
+          // Backfill the customer_id in DB for future use
+          const serviceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')
+          if (serviceKey && existingSub) {
+            const adminDb = createClient(supabaseUrl, serviceKey)
+            adminDb.from('subscriptions').update({ stripe_customer_id: existingCustomerId }).eq('user_id', user.id)
+              .then(({ error: bfErr }) => { if (bfErr) console.error('create-checkout: backfill customer_id failed:', bfErr) })
+          }
+        }
+      } catch (searchErr) {
+        console.error('create-checkout: Stripe customer search failed, proceeding without:', searchErr)
+      }
+    }
 
     // Determine which coupon to apply (if any):
     // Referral: NO discount at checkout. Friend pays full price on first payment.

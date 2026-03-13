@@ -126,9 +126,9 @@ serve(async (req) => {
     }
 
     if (!sub?.stripe_subscription_id) {
-      // Trial or free users have no Stripe subscription — don't kill their trial
+      // Trial users WITHOUT a Stripe sub (no card entered) — can't cancel what doesn't exist
       if (sub?.status === 'trial') {
-        return new Response(JSON.stringify({ error: 'أنت في فترة تجربة مجانية — لا يوجد اشتراك لإلغائه', success: false }), {
+        return new Response(JSON.stringify({ error: 'أنت في فترة تجربة مجانية بدون بطاقة — التجربة ستنتهي تلقائيًا', success: false }), {
           status: 400,
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         })

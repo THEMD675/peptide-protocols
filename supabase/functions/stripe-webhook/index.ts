@@ -142,7 +142,7 @@ serve(async (req) => {
             updated_at: new Date().toISOString(),
           }
           if (trialEndsAt) updatePayload.trial_ends_at = trialEndsAt
-          if (referralFromMeta && /^PP-[A-Z0-9]{6}$/.test(referralFromMeta)) updatePayload.referred_by = referralFromMeta
+          if (referralFromMeta && /^PP-[A-Z0-9]{6}$/i.test(referralFromMeta)) updatePayload.referred_by = referralFromMeta.toUpperCase()
 
           const { error, data: updateData } = await supabase
             .from('subscriptions')

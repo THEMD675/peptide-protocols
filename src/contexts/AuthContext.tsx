@@ -556,7 +556,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (data.user) {
       let refCode: string | null = null;
       try { refCode = localStorage.getItem('pptides_referral'); } catch { /* expected */ }
-      const validRef = refCode && REFERRAL_CODE_REGEX.test(refCode) ? refCode : null;
+      const validRef = refCode && REFERRAL_CODE_REGEX.test(refCode) ? refCode.toUpperCase() : null;
 
       const edgeFnUrl = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/send-welcome-email`;
       fireAndForgetFetch(edgeFnUrl, {
@@ -628,7 +628,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return;
       }
       let referralCode: string | undefined;
-      try { const r = localStorage.getItem('pptides_referral'); if (r && REFERRAL_CODE_REGEX.test(r)) referralCode = r; } catch { /* expected */ }
+      try { const r = localStorage.getItem('pptides_referral'); if (r && REFERRAL_CODE_REGEX.test(r)) referralCode = r.toUpperCase(); } catch { /* expected */ }
       const body: Record<string, unknown> = { tier, billing };
       if (referralCode) body.referralCode = referralCode;
       if (coupon) body.coupon = coupon;

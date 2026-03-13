@@ -75,6 +75,16 @@ function mapStripeError(message: string): string {
     return 'رصيد غير كافٍ — تأكد من توفر الرصيد وحاول مجدداً';
   if (lower.includes('incorrect_cvc') || lower.includes('incorrect cvc'))
     return 'رمز الأمان (CVC) غير صحيح — تحقق وأعد المحاولة';
+  if (lower.includes('processing_error') || lower.includes('processing error'))
+    return 'خطأ في معالجة البطاقة — حاول مرة أخرى بعد دقيقة';
+  if (lower.includes('authentication_required') || lower.includes('3d secure') || lower.includes('requires_action'))
+    return 'بطاقتك تتطلب تحققًا إضافيًا — أكمل خطوات التحقق وحاول مجدداً';
+  if (lower.includes('rate_limit') || lower.includes('rate limit') || lower.includes('too many'))
+    return 'محاولات كثيرة — انتظر دقيقة وحاول مرة أخرى';
+  if (lower.includes('currency') || lower.includes('sar'))
+    return 'بطاقتك لا تدعم الريال السعودي — جرّب بطاقة أخرى';
+  if (lower.includes('session') || lower.includes('انتهت الجلسة'))
+    return 'انتهت جلستك — أعد تسجيل الدخول وحاول مجدداً';
   return UPGRADE.checkoutError;
 }
 
@@ -174,17 +184,29 @@ export default function Pricing() {
     };
 
     if (cancelledButActive && subscription?.tier === planKey) {
+      const isReactivating = loadingPlan === planKey;
       return (
         <button
-          onClick={openPortal}
-          disabled={isLoadingPortal}
+          onClick={async () => {
+            if (isReactivating || navigatingRef.current) return;
+            setLoadingPlan(planKey);
+            try {
+              await upgradeTo(planKey, billingCycle);
+            } catch (err: unknown) {
+              const msg = err instanceof Error ? err.message : '';
+              toast.error(mapStripeError(msg));
+            } finally {
+              setLoadingPlan(null);
+            }
+          }}
+          disabled={isReactivating}
           className={cn(
             'inline-flex w-full items-center justify-center gap-2 rounded-full px-8 py-3.5 text-base font-semibold',
-            'border border-amber-300 dark:border-amber-700 bg-amber-50 dark:bg-amber-900/20 text-amber-800 dark:text-amber-300 hover:bg-amber-100 transition-colors',
-            isLoadingPortal && 'opacity-70 pointer-events-none'
+            'bg-emerald-600 text-white hover:bg-emerald-700 transition-colors',
+            isReactivating && 'opacity-70 pointer-events-none'
           )}
         >
-          {isLoadingPortal ? <span className="h-4 w-4 animate-spin rounded-full border-2 border-amber-400/30 border-t-amber-600" /> : <RefreshCw className="h-5 w-5" />}
+          {isReactivating ? <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" /> : <RefreshCw className="h-5 w-5" />}
           {RETENTION.renewCta}
         </button>
       );
