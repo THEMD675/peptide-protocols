@@ -138,6 +138,31 @@ export default function Tracker() {
   // Post-injection feedback card
   const [lastLoggedPeptide, setLastLoggedPeptide] = useState<string | null>(null);
 
+  // Injection reminder
+  const [dueReminder, setDueReminder] = useState<{ peptide: string } | null>(null);
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem('pptides_injection_reminder');
+      if (!raw) return;
+      const r = JSON.parse(raw) as { peptide: string; nextDate: string; freqHours: number };
+      if (new Date(r.nextDate).getTime() <= Date.now()) {
+        setDueReminder({ peptide: r.peptide });
+      }
+    } catch { /* ignore */ }
+  }, []);
+
+  const dismissReminder = () => {
+    setDueReminder(null);
+    try {
+      const raw = localStorage.getItem('pptides_injection_reminder');
+      if (raw) {
+        const r = JSON.parse(raw) as { peptide: string; nextDate: string; freqHours: number };
+        const nextDate = new Date(Date.now() + r.freqHours * 60 * 60 * 1000).toISOString();
+        localStorage.setItem('pptides_injection_reminder', JSON.stringify({ ...r, nextDate }));
+      }
+    } catch { /* ignore */ }
+  };
+
   const [showProtocolWizard, setShowProtocolWizard] = useState(false);
   const [wizardPeptideId, setWizardPeptideId] = useState('');
   const [timingTipsExpanded, setTimingTipsExpanded] = useState(false);
@@ -194,7 +219,7 @@ export default function Tracker() {
     try {
       const { data, error, count } = await supabase
         .from('injection_logs')
-        .select('id, peptide_name, dose, dose_unit, injection_site, logged_at, notes, protocol_id', { count: 'exact' })
+        .select('id, peptide_name, dose, dose_unit, injection_site, logged_at, notes, protocol_id, photo_url', { count: 'exact' })
         .eq('user_id', user.id)
         .order('logged_at', { ascending: false })
         .range(0, PAGE_SIZE - 1);
@@ -231,7 +256,7 @@ export default function Tracker() {
     setIsLoadingMore(true);
     try {
       const from = logs.length;
-      const { data, error } = await supabase.from('injection_logs').select('id, peptide_name, dose, dose_unit, injection_site, logged_at, notes, protocol_id').eq('user_id', user.id).order('logged_at', { ascending: false }).range(from, from + PAGE_SIZE - 1);
+      const { data, error } = await supabase.from('injection_logs').select('id, peptide_name, dose, dose_unit, injection_site, logged_at, notes, protocol_id, photo_url').eq('user_id', user.id).order('logged_at', { ascending: false }).range(from, from + PAGE_SIZE - 1);
       if (error) { toast.error('تعذّر تحميل المزيد'); return; }
       const rows = (data ?? []) as InjectionLog[];
       setLogs(prev => [...prev, ...rows]);
@@ -803,6 +828,30 @@ export default function Tracker() {
         siteRotationData={siteRotationData}
       />
 
+      {/* Injection Reminder Banner */}
+      {dueReminder && (
+        <div className="mb-6 flex items-center justify-between gap-3 rounded-2xl border border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-900/20 px-5 py-4 animate-fade-in">
+          <div className="flex items-center gap-3">
+            <Syringe className="h-5 w-5 shrink-0 text-amber-600" />
+            <p className="text-sm font-bold text-amber-800 dark:text-amber-300">حان وقت الحقنة! {dueReminder.peptide}</p>
+          </div>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => { dismissReminder(); setShowForm(true); }}
+              className="rounded-full bg-emerald-600 px-4 py-2 text-xs font-bold text-white transition-all hover:bg-emerald-700 min-h-[44px]"
+            >
+              سجّل الآن
+            </button>
+            <button
+              onClick={dismissReminder}
+              className="rounded-full border border-stone-200 dark:border-stone-600 px-3 py-2 text-xs font-bold text-stone-600 dark:text-stone-300 transition-all hover:bg-stone-50 dark:hover:bg-stone-800 min-h-[44px]"
+            >
+              لاحقًا
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Log Form */}
       {showForm && subscription.isProOrTrial && user && (
         <TrackerForm
@@ -823,6 +872,7 @@ export default function Tracker() {
           celebrate={celebrate}
           computeStreak={() => computeStreak(allLogsForStats, true)}
           activeProtocols={activeProtocols.map(p => ({ peptide_id: p.peptide_id, frequency: p.frequency }))}
+          recentSites={logs.slice(0, 3).map(l => l.injection_site)}
         />
       )}
 

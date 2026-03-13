@@ -1505,6 +1505,45 @@ export default function DoseCalculator() {
                   </div>
                 );
               })()}
+
+              {/* Injection Supplies Estimate */}
+              {costResults.length > 0 && (() => {
+                const totalDailyDoses = costEntries.reduce((sum, e) => sum + e.dosesPerDay, 0);
+                const monthlyInjections = totalDailyDoses * 30;
+                const syringeCost = monthlyInjections * 0.5;
+                const bacWaterCost = Math.ceil(monthlyInjections / 60) * 15; // 30ml bottle ~60 doses
+                const swabsCost = Math.ceil(monthlyInjections / 100) * 10;
+                const totalSupplies = syringeCost + bacWaterCost + swabsCost;
+                return (
+                  <div className="mt-6 rounded-2xl border border-stone-200 dark:border-stone-600 bg-stone-50 dark:bg-stone-900 p-5">
+                    <div className="flex items-center gap-2 mb-4">
+                      <Syringe className="h-5 w-5 text-emerald-700" />
+                      <h3 className="text-base font-bold text-stone-900 dark:text-stone-100">مستلزمات الحقن (تقدير شهري)</h3>
+                    </div>
+                    <div className="grid gap-3 sm:grid-cols-3">
+                      <div className="rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-800 p-3">
+                        <p className="text-xs text-stone-500 dark:text-stone-400">سرنجات إنسولين</p>
+                        <p className="text-sm font-bold text-stone-900 dark:text-stone-100">{monthlyInjections} حقنة × 0.5 ر.س</p>
+                        <p className="text-xs text-emerald-700 dark:text-emerald-400">{fmt(syringeCost, 0)} ر.س</p>
+                      </div>
+                      <div className="rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-800 p-3">
+                        <p className="text-xs text-stone-500 dark:text-stone-400">ماء بكتيريوستاتيك 30ml</p>
+                        <p className="text-sm font-bold text-stone-900 dark:text-stone-100">{Math.ceil(monthlyInjections / 60)} عبوة × 15 ر.س</p>
+                        <p className="text-xs text-emerald-700 dark:text-emerald-400">{fmt(bacWaterCost, 0)} ر.س</p>
+                      </div>
+                      <div className="rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-800 p-3">
+                        <p className="text-xs text-stone-500 dark:text-stone-400">مسحات كحول</p>
+                        <p className="text-sm font-bold text-stone-900 dark:text-stone-100">{Math.ceil(monthlyInjections / 100)} عبوة × 10 ر.س</p>
+                        <p className="text-xs text-emerald-700 dark:text-emerald-400">{fmt(swabsCost, 0)} ر.س</p>
+                      </div>
+                    </div>
+                    <div className="mt-3 flex items-center justify-between rounded-xl bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 px-4 py-2.5">
+                      <span className="text-sm font-bold text-stone-900 dark:text-stone-100">إجمالي المستلزمات الشهرية</span>
+                      <span className="text-lg font-bold text-emerald-700 dark:text-emerald-400">{fmt(totalSupplies, 0)} ر.س</span>
+                    </div>
+                  </div>
+                );
+              })()}
             </div>
           </div>
         )}

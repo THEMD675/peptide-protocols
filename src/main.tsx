@@ -32,6 +32,14 @@ if (hasConsent && import.meta.env.PROD) {
   }
 }
 
+// Global error tracking — capture unhandled errors and rejections
+window.addEventListener('error', (e) => {
+  logError('Uncaught error:', e.error ?? e.message);
+});
+window.addEventListener('unhandledrejection', (e) => {
+  logError('Unhandled rejection:', e.reason);
+});
+
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
     <App />

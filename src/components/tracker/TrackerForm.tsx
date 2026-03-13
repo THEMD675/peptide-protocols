@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { Loader2, Camera } from 'lucide-react';
+import { Loader2, Camera, AlertTriangle } from 'lucide-react';
 import { toast } from 'sonner';
 import { cn, sanitizeInput } from '@/lib/utils';
 import { supabase } from '@/lib/supabase';
@@ -21,6 +21,7 @@ interface TrackerFormProps {
   celebrate: (total: number, streak: number) => void;
   computeStreak: () => number;
   activeProtocols: { peptide_id: string; frequency: string }[];
+  recentSites?: string[];
 }
 
 export default function TrackerForm({
@@ -36,6 +37,7 @@ export default function TrackerForm({
   celebrate,
   computeStreak,
   activeProtocols,
+  recentSites = [],
 }: TrackerFormProps) {
   const [peptideName, setPeptideName] = useState(initialPeptide);
   const [dose, setDose] = useState(initialDose);
@@ -191,6 +193,21 @@ export default function TrackerForm({
           nextDoseTimerRef.current = setTimeout(() => toast(`الجرعة التالية: ${nextIn}`, { duration: 5000 }), 2000);
         }
       }
+      // Offer injection reminder
+      const matchedProto = activeProtocols.find(p => {
+        const mp = allPeptides.find(x => x.nameEn === peptideName.trim());
+        return mp && p.peptide_id === mp.id;
+      });
+      const freqHours = matchedProto?.frequency === 'bid' ? 12 : matchedProto?.frequency === 'tid' ? 8 : 24;
+      const nextDate = new Date(Date.now() + freqHours * 60 * 60 * 1000).toISOString();
+      try {
+        localStorage.setItem('pptides_injection_reminder', JSON.stringify({
+          peptide: peptideName.trim(),
+          nextDate,
+          freqHours,
+        }));
+      } catch { /* quota */ }
+
       const newTotal = (totalCount || logsLength) + 1;
       celebrate(newTotal, computeStreak());
       onCancel(); // close form
@@ -322,6 +339,12 @@ export default function TrackerForm({
         <div>
           <label className="mb-1 block text-sm font-bold text-stone-700 dark:text-stone-200">موقع الحقن</label>
           <BodyMap selected={site} suggested={suggestedSite} onSelect={(s) => setSite(s)} />
+          {recentSites.length >= 3 && recentSites.every(s => s === site) && (
+            <div className="mt-2 flex items-start gap-2 rounded-xl border border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-900/20 px-3 py-2">
+              <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-amber-600" />
+              <p className="text-xs text-amber-700 dark:text-amber-400">آخر 3 حقن في نفس الموقع — يُنصح بتدوير مواقع الحقن لتقليل التهيّج وتحسين الامتصاص</p>
+            </div>
+          )}
         </div>
 
         {/* Date/Time */}

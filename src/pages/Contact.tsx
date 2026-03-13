@@ -340,7 +340,7 @@ export default function Contact() {
               value={email}
               onChange={(e) => { setEmail(e.target.value); clearFieldError('email'); }}
               onBlur={() => handleBlur('email', email)}
-              placeholder="name@example.com"
+              placeholder="أدخل بريدك الإلكتروني"
               aria-invalid={!!fieldErrors.email}
               aria-describedby={fieldErrors.email ? 'email-error' : undefined}
               className={`w-full rounded-xl border bg-stone-50 dark:bg-stone-800 px-4 py-3 text-stone-900 dark:text-stone-100 placeholder:text-stone-500 dark:placeholder:text-stone-500 dark:text-stone-300 focus:outline-none focus:ring-2 transition-colors min-h-[44px] ${fieldErrors.email ? 'border-red-400 dark:border-red-600 focus:border-red-500 focus:ring-red-200 dark:focus:ring-red-800' : 'border-stone-200 dark:border-stone-700 focus:border-emerald-500 focus:ring-emerald-200 dark:focus:ring-emerald-800'}`}

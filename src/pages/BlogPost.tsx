@@ -207,6 +207,17 @@ export default function BlogPost() {
           {renderMarkdown(post.content_ar) as ReactNode}
         </article>
 
+        {/* Author Bio */}
+        <div className="mt-10 flex items-center gap-4 rounded-2xl border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-900 p-5">
+          <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-emerald-100 dark:bg-emerald-900/30">
+            <User className="h-7 w-7 text-emerald-700" />
+          </div>
+          <div>
+            <p className="text-base font-bold text-stone-900 dark:text-stone-100">{post.author || 'فريق pptides'}</p>
+            <p className="text-sm text-stone-600 dark:text-stone-300">فريق متخصص في الببتيدات العلاجية والبيوهاكينغ — نقدّم محتوى علمي موثّق باللغة العربية</p>
+          </div>
+        </div>
+
         {/* Share Buttons */}
         <div className="mt-10 border-t border-stone-200 dark:border-stone-600 pt-6">
           <p className="mb-3 text-sm font-bold text-stone-700 dark:text-stone-200">شارك المقالة:</p>

@@ -126,6 +126,7 @@ function GlossaryCard({ term, search, allPeptides }: { term: GlossaryTerm; searc
 export default function Glossary() {
   const [search, setSearch] = useState('');
   const [activeLetter, setActiveLetter] = useState<string | null>(null);
+  const [expandedLetters, setExpandedLetters] = useState<Set<string>>(new Set());
 
   const filtered = useMemo(() => {
     if (!search.trim()) return TERMS;
@@ -250,18 +251,42 @@ export default function Glossary() {
         </div>
       ) : (
         <div className="space-y-8">
-          {grouped.map(({ letter, terms }) => (
-            <section key={letter} id={`glossary-${letter}`} className="scroll-mt-32">
-              <h2 className="mb-4 flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-100 text-lg font-bold text-emerald-700">
-                {letter}
-              </h2>
-              <dl className="grid gap-4 sm:grid-cols-2">
-                {terms.map((term) => (
-                  <GlossaryCard key={term.en} term={term} search={search} allPeptides={allPeptides as { id: string; nameEn: string }[]} />
-                ))}
-              </dl>
-            </section>
-          ))}
+          {grouped.map(({ letter, terms }) => {
+            const isExpanded = search.trim() || expandedLetters.has(letter);
+            return (
+              <section key={letter} id={`glossary-${letter}`} className="scroll-mt-32">
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (search.trim()) return;
+                    setExpandedLetters(prev => {
+                      const next = new Set(prev);
+                      if (next.has(letter)) next.delete(letter);
+                      else next.add(letter);
+                      return next;
+                    });
+                  }}
+                  className="mb-4 flex items-center gap-3 group cursor-pointer"
+                  aria-expanded={!!isExpanded}
+                >
+                  <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-100 text-lg font-bold text-emerald-700">
+                    {letter}
+                  </span>
+                  <span className="text-sm font-medium text-stone-500 dark:text-stone-400">{terms.length} مصطلح</span>
+                  {!search.trim() && (
+                    <ChevronDown className={`h-4 w-4 text-stone-400 transition-transform ${isExpanded ? 'rotate-180' : ''}`} />
+                  )}
+                </button>
+                {isExpanded && (
+                  <dl className="grid gap-4 sm:grid-cols-2">
+                    {terms.map((term) => (
+                      <GlossaryCard key={term.en} term={term} search={search} allPeptides={allPeptides as { id: string; nameEn: string }[]} />
+                    ))}
+                  </dl>
+                )}
+              </section>
+            );
+          })}
         </div>
       )}
 
