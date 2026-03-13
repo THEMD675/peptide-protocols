@@ -621,6 +621,19 @@ serve(async (req) => {
               subId = inv.subscription as string | null
             } catch { /* ignore */ }
           }
+          // If we resolved a subscription ID from the refund's invoice, verify it matches
+          // the user's current subscription to avoid cancelling a newer subscription
+          if (subId) {
+            const { data: currentSub } = await supabase.from('subscriptions')
+              .select('stripe_subscription_id')
+              .eq('stripe_customer_id', customerId)
+              .maybeSingle()
+            if (currentSub && currentSub.stripe_subscription_id !== subId) {
+              console.log(`charge.refunded: skipping — refund subscription ${subId} does not match current subscription ${currentSub.stripe_subscription_id}`)
+              break
+            }
+          }
+
           const query = supabase.from('subscriptions').update({
             status: isFullRefund ? 'cancelled' : 'active',
             ...(isFullRefund && { tier: 'free' }),

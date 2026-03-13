@@ -141,8 +141,8 @@ serve(async (req) => {
       }
     }
 
-    // Skip Stripe trial if user already had ANY trial (DB trial_ends_at set) or a prior Stripe sub
-    const hadTrialOrSub = !!existingSub?.stripe_subscription_id || !!existingSub?.trial_ends_at
+    // Skip Stripe trial if user already had ANY trial (DB trial_ends_at set), a prior Stripe sub, or is currently on trial
+    const hadTrialOrSub = !!existingSub?.stripe_subscription_id || !!existingSub?.trial_ends_at || existingSub?.status === 'trial'
 
     // DB-level lock: prevent double-submit race condition by checking for a recent pending session
     // Uses Supabase service role to upsert a checkout lock record per user

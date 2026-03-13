@@ -408,14 +408,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   fetchSubRef.current = fetchSubscription;
 
   useEffect(() => {
-    const handler = (e: StorageEvent) => {
-      if (e.key?.startsWith('sb-') && user) {
-        fetchSubRef.current(user.id);
+    const handler = async (e: StorageEvent) => {
+      if (e.key?.startsWith('sb-')) {
+        // Re-check auth state instead of using stale user from closure
+        const { data: { user: currentUser } } = await supabase.auth.getUser();
+        if (currentUser) {
+          fetchSubRef.current(currentUser.id);
+        } else {
+          setUser(null);
+          setSubscription(DEFAULT_SUBSCRIPTION);
+        }
       }
     };
     window.addEventListener('storage', handler);
     return () => window.removeEventListener('storage', handler);
-  }, [user]);
+  }, []);
 
   useEffect(() => {
     const handleVisibility = () => {
@@ -527,8 +534,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [user, fetchSubscription]);
 
   useEffect(() => {
-    if (!user || subscription.status !== 'trial' || subscription.trialDaysLeft <= 0) return;
-    const interval = setInterval(() => { fetchSubscription(user.id); }, 5 * 60 * 1000);
+    if (!user) return;
+    const isTrial = subscription.status === 'trial' && subscription.trialDaysLeft > 0;
+    const isActive = subscription.status === 'active' || subscription.status === 'past_due';
+    if (!isTrial && !isActive) return;
+    const intervalMs = isTrial ? 30_000 : 300_000;
+    const interval = setInterval(() => { fetchSubscription(user.id); }, intervalMs);
     return () => clearInterval(interval);
   }, [user, subscription.status, subscription.trialDaysLeft, fetchSubscription]);
 
