@@ -8,7 +8,7 @@ function getCelebrations(): Record<string, boolean> {
     const stored = localStorage.getItem(CELEBRATION_KEY);
     return stored ? JSON.parse(stored) : {};
   } catch (e) {
-    console.warn('celebrations read failed:', e);
+    console.error('celebrations read failed:', e);
     return {};
   }
 }
@@ -18,7 +18,7 @@ function markCelebration(key: string) {
     const celebrations = getCelebrations();
     celebrations[key] = true;
     localStorage.setItem(CELEBRATION_KEY, JSON.stringify(celebrations));
-  } catch (e) { console.warn('celebrations write failed:', e); }
+  } catch (e) { console.error('celebrations write failed:', e); }
 }
 
 function prefersReducedMotion(): boolean {

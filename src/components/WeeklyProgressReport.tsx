@@ -109,7 +109,7 @@ export default function WeeklyProgressReport() {
       });
       setLoading(false);
     }).catch((e) => {
-      console.warn('weekly report fetch failed:', e);
+      console.error('weekly report fetch failed:', e);
       if (mounted) setLoading(false);
     });
 

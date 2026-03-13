@@ -82,7 +82,7 @@ export default function TrackerForm({
           if (e instanceof DOMException && e.name === 'QuotaExceededError') {
             try { sessionStorage.removeItem('pptides_tracker_form_draft'); } catch { /* ignore */ }
           }
-          console.warn('tracker draft failed:', e);
+          console.error('tracker draft failed:', e);
         }
       }, 500);
     }
@@ -91,7 +91,7 @@ export default function TrackerForm({
   // Restore draft
   useEffect(() => {
     let draft: string | null = null;
-    try { draft = sessionStorage.getItem('pptides_tracker_form_draft'); } catch (e) { console.warn('tracker draft failed:', e); }
+    try { draft = sessionStorage.getItem('pptides_tracker_form_draft'); } catch (e) { console.error('tracker draft failed:', e); }
     if (draft && !peptideName) {
       try {
         const d = JSON.parse(draft);
@@ -100,7 +100,7 @@ export default function TrackerForm({
         setUnit(d.unit ?? 'mcg');
         setSite(d.site ?? 'abdomen');
         setNotes(d.notes ?? '');
-      } catch (e) { console.warn('tracker draft failed:', e); }
+      } catch (e) { console.error('tracker draft failed:', e); }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -124,10 +124,10 @@ export default function TrackerForm({
       const ext = photoFile.name.split('.').pop() || 'jpg';
       const path = `injection-photos/${userId}/${Date.now()}.${ext}`;
       const { error } = await supabase.storage.from('user-uploads').upload(path, photoFile, { cacheControl: '31536000', upsert: false });
-      if (error) { console.warn('Photo upload failed:', error.message); return null; }
+      if (error) { console.error('Photo upload failed:', error.message); return null; }
       const { data: urlData } = supabase.storage.from('user-uploads').getPublicUrl(path);
       return urlData?.publicUrl ?? null;
-    } catch (e) { console.warn('Photo upload failed:', e); return null; }
+    } catch (e) { console.error('Photo upload failed:', e); return null; }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {

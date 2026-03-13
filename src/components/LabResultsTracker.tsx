@@ -162,8 +162,8 @@ function generateInsights(entries: LabEntry[]): Insight[] {
   const insights: Insight[] = [];
 
   for (const biomarker of BIOMARKERS) {
-    const currentVal = latest.results[biomarker.id];
-    const prevVal = previous.results[biomarker.id];
+    const currentVal = latest?.results?.[biomarker.id];
+    const prevVal = previous?.results?.[biomarker.id];
     if (currentVal == null || prevVal == null) continue;
 
     const change = percentChange(currentVal, prevVal);
@@ -786,7 +786,9 @@ export default function LabResultsTracker() {
             const abnormalCount = resultKeys.filter(key => {
               const bio = getBiomarker(key);
               if (!bio) return false;
-              const s = getValueStatus(entry.results[key], bio);
+              const val = entry.results?.[key];
+              if (val == null) return false;
+              const s = getValueStatus(val, bio);
               return s !== 'normal';
             }).length;
 
@@ -839,7 +841,8 @@ export default function LabResultsTracker() {
                           </p>
                           <div className="space-y-1">
                             {catBiomarkers.map(bio => {
-                              const val = entry.results[bio.id];
+                              const val = entry.results?.[bio.id];
+                              if (val == null) return null;
                               const status = getValueStatus(val, bio);
                               return (
                                 <div key={bio.id} className="flex items-center justify-between rounded-lg bg-stone-800/50 px-3 py-2">

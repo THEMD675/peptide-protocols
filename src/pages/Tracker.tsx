@@ -164,7 +164,7 @@ export default function Tracker() {
     if (error) { console.error('active protocols query failed:', error); toast.error('تعذّر تحميل البروتوكولات — حاول مرة أخرى'); }
     if (!error && data) setActiveProtocols(data);
   }, [user]);
-  useEffect(() => { fetchActiveProtocols().catch((e: unknown) => console.warn("silent catch:", e)); }, [fetchActiveProtocols]);
+  useEffect(() => { fetchActiveProtocols().catch((e: unknown) => console.error("silent catch:", e)); }, [fetchActiveProtocols]);
 
   // Suggested injection site
   const suggestedSite = useMemo(() => {
@@ -206,7 +206,7 @@ export default function Tracker() {
 
   useEffect(() => {
     if (!user) return;
-    fetchLogs().catch((e: unknown) => console.warn("silent catch:", e));
+    fetchLogs().catch((e: unknown) => console.error("silent catch:", e));
     // 31.7: Safety timeout — force error state if loading hangs beyond 30s
     const loadingTimeout = setTimeout(() => {
       if (fetchingLogsRef.current) {
@@ -326,7 +326,7 @@ export default function Tracker() {
       const last7 = rows.filter(r => r.logged_at >= weekAgo).length;
       setFullStatsData({ uniquePeptides: unique, last7 });
       setAllLogsForStats(rows);
-    }).catch((e: unknown) => console.warn("silent catch:", e));
+    }).catch((e: unknown) => console.error("silent catch:", e));
     return () => { mounted = false; };
   }, [user, logs.length]);
 

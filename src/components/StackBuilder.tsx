@@ -92,6 +92,7 @@ function parseCostRange(costStr?: string): { min: number; max: number } | null {
   const nums = costStr.match(/[\d,]+/g);
   if (!nums || nums.length === 0) return null;
   const values = nums.map((n) => parseInt(n.replace(/,/g, ''), 10));
+  if (values.length === 0) return null;
   return { min: Math.min(...values), max: Math.max(...values) };
 }
 

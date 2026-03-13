@@ -84,7 +84,7 @@ export default function ProtocolWizard({ peptideId, prefillDose, prefillUnit, on
       if (!mounted) return;
       if (!countRes.error) setExistingProtocols(countRes.count ?? 0);
       if (!dupeRes.error) setHasDuplicatePeptide((dupeRes.count ?? 0) > 0);
-    })().catch((e) => console.warn('protocol load failed:', e));
+    })().catch((e) => console.error('protocol load failed:', e));
     return () => { mounted = false; };
   }, [user, peptideId]);
 
@@ -125,7 +125,7 @@ export default function ProtocolWizard({ peptideId, prefillDose, prefillUnit, on
         status: 'active',
       });
       if (error) {
-        console.warn('protocol creation failed:', error.message);
+        console.error('protocol creation failed:', error.message);
         toast.error('تعذّر إنشاء البروتوكول — تحقق من اتصالك وحاول مرة أخرى');
         setSubmitting(false);
         submittingRef.current = false;

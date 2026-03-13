@@ -438,7 +438,7 @@ export default function Coach() {
   }, [input, DRAFT_KEY]);
 
   useEffect(() => { scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: 'smooth' }); }, [messages, intakeStep]);
-  useEffect(() => { if (user) buildUserContext(user.id).then(ctx => { userContextRef.current = ctx; }).catch((e) => console.warn('Coach context build failed:', e)); }, [user]);
+  useEffect(() => { if (user) buildUserContext(user.id).then(ctx => { userContextRef.current = ctx; }).catch((e) => console.error('Coach context build failed:', e)); }, [user]);
 
   // Migrate anon session data when user logs in (prevents loss on session expiry mid-form)
   useEffect(() => {
@@ -721,14 +721,14 @@ export default function Coach() {
             </div>
             <div>
               <h1 className="text-lg font-bold">استشاري الببتيدات</h1>
-              <p className={cn('text-xs', limit === Infinity
+              <p className={cn('text-xs', !Number.isFinite(limit)
                 ? 'text-emerald-600 dark:text-emerald-400'
                 : Math.max(0, limit - userMsgCount) <= 3
                   ? 'text-red-600 dark:text-red-400'
                   : Math.max(0, limit - userMsgCount) <= 7
                     ? 'text-amber-600 dark:text-amber-400'
                     : 'text-emerald-600 dark:text-emerald-400')}>
-                {limit === Infinity
+                {!Number.isFinite(limit)
                   ? '✦ بلا حدود'
                   : userMsgCount === 0
                     ? `${limit} رسائل تجريبية`

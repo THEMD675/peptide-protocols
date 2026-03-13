@@ -68,7 +68,7 @@ export default function SideEffectLog() {
 
       if (!error && data) setEntries(data as SideEffectEntry[]);
     } catch (e) {
-      console.warn('side effect fetch failed:', e);
+      console.error('side effect fetch failed:', e);
     } finally {
       setLoading(false);
     }
@@ -84,7 +84,7 @@ export default function SideEffectLog() {
         .eq('status', 'active');
       if (!error && data) setActiveProtocols(data);
     } catch (e) {
-      console.warn('side effect fetch failed:', e);
+      console.error('side effect fetch failed:', e);
     }
   }, [user]);
 
@@ -118,7 +118,7 @@ export default function SideEffectLog() {
       setPeptideId('');
       setNotes('');
       await fetchEntries();
-    } catch (e) { console.warn("caught:", e);
+    } catch (e) { console.error("caught:", e);
       toast.error('تعذّر حفظ العرض — حاول مرة أخرى');
     } finally {
       setIsSubmitting(false);

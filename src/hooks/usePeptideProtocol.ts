@@ -86,7 +86,7 @@ export function usePeptideProtocol(peptideId: string | undefined, isFree: boolea
       .then(({ data, error: rpcError }) => {
         if (cancelled) return;
         if (rpcError) {
-          console.warn('get_peptide_protocol error:', rpcError);
+          console.error('get_peptide_protocol error:', rpcError);
           setError('تعذّر تحميل البروتوكول — حاول مرة أخرى');
           setProtocol(null);
         } else {

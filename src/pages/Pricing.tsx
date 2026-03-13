@@ -407,10 +407,15 @@ export default function Pricing() {
           <div
             className="pricing-card relative flex flex-col rounded-2xl border-2 border-emerald-200 dark:border-emerald-800 bg-white dark:bg-stone-900 p-8 shadow-lg md:p-10"
           >
-            <div className="mb-4 flex justify-center">
+            <div className="mb-4 flex justify-center gap-2">
               <span className="rounded-full bg-emerald-600 px-5 py-1.5 text-sm font-bold text-white shadow-md">
                 الأكثر شعبية
               </span>
+              {showTrialMessaging && !hasUsedTrial && (
+                <span className="rounded-full border border-amber-300 dark:border-amber-700 bg-amber-50 dark:bg-amber-900/30 px-4 py-1.5 text-sm font-bold text-amber-700 dark:text-amber-400">
+                  {TRIAL_DAYS} أيام مجانًا
+                </span>
+              )}
             </div>
             <h2 className="mb-1 text-2xl font-bold text-stone-900 dark:text-stone-100">الأساسية</h2>
             <p className="mb-6 text-stone-600 dark:text-stone-300">كل ما تحتاجه لتبدأ بثقة وبروتوكول واضح</p>
@@ -421,7 +426,14 @@ export default function Pricing() {
             </div>
             {billingCycle === 'monthly' && <p className="mb-2 text-xs font-bold text-emerald-700">~١.١ ر.س/يوم</p>}
             {billingCycle === 'monthly' && <p className="mb-2 text-xs text-emerald-700 font-medium">سنوي: <span dir="ltr">{PRICING.essentials.annualLabel}</span>/سنة — وفّر 27%</p>}
-            {billingCycle === 'annual' && <p className="mb-2 text-xs text-emerald-700 font-medium">≈ {Math.round(PRICING.essentials.annualTotal / 12)} ر.س/شهر — وفّر 27%</p>}
+            {billingCycle === 'annual' && (
+              <div className="mb-2 flex items-center gap-2">
+                <p className="text-xs text-emerald-700 font-medium">≈ {Math.round(PRICING.essentials.annualTotal / 12)} ر.س/شهر</p>
+                <span className="rounded-full bg-emerald-100 dark:bg-emerald-900/30 px-2.5 py-0.5 text-xs font-bold text-emerald-700 dark:text-emerald-400">
+                  وفّر {PRICING.essentials.monthly * 12 - PRICING.essentials.annualTotal} ر.س
+                </span>
+              </div>
+            )}
             <div className="mb-4" />
 
             <ul className="mb-8 flex-1 space-y-3">
@@ -441,10 +453,15 @@ export default function Pricing() {
             className="pricing-card pricing-card-featured relative flex flex-col rounded-2xl border-2 border-emerald-300 dark:border-emerald-700 bg-white dark:bg-stone-900 p-8 md:p-10"
             style={{ animation: 'pricing-elite-glow 3s ease-in-out infinite' }}
           >
-            <div className="mb-4 flex justify-center">
+            <div className="mb-4 flex justify-center gap-2">
               <span className="rounded-full bg-emerald-600 px-5 py-1.5 text-sm font-bold text-white shadow-md">
                 الأفضل قيمة
               </span>
+              {showTrialMessaging && !hasUsedTrial && (
+                <span className="rounded-full border border-amber-300 dark:border-amber-700 bg-amber-50 dark:bg-amber-900/30 px-4 py-1.5 text-sm font-bold text-amber-700 dark:text-amber-400">
+                  {TRIAL_DAYS} أيام مجانًا
+                </span>
+              )}
             </div>
 
             <h2 className="mb-1 text-2xl font-bold text-stone-900 dark:text-stone-100">المتقدّمة</h2>
@@ -456,7 +473,14 @@ export default function Pricing() {
             </div>
             {billingCycle === 'monthly' && <p className="mb-2 text-xs font-bold text-emerald-700">~١٢.٤ ر.س/يوم</p>}
             {billingCycle === 'monthly' && <p className="mb-2 text-xs text-emerald-700 font-medium">سنوي: <span dir="ltr">{PRICING.elite.annualLabel}</span>/سنة — وفّر 33%</p>}
-            {billingCycle === 'annual' && <p className="mb-2 text-xs text-emerald-700 font-medium">≈ {Math.round(PRICING.elite.annualTotal / 12)} ر.س/شهر — وفّر 33%</p>}
+            {billingCycle === 'annual' && (
+              <div className="mb-2 flex items-center gap-2">
+                <p className="text-xs text-emerald-700 font-medium">≈ {Math.round(PRICING.elite.annualTotal / 12)} ر.س/شهر</p>
+                <span className="rounded-full bg-emerald-100 dark:bg-emerald-900/30 px-2.5 py-0.5 text-xs font-bold text-emerald-700 dark:text-emerald-400">
+                  وفّر {PRICING.elite.monthly * 12 - PRICING.elite.annualTotal} ر.س
+                </span>
+              </div>
+            )}
             <div className="mb-2" />
 
             <ul className="mb-8 flex-1 space-y-3">
@@ -814,6 +838,51 @@ export default function Pricing() {
           الاستشارة الطبية المتخصصة. استشر طبيبك قبل استخدام أي ببتيد أو مكمّل.
         </p>
       </div>
+
+      {/* Mobile sticky CTA */}
+      {!subscription?.isProOrTrial && (
+        <div className="fixed bottom-0 inset-x-0 z-50 border-t border-stone-200 dark:border-stone-700 bg-white/95 dark:bg-stone-900/95 backdrop-blur-sm p-3 md:hidden safe-area-pb">
+          {user ? (
+            <button
+              onClick={async () => {
+                if (navigatingRef.current) return;
+                navigatingRef.current = true;
+                setLoadingPlan('elite');
+                events.checkoutStart('elite', billingCycle);
+                try {
+                  await upgradeTo('elite', billingCycle, couponFromUrl);
+                } catch (err: unknown) {
+                  navigatingRef.current = false;
+                  setLoadingPlan(null);
+                  const msg = err instanceof Error ? err.message : '';
+                  toast.error(mapStripeError(msg));
+                }
+              }}
+              disabled={loadingPlan === 'elite'}
+              className={cn(
+                'btn-primary-glow flex w-full items-center justify-center gap-2 rounded-full bg-emerald-600 px-6 py-3.5 text-base font-semibold text-white transition-all hover:bg-emerald-700',
+                loadingPlan === 'elite' && 'opacity-70 pointer-events-none'
+              )}
+            >
+              {loadingPlan === 'elite' ? (
+                <>
+                  <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />
+                  {UPGRADE.checkoutRedirecting}
+                </>
+              ) : (
+                hasUsedTrial ? 'اشترك الآن' : TRIAL.ctaFree
+              )}
+            </button>
+          ) : (
+            <Link
+              to="/signup?redirect=/pricing"
+              className="btn-primary-glow flex w-full items-center justify-center gap-2 rounded-full bg-emerald-600 px-6 py-3.5 text-base font-semibold text-white transition-all hover:bg-emerald-700"
+            >
+              {TRIAL.ctaSignup}
+            </Link>
+          )}
+        </div>
+      )}
     </div>
   );
 }

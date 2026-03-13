@@ -108,7 +108,7 @@ export default function WellnessCheckin() {
         setNotes(entry.notes ?? '');
       }
     } catch (e) {
-      console.warn('wellness save failed:', e);
+      console.error('wellness save failed:', e);
     } finally {
       setLoading(false);
     }
@@ -158,7 +158,7 @@ export default function WellnessCheckin() {
 
       setEditing(false);
       await fetchLatest();
-    } catch (e) { console.warn("caught:", e);
+    } catch (e) { console.error("caught:", e);
       toast.error('تعذّر حفظ الحالة — حاول مرة أخرى');
     } finally {
       setIsSubmitting(false);

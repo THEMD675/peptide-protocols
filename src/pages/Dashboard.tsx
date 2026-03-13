@@ -411,7 +411,7 @@ function useWellnessTrend(userId: string | undefined) {
         prevAvg: Math.round(avg(lastWeek.data ?? []) * 10) / 10,
         sideEffects7d: sides.count ?? 0,
       });
-    }).catch((e) => console.warn("Dashboard sync failed:", e));
+    }).catch((e) => console.error("Dashboard sync failed:", e));
     return () => { mounted = false; };
   }, [userId]);
   return trend;
@@ -507,7 +507,7 @@ export default function Dashboard() {
             }));
           }
         } catch { /* expected */ }
-      }).catch((e) => console.warn("Dashboard sync failed:", e));
+      }).catch((e) => console.error("Dashboard sync failed:", e));
     return () => { mounted = false; };
   }, [user?.id]);
 
@@ -708,6 +708,54 @@ export default function Dashboard() {
           </Link>
         )}
       </div>
+
+      {/* Trial countdown card — show hours remaining for trial users */}
+      {subscription.isTrial && subscription.trialDaysLeft > 0 && (() => {
+        const trialEndMs = subscription.currentPeriodEnd
+          ? new Date(subscription.currentPeriodEnd).getTime()
+          : 0;
+        const hoursLeft = trialEndMs > 0
+          ? Math.max(0, Math.floor((trialEndMs - nowMs) / (1000 * 60 * 60)))
+          : subscription.trialDaysLeft * 24;
+        const daysLeft = Math.floor(hoursLeft / 24);
+        const remainingHours = hoursLeft % 24;
+        const urgency = hoursLeft <= 24 ? 'red' : hoursLeft <= 72 ? 'amber' : 'emerald';
+        const colors = {
+          red: 'border-red-300 dark:border-red-700 bg-red-50 dark:bg-red-900/20',
+          amber: 'border-amber-300 dark:border-amber-700 bg-amber-50 dark:bg-amber-900/20',
+          emerald: 'border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-900/20',
+        };
+        const textColors = {
+          red: 'text-red-800 dark:text-red-300',
+          amber: 'text-amber-800 dark:text-amber-300',
+          emerald: 'text-emerald-800 dark:text-emerald-300',
+        };
+        return (
+          <div className={cn('mb-8 rounded-2xl border p-4', colors[urgency])}>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <Clock className="h-5 w-5 shrink-0 text-amber-600" />
+                <div>
+                  <p className={cn('text-sm font-bold', textColors[urgency])}>
+                    {daysLeft > 0
+                      ? `${daysLeft} ${daysLeft === 1 ? 'يوم' : 'أيام'} و ${remainingHours} ساعة متبقية`
+                      : `${hoursLeft} ساعة متبقية في التجربة`}
+                  </p>
+                  <p className="text-xs text-stone-600 dark:text-stone-300 mt-0.5">
+                    {hoursLeft <= 24 ? 'اشترك الآن لتحافظ على بياناتك' : 'تجربتك المجانية — اشترك قبل انتهائها'}
+                  </p>
+                </div>
+              </div>
+              <Link
+                to="/pricing"
+                className="shrink-0 rounded-full bg-emerald-600 px-5 py-2 text-sm font-semibold text-white transition-all hover:bg-emerald-700"
+              >
+                اشترك
+              </Link>
+            </div>
+          </div>
+        );
+      })()}
 
       {/* 3.7: Premium Welcome Card — one-time celebration after first payment */}
       {showPremiumWelcome && (

@@ -123,7 +123,7 @@ export default function Account() {
         memberSince: memberSinceDate,
       });
     };
-    loadStats().catch((e: unknown) => console.warn("silent catch:", e));
+    loadStats().catch((e: unknown) => console.error("silent catch:", e));
     return () => { mounted = false; };
   }, [user]);
 
@@ -200,7 +200,7 @@ export default function Account() {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${session.access_token}` },
             body: JSON.stringify({ action: 'sync_email', user_id: session.user.id, new_email: confirmedEmail.toLowerCase() }),
-          }).catch((e: unknown) => console.warn('Account: Stripe email sync failed', e));
+          }).catch((e: unknown) => console.error('Account: Stripe email sync failed', e));
         }
       },
     );

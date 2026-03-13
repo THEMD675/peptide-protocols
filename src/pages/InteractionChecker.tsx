@@ -180,7 +180,7 @@ export default function InteractionChecker() {
         setSelected(slots);
         setAutoFilledFromProtocols(true);
       })
-      .catch((e: unknown) => console.warn("silent catch:", e));
+      .catch((e: unknown) => console.error("silent catch:", e));
     return () => { mounted = false; };
   }, [user, searchParams]);
 

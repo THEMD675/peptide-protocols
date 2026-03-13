@@ -34,8 +34,8 @@ async function flushEvents() {
   const batch = eventQueue.splice(0, eventQueue.length);
   try {
     await supabase.from('analytics_events').insert(batch);
-  } catch {
-    /* analytics should never crash the app */
+  } catch (e) {
+    console.error('[analytics] flush failed:', e);
   }
 }
 
@@ -93,7 +93,7 @@ export function trackEvent(event: string, params?: Record<string, unknown>) {
     }
     // Always send to Supabase
     queueEvent(event, params);
-  } catch { /* analytics should never crash the app */ }
+  } catch (e) { console.error('[analytics] trackEvent failed:', e); }
 }
 
 export function trackPageView(path: string) {

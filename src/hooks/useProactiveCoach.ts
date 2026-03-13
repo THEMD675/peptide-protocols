@@ -681,7 +681,7 @@ export function useProactiveCoach(userId: string | undefined) {
         setLoading(false);
       })
       .catch((e) => {
-        console.warn('proactive coach failed:', e);
+        console.error('proactive coach failed:', e);
         if (mounted) setLoading(false);
       });
 

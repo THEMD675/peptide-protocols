@@ -10,7 +10,7 @@ import type { User as SupabaseUser, Session } from '@supabase/supabase-js';
 function fireAndForgetFetch(url: string, opts: RequestInit, label: string) {
   const attempt = (n: number) => {
     fetch(url, opts).catch((e) => {
-      console.warn(`${label} attempt ${n} failed:`, e);
+      console.error(`${label} attempt ${n} failed:`, e);
       if (n < 2) setTimeout(() => attempt(n + 1), 5000);
     });
   };
@@ -341,11 +341,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const dn = ((displayName && displayName.trim()) || su.email?.split('@')[0] || '').replace(/<[^>]+>/g, '').slice(0, 50);
       supabase.from('user_profiles').select('user_id').eq('user_id', userId).maybeSingle().then(({ data: existing }) => {
         if (existing) {
-          supabase.from('user_profiles').update({ display_name: dn, updated_at: new Date().toISOString() }).eq('user_id', userId).catch((e) => console.warn('profile update failed:', e));
+          supabase.from('user_profiles').update({ display_name: dn, updated_at: new Date().toISOString() }).eq('user_id', userId).catch((e) => console.error('profile update failed:', e));
         } else {
-          supabase.from('user_profiles').insert({ user_id: userId, display_name: dn, updated_at: new Date().toISOString() }).catch((e) => console.warn('profile insert failed:', e));
+          supabase.from('user_profiles').insert({ user_id: userId, display_name: dn, updated_at: new Date().toISOString() }).catch((e) => console.error('profile insert failed:', e));
         }
-      }).catch((e) => console.warn('profile check failed:', e));
+      }).catch((e) => console.error('profile check failed:', e));
     };
 
     const handleSession = async (session: Session | null, event?: string) => {
@@ -433,7 +433,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     timeout = setTimeout(() => {
       if (!initDoneRef.current) {
-        console.warn('Auth init timeout (30s) — resolving with current state');
+        console.error('Auth init timeout (30s) — resolving with current state');
         initDoneRef.current = true;
         setIsLoading(false);
       }
@@ -477,7 +477,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           } else {
             fetchSubRef.current(user.id);
           }
-        }).catch((err) => { console.warn('Visibility refresh failed:', err); });
+        }).catch((err) => { console.error('Visibility refresh failed:', err); });
       }
     };
     document.addEventListener('visibilitychange', handleVisibility);

@@ -84,7 +84,7 @@ export default memo(function ShareableCard(props: ShareableCardProps) {
       if (!blob) { toast.error('تعذّر إنشاء الصورة'); return; }
       const file = new File([blob], `pptides-${props.peptideNameEn}.png`, { type: 'image/png' });
       if (navigator.share && navigator.canShare?.({ files: [file] })) {
-        await navigator.share({ files: [file], title: `بروتوكول ${props.peptideName}` }).catch((e: unknown) => console.warn("silent catch:", e));
+        await navigator.share({ files: [file], title: `بروتوكول ${props.peptideName}` }).catch((e: unknown) => console.error("silent catch:", e));
       } else {
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');

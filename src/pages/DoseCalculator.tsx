@@ -340,8 +340,8 @@ export default function DoseCalculator() {
     const volumeMl2 = doseMcg / concentration;
     const syringeUnits = volumeMl2 * syringe.units / syringe.ml;
     const dosesPerVial = (vialMg * 1000) / doseMcg;
-    const daysPerVial = dosesPerVial / dosesPerDay;
-    const monthlyVials = 30 / daysPerVial;
+    const daysPerVial = dosesPerDay > 0 ? dosesPerVial / dosesPerDay : 0;
+    const monthlyVials = daysPerVial > 0 ? 30 / daysPerVial : 0;
     const monthlyCost = vialPrice > 0 ? monthlyVials * vialPrice : 0;
     return { concentration, volumeMl: volumeMl2, syringeUnits, dosesPerVial, doseMcg, monthlyVials, monthlyCost, daysPerVial };
   }, [doseUnit, doseValue, vialMg, waterMl, syringe, dosesPerDay, vialPrice]);
@@ -400,8 +400,8 @@ export default function DoseCalculator() {
   // ── Cost comparison results ──
   const costResults = useMemo(() => {
     return costEntries.map(entry => {
-      const dosesPerVial = (entry.vialMg * 1000) / entry.doseMcg;
-      const costPerDose = entry.pricePerVial / dosesPerVial;
+      const dosesPerVial = entry.doseMcg > 0 ? (entry.vialMg * 1000) / entry.doseMcg : 0;
+      const costPerDose = dosesPerVial > 0 ? entry.pricePerVial / dosesPerVial : 0;
       const costPerWeek = costPerDose * entry.dosesPerDay * 7;
       const costPerMonth = costPerWeek * (30 / 7);
       const costPerCycle12w = costPerWeek * 12;

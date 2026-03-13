@@ -14,7 +14,8 @@ export function getCookiePreferences(): CookiePreferences | null {
     if (raw === 'accepted') return { essential: true, optional: true };
     if (raw === 'rejected') return { essential: true, optional: false };
     return JSON.parse(raw) as CookiePreferences;
-  } catch {
+  } catch (e) {
+    console.error('[cookie-utils] getCookiePreferences failed:', e);
     return null;
   }
 }
