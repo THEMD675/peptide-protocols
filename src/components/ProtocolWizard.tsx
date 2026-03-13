@@ -104,8 +104,10 @@ export default function ProtocolWizard({ peptideId, prefillDose, prefillUnit, on
         status: 'active',
       });
       if (error) {
+        console.warn('protocol creation failed:', error.message);
         toast.error('تعذّر إنشاء البروتوكول — تحقق من اتصالك وحاول مرة أخرى');
-
+        setSubmitting(false);
+        setDuplicateConfirmed(false);
         return;
       }
       toast.success(`تم بدء بروتوكول ${peptide.nameAr}! — انتقل لسجل الحقن`);
@@ -114,6 +116,7 @@ export default function ProtocolWizard({ peptideId, prefillDose, prefillUnit, on
       navigate(`/tracker?peptide=${encodeURIComponent(peptide.nameEn)}`);
     } catch {
       toast.error('فشل الاتصال بالخادم — تحقق من اتصالك وحاول مرة أخرى');
+      setDuplicateConfirmed(false);
     } finally {
       setSubmitting(false);
     }

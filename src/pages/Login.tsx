@@ -64,6 +64,7 @@ export default function Login() {
   const [resendLoading, setResendLoading] = useState(false);
   const [resendCooldown, setResendCooldown] = useState(0);
   const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
+  const [turnstileUnavailable, setTurnstileUnavailable] = useState(false);
   const turnstileRef = useRef<HTMLDivElement>(null);
   const turnstileWidgetId = useRef<string | null>(null);
   const resendIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -97,7 +98,11 @@ export default function Login() {
 
   useEffect(() => {
     if (!TURNSTILE_SITE_KEY || !turnstileRef.current) return;
+    let fallbackTimer: ReturnType<typeof setTimeout> | null = null;
+    let loaded = false;
     const renderWidget = () => {
+      loaded = true;
+      if (fallbackTimer) { clearTimeout(fallbackTimer); fallbackTimer = null; }
       if (!turnstileRef.current || turnstileWidgetId.current) return;
       turnstileWidgetId.current = window.turnstile?.render(turnstileRef.current, {
         sitekey: TURNSTILE_SITE_KEY,
@@ -114,9 +119,23 @@ export default function Login() {
     script.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit';
     script.async = true;
     script.onload = renderWidget;
+    script.onerror = () => {
+      if (!loaded) {
+        setTurnstileUnavailable(true);
+        toast.error('تعذّر تحميل التحقق الأمني — يمكنك المتابعة بدون CAPTCHA');
+      }
+    };
     document.head.appendChild(script);
+    // Fallback: if Turnstile CDN fails to load within 5s, disable CAPTCHA requirement
+    fallbackTimer = setTimeout(() => {
+      if (!loaded && !window.turnstile) {
+        setTurnstileUnavailable(true);
+        toast.error('تعذّر تحميل التحقق الأمني — يمكنك المتابعة بدون CAPTCHA');
+      }
+    }, 5000);
     return () => {
       turnstileWidgetId.current = null;
+      if (fallbackTimer) clearTimeout(fallbackTimer);
       if (script.parentNode) script.parentNode.removeChild(script);
     };
   }, []);
@@ -207,7 +226,7 @@ export default function Login() {
       return;
     }
 
-    if (TURNSTILE_SITE_KEY && !turnstileToken) {
+    if (TURNSTILE_SITE_KEY && !turnstileToken && !turnstileUnavailable) {
       setError('يرجى إكمال التحقق الأمني');
       return;
     }
@@ -235,8 +254,8 @@ export default function Login() {
 
     setLoading(true);
     try {
-      // Server-side Turnstile validation for signup
-      if (tab === 'signup' && TURNSTILE_SITE_KEY && turnstileToken) {
+      // Server-side Turnstile validation for signup (skip if CDN failed to load)
+      if (tab === 'signup' && TURNSTILE_SITE_KEY && turnstileToken && !turnstileUnavailable) {
         const validateRes = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/validate-turnstile`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -762,7 +781,7 @@ export default function Login() {
 
               <button
                 type="submit"
-                disabled={loading || !!(TURNSTILE_SITE_KEY && !turnstileToken) || (tab === 'signup' && !(password.length >= 8 && /[a-zA-Z]/.test(password) && /\d/.test(password)))}
+                disabled={loading || !!(TURNSTILE_SITE_KEY && !turnstileToken && !turnstileUnavailable) || (tab === 'signup' && !(password.length >= 8 && /[a-zA-Z]/.test(password) && /\d/.test(password)))}
                 title={
                   tab === 'signup' && !(password.length >= 8 && /[a-zA-Z]/.test(password) && /\d/.test(password))
                     ? 'أكمل متطلبات كلمة المرور أدناه أولًا'

@@ -68,8 +68,9 @@ export default function Pricing() {
   const isSubscribedTo = (tier: string) =>
     user && subscription?.status !== 'trial' && subscription?.isProOrTrial && subscription.tier === tier;
 
-  // FIX 4: Detect if user has already used their trial
+  // Detect if user has already used their trial (includes current trial users)
   const hasUsedTrial = user && subscription && (
+    subscription.status === 'trial' ||
     subscription.status === 'active' ||
     subscription.status === 'expired' ||
     subscription.status === 'cancelled' ||

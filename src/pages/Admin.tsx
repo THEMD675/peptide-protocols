@@ -519,8 +519,22 @@ export default function Admin() {
   const openUserAction = (type: ModalType, u: { id: string; email: string }) => { setModalTarget(u); setModal(type); };
 
   // --- Render gates ---
-  // Client-side admin email whitelist guard
-  if (user && !ADMIN_EMAILS.includes(user.email ?? '')) return (
+  // Auth gate: redirect unauthenticated users to login
+  if (!user) return (
+    <div className="flex min-h-screen items-center justify-center bg-stone-50 dark:bg-stone-950">
+      <Helmet><title>404 | pptides</title></Helmet>
+      <div className="text-center px-4">
+        <h1 className="text-4xl font-bold text-stone-200 mb-4 sm:text-6xl">404</h1>
+        <p className="text-lg font-bold text-stone-900 dark:text-stone-100 mb-2">الصفحة غير موجودة</p>
+        <p className="text-sm text-stone-600 dark:text-stone-300 mb-6">الصفحة التي تبحث عنها غير موجودة.</p>
+        <Link to="/" className="inline-flex items-center gap-2 rounded-full bg-emerald-600 px-8 py-3.5 text-base font-semibold text-white hover:bg-emerald-700 transition-colors">
+          الرئيسية
+        </Link>
+      </div>
+    </div>
+  );
+  // Client-side admin email whitelist guard — non-admin users see a 404
+  if (!ADMIN_EMAILS.includes(user.email ?? '')) return (
     <div className="flex min-h-screen items-center justify-center bg-stone-50 dark:bg-stone-950">
       <Helmet><title>404 | pptides</title></Helmet>
       <div className="text-center px-4">

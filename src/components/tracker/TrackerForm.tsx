@@ -199,6 +199,22 @@ export default function TrackerForm({
           </select>
         </div>
 
+        {/* Dose Preset Hint */}
+        {preset && !dose && (
+          <div className="rounded-xl border border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-900/20 px-4 py-3 space-y-1">
+            <p className="text-sm font-bold text-emerald-800 dark:text-emerald-300">الجرعة الموصى بها: <span dir="ltr">{preset.dose} {preset.unit}</span></p>
+            <p className="text-xs text-stone-600 dark:text-stone-400">النطاق: <span dir="ltr">{preset.minDose}–{preset.maxDose} {preset.unit}</span></p>
+            <p className="text-xs text-stone-500 dark:text-stone-400">250 مايكروغرام = 0.25 ملغ</p>
+            <button
+              type="button"
+              onClick={() => { setDose(String(preset.dose)); setUnit(preset.unit === 'mg' ? 'mg' : 'mcg'); }}
+              className="mt-1 rounded-full bg-emerald-600 px-4 py-1.5 text-xs font-bold text-white transition-all hover:bg-emerald-700"
+            >
+              استخدم {preset.dose} {preset.unit === 'mcg' ? 'مايكروغرام' : preset.unit === 'mg' ? 'ملغ' : preset.unit}
+            </button>
+          </div>
+        )}
+
         {/* Dose + Unit */}
         <div className="flex gap-3">
           <div className="flex-1">

@@ -58,13 +58,18 @@ function formatDate(iso: string, useHijri = false) {
   return useHijri ? hijriFormatter.format(d) : gregorianFormatter.format(d);
 }
 
+/** Normalize a Date to YYYY-MM-DD in local timezone */
+function toLocalDateStr(d: Date): string {
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+}
+
 function computeStreak(logs: InjectionLog[], includeToday = false): number {
-  const daySet = new Set(logs.map(l => new Date(l.logged_at).toDateString()));
-  if (includeToday) daySet.add(new Date().toDateString());
+  const daySet = new Set(logs.map(l => toLocalDateStr(new Date(l.logged_at))));
+  if (includeToday) daySet.add(toLocalDateStr(new Date()));
   let streak = 0;
   const d = new Date();
-  if (!daySet.has(d.toDateString())) d.setDate(d.getDate() - 1);
-  while (daySet.has(d.toDateString())) { streak++; d.setDate(d.getDate() - 1); }
+  if (!daySet.has(toLocalDateStr(d))) d.setDate(d.getDate() - 1);
+  while (daySet.has(toLocalDateStr(d))) { streak++; d.setDate(d.getDate() - 1); }
   return streak;
 }
 
@@ -255,18 +260,16 @@ export default function Tracker() {
   useEffect(() => {
     if (!user) return;
     let mounted = true;
-    Promise.all([
-      supabase.from('injection_logs').select('peptide_name').eq('user_id', user.id).limit(10000),
-      supabase.from('injection_logs').select('id', { count: 'exact', head: true }).eq('user_id', user.id).gte('logged_at', new Date(Date.now() - 7 * 86400000).toISOString()),
-      supabase.from('injection_logs').select('logged_at, injection_site, peptide_name').eq('user_id', user.id).order('logged_at', { ascending: false }).limit(10000),
-    ]).then(([pepRes, weekRes, allRes]) => {
+    supabase.from('injection_logs').select('logged_at, injection_site, peptide_name').eq('user_id', user.id).order('logged_at', { ascending: false }).limit(10000)
+    .then((allRes) => {
       if (!mounted) return;
-      if (pepRes.error) console.error('injection_logs peptide_name query failed:', pepRes.error);
-      if (weekRes.error) console.error('injection_logs weekly count failed:', weekRes.error);
-      if (allRes.error) console.error('injection_logs full stats query failed:', allRes.error);
-      const unique = new Set((pepRes.data ?? []).map((r: { peptide_name: string }) => r.peptide_name)).size;
-      setFullStatsData({ uniquePeptides: unique, last7: weekRes.count ?? 0 });
-      setAllLogsForStats((allRes.data as InjectionLog[]) ?? []);
+      if (allRes.error) { console.error('injection_logs full stats query failed:', allRes.error); return; }
+      const rows = (allRes.data as InjectionLog[]) ?? [];
+      const unique = new Set(rows.map(r => r.peptide_name)).size;
+      const weekAgo = new Date(Date.now() - 7 * 86400000).toISOString();
+      const last7 = rows.filter(r => r.logged_at >= weekAgo).length;
+      setFullStatsData({ uniquePeptides: unique, last7 });
+      setAllLogsForStats(rows);
     }).catch((e: unknown) => console.warn("silent catch:", e));
     return () => { mounted = false; };
   }, [user, logs.length]);
@@ -275,7 +278,7 @@ export default function Tracker() {
     if (logs.length === 0) return null;
     const totalInjections = totalCount || logs.length;
     const uniquePeptides = fullStatsData?.uniquePeptides ?? new Set(logs.map(l => l.peptide_name)).size;
-    const streak = computeStreak(allLogsForStats.length > 0 ? allLogsForStats : logs);
+    const streak = computeStreak(allLogsForStats);
     const last7 = fullStatsData?.last7 ?? logs.filter(l => Date.now() - new Date(l.logged_at).getTime() < 7 * 24 * 60 * 60 * 1000).length;
     const msSinceLast = Date.now() - new Date(logs[0].logged_at).getTime();
     const hoursSince = Math.floor(msSinceLast / (1000 * 60 * 60));
@@ -529,7 +532,7 @@ export default function Tracker() {
               const totalDays = (proto.cycle_weeks || 8) * 7;
               const weekNumber = Math.floor(daysSinceStart / 7) + 1;
               const totalWeeks = proto.cycle_weeks || 8;
-              const todayLogged = logs.some(l => l.peptide_name === (peptide?.nameEn ?? proto.peptide_id) && new Date(l.logged_at).toDateString() === new Date().toDateString());
+              const todayLogged = logs.some(l => l.peptide_name === (peptide?.nameEn ?? proto.peptide_id) && toLocalDateStr(new Date(l.logged_at)) === toLocalDateStr(new Date()));
               return (
                 <div key={proto.id} className={cn('rounded-2xl border p-4 card-lift', todayLogged ? 'border-emerald-300 dark:border-emerald-700 bg-emerald-50/50' : 'border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900')}>
                   <div className="flex items-center gap-3">
@@ -700,7 +703,7 @@ export default function Tracker() {
           totalCount={totalCount}
           logsLength={logs.length}
           celebrate={celebrate}
-          computeStreak={() => computeStreak(logs, true)}
+          computeStreak={() => computeStreak(allLogsForStats, true)}
           activeProtocols={activeProtocols.map(p => ({ peptide_id: p.peptide_id, frequency: p.frequency }))}
         />
       )}

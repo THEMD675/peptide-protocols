@@ -231,6 +231,37 @@ function containsPromptLeak(text: string): boolean {
 
 const SANITIZED_RESPONSE = 'أعتذر، لا أستطيع مشاركة تفاصيل النظام. كيف يمكنني مساعدتك بخصوص الببتيدات؟'
 
+// Prompt injection patterns — checked on user INPUT before calling the LLM
+const PROMPT_INJECTION_PATTERNS = [
+  /ignore\s+(all\s+)?(previous|above|prior)\s+(instructions|prompts|rules)/i,
+  /disregard\s+(all\s+)?(previous|above|prior)\s+(instructions|prompts|rules)/i,
+  /forget\s+(all\s+)?(previous|above|prior)\s+(instructions|prompts|rules)/i,
+  /override\s+(your|system|all)\s+(instructions|prompts|rules)/i,
+  /you\s+are\s+now\s+(a|an|my)\s+/i,
+  /new\s+(system\s+)?instructions?\s*:/i,
+  /system\s*:\s*/i,
+  /\[system\]/i,
+  /act\s+as\s+(if\s+)?(you\s+)?(have\s+)?no\s+restrictions/i,
+  /pretend\s+(you\s+)?(are|have)\s+no\s+(rules|restrictions|limits)/i,
+  /reveal\s+(your|the)\s+(system\s+)?prompt/i,
+  /show\s+(me\s+)?(your|the)\s+(system\s+)?prompt/i,
+  /print\s+(your|the)\s+(system\s+)?prompt/i,
+  /output\s+(your|the)\s+(system\s+)?prompt/i,
+  /repeat\s+(your|the)\s+(system\s+)?(prompt|instructions)/i,
+  /what\s+(are|is)\s+your\s+(system\s+)?(prompt|instructions|rules)/i,
+  /تجاهل\s+(كل\s+)?التعليمات/,
+  /اكشف\s+(لي\s+)?تعليماتك/,
+  /اعرض\s+(لي\s+)?النظام/,
+  /ما\s+هي\s+تعليماتك/,
+]
+
+function containsPromptInjection(text: string): boolean {
+  for (const p of PROMPT_INJECTION_PATTERNS) {
+    if (p.test(text)) return true
+  }
+  return false
+}
+
 serve(async (req) => {
   const corsHeaders = getCorsHeaders(req)
 
@@ -328,7 +359,7 @@ serve(async (req) => {
       });
     }
 
-    let body: { messages?: unknown; stream?: unknown }
+    let body: { messages?: unknown; stream?: unknown; userId?: unknown }
     try {
       body = JSON.parse(rawBody)
     } catch {
@@ -336,6 +367,11 @@ serve(async (req) => {
         status: 400,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       })
+    }
+
+    // Security: never trust client-provided userId — always use JWT-validated user.id
+    if ('userId' in body || 'user_id' in body) {
+      console.warn('ai-coach: client sent userId in body — ignoring (using JWT user.id)')
     }
 
     const { messages, stream } = body
@@ -375,6 +411,17 @@ serve(async (req) => {
     if (tooLongMsg) {
       return new Response(JSON.stringify({ error: 'الرسالة طويلة جدًا — الحد الأقصى 4000 حرف' }), {
         status: 400,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      })
+    }
+
+    // Check for prompt injection BEFORE calling the LLM — block malicious input early
+    const lastUserMsg = [...messages].reverse().find((m: { role: string; content: string }) => m.role === 'user')
+    if (lastUserMsg && containsPromptInjection(lastUserMsg.content)) {
+      console.warn('ai-coach: prompt injection detected in user input, blocking request')
+      return new Response(JSON.stringify({
+        choices: [{ message: { role: 'assistant', content: SANITIZED_RESPONSE } }],
+      }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       })
     }

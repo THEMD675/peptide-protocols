@@ -340,15 +340,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
     );
 
+    const slowWarning = setTimeout(() => {
+      if (!initDoneRef.current) {
+        toast('جارٍ التحميل... يرجى الانتظار', { duration: 8000 });
+      }
+    }, 5000);
+
     timeout = setTimeout(() => {
       if (!initDoneRef.current) {
-        console.warn('Auth init timeout (15s) — resolving with current state');
+        console.warn('Auth init timeout (30s) — resolving with current state');
         initDoneRef.current = true;
         setIsLoading(false);
       }
-    }, 15000);
+    }, 30000);
 
-    return () => { authListener.unsubscribe(); clearTimeout(timeout); };
+    return () => { authListener.unsubscribe(); clearTimeout(timeout); clearTimeout(slowWarning); };
   }, [fetchSubscription, navigate]);
 
   const fetchSubRef = useRef(fetchSubscription);
