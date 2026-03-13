@@ -174,6 +174,7 @@ function useRecentActivity(userId: string | undefined) {
   const [hasMore, setHasMore] = useState(false);
   const [totalCount, setTotalCount] = useState(0);
   const [uniquePeptidesCount, setUniquePeptidesCount] = useState(0);
+  const [streakDates, setStreakDates] = useState<Set<string>>(new Set());
 
   const [cutoff] = useState(() => new Date(Date.now() - 35 * 24 * 60 * 60 * 1000).toISOString());
   const [refetchKey, setRefetchKey] = useState(0);
@@ -246,6 +247,18 @@ function useRecentActivity(userId: string | undefined) {
         setUniquePeptidesCount(unique.size);
       })
       .catch(() => { /* uniquePeptidesCount non-critical — ignore */ });
+    // Fetch all logged_at dates for accurate streak (no cutoff/limit)
+    supabase
+      .from('injection_logs')
+      .select('logged_at')
+      .eq('user_id', userId)
+      .order('logged_at', { ascending: false })
+      .limit(10000)
+      .then(({ data }) => {
+        if (!mounted || !data) return;
+        setStreakDates(new Set(data.map((r: { logged_at: string }) => new Date(r.logged_at).toDateString())));
+      })
+      .catch(() => { /* streak dates non-critical — ignore */ });
     const loadingTimeout = setTimeout(() => {
       if (mounted && !resolved) {
         setLoading(false);
@@ -260,9 +273,12 @@ function useRecentActivity(userId: string | undefined) {
   const totalInjections = totalCount || logs.length;
   const displayUniquePeptides = uniquePeptidesCount > 0 ? uniquePeptidesCount : activePeptides.length;
 
+  // Use full streakDates (all dates, no cutoff) for accurate streak; fallback to paginated logs
   let streak = 0;
-  if (logs.length > 0) {
-    const daySet = new Set(logs.map(l => new Date(l.logged_at).toDateString()));
+  const daySet = streakDates.size > 0
+    ? streakDates
+    : new Set(logs.map(l => new Date(l.logged_at).toDateString()));
+  if (daySet.size > 0) {
     const d = new Date();
     if (!daySet.has(d.toDateString())) d.setDate(d.getDate() - 1);
     while (daySet.has(d.toDateString())) { streak++; d.setDate(d.getDate() - 1); }
