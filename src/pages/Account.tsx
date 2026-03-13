@@ -632,6 +632,21 @@ export default function Account() {
               >
                 {profileSaving ? 'جارٍ الحفظ...' : 'حفظ الملف الشخصي'}
               </button>
+              <button
+                type="button"
+                onClick={() => {
+                  try {
+                    localStorage.removeItem('pptides_onboarded');
+                    localStorage.removeItem('pptides_quiz_results');
+                  } catch { /* ignore */ }
+                  supabase.from('user_profiles').update({ onboarding_completed_at: null }).eq('user_id', user.id).then(() => {
+                    toast.success('سيظهر استبيان الأهداف عند زيارتك القادمة للوحة التحكم');
+                  });
+                }}
+                className="rounded-full border border-stone-200 dark:border-stone-600 px-6 py-2.5 text-sm font-medium text-stone-600 dark:text-stone-300 transition-colors hover:bg-stone-100 dark:hover:bg-stone-800"
+              >
+                إعادة تحديد الأهداف
+              </button>
             </form>
           )}
         </div>

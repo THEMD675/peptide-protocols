@@ -154,8 +154,9 @@ export default function Contact() {
       message: validateField('message', message),
     };
     setFieldErrors(errors);
-    const firstError = Object.values(errors).find(Boolean);
-    if (firstError) {
+    const firstErrorField = Object.entries(errors).find(([, v]) => v)?.[0];
+    if (firstErrorField) {
+      document.getElementById(`contact-${firstErrorField}`)?.focus();
       return;
     }
 

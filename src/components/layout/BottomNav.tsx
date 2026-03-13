@@ -29,6 +29,7 @@ export default memo(function BottomNav() {
   const { user } = useAuth();
   const { pathname } = useLocation();
   const [moreOpen, setMoreOpen] = useState(false);
+  const [keyboardOpen, setKeyboardOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
   const isMoreActive = moreItems.some(item => pathname.startsWith(item.to));
@@ -42,6 +43,17 @@ export default memo(function BottomNav() {
     setMoreOpen(false);
   }, [pathname]);
 
+  // Hide nav when soft keyboard is open
+  useEffect(() => {
+    const vv = window.visualViewport;
+    if (!vv) return;
+    const handler = () => {
+      setKeyboardOpen(vv.height < window.innerHeight * 0.75);
+    };
+    vv.addEventListener('resize', handler);
+    return () => vv.removeEventListener('resize', handler);
+  }, []);
+
   // Close menu on outside click
   useEffect(() => {
     if (!moreOpen) return;
@@ -54,7 +66,7 @@ export default memo(function BottomNav() {
     return () => document.removeEventListener('mousedown', handleClick);
   }, [moreOpen]);
 
-  if (!user) return null;
+  if (!user || keyboardOpen) return null;
 
   return (
     <>
