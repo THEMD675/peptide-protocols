@@ -382,7 +382,7 @@ const PAGE_NAMES: Record<string, string> = {
 };
 
 // ── Generate minimal HTML with OG tags ──
-function renderOgHtml(meta: PageMeta, originalPath: string): string {
+function renderOgHtml(meta: PageMeta, _originalPath: string): string {
   const esc = (s: string) => s.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 
   // Generate JSON-LD script tags
@@ -441,7 +441,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     res.setHeader('Content-Type', 'text/html; charset=utf-8');
     res.setHeader('Cache-Control', 'public, s-maxage=3600, stale-while-revalidate=86400');
     return res.status(200).send(html);
-  } catch (err) {
+  } catch {
     // Fallback on error
     const meta: PageMeta = { title: DEFAULT_TITLE, description: DEFAULT_DESC, image: DEFAULT_OG_IMAGE, url: `${SITE_URL}${path}`, jsonLd: [] };
     const html = renderOgHtml(meta, path);

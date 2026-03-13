@@ -1268,10 +1268,12 @@ export default function Dashboard() {
         );
       })()}
 
-      {/* Wellness Check-in */}
-      <div className="mb-8">
-        <WellnessCheckin />
-      </div>
+      {/* Wellness Check-in — show only after first injection */}
+      {!activity.loading && activity.logs.length > 0 && (
+        <div className="mb-8">
+          <WellnessCheckin />
+        </div>
+      )}
 
       {/* Wellness Trend + Side Effects Summary */}
       {wellnessTrend && (wellnessTrend.avg > 0 || wellnessTrend.sideEffects7d > 0) && (
