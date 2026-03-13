@@ -22,7 +22,7 @@ const DASHBOARD_STEPS: Step[] = [
   {
     target: '[data-tour="dash-library"]',
     placement: 'top',
-    content: 'المكتبة تحتوي على 47 ببتيد مع بروتوكولات كاملة',
+    content: 'المكتبة تحتوي على 48 ببتيد مع بروتوكولات كاملة',
     disableBeacon: true,
   },
   {
