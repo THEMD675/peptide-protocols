@@ -719,12 +719,18 @@ export default function Coach() {
             </div>
             <div>
               <h1 className="text-lg font-bold">استشاري الببتيدات</h1>
-              <p className="text-xs text-stone-500 dark:text-stone-300">
+              <p className={cn('text-xs', limit === Infinity
+                ? 'text-emerald-600 dark:text-emerald-400'
+                : Math.max(0, limit - userMsgCount) <= 3
+                  ? 'text-red-600 dark:text-red-400'
+                  : Math.max(0, limit - userMsgCount) <= 7
+                    ? 'text-amber-600 dark:text-amber-400'
+                    : 'text-emerald-600 dark:text-emerald-400')}>
                 {limit === Infinity
-                  ? 'بروتوكول مخصّص لحالتك'
+                  ? '✦ بلا حدود'
                   : userMsgCount === 0
-                    ? 'اسأل أي سؤال عن الببتيدات'
-                    : `${Math.max(0, limit - userMsgCount)} رسائل متبقية من ${limit}`}
+                    ? `${limit} رسائل تجريبية`
+                    : `${Math.max(0, limit - userMsgCount)}/${limit} رسائل متبقية`}
               </p>
             </div>
           </div>

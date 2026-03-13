@@ -196,16 +196,25 @@ export default memo(function Header() {
                       <ChevronDown className={cn('h-3 w-3 transition-transform', moreOpen && 'rotate-180')} />
                     </button>
                     {moreOpen && (
-                      <nav aria-label="الأدوات" className="absolute end-0 top-full mt-2 min-w-[200px] overflow-hidden rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 py-1 shadow-xl dark:shadow-stone-900/40 animate-fade-in">
+                      <div role="menu" aria-label="الأدوات" className="absolute end-0 top-full mt-2 min-w-[200px] overflow-hidden rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 py-1 shadow-xl dark:shadow-stone-900/40 animate-fade-in" onKeyDown={(e) => {
+                        const items = e.currentTarget.querySelectorAll<HTMLElement>('[role="menuitem"]');
+                        const idx = Array.from(items).indexOf(e.target as HTMLElement);
+                        if (e.key === 'ArrowDown') { e.preventDefault(); items[(idx + 1) % items.length]?.focus(); }
+                        else if (e.key === 'ArrowUp') { e.preventDefault(); items[(idx - 1 + items.length) % items.length]?.focus(); }
+                        else if (e.key === 'Home') { e.preventDefault(); items[0]?.focus(); }
+                        else if (e.key === 'End') { e.preventDefault(); items[items.length - 1]?.focus(); }
+                        else if (e.key === 'Escape') { setMoreOpen(false); }
+                      }}>
                         {tools.map(({ to, label }) => (
                           <Link
                             key={to}
                             to={to}
+                            role="menuitem"
                             aria-current={pathname.startsWith(to) ? 'page' : undefined}
                             onMouseEnter={() => prefetchRoute(to)}
                             onClick={() => setMoreOpen(false)}
                             className={cn(
-                              'block px-4 py-2.5 text-sm transition-colors hover:bg-stone-50 dark:hover:bg-stone-800',
+                              'block px-4 py-2.5 text-sm transition-colors hover:bg-stone-50 dark:hover:bg-stone-800 focus-visible:outline-2 focus-visible:outline-emerald-600 focus-visible:outline-offset-[-2px]',
                               pathname.startsWith(to)
                                 ? 'text-emerald-700 dark:text-emerald-400 font-medium'
                                 : 'text-stone-700 dark:text-stone-200 transition-colors hover:text-stone-900 dark:text-stone-100',
@@ -214,7 +223,7 @@ export default memo(function Header() {
                             {label}
                           </Link>
                         ))}
-                      </nav>
+                      </div>
                     )}
                   </>
                 );
@@ -278,7 +287,15 @@ export default memo(function Header() {
                 </button>
 
                 {dropdownOpen && (
-                  <nav aria-label="حسابي" className="absolute end-0 top-full mt-2 min-w-[180px] overflow-hidden rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 py-1 shadow-xl dark:shadow-stone-900/40 animate-fade-in">
+                  <div role="menu" aria-label="حسابي" className="absolute end-0 top-full mt-2 min-w-[180px] overflow-hidden rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 py-1 shadow-xl dark:shadow-stone-900/40 animate-fade-in" onKeyDown={(e) => {
+                    const items = e.currentTarget.querySelectorAll<HTMLElement>('[role="menuitem"]');
+                    const idx = Array.from(items).indexOf(e.target as HTMLElement);
+                    if (e.key === 'ArrowDown') { e.preventDefault(); items[(idx + 1) % items.length]?.focus(); }
+                    else if (e.key === 'ArrowUp') { e.preventDefault(); items[(idx - 1 + items.length) % items.length]?.focus(); }
+                    else if (e.key === 'Home') { e.preventDefault(); items[0]?.focus(); }
+                    else if (e.key === 'End') { e.preventDefault(); items[items.length - 1]?.focus(); }
+                    else if (e.key === 'Escape') { setDropdownOpen(false); }
+                  }}>
                     <div className="border-b border-stone-200 dark:border-stone-600 px-4 py-2">
                       <p className="truncate text-sm text-stone-800 dark:text-stone-200">{user.email}</p>
                       {displayTier && (
@@ -289,23 +306,26 @@ export default memo(function Header() {
                     </div>
                     <Link
                       to="/dashboard"
+                      role="menuitem"
                       onClick={() => setDropdownOpen(false)}
-                      className="flex w-full items-center gap-2 px-4 py-2.5 min-h-[44px] text-sm text-stone-800 dark:text-stone-200 transition-colors hover:bg-stone-50 dark:hover:bg-stone-800"
+                      className="flex w-full items-center gap-2 px-4 py-2.5 min-h-[44px] text-sm text-stone-800 dark:text-stone-200 transition-colors hover:bg-stone-50 dark:hover:bg-stone-800 focus-visible:outline-2 focus-visible:outline-emerald-600 focus-visible:outline-offset-[-2px]"
                     >
                       لوحة التحكم
                     </Link>
                     <Link
                       to="/account"
+                      role="menuitem"
                       onClick={() => setDropdownOpen(false)}
-                      className="flex w-full items-center gap-2 px-4 py-2.5 min-h-[44px] text-sm text-stone-800 dark:text-stone-200 transition-colors hover:bg-stone-50 dark:hover:bg-stone-800"
+                      className="flex w-full items-center gap-2 px-4 py-2.5 min-h-[44px] text-sm text-stone-800 dark:text-stone-200 transition-colors hover:bg-stone-50 dark:hover:bg-stone-800 focus-visible:outline-2 focus-visible:outline-emerald-600 focus-visible:outline-offset-[-2px]"
                     >
                       إعدادات الحساب
                     </Link>
                     {ADMIN_EMAILS.includes(user?.email ?? '') && (
                     <Link
                       to="/admin"
+                      role="menuitem"
                       onClick={() => setDropdownOpen(false)}
-                      className="flex w-full items-center gap-2 px-4 py-2.5 min-h-[44px] text-sm text-stone-500 dark:text-stone-300 transition-colors hover:bg-stone-50 dark:hover:bg-stone-800"
+                      className="flex w-full items-center gap-2 px-4 py-2.5 min-h-[44px] text-sm text-stone-500 dark:text-stone-300 transition-colors hover:bg-stone-50 dark:hover:bg-stone-800 focus-visible:outline-2 focus-visible:outline-emerald-600 focus-visible:outline-offset-[-2px]"
                       title="لوحة الإدارة"
                     >
                       لوحة الإدارة
@@ -333,13 +353,14 @@ export default memo(function Header() {
                     ) : (
                       <button
                         onClick={() => setConfirmingLogout(true)}
-                        className="flex w-full items-center gap-2 px-4 py-2.5 min-h-[44px] text-sm text-red-500 dark:text-red-400 transition-colors hover:bg-stone-50 dark:hover:bg-stone-800"
+                        role="menuitem"
+                        className="flex w-full items-center gap-2 px-4 py-2.5 min-h-[44px] text-sm text-red-500 dark:text-red-400 transition-colors hover:bg-stone-50 dark:hover:bg-stone-800 focus-visible:outline-2 focus-visible:outline-emerald-600 focus-visible:outline-offset-[-2px]"
                       >
                         <LogOut className="h-4 w-4" />
                         تسجيل الخروج
                       </button>
                     )}
-                  </nav>
+                  </div>
                 )}
               </div>
             ) : (
