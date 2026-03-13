@@ -151,7 +151,7 @@ export default function TrackerForm({
       const sideEffectLabel = sideEffect !== 'none'
         ? `أعراض جانبية: ${sideEffect === 'other' ? (safeSideEffect || 'أخرى') : sideEffect}`
         : '';
-      const combinedNotes = [notes.trim(), sideEffectLabel].filter(Boolean).join('\n') || null;
+      const combinedNotes = [sanitizeInput(notes, 5000), sideEffectLabel].filter(Boolean).join('\n') || null;
       const photoUrl = await uploadPhoto();
       const insertData: Record<string, unknown> = {
         user_id: userId,
