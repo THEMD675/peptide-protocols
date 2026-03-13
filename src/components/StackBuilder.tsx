@@ -666,7 +666,7 @@ export default function StackBuilder() {
               <div key={s.id} className="flex items-center justify-between rounded-lg bg-white dark:bg-stone-900 px-3 py-2 border border-stone-200 dark:border-stone-600">
                 <button type="button" onClick={() => handleLoadStack(s)} className="flex-1 text-start">
                   <span className="text-sm font-medium text-stone-900 dark:text-stone-100">{s.name}</span>
-                  <span className="block text-xs text-stone-500 dark:text-stone-300">{s.peptideIds.length} ببتيدات • {new Date(s.createdAt).toLocaleDateString('ar-SA')}</span>
+                  <span className="block text-xs text-stone-500 dark:text-stone-300">{s.peptideIds.length} ببتيدات • {new Date(s.createdAt).toLocaleDateString('ar-u-nu-latn')}</span>
                 </button>
                 <button type="button" onClick={() => handleDelete(s.id)} aria-label={`حذف ${s.name}`} className="flex items-center justify-center rounded-lg p-2 min-h-[44px] min-w-[44px] text-red-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors">
                   <Trash2 className="h-4 w-4" />

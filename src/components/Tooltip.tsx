@@ -18,6 +18,7 @@ export default function Tooltip({ content, children, icon = true, position = 'to
   const [visible, setVisible] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
   const timeoutRef = useRef<ReturnType<typeof setTimeout>>();
+  const autoHideRef = useRef<ReturnType<typeof setTimeout>>();
 
   // Auto-show tooltip for first-time users
   useEffect(() => {
@@ -28,10 +29,9 @@ export default function Tooltip({ content, children, icon = true, position = 'to
       const t = setTimeout(() => {
         setVisible(true);
         localStorage.setItem(key, '1');
-        // Auto-hide after 4 seconds
-        setTimeout(() => setVisible(false), 4000);
+        autoHideRef.current = setTimeout(() => setVisible(false), 4000);
       }, 1500);
-      return () => clearTimeout(t);
+      return () => { clearTimeout(t); clearTimeout(autoHideRef.current); };
     } catch { /* Safari private mode */ }
   }, [firstTimeId]);
 

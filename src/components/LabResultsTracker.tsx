@@ -405,6 +405,7 @@ function LabEntryForm({
             value={labName}
             onChange={e => setLabName(e.target.value)}
             placeholder="مثال: مختبرات البرج"
+            dir="auto"
             className="w-full rounded-xl border border-stone-700 bg-stone-800 px-3 py-2.5 text-base text-stone-100 placeholder:text-stone-500 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
           />
         </div>
@@ -489,6 +490,7 @@ function LabEntryForm({
           value={notes}
           onChange={e => setNotes(e.target.value)}
           placeholder="أي ملاحظات إضافية عن هذا التحليل..."
+          dir="auto"
           rows={2}
           maxLength={500}
           className="w-full resize-none rounded-xl border border-stone-700 bg-stone-800 px-3 py-2.5 text-base text-stone-100 placeholder:text-stone-500 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
