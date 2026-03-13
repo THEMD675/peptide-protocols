@@ -242,7 +242,7 @@ serve(async (req) => {
       serviceSupabase.from('drip_emails_sent')
         .insert({ user_id: user.id, email_key: 'welcome_enhanced' })
         .then(() => {})
-        .catch(() => {}) // ignore if table doesn't exist yet or duplicate
+        .catch((e: unknown) => console.warn('drip tracking insert failed:', e))
     }
 
     // Handle referral tracking with service role (bypasses RLS)

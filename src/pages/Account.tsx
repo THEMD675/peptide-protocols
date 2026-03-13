@@ -114,7 +114,7 @@ export default function Account() {
           setNotifProduct(data.product_updates_enabled ?? true);
         }
       })
-      .catch(() => { /* profile load failed — non-critical, defaults remain */ })
+      .catch(() => { toast.error('تعذّر تحميل بيانات الملف الشخصي'); })
       .finally(() => setProfileLoading(false));
   }, [user]);
 
@@ -150,7 +150,7 @@ export default function Account() {
 
   const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (!file || !user) return;
+    if (!file || !user || uploadingPic) return;
     if (file.size > 2 * 1024 * 1024) { toast.error('حجم الصورة يجب أن يكون أقل من 2 ميجابايت'); return; }
     setUploadingPic(true);
     try {
@@ -171,7 +171,7 @@ export default function Account() {
   };
 
   const handleSaveProfile = async () => {
-    if (!user) return;
+    if (!user || profileSaving) return;
     setProfileSaving(true);
     try {
       const weightNum = profileWeight.trim() ? parseFloat(profileWeight) : null;
@@ -277,7 +277,7 @@ export default function Account() {
 
   const handleChangePassword = async () => {
     if (!currentPassword) { toast.error('أدخل كلمة المرور الحالية'); return; }
-    if (newPassword.length < 8) { toast.error('كلمة المرور الجديدة يجب أن تكون 8 أحرف على الأقل'); return; }
+    if (!newPassword.trim() || newPassword.trim().length < 8) { toast.error('كلمة المرور الجديدة يجب أن تكون 8 أحرف على الأقل (بدون مسافات فقط)'); return; }
     if (currentPassword === newPassword) { toast.error('كلمة المرور الجديدة يجب أن تختلف عن الحالية'); return; }
     setPasswordLoading(true);
     try {
@@ -338,7 +338,7 @@ export default function Account() {
       if (format === 'csv') {
         const logs = (logsRes.data ?? []) as Array<Record<string, unknown>>;
         const escapeCSV = (val: unknown): string => {
-          const str = String(val ?? '');
+          const str = String(val ?? '').replace(/[\r\n]+/g, ' ');
           const escaped = str.replace(/"/g, '""');
           if (/^[=+\-@\t\r]/.test(escaped)) return `"\t${escaped}"`;
           return `"${escaped}"`;
@@ -403,12 +403,12 @@ export default function Account() {
       setShowCancelDialog(false);
       setCancelStep(null);
       events.subscriptionCancelled(subscription.tier, cancelReason || undefined);
+      await refreshSubscription();
       if (result.cancel_at) {
         toast.success(`تم إلغاء اشتراكك. ستحتفظ بالوصول حتى ${new Date(result.cancel_at).toLocaleDateString('ar-u-nu-latn')}`);
       } else {
         toast.success('تم إلغاء التجربة المجانية');
       }
-      await refreshSubscription();
       navigate('/account', { replace: true });
     } catch (err) {
       logError('cancel subscription failed', err);
@@ -442,11 +442,13 @@ export default function Account() {
         },
         body: JSON.stringify({ confirm: true }),
       });
-      if (!res.ok) throw new Error();
+      const body = await res.json().catch(() => ({} as Record<string, unknown>));
+      if (!res.ok) throw new Error(typeof body.error === 'string' ? body.error : '');
       await logout();
       navigate('/', { replace: true });
-    } catch {
-      toast.error(`تعذّر حذف الحساب — تواصل معنا: ${SUPPORT_EMAIL}`);
+    } catch (err) {
+      const msg = err instanceof Error && err.message ? err.message : `تعذّر حذف الحساب — تواصل معنا: ${SUPPORT_EMAIL}`;
+      toast.error(msg);
     } finally {
       setIsProcessing(false);
     }
@@ -1278,6 +1280,7 @@ export default function Account() {
                     });
                     if (res.ok) {
                       toast.success(RETENTION.appliedToast);
+                      await refreshSubscription();
                       setShowCancelDialog(false); setCancelStep(null);
                     } else {
                       toast.error(RETENTION.failedToast);
@@ -1318,17 +1321,6 @@ export default function Account() {
                 {isProcessing ? RETENTION.cancellingText : RETENTION.proceedCancel}
               </button>
               <button
-                type="button"
-                onClick={() => {
-                  toast.info(RETENTION.pauseToast);
-                  setShowCancelDialog(false);
-                  setCancelStep(null);
-                }}
-                className="w-full rounded-full border border-stone-200 dark:border-stone-600 py-3 text-sm font-bold text-stone-600 dark:text-stone-300 hover:bg-stone-50 dark:hover:bg-stone-800"
-              >
-                {RETENTION.pauseOption}
-              </button>
-              <button
                 onClick={() => { setShowCancelDialog(false); setCancelStep(null); }}
                 className="w-full rounded-full bg-emerald-600 px-4 py-2 text-sm font-medium text-white transition-all hover:bg-emerald-700"
               >
@@ -1342,7 +1334,7 @@ export default function Account() {
 
       {/* Delete Account Dialog */}
       {showDeleteDialog && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm px-4 animate-fade-in" onClick={closeDialogs}>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm px-4 animate-fade-in" onClick={() => { setShowDeleteDialog(false); setDeleteConfirmText(''); setDeletePassword(''); }}>
           <FocusTrap focusTrapOptions={{ allowOutsideClick: true }}>
           <div role="dialog" aria-modal="true" className="w-full max-w-md max-h-[90vh] overflow-y-auto rounded-2xl bg-white dark:bg-stone-900 p-6 shadow-xl dark:shadow-stone-900/40" onClick={e => e.stopPropagation()}>
             <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-red-100">
@@ -1429,7 +1421,7 @@ function ReferralSection({ userId }: { userId?: string }) {
       if (!refCode) {
         refCode = generateCode();
         const { error: rpcErr } = await supabase.rpc('set_referral_code', { p_code: refCode });
-        if (rpcErr) logError('set_referral_code RPC failed:', rpcErr);
+        if (rpcErr) { logError('set_referral_code RPC failed:', rpcErr); return; }
       }
       setCode(refCode);
 

@@ -59,16 +59,14 @@ export default function CoachInsightsBanner({ insights, onInsightClick }: Props)
           <span className="flex-1 text-sm font-medium text-stone-700 dark:text-stone-200 leading-relaxed">
             {insight.text}
           </span>
-          <span
-            role="button"
-            tabIndex={0}
+          <button
+            type="button"
             aria-label="إخفاء"
             onClick={e => { e.stopPropagation(); setDismissed(prev => new Set(prev).add(insight.id)); }}
-            onKeyDown={e => { if (e.key === 'Enter') { e.stopPropagation(); setDismissed(prev => new Set(prev).add(insight.id)); } }}
             className="mt-0.5 shrink-0 rounded-full p-1 min-h-[44px] min-w-[44px] flex items-center justify-center text-stone-400 hover:bg-stone-200 dark:hover:bg-stone-700"
           >
             <X className="h-3 w-3" />
-          </span>
+          </button>
         </button>
       ))}
     </div>

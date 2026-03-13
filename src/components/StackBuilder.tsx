@@ -312,7 +312,11 @@ function loadSavedStacks(): SavedStack[] {
 }
 
 function saveStacks(stacks: SavedStack[]) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(stacks));
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(stacks));
+  } catch {
+    toast.error('فشل حفظ التجميعة — مساحة التخزين ممتلئة');
+  }
 }
 
 /* ── Sub-components ──────────────────────────────────────── */

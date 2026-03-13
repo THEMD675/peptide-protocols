@@ -99,7 +99,7 @@ function TourTooltip({
       dir="rtl"
       className={[
         'rounded-2xl border px-6 py-5 font-[inherit]',
-        'max-w-[320px] min-w-[260px]',
+        'max-w-[min(320px,90vw)] min-w-[240px]',
         '[animation:tour-in_0.22s_cubic-bezier(0.34,1.56,0.64,1)]',
         isDark
           ? 'bg-stone-950 text-stone-200 border-stone-700 shadow-[0_20px_40px_rgba(0,0,0,0.5)]'

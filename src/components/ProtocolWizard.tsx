@@ -20,9 +20,13 @@ function ShoppingList({ peptide, dose, unit, frequency, cycleWeeks }: { peptide:
   const vialMg = peptide.doseMcg && peptide.doseMcg <= 1000 ? 5 : 10;
   const dosesPerVial = Math.floor((vialMg * 1000) / doseMcg);
   const vialsNeeded = Math.ceil(totalDoses / Math.max(dosesPerVial, 1));
+  const doseExceedsVial = doseMcg > vialMg * 1000;
   return (
     <div className="rounded-xl border border-stone-200 dark:border-stone-600 bg-stone-50 dark:bg-stone-900 px-4 py-3">
       <p className="text-xs font-bold text-stone-700 dark:text-stone-200 mb-2">قائمة التسوّق المقدّرة:</p>
+      {doseExceedsVial && (
+        <p className="text-xs font-bold text-amber-600 dark:text-amber-400 mb-2">⚠ الجرعة تتجاوز حجم القارورة — ستحتاج أكثر من قارورة لكل حقنة</p>
+      )}
       <ul className="space-y-1 text-xs text-stone-600 dark:text-stone-300">
         <li>• {vialsNeeded}x قارورة {peptide.nameEn} {vialMg}mg</li>
         <li>• 1x ماء بكتيريوستاتيك 30ml</li>

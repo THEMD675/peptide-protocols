@@ -130,6 +130,7 @@ serve(async (req) => {
       try {
         const contentRes = await fetch(`https://api.resend.com/emails/${email_id}/content`, {
           headers: { Authorization: `Bearer ${RESEND_API_KEY}` },
+          signal: AbortSignal.timeout(10000),
         })
         if (contentRes.ok) {
           const content = await contentRes.json()

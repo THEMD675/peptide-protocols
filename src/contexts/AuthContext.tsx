@@ -602,17 +602,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (user) await fetchSubscription(user.id);
   }, [user, fetchSubscription]);
 
+  const pollTierRef = useRef<string>('none');
   useEffect(() => {
     if (!user) return;
     const isTrial = subscription.status === 'trial' && subscription.trialDaysLeft > 0;
     const isActive = subscription.status === 'active' || subscription.status === 'past_due';
     const isCancelledButActive = subscription.status === 'cancelled' && subscription.isPaidSubscriber;
-    if (!isTrial && !isActive && !isCancelledButActive) return;
-    const intervalMs = isTrial ? 30_000 : 300_000;
+    const tier = isTrial ? 'trial' : (isActive || isCancelledButActive) ? 'active' : 'none';
+    if (tier === 'none') { pollTierRef.current = 'none'; return; }
+    if (tier === pollTierRef.current) return;
+    pollTierRef.current = tier;
+    const intervalMs = tier === 'trial' ? 30_000 : 300_000;
     const jitter = Math.random() * intervalMs * 0.2;
     const interval = setInterval(() => { fetchSubscription(user.id); }, intervalMs + jitter);
     return () => clearInterval(interval);
-  }, [user, subscription.status, subscription.trialDaysLeft, fetchSubscription]);
+  }, [user, subscription.status, subscription.trialDaysLeft, subscription.isPaidSubscriber, fetchSubscription]);
 
   const upgradeTo = useCallback(async (tier: 'essentials' | 'elite', billing: 'monthly' | 'annual' = 'monthly', coupon?: string) => {
     try {
@@ -710,13 +714,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           <div className="mx-4 w-full max-w-md rounded-2xl bg-white dark:bg-stone-900 p-10 text-center shadow-2xl">
             <h2 className="mb-3 text-2xl font-bold text-stone-900 dark:text-stone-100">حدث خطأ في تحميل اشتراكك</h2>
             <p className="mb-6 text-stone-700 dark:text-stone-200">تعذّر الاتصال بالخادم. تحقق من اتصالك بالإنترنت وحاول مرة أخرى.</p>
-            <button
-              type="button"
-              onClick={handleSubErrorReload}
-              className="inline-block rounded-full bg-emerald-600 px-10 py-3.5 font-bold text-white shadow-lg transition-all hover:bg-emerald-700 hover:scale-105 active:scale-[0.98]"
-            >
-              إعادة تحميل
-            </button>
+            <div className="flex flex-col gap-3">
+              <button
+                type="button"
+                onClick={handleSubErrorReload}
+                className="inline-block rounded-full bg-emerald-600 px-10 py-3.5 font-bold text-white shadow-lg transition-all hover:bg-emerald-700 hover:scale-105 active:scale-[0.98]"
+              >
+                إعادة تحميل
+              </button>
+              <button
+                type="button"
+                onClick={() => setSubscriptionError(false)}
+                className="text-sm font-medium text-stone-500 dark:text-stone-400 hover:text-stone-700 dark:hover:text-stone-200 transition-colors"
+              >
+                متابعة بدون تحديث
+              </button>
+            </div>
           </div>
         </div>
       )}

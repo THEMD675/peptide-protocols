@@ -629,9 +629,10 @@ export default function LabResultsTracker() {
         .order('test_date', { ascending: false })
         .limit(100);
 
-      if (!error && data) setEntries(data as LabEntry[]);
+      if (error) { toast.error('تعذّر تحميل نتائج التحاليل'); }
+      else if (data) setEntries(data as LabEntry[]);
     } catch {
-      // silently fail
+      toast.error('تعذّر تحميل نتائج التحاليل');
     } finally {
       setLoading(false);
     }

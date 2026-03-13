@@ -1,12 +1,13 @@
 /**
- * Dev-only logger — production builds emit nothing.
+ * Errors always log (dev + prod) so we have visibility into production issues.
+ * Warnings log in dev + prod. Debug only in dev.
  */
 export function logError(msg: string, err?: unknown): void {
-  if (import.meta.env.DEV) console.error(msg, err);
+  console.error(msg, err);
 }
 
 export function logWarn(msg: string, data?: unknown): void {
-  if (import.meta.env.DEV) console.warn(msg, data);
+  console.warn(msg, data);
 }
 
 export function logDebug(msg: string, data?: unknown): void {

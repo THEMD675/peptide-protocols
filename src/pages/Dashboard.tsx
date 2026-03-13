@@ -254,7 +254,7 @@ function useRecentActivity(userId: string | undefined) {
       .select('logged_at')
       .eq('user_id', userId)
       .order('logged_at', { ascending: false })
-      .limit(10000)
+      .limit(1000)
       .then(({ data }) => {
         if (!mounted || !data) return;
         setStreakDates(new Set(data.map((r: { logged_at: string }) => new Date(r.logged_at).toDateString())));
@@ -458,11 +458,14 @@ export default function Dashboard() {
   // 3.7: Show one-time premium welcome card after first payment
   useEffect(() => {
     if (
-      subscription.status === 'active' &&
-      !localStorage.getItem('pptides_premium_welcomed')
+      subscription.status === 'active'
     ) {
-      setShowPremiumWelcome(true);
-      localStorage.setItem('pptides_premium_welcomed', 'true');
+      try {
+        if (!localStorage.getItem('pptides_premium_welcomed')) {
+          setShowPremiumWelcome(true);
+          localStorage.setItem('pptides_premium_welcomed', 'true');
+        }
+      } catch { /* Safari private mode */ }
     }
   }, [subscription.status]);
 

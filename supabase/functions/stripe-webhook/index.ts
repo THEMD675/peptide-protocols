@@ -4,7 +4,7 @@ import Stripe from 'https://esm.sh/stripe@14.14.0?target=deno'
 import { emailWrapper, emailButton } from '../_shared/email-template.ts'
 import { sendEmail } from '../_shared/send-email.ts'
 
-const TRIAL_DAYS = 3 // Keep in sync with src/config/trial.ts
+const TRIAL_DAYS = parseInt(Deno.env.get('TRIAL_DAYS') ?? '3', 10) // Keep in sync with src/config/trial.ts
 const stripeKey = Deno.env.get('STRIPE_SECRET_KEY') ?? ''
 const stripe = new Stripe(stripeKey, { apiVersion: '2024-06-20', timeout: 10000 })
 const endpointSecret = Deno.env.get('STRIPE_WEBHOOK_SECRET') ?? ''
@@ -57,16 +57,15 @@ serve(async (req) => {
 
     const supabase = createClient(supabaseUrl, supabaseServiceKey)
 
-    const { error: dedupError } = await supabase
+    // Check for duplicate event (SELECT-based) before processing
+    const { data: existingEvent } = await supabase
       .from('processed_webhook_events')
-      .insert({ event_id: event.id, event_type: event.type })
-    if (dedupError) {
-      if (dedupError.code === '23505') {
-        console.log('stripe-webhook: duplicate event skipped:', event.id)
-        return jsonResponse({ received: true, duplicate: true })
-      }
-      console.error('stripe-webhook: dedup insert failed (non-duplicate):', dedupError)
-      return jsonResponse({ error: 'Dedup check failed' }, 500)
+      .select('event_id')
+      .eq('event_id', event.id)
+      .maybeSingle()
+    if (existingEvent) {
+      console.log('stripe-webhook: duplicate event skipped:', event.id)
+      return jsonResponse({ received: true, duplicate: true })
     }
 
     let dbFailed = false
@@ -738,9 +737,16 @@ serve(async (req) => {
     }
 
     if (dbFailed) {
-      await supabase.from('processed_webhook_events').delete().eq('event_id', event.id).catch(() => {})
       console.error(JSON.stringify({ severity: 'CRITICAL', action: 'webhook_db_failed', event_type: event.type, event_id: event.id, timestamp: new Date().toISOString() }))
       return jsonResponse({ error: 'Database update failed' }, 500)
+    }
+
+    // Mark event as processed AFTER handler succeeds (atomic with success)
+    const { error: dedupError } = await supabase
+      .from('processed_webhook_events')
+      .insert({ event_id: event.id, event_type: event.type })
+    if (dedupError && dedupError.code !== '23505') {
+      console.error('stripe-webhook: post-processing dedup insert failed:', dedupError)
     }
 
     return jsonResponse({ received: true })

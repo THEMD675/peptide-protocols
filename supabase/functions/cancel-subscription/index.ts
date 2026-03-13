@@ -73,7 +73,9 @@ serve(async (req) => {
     let reqBody: Record<string, unknown> = {}
     try { reqBody = await req.clone().json() } catch { /* empty body is fine for cancel */ }
     const applyCoupon = reqBody.apply_coupon === true
-    const cancelReason = typeof reqBody.reason === 'string' ? reqBody.reason.slice(0, 200) : null
+    const cancelReason = typeof reqBody.reason === 'string'
+      ? reqBody.reason.slice(0, 200).replace(/</g, '&lt;').replace(/>/g, '&gt;')
+      : null
 
     // Save cancellation reason to subscriptions table if provided
     if (cancelReason) {

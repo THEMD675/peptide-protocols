@@ -458,9 +458,8 @@ export default function InteractionChecker() {
                     </span>
                   </div>
                   {isGated ? (
-                    <div className="blur-sm pointer-events-none" aria-hidden="true">
-                      <p className="text-sm font-semibold text-stone-800 dark:text-stone-200">{pair.result.message}</p>
-                      <p className="text-sm text-stone-600 dark:text-stone-300 mt-1 leading-relaxed">{pair.result.details}</p>
+                    <div className="py-1" aria-hidden="true">
+                      <p className="text-sm text-stone-500 dark:text-stone-400">اشترك لعرض تفاصيل هذا التفاعل</p>
                     </div>
                   ) : (
                     <>

@@ -83,9 +83,11 @@ export default function SideEffectLog() {
         .select('id, peptide_id, status')
         .eq('user_id', user.id)
         .eq('status', 'active');
-      if (!error && data) setActiveProtocols(data);
+      if (error) { toast.error('تعذّر تحميل البروتوكولات النشطة'); }
+      else if (data) setActiveProtocols(data);
     } catch (e) {
       logError('protocols fetch failed:', e);
+      toast.error('تعذّر تحميل البروتوكولات النشطة');
     }
   }, [user]);
 
@@ -203,11 +205,11 @@ export default function SideEffectLog() {
                     className={cn(
                       'flex-1 rounded-lg border py-2 min-h-[44px] text-xs font-bold transition-all btn-press',
                       severity === level
-                        ? SEVERITY_COLORS[level - 1]
+                        ? SEVERITY_COLORS[Math.max(0, Math.min(4, (level || 1) - 1))]
                         : 'border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 text-stone-500 dark:text-stone-300 hover:border-stone-300 dark:border-stone-600',
                     )}
                   >
-                    {SEVERITY_LABELS[level - 1]}
+                    {SEVERITY_LABELS[Math.max(0, Math.min(4, (level || 1) - 1))]}
                   </button>
                 ))}
               </div>
@@ -291,10 +293,10 @@ export default function SideEffectLog() {
                         <span
                           className={cn(
                             'rounded-full px-2 py-0.5 text-[10px] font-bold border',
-                            SEVERITY_COLORS[entry.severity - 1],
+                            SEVERITY_COLORS[Math.max(0, Math.min(4, (entry.severity || 1) - 1))],
                           )}
                         >
-                          {SEVERITY_LABELS[entry.severity - 1]}
+                          {SEVERITY_LABELS[Math.max(0, Math.min(4, (entry.severity || 1) - 1))]}
                         </span>
                       </div>
                       <div className="mt-1 flex items-center gap-2 text-xs text-stone-500 dark:text-stone-300">

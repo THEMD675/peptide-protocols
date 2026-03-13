@@ -157,8 +157,8 @@ export default function WellnessCheckin() {
         toast.success('تم تسجيل حالتك اليومية');
       }
 
-      setEditing(false);
       await fetchLatest();
+      setEditing(false);
     } catch (e) { logError('wellness save failed:', e);
       toast.error('تعذّر حفظ الحالة — حاول مرة أخرى');
     } finally {

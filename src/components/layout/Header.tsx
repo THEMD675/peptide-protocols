@@ -137,7 +137,7 @@ export default memo(function Header() {
     <>
       <header
         className={cn(
-          'fixed inset-x-0 top-0 z-50 transition-all duration-300',
+          'fixed inset-x-0 top-0 z-40 transition-all duration-300',
           'h-[var(--header-height)]',
           scrolled
             ? 'border-b border-stone-200/50 dark:border-stone-600/50 bg-stone-50/90 dark:bg-stone-950/90 backdrop-blur-2xl shadow-sm dark:shadow-stone-900/30'
@@ -416,7 +416,7 @@ export default memo(function Header() {
           aria-modal="true"
           aria-label="القائمة الرئيسية"
           className={cn(
-            'absolute inset-y-0 end-0 flex w-[min(18rem,85vw)] flex-col border-s border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 pt-16 shadow-2xl transition-all duration-300 ease-out',
+            'absolute inset-y-0 end-0 flex w-[min(18rem,85vw)] flex-col border-s border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 pt-16 pb-[env(safe-area-inset-bottom)] shadow-2xl transition-all duration-300 ease-out',
             mobileOpen ? 'translate-x-0 opacity-100' : 'ltr:translate-x-full rtl:-translate-x-full opacity-0',
           )}
         >

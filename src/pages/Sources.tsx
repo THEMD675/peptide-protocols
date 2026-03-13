@@ -46,7 +46,7 @@ function buildCitationMap(): AggregatedCitation[] {
   }));
 }
 
-const allCitations = buildCitationMap();
+const allCitations = buildCitationMap(); // module-level: computed once
 
 /* ─── Sourcing Interest Form (preserved) ─────────────────── */
 

@@ -8,10 +8,19 @@ if (!supabaseUrl || !supabaseAnonKey) {
   throw new Error('[pptides] FATAL: Missing VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY');
 }
 
-// Bypass Web Locks API — some browsers (Safari <16.4, SSR) don't support navigator.locks.
-// Trade-off: concurrent tabs may race on token refresh. Acceptable for this app's usage pattern.
-const noopLock: <R>(name: string, acquireTimeout: number, fn: () => Promise<R>) => Promise<R> =
-  async (_name, _acquireTimeout, fn) => fn();
+// Use Web Locks API when available (modern browsers), fall back to in-memory lock for Safari <16.4/SSR.
+// In-memory lock prevents concurrent refresh within same tab; cross-tab races still possible on older browsers.
+let inMemoryLockPromise: Promise<unknown> = Promise.resolve();
+const safeLock: <R>(name: string, acquireTimeout: number, fn: () => Promise<R>) => Promise<R> =
+  typeof globalThis.navigator?.locks?.request === 'function'
+    ? (name, acquireTimeout, fn) => navigator.locks.request(name, { signal: AbortSignal.timeout(acquireTimeout) }, () => fn())
+    : async (_name, _acquireTimeout, fn) => {
+        const prev = inMemoryLockPromise;
+        let resolve: () => void;
+        inMemoryLockPromise = new Promise<void>(r => { resolve = r; });
+        await prev;
+        try { return await fn(); } finally { resolve!(); }
+      };
 
 export const supabase: SupabaseClient = createClient(
   supabaseUrl,
@@ -20,7 +29,7 @@ export const supabase: SupabaseClient = createClient(
     auth: {
       persistSession: true,
       detectSessionInUrl: true,
-      lock: noopLock,
+      lock: safeLock,
     },
   },
 );

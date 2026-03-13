@@ -171,7 +171,7 @@ serve(async (req) => {
         } else {
           console.error(`trial-day1: failed to send to ${email}:`, emailResult.error)
           await supabase.from('sent_reminders').delete()
-            .eq('user_id', sub.user_id).eq('reminder_type', 'trial_day1').catch(() => {})
+            .eq('user_id', sub.user_id).eq('reminder_type', 'trial_day1').catch((e: unknown) => console.error('dedup cleanup failed:', e))
           failed++
         }
       } catch (e) {

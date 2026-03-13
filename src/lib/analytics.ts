@@ -88,11 +88,12 @@ if (typeof window !== 'undefined') {
 
 export function trackEvent(event: string, params?: Record<string, unknown>) {
   try {
+    if (!hasOptionalConsent()) return;
     // Send to GA4 if available
     if (typeof window !== 'undefined' && typeof window.gtag === 'function') {
       window.gtag('event', event, params);
     }
-    // Always send to Supabase
+    // Send to Supabase
     queueEvent(event, params);
   } catch (e) { logError('[analytics] trackEvent failed:', e); }
 }

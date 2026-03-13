@@ -6,6 +6,7 @@ import { TRIAL_DAYS, PEPTIDE_COUNT } from '@/lib/constants';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
 import { logError } from '@/lib/logger';
+import { toast } from 'sonner';
 
 const ONBOARDING_KEY = 'pptides_onboarded';
 
@@ -264,7 +265,9 @@ export default function OnboardingModal({ forceOpen, onClose: externalClose }: {
                       appetite: 3,
                       notes: 'onboarding_baseline',
                       logged_at: new Date().toISOString(),
-                    }).then(() => {}).catch((e: unknown) => logError('Baseline save failed:', e));
+                    }).then(({ error: insertErr }) => {
+                      if (insertErr) { toast.error('تعذّر حفظ البيانات الأساسية'); logError('Baseline save failed:', insertErr); }
+                    }).catch((e: unknown) => { toast.error('تعذّر حفظ البيانات الأساسية'); logError('Baseline save failed:', e); });
                   }
                   setStep('plan');
                   setTimeout(() => setAnimatePlan(true), 100);
