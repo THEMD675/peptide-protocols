@@ -285,7 +285,7 @@ export default function TrackerHistory({
           >
             <Syringe className="h-5 w-5 shrink-0" />
             <span>
-              سجّل سريع — {logs[0]?.peptide_name} {logs[0]?.dose} {logs[0]?.dose_unit}
+              سجّل سريع — <span dir="ltr" className="inline-block">{logs[0]?.peptide_name}</span> {logs[0]?.dose} {logs[0]?.dose_unit}
               <span className="mx-2 opacity-60">·</span>
               <span className="opacity-90">{SITE_LABELS[suggestedSite] ?? suggestedSite}</span>
             </span>

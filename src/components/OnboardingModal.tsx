@@ -5,6 +5,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { TRIAL_DAYS, PEPTIDE_COUNT } from '@/lib/constants';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
+import { logError } from '@/lib/logger';
 
 const ONBOARDING_KEY = 'pptides_onboarded';
 
@@ -64,7 +65,7 @@ export default function OnboardingModal({ forceOpen, onClose: externalClose }: {
       if (localStorage.getItem(ONBOARDING_KEY) === 'true') return false;
       if (sessionStorage.getItem(ONBOARDING_KEY + '_skipped') === 'true') return false;
       return true;
-    } catch (e) { console.error('onboarding:', e); return true; }
+    } catch (e) { logError('onboarding:', e); return true; }
   });
   const [step, setStep] = useState<'goal' | 'baseline' | 'plan'>('goal');
   const [selectedGoal, setSelectedGoal] = useState('');
@@ -80,14 +81,14 @@ export default function OnboardingModal({ forceOpen, onClose: externalClose }: {
   useEffect(() => {
     if (forceOpen || !user?.id) return;
     // If localStorage already says completed, no need to check DB
-    try { if (localStorage.getItem(ONBOARDING_KEY) === 'true') return; } catch (e) { console.error('onboarding:', e); }
+    try { if (localStorage.getItem(ONBOARDING_KEY) === 'true') return; } catch (e) { logError('onboarding:', e); }
     supabase.from('user_profiles').select('onboarding_completed_at').eq('user_id', user.id).maybeSingle()
       .then(({ data }) => {
         if (data?.onboarding_completed_at) {
-          try { localStorage.setItem(ONBOARDING_KEY, 'true'); } catch (e) { console.error('onboarding:', e); }
+          try { localStorage.setItem(ONBOARDING_KEY, 'true'); } catch (e) { logError('onboarding:', e); }
           setShow(false);
         }
-      }).catch((e: unknown) => console.error("silent catch:", e));
+      }).catch((e: unknown) => logError('silent catch:', e));
   }, [user?.id, forceOpen]);
 
   // If user already took the quiz, skip the goal step
@@ -103,7 +104,7 @@ export default function OnboardingModal({ forceOpen, onClose: externalClose }: {
 
         }
       }
-    } catch (e) { console.error('onboarding:', e); }
+    } catch (e) { logError('onboarding:', e); }
   }, []);
   useEffect(() => {
     if (show) {
@@ -114,14 +115,14 @@ export default function OnboardingModal({ forceOpen, onClose: externalClose }: {
 
   // Fix 4: "complete" marks onboarding as permanently done (skip button, completing plan)
   const handleComplete = useCallback(() => {
-    try { localStorage.setItem(ONBOARDING_KEY, 'true'); } catch (e) { console.error('onboarding:', e); }
+    try { localStorage.setItem(ONBOARDING_KEY, 'true'); } catch (e) { logError('onboarding:', e); }
     // C13: Persist goals to Supabase user_profiles table
     if (user && selectedGoal) {
       supabase.from('user_profiles').update({
         onboarding_goals: { goal: selectedGoal, ts: Date.now() },
         onboarding_completed_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
-      }).eq('user_id', user.id).then(() => {}).catch((e) => { console.error('OnboardingModal: failed to persist goals', e); });
+      }).eq('user_id', user.id).then(() => {}).catch((e) => { logError('OnboardingModal: failed to persist goals', e); });
     }
     setShow(false);
     externalClose?.();
@@ -129,7 +130,7 @@ export default function OnboardingModal({ forceOpen, onClose: externalClose }: {
 
   // "dismiss" just hides the modal for this session — user can re-open onboarding later
   const handleDismiss = useCallback(() => {
-    try { sessionStorage.setItem(ONBOARDING_KEY + '_skipped', 'true'); } catch (e) { console.error('onboarding:', e); }
+    try { sessionStorage.setItem(ONBOARDING_KEY + '_skipped', 'true'); } catch (e) { logError('onboarding:', e); }
     setShow(false);
     externalClose?.();
   }, [externalClose]);
@@ -155,7 +156,7 @@ export default function OnboardingModal({ forceOpen, onClose: externalClose }: {
         answers: { ...(parsed.answers ?? {}), goal: goalId },
         ts,
       }));
-    } catch (e) { console.error('onboarding:', e); }
+    } catch (e) { logError('onboarding:', e); }
     setSelectedGoal(goalId);
     setStep('baseline');
   };
@@ -263,7 +264,7 @@ export default function OnboardingModal({ forceOpen, onClose: externalClose }: {
                       appetite: 3,
                       notes: 'onboarding_baseline',
                       logged_at: new Date().toISOString(),
-                    }).then(() => {}).catch((e: unknown) => console.error('Baseline save failed:', e));
+                    }).then(() => {}).catch((e: unknown) => logError('Baseline save failed:', e));
                   }
                   setStep('plan');
                   setTimeout(() => setAnimatePlan(true), 100);

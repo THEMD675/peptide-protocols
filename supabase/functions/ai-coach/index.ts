@@ -231,45 +231,6 @@ function containsPromptLeak(text: string): boolean {
 
 const SANITIZED_RESPONSE = 'أعتذر، لا أستطيع مشاركة تفاصيل النظام. كيف يمكنني مساعدتك بخصوص الببتيدات؟'
 
-// Prompt injection patterns — checked on user INPUT before calling the LLM
-const PROMPT_INJECTION_PATTERNS = [
-  /ignore\s+(all\s+)?(previous|above|prior)\s+(instructions|prompts|rules)/i,
-  /disregard\s+(all\s+)?(previous|above|prior)\s+(instructions|prompts|rules)/i,
-  /forget\s+(all\s+)?(previous|above|prior)\s+(instructions|prompts|rules)/i,
-  /override\s+(your|system|all)\s+(instructions|prompts|rules)/i,
-  /you\s+are\s+now\s+(a|an|my)\s+/i,
-  /new\s+(system\s+)?instructions?\s*:/i,
-  /system\s*:\s*/i,
-  /\[system\]/i,
-  /act\s+as\s+(if\s+)?(you\s+)?(have\s+)?no\s+restrictions/i,
-  /pretend\s+(you\s+)?(are|have)\s+no\s+(rules|restrictions|limits)/i,
-  /reveal\s+(your|the)\s+(system\s+)?prompt/i,
-  /show\s+(me\s+)?(your|the)\s+(system\s+)?prompt/i,
-  /print\s+(your|the)\s+(system\s+)?prompt/i,
-  /output\s+(your|the)\s+(system\s+)?prompt/i,
-  /repeat\s+(your|the)\s+(system\s+)?(prompt|instructions)/i,
-  /what\s+(are|is)\s+your\s+(system\s+)?(prompt|instructions|rules)/i,
-  /تجاهل\s+(كل\s+)?التعليمات/,
-  /اكشف\s+(لي\s+)?تعليماتك/,
-  /اعرض\s+(لي\s+)?النظام/,
-  /ما\s+هي\s+تعليماتك/,
-  /تعليمات\s+النظام/,
-  /القواعد/,
-  /تجاهل\s+السابق/,
-  /تجاهل\s+التعليمات/,
-  /أخبرني\s+بالقواعد/,
-  /ignore\s+(previous|prior)/i,
-  /ignore\s+instructions/i,
-  /system\s+instructions/i,
-]
-
-function containsPromptInjection(text: string): boolean {
-  for (const p of PROMPT_INJECTION_PATTERNS) {
-    if (p.test(text)) return true
-  }
-  return false
-}
-
 serve(async (req) => {
   const corsHeaders = getCorsHeaders(req)
 
@@ -367,7 +328,7 @@ serve(async (req) => {
       });
     }
 
-    let body: { messages?: unknown; stream?: unknown; userId?: unknown }
+    let body: { messages?: unknown; stream?: unknown }
     try {
       body = JSON.parse(rawBody)
     } catch {
@@ -375,11 +336,6 @@ serve(async (req) => {
         status: 400,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       })
-    }
-
-    // Security: never trust client-provided userId — always use JWT-validated user.id
-    if ('userId' in body || 'user_id' in body) {
-      console.warn('ai-coach: client sent userId in body — ignoring (using JWT user.id)')
     }
 
     const { messages, stream } = body
@@ -423,17 +379,6 @@ serve(async (req) => {
       })
     }
 
-    // Check for prompt injection BEFORE calling the LLM — block malicious input early
-    const lastUserMsg = [...messages].reverse().find((m: { role: string; content: string }) => m.role === 'user')
-    if (lastUserMsg && containsPromptInjection(lastUserMsg.content)) {
-      console.warn('ai-coach: prompt injection detected in user input, blocking request')
-      return new Response(JSON.stringify({
-        choices: [{ message: { role: 'assistant', content: SANITIZED_RESPONSE } }],
-      }), {
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      })
-    }
-
     // Server-side message limit based on subscription
     const isElite = hasFullAccess && sub?.tier === 'elite'
     const serverLimit = isElite ? MAX_USER_MESSAGES : (isActive || cancelledButPaid) ? 15 : isTrialValid ? 5 : 5
@@ -473,9 +418,8 @@ serve(async (req) => {
       if (profileData.weight_kg) userContextMsg += ` | الوزن: ${profileData.weight_kg} كغ`
     }
     if (profileData?.onboarding_goals) {
-      const og = profileData.onboarding_goals as Record<string, unknown>
-      const goalsStr = og.goal ? String(og.goal) : JSON.stringify(og)
-      userContextMsg += `\nأهداف المستخدم من الببتيدات: ${goalsStr}`
+      const og = profileData.onboarding_goals as { goal?: string }
+      if (og.goal) userContextMsg += `\nهدف الأونبوردينغ: ${og.goal}`
     }
 
     // Injection history with adherence analysis
@@ -605,7 +549,7 @@ serve(async (req) => {
     }
 
     const response = await fetch('https://api.deepseek.com/chat/completions', {
-      signal: AbortSignal.timeout(60000),
+      signal: AbortSignal.timeout(30000),
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

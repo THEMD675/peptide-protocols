@@ -5,20 +5,14 @@ const FocusTrap = lazy(() => import('focus-trap-react'));
 import { useAuth } from '@/contexts/AuthContext';
 import { Shield, X, Clock } from 'lucide-react';
 import { cn, arPlural } from '@/lib/utils';
-import { PRICING, FREE_PEPTIDE_IDS } from '@/lib/constants';
+import { PRICING, FREE_PEPTIDE_IDS, isFreeRoute, isPaymentWallFreeRoute } from '@/lib/constants';
 import { useNowMs } from '@/hooks/useNowMs';
 import { TRIAL, RETENTION, UPGRADE, COMMON } from '@/constants/sales-copy';
 
 const DISMISS_KEY = 'pptides_trial_banner_dismissed';
 
-const FREE_PATHS = [
-  '/calculator', '/pricing', '/login', '/signup', '/privacy', '/terms', '/',
-  '/glossary', '/sources', '/reviews', '/account', '/interactions',
-  '/library', '/table', '/stacks', '/lab-guide', '/guide',
-  '/community', '/about', '/faq', '/quiz', '/blog', '/contact', '/transparency',
-];
 // Excluded: /dashboard, /tracker, /coach — premium routes; blocking modal must trigger for expired
-// /peptide handled separately via isPeptideFree (FREE_PEPTIDE_IDS)
+// /peptide handled separately via isPeptideFree (FREE_PEPTIDE_IDS). Free routes from constants.ts (single source of truth).
 
 export default function TrialBanner() {
   const navigate = useNavigate();
@@ -29,7 +23,7 @@ export default function TrialBanner() {
 
   const peptideId = pathname.startsWith('/peptide/') ? pathname.split('/')[2] : null;
   const isPeptideFree = peptideId ? FREE_PEPTIDE_IDS.has(peptideId) : false;
-  const isFreePage = FREE_PATHS.some(p => pathname === p || pathname.startsWith(p + '/')) || isPeptideFree;
+  const isFreePage = isFreeRoute(pathname) || isPeptideFree;
 
   const needsSubscription = !isLoading && user && subscription &&
     !subscription.isPaidSubscriber && !subscription.isTrial;
@@ -48,10 +42,7 @@ export default function TrialBanner() {
 
   // Payment wall: trial user who hasn't entered a credit card yet
   if (subscription.needsPaymentSetup) {
-    const PAYMENT_WALL_FREE_PATHS = [
-      '/pricing', '/account', '/login', '/signup', '/privacy', '/terms', '/contact', '/',
-    ];
-    const isPaymentWallFreePage = PAYMENT_WALL_FREE_PATHS.some(p => pathname === p || pathname.startsWith(p + '/'));
+    const isPaymentWallFreePage = isPaymentWallFreeRoute(pathname);
 
     if (isPaymentWallFreePage) {
       // Show a prominent banner on allowed pages

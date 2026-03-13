@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
+import { logError } from '@/lib/logger';
 import { peptides as fullPeptides } from '@/data/peptides';
 
 export interface PeptideProtocol {
@@ -86,7 +87,7 @@ export function usePeptideProtocol(peptideId: string | undefined, isFree: boolea
       .then(({ data, error: rpcError }) => {
         if (cancelled) return;
         if (rpcError) {
-          console.error('get_peptide_protocol error:', rpcError);
+          logError('get_peptide_protocol error:', rpcError);
           setError('تعذّر تحميل البروتوكول — حاول مرة أخرى');
           setProtocol(null);
         } else {

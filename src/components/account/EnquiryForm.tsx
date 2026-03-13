@@ -3,6 +3,7 @@ import { Check, MessageSquare, Send } from 'lucide-react';
 import { toast } from 'sonner';
 import { cn, sanitizeInput } from '@/lib/utils';
 import { supabase } from '@/lib/supabase';
+import { logError } from '@/lib/logger';
 
 interface EnquiryFormProps {
   userEmail?: string;
@@ -21,8 +22,8 @@ export default function EnquiryForm({ userEmail, userId }: EnquiryFormProps) {
     if (!userId) return;
     let mounted = true;
     supabase.from('enquiries').select('id, subject, status, created_at, peptide_name').eq('user_id', userId).order('created_at', { ascending: false }).limit(5)
-      .then(({ data, error }) => { if (error) console.error('enquiries history query failed:', error); if (mounted && data) setHistory(data); })
-      .catch(e => console.error('enquiries fetch failed:', e));
+      .then(({ data, error }) => { if (error) logError('enquiries history query failed:', error); if (mounted && data) setHistory(data); })
+      .catch(e => logError('enquiries fetch failed:', e));
     return () => { mounted = false; };
   }, [userId, sent]);
 

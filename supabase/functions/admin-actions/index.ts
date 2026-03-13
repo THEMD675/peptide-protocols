@@ -287,6 +287,49 @@ serve(async (req) => {
     }
 
     // ================================================================
+    // GET BULK RECIPIENTS (returns email list for client-side sequential send)
+    // ================================================================
+    if (action === 'get_bulk_recipients') {
+      const audience = (body.audience as string) ?? 'all'
+      let emails: string[] = []
+
+      if (audience === 'all') {
+        const collected: string[] = []
+        let pg = 1
+        while (true) {
+          const { data: { users: pageUsers }, error: pgErr } = await admin.auth.admin.listUsers({ page: pg, perPage: 1000 })
+          if (pgErr || !pageUsers || pageUsers.length === 0) break
+          pageUsers.forEach(u => { if (u.email) collected.push(u.email) })
+          if (pageUsers.length < 1000) break
+          pg++
+        }
+        emails = collected
+      } else {
+        const statusMap: Record<string, string> = { trial: 'trial', active: 'active', expired: 'expired' }
+        const status = statusMap[audience]
+        if (status) {
+          const { data: subs } = await admin.from('subscriptions').select('user_id').eq('status', status)
+          if (subs?.length) {
+            const userIds = new Set(subs.map((s: { user_id: string }) => s.user_id))
+            const allUsers: string[] = []
+            let pg = 1
+            while (true) {
+              const { data: { users: pageUsers }, error: pgErr } = await admin.auth.admin.listUsers({ page: pg, perPage: 1000 })
+              if (pgErr || !pageUsers || pageUsers.length === 0) break
+              pageUsers.forEach(u => { if (u.email && userIds.has(u.id)) allUsers.push(u.email) })
+              if (pageUsers.length < 1000) break
+              pg++
+            }
+            emails = allUsers
+          }
+        }
+      }
+
+      const MAX_BATCH_SIZE = 50
+      return json({ ok: true, emails: emails.slice(0, MAX_BATCH_SIZE), totalEligible: emails.length, maxBatch: MAX_BATCH_SIZE }, 200, cors)
+    }
+
+    // ================================================================
     // SEND EMAIL
     // ================================================================
     if (action === 'send_email') {
@@ -524,17 +567,9 @@ serve(async (req) => {
       }
 
       if (table === 'users') {
-        const allUsers: Array<{ id: string; email?: string; app_metadata?: Record<string, unknown>; email_confirmed_at?: string | null; created_at: string; last_sign_in_at?: string | null }> = []
-        let pg = 1
-        while (true) {
-          const { data: { users: pageUsers }, error: pgErr } = await admin.auth.admin.listUsers({ page: pg, perPage: 1000 })
-          if (pgErr || !pageUsers || pageUsers.length === 0) break
-          allUsers.push(...pageUsers)
-          if (pageUsers.length < 1000) break
-          pg++
-        }
+        const { data: { users: allUsers } } = await admin.auth.admin.listUsers({ perPage: 1000 })
         const { data: subs } = await admin.from('subscriptions').select('*')
-        const rows = allUsers.map(u => {
+        const rows = (allUsers ?? []).map(u => {
           const sub = (subs ?? []).find((s: { user_id: string }) => s.user_id === u.id)
           return {
             email: u.email, provider: u.app_metadata?.provider ?? 'email',
@@ -547,14 +582,7 @@ serve(async (req) => {
         return json({ ok: true, data: rows, count: rows.length }, 200, cors)
       }
 
-      const CSV_COLUMNS: Record<string, string> = {
-        injection_logs: 'id, user_id, peptide_name, dose, dose_unit, injection_site, logged_at',
-        ai_coach_requests: 'id, user_id, model, token_count, created_at',
-        email_logs: 'id, email, type, status, created_at',
-        email_list: 'id, email, created_at',
-        enquiries: 'id, email, subject, peptide_name, status, created_at',
-      }
-      const { data, error } = await admin.from(table).select(CSV_COLUMNS[table] ?? '*').order('created_at', { ascending: false }).limit(5000)
+      const { data, error } = await admin.from(table).select('*').order('created_at', { ascending: false }).limit(5000)
       if (error) return json({ error: error.message }, 500, cors)
       return json({ ok: true, data: data ?? [], count: (data ?? []).length }, 200, cors)
     }

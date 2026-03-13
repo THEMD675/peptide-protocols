@@ -5,6 +5,7 @@ import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
 import { peptidesLite as allPeptides } from '@/data/peptides-lite';
+import { logError } from '@/lib/logger';
 
 interface SideEffectEntry {
   id: string;
@@ -68,7 +69,7 @@ export default function SideEffectLog() {
 
       if (!error && data) setEntries(data as SideEffectEntry[]);
     } catch (e) {
-      console.error('side effect fetch failed:', e);
+      logError('side effect fetch failed:', e);
     } finally {
       setLoading(false);
     }
@@ -84,7 +85,7 @@ export default function SideEffectLog() {
         .eq('status', 'active');
       if (!error && data) setActiveProtocols(data);
     } catch (e) {
-      console.error('side effect fetch failed:', e);
+      logError('protocols fetch failed:', e);
     }
   }, [user]);
 
@@ -118,7 +119,7 @@ export default function SideEffectLog() {
       setPeptideId('');
       setNotes('');
       await fetchEntries();
-    } catch (e) { console.error("caught:", e);
+    } catch (e) { logError('side effect submit failed:', e);
       toast.error('تعذّر حفظ العرض — حاول مرة أخرى');
     } finally {
       setIsSubmitting(false);

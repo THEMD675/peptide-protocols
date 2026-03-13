@@ -4,6 +4,7 @@ import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
+import { logError } from '@/lib/logger';
 
 interface WellnessEntry {
   id: string;
@@ -108,7 +109,7 @@ export default function WellnessCheckin() {
         setNotes(entry.notes ?? '');
       }
     } catch (e) {
-      console.error('wellness save failed:', e);
+      logError('wellness fetch failed:', e);
     } finally {
       setLoading(false);
     }
@@ -158,7 +159,7 @@ export default function WellnessCheckin() {
 
       setEditing(false);
       await fetchLatest();
-    } catch (e) { console.error("caught:", e);
+    } catch (e) { logError('wellness save failed:', e);
       toast.error('تعذّر حفظ الحالة — حاول مرة أخرى');
     } finally {
       setIsSubmitting(false);

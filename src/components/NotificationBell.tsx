@@ -4,6 +4,7 @@ import type { LucideIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
+import { logError } from '@/lib/logger';
 
 interface Notification {
   id: string;
@@ -40,10 +41,10 @@ export default function NotificationBell() {
       .order('created_at', { ascending: false })
       .limit(20)
       .then(({ data, error }) => {
-        if (error) console.error('notifications fetch failed:', error);
+        if (error) logError('notifications fetch failed:', error);
         if (mounted && data) setNotifications(data as Notification[]);
       })
-      .catch(e => console.error('notifications fetch failed:', e));
+      .catch(e => logError('notifications fetch failed:', e));
     return () => { mounted = false; };
   }, [user?.id]);
 
@@ -61,7 +62,7 @@ export default function NotificationBell() {
         .order('created_at', { ascending: false })
         .limit(20)
         .then(({ data }) => { if (data) setNotifications(data as Notification[]); })
-        .catch(e => console.error('notification refetch failed:', e));
+        .catch(e => logError('notification refetch failed:', e));
     };
 
     const channel = supabase
@@ -81,7 +82,7 @@ export default function NotificationBell() {
         if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT') {
           // Start fallback polling on disconnect
           if (!pollTimer) {
-            pollTimer = setInterval(refetch, 30_000);
+            pollTimer = setInterval(refetch, 15_000);
           }
         } else if (status === 'SUBSCRIBED') {
           // Connected — stop polling and refetch to catch missed notifications
@@ -113,18 +114,22 @@ export default function NotificationBell() {
   const markAsRead = async (id: string) => {
     setNotifications(prev => prev.map(n => n.id === id ? { ...n, read: true } : n));
     const { error } = await supabase.from('notifications').update({ read: true }).eq('id', id).eq('user_id', user!.id);
-    if (error) console.error('notification mark-read failed:', error);
+    if (error) logError('notification mark-read failed:', error);
   };
 
   const markAllRead = async () => {
     if (!user?.id) return;
-    setNotifications(prev => prev.map(n => ({ ...n, read: true })));
+    const prev = notifications;
+    setNotifications(curr => curr.map(n => ({ ...n, read: true })));
     const { error } = await supabase
       .from('notifications')
       .update({ read: true })
       .eq('user_id', user.id)
       .eq('read', false);
-    if (error) console.error('notification mark-all-read failed:', error);
+    if (error) {
+      logError('notification mark-all-read failed:', error);
+      setNotifications(prev);
+    }
   };
 
   if (!user) return null;

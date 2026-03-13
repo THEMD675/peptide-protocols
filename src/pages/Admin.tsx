@@ -113,7 +113,7 @@ const EMAIL_TEMPLATES: { key: string; label: string; subject: string; body: stri
     key: 'upsell',
     label: 'ترقية للمتقدمة',
     subject: 'اكتشف ميزات الباقة المتقدّمة',
-    body: 'مرحبًا،\n\nشكرًا لاشتراكك في باقة الأساسيات! هل تعلم أن باقة Elite تمنحك:\n\n- بروتوكولات متقدمة حصرية\n- محادثات غير محدودة مع المدرب الذكي\n- تتبع متقدم للأعراض الجانبية\n- أولوية الدعم\n\nقم بالترقية الآن واستفد من كل الإمكانيات:\nhttps://pptides.com/pricing\n\nفريق pptides',
+    body: 'مرحبًا،\n\nشكرًا لاشتراكك في باقة الأساسيات! هل تعلم أن باقة Elite تمنحك:\n\n- بروتوكولات متقدمة حصرية\n- عدد كبير من الاستشارات اليومية مع المدرب الذكي\n- تتبع متقدم للأعراض الجانبية\n- أولوية الدعم\n\nقم بالترقية الآن واستفد من كل الإمكانيات:\nhttps://pptides.com/pricing\n\nفريق pptides',
   },
 ];
 
@@ -251,6 +251,7 @@ export default function Admin() {
   const [emailSubject, setEmailSubject] = useState('');
   const [emailBody, setEmailBody] = useState('');
   const [bulkAudience, setBulkAudience] = useState<'all' | 'trial' | 'active' | 'expired'>('all');
+  const [bulkProgress, setBulkProgress] = useState<{ current: number; total: number; sent: number; failed: number } | null>(null);
 
   // Health
   const [health, setHealth] = useState<HealthCheck | null>(null);
@@ -416,13 +417,38 @@ export default function Admin() {
 
   const handleBulkEmail = async () => {
     setActionLoading(true);
+    setBulkProgress(null);
     try {
-      const r = await adminAction({ action: 'send_email', to: 'bulk', audience: bulkAudience, subject: emailSubject, text: emailBody });
-      toast.success(`تم إرسال ${r.sent} بريد (${r.failed} فشل)`);
+      // Step 1: Fetch recipient list
+      const recipients = await adminAction({ action: 'get_bulk_recipients', audience: bulkAudience });
+      const emails: string[] = recipients.emails ?? [];
+      if (emails.length === 0) {
+        toast.error('لا يوجد مستلمون');
+        return;
+      }
+
+      // Step 2: Send sequentially with 200ms delay
+      let sent = 0;
+      let failed = 0;
+      for (let i = 0; i < emails.length; i++) {
+        setBulkProgress({ current: i + 1, total: emails.length, sent, failed });
+        try {
+          await adminAction({ action: 'send_email', to: emails[i], subject: emailSubject, text: emailBody });
+          sent++;
+        } catch {
+          failed++;
+        }
+        if (i < emails.length - 1) {
+          await new Promise(r => setTimeout(r, 200));
+        }
+      }
+
+      setBulkProgress({ current: emails.length, total: emails.length, sent, failed });
+      toast.success(`تم إرسال ${sent} بريد (${failed} فشل)`);
       setModal(null);
       setEmailSubject(''); setEmailBody('');
     } catch (e) { toast.error(e instanceof Error ? e.message : 'فشلت العملية'); }
-    finally { setActionLoading(false); }
+    finally { setActionLoading(false); setBulkProgress(null); }
   };
 
   const applyTemplate = (key: string) => {
@@ -953,7 +979,7 @@ export default function Admin() {
                           <td className="px-3 py-2 text-xs text-stone-500 dark:text-stone-300">{new Date(u.created_at).toLocaleDateString('ar-u-nu-latn')}</td>
                           <td className="px-3 py-2 text-xs text-stone-500 dark:text-stone-300">{u.last_sign_in_at ? timeAgo(u.last_sign_in_at) : '—'}</td>
                           <td className="px-3 py-2">
-                            <div className="flex items-center gap-0.5">
+                            <div className="flex flex-col sm:flex-row flex-wrap items-start sm:items-center gap-0.5">
                               <button onClick={() => openUserAction('extend_trial', u)} title="تمديد التجربة" aria-label="تمديد التجربة" className="rounded p-1.5 min-h-[44px] min-w-[44px] flex items-center justify-center hover:bg-emerald-50 dark:hover:bg-emerald-900/20"><CalendarPlus className="h-3.5 w-3.5 text-emerald-700" /></button>
                               <button onClick={() => openUserAction('grant_sub', u)} title="منح اشتراك" aria-label="منح اشتراك" className="rounded p-1.5 min-h-[44px] min-w-[44px] flex items-center justify-center hover:bg-blue-50 dark:hover:bg-blue-900/20"><CreditCard className="h-3.5 w-3.5 text-blue-600" /></button>
                               <button onClick={() => { setEmailTo(u.email); setEmailSubject(''); setEmailBody(''); setModal('send_email'); setModalTarget(u); }} title="إرسال بريد" aria-label="إرسال بريد" className="rounded p-1.5 min-h-[44px] min-w-[44px] flex items-center justify-center hover:bg-violet-50 dark:hover:bg-violet-900/20"><Mail className="h-3.5 w-3.5 text-violet-600" /></button>
@@ -1330,8 +1356,23 @@ export default function Admin() {
             </div>
           );
         })()}
+        {bulkProgress && (
+          <div className="mb-4 space-y-2">
+            <div className="rounded-lg border border-blue-200 dark:border-blue-800 bg-blue-50 dark:bg-blue-900/20 p-3">
+              <p className="text-xs font-medium text-blue-700 dark:text-blue-400">
+                جارٍ الإرسال {bulkProgress.current}/{bulkProgress.total}...
+              </p>
+              <p className="text-xs text-blue-600 dark:text-blue-300 mt-1">
+                نجح: {bulkProgress.sent} — فشل: {bulkProgress.failed}
+              </p>
+            </div>
+            <div className="w-full bg-stone-200 dark:bg-stone-700 rounded-full h-2">
+              <div className="bg-emerald-500 h-2 rounded-full transition-all duration-200" style={{ width: `${(bulkProgress.current / bulkProgress.total) * 100}%` }} />
+            </div>
+          </div>
+        )}
         <div className="flex gap-2 justify-end">
-          <button onClick={() => setModal(null)} className="rounded-lg border border-stone-200 dark:border-stone-600 px-4 py-2 text-xs font-medium text-stone-600 dark:text-stone-300">إلغاء</button>
+          <button onClick={() => setModal(null)} disabled={actionLoading} className="rounded-lg border border-stone-200 dark:border-stone-600 px-4 py-2 text-xs font-medium text-stone-600 dark:text-stone-300 disabled:opacity-50">إلغاء</button>
           <button onClick={() => {
             if (!confirm(`سيتم إرسال بريد جماعي لجمهور "${bulkAudience === 'all' ? 'الكل' : bulkAudience === 'trial' ? 'تجريبي' : bulkAudience === 'active' ? 'مدفوع' : 'منتهي'}". هل أنت متأكد؟`)) return;
             handleBulkEmail();

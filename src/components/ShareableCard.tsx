@@ -2,7 +2,8 @@ import { memo, useRef, useCallback } from 'react';
 import { Share2, Copy, Check, MessageCircle, Download, Twitter, Send } from 'lucide-react';
 import { useState } from 'react';
 import { toast } from 'sonner';
-import { SITE_URL, FREQUENCY_LABELS } from '@/lib/constants';
+import { SITE_URL, FREQUENCY_LABELS, REFERRAL_CODE_REGEX } from '@/lib/constants';
+import { logError } from '@/lib/logger';
 
 interface ShareableCardProps {
   peptideName: string;
@@ -53,7 +54,7 @@ export default memo(function ShareableCard(props: ShareableCardProps) {
     let shareText = `شوف تقدّمي في بروتوكول الببتيدات\n\n` + shareBody + '\n\n' + SITE_URL;
     try {
       const refCode = localStorage.getItem('pptides_referral_code') ?? localStorage.getItem('pptides_referral');
-      if (refCode && /^PP-[A-Z0-9]{6}$/.test(refCode)) {
+      if (refCode && REFERRAL_CODE_REGEX.test(refCode)) {
         shareText += `\nكود إحالة: ${refCode}`;
       }
     } catch { /* expected */ }
@@ -84,7 +85,7 @@ export default memo(function ShareableCard(props: ShareableCardProps) {
       if (!blob) { toast.error('تعذّر إنشاء الصورة'); return; }
       const file = new File([blob], `pptides-${props.peptideNameEn}.png`, { type: 'image/png' });
       if (navigator.share && navigator.canShare?.({ files: [file] })) {
-        await navigator.share({ files: [file], title: `بروتوكول ${props.peptideName}` }).catch((e: unknown) => console.error("silent catch:", e));
+        await navigator.share({ files: [file], title: `بروتوكول ${props.peptideName}` }).catch((e: unknown) => logError('share failed:', e));
       } else {
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');

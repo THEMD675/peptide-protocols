@@ -14,6 +14,7 @@ import {
   ChevronUp,
   Calendar,
   Gift,
+  Calculator,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { events } from '@/lib/analytics';
@@ -21,6 +22,7 @@ import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
 import { SITE_URL } from '@/lib/constants';
+import { logError } from '@/lib/logger';
 import { peptidesLite as allPeptides } from '@/data/peptides-lite';
 import ProgressRing from '@/components/charts/ProgressRing';
 import ChartErrorBoundary from '@/components/charts/ChartErrorBoundary';
@@ -161,10 +163,10 @@ export default function Tracker() {
   const fetchActiveProtocols = useCallback(async () => {
     if (!user) return;
     const { data, error } = await supabase.from('user_protocols').select('id, peptide_id, dose, dose_unit, frequency, cycle_weeks, started_at, status').eq('user_id', user.id).eq('status', 'active').order('started_at', { ascending: false }).limit(20);
-    if (error) { console.error('active protocols query failed:', error); toast.error('تعذّر تحميل البروتوكولات — حاول مرة أخرى'); }
+    if (error) { logError('active protocols query failed:', error); toast.error('تعذّر تحميل البروتوكولات — حاول مرة أخرى'); }
     if (!error && data) setActiveProtocols(data);
   }, [user]);
-  useEffect(() => { fetchActiveProtocols().catch((e: unknown) => console.error("silent catch:", e)); }, [fetchActiveProtocols]);
+  useEffect(() => { fetchActiveProtocols().catch((e: unknown) => logError('silent catch:', e)); }, [fetchActiveProtocols]);
 
   // Suggested injection site
   const suggestedSite = useMemo(() => {
@@ -206,7 +208,7 @@ export default function Tracker() {
 
   useEffect(() => {
     if (!user) return;
-    fetchLogs().catch((e: unknown) => console.error("silent catch:", e));
+    fetchLogs().catch((e: unknown) => logError('silent catch:', e));
     // 31.7: Safety timeout — force error state if loading hangs beyond 30s
     const loadingTimeout = setTimeout(() => {
       if (fetchingLogsRef.current) {
@@ -216,7 +218,7 @@ export default function Tracker() {
       }
     }, 30_000);
     // 31.3: Auto-retry on network reconnection
-    const onOnline = () => { fetchLogs().catch(e => console.error('fetchLogs reconnect failed:', e)); };
+    const onOnline = () => { fetchLogs().catch(e => logError('fetchLogs reconnect failed:', e)); };
     window.addEventListener('pptides:online', onOnline);
     return () => { clearTimeout(loadingTimeout); window.removeEventListener('pptides:online', onOnline); };
   }, [user, fetchLogs]);
@@ -274,7 +276,7 @@ export default function Tracker() {
       nextDoseTimerRef.current = setTimeout(() => toast(`الجرعة التالية: ${nextIn}`, { duration: 5000 }), 2000);
       const newTotal = (totalCount || logs.length) + 1;
       celebrate(newTotal, computeStreak(allLogsForStats, true));
-    } catch (err) { console.error(err); toast.error('تعذّر حفظ الحقنة — تحقق من اتصالك وحاول مرة أخرى'); }
+    } catch (err) { logError('injection save failed', err); toast.error('تعذّر حفظ الحقنة — تحقق من اتصالك وحاول مرة أخرى'); }
     finally { setIsSubmitting(false); }
   };
 
@@ -306,7 +308,7 @@ export default function Tracker() {
       toast.success(`تم تسجيل ${last.peptide_name} — ${last.dose} ${last.dose_unit}`);
       const newTotal = (totalCount || logs.length) + 1;
       celebrate(newTotal, computeStreak(allLogsForStats, true));
-    } catch (err) { console.error(err); toast.error('تعذّر حفظ الحقنة — تحقق من اتصالك وحاول مرة أخرى'); }
+    } catch (err) { logError('quick repeat failed', err); toast.error('تعذّر حفظ الحقنة — تحقق من اتصالك وحاول مرة أخرى'); }
     finally { setIsSubmitting(false); }
   };
 
@@ -316,17 +318,19 @@ export default function Tracker() {
   useEffect(() => {
     if (!user) return;
     let mounted = true;
-    supabase.from('injection_logs').select('logged_at, injection_site, peptide_name').eq('user_id', user.id).order('logged_at', { ascending: false }).gte('logged_at', new Date(Date.now() - 365 * 24 * 60 * 60 * 1000).toISOString()).limit(10000)
+    const statsPromise = supabase.from('injection_logs').select('logged_at, injection_site, peptide_name').eq('user_id', user.id).order('logged_at', { ascending: false }).gte('logged_at', new Date(Date.now() - 365 * 24 * 60 * 60 * 1000).toISOString()).limit(10000);
+    const timeoutPromise = new Promise<never>((_, reject) => setTimeout(() => reject(new Error('Stats fetch timeout (15s)')), 15000));
+    Promise.race([statsPromise, timeoutPromise])
     .then((allRes) => {
       if (!mounted) return;
-      if (allRes.error) { console.error('injection_logs full stats query failed:', allRes.error); return; }
+      if (allRes.error) { logError('injection_logs full stats query failed:', allRes.error); return; }
       const rows = (allRes.data as InjectionLog[]) ?? [];
       const unique = new Set(rows.map(r => r.peptide_name)).size;
       const weekAgo = new Date(Date.now() - 7 * 86400000).toISOString();
       const last7 = rows.filter(r => r.logged_at >= weekAgo).length;
       setFullStatsData({ uniquePeptides: unique, last7 });
       setAllLogsForStats(rows);
-    }).catch((e: unknown) => console.error("silent catch:", e));
+    }).catch((e: unknown) => logError('stats fetch failed:', e));
     return () => { mounted = false; };
   }, [user, logs.length]);
 
@@ -532,6 +536,9 @@ export default function Tracker() {
           <Tooltip content="سجّل كل حقنة هنا مع الجرعة والموقع. التطبيق يتتبّع سلسلة التزامك ويقترح تدوير مواقع الحقن تلقائيًا لتجنّب تلف الأنسجة." firstTimeId="tracker-main" position="bottom" />
         </div>
         <p className="mt-2 text-lg text-stone-600 dark:text-stone-300">تتبّع جرعاتك ومواقع الحقن</p>
+        <Link to="/calculator" className="mt-2 inline-flex items-center gap-1.5 text-sm font-medium text-emerald-700 dark:text-emerald-400 hover:underline">
+          <Calculator className="h-4 w-4" /> احسب جرعتك
+        </Link>
       </div>
 
       {/* Prominent Streak Counter */}

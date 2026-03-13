@@ -27,6 +27,7 @@ export default memo(function DoseTrendChart({ data, unit = 'mcg' }: DoseTrendCha
           <CartesianGrid strokeDasharray="3 3" stroke={gridColor} />
           <XAxis
             dataKey="date"
+            reversed
             tick={{ fontSize: 11, fill: tickColor }}
             tickLine={false}
             axisLine={{ stroke: axisColor }}

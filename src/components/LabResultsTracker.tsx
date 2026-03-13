@@ -266,6 +266,7 @@ function BiomarkerTrendChart({
           <CartesianGrid strokeDasharray="3 3" stroke="#374151" opacity={0.3} />
           <XAxis
             dataKey="date"
+            reversed
             tick={{ fontSize: 10, fill: '#9CA3AF' }}
             stroke="#4B5563"
           />

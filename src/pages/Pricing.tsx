@@ -24,7 +24,7 @@ const eliteFeatures = [
   'كل مزايا الأساسية',
   'مدرب ذكي بالذكاء الاصطناعي 24/7',
   'بروتوكولات مخصّصة لأهدافك وحالتك الشخصية',
-  'استشارات غير محدودة — لا حد للأسئلة',
+  'عدد كبير من الاستشارات اليومية',
   'دعم مخصّص عبر البريد',
 ];
 
@@ -33,14 +33,14 @@ const valueStack = VALUE_STACK;
 const eliteValueStack = [
   { item: 'مدرب ذكاء اصطناعي شخصي', value: '184 ر.س/شهر' },
   { item: 'بروتوكول مخصّص حسب حالتك', value: '371 ر.س' },
-  { item: 'استشارات غير محدودة', value: '109 ر.س/شهر' },
+  { item: 'عدد كبير من الاستشارات اليومية', value: '109 ر.س/شهر' },
   { item: 'دعم مخصّص عبر البريد', value: '71 ر.س/شهر' },
 ];
 
 const faqs = [
   {
     q: 'ما الفرق بين الأساسية و المتقدّمة؟',
-    a: 'الأساسية تعطيك كل الأدوات والمعلومات. المتقدّمة تضيف المدرب الذكي بلا حدود، بروتوكولات مخصّصة، ودعم مخصّص عبر البريد. إذا تريد استشارات كثيرة ومتابعة — المتقدّمة هي الخيار.',
+    a: 'الأساسية تعطيك كل الأدوات والمعلومات. المتقدّمة تضيف المدرب الذكي بعدد كبير من الاستشارات اليومية، بروتوكولات مخصّصة، ودعم مخصّص عبر البريد. إذا تريد استشارات كثيرة ومتابعة — المتقدّمة هي الخيار.',
   },
   {
     q: 'هل بياناتي آمنة؟',
@@ -312,7 +312,7 @@ export default function Pricing() {
             "@context": "https://schema.org",
             "@type": "Product",
             "name": "المتقدّمة — pptides",
-            "description": "اشتراك يتضمن كل مزايا الأساسية بالإضافة إلى مدرب ذكي بالذكاء الاصطناعي 24/7، بروتوكولات مخصّصة، واستشارات غير محدودة.",
+            "description": "اشتراك يتضمن كل مزايا الأساسية بالإضافة إلى مدرب ذكي بالذكاء الاصطناعي 24/7، بروتوكولات مخصّصة، وعدد كبير من الاستشارات اليومية.",
             "brand": { "@type": "Brand", "name": "pptides" },
             "offers": [
               { "@type": "Offer", "name": "شهري", "price": String(PRICING.elite.monthly), "priceCurrency": "SAR", "availability": "https://schema.org/InStock", "url": `${SITE_URL}/pricing` },
@@ -563,7 +563,7 @@ export default function Pricing() {
                   { feature: 'دليل التحاليل المخبرية', essentials: true, elite: true },
                   { feature: 'البروتوكولات المُجمَّعة حسب الهدف', essentials: true, elite: true },
                   { feature: 'المدرب الذكي', essentials: false, elite: true },
-                  { feature: 'استشارات غير محدودة', essentials: false, elite: true },
+                  { feature: 'عدد كبير من الاستشارات اليومية', essentials: false, elite: true },
                   { feature: 'بروتوكولات مخصّصة', essentials: false, elite: true },
                   { feature: 'دعم مخصّص عبر البريد', essentials: false, elite: true },
                 ] as const).map((row, i) => (

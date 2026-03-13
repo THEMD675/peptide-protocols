@@ -8,6 +8,7 @@
  */
 
 import type { Subscription } from '@/contexts/AuthContext';
+import { REFERRAL_CODE_REGEX } from '@/lib/constants';
 import { TRIAL, REFERRAL, RETENTION, WINBACK, UPGRADE } from '@/constants/sales-copy';
 
 // ─── Types ──────────────────────────────────────────────────
@@ -260,7 +261,7 @@ export function getOffer(state: UserState, urlParams?: UrlParams): Offer {
  */
 export function parseUrlParams(searchParams: URLSearchParams): UrlParams {
   const referralCode = searchParams.get('referral') || searchParams.get('ref') || undefined;
-  const validRef = referralCode && /^PP-[A-Z0-9]{6}$/.test(referralCode) ? referralCode : undefined;
+  const validRef = referralCode && REFERRAL_CODE_REGEX.test(referralCode) ? referralCode : undefined;
 
   return {
     referralCode: validRef,
@@ -288,7 +289,7 @@ export function getCheckoutCoupon(urlParams?: UrlParams): string | undefined {
 export function getCheckoutReferral(): string | undefined {
   try {
     const r = localStorage.getItem('pptides_referral');
-    if (r && /^PP-[A-Z0-9]{6}$/.test(r)) return r;
+    if (r && REFERRAL_CODE_REGEX.test(r)) return r;
   } catch { /* expected */ }
   return undefined;
 }

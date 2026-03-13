@@ -198,7 +198,7 @@ export default function TrackerStats({
         }));
         return (
           <div className="mb-8 rounded-2xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 p-5 shadow-sm dark:shadow-stone-900/30">
-            <h3 className="mb-3 text-sm font-bold text-stone-900 dark:text-stone-100">تاريخ جرعات {trendPeptide}</h3>
+            <h3 className="mb-3 text-sm font-bold text-stone-900 dark:text-stone-100">تاريخ جرعات <span dir="ltr" className="inline-block">{trendPeptide}</span></h3>
             <ChartErrorBoundary>
               <Suspense fallback={<div className="h-32 animate-pulse rounded-xl bg-stone-100 dark:bg-stone-800" />}>
                 <DoseTrendChart data={trendData} unit={trendLogs[0]?.dose_unit ?? 'mcg'} />

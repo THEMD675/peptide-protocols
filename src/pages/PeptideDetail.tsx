@@ -133,7 +133,8 @@ export default function PeptideDetail() {
         <script type="application/ld+json">{JSON.stringify({
           '@context': 'https://schema.org',
           '@type': 'MedicalWebPage',
-          name: `${peptide.nameAr} — ${peptide.nameEn}`,
+          name: peptide.nameAr,
+          alternateName: peptide.nameEn,
           description: peptide.summaryAr,
           url: `${SITE_URL}/peptide/${peptide.id}`,
           inLanguage: 'ar',
@@ -629,7 +630,7 @@ export default function PeptideDetail() {
                 </div>
                 <div className="mt-2 flex flex-col items-center gap-2 text-sm text-stone-700 dark:text-stone-200">
                   <p><span className="font-bold">أساسي ({PRICING.essentials.label}/شهر):</span> البروتوكول الكامل</p>
-                  <p><span className="font-bold">متقدم ({PRICING.elite.label}/شهر):</span> + المدرب الذكي بلا حدود</p>
+                  <p><span className="font-bold">متقدم ({PRICING.elite.label}/شهر):</span> + المدرب الذكي بعدد كبير من الاستشارات اليومية</p>
                 </div>
                 <Link
                   to="/pricing"

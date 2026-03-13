@@ -11,7 +11,7 @@ interface FeatureRow {
 
 const FEATURES: FeatureRow[] = [
   { feature: 'المكتبة', free: '7 ببتيدات فقط', essentials: `${PEPTIDE_COUNT} ببتيد كاملة`, elite: `${PEPTIDE_COUNT} ببتيد كاملة` },
-  { feature: 'المدرب الذكي (AI Coach)', free: false, essentials: '5 رسائل/يوم', elite: 'بلا حدود' },
+  { feature: 'المدرب الذكي (AI Coach)', free: false, essentials: '5 رسائل/يوم', elite: 'عدد كبير من الاستشارات' },
   { feature: 'حاسبة الجرعات', free: true, essentials: true, elite: true },
   { feature: 'سجل الحقن والتتبّع', free: false, essentials: true, elite: true },
   { feature: 'المقالات والمدوّنة', free: true, essentials: true, elite: true },

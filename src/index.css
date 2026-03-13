@@ -150,6 +150,7 @@ html.dark {
   html.dark body {
     background: linear-gradient(to bottom, #0c0a09 85%, #111110 100%);
     min-height: 100vh;
+    min-height: 100dvh; /* iOS Safari dynamic viewport */
     color: #f5f5f4;
   }
 

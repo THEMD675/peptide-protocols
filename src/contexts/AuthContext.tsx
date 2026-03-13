@@ -2,15 +2,16 @@ import { createContext, useContext, useState, useEffect, useCallback, useMemo, u
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { supabase } from '@/lib/supabase';
-import { SUPPORT_EMAIL } from '@/lib/constants';
+import { SUPPORT_EMAIL, REFERRAL_CODE_REGEX } from '@/lib/constants';
 import { events } from '@/lib/analytics';
+import { logError } from '@/lib/logger';
 import type { User as SupabaseUser, Session } from '@supabase/supabase-js';
 
 /** Fire-and-forget fetch with 1 retry after 5s delay */
 function fireAndForgetFetch(url: string, opts: RequestInit, label: string) {
   const attempt = (n: number) => {
     fetch(url, opts).catch((e) => {
-      console.error(`${label} attempt ${n} failed:`, e);
+      logError(`${label} attempt ${n} failed:`, e);
       if (n < 2) setTimeout(() => attempt(n + 1), 5000);
     });
   };
@@ -44,6 +45,7 @@ interface User {
 export interface AuthContextType {
   user: User | null;
   subscription: Subscription;
+  subscriptionError: boolean;
   isLoading: boolean;
   login: (email: string, password: string) => Promise<void>;
   signup: (email: string, password: string) => Promise<void>;
@@ -165,6 +167,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const navigate = useNavigate();
   const [user, setUser] = useState<User | null>(null);
   const [subscription, setSubscription] = useState<Subscription>(DEFAULT_SUBSCRIPTION);
+  const [subscriptionError, setSubscriptionError] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const subFetchFailCountRef = useRef(0);
 
@@ -210,8 +213,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             subFetchFailCountRef.current += 1;
             toast.error('تعذّر تحديث حالة الاشتراك');
             if (subFetchFailCountRef.current >= 3) {
-              setSubscription(DEFAULT_SUBSCRIPTION);
-              subFetchFailCountRef.current = 0;
+              setSubscriptionError(true);
             }
             return;
           }
@@ -224,26 +226,24 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           return;
         }
         // Non-JWT error — keep previous state, increment failure counter
-        console.error(error);
+        logError('subscription fetch error', error);
         subFetchFailCountRef.current += 1;
         toast.error('تعذّر تحديث حالة الاشتراك');
         if (subFetchFailCountRef.current >= 3) {
-          setSubscription(DEFAULT_SUBSCRIPTION);
-          subFetchFailCountRef.current = 0;
+          setSubscriptionError(true);
         }
         return;
       }
 
       subFetchFailCountRef.current = 0;
+      setSubscriptionError(false);
       setSubscription(buildSubscription(data));
     } catch (err) {
-      console.error(err);
+      logError('subscription fetch failed', err);
       subFetchFailCountRef.current += 1;
       toast.error('تعذّر تحديث حالة الاشتراك');
       if (subFetchFailCountRef.current >= 3) {
-        toast.error('تعذّر تحميل بيانات الاشتراك. حاول تحديث الصفحة.');
-        setSubscription(DEFAULT_SUBSCRIPTION);
-        subFetchFailCountRef.current = 0;
+        setSubscriptionError(true);
       }
     }
   }, []);
@@ -330,7 +330,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const hadSessionRef = useRef(false);
   const initDoneRef = useRef(false);
-  const fetchingRef = useRef(false);
+  const fetchPromiseRef = useRef<Promise<void> | null>(null);
 
   useEffect(() => {
     // eslint-disable-next-line prefer-const -- reassigned on line below
@@ -341,11 +341,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const dn = ((displayName && displayName.trim()) || su.email?.split('@')[0] || '').replace(/<[^>]+>/g, '').slice(0, 50);
       supabase.from('user_profiles').select('user_id').eq('user_id', userId).maybeSingle().then(({ data: existing }) => {
         if (existing) {
-          supabase.from('user_profiles').update({ display_name: dn, updated_at: new Date().toISOString() }).eq('user_id', userId).catch((e) => console.error('profile update failed:', e));
+          supabase.from('user_profiles').update({ display_name: dn, updated_at: new Date().toISOString() }).eq('user_id', userId).catch((e) => logError('profile update failed:', e));
         } else {
-          supabase.from('user_profiles').insert({ user_id: userId, display_name: dn, updated_at: new Date().toISOString() }).catch((e) => console.error('profile insert failed:', e));
+          supabase.from('user_profiles').insert({ user_id: userId, display_name: dn, updated_at: new Date().toISOString() }).catch((e) => logError('profile insert failed:', e));
         }
-      }).catch((e) => console.error('profile check failed:', e));
+      }).catch((e) => logError('profile check failed:', e));
     };
 
     const handleSession = async (session: Session | null, event?: string) => {
@@ -353,12 +353,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         hadSessionRef.current = true;
         const mapped = mapUser(session.user);
         setUser(mapped);
-        if (mapped && !fetchingRef.current) {
-          fetchingRef.current = true;
-          try {
-            await fetchSubscription(mapped.id);
-          } finally {
-            fetchingRef.current = false;
+        if (mapped) {
+          if (fetchPromiseRef.current) {
+            await fetchPromiseRef.current;
+          } else {
+            const p = fetchSubscription(mapped.id);
+            fetchPromiseRef.current = p;
+            try { await p; } finally { fetchPromiseRef.current = null; }
           }
           syncProfile(mapped.id, session.user);
         }
@@ -433,7 +434,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     timeout = setTimeout(() => {
       if (!initDoneRef.current) {
-        console.error('Auth init timeout (30s) — resolving with current state');
+        if (fetchingRef.current) {
+          // Subscription fetch still in flight — don't set isLoading false yet or we break
+          // ProtectedRoute/TrialBanner (they'd see default subscription). Let the fetch complete.
+          return;
+        }
+        logError('Auth init timeout (30s) — resolving with current state');
         initDoneRef.current = true;
         setIsLoading(false);
       }
@@ -477,7 +483,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           } else {
             fetchSubRef.current(user.id);
           }
-        }).catch((err) => { console.error('Visibility refresh failed:', err); });
+        }).catch((err) => { logError('Visibility refresh failed:', err); });
       }
     };
     document.addEventListener('visibilitychange', handleVisibility);
@@ -529,7 +535,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (data.user) {
       let refCode: string | null = null;
       try { refCode = localStorage.getItem('pptides_referral'); } catch { /* expected */ }
-      const validRef = refCode && /^PP-[A-Z0-9]{6}$/.test(refCode) ? refCode : null;
+      const validRef = refCode && REFERRAL_CODE_REGEX.test(refCode) ? refCode : null;
 
       const edgeFnUrl = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/send-welcome-email`;
       fireAndForgetFetch(edgeFnUrl, {
@@ -560,7 +566,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if ('caches' in window) {
       caches.keys().then(names => names.forEach(name => {
         if (name.includes('supabase-api')) caches.delete(name);
-      })).catch(e => console.error('cache cleanup failed:', e));
+      })).catch(e => logError('cache cleanup failed:', e));
     }
     try {
       clearPptidesStorage();
@@ -581,7 +587,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const isActive = subscription.status === 'active' || subscription.status === 'past_due';
     if (!isTrial && !isActive) return;
     const intervalMs = isTrial ? 30_000 : 300_000;
-    const interval = setInterval(() => { fetchSubscription(user.id); }, intervalMs);
+    const jitter = Math.random() * intervalMs * 0.2;
+    const interval = setInterval(() => { fetchSubscription(user.id); }, intervalMs + jitter);
     return () => clearInterval(interval);
   }, [user, subscription.status, subscription.trialDaysLeft, fetchSubscription]);
 
@@ -595,7 +602,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return;
       }
       let referralCode: string | undefined;
-      try { const r = localStorage.getItem('pptides_referral'); if (r && /^PP-[A-Z0-9]{6}$/.test(r)) referralCode = r; } catch { /* expected */ }
+      try { const r = localStorage.getItem('pptides_referral'); if (r && REFERRAL_CODE_REGEX.test(r)) referralCode = r; } catch { /* expected */ }
       const body: Record<string, unknown> = { tier, billing };
       if (referralCode) body.referralCode = referralCode;
       if (coupon) body.coupon = coupon;
@@ -635,13 +642,34 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, [navigate, refreshSubscription]);
 
+  const handleSubErrorReload = useCallback(() => {
+    subFetchFailCountRef.current = 0;
+    setSubscriptionError(false);
+    window.location.reload();
+  }, []);
+
   const contextValue = useMemo(
-    () => ({ user, subscription, isLoading, login, signup, logout, upgradeTo, refreshSubscription }),
-    [user, subscription, isLoading, login, signup, logout, upgradeTo, refreshSubscription],
+    () => ({ user, subscription, subscriptionError, isLoading, login, signup, logout, upgradeTo, refreshSubscription }),
+    [user, subscription, subscriptionError, isLoading, login, signup, logout, upgradeTo, refreshSubscription],
   );
 
   return (
     <AuthContext.Provider value={contextValue}>
+      {subscriptionError && user && (
+        <div role="dialog" aria-modal="true" className="fixed inset-0 z-[60] flex items-center justify-center bg-stone-900/80 backdrop-blur-sm">
+          <div className="mx-4 w-full max-w-md rounded-2xl bg-white dark:bg-stone-900 p-10 text-center shadow-2xl">
+            <h2 className="mb-3 text-2xl font-bold text-stone-900 dark:text-stone-100">حدث خطأ في تحميل اشتراكك</h2>
+            <p className="mb-6 text-stone-700 dark:text-stone-200">تعذّر الاتصال بالخادم. تحقق من اتصالك بالإنترنت وحاول مرة أخرى.</p>
+            <button
+              type="button"
+              onClick={handleSubErrorReload}
+              className="inline-block rounded-full bg-emerald-600 px-10 py-3.5 font-bold text-white shadow-lg transition-all hover:bg-emerald-700 hover:scale-105 active:scale-[0.98]"
+            >
+              إعادة تحميل
+            </button>
+          </div>
+        </div>
+      )}
       {children}
     </AuthContext.Provider>
   );

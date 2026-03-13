@@ -18,7 +18,7 @@
   "scripts": {
     "dev": "vite",
     "prebuild": "node scripts/generate-sitemap.mjs",
-    "build": "vite build && node -e \"const fs=require('fs');const f='dist/registerSW.js';fs.writeFileSync(f,fs.readFileSync(f,'utf8').replace(\\\"{ scope: '/' }\\\",\\\"{ scope: '/', updateViaCache: 'none' }\\\"))\" && node scripts/prerender.mjs",
+    "build": "vite build && node scripts/fix-sw-cache.mjs && node scripts/prerender.mjs",
     "lint": "eslint .",
     "preview": "vite preview",
     "type-check": "tsc --noEmit",
@@ -53,8 +53,10 @@
     "tailwind-merge": "^3.5.0",
     "web-vitals": "^5.1.0"
   },
-  "overrides": {
-    "serialize-javascript": "^7.0.4"
+  "pnpm": {
+    "overrides": {
+      "serialize-javascript": "^7.0.4"
+    }
   },
   "devDependencies": {
     "@eslint/js": "^9.39.1",

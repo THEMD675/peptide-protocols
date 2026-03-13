@@ -7,6 +7,7 @@ const Analytics = lazy(() => import('@vercel/analytics/react').then(m => ({ defa
 const SpeedInsights = lazy(() => import('@vercel/speed-insights/react').then(m => ({ default: m.SpeedInsights })));
 import { SITE_URL, STORAGE_KEYS } from '@/lib/constants';
 import { events } from '@/lib/analytics';
+import { logError } from '@/lib/logger';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import BottomNav from '@/components/layout/BottomNav';
@@ -88,7 +89,7 @@ class ErrorBoundary extends Component<{ children: ReactNode }, { hasError: boole
         sessionStorage.removeItem('pptides_chunk_reload');
       } catch { /* Safari private mode */ }
     }
-    console.error('[ErrorBoundary]', error);
+    logError('[ErrorBoundary]', error);
   }
   render() {
     if (this.state.hasError) {
@@ -119,7 +120,17 @@ class ErrorBoundary extends Component<{ children: ReactNode }, { hasError: boole
 class LazyFallback extends Component<{ children: ReactNode }, { hasError: boolean }> {
   state = { hasError: false };
   static getDerivedStateFromError() { return { hasError: true }; }
-  render() { return this.state.hasError ? null : this.props.children; }
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div dir="rtl" className="flex flex-col items-center justify-center p-8 text-center">
+          <p className="mb-4 text-lg font-semibold text-stone-700 dark:text-stone-200">حدث خطأ في تحميل الصفحة</p>
+          <button onClick={() => window.location.reload()} className="rounded-full bg-emerald-600 px-6 py-2.5 text-sm font-bold text-white hover:bg-emerald-700">أعد تحميل الصفحة</button>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
 }
 
 class RouteErrorBoundary extends Component<
@@ -131,7 +142,7 @@ class RouteErrorBoundary extends Component<
     return { hasError: true, error };
   }
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
-    console.error('[RouteErrorBoundary]', error);
+    logError('[RouteErrorBoundary]', error);
   }
   reset = () => this.setState(prev => ({ hasError: false, error: null, retryCount: prev.retryCount + 1 }));
   render() {

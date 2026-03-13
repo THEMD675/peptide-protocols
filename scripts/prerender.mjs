@@ -59,30 +59,6 @@ function extractPeptideIds() {
   return [...new Set(matches.map((m) => m[1]))];
 }
 
-/** Fetch published blog post slugs from Supabase for prerendering */
-async function fetchBlogSlugs() {
-  try {
-    const url = process.env.VITE_SUPABASE_URL;
-    const key = process.env.VITE_SUPABASE_ANON_KEY;
-    if (!url || !key) {
-      console.log('  Supabase env vars not set — skipping blog prerender');
-      return [];
-    }
-    const res = await fetch(`${url}/rest/v1/blog_posts?select=slug&is_published=eq.true`, {
-      headers: { apikey: key, Authorization: `Bearer ${key}` },
-    });
-    if (!res.ok) {
-      console.warn(`  Blog fetch failed (${res.status}) — skipping blog prerender`);
-      return [];
-    }
-    const posts = await res.json();
-    return posts.map((p) => p.slug).filter(Boolean);
-  } catch (err) {
-    console.warn('  Blog slug fetch error — skipping blog prerender:', err.message);
-    return [];
-  }
-}
-
 /** Serve dist/ on a random port and return { server, port } */
 function startServer() {
   return new Promise((resolve) => {
@@ -122,11 +98,9 @@ async function main() {
 
   // Collect all routes
   const peptideIds = extractPeptideIds();
-  const blogSlugs = await fetchBlogSlugs();
   const routes = [
     ...STATIC_ROUTES,
     ...peptideIds.map((id) => `/peptide/${id}`),
-    ...blogSlugs.map((slug) => `/blog/${slug}`),
   ];
 
   console.log(`Prerendering ${routes.length} routes...`);
@@ -145,41 +119,13 @@ async function main() {
   for (const route of routes) {
     try {
       const page = await browser.newPage();
-      // Block images/media, analytics, and service worker to speed up rendering
+      // Block images/fonts/analytics to speed up rendering
       await page.setRequestInterception(true);
       page.on('request', (req) => {
-        const url = req.url();
         const type = req.resourceType();
-        // Block heavy media (but NOT fonts — needed for layout)
-        if (['image', 'media'].includes(type)) {
+        if (['image', 'font', 'media'].includes(type)) {
           req.abort();
-          return;
-        }
-        // Block service worker registration — SW intercepts navigations and
-        // causes net::ERR_FAILED on subsequent routes in the same browser
-        if (url.includes('/registerSW.js') || url.includes('/sw.js') || url.includes('/sw.mjs')) {
-          req.abort();
-          return;
-        }
-        // Block Vercel analytics scripts (don't exist on local server)
-        if (url.includes('/_vercel/')) {
-          req.abort();
-          return;
-        }
-        // Block specific analytics/tracking domains (NOT all "google" URLs)
-        const blockedDomains = [
-          'google-analytics.com',
-          'googletagmanager.com',
-          'analytics.google.com',
-          'www.google-analytics.com',
-          'sentry.io',
-          'browser.sentry-cdn.com',
-          'hotjar.com',
-          'clarity.ms',
-          'facebook.net',
-          'fbevents.js',
-        ];
-        if (blockedDomains.some((d) => url.includes(d))) {
+        } else if (req.url().includes('google') || req.url().includes('analytics') || req.url().includes('sentry')) {
           req.abort();
         } else {
           req.continue();
@@ -193,12 +139,6 @@ async function main() {
 
       // Wait a bit for React to finish rendering (lazy components, effects)
       await page.waitForSelector('main', { timeout: 5000 }).catch(() => {});
-
-      // 11.1: Wait for React Helmet to inject per-page meta tags
-      await page.waitForFunction(
-        () => document.querySelector('[data-rh]') !== null,
-        { timeout: 5000 }
-      ).catch(() => {});
 
       const html = await page.content();
       await page.close();

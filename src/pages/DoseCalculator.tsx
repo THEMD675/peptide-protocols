@@ -824,18 +824,20 @@ export default function DoseCalculator() {
                 <InputField
                   label={`الجرعة المطلوبة (${doseUnit === 'mcg' ? 'مايكروغرام' : 'ملليغرام'})`}
                   value={doseValue}
-                  onChange={setDoseValue}
+                  onChange={(v) => setDoseValue(Math.min(doseUnit === 'mcg' ? 100000 : 100, Math.max(0, v)))}
                   unit={doseUnit === 'mcg' ? 'مكغ' : 'ملغ'}
                   step={doseUnit === 'mcg' ? 50 : 0.05}
-                  min={doseUnit === 'mcg' ? 1 : 0.001}
+                  min={0}
+                  max={doseUnit === 'mcg' ? 100000 : 100}
                 />
                 <InputField
                   label="كمية الببتيد في القارورة (ملغ)"
                   value={vialMg}
-                  onChange={(v) => setVialMg(Math.max(0.1, v))}
+                  onChange={(v) => setVialMg(Math.min(1000, Math.max(0.1, v)))}
                   unit="ملغ"
                   step={1}
                   min={0.1}
+                  max={1000}
                 />
                 <div className="space-y-2">
                   <div className="flex items-center gap-1.5">
@@ -852,7 +854,7 @@ export default function DoseCalculator() {
                       min={0.1}
                       step={0.5}
                       value={waterMl}
-                      onChange={(e) => setWaterMl(Math.max(0, Number(e.target.value) || 0))}
+                      onChange={(e) => setWaterMl(Math.min(100, Math.max(0, Number(e.target.value) || 0)))}
                       aria-label="كمية الماء البكتيريوستاتك (مل)"
                       className="w-full rounded-xl border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-900 px-4 py-3 pe-16 text-base text-stone-900 dark:text-stone-100 transition-colors focus:border-emerald-300 focus:outline-none focus:ring-1 focus:ring-emerald-100"
                     />
@@ -1203,7 +1205,7 @@ export default function DoseCalculator() {
                   </div>
                   <input
                     type="number" inputMode="decimal" min={0.5} step={0.5} value={reconVialMg}
-                    onChange={e => setReconVialMg(Math.max(0, Number(e.target.value) || 0))}
+                    onChange={e => setReconVialMg(Math.min(1000, Math.max(0, Number(e.target.value) || 0)))}
                     className="w-full rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-900 px-4 py-3 text-base text-stone-900 dark:text-stone-100 focus:border-emerald-300 focus:outline-none focus:ring-1 focus:ring-emerald-200"
                     placeholder="أو أدخل قيمة مخصصة"
                     aria-label="حجم القارورة مخصص"
@@ -1224,7 +1226,7 @@ export default function DoseCalculator() {
                   </div>
                   <input
                     type="number" inputMode="decimal" min={0.1} step={0.5} value={reconWaterMl}
-                    onChange={e => setReconWaterMl(Math.max(0, Number(e.target.value) || 0))}
+                    onChange={e => setReconWaterMl(Math.min(100, Math.max(0, Number(e.target.value) || 0)))}
                     className="w-full rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-900 px-4 py-3 text-base text-stone-900 dark:text-stone-100 focus:border-emerald-300 focus:outline-none focus:ring-1 focus:ring-emerald-200"
                     placeholder="أو أدخل قيمة مخصصة"
                     aria-label="كمية الماء مخصصة"
@@ -1238,7 +1240,7 @@ export default function DoseCalculator() {
                     <input
                       type="number" inputMode="decimal" min={0} step={reconDoseUnit === 'mcg' ? 50 : 0.05}
                       value={reconTargetDose}
-                      onChange={e => setReconTargetDose(Math.max(0, Number(e.target.value) || 0))}
+                      onChange={e => setReconTargetDose(Math.min(100000, Math.max(0, Number(e.target.value) || 0)))}
                       className="flex-1 rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-900 px-4 py-3 text-base text-stone-900 dark:text-stone-100 focus:border-emerald-300 focus:outline-none focus:ring-1 focus:ring-emerald-200"
                       aria-label="الجرعة المطلوبة"
                     />

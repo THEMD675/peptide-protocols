@@ -11,6 +11,7 @@ import { DANGEROUS_COMBOS, SYNERGISTIC_COMBOS, DRUG_INTERACTIONS, GH_PEPTIDE_IDS
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
 import { trackEvent } from '@/lib/analytics';
+import { logError } from '@/lib/logger';
 import ShareButtons from '@/components/ShareButtons';
 
 const MEDICATION_IDS = new Set(MEDICATIONS.map(m => m.id));
@@ -180,7 +181,7 @@ export default function InteractionChecker() {
         setSelected(slots);
         setAutoFilledFromProtocols(true);
       })
-      .catch((e: unknown) => console.error("silent catch:", e));
+      .catch((e: unknown) => logError('auto-fill protocols failed:', e));
     return () => { mounted = false; };
   }, [user, searchParams]);
 

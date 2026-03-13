@@ -47,6 +47,7 @@ import { AlertTriangle, HeartPulse } from 'lucide-react';
 import { peptidesPublic as allPeptides } from '@/data/peptides-public';
 import { labTests } from '@/data/peptides';
 import { UPGRADE } from '@/constants/sales-copy';
+import { logError } from '@/lib/logger';
 
 const DAILY_TIPS = [
   'حقن BPC-157 على معدة فارغة يزيد من امتصاصه بشكل ملحوظ',
@@ -417,9 +418,9 @@ function useWellnessTrend(userId: string | undefined) {
       supabase.from('side_effect_logs').select('id', { count: 'exact', head: true }).eq('user_id', userId).gte('created_at', week),
     ]).then(([thisWeek, lastWeek, sides]) => {
       if (!mounted) return;
-      if (thisWeek.error) console.error('wellness_logs thisWeek query failed:', thisWeek.error);
-      if (lastWeek.error) console.error('wellness_logs lastWeek query failed:', lastWeek.error);
-      if (sides.error) console.error('side_effect_logs count query failed:', sides.error);
+      if (thisWeek.error) logError('wellness_logs thisWeek query failed:', thisWeek.error);
+      if (lastWeek.error) logError('wellness_logs lastWeek query failed:', lastWeek.error);
+      if (sides.error) logError('side_effect_logs count query failed:', sides.error);
       const avg = (arr: Array<{ energy: number; sleep: number; mood: number }>) =>
         arr.length > 0 ? arr.reduce((s, w) => s + (w.energy + w.sleep + w.mood) / 3, 0) / arr.length : 0;
       setTrend({
@@ -427,7 +428,7 @@ function useWellnessTrend(userId: string | undefined) {
         prevAvg: Math.round(avg(lastWeek.data ?? []) * 10) / 10,
         sideEffects7d: sides.count ?? 0,
       });
-    }).catch((e) => console.error("Dashboard sync failed:", e));
+    }).catch((e) => logError('Dashboard sync failed:', e));
     return () => { mounted = false; };
   }, [userId]);
   return trend;
@@ -452,6 +453,7 @@ export default function Dashboard() {
   const welcomeConfettiFired = useRef(false);
   const [runTour, setRunTour] = useState(false);
   const [showPremiumWelcome, setShowPremiumWelcome] = useState(false);
+  const [isLoadingPortal, setIsLoadingPortal] = useState(false);
 
   // 3.7: Show one-time premium welcome card after first payment
   useEffect(() => {
@@ -523,7 +525,7 @@ export default function Dashboard() {
             }));
           }
         } catch { /* expected */ }
-      }).catch((e) => console.error("Dashboard sync failed:", e));
+      }).catch((e) => logError('Dashboard sync failed:', e));
     return () => { mounted = false; };
   }, [user?.id]);
 
@@ -598,7 +600,10 @@ export default function Dashboard() {
               حدّث معلومات الدفع لتجنّب انقطاع الخدمة
             </p>
             <button
+              disabled={isLoadingPortal}
               onClick={async () => {
+                if (isLoadingPortal) return;
+                setIsLoadingPortal(true);
                 try {
                   const { data: { session } } = await supabase.auth.getSession();
                   const token = session?.access_token;
@@ -619,9 +624,11 @@ export default function Dashboard() {
                   if (data.url) window.location.href = data.url;
                 } catch {
                   toast.error('تعذّر فتح صفحة إدارة الدفع — حاول مرة أخرى');
+                } finally {
+                  setIsLoadingPortal(false);
                 }
               }}
-              className="inline-flex items-center gap-2 rounded-full bg-red-600 px-8 py-3 text-sm font-semibold text-white transition-all hover:bg-red-700"
+              className="inline-flex items-center gap-2 rounded-full bg-red-600 px-8 py-3 text-sm font-semibold text-white transition-all hover:bg-red-700 disabled:opacity-50"
             >
               تحديث بطاقة الدفع
             </button>

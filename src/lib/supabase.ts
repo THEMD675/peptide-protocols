@@ -5,7 +5,7 @@ const supabaseUrl = import.meta.env.VITE_SUPABASE_URL as string | undefined;
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined;
 
 if (!supabaseUrl || !supabaseAnonKey) {
-  console.error('[pptides] Missing VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY — Supabase client will use placeholder (non-functional).');
+  throw new Error('[pptides] FATAL: Missing VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY');
 }
 
 // Bypass Web Locks API — some browsers (Safari <16.4, SSR) don't support navigator.locks.
@@ -14,8 +14,8 @@ const noopLock: <R>(name: string, acquireTimeout: number, fn: () => Promise<R>) 
   async (_name, _acquireTimeout, fn) => fn();
 
 export const supabase: SupabaseClient = createClient(
-  supabaseUrl || 'https://placeholder.supabase.co',
-  supabaseAnonKey || 'placeholder-anon-key',
+  supabaseUrl,
+  supabaseAnonKey,
   {
     auth: {
       persistSession: true,
@@ -29,6 +29,7 @@ if (supabaseUrl && typeof window !== 'undefined') {
   fetch(`${supabaseUrl}/rest/v1/`, {
     method: 'HEAD',
     headers: { apikey: supabaseAnonKey || '' },
+    signal: AbortSignal.timeout(5000),
   }).catch((err) => {
     if (err instanceof TypeError) {
       toast.error(

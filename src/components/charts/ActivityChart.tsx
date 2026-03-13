@@ -25,6 +25,7 @@ export default memo(function ActivityChart({ data }: ActivityChartProps) {
         <BarChart data={data} margin={{ top: 5, right: 0, left: 0, bottom: 5 }}>
           <XAxis
             dataKey="day"
+            reversed
             tick={{ fontSize: 10, fill: tickColor }}
             tickLine={false}
             axisLine={false}

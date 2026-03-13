@@ -122,8 +122,7 @@ serve(async (req) => {
     }
     const recipients = Array.isArray(to) ? to.join(', ') : to
 
-    const maskEmail = (e: string) => e.length > 3 ? e.slice(0, 3) + '***' : '***'
-    console.log(`Inbound email: from=${maskEmail(from)} to=${recipients ? maskEmail(typeof recipients === 'string' ? recipients : recipients) : 'unknown'}`)
+    console.log(`Inbound email: from=${from} to=${recipients} subject=${subject}`)
 
     let bodyText = ''
     let bodyHtml = ''

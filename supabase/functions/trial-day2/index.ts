@@ -132,7 +132,7 @@ serve(async (req) => {
             <h1 style="color: #1c1917; font-size: 24px;">أنت لست وحدك في رحلة الببتيدات</h1>
 
             <div style="background: #ecfdf5; border-radius: 12px; padding: 24px; margin: 20px 0; text-align: center;">
-              <p style="font-size: 36px; font-weight: 900; color: #059669; margin: 0;">+${userCount > 10 ? userCount : 100}</p>
+              <p style="font-size: 36px; font-weight: 900; color: #059669; margin: 0;">${userCount > 0 ? `+${userCount}` : '+100'}</p>
               <p style="font-size: 16px; color: #44403c; margin: 8px 0 0;">مستخدم يثق بـ pptides كمرجع للببتيدات العلاجية</p>
             </div>
 

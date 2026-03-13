@@ -13,6 +13,7 @@ import { useTheme } from '@/hooks/useTheme';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
 import { events } from '@/lib/analytics';
+import { logError } from '@/lib/logger';
 import { REFERRAL, RETENTION } from '@/constants/sales-copy';
 import { COOKIE_CONSENT_STORAGE_KEY } from '@/lib/cookie-utils';
 
@@ -123,7 +124,7 @@ export default function Account() {
         memberSince: memberSinceDate,
       });
     };
-    loadStats().catch((e: unknown) => console.error("silent catch:", e));
+    loadStats().catch((e: unknown) => logError('silent catch:', e));
     return () => { mounted = false; };
   }, [user]);
 
@@ -141,7 +142,7 @@ export default function Account() {
       const publicUrl = urlData?.publicUrl;
       if (publicUrl) {
         const { error: avatarErr } = await supabase.from('user_profiles').update({ avatar_url: publicUrl, updated_at: new Date().toISOString() }).eq('user_id', user.id);
-        if (avatarErr) { console.error('avatar url update failed:', avatarErr); toast.error('تعذّر تحديث صورة الملف الشخصي'); return; }
+        if (avatarErr) { logError('avatar url update failed:', avatarErr); toast.error('تعذّر تحديث صورة الملف الشخصي'); return; }
         setProfilePicUrl(publicUrl + '?t=' + Date.now());
         toast.success('تم تحديث صورة الملف الشخصي');
       }
@@ -192,7 +193,7 @@ export default function Account() {
         const confirmedEmail = session.user.email;
         if (!confirmedEmail || !session.user.email_confirmed_at) return;
         // Sync email_list
-        await supabase.from('email_list').update({ email: confirmedEmail.toLowerCase() }).eq('user_id', session.user.id).catch((e) => { console.error('Account: email_list sync failed', e); });
+        await supabase.from('email_list').update({ email: confirmedEmail.toLowerCase() }).eq('user_id', session.user.id).catch((e) => { logError('Account: email_list sync failed', e); });
         // Sync Stripe
         const { data: sub } = await supabase.from('subscriptions').select('stripe_customer_id').eq('user_id', session.user.id).maybeSingle();
         if (sub?.stripe_customer_id) {
@@ -200,7 +201,7 @@ export default function Account() {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${session.access_token}` },
             body: JSON.stringify({ action: 'sync_email', user_id: session.user.id, new_email: confirmedEmail.toLowerCase() }),
-          }).catch((e: unknown) => console.error('Account: Stripe email sync failed', e));
+          }).catch((e: unknown) => logError('Account: Stripe email sync failed', e));
         }
       },
     );
@@ -356,7 +357,7 @@ export default function Account() {
       setExportProgress(null);
       toast.success('تم تصدير بياناتك بنجاح');
     } catch (err) {
-      console.error(err);
+      logError('data export failed', err);
       setExportProgress(null);
       toast.error('تعذّر تصدير البيانات. حاول مرة أخرى.');
     }
@@ -390,7 +391,7 @@ export default function Account() {
       await refreshSubscription();
       navigate('/account', { replace: true });
     } catch (err) {
-      console.error(err);
+      logError('cancel subscription failed', err);
       toast.error(`تعذّر إلغاء الاشتراك — تواصل معنا: ${SUPPORT_EMAIL}`);
     } finally {
       setIsProcessing(false);
@@ -1396,19 +1397,19 @@ function ReferralSection({ userId }: { userId?: string }) {
     let mounted = true;
     (async () => {
       const { data: sub, error: subErr } = await supabase.from('subscriptions').select('referral_code').eq('user_id', userId).maybeSingle();
-      if (subErr) console.error('referral subscription query failed:', subErr);
+      if (subErr) logError('referral subscription query failed:', subErr);
       if (!mounted) return;
 
       let refCode = sub?.referral_code;
       if (!refCode) {
         refCode = generateCode();
         const { error: rpcErr } = await supabase.rpc('set_referral_code', { p_code: refCode });
-        if (rpcErr) console.error('set_referral_code RPC failed:', rpcErr);
+        if (rpcErr) logError('set_referral_code RPC failed:', rpcErr);
       }
       setCode(refCode);
 
       const { data: refs, error: refsErr } = await supabase.from('referrals').select('status, reward_code').eq('referrer_id', userId);
-      if (refsErr) console.error('referrals query failed:', refsErr);
+      if (refsErr) logError('referrals query failed:', refsErr);
       if (mounted && refs) {
         setStats({
           total: refs.length,

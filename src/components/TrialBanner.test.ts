@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { FREE_PEPTIDE_IDS } from '@/lib/constants'
+import { FREE_PEPTIDE_IDS, isFreeRoute, FREE_ROUTE_PREFIXES } from '@/lib/constants'
 
 /**
  * TrialBanner logic tests.
@@ -7,17 +7,10 @@ import { FREE_PEPTIDE_IDS } from '@/lib/constants'
  * We test the display logic and path matching in isolation.
  */
 
-const FREE_PATHS = [
-  '/calculator', '/pricing', '/login', '/signup', '/privacy', '/terms', '/',
-  '/glossary', '/sources', '/reviews', '/account', '/interactions',
-  '/library', '/table', '/stacks', '/lab-guide', '/guide',
-  '/community', '/about', '/faq', '/quiz', '/blog', '/contact', '/transparency',
-]
-
 function isFreePage(pathname: string): boolean {
   const peptideId = pathname.startsWith('/peptide/') ? pathname.split('/')[2] : null
   const isPeptideFree = peptideId ? FREE_PEPTIDE_IDS.has(peptideId) : false
-  return FREE_PATHS.some(p => pathname === p || pathname.startsWith(p + '/')) || isPeptideFree
+  return isFreeRoute(pathname) || isPeptideFree
 }
 
 interface MockSubscription {
@@ -68,7 +61,7 @@ function bannerDecision(
   return 'hidden'
 }
 
-describe('TrialBanner — FREE_PATHS logic', () => {
+describe('TrialBanner — free route logic', () => {
   it('root path is free', () => {
     expect(isFreePage('/')).toBe(true)
   })
@@ -135,9 +128,9 @@ describe('TrialBanner — FREE_PATHS logic', () => {
     }
   })
 
-  it('all listed FREE_PATHS are recognized', () => {
-    for (const p of FREE_PATHS) {
-      expect(isFreePage(p), `${p} should be free`).toBe(true)
+  it('all listed FREE_ROUTE_PREFIXES are recognized', () => {
+    for (const p of FREE_ROUTE_PREFIXES) {
+      expect(isFreePage(p === '/' ? '/' : p), `${p} should be free`).toBe(true)
     }
   })
 })

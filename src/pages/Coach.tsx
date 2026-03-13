@@ -14,6 +14,7 @@ import { events } from '@/lib/analytics';
 import { cn, arPlural } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
 import { SITE_URL, PRICING, TRIAL_DAYS } from '@/lib/constants';
+import { logError } from '@/lib/logger';
 import ProtocolWizard from '@/components/ProtocolWizard';
 import CoachHistory from '@/components/CoachHistory';
 import CoachInsightsBanner from '@/components/CoachInsightsBanner';
@@ -352,7 +353,7 @@ export default function Coach() {
           setIntakeStep('done');
         }
       })
-      .catch((err) => { console.error(err); setConvLoadError(true); });
+      .catch((err) => { logError('conversation load failed', err); setConvLoadError(true); });
   }, [user?.id]);
 
   // Reset supabaseLoadedRef when user changes (re-login)
@@ -438,7 +439,7 @@ export default function Coach() {
   }, [input, DRAFT_KEY]);
 
   useEffect(() => { scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: 'smooth' }); }, [messages, intakeStep]);
-  useEffect(() => { if (user) buildUserContext(user.id).then(ctx => { userContextRef.current = ctx; }).catch((e) => console.error('Coach context build failed:', e)); }, [user]);
+  useEffect(() => { if (user) buildUserContext(user.id).then(ctx => { userContextRef.current = ctx; }).catch((e) => logError('Coach context build failed:', e)); }, [user]);
 
   // Migrate anon session data when user logs in (prevents loss on session expiry mid-form)
   useEffect(() => {
@@ -573,7 +574,7 @@ export default function Coach() {
         });
       }
     } catch (err) {
-      console.error(err);
+      logError('coach send failed', err);
       const msg = err instanceof Error ? err.message : '';
       const statusMatch = msg.match(/^(\d+)/);
       const status = statusMatch ? statusMatch[1] : '';
@@ -625,7 +626,7 @@ export default function Coach() {
       userContextRef.current = ctx;
       const prompt = buildPeptideRequestPrompt(p, intake.goal || intake.experience || intake.injection ? intake : null, ctx);
       sendToAI(prompt);
-    })().catch(e => console.error('auto-send failed:', e));
+    })().catch(e => logError('auto-send failed:', e));
   }, [searchParams, user, sendToAI, messages.length, intake]);
 
   const submitIntake = useCallback(() => {
@@ -729,7 +730,7 @@ export default function Coach() {
                     ? 'text-amber-600 dark:text-amber-400'
                     : 'text-emerald-600 dark:text-emerald-400')}>
                 {!Number.isFinite(limit)
-                  ? '✦ بلا حدود'
+                  ? '✦ عدد كبير'
                   : userMsgCount === 0
                     ? `${limit} رسائل تجريبية`
                     : `${Math.max(0, limit - userMsgCount)}/${limit} رسائل متبقية`}
@@ -1231,7 +1232,7 @@ export default function Coach() {
                   </span>
                 ) : subscription.tier === 'elite' ? (
                   <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 px-3 py-1 text-xs font-bold text-emerald-700 dark:text-emerald-400">
-                    بلا حدود
+                    عدد كبير من الاستشارات
                   </span>
                 ) : null}
               </div>
@@ -1240,7 +1241,7 @@ export default function Coach() {
                 <div className="rounded-xl border-2 border-emerald-400 bg-gradient-to-b from-emerald-50 to-white dark:to-stone-950 p-6 text-center shadow-sm dark:shadow-stone-900/30">
                   <Crown className="mx-auto mb-3 h-8 w-8 text-emerald-700" />
                   <p className="text-lg font-bold text-stone-900 dark:text-stone-100">لقد وصلت للحد الأقصى</p>
-                  <p className="mt-2 text-sm text-stone-600 dark:text-stone-300">ترقَّ إلى المتقدّمة لاستشارات غير محدودة</p>
+                  <p className="mt-2 text-sm text-stone-600 dark:text-stone-300">ترقَّ إلى المتقدّمة لعدد أكبر من الاستشارات اليومية</p>
                   <Link to="/pricing?plan=elite" className="mt-4 inline-flex items-center gap-2 rounded-full bg-emerald-600 px-8 py-3.5 text-base font-semibold text-white transition-colors hover:bg-emerald-700">
                     <Crown className="h-4 w-4" />
                     ترقية إلى المتقدّمة
@@ -1250,7 +1251,7 @@ export default function Coach() {
                 <div className="rounded-xl border-2 border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-900/20 p-5 text-center">
                   <Sparkles className="mx-auto mb-2 h-6 w-6 text-emerald-700" />
                   <p className="font-bold text-stone-900 dark:text-stone-100">{hasAccess ? 'وصلت حد الأسئلة لهذه الجلسة' : 'أعجبتك الاستشارة؟'}</p>
-                  <p className="mt-1 text-sm text-stone-600 dark:text-stone-300">{!isElite && (hasAccess ? 'ترقَّ إلى المتقدّمة لاستشارات غير محدودة.' : `اشترك لاستشارات مخصّصة بلا حدود — ${TRIAL_DAYS} أيام مجانًا`)}</p>
+                  <p className="mt-1 text-sm text-stone-600 dark:text-stone-300">{!isElite && (hasAccess ? 'ترقَّ إلى المتقدّمة لعدد أكبر من الاستشارات اليومية.' : `اشترك لاستشارات مخصّصة — ${TRIAL_DAYS} أيام مجانًا`)}</p>
                   {!isElite && <button onClick={async () => { try { if (hasAccess) await upgradeTo('elite'); else navigate(user ? '/pricing' : '/signup?redirect=/pricing'); } catch { /* non-blocking */ } }} className="mt-3 rounded-full bg-emerald-600 px-8 py-3.5 text-base font-semibold text-white transition-colors hover:bg-emerald-700">{hasAccess ? 'ترقَّ إلى المتقدّمة' : `اشترك — ${PRICING.essentials.label}/شهر`}</button>}
                 </div>
                 )
@@ -1259,7 +1260,13 @@ export default function Coach() {
                   {/* Conversation starters — when chat is empty */}
                   {messages.length === 0 && !isLoading && (
                     <div className="mb-4">
-                      <p className="text-sm font-bold text-stone-600 dark:text-stone-300 mb-3 text-center">ابدأ محادثتك مع المدرب الذكي</p>
+                      <p className="text-sm font-bold text-stone-600 dark:text-stone-300 mb-2 text-center">ابدأ محادثتك مع المدرب الذكي</p>
+                      <p className="text-xs text-stone-500 dark:text-stone-400 mb-3 text-center">
+                        <Link to="/library" className="inline-flex items-center gap-1 font-medium text-emerald-700 dark:text-emerald-400 hover:underline">
+                          <BookOpen className="h-3 w-3" /> تصفّح المكتبة
+                        </Link>
+                        {' '}لاختيار ببتيد ثم اسأله هنا عن البروتوكول
+                      </p>
                       <div className="flex flex-wrap gap-2 justify-center">
                         {conversationStarters.map(q => (
                           <button

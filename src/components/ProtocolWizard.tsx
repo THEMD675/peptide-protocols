@@ -9,6 +9,7 @@ import { peptidesPublic as peptides, type PeptidePublic as Peptide } from '@/dat
 import { cn } from '@/lib/utils';
 import { FREQUENCY_LABELS } from '@/lib/constants';
 import BaselineChecklist from '@/components/BaselineChecklist';
+import { logError } from '@/lib/logger';
 
 function ShoppingList({ peptide, dose, unit, frequency, cycleWeeks }: { peptide: Peptide; dose: string; unit: string; frequency: string; cycleWeeks: string }) {
   if (!dose || !(peptide.route === 'subq' || peptide.route === 'im')) return null;
@@ -84,7 +85,7 @@ export default function ProtocolWizard({ peptideId, prefillDose, prefillUnit, on
       if (!mounted) return;
       if (!countRes.error) setExistingProtocols(countRes.count ?? 0);
       if (!dupeRes.error) setHasDuplicatePeptide((dupeRes.count ?? 0) > 0);
-    })().catch((e) => console.error('protocol load failed:', e));
+    })().catch((e) => logError('protocol load failed:', e));
     return () => { mounted = false; };
   }, [user, peptideId]);
 
@@ -125,7 +126,7 @@ export default function ProtocolWizard({ peptideId, prefillDose, prefillUnit, on
         status: 'active',
       });
       if (error) {
-        console.error('protocol creation failed:', error.message);
+        logError('protocol creation failed:', error.message);
         toast.error('تعذّر إنشاء البروتوكول — تحقق من اتصالك وحاول مرة أخرى');
         setSubmitting(false);
         submittingRef.current = false;

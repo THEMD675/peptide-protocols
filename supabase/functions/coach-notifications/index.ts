@@ -50,7 +50,7 @@ serve(async (req) => {
   const cronSecretHeader = req.headers.get('x-cron-secret')
   const cronSecret = Deno.env.get('CRON_SECRET')
 
-  const ADMIN_EMAILS = (Deno.env.get('ADMIN_EMAIL_WHITELIST') || '').split(',').map(e => e.trim().toLowerCase())
+  const ADMIN_EMAILS = ['abdullah@amirisgroup.co', 'abdullahalameer@gmail.com', 'abdullahameeer32@gmail.com', 'contact@pptides.com']
   let authorized = false
   if (cronSecret && (authHeader === `Bearer ${cronSecret}` || cronSecretHeader === cronSecret)) {
     authorized = true

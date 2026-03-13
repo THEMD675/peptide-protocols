@@ -6,6 +6,7 @@ import { supabase } from '@/lib/supabase';
 import { peptidesLite as allPeptides } from '@/data/peptides-lite';
 import { DOSE_PRESETS_MAP } from '@/data/dose-presets';
 import BodyMap from '@/components/BodyMap';
+import { logError } from '@/lib/logger';
 
 interface TrackerFormProps {
   userId: string;
@@ -82,7 +83,7 @@ export default function TrackerForm({
           if (e instanceof DOMException && e.name === 'QuotaExceededError') {
             try { sessionStorage.removeItem('pptides_tracker_form_draft'); } catch { /* ignore */ }
           }
-          console.error('tracker draft failed:', e);
+          logError('tracker draft failed:', e);
         }
       }, 500);
     }
@@ -91,7 +92,7 @@ export default function TrackerForm({
   // Restore draft
   useEffect(() => {
     let draft: string | null = null;
-    try { draft = sessionStorage.getItem('pptides_tracker_form_draft'); } catch (e) { console.error('tracker draft failed:', e); }
+    try { draft = sessionStorage.getItem('pptides_tracker_form_draft'); } catch (e) { logError('tracker draft failed:', e); }
     if (draft && !peptideName) {
       try {
         const d = JSON.parse(draft);
@@ -100,7 +101,7 @@ export default function TrackerForm({
         setUnit(d.unit ?? 'mcg');
         setSite(d.site ?? 'abdomen');
         setNotes(d.notes ?? '');
-      } catch (e) { console.error('tracker draft failed:', e); }
+      } catch (e) { logError('tracker draft failed:', e); }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -124,10 +125,10 @@ export default function TrackerForm({
       const ext = photoFile.name.split('.').pop() || 'jpg';
       const path = `injection-photos/${userId}/${Date.now()}.${ext}`;
       const { error } = await supabase.storage.from('user-uploads').upload(path, photoFile, { cacheControl: '31536000', upsert: false });
-      if (error) { console.error('Photo upload failed:', error.message); return null; }
+      if (error) { logError('Photo upload failed:', error.message); return null; }
       const { data: urlData } = supabase.storage.from('user-uploads').getPublicUrl(path);
       return urlData?.publicUrl ?? null;
-    } catch (e) { console.error('Photo upload failed:', e); return null; }
+    } catch (e) { logError('Photo upload failed:', e); return null; }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -193,7 +194,7 @@ export default function TrackerForm({
       celebrate(newTotal, computeStreak());
       onCancel(); // close form
     } catch (err) {
-      console.error(err);
+      logError('injection submit failed', err);
       toast.error('تعذّر حفظ الحقنة — تحقق من اتصالك وحاول مرة أخرى', {
         action: { label: 'أعد المحاولة', onClick: () => formRef.current?.requestSubmit() },
       });

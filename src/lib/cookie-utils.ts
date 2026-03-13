@@ -1,5 +1,7 @@
 /** Cookie consent utilities — separate from CookieConsent component for clean imports and code-splitting */
 
+import { logError } from './logger';
+
 const STORAGE_KEY = 'pptides_cookie_consent';
 
 export interface CookiePreferences {
@@ -15,7 +17,7 @@ export function getCookiePreferences(): CookiePreferences | null {
     if (raw === 'rejected') return { essential: true, optional: false };
     return JSON.parse(raw) as CookiePreferences;
   } catch (e) {
-    console.error('[cookie-utils] getCookiePreferences failed:', e);
+    logError('[cookie-utils] getCookiePreferences failed:', e);
     return null;
   }
 }

@@ -190,7 +190,7 @@ serve(async (req) => {
           `
         } else if (daysUntilExpiry <= 0 && daysUntilExpiry >= -3) {
           reminderType = 'expired'
-          subject = 'انتهت تجربتك — اشترك الآن — pptides'
+          subject = ' انتهت تجربتك — اشترك الآن — pptides'
           body = `
             <h1 style="color: #1c1917; font-size: 24px;">انتهت تجربتك المجانية</h1>
             <p>لكن لا تقلق — يمكنك الاشتراك الآن والوصول لكل المحتوى:</p>
@@ -205,7 +205,7 @@ serve(async (req) => {
           `
         } else if (daysUntilExpiry >= -8 && daysUntilExpiry <= -6) {
           reminderType = 'day7_winback'
-          subject = 'محتوى جديد في pptides — عد واكتشف'
+          subject = ' محتوى جديد في pptides — عد واكتشف'
           body = `
             <h1 style="color: #1c1917; font-size: 24px;">نشتاق لك </h1>
             <p>أضفنا تحديثات جديدة على المكتبة والأدوات. لا تفوّت:</p>
@@ -221,7 +221,7 @@ serve(async (req) => {
           `
         } else if (daysUntilExpiry >= -15 && daysUntilExpiry <= -13) {
           reminderType = 'day14_winback'
-          subject = 'مستخدمون بدأوا بروتوكولاتهم هذا الأسبوع — pptides'
+          subject = ' مستخدمون بدأوا بروتوكولاتهم هذا الأسبوع — pptides'
           body = `
             <h1 style="color: #1c1917; font-size: 24px;">مجتمع pptides ينمو</h1>
             <p>مستخدمون جدد بدأوا بروتوكولات BPC-157 و Semaglutide هذا الأسبوع.</p>
@@ -437,7 +437,7 @@ serve(async (req) => {
                   </div>
                   ${protocolSummary ? `<div style="background: #f5f5f4; border-radius: 8px; padding: 12px; margin: 16px 0;">
                     <p style="font-size: 13px; font-weight: bold; color: #44403c; margin: 0 0 4px;">بروتوكولاتك النشطة:</p>
-                    <p style="font-size: 12px; color: #78716c; margin: 0;">${protocolSummary}</p>
+                    <p style="font-size: 12px; color: #78716c; margin: 0;" dir="ltr">${protocolSummary}</p>
                   </div>` : ''}
                   <p>استمر في التتبّع — الانتظام هو المفتاح.</p>
                   <div style="text-align: center; margin-top: 16px;">

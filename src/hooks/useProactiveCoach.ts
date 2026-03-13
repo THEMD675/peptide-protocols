@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
+import { logError } from '@/lib/logger';
 
 export interface ProactiveInsight {
   id: string;
@@ -681,7 +682,7 @@ export function useProactiveCoach(userId: string | undefined) {
         setLoading(false);
       })
       .catch((e) => {
-        console.error('proactive coach failed:', e);
+        logError('proactive coach failed:', e);
         if (mounted) setLoading(false);
       });
 

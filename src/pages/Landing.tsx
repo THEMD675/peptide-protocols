@@ -42,7 +42,7 @@ import TrustBadges from '@/components/TrustBadges';
 import AnimatedCounter from '@/components/AnimatedCounter';
 const PeptideQuiz = lazy(() => import('@/components/PeptideQuiz'));
 import { cn } from '@/lib/utils';
-import { PRICING, PEPTIDE_COUNT, PUBMED_SOURCE_LABEL, VALUE_TOTAL, VALUE_SAVINGS_ESSENTIALS, VALUE_STACK, SITE_URL, SUPPORT_EMAIL, STORAGE_KEYS, TRIAL_DAYS } from '@/lib/constants';
+import { PRICING, PEPTIDE_COUNT, PUBMED_SOURCE_LABEL, VALUE_TOTAL, VALUE_SAVINGS_ESSENTIALS, VALUE_STACK, SITE_URL, SUPPORT_EMAIL, STORAGE_KEYS, TRIAL_DAYS, REFERRAL_CODE_REGEX } from '@/lib/constants';
 
 
 const PAIN_POINTS = [
@@ -132,7 +132,7 @@ export default function Landing() {
   useEffect(() => {
     try {
       const ref = new URLSearchParams(window.location.search).get('ref');
-      if (ref && /^PP-[A-Z0-9]{6}$/.test(ref)) {
+      if (ref && REFERRAL_CODE_REGEX.test(ref)) {
         localStorage.setItem('pptides_referral', ref);
         const url = new URL(window.location.href);
         url.searchParams.delete('ref');

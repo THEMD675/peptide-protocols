@@ -4,9 +4,12 @@ import { Loader2, CheckCircle, BookOpen, Bot, Calculator } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { PEPTIDE_COUNT, SUPPORT_EMAIL } from '@/lib/constants';
 
+const POLL_INTERVAL_MS = 3000;
+const POLL_MAX_MS = 60000;
+
 export default function PaymentProcessing() {
   const navigate = useNavigate();
-  const { subscription } = useAuth();
+  const { subscription, refreshSubscription } = useAuth();
   const [visible, setVisible] = useState(() => {
     if (typeof window === 'undefined') return false;
     return new URLSearchParams(window.location.search).get('payment') === 'success';
@@ -14,6 +17,7 @@ export default function PaymentProcessing() {
   const [stage, setStage] = useState<'loading' | 'success' | 'timeout' | 'error'>('loading');
   const [progress, setProgress] = useState(10);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const pollStartedRef = useRef<number>(0);
   const [confettiParticles] = useState(() =>
     Array.from({ length: 40 }, (_, i) => ({
       left: Math.random() * 100,
@@ -37,6 +41,21 @@ export default function PaymentProcessing() {
     }, 500);
     return () => { if (timerRef.current) clearInterval(timerRef.current); };
   }, [visible, stage]);
+
+  // Actively refresh subscription when we're showing post-checkout — don't rely on AuthContext poll only
+  useEffect(() => {
+    if (!visible || stage !== 'loading') return;
+    if (pollStartedRef.current === 0) pollStartedRef.current = Date.now();
+    refreshSubscription();
+    const interval = setInterval(() => {
+      if (Date.now() - pollStartedRef.current > POLL_MAX_MS) {
+        clearInterval(interval);
+        return;
+      }
+      refreshSubscription();
+    }, POLL_INTERVAL_MS);
+    return () => clearInterval(interval);
+  }, [visible, stage, refreshSubscription]);
 
   useEffect(() => {
     if (!visible) return;

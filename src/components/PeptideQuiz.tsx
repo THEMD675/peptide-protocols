@@ -11,6 +11,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { PRICING, TRIAL_DAYS } from '@/lib/constants';
 import { supabase } from '@/lib/supabase';
 import { events } from '@/lib/analytics';
+import { logError } from '@/lib/logger';
 import { peptidesPublic as allPeptides } from '@/data/peptides-public';
 import ShareButtons from '@/components/ShareButtons';
 import { SITE_URL } from '@/lib/constants';
@@ -554,7 +555,7 @@ export default function PeptideQuiz() {
         if (user) {
           supabase.from('user_profiles').update({
             goals: [updated.goal],
-          }).eq('user_id', user.id).then(() => {}).catch((e) => { console.error('PeptideQuiz: failed to save goals', e); });
+          }).eq('user_id', user.id).then(() => {}).catch((e) => { logError('PeptideQuiz: failed to save goals', e); });
         }
       } else {
         setDirection('forward');

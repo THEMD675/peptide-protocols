@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback, useEffect, memo, lazy, Suspense } from 'react';
+import { useState, useMemo, useCallback, useEffect, useRef, memo, lazy, Suspense } from 'react';
 import { useBookmarks } from '@/hooks/useBookmarks';
 const FocusTrap = lazy(() => import('focus-trap-react'));
 import { Helmet } from 'react-helmet-async';
@@ -267,6 +267,13 @@ export default function Library() {
     return validCategories.includes(c) ? c : 'all';
   });
   const [search, setSearch] = useState(() => searchParams.get('q') ?? '');
+  const [debouncedSearch, setDebouncedSearch] = useState(search);
+  const debounceRef = useRef<ReturnType<typeof setTimeout>>();
+  const setSearchDebounced = useCallback((v: string) => {
+    setSearch(v);
+    clearTimeout(debounceRef.current);
+    debounceRef.current = setTimeout(() => setDebouncedSearch(v), 300);
+  }, []);
   const [evidenceFilter, setEvidenceFilter] = useState(() => {
     const e = searchParams.get('evidence') ?? 'all';
     return validEvidence.includes(e) ? e : 'all';
@@ -280,13 +287,13 @@ export default function Library() {
   useEffect(() => {
     const params = new URLSearchParams();
     if (activeCategory !== 'all') params.set('category', activeCategory);
-    if (search.trim()) params.set('q', search.trim());
+    if (debouncedSearch.trim()) params.set('q', debouncedSearch.trim());
     if (evidenceFilter !== 'all') params.set('evidence', evidenceFilter);
     if (sortBy !== 'default') params.set('sort', sortBy);
     const next = params.toString();
     const curr = searchParams.toString();
     if (next !== curr) setSearchParams(params, { replace: true });
-  }, [activeCategory, search, evidenceFilter, sortBy, setSearchParams, searchParams]);
+  }, [activeCategory, debouncedSearch, evidenceFilter, sortBy, setSearchParams, searchParams]);
 
   useEffect(() => {
     const urlCategory = searchParams.get('category') ?? 'all';
@@ -299,6 +306,7 @@ export default function Library() {
     if (safeCategory !== activeCategory || urlSearch !== search || safeEvidence !== evidenceFilter || safeSort !== sortBy) {
       setActiveCategory(safeCategory);
       setSearch(urlSearch);
+      setDebouncedSearch(urlSearch);
       setEvidenceFilter(safeEvidence);
       setSortBy(safeSort);
     }
@@ -388,8 +396,8 @@ export default function Library() {
       // Apply evidence filter
       if (evidenceFilter !== 'all' && p.evidenceLevel !== evidenceFilter) continue;
       // Apply search filter
-      if (search.trim()) {
-        const q = stripDiacritics(search.trim().toLowerCase());
+      if (debouncedSearch.trim()) {
+        const q = stripDiacritics(debouncedSearch.trim().toLowerCase());
         if (
           !stripDiacritics(p.nameAr).includes(q) &&
           !p.nameEn.toLowerCase().includes(q) &&
@@ -402,7 +410,7 @@ export default function Library() {
       if (favorites.has(p.id)) counts.bookmarks++;
     }
     return counts;
-  }, [favorites, search, evidenceFilter]);
+  }, [favorites, debouncedSearch, evidenceFilter]);
 
   const filtered = useMemo(() => {
     const stripDiacritics = (s: string) => s.normalize('NFD').replace(/[\u0610-\u061A\u064B-\u065F\u0670\u06D6-\u06DC\u06DF-\u06E4\u06E7-\u06E8\u06EA-\u06ED]/g, '');
@@ -413,8 +421,8 @@ export default function Library() {
         if (!FREE_PEPTIDE_IDS.has(p.id)) return false;
       } else if (activeCategory !== 'all' && p.category !== activeCategory) return false;
       if (evidenceFilter !== 'all' && p.evidenceLevel !== evidenceFilter) return false;
-      if (search.trim()) {
-        const q = stripDiacritics(search.trim().toLowerCase());
+      if (debouncedSearch.trim()) {
+        const q = stripDiacritics(debouncedSearch.trim().toLowerCase());
         return (
           stripDiacritics(p.nameAr).includes(q) ||
           p.nameEn.toLowerCase().includes(q) ||
@@ -427,7 +435,7 @@ export default function Library() {
     if (sortBy === 'alpha') result.sort((a, b) => a.nameEn.localeCompare(b.nameEn));
     if (sortBy === 'favorites') result.sort((a, b) => (favorites.has(b.id) ? 1 : 0) - (favorites.has(a.id) ? 1 : 0));
     return result;
-  }, [activeCategory, search, evidenceFilter, sortBy, favorites]);
+  }, [activeCategory, debouncedSearch, evidenceFilter, sortBy, favorites]);
 
   return (
     <div className="min-h-screen animate-fade-in" >
@@ -531,7 +539,7 @@ export default function Library() {
               role="searchbox"
               aria-label="البحث في المكتبة"
               value={search}
-              onChange={(e) => setSearch(e.target.value)}
+              onChange={(e) => setSearchDebounced(e.target.value)}
               placeholder="ابحث بالاسم أو الهدف..."
               className={cn(
                 'w-full rounded-xl border border-stone-200 dark:border-stone-600 bg-stone-50 dark:bg-stone-900 py-3 ps-10 pe-10 min-h-[44px]',

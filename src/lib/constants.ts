@@ -34,6 +34,8 @@ export const VALUE_TOTAL = '1,121 ر.س+';
 export const VALUE_SAVINGS_ESSENTIALS = '1,087 ر.س';
 export const VALUE_SAVINGS_ELITE = '750 ر.س+';
 
+export const REFERRAL_CODE_REGEX = /^PP-[A-Z0-9]{6}$/;
+
 export const SUPPORT_EMAIL = 'contact@pptides.com';
 export const ADMIN_EMAILS = ['abdullah@amirisgroup.co', 'abdullahalameer@gmail.com', 'contact@pptides.com'];
 export const USD_TO_SAR = 3.75;
@@ -60,6 +62,27 @@ export const STATUS_LABELS: Record<string, string> = {
   expired: 'منتهي',
   none: 'بدون اشتراك',
 };
+
+/** Routes any user can access without subscription — single source of truth for TrialBanner and gating */
+export const FREE_ROUTE_PREFIXES = [
+  '/calculator', '/pricing', '/login', '/signup', '/privacy', '/terms', '/',
+  '/glossary', '/sources', '/reviews', '/account', '/interactions',
+  '/library', '/table', '/stacks', '/lab-guide', '/guide',
+  '/community', '/about', '/faq', '/quiz', '/blog', '/contact', '/transparency',
+] as const;
+
+export function isFreeRoute(pathname: string): boolean {
+  if (pathname === '/' || pathname === '') return true;
+  return FREE_ROUTE_PREFIXES.some(p => p === pathname || (p !== '/' && pathname.startsWith(p + '/')));
+}
+
+/** Routes a trial user without payment method can visit without being blocked by the payment wall. Subset of free routes. */
+export const PAYMENT_WALL_ROUTE_PREFIXES = ['/', '/pricing', '/account', '/login', '/signup', '/privacy', '/terms', '/contact'] as const;
+
+export function isPaymentWallFreeRoute(pathname: string): boolean {
+  if (pathname === '/' || pathname === '') return true;
+  return PAYMENT_WALL_ROUTE_PREFIXES.some(p => p === pathname || (p !== '/' && pathname.startsWith(p + '/')));
+}
 
 export const STORAGE_KEYS = {
   AGE_VERIFIED: 'pptides_age_verified',

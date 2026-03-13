@@ -23,18 +23,11 @@ function jsonResponse(body: Record<string, unknown>, status = 200) {
 }
 
 serve(async (req) => {
-  if (req.method === 'OPTIONS') {
-    return new Response('ok', {
-      headers: {
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Methods': 'POST, OPTIONS',
-        'Access-Control-Allow-Headers': 'content-type, stripe-signature',
-      },
-    })
-  }
-
   if (req.method !== 'POST') {
-    return jsonResponse({ error: 'Method not allowed' }, 405)
+    return new Response(JSON.stringify({ error: 'Method not allowed' }), {
+      status: 405,
+      headers: { 'Content-Type': 'application/json', 'Allow': 'POST' },
+    })
   }
 
   try {
@@ -103,7 +96,7 @@ serve(async (req) => {
           const emailMatch = matchedUsers.find((u: { email?: string }) => u.email === session.customer_email)
           if (emailMatch) {
             userId = emailMatch.id
-            console.warn('checkout.session.completed: resolved user via auth email fallback:', session.customer_email ? session.customer_email.slice(0, 3) + '***' : 'unknown')
+            console.warn('checkout.session.completed: resolved user via auth email fallback:', session.customer_email)
           }
         }
 
@@ -395,31 +388,6 @@ serve(async (req) => {
           console.error('subscription.deleted DB exception:', dbErr)
           dbFailed = true
         }
-
-        // Send cancellation confirmation email
-        if (!dbFailed) {
-          const customer = await stripe.customers.retrieve(subscription.customer as string).catch(() => null)
-          const customerEmail = (customer && !customer.deleted) ? customer.email : null
-          if (customerEmail) {
-            sendEmail({
-              to: customerEmail,
-              subject: 'تم إلغاء اشتراكك في pptides',
-              tags: [{ name: 'type', value: 'subscription_cancelled' }, { name: 'category', value: 'transactional' }],
-              html: emailWrapper(`
-                    <h1 style="color: #1c1917; font-size: 24px;">تم إلغاء اشتراكك</h1>
-                    <p style="color: #44403c; font-size: 16px; line-height: 1.8;">نأسف لرؤيتك تغادر. تم إلغاء اشتراكك في pptides بنجاح.</p>
-                    <div style="background: #fef3c7; border-radius: 12px; padding: 20px; margin: 20px 0;">
-                      <p style="margin: 0; font-size: 15px; color: #92400e;">يمكنك إعادة الاشتراك في أي وقت والعودة إلى جميع ميزاتك.</p>
-                    </div>
-                    <div style="text-align: center; margin: 24px 0;">
-                      ${emailButton('أعد الاشتراك', `${APP_URL}/pricing`)}
-                    </div>
-                    <p style="color: #78716c; font-size: 13px;">إذا كان لديك أي ملاحظات: contact@pptides.com</p>
-                  `),
-              replyTo: 'contact@pptides.com',
-            }).catch(e => console.error('cancellation email failed:', e))
-          }
-        }
         break
       }
 
@@ -646,19 +614,6 @@ serve(async (req) => {
               subId = inv.subscription as string | null
             } catch { /* ignore */ }
           }
-          // If we resolved a subscription ID from the refund's invoice, verify it matches
-          // the user's current subscription to avoid cancelling a newer subscription
-          if (subId) {
-            const { data: currentSub } = await supabase.from('subscriptions')
-              .select('stripe_subscription_id')
-              .eq('stripe_customer_id', customerId)
-              .maybeSingle()
-            if (currentSub && currentSub.stripe_subscription_id !== subId) {
-              console.log(`charge.refunded: skipping — refund subscription ${subId} does not match current subscription ${currentSub.stripe_subscription_id}`)
-              break
-            }
-          }
-
           const query = supabase.from('subscriptions').update({
             status: isFullRefund ? 'cancelled' : 'active',
             ...(isFullRefund && { tier: 'free' }),

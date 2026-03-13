@@ -7,7 +7,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
 import { cn } from '@/lib/utils';
 import { events } from '@/lib/analytics';
-import { TRIAL_DAYS, SITE_URL } from '@/lib/constants';
+import { TRIAL_DAYS, SITE_URL, REFERRAL_CODE_REGEX } from '@/lib/constants';
 import { Gift } from 'lucide-react';
 
 const TURNSTILE_SITE_KEY = import.meta.env.VITE_TURNSTILE_SITE_KEY ?? '';
@@ -77,7 +77,7 @@ export default function Login() {
   const { login, signup, user } = useAuth();
   const googleBtnRef = useRef<HTMLDivElement>(null);
   const [referralCode] = useState(() => {
-    try { const r = localStorage.getItem('pptides_referral'); return r && /^PP-[A-Z0-9]{6}$/.test(r) ? r : null; } catch { return null; }
+    try { const r = localStorage.getItem('pptides_referral'); return r && REFERRAL_CODE_REGEX.test(r) ? r : null; } catch { return null; }
   });
 
   /** Switch tab, sync URL, clear errors + password, refocus email */

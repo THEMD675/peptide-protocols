@@ -213,33 +213,14 @@ serve(async (req) => {
     }).eq('user_id', user.id)
 
     if (dbUpdateErr) {
-      console.error('cancel-subscription: DB update after Stripe cancel failed (attempt 1):', dbUpdateErr)
-      // Retry DB update up to 2 more times since Stripe cancel already succeeded
-      let retrySuccess = false
-      for (let attempt = 2; attempt <= 3; attempt++) {
-        await new Promise(r => setTimeout(r, 500 * attempt))
-        const { error: retryErr } = await supabase.from('subscriptions').update({
-          status: 'cancelled',
-          current_period_end: periodEnd,
-          updated_at: new Date().toISOString(),
-        }).eq('user_id', user.id)
-        if (!retryErr) {
-          retrySuccess = true
-          console.log(`cancel-subscription: DB update succeeded on retry attempt ${attempt}`)
-          break
-        }
-        console.error(`cancel-subscription: DB update retry ${attempt} failed:`, retryErr)
-      }
-      if (!retrySuccess) {
-        console.error(`CRITICAL: cancel-subscription DB desync — Stripe cancelled but DB not updated. user_id=${user.id} stripe_sub=${sub.stripe_subscription_id} period_end=${periodEnd}`)
-        return new Response(JSON.stringify({
-          error: 'تم إلغاء الاشتراك في Stripe لكن تعذّر تحديث قاعدة البيانات. حدّث الصفحة.',
-          stripe_cancelled: true
-        }), {
-          status: 500,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        })
-      }
+      console.error('cancel-subscription: DB update after Stripe cancel failed:', dbUpdateErr)
+      return new Response(JSON.stringify({
+        error: 'تم إلغاء الاشتراك في Stripe لكن تعذّر تحديث قاعدة البيانات. حدّث الصفحة.',
+        stripe_cancelled: true
+      }), {
+        status: 500,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      })
     }
 
     console.log(JSON.stringify({ action: 'cancel_subscription', user_id: user.id, email: user.email ?? null, result: 'success', timestamp: new Date().toISOString() }))
@@ -251,10 +232,9 @@ serve(async (req) => {
         tags: [{ name: 'type', value: 'subscription_cancelled' }, { name: 'category', value: 'transactional' }],
         html: emailWrapper(`
             <h2 style="color:#1c1917;font-size:20px;">تم إلغاء اشتراكك</h2>
-            <p style="color:#44403c;line-height:1.8;">نؤكّد إلغاء اشتراكك في pptides. ستحتفظ بالوصول الكامل حتى نهاية الفترة الحالية (${periodEnd.split('T')[0]}).</p>
-            <p style="color:#44403c;line-height:1.8;">نتمنى أن تكون تجربتك مفيدة. بابنا مفتوح دائمًا — يمكنك العودة في أي وقت وإعادة الاشتراك بضغطة واحدة.</p>
+            <p style="color:#44403c;line-height:1.8;">ستحتفظ بالوصول حتى نهاية الفترة الحالية (${periodEnd.split('T')[0]}).</p>
             <div style="text-align:center;margin:24px 0;">
-              ${emailButton('العودة للاشتراك', `${APP_URL}/pricing`)}
+              ${emailButton('أعد الاشتراك', `${APP_URL}/pricing`)}
             </div>
           `),
         replyTo: 'contact@pptides.com',

@@ -1,5 +1,6 @@
 import { supabase } from './supabase';
 import { hasOptionalConsent } from './cookie-utils';
+import { logError } from './logger';
 
 declare global {
   interface Window {
@@ -35,7 +36,7 @@ async function flushEvents() {
   try {
     await supabase.from('analytics_events').insert(batch);
   } catch (e) {
-    console.error('[analytics] flush failed:', e);
+    logError('[analytics] flush failed:', e);
   }
 }
 
@@ -93,7 +94,7 @@ export function trackEvent(event: string, params?: Record<string, unknown>) {
     }
     // Always send to Supabase
     queueEvent(event, params);
-  } catch (e) { console.error('[analytics] trackEvent failed:', e); }
+  } catch (e) { logError('[analytics] trackEvent failed:', e); }
 }
 
 export function trackPageView(path: string) {
