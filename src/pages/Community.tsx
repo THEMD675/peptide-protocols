@@ -756,12 +756,8 @@ export default function Community() {
 
   const displayedLogs = useMemo(() => {
     if (logs.length > 0) return filteredLogs;
-    return SEED_EXPERIENCES
-      .filter(s => filterGoal === 'all' || s.goal === filterGoal)
-      .sort((a, b) =>
-        sortBy === 'highest' ? b.rating - a.rating : new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
-      );
-  }, [logs.length, filteredLogs, filterGoal, sortBy]);
+    return [];
+  }, [logs.length, filteredLogs]);
 
   const isShowingSeeds = logs.length === 0;
 
@@ -1042,7 +1038,7 @@ export default function Community() {
             )}
 
             {/* Search + Filter bar */}
-            {!loading && (logs.length > 0 || isShowingSeeds) && (
+            {!loading && logs.length > 0 && (
               <div className="mb-6 space-y-3">
                 {/* Search */}
                 <div className="relative">
@@ -1147,15 +1143,15 @@ export default function Community() {
               </div>
             ) : (
               <div className="space-y-4">
-                {/* Empty state */}
-                {displayedLogs.length === 0 && !isShowingSeeds && (
+                {/* Empty state — no community posts yet */}
+                {displayedLogs.length === 0 && (
                   <div className="rounded-2xl border-2 border-dashed border-emerald-200 dark:border-emerald-800 bg-gradient-to-b from-emerald-50/50 to-white dark:from-emerald-900/10 dark:to-stone-950 px-6 py-12 text-center">
                     <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-emerald-100 dark:bg-emerald-900/30">
-                      <Sparkles className="h-8 w-8 text-emerald-700" />
+                      <Users className="h-8 w-8 text-emerald-700" />
                     </div>
                     <h3 className="text-xl font-bold text-stone-900 dark:text-stone-100 mb-2">كن أول من يشارك تجربته!</h3>
                     <p className="mx-auto max-w-md text-sm leading-relaxed text-stone-600 dark:text-stone-300 mb-4">
-                      شارك المجتمع تجربتك مع الببتيدات — أي ببتيد استخدمت، البروتوكول الذي اتبعته، والنتائج التي حصلت عليها.
+                      المجتمع ينتظر أول تجربة حقيقية — شارك الببتيد الذي استخدمته، بروتوكولك، ونتائجك لتُلهم الآخرين.
                     </p>
                     <div className="mx-auto max-w-sm rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 p-4 text-start text-sm text-stone-600 dark:text-stone-300">
                       <p className="font-bold text-stone-900 dark:text-stone-100 mb-2">مثال على مشاركة:</p>
@@ -1164,7 +1160,7 @@ export default function Community() {
                       <p className="mb-1"><strong>البروتوكول:</strong> 250mcg مرتين يوميًا لمدة 6 أسابيع</p>
                       <p><strong>النتيجة:</strong> تحسّن واضح بعد الأسبوع الثالث</p>
                     </div>
-                    {user && isPaid && (
+                    {user && isPaid ? (
                       <button
                         onClick={() => setShowForm(true)}
                         className="mt-6 inline-flex items-center gap-2 rounded-full bg-emerald-600 px-8 py-3.5 min-h-[44px] text-base font-semibold text-white transition-all hover:bg-emerald-700"
@@ -1172,43 +1168,14 @@ export default function Community() {
                         <Send className="h-4 w-4" />
                         شارك تجربتك الآن
                       </button>
-                    )}
-                  </div>
-                )}
-
-                {/* Seed banner */}
-                {isShowingSeeds && displayedLogs.length > 0 && (
-                  <div className="rounded-2xl border-2 border-dashed border-emerald-200 dark:border-emerald-800 bg-gradient-to-b from-emerald-50/50 to-white dark:from-emerald-900/10 dark:to-stone-950 px-6 py-8 text-center">
-                    <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-emerald-100 dark:bg-emerald-900/30">
-                      <Sparkles className="h-8 w-8 text-emerald-700" />
-                    </div>
-                    <h3 className="text-xl font-bold text-stone-900 dark:text-stone-100">كن أول من يشارك تجربته!</h3>
-                    <p className="mx-auto mt-2 max-w-md text-sm leading-relaxed text-stone-600 dark:text-stone-300">
-                      التجارب أدناه أمثلة توضيحية فقط — أضف تجربتك الحقيقية لتكون أول مشاركة حقيقية
-                    </p>
-                    {user && isPaid && (
-                      <button
-                        onClick={() => setShowForm(true)}
-                        className="mt-4 inline-flex items-center gap-2 rounded-full bg-emerald-600 px-8 py-3.5 min-h-[44px] text-base font-semibold text-white transition-all hover:bg-emerald-700"
+                    ) : (
+                      <Link
+                        to="/pricing"
+                        className="mt-6 inline-flex items-center gap-2 rounded-full bg-emerald-600 px-8 py-3.5 min-h-[44px] text-base font-semibold text-white transition-all hover:bg-emerald-700"
                       >
-                        <Send className="h-4 w-4" />
-                        شارك تجربتك الآن
-                      </button>
+                        اشترك لتشارك تجربتك
+                      </Link>
                     )}
-                  </div>
-                )}
-
-                {/* No results for current filter */}
-                {displayedLogs.length === 0 && isShowingSeeds && (
-                  <div className="rounded-2xl border border-stone-200 dark:border-stone-600 bg-stone-50 dark:bg-stone-900/50 px-6 py-12 text-center">
-                    <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-stone-100 dark:bg-stone-800">
-                      <MessageSquare className="h-7 w-7 text-stone-500 dark:text-stone-300" />
-                    </div>
-                    <p className="text-base font-bold text-stone-800 dark:text-stone-200">لا توجد تجارب لهذا الهدف بعد</p>
-                    <p className="mt-1.5 text-sm text-stone-500 dark:text-stone-300">كن أول من يشارك تجربته وتُلهم الآخرين</p>
-                    <div className="mt-4 flex flex-col items-center gap-2 sm:flex-row sm:justify-center">
-                      <button onClick={() => { setFilterGoal('all'); setFilterPeptide(''); setSearchQuery(''); }} className="inline-flex min-h-[44px] items-center rounded-full border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 px-5 py-2 text-sm font-bold text-stone-700 dark:text-stone-200 transition-colors hover:border-emerald-300 dark:hover:border-emerald-700">عرض الكل</button>
-                    </div>
                   </div>
                 )}
 
