@@ -382,6 +382,15 @@ export default function Pricing() {
           </span>
         </div>
 
+        {/* Doctor visit cost anchor */}
+        <div className="mt-6 mb-4 flex justify-center">
+          <div className="inline-flex items-center gap-2 rounded-full border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-900 px-5 py-2 text-sm text-stone-600 dark:text-stone-300 shadow-sm">
+            <span>طبيب: <span className="font-bold text-stone-800 dark:text-stone-200">500+ ر.س/جلسة</span></span>
+            <span className="text-stone-300 dark:text-stone-600">|</span>
+            <span>pptides: <span className="font-bold text-emerald-700">1.1 ر.س/يوم</span></span>
+          </div>
+        </div>
+
         {/* Pricing Cards */}
         <div className="grid gap-8 md:grid-cols-2">
           {/* Essentials */}
@@ -472,6 +481,22 @@ export default function Pricing() {
         <p className="mt-8 text-center text-sm text-stone-800 dark:text-stone-200">
           {COMMON.noCommitments}
         </p>
+
+        {/* Refund guarantee badge */}
+        <div className="mt-6 flex justify-center">
+          <div className="inline-flex items-center gap-2 rounded-full border-2 border-emerald-300 dark:border-emerald-700 bg-emerald-50 dark:bg-emerald-900/20 px-6 py-2.5 shadow-sm">
+            <Shield className="h-5 w-5 text-emerald-700 shrink-0" />
+            <span className="text-sm font-bold text-emerald-800 dark:text-emerald-300">ضمان استرداد 100% — بدون أسئلة</span>
+          </div>
+        </div>
+
+        {/* vs ChatGPT callout */}
+        <div className="mt-6 rounded-xl border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-800/50 p-4 text-center">
+          <p className="text-sm font-bold text-stone-700 dark:text-stone-200 mb-1">لماذا ليس ChatGPT؟</p>
+          <p className="text-xs text-stone-600 dark:text-stone-300 leading-relaxed">
+            ChatGPT لا يعرف بروتوكولك، لا يتابع تقدّمك، لا يحذّرك من التفاعلات
+          </p>
+        </div>
 
         {/* Free Tier Teaser */}
         <div className="mt-8 rounded-2xl border border-dashed border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-900/50 p-5 text-center">

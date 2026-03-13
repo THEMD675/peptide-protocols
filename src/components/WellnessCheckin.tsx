@@ -54,6 +54,12 @@ function getLastLogLabel(loggedAt: string): string {
   return `آخر تسجيل: ${logDate.toLocaleDateString('ar-u-nu-latn', { month: 'short', day: 'numeric' })}`;
 }
 
+const TREND_METRICS = [
+  { key: 'energy' as const, label: 'طاقة', color: 'bg-amber-400' },
+  { key: 'sleep' as const, label: 'نوم', color: 'bg-blue-400' },
+  { key: 'pain' as const, label: 'ألم', color: 'bg-red-400' },
+] as const;
+
 export default function WellnessCheckin() {
   const { user } = useAuth();
   const [values, setValues] = useState<Record<MetricKey, number>>({
@@ -66,6 +72,7 @@ export default function WellnessCheckin() {
   const [lastEntry, setLastEntry] = useState<WellnessEntry | null>(null);
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState(false);
+  const [trendData, setTrendData] = useState<WellnessEntry[]>([]);
 
   const fetchLatest = useCallback(async () => {
     if (!user) return;
@@ -76,12 +83,14 @@ export default function WellnessCheckin() {
         .select('*')
         .eq('user_id', user.id)
         .order('logged_at', { ascending: false })
-        .limit(1);
+        .limit(7);
 
       if (error || !data || data.length === 0) {
         setLoading(false);
         return;
       }
+
+      setTrendData(data as WellnessEntry[]);
 
       const entry = data[0] as WellnessEntry;
       setLastEntry(entry);
@@ -281,6 +290,38 @@ export default function WellnessCheckin() {
               )}
             </button>
           )}
+        </div>
+      )}
+
+      {/* Mini Trend — last 7 entries */}
+      {trendData.length >= 2 && (
+        <div className="mt-5 rounded-xl border border-stone-100 dark:border-stone-700 bg-stone-50 dark:bg-stone-800/40 p-4">
+          <p className="text-xs font-bold text-stone-600 dark:text-stone-300 mb-3">آخر {trendData.length} تسجيلات</p>
+          <div className="space-y-3">
+            {TREND_METRICS.map(metric => {
+              const reversed = [...trendData].reverse();
+              return (
+                <div key={metric.key} className="flex items-center gap-2">
+                  <span className="w-10 text-xs font-bold text-stone-500 dark:text-stone-400 shrink-0">{metric.label}</span>
+                  <div className="flex items-end gap-1 flex-1 h-6">
+                    {reversed.map((entry, i) => {
+                      const val = entry[metric.key] ?? 1;
+                      const heightPct = (val / 5) * 100;
+                      return (
+                        <div
+                          key={i}
+                          className={cn('flex-1 rounded-sm transition-all', metric.color)}
+                          style={{ height: `${heightPct}%`, minHeight: '3px' }}
+                          title={`${val}/5`}
+                        />
+                      );
+                    })}
+                  </div>
+                  <span className="text-xs text-stone-400 dark:text-stone-500 w-6 text-center shrink-0">{trendData[0][metric.key]}/5</span>
+                </div>
+              );
+            })}
+          </div>
         </div>
       )}
     </div>

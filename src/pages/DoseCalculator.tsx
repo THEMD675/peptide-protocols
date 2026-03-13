@@ -6,7 +6,7 @@ import {
   Calculator, FlaskConical, Droplets, ChevronDown, ArrowLeft, BookOpen,
   Layers, Bot, Bookmark, Syringe, Shield, Play, Search, Share2, Zap,
   Scale, DollarSign, ArrowLeftRight, Info, Trash2, Clock, Target,
-  Activity, Dumbbell, Heart, Timer, Moon, Lightbulb,
+  Activity, Dumbbell, Heart, Timer, Moon, Lightbulb, Lock,
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import Tooltip from '@/components/Tooltip';
@@ -14,6 +14,7 @@ import ProtocolWizard from '@/components/ProtocolWizard';
 import { peptidesPublic as allPeptides } from '@/data/peptides-public';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
+import { useAuth } from '@/contexts/AuthContext';
 import { PEPTIDE_COUNT, SITE_URL } from '@/lib/constants';
 import { DOSE_PRESETS as PEPTIDE_PRESETS_DATA, type DoseUnit } from '@/data/dose-presets';
 
@@ -237,6 +238,8 @@ function PeptideReferenceCard({ presetName }: { presetName: string }) {
 /* ─────────────── Main Component ─────────────── */
 
 export default function DoseCalculator() {
+  const { subscription, isLoading: authLoading } = useAuth();
+  const isProOrTrial = !authLoading && (subscription?.isProOrTrial ?? false);
   const [activeTab, setActiveTab] = useState<TabId>('dose');
   const [doseUnit, setDoseUnit] = useState<DoseUnit>('mcg');
   const [doseValue, setDoseValue] = useState(250);
@@ -532,8 +535,25 @@ export default function DoseCalculator() {
           </p>
         </div>
 
+        {/* ═══════════════ SUBSCRIPTION GATE ═══════════════ */}
+        {!authLoading && !isProOrTrial && (
+          <div className="mb-8 rounded-2xl border-2 border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-900/20 p-8 text-center">
+            <Lock className="mx-auto mb-3 h-8 w-8 text-emerald-600" />
+            <h2 className="text-xl font-bold text-stone-900 dark:text-stone-100 mb-2">اشترك للوصول الكامل</h2>
+            <p className="text-sm text-stone-600 dark:text-stone-300 mb-4 max-w-md mx-auto">
+              حاسبة الجرعات الكاملة متاحة للمشتركين — حساب الجرعة، التخفيف، التكلفة الشهرية، ومحوّل الوحدات
+            </p>
+            <Link
+              to="/pricing"
+              className="inline-flex items-center gap-2 rounded-full bg-emerald-600 px-6 py-3 text-sm font-bold text-white transition-colors hover:bg-emerald-700"
+            >
+              اشترك الآن
+            </Link>
+          </div>
+        )}
+
         {/* ═══════════════ TABS ═══════════════ */}
-        <div className="mb-6 flex gap-1 overflow-x-auto scrollbar-hide -mx-1 px-1 pb-1">
+        {isProOrTrial && <div className="mb-6 flex gap-1 overflow-x-auto scrollbar-hide -mx-1 px-1 pb-1">
           {TABS.map((tab) => (
             <button
               key={tab.id}
@@ -549,10 +569,10 @@ export default function DoseCalculator() {
               <span>{tab.label}</span>
             </button>
           ))}
-        </div>
+        </div>}
 
         {/* ═══════════════ TAB 1: DOSE CALCULATOR ═══════════════ */}
-        {activeTab === 'dose' && (
+        {isProOrTrial && activeTab === 'dose' && (
           <>
             {/* Common Protocols Quick-Select */}
             <div className="mb-6">
@@ -1101,7 +1121,7 @@ export default function DoseCalculator() {
         )}
 
         {/* ═══════════════ TAB 2: RECONSTITUTION CALCULATOR ═══════════════ */}
-        {activeTab === 'reconstitution' && (
+        {isProOrTrial && activeTab === 'reconstitution' && (
           <div className="space-y-6">
             <div className="rounded-2xl border border-stone-200 dark:border-stone-600 bg-stone-50 dark:bg-stone-900 p-6 md:p-8">
               <div className="flex items-center gap-2 mb-6">
@@ -1338,7 +1358,7 @@ export default function DoseCalculator() {
         )}
 
         {/* ═══════════════ TAB 3: COST CALCULATOR ═══════════════ */}
-        {activeTab === 'cost' && (
+        {isProOrTrial && activeTab === 'cost' && (
           <div className="space-y-6">
             <div className="rounded-2xl border border-stone-200 dark:border-stone-600 bg-stone-50 dark:bg-stone-900 p-6 md:p-8">
               <div className="flex items-center gap-2 mb-6">
@@ -1471,7 +1491,7 @@ export default function DoseCalculator() {
         )}
 
         {/* ═══════════════ TAB 4: UNIT CONVERTER ═══════════════ */}
-        {activeTab === 'converter' && (
+        {isProOrTrial && activeTab === 'converter' && (
           <div className="space-y-6">
             <div className="rounded-2xl border border-stone-200 dark:border-stone-600 bg-stone-50 dark:bg-stone-900 p-6 md:p-8">
               <div className="flex items-center gap-2 mb-6">
@@ -1576,7 +1596,7 @@ export default function DoseCalculator() {
         )}
 
         {/* ═══════════════ FORMULAS (visible on dose tab) ═══════════════ */}
-        {activeTab === 'dose' && (
+        {isProOrTrial && activeTab === 'dose' && (
           <div className="mb-8 rounded-2xl border border-stone-200 dark:border-stone-600 bg-stone-50 dark:bg-stone-900">
             <button
               onClick={() => setShowFormulas(!showFormulas)}

@@ -65,6 +65,9 @@ export default function Login() {
   const [resendCooldown, setResendCooldown] = useState(0);
   const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
   const [turnstileUnavailable, setTurnstileUnavailable] = useState(false);
+  const [turnstileExpired, setTurnstileExpired] = useState(false);
+  /** Track whether token was ever set, to detect expiry (null after being non-null) */
+  const turnstileWasSet = useRef(false);
   const turnstileRef = useRef<HTMLDivElement>(null);
   const turnstileWidgetId = useRef<string | null>(null);
   const resendIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -139,6 +142,20 @@ export default function Login() {
       if (script.parentNode) script.parentNode.removeChild(script);
     };
   }, []);
+  // Detect turnstile token expiry: token becomes null after being set
+  useEffect(() => {
+    if (turnstileToken) {
+      turnstileWasSet.current = true;
+      setTurnstileExpired(false);
+    } else if (turnstileWasSet.current && !turnstileToken) {
+      // Token expired — show message and auto-reset widget
+      setTurnstileExpired(true);
+      if (turnstileWidgetId.current && window.turnstile) {
+        window.turnstile.reset(turnstileWidgetId.current);
+      }
+    }
+  }, [turnstileToken]);
+
   const recoveryTimerRef = useRef<ReturnType<typeof setTimeout>>();
   useEffect(() => () => {
     clearTimeout(recoveryTimerRef.current);
@@ -776,7 +793,14 @@ export default function Login() {
               </div>
 
               {TURNSTILE_SITE_KEY && (
-                <div ref={turnstileRef} className="flex justify-center" />
+                <>
+                  <div ref={turnstileRef} className="flex justify-center" />
+                  {turnstileExpired && (
+                    <p className="text-center text-xs text-amber-600 dark:text-amber-400 animate-pulse">
+                      CAPTCHA منتهي الصلاحية — جارٍ التحديث...
+                    </p>
+                  )}
+                </>
               )}
 
               <button

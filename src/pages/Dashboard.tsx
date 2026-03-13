@@ -411,16 +411,18 @@ export default function Dashboard() {
   const welcomeConfettiFired = useRef(false);
   const [runTour, setRunTour] = useState(false);
 
-  // Auto-trigger dashboard tour for first-time users — but NOT while onboarding modal is open
-  // (new users would get modal + tour simultaneously which is overwhelming)
+  // Auto-trigger dashboard tour for first-time users after onboarding completes
   const isNewUserWithNoData = !activity.loading && activity.logs.length === 0 && activeProtocols.length === 0;
+  const [onboardingJustClosed, setOnboardingJustClosed] = useState(false);
   useEffect(() => {
-    if (!user || isNewUserWithNoData || activity.loading) return;
+    if (!user || activity.loading) return;
+    // For new users: wait until onboarding modal closes (onboardingJustClosed flag)
+    if (isNewUserWithNoData && !onboardingJustClosed) return;
     const timer = setTimeout(() => {
       if (!isTourDone('dashboard') && !showOnboarding) setRunTour(true);
     }, 1200);
     return () => clearTimeout(timer);
-  }, [user, isNewUserWithNoData, activity.loading, showOnboarding]);
+  }, [user, isNewUserWithNoData, activity.loading, showOnboarding, onboardingJustClosed]);
 
   // Re-trigger tour via header "?" button
   useEffect(() => {
@@ -503,7 +505,7 @@ export default function Dashboard() {
       </Helmet>
 
       {/* Fix 3: Admin accounts skip onboarding; Fix 1: show onboarding for new trial users before pricing redirect */}
-      {!activity.loading && activity.logs.length === 0 && activeProtocols.length === 0 && subscription.isProOrTrial && !subscription.isAdminGrant && <OnboardingModal />}
+      {!activity.loading && activity.logs.length === 0 && activeProtocols.length === 0 && subscription.isProOrTrial && !subscription.isAdminGrant && <OnboardingModal onClose={() => setOnboardingJustClosed(true)} />}
       {showOnboarding && <OnboardingModal forceOpen onClose={() => setShowOnboarding(false)} />}
 
       {/* Expired / never-subscribed banner — read-only mode */}

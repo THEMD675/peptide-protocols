@@ -75,6 +75,16 @@ function computeStreak(logs: InjectionLog[], includeToday = false): number {
 
 const CALENDAR_PREF_KEY = 'pptides_calendar_pref';
 
+/** Post-injection feedback: expected timeline & what to track per category */
+const CATEGORY_FEEDBACK: Record<string, { weeks: string; track: string }> = {
+  metabolic: { weeks: '4-8', track: 'الوزن / الشهية / الطاقة' },
+  recovery: { weeks: '2-4', track: 'الألم / التعافي / جودة النوم' },
+  hormonal: { weeks: '4-6', track: 'الطاقة / المزاج / الأداء' },
+  brain:    { weeks: '2-4', track: 'التركيز / الذاكرة / المزاج' },
+  longevity:{ weeks: '8-12', track: 'الطاقة / النوم / العافية العامة' },
+  'skin-gut':{ weeks: '4-8', track: 'البشرة / الهضم / الالتهاب' },
+};
+
 export default function Tracker() {
   const { user, subscription } = useAuth();
   const { celebrate } = useCelebrations();
@@ -97,6 +107,9 @@ export default function Tracker() {
     try { return !!new URLSearchParams(window.location.search).get('peptide'); } catch { return false; }
   });
   const [autoFilled, setAutoFilled] = useState(false);
+
+  // Post-injection feedback card
+  const [lastLoggedPeptide, setLastLoggedPeptide] = useState<string | null>(null);
 
   const [showProtocolWizard, setShowProtocolWizard] = useState(false);
   const [wizardPeptideId, setWizardPeptideId] = useState('');
@@ -213,6 +226,7 @@ export default function Tracker() {
       }
       await fetchLogs();
       const peptide = allPeptides.find(p => p.id === proto.peptide_id);
+      setLastLoggedPeptide(peptide?.nameEn ?? proto.peptide_id);
       toast.success(`تم تسجيل ${peptide?.nameAr ?? proto.peptide_id} — ${proto.dose} ${proto.dose_unit}`, { duration: 6000, description: 'الجرعة التالية غدًا — استمر في الالتزام!' });
       const freq = proto.frequency;
       const nextIn = freq === 'bid' ? '12 ساعة' : freq === 'tid' ? '8 ساعات' : 'غدًا';
@@ -247,6 +261,7 @@ export default function Tracker() {
         return;
       }
       await fetchLogs();
+      setLastLoggedPeptide(last.peptide_name);
       toast.success(`تم تسجيل ${last.peptide_name} — ${last.dose} ${last.dose_unit}`);
       const newTotal = (totalCount || logs.length) + 1;
       celebrate(newTotal, computeStreak(logs, true));
@@ -691,8 +706,9 @@ export default function Tracker() {
         <TrackerForm
           userId={user.id}
           suggestedSite={suggestedSite}
-          onSubmitSuccess={async () => {
+          onSubmitSuccess={async (peptideName?: string) => {
             setShowForm(false);
+            if (peptideName) setLastLoggedPeptide(peptideName);
             if (initialPeptide) events.injectionLog(initialPeptide);
             await fetchLogs();
           }}
@@ -707,6 +723,26 @@ export default function Tracker() {
           activeProtocols={activeProtocols.map(p => ({ peptide_id: p.peptide_id, frequency: p.frequency }))}
         />
       )}
+
+      {/* Post-injection feedback card */}
+      {lastLoggedPeptide && (() => {
+        const matched = allPeptides.find(p => p.nameEn === lastLoggedPeptide || p.id === lastLoggedPeptide);
+        const category = matched?.category ?? 'recovery';
+        const feedback = CATEGORY_FEEDBACK[category] ?? CATEGORY_FEEDBACK.recovery;
+        return (
+          <div className="mb-8 rounded-2xl border border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-900/20 p-5 animate-fade-in">
+            <div className="flex items-center justify-between mb-3">
+              <p className="text-sm font-bold text-emerald-800 dark:text-emerald-300">{matched?.nameAr ?? lastLoggedPeptide}</p>
+              <button type="button" onClick={() => setLastLoggedPeptide(null)} className="text-xs text-stone-500 dark:text-stone-400 hover:text-stone-700 dark:hover:text-stone-200 min-h-[44px] min-w-[44px] flex items-center justify-center" aria-label="إغلاق">✕</button>
+            </div>
+            <p className="text-xs text-stone-700 dark:text-stone-300 mb-1">النتائج المتوقعة خلال <span className="font-bold">{feedback.weeks} أسابيع</span></p>
+            <p className="text-xs text-stone-700 dark:text-stone-300 mb-3">ما يجب تتبّعه: <span className="font-bold">{feedback.track}</span></p>
+            <Link to="/coach" className="inline-flex items-center gap-1 text-xs font-bold text-emerald-700 dark:text-emerald-400 hover:underline">
+              اسأل المدرب عن هذا الببتيد ←
+            </Link>
+          </div>
+        );
+      })()}
 
       {/* Side Effect Log */}
       <div className="mb-8">

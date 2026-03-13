@@ -204,6 +204,30 @@ export default function Account() {
     );
   }
 
+  // Sync email to email_list + Stripe only after email change is confirmed
+  useEffect(() => {
+    if (!user) return;
+    const { data: { subscription: authSub } } = supabase.auth.onAuthStateChange(
+      async (event, session) => {
+        if (event !== 'USER_UPDATED' || !session?.user) return;
+        const confirmedEmail = session.user.email;
+        if (!confirmedEmail || !session.user.email_confirmed_at) return;
+        // Sync email_list
+        await supabase.from('email_list').update({ email: confirmedEmail.toLowerCase() }).eq('user_id', session.user.id).catch((e) => { console.error('Account: email_list sync failed', e); });
+        // Sync Stripe
+        const { data: sub } = await supabase.from('subscriptions').select('stripe_customer_id').eq('user_id', session.user.id).maybeSingle();
+        if (sub?.stripe_customer_id) {
+          fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/admin-actions`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${session.access_token}` },
+            body: JSON.stringify({ action: 'sync_email', user_id: session.user.id, new_email: confirmedEmail.toLowerCase() }),
+          }).catch((e: unknown) => console.warn('Account: Stripe email sync failed', e));
+        }
+      },
+    );
+    return () => { authSub.unsubscribe(); };
+  }, [user]);
+
   const handleChangeEmail = async () => {
     if (!newEmail.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(newEmail)) { toast.error('أدخل بريد إلكتروني صالح'); return; }
     if (newEmail.trim().toLowerCase() === user?.email?.toLowerCase()) {
@@ -214,16 +238,7 @@ export default function Account() {
     try {
       const { error } = await supabase.auth.updateUser({ email: newEmail });
       if (error) throw error;
-      await supabase.from('email_list').update({ email: newEmail.trim().toLowerCase() }).eq('email', user.email).catch((e) => { console.error('Account: email_list sync failed', e); });
-      const { data: sub } = await supabase.from('subscriptions').select('stripe_customer_id').eq('user_id', user.id).maybeSingle();
-      if (sub?.stripe_customer_id) {
-        fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/admin-actions`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}` },
-          body: JSON.stringify({ action: 'sync_email', user_id: user.id, new_email: newEmail.trim().toLowerCase() }),
-        }).catch((e: unknown) => console.warn("silent catch:", e));
-      }
-      toast.success('تم إرسال رابط تأكيد للبريد الجديد. سيتم تحديث بريدك في Stripe تلقائيًا');
+      toast.success('تم إرسال رابط تأكيد للبريد الجديد. بعد التأكيد، سيتم تحديث بريدك في Stripe تلقائيًا');
       setNewEmail('');
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : '';

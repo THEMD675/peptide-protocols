@@ -465,8 +465,9 @@ serve(async (req) => {
       if (profileData.weight_kg) userContextMsg += ` | الوزن: ${profileData.weight_kg} كغ`
     }
     if (profileData?.onboarding_goals) {
-      const og = profileData.onboarding_goals as { goal?: string }
-      if (og.goal) userContextMsg += `\nهدف الأونبوردينغ: ${og.goal}`
+      const og = profileData.onboarding_goals as Record<string, unknown>
+      const goalsStr = og.goal ? String(og.goal) : JSON.stringify(og)
+      userContextMsg += `\nأهداف المستخدم من الببتيدات: ${goalsStr}`
     }
 
     // Injection history with adherence analysis

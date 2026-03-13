@@ -10,7 +10,7 @@ import BodyMap from '@/components/BodyMap';
 interface TrackerFormProps {
   userId: string;
   suggestedSite: string;
-  onSubmitSuccess: () => Promise<void>;
+  onSubmitSuccess: (peptideName?: string) => Promise<void>;
   onCancel: () => void;
   initialPeptide?: string;
   initialDose?: string;
@@ -148,7 +148,7 @@ export default function TrackerForm({
       }
       sessionStorage.removeItem('pptides_tracker_form_draft');
       window.history.replaceState({}, '', window.location.pathname);
-      await onSubmitSuccess();
+      await onSubmitSuccess(peptideName.trim());
       toast.success(
         `تم تسجيل ${peptideName.trim()} — ${dose} ${unit}`,
         { duration: 6000, description: 'الجرعة التالية غدًا — استمر في الالتزام!' },
