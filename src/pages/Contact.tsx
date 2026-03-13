@@ -174,6 +174,15 @@ export default function Contact() {
       try { sessionStorage.removeItem(CONTACT_DRAFT_KEY); } catch { /* expected */ }
       setTimeout(() => setSubmitted(true), 600);
       toast.success('تم إرسال رسالتك بنجاح');
+      // Notify admin via edge function (fire-and-forget)
+      const session = (await supabase.auth.getSession()).data.session;
+      if (session) {
+        fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/notify-enquiry`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${session.access_token}`, apikey: import.meta.env.VITE_SUPABASE_ANON_KEY },
+          body: JSON.stringify({ subject, email: email.trim(), name: name.trim() }),
+        }).catch(() => { /* non-critical */ });
+      }
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : String(err);
       if (msg.includes('P0429') || msg.includes('Rate limit')) {
