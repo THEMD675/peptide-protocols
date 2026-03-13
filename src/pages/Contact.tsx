@@ -308,9 +308,11 @@ export default function Contact() {
               onChange={(e) => { setName(e.target.value); clearFieldError('name'); }}
               onBlur={() => handleBlur('name', name)}
               placeholder="اسمك الكريم"
+              aria-invalid={!!fieldErrors.name}
+              aria-describedby={fieldErrors.name ? 'name-error' : undefined}
               className={`w-full rounded-xl border bg-stone-50 dark:bg-stone-800 px-4 py-3 text-stone-900 dark:text-stone-100 placeholder:text-stone-400 dark:placeholder:text-stone-500 dark:text-stone-300 focus:outline-none focus:ring-2 transition-colors min-h-[44px] ${fieldErrors.name ? 'border-red-400 dark:border-red-600 focus:border-red-500 focus:ring-red-200 dark:focus:ring-red-800' : 'border-stone-200 dark:border-stone-700 focus:border-emerald-500 focus:ring-emerald-200 dark:focus:ring-emerald-800'}`}
             />
-            {fieldErrors.name && <p className="mt-1 text-sm text-red-600 dark:text-red-400">{fieldErrors.name}</p>}
+            {fieldErrors.name && <p id="name-error" role="alert" className="mt-1 text-sm text-red-600 dark:text-red-400">{fieldErrors.name}</p>}
           </div>
 
           {/* Email */}
@@ -329,9 +331,11 @@ export default function Contact() {
               onChange={(e) => { setEmail(e.target.value); clearFieldError('email'); }}
               onBlur={() => handleBlur('email', email)}
               placeholder="name@example.com"
+              aria-invalid={!!fieldErrors.email}
+              aria-describedby={fieldErrors.email ? 'email-error' : undefined}
               className={`w-full rounded-xl border bg-stone-50 dark:bg-stone-800 px-4 py-3 text-stone-900 dark:text-stone-100 placeholder:text-stone-400 dark:placeholder:text-stone-500 dark:text-stone-300 focus:outline-none focus:ring-2 transition-colors min-h-[44px] ${fieldErrors.email ? 'border-red-400 dark:border-red-600 focus:border-red-500 focus:ring-red-200 dark:focus:ring-red-800' : 'border-stone-200 dark:border-stone-700 focus:border-emerald-500 focus:ring-emerald-200 dark:focus:ring-emerald-800'}`}
             />
-            {fieldErrors.email && <p className="mt-1 text-sm text-red-600 dark:text-red-400">{fieldErrors.email}</p>}
+            {fieldErrors.email && <p id="email-error" role="alert" className="mt-1 text-sm text-red-600 dark:text-red-400">{fieldErrors.email}</p>}
           </div>
 
           {/* Subject dropdown */}
@@ -349,6 +353,8 @@ export default function Contact() {
                 value={subject}
                 onChange={(e) => { setSubject(e.target.value); clearFieldError('subject'); }}
                 onBlur={() => handleBlur('subject', subject)}
+                aria-invalid={!!fieldErrors.subject}
+                aria-describedby={fieldErrors.subject ? 'subject-error' : undefined}
                 className={`w-full appearance-none rounded-xl border bg-stone-50 dark:bg-stone-800 px-4 py-3 pe-10 text-stone-900 dark:text-stone-100 focus:outline-none focus:ring-2 transition-colors min-h-[44px] ${fieldErrors.subject ? 'border-red-400 dark:border-red-600 focus:border-red-500 focus:ring-red-200 dark:focus:ring-red-800' : 'border-stone-200 dark:border-stone-700 focus:border-emerald-500 focus:ring-emerald-200 dark:focus:ring-emerald-800'}`}
               >
                 {SUBJECTS.map((s) => (
@@ -359,7 +365,7 @@ export default function Contact() {
               </select>
               <ChevronDown className="pointer-events-none absolute end-3 top-1/2 h-5 w-5 -translate-y-1/2 text-stone-500 dark:text-stone-300" />
             </div>
-            {fieldErrors.subject && <p className="mt-1 text-sm text-red-600 dark:text-red-400">{fieldErrors.subject}</p>}
+            {fieldErrors.subject && <p id="subject-error" role="alert" className="mt-1 text-sm text-red-600 dark:text-red-400">{fieldErrors.subject}</p>}
           </div>
 
           {/* Message */}
@@ -384,9 +390,11 @@ export default function Contact() {
               onChange={(e) => { setMessage(e.target.value); clearFieldError('message'); }}
               onBlur={() => handleBlur('message', message)}
               placeholder="اكتب رسالتك هنا..."
+              aria-invalid={!!fieldErrors.message}
+              aria-describedby={fieldErrors.message ? 'message-error' : undefined}
               className={`w-full resize-none rounded-xl border bg-stone-50 dark:bg-stone-800 px-4 py-3 text-stone-900 dark:text-stone-100 placeholder:text-stone-400 dark:placeholder:text-stone-400 focus:outline-none focus:ring-2 transition-colors ${fieldErrors.message ? 'border-red-400 dark:border-red-600 focus:border-red-500 focus:ring-red-200 dark:focus:ring-red-800' : 'border-stone-200 dark:border-stone-700 focus:border-emerald-500 focus:ring-emerald-200 dark:focus:ring-emerald-800'}`}
             />
-            {fieldErrors.message && <p className="mt-1 text-sm text-red-600 dark:text-red-400">{fieldErrors.message}</p>}
+            {fieldErrors.message && <p id="message-error" role="alert" className="mt-1 text-sm text-red-600 dark:text-red-400">{fieldErrors.message}</p>}
           </div>
 
           {/* Submit */}

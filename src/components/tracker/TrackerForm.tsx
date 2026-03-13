@@ -241,6 +241,8 @@ export default function TrackerForm({
               min="0"
               step="any"
               dir="ltr"
+              aria-invalid={!!isOutOfRange && !doseOutOfRangeConfirmed}
+              aria-describedby={isOutOfRange ? 'dose-range-warning' : undefined}
               className="w-full rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 px-4 py-3 text-base text-stone-900 dark:text-stone-100 placeholder:text-stone-500 dark:text-stone-300 focus:border-emerald-300 dark:border-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900"
             />
           </div>
@@ -267,7 +269,7 @@ export default function TrackerForm({
           const isUnderMin = doseMcg < preset.minDose;
           if (isOverMax) {
             return (
-              <div className="space-y-2">
+              <div id="dose-range-warning" role="alert" className="space-y-2">
                 <p className="text-xs font-bold text-red-600 dark:text-red-400 flex items-center gap-1">تحذير: الجرعة أعلى من الحد الأقصى الموصى به ({preset.maxDose} مايكروغرام)</p>
                 <p className="text-xs text-red-500 dark:text-red-400">جرعة خارج النطاق قد تسبب أعراضًا جانبية خطيرة — استشر طبيبك</p>
                 <label className="flex items-center gap-2 cursor-pointer">
@@ -279,7 +281,7 @@ export default function TrackerForm({
           }
           if (isUnderMin) {
             return (
-              <div className="space-y-2">
+              <div id="dose-range-warning" role="alert" className="space-y-2">
                 <p className="text-xs font-bold text-amber-600 dark:text-amber-400 flex items-center gap-1">الجرعة أقل من الحد الأدنى الموصى به ({preset.minDose} مايكروغرام)</p>
                 <label className="flex items-center gap-2 cursor-pointer">
                   <input type="checkbox" checked={doseOutOfRangeConfirmed} onChange={(e) => setDoseOutOfRangeConfirmed(e.target.checked)} className="rounded border-stone-300 dark:border-stone-600 text-emerald-700 focus:ring-emerald-500" />

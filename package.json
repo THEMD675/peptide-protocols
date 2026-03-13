@@ -5,6 +5,7 @@
   "description": "أشمل دليل عربي للببتيدات العلاجية",
   "license": "UNLICENSED",
   "type": "module",
+  "sideEffects": ["*.css"],
   "engines": {
     "node": ">=18"
   },

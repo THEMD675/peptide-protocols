@@ -307,7 +307,7 @@ export default function Landing() {
             <span>الأول عربيًا · {PEPTIDE_COUNT} ببتيد علاجي مع بروتوكول كامل</span>
           </div>
 
-          <h1 className="mb-4 text-[clamp(2.25rem,8vw,4.5rem)] font-extrabold leading-[1.15] text-stone-900 dark:text-stone-100 sm:text-5xl md:text-6xl lg:text-7xl">
+          <h1 className="mb-4 text-[clamp(2.25rem,6vw,3.5rem)] font-extrabold leading-[1.15] text-stone-900 dark:text-stone-100 sm:text-5xl md:text-6xl lg:text-7xl">
             توقّف عن التخمين.
             <br />
             <span className="text-emerald-700 dark:text-emerald-400">ابدأ بالعلم.</span>
@@ -994,6 +994,7 @@ export default function Landing() {
       </section>
 
       {/* ═══════ EMAIL CAPTURE ═══════ */}
+      {!user && (
       <section className="cv-auto relative bg-stone-900 dark:bg-stone-900 dark:border-y dark:border-stone-700 py-24">
         <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(16,185,129,0.12)_0%,transparent_60%)]" />
         <div className="relative mx-auto max-w-2xl px-6 text-center">
@@ -1009,6 +1010,7 @@ export default function Landing() {
           {/* Coming soon section removed — signals incompleteness to cold visitors */}
         </div>
       </section>
+      )}
 
       {/* ═══════ FINAL CTA ═══════ */}
       <section className="cv-auto bg-white dark:bg-stone-900 py-20">

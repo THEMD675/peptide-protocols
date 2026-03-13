@@ -131,6 +131,12 @@ export default defineConfig({
           // Focus trap — lazy loaded
           if (id.includes('node_modules/focus-trap') || id.includes('node_modules/focus-trap-react') || id.includes('node_modules/tabbable'))
             return 'focus-trap';
+          // Confetti — lazy loaded for celebrations
+          if (id.includes('node_modules/canvas-confetti') || id.includes('node_modules/confetti'))
+            return 'confetti';
+          // DOMPurify — lazy loaded for Coach sanitization
+          if (id.includes('node_modules/dompurify'))
+            return 'dompurify';
         },
       },
     },
