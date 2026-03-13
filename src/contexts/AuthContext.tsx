@@ -154,6 +154,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [subscription, setSubscription] = useState<Subscription>(DEFAULT_SUBSCRIPTION);
   const [isLoading, setIsLoading] = useState(true);
+  const subFetchFailCountRef = useRef(0);
 
   const fetchSubscription = useCallback(async (userId: string) => {
     try {
@@ -161,6 +162,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) {
         setSubscription(DEFAULT_SUBSCRIPTION);
+        subFetchFailCountRef.current = 0;
         return;
       }
 
@@ -186,12 +188,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                 .maybeSingle();
               if (!retryError) {
                 setSubscription(buildSubscription(retryData));
+                subFetchFailCountRef.current = 0;
                 return;
               }
             } catch {
-              // Fall through to default subscription
+              // Fall through to error handling below
             }
-            setSubscription(DEFAULT_SUBSCRIPTION);
+            // JWT refresh succeeded but retry still failed — keep previous state
+            subFetchFailCountRef.current += 1;
+            toast.error('تعذّر تحديث حالة الاشتراك');
+            if (subFetchFailCountRef.current >= 3) {
+              setSubscription(DEFAULT_SUBSCRIPTION);
+              subFetchFailCountRef.current = 0;
+            }
             return;
           }
           // Refresh also failed — sign out
@@ -199,17 +208,29 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           await supabase.auth.signOut({ scope: 'local' });
           setUser(null);
           setSubscription(DEFAULT_SUBSCRIPTION);
+          subFetchFailCountRef.current = 0;
           return;
         }
-        setSubscription(DEFAULT_SUBSCRIPTION);
+        // Non-JWT error — keep previous state, increment failure counter
+        subFetchFailCountRef.current += 1;
+        toast.error('تعذّر تحديث حالة الاشتراك');
+        if (subFetchFailCountRef.current >= 3) {
+          setSubscription(DEFAULT_SUBSCRIPTION);
+          subFetchFailCountRef.current = 0;
+        }
         return;
       }
 
-
+      subFetchFailCountRef.current = 0;
       setSubscription(buildSubscription(data));
     } catch {
-      toast.error('تعذّر تحميل بيانات الاشتراك. حاول تحديث الصفحة.');
-      setSubscription(DEFAULT_SUBSCRIPTION);
+      subFetchFailCountRef.current += 1;
+      toast.error('تعذّر تحديث حالة الاشتراك');
+      if (subFetchFailCountRef.current >= 3) {
+        toast.error('تعذّر تحميل بيانات الاشتراك. حاول تحديث الصفحة.');
+        setSubscription(DEFAULT_SUBSCRIPTION);
+        subFetchFailCountRef.current = 0;
+      }
     }
   }, []);
 

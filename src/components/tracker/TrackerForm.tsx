@@ -53,6 +53,14 @@ export default function TrackerForm({
   const [photoFile, setPhotoFile] = useState<File | null>(null);
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
   const photoInputRef = useRef<HTMLInputElement>(null);
+  const nextDoseTimerRef = useRef<ReturnType<typeof setTimeout>>(null);
+
+  // Cleanup timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (nextDoseTimerRef.current) clearTimeout(nextDoseTimerRef.current);
+    };
+  }, []);
 
   useEffect(() => {
     setDoseOutOfRangeConfirmed(false);
@@ -159,7 +167,7 @@ export default function TrackerForm({
         if (protocol) {
           const freq = protocol.frequency;
           const nextIn = freq === 'bid' ? '12 ساعة' : freq === 'tid' ? '8 ساعات' : 'غدًا';
-          setTimeout(() => toast(`الجرعة التالية: ${nextIn}`, { duration: 5000 }), 2000);
+          nextDoseTimerRef.current = setTimeout(() => toast(`الجرعة التالية: ${nextIn}`, { duration: 5000 }), 2000);
         }
       }
       const newTotal = (totalCount || logsLength) + 1;

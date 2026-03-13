@@ -43,12 +43,24 @@ const MINI_FAQ = [
   },
 ];
 
+const CONTACT_DRAFT_KEY = 'pptides_contact_draft';
+
 export default function Contact() {
   const { user, isLoading } = useAuth();
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState(user?.email ?? '');
-  const [subject, setSubject] = useState('');
-  const [message, setMessage] = useState('');
+
+  // Restore draft from sessionStorage
+  const savedDraft = (() => {
+    try {
+      const raw = sessionStorage.getItem(CONTACT_DRAFT_KEY);
+      if (raw) return JSON.parse(raw) as { name?: string; email?: string; subject?: string; message?: string };
+    } catch { /* expected */ }
+    return null;
+  })();
+
+  const [name, setName] = useState(savedDraft?.name ?? '');
+  const [email, setEmail] = useState(savedDraft?.email ?? user?.email ?? '');
+  const [subject, setSubject] = useState(savedDraft?.subject ?? '');
+  const [message, setMessage] = useState(savedDraft?.message ?? '');
   const [hp, setHp] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
@@ -57,6 +69,26 @@ export default function Contact() {
   useEffect(() => {
     if (user?.email && !email) setEmail(user.email);
   }, [user?.email, email]);
+
+  // Save draft to sessionStorage on every field change
+  const isDirty = !!(name.trim() || subject || message.trim());
+  useEffect(() => {
+    try {
+      if (isDirty) {
+        sessionStorage.setItem(CONTACT_DRAFT_KEY, JSON.stringify({ name, email, subject, message }));
+      } else {
+        sessionStorage.removeItem(CONTACT_DRAFT_KEY);
+      }
+    } catch { /* quota exceeded — non-critical */ }
+  }, [name, email, subject, message, isDirty]);
+
+  // Warn before navigating away when form is dirty
+  useEffect(() => {
+    if (!isDirty) return;
+    const handler = (e: BeforeUnloadEvent) => { e.preventDefault(); };
+    window.addEventListener('beforeunload', handler);
+    return () => window.removeEventListener('beforeunload', handler);
+  }, [isDirty]);
 
   if (isLoading) {
     // Show a layout-matching skeleton instead of a bare spinner to avoid flash
@@ -137,6 +169,8 @@ export default function Contact() {
         message: sanitizeInput(`${name.trim() ? `الاسم: ${name.trim()}\n\n` : ''}${message}`, 5000),
       });
       if (error) throw error;
+      // Clear draft on successful submission
+      try { sessionStorage.removeItem(CONTACT_DRAFT_KEY); } catch { /* expected */ }
       setTimeout(() => setSubmitted(true), 600);
       toast.success('تم إرسال رسالتك بنجاح');
     } catch (err: unknown) {
@@ -205,6 +239,8 @@ export default function Contact() {
         <meta property="og:image" content={`${SITE_URL}/og-image.jpg`} />
         <meta property="og:locale" content="ar_SA" />
         <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="تواصل معنا | pptides" />
+        <meta name="twitter:description" content="تواصل مع فريق pptides — نسعد بأسئلتكم واستفساراتكم." />
         <link rel="canonical" href={`${SITE_URL}/contact`} />
         <script type="application/ld+json">
           {JSON.stringify({

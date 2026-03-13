@@ -145,7 +145,7 @@ async function getSessionToken(): Promise<string> {
 
 /** Arabic-friendly error messages keyed by __ERROR__ tag */
 const ERROR_MESSAGES: Record<string, string> = {
-  '__ERROR__:429': 'تم تجاوز الحد — حاول مرة أخرى لاحقاً',
+  '__ERROR__:429': 'تم تجاوز الحد — حاول مرة أخرى بعد لحظات',
   '__ERROR__:403': 'انتهت صلاحية جلستك — أعد تسجيل الدخول للمتابعة.',
   '__ERROR__:401': 'سجّل دخولك أولًا للاستفادة من المدرب الذكي.',
   '__ERROR__:500': 'خدمة المدرب الذكي غير متاحة حاليًا — حاول مرة أخرى بعد لحظات.',
@@ -331,12 +331,13 @@ export default function Coach() {
 
   // Track current conversation row ID for multi-conversation support
   const [conversationId, setConversationId] = useState<string | null>(null);
+  const [convLoadError, setConvLoadError] = useState(false);
 
   // Hydrate from Supabase (load most recent conversation)
   const supabaseLoadedRef = useRef(false);
-  useEffect(() => {
-    if (!user?.id || supabaseLoadedRef.current) return;
-    supabaseLoadedRef.current = true;
+  const loadConversations = useCallback(() => {
+    if (!user?.id) return;
+    setConvLoadError(false);
     supabase
       .from('coach_conversations')
       .select('id, messages')
@@ -351,8 +352,14 @@ export default function Coach() {
           setIntakeStep('done');
         }
       })
-      .catch((e) => { console.warn('Coach conversation load failed:', e); });
+      .catch(() => { setConvLoadError(true); });
   }, [user?.id]);
+
+  useEffect(() => {
+    if (!user?.id || supabaseLoadedRef.current) return;
+    supabaseLoadedRef.current = true;
+    loadConversations();
+  }, [user?.id, loadConversations]);
   const DRAFT_KEY = 'pptides_coach_draft';
   const DEEPSEEK_CONSENT_KEY = 'pptides_deepseek_consent';
   const [showDeepSeekConsent, setShowDeepSeekConsent] = useState(() => {
@@ -365,6 +372,8 @@ export default function Coach() {
   const [copiedIdx, setCopiedIdx] = useState<number | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [loadingStage, setLoadingStage] = useState(0);
+  const [rateLimitCountdown, setRateLimitCountdown] = useState(0);
+  const countdownRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const [protocolWizardPeptide, setProtocolWizardPeptide] = useState<string | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const userContextRef = useRef('');
@@ -448,7 +457,7 @@ export default function Coach() {
   const normalizeDigits = (s: string) => s.replace(/[٠-٩]/g, d => String('٠١٢٣٤٥٦٧٨٩'.indexOf(d)));
 
   const abortRef = useRef<AbortController | null>(null);
-  useEffect(() => () => { abortRef.current?.abort(); }, []);
+  useEffect(() => () => { abortRef.current?.abort(); if (countdownRef.current) clearInterval(countdownRef.current); }, []);
 
   const setConsentGiven = useCallback(() => {
     try { localStorage.setItem(DEEPSEEK_CONSENT_KEY, 'true'); } catch { /* ok */ }
@@ -495,6 +504,12 @@ export default function Coach() {
           const body = await res.json().catch(() => null);
           if (body?.error && typeof body.error === 'string') errMsg = `${res.status}:${body.error}`;
         } catch { /* ignore */ }
+        // For 429, extract Retry-After header or default to 30s
+        if (res.status === 429) {
+          const retryAfter = parseInt(res.headers.get('Retry-After') ?? res.headers.get('retry-after') ?? '30', 10);
+          const seconds = isNaN(retryAfter) ? 30 : Math.min(retryAfter, 300);
+          errMsg = `429:retry=${seconds}`;
+        }
         throw new Error(errMsg);
       }
 
@@ -556,6 +571,23 @@ export default function Coach() {
       const statusMatch = msg.match(/^(\d+)/);
       const status = statusMatch ? statusMatch[1] : '';
       const errorTag = status === '429' ? '__ERROR__:429' : status === '403' ? '__ERROR__:403' : status === '401' ? '__ERROR__:401' : status === '500' ? '__ERROR__:500' : '__ERROR__';
+      // Start countdown timer for rate limit errors
+      if (status === '429') {
+        const retryMatch = msg.match(/retry=(\d+)/);
+        const seconds = retryMatch ? parseInt(retryMatch[1], 10) : 30;
+        if (countdownRef.current) clearInterval(countdownRef.current);
+        setRateLimitCountdown(seconds);
+        countdownRef.current = setInterval(() => {
+          setRateLimitCountdown(prev => {
+            if (prev <= 1) {
+              if (countdownRef.current) clearInterval(countdownRef.current);
+              countdownRef.current = null;
+              return 0;
+            }
+            return prev - 1;
+          });
+        }, 1000);
+      }
       setMessages(prev => {
         const filtered = prev.filter(m => !(m.role === 'assistant' && m.content === ''));
         if (filtered.length > 0 && filtered[filtered.length - 1].role === 'assistant') {
@@ -657,6 +689,8 @@ export default function Coach() {
         <meta property="og:locale" content="ar_SA" />
         <meta property="og:image" content={`${SITE_URL}/og-image.jpg`} />
         <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="استشاري الببتيدات | pptides" />
+        <meta name="twitter:description" content="مدرب ذكي بالذكاء الاصطناعي يصمّم لك بروتوكول ببتيدات مخصّص" />
         <link rel="canonical" href={`${SITE_URL}/coach`} />
         <script type="application/ld+json">{JSON.stringify({
           '@context': 'https://schema.org',
@@ -708,6 +742,20 @@ export default function Coach() {
               setIntakeStep('done');
             }}
           />
+        )}
+
+        {/* Conversation load error banner */}
+        {convLoadError && (
+          <div className="mb-4 flex items-center justify-between rounded-xl border border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-900/20 px-4 py-3">
+            <p className="text-sm font-medium text-red-700 dark:text-red-400">تعذّر تحميل المحادثات — أعد المحاولة</p>
+            <button
+              onClick={() => { supabaseLoadedRef.current = false; loadConversations(); }}
+              className="flex items-center gap-1.5 rounded-lg border border-red-300 dark:border-red-700 bg-white dark:bg-stone-900 px-3 py-1.5 text-xs font-bold text-red-700 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30 transition-colors"
+            >
+              <RotateCcw className="h-3.5 w-3.5" />
+              إعادة المحاولة
+            </button>
+          </div>
         )}
 
         <div className="rounded-2xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 overflow-hidden shadow-sm dark:shadow-stone-900/30">
@@ -898,20 +946,31 @@ export default function Coach() {
                       }</p>
                     ) : msg.content.startsWith('__ERROR') ? (
                       <div className="text-sm text-stone-800 dark:text-stone-200">
-                        <p className="mb-2">{getErrorMessage(msg.content)}</p>
+                        <p className="mb-2">
+                          {msg.content === '__ERROR__:429' && rateLimitCountdown > 0
+                            ? `حاول مرة أخرى بعد ${rateLimitCountdown} ثانية`
+                            : getErrorMessage(msg.content)}
+                        </p>
                         <div className="flex flex-wrap gap-2">
                           {msg.content === '__ERROR__:429' && (
                             <button
+                              disabled={rateLimitCountdown > 0}
                               onClick={() => {
+                                setRateLimitCountdown(0);
+                                if (countdownRef.current) { clearInterval(countdownRef.current); countdownRef.current = null; }
                                 const cleaned = messages.filter((_, j) => j !== i && j !== i - 1);
                                 setMessages(cleaned);
                                 if (i > 0 && messages[i - 1]?.role === 'user') {
-                                  sendToAI(messages[i - 1].content, cleaned);
+                                  sendToAI(messages[i - 1].content);
                                 }
                               }}
-                              className="inline-flex items-center gap-1.5 rounded-lg bg-emerald-600 px-3 py-1.5 text-xs font-bold text-white transition-colors hover:bg-emerald-700"
+                              className={cn(
+                                "inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-bold text-white transition-colors",
+                                rateLimitCountdown > 0 ? "bg-stone-400 cursor-not-allowed" : "bg-emerald-600 hover:bg-emerald-700"
+                              )}
                             >
-                              أعد المحاولة
+                              {rateLimitCountdown > 0 ? <Clock className="h-3 w-3 animate-spin" /> : <RotateCcw className="h-3 w-3" />}
+                              {rateLimitCountdown > 0 ? `انتظر ${rateLimitCountdown}` : 'أعد المحاولة'}
                             </button>
                           )}
                           {(msg.content === '__ERROR__:403' || msg.content === '__ERROR__:401') && (

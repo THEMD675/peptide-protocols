@@ -592,7 +592,7 @@ export default function Compare() {
         <div className="rounded-2xl border border-dashed border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-900/50 px-6 py-12 text-center">
           <ArrowLeftRight className="mx-auto mb-4 h-10 w-10 text-stone-300 dark:text-stone-300" />
           <p className="text-sm font-bold text-stone-700 dark:text-stone-200 mb-1">
-            {selectedCount === 0 ? 'ابدأ بالمقارنة' : 'اختر ببتيدًا آخر'}
+            {selectedCount === 0 ? 'اختر ببتيدات من المكتبة للمقارنة' : 'اختر ببتيدًا آخر'}
           </p>
           <p className="text-xs text-stone-500 dark:text-stone-300 mb-6">
             {selectedCount === 0

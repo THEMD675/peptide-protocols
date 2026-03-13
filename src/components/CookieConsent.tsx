@@ -29,7 +29,26 @@ export default function CookieConsent() {
     try { localStorage.setItem(COOKIE_CONSENT_STORAGE_KEY, JSON.stringify(prefs)); } catch { /* expected */ }
     setVisible(false);
     if (prefs.optional) {
-      setTimeout(() => window.location.reload(), 500);
+      // Dynamically inject GA4 script without page reload
+      const ga4Id = import.meta.env.VITE_GA4_ID;
+      if (ga4Id && import.meta.env.PROD && !document.querySelector(`script[src*="googletagmanager.com/gtag/js?id=${ga4Id}"]`)) {
+        const script = document.createElement('script');
+        script.src = `https://www.googletagmanager.com/gtag/js?id=${ga4Id}`;
+        script.async = true;
+        script.dataset.cookieConsent = 'analytics';
+        document.head.appendChild(script);
+        const w = window as unknown as Record<string, unknown[]>;
+        w.dataLayer = w.dataLayer || [];
+        w.dataLayer.push(['js', new Date()]);
+        w.dataLayer.push(['config', ga4Id, { send_page_view: true }]);
+      }
+    } else {
+      // Revoke: remove GA4 script tags and clear dataLayer
+      document.querySelectorAll('script[src*="googletagmanager.com/gtag/js"]').forEach(el => el.remove());
+      document.querySelectorAll('script[data-cookie-consent="analytics"]').forEach(el => el.remove());
+      const w = window as unknown as Record<string, unknown[]>;
+      delete w.dataLayer;
+      delete (window as Record<string, unknown>).gtag;
     }
   };
 

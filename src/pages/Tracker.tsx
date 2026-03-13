@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import FocusTrap from 'focus-trap-react';
 import { Helmet } from 'react-helmet-async';
 import { Link } from 'react-router-dom';
@@ -109,6 +109,14 @@ export default function Tracker() {
     try { return !!new URLSearchParams(window.location.search).get('peptide'); } catch { return false; }
   });
   const [autoFilled, setAutoFilled] = useState(false);
+  const nextDoseTimerRef = useRef<ReturnType<typeof setTimeout>>(null);
+
+  // Cleanup timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (nextDoseTimerRef.current) clearTimeout(nextDoseTimerRef.current);
+    };
+  }, []);
 
   // Referral code for streak milestone CTA
   const [referralCode, setReferralCode] = useState<string | null>(null);
@@ -244,7 +252,7 @@ export default function Tracker() {
       toast.success(`تم تسجيل ${peptide?.nameAr ?? proto.peptide_id} — ${proto.dose} ${proto.dose_unit}`, { duration: 6000, description: 'الجرعة التالية غدًا — استمر في الالتزام!' });
       const freq = proto.frequency;
       const nextIn = freq === 'bid' ? '12 ساعة' : freq === 'tid' ? '8 ساعات' : 'غدًا';
-      setTimeout(() => toast(`الجرعة التالية: ${nextIn}`, { duration: 5000 }), 2000);
+      nextDoseTimerRef.current = setTimeout(() => toast(`الجرعة التالية: ${nextIn}`, { duration: 5000 }), 2000);
       const newTotal = (totalCount || logs.length) + 1;
       celebrate(newTotal, computeStreak(logs, true));
     } catch { toast.error('تعذّر حفظ الحقنة — تحقق من اتصالك وحاول مرة أخرى'); }

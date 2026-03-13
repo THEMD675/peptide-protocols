@@ -500,6 +500,8 @@ export default function DoseCalculator() {
         <meta property="og:locale" content="ar_SA" />
         <meta property="og:image" content={`${SITE_URL}/og-image.jpg`} />
         <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="حاسبة جرعات الببتيدات | pptides" />
+        <meta name="twitter:description" content="احسب جرعتك بدقة خلال ثوانٍ — أداة مجانية لحساب جرعات 30+ ببتيد" />
         <link rel="canonical" href={`${SITE_URL}/calculator`} />
         <script type="application/ld+json">{JSON.stringify({
           '@context': 'https://schema.org',

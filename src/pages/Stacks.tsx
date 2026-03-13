@@ -154,6 +154,13 @@ export default function Stacks() {
       </div>
 
       {/* Cards grid */}
+      {stacks.length === 0 ? (
+        <div className="rounded-2xl border-2 border-dashed border-stone-200 dark:border-stone-700 bg-stone-50/50 dark:bg-stone-900/30 p-10 text-center">
+          <Layers className="mx-auto mb-3 h-10 w-10 text-stone-300 dark:text-stone-500" />
+          <p className="text-base font-bold text-stone-700 dark:text-stone-200 mb-2">أنشئ أول مجموعة لك</p>
+          <p className="text-sm text-stone-500 dark:text-stone-300 mb-4">استخدم منشئ البروتوكول أعلاه لاختيار ببتيداتك وحفظها كمجموعة</p>
+        </div>
+      ) : (
       <div className="grid gap-6 sm:grid-cols-2">
         {stacks.map((stack) => {
           const stackPeptides = stack.peptideIds
@@ -312,6 +319,7 @@ export default function Stacks() {
           );
         })}
       </div>
+      )}
 
       {!isPro && (
         <div className="mt-10 rounded-2xl border border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-900/20 p-6 text-center">

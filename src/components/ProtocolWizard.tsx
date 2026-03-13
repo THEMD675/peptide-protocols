@@ -46,10 +46,28 @@ export default function ProtocolWizard({ peptideId, prefillDose, prefillUnit, on
   const { user } = useAuth();
   const peptide = peptides.find(p => p.id === peptideId);
 
-  const [dose, setDose] = useState(String(prefillDose ?? peptide?.doseMcg ?? ''));
-  const [unit, setUnit] = useState(prefillUnit ?? 'mcg');
-  const [frequency, setFrequency] = useState(peptide?.frequency ?? 'od');
-  const [cycleWeeks, setCycleWeeks] = useState(String(peptide?.cycleDurationWeeks ?? 4));
+  const wizardStorageKey = `pptides_wizard_${peptideId}`;
+
+  // Restore saved wizard state from sessionStorage (keyed by peptide ID)
+  const savedState = (() => {
+    try {
+      const raw = sessionStorage.getItem(wizardStorageKey);
+      if (raw) return JSON.parse(raw) as { dose?: string; unit?: string; frequency?: string; cycleWeeks?: string };
+    } catch { /* expected */ }
+    return null;
+  })();
+
+  const [dose, setDose] = useState(savedState?.dose ?? String(prefillDose ?? peptide?.doseMcg ?? ''));
+  const [unit, setUnit] = useState(savedState?.unit ?? prefillUnit ?? 'mcg');
+  const [frequency, setFrequency] = useState(savedState?.frequency ?? peptide?.frequency ?? 'od');
+  const [cycleWeeks, setCycleWeeks] = useState(savedState?.cycleWeeks ?? String(peptide?.cycleDurationWeeks ?? 4));
+
+  // Persist wizard state to sessionStorage on every change
+  useEffect(() => {
+    try {
+      sessionStorage.setItem(wizardStorageKey, JSON.stringify({ dose, unit, frequency, cycleWeeks }));
+    } catch { /* quota exceeded — non-critical */ }
+  }, [dose, unit, frequency, cycleWeeks, wizardStorageKey]);
   const [submitting, setSubmitting] = useState(false);
   const [existingProtocols, setExistingProtocols] = useState(0);
   const [hasDuplicatePeptide, setHasDuplicatePeptide] = useState(false);
@@ -110,6 +128,8 @@ export default function ProtocolWizard({ peptideId, prefillDose, prefillUnit, on
         setDuplicateConfirmed(false);
         return;
       }
+      // Clear saved wizard state on successful submission
+      try { sessionStorage.removeItem(wizardStorageKey); } catch { /* expected */ }
       toast.success(`تم بدء بروتوكول ${peptide.nameAr}! — انتقل لسجل الحقن`);
       onCreated?.();
       onClose();
