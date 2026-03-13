@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import FocusTrap from 'focus-trap-react';
 import { Sparkles, BookOpen, Calculator, Bot, TrendingDown, Brain, Dumbbell, Heart, Zap, Clock, Shield, Moon } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { TRIAL_DAYS, PEPTIDE_COUNT } from '@/lib/constants';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
@@ -56,10 +56,15 @@ const GOAL_LABELS: Record<string, string> = {
 
 export default function OnboardingModal({ forceOpen, onClose: externalClose }: { forceOpen?: boolean; onClose?: () => void }) {
   const { user } = useAuth();
-  // Fix 5: Initialize show state synchronously from localStorage to prevent flash
+  const navigate = useNavigate();
+  // Initialize show state synchronously from localStorage/sessionStorage to prevent flash
   const [show, setShow] = useState(() => {
     if (forceOpen) return true;
-    try { return localStorage.getItem(ONBOARDING_KEY) !== 'true'; } catch (e) { console.warn('onboarding:', e); return true; }
+    try {
+      if (localStorage.getItem(ONBOARDING_KEY) === 'true') return false;
+      if (sessionStorage.getItem(ONBOARDING_KEY + '_skipped') === 'true') return false;
+      return true;
+    } catch (e) { console.warn('onboarding:', e); return true; }
   });
   const [step, setStep] = useState<'goal' | 'plan'>('goal');
   const [selectedGoal, setSelectedGoal] = useState('');
@@ -121,11 +126,12 @@ export default function OnboardingModal({ forceOpen, onClose: externalClose }: {
     externalClose?.();
   }, [externalClose, user, selectedGoal]);
 
-  // Fix 4: "dismiss" just hides the modal temporarily — it will reappear on next visit
-  // unless forceOpen (re-open button), in which case dismiss also completes
+  // "dismiss" just hides the modal for this session — user can re-open onboarding later
   const handleDismiss = useCallback(() => {
-    handleComplete();
-  }, [handleComplete]);
+    try { sessionStorage.setItem(ONBOARDING_KEY + '_skipped', 'true'); } catch (e) { console.warn('onboarding:', e); }
+    setShow(false);
+    externalClose?.();
+  }, [externalClose]);
 
   useEffect(() => {
     if (!show) return;
@@ -192,7 +198,7 @@ export default function OnboardingModal({ forceOpen, onClose: externalClose }: {
                   </button>
                 ))}
               </div>
-              <button onClick={handleComplete} className="mt-4 w-full min-h-[44px] text-center text-xs text-stone-500 dark:text-stone-300 hover:text-stone-600 dark:text-stone-300">
+              <button onClick={handleDismiss} className="mt-4 w-full min-h-[44px] text-center text-xs text-stone-500 dark:text-stone-300 hover:text-stone-600 dark:text-stone-300">
                 تخطّي
               </button>
             </>
@@ -233,14 +239,18 @@ export default function OnboardingModal({ forceOpen, onClose: externalClose }: {
                   </Link>
                 ))}
               </div>
-              <Link
-                to={getTrialPlan(selectedGoal)[0]?.to ?? '/library'}
-                onClick={handleComplete}
+              <button
+                type="button"
+                onClick={() => {
+                  handleComplete();
+                  const category = GOAL_TO_CATEGORY[selectedGoal] ?? '';
+                  navigate(`/library${category ? `?category=${encodeURIComponent(category)}` : ''}`);
+                }}
                 className="mt-5 w-full rounded-full bg-emerald-600 px-8 py-3.5 text-base font-semibold text-white transition-colors hover:bg-emerald-700 min-h-[44px] inline-flex items-center justify-center"
                 style={{ animation: 'onb-pulse 2s ease-in-out infinite' }}
               >
                 ابدأ الاستكشاف ←
-              </Link>
+              </button>
             </>
           )}
 

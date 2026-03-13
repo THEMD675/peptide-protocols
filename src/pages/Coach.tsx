@@ -1111,7 +1111,7 @@ export default function Coach() {
                       <span className="h-2 w-2 rounded-full bg-emerald-400 animate-bounce" style={{ animationDelay: '300ms' }} />
                     </div>
                     <span className="text-xs text-stone-500 dark:text-stone-300">
-                      {loadingStage === 0 ? 'يحلّل حالتك...' : loadingStage === 1 ? 'يبني البروتوكول...' : 'يحسب الجرعات...'}
+                      {loadingStage === 0 ? 'جارٍ التحليل...' : loadingStage === 1 ? 'جارٍ إعداد الرد...' : 'جارٍ المراجعة...'}
                     </span>
                   </div>
                 </div>

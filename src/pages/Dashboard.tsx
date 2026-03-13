@@ -393,7 +393,7 @@ function useWellnessTrend(userId: string | undefined) {
 }
 
 export default function Dashboard() {
-  const { user, subscription } = useAuth();
+  const { user, subscription, refreshSubscription } = useAuth();
   const nowMs = useNowMs();
   const { visited, markVisited } = useVisitedPages();
   const activity = useRecentActivity(user?.id);
@@ -431,6 +431,13 @@ export default function Dashboard() {
   const showOnboardButton = useMemo(() => {
     try { return localStorage.getItem('pptides_onboarded') === 'true'; } catch { return false; }
   }, []);
+
+  // Recalculate trial days every hour so the display stays accurate over time
+  useEffect(() => {
+    if (!subscription.isTrial) return;
+    const interval = setInterval(() => { refreshSubscription(); }, 60 * 60 * 1000);
+    return () => clearInterval(interval);
+  }, [subscription.isTrial, refreshSubscription]);
 
   // C13: Sync onboarding goals + completion status from DB → localStorage on load
   useEffect(() => {
@@ -1417,45 +1424,39 @@ export default function Dashboard() {
               {userGoalLabel && (
                 <p className="text-sm font-medium text-emerald-700 dark:text-emerald-400 mb-1">هدفك: <span className="font-bold">{userGoalLabel}</span></p>
               )}
-              <p className="text-sm text-stone-600 dark:text-stone-300 mb-4">{PEPTIDE_COUNT} ببتيد جاهزة لك — رحلتك تبدأ الآن</p>
+              <p className="text-sm text-stone-600 dark:text-stone-300 mb-6">{PEPTIDE_COUNT} ببتيد جاهزة لك — ابدأ رحلتك بثلاث خطوات بسيطة</p>
 
-              {/* VIP Quick-Start Cards */}
-              <div className="grid gap-3 sm:grid-cols-2 mt-6 text-start">
-                <Link to="/guide" className="group flex items-center gap-3 rounded-xl border border-emerald-200 dark:border-emerald-800 bg-white dark:bg-stone-900 p-4 transition-all hover:border-emerald-400 hover:shadow-md hover:-translate-y-0.5 min-h-[44px]" style={{ animation: 'dash-card-in 0.5s ease-out 0.3s both' }}>
-                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-amber-100 dark:bg-amber-900/30 transition-colors group-hover:bg-amber-200">
-                    <ClipboardList className="h-5 w-5 text-amber-700" />
-                  </div>
-                  <div>
-                    <p className="text-sm font-bold text-stone-900 dark:text-stone-100">دليل الحقن</p>
-                    <p className="text-xs text-stone-500 dark:text-stone-300">ابدأ هنا — خطوة بخطوة</p>
-                  </div>
-                </Link>
-                <Link to="/library" className="group flex items-center gap-3 rounded-xl border border-emerald-200 dark:border-emerald-800 bg-white dark:bg-stone-900 p-4 transition-all hover:border-emerald-400 hover:shadow-md hover:-translate-y-0.5 min-h-[44px]" style={{ animation: 'dash-card-in 0.5s ease-out 0.45s both' }}>
+              {/* 3-Step Guided Onboarding */}
+              <div className="space-y-3 text-start">
+                <Link to="/library" className="group flex items-center gap-4 rounded-xl border border-emerald-200 dark:border-emerald-800 bg-white dark:bg-stone-900 p-4 transition-all hover:border-emerald-400 hover:shadow-md hover:-translate-y-0.5 min-h-[44px]" style={{ animation: 'dash-card-in 0.5s ease-out 0.3s both' }}>
                   <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-100 dark:bg-emerald-900/30 transition-colors group-hover:bg-emerald-200">
-                    <BookOpen className="h-5 w-5 text-emerald-700" />
+                    <span className="text-sm font-black text-emerald-700">1</span>
                   </div>
-                  <div>
-                    <p className="text-sm font-bold text-stone-900 dark:text-stone-100">المكتبة</p>
-                    <p className="text-xs text-stone-500 dark:text-stone-300">اكتشف {PEPTIDE_COUNT}+ ببتيد</p>
+                  <div className="flex-1">
+                    <p className="text-sm font-bold text-stone-900 dark:text-stone-100">تصفّح الببتيدات</p>
+                    <p className="text-xs text-stone-500 dark:text-stone-300">اكتشف {PEPTIDE_COUNT}+ ببتيد في المكتبة</p>
                   </div>
+                  <BookOpen className="h-5 w-5 shrink-0 text-emerald-400 transition-colors group-hover:text-emerald-700" />
                 </Link>
-                <Link to="/coach" className="group flex items-center gap-3 rounded-xl border border-emerald-200 dark:border-emerald-800 bg-white dark:bg-stone-900 p-4 transition-all hover:border-emerald-400 hover:shadow-md hover:-translate-y-0.5 min-h-[44px]" style={{ animation: 'dash-card-in 0.5s ease-out 0.6s both' }}>
+                <Link to="/tracker" className="group flex items-center gap-4 rounded-xl border border-emerald-200 dark:border-emerald-800 bg-white dark:bg-stone-900 p-4 transition-all hover:border-emerald-400 hover:shadow-md hover:-translate-y-0.5 min-h-[44px]" style={{ animation: 'dash-card-in 0.5s ease-out 0.45s both' }}>
                   <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-100 dark:bg-emerald-900/30 transition-colors group-hover:bg-emerald-200">
-                    <Bot className="h-5 w-5 text-emerald-700" />
+                    <span className="text-sm font-black text-emerald-700">2</span>
                   </div>
-                  <div>
-                    <p className="text-sm font-bold text-stone-900 dark:text-stone-100">المدرب الذكي</p>
-                    <p className="text-xs text-stone-500 dark:text-stone-300">جاهز لمساعدتك ٢٤/٧</p>
+                  <div className="flex-1">
+                    <p className="text-sm font-bold text-stone-900 dark:text-stone-100">سجّل أول حقنة</p>
+                    <p className="text-xs text-stone-500 dark:text-stone-300">ابدأ بتتبع جرعاتك وتقدّمك</p>
                   </div>
+                  <Syringe className="h-5 w-5 shrink-0 text-emerald-400 transition-colors group-hover:text-emerald-700" />
                 </Link>
-                <Link to="/calculator" className="group flex items-center gap-3 rounded-xl border border-emerald-200 dark:border-emerald-800 bg-white dark:bg-stone-900 p-4 transition-all hover:border-emerald-400 hover:shadow-md hover:-translate-y-0.5 min-h-[44px]" style={{ animation: 'dash-card-in 0.5s ease-out 0.75s both' }}>
+                <Link to="/coach" className="group flex items-center gap-4 rounded-xl border border-emerald-200 dark:border-emerald-800 bg-white dark:bg-stone-900 p-4 transition-all hover:border-emerald-400 hover:shadow-md hover:-translate-y-0.5 min-h-[44px]" style={{ animation: 'dash-card-in 0.5s ease-out 0.6s both' }}>
                   <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-100 dark:bg-emerald-900/30 transition-colors group-hover:bg-emerald-200">
-                    <Calculator className="h-5 w-5 text-emerald-700" />
+                    <span className="text-sm font-black text-emerald-700">3</span>
                   </div>
-                  <div>
-                    <p className="text-sm font-bold text-stone-900 dark:text-stone-100">الحاسبة</p>
-                    <p className="text-xs text-stone-500 dark:text-stone-300">احسب جرعتك بدقة</p>
+                  <div className="flex-1">
+                    <p className="text-sm font-bold text-stone-900 dark:text-stone-100">تحدّث مع المدرب الذكي</p>
+                    <p className="text-xs text-stone-500 dark:text-stone-300">اسأل عن بروتوكول مخصّص لهدفك</p>
                   </div>
+                  <Bot className="h-5 w-5 shrink-0 text-emerald-400 transition-colors group-hover:text-emerald-700" />
                 </Link>
               </div>
             </div>
@@ -1640,6 +1641,16 @@ export default function Dashboard() {
           </div>
         </div>
       )}
+
+      {/* Floating Action Button — "سجّل جرعتك" */}
+      <Link
+        to="/tracker"
+        className="fixed bottom-6 start-6 z-40 flex items-center gap-2 rounded-full bg-emerald-600 px-5 py-3.5 text-sm font-bold text-white shadow-lg shadow-emerald-600/30 transition-all hover:bg-emerald-700 hover:shadow-xl hover:shadow-emerald-600/40 hover:scale-105 active:scale-95 min-h-[44px] print:hidden"
+        aria-label="سجّل جرعتك"
+      >
+        <Syringe className="h-5 w-5" />
+        <span className="hidden sm:inline">سجّل جرعتك</span>
+      </Link>
     </div>
   );
 }

@@ -60,6 +60,24 @@ const faqs = [
   },
 ];
 
+/** Map Stripe/checkout error messages to specific Arabic messages */
+function mapStripeError(message: string): string {
+  const lower = message.toLowerCase();
+  if (lower.includes('card_declined') || lower.includes('card declined') || lower.includes('your card was declined'))
+    return 'بطاقتك مرفوضة — جرّب بطاقة أخرى أو تواصل مع بنكك';
+  if (lower.includes('network') || lower.includes('connection') || lower.includes('timeout') || lower.includes('fetch'))
+    return 'مشكلة في الاتصال — حاول مجدداً';
+  if (lower.includes('already_subscribed') || lower.includes('already subscribed') || lower.includes('existing subscription'))
+    return 'أنت مشترك بالفعل — انتقل إلى لوحة التحكم';
+  if (lower.includes('expired_card') || lower.includes('expired card'))
+    return 'بطاقتك منتهية الصلاحية — استخدم بطاقة أخرى';
+  if (lower.includes('insufficient_funds') || lower.includes('insufficient funds'))
+    return 'رصيد غير كافٍ — تأكد من توفر الرصيد وحاول مجدداً';
+  if (lower.includes('incorrect_cvc') || lower.includes('incorrect cvc'))
+    return 'رمز الأمان (CVC) غير صحيح — تحقق وأعد المحاولة';
+  return UPGRADE.checkoutError;
+}
+
 export default function Pricing() {
   const { user, subscription, upgradeTo, isLoading: authLoading } = useAuth();
   const salesFlow = useSalesFlow();
@@ -202,10 +220,12 @@ export default function Pricing() {
             events.checkoutStart(planKey, billingCycle);
             try {
               await upgradeTo(planKey, billingCycle, couponFromUrl);
-            } catch {
+            } catch (err: unknown) {
               navigatingRef.current = false;
               setLoadingPlan(null);
-              toast.error(UPGRADE.checkoutError);
+              const msg = err instanceof Error ? err.message : '';
+              const stripeMsg = mapStripeError(msg);
+              toast.error(stripeMsg);
             }
           }}
           disabled={isLoading}
@@ -702,10 +722,12 @@ export default function Pricing() {
                 events.checkoutStart('elite', billingCycle);
                 try {
                   await upgradeTo('elite', billingCycle, couponFromUrl);
-                } catch {
+                } catch (err: unknown) {
                   navigatingRef.current = false;
                   setLoadingPlan(null);
-                  toast.error(UPGRADE.checkoutError);
+                  const msg = err instanceof Error ? err.message : '';
+                  const stripeMsg = mapStripeError(msg);
+                  toast.error(stripeMsg);
                 }
               }}
               disabled={loadingPlan === 'elite'}

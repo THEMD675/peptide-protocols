@@ -197,18 +197,31 @@ export default function PeptideDetail() {
           </div>
         )}
 
-        {/* Section Quick-Nav — paid users only */}
-        {hasAccess && (
-          <nav className="mb-6 -mx-1 flex gap-1.5 overflow-x-auto scrollbar-hide pb-1" aria-label="أقسام الصفحة">
-            {[
-              { href: '#overview', label: 'نظرة عامة' },
-              { href: '#protocol', label: 'البروتوكول' },
-              { href: '#safety', label: 'السلامة' },
-              { href: '#dose-calc', label: 'حاسبة الجرعة' },
-              { href: '#tracker-cta', label: 'المتتبع' },
-              { href: '#references', label: 'المراجع' },
-              { href: '#community', label: 'تجارب المستخدمين' },
-            ].map(({ href, label }) => (
+        {/* Section Quick-Nav — all users, locked tabs show lock icon for free users */}
+        <nav className="mb-6 -mx-1 flex gap-1.5 overflow-x-auto scrollbar-hide pb-1" aria-label="أقسام الصفحة">
+          {[
+            { href: '#overview', label: 'نظرة عامة', gated: false },
+            { href: '#protocol', label: 'البروتوكول', gated: true },
+            { href: '#safety', label: 'السلامة', gated: true },
+            { href: '#dose-calc', label: 'حاسبة الجرعة', gated: true },
+            { href: '#tracker-cta', label: 'المتتبع', gated: true },
+            { href: '#references', label: 'المراجع', gated: true },
+            { href: '#community', label: 'تجارب المستخدمين', gated: true },
+          ].map(({ href, label, gated }) => {
+            const locked = gated && !hasAccess;
+            return locked ? (
+              <span
+                key={href}
+                title="اشترك للوصول"
+                className="group relative flex-shrink-0 flex items-center gap-1 rounded-full border border-stone-200 dark:border-stone-600 bg-stone-100 dark:bg-stone-800 px-3 py-1.5 text-xs font-medium text-stone-400 dark:text-stone-500 cursor-not-allowed"
+              >
+                <Lock className="h-3 w-3" />
+                {label}
+                <span className="pointer-events-none absolute -top-8 start-1/2 -translate-x-1/2 whitespace-nowrap rounded-md bg-stone-900 dark:bg-stone-100 px-2 py-1 text-xs text-white dark:text-stone-900 opacity-0 group-hover:opacity-100 transition-opacity z-10">
+                  اشترك للوصول
+                </span>
+              </span>
+            ) : (
               <a
                 key={href}
                 href={href}
@@ -216,9 +229,9 @@ export default function PeptideDetail() {
               >
                 {label}
               </a>
-            ))}
-          </nav>
-        )}
+            );
+          })}
+        </nav>
 
         {/* Header */}
         <div
@@ -523,7 +536,7 @@ export default function PeptideDetail() {
           {/* Community experiences for this peptide */}
           <PeptideExperiences peptideNameEn={peptide.nameEn} />
         </>) : (<>
-          {/* ── Locked peptide: tease first rows, blur rest with inline CTA ── */}
+          {/* ── Locked peptide: tease first rows, blur rest with upgrade CTA ── */}
           <div className="overflow-hidden rounded-2xl border border-stone-200 dark:border-stone-700">
             <div
               className="flex items-center justify-between bg-stone-50/95 dark:bg-stone-800/95 px-5 py-3"
@@ -567,24 +580,52 @@ export default function PeptideDetail() {
               </table>
             </div>
 
-            {/* Locked fields — opaque, no blur leaks */}
-            <div className="border-t border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 px-5 py-8 flex flex-col items-center text-center gap-3">
-              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-emerald-100 dark:bg-emerald-900/40">
-                <Lock className="h-6 w-6 text-emerald-700" />
+            {/* Blurred preview of remaining rows */}
+            <div className="relative overflow-hidden">
+              <div className="overflow-x-auto -mx-4 px-4 md:mx-0 md:px-0 select-none blur-[6px] pointer-events-none" aria-hidden="true">
+                <table className="w-full">
+                  <tbody>
+                    {rows.slice(4).map((row, i) => (
+                      <tr
+                        key={row.label}
+                        className={cn(
+                          'border-b border-stone-200 dark:border-stone-600 last:border-b-0',
+                          i % 2 === 0 ? 'bg-stone-50 dark:bg-stone-900 border border-stone-200 dark:border-stone-700' : 'bg-transparent',
+                        )}
+                      >
+                        <th
+                          scope="row"
+                          className="w-[35%] px-5 py-5 align-top text-sm font-semibold text-start text-stone-800 dark:text-stone-200"
+                        >
+                          {row.label}
+                        </th>
+                        <td className="px-5 py-5 text-sm leading-relaxed text-stone-400 dark:text-stone-600">
+                          محتوى مخفي — اشترك للاطلاع
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
               </div>
-              <p className="text-base font-bold text-stone-900 dark:text-stone-100">اشترك لعرض البروتوكول الكامل</p>
-              <div className="flex flex-wrap justify-center gap-2 text-xs text-stone-500 dark:text-stone-300">
-                {['التوقيت', 'مدة الدورة والراحة', 'طريقة الإعطاء', 'الأعراض الجانبية', 'موانع الاستخدام', 'التجميع', 'التخزين'].map((field) => (
-                  <span key={field} className="rounded-full border border-stone-200 dark:border-stone-600 bg-stone-50 dark:bg-stone-900 px-2.5 py-1">{field}</span>
-                ))}
+              {/* Gradient overlay + CTA */}
+              <div className="absolute inset-0 flex flex-col items-center justify-center bg-gradient-to-b from-white/60 via-white/90 to-white dark:from-stone-950/60 dark:via-stone-950/90 dark:to-stone-950 px-5 py-8 text-center gap-3">
+                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-emerald-100 dark:bg-emerald-900/40">
+                  <Lock className="h-6 w-6 text-emerald-700" />
+                </div>
+                <p className="text-base font-bold text-stone-900 dark:text-stone-100">اشترك لعرض البروتوكول الكامل</p>
+                <div className="flex flex-wrap justify-center gap-2 text-xs text-stone-500 dark:text-stone-300">
+                  {['التوقيت', 'مدة الدورة والراحة', 'طريقة الإعطاء', 'الأعراض الجانبية', 'موانع الاستخدام', 'التجميع', 'التخزين'].map((field) => (
+                    <span key={field} className="rounded-full border border-stone-200 dark:border-stone-600 bg-stone-50 dark:bg-stone-900 px-2.5 py-1">{field}</span>
+                  ))}
+                </div>
+                <Link
+                  to="/pricing"
+                  className="mt-2 rounded-full bg-emerald-600 px-8 py-3.5 text-base font-semibold text-white transition-all hover:bg-emerald-700 shadow-md"
+                >
+                  افتح البروتوكول الكامل — {PRICING.essentials.label}/شهريًا
+                </Link>
+                <p className="text-xs text-stone-500 dark:text-stone-300">وصول فوري إلى {PEPTIDE_COUNT}+ ببتيد • إلغاء في أي وقت</p>
               </div>
-              <Link
-                to="/pricing"
-                className="mt-2 rounded-full bg-emerald-600 px-8 py-3.5 text-base font-semibold text-white transition-all hover:bg-emerald-700 shadow-md"
-              >
-                افتح البروتوكول الكامل — {PRICING.essentials.label}/شهريًا
-              </Link>
-              <p className="text-xs text-stone-500 dark:text-stone-300">وصول فوري إلى {PEPTIDE_COUNT}+ ببتيد • إلغاء في أي وقت</p>
             </div>
           </div>
 

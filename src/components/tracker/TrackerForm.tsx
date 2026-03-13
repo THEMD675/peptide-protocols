@@ -384,6 +384,11 @@ export default function TrackerForm({
           <p className={cn('mt-1 text-start text-xs', notes.length >= 180 ? 'text-amber-600' : 'text-stone-500 dark:text-stone-300')}>{notes.length}/200</p>
         </div>
 
+        {!!isOutOfRange && !doseOutOfRangeConfirmed && (
+          <p className="text-xs font-bold text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/20 rounded-lg px-3 py-2 text-center">
+            الجرعة خارج النطاق المعتاد — أكّد للمتابعة
+          </p>
+        )}
         <div className="flex gap-3">
           <button
             type="submit"
