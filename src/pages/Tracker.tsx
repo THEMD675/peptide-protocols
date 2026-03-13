@@ -324,7 +324,7 @@ export default function Tracker() {
   useEffect(() => {
     if (!user) return;
     let mounted = true;
-    const statsPromise = supabase.from('injection_logs').select('logged_at, injection_site, peptide_name').eq('user_id', user.id).order('logged_at', { ascending: false }).gte('logged_at', new Date(Date.now() - 365 * 24 * 60 * 60 * 1000).toISOString()).limit(10000);
+    const statsPromise = supabase.from('injection_logs').select('logged_at, injection_site, peptide_name').eq('user_id', user.id).order('logged_at', { ascending: false }).limit(10000);
     const timeoutPromise = new Promise<never>((_, reject) => setTimeout(() => reject(new Error('Stats fetch timeout (15s)')), 15000));
     Promise.race([statsPromise, timeoutPromise])
     .then((allRes) => {

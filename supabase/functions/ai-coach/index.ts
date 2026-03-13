@@ -328,7 +328,7 @@ serve(async (req) => {
       });
     }
 
-    let body: { messages?: unknown; stream?: unknown }
+    let body: { messages?: unknown; stream?: unknown; conversationId?: unknown }
     try {
       body = JSON.parse(rawBody)
     } catch {
@@ -338,7 +338,8 @@ serve(async (req) => {
       })
     }
 
-    const { messages, stream } = body
+    const { messages, stream, conversationId: rawConvId } = body
+    const conversationId = typeof rawConvId === 'string' ? rawConvId : null
     if (!Array.isArray(messages) || messages.length === 0) {
       return new Response(JSON.stringify({ error: 'الرسائل غير صحيحة' }), {
         status: 400,
@@ -600,12 +601,26 @@ serve(async (req) => {
       const encoder = new TextEncoder()
       let accumulatedContent = ''
       let leaked = false
+
+      // Server-side conversation save helper
+      const saveConversation = async (aiContent: string) => {
+        if (!conversationId || !aiContent) return
+        try {
+          await supabase.from('coach_conversations')
+            .update({ messages: [...userMessages, { role: 'assistant', content: aiContent }], updated_at: new Date().toISOString() })
+            .eq('id', conversationId).eq('user_id', user.id)
+        } catch (e) { console.warn('ai-coach: conversation save failed:', e) }
+      }
+
       const outStream = new ReadableStream({
         async pull(controller) {
           try {
             const { done, value } = await reader.read()
             if (done || leaked) {
-              if (!leaked) controller.enqueue(encoder.encode('data: [DONE]\n\n'))
+              if (!leaked) {
+                await saveConversation(accumulatedContent)
+                controller.enqueue(encoder.encode('data: [DONE]\n\n'))
+              }
               controller.close()
               return
             }
@@ -631,12 +646,10 @@ serve(async (req) => {
             }
             if (foundDone) {
               // FIX: forward content portion of this chunk BEFORE sending [DONE].
-              // Previously, the early `return` inside the [DONE] branch skipped
-              // `controller.enqueue(value)`, silently dropping any content token(s)
-              // that arrived in the same SSE chunk as [DONE].
               const doneIdx = text.indexOf('data: [DONE]')
               const contentPart = doneIdx > 0 ? text.slice(0, doneIdx) : ''
               if (contentPart.trim()) controller.enqueue(encoder.encode(contentPart))
+              await saveConversation(accumulatedContent)
               controller.enqueue(encoder.encode('data: [DONE]\n\n'))
               controller.close()
               return
@@ -664,6 +677,14 @@ serve(async (req) => {
         data.choices[0].message = data.choices[0].message ?? {}
         data.choices[0].message.content = SANITIZED_RESPONSE
       }
+    }
+    // Save conversation server-side (non-streaming)
+    if (conversationId && content && !containsPromptLeak(content)) {
+      const fullMsgs = [...userMessages, { role: 'assistant', content }]
+      supabase.from('coach_conversations')
+        .update({ messages: fullMsgs, updated_at: new Date().toISOString() })
+        .eq('id', conversationId).eq('user_id', user.id)
+        .then(({ error: saveErr }) => { if (saveErr) console.warn('ai-coach: non-stream save failed:', saveErr.message) })
     }
     return new Response(JSON.stringify(data), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },

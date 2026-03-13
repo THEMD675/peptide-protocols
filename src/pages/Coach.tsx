@@ -514,6 +514,7 @@ export default function Coach() {
         body: JSON.stringify({
           messages: updated.map(m => ({ role: m.role, content: m.content })),
           stream: true,
+          conversationId,
         }),
         signal: controller.signal,
       });
