@@ -51,7 +51,9 @@ const BIOMARKER_UNITS: Record<string, string> = {
 };
 
 function daysSince(dateStr: string): number {
-  return Math.floor((Date.now() - new Date(dateStr).getTime()) / (1000 * 60 * 60 * 24));
+  const ms = new Date(dateStr).getTime();
+  if (isNaN(ms)) return 0;
+  return Math.max(0, Math.floor((Date.now() - ms) / (1000 * 60 * 60 * 24)));
 }
 
 function getTimeOfDayGreeting(): string {
@@ -65,7 +67,7 @@ function getTimeOfDayGreeting(): string {
 async function fetchProactiveData(userId: string): Promise<UserProactiveData> {
   const today = new Date().toDateString();
 
-  const [injRes, sideRes, labRes, wellRes, protoRes, userRes, convRes, profileRes, injCountRes] = await Promise.all([
+  const results = await Promise.allSettled([
     supabase.from('injection_logs').select('peptide_name, logged_at').eq('user_id', userId).order('logged_at', { ascending: false }).limit(30),
     supabase.from('side_effect_logs').select('symptom, peptide_id, created_at').eq('user_id', userId).order('created_at', { ascending: false }).limit(5),
     supabase.from('lab_results').select('id, test_date, lab_name, results, notes, created_at').eq('user_id', userId).order('test_date', { ascending: false }).limit(10),
@@ -77,14 +79,29 @@ async function fetchProactiveData(userId: string): Promise<UserProactiveData> {
     supabase.from('injection_logs').select('id', { count: 'exact', head: true }).eq('user_id', userId),
   ]);
 
-  const injLogs = injRes.data ?? [];
-  const sideLogs = sideRes.data ?? [];
-  const labLogs = labRes.data ?? [];
-  const wellLogs = wellRes.data ?? [];
-  const protos = protoRes.data ?? [];
-  const createdAt = userRes.data?.user?.created_at;
-  const convData = convRes.data;
-  const profileData = profileRes.data;
+  // Safely extract data — if a query failed, use empty defaults
+  type InjLog = { peptide_name: string; logged_at: string };
+  type SideLog = { symptom: string; peptide_id: string | null; created_at: string };
+  type LabLog = { test_id: string; value: number; unit: string; tested_at: string };
+  type WellLog = { energy: number; sleep: number; pain: number; mood: number; logged_at: string };
+  type ProtoLog = { peptide_id: string; cycle_weeks: number; started_at: string; status: string; dose: number; dose_unit: string };
+  const safeData = <T>(idx: number, fallback: T): T => {
+    const r = results[idx];
+    if (r.status !== 'fulfilled') return fallback;
+    const v = r.value as { data: T | null; error: unknown };
+    return v.error ? fallback : (v.data ?? fallback);
+  };
+  const injLogs = safeData<InjLog[]>(0, []);
+  const sideLogs = safeData<SideLog[]>(1, []);
+  const labLogs = safeData<LabLog[]>(2, []);
+  const wellLogs = safeData<WellLog[]>(3, []);
+  const protos = safeData<ProtoLog[]>(4, []);
+  const userResult = results[5];
+  const createdAt = userResult.status === 'fulfilled' ? (userResult.value as { data: { user: { created_at?: string } | null } }).data?.user?.created_at : undefined;
+  const convData = safeData<{ messages: unknown; updated_at: string } | null>(6, null);
+  const profileData = safeData<{ goals: unknown; onboarding_goals: unknown } | null>(7, null);
+  const injCountResult = results[8];
+  const injCount = injCountResult.status === 'fulfilled' ? (injCountResult.value as { count: number | null }).count : null;
 
   // Injection recency
   const lastInjectionDaysAgo = injLogs.length > 0 ? daysSince(injLogs[0].logged_at) : null;
@@ -204,7 +221,7 @@ async function fetchProactiveData(userId: string): Promise<UserProactiveData> {
     activeProtocols,
     accountAgeDays,
     todayLogged,
-    totalInjections: injCountRes.count ?? injLogs.length,
+    totalInjections: injCount ?? injLogs.length,
     streak,
     lastConversation,
     userGoals,
@@ -375,7 +392,7 @@ function generateSmartStarters(data: UserProactiveData): SmartStarter[] {
   }
 
   // Has lab results
-  if (data.hasLabResults) {
+  if (data.labHighlights.length > 0) {
     const latestLab = data.labHighlights[0];
     if (daysSince(latestLab.tested_at) <= 14) {
       starters.push({ text: 'حلّل نتائج تحاليلي واقترح تعديلات على البروتوكول', priority: 88 });

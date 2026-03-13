@@ -73,16 +73,49 @@ const INJECTION_OPTIONS = [
 async function buildUserContext(userId: string): Promise<string> {
   let ctx = '';
   try {
-    const { data: logs } = await supabase
-      .from('injection_logs')
-      .select('peptide_name, dose, dose_unit, injection_site, logged_at')
-      .eq('user_id', userId)
-      .order('logged_at', { ascending: false })
-      .limit(10);
+    const [{ data: logs }, { data: sideEffects }, { data: wellness }] = await Promise.all([
+      supabase
+        .from('injection_logs')
+        .select('peptide_name, dose, dose_unit, injection_site, logged_at')
+        .eq('user_id', userId)
+        .order('logged_at', { ascending: false })
+        .limit(15),
+      supabase
+        .from('side_effect_logs')
+        .select('peptide_name, effect, severity, logged_at')
+        .eq('user_id', userId)
+        .order('logged_at', { ascending: false })
+        .limit(10),
+      supabase
+        .from('wellness_logs')
+        .select('energy, sleep, mood, logged_at')
+        .eq('user_id', userId)
+        .order('logged_at', { ascending: false })
+        .limit(7),
+    ]);
     if (logs && logs.length > 0) {
       ctx += `\nسجل حقن المستخدم (آخر ${logs.length}):\n`;
       logs.forEach(l => { ctx += `- ${l.peptide_name}: ${l.dose}${l.dose_unit} (${new Date(l.logged_at).toLocaleDateString('ar-u-nu-latn')})\n`; });
       ctx += `لديه خبرة فعلية. ابنِ على ما يستخدمه.\n`;
+    }
+    if (sideEffects && sideEffects.length > 0) {
+      ctx += `\nأعراض جانبية مسجّلة:\n`;
+      sideEffects.forEach(s => { ctx += `- ${s.peptide_name}: ${s.effect} (شدة: ${s.severity}/5)\n`; });
+      ctx += `ضع هذه الأعراض في اعتبارك عند التوصية.\n`;
+    }
+    if (wellness && wellness.length > 0) {
+      const avg = (key: 'energy' | 'sleep' | 'mood') => {
+        const vals = wellness.map(w => w[key]).filter((v): v is number => v != null);
+        return vals.length > 0 ? (vals.reduce((a, b) => a + b, 0) / vals.length).toFixed(1) : null;
+      };
+      const energy = avg('energy'), sleep = avg('sleep'), mood = avg('mood');
+      if (energy || sleep || mood) {
+        ctx += `\nمتوسط الحالة (آخر ${wellness.length} أيام):`;
+        if (energy) ctx += ` طاقة: ${energy}/5`;
+        if (sleep) ctx += ` نوم: ${sleep}/5`;
+        if (mood) ctx += ` مزاج: ${mood}/5`;
+        ctx += '\n';
+      }
     }
     const favs = (() => { try { const s = localStorage.getItem('pptides_favorites'); return s ? JSON.parse(s) as string[] : []; } catch { return []; } })();
     if (favs.length > 0) {
@@ -543,7 +576,10 @@ export default function Coach() {
       const decoder = new TextDecoder();
       let accumulated = '';
       let buffer = '';
-      streamTimeout = setTimeout(() => controller.abort(), 120_000);
+      streamTimeout = setTimeout(() => {
+        toast.error('استغرق الرد وقتًا طويلًا — حاول سؤالًا أقصر', { duration: 5000 });
+        controller.abort();
+      }, 120_000);
 
       setMessages(prev => [...prev, { role: 'assistant', content: '', timestamp: Date.now() }]);
 

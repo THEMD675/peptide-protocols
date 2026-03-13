@@ -3,19 +3,27 @@ import { Shield } from "lucide-react";
 import { STORAGE_KEYS } from "@/lib/constants";
 
 const STORAGE_KEY = STORAGE_KEYS.AGE_VERIFIED;
+const COOKIE_NAME = 'pptides_age_ok';
+
+function isVerified(): boolean {
+  try { if (localStorage.getItem(STORAGE_KEY) === 'true') return true; } catch { /* private mode */ }
+  try { if (sessionStorage.getItem(STORAGE_KEY) === 'true') return true; } catch { /* fallback */ }
+  if (document.cookie.includes(`${COOKIE_NAME}=1`)) return true;
+  return false;
+}
+
+function persistVerified(): void {
+  try { localStorage.setItem(STORAGE_KEY, 'true'); localStorage.setItem('pptides_visited', '1'); } catch { /* expected */ }
+  try { sessionStorage.setItem(STORAGE_KEY, 'true'); } catch { /* fallback */ }
+  document.cookie = `${COOKIE_NAME}=1;path=/;max-age=${365 * 24 * 60 * 60};SameSite=Lax`;
+}
 
 export default function AgeGate() {
-  const [visible, setVisible] = useState(() => {
-    try {
-      return localStorage.getItem(STORAGE_KEY) !== "true";
-    } catch {
-      return true;
-    }
-  });
+  const [visible, setVisible] = useState(() => !isVerified());
   const [blocked, setBlocked] = useState(false);
 
   const handleVerified = () => {
-    try { localStorage.setItem(STORAGE_KEY, "true"); localStorage.setItem('pptides_visited', '1'); } catch { /* expected */ }
+    persistVerified();
     setVisible(false);
   };
 

@@ -38,13 +38,21 @@ if (supabaseUrl && typeof window !== 'undefined') {
   fetch(`${supabaseUrl}/rest/v1/`, {
     method: 'HEAD',
     headers: { apikey: supabaseAnonKey || '' },
-    signal: AbortSignal.timeout(5000),
+    signal: AbortSignal.timeout(10000),
+  }).then((res) => {
+    if (!res.ok) {
+      console.error(`[pptides] Supabase health check failed: HTTP ${res.status}`);
+    }
   }).catch((err) => {
-    if (err instanceof TypeError) {
+    if (err instanceof DOMException && err.name === 'AbortError') {
+      // Timed out — silently ignore, non-critical
+    } else if (err instanceof TypeError) {
       toast.error(
         'يبدو أن مانع الإعلانات يحجب الاتصال — يرجى تعطيله لاستخدام التطبيق',
         { duration: 15000, id: 'adblocker-warning' },
       );
+    } else {
+      console.error('[pptides] Supabase health check failed:', err);
     }
   });
 }

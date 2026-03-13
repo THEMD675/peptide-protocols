@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, lazy, Suspense } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { Link } from 'react-router-dom';
 import {
@@ -15,6 +15,7 @@ import { PRICING, SITE_URL } from '@/lib/constants';
 import { labTests } from '@/data/peptides';
 import { peptidesPublic as peptides } from '@/data/peptides-public';
 import { GenericPageSkeleton } from '@/components/Skeletons';
+const LabResultsTracker = lazy(() => import('@/components/LabResultsTracker'));
 
 // ═══════════════════════════════════════════════════════════════
 // Data
@@ -40,7 +41,7 @@ interface BiomarkerInfo {
 const biomarkers: BiomarkerInfo[] = [
   {
     id: 'igf1', name: 'IGF-1', nameAr: 'عامل النمو الشبيه بالأنسولين',
-    unit: 'ng/mL', normalMin: 200, normalMax: 300, absMin: 50, absMax: 500,
+    unit: 'ng/mL', normalMin: 100, normalMax: 400, absMin: 50, absMax: 500,
     category: 'hormones', categoryAr: 'هرمونات',
     lowImplication: 'قد يدل على نقص هرمون النمو أو سوء التغذية',
     highImplication: 'ارتفاع مفرط مرتبط بخطر الأورام — يجب تقليل الجرعة',
@@ -999,7 +1000,14 @@ export default function LabGuide() {
         {/* 4. Results Interpreter */}
         <ResultsInterpreter isPro={isPro} blurClass={blurClass} />
 
-        {/* 5. Lab Locator */}
+        {/* 5. Your Results Tracker */}
+        {isPro && (
+          <Suspense fallback={<div className="h-40 animate-pulse rounded-2xl bg-stone-100 dark:bg-stone-800" />}>
+            <LabResultsTracker />
+          </Suspense>
+        )}
+
+        {/* 6. Lab Locator */}
         <LabLocator />
 
         {/* ── Original: Baseline tests with icons ── */}

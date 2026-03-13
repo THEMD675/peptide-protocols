@@ -995,7 +995,7 @@ export default function Landing() {
 
       {/* ═══════ EMAIL CAPTURE ═══════ */}
       {!user && (
-      <section className="cv-auto relative bg-stone-900 dark:bg-stone-900 dark:border-y dark:border-stone-700 py-24">
+      <section className="cv-auto relative bg-stone-900 dark:bg-stone-950 dark:border-y dark:border-stone-700 py-24">
         <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(16,185,129,0.12)_0%,transparent_60%)]" />
         <div className="relative mx-auto max-w-2xl px-6 text-center">
           <h2 className="mb-3 text-2xl font-bold text-white md:text-3xl">

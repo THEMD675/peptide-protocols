@@ -3,14 +3,26 @@ import { Link } from 'react-router-dom';
 import { COOKIE_CONSENT_STORAGE_KEY, type CookiePreferences } from '@/lib/cookie-utils';
 import { STORAGE_KEYS } from '@/lib/constants';
 
+const COOKIE_NAME = 'pptides_cc';
+
+function hasConsent(): boolean {
+  try { if (localStorage.getItem(COOKIE_CONSENT_STORAGE_KEY)) return true; } catch { /* private mode */ }
+  try { if (sessionStorage.getItem(COOKIE_CONSENT_STORAGE_KEY)) return true; } catch { /* fallback */ }
+  if (document.cookie.includes(`${COOKIE_NAME}=1`)) return true;
+  return false;
+}
+
+function isAgeVerified(): boolean {
+  try { if (localStorage.getItem(STORAGE_KEYS.AGE_VERIFIED) === 'true') return true; } catch { /* private mode */ }
+  try { if (sessionStorage.getItem(STORAGE_KEYS.AGE_VERIFIED) === 'true') return true; } catch { /* fallback */ }
+  if (document.cookie.includes('pptides_age_ok=1')) return true;
+  return false;
+}
+
 export default function CookieConsent() {
   const [visible, setVisible] = useState(() => {
-    try {
-      if (localStorage.getItem(STORAGE_KEYS.AGE_VERIFIED) !== 'true') return false;
-      return !localStorage.getItem(COOKIE_CONSENT_STORAGE_KEY);
-    } catch {
-      return true;
-    }
+    if (!isAgeVerified()) return false;
+    return !hasConsent();
   });
 
   const [optionalChecked, setOptionalChecked] = useState(true);
@@ -34,6 +46,8 @@ export default function CookieConsent() {
 
   const save = (prefs: CookiePreferences) => {
     try { localStorage.setItem(COOKIE_CONSENT_STORAGE_KEY, JSON.stringify(prefs)); } catch { /* expected */ }
+    try { sessionStorage.setItem(COOKIE_CONSENT_STORAGE_KEY, JSON.stringify(prefs)); } catch { /* fallback */ }
+    document.cookie = `${COOKIE_NAME}=1;path=/;max-age=${365 * 24 * 60 * 60};SameSite=Lax`;
     setVisible(false);
     if (prefs.optional) {
       // Dynamically inject GA4 script without page reload

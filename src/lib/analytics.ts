@@ -11,13 +11,19 @@ declare global {
 // Generate a session ID that persists for this browser session
 function getSessionId(): string {
   const key = 'pptides_analytics_session';
-  let sid = sessionStorage.getItem(key);
-  if (!sid) {
-    sid = `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
-    sessionStorage.setItem(key, sid);
+  try {
+    let sid = sessionStorage.getItem(key);
+    if (!sid) {
+      sid = `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
+      sessionStorage.setItem(key, sid);
+    }
+    return sid;
+  } catch {
+    // Private browsing or restricted context — use in-memory fallback
+    return fallbackSessionId;
   }
-  return sid;
 }
+const fallbackSessionId = `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
 
 // Batch queue to reduce DB writes
 const eventQueue: Array<{
@@ -40,42 +46,36 @@ async function flushEvents() {
   }
 }
 
-function queueEvent(event: string, params?: Record<string, unknown>) {
+async function queueEvent(event: string, params?: Record<string, unknown>) {
   // 9.2: Gate Supabase analytics behind cookie consent (same as GA4)
   if (!hasOptionalConsent()) return;
-  const userId = supabase.auth.getSession().then(s => s.data.session?.user?.id);
-  // Fire-and-forget user ID resolution
-  userId.then(uid => {
-    eventQueue.push({
-      event_name: event,
-      event_params: params || {},
-      page_path: typeof window !== 'undefined' ? window.location.pathname : '',
-      referrer: typeof document !== 'undefined' ? document.referrer : '',
-      session_id: getSessionId(),
-      ...(uid ? { user_id: uid } : {}),
-    });
+  let uid: string | undefined;
+  try {
+    const { data } = await supabase.auth.getSession();
+    uid = data.session?.user?.id;
+  } catch {
+    // Session fetch failed — continue without user_id
+  }
+  eventQueue.push({
+    event_name: event,
+    event_params: params || {},
+    page_path: typeof window !== 'undefined' ? window.location.pathname : '',
+    referrer: typeof document !== 'undefined' ? document.referrer : '',
+    session_id: getSessionId(),
+    ...(uid ? { user_id: uid } : {}),
+  });
 
-    // Flush every 3 seconds or when batch hits 10
-    if (eventQueue.length >= 10) {
-      if (flushTimer) clearTimeout(flushTimer);
+  // Flush every 3 seconds or when batch hits 10
+  if (eventQueue.length >= 10) {
+    if (flushTimer) clearTimeout(flushTimer);
+    flushTimer = null;
+    flushEvents();
+  } else if (!flushTimer) {
+    flushTimer = setTimeout(() => {
       flushTimer = null;
       flushEvents();
-    } else if (!flushTimer) {
-      flushTimer = setTimeout(() => {
-        flushTimer = null;
-        flushEvents();
-      }, 3000);
-    }
-  }).catch(() => {
-    // If session fetch fails, still queue without user_id
-    eventQueue.push({
-      event_name: event,
-      event_params: params || {},
-      page_path: typeof window !== 'undefined' ? window.location.pathname : '',
-      referrer: typeof document !== 'undefined' ? document.referrer : '',
-      session_id: getSessionId(),
-    });
-  });
+    }, 3000);
+  }
 }
 
 // Flush on page unload

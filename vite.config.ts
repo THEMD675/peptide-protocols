@@ -66,7 +66,8 @@ export default defineConfig({
       // ignored. Font caching and navigation fallback are handled in sw.ts.
       workbox: {
         // Only globPatterns is used by injectManifest to build __WB_MANIFEST
-        globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
+        // Narrowed to app shell only — fonts/images/pages cached at runtime
+        globPatterns: ['favicon.ico'],
       },
     }),
   ],
