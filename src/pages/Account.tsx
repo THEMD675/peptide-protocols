@@ -185,28 +185,6 @@ export default function Account() {
     }
   }, [showDeleteDialog]);
 
-  if (!isLoading && !user) {
-    return <Navigate to={`/login?redirect=${encodeURIComponent(location.pathname + location.search)}`} replace />;
-  }
-
-  if (isLoading || !user) {
-    return (
-      <div className="mx-auto max-w-3xl px-4 pb-24 pt-8 md:px-6 md:pt-12 animate-pulse">
-        <div className="mb-10 text-center">
-          <div className="mx-auto mb-4 h-20 w-20 rounded-full bg-stone-200 dark:bg-stone-700" />
-          <div className="mx-auto h-8 w-40 rounded-lg bg-stone-200 dark:bg-stone-700 mb-2" />
-          <div className="mx-auto h-4 w-56 rounded bg-stone-100 dark:bg-stone-800" />
-        </div>
-        <div className="space-y-6">
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-            {[1,2,3,4].map(i => <div key={i} className="h-24 rounded-2xl bg-stone-100 dark:bg-stone-800" />)}
-          </div>
-          {[1,2,3,4].map(i => <div key={i} className="h-40 rounded-2xl bg-stone-100 dark:bg-stone-800" />)}
-        </div>
-      </div>
-    );
-  }
-
   // Sync email to email_list + Stripe only after email change is confirmed
   useEffect(() => {
     if (!user) return;
@@ -230,6 +208,30 @@ export default function Account() {
     );
     return () => { authSub.unsubscribe(); };
   }, [user]);
+
+  const [exportProgress, setExportProgress] = useState<{ done: number; total: number } | null>(null);
+
+  if (!isLoading && !user) {
+    return <Navigate to={`/login?redirect=${encodeURIComponent(location.pathname + location.search)}`} replace />;
+  }
+
+  if (isLoading || !user) {
+    return (
+      <div className="mx-auto max-w-3xl px-4 pb-24 pt-8 md:px-6 md:pt-12 animate-pulse">
+        <div className="mb-10 text-center">
+          <div className="mx-auto mb-4 h-20 w-20 rounded-full bg-stone-200 dark:bg-stone-700" />
+          <div className="mx-auto h-8 w-40 rounded-lg bg-stone-200 dark:bg-stone-700 mb-2" />
+          <div className="mx-auto h-4 w-56 rounded bg-stone-100 dark:bg-stone-800" />
+        </div>
+        <div className="space-y-6">
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+            {[1,2,3,4].map(i => <div key={i} className="h-24 rounded-2xl bg-stone-100 dark:bg-stone-800" />)}
+          </div>
+          {[1,2,3,4].map(i => <div key={i} className="h-40 rounded-2xl bg-stone-100 dark:bg-stone-800" />)}
+        </div>
+      </div>
+    );
+  }
 
   const handleChangeEmail = async () => {
     if (!newEmail.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(newEmail)) { toast.error('أدخل بريد إلكتروني صالح'); return; }
@@ -270,8 +272,6 @@ export default function Account() {
     } catch { toast.error('تعذّر تغيير كلمة المرور — تحقق من اتصالك وحاول مرة أخرى'); }
     finally { setPasswordLoading(false); }
   };
-
-  const [exportProgress, setExportProgress] = useState<{ done: number; total: number } | null>(null);
 
   const handleExportData = async (format: 'json' | 'csv' = 'json') => {
     if (!user) return;

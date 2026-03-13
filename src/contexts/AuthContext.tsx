@@ -7,6 +7,17 @@ import { Sentry } from '@/lib/sentry';
 import { events } from '@/lib/analytics';
 import type { User as SupabaseUser, Session } from '@supabase/supabase-js';
 
+/** Fire-and-forget fetch with 1 retry after 5s delay */
+function fireAndForgetFetch(url: string, opts: RequestInit, label: string) {
+  const attempt = (n: number) => {
+    fetch(url, opts).catch((e) => {
+      console.warn(`${label} attempt ${n} failed:`, e);
+      if (n < 2) setTimeout(() => attempt(n + 1), 5000);
+    });
+  };
+  attempt(1);
+}
+
 type SubscriptionTier = 'free' | 'essentials' | 'elite';
 
 export interface Subscription {
@@ -368,7 +379,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         if (event === 'SIGNED_IN' && session?.user && !welcomeEmailSentRef.current) {
           welcomeEmailSentRef.current = true;
           const edgeFnUrl = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/send-welcome-email`;
-          fetch(edgeFnUrl, {
+          fireAndForgetFetch(edgeFnUrl, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
@@ -376,7 +387,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
               apikey: import.meta.env.VITE_SUPABASE_ANON_KEY,
             },
             body: JSON.stringify({ email: session.user.email, name: session.user.user_metadata?.full_name ?? '' }),
-          }).catch((e) => console.warn('Welcome email failed:', e));
+          }, 'Welcome email (SIGNED_IN)');
         }
 
         await handleSession(session, event);
@@ -490,7 +501,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const validRef = refCode && /^PP-[A-Z0-9]{6}$/.test(refCode) ? refCode : null;
 
       const edgeFnUrl = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/send-welcome-email`;
-      fetch(edgeFnUrl, {
+      fireAndForgetFetch(edgeFnUrl, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -498,7 +509,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           apikey: import.meta.env.VITE_SUPABASE_ANON_KEY,
         },
         body: JSON.stringify({ email, name: '', referralCode: validRef }),
-      }).catch(() => {});
+      }, 'Welcome email (signup)');
 
       if (validRef) {
         events.referralConversion(validRef);

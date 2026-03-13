@@ -445,6 +445,7 @@ export default function PeptideQuiz() {
       if (s) {
         const data = JSON.parse(s);
         if (data.result && data.result.primary.peptideId === resultParam) {
+          // eslint-disable-next-line react-hooks/set-state-in-effect -- restoring saved quiz state from URL params on mount
           if (data.answers) setAnswers(data.answers);
           setResult(data.result);
           setPhase('result');

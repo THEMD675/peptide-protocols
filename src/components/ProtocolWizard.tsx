@@ -72,6 +72,7 @@ export default function ProtocolWizard({ peptideId, prefillDose, prefillUnit, on
   const [existingProtocols, setExistingProtocols] = useState(0);
   const [hasDuplicatePeptide, setHasDuplicatePeptide] = useState(false);
   const [duplicateConfirmed, setDuplicateConfirmed] = useState(false);
+  const submittingRef = useRef(false);
   useEffect(() => {
     if (!user) return;
     let mounted = true;
@@ -105,8 +106,6 @@ export default function ProtocolWizard({ peptideId, prefillDose, prefillUnit, on
 
   const endDate = new Date();
   endDate.setDate(endDate.getDate() + (parseInt(cycleWeeks) || 4) * 7);
-
-  const submittingRef = useRef(false);
 
   const handleSubmit = async () => {
     if (submittingRef.current) return;

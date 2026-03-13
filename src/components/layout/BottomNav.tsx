@@ -40,6 +40,7 @@ export default memo(function BottomNav() {
 
   // Close menu on navigation
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- resetting menu on route change is intentional
     setMoreOpen(false);
   }, [pathname]);
 
