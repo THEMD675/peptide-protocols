@@ -15,6 +15,13 @@ export default function CookieConsent() {
 
   const [optionalChecked, setOptionalChecked] = useState(true);
 
+  // Listen for reopen event (triggered from Account page privacy settings)
+  useEffect(() => {
+    const handleReopen = () => setVisible(true);
+    window.addEventListener('pptides:reopen-cookie-consent', handleReopen);
+    return () => window.removeEventListener('pptides:reopen-cookie-consent', handleReopen);
+  }, []);
+
   // Add bottom padding to body when banner is visible so it doesn't overlap mobile CTAs
   useEffect(() => {
     if (visible) {

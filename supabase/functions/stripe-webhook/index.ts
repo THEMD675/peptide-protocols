@@ -103,7 +103,7 @@ serve(async (req) => {
           const emailMatch = matchedUsers.find((u: { email?: string }) => u.email === session.customer_email)
           if (emailMatch) {
             userId = emailMatch.id
-            console.warn('checkout.session.completed: resolved user via auth email fallback:', session.customer_email)
+            console.warn('checkout.session.completed: resolved user via auth email fallback:', session.customer_email ? session.customer_email.slice(0, 3) + '***' : 'unknown')
           }
         }
 

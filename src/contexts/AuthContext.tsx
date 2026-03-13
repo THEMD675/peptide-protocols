@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { supabase } from '@/lib/supabase';
 import { SUPPORT_EMAIL } from '@/lib/constants';
+import { Sentry } from '@/lib/sentry';
+import { events } from '@/lib/analytics';
 import type { User as SupabaseUser, Session } from '@supabase/supabase-js';
 
 type SubscriptionTier = 'free' | 'essentials' | 'elite';
@@ -169,7 +171,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const { data, error } = await fetchWithRetry(() =>
         supabase
           .from('subscriptions')
-          .select('*')
+          .select('status, tier, trial_ends_at, stripe_subscription_id, current_period_end, referral_code, grant_source, billing_interval, referred_by')
           .eq('user_id', userId)
           .maybeSingle()
       );
@@ -183,7 +185,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             try {
               const { data: retryData, error: retryError } = await supabase
                 .from('subscriptions')
-                .select('*')
+                .select('status, tier, trial_ends_at, stripe_subscription_id, current_period_end, referral_code, grant_source, billing_interval, referred_by')
                 .eq('user_id', userId)
                 .maybeSingle();
               if (!retryError) {
@@ -212,6 +214,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           return;
         }
         // Non-JWT error — keep previous state, increment failure counter
+        Sentry.captureException(error);
         subFetchFailCountRef.current += 1;
         toast.error('تعذّر تحديث حالة الاشتراك');
         if (subFetchFailCountRef.current >= 3) {
@@ -223,7 +226,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       subFetchFailCountRef.current = 0;
       setSubscription(buildSubscription(data));
-    } catch {
+    } catch (err) {
+      Sentry.captureException(err);
       subFetchFailCountRef.current += 1;
       toast.error('تعذّر تحديث حالة الاشتراك');
       if (subFetchFailCountRef.current >= 3) {
@@ -490,6 +494,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }).catch(() => {});
 
       if (validRef) {
+        events.referralConversion(validRef);
         try { localStorage.removeItem('pptides_referral'); } catch { /* expected */ }
       }
     }

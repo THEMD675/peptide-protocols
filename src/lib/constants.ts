@@ -77,6 +77,12 @@ export const STORAGE_KEYS = {
   USER_COUNT_TS: 'pptides_user_count_ts',
   REVIEWS: 'pptides_reviews',
   REVIEWS_TS: 'pptides_reviews_ts',
+  REFERRAL: 'pptides_referral',
+  ONBOARDED: 'pptides_onboarded',
+  CALENDAR_PREF: 'pptides_calendar_pref',
+  PREMIUM_WELCOMED: 'pptides_premium_welcomed',
+  COACH_DRAFT: 'pptides_coach_draft',
+  CONTACT_DRAFT: 'pptides_contact_draft',
 } as const;
 
 /** Re-export from single source of truth — must match supabase-migration.sql trigger */

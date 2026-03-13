@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import FocusTrap from 'focus-trap-react';
 import { X, Play, Calendar, FlaskConical } from 'lucide-react';
@@ -106,10 +106,14 @@ export default function ProtocolWizard({ peptideId, prefillDose, prefillUnit, on
   const endDate = new Date();
   endDate.setDate(endDate.getDate() + (parseInt(cycleWeeks) || 4) * 7);
 
+  const submittingRef = useRef(false);
+
   const handleSubmit = async () => {
-    if (!user) { toast.error('سجّل دخولك أولاً'); return; }
+    if (submittingRef.current) return;
+    submittingRef.current = true;
+    if (!user) { toast.error('سجّل دخولك أولاً'); submittingRef.current = false; return; }
     const doseNum = parseFloat(dose);
-    if (!dose || isNaN(doseNum) || doseNum <= 0) { toast.error('أدخل جرعة صحيحة'); return; }
+    if (!dose || isNaN(doseNum) || doseNum <= 0) { toast.error('أدخل جرعة صحيحة'); submittingRef.current = false; return; }
     setSubmitting(true);
     try {
       const { error } = await supabase.from('user_protocols').insert({
@@ -139,6 +143,7 @@ export default function ProtocolWizard({ peptideId, prefillDose, prefillUnit, on
       setDuplicateConfirmed(false);
     } finally {
       setSubmitting(false);
+      submittingRef.current = false;
     }
   };
 

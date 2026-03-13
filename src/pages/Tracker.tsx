@@ -17,6 +17,7 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { events } from '@/lib/analytics';
+import { Sentry } from '@/lib/sentry';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
@@ -159,7 +160,7 @@ export default function Tracker() {
   const [activeProtocols, setActiveProtocols] = useState<ActiveProtocol[]>([]);
   const fetchActiveProtocols = useCallback(async () => {
     if (!user) return;
-    const { data, error } = await supabase.from('user_protocols').select('*').eq('user_id', user.id).eq('status', 'active').order('started_at', { ascending: false }).limit(20);
+    const { data, error } = await supabase.from('user_protocols').select('id, peptide_id, dose, dose_unit, frequency, cycle_weeks, started_at, status').eq('user_id', user.id).eq('status', 'active').order('started_at', { ascending: false }).limit(20);
     if (error) console.error('active protocols query failed:', error);
     if (!error && data) setActiveProtocols(data);
   }, [user]);
@@ -185,7 +186,7 @@ export default function Tracker() {
     setFetchError(false);
     try {
       const [{ data, error }, { count }] = await Promise.all([
-        supabase.from('injection_logs').select('*').eq('user_id', user.id).order('logged_at', { ascending: false }).range(0, PAGE_SIZE - 1),
+        supabase.from('injection_logs').select('id, peptide_name, dose, dose_unit, injection_site, logged_at, notes, protocol_id').eq('user_id', user.id).order('logged_at', { ascending: false }).range(0, PAGE_SIZE - 1),
         supabase.from('injection_logs').select('id', { count: 'exact', head: true }).eq('user_id', user.id),
       ]);
       if (error) { setFetchError(true); }
@@ -207,7 +208,7 @@ export default function Tracker() {
     setIsLoadingMore(true);
     try {
       const from = logs.length;
-      const { data, error } = await supabase.from('injection_logs').select('*').eq('user_id', user.id).order('logged_at', { ascending: false }).range(from, from + PAGE_SIZE - 1);
+      const { data, error } = await supabase.from('injection_logs').select('id, peptide_name, dose, dose_unit, injection_site, logged_at, notes, protocol_id').eq('user_id', user.id).order('logged_at', { ascending: false }).range(from, from + PAGE_SIZE - 1);
       if (error) { toast.error('تعذّر تحميل المزيد'); return; }
       const rows = (data as InjectionLog[]) ?? [];
       setLogs(prev => [...prev, ...rows]);
@@ -255,7 +256,7 @@ export default function Tracker() {
       nextDoseTimerRef.current = setTimeout(() => toast(`الجرعة التالية: ${nextIn}`, { duration: 5000 }), 2000);
       const newTotal = (totalCount || logs.length) + 1;
       celebrate(newTotal, computeStreak(logs, true));
-    } catch { toast.error('تعذّر حفظ الحقنة — تحقق من اتصالك وحاول مرة أخرى'); }
+    } catch (err) { Sentry.captureException(err); toast.error('تعذّر حفظ الحقنة — تحقق من اتصالك وحاول مرة أخرى'); }
     finally { setIsSubmitting(false); }
   };
 
@@ -287,7 +288,7 @@ export default function Tracker() {
       toast.success(`تم تسجيل ${last.peptide_name} — ${last.dose} ${last.dose_unit}`);
       const newTotal = (totalCount || logs.length) + 1;
       celebrate(newTotal, computeStreak(logs, true));
-    } catch { toast.error('تعذّر حفظ الحقنة — تحقق من اتصالك وحاول مرة أخرى'); }
+    } catch (err) { Sentry.captureException(err); toast.error('تعذّر حفظ الحقنة — تحقق من اتصالك وحاول مرة أخرى'); }
     finally { setIsSubmitting(false); }
   };
 

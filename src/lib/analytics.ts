@@ -129,8 +129,12 @@ export const events = {
     trackEvent('search_use', { query: sanitized });
   },
 
+  // Subscription lifecycle
+  subscriptionCancelled: (tier: string, reason?: string) => trackEvent('subscription_cancelled', { tier, ...(reason ? { reason } : {}) }),
+
   // Sharing & referrals
   referralShare: (method: string) => trackEvent('referral_share', { method }),
+  referralConversion: (referralCode: string) => trackEvent('referral_conversion', { referral_code: referralCode }),
   shareClick: (target: string) => trackEvent('share_click', { target }),
 
   // Contact / enquiry

@@ -4,7 +4,7 @@ import EnquiryForm from '@/components/account/EnquiryForm';
 import FocusTrap from 'focus-trap-react';
 import { Helmet } from 'react-helmet-async';
 import { Link, Navigate, useNavigate, useLocation } from 'react-router-dom';
-import { User, Crown, LogOut, Trash2, AlertTriangle, Mail, ArrowUpCircle, KeyRound, XCircle, Download, CreditCard, Gift, Copy, Share2, Check, UserCircle, Camera, BarChart3, Syringe, Bot, Calendar, Moon, Sun, Chrome, Bell, BellOff } from 'lucide-react';
+import { User, Crown, LogOut, Trash2, AlertTriangle, Mail, ArrowUpCircle, KeyRound, XCircle, Download, CreditCard, Gift, Copy, Share2, Check, UserCircle, Camera, BarChart3, Syringe, Bot, Calendar, Moon, Sun, Chrome, Bell, BellOff, Shield } from 'lucide-react';
 
 import { toast } from 'sonner';
 import { cn, arPlural, sanitizeInput } from '@/lib/utils';
@@ -12,7 +12,10 @@ import { SUPPORT_EMAIL, STATUS_LABELS, TIER_LABELS, SITE_URL, PRICING } from '@/
 import { useTheme } from '@/hooks/useTheme';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
+import { Sentry } from '@/lib/sentry';
+import { events } from '@/lib/analytics';
 import { REFERRAL, RETENTION } from '@/constants/sales-copy';
+import { COOKIE_CONSENT_STORAGE_KEY } from '@/lib/cookie-utils';
 
 export default function Account() {
   const { user, subscription, logout, refreshSubscription, isLoading } = useAuth();
@@ -353,7 +356,8 @@ export default function Account() {
       }
       setExportProgress(null);
       toast.success('تم تصدير بياناتك بنجاح');
-    } catch {
+    } catch (err) {
+      Sentry.captureException(err);
       setExportProgress(null);
       toast.error('تعذّر تصدير البيانات. حاول مرة أخرى.');
     }
@@ -378,6 +382,7 @@ export default function Account() {
       if (!res.ok) throw new Error(result.error);
       setShowCancelDialog(false);
       setCancelStep(null);
+      events.subscriptionCancelled(subscription.tier, cancelReason || undefined);
       if (result.cancel_at) {
         toast.success(`تم إلغاء اشتراكك. ستحتفظ بالوصول حتى ${new Date(result.cancel_at).toLocaleDateString('ar-u-nu-latn')}`);
       } else {
@@ -385,7 +390,8 @@ export default function Account() {
       }
       await refreshSubscription();
       navigate('/account', { replace: true });
-    } catch {
+    } catch (err) {
+      Sentry.captureException(err);
       toast.error(`تعذّر إلغاء الاشتراك — تواصل معنا: ${SUPPORT_EMAIL}`);
     } finally {
       setIsProcessing(false);
@@ -878,6 +884,19 @@ export default function Account() {
                 إيقاف جميع الإشعارات
               </button>
             )}
+
+            {/* Privacy settings — reopen cookie consent */}
+            <button
+              onClick={() => {
+                try { localStorage.removeItem(COOKIE_CONSENT_STORAGE_KEY); } catch { /* noop */ }
+                window.dispatchEvent(new Event('pptides:reopen-cookie-consent'));
+                toast.success('يمكنك الآن تعديل تفضيلات ملفات تعريف الارتباط');
+              }}
+              className="flex w-full items-center justify-center gap-2 rounded-xl border border-stone-300 dark:border-stone-600 bg-white dark:bg-stone-900 px-4 py-3 text-sm font-bold text-stone-600 dark:text-stone-300 transition-all hover:bg-stone-50 dark:hover:bg-stone-800"
+            >
+              <Shield className="h-4 w-4" />
+              إعدادات الخصوصية
+            </button>
           </div>
         </div>
 
