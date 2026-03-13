@@ -28,6 +28,7 @@ export default function Blog() {
   const [error, setError] = useState<false | 'offline' | 'fetch'>(false);
   const [search, setSearch] = useState('');
   const [activeTag, setActiveTag] = useState<string | null>(null);
+  const [isStale, setIsStale] = useState(false);
 
   const fetchPosts = useCallback(() => {
     let cancelled = false;
@@ -39,9 +40,10 @@ export default function Blog() {
       try {
         const cached = localStorage.getItem('pptides_cache_blog_posts');
         if (cached) {
-          const { data } = JSON.parse(cached) as { data: BlogPost[] };
+          const { data, ts } = JSON.parse(cached) as { data: BlogPost[]; ts?: number };
           setPosts(data);
           setHasMore(false);
+          setIsStale(ts ? Date.now() - ts > 24 * 60 * 60 * 1000 : true);
           setLoading(false);
           return () => { cancelled = true; };
         }
@@ -65,9 +67,10 @@ export default function Blog() {
         try {
           const cached = localStorage.getItem('pptides_cache_blog_posts');
           if (cached) {
-            const { data: cachedData } = JSON.parse(cached) as { data: BlogPost[] };
+            const { data: cachedData, ts } = JSON.parse(cached) as { data: BlogPost[]; ts?: number };
             setPosts(cachedData);
             setHasMore(false);
+            setIsStale(ts ? Date.now() - ts > 24 * 60 * 60 * 1000 : true);
             setLoading(false);
             return;
           }
@@ -76,6 +79,7 @@ export default function Blog() {
       } else {
         setPosts(data ?? []);
         setHasMore((data ?? []).length === BLOG_PAGE_SIZE);
+        setIsStale(false);
         // Cache for offline use
         try { localStorage.setItem('pptides_cache_blog_posts', JSON.stringify({ ts: Date.now(), data: data ?? [] })); } catch { /* quota */ }
       }
@@ -229,6 +233,13 @@ export default function Blog() {
                 </div>
               </div>
             )}
+          </div>
+        )}
+
+        {isStale && !loading && !error && (
+          <div className="mb-4 flex items-center justify-between gap-2 rounded-xl border border-amber-200 dark:border-amber-700/40 bg-amber-50 dark:bg-amber-900/20 px-4 py-2.5 text-sm text-amber-800 dark:text-amber-300" role="status">
+            <span>تعرض آخر نسخة محفوظة — قد لا تكون محدّثة</span>
+            <button onClick={() => fetchPosts()} className="shrink-0 font-bold underline hover:no-underline">تحديث</button>
           </div>
         )}
 

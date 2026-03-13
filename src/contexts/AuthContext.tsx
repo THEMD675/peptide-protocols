@@ -268,6 +268,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
     if (params.get('payment') !== 'success' || !user) return;
 
+    const expectedTier = params.get('tier') || null;
+
     toast('شكرًا! جارٍ تفعيل اشتراكك...');
 
     const cleanUrl = () => {
@@ -287,16 +289,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       try {
         const { data, error: pollError } = await supabase
           .from('subscriptions')
-          .select('status')
+          .select('status, tier')
           .eq('user_id', user.id)
           .maybeSingle();
 
         if (cancelled) return;
         if (pollError) { timer = setTimeout(poll, 5000); return; }
         if (data?.status === 'active' || data?.status === 'trial') {
+          // Verify tier matches what user selected (if available)
+          if (expectedTier && data.tier && data.tier !== expectedTier && attempts < 10) {
+            timer = setTimeout(poll, 3000);
+            return;
+          }
           await fetchSubscription(user.id);
           cleanUrl();
-          toast.success('تم تفعيل اشتراكك بنجاح!');
+          if (expectedTier && data.tier && data.tier !== expectedTier) {
+            toast.error(`تم تفعيل اشتراك مختلف عن المتوقع — تواصل مع الدعم: ${SUPPORT_EMAIL}`, { duration: 10000 });
+          } else {
+            toast.success('تم تفعيل اشتراكك بنجاح!');
+          }
           if (window.location.pathname !== '/dashboard') {
             navigate('/dashboard');
           }
@@ -370,6 +381,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       async (event: string, session: Session | null) => {
         if (event === 'INITIAL_SESSION') {
           clearTimeout(timeout);
+          // 16.2: If initial session is null but localStorage has tokens, attempt refresh
+          if (!session) {
+            try {
+              const hasTokens = Object.keys(localStorage).some(k => k.startsWith('sb-') && k.endsWith('-auth-token'));
+              if (hasTokens) {
+                const { data: refreshData } = await supabase.auth.refreshSession();
+                if (refreshData?.session) {
+                  await handleSession(refreshData.session, event);
+                  initDoneRef.current = true;
+                  setIsLoading(false);
+                  return;
+                }
+              }
+            } catch {
+              // Refresh failed — proceed with null session
+            }
+          }
           await handleSession(session, event);
           initDoneRef.current = true;
           setIsLoading(false);
