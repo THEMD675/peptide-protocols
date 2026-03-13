@@ -332,6 +332,7 @@ export default function OnboardingModal({ forceOpen, onClose: externalClose }: {
             @keyframes onb-fade-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
             @keyframes onb-sparkle { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
             @keyframes onb-pulse { 0%, 100% { box-shadow: 0 0 0 0 rgba(16,185,129,0.4); } 50% { box-shadow: 0 0 0 8px rgba(16,185,129,0); } }
+            @media (prefers-reduced-motion: reduce) { [style*="onb-fade-in"], [style*="onb-sparkle"], [style*="onb-pulse"] { animation: none !important; } }
           `}</style>
         </div>
       </FocusTrap>

@@ -25,8 +25,11 @@ export default function ShareButtons({
 }: ShareButtonsProps) {
   const [copied, setCopied] = useState(false);
 
-  const whatsappText = `شوف هذا المقال عن الببتيدات \n${title}\n${url}`;
-  const tweetText = `${title}\n${url}`;
+  const waUrl = `${url}${url.includes('?') ? '&' : '?'}utm_source=whatsapp&utm_medium=share`;
+  const twUrl = `${url}${url.includes('?') ? '&' : '?'}utm_source=twitter&utm_medium=share`;
+  const tgUrl = `${url}${url.includes('?') ? '&' : '?'}utm_source=telegram&utm_medium=share`;
+  const whatsappText = `شوف هذا المقال عن الببتيدات \n${title}\n${waUrl}`;
+  const tweetText = `${title}`;
 
   const handleCopyLink = async () => {
     try {
@@ -81,7 +84,7 @@ export default function ShareButtons({
 
       {/* X / Twitter */}
       <a
-        href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(tweetText)}`}
+        href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(tweetText)}&url=${encodeURIComponent(twUrl)}`}
         target="_blank"
         rel="noopener noreferrer"
         onClick={() => events.shareClick('twitter')}
@@ -95,7 +98,7 @@ export default function ShareButtons({
       {/* Telegram */}
       {showTelegram && (
         <a
-          href={`https://t.me/share/url?url=${encodeURIComponent(url)}&text=${encodeURIComponent(title)}`}
+          href={`https://t.me/share/url?url=${encodeURIComponent(tgUrl)}&text=${encodeURIComponent(title)}`}
           target="_blank"
           rel="noopener noreferrer"
           onClick={() => events.shareClick('telegram')}

@@ -537,6 +537,12 @@ export default function DoseCalculator() {
           </p>
         </div>
 
+        {/* Medical disclaimer */}
+        <div role="alert" className="mb-6 rounded-xl border border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-900/20 p-4 text-center text-sm text-amber-800 dark:text-amber-300">
+          <Shield className="mx-auto mb-1 h-5 w-5" />
+          هذه الحاسبة للأغراض التعليمية فقط — استشر طبيبك قبل تعديل أي جرعة
+        </div>
+
         {/* ═══════════════ SUBSCRIPTION GATE ═══════════════ */}
         {!authLoading && !isProOrTrial && (
           <div className="mb-8 rounded-2xl border-2 border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-900/20 p-8 text-center">
@@ -813,6 +819,7 @@ export default function DoseCalculator() {
                   onChange={setDoseValue}
                   unit={doseUnit === 'mcg' ? 'مكغ' : 'ملغ'}
                   step={doseUnit === 'mcg' ? 50 : 0.05}
+                  min={doseUnit === 'mcg' ? 1 : 0.001}
                 />
                 <InputField
                   label="كمية الببتيد في القارورة (ملغ)"
@@ -1689,12 +1696,14 @@ function InputField({
   onChange,
   unit,
   step = 1,
+  min = 0,
 }: {
   label: string;
   value: number;
   onChange: (v: number) => void;
   unit: string;
   step?: number;
+  min?: number;
 }) {
   const id = useId();
   return (
@@ -1705,10 +1714,10 @@ function InputField({
           id={id}
           type="number"
           inputMode="decimal"
-          min={0}
+          min={min}
           step={step}
           value={value}
-          onChange={(e) => onChange(Math.max(0, Number(e.target.value) || 0))}
+          onChange={(e) => onChange(Math.max(min, Number(e.target.value) || 0))}
           aria-label={label}
           className="w-full rounded-xl border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-900 px-4 py-3 pe-16 text-base text-stone-900 dark:text-stone-100 transition-colors focus:border-emerald-300 focus:outline-none focus:ring-1 focus:ring-emerald-100"
         />

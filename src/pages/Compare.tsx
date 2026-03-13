@@ -18,6 +18,7 @@ import { cn } from '@/lib/utils';
 import { peptidesPublic as peptides, type PeptidePublic as Peptide } from '@/data/peptides-public';
 import { categoryLabels, evidenceLabels } from '@/lib/peptide-labels';
 import { SITE_URL } from '@/lib/constants';
+import { useAuth } from '@/contexts/AuthContext';
 
 const ROUTE_LABELS: Record<string, string> = {
   subq: 'تحت الجلد',
@@ -31,6 +32,7 @@ interface CompareRow {
   label: string;
   get: (p: Peptide) => string;
   key: string;
+  gated?: boolean;
 }
 
 const COMPARE_ROWS: CompareRow[] = [
@@ -38,14 +40,14 @@ const COMPARE_ROWS: CompareRow[] = [
   { key: 'category', label: 'التصنيف', get: (p) => categoryLabels[p.category] ?? p.category },
   { key: 'evidence', label: 'مستوى الأدلة', get: (p) => evidenceLabels[p.evidenceLevel] ?? p.evidenceLevel },
   { key: 'benefits', label: 'الفوائد الرئيسية', get: (p) => p.summaryAr.split('.').slice(0, 2).join('.') + '.' },
-  { key: 'dosage', label: 'نطاق الجرعة', get: () => 'اشترك لعرض التفاصيل', gated: true },
+  { key: 'dosage', label: 'نطاق الجرعة', gated: true, get: (p) => p.doseMcg ? `${p.doseMcg}${p.doseMaxMcg ? '–' + p.doseMaxMcg : ''} mcg` : '—' },
   {
     key: 'administration',
     label: 'طريقة الإعطاء',
     get: (p: Peptide) => p.route ? ROUTE_LABELS[p.route] ?? '—' : '—',
   },
-  { key: 'cycle', label: 'مدة الدورة', get: () => 'اشترك لعرض التفاصيل', gated: true },
-  { key: 'sideEffects', label: 'الأعراض الجانبية', get: () => 'اشترك لعرض التفاصيل', gated: true },
+  { key: 'cycle', label: 'مدة الدورة', gated: true, get: (p) => p.cycleDurationWeeks ? `${p.cycleDurationWeeks} أسبوع` : '—' },
+  { key: 'sideEffects', label: 'الأعراض الجانبية', gated: true, get: (p) => p.warningAr ?? '—' },
   { key: 'cost', label: 'نطاق السعر', get: (p) => p.costEstimate ?? '—' },
   { key: 'pubmed', label: 'مراجع PubMed', get: (p) => (p.pubmedIds ? `${p.pubmedIds.length} مرجع` : 'لا يوجد') },
   {
@@ -228,6 +230,8 @@ function PeptideSelector({
 
 // ─── Main Component ───────────────────────────────────────────
 export default function Compare() {
+  const { subscription } = useAuth();
+  const hasAccess = subscription?.isProOrTrial ?? false;
   const [searchParams, setSearchParams] = useSearchParams();
   const [copied, setCopied] = useState(false);
   const [showDiffsOnly, setShowDiffsOnly] = useState(false);
@@ -556,7 +560,11 @@ export default function Compare() {
                               isDiff ? 'text-amber-900 dark:text-amber-200' : 'text-stone-800 dark:text-stone-200',
                             )}
                           >
-                            <ExpandableCell text={row.get(p)} isDiff={isDiff} />
+                            {row.gated && !hasAccess ? (
+                              <span className="text-xs text-stone-400 dark:text-stone-500 italic">اشترك لعرض التفاصيل</span>
+                            ) : (
+                              <ExpandableCell text={row.get(p)} isDiff={isDiff} />
+                            )}
                           </td>
                         ))}
                       </tr>

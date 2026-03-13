@@ -219,7 +219,8 @@ export default function Admin() {
   const [error, setError] = useState('');
   const [forbidden, setForbidden] = useState(() => {
     // Client-side guard: immediately block non-admin users
-    return false;
+    if (!user?.email) return true;
+    return !ADMIN_EMAILS.includes(user.email.toLowerCase());
   });
   const [tab, setTab] = useState<Tab>('overview');
   const [lastFetched, setLastFetched] = useState<Date | null>(null);

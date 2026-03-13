@@ -119,6 +119,19 @@ html.dark {
   #main-content { scroll-margin-top: calc(var(--header-height) + 1rem); }
   [id] { scroll-margin-top: calc(var(--header-height) + 1rem); }
 
+  /* WCAG: ensure placeholder text has sufficient contrast in dark mode */
+  html.dark ::placeholder {
+    color: #a8a29e; /* stone-400 — 4.5:1+ contrast on stone-800/900 backgrounds */
+  }
+
+  /* RTL: force LTR direction for email, URL, number, and tel inputs */
+  input[type="email"],
+  input[type="url"],
+  input[type="number"],
+  input[type="tel"] {
+    direction: ltr;
+  }
+
   body {
     font-family: 'Cairo', 'Cairo Fallback', 'Inter', 'SF Pro Display', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
     background: #fff;
@@ -399,12 +412,6 @@ details .details-content > * {
 }
 
 
-.stagger-1 { animation-delay: 0.05s; }
-.stagger-2 { animation-delay: 0.1s; }
-.stagger-3 { animation-delay: 0.15s; }
-.stagger-4 { animation-delay: 0.2s; }
-.stagger-5 { animation-delay: 0.25s; }
-.stagger-6 { animation-delay: 0.3s; }
 
 html {
   scrollbar-width: thin;
@@ -525,21 +532,6 @@ html.dark ::-webkit-scrollbar-thumb:hover { background: #57534e; }
     min-height: 44px;
   }
 
-  /* Prevent text overflow on small screens */
-  .hero-headline {
-    font-size: clamp(1.75rem, 8vw, 3.5rem);
-    line-height: 1.2;
-  }
-
-  /* Card grid on mobile */
-  .pricing-card-grid {
-    grid-template-columns: 1fr;
-  }
-
-  /* Tighter padding on mobile for cards */
-  .mobile-card-padding {
-    padding: 1.25rem;
-  }
 }
 
 /* ═══ Improved card hover for blog + pricing ═══ */
@@ -631,6 +623,10 @@ button:focus-visible {
   button, a, [role="button"] {
     border: 1px solid ButtonText;
   }
+}
+
+input[type="email"], input[type="url"], input[type="number"], input[type="tel"] {
+  direction: ltr;
 }
 
 @supports (-webkit-touch-callout: none) {

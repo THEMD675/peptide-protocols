@@ -177,8 +177,18 @@ export default function Login() {
   }, [user, isRecovery, navigate]);
 
   useEffect(() => {
+    // Restore recovery state from sessionStorage (survives browser restart)
+    try {
+      if (sessionStorage.getItem('pptides_recovery') === 'true') {
+        setIsRecovery(true);
+      }
+    } catch { /* expected */ }
+
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
-      if (event === 'PASSWORD_RECOVERY') setIsRecovery(true);
+      if (event === 'PASSWORD_RECOVERY') {
+        setIsRecovery(true);
+        try { sessionStorage.setItem('pptides_recovery', 'true'); } catch { /* expected */ }
+      }
     });
     return () => subscription.unsubscribe();
   }, []);
@@ -212,6 +222,7 @@ export default function Login() {
       const { error } = await supabase.auth.updateUser({ password: newPassword });
       if (error) throw error;
       setIsRecovery(false);
+      try { sessionStorage.removeItem('pptides_recovery'); } catch { /* expected */ }
       setResetMessage('تم تغيير كلمة المرور بنجاح');
       setNewPassword('');
       // Redirect to dashboard (not landing page) after successful password reset

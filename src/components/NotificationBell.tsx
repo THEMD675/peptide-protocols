@@ -35,7 +35,7 @@ export default function NotificationBell() {
     let mounted = true;
     supabase
       .from('notifications')
-      .select('*')
+      .select('id, type, title_ar, body_ar, read, created_at')
       .eq('user_id', user.id)
       .order('created_at', { ascending: false })
       .limit(20)
@@ -51,7 +51,7 @@ export default function NotificationBell() {
   useEffect(() => {
     if (!user?.id) return;
     const channel = supabase
-      .channel('notifications')
+      .channel(`notifications:${user.id}`)
       .on(
         'postgres_changes',
         { event: 'INSERT', schema: 'public', table: 'notifications', filter: `user_id=eq.${user.id}` },

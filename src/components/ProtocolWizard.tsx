@@ -129,6 +129,7 @@ export default function ProtocolWizard({ peptideId, prefillDose, prefillUnit, on
         console.warn('protocol creation failed:', error.message);
         toast.error('تعذّر إنشاء البروتوكول — تحقق من اتصالك وحاول مرة أخرى');
         setSubmitting(false);
+        submittingRef.current = false;
         setDuplicateConfirmed(false);
         return;
       }

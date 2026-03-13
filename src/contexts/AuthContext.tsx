@@ -295,7 +295,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         else {
           await fetchSubscription(user.id);
           cleanUrl();
-          toast.error(`تعذّر تفعيل الاشتراك تلقائيًا. تواصل معنا: ${SUPPORT_EMAIL}`);
+          toast.error('لم يتم تفعيل اشتراكك تلقائياً — حاول تحديث الصفحة أو تواصل معنا', { duration: 10000 });
         }
       } catch {
         if (cancelled) return;
@@ -427,7 +427,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     const handleVisibility = () => {
       if (document.visibilityState === 'visible' && user) {
-        supabase.auth.getSession().then(({ data: { session } }) => {
+        supabase.auth.refreshSession().then(({ data: { session } }) => {
           if (!session) {
             setUser(null);
             setSubscription(DEFAULT_SUBSCRIPTION);
@@ -435,7 +435,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           } else {
             fetchSubRef.current(user.id);
           }
-        }).catch(() => {});
+        }).catch((err) => { console.warn('Visibility refresh failed:', err); });
       }
     };
     document.addEventListener('visibilitychange', handleVisibility);

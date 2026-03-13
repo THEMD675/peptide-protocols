@@ -298,7 +298,7 @@ export default function Landing() {
       {/* ═══════ HERO ═══════ */}
       <section className="relative bg-gradient-to-b from-white dark:from-stone-950 via-stone-50 dark:via-stone-900 to-stone-50 dark:to-stone-900">
         <div className="pointer-events-none absolute inset-0 overflow-hidden">
-          <div className="absolute start-1/2 top-0 h-[600px] w-[800px] -translate-x-1/2 bg-[radial-gradient(ellipse_at_center,rgba(16,185,129,0.07)_0%,transparent_60%)]" />
+          <div className="absolute start-1/2 top-0 h-[600px] max-w-[800px] w-full -translate-x-1/2 bg-[radial-gradient(ellipse_at_center,rgba(16,185,129,0.07)_0%,transparent_60%)]" />
         </div>
 
         <div className="relative mx-auto max-w-5xl px-6 pb-6 pt-10 text-center md:pt-16 md:pb-8">
@@ -813,6 +813,20 @@ export default function Landing() {
       <Suspense fallback={<div className="h-64 mx-6 animate-pulse rounded-2xl bg-stone-100 dark:bg-stone-800" aria-hidden="true" />}>
         <FeatureComparisonTable />
       </Suspense>
+
+      {/* ═══════ WHAT ARE PEPTIDES? ═══════ */}
+      <section className="cv-auto py-20 md:py-28">
+        <div className="mx-auto max-w-3xl px-6 text-center">
+          <h2 className="mb-6 text-3xl font-extrabold text-stone-900 dark:text-stone-100 md:text-4xl">
+            ما هي <span className="text-emerald-700 dark:text-emerald-400">الببتيدات</span>؟
+          </h2>
+          <p className="text-lg leading-relaxed text-stone-700 dark:text-stone-200">
+            الببتيدات هي سلاسل قصيرة من الأحماض الأمينية تعمل كرسائل كيميائية في الجسم.
+            تُستخدم علاجيًا لتعزيز التعافي من الإصابات، وإنقاص الوزن، ومكافحة الشيخوخة، وتحسين النوم والمناعة.
+            يوجد أكثر من {PEPTIDE_COUNT} ببتيد مدروس علميًا — ونساعدك في اختيار الأنسب لحالتك وبناء بروتوكول مخصّص بالعربي.
+          </p>
+        </div>
+      </section>
 
       {/* ═══════ PRICING PREVIEW ═══════ */}
       <section className="cv-auto bg-gradient-to-b from-stone-50 dark:from-stone-900 to-white dark:to-stone-950 py-24 md:py-32">

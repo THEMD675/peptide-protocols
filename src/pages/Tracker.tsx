@@ -185,10 +185,12 @@ export default function Tracker() {
     setIsLoadingLogs(true);
     setFetchError(false);
     try {
-      const [{ data, error }, { count }] = await Promise.all([
-        supabase.from('injection_logs').select('id, peptide_name, dose, dose_unit, injection_site, logged_at, notes, protocol_id').eq('user_id', user.id).order('logged_at', { ascending: false }).range(0, PAGE_SIZE - 1),
-        supabase.from('injection_logs').select('id', { count: 'exact', head: true }).eq('user_id', user.id),
-      ]);
+      const { data, error, count } = await supabase
+        .from('injection_logs')
+        .select('id, peptide_name, dose, dose_unit, injection_site, logged_at, notes, protocol_id', { count: 'exact' })
+        .eq('user_id', user.id)
+        .order('logged_at', { ascending: false })
+        .range(0, PAGE_SIZE - 1);
       if (error) { setFetchError(true); }
       const rows = (data as InjectionLog[]) ?? [];
       setLogs(rows);
@@ -298,7 +300,7 @@ export default function Tracker() {
   useEffect(() => {
     if (!user) return;
     let mounted = true;
-    supabase.from('injection_logs').select('logged_at, injection_site, peptide_name').eq('user_id', user.id).order('logged_at', { ascending: false }).limit(10000)
+    supabase.from('injection_logs').select('logged_at, injection_site, peptide_name').eq('user_id', user.id).order('logged_at', { ascending: false }).gte('logged_at', new Date(Date.now() - 365 * 24 * 60 * 60 * 1000).toISOString()).limit(10000)
     .then((allRes) => {
       if (!mounted) return;
       if (allRes.error) { console.error('injection_logs full stats query failed:', allRes.error); return; }
@@ -312,18 +314,19 @@ export default function Tracker() {
     return () => { mounted = false; };
   }, [user, logs.length]);
 
+  const streak = useMemo(() => computeStreak(allLogsForStats), [allLogsForStats]);
+
   const dashboardStats = useMemo(() => {
     if (logs.length === 0) return null;
     const totalInjections = totalCount || logs.length;
     const uniquePeptides = fullStatsData?.uniquePeptides ?? new Set(logs.map(l => l.peptide_name)).size;
-    const streak = computeStreak(allLogsForStats);
     const last7 = fullStatsData?.last7 ?? logs.filter(l => Date.now() - new Date(l.logged_at).getTime() < 7 * 24 * 60 * 60 * 1000).length;
     const msSinceLast = Date.now() - new Date(logs[0].logged_at).getTime();
     const hoursSince = Math.floor(msSinceLast / (1000 * 60 * 60));
     const daysSince = Math.floor(hoursSince / 24);
     const timeSinceLabel = daysSince > 0 ? `منذ ${daysSince} يوم` : hoursSince > 0 ? `منذ ${hoursSince} ساعة` : 'الآن';
     return { totalInjections, uniquePeptides, streak, last7, timeSinceLabel };
-  }, [logs, allLogsForStats, totalCount, fullStatsData?.last7, fullStatsData?.uniquePeptides]);
+  }, [logs, streak, totalCount, fullStatsData?.last7, fullStatsData?.uniquePeptides]);
 
   const monthlySummary = useMemo(() => {
     const src = allLogsForStats.length > 0 ? allLogsForStats : logs;
@@ -338,9 +341,8 @@ export default function Tracker() {
     const units = new Set(thisMonth.map(l => l.dose_unit));
     const avgDose = units.size === 1 ? Math.round((thisMonth.reduce((sum, l) => sum + l.dose, 0) / thisMonth.length) * 10) / 10 : null;
     const avgUnit = units.size === 1 ? (thisMonth[0]?.dose_unit ?? 'mcg') : null;
-    const streak = computeStreak(src);
     return { totalInjections, mostUsedPeptide: mostUsed?.[0] ?? '', mostUsedCount: mostUsed?.[1] ?? 0, avgDose, avgUnit, streak };
-  }, [logs, allLogsForStats]);
+  }, [logs, allLogsForStats, streak]);
 
   const weeklyActivity = useMemo(() => {
     const src = allLogsForStats.length > 0 ? allLogsForStats : logs;

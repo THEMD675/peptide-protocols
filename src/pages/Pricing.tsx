@@ -121,7 +121,9 @@ export default function Pricing() {
   useEffect(() => {
     if (searchParams.get('payment') === 'cancelled') {
       toast.error(UPGRADE.paymentCancelled);
-      setSearchParams({}, { replace: true });
+      const next = new URLSearchParams(searchParams);
+      next.delete('payment');
+      setSearchParams(next, { replace: true });
     }
     if (urlParams.isSetupFlow) {
       toast(TRIAL.setupToast, { duration: 6000 });
@@ -798,6 +800,7 @@ export default function Pricing() {
             0%, 100% { box-shadow: 0 4px 6px -1px rgba(16,185,129,0.05), 0 0 0 0 rgba(16,185,129,0); }
             50% { box-shadow: 0 10px 25px -5px rgba(16,185,129,0.12), 0 0 20px 0 rgba(16,185,129,0.06); }
           }
+          @media (prefers-reduced-motion: reduce) { .pricing-card-featured { animation: none !important; } }
         `}</style>
 
         {/* Disclaimer */}

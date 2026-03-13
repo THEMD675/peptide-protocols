@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { Loader2, Camera } from 'lucide-react';
 import { toast } from 'sonner';
-import { cn } from '@/lib/utils';
+import { cn, sanitizeInput } from '@/lib/utils';
 import { Sentry } from '@/lib/sentry';
 import { supabase } from '@/lib/supabase';
 import { peptidesLite as allPeptides } from '@/data/peptides-lite';
@@ -131,14 +131,15 @@ export default function TrackerForm({
     (document.activeElement as HTMLElement)?.blur();
     setIsSubmitting(true);
     try {
+      const safeSideEffect = sideEffect === 'other' ? sanitizeInput(customSideEffect, 200) : '';
       const sideEffectLabel = sideEffect !== 'none'
-        ? `أعراض جانبية: ${sideEffect === 'other' ? (customSideEffect.trim() || 'أخرى') : sideEffect}`
+        ? `أعراض جانبية: ${sideEffect === 'other' ? (safeSideEffect || 'أخرى') : sideEffect}`
         : '';
       const combinedNotes = [notes.trim(), sideEffectLabel].filter(Boolean).join('\n') || null;
       const photoUrl = await uploadPhoto();
       const insertData: Record<string, unknown> = {
         user_id: userId,
-        peptide_name: peptideName.trim(),
+        peptide_name: sanitizeInput(peptideName, 200),
         dose: parseFloat(dose),
         dose_unit: unit,
         injection_site: site,

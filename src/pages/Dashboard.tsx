@@ -198,6 +198,7 @@ function useRecentActivity(userId: string | undefined) {
   useEffect(() => {
     if (!userId) return;
     let mounted = true;
+    let resolved = false;
     supabase
       .from('injection_logs')
       .select('id, peptide_name, dose, dose_unit, logged_at')
@@ -207,6 +208,7 @@ function useRecentActivity(userId: string | undefined) {
       .limit(PAGE_SIZE)
       .then(({ data, error: fetchError }) => {
         if (!mounted) return;
+        resolved = true;
         if (fetchError) {
           setError(true);
         } else if (data) {
@@ -215,7 +217,7 @@ function useRecentActivity(userId: string | undefined) {
         }
         setLoading(false);
       })
-      .catch(() => { if (mounted) { setError(true); setLoading(false); } });
+      .catch(() => { if (mounted) { resolved = true; setError(true); setLoading(false); } });
     supabase
       .from('injection_logs')
       .select('id', { count: 'exact', head: true })
@@ -234,7 +236,14 @@ function useRecentActivity(userId: string | undefined) {
         setUniquePeptidesCount(unique.size);
       })
       .catch(() => { /* uniquePeptidesCount non-critical — ignore */ });
-    return () => { mounted = false; };
+    const loadingTimeout = setTimeout(() => {
+      if (mounted && !resolved) {
+        setLoading(false);
+        setError(true);
+        toast.error('تعذّر الاتصال بالخادم — حاول لاحقاً');
+      }
+    }, 30000);
+    return () => { mounted = false; clearTimeout(loadingTimeout); };
   }, [userId, cutoff]);
 
   const activePeptides = [...new Set(logs.map(l => l.peptide_name))];
@@ -935,8 +944,8 @@ export default function Dashboard() {
           <div className="mb-8">
             <h2 className="mb-4 text-xl font-bold text-stone-900 dark:text-stone-100">رحلتي</h2>
             <div className="relative border-s-2 border-emerald-200 dark:border-emerald-800 ps-6 space-y-4">
-              {journeyEvents.map((event, i) => (
-                <div key={i} className="relative">
+              {journeyEvents.map((event) => (
+                <div key={event.text} className="relative">
                   <div className="absolute -start-[9px] top-1 h-4 w-4 rounded-full border-2 border-emerald-400 bg-white dark:bg-stone-900" />
                   <p className="text-sm font-bold text-stone-800 dark:text-stone-200">{event.text}</p>
                   {event.date && (
@@ -1450,8 +1459,8 @@ export default function Dashboard() {
               <span className="text-xs text-stone-500 dark:text-stone-300">{days.filter(d => d.count > 0).length} يوم نشط</span>
             </div>
             <div className="grid grid-cols-6 sm:grid-cols-10 gap-1">
-              {days.map((d, i) => (
-                <div key={i} className={cn(
+              {days.map((d) => (
+                <div key={d.date.toISOString()} className={cn(
                   'aspect-square rounded-sm transition-colors',
                   d.count === 0 ? 'bg-stone-100 dark:bg-stone-800' :
                   d.count === 1 ? 'bg-emerald-200' :
@@ -1611,6 +1620,7 @@ export default function Dashboard() {
             <style>{`
               @keyframes dash-welcome-in { from { opacity: 0; transform: translateY(16px) scale(0.97); } to { opacity: 1; transform: translateY(0) scale(1); } }
               @keyframes dash-card-in { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+              @media (prefers-reduced-motion: reduce) { [style*="dash-welcome-in"], [style*="dash-card-in"] { animation: none !important; } }
             `}</style>
           </>
         );

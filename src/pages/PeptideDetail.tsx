@@ -243,7 +243,7 @@ export default function PeptideDetail() {
               <h1 className="text-3xl font-bold md:text-4xl">
                 {peptide.nameAr}
               </h1>
-              <p className="mt-1 text-lg text-stone-800 dark:text-stone-200">{peptide.nameEn}</p>
+              <p className="mt-1 text-lg text-stone-800 dark:text-stone-200"><span dir="ltr">{peptide.nameEn}</span></p>
             </div>
 
             <div className="flex flex-wrap items-center gap-2">

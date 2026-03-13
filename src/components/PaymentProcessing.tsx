@@ -72,7 +72,7 @@ export default function PaymentProcessing() {
   };
 
   return (
-    <div className="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-white dark:bg-stone-900 px-6">
+    <div className="fixed inset-0 z-[9995] flex flex-col items-center justify-center bg-white dark:bg-stone-900 px-6">
       <div className="w-full max-w-sm text-center animate-fade-in">
         {stage === 'success' ? (
           <>
@@ -97,6 +97,7 @@ export default function PaymentProcessing() {
                 0% { opacity: 1; transform: translateY(0) rotate(0deg) scale(1); }
                 100% { opacity: 0; transform: translateY(100vh) rotate(720deg) scale(0.5); }
               }
+              @media (prefers-reduced-motion: reduce) { .absolute.rounded-full { animation: none !important; } }
             `}</style>
 
             <CheckCircle className="mx-auto mb-2 h-12 w-12 text-emerald-600" />

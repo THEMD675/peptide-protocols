@@ -356,6 +356,9 @@ export default function Coach() {
       .catch((err) => { Sentry.captureException(err); setConvLoadError(true); });
   }, [user?.id]);
 
+  // Reset supabaseLoadedRef when user changes (re-login)
+  useEffect(() => { supabaseLoadedRef.current = false; }, [user?.id]);
+
   useEffect(() => {
     if (!user?.id || supabaseLoadedRef.current) return;
     supabaseLoadedRef.current = true;

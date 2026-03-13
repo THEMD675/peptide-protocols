@@ -67,7 +67,7 @@ function PageLoader() {
   return (
     <div className="flex min-h-[80vh] flex-col items-center justify-center gap-4 animate-fade-in" role="status" aria-label="جارٍ التحميل">
       <div className="text-xl font-bold tracking-tight text-stone-900 dark:text-stone-100" dir="ltr" role="img" aria-label="pptides">
-        <span aria-hidden="true">pp</span><span className="text-emerald-700" aria-hidden="true">tides</span>
+        <span aria-hidden="true">pp</span><span className="text-emerald-700 dark:text-emerald-400" aria-hidden="true">tides</span>
       </div>
       <div className="h-8 w-8 animate-spin rounded-full border-2 border-emerald-200 dark:border-emerald-800 border-t-emerald-600" />
     </div>
@@ -222,7 +222,7 @@ function OfflineBanner() {
     return () => { window.removeEventListener('offline', goOffline); window.removeEventListener('online', goOnline); };
   }, []);
   if (!offline) return null;
-  return <div className="sticky top-0 inset-x-0 z-[9999] bg-red-600 text-white text-center py-2 text-sm font-bold">أنت غير متصل بالإنترنت</div>;
+  return <div className="sticky top-0 inset-x-0 z-[9990] bg-red-600 text-white text-center py-2 text-sm font-bold">أنت غير متصل بالإنترنت</div>;
 }
 
 function HomeRedirect() {

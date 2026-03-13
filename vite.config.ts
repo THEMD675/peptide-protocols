@@ -129,7 +129,7 @@ export default defineConfig({
           if (id.includes('node_modules/react-joyride') || id.includes('node_modules/react-floater') || id.includes('node_modules/is-lite'))
             return 'joyride';
           // Focus trap — lazy loaded
-          if (id.includes('node_modules/focus-trap') || id.includes('node_modules/tabbable'))
+          if (id.includes('node_modules/focus-trap') || id.includes('node_modules/focus-trap-react') || id.includes('node_modules/tabbable'))
             return 'focus-trap';
         },
       },

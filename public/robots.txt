@@ -6,7 +6,6 @@ Disallow: /tracker
 Disallow: /login
 Disallow: /signup
 Disallow: /admin
-Disallow: /coach
 
 User-agent: GPTBot
 Disallow: /

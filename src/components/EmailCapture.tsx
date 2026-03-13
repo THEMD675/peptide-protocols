@@ -123,8 +123,8 @@ export default function EmailCapture() {
       {status === 'error' && errorMsg && (
         <p className="mt-3 text-center text-sm text-red-400" role="alert">{errorMsg}</p>
       )}
-      <p className="mt-2 text-center text-xs text-white/50">
-        بالاشتراك، أنت توافق على <Link to="/privacy" className="underline transition-colors hover:text-white/80">سياسة الخصوصية</Link>
+      <p className="mt-2 text-center text-xs text-stone-500 dark:text-stone-400">
+        بالاشتراك، أنت توافق على <Link to="/privacy" className="underline transition-colors hover:text-stone-700 dark:hover:text-stone-200">سياسة الخصوصية</Link>
       </p>
     </div>
   );

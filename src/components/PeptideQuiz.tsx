@@ -615,10 +615,10 @@ export default function PeptideQuiz() {
             <div className="flex h-20 w-20 items-center justify-center rounded-2xl bg-gradient-to-br from-emerald-500 to-emerald-700 shadow-lg shadow-emerald-500/30">
               <FlaskConical className="h-10 w-10 text-white" />
             </div>
-            <div className="absolute -top-2 -left-2 flex h-8 w-8 items-center justify-center rounded-lg bg-amber-100 dark:bg-amber-900/50 shadow-sm">
+            <div className="absolute -top-2 -start-2 flex h-8 w-8 items-center justify-center rounded-lg bg-amber-100 dark:bg-amber-900/50 shadow-sm">
               <Brain className="h-4 w-4 text-amber-600 dark:text-amber-400" />
             </div>
-            <div className="absolute -bottom-2 -right-2 flex h-8 w-8 items-center justify-center rounded-lg bg-blue-100 dark:bg-blue-900/50 shadow-sm">
+            <div className="absolute -bottom-2 -end-2 flex h-8 w-8 items-center justify-center rounded-lg bg-blue-100 dark:bg-blue-900/50 shadow-sm">
               <Shield className="h-4 w-4 text-blue-600 dark:text-blue-400" />
             </div>
           </div>

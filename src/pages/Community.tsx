@@ -355,6 +355,7 @@ export default function Community() {
   const [showForm, setShowForm] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const submittingRef = useRef(false);
+  const upvotingRef = useRef<Set<string>>(new Set());
   const mountedRef = useRef(true);
   useEffect(() => () => { mountedRef.current = false; }, []);
 
@@ -1324,7 +1325,8 @@ export default function Community() {
                               type="button"
                               onClick={async () => {
                                 if (!user) { toast('سجّل الدخول للتفاعل مع التجارب', { action: { label: 'تسجيل الدخول', onClick: () => window.location.href = '/login' } }); return; }
-                                if (upvotedPosts.has(log.id)) return;
+                                if (upvotedPosts.has(log.id) || upvotingRef.current.has(log.id)) return;
+                                upvotingRef.current.add(log.id);
                                 const next = new Set(upvotedPosts).add(log.id);
                                 setUpvotedPosts(next);
                                 try { localStorage.setItem(`pptides_upvoted_${user?.id ?? 'anon'}`, JSON.stringify([...next])); } catch { /* */ }
@@ -1337,6 +1339,7 @@ export default function Community() {
                                   reverted.delete(log.id);
                                   setUpvotedPosts(reverted);
                                   try { localStorage.setItem(`pptides_upvoted_${user?.id ?? 'anon'}`, JSON.stringify([...reverted])); } catch { /* */ }
+                                  upvotingRef.current.delete(log.id);
                                 }
                               }}
                               className={cn(
