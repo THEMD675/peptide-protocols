@@ -16,6 +16,7 @@ import {
   Bookmark,
   BookmarkCheck,
   Bot,
+  HelpCircle,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
@@ -370,16 +371,29 @@ export default function Library() {
     setUpsellPeptide(peptideId ?? null);
   }, []);
 
-  // Counts for category tab badges — based on all peptides, not current filters
+  // Counts for category tab badges — reflects search + evidence filters (but not category)
   const categoryCounts = useMemo(() => {
-    const counts: Record<string, number> = { all: peptides.length, free: 0, bookmarks: 0 };
+    const stripDiacritics = (s: string) => s.normalize('NFD').replace(/[\u0610-\u061A\u064B-\u065F\u0670\u06D6-\u06DC\u06DF-\u06E4\u06E7-\u06E8\u06EA-\u06ED]/g, '');
+    const counts: Record<string, number> = { all: 0, free: 0, bookmarks: 0 };
     for (const p of peptides) {
+      // Apply evidence filter
+      if (evidenceFilter !== 'all' && p.evidenceLevel !== evidenceFilter) continue;
+      // Apply search filter
+      if (search.trim()) {
+        const q = stripDiacritics(search.trim().toLowerCase());
+        if (
+          !stripDiacritics(p.nameAr).includes(q) &&
+          !p.nameEn.toLowerCase().includes(q) &&
+          !stripDiacritics(p.summaryAr).includes(q)
+        ) continue;
+      }
+      counts.all++;
       counts[p.category] = (counts[p.category] ?? 0) + 1;
       if (FREE_PEPTIDE_IDS.has(p.id)) counts.free++;
       if (favorites.has(p.id)) counts.bookmarks++;
     }
     return counts;
-  }, [favorites]);
+  }, [favorites, search, evidenceFilter]);
 
   const filtered = useMemo(() => {
     const stripDiacritics = (s: string) => s.normalize('NFD').replace(/[\u0610-\u061A\u064B-\u065F\u0670\u06D6-\u06DC\u06DF-\u06E4\u06E7-\u06E8\u06EA-\u06ED]/g, '');
@@ -528,25 +542,38 @@ export default function Library() {
           </div>
 
           {/* Evidence filter — always visible, no hidden panel */}
-          <select
-            value={evidenceFilter}
-            onChange={(e) => setEvidenceFilter(e.target.value)}
-            aria-label="مستوى الدليل العلمي"
-            className={cn(
-              'rounded-xl border px-3 py-2.5 text-sm focus:border-emerald-300 dark:border-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900',
-              evidenceFilter !== 'all'
-                ? 'border-emerald-300 dark:border-emerald-700 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-800 dark:text-emerald-300 font-medium'
-                : 'border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 text-stone-800 dark:text-stone-200',
-            )}
-          >
-            <option value="all">الدليل: الكل</option>
-            <option value="excellent">ممتاز فقط</option>
-            <option value="strong">قوي فأعلى</option>
-            <option value="good">جيد فأعلى</option>
-            <option value="moderate">متوسط فأعلى</option>
-            <option value="weak">ضعيف</option>
-            <option value="very-weak">ضعيف جدًا</option>
-          </select>
+          <div className="relative group flex items-center gap-1">
+            <select
+              value={evidenceFilter}
+              onChange={(e) => setEvidenceFilter(e.target.value)}
+              aria-label="مستوى الدليل العلمي"
+              className={cn(
+                'rounded-xl border px-3 py-2.5 text-sm focus:border-emerald-300 dark:border-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900',
+                evidenceFilter !== 'all'
+                  ? 'border-emerald-300 dark:border-emerald-700 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-800 dark:text-emerald-300 font-medium'
+                  : 'border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 text-stone-800 dark:text-stone-200',
+              )}
+            >
+              <option value="all">الدليل: الكل</option>
+              <option value="excellent">{`ممتاز — ${evidenceDescriptions.excellent.split('—')[1]?.trim() ?? ''}`}</option>
+              <option value="strong">{`قوي — ${evidenceDescriptions.strong.split('—')[1]?.trim() ?? ''}`}</option>
+              <option value="good">{`جيد — ${evidenceDescriptions.good.split('—')[1]?.trim() ?? ''}`}</option>
+              <option value="moderate">{`متوسط — ${evidenceDescriptions.moderate.split('—')[1]?.trim() ?? ''}`}</option>
+              <option value="weak">{`ضعيف — ${evidenceDescriptions.weak.split('—')[1]?.trim() ?? ''}`}</option>
+              <option value="very-weak">{`ضعيف جدًا — ${evidenceDescriptions['very-weak'].split('—')[1]?.trim() ?? ''}`}</option>
+            </select>
+            <div className="relative">
+              <HelpCircle className="h-4 w-4 text-stone-400 dark:text-stone-500 cursor-help peer" tabIndex={0} aria-label="شرح مستويات الدليل العلمي" />
+              <div className="absolute end-0 top-full mt-2 w-64 rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-900 p-3 shadow-lg text-xs text-stone-700 dark:text-stone-200 opacity-0 pointer-events-none peer-hover:opacity-100 peer-focus:opacity-100 peer-hover:pointer-events-auto peer-focus:pointer-events-auto transition-opacity z-50 space-y-1.5">
+                {Object.entries(evidenceDescriptions).map(([key, desc]) => (
+                  <div key={key} className="flex items-start gap-1.5">
+                    <span className={cn('mt-0.5 shrink-0 h-2 w-2 rounded-full', evidenceColors[key]?.split(' ')[0] ?? 'bg-stone-300')} />
+                    <span>{desc}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
 
           <select
             value={sortBy}
@@ -785,6 +812,17 @@ export default function Library() {
             </div>
           )}
       </div>
+
+      {/* Floating Compare Hint — single peptide selected */}
+      {compareIds.length === 1 && (
+        <div className="fixed bottom-20 inset-x-0 mx-auto w-fit z-40 flex items-center gap-3 rounded-2xl border border-amber-300 dark:border-amber-700 bg-white dark:bg-stone-900/95 backdrop-blur-lg px-5 py-2.5 shadow-xl dark:shadow-stone-900/40 md:bottom-6 animate-slide-up">
+          <BarChart2 className="h-4 w-4 text-amber-600 dark:text-amber-400 shrink-0" />
+          <span className="text-sm font-medium text-stone-800 dark:text-stone-200">اختر ببتيدًا آخر للمقارنة</span>
+          <button onClick={() => setCompareIds([])} aria-label="إلغاء المقارنة" className="rounded-lg p-1.5 min-h-[44px] min-w-[44px] flex items-center justify-center text-stone-400 dark:text-stone-500 hover:text-stone-600 dark:hover:text-stone-300 transition-colors">
+            <X className="h-4 w-4" />
+          </button>
+        </div>
+      )}
 
       {/* Floating Compare Bar */}
       {compareIds.length >= 2 && (

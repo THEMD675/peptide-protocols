@@ -257,7 +257,7 @@ export default function Tracker() {
       const nextIn = freq === 'bid' ? '12 ساعة' : freq === 'tid' ? '8 ساعات' : 'غدًا';
       nextDoseTimerRef.current = setTimeout(() => toast(`الجرعة التالية: ${nextIn}`, { duration: 5000 }), 2000);
       const newTotal = (totalCount || logs.length) + 1;
-      celebrate(newTotal, computeStreak(logs, true));
+      celebrate(newTotal, computeStreak(allLogsForStats, true));
     } catch (err) { Sentry.captureException(err); toast.error('تعذّر حفظ الحقنة — تحقق من اتصالك وحاول مرة أخرى'); }
     finally { setIsSubmitting(false); }
   };
@@ -289,7 +289,7 @@ export default function Tracker() {
       setLastLoggedPeptide(last.peptide_name);
       toast.success(`تم تسجيل ${last.peptide_name} — ${last.dose} ${last.dose_unit}`);
       const newTotal = (totalCount || logs.length) + 1;
-      celebrate(newTotal, computeStreak(logs, true));
+      celebrate(newTotal, computeStreak(allLogsForStats, true));
     } catch (err) { Sentry.captureException(err); toast.error('تعذّر حفظ الحقنة — تحقق من اتصالك وحاول مرة أخرى'); }
     finally { setIsSubmitting(false); }
   };

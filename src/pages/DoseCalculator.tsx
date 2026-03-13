@@ -173,6 +173,8 @@ const IU_FACTORS: Record<string, { factor: number; note: string }> = {
   'HGH': { factor: 3, note: '1 mg = 3 IU' },
   'Sermorelin': { factor: 3, note: '1 mg ≈ 3 IU' },
   'IGF-1 LR3': { factor: 1, note: 'يُقاس بالمايكروغرام عادةً' },
+  'HCG': { factor: 0, note: 'يختلف حسب المُصنّع' },
+  'BPC-157': { factor: 0, note: 'يُقاس بالمايكروغرام عادةً' },
 };
 
 /* SyringeVisual extracted to @/components/dose-calculator/SyringeVisual.tsx */
@@ -384,6 +386,8 @@ export default function DoseCalculator() {
   // ── Converter result ──
   const converterResult = useMemo(() => {
     const iuFactor = IU_FACTORS[converterPeptide]?.factor ?? 3;
+    // If factor is 0 and IU is involved, conversion is not possible
+    if (iuFactor === 0 && (converterFrom === 'iu' || converterTo === 'iu')) return NaN;
     let valueMcg = converterValue;
     if (converterFrom === 'mg') valueMcg = converterValue * 1000;
     else if (converterFrom === 'iu') valueMcg = (converterValue / iuFactor) * 1000;
@@ -1570,6 +1574,13 @@ export default function DoseCalculator() {
                       </button>
                     ))}
                   </div>
+                  {IU_FACTORS[converterPeptide]?.factor === 0 && (
+                    <div className="mt-3 rounded-xl border border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-900/10 p-3">
+                      <p className="text-xs text-red-800 dark:text-red-300 font-medium">
+                        لا يمكن تحويل الوحدات الدولية لهذا الببتيد — استخدم مايكروغرام
+                      </p>
+                    </div>
+                  )}
                 </div>
               )}
 

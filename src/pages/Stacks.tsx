@@ -180,6 +180,13 @@ export default function Stacks() {
                 {getCategoryLabel(primaryCategory)}
               </span>
 
+              {/* Drug interaction safety warning */}
+              {stack.peptideIds.length > 1 && (
+                <div role="alert" className="mb-3 rounded-xl border border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-900/20 px-4 py-2 text-xs text-amber-700 dark:text-amber-400">
+                  ⚠️ الجمع بين عدة ببتيدات قد يزيد من الأعراض الجانبية — استشر طبيبك قبل البدء بأي مجموعة
+                </div>
+              )}
+
               {/* Title — always visible */}
               <h2
                 className="mb-1 text-xl font-bold"

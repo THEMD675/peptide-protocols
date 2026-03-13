@@ -796,15 +796,24 @@ export default function Coach() {
                 {/* Progress bar */}
                 {(() => {
                   const intakeSteps: IntakeStep[] = ['goal', 'experience', 'injection', 'details'];
+                  const stepLabels: Record<IntakeStep, string> = { goal: 'الهدف', experience: 'الخبرة', injection: 'الحقن', details: 'التفاصيل', done: '' };
                   const totalSteps = intakeSteps.length;
                   const currentStep = Math.max(1, intakeSteps.indexOf(intakeStep) + 1);
                   return (
                     <div className="mb-4">
-                      <div className="flex justify-between text-xs text-stone-500 dark:text-stone-400 mb-1">
-                        <span>الخطوة {currentStep} من {totalSteps}</span>
+                      <div className="flex justify-between text-xs text-stone-500 dark:text-stone-400 mb-1.5">
+                        <span className="font-medium">{stepLabels[intakeStep]}</span>
+                        <span>{currentStep} / {totalSteps}</span>
                       </div>
-                      <div className="h-1 rounded-full bg-stone-200 dark:bg-stone-700">
-                        <div className="h-1 rounded-full bg-emerald-500 transition-all" style={{ width: `${(currentStep / totalSteps) * 100}%` }} />
+                      <div className="h-1.5 rounded-full bg-stone-200 dark:bg-stone-700 overflow-hidden">
+                        <div className="h-1.5 rounded-full bg-emerald-500 transition-all duration-500 ease-out" style={{ width: `${(currentStep / totalSteps) * 100}%` }} />
+                      </div>
+                      <div className="mt-1.5 flex justify-between">
+                        {intakeSteps.map((step, idx) => (
+                          <span key={step} className={cn('text-[10px]', idx + 1 <= currentStep ? 'text-emerald-600 dark:text-emerald-400 font-medium' : 'text-stone-400 dark:text-stone-500')}>
+                            {stepLabels[step]}
+                          </span>
+                        ))}
                       </div>
                     </div>
                   );

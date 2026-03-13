@@ -361,8 +361,9 @@ export default function PeptideDetail() {
                     <th
                       scope="row"
                       className={cn(
-                        'w-[35%] px-5 py-5 align-top text-sm font-semibold text-start',
+                        'w-[35%] px-5 py-5 align-top text-sm font-semibold text-start sticky start-0 z-[1]',
                         row.highlight ? 'text-emerald-700' : 'text-stone-800 dark:text-stone-200',
+                        i % 2 === 0 ? 'bg-stone-50 dark:bg-stone-900' : 'bg-white dark:bg-stone-950',
                       )}
                     >
                       {row.label}
@@ -565,8 +566,9 @@ export default function PeptideDetail() {
                       <th
                         scope="row"
                         className={cn(
-                          'w-[35%] px-5 py-5 align-top text-sm font-semibold text-start',
+                          'w-[35%] px-5 py-5 align-top text-sm font-semibold text-start sticky start-0 z-[1]',
                           row.highlight ? 'text-emerald-700' : 'text-stone-800 dark:text-stone-200',
+                          i % 2 === 0 ? 'bg-stone-50 dark:bg-stone-900' : 'bg-white dark:bg-stone-950',
                         )}
                       >
                         {row.label}
@@ -595,7 +597,10 @@ export default function PeptideDetail() {
                       >
                         <th
                           scope="row"
-                          className="w-[35%] px-5 py-5 align-top text-sm font-semibold text-start text-stone-800 dark:text-stone-200"
+                          className={cn(
+                            'w-[35%] px-5 py-5 align-top text-sm font-semibold text-start text-stone-800 dark:text-stone-200 sticky start-0 z-[1]',
+                            i % 2 === 0 ? 'bg-stone-50 dark:bg-stone-900' : 'bg-white dark:bg-stone-950',
+                          )}
                         >
                           {row.label}
                         </th>
@@ -618,11 +623,15 @@ export default function PeptideDetail() {
                     <span key={field} className="rounded-full border border-stone-200 dark:border-stone-600 bg-stone-50 dark:bg-stone-900 px-2.5 py-1">{field}</span>
                   ))}
                 </div>
+                <div className="mt-2 flex flex-col items-center gap-2 text-sm text-stone-700 dark:text-stone-200">
+                  <p><span className="font-bold">أساسي ({PRICING.essentials.label}/شهر):</span> البروتوكول الكامل</p>
+                  <p><span className="font-bold">متقدم ({PRICING.elite.label}/شهر):</span> + المدرب الذكي بلا حدود</p>
+                </div>
                 <Link
                   to="/pricing"
                   className="mt-2 rounded-full bg-emerald-600 px-8 py-3.5 text-base font-semibold text-white transition-all hover:bg-emerald-700 shadow-md"
                 >
-                  افتح البروتوكول الكامل — {PRICING.essentials.label}/شهريًا
+                  افتح البروتوكول الكامل — يبدأ من {PRICING.essentials.label}/شهريًا
                 </Link>
                 <p className="text-xs text-stone-500 dark:text-stone-300">وصول فوري إلى {PEPTIDE_COUNT}+ ببتيد • إلغاء في أي وقت</p>
               </div>
