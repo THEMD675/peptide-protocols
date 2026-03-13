@@ -216,10 +216,19 @@ async function main() {
   const { server, port } = await startServer();
   const baseUrl = `http://127.0.0.1:${port}`;
 
-  const browser = await puppeteer.launch({
-    headless: true,
-    args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage'],
-  });
+  let browser;
+  try {
+    browser = await puppeteer.launch({
+      headless: true,
+      args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage'],
+    });
+  } catch (launchErr) {
+    console.log('Puppeteer launch failed:', launchErr.message);
+    console.log('Falling back to lightweight metadata injection');
+    server.close();
+    lightweightPrerender(routes, peptideNames);
+    return;
+  }
 
   let success = 0;
   let failed = 0;
@@ -301,6 +310,15 @@ async function main() {
 
 main().catch((err) => {
   console.warn('Prerender failed (non-fatal):', err.message);
-  // Don't fail the build — SPA still works without prerendered HTML
-  process.exit(0);
+  // Last resort: try lightweight fallback even if main() crashed
+  try {
+    const peptideIds = extractPeptideIds();
+    const peptideNames = extractPeptideNames();
+    const routes = [...STATIC_ROUTES, ...peptideIds.map((id) => `/peptide/${id}`)];
+    console.log('Attempting lightweight metadata injection as last resort...');
+    lightweightPrerender(routes, peptideNames);
+  } catch (fallbackErr) {
+    console.warn('Lightweight fallback also failed:', fallbackErr.message);
+    process.exit(0);
+  }
 });
