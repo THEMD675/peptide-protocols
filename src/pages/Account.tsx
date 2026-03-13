@@ -288,15 +288,15 @@ export default function Account() {
 
     try {
       const [logsRes, protosRes, reviewsRes, communityRes, subsRes, wellnessRes, labRes, sideEffectRes, profileRes] = await Promise.all([
-        trackQuery(supabase.from('injection_logs').select('*').eq('user_id', user.id)),
-        trackQuery(supabase.from('user_protocols').select('*').eq('user_id', user.id)),
-        trackQuery(supabase.from('reviews').select('*').eq('user_id', user.id)),
-        trackQuery(supabase.from('community_logs').select('*').eq('user_id', user.id)),
-        trackQuery(supabase.from('subscriptions').select('*').eq('user_id', user.id)),
-        trackQuery(supabase.from('wellness_logs').select('*').eq('user_id', user.id)),
-        trackQuery(supabase.from('lab_results').select('*').eq('user_id', user.id)),
-        trackQuery(supabase.from('side_effect_logs').select('*').eq('user_id', user.id)),
-        trackQuery(supabase.from('user_profiles').select('*').eq('user_id', user.id)),
+        trackQuery(supabase.from('injection_logs').select('id, peptide_name, dose, dose_unit, injection_site, notes, logged_at, protocol_id, created_at').eq('user_id', user.id)),
+        trackQuery(supabase.from('user_protocols').select('id, peptide_id, dose, dose_unit, frequency, cycle_weeks, started_at, status, created_at').eq('user_id', user.id)),
+        trackQuery(supabase.from('reviews').select('id, rating, title, body, name, is_approved, is_verified, helpful_count, created_at, updated_at').eq('user_id', user.id)),
+        trackQuery(supabase.from('community_logs').select('id, content, category, rating, upvotes, peptide_name, goal, protocol, duration_weeks, results, likes, display_name, created_at, updated_at').eq('user_id', user.id)),
+        trackQuery(supabase.from('subscriptions').select('id, status, tier, stripe_customer_id, stripe_subscription_id, trial_start, trial_end, trial_ends_at, current_period_end, cancel_at_period_end, referral_code, referred_by, grant_source, billing_interval, created_at, updated_at').eq('user_id', user.id)),
+        trackQuery(supabase.from('wellness_logs').select('id, energy, sleep, pain, mood, appetite, weight_kg, notes, logged_at, created_at').eq('user_id', user.id)),
+        trackQuery(supabase.from('lab_results').select('id, test_date, lab_name, results, notes, created_at').eq('user_id', user.id)),
+        trackQuery(supabase.from('side_effect_logs').select('id, symptom, severity, peptide_id, notes, protocol_id, logged_at, created_at').eq('user_id', user.id)),
+        trackQuery(supabase.from('user_profiles').select('id, display_name, weight_kg, goals, avatar_url, age, gender, current_medications, medical_conditions, injection_preference, onboarding_goals, onboarding_completed_at, email_notifications_enabled, product_updates_enabled, created_at, updated_at').eq('user_id', user.id)),
       ]);
       if (logsRes.error || protosRes.error || reviewsRes.error) {
         toast.error('تعذّر تحميل بعض البيانات. حاول مرة أخرى.');

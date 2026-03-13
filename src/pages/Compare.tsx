@@ -350,6 +350,8 @@ export default function Compare() {
         <meta name="twitter:title" content="مقارنة الببتيدات | pptides" />
         <meta name="twitter:description" content="قارن بين الببتيدات جنبًا إلى جنب — الجرعات والفوائد والأعراض" />
         <meta name="twitter:image" content={`${SITE_URL}/og-image.jpg`} />
+        <meta property="og:url" content={`${SITE_URL}/compare`} />
+        <link rel="canonical" href={`${SITE_URL}/compare`} />
       </Helmet>
 
       {/* Header */}

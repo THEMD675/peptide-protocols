@@ -339,7 +339,7 @@ function useActiveProtocols(userId: string | undefined) {
     if (!userId) return;
     const { data, error } = await supabase
       .from('user_protocols')
-      .select('*')
+      .select('id, peptide_id, dose, dose_unit, frequency, cycle_weeks, started_at, status')
       .eq('user_id', userId)
       .eq('status', 'active')
       .order('started_at', { ascending: false });

@@ -80,7 +80,7 @@ export default function WellnessCheckin() {
     try {
       const { data, error } = await supabase
         .from('wellness_logs')
-        .select('*')
+        .select('id, energy, sleep, pain, mood, appetite, weight_kg, notes, logged_at')
         .eq('user_id', user.id)
         .order('logged_at', { ascending: false })
         .limit(7);

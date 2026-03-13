@@ -61,7 +61,7 @@ export default function SideEffectLog() {
     try {
       const { data, error } = await supabase
         .from('side_effect_logs')
-        .select('*')
+        .select('id, symptom, severity, notes, peptide_id, created_at')
         .eq('user_id', user.id)
         .order('created_at', { ascending: false })
         .limit(50);

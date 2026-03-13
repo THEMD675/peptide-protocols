@@ -621,7 +621,7 @@ export default function LabResultsTracker() {
     try {
       const { data, error } = await supabase
         .from('lab_results')
-        .select('*')
+        .select('id, user_id, test_date, lab_name, results, notes, created_at')
         .eq('user_id', user.id)
         .order('test_date', { ascending: false })
         .limit(100);

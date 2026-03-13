@@ -176,7 +176,7 @@ export default function TrackerHistory({
     try {
       const { data: allLogs, error } = await supabase
         .from('injection_logs')
-        .select('*')
+        .select('peptide_name, dose, dose_unit, injection_site, logged_at, notes')
         .eq('user_id', userId)
         .order('logged_at', { ascending: false })
         .limit(10000);
@@ -214,7 +214,7 @@ export default function TrackerHistory({
     try {
       const { data: allLogs, error } = await supabase
         .from('injection_logs')
-        .select('*')
+        .select('peptide_name, dose, dose_unit, injection_site, logged_at')
         .eq('user_id', userId)
         .order('logged_at', { ascending: false })
         .limit(10000);

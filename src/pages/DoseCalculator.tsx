@@ -517,6 +517,10 @@ export default function DoseCalculator() {
       </Helmet>
 
       <div className="mx-auto max-w-4xl px-4 pt-8 pb-24 md:px-6 md:pt-12">
+        <div role="alert" className="mb-6 rounded-xl border border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-900/20 px-4 py-3 text-sm text-amber-700 dark:text-amber-400 flex items-start gap-2">
+          <Shield className="h-5 w-5 mt-0.5 shrink-0" />
+          <p>هذه الحاسبة للأغراض التعليمية فقط — لا تُعتبر وصفة طبية. استشر طبيبك قبل تعديل أي جرعة.</p>
+        </div>
         {/* Header */}
         <div className="mb-10 text-center">
           <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-500/10">
