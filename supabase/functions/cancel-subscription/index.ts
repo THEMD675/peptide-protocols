@@ -103,7 +103,7 @@ serve(async (req) => {
         })
       } catch (e) {
         console.error('apply_retention_coupon error:', e)
-        return new Response(JSON.stringify({ error: 'Failed to apply coupon' }), {
+        return new Response(JSON.stringify({ error: 'تعذّر تطبيق الخصم', coupon_failed: true }), {
           status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         })
       }
@@ -198,7 +198,7 @@ serve(async (req) => {
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         })
       }
-      return new Response(JSON.stringify({ error: 'Payment provider error' }), {
+      return new Response(JSON.stringify({ error: 'خطأ في مزوّد الدفع — حاول لاحقاً' }), {
         status: 502,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       })
@@ -214,11 +214,13 @@ serve(async (req) => {
 
     if (dbUpdateErr) {
       console.error('cancel-subscription: DB update after Stripe cancel failed:', dbUpdateErr)
+      // Return success — Stripe cancel succeeded. Webhook will eventually sync DB.
       return new Response(JSON.stringify({
-        error: 'تم إلغاء الاشتراك في Stripe لكن تعذّر تحديث قاعدة البيانات. حدّث الصفحة.',
-        stripe_cancelled: true
+        success: true,
+        stripe_cancelled: true,
+        db_sync_pending: true,
+        cancel_at: periodEnd,
       }), {
-        status: 500,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       })
     }

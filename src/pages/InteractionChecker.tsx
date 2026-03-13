@@ -333,7 +333,7 @@ export default function InteractionChecker() {
                 value={sel}
                 onChange={(e) => updateSlot(idx, e.target.value)}
                 aria-label={`اختر الببتيد ${idx + 1}`}
-                className={cn('flex-1 rounded-xl border border-stone-300 dark:border-stone-600 bg-stone-50 dark:bg-stone-900 px-4 py-3 text-sm focus:border-emerald-300 dark:border-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900', sel ? 'text-stone-900 dark:text-stone-100' : 'text-stone-500 dark:text-stone-300 italic')}
+                className={cn('flex-1 rounded-xl border border-stone-300 dark:border-stone-600 bg-stone-50 dark:bg-stone-900 px-4 py-3 text-sm focus:border-emerald-300 dark:border-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-500', sel ? 'text-stone-900 dark:text-stone-100' : 'text-stone-500 dark:text-stone-300 italic')}
               >
                 <option value="">اختر ببتيد أو دواء...</option>
                 <optgroup label="الببتيدات">

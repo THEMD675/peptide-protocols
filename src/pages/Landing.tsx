@@ -298,7 +298,7 @@ export default function Landing() {
       {/* ═══════ HERO ═══════ */}
       <section className="relative bg-gradient-to-b from-white dark:from-stone-950 via-stone-50 dark:via-stone-900 to-stone-50 dark:to-stone-900">
         <div className="pointer-events-none absolute inset-0 overflow-hidden">
-          <div className="absolute start-1/2 top-0 h-[600px] max-w-[800px] w-full -translate-x-1/2 bg-[radial-gradient(ellipse_at_center,rgba(16,185,129,0.07)_0%,transparent_60%)]" />
+          <div className="absolute start-1/2 top-0 h-[600px] max-w-[800px] w-full ltr:-translate-x-1/2 rtl:translate-x-1/2 bg-[radial-gradient(ellipse_at_center,rgba(16,185,129,0.07)_0%,transparent_60%)]" />
         </div>
 
         <div className="relative mx-auto max-w-5xl px-6 pb-6 pt-10 text-center md:pt-16 md:pb-8">

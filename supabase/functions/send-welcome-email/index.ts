@@ -100,7 +100,7 @@ serve(async (req) => {
       })
     }
 
-    const { email, name, referralCode } = body
+    let { email, name, referralCode } = body
 
     if (!email) {
       return new Response(JSON.stringify({ error: 'Missing required field: email' }), {
@@ -229,7 +229,7 @@ serve(async (req) => {
 
     if (!emailResult.ok) {
       console.error('send-welcome-email error:', emailResult.error)
-      return new Response(JSON.stringify({ error: 'Email service error' }), {
+      return new Response(JSON.stringify({ error: 'تعذّر إرسال البريد' }), {
         status: 502,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       })
@@ -246,6 +246,7 @@ serve(async (req) => {
     }
 
     // Handle referral tracking with service role (bypasses RLS)
+    if (referralCode) referralCode = referralCode.toUpperCase()
     if (referralCode && /^PP-[A-Z0-9]{6}$/.test(referralCode) && serviceSupabase) {
       try {
         // Find the referrer by their referral code
@@ -299,7 +300,7 @@ serve(async (req) => {
     })
   } catch (error) {
     console.error('send-welcome-email unhandled error:', error)
-    return new Response(JSON.stringify({ error: 'Failed to send email' }), {
+    return new Response(JSON.stringify({ error: 'تعذّر إرسال البريد' }), {
       status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     })

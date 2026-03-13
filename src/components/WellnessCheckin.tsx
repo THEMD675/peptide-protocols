@@ -253,7 +253,7 @@ export default function WellnessCheckin() {
               min="20"
               max="300"
               dir="ltr"
-              className="w-full rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 px-4 py-2.5 text-base text-stone-900 dark:text-stone-100 placeholder:text-stone-500 dark:text-stone-300 focus:border-emerald-300 dark:border-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900 disabled:bg-stone-50 dark:bg-stone-900 disabled:text-stone-500 dark:text-stone-300"
+              className="w-full rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 px-4 py-2.5 text-base text-stone-900 dark:text-stone-100 placeholder:text-stone-500 dark:text-stone-300 focus:border-emerald-300 dark:border-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-500 disabled:bg-stone-50 dark:bg-stone-900 disabled:text-stone-500 dark:text-stone-300"
             />
           </div>
 
@@ -269,7 +269,7 @@ export default function WellnessCheckin() {
               placeholder="كيف تشعر اليوم؟"
               rows={2}
               maxLength={200}
-              className="w-full resize-none rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 px-4 py-2.5 text-base text-stone-900 dark:text-stone-100 placeholder:text-stone-500 dark:text-stone-300 focus:border-emerald-300 dark:border-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900 disabled:bg-stone-50 dark:bg-stone-900 disabled:text-stone-500 dark:text-stone-300"
+              className="w-full resize-none rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 px-4 py-2.5 text-base text-stone-900 dark:text-stone-100 placeholder:text-stone-500 dark:text-stone-300 focus:border-emerald-300 dark:border-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-500 disabled:bg-stone-50 dark:bg-stone-900 disabled:text-stone-500 dark:text-stone-300"
             />
           </div>
 

@@ -154,6 +154,7 @@ const ERROR_MESSAGES: Record<string, string> = {
   '__ERROR__:503': 'الخدمة تحت الصيانة — حاول مرة أخرى بعد قليل.',
   '__ERROR__:504': 'انتهت مهلة الاتصال — حاول مرة أخرى.',
   '__ERROR__:408': 'انتهت مهلة الطلب — حاول مرة أخرى.',
+  '__ERROR__:TIMEOUT': 'تم قطع الاتصال — حاول مرة أخرى',
   '__ERROR__': 'خدمة المدرب الذكي غير متاحة حاليًا — حاول مرة أخرى لاحقًا',
 };
 
@@ -333,12 +334,16 @@ export default function Coach() {
   // Track current conversation row ID for multi-conversation support
   const [conversationId, setConversationId] = useState<string | null>(null);
   const [convLoadError, setConvLoadError] = useState(false);
+  const [isLoadingConversation, setIsLoadingConversation] = useState(false);
+  const isLoadingConversationRef = useRef(false);
 
   // Hydrate from Supabase (load most recent conversation)
   const supabaseLoadedRef = useRef(false);
   const loadConversations = useCallback(() => {
     if (!user?.id) return;
     setConvLoadError(false);
+    setIsLoadingConversation(true);
+    isLoadingConversationRef.current = true;
     supabase
       .from('coach_conversations')
       .select('id, messages')
@@ -353,7 +358,8 @@ export default function Coach() {
           setIntakeStep('done');
         }
       })
-      .catch((err) => { logError('conversation load failed', err); setConvLoadError(true); });
+      .catch((err) => { logError('conversation load failed', err); setConvLoadError(true); })
+      .finally(() => { setIsLoadingConversation(false); isLoadingConversationRef.current = false; });
   }, [user?.id]);
 
   // Reset supabaseLoadedRef when user changes (re-login)
@@ -471,7 +477,7 @@ export default function Coach() {
 
   const sendToAI = useCallback(async (content: string) => {
     const trimmed = content.trim();
-    if (!trimmed || isLoadingRef.current) return;
+    if (!trimmed || isLoadingRef.current || isLoadingConversationRef.current) return;
     if (showDeepSeekConsent) setConsentGiven();
     isLoadingRef.current = true;
     events.coachMessage();
@@ -529,7 +535,7 @@ export default function Coach() {
       const decoder = new TextDecoder();
       let accumulated = '';
       let buffer = '';
-      streamTimeout = setTimeout(() => controller.abort(), 60_000);
+      streamTimeout = setTimeout(() => controller.abort(), 120_000);
 
       setMessages(prev => [...prev, { role: 'assistant', content: '', timestamp: Date.now() }]);
 
@@ -575,10 +581,11 @@ export default function Coach() {
       }
     } catch (err) {
       logError('coach send failed', err);
+      const isAbort = err instanceof DOMException && err.name === 'AbortError';
       const msg = err instanceof Error ? err.message : '';
       const statusMatch = msg.match(/^(\d+)/);
       const status = statusMatch ? statusMatch[1] : '';
-      const errorTag = status === '429' ? '__ERROR__:429' : status === '403' ? '__ERROR__:403' : status === '401' ? '__ERROR__:401' : status === '500' ? '__ERROR__:500' : '__ERROR__';
+      const errorTag = isAbort ? '__ERROR__:TIMEOUT' : status === '429' ? '__ERROR__:429' : status === '403' ? '__ERROR__:403' : status === '401' ? '__ERROR__:401' : status === '500' ? '__ERROR__:500' : '__ERROR__';
       // Start countdown timer for rate limit errors
       if (status === '429') {
         const retryMatch = msg.match(/retry=(\d+)/);
@@ -1299,12 +1306,12 @@ export default function Coach() {
                       <textarea value={input} onChange={e => setInput(e.target.value)}
                         onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendToAI(input); } }}
                         onInput={e => { const t = e.currentTarget; t.style.height = 'auto'; t.style.height = Math.min(t.scrollHeight, 120) + 'px'; }}
-                        placeholder="اكتب سؤالك هنا..." rows={2} maxLength={2000} disabled={isLoading}
+                        placeholder={isLoadingConversation ? 'جارٍ تحميل المحادثة...' : 'اكتب سؤالك هنا...'} rows={2} maxLength={2000} disabled={isLoading || isLoadingConversation}
                         dir="rtl"
                         aria-label="اكتب رسالتك"
-                        className={cn('flex-1 resize-none rounded-xl border border-stone-200 dark:border-stone-600 bg-stone-50 dark:bg-stone-900 px-4 py-3 text-sm text-stone-900 dark:text-stone-100 placeholder:text-stone-500 dark:text-stone-300 focus:border-emerald-300 dark:border-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900', isLoading && 'opacity-60')} />
-                      <button onClick={() => sendToAI(input)} disabled={!input.trim() || isLoading}
-                        className={cn('flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-emerald-600 transition-all shadow-sm', input.trim() && !isLoading ? 'hover:bg-emerald-700 active:scale-[0.98]' : 'opacity-40')}>
+                        className={cn('flex-1 resize-none rounded-xl border border-stone-200 dark:border-stone-600 bg-stone-50 dark:bg-stone-900 px-4 py-3 text-sm text-stone-900 dark:text-stone-100 placeholder:text-stone-500 dark:text-stone-300 focus:border-emerald-300 dark:border-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900', (isLoading || isLoadingConversation) && 'opacity-60')} />
+                      <button onClick={() => sendToAI(input)} disabled={!input.trim() || isLoading || isLoadingConversation}
+                        className={cn('flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-emerald-600 transition-all shadow-sm', input.trim() && !isLoading && !isLoadingConversation ? 'hover:bg-emerald-700 active:scale-[0.98]' : 'opacity-40')}>
                         <Send className="h-5 w-5 text-white" /><span className="sr-only">إرسال</span>
                       </button>
                     </div>

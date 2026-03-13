@@ -77,7 +77,7 @@ serve(async (req) => {
 
     const session = await stripe.billingPortal.sessions.create({
       customer: sub.stripe_customer_id,
-      return_url: `${appUrl}/account`,
+      return_url: `${appUrl}/account?portal_return=1`,
     })
 
     return new Response(JSON.stringify({ url: session.url }), {

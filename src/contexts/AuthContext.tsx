@@ -21,7 +21,7 @@ function fireAndForgetFetch(url: string, opts: RequestInit, label: string) {
 type SubscriptionTier = 'free' | 'essentials' | 'elite';
 
 export interface Subscription {
-  status: 'trial' | 'active' | 'past_due' | 'cancelled' | 'expired' | 'none';
+  status: 'trial' | 'active' | 'past_due' | 'cancelled' | 'expired' | 'disputed' | 'none';
   tier: SubscriptionTier;
   trialDaysLeft: number;
   isProOrTrial: boolean;
@@ -117,7 +117,7 @@ export function buildSubscription(row: Record<string, unknown> | null): Subscrip
   let status: Subscription['status'];
   if (dbStatus === 'trial' && trialDaysLeft <= 0) {
     status = 'expired';
-  } else if (dbStatus === 'trial' || dbStatus === 'active' || dbStatus === 'past_due' || dbStatus === 'expired' || dbStatus === 'cancelled') {
+  } else if (dbStatus === 'trial' || dbStatus === 'active' || dbStatus === 'past_due' || dbStatus === 'expired' || dbStatus === 'cancelled' || dbStatus === 'disputed') {
     status = dbStatus as Subscription['status'];
   } else {
     status = 'none';
@@ -131,8 +131,8 @@ export function buildSubscription(row: Record<string, unknown> | null): Subscrip
     (periodEnd.getTime() + 7 * 24 * 60 * 60 * 1000) > nowUtcMs;
 
   const isProOrTrial =
-    (status === 'trial' && trialDaysLeft > 0) || status === 'active' || pastDueGrace || cancelledButActive;
-  const isPaidSubscriber = status === 'active' || status === 'past_due' || cancelledButActive;
+    (status === 'trial' && trialDaysLeft > 0) || status === 'active' || status === 'disputed' || pastDueGrace || cancelledButActive;
+  const isPaidSubscriber = status === 'active' || status === 'past_due' || status === 'disputed' || cancelledButActive;
 
   const isTrial = status === 'trial' && trialDaysLeft > 0;
 
@@ -211,7 +211,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             }
             // JWT refresh succeeded but retry still failed — keep previous state
             subFetchFailCountRef.current += 1;
-            toast.error('تعذّر تحديث حالة الاشتراك');
+            toast.error('تعذّر تحديث حالة الاشتراك', { id: 'sub-fetch-error' });
             if (subFetchFailCountRef.current >= 3) {
               setSubscriptionError(true);
             }
@@ -228,7 +228,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         // Non-JWT error — keep previous state, increment failure counter
         logError('subscription fetch error', error);
         subFetchFailCountRef.current += 1;
-        toast.error('تعذّر تحديث حالة الاشتراك');
+        toast.error('تعذّر تحديث حالة الاشتراك', { id: 'sub-fetch-error' });
         if (subFetchFailCountRef.current >= 3) {
           setSubscriptionError(true);
         }
@@ -281,10 +281,27 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     let cancelled = false;
     let timer: ReturnType<typeof setTimeout>;
     let attempts = 0;
+
+    // Check if subscription is already active before starting poll
+    const preCheck = async () => {
+      try {
+        const { data } = await supabase.from('subscriptions').select('status, tier').eq('user_id', user.id).maybeSingle();
+        if (data?.status === 'active' || data?.status === 'trial') {
+          await fetchSubscription(user.id);
+          cleanUrl();
+          toast.success('تم تفعيل اشتراكك بنجاح!');
+          if (window.location.pathname !== '/dashboard') navigate('/dashboard');
+          return true;
+        }
+      } catch { /* proceed to polling */ }
+      return false;
+    };
+    preCheck().then(alreadyActive => { if (!alreadyActive && !cancelled) poll(); });
+
     const poll = async () => {
       if (cancelled) return;
       attempts++;
-      if (attempts % 4 === 0) toast('لا زلنا نتحقق... يرجى الانتظار');
+      if (attempts % 8 === 0) toast('لا زلنا نتحقق... يرجى الانتظار');
       try {
         const { data, error: pollError } = await supabase
           .from('subscriptions')
@@ -316,7 +333,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         else {
           await fetchSubscription(user.id);
           cleanUrl();
-          toast.error('لم يتم تفعيل اشتراكك تلقائياً — حاول تحديث الصفحة أو تواصل معنا', { duration: 10000 });
+          toast.error('لم يتم تفعيل اشتراكك تلقائياً', {
+            duration: Infinity,
+            action: { label: 'إعادة المحاولة', onClick: () => window.location.reload() },
+          });
         }
       } catch {
         if (cancelled) return;
@@ -324,13 +344,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return;
       }
     };
-    poll();
     return () => { cancelled = true; clearTimeout(timer); };
   }, [user, fetchSubscription, navigate]);
 
   const hadSessionRef = useRef(false);
   const initDoneRef = useRef(false);
   const fetchPromiseRef = useRef<Promise<void> | null>(null);
+  const lastFetchedUserIdRef = useRef<string | null>(null);
+  const welcomeEmailSentRef = useRef(false);
 
   useEffect(() => {
     // eslint-disable-next-line prefer-const -- reassigned on line below
@@ -354,11 +375,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         const mapped = mapUser(session.user);
         setUser(mapped);
         if (mapped) {
-          if (fetchPromiseRef.current) {
+          if (fetchPromiseRef.current && mapped.id === lastFetchedUserIdRef.current) {
             await fetchPromiseRef.current;
           } else {
             const p = fetchSubscription(mapped.id);
             fetchPromiseRef.current = p;
+            lastFetchedUserIdRef.current = mapped.id;
             try { await p; } finally { fetchPromiseRef.current = null; }
           }
           syncProfile(mapped.id, session.user);
@@ -374,8 +396,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         if (event === 'SIGNED_OUT') clearPptidesStorage();
       }
     };
-
-    const welcomeEmailSentRef = { current: false };
 
     const { data: { subscription: authListener } } = supabase.auth.onAuthStateChange(
       async (event: string, session: Session | null) => {
@@ -434,7 +454,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     timeout = setTimeout(() => {
       if (!initDoneRef.current) {
-        if (fetchingRef.current) {
+        if (fetchPromiseRef.current) {
           // Subscription fetch still in flight — don't set isLoading false yet or we break
           // ProtectedRoute/TrialBanner (they'd see default subscription). Let the fetch complete.
           return;
@@ -458,7 +478,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       // 16.5: Debounce storage events and check fetchingRef to prevent race conditions
       clearTimeout(debounceTimer);
       debounceTimer = setTimeout(async () => {
-        if (fetchingRef.current) return;
+        if (fetchPromiseRef.current) return;
         const { data: { user: currentUser } } = await supabase.auth.getUser();
         if (currentUser) {
           fetchSubRef.current(currentUser.id);
@@ -476,12 +496,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const handleVisibility = () => {
       if (document.visibilityState === 'visible' && user) {
         supabase.auth.refreshSession().then(({ data: { session } }) => {
+          if (!user) return; // User logged out while tab was hidden
           if (!session) {
             setUser(null);
             setSubscription(DEFAULT_SUBSCRIPTION);
             toast.error('انتهت الجلسة — يرجى تسجيل الدخول مرة أخرى');
           } else {
-            fetchSubRef.current(user.id);
+            fetchSubRef.current(session.user.id);
           }
         }).catch((err) => { logError('Visibility refresh failed:', err); });
       }
@@ -585,7 +606,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (!user) return;
     const isTrial = subscription.status === 'trial' && subscription.trialDaysLeft > 0;
     const isActive = subscription.status === 'active' || subscription.status === 'past_due';
-    if (!isTrial && !isActive) return;
+    const isCancelledButActive = subscription.status === 'cancelled' && subscription.isPaidSubscriber;
+    if (!isTrial && !isActive && !isCancelledButActive) return;
     const intervalMs = isTrial ? 30_000 : 300_000;
     const jitter = Math.random() * intervalMs * 0.2;
     const interval = setInterval(() => { fetchSubscription(user.id); }, intervalMs + jitter);
@@ -619,7 +641,35 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       });
 
       if (!res.ok) {
+        // Handle 401 — refresh JWT and retry once
+        if (res.status === 401) {
+          const { data: refreshData } = await supabase.auth.refreshSession();
+          if (refreshData?.session) {
+            const retryRes = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/create-checkout`, {
+              method: 'POST',
+              signal: AbortSignal.timeout(15000),
+              headers: {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${refreshData.session.access_token}`,
+                apikey: import.meta.env.VITE_SUPABASE_ANON_KEY,
+              },
+              body: JSON.stringify(body),
+            });
+            if (retryRes.ok) {
+              const retryData = await retryRes.json();
+              if (retryData.reactivated) { await refreshSubscription(); toast.success('تم إعادة تفعيل اشتراكك بنجاح!'); navigate('/dashboard'); return; }
+              if (retryData.url) { window.location.href = retryData.url; return; }
+            }
+          }
+          throw new Error('انتهت الجلسة — يرجى تسجيل الدخول مرة أخرى');
+        }
         const err = await res.json().catch(() => ({}));
+        // Handle alreadySubscribed
+        if (err.alreadySubscribed) {
+          toast.info(err.error || 'لديك اشتراك فعّال بالفعل');
+          await refreshSubscription();
+          return;
+        }
         throw new Error(err.error ?? 'Checkout failed');
       }
 
@@ -656,7 +706,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   return (
     <AuthContext.Provider value={contextValue}>
       {subscriptionError && user && (
-        <div role="dialog" aria-modal="true" className="fixed inset-0 z-[60] flex items-center justify-center bg-stone-900/80 backdrop-blur-sm">
+        <div role="dialog" aria-modal="true" className="fixed inset-0 z-[70] flex items-center justify-center bg-stone-900/80 backdrop-blur-sm">
           <div className="mx-4 w-full max-w-md rounded-2xl bg-white dark:bg-stone-900 p-10 text-center shadow-2xl">
             <h2 className="mb-3 text-2xl font-bold text-stone-900 dark:text-stone-100">حدث خطأ في تحميل اشتراكك</h2>
             <p className="mb-6 text-stone-700 dark:text-stone-200">تعذّر الاتصال بالخادم. تحقق من اتصالك بالإنترنت وحاول مرة أخرى.</p>

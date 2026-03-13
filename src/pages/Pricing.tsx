@@ -99,6 +99,7 @@ export default function Pricing() {
   const [loadingPlan, setLoadingPlan] = useState<string | null>(null);
   const [billingCycle, setBillingCycle] = useState<'monthly' | 'annual'>('monthly');
   const [userCount, setUserCount] = useState(0);
+  const [isLoadingPortal, setIsLoadingPortal] = useState(false);
   const navigatingRef = useRef(false);
 
   // Capture coupon on first render so setSearchParams({}) doesn't lose it
@@ -108,6 +109,13 @@ export default function Pricing() {
   const couponFromUrl = checkoutCoupon || offer.coupon || initialCouponRef.current;
 
   useEffect(() => { navigatingRef.current = false; events.pricingView(); return () => { navigatingRef.current = false; }; }, []);
+
+  // Fix: BFCache restore resets navigatingRef so checkout button works after Back
+  useEffect(() => {
+    const h = (e: PageTransitionEvent) => { if (e.persisted) { navigatingRef.current = false; setLoadingPlan(null); } };
+    window.addEventListener('pageshow', h);
+    return () => window.removeEventListener('pageshow', h);
+  }, []);
 
   useEffect(() => {
     let mounted = true;
@@ -145,6 +153,8 @@ export default function Pricing() {
     }
     const cancelledButActive = user && subscription?.status === 'cancelled' && subscription?.currentPeriodEnd && new Date(subscription.currentPeriodEnd) > new Date();
     const openPortal = async () => {
+      if (isLoadingPortal) return;
+      setIsLoadingPortal(true);
       try {
         const { data: { session } } = await supabase.auth.getSession();
         if (!session?.access_token) { toast.error('يرجى تسجيل الدخول'); return; }
@@ -157,19 +167,21 @@ export default function Pricing() {
         if (!res.ok) { toast.error('تعذّر فتح إدارة الدفع'); return; }
         const { url } = await res.json();
         if (url) window.location.href = url;
-      } catch { toast.error('تعذّر فتح إدارة الدفع. حاول مرة أخرى.'); }
+      } catch { toast.error('تعذّر فتح إدارة الدفع. حاول مرة أخرى.'); } finally { setIsLoadingPortal(false); }
     };
 
     if (cancelledButActive && subscription?.tier === planKey) {
       return (
         <button
           onClick={openPortal}
+          disabled={isLoadingPortal}
           className={cn(
             'inline-flex w-full items-center justify-center gap-2 rounded-full px-8 py-3.5 text-base font-semibold',
-            'border border-amber-300 dark:border-amber-700 bg-amber-50 dark:bg-amber-900/20 text-amber-800 dark:text-amber-300 hover:bg-amber-100 transition-colors'
+            'border border-amber-300 dark:border-amber-700 bg-amber-50 dark:bg-amber-900/20 text-amber-800 dark:text-amber-300 hover:bg-amber-100 transition-colors',
+            isLoadingPortal && 'opacity-70 pointer-events-none'
           )}
         >
-          <RefreshCw className="h-5 w-5" />
+          {isLoadingPortal ? <span className="h-4 w-4 animate-spin rounded-full border-2 border-amber-400/30 border-t-amber-600" /> : <RefreshCw className="h-5 w-5" />}
           {RETENTION.renewCta}
         </button>
       );
@@ -187,9 +199,10 @@ export default function Pricing() {
           </div>
           <button
             onClick={openPortal}
-            className="w-full text-center text-sm font-medium text-emerald-700 dark:text-emerald-400 hover:underline min-h-[44px]"
+            disabled={isLoadingPortal}
+            className={cn("w-full text-center text-sm font-medium text-emerald-700 dark:text-emerald-400 hover:underline min-h-[44px]", isLoadingPortal && 'opacity-70')}
           >
-            إدارة الاشتراك
+            {isLoadingPortal ? 'جارٍ الفتح...' : 'إدارة الاشتراك'}
           </button>
         </div>
       );
@@ -199,13 +212,16 @@ export default function Pricing() {
       return (
         <button
           onClick={openPortal}
+          disabled={isLoadingPortal}
           className={cn(
             'inline-flex w-full items-center justify-center gap-2 rounded-full px-8 py-3.5 text-base font-semibold transition-all',
             isElite
               ? 'bg-emerald-600 text-white hover:bg-emerald-700'
-              : 'border border-stone-300 dark:border-stone-600 text-stone-700 dark:text-stone-200 hover:bg-stone-50 dark:hover:bg-stone-800'
+              : 'border border-stone-300 dark:border-stone-600 text-stone-700 dark:text-stone-200 hover:bg-stone-50 dark:hover:bg-stone-800',
+            isLoadingPortal && 'opacity-70 pointer-events-none'
           )}
         >
+          {isLoadingPortal ? <span className="h-4 w-4 animate-spin rounded-full border-2 border-current/30 border-t-current" /> : null}
           {isElite ? 'ترقية إلى المتقدّمة' : 'تغيير إلى الأساسية'}
         </button>
       );
@@ -220,8 +236,8 @@ export default function Pricing() {
             navigatingRef.current = true;
             setLoadingPlan(planKey);
             events.checkoutStart(planKey, billingCycle);
-            // Reset navigatingRef after 30s if checkout didn't redirect
-            const navTimeout = setTimeout(() => { navigatingRef.current = false; setLoadingPlan(null); }, 30000);
+            // Reset navigatingRef after 15s if checkout didn't redirect
+            const navTimeout = setTimeout(() => { navigatingRef.current = false; setLoadingPlan(null); }, 15000);
             try {
               await upgradeTo(planKey, billingCycle, couponFromUrl);
             } catch (err: unknown) {
@@ -841,7 +857,7 @@ export default function Pricing() {
 
       {/* Mobile sticky CTA */}
       {!subscription?.isProOrTrial && (
-        <div className="fixed bottom-0 inset-x-0 z-50 border-t border-stone-200 dark:border-stone-700 bg-white/95 dark:bg-stone-900/95 backdrop-blur-sm p-3 md:hidden safe-area-pb">
+        <div className="fixed bottom-0 inset-x-0 z-50 border-t border-stone-200 dark:border-stone-700 bg-white/95 dark:bg-stone-900/95 backdrop-blur-sm p-3 md:hidden pb-[env(safe-area-inset-bottom)]">
           {user ? (
             <button
               onClick={async () => {

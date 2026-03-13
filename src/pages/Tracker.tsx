@@ -183,6 +183,7 @@ export default function Tracker() {
   const PAGE_SIZE = 50;
 
   const fetchingLogsRef = useRef(false);
+  const quickLogRef = useRef(false);
   const fetchLogs = useCallback(async () => {
     if (!user || fetchingLogsRef.current) return;
     fetchingLogsRef.current = true;
@@ -239,7 +240,8 @@ export default function Tracker() {
 
   // Quick log for protocol
   const handleQuickLog = async (proto: ActiveProtocol) => {
-    if (!user || isSubmitting) return;
+    if (!user || quickLogRef.current) return;
+    quickLogRef.current = true;
     setIsSubmitting(true);
     try {
       const payload = {
@@ -275,15 +277,16 @@ export default function Tracker() {
       const nextIn = freq === 'bid' ? '12 ساعة' : freq === 'tid' ? '8 ساعات' : 'غدًا';
       nextDoseTimerRef.current = setTimeout(() => toast(`الجرعة التالية: ${nextIn}`, { duration: 5000 }), 2000);
       const newTotal = (totalCount || logs.length) + 1;
-      celebrate(newTotal, computeStreak(allLogsForStats, true));
+      if (statsLoaded) celebrate(newTotal, computeStreak(allLogsForStats, true));
     } catch (err) { logError('injection save failed', err); toast.error('تعذّر حفظ الحقنة — تحقق من اتصالك وحاول مرة أخرى'); }
-    finally { setIsSubmitting(false); }
+    finally { quickLogRef.current = false; setIsSubmitting(false); }
   };
 
   // Quick repeat last injection
   const handleQuickRepeat = async () => {
-    if (!user || isSubmitting || logs.length === 0) return;
+    if (!user || quickLogRef.current || logs.length === 0) return;
     const last = logs[0];
+    quickLogRef.current = true;
     setIsSubmitting(true);
     try {
       const { error } = await supabase.from('injection_logs').insert({
@@ -307,14 +310,15 @@ export default function Tracker() {
       setLastLoggedPeptide(last.peptide_name);
       toast.success(`تم تسجيل ${last.peptide_name} — ${last.dose} ${last.dose_unit}`);
       const newTotal = (totalCount || logs.length) + 1;
-      celebrate(newTotal, computeStreak(allLogsForStats, true));
+      if (statsLoaded) celebrate(newTotal, computeStreak(allLogsForStats, true));
     } catch (err) { logError('quick repeat failed', err); toast.error('تعذّر حفظ الحقنة — تحقق من اتصالك وحاول مرة أخرى'); }
-    finally { setIsSubmitting(false); }
+    finally { quickLogRef.current = false; setIsSubmitting(false); }
   };
 
   // Stats data
   const [fullStatsData, setFullStatsData] = useState<{ uniquePeptides: number; last7: number } | null>(null);
   const [allLogsForStats, setAllLogsForStats] = useState<InjectionLog[]>([]);
+  const [statsLoaded, setStatsLoaded] = useState(false);
   useEffect(() => {
     if (!user) return;
     let mounted = true;
@@ -330,7 +334,8 @@ export default function Tracker() {
       const last7 = rows.filter(r => r.logged_at >= weekAgo).length;
       setFullStatsData({ uniquePeptides: unique, last7 });
       setAllLogsForStats(rows);
-    }).catch((e: unknown) => logError('stats fetch failed:', e));
+      setStatsLoaded(true);
+    }).catch((e: unknown) => { logError('stats fetch failed:', e); if (mounted) setStatsLoaded(true); });
     return () => { mounted = false; };
   }, [user, logs.length]);
 
@@ -345,7 +350,7 @@ export default function Tracker() {
     const hoursSince = Math.floor(msSinceLast / (1000 * 60 * 60));
     const daysSince = Math.floor(hoursSince / 24);
     const timeSinceLabel = daysSince > 0 ? `منذ ${daysSince} يوم` : hoursSince > 0 ? `منذ ${hoursSince} ساعة` : 'الآن';
-    return { totalInjections, uniquePeptides, streak, last7, timeSinceLabel };
+    return { totalInjections, uniquePeptides, streak: statsLoaded ? streak : null, last7, timeSinceLabel };
   }, [logs, streak, totalCount, fullStatsData?.last7, fullStatsData?.uniquePeptides]);
 
   const monthlySummary = useMemo(() => {
@@ -542,7 +547,7 @@ export default function Tracker() {
       </div>
 
       {/* Prominent Streak Counter */}
-      {dashboardStats && dashboardStats.streak > 0 && (
+      {dashboardStats && dashboardStats.streak != null && dashboardStats.streak > 0 && (
         <div className="mb-6 rounded-2xl bg-gradient-to-l from-orange-500 to-amber-500 p-5 text-center shadow-lg">
           <p className="text-3xl font-black text-white sm:text-4xl">{dashboardStats.streak} أيام متتالية</p>
           <p className="mt-1 text-sm font-medium text-white/80">استمر في الالتزام — أنت تبني عادة!</p>
@@ -768,7 +773,7 @@ export default function Tracker() {
                   <p className="text-xs text-stone-500 dark:text-stone-300 mt-1">اختر ببتيد وابدأ بروتوكول منظّم بجرعات وتذكيرات</p>
                 </div>
                 <div className="flex items-center gap-2 w-full sm:w-auto">
-                  <select value={wizardPeptideId} onChange={(e) => setWizardPeptideId(e.target.value)} className="flex-1 sm:w-48 rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 px-3 py-2.5 text-base text-stone-900 dark:text-stone-100 focus:border-emerald-300 dark:border-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900" aria-label="اختر ببتيد للبروتوكول">
+                  <select value={wizardPeptideId} onChange={(e) => setWizardPeptideId(e.target.value)} className="flex-1 sm:w-48 rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 px-3 py-2.5 text-base text-stone-900 dark:text-stone-100 focus:border-emerald-300 dark:border-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-500" aria-label="اختر ببتيد للبروتوكول">
                     <option value="">اختر ببتيد...</option>
                     {allPeptides.filter(p => p.id !== 'melanotan-ii').map(p => (<option key={p.id} value={p.id}>{p.nameAr}</option>))}
                   </select>

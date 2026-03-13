@@ -125,10 +125,10 @@ export default function TrackerForm({
       const ext = photoFile.name.split('.').pop() || 'jpg';
       const path = `injection-photos/${userId}/${Date.now()}.${ext}`;
       const { error } = await supabase.storage.from('user-uploads').upload(path, photoFile, { cacheControl: '31536000', upsert: false });
-      if (error) { logError('Photo upload failed:', error.message); return null; }
+      if (error) { logError('Photo upload failed:', error.message); toast.error('تعذّر رفع الصورة — تم حفظ الحقنة بدون صورة'); return null; }
       const { data: urlData } = supabase.storage.from('user-uploads').getPublicUrl(path);
       return urlData?.publicUrl ?? null;
-    } catch (e) { logError('Photo upload failed:', e); return null; }
+    } catch (e) { logError('Photo upload failed:', e); toast.error('تعذّر رفع الصورة — تم حفظ الحقنة بدون صورة'); return null; }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -139,6 +139,7 @@ export default function TrackerForm({
     if (!allPeptides.some(p => p.nameEn === peptideName.trim())) { toast.error('ببتيد غير معروف'); return; }
     const doseNum = parseFloat(dose);
     if (!dose || isNaN(doseNum) || doseNum <= 0) { toast.error('أدخل جرعة صحيحة'); return; }
+    if (doseNum > 100000) { toast.error('الجرعة كبيرة جداً'); return; }
     if (!injectedAt.trim()) { toast.error('أدخل التاريخ والوقت'); return; }
     const injectedDate = new Date(injectedAt);
     if (Number.isNaN(injectedDate.getTime())) { toast.error('التاريخ والوقت غير صالح'); return; }
@@ -260,6 +261,7 @@ export default function TrackerForm({
               placeholder="250"
               required
               min="0"
+              max="100000"
               step="any"
               dir="ltr"
               aria-invalid={!!isOutOfRange && !doseOutOfRangeConfirmed}
@@ -330,6 +332,7 @@ export default function TrackerForm({
             type="datetime-local"
             value={injectedAt}
             onChange={(e) => setInjectedAt(e.target.value)}
+            min="2020-01-01T00:00"
             max={new Date().toISOString().slice(0, 16)}
             required
             aria-label="التاريخ والوقت"

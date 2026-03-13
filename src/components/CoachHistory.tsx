@@ -47,6 +47,8 @@ export default function CoachHistory({
   const { user } = useAuth();
   const [conversations, setConversations] = useState<CoachConversation[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [hasMore, setHasMore] = useState(false);
   const [open, setOpen] = useState(false);
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
@@ -58,12 +60,13 @@ export default function CoachHistory({
   useEffect(() => {
     mountedRef.current = true;
     if (!user?.id) return;
+    const PAGE_SIZE = 20;
     supabase
       .from('coach_conversations')
       .select('id, messages, updated_at')
       .eq('user_id', user.id)
       .order('updated_at', { ascending: false })
-      .limit(20)
+      .limit(PAGE_SIZE)
       .then(({ data }) => {
         if (!mountedRef.current) return;
         if (data) {
@@ -71,21 +74,43 @@ export default function CoachHistory({
             c => Array.isArray(c.messages) && c.messages.length > 0,
           );
           setConversations(valid);
+          setHasMore(data.length === PAGE_SIZE);
         }
         setLoading(false);
       });
     return () => { mountedRef.current = false; };
   }, [user, refreshSignal]);
 
+  const loadMore = async () => {
+    if (!user?.id || loadingMore || !hasMore) return;
+    const PAGE_SIZE = 20;
+    const offset = conversations.length;
+    setLoadingMore(true);
+    const { data } = await supabase
+      .from('coach_conversations')
+      .select('id, messages, updated_at')
+      .eq('user_id', user.id)
+      .order('updated_at', { ascending: false })
+      .range(offset, offset + PAGE_SIZE - 1);
+    if (data) {
+      const valid = (data as CoachConversation[]).filter(
+        c => Array.isArray(c.messages) && c.messages.length > 0,
+      );
+      setConversations(prev => [...prev, ...valid]);
+      setHasMore(data.length === PAGE_SIZE);
+    }
+    setLoadingMore(false);
+  };
+
   const deleteConversation = async (id: string) => {
-    setConversations(prev => prev.filter(c => c.id !== id));
     setConfirmDeleteId(null);
-    const { error } = await supabase.from('coach_conversations').delete().eq('id', id).eq('user_id', user?.id ?? '');
-    if (error) {
-      toast.error('تعذّر حذف المحادثة');
-      refreshHistory();
-    } else {
+    try {
+      const { error } = await supabase.from('coach_conversations').delete().eq('id', id).eq('user_id', user?.id ?? '');
+      if (error) throw error;
+      setConversations(prev => prev.filter(c => c.id !== id));
       toast.success('تم حذف المحادثة');
+    } catch {
+      toast.error('تعذّر حذف المحادثة');
     }
   };
 
@@ -198,6 +223,18 @@ export default function CoachHistory({
                   </div>
                 );
               })}
+              {hasMore && (
+                <div className="border-t border-stone-100 dark:border-stone-700 px-4 py-3 text-center">
+                  <button
+                    type="button"
+                    onClick={loadMore}
+                    disabled={loadingMore}
+                    className="text-sm font-bold text-emerald-700 dark:text-emerald-400 hover:underline disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {loadingMore ? 'جارٍ التحميل...' : 'تحميل المزيد'}
+                  </button>
+                </div>
+              )}
             </div>
           )}
         </div>
@@ -213,5 +250,5 @@ function formatDate(dateStr: string): string {
   if (diffDays === 0) return 'اليوم';
   if (diffDays === 1) return 'أمس';
   if (diffDays < 7) return `منذ ${diffDays} أيام`;
-  return d.toLocaleDateString('ar-u-nu-latn', { month: 'short', day: 'numeric' });
+  return new Date(dateStr).toLocaleDateString('ar-SA');
 }

@@ -42,7 +42,7 @@ export default function Modal({ open, title, children, onClose, maxWidth = 'max-
         role="dialog"
         aria-modal="true"
         aria-labelledby={titleId}
-        className={cn('w-full max-h-[90vh] overflow-y-auto rounded-2xl bg-white dark:bg-stone-900 p-6 shadow-xl dark:shadow-stone-900/40 outline-none', maxWidth)}
+        className={cn('w-full max-h-[90vh] overflow-y-auto rounded-2xl bg-white dark:bg-stone-800 p-6 shadow-xl dark:shadow-stone-900/40 outline-none', maxWidth)}
         onClick={e => e.stopPropagation()}
       >
         <div className="flex items-center justify-between mb-4">

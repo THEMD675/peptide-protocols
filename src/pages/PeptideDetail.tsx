@@ -366,7 +366,7 @@ export default function PeptideDetail() {
                     <th
                       scope="row"
                       className={cn(
-                        'w-[35%] px-5 py-5 align-top text-sm font-semibold text-start sticky start-0 z-[1]',
+                        'w-[45%] sm:w-[35%] px-5 py-5 align-top text-sm font-semibold text-start sticky start-0 z-[1]',
                         row.highlight ? 'text-emerald-700' : 'text-stone-800 dark:text-stone-200',
                         i % 2 === 0 ? 'bg-stone-50 dark:bg-stone-900' : 'bg-white dark:bg-stone-950',
                       )}
@@ -571,7 +571,7 @@ export default function PeptideDetail() {
                       <th
                         scope="row"
                         className={cn(
-                          'w-[35%] px-5 py-5 align-top text-sm font-semibold text-start sticky start-0 z-[1]',
+                          'w-[45%] sm:w-[35%] px-5 py-5 align-top text-sm font-semibold text-start sticky start-0 z-[1]',
                           row.highlight ? 'text-emerald-700' : 'text-stone-800 dark:text-stone-200',
                           i % 2 === 0 ? 'bg-stone-50 dark:bg-stone-900' : 'bg-white dark:bg-stone-950',
                         )}
@@ -603,7 +603,7 @@ export default function PeptideDetail() {
                         <th
                           scope="row"
                           className={cn(
-                            'w-[35%] px-5 py-5 align-top text-sm font-semibold text-start text-stone-800 dark:text-stone-200 sticky start-0 z-[1]',
+                            'w-[45%] sm:w-[35%] px-5 py-5 align-top text-sm font-semibold text-start text-stone-800 dark:text-stone-200 sticky start-0 z-[1]',
                             i % 2 === 0 ? 'bg-stone-50 dark:bg-stone-900' : 'bg-white dark:bg-stone-950',
                           )}
                         >

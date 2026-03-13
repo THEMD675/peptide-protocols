@@ -37,6 +37,7 @@ export default function Account() {
   const [notifEmail, setNotifEmail] = useState(true);
   const [notifProduct, setNotifProduct] = useState(true);
   const [notifLoading, setNotifLoading] = useState(false);
+  const [isLoadingPortal, setIsLoadingPortal] = useState(false);
 
   const [profileDisplayName, setProfileDisplayName] = useState('');
   const [profileWeight, setProfileWeight] = useState('');
@@ -55,6 +56,25 @@ export default function Account() {
     setDeleteConfirmText('');
     setDeletePassword('');
   }, []);
+
+  // Fix #19: Auto-refresh subscription after Stripe Portal return
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('portal_return') !== '1') return;
+    // Clean URL
+    const url = new URL(window.location.href);
+    url.searchParams.delete('portal_return');
+    window.history.replaceState({}, '', url.toString());
+    // Refresh subscription immediately + poll for 15s
+    refreshSubscription();
+    let attempts = 0;
+    const interval = setInterval(() => {
+      attempts++;
+      refreshSubscription();
+      if (attempts >= 5) clearInterval(interval);
+    }, 3000);
+    return () => clearInterval(interval);
+  }, [refreshSubscription]);
 
   useEffect(() => {
     if (!showCancelDialog && !showDeleteDialog) return;
@@ -586,7 +606,7 @@ export default function Account() {
                   onChange={(e) => setProfileDisplayName(e.target.value)}
                   placeholder="اسمك أو لقبك"
                   maxLength={100}
-                  className="w-full rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 px-4 py-3 text-base text-stone-900 dark:text-stone-100 placeholder:text-stone-500 dark:text-stone-300 focus:border-emerald-300 dark:border-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900"
+                  className="w-full rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 px-4 py-3 text-base text-stone-900 dark:text-stone-100 placeholder:text-stone-500 dark:text-stone-300 focus:border-emerald-300 dark:border-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-500"
                 />
               </div>
               <div>
@@ -602,7 +622,7 @@ export default function Account() {
                   onChange={(e) => setProfileWeight(e.target.value)}
                   placeholder="مثال: 75"
                   dir="ltr"
-                  className="w-full rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 px-4 py-3 text-base text-stone-900 dark:text-stone-100 placeholder:text-stone-500 dark:text-stone-300 focus:border-emerald-300 dark:border-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900"
+                  className="w-full rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 px-4 py-3 text-base text-stone-900 dark:text-stone-100 placeholder:text-stone-500 dark:text-stone-300 focus:border-emerald-300 dark:border-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-500"
                 />
               </div>
               <div>
@@ -669,7 +689,7 @@ export default function Account() {
                 placeholder="name@example.com"
                 dir="ltr"
                 autoComplete="email"
-                className="w-full rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 px-4 py-3 text-left text-base text-stone-900 dark:text-stone-100 placeholder:text-stone-500 dark:text-stone-300 focus:border-emerald-300 dark:border-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900"
+                className="w-full rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 px-4 py-3 text-left text-base text-stone-900 dark:text-stone-100 placeholder:text-stone-500 dark:text-stone-300 focus:border-emerald-300 dark:border-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-500"
               />
             </div>
             <button
@@ -700,7 +720,7 @@ export default function Account() {
                 placeholder="كلمة المرور الحالية"
                 dir="ltr"
                 autoComplete="current-password"
-                className="w-full rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 px-4 py-3 text-left text-base text-stone-900 dark:text-stone-100 placeholder:text-stone-500 dark:text-stone-300 focus:outline-none focus:border-emerald-300 dark:border-emerald-700 focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900"
+                className="w-full rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 px-4 py-3 text-left text-base text-stone-900 dark:text-stone-100 placeholder:text-stone-500 dark:text-stone-300 focus:outline-none focus:border-emerald-300 dark:border-emerald-700 focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-500"
               />
             </div>
             <div>
@@ -714,7 +734,7 @@ export default function Account() {
                 dir="ltr"
                 minLength={8}
                 autoComplete="new-password"
-                className="w-full rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 px-4 py-3 text-left text-base text-stone-900 dark:text-stone-100 placeholder:text-stone-500 dark:text-stone-300 focus:outline-none focus:border-emerald-300 dark:border-emerald-700 focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900"
+                className="w-full rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 px-4 py-3 text-left text-base text-stone-900 dark:text-stone-100 placeholder:text-stone-500 dark:text-stone-300 focus:outline-none focus:border-emerald-300 dark:border-emerald-700 focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-500"
               />
             </div>
             <button
@@ -979,6 +999,8 @@ export default function Account() {
             <>
               <button
                 onClick={async () => {
+                  if (isLoadingPortal) return;
+                  setIsLoadingPortal(true);
                   try {
                     const session = await supabase.auth.getSession();
                     const token = session.data.session?.access_token;
@@ -992,12 +1014,13 @@ export default function Account() {
                     if (!res.ok) { toast.error('تعذّر فتح إدارة الدفع'); return; }
                     const { url } = await res.json();
                     if (url) { window.location.href = url; } else { toast.error('تعذّر فتح صفحة الدفع — تواصل مع الدعم'); }
-                  } catch { toast.error('تعذّر فتح إدارة الدفع. حاول مرة أخرى.'); }
+                  } catch { toast.error('تعذّر فتح إدارة الدفع. حاول مرة أخرى.'); } finally { setIsLoadingPortal(false); }
                 }}
-                className="mt-3 flex w-full items-center justify-center gap-2 rounded-xl border border-emerald-300 dark:border-emerald-700 bg-emerald-50 dark:bg-emerald-900/20 px-6 py-3 text-sm font-bold text-emerald-700 dark:text-emerald-400 transition-all hover:bg-emerald-100 dark:bg-emerald-900/30"
+                disabled={isLoadingPortal}
+                className={cn("mt-3 flex w-full items-center justify-center gap-2 rounded-xl border border-emerald-300 dark:border-emerald-700 bg-emerald-50 dark:bg-emerald-900/20 px-6 py-3 text-sm font-bold text-emerald-700 dark:text-emerald-400 transition-all hover:bg-emerald-100 dark:bg-emerald-900/30", isLoadingPortal && 'opacity-70')}
               >
-                <CreditCard className="h-4 w-4" />
-                إدارة الدفع والفواتير
+                {isLoadingPortal ? <span className="h-4 w-4 animate-spin rounded-full border-2 border-emerald-400/30 border-t-emerald-600" /> : <CreditCard className="h-4 w-4" />}
+                {isLoadingPortal ? 'جارٍ الفتح...' : 'إدارة الدفع والفواتير'}
               </button>
               <button
                 onClick={async () => {
@@ -1198,7 +1221,8 @@ export default function Account() {
             <div className="mt-6 flex flex-col gap-3">
               <button
                 onClick={async () => {
-                  if (!cancelReason) { toast.error('اختر سبب الإلغاء'); return; }
+                  if (!cancelReason || isProcessing) { if (!cancelReason) toast.error('اختر سبب الإلغاء'); return; }
+                  setIsProcessing(true);
                   try {
                     await supabase.from('enquiries').insert({
                       user_id: user.id,
@@ -1208,12 +1232,13 @@ export default function Account() {
                       peptide_name: null,
                     });
                   } catch { /* non-blocking */ }
+                  setIsProcessing(false);
                   setCancelStep('retention');
                 }}
-                disabled={!cancelReason}
+                disabled={!cancelReason || isProcessing}
                 className="w-full rounded-xl bg-stone-700 px-4 py-2.5 text-sm font-bold text-white transition-all hover:bg-stone-800 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                متابعة
+                {isProcessing ? 'جارٍ الإرسال...' : 'متابعة'}
               </button>
               <button
                 onClick={() => { setShowCancelDialog(false); setCancelStep(null); }}

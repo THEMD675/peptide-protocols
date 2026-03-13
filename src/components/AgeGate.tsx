@@ -68,6 +68,7 @@ export default function AgeGate() {
             <p className="text-sm leading-relaxed text-stone-600 dark:text-stone-300">
               هذا الموقع مخصص لمن هم فوق 18 عامًا
             </p>
+            <a href="https://google.com" className="mt-4 inline-block text-sm text-stone-400 underline">مغادرة الموقع</a>
           </>
         ) : (
           <>

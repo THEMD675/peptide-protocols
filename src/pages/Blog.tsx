@@ -36,16 +36,21 @@ export default function Blog() {
     setError(false);
 
     if (!navigator.onLine) {
-      // Try cache when offline
+      // Try cache when offline (discard if older than 30 minutes)
       try {
         const cached = localStorage.getItem('pptides_cache_blog_posts');
         if (cached) {
           const { data, ts } = JSON.parse(cached) as { data: BlogPost[]; ts?: number };
-          setPosts(data);
-          setHasMore(false);
-          setIsStale(ts ? Date.now() - ts > 24 * 60 * 60 * 1000 : true);
-          setLoading(false);
-          return () => { cancelled = true; };
+          const CACHE_TTL = 30 * 60 * 1000;
+          if (ts && Date.now() - ts > CACHE_TTL) {
+            localStorage.removeItem('pptides_cache_blog_posts');
+          } else {
+            setPosts(data);
+            setHasMore(false);
+            setIsStale(ts ? Date.now() - ts > CACHE_TTL : true);
+            setLoading(false);
+            return () => { cancelled = true; };
+          }
         }
       } catch { /* ignore */ }
       setError('offline');
@@ -63,16 +68,21 @@ export default function Blog() {
 
       if (cancelled) return;
       if (fetchError) {
-        // Try cache as fallback
+        // Try cache as fallback (discard if older than 30 minutes)
         try {
           const cached = localStorage.getItem('pptides_cache_blog_posts');
           if (cached) {
             const { data: cachedData, ts } = JSON.parse(cached) as { data: BlogPost[]; ts?: number };
-            setPosts(cachedData);
-            setHasMore(false);
-            setIsStale(ts ? Date.now() - ts > 24 * 60 * 60 * 1000 : true);
-            setLoading(false);
-            return;
+            const CACHE_TTL = 30 * 60 * 1000;
+            if (ts && Date.now() - ts > CACHE_TTL) {
+              localStorage.removeItem('pptides_cache_blog_posts');
+            } else {
+              setPosts(cachedData);
+              setHasMore(false);
+              setIsStale(ts ? Date.now() - ts > CACHE_TTL : true);
+              setLoading(false);
+              return;
+            }
           }
         } catch { /* ignore */ }
         setError('fetch');

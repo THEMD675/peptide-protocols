@@ -457,12 +457,7 @@ export default function TrackerHistory({
                                     setLogs(prev => prev.filter(l => l.id !== log.id));
                                     const { error } = await supabase.from('injection_logs').delete().eq('id', log.id).eq('user_id', userId);
                                     if (error) {
-                                      if (deletedLog) setLogs(prev => {
-                                        const originalIndex = prev.findIndex(l => new Date(l.logged_at) < new Date(deletedLog.logged_at));
-                                        const restored = [...prev];
-                                        restored.splice(originalIndex === -1 ? prev.length : originalIndex, 0, deletedLog);
-                                        return restored;
-                                      });
+                                      await fetchLogs();
                                       toast.error('تعذّر حذف السجل — حاول مرة أخرى');
                                     } else {
                                       setTotalCount(prev => Math.max(0, prev - 1));

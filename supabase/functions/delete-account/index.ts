@@ -186,7 +186,7 @@ serve(async (req) => {
     })
   } catch (error) {
     console.error('delete-account unhandled error:', error)
-    return new Response(JSON.stringify({ error: 'Internal error' }), {
+    return new Response(JSON.stringify({ error: 'حدث خطأ — تواصل معنا: contact@pptides.com' }), {
       status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     })

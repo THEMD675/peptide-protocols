@@ -628,7 +628,7 @@ export default function Dashboard() {
                   setIsLoadingPortal(false);
                 }
               }}
-              className="inline-flex items-center gap-2 rounded-full bg-red-600 px-8 py-3 text-sm font-semibold text-white transition-all hover:bg-red-700 disabled:opacity-50"
+              className="inline-flex items-center gap-2 rounded-full bg-red-600 px-8 py-3 text-sm font-semibold text-white transition-all hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               تحديث بطاقة الدفع
             </button>

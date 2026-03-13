@@ -79,24 +79,24 @@ serve(async (req) => {
         const stripeSubscriptionId = session.subscription as string | null
 
         if (!userId && session.customer_email) {
-          const { data: { users: matchedUsers } } = await supabase.auth.admin.listUsers({ page: 1, perPage: 1 })
-            .then(async () => {
-              const allPages = []
-              let page = 1
-              while (true) {
-                const { data: { users }, error } = await supabase.auth.admin.listUsers({ page, perPage: 1000 })
-                if (error || !users?.length) break
-                allPages.push(...users)
-                if (users.length < 1000) break
-                page++
-              }
-              return { data: { users: allPages } }
-            })
-            .catch(() => ({ data: { users: [] as { id: string; email?: string }[] } }))
-          const emailMatch = matchedUsers.find((u: { email?: string }) => u.email === session.customer_email)
-          if (emailMatch) {
-            userId = emailMatch.id
-            console.warn('checkout.session.completed: resolved user via auth email fallback:', session.customer_email)
+          // Direct lookup by email from user_profiles table (avoids iterating all auth users)
+          const { data: profileMatch } = await supabase
+            .from('user_profiles')
+            .select('user_id')
+            .eq('email', session.customer_email)
+            .maybeSingle()
+          if (profileMatch) {
+            userId = profileMatch.user_id
+            console.warn('checkout.session.completed: resolved user via profile email:', session.customer_email)
+          } else {
+            // Fallback: single-page auth lookup (limit 50 to avoid timeout)
+            const { data: { users } } = await supabase.auth.admin.listUsers({ page: 1, perPage: 50 })
+              .catch(() => ({ data: { users: [] as { id: string; email?: string }[] } }))
+            const emailMatch = users.find((u: { email?: string }) => u.email === session.customer_email)
+            if (emailMatch) {
+              userId = emailMatch.id
+              console.warn('checkout.session.completed: resolved user via auth email fallback:', session.customer_email)
+            }
           }
         }
 
@@ -186,7 +186,7 @@ serve(async (req) => {
               tags: [{ name: 'type', value: 'subscription_activated' }, { name: 'category', value: 'transactional' }],
               html: emailWrapper(`
                   <h1 style="color: #1c1917; font-size: 24px;">مرحبًا بك في pptides!</h1>
-                  <p style="color: #44403c; font-size: 16px; line-height: 1.8;">تم تفعيل اشتراكك في باقة <strong style="color: #059669;">${tier === 'elite' ? 'Elite' : 'Essentials'}</strong> بنجاح.</p>
+                  <p style="color: #44403c; font-size: 16px; line-height: 1.8;">تم تفعيل اشتراكك في باقة <strong style="color: #059669;">${tier === 'elite' ? 'المتقدّمة' : 'الأساسية'}</strong> بنجاح.</p>
                   <div style="background: #ecfdf5; border-radius: 12px; padding: 20px; margin: 20px 0;">
                     <p style="margin: 8px 0; font-size: 15px;"><strong style="color: #059669;">الخطوة التالية:</strong> تصفّح <a href="${APP_URL}/library" style="color: #059669; font-weight: bold;">مكتبة الببتيدات</a> واكتشف البروتوكول المناسب لك</p>
                     <p style="margin: 8px 0; font-size: 15px;"><strong style="color: #059669;">المدرب الذكي:</strong> اسأل <a href="${APP_URL}/coach" style="color: #059669; font-weight: bold;">المدرب</a> عن بروتوكول مخصّص</p>
@@ -429,23 +429,35 @@ serve(async (req) => {
                 .maybeSingle()
 
               if (subRow?.referred_by && !subRow.referral_friend_discount_applied) {
-                // Verify this is from a valid referrer
-                const { data: referrerExists } = await supabase.from('subscriptions')
+                // Atomic check-and-set to prevent race condition with concurrent webhooks
+                const { data: updated, error: casError } = await supabase.from('subscriptions')
+                  .update({ referral_friend_discount_applied: true, updated_at: new Date().toISOString() })
+                  .eq('stripe_subscription_id', stripeSubId)
+                  .eq('referral_friend_discount_applied', false)
                   .select('user_id')
-                  .eq('referral_code', subRow.referred_by)
-                  .maybeSingle()
 
-                if (referrerExists) {
-                  // Apply 40% coupon to the subscription for the NEXT billing cycle only
-                  await stripe.subscriptions.update(stripeSubId, {
-                    coupon: COUPON_REFERRAL_FRIEND,
-                  })
-                  console.log('referral friend 40% discount applied to next invoice for sub:', stripeSubId)
+                if (casError || !updated || updated.length === 0) {
+                  // Another webhook already applied the discount — skip
+                  console.log('referral friend discount already applied or CAS failed for sub:', stripeSubId)
+                } else {
+                  // Verify this is from a valid referrer
+                  const { data: referrerExists } = await supabase.from('subscriptions')
+                    .select('user_id')
+                    .eq('referral_code', subRow.referred_by)
+                    .maybeSingle()
 
-                  // Mark as applied so we don't apply it again on subsequent invoices
-                  await supabase.from('subscriptions')
-                    .update({ referral_friend_discount_applied: true, updated_at: new Date().toISOString() })
-                    .eq('stripe_subscription_id', stripeSubId)
+                  if (referrerExists) {
+                    // Apply 40% coupon to the subscription for the NEXT billing cycle only
+                    await stripe.subscriptions.update(stripeSubId, {
+                      coupon: COUPON_REFERRAL_FRIEND,
+                    })
+                    console.log('referral friend 40% discount applied to next invoice for sub:', stripeSubId)
+                  } else {
+                    // Rollback the flag if referrer doesn't exist
+                    await supabase.from('subscriptions')
+                      .update({ referral_friend_discount_applied: false })
+                      .eq('stripe_subscription_id', stripeSubId)
+                  }
                 }
               }
             } catch (refErr) {
@@ -568,9 +580,9 @@ serve(async (req) => {
         const dispute = event.data.object as Stripe.Dispute
         const customerId = dispute.customer as string
         if (customerId) {
+          // Set status to 'disputed' but keep tier — user retains access until dispute is resolved
           const { error } = await supabase.from('subscriptions').update({
-            status: 'cancelled',
-            tier: 'free',
+            status: 'disputed',
             updated_at: new Date().toISOString(),
           }).eq('stripe_customer_id', customerId)
           if (error) { console.error('charge.dispute.created DB error:', error); dbFailed = true }
@@ -591,7 +603,7 @@ serve(async (req) => {
                 <p><strong>العميل:</strong> ${customerEmail}</p>
                 <p><strong>المبلغ:</strong> ${(dispute.amount / 100).toFixed(2)} ${dispute.currency?.toUpperCase()}</p>
                 <p><strong>السبب:</strong> ${dispute.reason ?? 'غير محدد'}</p>
-                <p style="color: #dc2626; font-weight: bold;">تم إلغاء اشتراك العميل تلقائيًا. يرجى الرد على النزاع في لوحة Stripe.</p>
+                <p style="color: #f59e0b; font-weight: bold;">الاشتراك في حالة نزاع — الوصول مستمر حتى حل النزاع. يرجى الرد في لوحة Stripe.</p>
                 <div style="text-align: center; margin: 24px 0;">
                   ${emailButton('فتح Stripe Dashboard', 'https://dashboard.stripe.com/disputes')}
                 </div>
@@ -601,11 +613,52 @@ serve(async (req) => {
         break
       }
 
+      case 'charge.dispute.closed': {
+        const dispute = event.data.object as Stripe.Dispute
+        const customerId = dispute.customer as string
+        if (customerId) {
+          if (dispute.status === 'won') {
+            // Dispute won — restore to active
+            const { error } = await supabase.from('subscriptions').update({
+              status: 'active',
+              updated_at: new Date().toISOString(),
+            }).eq('stripe_customer_id', customerId)
+            if (error) { console.error('charge.dispute.closed (won) DB error:', error); dbFailed = true }
+            console.log(JSON.stringify({ action: 'dispute_won', customer: customerId, timestamp: new Date().toISOString() }))
+          } else {
+            // Dispute lost — cancel subscription and revoke access
+            const { error } = await supabase.from('subscriptions').update({
+              status: 'cancelled',
+              tier: 'free',
+              updated_at: new Date().toISOString(),
+            }).eq('stripe_customer_id', customerId)
+            if (error) { console.error('charge.dispute.closed (lost) DB error:', error); dbFailed = true }
+            console.error(JSON.stringify({ severity: 'CRITICAL', action: 'dispute_lost', customer: customerId, amount: dispute.amount, timestamp: new Date().toISOString() }))
+          }
+
+          // Notify admin about dispute resolution
+          const adminEmail = Deno.env.get('ADMIN_EMAIL_WHITELIST')?.split(',')[0]?.trim() || 'contact@pptides.com'
+          const disputeWon = dispute.status === 'won'
+          sendEmail({
+            to: adminEmail,
+            subject: `نزاع ${disputeWon ? 'مكسوب' : 'مخسور'} — pptides`,
+            tags: [{ name: 'type', value: 'dispute_resolved' }, { name: 'category', value: 'admin_alert' }],
+            html: emailWrapper(`
+                <h1 style="color: ${disputeWon ? '#059669' : '#dc2626'}; font-size: 24px;">نزاع ${disputeWon ? 'مكسوب ✓' : 'مخسور ✗'}</h1>
+                <p><strong>العميل:</strong> ${customerId}</p>
+                <p><strong>المبلغ:</strong> ${(dispute.amount / 100).toFixed(2)} ${dispute.currency?.toUpperCase()}</p>
+                <p>${disputeWon ? 'تم استعادة اشتراك العميل.' : 'تم إلغاء اشتراك العميل وإزالة الوصول.'}</p>
+              `),
+          }).catch(e => console.error('dispute resolution admin email failed:', e))
+        }
+        break
+      }
+
       case 'charge.refunded': {
         const charge = event.data.object as Stripe.Charge
         const customerId = charge.customer as string
         if (customerId && (charge.refunded || charge.amount_refunded > 0)) {
-          const isFullRefund = charge.refunded
+          const isFullRefund = charge.amount_refunded >= charge.amount
           const invoiceId = charge.invoice as string | null
           let subId: string | null = null
           if (invoiceId) {

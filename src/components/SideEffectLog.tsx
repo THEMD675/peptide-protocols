@@ -120,7 +120,7 @@ export default function SideEffectLog() {
       setNotes('');
       await fetchEntries();
     } catch (e) { logError('side effect submit failed:', e);
-      toast.error('تعذّر حفظ العرض — حاول مرة أخرى');
+      toast.error('تعذّر حفظ الأعراض الجانبية');
     } finally {
       setIsSubmitting(false);
     }

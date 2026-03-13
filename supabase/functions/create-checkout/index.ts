@@ -98,7 +98,7 @@ serve(async (req) => {
 
     const priceId = PRICE_IDS[tier][billing]
     if (!priceId) {
-      return new Response(JSON.stringify({ error: 'Price not configured. Contact support.' }), {
+      return new Response(JSON.stringify({ error: 'خطأ في الإعداد — تواصل معنا: contact@pptides.com' }), {
         status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       })
     }
@@ -153,6 +153,8 @@ serve(async (req) => {
         s.client_reference_id === user.id &&
         s.status === 'open' &&
         s.url &&
+        s.metadata?.tier === tier &&
+        s.metadata?.billing === billing &&
         Date.now() - (s.created * 1000) < 5 * 60 * 1000,
     )
     if (reusable?.url) {
@@ -213,7 +215,7 @@ serve(async (req) => {
         metadata: { tier, user_id: user.id, ...(validatedReferralCode ? { referral_code: validatedReferralCode } : {}) },
         description: `pptides — ${tier === 'elite' ? 'الباقة المتقدمة' : 'الباقة الأساسية'}`,
       },
-      metadata: { tier, user_id: user.id, ...(validatedReferralCode ? { referral_code: validatedReferralCode } : {}) },
+      metadata: { tier, billing, user_id: user.id, ...(validatedReferralCode ? { referral_code: validatedReferralCode } : {}) },
       success_url: `${appUrl}/dashboard?payment=success&tier=${tier}&session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${appUrl}/pricing?payment=cancelled`,
       // When a discount coupon is auto-applied, don't also allow manual promo codes (prevents stacking)
@@ -230,7 +232,7 @@ serve(async (req) => {
     })
   } catch (error) {
     console.error('create-checkout error:', error)
-    return new Response(JSON.stringify({ error: 'Failed to create checkout session' }), {
+    return new Response(JSON.stringify({ error: 'تعذّر إنشاء جلسة الدفع — حاول مرة أخرى أو تواصل معنا: contact@pptides.com' }), {
       status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     })
   }

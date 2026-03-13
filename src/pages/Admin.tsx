@@ -304,6 +304,7 @@ export default function Admin() {
       if (page) url.searchParams.set('page', String(page));
       if (filter && filter !== 'all') url.searchParams.set('filter', filter);
       const res = await fetch(url.toString(), {
+        signal: AbortSignal.timeout(15000),
         headers: { Authorization: `Bearer ${token}`, apikey: import.meta.env.VITE_SUPABASE_ANON_KEY },
       });
       if (res.status === 403) { setForbidden(true); return; }
@@ -335,6 +336,7 @@ export default function Admin() {
     const token = await getToken();
     const res = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/admin-actions`, {
       method: 'POST',
+      signal: AbortSignal.timeout(15000),
       headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}`, apikey: import.meta.env.VITE_SUPABASE_ANON_KEY },
       body: JSON.stringify(body),
     });
@@ -936,7 +938,7 @@ export default function Admin() {
               </div>
               <div className="flex flex-col sm:flex-row gap-2">
                 <input type="text" placeholder="بحث بالبريد الإلكتروني..." value={userSearch} onChange={e => { setUserSearch(e.target.value); setUsersPage(1); }} aria-label="بحث بالبريد الإلكتروني"
-                  className="flex-1 rounded-lg border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 px-3 py-2 text-sm outline-none focus:border-emerald-300 dark:border-emerald-700 focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900" dir="ltr" />
+                  className="flex-1 rounded-lg border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 px-3 py-2 text-sm outline-none focus:border-emerald-300 dark:border-emerald-700 focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-500" dir="ltr" />
                 <div className="flex gap-1 overflow-x-auto">
                   {(['all', 'active', 'trial', 'expired', 'none'] as UserFilter[]).map(f => (
                     <button key={f} onClick={() => { setUserFilter(f); setUsersPage(1); fetchStats(userSearch || undefined, 1, f); }} className={cn('rounded-lg px-3 py-1.5 text-xs font-medium whitespace-nowrap', userFilter === f ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400' : 'bg-stone-100 dark:bg-stone-800 text-stone-600 dark:text-stone-300 hover:bg-stone-200 dark:bg-stone-700')}>
@@ -1372,7 +1374,7 @@ export default function Admin() {
           </div>
         )}
         <div className="flex gap-2 justify-end">
-          <button onClick={() => setModal(null)} disabled={actionLoading} className="rounded-lg border border-stone-200 dark:border-stone-600 px-4 py-2 text-xs font-medium text-stone-600 dark:text-stone-300 disabled:opacity-50">إلغاء</button>
+          <button onClick={() => setModal(null)} disabled={actionLoading} className="rounded-lg border border-stone-200 dark:border-stone-600 px-4 py-2 text-xs font-medium text-stone-600 dark:text-stone-300 disabled:opacity-50 disabled:cursor-not-allowed">إلغاء</button>
           <button onClick={() => {
             if (!confirm(`سيتم إرسال بريد جماعي لجمهور "${bulkAudience === 'all' ? 'الكل' : bulkAudience === 'trial' ? 'تجريبي' : bulkAudience === 'active' ? 'مدفوع' : 'منتهي'}". هل أنت متأكد؟`)) return;
             handleBulkEmail();

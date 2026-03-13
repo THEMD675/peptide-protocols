@@ -546,6 +546,9 @@ export default function Login() {
     );
   }
 
+  // Prevent login page flash while redirect useEffect fires
+  if (user && !isRecovery) return null;
+
   return (
     <div className="flex min-h-screen items-center justify-center bg-white dark:bg-stone-950 px-4">
       <Helmet>

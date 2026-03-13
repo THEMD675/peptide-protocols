@@ -163,6 +163,15 @@ html.dark {
   textarea::placeholder {
     opacity: 0.5;
   }
+  .dark ::placeholder {
+    opacity: 0.7;
+  }
+
+  .dark input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+  .dark textarea,
+  .dark select {
+    background-color: #292524; /* stone-800 — visible against stone-950 body */
+  }
 
   input:focus,
   textarea:focus,
@@ -376,9 +385,9 @@ html.dark {
   background: linear-gradient(
     90deg,
     transparent 0%,
-    rgba(16, 185, 129, 0.08) 40%,
+    rgba(16, 185, 129, 0.15) 40%,
     rgba(16, 185, 129, 0.14) 50%,
-    rgba(16, 185, 129, 0.08) 60%,
+    rgba(16, 185, 129, 0.15) 60%,
     transparent 100%
   );
   background-size: 200% 100%;
@@ -581,6 +590,10 @@ html.dark ::-webkit-scrollbar-thumb:hover { background: #57534e; }
   -webkit-mask-image: linear-gradient(to left, transparent, black 40px, black calc(100% - 40px), transparent);
   mask-image: linear-gradient(to left, transparent, black 40px, black calc(100% - 40px), transparent);
 }
+[dir="rtl"] .scroll-fade {
+  -webkit-mask-image: linear-gradient(to right, transparent, black 40px, black calc(100% - 40px), transparent);
+  mask-image: linear-gradient(to right, transparent, black 40px, black calc(100% - 40px), transparent);
+}
 
 .skip-link {
   position: absolute;
@@ -624,10 +637,6 @@ button:focus-visible {
   button, a, [role="button"] {
     border: 1px solid ButtonText;
   }
-}
-
-input[type="email"], input[type="url"], input[type="number"], input[type="tel"] {
-  direction: ltr;
 }
 
 @supports (-webkit-touch-callout: none) {

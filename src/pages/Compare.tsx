@@ -195,7 +195,7 @@ function PeptideSelector({
               onChange={(e) => setSearch(e.target.value)}
               placeholder="ابحث بالاسم العربي أو الإنجليزي..."
               aria-label="البحث عن ببتيد للمقارنة"
-              className="w-full rounded-lg border border-stone-200 dark:border-stone-600 bg-stone-50 dark:bg-stone-800 px-3 py-2 text-sm text-stone-900 dark:text-stone-100 placeholder:text-stone-500 outline-none focus:border-emerald-300 dark:focus:border-emerald-700 focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900"
+              className="w-full rounded-lg border border-stone-200 dark:border-stone-600 bg-stone-50 dark:bg-stone-800 px-3 py-2 text-sm text-stone-900 dark:text-stone-100 placeholder:text-stone-500 outline-none focus:border-emerald-300 dark:focus:border-emerald-700 focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-500"
             />
           </div>
           <div className="flex items-center justify-between px-3 pb-1">

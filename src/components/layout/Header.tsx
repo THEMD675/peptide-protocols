@@ -196,7 +196,7 @@ export default memo(function Header() {
                       <ChevronDown className={cn('h-3 w-3 transition-transform', moreOpen && 'rotate-180')} />
                     </button>
                     {moreOpen && (
-                      <div role="menu" aria-label="الأدوات" className="absolute end-0 top-full mt-2 min-w-[200px] overflow-hidden rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 py-1 shadow-xl dark:shadow-stone-900/40 animate-fade-in" onKeyDown={(e) => {
+                      <div role="menu" aria-label="الأدوات" className="absolute end-0 top-full mt-2 min-w-[200px] max-w-[calc(100vw-2rem)] overflow-hidden rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 py-1 shadow-xl dark:shadow-stone-900/40 animate-fade-in" onKeyDown={(e) => {
                         const items = e.currentTarget.querySelectorAll<HTMLElement>('[role="menuitem"]');
                         const idx = Array.from(items).indexOf(e.target as HTMLElement);
                         if (e.key === 'ArrowDown') { e.preventDefault(); items[(idx + 1) % items.length]?.focus(); }
@@ -287,7 +287,7 @@ export default memo(function Header() {
                 </button>
 
                 {dropdownOpen && (
-                  <div role="menu" aria-label="حسابي" className="absolute end-0 top-full mt-2 min-w-[180px] overflow-hidden rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 py-1 shadow-xl dark:shadow-stone-900/40 animate-fade-in" onKeyDown={(e) => {
+                  <div role="menu" aria-label="حسابي" className="absolute end-0 top-full mt-2 min-w-[180px] max-w-[calc(100vw-2rem)] overflow-hidden rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 py-1 shadow-xl dark:shadow-stone-900/40 animate-fade-in" onKeyDown={(e) => {
                     const items = e.currentTarget.querySelectorAll<HTMLElement>('[role="menuitem"]');
                     const idx = Array.from(items).indexOf(e.target as HTMLElement);
                     if (e.key === 'ArrowDown') { e.preventDefault(); items[(idx + 1) % items.length]?.focus(); }

@@ -477,7 +477,7 @@ export default function PeptideTable() {
               onChange={(e) => setSearch(e.target.value)}
               placeholder="ابحث بالاسم عربي أو إنجليزي..."
               aria-label="ابحث في الببتيدات"
-              className="w-full rounded-xl border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-900 py-3 ps-10 pe-4 text-sm text-stone-900 dark:text-stone-100 placeholder:text-stone-500 dark:text-stone-300 dark:placeholder:text-stone-500 outline-none transition-colors focus:border-emerald-300 dark:focus:border-emerald-700 focus:ring-1 focus:ring-emerald-100 dark:focus:ring-emerald-900"
+              className="w-full rounded-xl border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-900 py-3 ps-10 pe-4 text-sm text-stone-900 dark:text-stone-100 placeholder:text-stone-500 dark:text-stone-300 dark:placeholder:text-stone-500 outline-none transition-colors focus:border-emerald-300 dark:focus:border-emerald-700 focus:ring-1 focus:ring-emerald-100 dark:focus:ring-emerald-500"
             />
           </div>
 

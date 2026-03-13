@@ -37,7 +37,7 @@ export default function PaymentProcessing() {
   useEffect(() => {
     if (!visible || stage !== 'loading') return;
     timerRef.current = setInterval(() => {
-      setProgress(p => Math.min(p + 3, 90));
+      setProgress(p => p >= 80 ? Math.min(p + 0.5, 95) : Math.min(p + 3, 80));
     }, 500);
     return () => { if (timerRef.current) clearInterval(timerRef.current); };
   }, [visible, stage]);

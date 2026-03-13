@@ -5,6 +5,7 @@ import { cn } from '@/lib/utils';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
 import { logError } from '@/lib/logger';
+import { toast } from 'sonner';
 
 interface Notification {
   id: string;
@@ -61,7 +62,16 @@ export default function NotificationBell() {
         .eq('user_id', userId)
         .order('created_at', { ascending: false })
         .limit(20)
-        .then(({ data }) => { if (data) setNotifications(data as Notification[]); })
+        .then(({ data }) => {
+          if (data) {
+            setNotifications(prev => {
+              const map = new Map<string, Notification>();
+              for (const n of prev) map.set(n.id, n);
+              for (const n of data as Notification[]) map.set(n.id, n);
+              return Array.from(map.values()).sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+            });
+          }
+        })
         .catch(e => logError('notification refetch failed:', e));
     };
 
@@ -112,9 +122,14 @@ export default function NotificationBell() {
   }, []);
 
   const markAsRead = async (id: string) => {
-    setNotifications(prev => prev.map(n => n.id === id ? { ...n, read: true } : n));
+    const prev = notifications;
+    setNotifications(curr => curr.map(n => n.id === id ? { ...n, read: true } : n));
     const { error } = await supabase.from('notifications').update({ read: true }).eq('id', id).eq('user_id', user!.id);
-    if (error) logError('notification mark-read failed:', error);
+    if (error) {
+      logError('notification mark-read failed:', error);
+      toast.error('تعذّر تحديث الإشعارات');
+      setNotifications(prev);
+    }
   };
 
   const markAllRead = async () => {
@@ -128,6 +143,7 @@ export default function NotificationBell() {
       .eq('read', false);
     if (error) {
       logError('notification mark-all-read failed:', error);
+      toast.error('تعذّر تحديث الإشعارات');
       setNotifications(prev);
     }
   };
