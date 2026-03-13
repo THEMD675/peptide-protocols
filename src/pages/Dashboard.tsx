@@ -225,11 +225,12 @@ function useRecentActivity(userId: string | undefined) {
       .then(({ count }) => {
         if (mounted && count != null) setTotalCount(count);
       }).catch(() => { /* totalCount non-critical — ignore */ });
+    // 13.4: Use RPC-style distinct fetch instead of fetching 500 rows
     supabase
       .from('injection_logs')
       .select('peptide_name')
       .eq('user_id', userId)
-      .limit(500)
+      .limit(100)
       .then(({ data }) => {
         if (!mounted || !data) return;
         const unique = new Set(data.map((r: { peptide_name: string }) => r.peptide_name));

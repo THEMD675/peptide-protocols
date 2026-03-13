@@ -128,6 +128,8 @@ export default function TrackerForm({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!peptideName.trim()) { toast.error('اختر الببتيد أولاً'); return; }
+    // 14.5: Validate peptide_name against known peptides list
+    if (!allPeptides.some(p => p.nameEn === peptideName.trim())) { toast.error('ببتيد غير معروف'); return; }
     const doseNum = parseFloat(dose);
     if (!dose || isNaN(doseNum) || doseNum <= 0) { toast.error('أدخل جرعة صحيحة'); return; }
     if (!injectedAt.trim()) { toast.error('أدخل التاريخ والوقت'); return; }

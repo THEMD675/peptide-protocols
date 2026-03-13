@@ -166,6 +166,12 @@ async function main() {
       // Wait a bit for React to finish rendering (lazy components, effects)
       await page.waitForSelector('main', { timeout: 5000 }).catch(() => {});
 
+      // 11.1: Wait for React Helmet to inject per-page meta tags
+      await page.waitForFunction(
+        () => document.querySelector('[data-rh]') !== null,
+        { timeout: 5000 }
+      ).catch(() => {});
+
       const html = await page.content();
       await page.close();
 

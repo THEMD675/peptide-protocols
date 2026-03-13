@@ -61,11 +61,11 @@ const PeptideCard = memo(function PeptideCard({
 }: {
   peptide: Peptide;
   hasAccess: boolean;
-  onLockedClick: () => void;
+  onLockedClick: (id: string) => void;
   isFav: boolean;
-  onToggleFav: () => void;
+  onToggleFav: (id: string) => void;
   isCompare: boolean;
-  onToggleCompare: () => void;
+  onToggleCompare: (id: string) => void;
   isUsed: boolean;
 }) {
   const Icon = categoryIcons[peptide.category];
@@ -102,7 +102,7 @@ const PeptideCard = memo(function PeptideCard({
         <div className="flex items-center">
           <button
             type="button"
-            onClick={(e) => { e.preventDefault(); e.stopPropagation(); onToggleCompare(); }}
+            onClick={(e) => { e.preventDefault(); e.stopPropagation(); onToggleCompare(peptide.id); }}
             className={cn('flex items-center gap-1 rounded-full px-2.5 py-1.5 min-h-[44px] text-xs font-medium transition-colors', isCompare ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400' : 'text-stone-500 dark:text-stone-300 hover:bg-stone-100 dark:hover:bg-stone-800 hover:text-stone-600 dark:text-stone-300')}
             aria-label={isCompare ? 'إزالة من المقارنة' : 'إضافة للمقارنة'}
           >
@@ -111,7 +111,7 @@ const PeptideCard = memo(function PeptideCard({
           </button>
           <button
             type="button"
-            onClick={(e) => { e.preventDefault(); e.stopPropagation(); onToggleFav(); }}
+            onClick={(e) => { e.preventDefault(); e.stopPropagation(); onToggleFav(peptide.id); }}
             className="rounded-full p-2.5 min-h-[44px] min-w-[44px] transition-colors hover:bg-stone-100 dark:hover:bg-stone-800"
             aria-label={isFav ? 'إزالة من المحفوظات' : 'إضافة للمحفوظات'}
           >
@@ -218,7 +218,7 @@ const PeptideCard = memo(function PeptideCard({
   const handleEnter = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' || e.key === ' ') {
       e.preventDefault();
-      onLockedClick();
+      onLockedClick(peptide.id);
     }
   };
 
@@ -226,7 +226,7 @@ const PeptideCard = memo(function PeptideCard({
     <div
       role="button"
       tabIndex={0}
-      onClick={onLockedClick}
+      onClick={() => onLockedClick(peptide.id)}
       onKeyDown={handleEnter}
       className="block h-full w-full cursor-pointer text-start focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400 focus-visible:ring-offset-2 rounded-2xl"
     >
@@ -367,8 +367,17 @@ export default function Library() {
     return () => { document.removeEventListener('keydown', handler); document.body.style.overflow = ''; };
   }, [upsellPeptide]);
 
-  const handleLockedClick = useCallback((peptideId?: string) => {
+  const handleLockedClick = useCallback((peptideId: string) => {
     setUpsellPeptide(peptideId ?? null);
+  }, []);
+
+  // 18.1: Stable callback for compare toggle — avoids inline lambdas defeating React.memo
+  const handleToggleCompare = useCallback((id: string) => {
+    setCompareIds(prev => {
+      if (prev.includes(id)) return prev.filter(x => x !== id);
+      if (prev.length >= 3) { toast('الحد الأقصى 3 ببتيدات للمقارنة'); return prev; }
+      return [...prev, id];
+    });
   }, []);
 
   // Counts for category tab badges — reflects search + evidence filters (but not category)
@@ -744,15 +753,11 @@ export default function Library() {
                   <PeptideCard
                     peptide={p}
                     hasAccess={hasFullAccess || p.isFree || (isTrial && TRIAL_PEPTIDE_IDS.has(p.id))}
-                    onLockedClick={() => handleLockedClick(p.id)}
+                    onLockedClick={handleLockedClick}
                     isFav={favorites.has(p.id)}
-                    onToggleFav={() => toggleFavorite(p.id)}
+                    onToggleFav={toggleFavorite}
                     isCompare={compareIds.includes(p.id)}
-                    onToggleCompare={() => setCompareIds(prev => {
-                      if (prev.includes(p.id)) return prev.filter(x => x !== p.id);
-                      if (prev.length >= 3) { toast('الحد الأقصى 3 ببتيدات للمقارنة'); return prev; }
-                      return [...prev, p.id];
-                    })}
+                    onToggleCompare={handleToggleCompare}
                     isUsed={usedPeptides.has(p.nameEn)}
                   />
                 </div>
