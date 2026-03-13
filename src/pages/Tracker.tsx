@@ -24,6 +24,7 @@ import { supabase } from '@/lib/supabase';
 import { SITE_URL } from '@/lib/constants';
 import { peptidesLite as allPeptides } from '@/data/peptides-lite';
 import ProgressRing from '@/components/charts/ProgressRing';
+import ChartErrorBoundary from '@/components/charts/ChartErrorBoundary';
 import SideEffectLog from '@/components/SideEffectLog';
 import Tooltip from '@/components/Tooltip';
 import TrackerStats from '@/components/tracker/TrackerStats';
@@ -619,7 +620,7 @@ export default function Tracker() {
               return (
                 <div key={proto.id} className={cn('rounded-2xl border p-4 card-lift', todayLogged ? 'border-emerald-300 dark:border-emerald-700 bg-emerald-50/50' : 'border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900')}>
                   <div className="flex items-center gap-3">
-                    <ProgressRing current={daysSinceStart} total={totalDays} size={56} />
+                    <ChartErrorBoundary><ProgressRing current={daysSinceStart} total={totalDays} size={56} /></ChartErrorBoundary>
                     <div className="flex-1 min-w-0">
                       <p className="font-bold text-stone-900 dark:text-stone-100 truncate">{peptide?.nameAr ?? proto.peptide_id}</p>
                       <p className="text-xs text-stone-500 dark:text-stone-300" dir="ltr">{proto.dose} {proto.dose_unit}</p>

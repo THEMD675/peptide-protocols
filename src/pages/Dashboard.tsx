@@ -34,6 +34,7 @@ import { PEPTIDE_COUNT, STATUS_LABELS, TIER_LABELS, FREQUENCY_LABELS, STORAGE_KE
 import OnboardingModal from '@/components/OnboardingModal';
 import ProgressRing from '@/components/charts/ProgressRing';
 import AdherenceBar from '@/components/charts/AdherenceBar';
+import ChartErrorBoundary from '@/components/charts/ChartErrorBoundary';
 import DoseTitrationTimeline from '@/components/DoseTitrationTimeline';
 import ShareableCard from '@/components/ShareableCard';
 import WellnessCheckin from '@/components/WellnessCheckin';
@@ -1027,7 +1028,7 @@ export default function Dashboard() {
               return (
                 <div key={proto.id} className="rounded-2xl border border-emerald-200 dark:border-emerald-800 bg-white dark:bg-stone-900 p-5 transition-all hover:shadow-md">
                   <div className="flex items-start gap-4">
-                    <ProgressRing current={daysSinceStart} total={totalDays} size={64} label={`يوم ${daysSinceStart}`} />
+                    <ChartErrorBoundary><ProgressRing current={daysSinceStart} total={totalDays} size={64} label={`يوم ${daysSinceStart}`} /></ChartErrorBoundary>
                     <div className="flex-1 min-w-0">
                       <p className="font-bold text-stone-900 dark:text-stone-100 truncate">{peptide?.nameAr ?? proto.peptide_id}</p>
                       <p className="text-xs text-stone-500 dark:text-stone-300 mt-0.5" dir="ltr">{proto.dose} {proto.dose_unit} — {FREQUENCY_LABELS[proto.frequency] ?? proto.frequency}</p>
@@ -1105,7 +1106,7 @@ export default function Dashboard() {
                       const frequencyMultiplier = proto.frequency === 'bid' ? 2 : proto.frequency === 'tid' ? 3 : 1;
                       const scheduledDoses = daysSinceStart * frequencyMultiplier;
                       return (
-                        <AdherenceBar scheduled={scheduledDoses} actual={activity.allLogs.filter(l => l.peptide_name === (peptide?.nameEn ?? proto.peptide_id)).length} />
+                        <ChartErrorBoundary><AdherenceBar scheduled={scheduledDoses} actual={activity.allLogs.filter(l => l.peptide_name === (peptide?.nameEn ?? proto.peptide_id)).length} /></ChartErrorBoundary>
                       );
                     })()}
                   </div>

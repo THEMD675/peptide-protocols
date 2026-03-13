@@ -744,3 +744,9 @@ body.cookie-banner-visible {
     padding-bottom: 120px;
   }
 }
+
+/* RTL truncation: ensure ellipsis appears on the correct (start) side */
+[dir="rtl"] .truncate {
+  direction: rtl;
+  text-align: right;
+}

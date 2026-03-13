@@ -1,4 +1,5 @@
 import { lazy, Suspense } from 'react';
+import ChartErrorBoundary from '@/components/charts/ChartErrorBoundary';
 import {
   BarChart3,
   Flame,
@@ -179,9 +180,11 @@ export default function TrackerStats({
       {weeklyActivity && (
         <div className="mb-8 rounded-2xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 p-5 shadow-sm dark:shadow-stone-900/30">
           <h3 className="mb-3 text-sm font-bold text-stone-900 dark:text-stone-100">نشاط الأسبوع</h3>
-          <Suspense fallback={<div className="h-32 animate-pulse rounded-xl bg-stone-100 dark:bg-stone-800" />}>
-            <ActivityChart data={weeklyActivity.days.map((day, i) => ({ day: day.slice(0, 3), count: weeklyActivity.weekCounts[i], isToday: i === weeklyActivity.todayIdx }))} />
-          </Suspense>
+          <ChartErrorBoundary>
+            <Suspense fallback={<div className="h-32 animate-pulse rounded-xl bg-stone-100 dark:bg-stone-800" />}>
+              <ActivityChart data={weeklyActivity.days.map((day, i) => ({ day: day.slice(0, 3), count: weeklyActivity.weekCounts[i], isToday: i === weeklyActivity.todayIdx }))} />
+            </Suspense>
+          </ChartErrorBoundary>
         </div>
       )}
 
@@ -196,9 +199,11 @@ export default function TrackerStats({
         return (
           <div className="mb-8 rounded-2xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 p-5 shadow-sm dark:shadow-stone-900/30">
             <h3 className="mb-3 text-sm font-bold text-stone-900 dark:text-stone-100">تاريخ جرعات {trendPeptide}</h3>
-            <Suspense fallback={<div className="h-32 animate-pulse rounded-xl bg-stone-100 dark:bg-stone-800" />}>
-              <DoseTrendChart data={trendData} unit={trendLogs[0]?.dose_unit ?? 'mcg'} />
-            </Suspense>
+            <ChartErrorBoundary>
+              <Suspense fallback={<div className="h-32 animate-pulse rounded-xl bg-stone-100 dark:bg-stone-800" />}>
+                <DoseTrendChart data={trendData} unit={trendLogs[0]?.dose_unit ?? 'mcg'} />
+              </Suspense>
+            </ChartErrorBoundary>
           </div>
         );
       })()}
