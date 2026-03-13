@@ -395,6 +395,31 @@ serve(async (req) => {
           console.error('subscription.deleted DB exception:', dbErr)
           dbFailed = true
         }
+
+        // Send cancellation confirmation email
+        if (!dbFailed) {
+          const customer = await stripe.customers.retrieve(subscription.customer as string).catch(() => null)
+          const customerEmail = (customer && !customer.deleted) ? customer.email : null
+          if (customerEmail) {
+            sendEmail({
+              to: customerEmail,
+              subject: 'تم إلغاء اشتراكك في pptides',
+              tags: [{ name: 'type', value: 'subscription_cancelled' }, { name: 'category', value: 'transactional' }],
+              html: emailWrapper(`
+                    <h1 style="color: #1c1917; font-size: 24px;">تم إلغاء اشتراكك</h1>
+                    <p style="color: #44403c; font-size: 16px; line-height: 1.8;">نأسف لرؤيتك تغادر. تم إلغاء اشتراكك في pptides بنجاح.</p>
+                    <div style="background: #fef3c7; border-radius: 12px; padding: 20px; margin: 20px 0;">
+                      <p style="margin: 0; font-size: 15px; color: #92400e;">يمكنك إعادة الاشتراك في أي وقت والعودة إلى جميع ميزاتك.</p>
+                    </div>
+                    <div style="text-align: center; margin: 24px 0;">
+                      ${emailButton('أعد الاشتراك', `${APP_URL}/pricing`)}
+                    </div>
+                    <p style="color: #78716c; font-size: 13px;">إذا كان لديك أي ملاحظات: contact@pptides.com</p>
+                  `),
+              replyTo: 'contact@pptides.com',
+            }).catch(e => console.error('cancellation email failed:', e))
+          }
+        }
         break
       }
 

@@ -1,4 +1,5 @@
 import { supabase } from './supabase';
+import { hasOptionalConsent } from './cookie-utils';
 
 declare global {
   interface Window {
@@ -39,6 +40,8 @@ async function flushEvents() {
 }
 
 function queueEvent(event: string, params?: Record<string, unknown>) {
+  // 9.2: Gate Supabase analytics behind cookie consent (same as GA4)
+  if (!hasOptionalConsent()) return;
   const userId = supabase.auth.getSession().then(s => s.data.session?.user?.id);
   // Fire-and-forget user ID resolution
   userId.then(uid => {

@@ -15,9 +15,10 @@ export function arPlural(count: number, singular: string, dual: string, plural: 
   return `${n} ${accusative ?? singular}`;
 }
 
-/** Strip HTML tags and limit length — use before any DB insert of user text */
+/** Strip HTML and limit length — use before any DB insert of user text.
+ *  Escapes < and > instead of stripping tags to prevent unclosed-tag XSS bypass. */
 export function sanitizeInput(s: string, maxLength = 2000): string {
-  return s.trim().replace(/<[^>]+>/g, '').slice(0, maxLength);
+  return s.trim().replace(/</g, '&lt;').replace(/>/g, '&gt;').slice(0, maxLength);
 }
 
 /**
