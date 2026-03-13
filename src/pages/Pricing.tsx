@@ -107,7 +107,7 @@ export default function Pricing() {
   // Unified coupon: from URL params via SalesFlowService, fallback to initial capture
   const couponFromUrl = checkoutCoupon || offer.coupon || initialCouponRef.current;
 
-  useEffect(() => { navigatingRef.current = false; events.pricingView(); }, []);
+  useEffect(() => { navigatingRef.current = false; events.pricingView(); return () => { navigatingRef.current = false; }; }, []);
 
   useEffect(() => {
     let mounted = true;
@@ -220,9 +220,12 @@ export default function Pricing() {
             navigatingRef.current = true;
             setLoadingPlan(planKey);
             events.checkoutStart(planKey, billingCycle);
+            // Reset navigatingRef after 30s if checkout didn't redirect
+            const navTimeout = setTimeout(() => { navigatingRef.current = false; setLoadingPlan(null); }, 30000);
             try {
               await upgradeTo(planKey, billingCycle, couponFromUrl);
             } catch (err: unknown) {
+              clearTimeout(navTimeout);
               navigatingRef.current = false;
               setLoadingPlan(null);
               const msg = err instanceof Error ? err.message : '';

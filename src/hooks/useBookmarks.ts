@@ -1,4 +1,5 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
+import { toast } from 'sonner';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
 
@@ -82,8 +83,12 @@ export function useBookmarks(): {
     return () => { mounted = false; };
   }, [user]);
 
+  const togglingRef = useRef<Set<string>>(new Set());
+
   const toggle = useCallback(
     (slug: string) => {
+      if (togglingRef.current.has(slug)) return;
+
       setBookmarks((prev) => {
         const next = new Set(prev);
         const adding = !next.has(slug);
@@ -95,26 +100,24 @@ export function useBookmarks(): {
         }
 
         if (user) {
-          // Supabase sync
-          if (adding) {
-            supabase
-              .from('user_bookmarks')
-              .upsert({ user_id: user.id, peptide_slug: slug }, { onConflict: 'user_id,peptide_slug' })
-              .then(({ error }) => {
-                if (error) console.error('Bookmark upsert error:', error);
+          togglingRef.current.add(slug);
+          const op = adding
+            ? supabase.from('user_bookmarks').upsert({ user_id: user.id, peptide_slug: slug }, { onConflict: 'user_id,peptide_slug' })
+            : supabase.from('user_bookmarks').delete().eq('user_id', user.id).eq('peptide_slug', slug);
+
+          op.then(({ error }) => {
+            togglingRef.current.delete(slug);
+            if (error) {
+              // Rollback optimistic update
+              setBookmarks((cur) => {
+                const rolled = new Set(cur);
+                if (adding) rolled.delete(slug); else rolled.add(slug);
+                return rolled;
               });
-          } else {
-            supabase
-              .from('user_bookmarks')
-              .delete()
-              .eq('user_id', user.id)
-              .eq('peptide_slug', slug)
-              .then(({ error }) => {
-                if (error) console.error('Bookmark delete error:', error);
-              });
-          }
+              toast.error('تعذّر حفظ المفضّلة');
+            }
+          });
         } else {
-          // localStorage fallback
           try {
             localStorage.setItem('pptides_favorites', JSON.stringify([...next]));
           } catch (e) { console.warn('bookmark op failed:', e); }

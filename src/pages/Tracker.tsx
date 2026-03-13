@@ -180,8 +180,10 @@ export default function Tracker() {
 
   const PAGE_SIZE = 50;
 
+  const fetchingLogsRef = useRef(false);
   const fetchLogs = useCallback(async () => {
-    if (!user) return;
+    if (!user || fetchingLogsRef.current) return;
+    fetchingLogsRef.current = true;
     setIsLoadingLogs(true);
     setFetchError(false);
     try {
@@ -197,7 +199,7 @@ export default function Tracker() {
       if (count != null) setTotalCount(count);
       setHasMore(rows.length >= PAGE_SIZE);
     } catch { setFetchError(true); }
-    finally { setIsLoadingLogs(false); }
+    finally { fetchingLogsRef.current = false; setIsLoadingLogs(false); }
   }, [user]);
 
   useEffect(() => {

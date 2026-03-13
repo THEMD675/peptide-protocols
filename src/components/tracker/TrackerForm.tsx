@@ -56,11 +56,14 @@ export default function TrackerForm({
   const photoInputRef = useRef<HTMLInputElement>(null);
   const nextDoseTimerRef = useRef<ReturnType<typeof setTimeout>>(null);
   const formRef = useRef<HTMLFormElement>(null);
+  const submittingRef = useRef(false);
+  const draftTimerRef = useRef<ReturnType<typeof setTimeout>>(null);
 
-  // Cleanup timeout on unmount
+  // Cleanup timeouts on unmount
   useEffect(() => {
     return () => {
       if (nextDoseTimerRef.current) clearTimeout(nextDoseTimerRef.current);
+      if (draftTimerRef.current) clearTimeout(draftTimerRef.current);
     };
   }, []);
 
@@ -70,16 +73,19 @@ export default function TrackerForm({
 
   useEffect(() => {
     if (peptideName || dose) {
-      try {
-        sessionStorage.setItem('pptides_tracker_form_draft', JSON.stringify({
-          peptide: peptideName, dose, unit, site, notes,
-        }));
-      } catch (e) {
-        if (e instanceof DOMException && e.name === 'QuotaExceededError') {
-          try { sessionStorage.removeItem('pptides_tracker_form_draft'); } catch { /* ignore */ }
+      if (draftTimerRef.current) clearTimeout(draftTimerRef.current);
+      draftTimerRef.current = setTimeout(() => {
+        try {
+          sessionStorage.setItem('pptides_tracker_form_draft', JSON.stringify({
+            peptide: peptideName, dose, unit, site, notes,
+          }));
+        } catch (e) {
+          if (e instanceof DOMException && e.name === 'QuotaExceededError') {
+            try { sessionStorage.removeItem('pptides_tracker_form_draft'); } catch { /* ignore */ }
+          }
+          console.warn('tracker draft failed:', e);
         }
-        console.warn('tracker draft failed:', e);
-      }
+      }, 500);
     }
   }, [peptideName, dose, unit, site, notes]);
 
@@ -127,6 +133,7 @@ export default function TrackerForm({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (submittingRef.current) return;
     if (!peptideName.trim()) { toast.error('اختر الببتيد أولاً'); return; }
     // 14.5: Validate peptide_name against known peptides list
     if (!allPeptides.some(p => p.nameEn === peptideName.trim())) { toast.error('ببتيد غير معروف'); return; }
@@ -137,6 +144,7 @@ export default function TrackerForm({
     if (Number.isNaN(injectedDate.getTime())) { toast.error('التاريخ والوقت غير صالح'); return; }
     if (injectedDate.getTime() > Date.now() + 60000) { toast.error('لا يمكن تسجيل حقنة في المستقبل'); return; }
     (document.activeElement as HTMLElement)?.blur();
+    submittingRef.current = true;
     setIsSubmitting(true);
     try {
       const safeSideEffect = sideEffect === 'other' ? sanitizeInput(customSideEffect, 200) : '';
@@ -191,6 +199,7 @@ export default function TrackerForm({
         action: { label: 'أعد المحاولة', onClick: () => formRef.current?.requestSubmit() },
       });
     } finally {
+      submittingRef.current = false;
       setIsSubmitting(false);
     }
   };
@@ -255,7 +264,7 @@ export default function TrackerForm({
               dir="ltr"
               aria-invalid={!!isOutOfRange && !doseOutOfRangeConfirmed}
               aria-describedby={isOutOfRange ? 'dose-range-warning' : undefined}
-              className="w-full rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 px-4 py-3 text-base text-stone-900 dark:text-stone-100 placeholder:text-stone-500 dark:text-stone-300 focus:border-emerald-300 dark:border-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900"
+              className="w-full rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 px-4 py-3 text-base text-stone-900 dark:text-stone-100 placeholder:text-stone-500 dark:placeholder:text-stone-400 dark:text-stone-300 focus:border-emerald-300 dark:border-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900"
             />
           </div>
           <div className="w-28">
@@ -363,7 +372,7 @@ export default function TrackerForm({
               onChange={(e) => setCustomSideEffect(e.target.value)}
               placeholder="اكتب الأعراض الجانبية..."
               maxLength={60}
-              className="mt-2 w-full rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 px-4 py-2.5 text-sm text-stone-900 dark:text-stone-100 placeholder:text-stone-500 focus:border-emerald-300 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900"
+              className="mt-2 w-full rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 px-4 py-2.5 text-sm text-stone-900 dark:text-stone-100 placeholder:text-stone-500 dark:placeholder:text-stone-400 focus:border-emerald-300 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900"
             />
           )}
         </div>
@@ -406,7 +415,7 @@ export default function TrackerForm({
             placeholder="ملاحظات إضافية..."
             rows={3}
             maxLength={200}
-            className="w-full resize-none rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 px-4 py-3 text-base text-stone-900 dark:text-stone-100 placeholder:text-stone-500 dark:text-stone-300 focus:border-emerald-300 dark:border-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900"
+            className="w-full resize-none rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 px-4 py-3 text-base text-stone-900 dark:text-stone-100 placeholder:text-stone-500 dark:placeholder:text-stone-400 dark:text-stone-300 focus:border-emerald-300 dark:border-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900"
           />
           <p className={cn('mt-1 text-start text-xs', notes.length >= 180 ? 'text-amber-600' : 'text-stone-500 dark:text-stone-300')}>{notes.length}/200</p>
         </div>

@@ -103,25 +103,24 @@ export default function Account() {
     if (!user) return;
     let mounted = true;
     const loadStats = async () => {
-      const [injRes, protoRes, coachRes, authRes] = await Promise.all([
+      const [injRes, protoRes, coachRes, authRes] = await Promise.allSettled([
         supabase.from('injection_logs').select('id', { count: 'exact', head: true }).eq('user_id', user.id),
         supabase.from('user_protocols').select('id', { count: 'exact', head: true }).eq('user_id', user.id).eq('status', 'active'),
         supabase.from('coach_conversations').select('id', { count: 'exact', head: true }).eq('user_id', user.id),
-        // Fix: UUID v4 first segment is random (not a timestamp) — get real created_at from auth
         supabase.auth.getUser(),
       ]);
       if (!mounted) return;
-      if (injRes.error) console.error('injection_logs count failed:', injRes.error);
-      if (protoRes.error) console.error('user_protocols count failed:', protoRes.error);
-      if (coachRes.error) console.error('community_logs count failed:', coachRes.error);
-      const fullUser = authRes.data?.user;
+      const injCount = injRes.status === 'fulfilled' && !injRes.value.error ? (injRes.value.count ?? 0) : 0;
+      const protoCount = protoRes.status === 'fulfilled' && !protoRes.value.error ? (protoRes.value.count ?? 0) : 0;
+      const coachCount = coachRes.status === 'fulfilled' && !coachRes.value.error ? (coachRes.value.count ?? 0) : 0;
+      const fullUser = authRes.status === 'fulfilled' ? authRes.value.data?.user : null;
       const memberSinceDate = fullUser?.created_at
         ? new Date(fullUser.created_at).toLocaleDateString('ar-u-nu-latn', { year: 'numeric', month: 'long' })
         : new Date().toLocaleDateString('ar-u-nu-latn', { year: 'numeric', month: 'long' });
       setUsageStats({
-        injections: injRes.count ?? 0,
-        protocols: protoRes.count ?? 0,
-        coachMessages: coachRes.count ?? 0,
+        injections: injCount,
+        protocols: protoCount,
+        coachMessages: coachCount,
         memberSince: memberSinceDate,
       });
     };
