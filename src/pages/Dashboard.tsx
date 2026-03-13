@@ -176,6 +176,14 @@ function useRecentActivity(userId: string | undefined) {
   const [uniquePeptidesCount, setUniquePeptidesCount] = useState(0);
 
   const [cutoff] = useState(() => new Date(Date.now() - 35 * 24 * 60 * 60 * 1000).toISOString());
+  const [refetchKey, setRefetchKey] = useState(0);
+
+  // 31.3: Auto-retry on network reconnection
+  useEffect(() => {
+    const onOnline = () => { setRefetchKey(k => k + 1); };
+    window.addEventListener('pptides:online', onOnline);
+    return () => { window.removeEventListener('pptides:online', onOnline); };
+  }, []);
 
   const loadMore = useCallback(async () => {
     if (!userId || loadingMore || logs.length === 0) return;
@@ -246,7 +254,7 @@ function useRecentActivity(userId: string | undefined) {
       }
     }, 30000);
     return () => { mounted = false; clearTimeout(loadingTimeout); };
-  }, [userId, cutoff]);
+  }, [userId, cutoff, refetchKey]);
 
   const activePeptides = [...new Set(logs.map(l => l.peptide_name))];
   const totalInjections = totalCount || logs.length;
