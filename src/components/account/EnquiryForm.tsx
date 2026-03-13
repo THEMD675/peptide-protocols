@@ -115,7 +115,7 @@ export default function EnquiryForm({ userEmail, userId }: EnquiryFormProps) {
               required
               className="w-full rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 px-4 py-2.5 text-sm text-stone-900 dark:text-stone-100 placeholder:text-stone-500 dark:text-stone-300 outline-none resize-none focus:border-emerald-300 dark:border-emerald-700 focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-500"
             />
-            <p className="text-[10px] text-stone-500 dark:text-stone-300 mt-1 text-left" dir="ltr">{message.length}/2000</p>
+            <p className="text-xs text-stone-500 dark:text-stone-300 mt-1 text-end" dir="ltr">{message.length}/2000</p>
           </div>
           <button
             type="submit"

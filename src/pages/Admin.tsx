@@ -329,7 +329,7 @@ export default function Admin() {
     }
     return () => { if (searchTimerRef.current) clearTimeout(searchTimerRef.current); };
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [userSearch]);
+  }, [userSearch, userFilter]);
 
   // --- Admin action caller ---
   const adminAction = useCallback(async (body: Record<string, unknown>) => {

@@ -101,6 +101,10 @@ serve(async (req) => {
       const durationDays = body.duration_days != null ? Number(body.duration_days) : 30
       if (!userId || !tier || !Number.isFinite(durationDays) || durationDays < 1) return json({ error: 'Missing user_id, tier, or invalid duration' }, 400, cors)
 
+      // Verify user exists before granting
+      const { data: authUser, error: authErr } = await admin.auth.admin.getUserById(userId)
+      if (authErr || !authUser?.user) return json({ error: 'User not found — check the user_id' }, 404, cors)
+
       const periodEnd = new Date(Date.now() + durationDays * 86400000).toISOString()
       const grantSource = `admin_comp:${user.email}:${new Date().toISOString()}`
       const { data: existing } = await admin.from('subscriptions').select('id').eq('user_id', userId).maybeSingle()

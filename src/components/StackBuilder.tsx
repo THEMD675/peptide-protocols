@@ -361,15 +361,23 @@ export default function StackBuilder() {
   const stackParam = searchParams.get('stack');
   useEffect(() => {
     if (stackParam) {
-      const ids = stackParam.split(',').filter((id) => realPeptides.some((p) => p.id === id));
-      if (ids.length > 0) setSelectedIds(ids.slice(0, MAX_STACK_SIZE));
+      const ids = stackParam.split(',').filter((id) => realPeptides.some((p) => p.id === id)).slice(0, MAX_STACK_SIZE);
+      if (ids.length > 0) {
+        setSelectedIds(prev => {
+          const same = prev.length === ids.length && prev.every((id, i) => id === ids[i]);
+          return same ? prev : ids;
+        });
+      }
     }
   }, [stackParam]);
 
   // Update URL when selection changes
   useEffect(() => {
+    const current = searchParams.get('stack') ?? '';
+    const next = selectedIds.join(',');
+    if (next === current) return; // no-op — prevents circular update
     if (selectedIds.length > 0) {
-      setSearchParams({ stack: selectedIds.join(',') }, { replace: true });
+      setSearchParams({ stack: next }, { replace: true });
     } else {
       searchParams.delete('stack');
       setSearchParams(searchParams, { replace: true });

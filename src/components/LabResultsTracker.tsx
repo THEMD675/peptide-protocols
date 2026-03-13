@@ -445,9 +445,9 @@ function LabEntryForm({
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2">
                   <span className="text-sm font-bold text-stone-200 truncate">{bio.nameAr}</span>
-                  <span className="text-[10px] text-stone-400" dir="ltr">{bio.nameEn}</span>
+                  <span className="text-xs text-stone-400" dir="ltr">{bio.nameEn}</span>
                 </div>
-                <div className="text-[10px] text-stone-400 mt-0.5" dir="ltr">
+                <div className="text-xs text-stone-400 mt-0.5" dir="ltr">
                   {bio.normalMin}–{bio.normalMax} {bio.unit}
                 </div>
               </div>
@@ -471,7 +471,7 @@ function LabEntryForm({
                     )}
                   />
                 </div>
-                <span className="text-[10px] text-stone-400 w-14 text-start" dir="ltr">{bio.unit}</span>
+                <span className="text-xs text-stone-400 w-14 text-start" dir="ltr">{bio.unit}</span>
                 {status && (
                   <span className={cn('h-2 w-2 rounded-full shrink-0', STATUS_DOT[status])} />
                 )}
@@ -852,7 +852,7 @@ export default function LabResultsTracker() {
                   </div>
                   <div className="flex items-center gap-2">
                     {abnormalCount > 0 && (
-                      <span className="rounded-full bg-amber-500/10 border border-amber-500/30 px-2 py-0.5 text-[10px] font-bold text-amber-400">
+                      <span className="rounded-full bg-amber-500/10 border border-amber-500/30 px-2 py-0.5 text-xs font-bold text-amber-400">
                         {abnormalCount} غير طبيعي
                       </span>
                     )}
@@ -873,7 +873,7 @@ export default function LabResultsTracker() {
                       if (catBiomarkers.length === 0) return null;
                       return (
                         <div key={cat.id}>
-                          <p className="text-[10px] font-bold text-stone-400 mb-1.5 flex items-center gap-1">
+                          <p className="text-xs font-bold text-stone-400 mb-1.5 flex items-center gap-1">
                             <cat.icon className="h-3 w-3" /> {cat.nameAr}
                           </p>
                           <div className="space-y-1">
@@ -886,7 +886,7 @@ export default function LabResultsTracker() {
                                   <div className="flex items-center gap-2">
                                     <span className={cn('h-2 w-2 rounded-full', STATUS_DOT[status])} />
                                     <span className="text-xs font-bold text-stone-300">{bio.nameAr}</span>
-                                    <span className="text-[10px] text-stone-600" dir="ltr">{bio.nameEn}</span>
+                                    <span className="text-xs text-stone-600" dir="ltr">{bio.nameEn}</span>
                                   </div>
                                   <div className="flex items-center gap-2">
                                     <span className="text-xs font-bold text-stone-200 tabular-nums" dir="ltr">
@@ -917,7 +917,7 @@ export default function LabResultsTracker() {
                       <button
                         onClick={() => handleDelete(entry.id)}
                         aria-label={`حذف نتائج تحليل ${formatDate(entry.test_date)}`}
-                        className="min-h-[44px] px-3 text-[10px] text-red-400/60 hover:text-red-400 transition-colors"
+                        className="min-h-[44px] px-3 text-xs text-red-400/60 hover:text-red-400 transition-colors"
                       >
                         حذف هذا التحليل
                       </button>
@@ -968,11 +968,11 @@ export default function LabResultsTracker() {
                 <h4 className="text-sm font-bold text-stone-200">
                   {getBiomarker(selectedBiomarker)?.nameAr}
                 </h4>
-                <span className="text-[10px] text-stone-400" dir="ltr">
+                <span className="text-xs text-stone-400" dir="ltr">
                   {getBiomarker(selectedBiomarker)?.nameEn} ({getBiomarker(selectedBiomarker)?.unit})
                 </span>
               </div>
-              <p className="text-[10px] text-stone-400 mb-1" dir="ltr">
+              <p className="text-xs text-stone-400 mb-1" dir="ltr">
                 النطاق الطبيعي: {getBiomarker(selectedBiomarker)?.normalMin}–{getBiomarker(selectedBiomarker)?.normalMax} {getBiomarker(selectedBiomarker)?.unit}
               </p>
               <BiomarkerTrendChart entries={entries} biomarkerId={selectedBiomarker} />
@@ -988,15 +988,15 @@ export default function LabResultsTracker() {
                 return (
                   <div className="flex items-center gap-4 mt-3 pt-3 border-t border-stone-800">
                     <div className="text-center">
-                      <p className="text-[10px] text-stone-400">أحدث</p>
+                      <p className="text-xs text-stone-400">أحدث</p>
                       <p className="text-sm font-bold text-stone-200" dir="ltr">{latest}</p>
                     </div>
                     <div className="text-center">
-                      <p className="text-[10px] text-stone-400">أقدم</p>
+                      <p className="text-xs text-stone-400">أقدم</p>
                       <p className="text-sm font-bold text-stone-200" dir="ltr">{oldest}</p>
                     </div>
                     <div className="text-center">
-                      <p className="text-[10px] text-stone-400">التغيير</p>
+                      <p className="text-xs text-stone-400">التغيير</p>
                       <p className={cn(
                         'text-sm font-bold',
                         change > 0 ? 'text-emerald-400' : change < 0 ? 'text-red-400' : 'text-stone-400'
@@ -1018,7 +1018,7 @@ export default function LabResultsTracker() {
                 >
                   <div className="flex items-center justify-between mb-1">
                     <span className="text-xs font-bold text-stone-300">{bio.nameAr}</span>
-                    <span className="text-[10px] text-stone-400" dir="ltr">{bio.unit}</span>
+                    <span className="text-xs text-stone-400" dir="ltr">{bio.unit}</span>
                   </div>
                   <BiomarkerTrendChart entries={entries} biomarkerId={bio.id} />
                 </div>
@@ -1067,13 +1067,13 @@ export default function LabResultsTracker() {
           {/* Legend */}
           {insights.length > 0 && (
             <div className="flex items-center gap-4 pt-3 border-t border-stone-800">
-              <div className="flex items-center gap-1.5 text-[10px] text-stone-400">
+              <div className="flex items-center gap-1.5 text-xs text-stone-400">
                 <CheckCircle className="h-3 w-3 text-emerald-400" /> تحسّن
               </div>
-              <div className="flex items-center gap-1.5 text-[10px] text-stone-400">
+              <div className="flex items-center gap-1.5 text-xs text-stone-400">
                 <AlertTriangle className="h-3 w-3 text-red-400" /> تنبيه
               </div>
-              <div className="flex items-center gap-1.5 text-[10px] text-stone-400">
+              <div className="flex items-center gap-1.5 text-xs text-stone-400">
                 <Info className="h-3 w-3 text-blue-400" /> اقتراح
               </div>
             </div>

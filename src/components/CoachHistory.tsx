@@ -53,6 +53,7 @@ export default function CoachHistory({
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
   const [refreshSignal, setRefreshSignal] = useState(0);
+  const [fetchError, setFetchError] = useState(false);
   const mountedRef = useRef(true);
 
   const refreshHistory = useCallback(() => setRefreshSignal(s => s + 1), []);
@@ -67,8 +68,9 @@ export default function CoachHistory({
       .eq('user_id', user.id)
       .order('updated_at', { ascending: false })
       .limit(PAGE_SIZE)
-      .then(({ data }) => {
+      .then(({ data, error }) => {
         if (!mountedRef.current) return;
+        if (error) { setFetchError(true); setLoading(false); return; }
         if (data) {
           const valid = (data as CoachConversation[]).filter(
             c => Array.isArray(c.messages) && c.messages.length > 0,
@@ -77,7 +79,7 @@ export default function CoachHistory({
           setHasMore(data.length === PAGE_SIZE);
         }
         setLoading(false);
-      });
+      }).catch(() => { if (mountedRef.current) { setFetchError(true); setLoading(false); } });
     return () => { mountedRef.current = false; };
   }, [user, refreshSignal]);
 
@@ -142,6 +144,11 @@ export default function CoachHistory({
               {[0, 1, 2].map(i => (
                 <div key={i} className="h-12 animate-pulse rounded-lg bg-stone-100 dark:bg-stone-800" />
               ))}
+            </div>
+          ) : fetchError ? (
+            <div className="px-4 py-6 text-center">
+              <p className="text-sm text-red-500 mb-2">تعذّر تحميل المحادثات</p>
+              <button type="button" onClick={() => { setFetchError(false); setRefreshSignal(s => s + 1); }} className="text-xs text-emerald-600 hover:underline min-h-[44px]">حاول مرة أخرى</button>
             </div>
           ) : conversations.length === 0 ? (
             <div className="px-4 py-6 text-center">

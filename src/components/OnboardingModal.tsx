@@ -123,7 +123,7 @@ export default function OnboardingModal({ forceOpen, onClose: externalClose }: {
         onboarding_goals: { goal: selectedGoal, ts: Date.now() },
         onboarding_completed_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
-      }).eq('user_id', user.id).then(() => {}).catch((e) => { logError('OnboardingModal: failed to persist goals', e); });
+      }).eq('user_id', user.id).then(({ error }) => { if (error) { logError('OnboardingModal: failed to persist goals', error); toast.error('تعذّر حفظ أهدافك — حاول لاحقًا من الإعدادات'); } }).catch((e) => { logError('OnboardingModal: failed to persist goals', e); });
     }
     setShow(false);
     externalClose?.();

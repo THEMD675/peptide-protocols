@@ -370,7 +370,16 @@ function useActiveProtocols(userId: string | undefined) {
       .eq('user_id', userId)
       .eq('status', 'active')
       .order('started_at', { ascending: false });
-    if (!error && data) setProtocols(data);
+    if (!error && data) {
+      // Auto-complete expired protocols
+      const now = Date.now();
+      const expired = data.filter(p => p.started_at && p.cycle_weeks && (now - new Date(p.started_at).getTime()) > p.cycle_weeks * 7 * 86400000);
+      if (expired.length > 0) {
+        const ids = expired.map(p => p.id);
+        supabase.from('user_protocols').update({ status: 'completed', updated_at: new Date().toISOString() }).in('id', ids).eq('user_id', userId).then(() => {});
+      }
+      setProtocols(data);
+    }
     setLoading(false);
   }, [userId]);
   useEffect(() => {

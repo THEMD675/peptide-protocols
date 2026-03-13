@@ -57,15 +57,17 @@ serve(async (req) => {
 
     const supabase = createClient(supabaseUrl, supabaseServiceKey)
 
-    // Check for duplicate event (SELECT-based) before processing
-    const { data: existingEvent } = await supabase
+    // Atomic dedup: INSERT with ON CONFLICT prevents concurrent duplicates
+    const { error: dedupError } = await supabase
       .from('processed_webhook_events')
-      .select('event_id')
-      .eq('event_id', event.id)
-      .maybeSingle()
-    if (existingEvent) {
+      .insert({ event_id: event.id, event_type: event.type, processed_at: new Date().toISOString() })
+    if (dedupError?.code === '23505') {
       console.log('stripe-webhook: duplicate event skipped:', event.id)
       return jsonResponse({ received: true, duplicate: true })
+    }
+    if (dedupError) {
+      console.error('stripe-webhook: dedup insert failed:', dedupError)
+      // Continue processing — better to risk duplicate than miss event
     }
 
     let dbFailed = false
@@ -739,14 +741,6 @@ serve(async (req) => {
     if (dbFailed) {
       console.error(JSON.stringify({ severity: 'CRITICAL', action: 'webhook_db_failed', event_type: event.type, event_id: event.id, timestamp: new Date().toISOString() }))
       return jsonResponse({ error: 'Database update failed' }, 500)
-    }
-
-    // Mark event as processed AFTER handler succeeds (atomic with success)
-    const { error: dedupError } = await supabase
-      .from('processed_webhook_events')
-      .insert({ event_id: event.id, event_type: event.type })
-    if (dedupError && dedupError.code !== '23505') {
-      console.error('stripe-webhook: post-processing dedup insert failed:', dedupError)
     }
 
     return jsonResponse({ received: true })

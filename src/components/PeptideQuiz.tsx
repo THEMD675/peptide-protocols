@@ -6,6 +6,7 @@ import {
   Syringe, Pill, SprayCan, Dumbbell, Moon, Sparkles,
   Activity, AlertTriangle, Bookmark, Calculator, Gift,
 } from 'lucide-react';
+import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
 import { PRICING, TRIAL_DAYS } from '@/lib/constants';
@@ -360,13 +361,13 @@ function getProtocol(answers: QuizAnswers): ProtocolResult {
       peptideId: primary.id,
       nameAr: pData.nameAr,
       nameEn: pData.nameEn,
-      reason: pData.summaryAr.split('.').slice(0, 2).join('.') + '.',
+      reason: (pData.summaryAr ?? '').split('.').slice(0, 2).join('.') + '.',
     },
     supporting: supportingCandidates.map(sp => ({
       peptideId: sp.id,
       nameAr: sp.nameAr,
       nameEn: sp.nameEn,
-      reason: sp.summaryAr.split('.')[0] + '.',
+      reason: (sp.summaryAr ?? '').split('.')[0] + '.',
     })),
     dosingSchedule,
     monthlyCost: primaryCost,
@@ -459,7 +460,7 @@ export default function PeptideQuiz() {
     const peptide = allPeptides.find(p => p.id === resultParam);
     if (peptide) {
       const minimalResult: ProtocolResult = {
-        primary: { peptideId: peptide.id, nameAr: peptide.nameAr, nameEn: peptide.nameEn, reason: peptide.summaryAr.split('.').slice(0, 2).join('.') + '.' },
+        primary: { peptideId: peptide.id, nameAr: peptide.nameAr, nameEn: peptide.nameEn, reason: (peptide.summaryAr ?? '').split('.').slice(0, 2).join('.') + '.' },
         supporting: [],
         dosingSchedule: peptide.dosageAr ? peptide.dosageAr.split('.')[0] + '.' : 'اشترك لعرض الجرعة',
         monthlyCost: peptide.costEstimate || 'غير محدد',
@@ -555,7 +556,7 @@ export default function PeptideQuiz() {
         if (user) {
           supabase.from('user_profiles').update({
             goals: [updated.goal],
-          }).eq('user_id', user.id).then(() => {}).catch((e) => { logError('PeptideQuiz: failed to save goals', e); });
+          }).eq('user_id', user.id).then(({ error }) => { if (error) toast.error('تعذّر حفظ أهدافك'); }).catch((e) => { logError('PeptideQuiz: failed to save goals', e); });
         }
       } else {
         setDirection('forward');
@@ -812,6 +813,23 @@ export default function PeptideQuiz() {
               {user ? 'ابدأ هذا البروتوكول' : `ابدأ بروتوكولك — ${TRIAL_DAYS} أيام مجانًا`}
               <ArrowLeft className="h-4 w-4" />
             </Link>
+
+            <Link
+              to={`/peptide/${result.primary.peptideId}`}
+              className="flex items-center justify-center gap-2 rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 px-5 py-3 text-sm font-bold text-stone-700 dark:text-stone-200 transition-all hover:border-emerald-300 dark:hover:border-emerald-700"
+            >
+              <FlaskConical className="h-4 w-4" />
+              تعرّف أكثر على {result.primary.nameAr}
+            </Link>
+
+            {user && (
+              <Link
+                to={`/coach?q=${encodeURIComponent(`الاختبار نصحني بـ ${result.primary.nameAr} — هل هو مناسب لحالتي؟`)}`}
+                className="flex items-center justify-center gap-2 rounded-xl border border-emerald-200 dark:border-emerald-700 bg-emerald-50 dark:bg-emerald-900/20 px-5 py-3 text-sm font-bold text-emerald-700 dark:text-emerald-400 transition-all hover:bg-emerald-100 dark:hover:bg-emerald-900/40"
+              >
+                اسأل المدرب عن هذا
+              </Link>
+            )}
 
             {hasCalcPreset && (
               <Link

@@ -15,6 +15,8 @@ import {
   Calendar,
   Gift,
   Calculator,
+  Activity,
+  Heart,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { events } from '@/lib/analytics';
@@ -644,8 +646,9 @@ export default function Tracker() {
                             message: `هل تريد إنهاء بروتوكول ${peptide?.nameAr ?? proto.peptide_id}؟ لا يمكن التراجع.`,
                             isDestructive: true,
                             onConfirm: async () => {
+                              if (!user) { toast.error('انتهت الجلسة — أعد تسجيل الدخول'); setConfirmDialog(null); return; }
                               setConfirmBusy(true);
-                              const { error } = await supabase.from('user_protocols').update({ status: 'completed', updated_at: new Date().toISOString() }).eq('id', proto.id).eq('user_id', user!.id);
+                              const { error } = await supabase.from('user_protocols').update({ status: 'completed', updated_at: new Date().toISOString() }).eq('id', proto.id).eq('user_id', user.id);
                               if (!error) { toast.success('تم إنهاء البروتوكول'); fetchActiveProtocols(); } else { toast.error('تعذّر إنهاء البروتوكول — تحقق من اتصالك وحاول مرة أخرى'); }
                               setConfirmBusy(false);
                               setConfirmDialog(null);
@@ -674,8 +677,9 @@ export default function Tracker() {
                             title: 'إنهاء الدورة',
                             message: `سيتم تحديث بروتوكول ${peptide?.nameAr ?? proto.peptide_id} إلى "مكتمل". يمكنك بدء دورة جديدة بعدها.`,
                             onConfirm: async () => {
+                              if (!user) { toast.error('انتهت الجلسة — أعد تسجيل الدخول'); setConfirmDialog(null); return; }
                               setConfirmBusy(true);
-                              const { error } = await supabase.from('user_protocols').update({ status: 'completed', updated_at: new Date().toISOString() }).eq('id', proto.id).eq('user_id', user!.id);
+                              const { error } = await supabase.from('user_protocols').update({ status: 'completed', updated_at: new Date().toISOString() }).eq('id', proto.id).eq('user_id', user.id);
                               if (!error) { toast.success('تم إكمال الدورة — يمكنك بدء دورة جديدة'); fetchActiveProtocols(); } else { toast.error('تعذّر تحديث البروتوكول'); }
                               setConfirmBusy(false);
                               setConfirmDialog(null);
@@ -834,16 +838,26 @@ export default function Tracker() {
               <button type="button" onClick={() => setLastLoggedPeptide(null)} className="text-xs text-stone-500 dark:text-stone-400 hover:text-stone-700 dark:hover:text-stone-200 min-h-[44px] min-w-[44px] flex items-center justify-center" aria-label="إغلاق">✕</button>
             </div>
             <p className="text-xs text-stone-700 dark:text-stone-300 mb-1">النتائج المتوقعة خلال <span className="font-bold">{feedback.weeks} أسابيع</span></p>
-            <p className="text-xs text-stone-700 dark:text-stone-300 mb-3">ما يجب تتبّعه: <span className="font-bold">{feedback.track}</span></p>
-            <Link to="/coach" className="inline-flex items-center gap-1 text-xs font-bold text-emerald-700 dark:text-emerald-400 hover:underline">
-              اسأل المدرب عن هذا الببتيد ←
-            </Link>
+            <p className="text-xs text-stone-700 dark:text-stone-300 mb-4">ما يجب تتبّعه: <span className="font-bold">{feedback.track}</span></p>
+            <div className="flex flex-wrap gap-2">
+              <Link to="/dashboard#wellness" className="inline-flex items-center gap-1.5 rounded-lg bg-emerald-600 px-3 py-2 text-xs font-bold text-white hover:bg-emerald-700 transition-colors min-h-[44px]">
+                <Heart className="h-3.5 w-3.5" />
+                سجّل حالتك اليوم
+              </Link>
+              <button type="button" onClick={() => { setLastLoggedPeptide(null); document.getElementById('side-effect-log')?.scrollIntoView({ behavior: 'smooth' }); }} className="inline-flex items-center gap-1.5 rounded-lg border border-amber-300 dark:border-amber-700 bg-amber-50 dark:bg-amber-900/20 px-3 py-2 text-xs font-bold text-amber-700 dark:text-amber-400 hover:bg-amber-100 dark:hover:bg-amber-900/40 transition-colors min-h-[44px]">
+                <Activity className="h-3.5 w-3.5" />
+                سجّل أعراض جانبية
+              </button>
+              <Link to="/coach" className="inline-flex items-center gap-1.5 rounded-lg border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-800 px-3 py-2 text-xs font-bold text-stone-700 dark:text-stone-200 hover:bg-stone-50 dark:hover:bg-stone-700 transition-colors min-h-[44px]">
+                اسأل المدرب ←
+              </Link>
+            </div>
           </div>
         );
       })()}
 
       {/* Side Effect Log */}
-      <div className="mb-8">
+      <div id="side-effect-log" className="mb-8">
         <SideEffectLog />
       </div>
 

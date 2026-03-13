@@ -107,7 +107,7 @@ export default function TrackerHeatmap({
                   <div key={wi} className="flex flex-col gap-1">
                     {week.map((day) => {
                       const intensity = day.count === 0 ? 0 : Math.min(Math.ceil((day.count / heatmapData.maxCount) * 4), 4);
-                      const isToday = day.key === new Date().toISOString().slice(0, 10);
+                      const isToday = day.key === new Date().toLocaleDateString('en-CA');
                       return (
                         <div
                           key={day.key}

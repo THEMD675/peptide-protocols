@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { Link, useSearchParams } from 'react-router-dom';
 import { Check, CheckCircle, Shield, Lock, CreditCard, RefreshCw, ChevronDown, MessageCircle, Crown, ArrowLeft, X, Gift } from 'lucide-react';
@@ -97,7 +97,10 @@ export default function Pricing() {
 
   const [searchParams, setSearchParams] = useSearchParams();
   const [loadingPlan, setLoadingPlan] = useState<string | null>(null);
-  const [billingCycle, setBillingCycle] = useState<'monthly' | 'annual'>('monthly');
+  const [billingCycle, setBillingCycleRaw] = useState<'monthly' | 'annual'>(() => {
+    try { const saved = sessionStorage.getItem('pptides_billing_cycle'); return saved === 'annual' ? 'annual' : 'monthly'; } catch { return 'monthly'; }
+  });
+  const setBillingCycle = useCallback((v: 'monthly' | 'annual') => { setBillingCycleRaw(v); try { sessionStorage.setItem('pptides_billing_cycle', v); } catch { /* expected */ } }, []);
   const [userCount, setUserCount] = useState(0);
   const [isLoadingPortal, setIsLoadingPortal] = useState(false);
   const navigatingRef = useRef(false);
@@ -112,7 +115,7 @@ export default function Pricing() {
 
   // Fix: BFCache restore resets navigatingRef so checkout button works after Back
   useEffect(() => {
-    const h = (e: PageTransitionEvent) => { if (e.persisted) { navigatingRef.current = false; setLoadingPlan(null); } };
+    const h = (e: PageTransitionEvent) => { if (e.persisted) { navigatingRef.current = false; setLoadingPlan(null); try { const saved = sessionStorage.getItem('pptides_billing_cycle'); if (saved === 'annual' || saved === 'monthly') setBillingCycle(saved); } catch { /* expected */ } } };
     window.addEventListener('pageshow', h);
     return () => window.removeEventListener('pageshow', h);
   }, []);

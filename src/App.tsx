@@ -5,7 +5,8 @@ import { Helmet, HelmetProvider } from 'react-helmet-async';
 import { Toaster } from 'sonner';
 const Analytics = lazy(() => import('@vercel/analytics/react').then(m => ({ default: m.Analytics })));
 const SpeedInsights = lazy(() => import('@vercel/speed-insights/react').then(m => ({ default: m.SpeedInsights })));
-import { SITE_URL, STORAGE_KEYS } from '@/lib/constants';
+import { SITE_URL, STORAGE_KEYS, REFERRAL_CODE_REGEX } from '@/lib/constants';
+import { hasOptionalConsent } from '@/lib/cookie-utils';
 import { events } from '@/lib/analytics';
 import { logError } from '@/lib/logger';
 import Header from '@/components/layout/Header';
@@ -197,6 +198,23 @@ function ScrollToTop() {
   return null;
 }
 
+/** Capture ?ref= param on ANY page (not just Landing) */
+function ReferralCapture() {
+  const { search } = useLocation();
+  useEffect(() => {
+    try {
+      const ref = new URLSearchParams(search).get('ref');
+      if (ref && REFERRAL_CODE_REGEX.test(ref)) {
+        localStorage.setItem('pptides_referral', ref);
+        const url = new URL(window.location.href);
+        url.searchParams.delete('ref');
+        window.history.replaceState({}, '', url.toString());
+      }
+    } catch { /* expected */ }
+  }, [search]);
+  return null;
+}
+
 function TrackPageView() {
   const { pathname } = useLocation();
   useEffect(() => {
@@ -313,6 +331,7 @@ export default function App() {
           <Header />
           <TrialBanner />
           <ScrollToTop />
+          <ReferralCapture />
           <TrackPageView />
           <CanonicalUrl />
           <Toaster position="top-center" richColors dir="rtl" visibleToasts={3} toastOptions={{ duration: 6000 }} />
@@ -363,8 +382,8 @@ export default function App() {
           <BackToTop />
           <OverlayGate />
           <LazyFallback><Suspense fallback={null}><InstallPrompt /></Suspense></LazyFallback>
-          <Suspense fallback={null}><Analytics /></Suspense>
-          <Suspense fallback={null}><SpeedInsights /></Suspense>
+          {hasOptionalConsent() && <Suspense fallback={null}><Analytics /></Suspense>}
+          {hasOptionalConsent() && <Suspense fallback={null}><SpeedInsights /></Suspense>}
         </div>
         </ErrorBoundary>
       </AuthProvider>

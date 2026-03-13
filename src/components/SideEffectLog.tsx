@@ -119,7 +119,11 @@ export default function SideEffectLog() {
         created_at: new Date().toISOString(),
       });
       if (error) throw error;
-      toast.success('تم تسجيل العرض الجانبي');
+      if (severity >= 4) {
+        toast.warning('⚠ عرض جانبي شديد — استشر طبيبك فورًا. فكّر في إيقاف البروتوكول مؤقتًا.', { duration: 10000 });
+      } else {
+        toast.success('تم تسجيل العرض الجانبي');
+      }
       setSymptom('');
       setSeverity(1);
       setPeptideId('');
@@ -332,7 +336,7 @@ export default function SideEffectLog() {
                   value={searchQuery}
                   onChange={e => setSearchQuery(e.target.value)}
                   placeholder="ابحث عن عرض..."
-                  className="w-full rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 pr-9 pl-4 py-2 text-sm text-stone-900 dark:text-stone-100 placeholder:text-stone-400 focus:border-emerald-300 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900"
+                  className="w-full rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 pe-9 ps-4 py-2 text-sm text-stone-900 dark:text-stone-100 placeholder:text-stone-400 focus:border-emerald-300 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900"
                 />
               </div>
               <div className="flex gap-1.5">

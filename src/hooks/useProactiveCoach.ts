@@ -41,6 +41,15 @@ interface UserProactiveData {
   wellnessLogs: { energy: number; sleep: number; pain: number; mood: number; logged_at: string }[];
 }
 
+// Biomarker ID → unit lookup (mirrors LabResultsTracker BIOMARKERS)
+const BIOMARKER_UNITS: Record<string, string> = {
+  igf1: 'ng/mL', testosterone: 'ng/dL', tsh: 'mIU/L', ft3: 'pg/mL', ft4: 'ng/dL',
+  alt: 'U/L', ast: 'U/L', creatinine: 'mg/dL', egfr: 'mL/min',
+  fasting_glucose: 'mg/dL', hba1c: '%', total_cholesterol: 'mg/dL', hdl: 'mg/dL',
+  ldl: 'mg/dL', triglycerides: 'mg/dL', crp: 'mg/L',
+  wbc: '×10³/µL', rbc: '×10⁶/µL', hemoglobin: 'g/dL', hematocrit: '%', platelets: '×10³/µL',
+};
+
 function daysSince(dateStr: string): number {
   return Math.floor((Date.now() - new Date(dateStr).getTime()) / (1000 * 60 * 60 * 24));
 }
@@ -59,7 +68,7 @@ async function fetchProactiveData(userId: string): Promise<UserProactiveData> {
   const [injRes, sideRes, labRes, wellRes, protoRes, userRes, convRes, profileRes, injCountRes] = await Promise.all([
     supabase.from('injection_logs').select('peptide_name, logged_at').eq('user_id', userId).order('logged_at', { ascending: false }).limit(30),
     supabase.from('side_effect_logs').select('symptom, peptide_id, created_at').eq('user_id', userId).order('created_at', { ascending: false }).limit(5),
-    supabase.from('lab_results').select('test_id, value, unit, tested_at').eq('user_id', userId).order('tested_at', { ascending: false }).limit(10),
+    supabase.from('lab_results').select('id, test_date, lab_name, results, notes, created_at').eq('user_id', userId).order('test_date', { ascending: false }).limit(10),
     supabase.from('wellness_logs').select('energy, sleep, pain, mood, logged_at').eq('user_id', userId).order('logged_at', { ascending: false }).limit(14),
     supabase.from('user_protocols').select('peptide_id, cycle_weeks, started_at, status, dose, dose_unit').eq('user_id', userId).order('started_at', { ascending: false }).limit(10),
     supabase.auth.getUser(),
@@ -96,7 +105,17 @@ async function fetchProactiveData(userId: string): Promise<UserProactiveData> {
 
   // Lab results
   const hasLabResults = labLogs.length > 0;
-  const labHighlights = labLogs.map(l => ({ test_id: l.test_id, value: l.value, unit: l.unit ?? '', tested_at: l.tested_at }));
+  // Flatten JSONB results into individual biomarker entries
+  const labHighlights: UserProactiveData['labHighlights'] = [];
+  for (const row of labLogs) {
+    if (row.results && typeof row.results === 'object') {
+      for (const [key, val] of Object.entries(row.results as Record<string, number>)) {
+        if (typeof val === 'number') {
+          labHighlights.push({ test_id: key, value: val, unit: BIOMARKER_UNITS[key] ?? '', tested_at: row.test_date });
+        }
+      }
+    }
+  }
 
   // Compute wellness trends for each metric
   function computeTrend(logs: typeof wellLogs, key: 'energy' | 'sleep' | 'pain' | 'mood') {

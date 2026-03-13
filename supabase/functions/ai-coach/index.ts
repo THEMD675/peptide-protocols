@@ -392,7 +392,7 @@ serve(async (req) => {
 
     const [wellnessResult, labResult, protocolResult, sideEffectResult, profileResult, lastConvResult, injectionResult, referralResult] = await Promise.all([
       supabase.from('wellness_logs').select('energy, sleep, pain, mood, appetite, logged_at').eq('user_id', user.id).order('logged_at', { ascending: false }).limit(10),
-      supabase.from('lab_results').select('test_id, value, unit, tested_at').eq('user_id', user.id).order('tested_at', { ascending: false }).limit(10),
+      supabase.from('lab_results').select('id, test_date, lab_name, results, notes, created_at').eq('user_id', user.id).order('test_date', { ascending: false }).limit(10),
       supabase.from('user_protocols').select('peptide_id, dose, dose_unit, frequency, cycle_weeks, started_at, status').eq('user_id', user.id).order('started_at', { ascending: false }).limit(10),
       supabase.from('side_effect_logs').select('symptom, severity, peptide_id, notes, created_at').eq('user_id', user.id).order('created_at', { ascending: false }).limit(10),
       supabase.from('user_profiles').select('goals, weight_kg, onboarding_goals').eq('user_id', user.id).maybeSingle(),
@@ -488,12 +488,22 @@ serve(async (req) => {
       }
     }
 
-    // Lab results
+    // Lab results (results is JSONB Record<string, number>)
     if (labData.length > 0) {
-      const entries = labData.map(l =>
-        `${l.tested_at}: ${l.test_id} = ${l.value} ${l.unit ?? ''}`
-      ).join('\n')
-      userContextMsg += `\n\nنتائج التحاليل الأخيرة للمستخدم:\n${entries}`
+      const entries: string[] = []
+      for (const row of labData) {
+        const date = row.test_date ?? 'unknown'
+        const labName = row.lab_name ? ` (${row.lab_name})` : ''
+        if (row.results && typeof row.results === 'object') {
+          for (const [biomarker, value] of Object.entries(row.results as Record<string, number>)) {
+            entries.push(`${date}${labName}: ${biomarker} = ${value}`)
+          }
+        }
+        if (row.notes) entries.push(`ملاحظات: ${row.notes}`)
+      }
+      if (entries.length > 0) {
+        userContextMsg += `\n\nنتائج التحاليل الأخيرة للمستخدم:\n${entries.join('\n')}`
+      }
     }
 
     // Side effects
