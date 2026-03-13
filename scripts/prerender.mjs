@@ -145,13 +145,41 @@ async function main() {
   for (const route of routes) {
     try {
       const page = await browser.newPage();
-      // Block images/fonts/analytics to speed up rendering
+      // Block images/media, analytics, and service worker to speed up rendering
       await page.setRequestInterception(true);
       page.on('request', (req) => {
+        const url = req.url();
         const type = req.resourceType();
-        if (['image', 'font', 'media'].includes(type)) {
+        // Block heavy media (but NOT fonts — needed for layout)
+        if (['image', 'media'].includes(type)) {
           req.abort();
-        } else if (req.url().includes('google') || req.url().includes('analytics') || req.url().includes('sentry')) {
+          return;
+        }
+        // Block service worker registration — SW intercepts navigations and
+        // causes net::ERR_FAILED on subsequent routes in the same browser
+        if (url.includes('/registerSW.js') || url.includes('/sw.js') || url.includes('/sw.mjs')) {
+          req.abort();
+          return;
+        }
+        // Block Vercel analytics scripts (don't exist on local server)
+        if (url.includes('/_vercel/')) {
+          req.abort();
+          return;
+        }
+        // Block specific analytics/tracking domains (NOT all "google" URLs)
+        const blockedDomains = [
+          'google-analytics.com',
+          'googletagmanager.com',
+          'analytics.google.com',
+          'www.google-analytics.com',
+          'sentry.io',
+          'browser.sentry-cdn.com',
+          'hotjar.com',
+          'clarity.ms',
+          'facebook.net',
+          'fbevents.js',
+        ];
+        if (blockedDomains.some((d) => url.includes(d))) {
           req.abort();
         } else {
           req.continue();
