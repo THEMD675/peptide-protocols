@@ -253,6 +253,14 @@ const PROMPT_INJECTION_PATTERNS = [
   /اكشف\s+(لي\s+)?تعليماتك/,
   /اعرض\s+(لي\s+)?النظام/,
   /ما\s+هي\s+تعليماتك/,
+  /تعليمات\s+النظام/,
+  /القواعد/,
+  /تجاهل\s+السابق/,
+  /تجاهل\s+التعليمات/,
+  /أخبرني\s+بالقواعد/,
+  /ignore\s+(previous|prior)/i,
+  /ignore\s+instructions/i,
+  /system\s+instructions/i,
 ]
 
 function containsPromptInjection(text: string): boolean {
@@ -597,7 +605,7 @@ serve(async (req) => {
     }
 
     const response = await fetch('https://api.deepseek.com/chat/completions', {
-      signal: AbortSignal.timeout(30000),
+      signal: AbortSignal.timeout(60000),
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

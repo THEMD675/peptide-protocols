@@ -144,6 +144,26 @@ serve(async (req) => {
     // Skip Stripe trial if user already had ANY trial (DB trial_ends_at set) or a prior Stripe sub
     const hadTrialOrSub = !!existingSub?.stripe_subscription_id || !!existingSub?.trial_ends_at
 
+    // DB-level lock: prevent double-submit race condition by checking for a recent pending session
+    // Uses Supabase service role to upsert a checkout lock record per user
+    {
+      const adminDb = createClient(supabaseUrl, serviceKey)
+      const fiveMinAgo = new Date(Date.now() - 5 * 60 * 1000).toISOString()
+      const { data: existingLock } = await adminDb
+        .from('checkout_locks')
+        .select('stripe_session_url, created_at')
+        .eq('user_id', user.id)
+        .gte('created_at', fiveMinAgo)
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .maybeSingle()
+      if (existingLock?.stripe_session_url) {
+        return new Response(JSON.stringify({ url: existingLock.stripe_session_url }), {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        })
+      }
+    }
+
     const openSessions = await stripe.checkout.sessions.list({
       limit: 10,
       ...(existingSub?.stripe_customer_id ? { customer: existingSub.stripe_customer_id } : {}),
@@ -201,6 +221,9 @@ serve(async (req) => {
       checkoutDiscount = couponParam
     }
 
+    // Idempotency key: user + price + 5-minute bucket to prevent duplicate sessions on double-click/retry
+    const idempotencyKey = `${user.id}_${priceId}_${Math.floor(Date.now() / 300000)}`
+
     const session = await stripe.checkout.sessions.create({
       mode: 'subscription',
       payment_method_types: ['card'],
@@ -223,7 +246,25 @@ serve(async (req) => {
       custom_text: {
         submit: { message: hadTrialOrSub ? 'اشتراكك يبدأ فورًا — إلغاء في أي وقت' : 'تجربة مجانية ٣ أيام — لن يتم خصم أي مبلغ الآن' },
       },
+    }, {
+      idempotencyKey,
     })
+
+    // Persist checkout lock so double-submits within 5 minutes return this session
+    if (session.url) {
+      try {
+        const adminDb = createClient(supabaseUrl, serviceKey)
+        await adminDb.from('checkout_locks').upsert({
+          user_id: user.id,
+          stripe_session_url: session.url,
+          stripe_session_id: session.id,
+          created_at: new Date().toISOString(),
+        }, { onConflict: 'user_id' })
+      } catch (lockErr) {
+        console.error('create-checkout: failed to persist checkout lock:', lockErr)
+        // Non-fatal — the session was already created
+      }
+    }
 
     return new Response(JSON.stringify({ url: session.url }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },

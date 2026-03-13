@@ -11,7 +11,7 @@ import { TRIAL_DAYS, SITE_URL } from '@/lib/constants';
 import { Gift } from 'lucide-react';
 
 const TURNSTILE_SITE_KEY = import.meta.env.VITE_TURNSTILE_SITE_KEY ?? '';
-const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID ?? '803062121443-7497cu9tfra080sr835benjs5gl9295o.apps.googleusercontent.com';
+const GOOGLE_CLIENT_ID: string | undefined = import.meta.env.VITE_GOOGLE_CLIENT_ID || (import.meta.env.PROD ? undefined : undefined);
 
 type Tab = 'login' | 'signup';
 
