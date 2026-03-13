@@ -18,6 +18,7 @@ interface ProtocolRow {
   label: string;
   value: string;
   highlight?: boolean;
+  dir?: 'ltr' | 'rtl';
 }
 
 
@@ -103,7 +104,7 @@ export default function PeptideDetail() {
 
   const proto = protocol;
   const rows: ProtocolRow[] = [
-    { label: 'الاسم العلمي', value: peptide.nameEn },
+    { label: 'الاسم العلمي', value: peptide.nameEn, dir: 'ltr' as const },
     { label: 'عدد الأحماض الأمينية', value: peptide.aminoAcids },
     { label: 'آلية العمل', value: proto?.mechanism_ar ?? '' },
     { label: 'الجرعة الموصى بها', value: proto?.dosage_ar ?? '', highlight: true },
@@ -371,7 +372,7 @@ export default function PeptideDetail() {
                     >
                       {row.label}
                     </th>
-                    <td className="px-5 py-5 text-sm leading-relaxed text-stone-800 dark:text-stone-200">
+                    <td className="px-5 py-5 text-sm leading-relaxed text-stone-800 dark:text-stone-200" dir={row.dir}>
                       {row.value}
                     </td>
                   </tr>
@@ -576,7 +577,7 @@ export default function PeptideDetail() {
                       >
                         {row.label}
                       </th>
-                      <td className="px-5 py-5 text-sm leading-relaxed text-stone-800 dark:text-stone-200">
+                      <td className="px-5 py-5 text-sm leading-relaxed text-stone-800 dark:text-stone-200" dir={row.dir}>
                         {row.value}
                       </td>
                     </tr>

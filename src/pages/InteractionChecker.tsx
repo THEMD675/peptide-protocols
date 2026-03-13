@@ -519,8 +519,8 @@ export default function InteractionChecker() {
                 </div>
                 <p className="text-2xl font-black text-emerald-700 dark:text-emerald-400">
                   {stackSummary.costMin === stackSummary.costMax
-                    ? `${stackSummary.costMin.toLocaleString('ar-SA')}`
-                    : `${stackSummary.costMin.toLocaleString('ar-SA')}–${stackSummary.costMax.toLocaleString('ar-SA')}`}
+                    ? `${stackSummary.costMin.toLocaleString('ar-u-nu-latn')}`
+                    : `${stackSummary.costMin.toLocaleString('ar-u-nu-latn')}–${stackSummary.costMax.toLocaleString('ar-u-nu-latn')}`}
                   <span className="text-sm font-medium text-stone-500 dark:text-stone-300 me-1"> ر.س/شهر</span>
                 </p>
                 <p className="mt-1 text-xs text-stone-500 dark:text-stone-400">تقدير تقريبي — الأسعار تختلف حسب المصدر</p>

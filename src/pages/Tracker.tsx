@@ -161,7 +161,7 @@ export default function Tracker() {
   const fetchActiveProtocols = useCallback(async () => {
     if (!user) return;
     const { data, error } = await supabase.from('user_protocols').select('id, peptide_id, dose, dose_unit, frequency, cycle_weeks, started_at, status').eq('user_id', user.id).eq('status', 'active').order('started_at', { ascending: false }).limit(20);
-    if (error) console.error('active protocols query failed:', error);
+    if (error) { console.error('active protocols query failed:', error); toast.error('تعذّر تحميل البروتوكولات — حاول مرة أخرى'); }
     if (!error && data) setActiveProtocols(data);
   }, [user]);
   useEffect(() => { fetchActiveProtocols().catch((e: unknown) => console.warn("silent catch:", e)); }, [fetchActiveProtocols]);

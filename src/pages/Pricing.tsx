@@ -356,7 +356,7 @@ export default function Pricing() {
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
                 <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500" />
               </span>
-              {userCount.toLocaleString('ar-SA')}+ مشترك نشط الآن
+              {userCount.toLocaleString('ar-u-nu-latn')}+ مشترك نشط الآن
             </div>
           )}
           <div className="mt-6 flex flex-col items-center gap-2 sm:flex-row sm:justify-center sm:gap-6 text-sm text-stone-500 dark:text-stone-300">

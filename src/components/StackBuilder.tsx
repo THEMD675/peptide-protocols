@@ -842,7 +842,7 @@ export default function StackBuilder() {
               </div>
               <p className="text-lg font-bold text-stone-900 dark:text-stone-100">
                 {totalCost.min > 0
-                  ? `${totalCost.min.toLocaleString('ar-SA')}-${totalCost.max.toLocaleString('ar-SA')} ر.س`
+                  ? `${totalCost.min.toLocaleString('ar-u-nu-latn')}-${totalCost.max.toLocaleString('ar-u-nu-latn')} ر.س`
                   : 'غير متوفر'}
               </p>
             </div>

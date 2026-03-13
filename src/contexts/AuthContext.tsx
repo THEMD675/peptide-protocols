@@ -302,7 +302,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           }
           return;
         }
-        if (attempts < 20) { timer = setTimeout(poll, Math.min(3000 * Math.pow(1.5, attempts - 1), 15000)); }
+        if (attempts < 40) { timer = setTimeout(poll, Math.min(3000 * Math.pow(1.3, attempts - 1), 10000)); }
         else {
           await fetchSubscription(user.id);
           cleanUrl();
@@ -419,9 +419,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   fetchSubRef.current = fetchSubscription;
 
   useEffect(() => {
-    const handler = async (e: StorageEvent) => {
-      if (e.key?.startsWith('sb-')) {
-        // Re-check auth state instead of using stale user from closure
+    let debounceTimer: ReturnType<typeof setTimeout>;
+    const handler = (e: StorageEvent) => {
+      if (!e.key?.startsWith('sb-')) return;
+      // 16.5: Debounce storage events and check fetchingRef to prevent race conditions
+      clearTimeout(debounceTimer);
+      debounceTimer = setTimeout(async () => {
+        if (fetchingRef.current) return;
         const { data: { user: currentUser } } = await supabase.auth.getUser();
         if (currentUser) {
           fetchSubRef.current(currentUser.id);
@@ -429,10 +433,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           setUser(null);
           setSubscription(DEFAULT_SUBSCRIPTION);
         }
-      }
+      }, 500);
     };
     window.addEventListener('storage', handler);
-    return () => window.removeEventListener('storage', handler);
+    return () => { window.removeEventListener('storage', handler); clearTimeout(debounceTimer); };
   }, []);
 
   useEffect(() => {
