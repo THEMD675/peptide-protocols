@@ -15,7 +15,7 @@ if (!supabaseUrl || !supabaseAnonKey) {
 let inMemoryLockPromise: Promise<unknown> = Promise.resolve();
 const safeLock: <R>(name: string, acquireTimeout: number, fn: () => Promise<R>) => Promise<R> =
   typeof globalThis.navigator?.locks?.request === 'function'
-    ? (name, acquireTimeout, fn) => navigator.locks.request(name, { signal: timeoutSignal(acquireTimeout) }, () => fn())
+    ? (name, acquireTimeout, fn) => navigator.locks.request(name, { signal: timeoutSignal(acquireTimeout) }, () => fn()).catch(() => fn())
     : async (_name, _acquireTimeout, fn) => {
         const prev = inMemoryLockPromise;
         let resolve: () => void;
@@ -58,7 +58,7 @@ async function checkSupabaseHealth(attempt = 0): Promise<void> {
       logError(`[pptides] Supabase health check failed: HTTP ${res.status}`);
     }
   } catch (err) {
-    if (err instanceof DOMException && err.name === 'AbortError') {
+    if (err instanceof DOMException && (err.name === 'AbortError' || err.name === 'TimeoutError')) {
       // Timed out — retry if attempts remain
       if (attempt < MAX_RETRIES) {
         const delay = Math.min(1000 * 2 ** attempt, 8000);
@@ -112,7 +112,6 @@ export function handleAuthError(error: { message?: string; code?: string; status
 
 if (supabaseUrl && typeof window !== 'undefined' && !healthCheckDone) {
   healthCheckDone = true;
-  checkSupabaseHealth();
-  // Re-check when user comes back online
-  window.addEventListener('online', () => checkSupabaseHealth(), { once: false });
+  checkSupabaseHealth().catch(() => { supabaseHealthy = false; });
+  window.addEventListener('online', () => checkSupabaseHealth().catch(() => { supabaseHealthy = false; }), { once: false });
 }
