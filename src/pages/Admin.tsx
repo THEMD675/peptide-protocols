@@ -204,18 +204,18 @@ const ACTIVITY_COLOR: Record<string, string> = { signup: 'bg-emerald-100 dark:bg
 // ========================================================
 
 // UX guard only — real authorization is enforced server-side in admin-stats and admin-actions edge functions.
-import { ADMIN_EMAILS } from '@/lib/constants';
+import { isAdmin } from '@/lib/constants';
 
 export default function Admin() {
   const { user } = useAuth();
   const [stats, setStats] = useState<AdminStats | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [forbidden, setForbidden] = useState(() => {
-    // Client-side guard: immediately block non-admin users
-    if (!user?.email) return true;
-    return !ADMIN_EMAILS.includes(user.email.toLowerCase());
-  });
+  const [forbidden, setForbidden] = useState(true);
+
+  useEffect(() => {
+    isAdmin(user?.email).then(ok => setForbidden(!ok));
+  }, [user?.email]);
   const [tab, setTab] = useState<Tab>('overview');
   const [lastFetched, setLastFetched] = useState<Date | null>(null);
 
@@ -555,8 +555,8 @@ export default function Admin() {
       </div>
     </div>
   );
-  // Client-side admin email whitelist guard — non-admin users see a 404
-  if (!ADMIN_EMAILS.includes(user.email ?? '')) return (
+  // Client-side admin hash guard — non-admin users see a 404
+  if (forbidden) return (
     <div className="flex min-h-screen items-center justify-center bg-stone-50 dark:bg-stone-950">
       <Helmet><title>404 | pptides</title></Helmet>
       <div className="text-center px-4">
@@ -565,19 +565,6 @@ export default function Admin() {
         <p className="text-sm text-stone-600 dark:text-stone-300 mb-6">الصفحة التي تبحث عنها غير موجودة.</p>
         <Link to="/" className="inline-flex items-center gap-2 rounded-full bg-emerald-600 px-8 py-3.5 text-base font-semibold text-white hover:bg-emerald-700 transition-colors">
           الرئيسية
-        </Link>
-      </div>
-    </div>
-  );
-  if (forbidden) return (
-    <div className="flex min-h-screen items-center justify-center bg-stone-50 dark:bg-stone-950" lang="ar" dir="rtl">
-      <Helmet><title>لوحة التحكم | pptides</title></Helmet>
-      <div className="text-center px-4">
-        <Shield className="mx-auto h-12 w-12 text-stone-300 mb-4" />
-        <h1 className="text-xl font-bold text-stone-900 dark:text-stone-100 mb-2">الوصول مرفوض</h1>
-        <p className="text-sm text-stone-600 dark:text-stone-300 mb-6">ليس لديك صلاحية للوصول إلى لوحة التحكم.</p>
-        <Link to="/dashboard" className="inline-flex items-center gap-2 rounded-full bg-emerald-600 px-8 py-3.5 text-base font-semibold text-white hover:bg-emerald-700 transition-colors">
-          العودة للوحة التحكم
         </Link>
       </div>
     </div>

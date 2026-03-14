@@ -1,6 +1,6 @@
 // PERF: These values are hardcoded to avoid importing peptides.ts (145KB) in the main bundle.
 // Update manually when adding/removing peptides or changing isFree/pubmedIds fields.
-// Last synced: 2026-03-11 (47 peptides, 7 free, 127 PubMed IDs)
+// Last synced: 2026-03-14 (69 peptides, 7 free, 127 PubMed IDs)
 
 /** Free peptide IDs — peptides with isFree: true in src/data/peptides.ts */
 export const FREE_PEPTIDE_IDS = new Set([
@@ -13,7 +13,7 @@ export const PRICING = {
 } as const;
 
 /** Total peptide count — update when adding/removing peptides */
-export const PEPTIDE_COUNT = 48;
+export const PEPTIDE_COUNT = 69;
 
 /** Unique PubMed ID count across all peptides — update when pubmedIds change */
 export const PUBMED_SOURCE_COUNT = 127;

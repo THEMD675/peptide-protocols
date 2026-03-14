@@ -459,6 +459,7 @@ export default function Contact() {
           {TURNSTILE_SITE_KEY && (
             <div ref={turnstileRef} className="flex justify-center" />
           )}
+          {fieldErrors.turnstile && <p role="alert" className="mt-1 text-center text-sm text-red-600 dark:text-red-400">{fieldErrors.turnstile}</p>}
 
           {/* Submit */}
           <button
