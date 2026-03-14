@@ -1,5 +1,7 @@
 import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 import { toast } from 'sonner';
+import { logError } from '@/lib/logger';
+import { timeoutSignal } from '@/lib/utils';
 
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL as string | undefined;
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined;
@@ -13,7 +15,7 @@ if (!supabaseUrl || !supabaseAnonKey) {
 let inMemoryLockPromise: Promise<unknown> = Promise.resolve();
 const safeLock: <R>(name: string, acquireTimeout: number, fn: () => Promise<R>) => Promise<R> =
   typeof globalThis.navigator?.locks?.request === 'function'
-    ? (name, acquireTimeout, fn) => navigator.locks.request(name, { signal: AbortSignal.timeout(acquireTimeout) }, () => fn())
+    ? (name, acquireTimeout, fn) => navigator.locks.request(name, { signal: timeoutSignal(acquireTimeout) }, () => fn())
     : async (_name, _acquireTimeout, fn) => {
         const prev = inMemoryLockPromise;
         let resolve: () => void;
@@ -44,7 +46,7 @@ async function checkSupabaseHealth(attempt = 0): Promise<void> {
     const res = await fetch(`${supabaseUrl}/rest/v1/`, {
       method: 'HEAD',
       headers: { apikey: supabaseAnonKey || '' },
-      signal: AbortSignal.timeout(10000),
+      signal: timeoutSignal(10000),
     });
     if (!res.ok && attempt < MAX_RETRIES) {
       const delay = Math.min(1000 * 2 ** attempt, 8000);
@@ -53,7 +55,7 @@ async function checkSupabaseHealth(attempt = 0): Promise<void> {
     }
     supabaseHealthy = res.ok;
     if (!res.ok) {
-      console.error(`[pptides] Supabase health check failed: HTTP ${res.status}`);
+      logError(`[pptides] Supabase health check failed: HTTP ${res.status}`);
     }
   } catch (err) {
     if (err instanceof DOMException && err.name === 'AbortError') {
@@ -76,7 +78,7 @@ async function checkSupabaseHealth(attempt = 0): Promise<void> {
           { duration: 15000, id: 'adblocker-warning' },
         );
       } else {
-        console.error('[pptides] Supabase health check failed:', err);
+        logError('[pptides] Supabase health check failed:', err);
       }
     }
   }

@@ -3,6 +3,7 @@ import { BookmarkPlus, Check, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { supabase } from '@/lib/supabase';
 import { toast } from 'sonner';
+import { logError } from '@/lib/logger';
 import { extractProtocolMeta } from '@/lib/coachFollowUps';
 
 interface SaveProtocolButtonProps {
@@ -36,7 +37,7 @@ export default function SaveProtocolButton({ protocolText, userId, conversationI
       setSaved(true);
       toast.success('تم حفظ البروتوكول بنجاح');
     } catch (err) {
-      console.error('Failed to save protocol:', err);
+      logError('Failed to save protocol:', err);
       toast.error('تعذّر حفظ البروتوكول — حاول مرة أخرى');
     } finally {
       setSaving(false);

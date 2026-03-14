@@ -226,18 +226,22 @@ export default function Landing() {
     <div className="min-h-screen bg-white dark:bg-stone-950">
       <Helmet>
         <title>pptides | أشمل دليل عربي للببتيدات العلاجية</title>
-        <meta name="description" content={`${PEPTIDE_COUNT} ببتيد علاجي مع بروتوكولات كاملة، حاسبة جرعات، ودليل تحاليل. أشمل دليل عربي مبني على الأبحاث.`} />
+        <meta name="description" content={`${PEPTIDE_COUNT} ببتيد علاجي مع بروتوكولات كاملة، حاسبة جرعات، ودليل تحاليل. أشمل دليل عربي مبني على الأبحاث. ابدأ تجربتك المجانية الآن واكتشف البروتوكول المناسب لك.`} />
         <meta property="og:locale" content="ar_SA" />
         <meta property="og:title" content={`pptides | أشمل دليل عربي للببتيدات العلاجية | ${PEPTIDE_COUNT}+ ببتيد`} />
         <meta property="og:description" content={`${PEPTIDE_COUNT} ببتيد علاجي مع بروتوكولات كاملة، حاسبة جرعات، ومدرب ذكي. مبني على الأبحاث.`} />
         <meta property="og:type" content="website" />
         <meta property="og:url" content={SITE_URL} />
         <meta property="og:image" content={`${SITE_URL}/og-image.jpg`} />
-        <link rel="canonical" href={SITE_URL} />
+        <meta property="og:image:alt" content="pptides — دليل الببتيدات العلاجية" />
+        <meta property="og:site_name" content="pptides" />
+        <link rel="canonical" href={SITE_URL + '/'} />
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content="pptides | أشمل دليل عربي للببتيدات العلاجية" />
         <meta name="twitter:description" content={`${PEPTIDE_COUNT} ببتيد علاجي مع بروتوكولات كاملة ومدرب ذكي.`} />
         <meta name="twitter:image" content={`${SITE_URL}/og-image.jpg`} />
+        <meta name="twitter:site" content="@pptides" />
+        <meta name="twitter:creator" content="@pptides" />
         <script type="application/ld+json">{JSON.stringify([
           {
             '@context': 'https://schema.org',
@@ -324,14 +328,6 @@ export default function Landing() {
             مبني على الأبحاث — مصمّم للنتائج.
           </p>
 
-          {/* Urgency nudge */}
-          {!user && (
-            <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-900/20 px-4 py-2 text-sm font-medium text-emerald-800 dark:text-emerald-300">
-              <span className="relative flex h-2 w-2 shrink-0" aria-hidden="true"><span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500" /></span>
-              التجربة المجانية متاحة — {TRIAL_DAYS} أيام بلا رسوم
-            </div>
-          )}
-
           <div className="flex flex-col items-center justify-center gap-3 sm:flex-row sm:gap-4">
             <Link
               to={ctaLink}
@@ -364,10 +360,6 @@ export default function Landing() {
             <span className="flex items-center gap-2 text-sm font-medium text-stone-700 dark:text-stone-200">
               <Lock className="h-4 w-4 text-emerald-700 dark:text-emerald-400" />
               إلغاء في أي وقت
-            </span>
-            <span className="hidden sm:block h-5 w-px bg-stone-300 dark:bg-stone-600/80" />
-            <span className="flex items-center gap-2 text-sm font-bold text-emerald-700 dark:text-emerald-400">
-              {TRIAL_DAYS} أيام مجانية — إلغاء في أي وقت
             </span>
           </div>
           <p className="mt-3 text-xs text-stone-600 dark:text-stone-300">تبدأ من {PRICING.essentials.label}/شهر فقط بعد التجربة</p>
@@ -547,81 +539,6 @@ export default function Landing() {
         <Suspense fallback={<div className="min-h-[360px] rounded-2xl bg-stone-100 dark:bg-stone-800 animate-pulse" />}><PeptideQuiz /></Suspense>
       </section>
 
-      {/* ═══════ PRODUCT PREVIEW — SHOW DON'T TELL ═══════ */}
-      {(() => {
-        const bpc = BPC_157_PREVIEW;
-        return (
-          <section className="cv-auto mx-auto max-w-5xl px-6 py-16 md:py-24">
-            <div className="mb-4 text-center">
-              <span className="inline-block rounded-full bg-emerald-50 dark:bg-emerald-900/30 px-4 py-1.5 text-sm font-semibold text-emerald-700 dark:text-emerald-400">شاهد بنفسك</span>
-            </div>
-            <h2 className="mb-4 text-center text-4xl font-extrabold text-stone-900 dark:text-stone-100 md:text-5xl">
-              هكذا تبدو <span className="text-emerald-700 dark:text-emerald-400">بطاقة البروتوكول</span>
-            </h2>
-            <p className="mx-auto mb-10 max-w-xl text-center text-stone-800 dark:text-stone-200">
-              هذا ما تحصل عليه لكل ببتيد — جرّب BPC-157 مجانًا
-            </p>
-
-            <div className="overflow-hidden rounded-2xl border-2 border-emerald-200 dark:border-emerald-800 bg-white dark:bg-stone-900 shadow-xl shadow-emerald-600/5">
-              <div className="flex items-center justify-between border-b border-stone-200 dark:border-stone-600 bg-emerald-50 dark:bg-emerald-900/30 px-6 py-3">
-                <div className="flex items-center gap-3">
-                  <span className="rounded-full bg-emerald-600 px-3 py-1 text-xs font-bold text-white">مجاني</span>
-                  <h3 className="text-lg font-bold text-stone-900 dark:text-stone-100">{bpc.nameAr}</h3>
-                  <span className="text-sm text-stone-500 dark:text-stone-300">{bpc.nameEn}</span>
-                </div>
-                <span className="rounded-full bg-emerald-100 dark:bg-emerald-900/30 px-3 py-1 text-xs font-bold text-emerald-800 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-700">الدليل: قوي</span>
-              </div>
-
-              <div className="grid md:grid-cols-2 divide-y md:divide-y-0 md:divide-x md:divide-x-reverse divide-stone-200 dark:divide-stone-700">
-                <div className="p-6 space-y-4">
-                  <div>
-                    <p className="text-xs font-bold text-emerald-700 dark:text-emerald-400 mb-1">الجرعة الموصى بها</p>
-                    <p className="text-sm text-stone-800 dark:text-stone-200">{bpc.dosageAr}</p>
-                  </div>
-                  <div>
-                    <p className="text-xs font-bold text-emerald-700 dark:text-emerald-400 mb-1">توقيت الاستخدام</p>
-                    <p className="text-sm text-stone-800 dark:text-stone-200">{bpc.timingAr}</p>
-                  </div>
-                  <div>
-                    <p className="text-xs font-bold text-emerald-700 dark:text-emerald-400 mb-1">مدة الدورة</p>
-                    <p className="text-sm text-stone-800 dark:text-stone-200">{bpc.cycleAr}</p>
-                  </div>
-                </div>
-                <div className="p-6 space-y-4">
-                  <div>
-                    <p className="text-xs font-bold text-emerald-700 dark:text-emerald-400 mb-1">طريقة الإعطاء</p>
-                    <p className="text-sm text-stone-800 dark:text-stone-200">{bpc.administrationAr}</p>
-                  </div>
-                  <div>
-                    <p className="text-xs font-bold text-emerald-700 dark:text-emerald-400 mb-1">التجميع الموصى به</p>
-                    <p className="text-sm text-stone-800 dark:text-stone-200">{bpc.stackAr}</p>
-                  </div>
-                  <div>
-                    <p className="text-xs font-bold text-emerald-700 dark:text-emerald-400 mb-1">التكلفة التقريبية</p>
-                    <p className="text-sm font-bold text-stone-900 dark:text-stone-100">{bpc.costEstimate}</p>
-                  </div>
-                </div>
-              </div>
-
-              <div className="border-t border-stone-200 dark:border-stone-600 bg-stone-50 dark:bg-stone-900 px-6 py-4 flex flex-col sm:flex-row items-center justify-between gap-3">
-                <p className="text-sm text-stone-600 dark:text-stone-300">هذا ببتيد واحد من {PEPTIDE_COUNT}. اشترك لفتح الكل.</p>
-                <div className="flex flex-wrap gap-3">
-                  <Link to="/calculator?peptide=BPC-157" className="text-sm font-semibold text-emerald-700 transition-colors hover:text-emerald-700 dark:text-emerald-400 hover:underline flex items-center gap-1 min-h-[44px]">
-                    احسب جرعتك بالحاسبة ←
-                  </Link>
-                  <Link to="/peptide/bpc-157" className="rounded-full border border-emerald-300 dark:border-emerald-700 px-5 py-2.5 min-h-[44px] inline-flex items-center text-sm font-bold text-emerald-700 dark:text-emerald-400 transition-colors hover:bg-emerald-50 dark:bg-emerald-900/30">
-                    شاهد البطاقة كاملة
-                  </Link>
-                  <Link to={ctaLink} className="rounded-full bg-emerald-600 px-4 py-2 min-h-[44px] inline-flex items-center text-sm font-bold text-white transition-colors hover:bg-emerald-700 active:scale-[0.98]">
-                    {ctaTextShort}
-                  </Link>
-                </div>
-              </div>
-            </div>
-          </section>
-        );
-      })()}
-
       {/* ═══════ EVIDENCE / CREDIBILITY ═══════ */}
       <section className="cv-auto mx-auto max-w-5xl px-6 py-24 md:py-32" aria-label="الأدلة العلمية">
         <div className="mb-4 text-center">
@@ -771,43 +688,55 @@ export default function Landing() {
       </section>
 
       {/* ═══════ SOCIAL PROOF ═══════ */}
-      {testimonials.length > 0 && (
-        <section className="cv-auto mx-auto max-w-5xl px-6 py-24 md:py-32">
-          <h2 className="mb-4 text-center text-4xl font-extrabold text-stone-900 dark:text-stone-100 md:text-5xl">
-            ماذا يقول <span className="text-emerald-700 dark:text-emerald-400">المستخدمون</span>
-          </h2>
-          <div className="mx-auto mb-12 flex flex-col items-center gap-3">
-            <div className="flex items-center gap-1.5" dir="ltr">
-              {[1,2,3,4,5].map(s => <Star key={s} className="h-5 w-5 fill-emerald-500 text-emerald-500" />)}
-              <span className="me-2 text-sm font-bold text-stone-700 dark:text-stone-200">5.0</span>
-              <span className="text-sm text-stone-500 dark:text-stone-300">({testimonials.length}+ تقييم موثّق)</span>
+      <section className="cv-auto mx-auto max-w-5xl px-6 py-24 md:py-32">
+        <h2 className="mb-4 text-center text-4xl font-extrabold text-stone-900 dark:text-stone-100 md:text-5xl">
+          ماذا يقول <span className="text-emerald-700 dark:text-emerald-400">المستخدمون</span>
+        </h2>
+        {testimonials.length > 0 ? (
+          <>
+            <div className="mx-auto mb-12 flex flex-col items-center gap-3">
+              {(() => {
+                const avg = testimonials.length > 0
+                  ? testimonials.reduce((sum, t) => sum + t.rating, 0) / testimonials.length
+                  : 5;
+                const rounded = Math.round(avg * 10) / 10;
+                return (
+                  <div className="flex items-center gap-1.5" dir="ltr">
+                    {[1,2,3,4,5].map(s => <Star key={s} className={cn('h-5 w-5', s <= Math.round(avg) ? 'fill-emerald-500 text-emerald-500' : 'fill-transparent text-stone-300')} />)}
+                    <span className="me-2 text-sm font-bold text-stone-700 dark:text-stone-200">{rounded.toFixed(1)}</span>
+                    <span className="text-sm text-stone-500 dark:text-stone-300">({testimonials.length}+ تقييم موثّق)</span>
+                  </div>
+                );
+              })()}
+              <p className="text-center text-stone-800 dark:text-stone-200">
+                {userCount >= 50 ? <>انضم لـ <strong><AnimatedCounter end={userCount} />+</strong> مستخدم من السعودية والخليج يثقون بـ pptides</> : <>مبني على أحدث الدراسات والأبحاث العلمية المحكّمة</>}
+              </p>
             </div>
-            <p className="text-center text-stone-800 dark:text-stone-200">
-              {userCount >= 50 ? <>انضم لـ <strong><AnimatedCounter end={userCount} />+</strong> مستخدم من السعودية والخليج يثقون بـ pptides</> : <>مبني على أحدث الدراسات والأبحاث العلمية المحكّمة</>}
-            </p>
-          </div>
 
-          <div className="grid gap-6 md:grid-cols-3" data-stagger>
-            {testimonials.map((t, idx) => (
-              <div key={t.name} data-reveal style={{ transitionDelay: `${idx * 0.1}s` }} className="rounded-2xl border border-stone-200 dark:border-stone-700/60 bg-white dark:bg-stone-900 p-7 transition-shadow duration-300 hover:border-emerald-200 dark:hover:border-emerald-800 hover:shadow-lg hover:-translate-y-1">
-                <div className="mb-4 flex gap-1" dir="ltr">
-                  {[1, 2, 3, 4, 5].map((s) => (
-                    <Star key={s} className={cn('h-4 w-4', s <= t.rating ? 'fill-emerald-500 text-emerald-500' : 'fill-transparent text-stone-300')} />
-                  ))}
-                </div>
-                <p className="mb-5 text-base leading-relaxed text-stone-800 dark:text-stone-200 line-clamp-4">&quot;{t.text}&quot;</p>
-                <div className="flex items-center gap-3">
-                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-emerald-100 dark:bg-emerald-900/30 text-sm font-bold text-emerald-700 dark:text-emerald-400">{t.name.charAt(0)}</div>
-                  <div>
-                    <p className="font-bold text-stone-900 dark:text-stone-100">{t.name}{t.location && <span className="me-1 text-xs font-normal text-stone-500 dark:text-stone-300">· {t.location}</span>}</p>
-                    <p className="text-sm text-stone-600 dark:text-stone-300">{t.role}</p>
+            <div className="grid gap-6 md:grid-cols-3" data-stagger>
+              {testimonials.map((t, idx) => (
+                <div key={t.name} data-reveal style={{ transitionDelay: `${idx * 0.1}s` }} className="rounded-2xl border border-stone-200 dark:border-stone-700/60 bg-white dark:bg-stone-900 p-7 transition-shadow duration-300 hover:border-emerald-200 dark:hover:border-emerald-800 hover:shadow-lg hover:-translate-y-1">
+                  <div className="mb-4 flex gap-1" dir="ltr">
+                    {[1, 2, 3, 4, 5].map((s) => (
+                      <Star key={s} className={cn('h-4 w-4', s <= t.rating ? 'fill-emerald-500 text-emerald-500' : 'fill-transparent text-stone-300')} />
+                    ))}
+                  </div>
+                  <p className="mb-5 text-base leading-relaxed text-stone-800 dark:text-stone-200 line-clamp-4">&quot;{t.text}&quot;</p>
+                  <div className="flex items-center gap-3">
+                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-emerald-100 dark:bg-emerald-900/30 text-sm font-bold text-emerald-700 dark:text-emerald-400">{t.name.charAt(0)}</div>
+                    <div>
+                      <p className="font-bold text-stone-900 dark:text-stone-100">{t.name}{t.location && <span className="me-1 text-xs font-normal text-stone-500 dark:text-stone-300">· {t.location}</span>}</p>
+                      <p className="text-sm text-stone-600 dark:text-stone-300">{t.role}</p>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
-          </div>
-        </section>
-      )}
+              ))}
+            </div>
+          </>
+        ) : (
+          <p className="text-center text-lg text-stone-500 dark:text-stone-400">جارٍ جمع التجارب — ترقّبوا آراء المستخدمين قريبًا</p>
+        )}
+      </section>
 
       {/* ═══════ FEATURE COMPARISON TABLE ═══════ */}
       <Suspense fallback={<div className="h-64 mx-6 animate-pulse rounded-2xl bg-stone-100 dark:bg-stone-800" aria-hidden="true" />}>

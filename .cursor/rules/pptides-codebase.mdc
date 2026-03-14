@@ -6,14 +6,14 @@ alwaysApply: true
 # pptides.com — Full Codebase Context
 
 ## What It Is
-Arabic RTL SaaS — first comprehensive Arabic peptide guide. 41+ peptides (count derived from data), 6 categories, dose calculator, AI coach (MSA), injection tracker, wellness check-in, lab results tracker, side effects log, subscription tiers. Live at https://pptides.com. Repo at ~/Desktop/Projects/REWIRE/peptide-protocols/.
+Arabic RTL SaaS — first comprehensive Arabic peptide guide. 47 peptides (count derived from data), 6 categories, dose calculator, AI coach (MSA), injection tracker, wellness check-in, lab results tracker, side effects log, subscription tiers. Live at https://pptides.com. Repo at ~/Desktop/Projects/REWIRE/peptide-protocols/.
 
 ## Stack
 React 18 + TypeScript + Vite 7 + Tailwind CSS + Supabase (auth + DB + edge functions) + Stripe + Resend + DeepSeek AI + Vercel. PWA via vite-plugin-pwa. Font: Cairo. Direction: RTL.
 
 ## File Map
 - `src/lib/` — supabase.ts, utils.ts (cn, arPlural), constants.ts (PRICING with annual, PEPTIDE_COUNT derived from peptides.length, FREQUENCY_LABELS shared constant, FREE_PEPTIDE_IDS, TRIAL_PEPTIDE_IDS, STORAGE_KEYS, SITE_URL), analytics.ts, peptide-labels.ts, markdown.tsx (DOMPurify-sanitized)
-- `src/data/` — peptides.ts (41 peptides, 6 categories, 5 stacks, 11 lab tests), dose-presets.ts, interactions.ts, glossary.ts
+- `src/data/` — peptides.ts (47 peptides, 6 categories, 5 stacks, 11 lab tests), dose-presets.ts, interactions.ts, glossary.ts
 - `src/contexts/` — AuthContext.tsx (Subscription state machine: none→trial→active→past_due→cancelled→expired, payment polling with specific error messages)
 - `src/components/` — Header, Footer, BottomNav (mobile 4-tab nav), ProtectedRoute, TrialBanner (uses AuthContext booleans, sequenced overlays), ProtocolWizard (React Router navigate), PaymentProcessing (React Router navigate), WellnessCheckin, LabResultsTracker, SideEffectLog, ShareableCard, Skeletons (Bone accepts style prop)
 - `src/pages/` — 24 pages. Key: Landing (instant render, no auth blocking), Library (diacritics-stripped search), Coach (DOMPurify-sanitized print, MSA system prompt, maxLength=2000), Dashboard (wellness + lab results for paid users), Tracker (CSV injection safe, computeStreak utility, side effects log), Account, DoseCalculator, Admin (server-side auth only, enquiry reply, lang="en"), Pricing (FAQ schema, annual pricing from constants), Logout, Quiz (h1 for SEO)

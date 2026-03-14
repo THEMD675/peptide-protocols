@@ -93,10 +93,10 @@ export default function ShareButtons({
         rel="noopener noreferrer"
         onClick={() => events.shareClick('twitter')}
         className={`${btnBase} border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 text-stone-700 dark:text-stone-200 hover:border-stone-400 dark:hover:border-stone-500`}
-        aria-label="مشاركة عبر تويتر"
+        aria-label="مشاركة عبر إكس"
       >
         <span className="text-base font-bold leading-none">𝕏</span>
-        {layout === 'row-label' && 'تويتر'}
+        {layout === 'row-label' && 'إكس'}
       </a>
 
       {/* Telegram */}

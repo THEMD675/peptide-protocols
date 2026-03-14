@@ -24,8 +24,6 @@ import {
 const AgeGate = lazy(() => import('@/components/AgeGate'));
 const PaymentProcessing = lazy(() => import('@/components/PaymentProcessing'));
 const InstallPrompt = lazy(() => import('@/components/InstallPrompt'));
-const StickyScrollCTA = lazy(() => import('@/components/StickyScrollCTA'));
-const ExitIntentPopup = lazy(() => import('@/components/ExitIntentPopup'));
 const CookieConsent = lazy(() => import('@/components/CookieConsent'));
 
 const Login = lazy(() => import('@/pages/Login'));
@@ -191,7 +189,10 @@ function ScrollToTop() {
   const { pathname } = useLocation();
   const navType = useNavigationType();
   useEffect(() => {
-    if (navType !== 'POP') {
+    window.history.scrollRestoration = 'auto';
+  }, []);
+  useEffect(() => {
+    if (navType === 'PUSH') {
       window.scrollTo(0, 0);
     }
   }, [pathname, navType]);
@@ -224,6 +225,20 @@ function TrackPageView() {
   return null;
 }
 
+function RouteAnnouncer() {
+  const { pathname } = useLocation();
+  const [announcement, setAnnouncement] = useState('');
+  useEffect(() => {
+    const t = setTimeout(() => setAnnouncement(document.title), 100);
+    return () => clearTimeout(t);
+  }, [pathname]);
+  return (
+    <div role="status" aria-live="polite" aria-atomic="true" className="sr-only">
+      {announcement}
+    </div>
+  );
+}
+
 function CanonicalUrl() {
   const { pathname } = useLocation();
   const url = `${SITE_URL}${pathname === '/' ? '' : pathname}`;
@@ -236,19 +251,24 @@ function CanonicalUrl() {
 
 function OfflineBanner() {
   const [offline, setOffline] = useState(!navigator.onLine);
+  const [dbDown, setDbDown] = useState(false);
   useEffect(() => {
     const goOffline = () => setOffline(true);
     const goOnline = () => {
       setOffline(false);
+      setDbDown(false);
       navigator.serviceWorker?.controller?.postMessage({ type: 'ONLINE' });
       window.dispatchEvent(new CustomEvent('pptides:online'));
     };
     window.addEventListener('offline', goOffline);
     window.addEventListener('online', goOnline);
-    return () => { window.removeEventListener('offline', goOffline); window.removeEventListener('online', goOnline); };
+    const checkDb = () => { import('@/lib/supabase').then(m => { if (!m.supabaseHealthy) setDbDown(true); }); };
+    const t = setTimeout(checkDb, 5000);
+    return () => { window.removeEventListener('offline', goOffline); window.removeEventListener('online', goOnline); clearTimeout(t); };
   }, []);
-  if (!offline) return null;
-  return <div className="sticky top-0 inset-x-0 z-[9990] bg-red-600 text-white text-center py-2 text-sm font-bold">أنت غير متصل بالإنترنت</div>;
+  if (offline) return <div className="sticky top-0 inset-x-0 z-[9990] bg-red-600 text-white text-center py-2 text-sm font-bold">أنت غير متصل بالإنترنت</div>;
+  if (dbDown) return <div className="sticky top-0 inset-x-0 z-[9990] bg-amber-500 text-white text-center py-2 text-sm font-bold">مشكلة في الاتصال بالخادم — بعض الميزات قد لا تعمل</div>;
+  return null;
 }
 
 function HomeRedirect() {
@@ -299,22 +319,19 @@ function useOverlayGate() {
 }
 
 function OverlayGate() {
-  const { ageVerified, showSecondary } = useOverlayGate();
-  const [showPromos, setShowPromos] = useState(false);
+  const { ageVerified } = useOverlayGate();
+  const [cookieDelayDone, setCookieDelayDone] = useState(false);
 
   useEffect(() => {
-    if (!showSecondary) return;
-    const t = setTimeout(() => setShowPromos(true), 30_000);
+    if (!ageVerified) return;
+    const t = setTimeout(() => setCookieDelayDone(true), 1000);
     return () => clearTimeout(t);
-  }, [showSecondary]);
+  }, [ageVerified]);
 
   return (
     <>
       <LazyFallback><Suspense fallback={null}><AgeGate /></Suspense></LazyFallback>
-      {ageVerified && <LazyFallback><Suspense fallback={null}><CookieConsent /></Suspense></LazyFallback>}
-      {showSecondary && showPromos && <LazyFallback><Suspense fallback={null}><StickyScrollCTA /></Suspense></LazyFallback>}
-      {showSecondary && showPromos && <LazyFallback><Suspense fallback={null}><ExitIntentPopup /></Suspense></LazyFallback>}
-      {/* DISABLED: Fake social proof — Ameer: "no fake shit" */}
+      {ageVerified && cookieDelayDone && <LazyFallback><Suspense fallback={null}><CookieConsent /></Suspense></LazyFallback>}
     </>
   );
 }
@@ -340,6 +357,7 @@ export default function App() {
           <ScrollToTop />
           <ReferralCapture />
           <TrackPageView />
+          <RouteAnnouncer />
           <CanonicalUrl />
           <Toaster position="top-center" richColors dir="rtl" visibleToasts={3} toastOptions={{ duration: 6000 }} />
           <main id="main-content" className="flex-1 pb-20 md:pb-0">
@@ -350,7 +368,7 @@ export default function App() {
               <Route path="/signup" element={<Suspense fallback={<PageLoader />}><RouteErrorBoundary fallbackTitle="خطأ في صفحة الدخول"><Login /></RouteErrorBoundary></Suspense>} />
               <Route path="/library" element={<Suspense fallback={<LibrarySkeleton />}><RouteErrorBoundary fallbackTitle="خطأ في المكتبة"><Library /></RouteErrorBoundary></Suspense>} />
               <Route path="/peptide/:id" element={<Suspense fallback={<PeptideDetailSkeleton />}><RouteErrorBoundary fallbackTitle="خطأ في صفحة الببتيد"><PeptideDetail /></RouteErrorBoundary></Suspense>} />
-              <Route path="/calculator" element={<ProtectedRoute><Suspense fallback={<CalculatorSkeleton />}><RouteErrorBoundary fallbackTitle="خطأ في الحاسبة"><DoseCalculator /></RouteErrorBoundary></Suspense></ProtectedRoute>} />
+              <Route path="/calculator" element={<Suspense fallback={<CalculatorSkeleton />}><RouteErrorBoundary fallbackTitle="خطأ في الحاسبة"><DoseCalculator /></RouteErrorBoundary></Suspense>} />
               <Route path="/quiz" element={<Suspense fallback={<PageLoader />}><RouteErrorBoundary fallbackTitle="خطأ في الاختبار"><Quiz /></RouteErrorBoundary></Suspense>} />
               <Route path="/stacks" element={<Suspense fallback={<GenericPageSkeleton />}><RouteErrorBoundary fallbackTitle="خطأ في التجميعات"><Stacks /></RouteErrorBoundary></Suspense>} />
               <Route path="/lab-guide" element={<ProtectedRoute><Suspense fallback={<GenericPageSkeleton />}><RouteErrorBoundary fallbackTitle="خطأ في دليل التحاليل"><LabGuide /></RouteErrorBoundary></Suspense></ProtectedRoute>} />
@@ -358,6 +376,7 @@ export default function App() {
               <Route path="/pricing" element={<Suspense fallback={<PricingSkeleton />}><RouteErrorBoundary fallbackTitle="خطأ في صفحة الأسعار"><Pricing /></RouteErrorBoundary></Suspense>} />
               <Route path="/coach" element={<ProtectedRoute><Suspense fallback={<CoachSkeleton />}><RouteErrorBoundary fallbackTitle="خطأ في المدرب الذكي"><Coach /></RouteErrorBoundary></Suspense></ProtectedRoute>} />
               <Route path="/reviews" element={<Navigate to="/community" replace />} />
+              <Route path="/labs" element={<Navigate to="/dashboard#lab-results" replace />} />
               {/* Legacy / alternative path redirects — never 404 */}
               <Route path="/dose-calculator" element={<Navigate to="/calculator" replace />} />
               <Route path="/library/:id" element={<LibraryIdRedirect />} />

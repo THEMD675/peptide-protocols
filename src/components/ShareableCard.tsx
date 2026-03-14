@@ -1,5 +1,5 @@
 import { memo, useRef, useCallback, useState, useEffect } from 'react';
-import { Share2, Copy, Check, MessageCircle, Download, Twitter, Send } from 'lucide-react';
+import { Share2, Copy, Check, MessageCircle, Download, Send } from 'lucide-react';
 import { toast } from 'sonner';
 import { SITE_URL, FREQUENCY_LABELS, REFERRAL_CODE_REGEX } from '@/lib/constants';
 import { copyToClipboard } from '@/lib/utils';
@@ -135,7 +135,7 @@ export default memo(function ShareableCard(props: ShareableCardProps) {
         </div>
         <p className="mt-3 text-[10px] text-stone-400">pptides.com</p>
       </div>
-      <div className="mt-3 flex gap-2">
+      <div className="mt-3 flex flex-wrap gap-2">
         <button
           onClick={handleImageExport}
           disabled={exporting}
@@ -155,10 +155,10 @@ export default memo(function ShareableCard(props: ShareableCardProps) {
         </button>
         <button
           onClick={handleTwitter}
-          aria-label="مشاركة عبر تويتر"
+          aria-label="مشاركة عبر إكس"
           className="flex items-center justify-center gap-2 rounded-xl bg-black px-4 py-2.5 text-sm font-bold text-white transition-colors hover:bg-stone-800"
         >
-          <Twitter className="h-4 w-4" />
+          <span className="text-base font-bold leading-none">𝕏</span>
         </button>
         <button
           onClick={handleTelegram}

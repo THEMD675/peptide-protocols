@@ -43,7 +43,8 @@ export default function TrialBanner() {
     if (upgradeLoading) return;
     setUpgradeLoading(true);
     try {
-      await upgradeTo('essentials', 'monthly', coupon);
+      const tier = (subscription.tier === 'elite' || subscription.tier === 'essentials') ? subscription.tier : 'essentials';
+      await upgradeTo(tier, 'monthly', coupon);
     } catch {
       setUpgradeLoading(false);
     }
@@ -236,64 +237,14 @@ export default function TrialBanner() {
       );
     }
 
-    return (
-      <div role="dialog" aria-modal="true" aria-describedby="sub-modal-desc-expired" className="fixed inset-0 z-50 flex items-center justify-center bg-stone-900/80 backdrop-blur-sm">
-        <Suspense fallback={null}><FocusTrap focusTrapOptions={{ allowOutsideClick: true }}>
-        <div className="mx-4 w-full max-w-md max-h-[90vh] overflow-y-auto rounded-2xl bg-white dark:bg-stone-900 p-10 text-center shadow-2xl" aria-labelledby="trial-modal-title">
-          <Shield className="mx-auto mb-4 h-12 w-12 text-emerald-700" />
-          <h2 id="trial-modal-title" className="mb-3 text-2xl font-bold text-stone-900 dark:text-stone-100">
-            {modalTitle}
-          </h2>
-          {offer.discountPercent != null ? (
-            <p className="mb-2 rounded-full bg-amber-100 dark:bg-amber-900/40 px-4 py-1.5 text-sm font-medium text-amber-800 dark:text-amber-200">
-              خصم {offer.discountPercent}% — عرض خاص
-            </p>
-          ) : null}
-          <p id="sub-modal-desc-expired" className="mb-4 text-stone-700 dark:text-stone-200">
-            {TRIAL.expiredModalBody}
-          </p>
-          {userStats && (userStats.injections > 0 || userStats.protocols > 0) && (
-            <p className="text-sm font-semibold text-amber-700 dark:text-amber-300 mt-2">
-              لديك {userStats.injections > 0 ? `${userStats.injections} حقنة مسجّلة` : ''}
-              {userStats.injections > 0 && userStats.protocols > 0 ? ' و' : ''}
-              {userStats.protocols > 0 ? `${userStats.protocols} بروتوكول نشط` : ''}
-              {' — اشترك للحفاظ على بياناتك'}
-            </p>
-          )}
-          <div className="flex flex-col gap-3">
-            <button
-              type="button"
-              onClick={() => handleUpgrade(offer.coupon)}
-              disabled={upgradeLoading}
-              className="inline-flex items-center justify-center gap-2 rounded-full bg-emerald-600 px-10 py-3.5 font-bold text-white shadow-lg transition-all hover:bg-emerald-700 hover:scale-105 active:scale-[0.98] disabled:opacity-70 disabled:cursor-not-allowed disabled:hover:scale-100"
-            >
-              {upgradeLoading ? <Loader2 className="h-5 w-5 animate-spin" /> : null}
-              اشترك — {PRICING.essentials.label}/شهريًا
-            </button>
-          </div>
-          <div className="mt-6 flex flex-wrap justify-center gap-3 text-sm">
-            <span className="text-stone-500 dark:text-stone-300">أو تصفّح المجاني:</span>
-            <Link to="/library" className="text-emerald-700 underline underline-offset-2 transition-colors hover:text-emerald-700 dark:text-emerald-400">المكتبة</Link>
-            <Link to="/calculator" className="text-emerald-700 underline underline-offset-2 transition-colors hover:text-emerald-700 dark:text-emerald-400">الحاسبة</Link>
-            <Link to="/interactions" className="text-emerald-700 underline underline-offset-2 transition-colors hover:text-emerald-700 dark:text-emerald-400">فحص التعارضات</Link>
-            <Link to="/glossary" className="text-emerald-700 underline underline-offset-2 transition-colors hover:text-emerald-700 dark:text-emerald-400">المصطلحات</Link>
-            <Link to="/sources" className="text-emerald-700 underline underline-offset-2 transition-colors hover:text-emerald-700 dark:text-emerald-400">المصادر</Link>
-            <Link to="/community" className="text-emerald-700 underline underline-offset-2 transition-colors hover:text-emerald-700 dark:text-emerald-400">التقييمات</Link>
-          </div>
-          <button
-            onClick={() => window.history.length > 1 ? window.history.back() : navigate('/')}
-            className="mt-4 min-h-[44px] px-3 py-2 text-sm text-stone-500 dark:text-stone-300 hover:text-stone-600 dark:text-stone-300 transition-colors"
-          >
-            رجوع
-          </button>
-        </div>
-        </FocusTrap></Suspense>
-      </div>
-    );
+    // On protected routes, ProtectedRoute will redirect expired users to /pricing.
+    // Don't render a blocking modal here — it causes a brief flash before the redirect.
+    if (!subscription.isProOrTrial) return null;
   }
 
   if (subscription.status === 'none') {
     if (isFreePage) return null;
+    if (!subscription.isProOrTrial) return null;
     return (
       <div role="dialog" aria-modal="true" aria-describedby="sub-modal-desc-none" className="fixed inset-0 z-50 flex items-center justify-center bg-stone-900/80 backdrop-blur-sm">
         <Suspense fallback={null}><FocusTrap focusTrapOptions={{ allowOutsideClick: true }}>

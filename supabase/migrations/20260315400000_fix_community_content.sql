@@ -1,0 +1,1 @@
+ALTER TABLE community_logs ALTER COLUMN content DROP NOT NULL;

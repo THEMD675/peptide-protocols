@@ -1,5 +1,5 @@
 import { useMemo, useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useSearchParams } from 'react-router-dom';
 import { ArrowRight, Shield, AlertTriangle, CheckCircle, Lock, Calculator, Bot, FlaskConical, Printer, MessageSquare, Star, Syringe, Play, ExternalLink, BookOpen, Heart, Newspaper } from 'lucide-react';
 import { useBookmarks } from '@/hooks/useBookmarks';
 import ProtocolWizard from '@/components/ProtocolWizard';
@@ -9,7 +9,7 @@ import { peptidesPublic } from '@/data/peptides-public';
 import { useAuth } from '@/contexts/AuthContext';
 import { usePeptideProtocol } from '@/hooks/usePeptideProtocol';
 import { supabase } from '@/lib/supabase';
-import { PRICING, SITE_URL, PEPTIDE_COUNT } from '@/lib/constants';
+import { PRICING, SITE_URL, PEPTIDE_COUNT, STORAGE_KEYS } from '@/lib/constants';
 import { DOSE_PRESETS_MAP as DOSE_PRESETS } from '@/data/dose-presets';
 import { evidenceColors, evidenceLabels, categoryLabels, categoryIcons } from '@/lib/peptide-labels';
 import ShareButtons from '@/components/ShareButtons';
@@ -24,11 +24,21 @@ interface ProtocolRow {
 
 export default function PeptideDetail() {
   const { id } = useParams<{ id: string }>();
-  const { subscription, isLoading } = useAuth();
+  const [searchParams] = useSearchParams();
+  const { user, subscription, isLoading } = useAuth();
   const _isPaid = !isLoading && (subscription?.isPaidSubscriber ?? false);
   const _isTrial = !isLoading && (subscription?.isTrial ?? false);
 
   const peptide = useMemo(() => peptidesPublic.find((p) => p.id === id), [id]);
+
+  // ?tab= deep link: scroll to section on load
+  useEffect(() => {
+    const tab = searchParams.get('tab');
+    if (tab) {
+      const el = document.getElementById(tab);
+      if (el) setTimeout(() => el.scrollIntoView({ behavior: 'smooth' }), 300);
+    }
+  }, [searchParams]);
   const { protocol, loading: protocolLoading } = usePeptideProtocol(id, peptide?.isFree ?? false);
   const [showProtocolWizard, setShowProtocolWizard] = useState(false);
   const { isBookmarked, toggle: toggleBookmark } = useBookmarks();
@@ -36,9 +46,9 @@ export default function PeptideDetail() {
   useEffect(() => {
     if (!peptide) return;
     try {
-      const recent = JSON.parse(localStorage.getItem('pptides_recent_peptides') ?? '[]');
+      const recent = JSON.parse(localStorage.getItem(STORAGE_KEYS.RECENT_PEPTIDES) ?? '[]');
       const updated = [peptide.id, ...recent.filter((rid: string) => rid !== peptide.id)].slice(0, 10);
-      localStorage.setItem('pptides_recent_peptides', JSON.stringify(updated));
+      localStorage.setItem(STORAGE_KEYS.RECENT_PEPTIDES, JSON.stringify(updated));
     } catch { /* expected */ }
   }, [peptide]);
 
@@ -90,7 +100,7 @@ export default function PeptideDetail() {
   }
 
   const isFreeContent = peptide?.isFree ?? false;
-  const hasAccess = isFreeContent || !!protocol;
+  const hasAccess = isFreeContent || (!!protocol && !!user);
   const firstSentence = peptide.summaryAr?.includes('.') ? peptide.summaryAr.split('.')[0] + '.' : (peptide.summaryAr ?? '');
 
   const evidenceMeter: { label: string; cls: string; sublabel: string } = ({
@@ -127,6 +137,8 @@ export default function PeptideDetail() {
         <meta property="og:type" content="article" />
         <meta property="og:url" content={`${SITE_URL}/peptide/${peptide.id}`} />
         <meta property="og:image" content={`${SITE_URL}/og-image.jpg`} />
+        <meta property="og:image:alt" content="pptides — دليل الببتيدات العلاجية" />
+        <meta property="og:site_name" content="pptides" />
         <meta property="og:locale" content="ar_SA" />
         <link rel="canonical" href={`${SITE_URL}/peptide/${peptide.id}`} />
         <meta name="twitter:card" content="summary_large_image" />
@@ -152,6 +164,8 @@ export default function PeptideDetail() {
         })}</script>
         <meta name="twitter:title" content={`${peptide.nameAr} | ${peptide.nameEn}`} />
         <meta name="twitter:description" content={peptide.summaryAr.slice(0, 160)} />
+        <meta name="twitter:site" content="@pptides" />
+        <meta name="twitter:creator" content="@pptides" />
         <script type="application/ld+json">{JSON.stringify({
           "@context": "https://schema.org",
           "@type": "BreadcrumbList",
@@ -311,9 +325,12 @@ export default function PeptideDetail() {
           </div>
 
           {peptide.costEstimate && (
-            <div className="mt-3 inline-flex items-center gap-2 rounded-lg border border-stone-200 dark:border-stone-600 bg-stone-50 dark:bg-stone-900 px-4 py-2">
-              <span className="text-xs text-stone-500 dark:text-stone-300">التكلفة التقريبية:</span>
-              <span className="text-sm font-bold text-stone-900 dark:text-stone-100" dir="ltr">{peptide.costEstimate}</span>
+            <div className="mt-3">
+              <div className="inline-flex items-center gap-2 rounded-lg border border-stone-200 dark:border-stone-600 bg-stone-50 dark:bg-stone-900 px-4 py-2">
+                <span className="text-xs text-stone-500 dark:text-stone-300">التكلفة التقريبية:</span>
+                <span className="text-sm font-bold text-stone-900 dark:text-stone-100" dir="ltr">{peptide.costEstimate}</span>
+              </div>
+              <p className="mt-1 text-xs text-stone-400 dark:text-stone-500">* تقديري — تختلف الأسعار حسب المورد والمنطقة</p>
             </div>
           )}
 
@@ -354,6 +371,7 @@ export default function PeptideDetail() {
             </div>
 
             <div className="overflow-x-auto -mx-4 px-4 md:mx-0 md:px-0"><table className="w-full">
+              <caption className="sr-only">بطاقة بروتوكول {peptide.nameAr}</caption>
               <tbody>
                 {rows.map((row, i) => (
                   <tr
@@ -559,6 +577,7 @@ export default function PeptideDetail() {
 
             <div className="overflow-x-auto -mx-4 px-4 md:mx-0 md:px-0">
               <table className="w-full">
+                <caption className="sr-only">بطاقة بروتوكول {peptide.nameAr} (معاينة)</caption>
                 <tbody>
                   {rows.slice(0, 4).map((row, i) => (
                     <tr
@@ -664,12 +683,8 @@ export default function PeptideDetail() {
 function InlineDoseCalc({ peptide }: { peptide: { nameEn: string } }) {
   const preset = DOSE_PRESETS[peptide.nameEn];
 
-  if (!preset || preset.waterMl === 0)
-    return (
-      <p className="text-sm text-stone-500 dark:text-stone-400 text-center py-3">هذا الببتيد يؤخذ عن طريق الفم — لا يحتاج تخفيف أو حقن.</p>
-    );
-
   const calc = useMemo(() => {
+    if (!preset || preset.waterMl === 0) return null;
     const concentrationMcgPerMl = (preset.vialMg * 1000) / preset.waterMl;
     const volumeMl = preset.dose / concentrationMcgPerMl;
     return {
@@ -677,6 +692,11 @@ function InlineDoseCalc({ peptide }: { peptide: { nameEn: string } }) {
       dosesPerVial: Math.floor((preset.vialMg * 1000) / preset.dose),
     };
   }, [preset]);
+
+  if (!preset || preset.waterMl === 0)
+    return (
+      <p className="text-sm text-stone-500 dark:text-stone-400 text-center py-3">هذا الببتيد يؤخذ عن طريق الفم — لا يحتاج تخفيف أو حقن.</p>
+    );
 
   if (!calc) return null;
   const { syringeUnits, dosesPerVial } = calc;

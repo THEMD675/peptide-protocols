@@ -97,6 +97,12 @@ serve(async (req) => {
         })
       }
       try {
+        const stripeSub = await stripe.subscriptions.retrieve(sub.stripe_subscription_id)
+        if (stripeSub.discount) {
+          return new Response(JSON.stringify({ ok: true, already_discounted: true }), {
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          })
+        }
         await stripe.subscriptions.update(sub.stripe_subscription_id, {
           coupon: COUPON_RETENTION,
         })

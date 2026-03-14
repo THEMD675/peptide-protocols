@@ -3,7 +3,7 @@ import { Link, useLocation } from 'react-router-dom';
 import {
   LayoutDashboard, Syringe, BookOpen, MoreHorizontal,
   Bot, Calculator, FlaskConical, Layers, GitCompare, BookText, X,
-  FileText, Home, CreditCard, LogIn,
+  FileText, Home, LogIn, Users,
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { cn } from '@/lib/utils';
@@ -78,28 +78,35 @@ export default memo(function BottomNav() {
         <div className="flex justify-around items-center h-14">
           <Link
             to="/"
-            className="flex flex-col items-center gap-0.5 text-xs text-stone-500 dark:text-stone-300 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors py-2"
+            className="flex flex-col items-center justify-center gap-0.5 text-xs text-stone-500 dark:text-stone-300 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors py-2 min-h-[44px]"
           >
             <Home className="h-5 w-5" />
             <span>الرئيسية</span>
           </Link>
           <Link
             to="/library"
-            className="flex flex-col items-center gap-0.5 text-xs text-stone-500 dark:text-stone-300 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors py-2"
+            className="flex flex-col items-center justify-center gap-0.5 text-xs text-stone-500 dark:text-stone-300 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors py-2 min-h-[44px]"
           >
             <FlaskConical className="h-5 w-5" />
             <span>المكتبة</span>
           </Link>
           <Link
-            to="/pricing"
-            className="flex flex-col items-center gap-0.5 text-xs text-stone-500 dark:text-stone-300 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors py-2"
+            to="/calculator"
+            className="flex flex-col items-center justify-center gap-0.5 text-xs text-stone-500 dark:text-stone-300 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors py-2 min-h-[44px]"
           >
-            <CreditCard className="h-5 w-5" />
-            <span>الأسعار</span>
+            <Calculator className="h-5 w-5" />
+            <span>الحاسبة</span>
+          </Link>
+          <Link
+            to="/community"
+            className="flex flex-col items-center justify-center gap-0.5 text-xs text-stone-500 dark:text-stone-300 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors py-2 min-h-[44px]"
+          >
+            <Users className="h-5 w-5" />
+            <span>المجتمع</span>
           </Link>
           <Link
             to="/login"
-            className="flex flex-col items-center gap-0.5 text-xs text-stone-500 dark:text-stone-300 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors py-2"
+            className="flex flex-col items-center justify-center gap-0.5 text-xs text-stone-500 dark:text-stone-300 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors py-2 min-h-[44px]"
           >
             <LogIn className="h-5 w-5" />
             <span>دخول</span>
@@ -130,7 +137,7 @@ export default memo(function BottomNav() {
             <span className="text-sm font-bold text-stone-900 dark:text-stone-100">المزيد</span>
             <button
               onClick={() => setMoreOpen(false)}
-              className="flex h-8 w-8 items-center justify-center rounded-full text-stone-400 hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors"
+              className="flex h-8 w-8 min-h-[44px] min-w-[44px] items-center justify-center rounded-full text-stone-400 hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors"
               aria-label="إغلاق"
             >
               <X className="h-4 w-4" />

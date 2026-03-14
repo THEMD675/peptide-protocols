@@ -52,8 +52,6 @@ export async function isAdmin(email: string | undefined): Promise<boolean> {
 let _cachedIsAdmin = false;
 export function isAdminSync(): boolean { return _cachedIsAdmin; }
 export function setAdminCache(v: boolean): void { _cachedIsAdmin = v; }
-// Legacy — kept for compatibility but now empty at build time
-export const ADMIN_EMAILS: string[] = [];
 export const USD_TO_SAR = 3.75;
 
 /** Free peptides + trial-exclusive peptides. The 5 IDs below are hardcoded trial-exclusive peptides (beyond FREE_PEPTIDE_IDS) — not in the free tier, but available during trial. */
@@ -82,8 +80,8 @@ export const STATUS_LABELS: Record<string, string> = {
 /** Routes any user can access without subscription — single source of truth for TrialBanner and gating */
 export const FREE_ROUTE_PREFIXES = [
   '/calculator', '/pricing', '/login', '/signup', '/privacy', '/terms', '/',
-  '/glossary', '/sources', '/community', '/account', '/interactions',
-  '/library', '/table', '/stacks', '/lab-guide', '/guide',
+  '/glossary', '/sources', '/community', '/account',
+  '/library', '/table', '/stacks', '/guide',
   '/about', '/faq', '/quiz', '/blog', '/contact', '/transparency',
 ] as const;
 
@@ -92,7 +90,7 @@ export function isFreeRoute(pathname: string): boolean {
   return FREE_ROUTE_PREFIXES.some(p => p === pathname || (p !== '/' && pathname.startsWith(p + '/')));
 }
 
-/** Routes a trial user without payment method can visit without being blocked by the payment wall. Subset of free routes. */
+/** Routes a trial user without payment method can visit. Restricted -- card details required for product access. */
 export const PAYMENT_WALL_ROUTE_PREFIXES = ['/', '/pricing', '/account', '/login', '/signup', '/privacy', '/terms', '/contact'] as const;
 
 export function isPaymentWallFreeRoute(pathname: string): boolean {
@@ -122,6 +120,13 @@ export const STORAGE_KEYS = {
   PREMIUM_WELCOMED: 'pptides_premium_welcomed',
   COACH_DRAFT: 'pptides_coach_draft',
   CONTACT_DRAFT: 'pptides_contact_draft',
+  RECENT_PEPTIDES: 'pptides_recent_peptides',
+  UPVOTED: 'pptides_upvoted',
+  COMMUNITY_DRAFT: 'pptides_community_draft',
+  COACH_STEP: 'pptides_coach_step',
+  COACH_INTAKE: 'pptides_coach_intake',
+  DEEPSEEK_CONSENT: 'pptides_deepseek_consent',
+  ANALYTICS_SESSION: 'pptides_analytics_session',
 } as const;
 
 /** Re-export from single source of truth — must match supabase-migration.sql trigger */

@@ -10,6 +10,7 @@ export default function BackToTop() {
   const { pathname } = useLocation();
   const { user, subscription } = useAuth();
   const [visible, setVisible] = useState(false);
+  const [cookieBannerVisible, setCookieBannerVisible] = useState(false);
   const lastScrollY = useRef(0);
   const hideTimer = useRef<ReturnType<typeof setTimeout>>();
 
@@ -17,6 +18,15 @@ export default function BackToTop() {
   // StickyScrollCTA is shown for non-subscribers; BottomNav is shown for all logged-in users
   const stickyCtaActive = !(user && subscription?.isProOrTrial);
   const hasBottomNav = !!user;
+
+  useEffect(() => {
+    const observer = new MutationObserver(() => {
+      setCookieBannerVisible(document.body.classList.contains('cookie-banner-visible'));
+    });
+    observer.observe(document.body, { attributes: true, attributeFilter: ['class'] });
+    setCookieBannerVisible(document.body.classList.contains('cookie-banner-visible'));
+    return () => observer.disconnect();
+  }, []);
 
   useEffect(() => {
     const onScroll = () => {
@@ -42,6 +52,7 @@ export default function BackToTop() {
 
   if (HIDDEN_PATHS.some(p => pathname.startsWith(p))) return null;
   if (pathname === '/') return null;
+  if (cookieBannerVisible) return null;
 
   return (
     <button

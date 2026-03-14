@@ -49,6 +49,11 @@ window.addEventListener('error', (e) => {
 });
 window.addEventListener('unhandledrejection', (e) => {
   logError('Unhandled rejection:', e.reason);
+  const msg = e.reason?.message ?? String(e.reason ?? '');
+  const expected = /chunk|dynamically imported|loading css|fetch|network|timeout|timed out|abort|cancel|DOMException|signal|supabase|ResizeObserver/i;
+  if (msg && !expected.test(msg)) {
+    toast.error('حدث خطأ غير متوقع — حاول تحديث الصفحة', { id: 'unhandled-rejection' });
+  }
 });
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
@@ -63,6 +68,11 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
 // mid-session asset swap that causes white screens.
 if ('serviceWorker' in navigator && import.meta.env.PROD) {
   navigator.serviceWorker.ready.then(reg => {
+    reg.active?.postMessage({
+      type: 'SET_SUPABASE_CONFIG',
+      url: import.meta.env.VITE_SUPABASE_URL,
+      key: import.meta.env.VITE_SUPABASE_ANON_KEY,
+    });
     reg.addEventListener('updatefound', () => {
       const newSW = reg.installing;
       if (!newSW) return;

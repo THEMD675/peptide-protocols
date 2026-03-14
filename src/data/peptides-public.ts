@@ -1,6 +1,8 @@
 // Public peptide data — safe to bundle in client
 // Protocol text fields (dosage, timing, cycle, etc.) are fetched via get_peptide_protocol RPC
 // Generated: 2026-03-12T18:56:12.162Z
+// NOTE: costEstimate values were last verified March 2026 — prices change frequently.
+// Review and update costEstimate fields quarterly to avoid stale dealer-cost data.
 
 export interface PeptidePublic {
   id: string;

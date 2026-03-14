@@ -323,6 +323,8 @@ function BiomarkerTrendChart({
 
 // ─── Entry Form ─────────────────────────────────────────────────────────────
 
+const LAB_DRAFT_KEY = 'pptides_lab_draft';
+
 function LabEntryForm({
   onSave,
   onCancel,
@@ -338,6 +340,35 @@ function LabEntryForm({
   const [notes, setNotes] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [activeCategory, setActiveCategory] = useState<string>('hormones');
+
+  // Restore draft on mount
+  useEffect(() => {
+    try {
+      const draft = sessionStorage.getItem(LAB_DRAFT_KEY);
+      if (draft) {
+        const d = JSON.parse(draft);
+        if (d.testDate) setTestDate(d.testDate);
+        if (d.labName) setLabName(d.labName);
+        if (d.results && typeof d.results === 'object') setValues(d.results);
+        if (d.notes) setNotes(d.notes);
+      }
+    } catch { /* ignore */ }
+  }, []);
+
+  // Save draft on change
+  useEffect(() => {
+    try {
+      const hasData = testDate || labName || Object.keys(values).length > 0 || notes.trim();
+      if (hasData) {
+        sessionStorage.setItem(LAB_DRAFT_KEY, JSON.stringify({
+          testDate,
+          labName,
+          results: values,
+          notes,
+        }));
+      }
+    } catch { /* ignore */ }
+  }, [testDate, labName, values, notes]);
 
   const updateValue = (id: string, val: string) => {
     setValues(prev => ({ ...prev, [id]: val }));
@@ -370,6 +401,7 @@ function LabEntryForm({
         notes: notes.trim() || null,
       });
       if (error) throw error;
+      try { sessionStorage.removeItem(LAB_DRAFT_KEY); } catch { /* */ }
       toast.success(`تم حفظ ${Object.keys(numericResults).length} نتيجة بنجاح`);
       onSave();
     } catch {
@@ -632,6 +664,7 @@ export default function LabResultsTracker() {
   const [activeView, setActiveView] = useState<'results' | 'trends' | 'insights'>('results');
   const [expandedEntry, setExpandedEntry] = useState<string | null>(null);
   const [selectedBiomarker, setSelectedBiomarker] = useState<string | null>(null);
+  const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
 
   const PAGE_SIZE = 50;
 
@@ -684,8 +717,13 @@ export default function LabResultsTracker() {
     fetchEntries();
   }, [fetchEntries]);
 
-  const handleDelete = async (id: string) => {
+  const handleDeleteClick = (id: string) => {
+    setConfirmDeleteId(id);
+  };
+
+  const handleDeleteConfirm = async (id: string) => {
     if (!user) return;
+    setConfirmDeleteId(null);
     try {
       const { error } = await supabase.from('lab_results').delete().eq('id', id).eq('user_id', user.id);
       if (error) throw error;
@@ -694,6 +732,10 @@ export default function LabResultsTracker() {
     } catch {
       toast.error('تعذّر الحذف');
     }
+  };
+
+  const handleDeleteCancel = () => {
+    setConfirmDeleteId(null);
   };
 
   const insights = useMemo(() => generateInsights(entries), [entries]);
@@ -928,14 +970,32 @@ export default function LabResultsTracker() {
                       </p>
                     )}
 
-                    <div className="flex justify-end pt-2">
-                      <button
-                        onClick={() => handleDelete(entry.id)}
-                        aria-label={`حذف نتائج تحليل ${formatDate(entry.test_date)}`}
-                        className="min-h-[44px] px-3 text-xs text-red-400/60 hover:text-red-400 transition-colors"
-                      >
-                        حذف هذا التحليل
-                      </button>
+                    <div className="flex justify-end pt-2 items-center gap-2">
+                      {confirmDeleteId === entry.id ? (
+                        <>
+                          <span className="text-xs text-stone-400">هل أنت متأكد؟</span>
+                          <button
+                            onClick={() => handleDeleteConfirm(entry.id)}
+                            className="min-h-[44px] px-3 text-xs font-bold text-red-600 bg-red-50 dark:bg-red-900/20 hover:bg-red-100 dark:hover:bg-red-900/30 transition-colors rounded-lg"
+                          >
+                            حذف
+                          </button>
+                          <button
+                            onClick={handleDeleteCancel}
+                            className="min-h-[44px] px-3 text-xs font-bold text-stone-500 hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors rounded-lg"
+                          >
+                            إلغاء
+                          </button>
+                        </>
+                      ) : (
+                        <button
+                          onClick={() => handleDeleteClick(entry.id)}
+                          aria-label={`حذف نتائج تحليل ${formatDate(entry.test_date)}`}
+                          className="min-h-[44px] px-3 text-xs text-red-400/60 hover:text-red-400 transition-colors"
+                        >
+                          حذف هذا التحليل
+                        </button>
+                      )}
                     </div>
                   </div>
                 )}

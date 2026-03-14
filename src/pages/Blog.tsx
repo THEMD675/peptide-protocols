@@ -174,11 +174,15 @@ export default function Blog() {
         <meta property="og:type" content="website" />
         <meta property="og:url" content={`${SITE_URL}/blog`} />
         <meta property="og:image" content={`${SITE_URL}/og-image.jpg`} />
+        <meta property="og:image:alt" content="pptides — دليل الببتيدات العلاجية" />
+        <meta property="og:site_name" content="pptides" />
         <link rel="canonical" href={`${SITE_URL}/blog`} />
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content="المدونة | pptides" />
         <meta name="twitter:description" content="مقالات ودلائل شاملة عن الببتيدات العلاجية باللغة العربية." />
         <meta name="twitter:image" content={`${SITE_URL}/og-image.jpg`} />
+        <meta name="twitter:site" content="@pptides" />
+        <meta name="twitter:creator" content="@pptides" />
         <script type="application/ld+json">{JSON.stringify({
           '@context': 'https://schema.org',
           '@type': 'Blog',

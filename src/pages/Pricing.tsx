@@ -5,7 +5,7 @@ import { Check, CheckCircle, Shield, Lock, CreditCard, RefreshCw, ChevronDown, M
 import { toast } from 'sonner';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
-import { cn } from '@/lib/utils';
+import { cn, timeoutSignal } from '@/lib/utils';
 import { PRICING, PEPTIDE_COUNT, TRIAL_DAYS, VALUE_TOTAL, VALUE_SAVINGS_ELITE, VALUE_STACK, SUPPORT_EMAIL, SITE_URL } from '@/lib/constants';
 import { events } from '@/lib/analytics';
 import { useSalesFlow } from '@/hooks/useSalesFlow';
@@ -85,6 +85,8 @@ function mapStripeError(message: string): string {
     return 'بطاقتك لا تدعم الريال السعودي — جرّب بطاقة أخرى';
   if (lower.includes('session') || lower.includes('انتهت الجلسة'))
     return 'انتهت جلستك — أعد تسجيل الدخول وحاول مجدداً';
+  if (lower.includes('coupon') || lower.includes('no such coupon'))
+    return 'كود الخصم غير صالح — تحقق من الكود وحاول مرة أخرى';
   return UPGRADE.checkoutError;
 }
 
@@ -189,6 +191,27 @@ export default function Pricing() {
     return () => { mounted = false; };
   }, []);
 
+  // Auto-trigger checkout when arriving from signup redirect
+  const autoCheckoutFired = useRef(false);
+  useEffect(() => {
+    const autoCheckout = searchParams.get('auto_checkout');
+    if (autoCheckout && user && !autoCheckoutFired.current && !authLoading) {
+      autoCheckoutFired.current = true;
+      const next = new URLSearchParams(searchParams);
+      next.delete('auto_checkout');
+      setSearchParams(next, { replace: true });
+      const tier = autoCheckout === 'elite' ? 'elite' : 'essentials';
+      setLoadingPlan(tier);
+      navigatingRef.current = true;
+      upgradeTo(tier, billingCycle, couponFromUrl).catch((err: unknown) => {
+        navigatingRef.current = false;
+        setLoadingPlan(null);
+        const msg = err instanceof Error ? err.message : '';
+        toast.error(mapStripeError(msg));
+      });
+    }
+  }, [searchParams, user, authLoading]);
+
   useEffect(() => {
     if (searchParams.get('payment') === 'cancelled') {
       toast.error(UPGRADE.paymentCancelled);
@@ -224,7 +247,7 @@ export default function Pricing() {
         toast('جارٍ فتح إدارة الدفع...');
         const res = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/create-portal-session`, {
           method: 'POST',
-          signal: AbortSignal.timeout(15000),
+          signal: timeoutSignal(15000),
           headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${session.access_token}`, apikey: import.meta.env.VITE_SUPABASE_ANON_KEY },
         });
         if (!res.ok) { toast.error('تعذّر فتح إدارة الدفع'); return; }
@@ -347,7 +370,7 @@ export default function Pricing() {
 
     return (
       <Link
-        to="/signup?redirect=/pricing"
+        to={`/signup?redirect=/pricing?auto_checkout=${planKey}`}
         className={cn(
           'inline-flex w-full items-center justify-center rounded-full px-8 py-3.5',
           'text-base font-semibold transition-all duration-300',
@@ -372,12 +395,16 @@ export default function Pricing() {
         <meta property="og:type" content="website" />
         <meta property="og:url" content={`${SITE_URL}/pricing`} />
         <meta property="og:image" content={`${SITE_URL}/og-image.jpg`} />
+        <meta property="og:image:alt" content="pptides — دليل الببتيدات العلاجية" />
+        <meta property="og:site_name" content="pptides" />
         <meta property="og:locale" content="ar_SA" />
         <link rel="canonical" href={`${SITE_URL}/pricing`} />
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content={`أسعار pptides | ابدأ بتجربة ${TRIAL_DAYS} أيام مجانية`} />
         <meta name="twitter:description" content={`الأساسية ${PRICING.essentials.label}/شهر أو المتقدّمة ${PRICING.elite.label}/شهر. ضمان استرداد كامل.`} />
         <meta name="twitter:image" content={`${SITE_URL}/og-image.jpg`} />
+        <meta name="twitter:site" content="@pptides" />
+        <meta name="twitter:creator" content="@pptides" />
         <script type="application/ld+json">{JSON.stringify([
           {
             "@context": "https://schema.org",
@@ -477,7 +504,7 @@ export default function Pricing() {
             <span className={cn('inline-flex items-center text-xs font-bold rounded-full px-2 py-0.5 leading-none transition-all duration-200', billingCycle === 'annual' ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400' : 'text-emerald-600')}>وفّر حتى 33%</span>
             {billingCycle === 'annual' && (
               <span className="inline-flex items-center text-xs font-bold rounded-full bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 px-2.5 py-0.5 leading-none animate-fade-in">
-                شهرين مجاناً — وفّر {PRICING.elite.monthly * 12 - PRICING.elite.annualTotal} ر.س
+                شهرين مجاناً — وفّر ~33%
               </span>
             )}
           </span>
@@ -488,7 +515,7 @@ export default function Pricing() {
           <div className="inline-flex items-center gap-2 rounded-full border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-900 px-5 py-2 text-sm text-stone-600 dark:text-stone-300 shadow-sm">
             <span>طبيب: <span className="font-bold text-stone-800 dark:text-stone-200">500+ ر.س/جلسة</span></span>
             <span className="text-stone-300 dark:text-stone-600">|</span>
-            <span>pptides: <span className="font-bold text-emerald-700">1.1 ر.س/يوم</span></span>
+            <span>pptides الأساسية: <span className="font-bold text-emerald-700">1.1 ر.س/يوم</span></span>
           </div>
         </div>
 
@@ -503,8 +530,11 @@ export default function Pricing() {
                 الأكثر شعبية
               </span>
               {showTrialMessaging && !hasUsedTrial && (
-                <span className="rounded-full border border-amber-300 dark:border-amber-700 bg-amber-50 dark:bg-amber-900/30 px-4 py-1.5 text-sm font-bold text-amber-700 dark:text-amber-400">
-                  {TRIAL_DAYS} أيام مجانًا
+                <span className="inline-flex flex-col items-center">
+                  <span className="rounded-full border border-amber-300 dark:border-amber-700 bg-amber-50 dark:bg-amber-900/30 px-4 py-1.5 text-sm font-bold text-amber-700 dark:text-amber-400">
+                    {TRIAL_DAYS} أيام مجانًا
+                  </span>
+                  <span className="text-xs text-stone-500 dark:text-stone-400 mt-0.5">(بطاقة بنكية مطلوبة)</span>
                 </span>
               )}
             </div>
@@ -554,8 +584,11 @@ export default function Pricing() {
                 الأفضل قيمة
               </span>
               {showTrialMessaging && !hasUsedTrial && (
-                <span className="rounded-full border border-amber-300 dark:border-amber-700 bg-amber-50 dark:bg-amber-900/30 px-4 py-1.5 text-sm font-bold text-amber-700 dark:text-amber-400">
-                  {TRIAL_DAYS} أيام مجانًا
+                <span className="inline-flex flex-col items-center">
+                  <span className="rounded-full border border-amber-300 dark:border-amber-700 bg-amber-50 dark:bg-amber-900/30 px-4 py-1.5 text-sm font-bold text-amber-700 dark:text-amber-400">
+                    {TRIAL_DAYS} أيام مجانًا
+                  </span>
+                  <span className="text-xs text-stone-500 dark:text-stone-400 mt-0.5">(بطاقة بنكية مطلوبة)</span>
                 </span>
               )}
             </div>
@@ -746,7 +779,7 @@ export default function Pricing() {
           className="mt-16 rounded-2xl border-2 border-emerald-300 dark:border-emerald-700 bg-gradient-to-r from-emerald-50 to-emerald-100 dark:from-emerald-950/40 dark:to-emerald-900/20 p-8"
         >
           <div className="flex flex-col items-center gap-4 sm:flex-row sm:gap-6">
-            <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full bg-emerald-200">
+            <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full bg-emerald-200 dark:bg-emerald-800/30">
               <Shield className="h-8 w-8 text-emerald-700 dark:text-emerald-400" />
             </div>
             <div className="text-center sm:text-start">
@@ -910,7 +943,7 @@ export default function Pricing() {
             </button>
           ) : (
             <Link
-              to="/signup?redirect=/pricing"
+              to="/signup?redirect=/pricing?auto_checkout=elite"
               className="btn-primary-glow inline-flex w-full items-center justify-center gap-2 rounded-full bg-emerald-600 px-8 py-3.5 text-base font-semibold text-white transition-all hover:bg-emerald-700 active:scale-[0.98] sm:w-auto sm:px-10 sm:py-4 sm:text-lg"
             >
               <span>{TRIAL.signupBottomCta}</span>
@@ -942,7 +975,7 @@ export default function Pricing() {
 
       {/* Mobile sticky CTA */}
       {!subscription?.isProOrTrial && (
-        <div className="fixed bottom-0 inset-x-0 z-50 border-t border-stone-200 dark:border-stone-700 bg-white/95 dark:bg-stone-900/95 backdrop-blur-sm p-3 md:hidden pb-[env(safe-area-inset-bottom)]">
+        <div className="fixed bottom-14 inset-x-0 z-50 border-t border-stone-200 dark:border-stone-700 bg-white/95 dark:bg-stone-900/95 backdrop-blur-sm p-3 md:hidden pb-[env(safe-area-inset-bottom)]">
           {user ? (
             <button
               onClick={async () => {
@@ -976,7 +1009,7 @@ export default function Pricing() {
             </button>
           ) : (
             <Link
-              to="/signup?redirect=/pricing"
+              to="/signup?redirect=/pricing?auto_checkout=essentials"
               className="btn-primary-glow flex w-full items-center justify-center gap-2 rounded-full bg-emerald-600 px-6 py-3.5 text-base font-semibold text-white transition-all hover:bg-emerald-700"
             >
               {TRIAL.ctaSignup}

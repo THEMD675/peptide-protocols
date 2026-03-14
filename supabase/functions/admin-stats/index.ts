@@ -33,7 +33,9 @@ serve(async (req) => {
 
     type AuthUser = Awaited<ReturnType<typeof admin.auth.admin.listUsers>>['data']['users'][number]
     let paginatedUsers: AuthUser[] = []
+    let usersPaginationCapped = false
 
+    const MAX_AUTH_USERS = 5000
     async function getAllAuthUsers(): Promise<AuthUser[]> {
       const collected: AuthUser[] = []
       let page = 1
@@ -41,6 +43,11 @@ serve(async (req) => {
         const { data: { users }, error } = await admin.auth.admin.listUsers({ page, perPage: 1000 })
         if (error || !users || users.length === 0) break
         collected.push(...users)
+        if (collected.length >= MAX_AUTH_USERS) {
+          usersPaginationCapped = true
+          console.warn(`admin-stats: user pagination capped at ${collected.length} (limit ${MAX_AUTH_USERS})`)
+          break
+        }
         if (users.length < 1000) break
         page++
       }
@@ -296,8 +303,8 @@ serve(async (req) => {
         const createdAt = new Date(s.created_at).getTime()
         if (periodEnd >= monthStart && createdAt < nextMonth) {
           const isAnnual = s.billing_interval === 'annual' || s.billing_interval === 'yearly'
-          if (s.tier === 'essentials') monthRevenue += isAnnual ? mrrEssentialsMonthly * 0.8 : mrrEssentialsMonthly
-          else if (s.tier === 'elite') monthRevenue += isAnnual ? mrrEliteMonthly * 0.8 : mrrEliteMonthly
+          if (s.tier === 'essentials') monthRevenue += isAnnual ? mrrEssentialsAnnual / 12 : mrrEssentialsMonthly
+          else if (s.tier === 'elite') monthRevenue += isAnnual ? mrrEliteAnnual / 12 : mrrEliteMonthly
         }
       }
       revenueByMonth.push({ month: monthStr, revenue: Math.round(monthRevenue) })
@@ -354,6 +361,7 @@ serve(async (req) => {
         totalPages: Math.ceil(totalFilteredUsers / perPageParam),
         searchQuery: searchQuery || null,
       },
+      usersPaginationCapped,
       overview: {
         totalUsers: users.length,
         signupsToday,

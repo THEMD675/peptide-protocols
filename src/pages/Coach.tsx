@@ -7,7 +7,7 @@ import { renderMarkdown, renderMarkdownToHtml } from '@/lib/markdown';
 import {
   Bot, Send, Sparkles, TrendingDown, Heart, Dumbbell, Brain,
   Clock, Zap, Calculator, FlaskConical, Shield, Lock, RotateCcw, ArrowLeft, ArrowRight,
-  Copy, Check, BookOpen, Play, Printer, Crown,
+  Copy, Check, BookOpen, Play, Printer, Crown, ThumbsUp, ThumbsDown,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { events } from '@/lib/analytics';
@@ -73,63 +73,9 @@ const INJECTION_OPTIONS = [
 
 // System prompt is now server-side in the edge function — hidden from view-source and saves tokens per request
 
-async function buildUserContext(userId: string): Promise<string> {
-  let ctx = '';
-  try {
-    const [{ data: logs }, { data: sideEffects }, { data: wellness }] = await Promise.all([
-      supabase
-        .from('injection_logs')
-        .select('peptide_name, dose, dose_unit, injection_site, logged_at')
-        .eq('user_id', userId)
-        .order('logged_at', { ascending: false })
-        .limit(15),
-      supabase
-        .from('side_effect_logs')
-        .select('peptide_name, symptom, severity, logged_at')
-        .eq('user_id', userId)
-        .order('logged_at', { ascending: false })
-        .limit(10),
-      supabase
-        .from('wellness_logs')
-        .select('energy, sleep, mood, logged_at')
-        .eq('user_id', userId)
-        .order('logged_at', { ascending: false })
-        .limit(7),
-    ]);
-    if (logs && logs.length > 0) {
-      ctx += `\nسجل حقن المستخدم (آخر ${logs.length}):\n`;
-      logs.forEach(l => { ctx += `- ${l.peptide_name}: ${l.dose}${l.dose_unit} (${new Date(l.logged_at).toLocaleDateString('ar-u-nu-latn')})\n`; });
-      ctx += `لديه خبرة فعلية. ابنِ على ما يستخدمه.\n`;
-    }
-    if (sideEffects && sideEffects.length > 0) {
-      ctx += `\nأعراض جانبية مسجّلة:\n`;
-      sideEffects.forEach(s => { ctx += `- ${s.peptide_name}: ${s.symptom} (شدة: ${s.severity}/5)\n`; });
-      ctx += `ضع هذه الأعراض في اعتبارك عند التوصية.\n`;
-    }
-    if (wellness && wellness.length > 0) {
-      const avg = (key: 'energy' | 'sleep' | 'mood') => {
-        const vals = wellness.map(w => w[key]).filter((v): v is number => v != null);
-        return vals.length > 0 ? (vals.reduce((a, b) => a + b, 0) / vals.length).toFixed(1) : null;
-      };
-      const energy = avg('energy'), sleep = avg('sleep'), mood = avg('mood');
-      if (energy || sleep || mood) {
-        ctx += `\nمتوسط الحالة (آخر ${wellness.length} أيام):`;
-        if (energy) ctx += ` طاقة: ${energy}/5`;
-        if (sleep) ctx += ` نوم: ${sleep}/5`;
-        if (mood) ctx += ` مزاج: ${mood}/5`;
-        ctx += '\n';
-      }
-    }
-    const favs = (() => { try { const s = localStorage.getItem('pptides_favorites'); return s ? JSON.parse(s) as string[] : []; } catch { return []; } })();
-    if (favs.length > 0) {
-      const names = favs.map(id => allPeptides.find(p => p.id === id)?.nameEn).filter(Boolean);
-      if (names.length) ctx += `ببتيدات مفضّلة: ${names.join(', ')}\n`;
-    }
-  } catch (e) {
-    void e;
-  }
-  return ctx;
-}
+// Server-side buildUserContext (in ai-coach edge function) provides richer context
+// with injection logs, wellness, side effects, protocols, labs, etc.
+// Client only passes the user's current goal to avoid duplicating data.
 
 function buildPeptideRequestPrompt(peptideName: string, intake: IntakeData | null, userContext: string): string {
   const goalMap: Record<string, string> = {
@@ -312,6 +258,7 @@ export default function Coach() {
   }, [smartStarters]);
 
   const storageKey = `pptides_coach_${user?.id ?? 'anon'}`;
+  const COACH_CHANNEL = 'pptides-coach';
 
   function loadQuizAnswers(): { goal: string; experience: string; injection: string } | null {
     try {
@@ -367,6 +314,18 @@ export default function Coach() {
     try { const s = localStorage.getItem(storageKey); if (s) return JSON.parse(s).messages ?? []; } catch { /* expected */ } return [];
   });
 
+  const [dailyMsgCount, setDailyMsgCount] = useState(0);
+  useEffect(() => {
+    if (!user?.id) return;
+    const dayStart = new Date();
+    dayStart.setUTCHours(0, 0, 0, 0);
+    supabase.from('ai_coach_requests').select('id', { count: 'exact', head: true })
+      .eq('user_id', user.id)
+      .gte('created_at', dayStart.toISOString())
+      .then(({ count }) => { if (count != null) setDailyMsgCount(count); })
+      .catch(() => { /* non-critical */ });
+  }, [user?.id]);
+
   // Track current conversation row ID for multi-conversation support
   const saveFailedRef = useRef(false);
   const [conversationId, setConversationId] = useState<string | null>(null);
@@ -417,19 +376,40 @@ export default function Coach() {
   });
   const draftTimerRef = useRef<ReturnType<typeof setTimeout>>();
   const [copiedIdx, setCopiedIdx] = useState<number | null>(null);
+  const [feedbackGiven, setFeedbackGiven] = useState<Record<number, 'up' | 'down'>>({});
   const [isLoading, setIsLoading] = useState(false);
   const [loadingStage, setLoadingStage] = useState(0);
   const [rateLimitCountdown, setRateLimitCountdown] = useState(0);
   const countdownRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const [protocolWizardPeptide, setProtocolWizardPeptide] = useState<string | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
-  const userContextRef = useRef('');
   const autoSentRef = useRef(false);
+
+  // BroadcastChannel: sync messages between tabs — use shared ref to avoid leaks
+  const broadcastRef = useRef<BroadcastChannel | null>(null);
+  useEffect(() => {
+    if (typeof BroadcastChannel === 'undefined') return;
+    try {
+      broadcastRef.current = new BroadcastChannel(COACH_CHANNEL);
+      broadcastRef.current.onmessage = (e: MessageEvent<{ type: string; messages?: ChatMessage[] }>) => {
+        if (e.data?.type === 'messages-updated' && Array.isArray(e.data.messages)) {
+          setMessages(e.data.messages);
+        }
+      };
+    } catch { /* ignore */ }
+    return () => {
+      broadcastRef.current?.close();
+      broadcastRef.current = null;
+    };
+  }, []);
 
   useEffect(() => {
     if (isLoading) return;
     let cleanMessages = messages.filter(m => !m.content.startsWith('__ERROR'));
     if (cleanMessages.length > 50) cleanMessages = cleanMessages.slice(-50);
+    // SECURITY: coach messages and intake data (age, medications) are stored unencrypted in
+    // localStorage. Consider encrypting with a session-derived key if health data sensitivity
+    // requirements increase. Currently acceptable because data stays on-device and is cleared on logout.
     try {
       localStorage.setItem(storageKey, JSON.stringify({ messages: cleanMessages, intake }));
     } catch (e) {
@@ -452,7 +432,15 @@ export default function Coach() {
           .from('coach_conversations')
           .update({ messages: cleanMessages, updated_at: new Date().toISOString() })
           .eq('id', conversationId)
-          .then(({ error }) => { if (error) onSaveError(); else saveFailedRef.current = false; })
+          .then(({ error }) => {
+            if (error) onSaveError();
+            else {
+              saveFailedRef.current = false;
+              try {
+                broadcastRef.current?.postMessage({ type: 'messages-updated', messages: cleanMessages });
+              } catch { /* ignore */ }
+            }
+          })
           .catch(onSaveError);
       } else {
         supabase
@@ -464,6 +452,9 @@ export default function Coach() {
             if (error) { onSaveError(); return; }
             if (data?.id) setConversationId(data.id);
             saveFailedRef.current = false;
+            try {
+              broadcastRef.current?.postMessage({ type: 'messages-updated', messages: cleanMessages });
+            } catch { /* ignore */ }
           })
           .catch(onSaveError);
       }
@@ -488,7 +479,6 @@ export default function Coach() {
   }, [input, DRAFT_KEY]);
 
   useEffect(() => { scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: 'smooth' }); }, [messages, intakeStep]);
-  useEffect(() => { if (user) buildUserContext(user.id).then(ctx => { userContextRef.current = ctx; }).catch((e) => logError('Coach context build failed:', e)); }, [user]);
 
   // Migrate anon session data when user logs in (prevents loss on session expiry mid-form)
   useEffect(() => {
@@ -519,6 +509,20 @@ export default function Coach() {
     try { localStorage.setItem(DEEPSEEK_CONSENT_KEY, 'true'); } catch { /* ok */ }
     setShowDeepSeekConsent(false);
   }, []);
+
+  const submitFeedback = useCallback(async (msgIdx: number, rating: 'up' | 'down', msgContent: string) => {
+    if (!user?.id || feedbackGiven[msgIdx]) return;
+    setFeedbackGiven(prev => ({ ...prev, [msgIdx]: rating }));
+    try {
+      await supabase.from('coach_feedback').insert({
+        user_id: user.id,
+        conversation_id: conversationIdRef.current,
+        message_index: msgIdx,
+        rating,
+        message_preview: msgContent.slice(0, 200),
+      });
+    } catch { /* non-critical */ }
+  }, [user?.id, feedbackGiven]);
 
   const sendToAI = useCallback(async (content: string) => {
     const trimmed = content.trim();
@@ -552,7 +556,7 @@ export default function Coach() {
           apikey: import.meta.env.VITE_SUPABASE_ANON_KEY,
         },
         body: JSON.stringify({
-          messages: updated.map(m => ({ role: m.role, content: m.content })),
+          messages: (updated.length > 20 ? [updated[0], ...updated.slice(-19)] : updated).map(m => ({ role: m.role, content: m.content })),
           stream: true,
           conversationId: conversationIdRef.current,
           ...(lang === 'en' ? { lang: 'en' } : {}),
@@ -658,7 +662,12 @@ export default function Coach() {
       setMessages(prev => {
         const filtered = prev.filter(m => !(m.role === 'assistant' && m.content === ''));
         if (filtered.length > 0 && filtered[filtered.length - 1].role === 'assistant') {
-          filtered[filtered.length - 1] = { role: 'assistant', content: errorTag };
+          const existing = filtered[filtered.length - 1];
+          if (existing.content && !existing.content.startsWith('__ERROR')) {
+            filtered[filtered.length - 1] = { role: 'assistant', content: existing.content + '\n\n---\n⚠️ ' + getErrorMessage(errorTag) };
+          } else {
+            filtered[filtered.length - 1] = { role: 'assistant', content: errorTag };
+          }
         } else {
           filtered.push({ role: 'assistant', content: errorTag });
         }
@@ -671,6 +680,7 @@ export default function Coach() {
       setIsLoading(false);
       isLoadingRef.current = false;
       setLoadingStage(0);
+      if (!isTrial) setDailyMsgCount(c => c + 1);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps -- sendToAI intentionally stable
   }, []);
@@ -680,24 +690,20 @@ export default function Coach() {
     if (!p || autoSentRef.current || !user || messages.length > 0) return;
     autoSentRef.current = true;
     setIntakeStep('done');
-    (async () => {
-      const ctx = await buildUserContext(user.id);
-      userContextRef.current = ctx;
-      const prompt = buildPeptideRequestPrompt(p, intake.goal || intake.experience || intake.injection ? intake : null, ctx);
-      sendToAI(prompt);
-    })().catch(e => logError('auto-send failed:', e));
+    const prompt = buildPeptideRequestPrompt(p, intake.goal || intake.experience || intake.injection ? intake : null, '');
+    sendToAI(prompt);
   }, [searchParams, user, sendToAI, messages.length, intake]);
 
   const submitIntake = useCallback(() => {
     if (intake.age) {
       const ageNum = parseInt(intake.age, 10);
-      if (isNaN(ageNum) || ageNum < 16 || ageNum > 120) {
-        toast.error('أدخل عمرًا بين 16 و 120');
+      if (isNaN(ageNum) || ageNum < 18 || ageNum > 120) {
+        toast.error('أدخل عمرًا بين 18 و 120');
         return;
       }
     }
     setIntakeStep('done');
-    const prompt = buildIntakePrompt(intake, userContextRef.current);
+    const prompt = buildIntakePrompt(intake, '');
     sendToAI(prompt);
   }, [intake, sendToAI]);
 
@@ -735,7 +741,8 @@ export default function Coach() {
   const isTrial = subscription.isTrial;
   const limit = isElite ? Infinity : hasAccess && !isTrial ? 15 : isTrial ? 5 : 5;
 
-  const userMsgCount = messages.filter(m => m.role === 'user').length;
+  const convMsgCount = messages.filter(m => m.role === 'user').length;
+  const userMsgCount = isTrial ? convMsgCount : dailyMsgCount;
   const limitReached = userMsgCount >= limit;
 
   const lastAI = [...messages].reverse().find(m => m.role === 'assistant');
@@ -813,8 +820,9 @@ export default function Coach() {
         {/* Coach History */}
         {user && (
           <CoachHistory
-            onLoadConversation={(msgs) => {
+            onLoadConversation={(msgs, id) => {
               setMessages(msgs);
+              setConversationId(id);
               setIntakeStep('done');
             }}
           />
@@ -835,7 +843,7 @@ export default function Coach() {
         )}
 
         <div className="rounded-2xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 overflow-hidden shadow-sm dark:shadow-stone-900/30">
-          <div ref={scrollRef} role="log" aria-label="محادثة المدرب الذكي" aria-live="polite" className="min-h-[320px] max-h-[65dvh] overflow-y-auto p-5 space-y-4 bg-stone-50/50 dark:bg-stone-950/50">
+          <div ref={scrollRef} role="log" aria-label="محادثة المدرب الذكي" aria-live="polite" className="min-h-[320px] max-h-[55dvh] sm:max-h-[65dvh] overflow-y-auto p-5 space-y-4 bg-stone-50/50 dark:bg-stone-950/50">
 
             {/* Daily Briefing Card — personalized daily check-in */}
             {intakeStep === 'done' && messages.length === 0 && dailyBriefing && (
@@ -856,7 +864,7 @@ export default function Coach() {
             {/* DeepSeek consent — one-time */}
             {showDeepSeekConsent && (
               <div className="rounded-xl border border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-900/20 px-4 py-3 text-sm text-amber-900 dark:text-amber-200">
-                <p className="font-medium flex items-start gap-2"><Lock className="h-4 w-4 shrink-0 mt-0.5 text-amber-600" /> للإفصاح: يعتمد المدرب الذكي على نموذج DeepSeek AI لتوليد الردود. رسائلك تُعالَج على خوادمهم بشكل مشفّر — لا يتم تخزين بياناتك الشخصية أو مشاركتها مع أطراف ثالثة.</p>
+                <p className="font-medium flex items-start gap-2"><Lock className="h-4 w-4 shrink-0 mt-0.5 text-amber-600" /> للإفصاح: يعتمد المدرب الذكي على نموذج DeepSeek AI لتوليد الردود. رسائلك تُعالَج على خوادم DeepSeek AI — راجع سياستهم لمزيد من التفاصيل. بياناتك محمية وفقًا لسياسة الخصوصية الخاصة بنا.</p>
                 <button onClick={setConsentGiven} className="mt-2 text-xs font-bold text-amber-700 dark:text-amber-400 underline hover:no-underline">فهمت — ابدأ المحادثة</button>
               </div>
             )}
@@ -1018,7 +1026,7 @@ export default function Coach() {
                       <div className="grid gap-3 sm:grid-cols-2">
                         <div>
                           <label htmlFor="coach-age" className="mb-1 block text-sm font-medium text-stone-600 dark:text-stone-300">العمر تقريبًا</label>
-                          <input id="coach-age" type="number" inputMode="numeric" min={16} max={120} value={intake.age} onChange={e => setIntake(p => ({ ...p, age: e.target.value }))} placeholder="مثال: 32" dir="ltr" className="w-full rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 px-3 py-2.5 text-base text-stone-900 dark:text-stone-100 placeholder:text-stone-500 dark:text-stone-300 focus:border-emerald-300 dark:border-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900" />
+                          <input id="coach-age" type="number" inputMode="numeric" min={18} max={120} value={intake.age} onChange={e => setIntake(p => ({ ...p, age: e.target.value }))} placeholder="مثال: 32" dir="ltr" className="w-full rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 px-3 py-2.5 text-base text-stone-900 dark:text-stone-100 placeholder:text-stone-500 dark:text-stone-300 focus:border-emerald-300 dark:border-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900" />
                         </div>
                         <div>
                           <label htmlFor="coach-medications" className="mb-1 block text-sm font-medium text-stone-600 dark:text-stone-300">أدوية أو مكملات حالية</label>
@@ -1031,6 +1039,9 @@ export default function Coach() {
                         صمّم بروتوكولي المخصّص
                         <ArrowLeft className="h-4 w-4" />
                       </button>
+                      {isTrial && (
+                        <p className="text-center text-xs text-stone-500 dark:text-stone-400 mt-1">هذه الرسالة لا تُحسب من رصيدك</p>
+                      )}
                       <button onClick={() => setIntakeStep('injection')} className="mt-1 flex items-center gap-1 min-h-[44px] text-sm text-stone-500 dark:text-stone-300 hover:text-stone-800 dark:text-stone-200 transition-colors">
                         <ArrowRight className="h-3 w-3 shrink-0" /> رجوع
                       </button>
@@ -1135,7 +1146,31 @@ export default function Coach() {
                   </p>
                 )}
                 {msg.role === 'assistant' && !msg.content.startsWith('__ERROR') && (
-                  <p className="mt-0.5 text-[10px] text-stone-500 dark:text-stone-300 text-end max-w-[88%] ms-auto">هذه معلومات تعليمية وليست نصيحة طبية — استشر طبيبك</p>
+                  <div className="mt-1 flex items-center justify-end gap-2 max-w-[88%] ms-auto">
+                    <p className="text-[10px] text-stone-500 dark:text-stone-300">هذه معلومات تعليمية وليست نصيحة طبية — استشر طبيبك</p>
+                    {!isLoading && msg.content.length > 20 && (
+                      <div className="flex items-center gap-0.5 shrink-0">
+                        <button
+                          type="button"
+                          onClick={() => submitFeedback(i, 'up', msg.content)}
+                          disabled={!!feedbackGiven[i]}
+                          className={cn('rounded p-1 transition-colors', feedbackGiven[i] === 'up' ? 'text-emerald-600' : 'text-stone-300 hover:text-emerald-500')}
+                          aria-label="مفيد"
+                        >
+                          <ThumbsUp className="h-3 w-3" />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => submitFeedback(i, 'down', msg.content)}
+                          disabled={!!feedbackGiven[i]}
+                          className={cn('rounded p-1 transition-colors', feedbackGiven[i] === 'down' ? 'text-red-500' : 'text-stone-300 hover:text-red-400')}
+                          aria-label="غير مفيد"
+                        >
+                          <ThumbsDown className="h-3 w-3" />
+                        </button>
+                      </div>
+                    )}
+                  </div>
                 )}
                 {/* Action pills: for non-last messages, show Copy + WhatsApp only */}
                 {msg.role === 'assistant' && !isLoading && msg.content.length > 50 && i !== messages.length - 1 && (
@@ -1162,8 +1197,8 @@ export default function Coach() {
                           const rendered = renderMarkdownToHtml(msg.content);
                           printWindow.document.write(`
                             <html dir="rtl"><head><title>بروتوكول pptides</title>
-                            <style>body{font-family:Arial,sans-serif;padding:40px;line-height:1.8;color:#1c1917;}table{border-collapse:collapse;width:100%;}th,td{border:1px solid #e7e5e4;padding:6px 10px;}th{background:#f5f5f4;font-weight:bold;}h3,h4{margin-top:1rem;}strong{font-weight:bold;}</style></head>
-                            <body>${rendered}<p style="margin-top:2rem;font-size:12px;color:#a8a29e;">محتوى تعليمي بحثي — استشر طبيبك قبل استخدام أي ببتيد | pptides.com</p></body></html>
+                            <style>body{font-family:Arial,sans-serif;padding:40px;line-height:1.8;color:#1c1917;}table{border-collapse:collapse;width:100%;}th,td{border:1px solid #e7e5e4;padding:6px 10px;}th{background:#f5f5f4;font-weight:bold;}h3,h4{margin-top:1rem;}strong{font-weight:bold;}.watermark{text-align:center;font-size:18px;font-weight:bold;color:#dc2626;border:2px solid #dc2626;padding:10px;margin-bottom:20px;border-radius:8px;}</style></head>
+                            <body><div class="watermark">⚠️ محتوى تعليمي فقط — ليس وصفة طبية ⚠️</div>${rendered}<p style="margin-top:2rem;font-size:12px;color:#a8a29e;">محتوى تعليمي بحثي — استشر طبيبك قبل استخدام أي ببتيد | pptides.com</p></body></html>
                           `);
                           printWindow.document.close();
                           printWindow.print();
@@ -1174,7 +1209,7 @@ export default function Coach() {
                       <Printer className="h-3 w-3" /> طباعة
                     </button>
                     <a
-                      href={`https://wa.me/?text=${encodeURIComponent(`بروتوكول من pptides:\n\n${msg.content.slice(0, 500)}\n\nاقرأ المزيد: ${SITE_URL}`)}`}
+                      href={`https://wa.me/?text=${encodeURIComponent(`⚕️ محتوى تعليمي — استشر طبيبك\n\nبروتوكول من pptides:\n\n${msg.content.slice(0, 500)}\n\nاقرأ المزيد: ${SITE_URL}`)}`}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="inline-flex items-center gap-1 rounded-lg border border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-900/20 px-2 py-1 text-xs font-medium text-emerald-700 dark:text-emerald-400 transition-colors hover:bg-emerald-100 dark:bg-emerald-900/30"
@@ -1211,8 +1246,8 @@ export default function Coach() {
                             const rendered = renderMarkdownToHtml(msg.content);
                             printWindow.document.write(`
                               <html dir="rtl"><head><title>بروتوكول pptides</title>
-                              <style>body{font-family:Arial,sans-serif;padding:40px;line-height:1.8;color:#1c1917;}table{border-collapse:collapse;width:100%;}th,td{border:1px solid #e7e5e4;padding:6px 10px;}th{background:#f5f5f4;font-weight:bold;}h3,h4{margin-top:1rem;}strong{font-weight:bold;}</style></head>
-                              <body>${rendered}<p style="margin-top:2rem;font-size:12px;color:#a8a29e;">محتوى تعليمي بحثي — استشر طبيبك قبل استخدام أي ببتيد | pptides.com</p></body></html>
+                              <style>body{font-family:Arial,sans-serif;padding:40px;line-height:1.8;color:#1c1917;}table{border-collapse:collapse;width:100%;}th,td{border:1px solid #e7e5e4;padding:6px 10px;}th{background:#f5f5f4;font-weight:bold;}h3,h4{margin-top:1rem;}strong{font-weight:bold;}.watermark{text-align:center;font-size:18px;font-weight:bold;color:#dc2626;border:2px solid #dc2626;padding:10px;margin-bottom:20px;border-radius:8px;}</style></head>
+                              <body><div class="watermark">⚠️ محتوى تعليمي فقط — ليس وصفة طبية ⚠️</div>${rendered}<p style="margin-top:2rem;font-size:12px;color:#a8a29e;">محتوى تعليمي بحثي — استشر طبيبك قبل استخدام أي ببتيد | pptides.com</p></body></html>
                             `);
                             printWindow.document.close();
                             printWindow.print();
@@ -1223,7 +1258,7 @@ export default function Coach() {
                         <Printer className="h-3 w-3" /> طباعة
                       </button>
                       <a
-                        href={`https://wa.me/?text=${encodeURIComponent(`بروتوكول من pptides:\n\n${msg.content.slice(0, 500)}\n\nاقرأ المزيد: ${SITE_URL}`)}`}
+                        href={`https://wa.me/?text=${encodeURIComponent(`⚕️ محتوى تعليمي — استشر طبيبك\n\nبروتوكول من pptides:\n\n${msg.content.slice(0, 500)}\n\nاقرأ المزيد: ${SITE_URL}`)}`}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="inline-flex items-center gap-1 rounded-lg border border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-900/20 px-2 py-1 text-xs font-medium text-emerald-700 dark:text-emerald-400 transition-colors hover:bg-emerald-100 dark:bg-emerald-900/30"
@@ -1317,7 +1352,7 @@ export default function Coach() {
                   </span>
                 ) : subscription.tier === 'essentials' ? (
                   <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 px-3 py-1 text-xs font-bold text-amber-700 dark:text-amber-400">
-                    {Math.max(0, 15 - userMsgCount)}/15 يوم
+                    {Math.max(0, 15 - userMsgCount)}/15 رسالة
                   </span>
                 ) : subscription.tier === 'elite' ? (
                   <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 px-3 py-1 text-xs font-bold text-emerald-700 dark:text-emerald-400">

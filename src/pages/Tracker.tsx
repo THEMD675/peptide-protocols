@@ -17,6 +17,8 @@ import {
   Calculator,
   Activity,
   Heart,
+  Pencil,
+  Loader2,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { events } from '@/lib/analytics';
@@ -44,6 +46,7 @@ interface InjectionLog {
   logged_at: string;
   notes: string | null;
   photo_url?: string | null;
+  protocol_id?: string | null;
 }
 
 type HeatmapView = 'weekly' | 'monthly';
@@ -187,25 +190,36 @@ export default function Tracker() {
   // Active protocols
   interface ActiveProtocol { id: string; peptide_id: string; dose: number; dose_unit: string; frequency: string; cycle_weeks: number; started_at: string; status: string; }
   const [activeProtocols, setActiveProtocols] = useState<ActiveProtocol[]>([]);
+  interface CompletedProtocol { id: string; peptide_id: string; dose: number; dose_unit: string; frequency: string; cycle_weeks: number; started_at: string; status: string; updated_at: string; }
+  const [completedProtocols, setCompletedProtocols] = useState<CompletedProtocol[]>([]);
+  const [completedExpanded, setCompletedExpanded] = useState(false);
+  const [editingProtocolId, setEditingProtocolId] = useState<string | null>(null);
+  const [editDose, setEditDose] = useState('');
+  const [editDoseUnit, setEditDoseUnit] = useState('mcg');
+  const [editFrequency, setEditFrequency] = useState('qd');
   const fetchActiveProtocols = useCallback(async () => {
     if (!user) return;
     const { data, error } = await supabase.from('user_protocols').select('id, peptide_id, dose, dose_unit, frequency, cycle_weeks, started_at, status').eq('user_id', user.id).eq('status', 'active').order('started_at', { ascending: false }).limit(20);
     if (error) { logError('active protocols query failed:', error); toast.error('تعذّر تحميل البروتوكولات — حاول مرة أخرى'); }
     if (!error && data) setActiveProtocols(data);
+    const { data: completedData } = await supabase.from('user_protocols').select('id, peptide_id, dose, dose_unit, frequency, cycle_weeks, started_at, status, updated_at').eq('user_id', user.id).eq('status', 'completed').order('updated_at', { ascending: false }).limit(10);
+    if (completedData) setCompletedProtocols(completedData as CompletedProtocol[]);
   }, [user]);
   useEffect(() => { fetchActiveProtocols().catch((e: unknown) => logError('silent catch:', e)); }, [fetchActiveProtocols]);
 
-  // Suggested injection site
-  const suggestedSite = useMemo(() => {
-    if (logs.length === 0) return 'abdomen';
+  // Suggested injection site — filters by peptide name when provided
+  const getSuggestedSite = useCallback((peptideName?: string) => {
+    const filteredLogs = peptideName ? logs.filter(l => l.peptide_name === peptideName) : logs;
+    if (filteredLogs.length === 0) return 'abdomen';
     const allSites = ['abdomen', 'thigh', 'arm', 'glute'];
-    const recentSites = logs.slice(0, 5).map(l => l.injection_site);
+    const recentSites = filteredLogs.slice(0, 5).map(l => l.injection_site);
     const siteCounts: Record<string, number> = {};
     recentSites.forEach(s => { if (s) siteCounts[s] = (siteCounts[s] || 0) + 1; });
     const leastUsed = allSites.reduce((a, b) => (siteCounts[a] || 0) <= (siteCounts[b] || 0) ? a : b);
-    const lastSite = logs[0]?.injection_site;
+    const lastSite = filteredLogs[0]?.injection_site;
     return lastSite === leastUsed ? allSites.find(s => s !== lastSite) || leastUsed : leastUsed;
   }, [logs]);
+  const suggestedSite = getSuggestedSite();
 
   const PAGE_SIZE = 50;
 
@@ -271,16 +285,17 @@ export default function Tracker() {
     quickLogRef.current = true;
     setIsSubmitting(true);
     try {
+      const pepName = allPeptides.find(p => p.id === proto.peptide_id)?.nameEn ?? proto.peptide_id;
       const payload = {
         user_id: user.id,
-        peptide_name: allPeptides.find(p => p.id === proto.peptide_id)?.nameEn ?? proto.peptide_id,
+        peptide_name: pepName,
         dose: proto.dose,
         dose_unit: proto.dose_unit,
-        injection_site: suggestedSite,
+        injection_site: getSuggestedSite(pepName),
         logged_at: new Date().toISOString(),
         protocol_id: proto.id,
       };
-      const { error } = await supabase.from('injection_logs').insert(payload);
+      const { data: insertedData, error } = await supabase.from('injection_logs').insert(payload).select('id').single();
       if (error) {
         if (!navigator.onLine && navigator.serviceWorker?.controller) {
           const session = await supabase.auth.getSession();
@@ -296,13 +311,13 @@ export default function Tracker() {
         }
         return;
       }
+      const insertedId = insertedData?.id;
       await fetchLogs();
       const peptide = allPeptides.find(p => p.id === proto.peptide_id);
       setLastLoggedPeptide(peptide?.nameEn ?? proto.peptide_id);
-      toast.success(`تم تسجيل ${peptide?.nameAr ?? proto.peptide_id} — ${proto.dose} ${proto.dose_unit}`, { duration: 6000, description: 'الجرعة التالية غدًا — استمر في الالتزام!' });
       const freq = proto.frequency;
       const nextIn = freq === 'bid' ? '12 ساعة' : freq === 'tid' ? '8 ساعات' : 'غدًا';
-      nextDoseTimerRef.current = setTimeout(() => toast(`الجرعة التالية: ${nextIn}`, { duration: 5000 }), 2000);
+      toast.success(`تم تسجيل ${peptide?.nameAr ?? proto.peptide_id} — ${proto.dose} ${proto.dose_unit}`, { duration: 6000, description: `الجرعة التالية: ${nextIn} — استمر في الالتزام!`, action: insertedId ? { label: 'تراجع', onClick: async () => { await supabase.from('injection_logs').delete().eq('id', insertedId).eq('user_id', user.id); fetchLogs(); toast.success('تم التراجع عن التسجيل'); } } : undefined });
       const newTotal = (totalCount || logs.length) + 1;
       if (statsLoaded) celebrate(newTotal, computeStreak(allLogsForStats, true));
     } catch (err) { logError('injection save failed', err); toast.error('تعذّر حفظ الحقنة — تحقق من اتصالك وحاول مرة أخرى'); }
@@ -321,9 +336,10 @@ export default function Tracker() {
         peptide_name: last.peptide_name,
         dose: last.dose,
         dose_unit: last.dose_unit,
-        injection_site: suggestedSite,
+        injection_site: getSuggestedSite(last.peptide_name),
         logged_at: new Date().toISOString(),
         notes: null,
+        ...(last.protocol_id ? { protocol_id: last.protocol_id } : {}),
       });
       if (error) {
         if (error?.message?.includes('JWT') || (error as { code?: string })?.code === '401' || error?.message?.includes('not authenticated')) {
@@ -342,6 +358,28 @@ export default function Tracker() {
     finally { quickLogRef.current = false; setIsSubmitting(false); }
   };
 
+  const startEditProtocol = (proto: ActiveProtocol) => {
+    setEditingProtocolId(proto.id);
+    setEditDose(String(proto.dose));
+    setEditDoseUnit(proto.dose_unit);
+    setEditFrequency(proto.frequency);
+  };
+
+  const saveEditProtocol = async () => {
+    if (!user || !editingProtocolId) return;
+    const dose = parseFloat(editDose);
+    if (!dose || dose <= 0) { toast.error('أدخل جرعة صحيحة'); return; }
+    const { error } = await supabase
+      .from('user_protocols')
+      .update({ dose, dose_unit: editDoseUnit, frequency: editFrequency, updated_at: new Date().toISOString() })
+      .eq('id', editingProtocolId)
+      .eq('user_id', user.id);
+    if (error) { toast.error('تعذّر تحديث البروتوكول'); return; }
+    toast.success('تم تحديث الجرعة');
+    setEditingProtocolId(null);
+    fetchActiveProtocols();
+  };
+
   // Stats data
   const [fullStatsData, setFullStatsData] = useState<{ uniquePeptides: number; last7: number } | null>(null);
   const [allLogsForStats, setAllLogsForStats] = useState<InjectionLog[]>([]);
@@ -351,14 +389,16 @@ export default function Tracker() {
     let mounted = true;
     // Paginate to fetch ALL rows (Supabase default cap is 1000) for accurate streak
     const fetchAllStats = async () => {
-      let allRows: { logged_at: string; injection_site: string; peptide_name: string }[] = [];
+      let allRows: { logged_at: string; injection_site: string; peptide_name: string; dose: number; dose_unit: string }[] = [];
       let from = 0;
       const batchSize = 1000;
+      const oneYearAgo = new Date(Date.now() - 365 * 24 * 60 * 60 * 1000).toISOString();
       while (true) {
         const { data, error } = await supabase
           .from('injection_logs')
-          .select('logged_at, injection_site, peptide_name')
+          .select('logged_at, injection_site, peptide_name, dose, dose_unit')
           .eq('user_id', user.id)
+          .gte('logged_at', oneYearAgo)
           .order('logged_at', { ascending: false })
           .range(from, from + batchSize - 1);
         if (error) { logError('injection_logs stats query failed:', error); break; }
@@ -408,9 +448,16 @@ export default function Tracker() {
     thisMonth.forEach(l => { peptideCounts[l.peptide_name] = (peptideCounts[l.peptide_name] || 0) + 1; });
     const mostUsed = Object.entries(peptideCounts).sort((a, b) => b[1] - a[1])[0];
     const units = new Set(thisMonth.map(l => l.dose_unit));
+    const mixedUnits = units.size > 1;
+    let primaryUnit: string | null = null;
+    if (mixedUnits) {
+      const unitCounts: Record<string, number> = {};
+      thisMonth.forEach(l => { unitCounts[l.dose_unit] = (unitCounts[l.dose_unit] || 0) + 1; });
+      primaryUnit = Object.entries(unitCounts).sort((a, b) => b[1] - a[1])[0]?.[0] ?? null;
+    }
     const avgDose = units.size === 1 ? Math.round((thisMonth.reduce((sum, l) => sum + l.dose, 0) / thisMonth.length) * 10) / 10 : null;
     const avgUnit = units.size === 1 ? (thisMonth[0]?.dose_unit ?? 'mcg') : null;
-    return { totalInjections, mostUsedPeptide: mostUsed?.[0] ?? '', mostUsedCount: mostUsed?.[1] ?? 0, avgDose, avgUnit, streak };
+    return { totalInjections, mostUsedPeptide: mostUsed?.[0] ?? '', mostUsedCount: mostUsed?.[1] ?? 0, avgDose, avgUnit, streak, mixedUnits, primaryUnit };
   }, [logs, allLogsForStats, streak]);
 
   const weeklyActivity = useMemo(() => {
@@ -552,14 +599,14 @@ export default function Tracker() {
         <meta property="og:title" content="سجل الحقن | pptides" />
         <meta property="og:description" content="تتبّع جرعاتك ومواقع الحقن — سجل ذكي لبروتوكولات الببتيدات." />
         <meta property="og:type" content="website" />
-        <meta property="og:url" content="https://pptides.com/tracker" />
-        <meta property="og:image" content="https://pptides.com/og-image.jpg" />
+        <meta property="og:url" content={`${SITE_URL}/tracker`} />
+        <meta property="og:image" content={`${SITE_URL}/og-image.jpg`} />
         <meta property="og:locale" content="ar_SA" />
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content="سجل الحقن | pptides" />
         <meta name="twitter:description" content="تتبّع جرعاتك ومواقع الحقن — سجل ذكي لبروتوكولات الببتيدات." />
-        <meta name="twitter:image" content="https://pptides.com/og-image.jpg" />
-        <link rel="canonical" href="https://pptides.com/tracker" />
+        <meta name="twitter:image" content={`${SITE_URL}/og-image.jpg`} />
+        <link rel="canonical" href={`${SITE_URL}/tracker`} />
         <meta name="robots" content="noindex, nofollow" />
       </Helmet>
 
@@ -671,14 +718,48 @@ export default function Tracker() {
               const totalDays = (proto.cycle_weeks || 8) * 7;
               const weekNumber = Math.floor(daysSinceStart / 7) + 1;
               const totalWeeks = proto.cycle_weeks || 8;
-              const todayLogged = logs.some(l => l.peptide_name === (peptide?.nameEn ?? proto.peptide_id) && toLocalDateStr(new Date(l.logged_at)) === toLocalDateStr(new Date()));
+              const todayLogCount = logs.filter(l => l.peptide_name === (peptide?.nameEn ?? proto.peptide_id) && toLocalDateStr(new Date(l.logged_at)) === toLocalDateStr(new Date())).length;
+              const maxDailyDoses = proto.frequency === 'tid' ? 3 : proto.frequency === 'bid' ? 2 : 1;
+              const todayLogged = todayLogCount >= maxDailyDoses;
               return (
                 <div key={proto.id} className={cn('rounded-2xl border p-4 card-lift', todayLogged ? 'border-emerald-300 dark:border-emerald-700 bg-emerald-50/50' : 'border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900')}>
                   <div className="flex items-center gap-3">
                     <ChartErrorBoundary><ProgressRing current={daysSinceStart} total={totalDays} size={56} /></ChartErrorBoundary>
                     <div className="flex-1 min-w-0">
                       <p className="font-bold text-stone-900 dark:text-stone-100 truncate" title={peptide?.nameAr ?? proto.peptide_id}>{peptide?.nameAr ?? proto.peptide_id}</p>
-                      <p className="text-xs text-stone-500 dark:text-stone-300" dir="ltr">{proto.dose} {proto.dose_unit}</p>
+                      {editingProtocolId === proto.id ? (
+                        <div className="mt-1 space-y-2">
+                          <div className="flex items-center gap-2">
+                            <input type="number" value={editDose} onChange={e => setEditDose(e.target.value)} className="w-20 rounded-lg border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-800 px-2 py-1 text-xs text-stone-900 dark:text-stone-100" min="0" step="any" aria-label="الجرعة" />
+                            <select value={editDoseUnit} onChange={e => setEditDoseUnit(e.target.value)} className="rounded-lg border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-800 px-2 py-1 text-xs text-stone-900 dark:text-stone-100" aria-label="وحدة الجرعة">
+                              <option value="mcg">mcg</option>
+                              <option value="mg">mg</option>
+                              <option value="IU">IU</option>
+                            </select>
+                            <select value={editFrequency} onChange={e => setEditFrequency(e.target.value)} className="rounded-lg border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-800 px-2 py-1 text-xs text-stone-900 dark:text-stone-100" aria-label="تكرار الجرعة">
+                              <option value="qd">يوميًا</option>
+                              <option value="bid">مرتين/يوم</option>
+                              <option value="eod">يوم بعد يوم</option>
+                              <option value="3xweek">3×/أسبوع</option>
+                              <option value="2xweek">2×/أسبوع</option>
+                              <option value="weekly">أسبوعيًا</option>
+                            </select>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <button onClick={saveEditProtocol} className="rounded-lg bg-emerald-600 px-3 py-1 text-xs font-bold text-white hover:bg-emerald-700 transition-colors">حفظ</button>
+                            <button onClick={() => setEditingProtocolId(null)} className="rounded-lg border border-stone-200 dark:border-stone-600 px-3 py-1 text-xs text-stone-600 dark:text-stone-300 hover:bg-stone-50 dark:hover:bg-stone-800 transition-colors">إلغاء</button>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="flex items-center gap-1.5">
+                          <p className="text-xs text-stone-500 dark:text-stone-300" dir="ltr">{proto.dose} {proto.dose_unit}</p>
+                          {subscription.isProOrTrial && (
+                            <button onClick={() => startEditProtocol(proto)} className="text-stone-400 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors" aria-label="تعديل الجرعة">
+                              <Pencil className="h-3 w-3" />
+                            </button>
+                          )}
+                        </div>
+                      )}
                       <p className="text-xs text-stone-500 dark:text-stone-300">الأسبوع {weekNumber} من {totalWeeks}</p>
                       <p className="text-xs text-stone-500 dark:text-stone-300">بدأ {formatDate(proto.started_at, useHijri)}</p>
                       {subscription.isProOrTrial && (
@@ -703,8 +784,8 @@ export default function Tracker() {
                       )}
                     </div>
                     {subscription.isProOrTrial ? (
-                      <button onClick={() => handleQuickLog(proto)} disabled={isSubmitting || todayLogged} className={cn('shrink-0 rounded-full px-4 py-2 text-sm font-bold transition-all', todayLogged ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 cursor-default' : 'btn-press bg-emerald-600 text-white hover:bg-emerald-700')}>
-                        {todayLogged ? 'تم اليوم' : 'سجّل'}
+                      <button onClick={() => handleQuickLog(proto)} disabled={isSubmitting || todayLogged} className={cn('shrink-0 rounded-full px-4 py-2 text-sm font-bold transition-all inline-flex items-center gap-1.5', todayLogged ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 cursor-default' : 'btn-press bg-emerald-600 text-white hover:bg-emerald-700')}>
+                        {isSubmitting && !todayLogged ? <><Loader2 className="h-4 w-4 animate-spin" /> جارٍ...</> : todayLogged ? 'تم اليوم' : 'سجّل'}
                       </button>
                     ) : (
                       <span className="shrink-0 rounded-full bg-stone-100 dark:bg-stone-800 px-4 py-2 text-xs text-stone-500 dark:text-stone-300">قراءة فقط</span>
@@ -773,6 +854,38 @@ export default function Tracker() {
               </div>
             );
           })()}
+        </div>
+      )}
+
+      {/* Completed Protocols (collapsible) */}
+      {completedProtocols.length > 0 && (
+        <div className="mb-8 rounded-2xl border border-stone-200 dark:border-stone-600 bg-stone-50 dark:bg-stone-900 overflow-hidden">
+          <button
+            type="button"
+            onClick={() => setCompletedExpanded((p) => !p)}
+            className="flex w-full items-center justify-between px-4 py-3 text-start transition-colors hover:bg-stone-100 dark:hover:bg-stone-800"
+            aria-expanded={completedExpanded ? 'true' : 'false'}
+          >
+            <span className="font-bold text-stone-900 dark:text-stone-100">البروتوكولات المكتملة</span>
+            {completedExpanded ? <ChevronUp className="h-4 w-4 text-stone-500" /> : <ChevronDown className="h-4 w-4 text-stone-500" />}
+          </button>
+          {completedExpanded && (
+            <div className="border-t border-stone-200 dark:border-stone-600 px-4 py-4 space-y-2">
+              {completedProtocols.map((proto) => {
+                const peptide = allPeptides.find((p) => p.id === proto.peptide_id);
+                return (
+                  <div key={proto.id} className="flex items-center justify-between rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 px-4 py-3">
+                    <div>
+                      <p className="font-bold text-stone-900 dark:text-stone-100">{peptide?.nameAr ?? proto.peptide_id}</p>
+                      <p className="text-xs text-stone-500 dark:text-stone-300" dir="ltr">
+                        {proto.dose} {proto.dose_unit} — انتهى {formatDate(proto.updated_at, useHijri)}
+                      </p>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
         </div>
       )}
 
@@ -874,6 +987,7 @@ export default function Tracker() {
         <TrackerForm
           userId={user.id}
           suggestedSite={suggestedSite}
+          getSuggestedSite={getSuggestedSite}
           onSubmitSuccess={async (peptideName?: string) => {
             setShowForm(false);
             if (peptideName) setLastLoggedPeptide(peptideName);
@@ -894,6 +1008,7 @@ export default function Tracker() {
       )}
 
       {/* Post-injection feedback card */}
+      <div className="min-h-0" style={{ containIntrinsicSize: '0 180px', contentVisibility: 'visible' }}>
       {lastLoggedPeptide && (() => {
         const matched = allPeptides.find(p => p.nameEn === lastLoggedPeptide || p.id === lastLoggedPeptide);
         const category = matched?.category ?? 'recovery';
@@ -922,6 +1037,7 @@ export default function Tracker() {
           </div>
         );
       })()}
+      </div>
 
       {/* Side Effect Log */}
       <div id="side-effect-log" className="mb-8">
@@ -978,10 +1094,10 @@ export default function Tracker() {
               <h3 className="text-lg font-bold text-stone-900 dark:text-stone-100 mb-2">{confirmDialog.title}</h3>
               <p className="text-sm text-stone-600 dark:text-stone-300 mb-6">{confirmDialog.message}</p>
               <div className="flex gap-3">
-                <button onClick={confirmDialog.onConfirm} disabled={confirmBusy} className={cn('flex-1 rounded-full px-4 py-2 text-sm font-medium text-white disabled:opacity-50 disabled:cursor-not-allowed', confirmDialog.isDestructive ? 'bg-red-600 transition-colors hover:bg-red-700' : 'bg-emerald-600 transition-colors hover:bg-emerald-700')}>
+                <button onClick={confirmDialog.onConfirm} disabled={confirmBusy} className={cn('flex-1 rounded-full px-4 py-2 min-h-[44px] text-sm font-medium text-white disabled:opacity-50 disabled:cursor-not-allowed', confirmDialog.isDestructive ? 'bg-red-600 transition-colors hover:bg-red-700' : 'bg-emerald-600 transition-colors hover:bg-emerald-700')}>
                   {confirmBusy ? 'جارٍ التنفيذ...' : 'تأكيد'}
                 </button>
-                <button onClick={() => setConfirmDialog(null)} className="flex-1 rounded-xl border border-stone-200 dark:border-stone-600 px-4 py-2.5 text-sm font-bold text-stone-700 dark:text-stone-200 transition-colors hover:bg-stone-50 dark:hover:bg-stone-800">
+                <button onClick={() => setConfirmDialog(null)} className="flex-1 rounded-xl border border-stone-200 dark:border-stone-600 px-4 py-2.5 min-h-[44px] text-sm font-bold text-stone-700 dark:text-stone-200 transition-colors hover:bg-stone-50 dark:hover:bg-stone-800">
                   إلغاء
                 </button>
               </div>

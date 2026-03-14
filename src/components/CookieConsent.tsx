@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
+import { toast } from 'sonner';
 import { COOKIE_CONSENT_STORAGE_KEY, type CookiePreferences } from '@/lib/cookie-utils';
 import { STORAGE_KEYS } from '@/lib/constants';
 
@@ -58,10 +59,11 @@ export default function CookieConsent() {
         script.async = true;
         script.dataset.cookieConsent = 'analytics';
         document.head.appendChild(script);
-        const w = window as unknown as Record<string, unknown[]>;
+        const w = window as any;
         w.dataLayer = w.dataLayer || [];
-        w.dataLayer.push(['js', new Date()]);
-        w.dataLayer.push(['config', ga4Id, { send_page_view: true }]);
+        function gtag(..._args: any[]) { w.dataLayer.push(arguments); }
+        gtag('js', new Date());
+        gtag('config', ga4Id, { send_page_view: true });
       }
     } else {
       // Revoke: remove GA4 script tags and clear dataLayer
@@ -71,11 +73,10 @@ export default function CookieConsent() {
       w.dataLayer = [];
       delete (window as Record<string, unknown>).gtag;
     }
-    // Signal Google Consent Mode update
-    const wc = window as unknown as Record<string, unknown[]>;
+    const wc = window as any;
     wc.dataLayer = wc.dataLayer || [];
-    function gtagUpdate(...a: unknown[]) { wc.dataLayer!.push(a); }
-    gtagUpdate('consent', 'update', { analytics_storage: prefs.optional ? 'granted' : 'denied' });
+    function gtagConsent(..._a: any[]) { wc.dataLayer.push(arguments); }
+    gtagConsent('consent', 'update', { analytics_storage: prefs.optional ? 'granted' : 'denied' });
   };
 
   const acceptAll = () => save({ essential: true, optional: true });
@@ -85,7 +86,10 @@ export default function CookieConsent() {
   useEffect(() => {
     if (!visible) return;
     const handler = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') rejectOptional();
+      if (e.key === 'Escape') {
+        rejectOptional();
+        toast('تم رفض ملفات تعريف الارتباط الاختيارية', { duration: 3000 });
+      }
     };
     document.addEventListener('keydown', handler);
     return () => document.removeEventListener('keydown', handler);

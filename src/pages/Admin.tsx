@@ -18,23 +18,9 @@ import {
   BarChart, Bar, XAxis, YAxis, Tooltip as RTooltip, ResponsiveContainer,
   AreaChart, Area, Cell,
 } from 'recharts';
-import { cn } from '@/lib/utils';
+import { cn, timeoutSignal } from '@/lib/utils';
 import { PRICING } from '@/lib/constants';
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars -- kept for future admin activity log
-import { STATUS_AR } from '@/components/ui/Badge';
-
-// eslint-disable-next-line @typescript-eslint/no-unused-vars -- kept for future admin activity log
-const ACTION_AR: Record<string, string> = {
-  extend_trial: 'تمديد التجربة', grant_subscription: 'منح اشتراك',
-  update_subscription: 'تحديث اشتراك', cancel_subscription: 'إلغاء اشتراك',
-  suspend_user: 'تعليق مستخدم', unsuspend_user: 'إلغاء التعليق',
-  delete_user: 'حذف مستخدم', send_email: 'إرسال بريد',
-  approve_review: 'قبول مراجعة', delete_review: 'حذف مراجعة',
-  reply_enquiry: 'الرد على استفسار', refund_payment: 'استرداد دفعة',
-  health_check: 'فحص النظام', verify_stripe: 'فحص Stripe',
-  export_csv: 'تصدير CSV', bulk_email_sent: 'بريد جماعي',
-};
 
 // ========================================================
 // TYPES
@@ -74,7 +60,7 @@ interface AdminStats {
   signupsByWeek?: Array<{ date: string; signups: number }>;
   signupsByMonth?: Array<{ date: string; signups: number }>;
   emailLogs: Array<{ id: string; email: string; type: string; status: string; created_at: string }>;
-  webhookEvents: Array<{ id: string; event_type: string; event_id: string; processed_at: string }>;
+  webhookEvents: Array<{ event_type: string; event_id: string; processed_at: string }>;
 }
 
 interface UserDetail {
@@ -89,11 +75,11 @@ interface UserDetail {
   email_logs: Array<Record<string, unknown>>;
 }
 
-type Tab = 'overview' | 'users' | 'activity' | 'reviews' | 'enquiries' | 'emails' | 'email-logs' | 'payments' | 'health' | 'audit';
+type Tab = 'overview' | 'users' | 'activity' | 'reviews' | 'community' | 'enquiries' | 'emails' | 'email-logs' | 'payments' | 'health' | 'audit';
 type UserFilter = 'all' | 'active' | 'trial' | 'expired' | 'none';
 type ModalType = 'extend_trial' | 'grant_sub' | 'send_email' | 'confirm_delete' | 'confirm_suspend' | 'cancel_sub' | 'bulk_email' | 'refund' | null;
 
-const PER_PAGE = 20;
+const PER_PAGE = 50;
 
 const EMAIL_TEMPLATES: { key: string; label: string; subject: string; body: string }[] = [
   { key: 'custom', label: 'مخصص', subject: '', body: '' },
@@ -230,6 +216,7 @@ export default function Admin() {
   const [replyingTo, setReplyingTo] = useState<string | null>(null);
   const [replyText, setReplyText] = useState('');
   const [replySending, setReplySending] = useState(false);
+  const [enquirySearch, setEnquirySearch] = useState('');
   const [emailLogsPage, setEmailLogsPage] = useState(1);
 
   // Modals & actions
@@ -265,8 +252,22 @@ export default function Admin() {
   const [userDetailLoading, setUserDetailLoading] = useState(false);
   const [userDetailOpen, setUserDetailOpen] = useState(false);
 
+  // Coach conversations for user detail
+  const [coachConversations, setCoachConversations] = useState<Array<{ id: string; user_message: string; coach_reply: string; created_at: string }>>([]);
+  const [coachConvoLoading, setCoachConvoLoading] = useState(false);
+  const [coachConvoOpen, setCoachConvoOpen] = useState(false);
+
   // Email template
   const [emailTemplate, setEmailTemplate] = useState('custom');
+
+  // Reviews toggle
+  const [showApprovedReviews, setShowApprovedReviews] = useState(false);
+  const [approvedReviewsList, setApprovedReviewsList] = useState<Array<{ id: string; name: string; rating: number; content: string; created_at: string }>>([]);
+  const [approvedReviewsLoading, setApprovedReviewsLoading] = useState(false);
+
+  // Community moderation
+  const [communityReports, setCommunityReports] = useState<Array<{ id: string; post_id: string; reason: string; created_at: string }>>([]);
+  const [communityReportsLoading, setCommunityReportsLoading] = useState(false);
 
   // Refund
   const [refundId, setRefundId] = useState('');
@@ -298,7 +299,7 @@ export default function Admin() {
       if (page) url.searchParams.set('page', String(page));
       if (filter && filter !== 'all') url.searchParams.set('filter', filter);
       const res = await fetch(url.toString(), {
-        signal: AbortSignal.timeout(15000),
+        signal: timeoutSignal(15000),
         headers: { Authorization: `Bearer ${token}`, apikey: import.meta.env.VITE_SUPABASE_ANON_KEY },
       });
       if (res.status === 403) { setForbidden(true); return; }
@@ -329,7 +330,7 @@ export default function Admin() {
     const token = await getToken();
     const res = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/admin-actions`, {
       method: 'POST',
-      signal: AbortSignal.timeout(15000),
+      signal: timeoutSignal(15000),
       headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}`, apikey: import.meta.env.VITE_SUPABASE_ANON_KEY },
       body: JSON.stringify(body),
     });
@@ -414,31 +415,17 @@ export default function Admin() {
     setActionLoading(true);
     setBulkProgress(null);
     try {
-      // Step 1: Fetch recipient list
-      const recipients = await adminAction({ action: 'get_bulk_recipients', audience: bulkAudience });
-      const emails: string[] = recipients.emails ?? [];
-      if (emails.length === 0) {
-        toast.error('لا يوجد مستلمون');
-        return;
-      }
+      const result = await adminAction({
+        action: 'send_email',
+        to: 'bulk',
+        audience: bulkAudience,
+        subject: emailSubject,
+        text: emailBody,
+      });
 
-      // Step 2: Send sequentially with 200ms delay
-      let sent = 0;
-      let failed = 0;
-      for (let i = 0; i < emails.length; i++) {
-        setBulkProgress({ current: i + 1, total: emails.length, sent, failed });
-        try {
-          await adminAction({ action: 'send_email', to: emails[i], subject: emailSubject, text: emailBody });
-          sent++;
-        } catch {
-          failed++;
-        }
-        if (i < emails.length - 1) {
-          await new Promise(r => setTimeout(r, 200));
-        }
-      }
-
-      setBulkProgress({ current: emails.length, total: emails.length, sent, failed });
+      const sent = result.sent ?? 0;
+      const failed = result.failed ?? 0;
+      setBulkProgress({ current: sent + failed, total: sent + failed, sent, failed });
       toast.success(`تم إرسال ${sent} بريد (${failed} فشل)`);
       setModal(null);
       setEmailSubject(''); setEmailBody('');
@@ -600,6 +587,7 @@ export default function Admin() {
     { key: 'users', label: 'المستخدمون', count: o.totalUsers },
     { key: 'activity', label: 'النشاط', count: stats.activityFeed.length },
     { key: 'reviews', label: 'المراجعات', count: o.pendingReviews },
+    { key: 'community', label: 'المجتمع' },
     { key: 'enquiries', label: 'الاستفسارات', count: o.pendingEnquiries },
     { key: 'emails', label: 'قائمة البريد', count: o.emailListCount },
     { key: 'email-logs', label: 'البريد المرسل', count: stats.emailLogs.length },
@@ -1020,8 +1008,47 @@ export default function Admin() {
         {/* ===================== REVIEWS ===================== */}
         {tab === 'reviews' && (
           <div className="space-y-3">
-            <h2 className="text-sm font-bold text-stone-700 dark:text-stone-200">المراجعات المعلّقة ({stats.pendingReviews.length})</h2>
-            {stats.pendingReviews.length === 0 ? <div className="rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 p-8 text-center"><Star className="mx-auto h-8 w-8 text-stone-300 mb-2" /><p className="text-sm text-stone-500 dark:text-stone-300">لا توجد مراجعات معلقة</p></div> :
+            <div className="flex items-center justify-between">
+              <h2 className="text-sm font-bold text-stone-700 dark:text-stone-200">
+                {showApprovedReviews ? `المراجعات المعتمدة (${approvedReviewsList.length})` : `المراجعات المعلّقة (${stats.pendingReviews.length})`}
+              </h2>
+              <button
+                onClick={async () => {
+                  const next = !showApprovedReviews;
+                  setShowApprovedReviews(next);
+                  if (next && approvedReviewsList.length === 0) {
+                    setApprovedReviewsLoading(true);
+                    try {
+                      const data = await adminAction({ action: 'list_approved_reviews' });
+                      setApprovedReviewsList(data.reviews ?? []);
+                    } catch { toast.error('تعذّر تحميل المراجعات المعتمدة'); }
+                    finally { setApprovedReviewsLoading(false); }
+                  }
+                }}
+                className="rounded-lg border border-stone-200 dark:border-stone-600 px-3 py-1.5 text-xs font-bold text-stone-600 dark:text-stone-300 hover:bg-stone-50 dark:hover:bg-stone-800"
+              >
+                {showApprovedReviews ? 'عرض المعلّقة' : 'عرض المعتمدة'}
+              </button>
+            </div>
+            {showApprovedReviews ? (
+              approvedReviewsLoading ? <div className="rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 p-8 text-center"><Loader2 className="mx-auto h-6 w-6 animate-spin text-stone-400" /></div> :
+              approvedReviewsList.length === 0 ? <div className="rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 p-8 text-center"><Star className="mx-auto h-8 w-8 text-stone-300 mb-2" /><p className="text-sm text-stone-500 dark:text-stone-300">لا توجد مراجعات معتمدة</p></div> :
+              approvedReviewsList.map(r => (
+                <div key={r.id} className="rounded-xl border border-emerald-200 dark:border-emerald-800 bg-white dark:bg-stone-900 p-4">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="font-medium text-stone-900 dark:text-stone-100">{r.name}</span>
+                    <div className="flex gap-0.5">{[1,2,3,4,5].map(s => <Star key={s} className={cn('h-4 w-4', s <= r.rating ? 'fill-amber-400 text-amber-400' : 'text-stone-300')} />)}</div>
+                  </div>
+                  <p className="text-sm text-stone-700 dark:text-stone-200">{r.content}</p>
+                  <div className="flex items-center justify-between mt-3">
+                    <p className="text-xs text-stone-500 dark:text-stone-300">{timeAgo(r.created_at)}</p>
+                    <button onClick={async () => { if (!confirm('حذف هذه المراجعة؟')) return; try { await adminAction({ action: 'delete_review', review_id: r.id }); toast.success('تم الحذف'); setApprovedReviewsList(prev => prev.filter(x => x.id !== r.id)); } catch { toast.error('فشل'); } }}
+                      className="rounded-lg border border-red-200 dark:border-red-800 px-3 py-1.5 text-xs font-bold text-red-600 dark:text-red-400 hover:bg-red-50 dark:bg-red-900/20">حذف</button>
+                  </div>
+                </div>
+              ))
+            ) : (
+              stats.pendingReviews.length === 0 ? <div className="rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 p-8 text-center"><Star className="mx-auto h-8 w-8 text-stone-300 mb-2" /><p className="text-sm text-stone-500 dark:text-stone-300">لا توجد مراجعات معلقة</p></div> :
               stats.pendingReviews.map(r => (
                 <div key={r.id} className="rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 p-4">
                   <div className="flex items-center justify-between mb-2">
@@ -1040,7 +1067,61 @@ export default function Admin() {
                     </div>
                   </div>
                 </div>
-              ))}
+              ))
+            )}
+          </div>
+        )}
+
+        {/* ===================== COMMUNITY MODERATION ===================== */}
+        {tab === 'community' && (
+          <div className="space-y-3">
+            <div className="flex items-center justify-between">
+              <h2 className="text-sm font-bold text-stone-700 dark:text-stone-200">بلاغات المجتمع</h2>
+              <button
+                onClick={async () => {
+                  setCommunityReportsLoading(true);
+                  try {
+                    const data = await adminAction({ action: 'list_community_reports' });
+                    setCommunityReports(data.reports ?? []);
+                  } catch { toast.error('تعذّر تحميل البلاغات'); }
+                  finally { setCommunityReportsLoading(false); }
+                }}
+                className="rounded-lg border border-stone-200 dark:border-stone-600 px-3 py-1.5 text-xs font-bold text-stone-600 dark:text-stone-300 hover:bg-stone-50 dark:hover:bg-stone-800"
+              >
+                تحديث
+              </button>
+            </div>
+            {communityReportsLoading ? (
+              <div className="rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 p-8 text-center"><Loader2 className="mx-auto h-6 w-6 animate-spin text-stone-400" /></div>
+            ) : communityReports.length === 0 ? (
+              <div className="rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 p-8 text-center">
+                <Users className="mx-auto h-8 w-8 text-stone-300 mb-2" />
+                <p className="text-sm text-stone-500 dark:text-stone-300">لا توجد بلاغات — اضغط &quot;تحديث&quot; لتحميل البلاغات</p>
+              </div>
+            ) : (
+              communityReports.map(r => (
+                <div key={r.id} className="rounded-xl border border-amber-200 dark:border-amber-800 bg-white dark:bg-stone-900 p-4">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="font-mono text-xs text-stone-500 dark:text-stone-300">Post: {r.post_id}</span>
+                    <span className="text-xs text-stone-500 dark:text-stone-300">{timeAgo(r.created_at)}</span>
+                  </div>
+                  <p className="text-sm text-stone-700 dark:text-stone-200 mb-3">{r.reason}</p>
+                  <button
+                    onClick={async () => {
+                      if (!confirm('حذف هذا المنشور؟ لا يمكن التراجع.')) return;
+                      try {
+                        await adminAction({ action: 'delete_community_post', post_id: r.post_id });
+                        toast.success('تم حذف المنشور');
+                        setCommunityReports(prev => prev.filter(x => x.post_id !== r.post_id));
+                      } catch { toast.error('فشل حذف المنشور'); }
+                    }}
+                    className="rounded-lg border border-red-200 dark:border-red-800 px-3 py-1.5 text-xs font-bold text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20"
+                  >
+                    حذف المنشور
+                  </button>
+                </div>
+              ))
+            )}
           </div>
         )}
 
@@ -1048,8 +1129,19 @@ export default function Admin() {
         {tab === 'enquiries' && (
           <div className="space-y-3">
             <h2 className="text-sm font-bold text-stone-700 dark:text-stone-200">الاستفسارات ({stats.enquiries.length})</h2>
+            <input
+              type="text"
+              value={enquirySearch}
+              onChange={e => setEnquirySearch(e.target.value)}
+              placeholder="بحث بالبريد أو الموضوع..."
+              className="w-full rounded-lg border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 px-3 py-2 text-sm text-stone-900 dark:text-stone-100 placeholder:text-stone-400 focus:border-emerald-300 dark:focus:border-emerald-700 focus:outline-none"
+            />
             {stats.enquiries.length === 0 ? <div className="rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 p-8 text-center"><Mail className="mx-auto h-8 w-8 text-stone-300 mb-2" /><p className="text-sm text-stone-500 dark:text-stone-300">لا توجد استفسارات</p></div> :
-              stats.enquiries.map(eq => (
+              stats.enquiries.filter(eq => {
+                if (!enquirySearch.trim()) return true;
+                const q = enquirySearch.trim().toLowerCase();
+                return eq.email.toLowerCase().includes(q) || eq.subject.toLowerCase().includes(q);
+              }).map(eq => (
                 <div key={eq.id} className={cn('rounded-xl border bg-white dark:bg-stone-900 p-4', eq.status === 'pending' ? 'border-amber-200 dark:border-amber-800' : 'border-stone-200 dark:border-stone-600')}>
                   <div className="flex items-center justify-between mb-2">
                     <div><span className="font-mono text-xs text-stone-500 dark:text-stone-300">{eq.email}</span>{eq.peptide_name && <span className="ms-2 rounded-full bg-emerald-100 dark:bg-emerald-900/30 px-2 py-0.5 text-xs font-medium text-emerald-700 dark:text-emerald-400">{eq.peptide_name}</span>}</div>
@@ -1434,6 +1526,7 @@ export default function Admin() {
             onClick={async () => {
               const id = refundId.trim();
               if (!id) return;
+              if (!window.confirm(`هل أنت متأكد من استرداد الدفعة ${id}؟ هذا الإجراء لا يمكن التراجع عنه.`)) return;
               setActionLoading(true);
               try {
                 const payload = id.startsWith('ch_') ? { action: 'refund_payment' as const, charge_id: id } : { action: 'refund_payment' as const, payment_intent_id: id };
@@ -1489,6 +1582,45 @@ export default function Admin() {
                       {ud.user.banned_until && <><span className="text-stone-500 dark:text-stone-300">محظور حتى</span><span className="text-red-600 dark:text-red-400">{ud.user.banned_until}</span></>}
                       <span className="text-stone-500 dark:text-stone-300">طلبات المدرب</span><span>{ud.ai_coach_request_count}</span>
                     </div>
+                    {ud.ai_coach_request_count > 0 && (
+                      <button
+                        type="button"
+                        onClick={async () => {
+                          if (coachConvoOpen) { setCoachConvoOpen(false); return; }
+                          setCoachConvoLoading(true);
+                          try {
+                            const { supabase } = await import('@/lib/supabase');
+                            const { data } = await supabase
+                              .from('coach_conversations')
+                              .select('id, user_message, coach_reply, created_at')
+                              .eq('user_id', ud.user.id)
+                              .order('created_at', { ascending: false })
+                              .limit(20);
+                            setCoachConversations(data ?? []);
+                            setCoachConvoOpen(true);
+                          } catch { setCoachConversations([]); }
+                          finally { setCoachConvoLoading(false); }
+                        }}
+                        disabled={coachConvoLoading}
+                        className="mt-2 flex items-center gap-1 rounded-lg bg-violet-100 dark:bg-violet-900/30 px-3 py-1.5 text-xs font-bold text-violet-700 dark:text-violet-400 hover:bg-violet-200 dark:hover:bg-violet-900/50 disabled:opacity-50 transition-colors"
+                      >
+                        <MessageSquare className="h-3 w-3" />
+                        {coachConvoLoading ? 'جارٍ التحميل...' : coachConvoOpen ? 'إخفاء المحادثات' : 'عرض المحادثات'}
+                      </button>
+                    )}
+                    {coachConvoOpen && (
+                      <div className="mt-2 space-y-2 max-h-60 overflow-y-auto">
+                        {coachConversations.length === 0 ? (
+                          <p className="text-xs text-stone-400">لا توجد محادثات</p>
+                        ) : coachConversations.map(c => (
+                          <div key={c.id} className="rounded-lg border border-stone-100 dark:border-stone-700 p-2 text-xs space-y-1">
+                            <p className="text-stone-700 dark:text-stone-200"><span className="font-bold">المستخدم:</span> {c.user_message?.slice(0, 200)}</p>
+                            <p className="text-emerald-700 dark:text-emerald-400"><span className="font-bold">المدرب:</span> {c.coach_reply?.slice(0, 200)}</p>
+                            <p className="text-stone-400 text-[10px]">{c.created_at ? timeAgo(c.created_at) : ''}</p>
+                          </div>
+                        ))}
+                      </div>
+                    )}
                   </section>
 
                   {/* Subscription */}

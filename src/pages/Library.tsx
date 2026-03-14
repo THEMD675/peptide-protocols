@@ -2,8 +2,6 @@ import { useState, useMemo, useCallback, useEffect, useRef, memo, lazy, Suspense
 import { useBookmarks } from '@/hooks/useBookmarks';
 const FocusTrap = lazy(() => import('focus-trap-react'));
 import { Helmet } from 'react-helmet-async';
-const GuidedTour = lazy(() => import('@/components/GuidedTour'));
-import { isTourDone } from '@/components/tour-utils';
 import { Link, useSearchParams } from 'react-router-dom';
 import {
   Search,
@@ -75,7 +73,7 @@ const PeptideCard = memo(function PeptideCard({
       className={cn(
         'relative h-full overflow-hidden rounded-2xl border p-5 shadow-sm dark:shadow-stone-900/30 card-hover active:scale-[0.98]',
         hasAccess
-          ? 'border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 hover:border-emerald-300 dark:border-emerald-700 hover:shadow-lg hover:shadow-emerald-600/10'
+          ? 'border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 hover:border-emerald-300 dark:hover:border-emerald-700 hover:shadow-lg hover:shadow-emerald-600/10'
           : 'border-stone-200 dark:border-stone-600 bg-stone-50/50 hover:border-stone-200 dark:border-stone-700',
         isFav && 'border-s-4 border-s-emerald-400',
       )}
@@ -333,22 +331,6 @@ export default function Library() {
 
   // showFilters removed — evidence filter is now always visible inline
   const { bookmarks: favorites, toggle: toggleFavorite } = useBookmarks();
-  const [runTour, setRunTour] = useState(false);
-
-  // Auto-trigger library tour on first visit (delayed to let user orient)
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      if (!isTourDone('library')) setRunTour(true);
-    }, 3000);
-    return () => clearTimeout(timer);
-  }, []);
-
-  // Re-trigger tour via header "?" button
-  useEffect(() => {
-    const handler = () => setRunTour(true);
-    window.addEventListener('pptides:retrigger-tour', handler);
-    return () => window.removeEventListener('pptides:retrigger-tour', handler);
-  }, []);
   const [compareIds, setCompareIds] = useState<string[]>(() => {
     try { const s = sessionStorage.getItem('pptides_compare'); return s ? JSON.parse(s) : []; } catch { return []; }
   });
@@ -449,11 +431,15 @@ export default function Library() {
         <meta property="og:type" content="website" />
         <meta property="og:url" content={`${SITE_URL}/library`} />
         <meta property="og:image" content={`${SITE_URL}/og-image.jpg`} />
+        <meta property="og:image:alt" content="pptides — دليل الببتيدات العلاجية" />
+        <meta property="og:site_name" content="pptides" />
         <link rel="canonical" href={`${SITE_URL}/library`} />
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content={`مكتبة الببتيدات | ${PEPTIDE_COUNT} ببتيد علاجي | pptides`} />
         <meta name="twitter:description" content={`تصفّح ${PEPTIDE_COUNT} ببتيد علاجي مع بروتوكولات كاملة وحاسبة جرعات.`} />
         <meta name="twitter:image" content={`${SITE_URL}/og-image.jpg`} />
+        <meta name="twitter:site" content="@pptides" />
+        <meta name="twitter:creator" content="@pptides" />
         <script type="application/ld+json">{JSON.stringify({
           "@context": "https://schema.org",
           "@type": "ItemList",
@@ -468,7 +454,6 @@ export default function Library() {
           }))
         })}</script>
       </Helmet>
-      <Suspense fallback={null}><GuidedTour tourId="library" run={runTour} onFinish={() => setRunTour(false)} /></Suspense>
       <div className="mx-auto max-w-7xl px-4 pt-8 pb-24 md:px-6 md:pt-12">
         <div className="mb-4 rounded-xl border border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-900/20 px-4 py-2 text-xs text-amber-700 dark:text-amber-400">محتوى تعليمي — استشر طبيبك قبل استخدام أي ببتيد</div>
         {/* Header */}
@@ -550,7 +535,7 @@ export default function Library() {
             />
             {search && (
               <button
-                onClick={() => setSearch('')}
+                onClick={() => { setSearch(''); setDebouncedSearch(''); }}
                 aria-label="مسح البحث"
                 className="absolute start-3 top-1/2 -translate-y-1/2 rounded-full p-0.5 text-stone-500 dark:text-stone-300 transition-colors hover:text-stone-700 dark:hover:text-stone-200"
               >
@@ -727,7 +712,7 @@ export default function Library() {
           <span>{filtered.length} ببتيد</span>
           {(activeCategory !== 'all' || search.trim() !== '' || evidenceFilter !== 'all') && (
             <button
-              onClick={() => { setActiveCategory('all'); setSearch(''); setEvidenceFilter('all'); setSortBy('default'); }}
+              onClick={() => { setActiveCategory('all'); setSearch(''); setDebouncedSearch(''); setEvidenceFilter('all'); setSortBy('default'); }}
               className="flex items-center gap-1 rounded-lg border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 px-3 py-1.5 min-h-[44px] text-xs font-medium text-stone-600 dark:text-stone-300 transition-colors hover:border-red-200 dark:border-red-800 hover:bg-red-50 dark:bg-red-900/20 hover:text-red-600 dark:text-red-400"
             >
               <X className="h-3 w-3" />
@@ -811,7 +796,7 @@ export default function Library() {
               <div className="mt-5 flex flex-wrap justify-center gap-2">
                 {(activeCategory !== 'all' || search.trim() || evidenceFilter !== 'all') && (
                   <button
-                    onClick={() => { setActiveCategory('all'); setSearch(''); setEvidenceFilter('all'); setSortBy('default'); }}
+                    onClick={() => { setActiveCategory('all'); setSearch(''); setDebouncedSearch(''); setEvidenceFilter('all'); setSortBy('default'); }}
                     className="flex items-center gap-1.5 rounded-full border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 px-4 py-2 text-sm font-medium text-stone-700 dark:text-stone-200 transition-colors hover:border-emerald-300 dark:hover:border-emerald-700"
                   >
                     <X className="h-3.5 w-3.5" />

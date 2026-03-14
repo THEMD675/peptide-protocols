@@ -130,7 +130,7 @@ export default function TrackerHeatmap({
                             'h-3 w-3 rounded-sm transition-colors',
                             isToday && 'ring-1 ring-emerald-400',
                             intensity === 0 && 'bg-stone-100 dark:bg-stone-800',
-                            intensity === 1 && 'bg-emerald-200',
+                            intensity === 1 && 'bg-emerald-200 dark:bg-emerald-800/40',
                             intensity === 2 && 'bg-emerald-400',
                             intensity === 3 && 'bg-emerald-500',
                             intensity === 4 && 'bg-emerald-700',
@@ -144,7 +144,7 @@ export default function TrackerHeatmap({
               <div className="flex items-center justify-end gap-1.5 mt-3 text-xs text-stone-500 dark:text-stone-300">
                 <span>أقل</span>
                 <div className="h-3 w-3 rounded-sm bg-stone-100 dark:bg-stone-800" />
-                <div className="h-3 w-3 rounded-sm bg-emerald-200" />
+                <div className="h-3 w-3 rounded-sm bg-emerald-200 dark:bg-emerald-800/40" />
                 <div className="h-3 w-3 rounded-sm bg-emerald-400" />
                 <div className="h-3 w-3 rounded-sm bg-emerald-500" />
                 <div className="h-3 w-3 rounded-sm bg-emerald-700" />
@@ -169,7 +169,7 @@ export default function TrackerHeatmap({
                           className={cn(
                             'h-3.5 w-3.5 rounded-sm transition-colors',
                             intensity === 0 && 'bg-stone-100 dark:bg-stone-800',
-                            intensity === 1 && 'bg-emerald-200',
+                            intensity === 1 && 'bg-emerald-200 dark:bg-emerald-800/40',
                             intensity === 2 && 'bg-emerald-400',
                             intensity === 3 && 'bg-emerald-500',
                             intensity === 4 && 'bg-emerald-700',
@@ -183,7 +183,7 @@ export default function TrackerHeatmap({
               <div className="flex items-center justify-end gap-1.5 text-xs text-stone-500 dark:text-stone-300">
                 <span>أقل</span>
                 <div className="h-3 w-3 rounded-sm bg-stone-100 dark:bg-stone-800" />
-                <div className="h-3 w-3 rounded-sm bg-emerald-200" />
+                <div className="h-3 w-3 rounded-sm bg-emerald-200 dark:bg-emerald-800/40" />
                 <div className="h-3 w-3 rounded-sm bg-emerald-400" />
                 <div className="h-3 w-3 rounded-sm bg-emerald-500" />
                 <div className="h-3 w-3 rounded-sm bg-emerald-700" />

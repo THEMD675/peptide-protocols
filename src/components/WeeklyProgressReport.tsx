@@ -79,13 +79,15 @@ export default function WeeklyProgressReport() {
         while (daySet.has(d.toDateString())) { streak++; d.setDate(d.getDate() - 1); }
       }
 
-      // Wellness averages
+      // Wellness averages — filter out null before averaging
       const wellnessData = wellness.data ?? [];
-      const avgMood = wellnessData.length > 0
-        ? Math.round(wellnessData.reduce((s: number, w: { mood: number }) => s + w.mood, 0) / wellnessData.length * 10) / 10
+      const moodValues = wellnessData.map((w: { mood?: number | null }) => w.mood).filter((v): v is number => v != null);
+      const energyValues = wellnessData.map((w: { energy?: number | null }) => w.energy).filter((v): v is number => v != null);
+      const avgMood = moodValues.length > 0
+        ? Math.round(moodValues.reduce((a, b) => a + b, 0) / moodValues.length * 10) / 10
         : 0;
-      const avgEnergy = wellnessData.length > 0
-        ? Math.round(wellnessData.reduce((s: number, w: { energy: number }) => s + w.energy, 0) / wellnessData.length * 10) / 10
+      const avgEnergy = energyValues.length > 0
+        ? Math.round(energyValues.reduce((a, b) => a + b, 0) / energyValues.length * 10) / 10
         : 0;
 
       // Side effects summary

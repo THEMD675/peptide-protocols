@@ -158,6 +158,14 @@ serve(async (req) => {
       console.warn('delete-account: no subscription row for user', user.id, '— Stripe cleanup skipped (no customer_id)')
     }
 
+    // Explicitly delete tables that may not be covered by the RPC's cascade
+    await Promise.allSettled([
+      supabase.from('saved_protocols').delete().eq('user_id', user.id),
+      supabase.from('lab_results').delete().eq('user_id', user.id),
+      supabase.from('community_replies').delete().eq('user_id', user.id),
+      supabase.from('community_logs').delete().eq('user_id', user.id),
+    ])
+
     const { error: rpcErr } = await supabase.rpc('delete_user_data', {
       p_user_id: user.id,
       p_user_email: user.email ?? null,

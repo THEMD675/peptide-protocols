@@ -113,6 +113,7 @@ export function useCelebrations() {
       safeTimeout(() => {
         fireConfetti();
         toast.success('مبروك! سجّلت أول حقنة لك', {
+          id: 'injection-celebration',
           duration: 5000,
           description: 'بداية رحلتك مع الببتيدات — سجّل كل حقنة لمتابعة تقدّمك',
         });
@@ -137,7 +138,7 @@ export function useCelebrations() {
         };
         safeTimeout(() => {
           fireStreakCelebration();
-          toast.success(msg.title, { duration: 5000, description: msg.desc });
+          toast.success(msg.title, { id: 'injection-celebration', duration: 5000, description: msg.desc });
         }, 300);
         return;
       }
@@ -148,6 +149,7 @@ export function useCelebrations() {
       safeTimeout(() => {
         fireStreakCelebration();
         toast.success('10 حقنات مسجّلة!', {
+          id: 'injection-celebration',
           duration: 4000,
           description: 'أنت على الطريق الصحيح',
         });
@@ -160,6 +162,7 @@ export function useCelebrations() {
       safeTimeout(() => {
         fireStreakCelebration();
         toast.success('25 حقنة! أنت ملتزم بشكل رائع', {
+          id: 'injection-celebration',
           duration: 5000,
         });
       }, 300);
@@ -171,6 +174,7 @@ export function useCelebrations() {
       safeTimeout(() => {
         fireConfetti();
         toast.success('50 حقنة! مستخدم متقدّم', {
+          id: 'injection-celebration',
           duration: 4000,
           description: 'خبرتك تتزايد — شارك تجربتك لمساعدة الآخرين',
         });
@@ -183,6 +187,7 @@ export function useCelebrations() {
       safeTimeout(() => {
         fireGrandCelebration();
         toast.success('100 حقنة! إنجاز استثنائي', {
+          id: 'injection-celebration',
           duration: 6000,
           description: 'أنت من النخبة — شارك قصتك مع المجتمع',
         });

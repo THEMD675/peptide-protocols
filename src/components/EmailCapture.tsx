@@ -37,6 +37,8 @@ export default function EmailCapture() {
       return;
     }
 
+    lastSubmitRef.current = Date.now();
+    setCooldownRemaining(RATE_LIMIT_MS / 1000);
     setStatus('loading');
     setErrorMsg('');
 
@@ -66,8 +68,6 @@ export default function EmailCapture() {
 
       setStatus('success');
       setEmail('');
-      lastSubmitRef.current = Date.now();
-      setCooldownRemaining(RATE_LIMIT_MS / 1000);
     } catch {
       setStatus('error');
       setErrorMsg('فشل الاتصال بالخادم — تحقق من اتصالك بالإنترنت وحاول مرة أخرى.');
@@ -81,7 +81,7 @@ export default function EmailCapture() {
         <p className="text-lg font-bold text-emerald-700 dark:text-emerald-400">
           شكرًا! تم تسجيل بريدك بنجاح
         </p>
-        <p className="mt-2 text-sm text-emerald-700">شكرًا! سنرسل لك آخر التحديثات</p>
+        <p className="mt-2 text-sm text-emerald-700">سنرسل لك آخر التحديثات</p>
       </div>
     );
   }

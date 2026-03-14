@@ -80,24 +80,12 @@ serve(async (req) => {
         const stripeSubscriptionId = session.subscription as string | null
 
         if (!userId && session.customer_email) {
-          // Direct lookup by email from user_profiles table (avoids iterating all auth users)
-          const { data: profileMatch } = await supabase
-            .from('user_profiles')
-            .select('user_id')
-            .eq('email', session.customer_email)
-            .maybeSingle()
-          if (profileMatch) {
-            userId = profileMatch.user_id
-            console.warn('checkout.session.completed: resolved user via profile email:', session.customer_email)
-          } else {
-            // Fallback: single-page auth lookup (limit 50 to avoid timeout)
-            const { data: { users } } = await supabase.auth.admin.listUsers({ page: 1, perPage: 50 })
-              .catch(() => ({ data: { users: [] as { id: string; email?: string }[] } }))
-            const emailMatch = users.find((u: { email?: string }) => u.email === session.customer_email)
-            if (emailMatch) {
-              userId = emailMatch.id
-              console.warn('checkout.session.completed: resolved user via auth email fallback:', session.customer_email)
-            }
+          const { data: { users } } = await supabase.auth.admin.listUsers({ page: 1, perPage: 1000 })
+            .catch(() => ({ data: { users: [] as { id: string; email?: string }[] } }))
+          const emailMatch = users.find((u: { email?: string }) => u.email === session.customer_email)
+          if (emailMatch) {
+            userId = emailMatch.id
+            console.warn('checkout.session.completed: resolved user via auth email:', session.customer_email)
           }
         }
 
@@ -118,6 +106,7 @@ serve(async (req) => {
         let checkoutStatus = 'active'
         let trialEndsAt: string | undefined
 
+        let billingInterval: string | undefined
         if (stripeSubscriptionId) {
           try {
             const stripeSub = await stripe.subscriptions.retrieve(stripeSubscriptionId)
@@ -127,13 +116,16 @@ serve(async (req) => {
                 trialEndsAt = new Date(stripeSub.trial_end * 1000).toISOString()
               }
             }
+            const priceInterval = stripeSub.items?.data?.[0]?.price?.recurring?.interval
+            if (priceInterval === 'year') billingInterval = 'year'
+            else if (priceInterval === 'month') billingInterval = 'month'
           } catch (fetchErr) {
             console.error('checkout: failed to fetch subscription from Stripe — NOT defaulting to trial:', fetchErr)
           }
         }
 
+        const referralFromMeta = session.metadata?.referral_code as string | undefined
         try {
-          const referralFromMeta = session.metadata?.referral_code as string | undefined
           const updatePayload: Record<string, unknown> = {
             status: checkoutStatus,
             tier,
@@ -142,6 +134,7 @@ serve(async (req) => {
             updated_at: new Date().toISOString(),
           }
           if (trialEndsAt) updatePayload.trial_ends_at = trialEndsAt
+          if (billingInterval) updatePayload.billing_interval = billingInterval
           if (referralFromMeta && /^PP-[A-Z0-9]{6}$/i.test(referralFromMeta)) updatePayload.referred_by = referralFromMeta.toUpperCase()
 
           const { error, data: updateData } = await supabase
@@ -166,6 +159,26 @@ serve(async (req) => {
         } catch (dbErr) {
           console.error('checkout.session.completed DB exception:', dbErr)
           dbFailed = true
+        }
+
+        if (!dbFailed && referralFromMeta && /^PP-[A-Z0-9]{6}$/i.test(referralFromMeta)) {
+          const code = referralFromMeta.toUpperCase()
+          const { data: referrerRow } = await supabase.from('referrals')
+            .select('referrer_id')
+            .eq('referral_code', code)
+            .limit(1)
+            .maybeSingle()
+          if (referrerRow?.referrer_id) {
+            await supabase.from('referrals')
+              .upsert({
+                referral_code: code,
+                referrer_id: referrerRow.referrer_id,
+                referred_id: userId,
+                status: 'converted',
+                converted_at: new Date().toISOString(),
+              }, { onConflict: 'referral_code,referred_id' })
+              .then(({ error: refErr }) => { if (refErr) console.error('referral upsert failed:', refErr) })
+          }
         }
 
         if (!dbFailed) {
@@ -201,88 +214,6 @@ serve(async (req) => {
             }).catch(e => console.error('payment confirmation email failed:', e))
           }
 
-          // Update referral status + reward referrer with a promo code when referred user pays
-          if (userId) {
-            const { data: userSub } = await supabase.from('subscriptions').select('referred_by').eq('user_id', userId).maybeSingle()
-            if (userSub?.referred_by) {
-              const { data: referral } = await supabase.from('referrals')
-                .select('referrer_id, reward_given')
-                .eq('referred_id', userId).eq('referral_code', userSub.referred_by)
-                .maybeSingle()
-
-              if (referral?.referrer_id && !referral.reward_given) {
-                try {
-                  // Referral reward cap: max 5 rewards per referrer
-                  const { count: rewardCount } = await supabase.from('referrals')
-                    .select('id', { count: 'exact', head: true })
-                    .eq('referrer_id', referral.referrer_id)
-                    .eq('reward_given', true)
-
-                  if ((rewardCount ?? 0) >= 5) {
-                    console.log('referral reward cap reached for referrer:', referral.referrer_id)
-                    // Mark as converted but don't give reward
-                    await supabase.from('referrals')
-                      .update({ status: 'converted', converted_at: new Date().toISOString() })
-                      .eq('referred_id', userId).eq('referral_code', userSub.referred_by)
-                  } else {
-                    // Auto-apply the referral_reward coupon directly to the referrer's subscription
-                    // (no manual promo code needed — reward is automatic)
-                    const { data: referrerSub } = await supabase.from('subscriptions')
-                      .select('stripe_subscription_id')
-                      .eq('user_id', referral.referrer_id)
-                      .maybeSingle()
-
-                    let rewardApplied = false
-                    if (referrerSub?.stripe_subscription_id) {
-                      try {
-                        await stripe.subscriptions.update(referrerSub.stripe_subscription_id, {
-                          coupon: COUPON_REFERRAL_REWARD,
-                        })
-                        rewardApplied = true
-                        console.log('referral reward auto-applied to subscription:', referrerSub.stripe_subscription_id, 'for referrer:', referral.referrer_id)
-                      } catch (couponErr) {
-                        console.error('referral reward auto-apply failed, falling back to promo code:', couponErr)
-                      }
-                    }
-
-                    // Fallback: create a manual promo code if auto-apply failed (e.g. no active sub)
-                    let rewardCode: string | undefined
-                    let promoId: string | undefined
-                    if (!rewardApplied) {
-                      const promoCode = await stripe.promotionCodes.create({
-                        coupon: COUPON_REFERRAL_REWARD,
-                        max_redemptions: 1,
-                        metadata: { referrer_id: referral.referrer_id, referred_id: userId },
-                      })
-                      rewardCode = promoCode.code
-                      promoId = promoCode.id
-                      console.log('referral reward promo code created (fallback):', promoCode.code, 'for referrer:', referral.referrer_id)
-                    }
-
-                    // Update referral record
-                    await supabase.from('referrals')
-                      .update({
-                        status: 'rewarded',
-                        converted_at: new Date().toISOString(),
-                        reward_given: true,
-                        ...(rewardCode ? { reward_code: rewardCode, stripe_promotion_code_id: promoId } : {}),
-                      })
-                      .eq('referred_id', userId).eq('referral_code', userSub.referred_by)
-
-                    // Notify the referrer
-                    await supabase.from('notifications').insert({
-                      user_id: referral.referrer_id,
-                      type: 'referral',
-                      title_ar: '🎁 مكافأة إحالة!',
-                      body_ar: rewardApplied
-                        ? 'شكرًا! تم تطبيق شهر مجاني على اشتراكك تلقائيًا لأنك دعوت صديقًا.'
-                        : `شكرًا! حصلت على شهر مجاني لأنك دعوت صديقًا. استخدم الكود: ${rewardCode}`,
-                    })
-                  }
-                } catch (e) { console.error('referral reward failed:', e) }
-              }
-            }
-          }
         }
         break
       }
@@ -384,6 +315,14 @@ serve(async (req) => {
           } else if (!rows || rows.length === 0) {
             console.error('subscription.deleted: zero rows matched stripe_subscription_id:', stripeSubId)
             dbFailed = true
+          } else {
+            await supabase
+              .from('subscriptions')
+              .update({ stripe_subscription_id: null })
+              .eq('stripe_subscription_id', stripeSubId)
+              .then(({ error: clearErr }) => {
+                if (clearErr) console.error('subscription.deleted: failed to clear stripe_subscription_id:', clearErr)
+              })
           }
         } catch (dbErr) {
           console.error('subscription.deleted DB exception:', dbErr)
@@ -397,7 +336,7 @@ serve(async (req) => {
         const stripeSubId = invoice.subscription as string | null
         const amountPaid = invoice.amount_paid ?? 0
 
-        if (stripeSubId && amountPaid >= 0) {
+        if (stripeSubId && amountPaid > 0) {
           try {
             // FIX: pass p_clear_trial=true so trial_ends_at is cleared when a real payment is processed.
             // Previously COALESCE would keep the stale trial_ends_at value even after conversion to paid.
@@ -448,11 +387,16 @@ serve(async (req) => {
                     .maybeSingle()
 
                   if (referrerExists) {
-                    // Apply 40% coupon to the subscription for the NEXT billing cycle only
-                    await stripe.subscriptions.update(stripeSubId, {
-                      coupon: COUPON_REFERRAL_FRIEND,
-                    })
-                    console.log('referral friend 40% discount applied to next invoice for sub:', stripeSubId)
+                    // Check if subscription already has a discount/coupon — don't stack
+                    const existingSub = await stripe.subscriptions.retrieve(stripeSubId)
+                    if (existingSub.discount) {
+                      console.log('referral friend discount skipped — subscription already has a discount:', stripeSubId, existingSub.discount.coupon?.id)
+                    } else {
+                      await stripe.subscriptions.update(stripeSubId, {
+                        coupon: COUPON_REFERRAL_FRIEND,
+                      })
+                      console.log('referral friend 40% discount applied to next invoice for sub:', stripeSubId)
+                    }
                   } else {
                     // Rollback the flag if referrer doesn't exist
                     await supabase.from('subscriptions')
@@ -464,6 +408,90 @@ serve(async (req) => {
             } catch (refErr) {
               // Non-fatal: log but don't fail the webhook
               console.error('invoice.paid: referral friend discount application failed:', refErr)
+            }
+
+            // REFERRAL REFERRER REWARD: Grant reward to referrer when friend's first REAL payment goes through
+            // (amountPaid > 0) — not on trial signup. Ensures referrer only rewarded when money collected.
+            if (amountPaid > 0) {
+              try {
+                const { data: userSub } = await supabase.from('subscriptions')
+                  .select('user_id, referred_by')
+                  .eq('stripe_subscription_id', stripeSubId)
+                  .maybeSingle()
+                const userId = userSub?.user_id
+                if (userId && userSub?.referred_by) {
+                  const { data: referral } = await supabase.from('referrals')
+                    .select('referrer_id, reward_given')
+                    .eq('referred_id', userId).eq('referral_code', userSub.referred_by)
+                    .maybeSingle()
+
+                  if (referral?.referrer_id && !referral.reward_given) {
+                    // Referral reward cap: max 5 rewards per referrer
+                    const { count: rewardCount } = await supabase.from('referrals')
+                      .select('id', { count: 'exact', head: true })
+                      .eq('referrer_id', referral.referrer_id)
+                      .eq('reward_given', true)
+
+                    if ((rewardCount ?? 0) >= 5) {
+                      console.log('referral reward cap reached for referrer:', referral.referrer_id)
+                      await supabase.from('referrals')
+                        .update({ status: 'converted', converted_at: new Date().toISOString() })
+                        .eq('referred_id', userId).eq('referral_code', userSub.referred_by)
+                    } else {
+                      // Auto-apply the referral_reward coupon directly to the referrer's subscription
+                      const { data: referrerSub } = await supabase.from('subscriptions')
+                        .select('stripe_subscription_id')
+                        .eq('user_id', referral.referrer_id)
+                        .maybeSingle()
+
+                      let rewardApplied = false
+                      if (referrerSub?.stripe_subscription_id) {
+                        try {
+                          await stripe.subscriptions.update(referrerSub.stripe_subscription_id, {
+                            coupon: COUPON_REFERRAL_REWARD,
+                          })
+                          rewardApplied = true
+                          console.log('referral reward auto-applied to subscription:', referrerSub.stripe_subscription_id, 'for referrer:', referral.referrer_id)
+                        } catch (couponErr) {
+                          console.error('referral reward auto-apply failed, falling back to promo code:', couponErr)
+                        }
+                      }
+
+                      // Fallback: create a manual promo code if auto-apply failed
+                      let rewardCode: string | undefined
+                      let promoId: string | undefined
+                      if (!rewardApplied) {
+                        const promoCode = await stripe.promotionCodes.create({
+                          coupon: COUPON_REFERRAL_REWARD,
+                          max_redemptions: 1,
+                          metadata: { referrer_id: referral.referrer_id, referred_id: userId },
+                        })
+                        rewardCode = promoCode.code
+                        promoId = promoCode.id
+                        console.log('referral reward promo code created (fallback):', promoCode.code, 'for referrer:', referral.referrer_id)
+                      }
+
+                      await supabase.from('referrals')
+                        .update({
+                          status: 'rewarded',
+                          converted_at: new Date().toISOString(),
+                          reward_given: true,
+                          ...(rewardCode ? { reward_code: rewardCode, stripe_promotion_code_id: promoId } : {}),
+                        })
+                        .eq('referred_id', userId).eq('referral_code', userSub.referred_by)
+
+                      await supabase.from('notifications').insert({
+                        user_id: referral.referrer_id,
+                        type: 'referral',
+                        title_ar: '🎁 مكافأة إحالة!',
+                        body_ar: rewardApplied
+                          ? 'شكرًا! تم تطبيق شهر مجاني على اشتراكك تلقائيًا لأنك دعوت صديقًا.'
+                          : `شكرًا! حصلت على شهر مجاني لأنك دعوت صديقًا. استخدم الكود: ${rewardCode}`,
+                      })
+                    }
+                  }
+                }
+              } catch (e) { console.error('invoice.paid: referral reward failed:', e) }
             }
           }
         }
@@ -622,7 +650,23 @@ serve(async (req) => {
                   ${emailButton('فتح Stripe Dashboard', 'https://dashboard.stripe.com/disputes')}
                 </div>
               `),
-          }).catch(e => console.error('dispute admin email failed:', e))
+          }).catch(async (e) => {
+            console.error('dispute admin email failed:', e)
+            await supabase.from('notifications').insert({
+              user_id: null,
+              type: 'dispute_alert',
+              title_ar: '⚠️ نزاع دفع جديد — فشل إرسال الإيميل',
+              body_ar: `عميل: ${customerEmail}, مبلغ: ${(dispute.amount / 100).toFixed(2)} ${dispute.currency?.toUpperCase()}, سبب: ${dispute.reason ?? 'غير محدد'}`,
+            }).catch((e) => console.error('dispute notification insert failed:', e))
+            if (adminEmail !== 'contact@pptides.com') {
+              sendEmail({
+                to: 'contact@pptides.com',
+                subject: 'FALLBACK: نزاع دفع جديد — pptides',
+                tags: [{ name: 'type', value: 'dispute_alert_fallback' }, { name: 'category', value: 'admin_alert' }],
+                html: emailWrapper(`<h1 style="color:#dc2626;">نزاع دفع جديد (fallback)</h1><p>العميل: ${customerEmail}</p><p>المبلغ: ${(dispute.amount / 100).toFixed(2)} ${dispute.currency?.toUpperCase()}</p><p>السبب: ${dispute.reason ?? 'غير محدد'}</p>`),
+              }).catch(e2 => console.error('dispute fallback email also failed:', e2))
+            }
+          })
         }
         break
       }
@@ -690,6 +734,14 @@ serve(async (req) => {
             ? await query.eq('stripe_subscription_id', subId)
             : await query.eq('stripe_customer_id', customerId).limit(1)
           if (error) { console.error('charge.refunded DB error:', error); dbFailed = true }
+          if (isFullRefund && subId) {
+            try {
+              await stripe.subscriptions.cancel(subId)
+              console.log('charge.refunded: cancelled Stripe subscription after full refund:', subId)
+            } catch (cancelErr) {
+              console.error('charge.refunded: failed to cancel Stripe subscription:', cancelErr)
+            }
+          }
           if (!isFullRefund) console.log('charge.refunded: partial refund — subscription kept active')
         }
         console.log(JSON.stringify({ action: 'charge_refunded', customer: customerId, amount: charge.amount_refunded, timestamp: new Date().toISOString() }))
@@ -752,7 +804,13 @@ serve(async (req) => {
     }
 
     if (dbFailed) {
-      await supabase.from('processed_webhook_events').delete().eq('event_id', event.id).catch(() => {})
+      await supabase.from('processed_webhook_events').delete().eq('event_id', event.id).catch((e) => console.error('processed_webhook_events cleanup failed:', e))
+      await supabase.from('failed_webhook_events').insert({
+        event_id: event.id,
+        event_type: event.type,
+        error_detail: `DB update failed for ${event.type}`,
+        processed_at: new Date().toISOString(),
+      }).catch((e) => console.error('failed_webhook_events insert failed:', e))
       console.error(JSON.stringify({ severity: 'CRITICAL', action: 'webhook_db_failed', event_type: event.type, event_id: event.id, timestamp: new Date().toISOString() }))
       return jsonResponse({ error: 'Database update failed' }, 500)
     }

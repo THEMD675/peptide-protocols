@@ -292,6 +292,17 @@ serve(async (req) => {
       (sentDrips ?? []).map((d: { user_id: string; email_key: string }) => `${d.user_id}:${d.email_key}`)
     )
 
+    // Fetch email notification preferences to respect opt-outs
+    const { data: profilePrefs } = await supabase
+      .from('user_profiles')
+      .select('user_id, email_notifications_enabled')
+
+    const emailOptedOut = new Set(
+      (profilePrefs ?? [])
+        .filter((p: { user_id: string; email_notifications_enabled: boolean | null }) => p.email_notifications_enabled === false)
+        .map((p: { user_id: string }) => p.user_id)
+    )
+
     let sent = 0
     let skipped = 0
     let failed = 0
@@ -315,6 +326,12 @@ serve(async (req) => {
 
         // Skip subscribed users for winback/trial-ending emails
         if (drip.skipSubscribed && subscribedUserIds.has(userId)) {
+          skipped++
+          continue
+        }
+
+        // Respect email notification preferences — skip users who opted out
+        if (emailOptedOut.has(userId)) {
           skipped++
           continue
         }

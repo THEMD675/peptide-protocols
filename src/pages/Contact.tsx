@@ -27,6 +27,7 @@ const SUBJECTS = [
   { value: 'شراكة', label: 'شراكة' },
   { value: 'سؤال عن ببتيد', label: 'سؤال عن ببتيد معين' },
   { value: 'استفسار عن الاشتراك', label: 'استفسار عن الاشتراك' },
+  { value: 'dealer_inquiry', label: 'استفسار تاجر/موزع' },
   { value: 'أخرى', label: 'أخرى' },
 ];
 
@@ -132,7 +133,7 @@ export default function Contact() {
   if (isLoading) {
     // Show a layout-matching skeleton instead of a bare spinner to avoid flash
     return (
-      <div className="mx-auto max-w-2xl px-4 pt-12 pb-24 sm:pt-16 animate-fade-in">
+      <div className="mx-auto max-w-3xl px-4 pt-12 pb-24 sm:pt-16 animate-fade-in">
         {/* Header skeleton */}
         <div className="mb-10 text-center">
           <div className="mx-auto mb-4 h-14 w-14 rounded-2xl animate-pulse bg-stone-200 dark:bg-stone-700 skeleton-shimmer" />
@@ -225,6 +226,12 @@ export default function Contact() {
           headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${session.access_token}`, apikey: import.meta.env.VITE_SUPABASE_ANON_KEY },
           body: JSON.stringify({ subject, email: email.trim(), name: name.trim() }),
         }).catch(() => { /* non-critical */ });
+        // Send auto-acknowledgment email to the user
+        fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/send-enquiry-reply`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${session.access_token}`, apikey: import.meta.env.VITE_SUPABASE_ANON_KEY },
+          body: JSON.stringify({ email: email.trim(), name: name.trim(), subject }),
+        }).catch(() => { /* non-critical */ });
       }
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : String(err);
@@ -244,7 +251,7 @@ export default function Contact() {
         <Helmet>
           <title>تواصل معنا | pptides</title>
         </Helmet>
-        <div className="mx-auto max-w-2xl px-4 pt-20 pb-24 text-center">
+        <div className="mx-auto max-w-3xl px-4 pt-20 pb-24 text-center">
           {/* Success animation */}
           <div className="relative mx-auto mb-6 flex h-24 w-24 items-center justify-center">
             <span className="absolute inset-0 animate-ping rounded-full bg-emerald-200 dark:bg-emerald-800 opacity-30" />
@@ -310,7 +317,7 @@ export default function Contact() {
         </script>
       </Helmet>
 
-      <div className="mx-auto max-w-2xl px-4 pt-12 pb-24 sm:pt-16">
+      <div className="mx-auto max-w-3xl px-4 pt-12 pb-24 sm:pt-16">
         {/* Header */}
         <div className="mb-10 text-center">
           <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-100 dark:bg-emerald-900/30">

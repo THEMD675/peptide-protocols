@@ -73,7 +73,7 @@ export default function OnboardingModal({ forceOpen, onClose: externalClose }: {
   const [quizGoalLabel, setQuizGoalLabel] = useState('');
   const [animatePlan, setAnimatePlan] = useState(false);
   const [baseline, setBaseline] = useState({ energy: 3, sleep: 3, pain: 3 });
-  const userName = user?.email?.split('@')[0]?.charAt(0).toUpperCase() + (user?.email?.split('@')[0]?.slice(1) ?? '') || '';
+  const userName = user?.email ? user.email.split('@')[0].charAt(0).toUpperCase() + user.email.split('@')[0].slice(1) : '';
   useEffect(() => {
     if (forceOpen) { setShow(true); return; }
   }, [forceOpen]);
@@ -277,6 +277,9 @@ export default function OnboardingModal({ forceOpen, onClose: externalClose }: {
               >
                 التالي
               </button>
+              <button type="button" onClick={() => setStep('goal')} className="mt-2 w-full min-h-[44px] rounded-full border border-stone-200 dark:border-stone-600 text-sm font-medium text-stone-600 dark:text-stone-300 transition-colors hover:bg-stone-50 dark:hover:bg-stone-800">
+                السابق
+              </button>
               <button onClick={handleDismiss} className="mt-2 w-full min-h-[44px] text-center text-xs text-stone-500 dark:text-stone-300 hover:text-stone-600 dark:text-stone-300">
                 تخطّي
               </button>
@@ -329,6 +332,9 @@ export default function OnboardingModal({ forceOpen, onClose: externalClose }: {
                 style={{ animation: 'onb-pulse 2s ease-in-out infinite' }}
               >
                 ابدأ الاستكشاف ←
+              </button>
+              <button type="button" onClick={() => setStep('baseline')} className="mt-2 w-full min-h-[44px] rounded-full border border-stone-200 dark:border-stone-600 text-sm font-medium text-stone-600 dark:text-stone-300 transition-colors hover:bg-stone-50 dark:hover:bg-stone-800">
+                السابق
               </button>
             </>
           )}

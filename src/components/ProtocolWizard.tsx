@@ -10,6 +10,7 @@ import { cn } from '@/lib/utils';
 import { FREQUENCY_LABELS } from '@/lib/constants';
 import BaselineChecklist from '@/components/BaselineChecklist';
 import { logError } from '@/lib/logger';
+import { DANGEROUS_COMBOS, type InteractionResult } from '@/data/interactions';
 
 function ShoppingList({ peptide, dose, unit, frequency, cycleWeeks }: { peptide: Peptide; dose: string; unit: string; frequency: string; cycleWeeks: string }) {
   if (!dose || !(peptide.route === 'subq' || peptide.route === 'im')) return null;
@@ -78,14 +79,16 @@ export default function ProtocolWizard({ peptideId, prefillDose, prefillUnit, on
   const [hasDuplicatePeptide, setHasDuplicatePeptide] = useState(false);
   const [duplicateConfirmed, setDuplicateConfirmed] = useState(false);
   const [countQueryFailed, setCountQueryFailed] = useState(false);
+  const [interactionWarnings, setInteractionWarnings] = useState<InteractionResult[]>([]);
   const submittingRef = useRef(false);
   useEffect(() => {
     if (!user) return;
     let mounted = true;
     (async () => {
-      const [countRes, dupeRes] = await Promise.all([
+      const [countRes, dupeRes, activeRes] = await Promise.all([
         supabase.from('user_protocols').select('id', { count: 'exact', head: true }).eq('user_id', user.id).eq('status', 'active'),
         supabase.from('user_protocols').select('id', { count: 'exact', head: true }).eq('user_id', user.id).eq('status', 'active').eq('peptide_id', peptideId),
+        supabase.from('user_protocols').select('peptide_id').eq('user_id', user.id).eq('status', 'active'),
       ]);
       if (!mounted) return;
       if (countRes.error || dupeRes.error) {
@@ -97,6 +100,21 @@ export default function ProtocolWizard({ peptideId, prefillDose, prefillUnit, on
       setCountQueryFailed(false);
       setExistingProtocols(countRes.count ?? 0);
       setHasDuplicatePeptide((dupeRes.count ?? 0) > 0);
+
+      if (activeRes.data) {
+        const warnings: InteractionResult[] = [];
+        const activeIds = activeRes.data.map(p => p.peptide_id as string);
+        for (const activeId of activeIds) {
+          if (activeId === peptideId) continue;
+          const key1 = `${peptideId}+${activeId}`;
+          const key2 = `${activeId}+${peptideId}`;
+          const wild1 = `${peptideId}+*`;
+          const wild2 = `${activeId}+*`;
+          const hit = DANGEROUS_COMBOS[key1] ?? DANGEROUS_COMBOS[key2] ?? DANGEROUS_COMBOS[wild1] ?? DANGEROUS_COMBOS[wild2];
+          if (hit) warnings.push(hit);
+        }
+        setInteractionWarnings(warnings);
+      }
     })().catch((e) => { if (mounted) { logError('protocol load failed:', e); setCountQueryFailed(true); toast.error('تعذّر التحقق من البروتوكولات الحالية — حاول مرة أخرى'); } });
     return () => { mounted = false; };
   }, [user, peptideId]);
@@ -126,6 +144,12 @@ export default function ProtocolWizard({ peptideId, prefillDose, prefillUnit, on
     if (!user) { toast.error('سجّل دخولك أولاً'); submittingRef.current = false; return; }
     const doseNum = parseFloat(dose);
     if (!dose || isNaN(doseNum) || doseNum <= 0) { toast.error('أدخل جرعة صحيحة'); submittingRef.current = false; return; }
+    const { count } = await supabase.from('user_protocols').select('id', { count: 'exact', head: true }).eq('user_id', user.id).eq('status', 'active');
+    if ((count ?? 0) >= 10) {
+      toast.error('الحد الأقصى 10 بروتوكولات نشطة — أنهِ بروتوكولاً قبل إضافة جديد');
+      submittingRef.current = false;
+      return;
+    }
     setSubmitting(true);
     try {
       const { error } = await supabase.from('user_protocols').insert({
@@ -271,6 +295,18 @@ export default function ProtocolWizard({ peptideId, prefillDose, prefillUnit, on
             )}
             <ShoppingList peptide={peptide} dose={dose} unit={unit} frequency={frequency} cycleWeeks={cycleWeeks} />
             <BaselineChecklist peptide={peptide} />
+
+            {interactionWarnings.length > 0 && (
+              <div className="rounded-xl border border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-900/20 px-4 py-3">
+                <p className="text-xs font-bold text-red-700 dark:text-red-400 mb-2">⚠ تعارض مع بروتوكولاتك النشطة</p>
+                {interactionWarnings.map((w, i) => (
+                  <div key={i} className="mb-1.5 last:mb-0">
+                    <p className="text-xs font-bold text-red-700 dark:text-red-400">{w.message}</p>
+                    <p className="text-xs text-red-600 dark:text-red-400">{w.details}</p>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
 
           <button

@@ -159,12 +159,25 @@ serve(async (req) => {
       </div>
     `
 
+    // Auto-tag based on keywords in subject
+    const subjectLower = (subject ?? '').toLowerCase()
+    const subjectTags: string[] = []
+    if (/dealer|wholesale|توريد|شراكة|partnership|موزع/i.test(subjectLower)) {
+      subjectTags.push('dealer')
+    }
+    const taggedSubject = subjectTags.length > 0
+      ? `[pptides][${subjectTags.join(',')}] ${(subject ?? '(no subject)').replace(/^\[pptides\]\s*/g, '').replace(/\s*— from .+$/g, '')} — from ${from}`
+      : `[pptides] ${(subject ?? '(no subject)').replace(/^\[pptides\]\s*/g, '').replace(/\s*— from .+$/g, '')} — from ${from}`
+
     const emailResult = await sendEmail({
       to: FORWARD_TO,
-      subject: `[pptides] ${(subject ?? '(no subject)').replace(/^\[pptides\]\s*/g, '').replace(/\s*— from .+$/g, '')} — from ${from}`,
+      subject: taggedSubject,
       html: forwardHtml,
       replyTo: from,
-      tags: [{ name: 'type', value: 'inbound_forward' }, { name: 'category', value: 'support' }],
+      tags: [
+        { name: 'type', value: 'inbound_forward' },
+        { name: 'category', value: subjectTags.length > 0 ? subjectTags[0] : 'support' },
+      ],
     })
 
     if (!emailResult.ok) {

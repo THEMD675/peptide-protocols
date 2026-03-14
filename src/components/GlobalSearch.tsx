@@ -5,6 +5,7 @@ import { cn } from '@/lib/utils';
 import { peptideSearchIndex, type PeptideSearchEntry } from '@/data/peptide-search-index';
 import { GLOSSARY_TERMS, type GlossaryTerm } from '@/data/glossary';
 import { supabase } from '@/lib/supabase';
+import { STORAGE_KEYS } from '@/lib/constants';
 
 /* ── static page index ── */
 const PAGE_INDEX = [
@@ -161,7 +162,7 @@ export default function GlobalSearch({ open, onClose }: Props) {
     if (query.trim().length >= 2) return [];
     try {
       const ids: string[] = JSON.parse(
-        localStorage.getItem('pptides_recent_peptides') ?? '[]'
+        localStorage.getItem(STORAGE_KEYS.RECENT_PEPTIDES) ?? '[]'
       ).slice(0, 5);
       return ids
         .map((id) => peptideSearchIndex.find((p) => p.id === id))
@@ -269,6 +270,15 @@ export default function GlobalSearch({ open, onClose }: Props) {
             <X className="h-5 w-5" />
           </button>
         </div>
+
+        {/* screen-reader results announcement */}
+        <span className="sr-only" aria-live="polite" aria-atomic="true">
+          {query.trim().length >= 2
+            ? results.length > 0
+              ? `${results.length} نتيجة`
+              : `لا توجد نتائج لـ "${query}"`
+            : ''}
+        </span>
 
         {/* results */}
         <div ref={listRef} className="max-h-[50vh] overflow-y-auto overscroll-contain">

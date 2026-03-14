@@ -1,7 +1,7 @@
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
 import Stripe from 'https://esm.sh/stripe@14.14.0?target=deno'
 import { handleCorsPreflightIfOptions, getCorsHeaders, jsonResponse as json } from '../_shared/cors.ts'
-import { requireAdmin } from '../_shared/admin-auth.ts'
+import { requireAdmin, ADMIN_EMAILS } from '../_shared/admin-auth.ts'
 import { getServiceClient, supabaseUrl, supabaseServiceKey } from '../_shared/supabase.ts'
 import { checkRateLimit } from '../_shared/rate-limit.ts'
 import { sendEmail, sendBatchEmails } from '../_shared/send-email.ts'
@@ -43,13 +43,20 @@ serve(async (req) => {
 
   console.log(JSON.stringify({ admin_action: action, by: user.email, timestamp: new Date().toISOString() }))
 
-  // Fire-and-forget audit log — never blocks the action
-  admin.from('admin_audit_log').insert({
+  const CRITICAL_ACTIONS = ['delete_user', 'suspend_user', 'refund_payment']
+  const auditPayload = {
     admin_email: user.email,
     action,
     target_user_id: (body.user_id as string) || null,
     details: body,
-  }).then(({ error: auditErr }) => { if (auditErr) console.error('audit log insert failed:', auditErr) })
+  }
+  if (CRITICAL_ACTIONS.includes(action)) {
+    const { error: auditErr } = await admin.from('admin_audit_log').insert(auditPayload)
+    if (auditErr) console.error('audit log insert failed:', auditErr)
+  } else {
+    admin.from('admin_audit_log').insert(auditPayload)
+      .then(({ error: auditErr }) => { if (auditErr) console.error('audit log insert failed:', auditErr) })
+  }
 
   try {
     // ================================================================
@@ -107,7 +114,11 @@ serve(async (req) => {
 
       const periodEnd = new Date(Date.now() + durationDays * 86400000).toISOString()
       const grantSource = `admin_comp:${user.email}:${new Date().toISOString()}`
-      const { data: existing } = await admin.from('subscriptions').select('id').eq('user_id', userId).maybeSingle()
+      const { data: existing } = await admin.from('subscriptions').select('id, stripe_subscription_id, status').eq('user_id', userId).maybeSingle()
+
+      if (existing?.stripe_subscription_id && existing.status === 'active') {
+        return json({ error: 'User has an active Stripe subscription — cancel it in Stripe (or via cancel_subscription) before granting a comp subscription, otherwise Stripe will keep billing.' }, 409, cors)
+      }
 
       if (existing) {
         const { error } = await admin.from('subscriptions').update({
@@ -172,10 +183,10 @@ serve(async (req) => {
       }
 
       const { error } = await admin.from('subscriptions').update({
-        status: 'cancelled', updated_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
       }).eq('user_id', userId)
       if (error) return json({ error: error.message }, 500, cors)
-      return json({ ok: true }, 200, cors)
+      return json({ ok: true, note: 'Stripe set to cancel_at_period_end — DB status will update when period ends via webhook' }, 200, cors)
     }
 
     // ================================================================
@@ -188,11 +199,16 @@ serve(async (req) => {
       if (!paymentIntentId && !chargeId) return json({ error: 'Missing payment_intent_id or charge_id' }, 400, cors)
 
       const stripe = new Stripe(stripeKey, { apiVersion: '2024-06-20', timeout: 10000 })
-      const refund = await stripe.refunds.create({
-        ...(paymentIntentId ? { payment_intent: paymentIntentId } : { charge: chargeId }),
-        reason: 'requested_by_customer',
-      })
-      return json({ ok: true, refund_id: refund.id, status: refund.status }, 200, cors)
+      try {
+        const refund = await stripe.refunds.create({
+          ...(paymentIntentId ? { payment_intent: paymentIntentId } : { charge: chargeId }),
+          reason: 'requested_by_customer',
+        })
+        return json({ ok: true, refund_id: refund.id, status: refund.status }, 200, cors)
+      } catch (refundErr) {
+        const msg = refundErr instanceof Error ? refundErr.message : 'Unknown error'
+        return json({ error: `فشل في استرداد المبلغ: ${msg}` }, 400, cors)
+      }
     }
 
     // ================================================================
@@ -202,6 +218,11 @@ serve(async (req) => {
       const userId = body.user_id as string
       if (!userId) return json({ error: 'Missing user_id' }, 400, cors)
 
+      const { data: { user: targetUser } } = await admin.auth.admin.getUserById(userId)
+      if (targetUser?.email && ADMIN_EMAILS.includes(targetUser.email.toLowerCase())) {
+        return json({ error: 'Cannot suspend an admin account' }, 403, cors)
+      }
+
       // Cancel Stripe subscription first (so user is not charged while banned)
       const { data: sub } = await admin.from('subscriptions')
         .select('stripe_subscription_id, status').eq('user_id', userId).maybeSingle()
@@ -210,7 +231,8 @@ serve(async (req) => {
         try {
           await stripe.subscriptions.cancel(sub.stripe_subscription_id)
         } catch (e) {
-          console.error('Stripe cancel during suspend failed:', e)
+          console.error('Stripe cancel during suspend failed — aborting suspension:', e)
+          return json({ error: 'Stripe subscription cancel failed — user NOT suspended. Cancel the Stripe subscription manually first.' }, 502, cors)
         }
       }
 
@@ -259,6 +281,10 @@ serve(async (req) => {
       // Get user info before deletion
       const { data: { user: targetUser } } = await admin.auth.admin.getUserById(userId)
 
+      if (targetUser?.email && ADMIN_EMAILS.includes(targetUser.email.toLowerCase())) {
+        return json({ error: 'Cannot delete an admin account' }, 403, cors)
+      }
+
       // Cancel Stripe if exists
       const { data: sub } = await admin.from('subscriptions')
         .select('stripe_subscription_id, stripe_customer_id').eq('user_id', userId).maybeSingle()
@@ -266,10 +292,19 @@ serve(async (req) => {
       if (sub && stripeKey) {
         const stripe = new Stripe(stripeKey, { apiVersion: '2024-06-20', timeout: 10000 })
         if (sub.stripe_subscription_id) {
-          await stripe.subscriptions.cancel(sub.stripe_subscription_id).catch(e => console.error('stripe sub cancel:', e))
+          try {
+            await stripe.subscriptions.cancel(sub.stripe_subscription_id)
+          } catch (e) {
+            console.error('Stripe sub cancel failed — aborting user deletion:', e)
+            return json({ error: 'Stripe subscription cancel failed — user NOT deleted. Cancel the subscription in Stripe manually first.' }, 502, cors)
+          }
         }
         if (sub.stripe_customer_id) {
-          await stripe.customers.del(sub.stripe_customer_id).catch(e => console.error('stripe customer del:', e))
+          try {
+            await stripe.customers.del(sub.stripe_customer_id)
+          } catch (e) {
+            console.error('Stripe customer delete failed (sub already cancelled):', e)
+          }
         }
       }
 
@@ -408,7 +443,7 @@ serve(async (req) => {
         const { sent, failed } = await sendBatchEmails(batchPayload)
 
         for (const email of batch) {
-          await admin.from('email_logs').insert({ email, type: 'admin_bulk', status: 'sent' }).catch(() => {})
+          await admin.from('email_logs').insert({ email, type: 'admin_bulk', status: 'sent' }).catch((e) => console.error('email_logs insert failed (bulk):', e))
         }
 
         // Log bulk send to audit log with details
@@ -432,7 +467,7 @@ serve(async (req) => {
         return json({ error: `Email error: ${emailResult.error}` }, 502, cors)
       }
 
-      await admin.from('email_logs').insert({ email: to, type: 'admin_manual', status: 'sent', resend_id: emailResult.id }).catch(() => {})
+      await admin.from('email_logs').insert({ email: to, type: 'admin_manual', status: 'sent', resend_id: emailResult.id }).catch((e) => console.error('email_logs insert failed (manual):', e))
       return json({ ok: true }, 200, cors)
     }
 
@@ -571,7 +606,18 @@ serve(async (req) => {
       }
 
       if (table === 'users') {
-        const { data: { users: allUsers } } = await admin.auth.admin.listUsers({ perPage: 1000 })
+        const _firstPage = await admin.auth.admin.listUsers({ page: 1, perPage: 1000 })
+        const allUsers = _firstPage.data.users ?? []
+        if (allUsers.length >= 1000) {
+          let pg = 2
+          while (true) {
+            const { data: { users: moreUsers }, error: moreErr } = await admin.auth.admin.listUsers({ page: pg, perPage: 1000 })
+            if (moreErr || !moreUsers || moreUsers.length === 0) break
+            allUsers.push(...moreUsers)
+            if (moreUsers.length < 1000) break
+            pg++
+          }
+        }
         const { data: subs } = await admin.from('subscriptions').select('*')
         const rows = (allUsers ?? []).map(u => {
           const sub = (subs ?? []).find((s: { user_id: string }) => s.user_id === u.id)
@@ -726,7 +772,7 @@ serve(async (req) => {
             tags: [{ name: 'type', value: 'enquiry_reply' }, { name: 'category', value: 'support' }],
           })
           emailSent = r.ok
-          await admin.from('email_logs').insert({ email: to, type: 'enquiry_reply', status: r.ok ? 'sent' : 'failed', resend_id: r.id }).catch(() => {})
+          await admin.from('email_logs').insert({ email: to, type: 'enquiry_reply', status: r.ok ? 'sent' : 'failed', resend_id: r.id }).catch((e) => console.error('email_logs insert failed (enquiry_reply):', e))
         } catch { /* email failure is non-fatal */ }
       }
 
@@ -775,6 +821,92 @@ serve(async (req) => {
         } catch (e) { console.error('sync_email Stripe error:', e) }
       }
       return json({ ok: true }, 200, cors)
+    }
+
+    // ================================================================
+    // VERIFY USER STRIPE (per-user DB vs Stripe comparison)
+    // ================================================================
+    if (action === 'verify_user_stripe') {
+      const userId = body.user_id as string
+      if (!userId) return json({ error: 'Missing user_id' }, 400, cors)
+      if (!stripeKey) return json({ error: 'STRIPE_SECRET_KEY not configured' }, 500, cors)
+
+      const { data: sub, error: subErr } = await admin
+        .from('subscriptions')
+        .select('status, tier, stripe_subscription_id, current_period_end, trial_ends_at, billing_interval')
+        .eq('user_id', userId)
+        .maybeSingle()
+
+      if (subErr) return json({ error: subErr.message }, 500, cors)
+      if (!sub) return json({ error: 'No subscription found for this user' }, 404, cors)
+      if (!sub.stripe_subscription_id) {
+        return json({
+          ok: true,
+          db: { status: sub.status, tier: sub.tier, current_period_end: sub.current_period_end },
+          stripe: null,
+          mismatches: [],
+          note: 'No Stripe subscription ID — this is an admin-granted or manual subscription',
+        }, 200, cors)
+      }
+
+      const stripe = new Stripe(stripeKey, { apiVersion: '2024-06-20', timeout: 10000 })
+      let stripeSub: Awaited<ReturnType<typeof stripe.subscriptions.retrieve>>
+      try {
+        stripeSub = await stripe.subscriptions.retrieve(sub.stripe_subscription_id)
+      } catch (e) {
+        return json({ error: `Stripe lookup failed: ${e instanceof Error ? e.message : String(e)}` }, 502, cors)
+      }
+
+      const stripeStatus = stripeSub.status
+      const stripePeriodEnd = new Date((stripeSub as unknown as { current_period_end: number }).current_period_end * 1000).toISOString()
+      const stripeTrialEnd = (stripeSub as unknown as { trial_end: number | null }).trial_end
+        ? new Date((stripeSub as unknown as { trial_end: number }).trial_end * 1000).toISOString()
+        : null
+
+      const mismatches: string[] = []
+
+      const statusMap: Record<string, string[]> = {
+        active: ['active'],
+        trialing: ['trial'],
+        canceled: ['cancelled', 'expired'],
+        past_due: ['past_due'],
+        incomplete: ['trial', 'active'],
+        incomplete_expired: ['expired'],
+        unpaid: ['past_due', 'expired'],
+        paused: ['cancelled', 'expired'],
+      }
+      const expectedDbStatuses = statusMap[stripeStatus] ?? []
+      if (expectedDbStatuses.length > 0 && !expectedDbStatuses.includes(sub.status)) {
+        mismatches.push(`status: DB="${sub.status}" vs Stripe="${stripeStatus}"`)
+      }
+
+      if (sub.current_period_end && stripePeriodEnd) {
+        const dbEnd = new Date(sub.current_period_end).getTime()
+        const strEnd = new Date(stripePeriodEnd).getTime()
+        if (Math.abs(dbEnd - strEnd) > 86400000) {
+          mismatches.push(`period_end: DB="${sub.current_period_end}" vs Stripe="${stripePeriodEnd}" (diff > 24h)`)
+        }
+      }
+
+      return json({
+        ok: true,
+        db: {
+          status: sub.status,
+          tier: sub.tier,
+          current_period_end: sub.current_period_end,
+          trial_ends_at: sub.trial_ends_at,
+          billing_interval: sub.billing_interval,
+          stripe_subscription_id: sub.stripe_subscription_id,
+        },
+        stripe: {
+          status: stripeStatus,
+          current_period_end: stripePeriodEnd,
+          trial_end: stripeTrialEnd,
+          cancel_at_period_end: (stripeSub as unknown as { cancel_at_period_end: boolean }).cancel_at_period_end,
+        },
+        mismatches,
+        synced: mismatches.length === 0,
+      }, 200, cors)
     }
 
     return json({ error: `Unknown action: ${action}` }, 400, cors)

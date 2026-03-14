@@ -76,7 +76,13 @@ serve(async (req) => {
       return json({ error: 'Invalid signature' }, 401, cors)
     }
 
-    const body = JSON.parse(rawBody)
+    let body: Record<string, unknown>
+    try {
+      body = JSON.parse(rawBody)
+    } catch (parseErr) {
+      console.error('resend-webhook: JSON parse failed:', (parseErr as Error).message)
+      return json({ error: 'Invalid JSON body' }, 400, cors)
+    }
     const eventType = body.type as string
     const data = body.data as Record<string, unknown>
 

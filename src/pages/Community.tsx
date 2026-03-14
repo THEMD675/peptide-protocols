@@ -67,47 +67,40 @@ const AVATAR_COLORS = [
   'bg-teal-600', 'bg-pink-600',
 ];
 
-const SEED_EXPERIENCES: LogEntry[] = [
-  {
-    id: 'seed-bpc157',
-    user_id: '',
-    peptide_name: 'BPC-157',
-    goal: 'تعافي وإصابات',
-    protocol: '250mcg مرتين يوميًا لمدة 6 أسابيع',
-    duration_weeks: 6,
-    results: 'تحسّن ملحوظ في الأسبوع الثالث. الألم انخفض من 7/10 إلى 2/10',
-    rating: 5,
-    created_at: '2024-06-15T10:00:00Z',
-  },
-  {
-    id: 'seed-semaglutide',
-    user_id: '',
-    peptide_name: 'Semaglutide',
-    goal: 'فقدان دهون',
-    protocol: 'بدأت بـ 0.25mg أسبوعيًا، رفعت تدريجيًا إلى 1mg',
-    duration_weeks: 12,
-    results: 'خسرت 8 كغ في 3 أشهر. الشهية انخفضت بشكل كبير',
-    rating: 4,
-    created_at: '2024-05-20T10:00:00Z',
-  },
-  {
-    id: 'seed-epithalon',
-    user_id: '',
-    peptide_name: 'Epithalon',
-    goal: 'طول عمر',
-    protocol: '10mg على 10 أيام، مرتين في السنة',
-    duration_weeks: 2,
-    results: 'نوم أعمق وطاقة أفضل بعد الدورة الأولى',
-    rating: 4,
-    created_at: '2024-04-10T10:00:00Z',
-  },
-];
-
 /* ──────────────────── Helpers ──────────────────── */
 
+const ARABIC_BLOCKED = [
+  'كس', 'طيز', 'زب', 'شرموط', 'عرص', 'متناك', 'منيوك',
+  'كلب', 'حمار', 'خول', 'لعن', 'ابن الكلب', 'يلعن',
+  'زنا', 'عاهر', 'قحب',
+];
+
+const SPAM_KEYWORDS = [
+  'buy', 'order', 'shop', 'vendor', 'coupon', 'discount', 'for sale', 'free shipping',
+  'اشترِ', 'متجر', 'خصم', 'عرض خاص', 'للبيع', 'شحن مجاني',
+];
+
+const URL_REGEX = /https?:\/\/[^\s]+|www\.[^\s]+/i;
+
+function containsSpamKeywords(text: string): boolean {
+  const lower = text.toLowerCase();
+  return SPAM_KEYWORDS.some(kw => lower.includes(kw.toLowerCase()));
+}
+
+function containsUrl(text: string): boolean {
+  return URL_REGEX.test(text);
+}
+
+function containsArabicProfanity(text: string): boolean {
+  const normalized = text.replace(/\s+/g, ' ');
+  return ARABIC_BLOCKED.some(w => normalized.includes(w));
+}
+
 async function checkProfanity(text: string): Promise<boolean> {
+  if (containsArabicProfanity(text)) return true;
   try {
     const res = await fetch(`https://www.purgomalum.com/service/containsprofanity?text=${encodeURIComponent(text)}`);
+    if (!res.ok) return false;
     const hasProfanity = await res.text();
     return hasProfanity === 'true';
   } catch {
@@ -369,6 +362,7 @@ export default function Community() {
   const [showForm, setShowForm] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const submittingRef = useRef(false);
+  const replySubmittingRef = useRef(false);
   const upvotingRef = useRef<Set<string>>(new Set());
   const mountedRef = useRef(true);
   useEffect(() => () => { mountedRef.current = false; }, []);
@@ -447,6 +441,7 @@ export default function Community() {
     const prev = logs;
     setLogs(l => l.filter(x => x.id !== postId));
     setDeletingPostId(null);
+    await supabase.from('community_replies').delete().eq('post_id', postId);
     const { error } = await supabase
       .from('community_logs')
       .delete()
@@ -504,6 +499,8 @@ export default function Community() {
   });
   const [rating, setRating] = useState(4);
   const [attempted, setAttempted] = useState(false);
+  const lastPostTimeRef = useRef(0);
+  const POST_COOLDOWN_MS = 60_000;
 
   useEffect(() => {
     try { sessionStorage.setItem(`${DRAFT_KEY}_protocol`, protocol); } catch { /* */ }
@@ -540,7 +537,8 @@ export default function Community() {
     try {
       const { data } = await supabase
         .from('community_logs')
-        .select('user_id');
+        .select('user_id')
+        .limit(100);
       if (data && data.length > 0) {
         const counts: Record<string, number> = {};
         for (const row of data) {
@@ -605,15 +603,25 @@ export default function Community() {
   const submitReply = useCallback(async (postId: string) => {
     const content = sanitizeInput((replyText[postId] ?? '').trim(), 500);
     if (!user || !content) return;
-    const hasProfanity = await checkProfanity(content);
-    if (hasProfanity) {
-      toast.error('يحتوي المحتوى على كلمات غير مناسبة — يرجى تعديل النص');
-      return;
-    }
-    setSubmittingReply(prev => new Set(prev).add(postId));
+    if (replySubmittingRef.current) return;
+    replySubmittingRef.current = true;
+    try {
+      const hasProfanity = await checkProfanity(content);
+      if (hasProfanity) {
+        toast.error('يحتوي المحتوى على كلمات غير مناسبة — يرجى تعديل النص');
+        return;
+      }
+      if (containsSpamKeywords(content)) {
+        toast.error('يحتوي الرد على مصطلحات تجارية غير مسموحة — يرجى تعديل النص');
+        return;
+      }
+      if (containsUrl(content)) {
+        toast('يرجى عدم نشر روابط خارجية — قد يتم مراجعة ردك.', { icon: '⚠️' });
+      }
+      setSubmittingReply(prev => new Set(prev).add(postId));
     const isSub = subscription?.isProOrTrial ?? false;
     const optimistic: Reply = {
-      id: crypto.randomUUID(),
+      id: typeof crypto.randomUUID === 'function' ? crypto.randomUUID() : `${Date.now()}-${Math.random().toString(36).slice(2)}`,
       post_id: postId,
       user_id: user.id,
       content,
@@ -641,6 +649,9 @@ export default function Community() {
       setReplyText(prev => ({ ...prev, [postId]: content }));
     }
     setSubmittingReply(prev => { const n = new Set(prev); n.delete(postId); return n; });
+    } finally {
+      replySubmittingRef.current = false;
+    }
   }, [replyText, user, subscription]);
 
   const deleteReply = useCallback(async (reply: Reply) => {
@@ -670,6 +681,10 @@ export default function Community() {
       });
       return;
     }
+    if (Date.now() - lastPostTimeRef.current < POST_COOLDOWN_MS) {
+      toast.error('انتظر 60 ثانية قبل نشر تجربة أخرى');
+      return;
+    }
     submittingRef.current = true;
     setSubmitting(true);
     try {
@@ -686,6 +701,21 @@ export default function Community() {
           toast.error('يحتوي المحتوى على كلمات غير مناسبة — يرجى تعديل النص');
           return;
         }
+        if (containsSpamKeywords(contentToCheck)) {
+          submittingRef.current = false;
+          setSubmitting(false);
+          toast.error('يحتوي المحتوى على مصطلحات تجارية غير مسموحة — يرجى تعديل النص');
+          return;
+        }
+        if (containsUrl(contentToCheck)) {
+          toast('يرجى عدم نشر روابط خارجية — قد يتم مراجعة منشورك.', { icon: '⚠️' });
+        }
+      }
+      // Duplicate content detection: check if user's most recent post has same results text
+      const userMostRecent = logs.find(l => l.user_id === user.id);
+      if (userMostRecent && userMostRecent.results === results.trim()) {
+        toast.error('يبدو أنك نشرت هذه التجربة مسبقًا');
+        return;
       }
       const { error } = await supabase.from('community_logs').insert({
         user_id: user.id,
@@ -709,6 +739,7 @@ export default function Community() {
         return;
       }
 
+      lastPostTimeRef.current = Date.now();
       setSubmitted(true);
       setSelectedPeptides([]);
       setGoal('');
@@ -798,8 +829,6 @@ export default function Community() {
     if (logs.length > 0) return filteredLogs;
     return [];
   }, [logs.length, filteredLogs]);
-
-  const isShowingSeeds = logs.length === 0;
 
   // Parse peptide names (supports comma-separated)
   const parsePeptideNames = (name: string) => name.split(',').map(s => s.trim()).filter(Boolean);
@@ -923,7 +952,7 @@ export default function Community() {
                       />
                       <div className="mt-1 flex justify-between">
                         {attempted && !results.trim() ? (
-                          <p data-error="true" className="text-xs text-red-600 dark:text-red-400">يرجى وصف تجربتك والنتائج</p>
+                          <p data-error="true" role="alert" className="text-xs text-red-600 dark:text-red-400">يرجى وصف تجربتك والنتائج</p>
                         ) : <span />}
                         <p className="text-xs text-stone-400">{results.length}/3000</p>
                       </div>
@@ -939,7 +968,7 @@ export default function Community() {
                         onChange={setSelectedPeptides}
                       />
                       {attempted && selectedPeptides.length === 0 && (
-                        <p data-error="true" className="mt-1 text-xs text-red-600 dark:text-red-400">يرجى اختيار ببتيد واحد على الأقل</p>
+                        <p data-error="true" role="alert" className="mt-1 text-xs text-red-600 dark:text-red-400">يرجى اختيار ببتيد واحد على الأقل</p>
                       )}
                     </div>
 
@@ -1221,7 +1250,6 @@ export default function Community() {
 
                 {/* Post cards */}
                 {displayedLogs.map((log) => {
-                  const isSeed = log.id.startsWith('seed-');
                   const peptideNames = parsePeptideNames(log.peptide_name);
                   const replyCount = replyCountByPost[log.id] ?? 0;
 
@@ -1234,15 +1262,11 @@ export default function Community() {
                           <div className="relative">
                             <div className={cn(
                               'flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-sm font-bold text-white',
-                              isSeed ? 'bg-stone-400 dark:bg-stone-600' : getAvatarColor(log.user_id)
+                              getAvatarColor(log.user_id)
                             )}>
-                              {isSeed ? (
-                                <FlaskConical className="h-5 w-5" />
-                              ) : (
-                                getInitial(log.user_id)
-                              )}
+                              {getInitial(log.user_id)}
                             </div>
-                            {log.is_subscriber && !isSeed && (
+                            {log.is_subscriber && (
                               <span className="absolute -top-1 -start-1 flex h-5 w-5 items-center justify-center rounded-full bg-emerald-600 shadow" title="مشترك">
                                 <BadgeCheck className="h-3 w-3 text-white" />
                               </span>
@@ -1250,13 +1274,8 @@ export default function Community() {
                           </div>
                           <div>
                             <div className="flex items-center gap-2 flex-wrap">
-                              {log.is_subscriber && !isSeed && (
+                              {log.is_subscriber && (
                                 <span className="rounded-full bg-emerald-100 dark:bg-emerald-900/30 px-2 py-0.5 text-[11px] font-bold text-emerald-700 dark:text-emerald-400">مشترك</span>
-                              )}
-                              {isSeed && (
-                                <span className="rounded-full border-2 border-amber-400 dark:border-amber-600 bg-amber-100 dark:bg-amber-900/30 px-3 py-1 text-xs font-bold text-amber-900 dark:text-amber-200">
-                                  تجربة توضيحية
-                                </span>
                               )}
                             </div>
                             <span className="text-xs text-stone-500 dark:text-stone-300">{relativeTimeAr(log.created_at)}</span>
@@ -1265,7 +1284,7 @@ export default function Community() {
                         <div className="flex items-center gap-1">
                           <StarRating rating={log.rating} />
                           {/* Author actions: edit (24h) + delete */}
-                          {!isSeed && user && user.id === log.user_id && (
+                          {user && user.id === log.user_id && (
                             <>
                               {Date.now() - new Date(log.created_at).getTime() < 24 * 60 * 60 * 1000 && (
                                 <button
@@ -1307,7 +1326,7 @@ export default function Community() {
                             </>
                           )}
                           {/* Report — for other users */}
-                          {!isSeed && (!user || user.id !== log.user_id) && (
+                          {(!user || user.id !== log.user_id) && (
                             <button
                               onClick={async () => {
                                 if (!user) { toast('سجّل الدخول للإبلاغ عن محتوى'); return; }
@@ -1322,6 +1341,18 @@ export default function Community() {
                                   toast.error('تعذّر الإبلاغ. حاول مرة أخرى.');
                                 } else {
                                   toast.success('تم الإبلاغ — سنراجع المحتوى');
+                                  const { count } = await supabase
+                                    .from('reports')
+                                    .select('*', { count: 'exact', head: true })
+                                    .eq('target_type', 'community_log')
+                                    .eq('target_id', log.id);
+                                  if (count != null && count >= 3) {
+                                    await supabase
+                                      .from('community_logs')
+                                      .update({ visibility: 'hidden' })
+                                      .eq('id', log.id);
+                                    setLogs(prev => prev.filter(l => l.id !== log.id));
+                                  }
                                 }
                               }}
                               className="rounded-lg p-2.5 min-h-[44px] min-w-[44px] text-stone-300 dark:text-stone-300 hover:text-red-500 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
@@ -1452,17 +1483,19 @@ export default function Community() {
                         </div>
                         <div className="flex items-center gap-3">
                           {/* Upvote */}
-                          {!isSeed && (
+                          {(
                             <button
                               type="button"
                               onClick={async () => {
                                 if (!user) { toast('سجّل الدخول للتفاعل مع التجارب', { action: { label: 'تسجيل الدخول', onClick: () => navigate('/login') } }); return; }
+                                if (user.id === log.user_id) { toast('لا يمكنك التصويت على تجربتك الخاصة'); return; }
                                 if (upvotedPosts.has(log.id) || upvotingRef.current.has(log.id)) return;
                                 upvotingRef.current.add(log.id);
                                 const next = new Set(upvotedPosts).add(log.id);
                                 setUpvotedPosts(next);
                                 try { localStorage.setItem(`pptides_upvoted_${user?.id ?? 'anon'}`, JSON.stringify([...next])); } catch { /* */ }
                                 setLogs(prev => prev.map(l => l.id === log.id ? { ...l, upvotes: (l.upvotes ?? 0) + 1 } : l));
+                                // TODO: increment_upvote SQL function increments blindly — server-side dedup needed
                                 try {
                                   const { error } = await supabase
                                     .rpc('increment_upvote', { p_post_id: log.id, p_user_id: user.id });
@@ -1472,6 +1505,7 @@ export default function Community() {
                                     reverted.delete(log.id);
                                     setUpvotedPosts(reverted);
                                     try { localStorage.setItem(`pptides_upvoted_${user?.id ?? 'anon'}`, JSON.stringify([...reverted])); } catch { /* */ }
+                                    toast.error('تعذّر التصويت — حاول مرة أخرى');
                                   }
                                 } finally {
                                   upvotingRef.current.delete(log.id);
@@ -1491,7 +1525,7 @@ export default function Community() {
                           )}
 
                           {/* Reply toggle */}
-                          {!isSeed && (
+                          {(
                             <button
                               type="button"
                               onClick={() => toggleReplies(log.id)}
@@ -1515,7 +1549,7 @@ export default function Community() {
                       </div>
 
                       {/* Replies thread */}
-                      {!isSeed && expandedReplies.has(log.id) && (
+                      {expandedReplies.has(log.id) && (
                         <div className="mt-3 space-y-3 border-t border-stone-100 dark:border-stone-700 pt-3">
                           {loadingReplies.has(log.id) ? (
                             <div className="flex items-center gap-2 text-sm text-stone-400">
@@ -1656,7 +1690,7 @@ export default function Community() {
                 })}
 
                 {/* Load more */}
-                {!isShowingSeeds && hasMore && (
+                {hasMore && (
                   <button
                     onClick={async () => {
                       setLoadingMore(true);

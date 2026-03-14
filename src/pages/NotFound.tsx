@@ -44,7 +44,7 @@ export default function NotFound() {
   };
 
   const formattedDate = useMemo(() => {
-    const fmt = new Intl.DateTimeFormat('ar', { day: 'numeric', month: 'long' });
+    const fmt = new Intl.DateTimeFormat('ar-u-nu-latn', { day: 'numeric', month: 'long' });
     return (d: string) => fmt.format(new Date(d));
   }, []);
 

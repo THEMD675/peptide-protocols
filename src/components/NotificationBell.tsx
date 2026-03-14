@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Bell, FileText, Flame, Clock, Trophy, Bot, Loader2, Gift } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -6,6 +7,15 @@ import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
 import { logError } from '@/lib/logger';
 import { toast } from 'sonner';
+
+const NOTIF_URLS: Record<string, string> = {
+  blog: '/blog',
+  streak: '/tracker',
+  trial: '/pricing',
+  achievement: '/dashboard',
+  coach: '/coach',
+  referral: '/account',
+};
 
 interface Notification {
   id: string;
@@ -27,6 +37,7 @@ const TYPE_ICON: Record<string, LucideIcon> = {
 
 export default function NotificationBell() {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [open, setOpen] = useState(false);
   const [hasMore, setHasMore] = useState(false);
@@ -69,6 +80,17 @@ export default function NotificationBell() {
         if (mounted && data) {
           setNotifications(data as Notification[]);
           setHasMore(data.length === PAGE_SIZE);
+        }
+        if (mounted) {
+          supabase
+            .from('notifications')
+            .delete()
+            .eq('user_id', user.id)
+            .eq('is_read', true)
+            .lt('created_at', new Date(Date.now() - 90 * 24 * 60 * 60 * 1000).toISOString())
+            .then(({ error: pruneErr }) => {
+              if (pruneErr) logError('notification pruning failed:', pruneErr);
+            });
         }
       })
       .catch(e => logError('notifications fetch failed:', e));
@@ -193,7 +215,7 @@ export default function NotificationBell() {
       </button>
 
       {open && (
-        <div role="region" aria-label="الإشعارات" className="absolute end-0 top-full z-50 mt-2 w-[calc(100vw-2rem)] max-w-sm overflow-hidden rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 shadow-xl dark:shadow-stone-900/40 animate-fade-in">
+        <div role="region" aria-label="الإشعارات" onKeyDown={(e) => { if (e.key === 'Escape') setOpen(false); }} className="absolute end-0 top-full z-50 mt-2 w-[calc(100vw-2rem)] max-w-sm overflow-hidden rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 shadow-xl dark:shadow-stone-900/40 animate-fade-in">
           <div className="flex items-center justify-between border-b border-stone-100 dark:border-stone-700 px-4 py-3">
             <h3 className="text-sm font-bold text-stone-900 dark:text-stone-100">الإشعارات</h3>
             {unreadCount > 0 && (
@@ -220,7 +242,14 @@ export default function NotificationBell() {
                 {notifications.map(n => (
                   <button
                     key={n.id}
-                    onClick={() => { markAsRead(n.id); }}
+                    onClick={() => {
+                      markAsRead(n.id);
+                      const url = NOTIF_URLS[n.type];
+                      if (url) {
+                        setOpen(false);
+                        navigate(url);
+                      }
+                    }}
                     className={cn(
                       'flex w-full gap-3 px-4 py-3 text-start transition-colors hover:bg-stone-50 dark:hover:bg-stone-800',
                       !n.read && 'bg-emerald-50/50',

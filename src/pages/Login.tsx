@@ -11,7 +11,7 @@ import { TRIAL_DAYS, SITE_URL, REFERRAL_CODE_REGEX } from '@/lib/constants';
 import { Gift } from 'lucide-react';
 
 const TURNSTILE_SITE_KEY = import.meta.env.VITE_TURNSTILE_SITE_KEY ?? '';
-const GOOGLE_CLIENT_ID: string | undefined = import.meta.env.VITE_GOOGLE_CLIENT_ID || (import.meta.env.PROD ? undefined : undefined);
+const GOOGLE_CLIENT_ID: string | undefined = import.meta.env.VITE_GOOGLE_CLIENT_ID as string | undefined;
 
 type Tab = 'login' | 'signup';
 
@@ -195,6 +195,12 @@ export default function Login() {
   }, []);
 
   // Handle URL-based info messages (e.g. after email verification redirect)
+  // NOTE: Post-verify re-login is a Supabase auth config issue.
+  // Supabase verification links should auto-sign-in via PKCE token exchange,
+  // but if the email confirmation redirect URL doesn't match the site URL
+  // or the PKCE flow is interrupted, the user must re-login manually.
+  // To fix: ensure Supabase Dashboard → Auth → URL Configuration → Site URL
+  // and Redirect URLs are correctly set to the production domain.
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const msg = params.get('message');
@@ -215,6 +221,14 @@ export default function Login() {
     e.preventDefault();
     if (!newPassword.trim() || newPassword.length < 8) {
       setError('كلمة المرور يجب أن تكون 8 أحرف على الأقل');
+      return;
+    }
+    if (!/[a-zA-Z]/.test(newPassword)) {
+      setError('كلمة المرور يجب أن تحتوي على حرف واحد على الأقل');
+      return;
+    }
+    if (!/\d/.test(newPassword)) {
+      setError('كلمة المرور يجب أن تحتوي على رقم واحد على الأقل');
       return;
     }
     setLoading(true);
@@ -297,6 +311,11 @@ export default function Login() {
           setLoading(false);
           return;
         }
+      }
+
+      // When CAPTCHA CDN is down, enforce a mandatory delay to slow automated signups
+      if (tab === 'signup' && turnstileUnavailable) {
+        await new Promise(resolve => setTimeout(resolve, 3000));
       }
 
       if (tab === 'login') {
@@ -468,7 +487,7 @@ export default function Login() {
           <div className="overflow-hidden rounded-2xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 shadow-lg">
             <div className="bg-emerald-600 px-6 pb-6 pt-8 text-center">
               <div className="mx-auto mb-3 flex h-16 w-16 items-center justify-center rounded-full bg-white dark:bg-stone-900/20">
-                <svg className="h-8 w-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} aria-hidden="true">
+                <svg className="h-8 w-8 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} aria-hidden="true">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                 </svg>
               </div>
@@ -520,7 +539,7 @@ export default function Login() {
             </div>
             <div className="px-6 pb-8 pt-6">
               {error && <div role="alert" className="mb-4 rounded-lg bg-red-50 dark:bg-red-900/20 px-4 py-3 text-sm text-red-700 dark:text-red-400">{error}</div>}
-              {resetMessage && <div role="status" aria-live="polite" className="mb-4 rounded-lg bg-green-50 dark:bg-green-900/20 px-4 py-3 text-sm text-green-700 dark:text-green-300">{resetMessage}</div>}
+              {resetMessage && <div role="status" aria-live="polite" className="mb-4 rounded-lg bg-emerald-50 dark:bg-emerald-900/20 px-4 py-3 text-sm text-emerald-700 dark:text-emerald-300">{resetMessage}</div>}
               <form onSubmit={handleUpdatePassword} className="space-y-4">
                 <div>
                   <label htmlFor="recovery-password" className="mb-1.5 block text-sm font-medium text-stone-900 dark:text-stone-100">كلمة المرور الجديدة</label>
@@ -571,6 +590,7 @@ export default function Login() {
       <Helmet>
         <title>{`${tab === 'login' ? 'تسجيل الدخول' : 'إنشاء حساب'} | pptides`}</title>
         <meta name="description" content="سجّل دخولك أو أنشئ حساب جديد للوصول إلى مكتبة الببتيدات وحاسبة الجرعات والمدرب الذكي." />
+        <meta name="robots" content="noindex, nofollow" />
         <meta property="og:title" content={`${tab === 'login' ? 'تسجيل الدخول' : 'إنشاء حساب'} | pptides`} />
         <meta property="og:description" content="سجّل دخولك أو أنشئ حساب جديد للوصول إلى مكتبة الببتيدات وحاسبة الجرعات والمدرب الذكي." />
         <meta property="og:image" content={`${SITE_URL}/og-image.jpg`} />
@@ -706,7 +726,7 @@ export default function Login() {
 
             {/* Bug 9 fix: aria-live so screen readers announce dynamic success/info messages */}
             {resetMessage && (
-              <div role="status" aria-live="polite" className="mb-4 rounded-lg bg-green-50 dark:bg-green-900/20 px-4 py-3 text-sm text-green-700 dark:text-green-300">
+              <div role="status" aria-live="polite" className="mb-4 rounded-lg bg-emerald-50 dark:bg-emerald-900/20 px-4 py-3 text-sm text-emerald-700 dark:text-emerald-300">
                 {resetMessage}
               </div>
             )}
@@ -846,7 +866,7 @@ export default function Login() {
                   <div ref={turnstileRef} className="flex justify-center" />
                   {turnstileExpired && (
                     <p className="text-center text-xs text-amber-600 dark:text-amber-400 animate-pulse">
-                      CAPTCHA منتهي الصلاحية — جارٍ التحديث...
+                      رمز التحقق منتهي الصلاحية — جارٍ التحديث...
                     </p>
                   )}
                 </>

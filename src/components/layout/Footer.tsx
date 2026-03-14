@@ -86,6 +86,7 @@ export default memo(function Footer() {
           </p>
           <p className="mt-2 text-sm text-stone-500 dark:text-stone-300 leading-relaxed">
             هذا المحتوى تعليمي ولا يُعدّ بديلًا عن الاستشارة الطبية. استشر طبيبك قبل استخدام أي ببتيد.
+            {' '}هذه المعلومات لم تُقيَّم من هيئة الغذاء والدواء أو أي جهة تنظيمية.
           </p>
         </div>
       </div>

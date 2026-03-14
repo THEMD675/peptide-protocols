@@ -7,7 +7,7 @@ import type { VercelRequest, VercelResponse } from '@vercel/node';
 const SITE_URL = 'https://pptides.com';
 
 // ── Supabase config ──
-const SUPABASE_URL = process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL;
+const SUPABASE_URL = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL;
 const SUPABASE_ANON_KEY = process.env.VITE_SUPABASE_ANON_KEY || '';
 
 // ── Static routes with changefreq and priority ──
@@ -89,24 +89,24 @@ export default async function handler(_req: VercelRequest, res: VercelResponse) 
     return res.status(500).json({ error: 'SUPABASE_URL not configured' });
   }
   try {
-    const today = new Date().toISOString().split('T')[0];
+    const BUILD_DATE = '2026-03-14';
     const entries: string[] = [];
 
     // 1. Static pages
     for (const route of STATIC_ROUTES) {
       const loc = route.path === '/' ? `${SITE_URL}/` : `${SITE_URL}${route.path}`;
-      entries.push(urlEntry(loc, today, route.changefreq, route.priority));
+      entries.push(urlEntry(loc, BUILD_DATE, route.changefreq, route.priority));
     }
 
     // 2. Peptide detail pages
     for (const id of PEPTIDE_IDS) {
-      entries.push(urlEntry(`${SITE_URL}/peptide/${id}`, today, 'monthly', 0.8));
+      entries.push(urlEntry(`${SITE_URL}/peptide/${id}`, BUILD_DATE, 'monthly', 0.8));
     }
 
     // 3. Blog posts from Supabase
     const blogPosts = await fetchPublishedBlogPosts();
     for (const post of blogPosts) {
-      const lastmod = post.updated_at?.split('T')[0] || post.published_at?.split('T')[0] || today;
+      const lastmod = post.updated_at?.split('T')[0] || post.published_at?.split('T')[0] || BUILD_DATE;
       entries.push(urlEntry(`${SITE_URL}/blog/${post.slug}`, lastmod, 'monthly', 0.7));
     }
 

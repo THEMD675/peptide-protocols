@@ -437,7 +437,6 @@ export default function InteractionChecker() {
                   !pair.result.safe ? 'border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-900/20' :
                   pair.result.warning ? 'border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-900/20' :
                   'border-emerald-200 dark:border-emerald-800 bg-emerald-50/50 dark:bg-emerald-900/10',
-                  isGated && 'select-none',
                 )}>
                   <div className="flex items-center gap-2 mb-2">
                     {!pair.result.safe ? <XCircle className="h-4 w-4 text-red-500 dark:text-red-400 shrink-0" /> :

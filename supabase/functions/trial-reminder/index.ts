@@ -1,3 +1,7 @@
+// TODO: This function is a monolith handling multiple reminder types (day-1, day-2, expiry, etc.)
+// in a single serve handler. Refactor into focused, single-responsibility functions
+// (e.g. trial-reminder-day1, trial-reminder-expiry) for better maintainability and testability.
+
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
@@ -80,21 +84,32 @@ serve(async (req) => {
     // Saudi Arabia (AST = UTC+3): use Saudi "today" for day calculations
     const saudiNow = new Date(now.getTime() + 3 * 60 * 60 * 1000)
 
-    const { data: trialUsers, error: queryError } = await supabase
-      .from('subscriptions')
-      .select('user_id, trial_ends_at, created_at, stripe_subscription_id')
-      .eq('status', 'trial')
-      .limit(10000)
-
-    if (queryError) {
-      console.error('trial-reminder: failed to query trial users:', queryError)
-      return new Response(JSON.stringify({ error: 'Database query failed' }), {
-        status: 500,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      })
+    // Paginated fetch of trial users to avoid hardcoded limits
+    let trialUsers: Array<{ user_id: string; trial_ends_at: string; created_at: string; stripe_subscription_id: string | null }> = []
+    {
+      const PAGE_SIZE = 1000
+      let from = 0
+      while (true) {
+        const { data, error: pageError } = await supabase
+          .from('subscriptions')
+          .select('user_id, trial_ends_at, created_at, stripe_subscription_id')
+          .eq('status', 'trial')
+          .range(from, from + PAGE_SIZE - 1)
+        if (pageError) {
+          console.error('trial-reminder: failed to query trial users:', pageError)
+          return new Response(JSON.stringify({ error: 'Database query failed' }), {
+            status: 500,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          })
+        }
+        if (!data || data.length === 0) break
+        trialUsers = trialUsers.concat(data)
+        if (data.length < PAGE_SIZE) break
+        from += PAGE_SIZE
+      }
     }
 
-    if (!trialUsers || trialUsers.length === 0) {
+    if (trialUsers.length === 0) {
       return new Response(JSON.stringify({ sent: 0, skipped: 0, failed: 0 }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       })
@@ -317,7 +332,7 @@ serve(async (req) => {
           await supabase.from('sent_reminders').delete()
             .eq('user_id', sub.user_id)
             .eq('reminder_type', reminderType)
-            .catch(() => {})
+            .catch((e) => console.error('sent_reminders cleanup failed:', e))
           failed++
         }
       } catch (loopErr) {
@@ -544,7 +559,7 @@ serve(async (req) => {
             await supabase.from('sent_reminders').delete()
               .eq('user_id', sub.user_id)
               .eq('reminder_type', inactiveCheckinWeekKey)
-              .catch(() => {})
+              .catch((e) => console.error('sent_reminders cleanup failed (inactive_checkin):', e))
           }
         } catch (e) {
           console.error('trial-reminder: inactive_checkin error for user', sub.user_id, e)
@@ -659,7 +674,7 @@ serve(async (req) => {
             })
             if (!emailResult.ok) {
               await supabase.from('sent_reminders').delete()
-                .eq('user_id', pd.user_id).eq('reminder_type', dunningType).catch(() => {})
+                .eq('user_id', pd.user_id).eq('reminder_type', dunningType).catch((e) => console.error('sent_reminders cleanup failed (dunning):', e))
             }
           }
         } catch (e) {
@@ -737,7 +752,7 @@ serve(async (req) => {
               html: emailWrapper(winbackBody),
               replyTo: 'contact@pptides.com',
               tags: [{ name: 'type', value: 'winback' }, { name: 'category', value: 'retention' }],
-            }).catch(() => {})
+            }).catch((e) => console.error('winback email send failed:', e))
           }
         } catch (e) { console.error('winback email error:', e) }
       }
@@ -795,7 +810,7 @@ serve(async (req) => {
             `),
         })
         if (emailResult.ok) {
-          await supabase.from('email_logs').insert({ email: adminTo, type: 'admin_daily_alert', status: 'sent' }).catch(() => {})
+          await supabase.from('email_logs').insert({ email: adminTo, type: 'admin_daily_alert', status: 'sent' }).catch((e) => console.error('email_logs insert failed (admin_daily_alert):', e))
         }
       }
     }

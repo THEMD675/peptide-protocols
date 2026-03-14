@@ -84,12 +84,13 @@ export default function AgeGate() {
               <Shield className="h-6 w-6 text-emerald-700" aria-hidden="true" />
             </div>
 
+            <p className="mb-1 text-lg font-black tracking-tight text-emerald-700 dark:text-emerald-400">pptides</p>
             <h2 id="age-gate-title" className="mb-2 text-xl font-bold text-stone-900 dark:text-stone-100">
-              محتوى تعليمي للبالغين
+              دليل الببتيدات العلاجية
             </h2>
 
             <p className="mb-6 text-sm leading-relaxed text-stone-600 dark:text-stone-300">
-              pptides يحتوي على معلومات بحثية عن الببتيدات العلاجية. بالمتابعة، تؤكد أن عمرك 18 عامًا أو أكثر.
+              منصة تعليمية متخصصة في بروتوكولات الببتيدات — تشمل جرعات، تحاليل مخبرية، ومدرب ذكي. بالمتابعة، تؤكد أن عمرك 18 عامًا أو أكثر.
             </p>
 
             <div className="flex flex-col gap-3">

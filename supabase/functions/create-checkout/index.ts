@@ -109,21 +109,8 @@ serve(async (req) => {
       .eq('user_id', user.id)
       .maybeSingle()
 
-    // Block if user already has a Stripe subscription (prevents duplicate Stripe subs, incl. trial users).
-    // Trial users without stripe_subscription_id (manual trial) are allowed to checkout to upgrade to paid.
-    if (existingSub?.stripe_subscription_id) {
-      return new Response(JSON.stringify({ error: 'لديك اشتراك فعّال بالفعل', alreadySubscribed: true }), {
-        status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      })
-    }
-    if (existingSub?.status === 'active' || existingSub?.status === 'past_due') {
-      return new Response(JSON.stringify({ error: 'لديك اشتراك فعّال بالفعل', alreadySubscribed: true }), {
-        status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      })
-    }
-
-    // FIX: If user cancelled (cancel_at_period_end) but sub is still active in Stripe,
-    // un-cancel it instead of creating a new checkout session (avoids duplicate subscriptions).
+    // Reactivation: if user cancelled (cancel_at_period_end) but sub is still active in Stripe,
+    // un-cancel instead of creating a new checkout (avoids duplicate subscriptions).
     if (existingSub?.status === 'cancelled' && existingSub?.stripe_subscription_id) {
       try {
         const stripeSub = await stripe.subscriptions.retrieve(existingSub.stripe_subscription_id)
@@ -146,6 +133,19 @@ serve(async (req) => {
       } catch (reactivateErr) {
         console.error('create-checkout: reactivation check failed, proceeding to new checkout:', reactivateErr)
       }
+    }
+
+    // Block users with an ACTIVE Stripe subscription (prevents duplicate subs).
+    // Cancelled/expired users with stale stripe_subscription_id are allowed to proceed to new checkout.
+    if (existingSub?.status === 'active' || existingSub?.status === 'past_due') {
+      return new Response(JSON.stringify({ error: 'لديك اشتراك فعّال بالفعل', alreadySubscribed: true }), {
+        status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      })
+    }
+    if (existingSub?.stripe_subscription_id && existingSub?.status !== 'cancelled' && existingSub?.status !== 'expired') {
+      return new Response(JSON.stringify({ error: 'لديك اشتراك فعّال بالفعل', alreadySubscribed: true }), {
+        status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      })
     }
 
     // Skip Stripe trial if user already had ANY trial (DB trial_ends_at set) or a prior Stripe sub

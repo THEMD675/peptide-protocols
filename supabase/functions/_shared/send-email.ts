@@ -10,7 +10,7 @@ const SMTP_HOST = Deno.env.get('SMTP_HOST') || 'smtp.gmail.com'
 const SMTP_PORT = parseInt(Deno.env.get('SMTP_PORT') || '465', 10)
 const SMTP_USER = Deno.env.get('SMTP_USER') || ''
 const SMTP_PASS = Deno.env.get('SMTP_PASS') || ''
-const FROM_EMAIL_SMTP = Deno.env.get('FROM_EMAIL') || 'pptides <contact@amirisgroup.co>'
+const FROM_EMAIL_SMTP = Deno.env.get('FROM_EMAIL') || 'pptides <contact@pptides.com>'
 const FROM_EMAIL_RESEND = Deno.env.get('FROM_EMAIL_RESEND') || 'pptides <contact@pptides.com>'
 
 interface EmailPayload {

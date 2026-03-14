@@ -9,7 +9,7 @@ const PUSH_SUPPORTED = typeof window !== 'undefined' && 'PushManager' in window 
   !(('standalone' in navigator) && !(navigator as { standalone?: boolean }).standalone);
 
 export default function PushNotificationPrompt() {
-  const { user, subscription } = useAuth();
+  const { user } = useAuth();
   const [loading, setLoading] = useState(true);
   const [subscribed, setSubscribed] = useState<boolean | null>(null);
   const [isEnabling, setIsEnabling] = useState(false);
@@ -114,8 +114,10 @@ export default function PushNotificationPrompt() {
     }
   };
 
-  if (!PUSH_SUPPORTED || !subscription.isProOrTrial) return null;
+  if (!PUSH_SUPPORTED || !user) return null;
   if (loading) return null;
+
+  const permissionDenied = typeof Notification !== 'undefined' && Notification.permission === 'denied';
 
   return (
     <div className="mb-8 rounded-2xl border border-emerald-200 dark:border-emerald-800 bg-white dark:bg-stone-900 p-5 shadow-sm dark:shadow-stone-900/30">
@@ -127,11 +129,20 @@ export default function PushNotificationPrompt() {
           <div>
             <h3 className="font-bold text-stone-900 dark:text-stone-100">تنبيهات الحقن</h3>
             <p className="text-sm text-stone-600 dark:text-stone-300">
-              {subscribed ? 'التنبيهات مفعّلة — ستتلقى تذكيرات بوقت جرعتك' : 'لا تنسَ جرعتك'}
+              {permissionDenied
+                ? 'الإشعارات محظورة — يمكنك تفعيلها من إعدادات المتصفح'
+                : subscribed
+                  ? 'التنبيهات مفعّلة — ستتلقى تذكيرات بوقت جرعتك'
+                  : 'لا تنسَ جرعتك'}
             </p>
+            {permissionDenied && (
+              <p className="mt-1.5 text-xs text-stone-500 dark:text-stone-400">
+                افتح إعدادات الموقع (أيقونة القفل أو المعلومات بجانب الرابط) → الإشعارات → السماح، ثم حدّث الصفحة.
+              </p>
+            )}
           </div>
         </div>
-        {subscribed ? (
+        {permissionDenied ? null : subscribed ? (
           <button
             onClick={handleDisable}
             disabled={isDisabling}

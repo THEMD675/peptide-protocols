@@ -1,5 +1,4 @@
 import { Helmet } from 'react-helmet-async';
-const GuidedTour = lazy(() => import('@/components/GuidedTour'));
 import { Link, Navigate } from 'react-router-dom';
 import { useState, useEffect, useCallback, useMemo, lazy, Suspense, useRef } from 'react';
 import { useNowMs } from '@/hooks/useNowMs';
@@ -26,7 +25,7 @@ import {
   AlertCircle,
 } from 'lucide-react';
 import { toast } from 'sonner';
-import { cn, arPlural, copyToClipboard } from '@/lib/utils';
+import { cn, arPlural, copyToClipboard, timeoutSignal } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
 import { PEPTIDE_COUNT, STATUS_LABELS, TIER_LABELS, FREQUENCY_LABELS, STORAGE_KEYS } from '@/lib/constants';
@@ -38,7 +37,6 @@ import DoseTitrationTimeline from '@/components/DoseTitrationTimeline';
 import ShareableCard from '@/components/ShareableCard';
 import WellnessCheckin from '@/components/WellnessCheckin';
 const LabResultsTracker = lazy(() => import('@/components/LabResultsTracker'));
-import PushNotificationPrompt from '@/components/PushNotificationPrompt';
 import DashboardCoachCards from '@/components/DashboardCoachCards';
 import SavedProtocols from '@/components/SavedProtocols';
 import { useProactiveCoach } from '@/hooks/useProactiveCoach';
@@ -48,38 +46,6 @@ import { peptidesPublic as allPeptides } from '@/data/peptides-public';
 import { labTests } from '@/data/peptides';
 import { UPGRADE } from '@/constants/sales-copy';
 import { logError } from '@/lib/logger';
-
-const DAILY_TIPS = [
-  'حقن BPC-157 على معدة فارغة يزيد من امتصاصه بشكل ملحوظ',
-  'دوّر مواقع الحقن كل يوم لتقليل تكوّن الندب والتورم',
-  'خزّن الببتيدات المحضّرة في الثلاجة (2-8°C) وتصلح لـ 28 يومًا',
-  'اشرب كمية كافية من الماء — الترطيب يساعد في امتصاص الببتيدات',
-  'لا تخلط أكثر من ببتيد في نفس السيرنج إلا بعد التأكد من التوافق',
-  'الالتزام بالتوقيت أهم من الجرعة — حاول الحقن في نفس الوقت يوميًا',
-  'تحاليل الدم قبل البدء تساعدك في قياس التحسن لاحقًا',
-  'هرمون النمو يُفرز بشكل أكبر أثناء النوم — احقن GH قبل النوم',
-  'BPC-157 + TB-500 من أشهر التوليفات للتعافي — جرّب المزيج الذهبي',
-  'سيماغلوتايد يعمل بشكل أفضل مع نظام غذائي عالي البروتين',
-  'لا توقف البروتوكول فجأة — اتبع جدول التخفيف التدريجي',
-  'الحقن تحت الجلد (Sub-Q) أسهل وأقل ألمًا من العضلي',
-  'راجع طبيبك إذا لاحظت أي تغيرات غير طبيعية في الجلد أو الهضم',
-  'سجّل ملاحظاتك بعد كل حقنة — تساعدك في تقييم النتائج',
-];
-
-const SEASONAL_TIPS: Record<number, string> = {
-  0: 'الشتاء — وقت ممتاز لبروتوكولات هرمون النمو والتعافي',
-  1: 'فبراير — جهّز تحاليلك قبل بدء بروتوكول جديد في الربيع',
-  2: 'الربيع — وقت مثالي لبدء بروتوكول إنقاص الوزن',
-  3: 'أبريل — ابدأ بروتوكول البشرة قبل الصيف',
-  4: 'مايو — راجع بروتوكولك الحالي وقيّم النتائج',
-  5: 'الصيف — ركّز على الترطيب والبشرة مع ببتيدات النحاس',
-  6: 'يوليو — حافظ على تخزين الببتيدات في الثلاجة في الحرارة',
-  7: 'أغسطس — وقت جيد لبروتوكولات التعافي والمفاصل',
-  8: 'سبتمبر — ابدأ دورة جديدة مع بداية الموسم',
-  9: 'أكتوبر — استعد لبروتوكولات المناعة قبل الشتاء',
-  10: 'نوفمبر — ببتيدات النوم مثل DSIP تساعد في الليالي الطويلة',
-  11: 'ديسمبر — قيّم سنتك وخطّط لبروتوكول العام الجديد',
-};
 
 const QUICK_LINKS = [
   { to: '/quiz', label: 'اختبار الببتيد', description: 'اكتشف الأنسب لك', Icon: Sparkles, tourId: undefined },
@@ -225,6 +191,7 @@ function useRecentActivity(userId: string | undefined) {
         } else if (data) {
           setLogs(data);
           setHasMore(data.length === PAGE_SIZE);
+          setLastRefresh(new Date());
         }
         setLoading(false);
       })
@@ -376,7 +343,12 @@ function useActiveProtocols(userId: string | undefined) {
       const expired = data.filter(p => p.started_at && p.cycle_weeks && (now - new Date(p.started_at).getTime()) > p.cycle_weeks * 7 * 86400000);
       if (expired.length > 0) {
         const ids = expired.map(p => p.id);
-        supabase.from('user_protocols').update({ status: 'completed', updated_at: new Date().toISOString() }).in('id', ids).eq('user_id', userId).then(() => {});
+        supabase.from('user_protocols').update({ status: 'completed', updated_at: new Date().toISOString() }).in('id', ids).eq('user_id', userId)
+          .then(({ error }) => {
+            if (error) logError('Auto-complete protocols failed:', error);
+            else fetchProtocols();
+          })
+          .catch((err) => logError('Auto-complete protocols error:', err));
       }
       setProtocols(data);
     }
@@ -449,6 +421,8 @@ export default function Dashboard() {
   const { visited, markVisited } = useVisitedPages();
   const activity = useRecentActivity(user?.id);
   const { protocols: activeProtocols, refetch: refetchProtocols } = useActiveProtocols(user?.id);
+  const NON_DAILY_FREQUENCIES = ['weekly', 'biweekly', 'prn'];
+  const allNonDaily = activeProtocols.length > 0 && activeProtocols.every(p => NON_DAILY_FREQUENCIES.includes(p.frequency));
   const userReviewCount = useUserReviewCount(user?.id);
   const wellnessTrend = useWellnessTrend(user?.id);
   const { dashboardCards } = useProactiveCoach(user?.id);
@@ -462,8 +436,8 @@ export default function Dashboard() {
     try { return localStorage.getItem('pptides_onboarded') === 'true'; } catch { return false; }
   }, []);
   const [confirmEndId, setConfirmEndId] = useState<string | null>(null);
+  const [lastRefresh, setLastRefresh] = useState(() => new Date());
   const welcomeConfettiFired = useRef(false);
-  const [runTour, setRunTour] = useState(false);
   const [showPremiumWelcome, setShowPremiumWelcome] = useState(false);
   const [isLoadingPortal, setIsLoadingPortal] = useState(false);
 
@@ -481,26 +455,8 @@ export default function Dashboard() {
     }
   }, [subscription.status]);
 
-  // Auto-trigger dashboard tour for first-time users after onboarding completes
   const isNewUserWithNoData = !activity.loading && activity.logs.length === 0 && activeProtocols.length === 0;
   const [onboardingJustClosed, setOnboardingJustClosed] = useState(false);
-  useEffect(() => {
-    if (!user || activity.loading) return;
-    // For new users: wait until onboarding modal closes (onboardingJustClosed flag)
-    if (isNewUserWithNoData && !onboardingJustClosed) return;
-    const timer = setTimeout(() => {
-      const notOnboarded = (() => { try { return localStorage.getItem('pptides_onboarded') !== '1'; } catch { return true; } })();
-      if (notOnboarded && activity.logs.length === 0 && !showOnboarding) setRunTour(true);
-    }, 1200);
-    return () => clearTimeout(timer);
-  }, [user, isNewUserWithNoData, activity.loading, activity.logs.length, showOnboarding, onboardingJustClosed]);
-
-  // Re-trigger tour via header "?" button
-  useEffect(() => {
-    const handler = () => setRunTour(true);
-    window.addEventListener('pptides:retrigger-tour', handler);
-    return () => window.removeEventListener('pptides:retrigger-tour', handler);
-  }, []);
   const showOnboardButton = useMemo(() => {
     try { return localStorage.getItem('pptides_onboarded') === 'true'; } catch { return false; }
   }, []);
@@ -565,8 +521,6 @@ export default function Dashboard() {
 
   return (
     <div className="mx-auto max-w-5xl px-4 pb-24 pt-8 md:px-6 md:pt-12 animate-fade-in">
-      {/* Guided Tour */}
-      <Suspense fallback={null}><GuidedTour tourId="dashboard" run={runTour} onFinish={() => { try { localStorage.setItem('pptides_onboarded', '1'); } catch { /* storage full */ } setRunTour(false); }} /></Suspense>
       <Helmet>
         <title>لوحة التحكم | pptides</title>
         <meta name="description" content="لوحة التحكم — أدواتك في مكان واحد" />
@@ -627,7 +581,7 @@ export default function Dashboard() {
                   toast('جارٍ فتح إدارة الدفع...');
                   const res = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/create-portal-session`, {
                     method: 'POST',
-                    signal: AbortSignal.timeout(15000),
+                    signal: timeoutSignal(15000),
                     headers: {
                       'Content-Type': 'application/json',
                       Authorization: `Bearer ${token}`,
@@ -657,6 +611,7 @@ export default function Dashboard() {
         <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-100 dark:bg-emerald-900/30">
           <LayoutDashboard className="h-7 w-7 text-emerald-700" />
         </div>
+        <p className="text-xs text-stone-400 dark:text-stone-500 mb-4">آخر تحديث: {lastRefresh.toLocaleTimeString('ar-u-nu-latn')}</p>
         <div className="flex items-center justify-center gap-3 flex-wrap">
           <h1 className="text-3xl font-bold text-stone-900 dark:text-stone-100 md:text-4xl">
             {new Date().getHours() < 12 ? 'صباح الخير' : new Date().getHours() < 18 ? 'مرحبًا' : 'مساء الخير'}، {displayName}
@@ -845,7 +800,7 @@ export default function Dashboard() {
                 <p className="text-xs text-stone-500 dark:text-stone-300">احسب جرعتك بدقة</p>
               </div>
             </Link>
-            <Link to="/protocols" className="flex items-center gap-3 rounded-xl bg-white/70 dark:bg-stone-900/50 p-4 transition-all hover:bg-white dark:hover:bg-stone-800">
+            <Link to="/tracker" className="flex items-center gap-3 rounded-xl bg-white/70 dark:bg-stone-900/50 p-4 transition-all hover:bg-white dark:hover:bg-stone-800">
               <ClipboardList className="h-6 w-6 text-emerald-600 shrink-0" />
               <div>
                 <p className="text-sm font-bold text-stone-900 dark:text-stone-100">البروتوكولات</p>
@@ -961,23 +916,8 @@ export default function Dashboard() {
         </div>
       )}
 
-      {/* Daily tip + seasonal */}
-      {(() => {
-        const tipIndex = Math.floor(nowMs / 86400000) % DAILY_TIPS.length;
-        const seasonalTip = SEASONAL_TIPS[new Date(nowMs).getMonth()];
-        return (
-          <div className="mb-6 rounded-2xl border border-emerald-100 bg-emerald-50/50 p-4">
-            <p className="text-xs font-bold text-emerald-700 dark:text-emerald-400 mb-1">نصيحة اليوم</p>
-            <p className="text-sm text-stone-700 dark:text-stone-200 leading-relaxed">{DAILY_TIPS[tipIndex]}</p>
-            {seasonalTip && (
-              <p className="mt-2 text-xs text-stone-500 dark:text-stone-300 border-t border-emerald-100 pt-2">{seasonalTip}</p>
-            )}
-          </div>
-        );
-      })()}
-
-      {/* Streak-at-risk banner */}
-      {!activity.loading && activity.streak > 0 && !activity.todayLogged && new Date(nowMs).getHours() >= 16 && (
+      {/* Streak-at-risk banner — only for daily protocols */}
+      {!activity.loading && !allNonDaily && activity.streak > 0 && !activity.todayLogged && new Date(nowMs).getHours() >= 16 && (
         <div className="mb-6 rounded-2xl border border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-900/20 p-4 flex items-center justify-between gap-3">
           <div>
             <p className="text-sm font-bold text-amber-800 dark:text-amber-300">سلسلتك في خطر!</p>
@@ -1045,9 +985,6 @@ export default function Dashboard() {
       {/* Journey Stats */}
       {!activity.loading && (activity.logs.length > 0 || activeProtocols.length > 0) && (() => {
         const total = activity.totalInjections ?? activity.logs.length;
-        const milestoneNext = total < 10 ? 10 : total < 25 ? 25 : total < 50 ? 50 : total < 100 ? 100 : total < 250 ? 250 : 500;
-        const milestonePrev = total < 10 ? 0 : total < 25 ? 10 : total < 50 ? 25 : total < 100 ? 50 : total < 250 ? 100 : 250;
-        const milestoneProgress = milestonePrev === milestoneNext ? 100 : Math.round(((total - milestonePrev) / (milestoneNext - milestonePrev)) * 100);
         return (
           <div className="mb-8">
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-3">
@@ -1056,25 +993,15 @@ export default function Dashboard() {
                 <p className="text-xs font-medium text-stone-500 dark:text-stone-300">حقنة مسجّلة</p>
               </div>
               <div className="rounded-xl border border-emerald-100 bg-gradient-to-b from-emerald-50 to-white dark:to-stone-950 p-3 text-center">
-                <p className="text-2xl font-black text-emerald-700">{activity.streak}</p>
-                <p className="text-xs font-medium text-stone-500 dark:text-stone-300">يوم متتالي</p>
+                <p className="text-2xl font-black text-emerald-700">{allNonDaily ? total : activity.streak}</p>
+                <p className="text-xs font-medium text-stone-500 dark:text-stone-300">{allNonDaily ? 'جرعة مسجّلة' : 'يوم متتالي'}</p>
               </div>
               <div className="rounded-xl border border-emerald-100 bg-gradient-to-b from-emerald-50 to-white dark:to-stone-950 p-3 text-center">
                 <p className="text-2xl font-black text-emerald-700">{activeProtocols.length}</p>
                 <p className="text-xs font-medium text-stone-500 dark:text-stone-300">بروتوكول نشط</p>
               </div>
             </div>
-            {total > 0 ? (
-              <div className="rounded-xl border border-stone-100 dark:border-stone-700 bg-white dark:bg-stone-900 p-3">
-                <div className="flex items-center justify-between mb-1.5">
-                  <p className="text-xs font-bold text-stone-600 dark:text-stone-300">الإنجاز التالي: {milestoneNext} حقنة</p>
-                  <p className="text-xs font-bold text-emerald-700">{milestoneProgress}%</p>
-                </div>
-                <div className="h-2 w-full overflow-hidden rounded-full bg-stone-100 dark:bg-stone-800">
-                  <div className="h-full rounded-full bg-emerald-500 transition-all duration-700" style={{ width: `${milestoneProgress}%` }} />
-                </div>
-              </div>
-            ) : (
+            {total === 0 && (
               <div className="rounded-xl border border-dashed border-emerald-200 dark:border-emerald-800 bg-emerald-50/50 dark:bg-emerald-900/10 p-3 text-center">
                 <p className="text-xs font-bold text-emerald-700 dark:text-emerald-400">ابدأ بتسجيل أول جرعة لتتبع تقدمك</p>
                 <Link to="/tracker" className="mt-1.5 inline-block text-xs font-medium text-emerald-600 hover:underline">اذهب إلى سجل الحقن ←</Link>
@@ -1115,53 +1042,6 @@ export default function Dashboard() {
         );
       })()}
 
-      {/* My Journey Timeline */}
-      {!activity.loading && (activity.logs.length > 0 || activeProtocols.length > 0) && (() => {
-        const bd: BadgeData = {
-          totalInjections: activity.totalInjections,
-          streak: activity.streak,
-          protocols: activeProtocols.length,
-          uniquePeptides: activity.uniquePeptidesCount,
-        };
-        const earnedBadges = BADGES.filter(b => b.condition(bd));
-        const journeyEvents: { date: string | null; text: string }[] = [];
-        activeProtocols.forEach(proto => {
-          const pep = allPeptides.find(p => p.id === proto.peptide_id);
-          journeyEvents.push({ date: proto.started_at, text: `بدأت بروتوكول ${pep?.nameAr ?? proto.peptide_id}` });
-        });
-        const total = activity.totalInjections;
-        if (total >= 100) journeyEvents.push({ date: null, text: 'أكملت ١٠٠ حقنة' });
-        else if (total >= 50) journeyEvents.push({ date: null, text: 'أكملت ٥٠ حقنة' });
-        else if (total >= 10) journeyEvents.push({ date: null, text: 'أكملت ١٠ حقن' });
-        earnedBadges.forEach(badge => {
-          journeyEvents.push({ date: null, text: `حصلت على شارة ${badge.label}` });
-        });
-        journeyEvents.sort((a, b) => {
-          if (a.date && b.date) return new Date(b.date).getTime() - new Date(a.date).getTime();
-          if (a.date) return -1;
-          if (b.date) return 1;
-          return 0;
-        });
-        if (journeyEvents.length === 0) return null;
-        return (
-          <div className="mb-8">
-            <h2 className="mb-4 text-xl font-bold text-stone-900 dark:text-stone-100">رحلتي</h2>
-            <div className="relative border-s-2 border-emerald-200 dark:border-emerald-800 ps-6 space-y-4">
-              {journeyEvents.map((event) => (
-                <div key={event.text} className="relative">
-                  <div className="absolute -start-[9px] top-1 h-4 w-4 rounded-full border-2 border-emerald-400 bg-white dark:bg-stone-900" />
-                  <p className="text-sm font-bold text-stone-800 dark:text-stone-200">{event.text}</p>
-                  {event.date && (
-                    <p className="text-xs text-stone-500 dark:text-stone-300 mt-0.5">
-                      {new Date(event.date).toLocaleDateString('ar-u-nu-latn', { month: 'short', day: 'numeric', year: 'numeric' })}
-                    </p>
-                  )}
-                </div>
-              ))}
-            </div>
-          </div>
-        );
-      })()}
 
       {/* Protocol ending soon — prominent warning cards */}
       {activeProtocols.length > 0 && (() => {
@@ -1290,25 +1170,6 @@ export default function Dashboard() {
                       <p className="text-xs font-bold text-emerald-700 dark:text-emerald-400">
                         أكملت الدورة! {peptide?.restPeriodWeeks ? `فترة راحة موصى بها: ${peptide.restPeriodWeeks} أسابيع` : ''}
                       </p>
-                      <button
-                        onClick={async () => {
-                          const text = `أكملت بروتوكول ${peptide?.nameAr ?? proto.peptide_id} (${proto.cycle_weeks} أسابيع) على pptides.com\n\npptides — أشمل دليل عربي للببتيدات العلاجية`;
-                          try {
-                            if (navigator.share) {
-                              await navigator.share({ title: 'شهادة إتمام بروتوكول', text });
-                            } else {
-                              await copyToClipboard(text);
-                              toast.success('تم نسخ الشهادة');
-                            }
-                          } catch {
-                            toast.error('تعذّر المشاركة');
-                          }
-                        }}
-                        className="mt-2 flex items-center gap-1.5 rounded-full bg-emerald-600 px-3 py-1.5 text-xs font-bold text-white hover:bg-emerald-700 transition-colors"
-                      >
-                        <Trophy className="h-3.5 w-3.5" />
-                        شارك شهادة الإتمام
-                      </button>
                     </div>
                   )}
                   {showLabReminder && (
@@ -1413,40 +1274,6 @@ export default function Dashboard() {
         </div>
       )}
 
-      {/* Weekly Challenge */}
-      {!activity.loading && activeProtocols.length > 0 && (() => {
-        const now = new Date();
-        const dayOfWeek = now.getDay();
-        const startOfWeek = new Date(now);
-        startOfWeek.setDate(now.getDate() - dayOfWeek);
-        startOfWeek.setHours(0, 0, 0, 0);
-        const daysLogged = new Set(
-          activity.allLogs
-            .filter(l => new Date(l.logged_at) >= startOfWeek)
-            .map(l => new Date(l.logged_at).toDateString())
-        ).size;
-        return (
-          <div className="mb-8 rounded-2xl border border-emerald-200 dark:border-emerald-800 bg-gradient-to-b from-emerald-50 to-white dark:to-stone-950 p-5 shadow-sm dark:shadow-stone-900/30">
-            <div className="flex items-center gap-2 mb-3">
-              <Target className="h-5 w-5 text-emerald-700" />
-              <h2 className="text-lg font-bold text-stone-900 dark:text-stone-100">تحدي الأسبوع</h2>
-            </div>
-            <p className="text-sm text-stone-700 dark:text-stone-200 mb-3">سجّل حقنة كل يوم هذا الأسبوع</p>
-            <div className="flex items-center gap-3">
-              <div className="flex-1 h-3 overflow-hidden rounded-full bg-stone-100 dark:bg-stone-800">
-                <div
-                  className="h-full rounded-full bg-emerald-500 transition-all duration-700"
-                  style={{ width: `${Math.round((daysLogged / 7) * 100)}%` }}
-                />
-              </div>
-              <span className="text-sm font-black text-emerald-700 shrink-0" dir="ltr">{daysLogged}/7</span>
-            </div>
-            {daysLogged >= 7 && (
-              <p className="mt-2 text-xs font-bold text-emerald-700 dark:text-emerald-400">أحسنت! أكملت التحدي هذا الأسبوع</p>
-            )}
-          </div>
-        );
-      })()}
 
       {/* Recommended Peptides */}
       {(() => {
@@ -1538,11 +1365,6 @@ export default function Dashboard() {
             </div>
           )}
         </div>
-      )}
-
-      {/* Push Notification Prompt — paid subscribers only */}
-      {subscription.isProOrTrial && (
-        <PushNotificationPrompt />
       )}
 
       {/* Lab Results Tracker */}
@@ -1651,8 +1473,8 @@ export default function Dashboard() {
             </div>
             <div className="rounded-2xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 p-4 text-center shadow-sm dark:shadow-stone-900/30">
               <Flame className="mx-auto mb-1 h-5 w-5 text-orange-500" />
-              <p className="text-2xl font-black text-stone-900 dark:text-stone-100">{activity.streak}</p>
-              <p className="text-xs text-stone-500 dark:text-stone-300">أيام متتالية</p>
+              <p className="text-2xl font-black text-stone-900 dark:text-stone-100">{allNonDaily ? activity.totalInjections : activity.streak}</p>
+              <p className="text-xs text-stone-500 dark:text-stone-300">{allNonDaily ? 'جرعة مسجّلة' : 'أيام متتالية'}</p>
             </div>
             <div className="rounded-2xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 p-4 text-center shadow-sm dark:shadow-stone-900/30">
               <Syringe className="mx-auto mb-1 h-5 w-5 text-emerald-500" />
@@ -1710,7 +1532,7 @@ export default function Dashboard() {
                 <div key={d.date.toISOString()} className={cn(
                   'aspect-square rounded-sm transition-colors',
                   d.count === 0 ? 'bg-stone-100 dark:bg-stone-800' :
-                  d.count === 1 ? 'bg-emerald-200' :
+                  d.count === 1 ? 'bg-emerald-200 dark:bg-emerald-800/40' :
                   d.count === 2 ? 'bg-emerald-400' :
                   'bg-emerald-600',
                 )} title={`${d.date.toLocaleDateString('ar-u-nu-latn', { month: 'short', day: 'numeric' })}: ${d.count} حقن`} />
@@ -1719,7 +1541,7 @@ export default function Dashboard() {
             <div className="mt-2 flex items-center justify-end gap-1 text-xs text-stone-500 dark:text-stone-300">
               <span>أقل</span>
               <span className="h-2.5 w-2.5 rounded-sm bg-stone-100 dark:bg-stone-800" />
-              <span className="h-2.5 w-2.5 rounded-sm bg-emerald-200" />
+              <span className="h-2.5 w-2.5 rounded-sm bg-emerald-200 dark:bg-emerald-800/40" />
               <span className="h-2.5 w-2.5 rounded-sm bg-emerald-400" />
               <span className="h-2.5 w-2.5 rounded-sm bg-emerald-600" />
               <span>أكثر</span>
@@ -1790,7 +1612,7 @@ export default function Dashboard() {
               {/* 3-Step Guided Onboarding */}
               <div className="space-y-3 text-start">
                 <Link to="/library" className="group flex items-center gap-4 rounded-xl border border-emerald-200 dark:border-emerald-800 bg-white dark:bg-stone-900 p-4 transition-all hover:border-emerald-400 hover:shadow-md hover:-translate-y-0.5 min-h-[44px]" style={{ animation: 'dash-card-in 0.5s ease-out 0.3s both' }}>
-                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-100 dark:bg-emerald-900/30 transition-colors group-hover:bg-emerald-200">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-100 dark:bg-emerald-900/30 transition-colors group-hover:bg-emerald-200 dark:group-hover:bg-emerald-800/40">
                     <span className="text-sm font-black text-emerald-700">1</span>
                   </div>
                   <div className="flex-1">
@@ -1800,7 +1622,7 @@ export default function Dashboard() {
                   <BookOpen className="h-5 w-5 shrink-0 text-emerald-400 transition-colors group-hover:text-emerald-700" />
                 </Link>
                 <Link to="/tracker" className="group flex items-center gap-4 rounded-xl border border-emerald-200 dark:border-emerald-800 bg-white dark:bg-stone-900 p-4 transition-all hover:border-emerald-400 hover:shadow-md hover:-translate-y-0.5 min-h-[44px]" style={{ animation: 'dash-card-in 0.5s ease-out 0.45s both' }}>
-                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-100 dark:bg-emerald-900/30 transition-colors group-hover:bg-emerald-200">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-100 dark:bg-emerald-900/30 transition-colors group-hover:bg-emerald-200 dark:group-hover:bg-emerald-800/40">
                     <span className="text-sm font-black text-emerald-700">2</span>
                   </div>
                   <div className="flex-1">
@@ -1810,7 +1632,7 @@ export default function Dashboard() {
                   <Syringe className="h-5 w-5 shrink-0 text-emerald-400 transition-colors group-hover:text-emerald-700" />
                 </Link>
                 <Link to="/coach" className="group flex items-center gap-4 rounded-xl border border-emerald-200 dark:border-emerald-800 bg-white dark:bg-stone-900 p-4 transition-all hover:border-emerald-400 hover:shadow-md hover:-translate-y-0.5 min-h-[44px]" style={{ animation: 'dash-card-in 0.5s ease-out 0.6s both' }}>
-                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-100 dark:bg-emerald-900/30 transition-colors group-hover:bg-emerald-200">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-100 dark:bg-emerald-900/30 transition-colors group-hover:bg-emerald-200 dark:group-hover:bg-emerald-800/40">
                     <span className="text-sm font-black text-emerald-700">3</span>
                   </div>
                   <div className="flex-1">

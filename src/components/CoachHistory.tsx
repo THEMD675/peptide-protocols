@@ -42,7 +42,7 @@ function extractTopic(messages: Array<{ role: string; content: string }>): strin
 export default function CoachHistory({
   onLoadConversation,
 }: {
-  onLoadConversation: (messages: Array<{ role: 'user' | 'assistant'; content: string }>) => void;
+  onLoadConversation: (messages: Array<{ role: 'user' | 'assistant'; content: string }>, id: string) => void;
 }) {
   const { user } = useAuth();
   const [conversations, setConversations] = useState<CoachConversation[]>([]);
@@ -179,7 +179,7 @@ export default function CoachHistory({
                       </button>
                       <div className="flex items-center gap-1 shrink-0">
                         <button
-                          onClick={() => onLoadConversation(conv.messages)}
+                          onClick={() => onLoadConversation(conv.messages, conv.id)}
                           className="rounded-lg border border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-900/20 px-3 py-1.5 text-xs font-bold text-emerald-700 dark:text-emerald-400 transition-colors hover:bg-emerald-100 dark:bg-emerald-900/30 min-h-[44px] flex items-center"
                         >
                           فتح
@@ -257,5 +257,5 @@ function formatDate(dateStr: string): string {
   if (diffDays === 0) return 'اليوم';
   if (diffDays === 1) return 'أمس';
   if (diffDays < 7) return `منذ ${diffDays} أيام`;
-  return new Date(dateStr).toLocaleDateString('ar-SA');
+  return new Date(dateStr).toLocaleDateString('ar-u-nu-latn');
 }

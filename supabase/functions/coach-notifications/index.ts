@@ -173,16 +173,29 @@ serve(async (req) => {
       userProtocols[p.user_id].push(p)
     }
 
+    // Batch-fetch today's and recent injection logs for all users at once
+    const usersWithTodayLogs = new Set<string>()
+    const usersWithRecentLogs = new Set<string>()
+    for (let i = 0; i < userIds.length; i += 500) {
+      const chunk = userIds.slice(i, i + 500)
+      const { data: todayBatch } = await supabase
+        .from('injection_logs')
+        .select('user_id')
+        .in('user_id', chunk)
+        .gte('logged_at', `${today}T00:00:00`)
+      if (todayBatch) todayBatch.forEach(r => usersWithTodayLogs.add(r.user_id))
+
+      const { data: recentBatch } = await supabase
+        .from('injection_logs')
+        .select('user_id')
+        .in('user_id', chunk)
+        .gte('logged_at', threeDaysAgo)
+      if (recentBatch) recentBatch.forEach(r => usersWithRecentLogs.add(r.user_id))
+    }
+
     for (const [userId, protocols] of Object.entries(userProtocols)) {
       // --- Check 1: Dose reminder — active protocol, no log today ---
-      const { data: todayLogs } = await supabase
-        .from('injection_logs')
-        .select('id')
-        .eq('user_id', userId)
-        .gte('logged_at', `${today}T00:00:00`)
-        .limit(1)
-
-      if (!todayLogs || todayLogs.length === 0) {
+      if (!usersWithTodayLogs.has(userId)) {
         const peptideNames = protocols.map(p => p.peptide_id).join(' و ')
         addNotification(
           userId,
@@ -193,14 +206,7 @@ serve(async (req) => {
       }
 
       // --- Check 2: No injection log in 3+ days (more urgent) ---
-      const { data: recentLogs } = await supabase
-        .from('injection_logs')
-        .select('logged_at')
-        .eq('user_id', userId)
-        .gte('logged_at', threeDaysAgo)
-        .limit(1)
-
-      if (!recentLogs || recentLogs.length === 0) {
+      if (!usersWithRecentLogs.has(userId)) {
         addNotification(
           userId,
           'تذكير من مدربك الذكي',

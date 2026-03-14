@@ -7,7 +7,7 @@ import { Link, Navigate, useNavigate, useLocation } from 'react-router-dom';
 import { User, Crown, LogOut, Trash2, AlertTriangle, Mail, ArrowUpCircle, KeyRound, XCircle, Download, CreditCard, Gift, Copy, Share2, Check, UserCircle, Camera, BarChart3, Syringe, Bot, Calendar, Moon, Sun, Chrome, Bell, BellOff, Shield } from 'lucide-react';
 
 import { toast } from 'sonner';
-import { cn, arPlural, sanitizeInput, copyToClipboard } from '@/lib/utils';
+import { cn, arPlural, sanitizeInput, copyToClipboard, timeoutSignal } from '@/lib/utils';
 import { SUPPORT_EMAIL, STATUS_LABELS, TIER_LABELS, PEPTIDE_COUNT, SITE_URL, PRICING } from '@/lib/constants';
 import { useTheme } from '@/hooks/useTheme';
 import { useAuth } from '@/contexts/AuthContext';
@@ -16,6 +16,7 @@ import { events } from '@/lib/analytics';
 import { logError } from '@/lib/logger';
 import { REFERRAL, RETENTION } from '@/constants/sales-copy';
 import { COOKIE_CONSENT_STORAGE_KEY } from '@/lib/cookie-utils';
+import PushNotificationPrompt from '@/components/PushNotificationPrompt';
 
 export default function Account() {
   const { user, subscription, logout, refreshSubscription, isLoading } = useAuth();
@@ -36,8 +37,10 @@ export default function Account() {
   const [deletePassword, setDeletePassword] = useState('');
   const [notifEmail, setNotifEmail] = useState(true);
   const [notifProduct, setNotifProduct] = useState(true);
-  const [notifLoading, setNotifLoading] = useState(false);
+  const [notifEmailLoading, setNotifEmailLoading] = useState(false);
+  const [notifProductLoading, setNotifProductLoading] = useState(false);
   const [isLoadingPortal, setIsLoadingPortal] = useState(false);
+  const [portalSyncing, setPortalSyncing] = useState(false);
 
   const [profileDisplayName, setProfileDisplayName] = useState('');
   const [profileWeight, setProfileWeight] = useState('');
@@ -47,6 +50,7 @@ export default function Account() {
   const [profilePicUrl, setProfilePicUrl] = useState<string | null>(null);
   const [uploadingPic, setUploadingPic] = useState(false);
   const avatarInputRef = useRef<HTMLInputElement>(null);
+  const exportSectionRef = useRef<HTMLDivElement>(null);
   const [usageStats, setUsageStats] = useState<{ injections: number; protocols: number; coachMessages: number; memberSince: string } | null>(null);
 
   const closeDialogs = useCallback(() => {
@@ -61,6 +65,7 @@ export default function Account() {
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     if (params.get('portal_return') !== '1') return;
+    setPortalSyncing(true);
     // Clean URL
     const url = new URL(window.location.href);
     url.searchParams.delete('portal_return');
@@ -71,9 +76,15 @@ export default function Account() {
     const interval = setInterval(() => {
       attempts++;
       refreshSubscription();
-      if (attempts >= 5) clearInterval(interval);
+      if (attempts >= 5) {
+        clearInterval(interval);
+        setPortalSyncing(false);
+      }
     }, 3000);
-    return () => clearInterval(interval);
+    return () => {
+      clearInterval(interval);
+      setPortalSyncing(false);
+    };
   }, [refreshSubscription]);
 
   useEffect(() => {
@@ -151,6 +162,7 @@ export default function Account() {
   const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file || !user || uploadingPic) return;
+    if (!file.type.startsWith('image/')) { toast.error('يرجى اختيار ملف صورة'); return; }
     if (file.size > 2 * 1024 * 1024) { toast.error('حجم الصورة يجب أن يكون أقل من 2 ميجابايت'); return; }
     setUploadingPic(true);
     try {
@@ -214,26 +226,15 @@ export default function Account() {
         if (!confirmedEmail || !session.user.email_confirmed_at) return;
         // Sync email_list
         await supabase.from('email_list').update({ email: confirmedEmail.toLowerCase() }).eq('email', user.email).catch((e) => { logError('Account: email_list sync failed', e); });
-        // Sync Stripe
-        const { data: sub } = await supabase.from('subscriptions').select('stripe_customer_id').eq('user_id', session.user.id).maybeSingle();
-        if (sub?.stripe_customer_id) {
-          try {
-            const res = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/admin-actions`, {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${session.access_token}` },
-              body: JSON.stringify({ action: 'sync_email', user_id: session.user.id, new_email: confirmedEmail.toLowerCase() }),
-            });
-            if (res.status === 403) {
-              logError('Account: sync_email 403 (non-admin)', { status: 403 });
-            } else if (!res.ok) {
-              logError('Account: Stripe email sync failed', await res.text());
-              toast.error('تعذّر مزامنة البريد مع نظام الدفع');
-            }
-          } catch (e: unknown) {
-            logError('Account: Stripe email sync failed', e);
-            toast.error('تعذّر مزامنة البريد مع نظام الدفع');
-          }
-        }
+        // Sync Stripe customer email via dedicated edge function
+        fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/sync-stripe-email`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${session.access_token}`,
+            apikey: import.meta.env.VITE_SUPABASE_ANON_KEY,
+          },
+        }).catch((e) => { logError('Account: Stripe email sync failed', e); });
       },
     );
     return () => { authSub.unsubscribe(); };
@@ -305,7 +306,7 @@ export default function Account() {
 
   const handleExportData = async (format: 'json' | 'csv' = 'json') => {
     if (!user) return;
-    const totalQueries = 9;
+    const totalQueries = 13;
     let completed = 0;
     setExportProgress({ done: 0, total: totalQueries });
 
@@ -318,7 +319,10 @@ export default function Account() {
 
     try {
       const EXPORT_LIMIT = 10000;
-      const [logsRes, protosRes, reviewsRes, communityRes, subsRes, wellnessRes, labRes, sideEffectRes, profileRes] = await Promise.all([
+      const [
+        logsRes, protosRes, reviewsRes, communityRes, subsRes, wellnessRes, labRes, sideEffectRes, profileRes,
+        coachConvRes, communityRepliesRes, userBookmarksRes, enquiriesRes,
+      ] = await Promise.all([
         trackQuery(supabase.from('injection_logs').select('id, peptide_name, dose, dose_unit, injection_site, notes, logged_at, protocol_id, created_at').eq('user_id', user.id).order('logged_at', { ascending: false }).limit(EXPORT_LIMIT)),
         trackQuery(supabase.from('user_protocols').select('id, peptide_id, dose, dose_unit, frequency, cycle_weeks, started_at, status, created_at').eq('user_id', user.id).limit(EXPORT_LIMIT)),
         trackQuery(supabase.from('reviews').select('id, rating, title, body, name, is_approved, is_verified, helpful_count, created_at, updated_at').eq('user_id', user.id).limit(EXPORT_LIMIT)),
@@ -328,11 +332,14 @@ export default function Account() {
         trackQuery(supabase.from('lab_results').select('id, test_date, lab_name, results, notes, created_at').eq('user_id', user.id).limit(EXPORT_LIMIT)),
         trackQuery(supabase.from('side_effect_logs').select('id, symptom, severity, peptide_id, notes, protocol_id, logged_at, created_at').eq('user_id', user.id).limit(EXPORT_LIMIT)),
         trackQuery(supabase.from('user_profiles').select('id, display_name, weight_kg, goals, avatar_url, age, gender, current_medications, medical_conditions, injection_preference, onboarding_goals, onboarding_completed_at, email_notifications_enabled, product_updates_enabled, created_at, updated_at').eq('user_id', user.id).limit(EXPORT_LIMIT)),
+        trackQuery(supabase.from('coach_conversations').select('id, messages, updated_at').eq('user_id', user.id).limit(EXPORT_LIMIT)),
+        trackQuery(supabase.from('community_replies').select('id, post_id, content, created_at').eq('user_id', user.id).limit(EXPORT_LIMIT)),
+        trackQuery(supabase.from('user_bookmarks').select('id, peptide_slug, created_at').eq('user_id', user.id).limit(EXPORT_LIMIT)),
+        trackQuery(supabase.from('enquiries').select('id, subject, message, created_at').eq('user_id', user.id).limit(EXPORT_LIMIT)),
       ]);
-      if (logsRes.error || protosRes.error || reviewsRes.error) {
-        toast.error('تعذّر تحميل بعض البيانات. حاول مرة أخرى.');
-        setExportProgress(null);
-        return;
+      const hasAnyError = logsRes.error || protosRes.error || reviewsRes.error || communityRes.error || subsRes.error || wellnessRes.error || labRes.error || sideEffectRes.error || profileRes.error || coachConvRes.error || communityRepliesRes.error || userBookmarksRes.error || enquiriesRes.error;
+      if (hasAnyError) {
+        toast.warning('تم التصدير مع بعض البيانات المفقودة — حاول مرة أخرى', { duration: 5000 });
       }
       // Warn if any table hit the export limit (data may be truncated)
       const truncatedTables: string[] = [];
@@ -355,6 +362,12 @@ export default function Account() {
         document.body.removeChild(a);
         URL.revokeObjectURL(url);
       };
+
+      const allResults = [logsRes, protosRes, reviewsRes, communityRes, subsRes, wellnessRes, labRes, sideEffectRes, profileRes, coachConvRes, communityRepliesRes, userBookmarksRes, enquiriesRes];
+      const estimatedRows = allResults.reduce((sum, r) => sum + ((r as { data?: unknown[] }).data?.length ?? 0), 0);
+      if (estimatedRows > 5000) {
+        toast.warning(`حجم البيانات كبير (~${estimatedRows.toLocaleString()} سجل) — قد يستغرق التحميل وقتًا أطول`, { duration: 6000 });
+      }
 
       if (format === 'csv') {
         const logs = (logsRes.data ?? []) as Array<Record<string, unknown>>;
@@ -392,6 +405,10 @@ export default function Account() {
           wellness_logs: wellnessRes.data ?? [],
           lab_results: labRes.data ?? [],
           side_effect_logs: sideEffectRes.data ?? [],
+          coach_conversations: coachConvRes.data ?? [],
+          community_replies: communityRepliesRes.data ?? [],
+          user_bookmarks: userBookmarksRes.data ?? [],
+          enquiries: enquiriesRes.data ?? [],
         };
         download(new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' }), `pptides-data-${new Date().toISOString().slice(0, 10)}.json`);
       }
@@ -411,7 +428,7 @@ export default function Account() {
       if (!session?.access_token) throw new Error('انتهت جلستك. أعد تسجيل الدخول.');
       const res = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/cancel-subscription`, {
         method: 'POST',
-        signal: AbortSignal.timeout(15000),
+        signal: timeoutSignal(15000),
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${session.access_token}`,
@@ -455,7 +472,7 @@ export default function Account() {
       if (!session?.access_token) throw new Error('انتهت جلستك. أعد تسجيل الدخول.');
       const res = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/delete-account`, {
         method: 'POST',
-        signal: AbortSignal.timeout(20000),
+        signal: timeoutSignal(20000),
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${session.access_token}`,
@@ -477,6 +494,12 @@ export default function Account() {
 
   return (
     <div className="mx-auto max-w-3xl px-4 pb-24 pt-8 md:px-6 md:pt-12 animate-fade-in">
+      {portalSyncing && (
+        <div className="mb-6 flex items-center gap-3 rounded-xl border border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-900/20 px-4 py-3">
+          <span className="h-5 w-5 animate-spin rounded-full border-2 border-emerald-400 border-t-transparent" />
+          <p className="text-sm font-bold text-emerald-800 dark:text-emerald-300">جارٍ مزامنة التغييرات من نظام الدفع...</p>
+        </div>
+      )}
       <Helmet>
         <title>حسابي | إدارة الاشتراك والإعدادات | pptides</title>
         <meta name="description" content="إدارة حسابك واشتراكك" />
@@ -569,9 +592,12 @@ export default function Account() {
               </p>
               {subscription.tier !== 'free' && (subscription.status === 'active' || subscription.status === 'trial') && (
                 <p className="text-xs font-bold text-emerald-600 mt-0.5" dir="ltr">
-                  {subscription.tier === 'elite'
-                    ? `${PRICING.elite.monthly} ر.س / شهر`
-                    : `${PRICING.essentials.monthly} ر.س / شهر`}
+                  {(() => {
+                    const tier = subscription.tier === 'elite' ? PRICING.elite : PRICING.essentials;
+                    const interval = (subscription as Record<string, unknown>).billingInterval;
+                    if (interval === 'year') return `${tier.annualLabel} / سنة`;
+                    return `${tier.monthly} ر.س / شهر`;
+                  })()}
                 </p>
               )}
               <p className={cn(
@@ -628,7 +654,7 @@ export default function Account() {
                   value={profileDisplayName}
                   onChange={(e) => setProfileDisplayName(e.target.value)}
                   placeholder="اسمك أو لقبك"
-                  maxLength={100}
+                  maxLength={50}
                   className="w-full rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 px-4 py-3 text-base text-stone-900 dark:text-stone-100 placeholder:text-stone-500 dark:text-stone-300 focus:border-emerald-300 dark:border-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-500"
                 />
               </div>
@@ -701,6 +727,15 @@ export default function Account() {
             <h2 className="text-lg font-bold text-stone-900 dark:text-stone-100">البريد الإلكتروني</h2>
           </div>
           <p className="text-sm text-stone-700 dark:text-stone-200 mb-4" dir="ltr">{user.email}</p>
+          {(user.app_metadata?.provider === 'google' || user.identities?.[0]?.provider === 'google') && (
+            <div className="rounded-xl border border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-900/20 px-4 py-3 mb-4">
+              <div className="flex items-center gap-2 mb-1">
+                <AlertTriangle className="h-4 w-4 shrink-0 text-amber-600" />
+                <p className="text-sm font-bold text-amber-800 dark:text-amber-300">تنبيه: حسابك مرتبط بـ Google</p>
+              </div>
+              <p className="text-xs text-amber-700 dark:text-amber-400">تغيير البريد هنا لن يغيّر بريد حساب Google الخاص بك — قد يؤثر على تسجيل الدخول عبر Google.</p>
+            </div>
+          )}
           <form onSubmit={(e) => { e.preventDefault(); handleChangeEmail(); }} className="flex flex-col gap-3 sm:flex-row sm:items-end">
             <div className="flex-1">
               <label htmlFor="new-email" className="mb-1.5 block text-sm font-medium text-stone-700 dark:text-stone-200">بريد إلكتروني جديد</label>
@@ -844,23 +879,23 @@ export default function Account() {
                 </div>
               </div>
               <button
-                disabled={notifLoading}
+                disabled={notifEmailLoading}
                 onClick={async () => {
                   if (!user) return;
                   const next = !notifEmail;
-                  setNotifLoading(true);
+                  setNotifEmailLoading(true);
                   try {
                     const { error } = await supabase.from('user_profiles').update({ email_notifications_enabled: next, updated_at: new Date().toISOString() }).eq('user_id', user.id);
                     if (error) throw error;
                     setNotifEmail(next);
                     toast.success(next ? 'تم تفعيل إشعارات البريد' : 'تم إيقاف إشعارات البريد');
                   } catch { toast.error('تعذّر تحديث التفضيل — حاول مرة أخرى'); }
-                  finally { setNotifLoading(false); }
+                  finally { setNotifEmailLoading(false); }
                 }}
                 className={cn(
                   'relative h-7 w-12 rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:ring-offset-2',
                   notifEmail ? 'bg-emerald-600' : 'bg-stone-300',
-                  notifLoading && 'opacity-50 cursor-wait',
+                  notifEmailLoading && 'opacity-50 cursor-wait',
                 )}
                 aria-label="تبديل إشعارات البريد"
                 role="switch"
@@ -885,23 +920,23 @@ export default function Account() {
                 </div>
               </div>
               <button
-                disabled={notifLoading}
+                disabled={notifProductLoading}
                 onClick={async () => {
                   if (!user) return;
                   const next = !notifProduct;
-                  setNotifLoading(true);
+                  setNotifProductLoading(true);
                   try {
                     const { error } = await supabase.from('user_profiles').update({ product_updates_enabled: next, updated_at: new Date().toISOString() }).eq('user_id', user.id);
                     if (error) throw error;
                     setNotifProduct(next);
                     toast.success(next ? 'تم تفعيل تحديثات المنتج' : 'تم إيقاف تحديثات المنتج');
                   } catch { toast.error('تعذّر تحديث التفضيل — حاول مرة أخرى'); }
-                  finally { setNotifLoading(false); }
+                  finally { setNotifProductLoading(false); }
                 }}
                 className={cn(
                   'relative h-7 w-12 rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:ring-offset-2',
                   notifProduct ? 'bg-emerald-600' : 'bg-stone-300',
-                  notifLoading && 'opacity-50 cursor-wait',
+                  notifProductLoading && 'opacity-50 cursor-wait',
                 )}
                 aria-label="تبديل تحديثات المنتج"
                 role="switch"
@@ -917,10 +952,11 @@ export default function Account() {
             {/* 3.12: Unsubscribe from all notifications */}
             {(notifEmail || notifProduct) && (
               <button
-                disabled={notifLoading}
+                disabled={notifEmailLoading || notifProductLoading}
                 onClick={async () => {
                   if (!user) return;
-                  setNotifLoading(true);
+                  setNotifEmailLoading(true);
+                  setNotifProductLoading(true);
                   try {
                     const { error } = await supabase.from('user_profiles').update({
                       email_notifications_enabled: false,
@@ -932,11 +968,11 @@ export default function Account() {
                     setNotifProduct(false);
                     toast.success('تم إيقاف جميع الإشعارات');
                   } catch { toast.error('تعذّر تحديث التفضيل — حاول مرة أخرى'); }
-                  finally { setNotifLoading(false); }
+                  finally { setNotifEmailLoading(false); setNotifProductLoading(false); }
                 }}
                 className={cn(
                   'flex w-full items-center justify-center gap-2 rounded-xl border border-stone-300 dark:border-stone-600 bg-white dark:bg-stone-900 px-4 py-3 text-sm font-bold text-stone-600 dark:text-stone-300 transition-all hover:bg-stone-50 dark:hover:bg-stone-800',
-                  notifLoading && 'opacity-50 cursor-wait',
+                  (notifEmailLoading || notifProductLoading) && 'opacity-50 cursor-wait',
                 )}
               >
                 <BellOff className="h-4 w-4" />
@@ -956,6 +992,8 @@ export default function Account() {
               <Shield className="h-4 w-4" />
               إعدادات الخصوصية
             </button>
+
+            {user && <PushNotificationPrompt />}
           </div>
         </div>
 
@@ -986,9 +1024,9 @@ export default function Account() {
                 subscription.isProOrTrial
                   ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400'
                   : subscription.status === 'past_due'
-                    ? 'bg-amber-100 text-amber-700 dark:text-amber-400'
+                    ? 'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400'
                     : subscription.status === 'expired'
-                      ? 'bg-red-100 text-red-700 dark:text-red-400'
+                      ? 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400'
                       : 'bg-stone-200 dark:bg-stone-700 text-stone-600 dark:text-stone-300',
               )}>
                 {subscription.isProOrTrial && subscription.status === 'cancelled'
@@ -1032,7 +1070,7 @@ export default function Account() {
                     toast('جارٍ فتح إدارة الدفع...');
                     const res = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/create-portal-session`, {
                       method: 'POST',
-                      signal: AbortSignal.timeout(15000),
+                      signal: timeoutSignal(15000),
                       headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}`, apikey: import.meta.env.VITE_SUPABASE_ANON_KEY },
                     });
                     if (!res.ok) { toast.error('تعذّر فتح إدارة الدفع'); return; }
@@ -1109,7 +1147,7 @@ export default function Account() {
         <EnquiryForm userEmail={user?.email} userId={user?.id} />
 
         {/* Data Export — GDPR Compliance */}
-        <div className="rounded-2xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 p-6">
+        <div ref={exportSectionRef} className="rounded-2xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 p-6">
           <div className="flex items-center gap-3 mb-3">
             <Download className="h-5 w-5 text-emerald-700" />
             <h2 className="text-lg font-bold text-stone-900 dark:text-stone-100">تصدير بياناتي</h2>
@@ -1296,7 +1334,7 @@ export default function Account() {
                     if (!sub?.stripe_subscription_id) { toast.error('لم نجد اشتراكك في Stripe'); return; }
                     const res = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/cancel-subscription`, {
                       method: 'POST',
-                      signal: AbortSignal.timeout(15000),
+                      signal: timeoutSignal(15000),
                       headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}`, apikey: import.meta.env.VITE_SUPABASE_ANON_KEY },
                       body: JSON.stringify({ apply_coupon: true, reason: cancelReason }),
                     });
@@ -1359,12 +1397,23 @@ export default function Account() {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm px-4 animate-fade-in" onClick={() => { setShowDeleteDialog(false); setDeleteConfirmText(''); setDeletePassword(''); }}>
           <FocusTrap focusTrapOptions={{ allowOutsideClick: true }}>
           <div role="dialog" aria-modal="true" className="w-full max-w-md max-h-[90vh] overflow-y-auto rounded-2xl bg-white dark:bg-stone-900 p-6 shadow-xl dark:shadow-stone-900/40" onClick={e => e.stopPropagation()}>
-            <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-red-100">
+            <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-red-100 dark:bg-red-900/30">
               <Trash2 className="h-6 w-6 text-red-600 dark:text-red-400" />
             </div>
             <h3 className="text-lg font-bold text-stone-900 dark:text-stone-100">حذف الحساب</h3>
             <p className="mt-2 text-sm text-stone-600 dark:text-stone-300">
               سيتم حذف حسابك وجميع بياناتك نهائيًا. إذا كان لديك اشتراك نشط، سيتم إلغاؤه فورًا. هذا الإجراء لا يمكن التراجع عنه.
+            </p>
+            <p className="text-sm text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-900/20 rounded-lg px-3 py-2 mb-3">
+              💡 قبل الحذف — يمكنك{' '}
+              <button
+                type="button"
+                onClick={() => { setShowDeleteDialog(false); exportSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' }); }}
+                className="font-bold underline"
+              >
+                تصدير بياناتك
+              </button>
+              {' '}من قسم "تصدير البيانات" أعلاه
             </p>
             <div className="mt-4">
               <label className="mb-1.5 block text-sm font-medium text-stone-700 dark:text-stone-200">

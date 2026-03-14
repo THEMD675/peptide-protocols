@@ -11,6 +11,7 @@ import { logError } from '@/lib/logger';
 interface TrackerFormProps {
   userId: string;
   suggestedSite: string;
+  getSuggestedSite?: (peptideName?: string) => string;
   onSubmitSuccess: (peptideName?: string) => Promise<void>;
   onCancel: () => void;
   initialPeptide?: string;
@@ -27,6 +28,7 @@ interface TrackerFormProps {
 export default function TrackerForm({
   userId,
   suggestedSite,
+  getSuggestedSite,
   onSubmitSuccess,
   onCancel,
   initialPeptide = '',
@@ -70,6 +72,12 @@ export default function TrackerForm({
   }, []);
 
   useEffect(() => {
+    if (peptideName && getSuggestedSite) {
+      setSite(getSuggestedSite(peptideName));
+    }
+  }, [peptideName, getSuggestedSite]);
+
+  useEffect(() => {
     setDoseOutOfRangeConfirmed(false);
   }, [peptideName, dose, unit]);
 
@@ -90,6 +98,15 @@ export default function TrackerForm({
       }, 500);
     }
   }, [peptideName, dose, unit, site, notes]);
+
+  // beforeunload guard when form has unsaved data
+  useEffect(() => {
+    const hasData = peptideName || dose || notes.trim();
+    if (!hasData) return;
+    const handler = (e: BeforeUnloadEvent) => { e.preventDefault(); };
+    window.addEventListener('beforeunload', handler);
+    return () => window.removeEventListener('beforeunload', handler);
+  }, [peptideName, dose, notes]);
 
   // Restore draft
   useEffect(() => {
@@ -166,8 +183,30 @@ export default function TrackerForm({
         notes: combinedNotes,
       };
       if (photoUrl) insertData.photo_url = photoUrl;
+      if (!navigator.onLine && navigator.serviceWorker?.controller) {
+        const session = await supabase.auth.getSession();
+        navigator.serviceWorker.controller.postMessage({
+          type: 'QUEUE_INJECTION',
+          payload: { ...insertData, _supabase_url: import.meta.env.VITE_SUPABASE_URL, _anon_key: import.meta.env.VITE_SUPABASE_ANON_KEY, _access_token: session.data.session?.access_token },
+        });
+        sessionStorage.removeItem('pptides_tracker_form_draft');
+        toast.success('محفوظ للمزامنة عند الاتصال بالإنترنت');
+        onCancel();
+        return;
+      }
       const { error } = await supabase.from('injection_logs').insert(insertData);
       if (error) {
+        if (!navigator.onLine && navigator.serviceWorker?.controller) {
+          const session = await supabase.auth.getSession();
+          navigator.serviceWorker.controller.postMessage({
+            type: 'QUEUE_INJECTION',
+            payload: { ...insertData, _supabase_url: import.meta.env.VITE_SUPABASE_URL, _anon_key: import.meta.env.VITE_SUPABASE_ANON_KEY, _access_token: session.data.session?.access_token },
+          });
+          sessionStorage.removeItem('pptides_tracker_form_draft');
+          toast.success('محفوظ للمزامنة عند الاتصال بالإنترنت');
+          onCancel();
+          return;
+        }
         if (error?.message?.includes('JWT') || (error as { code?: string })?.code === '401' || error?.message?.includes('not authenticated')) {
           toast.error('انتهت الجلسة — أعد تسجيل الدخول');
         } else {
@@ -176,6 +215,31 @@ export default function TrackerForm({
           });
         }
         return;
+      }
+      // Bridge side effects to side_effect_logs for unified tracking
+      const selectedSideEffects = sideEffect !== 'none'
+        ? [sideEffect === 'other' ? (safeSideEffect || 'أخرى') : sideEffect]
+        : [];
+      if (selectedSideEffects.length > 0) {
+        const symptomLabels: Record<string, string> = {
+          headache: 'صداع',
+          nausea: 'غثيان',
+          redness: 'احمرار',
+          fatigue: 'إرهاق',
+        };
+        for (const symptom of selectedSideEffects) {
+          const symptomLabel = symptomLabels[symptom] ?? symptom;
+          const matchedPeptideForSE = allPeptides.find(p => p.nameEn === peptideName.trim());
+          await supabase.from('side_effect_logs').insert({
+            user_id: userId,
+            symptom: symptomLabel,
+            severity: 2,
+            peptide_id: matchedPeptideForSE?.id ?? peptideName.trim(),
+            peptide_name: matchedPeptideForSE?.nameEn ?? peptideName.trim(),
+            notes: 'مسجّل تلقائيًا من سجل الحقن',
+            logged_at: injectedDate.toISOString(),
+          }).catch(() => {});
+        }
       }
       sessionStorage.removeItem('pptides_tracker_form_draft');
       window.history.replaceState({}, '', window.location.pathname);
@@ -275,6 +339,7 @@ export default function TrackerForm({
               inputMode="decimal"
               value={dose}
               onChange={(e) => setDose(e.target.value)}
+              onFocus={(e) => { setTimeout(() => e.target.scrollIntoView({ behavior: 'smooth', block: 'center' }), 300); }}
               placeholder="250"
               required
               min="0"
@@ -355,6 +420,7 @@ export default function TrackerForm({
             type="datetime-local"
             value={injectedAt}
             onChange={(e) => setInjectedAt(e.target.value)}
+            onFocus={(e) => { setTimeout(() => e.target.scrollIntoView({ behavior: 'smooth', block: 'center' }), 300); }}
             min="2020-01-01T00:00"
             max={new Date().toISOString().slice(0, 16)}
             required
@@ -439,6 +505,7 @@ export default function TrackerForm({
             id="tracker-notes"
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
+            onFocus={(e) => { setTimeout(() => e.target.scrollIntoView({ behavior: 'smooth', block: 'center' }), 300); }}
             placeholder="ملاحظات إضافية..."
             rows={3}
             maxLength={200}

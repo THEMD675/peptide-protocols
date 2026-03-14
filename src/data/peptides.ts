@@ -1,5 +1,7 @@
 // ─────────────────────────────────────────────────────────────
 // peptides.ts — Core data for pptides.com
+// NOTE: costEstimate values were last verified March 2026 — prices change frequently.
+// Review and update costEstimate fields quarterly to avoid stale dealer-cost data.
 // ─────────────────────────────────────────────────────────────
 
 export interface Peptide {

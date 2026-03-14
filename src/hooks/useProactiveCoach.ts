@@ -42,6 +42,8 @@ interface UserProactiveData {
 }
 
 // Biomarker ID → unit lookup (mirrors LabResultsTracker BIOMARKERS)
+const DISCLAIMER = ' ⚠️ استشر طبيبك قبل استخدام أي ببتيد';
+
 const BIOMARKER_UNITS: Record<string, string> = {
   igf1: 'ng/mL', testosterone: 'ng/dL', tsh: 'mIU/L', ft3: 'pg/mL', ft4: 'ng/dL',
   alt: 'U/L', ast: 'U/L', creatinine: 'mg/dL', egfr: 'mL/min',
@@ -244,19 +246,19 @@ function generateDailyBriefing(data: UserProactiveData): DailyBriefing | null {
       const remaining = totalDays - daysIn;
 
       if (remaining > 0 && remaining <= 3) {
-        observations.push(`بروتوكول ${proto.peptide_id} ينتهي خلال ${remaining} أيام. هل تريد مناقشة الخطوة التالية؟`);
+        observations.push(`بروتوكول ${proto.peptide_id} ينتهي خلال ${remaining} أيام. هل تريد مناقشة الخطوة التالية؟${DISCLAIMER}`);
         mood = 'alert';
       } else if (daysIn > 0 && daysIn % 7 === 0) {
-        observations.push(`أنت في الأسبوع ${Math.ceil(daysIn / 7)} من بروتوكول ${proto.peptide_id}. كيف تشعر بالنتائج حتى الآن؟`);
+        observations.push(`أنت في الأسبوع ${Math.ceil(daysIn / 7)} من بروتوكول ${proto.peptide_id}. كيف تشعر بالنتائج حتى الآن؟${DISCLAIMER}`);
       } else if (daysIn === 14) {
-        observations.push(`أنت في اليوم 14 من بروتوكول ${proto.peptide_id}. هذا وقت مثالي لتقييم النتائج الأولية.`);
+        observations.push(`أنت في اليوم 14 من بروتوكول ${proto.peptide_id}. هذا وقت مثالي لتقييم النتائج الأولية.${DISCLAIMER}`);
       }
     }
   }
 
   // Today's dose status
   if (data.activeProtocols.length > 0 && !data.todayLogged) {
-    observations.push('لم تسجّل جرعتك اليوم. هل تحتاج تذكير بالتوقيت المناسب؟');
+    observations.push(`لم تسجّل جرعتك اليوم. هل تحتاج تذكير بالتوقيت المناسب؟${DISCLAIMER}`);
     if (mood === 'neutral') mood = 'alert';
   }
 
@@ -264,31 +266,31 @@ function generateDailyBriefing(data: UserProactiveData): DailyBriefing | null {
   if (data.sleepTrend?.direction === 'down') {
     const protoPeptides = data.activeProtocols.map(p => p.peptide_id).join(' و ');
     if (protoPeptides) {
-      observations.push(`لاحظت أن نومك انخفض في آخر 3 أيام. هل تريد مناقشة تعديل بروتوكول ${protoPeptides}؟`);
+      observations.push(`لاحظت أن نومك انخفض في آخر 3 أيام. هل تريد مناقشة تعديل بروتوكول ${protoPeptides}؟${DISCLAIMER}`);
     } else {
-      observations.push('نومك انخفض مؤخرًا. هل تريد استشارة حول ببتيدات تحسين النوم مثل DSIP؟');
+      observations.push(`نومك انخفض مؤخرًا. ناقش هذه النتيجة مع طبيبك لتحديد الخطوة التالية.${DISCLAIMER}`);
     }
     mood = 'alert';
   }
 
   // Energy trend
   if (data.energyTrend?.direction === 'down' && data.sleepTrend?.direction !== 'down') {
-    observations.push(`مستوى طاقتك انخفض من ${data.energyTrend.avgOlder} إلى ${data.energyTrend.avgRecent}. خلّنا نراجع البروتوكول.`);
+    observations.push(`مستوى طاقتك انخفض من ${data.energyTrend.avgOlder} إلى ${data.energyTrend.avgRecent}. خلّنا نراجع البروتوكول.${DISCLAIMER}`);
     mood = 'alert';
   } else if (data.energyTrend?.direction === 'up') {
-    observations.push(`طاقتك تحسّنت إلى ${data.energyTrend.avgRecent}/5 — البروتوكول يعمل!`);
+    observations.push(`طاقتك تحسّنت إلى ${data.energyTrend.avgRecent}/5 — البروتوكول يعمل!${DISCLAIMER}`);
     mood = 'positive';
   }
 
   // Pain trend
   if (data.painTrend?.direction === 'up') {
-    observations.push('مستوى الألم عندك ارتفع مؤخرًا. هل تريد نصيحة حول BPC-157 أو TB-500 للتعافي؟');
+    observations.push(`مستوى الألم عندك ارتفع مؤخرًا. ناقش هذه النتيجة مع طبيبك لتحديد الخطوة التالية.${DISCLAIMER}`);
     mood = 'alert';
   }
 
   // Missed doses
   if (data.lastInjectionDaysAgo !== null && data.lastInjectionDaysAgo >= 3 && data.activeProtocols.length > 0) {
-    observations.push(`لم تسجّل حقنة منذ ${data.lastInjectionDaysAgo} أيام. الانقطاع يقلل فعالية البروتوكول.`);
+    observations.push(`لم تسجّل حقنة منذ ${data.lastInjectionDaysAgo} أيام. الانقطاع يقلل فعالية البروتوكول.${DISCLAIMER}`);
     mood = 'alert';
   }
 
@@ -297,17 +299,17 @@ function generateDailyBriefing(data: UserProactiveData): DailyBriefing | null {
     const latestLab = data.labHighlights[0];
     const daysSinceLab = daysSince(latestLab.tested_at);
     if (daysSinceLab <= 7) {
-      observations.push(`نتائج تحاليلك الأخيرة جاهزة — تبي أحللها لك وأقترح تعديلات؟`);
+      observations.push(`نتائج تحاليلك الأخيرة جاهزة — تبي أحللها لك وأقترح تعديلات؟${DISCLAIMER}`);
     }
 
     // Check for notable values
     const igf = data.labHighlights.find(l => l.test_id.toLowerCase().includes('igf'));
     if (igf && igf.value < 150) {
-      observations.push(`بناءً على نتائجك: IGF-1 عند ${igf.value} ${igf.unit} — منخفض. اقتراح تعليمي: CJC-1295 + Ipamorelin. ⚠️ استشر طبيبك قبل البدء.`);
+      observations.push(`بناءً على نتائجك: IGF-1 عند ${igf.value} ${igf.unit} — منخفض. ناقش هذه النتيجة مع طبيبك لتحديد الخطوة التالية.${DISCLAIMER}`);
     }
     const testosterone = data.labHighlights.find(l => l.test_id.toLowerCase().includes('test'));
     if (testosterone && testosterone.value < 400) {
-      observations.push(`بناءً على نتائج مختبرك: التستوستيرون عند ${testosterone.value} ${testosterone.unit}. ⚠️ هذا اقتراح تعليمي — استشر طبيبك قبل أي قرار علاجي.`);
+      observations.push(`بناءً على نتائج مختبرك: التستوستيرون عند ${testosterone.value} ${testosterone.unit} — ناقش هذه النتيجة مع طبيبك.${DISCLAIMER}`);
     }
   }
 
@@ -316,7 +318,7 @@ function generateDailyBriefing(data: UserProactiveData): DailyBriefing | null {
     if (proto.started_at) {
       const weeksIn = Math.floor(daysSince(proto.started_at) / 7);
       if (weeksIn >= 4 && !data.hasLabResults) {
-        observations.push(`أنت في الأسبوع ${weeksIn} من ${proto.peptide_id}. حان وقت عمل تحاليل لقياس التقدم.`);
+        observations.push(`أنت في الأسبوع ${weeksIn} من ${proto.peptide_id}. حان وقت عمل تحاليل لقياس التقدم.${DISCLAIMER}`);
       }
     }
   }
@@ -326,14 +328,14 @@ function generateDailyBriefing(data: UserProactiveData): DailyBriefing | null {
     const recent = data.recentSideEffects[0];
     const daysSinceSE = daysSince(recent.created_at);
     if (daysSinceSE <= 3) {
-      observations.push(`سجّلت "${recent.symptom}" مؤخرًا — هل تحسّن الوضع أم تحتاج تعديل الجرعة؟`);
+      observations.push(`سجّلت "${recent.symptom}" مؤخرًا — هل تحسّن الوضع أم تحتاج تعديل الجرعة؟${DISCLAIMER}`);
       mood = 'alert';
     }
   }
 
   // Streak celebration
   if (data.streak >= 7 && data.streak % 7 === 0) {
-    observations.push(`${data.streak} يوم متتالي من الالتزام — أداء ممتاز! هكذا تحقق النتائج.`);
+    observations.push(`${data.streak} يوم متتالي من الالتزام — أداء ممتاز! هكذا تحقق النتائج.${DISCLAIMER}`);
     mood = 'positive';
   }
 
@@ -341,13 +343,13 @@ function generateDailyBriefing(data: UserProactiveData): DailyBriefing | null {
   if (data.lastConversation) {
     const daysSinceConv = daysSince(data.lastConversation.updatedAt);
     if (daysSinceConv >= 1 && daysSinceConv <= 7 && data.lastConversation.hasActionItems) {
-      observations.push(`في محادثتنا الأخيرة تحدثنا عن "${data.lastConversation.topic}". هل طبّقت النصائح؟`);
+      observations.push(`في محادثتنا الأخيرة تحدثنا عن "${data.lastConversation.topic}". هل طبّقت النصائح؟${DISCLAIMER}`);
     }
   }
 
   // New user
   if (data.accountAgeDays <= 3 && data.activeProtocols.length === 0) {
-    observations.push('مرحبًا بك! خلّني أساعدك تصمّم أول بروتوكول مخصّص لهدفك.');
+    observations.push(`مرحبًا بك! خلّني أساعدك تصمّم أول بروتوكول مخصّص لهدفك.${DISCLAIMER}`);
     mood = 'positive';
   }
 
@@ -366,7 +368,7 @@ function generateSmartStarters(data: UserProactiveData): SmartStarter[] {
 
   // New user (< 3 days)
   if (data.accountAgeDays <= 3) {
-    starters.push({ text: 'مرحبًا! خلّني أساعدك تبدأ — وش هدفك الأول؟', priority: 100 });
+    starters.push({ text: `مرحبًا! خلّني أساعدك تبدأ — وش هدفك الأول؟${DISCLAIMER}`, priority: 100 });
   }
 
   // Has active protocols → check on progress
@@ -374,61 +376,61 @@ function generateSmartStarters(data: UserProactiveData): SmartStarter[] {
     const proto = data.activeProtocols[0];
     const daysIn = proto.started_at ? daysSince(proto.started_at) : 0;
     if (daysIn >= 14) {
-      starters.push({ text: `أنا في اليوم ${daysIn} من ${proto.peptide_id} — قيّم نتائجي`, priority: 92 });
+      starters.push({ text: `أنا في اليوم ${daysIn} من ${proto.peptide_id} — قيّم نتائجي${DISCLAIMER}`, priority: 92 });
     } else {
-      starters.push({ text: `كيف حالي مع بروتوكول ${proto.peptide_id}؟ راجع تقدّمي`, priority: 90 });
+      starters.push({ text: `كيف حالي مع بروتوكول ${proto.peptide_id}؟ راجع تقدّمي${DISCLAIMER}`, priority: 90 });
     }
   }
 
   // Follow up on last conversation
   if (data.lastConversation && daysSince(data.lastConversation.updatedAt) <= 7) {
-    starters.push({ text: `تابع محادثتنا السابقة عن "${data.lastConversation.topic}"`, priority: 93 });
+    starters.push({ text: `تابع محادثتنا السابقة عن "${data.lastConversation.topic}"${DISCLAIMER}`, priority: 93 });
   }
 
   // Logged side effects recently
   if (data.recentSideEffects.length > 0) {
     const se = data.recentSideEffects[0];
-    starters.push({ text: `سجّلت ${se.symptom} — هل هذا طبيعي وماذا أفعل؟`, priority: 95 });
+    starters.push({ text: `سجّلت ${se.symptom} — هل هذا طبيعي وماذا أفعل؟${DISCLAIMER}`, priority: 95 });
   }
 
   // Has lab results
   if (data.labHighlights.length > 0) {
     const latestLab = data.labHighlights[0];
     if (daysSince(latestLab.tested_at) <= 14) {
-      starters.push({ text: 'حلّل نتائج تحاليلي واقترح تعديلات على البروتوكول', priority: 88 });
+      starters.push({ text: `حلّل نتائج تحاليلي واقترح تعديلات على البروتوكول${DISCLAIMER}`, priority: 88 });
     }
   }
 
   // No injection logs for 3+ days
   if (data.lastInjectionDaysAgo !== null && data.lastInjectionDaysAgo >= 3) {
-    starters.push({ text: 'ما سجّلت حقنتي من فترة — كيف أرجع للبروتوكول؟', priority: 88 });
+    starters.push({ text: `ما سجّلت حقنتي من فترة — كيف أرجع للبروتوكول؟${DISCLAIMER}`, priority: 88 });
   }
 
   // Sleep declining
   if (data.sleepTrend?.direction === 'down') {
-    starters.push({ text: 'نومي صار سيء مؤخرًا — وش تنصحني؟', priority: 86 });
+    starters.push({ text: `نومي صار سيء مؤخرًا — وش تنصحني؟${DISCLAIMER}`, priority: 86 });
   }
 
   // Has recent injection logs → offer review
   if (data.recentPeptides.length > 0 && (data.lastInjectionDaysAgo ?? 999) < 3) {
-    starters.push({ text: `عندي ${data.recentPeptides.length} ببتيدات — راجع نتائجي واقترح تحسينات`, priority: 70 });
+    starters.push({ text: `عندي ${data.recentPeptides.length} ببتيدات — راجع نتائجي واقترح تحسينات${DISCLAIMER}`, priority: 70 });
   }
 
   // Wellness improving
   if (data.wellnessTrend?.direction === 'up') {
-    starters.push({ text: `طاقتي تحسّنت ${data.wellnessTrend.change}% — ليش وكيف أحافظ عليها؟`, priority: 75 });
+    starters.push({ text: `طاقتي تحسّنت ${data.wellnessTrend.change}% — ليش وكيف أحافظ عليها؟${DISCLAIMER}`, priority: 75 });
   }
 
   // Goal-based
   if (data.userGoals && data.userGoals.length > 0) {
     const goalMap: Record<string, string> = {
-      'weight-loss': 'وش أفضل ببتيد لهدفي في إنقاص الوزن؟',
-      'fat-loss': 'وش أفضل ببتيد لهدفي في حرق الدهون؟',
-      recovery: 'كيف أسرّع التعافي من الإصابة؟',
-      muscle: 'وش أحسن ستاك لبناء العضل؟',
-      brain: 'أبي ببتيدات للتركيز الذهني',
-      longevity: 'وش أفضل بروتوكول لمقاومة الشيخوخة؟',
-      hormones: 'كيف أحسّن هرموناتي بالببتيدات؟',
+      'weight-loss': `وش أفضل ببتيد لهدفي في إنقاص الوزن؟${DISCLAIMER}`,
+      'fat-loss': `وش أفضل ببتيد لهدفي في حرق الدهون؟${DISCLAIMER}`,
+      recovery: `كيف أسرّع التعافي من الإصابة؟${DISCLAIMER}`,
+      muscle: `وش أحسن ستاك لبناء العضل؟${DISCLAIMER}`,
+      brain: `أبي ببتيدات للتركيز الذهني${DISCLAIMER}`,
+      longevity: `وش أفضل بروتوكول لمقاومة الشيخوخة؟${DISCLAIMER}`,
+      hormones: `كيف أحسّن هرموناتي بالببتيدات؟${DISCLAIMER}`,
     };
     const goal = data.userGoals[0];
     if (goalMap[goal]) {
@@ -450,7 +452,7 @@ function generateInsights(data: UserProactiveData): ProactiveInsight[] {
     insights.push({
       id: 'wellness-up',
       icon: 'trending-up',
-      text: `بناءً على بياناتك: طاقتك تحسّنت ${data.wellnessTrend.change}% منذ بدأت ${proto.peptide_id}`,
+      text: `بناءً على بياناتك: طاقتك تحسّنت ${data.wellnessTrend.change}% منذ بدأت ${proto.peptide_id}${DISCLAIMER}`,
       priority: 90,
     });
   }
@@ -460,7 +462,7 @@ function generateInsights(data: UserProactiveData): ProactiveInsight[] {
     insights.push({
       id: 'wellness-down',
       icon: 'alert-triangle',
-      text: `انتبه: مستوى طاقتك انخفض ${data.wellnessTrend.change}% — خلّنا نراجع بروتوكولك`,
+      text: `انتبه: مستوى طاقتك انخفض ${data.wellnessTrend.change}% — خلّنا نراجع بروتوكولك${DISCLAIMER}`,
       priority: 95,
     });
   }
@@ -470,7 +472,7 @@ function generateInsights(data: UserProactiveData): ProactiveInsight[] {
     insights.push({
       id: 'sleep-down',
       icon: 'alert-triangle',
-      text: `نومك انخفض من ${data.sleepTrend.avgOlder} إلى ${data.sleepTrend.avgRecent}/5 — DSIP أو تعديل التوقيت ممكن يساعد`,
+      text: `نومك انخفض من ${data.sleepTrend.avgOlder} إلى ${data.sleepTrend.avgRecent}/5 — ناقش هذه النتيجة مع طبيبك لتحديد الخطوة التالية${DISCLAIMER}`,
       priority: 96,
     });
   }
@@ -480,7 +482,7 @@ function generateInsights(data: UserProactiveData): ProactiveInsight[] {
     insights.push({
       id: 'pain-up',
       icon: 'alert-triangle',
-      text: `الألم ارتفع من ${data.painTrend.avgOlder} إلى ${data.painTrend.avgRecent}/5 — BPC-157 أو TB-500 ممكن يساعد`,
+      text: `الألم ارتفع من ${data.painTrend.avgOlder} إلى ${data.painTrend.avgRecent}/5 — ناقش هذه النتيجة مع طبيبك لتحديد الخطوة التالية${DISCLAIMER}`,
       priority: 94,
     });
   }
@@ -490,7 +492,7 @@ function generateInsights(data: UserProactiveData): ProactiveInsight[] {
     insights.push({
       id: 'missing-logs',
       icon: 'alert-triangle',
-      text: `تنبيه: لم تسجّل حقنتك منذ ${data.lastInjectionDaysAgo} أيام — الالتزام مهم للنتائج`,
+      text: `تنبيه: لم تسجّل حقنتك منذ ${data.lastInjectionDaysAgo} أيام — الالتزام مهم للنتائج${DISCLAIMER}`,
       priority: 100,
     });
   }
@@ -500,7 +502,7 @@ function generateInsights(data: UserProactiveData): ProactiveInsight[] {
     insights.push({
       id: 'no-log-today',
       icon: 'calendar',
-      text: 'لم تسجّل جرعة اليوم — سجّلها للحفاظ على سلسلتك',
+      text: `لم تسجّل جرعة اليوم — سجّلها للحفاظ على سلسلتك${DISCLAIMER}`,
       priority: 85,
       actionText: 'سجّل الآن',
     });
@@ -511,7 +513,7 @@ function generateInsights(data: UserProactiveData): ProactiveInsight[] {
     insights.push({
       id: 'streak-milestone',
       icon: 'zap',
-      text: `${data.streak} يوم التزام متتالي — أداء ممتاز! استمر وستلاحظ الفرق`,
+      text: `${data.streak} يوم التزام متتالي — أداء ممتاز! استمر وستلاحظ الفرق${DISCLAIMER}`,
       priority: 60,
     });
   }
@@ -523,7 +525,7 @@ function generateInsights(data: UserProactiveData): ProactiveInsight[] {
       insights.push({
         id: 'low-igf',
         icon: 'lightbulb',
-        text: `IGF-1 عندك ${igf.value} ${igf.unit} — منخفض. اقتراح تعليمي: CJC-1295 + Ipamorelin ⚠️ استشر طبيبك`,
+        text: `IGF-1 عندك ${igf.value} ${igf.unit} — منخفض. ناقش هذه النتيجة مع طبيبك لتحديد الخطوة التالية${DISCLAIMER}`,
         priority: 85,
       });
     }
@@ -532,7 +534,7 @@ function generateInsights(data: UserProactiveData): ProactiveInsight[] {
       insights.push({
         id: 'low-test',
         icon: 'lightbulb',
-        text: `التستوستيرون عند ${testosterone.value} ${testosterone.unit} — ممكن نحسّنه. خلّنا نناقش`,
+        text: `التستوستيرون عند ${testosterone.value} ${testosterone.unit} — ناقش هذه النتيجة مع طبيبك${DISCLAIMER}`,
         priority: 86,
       });
     }
@@ -546,7 +548,7 @@ function generateInsights(data: UserProactiveData): ProactiveInsight[] {
         insights.push({
           id: `lab-reminder-${proto.peptide_id}`,
           icon: 'microscope',
-          text: `أنت في الأسبوع ${weeksIn} من ${proto.peptide_id} — حان وقت التحاليل لقياس التقدم`,
+          text: `أنت في الأسبوع ${weeksIn} من ${proto.peptide_id} — حان وقت التحاليل لقياس التقدم${DISCLAIMER}`,
           priority: 87,
         });
       }
@@ -562,7 +564,7 @@ function generateInsights(data: UserProactiveData): ProactiveInsight[] {
         insights.push({
           id: `cycle-end-${proto.peptide_id}`,
           icon: 'target',
-          text: `دورة ${proto.peptide_id} توشك على الانتهاء — خلّني أقترح الخطوة التالية`,
+          text: `دورة ${proto.peptide_id} توشك على الانتهاء — خلّني أقترح الخطوة التالية${DISCLAIMER}`,
           priority: 92,
         });
       }
@@ -575,7 +577,7 @@ function generateInsights(data: UserProactiveData): ProactiveInsight[] {
     insights.push({
       id: 'side-effect',
       icon: 'microscope',
-      text: `سجّلت عرض "${se.symptom}" مؤخرًا — تبي نناقش حلول أو تعديل الجرعة؟`,
+      text: `سجّلت عرض "${se.symptom}" مؤخرًا — تبي نناقش حلول أو تعديل الجرعة؟${DISCLAIMER}`,
       priority: 88,
     });
   }
@@ -587,7 +589,7 @@ function generateInsights(data: UserProactiveData): ProactiveInsight[] {
       insights.push({
         id: 'follow-up',
         icon: 'heart',
-        text: `تحدثنا عن "${data.lastConversation.topic}" — هل طبّقت النصائح؟`,
+        text: `تحدثنا عن "${data.lastConversation.topic}" — هل طبّقت النصائح؟${DISCLAIMER}`,
         priority: 80,
       });
     }
@@ -608,8 +610,8 @@ export function generateDashboardCoachingCards(data: UserProactiveData): Proacti
       id: 'consistency',
       icon: 'zap',
       text: proto
-        ? `${data.streak} يوم التزام مع ${proto.peptide_id} — توقّع تحسّن ملحوظ في الأسبوع القادم`
-        : `${data.streak} يوم متتالي — أداء ممتاز! الالتزام هو المفتاح`,
+        ? `${data.streak} يوم التزام مع ${proto.peptide_id} — توقّع تحسّن ملحوظ في الأسبوع القادم${DISCLAIMER}`
+        : `${data.streak} يوم متتالي — أداء ممتاز! الالتزام هو المفتاح${DISCLAIMER}`,
       priority: 80,
     });
   }
@@ -622,7 +624,7 @@ export function generateDashboardCoachingCards(data: UserProactiveData): Proacti
         cards.push({
           id: `optimize-${proto.peptide_id}`,
           icon: 'lightbulb',
-          text: `أنت في الأسبوع ${weeksIn} من ${proto.peptide_id} — اسأل المدرب الذكي عن تحسينات`,
+          text: `أنت في الأسبوع ${weeksIn} من ${proto.peptide_id} — اسأل المدرب الذكي عن تحسينات${DISCLAIMER}`,
           priority: 85,
           actionText: 'اسأل المدرب',
         });
@@ -634,10 +636,10 @@ export function generateDashboardCoachingCards(data: UserProactiveData): Proacti
   if (data.activeProtocols.length === 1) {
     const proto = data.activeProtocols[0];
     const stackSuggestions: Record<string, string> = {
-      'bpc-157': 'أضف TB-500 لتعزيز التعافي — "المزيج الذهبي"',
-      'tb-500': 'أضف BPC-157 للتعافي الموضعي — ستاك قوي جدًا',
-      'cjc-1295': 'أضف Ipamorelin لتعزيز هرمون النمو طبيعيًا',
-      'semaglutide': 'أضف BPC-157 لحماية الأمعاء أثناء Semaglutide',
+      'bpc-157': `أضف TB-500 لتعزيز التعافي — "المزيج الذهبي"${DISCLAIMER}`,
+      'tb-500': `أضف BPC-157 للتعافي الموضعي — ستاك قوي جدًا${DISCLAIMER}`,
+      'cjc-1295': `أضف Ipamorelin لتعزيز هرمون النمو طبيعيًا${DISCLAIMER}`,
+      'semaglutide': `أضف BPC-157 لحماية الأمعاء أثناء Semaglutide${DISCLAIMER}`,
     };
     const suggestion = stackSuggestions[proto.peptide_id];
     if (suggestion) {
@@ -659,7 +661,7 @@ export function generateDashboardCoachingCards(data: UserProactiveData): Proacti
         cards.push({
           id: 'dashboard-lab-reminder',
           icon: 'microscope',
-          text: `${weeksIn} أسابيع على ${proto.peptide_id} — حان وقت التحاليل لقياس النتائج`,
+          text: `${weeksIn} أسابيع على ${proto.peptide_id} — حان وقت التحاليل لقياس النتائج${DISCLAIMER}`,
           priority: 90,
           actionText: 'دليل التحاليل',
         });
@@ -672,7 +674,7 @@ export function generateDashboardCoachingCards(data: UserProactiveData): Proacti
     cards.push({
       id: 'dashboard-sleep',
       icon: 'alert-triangle',
-      text: 'نومك انخفض مؤخرًا — المدرب الذكي عنده نصائح مخصصة لحالتك',
+      text: `نومك انخفض مؤخرًا — المدرب الذكي عنده نصائح مخصصة لحالتك${DISCLAIMER}`,
       priority: 92,
       actionText: 'استشر المدرب',
     });
@@ -683,7 +685,7 @@ export function generateDashboardCoachingCards(data: UserProactiveData): Proacti
     cards.push({
       id: 'dashboard-dose',
       icon: 'calendar',
-      text: 'لم تسجّل جرعتك اليوم — لا تنسَ الالتزام بالبروتوكول',
+      text: `لم تسجّل جرعتك اليوم — لا تنسَ الالتزام بالبروتوكول${DISCLAIMER}`,
       priority: 95,
       actionText: 'سجّل الآن',
     });

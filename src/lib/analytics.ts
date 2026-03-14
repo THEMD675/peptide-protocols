@@ -1,6 +1,7 @@
 import { supabase } from './supabase';
 import { hasOptionalConsent } from './cookie-utils';
 import { logError } from './logger';
+import { STORAGE_KEYS } from './constants';
 
 declare global {
   interface Window {
@@ -10,7 +11,7 @@ declare global {
 
 // Generate a session ID that persists for this browser session
 function getSessionId(): string {
-  const key = 'pptides_analytics_session';
+  const key = STORAGE_KEYS.ANALYTICS_SESSION;
   try {
     let sid = sessionStorage.getItem(key);
     if (!sid) {
@@ -148,6 +149,5 @@ export const events = {
   // Conversion funnel
   trialStarted: (tier: string) => trackEvent('trial_started', { tier }),
   subscriptionCreated: (tier: string, billing?: string) => trackEvent('subscription_created', { tier, billing }),
-  subscriptionCancelled: (tier: string) => trackEvent('subscription_cancelled', { tier }),
   featureUsedFirstTime: (feature: string) => trackEvent('feature_used_first_time', { feature }),
 } as const;

@@ -81,6 +81,13 @@ function SourcingInterestForm() {
         message: sanitizeInput(`رقم التواصل: ${phone || 'لم يُذكر'}\n\nالببتيدات المطلوبة: ${selectedPeptides.join(', ')}\n\nملاحظات: ${notes || 'لا يوجد'}`, 5000),
       });
       if (error) throw error;
+      // Notify admin about sourcing interest (fire-and-forget)
+      supabase.from('enquiries').insert({
+        user_id: user?.id ?? null,
+        email: email.trim().slice(0, 320),
+        subject: 'admin_sourcing_lead',
+        message: sanitizeInput(`[Sourcing Lead]\nEmail: ${email.trim()}\nPhone: ${phone || 'N/A'}\nPeptides: ${selectedPeptides.join(', ')}\nNotes: ${notes || 'N/A'}`, 5000),
+      }).then(() => { /* non-critical */ }).catch(() => { /* non-critical */ });
       setSubmitted(true);
       toast.success('تم تسجيل اهتمامك — سنتواصل معك قريبًا');
     } catch {

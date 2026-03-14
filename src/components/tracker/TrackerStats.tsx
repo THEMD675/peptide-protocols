@@ -27,6 +27,8 @@ interface MonthlySummary {
   avgDose: number | null;
   avgUnit: string | null;
   streak: number;
+  mixedUnits?: boolean;
+  primaryUnit?: string | null;
 }
 
 interface WeeklyActivity {
@@ -123,10 +125,15 @@ export default function TrackerStats({
                   <p className="text-2xl font-black text-blue-600">{monthlySummary.avgDose}</p>
                   <p className="text-xs text-stone-500 dark:text-stone-300">متوسط الجرعة ({monthlySummary.avgUnit})</p>
                 </>
+              ) : monthlySummary.mixedUnits ? (
+                <>
+                  <p className="text-lg font-black text-amber-500">وحدات مختلفة</p>
+                  <p className="text-xs text-stone-500 dark:text-stone-300">الأكثر استخدامًا: {monthlySummary.primaryUnit ?? '—'}</p>
+                </>
               ) : (
                 <>
                   <p className="text-lg font-black text-stone-500 dark:text-stone-300">—</p>
-                  <p className="text-xs text-stone-500 dark:text-stone-300">متوسط الجرعة (ببتيدات متعددة)</p>
+                  <p className="text-xs text-stone-500 dark:text-stone-300">متوسط الجرعة</p>
                 </>
               )}
             </div>
@@ -151,6 +158,9 @@ export default function TrackerStats({
               <Flame className="mx-auto mb-1 h-5 w-5 text-orange-500" />
               <p className="text-2xl font-black text-stone-900 dark:text-stone-100">{dashboardStats.streak}</p>
               <p className="text-xs text-stone-500 dark:text-stone-300">أيام متتالية</p>
+              {dashboardStats.streak === 0 && dashboardStats.totalInjections > 0 && (
+                <p className="mt-1 text-xs text-amber-600 dark:text-amber-400">ابدأ من جديد — كل يوم فرصة!</p>
+              )}
             </div>
             <div className="rounded-2xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 p-4 text-center shadow-sm dark:shadow-stone-900/30">
               <TrendingUp className="mx-auto mb-1 h-5 w-5 text-blue-500" />
