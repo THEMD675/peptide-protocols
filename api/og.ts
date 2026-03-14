@@ -413,6 +413,7 @@ function renderOgHtml(meta: PageMeta, originalPath: string): string {
   <meta property="og:image" content="${esc(meta.image)}" />
   <meta property="og:image:width" content="1200" />
   <meta property="og:image:height" content="630" />
+  <meta property="og:image:alt" content="pptides — دليل الببتيدات العلاجية" />
 
   <!-- Twitter Card -->
   <meta name="twitter:card" content="summary_large_image" />
@@ -420,6 +421,7 @@ function renderOgHtml(meta: PageMeta, originalPath: string): string {
   <meta name="twitter:description" content="${esc(meta.description)}" />
   <meta name="twitter:image" content="${esc(meta.image)}" />
   <meta name="twitter:site" content="@pptides" />
+  <meta name="twitter:creator" content="@pptides" />
 
   <!-- Canonical -->
   <link rel="canonical" href="${esc(meta.url)}" />
