@@ -1,6 +1,8 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { trackEvent, events } from './analytics'
 
+vi.mock('./cookie-utils', () => ({ hasOptionalConsent: () => true, COOKIE_CONSENT_STORAGE_KEY: 'pptides_cookie_consent' }))
+
 describe('analytics', () => {
   let gtagSpy: ReturnType<typeof vi.fn>
 

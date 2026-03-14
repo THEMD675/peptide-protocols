@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { COOKIE_CONSENT_STORAGE_KEY, type CookiePreferences } from '@/lib/cookie-utils';
 import { STORAGE_KEYS } from '@/lib/constants';
