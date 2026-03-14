@@ -8,6 +8,7 @@ const supabaseUrl = Deno.env.get('SUPABASE_URL') ?? ''
 const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
 const VAPID_PUBLIC_KEY = Deno.env.get('VAPID_PUBLIC_KEY') ?? ''
 const VAPID_PRIVATE_KEY = Deno.env.get('VAPID_PRIVATE_KEY') ?? ''
+const APP_URL = Deno.env.get('APP_URL') ?? 'https://pptides.com'
 
 // --- Web Push helpers (RFC 8291 / RFC 8188 via web-push-compatible VAPID) ---
 
@@ -287,7 +288,7 @@ serve(async (req) => {
       return jsonResponse({ sent: 0, failed: 0, no_subscription: userIds.length }, 200, corsHeaders)
     }
 
-    const payload = JSON.stringify({ title, body: pushBody, url: url ?? 'https://pptides.com/dashboard' })
+    const payload = JSON.stringify({ title, body: pushBody, url: url ?? `${APP_URL}/dashboard` })
 
     let sent = 0
     let failed = 0

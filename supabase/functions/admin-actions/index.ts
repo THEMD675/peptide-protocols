@@ -4,9 +4,13 @@ import { handleCorsPreflightIfOptions, getCorsHeaders, jsonResponse as json } fr
 import { requireAdmin } from '../_shared/admin-auth.ts'
 import { getServiceClient, supabaseUrl, supabaseServiceKey } from '../_shared/supabase.ts'
 import { checkRateLimit } from '../_shared/rate-limit.ts'
-import { sendEmail } from '../_shared/send-email.ts'
+import { sendEmail, sendBatchEmails } from '../_shared/send-email.ts'
 
 const stripeKey = Deno.env.get('STRIPE_SECRET_KEY') ?? ''
+
+function escapeHtml(str: string): string {
+  return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;')
+}
 
 serve(async (req) => {
   const preflight = handleCorsPreflightIfOptions(req)
@@ -96,6 +100,10 @@ serve(async (req) => {
       const status = (body.status as string) || 'active'
       const durationDays = body.duration_days != null ? Number(body.duration_days) : 30
       if (!userId || !tier || !Number.isFinite(durationDays) || durationDays < 1) return json({ error: 'Missing user_id, tier, or invalid duration' }, 400, cors)
+
+      // Verify user exists before granting
+      const { data: authUser, error: authErr } = await admin.auth.admin.getUserById(userId)
+      if (authErr || !authUser?.user) return json({ error: 'User not found — check the user_id' }, 404, cors)
 
       const periodEnd = new Date(Date.now() + durationDays * 86400000).toISOString()
       const grantSource = `admin_comp:${user.email}:${new Date().toISOString()}`
@@ -194,11 +202,26 @@ serve(async (req) => {
       const userId = body.user_id as string
       if (!userId) return json({ error: 'Missing user_id' }, 400, cors)
 
-      const { error } = await admin.auth.admin.updateUserById(userId, { ban_duration: '87600h' }) // 10 years
+      // Cancel Stripe subscription first (so user is not charged while banned)
+      const { data: sub } = await admin.from('subscriptions')
+        .select('stripe_subscription_id, status').eq('user_id', userId).maybeSingle()
+      if (sub?.stripe_subscription_id && stripeKey) {
+        const stripe = new Stripe(stripeKey, { apiVersion: '2024-06-20', timeout: 10000 })
+        try {
+          await stripe.subscriptions.cancel(sub.stripe_subscription_id)
+        } catch (e) {
+          console.error('Stripe cancel during suspend failed:', e)
+        }
+      }
+
+      const { error } = await admin.auth.admin.updateUserById(userId, { ban_duration: '87600h' })
       if (error) return json({ error: error.message }, 500, cors)
 
-      // Also expire their subscription
-      await admin.from('subscriptions').update({ status: 'expired', updated_at: new Date().toISOString() }).eq('user_id', userId)
+      await admin.from('subscriptions').update({
+        status: 'expired',
+        pre_suspend_status: sub?.status ?? null,
+        updated_at: new Date().toISOString(),
+      }).eq('user_id', userId)
       return json({ ok: true }, 200, cors)
     }
 
@@ -211,7 +234,19 @@ serve(async (req) => {
 
       const { error } = await admin.auth.admin.updateUserById(userId, { ban_duration: 'none' })
       if (error) return json({ error: error.message }, 500, cors)
-      return json({ ok: true }, 200, cors)
+
+      // Restore pre-suspension subscription status if available
+      const { data: sub } = await admin.from('subscriptions')
+        .select('pre_suspend_status').eq('user_id', userId).maybeSingle()
+      if (sub?.pre_suspend_status) {
+        await admin.from('subscriptions').update({
+          status: sub.pre_suspend_status,
+          pre_suspend_status: null,
+          updated_at: new Date().toISOString(),
+        }).eq('user_id', userId)
+      }
+
+      return json({ ok: true, restored_status: sub?.pre_suspend_status ?? null }, 200, cors)
     }
 
     // ================================================================
@@ -238,18 +273,64 @@ serve(async (req) => {
         }
       }
 
-      // Delete user data via RPC
+      // Delete user data via RPC — abort if this fails to prevent orphaned Stripe data
       const { error: rpcErr } = await admin.rpc('delete_user_data', {
         p_user_id: userId,
         p_user_email: targetUser?.email ?? null,
       })
-      if (rpcErr) console.error('delete_user_data RPC failed:', rpcErr)
+      if (rpcErr) {
+        console.error('delete_user_data RPC failed — aborting auth deletion:', rpcErr)
+        return json({ error: `Data cleanup failed: ${rpcErr.message}. Auth user NOT deleted.` }, 500, cors)
+      }
 
-      // Delete auth user
+      // Delete auth user (only after data cleanup succeeded)
       const { error: deleteErr } = await admin.auth.admin.deleteUser(userId)
       if (deleteErr) return json({ error: deleteErr.message }, 500, cors)
 
       return json({ ok: true, deleted_email: targetUser?.email }, 200, cors)
+    }
+
+    // ================================================================
+    // GET BULK RECIPIENTS (returns email list for client-side sequential send)
+    // ================================================================
+    if (action === 'get_bulk_recipients') {
+      const audience = (body.audience as string) ?? 'all'
+      let emails: string[] = []
+
+      if (audience === 'all') {
+        const collected: string[] = []
+        let pg = 1
+        while (true) {
+          const { data: { users: pageUsers }, error: pgErr } = await admin.auth.admin.listUsers({ page: pg, perPage: 1000 })
+          if (pgErr || !pageUsers || pageUsers.length === 0) break
+          pageUsers.forEach(u => { if (u.email) collected.push(u.email) })
+          if (pageUsers.length < 1000) break
+          pg++
+        }
+        emails = collected
+      } else {
+        const statusMap: Record<string, string> = { trial: 'trial', active: 'active', expired: 'expired' }
+        const status = statusMap[audience]
+        if (status) {
+          const { data: subs } = await admin.from('subscriptions').select('user_id').eq('status', status)
+          if (subs?.length) {
+            const userIds = new Set(subs.map((s: { user_id: string }) => s.user_id))
+            const allUsers: string[] = []
+            let pg = 1
+            while (true) {
+              const { data: { users: pageUsers }, error: pgErr } = await admin.auth.admin.listUsers({ page: pg, perPage: 1000 })
+              if (pgErr || !pageUsers || pageUsers.length === 0) break
+              pageUsers.forEach(u => { if (u.email && userIds.has(u.id)) allUsers.push(u.email) })
+              if (pageUsers.length < 1000) break
+              pg++
+            }
+            emails = allUsers
+          }
+        }
+      }
+
+      const MAX_BATCH_SIZE = 50
+      return json({ ok: true, emails: emails.slice(0, MAX_BATCH_SIZE), totalEligible: emails.length, maxBatch: MAX_BATCH_SIZE }, 200, cors)
     }
 
     // ================================================================
@@ -315,21 +396,19 @@ serve(async (req) => {
           return json({ error: 'تم إرسال عدد كبير من الرسائل — حاول بعد ساعة', rateLimited: true }, 429, cors)
         }
 
-        let sent = 0, failed = 0
+        const emailContent = htmlBody || `<pre style="white-space: pre-wrap; font-family: inherit;">${escapeHtml(textBody ?? '')}</pre>`
+        const batchPayload = batch.map(email => ({
+          to: email,
+          subject,
+          html: emailContent,
+          replyTo: 'contact@pptides.com',
+          tags: [{ name: 'type', value: 'admin_bulk' }, { name: 'audience', value: audience }],
+        }))
+
+        const { sent, failed } = await sendBatchEmails(batchPayload)
 
         for (const email of batch) {
-          try {
-            const r = await sendEmail({
-              to: email,
-              subject,
-              html: htmlBody || `<pre style="white-space: pre-wrap; font-family: inherit;">${textBody}</pre>`,
-              replyTo: 'contact@pptides.com',
-            })
-            if (r.ok) sent++; else failed++
-            await admin.from('email_logs').insert({ email, type: 'admin_bulk', status: r.ok ? 'sent' : 'failed' }).catch(() => {})
-          } catch {
-            failed++
-          }
+          await admin.from('email_logs').insert({ email, type: 'admin_bulk', status: 'sent' }).catch(() => {})
         }
 
         // Log bulk send to audit log with details
@@ -345,14 +424,15 @@ serve(async (req) => {
       const emailResult = await sendEmail({
         to,
         subject,
-        html: htmlBody || `<pre style="white-space: pre-wrap; font-family: inherit;">${textBody}</pre>`,
+        html: htmlBody || `<pre style="white-space: pre-wrap; font-family: inherit;">${escapeHtml(textBody ?? '')}</pre>`,
         replyTo: 'contact@pptides.com',
+        tags: [{ name: 'type', value: 'admin_manual' }, { name: 'category', value: 'admin' }],
       })
       if (!emailResult.ok) {
         return json({ error: `Email error: ${emailResult.error}` }, 502, cors)
       }
 
-      await admin.from('email_logs').insert({ email: to, type: 'admin_manual', status: 'sent' }).catch(() => {})
+      await admin.from('email_logs').insert({ email: to, type: 'admin_manual', status: 'sent', resend_id: emailResult.id }).catch(() => {})
       return json({ ok: true }, 200, cors)
     }
 
@@ -641,11 +721,12 @@ serve(async (req) => {
           const r = await sendEmail({
             to,
             subject,
-            html: `<pre style="white-space: pre-wrap; font-family: inherit;">${reply}</pre>`,
+            html: `<pre style="white-space: pre-wrap; font-family: inherit;">${escapeHtml(reply)}</pre>`,
             replyTo: 'contact@pptides.com',
+            tags: [{ name: 'type', value: 'enquiry_reply' }, { name: 'category', value: 'support' }],
           })
           emailSent = r.ok
-          await admin.from('email_logs').insert({ email: to, type: 'enquiry_reply', status: r.ok ? 'sent' : 'failed' }).catch(() => {})
+          await admin.from('email_logs').insert({ email: to, type: 'enquiry_reply', status: r.ok ? 'sent' : 'failed', resend_id: r.id }).catch(() => {})
         } catch { /* email failure is non-fatal */ }
       }
 

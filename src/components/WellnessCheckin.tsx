@@ -4,6 +4,7 @@ import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
+import { logError } from '@/lib/logger';
 
 interface WellnessEntry {
   id: string;
@@ -29,17 +30,17 @@ type MetricKey = (typeof METRICS)[number]['key'];
 
 const LEVEL_COLORS = [
   'bg-red-100 text-red-700 dark:text-red-400 border-red-300',
-  'bg-orange-100 text-orange-700 border-orange-300',
-  'bg-yellow-100 text-yellow-700 border-yellow-300',
-  'bg-lime-100 text-lime-700 border-lime-300',
+  'bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-400 border-orange-300 dark:border-orange-700',
+  'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400 border-yellow-300 dark:border-yellow-700',
+  'bg-lime-100 dark:bg-lime-900/30 text-lime-700 dark:text-lime-400 border-lime-300 dark:border-lime-700',
   'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 border-emerald-300 dark:border-emerald-700',
 ];
 
 const PAIN_COLORS = [
   'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 border-emerald-300 dark:border-emerald-700',
-  'bg-lime-100 text-lime-700 border-lime-300',
-  'bg-yellow-100 text-yellow-700 border-yellow-300',
-  'bg-orange-100 text-orange-700 border-orange-300',
+  'bg-lime-100 dark:bg-lime-900/30 text-lime-700 dark:text-lime-400 border-lime-300 dark:border-lime-700',
+  'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400 border-yellow-300 dark:border-yellow-700',
+  'bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-400 border-orange-300 dark:border-orange-700',
   'bg-red-100 text-red-700 dark:text-red-400 border-red-300',
 ];
 
@@ -54,6 +55,12 @@ function getLastLogLabel(loggedAt: string): string {
   return `آخر تسجيل: ${logDate.toLocaleDateString('ar-u-nu-latn', { month: 'short', day: 'numeric' })}`;
 }
 
+const TREND_METRICS = [
+  { key: 'energy' as const, label: 'طاقة', color: 'bg-amber-400' },
+  { key: 'sleep' as const, label: 'نوم', color: 'bg-blue-400' },
+  { key: 'pain' as const, label: 'ألم', color: 'bg-red-400' },
+] as const;
+
 export default function WellnessCheckin() {
   const { user } = useAuth();
   const [values, setValues] = useState<Record<MetricKey, number>>({
@@ -66,6 +73,7 @@ export default function WellnessCheckin() {
   const [lastEntry, setLastEntry] = useState<WellnessEntry | null>(null);
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState(false);
+  const [trendData, setTrendData] = useState<WellnessEntry[]>([]);
 
   const fetchLatest = useCallback(async () => {
     if (!user) return;
@@ -73,15 +81,17 @@ export default function WellnessCheckin() {
     try {
       const { data, error } = await supabase
         .from('wellness_logs')
-        .select('*')
+        .select('id, energy, sleep, pain, mood, appetite, weight_kg, notes, logged_at')
         .eq('user_id', user.id)
         .order('logged_at', { ascending: false })
-        .limit(1);
+        .limit(7);
 
       if (error || !data || data.length === 0) {
         setLoading(false);
         return;
       }
+
+      setTrendData(data as WellnessEntry[]);
 
       const entry = data[0] as WellnessEntry;
       setLastEntry(entry);
@@ -98,8 +108,8 @@ export default function WellnessCheckin() {
         setWeight(entry.weight_kg != null ? String(entry.weight_kg) : '');
         setNotes(entry.notes ?? '');
       }
-    } catch {
-      // silently ignored
+    } catch (e) {
+      logError('wellness fetch failed:', e);
     } finally {
       setLoading(false);
     }
@@ -147,9 +157,9 @@ export default function WellnessCheckin() {
         toast.success('تم تسجيل حالتك اليومية');
       }
 
-      setEditing(false);
       await fetchLatest();
-    } catch {
+      setEditing(false);
+    } catch (e) { logError('wellness save failed:', e);
       toast.error('تعذّر حفظ الحالة — حاول مرة أخرى');
     } finally {
       setIsSubmitting(false);
@@ -243,7 +253,7 @@ export default function WellnessCheckin() {
               min="20"
               max="300"
               dir="ltr"
-              className="w-full rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 px-4 py-2.5 text-base text-stone-900 dark:text-stone-100 placeholder:text-stone-500 dark:text-stone-300 focus:border-emerald-300 dark:border-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900 disabled:bg-stone-50 dark:bg-stone-900 disabled:text-stone-500 dark:text-stone-300"
+              className="w-full rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 px-4 py-2.5 text-base text-stone-900 dark:text-stone-100 placeholder:text-stone-500 dark:text-stone-300 focus:border-emerald-300 dark:border-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-500 disabled:bg-stone-50 dark:bg-stone-900 disabled:text-stone-500 dark:text-stone-300"
             />
           </div>
 
@@ -259,7 +269,7 @@ export default function WellnessCheckin() {
               placeholder="كيف تشعر اليوم؟"
               rows={2}
               maxLength={200}
-              className="w-full resize-none rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 px-4 py-2.5 text-base text-stone-900 dark:text-stone-100 placeholder:text-stone-500 dark:text-stone-300 focus:border-emerald-300 dark:border-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900 disabled:bg-stone-50 dark:bg-stone-900 disabled:text-stone-500 dark:text-stone-300"
+              className="w-full resize-none rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 px-4 py-2.5 text-base text-stone-900 dark:text-stone-100 placeholder:text-stone-500 dark:text-stone-300 focus:border-emerald-300 dark:border-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-500 disabled:bg-stone-50 dark:bg-stone-900 disabled:text-stone-500 dark:text-stone-300"
             />
           </div>
 
@@ -267,7 +277,7 @@ export default function WellnessCheckin() {
             <button
               onClick={handleSubmit}
               disabled={isSubmitting}
-              className="flex w-full items-center justify-center gap-2 rounded-xl bg-emerald-600 px-6 py-3 text-sm font-bold text-white transition-all hover:bg-emerald-700 disabled:opacity-50"
+              className="flex w-full items-center justify-center gap-2 rounded-xl bg-emerald-600 px-6 py-3 text-sm font-bold text-white transition-all hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {isSubmitting ? (
                 <>
@@ -281,6 +291,38 @@ export default function WellnessCheckin() {
               )}
             </button>
           )}
+        </div>
+      )}
+
+      {/* Mini Trend — last 7 entries */}
+      {trendData.length >= 2 && (
+        <div className="mt-5 rounded-xl border border-stone-100 dark:border-stone-700 bg-stone-50 dark:bg-stone-800/40 p-4">
+          <p className="text-xs font-bold text-stone-600 dark:text-stone-300 mb-3">آخر {trendData.length} تسجيلات</p>
+          <div className="space-y-3">
+            {TREND_METRICS.map(metric => {
+              const reversed = [...trendData].reverse();
+              return (
+                <div key={metric.key} className="flex items-center gap-2">
+                  <span className="w-10 text-xs font-bold text-stone-500 dark:text-stone-400 shrink-0">{metric.label}</span>
+                  <div className="flex items-end gap-1 flex-1 h-6">
+                    {reversed.map((entry, i) => {
+                      const val = entry[metric.key] ?? 1;
+                      const heightPct = (val / 5) * 100;
+                      return (
+                        <div
+                          key={i}
+                          className={cn('flex-1 rounded-sm transition-all', metric.color)}
+                          style={{ height: `${heightPct}%`, minHeight: '3px' }}
+                          title={`${val}/5`}
+                        />
+                      );
+                    })}
+                  </div>
+                  <span className="text-xs text-stone-400 dark:text-stone-500 w-6 text-center shrink-0">{trendData[0][metric.key]}/5</span>
+                </div>
+              );
+            })}
+          </div>
         </div>
       )}
     </div>

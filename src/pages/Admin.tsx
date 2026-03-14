@@ -1,4 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
+import Modal from '@/components/ui/Modal';
+import Badge from '@/components/ui/Badge';
 
 const TH_CLASS = 'px-3 py-2 text-start font-medium text-stone-600 dark:text-stone-300';
 import { Link } from 'react-router-dom';
@@ -18,6 +20,21 @@ import {
 } from 'recharts';
 import { cn } from '@/lib/utils';
 import { PRICING } from '@/lib/constants';
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars -- kept for future admin activity log
+import { STATUS_AR } from '@/components/ui/Badge';
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars -- kept for future admin activity log
+const ACTION_AR: Record<string, string> = {
+  extend_trial: 'تمديد التجربة', grant_subscription: 'منح اشتراك',
+  update_subscription: 'تحديث اشتراك', cancel_subscription: 'إلغاء اشتراك',
+  suspend_user: 'تعليق مستخدم', unsuspend_user: 'إلغاء التعليق',
+  delete_user: 'حذف مستخدم', send_email: 'إرسال بريد',
+  approve_review: 'قبول مراجعة', delete_review: 'حذف مراجعة',
+  reply_enquiry: 'الرد على استفسار', refund_payment: 'استرداد دفعة',
+  health_check: 'فحص النظام', verify_stripe: 'فحص Stripe',
+  export_csv: 'تصدير CSV', bulk_email_sent: 'بريد جماعي',
+};
 
 // ========================================================
 // TYPES
@@ -96,7 +113,7 @@ const EMAIL_TEMPLATES: { key: string; label: string; subject: string; body: stri
     key: 'upsell',
     label: 'ترقية للمتقدمة',
     subject: 'اكتشف ميزات الباقة المتقدّمة',
-    body: 'مرحبًا،\n\nشكرًا لاشتراكك في باقة الأساسيات! هل تعلم أن باقة Elite تمنحك:\n\n- بروتوكولات متقدمة حصرية\n- محادثات غير محدودة مع المدرب الذكي\n- تتبع متقدم للأعراض الجانبية\n- أولوية الدعم\n\nقم بالترقية الآن واستفد من كل الإمكانيات:\nhttps://pptides.com/pricing\n\nفريق pptides',
+    body: 'مرحبًا،\n\nشكرًا لاشتراكك في باقة الأساسيات! هل تعلم أن باقة Elite تمنحك:\n\n- بروتوكولات متقدمة حصرية\n- عدد كبير من الاستشارات اليومية مع المدرب الذكي\n- تتبع متقدم للأعراض الجانبية\n- أولوية الدعم\n\nقم بالترقية الآن واستفد من كل الإمكانيات:\nhttps://pptides.com/pricing\n\nفريق pptides',
   },
 ];
 
@@ -122,7 +139,7 @@ function timeAgo(d: string): string {
   if (h < 24) return `منذ ${h} س`;
   const days = Math.floor(h / 24);
   if (days < 7) return `منذ ${days} ي`;
-  return new Date(d).toLocaleDateString('ar-SA');
+  return new Date(d).toLocaleDateString('ar-u-nu-latn');
 }
 
 function trialLeft(t: string | null): { text: string; urgent: boolean } | null {
@@ -143,13 +160,13 @@ function Pagination({ page, total, onChange }: { page: number; total: number; on
   if (pages <= 1) return null;
   return (
     <div className="flex items-center justify-center gap-1 pt-3">
-      <button disabled={page <= 1} onClick={() => onChange(page - 1)} className="rounded-lg border border-stone-200 dark:border-stone-600 px-3 py-1.5 text-xs font-medium text-stone-600 dark:text-stone-300 hover:bg-stone-50 dark:hover:bg-stone-800 disabled:opacity-40">&laquo;</button>
+      <button disabled={page <= 1} onClick={() => onChange(page - 1)} className="rounded-lg border border-stone-200 dark:border-stone-600 px-3 py-1.5 text-xs font-medium text-stone-600 dark:text-stone-300 hover:bg-stone-50 dark:hover:bg-stone-800 disabled:opacity-50 disabled:cursor-not-allowed">&laquo;</button>
       {Array.from({ length: pages }, (_, i) => i + 1).filter(p => p === 1 || p === pages || Math.abs(p - page) <= 2)
         .reduce<(number | 'e')[]>((a, p, i, arr) => { if (i > 0 && p - (arr[i - 1]) > 1) a.push('e'); a.push(p); return a; }, [])
         .map((p, i) => p === 'e' ? <span key={`e${i}`} className="px-1 text-xs text-stone-400">&hellip;</span> :
           <button key={p} onClick={() => onChange(p)} className={cn('rounded-lg px-2.5 py-1.5 text-xs font-medium', page === p ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400' : 'text-stone-600 dark:text-stone-300 hover:bg-stone-100 dark:hover:bg-stone-800')}>{p}</button>
         )}
-      <button disabled={page >= pages} onClick={() => onChange(page + 1)} className="rounded-lg border border-stone-200 dark:border-stone-600 px-3 py-1.5 text-xs font-medium text-stone-600 dark:text-stone-300 hover:bg-stone-50 dark:hover:bg-stone-800 disabled:opacity-40">&raquo;</button>
+      <button disabled={page >= pages} onClick={() => onChange(page + 1)} className="rounded-lg border border-stone-200 dark:border-stone-600 px-3 py-1.5 text-xs font-medium text-stone-600 dark:text-stone-300 hover:bg-stone-50 dark:hover:bg-stone-800 disabled:opacity-50 disabled:cursor-not-allowed">&raquo;</button>
     </div>
   );
 }
@@ -175,26 +192,9 @@ function Stat({ label, value, icon: I, sub, alert: a, trend }: {
   );
 }
 
-function Badge({ status }: { status: string }) {
-  const s: Record<string, string> = { active: 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400', trial: 'bg-blue-100 text-blue-700 dark:text-blue-400', expired: 'bg-stone-100 dark:bg-stone-800 text-stone-600 dark:text-stone-300', cancelled: 'bg-stone-100 dark:bg-stone-800 text-stone-600 dark:text-stone-300', past_due: 'bg-red-100 text-red-700 dark:text-red-400', none: 'bg-stone-100 dark:bg-stone-800 text-stone-500 dark:text-stone-300' };
-  return <span className={cn('inline-block rounded-full px-2 py-0.5 text-xs font-medium', s[status] ?? s.none)}>{status}</span>;
-}
+// Badge imported from @/components/ui/Badge (shared component with Arabic labels + dark mode)
 
-function Modal({ open, title, children, onClose }: { open: boolean; title: string; children: React.ReactNode; onClose: () => void }) {
-  if (!open) return null;
-  const titleId = 'modal-title';
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" onClick={onClose}>
-      <div className="w-full max-w-md max-h-[90vh] overflow-y-auto rounded-2xl bg-white dark:bg-stone-900 p-6 shadow-xl dark:shadow-stone-900/40" onClick={e => e.stopPropagation()} role="dialog" aria-modal="true" aria-labelledby={titleId}>
-        <div className="flex items-center justify-between mb-4">
-          <h3 id={titleId} className="text-lg font-bold text-stone-900 dark:text-stone-100">{title}</h3>
-          <button onClick={onClose} aria-label="إغلاق" className="flex items-center justify-center rounded-lg p-2 min-h-[44px] min-w-[44px] hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors"><X className="h-5 w-5 text-stone-500 dark:text-stone-300" /></button>
-        </div>
-        {children}
-      </div>
-    </div>
-  );
-}
+// Modal imported from @/components/ui/Modal (shared component with FocusTrap, Escape, aria-modal)
 
 const ACTIVITY_ICON: Record<string, React.ElementType> = { signup: Users, coach: MessageSquare, injection: Activity, community: Users, review: Star, enquiry: Mail };
 const ACTIVITY_COLOR: Record<string, string> = { signup: 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700', coach: 'bg-violet-100 text-violet-600', injection: 'bg-blue-100 text-blue-600', community: 'bg-amber-100 text-amber-600', review: 'bg-yellow-100 text-yellow-600', enquiry: 'bg-rose-100 text-rose-600' };
@@ -219,7 +219,8 @@ export default function Admin() {
   const [error, setError] = useState('');
   const [forbidden, setForbidden] = useState(() => {
     // Client-side guard: immediately block non-admin users
-    return false;
+    if (!user?.email) return true;
+    return !ADMIN_EMAILS.includes(user.email.toLowerCase());
   });
   const [tab, setTab] = useState<Tab>('overview');
   const [lastFetched, setLastFetched] = useState<Date | null>(null);
@@ -250,6 +251,7 @@ export default function Admin() {
   const [emailSubject, setEmailSubject] = useState('');
   const [emailBody, setEmailBody] = useState('');
   const [bulkAudience, setBulkAudience] = useState<'all' | 'trial' | 'active' | 'expired'>('all');
+  const [bulkProgress, setBulkProgress] = useState<{ current: number; total: number; sent: number; failed: number } | null>(null);
 
   // Health
   const [health, setHealth] = useState<HealthCheck | null>(null);
@@ -302,6 +304,7 @@ export default function Admin() {
       if (page) url.searchParams.set('page', String(page));
       if (filter && filter !== 'all') url.searchParams.set('filter', filter);
       const res = await fetch(url.toString(), {
+        signal: AbortSignal.timeout(15000),
         headers: { Authorization: `Bearer ${token}`, apikey: import.meta.env.VITE_SUPABASE_ANON_KEY },
       });
       if (res.status === 403) { setForbidden(true); return; }
@@ -325,14 +328,14 @@ export default function Admin() {
       fetchStats(undefined, undefined, userFilter);
     }
     return () => { if (searchTimerRef.current) clearTimeout(searchTimerRef.current); };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [userSearch]);
+  }, [userSearch, userFilter, fetchStats]);
 
   // --- Admin action caller ---
   const adminAction = useCallback(async (body: Record<string, unknown>) => {
     const token = await getToken();
     const res = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/admin-actions`, {
       method: 'POST',
+      signal: AbortSignal.timeout(15000),
       headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}`, apikey: import.meta.env.VITE_SUPABASE_ANON_KEY },
       body: JSON.stringify(body),
     });
@@ -347,7 +350,7 @@ export default function Admin() {
     setActionLoading(true);
     try {
       const r = await adminAction({ action: 'extend_trial', user_id: modalTarget.id, days: extendDays });
-      toast.success(`تم تمديد التجربة حتى ${new Date(r.trial_ends_at).toLocaleDateString('ar-SA')}`);
+      toast.success(`تم تمديد التجربة حتى ${new Date(r.trial_ends_at).toLocaleDateString('ar-u-nu-latn')}`);
       setModal(null);
       fetchStats();
     } catch (e) { toast.error(e instanceof Error ? e.message : 'فشلت العملية'); }
@@ -415,13 +418,38 @@ export default function Admin() {
 
   const handleBulkEmail = async () => {
     setActionLoading(true);
+    setBulkProgress(null);
     try {
-      const r = await adminAction({ action: 'send_email', to: 'bulk', audience: bulkAudience, subject: emailSubject, text: emailBody });
-      toast.success(`تم إرسال ${r.sent} بريد (${r.failed} فشل)`);
+      // Step 1: Fetch recipient list
+      const recipients = await adminAction({ action: 'get_bulk_recipients', audience: bulkAudience });
+      const emails: string[] = recipients.emails ?? [];
+      if (emails.length === 0) {
+        toast.error('لا يوجد مستلمون');
+        return;
+      }
+
+      // Step 2: Send sequentially with 200ms delay
+      let sent = 0;
+      let failed = 0;
+      for (let i = 0; i < emails.length; i++) {
+        setBulkProgress({ current: i + 1, total: emails.length, sent, failed });
+        try {
+          await adminAction({ action: 'send_email', to: emails[i], subject: emailSubject, text: emailBody });
+          sent++;
+        } catch {
+          failed++;
+        }
+        if (i < emails.length - 1) {
+          await new Promise(r => setTimeout(r, 200));
+        }
+      }
+
+      setBulkProgress({ current: emails.length, total: emails.length, sent, failed });
+      toast.success(`تم إرسال ${sent} بريد (${failed} فشل)`);
       setModal(null);
       setEmailSubject(''); setEmailBody('');
     } catch (e) { toast.error(e instanceof Error ? e.message : 'فشلت العملية'); }
-    finally { setActionLoading(false); }
+    finally { setActionLoading(false); setBulkProgress(null); }
   };
 
   const applyTemplate = (key: string) => {
@@ -519,8 +547,22 @@ export default function Admin() {
   const openUserAction = (type: ModalType, u: { id: string; email: string }) => { setModalTarget(u); setModal(type); };
 
   // --- Render gates ---
-  // Client-side admin email whitelist guard
-  if (user && !ADMIN_EMAILS.includes(user.email ?? '')) return (
+  // Auth gate: redirect unauthenticated users to login
+  if (!user) return (
+    <div className="flex min-h-screen items-center justify-center bg-stone-50 dark:bg-stone-950">
+      <Helmet><title>404 | pptides</title></Helmet>
+      <div className="text-center px-4">
+        <h1 className="text-4xl font-bold text-stone-200 mb-4 sm:text-6xl">404</h1>
+        <p className="text-lg font-bold text-stone-900 dark:text-stone-100 mb-2">الصفحة غير موجودة</p>
+        <p className="text-sm text-stone-600 dark:text-stone-300 mb-6">الصفحة التي تبحث عنها غير موجودة.</p>
+        <Link to="/" className="inline-flex items-center gap-2 rounded-full bg-emerald-600 px-8 py-3.5 text-base font-semibold text-white hover:bg-emerald-700 transition-colors">
+          الرئيسية
+        </Link>
+      </div>
+    </div>
+  );
+  // Client-side admin email whitelist guard — non-admin users see a 404
+  if (!ADMIN_EMAILS.includes(user.email ?? '')) return (
     <div className="flex min-h-screen items-center justify-center bg-stone-50 dark:bg-stone-950">
       <Helmet><title>404 | pptides</title></Helmet>
       <div className="text-center px-4">
@@ -591,7 +633,7 @@ export default function Admin() {
               مركز التحكم
               {critAlerts > 0 && <span className="rounded-full bg-red-100 px-2 py-0.5 text-xs font-bold text-red-700 dark:text-red-400">{critAlerts}</span>}
             </h1>
-            {lastFetched && <p className="text-[10px] text-stone-500 dark:text-stone-300">آخر تحديث {lastFetched.toLocaleTimeString('ar-SA')}</p>}
+            {lastFetched && <p className="text-[10px] text-stone-500 dark:text-stone-300">آخر تحديث {lastFetched.toLocaleTimeString('ar-u-nu-latn')}</p>}
             </div>
           </div>
           <div className="flex items-center gap-2">
@@ -605,15 +647,15 @@ export default function Admin() {
             </button>
           </div>
         </div>
-        <div className="max-w-6xl mx-auto flex gap-1 mt-3 overflow-x-auto">
+        <div className="max-w-6xl mx-auto flex gap-1 mt-3 overflow-x-auto" role="tablist" aria-label="أقسام لوحة التحكم">
           {tabs.map(t => (
-            <button key={t.key} onClick={() => setTab(t.key)} className={cn(
+            <button key={t.key} role="tab" aria-selected={tab === t.key} aria-controls={`panel-${t.key}`} onClick={() => setTab(t.key)} className={cn(
               'flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium whitespace-nowrap transition-colors',
               tab === t.key ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400' : 'text-stone-600 dark:text-stone-300 hover:bg-stone-100 dark:hover:bg-stone-800'
             )}>
               {t.dot && <span className="h-1.5 w-1.5 rounded-full bg-red-500" />}
               {t.label}
-              {t.count != null && <span className={cn('rounded-full px-1.5 py-0.5 text-[10px] font-bold', tab === t.key ? 'bg-emerald-600 text-white' : 'bg-stone-200 dark:bg-stone-700 text-stone-600 dark:text-stone-300')}>{t.count}</span>}
+              {t.count != null && <span className={cn('rounded-full px-1.5 py-0.5 text-xs font-bold', tab === t.key ? 'bg-emerald-600 text-white' : 'bg-stone-200 dark:bg-stone-700 text-stone-600 dark:text-stone-300')}>{t.count}</span>}
             </button>
           ))}
         </div>
@@ -764,10 +806,10 @@ export default function Admin() {
             {/* ── User Funnel (color-coded) ── */}
             {(() => {
               const funnelData = [
-                { name: 'التسجيلات', nameEn: 'Signups', value: stats.funnel.totalSignups, color: '#6b7280' },
-                { name: 'فترة تجريبية', nameEn: 'Trial', value: stats.funnel.trialStarts, color: '#3b82f6' },
-                { name: 'مدفوع', nameEn: 'Paid', value: stats.funnel.paidConversions, color: '#10b981' },
-                { name: 'متراجع', nameEn: 'Churned', value: o.expiredSubscriptions, color: '#ef4444' },
+                { name: 'التسجيلات', nameEn: 'التسجيلات', value: stats.funnel.totalSignups, color: '#6b7280' },
+                { name: 'فترة تجريبية', nameEn: 'تجريبي', value: stats.funnel.trialStarts, color: '#3b82f6' },
+                { name: 'مدفوع', nameEn: 'مدفوع', value: stats.funnel.paidConversions, color: '#10b981' },
+                { name: 'متراجع', nameEn: 'إلغاء', value: o.expiredSubscriptions, color: '#ef4444' },
               ];
               return (
                 <div className="rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 p-4">
@@ -848,7 +890,7 @@ export default function Admin() {
                   <button onClick={() => { setEmailTo(''); setEmailSubject(''); setEmailBody(''); setEmailTemplate('custom'); setModal('send_email'); setModalTarget(null); }} className="w-full flex items-center gap-2 rounded-lg border border-stone-200 dark:border-stone-600 px-3 py-2 text-xs font-medium text-stone-700 dark:text-stone-200 hover:bg-stone-50 dark:hover:bg-stone-800">
                     <Send className="h-3.5 w-3.5 text-blue-500" /> إرسال بريد إلكتروني
                   </button>
-                  <button onClick={runHealthCheck} disabled={healthLoading} className="w-full flex items-center gap-2 rounded-lg border border-stone-200 dark:border-stone-600 px-3 py-2 text-xs font-medium text-stone-700 dark:text-stone-200 hover:bg-stone-50 dark:hover:bg-stone-800 disabled:opacity-50">
+                  <button onClick={runHealthCheck} disabled={healthLoading} className="w-full flex items-center gap-2 rounded-lg border border-stone-200 dark:border-stone-600 px-3 py-2 text-xs font-medium text-stone-700 dark:text-stone-200 hover:bg-stone-50 dark:hover:bg-stone-800 disabled:opacity-50 disabled:cursor-not-allowed">
                     {healthLoading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Heart className="h-3.5 w-3.5 text-red-500 dark:text-red-400" />} فحص صحة النظام
                   </button>
                   <button onClick={() => exportCSV('users')} className="w-full flex items-center gap-2 rounded-lg border border-stone-200 dark:border-stone-600 px-3 py-2 text-xs font-medium text-stone-700 dark:text-stone-200 hover:bg-stone-50 dark:hover:bg-stone-800">
@@ -895,7 +937,7 @@ export default function Admin() {
               </div>
               <div className="flex flex-col sm:flex-row gap-2">
                 <input type="text" placeholder="بحث بالبريد الإلكتروني..." value={userSearch} onChange={e => { setUserSearch(e.target.value); setUsersPage(1); }} aria-label="بحث بالبريد الإلكتروني"
-                  className="flex-1 rounded-lg border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 px-3 py-2 text-sm outline-none focus:border-emerald-300 dark:border-emerald-700 focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900" dir="ltr" />
+                  className="flex-1 rounded-lg border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 px-3 py-2 text-sm outline-none focus:border-emerald-300 dark:border-emerald-700 focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-500" dir="ltr" />
                 <div className="flex gap-1 overflow-x-auto">
                   {(['all', 'active', 'trial', 'expired', 'none'] as UserFilter[]).map(f => (
                     <button key={f} onClick={() => { setUserFilter(f); setUsersPage(1); fetchStats(userSearch || undefined, 1, f); }} className={cn('rounded-lg px-3 py-1.5 text-xs font-medium whitespace-nowrap', userFilter === f ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400' : 'bg-stone-100 dark:bg-stone-800 text-stone-600 dark:text-stone-300 hover:bg-stone-200 dark:bg-stone-700')}>
@@ -935,10 +977,10 @@ export default function Admin() {
                           <td className="px-3 py-2"><Badge status={u.subscription?.status ?? 'none'} /></td>
                           <td className="px-3 py-2 text-xs">{u.subscription?.tier ?? '—'}</td>
                           <td className="px-3 py-2 text-xs">{tl ? <span className={cn('rounded-full px-2 py-0.5 text-xs font-medium', tl.urgent ? 'bg-red-100 text-red-700 dark:text-red-400' : 'bg-blue-100 text-blue-700 dark:text-blue-400')}>{tl.text}</span> : '—'}</td>
-                          <td className="px-3 py-2 text-xs text-stone-500 dark:text-stone-300">{new Date(u.created_at).toLocaleDateString('en-GB')}</td>
+                          <td className="px-3 py-2 text-xs text-stone-500 dark:text-stone-300">{new Date(u.created_at).toLocaleDateString('ar-u-nu-latn')}</td>
                           <td className="px-3 py-2 text-xs text-stone-500 dark:text-stone-300">{u.last_sign_in_at ? timeAgo(u.last_sign_in_at) : '—'}</td>
                           <td className="px-3 py-2">
-                            <div className="flex items-center gap-0.5">
+                            <div className="flex flex-col sm:flex-row flex-wrap items-start sm:items-center gap-0.5">
                               <button onClick={() => openUserAction('extend_trial', u)} title="تمديد التجربة" aria-label="تمديد التجربة" className="rounded p-1.5 min-h-[44px] min-w-[44px] flex items-center justify-center hover:bg-emerald-50 dark:hover:bg-emerald-900/20"><CalendarPlus className="h-3.5 w-3.5 text-emerald-700" /></button>
                               <button onClick={() => openUserAction('grant_sub', u)} title="منح اشتراك" aria-label="منح اشتراك" className="rounded p-1.5 min-h-[44px] min-w-[44px] flex items-center justify-center hover:bg-blue-50 dark:hover:bg-blue-900/20"><CreditCard className="h-3.5 w-3.5 text-blue-600" /></button>
                               <button onClick={() => { setEmailTo(u.email); setEmailSubject(''); setEmailBody(''); setModal('send_email'); setModalTarget(u); }} title="إرسال بريد" aria-label="إرسال بريد" className="rounded p-1.5 min-h-[44px] min-w-[44px] flex items-center justify-center hover:bg-violet-50 dark:hover:bg-violet-900/20"><Mail className="h-3.5 w-3.5 text-violet-600" /></button>
@@ -1026,7 +1068,7 @@ export default function Admin() {
                   {eq.admin_notes && <div className="mt-2 rounded-lg bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-100 p-3"><p className="text-xs font-medium text-emerald-700 dark:text-emerald-400 mb-1">الرد:</p><p className="text-sm text-emerald-800 dark:text-emerald-300 whitespace-pre-wrap">{eq.admin_notes}</p></div>}
                   {replyingTo === eq.id ? (
                     <div className="mt-3 space-y-2">
-                      <textarea value={replyText} onChange={e => setReplyText(e.target.value)} placeholder="اكتب الرد..." rows={3} className="w-full rounded-lg border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 px-3 py-2 text-sm outline-none focus:border-emerald-300 dark:border-emerald-700 resize-y" dir="ltr" />
+                      <textarea value={replyText} onChange={e => setReplyText(e.target.value)} placeholder="اكتب الرد..." rows={3} className="w-full rounded-lg border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 px-3 py-2 text-sm outline-none focus:border-emerald-300 dark:border-emerald-700 resize-y" dir="auto" />
                       <div className="flex gap-2 justify-end">
                         <button onClick={() => { setReplyingTo(null); setReplyText(''); }} className="flex items-center gap-1 rounded-lg border border-stone-200 dark:border-stone-600 px-3 py-1.5 text-xs font-medium text-stone-600 dark:text-stone-300 hover:bg-stone-50 dark:hover:bg-stone-800"><X className="h-3 w-3" /> إلغاء</button>
                         <button disabled={replySending || !replyText.trim()} onClick={async () => {
@@ -1046,7 +1088,7 @@ export default function Admin() {
                             setReplyingTo(null); setReplyText(''); fetchStats();
                           } catch (e) { toast.error(e instanceof Error ? e.message : 'فشلت العملية'); }
                           finally { setReplySending(false); }
-                        }} className="flex items-center gap-1 rounded-lg bg-emerald-600 px-3 py-1.5 text-xs font-bold text-white hover:bg-emerald-700 disabled:opacity-50">
+                        }} className="flex items-center gap-1 rounded-lg bg-emerald-600 px-3 py-1.5 text-xs font-bold text-white hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed">
                           <Send className="h-3 w-3" /> {replySending ? 'جارٍ الإرسال...' : 'إرسال'}
                         </button>
                       </div>
@@ -1118,10 +1160,10 @@ export default function Admin() {
             <div className="flex flex-wrap items-center justify-between gap-3">
               <h2 className="text-sm font-bold text-stone-700 dark:text-stone-200">صحة النظام</h2>
               <div className="flex gap-2">
-                <button onClick={runHealthCheck} disabled={healthLoading} className="flex items-center gap-1.5 rounded-lg bg-emerald-600 px-4 py-2 text-xs font-bold text-white hover:bg-emerald-700 disabled:opacity-50">
+                <button onClick={runHealthCheck} disabled={healthLoading} className="flex items-center gap-1.5 rounded-lg bg-emerald-600 px-4 py-2 text-xs font-bold text-white hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed">
                   {healthLoading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Heart className="h-3.5 w-3.5" />} فحص
                 </button>
-                <button onClick={runStripeVerify} disabled={stripeVerifyLoading} className="flex items-center gap-1.5 rounded-lg border border-stone-200 dark:border-stone-600 px-4 py-2 text-xs font-bold text-stone-700 dark:text-stone-200 hover:bg-stone-50 dark:hover:bg-stone-800 disabled:opacity-50">
+                <button onClick={runStripeVerify} disabled={stripeVerifyLoading} className="flex items-center gap-1.5 rounded-lg border border-stone-200 dark:border-stone-600 px-4 py-2 text-xs font-bold text-stone-700 dark:text-stone-200 hover:bg-stone-50 dark:hover:bg-stone-800 disabled:opacity-50 disabled:cursor-not-allowed">
                   {stripeVerifyLoading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <CreditCard className="h-3.5 w-3.5" />} Stripe
                 </button>
               </div>
@@ -1137,7 +1179,7 @@ export default function Admin() {
                   <p className={cn('text-xl font-bold', health.status === 'healthy' ? 'text-emerald-700 dark:text-emerald-400' : health.status === 'degraded' ? 'text-amber-700 dark:text-amber-400' : 'text-red-700 dark:text-red-400')}>
                     {health.status === 'healthy' ? 'جميع الأنظمة تعمل بشكل سليم' : health.status === 'degraded' ? 'أداء منخفض' : 'غير سليم'}
                   </p>
-                  <p className="text-xs text-stone-500 dark:text-stone-300 mt-1">{new Date(health.timestamp).toLocaleString('en-GB')}</p>
+                  <p className="text-xs text-stone-500 dark:text-stone-300 mt-1">{new Date(health.timestamp).toLocaleString('ar-u-nu-latn')}</p>
                 </div>
                 <div className="grid sm:grid-cols-2 gap-3">
                   {Object.entries(health.checks).map(([name, c]) => (
@@ -1171,7 +1213,7 @@ export default function Admin() {
           <div className="space-y-3">
             <div className="flex items-center justify-between">
               <h2 className="text-sm font-bold text-stone-700 dark:text-stone-200 flex items-center gap-1.5"><ClipboardList className="h-4 w-4 text-stone-500 dark:text-stone-300" /> سجل المراجعة</h2>
-              <button onClick={fetchAuditLog} disabled={auditLoading} className="flex items-center gap-1.5 rounded-lg border border-stone-200 dark:border-stone-600 px-3 py-1.5 text-xs font-medium text-stone-600 dark:text-stone-300 hover:bg-stone-50 dark:hover:bg-stone-800 disabled:opacity-50">
+              <button onClick={fetchAuditLog} disabled={auditLoading} className="flex items-center gap-1.5 rounded-lg border border-stone-200 dark:border-stone-600 px-3 py-1.5 text-xs font-medium text-stone-600 dark:text-stone-300 hover:bg-stone-50 dark:hover:bg-stone-800 disabled:opacity-50 disabled:cursor-not-allowed">
                 {auditLoading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <RefreshCw className="h-3.5 w-3.5" />} تحديث
               </button>
             </div>
@@ -1198,7 +1240,7 @@ export default function Admin() {
                     <tbody>
                       {auditLog.slice((auditPage - 1) * PER_PAGE, auditPage * PER_PAGE).map(entry => (
                         <tr key={entry.id} className="border-b border-stone-100 dark:border-stone-700 hover:bg-stone-50 dark:hover:bg-stone-800">
-                          <td className="px-3 py-2 text-xs text-stone-500 dark:text-stone-300 whitespace-nowrap">{new Date(entry.created_at).toLocaleString('en-GB')}</td>
+                          <td className="px-3 py-2 text-xs text-stone-500 dark:text-stone-300 whitespace-nowrap">{new Date(entry.created_at).toLocaleString('ar-u-nu-latn')}</td>
                           <td className="px-3 py-2 font-mono text-xs">{entry.admin_email}</td>
                           <td className="px-3 py-2 text-xs"><span className="rounded-full bg-stone-100 dark:bg-stone-800 px-2 py-0.5 text-xs font-medium text-stone-700 dark:text-stone-200">{entry.action}</span></td>
                           <td className="px-3 py-2 font-mono text-xs text-stone-500 dark:text-stone-300">{entry.target_user_id ? entry.target_user_id.slice(0, 8) + '...' : '—'}</td>
@@ -1224,7 +1266,7 @@ export default function Admin() {
         <input type="number" min={1} max={90} value={extendDays} onChange={e => setExtendDays(Number(e.target.value))} className="w-full rounded-lg border border-stone-200 dark:border-stone-600 px-3 py-2 text-sm mb-4" />
         <div className="flex gap-2 justify-end">
           <button onClick={() => setModal(null)} className="rounded-lg border border-stone-200 dark:border-stone-600 px-4 py-2 text-xs font-medium text-stone-600 dark:text-stone-300">إلغاء</button>
-          <button onClick={handleExtendTrial} disabled={actionLoading} className="rounded-lg bg-emerald-600 px-4 py-2 text-xs font-bold text-white disabled:opacity-50">
+          <button onClick={handleExtendTrial} disabled={actionLoading} className="rounded-lg bg-emerald-600 px-4 py-2 text-xs font-bold text-white disabled:opacity-50 disabled:cursor-not-allowed">
             {actionLoading ? 'جارٍ التمديد...' : `تمديد ${extendDays} يوم`}
           </button>
         </div>
@@ -1242,7 +1284,7 @@ export default function Admin() {
         <input type="number" min={1} max={365} value={grantDuration} onChange={e => setGrantDuration(Number(e.target.value))} className="w-full rounded-lg border border-stone-200 dark:border-stone-600 px-3 py-2 text-sm mb-4" />
         <div className="flex gap-2 justify-end">
           <button onClick={() => setModal(null)} className="rounded-lg border border-stone-200 dark:border-stone-600 px-4 py-2 text-xs font-medium text-stone-600 dark:text-stone-300">إلغاء</button>
-          <button onClick={handleGrantSub} disabled={actionLoading} className="rounded-lg bg-emerald-600 px-4 py-2 text-xs font-bold text-white disabled:opacity-50">
+          <button onClick={handleGrantSub} disabled={actionLoading} className="rounded-lg bg-emerald-600 px-4 py-2 text-xs font-bold text-white disabled:opacity-50 disabled:cursor-not-allowed">
             {actionLoading ? 'جارٍ المنح...' : 'منح'}
           </button>
         </div>
@@ -1254,7 +1296,7 @@ export default function Admin() {
         <p className="text-xs text-amber-600 mb-4">سيتم تعيين الإلغاء في نهاية الفترة على Stripe وتحديث الحالة في قاعدة البيانات.</p>
         <div className="flex gap-2 justify-end">
           <button onClick={() => setModal(null)} className="rounded-lg border border-stone-200 dark:border-stone-600 px-4 py-2 text-xs font-medium text-stone-600 dark:text-stone-300">لا</button>
-          <button onClick={handleCancelSub} disabled={actionLoading} className="rounded-lg bg-amber-600 px-4 py-2 text-xs font-bold text-white disabled:opacity-50">
+          <button onClick={handleCancelSub} disabled={actionLoading} className="rounded-lg bg-amber-600 px-4 py-2 text-xs font-bold text-white disabled:opacity-50 disabled:cursor-not-allowed">
             {actionLoading ? 'جارٍ الإلغاء...' : 'إلغاء الاشتراك'}
           </button>
         </div>
@@ -1269,12 +1311,12 @@ export default function Admin() {
           {EMAIL_TEMPLATES.map(t => <option key={t.key} value={t.key}>{t.label}</option>)}
         </select>
         <label className="block text-xs font-medium text-stone-600 dark:text-stone-300 mb-1">الموضوع</label>
-        <input type="text" value={emailSubject} onChange={e => setEmailSubject(e.target.value)} placeholder="الموضوع" className="w-full rounded-lg border border-stone-200 dark:border-stone-600 px-3 py-2 text-sm mb-3" dir="ltr" />
+        <input type="text" value={emailSubject} onChange={e => setEmailSubject(e.target.value)} placeholder="الموضوع" className="w-full rounded-lg border border-stone-200 dark:border-stone-600 px-3 py-2 text-sm mb-3" dir="auto" />
         <label className="block text-xs font-medium text-stone-600 dark:text-stone-300 mb-1">المحتوى</label>
-        <textarea value={emailBody} onChange={e => setEmailBody(e.target.value)} placeholder="محتوى البريد..." rows={4} className="w-full rounded-lg border border-stone-200 dark:border-stone-600 px-3 py-2 text-sm mb-4 resize-y" dir="ltr" />
+        <textarea value={emailBody} onChange={e => setEmailBody(e.target.value)} placeholder="محتوى البريد..." rows={4} className="w-full rounded-lg border border-stone-200 dark:border-stone-600 px-3 py-2 text-sm mb-4 resize-y" dir="auto" />
         <div className="flex gap-2 justify-end">
           <button onClick={() => setModal(null)} className="rounded-lg border border-stone-200 dark:border-stone-600 px-4 py-2 text-xs font-medium text-stone-600 dark:text-stone-300">إلغاء</button>
-          <button onClick={handleSendEmail} disabled={actionLoading || !emailTo || !emailSubject || !emailBody} className="rounded-lg bg-emerald-600 px-4 py-2 text-xs font-bold text-white disabled:opacity-50">
+          <button onClick={handleSendEmail} disabled={actionLoading || !emailTo || !emailSubject || !emailBody} className="rounded-lg bg-emerald-600 px-4 py-2 text-xs font-bold text-white disabled:opacity-50 disabled:cursor-not-allowed">
             {actionLoading ? 'جارٍ الإرسال...' : 'إرسال'}
           </button>
         </div>
@@ -1294,9 +1336,9 @@ export default function Admin() {
           {EMAIL_TEMPLATES.map(t => <option key={t.key} value={t.key}>{t.label}</option>)}
         </select>
         <label className="block text-xs font-medium text-stone-600 dark:text-stone-300 mb-1">الموضوع</label>
-        <input type="text" value={emailSubject} onChange={e => setEmailSubject(e.target.value)} placeholder="الموضوع" className="w-full rounded-lg border border-stone-200 dark:border-stone-600 px-3 py-2 text-sm mb-3" dir="ltr" />
+        <input type="text" value={emailSubject} onChange={e => setEmailSubject(e.target.value)} placeholder="الموضوع" className="w-full rounded-lg border border-stone-200 dark:border-stone-600 px-3 py-2 text-sm mb-3" dir="auto" />
         <label className="block text-xs font-medium text-stone-600 dark:text-stone-300 mb-1">المحتوى</label>
-        <textarea value={emailBody} onChange={e => setEmailBody(e.target.value)} placeholder="محتوى البريد..." rows={4} className="w-full rounded-lg border border-stone-200 dark:border-stone-600 px-3 py-2 text-sm mb-4 resize-y" dir="ltr" />
+        <textarea value={emailBody} onChange={e => setEmailBody(e.target.value)} placeholder="محتوى البريد..." rows={4} className="w-full rounded-lg border border-stone-200 dark:border-stone-600 px-3 py-2 text-sm mb-4 resize-y" dir="auto" />
         {(() => {
           const audienceCount = bulkAudience === 'all' ? o.totalUsers : bulkAudience === 'trial' ? o.trialSubscriptions : bulkAudience === 'active' ? o.activeSubscriptions : o.expiredSubscriptions;
           const MAX_BATCH = 50;
@@ -1315,12 +1357,27 @@ export default function Admin() {
             </div>
           );
         })()}
+        {bulkProgress && (
+          <div className="mb-4 space-y-2">
+            <div className="rounded-lg border border-blue-200 dark:border-blue-800 bg-blue-50 dark:bg-blue-900/20 p-3">
+              <p className="text-xs font-medium text-blue-700 dark:text-blue-400">
+                جارٍ الإرسال {bulkProgress.current}/{bulkProgress.total}...
+              </p>
+              <p className="text-xs text-blue-600 dark:text-blue-300 mt-1">
+                نجح: {bulkProgress.sent} — فشل: {bulkProgress.failed}
+              </p>
+            </div>
+            <div className="w-full bg-stone-200 dark:bg-stone-700 rounded-full h-2">
+              <div className="bg-emerald-500 h-2 rounded-full transition-all duration-200" style={{ width: `${(bulkProgress.current / bulkProgress.total) * 100}%` }} />
+            </div>
+          </div>
+        )}
         <div className="flex gap-2 justify-end">
-          <button onClick={() => setModal(null)} className="rounded-lg border border-stone-200 dark:border-stone-600 px-4 py-2 text-xs font-medium text-stone-600 dark:text-stone-300">إلغاء</button>
+          <button onClick={() => setModal(null)} disabled={actionLoading} className="rounded-lg border border-stone-200 dark:border-stone-600 px-4 py-2 text-xs font-medium text-stone-600 dark:text-stone-300 disabled:opacity-50 disabled:cursor-not-allowed">إلغاء</button>
           <button onClick={() => {
             if (!confirm(`سيتم إرسال بريد جماعي لجمهور "${bulkAudience === 'all' ? 'الكل' : bulkAudience === 'trial' ? 'تجريبي' : bulkAudience === 'active' ? 'مدفوع' : 'منتهي'}". هل أنت متأكد؟`)) return;
             handleBulkEmail();
-          }} disabled={actionLoading || !emailSubject || !emailBody} className="rounded-lg bg-emerald-600 px-4 py-2 text-xs font-bold text-white disabled:opacity-50">
+          }} disabled={actionLoading || !emailSubject || !emailBody} className="rounded-lg bg-emerald-600 px-4 py-2 text-xs font-bold text-white disabled:opacity-50 disabled:cursor-not-allowed">
             {actionLoading ? 'جارٍ الإرسال...' : 'إرسال للكل'}
           </button>
         </div>
@@ -1332,7 +1389,7 @@ export default function Admin() {
         <p className="text-xs text-red-600 dark:text-red-400 mb-4">سيتم منع المستخدم من تسجيل الدخول وإنهاء اشتراكه.</p>
         <div className="flex gap-2 justify-end">
           <button onClick={() => setModal(null)} className="rounded-lg border border-stone-200 dark:border-stone-600 px-4 py-2 text-xs font-medium text-stone-600 dark:text-stone-300">إلغاء</button>
-          <button onClick={handleSuspend} disabled={actionLoading} className="rounded-lg bg-red-600 px-4 py-2 text-xs font-bold text-white disabled:opacity-50">
+          <button onClick={handleSuspend} disabled={actionLoading} className="rounded-lg bg-red-600 px-4 py-2 text-xs font-bold text-white disabled:opacity-50 disabled:cursor-not-allowed">
             {actionLoading ? 'جارٍ الإيقاف...' : 'إيقاف'}
           </button>
         </div>
@@ -1359,7 +1416,7 @@ export default function Admin() {
               <option value="">— اختر دفعة —</option>
               {userPayments.map(p => (
                 <option key={p.id} value={p.id}>
-                  {p.id.slice(0, 20)}... — {(p.amount / 100).toFixed(2)} {p.currency.toUpperCase()} — {new Date(p.created).toLocaleDateString('en-GB')} ({p.status})
+                  {p.id.slice(0, 20)}... — {(p.amount / 100).toFixed(2)} {p.currency.toUpperCase()} — {new Date(p.created).toLocaleDateString('ar-u-nu-latn')} ({p.status})
                 </option>
               ))}
             </select>
@@ -1395,7 +1452,7 @@ export default function Admin() {
               finally { setActionLoading(false); }
             }}
             disabled={actionLoading || !refundId.trim()}
-            className="rounded-lg bg-amber-600 px-4 py-2 text-xs font-bold text-white disabled:opacity-50"
+            className="rounded-lg bg-amber-600 px-4 py-2 text-xs font-bold text-white disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {actionLoading ? 'جارٍ الاسترداد...' : 'استرداد'}
           </button>
@@ -1408,7 +1465,7 @@ export default function Admin() {
         <p className="text-xs text-red-600 dark:text-red-400 mb-4">سيتم إلغاء اشتراك Stripe وحذف جميع البيانات من كل الجداول وإزالة حساب المصادقة. لا يمكن التراجع عن هذا الإجراء.</p>
         <div className="flex gap-2 justify-end">
           <button onClick={() => setModal(null)} className="rounded-lg border border-stone-200 dark:border-stone-600 px-4 py-2 text-xs font-medium text-stone-600 dark:text-stone-300">إلغاء</button>
-          <button onClick={handleDelete} disabled={actionLoading} className="rounded-lg bg-red-600 px-4 py-2 text-xs font-bold text-white disabled:opacity-50">
+          <button onClick={handleDelete} disabled={actionLoading} className="rounded-lg bg-red-600 px-4 py-2 text-xs font-bold text-white disabled:opacity-50 disabled:cursor-not-allowed">
             {actionLoading ? 'جارٍ الحذف...' : 'حذف نهائياً'}
           </button>
         </div>
@@ -1435,7 +1492,7 @@ export default function Admin() {
                       <span className="text-stone-500 dark:text-stone-300">البريد</span><span className="font-mono">{ud.user.email}</span>
                       <span className="text-stone-500 dark:text-stone-300">المزوّد</span><span>{ud.user.provider}</span>
                       <span className="text-stone-500 dark:text-stone-300">مؤكد</span><span>{ud.user.confirmed ? 'نعم' : 'لا'}</span>
-                      <span className="text-stone-500 dark:text-stone-300">الانضمام</span><span>{new Date(ud.user.created_at).toLocaleDateString('ar-SA')}</span>
+                      <span className="text-stone-500 dark:text-stone-300">الانضمام</span><span>{new Date(ud.user.created_at).toLocaleDateString('ar-u-nu-latn')}</span>
                       <span className="text-stone-500 dark:text-stone-300">آخر دخول</span><span>{ud.user.last_sign_in_at ? timeAgo(ud.user.last_sign_in_at) : '—'}</span>
                       {ud.user.banned_until && <><span className="text-stone-500 dark:text-stone-300">محظور حتى</span><span className="text-red-600 dark:text-red-400">{ud.user.banned_until}</span></>}
                       <span className="text-stone-500 dark:text-stone-300">طلبات المدرب</span><span>{ud.ai_coach_request_count}</span>
@@ -1449,8 +1506,8 @@ export default function Admin() {
                       <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-sm">
                         <span className="text-stone-500 dark:text-stone-300">الحالة</span><span><Badge status={ud.subscription.status} /></span>
                         <span className="text-stone-500 dark:text-stone-300">الباقة</span><span>{ud.subscription.tier || '—'}</span>
-                        <span className="text-stone-500 dark:text-stone-300">نهاية الفترة</span><span>{ud.subscription.current_period_end ? new Date(ud.subscription.current_period_end).toLocaleDateString('ar-SA') : '—'}</span>
-                        <span className="text-stone-500 dark:text-stone-300">انتهاء التجربة</span><span>{ud.subscription.trial_ends_at ? new Date(ud.subscription.trial_ends_at).toLocaleDateString('ar-SA') : '—'}</span>
+                        <span className="text-stone-500 dark:text-stone-300">نهاية الفترة</span><span>{ud.subscription.current_period_end ? new Date(ud.subscription.current_period_end).toLocaleDateString('ar-u-nu-latn') : '—'}</span>
+                        <span className="text-stone-500 dark:text-stone-300">انتهاء التجربة</span><span>{ud.subscription.trial_ends_at ? new Date(ud.subscription.trial_ends_at).toLocaleDateString('ar-u-nu-latn') : '—'}</span>
                         <span className="text-stone-500 dark:text-stone-300">اشتراك Stripe</span><span className="font-mono text-xs truncate">{ud.subscription.stripe_subscription_id || '—'}</span>
                         <span className="text-stone-500 dark:text-stone-300">عميل Stripe</span><span className="font-mono text-xs truncate">{ud.subscription.stripe_customer_id || '—'}</span>
                       </div>
@@ -1599,7 +1656,7 @@ export default function Admin() {
                       placeholder="أضف ملاحظة..."
                       rows={2}
                       className="w-full rounded-lg border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 px-3 py-2 text-sm outline-none focus:border-emerald-300 dark:border-emerald-700 resize-y"
-                      dir="ltr"
+                      dir="auto"
                     />
                     <div className="flex justify-end mt-2">
                       <button
@@ -1614,7 +1671,7 @@ export default function Admin() {
                           } catch (e) { toast.error(e instanceof Error ? e.message : 'فشلت العملية'); }
                           finally { setNoteSaving(false); }
                         }}
-                        className="rounded-lg bg-emerald-600 px-4 py-1.5 text-xs font-bold text-white hover:bg-emerald-700 disabled:opacity-50"
+                        className="rounded-lg bg-emerald-600 px-4 py-1.5 text-xs font-bold text-white hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed"
                       >
                         {noteSaving ? 'جارٍ الحفظ...' : 'حفظ الملاحظة'}
                       </button>

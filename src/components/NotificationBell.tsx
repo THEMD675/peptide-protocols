@@ -1,13 +1,15 @@
-import { useState, useRef, useEffect } from 'react';
-import { Bell, FileText, Flame, Clock, Trophy, Bot } from 'lucide-react';
+import { useState, useRef, useEffect, useCallback } from 'react';
+import { Bell, FileText, Flame, Clock, Trophy, Bot, Loader2, Gift } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
+import { logError } from '@/lib/logger';
+import { toast } from 'sonner';
 
 interface Notification {
   id: string;
-  type: 'blog' | 'streak' | 'trial' | 'achievement' | 'coach';
+  type: 'blog' | 'streak' | 'trial' | 'achievement' | 'coach' | 'referral';
   title_ar: string;
   body_ar: string;
   read: boolean;
@@ -20,46 +22,121 @@ const TYPE_ICON: Record<string, LucideIcon> = {
   trial: Clock,
   achievement: Trophy,
   coach: Bot,
+  referral: Gift,
 };
 
 export default function NotificationBell() {
   const { user } = useAuth();
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [open, setOpen] = useState(false);
+  const [hasMore, setHasMore] = useState(false);
+  const [loadingMore, setLoadingMore] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
+  const PAGE_SIZE = 20;
 
   const unreadCount = notifications.filter(n => !n.read).length;
+
+  const loadMore = useCallback(async () => {
+    if (!user?.id || loadingMore) return;
+    setLoadingMore(true);
+    try {
+      const { data } = await supabase
+        .from('notifications')
+        .select('id, type, title_ar, body_ar, read, created_at')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false })
+        .range(notifications.length, notifications.length + PAGE_SIZE - 1);
+      if (data) {
+        setNotifications(prev => [...prev, ...(data as Notification[])]);
+        setHasMore(data.length === PAGE_SIZE);
+      }
+    } catch { /* silent */ } finally {
+      setLoadingMore(false);
+    }
+  }, [user?.id, notifications.length, loadingMore]);
 
   useEffect(() => {
     if (!user?.id) return;
     let mounted = true;
     supabase
       .from('notifications')
-      .select('*')
+      .select('id, type, title_ar, body_ar, read, created_at')
       .eq('user_id', user.id)
       .order('created_at', { ascending: false })
-      .limit(20)
-      .then(({ data }) => {
-        if (mounted && data) setNotifications(data as Notification[]);
-      });
+      .limit(PAGE_SIZE)
+      .then(({ data, error }) => {
+        if (error) logError('notifications fetch failed:', error);
+        if (mounted && data) {
+          setNotifications(data as Notification[]);
+          setHasMore(data.length === PAGE_SIZE);
+        }
+      })
+      .catch(e => logError('notifications fetch failed:', e));
     return () => { mounted = false; };
-  }, [user]);
+  }, [user?.id]);
 
-  // Real-time subscription
+  // Real-time subscription with reconnection handling
   useEffect(() => {
     if (!user?.id) return;
+    let pollTimer: ReturnType<typeof setInterval> | null = null;
+    const userId = user.id;
+
+    const refetch = () => {
+      supabase
+        .from('notifications')
+        .select('id, type, title_ar, body_ar, read, created_at')
+        .eq('user_id', userId)
+        .order('created_at', { ascending: false })
+        .limit(20)
+        .then(({ data }) => {
+          if (data) {
+            setNotifications(prev => {
+              const map = new Map<string, Notification>();
+              for (const n of prev) map.set(n.id, n);
+              for (const n of data as Notification[]) map.set(n.id, n);
+              return Array.from(map.values()).sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+            });
+          }
+        })
+        .catch(e => logError('notification refetch failed:', e));
+    };
+
     const channel = supabase
-      .channel('notifications')
+      .channel(`notifications:${userId}`)
       .on(
         'postgres_changes',
-        { event: 'INSERT', schema: 'public', table: 'notifications', filter: `user_id=eq.${user.id}` },
+        { event: 'INSERT', schema: 'public', table: 'notifications', filter: `user_id=eq.${userId}` },
         (payload) => {
-          setNotifications(prev => [payload.new as Notification, ...prev]);
+          setNotifications(prev => {
+            const n = payload.new as Notification;
+            if (prev.some(p => p.id === n.id)) return prev;
+            return [n, ...prev];
+          });
         },
       )
-      .subscribe();
-    return () => { supabase.removeChannel(channel); };
-  }, [user]);
+      .subscribe((status) => {
+        if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT') {
+          // Start fallback polling on disconnect
+          if (!pollTimer) {
+            pollTimer = setInterval(refetch, 15_000);
+          }
+        } else if (status === 'SUBSCRIBED') {
+          // Connected — stop polling and refetch to catch missed notifications
+          if (pollTimer) { clearInterval(pollTimer); pollTimer = null; }
+          refetch();
+        }
+      });
+
+    // Also refetch when network comes back online
+    const onOnline = () => refetch();
+    window.addEventListener('pptides:online', onOnline);
+
+    return () => {
+      supabase.removeChannel(channel);
+      if (pollTimer) clearInterval(pollTimer);
+      window.removeEventListener('pptides:online', onOnline);
+    };
+  }, [user?.id]);
 
   // Close on outside click
   useEffect(() => {
@@ -71,20 +148,30 @@ export default function NotificationBell() {
   }, []);
 
   const markAsRead = async (id: string) => {
-    setNotifications(prev => prev.map(n => n.id === id ? { ...n, read: true } : n));
-    const { error } = await supabase.from('notifications').update({ read: true }).eq('id', id);
-    if (error) console.error('notification mark-read failed:', error);
+    const prev = notifications;
+    setNotifications(curr => curr.map(n => n.id === id ? { ...n, read: true } : n));
+    const { error } = await supabase.from('notifications').update({ read: true }).eq('id', id).eq('user_id', user!.id);
+    if (error) {
+      logError('notification mark-read failed:', error);
+      toast.error('تعذّر تحديث الإشعارات');
+      setNotifications(prev);
+    }
   };
 
   const markAllRead = async () => {
     if (!user?.id) return;
-    setNotifications(prev => prev.map(n => ({ ...n, read: true })));
+    const prev = notifications;
+    setNotifications(curr => curr.map(n => ({ ...n, read: true })));
     const { error } = await supabase
       .from('notifications')
       .update({ read: true })
       .eq('user_id', user.id)
       .eq('read', false);
-    if (error) console.error('notification mark-all-read failed:', error);
+    if (error) {
+      logError('notification mark-all-read failed:', error);
+      toast.error('تعذّر تحديث الإشعارات');
+      setNotifications(prev);
+    }
   };
 
   if (!user) return null;
@@ -129,30 +216,42 @@ export default function NotificationBell() {
                 <p className="text-xs text-stone-500 dark:text-stone-300">سنعلمك بالتحديثات المهمة وتذكيرات الجرعات</p>
               </div>
             ) : (
-              notifications.map(n => (
-                <button
-                  key={n.id}
-                  onClick={() => { markAsRead(n.id); }}
-                  className={cn(
-                    'flex w-full gap-3 px-4 py-3 text-start transition-colors hover:bg-stone-50 dark:hover:bg-stone-800',
-                    !n.read && 'bg-emerald-50/50',
-                  )}
-                >
-                  {(() => { const Icon = TYPE_ICON[n.type] ?? Bell; return <Icon className="mt-0.5 h-5 w-5 shrink-0 text-stone-400" />; })()}
-                  <div className="min-w-0 flex-1">
-                    <p className={cn('text-sm', !n.read ? 'font-bold text-stone-900 dark:text-stone-100' : 'font-medium text-stone-700 dark:text-stone-200')}>
-                      {n.title_ar}
-                    </p>
-                    <p className="mt-0.5 text-xs text-stone-500 dark:text-stone-300 line-clamp-2">{n.body_ar}</p>
-                    <p className="mt-1 text-[10px] text-stone-400">
-                      {formatTimeAgo(n.created_at)}
-                    </p>
-                  </div>
-                  {!n.read && (
-                    <span className="mt-2 h-2 w-2 shrink-0 rounded-full bg-emerald-500" />
-                  )}
-                </button>
-              ))
+              <>
+                {notifications.map(n => (
+                  <button
+                    key={n.id}
+                    onClick={() => { markAsRead(n.id); }}
+                    className={cn(
+                      'flex w-full gap-3 px-4 py-3 text-start transition-colors hover:bg-stone-50 dark:hover:bg-stone-800',
+                      !n.read && 'bg-emerald-50/50',
+                    )}
+                  >
+                    {(() => { const Icon = TYPE_ICON[n.type] ?? Bell; return <Icon className="mt-0.5 h-5 w-5 shrink-0 text-stone-400" />; })()}
+                    <div className="min-w-0 flex-1">
+                      <p className={cn('text-sm', !n.read ? 'font-bold text-stone-900 dark:text-stone-100' : 'font-medium text-stone-700 dark:text-stone-200')}>
+                        {n.title_ar}
+                      </p>
+                      <p className="mt-0.5 text-xs text-stone-500 dark:text-stone-300 line-clamp-2">{n.body_ar}</p>
+                      <p className="mt-1 text-[10px] text-stone-400">
+                        {formatTimeAgo(n.created_at)}
+                      </p>
+                    </div>
+                    {!n.read && (
+                      <span className="mt-2 h-2 w-2 shrink-0 rounded-full bg-emerald-500" />
+                    )}
+                  </button>
+                ))}
+                {hasMore && (
+                  <button
+                    type="button"
+                    onClick={loadMore}
+                    disabled={loadingMore}
+                    className="flex w-full items-center justify-center gap-2 border-t border-stone-100 dark:border-stone-700 px-4 py-3 text-xs font-bold text-emerald-600 dark:text-emerald-400 hover:bg-stone-50 dark:hover:bg-stone-800 transition-colors disabled:opacity-50"
+                  >
+                    {loadingMore ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : 'تحميل المزيد'}
+                  </button>
+                )}
+              </>
             )}
           </div>
         </div>

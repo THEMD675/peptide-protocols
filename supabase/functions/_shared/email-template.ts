@@ -12,6 +12,10 @@ const BRAND_COLOR = '#059669' // emerald-600
  */
 export function emailWrapper(content: string): string {
   return `
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head><meta charset="UTF-8"></head>
+<body>
 <div dir="rtl" style="font-family: 'Cairo', Tahoma, Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 40px 20px; line-height: 1.8;">
   <p style="margin: 0 0 24px 0; font-size: 20px; font-weight: bold; color: ${BRAND_COLOR};">pptides</p>
   ${content}
@@ -26,6 +30,8 @@ export function emailWrapper(content: string): string {
     لإلغاء الاشتراك من رسائلنا، تواصل معنا: <a href="mailto:${SUPPORT_EMAIL}" style="color: #a8a29e;">${SUPPORT_EMAIL}</a>
   </p>
 </div>
+</body>
+</html>
 `.trim()
 }
 

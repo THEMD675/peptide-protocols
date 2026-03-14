@@ -1,10 +1,12 @@
-import { useState, useEffect, useCallback } from 'react';
-import { ChevronDown, ChevronUp, Loader2, Plus, Trash2, AlertTriangle } from 'lucide-react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
+import { Link } from 'react-router-dom';
+import { ChevronDown, ChevronUp, Loader2, Plus, Trash2, AlertTriangle, Search, TrendingUp, Bot } from 'lucide-react';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
 import { peptidesLite as allPeptides } from '@/data/peptides-lite';
+import { logError } from '@/lib/logger';
 
 interface SideEffectEntry {
   id: string;
@@ -23,10 +25,10 @@ interface ActiveProtocol {
 
 const SEVERITY_COLORS = [
   'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 border-emerald-300 dark:border-emerald-700',
-  'bg-lime-100 text-lime-700 border-lime-300',
-  'bg-yellow-100 text-yellow-700 border-yellow-300',
-  'bg-orange-100 text-orange-700 border-orange-300',
-  'bg-red-100 text-red-700 dark:text-red-400 border-red-300',
+  'bg-lime-100 dark:bg-lime-900/30 text-lime-700 dark:text-lime-400 border-lime-300 dark:border-lime-700',
+  'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400 border-yellow-300 dark:border-yellow-700',
+  'bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-400 border-orange-300 dark:border-orange-700',
+  'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 border-red-300 dark:border-red-700',
 ];
 
 const SEVERITY_LABELS = ['خفيف', 'بسيط', 'متوسط', 'شديد', 'حاد'];
@@ -55,20 +57,24 @@ export default function SideEffectLog() {
   const [peptideId, setPeptideId] = useState('');
   const [notes, setNotes] = useState('');
 
+  const [searchQuery, setSearchQuery] = useState('');
+  const [dateFilter, setDateFilter] = useState<'7d' | '30d' | 'all'>('all');
+  const [showAll, setShowAll] = useState(false);
+
   const fetchEntries = useCallback(async () => {
     if (!user) return;
     setLoading(true);
     try {
       const { data, error } = await supabase
         .from('side_effect_logs')
-        .select('*')
+        .select('id, symptom, severity, notes, peptide_id, created_at')
         .eq('user_id', user.id)
         .order('created_at', { ascending: false })
-        .limit(50);
+        .limit(200);
 
       if (!error && data) setEntries(data as SideEffectEntry[]);
-    } catch {
-      // silently ignored
+    } catch (e) {
+      logError('side effect fetch failed:', e);
     } finally {
       setLoading(false);
     }
@@ -82,9 +88,11 @@ export default function SideEffectLog() {
         .select('id, peptide_id, status')
         .eq('user_id', user.id)
         .eq('status', 'active');
-      if (!error && data) setActiveProtocols(data);
-    } catch {
-      // silently ignored
+      if (error) { toast.error('تعذّر تحميل البروتوكولات النشطة'); }
+      else if (data) setActiveProtocols(data);
+    } catch (e) {
+      logError('protocols fetch failed:', e);
+      toast.error('تعذّر تحميل البروتوكولات النشطة');
     }
   }, [user]);
 
@@ -112,14 +120,18 @@ export default function SideEffectLog() {
         created_at: new Date().toISOString(),
       });
       if (error) throw error;
-      toast.success('تم تسجيل العرض الجانبي');
+      if (severity >= 4) {
+        toast.warning('⚠ عرض جانبي شديد — استشر طبيبك فورًا. فكّر في إيقاف البروتوكول مؤقتًا.', { duration: 10000 });
+      } else {
+        toast.success('تم تسجيل العرض الجانبي');
+      }
       setSymptom('');
       setSeverity(1);
       setPeptideId('');
       setNotes('');
       await fetchEntries();
-    } catch {
-      toast.error('تعذّر حفظ العرض — حاول مرة أخرى');
+    } catch (e) { logError('side effect submit failed:', e);
+      toast.error('تعذّر حفظ الأعراض الجانبية');
     } finally {
       setIsSubmitting(false);
     }
@@ -146,6 +158,36 @@ export default function SideEffectLog() {
       toast.error('تعذّر حذف العرض');
     }
   };
+
+  const filteredEntries = useMemo(() => {
+    let result = entries;
+    if (dateFilter !== 'all') {
+      const now = Date.now();
+      const ms = dateFilter === '7d' ? 7 * 86400000 : 30 * 86400000;
+      result = result.filter(e => now - new Date(e.created_at).getTime() <= ms);
+    }
+    if (searchQuery.trim()) {
+      const q = searchQuery.trim().toLowerCase();
+      result = result.filter(e =>
+        e.symptom.toLowerCase().includes(q) ||
+        (e.notes && e.notes.toLowerCase().includes(q))
+      );
+    }
+    return result;
+  }, [entries, dateFilter, searchQuery]);
+
+  const frequencyInsights = useMemo(() => {
+    const thirtyDaysAgo = Date.now() - 30 * 86400000;
+    const recent = entries.filter(e => new Date(e.created_at).getTime() >= thirtyDaysAgo);
+    const counts: Record<string, number> = {};
+    recent.forEach(e => { counts[e.symptom] = (counts[e.symptom] ?? 0) + 1; });
+    return Object.entries(counts)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 3)
+      .filter(([, c]) => c >= 2);
+  }, [entries]);
+
+  const displayedEntries = showAll ? filteredEntries : filteredEntries.slice(0, 10);
 
   if (!user) return null;
 
@@ -202,14 +244,21 @@ export default function SideEffectLog() {
                     className={cn(
                       'flex-1 rounded-lg border py-2 min-h-[44px] text-xs font-bold transition-all btn-press',
                       severity === level
-                        ? SEVERITY_COLORS[level - 1]
+                        ? SEVERITY_COLORS[Math.max(0, Math.min(4, (level || 1) - 1))]
                         : 'border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 text-stone-500 dark:text-stone-300 hover:border-stone-300 dark:border-stone-600',
                     )}
                   >
-                    {SEVERITY_LABELS[level - 1]}
+                    {SEVERITY_LABELS[Math.max(0, Math.min(4, (level || 1) - 1))]}
                   </button>
                 ))}
               </div>
+              {severity >= 4 && (
+                <div className="rounded-xl border border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-900/20 p-3 mt-2">
+                  <p className="text-sm font-bold text-red-800 dark:text-red-300">⚠ هذا عرض جانبي شديد — استشر طبيبك</p>
+                  <p className="text-xs text-red-700 dark:text-red-400 mt-1">هل تريد إيقاف البروتوكول مؤقتًا؟</p>
+                  <Link to="/coach" className="text-xs font-bold text-emerald-700 mt-1 inline-block">اسأل المدرب</Link>
+                </div>
+              )}
             </div>
 
             {activePeptideOptions.length > 0 && (
@@ -251,7 +300,7 @@ export default function SideEffectLog() {
             <button
               onClick={handleSubmit}
               disabled={isSubmitting || !symptom.trim()}
-              className="flex w-full items-center justify-center gap-2 rounded-xl bg-emerald-600 px-6 py-3 text-sm font-bold text-white transition-all hover:bg-emerald-700 disabled:opacity-50"
+              className="flex w-full items-center justify-center gap-2 rounded-xl bg-emerald-600 px-6 py-3 text-sm font-bold text-white transition-all hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {isSubmitting ? (
                 <>
@@ -267,6 +316,57 @@ export default function SideEffectLog() {
             </button>
           </div>
 
+          {/* Frequency insights */}
+          {!loading && frequencyInsights.length > 0 && (
+            <div className="rounded-xl border border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-900/20 p-3">
+              <div className="flex items-center gap-2 mb-2">
+                <TrendingUp className="h-4 w-4 text-amber-600 dark:text-amber-400" />
+                <h4 className="text-xs font-bold text-amber-700 dark:text-amber-400">أكثر الأعراض هذا الشهر</h4>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {frequencyInsights.map(([name, count]) => (
+                  <span key={name} className="inline-flex items-center gap-1 rounded-full bg-amber-100 dark:bg-amber-900/40 px-2.5 py-1 text-xs font-bold text-amber-800 dark:text-amber-300">
+                    {name}
+                    <span className="rounded-full bg-amber-200 dark:bg-amber-800 px-1.5 text-[10px]">{count}×</span>
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Search & date filter */}
+          {!loading && entries.length > 0 && (
+            <div className="space-y-3">
+              <div className="relative">
+                <Search className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-stone-400" />
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={e => setSearchQuery(e.target.value)}
+                  placeholder="ابحث عن عرض..."
+                  className="w-full rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 pe-9 ps-4 py-2 text-sm text-stone-900 dark:text-stone-100 placeholder:text-stone-400 focus:border-emerald-300 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900"
+                />
+              </div>
+              <div className="flex gap-1.5">
+                {([['7d', '٧ أيام'], ['30d', '٣٠ يوم'], ['all', 'الكل']] as const).map(([val, label]) => (
+                  <button
+                    key={val}
+                    type="button"
+                    onClick={() => setDateFilter(val)}
+                    className={cn(
+                      'rounded-lg px-3 py-1.5 text-xs font-bold transition-colors',
+                      dateFilter === val
+                        ? 'bg-emerald-600 text-white'
+                        : 'bg-stone-100 dark:bg-stone-800 text-stone-600 dark:text-stone-300 hover:bg-stone-200 dark:hover:bg-stone-700',
+                    )}
+                  >
+                    {label}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
           {/* Recent entries */}
           {loading ? (
             <div className="flex items-center justify-center py-6">
@@ -274,8 +374,12 @@ export default function SideEffectLog() {
             </div>
           ) : entries.length > 0 ? (
             <div className="space-y-2">
-              <h4 className="text-xs font-bold text-stone-500 dark:text-stone-300">آخر الأعراض</h4>
-              {entries.slice(0, 10).map(entry => {
+              <h4 className="text-xs font-bold text-stone-500 dark:text-stone-300">
+                {searchQuery || dateFilter !== 'all' ? `${filteredEntries.length} نتيجة` : 'آخر الأعراض'}
+              </h4>
+              {displayedEntries.length === 0 ? (
+                <p className="text-center text-xs text-stone-500 dark:text-stone-300 py-4">لا توجد نتائج</p>
+              ) : displayedEntries.map(entry => {
                 const peptide = entry.peptide_id
                   ? allPeptides.find(p => p.id === entry.peptide_id)
                   : null;
@@ -290,10 +394,10 @@ export default function SideEffectLog() {
                         <span
                           className={cn(
                             'rounded-full px-2 py-0.5 text-[10px] font-bold border',
-                            SEVERITY_COLORS[entry.severity - 1],
+                            SEVERITY_COLORS[Math.max(0, Math.min(4, (entry.severity || 1) - 1))],
                           )}
                         >
-                          {SEVERITY_LABELS[entry.severity - 1]}
+                          {SEVERITY_LABELS[Math.max(0, Math.min(4, (entry.severity || 1) - 1))]}
                         </span>
                       </div>
                       <div className="mt-1 flex items-center gap-2 text-xs text-stone-500 dark:text-stone-300">
@@ -305,6 +409,7 @@ export default function SideEffectLog() {
                       )}
                     </div>
                     <button
+                      type="button"
                       onClick={() => handleDelete(entry.id)}
                       onBlur={() => { if (deletingId === entry.id) setDeletingId(null); }}
                       className={cn(
@@ -320,9 +425,38 @@ export default function SideEffectLog() {
                   </div>
                 );
               })}
+              {!showAll && filteredEntries.length > 10 && (
+                <button
+                  type="button"
+                  onClick={() => setShowAll(true)}
+                  className="w-full rounded-xl border border-stone-200 dark:border-stone-600 py-2.5 text-xs font-bold text-emerald-600 dark:text-emerald-400 hover:bg-stone-50 dark:hover:bg-stone-800 transition-colors"
+                >
+                  عرض الكل ({filteredEntries.length})
+                </button>
+              )}
+              {showAll && filteredEntries.length > 10 && (
+                <button
+                  type="button"
+                  onClick={() => setShowAll(false)}
+                  className="w-full rounded-xl border border-stone-200 dark:border-stone-600 py-2.5 text-xs font-bold text-stone-500 dark:text-stone-300 hover:bg-stone-50 dark:hover:bg-stone-800 transition-colors"
+                >
+                  عرض أقل
+                </button>
+              )}
             </div>
           ) : (
             <p className="text-center text-xs text-stone-500 dark:text-stone-300 py-4">لا توجد أعراض مسجّلة</p>
+          )}
+
+          {/* Ask Coach CTA */}
+          {!loading && entries.length > 0 && (
+            <Link
+              to={`/coach?q=${encodeURIComponent('سجّلت أعراض جانبية — هل يجب أن أقلق أو أعدّل البروتوكول؟')}`}
+              className="flex items-center justify-center gap-2 rounded-xl border border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-900/10 px-4 py-3 text-sm font-bold text-amber-700 dark:text-amber-400 transition-colors hover:bg-amber-100 dark:hover:bg-amber-900/20"
+            >
+              <Bot className="h-4 w-4" />
+              اسأل المدرب عن أعراضك
+            </Link>
           )}
 
           {/* Correlation summary — group by peptide, show for 2+ */}

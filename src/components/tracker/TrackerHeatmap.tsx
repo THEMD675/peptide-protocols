@@ -45,7 +45,7 @@ interface TrackerHeatmapProps {
 
 export default function TrackerHeatmap({
   calendarData,
-  calendarMonth,
+  calendarMonth: _calendarMonth,
   setCalendarMonth,
   heatmapData,
   heatmapView,
@@ -107,7 +107,9 @@ export default function TrackerHeatmap({
                   <div key={wi} className="flex flex-col gap-1">
                     {week.map((day) => {
                       const intensity = day.count === 0 ? 0 : Math.min(Math.ceil((day.count / heatmapData.maxCount) * 4), 4);
-                      const isToday = day.key === new Date().toISOString().slice(0, 10);
+                      const now = new Date();
+                      const todayKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+                      const isToday = day.key === todayKey;
                       return (
                         <div
                           key={day.key}
@@ -127,7 +129,7 @@ export default function TrackerHeatmap({
                   </div>
                 ))}
               </div>
-              <div className="flex items-center justify-end gap-1.5 mt-3 text-[10px] text-stone-500 dark:text-stone-300">
+              <div className="flex items-center justify-end gap-1.5 mt-3 text-xs text-stone-500 dark:text-stone-300">
                 <span>أقل</span>
                 <div className="h-3 w-3 rounded-sm bg-stone-100 dark:bg-stone-800" />
                 <div className="h-3 w-3 rounded-sm bg-emerald-200" />
@@ -166,7 +168,7 @@ export default function TrackerHeatmap({
                   </div>
                 </div>
               ))}
-              <div className="flex items-center justify-end gap-1.5 text-[10px] text-stone-500 dark:text-stone-300">
+              <div className="flex items-center justify-end gap-1.5 text-xs text-stone-500 dark:text-stone-300">
                 <span>أقل</span>
                 <div className="h-3 w-3 rounded-sm bg-stone-100 dark:bg-stone-800" />
                 <div className="h-3 w-3 rounded-sm bg-emerald-200" />

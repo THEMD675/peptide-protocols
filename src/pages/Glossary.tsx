@@ -126,6 +126,7 @@ function GlossaryCard({ term, search, allPeptides }: { term: GlossaryTerm; searc
 export default function Glossary() {
   const [search, setSearch] = useState('');
   const [activeLetter, setActiveLetter] = useState<string | null>(null);
+  const [expandedLetters, setExpandedLetters] = useState<Set<string>>(new Set());
 
   const filtered = useMemo(() => {
     if (!search.trim()) return TERMS;
@@ -159,6 +160,7 @@ export default function Glossary() {
 
   return (
     <div className="min-h-screen mx-auto max-w-4xl px-4 pb-24 pt-8 md:px-6 md:pt-12 animate-fade-in">
+        <div className="mb-4 rounded-xl border border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-900/20 px-4 py-2 text-xs text-amber-700 dark:text-amber-400">محتوى تعليمي — استشر طبيبك قبل استخدام أي ببتيد</div>
       <Helmet>
         <title>قاموس مصطلحات الببتيدات والبيوهاكينغ | pptides</title>
         <meta name="description" content="قاموس عربي شامل لمصطلحات الببتيدات والطب الرياضي والبيوهاكينغ — تعريفات واضحة لكل مصطلح تقني من GH وIGF-1 إلى الببتيدات العصبية والمناعية." />
@@ -201,7 +203,7 @@ export default function Glossary() {
           onChange={(e) => setSearch(e.target.value)}
           placeholder="ابحث عن مصطلح..."
           aria-label="البحث في المصطلحات"
-          className="w-full rounded-2xl border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-800 py-4 ps-12 pe-10 text-sm text-stone-900 dark:text-stone-100 placeholder:text-stone-500 dark:text-stone-300 dark:placeholder:text-stone-400 focus:border-emerald-300 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900 transition-colors"
+          className="w-full rounded-2xl border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-800 py-4 ps-12 pe-10 text-sm text-stone-900 dark:text-stone-100 placeholder:text-stone-500 dark:text-stone-300 dark:placeholder:text-stone-500 focus:border-emerald-300 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-500 transition-colors"
         />
         {search && (
           <button
@@ -249,18 +251,42 @@ export default function Glossary() {
         </div>
       ) : (
         <div className="space-y-8">
-          {grouped.map(({ letter, terms }) => (
-            <section key={letter} id={`glossary-${letter}`} className="scroll-mt-32">
-              <h2 className="mb-4 flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-100 text-lg font-bold text-emerald-700">
-                {letter}
-              </h2>
-              <dl className="grid gap-4 sm:grid-cols-2">
-                {terms.map((term) => (
-                  <GlossaryCard key={term.en} term={term} search={search} allPeptides={allPeptides as { id: string; nameEn: string }[]} />
-                ))}
-              </dl>
-            </section>
-          ))}
+          {grouped.map(({ letter, terms }) => {
+            const isExpanded = search.trim() || expandedLetters.has(letter);
+            return (
+              <section key={letter} id={`glossary-${letter}`} className="scroll-mt-32">
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (search.trim()) return;
+                    setExpandedLetters(prev => {
+                      const next = new Set(prev);
+                      if (next.has(letter)) next.delete(letter);
+                      else next.add(letter);
+                      return next;
+                    });
+                  }}
+                  className="mb-4 flex items-center gap-3 group cursor-pointer"
+                  aria-expanded={!!isExpanded}
+                >
+                  <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-100 text-lg font-bold text-emerald-700">
+                    {letter}
+                  </span>
+                  <span className="text-sm font-medium text-stone-500 dark:text-stone-400">{terms.length} مصطلح</span>
+                  {!search.trim() && (
+                    <ChevronDown className={`h-4 w-4 text-stone-400 transition-transform ${isExpanded ? 'rotate-180' : ''}`} />
+                  )}
+                </button>
+                {isExpanded && (
+                  <dl className="grid gap-4 sm:grid-cols-2">
+                    {terms.map((term) => (
+                      <GlossaryCard key={term.en} term={term} search={search} allPeptides={allPeptides as { id: string; nameEn: string }[]} />
+                    ))}
+                  </dl>
+                )}
+              </section>
+            );
+          })}
         </div>
       )}
 

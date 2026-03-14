@@ -1,6 +1,8 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
+import { toast } from 'sonner';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
+import { logError } from '@/lib/logger';
 
 /**
  * Hook to manage peptide bookmarks.
@@ -18,7 +20,8 @@ export function useBookmarks(): {
     try {
       const stored = localStorage.getItem('pptides_favorites');
       return stored ? new Set(JSON.parse(stored)) : new Set();
-    } catch {
+    } catch (e) {
+      logError('bookmark op failed:', e);
       return new Set();
     }
   });
@@ -44,44 +47,49 @@ export function useBookmarks(): {
             try {
               const stored = localStorage.getItem('pptides_favorites');
               return stored ? (JSON.parse(stored) as string[]) : [];
-            } catch {
+            } catch (e) {
+              logError('bookmark op failed:', e);
               return [];
             }
           })();
 
           const toSync = localFavs.filter((s) => !slugs.has(s));
           if (toSync.length > 0) {
-            // Insert-only (duplicates ignored via onConflict DO NOTHING isn't available,
-            // so we filter already-synced slugs above; use insert + ignore duplicate errors)
             supabase
               .from('user_bookmarks')
-              .insert(
+              .upsert(
                 toSync.map((slug) => ({ user_id: user.id, peptide_slug: slug })),
+                { onConflict: 'user_id,peptide_slug' },
               )
               .then(() => {
                 if (mounted) {
                   toSync.forEach((s) => slugs.add(s));
                   setBookmarks(slugs);
                   // Clear localStorage after sync
-                  try { localStorage.removeItem('pptides_favorites'); } catch { /* */ }
+                  try { localStorage.removeItem('pptides_favorites'); } catch (e) { logError('bookmark op failed:', e); }
                 }
               });
           } else {
             setBookmarks(slugs);
-            try { localStorage.removeItem('pptides_favorites'); } catch { /* */ }
+            try { localStorage.removeItem('pptides_favorites'); } catch (e) { logError('bookmark op failed:', e); }
           }
         }
         setIsLoading(false);
       })
-      .catch(() => {
+      .catch((e) => {
+        logError('bookmark op failed:', e);
         if (mounted) setIsLoading(false);
       });
 
     return () => { mounted = false; };
   }, [user]);
 
+  const togglingRef = useRef<Set<string>>(new Set());
+
   const toggle = useCallback(
     (slug: string) => {
+      if (togglingRef.current.has(slug)) return;
+
       setBookmarks((prev) => {
         const next = new Set(prev);
         const adding = !next.has(slug);
@@ -93,30 +101,27 @@ export function useBookmarks(): {
         }
 
         if (user) {
-          // Supabase sync
-          if (adding) {
-            supabase
-              .from('user_bookmarks')
-              .insert({ user_id: user.id, peptide_slug: slug })
-              .then(({ error }) => {
-                // 23505 = unique_violation — bookmark already exists, safe to ignore
-                if (error && error.code !== '23505') console.error('Bookmark insert error:', error);
+          togglingRef.current.add(slug);
+          const op = adding
+            ? supabase.from('user_bookmarks').upsert({ user_id: user.id, peptide_slug: slug }, { onConflict: 'user_id,peptide_slug' })
+            : supabase.from('user_bookmarks').delete().eq('user_id', user.id).eq('peptide_slug', slug);
+
+          op.then(({ error }) => {
+            togglingRef.current.delete(slug);
+            if (error) {
+              // Rollback optimistic update
+              setBookmarks((cur) => {
+                const rolled = new Set(cur);
+                if (adding) rolled.delete(slug); else rolled.add(slug);
+                return rolled;
               });
-          } else {
-            supabase
-              .from('user_bookmarks')
-              .delete()
-              .eq('user_id', user.id)
-              .eq('peptide_slug', slug)
-              .then(({ error }) => {
-                if (error) console.error('Bookmark delete error:', error);
-              });
-          }
+              toast.error('تعذّر حفظ المفضّلة');
+            }
+          });
         } else {
-          // localStorage fallback
           try {
             localStorage.setItem('pptides_favorites', JSON.stringify([...next]));
-          } catch { /* */ }
+          } catch (e) { logError('bookmark op failed:', e); }
         }
 
         return next;

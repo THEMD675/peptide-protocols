@@ -16,14 +16,11 @@ export default memo(function AdherenceBar({ scheduled, actual }: AdherenceBarPro
       </div>
       <div className="h-2 w-full overflow-hidden rounded-full bg-stone-200 dark:bg-stone-700" role="progressbar" aria-valuenow={percent} aria-valuemin={0} aria-valuemax={100} aria-label={`الالتزام ${percent}%`}>
         <div
-          className="h-full rounded-full transition-all duration-700 ease-out"
-          style={{
-            width: `${percent}%`,
-            backgroundColor: percent >= 80 ? '#10b981' : percent >= 50 ? '#f59e0b' : '#ef4444',
-          }}
+          className={`h-full rounded-full transition-all duration-700 ease-out ${percent >= 80 ? 'bg-emerald-500' : percent >= 50 ? 'bg-amber-500' : 'bg-red-500'}`}
+          style={{ width: `${percent}%` }}
         />
       </div>
-      <p className="text-[10px] text-stone-500 dark:text-stone-300">{scheduled === 0 ? 'بروتوكول جديد — سجّل جرعتك الأولى' : `${actual} من ${scheduled} جرعة`}</p>
+      <p className="text-xs text-stone-500 dark:text-stone-300">{scheduled === 0 ? 'بروتوكول جديد — سجّل جرعتك الأولى' : `${actual} من ${scheduled} جرعة`}</p>
     </div>
   );
 });

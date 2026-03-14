@@ -29,7 +29,6 @@ const STATIC_PAGES = [
   ['/interactions', 'monthly', '0.7'],
   ['/sources', 'monthly', '0.7'],
   ['/community', 'weekly', '0.7'],
-  ['/reviews', 'weekly', '0.7'],
   ['/quiz', 'monthly', '0.7'],
   ['/about', 'monthly', '0.6'],
   ['/transparency', 'monthly', '0.6'],
@@ -105,7 +104,7 @@ function generateSitemap(peptideIds, blogPosts) {
     <priority>0.8</priority>
   </url>`
     ),
-    ...blogPosts.map(
+    ...blogPosts.filter(post => post.slug).map(
       (post) => `  <url>
     <loc>${BASE_URL}/blog/${post.slug}</loc>
     <lastmod>${post.date || today}</lastmod>

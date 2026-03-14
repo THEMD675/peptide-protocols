@@ -1,17 +1,19 @@
-import { useState, useCallback, useEffect, type ElementType, type ReactNode } from 'react';
-import { Link } from 'react-router-dom';
+import { useState, useCallback, useEffect, useRef, type ElementType, type ReactNode } from 'react';
+import { Link, useSearchParams } from 'react-router-dom';
 import {
   ArrowLeft, ArrowRight, CheckCircle, FlaskConical,
   TrendingDown, Heart, Brain, Zap, Clock, Shield,
   Syringe, Pill, SprayCan, Dumbbell, Moon, Sparkles,
-  Activity, AlertTriangle, Bookmark, Calculator,
+  Activity, AlertTriangle, Bookmark, Calculator, Gift,
 } from 'lucide-react';
+import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
 import { PRICING, TRIAL_DAYS } from '@/lib/constants';
 import { supabase } from '@/lib/supabase';
 import { events } from '@/lib/analytics';
-import { peptides as allPeptides } from '@/data/peptides';
+import { logError } from '@/lib/logger';
+import { peptidesPublic as allPeptides } from '@/data/peptides-public';
 import ShareButtons from '@/components/ShareButtons';
 import { SITE_URL } from '@/lib/constants';
 
@@ -217,7 +219,7 @@ const ORAL_NASAL_TOPICAL_IDS = new Set([
 function hasHealthConflict(peptideId: string, healthIssues: HealthIssueId[]): string | null {
   const peptide = allPeptides.find(p => p.id === peptideId);
   if (!peptide) return null;
-  const contra = peptide.contraindicationsAr.toLowerCase();
+  const contra = (peptide.contraindicationsAr ?? '').toLowerCase();
 
   if (healthIssues.includes('diabetes')) {
     if (['semaglutide', 'tirzepatide', 'retatrutide'].includes(peptideId)) {
@@ -325,7 +327,7 @@ function getProtocol(answers: QuizAnswers): ProtocolResult {
 
   // Build dosing schedule
   const pData = primary.peptide;
-  let dosingSchedule = pData.dosageAr.split('.')[0] + '.';
+  let dosingSchedule = (pData.dosageAr ?? 'اشترك لعرض الجرعة').split('.')[0] + '.';
   if (exp === 'beginner') {
     dosingSchedule += ' يُنصح بالبدء بأقل جرعة والزيادة تدريجياً.';
   }
@@ -352,20 +354,20 @@ function getProtocol(answers: QuizAnswers): ProtocolResult {
     warnings.push('ابدأ بجرعات منخفضة وزِد تدريجياً — الاستجابة تختلف مع العمر.');
   }
 
-  const cycleDur = pData.cycleAr ? pData.cycleAr.split('.')[0] + '.' : '8-12 أسبوع مبدئياً.';
+  const cycleDur = pData.cycleAr ? pData.cycleAr.split('.')[0] + '.' : 'اشترك لعرض مدة الدورة';
 
   return {
     primary: {
       peptideId: primary.id,
       nameAr: pData.nameAr,
       nameEn: pData.nameEn,
-      reason: pData.summaryAr.split('.').slice(0, 2).join('.') + '.',
+      reason: (pData.summaryAr ?? '').split('.').slice(0, 2).join('.') + '.',
     },
     supporting: supportingCandidates.map(sp => ({
       peptideId: sp.id,
       nameAr: sp.nameAr,
       nameEn: sp.nameEn,
-      reason: sp.summaryAr.split('.')[0] + '.',
+      reason: (sp.summaryAr ?? '').split('.')[0] + '.',
     })),
     dosingSchedule,
     monthlyCost: primaryCost,
@@ -399,7 +401,7 @@ function SlideTransition({ children, stepKey, direction }: { children: ReactNode
     <div
       className={cn(
         'transition-all duration-300 ease-out',
-        visible ? 'opacity-100 translate-x-0' : direction === 'forward' ? 'opacity-0 -translate-x-4' : 'opacity-0 translate-x-4',
+        visible ? 'opacity-100 translate-x-0' : direction === 'forward' ? 'opacity-0 translate-x-4' : 'opacity-0 -translate-x-4',
       )}
     >
       {children}
@@ -410,13 +412,73 @@ function SlideTransition({ children, stepKey, direction }: { children: ReactNode
 /* ─── Main Component ─────────────────────────────────── */
 
 export default function PeptideQuiz() {
-  const { user } = useAuth();
+  const { user, subscription } = useAuth();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [phase, setPhase] = useState<'welcome' | 'quiz' | 'result'>('welcome');
-  const [step, setStep] = useState(0);
+  const [step, setStep] = useState(() => {
+    try { return parseInt(sessionStorage.getItem('pptides_quiz_step') ?? '0', 10) || 0; } catch { return 0; }
+  });
   const [direction, setDirection] = useState<'forward' | 'backward'>('forward');
-  const [answers, setAnswers] = useState<QuizAnswers>({ healthIssues: [] });
+  const [answers, setAnswers] = useState<QuizAnswers>(() => {
+    try { const s = sessionStorage.getItem('pptides_quiz_progress'); return s ? JSON.parse(s) : { healthIssues: [] }; } catch { return { healthIssues: [] }; }
+  });
   const [result, setResult] = useState<ProtocolResult | null>(null);
   const [saved, setSaved] = useState(false);
+  const [referralCode, setReferralCode] = useState<string | null>(null);
+  const resultRef = useRef<HTMLDivElement>(null);
+
+  // Fetch referral code for logged-in subscribers
+  useEffect(() => {
+    if (!user || !subscription.isProOrTrial) return;
+    let mounted = true;
+    (async () => {
+      const { data } = await supabase.from('subscriptions').select('referral_code').eq('user_id', user.id).maybeSingle();
+      if (mounted && data?.referral_code) setReferralCode(data.referral_code);
+    })();
+    return () => { mounted = false; };
+  }, [user, subscription.isProOrTrial]);
+
+  // On mount: if ?result= param exists, load saved result and scroll to it
+  useEffect(() => {
+    const resultParam = searchParams.get('result');
+    if (!resultParam) return;
+    try {
+      const s = localStorage.getItem('pptides_quiz_results');
+      if (s) {
+        const data = JSON.parse(s);
+        if (data.result && data.result.primary.peptideId === resultParam) {
+          // eslint-disable-next-line react-hooks/set-state-in-effect -- restoring saved quiz state from URL params on mount
+          if (data.answers) setAnswers(data.answers);
+          setResult(data.result);
+          setPhase('result');
+          setTimeout(() => resultRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
+          return;
+        }
+      }
+    } catch { /* ignore */ }
+    // If no saved result matches, check if the peptide exists and build a minimal result
+    const peptide = allPeptides.find(p => p.id === resultParam);
+    if (peptide) {
+      const minimalResult: ProtocolResult = {
+        primary: { peptideId: peptide.id, nameAr: peptide.nameAr, nameEn: peptide.nameEn, reason: (peptide.summaryAr ?? '').split('.').slice(0, 2).join('.') + '.' },
+        supporting: [],
+        dosingSchedule: peptide.dosageAr ? peptide.dosageAr.split('.')[0] + '.' : 'اشترك لعرض الجرعة',
+        monthlyCost: peptide.costEstimate || 'غير محدد',
+        warnings: [],
+        protocolDuration: peptide.cycleAr ? peptide.cycleAr.split('.')[0] + '.' : 'اشترك لعرض مدة الدورة',
+      };
+      setResult(minimalResult);
+      setPhase('result');
+      setTimeout(() => resultRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
+    }
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    try { sessionStorage.setItem('pptides_quiz_step', String(step)); } catch { /* expected */ }
+  }, [step]);
+  useEffect(() => {
+    try { sessionStorage.setItem('pptides_quiz_progress', JSON.stringify(answers)); } catch { /* expected */ }
+  }, [answers]);
 
   // Load previous result
   const [previousData] = useState<{ result: ProtocolResult; goal?: string; ts?: number } | null>(() => {
@@ -428,7 +490,7 @@ export default function PeptideQuiz() {
       return { result: data.result, goal: data.goal ?? data.answers?.goal, ts: data.ts };
     } catch { return null; }
   });
-  const hasPrevious = !!previousData;
+  const _hasPrevious = !!previousData;
 
   const loadPrevious = useCallback(() => {
     try {
@@ -451,7 +513,9 @@ export default function PeptideQuiz() {
         ts: Date.now(),
       }));
     } catch { /* ignore */ }
-  }, []);
+    // Encode result peptide ID in URL
+    setSearchParams({ result: r.primary.peptideId }, { replace: true });
+  }, [setSearchParams]);
 
   const handleSelect = useCallback((optionId: string) => {
     const currentStep = STEPS[step];
@@ -492,7 +556,7 @@ export default function PeptideQuiz() {
         if (user) {
           supabase.from('user_profiles').update({
             goals: [updated.goal],
-          }).eq('user_id', user.id).then(() => {}).catch((e) => { console.error('PeptideQuiz: failed to save goals', e); });
+          }).eq('user_id', user.id).then(({ error }) => { if (error) toast.error('تعذّر حفظ أهدافك'); }).catch((e) => { logError('PeptideQuiz: failed to save goals', e); });
         }
       } else {
         setDirection('forward');
@@ -531,7 +595,9 @@ export default function PeptideQuiz() {
     setAnswers({ healthIssues: [] });
     setResult(null);
     setSaved(false);
-  }, []);
+    setSearchParams({}, { replace: true });
+    try { sessionStorage.removeItem('pptides_quiz_step'); sessionStorage.removeItem('pptides_quiz_progress'); } catch { /* expected */ }
+  }, [setSearchParams]);
 
   const handleSaveResult = useCallback(() => {
     if (result) {
@@ -552,10 +618,10 @@ export default function PeptideQuiz() {
             <div className="flex h-20 w-20 items-center justify-center rounded-2xl bg-gradient-to-br from-emerald-500 to-emerald-700 shadow-lg shadow-emerald-500/30">
               <FlaskConical className="h-10 w-10 text-white" />
             </div>
-            <div className="absolute -top-2 -left-2 flex h-8 w-8 items-center justify-center rounded-lg bg-amber-100 dark:bg-amber-900/50 shadow-sm">
+            <div className="absolute -top-2 -start-2 flex h-8 w-8 items-center justify-center rounded-lg bg-amber-100 dark:bg-amber-900/50 shadow-sm">
               <Brain className="h-4 w-4 text-amber-600 dark:text-amber-400" />
             </div>
-            <div className="absolute -bottom-2 -right-2 flex h-8 w-8 items-center justify-center rounded-lg bg-blue-100 dark:bg-blue-900/50 shadow-sm">
+            <div className="absolute -bottom-2 -end-2 flex h-8 w-8 items-center justify-center rounded-lg bg-blue-100 dark:bg-blue-900/50 shadow-sm">
               <Shield className="h-4 w-4 text-blue-600 dark:text-blue-400" />
             </div>
           </div>
@@ -634,7 +700,7 @@ export default function PeptideQuiz() {
         {!previousData && (
           <Link
             to="/library"
-            className="mt-2 flex items-center justify-center text-sm text-stone-400 dark:text-stone-300 hover:text-stone-600 dark:text-stone-300 transition-colors py-2"
+            className="mt-2 flex items-center justify-center text-sm text-stone-500 dark:text-stone-300 hover:text-stone-600 dark:text-stone-300 transition-colors py-2"
           >
             تخطّي — تصفّح المكتبة مباشرة
           </Link>
@@ -651,7 +717,7 @@ export default function PeptideQuiz() {
     const showSubscribeCTA = !user;
 
     return (
-      <div className="space-y-4 animate-fade-in">
+      <div ref={resultRef} className="space-y-4 animate-fade-in">
         {/* Header */}
         <div className="rounded-2xl border border-emerald-200 dark:border-emerald-800 bg-gradient-to-b from-emerald-50 to-white dark:from-emerald-950/30 dark:to-stone-950 p-6 md:p-8 shadow-xl shadow-emerald-900/5">
           <div className="flex items-center gap-3 mb-5">
@@ -677,12 +743,10 @@ export default function PeptideQuiz() {
 
             {/* Dosing */}
             <div className="space-y-2 text-sm">
-              {primaryData?.dosageAr && (
-                <div className="flex gap-2 items-start">
+              <div className="flex gap-2 items-start">
                   <span className="font-bold text-stone-700 dark:text-stone-200 shrink-0">الجرعة:</span>
-                  <span className="text-stone-600 dark:text-stone-300">{primaryData.dosageAr.split('.')[0]}</span>
+                  <span className="text-stone-600 dark:text-stone-300">{primaryData?.dosageAr ? primaryData.dosageAr.split('.')[0] : 'اشترك لعرض الجرعة'}</span>
                 </div>
-              )}
               {primaryData?.timingAr && (
                 <div className="flex gap-2 items-start">
                   <span className="font-bold text-stone-700 dark:text-stone-200 shrink-0">التوقيت:</span>
@@ -750,6 +814,23 @@ export default function PeptideQuiz() {
               <ArrowLeft className="h-4 w-4" />
             </Link>
 
+            <Link
+              to={`/peptide/${result.primary.peptideId}`}
+              className="flex items-center justify-center gap-2 rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 px-5 py-3 text-sm font-bold text-stone-700 dark:text-stone-200 transition-all hover:border-emerald-300 dark:hover:border-emerald-700"
+            >
+              <FlaskConical className="h-4 w-4" />
+              تعرّف أكثر على {result.primary.nameAr}
+            </Link>
+
+            {user && (
+              <Link
+                to={`/coach?q=${encodeURIComponent(`الاختبار نصحني بـ ${result.primary.nameAr} — هل هو مناسب لحالتي؟`)}`}
+                className="flex items-center justify-center gap-2 rounded-xl border border-emerald-200 dark:border-emerald-700 bg-emerald-50 dark:bg-emerald-900/20 px-5 py-3 text-sm font-bold text-emerald-700 dark:text-emerald-400 transition-all hover:bg-emerald-100 dark:hover:bg-emerald-900/40"
+              >
+                اسأل المدرب عن هذا
+              </Link>
+            )}
+
             {hasCalcPreset && (
               <Link
                 to={`/calculator?peptide=${encodeURIComponent(result.primary.nameEn)}`}
@@ -778,19 +859,38 @@ export default function PeptideQuiz() {
 
           {/* Share */}
           <div className="mt-4 pt-4 border-t border-stone-200 dark:border-stone-700">
-            <p className="text-xs text-stone-400 dark:text-stone-300 mb-2 text-center">شارك نتيجتك</p>
+            <p className="text-xs text-stone-500 dark:text-stone-300 mb-2 text-center">شارك نتيجتك</p>
             <ShareButtons
-              url={`${SITE_URL}/quiz`}
+              url={`${SITE_URL}/quiz?result=${result.primary.peptideId}`}
               title={`نتيجة اختبار الببتيدات: ${result.primary.nameAr}`}
               description={result.primary.reason}
               layout="row"
             />
           </div>
 
+          {/* Referral CTA */}
+          {referralCode && (
+            <div className="mt-4 pt-4 border-t border-stone-200 dark:border-stone-700">
+              <div className="rounded-xl bg-gradient-to-l from-emerald-50 to-amber-50 dark:from-emerald-950/30 dark:to-amber-950/20 border border-emerald-200 dark:border-emerald-800 p-4 text-center">
+                <Gift className="h-5 w-5 text-emerald-600 mx-auto mb-2" />
+                <p className="text-sm font-bold text-stone-900 dark:text-stone-100 mb-1">شارك مع صديق واحصل على أسبوع مجاني</p>
+                <p className="text-xs text-stone-500 dark:text-stone-400 mb-3">صديقك يحصل على خصم 40% وأنت تحصل على شهر مجاني</p>
+                <a
+                  href={`https://wa.me/?text=${encodeURIComponent(`جرّب pptides — أشمل دليل عربي للببتيدات العلاجية\n${SITE_URL}/?ref=${referralCode}`)}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 rounded-full bg-emerald-600 px-6 py-2.5 text-sm font-semibold text-white transition-all hover:bg-emerald-700 active:scale-[0.98]"
+                >
+                  شارك عبر واتساب
+                </a>
+              </div>
+            </div>
+          )}
+
           {/* Supporting links */}
           {result.supporting.length > 0 && (
             <div className="mt-4 pt-3 border-t border-stone-200 dark:border-stone-700">
-              <p className="text-xs text-stone-400 dark:text-stone-300 mb-2">تعرّف على الببتيدات الداعمة:</p>
+              <p className="text-xs text-stone-500 dark:text-stone-300 mb-2">تعرّف على الببتيدات الداعمة:</p>
               <div className="flex flex-wrap gap-2">
                 {result.supporting.map(sp => (
                   <Link
@@ -809,7 +909,7 @@ export default function PeptideQuiz() {
           <div className="mt-4 flex justify-center">
             <button
               onClick={handleReset}
-              className="text-sm text-stone-400 dark:text-stone-300 hover:text-emerald-700 transition-colors py-2"
+              className="text-sm text-stone-500 dark:text-stone-300 hover:text-emerald-700 transition-colors py-2"
             >
               أعد الاختبار من البداية
             </button>
@@ -848,7 +948,7 @@ export default function PeptideQuiz() {
 
         {/* Medical Disclaimer */}
         <div className="rounded-xl bg-stone-100 dark:bg-stone-900/50 p-4 text-center">
-          <p className="text-[11px] text-stone-400 dark:text-stone-300 leading-relaxed">
+          <p className="text-[11px] text-stone-500 dark:text-stone-300 leading-relaxed">
             هذا الاختبار تعليمي فقط ولا يُغني عن استشارة الطبيب. لا تبدأ أي بروتوكول بدون إشراف طبي متخصص.
           </p>
         </div>
@@ -868,12 +968,12 @@ export default function PeptideQuiz() {
       <div className="flex items-center justify-between mb-5">
         <button
           onClick={handleBack}
-          className="flex items-center gap-1 min-h-[44px] text-sm text-stone-400 dark:text-stone-300 transition-colors hover:text-stone-700 dark:hover:text-stone-300"
+          className="flex items-center gap-1 min-h-[44px] text-sm text-stone-500 dark:text-stone-300 transition-colors hover:text-stone-700 dark:hover:text-stone-300"
         >
           <ArrowRight className="h-3.5 w-3.5 shrink-0" />
           رجوع
         </button>
-        <span className="text-xs text-stone-400 dark:text-stone-300 font-medium">
+        <span className="text-xs text-stone-500 dark:text-stone-300 font-medium">
           {step + 1} من {STEPS.length}
         </span>
       </div>
@@ -898,7 +998,7 @@ export default function PeptideQuiz() {
         <div>
           <h3 className="text-lg font-black text-stone-900 dark:text-stone-100 mb-1">{currentStep.question}</h3>
           {currentStep.subtitle && (
-            <p className="text-xs text-stone-400 dark:text-stone-300 mb-5">{currentStep.subtitle}</p>
+            <p className="text-xs text-stone-500 dark:text-stone-300 mb-5">{currentStep.subtitle}</p>
           )}
 
           {/* Options */}
@@ -948,7 +1048,7 @@ export default function PeptideQuiz() {
                   <div className={currentStep.id === 'goal' ? '' : 'flex-1 text-start'}>
                     <span className="text-sm font-bold block">{opt.label}</span>
                     {opt.description && (
-                      <span className="text-[11px] text-stone-400 dark:text-stone-300 block mt-0.5">{opt.description}</span>
+                      <span className="text-[11px] text-stone-500 dark:text-stone-300 block mt-0.5">{opt.description}</span>
                     )}
                   </div>
                 </button>
@@ -961,7 +1061,7 @@ export default function PeptideQuiz() {
             <button
               onClick={handleMultiSelectContinue}
               disabled={answers.healthIssues.length === 0}
-              className="mt-4 w-full flex items-center justify-center gap-2 rounded-full bg-emerald-600 px-8 py-3.5 text-white font-semibold transition-all hover:bg-emerald-700 active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed shadow-lg shadow-emerald-600/20"
+              className="mt-4 w-full flex items-center justify-center gap-2 rounded-full bg-emerald-600 px-8 py-3.5 text-white font-semibold transition-all hover:bg-emerald-700 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-emerald-600/20"
             >
               التالي
               <ArrowLeft className="h-4 w-4" />
@@ -973,7 +1073,7 @@ export default function PeptideQuiz() {
       {/* Skip to library */}
       <Link
         to="/library"
-        className="mt-5 flex items-center justify-center text-xs text-stone-400 dark:text-stone-300 hover:text-stone-600 dark:text-stone-300 transition-colors py-2"
+        className="mt-5 flex items-center justify-center text-xs text-stone-500 dark:text-stone-300 hover:text-stone-600 dark:text-stone-300 transition-colors py-2"
       >
         تخطّي — تصفّح المكتبة مباشرة
       </Link>

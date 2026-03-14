@@ -118,6 +118,7 @@ serve(async (req) => {
         const emailResult = await sendEmail({
           to: email,
           subject: '3 أشهر من التعلم المستمر! — pptides',
+          tags: [{ name: 'type', value: 'paid_month3' }, { name: 'category', value: 'engagement' }],
           html: emailWrapper(`
             <h1 style="color: #1c1917; font-size: 24px;">3 أشهر من التعلم المستمر!</h1>
             <p style="color: #44403c; font-size: 16px; line-height: 1.8;">

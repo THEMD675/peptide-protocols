@@ -15,13 +15,19 @@ export default defineConfig({
       include: [
         'src/contexts/AuthContext.tsx',
         'src/lib/utils.ts',
-        'src/lib/dose-calculator.ts',
         'src/data/glossary.ts',
         'src/data/dose-presets.ts',
         'src/components/TrialBanner.tsx',
         'src/components/PaymentProcessing.tsx',
         'src/pages/Login.tsx',
+        'src/pages/DoseCalculator.tsx',
       ],
+      thresholds: {
+        lines: 50,
+        branches: 40,
+        functions: 50,
+        statements: 50,
+      },
     },
   },
   resolve: {

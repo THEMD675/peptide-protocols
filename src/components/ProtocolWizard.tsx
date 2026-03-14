@@ -1,14 +1,15 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import FocusTrap from 'focus-trap-react';
 import { X, Play, Calendar, FlaskConical } from 'lucide-react';
 import { toast } from 'sonner';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
-import { peptides, type Peptide } from '@/data/peptides';
+import { peptidesPublic as peptides, type PeptidePublic as Peptide } from '@/data/peptides-public';
 import { cn } from '@/lib/utils';
 import { FREQUENCY_LABELS } from '@/lib/constants';
 import BaselineChecklist from '@/components/BaselineChecklist';
+import { logError } from '@/lib/logger';
 
 function ShoppingList({ peptide, dose, unit, frequency, cycleWeeks }: { peptide: Peptide; dose: string; unit: string; frequency: string; cycleWeeks: string }) {
   if (!dose || !(peptide.route === 'subq' || peptide.route === 'im')) return null;
@@ -19,9 +20,13 @@ function ShoppingList({ peptide, dose, unit, frequency, cycleWeeks }: { peptide:
   const vialMg = peptide.doseMcg && peptide.doseMcg <= 1000 ? 5 : 10;
   const dosesPerVial = Math.floor((vialMg * 1000) / doseMcg);
   const vialsNeeded = Math.ceil(totalDoses / Math.max(dosesPerVial, 1));
+  const doseExceedsVial = doseMcg > vialMg * 1000;
   return (
     <div className="rounded-xl border border-stone-200 dark:border-stone-600 bg-stone-50 dark:bg-stone-900 px-4 py-3">
       <p className="text-xs font-bold text-stone-700 dark:text-stone-200 mb-2">قائمة التسوّق المقدّرة:</p>
+      {doseExceedsVial && (
+        <p className="text-xs font-bold text-amber-600 dark:text-amber-400 mb-2">⚠ الجرعة تتجاوز حجم القارورة — ستحتاج أكثر من قارورة لكل حقنة</p>
+      )}
       <ul className="space-y-1 text-xs text-stone-600 dark:text-stone-300">
         <li>• {vialsNeeded}x قارورة {peptide.nameEn} {vialMg}mg</li>
         <li>• 1x ماء بكتيريوستاتيك 30ml</li>
@@ -46,14 +51,34 @@ export default function ProtocolWizard({ peptideId, prefillDose, prefillUnit, on
   const { user } = useAuth();
   const peptide = peptides.find(p => p.id === peptideId);
 
-  const [dose, setDose] = useState(String(prefillDose ?? peptide?.doseMcg ?? ''));
-  const [unit, setUnit] = useState(prefillUnit ?? 'mcg');
-  const [frequency, setFrequency] = useState(peptide?.frequency ?? 'od');
-  const [cycleWeeks, setCycleWeeks] = useState(String(peptide?.cycleDurationWeeks ?? 4));
+  const wizardStorageKey = `pptides_wizard_${peptideId}`;
+
+  // Restore saved wizard state from sessionStorage (keyed by peptide ID)
+  const savedState = (() => {
+    try {
+      const raw = sessionStorage.getItem(wizardStorageKey);
+      if (raw) return JSON.parse(raw) as { dose?: string; unit?: string; frequency?: string; cycleWeeks?: string };
+    } catch { /* expected */ }
+    return null;
+  })();
+
+  const [dose, setDose] = useState(savedState?.dose ?? String(prefillDose ?? peptide?.doseMcg ?? ''));
+  const [unit, setUnit] = useState(savedState?.unit ?? prefillUnit ?? 'mcg');
+  const [frequency, setFrequency] = useState(savedState?.frequency ?? peptide?.frequency ?? 'od');
+  const [cycleWeeks, setCycleWeeks] = useState(savedState?.cycleWeeks ?? String(peptide?.cycleDurationWeeks ?? 4));
+
+  // Persist wizard state to sessionStorage on every change
+  useEffect(() => {
+    try {
+      sessionStorage.setItem(wizardStorageKey, JSON.stringify({ dose, unit, frequency, cycleWeeks }));
+    } catch { /* quota exceeded — non-critical */ }
+  }, [dose, unit, frequency, cycleWeeks, wizardStorageKey]);
   const [submitting, setSubmitting] = useState(false);
   const [existingProtocols, setExistingProtocols] = useState(0);
   const [hasDuplicatePeptide, setHasDuplicatePeptide] = useState(false);
   const [duplicateConfirmed, setDuplicateConfirmed] = useState(false);
+  const [countQueryFailed, setCountQueryFailed] = useState(false);
+  const submittingRef = useRef(false);
   useEffect(() => {
     if (!user) return;
     let mounted = true;
@@ -63,9 +88,16 @@ export default function ProtocolWizard({ peptideId, prefillDose, prefillUnit, on
         supabase.from('user_protocols').select('id', { count: 'exact', head: true }).eq('user_id', user.id).eq('status', 'active').eq('peptide_id', peptideId),
       ]);
       if (!mounted) return;
-      if (!countRes.error) setExistingProtocols(countRes.count ?? 0);
-      if (!dupeRes.error) setHasDuplicatePeptide((dupeRes.count ?? 0) > 0);
-    })().catch(() => {});
+      if (countRes.error || dupeRes.error) {
+        logError('protocol count query failed:', countRes.error ?? dupeRes.error);
+        setCountQueryFailed(true);
+        toast.error('تعذّر التحقق من البروتوكولات الحالية — حاول مرة أخرى');
+        return;
+      }
+      setCountQueryFailed(false);
+      setExistingProtocols(countRes.count ?? 0);
+      setHasDuplicatePeptide((dupeRes.count ?? 0) > 0);
+    })().catch((e) => { if (mounted) { logError('protocol load failed:', e); setCountQueryFailed(true); toast.error('تعذّر التحقق من البروتوكولات الحالية — حاول مرة أخرى'); } });
     return () => { mounted = false; };
   }, [user, peptideId]);
 
@@ -89,9 +121,11 @@ export default function ProtocolWizard({ peptideId, prefillDose, prefillUnit, on
   endDate.setDate(endDate.getDate() + (parseInt(cycleWeeks) || 4) * 7);
 
   const handleSubmit = async () => {
-    if (!user) { toast.error('سجّل دخولك أولاً'); return; }
+    if (submittingRef.current) return;
+    submittingRef.current = true;
+    if (!user) { toast.error('سجّل دخولك أولاً'); submittingRef.current = false; return; }
     const doseNum = parseFloat(dose);
-    if (!dose || isNaN(doseNum) || doseNum <= 0) { toast.error('أدخل جرعة صحيحة'); return; }
+    if (!dose || isNaN(doseNum) || doseNum <= 0) { toast.error('أدخل جرعة صحيحة'); submittingRef.current = false; return; }
     setSubmitting(true);
     try {
       const { error } = await supabase.from('user_protocols').insert({
@@ -104,18 +138,25 @@ export default function ProtocolWizard({ peptideId, prefillDose, prefillUnit, on
         status: 'active',
       });
       if (error) {
+        logError('protocol creation failed:', error.message);
         toast.error('تعذّر إنشاء البروتوكول — تحقق من اتصالك وحاول مرة أخرى');
-
+        setSubmitting(false);
+        submittingRef.current = false;
+        setDuplicateConfirmed(false);
         return;
       }
+      // Clear saved wizard state on successful submission
+      try { sessionStorage.removeItem(wizardStorageKey); } catch { /* expected */ }
       toast.success(`تم بدء بروتوكول ${peptide.nameAr}! — انتقل لسجل الحقن`);
       onCreated?.();
       onClose();
       navigate(`/tracker?peptide=${encodeURIComponent(peptide.nameEn)}`);
     } catch {
       toast.error('فشل الاتصال بالخادم — تحقق من اتصالك وحاول مرة أخرى');
+      setDuplicateConfirmed(false);
     } finally {
       setSubmitting(false);
+      submittingRef.current = false;
     }
   };
 
@@ -172,12 +213,12 @@ export default function ProtocolWizard({ peptideId, prefillDose, prefillUnit, on
                   max={50000}
                   step="any"
                   dir="ltr"
-                  className="w-full rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 px-4 py-3 text-base text-stone-900 dark:text-stone-100 focus:border-emerald-300 dark:border-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900"
+                  className="w-full rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 px-4 py-3 text-base text-stone-900 dark:text-stone-100 focus:border-emerald-300 dark:border-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-500"
                 />
               </div>
               <div className="w-24">
                 <label htmlFor="wizard-unit" className="mb-1 block text-sm font-bold text-stone-700 dark:text-stone-200">الوحدة</label>
-                <select id="wizard-unit" value={unit} onChange={e => setUnit(e.target.value)} className="w-full rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 px-3 py-3 text-base text-stone-900 dark:text-stone-100 focus:border-emerald-300 dark:border-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900">
+                <select id="wizard-unit" value={unit} onChange={e => setUnit(e.target.value)} className="w-full rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 px-3 py-3 text-base text-stone-900 dark:text-stone-100 focus:border-emerald-300 dark:border-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-500">
                   <option value="mcg">mcg</option>
                   <option value="mg">mg</option>
                 </select>
@@ -186,7 +227,7 @@ export default function ProtocolWizard({ peptideId, prefillDose, prefillUnit, on
 
             <div>
               <label htmlFor="wizard-frequency" className="mb-1 block text-sm font-bold text-stone-700 dark:text-stone-200">التكرار</label>
-              <select id="wizard-frequency" value={frequency} onChange={e => { const v = e.target.value; setFrequency(v as keyof typeof FREQUENCY_LABELS); }} className="w-full rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 px-4 py-3 text-base text-stone-900 dark:text-stone-100 focus:border-emerald-300 dark:border-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900">
+              <select id="wizard-frequency" value={frequency} onChange={e => { const v = e.target.value; setFrequency(v as keyof typeof FREQUENCY_LABELS); }} className="w-full rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 px-4 py-3 text-base text-stone-900 dark:text-stone-100 focus:border-emerald-300 dark:border-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-500">
                 {Object.entries(FREQUENCY_LABELS).map(([k, v]) => (
                   <option key={k} value={k}>{v}</option>
                 ))}
@@ -204,7 +245,7 @@ export default function ProtocolWizard({ peptideId, prefillDose, prefillUnit, on
                 min="1"
                 max="52"
                 dir="ltr"
-                className="w-full rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 px-4 py-3 text-sm text-stone-900 dark:text-stone-100 focus:border-emerald-300 dark:border-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900"
+                className="w-full rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 px-4 py-3 text-sm text-stone-900 dark:text-stone-100 focus:border-emerald-300 dark:border-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-500"
               />
             </div>
 
@@ -230,7 +271,7 @@ export default function ProtocolWizard({ peptideId, prefillDose, prefillUnit, on
 
           <button
             onClick={handleSubmit}
-            disabled={submitting || !dose || (hasDuplicatePeptide && !duplicateConfirmed)}
+            disabled={submitting || !dose || countQueryFailed || (hasDuplicatePeptide && !duplicateConfirmed)}
             className={cn(
               'mt-5 flex w-full items-center justify-center gap-2 rounded-full px-6 py-3.5 text-sm font-bold text-white transition-all',
               submitting ? 'bg-stone-400 cursor-not-allowed' : 'bg-emerald-600 hover:bg-emerald-700 active:scale-[0.98]'
@@ -245,6 +286,9 @@ export default function ProtocolWizard({ peptideId, prefillDose, prefillUnit, on
               </>
             )}
           </button>
+          {!dose && !submitting && (
+            <p className="mt-2 text-center text-xs text-amber-600 dark:text-amber-400">أدخل الجرعة أولاً لبدء البروتوكول</p>
+          )}
         </div>
       </FocusTrap>
     </div>

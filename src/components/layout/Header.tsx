@@ -59,7 +59,7 @@ export default memo(function Header() {
   const [moreOpen, setMoreOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
-  const { theme, toggleTheme, isDark } = useTheme();
+  const { toggleTheme, isDark } = useTheme();
   const dropdownRef = useRef<HTMLDivElement>(null);
   const moreDropdownRef = useRef<HTMLDivElement>(null);
 
@@ -100,7 +100,9 @@ export default memo(function Header() {
   }, [pathname]);
 
   // Reset logout confirmation when menus close
+  // eslint-disable-next-line react-hooks/set-state-in-effect -- intentional: derived reset
   useEffect(() => { if (!dropdownOpen) setConfirmingLogout(false); }, [dropdownOpen]);
+  // eslint-disable-next-line react-hooks/set-state-in-effect -- intentional: derived reset
   useEffect(() => { if (!mobileOpen) setConfirmingLogout(false); }, [mobileOpen]);
 
   useEffect(() => {
@@ -135,7 +137,7 @@ export default memo(function Header() {
     <>
       <header
         className={cn(
-          'fixed inset-x-0 top-0 z-50 transition-all duration-300',
+          'fixed inset-x-0 top-0 z-40 transition-all duration-300',
           'h-[var(--header-height)]',
           scrolled
             ? 'border-b border-stone-200/50 dark:border-stone-600/50 bg-stone-50/90 dark:bg-stone-950/90 backdrop-blur-2xl shadow-sm dark:shadow-stone-900/30'
@@ -145,14 +147,13 @@ export default memo(function Header() {
         <div className="mx-auto flex h-full max-w-7xl items-center justify-between px-4 md:px-6">
           <Link
             to={logoHref}
-            className="min-h-[44px] shrink-0 leading-[44px] text-xl font-bold text-stone-900 dark:text-stone-100 md:text-2xl"
+            className="min-h-[44px] shrink-0 leading-[44px] text-xl font-bold text-stone-900 dark:text-stone-100 md:text-2xl tracking-tight"
             dir="ltr"
             aria-label="pptides"
-            style={{letterSpacing:'-0.03em'}}
           >pp<span className="text-emerald-700">tides</span>
           </Link>
 
-          <nav className="hidden items-center gap-1 md:flex">
+          <nav aria-label="التنقل الرئيسي" className="hidden items-center gap-1 md:flex">
             {navLinks.map(({ to, label }) => {
               const active = to === '/' ? pathname === '/' : pathname.startsWith(to);
               return (
@@ -195,16 +196,25 @@ export default memo(function Header() {
                       <ChevronDown className={cn('h-3 w-3 transition-transform', moreOpen && 'rotate-180')} />
                     </button>
                     {moreOpen && (
-                      <div aria-label="الأدوات" className="absolute end-0 top-full mt-2 min-w-[200px] overflow-hidden rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 py-1 shadow-xl dark:shadow-stone-900/40 animate-fade-in">
+                      <div role="menu" aria-label="الأدوات" className="absolute end-0 top-full mt-2 min-w-[200px] max-w-[calc(100vw-2rem)] overflow-hidden rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 py-1 shadow-xl dark:shadow-stone-900/40 animate-fade-in" onKeyDown={(e) => {
+                        const items = e.currentTarget.querySelectorAll<HTMLElement>('[role="menuitem"]');
+                        const idx = Array.from(items).indexOf(e.target as HTMLElement);
+                        if (e.key === 'ArrowDown') { e.preventDefault(); items[(idx + 1) % items.length]?.focus(); }
+                        else if (e.key === 'ArrowUp') { e.preventDefault(); items[(idx - 1 + items.length) % items.length]?.focus(); }
+                        else if (e.key === 'Home') { e.preventDefault(); items[0]?.focus(); }
+                        else if (e.key === 'End') { e.preventDefault(); items[items.length - 1]?.focus(); }
+                        else if (e.key === 'Escape') { setMoreOpen(false); }
+                      }}>
                         {tools.map(({ to, label }) => (
                           <Link
                             key={to}
                             to={to}
+                            role="menuitem"
                             aria-current={pathname.startsWith(to) ? 'page' : undefined}
                             onMouseEnter={() => prefetchRoute(to)}
                             onClick={() => setMoreOpen(false)}
                             className={cn(
-                              'block px-4 py-2.5 text-sm transition-colors hover:bg-stone-50 dark:hover:bg-stone-800',
+                              'block px-4 py-2.5 text-sm transition-colors hover:bg-stone-50 dark:hover:bg-stone-800 focus-visible:outline-2 focus-visible:outline-emerald-600 focus-visible:outline-offset-[-2px]',
                               pathname.startsWith(to)
                                 ? 'text-emerald-700 dark:text-emerald-400 font-medium'
                                 : 'text-stone-700 dark:text-stone-200 transition-colors hover:text-stone-900 dark:text-stone-100',
@@ -277,7 +287,15 @@ export default memo(function Header() {
                 </button>
 
                 {dropdownOpen && (
-                  <div aria-label="قائمة الحساب" className="absolute end-0 top-full mt-2 min-w-[180px] overflow-hidden rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 py-1 shadow-xl dark:shadow-stone-900/40 animate-fade-in">
+                  <div role="menu" aria-label="حسابي" className="absolute end-0 top-full mt-2 min-w-[180px] max-w-[calc(100vw-2rem)] overflow-hidden rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 py-1 shadow-xl dark:shadow-stone-900/40 animate-fade-in" onKeyDown={(e) => {
+                    const items = e.currentTarget.querySelectorAll<HTMLElement>('[role="menuitem"]');
+                    const idx = Array.from(items).indexOf(e.target as HTMLElement);
+                    if (e.key === 'ArrowDown') { e.preventDefault(); items[(idx + 1) % items.length]?.focus(); }
+                    else if (e.key === 'ArrowUp') { e.preventDefault(); items[(idx - 1 + items.length) % items.length]?.focus(); }
+                    else if (e.key === 'Home') { e.preventDefault(); items[0]?.focus(); }
+                    else if (e.key === 'End') { e.preventDefault(); items[items.length - 1]?.focus(); }
+                    else if (e.key === 'Escape') { setDropdownOpen(false); }
+                  }}>
                     <div className="border-b border-stone-200 dark:border-stone-600 px-4 py-2">
                       <p className="truncate text-sm text-stone-800 dark:text-stone-200">{user.email}</p>
                       {displayTier && (
@@ -288,23 +306,26 @@ export default memo(function Header() {
                     </div>
                     <Link
                       to="/dashboard"
+                      role="menuitem"
                       onClick={() => setDropdownOpen(false)}
-                      className="flex w-full items-center gap-2 px-4 py-2.5 min-h-[44px] text-sm text-stone-800 dark:text-stone-200 transition-colors hover:bg-stone-50 dark:hover:bg-stone-800"
+                      className="flex w-full items-center gap-2 px-4 py-2.5 min-h-[44px] text-sm text-stone-800 dark:text-stone-200 transition-colors hover:bg-stone-50 dark:hover:bg-stone-800 focus-visible:outline-2 focus-visible:outline-emerald-600 focus-visible:outline-offset-[-2px]"
                     >
                       لوحة التحكم
                     </Link>
                     <Link
                       to="/account"
+                      role="menuitem"
                       onClick={() => setDropdownOpen(false)}
-                      className="flex w-full items-center gap-2 px-4 py-2.5 min-h-[44px] text-sm text-stone-800 dark:text-stone-200 transition-colors hover:bg-stone-50 dark:hover:bg-stone-800"
+                      className="flex w-full items-center gap-2 px-4 py-2.5 min-h-[44px] text-sm text-stone-800 dark:text-stone-200 transition-colors hover:bg-stone-50 dark:hover:bg-stone-800 focus-visible:outline-2 focus-visible:outline-emerald-600 focus-visible:outline-offset-[-2px]"
                     >
                       إعدادات الحساب
                     </Link>
                     {ADMIN_EMAILS.includes(user?.email ?? '') && (
                     <Link
                       to="/admin"
+                      role="menuitem"
                       onClick={() => setDropdownOpen(false)}
-                      className="flex w-full items-center gap-2 px-4 py-2.5 min-h-[44px] text-sm text-stone-500 dark:text-stone-300 transition-colors hover:bg-stone-50 dark:hover:bg-stone-800"
+                      className="flex w-full items-center gap-2 px-4 py-2.5 min-h-[44px] text-sm text-stone-500 dark:text-stone-300 transition-colors hover:bg-stone-50 dark:hover:bg-stone-800 focus-visible:outline-2 focus-visible:outline-emerald-600 focus-visible:outline-offset-[-2px]"
                       title="لوحة الإدارة"
                     >
                       لوحة الإدارة
@@ -332,7 +353,8 @@ export default memo(function Header() {
                     ) : (
                       <button
                         onClick={() => setConfirmingLogout(true)}
-                        className="flex w-full items-center gap-2 px-4 py-2.5 min-h-[44px] text-sm text-red-500 dark:text-red-400 transition-colors hover:bg-stone-50 dark:hover:bg-stone-800"
+                        role="menuitem"
+                        className="flex w-full items-center gap-2 px-4 py-2.5 min-h-[44px] text-sm text-red-500 dark:text-red-400 transition-colors hover:bg-stone-50 dark:hover:bg-stone-800 focus-visible:outline-2 focus-visible:outline-emerald-600 focus-visible:outline-offset-[-2px]"
                       >
                         <LogOut className="h-4 w-4" />
                         تسجيل الخروج
@@ -394,7 +416,7 @@ export default memo(function Header() {
           aria-modal="true"
           aria-label="القائمة الرئيسية"
           className={cn(
-            'absolute inset-y-0 end-0 flex w-[min(18rem,85vw)] flex-col border-s border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 pt-16 shadow-2xl transition-all duration-300 ease-out',
+            'absolute inset-y-0 end-0 flex w-[min(18rem,85vw)] flex-col border-s border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 pt-16 pb-[env(safe-area-inset-bottom)] shadow-2xl transition-all duration-300 ease-out',
             mobileOpen ? 'translate-x-0 opacity-100' : 'ltr:translate-x-full rtl:-translate-x-full opacity-0',
           )}
         >
@@ -402,6 +424,7 @@ export default memo(function Header() {
             {/* Mobile Search */}
             <button
               onClick={() => { setMobileOpen(false); setSearchOpen(true); }}
+              aria-label="بحث"
               className="flex w-full items-center gap-3 rounded-xl border border-stone-200 dark:border-stone-600 bg-stone-50 dark:bg-stone-900 px-4 py-2.5 min-h-[44px] mb-3 text-sm text-stone-500 dark:text-stone-300"
             >
               <Search className="h-4 w-4 shrink-0" />
@@ -428,6 +451,7 @@ export default memo(function Header() {
             {/* Mobile Theme Toggle */}
             <button
               onClick={() => { toggleTheme(); }}
+              aria-label={isDark ? 'تبديل إلى الوضع الفاتح' : 'تبديل إلى الوضع الداكن'}
               className="flex w-full items-center gap-3 rounded-lg px-4 py-3 text-sm font-medium text-stone-800 dark:text-stone-200 transition-colors hover:bg-stone-50 dark:hover:bg-stone-800"
             >
               {isDark ? <Sun className="h-4 w-4 text-amber-400" /> : <Moon className="h-4 w-4 text-stone-500 dark:text-stone-300" />}

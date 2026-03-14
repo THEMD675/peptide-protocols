@@ -35,7 +35,7 @@ Agents: read this file first. Pick the next unchecked `[ ]` task. Mark `[x]` whe
 - [x] BodyMap rotation intelligence
 - [x] Protocol completion certificate share
 - [x] Landing contact button
-- [x] Sentry re-initialized with DSN from Vercel env
+- [x] Sentry fully removed — all code, packages, CSP entries, env vars stripped
 - [x] 73 tests passing, 0 TypeScript errors
 
 ## Open — require human action

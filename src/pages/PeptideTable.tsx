@@ -7,8 +7,8 @@ import {
   X, GitCompareArrows,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { peptides, categories, stacks } from '@/data/peptides';
-import type { Peptide } from '@/data/peptides';
+import { categories, stacks } from '@/data/peptides';
+import { peptidesPublic as peptides, type PeptidePublic as Peptide } from '@/data/peptides-public';
 import { useAuth } from '@/contexts/AuthContext';
 import { PEPTIDE_COUNT, SITE_URL } from '@/lib/constants';
 import { categoryIcons } from '@/lib/peptide-labels';
@@ -16,12 +16,12 @@ import { categoryIcons } from '@/lib/peptide-labels';
 // ── Colour maps ────────────────────────────────────────────
 
 const categoryColors: Record<string, { badge: string; border: string }> = {
-  metabolic: { badge: 'bg-orange-100 text-orange-800 border-orange-300', border: 'border-orange-200' },
-  recovery: { badge: 'bg-blue-100 text-blue-800 border-blue-300', border: 'border-blue-200' },
-  hormonal: { badge: 'bg-purple-100 text-purple-800 border-purple-300', border: 'border-purple-200' },
-  brain: { badge: 'bg-pink-100 text-pink-800 border-pink-300', border: 'border-pink-200' },
+  metabolic: { badge: 'bg-orange-100 dark:bg-orange-900/30 text-orange-800 dark:text-orange-300 border-orange-300 dark:border-orange-700', border: 'border-orange-200 dark:border-orange-800' },
+  recovery: { badge: 'bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300 border-blue-300 dark:border-blue-700', border: 'border-blue-200 dark:border-blue-800' },
+  hormonal: { badge: 'bg-purple-100 dark:bg-purple-900/30 text-purple-800 dark:text-purple-300 border-purple-300 dark:border-purple-700', border: 'border-purple-200 dark:border-purple-800' },
+  brain: { badge: 'bg-pink-100 dark:bg-pink-900/30 text-pink-800 dark:text-pink-300 border-pink-300 dark:border-pink-700', border: 'border-pink-200 dark:border-pink-800' },
   longevity: { badge: 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-800 dark:text-emerald-300 border-emerald-300 dark:border-emerald-700', border: 'border-emerald-200 dark:border-emerald-800' },
-  'skin-gut': { badge: 'bg-teal-100 text-teal-800 border-teal-300', border: 'border-teal-200' },
+  'skin-gut': { badge: 'bg-teal-100 dark:bg-teal-900/30 text-teal-800 dark:text-teal-300 border-teal-300 dark:border-teal-700', border: 'border-teal-200 dark:border-teal-800' },
 };
 
 const routeLabels: Record<string, string> = {
@@ -34,31 +34,16 @@ const routeLabels: Record<string, string> = {
 
 // ── Helpers ────────────────────────────────────────────────
 
-function isLongTerm(cycleAr: string): boolean {
-  return cycleAr.includes('مستمر');
+function isLongTerm(p: Peptide): boolean {
+  return (p.cycleDurationWeeks ?? 0) > 12;
 }
 
-/** Derive route label from route field or administrationAr text */
 function getRouteLabel(p: Peptide): string {
-  if (p.route) return routeLabels[p.route] ?? p.route;
-  const a = p.administrationAr.toLowerCase();
-  if (a.includes('sub-q') || a.includes('تحت الجلد')) return routeLabels.subq;
-  if (a.includes('عضلي') || a.includes('im')) return routeLabels.im;
-  if (a.includes('فموي') || a.includes('oral') || a.includes('كبسول')) return routeLabels.oral;
-  if (a.includes('أنف') || a.includes('nasal') || a.includes('بخاخ')) return routeLabels.nasal;
-  if (a.includes('موضعي') || a.includes('topical')) return routeLabels.topical;
-  return 'أخرى';
+  return p.route ? (routeLabels[p.route] ?? p.route) : 'أخرى';
 }
 
 function getRouteKey(p: Peptide): string {
-  if (p.route) return p.route;
-  const a = p.administrationAr.toLowerCase();
-  if (a.includes('sub-q') || a.includes('تحت الجلد')) return 'subq';
-  if (a.includes('عضلي') || a.includes('im')) return 'im';
-  if (a.includes('فموي') || a.includes('oral') || a.includes('كبسول')) return 'oral';
-  if (a.includes('أنف') || a.includes('nasal') || a.includes('بخاخ')) return 'nasal';
-  if (a.includes('موضعي') || a.includes('topical')) return 'topical';
-  return 'other';
+  return p.route ?? 'other';
 }
 
 // ── Column definitions ─────────────────────────────────────
@@ -117,7 +102,7 @@ function comparePeptides(a: Peptide, b: Peptide, key: ColumnKey, dir: SortDir): 
       cmp = getRouteLabel(a).localeCompare(getRouteLabel(b), 'ar');
       break;
     case 'cycle':
-      cmp = a.cycleAr.localeCompare(b.cycleAr, 'ar');
+      cmp = (a.cycleDurationWeeks ?? 0) - (b.cycleDurationWeeks ?? 0);
       break;
     default:
       break;
@@ -132,11 +117,11 @@ function exportCSV(data: Peptide[], visibleCols: ColumnKey[]) {
     category: (p) => categories.find((c) => c.id === p.category)?.nameAr ?? p.category,
     name: (p) => `${p.nameAr} (${p.nameEn})`,
     route: (p) => getRouteLabel(p),
-    dosage: (p) => p.dosageAr,
-    timing: (p) => p.timingAr,
-    cycle: (p) => p.cycleAr,
-    longterm: (p) => (isLongTerm(p.cycleAr) ? 'نعم' : 'تحتاج دورات'),
-    stack: (p) => p.stackAr,
+    dosage: () => 'اشترك لعرض التفاصيل',
+    timing: () => 'اشترك لعرض التفاصيل',
+    cycle: () => 'اشترك لعرض التفاصيل',
+    longterm: (p) => (isLongTerm(p) ? 'نعم' : 'تحتاج دورات'),
+    stack: () => 'اشترك لعرض التفاصيل',
   };
 
   const headers = visibleCols.map((k) => ALL_COLUMNS.find((c) => c.key === k)!.label);
@@ -148,7 +133,7 @@ function exportCSV(data: Peptide[], visibleCols: ColumnKey[]) {
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
-  a.download = 'peptide-table.csv';
+  a.download = 'جدول-الببتيدات.csv';
   a.click();
   URL.revokeObjectURL(url);
 }
@@ -160,11 +145,11 @@ async function exportAsImage(data: Peptide[], visibleCols: ColumnKey[]) {
     category: (p) => categories.find((c) => c.id === p.category)?.nameAr ?? p.category,
     name: (p) => `${p.nameAr} (${p.nameEn})`,
     route: (p) => getRouteLabel(p),
-    dosage: (p) => p.dosageAr,
-    timing: (p) => p.timingAr,
-    cycle: (p) => p.cycleAr,
-    longterm: (p) => (isLongTerm(p.cycleAr) ? 'نعم' : 'تحتاج دورات'),
-    stack: (p) => p.stackAr,
+    dosage: () => 'اشترك لعرض التفاصيل',
+    timing: () => 'اشترك لعرض التفاصيل',
+    cycle: () => 'اشترك لعرض التفاصيل',
+    longterm: (p) => (isLongTerm(p) ? 'نعم' : 'تحتاج دورات'),
+    stack: () => 'اشترك لعرض التفاصيل',
   };
 
   const headers = visibleCols.map((k) => ALL_COLUMNS.find((c) => c.key === k)!.label);
@@ -203,7 +188,7 @@ async function exportAsImage(data: Peptide[], visibleCols: ColumnKey[]) {
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
-  a.download = `peptide-table-${new Date().toISOString().slice(0, 10)}.png`;
+  a.download = `جدول-الببتيدات-${new Date().toISOString().slice(0, 10)}.png`;
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);
@@ -246,7 +231,7 @@ function MultiSelect({
       {open && (
         <>
           <div className="fixed inset-0 z-40" onClick={() => setOpen(false)} />
-          <div className="absolute start-0 top-full z-50 mt-1 w-56 rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-900 p-2 shadow-xl">
+          <div className="absolute start-0 top-full z-50 mt-1 w-[calc(100vw-2rem)] sm:w-56 max-w-56 rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-900 p-2 shadow-xl">
             {options.map((opt) => (
               <label
                 key={opt.value}
@@ -493,7 +478,7 @@ export default function PeptideTable() {
               onChange={(e) => setSearch(e.target.value)}
               placeholder="ابحث بالاسم عربي أو إنجليزي..."
               aria-label="ابحث في الببتيدات"
-              className="w-full rounded-xl border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-900 py-3 ps-10 pe-4 text-sm text-stone-900 dark:text-stone-100 placeholder:text-stone-500 dark:text-stone-300 dark:placeholder:text-stone-400 outline-none transition-colors focus:border-emerald-300 dark:focus:border-emerald-700 focus:ring-1 focus:ring-emerald-100 dark:focus:ring-emerald-900"
+              className="w-full rounded-xl border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-900 py-3 ps-10 pe-4 text-sm text-stone-900 dark:text-stone-100 placeholder:text-stone-500 dark:text-stone-300 dark:placeholder:text-stone-500 outline-none transition-colors focus:border-emerald-300 dark:focus:border-emerald-700 focus:ring-1 focus:ring-emerald-100 dark:focus:ring-emerald-500"
             />
           </div>
 
@@ -524,7 +509,7 @@ export default function PeptideTable() {
               {showColPicker && (
                 <>
                   <div className="fixed inset-0 z-40" onClick={() => setShowColPicker(false)} />
-                  <div className="absolute start-0 top-full z-50 mt-1 w-56 rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-900 p-2 shadow-xl">
+                  <div className="absolute start-0 top-full z-50 mt-1 w-56 max-w-[calc(100vw-2rem)] rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-900 p-2 shadow-xl">
                     {ALL_COLUMNS.map((col) => (
                       <label
                         key={col.key}
@@ -693,7 +678,7 @@ export default function PeptideTable() {
                     filtered.map((p, i) => {
                       const catColor = categoryColors[p.category] ?? categoryColors.metabolic;
                       const catName = categories.find((c) => c.id === p.category)?.nameAr ?? p.category;
-                      const longTerm = isLongTerm(p.cycleAr);
+                      const longTerm = isLongTerm(p);
                       const shouldBlur = !hasAccess && !p.isFree;
                       const isComparing = compareIds.includes(p.id);
                       const rowBg = i % 2 === 0 ? 'bg-stone-50 dark:bg-stone-900' : 'bg-white dark:bg-stone-900';
@@ -762,7 +747,7 @@ export default function PeptideTable() {
                                 return (
                                   <td key={col.key} className="px-3 py-3">
                                     <span className={cn('block leading-relaxed text-stone-800 dark:text-stone-200', blur && blurClass)} aria-hidden={blur || undefined}>
-                                      {p.dosageAr}
+                                      اشترك
                                     </span>
                                   </td>
                                 );
@@ -771,7 +756,7 @@ export default function PeptideTable() {
                                 return (
                                   <td key={col.key} className="px-3 py-3">
                                     <span className={cn('block leading-relaxed text-stone-800 dark:text-stone-200', blur && blurClass)} aria-hidden={blur || undefined}>
-                                      {p.timingAr}
+                                      اشترك
                                     </span>
                                   </td>
                                 );
@@ -780,7 +765,7 @@ export default function PeptideTable() {
                                 return (
                                   <td key={col.key} className="px-3 py-3">
                                     <span className={cn('block leading-relaxed text-stone-800 dark:text-stone-200', blur && blurClass)} aria-hidden={blur || undefined}>
-                                      {p.cycleAr}
+                                      اشترك
                                     </span>
                                   </td>
                                 );
@@ -805,7 +790,7 @@ export default function PeptideTable() {
                                 return (
                                   <td key={col.key} className="px-3 py-3">
                                     <span className={cn('block leading-relaxed text-stone-800 dark:text-stone-200', blur && blurClass)} aria-hidden={blur || undefined}>
-                                      {p.stackAr}
+                                      اشترك
                                     </span>
                                   </td>
                                 );
@@ -835,7 +820,7 @@ export default function PeptideTable() {
             <Layers className="h-6 w-6 text-emerald-700" />
             <h2 className="text-xl font-extrabold text-stone-900 dark:text-stone-100 md:text-2xl">
               البروتوكولات المُركّبة{' '}
-              <span className="text-stone-800 dark:text-stone-200 font-normal text-base">(Synergistic Stacks)</span>
+              <span className="text-stone-800 dark:text-stone-200 font-normal text-base">(التكامل التآزري)</span>
             </h2>
           </div>
 
@@ -907,9 +892,8 @@ export default function PeptideTable() {
               const catPeptides = peptidesByCategory[cat.id] ?? [];
               const catColor = categoryColors[cat.id];
               const stackingNotes = catPeptides
-                .filter((p) => p.stackAr)
                 .slice(0, 3)
-                .map((p) => ({ name: p.nameAr, note: p.stackAr }));
+                .map((p) => ({ name: p.nameAr, note: 'اشترك لعرض التفاصيل' }));
 
               return (
                 <div

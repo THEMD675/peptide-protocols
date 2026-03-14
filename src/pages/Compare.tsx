@@ -15,9 +15,10 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { cn, copyToClipboard } from '@/lib/utils';
-import { peptides, type Peptide } from '@/data/peptides';
+import { peptidesPublic as peptides, type PeptidePublic as Peptide } from '@/data/peptides-public';
 import { categoryLabels, evidenceLabels } from '@/lib/peptide-labels';
 import { SITE_URL } from '@/lib/constants';
+import { useAuth } from '@/contexts/AuthContext';
 
 const ROUTE_LABELS: Record<string, string> = {
   subq: 'تحت الجلد',
@@ -31,6 +32,7 @@ interface CompareRow {
   label: string;
   get: (p: Peptide) => string;
   key: string;
+  gated?: boolean;
 }
 
 const COMPARE_ROWS: CompareRow[] = [
@@ -38,15 +40,14 @@ const COMPARE_ROWS: CompareRow[] = [
   { key: 'category', label: 'التصنيف', get: (p) => categoryLabels[p.category] ?? p.category },
   { key: 'evidence', label: 'مستوى الأدلة', get: (p) => evidenceLabels[p.evidenceLevel] ?? p.evidenceLevel },
   { key: 'benefits', label: 'الفوائد الرئيسية', get: (p) => p.summaryAr.split('.').slice(0, 2).join('.') + '.' },
-  { key: 'dosage', label: 'نطاق الجرعة', get: (p) => p.dosageAr },
+  { key: 'dosage', label: 'نطاق الجرعة', gated: true, get: (p) => p.doseMcg ? `${p.doseMcg}${p.doseMaxMcg ? '–' + p.doseMaxMcg : ''} mcg` : '—' },
   {
     key: 'administration',
     label: 'طريقة الإعطاء',
-    get: (p) =>
-      p.route ? ROUTE_LABELS[p.route] ?? p.administrationAr.split('.')[0] : p.administrationAr.split('.')[0],
+    get: (p: Peptide) => p.route ? ROUTE_LABELS[p.route] ?? '—' : '—',
   },
-  { key: 'cycle', label: 'مدة الدورة', get: (p) => p.cycleAr },
-  { key: 'sideEffects', label: 'الأعراض الجانبية', get: (p) => p.sideEffectsAr },
+  { key: 'cycle', label: 'مدة الدورة', gated: true, get: (p) => p.cycleDurationWeeks ? `${p.cycleDurationWeeks} أسبوع` : '—' },
+  { key: 'sideEffects', label: 'الأعراض الجانبية', gated: true, get: (p) => p.warningAr ?? '—' },
   { key: 'cost', label: 'نطاق السعر', get: (p) => p.costEstimate ?? '—' },
   { key: 'pubmed', label: 'مراجع PubMed', get: (p) => (p.pubmedIds ? `${p.pubmedIds.length} مرجع` : 'لا يوجد') },
   {
@@ -94,8 +95,8 @@ function ExpandableCell({ text, isDiff }: { text: string; isDiff: boolean }) {
           type="button"
           onClick={() => setExpanded((v) => !v)}
           className={cn(
-            'mt-1 block text-[10px] font-bold underline-offset-2 hover:underline transition-colors',
-            isDiff ? 'text-amber-600 dark:text-amber-400' : 'text-stone-400 dark:text-stone-300',
+            'mt-1 block text-xs font-bold underline-offset-2 hover:underline transition-colors',
+            isDiff ? 'text-amber-600 dark:text-amber-400' : 'text-stone-500 dark:text-stone-300',
           )}
         >
           {expanded ? 'أقل ▲' : 'المزيد ▼'}
@@ -125,9 +126,10 @@ function PeptideSelector({
   const selected = peptides.find((p) => p.id === value);
 
   const filtered = useMemo(() => {
-    const q = search.toLowerCase();
+    const strip = (s: string) => s.replace(/[\u064B-\u065F\u0670]/g, '').toLowerCase();
+    const q = strip(search);
     return peptides.filter(
-      (p) => !exclude.includes(p.id) && (p.nameAr.includes(search) || p.nameEn.toLowerCase().includes(q)),
+      (p) => !exclude.includes(p.id) && (strip(p.nameAr).includes(q) || p.nameEn.toLowerCase().includes(q)),
     );
   }, [search, exclude]);
 
@@ -149,7 +151,7 @@ function PeptideSelector({
       <div className="mb-1.5 flex items-center gap-2">
         <p className="text-xs font-bold text-stone-500 dark:text-stone-300">{label}</p>
         {optional && (
-          <span className="rounded-full bg-stone-100 dark:bg-stone-800 px-2 py-0.5 text-[10px] text-stone-400 dark:text-stone-300">
+          <span className="rounded-full bg-stone-100 dark:bg-stone-800 px-2 py-0.5 text-xs text-stone-500 dark:text-stone-300">
             اختياري
           </span>
         )}
@@ -193,11 +195,11 @@ function PeptideSelector({
               onChange={(e) => setSearch(e.target.value)}
               placeholder="ابحث بالاسم العربي أو الإنجليزي..."
               aria-label="البحث عن ببتيد للمقارنة"
-              className="w-full rounded-lg border border-stone-200 dark:border-stone-600 bg-stone-50 dark:bg-stone-800 px-3 py-2 text-sm text-stone-900 dark:text-stone-100 placeholder:text-stone-400 outline-none focus:border-emerald-300 dark:focus:border-emerald-700 focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900"
+              className="w-full rounded-lg border border-stone-200 dark:border-stone-600 bg-stone-50 dark:bg-stone-800 px-3 py-2 text-sm text-stone-900 dark:text-stone-100 placeholder:text-stone-500 outline-none focus:border-emerald-300 dark:focus:border-emerald-700 focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-500"
             />
           </div>
           <div className="flex items-center justify-between px-3 pb-1">
-            <p className="text-[10px] text-stone-400">{filtered.length} ببتيد متاح</p>
+            <p className="text-xs text-stone-400">{filtered.length} ببتيد متاح</p>
           </div>
           <div className="max-h-48 overflow-y-auto">
             {filtered.length === 0 ? (
@@ -215,7 +217,7 @@ function PeptideSelector({
                   className="flex w-full items-center gap-3 px-4 py-2.5 text-start text-sm transition-colors hover:bg-emerald-50 dark:hover:bg-stone-800"
                 >
                   <span className="font-bold text-stone-900 dark:text-stone-100">{p.nameAr}</span>
-                  <span className="text-xs text-stone-400 dark:text-stone-300">{p.nameEn}</span>
+                  <span className="text-xs text-stone-500 dark:text-stone-300">{p.nameEn}</span>
                 </button>
               ))
             )}
@@ -228,6 +230,8 @@ function PeptideSelector({
 
 // ─── Main Component ───────────────────────────────────────────
 export default function Compare() {
+  const { subscription } = useAuth();
+  const hasAccess = subscription?.isProOrTrial ?? false;
   const [searchParams, setSearchParams] = useSearchParams();
   const [copied, setCopied] = useState(false);
   const [showDiffsOnly, setShowDiffsOnly] = useState(false);
@@ -329,6 +333,7 @@ export default function Compare() {
 
   return (
     <div dir="rtl" className="mx-auto max-w-5xl px-4 pt-8 pb-24 md:px-6 md:pt-12">
+        <div className="mb-4 rounded-xl border border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-900/20 px-4 py-2 text-xs text-amber-700 dark:text-amber-400">محتوى تعليمي — استشر طبيبك قبل استخدام أي ببتيد</div>
       <Helmet>
         <title>مقارنة الببتيدات | pptides</title>
         <meta
@@ -345,6 +350,8 @@ export default function Compare() {
         <meta name="twitter:title" content="مقارنة الببتيدات | pptides" />
         <meta name="twitter:description" content="قارن بين الببتيدات جنبًا إلى جنب — الجرعات والفوائد والأعراض" />
         <meta name="twitter:image" content={`${SITE_URL}/og-image.jpg`} />
+        <meta property="og:url" content={`${SITE_URL}/compare`} />
+        <link rel="canonical" href={`${SITE_URL}/compare`} />
       </Helmet>
 
       {/* Header */}
@@ -448,9 +455,9 @@ export default function Compare() {
 
           {/* Scroll hint for mobile */}
           {canScrollTable && (
-            <div className="mb-2 flex items-center justify-end gap-1 text-[11px] text-stone-400 dark:text-stone-300 sm:hidden">
+            <div className="mb-2 flex items-center justify-end gap-1 text-[11px] text-stone-500 dark:text-stone-300 sm:hidden">
               <ChevronLeft className="h-3.5 w-3.5" />
-              اسحب يسارًا للمزيد
+              اسحب للجانب للمزيد
             </div>
           )}
 
@@ -487,13 +494,13 @@ export default function Compare() {
                       <div className="mt-2 flex gap-3">
                         <Link
                           to={`/peptide/${p.id}`}
-                          className="text-[10px] font-semibold text-emerald-700 hover:underline"
+                          className="text-xs font-semibold text-emerald-700 hover:underline"
                         >
                           البروتوكول الكامل
                         </Link>
                         <Link
                           to={`/calculator?preset=${encodeURIComponent(p.nameEn)}`}
-                          className="text-[10px] font-semibold text-stone-500 dark:text-stone-300 hover:text-emerald-700 hover:underline"
+                          className="text-xs font-semibold text-stone-500 dark:text-stone-300 hover:text-emerald-700 hover:underline"
                         >
                           احسب الجرعة
                         </Link>
@@ -555,7 +562,11 @@ export default function Compare() {
                               isDiff ? 'text-amber-900 dark:text-amber-200' : 'text-stone-800 dark:text-stone-200',
                             )}
                           >
-                            <ExpandableCell text={row.get(p)} isDiff={isDiff} />
+                            {row.gated && !hasAccess ? (
+                              <span className="text-xs text-stone-400 dark:text-stone-500 italic">اشترك لعرض التفاصيل</span>
+                            ) : (
+                              <ExpandableCell text={row.get(p)} isDiff={isDiff} />
+                            )}
                           </td>
                         ))}
                       </tr>
@@ -568,7 +579,7 @@ export default function Compare() {
 
           {/* Diff legend */}
           {diffCount > 0 && (
-            <p className="mt-3 text-[11px] text-stone-400 dark:text-stone-300 text-end">
+            <p className="mt-3 text-[11px] text-stone-500 dark:text-stone-300 text-end">
               <span className="inline-flex items-center gap-1">
                 <span className="inline-block h-1.5 w-1.5 rounded-full bg-amber-500" />
                 الصفوف المضاءة تعني اختلافًا بين الببتيدات — {diffCount} من {COMPARE_ROWS.length} معيارًا مختلف
@@ -579,10 +590,34 @@ export default function Compare() {
           {/* Action bar */}
           <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
             <Link
-              to={`/interactions?p1=${ids[0]}&p2=${ids[1]}`}
+              to={`/interactions?${ids.map((id, i) => `p${i + 1}=${id}`).join('&')}`}
               className="inline-flex items-center gap-2 rounded-xl border border-stone-200 dark:border-stone-700 px-6 py-3 text-sm font-bold text-emerald-700 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 transition-colors"
             >
               فحص التعارضات بين هذه الببتيدات
+            </Link>
+            <Link
+              to={`/calculator?preset=${encodeURIComponent(selectedPeptides[0]?.nameEn ?? '')}`}
+              className="inline-flex items-center gap-2 rounded-xl border border-stone-200 dark:border-stone-700 px-6 py-3 text-sm font-bold text-stone-700 dark:text-stone-200 hover:bg-stone-50 dark:hover:bg-stone-800 transition-colors"
+            >
+              حاسبة الجرعات
+            </Link>
+            <Link
+              to="/stacks"
+              className="inline-flex items-center gap-2 rounded-xl border border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-900/30 px-6 py-3 text-sm font-bold text-emerald-700 dark:text-emerald-400 hover:bg-emerald-100 dark:hover:bg-emerald-900/50 transition-colors"
+            >
+              ابدأ بروتوكول
+            </Link>
+            <Link
+              to={`/coach?q=${encodeURIComponent(`قارنت بين ${selectedPeptides.map(p => p.nameAr).join(' و ')} — أيهم أنسب لي؟`)}`}
+              className="inline-flex items-center gap-2 rounded-xl border border-stone-200 dark:border-stone-700 px-6 py-3 text-sm font-bold text-stone-700 dark:text-stone-200 hover:bg-stone-50 dark:hover:bg-stone-800 transition-colors"
+            >
+              اسأل المدرب
+            </Link>
+            <Link
+              to="/tracker"
+              className="inline-flex items-center gap-2 rounded-xl border border-stone-200 dark:border-stone-700 px-6 py-3 text-sm font-bold text-stone-700 dark:text-stone-200 hover:bg-stone-50 dark:hover:bg-stone-800 transition-colors"
+            >
+              سجّل حقنة
             </Link>
           </div>
         </div>
@@ -591,7 +626,7 @@ export default function Compare() {
         <div className="rounded-2xl border border-dashed border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-900/50 px-6 py-12 text-center">
           <ArrowLeftRight className="mx-auto mb-4 h-10 w-10 text-stone-300 dark:text-stone-300" />
           <p className="text-sm font-bold text-stone-700 dark:text-stone-200 mb-1">
-            {selectedCount === 0 ? 'ابدأ بالمقارنة' : 'اختر ببتيدًا آخر'}
+            {selectedCount === 0 ? 'اختر ببتيدات من المكتبة للمقارنة' : 'اختر ببتيدًا آخر'}
           </p>
           <p className="text-xs text-stone-500 dark:text-stone-300 mb-6">
             {selectedCount === 0
@@ -601,7 +636,7 @@ export default function Compare() {
 
           <div className="mb-4 flex items-center gap-3">
             <div className="flex-1 h-px bg-stone-200 dark:bg-stone-700" />
-            <p className="text-xs font-bold text-stone-400 dark:text-stone-300 shrink-0">أو ابدأ بمقارنة شائعة</p>
+            <p className="text-xs font-bold text-stone-500 dark:text-stone-300 shrink-0">أو ابدأ بمقارنة شائعة</p>
             <div className="flex-1 h-px bg-stone-200 dark:bg-stone-700" />
           </div>
 
@@ -615,7 +650,7 @@ export default function Compare() {
                 <ArrowLeftRight className="h-4 w-4 shrink-0 text-emerald-700" />
                 <div className="min-w-0">
                   <p className="text-xs font-bold text-stone-800 dark:text-stone-200 truncate">{label}</p>
-                  <p className="text-[10px] text-stone-400 dark:text-stone-300">{tag}</p>
+                  <p className="text-xs text-stone-500 dark:text-stone-300">{tag}</p>
                 </div>
               </Link>
             ))}
@@ -645,7 +680,7 @@ export default function Compare() {
               <ArrowLeftRight className="h-5 w-5 shrink-0 text-emerald-700" />
               <div className="min-w-0">
                 <p className="text-sm font-bold text-stone-800 dark:text-stone-200">{label}</p>
-                <p className="text-xs text-stone-400 dark:text-stone-300 mt-0.5">{tag}</p>
+                <p className="text-xs text-stone-500 dark:text-stone-300 mt-0.5">{tag}</p>
               </div>
             </Link>
           ))}

@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import FocusTrap from 'focus-trap-react';
 import { Helmet } from 'react-helmet-async';
 import { Link } from 'react-router-dom';
@@ -13,14 +13,21 @@ import {
   ChevronDown,
   ChevronUp,
   Calendar,
+  Gift,
+  Calculator,
+  Activity,
+  Heart,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { events } from '@/lib/analytics';
 import { cn, copyToClipboard } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
+import { SITE_URL } from '@/lib/constants';
+import { logError } from '@/lib/logger';
 import { peptidesLite as allPeptides } from '@/data/peptides-lite';
 import ProgressRing from '@/components/charts/ProgressRing';
+import ChartErrorBoundary from '@/components/charts/ChartErrorBoundary';
 import SideEffectLog from '@/components/SideEffectLog';
 import Tooltip from '@/components/Tooltip';
 import TrackerStats from '@/components/tracker/TrackerStats';
@@ -58,16 +65,32 @@ function formatDate(iso: string, useHijri = false) {
   return useHijri ? hijriFormatter.format(d) : gregorianFormatter.format(d);
 }
 
-function computeStreak(daySet: Set<string>, includeToday = false): number {
-  const set = includeToday ? new Set([...daySet, new Date().toDateString()]) : daySet;
+/** Normalize a Date to YYYY-MM-DD in local timezone */
+function toLocalDateStr(d: Date): string {
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+}
+
+function computeStreak(logs: InjectionLog[], includeToday = false): number {
+  const daySet = new Set(logs.map(l => toLocalDateStr(new Date(l.logged_at))));
+  if (includeToday) daySet.add(toLocalDateStr(new Date()));
   let streak = 0;
   const d = new Date();
-  if (!set.has(d.toDateString())) d.setDate(d.getDate() - 1);
-  while (set.has(d.toDateString())) { streak++; d.setDate(d.getDate() - 1); }
+  if (!daySet.has(toLocalDateStr(d))) d.setDate(d.getDate() - 1);
+  while (daySet.has(toLocalDateStr(d))) { streak++; d.setDate(d.getDate() - 1); }
   return streak;
 }
 
 const CALENDAR_PREF_KEY = 'pptides_calendar_pref';
+
+/** Post-injection feedback: expected timeline & what to track per category */
+const CATEGORY_FEEDBACK: Record<string, { weeks: string; track: string }> = {
+  metabolic: { weeks: '4-8', track: 'الوزن / الشهية / الطاقة' },
+  recovery: { weeks: '2-4', track: 'الألم / التعافي / جودة النوم' },
+  hormonal: { weeks: '4-6', track: 'الطاقة / المزاج / الأداء' },
+  brain:    { weeks: '2-4', track: 'التركيز / الذاكرة / المزاج' },
+  longevity:{ weeks: '8-12', track: 'الطاقة / النوم / العافية العامة' },
+  'skin-gut':{ weeks: '4-8', track: 'البشرة / الهضم / الالتهاب' },
+};
 
 export default function Tracker() {
   const { user, subscription } = useAuth();
@@ -91,6 +114,54 @@ export default function Tracker() {
     try { return !!new URLSearchParams(window.location.search).get('peptide'); } catch { return false; }
   });
   const [autoFilled, setAutoFilled] = useState(false);
+  const nextDoseTimerRef = useRef<ReturnType<typeof setTimeout>>(null);
+
+  // Cleanup timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (nextDoseTimerRef.current) clearTimeout(nextDoseTimerRef.current);
+    };
+  }, []);
+
+  // Referral code for streak milestone CTA
+  const [referralCode, setReferralCode] = useState<string | null>(null);
+  useEffect(() => {
+    if (!user || !subscription.isProOrTrial) return;
+    let mounted = true;
+    (async () => {
+      const { data } = await supabase.from('subscriptions').select('referral_code').eq('user_id', user.id).maybeSingle();
+      if (mounted && data?.referral_code) setReferralCode(data.referral_code);
+    })();
+    return () => { mounted = false; };
+  }, [user, subscription.isProOrTrial]);
+
+  // Post-injection feedback card
+  const [lastLoggedPeptide, setLastLoggedPeptide] = useState<string | null>(null);
+
+  // Injection reminder
+  const [dueReminder, setDueReminder] = useState<{ peptide: string } | null>(null);
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem('pptides_injection_reminder');
+      if (!raw) return;
+      const r = JSON.parse(raw) as { peptide: string; nextDate: string; freqHours: number };
+      if (new Date(r.nextDate).getTime() <= Date.now()) {
+        setDueReminder({ peptide: r.peptide });
+      }
+    } catch { /* ignore */ }
+  }, []);
+
+  const dismissReminder = () => {
+    setDueReminder(null);
+    try {
+      const raw = localStorage.getItem('pptides_injection_reminder');
+      if (raw) {
+        const r = JSON.parse(raw) as { peptide: string; nextDate: string; freqHours: number };
+        const nextDate = new Date(Date.now() + r.freqHours * 60 * 60 * 1000).toISOString();
+        localStorage.setItem('pptides_injection_reminder', JSON.stringify({ ...r, nextDate }));
+      }
+    } catch { /* ignore */ }
+  };
 
   const [showProtocolWizard, setShowProtocolWizard] = useState(false);
   const [wizardPeptideId, setWizardPeptideId] = useState('');
@@ -118,11 +189,11 @@ export default function Tracker() {
   const [activeProtocols, setActiveProtocols] = useState<ActiveProtocol[]>([]);
   const fetchActiveProtocols = useCallback(async () => {
     if (!user) return;
-    const { data, error } = await supabase.from('user_protocols').select('*').eq('user_id', user.id).eq('status', 'active').order('started_at', { ascending: false }).limit(20);
-    if (error) console.error('active protocols query failed:', error);
+    const { data, error } = await supabase.from('user_protocols').select('id, peptide_id, dose, dose_unit, frequency, cycle_weeks, started_at, status').eq('user_id', user.id).eq('status', 'active').order('started_at', { ascending: false }).limit(20);
+    if (error) { logError('active protocols query failed:', error); toast.error('تعذّر تحميل البروتوكولات — حاول مرة أخرى'); }
     if (!error && data) setActiveProtocols(data);
   }, [user]);
-  useEffect(() => { fetchActiveProtocols().catch(() => {}); }, [fetchActiveProtocols]);
+  useEffect(() => { fetchActiveProtocols().catch((e: unknown) => logError('silent catch:', e)); }, [fetchActiveProtocols]);
 
   // Suggested injection site
   const suggestedSite = useMemo(() => {
@@ -138,27 +209,46 @@ export default function Tracker() {
 
   const PAGE_SIZE = 50;
 
+  const fetchingLogsRef = useRef(false);
+  const quickLogRef = useRef(false);
   const fetchLogs = useCallback(async () => {
-    if (!user) return;
+    if (!user || fetchingLogsRef.current) return;
+    fetchingLogsRef.current = true;
     setIsLoadingLogs(true);
     setFetchError(false);
     try {
-      const [{ data, error }, { count }] = await Promise.all([
-        supabase.from('injection_logs').select('*').eq('user_id', user.id).order('logged_at', { ascending: false }).range(0, PAGE_SIZE - 1),
-        supabase.from('injection_logs').select('id', { count: 'exact', head: true }).eq('user_id', user.id),
-      ]);
+      const { data, error, count } = await supabase
+        .from('injection_logs')
+        .select('id, peptide_name, dose, dose_unit, injection_site, logged_at, notes, protocol_id, photo_url', { count: 'exact' })
+        .eq('user_id', user.id)
+        .order('logged_at', { ascending: false })
+        .range(0, PAGE_SIZE - 1);
       if (error) { setFetchError(true); }
-      const rows = (data as InjectionLog[]) ?? [];
-      setLogs(rows);
-      if (count != null) setTotalCount(count);
-      setHasMore(rows.length >= PAGE_SIZE);
+      else {
+        const rows = (data ?? []) as InjectionLog[];
+        setLogs(rows);
+        if (count != null) setTotalCount(count);
+        setHasMore(rows.length >= PAGE_SIZE);
+      }
     } catch { setFetchError(true); }
-    finally { setIsLoadingLogs(false); }
+    finally { fetchingLogsRef.current = false; setIsLoadingLogs(false); }
   }, [user]);
 
   useEffect(() => {
     if (!user) return;
-    fetchLogs().catch(() => {});
+    fetchLogs().catch((e: unknown) => logError('silent catch:', e));
+    // 31.7: Safety timeout — force error state if loading hangs beyond 30s
+    const loadingTimeout = setTimeout(() => {
+      if (fetchingLogsRef.current) {
+        fetchingLogsRef.current = false;
+        setIsLoadingLogs(false);
+        setFetchError(true);
+      }
+    }, 30_000);
+    // 31.3: Auto-retry on network reconnection
+    const onOnline = () => { fetchLogs().catch(e => logError('fetchLogs reconnect failed:', e)); };
+    window.addEventListener('pptides:online', onOnline);
+    return () => { clearTimeout(loadingTimeout); window.removeEventListener('pptides:online', onOnline); };
   }, [user, fetchLogs]);
 
   const fetchMore = async () => {
@@ -166,9 +256,9 @@ export default function Tracker() {
     setIsLoadingMore(true);
     try {
       const from = logs.length;
-      const { data, error } = await supabase.from('injection_logs').select('*').eq('user_id', user.id).order('logged_at', { ascending: false }).range(from, from + PAGE_SIZE - 1);
+      const { data, error } = await supabase.from('injection_logs').select('id, peptide_name, dose, dose_unit, injection_site, logged_at, notes, protocol_id, photo_url').eq('user_id', user.id).order('logged_at', { ascending: false }).range(from, from + PAGE_SIZE - 1);
       if (error) { toast.error('تعذّر تحميل المزيد'); return; }
-      const rows = (data as InjectionLog[]) ?? [];
+      const rows = (data ?? []) as InjectionLog[];
       setLogs(prev => [...prev, ...rows]);
       setHasMore(rows.length >= PAGE_SIZE);
     } catch { toast.error('تعذّر تحميل المزيد. حاول مرة أخرى.'); }
@@ -177,10 +267,11 @@ export default function Tracker() {
 
   // Quick log for protocol
   const handleQuickLog = async (proto: ActiveProtocol) => {
-    if (!user || isSubmitting) return;
+    if (!user || quickLogRef.current) return;
+    quickLogRef.current = true;
     setIsSubmitting(true);
     try {
-      const { error } = await supabase.from('injection_logs').insert({
+      const payload = {
         user_id: user.id,
         peptide_name: allPeptides.find(p => p.id === proto.peptide_id)?.nameEn ?? proto.peptide_id,
         dose: proto.dose,
@@ -188,9 +279,17 @@ export default function Tracker() {
         injection_site: suggestedSite,
         logged_at: new Date().toISOString(),
         protocol_id: proto.id,
-      });
+      };
+      const { error } = await supabase.from('injection_logs').insert(payload);
       if (error) {
-        if (error?.message?.includes('JWT') || (error as { code?: string })?.code === '401' || error?.message?.includes('not authenticated')) {
+        if (!navigator.onLine && navigator.serviceWorker?.controller) {
+          const session = await supabase.auth.getSession();
+          navigator.serviceWorker.controller.postMessage({
+            type: 'QUEUE_INJECTION',
+            payload: { ...payload, _supabase_url: import.meta.env.VITE_SUPABASE_URL, _anon_key: import.meta.env.VITE_SUPABASE_ANON_KEY, _access_token: session.data.session?.access_token },
+          });
+          toast.success('محفوظ للمزامنة عند الاتصال بالإنترنت');
+        } else if (error?.message?.includes('JWT') || (error as { code?: string })?.code === '401' || error?.message?.includes('not authenticated')) {
           toast.error('انتهت الجلسة — أعد تسجيل الدخول');
         } else {
           toast.error('تعذّر حفظ الحقنة — تحقق من اتصالك وحاول مرة أخرى');
@@ -199,20 +298,22 @@ export default function Tracker() {
       }
       await fetchLogs();
       const peptide = allPeptides.find(p => p.id === proto.peptide_id);
+      setLastLoggedPeptide(peptide?.nameEn ?? proto.peptide_id);
       toast.success(`تم تسجيل ${peptide?.nameAr ?? proto.peptide_id} — ${proto.dose} ${proto.dose_unit}`, { duration: 6000, description: 'الجرعة التالية غدًا — استمر في الالتزام!' });
       const freq = proto.frequency;
       const nextIn = freq === 'bid' ? '12 ساعة' : freq === 'tid' ? '8 ساعات' : 'غدًا';
-      setTimeout(() => toast(`الجرعة التالية: ${nextIn}`, { duration: 5000 }), 2000);
+      nextDoseTimerRef.current = setTimeout(() => toast(`الجرعة التالية: ${nextIn}`, { duration: 5000 }), 2000);
       const newTotal = (totalCount || logs.length) + 1;
-      celebrate(newTotal, computeStreak(streakDaySet, true));
-    } catch { toast.error('تعذّر حفظ الحقنة — تحقق من اتصالك وحاول مرة أخرى'); }
-    finally { setIsSubmitting(false); }
+      if (statsLoaded) celebrate(newTotal, computeStreak(allLogsForStats, true));
+    } catch (err) { logError('injection save failed', err); toast.error('تعذّر حفظ الحقنة — تحقق من اتصالك وحاول مرة أخرى'); }
+    finally { quickLogRef.current = false; setIsSubmitting(false); }
   };
 
   // Quick repeat last injection
   const handleQuickRepeat = async () => {
-    if (!user || isSubmitting || logs.length === 0) return;
+    if (!user || quickLogRef.current || logs.length === 0) return;
     const last = logs[0];
+    quickLogRef.current = true;
     setIsSubmitting(true);
     try {
       const { error } = await supabase.from('injection_logs').insert({
@@ -233,70 +334,68 @@ export default function Tracker() {
         return;
       }
       await fetchLogs();
+      setLastLoggedPeptide(last.peptide_name);
       toast.success(`تم تسجيل ${last.peptide_name} — ${last.dose} ${last.dose_unit}`);
       const newTotal = (totalCount || logs.length) + 1;
-      celebrate(newTotal, computeStreak(streakDaySet, true));
-    } catch { toast.error('تعذّر حفظ الحقنة — تحقق من اتصالك وحاول مرة أخرى'); }
-    finally { setIsSubmitting(false); }
+      if (statsLoaded) celebrate(newTotal, computeStreak(allLogsForStats, true));
+    } catch (err) { logError('quick repeat failed', err); toast.error('تعذّر حفظ الحقنة — تحقق من اتصالك وحاول مرة أخرى'); }
+    finally { quickLogRef.current = false; setIsSubmitting(false); }
   };
 
   // Stats data
   const [fullStatsData, setFullStatsData] = useState<{ uniquePeptides: number; last7: number } | null>(null);
   const [allLogsForStats, setAllLogsForStats] = useState<InjectionLog[]>([]);
-  // Dedicated lightweight set of ALL distinct log dates for accurate streak calculation
-  const [streakDaySet, setStreakDaySet] = useState<Set<string>>(new Set());
+  const [statsLoaded, setStatsLoaded] = useState(false);
   useEffect(() => {
     if (!user) return;
     let mounted = true;
-    // Single unbounded query for all stats (logged_at, injection_site, peptide_name)
-    // plus a lightweight count for last-7-days. This replaces 4 separate queries.
-    Promise.all([
-      // Paginate to fetch ALL rows (Supabase default cap is 1000)
-      (async () => {
-        let allRows: { logged_at: string; injection_site: string; peptide_name: string }[] = [];
-        let from = 0;
-        const batchSize = 1000;
-        while (true) {
-          const { data, error } = await supabase
-            .from('injection_logs')
-            .select('logged_at, injection_site, peptide_name')
-            .eq('user_id', user.id)
-            .order('logged_at', { ascending: false })
-            .range(from, from + batchSize - 1);
-          if (error) { console.error('injection_logs stats query failed:', error); break; }
-          if (!data || data.length === 0) break;
-          allRows = allRows.concat(data);
-          if (data.length < batchSize) break;
-          from += batchSize;
-        }
-        return allRows;
-      })(),
-      supabase.from('injection_logs').select('id', { count: 'exact', head: true }).eq('user_id', user.id).gte('logged_at', new Date(Date.now() - 7 * 86400000).toISOString()),
-    ]).then(([allRows, weekRes]) => {
+    // Paginate to fetch ALL rows (Supabase default cap is 1000) for accurate streak
+    const fetchAllStats = async () => {
+      let allRows: { logged_at: string; injection_site: string; peptide_name: string }[] = [];
+      let from = 0;
+      const batchSize = 1000;
+      while (true) {
+        const { data, error } = await supabase
+          .from('injection_logs')
+          .select('logged_at, injection_site, peptide_name')
+          .eq('user_id', user.id)
+          .order('logged_at', { ascending: false })
+          .range(from, from + batchSize - 1);
+        if (error) { logError('injection_logs stats query failed:', error); break; }
+        if (!data || data.length === 0) break;
+        allRows = allRows.concat(data);
+        if (data.length < batchSize) break;
+        from += batchSize;
+      }
+      return allRows;
+    };
+    const timeoutPromise = new Promise<never>((_, reject) => setTimeout(() => reject(new Error('Stats fetch timeout (15s)')), 15000));
+    Promise.race([fetchAllStats(), timeoutPromise])
+    .then((allRows) => {
       if (!mounted) return;
-      if (weekRes.error) console.error('injection_logs weekly count failed:', weekRes.error);
       const unique = new Set(allRows.map(r => r.peptide_name)).size;
-      setFullStatsData({ uniquePeptides: unique, last7: weekRes.count ?? 0 });
+      const weekAgo = new Date(Date.now() - 7 * 86400000).toISOString();
+      const last7 = allRows.filter(r => r.logged_at >= weekAgo).length;
+      setFullStatsData({ uniquePeptides: unique, last7 });
       setAllLogsForStats(allRows as InjectionLog[]);
-      // Build complete day set for streak from the same data
-      const days = new Set(allRows.map(r => new Date(r.logged_at).toDateString()));
-      setStreakDaySet(days);
-    }).catch(() => {});
+      setStatsLoaded(true);
+    }).catch((e: unknown) => { logError('stats fetch failed:', e); if (mounted) setStatsLoaded(true); });
     return () => { mounted = false; };
   }, [user, logs.length]);
 
+  const streak = useMemo(() => computeStreak(allLogsForStats), [allLogsForStats]);
+
   const dashboardStats = useMemo(() => {
-    if (logs.length === 0) return null;
+    if (!logs || logs.length === 0) return null;
     const totalInjections = totalCount || logs.length;
     const uniquePeptides = fullStatsData?.uniquePeptides ?? new Set(logs.map(l => l.peptide_name)).size;
-    const streak = computeStreak(streakDaySet);
     const last7 = fullStatsData?.last7 ?? logs.filter(l => Date.now() - new Date(l.logged_at).getTime() < 7 * 24 * 60 * 60 * 1000).length;
     const msSinceLast = Date.now() - new Date(logs[0].logged_at).getTime();
     const hoursSince = Math.floor(msSinceLast / (1000 * 60 * 60));
     const daysSince = Math.floor(hoursSince / 24);
     const timeSinceLabel = daysSince > 0 ? `منذ ${daysSince} يوم` : hoursSince > 0 ? `منذ ${hoursSince} ساعة` : 'الآن';
-    return { totalInjections, uniquePeptides, streak, last7, timeSinceLabel };
-  }, [logs, streakDaySet, totalCount, fullStatsData?.last7, fullStatsData?.uniquePeptides]);
+    return { totalInjections, uniquePeptides, streak: statsLoaded ? streak : null, last7, timeSinceLabel };
+  }, [logs, streak, statsLoaded, totalCount, fullStatsData?.last7, fullStatsData?.uniquePeptides]);
 
   const monthlySummary = useMemo(() => {
     const src = allLogsForStats.length > 0 ? allLogsForStats : logs;
@@ -311,9 +410,8 @@ export default function Tracker() {
     const units = new Set(thisMonth.map(l => l.dose_unit));
     const avgDose = units.size === 1 ? Math.round((thisMonth.reduce((sum, l) => sum + l.dose, 0) / thisMonth.length) * 10) / 10 : null;
     const avgUnit = units.size === 1 ? (thisMonth[0]?.dose_unit ?? 'mcg') : null;
-    const streak = computeStreak(streakDaySet);
     return { totalInjections, mostUsedPeptide: mostUsed?.[0] ?? '', mostUsedCount: mostUsed?.[1] ?? 0, avgDose, avgUnit, streak };
-  }, [logs, allLogsForStats, streakDaySet]);
+  }, [logs, allLogsForStats, streak]);
 
   const weeklyActivity = useMemo(() => {
     const src = allLogsForStats.length > 0 ? allLogsForStats : logs;
@@ -447,6 +545,7 @@ export default function Tracker() {
 
   return (
     <div className="mx-auto max-w-3xl px-4 pb-24 pt-8 md:px-6 md:pt-12 animate-fade-in">
+        <div className="mb-4 rounded-xl border border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-900/20 px-4 py-2 text-xs text-amber-700 dark:text-amber-400">محتوى تعليمي — استشر طبيبك قبل استخدام أي ببتيد</div>
       <Helmet>
         <title>سجل الحقن | تتبّع جرعاتك | pptides</title>
         <meta name="description" content="تتبّع جرعاتك ومواقع الحقن — سجل ذكي لبروتوكولات الببتيدات." />
@@ -486,13 +585,43 @@ export default function Tracker() {
           <Tooltip content="سجّل كل حقنة هنا مع الجرعة والموقع. التطبيق يتتبّع سلسلة التزامك ويقترح تدوير مواقع الحقن تلقائيًا لتجنّب تلف الأنسجة." firstTimeId="tracker-main" position="bottom" />
         </div>
         <p className="mt-2 text-lg text-stone-600 dark:text-stone-300">تتبّع جرعاتك ومواقع الحقن</p>
+        <Link to="/calculator" className="mt-2 inline-flex items-center gap-1.5 text-sm font-medium text-emerald-700 dark:text-emerald-400 hover:underline">
+          <Calculator className="h-4 w-4" /> احسب جرعتك
+        </Link>
       </div>
 
       {/* Prominent Streak Counter */}
-      {dashboardStats && dashboardStats.streak > 0 && (
+      {dashboardStats && dashboardStats.streak != null && dashboardStats.streak > 0 && (
         <div className="mb-6 rounded-2xl bg-gradient-to-l from-orange-500 to-amber-500 p-5 text-center shadow-lg">
           <p className="text-3xl font-black text-white sm:text-4xl">{dashboardStats.streak} أيام متتالية</p>
           <p className="mt-1 text-sm font-medium text-white/80">استمر في الالتزام — أنت تبني عادة!</p>
+          {(() => {
+            const freqArMap: Record<string, string> = { eod: 'كل يومين', '3x': '3 مرات أسبوعيًا', '3xweek': '3 مرات أسبوعيًا', '2x': 'مرتين أسبوعيًا', '2xweek': 'مرتين أسبوعيًا', weekly: 'أسبوعيًا', biweekly: 'كل أسبوعين', monthly: 'شهريًا' };
+            const nonDailyProto = activeProtocols.find(p => freqArMap[p.frequency]);
+            const activeFrequency = nonDailyProto ? freqArMap[nonDailyProto.frequency] : null;
+            return activeFrequency ? (
+              <p className="text-xs text-white/60 mt-0.5">بناءً على جدول الحقن {activeFrequency}</p>
+            ) : null;
+          })()}
+        </div>
+      )}
+
+      {/* Referral CTA at streak milestones (7, 14, 30 days) */}
+      {dashboardStats && [7, 14, 30].includes(dashboardStats.streak) && referralCode && (
+        <div className="mb-6 rounded-2xl border border-emerald-200 dark:border-emerald-800 bg-gradient-to-l from-emerald-50 to-amber-50 dark:from-emerald-950/30 dark:to-amber-950/20 p-4 text-center">
+          <Gift className="h-5 w-5 text-emerald-600 mx-auto mb-2" />
+          <p className="text-sm font-bold text-stone-900 dark:text-stone-100 mb-1">
+            {dashboardStats.streak} أيام متتالية! شارك إنجازك مع صديق
+          </p>
+          <p className="text-xs text-stone-500 dark:text-stone-400 mb-3">شارك مع صديق واحصل على أسبوع مجاني — صديقك يحصل على خصم 40%</p>
+          <a
+            href={`https://wa.me/?text=${encodeURIComponent(`حققت ${dashboardStats.streak} يوم التزام متتالي على pptides! جرّبه أنت أيضًا:\n${SITE_URL}/?ref=${referralCode}`)}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-2 rounded-full bg-emerald-600 px-6 py-2.5 text-sm font-semibold text-white transition-all hover:bg-emerald-700 active:scale-[0.98]"
+          >
+            شارك عبر واتساب
+          </a>
         </div>
       )}
 
@@ -542,11 +671,11 @@ export default function Tracker() {
               const totalDays = (proto.cycle_weeks || 8) * 7;
               const weekNumber = Math.floor(daysSinceStart / 7) + 1;
               const totalWeeks = proto.cycle_weeks || 8;
-              const todayLogged = logs.some(l => l.peptide_name === (peptide?.nameEn ?? proto.peptide_id) && new Date(l.logged_at).toDateString() === new Date().toDateString());
+              const todayLogged = logs.some(l => l.peptide_name === (peptide?.nameEn ?? proto.peptide_id) && toLocalDateStr(new Date(l.logged_at)) === toLocalDateStr(new Date()));
               return (
                 <div key={proto.id} className={cn('rounded-2xl border p-4 card-lift', todayLogged ? 'border-emerald-300 dark:border-emerald-700 bg-emerald-50/50' : 'border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900')}>
                   <div className="flex items-center gap-3">
-                    <ProgressRing current={daysSinceStart} total={totalDays} size={56} />
+                    <ChartErrorBoundary><ProgressRing current={daysSinceStart} total={totalDays} size={56} /></ChartErrorBoundary>
                     <div className="flex-1 min-w-0">
                       <p className="font-bold text-stone-900 dark:text-stone-100 truncate">{peptide?.nameAr ?? proto.peptide_id}</p>
                       <p className="text-xs text-stone-500 dark:text-stone-300" dir="ltr">{proto.dose} {proto.dose_unit}</p>
@@ -559,14 +688,15 @@ export default function Tracker() {
                             message: `هل تريد إنهاء بروتوكول ${peptide?.nameAr ?? proto.peptide_id}؟ لا يمكن التراجع.`,
                             isDestructive: true,
                             onConfirm: async () => {
+                              if (!user) { toast.error('انتهت الجلسة — أعد تسجيل الدخول'); setConfirmDialog(null); return; }
                               setConfirmBusy(true);
-                              const { error } = await supabase.from('user_protocols').update({ status: 'completed', updated_at: new Date().toISOString() }).eq('id', proto.id).eq('user_id', user!.id);
+                              const { error } = await supabase.from('user_protocols').update({ status: 'completed', updated_at: new Date().toISOString() }).eq('id', proto.id).eq('user_id', user.id);
                               if (!error) { toast.success('تم إنهاء البروتوكول'); fetchActiveProtocols(); } else { toast.error('تعذّر إنهاء البروتوكول — تحقق من اتصالك وحاول مرة أخرى'); }
                               setConfirmBusy(false);
                               setConfirmDialog(null);
                             },
                           })}
-                          className="text-xs text-stone-500 dark:text-stone-300 hover:text-red-500 dark:text-red-400 transition-colors"
+                          className="text-xs text-stone-500 dark:text-stone-300 hover:text-red-500 dark:text-red-400 transition-colors min-h-[44px]"
                         >
                           أنهِ البروتوكول
                         </button>
@@ -582,18 +712,37 @@ export default function Tracker() {
                   </div>
                   {daysSinceStart >= totalDays && (
                     <div className="mt-3 rounded-lg bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 px-3 py-3 text-center">
-                      <p className="text-sm font-bold text-emerald-700 dark:text-emerald-400 mb-2">أكملت الدورة بنجاح!</p>
-                      <button
-                        onClick={async () => {
-                          const pepName = peptide?.nameAr ?? proto.peptide_id;
-                          const injCount = logs.filter(l => l.peptide_name === (peptide?.nameEn ?? proto.peptide_id)).length;
-                          const text = `أكملت دورة ${pepName} على pptides! — ${totalDays} يوم — ${injCount} حقنة. pptides.com`;
-                          try { if (navigator.share) { await navigator.share({ text }); } else { await copyToClipboard(text); toast.success('تم نسخ الرسالة'); } } catch { /* user cancelled */ }
-                        }}
-                        className="inline-flex items-center gap-2 rounded-full bg-emerald-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-emerald-700"
-                      >
-                        شارك إنجازك
-                      </button>
+                      <p className="text-sm font-bold text-emerald-700 dark:text-emerald-400 mb-1">دورة {peptide?.nameAr ?? proto.peptide_id} اكتملت — هل تريد بدء دورة جديدة؟</p>
+                      <div className="flex flex-wrap items-center justify-center gap-2 mt-2">
+                        <button
+                          onClick={() => setConfirmDialog({
+                            title: 'إنهاء الدورة',
+                            message: `سيتم تحديث بروتوكول ${peptide?.nameAr ?? proto.peptide_id} إلى "مكتمل". يمكنك بدء دورة جديدة بعدها.`,
+                            onConfirm: async () => {
+                              if (!user) { toast.error('انتهت الجلسة — أعد تسجيل الدخول'); setConfirmDialog(null); return; }
+                              setConfirmBusy(true);
+                              const { error } = await supabase.from('user_protocols').update({ status: 'completed', updated_at: new Date().toISOString() }).eq('id', proto.id).eq('user_id', user.id);
+                              if (!error) { toast.success('تم إكمال الدورة — يمكنك بدء دورة جديدة'); fetchActiveProtocols(); } else { toast.error('تعذّر تحديث البروتوكول'); }
+                              setConfirmBusy(false);
+                              setConfirmDialog(null);
+                            },
+                          })}
+                          className="inline-flex items-center gap-2 rounded-full bg-emerald-600 px-4 py-2 text-sm font-bold text-white transition-colors hover:bg-emerald-700"
+                        >
+                          أكمل الدورة وابدأ جديدة
+                        </button>
+                        <button
+                          onClick={async () => {
+                            const pepName = peptide?.nameAr ?? proto.peptide_id;
+                            const injCount = logs.filter(l => l.peptide_name === (peptide?.nameEn ?? proto.peptide_id)).length;
+                            const text = `أكملت دورة ${pepName} على pptides! — ${totalDays} يوم — ${injCount} حقنة. pptides.com`;
+                            try { if (navigator.share) { await navigator.share({ text }); } else { await copyToClipboard(text); toast.success('تم نسخ الرسالة'); } } catch { /* user cancelled */ }
+                          }}
+                          className="inline-flex items-center gap-2 rounded-full border border-emerald-300 dark:border-emerald-700 px-4 py-2 text-sm font-medium text-emerald-700 dark:text-emerald-400 transition-colors hover:bg-emerald-100 dark:hover:bg-emerald-900/30"
+                        >
+                          شارك إنجازك
+                        </button>
+                      </div>
                     </div>
                   )}
                 </div>
@@ -670,7 +819,7 @@ export default function Tracker() {
                   <p className="text-xs text-stone-500 dark:text-stone-300 mt-1">اختر ببتيد وابدأ بروتوكول منظّم بجرعات وتذكيرات</p>
                 </div>
                 <div className="flex items-center gap-2 w-full sm:w-auto">
-                  <select value={wizardPeptideId} onChange={(e) => setWizardPeptideId(e.target.value)} className="flex-1 sm:w-48 rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 px-3 py-2.5 text-base text-stone-900 dark:text-stone-100 focus:border-emerald-300 dark:border-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900" aria-label="اختر ببتيد للبروتوكول">
+                  <select value={wizardPeptideId} onChange={(e) => setWizardPeptideId(e.target.value)} className="flex-1 sm:w-48 rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 px-3 py-2.5 text-base text-stone-900 dark:text-stone-100 focus:border-emerald-300 dark:border-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-500" aria-label="اختر ببتيد للبروتوكول">
                     <option value="">اختر ببتيد...</option>
                     {allPeptides.filter(p => p.id !== 'melanotan-ii').map(p => (<option key={p.id} value={p.id}>{p.nameAr}</option>))}
                   </select>
@@ -696,13 +845,38 @@ export default function Tracker() {
         siteRotationData={siteRotationData}
       />
 
+      {/* Injection Reminder Banner */}
+      {dueReminder && (
+        <div className="mb-6 flex items-center justify-between gap-3 rounded-2xl border border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-900/20 px-5 py-4 animate-fade-in">
+          <div className="flex items-center gap-3">
+            <Syringe className="h-5 w-5 shrink-0 text-amber-600" />
+            <p className="text-sm font-bold text-amber-800 dark:text-amber-300">حان وقت الحقنة! {dueReminder.peptide}</p>
+          </div>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => { dismissReminder(); setShowForm(true); }}
+              className="rounded-full bg-emerald-600 px-4 py-2 text-xs font-bold text-white transition-all hover:bg-emerald-700 min-h-[44px]"
+            >
+              سجّل الآن
+            </button>
+            <button
+              onClick={dismissReminder}
+              className="rounded-full border border-stone-200 dark:border-stone-600 px-3 py-2 text-xs font-bold text-stone-600 dark:text-stone-300 transition-all hover:bg-stone-50 dark:hover:bg-stone-800 min-h-[44px]"
+            >
+              لاحقًا
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Log Form */}
       {showForm && subscription.isProOrTrial && user && (
         <TrackerForm
           userId={user.id}
           suggestedSite={suggestedSite}
-          onSubmitSuccess={async () => {
+          onSubmitSuccess={async (peptideName?: string) => {
             setShowForm(false);
+            if (peptideName) setLastLoggedPeptide(peptideName);
             if (initialPeptide) events.injectionLog(initialPeptide);
             await fetchLogs();
           }}
@@ -713,13 +887,44 @@ export default function Tracker() {
           totalCount={totalCount}
           logsLength={logs.length}
           celebrate={celebrate}
-          computeStreak={() => computeStreak(streakDaySet, true)}
+          computeStreak={() => computeStreak(allLogsForStats, true)}
           activeProtocols={activeProtocols.map(p => ({ peptide_id: p.peptide_id, frequency: p.frequency }))}
+          recentSites={logs.slice(0, 3).map(l => l.injection_site)}
         />
       )}
 
+      {/* Post-injection feedback card */}
+      {lastLoggedPeptide && (() => {
+        const matched = allPeptides.find(p => p.nameEn === lastLoggedPeptide || p.id === lastLoggedPeptide);
+        const category = matched?.category ?? 'recovery';
+        const feedback = CATEGORY_FEEDBACK[category] ?? CATEGORY_FEEDBACK.recovery;
+        return (
+          <div className="mb-8 rounded-2xl border border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-900/20 p-5 animate-fade-in">
+            <div className="flex items-center justify-between mb-3">
+              <p className="text-sm font-bold text-emerald-800 dark:text-emerald-300">{matched?.nameAr ?? lastLoggedPeptide}</p>
+              <button type="button" onClick={() => setLastLoggedPeptide(null)} className="text-xs text-stone-500 dark:text-stone-400 hover:text-stone-700 dark:hover:text-stone-200 min-h-[44px] min-w-[44px] flex items-center justify-center" aria-label="إغلاق">✕</button>
+            </div>
+            <p className="text-xs text-stone-700 dark:text-stone-300 mb-1">النتائج المتوقعة خلال <span className="font-bold">{feedback.weeks} أسابيع</span></p>
+            <p className="text-xs text-stone-700 dark:text-stone-300 mb-4">ما يجب تتبّعه: <span className="font-bold">{feedback.track}</span></p>
+            <div className="flex flex-wrap gap-2">
+              <Link to="/dashboard#wellness" className="inline-flex items-center gap-1.5 rounded-lg bg-emerald-600 px-3 py-2 text-xs font-bold text-white hover:bg-emerald-700 transition-colors min-h-[44px]">
+                <Heart className="h-3.5 w-3.5" />
+                سجّل حالتك اليوم
+              </Link>
+              <button type="button" onClick={() => { setLastLoggedPeptide(null); document.getElementById('side-effect-log')?.scrollIntoView({ behavior: 'smooth' }); }} className="inline-flex items-center gap-1.5 rounded-lg border border-amber-300 dark:border-amber-700 bg-amber-50 dark:bg-amber-900/20 px-3 py-2 text-xs font-bold text-amber-700 dark:text-amber-400 hover:bg-amber-100 dark:hover:bg-amber-900/40 transition-colors min-h-[44px]">
+                <Activity className="h-3.5 w-3.5" />
+                سجّل أعراض جانبية
+              </button>
+              <Link to="/coach" className="inline-flex items-center gap-1.5 rounded-lg border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-800 px-3 py-2 text-xs font-bold text-stone-700 dark:text-stone-200 hover:bg-stone-50 dark:hover:bg-stone-700 transition-colors min-h-[44px]">
+                اسأل المدرب ←
+              </Link>
+            </div>
+          </div>
+        );
+      })()}
+
       {/* Side Effect Log */}
-      <div className="mb-8">
+      <div id="side-effect-log" className="mb-8">
         <SideEffectLog />
       </div>
 
@@ -753,7 +958,7 @@ export default function Tracker() {
 
       {/* Floating Action Button — always-visible log entry point */}
       {subscription.isProOrTrial && !showForm && user && (
-        <div className="fixed bottom-6 left-0 right-0 z-40 flex justify-center pointer-events-none">
+        <div className="fixed bottom-6 inset-x-0 z-40 flex justify-center pointer-events-none">
           <button
             onClick={() => { setShowForm(true); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
             className="pointer-events-auto flex items-center gap-2 rounded-full bg-emerald-600 px-8 py-3.5 text-base font-semibold text-white shadow-2xl ring-4 ring-emerald-200/60 dark:ring-emerald-800/60 transition-all hover:bg-emerald-700 active:scale-95"
@@ -773,7 +978,7 @@ export default function Tracker() {
               <h3 className="text-lg font-bold text-stone-900 dark:text-stone-100 mb-2">{confirmDialog.title}</h3>
               <p className="text-sm text-stone-600 dark:text-stone-300 mb-6">{confirmDialog.message}</p>
               <div className="flex gap-3">
-                <button onClick={confirmDialog.onConfirm} disabled={confirmBusy} className={cn('flex-1 rounded-full px-4 py-2 text-sm font-medium text-white disabled:opacity-50', confirmDialog.isDestructive ? 'bg-red-600 transition-colors hover:bg-red-700' : 'bg-emerald-600 transition-colors hover:bg-emerald-700')}>
+                <button onClick={confirmDialog.onConfirm} disabled={confirmBusy} className={cn('flex-1 rounded-full px-4 py-2 text-sm font-medium text-white disabled:opacity-50 disabled:cursor-not-allowed', confirmDialog.isDestructive ? 'bg-red-600 transition-colors hover:bg-red-700' : 'bg-emerald-600 transition-colors hover:bg-emerald-700')}>
                   {confirmBusy ? 'جارٍ التنفيذ...' : 'تأكيد'}
                 </button>
                 <button onClick={() => setConfirmDialog(null)} className="flex-1 rounded-xl border border-stone-200 dark:border-stone-600 px-4 py-2.5 text-sm font-bold text-stone-700 dark:text-stone-200 transition-colors hover:bg-stone-50 dark:hover:bg-stone-800">

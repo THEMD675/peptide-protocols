@@ -4,6 +4,7 @@ import { getCorsHeaders } from '../_shared/cors.ts'
 
 const supabaseUrl = Deno.env.get('SUPABASE_URL') ?? ''
 const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
+const APP_URL = Deno.env.get('APP_URL') ?? 'https://pptides.com'
 
 function constantTimeCompare(a: string, b: string): boolean {
   if (a.length !== b.length) return false
@@ -122,7 +123,7 @@ serve(async (req) => {
         user_ids: usersToNotify,
         title: 'pptides — تذكير يومي',
         body: 'لا تنسَ تسجيل جرعتك اليوم وتتبّع تقدّمك',
-        url: 'https://pptides.com/tracker',
+        url: `${APP_URL}/tracker`,
       }),
     })
 

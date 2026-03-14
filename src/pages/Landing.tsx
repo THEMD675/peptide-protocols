@@ -42,7 +42,7 @@ import TrustBadges from '@/components/TrustBadges';
 import AnimatedCounter from '@/components/AnimatedCounter';
 const PeptideQuiz = lazy(() => import('@/components/PeptideQuiz'));
 import { cn } from '@/lib/utils';
-import { PRICING, PEPTIDE_COUNT, PUBMED_SOURCE_LABEL, VALUE_TOTAL, VALUE_SAVINGS_ESSENTIALS, VALUE_STACK, SITE_URL, SUPPORT_EMAIL, STORAGE_KEYS, TRIAL_DAYS } from '@/lib/constants';
+import { PRICING, PEPTIDE_COUNT, PUBMED_SOURCE_LABEL, VALUE_TOTAL, VALUE_SAVINGS_ESSENTIALS, VALUE_STACK, SITE_URL, SUPPORT_EMAIL, STORAGE_KEYS, TRIAL_DAYS, REFERRAL_CODE_REGEX } from '@/lib/constants';
 
 
 const PAIN_POINTS = [
@@ -132,7 +132,7 @@ export default function Landing() {
   useEffect(() => {
     try {
       const ref = new URLSearchParams(window.location.search).get('ref');
-      if (ref && /^PP-[A-Z0-9]{6}$/.test(ref)) {
+      if (ref && REFERRAL_CODE_REGEX.test(ref)) {
         localStorage.setItem('pptides_referral', ref);
         const url = new URL(window.location.href);
         url.searchParams.delete('ref');
@@ -150,6 +150,7 @@ export default function Landing() {
       const cachedReviewsTs = sessionStorage.getItem(STORAGE_KEYS.REVIEWS_TS);
       if (cachedReviews && cachedReviewsTs && Date.now() - Number(cachedReviewsTs) < 30 * 60 * 1000) {
         const parsed = JSON.parse(cachedReviews) as Testimonial[];
+        // eslint-disable-next-line react-hooks/set-state-in-effect -- hydrate from cache
         if (parsed.length > 0) setTestimonials(parsed);
       }
     } catch { /* expected */ }
@@ -216,9 +217,10 @@ export default function Landing() {
   }, []);
   if (shouldRedirect) return <Navigate to="/dashboard" replace />;
 
-  const ctaLink = user ? '/pricing' : '/signup?redirect=/pricing';
-  const ctaText = user ? 'اشترك الآن' : 'ابدأ تجربتك المجانية';
-  const ctaTextShort = user ? 'اختر خطتك' : 'ابدأ التجربة المجانية';
+  const isSubscriber = user && subscription.isProOrTrial;
+  const ctaLink = isSubscriber ? '/dashboard' : user ? '/pricing' : '/signup?redirect=/pricing';
+  const ctaText = isSubscriber ? 'لوحة التحكم' : user ? 'اختر خطتك' : 'ابدأ تجربتك المجانية';
+  const ctaTextShort = isSubscriber ? 'لوحة التحكم' : user ? 'اختر خطتك' : 'ابدأ التجربة المجانية';
 
   return (
     <div className="min-h-screen bg-white dark:bg-stone-950">
@@ -278,7 +280,7 @@ export default function Landing() {
             '@context': 'https://schema.org',
             '@type': 'Product',
             name: 'pptides — المتقدّمة',
-            description: 'اشتراك شهري يتضمن كل مزايا الأساسية بالإضافة إلى مدرب ذكي بالذكاء الاصطناعي 24/7، بروتوكولات مخصّصة، واستشارات بلا حدود.',
+            description: 'اشتراك شهري يتضمن كل مزايا الأساسية بالإضافة إلى مدرب ذكي بالذكاء الاصطناعي 24/7، بروتوكولات مخصّصة، وعدد كبير من الاستشارات اليومية.',
             url: `${SITE_URL}/pricing`,
             brand: { '@type': 'Brand', name: 'pptides' },
             offers: {
@@ -296,7 +298,7 @@ export default function Landing() {
       {/* ═══════ HERO ═══════ */}
       <section className="relative bg-gradient-to-b from-white dark:from-stone-950 via-stone-50 dark:via-stone-900 to-stone-50 dark:to-stone-900">
         <div className="pointer-events-none absolute inset-0 overflow-hidden">
-          <div className="absolute start-1/2 top-0 h-[600px] w-[800px] -translate-x-1/2 bg-[radial-gradient(ellipse_at_center,rgba(16,185,129,0.07)_0%,transparent_60%)]" />
+          <div className="absolute start-1/2 top-0 h-[600px] max-w-[800px] w-full ltr:-translate-x-1/2 rtl:translate-x-1/2 bg-[radial-gradient(ellipse_at_center,rgba(16,185,129,0.07)_0%,transparent_60%)]" />
         </div>
 
         <div className="relative mx-auto max-w-5xl px-6 pb-6 pt-10 text-center md:pt-16 md:pb-8">
@@ -305,7 +307,7 @@ export default function Landing() {
             <span>الأول عربيًا · {PEPTIDE_COUNT} ببتيد علاجي مع بروتوكول كامل</span>
           </div>
 
-          <h1 className="mb-4 text-[clamp(2.25rem,8vw,4.5rem)] font-extrabold leading-[1.15] text-stone-900 dark:text-stone-100 sm:text-5xl md:text-6xl lg:text-7xl">
+          <h1 className="mb-4 text-[clamp(2.25rem,6vw,3.5rem)] font-extrabold leading-[1.15] text-stone-900 dark:text-stone-100 sm:text-5xl md:text-6xl lg:text-7xl">
             توقّف عن التخمين.
             <br />
             <span className="text-emerald-700 dark:text-emerald-400">ابدأ بالعلم.</span>
@@ -333,7 +335,7 @@ export default function Landing() {
           <div className="flex flex-col items-center justify-center gap-3 sm:flex-row sm:gap-4">
             <Link
               to={ctaLink}
-              aria-label={user ? 'اشترك الآن في pptides' : `ابدأ تجربتك المجانية ${TRIAL_DAYS} أيام في pptides`}
+              aria-label={isSubscriber ? 'الذهاب إلى لوحة التحكم' : user ? 'اختر خطتك في pptides' : `ابدأ تجربتك المجانية ${TRIAL_DAYS} أيام في pptides`}
               className="btn-cta-gradient btn-hero inline-flex w-full max-w-sm items-center justify-center gap-3 rounded-full font-extrabold text-white sm:w-auto"
             >
               <span>{ctaText}</span>
@@ -365,13 +367,13 @@ export default function Landing() {
             </span>
             <span className="hidden sm:block h-5 w-px bg-stone-300 dark:bg-stone-600/80" />
             <span className="flex items-center gap-2 text-sm font-bold text-emerald-700 dark:text-emerald-400">
-              لا يلزم بطاقة ائتمان
+              {TRIAL_DAYS} أيام مجانية — إلغاء في أي وقت
             </span>
           </div>
-          <p className="mt-3 text-xs text-stone-500 dark:text-stone-300">تبدأ من {PRICING.essentials.label}/شهر فقط بعد التجربة</p>
+          <p className="mt-3 text-xs text-stone-600 dark:text-stone-300">تبدأ من {PRICING.essentials.label}/شهر فقط بعد التجربة</p>
           <p className="mt-4 flex items-center justify-center gap-2 text-sm text-stone-500 dark:text-stone-300">
             <span className="relative flex h-2 w-2 shrink-0" aria-hidden="true"><span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500" /></span>
-            <span>انضم إلى <strong className="text-stone-700 dark:text-stone-200"><AnimatedCounter end={userCount > 0 ? userCount : 500} />+</strong> مستخدم من السعودية والخليج يثقون بـ pptides</span>
+            {userCount >= 50 ? <span>انضم إلى <strong className="text-stone-700 dark:text-stone-200"><AnimatedCounter end={userCount} />+</strong> مستخدم من السعودية والخليج يثقون بـ pptides</span> : <span>استنادًا إلى أحدث الأبحاث العلمية المحكّمة</span>}
           </p>
 
           {/* ═══ Product peek — show the actual product in 3 cells ═══ */}
@@ -387,17 +389,17 @@ export default function Landing() {
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-3 divide-y sm:divide-y-0 sm:divide-x sm:divide-x-reverse divide-stone-100 dark:divide-stone-700 bg-white dark:bg-stone-900">
               <div className="p-3 text-center">
-                <p className="mb-1 text-xs text-stone-400 dark:text-stone-300">الجرعة</p>
-                <p className="text-sm font-bold text-stone-900 dark:text-stone-100">250–500 mcg</p>
-                <p className="text-xs text-stone-400 dark:text-stone-300">مرتين / يوم</p>
+                <p className="mb-1 text-xs text-stone-600 dark:text-stone-300">الجرعة</p>
+                <p className="text-sm font-bold text-stone-900 dark:text-stone-100">250–500 مايكروغرام</p>
+                <p className="text-xs text-stone-600 dark:text-stone-300">مرتين / يوم</p>
               </div>
               <div className="bg-emerald-50/60 dark:bg-emerald-900/20 p-3 text-center">
-                <p className="mb-1 text-xs text-stone-400 dark:text-stone-300">الدورة</p>
+                <p className="mb-1 text-xs text-stone-600 dark:text-stone-300">الدورة</p>
                 <p className="text-sm font-bold text-emerald-700 dark:text-emerald-400">4–6 أسابيع</p>
-                <p className="text-xs text-stone-400 dark:text-stone-300">ثم راحة أسبوعين</p>
+                <p className="text-xs text-stone-600 dark:text-stone-300">ثم راحة أسبوعين</p>
               </div>
               <div className="p-3 text-center">
-                <p className="mb-1 text-xs text-stone-400 dark:text-stone-300">مستوى الدليل</p>
+                <p className="mb-1 text-xs text-stone-600 dark:text-stone-300">مستوى الدليل</p>
                 <span className="inline-block rounded-full bg-emerald-100 dark:bg-emerald-900/40 px-2 py-0.5 text-xs font-bold text-emerald-700 dark:text-emerald-400">قوي ✓</span>
               </div>
             </div>
@@ -421,7 +423,7 @@ export default function Landing() {
           <ArrowLeft className="h-4 w-4 text-emerald-500 transition-transform group-hover:-translate-x-1" aria-hidden="true" />
         </Link>
         <p className="mt-3 text-sm text-stone-500 dark:text-stone-300">
-          <Link to="/library" className="inline-flex min-h-[44px] items-center font-semibold text-emerald-700 dark:text-emerald-400 hover:underline">6 ببتيدات مجانية بالكامل</Link>
+          <Link to="/library" className="inline-flex min-h-[44px] items-center font-semibold text-emerald-700 dark:text-emerald-400 hover:underline">7 ببتيدات مجانية بالكامل</Link>
           {' — بدون تسجيل. تصفّحها الآن.'}
         </p>
       </div>
@@ -611,7 +613,7 @@ export default function Landing() {
                     شاهد البطاقة كاملة
                   </Link>
                   <Link to={ctaLink} className="rounded-full bg-emerald-600 px-4 py-2 min-h-[44px] inline-flex items-center text-sm font-bold text-white transition-colors hover:bg-emerald-700 active:scale-[0.98]">
-                    {user ? 'اشترك الآن' : 'ابدأ تجربتك المجانية'}
+                    {ctaTextShort}
                   </Link>
                 </div>
               </div>
@@ -718,7 +720,7 @@ export default function Landing() {
           <span className="mt-3 inline-block rounded-full bg-emerald-600 px-5 py-1.5 text-sm font-bold text-white shadow-md">توفير 97% — وفّر {VALUE_SAVINGS_ESSENTIALS} شهريًا</span>
           <div className="mt-4 flex flex-wrap items-center justify-center gap-3 text-xs text-stone-600 dark:text-stone-300">
             <span className="flex items-center gap-1.5 rounded-full bg-white dark:bg-stone-900 border border-emerald-200 dark:border-emerald-800 px-3 py-1.5 font-medium"><BookOpen className="h-3.5 w-3.5" /> أكثر من ١٠,٠٠٠ ساعة بحث</span>
-            <span className="flex items-center gap-1.5 rounded-full bg-white dark:bg-stone-900 border border-emerald-200 dark:border-emerald-800 px-3 py-1.5 font-medium"><Users className="h-3.5 w-3.5" /> <AnimatedCounter end={userCount > 0 ? userCount : 500} />+ مستخدم</span>
+            {userCount >= 50 && <span className="flex items-center gap-1.5 rounded-full bg-white dark:bg-stone-900 border border-emerald-200 dark:border-emerald-800 px-3 py-1.5 font-medium"><Users className="h-3.5 w-3.5" /> <AnimatedCounter end={userCount} />+ مستخدم</span>}
           </div>
           <p className="mt-4 text-sm text-stone-800 dark:text-stone-200">أو {PRICING.elite.label}/شهريًا للباقة المتقدّمة مع المدرب الذكي + استشارات</p>
           <div className="mt-6 flex items-center justify-center">
@@ -763,7 +765,7 @@ export default function Landing() {
               <span>{ctaText}</span>
               <ArrowLeft className="h-5 w-5" />
             </Link>
-            <p className="mt-3 text-sm text-stone-500 dark:text-stone-300">{TRIAL_DAYS} أيام مجانية — لا يلزم بطاقة ائتمان</p>
+            <p className="mt-3 text-sm text-stone-500 dark:text-stone-300">{TRIAL_DAYS} أيام مجانية — إلغاء في أي وقت بدون رسوم</p>
           </div>
         </div>
       </section>
@@ -777,11 +779,11 @@ export default function Landing() {
           <div className="mx-auto mb-12 flex flex-col items-center gap-3">
             <div className="flex items-center gap-1.5" dir="ltr">
               {[1,2,3,4,5].map(s => <Star key={s} className="h-5 w-5 fill-emerald-500 text-emerald-500" />)}
-              <span className="mr-2 text-sm font-bold text-stone-700 dark:text-stone-200">5.0</span>
+              <span className="me-2 text-sm font-bold text-stone-700 dark:text-stone-200">5.0</span>
               <span className="text-sm text-stone-500 dark:text-stone-300">({testimonials.length}+ تقييم موثّق)</span>
             </div>
             <p className="text-center text-stone-800 dark:text-stone-200">
-              انضم لـ <strong><AnimatedCounter end={userCount > 0 ? userCount : 500} />+</strong> مستخدم من السعودية والخليج يثقون بـ pptides
+              {userCount >= 50 ? <>انضم لـ <strong><AnimatedCounter end={userCount} />+</strong> مستخدم من السعودية والخليج يثقون بـ pptides</> : <>مبني على أحدث الدراسات والأبحاث العلمية المحكّمة</>}
             </p>
           </div>
 
@@ -797,7 +799,7 @@ export default function Landing() {
                 <div className="flex items-center gap-3">
                   <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-emerald-100 dark:bg-emerald-900/30 text-sm font-bold text-emerald-700 dark:text-emerald-400">{t.name.charAt(0)}</div>
                   <div>
-                    <p className="font-bold text-stone-900 dark:text-stone-100">{t.name}{t.location && <span className="me-1 text-xs font-normal text-stone-400 dark:text-stone-300">· {t.location}</span>}</p>
+                    <p className="font-bold text-stone-900 dark:text-stone-100">{t.name}{t.location && <span className="me-1 text-xs font-normal text-stone-500 dark:text-stone-300">· {t.location}</span>}</p>
                     <p className="text-sm text-stone-600 dark:text-stone-300">{t.role}</p>
                   </div>
                 </div>
@@ -811,6 +813,20 @@ export default function Landing() {
       <Suspense fallback={<div className="h-64 mx-6 animate-pulse rounded-2xl bg-stone-100 dark:bg-stone-800" aria-hidden="true" />}>
         <FeatureComparisonTable />
       </Suspense>
+
+      {/* ═══════ WHAT ARE PEPTIDES? ═══════ */}
+      <section className="cv-auto py-20 md:py-28">
+        <div className="mx-auto max-w-3xl px-6 text-center">
+          <h2 className="mb-6 text-3xl font-extrabold text-stone-900 dark:text-stone-100 md:text-4xl">
+            ما هي <span className="text-emerald-700 dark:text-emerald-400">الببتيدات</span>؟
+          </h2>
+          <p className="text-lg leading-relaxed text-stone-700 dark:text-stone-200">
+            الببتيدات هي سلاسل قصيرة من الأحماض الأمينية تعمل كرسائل كيميائية في الجسم.
+            تُستخدم علاجيًا لتعزيز التعافي من الإصابات، وإنقاص الوزن، ومكافحة الشيخوخة، وتحسين النوم والمناعة.
+            يوجد أكثر من {PEPTIDE_COUNT} ببتيد مدروس علميًا — ونساعدك في اختيار الأنسب لحالتك وبناء بروتوكول مخصّص بالعربي.
+          </p>
+        </div>
+      </section>
 
       {/* ═══════ PRICING PREVIEW ═══════ */}
       <section className="cv-auto bg-gradient-to-b from-stone-50 dark:from-stone-900 to-white dark:to-stone-950 py-24 md:py-32">
@@ -878,7 +894,7 @@ export default function Landing() {
                   'كل مزايا الأساسية',
                   'مدرب ذكي بالذكاء الاصطناعي 24/7',
                   'بروتوكولات مخصّصة لأهدافك',
-                  'استشارات بلا حدود',
+                  'عدد كبير من الاستشارات اليومية',
                   'دعم مخصّص عبر البريد',
                 ].map((f) => (
                   <li key={f} className="flex items-start gap-3 text-sm text-stone-800 dark:text-stone-200">
@@ -963,7 +979,7 @@ export default function Landing() {
             { q: 'هل الببتيدات حلال؟', a: 'معظم الببتيدات العلاجية مصنّعة كيميائيًا ولا تحتوي مكونات حيوانية. ببتيدات الكولاجين قد تكون مشتقة من مصادر بحرية أو حيوانية — تحقق من المصدر.' },
             { q: 'كيف ألغي اشتراكي؟', a: `يمكنك إلغاء اشتراكك في أي وقت من صفحة الحساب. تحتفظ بالوصول حتى نهاية فترة الدفع الحالية. ضمان استرداد كامل خلال ${TRIAL_DAYS} أيام.` },
             { q: 'هل الدفع آمن؟', a: 'نستخدم Stripe — أكبر منصة دفع في العالم. بياناتك مشفّرة ولا نحفظ بيانات بطاقتك. ندعم Visa و Mastercard و Apple Pay.' },
-            { q: '6 ببتيدات مجانية — بدون تسجيل؟', a: 'نعم! 6 ببتيد مع بروتوكول كامل متاح مجانًا بدون إنشاء حساب. جرّبها الآن من المكتبة.' },
+            { q: '7 ببتيدات مجانية — بدون تسجيل؟', a: 'نعم! 7 ببتيدات مع بروتوكول كامل متاحة مجانًا بدون إنشاء حساب. جرّبها الآن من المكتبة.' },
             { q: 'ماذا أحصل بعد الاشتراك؟', a: `بروتوكولات كاملة لـ ${PEPTIDE_COUNT} ببتيد، حاسبة جرعات دقيقة، دليل تحاليل مخبرية، بروتوكولات مُجمَّعة، دليل حقن عملي، فحص تعارضات، ومدرب ذكي (في الباقة المتقدّمة).` },
           ].map((faq) => (
             <details key={faq.q} className="group rounded-2xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 transition-all hover:border-emerald-200 dark:hover:border-emerald-800">
@@ -978,13 +994,14 @@ export default function Landing() {
       </section>
 
       {/* ═══════ EMAIL CAPTURE ═══════ */}
-      <section className="cv-auto relative bg-stone-900 dark:bg-stone-900 dark:border-y dark:border-stone-700 py-24">
+      {!user && (
+      <section className="cv-auto relative bg-stone-900 dark:bg-stone-950 dark:border-y dark:border-stone-700 py-24">
         <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(16,185,129,0.12)_0%,transparent_60%)]" />
         <div className="relative mx-auto max-w-2xl px-6 text-center">
           <h2 className="mb-3 text-2xl font-bold text-white md:text-3xl">
             ابقَ على <span className="text-emerald-400">اطلاع</span>
           </h2>
-          <p className="mx-auto mb-6 max-w-md text-sm text-white/75">
+          <p className="mx-auto mb-6 max-w-md text-sm text-white/90">
             اشترك ليصلك كل جديد عن الببتيدات والتحديثات العلمية
           </p>
           <Suspense fallback={<div className="h-24 animate-pulse rounded-2xl bg-stone-800" aria-hidden="true" />}>
@@ -993,6 +1010,7 @@ export default function Landing() {
           {/* Coming soon section removed — signals incompleteness to cold visitors */}
         </div>
       </section>
+      )}
 
       {/* ═══════ FINAL CTA ═══════ */}
       <section className="cv-auto bg-white dark:bg-stone-900 py-20">
@@ -1009,7 +1027,7 @@ export default function Landing() {
             to={ctaLink}
             className="btn-cta-gradient btn-hero inline-flex items-center justify-center gap-3 rounded-full font-extrabold text-white"
           >
-            <span>{user ? "اشترك الآن" : "ابدأ تجربتك المجانية"}</span>
+            <span>{ctaText}</span>
             <ArrowLeft className="h-6 w-6" />
           </Link>
           <div className="mt-5 flex flex-wrap items-center justify-center gap-3">

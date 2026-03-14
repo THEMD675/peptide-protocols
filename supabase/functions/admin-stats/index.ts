@@ -59,15 +59,15 @@ serve(async (req) => {
       emailLogsResult,
       webhookEventsResult,
     ] = await Promise.all([
-      getAllAuthUsers().then(u => { paginatedUsers = u }),
-      admin.from('subscriptions').select('*').order('created_at', { ascending: false }),
-      admin.from('injection_logs').select('id, user_id, peptide_name, logged_at', { count: 'exact', head: false }).order('logged_at', { ascending: false }).limit(100),
-      admin.from('reviews').select('*').order('created_at', { ascending: false }),
-      admin.from('community_logs').select('id, peptide_name, goal, rating, created_at', { count: 'exact', head: false }).order('created_at', { ascending: false }).limit(200),
-      admin.from('ai_coach_requests').select('id, user_id, created_at', { count: 'exact', head: false }).order('created_at', { ascending: false }).limit(200),
-      admin.from('email_list').select('*').order('created_at', { ascending: false }),
-      admin.from('enquiries').select('*').order('created_at', { ascending: false }).limit(200),
-      admin.from('email_logs').select('id, email, type, status, created_at').order('created_at', { ascending: false }).limit(200),
+      getAllAuthUsers().then(u => { paginatedUsers = u }).catch(e => { console.error('admin-stats: getAllAuthUsers failed:', e); return undefined }),
+      admin.from('subscriptions').select('*').order('created_at', { ascending: false }).catch(e => { console.error('admin-stats: subscriptions query failed:', e); return { data: null, error: e } }),
+      admin.from('injection_logs').select('id, user_id, peptide_name, logged_at', { count: 'exact', head: false }).order('logged_at', { ascending: false }).limit(100).catch(e => { console.error('admin-stats: injection_logs failed:', e); return { data: null, error: e, count: 0 } }),
+      admin.from('reviews').select('*').order('created_at', { ascending: false }).catch(e => { console.error('admin-stats: reviews failed:', e); return { data: null, error: e } }),
+      admin.from('community_logs').select('id, peptide_name, goal, rating, created_at', { count: 'exact', head: false }).order('created_at', { ascending: false }).limit(200).catch(e => { console.error('admin-stats: community failed:', e); return { data: null, error: e, count: 0 } }),
+      admin.from('ai_coach_requests').select('id, user_id, created_at', { count: 'exact', head: false }).order('created_at', { ascending: false }).limit(200).catch(e => { console.error('admin-stats: coach failed:', e); return { data: null, error: e, count: 0 } }),
+      admin.from('email_list').select('*').order('created_at', { ascending: false }).catch(e => { console.error('admin-stats: email_list failed:', e); return { data: null, error: e } }),
+      admin.from('enquiries').select('*').order('created_at', { ascending: false }).limit(200).catch(e => { console.error('admin-stats: enquiries failed:', e); return { data: null, error: e } }),
+      admin.from('email_logs').select('id, email, type, status, created_at').order('created_at', { ascending: false }).limit(200).catch(e => { console.error('admin-stats: email_logs failed:', e); return { data: null, error: e } }),
       admin.from('processed_webhook_events').select('event_id, event_type, processed_at').order('processed_at', { ascending: false }).limit(30).then(r => r).catch(() => ({ data: null, error: null })),
     ])
 
@@ -78,7 +78,9 @@ serve(async (req) => {
     const perPageParam = Math.min(100, Math.max(10, parseInt(url.searchParams.get('per_page') ?? '50', 10) || 50))
 
     const allUsers = paginatedUsers
+    const userMap = new Map(allUsers.map(u => [u.id, u]))
     const subs = subsResult.data ?? []
+    const subsByUserId = new Map(subs.map(s => [s.user_id, s]))
     const logs = logsResult.data ?? []
     const reviews = reviewsResult.data ?? []
     const community = communityResult.data ?? []
@@ -160,7 +162,7 @@ serve(async (req) => {
     // Apply subscription status filter if provided
     if (filterParam) {
       filteredUsers = filteredUsers.filter(u => {
-        const sub = subs.find(s => s.user_id === u.id)
+        const sub = subsByUserId.get(u.id)
         const status = sub?.status ?? 'none'
         if (filterParam === 'active') return status === 'active'
         if (filterParam === 'trial') return status === 'trial'
@@ -184,7 +186,7 @@ serve(async (req) => {
       }))
 
     const userSubs = recentUsers.map(u => {
-      const sub = subs.find(s => s.user_id === u.id)
+      const sub = subsByUserId.get(u.id)
       return {
         ...u,
         subscription: sub ? {
@@ -213,26 +215,26 @@ serve(async (req) => {
     })
     if (expiringTrials.length > 0) {
       const trialEmails = expiringTrials.map(s => {
-        const u = allUsers.find(au => au.id === s.user_id)
+        const u = userMap.get(s.user_id)
         return u?.email ?? s.user_id
       })
-      alerts.push({ type: 'trial_expiring', severity: 'critical', message: `${expiringTrials.length} trial(s) expiring within 48h`, data: { emails: trialEmails } })
+      alerts.push({ type: 'trial_expiring', severity: 'critical', message: `${expiringTrials.length} تجربة تنتهي خلال 48 ساعة`, data: { emails: trialEmails } })
     }
     if (pastDueSubs.length > 0) {
-      alerts.push({ type: 'past_due', severity: 'critical', message: `${pastDueSubs.length} subscription(s) past due — revenue at risk` })
+      alerts.push({ type: 'past_due', severity: 'critical', message: `${pastDueSubs.length} اشتراك متأخر — إيراد معرّض للخطر` })
     }
     const pendingEnquiriesCount = enquiriesData.filter((e: { status: string }) => e.status === 'pending').length
     if (pendingEnquiriesCount > 0) {
-      alerts.push({ type: 'pending_enquiries', severity: 'warning', message: `${pendingEnquiriesCount} unanswered enquiry(ies)` })
+      alerts.push({ type: 'pending_enquiries', severity: 'warning', message: `${pendingEnquiriesCount} استفسار بدون رد` })
     }
     if (pendingReviews.length > 0) {
-      alerts.push({ type: 'pending_reviews', severity: 'info', message: `${pendingReviews.length} review(s) awaiting approval` })
+      alerts.push({ type: 'pending_reviews', severity: 'info', message: `${pendingReviews.length} مراجعة بانتظار الموافقة` })
     }
     if (emailLogsData.length === 0 && users.length > 3) {
-      alerts.push({ type: 'no_emails', severity: 'warning', message: 'No email delivery logs found — emails may not be sending' })
+      alerts.push({ type: 'no_emails', severity: 'warning', message: 'لا توجد سجلات بريد — قد لا تصل الرسائل' })
     }
     if (webhookEventsData.length === 0 && paidSubs.length > 0) {
-      alerts.push({ type: 'no_webhooks', severity: 'warning', message: 'No webhook events recorded despite active Stripe subscriptions' })
+      alerts.push({ type: 'no_webhooks', severity: 'warning', message: 'لا توجد أحداث Webhook رغم وجود اشتراكات نشطة' })
     }
 
     // --- ACTIVITY FEED: unified timeline across all tables ---
@@ -241,35 +243,35 @@ serve(async (req) => {
 
     // Signups
     users.filter(u => new Date(u.created_at) > weekAgo).forEach(u => {
-      activityFeed.push({ type: 'signup', description: 'Signed up', email: u.email ?? undefined, created_at: u.created_at })
+      activityFeed.push({ type: 'signup', description: 'تسجيل جديد', email: u.email ?? undefined, created_at: u.created_at })
     })
     // Coach requests
     coachRequests.slice(0, 20).forEach((r: { user_id: string; created_at: string }) => {
-      const u = allUsers.find(au => au.id === r.user_id)
-      activityFeed.push({ type: 'coach', description: 'Used AI Coach', email: u?.email ?? undefined, created_at: r.created_at })
+      const u = userMap.get(r.user_id)
+      activityFeed.push({ type: 'coach', description: 'استخدم المدرب الذكي', email: u?.email ?? undefined, created_at: r.created_at })
     })
     // Injection logs
     logs.slice(0, 20).forEach((l: { user_id: string; peptide_name: string; logged_at: string }) => {
-      const u = allUsers.find(au => au.id === l.user_id)
-      activityFeed.push({ type: 'injection', description: `Logged: ${l.peptide_name}`, email: u?.email ?? undefined, created_at: l.logged_at })
+      const u = userMap.get(l.user_id)
+      activityFeed.push({ type: 'injection', description: `سجّل: ${l.peptide_name}`, email: u?.email ?? undefined, created_at: l.logged_at })
     })
     // Community posts
     community.slice(0, 10).forEach((c: { peptide_name?: string; created_at: string }) => {
-      activityFeed.push({ type: 'community', description: `Community post: ${c.peptide_name ?? 'general'}`, created_at: c.created_at })
+      activityFeed.push({ type: 'community', description: `مشاركة مجتمع: ${c.peptide_name ?? 'عام'}`, created_at: c.created_at })
     })
     // Reviews
     reviews.slice(0, 10).forEach((r: { name: string; rating: number; created_at: string }) => {
-      activityFeed.push({ type: 'review', description: `Review by ${r.name} (${r.rating}/5)`, created_at: r.created_at })
+      activityFeed.push({ type: 'review', description: `مراجعة من ${r.name} (${r.rating}/5)`, created_at: r.created_at })
     })
     // Enquiries
     enquiriesData.slice(0, 10).forEach((e: { email: string; subject: string; created_at: string }) => {
-      activityFeed.push({ type: 'enquiry', description: `Enquiry: ${e.subject}`, email: e.email, created_at: e.created_at })
+      activityFeed.push({ type: 'enquiry', description: `استفسار: ${e.subject}`, email: e.email, created_at: e.created_at })
     })
     activityFeed.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
 
     // --- FUNNEL: conversion tracking ---
     const totalSignups = users.length
-    const trialStarts = paidSubs.length // anyone who started a Stripe trial/sub
+    const trialStarts = subs.filter(s => s.status === 'trial' || s.trial_ends_at).length
     const paidConversions = activeSubs.length
     const funnel = {
       totalSignups,
@@ -289,14 +291,13 @@ serve(async (req) => {
 
       let monthRevenue = 0
       for (const s of paidSubs) {
-        if (!s.current_period_end) continue
+        if (!s.current_period_end || s.status === 'trial') continue
         const periodEnd = new Date(s.current_period_end).getTime()
         const createdAt = new Date(s.created_at).getTime()
-        // Subscription was active in this month if it was created before month end
-        // and its period_end is >= month start (meaning it covers this month)
         if (periodEnd >= monthStart && createdAt < nextMonth) {
-          if (s.tier === 'essentials') monthRevenue += mrrEssentialsMonthly
-          else if (s.tier === 'elite') monthRevenue += mrrEliteMonthly
+          const isAnnual = s.billing_interval === 'annual' || s.billing_interval === 'yearly'
+          if (s.tier === 'essentials') monthRevenue += isAnnual ? mrrEssentialsMonthly * 0.8 : mrrEssentialsMonthly
+          else if (s.tier === 'elite') monthRevenue += isAnnual ? mrrEliteMonthly * 0.8 : mrrEliteMonthly
         }
       }
       revenueByMonth.push({ month: monthStr, revenue: Math.round(monthRevenue) })
@@ -369,11 +370,15 @@ serve(async (req) => {
         trialElite: trialElite.length,
         mrr,
         arr: Math.round(mrr * 12),
-        arpu: activeSubs.length > 0 ? Math.round((mrr / activeSubs.length) * 100) / 100 : 0,
+        arpu: mrrEligibleSubs.length > 0 ? Math.round((mrr / mrrEligibleSubs.length) * 100) / 100 : 0,
         churnRate: (() => {
-          const cancelledThisMonth = subs.filter(s => s.status === 'cancelled' && s.updated_at && new Date(s.updated_at) > monthAgo).length
-          const totalActive30dAgo = activeSubs.length + cancelledThisMonth
-          return totalActive30dAgo > 0 ? Math.round((cancelledThisMonth / totalActive30dAgo) * 100) : 0
+          const cancelledThisMonth = subs.filter(s =>
+            (s.status === 'cancelled' || s.status === 'expired') &&
+            s.updated_at && new Date(s.updated_at) > monthAgo &&
+            s.stripe_subscription_id
+          ).length
+          const activeAtMonthStart = activeSubs.length + cancelledThisMonth
+          return activeAtMonthStart > 0 ? Math.round((cancelledThisMonth / activeAtMonthStart) * 100) : 0
         })(),
         totalInjectionLogs: logsResult.count ?? logs.length,
         totalCoachRequests: coachResult.count ?? coachRequests.length,

@@ -105,7 +105,10 @@ serve(async (req) => {
         const email = userIdToEmail.get(sub.user_id)
         if (!email) { skipped++; continue }
 
-        // Dedup check
+        // Skip if onboarding-drip already sent day1 email
+        const { data: dripSent } = await supabase.from('drip_emails_sent').select('id').eq('user_id', sub.user_id).eq('email_key', 'day1_explore').maybeSingle()
+        if (dripSent) { skipped++; continue }
+
         const { error: dedupErr } = await supabase
           .from('sent_reminders')
           .insert({ user_id: sub.user_id, reminder_type: 'trial_day1' })
@@ -124,6 +127,7 @@ serve(async (req) => {
         const emailResult = await sendEmail({
           to: email,
           subject: 'اكتشفت أشهر الببتيدات؟ — pptides',
+          tags: [{ name: 'type', value: 'trial_day1' }, { name: 'category', value: 'onboarding' }],
           html: emailWrapper(`
             <h1 style="color: #1c1917; font-size: 24px;">أشهر 3 ببتيدات يبحث عنها العرب</h1>
             <p style="color: #44403c; font-size: 16px; line-height: 1.8;">
@@ -167,7 +171,7 @@ serve(async (req) => {
         } else {
           console.error(`trial-day1: failed to send to ${email}:`, emailResult.error)
           await supabase.from('sent_reminders').delete()
-            .eq('user_id', sub.user_id).eq('reminder_type', 'trial_day1').catch(() => {})
+            .eq('user_id', sub.user_id).eq('reminder_type', 'trial_day1').catch((e: unknown) => console.error('dedup cleanup failed:', e))
           failed++
         }
       } catch (e) {

@@ -37,9 +37,8 @@ serve(async (req) => {
 
     const secretKey = Deno.env.get('TURNSTILE_SECRET_KEY')
     if (!secretKey) {
-      // If no secret key configured, allow through (graceful degradation)
-      console.warn('TURNSTILE_SECRET_KEY not set — skipping server-side validation')
-      return jsonResponse({ success: true }, 200, corsHeaders)
+      console.error('TURNSTILE_SECRET_KEY not set — rejecting request (fail closed)')
+      return jsonResponse({ success: false, error: 'Server misconfigured' }, 500, corsHeaders)
     }
 
     const verifyResponse = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', {

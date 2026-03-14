@@ -3,15 +3,15 @@ import { useScrollReveal } from '@/hooks/useScrollReveal';
 import { Helmet } from 'react-helmet-async';
 import { Link, useSearchParams, useNavigate } from 'react-router-dom';
 import {
-  MessageSquare, Send, Clock, FlaskConical, User, Flag, Star, MessageCircle,
-  ChevronDown, ChevronUp, Trash2, BadgeCheck, ThumbsUp, Search, X, Trophy,
-  Sparkles, Loader2, Shield, Users, FlaskRound,
+  MessageSquare, Send, Clock, FlaskConical, Flag, Star, MessageCircle,
+  Trash2, BadgeCheck, ThumbsUp, Search, X, Trophy,
+  Sparkles, Loader2, Shield, Users, FlaskRound, Pencil,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { useAuth } from '@/contexts/AuthContext';
 import { PRICING, SITE_URL, SUPPORT_EMAIL } from '@/lib/constants';
 import { supabase } from '@/lib/supabase';
-import { cn } from '@/lib/utils';
+import { cn, sanitizeInput } from '@/lib/utils';
 import { peptidesLite as allPeptides } from '@/data/peptides-lite';
 
 /* ──────────────────── Types ──────────────────── */
@@ -220,7 +220,7 @@ function PeptideMultiSelect({
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="ابحث عن ببتيد..."
-              className="w-full rounded-lg border border-stone-200 dark:border-stone-600 bg-stone-50 dark:bg-stone-800 px-3 py-2 text-sm text-stone-900 dark:text-stone-100 placeholder:text-stone-400 focus:outline-none"
+              className="w-full rounded-lg border border-stone-200 dark:border-stone-600 bg-stone-50 dark:bg-stone-800 px-3 py-2 text-sm text-stone-900 dark:text-stone-100 placeholder:text-stone-500 focus:outline-none"
               onClick={(e) => e.stopPropagation()}
             />
           </div>
@@ -356,12 +356,13 @@ export default function Community() {
   const [showForm, setShowForm] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const submittingRef = useRef(false);
+  const upvotingRef = useRef<Set<string>>(new Set());
   const mountedRef = useRef(true);
   useEffect(() => () => { mountedRef.current = false; }, []);
 
   const [upvotedPosts, setUpvotedPosts] = useState<Set<string>>(() => {
     try {
-      const stored = localStorage.getItem('pptides_upvoted_posts');
+      const stored = localStorage.getItem(`pptides_upvoted_${user?.id ?? 'anon'}`);
       return stored ? new Set(JSON.parse(stored)) : new Set();
     } catch { return new Set(); }
   });
@@ -403,8 +404,7 @@ export default function Community() {
     if (validS !== sortBy) setSortBy(validS);
     if (pf !== filterPeptide) setFilterPeptide(pf);
     if (p.trim() && user && subscription?.isProOrTrial) setShowForm(true);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [searchParams]);
+  }, [searchParams, user, subscription]);
 
   const [hasMore, setHasMore] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
@@ -422,6 +422,58 @@ export default function Community() {
   const [replyText, setReplyText] = useState<Record<string, string>>({});
   const [submittingReply, setSubmittingReply] = useState<Set<string>>(new Set());
   const PAGE_SIZE = 50;
+
+  // Post edit/delete state
+  const [deletingPostId, setDeletingPostId] = useState<string | null>(null);
+  const [editingPostId, setEditingPostId] = useState<string | null>(null);
+  const [editResults, setEditResults] = useState('');
+  const [editSaving, setEditSaving] = useState(false);
+
+  const deletePost = useCallback(async (postId: string) => {
+    if (!user) return;
+    const prev = logs;
+    setLogs(l => l.filter(x => x.id !== postId));
+    setDeletingPostId(null);
+    const { error } = await supabase
+      .from('community_logs')
+      .delete()
+      .eq('id', postId)
+      .eq('user_id', user.id);
+    if (error) {
+      setLogs(prev);
+      toast.error('تعذّر حذف المشاركة');
+    } else {
+      toast.success('تم حذف المشاركة');
+    }
+  }, [user, logs]);
+
+  const startEditPost = useCallback((log: LogEntry) => {
+    setEditingPostId(log.id);
+    setEditResults(log.results);
+  }, []);
+
+  const saveEditPost = useCallback(async () => {
+    if (!user || !editingPostId || editSaving) return;
+    const trimmed = sanitizeInput(editResults.trim(), 2000);
+    if (!trimmed) { toast.error('النص مطلوب'); return; }
+    setEditSaving(true);
+    const prev = logs;
+    setLogs(l => l.map(x => x.id === editingPostId ? { ...x, results: trimmed } : x));
+    const { error } = await supabase
+      .from('community_logs')
+      .update({ results: trimmed })
+      .eq('id', editingPostId)
+      .eq('user_id', user.id);
+    if (error) {
+      setLogs(prev);
+      toast.error('تعذّر تعديل المشاركة');
+    } else {
+      toast.success('تم تعديل المشاركة');
+      setEditingPostId(null);
+      setEditResults('');
+    }
+    setEditSaving(false);
+  }, [user, editingPostId, editResults, editSaving, logs]);
 
   // Form state
   const DRAFT_KEY = 'pptides_community_draft';
@@ -538,7 +590,7 @@ export default function Community() {
   }, [repliesByPost, loadReplies]);
 
   const submitReply = useCallback(async (postId: string) => {
-    const content = (replyText[postId] ?? '').trim().replace(/<[^>]+>/g, '').slice(0, 500);
+    const content = sanitizeInput((replyText[postId] ?? '').trim(), 500);
     if (!user || !content) return;
     setSubmittingReply(prev => new Set(prev).add(postId));
     const isSub = subscription?.isProOrTrial ?? false;
@@ -576,7 +628,7 @@ export default function Community() {
   const deleteReply = useCallback(async (reply: Reply) => {
     setRepliesByPost(prev => ({ ...prev, [reply.post_id]: (prev[reply.post_id] ?? []).filter(r => r.id !== reply.id) }));
     setReplyCountByPost(prev => ({ ...prev, [reply.post_id]: Math.max(0, (prev[reply.post_id] ?? 1) - 1) }));
-    const { error } = await supabase.from('community_replies').delete().eq('id', reply.id);
+    const { error } = await supabase.from('community_replies').delete().eq('id', reply.id).eq('user_id', user?.id ?? '');
     if (error) {
       toast.error('تعذّر حذف الرد');
       await loadReplies(reply.post_id);
@@ -606,7 +658,7 @@ export default function Community() {
       const dur = Math.max(1, Math.min(52, durationWeeks));
       const peptideStr = selectedPeptides.join(', ');
       // Sanitize user inputs: strip HTML, limit length
-      const sanitize = (s: string, max: number) => s.trim().replace(/<[^>]+>/g, '').slice(0, max);
+      const sanitize = (s: string, max: number) => sanitizeInput(s.trim(), max);
       const { error } = await supabase.from('community_logs').insert({
         user_id: user.id,
         peptide_name: peptideStr,
@@ -716,12 +768,8 @@ export default function Community() {
 
   const displayedLogs = useMemo(() => {
     if (logs.length > 0) return filteredLogs;
-    return SEED_EXPERIENCES
-      .filter(s => filterGoal === 'all' || s.goal === filterGoal)
-      .sort((a, b) =>
-        sortBy === 'highest' ? b.rating - a.rating : new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
-      );
-  }, [logs.length, filteredLogs, filterGoal, sortBy]);
+    return [];
+  }, [logs.length, filteredLogs]);
 
   const isShowingSeeds = logs.length === 0;
 
@@ -755,6 +803,7 @@ export default function Community() {
       </Helmet>
 
       <div className="mx-auto max-w-6xl px-4 pb-24 pt-8 md:px-6 md:pt-12">
+        <div className="mb-4 rounded-xl border border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-900/20 px-4 py-2 text-xs text-amber-700 dark:text-amber-400">محتوى تعليمي — استشر طبيبك قبل استخدام أي ببتيد</div>
         {/* Header */}
         <div className="mb-12 text-center">
           <div className="mx-auto mb-4 inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-100 dark:bg-emerald-900/30">
@@ -839,7 +888,7 @@ export default function Community() {
                         rows={4}
                         required
                         className={cn(
-                          'w-full resize-none rounded-xl border bg-stone-50 dark:bg-stone-900 px-4 py-3 text-stone-900 dark:text-stone-100 placeholder:text-stone-400 focus:border-emerald-300 dark:focus:border-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900',
+                          'w-full resize-none rounded-xl border bg-stone-50 dark:bg-stone-900 px-4 py-3 text-stone-900 dark:text-stone-100 placeholder:text-stone-500 focus:border-emerald-300 dark:focus:border-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-500',
                           attempted && !results.trim() ? 'border-red-400 ring-1 ring-red-200' : 'border-stone-200 dark:border-stone-600'
                         )}
                         style={{ overflow: 'hidden' }}
@@ -902,7 +951,7 @@ export default function Community() {
                         maxLength={3000}
                         placeholder="مثال: 250mcg مرتين يوميًا، حقن تحت الجلد في البطن، لمدة 6 أسابيع..."
                         rows={3}
-                        className="w-full resize-none rounded-xl border border-stone-200 dark:border-stone-600 bg-stone-50 dark:bg-stone-900 px-4 py-3 text-stone-900 dark:text-stone-100 placeholder:text-stone-400 focus:border-emerald-300 dark:focus:border-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900"
+                        className="w-full resize-none rounded-xl border border-stone-200 dark:border-stone-600 bg-stone-50 dark:bg-stone-900 px-4 py-3 text-stone-900 dark:text-stone-100 placeholder:text-stone-500 focus:border-emerald-300 dark:focus:border-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-500"
                         style={{ overflow: 'hidden' }}
                       />
                       <p className="mt-1 text-start text-xs text-stone-400">{protocol.length}/3000</p>
@@ -920,7 +969,7 @@ export default function Community() {
                           max={52}
                           value={durationWeeks}
                           onChange={(e) => setDurationWeeks(Number(e.target.value))}
-                          className="w-full rounded-xl border border-stone-200 dark:border-stone-600 bg-stone-50 dark:bg-stone-900 px-4 py-3 text-stone-900 dark:text-stone-100 focus:border-emerald-300 dark:focus:border-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900"
+                          className="w-full rounded-xl border border-stone-200 dark:border-stone-600 bg-stone-50 dark:bg-stone-900 px-4 py-3 text-stone-900 dark:text-stone-100 focus:border-emerald-300 dark:focus:border-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-500"
                         />
                       </div>
                       <div>
@@ -1001,7 +1050,7 @@ export default function Community() {
             )}
 
             {/* Search + Filter bar */}
-            {!loading && (logs.length > 0 || isShowingSeeds) && (
+            {!loading && logs.length > 0 && (
               <div className="mb-6 space-y-3">
                 {/* Search */}
                 <div className="relative">
@@ -1011,12 +1060,12 @@ export default function Community() {
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     placeholder="ابحث في التجارب..."
-                    className="w-full rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 py-3 pe-4 ps-10 text-sm text-stone-900 dark:text-stone-100 placeholder:text-stone-400 focus:border-emerald-300 dark:focus:border-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900"
+                    className="w-full rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 py-3 pe-4 ps-10 text-sm text-stone-900 dark:text-stone-100 placeholder:text-stone-500 focus:border-emerald-300 dark:focus:border-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-500"
                   />
                   {searchQuery && (
                     <button
                       onClick={() => setSearchQuery('')}
-                      className="absolute end-3 top-1/2 -translate-y-1/2 rounded p-1 text-stone-400 dark:text-stone-300 hover:text-stone-600 dark:hover:text-stone-400 transition-colors"
+                      className="absolute end-3 top-1/2 -translate-y-1/2 rounded p-1 text-stone-500 dark:text-stone-300 hover:text-stone-600 dark:hover:text-stone-400 transition-colors"
                       aria-label="مسح البحث"
                     >
                       <X className="h-4 w-4" />
@@ -1106,15 +1155,15 @@ export default function Community() {
               </div>
             ) : (
               <div className="space-y-4">
-                {/* Empty state */}
-                {displayedLogs.length === 0 && !isShowingSeeds && (
+                {/* Empty state — no community posts yet */}
+                {displayedLogs.length === 0 && (
                   <div className="rounded-2xl border-2 border-dashed border-emerald-200 dark:border-emerald-800 bg-gradient-to-b from-emerald-50/50 to-white dark:from-emerald-900/10 dark:to-stone-950 px-6 py-12 text-center">
                     <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-emerald-100 dark:bg-emerald-900/30">
-                      <Sparkles className="h-8 w-8 text-emerald-700" />
+                      <Users className="h-8 w-8 text-emerald-700" />
                     </div>
                     <h3 className="text-xl font-bold text-stone-900 dark:text-stone-100 mb-2">كن أول من يشارك تجربته!</h3>
                     <p className="mx-auto max-w-md text-sm leading-relaxed text-stone-600 dark:text-stone-300 mb-4">
-                      شارك المجتمع تجربتك مع الببتيدات — أي ببتيد استخدمت، البروتوكول الذي اتبعته، والنتائج التي حصلت عليها.
+                      المجتمع ينتظر أول تجربة حقيقية — شارك الببتيد الذي استخدمته، بروتوكولك، ونتائجك لتُلهم الآخرين.
                     </p>
                     <div className="mx-auto max-w-sm rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 p-4 text-start text-sm text-stone-600 dark:text-stone-300">
                       <p className="font-bold text-stone-900 dark:text-stone-100 mb-2">مثال على مشاركة:</p>
@@ -1123,7 +1172,7 @@ export default function Community() {
                       <p className="mb-1"><strong>البروتوكول:</strong> 250mcg مرتين يوميًا لمدة 6 أسابيع</p>
                       <p><strong>النتيجة:</strong> تحسّن واضح بعد الأسبوع الثالث</p>
                     </div>
-                    {user && isPaid && (
+                    {user && isPaid ? (
                       <button
                         onClick={() => setShowForm(true)}
                         className="mt-6 inline-flex items-center gap-2 rounded-full bg-emerald-600 px-8 py-3.5 min-h-[44px] text-base font-semibold text-white transition-all hover:bg-emerald-700"
@@ -1131,43 +1180,14 @@ export default function Community() {
                         <Send className="h-4 w-4" />
                         شارك تجربتك الآن
                       </button>
-                    )}
-                  </div>
-                )}
-
-                {/* Seed banner */}
-                {isShowingSeeds && displayedLogs.length > 0 && (
-                  <div className="rounded-2xl border-2 border-dashed border-emerald-200 dark:border-emerald-800 bg-gradient-to-b from-emerald-50/50 to-white dark:from-emerald-900/10 dark:to-stone-950 px-6 py-8 text-center">
-                    <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-emerald-100 dark:bg-emerald-900/30">
-                      <Sparkles className="h-8 w-8 text-emerald-700" />
-                    </div>
-                    <h3 className="text-xl font-bold text-stone-900 dark:text-stone-100">كن أول من يشارك تجربته!</h3>
-                    <p className="mx-auto mt-2 max-w-md text-sm leading-relaxed text-stone-600 dark:text-stone-300">
-                      التجارب أدناه أمثلة توضيحية فقط — أضف تجربتك الحقيقية لتكون أول مشاركة حقيقية
-                    </p>
-                    {user && isPaid && (
-                      <button
-                        onClick={() => setShowForm(true)}
-                        className="mt-4 inline-flex items-center gap-2 rounded-full bg-emerald-600 px-8 py-3.5 min-h-[44px] text-base font-semibold text-white transition-all hover:bg-emerald-700"
+                    ) : (
+                      <Link
+                        to="/pricing"
+                        className="mt-6 inline-flex items-center gap-2 rounded-full bg-emerald-600 px-8 py-3.5 min-h-[44px] text-base font-semibold text-white transition-all hover:bg-emerald-700"
                       >
-                        <Send className="h-4 w-4" />
-                        شارك تجربتك الآن
-                      </button>
+                        اشترك لتشارك تجربتك
+                      </Link>
                     )}
-                  </div>
-                )}
-
-                {/* No results for current filter */}
-                {displayedLogs.length === 0 && isShowingSeeds && (
-                  <div className="rounded-2xl border border-stone-200 dark:border-stone-600 bg-stone-50 dark:bg-stone-900/50 px-6 py-12 text-center">
-                    <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-stone-100 dark:bg-stone-800">
-                      <MessageSquare className="h-7 w-7 text-stone-400 dark:text-stone-300" />
-                    </div>
-                    <p className="text-base font-bold text-stone-800 dark:text-stone-200">لا توجد تجارب لهذا الهدف بعد</p>
-                    <p className="mt-1.5 text-sm text-stone-500 dark:text-stone-300">كن أول من يشارك تجربته وتُلهم الآخرين</p>
-                    <div className="mt-4 flex flex-col items-center gap-2 sm:flex-row sm:justify-center">
-                      <button onClick={() => { setFilterGoal('all'); setFilterPeptide(''); setSearchQuery(''); }} className="inline-flex min-h-[44px] items-center rounded-full border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 px-5 py-2 text-sm font-bold text-stone-700 dark:text-stone-200 transition-colors hover:border-emerald-300 dark:hover:border-emerald-700">عرض الكل</button>
-                    </div>
                   </div>
                 )}
 
@@ -1206,7 +1226,7 @@ export default function Community() {
                                 <span className="rounded-full bg-emerald-100 dark:bg-emerald-900/30 px-2 py-0.5 text-[11px] font-bold text-emerald-700 dark:text-emerald-400">مشترك</span>
                               )}
                               {isSeed && (
-                                <span className="rounded-full border border-amber-300 dark:border-amber-700 bg-amber-50 dark:bg-amber-900/20 px-2.5 py-0.5 text-xs font-medium text-amber-800 dark:text-amber-300">
+                                <span className="rounded-full border-2 border-amber-400 dark:border-amber-600 bg-amber-100 dark:bg-amber-900/30 px-3 py-1 text-xs font-bold text-amber-900 dark:text-amber-200">
                                   تجربة توضيحية
                                 </span>
                               )}
@@ -1214,9 +1234,52 @@ export default function Community() {
                             <span className="text-xs text-stone-500 dark:text-stone-300">{relativeTimeAr(log.created_at)}</span>
                           </div>
                         </div>
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-1">
                           <StarRating rating={log.rating} />
-                          {!isSeed && (
+                          {/* Author actions: edit (24h) + delete */}
+                          {!isSeed && user && user.id === log.user_id && (
+                            <>
+                              {Date.now() - new Date(log.created_at).getTime() < 24 * 60 * 60 * 1000 && (
+                                <button
+                                  type="button"
+                                  onClick={() => startEditPost(log)}
+                                  className="rounded-lg p-2.5 min-h-[44px] min-w-[44px] text-stone-300 hover:text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 transition-colors"
+                                  aria-label="تعديل المشاركة"
+                                >
+                                  <Pencil className="h-3.5 w-3.5" />
+                                </button>
+                              )}
+                              {deletingPostId === log.id ? (
+                                <div className="flex items-center gap-1">
+                                  <button
+                                    type="button"
+                                    onClick={() => deletePost(log.id)}
+                                    className="rounded-lg px-2.5 py-1.5 min-h-[44px] text-xs font-bold text-red-600 bg-red-50 dark:bg-red-900/20 hover:bg-red-100 dark:hover:bg-red-900/30 transition-colors"
+                                  >
+                                    تأكيد الحذف
+                                  </button>
+                                  <button
+                                    type="button"
+                                    onClick={() => setDeletingPostId(null)}
+                                    className="rounded-lg px-2.5 py-1.5 min-h-[44px] text-xs font-bold text-stone-500 hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors"
+                                  >
+                                    إلغاء
+                                  </button>
+                                </div>
+                              ) : (
+                                <button
+                                  type="button"
+                                  onClick={() => setDeletingPostId(log.id)}
+                                  className="rounded-lg p-2.5 min-h-[44px] min-w-[44px] text-stone-300 hover:text-red-500 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
+                                  aria-label="حذف المشاركة"
+                                >
+                                  <Trash2 className="h-3.5 w-3.5" />
+                                </button>
+                              )}
+                            </>
+                          )}
+                          {/* Report — for other users */}
+                          {!isSeed && (!user || user.id !== log.user_id) && (
                             <button
                               onClick={async () => {
                                 if (!user) { toast('سجّل الدخول للإبلاغ عن محتوى'); return; }
@@ -1299,27 +1362,57 @@ export default function Community() {
                       )}
 
                       {/* Results */}
-                      <div className="text-base leading-relaxed text-stone-900 dark:text-stone-100">
-                        {(() => {
-                          const isLong = (log.results?.length ?? 0) > 200;
-                          const isExpanded = expandedPosts.has(log.id);
-                          if (!isLong) return <p className="whitespace-pre-line break-words overflow-hidden">{log.results}</p>;
-                          return (
-                            <div>
-                              <p className={cn('whitespace-pre-line break-words overflow-hidden', !isExpanded && 'line-clamp-6')}>
-                                {log.results}
-                              </p>
-                              <button
-                                type="button"
-                                onClick={() => toggleExpand(log.id)}
-                                className="mt-2 text-sm font-bold text-emerald-700 dark:text-emerald-400 hover:underline"
-                              >
-                                {isExpanded ? 'عرض أقل' : 'عرض المزيد'}
-                              </button>
-                            </div>
-                          );
-                        })()}
-                      </div>
+                      {editingPostId === log.id ? (
+                        <div className="space-y-2">
+                          <textarea
+                            value={editResults}
+                            onChange={e => setEditResults(e.target.value)}
+                            maxLength={2000}
+                            rows={4}
+                            aria-label="تعديل نص المشاركة"
+                            className="w-full resize-none rounded-xl border border-emerald-300 dark:border-emerald-700 bg-stone-50 dark:bg-stone-900 px-4 py-3 text-base text-stone-900 dark:text-stone-100 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-500"
+                          />
+                          <div className="flex items-center gap-2 justify-end">
+                            <button
+                              type="button"
+                              onClick={() => { setEditingPostId(null); setEditResults(''); }}
+                              className="rounded-lg px-4 py-2 min-h-[44px] text-sm font-bold text-stone-500 hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors"
+                            >
+                              إلغاء
+                            </button>
+                            <button
+                              type="button"
+                              onClick={saveEditPost}
+                              disabled={editSaving || !editResults.trim()}
+                              className="rounded-lg bg-emerald-600 px-4 py-2 min-h-[44px] text-sm font-bold text-white hover:bg-emerald-700 disabled:opacity-50 transition-colors"
+                            >
+                              {editSaving ? 'جارٍ الحفظ...' : 'حفظ التعديل'}
+                            </button>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="text-base leading-relaxed text-stone-900 dark:text-stone-100">
+                          {(() => {
+                            const isLong = (log.results?.length ?? 0) > 200;
+                            const isExpanded = expandedPosts.has(log.id);
+                            if (!isLong) return <p className="whitespace-pre-line break-words overflow-hidden">{log.results}</p>;
+                            return (
+                              <div>
+                                <p className={cn('whitespace-pre-line break-words overflow-hidden', !isExpanded && 'line-clamp-6')}>
+                                  {log.results}
+                                </p>
+                                <button
+                                  type="button"
+                                  onClick={() => toggleExpand(log.id)}
+                                  className="mt-2 text-sm font-bold text-emerald-700 dark:text-emerald-400 hover:underline"
+                                >
+                                  {isExpanded ? 'عرض أقل' : 'عرض المزيد'}
+                                </button>
+                              </div>
+                            );
+                          })()}
+                        </div>
+                      )}
 
                       {/* Footer: meta + actions */}
                       <div className="mt-4 flex items-center justify-between border-t border-stone-100 dark:border-stone-700 pt-3">
@@ -1336,10 +1429,11 @@ export default function Community() {
                               type="button"
                               onClick={async () => {
                                 if (!user) { toast('سجّل الدخول للتفاعل مع التجارب', { action: { label: 'تسجيل الدخول', onClick: () => navigate('/login') } }); return; }
-                                if (upvotedPosts.has(log.id)) return;
+                                if (upvotedPosts.has(log.id) || upvotingRef.current.has(log.id)) return;
+                                upvotingRef.current.add(log.id);
                                 const next = new Set(upvotedPosts).add(log.id);
                                 setUpvotedPosts(next);
-                                try { localStorage.setItem('pptides_upvoted_posts', JSON.stringify([...next])); } catch { /* */ }
+                                try { localStorage.setItem(`pptides_upvoted_${user?.id ?? 'anon'}`, JSON.stringify([...next])); } catch { /* */ }
                                 setLogs(prev => prev.map(l => l.id === log.id ? { ...l, upvotes: (l.upvotes ?? 0) + 1 } : l));
                                 const { error } = await supabase
                                   .rpc('increment_upvote', { p_post_id: log.id, p_user_id: user.id });
@@ -1348,7 +1442,8 @@ export default function Community() {
                                   const reverted = new Set(upvotedPosts);
                                   reverted.delete(log.id);
                                   setUpvotedPosts(reverted);
-                                  try { localStorage.setItem('pptides_upvoted_posts', JSON.stringify([...reverted])); } catch { /* */ }
+                                  try { localStorage.setItem(`pptides_upvoted_${user?.id ?? 'anon'}`, JSON.stringify([...reverted])); } catch { /* */ }
+                                  upvotingRef.current.delete(log.id);
                                 }
                               }}
                               className={cn(
@@ -1399,7 +1494,7 @@ export default function Community() {
                           ) : (
                             <>
                               {(repliesByPost[log.id] ?? []).length === 0 && (
-                                <p className="py-2 text-sm text-stone-400 dark:text-stone-300 italic flex items-center gap-1.5">لا توجد ردود بعد — كن أول من يرد! <MessageCircle className="h-4 w-4" /></p>
+                                <p className="py-2 text-sm text-stone-500 dark:text-stone-300 italic flex items-center gap-1.5">لا توجد ردود بعد — كن أول من يرد! <MessageCircle className="h-4 w-4" /></p>
                               )}
                               {(repliesByPost[log.id] ?? []).map(reply => (
                                 <div key={reply.id} className="flex gap-2.5 rounded-xl bg-stone-50 dark:bg-stone-900 p-3">
@@ -1479,11 +1574,11 @@ export default function Community() {
                                       e.target.style.height = 'auto';
                                       e.target.style.height = e.target.scrollHeight + 'px';
                                     }}
-                                    placeholder="اكتب ردًا... (Enter للإرسال، Shift+Enter لسطر جديد)"
+                                    placeholder="اكتب ردًا... (↵ للإرسال، ⇧+↵ لسطر جديد)"
                                     maxLength={1000}
                                     rows={1}
                                     style={{ overflow: 'hidden' }}
-                                    className="flex-1 resize-none rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 px-3 py-2 text-sm text-stone-900 dark:text-stone-100 placeholder:text-stone-400 focus:border-emerald-300 dark:focus:border-emerald-700 focus:outline-none focus:ring-1 focus:ring-emerald-100 dark:focus:ring-emerald-900"
+                                    className="flex-1 resize-none rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 px-3 py-2 text-sm text-stone-900 dark:text-stone-100 placeholder:text-stone-500 focus:border-emerald-300 dark:focus:border-emerald-700 focus:outline-none focus:ring-1 focus:ring-emerald-100 dark:focus:ring-emerald-500"
                                     onKeyDown={e => {
                                       if (e.key === 'Enter' && !e.shiftKey) {
                                         e.preventDefault();
@@ -1495,7 +1590,7 @@ export default function Community() {
                                     type="button"
                                     onClick={() => submitReply(log.id)}
                                     disabled={!(replyText[log.id] ?? '').trim() || submittingReply.has(log.id)}
-                                    className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-600 text-white transition-colors hover:bg-emerald-700 disabled:opacity-40 disabled:cursor-not-allowed min-h-[44px] min-w-[44px]"
+                                    className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-600 text-white transition-colors hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed min-h-[44px] min-w-[44px]"
                                     aria-label="إرسال الرد"
                                   >
                                     {submittingReply.has(log.id)
@@ -1552,7 +1647,7 @@ export default function Community() {
                       }
                     }}
                     disabled={loadingMore}
-                    className="flex w-full items-center justify-center gap-2 rounded-2xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 py-4 min-h-[44px] text-sm font-bold text-stone-600 dark:text-stone-300 transition-all hover:border-emerald-300 dark:hover:border-emerald-700 hover:text-emerald-700 dark:hover:text-emerald-400 disabled:opacity-50"
+                    className="flex w-full items-center justify-center gap-2 rounded-2xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 py-4 min-h-[44px] text-sm font-bold text-stone-600 dark:text-stone-300 transition-all hover:border-emerald-300 dark:hover:border-emerald-700 hover:text-emerald-700 dark:hover:text-emerald-400 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     {loadingMore ? (
                       <><Loader2 className="h-4 w-4 animate-spin" /> جارٍ التحميل...</>

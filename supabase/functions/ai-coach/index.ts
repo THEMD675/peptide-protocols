@@ -16,25 +16,19 @@ const MAX_CONTEXT_MESSAGES = 30
 const RATE_LIMIT_WINDOW_SECONDS = 60
 const RATE_LIMIT_MAX = 10
 
-// Uses ai_coach_requests table instead of _shared/rate-limit.ts: different fail behavior (insert-based dedup vs rate_limits),
-// different window/semantics, and this table doubles as usage tracking. Architectural cleanup not worth the risk.
+import { checkRateLimit as sharedCheckRateLimit } from '../_shared/rate-limit.ts'
+
 async function checkRateLimit(userId: string, supabase: ReturnType<typeof createClient>): Promise<boolean> {
-  const windowStart = new Date(Date.now() - RATE_LIMIT_WINDOW_SECONDS * 1000).toISOString()
-  const { count, error } = await supabase
-    .from('ai_coach_requests')
-    .select('id', { count: 'exact', head: true })
-    .eq('user_id', userId)
-    .gte('created_at', windowStart)
-
-  if (error) {
-    console.error('rate-limit check failed, denying request:', error.message)
-    return false
-  }
-
-  if ((count ?? 0) >= RATE_LIMIT_MAX) return false
+  const allowed = await sharedCheckRateLimit(supabase, {
+    endpoint: 'ai-coach',
+    identifier: userId,
+    windowSeconds: RATE_LIMIT_WINDOW_SECONDS,
+    maxRequests: RATE_LIMIT_MAX,
+  })
+  if (!allowed) return false
 
   const { error: insertErr } = await supabase.from('ai_coach_requests').insert({ user_id: userId })
-  if (insertErr) console.error('ai-coach: rate limit insert failed:', insertErr.message)
+  if (insertErr) console.warn('ai-coach: usage tracking insert failed:', insertErr.message)
   return true
 }
 
@@ -344,10 +338,11 @@ serve(async (req) => {
       })
     }
 
-    const { messages, stream, conversationId } = body
+    const { messages, stream, conversationId: rawConvId } = body
+    const conversationId = typeof rawConvId === 'string' ? rawConvId : null
 
     // Validate conversationId ownership if provided
-    if (conversationId && typeof conversationId === 'string') {
+    if (conversationId) {
       const { data: conv } = await supabase.from('coach_conversations').select('user_id').eq('id', conversationId).single()
       if (!conv || conv.user_id !== user.id) {
         return new Response(JSON.stringify({ error: 'Unauthorized' }), {
@@ -409,7 +404,7 @@ serve(async (req) => {
 
     const [wellnessResult, labResult, protocolResult, sideEffectResult, profileResult, lastConvResult, injectionResult, referralResult] = await Promise.all([
       supabase.from('wellness_logs').select('energy, sleep, pain, mood, appetite, logged_at').eq('user_id', user.id).order('logged_at', { ascending: false }).limit(10),
-      supabase.from('lab_results').select('test_id, value, unit, tested_at').eq('user_id', user.id).order('tested_at', { ascending: false }).limit(10),
+      supabase.from('lab_results').select('id, test_date, lab_name, results, notes, created_at').eq('user_id', user.id).order('test_date', { ascending: false }).limit(10),
       supabase.from('user_protocols').select('peptide_id, dose, dose_unit, frequency, cycle_weeks, started_at, status').eq('user_id', user.id).order('started_at', { ascending: false }).limit(10),
       supabase.from('side_effect_logs').select('symptom, severity, peptide_id, notes, created_at').eq('user_id', user.id).order('created_at', { ascending: false }).limit(10),
       supabase.from('user_profiles').select('goals, weight_kg, onboarding_goals').eq('user_id', user.id).maybeSingle(),
@@ -505,12 +500,22 @@ serve(async (req) => {
       }
     }
 
-    // Lab results
+    // Lab results (results is JSONB Record<string, number>)
     if (labData.length > 0) {
-      const entries = labData.map(l =>
-        `${l.tested_at}: ${l.test_id} = ${l.value} ${l.unit ?? ''}`
-      ).join('\n')
-      userContextMsg += `\n\nنتائج التحاليل الأخيرة للمستخدم:\n${entries}`
+      const entries: string[] = []
+      for (const row of labData) {
+        const date = row.test_date ?? 'unknown'
+        const labName = row.lab_name ? ` (${row.lab_name})` : ''
+        if (row.results && typeof row.results === 'object') {
+          for (const [biomarker, value] of Object.entries(row.results as Record<string, number>)) {
+            entries.push(`${date}${labName}: ${biomarker} = ${value}`)
+          }
+        }
+        if (row.notes) entries.push(`ملاحظات: ${row.notes}`)
+      }
+      if (entries.length > 0) {
+        userContextMsg += `\n\nنتائج التحاليل الأخيرة للمستخدم:\n${entries.join('\n')}`
+      }
     }
 
     // Side effects
@@ -607,12 +612,26 @@ serve(async (req) => {
       const encoder = new TextEncoder()
       let accumulatedContent = ''
       let leaked = false
+
+      // Server-side conversation save helper
+      const saveConversation = async (aiContent: string) => {
+        if (!conversationId || !aiContent) return
+        try {
+          await supabase.from('coach_conversations')
+            .update({ messages: [...userMessages, { role: 'assistant', content: aiContent }], updated_at: new Date().toISOString() })
+            .eq('id', conversationId).eq('user_id', user.id)
+        } catch (e) { console.warn('ai-coach: conversation save failed:', e) }
+      }
+
       const outStream = new ReadableStream({
         async pull(controller) {
           try {
             const { done, value } = await reader.read()
             if (done || leaked) {
-              if (!leaked) controller.enqueue(encoder.encode('data: [DONE]\n\n'))
+              if (!leaked) {
+                await saveConversation(accumulatedContent)
+                controller.enqueue(encoder.encode('data: [DONE]\n\n'))
+              }
               controller.close()
               return
             }
@@ -638,12 +657,10 @@ serve(async (req) => {
             }
             if (foundDone) {
               // FIX: forward content portion of this chunk BEFORE sending [DONE].
-              // Previously, the early `return` inside the [DONE] branch skipped
-              // `controller.enqueue(value)`, silently dropping any content token(s)
-              // that arrived in the same SSE chunk as [DONE].
               const doneIdx = text.indexOf('data: [DONE]')
               const contentPart = doneIdx > 0 ? text.slice(0, doneIdx) : ''
               if (contentPart.trim()) controller.enqueue(encoder.encode(contentPart))
+              await saveConversation(accumulatedContent)
               controller.enqueue(encoder.encode('data: [DONE]\n\n'))
               controller.close()
               return
@@ -671,6 +688,14 @@ serve(async (req) => {
         data.choices[0].message = data.choices[0].message ?? {}
         data.choices[0].message.content = SANITIZED_RESPONSE
       }
+    }
+    // Save conversation server-side (non-streaming)
+    if (conversationId && content && !containsPromptLeak(content)) {
+      const fullMsgs = [...userMessages, { role: 'assistant', content }]
+      supabase.from('coach_conversations')
+        .update({ messages: fullMsgs, updated_at: new Date().toISOString() })
+        .eq('id', conversationId).eq('user_id', user.id)
+        .then(({ error: saveErr }) => { if (saveErr) console.warn('ai-coach: non-stream save failed:', saveErr.message) })
     }
     return new Response(JSON.stringify(data), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },

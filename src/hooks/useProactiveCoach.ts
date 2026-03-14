@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
+import { logError } from '@/lib/logger';
 
 export interface ProactiveInsight {
   id: string;
@@ -40,8 +41,19 @@ interface UserProactiveData {
   wellnessLogs: { energy: number; sleep: number; pain: number; mood: number; logged_at: string }[];
 }
 
+// Biomarker ID → unit lookup (mirrors LabResultsTracker BIOMARKERS)
+const BIOMARKER_UNITS: Record<string, string> = {
+  igf1: 'ng/mL', testosterone: 'ng/dL', tsh: 'mIU/L', ft3: 'pg/mL', ft4: 'ng/dL',
+  alt: 'U/L', ast: 'U/L', creatinine: 'mg/dL', egfr: 'mL/min',
+  fasting_glucose: 'mg/dL', hba1c: '%', total_cholesterol: 'mg/dL', hdl: 'mg/dL',
+  ldl: 'mg/dL', triglycerides: 'mg/dL', crp: 'mg/L',
+  wbc: '×10³/µL', rbc: '×10⁶/µL', hemoglobin: 'g/dL', hematocrit: '%', platelets: '×10³/µL',
+};
+
 function daysSince(dateStr: string): number {
-  return Math.floor((Date.now() - new Date(dateStr).getTime()) / (1000 * 60 * 60 * 24));
+  const ms = new Date(dateStr).getTime();
+  if (isNaN(ms)) return 0;
+  return Math.max(0, Math.floor((Date.now() - ms) / (1000 * 60 * 60 * 24)));
 }
 
 function getTimeOfDayGreeting(): string {
@@ -54,12 +66,11 @@ function getTimeOfDayGreeting(): string {
 
 async function fetchProactiveData(userId: string): Promise<UserProactiveData> {
   const today = new Date().toDateString();
-  const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
 
-  const [injRes, sideRes, labRes, wellRes, protoRes, userRes, convRes, profileRes, injCountRes] = await Promise.all([
+  const results = await Promise.allSettled([
     supabase.from('injection_logs').select('peptide_name, logged_at').eq('user_id', userId).order('logged_at', { ascending: false }).limit(30),
     supabase.from('side_effect_logs').select('symptom, peptide_id, created_at').eq('user_id', userId).order('created_at', { ascending: false }).limit(5),
-    supabase.from('lab_results').select('test_id, value, unit, tested_at').eq('user_id', userId).order('tested_at', { ascending: false }).limit(10),
+    supabase.from('lab_results').select('id, test_date, lab_name, results, notes, created_at').eq('user_id', userId).order('test_date', { ascending: false }).limit(10),
     supabase.from('wellness_logs').select('energy, sleep, pain, mood, logged_at').eq('user_id', userId).order('logged_at', { ascending: false }).limit(14),
     supabase.from('user_protocols').select('peptide_id, cycle_weeks, started_at, status, dose, dose_unit').eq('user_id', userId).order('started_at', { ascending: false }).limit(10),
     supabase.auth.getUser(),
@@ -68,14 +79,29 @@ async function fetchProactiveData(userId: string): Promise<UserProactiveData> {
     supabase.from('injection_logs').select('id', { count: 'exact', head: true }).eq('user_id', userId),
   ]);
 
-  const injLogs = injRes.data ?? [];
-  const sideLogs = sideRes.data ?? [];
-  const labLogs = labRes.data ?? [];
-  const wellLogs = wellRes.data ?? [];
-  const protos = protoRes.data ?? [];
-  const createdAt = userRes.data?.user?.created_at;
-  const convData = convRes.data;
-  const profileData = profileRes.data;
+  // Safely extract data — if a query failed, use empty defaults
+  type InjLog = { peptide_name: string; logged_at: string };
+  type SideLog = { symptom: string; peptide_id: string | null; created_at: string };
+  type LabLog = { test_id: string; value: number; unit: string; tested_at: string };
+  type WellLog = { energy: number; sleep: number; pain: number; mood: number; logged_at: string };
+  type ProtoLog = { peptide_id: string; cycle_weeks: number; started_at: string; status: string; dose: number; dose_unit: string };
+  const safeData = <T>(idx: number, fallback: T): T => {
+    const r = results[idx];
+    if (r.status !== 'fulfilled') return fallback;
+    const v = r.value as { data: T | null; error: unknown };
+    return v.error ? fallback : (v.data ?? fallback);
+  };
+  const injLogs = safeData<InjLog[]>(0, []);
+  const sideLogs = safeData<SideLog[]>(1, []);
+  const labLogs = safeData<LabLog[]>(2, []);
+  const wellLogs = safeData<WellLog[]>(3, []);
+  const protos = safeData<ProtoLog[]>(4, []);
+  const userResult = results[5];
+  const createdAt = userResult.status === 'fulfilled' ? (userResult.value as { data: { user: { created_at?: string } | null } }).data?.user?.created_at : undefined;
+  const convData = safeData<{ messages: unknown; updated_at: string } | null>(6, null);
+  const profileData = safeData<{ goals: unknown; onboarding_goals: unknown } | null>(7, null);
+  const injCountResult = results[8];
+  const injCount = injCountResult.status === 'fulfilled' ? (injCountResult.value as { count: number | null }).count : null;
 
   // Injection recency
   const lastInjectionDaysAgo = injLogs.length > 0 ? daysSince(injLogs[0].logged_at) : null;
@@ -96,7 +122,17 @@ async function fetchProactiveData(userId: string): Promise<UserProactiveData> {
 
   // Lab results
   const hasLabResults = labLogs.length > 0;
-  const labHighlights = labLogs.map(l => ({ test_id: l.test_id, value: l.value, unit: l.unit ?? '', tested_at: l.tested_at }));
+  // Flatten JSONB results into individual biomarker entries
+  const labHighlights: UserProactiveData['labHighlights'] = [];
+  for (const row of labLogs) {
+    if (row.results && typeof row.results === 'object') {
+      for (const [key, val] of Object.entries(row.results as Record<string, number>)) {
+        if (typeof val === 'number') {
+          labHighlights.push({ test_id: key, value: val, unit: BIOMARKER_UNITS[key] ?? '', tested_at: row.test_date });
+        }
+      }
+    }
+  }
 
   // Compute wellness trends for each metric
   function computeTrend(logs: typeof wellLogs, key: 'energy' | 'sleep' | 'pain' | 'mood') {
@@ -185,7 +221,7 @@ async function fetchProactiveData(userId: string): Promise<UserProactiveData> {
     activeProtocols,
     accountAgeDays,
     todayLogged,
-    totalInjections: injCountRes.count ?? injLogs.length,
+    totalInjections: injCount ?? injLogs.length,
     streak,
     lastConversation,
     userGoals,
@@ -267,11 +303,11 @@ function generateDailyBriefing(data: UserProactiveData): DailyBriefing | null {
     // Check for notable values
     const igf = data.labHighlights.find(l => l.test_id.toLowerCase().includes('igf'));
     if (igf && igf.value < 150) {
-      observations.push(`بناءً على نتائجك: IGF-1 عند ${igf.value} ${igf.unit} — منخفض. اقتراحي: CJC-1295 + Ipamorelin.`);
+      observations.push(`بناءً على نتائجك: IGF-1 عند ${igf.value} ${igf.unit} — منخفض. اقتراح تعليمي: CJC-1295 + Ipamorelin. ⚠️ استشر طبيبك قبل البدء.`);
     }
     const testosterone = data.labHighlights.find(l => l.test_id.toLowerCase().includes('test'));
     if (testosterone && testosterone.value < 400) {
-      observations.push(`بناءً على نتائج مختبرك: التستوستيرون عند ${testosterone.value} ${testosterone.unit}. هل تريد مناقشة خيارات التحسين؟`);
+      observations.push(`بناءً على نتائج مختبرك: التستوستيرون عند ${testosterone.value} ${testosterone.unit}. ⚠️ هذا اقتراح تعليمي — استشر طبيبك قبل أي قرار علاجي.`);
     }
   }
 
@@ -356,7 +392,7 @@ function generateSmartStarters(data: UserProactiveData): SmartStarter[] {
   }
 
   // Has lab results
-  if (data.hasLabResults) {
+  if (data.labHighlights.length > 0) {
     const latestLab = data.labHighlights[0];
     if (daysSince(latestLab.tested_at) <= 14) {
       starters.push({ text: 'حلّل نتائج تحاليلي واقترح تعديلات على البروتوكول', priority: 88 });
@@ -487,7 +523,7 @@ function generateInsights(data: UserProactiveData): ProactiveInsight[] {
       insights.push({
         id: 'low-igf',
         icon: 'lightbulb',
-        text: `IGF-1 عندك ${igf.value} ${igf.unit} — منخفض. اقتراح: CJC-1295 + Ipamorelin`,
+        text: `IGF-1 عندك ${igf.value} ${igf.unit} — منخفض. اقتراح تعليمي: CJC-1295 + Ipamorelin ⚠️ استشر طبيبك`,
         priority: 85,
       });
     }
@@ -666,6 +702,7 @@ export function useProactiveCoach(userId: string | undefined) {
 
   useEffect(() => {
     if (!userId) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- early-return guard
       setLoading(false);
       return;
     }
@@ -680,7 +717,8 @@ export function useProactiveCoach(userId: string | undefined) {
         setDashboardCards(generateDashboardCoachingCards(data));
         setLoading(false);
       })
-      .catch(() => {
+      .catch((e) => {
+        logError('proactive coach failed:', e);
         if (mounted) setLoading(false);
       });
 

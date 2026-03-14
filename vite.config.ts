@@ -1,7 +1,6 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react-swc";
 import { VitePWA } from "vite-plugin-pwa";
-import { sentryVitePlugin } from "@sentry/vite-plugin";
 import path from "path";
 import { TRIAL_DAYS } from "./src/config/trial";
 
@@ -67,33 +66,10 @@ export default defineConfig({
       // ignored. Font caching and navigation fallback are handled in sw.ts.
       workbox: {
         // Only globPatterns is used by injectManifest to build __WB_MANIFEST
-        globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
+        // Narrowed to app shell only — fonts/images/pages cached at runtime
+        globPatterns: ['favicon.ico'],
       },
     }),
-    // Sentry source map upload — only runs when SENTRY_AUTH_TOKEN is set (CI / Vercel build)
-    // sourcemap mode is set to 'hidden' above when this runs, so .map files are
-    // generated, uploaded, then deleted — never served to the browser.
-    ...(process.env.SENTRY_AUTH_TOKEN
-      ? [
-          sentryVitePlugin({
-            // Trim values — Vercel env pull sometimes appends literal \n
-            org: (process.env.SENTRY_ORG ?? 'verdix').trim(),
-            project: (process.env.SENTRY_PROJECT ?? 'javascript-react').trim(),
-            authToken: process.env.SENTRY_AUTH_TOKEN.trim(),
-            // Only upload source maps; skip release management (handled separately if needed)
-            release: { inject: false, create: false, finalize: false },
-            // Delete .map files after upload so they are never publicly served
-            sourcemaps: {
-              filesToDeleteAfterUpload: ['./dist/assets/**/*.js.map'],
-            },
-            telemetry: false,
-            // Non-fatal: don't fail the build if Sentry upload has issues
-            errorHandler: (err) => {
-              console.warn('[sentry-vite-plugin] Non-fatal warning:', err);
-            },
-          }),
-        ]
-      : []),
   ],
   resolve: {
     alias: {
@@ -102,8 +78,7 @@ export default defineConfig({
   },
   build: {
     target: 'es2020',
-    // Hidden sourcemaps: uploaded to Sentry but not served to the browser
-    sourcemap: process.env.SENTRY_AUTH_TOKEN ? 'hidden' : false,
+    sourcemap: false,
     rollupOptions: {
       output: {
         manualChunks(id) {
@@ -122,15 +97,18 @@ export default defineConfig({
           // html2canvas — lazy loaded only
           if (id.includes('node_modules/html2canvas'))
             return 'html2canvas';
-          // Sentry + rrweb — lazy loaded only (forced out of main bundle)
-          if (id.includes('node_modules/@sentry') || id.includes('node_modules/rrweb') || id.includes('node_modules/@rrweb'))
-            return 'sentry';
           // react-joyride — lazy loaded for guided tours
           if (id.includes('node_modules/react-joyride') || id.includes('node_modules/react-floater') || id.includes('node_modules/is-lite'))
             return 'joyride';
           // Focus trap — lazy loaded
-          if (id.includes('node_modules/focus-trap') || id.includes('node_modules/tabbable'))
+          if (id.includes('node_modules/focus-trap') || id.includes('node_modules/focus-trap-react') || id.includes('node_modules/tabbable'))
             return 'focus-trap';
+          // Confetti — lazy loaded for celebrations
+          if (id.includes('node_modules/canvas-confetti') || id.includes('node_modules/confetti'))
+            return 'confetti';
+          // DOMPurify — lazy loaded for Coach sanitization
+          if (id.includes('node_modules/dompurify'))
+            return 'dompurify';
         },
       },
     },

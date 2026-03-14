@@ -5,7 +5,6 @@ import { FileText, CalendarDays, Tag, Search, X, ArrowLeft } from 'lucide-react'
 import { SITE_URL } from '@/lib/constants';
 import { supabase } from '@/lib/supabase';
 import { cn } from '@/lib/utils';
-import { GenericPageSkeleton } from '@/components/Skeletons';
 
 interface BlogPost {
   id: string;
@@ -16,6 +15,8 @@ interface BlogPost {
   tags: string[];
   cover_image_url: string | null;
 }
+
+const PLACEHOLDER_IMG = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='640' height='192' fill='%23d6d3d1'%3E%3Crect width='640' height='192'/%3E%3Ctext x='50%25' y='50%25' font-size='14' fill='%2378716c' text-anchor='middle' dy='.3em'%3E%D8%AA%D8%B9%D8%B0%D9%91%D8%B1 %D8%AA%D8%AD%D9%85%D9%8A%D9%84 %D8%A7%D9%84%D8%B5%D9%88%D8%B1%D8%A9%3C/text%3E%3C/svg%3E";
 
 const BLOG_PAGE_SIZE = 12;
 const BLOG_CACHE_TTL = 30 * 60 * 1000; // 30 minutes
@@ -28,6 +29,7 @@ export default function Blog() {
   const [error, setError] = useState<false | 'offline' | 'fetch'>(false);
   const [search, setSearch] = useState('');
   const [activeTag, setActiveTag] = useState<string | null>(null);
+  const [isStale, setIsStale] = useState(false);
 
   const fetchPosts = useCallback(() => {
     let cancelled = false;
@@ -35,15 +37,21 @@ export default function Blog() {
     setError(false);
 
     if (!navigator.onLine) {
-      // Try cache when offline
+      // Try cache when offline (discard if older than 30 minutes)
       try {
         const cached = localStorage.getItem('pptides_cache_blog_posts');
         if (cached) {
-          const { data } = JSON.parse(cached) as { data: BlogPost[] };
-          setPosts(data);
-          setHasMore(false);
-          setLoading(false);
-          return () => { cancelled = true; };
+          const { data, ts } = JSON.parse(cached) as { data: BlogPost[]; ts?: number };
+          const CACHE_TTL = 30 * 60 * 1000;
+          if (ts && Date.now() - ts > CACHE_TTL) {
+            localStorage.removeItem('pptides_cache_blog_posts');
+          } else {
+            setPosts(data);
+            setHasMore(false);
+            setIsStale(ts ? Date.now() - ts > CACHE_TTL : true);
+            setLoading(false);
+            return () => { cancelled = true; };
+          }
         }
       } catch { /* ignore */ }
       setError('offline');
@@ -65,10 +73,11 @@ export default function Blog() {
         try {
           const cached = localStorage.getItem('pptides_cache_blog_posts');
           if (cached) {
-            const parsed = JSON.parse(cached) as { ts: number; data: BlogPost[] };
+            const parsed = JSON.parse(cached) as { ts: number; data: BlogPost[]; latestPublishedAt?: string };
             if (Date.now() - parsed.ts < BLOG_CACHE_TTL) {
               setPosts(parsed.data);
               setHasMore(false);
+              setIsStale(parsed.ts ? Date.now() - parsed.ts > BLOG_CACHE_TTL : true);
               setLoading(false);
               return;
             }
@@ -81,6 +90,7 @@ export default function Blog() {
         const freshPosts = data ?? [];
         setPosts(freshPosts);
         setHasMore(freshPosts.length === BLOG_PAGE_SIZE);
+        setIsStale(false);
         // Cache-busting: compare latest published_at with cached version
         // If a post was added or updated, invalidate old cache entirely
         try {
@@ -128,6 +138,7 @@ export default function Blog() {
   }, [loadingMore, hasMore, posts]);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- data fetching pattern
     const cleanup = fetchPosts();
     return cleanup;
   }, [fetchPosts]);
@@ -180,6 +191,7 @@ export default function Blog() {
       </Helmet>
 
       <div className="mx-auto max-w-3xl px-4 pt-8 pb-24 md:px-6 md:pt-12">
+        <div className="mb-4 rounded-xl border border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-900/20 px-4 py-2 text-xs text-amber-700 dark:text-amber-400">محتوى تعليمي — استشر طبيبك قبل استخدام أي ببتيد</div>
         <div className="mb-10 text-center">
           <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-500/10">
             <FileText className="h-7 w-7 text-emerald-700" />
@@ -199,12 +211,12 @@ export default function Blog() {
                 value={search}
                 onChange={e => setSearch(e.target.value)}
                 placeholder="ابحث في المقالات..."
-                className="w-full rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-800 py-2.5 pe-4 ps-10 text-sm text-stone-900 dark:text-stone-100 placeholder:text-stone-400 dark:placeholder:text-stone-400 focus:border-emerald-400 dark:focus:border-emerald-600 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900/30 transition-colors min-h-[44px]"
+                className="w-full rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-800 py-2.5 pe-4 ps-10 text-sm text-stone-900 dark:text-stone-100 placeholder:text-stone-500 dark:placeholder:text-stone-500 focus:border-emerald-400 dark:focus:border-emerald-600 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900/30 transition-colors min-h-[44px]"
               />
               {search && (
                 <button
                   onClick={() => setSearch('')}
-                  className="absolute end-3 top-1/2 -translate-y-1/2 rounded p-0.5 text-stone-400 hover:text-stone-600 dark:text-stone-300"
+                  className="absolute end-3 top-1/2 -translate-y-1/2 rounded p-2 min-h-[44px] min-w-[44px] flex items-center justify-center text-stone-400 hover:text-stone-600 dark:text-stone-300"
                   aria-label="مسح البحث"
                 >
                   <X className="h-3.5 w-3.5" />
@@ -245,6 +257,13 @@ export default function Blog() {
                 </div>
               </div>
             )}
+          </div>
+        )}
+
+        {isStale && !loading && !error && (
+          <div className="mb-4 flex items-center justify-between gap-2 rounded-xl border border-amber-200 dark:border-amber-700/40 bg-amber-50 dark:bg-amber-900/20 px-4 py-2.5 text-sm text-amber-800 dark:text-amber-300" role="status">
+            <span>تعرض آخر نسخة محفوظة — قد لا تكون محدّثة</span>
+            <button onClick={() => fetchPosts()} className="shrink-0 font-bold underline hover:no-underline">تحديث</button>
           </div>
         )}
 
@@ -347,7 +366,7 @@ export default function Blog() {
                       decoding="async"
                       width="800"
                       height="192"
-                      onError={e => { (e.target as HTMLImageElement).style.display = 'none'; }}
+                      onError={e => { const img = e.target as HTMLImageElement; img.src = PLACEHOLDER_IMG; img.alt = 'تعذّر تحميل الصورة'; img.classList.add('img-placeholder'); }}
                     />
                     </div>
                   )}
@@ -368,7 +387,10 @@ export default function Blog() {
                           {post.tags.map(tag => (
                             <span
                               key={tag}
+                              role="button"
+                              tabIndex={0}
                               onClick={e => { e.preventDefault(); setActiveTag(tag === activeTag ? null : tag); }}
+                              onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setActiveTag(tag === activeTag ? null : tag); } }}
                               className={cn(
                                 'cursor-pointer rounded-full px-2 py-0.5 transition-colors',
                                 activeTag === tag
@@ -396,7 +418,7 @@ export default function Blog() {
                 <button
                   onClick={loadMorePosts}
                   disabled={loadingMore}
-                  className="inline-flex items-center gap-2 rounded-full border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 px-8 py-3 text-sm font-bold text-stone-700 dark:text-stone-200 transition-all hover:border-emerald-300 dark:hover:border-emerald-700 hover:shadow-sm disabled:opacity-50"
+                  className="inline-flex items-center gap-2 rounded-full border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 px-8 py-3 text-sm font-bold text-stone-700 dark:text-stone-200 transition-all hover:border-emerald-300 dark:hover:border-emerald-700 hover:shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {loadingMore ? 'جاري التحميل...' : 'تحميل المزيد'}
                 </button>

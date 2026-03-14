@@ -30,6 +30,7 @@ export default function Quiz() {
         })}</script>
       </Helmet>
       <div className="mx-auto max-w-2xl px-4 pt-8 pb-24 md:pt-12">
+        <h1 className="sr-only">اختبار اكتشاف البروتوكول المثالي</h1>
         <PeptideQuiz />
       </div>
     </div>

@@ -1,13 +1,14 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { Helmet } from 'react-helmet-async';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { toast } from 'sonner';
-import { Layers, Clock, DollarSign, BarChart3, Syringe, Calculator, ArrowLeftRight } from 'lucide-react';
+import { Layers, Clock, DollarSign, BarChart3, Syringe, Calculator, ArrowLeftRight, Sparkles } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import ProtocolWizard from '@/components/ProtocolWizard';
 import StackBuilder from '@/components/StackBuilder';
 import { PRICING, SITE_URL } from '@/lib/constants';
-import { stacks, peptides, categories } from '@/data/peptides';
+import { stacks, categories } from '@/data/peptides';
+import { peptidesPublic as peptides } from '@/data/peptides-public';
 import { GenericPageSkeleton } from '@/components/Skeletons';
 
 const STACK_META: Record<string, { difficulty: string; cost: string; duration: string }> = {
@@ -41,6 +42,14 @@ export default function Stacks() {
   const isPro = !isLoading && (subscription?.isProOrTrial ?? false);
   const [activeWizard, setActiveWizard] = useState<string | null>(null);
   const [stackStartDialog, setStackStartDialog] = useState<{ peptideIds: string[]; stackName: string } | null>(null);
+  const [, setSearchParams] = useSearchParams();
+  const builderRef = useRef<HTMLDivElement>(null);
+
+  const handleUseAsTemplate = (peptideIds: string[]) => {
+    setSearchParams({ stack: peptideIds.join(',') });
+    builderRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    toast.success('تم تحميل القالب في المنشئ');
+  };
 
   if (isLoading) {
     return <GenericPageSkeleton />;
@@ -48,6 +57,7 @@ export default function Stacks() {
 
   return (
     <div className="mx-auto max-w-6xl px-4 pb-24 pt-8 md:px-6 md:pt-12 animate-fade-in">
+      <div className="mb-4 rounded-xl border border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-900/20 px-4 py-2 text-xs text-amber-700 dark:text-amber-400">محتوى تعليمي — استشر طبيبك قبل استخدام أي ببتيد</div>
       {activeWizard && <ProtocolWizard peptideId={activeWizard} onClose={() => setActiveWizard(null)} />}
       {stackStartDialog && (
         <div role="dialog" aria-modal="true" aria-label="بدء البروتوكول" className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" onClick={() => setStackStartDialog(null)}>
@@ -140,14 +150,14 @@ export default function Stacks() {
       </div>
 
       {/* Interactive Stack Builder */}
-      <div className="mb-12">
+      <div className="mb-12" ref={builderRef}>
         <StackBuilder />
       </div>
 
       {/* Divider */}
       <div className="mb-10 flex items-center gap-4">
         <div className="h-px flex-1 bg-stone-200 dark:bg-stone-700" />
-        <span className="text-sm font-bold text-stone-400 dark:text-stone-300">بروتوكولات جاهزة</span>
+        <span className="text-sm font-bold text-stone-500 dark:text-stone-300">بروتوكولات جاهزة</span>
         <div className="h-px flex-1 bg-stone-200 dark:bg-stone-700" />
       </div>
 
@@ -170,6 +180,13 @@ export default function Stacks() {
               >
                 {getCategoryLabel(primaryCategory)}
               </span>
+
+              {/* Drug interaction safety warning */}
+              {stack.peptideIds.length > 1 && (
+                <div role="alert" className="mb-3 rounded-xl border border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-900/20 px-4 py-2 text-xs text-amber-700 dark:text-amber-400">
+                  ⚠️ الجمع بين عدة ببتيدات قد يزيد من الأعراض الجانبية — استشر طبيبك قبل البدء بأي مجموعة
+                </div>
+              )}
 
               {/* Title — always visible */}
               <h2
@@ -213,7 +230,7 @@ export default function Stacks() {
                       <div key={p.id} className="flex items-center gap-1">
                         <Link
                           to={`/peptide/${p.id}`}
-                          className="group relative flex items-center gap-1.5 rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-xs font-medium text-emerald-700 transition-all hover:bg-emerald-100 hover:shadow-md hover:border-emerald-400 min-h-[44px]"
+                          className="group relative flex items-center gap-1.5 rounded-lg border border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-900/20 px-3 py-2 text-xs font-medium text-emerald-700 dark:text-emerald-400 transition-all hover:bg-emerald-100 dark:hover:bg-emerald-900/30 hover:shadow-md hover:border-emerald-400 min-h-[44px]"
                         >
                           <span className="h-2 w-2 rounded-full bg-emerald-500 group-hover:animate-pulse" />
                           {p.nameAr}
@@ -231,12 +248,9 @@ export default function Stacks() {
                 </div>
               </div>
 
-              {/* Description + Protocol — blurred for non-subscribers */}
+              {/* Description + Protocol — hidden for non-subscribers (not just blurred) */}
               <div className="relative flex-1">
-                <div
-                  aria-hidden={!isPro}
-                  tabIndex={!isPro ? -1 : undefined}
-                  className={!isPro ? 'blur-[6px] pointer-events-none select-none max-h-40 overflow-hidden' : ''}
+                {isPro ? <div
                 >
                   <p className="mb-4 text-sm leading-relaxed text-stone-700 dark:text-stone-200">
                     {stack.descriptionAr}
@@ -280,10 +294,17 @@ export default function Stacks() {
                       <Calculator className="h-3.5 w-3.5" />
                       احسب الجرعة
                     </Link>
+                    <button
+                      type="button"
+                      onClick={() => handleUseAsTemplate(stack.peptideIds)}
+                      className="inline-flex items-center gap-1.5 rounded-xl border border-emerald-200 dark:border-emerald-700 bg-emerald-50 dark:bg-emerald-900/20 px-6 py-3 text-sm font-bold text-emerald-700 dark:text-emerald-400 hover:bg-emerald-100 dark:hover:bg-emerald-900/30 transition-colors"
+                    >
+                      <Sparkles className="h-3.5 w-3.5" />
+                      استخدم كقالب
+                    </button>
                   </div>
-                </div>
+                </div> : null}
 
-                {/* Tier gate — overlay directly on blurred content */}
                 {!isPro && (
                   <div className="absolute inset-0 flex flex-col items-center justify-center rounded-xl bg-white/70 dark:bg-stone-900/80 backdrop-blur-sm p-4 text-center">
                     <div className="mb-2 flex h-10 w-10 items-center justify-center rounded-full bg-emerald-100 dark:bg-emerald-900/40">

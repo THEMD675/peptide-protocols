@@ -109,7 +109,7 @@ export default function TrackerHistory({
   peptideColorMap,
   isProOrTrial,
   userId,
-  totalCount,
+  totalCount: _totalCount,
   setTotalCount,
   suggestedSite,
   showForm,
@@ -176,7 +176,7 @@ export default function TrackerHistory({
     try {
       const { data: allLogs, error } = await supabase
         .from('injection_logs')
-        .select('*')
+        .select('peptide_name, dose, dose_unit, injection_site, logged_at, notes')
         .eq('user_id', userId)
         .order('logged_at', { ascending: false })
         .limit(10000);
@@ -214,7 +214,7 @@ export default function TrackerHistory({
     try {
       const { data: allLogs, error } = await supabase
         .from('injection_logs')
-        .select('*')
+        .select('peptide_name, dose, dose_unit, injection_site, logged_at')
         .eq('user_id', userId)
         .order('logged_at', { ascending: false })
         .limit(10000);
@@ -282,11 +282,11 @@ export default function TrackerHistory({
           <button
             onClick={onQuickRepeat}
             disabled={isSubmitting}
-            className="flex w-full items-center justify-center gap-3 rounded-2xl bg-emerald-600 px-6 py-4 text-base font-bold text-white transition-all hover:bg-emerald-700 active:scale-[0.98] disabled:opacity-50 min-h-[56px] shadow-md"
+            className="flex w-full items-center justify-center gap-3 rounded-2xl bg-emerald-600 px-6 py-4 text-base font-bold text-white transition-all hover:bg-emerald-700 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed min-h-[56px] shadow-md"
           >
             <Syringe className="h-5 w-5 shrink-0" />
             <span>
-              سجّل سريع — {logs[0]?.peptide_name} {logs[0]?.dose} {logs[0]?.dose_unit}
+              سجّل سريع — <span dir="ltr" className="inline-block">{logs[0]?.peptide_name}</span> {logs[0]?.dose} {logs[0]?.dose_unit}
               <span className="mx-2 opacity-60">·</span>
               <span className="opacity-90">{SITE_LABELS[suggestedSite] ?? suggestedSite}</span>
             </span>
@@ -406,8 +406,8 @@ export default function TrackerHistory({
                         <div className="w-20">
                           <label className="text-xs text-stone-500 dark:text-stone-300 mb-1 block">الوحدة</label>
                           <select value={editUnit} onChange={e => setEditUnit(e.target.value)} aria-label="وحدة الجرعة" className="w-full rounded-lg border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 px-2 py-2 text-base text-stone-900 dark:text-stone-100 focus:border-emerald-300 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900">
-                            <option value="mcg">mcg</option>
-                            <option value="mg">mg</option>
+                            <option value="mcg">مايكروغرام</option>
+                            <option value="mg">ملغ</option>
                           </select>
                         </div>
                       </div>
@@ -422,7 +422,7 @@ export default function TrackerHistory({
                         <input type="datetime-local" value={editDate} onChange={e => setEditDate(e.target.value)} dir="ltr" aria-label="التاريخ والوقت" className="w-full rounded-lg border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 px-3 py-2 text-base text-stone-900 dark:text-stone-100 focus:border-emerald-300 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900" />
                       </div>
                       <div className="flex gap-2">
-                        <button onClick={() => saveEdit(log.id)} disabled={editSaving} className="flex-1 flex items-center justify-center gap-1.5 rounded-lg bg-emerald-600 px-4 py-2.5 min-h-[44px] text-sm font-bold text-white transition-colors hover:bg-emerald-700 disabled:opacity-50">
+                        <button onClick={() => saveEdit(log.id)} disabled={editSaving} className="flex-1 flex items-center justify-center gap-1.5 rounded-lg bg-emerald-600 px-4 py-2.5 min-h-[44px] text-sm font-bold text-white transition-colors hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed">
                           <Check className="h-4 w-4" />
                           {editSaving ? 'جارٍ الحفظ...' : 'حفظ'}
                         </button>
@@ -458,12 +458,7 @@ export default function TrackerHistory({
                                     setLogs(prev => prev.filter(l => l.id !== log.id));
                                     const { error } = await supabase.from('injection_logs').delete().eq('id', log.id).eq('user_id', userId);
                                     if (error) {
-                                      if (deletedLog) setLogs(prev => {
-                                        const originalIndex = prev.findIndex(l => new Date(l.logged_at) < new Date(deletedLog.logged_at));
-                                        const restored = [...prev];
-                                        restored.splice(originalIndex === -1 ? prev.length : originalIndex, 0, deletedLog);
-                                        return restored;
-                                      });
+                                      await fetchLogs();
                                       toast.error('تعذّر حذف السجل — حاول مرة أخرى');
                                     } else {
                                       setTotalCount(prev => Math.max(0, prev - 1));
@@ -515,7 +510,7 @@ export default function TrackerHistory({
               <button
                 onClick={fetchMore}
                 disabled={isLoadingMore}
-                className="flex w-full items-center justify-center gap-2 rounded-2xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 py-4 text-sm font-bold text-stone-600 dark:text-stone-300 transition-all hover:border-emerald-300 dark:border-emerald-700 hover:text-emerald-700 dark:text-emerald-400 disabled:opacity-50"
+                className="flex w-full items-center justify-center gap-2 rounded-2xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 py-4 text-sm font-bold text-stone-600 dark:text-stone-300 transition-all hover:border-emerald-300 dark:border-emerald-700 hover:text-emerald-700 dark:text-emerald-400 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isLoadingMore ? (
                   <span className="flex items-center justify-center gap-2" role="status" aria-label="جارٍ تحميل السجلات">
@@ -543,7 +538,7 @@ export default function TrackerHistory({
                   onClick={() => confirmDialog.onConfirm()}
                   disabled={confirmBusy}
                   className={cn(
-                    'flex-1 rounded-xl px-4 py-3 min-h-[44px] text-sm font-bold text-white transition-all disabled:opacity-50',
+                    'flex-1 rounded-xl px-4 py-3 min-h-[44px] text-sm font-bold text-white transition-all disabled:opacity-50 disabled:cursor-not-allowed',
                     confirmDialog.isDestructive ? 'bg-red-600 hover:bg-red-700' : 'bg-emerald-600 hover:bg-emerald-700'
                   )}
                 >

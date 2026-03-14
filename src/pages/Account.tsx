@@ -4,7 +4,7 @@ import EnquiryForm from '@/components/account/EnquiryForm';
 import FocusTrap from 'focus-trap-react';
 import { Helmet } from 'react-helmet-async';
 import { Link, Navigate, useNavigate, useLocation } from 'react-router-dom';
-import { User, Crown, LogOut, Trash2, AlertTriangle, Mail, ArrowUpCircle, KeyRound, XCircle, Download, CreditCard, Gift, Copy, Share2, Check, Send, MessageSquare, UserCircle, Camera, BarChart3, Syringe, Bot, Calendar, Heart, FlaskConical, Moon, Sun, Chrome, Bell, BellOff } from 'lucide-react';
+import { User, Crown, LogOut, Trash2, AlertTriangle, Mail, ArrowUpCircle, KeyRound, XCircle, Download, CreditCard, Gift, Copy, Share2, Check, UserCircle, Camera, BarChart3, Syringe, Bot, Calendar, Moon, Sun, Chrome, Bell, BellOff, Shield } from 'lucide-react';
 
 import { toast } from 'sonner';
 import { cn, arPlural, sanitizeInput, copyToClipboard } from '@/lib/utils';
@@ -12,7 +12,10 @@ import { SUPPORT_EMAIL, STATUS_LABELS, TIER_LABELS, PEPTIDE_COUNT, SITE_URL, PRI
 import { useTheme } from '@/hooks/useTheme';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
+import { events } from '@/lib/analytics';
+import { logError } from '@/lib/logger';
 import { REFERRAL, RETENTION } from '@/constants/sales-copy';
+import { COOKIE_CONSENT_STORAGE_KEY } from '@/lib/cookie-utils';
 
 export default function Account() {
   const { user, subscription, logout, refreshSubscription, isLoading } = useAuth();
@@ -34,6 +37,7 @@ export default function Account() {
   const [notifEmail, setNotifEmail] = useState(true);
   const [notifProduct, setNotifProduct] = useState(true);
   const [notifLoading, setNotifLoading] = useState(false);
+  const [isLoadingPortal, setIsLoadingPortal] = useState(false);
 
   const [profileDisplayName, setProfileDisplayName] = useState('');
   const [profileWeight, setProfileWeight] = useState('');
@@ -52,6 +56,25 @@ export default function Account() {
     setDeleteConfirmText('');
     setDeletePassword('');
   }, []);
+
+  // Fix #19: Auto-refresh subscription after Stripe Portal return
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('portal_return') !== '1') return;
+    // Clean URL
+    const url = new URL(window.location.href);
+    url.searchParams.delete('portal_return');
+    window.history.replaceState({}, '', url.toString());
+    // Refresh subscription immediately + poll for 15s
+    refreshSubscription();
+    let attempts = 0;
+    const interval = setInterval(() => {
+      attempts++;
+      refreshSubscription();
+      if (attempts >= 5) clearInterval(interval);
+    }, 3000);
+    return () => clearInterval(interval);
+  }, [refreshSubscription]);
 
   useEffect(() => {
     if (!showCancelDialog && !showDeleteDialog) return;
@@ -91,7 +114,7 @@ export default function Account() {
           setNotifProduct(data.product_updates_enabled ?? true);
         }
       })
-      .catch(() => { /* profile load failed — non-critical, defaults remain */ })
+      .catch(() => { toast.error('تعذّر تحميل بيانات الملف الشخصي'); })
       .finally(() => setProfileLoading(false));
   }, [user]);
 
@@ -100,35 +123,34 @@ export default function Account() {
     if (!user) return;
     let mounted = true;
     const loadStats = async () => {
-      const [injRes, protoRes, coachRes, authRes] = await Promise.all([
+      const [injRes, protoRes, coachRes, authRes] = await Promise.allSettled([
         supabase.from('injection_logs').select('id', { count: 'exact', head: true }).eq('user_id', user.id),
         supabase.from('user_protocols').select('id', { count: 'exact', head: true }).eq('user_id', user.id).eq('status', 'active'),
-        supabase.from('community_logs').select('id', { count: 'exact', head: true }).eq('user_id', user.id),
-        // Fix: UUID v4 first segment is random (not a timestamp) — get real created_at from auth
+        supabase.from('coach_conversations').select('id', { count: 'exact', head: true }).eq('user_id', user.id),
         supabase.auth.getUser(),
       ]);
       if (!mounted) return;
-      if (injRes.error) console.error('injection_logs count failed:', injRes.error);
-      if (protoRes.error) console.error('user_protocols count failed:', protoRes.error);
-      if (coachRes.error) console.error('community_logs count failed:', coachRes.error);
-      const fullUser = authRes.data?.user;
+      const injCount = injRes.status === 'fulfilled' && !injRes.value.error ? (injRes.value.count ?? 0) : 0;
+      const protoCount = protoRes.status === 'fulfilled' && !protoRes.value.error ? (protoRes.value.count ?? 0) : 0;
+      const coachCount = coachRes.status === 'fulfilled' && !coachRes.value.error ? (coachRes.value.count ?? 0) : 0;
+      const fullUser = authRes.status === 'fulfilled' ? authRes.value.data?.user : null;
       const memberSinceDate = fullUser?.created_at
         ? new Date(fullUser.created_at).toLocaleDateString('ar-u-nu-latn', { year: 'numeric', month: 'long' })
         : new Date().toLocaleDateString('ar-u-nu-latn', { year: 'numeric', month: 'long' });
       setUsageStats({
-        injections: injRes.count ?? 0,
-        protocols: protoRes.count ?? 0,
-        coachMessages: coachRes.count ?? 0,
+        injections: injCount,
+        protocols: protoCount,
+        coachMessages: coachCount,
         memberSince: memberSinceDate,
       });
     };
-    loadStats().catch(() => {});
+    loadStats().catch((e: unknown) => logError('silent catch:', e));
     return () => { mounted = false; };
   }, [user]);
 
   const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (!file || !user) return;
+    if (!file || !user || uploadingPic) return;
     if (file.size > 2 * 1024 * 1024) { toast.error('حجم الصورة يجب أن يكون أقل من 2 ميجابايت'); return; }
     setUploadingPic(true);
     try {
@@ -140,7 +162,7 @@ export default function Account() {
       const publicUrl = urlData?.publicUrl;
       if (publicUrl) {
         const { error: avatarErr } = await supabase.from('user_profiles').update({ avatar_url: publicUrl, updated_at: new Date().toISOString() }).eq('user_id', user.id);
-        if (avatarErr) { console.error('avatar url update failed:', avatarErr); toast.error('تعذّر تحديث صورة الملف الشخصي'); return; }
+        if (avatarErr) { logError('avatar url update failed:', avatarErr); toast.error('تعذّر تحديث صورة الملف الشخصي'); return; }
         setProfilePicUrl(publicUrl + '?t=' + Date.now());
         toast.success('تم تحديث صورة الملف الشخصي');
       }
@@ -149,7 +171,7 @@ export default function Account() {
   };
 
   const handleSaveProfile = async () => {
-    if (!user) return;
+    if (!user || profileSaving) return;
     setProfileSaving(true);
     try {
       const weightNum = profileWeight.trim() ? parseFloat(profileWeight) : null;
@@ -181,6 +203,32 @@ export default function Account() {
       return () => { document.body.style.overflow = ''; };
     }
   }, [showDeleteDialog]);
+
+  // Sync email to email_list + Stripe only after email change is confirmed
+  useEffect(() => {
+    if (!user) return;
+    const { data: { subscription: authSub } } = supabase.auth.onAuthStateChange(
+      async (event, session) => {
+        if (event !== 'USER_UPDATED' || !session?.user) return;
+        const confirmedEmail = session.user.email;
+        if (!confirmedEmail || !session.user.email_confirmed_at) return;
+        // Sync email_list
+        await supabase.from('email_list').update({ email: confirmedEmail.toLowerCase() }).eq('user_id', session.user.id).catch((e) => { logError('Account: email_list sync failed', e); });
+        // Sync Stripe
+        const { data: sub } = await supabase.from('subscriptions').select('stripe_customer_id').eq('user_id', session.user.id).maybeSingle();
+        if (sub?.stripe_customer_id) {
+          fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/admin-actions`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${session.access_token}` },
+            body: JSON.stringify({ action: 'sync_email', user_id: session.user.id, new_email: confirmedEmail.toLowerCase() }),
+          }).catch((e: unknown) => { logError('Account: Stripe email sync failed', e); toast.error('تعذّر مزامنة البريد مع نظام الدفع'); });
+        }
+      },
+    );
+    return () => { authSub.unsubscribe(); };
+  }, [user]);
+
+  const [exportProgress, setExportProgress] = useState<{ done: number; total: number } | null>(null);
 
   if (!isLoading && !user) {
     return <Navigate to={`/login?redirect=${encodeURIComponent(location.pathname + location.search)}`} replace />;
@@ -214,16 +262,7 @@ export default function Account() {
     try {
       const { error } = await supabase.auth.updateUser({ email: newEmail });
       if (error) throw error;
-      await supabase.from('email_list').update({ email: newEmail.trim().toLowerCase() }).eq('email', user.email).catch((e) => { console.error('Account: email_list sync failed', e); });
-      const { data: sub } = await supabase.from('subscriptions').select('stripe_customer_id').eq('user_id', user.id).maybeSingle();
-      if (sub?.stripe_customer_id) {
-        fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/admin-actions`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}` },
-          body: JSON.stringify({ action: 'sync_email', user_id: user.id, new_email: newEmail.trim().toLowerCase() }),
-        }).catch(() => {});
-      }
-      toast.success('تم إرسال رابط تأكيد للبريد الجديد. سيتم تحديث بريدك في Stripe تلقائيًا');
+      toast.success('تم إرسال رابط تأكيد للبريد الجديد. بعد التأكيد، سيتم تحديث بريدك في Stripe تلقائيًا');
       setNewEmail('');
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : '';
@@ -238,7 +277,7 @@ export default function Account() {
 
   const handleChangePassword = async () => {
     if (!currentPassword) { toast.error('أدخل كلمة المرور الحالية'); return; }
-    if (newPassword.length < 8) { toast.error('كلمة المرور الجديدة يجب أن تكون 8 أحرف على الأقل'); return; }
+    if (!newPassword.trim() || newPassword.trim().length < 8) { toast.error('كلمة المرور الجديدة يجب أن تكون 8 أحرف على الأقل (بدون مسافات فقط)'); return; }
     if (currentPassword === newPassword) { toast.error('كلمة المرور الجديدة يجب أن تختلف عن الحالية'); return; }
     setPasswordLoading(true);
     try {
@@ -255,22 +294,33 @@ export default function Account() {
 
   const handleExportData = async (format: 'json' | 'csv' = 'json') => {
     if (!user) return;
-    toast('جارٍ تجهيز بياناتك...');
+    const totalQueries = 9;
+    let completed = 0;
+    setExportProgress({ done: 0, total: totalQueries });
+
+    const trackQuery = <T,>(promise: Promise<T>): Promise<T> =>
+      promise.then(res => {
+        completed++;
+        setExportProgress({ done: completed, total: totalQueries });
+        return res;
+      });
+
     try {
       const EXPORT_LIMIT = 10000;
       const [logsRes, protosRes, reviewsRes, communityRes, subsRes, wellnessRes, labRes, sideEffectRes, profileRes] = await Promise.all([
-        supabase.from('injection_logs').select('*').eq('user_id', user.id).order('logged_at', { ascending: false }).limit(EXPORT_LIMIT),
-        supabase.from('user_protocols').select('*').eq('user_id', user.id).limit(EXPORT_LIMIT),
-        supabase.from('reviews').select('*').eq('user_id', user.id).limit(EXPORT_LIMIT),
-        supabase.from('community_logs').select('*').eq('user_id', user.id).limit(EXPORT_LIMIT),
-        supabase.from('subscriptions').select('*').eq('user_id', user.id).limit(EXPORT_LIMIT),
-        supabase.from('wellness_logs').select('*').eq('user_id', user.id).limit(EXPORT_LIMIT),
-        supabase.from('lab_results').select('*').eq('user_id', user.id).limit(EXPORT_LIMIT),
-        supabase.from('side_effect_logs').select('*').eq('user_id', user.id).limit(EXPORT_LIMIT),
-        supabase.from('user_profiles').select('*').eq('user_id', user.id).limit(EXPORT_LIMIT),
+        trackQuery(supabase.from('injection_logs').select('id, peptide_name, dose, dose_unit, injection_site, notes, logged_at, protocol_id, created_at').eq('user_id', user.id).order('logged_at', { ascending: false }).limit(EXPORT_LIMIT)),
+        trackQuery(supabase.from('user_protocols').select('id, peptide_id, dose, dose_unit, frequency, cycle_weeks, started_at, status, created_at').eq('user_id', user.id).limit(EXPORT_LIMIT)),
+        trackQuery(supabase.from('reviews').select('id, rating, title, body, name, is_approved, is_verified, helpful_count, created_at, updated_at').eq('user_id', user.id).limit(EXPORT_LIMIT)),
+        trackQuery(supabase.from('community_logs').select('id, content, category, rating, upvotes, peptide_name, goal, protocol, duration_weeks, results, likes, display_name, created_at, updated_at').eq('user_id', user.id).limit(EXPORT_LIMIT)),
+        trackQuery(supabase.from('subscriptions').select('id, status, tier, stripe_customer_id, stripe_subscription_id, trial_start, trial_end, trial_ends_at, current_period_end, cancel_at_period_end, referral_code, referred_by, grant_source, billing_interval, created_at, updated_at').eq('user_id', user.id).limit(EXPORT_LIMIT)),
+        trackQuery(supabase.from('wellness_logs').select('id, energy, sleep, pain, mood, appetite, weight_kg, notes, logged_at, created_at').eq('user_id', user.id).limit(EXPORT_LIMIT)),
+        trackQuery(supabase.from('lab_results').select('id, test_date, lab_name, results, notes, created_at').eq('user_id', user.id).limit(EXPORT_LIMIT)),
+        trackQuery(supabase.from('side_effect_logs').select('id, symptom, severity, peptide_id, notes, protocol_id, logged_at, created_at').eq('user_id', user.id).limit(EXPORT_LIMIT)),
+        trackQuery(supabase.from('user_profiles').select('id, display_name, weight_kg, goals, avatar_url, age, gender, current_medications, medical_conditions, injection_preference, onboarding_goals, onboarding_completed_at, email_notifications_enabled, product_updates_enabled, created_at, updated_at').eq('user_id', user.id).limit(EXPORT_LIMIT)),
       ]);
       if (logsRes.error || protosRes.error || reviewsRes.error) {
         toast.error('تعذّر تحميل بعض البيانات. حاول مرة أخرى.');
+        setExportProgress(null);
         return;
       }
       // Warn if any table hit the export limit (data may be truncated)
@@ -298,17 +348,17 @@ export default function Account() {
       if (format === 'csv') {
         const logs = (logsRes.data ?? []) as Array<Record<string, unknown>>;
         const escapeCSV = (val: unknown): string => {
-          const str = String(val ?? '');
+          const str = String(val ?? '').replace(/[\r\n]+/g, ' ');
           const escaped = str.replace(/"/g, '""');
           if (/^[=+\-@\t\r]/.test(escaped)) return `"\t${escaped}"`;
           return `"${escaped}"`;
         };
-        const headers = 'Date,Time,Peptide,Dose,Unit,Site,Notes';
+        const headers = 'التاريخ,الوقت,الببتيد,الجرعة,الوحدة,موقع الحقن,ملاحظات';
         const rows = logs.map(l => {
           const d = new Date(l.logged_at as string);
           return [
-            escapeCSV(d.toLocaleDateString('en-CA')),
-            escapeCSV(d.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })),
+            escapeCSV(d.toLocaleDateString('ar-u-nu-latn')),
+            escapeCSV(d.toLocaleTimeString('ar-u-nu-latn', { hour: '2-digit', minute: '2-digit' })),
             escapeCSV(l.peptide_name),
             escapeCSV(l.dose),
             escapeCSV(l.dose_unit),
@@ -334,8 +384,11 @@ export default function Account() {
         };
         download(new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' }), `pptides-data-${new Date().toISOString().slice(0, 10)}.json`);
       }
+      setExportProgress(null);
       toast.success('تم تصدير بياناتك بنجاح');
-    } catch {
+    } catch (err) {
+      logError('data export failed', err);
+      setExportProgress(null);
       toast.error('تعذّر تصدير البيانات. حاول مرة أخرى.');
     }
   };
@@ -359,14 +412,16 @@ export default function Account() {
       if (!res.ok) throw new Error(result.error);
       setShowCancelDialog(false);
       setCancelStep(null);
+      events.subscriptionCancelled(subscription.tier, cancelReason || undefined);
+      await refreshSubscription();
       if (result.cancel_at) {
         toast.success(`تم إلغاء اشتراكك. ستحتفظ بالوصول حتى ${new Date(result.cancel_at).toLocaleDateString('ar-u-nu-latn')}`);
       } else {
         toast.success('تم إلغاء التجربة المجانية');
       }
-      await refreshSubscription();
       navigate('/account', { replace: true });
-    } catch {
+    } catch (err) {
+      logError('cancel subscription failed', err);
       toast.error(`تعذّر إلغاء الاشتراك — تواصل معنا: ${SUPPORT_EMAIL}`);
     } finally {
       setIsProcessing(false);
@@ -397,10 +452,13 @@ export default function Account() {
         },
         body: JSON.stringify({ confirm: true }),
       });
-      if (!res.ok) throw new Error();
+      const body = await res.json().catch(() => ({} as Record<string, unknown>));
+      if (!res.ok) throw new Error(typeof body.error === 'string' ? body.error : '');
       await logout();
-    } catch {
-      toast.error(`تعذّر حذف الحساب — تواصل معنا: ${SUPPORT_EMAIL}`);
+      navigate('/', { replace: true });
+    } catch (err) {
+      const msg = err instanceof Error && err.message ? err.message : `تعذّر حذف الحساب — تواصل معنا: ${SUPPORT_EMAIL}`;
+      toast.error(msg);
     } finally {
       setIsProcessing(false);
     }
@@ -422,6 +480,7 @@ export default function Account() {
           <button
             onClick={() => avatarInputRef.current?.click()}
             disabled={uploadingPic}
+            aria-label="تغيير الصورة الشخصية"
             className="group relative mx-auto flex h-20 w-20 items-center justify-center overflow-hidden rounded-full border-2 border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-950 transition-all hover:border-emerald-400"
           >
             {profilePicUrl ? (
@@ -444,7 +503,7 @@ export default function Account() {
 
       <div className="space-y-6">
         {/* Usage Stats Dashboard */}
-        {usageStats && (
+        {usageStats ? (
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
             <div className="rounded-2xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 p-4 text-center shadow-sm">
               <Syringe className="mx-auto mb-1 h-5 w-5 text-emerald-700" />
@@ -466,6 +525,17 @@ export default function Account() {
               <p className="text-sm font-bold text-stone-900 dark:text-stone-100 mt-1">{usageStats.memberSince || '—'}</p>
               <p className="text-xs text-stone-500 dark:text-stone-300">عضو منذ</p>
             </div>
+          </div>
+        ) : user && (
+          /* 3.14: Skeleton loading placeholders for usage stats */
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+            {[0, 1, 2, 3].map(i => (
+              <div key={i} className="rounded-2xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 p-4 text-center shadow-sm animate-pulse">
+                <div className="mx-auto mb-1 h-5 w-5 rounded bg-stone-200 dark:bg-stone-700" />
+                <div className="mx-auto mt-2 h-7 w-10 rounded bg-stone-200 dark:bg-stone-700" />
+                <div className="mx-auto mt-2 h-3 w-16 rounded bg-stone-100 dark:bg-stone-800" />
+              </div>
+            ))}
           </div>
         )}
 
@@ -548,7 +618,7 @@ export default function Account() {
                   onChange={(e) => setProfileDisplayName(e.target.value)}
                   placeholder="اسمك أو لقبك"
                   maxLength={100}
-                  className="w-full rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 px-4 py-3 text-base text-stone-900 dark:text-stone-100 placeholder:text-stone-500 dark:text-stone-300 focus:border-emerald-300 dark:border-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900"
+                  className="w-full rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 px-4 py-3 text-base text-stone-900 dark:text-stone-100 placeholder:text-stone-500 dark:text-stone-300 focus:border-emerald-300 dark:border-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-500"
                 />
               </div>
               <div>
@@ -564,7 +634,7 @@ export default function Account() {
                   onChange={(e) => setProfileWeight(e.target.value)}
                   placeholder="مثال: 75"
                   dir="ltr"
-                  className="w-full rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 px-4 py-3 text-base text-stone-900 dark:text-stone-100 placeholder:text-stone-500 dark:text-stone-300 focus:border-emerald-300 dark:border-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900"
+                  className="w-full rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 px-4 py-3 text-base text-stone-900 dark:text-stone-100 placeholder:text-stone-500 dark:text-stone-300 focus:border-emerald-300 dark:border-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-500"
                 />
               </div>
               <div>
@@ -590,9 +660,24 @@ export default function Account() {
               <button
                 type="submit"
                 disabled={profileSaving}
-                className="rounded-full bg-emerald-600 px-8 py-3.5 text-base font-semibold text-white transition-colors hover:bg-emerald-700 active:scale-[0.98] disabled:opacity-50"
+                className="rounded-full bg-emerald-600 px-8 py-3.5 text-base font-semibold text-white transition-colors hover:bg-emerald-700 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {profileSaving ? 'جارٍ الحفظ...' : 'حفظ الملف الشخصي'}
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  try {
+                    localStorage.removeItem('pptides_onboarded');
+                    localStorage.removeItem('pptides_quiz_results');
+                  } catch { /* ignore */ }
+                  supabase.from('user_profiles').update({ onboarding_completed_at: null }).eq('user_id', user.id).then(() => {
+                    toast.success('سيظهر استبيان الأهداف عند زيارتك القادمة للوحة التحكم');
+                  });
+                }}
+                className="rounded-full border border-stone-200 dark:border-stone-600 px-6 py-2.5 text-sm font-medium text-stone-600 dark:text-stone-300 transition-colors hover:bg-stone-100 dark:hover:bg-stone-800"
+              >
+                إعادة تحديد الأهداف
               </button>
             </form>
           )}
@@ -617,13 +702,13 @@ export default function Account() {
                 dir="ltr"
                 autoComplete="email"
                 maxLength={254}
-                className="w-full rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 px-4 py-3 text-left text-base text-stone-900 dark:text-stone-100 placeholder:text-stone-500 dark:text-stone-300 focus:border-emerald-300 dark:border-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900"
+                className="w-full rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 px-4 py-3 text-left text-base text-stone-900 dark:text-stone-100 placeholder:text-stone-500 dark:text-stone-300 focus:border-emerald-300 dark:border-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-500"
               />
             </div>
             <button
               type="submit"
               disabled={emailLoading || !newEmail.trim()}
-              className="rounded-full bg-emerald-600 px-8 py-3.5 text-base font-semibold text-white transition-colors hover:bg-emerald-700 active:scale-[0.98] disabled:opacity-50"
+              className="rounded-full bg-emerald-600 px-8 py-3.5 text-base font-semibold text-white transition-colors hover:bg-emerald-700 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {emailLoading ? <span className="inline-flex items-center gap-2"><span className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />جارٍ التغيير</span> : 'تغيير البريد'}
             </button>
@@ -648,7 +733,7 @@ export default function Account() {
                 placeholder="كلمة المرور الحالية"
                 dir="ltr"
                 autoComplete="current-password"
-                className="w-full rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 px-4 py-3 text-left text-base text-stone-900 dark:text-stone-100 placeholder:text-stone-500 dark:text-stone-300 focus:outline-none focus:border-emerald-300 dark:border-emerald-700 focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900"
+                className="w-full rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 px-4 py-3 text-left text-base text-stone-900 dark:text-stone-100 placeholder:text-stone-500 dark:text-stone-300 focus:outline-none focus:border-emerald-300 dark:border-emerald-700 focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-500"
               />
             </div>
             <div>
@@ -662,13 +747,13 @@ export default function Account() {
                 dir="ltr"
                 minLength={8}
                 autoComplete="new-password"
-                className="w-full rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 px-4 py-3 text-left text-base text-stone-900 dark:text-stone-100 placeholder:text-stone-500 dark:text-stone-300 focus:outline-none focus:border-emerald-300 dark:border-emerald-700 focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900"
+                className="w-full rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 px-4 py-3 text-left text-base text-stone-900 dark:text-stone-100 placeholder:text-stone-500 dark:text-stone-300 focus:outline-none focus:border-emerald-300 dark:border-emerald-700 focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-500"
               />
             </div>
             <button
               type="submit"
               disabled={passwordLoading || !newPassword || !currentPassword}
-              className="rounded-full bg-emerald-600 px-8 py-3.5 text-base font-semibold text-white transition-all hover:bg-emerald-700 active:scale-[0.98] disabled:opacity-50"
+              className="rounded-full bg-emerald-600 px-8 py-3.5 text-base font-semibold text-white transition-all hover:bg-emerald-700 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {passwordLoading ? <span className="inline-flex items-center gap-2"><span className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />جارٍ التغيير</span> : 'تغيير كلمة المرور'}
             </button>
@@ -717,6 +802,7 @@ export default function Account() {
                   <p className="text-xs text-stone-500 dark:text-stone-300">{theme === 'dark' ? 'الوضع الداكن مفعّل' : 'الوضع الفاتح مفعّل'}</p>
                 </div>
               </div>
+              <div className="min-h-[44px] flex items-center">
               <button
                 onClick={toggleTheme}
                 className={cn(
@@ -732,6 +818,7 @@ export default function Account() {
                   theme === 'dark' ? 'translate-x-[-2px] rtl:translate-x-[2px]' : 'translate-x-[-22px] rtl:translate-x-[22px]',
                 )} />
               </button>
+              </div>
             </div>
 
             {/* Email notifications */}
@@ -815,6 +902,49 @@ export default function Account() {
                 )} />
               </button>
             </div>
+
+            {/* 3.12: Unsubscribe from all notifications */}
+            {(notifEmail || notifProduct) && (
+              <button
+                disabled={notifLoading}
+                onClick={async () => {
+                  if (!user) return;
+                  setNotifLoading(true);
+                  try {
+                    const { error } = await supabase.from('user_profiles').update({
+                      email_notifications_enabled: false,
+                      product_updates_enabled: false,
+                      updated_at: new Date().toISOString(),
+                    }).eq('user_id', user.id);
+                    if (error) throw error;
+                    setNotifEmail(false);
+                    setNotifProduct(false);
+                    toast.success('تم إيقاف جميع الإشعارات');
+                  } catch { toast.error('تعذّر تحديث التفضيل — حاول مرة أخرى'); }
+                  finally { setNotifLoading(false); }
+                }}
+                className={cn(
+                  'flex w-full items-center justify-center gap-2 rounded-xl border border-stone-300 dark:border-stone-600 bg-white dark:bg-stone-900 px-4 py-3 text-sm font-bold text-stone-600 dark:text-stone-300 transition-all hover:bg-stone-50 dark:hover:bg-stone-800',
+                  notifLoading && 'opacity-50 cursor-wait',
+                )}
+              >
+                <BellOff className="h-4 w-4" />
+                إيقاف جميع الإشعارات
+              </button>
+            )}
+
+            {/* Privacy settings — reopen cookie consent */}
+            <button
+              onClick={() => {
+                try { localStorage.removeItem(COOKIE_CONSENT_STORAGE_KEY); } catch { /* noop */ }
+                window.dispatchEvent(new Event('pptides:reopen-cookie-consent'));
+                toast.success('يمكنك الآن تعديل تفضيلات ملفات تعريف الارتباط');
+              }}
+              className="flex w-full items-center justify-center gap-2 rounded-xl border border-stone-300 dark:border-stone-600 bg-white dark:bg-stone-900 px-4 py-3 text-sm font-bold text-stone-600 dark:text-stone-300 transition-all hover:bg-stone-50 dark:hover:bg-stone-800"
+            >
+              <Shield className="h-4 w-4" />
+              إعدادات الخصوصية
+            </button>
           </div>
         </div>
 
@@ -882,6 +1012,8 @@ export default function Account() {
             <>
               <button
                 onClick={async () => {
+                  if (isLoadingPortal) return;
+                  setIsLoadingPortal(true);
                   try {
                     const session = await supabase.auth.getSession();
                     const token = session.data.session?.access_token;
@@ -895,12 +1027,13 @@ export default function Account() {
                     if (!res.ok) { toast.error('تعذّر فتح إدارة الدفع'); return; }
                     const { url } = await res.json();
                     if (url) { window.location.href = url; } else { toast.error('تعذّر فتح صفحة الدفع — تواصل مع الدعم'); }
-                  } catch { toast.error('تعذّر فتح إدارة الدفع. حاول مرة أخرى.'); }
+                  } catch { toast.error('تعذّر فتح إدارة الدفع. حاول مرة أخرى.'); } finally { setIsLoadingPortal(false); }
                 }}
-                className="mt-3 flex w-full items-center justify-center gap-2 rounded-xl border border-emerald-300 dark:border-emerald-700 bg-emerald-50 dark:bg-emerald-900/20 px-6 py-3 text-sm font-bold text-emerald-700 dark:text-emerald-400 transition-all hover:bg-emerald-100 dark:bg-emerald-900/30"
+                disabled={isLoadingPortal}
+                className={cn("mt-3 flex w-full items-center justify-center gap-2 rounded-xl border border-emerald-300 dark:border-emerald-700 bg-emerald-50 dark:bg-emerald-900/20 px-6 py-3 text-sm font-bold text-emerald-700 dark:text-emerald-400 transition-all hover:bg-emerald-100 dark:bg-emerald-900/30", isLoadingPortal && 'opacity-70')}
               >
-                <CreditCard className="h-4 w-4" />
-                إدارة الدفع والفواتير
+                {isLoadingPortal ? <span className="h-4 w-4 animate-spin rounded-full border-2 border-emerald-400/30 border-t-emerald-600" /> : <CreditCard className="h-4 w-4" />}
+                {isLoadingPortal ? 'جارٍ الفتح...' : 'إدارة الدفع والفواتير'}
               </button>
               <button
                 onClick={async () => {
@@ -971,17 +1104,42 @@ export default function Account() {
             <h2 className="text-lg font-bold text-stone-900 dark:text-stone-100">تصدير بياناتي</h2>
           </div>
           <p className="text-sm text-stone-600 dark:text-stone-300 mb-4">حمّل نسخة كاملة من جميع بياناتك — حقك في نقل البيانات مكفول</p>
+          {/* 3.13: Export progress indicator */}
+          {exportProgress && (
+            <div className="mb-4 rounded-xl bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 p-4">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-sm font-bold text-emerald-700 dark:text-emerald-300">
+                  تصدير البيانات... ({exportProgress.done}/{exportProgress.total})
+                </span>
+                <span className="h-4 w-4 animate-spin rounded-full border-2 border-emerald-300 border-t-emerald-700" />
+              </div>
+              <div className="h-2 rounded-full bg-emerald-100 dark:bg-emerald-900/40 overflow-hidden">
+                <div
+                  className="h-full rounded-full bg-emerald-600 transition-all duration-300"
+                  style={{ width: `${Math.round((exportProgress.done / exportProgress.total) * 100)}%` }}
+                />
+              </div>
+            </div>
+          )}
           <div className="grid gap-3 sm:grid-cols-2">
             <button
               onClick={() => handleExportData('json')}
-              className="flex items-center justify-center gap-2 rounded-full bg-emerald-600 px-8 py-3.5 text-base font-semibold text-white transition-all hover:bg-emerald-700"
+              disabled={!!exportProgress}
+              className={cn(
+                'flex items-center justify-center gap-2 rounded-full bg-emerald-600 px-8 py-3.5 text-base font-semibold text-white transition-all hover:bg-emerald-700',
+                exportProgress && 'opacity-50 cursor-wait',
+              )}
             >
               <Download className="h-4 w-4" />
               تصدير بياناتي (JSON)
             </button>
             <button
               onClick={() => handleExportData('csv')}
-              className="flex items-center justify-center gap-2 rounded-xl border border-stone-300 dark:border-stone-600 px-6 py-3 text-sm font-bold text-stone-700 dark:text-stone-200 transition-all hover:bg-stone-50 dark:hover:bg-stone-800"
+              disabled={!!exportProgress}
+              className={cn(
+                'flex items-center justify-center gap-2 rounded-xl border border-stone-300 dark:border-stone-600 px-6 py-3 text-sm font-bold text-stone-700 dark:text-stone-200 transition-all hover:bg-stone-50 dark:hover:bg-stone-800',
+                exportProgress && 'opacity-50 cursor-wait',
+              )}
             >
               <Download className="h-4 w-4" />
               تصدير CSV (سجل الحقن)
@@ -1016,6 +1174,15 @@ export default function Account() {
               </button>
             )
           )}
+          {(subscription.isPaidSubscriber || subscription.isTrial) && (
+            <a
+              href={`mailto:${SUPPORT_EMAIL}?subject=${encodeURIComponent('طلب استرداد — pptides')}&body=${encodeURIComponent(`مرحبًا،\n\nأرغب في استرداد اشتراكي.\n\nالبريد: ${user?.email ?? ''}\n\nشكرًا`)}`}
+              className="flex w-full items-center justify-center gap-2 rounded-xl border border-amber-200 dark:border-amber-800 bg-white dark:bg-stone-900 px-6 py-3 text-sm font-bold text-amber-700 dark:text-amber-400 transition-all hover:bg-amber-50 dark:hover:bg-amber-900/20"
+            >
+              <CreditCard className="h-4 w-4" />
+              طلب استرداد
+            </a>
+          )}
           <button
             onClick={() => setShowDeleteDialog(true)}
             className="flex w-full items-center justify-center gap-2 rounded-xl border border-red-200 dark:border-red-800 bg-white dark:bg-stone-900 px-6 py-3 text-sm font-bold text-red-600 dark:text-red-400 transition-all hover:bg-red-50 dark:bg-red-900/20"
@@ -1030,11 +1197,11 @@ export default function Account() {
       {showCancelDialog && cancelStep === 'survey' && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm px-4 animate-fade-in" onClick={() => { setShowCancelDialog(false); setCancelStep(null); }}>
           <FocusTrap focusTrapOptions={{ allowOutsideClick: true }}>
-          <div role="dialog" aria-modal="true" className="w-full max-w-md max-h-[90vh] overflow-y-auto rounded-2xl bg-white dark:bg-stone-900 p-6 shadow-xl dark:shadow-stone-900/40" onClick={e => e.stopPropagation()}>
+          <div role="dialog" aria-modal="true" aria-labelledby="cancel-dialog-title" className="w-full max-w-md max-h-[90vh] overflow-y-auto rounded-2xl bg-white dark:bg-stone-900 p-6 shadow-xl dark:shadow-stone-900/40" onClick={e => e.stopPropagation()}>
             <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-amber-100 dark:bg-amber-900/30">
               <AlertTriangle className="h-6 w-6 text-amber-600" />
             </div>
-            <h3 className="text-lg font-bold text-stone-900 dark:text-stone-100">لماذا تريد الإلغاء؟</h3>
+            <h3 id="cancel-dialog-title" className="text-lg font-bold text-stone-900 dark:text-stone-100">لماذا تريد الإلغاء؟</h3>
             <p className="mt-1 text-sm text-stone-600 dark:text-stone-300">ساعدنا في تحسين الخدمة — اختر السبب الرئيسي</p>
             <div className="mt-4 space-y-2">
               {[
@@ -1067,7 +1234,8 @@ export default function Account() {
             <div className="mt-6 flex flex-col gap-3">
               <button
                 onClick={async () => {
-                  if (!cancelReason) { toast.error('اختر سبب الإلغاء'); return; }
+                  if (!cancelReason || isProcessing) { if (!cancelReason) toast.error('اختر سبب الإلغاء'); return; }
+                  setIsProcessing(true);
                   try {
                     await supabase.from('enquiries').insert({
                       user_id: user.id,
@@ -1077,12 +1245,13 @@ export default function Account() {
                       peptide_name: null,
                     });
                   } catch { /* non-blocking */ }
+                  setIsProcessing(false);
                   setCancelStep('retention');
                 }}
-                disabled={!cancelReason}
-                className="w-full rounded-xl bg-stone-700 px-4 py-2.5 text-sm font-bold text-white transition-all hover:bg-stone-800 disabled:opacity-50"
+                disabled={!cancelReason || isProcessing}
+                className="w-full rounded-xl bg-stone-700 px-4 py-2.5 text-sm font-bold text-white transition-all hover:bg-stone-800 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                متابعة
+                {isProcessing ? 'جارٍ الإرسال...' : 'متابعة'}
               </button>
               <button
                 onClick={() => { setShowCancelDialog(false); setCancelStep(null); }}
@@ -1100,11 +1269,11 @@ export default function Account() {
       {showCancelDialog && cancelStep === 'retention' && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm px-4 animate-fade-in" onClick={() => { setShowCancelDialog(false); setCancelStep(null); }}>
           <FocusTrap focusTrapOptions={{ allowOutsideClick: true }}>
-          <div role="dialog" aria-modal="true" className="w-full max-w-md max-h-[90vh] overflow-y-auto rounded-2xl bg-white dark:bg-stone-900 p-6 shadow-xl dark:shadow-stone-900/40" onClick={e => e.stopPropagation()}>
+          <div role="dialog" aria-modal="true" aria-labelledby="cancel-dialog-title" className="w-full max-w-md max-h-[90vh] overflow-y-auto rounded-2xl bg-white dark:bg-stone-900 p-6 shadow-xl dark:shadow-stone-900/40" onClick={e => e.stopPropagation()}>
             <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-amber-100 dark:bg-amber-900/30">
               <AlertTriangle className="h-6 w-6 text-amber-600" />
             </div>
-            <h3 className="text-lg font-bold text-stone-900 dark:text-stone-100">{RETENTION.heading}</h3>
+            <h3 id="cancel-dialog-title" className="text-lg font-bold text-stone-900 dark:text-stone-100">{RETENTION.heading}</h3>
             <div className="mt-4 rounded-xl border border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-900/20 p-4 mb-4">
               <p className="text-sm font-bold text-emerald-800 dark:text-emerald-300 mb-2">{RETENTION.offerBadge}</p>
               <p className="text-sm text-emerald-700 dark:text-emerald-400">{RETENTION.offerBody}</p>
@@ -1122,6 +1291,7 @@ export default function Account() {
                     });
                     if (res.ok) {
                       toast.success(RETENTION.appliedToast);
+                      await refreshSubscription();
                       setShowCancelDialog(false); setCancelStep(null);
                     } else {
                       toast.error(RETENTION.failedToast);
@@ -1129,7 +1299,7 @@ export default function Account() {
                   } catch { toast.error('خطأ في الاتصال'); } finally { setIsProcessing(false); }
                 }}
                 disabled={isProcessing}
-                className="mt-3 w-full rounded-full bg-emerald-600 px-4 py-2.5 text-sm font-bold text-white transition-all hover:bg-emerald-700 disabled:opacity-50"
+                className="mt-3 w-full rounded-full bg-emerald-600 px-4 py-2.5 text-sm font-bold text-white transition-all hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {RETENTION.acceptCta}
               </button>
@@ -1157,20 +1327,9 @@ export default function Account() {
               <button
                 onClick={handleCancelSubscription}
                 disabled={isProcessing}
-                className="w-full rounded-xl border border-stone-300 dark:border-stone-600 px-4 py-2.5 text-sm font-bold text-stone-700 dark:text-stone-200 transition-all hover:bg-stone-50 dark:hover:bg-stone-800 disabled:opacity-50"
+                className="w-full rounded-xl border border-stone-300 dark:border-stone-600 px-4 py-2.5 text-sm font-bold text-stone-700 dark:text-stone-200 transition-all hover:bg-stone-50 dark:hover:bg-stone-800 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isProcessing ? RETENTION.cancellingText : RETENTION.proceedCancel}
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  toast.info(RETENTION.pauseToast);
-                  setShowCancelDialog(false);
-                  setCancelStep(null);
-                }}
-                className="w-full rounded-full border border-stone-200 dark:border-stone-600 py-3 text-sm font-bold text-stone-600 dark:text-stone-300 hover:bg-stone-50 dark:hover:bg-stone-800"
-              >
-                {RETENTION.pauseOption}
               </button>
               <button
                 onClick={() => { setShowCancelDialog(false); setCancelStep(null); }}
@@ -1186,7 +1345,7 @@ export default function Account() {
 
       {/* Delete Account Dialog */}
       {showDeleteDialog && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm px-4 animate-fade-in" onClick={closeDialogs}>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm px-4 animate-fade-in" onClick={() => { setShowDeleteDialog(false); setDeleteConfirmText(''); setDeletePassword(''); }}>
           <FocusTrap focusTrapOptions={{ allowOutsideClick: true }}>
           <div role="dialog" aria-modal="true" className="w-full max-w-md max-h-[90vh] overflow-y-auto rounded-2xl bg-white dark:bg-stone-900 p-6 shadow-xl dark:shadow-stone-900/40" onClick={e => e.stopPropagation()}>
             <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-red-100">
@@ -1266,24 +1425,19 @@ function ReferralSection({ userId }: { userId?: string }) {
     let mounted = true;
     (async () => {
       const { data: sub, error: subErr } = await supabase.from('subscriptions').select('referral_code').eq('user_id', userId).maybeSingle();
-      if (subErr) console.error('referral subscription query failed:', subErr);
+      if (subErr) logError('referral subscription query failed:', subErr);
       if (!mounted) return;
 
       let refCode = sub?.referral_code;
       if (!refCode) {
         refCode = generateCode();
-        if (sub) {
-          const { error: updErr } = await supabase.from('subscriptions').update({ referral_code: refCode }).eq('user_id', userId);
-          if (updErr) console.error('referral code update failed:', updErr);
-        } else {
-          const { error: insErr } = await supabase.from('subscriptions').insert({ user_id: userId, status: 'none', tier: 'free', referral_code: refCode });
-          if (insErr) console.error('referral code insert failed:', insErr);
-        }
+        const { error: rpcErr } = await supabase.rpc('set_referral_code', { p_code: refCode });
+        if (rpcErr) { logError('set_referral_code RPC failed:', rpcErr); return; }
       }
       setCode(refCode);
 
       const { data: refs, error: refsErr } = await supabase.from('referrals').select('status, reward_code').eq('referrer_id', userId);
-      if (refsErr) console.error('referrals query failed:', refsErr);
+      if (refsErr) logError('referrals query failed:', refsErr);
       if (mounted && refs) {
         setStats({
           total: refs.length,
@@ -1323,7 +1477,7 @@ function ReferralSection({ userId }: { userId?: string }) {
       <div className="h-5 w-32 bg-stone-200 dark:bg-stone-700 rounded mb-3" />
       <div className="h-3 w-48 bg-stone-100 dark:bg-stone-800 rounded mb-4" />
       <div className="h-10 w-full bg-stone-100 dark:bg-stone-800 rounded-xl mb-3" />
-      <div className="grid grid-cols-3 gap-3"><div className="h-16 bg-stone-100 dark:bg-stone-800 rounded-xl" /><div className="h-16 bg-stone-100 dark:bg-stone-800 rounded-xl" /><div className="h-16 bg-stone-100 dark:bg-stone-800 rounded-xl" /></div>
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3"><div className="h-16 bg-stone-100 dark:bg-stone-800 rounded-xl" /><div className="h-16 bg-stone-100 dark:bg-stone-800 rounded-xl" /><div className="h-16 bg-stone-100 dark:bg-stone-800 rounded-xl" /></div>
     </div>
   );
 
@@ -1392,7 +1546,7 @@ function ReferralSection({ userId }: { userId?: string }) {
 
       <div className="rounded-xl bg-stone-50 dark:bg-stone-900 p-4">
         <p className="text-xs font-bold text-stone-500 dark:text-stone-300 mb-2">{REFERRAL.statsLabel}</p>
-        <div className="grid grid-cols-3 gap-3 text-center">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-center">
           <div>
             <p className="text-xl font-bold text-stone-900 dark:text-stone-100">{stats.total}</p>
             <p className="text-xs text-stone-500 dark:text-stone-300">{REFERRAL.statsInvites}</p>

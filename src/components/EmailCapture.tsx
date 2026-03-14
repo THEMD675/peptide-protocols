@@ -88,10 +88,10 @@ export default function EmailCapture() {
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            placeholder="name@example.com"
+            placeholder="بريدك@example.com"
             aria-label="البريد الإلكتروني"
             required
-            className="w-full rounded-full bg-white dark:bg-stone-900/10 border border-white/20 py-3.5 ps-11 pe-4 text-white placeholder:text-white/40 outline-none focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900 transition-all"
+            className="w-full rounded-full bg-white/10 dark:bg-white/5 border border-stone-300 dark:border-stone-600 py-3.5 ps-11 pe-4 text-stone-900 dark:text-white placeholder:text-stone-500 dark:placeholder:text-white/40 outline-none focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-500 transition-all"
           />
           <input
             type="text"
@@ -106,12 +106,12 @@ export default function EmailCapture() {
         <button
           type="submit"
           disabled={status === 'loading' || cooldownRemaining > 0}
-          className="primary-gradient flex items-center justify-center gap-2 rounded-full px-8 py-3.5 font-bold text-white transition-transform hover:scale-105 active:scale-[0.98] disabled:opacity-60 whitespace-nowrap min-w-[120px]"
+          className="primary-gradient flex items-center justify-center gap-2 rounded-full px-8 py-3.5 font-bold text-white transition-transform hover:scale-105 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap min-w-[120px]"
         >
           {status === 'loading' ? (
             <Loader2 className="h-5 w-5 animate-spin" />
           ) : cooldownRemaining > 0 ? (
-            <span>انتظر {cooldownRemaining}s</span>
+            <span>انتظر {cooldownRemaining} ث</span>
           ) : (
             <>
               <span>اشترك</span>
@@ -121,10 +121,10 @@ export default function EmailCapture() {
         </button>
       </form>
       {status === 'error' && errorMsg && (
-        <p className="mt-3 text-center text-sm text-red-400">{errorMsg}</p>
+        <p className="mt-3 text-center text-sm text-red-400" role="alert">{errorMsg}</p>
       )}
-      <p className="mt-2 text-center text-xs text-white/50">
-        بالاشتراك، أنت توافق على <Link to="/privacy" className="underline transition-colors hover:text-white/80">سياسة الخصوصية</Link>
+      <p className="mt-2 text-center text-xs text-stone-500 dark:text-stone-400">
+        بالاشتراك، أنت توافق على <Link to="/privacy" className="underline transition-colors hover:text-stone-700 dark:hover:text-stone-200">سياسة الخصوصية</Link>. يمكنك إلغاء الاشتراك في أي وقت من خلال رابط في البريد.
       </p>
     </div>
   );

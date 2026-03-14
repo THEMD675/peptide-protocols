@@ -112,7 +112,10 @@ serve(async (req) => {
         const email = userIdToEmail.get(sub.user_id)
         if (!email) { skipped++; continue }
 
-        // Dedup
+        // Skip if onboarding-drip already sent day2 email
+        const { data: dripSent } = await supabase.from('drip_emails_sent').select('id').eq('user_id', sub.user_id).eq('email_key', 'day2_tools').maybeSingle()
+        if (dripSent) { skipped++; continue }
+
         const { error: dedupErr } = await supabase
           .from('sent_reminders')
           .insert({ user_id: sub.user_id, reminder_type: 'trial_day2' })
@@ -124,6 +127,7 @@ serve(async (req) => {
         const emailResult = await sendEmail({
           to: email,
           subject: 'أنت لست وحدك — باقي يوم واحد في تجربتك — pptides',
+          tags: [{ name: 'type', value: 'trial_day2' }, { name: 'category', value: 'onboarding' }],
           html: emailWrapper(`
             <h1 style="color: #1c1917; font-size: 24px;">أنت لست وحدك في رحلة الببتيدات</h1>
 

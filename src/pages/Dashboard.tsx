@@ -34,6 +34,7 @@ import { PEPTIDE_COUNT, STATUS_LABELS, TIER_LABELS, FREQUENCY_LABELS, STORAGE_KE
 import OnboardingModal from '@/components/OnboardingModal';
 import ProgressRing from '@/components/charts/ProgressRing';
 import AdherenceBar from '@/components/charts/AdherenceBar';
+import ChartErrorBoundary from '@/components/charts/ChartErrorBoundary';
 import DoseTitrationTimeline from '@/components/DoseTitrationTimeline';
 import ShareableCard from '@/components/ShareableCard';
 import WellnessCheckin from '@/components/WellnessCheckin';
@@ -43,9 +44,10 @@ import DashboardCoachCards from '@/components/DashboardCoachCards';
 import { useProactiveCoach } from '@/hooks/useProactiveCoach';
 import WeeklyProgressReport from '@/components/WeeklyProgressReport';
 import { AlertTriangle, HeartPulse } from 'lucide-react';
-import { peptides as allPeptides } from '@/data/peptides';
+import { peptidesPublic as allPeptides } from '@/data/peptides-public';
 import { labTests } from '@/data/peptides';
 import { UPGRADE } from '@/constants/sales-copy';
+import { logError } from '@/lib/logger';
 
 const DAILY_TIPS = [
   'حقن BPC-157 على معدة فارغة يزيد من امتصاصه بشكل ملحوظ',
@@ -173,11 +175,20 @@ function useRecentActivity(userId: string | undefined) {
   const [hasMore, setHasMore] = useState(false);
   const [totalCount, setTotalCount] = useState(0);
   const [uniquePeptidesCount, setUniquePeptidesCount] = useState(0);
+  const [streakDates, setStreakDates] = useState<Set<string>>(new Set());
 
-  const cutoff = useMemo(() => new Date(Date.now() - 35 * 24 * 60 * 60 * 1000).toISOString(), []);
+  const [cutoff] = useState(() => new Date(Date.now() - 35 * 24 * 60 * 60 * 1000).toISOString());
+  const [refetchKey, setRefetchKey] = useState(0);
+
+  // 31.3: Auto-retry on network reconnection
+  useEffect(() => {
+    const onOnline = () => { setRefetchKey(k => k + 1); };
+    window.addEventListener('pptides:online', onOnline);
+    return () => { window.removeEventListener('pptides:online', onOnline); };
+  }, []);
 
   const loadMore = useCallback(async () => {
-    if (!userId || loadingMore) return;
+    if (!userId || loadingMore || logs.length === 0) return;
     setLoadingMore(true);
     const lastLog = logs[logs.length - 1];
     const { data, error } = await supabase
@@ -198,6 +209,7 @@ function useRecentActivity(userId: string | undefined) {
   useEffect(() => {
     if (!userId) return;
     let mounted = true;
+    let resolved = false;
     supabase
       .from('injection_logs')
       .select('id, peptide_name, dose, dose_unit, logged_at')
@@ -207,6 +219,7 @@ function useRecentActivity(userId: string | undefined) {
       .limit(PAGE_SIZE)
       .then(({ data, error: fetchError }) => {
         if (!mounted) return;
+        resolved = true;
         if (fetchError) {
           setError(true);
         } else if (data) {
@@ -215,7 +228,7 @@ function useRecentActivity(userId: string | undefined) {
         }
         setLoading(false);
       })
-      .catch(() => { if (mounted) { setError(true); setLoading(false); } });
+      .catch(() => { if (mounted) { resolved = true; setError(true); setLoading(false); } });
     supabase
       .from('injection_logs')
       .select('id', { count: 'exact', head: true })
@@ -223,27 +236,50 @@ function useRecentActivity(userId: string | undefined) {
       .then(({ count }) => {
         if (mounted && count != null) setTotalCount(count);
       }).catch(() => { /* totalCount non-critical — ignore */ });
+    // 13.4: Use RPC-style distinct fetch instead of fetching 500 rows
     supabase
       .from('injection_logs')
       .select('peptide_name')
       .eq('user_id', userId)
-      .limit(500)
+      .limit(100)
       .then(({ data }) => {
         if (!mounted || !data) return;
         const unique = new Set(data.map((r: { peptide_name: string }) => r.peptide_name));
         setUniquePeptidesCount(unique.size);
       })
       .catch(() => { /* uniquePeptidesCount non-critical — ignore */ });
-    return () => { mounted = false; };
-  }, [userId, cutoff]);
+    // Fetch all logged_at dates for accurate streak (no cutoff/limit)
+    supabase
+      .from('injection_logs')
+      .select('logged_at')
+      .eq('user_id', userId)
+      .order('logged_at', { ascending: false })
+      .limit(1000)
+      .then(({ data }) => {
+        if (!mounted || !data) return;
+        setStreakDates(new Set(data.map((r: { logged_at: string }) => new Date(r.logged_at).toDateString())));
+      })
+      .catch(() => { /* streak dates non-critical — ignore */ });
+    const loadingTimeout = setTimeout(() => {
+      if (mounted && !resolved) {
+        setLoading(false);
+        setError(true);
+        toast.error('تعذّر الاتصال بالخادم — حاول لاحقاً');
+      }
+    }, 30000);
+    return () => { mounted = false; clearTimeout(loadingTimeout); };
+  }, [userId, cutoff, refetchKey]);
 
   const activePeptides = [...new Set(logs.map(l => l.peptide_name))];
   const totalInjections = totalCount || logs.length;
   const displayUniquePeptides = uniquePeptidesCount > 0 ? uniquePeptidesCount : activePeptides.length;
 
+  // Use full streakDates (all dates, no cutoff) for accurate streak; fallback to paginated logs
   let streak = 0;
-  if (logs.length > 0) {
-    const daySet = new Set(logs.map(l => new Date(l.logged_at).toDateString()));
+  const daySet = streakDates.size > 0
+    ? streakDates
+    : new Set(logs.map(l => new Date(l.logged_at).toDateString()));
+  if (daySet.size > 0) {
     const d = new Date();
     if (!daySet.has(d.toDateString())) d.setDate(d.getDate() - 1);
     while (daySet.has(d.toDateString())) { streak++; d.setDate(d.getDate() - 1); }
@@ -330,19 +366,34 @@ function useActiveProtocols(userId: string | undefined) {
     if (!userId) return;
     const { data, error } = await supabase
       .from('user_protocols')
-      .select('*')
+      .select('id, peptide_id, dose, dose_unit, frequency, cycle_weeks, started_at, status')
       .eq('user_id', userId)
       .eq('status', 'active')
       .order('started_at', { ascending: false });
-    if (!error && data) setProtocols(data);
+    if (!error && data) {
+      // Auto-complete expired protocols
+      const now = Date.now();
+      const expired = data.filter(p => p.started_at && p.cycle_weeks && (now - new Date(p.started_at).getTime()) > p.cycle_weeks * 7 * 86400000);
+      if (expired.length > 0) {
+        const ids = expired.map(p => p.id);
+        supabase.from('user_protocols').update({ status: 'completed', updated_at: new Date().toISOString() }).in('id', ids).eq('user_id', userId).then(() => {});
+      }
+      setProtocols(data);
+    }
     setLoading(false);
   }, [userId]);
   useEffect(() => {
     if (!userId) return;
     let mounted = true;
+    let resolved = false;
     // eslint-disable-next-line react-hooks/set-state-in-effect -- async fetch with mounted guard
-    fetchProtocols().then(() => { if (!mounted) return; }).catch(() => { if (mounted) queueMicrotask(() => setLoading(false)); });
-    return () => { mounted = false; };
+    fetchProtocols().then(() => { if (mounted) resolved = true; }).catch(() => { if (mounted) { resolved = true; queueMicrotask(() => setLoading(false)); } });
+    const loadingTimeout = setTimeout(() => {
+      if (mounted && !resolved) {
+        setLoading(false);
+      }
+    }, 30000);
+    return () => { mounted = false; clearTimeout(loadingTimeout); };
   }, [userId, fetchProtocols]);
   return { protocols, loading, refetch: fetchProtocols };
 }
@@ -376,9 +427,9 @@ function useWellnessTrend(userId: string | undefined) {
       supabase.from('side_effect_logs').select('id', { count: 'exact', head: true }).eq('user_id', userId).gte('created_at', week),
     ]).then(([thisWeek, lastWeek, sides]) => {
       if (!mounted) return;
-      if (thisWeek.error) console.error('wellness_logs thisWeek query failed:', thisWeek.error);
-      if (lastWeek.error) console.error('wellness_logs lastWeek query failed:', lastWeek.error);
-      if (sides.error) console.error('side_effect_logs count query failed:', sides.error);
+      if (thisWeek.error) logError('wellness_logs thisWeek query failed:', thisWeek.error);
+      if (lastWeek.error) logError('wellness_logs lastWeek query failed:', lastWeek.error);
+      if (sides.error) logError('side_effect_logs count query failed:', sides.error);
       const avg = (arr: Array<{ energy: number; sleep: number; mood: number }>) =>
         arr.length > 0 ? arr.reduce((s, w) => s + (w.energy + w.sleep + w.mood) / 3, 0) / arr.length : 0;
       setTrend({
@@ -386,14 +437,14 @@ function useWellnessTrend(userId: string | undefined) {
         prevAvg: Math.round(avg(lastWeek.data ?? []) * 10) / 10,
         sideEffects7d: sides.count ?? 0,
       });
-    }).catch(() => {});
+    }).catch((e) => logError('Dashboard sync failed:', e));
     return () => { mounted = false; };
   }, [userId]);
   return trend;
 }
 
 export default function Dashboard() {
-  const { user, subscription } = useAuth();
+  const { user, subscription, refreshSubscription } = useAuth();
   const nowMs = useNowMs();
   const { visited, markVisited } = useVisitedPages();
   const activity = useRecentActivity(user?.id);
@@ -410,17 +461,35 @@ export default function Dashboard() {
   const [confirmEndId, setConfirmEndId] = useState<string | null>(null);
   const welcomeConfettiFired = useRef(false);
   const [runTour, setRunTour] = useState(false);
+  const [showPremiumWelcome, setShowPremiumWelcome] = useState(false);
+  const [isLoadingPortal, setIsLoadingPortal] = useState(false);
 
-  // Auto-trigger dashboard tour for first-time users — but NOT while onboarding modal is open
-  // (new users would get modal + tour simultaneously which is overwhelming)
-  const isNewUserWithNoData = !activity.loading && activity.logs.length === 0 && activeProtocols.length === 0;
+  // 3.7: Show one-time premium welcome card after first payment
   useEffect(() => {
-    if (!user || isNewUserWithNoData || activity.loading) return;
+    if (
+      subscription.status === 'active'
+    ) {
+      try {
+        if (!localStorage.getItem('pptides_premium_welcomed')) {
+          setShowPremiumWelcome(true);
+          localStorage.setItem('pptides_premium_welcomed', 'true');
+        }
+      } catch { /* Safari private mode */ }
+    }
+  }, [subscription.status]);
+
+  // Auto-trigger dashboard tour for first-time users after onboarding completes
+  const isNewUserWithNoData = !activity.loading && activity.logs.length === 0 && activeProtocols.length === 0;
+  const [onboardingJustClosed, setOnboardingJustClosed] = useState(false);
+  useEffect(() => {
+    if (!user || activity.loading) return;
+    // For new users: wait until onboarding modal closes (onboardingJustClosed flag)
+    if (isNewUserWithNoData && !onboardingJustClosed) return;
     const timer = setTimeout(() => {
       if (!isTourDone('dashboard') && !showOnboarding) setRunTour(true);
     }, 1200);
     return () => clearTimeout(timer);
-  }, [user, isNewUserWithNoData, activity.loading, showOnboarding]);
+  }, [user, isNewUserWithNoData, activity.loading, showOnboarding, onboardingJustClosed]);
 
   // Re-trigger tour via header "?" button
   useEffect(() => {
@@ -431,6 +500,13 @@ export default function Dashboard() {
   const showOnboardButton = useMemo(() => {
     try { return localStorage.getItem('pptides_onboarded') === 'true'; } catch { return false; }
   }, []);
+
+  // Recalculate trial days every hour so the display stays accurate over time
+  useEffect(() => {
+    if (!subscription.isTrial) return;
+    const interval = setInterval(() => { refreshSubscription(); }, 60 * 60 * 1000);
+    return () => clearInterval(interval);
+  }, [subscription.isTrial, refreshSubscription]);
 
   // C13: Sync onboarding goals + completion status from DB → localStorage on load
   useEffect(() => {
@@ -461,27 +537,22 @@ export default function Dashboard() {
             }));
           }
         } catch { /* expected */ }
-      }).catch(() => {});
+      }).catch((e) => logError('Dashboard sync failed:', e));
     return () => { mounted = false; };
   }, [user?.id]);
 
-  // Redirect trial users who haven't entered payment to /pricing
-  // Fix 1 & 2: Only redirect AFTER onboarding is completed — new users need to see onboarding first
-  // Fix 3: Admin-granted accounts skip pricing redirect entirely
-  // Skip redirect when returning from Stripe checkout (?payment=success)
-  const params = new URLSearchParams(window.location.search);
-  const isPaymentCallback = params.get('payment') === 'success';
-  if (subscription.needsPaymentSetup && !isPaymentCallback && !subscription.isAdminGrant && onboardingCompleted) {
-    return <Navigate to="/pricing?setup=1" replace />;
-  }
-
-  // Payment polling handled by AuthContext on ?payment=success — no duplicate here
   useEffect(() => {
     if (shareProtocolId) {
       document.body.style.overflow = 'hidden';
       return () => { document.body.style.overflow = ''; };
     }
   }, [shareProtocolId]);
+
+  const params = new URLSearchParams(window.location.search);
+  const isPaymentCallback = params.get('payment') === 'success';
+  if (subscription.needsPaymentSetup && !isPaymentCallback && !subscription.isAdminGrant && onboardingCompleted) {
+    return <Navigate to="/pricing?setup=1" replace />;
+  }
 
   if (!user) return null;
 
@@ -501,7 +572,7 @@ export default function Dashboard() {
       </Helmet>
 
       {/* Fix 3: Admin accounts skip onboarding; Fix 1: show onboarding for new trial users before pricing redirect */}
-      {!activity.loading && activity.logs.length === 0 && activeProtocols.length === 0 && subscription.isProOrTrial && !subscription.isAdminGrant && <OnboardingModal />}
+      {!activity.loading && activity.logs.length === 0 && activeProtocols.length === 0 && subscription.isProOrTrial && !subscription.isAdminGrant && <OnboardingModal onClose={() => setOnboardingJustClosed(true)} />}
       {showOnboarding && <OnboardingModal forceOpen onClose={() => setShowOnboarding(false)} />}
 
       {/* Expired / never-subscribed banner — read-only mode */}
@@ -522,6 +593,60 @@ export default function Dashboard() {
           </Link>
         </div>
       )}
+
+      {/* Past-due payment warning banner */}
+      {subscription.status === 'past_due' && (() => {
+        const periodEnd = subscription.currentPeriodEnd ? new Date(subscription.currentPeriodEnd) : null;
+        const graceDays = periodEnd
+          ? Math.max(0, Math.ceil((periodEnd.getTime() + 7 * 24 * 60 * 60 * 1000 - Date.now()) / (1000 * 60 * 60 * 24)))
+          : 0;
+        return (
+          <div className="mb-6 rounded-2xl border border-red-300 dark:border-red-700 bg-red-50 dark:bg-red-900/20 p-4 text-center">
+            <div className="flex items-center justify-center gap-2 mb-1">
+              <AlertTriangle className="h-5 w-5 text-red-600 dark:text-red-400" />
+              <p className="text-sm font-bold text-red-800 dark:text-red-300">
+                فشل الدفع — لديك {graceDays} {graceDays === 1 ? 'يوم' : 'أيام'} لتحديث بطاقتك
+              </p>
+            </div>
+            <p className="text-xs text-red-700 dark:text-red-400 mb-3">
+              حدّث معلومات الدفع لتجنّب انقطاع الخدمة
+            </p>
+            <button
+              disabled={isLoadingPortal}
+              onClick={async () => {
+                if (isLoadingPortal) return;
+                setIsLoadingPortal(true);
+                try {
+                  const { data: { session } } = await supabase.auth.getSession();
+                  const token = session?.access_token;
+                  if (!token) { toast.error('يرجى تسجيل الدخول'); return; }
+                  toast('جارٍ فتح إدارة الدفع...');
+                  const res = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/create-portal-session`, {
+                    method: 'POST',
+                    signal: AbortSignal.timeout(15000),
+                    headers: {
+                      'Content-Type': 'application/json',
+                      Authorization: `Bearer ${token}`,
+                      apikey: import.meta.env.VITE_SUPABASE_ANON_KEY,
+                    },
+                    body: JSON.stringify({}),
+                  });
+                  if (!res.ok) throw new Error('Portal request failed');
+                  const data = await res.json();
+                  if (data.url) window.location.href = data.url;
+                } catch {
+                  toast.error('تعذّر فتح صفحة إدارة الدفع — حاول مرة أخرى');
+                } finally {
+                  setIsLoadingPortal(false);
+                }
+              }}
+              className="inline-flex items-center gap-2 rounded-full bg-red-600 px-8 py-3 text-sm font-semibold text-white transition-all hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              تحديث بطاقة الدفع
+            </button>
+          </div>
+        );
+      })()}
 
       {/* Welcome Header — hidden for brand-new users (they see the first-time hero instead) */}
       {!((!activity.loading && activity.logs.length === 0 && activeProtocols.length === 0)) && (<div className="mb-8">
@@ -560,7 +685,7 @@ export default function Dashboard() {
                     <div className="h-1.5 w-16 overflow-hidden rounded-full bg-stone-200 dark:bg-stone-700">
                       <div className="h-full rounded-full bg-emerald-500 transition-all" style={{ width: `${progress}%` }} />
                     </div>
-                    <span className="text-[10px] text-stone-400">{nextThreshold - activity.totalInjections} للتالي</span>
+                    <span className="text-xs text-stone-400">{nextThreshold - activity.totalInjections} للتالي</span>
                   </div>
                 )}
               </div>
@@ -618,6 +743,143 @@ export default function Dashboard() {
           </Link>
         )}
       </div>
+
+      {/* Trial countdown card — show hours remaining for trial users */}
+      {subscription.isTrial && subscription.trialDaysLeft > 0 && (() => {
+        const trialEndMs = subscription.currentPeriodEnd
+          ? new Date(subscription.currentPeriodEnd).getTime()
+          : 0;
+        const hoursLeft = trialEndMs > 0
+          ? Math.max(0, Math.floor((trialEndMs - nowMs) / (1000 * 60 * 60)))
+          : subscription.trialDaysLeft * 24;
+        const daysLeft = Math.floor(hoursLeft / 24);
+        const remainingHours = hoursLeft % 24;
+        const urgency = hoursLeft <= 24 ? 'red' : hoursLeft <= 72 ? 'amber' : 'emerald';
+        const colors = {
+          red: 'border-red-300 dark:border-red-700 bg-red-50 dark:bg-red-900/20',
+          amber: 'border-amber-300 dark:border-amber-700 bg-amber-50 dark:bg-amber-900/20',
+          emerald: 'border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-900/20',
+        };
+        const textColors = {
+          red: 'text-red-800 dark:text-red-300',
+          amber: 'text-amber-800 dark:text-amber-300',
+          emerald: 'text-emerald-800 dark:text-emerald-300',
+        };
+        return (
+          <div className={cn('mb-8 rounded-2xl border p-4', colors[urgency])}>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <Clock className="h-5 w-5 shrink-0 text-amber-600" />
+                <div>
+                  <p className={cn('text-sm font-bold', textColors[urgency])}>
+                    {daysLeft > 0
+                      ? `${daysLeft} ${daysLeft === 1 ? 'يوم' : 'أيام'} و ${remainingHours} ساعة متبقية`
+                      : `${hoursLeft} ساعة متبقية في التجربة`}
+                  </p>
+                  <p className="text-xs text-stone-600 dark:text-stone-300 mt-0.5">
+                    {hoursLeft <= 24 ? 'اشترك الآن لتحافظ على بياناتك' : 'تجربتك المجانية — اشترك قبل انتهائها'}
+                  </p>
+                </div>
+              </div>
+              <Link
+                to="/pricing"
+                className="shrink-0 rounded-full bg-emerald-600 px-5 py-2 text-sm font-semibold text-white transition-all hover:bg-emerald-700"
+              >
+                اشترك
+              </Link>
+            </div>
+          </div>
+        );
+      })()}
+
+      {/* 3.7: Premium Welcome Card — one-time celebration after first payment */}
+      {showPremiumWelcome && (
+        <div className="mb-8 rounded-2xl border border-emerald-300 dark:border-emerald-700 bg-gradient-to-br from-emerald-50 to-teal-50 dark:from-emerald-950 dark:to-teal-950 p-6">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-xl font-black text-emerald-800 dark:text-emerald-200">
+              مرحباً بك في pptides Pro! 🎉
+            </h2>
+            <button
+              onClick={() => setShowPremiumWelcome(false)}
+              className="text-stone-400 hover:text-stone-600 dark:hover:text-stone-200 transition-colors text-lg font-bold px-2"
+              aria-label="إغلاق"
+            >
+              ✕
+            </button>
+          </div>
+          <p className="text-sm text-emerald-700 dark:text-emerald-300 mb-4">تم تفعيل اشتراكك — إليك أبرز الميزات المتاحة لك الآن:</p>
+          <div className="grid gap-3 sm:grid-cols-3">
+            <Link to="/coach" className="flex items-center gap-3 rounded-xl bg-white/70 dark:bg-stone-900/50 p-4 transition-all hover:bg-white dark:hover:bg-stone-800">
+              <Bot className="h-6 w-6 text-purple-500 shrink-0" />
+              <div>
+                <p className="text-sm font-bold text-stone-900 dark:text-stone-100">المدرب الذكي</p>
+                <p className="text-xs text-stone-500 dark:text-stone-300">اسأل أي سؤال عن الببتيدات</p>
+              </div>
+            </Link>
+            <Link to="/calculator" className="flex items-center gap-3 rounded-xl bg-white/70 dark:bg-stone-900/50 p-4 transition-all hover:bg-white dark:hover:bg-stone-800">
+              <Calculator className="h-6 w-6 text-blue-500 shrink-0" />
+              <div>
+                <p className="text-sm font-bold text-stone-900 dark:text-stone-100">الحاسبة</p>
+                <p className="text-xs text-stone-500 dark:text-stone-300">احسب جرعتك بدقة</p>
+              </div>
+            </Link>
+            <Link to="/protocols" className="flex items-center gap-3 rounded-xl bg-white/70 dark:bg-stone-900/50 p-4 transition-all hover:bg-white dark:hover:bg-stone-800">
+              <ClipboardList className="h-6 w-6 text-emerald-600 shrink-0" />
+              <div>
+                <p className="text-sm font-bold text-stone-900 dark:text-stone-100">البروتوكولات</p>
+                <p className="text-xs text-stone-500 dark:text-stone-300">أنشئ بروتوكولك المخصص</p>
+              </div>
+            </Link>
+          </div>
+        </div>
+      )}
+
+      {/* Getting Started Hero — promoted for new users who haven't completed all steps */}
+      {isNewUserWithNoData && visited.size < GETTING_STARTED.length && (
+        <div className="mb-8 rounded-2xl border-2 border-emerald-300 dark:border-emerald-700 bg-gradient-to-br from-emerald-50 to-teal-50 dark:from-emerald-950 dark:to-teal-950 p-6">
+          <div className="flex items-center gap-3 mb-2">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-100 dark:bg-emerald-900/30">
+              <Target className="h-5 w-5 text-emerald-700" />
+            </div>
+            <div>
+              <h2 className="text-lg font-bold text-stone-900 dark:text-stone-100">خطواتك الأولى</h2>
+              <p className="text-xs text-stone-500 dark:text-stone-300">{visited.size} من {GETTING_STARTED.length} مكتملة</p>
+            </div>
+          </div>
+          <div className="mb-4 h-2 overflow-hidden rounded-full bg-emerald-200 dark:bg-emerald-900/40">
+            <div
+              className="h-full rounded-full bg-emerald-500 transition-all duration-500"
+              style={{ width: `${(visited.size / GETTING_STARTED.length) * 100}%` }}
+            />
+          </div>
+          <div className="space-y-2">
+            {GETTING_STARTED.map((step, i) => {
+              const done = visited.has(step.id);
+              return (
+                <Link
+                  key={step.id}
+                  to={step.to}
+                  onClick={() => markVisited(step.id)}
+                  className={cn(
+                    "flex items-center gap-3 rounded-xl border px-4 py-3 transition-all hover:shadow-sm",
+                    done
+                      ? "border-emerald-300 dark:border-emerald-700 bg-emerald-100/50 dark:bg-emerald-900/30"
+                      : "border-white/80 dark:border-stone-700 bg-white dark:bg-stone-900 hover:border-emerald-300"
+                  )}
+                >
+                  {done
+                    ? <CheckCircle2 className="h-5 w-5 shrink-0 text-emerald-600" />
+                    : <Circle className="h-5 w-5 shrink-0 text-stone-300" />
+                  }
+                  <span className={cn("text-sm font-bold", done ? "text-emerald-700 dark:text-emerald-400 line-through" : "text-stone-700 dark:text-stone-200")}>
+                    {i + 1}. {step.label}
+                  </span>
+                </Link>
+              );
+            })}
+          </div>
+        </div>
+      )}
 
       {/* Weekly Progress Report — only meaningful once user has logged something */}
       {!activity.loading && (activity.logs.length > 0 || activeProtocols.length > 0) && (
@@ -691,7 +953,7 @@ export default function Dashboard() {
       {/* Loading skeleton while activity data fetches — uses shimmer for consistency */}
       {activity.loading && (
         <div className="mb-8 space-y-4 animate-fade-in">
-          <div className="grid grid-cols-3 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             {[0, 1, 2].map(i => (
               <div key={i} className="h-20 rounded-xl animate-pulse bg-stone-200 dark:bg-stone-700 skeleton-shimmer" />
             ))}
@@ -731,25 +993,25 @@ export default function Dashboard() {
         const milestoneProgress = milestonePrev === milestoneNext ? 100 : Math.round(((total - milestonePrev) / (milestoneNext - milestonePrev)) * 100);
         return (
           <div className="mb-8">
-            <div className="grid grid-cols-3 gap-3 mb-3">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-3">
               <div className="rounded-xl border border-emerald-100 bg-gradient-to-b from-emerald-50 to-white dark:to-stone-950 p-3 text-center">
                 <p className="text-2xl font-black text-emerald-700">{total}</p>
-                <p className="text-[11px] font-medium text-stone-500 dark:text-stone-300">حقنة مسجّلة</p>
+                <p className="text-xs font-medium text-stone-500 dark:text-stone-300">حقنة مسجّلة</p>
               </div>
               <div className="rounded-xl border border-emerald-100 bg-gradient-to-b from-emerald-50 to-white dark:to-stone-950 p-3 text-center">
                 <p className="text-2xl font-black text-emerald-700">{activity.streak}</p>
-                <p className="text-[11px] font-medium text-stone-500 dark:text-stone-300">يوم متتالي</p>
+                <p className="text-xs font-medium text-stone-500 dark:text-stone-300">يوم متتالي</p>
               </div>
               <div className="rounded-xl border border-emerald-100 bg-gradient-to-b from-emerald-50 to-white dark:to-stone-950 p-3 text-center">
                 <p className="text-2xl font-black text-emerald-700">{activeProtocols.length}</p>
-                <p className="text-[11px] font-medium text-stone-500 dark:text-stone-300">بروتوكول نشط</p>
+                <p className="text-xs font-medium text-stone-500 dark:text-stone-300">بروتوكول نشط</p>
               </div>
             </div>
             {total > 0 ? (
               <div className="rounded-xl border border-stone-100 dark:border-stone-700 bg-white dark:bg-stone-900 p-3">
                 <div className="flex items-center justify-between mb-1.5">
-                  <p className="text-[11px] font-bold text-stone-600 dark:text-stone-300">الإنجاز التالي: {milestoneNext} حقنة</p>
-                  <p className="text-[11px] font-bold text-emerald-700">{milestoneProgress}%</p>
+                  <p className="text-xs font-bold text-stone-600 dark:text-stone-300">الإنجاز التالي: {milestoneNext} حقنة</p>
+                  <p className="text-xs font-bold text-emerald-700">{milestoneProgress}%</p>
                 </div>
                 <div className="h-2 w-full overflow-hidden rounded-full bg-stone-100 dark:bg-stone-800">
                   <div className="h-full rounded-full bg-emerald-500 transition-all duration-700" style={{ width: `${milestoneProgress}%` }} />
@@ -828,8 +1090,8 @@ export default function Dashboard() {
           <div className="mb-8">
             <h2 className="mb-4 text-xl font-bold text-stone-900 dark:text-stone-100">رحلتي</h2>
             <div className="relative border-s-2 border-emerald-200 dark:border-emerald-800 ps-6 space-y-4">
-              {journeyEvents.map((event, i) => (
-                <div key={i} className="relative">
+              {journeyEvents.map((event) => (
+                <div key={event.text} className="relative">
                   <div className="absolute -start-[9px] top-1 h-4 w-4 rounded-full border-2 border-emerald-400 bg-white dark:bg-stone-900" />
                   <p className="text-sm font-bold text-stone-800 dark:text-stone-200">{event.text}</p>
                   {event.date && (
@@ -887,6 +1149,48 @@ export default function Dashboard() {
         );
       })()}
 
+      {/* Protocol cycle complete — computed client-side */}
+      {activeProtocols.length > 0 && (() => {
+        const completed = activeProtocols.filter(proto => {
+          const startDate = new Date(proto.started_at);
+          const elapsed = nowMs - startDate.getTime();
+          const cycleDuration = proto.cycle_weeks * 7 * 86400000;
+          return elapsed >= cycleDuration;
+        });
+        if (completed.length === 0) return null;
+        return (
+          <div className="mb-6 space-y-3">
+            {completed.map(proto => {
+              const peptide = allPeptides.find(p => p.id === proto.peptide_id);
+              const nameAr = peptide?.nameAr ?? proto.peptide_id;
+              return (
+                <div key={`complete-${proto.id}`} className="rounded-2xl border-2 border-emerald-400 dark:border-emerald-600 bg-emerald-50 dark:bg-emerald-900/20 p-5 shadow-sm dark:shadow-stone-900/30">
+                  <div className="flex flex-wrap items-center justify-between gap-4">
+                    <div>
+                      <div className="flex items-center gap-2 mb-1">
+                        <CheckCircle2 className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
+                        <p className="font-bold text-emerald-800 dark:text-emerald-300">
+                          انتهت دورة البروتوكول — {nameAr}
+                        </p>
+                      </div>
+                      <p className="mt-1 text-sm text-emerald-700 dark:text-emerald-400">
+                        أكملت {proto.cycle_weeks} أسابيع. {peptide?.restPeriodWeeks ? `فترة راحة موصى بها: ${peptide.restPeriodWeeks} أسابيع.` : ''} ابدأ دورة جديدة أو جرّب ببتيد آخر.
+                      </p>
+                    </div>
+                    <Link
+                      to={`/peptide/${proto.peptide_id}`}
+                      className="shrink-0 rounded-full bg-emerald-600 px-5 py-2.5 text-sm font-bold text-white transition-colors hover:bg-emerald-700"
+                    >
+                      ابدأ دورة جديدة
+                    </Link>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        );
+      })()}
+
       {/* Active Protocols */}
       {activeProtocols.length > 0 && (
         <div className="mb-8">
@@ -904,7 +1208,7 @@ export default function Dashboard() {
               return (
                 <div key={proto.id} className="rounded-2xl border border-emerald-200 dark:border-emerald-800 bg-white dark:bg-stone-900 p-5 transition-all hover:shadow-md">
                   <div className="flex items-start gap-4">
-                    <ProgressRing current={daysSinceStart} total={totalDays} size={64} label={`يوم ${daysSinceStart}`} />
+                    <ChartErrorBoundary><ProgressRing current={daysSinceStart} total={totalDays} size={64} label={`يوم ${daysSinceStart}`} /></ChartErrorBoundary>
                     <div className="flex-1 min-w-0">
                       <p className="font-bold text-stone-900 dark:text-stone-100 truncate">{peptide?.nameAr ?? proto.peptide_id}</p>
                       <p className="text-xs text-stone-500 dark:text-stone-300 mt-0.5" dir="ltr">{proto.dose} {proto.dose_unit} — {FREQUENCY_LABELS[proto.frequency] ?? proto.frequency}</p>
@@ -932,14 +1236,18 @@ export default function Dashboard() {
                       <button
                         onClick={async () => {
                           const text = `أكملت بروتوكول ${peptide?.nameAr ?? proto.peptide_id} (${proto.cycle_weeks} أسابيع) على pptides.com\n\npptides — أشمل دليل عربي للببتيدات العلاجية`;
-                          if (navigator.share) {
-                            await navigator.share({ title: 'شهادة إتمام بروتوكول', text }).catch(() => {});
-                          } else {
-                            await copyToClipboard(text);
-                            toast.success('تم نسخ الشهادة');
+                          try {
+                            if (navigator.share) {
+                              await navigator.share({ title: 'شهادة إتمام بروتوكول', text });
+                            } else {
+                              await copyToClipboard(text);
+                              toast.success('تم نسخ الشهادة');
+                            }
+                          } catch {
+                            toast.error('تعذّر المشاركة');
                           }
                         }}
-                        className="mt-2 flex items-center gap-1.5 rounded-full bg-emerald-600 px-3 py-1.5 text-[11px] font-bold text-white hover:bg-emerald-700 transition-colors"
+                        className="mt-2 flex items-center gap-1.5 rounded-full bg-emerald-600 px-3 py-1.5 text-xs font-bold text-white hover:bg-emerald-700 transition-colors"
                       >
                         <Trophy className="h-3.5 w-3.5" />
                         شارك شهادة الإتمام
@@ -978,7 +1286,7 @@ export default function Dashboard() {
                       const frequencyMultiplier = proto.frequency === 'bid' ? 2 : proto.frequency === 'tid' ? 3 : 1;
                       const scheduledDoses = daysSinceStart * frequencyMultiplier;
                       return (
-                        <AdherenceBar scheduled={scheduledDoses} actual={activity.allLogs.filter(l => l.peptide_name === (peptide?.nameEn ?? proto.peptide_id)).length} />
+                        <ChartErrorBoundary><AdherenceBar scheduled={scheduledDoses} actual={activity.allLogs.filter(l => l.peptide_name === (peptide?.nameEn ?? proto.peptide_id)).length} /></ChartErrorBoundary>
                       );
                     })()}
                   </div>
@@ -1132,10 +1440,12 @@ export default function Dashboard() {
         );
       })()}
 
-      {/* Wellness Check-in */}
-      <div className="mb-8">
-        <WellnessCheckin />
-      </div>
+      {/* Wellness Check-in — show only after first injection */}
+      {!activity.loading && activity.logs.length > 0 && (
+        <div className="mb-8">
+          <WellnessCheckin />
+        </div>
+      )}
 
       {/* Wellness Trend + Side Effects Summary */}
       {wellnessTrend && (wellnessTrend.avg > 0 || wellnessTrend.sideEffects7d > 0) && (
@@ -1339,8 +1649,8 @@ export default function Dashboard() {
               <span className="text-xs text-stone-500 dark:text-stone-300">{days.filter(d => d.count > 0).length} يوم نشط</span>
             </div>
             <div className="grid grid-cols-6 sm:grid-cols-10 gap-1">
-              {days.map((d, i) => (
-                <div key={i} className={cn(
+              {days.map((d) => (
+                <div key={d.date.toISOString()} className={cn(
                   'aspect-square rounded-sm transition-colors',
                   d.count === 0 ? 'bg-stone-100 dark:bg-stone-800' :
                   d.count === 1 ? 'bg-emerald-200' :
@@ -1361,7 +1671,7 @@ export default function Dashboard() {
               <button
                 onClick={activity.loadMore}
                 disabled={activity.loadingMore}
-                className="mt-3 w-full rounded-xl border border-stone-200 dark:border-stone-600 py-2.5 text-sm font-bold text-stone-600 dark:text-stone-300 transition-colors hover:bg-stone-50 dark:hover:bg-stone-800 disabled:opacity-50"
+                className="mt-3 w-full rounded-xl border border-stone-200 dark:border-stone-600 py-2.5 text-sm font-bold text-stone-600 dark:text-stone-300 transition-colors hover:bg-stone-50 dark:hover:bg-stone-800 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {activity.loadingMore ? 'جاري التحميل...' : 'تحميل المزيد'}
               </button>
@@ -1418,45 +1728,39 @@ export default function Dashboard() {
               {userGoalLabel && (
                 <p className="text-sm font-medium text-emerald-700 dark:text-emerald-400 mb-1">هدفك: <span className="font-bold">{userGoalLabel}</span></p>
               )}
-              <p className="text-sm text-stone-600 dark:text-stone-300 mb-4">{PEPTIDE_COUNT} ببتيد جاهزة لك — رحلتك تبدأ الآن</p>
+              <p className="text-sm text-stone-600 dark:text-stone-300 mb-6">{PEPTIDE_COUNT} ببتيد جاهزة لك — ابدأ رحلتك بثلاث خطوات بسيطة</p>
 
-              {/* VIP Quick-Start Cards */}
-              <div className="grid gap-3 sm:grid-cols-2 mt-6 text-start">
-                <Link to="/guide" className="group flex items-center gap-3 rounded-xl border border-emerald-200 dark:border-emerald-800 bg-white dark:bg-stone-900 p-4 transition-all hover:border-emerald-400 hover:shadow-md hover:-translate-y-0.5 min-h-[44px]" style={{ animation: 'dash-card-in 0.5s ease-out 0.3s both' }}>
-                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-amber-100 dark:bg-amber-900/30 transition-colors group-hover:bg-amber-200">
-                    <ClipboardList className="h-5 w-5 text-amber-700" />
-                  </div>
-                  <div>
-                    <p className="text-sm font-bold text-stone-900 dark:text-stone-100">دليل الحقن</p>
-                    <p className="text-xs text-stone-500 dark:text-stone-300">ابدأ هنا — خطوة بخطوة</p>
-                  </div>
-                </Link>
-                <Link to="/library" className="group flex items-center gap-3 rounded-xl border border-emerald-200 dark:border-emerald-800 bg-white dark:bg-stone-900 p-4 transition-all hover:border-emerald-400 hover:shadow-md hover:-translate-y-0.5 min-h-[44px]" style={{ animation: 'dash-card-in 0.5s ease-out 0.45s both' }}>
+              {/* 3-Step Guided Onboarding */}
+              <div className="space-y-3 text-start">
+                <Link to="/library" className="group flex items-center gap-4 rounded-xl border border-emerald-200 dark:border-emerald-800 bg-white dark:bg-stone-900 p-4 transition-all hover:border-emerald-400 hover:shadow-md hover:-translate-y-0.5 min-h-[44px]" style={{ animation: 'dash-card-in 0.5s ease-out 0.3s both' }}>
                   <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-100 dark:bg-emerald-900/30 transition-colors group-hover:bg-emerald-200">
-                    <BookOpen className="h-5 w-5 text-emerald-700" />
+                    <span className="text-sm font-black text-emerald-700">1</span>
                   </div>
-                  <div>
-                    <p className="text-sm font-bold text-stone-900 dark:text-stone-100">المكتبة</p>
-                    <p className="text-xs text-stone-500 dark:text-stone-300">اكتشف {PEPTIDE_COUNT}+ ببتيد</p>
+                  <div className="flex-1">
+                    <p className="text-sm font-bold text-stone-900 dark:text-stone-100">تصفّح الببتيدات</p>
+                    <p className="text-xs text-stone-500 dark:text-stone-300">اكتشف {PEPTIDE_COUNT}+ ببتيد في المكتبة</p>
                   </div>
+                  <BookOpen className="h-5 w-5 shrink-0 text-emerald-400 transition-colors group-hover:text-emerald-700" />
                 </Link>
-                <Link to="/coach" className="group flex items-center gap-3 rounded-xl border border-emerald-200 dark:border-emerald-800 bg-white dark:bg-stone-900 p-4 transition-all hover:border-emerald-400 hover:shadow-md hover:-translate-y-0.5 min-h-[44px]" style={{ animation: 'dash-card-in 0.5s ease-out 0.6s both' }}>
+                <Link to="/tracker" className="group flex items-center gap-4 rounded-xl border border-emerald-200 dark:border-emerald-800 bg-white dark:bg-stone-900 p-4 transition-all hover:border-emerald-400 hover:shadow-md hover:-translate-y-0.5 min-h-[44px]" style={{ animation: 'dash-card-in 0.5s ease-out 0.45s both' }}>
                   <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-100 dark:bg-emerald-900/30 transition-colors group-hover:bg-emerald-200">
-                    <Bot className="h-5 w-5 text-emerald-700" />
+                    <span className="text-sm font-black text-emerald-700">2</span>
                   </div>
-                  <div>
-                    <p className="text-sm font-bold text-stone-900 dark:text-stone-100">المدرب الذكي</p>
-                    <p className="text-xs text-stone-500 dark:text-stone-300">جاهز لمساعدتك ٢٤/٧</p>
+                  <div className="flex-1">
+                    <p className="text-sm font-bold text-stone-900 dark:text-stone-100">سجّل أول حقنة</p>
+                    <p className="text-xs text-stone-500 dark:text-stone-300">ابدأ بتتبع جرعاتك وتقدّمك</p>
                   </div>
+                  <Syringe className="h-5 w-5 shrink-0 text-emerald-400 transition-colors group-hover:text-emerald-700" />
                 </Link>
-                <Link to="/calculator" className="group flex items-center gap-3 rounded-xl border border-emerald-200 dark:border-emerald-800 bg-white dark:bg-stone-900 p-4 transition-all hover:border-emerald-400 hover:shadow-md hover:-translate-y-0.5 min-h-[44px]" style={{ animation: 'dash-card-in 0.5s ease-out 0.75s both' }}>
+                <Link to="/coach" className="group flex items-center gap-4 rounded-xl border border-emerald-200 dark:border-emerald-800 bg-white dark:bg-stone-900 p-4 transition-all hover:border-emerald-400 hover:shadow-md hover:-translate-y-0.5 min-h-[44px]" style={{ animation: 'dash-card-in 0.5s ease-out 0.6s both' }}>
                   <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-100 dark:bg-emerald-900/30 transition-colors group-hover:bg-emerald-200">
-                    <Calculator className="h-5 w-5 text-emerald-700" />
+                    <span className="text-sm font-black text-emerald-700">3</span>
                   </div>
-                  <div>
-                    <p className="text-sm font-bold text-stone-900 dark:text-stone-100">الحاسبة</p>
-                    <p className="text-xs text-stone-500 dark:text-stone-300">احسب جرعتك بدقة</p>
+                  <div className="flex-1">
+                    <p className="text-sm font-bold text-stone-900 dark:text-stone-100">تحدّث مع المدرب الذكي</p>
+                    <p className="text-xs text-stone-500 dark:text-stone-300">اسأل عن بروتوكول مخصّص لهدفك</p>
                   </div>
+                  <Bot className="h-5 w-5 shrink-0 text-emerald-400 transition-colors group-hover:text-emerald-700" />
                 </Link>
               </div>
             </div>
@@ -1506,6 +1810,7 @@ export default function Dashboard() {
             <style>{`
               @keyframes dash-welcome-in { from { opacity: 0; transform: translateY(16px) scale(0.97); } to { opacity: 1; transform: translateY(0) scale(1); } }
               @keyframes dash-card-in { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+              @media (prefers-reduced-motion: reduce) { [style*="dash-welcome-in"], [style*="dash-card-in"] { animation: none !important; } }
             `}</style>
           </>
         );
@@ -1641,6 +1946,16 @@ export default function Dashboard() {
           </div>
         </div>
       )}
+
+      {/* Floating Action Button — "سجّل جرعتك" */}
+      <Link
+        to="/tracker"
+        className="fixed bottom-6 start-6 z-40 flex items-center gap-2 rounded-full bg-emerald-600 px-5 py-3.5 text-sm font-bold text-white shadow-lg shadow-emerald-600/30 transition-all hover:bg-emerald-700 hover:shadow-xl hover:shadow-emerald-600/40 hover:scale-105 active:scale-95 min-h-[44px] print:hidden"
+        aria-label="سجّل جرعتك"
+      >
+        <Syringe className="h-5 w-5" />
+        <span className="hidden sm:inline">سجّل جرعتك</span>
+      </Link>
     </div>
   );
 }

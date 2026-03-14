@@ -1,6 +1,6 @@
 import { memo } from 'react';
 import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid } from 'recharts';
-import { useTheme } from '../../hooks/useTheme';
+import { useTheme } from '@/hooks/useTheme';
 
 interface DosePoint {
   date: string;
@@ -14,7 +14,7 @@ interface DoseTrendChartProps {
 
 export default memo(function DoseTrendChart({ data, unit = 'mcg' }: DoseTrendChartProps) {
   const { isDark } = useTheme();
-  if (data.length < 2) return null;
+  if (data.length < 2) return <p className="text-center text-xs text-stone-500 dark:text-stone-400 py-4">سجّل جرعتين على الأقل لعرض الرسم البياني</p>;
 
   const tickColor = isDark ? '#d6d3d1' : '#78716c';
   const gridColor = isDark ? '#44403c' : '#e7e5e4';
@@ -27,6 +27,7 @@ export default memo(function DoseTrendChart({ data, unit = 'mcg' }: DoseTrendCha
           <CartesianGrid strokeDasharray="3 3" stroke={gridColor} />
           <XAxis
             dataKey="date"
+            reversed
             tick={{ fontSize: 11, fill: tickColor }}
             tickLine={false}
             axisLine={{ stroke: axisColor }}
@@ -52,10 +53,10 @@ export default memo(function DoseTrendChart({ data, unit = 'mcg' }: DoseTrendCha
           <Line
             type="monotone"
             dataKey="dose"
-            stroke="#10b981"
+            stroke={isDark ? '#34d399' : '#10b981'}
             strokeWidth={2}
-            dot={{ r: 3, fill: '#10b981' }}
-            activeDot={{ r: 5, fill: '#059669' }}
+            dot={{ r: 3, fill: isDark ? '#34d399' : '#10b981' }}
+            activeDot={{ r: 5, fill: isDark ? '#6ee7b7' : '#059669' }}
           />
         </LineChart>
       </ResponsiveContainer>

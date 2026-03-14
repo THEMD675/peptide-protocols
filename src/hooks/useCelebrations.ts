@@ -1,5 +1,6 @@
-import { useCallback } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import { toast } from 'sonner';
+import { logError } from '@/lib/logger';
 
 const CELEBRATION_KEY = 'pptides_celebrations';
 
@@ -7,7 +8,8 @@ function getCelebrations(): Record<string, boolean> {
   try {
     const stored = localStorage.getItem(CELEBRATION_KEY);
     return stored ? JSON.parse(stored) : {};
-  } catch {
+  } catch (e) {
+    logError('celebrations read failed:', e);
     return {};
   }
 }
@@ -17,7 +19,7 @@ function markCelebration(key: string) {
     const celebrations = getCelebrations();
     celebrations[key] = true;
     localStorage.setItem(CELEBRATION_KEY, JSON.stringify(celebrations));
-  } catch { /* expected */ }
+  } catch (e) { logError('celebrations write failed:', e); }
 }
 
 function prefersReducedMotion(): boolean {
@@ -85,12 +87,30 @@ async function fireGrandCelebration() {
 }
 
 export function useCelebrations() {
+  const timersRef = useRef<ReturnType<typeof setTimeout>[]>([]);
+
+  // Cleanup all pending timers on unmount
+  useEffect(() => {
+    return () => {
+      timersRef.current.forEach(clearTimeout);
+      timersRef.current = [];
+    };
+  }, []);
+
+  const safeTimeout = useCallback((fn: () => void, ms: number) => {
+    const id = setTimeout(() => {
+      timersRef.current = timersRef.current.filter(t => t !== id);
+      fn();
+    }, ms);
+    timersRef.current.push(id);
+  }, []);
+
   const celebrate = useCallback((totalInjections: number, streak: number) => {
     const celebrated = getCelebrations();
 
     if (totalInjections === 1 && !celebrated['first_injection']) {
       markCelebration('first_injection');
-      setTimeout(() => {
+      safeTimeout(() => {
         fireConfetti();
         toast.success('مبروك! سجّلت أول حقنة لك', {
           duration: 5000,
@@ -112,10 +132,10 @@ export function useCelebrations() {
           30: { title: 'شهر كامل من الالتزام!', desc: 'إنجاز استثنائي — شارك تجربتك مع المجتمع' },
         };
         const msg = msgs[streak] || {
-          title: ` يوم متتالي! استمر!`,
+          title: `${streak} يوم متتالي! استمر!`,
           desc: 'التزامك مثال يُحتذى',
         };
-        setTimeout(() => {
+        safeTimeout(() => {
           fireStreakCelebration();
           toast.success(msg.title, { duration: 5000, description: msg.desc });
         }, 300);
@@ -125,7 +145,7 @@ export function useCelebrations() {
 
     if (totalInjections >= 10 && !celebrated['ten_injections']) {
       markCelebration('ten_injections');
-      setTimeout(() => {
+      safeTimeout(() => {
         fireStreakCelebration();
         toast.success('10 حقنات مسجّلة!', {
           duration: 4000,
@@ -137,7 +157,7 @@ export function useCelebrations() {
 
     if (totalInjections >= 25 && !celebrated['milestone_25']) {
       markCelebration('milestone_25');
-      setTimeout(() => {
+      safeTimeout(() => {
         fireStreakCelebration();
         toast.success('25 حقنة! أنت ملتزم بشكل رائع', {
           duration: 5000,
@@ -148,7 +168,7 @@ export function useCelebrations() {
 
     if (totalInjections >= 50 && !celebrated['fifty_injections']) {
       markCelebration('fifty_injections');
-      setTimeout(() => {
+      safeTimeout(() => {
         fireConfetti();
         toast.success('50 حقنة! مستخدم متقدّم', {
           duration: 4000,
@@ -160,7 +180,7 @@ export function useCelebrations() {
 
     if (totalInjections >= 100 && !celebrated['milestone_100']) {
       markCelebration('milestone_100');
-      setTimeout(() => {
+      safeTimeout(() => {
         fireGrandCelebration();
         toast.success('100 حقنة! إنجاز استثنائي', {
           duration: 6000,
@@ -168,7 +188,7 @@ export function useCelebrations() {
         });
       }, 300);
     }
-  }, []);
+  }, [safeTimeout]);
 
   return { celebrate };
 }

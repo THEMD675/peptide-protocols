@@ -59,7 +59,13 @@ serve(async (req) => {
     }
 
     const serviceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')
-    if (serviceKey) {
+    if (!serviceKey) {
+      console.error('SUPABASE_SERVICE_ROLE_KEY not set — cannot enforce rate limits')
+      return new Response(JSON.stringify({ error: 'Server misconfigured' }), {
+        status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      })
+    }
+    {
       const adminDb = createClient(supabaseUrl, serviceKey)
       const allowed = await checkRateLimit(adminDb, {
         endpoint: 'create-checkout',
@@ -82,8 +88,8 @@ serve(async (req) => {
     }
     const tier = body.tier as string
     const billing = body.billing === 'annual' ? 'annual' : 'monthly'
-    const referralCode = (body.referralCode && /^PP-[A-Z0-9]{6}$/.test(String(body.referralCode))) ? String(body.referralCode) : undefined
-    const couponParam = body.coupon && /^[a-zA-Z0-9_]+$/.test(String(body.coupon)) ? String(body.coupon) : undefined
+    const referralCode = (body.referralCode && /^PP-[A-Z0-9]{6}$/i.test(String(body.referralCode))) ? String(body.referralCode).toUpperCase() : undefined
+    const couponParam = body.coupon && /^[a-zA-Z0-9_-]+$/.test(String(body.coupon)) ? String(body.coupon) : undefined
     if (!tier || !PRICE_IDS[tier]) {
       return new Response(JSON.stringify({ error: 'Invalid tier' }), {
         status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -92,7 +98,7 @@ serve(async (req) => {
 
     const priceId = PRICE_IDS[tier][billing]
     if (!priceId) {
-      return new Response(JSON.stringify({ error: 'Price not configured. Contact support.' }), {
+      return new Response(JSON.stringify({ error: 'خطأ في الإعداد — تواصل معنا: contact@pptides.com' }), {
         status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       })
     }
@@ -147,6 +153,8 @@ serve(async (req) => {
         s.client_reference_id === user.id &&
         s.status === 'open' &&
         s.url &&
+        s.metadata?.tier === tier &&
+        s.metadata?.billing === billing &&
         Date.now() - (s.created * 1000) < 5 * 60 * 1000,
     )
     if (reusable?.url) {
@@ -155,7 +163,26 @@ serve(async (req) => {
       })
     }
 
-    const existingCustomerId = existingSub?.stripe_customer_id ?? null
+    let existingCustomerId = existingSub?.stripe_customer_id ?? null
+
+    // Prevent duplicate Stripe customers: if no customer_id in DB, search Stripe by email
+    if (!existingCustomerId && user.email) {
+      try {
+        const customers = await stripe.customers.list({ email: user.email, limit: 1 })
+        if (customers.data.length > 0) {
+          existingCustomerId = customers.data[0].id
+          // Backfill the customer_id in DB for future use
+          const serviceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')
+          if (serviceKey && existingSub) {
+            const adminDb = createClient(supabaseUrl, serviceKey)
+            adminDb.from('subscriptions').update({ stripe_customer_id: existingCustomerId }).eq('user_id', user.id)
+              .then(({ error: bfErr }) => { if (bfErr) console.error('create-checkout: backfill customer_id failed:', bfErr) })
+          }
+        }
+      } catch (searchErr) {
+        console.error('create-checkout: Stripe customer search failed, proceeding without:', searchErr)
+      }
+    }
 
     // Determine which coupon to apply (if any):
     // Referral: NO discount at checkout. Friend pays full price on first payment.
@@ -207,7 +234,7 @@ serve(async (req) => {
         metadata: { tier, user_id: user.id, ...(validatedReferralCode ? { referral_code: validatedReferralCode } : {}) },
         description: `pptides — ${tier === 'elite' ? 'الباقة المتقدمة' : 'الباقة الأساسية'}`,
       },
-      metadata: { tier, user_id: user.id, ...(validatedReferralCode ? { referral_code: validatedReferralCode } : {}) },
+      metadata: { tier, billing, user_id: user.id, ...(validatedReferralCode ? { referral_code: validatedReferralCode } : {}) },
       success_url: `${appUrl}/dashboard?payment=success&tier=${tier}&session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${appUrl}/pricing?payment=cancelled`,
       // When a discount coupon is auto-applied, don't also allow manual promo codes (prevents stacking)
@@ -224,7 +251,7 @@ serve(async (req) => {
     })
   } catch (error) {
     console.error('create-checkout error:', error)
-    return new Response(JSON.stringify({ error: 'Failed to create checkout session' }), {
+    return new Response(JSON.stringify({ error: 'تعذّر إنشاء جلسة الدفع — حاول مرة أخرى أو تواصل معنا: contact@pptides.com' }), {
       status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     })
   }

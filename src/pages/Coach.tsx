@@ -14,6 +14,7 @@ import { events } from '@/lib/analytics';
 import { cn, arPlural, copyToClipboard } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
 import { SITE_URL, PRICING, TRIAL_DAYS } from '@/lib/constants';
+import { logError } from '@/lib/logger';
 import ProtocolWizard from '@/components/ProtocolWizard';
 import CoachHistory from '@/components/CoachHistory';
 import CoachInsightsBanner from '@/components/CoachInsightsBanner';
@@ -72,16 +73,49 @@ const INJECTION_OPTIONS = [
 async function buildUserContext(userId: string): Promise<string> {
   let ctx = '';
   try {
-    const { data: logs } = await supabase
-      .from('injection_logs')
-      .select('peptide_name, dose, dose_unit, injection_site, logged_at')
-      .eq('user_id', userId)
-      .order('logged_at', { ascending: false })
-      .limit(10);
+    const [{ data: logs }, { data: sideEffects }, { data: wellness }] = await Promise.all([
+      supabase
+        .from('injection_logs')
+        .select('peptide_name, dose, dose_unit, injection_site, logged_at')
+        .eq('user_id', userId)
+        .order('logged_at', { ascending: false })
+        .limit(15),
+      supabase
+        .from('side_effect_logs')
+        .select('peptide_name, effect, severity, logged_at')
+        .eq('user_id', userId)
+        .order('logged_at', { ascending: false })
+        .limit(10),
+      supabase
+        .from('wellness_logs')
+        .select('energy, sleep, mood, logged_at')
+        .eq('user_id', userId)
+        .order('logged_at', { ascending: false })
+        .limit(7),
+    ]);
     if (logs && logs.length > 0) {
       ctx += `\nسجل حقن المستخدم (آخر ${logs.length}):\n`;
       logs.forEach(l => { ctx += `- ${l.peptide_name}: ${l.dose}${l.dose_unit} (${new Date(l.logged_at).toLocaleDateString('ar-u-nu-latn')})\n`; });
       ctx += `لديه خبرة فعلية. ابنِ على ما يستخدمه.\n`;
+    }
+    if (sideEffects && sideEffects.length > 0) {
+      ctx += `\nأعراض جانبية مسجّلة:\n`;
+      sideEffects.forEach(s => { ctx += `- ${s.peptide_name}: ${s.effect} (شدة: ${s.severity}/5)\n`; });
+      ctx += `ضع هذه الأعراض في اعتبارك عند التوصية.\n`;
+    }
+    if (wellness && wellness.length > 0) {
+      const avg = (key: 'energy' | 'sleep' | 'mood') => {
+        const vals = wellness.map(w => w[key]).filter((v): v is number => v != null);
+        return vals.length > 0 ? (vals.reduce((a, b) => a + b, 0) / vals.length).toFixed(1) : null;
+      };
+      const energy = avg('energy'), sleep = avg('sleep'), mood = avg('mood');
+      if (energy || sleep || mood) {
+        ctx += `\nمتوسط الحالة (آخر ${wellness.length} أيام):`;
+        if (energy) ctx += ` طاقة: ${energy}/5`;
+        if (sleep) ctx += ` نوم: ${sleep}/5`;
+        if (mood) ctx += ` مزاج: ${mood}/5`;
+        ctx += '\n';
+      }
     }
     const favs = (() => { try { const s = localStorage.getItem('pptides_favorites'); return s ? JSON.parse(s) as string[] : []; } catch { return []; } })();
     if (favs.length > 0) {
@@ -143,12 +177,23 @@ async function getSessionToken(): Promise<string> {
   return data.session?.access_token ?? '';
 }
 
-const COACH_PREVIEW_SAMPLE_QS = [
-  'أريد بروتوكول BPC-157 للتعافي من إصابة في الكتف',
-  'ما أفضل ببتيد لفقدان الوزن لمبتدئ؟',
-  'صمّم لي بروتوكول CJC-1295 + Ipamorelin',
-  'أريد بروتوكول Semaglutide مع جدول جرعات',
-];
+/** Arabic-friendly error messages keyed by __ERROR__ tag */
+const ERROR_MESSAGES: Record<string, string> = {
+  '__ERROR__:429': 'تم تجاوز الحد — حاول مرة أخرى بعد لحظات',
+  '__ERROR__:403': 'انتهت صلاحية جلستك — أعد تسجيل الدخول للمتابعة.',
+  '__ERROR__:401': 'سجّل دخولك أولًا للاستفادة من المدرب الذكي.',
+  '__ERROR__:500': 'خدمة المدرب الذكي غير متاحة حاليًا — حاول مرة أخرى بعد لحظات.',
+  '__ERROR__:502': 'خدمة المدرب الذكي غير متاحة مؤقتاً — حاول مرة أخرى.',
+  '__ERROR__:503': 'الخدمة تحت الصيانة — حاول مرة أخرى بعد قليل.',
+  '__ERROR__:504': 'انتهت مهلة الاتصال — حاول مرة أخرى.',
+  '__ERROR__:408': 'انتهت مهلة الطلب — حاول مرة أخرى.',
+  '__ERROR__:TIMEOUT': 'تم قطع الاتصال — حاول مرة أخرى',
+  '__ERROR__': 'خدمة المدرب الذكي غير متاحة حاليًا — حاول مرة أخرى لاحقًا',
+};
+
+function getErrorMessage(tag: string): string {
+  return ERROR_MESSAGES[tag] ?? ERROR_MESSAGES['__ERROR__'];
+}
 
 const DEFAULT_STARTERS = [
   'ما أفضل ببتيد للمبتدئين؟',
@@ -320,13 +365,19 @@ export default function Coach() {
   });
 
   // Track current conversation row ID for multi-conversation support
+  const saveFailedRef = useRef(false);
   const [conversationId, setConversationId] = useState<string | null>(null);
+  const [convLoadError, setConvLoadError] = useState(false);
+  const [isLoadingConversation, setIsLoadingConversation] = useState(false);
+  const isLoadingConversationRef = useRef(false);
 
   // Hydrate from Supabase (load most recent conversation)
   const supabaseLoadedRef = useRef(false);
-  useEffect(() => {
-    if (!user?.id || supabaseLoadedRef.current) return;
-    supabaseLoadedRef.current = true;
+  const loadConversations = useCallback(() => {
+    if (!user?.id) return;
+    setConvLoadError(false);
+    setIsLoadingConversation(true);
+    isLoadingConversationRef.current = true;
     supabase
       .from('coach_conversations')
       .select('id, messages')
@@ -341,9 +392,19 @@ export default function Coach() {
           setIntakeStep('done');
         }
       })
-      .catch(() => {});
+      .catch((err) => { logError('conversation load failed', err); setConvLoadError(true); })
+      .finally(() => { setIsLoadingConversation(false); isLoadingConversationRef.current = false; });
   }, [user?.id]);
-  const DRAFT_KEY = 'pptides_coach_draft';
+
+  // Reset supabaseLoadedRef when user changes (re-login)
+  useEffect(() => { supabaseLoadedRef.current = false; }, [user?.id]);
+
+  useEffect(() => {
+    if (!user?.id || supabaseLoadedRef.current) return;
+    supabaseLoadedRef.current = true;
+    loadConversations();
+  }, [user?.id, loadConversations]);
+  const DRAFT_KEY = `pptides_coach_draft_${user?.id ?? 'anon'}`;
   const DEEPSEEK_CONSENT_KEY = 'pptides_deepseek_consent';
   const [showDeepSeekConsent, setShowDeepSeekConsent] = useState(() => {
     try { return localStorage.getItem(DEEPSEEK_CONSENT_KEY) !== 'true'; } catch { return true; }
@@ -355,6 +416,8 @@ export default function Coach() {
   const [copiedIdx, setCopiedIdx] = useState<number | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [loadingStage, setLoadingStage] = useState(0);
+  const [rateLimitCountdown, setRateLimitCountdown] = useState(0);
+  const countdownRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const [protocolWizardPeptide, setProtocolWizardPeptide] = useState<string | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const userContextRef = useRef('');
@@ -373,27 +436,33 @@ export default function Coach() {
         try { localStorage.setItem(storageKey, JSON.stringify({ messages: trimmed, intake })); } catch { /* give up */ }
       }
     }
-    // Fire-and-forget save to Supabase for cross-device sync (multi-conversation)
+    // Save to Supabase — warn user on failure so they know data is only in localStorage
     if (user?.id && cleanMessages.length > 0) {
+      const onSaveError = () => {
+        if (!saveFailedRef.current) {
+          saveFailedRef.current = true;
+          toast.warning('تعذّر حفظ المحادثة على الخادم — بياناتك محفوظة محليًا فقط. لا تمسح بيانات المتصفح.', { duration: 8000 });
+        }
+      };
       if (conversationId) {
-        // Update existing conversation row
         supabase
           .from('coach_conversations')
           .update({ messages: cleanMessages, updated_at: new Date().toISOString() })
           .eq('id', conversationId)
-          .then(() => {})
-          .catch(() => { /* cross-device sync failed — non-critical */ });
+          .then(({ error }) => { if (error) onSaveError(); else saveFailedRef.current = false; })
+          .catch(onSaveError);
       } else {
-        // Insert new conversation row
         supabase
           .from('coach_conversations')
           .insert({ user_id: user.id, messages: cleanMessages, updated_at: new Date().toISOString() })
           .select('id')
           .single()
-          .then(({ data }) => {
+          .then(({ data, error }) => {
+            if (error) { onSaveError(); return; }
             if (data?.id) setConversationId(data.id);
+            saveFailedRef.current = false;
           })
-          .catch(() => { /* cross-device sync failed — non-critical */ });
+          .catch(onSaveError);
       }
     }
   }, [messages, intake, storageKey, isLoading, user?.id]);
@@ -416,7 +485,7 @@ export default function Coach() {
   }, [input, DRAFT_KEY]);
 
   useEffect(() => { scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: 'smooth' }); }, [messages, intakeStep]);
-  useEffect(() => { if (user) buildUserContext(user.id).then(ctx => { userContextRef.current = ctx; }).catch(() => {}); }, [user]);
+  useEffect(() => { if (user) buildUserContext(user.id).then(ctx => { userContextRef.current = ctx; }).catch((e) => logError('Coach context build failed:', e)); }, [user]);
 
   // Migrate anon session data when user logs in (prevents loss on session expiry mid-form)
   useEffect(() => {
@@ -438,7 +507,8 @@ export default function Coach() {
   const normalizeDigits = (s: string) => s.replace(/[٠-٩]/g, d => String('٠١٢٣٤٥٦٧٨٩'.indexOf(d)));
 
   const abortRef = useRef<AbortController | null>(null);
-  useEffect(() => () => { abortRef.current?.abort(); }, []);
+  const messageSeqRef = useRef(0);
+  useEffect(() => () => { abortRef.current?.abort(); if (countdownRef.current) clearInterval(countdownRef.current); }, []);
 
   const setConsentGiven = useCallback(() => {
     try { localStorage.setItem(DEEPSEEK_CONSENT_KEY, 'true'); } catch { /* ok */ }
@@ -447,13 +517,14 @@ export default function Coach() {
 
   const sendToAI = useCallback(async (content: string) => {
     const trimmed = content.trim();
-    if (!trimmed || isLoadingRef.current) return;
+    if (!trimmed || isLoadingRef.current || isLoadingConversationRef.current) return;
     if (showDeepSeekConsent) setConsentGiven();
     isLoadingRef.current = true;
     events.coachMessage();
     abortRef.current?.abort();
     const controller = new AbortController();
     abortRef.current = controller;
+    const seq = ++messageSeqRef.current;
     const userMsg: ChatMessage = { role: 'user', content: trimmed, timestamp: Date.now() };
     const updated = [...messagesRef.current, userMsg];
     setMessages(updated);
@@ -476,6 +547,7 @@ export default function Coach() {
         body: JSON.stringify({
           messages: updated.map(m => ({ role: m.role, content: m.content })),
           stream: true,
+          conversationId,
         }),
         signal: controller.signal,
       });
@@ -485,6 +557,12 @@ export default function Coach() {
           const body = await res.json().catch(() => null);
           if (body?.error && typeof body.error === 'string') errMsg = `${res.status}:${body.error}`;
         } catch { /* ignore */ }
+        // For 429, extract Retry-After header or default to 30s
+        if (res.status === 429) {
+          const retryAfter = parseInt(res.headers.get('Retry-After') ?? res.headers.get('retry-after') ?? '30', 10);
+          const seconds = isNaN(retryAfter) ? 30 : Math.min(retryAfter, 300);
+          errMsg = `429:retry=${seconds}`;
+        }
         throw new Error(errMsg);
       }
 
@@ -498,12 +576,16 @@ export default function Coach() {
       const decoder = new TextDecoder();
       let accumulated = '';
       let buffer = '';
-      streamTimeout = setTimeout(() => controller.abort(), 60_000);
+      streamTimeout = setTimeout(() => {
+        toast.error('استغرق الرد وقتًا طويلًا — حاول سؤالًا أقصر', { duration: 5000 });
+        controller.abort();
+      }, 120_000);
 
       setMessages(prev => [...prev, { role: 'assistant', content: '', timestamp: Date.now() }]);
 
       let streamDone = false;
       while (!streamDone) {
+        if (messageSeqRef.current !== seq) break; // New message sent, drop stale stream
         const { done, value } = await reader.read();
         if (done) break;
         buffer += decoder.decode(value, { stream: true });
@@ -542,10 +624,29 @@ export default function Coach() {
         });
       }
     } catch (err) {
+      logError('coach send failed', err);
+      const isAbort = err instanceof DOMException && err.name === 'AbortError';
       const msg = err instanceof Error ? err.message : '';
       const statusMatch = msg.match(/^(\d+)/);
       const status = statusMatch ? statusMatch[1] : '';
-      const errorTag = status === '429' ? '__ERROR__:429' : status === '403' ? '__ERROR__:403' : status === '401' ? '__ERROR__:401' : status === '500' ? '__ERROR__:500' : '__ERROR__';
+      const errorTag = isAbort ? '__ERROR__:TIMEOUT' : status === '429' ? '__ERROR__:429' : status === '403' ? '__ERROR__:403' : status === '401' ? '__ERROR__:401' : status === '500' ? '__ERROR__:500' : '__ERROR__';
+      // Start countdown timer for rate limit errors
+      if (status === '429') {
+        const retryMatch = msg.match(/retry=(\d+)/);
+        const seconds = retryMatch ? parseInt(retryMatch[1], 10) : 30;
+        if (countdownRef.current) clearInterval(countdownRef.current);
+        setRateLimitCountdown(seconds);
+        countdownRef.current = setInterval(() => {
+          setRateLimitCountdown(prev => {
+            if (prev <= 1) {
+              if (countdownRef.current) clearInterval(countdownRef.current);
+              countdownRef.current = null;
+              return 0;
+            }
+            return prev - 1;
+          });
+        }, 1000);
+      }
       setMessages(prev => {
         const filtered = prev.filter(m => !(m.role === 'assistant' && m.content === ''));
         if (filtered.length > 0 && filtered[filtered.length - 1].role === 'assistant') {
@@ -576,7 +677,7 @@ export default function Coach() {
       userContextRef.current = ctx;
       const prompt = buildPeptideRequestPrompt(p, intake.goal || intake.experience || intake.injection ? intake : null, ctx);
       sendToAI(prompt);
-    })().catch(() => {});
+    })().catch(e => logError('auto-send failed:', e));
   }, [searchParams, user, sendToAI, messages.length, intake]);
 
   const submitIntake = useCallback(() => {
@@ -647,6 +748,8 @@ export default function Coach() {
         <meta property="og:locale" content="ar_SA" />
         <meta property="og:image" content={`${SITE_URL}/og-image.jpg`} />
         <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="استشاري الببتيدات | pptides" />
+        <meta name="twitter:description" content="مدرب ذكي بالذكاء الاصطناعي يصمّم لك بروتوكول ببتيدات مخصّص" />
         <link rel="canonical" href={`${SITE_URL}/coach`} />
         <script type="application/ld+json">{JSON.stringify({
           '@context': 'https://schema.org',
@@ -660,6 +763,9 @@ export default function Coach() {
         })}</script>
       </Helmet>
       <div className="mx-auto max-w-3xl px-4 pt-8 pb-24 md:px-6 md:pt-12">
+        <div className="mb-4 rounded-xl border border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-900/10 px-4 py-2.5 text-center text-xs text-amber-800 dark:text-amber-300" role="alert">
+          هذا المحتوى تعليمي بحثي ولا يُعدّ بديلًا عن الاستشارة الطبية. استشر طبيبك قبل استخدام أي ببتيد.
+        </div>
         <div className="mb-6 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-100 dark:bg-emerald-900/30">
@@ -667,12 +773,18 @@ export default function Coach() {
             </div>
             <div>
               <h1 className="text-lg font-bold">استشاري الببتيدات</h1>
-              <p className="text-xs text-stone-500 dark:text-stone-300">
-                {limit === Infinity
-                  ? 'بروتوكول مخصّص لحالتك'
+              <p className={cn('text-xs', !Number.isFinite(limit)
+                ? 'text-emerald-600 dark:text-emerald-400'
+                : Math.max(0, limit - userMsgCount) <= 3
+                  ? 'text-red-600 dark:text-red-400'
+                  : Math.max(0, limit - userMsgCount) <= 7
+                    ? 'text-amber-600 dark:text-amber-400'
+                    : 'text-emerald-600 dark:text-emerald-400')}>
+                {!Number.isFinite(limit)
+                  ? '✦ عدد كبير'
                   : userMsgCount === 0
-                    ? 'اسأل أي سؤال عن الببتيدات'
-                    : `${Math.max(0, limit - userMsgCount)} رسائل متبقية من ${limit}`}
+                    ? `${limit} رسائل تجريبية`
+                    : `${Math.max(0, limit - userMsgCount)}/${limit} رسائل متبقية`}
               </p>
             </div>
           </div>
@@ -695,6 +807,20 @@ export default function Coach() {
               setIntakeStep('done');
             }}
           />
+        )}
+
+        {/* Conversation load error banner */}
+        {convLoadError && (
+          <div className="mb-4 flex items-center justify-between rounded-xl border border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-900/20 px-4 py-3">
+            <p className="text-sm font-medium text-red-700 dark:text-red-400">تعذّر تحميل المحادثات — أعد المحاولة</p>
+            <button
+              onClick={() => { supabaseLoadedRef.current = false; loadConversations(); }}
+              className="flex items-center gap-1.5 rounded-lg border border-red-300 dark:border-red-700 bg-white dark:bg-stone-900 px-3 py-1.5 text-xs font-bold text-red-700 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30 transition-colors"
+            >
+              <RotateCcw className="h-3.5 w-3.5" />
+              إعادة المحاولة
+            </button>
+          </div>
         )}
 
         <div className="rounded-2xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 overflow-hidden shadow-sm dark:shadow-stone-900/30">
@@ -727,6 +853,31 @@ export default function Coach() {
             {/* ═══ INTAKE AS CONVERSATION ═══ */}
             {intakeStep !== 'done' && (
               <div className="space-y-4">
+                {/* Progress bar */}
+                {(() => {
+                  const intakeSteps: IntakeStep[] = ['goal', 'experience', 'injection', 'details'];
+                  const stepLabels: Record<IntakeStep, string> = { goal: 'الهدف', experience: 'الخبرة', injection: 'الحقن', details: 'التفاصيل', done: '' };
+                  const totalSteps = intakeSteps.length;
+                  const currentStep = Math.max(1, intakeSteps.indexOf(intakeStep) + 1);
+                  return (
+                    <div className="mb-4">
+                      <div className="flex justify-between text-xs text-stone-500 dark:text-stone-400 mb-1.5">
+                        <span className="font-medium">{stepLabels[intakeStep]}</span>
+                        <span>{currentStep} / {totalSteps}</span>
+                      </div>
+                      <div className="h-1.5 rounded-full bg-stone-200 dark:bg-stone-700 overflow-hidden">
+                        <div className="h-1.5 rounded-full bg-emerald-500 transition-all duration-500 ease-out" style={{ width: `${(currentStep / totalSteps) * 100}%` }} />
+                      </div>
+                      <div className="mt-1.5 flex justify-between">
+                        {intakeSteps.map((step, idx) => (
+                          <span key={step} className={cn('text-[10px]', idx + 1 <= currentStep ? 'text-emerald-600 dark:text-emerald-400 font-medium' : 'text-stone-400 dark:text-stone-500')}>
+                            {stepLabels[step]}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  );
+                })()}
                 {/* Coach greeting */}
                 <div className="flex justify-end">
                   <div className="max-w-[88%] rounded-2xl rounded-bl-md border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 px-5 py-3">
@@ -885,22 +1036,32 @@ export default function Coach() {
                       }</p>
                     ) : msg.content.startsWith('__ERROR') ? (
                       <div className="text-sm text-stone-800 dark:text-stone-200">
-                        <p className="mb-2">{
-                          msg.content === '__ERROR__:429' ? `وصلت إلى حد الرسائل. الباقة المتقدّمة تعطيك استشارات بلا حدود — ${PRICING.elite.label}/شهر، ${TRIAL_DAYS} أيام مجانًا.` :
-                          msg.content === '__ERROR__:403' ? 'انتهت صلاحية جلستك — أعد تسجيل الدخول للمتابعة.' :
-                          msg.content === '__ERROR__:401' ? 'سجّل دخولك أولًا للاستفادة من المدرب الذكي.' :
-                          msg.content === '__ERROR__:500' ? 'خدمة المدرب الذكي غير متاحة حاليًا — حاول مرة أخرى بعد لحظات.' :
-                          'خدمة المدرب الذكي غير متاحة حاليًا — حاول مرة أخرى لاحقًا'
-                        }</p>
+                        <p className="mb-2">
+                          {msg.content === '__ERROR__:429' && rateLimitCountdown > 0
+                            ? `حاول مرة أخرى بعد ${rateLimitCountdown} ثانية`
+                            : getErrorMessage(msg.content)}
+                        </p>
                         <div className="flex flex-wrap gap-2">
                           {msg.content === '__ERROR__:429' && (
-                            <Link
-                              to={user ? '/pricing?plan=elite' : '/signup?redirect=/pricing'}
-                              className="inline-flex items-center gap-1.5 rounded-lg bg-emerald-600 px-3 py-1.5 text-xs font-bold text-white transition-colors hover:bg-emerald-700"
+                            <button
+                              disabled={rateLimitCountdown > 0}
+                              onClick={() => {
+                                setRateLimitCountdown(0);
+                                if (countdownRef.current) { clearInterval(countdownRef.current); countdownRef.current = null; }
+                                const cleaned = messages.filter((_, j) => j !== i && j !== i - 1);
+                                setMessages(cleaned);
+                                if (i > 0 && messages[i - 1]?.role === 'user') {
+                                  sendToAI(messages[i - 1].content);
+                                }
+                              }}
+                              className={cn(
+                                "inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-bold text-white transition-colors",
+                                rateLimitCountdown > 0 ? "bg-stone-400 cursor-not-allowed" : "bg-emerald-600 hover:bg-emerald-700"
+                              )}
                             >
-                              <Crown className="h-3 w-3" />
-                              {user ? `ترقية إلى المتقدّمة — ${PRICING.elite.label}/شهر` : `ابدأ مجانًا — ${TRIAL_DAYS} أيام`}
-                            </Link>
+                              {rateLimitCountdown > 0 ? <Clock className="h-3 w-3 animate-spin" /> : <RotateCcw className="h-3 w-3" />}
+                              {rateLimitCountdown > 0 ? `انتظر ${rateLimitCountdown}` : 'أعد المحاولة'}
+                            </button>
                           )}
                           {(msg.content === '__ERROR__:403' || msg.content === '__ERROR__:401') && (
                             <Link
@@ -947,12 +1108,12 @@ export default function Coach() {
                 </div>
                 {/* Timestamp */}
                 {msg.timestamp && !msg.content.startsWith('__ERROR') && (
-                  <p className={cn('mt-1 text-[10px] text-stone-400 dark:text-stone-300', msg.role === 'user' ? 'text-start ms-9' : 'text-end max-w-[88%] ms-auto')}>
+                  <p className={cn('mt-1 text-[10px] text-stone-500 dark:text-stone-300', msg.role === 'user' ? 'text-start ms-9' : 'text-end max-w-[88%] ms-auto')}>
                     {formatMessageTime(msg.timestamp)}
                   </p>
                 )}
                 {msg.role === 'assistant' && !msg.content.startsWith('__ERROR') && (
-                  <p className="mt-0.5 text-[10px] text-stone-400 dark:text-stone-300 text-end max-w-[88%] ms-auto">هذه معلومات تعليمية وليست نصيحة طبية — استشر طبيبك</p>
+                  <p className="mt-0.5 text-[10px] text-stone-500 dark:text-stone-300 text-end max-w-[88%] ms-auto">هذه معلومات تعليمية وليست نصيحة طبية — استشر طبيبك</p>
                 )}
                 {/* Action pills: for non-last messages, show Copy + WhatsApp only */}
                 {msg.role === 'assistant' && !isLoading && msg.content.length > 50 && i !== messages.length - 1 && (
@@ -1097,7 +1258,7 @@ export default function Coach() {
                       <span className="h-2 w-2 rounded-full bg-emerald-400 animate-bounce" style={{ animationDelay: '300ms' }} />
                     </div>
                     <span className="text-xs text-stone-500 dark:text-stone-300">
-                      {loadingStage === 0 ? 'يحلّل حالتك...' : loadingStage === 1 ? 'يبني البروتوكول...' : 'يحسب الجرعات...'}
+                      {loadingStage === 0 ? 'جارٍ التحليل...' : loadingStage === 1 ? 'جارٍ إعداد الرد...' : 'جارٍ المراجعة...'}
                     </span>
                   </div>
                 </div>
@@ -1108,12 +1269,28 @@ export default function Coach() {
           {/* ═══ INPUT AREA ═══ */}
           {intakeStep === 'done' && (
             <div className="border-t border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 p-4 pb-[max(1rem,env(safe-area-inset-bottom))] md:pb-4">
+              {/* Message limit badge */}
+              <div className="mb-3 flex justify-center">
+                {isTrial ? (
+                  <span className="inline-flex items-center gap-1.5 rounded-full bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 px-3 py-1 text-xs font-bold text-red-700 dark:text-red-400">
+                    {Math.max(0, 5 - userMsgCount)}/5 رسائل تجريبية
+                  </span>
+                ) : subscription.tier === 'essentials' ? (
+                  <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 px-3 py-1 text-xs font-bold text-amber-700 dark:text-amber-400">
+                    {Math.max(0, 15 - userMsgCount)}/15 يوم
+                  </span>
+                ) : subscription.tier === 'elite' ? (
+                  <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 px-3 py-1 text-xs font-bold text-emerald-700 dark:text-emerald-400">
+                    عدد كبير من الاستشارات
+                  </span>
+                ) : null}
+              </div>
               {limitReached ? (
                 subscription.tier === 'essentials' ? (
                 <div className="rounded-xl border-2 border-emerald-400 bg-gradient-to-b from-emerald-50 to-white dark:to-stone-950 p-6 text-center shadow-sm dark:shadow-stone-900/30">
                   <Crown className="mx-auto mb-3 h-8 w-8 text-emerald-700" />
                   <p className="text-lg font-bold text-stone-900 dark:text-stone-100">لقد وصلت للحد الأقصى</p>
-                  <p className="mt-2 text-sm text-stone-600 dark:text-stone-300">ترقَّ إلى المتقدّمة لاستشارات بلا حدود</p>
+                  <p className="mt-2 text-sm text-stone-600 dark:text-stone-300">ترقَّ إلى المتقدّمة لعدد أكبر من الاستشارات اليومية</p>
                   <Link to="/pricing?plan=elite" className="mt-4 inline-flex items-center gap-2 rounded-full bg-emerald-600 px-8 py-3.5 text-base font-semibold text-white transition-colors hover:bg-emerald-700">
                     <Crown className="h-4 w-4" />
                     ترقية إلى المتقدّمة
@@ -1123,7 +1300,7 @@ export default function Coach() {
                 <div className="rounded-xl border-2 border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-900/20 p-5 text-center">
                   <Sparkles className="mx-auto mb-2 h-6 w-6 text-emerald-700" />
                   <p className="font-bold text-stone-900 dark:text-stone-100">{hasAccess ? 'وصلت حد الأسئلة لهذه الجلسة' : 'أعجبتك الاستشارة؟'}</p>
-                  <p className="mt-1 text-sm text-stone-600 dark:text-stone-300">{!isElite && (hasAccess ? 'ترقَّ إلى المتقدّمة لاستشارات بلا حدود.' : `اشترك لاستشارات مخصّصة بلا حدود — ${TRIAL_DAYS} أيام مجانًا`)}</p>
+                  <p className="mt-1 text-sm text-stone-600 dark:text-stone-300">{!isElite && (hasAccess ? 'ترقَّ إلى المتقدّمة لعدد أكبر من الاستشارات اليومية.' : `اشترك لاستشارات مخصّصة — ${TRIAL_DAYS} أيام مجانًا`)}</p>
                   {!isElite && <button onClick={async () => { try { if (hasAccess) await upgradeTo('elite'); else navigate(user ? '/pricing' : '/signup?redirect=/pricing'); } catch { /* non-blocking */ } }} className="mt-3 rounded-full bg-emerald-600 px-8 py-3.5 text-base font-semibold text-white transition-colors hover:bg-emerald-700">{hasAccess ? 'ترقَّ إلى المتقدّمة' : `اشترك — ${PRICING.essentials.label}/شهر`}</button>}
                 </div>
                 )
@@ -1132,7 +1309,13 @@ export default function Coach() {
                   {/* Conversation starters — when chat is empty */}
                   {messages.length === 0 && !isLoading && (
                     <div className="mb-4">
-                      <p className="text-sm font-bold text-stone-600 dark:text-stone-300 mb-3 text-center">ابدأ محادثتك مع المدرب الذكي</p>
+                      <p className="text-sm font-bold text-stone-600 dark:text-stone-300 mb-2 text-center">ابدأ محادثتك مع المدرب الذكي</p>
+                      <p className="text-xs text-stone-500 dark:text-stone-400 mb-3 text-center">
+                        <Link to="/library" className="inline-flex items-center gap-1 font-medium text-emerald-700 dark:text-emerald-400 hover:underline">
+                          <BookOpen className="h-3 w-3" /> تصفّح المكتبة
+                        </Link>
+                        {' '}لاختيار ببتيد ثم اسأله هنا عن البروتوكول
+                      </p>
                       <div className="flex flex-wrap gap-2 justify-center">
                         {conversationStarters.map(q => (
                           <button
@@ -1140,7 +1323,7 @@ export default function Coach() {
                             onClick={() => sendToAI(q)}
                             disabled={isLoading}
                             className={cn(
-                              "rounded-full border border-emerald-200 dark:border-emerald-800 bg-white dark:bg-stone-900 px-4 py-2.5 min-h-[44px] text-sm font-medium text-emerald-700 dark:text-emerald-400 transition-all hover:bg-emerald-50 dark:hover:bg-emerald-900/20 hover:border-emerald-400 dark:hover:border-emerald-600 hover:shadow-sm active:scale-[0.97]",
+                              "rounded-full border border-emerald-200 dark:border-emerald-800 bg-white dark:bg-stone-900 px-4 py-2.5 min-h-[44px] text-sm font-medium text-emerald-700 dark:text-emerald-400 transition-all hover:bg-emerald-50 dark:hover:bg-emerald-900/20 hover:border-emerald-400 dark:hover:border-emerald-600 hover:shadow-sm active:scale-[0.98]",
                               isLoading && "opacity-50 cursor-not-allowed"
                             )}
                           >
@@ -1166,17 +1349,17 @@ export default function Coach() {
                         onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendToAI(input); } }}
                         onInput={e => { const t = e.currentTarget; t.style.height = 'auto'; t.style.height = Math.min(t.scrollHeight, 120) + 'px'; }}
                         onFocus={e => { setTimeout(() => e.target.scrollIntoView({ behavior: 'smooth', block: 'center' }), 300); }}
-                        placeholder="اكتب سؤالك هنا..." rows={2} maxLength={2000} disabled={isLoading}
+                        placeholder={isLoadingConversation ? 'جارٍ تحميل المحادثة...' : 'اكتب سؤالك هنا...'} rows={2} maxLength={2000} disabled={isLoading || isLoadingConversation}
                         dir="rtl"
                         aria-label="اكتب رسالتك"
-                        className={cn('flex-1 resize-none rounded-xl border border-stone-200 dark:border-stone-600 bg-stone-50 dark:bg-stone-900 px-4 py-3 text-sm text-stone-900 dark:text-stone-100 placeholder:text-stone-500 dark:text-stone-300 focus:border-emerald-300 dark:border-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900', isLoading && 'opacity-60')} />
-                      <button onClick={() => sendToAI(input)} disabled={!input.trim() || isLoading}
-                        className={cn('flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-emerald-600 transition-all shadow-sm', input.trim() && !isLoading ? 'hover:bg-emerald-700 active:scale-[0.98]' : 'opacity-40')}>
+                        className={cn('flex-1 resize-none rounded-xl border border-stone-200 dark:border-stone-600 bg-stone-50 dark:bg-stone-900 px-4 py-3 text-sm text-stone-900 dark:text-stone-100 placeholder:text-stone-500 dark:text-stone-300 focus:border-emerald-300 dark:border-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900', (isLoading || isLoadingConversation) && 'opacity-60')} />
+                      <button onClick={() => sendToAI(input)} disabled={!input.trim() || isLoading || isLoadingConversation}
+                        className={cn('flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-emerald-600 transition-all shadow-sm', input.trim() && !isLoading && !isLoadingConversation ? 'hover:bg-emerald-700 active:scale-[0.98]' : 'opacity-40')}>
                         <Send className="h-5 w-5 text-white" /><span className="sr-only">إرسال</span>
                       </button>
                     </div>
-                    <p className="text-[10px] text-stone-400 dark:text-stone-300 text-start px-1">
-                      Enter للإرسال · Shift+Enter لسطر جديد
+                    <p className="text-xs text-stone-500 dark:text-stone-300 text-start px-1">
+                      ↵ للإرسال · ⇧+↵ لسطر جديد
                     </p>
                   </div>
                 </>

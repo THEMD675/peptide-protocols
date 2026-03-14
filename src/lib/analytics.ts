@@ -1,4 +1,6 @@
 import { supabase } from './supabase';
+import { hasOptionalConsent } from './cookie-utils';
+import { logError } from './logger';
 
 declare global {
   interface Window {
@@ -9,13 +11,19 @@ declare global {
 // Generate a session ID that persists for this browser session
 function getSessionId(): string {
   const key = 'pptides_analytics_session';
-  let sid = sessionStorage.getItem(key);
-  if (!sid) {
-    sid = `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
-    sessionStorage.setItem(key, sid);
+  try {
+    let sid = sessionStorage.getItem(key);
+    if (!sid) {
+      sid = `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
+      sessionStorage.setItem(key, sid);
+    }
+    return sid;
+  } catch {
+    // Private browsing or restricted context — use in-memory fallback
+    return fallbackSessionId;
   }
-  return sid;
 }
+const fallbackSessionId = `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
 
 // Batch queue to reduce DB writes
 const eventQueue: Array<{
@@ -33,45 +41,41 @@ async function flushEvents() {
   const batch = eventQueue.splice(0, eventQueue.length);
   try {
     await supabase.from('analytics_events').insert(batch);
-  } catch {
-    /* analytics should never crash the app */
+  } catch (e) {
+    logError('[analytics] flush failed:', e);
   }
 }
 
-function queueEvent(event: string, params?: Record<string, unknown>) {
-  const userId = supabase.auth.getSession().then(s => s.data.session?.user?.id);
-  // Fire-and-forget user ID resolution
-  userId.then(uid => {
-    eventQueue.push({
-      event_name: event,
-      event_params: params || {},
-      page_path: typeof window !== 'undefined' ? window.location.pathname : '',
-      referrer: typeof document !== 'undefined' ? document.referrer : '',
-      session_id: getSessionId(),
-      ...(uid ? { user_id: uid } : {}),
-    });
+async function queueEvent(event: string, params?: Record<string, unknown>) {
+  // 9.2: Gate Supabase analytics behind cookie consent (same as GA4)
+  if (!hasOptionalConsent()) return;
+  let uid: string | undefined;
+  try {
+    const { data } = await supabase.auth.getSession();
+    uid = data.session?.user?.id;
+  } catch {
+    // Session fetch failed — continue without user_id
+  }
+  eventQueue.push({
+    event_name: event,
+    event_params: params || {},
+    page_path: typeof window !== 'undefined' ? window.location.pathname : '',
+    referrer: typeof document !== 'undefined' ? document.referrer : '',
+    session_id: getSessionId(),
+    ...(uid ? { user_id: uid } : {}),
+  });
 
-    // Flush every 3 seconds or when batch hits 10
-    if (eventQueue.length >= 10) {
-      if (flushTimer) clearTimeout(flushTimer);
+  // Flush every 3 seconds or when batch hits 10
+  if (eventQueue.length >= 10) {
+    if (flushTimer) clearTimeout(flushTimer);
+    flushTimer = null;
+    flushEvents();
+  } else if (!flushTimer) {
+    flushTimer = setTimeout(() => {
       flushTimer = null;
       flushEvents();
-    } else if (!flushTimer) {
-      flushTimer = setTimeout(() => {
-        flushTimer = null;
-        flushEvents();
-      }, 3000);
-    }
-  }).catch(() => {
-    // If session fetch fails, still queue without user_id
-    eventQueue.push({
-      event_name: event,
-      event_params: params || {},
-      page_path: typeof window !== 'undefined' ? window.location.pathname : '',
-      referrer: typeof document !== 'undefined' ? document.referrer : '',
-      session_id: getSessionId(),
-    });
-  });
+    }, 3000);
+  }
 }
 
 // Flush on page unload
@@ -84,13 +88,14 @@ if (typeof window !== 'undefined') {
 
 export function trackEvent(event: string, params?: Record<string, unknown>) {
   try {
+    if (!hasOptionalConsent()) return;
     // Send to GA4 if available
     if (typeof window !== 'undefined' && typeof window.gtag === 'function') {
       window.gtag('event', event, params);
     }
-    // Always send to Supabase
+    // Send to Supabase
     queueEvent(event, params);
-  } catch { /* analytics should never crash the app */ }
+  } catch (e) { logError('[analytics] trackEvent failed:', e); }
 }
 
 export function trackPageView(path: string) {
@@ -123,10 +128,18 @@ export const events = {
   protocolStart: (peptide: string) => trackEvent('protocol_start', { peptide }),
   trackerView: () => trackEvent('tracker_view'),
   calculatorUse: (peptide: string) => trackEvent('calculator_use', { peptide }),
-  searchUse: (query: string) => trackEvent('search_use', { query }),
+  searchUse: (query: string) => {
+    const healthTerms = /testosterone|إستروجين|هرمون|سكري|ضغط|كوليسترول|أنسولين|thyroid|diabetes|insulin|blood/i;
+    const sanitized = healthTerms.test(query) ? '[health_query]' : query;
+    trackEvent('search_use', { query: sanitized });
+  },
+
+  // Subscription lifecycle
+  subscriptionCancelled: (tier: string, reason?: string) => trackEvent('subscription_cancelled', { tier, ...(reason ? { reason } : {}) }),
 
   // Sharing & referrals
   referralShare: (method: string) => trackEvent('referral_share', { method }),
+  referralConversion: (referralCode: string) => trackEvent('referral_conversion', { referral_code: referralCode }),
   shareClick: (target: string) => trackEvent('share_click', { target }),
 
   // Contact / enquiry

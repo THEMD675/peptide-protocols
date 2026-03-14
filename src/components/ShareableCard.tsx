@@ -2,8 +2,9 @@ import { memo, useRef, useCallback } from 'react';
 import { Share2, Copy, Check, MessageCircle, Download, Twitter, Send } from 'lucide-react';
 import { useState } from 'react';
 import { toast } from 'sonner';
-import { SITE_URL, FREQUENCY_LABELS } from '@/lib/constants';
+import { SITE_URL, FREQUENCY_LABELS, REFERRAL_CODE_REGEX } from '@/lib/constants';
 import { copyToClipboard } from '@/lib/utils';
+import { logError } from '@/lib/logger';
 
 interface ShareableCardProps {
   peptideName: string;
@@ -54,7 +55,7 @@ export default memo(function ShareableCard(props: ShareableCardProps) {
     let shareText = `شوف تقدّمي في بروتوكول الببتيدات\n\n` + shareBody + '\n\n' + SITE_URL;
     try {
       const refCode = localStorage.getItem('pptides_referral_code') ?? localStorage.getItem('pptides_referral');
-      if (refCode && /^PP-[A-Z0-9]{6}$/.test(refCode)) {
+      if (refCode && REFERRAL_CODE_REGEX.test(refCode)) {
         shareText += `\nكود إحالة: ${refCode}`;
       }
     } catch { /* expected */ }
@@ -73,7 +74,7 @@ export default memo(function ShareableCard(props: ShareableCardProps) {
       const html2canvas = (await import('html2canvas')).default;
       const canvas = await html2canvas(cardRef.current, {
         scale: 2,
-        backgroundColor: '#ffffff',
+        backgroundColor: document.documentElement.classList.contains('dark') ? '#1c1917' : '#ffffff',
         useCORS: true,
       });
       // Promisify toBlob so the finally block waits for the full export to complete.
@@ -85,7 +86,7 @@ export default memo(function ShareableCard(props: ShareableCardProps) {
       if (!blob) { toast.error('تعذّر إنشاء الصورة'); return; }
       const file = new File([blob], `pptides-${props.peptideNameEn}.png`, { type: 'image/png' });
       if (navigator.share && navigator.canShare?.({ files: [file] })) {
-        await navigator.share({ files: [file], title: `بروتوكول ${props.peptideName}` }).catch(() => {});
+        await navigator.share({ files: [file], title: `بروتوكول ${props.peptideName}` }).catch((e: unknown) => logError('share failed:', e));
       } else {
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
@@ -136,20 +137,20 @@ export default memo(function ShareableCard(props: ShareableCardProps) {
         <button
           onClick={handleImageExport}
           disabled={exporting}
-          className="flex flex-1 items-center justify-center gap-2 rounded-full bg-emerald-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-emerald-700 disabled:opacity-60"
+          className="flex flex-1 items-center justify-center gap-2 rounded-full bg-emerald-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed"
         >
           <Download className="h-4 w-4" />
           {exporting ? 'جارٍ...' : 'صورة'}
         </button>
-        <a
-          href="#"
-          onClick={(e) => { e.preventDefault(); handleWhatsApp(); }}
+        <button
+          type="button"
+          onClick={() => handleWhatsApp()}
           aria-label="مشاركة عبر واتساب"
           className="flex items-center justify-center gap-2 rounded-xl bg-[#25D366] px-4 py-2.5 text-sm font-bold text-white transition-colors hover:bg-[#20bd5a]"
         >
           <MessageCircle className="h-4 w-4" />
           واتساب
-        </a>
+        </button>
         <button
           onClick={handleTwitter}
           aria-label="مشاركة عبر تويتر"

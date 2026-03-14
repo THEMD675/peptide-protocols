@@ -7,8 +7,9 @@ const LOCALHOST_ORIGINS = ['http://localhost:3000', 'http://localhost:3001', 'ht
 
 function getAllowedOrigins(): string[] {
   const env = Deno.env.get('ENVIRONMENT')
-  if (env === 'production') return PRODUCTION_ORIGINS
-  return [...PRODUCTION_ORIGINS, ...LOCALHOST_ORIGINS]
+  // Fail-secure: only allow localhost origins when explicitly set to development
+  if (env === 'development') return [...PRODUCTION_ORIGINS, ...LOCALHOST_ORIGINS]
+  return PRODUCTION_ORIGINS
 }
 
 export const ALLOWED_ORIGINS = getAllowedOrigins()

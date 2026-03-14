@@ -17,7 +17,7 @@ export default memo(function ProgressRing({ current, total, size = 80, strokeWid
 
   return (
     <div className="relative inline-flex items-center justify-center" style={{ width: size, height: size }}>
-      <svg width={size} height={size} className="-rotate-90" role="img" aria-label={label ? `${label}: ${percent}%` : `Progress: ${percent}%`}>
+      <svg width={size} height={size} className="-rotate-90" role="img" aria-label={label ? `${label}: ${percent}%` : `التقدم: ${percent}%`}>
         <circle
           cx={size / 2}
           cy={size / 2}
@@ -42,7 +42,7 @@ export default memo(function ProgressRing({ current, total, size = 80, strokeWid
       </svg>
       <div className="absolute inset-0 flex flex-col items-center justify-center">
         <span className="text-sm font-black text-stone-900 dark:text-stone-100">{percent}%</span>
-        {label && <span className="text-[9px] text-stone-500 dark:text-stone-300">{label}</span>}
+        {label && <span className="text-[11px] text-stone-500 dark:text-stone-300">{label}</span>}
       </div>
     </div>
   );

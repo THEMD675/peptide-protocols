@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { Link, useSearchParams } from 'react-router-dom';
 import { Check, CheckCircle, Shield, Lock, CreditCard, RefreshCw, ChevronDown, MessageCircle, Crown, ArrowLeft, X, Gift } from 'lucide-react';
@@ -24,7 +24,7 @@ const eliteFeatures = [
   'كل مزايا الأساسية',
   'مدرب ذكي بالذكاء الاصطناعي 24/7',
   'بروتوكولات مخصّصة لأهدافك وحالتك الشخصية',
-  'استشارات بلا حدود — لا حد للأسئلة',
+  'عدد كبير من الاستشارات اليومية',
   'دعم مخصّص عبر البريد',
 ];
 
@@ -33,14 +33,14 @@ const valueStack = VALUE_STACK;
 const eliteValueStack = [
   { item: 'مدرب ذكاء اصطناعي شخصي', value: '184 ر.س/شهر' },
   { item: 'بروتوكول مخصّص حسب حالتك', value: '371 ر.س' },
-  { item: 'استشارات بلا حدود', value: '109 ر.س/شهر' },
+  { item: 'عدد كبير من الاستشارات اليومية', value: '109 ر.س/شهر' },
   { item: 'دعم مخصّص عبر البريد', value: '71 ر.س/شهر' },
 ];
 
 const faqs = [
   {
     q: 'ما الفرق بين الأساسية و المتقدّمة؟',
-    a: 'الأساسية تعطيك كل الأدوات والمعلومات. المتقدّمة تضيف المدرب الذكي بلا حدود، بروتوكولات مخصّصة، ودعم مخصّص عبر البريد. إذا تريد استشارات كثيرة ومتابعة — المتقدّمة هي الخيار.',
+    a: 'الأساسية تعطيك كل الأدوات والمعلومات. المتقدّمة تضيف المدرب الذكي بعدد كبير من الاستشارات اليومية، بروتوكولات مخصّصة، ودعم مخصّص عبر البريد. إذا تريد استشارات كثيرة ومتابعة — المتقدّمة هي الخيار.',
   },
   {
     q: 'هل بياناتي آمنة؟',
@@ -52,7 +52,7 @@ const faqs = [
   },
   {
     q: 'هل يمكنني الإلغاء في أي وقت؟',
-    a: `نعم. يمكنك طلب إلغاء الاشتراك من حسابك. لإيقاف الدفعات المستقبلية، تواصل معنا عبر ${SUPPORT_EMAIL}.`,
+    a: 'نعم. يمكنك إلغاء اشتراكك في أي وقت من صفحة الحساب. يتوقف التجديد التلقائي فورًا ويمكنك الاستمرار حتى نهاية الفترة المدفوعة.',
   },
   {
     q: 'كيف تعمل التجربة المجانية؟',
@@ -60,16 +60,45 @@ const faqs = [
   },
 ];
 
+/** Map Stripe/checkout error messages to specific Arabic messages */
+function mapStripeError(message: string): string {
+  const lower = message.toLowerCase();
+  if (lower.includes('card_declined') || lower.includes('card declined') || lower.includes('your card was declined'))
+    return 'بطاقتك مرفوضة — جرّب بطاقة أخرى أو تواصل مع بنكك';
+  if (lower.includes('network') || lower.includes('connection') || lower.includes('timeout') || lower.includes('fetch'))
+    return 'مشكلة في الاتصال — حاول مجدداً';
+  if (lower.includes('already_subscribed') || lower.includes('already subscribed') || lower.includes('existing subscription'))
+    return 'أنت مشترك بالفعل — انتقل إلى لوحة التحكم';
+  if (lower.includes('expired_card') || lower.includes('expired card'))
+    return 'بطاقتك منتهية الصلاحية — استخدم بطاقة أخرى';
+  if (lower.includes('insufficient_funds') || lower.includes('insufficient funds'))
+    return 'رصيد غير كافٍ — تأكد من توفر الرصيد وحاول مجدداً';
+  if (lower.includes('incorrect_cvc') || lower.includes('incorrect cvc'))
+    return 'رمز الأمان (CVC) غير صحيح — تحقق وأعد المحاولة';
+  if (lower.includes('processing_error') || lower.includes('processing error'))
+    return 'خطأ في معالجة البطاقة — حاول مرة أخرى بعد دقيقة';
+  if (lower.includes('authentication_required') || lower.includes('3d secure') || lower.includes('requires_action'))
+    return 'بطاقتك تتطلب تحققًا إضافيًا — أكمل خطوات التحقق وحاول مجدداً';
+  if (lower.includes('rate_limit') || lower.includes('rate limit') || lower.includes('too many'))
+    return 'محاولات كثيرة — انتظر دقيقة وحاول مرة أخرى';
+  if (lower.includes('currency') || lower.includes('sar'))
+    return 'بطاقتك لا تدعم الريال السعودي — جرّب بطاقة أخرى';
+  if (lower.includes('session') || lower.includes('انتهت الجلسة'))
+    return 'انتهت جلستك — أعد تسجيل الدخول وحاول مجدداً';
+  return UPGRADE.checkoutError;
+}
+
 export default function Pricing() {
-  const { user, subscription, upgradeTo } = useAuth();
+  const { user, subscription, upgradeTo, isLoading: authLoading } = useAuth();
   const salesFlow = useSalesFlow();
   const { offer, urlParams, checkoutCoupon, showTrialMessaging } = salesFlow;
 
   const isSubscribedTo = (tier: string) =>
     user && subscription?.status !== 'trial' && subscription?.isProOrTrial && subscription.tier === tier;
 
-  // FIX 4: Detect if user has already used their trial
+  // Detect if user has already used their trial (includes current trial users)
   const hasUsedTrial = user && subscription && (
+    subscription.status === 'trial' ||
     subscription.status === 'active' ||
     subscription.status === 'expired' ||
     subscription.status === 'cancelled' ||
@@ -78,14 +107,28 @@ export default function Pricing() {
 
   const [searchParams, setSearchParams] = useSearchParams();
   const [loadingPlan, setLoadingPlan] = useState<string | null>(null);
-  const [billingCycle, setBillingCycle] = useState<'monthly' | 'annual'>('monthly');
+  const [billingCycle, setBillingCycleRaw] = useState<'monthly' | 'annual'>(() => {
+    try { const saved = sessionStorage.getItem('pptides_billing_cycle'); return saved === 'annual' ? 'annual' : 'monthly'; } catch { return 'monthly'; }
+  });
+  const setBillingCycle = useCallback((v: 'monthly' | 'annual') => { setBillingCycleRaw(v); try { sessionStorage.setItem('pptides_billing_cycle', v); } catch { /* expected */ } }, []);
   const [userCount, setUserCount] = useState(0);
+  const [isLoadingPortal, setIsLoadingPortal] = useState(false);
   const navigatingRef = useRef(false);
 
-  // Unified coupon: from URL params via SalesFlowService
-  const couponFromUrl = checkoutCoupon || offer.coupon;
+  // Capture coupon on first render so setSearchParams({}) doesn't lose it
+  const initialCouponRef = useRef(searchParams.get('coupon') || undefined);
 
-  useEffect(() => { navigatingRef.current = false; events.pricingView(); }, []);
+  // Unified coupon: from URL params via SalesFlowService, fallback to initial capture
+  const couponFromUrl = checkoutCoupon || offer.coupon || initialCouponRef.current;
+
+  useEffect(() => { navigatingRef.current = false; events.pricingView(); return () => { navigatingRef.current = false; }; }, []);
+
+  // Fix: BFCache restore resets navigatingRef so checkout button works after Back
+  useEffect(() => {
+    const h = (e: PageTransitionEvent) => { if (e.persisted) { navigatingRef.current = false; setLoadingPlan(null); try { const saved = sessionStorage.getItem('pptides_billing_cycle'); if (saved === 'annual' || saved === 'monthly') setBillingCycle(saved); } catch { /* expected */ } } };
+    window.addEventListener('pageshow', h);
+    return () => window.removeEventListener('pageshow', h);
+  }, []);
 
   useEffect(() => {
     let mounted = true;
@@ -99,7 +142,9 @@ export default function Pricing() {
   useEffect(() => {
     if (searchParams.get('payment') === 'cancelled') {
       toast.error(UPGRADE.paymentCancelled);
-      setSearchParams({}, { replace: true });
+      const next = new URLSearchParams(searchParams);
+      next.delete('payment');
+      setSearchParams(next, { replace: true });
     }
     if (urlParams.isSetupFlow) {
       toast(TRIAL.setupToast, { duration: 6000 });
@@ -116,8 +161,13 @@ export default function Pricing() {
   }, [searchParams, setSearchParams, urlParams.isSetupFlow, urlParams.isExpiredFlow, subscription?.status]);
 
   const renderAction = (planKey: 'essentials' | 'elite', isElite: boolean) => {
+    if (authLoading) {
+      return <div className="h-[52px] w-full animate-pulse rounded-full bg-stone-200 dark:bg-stone-700" />;
+    }
     const cancelledButActive = user && subscription?.status === 'cancelled' && subscription?.currentPeriodEnd && new Date(subscription.currentPeriodEnd) > new Date();
     const openPortal = async () => {
+      if (isLoadingPortal) return;
+      setIsLoadingPortal(true);
       try {
         const { data: { session } } = await supabase.auth.getSession();
         if (!session?.access_token) { toast.error('يرجى تسجيل الدخول'); return; }
@@ -130,19 +180,33 @@ export default function Pricing() {
         if (!res.ok) { toast.error('تعذّر فتح إدارة الدفع'); return; }
         const { url } = await res.json();
         if (url) window.location.href = url;
-      } catch { toast.error('تعذّر فتح إدارة الدفع. حاول مرة أخرى.'); }
+      } catch { toast.error('تعذّر فتح إدارة الدفع. حاول مرة أخرى.'); } finally { setIsLoadingPortal(false); }
     };
 
     if (cancelledButActive && subscription?.tier === planKey) {
+      const isReactivating = loadingPlan === planKey;
       return (
         <button
-          onClick={openPortal}
+          onClick={async () => {
+            if (isReactivating || navigatingRef.current) return;
+            setLoadingPlan(planKey);
+            try {
+              await upgradeTo(planKey, billingCycle);
+            } catch (err: unknown) {
+              const msg = err instanceof Error ? err.message : '';
+              toast.error(mapStripeError(msg));
+            } finally {
+              setLoadingPlan(null);
+            }
+          }}
+          disabled={isReactivating}
           className={cn(
             'inline-flex w-full items-center justify-center gap-2 rounded-full px-8 py-3.5 text-base font-semibold',
-            'border border-amber-300 dark:border-amber-700 bg-amber-50 dark:bg-amber-900/20 text-amber-800 dark:text-amber-300 hover:bg-amber-100 transition-colors'
+            'bg-emerald-600 text-white hover:bg-emerald-700 transition-colors',
+            isReactivating && 'opacity-70 pointer-events-none'
           )}
         >
-          <RefreshCw className="h-5 w-5" />
+          {isReactivating ? <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" /> : <RefreshCw className="h-5 w-5" />}
           {RETENTION.renewCta}
         </button>
       );
@@ -150,21 +214,41 @@ export default function Pricing() {
 
     if (isSubscribedTo(planKey)) {
       return (
-        <div className={cn(
-          'inline-flex items-center justify-center gap-2 rounded-full px-6 py-3 font-bold',
-          'border border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-400'
-        )}>
-          <Check className="h-5 w-5" />
-          <span>{UPGRADE.currentPlanBadge}</span>
+        <div className="space-y-2">
+          <div className={cn(
+            'inline-flex w-full items-center justify-center gap-2 rounded-full px-6 py-3 font-bold',
+            'border border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-400'
+          )}>
+            <Check className="h-5 w-5" />
+            <span>{UPGRADE.currentPlanBadge}</span>
+          </div>
+          <button
+            onClick={openPortal}
+            disabled={isLoadingPortal}
+            className={cn("w-full text-center text-sm font-medium text-emerald-700 dark:text-emerald-400 hover:underline min-h-[44px]", isLoadingPortal && 'opacity-70')}
+          >
+            {isLoadingPortal ? 'جارٍ الفتح...' : 'إدارة الاشتراك'}
+          </button>
         </div>
       );
     }
 
     if (user && subscription?.status !== 'trial' && subscription?.isProOrTrial && subscription.tier !== planKey) {
       return (
-        <div className="text-center text-sm text-stone-500 dark:text-stone-300">
-          {UPGRADE.changePlanText} <a href={`mailto:${SUPPORT_EMAIL}?subject=تغيير الباقة`} className="inline-flex min-h-[44px] items-center text-emerald-700 underline">{SUPPORT_EMAIL}</a>
-        </div>
+        <button
+          onClick={openPortal}
+          disabled={isLoadingPortal}
+          className={cn(
+            'inline-flex w-full items-center justify-center gap-2 rounded-full px-8 py-3.5 text-base font-semibold transition-all',
+            isElite
+              ? 'bg-emerald-600 text-white hover:bg-emerald-700'
+              : 'border border-stone-300 dark:border-stone-600 text-stone-700 dark:text-stone-200 hover:bg-stone-50 dark:hover:bg-stone-800',
+            isLoadingPortal && 'opacity-70 pointer-events-none'
+          )}
+        >
+          {isLoadingPortal ? <span className="h-4 w-4 animate-spin rounded-full border-2 border-current/30 border-t-current" /> : null}
+          {isElite ? 'ترقية إلى المتقدّمة' : 'تغيير إلى الأساسية'}
+        </button>
       );
     }
 
@@ -177,12 +261,17 @@ export default function Pricing() {
             navigatingRef.current = true;
             setLoadingPlan(planKey);
             events.checkoutStart(planKey, billingCycle);
+            // Reset navigatingRef after 15s if checkout didn't redirect
+            const navTimeout = setTimeout(() => { navigatingRef.current = false; setLoadingPlan(null); }, 15000);
             try {
               await upgradeTo(planKey, billingCycle, couponFromUrl);
-            } catch {
+            } catch (err: unknown) {
+              clearTimeout(navTimeout);
               navigatingRef.current = false;
               setLoadingPlan(null);
-              toast.error(UPGRADE.checkoutError);
+              const msg = err instanceof Error ? err.message : '';
+              const stripeMsg = mapStripeError(msg);
+              toast.error(stripeMsg);
             }
           }}
           disabled={isLoading}
@@ -264,7 +353,7 @@ export default function Pricing() {
             "@context": "https://schema.org",
             "@type": "Product",
             "name": "المتقدّمة — pptides",
-            "description": "اشتراك يتضمن كل مزايا الأساسية بالإضافة إلى مدرب ذكي بالذكاء الاصطناعي 24/7، بروتوكولات مخصّصة، واستشارات بلا حدود.",
+            "description": "اشتراك يتضمن كل مزايا الأساسية بالإضافة إلى مدرب ذكي بالذكاء الاصطناعي 24/7، بروتوكولات مخصّصة، وعدد كبير من الاستشارات اليومية.",
             "brand": { "@type": "Brand", "name": "pptides" },
             "offers": [
               { "@type": "Offer", "name": "شهري", "price": String(PRICING.elite.monthly), "priceCurrency": "SAR", "availability": "https://schema.org/InStock", "url": `${SITE_URL}/pricing` },
@@ -311,7 +400,7 @@ export default function Pricing() {
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
                 <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500" />
               </span>
-              {userCount.toLocaleString('ar-SA')}+ مشترك نشط الآن
+              {userCount.toLocaleString('ar-u-nu-latn')}+ مشترك نشط الآن
             </div>
           )}
           <div className="mt-6 flex flex-col items-center gap-2 sm:flex-row sm:justify-center sm:gap-6 text-sm text-stone-500 dark:text-stone-300">
@@ -336,7 +425,21 @@ export default function Pricing() {
           <span className={cn('flex items-center gap-1.5 text-sm font-semibold transition-colors duration-200', billingCycle === 'annual' ? 'text-emerald-700' : 'text-stone-500 dark:text-stone-300')}>
             سنوي
             <span className={cn('inline-flex items-center text-xs font-bold rounded-full px-2 py-0.5 leading-none transition-all duration-200', billingCycle === 'annual' ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400' : 'text-emerald-600')}>وفّر حتى 33%</span>
+            {billingCycle === 'annual' && (
+              <span className="inline-flex items-center text-xs font-bold rounded-full bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 px-2.5 py-0.5 leading-none animate-fade-in">
+                شهرين مجاناً — وفّر {PRICING.elite.monthly * 12 - PRICING.elite.annualTotal} ر.س
+              </span>
+            )}
           </span>
+        </div>
+
+        {/* Doctor visit cost anchor */}
+        <div className="mt-6 mb-4 flex justify-center">
+          <div className="inline-flex items-center gap-2 rounded-full border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-900 px-5 py-2 text-sm text-stone-600 dark:text-stone-300 shadow-sm">
+            <span>طبيب: <span className="font-bold text-stone-800 dark:text-stone-200">500+ ر.س/جلسة</span></span>
+            <span className="text-stone-300 dark:text-stone-600">|</span>
+            <span>pptides: <span className="font-bold text-emerald-700">1.1 ر.س/يوم</span></span>
+          </div>
         </div>
 
         {/* Pricing Cards */}
@@ -345,10 +448,15 @@ export default function Pricing() {
           <div
             className="pricing-card relative flex flex-col rounded-2xl border-2 border-emerald-200 dark:border-emerald-800 bg-white dark:bg-stone-900 p-8 shadow-lg md:p-10"
           >
-            <div className="mb-4 flex justify-center">
+            <div className="mb-4 flex justify-center gap-2">
               <span className="rounded-full bg-emerald-600 px-5 py-1.5 text-sm font-bold text-white shadow-md">
                 الأكثر شعبية
               </span>
+              {showTrialMessaging && !hasUsedTrial && (
+                <span className="rounded-full border border-amber-300 dark:border-amber-700 bg-amber-50 dark:bg-amber-900/30 px-4 py-1.5 text-sm font-bold text-amber-700 dark:text-amber-400">
+                  {TRIAL_DAYS} أيام مجانًا
+                </span>
+              )}
             </div>
             <h2 className="mb-1 text-2xl font-bold text-stone-900 dark:text-stone-100">الأساسية</h2>
             <p className="mb-6 text-stone-600 dark:text-stone-300">كل ما تحتاجه لتبدأ بثقة وبروتوكول واضح</p>
@@ -359,7 +467,14 @@ export default function Pricing() {
             </div>
             {billingCycle === 'monthly' && <p className="mb-2 text-xs font-bold text-emerald-700">~١.١ ر.س/يوم</p>}
             {billingCycle === 'monthly' && <p className="mb-2 text-xs text-emerald-700 font-medium">سنوي: <span dir="ltr">{PRICING.essentials.annualLabel}</span>/سنة — وفّر 27%</p>}
-            {billingCycle === 'annual' && <p className="mb-2 text-xs text-emerald-700 font-medium">≈ {Math.round(PRICING.essentials.annualTotal / 12)} ر.س/شهر — وفّر 27%</p>}
+            {billingCycle === 'annual' && (
+              <div className="mb-2 flex items-center gap-2">
+                <p className="text-xs text-emerald-700 font-medium">≈ {Math.round(PRICING.essentials.annualTotal / 12)} ر.س/شهر</p>
+                <span className="rounded-full bg-emerald-100 dark:bg-emerald-900/30 px-2.5 py-0.5 text-xs font-bold text-emerald-700 dark:text-emerald-400">
+                  وفّر {PRICING.essentials.monthly * 12 - PRICING.essentials.annualTotal} ر.س
+                </span>
+              </div>
+            )}
             <div className="mb-4" />
 
             <ul className="mb-8 flex-1 space-y-3">
@@ -379,10 +494,15 @@ export default function Pricing() {
             className="pricing-card pricing-card-featured relative flex flex-col rounded-2xl border-2 border-emerald-300 dark:border-emerald-700 bg-white dark:bg-stone-900 p-8 md:p-10"
             style={{ animation: 'pricing-elite-glow 3s ease-in-out infinite' }}
           >
-            <div className="mb-4 flex justify-center">
+            <div className="mb-4 flex justify-center gap-2">
               <span className="rounded-full bg-emerald-600 px-5 py-1.5 text-sm font-bold text-white shadow-md">
                 الأفضل قيمة
               </span>
+              {showTrialMessaging && !hasUsedTrial && (
+                <span className="rounded-full border border-amber-300 dark:border-amber-700 bg-amber-50 dark:bg-amber-900/30 px-4 py-1.5 text-sm font-bold text-amber-700 dark:text-amber-400">
+                  {TRIAL_DAYS} أيام مجانًا
+                </span>
+              )}
             </div>
 
             <h2 className="mb-1 text-2xl font-bold text-stone-900 dark:text-stone-100">المتقدّمة</h2>
@@ -394,7 +514,14 @@ export default function Pricing() {
             </div>
             {billingCycle === 'monthly' && <p className="mb-2 text-xs font-bold text-emerald-700">~١٢.٤ ر.س/يوم</p>}
             {billingCycle === 'monthly' && <p className="mb-2 text-xs text-emerald-700 font-medium">سنوي: <span dir="ltr">{PRICING.elite.annualLabel}</span>/سنة — وفّر 33%</p>}
-            {billingCycle === 'annual' && <p className="mb-2 text-xs text-emerald-700 font-medium">≈ {Math.round(PRICING.elite.annualTotal / 12)} ر.س/شهر — وفّر 33%</p>}
+            {billingCycle === 'annual' && (
+              <div className="mb-2 flex items-center gap-2">
+                <p className="text-xs text-emerald-700 font-medium">≈ {Math.round(PRICING.elite.annualTotal / 12)} ر.س/شهر</p>
+                <span className="rounded-full bg-emerald-100 dark:bg-emerald-900/30 px-2.5 py-0.5 text-xs font-bold text-emerald-700 dark:text-emerald-400">
+                  وفّر {PRICING.elite.monthly * 12 - PRICING.elite.annualTotal} ر.س
+                </span>
+              </div>
+            )}
             <div className="mb-2" />
 
             <ul className="mb-8 flex-1 space-y-3">
@@ -430,12 +557,28 @@ export default function Pricing() {
           {COMMON.noCommitments}
         </p>
 
+        {/* Refund guarantee badge */}
+        <div className="mt-6 flex justify-center">
+          <div className="inline-flex items-center gap-2 rounded-full border-2 border-emerald-300 dark:border-emerald-700 bg-emerald-50 dark:bg-emerald-900/20 px-6 py-2.5 shadow-sm">
+            <Shield className="h-5 w-5 text-emerald-700 shrink-0" />
+            <span className="text-sm font-bold text-emerald-800 dark:text-emerald-300">ضمان استرداد 100% — بدون أسئلة</span>
+          </div>
+        </div>
+
+        {/* vs ChatGPT callout */}
+        <div className="mt-6 rounded-xl border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-800/50 p-4 text-center">
+          <p className="text-sm font-bold text-stone-700 dark:text-stone-200 mb-1">لماذا ليس ChatGPT؟</p>
+          <p className="text-xs text-stone-600 dark:text-stone-300 leading-relaxed">
+            ChatGPT لا يعرف بروتوكولك، لا يتابع تقدّمك، لا يحذّرك من التفاعلات
+          </p>
+        </div>
+
         {/* Free Tier Teaser */}
         <div className="mt-8 rounded-2xl border border-dashed border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-900/50 p-5 text-center">
           <p className="text-sm font-semibold text-stone-700 dark:text-stone-200">
             هل تريد تجربة المنصة قبل الاشتراك؟{' '}
             <Link to="/library" className="text-emerald-700 underline underline-offset-2">
-              تصفّح 6 ببتيدات مجانًا
+              تصفّح 7 ببتيدات مجانًا
             </Link>{' '}
             — بدون بطاقة بنكية
           </p>
@@ -461,7 +604,7 @@ export default function Pricing() {
                   { feature: 'دليل التحاليل المخبرية', essentials: true, elite: true },
                   { feature: 'البروتوكولات المُجمَّعة حسب الهدف', essentials: true, elite: true },
                   { feature: 'المدرب الذكي', essentials: false, elite: true },
-                  { feature: 'استشارات بلا حدود', essentials: false, elite: true },
+                  { feature: 'عدد كبير من الاستشارات اليومية', essentials: false, elite: true },
                   { feature: 'بروتوكولات مخصّصة', essentials: false, elite: true },
                   { feature: 'دعم مخصّص عبر البريد', essentials: false, elite: true },
                 ] as const).map((row, i) => (
@@ -679,10 +822,12 @@ export default function Pricing() {
                 events.checkoutStart('elite', billingCycle);
                 try {
                   await upgradeTo('elite', billingCycle, couponFromUrl);
-                } catch {
+                } catch (err: unknown) {
                   navigatingRef.current = false;
                   setLoadingPlan(null);
-                  toast.error(UPGRADE.checkoutError);
+                  const msg = err instanceof Error ? err.message : '';
+                  const stripeMsg = mapStripeError(msg);
+                  toast.error(stripeMsg);
                 }
               }}
               disabled={loadingPlan === 'elite'}
@@ -723,6 +868,7 @@ export default function Pricing() {
             0%, 100% { box-shadow: 0 4px 6px -1px rgba(16,185,129,0.05), 0 0 0 0 rgba(16,185,129,0); }
             50% { box-shadow: 0 10px 25px -5px rgba(16,185,129,0.12), 0 0 20px 0 rgba(16,185,129,0.06); }
           }
+          @media (prefers-reduced-motion: reduce) { .pricing-card-featured { animation: none !important; } }
         `}</style>
 
         {/* Disclaimer */}
@@ -733,6 +879,51 @@ export default function Pricing() {
           الاستشارة الطبية المتخصصة. استشر طبيبك قبل استخدام أي ببتيد أو مكمّل.
         </p>
       </div>
+
+      {/* Mobile sticky CTA */}
+      {!subscription?.isProOrTrial && (
+        <div className="fixed bottom-0 inset-x-0 z-50 border-t border-stone-200 dark:border-stone-700 bg-white/95 dark:bg-stone-900/95 backdrop-blur-sm p-3 md:hidden pb-[env(safe-area-inset-bottom)]">
+          {user ? (
+            <button
+              onClick={async () => {
+                if (navigatingRef.current) return;
+                navigatingRef.current = true;
+                setLoadingPlan('elite');
+                events.checkoutStart('elite', billingCycle);
+                try {
+                  await upgradeTo('elite', billingCycle, couponFromUrl);
+                } catch (err: unknown) {
+                  navigatingRef.current = false;
+                  setLoadingPlan(null);
+                  const msg = err instanceof Error ? err.message : '';
+                  toast.error(mapStripeError(msg));
+                }
+              }}
+              disabled={loadingPlan === 'elite'}
+              className={cn(
+                'btn-primary-glow flex w-full items-center justify-center gap-2 rounded-full bg-emerald-600 px-6 py-3.5 text-base font-semibold text-white transition-all hover:bg-emerald-700',
+                loadingPlan === 'elite' && 'opacity-70 pointer-events-none'
+              )}
+            >
+              {loadingPlan === 'elite' ? (
+                <>
+                  <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />
+                  {UPGRADE.checkoutRedirecting}
+                </>
+              ) : (
+                hasUsedTrial ? 'اشترك الآن' : TRIAL.ctaFree
+              )}
+            </button>
+          ) : (
+            <Link
+              to="/signup?redirect=/pricing"
+              className="btn-primary-glow flex w-full items-center justify-center gap-2 rounded-full bg-emerald-600 px-6 py-3.5 text-base font-semibold text-white transition-all hover:bg-emerald-700"
+            >
+              {TRIAL.ctaSignup}
+            </Link>
+          )}
+        </div>
+      )}
     </div>
   );
 }

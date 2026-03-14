@@ -1145,6 +1145,8 @@ export default function Guide() {
               >
                 <button
                   onClick={() => toggleSection(section.id)}
+                  aria-expanded={!!openSections[section.id]}
+                  aria-controls={`section-${section.id}`}
                   className="flex w-full items-center justify-between px-5 py-4 text-start font-bold text-stone-900 dark:text-stone-100 hover:bg-stone-50 dark:hover:bg-stone-900 transition-colors"
                 >
                   <span className="flex items-center gap-3">
@@ -1156,7 +1158,7 @@ export default function Guide() {
                   <ChevronDown className={cn('h-5 w-5 shrink-0 text-emerald-500 transition-transform duration-200', openSections[section.id] && 'rotate-180')} />
                 </button>
                 {openSections[section.id] && (
-                  <div className="px-5 pb-5 text-sm leading-relaxed text-stone-700 dark:text-stone-200">
+                  <div id={`section-${section.id}`} className="px-5 pb-5 text-sm leading-relaxed text-stone-700 dark:text-stone-200">
                     {section.content}
                   </div>
                 )}
@@ -1173,7 +1175,7 @@ export default function Guide() {
             className={cn(
               'flex items-center gap-2 rounded-xl px-5 py-3 text-sm font-bold transition-colors',
               activeModuleIndex === 0
-                ? 'text-stone-400 dark:text-stone-300 cursor-not-allowed'
+                ? 'text-stone-500 dark:text-stone-300 cursor-not-allowed'
                 : 'bg-stone-100 dark:bg-stone-800 text-stone-700 dark:text-stone-200 hover:bg-stone-200 dark:hover:bg-stone-700'
             )}
           >

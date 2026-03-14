@@ -2,14 +2,26 @@ import { createContext, useContext, useState, useEffect, useCallback, useMemo, u
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { supabase } from '@/lib/supabase';
-import { SUPPORT_EMAIL } from '@/lib/constants';
+import { SUPPORT_EMAIL, REFERRAL_CODE_REGEX } from '@/lib/constants';
 import { events } from '@/lib/analytics';
+import { logError } from '@/lib/logger';
 import type { User as SupabaseUser, Session } from '@supabase/supabase-js';
+
+/** Fire-and-forget fetch with 1 retry after 5s delay */
+function fireAndForgetFetch(url: string, opts: RequestInit, label: string) {
+  const attempt = (n: number) => {
+    fetch(url, opts).catch((e) => {
+      logError(`${label} attempt ${n} failed:`, e);
+      if (n < 2) setTimeout(() => attempt(n + 1), 5000);
+    });
+  };
+  attempt(1);
+}
 
 type SubscriptionTier = 'free' | 'essentials' | 'elite';
 
 export interface Subscription {
-  status: 'trial' | 'active' | 'past_due' | 'cancelled' | 'expired' | 'none';
+  status: 'trial' | 'active' | 'past_due' | 'cancelled' | 'expired' | 'disputed' | 'none';
   tier: SubscriptionTier;
   trialDaysLeft: number;
   isProOrTrial: boolean;
@@ -33,6 +45,7 @@ interface User {
 export interface AuthContextType {
   user: User | null;
   subscription: Subscription;
+  subscriptionError: boolean;
   isLoading: boolean;
   login: (email: string, password: string) => Promise<void>;
   signup: (email: string, password: string) => Promise<void>;
@@ -104,7 +117,7 @@ export function buildSubscription(row: Record<string, unknown> | null): Subscrip
   let status: Subscription['status'];
   if (dbStatus === 'trial' && trialDaysLeft <= 0) {
     status = 'expired';
-  } else if (dbStatus === 'trial' || dbStatus === 'active' || dbStatus === 'past_due' || dbStatus === 'expired' || dbStatus === 'cancelled') {
+  } else if (dbStatus === 'trial' || dbStatus === 'active' || dbStatus === 'past_due' || dbStatus === 'expired' || dbStatus === 'cancelled' || dbStatus === 'disputed') {
     status = dbStatus as Subscription['status'];
   } else {
     status = 'none';
@@ -118,8 +131,8 @@ export function buildSubscription(row: Record<string, unknown> | null): Subscrip
     (periodEnd.getTime() + 7 * 24 * 60 * 60 * 1000) > nowUtcMs;
 
   const isProOrTrial =
-    (status === 'trial' && trialDaysLeft > 0) || status === 'active' || pastDueGrace || cancelledButActive;
-  const isPaidSubscriber = status === 'active' || status === 'past_due' || cancelledButActive;
+    (status === 'trial' && trialDaysLeft > 0) || status === 'active' || status === 'disputed' || pastDueGrace || cancelledButActive;
+  const isPaidSubscriber = status === 'active' || status === 'past_due' || status === 'disputed' || cancelledButActive;
 
   const isTrial = status === 'trial' && trialDaysLeft > 0;
 
@@ -154,7 +167,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const navigate = useNavigate();
   const [user, setUser] = useState<User | null>(null);
   const [subscription, setSubscription] = useState<Subscription>(DEFAULT_SUBSCRIPTION);
+  const [subscriptionError, setSubscriptionError] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const subFetchFailCountRef = useRef(0);
 
   const trialEventFiredRef = useRef(false);
 
@@ -164,28 +179,66 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) {
         setSubscription(DEFAULT_SUBSCRIPTION);
+        subFetchFailCountRef.current = 0;
         return;
       }
 
       const { data, error } = await fetchWithRetry(() =>
         supabase
           .from('subscriptions')
-          .select('*')
+          .select('status, tier, trial_ends_at, stripe_subscription_id, current_period_end, referral_code, grant_source, billing_interval, referred_by')
           .eq('user_id', userId)
           .maybeSingle()
       );
       if (error) {
         if (error?.message?.includes('JWT') || (error as Record<string, unknown>)?.status === 401) {
+          // Attempt session refresh before giving up
+          const { error: refreshError } = await supabase.auth.refreshSession();
+          if (!refreshError) {
+            toast.success('تم تجديد جلستك');
+            // Retry the subscription fetch with the refreshed session
+            try {
+              const { data: retryData, error: retryError } = await supabase
+                .from('subscriptions')
+                .select('status, tier, trial_ends_at, stripe_subscription_id, current_period_end, referral_code, grant_source, billing_interval, referred_by')
+                .eq('user_id', userId)
+                .maybeSingle();
+              if (!retryError) {
+                setSubscription(buildSubscription(retryData));
+                subFetchFailCountRef.current = 0;
+                return;
+              }
+            } catch {
+              // Fall through to error handling below
+            }
+            // JWT refresh succeeded but retry still failed — keep previous state
+            subFetchFailCountRef.current += 1;
+            toast.error('تعذّر تحديث حالة الاشتراك', { id: 'sub-fetch-error' });
+            if (subFetchFailCountRef.current >= 3) {
+              setSubscriptionError(true);
+            }
+            return;
+          }
+          // Refresh also failed — sign out
           toast.error('انتهت الجلسة — يرجى تسجيل الدخول مرة أخرى');
           await supabase.auth.signOut({ scope: 'local' });
           setUser(null);
           setSubscription(DEFAULT_SUBSCRIPTION);
+          subFetchFailCountRef.current = 0;
           return;
         }
-        setSubscription(DEFAULT_SUBSCRIPTION);
+        // Non-JWT error — keep previous state, increment failure counter
+        logError('subscription fetch error', error);
+        subFetchFailCountRef.current += 1;
+        toast.error('تعذّر تحديث حالة الاشتراك', { id: 'sub-fetch-error' });
+        if (subFetchFailCountRef.current >= 3) {
+          setSubscriptionError(true);
+        }
         return;
       }
 
+      subFetchFailCountRef.current = 0;
+      setSubscriptionError(false);
 
       const built = buildSubscription(data);
       setSubscription(built);
@@ -195,9 +248,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         trialEventFiredRef.current = true;
         events.trialStarted(built.tier);
       }
-    } catch {
-      toast.error('تعذّر تحميل بيانات الاشتراك. حاول تحديث الصفحة.');
-      setSubscription(DEFAULT_SUBSCRIPTION);
+    } catch (err) {
+      logError('subscription fetch failed', err);
+      subFetchFailCountRef.current += 1;
+      toast.error('تعذّر تحديث حالة الاشتراك');
+      if (subFetchFailCountRef.current >= 3) {
+        setSubscriptionError(true);
+      }
     }
   }, []);
 
@@ -220,6 +277,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
     if (params.get('payment') !== 'success' || !user) return;
 
+    const expectedTier = params.get('tier') || null;
+
     toast('شكرًا! جارٍ تفعيل اشتراكك...');
 
     const cleanUrl = () => {
@@ -232,33 +291,62 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     let cancelled = false;
     let timer: ReturnType<typeof setTimeout>;
     let attempts = 0;
+
+    // Check if subscription is already active before starting poll
+    const preCheck = async () => {
+      try {
+        const { data } = await supabase.from('subscriptions').select('status, tier').eq('user_id', user.id).maybeSingle();
+        if (data?.status === 'active' || data?.status === 'trial') {
+          await fetchSubscription(user.id);
+          cleanUrl();
+          toast.success('تم تفعيل اشتراكك بنجاح!');
+          if (window.location.pathname !== '/dashboard') navigate('/dashboard');
+          return true;
+        }
+      } catch { /* proceed to polling */ }
+      return false;
+    };
+    preCheck().then(alreadyActive => { if (!alreadyActive && !cancelled) poll(); });
+
     const poll = async () => {
       if (cancelled) return;
       attempts++;
-      if (attempts % 4 === 0) toast('لا زلنا نتحقق... يرجى الانتظار');
+      if (attempts % 8 === 0) toast('لا زلنا نتحقق... يرجى الانتظار');
       try {
         const { data, error: pollError } = await supabase
           .from('subscriptions')
-          .select('status')
+          .select('status, tier')
           .eq('user_id', user.id)
           .maybeSingle();
 
         if (cancelled) return;
         if (pollError) { timer = setTimeout(poll, 5000); return; }
         if (data?.status === 'active' || data?.status === 'trial') {
+          // Verify tier matches what user selected (if available)
+          if (expectedTier && data.tier && data.tier !== expectedTier && attempts < 10) {
+            timer = setTimeout(poll, 3000);
+            return;
+          }
           await fetchSubscription(user.id);
           cleanUrl();
-          toast.success('تم تفعيل اشتراكك بنجاح!');
+          if (expectedTier && data.tier && data.tier !== expectedTier) {
+            toast.error(`تم تفعيل اشتراك مختلف عن المتوقع — تواصل مع الدعم: ${SUPPORT_EMAIL}`, { duration: 10000 });
+          } else {
+            toast.success('تم تفعيل اشتراكك بنجاح!');
+          }
           if (window.location.pathname !== '/dashboard') {
             navigate('/dashboard');
           }
           return;
         }
-        if (attempts < 20) { timer = setTimeout(poll, Math.min(3000 * Math.pow(1.5, attempts - 1), 15000)); }
+        if (attempts < 40) { timer = setTimeout(poll, Math.min(3000 * Math.pow(1.3, attempts - 1), 10000)); }
         else {
           await fetchSubscription(user.id);
           cleanUrl();
-          toast.error(`تعذّر تفعيل الاشتراك تلقائيًا. تواصل معنا: ${SUPPORT_EMAIL}`);
+          toast.error('لم يتم تفعيل اشتراكك تلقائياً', {
+            duration: Infinity,
+            action: { label: 'إعادة المحاولة', onClick: () => window.location.reload() },
+          });
         }
       } catch {
         if (cancelled) return;
@@ -266,106 +354,167 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return;
       }
     };
-    poll();
     return () => { cancelled = true; clearTimeout(timer); };
   }, [user, fetchSubscription, navigate]);
 
   const hadSessionRef = useRef(false);
+  const initDoneRef = useRef(false);
+  const fetchPromiseRef = useRef<Promise<void> | null>(null);
+  const lastFetchedUserIdRef = useRef<string | null>(null);
+  const welcomeEmailSentRef = useRef(false);
 
   useEffect(() => {
-    const timeout = setTimeout(() => {
-      setIsLoading(false);
-    }, 15000);
+    // eslint-disable-next-line prefer-const -- reassigned on line below
+    let timeout: ReturnType<typeof setTimeout>;
 
-    supabase.auth.getSession().then(async ({ data: { session } }) => {
+    const syncProfile = (userId: string, su: SupabaseUser) => {
+      const displayName = (su.user_metadata?.full_name ?? su.user_metadata?.name) as string | undefined;
+      const dn = ((displayName && displayName.trim()) || su.email?.split('@')[0] || '').replace(/<[^>]+>/g, '').slice(0, 50);
+      supabase.from('user_profiles').select('user_id').eq('user_id', userId).maybeSingle().then(({ data: existing }) => {
+        if (existing) {
+          supabase.from('user_profiles').update({ display_name: dn, updated_at: new Date().toISOString() }).eq('user_id', userId).catch((e) => logError('profile update failed:', e));
+        } else {
+          supabase.from('user_profiles').insert({ user_id: userId, display_name: dn, updated_at: new Date().toISOString() }).catch((e) => logError('profile insert failed:', e));
+        }
+      }).catch((e) => logError('profile check failed:', e));
+    };
+
+    const handleSession = async (session: Session | null, event?: string) => {
       if (session?.user) {
         hadSessionRef.current = true;
         const mapped = mapUser(session.user);
         setUser(mapped);
         if (mapped) {
-          await fetchSubscription(mapped.id);
-          const displayName = (session.user.user_metadata?.full_name ?? session.user.user_metadata?.name) as string | undefined;
-          // Always ensure user_profile exists — email signup users have no display_name metadata
-          const dn = ((displayName && displayName.trim()) || session.user.email?.split('@')[0] || '').replace(/<[^>]+>/g, '').slice(0, 50);
-          supabase.from('user_profiles').select('user_id').eq('user_id', mapped.id).maybeSingle().then(({ data: existing }) => {
-            if (existing) {
-              supabase.from('user_profiles').update({ display_name: dn, updated_at: new Date().toISOString() }).eq('user_id', mapped.id).then(() => {}).catch(() => {});
-            } else {
-              supabase.from('user_profiles').insert({ user_id: mapped.id, display_name: dn, updated_at: new Date().toISOString() }).then(() => {}).catch(() => {});
-            }
-          }).catch(() => {});
+          if (fetchPromiseRef.current && mapped.id === lastFetchedUserIdRef.current) {
+            await fetchPromiseRef.current;
+          } else {
+            const p = fetchSubscription(mapped.id);
+            fetchPromiseRef.current = p;
+            lastFetchedUserIdRef.current = mapped.id;
+            try { await p; } finally { fetchPromiseRef.current = null; }
+          }
+          syncProfile(mapped.id, session.user);
         }
+      } else {
+        if (event === 'SIGNED_OUT' && hadSessionRef.current) {
+          const currentPath = window.location.pathname + window.location.search;
+          navigate(`/login?redirect=${encodeURIComponent(currentPath)}`, { replace: true });
+        }
+        hadSessionRef.current = false;
+        setUser(null);
+        setSubscription(DEFAULT_SUBSCRIPTION);
+        if (event === 'SIGNED_OUT') clearPptidesStorage();
       }
-      // FIX: Cancel timeout AFTER all async work (including fetchSubscription) completes,
-      // so the 15s safety net still fires if fetchSubscription stalls (e.g. retries on slow network).
-      clearTimeout(timeout);
-      setIsLoading(false);
-    }).catch(() => {
-      clearTimeout(timeout);
-      setIsLoading(false);
-    });
+    };
 
     const { data: { subscription: authListener } } = supabase.auth.onAuthStateChange(
       async (event: string, session: Session | null) => {
-        if (session?.user) {
-          hadSessionRef.current = true;
-          const mapped = mapUser(session.user);
-          setUser(mapped);
-          if (mapped) {
-            await fetchSubscription(mapped.id);
-            const displayName = (session.user.user_metadata?.full_name ?? session.user.user_metadata?.name) as string | undefined;
-            // Always ensure user_profile exists — email signup users have no display_name metadata
-            const dn2 = ((displayName && displayName.trim()) || session.user.email?.split('@')[0] || '').replace(/<[^>]+>/g, '').slice(0, 50);
-            supabase.from('user_profiles').select('user_id').eq('user_id', mapped.id).maybeSingle().then(({ data: existing }) => {
-              if (existing) {
-                supabase.from('user_profiles').update({ display_name: dn2, updated_at: new Date().toISOString() }).eq('user_id', mapped.id).then(() => {}).catch(() => {});
-              } else {
-                supabase.from('user_profiles').insert({ user_id: mapped.id, display_name: dn2, updated_at: new Date().toISOString() }).then(() => {}).catch(() => {});
+        if (event === 'INITIAL_SESSION') {
+          clearTimeout(timeout);
+          // 16.2: If initial session is null but localStorage has tokens, attempt refresh
+          if (!session) {
+            try {
+              const hasTokens = Object.keys(localStorage).some(k => k.startsWith('sb-') && k.endsWith('-auth-token'));
+              if (hasTokens) {
+                const { data: refreshData } = await supabase.auth.refreshSession();
+                if (refreshData?.session) {
+                  await handleSession(refreshData.session, event);
+                  initDoneRef.current = true;
+                  setIsLoading(false);
+                  return;
+                }
               }
-            }).catch(() => {});
+            } catch {
+              // Refresh failed — proceed with null session
+            }
           }
-        } else {
-          if (event === 'SIGNED_OUT' && hadSessionRef.current) {
-            const currentPath = window.location.pathname + window.location.search;
-            navigate(`/login?redirect=${encodeURIComponent(currentPath)}`, { replace: true });
-          }
-          hadSessionRef.current = false;
-          setUser(null);
-          setSubscription(DEFAULT_SUBSCRIPTION);
-          clearPptidesStorage();
+          await handleSession(session, event);
+          initDoneRef.current = true;
+          setIsLoading(false);
+          return;
         }
-        setIsLoading(false);
+
+        if (event === 'SIGNED_IN' && session?.user && !welcomeEmailSentRef.current) {
+          welcomeEmailSentRef.current = true;
+          const edgeFnUrl = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/send-welcome-email`;
+          fireAndForgetFetch(edgeFnUrl, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${session.access_token}`,
+              apikey: import.meta.env.VITE_SUPABASE_ANON_KEY,
+            },
+            body: JSON.stringify({ email: session.user.email, name: session.user.user_metadata?.full_name ?? '' }),
+          }, 'Welcome email (SIGNED_IN)');
+        }
+
+        await handleSession(session, event);
+        if (!initDoneRef.current) {
+          initDoneRef.current = true;
+          setIsLoading(false);
+        }
       }
     );
 
-    return () => { authListener.unsubscribe(); clearTimeout(timeout); };
+    const slowWarning = setTimeout(() => {
+      if (!initDoneRef.current) {
+        toast('جارٍ التحميل... يرجى الانتظار', { duration: 8000 });
+      }
+    }, 5000);
+
+    timeout = setTimeout(() => {
+      if (!initDoneRef.current) {
+        if (fetchPromiseRef.current) {
+          // Subscription fetch still in flight — don't set isLoading false yet or we break
+          // ProtectedRoute/TrialBanner (they'd see default subscription). Let the fetch complete.
+          return;
+        }
+        logError('Auth init timeout (30s) — resolving with current state');
+        initDoneRef.current = true;
+        setIsLoading(false);
+      }
+    }, 30000);
+
+    return () => { authListener.unsubscribe(); clearTimeout(timeout); clearTimeout(slowWarning); };
   }, [fetchSubscription, navigate]);
 
   const fetchSubRef = useRef(fetchSubscription);
   fetchSubRef.current = fetchSubscription;
 
   useEffect(() => {
+    let debounceTimer: ReturnType<typeof setTimeout>;
     const handler = (e: StorageEvent) => {
-      if (e.key?.startsWith('sb-') && user) {
-        fetchSubRef.current(user.id);
-      }
+      if (!e.key?.startsWith('sb-')) return;
+      // 16.5: Debounce storage events and check fetchingRef to prevent race conditions
+      clearTimeout(debounceTimer);
+      debounceTimer = setTimeout(async () => {
+        if (fetchPromiseRef.current) return;
+        const { data: { user: currentUser } } = await supabase.auth.getUser();
+        if (currentUser) {
+          fetchSubRef.current(currentUser.id);
+        } else {
+          setUser(null);
+          setSubscription(DEFAULT_SUBSCRIPTION);
+        }
+      }, 500);
     };
     window.addEventListener('storage', handler);
-    return () => window.removeEventListener('storage', handler);
-  }, [user]);
+    return () => { window.removeEventListener('storage', handler); clearTimeout(debounceTimer); };
+  }, []);
 
   useEffect(() => {
     const handleVisibility = () => {
       if (document.visibilityState === 'visible' && user) {
-        supabase.auth.getSession().then(({ data: { session } }) => {
+        supabase.auth.refreshSession().then(({ data: { session } }) => {
+          if (!user) return; // User logged out while tab was hidden
           if (!session) {
             setUser(null);
             setSubscription(DEFAULT_SUBSCRIPTION);
             toast.error('انتهت الجلسة — يرجى تسجيل الدخول مرة أخرى');
           } else {
-            fetchSubRef.current(user.id);
+            fetchSubRef.current(session.user.id);
           }
-        }).catch(() => {});
+        }).catch((err) => { logError('Visibility refresh failed:', err); });
       }
     };
     document.addEventListener('visibilitychange', handleVisibility);
@@ -417,10 +566,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (data.user) {
       let refCode: string | null = null;
       try { refCode = localStorage.getItem('pptides_referral'); } catch { /* expected */ }
-      const validRef = refCode && /^PP-[A-Z0-9]{6}$/.test(refCode) ? refCode : null;
+      const validRef = refCode && REFERRAL_CODE_REGEX.test(refCode) ? refCode.toUpperCase() : null;
 
       const edgeFnUrl = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/send-welcome-email`;
-      fetch(edgeFnUrl, {
+      fireAndForgetFetch(edgeFnUrl, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -428,9 +577,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           apikey: import.meta.env.VITE_SUPABASE_ANON_KEY,
         },
         body: JSON.stringify({ email, name: '', referralCode: validRef }),
-      }).catch(() => {});
+      }, 'Welcome email (signup)');
 
       if (validRef) {
+        events.referralConversion(validRef);
         try { localStorage.removeItem('pptides_referral'); } catch { /* expected */ }
       }
     }
@@ -447,7 +597,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if ('caches' in window) {
       caches.keys().then(names => names.forEach(name => {
         if (name.includes('supabase-api')) caches.delete(name);
-      })).catch(() => {});
+      })).catch(e => logError('cache cleanup failed:', e));
     }
     try {
       clearPptidesStorage();
@@ -462,11 +612,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (user) await fetchSubscription(user.id);
   }, [user, fetchSubscription]);
 
+  const pollTierRef = useRef<string>('none');
   useEffect(() => {
-    if (!user || subscription.status !== 'trial' || subscription.trialDaysLeft <= 0) return;
-    const interval = setInterval(() => { fetchSubscription(user.id); }, 5 * 60 * 1000);
+    if (!user) return;
+    const isTrial = subscription.status === 'trial' && subscription.trialDaysLeft > 0;
+    const isActive = subscription.status === 'active' || subscription.status === 'past_due';
+    const isCancelledButActive = subscription.status === 'cancelled' && subscription.isPaidSubscriber;
+    const tier = isTrial ? 'trial' : (isActive || isCancelledButActive) ? 'active' : 'none';
+    if (tier === 'none') { pollTierRef.current = 'none'; return; }
+    if (tier === pollTierRef.current) return;
+    pollTierRef.current = tier;
+    const intervalMs = tier === 'trial' ? 30_000 : 300_000;
+    const jitter = Math.random() * intervalMs * 0.2;
+    const interval = setInterval(() => { fetchSubscription(user.id); }, intervalMs + jitter);
     return () => clearInterval(interval);
-  }, [user, subscription.status, subscription.trialDaysLeft, fetchSubscription]);
+  }, [user, subscription.status, subscription.trialDaysLeft, subscription.isPaidSubscriber, fetchSubscription]);
 
   const upgradeTo = useCallback(async (tier: 'essentials' | 'elite', billing: 'monthly' | 'annual' = 'monthly', coupon?: string) => {
     try {
@@ -478,7 +638,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return;
       }
       let referralCode: string | undefined;
-      try { const r = localStorage.getItem('pptides_referral'); if (r && /^PP-[A-Z0-9]{6}$/.test(r)) referralCode = r; } catch { /* expected */ }
+      try { const r = localStorage.getItem('pptides_referral'); if (r && REFERRAL_CODE_REGEX.test(r)) referralCode = r.toUpperCase(); } catch { /* expected */ }
       const body: Record<string, unknown> = { tier, billing };
       if (referralCode) body.referralCode = referralCode;
       if (coupon) body.coupon = coupon;
@@ -495,7 +655,35 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       });
 
       if (!res.ok) {
+        // Handle 401 — refresh JWT and retry once
+        if (res.status === 401) {
+          const { data: refreshData } = await supabase.auth.refreshSession();
+          if (refreshData?.session) {
+            const retryRes = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/create-checkout`, {
+              method: 'POST',
+              signal: AbortSignal.timeout(15000),
+              headers: {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${refreshData.session.access_token}`,
+                apikey: import.meta.env.VITE_SUPABASE_ANON_KEY,
+              },
+              body: JSON.stringify(body),
+            });
+            if (retryRes.ok) {
+              const retryData = await retryRes.json();
+              if (retryData.reactivated) { await refreshSubscription(); toast.success('تم إعادة تفعيل اشتراكك بنجاح!'); navigate('/dashboard'); return; }
+              if (retryData.url) { window.location.href = retryData.url; return; }
+            }
+          }
+          throw new Error('انتهت الجلسة — يرجى تسجيل الدخول مرة أخرى');
+        }
         const err = await res.json().catch(() => ({}));
+        // Handle alreadySubscribed
+        if (err.alreadySubscribed) {
+          toast.info(err.error || 'لديك اشتراك فعّال بالفعل');
+          await refreshSubscription();
+          return;
+        }
         throw new Error(err.error ?? 'Checkout failed');
       }
 
@@ -518,13 +706,43 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, [navigate, refreshSubscription]);
 
+  const handleSubErrorReload = useCallback(() => {
+    subFetchFailCountRef.current = 0;
+    setSubscriptionError(false);
+    window.location.reload();
+  }, []);
+
   const contextValue = useMemo(
-    () => ({ user, subscription, isLoading, login, signup, logout, upgradeTo, refreshSubscription }),
-    [user, subscription, isLoading, login, signup, logout, upgradeTo, refreshSubscription],
+    () => ({ user, subscription, subscriptionError, isLoading, login, signup, logout, upgradeTo, refreshSubscription }),
+    [user, subscription, subscriptionError, isLoading, login, signup, logout, upgradeTo, refreshSubscription],
   );
 
   return (
     <AuthContext.Provider value={contextValue}>
+      {subscriptionError && user && (
+        <div role="dialog" aria-modal="true" className="fixed inset-0 z-[70] flex items-center justify-center bg-stone-900/80 backdrop-blur-sm">
+          <div className="mx-4 w-full max-w-md rounded-2xl bg-white dark:bg-stone-900 p-10 text-center shadow-2xl">
+            <h2 className="mb-3 text-2xl font-bold text-stone-900 dark:text-stone-100">حدث خطأ في تحميل اشتراكك</h2>
+            <p className="mb-6 text-stone-700 dark:text-stone-200">تعذّر الاتصال بالخادم. تحقق من اتصالك بالإنترنت وحاول مرة أخرى.</p>
+            <div className="flex flex-col gap-3">
+              <button
+                type="button"
+                onClick={handleSubErrorReload}
+                className="inline-block rounded-full bg-emerald-600 px-10 py-3.5 font-bold text-white shadow-lg transition-all hover:bg-emerald-700 hover:scale-105 active:scale-[0.98]"
+              >
+                إعادة تحميل
+              </button>
+              <button
+                type="button"
+                onClick={() => setSubscriptionError(false)}
+                className="text-sm font-medium text-stone-500 dark:text-stone-400 hover:text-stone-700 dark:hover:text-stone-200 transition-colors"
+              >
+                متابعة بدون تحديث
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
       {children}
     </AuthContext.Provider>
   );

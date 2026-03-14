@@ -4,13 +4,14 @@ import {
   Loader2, FlaskConical, Plus, ChevronDown, ChevronUp,
   TrendingUp, Download, FileText, AlertTriangle,
   CheckCircle, Info, Calendar, Building2, X,
-  Syringe, Activity, Heart, Droplets, Flame, Droplet, Shield, Microscope
+  Syringe, Activity, Heart, Droplets, Flame, Droplet, Shield, Microscope, Bot
 } from 'lucide-react';
 import { toast } from 'sonner';
 import {
   Line, XAxis, YAxis, Tooltip, ResponsiveContainer,
   ReferenceArea, CartesianGrid, ComposedChart
 } from 'recharts';
+import { Link } from 'react-router-dom';
 import { cn, escapeHtml } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
@@ -162,8 +163,8 @@ function generateInsights(entries: LabEntry[]): Insight[] {
   const insights: Insight[] = [];
 
   for (const biomarker of BIOMARKERS) {
-    const currentVal = latest.results[biomarker.id];
-    const prevVal = previous.results[biomarker.id];
+    const currentVal = latest?.results?.[biomarker.id];
+    const prevVal = previous?.results?.[biomarker.id];
     if (currentVal == null || prevVal == null) continue;
 
     const change = percentChange(currentVal, prevVal);
@@ -266,6 +267,7 @@ function BiomarkerTrendChart({
           <CartesianGrid strokeDasharray="3 3" stroke="#374151" opacity={0.3} />
           <XAxis
             dataKey="date"
+            reversed
             tick={{ fontSize: 10, fill: '#9CA3AF' }}
             stroke="#4B5563"
           />
@@ -405,7 +407,8 @@ function LabEntryForm({
             value={labName}
             onChange={e => setLabName(e.target.value)}
             placeholder="مثال: مختبرات البرج"
-            className="w-full rounded-xl border border-stone-700 bg-stone-800 px-3 py-2.5 text-base text-stone-100 placeholder:text-stone-400 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
+            dir="auto"
+            className="w-full rounded-xl border border-stone-700 bg-stone-800 px-3 py-2.5 text-base text-stone-100 placeholder:text-stone-500 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
           />
         </div>
       </div>
@@ -443,9 +446,9 @@ function LabEntryForm({
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2">
                   <span className="text-sm font-bold text-stone-200 truncate">{bio.nameAr}</span>
-                  <span className="text-[10px] text-stone-400" dir="ltr">{bio.nameEn}</span>
+                  <span className="text-xs text-stone-400" dir="ltr">{bio.nameEn}</span>
                 </div>
-                <div className="text-[10px] text-stone-400 mt-0.5" dir="ltr">
+                <div className="text-xs text-stone-400 mt-0.5" dir="ltr">
                   {bio.normalMin}–{bio.normalMax} {bio.unit}
                 </div>
               </div>
@@ -461,7 +464,7 @@ function LabEntryForm({
                     min="0"
                     dir="ltr"
                     className={cn(
-                      'w-24 rounded-lg border bg-stone-900 px-2.5 py-1.5 text-base text-stone-100 text-center placeholder:text-stone-400 focus:outline-none focus:ring-2 transition-colors',
+                      'w-24 rounded-lg border bg-stone-900 px-2.5 py-1.5 text-base text-stone-100 text-center placeholder:text-stone-500 focus:outline-none focus:ring-2 transition-colors',
                       status === 'normal' ? 'border-emerald-500/50 focus:ring-emerald-500/20' :
                       status === 'borderLow' || status === 'borderHigh' ? 'border-amber-500/50 focus:ring-amber-500/20' :
                       status === 'low' || status === 'high' ? 'border-red-500/50 focus:ring-red-500/20' :
@@ -469,7 +472,7 @@ function LabEntryForm({
                     )}
                   />
                 </div>
-                <span className="text-[10px] text-stone-400 w-14 text-start" dir="ltr">{bio.unit}</span>
+                <span className="text-xs text-stone-400 w-14 text-start" dir="ltr">{bio.unit}</span>
                 {status && (
                   <span className={cn('h-2 w-2 rounded-full shrink-0', STATUS_DOT[status])} />
                 )}
@@ -489,9 +492,10 @@ function LabEntryForm({
           value={notes}
           onChange={e => setNotes(e.target.value)}
           placeholder="أي ملاحظات إضافية عن هذا التحليل..."
+          dir="auto"
           rows={2}
           maxLength={500}
-          className="w-full resize-none rounded-xl border border-stone-700 bg-stone-800 px-3 py-2.5 text-base text-stone-100 placeholder:text-stone-400 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
+          className="w-full resize-none rounded-xl border border-stone-700 bg-stone-800 px-3 py-2.5 text-base text-stone-100 placeholder:text-stone-500 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
         />
       </div>
 
@@ -504,7 +508,7 @@ function LabEntryForm({
           onClick={handleSubmit}
           disabled={isSubmitting || filledCount === 0}
           aria-label="حفظ نتائج التحاليل"
-          className="flex items-center gap-2 rounded-full bg-emerald-600 px-4 py-2 text-sm font-medium text-white transition-all hover:bg-emerald-500 disabled:opacity-40 disabled:cursor-not-allowed"
+          className="flex items-center gap-2 rounded-full bg-emerald-600 px-4 py-2 text-sm font-medium text-white transition-all hover:bg-emerald-500 disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {isSubmitting ? (
             <>
@@ -611,10 +615,14 @@ export default function LabResultsTracker() {
   const { user } = useAuth();
   const [entries, setEntries] = useState<LabEntry[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [hasMore, setHasMore] = useState(false);
   const [showForm, setShowForm] = useState(false);
   const [activeView, setActiveView] = useState<'results' | 'trends' | 'insights'>('results');
   const [expandedEntry, setExpandedEntry] = useState<string | null>(null);
   const [selectedBiomarker, setSelectedBiomarker] = useState<string | null>(null);
+
+  const PAGE_SIZE = 50;
 
   const fetchEntries = useCallback(async () => {
     if (!user) return;
@@ -622,26 +630,53 @@ export default function LabResultsTracker() {
     try {
       const { data, error } = await supabase
         .from('lab_results')
-        .select('*')
+        .select('id, user_id, test_date, lab_name, results, notes, created_at')
         .eq('user_id', user.id)
         .order('test_date', { ascending: false })
-        .limit(100);
+        .limit(PAGE_SIZE);
 
-      if (!error && data) setEntries(data as LabEntry[]);
+      if (error) { toast.error('تعذّر تحميل نتائج التحاليل'); }
+      else {
+        const rows = (data ?? []) as LabEntry[];
+        setEntries(rows);
+        setHasMore(rows.length === PAGE_SIZE);
+      }
     } catch {
-      // silently fail
+      toast.error('تعذّر تحميل نتائج التحاليل');
     } finally {
       setLoading(false);
     }
   }, [user]);
+
+  const loadMore = useCallback(async () => {
+    if (!user || loadingMore) return;
+    setLoadingMore(true);
+    try {
+      const { data, error } = await supabase
+        .from('lab_results')
+        .select('id, user_id, test_date, lab_name, results, notes, created_at')
+        .eq('user_id', user.id)
+        .order('test_date', { ascending: false })
+        .range(entries.length, entries.length + PAGE_SIZE - 1);
+
+      if (!error) {
+        const rows = (data ?? []) as LabEntry[];
+        setEntries(prev => [...prev, ...rows]);
+        setHasMore(rows.length === PAGE_SIZE);
+      }
+    } catch { /* silent */ } finally {
+      setLoadingMore(false);
+    }
+  }, [user, entries.length, loadingMore]);
 
   useEffect(() => {
     fetchEntries();
   }, [fetchEntries]);
 
   const handleDelete = async (id: string) => {
+    if (!user) return;
     try {
-      const { error } = await supabase.from('lab_results').delete().eq('id', id);
+      const { error } = await supabase.from('lab_results').delete().eq('id', id).eq('user_id', user.id);
       if (error) throw error;
       toast.success('تم حذف النتيجة');
       await fetchEntries();
@@ -770,10 +805,18 @@ export default function LabResultsTracker() {
           <Loader2 className="h-5 w-5 animate-spin text-emerald-500" />
         </div>
       ) : entries.length === 0 ? (
-        <div className="rounded-xl border-2 border-dashed border-stone-700 py-12 text-center">
-          <FlaskConical className="mx-auto mb-3 h-10 w-10 text-stone-600" />
-          <p className="text-sm font-bold text-stone-400">لا توجد نتائج مسجّلة</p>
-          <p className="mt-1 text-xs text-stone-400">سجّل أول تحليل لبدء تتبّع صحتك</p>
+        <div className="rounded-xl border-2 border-dashed border-emerald-700/50 bg-emerald-950/20 py-12 text-center">
+          <FlaskConical className="mx-auto mb-3 h-10 w-10 text-emerald-600" />
+          <p className="text-sm font-bold text-stone-300">لا توجد نتائج مسجّلة</p>
+          <p className="mt-1 text-xs text-stone-400 mb-4">سجّل أول تحليل لبدء تتبّع صحتك</p>
+          <button
+            type="button"
+            onClick={() => setShowForm(true)}
+            className="inline-flex items-center gap-2 rounded-xl bg-emerald-600 px-6 py-3 text-sm font-bold text-white transition-colors hover:bg-emerald-700"
+          >
+            <Plus className="h-4 w-4" />
+            أضف أول تحليل
+          </button>
         </div>
       ) : activeView === 'results' ? (
         /* ─── Results View ──────────────────────────────────────────── */
@@ -784,7 +827,9 @@ export default function LabResultsTracker() {
             const abnormalCount = resultKeys.filter(key => {
               const bio = getBiomarker(key);
               if (!bio) return false;
-              const s = getValueStatus(entry.results[key], bio);
+              const val = entry.results?.[key];
+              if (val == null) return false;
+              const s = getValueStatus(val, bio);
               return s !== 'normal';
             }).length;
 
@@ -804,14 +849,14 @@ export default function LabResultsTracker() {
                       <p className="text-sm font-bold text-stone-200">
                         {formatDate(entry.test_date)}
                       </p>
-                      <p className="text-[11px] text-stone-400">
+                      <p className="text-xs text-stone-400">
                         {entry.lab_name || 'تحليل'} — {resultKeys.length} فحص
                       </p>
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
                     {abnormalCount > 0 && (
-                      <span className="rounded-full bg-amber-500/10 border border-amber-500/30 px-2 py-0.5 text-[10px] font-bold text-amber-400">
+                      <span className="rounded-full bg-amber-500/10 border border-amber-500/30 px-2 py-0.5 text-xs font-bold text-amber-400">
                         {abnormalCount} غير طبيعي
                       </span>
                     )}
@@ -832,26 +877,27 @@ export default function LabResultsTracker() {
                       if (catBiomarkers.length === 0) return null;
                       return (
                         <div key={cat.id}>
-                          <p className="text-[10px] font-bold text-stone-400 mb-1.5 flex items-center gap-1">
+                          <p className="text-xs font-bold text-stone-400 mb-1.5 flex items-center gap-1">
                             <cat.icon className="h-3 w-3" /> {cat.nameAr}
                           </p>
                           <div className="space-y-1">
                             {catBiomarkers.map(bio => {
-                              const val = entry.results[bio.id];
+                              const val = entry.results?.[bio.id];
+                              if (val == null) return null;
                               const status = getValueStatus(val, bio);
                               return (
                                 <div key={bio.id} className="flex items-center justify-between rounded-lg bg-stone-800/50 px-3 py-2">
                                   <div className="flex items-center gap-2">
                                     <span className={cn('h-2 w-2 rounded-full', STATUS_DOT[status])} />
                                     <span className="text-xs font-bold text-stone-300">{bio.nameAr}</span>
-                                    <span className="text-[10px] text-stone-600" dir="ltr">{bio.nameEn}</span>
+                                    <span className="text-xs text-stone-600" dir="ltr">{bio.nameEn}</span>
                                   </div>
                                   <div className="flex items-center gap-2">
                                     <span className="text-xs font-bold text-stone-200 tabular-nums" dir="ltr">
                                       {val} {bio.unit}
                                     </span>
                                     <span className={cn(
-                                      'rounded-full border px-1.5 py-0.5 text-[9px] font-bold',
+                                      'rounded-full border px-1.5 py-0.5 text-xs font-bold',
                                       STATUS_BG[status]
                                     )}>
                                       {STATUS_LABELS_AR[status]}
@@ -875,7 +921,7 @@ export default function LabResultsTracker() {
                       <button
                         onClick={() => handleDelete(entry.id)}
                         aria-label={`حذف نتائج تحليل ${formatDate(entry.test_date)}`}
-                        className="min-h-[44px] px-3 text-[10px] text-red-400/60 hover:text-red-400 transition-colors"
+                        className="min-h-[44px] px-3 text-xs text-red-400/60 hover:text-red-400 transition-colors"
                       >
                         حذف هذا التحليل
                       </button>
@@ -885,6 +931,16 @@ export default function LabResultsTracker() {
               </div>
             );
           })}
+          {hasMore && (
+            <button
+              type="button"
+              onClick={loadMore}
+              disabled={loadingMore}
+              className="w-full rounded-xl border border-stone-700 py-2.5 text-xs font-bold text-emerald-400 hover:bg-stone-800 transition-colors disabled:opacity-50"
+            >
+              {loadingMore ? <Loader2 className="mx-auto h-4 w-4 animate-spin" /> : 'تحميل المزيد'}
+            </button>
+          )}
         </div>
       ) : activeView === 'trends' ? (
         /* ─── Trends View ───────────────────────────────────────────── */
@@ -898,7 +954,7 @@ export default function LabResultsTracker() {
                 aria-label={selectedBiomarker === bio.id ? `إلغاء تحديد ${bio.nameAr}` : `عرض اتجاه ${bio.nameAr}`}
                 aria-pressed={selectedBiomarker === bio.id}
                 className={cn(
-                  'whitespace-nowrap rounded-lg px-3 py-1.5 text-[11px] font-bold transition-all shrink-0 border',
+                  'whitespace-nowrap rounded-lg px-3 py-1.5 text-xs font-bold transition-all shrink-0 border',
                   selectedBiomarker === bio.id
                     ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30'
                     : 'bg-stone-900 text-stone-400 border-stone-800 hover:border-stone-600'
@@ -916,11 +972,11 @@ export default function LabResultsTracker() {
                 <h4 className="text-sm font-bold text-stone-200">
                   {getBiomarker(selectedBiomarker)?.nameAr}
                 </h4>
-                <span className="text-[10px] text-stone-400" dir="ltr">
+                <span className="text-xs text-stone-400" dir="ltr">
                   {getBiomarker(selectedBiomarker)?.nameEn} ({getBiomarker(selectedBiomarker)?.unit})
                 </span>
               </div>
-              <p className="text-[10px] text-stone-400 mb-1" dir="ltr">
+              <p className="text-xs text-stone-400 mb-1" dir="ltr">
                 النطاق الطبيعي: {getBiomarker(selectedBiomarker)?.normalMin}–{getBiomarker(selectedBiomarker)?.normalMax} {getBiomarker(selectedBiomarker)?.unit}
               </p>
               <BiomarkerTrendChart entries={entries} biomarkerId={selectedBiomarker} />
@@ -936,15 +992,15 @@ export default function LabResultsTracker() {
                 return (
                   <div className="flex items-center gap-4 mt-3 pt-3 border-t border-stone-800">
                     <div className="text-center">
-                      <p className="text-[10px] text-stone-400">أحدث</p>
+                      <p className="text-xs text-stone-400">أحدث</p>
                       <p className="text-sm font-bold text-stone-200" dir="ltr">{latest}</p>
                     </div>
                     <div className="text-center">
-                      <p className="text-[10px] text-stone-400">أقدم</p>
+                      <p className="text-xs text-stone-400">أقدم</p>
                       <p className="text-sm font-bold text-stone-200" dir="ltr">{oldest}</p>
                     </div>
                     <div className="text-center">
-                      <p className="text-[10px] text-stone-400">التغيير</p>
+                      <p className="text-xs text-stone-400">التغيير</p>
                       <p className={cn(
                         'text-sm font-bold',
                         change > 0 ? 'text-emerald-400' : change < 0 ? 'text-red-400' : 'text-stone-400'
@@ -966,7 +1022,7 @@ export default function LabResultsTracker() {
                 >
                   <div className="flex items-center justify-between mb-1">
                     <span className="text-xs font-bold text-stone-300">{bio.nameAr}</span>
-                    <span className="text-[10px] text-stone-400" dir="ltr">{bio.unit}</span>
+                    <span className="text-xs text-stone-400" dir="ltr">{bio.unit}</span>
                   </div>
                   <BiomarkerTrendChart entries={entries} biomarkerId={bio.id} />
                 </div>
@@ -1015,16 +1071,27 @@ export default function LabResultsTracker() {
           {/* Legend */}
           {insights.length > 0 && (
             <div className="flex items-center gap-4 pt-3 border-t border-stone-800">
-              <div className="flex items-center gap-1.5 text-[10px] text-stone-400">
+              <div className="flex items-center gap-1.5 text-xs text-stone-400">
                 <CheckCircle className="h-3 w-3 text-emerald-400" /> تحسّن
               </div>
-              <div className="flex items-center gap-1.5 text-[10px] text-stone-400">
+              <div className="flex items-center gap-1.5 text-xs text-stone-400">
                 <AlertTriangle className="h-3 w-3 text-red-400" /> تنبيه
               </div>
-              <div className="flex items-center gap-1.5 text-[10px] text-stone-400">
+              <div className="flex items-center gap-1.5 text-xs text-stone-400">
                 <Info className="h-3 w-3 text-blue-400" /> اقتراح
               </div>
             </div>
+          )}
+
+          {/* Ask Coach CTA */}
+          {entries.length > 0 && (
+            <Link
+              to={`/coach?q=${encodeURIComponent('نتائج تحاليلي — هل هناك ما يقلق؟ وما الخطوة التالية؟')}`}
+              className="mt-4 flex items-center justify-center gap-2 rounded-xl border border-emerald-500/30 bg-emerald-500/5 px-4 py-3 text-sm font-bold text-emerald-400 transition-colors hover:bg-emerald-500/10"
+            >
+              <Bot className="h-4 w-4" />
+              اسأل المدرب عن نتائجك
+            </Link>
           )}
         </div>
       )}

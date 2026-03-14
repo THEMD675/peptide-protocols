@@ -6,14 +6,15 @@ import {
   Calculator, FlaskConical, Droplets, ChevronDown, ArrowLeft, BookOpen,
   Layers, Bot, Bookmark, Syringe, Shield, Play, Search, Share2, Zap,
   Scale, DollarSign, ArrowLeftRight, Info, Trash2, Clock, Target,
-  TrendingUp, Activity, Dumbbell, Heart, Timer, Moon, Lightbulb,
+  Activity, Dumbbell, Heart, Timer, Moon, Lightbulb, Lock,
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import Tooltip from '@/components/Tooltip';
 import ProtocolWizard from '@/components/ProtocolWizard';
-import { peptides as allPeptides } from '@/data/peptides';
+import { peptidesPublic as allPeptides } from '@/data/peptides-public';
 import { toast } from 'sonner';
 import { cn, copyToClipboard } from '@/lib/utils';
+import { useAuth } from '@/contexts/AuthContext';
 import { PEPTIDE_COUNT, SITE_URL } from '@/lib/constants';
 import { DOSE_PRESETS as PEPTIDE_PRESETS_DATA, type DoseUnit } from '@/data/dose-presets';
 
@@ -172,6 +173,8 @@ const IU_FACTORS: Record<string, { factor: number; note: string }> = {
   'HGH': { factor: 3, note: '1 mg = 3 IU' },
   'Sermorelin': { factor: 3, note: '1 mg ≈ 3 IU' },
   'IGF-1 LR3': { factor: 1, note: 'يُقاس بالمايكروغرام عادةً' },
+  'HCG': { factor: 0, note: 'يختلف حسب المُصنّع' },
+  'BPC-157': { factor: 0, note: 'يُقاس بالمايكروغرام عادةً' },
 };
 
 /* SyringeVisual extracted to @/components/dose-calculator/SyringeVisual.tsx */
@@ -237,6 +240,8 @@ function PeptideReferenceCard({ presetName }: { presetName: string }) {
 /* ─────────────── Main Component ─────────────── */
 
 export default function DoseCalculator() {
+  const { subscription, isLoading: authLoading } = useAuth();
+  const isProOrTrial = !authLoading && (subscription?.isProOrTrial ?? false);
   const [activeTab, setActiveTab] = useState<TabId>('dose');
   const [doseUnit, setDoseUnit] = useState<DoseUnit>('mcg');
   const [doseValue, setDoseValue] = useState(250);
@@ -319,7 +324,7 @@ export default function DoseCalculator() {
     if (savedCalcs.length > 0) {
       loadSavedCalc(savedCalcs[0]);
     }
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [selectedPreset, savedCalcs]); // eslint-disable-line react-hooks/exhaustive-deps
   /* eslint-enable react-hooks/set-state-in-effect */
 
   const syringe = SYRINGE_OPTIONS[syringeIdx];
@@ -335,8 +340,8 @@ export default function DoseCalculator() {
     const volumeMl2 = doseMcg / concentration;
     const syringeUnits = volumeMl2 * syringe.units / syringe.ml;
     const dosesPerVial = (vialMg * 1000) / doseMcg;
-    const daysPerVial = dosesPerVial / dosesPerDay;
-    const monthlyVials = 30 / daysPerVial;
+    const daysPerVial = dosesPerDay > 0 ? dosesPerVial / dosesPerDay : 0;
+    const monthlyVials = daysPerVial > 0 ? 30 / daysPerVial : 0;
     const monthlyCost = vialPrice > 0 ? monthlyVials * vialPrice : 0;
     return { concentration, volumeMl: volumeMl2, syringeUnits, dosesPerVial, doseMcg, monthlyVials, monthlyCost, daysPerVial };
   }, [doseUnit, doseValue, vialMg, waterMl, syringe, dosesPerDay, vialPrice]);
@@ -381,6 +386,8 @@ export default function DoseCalculator() {
   // ── Converter result ──
   const converterResult = useMemo(() => {
     const iuFactor = IU_FACTORS[converterPeptide]?.factor ?? 3;
+    // If factor is 0 and IU is involved, conversion is not possible
+    if (iuFactor === 0 && (converterFrom === 'iu' || converterTo === 'iu')) return NaN;
     let valueMcg = converterValue;
     if (converterFrom === 'mg') valueMcg = converterValue * 1000;
     else if (converterFrom === 'iu') valueMcg = (converterValue / iuFactor) * 1000;
@@ -393,8 +400,8 @@ export default function DoseCalculator() {
   // ── Cost comparison results ──
   const costResults = useMemo(() => {
     return costEntries.map(entry => {
-      const dosesPerVial = (entry.vialMg * 1000) / entry.doseMcg;
-      const costPerDose = entry.pricePerVial / dosesPerVial;
+      const dosesPerVial = entry.doseMcg > 0 ? (entry.vialMg * 1000) / entry.doseMcg : 0;
+      const costPerDose = dosesPerVial > 0 ? entry.pricePerVial / dosesPerVial : 0;
       const costPerWeek = costPerDose * entry.dosesPerDay * 7;
       const costPerMonth = costPerWeek * (30 / 7);
       const costPerCycle12w = costPerWeek * 12;
@@ -496,6 +503,8 @@ export default function DoseCalculator() {
         <meta property="og:locale" content="ar_SA" />
         <meta property="og:image" content={`${SITE_URL}/og-image.jpg`} />
         <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="حاسبة جرعات الببتيدات | pptides" />
+        <meta name="twitter:description" content="احسب جرعتك بدقة خلال ثوانٍ — أداة مجانية لحساب جرعات 30+ ببتيد" />
         <link rel="canonical" href={`${SITE_URL}/calculator`} />
         <script type="application/ld+json">{JSON.stringify({
           '@context': 'https://schema.org',
@@ -511,6 +520,10 @@ export default function DoseCalculator() {
       </Helmet>
 
       <div className="mx-auto max-w-4xl px-4 pt-8 pb-24 md:px-6 md:pt-12">
+        <div role="alert" className="mb-6 rounded-xl border border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-900/20 px-4 py-3 text-sm text-amber-700 dark:text-amber-400 flex items-start gap-2">
+          <Shield className="h-5 w-5 mt-0.5 shrink-0" />
+          <p>هذه الحاسبة للأغراض التعليمية فقط — لا تُعتبر وصفة طبية. استشر طبيبك قبل تعديل أي جرعة.</p>
+        </div>
         {/* Header */}
         <div className="mb-10 text-center">
           <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-500/10">
@@ -531,8 +544,31 @@ export default function DoseCalculator() {
           </p>
         </div>
 
+        {/* Medical disclaimer */}
+        <div role="alert" className="mb-6 rounded-xl border border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-900/20 p-4 text-center text-sm text-amber-800 dark:text-amber-300">
+          <Shield className="mx-auto mb-1 h-5 w-5" />
+          هذه الحاسبة للأغراض التعليمية فقط — استشر طبيبك قبل تعديل أي جرعة
+        </div>
+
+        {/* ═══════════════ SUBSCRIPTION GATE ═══════════════ */}
+        {!authLoading && !isProOrTrial && (
+          <div className="mb-8 rounded-2xl border-2 border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-900/20 p-8 text-center">
+            <Lock className="mx-auto mb-3 h-8 w-8 text-emerald-600" />
+            <h2 className="text-xl font-bold text-stone-900 dark:text-stone-100 mb-2">اشترك للوصول الكامل</h2>
+            <p className="text-sm text-stone-600 dark:text-stone-300 mb-4 max-w-md mx-auto">
+              حاسبة الجرعات الكاملة متاحة للمشتركين — حساب الجرعة، التخفيف، التكلفة الشهرية، ومحوّل الوحدات
+            </p>
+            <Link
+              to="/pricing"
+              className="inline-flex items-center gap-2 rounded-full bg-emerald-600 px-6 py-3 text-sm font-bold text-white transition-colors hover:bg-emerald-700"
+            >
+              اشترك الآن
+            </Link>
+          </div>
+        )}
+
         {/* ═══════════════ TABS ═══════════════ */}
-        <div className="mb-6 flex gap-1 overflow-x-auto scrollbar-hide -mx-1 px-1 pb-1">
+        {isProOrTrial && <div className="mb-6 flex gap-1 overflow-x-auto scrollbar-hide -mx-1 px-1 pb-1">
           {TABS.map((tab) => (
             <button
               key={tab.id}
@@ -548,10 +584,10 @@ export default function DoseCalculator() {
               <span>{tab.label}</span>
             </button>
           ))}
-        </div>
+        </div>}
 
         {/* ═══════════════ TAB 1: DOSE CALCULATOR ═══════════════ */}
-        {activeTab === 'dose' && (
+        {isProOrTrial && activeTab === 'dose' && (
           <>
             {/* Common Protocols Quick-Select */}
             <div className="mb-6">
@@ -593,7 +629,7 @@ export default function DoseCalculator() {
                   value={presetSearch}
                   onChange={(e) => setPresetSearch(e.target.value)}
                   placeholder="ابحث عن ببتيد..."
-                  className="w-full rounded-xl border border-stone-200 dark:border-stone-600 bg-stone-50 dark:bg-stone-900 px-4 py-2.5 ps-10 text-sm text-stone-800 dark:text-stone-200 placeholder:text-stone-500 dark:text-stone-300 dark:placeholder:text-stone-400 focus:border-emerald-300 focus:ring-1 focus:ring-emerald-200 outline-none"
+                  className="w-full rounded-xl border border-stone-200 dark:border-stone-600 bg-stone-50 dark:bg-stone-900 px-4 py-2.5 ps-10 text-sm text-stone-800 dark:text-stone-200 placeholder:text-stone-500 dark:text-stone-300 dark:placeholder:text-stone-500 focus:border-emerald-300 focus:ring-1 focus:ring-emerald-200 outline-none"
                   aria-label="ابحث عن ببتيد"
                 />
               </div>
@@ -787,16 +823,20 @@ export default function DoseCalculator() {
                 <InputField
                   label={`الجرعة المطلوبة (${doseUnit === 'mcg' ? 'مايكروغرام' : 'ملليغرام'})`}
                   value={doseValue}
-                  onChange={setDoseValue}
+                  onChange={(v) => setDoseValue(Math.min(doseUnit === 'mcg' ? 100000 : 100, Math.max(0, v)))}
                   unit={doseUnit === 'mcg' ? 'مكغ' : 'ملغ'}
                   step={doseUnit === 'mcg' ? 50 : 0.05}
+                  min={0}
+                  max={doseUnit === 'mcg' ? 100000 : 100}
                 />
                 <InputField
                   label="كمية الببتيد في القارورة (ملغ)"
                   value={vialMg}
-                  onChange={setVialMg}
+                  onChange={(v) => setVialMg(Math.min(1000, Math.max(0.1, v)))}
                   unit="ملغ"
                   step={1}
+                  min={0.1}
+                  max={1000}
                 />
                 <div className="space-y-2">
                   <div className="flex items-center gap-1.5">
@@ -813,7 +853,7 @@ export default function DoseCalculator() {
                       min={0.1}
                       step={0.5}
                       value={waterMl}
-                      onChange={(e) => setWaterMl(Math.max(0, Number(e.target.value) || 0))}
+                      onChange={(e) => setWaterMl(Math.min(100, Math.max(0, Number(e.target.value) || 0)))}
                       aria-label="كمية الماء البكتيريوستاتك (مل)"
                       className="w-full rounded-xl border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-900 px-4 py-3 pe-16 text-base text-stone-900 dark:text-stone-100 transition-colors focus:border-emerald-300 focus:outline-none focus:ring-1 focus:ring-emerald-100"
                     />
@@ -826,7 +866,7 @@ export default function DoseCalculator() {
                     !selectedPreset ? (
                       <div className="mt-1 flex items-center gap-2 rounded-lg border border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-900/20 px-3 py-2">
                         <span className="text-xs text-emerald-700 dark:text-emerald-400">
-                          الكمية الموصى بها: <strong>{recommendedWater} ml</strong>
+                          الكمية الموصى بها: <strong>{recommendedWater} مل</strong>
                         </span>
                         <button
                           onClick={() => setWaterMl(recommendedWater)}
@@ -875,7 +915,7 @@ export default function DoseCalculator() {
                   <div className="flex gap-1 overflow-x-auto scrollbar-hide -mx-1 px-1 pb-1">
                     {([
                       { label: '3×/أسبوع', value: 3 / 7, hint: '3 مرات أسبوعيًا' },
-                      { label: 'يوم/يوم', value: 0.5, hint: 'يوم بعد يوم (EOD)' },
+                      { label: 'يوم/يوم', value: 0.5, hint: 'يوم بعد يوم (كل يومين)' },
                       { label: 'يوميًا', value: 1, hint: 'مرة كل يوم' },
                       { label: '2×/يوم', value: 2, hint: 'مرتين يوميًا' },
                       { label: '3×/يوم', value: 3, hint: '3 مرات يوميًا' },
@@ -916,7 +956,7 @@ export default function DoseCalculator() {
 
               {/* Results + Syringe Visual */}
               <div className="flex flex-col items-stretch gap-6 md:flex-row">
-                <div className="grid flex-1 grid-cols-2 gap-4">
+                <div className="grid flex-1 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                   <ResultCard label="التركيز" value={fmt(results.concentration, 0)} unit="مكغ/مل" />
                   <ResultCard label="الكمية المطلوبة" value={fmt(results.volumeMl, 3)} unit="مل" />
                   <ResultCard label="وحدات السيرنج" value={fmt(results.syringeUnits, 1)} unit={`وحدة (${syringe.label.split('(')[0].trim()})`} />
@@ -941,9 +981,9 @@ export default function DoseCalculator() {
                 <div className="mt-6 rounded-2xl border border-emerald-200 dark:border-emerald-800 bg-emerald-50/50 dark:bg-emerald-900/10 p-5">
                   <h3 className="mb-3 text-sm font-bold text-stone-900 dark:text-stone-100">دليل التحضير — {selectedPreset}</h3>
                   <div className="space-y-3">
-                    <GuideStep step="1" text={`اسحب ${waterMl} ml ماء بكتيريوستاتي وأضفه على قارورة ${vialMg} mg ${selectedPreset}. أدخل الإبرة ببطء على جدار القارورة.`} />
+                    <GuideStep step="1" text={`اسحب ${waterMl} مل ماء بكتيريوستاتي وأضفه على قارورة ${vialMg} ملغ ${selectedPreset}. أدخل الإبرة ببطء على جدار القارورة.`} />
                     <GuideStep step="2" text="حرّك القارورة بلطف بحركة دائرية. لا ترجّها أبدًا. انتظر حتى يذوب المسحوق بالكامل (1-2 دقيقة)." />
-                    <GuideStep step="3" text={`بسرنجة إنسولين (${syringe.label})، اسحب ${fmt(results.syringeUnits, 1)} وحدة. هذه جرعتك (${doseUnit === 'mg' ? `${doseValue} mg` : `${doseValue} mcg`}).`} />
+                    <GuideStep step="3" text={`بسرنجة إنسولين (${syringe.label})، اسحب ${fmt(results.syringeUnits, 1)} وحدة. هذه جرعتك (${doseUnit === 'mg' ? `${doseValue} ملغ` : `${doseValue} مايكروغرام`}).`} />
                     <GuideStep step="4" text={`احقن تحت الجلد في البطن أو الفخذ. خزّن القارورة في الثلاجة 2-8°C — تصلح لـ ${vialMg >= 5 ? '28' : '14'} يوم بعد التحضير.`} />
                   </div>
                 </div>
@@ -1099,7 +1139,7 @@ export default function DoseCalculator() {
         )}
 
         {/* ═══════════════ TAB 2: RECONSTITUTION CALCULATOR ═══════════════ */}
-        {activeTab === 'reconstitution' && (
+        {isProOrTrial && activeTab === 'reconstitution' && (
           <div className="space-y-6">
             <div className="rounded-2xl border border-stone-200 dark:border-stone-600 bg-stone-50 dark:bg-stone-900 p-6 md:p-8">
               <div className="flex items-center gap-2 mb-6">
@@ -1117,7 +1157,7 @@ export default function DoseCalculator() {
                     value={reconSearch}
                     onChange={e => setReconSearch(e.target.value)}
                     placeholder="ابحث عن ببتيد..."
-                    className="w-full rounded-xl border border-stone-200 dark:border-stone-600 bg-stone-50 dark:bg-stone-900 px-4 py-2.5 ps-10 text-sm text-stone-800 dark:text-stone-200 placeholder:text-stone-400 focus:border-emerald-300 focus:ring-1 focus:ring-emerald-200 outline-none"
+                    className="w-full rounded-xl border border-stone-200 dark:border-stone-600 bg-stone-50 dark:bg-stone-900 px-4 py-2.5 ps-10 text-sm text-stone-800 dark:text-stone-200 placeholder:text-stone-500 focus:border-emerald-300 focus:ring-1 focus:ring-emerald-200 outline-none"
                     aria-label="بحث ببتيد للتخفيف"
                   />
                 </div>
@@ -1164,7 +1204,7 @@ export default function DoseCalculator() {
                   </div>
                   <input
                     type="number" inputMode="decimal" min={0.5} step={0.5} value={reconVialMg}
-                    onChange={e => setReconVialMg(Math.max(0, Number(e.target.value) || 0))}
+                    onChange={e => setReconVialMg(Math.min(1000, Math.max(0, Number(e.target.value) || 0)))}
                     className="w-full rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-900 px-4 py-3 text-base text-stone-900 dark:text-stone-100 focus:border-emerald-300 focus:outline-none focus:ring-1 focus:ring-emerald-200"
                     placeholder="أو أدخل قيمة مخصصة"
                     aria-label="حجم القارورة مخصص"
@@ -1185,7 +1225,7 @@ export default function DoseCalculator() {
                   </div>
                   <input
                     type="number" inputMode="decimal" min={0.1} step={0.5} value={reconWaterMl}
-                    onChange={e => setReconWaterMl(Math.max(0, Number(e.target.value) || 0))}
+                    onChange={e => setReconWaterMl(Math.min(100, Math.max(0, Number(e.target.value) || 0)))}
                     className="w-full rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-900 px-4 py-3 text-base text-stone-900 dark:text-stone-100 focus:border-emerald-300 focus:outline-none focus:ring-1 focus:ring-emerald-200"
                     placeholder="أو أدخل قيمة مخصصة"
                     aria-label="كمية الماء مخصصة"
@@ -1199,7 +1239,7 @@ export default function DoseCalculator() {
                     <input
                       type="number" inputMode="decimal" min={0} step={reconDoseUnit === 'mcg' ? 50 : 0.05}
                       value={reconTargetDose}
-                      onChange={e => setReconTargetDose(Math.max(0, Number(e.target.value) || 0))}
+                      onChange={e => setReconTargetDose(Math.min(100000, Math.max(0, Number(e.target.value) || 0)))}
                       className="flex-1 rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-900 px-4 py-3 text-base text-stone-900 dark:text-stone-100 focus:border-emerald-300 focus:outline-none focus:ring-1 focus:ring-emerald-200"
                       aria-label="الجرعة المطلوبة"
                     />
@@ -1237,7 +1277,7 @@ export default function DoseCalculator() {
 
               {/* Reconstitution Results */}
               <div className="mt-8 flex flex-col items-stretch gap-6 md:flex-row">
-                <div className="grid flex-1 grid-cols-2 gap-4">
+                <div className="grid flex-1 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                   <ResultCard label="التركيز" value={fmt(reconResults.concentration, 0)} unit="مكغ/مل" />
                   <ResultCard label="الكمية المطلوبة" value={fmt(reconResults.volumeMl, 3)} unit="مل" />
                   <ResultCard label="وحدات السيرنج" value={fmt(reconResults.syringeUnits, 1)} unit="وحدة" />
@@ -1337,7 +1377,7 @@ export default function DoseCalculator() {
         )}
 
         {/* ═══════════════ TAB 3: COST CALCULATOR ═══════════════ */}
-        {activeTab === 'cost' && (
+        {isProOrTrial && activeTab === 'cost' && (
           <div className="space-y-6">
             <div className="rounded-2xl border border-stone-200 dark:border-stone-600 bg-stone-50 dark:bg-stone-900 p-6 md:p-8">
               <div className="flex items-center gap-2 mb-6">
@@ -1465,12 +1505,51 @@ export default function DoseCalculator() {
                   </div>
                 );
               })()}
+
+              {/* Injection Supplies Estimate */}
+              {costResults.length > 0 && (() => {
+                const totalDailyDoses = costEntries.reduce((sum, e) => sum + e.dosesPerDay, 0);
+                const monthlyInjections = totalDailyDoses * 30;
+                const syringeCost = monthlyInjections * 0.5;
+                const bacWaterCost = Math.ceil(monthlyInjections / 60) * 15; // 30ml bottle ~60 doses
+                const swabsCost = Math.ceil(monthlyInjections / 100) * 10;
+                const totalSupplies = syringeCost + bacWaterCost + swabsCost;
+                return (
+                  <div className="mt-6 rounded-2xl border border-stone-200 dark:border-stone-600 bg-stone-50 dark:bg-stone-900 p-5">
+                    <div className="flex items-center gap-2 mb-4">
+                      <Syringe className="h-5 w-5 text-emerald-700" />
+                      <h3 className="text-base font-bold text-stone-900 dark:text-stone-100">مستلزمات الحقن (تقدير شهري)</h3>
+                    </div>
+                    <div className="grid gap-3 sm:grid-cols-3">
+                      <div className="rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-800 p-3">
+                        <p className="text-xs text-stone-500 dark:text-stone-400">سرنجات إنسولين</p>
+                        <p className="text-sm font-bold text-stone-900 dark:text-stone-100">{monthlyInjections} حقنة × 0.5 ر.س</p>
+                        <p className="text-xs text-emerald-700 dark:text-emerald-400">{fmt(syringeCost, 0)} ر.س</p>
+                      </div>
+                      <div className="rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-800 p-3">
+                        <p className="text-xs text-stone-500 dark:text-stone-400">ماء بكتيريوستاتيك 30ml</p>
+                        <p className="text-sm font-bold text-stone-900 dark:text-stone-100">{Math.ceil(monthlyInjections / 60)} عبوة × 15 ر.س</p>
+                        <p className="text-xs text-emerald-700 dark:text-emerald-400">{fmt(bacWaterCost, 0)} ر.س</p>
+                      </div>
+                      <div className="rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-800 p-3">
+                        <p className="text-xs text-stone-500 dark:text-stone-400">مسحات كحول</p>
+                        <p className="text-sm font-bold text-stone-900 dark:text-stone-100">{Math.ceil(monthlyInjections / 100)} عبوة × 10 ر.س</p>
+                        <p className="text-xs text-emerald-700 dark:text-emerald-400">{fmt(swabsCost, 0)} ر.س</p>
+                      </div>
+                    </div>
+                    <div className="mt-3 flex items-center justify-between rounded-xl bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 px-4 py-2.5">
+                      <span className="text-sm font-bold text-stone-900 dark:text-stone-100">إجمالي المستلزمات الشهرية</span>
+                      <span className="text-lg font-bold text-emerald-700 dark:text-emerald-400">{fmt(totalSupplies, 0)} ر.س</span>
+                    </div>
+                  </div>
+                );
+              })()}
             </div>
           </div>
         )}
 
         {/* ═══════════════ TAB 4: UNIT CONVERTER ═══════════════ */}
-        {activeTab === 'converter' && (
+        {isProOrTrial && activeTab === 'converter' && (
           <div className="space-y-6">
             <div className="rounded-2xl border border-stone-200 dark:border-stone-600 bg-stone-50 dark:bg-stone-900 p-6 md:p-8">
               <div className="flex items-center gap-2 mb-6">
@@ -1536,6 +1615,13 @@ export default function DoseCalculator() {
                       </button>
                     ))}
                   </div>
+                  {IU_FACTORS[converterPeptide]?.factor === 0 && (
+                    <div className="mt-3 rounded-xl border border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-900/10 p-3">
+                      <p className="text-xs text-red-800 dark:text-red-300 font-medium">
+                        لا يمكن تحويل الوحدات الدولية لهذا الببتيد — استخدم مايكروغرام
+                      </p>
+                    </div>
+                  )}
                 </div>
               )}
 
@@ -1575,7 +1661,7 @@ export default function DoseCalculator() {
         )}
 
         {/* ═══════════════ FORMULAS (visible on dose tab) ═══════════════ */}
-        {activeTab === 'dose' && (
+        {isProOrTrial && activeTab === 'dose' && (
           <div className="mb-8 rounded-2xl border border-stone-200 dark:border-stone-600 bg-stone-50 dark:bg-stone-900">
             <button
               onClick={() => setShowFormulas(!showFormulas)}
@@ -1666,12 +1752,14 @@ function InputField({
   onChange,
   unit,
   step = 1,
+  min = 0,
 }: {
   label: string;
   value: number;
   onChange: (v: number) => void;
   unit: string;
   step?: number;
+  min?: number;
 }) {
   const id = useId();
   return (
@@ -1682,10 +1770,10 @@ function InputField({
           id={id}
           type="number"
           inputMode="decimal"
-          min={0}
+          min={min}
           step={step}
           value={value}
-          onChange={(e) => onChange(Math.max(0, Number(e.target.value) || 0))}
+          onChange={(e) => onChange(Math.max(min, Number(e.target.value) || 0))}
           aria-label={label}
           className="w-full rounded-xl border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-900 px-4 py-3 pe-16 text-base text-stone-900 dark:text-stone-100 transition-colors focus:border-emerald-300 focus:outline-none focus:ring-1 focus:ring-emerald-100"
         />
@@ -1707,7 +1795,7 @@ function ResultCard({
   return (
     <div className="rounded-xl border border-stone-200 dark:border-stone-700 bg-stone-100 dark:bg-stone-800 p-4 text-center">
       <p className="mb-1 text-xs font-medium text-stone-800 dark:text-stone-200">{label}</p>
-      <p className="text-2xl font-bold text-emerald-700">{value}</p>
+      <p className="text-2xl font-bold text-emerald-700 dark:text-emerald-400">{value}</p>
       <p className="mt-0.5 text-xs text-stone-800 dark:text-stone-200">{unit}</p>
     </div>
   );

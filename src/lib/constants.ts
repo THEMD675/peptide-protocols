@@ -13,7 +13,7 @@ export const PRICING = {
 } as const;
 
 /** Total peptide count — update when adding/removing peptides */
-export const PEPTIDE_COUNT = 47;
+export const PEPTIDE_COUNT = 48;
 
 /** Unique PubMed ID count across all peptides — update when pubmedIds change */
 export const PUBMED_SOURCE_COUNT = 127;
@@ -33,6 +33,8 @@ export const FREQUENCY_LABELS: Record<string, string> = {
 export const VALUE_TOTAL = '1,121 ر.س+';
 export const VALUE_SAVINGS_ESSENTIALS = '1,087 ر.س';
 export const VALUE_SAVINGS_ELITE = '750 ر.س+';
+
+export const REFERRAL_CODE_REGEX = /^PP-[A-Z0-9]{6}$/i;
 
 export const SUPPORT_EMAIL = 'contact@pptides.com';
 export const ADMIN_EMAILS = ['abdullah@amirisgroup.co', 'abdullahalameer@gmail.com', 'contact@pptides.com'];
@@ -61,6 +63,27 @@ export const STATUS_LABELS: Record<string, string> = {
   none: 'بدون اشتراك',
 };
 
+/** Routes any user can access without subscription — single source of truth for TrialBanner and gating */
+export const FREE_ROUTE_PREFIXES = [
+  '/calculator', '/pricing', '/login', '/signup', '/privacy', '/terms', '/',
+  '/glossary', '/sources', '/reviews', '/account', '/interactions',
+  '/library', '/table', '/stacks', '/lab-guide', '/guide',
+  '/community', '/about', '/faq', '/quiz', '/blog', '/contact', '/transparency',
+] as const;
+
+export function isFreeRoute(pathname: string): boolean {
+  if (pathname === '/' || pathname === '') return true;
+  return FREE_ROUTE_PREFIXES.some(p => p === pathname || (p !== '/' && pathname.startsWith(p + '/')));
+}
+
+/** Routes a trial user without payment method can visit without being blocked by the payment wall. Subset of free routes. */
+export const PAYMENT_WALL_ROUTE_PREFIXES = ['/', '/pricing', '/account', '/login', '/signup', '/privacy', '/terms', '/contact'] as const;
+
+export function isPaymentWallFreeRoute(pathname: string): boolean {
+  if (pathname === '/' || pathname === '') return true;
+  return PAYMENT_WALL_ROUTE_PREFIXES.some(p => p === pathname || (p !== '/' && pathname.startsWith(p + '/')));
+}
+
 export const STORAGE_KEYS = {
   AGE_VERIFIED: 'pptides_age_verified',
   COOKIE_CONSENT: 'pptides_cookie_consent',
@@ -77,6 +100,12 @@ export const STORAGE_KEYS = {
   USER_COUNT_TS: 'pptides_user_count_ts',
   REVIEWS: 'pptides_reviews',
   REVIEWS_TS: 'pptides_reviews_ts',
+  REFERRAL: 'pptides_referral',
+  ONBOARDED: 'pptides_onboarded',
+  CALENDAR_PREF: 'pptides_calendar_pref',
+  PREMIUM_WELCOMED: 'pptides_premium_welcomed',
+  COACH_DRAFT: 'pptides_coach_draft',
+  CONTACT_DRAFT: 'pptides_contact_draft',
 } as const;
 
 /** Re-export from single source of truth — must match supabase-migration.sql trigger */

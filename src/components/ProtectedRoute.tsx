@@ -1,28 +1,51 @@
+import { createContext, useContext } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
+import { ADMIN_EMAILS } from '@/lib/constants';
+
+/** When true, the user's subscription has expired but they can view their own data read-only */
+const ReadOnlyContext = createContext(false);
+export const useReadOnly = () => useContext(ReadOnlyContext);
+
+/** Routes that show user's own data and should allow read-only after trial */
+const READ_ONLY_PATHS = ['/dashboard', '/tracker', '/coach'];
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
-  /** When false, only requires login — does not enforce active subscription.
-   *  Use for pages like /account that logged-in users must always be able to reach. */
   requiresSubscription?: boolean;
+  requiresAdmin?: boolean;
 }
 
-export default function ProtectedRoute({ children, requiresSubscription = true }: ProtectedRouteProps) {
+export default function ProtectedRoute({ children, requiresSubscription = true, requiresAdmin = false }: ProtectedRouteProps) {
   const { user, subscription, isLoading } = useAuth();
   const location = useLocation();
 
-  // Return null during auth loading — the parent Suspense fallback (DashboardSkeleton,
-  // TrackerSkeleton, etc.) already shows a layout-matching skeleton. A generic spinner
-  // here would cause a visible flash: skeleton → spinner → content.
-  if (isLoading) return null;
+  if (isLoading) return (
+    <div className="flex min-h-screen items-center justify-center bg-stone-50 dark:bg-stone-950">
+      <div className="flex flex-col items-center gap-4">
+        <div className="h-10 w-10 animate-spin rounded-full border-4 border-emerald-200 border-t-emerald-600" />
+        <span className="text-sm text-stone-500 dark:text-stone-400">جارٍ التحميل…</span>
+      </div>
+    </div>
+  );
   if (!user) return (
     <Navigate to={`/login?redirect=${encodeURIComponent(location.pathname + location.search)}`} replace />
   );
 
-  // If subscription expired/cancelled AND trial ended, redirect to pricing
-  // Exception: pages that only require login (e.g. /account) must always be reachable.
+  if (requiresAdmin && (!user.email || !ADMIN_EMAILS.includes(user.email.toLowerCase()))) {
+    return <Navigate to="/dashboard" replace />;
+  }
+
   if (requiresSubscription && !subscription.isProOrTrial) {
+    // Allow read-only access to user's own data pages instead of hard redirect
+    const isReadOnlyAllowed = READ_ONLY_PATHS.some(p => location.pathname === p || location.pathname.startsWith(p + '/'));
+    if (isReadOnlyAllowed) {
+      return (
+        <ReadOnlyContext.Provider value={true}>
+          {children}
+        </ReadOnlyContext.Provider>
+      );
+    }
     return (
       <Navigate to="/pricing?expired=1" replace />
     );

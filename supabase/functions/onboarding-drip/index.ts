@@ -2,8 +2,7 @@ import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 import { getCorsHeaders } from '../_shared/cors.ts'
 import { emailWrapper, emailButton } from '../_shared/email-template.ts'
-
-const RESEND_API_KEY = Deno.env.get('RESEND_API_KEY')
+import { sendEmail } from '../_shared/send-email.ts'
 const supabaseUrl = Deno.env.get('SUPABASE_URL') ?? ''
 const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
 const APP_URL = Deno.env.get('APP_URL') ?? 'https://pptides.com'
@@ -73,19 +72,19 @@ const dripEmails: DripEmail[] = [
       </p>
       <div style="background: #ecfdf5; border-radius: 12px; padding: 20px; margin: 20px 0;">
         <p style="margin: 10px 0; font-size: 15px;">
-          <strong style="color: #059669;">1.</strong> <a href="${APP_URL}/peptides/bpc-157" style="color: #059669; font-weight: bold;">BPC-157</a> — الببتيد الأشهر للتعافي والالتهابات
+          <strong style="color: #059669;">1.</strong> <a href="${APP_URL}/peptide/bpc-157" style="color: #059669; font-weight: bold;">BPC-157</a> — الببتيد الأشهر للتعافي والالتهابات
         </p>
         <p style="margin: 10px 0; font-size: 15px;">
-          <strong style="color: #059669;">2.</strong> <a href="${APP_URL}/peptides/tb-500" style="color: #059669; font-weight: bold;">TB-500</a> — لتسريع شفاء الأنسجة والمفاصل
+          <strong style="color: #059669;">2.</strong> <a href="${APP_URL}/peptide/tb-500" style="color: #059669; font-weight: bold;">TB-500</a> — لتسريع شفاء الأنسجة والمفاصل
         </p>
         <p style="margin: 10px 0; font-size: 15px;">
-          <strong style="color: #059669;">3.</strong> <a href="${APP_URL}/peptides/ghk-cu" style="color: #059669; font-weight: bold;">GHK-Cu</a> — لتجديد البشرة ومكافحة الشيخوخة
+          <strong style="color: #059669;">3.</strong> <a href="${APP_URL}/peptide/ghk-cu" style="color: #059669; font-weight: bold;">GHK-Cu</a> — لتجديد البشرة ومكافحة الشيخوخة
         </p>
         <p style="margin: 10px 0; font-size: 15px;">
-          <strong style="color: #059669;">4.</strong> <a href="${APP_URL}/peptides/semaglutide" style="color: #059669; font-weight: bold;">Semaglutide</a> — الأكثر طلبًا لإدارة الوزن
+          <strong style="color: #059669;">4.</strong> <a href="${APP_URL}/peptide/semaglutide" style="color: #059669; font-weight: bold;">Semaglutide</a> — الأكثر طلبًا لإدارة الوزن
         </p>
         <p style="margin: 10px 0; font-size: 15px;">
-          <strong style="color: #059669;">5.</strong> <a href="${APP_URL}/peptides/cjc-1295" style="color: #059669; font-weight: bold;">CJC-1295</a> — لتحفيز هرمون النمو بشكل طبيعي
+          <strong style="color: #059669;">5.</strong> <a href="${APP_URL}/peptide/cjc-1295" style="color: #059669; font-weight: bold;">CJC-1295</a> — لتحفيز هرمون النمو بشكل طبيعي
         </p>
       </div>
       <p style="color: #44403c; font-size: 16px;">
@@ -335,34 +334,21 @@ serve(async (req) => {
           continue
         }
 
-        // Send the email
+        // Send the email via shared sendEmail (Resend + SMTP fallback, tags, List-Unsubscribe)
         try {
-          const emailRes = await fetch('https://api.resend.com/emails', {
-            method: 'POST',
-            signal: AbortSignal.timeout(10000),
-            headers: {
-              'Content-Type': 'application/json',
-              Authorization: `Bearer ${RESEND_API_KEY}`,
-            },
-            body: JSON.stringify({
-              from: 'pptides <noreply@pptides.com>',
-              reply_to: 'contact@pptides.com',
-              to: userData.email,
-              subject: drip.subject,
-              headers: {
-                'List-Unsubscribe': '<mailto:contact@pptides.com?subject=unsubscribe>',
-              },
-              html: emailWrapper(drip.buildHtml()),
-            }),
+          const emailResult = await sendEmail({
+            to: userData.email,
+            subject: drip.subject,
+            html: emailWrapper(drip.buildHtml()),
+            replyTo: 'contact@pptides.com',
+            tags: [{ name: 'type', value: `onboarding_${drip.key}` }, { name: 'category', value: 'onboarding' }],
           })
 
-          if (emailRes.ok) {
+          if (emailResult.ok) {
             sent++
             console.log(`onboarding-drip: sent ${drip.key} to ${userData.email}`)
           } else {
-            const errBody = await emailRes.text().catch(() => '')
-            console.error(`onboarding-drip: Resend error for ${userData.email}/${drip.key}:`, emailRes.status, errBody)
-            // Rollback dedup so we can retry next invocation
+            console.error(`onboarding-drip: send failed for ${userData.email}/${drip.key}:`, emailResult.error)
             await supabase.from('drip_emails_sent').delete()
               .eq('user_id', userId)
               .eq('email_key', drip.key)

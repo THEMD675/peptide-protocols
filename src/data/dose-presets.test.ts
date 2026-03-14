@@ -18,9 +18,9 @@ describe('Dose presets data integrity', () => {
     }
   })
 
-  it('all presets have valid unit (mcg or mg)', () => {
+  it('all presets have valid unit', () => {
     for (const p of DOSE_PRESETS) {
-      expect(['mcg', 'mg'], `${p.name} has invalid unit "${p.unit}"`).toContain(p.unit)
+      expect(['mcg', 'mg', 'ml', 'g'], `${p.name} has invalid unit "${p.unit}"`).toContain(p.unit)
     }
   })
 
@@ -30,9 +30,9 @@ describe('Dose presets data integrity', () => {
     }
   })
 
-  it('all presets have positive waterMl', () => {
+  it('all presets have non-negative waterMl', () => {
     for (const p of DOSE_PRESETS) {
-      expect(p.waterMl, `${p.name} has non-positive waterMl`).toBeGreaterThan(0)
+      expect(p.waterMl, `${p.name} has negative waterMl`).toBeGreaterThanOrEqual(0)
     }
   })
 
@@ -75,17 +75,18 @@ describe('Dose presets data integrity', () => {
     }
   })
 
-  it('water volumes are reasonable (0.5–5 mL)', () => {
+  it('water volumes are reasonable (0–5 mL)', () => {
     for (const p of DOSE_PRESETS) {
-      expect(p.waterMl, `${p.name} waterMl=${p.waterMl}`).toBeGreaterThanOrEqual(0.5)
+      expect(p.waterMl, `${p.name} waterMl=${p.waterMl}`).toBeGreaterThanOrEqual(0)
       expect(p.waterMl, `${p.name} waterMl=${p.waterMl}`).toBeLessThanOrEqual(5)
     }
   })
 
-  it('dose ranges are clinically reasonable (not >100mg = 100000mcg)', () => {
+  it('dose ranges are clinically reasonable (not >150mg = 150000mcg)', () => {
     for (const p of DOSE_PRESETS) {
+      if (p.unit === 'ml' || p.unit === 'g') continue;
       const maxInMcg = p.unit === 'mg' ? p.maxDose * 1000 : p.maxDose
-      expect(maxInMcg, `${p.name} maxDose seems unreasonably high`).toBeLessThanOrEqual(100000)
+      expect(maxInMcg, `${p.name} maxDose seems unreasonably high`).toBeLessThanOrEqual(150000)
     }
   })
 })

@@ -4,7 +4,9 @@ import { toast } from 'sonner';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
 
-const PUSH_SUPPORTED = typeof window !== 'undefined' && 'PushManager' in window;
+const PUSH_SUPPORTED = typeof window !== 'undefined' && 'PushManager' in window &&
+  // iOS Safari only supports push in standalone (Add to Home Screen) mode, not regular browser
+  !(('standalone' in navigator) && !(navigator as { standalone?: boolean }).standalone);
 
 export default function PushNotificationPrompt() {
   const { user, subscription } = useAuth();
@@ -133,7 +135,7 @@ export default function PushNotificationPrompt() {
           <button
             onClick={handleDisable}
             disabled={isDisabling}
-            className="flex items-center gap-2 rounded-full border border-stone-200 dark:border-stone-600 px-4 py-2.5 text-sm font-bold text-stone-600 dark:text-stone-300 transition-colors hover:bg-stone-50 dark:hover:bg-stone-800 hover:text-red-600 dark:text-red-400 disabled:opacity-50"
+            className="flex items-center gap-2 rounded-full border border-stone-200 dark:border-stone-600 px-4 py-2.5 text-sm font-bold text-stone-600 dark:text-stone-300 transition-colors hover:bg-stone-50 dark:hover:bg-stone-800 hover:text-red-600 dark:text-red-400 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {isDisabling ? <Loader2 className="h-4 w-4 animate-spin" /> : <BellOff className="h-4 w-4" />}
             إلغاء التنبيهات
@@ -142,7 +144,7 @@ export default function PushNotificationPrompt() {
           <button
             onClick={handleEnable}
             disabled={isEnabling}
-            className="flex items-center gap-2 rounded-full bg-emerald-600 px-5 py-2.5 text-sm font-bold text-white transition-colors hover:bg-emerald-700 disabled:opacity-50"
+            className="flex items-center gap-2 rounded-full bg-emerald-600 px-5 py-2.5 text-sm font-bold text-white transition-colors hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {isEnabling ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
             تفعيل التنبيهات

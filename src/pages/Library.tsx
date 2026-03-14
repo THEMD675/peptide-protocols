@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback, useEffect, memo, lazy, Suspense } from 'react';
+import { useState, useMemo, useCallback, useEffect, useRef, memo, lazy, Suspense } from 'react';
 import { useBookmarks } from '@/hooks/useBookmarks';
 const FocusTrap = lazy(() => import('focus-trap-react'));
 import { Helmet } from 'react-helmet-async';
@@ -16,10 +16,12 @@ import {
   Bookmark,
   BookmarkCheck,
   Bot,
+  HelpCircle,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
-import { peptides, categories, type Peptide } from '@/data/peptides';
+import { categories } from '@/data/peptides';
+import { peptidesPublic as peptides, type PeptidePublic as Peptide } from '@/data/peptides-public';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
 import { PRICING, PEPTIDE_COUNT, TRIAL_PEPTIDE_IDS, FREE_PEPTIDE_IDS, SITE_URL } from '@/lib/constants';
@@ -59,11 +61,11 @@ const PeptideCard = memo(function PeptideCard({
 }: {
   peptide: Peptide;
   hasAccess: boolean;
-  onLockedClick: () => void;
+  onLockedClick: (id: string) => void;
   isFav: boolean;
-  onToggleFav: () => void;
+  onToggleFav: (id: string) => void;
   isCompare: boolean;
-  onToggleCompare: () => void;
+  onToggleCompare: (id: string) => void;
   isUsed: boolean;
 }) {
   const Icon = categoryIcons[peptide.category];
@@ -100,7 +102,7 @@ const PeptideCard = memo(function PeptideCard({
         <div className="flex items-center">
           <button
             type="button"
-            onClick={(e) => { e.preventDefault(); e.stopPropagation(); onToggleCompare(); }}
+            onClick={(e) => { e.preventDefault(); e.stopPropagation(); onToggleCompare(peptide.id); }}
             className={cn('flex items-center gap-1 rounded-full px-2.5 py-1.5 min-h-[44px] text-xs font-medium transition-colors', isCompare ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400' : 'text-stone-500 dark:text-stone-300 hover:bg-stone-100 dark:hover:bg-stone-800 hover:text-stone-600 dark:text-stone-300')}
             aria-label={isCompare ? 'إزالة من المقارنة' : 'إضافة للمقارنة'}
           >
@@ -109,7 +111,7 @@ const PeptideCard = memo(function PeptideCard({
           </button>
           <button
             type="button"
-            onClick={(e) => { e.preventDefault(); e.stopPropagation(); onToggleFav(); }}
+            onClick={(e) => { e.preventDefault(); e.stopPropagation(); onToggleFav(peptide.id); }}
             className="rounded-full p-2.5 min-h-[44px] min-w-[44px] transition-colors hover:bg-stone-100 dark:hover:bg-stone-800"
             aria-label={isFav ? 'إزالة من المحفوظات' : 'إضافة للمحفوظات'}
           >
@@ -130,7 +132,7 @@ const PeptideCard = memo(function PeptideCard({
           {peptide.nameAr}
         </h3>
         <div className="mt-0.5 flex items-center gap-2">
-          <p className="min-w-0 text-xs text-stone-800 dark:text-stone-200 truncate">{peptide.nameEn}</p>
+          <p className="min-w-0 text-xs text-stone-800 dark:text-stone-200 truncate" dir="ltr">{peptide.nameEn}</p>
           {isUsed && <span className="shrink-0 rounded-full bg-emerald-100 dark:bg-emerald-900/30 px-1.5 py-0.5 text-xs font-bold text-emerald-700 dark:text-emerald-400">مستخدم</span>}
         </div>
       </div>
@@ -172,7 +174,7 @@ const PeptideCard = memo(function PeptideCard({
       {(hasAccess || peptide.isFree) && (
         <div className="mb-3 flex items-center gap-1.5 text-stone-600 dark:text-stone-300">
           <FlaskConical className="h-3 w-3 shrink-0" />
-          <span className="text-xs truncate">{peptide.administrationAr.split('.')[0]}</span>
+          <span className="text-xs truncate">{peptide.route ? ({'subq':'حقن تحت الجلد','im':'حقن عضلي','nasal':'بخاخ أنفي','oral':'عن طريق الفم','topical':'موضعي'}[peptide.route] ?? '—') : '—'}</span>
         </div>
       )}
 
@@ -216,7 +218,7 @@ const PeptideCard = memo(function PeptideCard({
   const handleEnter = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' || e.key === ' ') {
       e.preventDefault();
-      onLockedClick();
+      onLockedClick(peptide.id);
     }
   };
 
@@ -224,7 +226,7 @@ const PeptideCard = memo(function PeptideCard({
     <div
       role="button"
       tabIndex={0}
-      onClick={onLockedClick}
+      onClick={() => onLockedClick(peptide.id)}
       onKeyDown={handleEnter}
       className="block h-full w-full cursor-pointer text-start focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400 focus-visible:ring-offset-2 rounded-2xl"
     >
@@ -241,7 +243,7 @@ function useUsedPeptides() {
   useEffect(() => {
     if (!user) return;
     let mounted = true;
-    supabase.from('injection_logs').select('peptide_name').eq('user_id', user.id).limit(500).then(({ data }) => {
+    supabase.from('injection_logs').select('peptide_name').eq('user_id', user.id).limit(100).then(({ data }) => {
       if (mounted && data) setUsed(new Set(data.map(d => d.peptide_name)));
     }).catch(() => { if (mounted) /* silently ignored — non-critical */; });
     return () => { mounted = false; };
@@ -265,6 +267,13 @@ export default function Library() {
     return validCategories.includes(c) ? c : 'all';
   });
   const [search, setSearch] = useState(() => searchParams.get('q') ?? '');
+  const [debouncedSearch, setDebouncedSearch] = useState(search);
+  const debounceRef = useRef<ReturnType<typeof setTimeout>>();
+  const setSearchDebounced = useCallback((v: string) => {
+    setSearch(v);
+    clearTimeout(debounceRef.current);
+    debounceRef.current = setTimeout(() => setDebouncedSearch(v), 300);
+  }, []);
   const [evidenceFilter, setEvidenceFilter] = useState(() => {
     const e = searchParams.get('evidence') ?? 'all';
     return validEvidence.includes(e) ? e : 'all';
@@ -278,13 +287,13 @@ export default function Library() {
   useEffect(() => {
     const params = new URLSearchParams();
     if (activeCategory !== 'all') params.set('category', activeCategory);
-    if (search.trim()) params.set('q', search.trim());
+    if (debouncedSearch.trim()) params.set('q', debouncedSearch.trim());
     if (evidenceFilter !== 'all') params.set('evidence', evidenceFilter);
     if (sortBy !== 'default') params.set('sort', sortBy);
     const next = params.toString();
     const curr = searchParams.toString();
     if (next !== curr) setSearchParams(params, { replace: true });
-  }, [activeCategory, search, evidenceFilter, sortBy, setSearchParams, searchParams]);
+  }, [activeCategory, debouncedSearch, evidenceFilter, sortBy, setSearchParams, searchParams]);
 
   useEffect(() => {
     const urlCategory = searchParams.get('category') ?? 'all';
@@ -297,6 +306,7 @@ export default function Library() {
     if (safeCategory !== activeCategory || urlSearch !== search || safeEvidence !== evidenceFilter || safeSort !== sortBy) {
       setActiveCategory(safeCategory);
       setSearch(urlSearch);
+      setDebouncedSearch(urlSearch);
       setEvidenceFilter(safeEvidence);
       setSortBy(safeSort);
     }
@@ -324,11 +334,11 @@ export default function Library() {
   const { bookmarks: favorites, toggle: toggleFavorite } = useBookmarks();
   const [runTour, setRunTour] = useState(false);
 
-  // Auto-trigger library tour on first visit
+  // Auto-trigger library tour on first visit (delayed to let user orient)
   useEffect(() => {
     const timer = setTimeout(() => {
       if (!isTourDone('library')) setRunTour(true);
-    }, 800);
+    }, 3000);
     return () => clearTimeout(timer);
   }, []);
 
@@ -365,20 +375,42 @@ export default function Library() {
     return () => { document.removeEventListener('keydown', handler); document.body.style.overflow = ''; };
   }, [upsellPeptide]);
 
-  const handleLockedClick = useCallback((peptideId?: string) => {
+  const handleLockedClick = useCallback((peptideId: string) => {
     setUpsellPeptide(peptideId ?? null);
   }, []);
 
-  // Counts for category tab badges — based on all peptides, not current filters
+  // 18.1: Stable callback for compare toggle — avoids inline lambdas defeating React.memo
+  const handleToggleCompare = useCallback((id: string) => {
+    setCompareIds(prev => {
+      if (prev.includes(id)) return prev.filter(x => x !== id);
+      if (prev.length >= 3) { toast('الحد الأقصى 3 ببتيدات للمقارنة'); return prev; }
+      return [...prev, id];
+    });
+  }, []);
+
+  // Counts for category tab badges — reflects search + evidence filters (but not category)
   const categoryCounts = useMemo(() => {
-    const counts: Record<string, number> = { all: peptides.length, free: 0, bookmarks: 0 };
+    const stripDiacritics = (s: string) => s.normalize('NFD').replace(/[\u0610-\u061A\u064B-\u065F\u0670\u06D6-\u06DC\u06DF-\u06E4\u06E7-\u06E8\u06EA-\u06ED]/g, '');
+    const counts: Record<string, number> = { all: 0, free: 0, bookmarks: 0 };
     for (const p of peptides) {
+      // Apply evidence filter
+      if (evidenceFilter !== 'all' && p.evidenceLevel !== evidenceFilter) continue;
+      // Apply search filter
+      if (debouncedSearch.trim()) {
+        const q = stripDiacritics(debouncedSearch.trim().toLowerCase());
+        if (
+          !stripDiacritics(p.nameAr).includes(q) &&
+          !p.nameEn.toLowerCase().includes(q) &&
+          !stripDiacritics(p.summaryAr).includes(q)
+        ) continue;
+      }
+      counts.all++;
       counts[p.category] = (counts[p.category] ?? 0) + 1;
       if (FREE_PEPTIDE_IDS.has(p.id)) counts.free++;
       if (favorites.has(p.id)) counts.bookmarks++;
     }
     return counts;
-  }, [favorites]);
+  }, [favorites, debouncedSearch, evidenceFilter]);
 
   const filtered = useMemo(() => {
     const stripDiacritics = (s: string) => s.normalize('NFD').replace(/[\u0610-\u061A\u064B-\u065F\u0670\u06D6-\u06DC\u06DF-\u06E4\u06E7-\u06E8\u06EA-\u06ED]/g, '');
@@ -389,14 +421,12 @@ export default function Library() {
         if (!FREE_PEPTIDE_IDS.has(p.id)) return false;
       } else if (activeCategory !== 'all' && p.category !== activeCategory) return false;
       if (evidenceFilter !== 'all' && p.evidenceLevel !== evidenceFilter) return false;
-      if (search.trim()) {
-        const q = stripDiacritics(search.trim().toLowerCase());
+      if (debouncedSearch.trim()) {
+        const q = stripDiacritics(debouncedSearch.trim().toLowerCase());
         return (
           stripDiacritics(p.nameAr).includes(q) ||
           p.nameEn.toLowerCase().includes(q) ||
-          stripDiacritics(p.summaryAr).includes(q) ||
-          stripDiacritics(p.mechanismAr).includes(q) ||
-          stripDiacritics(p.dosageAr).includes(q)
+          stripDiacritics(p.summaryAr).includes(q)
         );
       }
       return true;
@@ -405,13 +435,13 @@ export default function Library() {
     if (sortBy === 'alpha') result.sort((a, b) => a.nameEn.localeCompare(b.nameEn));
     if (sortBy === 'favorites') result.sort((a, b) => (favorites.has(b.id) ? 1 : 0) - (favorites.has(a.id) ? 1 : 0));
     return result;
-  }, [activeCategory, search, evidenceFilter, sortBy, favorites]);
+  }, [activeCategory, debouncedSearch, evidenceFilter, sortBy, favorites]);
 
   return (
     <div className="min-h-screen animate-fade-in" >
       <Helmet>
         <title>{`مكتبة الببتيدات | ${PEPTIDE_COUNT} ببتيد علاجي مع بروتوكولات كاملة | pptides`}</title>
-        <meta name="description" content={`تصفّح ${PEPTIDE_COUNT} ببتيد علاجي مع شرح مفصّل للآليات والجرعات والآثار الجانبية. Browse ${PEPTIDE_COUNT} therapeutic peptides with detailed protocols.`} />
+        <meta name="description" content={`تصفّح ${PEPTIDE_COUNT} ببتيد علاجي مع بروتوكولات مفصّلة تشمل الجرعات والآثار الجانبية وطرق الحقن والدورات العلاجية`} />
         <meta property="og:locale" content="ar_SA" />
         <meta property="og:title" content={`مكتبة الببتيدات | ${PEPTIDE_COUNT} ببتيد علاجي | pptides`} />
         <meta property="og:description" content={`تصفّح ${PEPTIDE_COUNT} ببتيد علاجي مع بروتوكولات كاملة وحاسبة جرعات.`} />
@@ -439,6 +469,7 @@ export default function Library() {
       </Helmet>
       <Suspense fallback={null}><GuidedTour tourId="library" run={runTour} onFinish={() => setRunTour(false)} /></Suspense>
       <div className="mx-auto max-w-7xl px-4 pt-8 pb-24 md:px-6 md:pt-12">
+        <div className="mb-4 rounded-xl border border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-900/20 px-4 py-2 text-xs text-amber-700 dark:text-amber-400">محتوى تعليمي — استشر طبيبك قبل استخدام أي ببتيد</div>
         {/* Header */}
         <div
           className="mb-10 text-center"
@@ -502,25 +533,25 @@ export default function Library() {
           className="mb-6 flex flex-wrap gap-2 items-center"
         >
           <div className="relative flex-1 min-w-[180px]" data-tour="library-search">
-            <Search className="absolute end-3 top-1/2 h-4 w-4 -translate-y-1/2 text-stone-400 dark:text-stone-300 pointer-events-none" />
+            <Search className="absolute end-3 top-1/2 h-4 w-4 -translate-y-1/2 text-stone-500 dark:text-stone-300 pointer-events-none" />
             <input
               type="text"
               role="searchbox"
               aria-label="البحث في المكتبة"
               value={search}
-              onChange={(e) => setSearch(e.target.value)}
+              onChange={(e) => setSearchDebounced(e.target.value)}
               placeholder="ابحث بالاسم أو الهدف..."
               className={cn(
                 'w-full rounded-xl border border-stone-200 dark:border-stone-600 bg-stone-50 dark:bg-stone-900 py-3 ps-10 pe-10 min-h-[44px]',
-                'text-sm text-stone-900 dark:text-stone-100 placeholder:text-stone-400 dark:placeholder:text-stone-400',
-                'transition-colors focus:border-emerald-300 dark:border-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900',
+                'text-sm text-stone-900 dark:text-stone-100 placeholder:text-stone-500 dark:placeholder:text-stone-500',
+                'transition-colors focus:border-emerald-300 dark:border-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-500',
               )}
             />
             {search && (
               <button
                 onClick={() => setSearch('')}
                 aria-label="مسح البحث"
-                className="absolute start-3 top-1/2 -translate-y-1/2 rounded-full p-0.5 text-stone-400 dark:text-stone-300 transition-colors hover:text-stone-700 dark:hover:text-stone-200"
+                className="absolute start-3 top-1/2 -translate-y-1/2 rounded-full p-0.5 text-stone-500 dark:text-stone-300 transition-colors hover:text-stone-700 dark:hover:text-stone-200"
               >
                 <X className="h-4 w-4" />
               </button>
@@ -528,35 +559,48 @@ export default function Library() {
           </div>
 
           {/* Evidence filter — always visible, no hidden panel */}
-          <select
-            value={evidenceFilter}
-            onChange={(e) => setEvidenceFilter(e.target.value)}
-            aria-label="مستوى الدليل العلمي"
-            className={cn(
-              'rounded-xl border px-3 py-2.5 text-sm focus:border-emerald-300 dark:border-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900',
-              evidenceFilter !== 'all'
-                ? 'border-emerald-300 dark:border-emerald-700 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-800 dark:text-emerald-300 font-medium'
-                : 'border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 text-stone-800 dark:text-stone-200',
-            )}
-          >
-            <option value="all">الدليل: الكل</option>
-            <option value="excellent">ممتاز فقط</option>
-            <option value="strong">قوي فأعلى</option>
-            <option value="good">جيد فأعلى</option>
-            <option value="moderate">متوسط فأعلى</option>
-            <option value="weak">ضعيف</option>
-            <option value="very-weak">ضعيف جدًا</option>
-          </select>
+          <div className="relative group flex items-center gap-1">
+            <select
+              value={evidenceFilter}
+              onChange={(e) => setEvidenceFilter(e.target.value)}
+              aria-label="مستوى الدليل العلمي"
+              className={cn(
+                'rounded-xl border px-3 py-2.5 text-sm focus:border-emerald-300 dark:border-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-500',
+                evidenceFilter !== 'all'
+                  ? 'border-emerald-300 dark:border-emerald-700 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-800 dark:text-emerald-300 font-medium'
+                  : 'border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 text-stone-800 dark:text-stone-200',
+              )}
+            >
+              <option value="all">الدليل: الكل</option>
+              <option value="excellent">{`ممتاز — ${evidenceDescriptions.excellent.split('—')[1]?.trim() ?? ''}`}</option>
+              <option value="strong">{`قوي — ${evidenceDescriptions.strong.split('—')[1]?.trim() ?? ''}`}</option>
+              <option value="good">{`جيد — ${evidenceDescriptions.good.split('—')[1]?.trim() ?? ''}`}</option>
+              <option value="moderate">{`متوسط — ${evidenceDescriptions.moderate.split('—')[1]?.trim() ?? ''}`}</option>
+              <option value="weak">{`ضعيف — ${evidenceDescriptions.weak.split('—')[1]?.trim() ?? ''}`}</option>
+              <option value="very-weak">{`ضعيف جدًا — ${evidenceDescriptions['very-weak'].split('—')[1]?.trim() ?? ''}`}</option>
+            </select>
+            <div className="relative">
+              <HelpCircle className="h-4 w-4 text-stone-400 dark:text-stone-500 cursor-help peer" tabIndex={0} aria-label="شرح مستويات الدليل العلمي" />
+              <div className="absolute end-0 top-full mt-2 w-64 rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-900 p-3 shadow-lg text-xs text-stone-700 dark:text-stone-200 opacity-0 pointer-events-none peer-hover:opacity-100 peer-focus:opacity-100 peer-hover:pointer-events-auto peer-focus:pointer-events-auto transition-opacity z-50 space-y-1.5">
+                {Object.entries(evidenceDescriptions).map(([key, desc]) => (
+                  <div key={key} className="flex items-start gap-1.5">
+                    <span className={cn('mt-0.5 shrink-0 h-2 w-2 rounded-full', evidenceColors[key]?.split(' ')[0] ?? 'bg-stone-300')} />
+                    <span>{desc}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
 
           <select
             value={sortBy}
             onChange={(e) => setSortBy(e.target.value as 'default' | 'evidence' | 'alpha' | 'favorites')}
             aria-label="ترتيب"
-            className="rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 px-3 py-2.5 text-sm text-stone-800 dark:text-stone-200 focus:border-emerald-300 dark:border-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900 sm:w-auto"
+            className="rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 px-3 py-2.5 text-sm text-stone-800 dark:text-stone-200 focus:border-emerald-300 dark:border-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-500 sm:w-auto"
           >
             <option value="default">الترتيب الافتراضي</option>
             <option value="evidence">الأقوى دليلًا</option>
-            <option value="alpha">أبجدي (A-Z)</option>
+            <option value="alpha">أبجدي (أ-ي)</option>
             <option value="favorites">المفضلة أولًا</option>
           </select>
         </div>
@@ -717,15 +761,11 @@ export default function Library() {
                   <PeptideCard
                     peptide={p}
                     hasAccess={hasFullAccess || p.isFree || (isTrial && TRIAL_PEPTIDE_IDS.has(p.id))}
-                    onLockedClick={() => handleLockedClick(p.id)}
+                    onLockedClick={handleLockedClick}
                     isFav={favorites.has(p.id)}
-                    onToggleFav={() => toggleFavorite(p.id)}
+                    onToggleFav={toggleFavorite}
                     isCompare={compareIds.includes(p.id)}
-                    onToggleCompare={() => setCompareIds(prev => {
-                      if (prev.includes(p.id)) return prev.filter(x => x !== p.id);
-                      if (prev.length >= 3) { toast('الحد الأقصى 3 ببتيدات للمقارنة'); return prev; }
-                      return [...prev, p.id];
-                    })}
+                    onToggleCompare={handleToggleCompare}
                     isUsed={usedPeptides.has(p.nameEn)}
                   />
                 </div>
@@ -786,9 +826,20 @@ export default function Library() {
           )}
       </div>
 
+      {/* Floating Compare Hint — single peptide selected */}
+      {compareIds.length === 1 && (
+        <div className="fixed bottom-20 inset-x-0 mx-auto w-fit z-40 flex items-center gap-3 rounded-2xl border border-amber-300 dark:border-amber-700 bg-white dark:bg-stone-900/95 backdrop-blur-lg px-5 py-2.5 shadow-xl dark:shadow-stone-900/40 md:bottom-6 animate-slide-up">
+          <BarChart2 className="h-4 w-4 text-amber-600 dark:text-amber-400 shrink-0" />
+          <span className="text-sm font-medium text-stone-800 dark:text-stone-200">اختر ببتيدًا آخر للمقارنة</span>
+          <button onClick={() => setCompareIds([])} aria-label="إلغاء المقارنة" className="rounded-lg p-1.5 min-h-[44px] min-w-[44px] flex items-center justify-center text-stone-400 dark:text-stone-500 hover:text-stone-600 dark:hover:text-stone-300 transition-colors">
+            <X className="h-4 w-4" />
+          </button>
+        </div>
+      )}
+
       {/* Floating Compare Bar */}
       {compareIds.length >= 2 && (
-        <div className="fixed bottom-20 left-1/2 -translate-x-1/2 z-40 flex items-center gap-3 rounded-2xl border border-emerald-300 dark:border-emerald-700 bg-white dark:bg-stone-900/95 backdrop-blur-lg px-6 py-3 shadow-xl dark:shadow-stone-900/40 md:bottom-6 animate-slide-up">
+        <div className="fixed bottom-20 inset-x-0 mx-auto w-fit z-40 flex items-center gap-3 rounded-2xl border border-emerald-300 dark:border-emerald-700 bg-white dark:bg-stone-900/95 backdrop-blur-lg px-6 py-3 shadow-xl dark:shadow-stone-900/40 md:bottom-6 animate-slide-up">
           <span className="text-sm font-bold text-stone-900 dark:text-stone-100">قارن {compareIds.length} ببتيدات</span>
           <div className="flex gap-1.5">
             {compareIds.map(id => {
@@ -808,10 +859,10 @@ export default function Library() {
           { label: 'الاسم العلمي', get: (p: Peptide) => p.nameEn },
           { label: 'التصنيف', get: (p: Peptide) => categoryLabels[p.category] },
           { label: 'الدليل العلمي', get: (p: Peptide) => evidenceLabels[p.evidenceLevel] },
-          { label: 'الجرعة', get: (p: Peptide) => p.dosageAr },
-          { label: 'طريقة الإعطاء', get: (p: Peptide) => p.administrationAr.split('.')[0] },
-          { label: 'مدة الدورة', get: (p: Peptide) => p.cycleAr },
-          { label: 'الأعراض الجانبية', get: (p: Peptide) => p.sideEffectsAr },
+          { label: 'الجرعة', get: () => 'اشترك لعرض التفاصيل' },
+          { label: 'طريقة الإعطاء', get: (p: Peptide) => p.route ? ({'subq':'حقن تحت الجلد','im':'حقن عضلي','nasal':'بخاخ أنفي','oral':'فموي','topical':'موضعي'}[p.route] ?? '—') : '—' },
+          { label: 'مدة الدورة', get: () => 'اشترك لعرض التفاصيل' },
+          { label: 'الأعراض الجانبية', get: () => 'اشترك لعرض التفاصيل' },
           { label: 'التكلفة', get: (p: Peptide) => p.costEstimate ?? '—' },
           { label: 'المستوى', get: (p: Peptide) => p.difficulty === 'beginner' ? 'مبتدئ' : p.difficulty === 'intermediate' ? 'متوسط' : 'متقدم' },
         ];

@@ -38,9 +38,16 @@ export default function InstallPrompt() {
 
   useEffect(() => {
     if (isStandalone()) return; // Already installed
+
+    // 60-second delay for ALL platforms before showing the install prompt
+    let pendingPrompt: BeforeInstallPromptEvent | null = null;
+    let delayTimer: ReturnType<typeof setTimeout>;
+
     const handler = (e: Event) => {
       e.preventDefault();
-      setDeferredPrompt(e as BeforeInstallPromptEvent);
+      pendingPrompt = e as BeforeInstallPromptEvent;
+      // Delay showing the prompt by 60s so users aren't interrupted immediately
+      delayTimer = setTimeout(() => setDeferredPrompt(pendingPrompt), 60_000);
     };
     window.addEventListener('beforeinstallprompt', handler);
 
@@ -52,6 +59,7 @@ export default function InstallPrompt() {
 
     return () => {
       window.removeEventListener('beforeinstallprompt', handler);
+      clearTimeout(delayTimer);
       clearTimeout(iosTimer);
     };
   }, []);
@@ -89,7 +97,7 @@ export default function InstallPrompt() {
         {!showIOS && (
           <button
             onClick={handleInstall}
-            className="shrink-0 rounded-full bg-emerald-600 px-4 py-2 text-xs font-bold text-white transition-colors hover:bg-emerald-700"
+            className="shrink-0 rounded-full bg-emerald-600 px-4 py-2 min-h-[44px] text-xs font-bold text-white transition-colors hover:bg-emerald-700"
           >
             تثبيت
           </button>

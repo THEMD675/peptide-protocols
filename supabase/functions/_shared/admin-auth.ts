@@ -6,17 +6,13 @@
 import { getAuthUser } from './supabase.ts'
 import { getCorsHeaders, jsonResponse } from './cors.ts'
 
-const DEFAULT_ADMIN_EMAILS = [
-  'abdullah@amirisgroup.co',
-  'abdullahalameer@gmail.com',
-  'abdullahameeer32@gmail.com',
-  'contact@pptides.com',
-]
-
 function getAdminEmails(): string[] {
   const whitelist = Deno.env.get('ADMIN_EMAIL_WHITELIST')
-  if (!whitelist?.trim()) return DEFAULT_ADMIN_EMAILS
-  return whitelist.split(',').map((e) => e.trim()).filter(Boolean)
+  if (!whitelist?.trim()) {
+    console.error('ADMIN_EMAIL_WHITELIST not set — no admin access possible')
+    return []
+  }
+  return whitelist.split(',').map((e) => e.trim().toLowerCase()).filter(Boolean)
 }
 
 export const ADMIN_EMAILS = getAdminEmails()
@@ -37,7 +33,7 @@ export async function requireAdmin(req: Request): Promise<
   }
 
   const user = await getAuthUser(req)
-  if (!user || !user.email || !ADMIN_EMAILS.includes(user.email)) {
+  if (!user || !user.email || !ADMIN_EMAILS.map(e => e.toLowerCase()).includes(user.email.toLowerCase())) {
     return { user: null, error: jsonResponse({ error: 'Forbidden' }, 403, cors) }
   }
 

@@ -7,11 +7,11 @@ import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
 import { cn } from '@/lib/utils';
 import { events } from '@/lib/analytics';
-import { TRIAL_DAYS, SITE_URL } from '@/lib/constants';
+import { TRIAL_DAYS, SITE_URL, REFERRAL_CODE_REGEX } from '@/lib/constants';
 import { Gift } from 'lucide-react';
 
 const TURNSTILE_SITE_KEY = import.meta.env.VITE_TURNSTILE_SITE_KEY ?? '';
-const GOOGLE_CLIENT_ID = '803062121443-7497cu9tfra080sr835benjs5gl9295o.apps.googleusercontent.com';
+const GOOGLE_CLIENT_ID: string | undefined = import.meta.env.VITE_GOOGLE_CLIENT_ID || (import.meta.env.PROD ? undefined : undefined);
 
 type Tab = 'login' | 'signup';
 
@@ -64,6 +64,10 @@ export default function Login() {
   const [resendLoading, setResendLoading] = useState(false);
   const [resendCooldown, setResendCooldown] = useState(0);
   const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
+  const [turnstileUnavailable, setTurnstileUnavailable] = useState(false);
+  const [turnstileExpired, setTurnstileExpired] = useState(false);
+  /** Track whether token was ever set, to detect expiry (null after being non-null) */
+  const turnstileWasSet = useRef(false);
   const turnstileRef = useRef<HTMLDivElement>(null);
   const turnstileWidgetId = useRef<string | null>(null);
   const resendIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -73,7 +77,7 @@ export default function Login() {
   const { login, signup, user } = useAuth();
   const googleBtnRef = useRef<HTMLDivElement>(null);
   const [referralCode] = useState(() => {
-    try { const r = localStorage.getItem('pptides_referral'); return r && /^PP-[A-Z0-9]{6}$/.test(r) ? r : null; } catch { return null; }
+    try { const r = localStorage.getItem('pptides_referral'); return r && REFERRAL_CODE_REGEX.test(r) ? r : null; } catch { return null; }
   });
 
   /** Switch tab, sync URL, clear errors + password, refocus email */
@@ -97,14 +101,18 @@ export default function Login() {
 
   useEffect(() => {
     if (!TURNSTILE_SITE_KEY || !turnstileRef.current) return;
+    let fallbackTimer: ReturnType<typeof setTimeout> | null = null;
+    let loaded = false;
     const renderWidget = () => {
+      loaded = true;
+      if (fallbackTimer) { clearTimeout(fallbackTimer); fallbackTimer = null; }
       if (!turnstileRef.current || turnstileWidgetId.current) return;
       turnstileWidgetId.current = window.turnstile?.render(turnstileRef.current, {
         sitekey: TURNSTILE_SITE_KEY,
         callback: (token: string) => setTurnstileToken(token),
         'error-callback': () => setTurnstileToken(null),
         'expired-callback': () => setTurnstileToken(null),
-        theme: 'light',
+        theme: document.documentElement.classList.contains('dark') ? 'dark' : 'light',
         size: 'flexible',
         language: 'ar',
       }) ?? null;
@@ -114,12 +122,40 @@ export default function Login() {
     script.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit';
     script.async = true;
     script.onload = renderWidget;
+    script.onerror = () => {
+      if (!loaded) {
+        setTurnstileUnavailable(true);
+        toast.error('تعذّر تحميل التحقق الأمني — يمكنك المتابعة بدون CAPTCHA');
+      }
+    };
     document.head.appendChild(script);
+    // Fallback: if Turnstile CDN fails to load within 5s, disable CAPTCHA requirement
+    fallbackTimer = setTimeout(() => {
+      if (!loaded && !window.turnstile) {
+        setTurnstileUnavailable(true);
+        toast.error('تعذّر تحميل التحقق الأمني — يمكنك المتابعة بدون CAPTCHA');
+      }
+    }, 5000);
     return () => {
       turnstileWidgetId.current = null;
+      if (fallbackTimer) clearTimeout(fallbackTimer);
       if (script.parentNode) script.parentNode.removeChild(script);
     };
   }, []);
+  // Detect turnstile token expiry: token becomes null after being set
+  useEffect(() => {
+    if (turnstileToken) {
+      turnstileWasSet.current = true;
+      setTurnstileExpired(false);
+    } else if (turnstileWasSet.current && !turnstileToken) {
+      // Token expired — show message and auto-reset widget
+      setTurnstileExpired(true);
+      if (turnstileWidgetId.current && window.turnstile) {
+        window.turnstile.reset(turnstileWidgetId.current);
+      }
+    }
+  }, [turnstileToken]);
+
   const recoveryTimerRef = useRef<ReturnType<typeof setTimeout>>();
   useEffect(() => () => {
     clearTimeout(recoveryTimerRef.current);
@@ -141,8 +177,18 @@ export default function Login() {
   }, [user, isRecovery, navigate]);
 
   useEffect(() => {
+    // Restore recovery state from sessionStorage (survives browser restart)
+    try {
+      if (sessionStorage.getItem('pptides_recovery') === 'true') {
+        setIsRecovery(true);
+      }
+    } catch { /* expected */ }
+
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
-      if (event === 'PASSWORD_RECOVERY') setIsRecovery(true);
+      if (event === 'PASSWORD_RECOVERY') {
+        setIsRecovery(true);
+        try { sessionStorage.setItem('pptides_recovery', 'true'); } catch { /* expected */ }
+      }
     });
     return () => subscription.unsubscribe();
   }, []);
@@ -176,6 +222,7 @@ export default function Login() {
       const { error } = await supabase.auth.updateUser({ password: newPassword });
       if (error) throw error;
       setIsRecovery(false);
+      try { sessionStorage.removeItem('pptides_recovery'); } catch { /* expected */ }
       setResetMessage('تم تغيير كلمة المرور بنجاح');
       setNewPassword('');
       // Redirect to dashboard (not landing page) after successful password reset
@@ -207,7 +254,7 @@ export default function Login() {
       return;
     }
 
-    if (TURNSTILE_SITE_KEY && !turnstileToken) {
+    if (TURNSTILE_SITE_KEY && !turnstileToken && !turnstileUnavailable) {
       setError('يرجى إكمال التحقق الأمني');
       return;
     }
@@ -235,8 +282,8 @@ export default function Login() {
 
     setLoading(true);
     try {
-      // Server-side Turnstile validation for signup
-      if (tab === 'signup' && TURNSTILE_SITE_KEY && turnstileToken) {
+      // Server-side Turnstile validation for signup (skip if CDN failed to load)
+      if (tab === 'signup' && TURNSTILE_SITE_KEY && turnstileToken && !turnstileUnavailable) {
         const validateRes = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/validate-turnstile`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -279,9 +326,10 @@ export default function Login() {
         const next = failedAttempts + 1;
         setFailedAttempts(next);
         if (next >= 5) {
-          setLockoutUntil(Date.now() + 30000);
-          setFailedAttempts(0);
-          toast.error('محاولات كثيرة — انتظر 30 ثانية');
+          const lockoutMs = Math.min(30000 * Math.pow(2, Math.floor(next / 5) - 1), 900000);
+          setLockoutUntil(Date.now() + lockoutMs);
+          const lockoutSec = Math.ceil(lockoutMs / 1000);
+          toast.error(`محاولات كثيرة — انتظر ${lockoutSec >= 60 ? `${Math.ceil(lockoutSec / 60)} دقيقة` : `${lockoutSec} ثانية`}`);
         }
       }
       resetTurnstile();
@@ -413,11 +461,11 @@ export default function Login() {
             </div>
             <div className="px-6 pb-8 pt-6 text-center">
               <p className="mb-2 text-sm text-stone-600 dark:text-stone-300">اضغط على الرابط في البريد لتفعيل حسابك وبدء التجربة المجانية.</p>
-              <p className="mb-6 text-xs text-stone-500 dark:text-stone-300">لم يصلك البريد؟ تحقق من مجلد البريد المزعج (Spam).</p>
+              <p className="mb-6 text-xs text-stone-500 dark:text-stone-300">لم يصلك البريد؟ تحقق من مجلد البريد المزعج.</p>
               <button
                 onClick={handleResendVerification}
                 disabled={resendLoading || resendCooldown > 0}
-                className="mb-4 w-full rounded-full border-2 border-emerald-600 py-3 text-sm font-bold text-emerald-700 transition-colors hover:bg-emerald-50 dark:bg-emerald-900/20 disabled:opacity-50"
+                className="mb-4 w-full rounded-full border-2 border-emerald-600 py-3 text-sm font-bold text-emerald-700 transition-colors hover:bg-emerald-50 dark:bg-emerald-900/20 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {resendLoading ? (
                   <span className="inline-flex items-center gap-2">
@@ -455,7 +503,7 @@ export default function Login() {
             </div>
             <div className="px-6 pb-8 pt-6">
               {error && <div role="alert" className="mb-4 rounded-lg bg-red-50 dark:bg-red-900/20 px-4 py-3 text-sm text-red-700 dark:text-red-400">{error}</div>}
-              {resetMessage && <div role="status" aria-live="polite" className="mb-4 rounded-lg bg-green-50 px-4 py-3 text-sm text-green-700">{resetMessage}</div>}
+              {resetMessage && <div role="status" aria-live="polite" className="mb-4 rounded-lg bg-green-50 dark:bg-green-900/20 px-4 py-3 text-sm text-green-700 dark:text-green-300">{resetMessage}</div>}
               <form onSubmit={handleUpdatePassword} className="space-y-4">
                 <div>
                   <label htmlFor="recovery-password" className="mb-1.5 block text-sm font-medium text-stone-900 dark:text-stone-100">كلمة المرور الجديدة</label>
@@ -482,7 +530,7 @@ export default function Login() {
                     </button>
                   </div>
                 </div>
-                <button type="submit" disabled={loading} className="w-full rounded-full bg-emerald-600 px-8 py-3.5 text-base font-semibold text-white shadow transition-transform hover:bg-emerald-700 active:scale-[0.98] disabled:opacity-60">
+                <button type="submit" disabled={loading} className="w-full rounded-full bg-emerald-600 px-8 py-3.5 text-base font-semibold text-white shadow transition-transform hover:bg-emerald-700 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed">
                   {loading ? (
                     <span className="inline-flex items-center gap-2">
                       <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />
@@ -497,6 +545,9 @@ export default function Login() {
       </div>
     );
   }
+
+  // Prevent login page flash while redirect useEffect fires
+  if (user && !isRecovery) return null;
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-white dark:bg-stone-950 px-4">
@@ -543,8 +594,10 @@ export default function Login() {
             {(['login', 'signup'] as const).map((t) => (
               <button
                 key={t}
+                id={`tab-${t}`}
                 role="tab"
                 aria-selected={tab === t}
+                aria-controls="login-tabpanel"
                 onClick={() => switchTab(t)}
                 className={cn(
                   'relative flex-1 py-3.5 text-center text-sm font-semibold transition-colors',
@@ -557,7 +610,7 @@ export default function Login() {
             ))}
           </div>
 
-          <div className="px-6 pb-8 pt-6">
+          <div className="px-6 pb-8 pt-6" role="tabpanel" aria-labelledby={`tab-${tab}`}>
             {/* Google Sign In — custom Arabic button wraps the hidden GIS button for full locale control */}
             {GOOGLE_CLIENT_ID && (
               <>
@@ -567,32 +620,22 @@ export default function Login() {
                 {/* Visible custom Arabic button */}
                 <button
                   type="button"
+                  aria-label="تسجيل الدخول عبر جوجل"
                   disabled={loading || googleLoading}
                   onClick={async () => {
                     // Respect ?redirect= param so Google sign-in from /signup?redirect=/pricing lands on /pricing
                     const oauthRedirectPath = safeRedirect(new URLSearchParams(window.location.search).get('redirect'));
                     const oauthRedirectTo = `${window.location.origin}${oauthRedirectPath}`;
-                    // Primary: try Google One Tap prompt
-                    if (window.google?.accounts?.id) {
-                      window.google.accounts.id.prompt((notification: { isNotDisplayed: () => boolean; isSkippedMoment: () => boolean }) => {
-                        // If One Tap failed silently (dismissed, cooldown, cookies blocked), fall back to OAuth redirect
-                        if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
-                          supabase.auth.signInWithOAuth({
-                            provider: 'google',
-                            options: { redirectTo: oauthRedirectTo },
-                          });
-                        }
-                      });
-                    } else {
-                      // GIS script not loaded — go straight to OAuth redirect
-                      setGoogleLoading(true);
-                      await supabase.auth.signInWithOAuth({
-                        provider: 'google',
-                        options: { redirectTo: oauthRedirectTo },
-                      });
-                    }
+                    // Always use OAuth redirect on button click — One Tap prompt() fires
+                    // its callback asynchronously which loses user gesture context and
+                    // causes browsers to block the redirect as a popup.
+                    setGoogleLoading(true);
+                    await supabase.auth.signInWithOAuth({
+                      provider: 'google',
+                      options: { redirectTo: oauthRedirectTo },
+                    });
                   }}
-                  className="mb-4 flex w-full items-center justify-center gap-3 rounded-full border border-stone-300 dark:border-stone-600 bg-white dark:bg-stone-900 px-6 py-3 text-sm font-medium text-stone-700 dark:text-stone-200 shadow-sm transition-all hover:bg-stone-50 dark:hover:bg-stone-800 hover:border-stone-300 dark:hover:border-stone-500 disabled:opacity-60"
+                  className="mb-4 flex w-full items-center justify-center gap-3 rounded-full border border-stone-300 dark:border-stone-600 bg-white dark:bg-stone-900 px-6 py-3 text-sm font-medium text-stone-700 dark:text-stone-200 shadow-sm transition-all hover:bg-stone-50 dark:hover:bg-stone-800 hover:border-stone-300 dark:hover:border-stone-500 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {googleLoading ? (
                     <span className="h-5 w-5 animate-spin rounded-full border-2 border-stone-300 border-t-stone-600" />
@@ -623,7 +666,7 @@ export default function Login() {
 
             {/* Bug 9 fix: aria-live so screen readers announce dynamic success/info messages */}
             {resetMessage && (
-              <div role="status" aria-live="polite" className="mb-4 rounded-lg bg-green-50 px-4 py-3 text-sm text-green-700">
+              <div role="status" aria-live="polite" className="mb-4 rounded-lg bg-green-50 dark:bg-green-900/20 px-4 py-3 text-sm text-green-700 dark:text-green-300">
                 {resetMessage}
               </div>
             )}
@@ -645,7 +688,7 @@ export default function Login() {
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="name@example.com"
+                  placeholder="بريدك@example.com"
                   autoFocus
                   autoComplete="email"
                   dir="ltr"
@@ -737,7 +780,7 @@ export default function Login() {
                       type="button"
                       onClick={handleResetPassword}
                       disabled={resetLoading}
-                      className="inline-flex items-center gap-1.5 min-h-[44px] text-sm font-medium text-emerald-700 hover:underline disabled:opacity-50"
+                      className="inline-flex items-center gap-1.5 min-h-[44px] text-sm font-medium text-emerald-700 hover:underline disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       {resetLoading ? (
                         <>
@@ -753,18 +796,25 @@ export default function Login() {
               </div>
 
               {TURNSTILE_SITE_KEY && (
-                <div ref={turnstileRef} className="flex justify-center" />
+                <>
+                  <div ref={turnstileRef} className="flex justify-center" />
+                  {turnstileExpired && (
+                    <p className="text-center text-xs text-amber-600 dark:text-amber-400 animate-pulse">
+                      CAPTCHA منتهي الصلاحية — جارٍ التحديث...
+                    </p>
+                  )}
+                </>
               )}
 
               <button
                 type="submit"
-                disabled={loading || !!(TURNSTILE_SITE_KEY && !turnstileToken) || (tab === 'signup' && !(password.length >= 8 && /[a-zA-Z]/.test(password) && /\d/.test(password)))}
+                disabled={loading || !!(TURNSTILE_SITE_KEY && !turnstileToken && !turnstileUnavailable) || (tab === 'signup' && !(password.length >= 8 && /[a-zA-Z]/.test(password) && /\d/.test(password)))}
                 title={
                   tab === 'signup' && !(password.length >= 8 && /[a-zA-Z]/.test(password) && /\d/.test(password))
                     ? 'أكمل متطلبات كلمة المرور أدناه أولًا'
                     : undefined
                 }
-                className="w-full rounded-full bg-emerald-600 px-8 py-3.5 text-base font-semibold text-white shadow transition-transform hover:bg-emerald-700 hover:scale-[1.02] active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed"
+                className="w-full rounded-full bg-emerald-600 px-8 py-3.5 text-base font-semibold text-white shadow transition-transform hover:bg-emerald-700 hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {loading ? (
                   <span className="inline-flex items-center gap-2">

@@ -2,6 +2,8 @@ import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 import { getCorsHeaders } from '../_shared/cors.ts'
 
+const APP_URL = Deno.env.get('APP_URL') ?? 'https://pptides.com'
+
 /**
  * Coach Notifications v2 — Proactive insights delivered as in-app + push notifications.
  * 
@@ -43,20 +45,28 @@ serve(async (req) => {
 
   const supabase = createClient(supabaseUrl, supabaseServiceKey)
 
-  // Verify cron secret or admin auth
+  // Verify cron secret or admin auth — reject unauthenticated requests
   const authHeader = req.headers.get('authorization')
+  const cronSecretHeader = req.headers.get('x-cron-secret')
   const cronSecret = Deno.env.get('CRON_SECRET')
-  if (cronSecret && authHeader !== `Bearer ${cronSecret}`) {
-    const token = authHeader?.replace('Bearer ', '')
+
+  const ADMIN_EMAILS = ['abdullah@amirisgroup.co', 'abdullahalameer@gmail.com', 'abdullahameeer32@gmail.com', 'contact@pptides.com']
+  let authorized = false
+  if (cronSecret && (authHeader === `Bearer ${cronSecret}` || cronSecretHeader === cronSecret)) {
+    authorized = true
+  } else if (authHeader) {
+    const token = authHeader.replace('Bearer ', '')
     if (token) {
       const { data: { user }, error } = await supabase.auth.getUser(token)
-      if (error || !user) {
-        return new Response(JSON.stringify({ error: 'Unauthorized' }), {
-          status: 401,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        })
-      }
+      if (!error && user?.email && ADMIN_EMAILS.includes(user.email.toLowerCase())) authorized = true
     }
+  }
+
+  if (!authorized) {
+    return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+      status: 401,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    })
   }
 
   try {
@@ -166,7 +176,7 @@ serve(async (req) => {
           userId,
           'وقت جرعتك اليوم 💉',
           `لم تسجّل حقنة ${peptideNames} اليوم — سجّل جرعتك للحفاظ على سلسلة التزامك.`,
-          'https://pptides.com/tracker',
+          `${APP_URL}/tracker`,
         )
       }
 
@@ -183,7 +193,7 @@ serve(async (req) => {
           userId,
           'تذكير من مدربك الذكي',
           `لم تسجّل حقنة منذ 3 أيام — الالتزام بالبروتوكول مهم للحصول على أفضل النتائج. عُد اليوم!`,
-          'https://pptides.com/tracker',
+          `${APP_URL}/tracker`,
         )
       }
 
@@ -199,7 +209,7 @@ serve(async (req) => {
               userId,
               `دورة ${proto.peptide_id} توشك على الانتهاء`,
               `باقي ${daysRemaining} أيام على نهاية دورتك. اسأل المدرب الذكي عن الخطوة التالية — هل تحتاج فترة راحة أو دورة جديدة؟`,
-              'https://pptides.com/coach',
+              `${APP_URL}/coach`,
             )
           }
         }
@@ -221,7 +231,7 @@ serve(async (req) => {
                 userId,
                 `حان وقت التحاليل 🔬`,
                 `أنت في الأسبوع ${weeksIn} من ${proto.peptide_id}. التحاليل تساعدك في قياس التقدم ومعرفة هل البروتوكول يعمل. راجع دليل التحاليل.`,
-                'https://pptides.com/lab-guide',
+                `${APP_URL}/lab-guide`,
                 'weekly',
               )
             }
@@ -271,7 +281,7 @@ serve(async (req) => {
           userId,
           'ملخص أسبوعك 📊',
           insightBody,
-          'https://pptides.com/dashboard',
+          `${APP_URL}/dashboard`,
           'weekly',
         )
       }
@@ -288,7 +298,7 @@ serve(async (req) => {
         se.user_id,
         'المدرب الذكي لاحظ عرضًا جانبيًا',
         `سجّلت "${se.symptom}"${se.peptide_id ? ` مع ${se.peptide_id}` : ''} — تحدّث مع المدرب الذكي للحصول على نصيحة مخصصة لحالتك.`,
-        'https://pptides.com/coach',
+        `${APP_URL}/coach`,
       )
     }
 
@@ -314,7 +324,7 @@ serve(async (req) => {
               userId,
               'نومك انخفض مؤخرًا 😴',
               `معدل نومك انخفض ${Math.abs(sleepChange)}% — المدرب الذكي عنده نصائح مخصصة لتحسين نومك.`,
-              'https://pptides.com/coach',
+              `${APP_URL}/coach`,
             )
           }
 
@@ -327,7 +337,7 @@ serve(async (req) => {
               userId,
               'مستوى طاقتك انخفض ⚡',
               `طاقتك انخفضت ${Math.abs(energyChange)}% — خلّنا نراجع بروتوكولك مع المدرب الذكي.`,
-              'https://pptides.com/coach',
+              `${APP_URL}/coach`,
             )
           }
         }
@@ -374,7 +384,8 @@ serve(async (req) => {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
-              'Authorization': `Bearer ${supabaseServiceKey}`,
+              'Authorization': `Bearer ${cronSecret || supabaseServiceKey}`,
+              'x-cron-secret': cronSecret || '',
             },
             body: JSON.stringify({
               user_id: uid,

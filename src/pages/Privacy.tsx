@@ -15,6 +15,8 @@ export default function Privacy() {
         <meta property="og:image" content={`${SITE_URL}/og-image.jpg`} />
         <meta property="og:locale" content="ar_SA" />
         <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="سياسة الخصوصية | pptides" />
+        <meta name="twitter:description" content="سياسة الخصوصية لموقع pptides.com — كيف نحمي بياناتك الشخصية." />
         <link rel="canonical" href={`${SITE_URL}/privacy`} />
         <script type="application/ld+json">{JSON.stringify({
           '@context': 'https://schema.org',
@@ -59,6 +61,7 @@ export default function Privacy() {
               <li><strong>Stripe</strong> — معالجة المدفوعات. لا نخزّن بيانات بطاقتك أبدًا</li>
               <li><strong>Google Analytics</strong> — تحليل زيارات الصفحات والأحداث لتحسين تجربة المستخدم</li>
               <li><strong>Resend</strong> — إرسال الرسائل البريدية التشغيلية (تأكيد الحساب، إشعارات الاشتراك). يعالج عنوان بريدك الإلكتروني فقط</li>
+              <li><strong>Vercel</strong> — استضافة الموقع وقياس الأداء (Web Vitals). يجمع بيانات أداء مجمّعة وغير شخصية</li>
               <li><strong>DeepSeek</strong> — مزود الذكاء الاصطناعي للمدرب الذكي. تُرسل محادثاتك وسجل الحقن لتوليد الإجابات المخصّصة. لا تُستخدم بياناتك لتدريب النماذج</li>
             </ul>
           </section>
@@ -66,6 +69,17 @@ export default function Privacy() {
           <section>
             <h2 className="mb-3 text-xl font-bold text-stone-900 dark:text-stone-100">4. أمان البيانات</h2>
             <p>نستخدم تشفير SSL/TLS لحماية اتصالاتك. بيانات الدفع تُعالج حصريًا عبر Stripe ولا تمر عبر خوادمنا.</p>
+            <p className="mt-3">يتوافق موقعنا مع نظام حماية البيانات الشخصية السعودي (PDPL). نعالج بياناتك بناءً على: (1) موافقتك عند التسجيل، (2) تنفيذ عقد الاشتراك، (3) المصلحة المشروعة لتحسين الخدمة.</p>
+          </section>
+
+          <section>
+            <h2 className="mb-3 text-xl font-bold text-stone-900 dark:text-stone-100">4.1 المدرب الذكي ومعالجة البيانات</h2>
+            <p>قد تتم معالجة محادثات المدرب الذكي عبر مزوّد ذكاء اصطناعي خارج المملكة العربية السعودية. لا تُخزَّن محادثاتك لدى مزوّد الذكاء الاصطناعي بعد المعالجة.</p>
+          </section>
+
+          <section>
+            <h2 className="mb-3 text-xl font-bold text-stone-900 dark:text-stone-100">4.2 الإخطار بالخروقات الأمنية</h2>
+            <p>في حال حدوث خرق أمني يؤثر على بياناتك الشخصية، سنخطر الجهات المختصة خلال 72 ساعة ونبلغ المستخدمين المتضررين فورًا وفقًا للمادة 36 من نظام حماية البيانات الشخصية.</p>
           </section>
 
           <section>

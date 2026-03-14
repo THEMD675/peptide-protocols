@@ -3,17 +3,36 @@ import { Link } from 'react-router-dom';
 import { COOKIE_CONSENT_STORAGE_KEY, type CookiePreferences } from '@/lib/cookie-utils';
 import { STORAGE_KEYS } from '@/lib/constants';
 
+const COOKIE_NAME = 'pptides_cc';
+
+function hasConsent(): boolean {
+  try { if (localStorage.getItem(COOKIE_CONSENT_STORAGE_KEY)) return true; } catch { /* private mode */ }
+  try { if (sessionStorage.getItem(COOKIE_CONSENT_STORAGE_KEY)) return true; } catch { /* fallback */ }
+  if (document.cookie.includes(`${COOKIE_NAME}=1`)) return true;
+  return false;
+}
+
+function isAgeVerified(): boolean {
+  try { if (localStorage.getItem(STORAGE_KEYS.AGE_VERIFIED) === 'true') return true; } catch { /* private mode */ }
+  try { if (sessionStorage.getItem(STORAGE_KEYS.AGE_VERIFIED) === 'true') return true; } catch { /* fallback */ }
+  if (document.cookie.includes('pptides_age_ok=1')) return true;
+  return false;
+}
+
 export default function CookieConsent() {
   const [visible, setVisible] = useState(() => {
-    try {
-      if (localStorage.getItem(STORAGE_KEYS.AGE_VERIFIED) !== 'true') return false;
-      return !localStorage.getItem(COOKIE_CONSENT_STORAGE_KEY);
-    } catch {
-      return true;
-    }
+    if (!isAgeVerified()) return false;
+    return !hasConsent();
   });
 
   const [optionalChecked, setOptionalChecked] = useState(true);
+
+  // Listen for reopen event (triggered from Account page privacy settings)
+  useEffect(() => {
+    const handleReopen = () => setVisible(true);
+    window.addEventListener('pptides:reopen-cookie-consent', handleReopen);
+    return () => window.removeEventListener('pptides:reopen-cookie-consent', handleReopen);
+  }, []);
 
   // Add bottom padding to body when banner is visible so it doesn't overlap mobile CTAs
   useEffect(() => {
@@ -27,15 +46,36 @@ export default function CookieConsent() {
 
   const save = (prefs: CookiePreferences) => {
     try { localStorage.setItem(COOKIE_CONSENT_STORAGE_KEY, JSON.stringify(prefs)); } catch { /* expected */ }
+    try { sessionStorage.setItem(COOKIE_CONSENT_STORAGE_KEY, JSON.stringify(prefs)); } catch { /* fallback */ }
+    document.cookie = `${COOKIE_NAME}=1;path=/;max-age=${365 * 24 * 60 * 60};SameSite=Lax`;
     setVisible(false);
     if (prefs.optional) {
-      window.location.reload();
+      // Dynamically inject GA4 script without page reload
+      const ga4Id = import.meta.env.VITE_GA4_ID;
+      if (ga4Id && import.meta.env.PROD && !document.querySelector(`script[src*="googletagmanager.com/gtag/js?id=${ga4Id}"]`)) {
+        const script = document.createElement('script');
+        script.src = `https://www.googletagmanager.com/gtag/js?id=${ga4Id}`;
+        script.async = true;
+        script.dataset.cookieConsent = 'analytics';
+        document.head.appendChild(script);
+        const w = window as unknown as Record<string, unknown[]>;
+        w.dataLayer = w.dataLayer || [];
+        w.dataLayer.push(['js', new Date()]);
+        w.dataLayer.push(['config', ga4Id, { send_page_view: true }]);
+      }
+    } else {
+      // Revoke: remove GA4 script tags and clear dataLayer
+      document.querySelectorAll('script[src*="googletagmanager.com/gtag/js"]').forEach(el => el.remove());
+      document.querySelectorAll('script[data-cookie-consent="analytics"]').forEach(el => el.remove());
+      const w = window as unknown as Record<string, unknown[]>;
+      delete w.dataLayer;
+      delete (window as Record<string, unknown>).gtag;
     }
   };
 
   const acceptAll = () => save({ essential: true, optional: true });
   const savePreferences = () => save({ essential: true, optional: optionalChecked });
-  const rejectOptional = useCallback(() => save({ essential: true, optional: false }), []);
+  const rejectOptional = () => save({ essential: true, optional: false });
 
   useEffect(() => {
     if (!visible) return;
@@ -49,7 +89,7 @@ export default function CookieConsent() {
   if (!visible) return null;
 
   return (
-    <div role="alertdialog" aria-label="ملفات تعريف الارتباط" className="fixed bottom-14 md:bottom-0 inset-x-0 z-[45] border-t border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900/95 backdrop-blur-xl shadow-[0_-4px_20px_rgba(0,0,0,0.08)] px-4 py-3 sm:px-6 sm:py-4 md:p-5 animate-slide-up pb-[env(safe-area-inset-bottom)]">
+    <div role="alertdialog" aria-label="ملفات تعريف الارتباط" className="fixed bottom-14 md:bottom-0 inset-x-0 z-30 border-t border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900/95 backdrop-blur-xl shadow-[0_-4px_20px_rgba(0,0,0,0.08)] px-4 py-3 sm:px-6 sm:py-4 md:p-5 animate-slide-up pb-[env(safe-area-inset-bottom)]">
       <div className="mx-auto max-w-5xl">
         <p className="text-sm font-bold text-stone-900 dark:text-stone-100 mb-2">ملفات تعريف الارتباط</p>
 

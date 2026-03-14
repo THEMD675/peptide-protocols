@@ -5,20 +5,14 @@ const FocusTrap = lazy(() => import('focus-trap-react'));
 import { useAuth } from '@/contexts/AuthContext';
 import { Shield, X, Clock } from 'lucide-react';
 import { cn, arPlural } from '@/lib/utils';
-import { PRICING, PEPTIDE_COUNT, FREE_PEPTIDE_IDS } from '@/lib/constants';
+import { PRICING, FREE_PEPTIDE_IDS, isFreeRoute, isPaymentWallFreeRoute } from '@/lib/constants';
 import { useNowMs } from '@/hooks/useNowMs';
 import { TRIAL, RETENTION, UPGRADE, COMMON } from '@/constants/sales-copy';
 
 const DISMISS_KEY = 'pptides_trial_banner_dismissed';
 
-const FREE_PATHS = [
-  '/calculator', '/pricing', '/login', '/signup', '/privacy', '/terms', '/',
-  '/glossary', '/sources', '/reviews', '/account', '/interactions',
-  '/library', '/table', '/stacks', '/lab-guide', '/guide',
-  '/community', '/about', '/faq', '/quiz', '/blog', '/contact', '/transparency',
-];
 // Excluded: /dashboard, /tracker, /coach — premium routes; blocking modal must trigger for expired
-// /peptide handled separately via isPeptideFree (FREE_PEPTIDE_IDS)
+// /peptide handled separately via isPeptideFree (FREE_PEPTIDE_IDS). Free routes from constants.ts (single source of truth).
 
 export default function TrialBanner() {
   const navigate = useNavigate();
@@ -29,7 +23,7 @@ export default function TrialBanner() {
 
   const peptideId = pathname.startsWith('/peptide/') ? pathname.split('/')[2] : null;
   const isPeptideFree = peptideId ? FREE_PEPTIDE_IDS.has(peptideId) : false;
-  const isFreePage = FREE_PATHS.some(p => pathname === p || pathname.startsWith(p + '/')) || isPeptideFree;
+  const isFreePage = isFreeRoute(pathname) || isPeptideFree;
 
   const needsSubscription = !isLoading && user && subscription &&
     !subscription.isProOrTrial;
@@ -48,10 +42,7 @@ export default function TrialBanner() {
 
   // Payment wall: trial user who hasn't entered a credit card yet
   if (subscription.needsPaymentSetup) {
-    const PAYMENT_WALL_FREE_PATHS = [
-      '/pricing', '/account', '/login', '/signup', '/privacy', '/terms', '/contact', '/',
-    ];
-    const isPaymentWallFreePage = PAYMENT_WALL_FREE_PATHS.some(p => pathname === p || pathname.startsWith(p + '/'));
+    const isPaymentWallFreePage = isPaymentWallFreeRoute(pathname);
 
     if (isPaymentWallFreePage) {
       // Show a prominent banner on allowed pages
@@ -301,7 +292,7 @@ export default function TrialBanner() {
         <button
           onClick={handleDismiss}
           aria-label="إغلاق"
-          className="absolute end-3 top-1/2 -translate-y-1/2 rounded-full p-1 transition-colors text-white/70 hover:text-white hover:bg-white dark:bg-stone-900/10"
+          className="absolute end-3 top-1/2 -translate-y-1/2 rounded-full p-1 min-h-[44px] min-w-[44px] flex items-center justify-center transition-colors text-white/70 hover:text-white hover:bg-white dark:bg-stone-900/10"
         >
           <X className="h-4 w-4" />
         </button>

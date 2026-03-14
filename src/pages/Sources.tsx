@@ -11,7 +11,7 @@ import { cn, sanitizeInput } from '@/lib/utils';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
 import { SUPPORT_EMAIL, SITE_URL } from '@/lib/constants';
-import { peptides } from '@/data/peptides';
+import { peptidesPublic as peptides } from '@/data/peptides-public';
 
 /* ─── Types ──────────────────────────────────────────────── */
 
@@ -46,7 +46,7 @@ function buildCitationMap(): AggregatedCitation[] {
   }));
 }
 
-const allCitations = buildCitationMap();
+const allCitations = buildCitationMap(); // module-level: computed once
 
 /* ─── Sourcing Interest Form (preserved) ─────────────────── */
 
@@ -116,13 +116,13 @@ function SourcingInterestForm() {
             <label htmlFor="src-email" className="mb-1 block text-sm font-medium text-stone-800 dark:text-stone-200">البريد الإلكتروني *</label>
             <input id="src-email" type="email" required value={email} onChange={e => setEmail(e.target.value)} placeholder="name@example.com"
               autoComplete="email" maxLength={254}
-              className="w-full rounded-xl border border-stone-200 dark:border-stone-600 bg-stone-50 dark:bg-stone-800 px-4 py-3 text-base text-stone-900 dark:text-stone-100 placeholder:text-stone-400 focus:border-emerald-300 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900" />
+              className="w-full rounded-xl border border-stone-200 dark:border-stone-600 bg-stone-50 dark:bg-stone-800 px-4 py-3 text-base text-stone-900 dark:text-stone-100 placeholder:text-stone-500 focus:border-emerald-300 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-500" />
           </div>
           <div>
             <label htmlFor="src-phone" className="mb-1 block text-sm font-medium text-stone-800 dark:text-stone-200">رقم التواصل (واتساب)</label>
             <input id="src-phone" type="tel" value={phone} onChange={e => setPhone(e.target.value)} placeholder="+966 5X XXX XXXX" dir="ltr"
               autoComplete="tel" maxLength={20}
-              className="w-full rounded-xl border border-stone-200 dark:border-stone-600 bg-stone-50 dark:bg-stone-800 px-4 py-3 text-base text-stone-900 dark:text-stone-100 placeholder:text-stone-400 focus:border-emerald-300 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900" />
+              className="w-full rounded-xl border border-stone-200 dark:border-stone-600 bg-stone-50 dark:bg-stone-800 px-4 py-3 text-base text-stone-900 dark:text-stone-100 placeholder:text-stone-500 focus:border-emerald-300 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-500" />
           </div>
         </div>
 
@@ -148,11 +148,11 @@ function SourcingInterestForm() {
           <label htmlFor="src-notes" className="mb-1 block text-sm font-medium text-stone-800 dark:text-stone-200">ملاحظات إضافية</label>
           <textarea id="src-notes" rows={2} value={notes} onChange={e => setNotes(e.target.value)} placeholder="الكمية المطلوبة، الهدف، أي تفاصيل إضافية..."
             maxLength={2000}
-            className="w-full rounded-xl border border-stone-200 dark:border-stone-600 bg-stone-50 dark:bg-stone-800 px-4 py-3 text-base text-stone-900 dark:text-stone-100 placeholder:text-stone-400 focus:border-emerald-300 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900 resize-none" />
+            className="w-full rounded-xl border border-stone-200 dark:border-stone-600 bg-stone-50 dark:bg-stone-800 px-4 py-3 text-base text-stone-900 dark:text-stone-100 placeholder:text-stone-500 focus:border-emerald-300 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-500 resize-none" />
         </div>
 
         <button type="submit" disabled={submitting}
-          className="flex w-full items-center justify-center gap-2 rounded-full bg-emerald-600 px-8 py-3.5 text-base font-semibold text-white transition-all hover:bg-emerald-700 active:scale-[0.98] disabled:opacity-50 min-h-[44px]"
+          className="flex w-full items-center justify-center gap-2 rounded-full bg-emerald-600 px-8 py-3.5 text-base font-semibold text-white transition-all hover:bg-emerald-700 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed min-h-[44px]"
         >
           {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
           {submitting ? 'جارٍ الإرسال...' : 'سجّل اهتمامك'}
@@ -304,7 +304,7 @@ function CitationBrowser() {
             placeholder="ابحث بـ PubMed ID أو اسم الببتيد..."
             value={searchQuery}
             onChange={e => setSearchQuery(e.target.value)}
-            className="w-full rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-800 py-3 ps-10 pe-4 text-sm text-stone-900 dark:text-stone-100 placeholder:text-stone-400 focus:border-emerald-300 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900"
+            className="w-full rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-800 py-3 ps-10 pe-4 text-sm text-stone-900 dark:text-stone-100 placeholder:text-stone-500 focus:border-emerald-300 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-500"
           />
           {searchQuery && (
             <button
@@ -322,7 +322,7 @@ function CitationBrowser() {
           <select
             value={selectedPeptideFilter}
             onChange={e => setSelectedPeptideFilter(e.target.value)}
-            className="appearance-none rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-800 py-3 ps-10 pe-8 text-sm text-stone-900 dark:text-stone-100 focus:border-emerald-300 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900 min-w-[180px]"
+            className="appearance-none rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-800 py-3 ps-10 pe-8 text-sm text-stone-900 dark:text-stone-100 focus:border-emerald-300 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-500 min-w-[180px]"
           >
             <option value="all">كل الببتيدات</option>
             {peptideOptions.map(p => (
@@ -572,7 +572,7 @@ function PeptideCitationMap() {
                       <span className="font-medium text-stone-700 dark:text-stone-200 group-hover:text-emerald-700 dark:group-hover:text-emerald-400" dir="ltr">
                         PMID: {pmid}
                       </span>
-                      <ExternalLink className="h-3 w-3 text-stone-400 mr-auto opacity-0 group-hover:opacity-100 transition-opacity" />
+                      <ExternalLink className="h-3 w-3 text-stone-400 me-auto opacity-0 group-hover:opacity-100 transition-opacity" />
                     </a>
                   ))}
                 </div>
@@ -744,7 +744,6 @@ export default function Sources() {
                     <Icon className="h-5 w-5 text-emerald-700 dark:text-emerald-400" aria-hidden="true" />
                   </div>
                   <h3 className="mb-1 text-sm font-bold text-stone-900 dark:text-stone-100">{item.titleAr}</h3>
-                  <span className="mb-2 block text-xs text-stone-700 dark:text-stone-300">{item.titleAr}</span>
                   <p className="text-sm leading-relaxed text-stone-800 dark:text-stone-200">{item.descriptionAr}</p>
                 </div>
               );

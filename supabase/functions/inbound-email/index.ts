@@ -61,10 +61,18 @@ serve(async (req) => {
       const key = await crypto.subtle.importKey('raw', secretBytes, { name: 'HMAC', hash: 'SHA-256' }, false, ['sign'])
       const sig = await crypto.subtle.sign('HMAC', key, new TextEncoder().encode(toSign))
       const expected = btoa(String.fromCharCode(...new Uint8Array(sig)))
+      const timeSafeCompare = (a: string, b: string): boolean => {
+        if (a.length !== b.length) return false
+        const aBytes = new TextEncoder().encode(a)
+        const bBytes = new TextEncoder().encode(b)
+        let result = 0
+        for (let i = 0; i < aBytes.length; i++) result |= aBytes[i] ^ bBytes[i]
+        return result === 0
+      }
       const signatures = svixSignature.split(' ')
       const valid = signatures.some(s => {
         const val = s.startsWith('v1,') ? s.slice(3) : s
-        return val === expected
+        return timeSafeCompare(val, expected)
       })
       if (!valid) {
         console.error('inbound-email: invalid webhook signature')
@@ -122,6 +130,7 @@ serve(async (req) => {
       try {
         const contentRes = await fetch(`https://api.resend.com/emails/${email_id}/content`, {
           headers: { Authorization: `Bearer ${RESEND_API_KEY}` },
+          signal: AbortSignal.timeout(10000),
         })
         if (contentRes.ok) {
           const content = await contentRes.json()
@@ -145,7 +154,7 @@ serve(async (req) => {
           <p style="margin: 4px 0; font-size: 13px; color: #78716c;"><strong>Subject:</strong> ${escapeHtml(subject ?? '(no subject)')}</p>
         </div>
         <div style="padding: 8px 0;">
-          ${bodyHtml ? bodyHtml.replace(/<script[\s\S]*?<\/script>/gi, '').replace(/on\w+\s*=/gi, 'data-blocked=') : `<pre style="white-space: pre-wrap; font-family: inherit;">${escapeHtml(bodyText || '(empty body)')}</pre>`}
+          <pre style="white-space: pre-wrap; font-family: inherit;">${escapeHtml(bodyText || bodyHtml || '(empty body)')}</pre>
         </div>
       </div>
     `
@@ -155,6 +164,7 @@ serve(async (req) => {
       subject: `[pptides] ${(subject ?? '(no subject)').replace(/^\[pptides\]\s*/g, '').replace(/\s*— from .+$/g, '')} — from ${from}`,
       html: forwardHtml,
       replyTo: from,
+      tags: [{ name: 'type', value: 'inbound_forward' }, { name: 'category', value: 'support' }],
     })
 
     if (!emailResult.ok) {

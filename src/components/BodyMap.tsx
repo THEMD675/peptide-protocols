@@ -31,12 +31,12 @@ export default memo(function BodyMap({ selected, suggested: suggestedProp, onSel
   return (
     <div className="flex flex-col items-center gap-3">
       <svg viewBox="0 0 100 100" className="h-48 w-32" aria-label="مواقع الحقن">
-        <line x1="50" y1="12" x2="50" y2="55" stroke="#d6d3d1" strokeWidth="2" />
-        <line x1="50" y1="55" x2="35" y2="90" stroke="#d6d3d1" strokeWidth="2" />
-        <line x1="50" y1="55" x2="65" y2="90" stroke="#d6d3d1" strokeWidth="2" />
-        <line x1="50" y1="25" x2="22" y2="45" stroke="#d6d3d1" strokeWidth="2" />
-        <line x1="50" y1="25" x2="78" y2="45" stroke="#d6d3d1" strokeWidth="2" />
-        <circle cx="50" cy="8" r="6" fill="#e7e5e4" stroke="#d6d3d1" strokeWidth="1" />
+        <line x1="50" y1="12" x2="50" y2="55" className="stroke-stone-300 dark:stroke-stone-600" strokeWidth="2" />
+        <line x1="50" y1="55" x2="35" y2="90" className="stroke-stone-300 dark:stroke-stone-600" strokeWidth="2" />
+        <line x1="50" y1="55" x2="65" y2="90" className="stroke-stone-300 dark:stroke-stone-600" strokeWidth="2" />
+        <line x1="50" y1="25" x2="22" y2="45" className="stroke-stone-300 dark:stroke-stone-600" strokeWidth="2" />
+        <line x1="50" y1="25" x2="78" y2="45" className="stroke-stone-300 dark:stroke-stone-600" strokeWidth="2" />
+        <circle cx="50" cy="8" r="6" className="fill-stone-200 dark:fill-stone-700 stroke-stone-300 dark:stroke-stone-600" strokeWidth="1" />
 
         {SITES.map(site => (
           <g key={site.id}>
@@ -59,7 +59,7 @@ export default memo(function BodyMap({ selected, suggested: suggestedProp, onSel
               onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onSelect(site.id); } }}
             />
             {suggested === site.id && selected !== site.id && (
-              <text x={site.cx} y={site.cy + 3} textAnchor="middle" className="fill-emerald-700 text-[6px] font-bold pointer-events-none">
+              <text x={site.cx} y={site.cy + 3} textAnchor="middle" className="fill-emerald-700 text-[10px] font-bold pointer-events-none">
                 ←
               </text>
             )}

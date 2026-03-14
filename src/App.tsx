@@ -5,12 +5,10 @@ import { Helmet, HelmetProvider } from 'react-helmet-async';
 import { Toaster } from 'sonner';
 const Analytics = lazy(() => import('@vercel/analytics/react').then(m => ({ default: m.Analytics })));
 const SpeedInsights = lazy(() => import('@vercel/speed-insights/react').then(m => ({ default: m.SpeedInsights })));
-import { SITE_URL, STORAGE_KEYS } from '@/lib/constants';
+import { SITE_URL, STORAGE_KEYS, REFERRAL_CODE_REGEX } from '@/lib/constants';
+import { hasOptionalConsent } from '@/lib/cookie-utils';
 import { events } from '@/lib/analytics';
-// Lazy-load Sentry to keep it out of the critical JS bundle
-const lazySentryCapture = (error: Error, ctx?: Record<string, unknown>) => {
-  import('@sentry/react').then(S => S.captureException(error, ctx)).catch(() => {});
-};
+import { logError } from '@/lib/logger';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import BottomNav from '@/components/layout/BottomNav';
@@ -67,7 +65,7 @@ function PageLoader() {
   return (
     <div className="flex min-h-[80vh] flex-col items-center justify-center gap-4 animate-fade-in" role="status" aria-label="جارٍ التحميل">
       <div className="text-xl font-bold tracking-tight text-stone-900 dark:text-stone-100" dir="ltr" role="img" aria-label="pptides">
-        <span aria-hidden="true">pp</span><span className="text-emerald-700" aria-hidden="true">tides</span>
+        <span aria-hidden="true">pp</span><span className="text-emerald-700 dark:text-emerald-400" aria-hidden="true">tides</span>
       </div>
       <div className="h-8 w-8 animate-spin rounded-full border-2 border-emerald-200 dark:border-emerald-800 border-t-emerald-600" />
     </div>
@@ -92,13 +90,12 @@ class ErrorBoundary extends Component<{ children: ReactNode }, { hasError: boole
         sessionStorage.removeItem('pptides_chunk_reload');
       } catch { /* Safari private mode */ }
     }
-    // Report to Sentry
-    lazySentryCapture(error, { contexts: { react: { componentStack: errorInfo.componentStack } } });
+    logError('[ErrorBoundary]', error);
   }
   render() {
     if (this.state.hasError) {
       return (
-        <div role="alert" dir="rtl" className="flex min-h-[50vh] flex-col items-center justify-center px-6 text-center">
+        <div role="alert" aria-live="assertive" dir="rtl" className="flex min-h-[50vh] flex-col items-center justify-center px-6 text-center">
           <h2 className="mb-3 text-2xl font-bold text-stone-900 dark:text-stone-100">حدث خطأ غير متوقع</h2>
           <p className="mb-6 text-stone-600 dark:text-stone-300">
             {this.state.isChunkError ? 'تم تحديث الموقع — يرجى تحديث الصفحة.' : 'نعتذر عن هذا الخطأ. يرجى تحديث الصفحة أو العودة للرئيسية.'}
@@ -124,7 +121,17 @@ class ErrorBoundary extends Component<{ children: ReactNode }, { hasError: boole
 class LazyFallback extends Component<{ children: ReactNode }, { hasError: boolean }> {
   state = { hasError: false };
   static getDerivedStateFromError() { return { hasError: true }; }
-  render() { return this.state.hasError ? null : this.props.children; }
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div dir="rtl" className="flex flex-col items-center justify-center p-8 text-center">
+          <p className="mb-4 text-lg font-semibold text-stone-700 dark:text-stone-200">حدث خطأ في تحميل الصفحة</p>
+          <button onClick={() => window.location.reload()} className="rounded-full bg-emerald-600 px-6 py-2.5 text-sm font-bold text-white hover:bg-emerald-700">أعد تحميل الصفحة</button>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
 }
 
 class RouteErrorBoundary extends Component<
@@ -136,7 +143,7 @@ class RouteErrorBoundary extends Component<
     return { hasError: true, error };
   }
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
-    lazySentryCapture(error, { contexts: { react: { componentStack: errorInfo.componentStack } } });
+    logError('[RouteErrorBoundary]', error);
   }
   reset = () => this.setState(prev => ({ hasError: false, error: null, retryCount: prev.retryCount + 1 }));
   render() {
@@ -191,6 +198,23 @@ function ScrollToTop() {
   return null;
 }
 
+/** Capture ?ref= param on ANY page (not just Landing) */
+function ReferralCapture() {
+  const { search } = useLocation();
+  useEffect(() => {
+    try {
+      const ref = new URLSearchParams(search).get('ref');
+      if (ref && REFERRAL_CODE_REGEX.test(ref)) {
+        localStorage.setItem('pptides_referral', ref);
+        const url = new URL(window.location.href);
+        url.searchParams.delete('ref');
+        window.history.replaceState({}, '', url.toString());
+      }
+    } catch { /* expected */ }
+  }, [search]);
+  return null;
+}
+
 function TrackPageView() {
   const { pathname } = useLocation();
   useEffect(() => {
@@ -213,13 +237,17 @@ function OfflineBanner() {
   const [offline, setOffline] = useState(!navigator.onLine);
   useEffect(() => {
     const goOffline = () => setOffline(true);
-    const goOnline = () => setOffline(false);
+    const goOnline = () => {
+      setOffline(false);
+      navigator.serviceWorker?.controller?.postMessage({ type: 'ONLINE' });
+      window.dispatchEvent(new CustomEvent('pptides:online'));
+    };
     window.addEventListener('offline', goOffline);
     window.addEventListener('online', goOnline);
     return () => { window.removeEventListener('offline', goOffline); window.removeEventListener('online', goOnline); };
   }, []);
   if (!offline) return null;
-  return <div className="sticky top-0 inset-x-0 z-[9999] bg-red-600 text-white text-center py-2 text-sm font-bold">أنت غير متصل بالإنترنت</div>;
+  return <div className="sticky top-0 inset-x-0 z-[9990] bg-red-600 text-white text-center py-2 text-sm font-bold">أنت غير متصل بالإنترنت</div>;
 }
 
 function HomeRedirect() {
@@ -238,7 +266,8 @@ function LogoutRedirect() {
 function LibraryIdRedirect() {
   const { id } = useParams<{ id: string }>();
   const { search } = useLocation();
-  return <Navigate to={`/peptide/${id ?? ''}${search}`} replace />;
+  if (!id) return <Navigate to="/library" replace />;
+  return <Navigate to={`/peptide/${id}${search}`} replace />;
 }
 
 const overlayListeners = new Set<() => void>();
@@ -302,9 +331,10 @@ export default function App() {
           <Header />
           <TrialBanner />
           <ScrollToTop />
+          <ReferralCapture />
           <TrackPageView />
           <CanonicalUrl />
-          <Toaster position="top-center" richColors dir="rtl" visibleToasts={3} toastOptions={{ duration: 4000 }} />
+          <Toaster position="top-center" richColors dir="rtl" visibleToasts={3} toastOptions={{ duration: 6000 }} />
           <main id="main-content" className="flex-1 pb-20 md:pb-0">
             <PageTransition>
             <Routes>
@@ -313,10 +343,10 @@ export default function App() {
               <Route path="/signup" element={<Suspense fallback={<PageLoader />}><RouteErrorBoundary fallbackTitle="خطأ في صفحة الدخول"><Login /></RouteErrorBoundary></Suspense>} />
               <Route path="/library" element={<Suspense fallback={<LibrarySkeleton />}><RouteErrorBoundary fallbackTitle="خطأ في المكتبة"><Library /></RouteErrorBoundary></Suspense>} />
               <Route path="/peptide/:id" element={<Suspense fallback={<PeptideDetailSkeleton />}><RouteErrorBoundary fallbackTitle="خطأ في صفحة الببتيد"><PeptideDetail /></RouteErrorBoundary></Suspense>} />
-              <Route path="/calculator" element={<Suspense fallback={<CalculatorSkeleton />}><RouteErrorBoundary fallbackTitle="خطأ في الحاسبة"><DoseCalculator /></RouteErrorBoundary></Suspense>} />
+              <Route path="/calculator" element={<ProtectedRoute><Suspense fallback={<CalculatorSkeleton />}><RouteErrorBoundary fallbackTitle="خطأ في الحاسبة"><DoseCalculator /></RouteErrorBoundary></Suspense></ProtectedRoute>} />
               <Route path="/quiz" element={<Suspense fallback={<PageLoader />}><RouteErrorBoundary fallbackTitle="خطأ في الاختبار"><Quiz /></RouteErrorBoundary></Suspense>} />
               <Route path="/stacks" element={<Suspense fallback={<GenericPageSkeleton />}><RouteErrorBoundary fallbackTitle="خطأ في التجميعات"><Stacks /></RouteErrorBoundary></Suspense>} />
-              <Route path="/lab-guide" element={<Suspense fallback={<GenericPageSkeleton />}><RouteErrorBoundary fallbackTitle="خطأ في دليل التحاليل"><LabGuide /></RouteErrorBoundary></Suspense>} />
+              <Route path="/lab-guide" element={<ProtectedRoute><Suspense fallback={<GenericPageSkeleton />}><RouteErrorBoundary fallbackTitle="خطأ في دليل التحاليل"><LabGuide /></RouteErrorBoundary></Suspense></ProtectedRoute>} />
               <Route path="/guide" element={<Suspense fallback={<GenericPageSkeleton />}><RouteErrorBoundary fallbackTitle="خطأ في الدليل"><Guide /></RouteErrorBoundary></Suspense>} />
               <Route path="/pricing" element={<Suspense fallback={<PricingSkeleton />}><RouteErrorBoundary fallbackTitle="خطأ في صفحة الأسعار"><Pricing /></RouteErrorBoundary></Suspense>} />
               <Route path="/coach" element={<ProtectedRoute><Suspense fallback={<CoachSkeleton />}><RouteErrorBoundary fallbackTitle="خطأ في المدرب الذكي"><Coach /></RouteErrorBoundary></Suspense></ProtectedRoute>} />
@@ -337,11 +367,11 @@ export default function App() {
               <Route path="/dashboard" element={<ProtectedRoute><Suspense fallback={<DashboardSkeleton />}><RouteErrorBoundary fallbackTitle="خطأ في لوحة التحكم"><Dashboard /></RouteErrorBoundary></Suspense></ProtectedRoute>} />
               <Route path="/tracker" element={<ProtectedRoute><Suspense fallback={<TrackerSkeleton />}><RouteErrorBoundary fallbackTitle="خطأ في سجل الحقن"><Tracker /></RouteErrorBoundary></Suspense></ProtectedRoute>} />
               <Route path="/glossary" element={<Suspense fallback={<GenericPageSkeleton />}><RouteErrorBoundary fallbackTitle="خطأ في المصطلحات"><Glossary /></RouteErrorBoundary></Suspense>} />
-              <Route path="/interactions" element={<Suspense fallback={<GenericPageSkeleton />}><RouteErrorBoundary fallbackTitle="خطأ في التفاعلات"><InteractionChecker /></RouteErrorBoundary></Suspense>} />
+              <Route path="/interactions" element={<ProtectedRoute><Suspense fallback={<GenericPageSkeleton />}><RouteErrorBoundary fallbackTitle="خطأ في التفاعلات"><InteractionChecker /></RouteErrorBoundary></Suspense></ProtectedRoute>} />
               <Route path="/compare" element={<Suspense fallback={<GenericPageSkeleton />}><RouteErrorBoundary fallbackTitle="خطأ في المقارنة"><Compare /></RouteErrorBoundary></Suspense>} />
               <Route path="/blog" element={<Suspense fallback={<GenericPageSkeleton />}><RouteErrorBoundary fallbackTitle="خطأ في المدونة"><Blog /></RouteErrorBoundary></Suspense>} />
               <Route path="/blog/:slug" element={<Suspense fallback={<GenericPageSkeleton />}><RouteErrorBoundary fallbackTitle="خطأ في المقالة"><BlogPost /></RouteErrorBoundary></Suspense>} />
-              <Route path="/admin" element={<ProtectedRoute><Suspense fallback={<PageLoader />}><RouteErrorBoundary fallbackTitle="خطأ في لوحة الإدارة"><Admin /></RouteErrorBoundary></Suspense></ProtectedRoute>} />
+              <Route path="/admin" element={<ProtectedRoute requiresAdmin><Suspense fallback={<PageLoader />}><RouteErrorBoundary fallbackTitle="خطأ في لوحة الإدارة"><Admin /></RouteErrorBoundary></Suspense></ProtectedRoute>} />
               <Route path="/logout" element={<LogoutRedirect />} />
               <Route path="*" element={<Suspense fallback={<PageLoader />}><NotFound /></Suspense>} />
             </Routes>
@@ -352,8 +382,8 @@ export default function App() {
           <BackToTop />
           <OverlayGate />
           <LazyFallback><Suspense fallback={null}><InstallPrompt /></Suspense></LazyFallback>
-          <Suspense fallback={null}><Analytics /></Suspense>
-          <Suspense fallback={null}><SpeedInsights /></Suspense>
+          {hasOptionalConsent() && <Suspense fallback={null}><Analytics /></Suspense>}
+          {hasOptionalConsent() && <Suspense fallback={null}><SpeedInsights /></Suspense>}
         </div>
         </ErrorBoundary>
       </AuthProvider>

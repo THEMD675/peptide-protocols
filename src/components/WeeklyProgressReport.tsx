@@ -3,6 +3,7 @@ import { ChevronDown, TrendingUp, TrendingDown, Flame, Syringe, AlertTriangle, S
 import { cn } from '@/lib/utils';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
+import { logError } from '@/lib/logger';
 
 interface WeeklyData {
   injectionsThisWeek: number;
@@ -108,7 +109,8 @@ export default function WeeklyProgressReport() {
         topSideEffects,
       });
       setLoading(false);
-    }).catch(() => {
+    }).catch((e) => {
+      logError('weekly report fetch failed:', e);
       if (mounted) setLoading(false);
     });
 

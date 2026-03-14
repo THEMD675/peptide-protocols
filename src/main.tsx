@@ -3,27 +3,19 @@ import ReactDOM from 'react-dom/client';
 import App from './App';
 import './index.css';
 
+import { toast } from 'sonner';
 import { migrateQuizStorage } from '@/lib/quiz-migration';
 import { hasOptionalConsent } from '@/lib/cookie-utils';
-
-// Defer Sentry init to after first paint (reduces main thread blocking)
-if (import.meta.env.PROD) {
-  const initSentryDeferred = () => import('@/lib/sentry').then(({ initSentry }) => initSentry());
-  if ('requestIdleCallback' in window) {
-    requestIdleCallback(initSentryDeferred);
-  } else {
-    setTimeout(initSentryDeferred, 2000);
-  }
-}
+import { logError } from '@/lib/logger';
 
 // Migrate old quiz/onboarding localStorage keys to unified key
 migrateQuizStorage();
 
 const hasConsent = hasOptionalConsent();
 
-// Web Vitals — always track (no PII, pure performance metrics)
-if (import.meta.env.PROD) {
-  import('@/lib/web-vitals').then(({ initWebVitals }) => initWebVitals()).catch(() => {});
+// Web Vitals — gated behind consent
+if (hasConsent && import.meta.env.PROD) {
+  import('@/lib/web-vitals').then(({ initWebVitals }) => initWebVitals()).catch(e => logError('web-vitals init failed:', e));
 }
 
 if (hasConsent && import.meta.env.PROD) {
@@ -39,6 +31,14 @@ if (hasConsent && import.meta.env.PROD) {
     w.dataLayer.push(['config', ga4Id, { send_page_view: true }]);
   }
 }
+
+// Global error tracking — capture unhandled errors and rejections
+window.addEventListener('error', (e) => {
+  logError('Uncaught error:', e.error ?? e.message);
+});
+window.addEventListener('unhandledrejection', (e) => {
+  logError('Unhandled rejection:', e.reason);
+});
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
@@ -57,25 +57,18 @@ if ('serviceWorker' in navigator && import.meta.env.PROD) {
       if (!newSW) return;
       newSW.addEventListener('statechange', () => {
         if (newSW.state === 'installed' && navigator.serviceWorker.controller) {
-          const el = document.createElement('div');
-          el.className = 'fixed bottom-4 start-4 end-4 z-50 mx-auto max-w-sm rounded-2xl border border-emerald-200 dark:border-emerald-800 bg-white dark:bg-stone-900 p-4 shadow-xl dark:shadow-stone-900/40 animate-slide-up print:hidden';
-          el.dir = 'rtl';
-          el.setAttribute('role', 'status');
-          el.setAttribute('aria-live', 'polite');
-          el.innerHTML = `
-            <div class="flex items-center justify-between gap-3">
-              <p class="text-sm font-bold text-stone-900 dark:text-stone-100">تحديث جديد متاح</p>
-              <button id="pwa-update-btn" class="shrink-0 rounded-full bg-emerald-600 px-4 py-2.5 min-h-[44px] text-sm font-bold text-white hover:bg-emerald-700">تحديث</button>
-            </div>
-          `;
-          document.body.appendChild(el);
-          document.getElementById('pwa-update-btn')?.addEventListener('click', () => {
-            newSW.postMessage({ type: 'SKIP_WAITING' });
-            navigator.serviceWorker.addEventListener('controllerchange', () => location.reload(), { once: true });
+          toast('يتوفر إصدار جديد', {
+            duration: 30000,
+            action: {
+              label: 'تحديث',
+              onClick: () => {
+                newSW.postMessage({ type: 'SKIP_WAITING' });
+                navigator.serviceWorker.addEventListener('controllerchange', () => location.reload(), { once: true });
+              },
+            },
           });
-          setTimeout(() => el.remove(), 30000);
         }
       });
     });
-  }).catch(() => {});
+  }).catch(e => logError('SW registration failed:', e));
 }

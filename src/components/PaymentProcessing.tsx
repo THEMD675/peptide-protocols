@@ -5,16 +5,20 @@ import { useAuth } from '@/contexts/AuthContext';
 import { PEPTIDE_COUNT, SUPPORT_EMAIL } from '@/lib/constants';
 import { events } from '@/lib/analytics';
 
+const POLL_INTERVAL_MS = 3000;
+const POLL_MAX_MS = 60000;
+
 export default function PaymentProcessing() {
   const navigate = useNavigate();
-  const { subscription } = useAuth();
+  const { subscription, refreshSubscription } = useAuth();
   const [visible, setVisible] = useState(() => {
     if (typeof window === 'undefined') return false;
     return new URLSearchParams(window.location.search).get('payment') === 'success';
   });
-  const [stage, setStage] = useState<'loading' | 'success' | 'timeout'>('loading');
+  const [stage, setStage] = useState<'loading' | 'success' | 'timeout' | 'error'>('loading');
   const [progress, setProgress] = useState(10);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const pollStartedRef = useRef<number>(0);
   const [confettiParticles] = useState(() =>
     Array.from({ length: 40 }, (_, i) => ({
       left: Math.random() * 100,
@@ -34,10 +38,25 @@ export default function PaymentProcessing() {
   useEffect(() => {
     if (!visible || stage !== 'loading') return;
     timerRef.current = setInterval(() => {
-      setProgress(p => Math.min(p + 3, 90));
+      setProgress(p => p >= 80 ? Math.min(p + 0.5, 95) : Math.min(p + 3, 80));
     }, 500);
     return () => { if (timerRef.current) clearInterval(timerRef.current); };
   }, [visible, stage]);
+
+  // Actively refresh subscription when we're showing post-checkout — don't rely on AuthContext poll only
+  useEffect(() => {
+    if (!visible || stage !== 'loading') return;
+    if (pollStartedRef.current === 0) pollStartedRef.current = Date.now();
+    refreshSubscription();
+    const interval = setInterval(() => {
+      if (Date.now() - pollStartedRef.current > POLL_MAX_MS) {
+        clearInterval(interval);
+        return;
+      }
+      refreshSubscription();
+    }, POLL_INTERVAL_MS);
+    return () => clearInterval(interval);
+  }, [visible, stage, refreshSubscription]);
 
   useEffect(() => {
     if (!visible) return;
@@ -47,7 +66,6 @@ export default function PaymentProcessing() {
         setProgress(100);
         events.subscriptionCreated(subscription.tier);
         if (timerRef.current) clearInterval(timerRef.current);
-        // Clean URL so refresh doesn't re-show overlay
         try {
           const url = new URL(window.location.href);
           if (url.searchParams.has('payment')) {
@@ -56,6 +74,7 @@ export default function PaymentProcessing() {
             window.history.replaceState({}, '', clean);
           }
         } catch { /* ignore */ }
+        try { localStorage.removeItem('pptides_referral'); } catch { /* ignore */ }
       });
     }
   }, [visible, subscription]);
@@ -74,7 +93,7 @@ export default function PaymentProcessing() {
   };
 
   return (
-    <div className="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-white dark:bg-stone-900 px-6">
+    <div className="fixed inset-0 z-[9995] flex flex-col items-center justify-center bg-white dark:bg-stone-900 px-6">
       <div className="w-full max-w-sm text-center animate-fade-in">
         {stage === 'success' ? (
           <>
@@ -99,6 +118,7 @@ export default function PaymentProcessing() {
                 0% { opacity: 1; transform: translateY(0) rotate(0deg) scale(1); }
                 100% { opacity: 0; transform: translateY(100vh) rotate(720deg) scale(0.5); }
               }
+              @media (prefers-reduced-motion: reduce) { .absolute.rounded-full { animation: none !important; } }
             `}</style>
 
             <CheckCircle className="mx-auto mb-2 h-12 w-12 text-emerald-600" />
@@ -130,7 +150,7 @@ export default function PaymentProcessing() {
           <>
             <div className="mx-auto mb-6">
               <div className="text-2xl font-bold tracking-tight text-stone-900 dark:text-stone-100" dir="ltr">
-                <span aria-hidden="true">pp</span><span className="text-emerald-700" aria-hidden="true">tides</span>
+                <span aria-hidden="true">pp</span><span className="text-emerald-700 dark:text-emerald-400" aria-hidden="true">tides</span>
               </div>
             </div>
             <h2 className="text-xl font-bold text-stone-900 dark:text-stone-100">لم نتمكن من التأكد من الدفع</h2>
@@ -147,7 +167,7 @@ export default function PaymentProcessing() {
           <>
             <div className="mx-auto mb-6">
               <div className="text-2xl font-bold tracking-tight text-stone-900 dark:text-stone-100" dir="ltr">
-                <span aria-hidden="true">pp</span><span className="text-emerald-700" aria-hidden="true">tides</span>
+                <span aria-hidden="true">pp</span><span className="text-emerald-700 dark:text-emerald-400" aria-hidden="true">tides</span>
               </div>
             </div>
             <Loader2 className="mx-auto mb-4 h-10 w-10 animate-spin text-emerald-700" />

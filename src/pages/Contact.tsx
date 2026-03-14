@@ -43,12 +43,25 @@ const MINI_FAQ = [
   },
 ];
 
+const CONTACT_DRAFT_KEY = 'pptides_contact_draft';
+
 export default function Contact() {
   const { user, isLoading } = useAuth();
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState(user?.email ?? '');
-  const [subject, setSubject] = useState('');
-  const [message, setMessage] = useState('');
+
+  // Restore draft from sessionStorage
+  const savedDraft = (() => {
+    try {
+      const raw = sessionStorage.getItem(CONTACT_DRAFT_KEY);
+      if (raw) return JSON.parse(raw) as { name?: string; email?: string; subject?: string; message?: string };
+    } catch { /* expected */ }
+    return null;
+  })();
+
+  const [name, setName] = useState(savedDraft?.name ?? '');
+  const [email, setEmail] = useState(savedDraft?.email ?? user?.email ?? '');
+  const [subject, setSubject] = useState(savedDraft?.subject ?? '');
+  const [message, setMessage] = useState(savedDraft?.message ?? '');
+  const [hp, setHp] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
@@ -56,6 +69,26 @@ export default function Contact() {
   useEffect(() => {
     if (user?.email && !email) setEmail(user.email);
   }, [user?.email, email]);
+
+  // Save draft to sessionStorage on every field change
+  const isDirty = !!(name.trim() || subject || message.trim());
+  useEffect(() => {
+    try {
+      if (isDirty) {
+        sessionStorage.setItem(CONTACT_DRAFT_KEY, JSON.stringify({ name, email, subject, message }));
+      } else {
+        sessionStorage.removeItem(CONTACT_DRAFT_KEY);
+      }
+    } catch { /* quota exceeded — non-critical */ }
+  }, [name, email, subject, message, isDirty]);
+
+  // Warn before navigating away when form is dirty
+  useEffect(() => {
+    if (!isDirty) return;
+    const handler = (e: BeforeUnloadEvent) => { e.preventDefault(); };
+    window.addEventListener('beforeunload', handler);
+    return () => window.removeEventListener('beforeunload', handler);
+  }, [isDirty]);
 
   if (isLoading) {
     // Show a layout-matching skeleton instead of a bare spinner to avoid flash
@@ -121,11 +154,13 @@ export default function Contact() {
       message: validateField('message', message),
     };
     setFieldErrors(errors);
-    const firstError = Object.values(errors).find(Boolean);
-    if (firstError) {
+    const firstErrorField = Object.entries(errors).find(([, v]) => v)?.[0];
+    if (firstErrorField) {
+      document.getElementById(`contact-${firstErrorField}`)?.focus();
       return;
     }
 
+    if (hp) return;
     setSubmitting(true);
     try {
       const { error } = await supabase.from('enquiries').insert({
@@ -135,8 +170,19 @@ export default function Contact() {
         message: sanitizeInput(`${name.trim() ? `الاسم: ${name.trim()}\n\n` : ''}${message}`, 5000),
       });
       if (error) throw error;
+      // Clear draft on successful submission
+      try { sessionStorage.removeItem(CONTACT_DRAFT_KEY); } catch { /* expected */ }
       setTimeout(() => setSubmitted(true), 600);
       toast.success('تم إرسال رسالتك بنجاح');
+      // Notify admin via edge function (fire-and-forget)
+      const session = (await supabase.auth.getSession()).data.session;
+      if (session) {
+        fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/notify-enquiry`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${session.access_token}`, apikey: import.meta.env.VITE_SUPABASE_ANON_KEY },
+          body: JSON.stringify({ subject, email: email.trim(), name: name.trim() }),
+        }).catch(() => { /* non-critical */ });
+      }
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : String(err);
       if (msg.includes('P0429') || msg.includes('Rate limit')) {
@@ -203,6 +249,8 @@ export default function Contact() {
         <meta property="og:image" content={`${SITE_URL}/og-image.jpg`} />
         <meta property="og:locale" content="ar_SA" />
         <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="تواصل معنا | pptides" />
+        <meta name="twitter:description" content="تواصل مع فريق pptides — نسعد بأسئلتكم واستفساراتكم." />
         <link rel="canonical" href={`${SITE_URL}/contact`} />
         <script type="application/ld+json">
           {JSON.stringify({
@@ -253,6 +301,7 @@ export default function Contact() {
           onSubmit={handleSubmit}
           className="space-y-5 rounded-2xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-900 p-6 shadow-md dark:shadow-stone-900/50 sm:p-8"
         >
+          <input type="text" value={hp} onChange={e => setHp(e.target.value)} tabIndex={-1} autoComplete="off" aria-hidden="true" className="absolute opacity-0 h-0 w-0 overflow-hidden pointer-events-none" />
           {/* Name */}
           <div>
             <label
@@ -270,9 +319,11 @@ export default function Contact() {
               onBlur={() => handleBlur('name', name)}
               placeholder="اسمك الكريم"
               autoComplete="name"
-              className={`w-full rounded-xl border bg-stone-50 dark:bg-stone-800 px-4 py-3 text-stone-900 dark:text-stone-100 placeholder:text-stone-400 dark:placeholder:text-stone-400 dark:text-stone-300 focus:outline-none focus:ring-2 transition-colors min-h-[44px] ${fieldErrors.name ? 'border-red-400 dark:border-red-600 focus:border-red-500 focus:ring-red-200 dark:focus:ring-red-800' : 'border-stone-200 dark:border-stone-700 focus:border-emerald-500 focus:ring-emerald-200 dark:focus:ring-emerald-800'}`}
+              aria-invalid={!!fieldErrors.name}
+              aria-describedby={fieldErrors.name ? 'name-error' : undefined}
+              className={`w-full rounded-xl border bg-stone-50 dark:bg-stone-800 px-4 py-3 text-stone-900 dark:text-stone-100 placeholder:text-stone-500 dark:placeholder:text-stone-500 dark:text-stone-300 focus:outline-none focus:ring-2 transition-colors min-h-[44px] ${fieldErrors.name ? 'border-red-400 dark:border-red-600 focus:border-red-500 focus:ring-red-200 dark:focus:ring-red-800' : 'border-stone-200 dark:border-stone-700 focus:border-emerald-500 focus:ring-emerald-200 dark:focus:ring-emerald-800'}`}
             />
-            {fieldErrors.name && <p className="mt-1 text-sm text-red-600 dark:text-red-400">{fieldErrors.name}</p>}
+            {fieldErrors.name && <p id="name-error" role="alert" className="mt-1 text-sm text-red-600 dark:text-red-400">{fieldErrors.name}</p>}
           </div>
 
           {/* Email */}
@@ -290,11 +341,13 @@ export default function Contact() {
               value={email}
               onChange={(e) => { setEmail(e.target.value); clearFieldError('email'); }}
               onBlur={() => handleBlur('email', email)}
-              placeholder="name@example.com"
+              placeholder="أدخل بريدك الإلكتروني"
               autoComplete="email"
-              className={`w-full rounded-xl border bg-stone-50 dark:bg-stone-800 px-4 py-3 text-stone-900 dark:text-stone-100 placeholder:text-stone-400 dark:placeholder:text-stone-400 dark:text-stone-300 focus:outline-none focus:ring-2 transition-colors min-h-[44px] ${fieldErrors.email ? 'border-red-400 dark:border-red-600 focus:border-red-500 focus:ring-red-200 dark:focus:ring-red-800' : 'border-stone-200 dark:border-stone-700 focus:border-emerald-500 focus:ring-emerald-200 dark:focus:ring-emerald-800'}`}
+              aria-invalid={!!fieldErrors.email}
+              aria-describedby={fieldErrors.email ? 'email-error' : undefined}
+              className={`w-full rounded-xl border bg-stone-50 dark:bg-stone-800 px-4 py-3 text-stone-900 dark:text-stone-100 placeholder:text-stone-500 dark:placeholder:text-stone-500 dark:text-stone-300 focus:outline-none focus:ring-2 transition-colors min-h-[44px] ${fieldErrors.email ? 'border-red-400 dark:border-red-600 focus:border-red-500 focus:ring-red-200 dark:focus:ring-red-800' : 'border-stone-200 dark:border-stone-700 focus:border-emerald-500 focus:ring-emerald-200 dark:focus:ring-emerald-800'}`}
             />
-            {fieldErrors.email && <p className="mt-1 text-sm text-red-600 dark:text-red-400">{fieldErrors.email}</p>}
+            {fieldErrors.email && <p id="email-error" role="alert" className="mt-1 text-sm text-red-600 dark:text-red-400">{fieldErrors.email}</p>}
           </div>
 
           {/* Subject dropdown */}
@@ -312,6 +365,8 @@ export default function Contact() {
                 value={subject}
                 onChange={(e) => { setSubject(e.target.value); clearFieldError('subject'); }}
                 onBlur={() => handleBlur('subject', subject)}
+                aria-invalid={!!fieldErrors.subject}
+                aria-describedby={fieldErrors.subject ? 'subject-error' : undefined}
                 className={`w-full appearance-none rounded-xl border bg-stone-50 dark:bg-stone-800 px-4 py-3 pe-10 text-stone-900 dark:text-stone-100 focus:outline-none focus:ring-2 transition-colors min-h-[44px] ${fieldErrors.subject ? 'border-red-400 dark:border-red-600 focus:border-red-500 focus:ring-red-200 dark:focus:ring-red-800' : 'border-stone-200 dark:border-stone-700 focus:border-emerald-500 focus:ring-emerald-200 dark:focus:ring-emerald-800'}`}
               >
                 {SUBJECTS.map((s) => (
@@ -320,9 +375,9 @@ export default function Contact() {
                   </option>
                 ))}
               </select>
-              <ChevronDown className="pointer-events-none absolute end-3 top-1/2 h-5 w-5 -translate-y-1/2 text-stone-400 dark:text-stone-300" />
+              <ChevronDown className="pointer-events-none absolute end-3 top-1/2 h-5 w-5 -translate-y-1/2 text-stone-500 dark:text-stone-300" />
             </div>
-            {fieldErrors.subject && <p className="mt-1 text-sm text-red-600 dark:text-red-400">{fieldErrors.subject}</p>}
+            {fieldErrors.subject && <p id="subject-error" role="alert" className="mt-1 text-sm text-red-600 dark:text-red-400">{fieldErrors.subject}</p>}
           </div>
 
           {/* Message */}
@@ -334,7 +389,7 @@ export default function Contact() {
               >
                 الرسالة <span className="text-red-500">*</span>
               </label>
-              <span className={`text-xs tabular-nums ${message.length > 4500 ? 'text-amber-600 dark:text-amber-400' : 'text-stone-400 dark:text-stone-300'}`}>
+              <span className={`text-xs tabular-nums ${message.length > 4500 ? 'text-amber-600 dark:text-amber-400' : 'text-stone-500 dark:text-stone-300'}`}>
                 {message.length}/5000
               </span>
             </div>
@@ -347,16 +402,18 @@ export default function Contact() {
               onChange={(e) => { setMessage(e.target.value); clearFieldError('message'); }}
               onBlur={() => handleBlur('message', message)}
               placeholder="اكتب رسالتك هنا..."
-              className={`w-full resize-none rounded-xl border bg-stone-50 dark:bg-stone-800 px-4 py-3 text-stone-900 dark:text-stone-100 placeholder:text-stone-400 dark:placeholder:text-stone-400 focus:outline-none focus:ring-2 transition-colors ${fieldErrors.message ? 'border-red-400 dark:border-red-600 focus:border-red-500 focus:ring-red-200 dark:focus:ring-red-800' : 'border-stone-200 dark:border-stone-700 focus:border-emerald-500 focus:ring-emerald-200 dark:focus:ring-emerald-800'}`}
+              aria-invalid={!!fieldErrors.message}
+              aria-describedby={fieldErrors.message ? 'message-error' : undefined}
+              className={`w-full resize-none rounded-xl border bg-stone-50 dark:bg-stone-800 px-4 py-3 text-stone-900 dark:text-stone-100 placeholder:text-stone-500 dark:placeholder:text-stone-500 focus:outline-none focus:ring-2 transition-colors ${fieldErrors.message ? 'border-red-400 dark:border-red-600 focus:border-red-500 focus:ring-red-200 dark:focus:ring-red-800' : 'border-stone-200 dark:border-stone-700 focus:border-emerald-500 focus:ring-emerald-200 dark:focus:ring-emerald-800'}`}
             />
-            {fieldErrors.message && <p className="mt-1 text-sm text-red-600 dark:text-red-400">{fieldErrors.message}</p>}
+            {fieldErrors.message && <p id="message-error" role="alert" className="mt-1 text-sm text-red-600 dark:text-red-400">{fieldErrors.message}</p>}
           </div>
 
           {/* Submit */}
           <button
             type="submit"
             disabled={submitting}
-            className="flex w-full items-center justify-center gap-2 rounded-full bg-emerald-600 px-8 py-3.5 text-base font-semibold text-white transition-all hover:bg-emerald-700 active:scale-[0.98] disabled:opacity-50 min-h-[44px]"
+            className="flex w-full items-center justify-center gap-2 rounded-full bg-emerald-600 px-8 py-3.5 text-base font-semibold text-white transition-all hover:bg-emerald-700 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed min-h-[44px]"
           >
             {submitting ? (
               <span className="h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent" />
@@ -369,7 +426,7 @@ export default function Contact() {
 
         {/* Info note */}
         <div className="mt-8 flex items-start gap-3 rounded-xl bg-stone-50 dark:bg-stone-800/60 border border-stone-200 dark:border-stone-700 p-4 text-sm text-stone-600 dark:text-stone-300">
-          <MessageSquare className="mt-0.5 h-5 w-5 flex-shrink-0 text-stone-400 dark:text-stone-300" />
+          <MessageSquare className="mt-0.5 h-5 w-5 flex-shrink-0 text-stone-500 dark:text-stone-300" />
           <p>
             نحرص على الرد خلال 24 ساعة في أيام العمل. للاستفسارات العاجلة، يمكنك مراسلتنا
             عبر البريد مباشرة على{' '}
@@ -406,7 +463,7 @@ export default function Contact() {
               >
                 <summary className="flex cursor-pointer items-center justify-between gap-4 p-4 text-sm font-semibold text-stone-900 dark:text-stone-100 min-h-[44px] select-none">
                   <span>{faq.q}</span>
-                  <ChevronDown className="h-4 w-4 shrink-0 text-stone-400 dark:text-stone-300 transition-transform group-open:rotate-180" />
+                  <ChevronDown className="h-4 w-4 shrink-0 text-stone-500 dark:text-stone-300 transition-transform group-open:rotate-180" />
                 </summary>
                 <p className="px-4 pb-4 text-sm leading-relaxed text-stone-600 dark:text-stone-300">
                   {faq.a}
@@ -420,7 +477,7 @@ export default function Contact() {
               to="/faq"
               className="inline-flex min-h-[44px] items-center gap-1 text-sm font-medium text-emerald-700 dark:text-emerald-400 hover:underline"
             >
-              عرض جميع الأسئلة الشائعة ←
+              عرض جميع الأسئلة الشائعة →
             </Link>
           </div>
         </div>

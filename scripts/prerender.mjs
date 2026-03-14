@@ -13,13 +13,38 @@ let puppeteer;
 try {
   puppeteer = (await import('puppeteer')).default;
 } catch {
-  console.log('Puppeteer not available — skipping prerender (SPA-only deploy)');
-  process.exit(0);
+  puppeteer = null;
 }
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(__dirname, '..');
 const DIST = join(ROOT, 'dist');
+
+// ── Route metadata for lightweight fallback (when Puppeteer unavailable) ──
+const ROUTE_META = {
+  '/': { title: 'pptides | أشمل دليل عربي للببتيدات العلاجية', desc: '129+ ببتيد علاجي مع بروتوكولات كاملة، حاسبة جرعات، ودليل تحاليل. أشمل دليل عربي مبني على الأبحاث.' },
+  '/library': { title: 'مكتبة الببتيدات | 129 ببتيد علاجي مع بروتوكولات كاملة | pptides', desc: 'مكتبة شاملة لـ 129 ببتيد علاجي مع بروتوكولات كاملة، حاسبة جرعات، ودليل تحاليل مخبرية.' },
+  '/calculator': { title: 'حاسبة جرعات الببتيدات | احسب الجرعة بدقة | pptides', desc: 'أشمل حاسبة عربية لجرعات الببتيدات — حساب الجرعة، التخفيف، التكلفة، ومحوّل الوحدات.' },
+  '/table': { title: 'جدول الببتيدات الشامل | مقارنة 129 ببتيد | pptides', desc: 'جدول تفاعلي شامل لـ 129 ببتيد — الفئة، طريقة الإعطاء، الجرعة، التوقيت، الدورة، والتأثيرات الجانبية.' },
+  '/pricing': { title: 'أسعار واشتراكات الببتيدات | pptides', desc: 'خطتان: الأساسية (129+ بروتوكول، حاسبة، تحاليل) والمتقدمة (كل شيء + مدرب ذكي 24/7). تجربة مجانية.' },
+  '/stacks': { title: 'بروتوكولات ببتيدات مُجمَّعة | خلطات مُجرَّبة لأهداف محددة | pptides', desc: 'خلطات ببتيدات مُجرَّبة بعناية لأهداف محددة — تعافٍ وإصلاح، أداء دماغي، طول عمر، فقدان دهون.' },
+  '/lab-guide': { title: 'دليل التحاليل المخبرية قبل وأثناء الببتيدات | pptides', desc: 'دليل شامل للفحوصات المخبرية الضرورية قبل وأثناء استخدام الببتيدات — 11 تحليل موصى به.' },
+  '/guide': { title: 'مركز التعلّم — دليل الببتيدات الشامل | pptides', desc: 'دليل شامل خطوة بخطوة: ما هي الببتيدات، كيف تعمل، الطرق الآمنة للحقن، إدارة الجرعات.' },
+  '/glossary': { title: 'قاموس مصطلحات الببتيدات والبيوهاكينغ | pptides', desc: 'قاموس عربي شامل لمصطلحات الببتيدات والطب الرياضي والبيوهاكينغ.' },
+  '/interactions': { title: 'فحص تعارضات الببتيدات | pptides', desc: 'تحقق من أمان تجميع أي ببتيدين معًا. فحص التعارضات والتفاعلات بين 129+ ببتيد.' },
+  '/compare': { title: 'مقارنة الببتيدات | pptides', desc: 'قارن بين ببتيدات متعددة — الفئة، مستوى الأدلة، الجرعة، التوقيت، الدورة، والأعراض الجانبية.' },
+  '/sources': { title: 'المصادر العلمية | pptides — 1000+ مرجع من PubMed', desc: 'مكتبة بحثية تضم 1000+ مرجع علمي من PubMed تغطي 129 ببتيد.' },
+  '/community': { title: 'مجتمع الببتيدات | pptides', desc: 'شارك تجربتك مع الببتيدات واقرأ تجارب حقيقية من مستخدمين آخرين.' },
+  '/reviews': { title: 'تقييمات المستخدمين | pptides', desc: 'اقرأ تجارب وتقييمات حقيقية من مستخدمي الببتيدات.' },
+  '/quiz': { title: 'اكتشف البروتوكول المثالي لك | اختبار مجاني | pptides', desc: 'اختبار مجاني ومخصّص في 3 دقائق يحدد لك البروتوكول الأفضل لهدفك الصحي.' },
+  '/about': { title: 'عن pptides — أول منصة عربية للببتيدات العلاجية | pptides', desc: 'تعرّف على pptides: أول منصة عربية متخصصة في علم الببتيدات العلاجية. أكثر من 129 ببتيد مع بروتوكولات كاملة.' },
+  '/contact': { title: 'تواصل معنا | pptides', desc: 'تواصل مع فريق pptides — نسعد بأسئلتكم واستفساراتكم حول الببتيدات العلاجية.' },
+  '/transparency': { title: 'الشفافية — كيف نكسب المال ونحمي بياناتك | pptides', desc: 'pptides منصة تعليمية بحتة — لا نبيع ببتيدات ولا نأخذ عمولات. اشتراكك هو مصدر دخلنا الوحيد.' },
+  '/faq': { title: 'الأسئلة الشائعة | pptides', desc: 'أسئلة وإجابات شاملة عن pptides — الاشتراك، الأسعار، المحتوى، والأدوات.' },
+  '/blog': { title: 'المدونة | مقالات عن الببتيدات العلاجية | pptides', desc: 'مقالات ودلائل شاملة عن الببتيدات العلاجية — بروتوكولات، آليات عمل، أبحاث علمية محدّثة.' },
+  '/privacy': { title: 'سياسة الخصوصية | pptides', desc: 'سياسة الخصوصية لموقع pptides.com — كيف نحمي بياناتك الشخصية.' },
+  '/terms': { title: 'شروط الاستخدام | pptides', desc: 'شروط الاستخدام لموقع pptides.com — الاشتراكات، الاسترداد، وحدود المسؤولية.' },
+};
 
 // ── Public routes (same as sitemap) ──────────────────────────────
 const STATIC_ROUTES = [
@@ -33,6 +58,7 @@ const STATIC_ROUTES = [
   '/guide',
   '/glossary',
   '/interactions',
+  '/compare',
   '/sources',
   '/community',
   '/reviews',
@@ -89,6 +115,83 @@ function startServer() {
   });
 }
 
+/** Extract peptide names (Arabic) from peptides.ts for SEO titles */
+function extractPeptideNames() {
+  const peptidesPath = join(ROOT, 'src', 'data', 'peptides.ts');
+  const content = readFileSync(peptidesPath, 'utf-8');
+  const names = {};
+  // Only parse within the peptides array (between 'export const peptides' and 'const STRUCTURED_DATA')
+  const peptidesStart = content.indexOf('export const peptides: Peptide[] = [');
+  const peptidesEnd = content.indexOf('const STRUCTURED_DATA');
+  if (peptidesStart === -1 || peptidesEnd === -1) return names;
+  const section = content.slice(peptidesStart, peptidesEnd);
+  // Match objects that have both id and nameAr (peptide entries, not categories)
+  const idMatches = [...section.matchAll(/id:\s*['"]([^'"]+)['"]/g)];
+  const nameArMatches = [...section.matchAll(/nameAr:\s*['"]([^'"]+)['"]/g)];
+  // Pair them: each peptide object has id followed by nameAr
+  for (let i = 0; i < idMatches.length && i < nameArMatches.length; i++) {
+    names[idMatches[i][1]] = nameArMatches[i][1];
+  }
+  return names;
+}
+
+/** Lightweight fallback: inject correct <title> and meta tags without Puppeteer */
+function lightweightPrerender(routes, peptideNames) {
+  console.log(`Lightweight prerender: injecting metadata for ${routes.length} routes...`);
+  const indexHtml = readFileSync(join(DIST, 'index.html'), 'utf-8');
+  let success = 0;
+
+  for (const route of routes) {
+    let meta = ROUTE_META[route];
+    // For peptide detail pages, generate metadata from peptide data
+    if (!meta && route.startsWith('/peptide/')) {
+      const peptideId = route.replace('/peptide/', '');
+      const nameAr = peptideNames[peptideId] || peptideId;
+      meta = {
+        title: `${nameAr} — بروتوكول وجرعة وأبحاث | pptides`,
+        desc: `دليل شامل لـ ${nameAr}: البروتوكول، الجرعة، التوقيت، الدورة، الأعراض الجانبية، والأبحاث العلمية.`,
+      };
+    }
+    if (!meta) continue;
+
+    let html = indexHtml;
+    // Replace <title>
+    html = html.replace(/<title>[^<]*<\/title>/, `<title>${meta.title}</title>`);
+    // Replace or inject <meta name="description">
+    if (html.includes('name="description"')) {
+      html = html.replace(/<meta\s+name="description"\s+content="[^"]*"/, `<meta name="description" content="${meta.desc}"`);
+    } else {
+      html = html.replace('</title>', `</title>\n    <meta name="description" content="${meta.desc}">`);
+    }
+    // Replace or inject <meta property="og:title">
+    if (html.includes('property="og:title"')) {
+      html = html.replace(/<meta\s+property="og:title"\s+content="[^"]*"/, `<meta property="og:title" content="${meta.title}"`);
+    } else {
+      html = html.replace('</title>', `</title>\n    <meta property="og:title" content="${meta.title}">`);
+    }
+    // Replace or inject <meta property="og:description">
+    if (html.includes('property="og:description"')) {
+      html = html.replace(/<meta\s+property="og:description"\s+content="[^"]*"/, `<meta property="og:description" content="${meta.desc}"`);
+    } else {
+      html = html.replace('</title>', `</title>\n    <meta property="og:description" content="${meta.desc}">`);
+    }
+    // Set canonical URL
+    const canonical = `https://pptides.com${route === '/' ? '' : route}`;
+    if (html.includes('rel="canonical"')) {
+      html = html.replace(/<link\s+rel="canonical"\s+href="[^"]*"/, `<link rel="canonical" href="${canonical}"`);
+    } else {
+      html = html.replace('</title>', `</title>\n    <link rel="canonical" href="${canonical}">`);
+    }
+
+    const outDir = route === '/' ? DIST : join(DIST, route);
+    mkdirSync(outDir, { recursive: true });
+    writeFileSync(join(outDir, 'index.html'), html, 'utf-8');
+    success++;
+    if (success % 10 === 0) console.log(`  ${success}/${routes.length} done...`);
+  }
+  console.log(`\nLightweight prerender complete: ${success} routes with unique metadata`);
+}
+
 async function main() {
   if (!existsSync(DIST)) {
     console.error('dist/ not found — run vite build first');
@@ -97,20 +200,37 @@ async function main() {
 
   // Collect all routes
   const peptideIds = extractPeptideIds();
+  const peptideNames = extractPeptideNames();
   const routes = [
     ...STATIC_ROUTES,
     ...peptideIds.map((id) => `/peptide/${id}`),
   ];
+
+  // Fallback: if Puppeteer unavailable, inject metadata via string replacement
+  if (!puppeteer) {
+    console.log('Puppeteer not available — using lightweight metadata injection');
+    lightweightPrerender(routes, peptideNames);
+    return;
+  }
 
   console.log(`Prerendering ${routes.length} routes...`);
 
   const { server, port } = await startServer();
   const baseUrl = `http://127.0.0.1:${port}`;
 
-  const browser = await puppeteer.launch({
-    headless: true,
-    args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage'],
-  });
+  let browser;
+  try {
+    browser = await puppeteer.launch({
+      headless: true,
+      args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage'],
+    });
+  } catch (launchErr) {
+    console.log('Puppeteer launch failed:', launchErr.message);
+    console.log('Falling back to lightweight metadata injection');
+    server.close();
+    lightweightPrerender(routes, peptideNames);
+    return;
+  }
 
   let success = 0;
   let failed = 0;
@@ -121,10 +241,38 @@ async function main() {
       // Block images/fonts/analytics to speed up rendering
       await page.setRequestInterception(true);
       page.on('request', (req) => {
+        const url = req.url();
         const type = req.resourceType();
-        if (['image', 'font', 'media'].includes(type)) {
+        // Block heavy media (but NOT fonts — needed for layout)
+        if (['image', 'media'].includes(type)) {
           req.abort();
-        } else if (req.url().includes('google') || req.url().includes('analytics') || req.url().includes('sentry')) {
+          return;
+        }
+        // Block service worker registration — SW intercepts navigations and
+        // causes net::ERR_FAILED on subsequent routes in the same browser
+        if (url.includes('/registerSW.js') || url.includes('/sw.js') || url.includes('/sw.mjs')) {
+          req.abort();
+          return;
+        }
+        // Block Vercel analytics scripts (don't exist on local server)
+        if (url.includes('/_vercel/')) {
+          req.abort();
+          return;
+        }
+        // Block specific analytics/tracking domains (NOT all "google" URLs)
+        const blockedDomains = [
+          'google-analytics.com',
+          'googletagmanager.com',
+          'analytics.google.com',
+          'www.google-analytics.com',
+          'sentry.io',
+          'browser.sentry-cdn.com',
+          'hotjar.com',
+          'clarity.ms',
+          'facebook.net',
+          'fbevents.js',
+        ];
+        if (blockedDomains.some((d) => url.includes(d))) {
           req.abort();
         } else {
           req.continue();
@@ -164,6 +312,15 @@ async function main() {
 
 main().catch((err) => {
   console.warn('Prerender failed (non-fatal):', err.message);
-  // Don't fail the build — SPA still works without prerendered HTML
-  process.exit(0);
+  // Last resort: try lightweight fallback even if main() crashed
+  try {
+    const peptideIds = extractPeptideIds();
+    const peptideNames = extractPeptideNames();
+    const routes = [...STATIC_ROUTES, ...peptideIds.map((id) => `/peptide/${id}`)];
+    console.log('Attempting lightweight metadata injection as last resort...');
+    lightweightPrerender(routes, peptideNames);
+  } catch (fallbackErr) {
+    console.warn('Lightweight fallback also failed:', fallbackErr.message);
+    process.exit(0);
+  }
 });

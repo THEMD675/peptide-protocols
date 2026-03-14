@@ -7,6 +7,8 @@ const stripeKey = Deno.env.get('STRIPE_SECRET_KEY') ?? ''
 const stripe = new Stripe(stripeKey, { apiVersion: '2024-06-20', timeout: 10000 })
 const supabaseUrl = Deno.env.get('SUPABASE_URL') ?? ''
 const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
+const APP_URL = Deno.env.get('APP_URL') ?? 'https://pptides.com'
+const COUPON_RETENTION = Deno.env.get('COUPON_RETENTION') ?? 'retention_20_pct'
 
 import { getCorsHeaders, handleCorsPreflightIfOptions } from '../_shared/cors.ts'
 import { emailWrapper, emailButton } from '../_shared/email-template.ts'
@@ -71,7 +73,9 @@ serve(async (req) => {
     let reqBody: Record<string, unknown> = {}
     try { reqBody = await req.clone().json() } catch { /* empty body is fine for cancel */ }
     const applyCoupon = reqBody.apply_coupon === true
-    const cancelReason = typeof reqBody.reason === 'string' ? reqBody.reason.replace(/<[^>]*>/g, '').slice(0, 500) : null
+    const cancelReason = typeof reqBody.reason === 'string'
+      ? reqBody.reason.replace(/<[^>]*>/g, '').slice(0, 500)
+      : null
 
     // Save cancellation reason to subscriptions table if provided
     if (cancelReason) {
@@ -94,14 +98,14 @@ serve(async (req) => {
       }
       try {
         await stripe.subscriptions.update(sub.stripe_subscription_id, {
-          coupon: 'retention_20_pct',
+          coupon: COUPON_RETENTION,
         })
-        return new Response(JSON.stringify({ ok: true, coupon: 'retention_20_pct' }), {
+        return new Response(JSON.stringify({ ok: true, coupon: COUPON_RETENTION }), {
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         })
       } catch (e) {
         console.error('apply_retention_coupon error:', e)
-        return new Response(JSON.stringify({ error: 'Failed to apply coupon' }), {
+        return new Response(JSON.stringify({ error: 'تعذّر تطبيق الخصم', coupon_failed: true }), {
           status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         })
       }
@@ -122,9 +126,9 @@ serve(async (req) => {
     }
 
     if (!sub?.stripe_subscription_id) {
-      // Trial or free users have no Stripe subscription — don't kill their trial
+      // Trial users WITHOUT a Stripe sub (no card entered) — can't cancel what doesn't exist
       if (sub?.status === 'trial') {
-        return new Response(JSON.stringify({ error: 'أنت في فترة تجربة مجانية — لا يوجد اشتراك لإلغائه', success: false }), {
+        return new Response(JSON.stringify({ error: 'أنت في فترة تجربة مجانية بدون بطاقة — التجربة ستنتهي تلقائيًا', success: false }), {
           status: 400,
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         })
@@ -196,7 +200,7 @@ serve(async (req) => {
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         })
       }
-      return new Response(JSON.stringify({ error: 'Payment provider error' }), {
+      return new Response(JSON.stringify({ error: 'خطأ في مزوّد الدفع — حاول لاحقاً' }), {
         status: 502,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       })
@@ -212,11 +216,13 @@ serve(async (req) => {
 
     if (dbUpdateErr) {
       console.error('cancel-subscription: DB update after Stripe cancel failed:', dbUpdateErr)
+      // Return success — Stripe cancel succeeded. Webhook will eventually sync DB.
       return new Response(JSON.stringify({
-        error: 'تم إلغاء الاشتراك في Stripe لكن تعذّر تحديث قاعدة البيانات. حدّث الصفحة.',
-        stripe_cancelled: true
+        success: true,
+        stripe_cancelled: true,
+        db_sync_pending: true,
+        cancel_at: periodEnd,
       }), {
-        status: 500,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       })
     }
@@ -227,11 +233,12 @@ serve(async (req) => {
       sendEmail({
         to: user.email,
         subject: 'تم إلغاء اشتراكك في pptides',
+        tags: [{ name: 'type', value: 'subscription_cancelled' }, { name: 'category', value: 'transactional' }],
         html: emailWrapper(`
             <h2 style="color:#1c1917;font-size:20px;">تم إلغاء اشتراكك</h2>
             <p style="color:#44403c;line-height:1.8;">ستحتفظ بالوصول حتى نهاية الفترة الحالية (${periodEnd.split('T')[0]}).</p>
             <div style="text-align:center;margin:24px 0;">
-              ${emailButton('أعد الاشتراك', 'https://pptides.com/pricing')}
+              ${emailButton('أعد الاشتراك', `${APP_URL}/pricing`)}
             </div>
           `),
         replyTo: 'contact@pptides.com',

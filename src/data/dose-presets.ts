@@ -39,7 +39,7 @@ export const DOSE_PRESETS: DosePreset[] = [
   { name: 'GnRH / Triptorelin', dose: 100, unit: 'mcg', vialMg: 2, waterMl: 1, minDose: 50, maxDose: 200 },
   { name: 'P21', dose: 750, unit: 'mcg', vialMg: 5, waterMl: 2, minDose: 500, maxDose: 1000 },
   { name: 'DSIP', dose: 200, unit: 'mcg', vialMg: 5, waterMl: 2, minDose: 100, maxDose: 300 },
-  { name: 'SS-31 / Elamipretide', dose: 20000, unit: 'mcg', vialMg: 10, waterMl: 2, minDose: 5000, maxDose: 40000 },
+  { name: 'SS-31 / Elamipretide', dose: 40000, unit: 'mcg', vialMg: 40, waterMl: 2, minDose: 5000, maxDose: 40000 },
   { name: 'MOTS-c', dose: 5000, unit: 'mcg', vialMg: 10, waterMl: 2, minDose: 5000, maxDose: 10000 },
   { name: 'Thymalin', dose: 10000, unit: 'mcg', vialMg: 10, waterMl: 2, minDose: 5000, maxDose: 20000 },
   { name: 'Thymosin Alpha-1', dose: 1600, unit: 'mcg', vialMg: 5, waterMl: 1, minDose: 800, maxDose: 3200 },
@@ -47,19 +47,22 @@ export const DOSE_PRESETS: DosePreset[] = [
   { name: 'LL-37', dose: 200, unit: 'mcg', vialMg: 5, waterMl: 2, minDose: 100, maxDose: 400 },
   { name: 'ARA-290', dose: 2000, unit: 'mcg', vialMg: 5, waterMl: 2, minDose: 2000, maxDose: 4000 },
   { name: 'Selank', dose: 300, unit: 'mcg', vialMg: 5, waterMl: 1, minDose: 100, maxDose: 500 },
-  { name: '5-Amino-1MQ', dose: 100, unit: 'mg', vialMg: 50, waterMl: 1, minDose: 50, maxDose: 100 },
-  { name: 'Cerebrolysin', dose: 5000, unit: 'mcg', vialMg: 5, waterMl: 1, minDose: 2000, maxDose: 10000 },
-  { name: 'Collagen Peptides', dose: 10000, unit: 'mcg', vialMg: 10, waterMl: 1, minDose: 5000, maxDose: 20000 },
+  { name: '5-Amino-1MQ', dose: 100, unit: 'mg', vialMg: 50, waterMl: 1, minDose: 50, maxDose: 150 },
+  { name: 'Cerebrolysin', dose: 10, unit: 'ml', vialMg: 10, waterMl: 0, minDose: 5, maxDose: 30 }, // liquid, measured in ml — no reconstitution
+  { name: 'Collagen Peptides', dose: 10, unit: 'g', vialMg: 10, waterMl: 0, minDose: 5, maxDose: 15 }, // oral powder, measured in grams
   { name: 'Dihexa', dose: 20, unit: 'mg', vialMg: 20, waterMl: 1, minDose: 10, maxDose: 40 },
   { name: 'FOXO4-DRI', dose: 5, unit: 'mg', vialMg: 10, waterMl: 2, minDose: 2, maxDose: 10 },
-  { name: 'Larazotide', dose: 500, unit: 'mcg', vialMg: 5, waterMl: 2, minDose: 250, maxDose: 1000 },
+  { name: 'Larazotide', dose: 500, unit: 'mcg', vialMg: 1, waterMl: 0, minDose: 250, maxDose: 1000 }, // oral capsule — vialMg/waterMl not applicable
   { name: 'Melanotan II', dose: 250, unit: 'mcg', vialMg: 10, waterMl: 2, minDose: 100, maxDose: 500 },
   { name: 'NA-Semax-Amidate', dose: 400, unit: 'mcg', vialMg: 5, waterMl: 1, minDose: 200, maxDose: 1000 },
   { name: 'Testicular Bioregulators', dose: 10, unit: 'mg', vialMg: 20, waterMl: 1, minDose: 10, maxDose: 20 },
   { name: 'Copper Peptides Topical', dose: 200, unit: 'mcg', vialMg: 5, waterMl: 2, minDose: 100, maxDose: 500 },
-  { name: 'Orforglipron', dose: 3, unit: 'mg', vialMg: 45, waterMl: 1, minDose: 3, maxDose: 45 },
-  { name: 'MK-677 / Ibutamoren', dose: 25, unit: 'mg', vialMg: 25, waterMl: 1, minDose: 10, maxDose: 25 },
-  { name: 'VIP (Vasoactive Intestinal Peptide)', dose: 50, unit: 'mcg', vialMg: 1, waterMl: 1, minDose: 50, maxDose: 200 },
+  { name: 'Orforglipron', dose: 3, unit: 'mg', vialMg: 45, waterMl: 0, minDose: 3, maxDose: 45 }, // oral — no reconstitution
+  { name: 'Humanin', dose: 200, unit: 'mcg', vialMg: 5, waterMl: 2, minDose: 100, maxDose: 500 },
+  { name: 'MK-677 / Ibutamoren', dose: 25, unit: 'mg', vialMg: 25, waterMl: 0, minDose: 10, maxDose: 50 }, // oral — no reconstitution
+  { name: 'Oxytocin', dose: 10, unit: 'mcg', vialMg: 5, waterMl: 2, minDose: 5, maxDose: 20 },
+  { name: 'SNAP-8', dose: 10, unit: 'mcg', vialMg: 5, waterMl: 2, minDose: 5, maxDose: 50 }, // topical/cosmetic
+  { name: 'VIP (Vasoactive Intestinal Peptide)', dose: 50, unit: 'mcg', vialMg: 5, waterMl: 2, minDose: 25, maxDose: 200 },
 ];
 
 const PT141_PRESET = DOSE_PRESETS.find(p => p.name === 'PT-141');

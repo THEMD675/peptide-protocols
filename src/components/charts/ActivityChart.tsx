@@ -1,6 +1,6 @@
 import { memo } from 'react';
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, Cell } from 'recharts';
-import { useTheme } from '../../hooks/useTheme';
+import { useTheme } from '@/hooks/useTheme';
 
 interface ActivityData {
   day: string;
@@ -14,7 +14,7 @@ interface ActivityChartProps {
 
 export default memo(function ActivityChart({ data }: ActivityChartProps) {
   const { isDark } = useTheme();
-  if (data.length === 0) return null;
+  if (data.length === 0) return <p className="text-center text-xs text-stone-500 dark:text-stone-400 py-4">لا توجد بيانات نشاط بعد</p>;
 
   const tickColor = isDark ? '#d6d3d1' : '#78716c';
   const emptyBarColor = isDark ? '#44403c' : '#e7e5e4';
@@ -25,6 +25,7 @@ export default memo(function ActivityChart({ data }: ActivityChartProps) {
         <BarChart data={data} margin={{ top: 5, right: 0, left: 0, bottom: 5 }}>
           <XAxis
             dataKey="day"
+            reversed
             tick={{ fontSize: 10, fill: tickColor }}
             tickLine={false}
             axisLine={false}
@@ -45,7 +46,7 @@ export default memo(function ActivityChart({ data }: ActivityChartProps) {
             {data.map((entry, index) => (
               <Cell
                 key={index}
-                fill={entry.isToday ? '#10b981' : entry.count > 0 ? '#6ee7b7' : emptyBarColor}
+                fill={entry.isToday ? (isDark ? '#34d399' : '#10b981') : entry.count > 0 ? (isDark ? '#6ee7b7' : '#6ee7b7') : emptyBarColor}
               />
             ))}
           </Bar>

@@ -1,10 +1,12 @@
 import { useState, useEffect, useCallback } from 'react';
 import FocusTrap from 'focus-trap-react';
 import { Sparkles, BookOpen, Calculator, Bot, TrendingDown, Brain, Dumbbell, Heart, Zap, Clock, Shield, Moon } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { TRIAL_DAYS, PEPTIDE_COUNT } from '@/lib/constants';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
+import { logError } from '@/lib/logger';
+import { toast } from 'sonner';
 
 const ONBOARDING_KEY = 'pptides_onboarded';
 
@@ -56,15 +58,21 @@ const GOAL_LABELS: Record<string, string> = {
 
 export default function OnboardingModal({ forceOpen, onClose: externalClose }: { forceOpen?: boolean; onClose?: () => void }) {
   const { user } = useAuth();
-  // Fix 5: Initialize show state synchronously from localStorage to prevent flash
+  const navigate = useNavigate();
+  // Initialize show state synchronously from localStorage/sessionStorage to prevent flash
   const [show, setShow] = useState(() => {
     if (forceOpen) return true;
-    try { return localStorage.getItem(ONBOARDING_KEY) !== 'true'; } catch { return true; }
+    try {
+      if (localStorage.getItem(ONBOARDING_KEY) === 'true') return false;
+      if (sessionStorage.getItem(ONBOARDING_KEY + '_skipped') === 'true') return false;
+      return true;
+    } catch (e) { logError('onboarding:', e); return true; }
   });
-  const [step, setStep] = useState<'goal' | 'plan'>('goal');
+  const [step, setStep] = useState<'goal' | 'baseline' | 'plan'>('goal');
   const [selectedGoal, setSelectedGoal] = useState('');
   const [quizGoalLabel, setQuizGoalLabel] = useState('');
   const [animatePlan, setAnimatePlan] = useState(false);
+  const [baseline, setBaseline] = useState({ energy: 3, sleep: 3, pain: 3 });
   const userName = user?.email?.split('@')[0]?.charAt(0).toUpperCase() + (user?.email?.split('@')[0]?.slice(1) ?? '') || '';
   useEffect(() => {
     if (forceOpen) { setShow(true); return; }
@@ -74,14 +82,14 @@ export default function OnboardingModal({ forceOpen, onClose: externalClose }: {
   useEffect(() => {
     if (forceOpen || !user?.id) return;
     // If localStorage already says completed, no need to check DB
-    try { if (localStorage.getItem(ONBOARDING_KEY) === 'true') return; } catch { /* expected */ }
+    try { if (localStorage.getItem(ONBOARDING_KEY) === 'true') return; } catch (e) { logError('onboarding:', e); }
     supabase.from('user_profiles').select('onboarding_completed_at').eq('user_id', user.id).maybeSingle()
       .then(({ data }) => {
         if (data?.onboarding_completed_at) {
-          try { localStorage.setItem(ONBOARDING_KEY, 'true'); } catch { /* expected */ }
+          try { localStorage.setItem(ONBOARDING_KEY, 'true'); } catch (e) { logError('onboarding:', e); }
           setShow(false);
         }
-      }).catch(() => {});
+      }).catch((e: unknown) => logError('silent catch:', e));
   }, [user?.id, forceOpen]);
 
   // If user already took the quiz, skip the goal step
@@ -93,11 +101,11 @@ export default function OnboardingModal({ forceOpen, onClose: externalClose }: {
         if (parsed.goal) {
           setSelectedGoal(parsed.goal);
           setQuizGoalLabel(GOAL_LABELS[parsed.goal] ?? '');
-          setStep('plan');
-          setTimeout(() => setAnimatePlan(true), 100);
+          setStep('baseline');
+
         }
       }
-    } catch { /* expected */ }
+    } catch (e) { logError('onboarding:', e); }
   }, []);
   useEffect(() => {
     if (show) {
@@ -108,32 +116,25 @@ export default function OnboardingModal({ forceOpen, onClose: externalClose }: {
 
   // Fix 4: "complete" marks onboarding as permanently done (skip button, completing plan)
   const handleComplete = useCallback(() => {
-    try { localStorage.setItem(ONBOARDING_KEY, 'true'); } catch { /* expected */ }
+    try { localStorage.setItem(ONBOARDING_KEY, 'true'); } catch (e) { logError('onboarding:', e); }
     // C13: Persist goals to Supabase user_profiles table
     if (user && selectedGoal) {
       supabase.from('user_profiles').update({
         onboarding_goals: { goal: selectedGoal, ts: Date.now() },
         onboarding_completed_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
-      }).eq('user_id', user.id).then(() => {}).catch((e) => { console.error('OnboardingModal: failed to persist goals', e); });
+      }).eq('user_id', user.id).then(({ error }) => { if (error) { logError('OnboardingModal: failed to persist goals', error); toast.error('تعذّر حفظ أهدافك — حاول لاحقًا من الإعدادات'); } }).catch((e) => { logError('OnboardingModal: failed to persist goals', e); });
     }
     setShow(false);
     externalClose?.();
   }, [externalClose, user, selectedGoal]);
 
-  // Fix 4: "dismiss" just hides the modal temporarily — it will reappear on next visit
-  // unless forceOpen (re-open button), in which case dismiss also completes
+  // "dismiss" just hides the modal for this session — user can re-open onboarding later
   const handleDismiss = useCallback(() => {
-    if (forceOpen) {
-      // When user explicitly re-opened onboarding, dismiss = close
-      setShow(false);
-      externalClose?.();
-    } else {
-      // First visit: backdrop click just hides temporarily, doesn't mark complete
-      setShow(false);
-      externalClose?.();
-    }
-  }, [forceOpen, externalClose]);
+    try { sessionStorage.setItem(ONBOARDING_KEY + '_skipped', 'true'); } catch (e) { logError('onboarding:', e); }
+    setShow(false);
+    externalClose?.();
+  }, [externalClose]);
 
   useEffect(() => {
     if (!show) return;
@@ -156,26 +157,27 @@ export default function OnboardingModal({ forceOpen, onClose: externalClose }: {
         answers: { ...(parsed.answers ?? {}), goal: goalId },
         ts,
       }));
-    } catch { /* expected */ }
+    } catch (e) { logError('onboarding:', e); }
     setSelectedGoal(goalId);
-    setStep('plan');
-    setTimeout(() => setAnimatePlan(true), 100);
+    setStep('baseline');
   };
 
   return (
-    <div role="dialog" aria-modal="true" aria-labelledby={step === 'goal' ? 'onboarding-title-step1' : 'onboarding-title-step2'} className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4" onClick={handleDismiss}>
+    <div role="dialog" aria-modal="true" aria-labelledby={step === 'goal' ? 'onboarding-title-step1' : step === 'baseline' ? 'onboarding-title-baseline' : 'onboarding-title-step2'} className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4" onClick={handleDismiss}>
       <FocusTrap focusTrapOptions={{ allowOutsideClick: true }}>
         <div className="w-full max-w-md max-h-[90vh] overflow-y-auto rounded-2xl bg-white dark:bg-stone-900 p-6 sm:p-8 shadow-2xl animate-fade-in" onClick={e => e.stopPropagation()}>
           {/* Progress indicator */}
           <div className="mb-5 flex items-center justify-center gap-2">
             <div className={`h-1.5 w-8 rounded-full transition-all duration-300 ${step === 'goal' ? 'bg-emerald-600' : 'bg-emerald-200'}`} />
+            <div className={`h-1.5 w-8 rounded-full transition-all duration-300 ${step === 'baseline' ? 'bg-emerald-600' : 'bg-emerald-200'}`} />
             <div className={`h-1.5 w-8 rounded-full transition-all duration-300 ${step === 'plan' ? 'bg-emerald-600' : 'bg-emerald-200'}`} />
           </div>
           <p className="mb-4 text-center text-[11px] font-medium text-stone-400">
-            {step === 'goal' ? 'الخطوة ١ من ٢' : 'الخطوة ٢ من ٢'}
+            {step === 'goal' ? 'الخطوة ١ من ٣' : step === 'baseline' ? 'الخطوة ٢ من ٣' : 'الخطوة ٣ من ٣'}
           </p>
 
           {step === 'goal' ? (
+            /* ═══ STEP 1: GOAL ═══ */
             <>
               <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-100 dark:bg-emerald-900/30" style={{ animation: 'onb-sparkle 2s ease-in-out infinite' }}>
                 <Sparkles className="h-7 w-7 text-emerald-700" />
@@ -200,7 +202,81 @@ export default function OnboardingModal({ forceOpen, onClose: externalClose }: {
                   </button>
                 ))}
               </div>
-              <button onClick={handleComplete} className="mt-4 w-full min-h-[44px] text-center text-xs text-stone-500 dark:text-stone-300 hover:text-stone-600 dark:text-stone-300">
+              <button onClick={handleDismiss} className="mt-4 w-full min-h-[44px] text-center text-xs text-stone-500 dark:text-stone-300 hover:text-stone-600 dark:text-stone-300">
+                تخطّي
+              </button>
+            </>
+          ) : step === 'baseline' ? (
+            /* ═══ STEP 2: BASELINE WELLNESS ═══ */
+            <>
+              <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-100 dark:bg-emerald-900/30" style={{ animation: 'onb-sparkle 2s ease-in-out infinite' }}>
+                <Heart className="h-7 w-7 text-emerald-700" />
+              </div>
+              <h2 id="onboarding-title-baseline" className="mb-1 text-center text-xl font-bold text-stone-900 dark:text-stone-100">
+                حالتك الحالية
+              </h2>
+              <p className="mb-6 text-center text-sm text-stone-600 dark:text-stone-300">سنقارن تقدّمك بهذه الأرقام لاحقًا</p>
+              <div className="space-y-5">
+                {([
+                  { key: 'energy' as const, label: 'الطاقة', low: 'منخفضة', high: 'عالية' },
+                  { key: 'sleep' as const, label: 'النوم', low: 'سيئ', high: 'ممتاز' },
+                  { key: 'pain' as const, label: 'الألم', low: 'بدون', high: 'شديد' },
+                ] as const).map(metric => (
+                  <div key={metric.key}>
+                    <div className="mb-2 flex items-center justify-between">
+                      <span className="text-sm font-bold text-stone-800 dark:text-stone-200">{metric.label}</span>
+                      <span className="text-xs text-stone-500 dark:text-stone-400">{baseline[metric.key]}/5</span>
+                    </div>
+                    <div className="flex gap-2">
+                      {[1, 2, 3, 4, 5].map(v => (
+                        <button
+                          key={v}
+                          onClick={() => setBaseline(prev => ({ ...prev, [metric.key]: v }))}
+                          className={`flex-1 min-h-[44px] rounded-xl border-2 text-sm font-bold transition-all ${
+                            baseline[metric.key] === v
+                              ? metric.key === 'pain'
+                                ? 'border-red-400 bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400'
+                                : 'border-emerald-400 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-400'
+                              : 'border-stone-200 dark:border-stone-600 text-stone-500 dark:text-stone-400 hover:border-stone-300 dark:hover:border-stone-500'
+                          }`}
+                        >
+                          {v}
+                        </button>
+                      ))}
+                    </div>
+                    <div className="mt-1 flex justify-between text-[10px] text-stone-400 dark:text-stone-500">
+                      <span>{metric.low}</span>
+                      <span>{metric.high}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  // Save baseline to Supabase wellness_logs
+                  if (user) {
+                    supabase.from('wellness_logs').insert({
+                      user_id: user.id,
+                      energy: baseline.energy,
+                      sleep: baseline.sleep,
+                      pain: baseline.pain,
+                      mood: 3,
+                      appetite: 3,
+                      notes: 'onboarding_baseline',
+                      logged_at: new Date().toISOString(),
+                    }).then(({ error: insertErr }) => {
+                      if (insertErr) { toast.error('تعذّر حفظ البيانات الأساسية'); logError('Baseline save failed:', insertErr); }
+                    }).catch((e: unknown) => { toast.error('تعذّر حفظ البيانات الأساسية'); logError('Baseline save failed:', e); });
+                  }
+                  setStep('plan');
+                  setTimeout(() => setAnimatePlan(true), 100);
+                }}
+                className="mt-5 w-full rounded-full bg-emerald-600 px-8 py-3.5 text-base font-semibold text-white transition-colors hover:bg-emerald-700 min-h-[44px] inline-flex items-center justify-center"
+              >
+                التالي
+              </button>
+              <button onClick={handleDismiss} className="mt-2 w-full min-h-[44px] text-center text-xs text-stone-500 dark:text-stone-300 hover:text-stone-600 dark:text-stone-300">
                 تخطّي
               </button>
             </>
@@ -241,14 +317,18 @@ export default function OnboardingModal({ forceOpen, onClose: externalClose }: {
                   </Link>
                 ))}
               </div>
-              <Link
-                to={getTrialPlan(selectedGoal)[0]?.to ?? '/library'}
-                onClick={handleComplete}
+              <button
+                type="button"
+                onClick={() => {
+                  handleComplete();
+                  const category = GOAL_TO_CATEGORY[selectedGoal] ?? '';
+                  navigate(`/library${category ? `?category=${encodeURIComponent(category)}` : ''}`);
+                }}
                 className="mt-5 w-full rounded-full bg-emerald-600 px-8 py-3.5 text-base font-semibold text-white transition-colors hover:bg-emerald-700 min-h-[44px] inline-flex items-center justify-center"
                 style={{ animation: 'onb-pulse 2s ease-in-out infinite' }}
               >
                 ابدأ الاستكشاف ←
-              </Link>
+              </button>
             </>
           )}
 
@@ -256,6 +336,7 @@ export default function OnboardingModal({ forceOpen, onClose: externalClose }: {
             @keyframes onb-fade-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
             @keyframes onb-sparkle { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
             @keyframes onb-pulse { 0%, 100% { box-shadow: 0 0 0 0 rgba(16,185,129,0.4); } 50% { box-shadow: 0 0 0 8px rgba(16,185,129,0); } }
+            @media (prefers-reduced-motion: reduce) { [style*="onb-fade-in"], [style*="onb-sparkle"], [style*="onb-pulse"] { animation: none !important; } }
           `}</style>
         </div>
       </FocusTrap>

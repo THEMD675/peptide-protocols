@@ -8,7 +8,7 @@ const APP_URL = Deno.env.get('APP_URL') ?? 'https://pptides.com'
 // SOURCE OF TRUTH: 34 SAR = 1 month Essentials; override via ESSENTIALS_PRICE_DISPLAY env
 const ESSENTIALS_PRICE = Deno.env.get('ESSENTIALS_PRICE_DISPLAY') ?? '34 ر.س'
 // SOURCE OF TRUTH: match src/lib/constants.ts (peptides.length); override via PEPTIDE_COUNT env
-const PEPTIDE_COUNT = parseInt(Deno.env.get('PEPTIDE_COUNT') ?? '48', 10)
+const PEPTIDE_COUNT = parseInt(Deno.env.get('PEPTIDE_COUNT') ?? '47', 10)
 
 function constantTimeCompare(a: string, b: string): boolean {
   if (a.length !== b.length) return false
@@ -273,6 +273,7 @@ serve(async (req) => {
           subject,
           html: emailWrapper(body),
           replyTo: 'contact@pptides.com',
+          tags: [{ name: 'type', value: 'trial_reminder' }, { name: 'category', value: 'onboarding' }],
         })
 
         if (emailResult.ok) {
@@ -413,6 +414,7 @@ serve(async (req) => {
           await sendEmail({
             to: email,
             subject: `ملخصك الأسبوعي — ${weeklyCount} حقنة — pptides`,
+            tags: [{ name: 'type', value: 'weekly_summary' }, { name: 'category', value: 'engagement' }],
             html: emailWrapper(`
                   <h1 style="color: #1c1917; font-size: 24px;">ملخصك الأسبوعي</h1>
                   <div style="background: #ecfdf5; border-radius: 12px; padding: 20px; margin: 20px 0;">
@@ -498,6 +500,7 @@ serve(async (req) => {
           const emailResult = await sendEmail({
             to: email,
             subject: 'هل كل شيء على ما يرام؟ — pptides',
+            tags: [{ name: 'type', value: 'inactive_checkin' }, { name: 'category', value: 'engagement' }],
             html: emailWrapper(`
                   <h1 style="color: #1c1917; font-size: 24px;">مرحبًا — لاحظنا أنك لم تسجّل حقنة منذ 3 أيام</h1>
                   <p style="color: #44403c; font-size: 16px;">هل كل شيء على ما يرام مع بروتوكولك؟</p>
@@ -624,6 +627,7 @@ serve(async (req) => {
               subject: dunningSubject,
               html: emailWrapper(dunningBody),
               replyTo: 'contact@pptides.com',
+              tags: [{ name: 'type', value: 'dunning' }, { name: 'category', value: 'retention' }],
             })
             if (!emailResult.ok) {
               await supabase.from('sent_reminders').delete()
@@ -701,6 +705,7 @@ serve(async (req) => {
               subject: winbackSubject,
               html: emailWrapper(winbackBody),
               replyTo: 'contact@pptides.com',
+              tags: [{ name: 'type', value: 'winback' }, { name: 'category', value: 'retention' }],
             }).catch(() => {})
           }
         } catch (e) { console.error('winback email error:', e) }
@@ -750,6 +755,7 @@ serve(async (req) => {
         const emailResult = await sendEmail({
           to: adminTo,
           subject: 'pptides تنبيه إداري',
+          tags: [{ name: 'type', value: 'admin_daily_alert' }, { name: 'category', value: 'admin_alert' }],
           html: emailWrapper(`
                 <h1 style="color: #1c1917; font-size: 24px;">تنبيه إداري</h1>
                 <p>البنود التالية تتطلب اهتمامك:</p>

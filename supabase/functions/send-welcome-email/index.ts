@@ -7,7 +7,7 @@ const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY') ?? ''
 
 const APP_URL = Deno.env.get('APP_URL') ?? 'https://pptides.com'
 // SOURCE OF TRUTH: must match src/lib/constants.ts (peptides.length)
-const PEPTIDE_COUNT = parseInt(Deno.env.get('PEPTIDE_COUNT') ?? '48', 10)
+const PEPTIDE_COUNT = parseInt(Deno.env.get('PEPTIDE_COUNT') ?? '47', 10)
 // SOURCE OF TRUTH: 34 SAR = 1 month Essentials; override via ESSENTIALS_PRICE_DISPLAY env
 const ESSENTIALS_PRICE = Deno.env.get('ESSENTIALS_PRICE_DISPLAY') ?? '34 ر.س'
 import { getCorsHeaders, handleCorsPreflightIfOptions } from '../_shared/cors.ts'
@@ -100,7 +100,7 @@ serve(async (req) => {
       })
     }
 
-    const { email, name, referralCode } = body
+    let { email, name, referralCode } = body
 
     if (!email) {
       return new Response(JSON.stringify({ error: 'Missing required field: email' }), {
@@ -196,6 +196,7 @@ serve(async (req) => {
     const emailResult = await sendEmail({
       to: email,
       subject: 'مرحبًا بك في pptides — تجربتك المجانية بدأت الآن',
+      tags: [{ name: 'type', value: 'welcome' }, { name: 'category', value: 'onboarding' }],
       html: emailWrapper(`
             <h1 style="color: #1c1917; font-size: 24px;">مرحبًا، ${displayName}</h1>
             <p style="color: #44403c; font-size: 16px; line-height: 1.8;">
@@ -228,7 +229,7 @@ serve(async (req) => {
 
     if (!emailResult.ok) {
       console.error('send-welcome-email error:', emailResult.error)
-      return new Response(JSON.stringify({ error: 'Email service error' }), {
+      return new Response(JSON.stringify({ error: 'تعذّر إرسال البريد' }), {
         status: 502,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       })
@@ -241,10 +242,11 @@ serve(async (req) => {
       serviceSupabase.from('drip_emails_sent')
         .insert({ user_id: user.id, email_key: 'welcome_enhanced' })
         .then(() => {})
-        .catch(() => {}) // ignore if table doesn't exist yet or duplicate
+        .catch((e: unknown) => console.warn('drip tracking insert failed:', e))
     }
 
     // Handle referral tracking with service role (bypasses RLS)
+    if (referralCode) referralCode = referralCode.toUpperCase()
     if (referralCode && /^PP-[A-Z0-9]{6}$/.test(referralCode) && serviceSupabase) {
       try {
         // Find the referrer by their referral code
@@ -298,7 +300,7 @@ serve(async (req) => {
     })
   } catch (error) {
     console.error('send-welcome-email unhandled error:', error)
-    return new Response(JSON.stringify({ error: 'Failed to send email' }), {
+    return new Response(JSON.stringify({ error: 'تعذّر إرسال البريد' }), {
       status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     })

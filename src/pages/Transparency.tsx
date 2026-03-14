@@ -12,7 +12,7 @@ const whatWeDo = [
 ];
 
 const whatWeDontDo = [
-  'لا نبيع ببتيدات أو مكملات أو أدوية',
+  'حاليًا لا نبيع ببتيدات — نعمل على توفير حلول موثوقة مستقبلًا',
   'لا نأخذ عمولات من أي مورّد أو بائع',
   'لا نعرض إعلانات على الموقع — أبدًا',
   'لا نبيع بياناتك أو نشاركها مع أطراف ثالثة',
@@ -261,7 +261,7 @@ export default function Transparency() {
           </section>
 
           {/* Last reviewed */}
-          <div className="text-center text-xs text-stone-400 dark:text-stone-300">
+          <div className="text-center text-xs text-stone-500 dark:text-stone-300">
             آخر مراجعة لهذه الصفحة: {LEGAL_LAST_UPDATED}
           </div>
 

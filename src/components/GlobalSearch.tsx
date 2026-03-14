@@ -33,6 +33,27 @@ const PAGE_INDEX = [
 const normalize = (s: string) =>
   s.replace(/[\u064B-\u065F\u0670]/g, '').toLowerCase();
 
+/** Normalize for fuzzy matching: strip hyphens, spaces, dashes for "bpc157" → "bpc157" matching "bpc-157" */
+const fuzzyNorm = (s: string) =>
+  normalize(s).replace(/[-\s_.]/g, '');
+
+/** Normalize Arabic alef/hamza variants: أ إ آ ا → ا */
+const normalizeAlef = (s: string) =>
+  s.replace(/[أإآ]/g, 'ا');
+
+/** Check if query matches text with fuzzy rules */
+const fuzzyMatch = (text: string, query: string): boolean => {
+  // Exact substring match (existing behavior)
+  const nText = normalize(text);
+  const nQuery = normalize(query);
+  if (nText.includes(nQuery)) return true;
+  // Fuzzy: strip hyphens/spaces (bpc157 matches bpc-157)
+  if (fuzzyNorm(text).includes(fuzzyNorm(query))) return true;
+  // Arabic alef normalization
+  if (normalizeAlef(nText).includes(normalizeAlef(nQuery))) return true;
+  return false;
+};
+
 type ResultItem =
   | { type: 'peptide'; data: PeptideSearchEntry }
   | { type: 'glossary'; data: GlossaryTerm }
@@ -90,7 +111,7 @@ export default function GlobalSearch({ open, onClose }: Props) {
           .from('blog_posts')
           .select('slug, title_ar, excerpt_ar')
           .eq('is_published', true)
-          .or(`title_ar.ilike.%${q}%,excerpt_ar.ilike.%${q}%,tags.cs.{${q}}`)
+          .or(`title_ar.ilike.%${q.replace(/[{}%_]/g, '')}%,excerpt_ar.ilike.%${q.replace(/[{}%_]/g, '')}%,tags.cs.{${q.replace(/[{}%_]/g, '')}}`)
           .limit(5);
         setBlogResults(data ?? []);
       } catch { setBlogResults([]); }
@@ -105,18 +126,18 @@ export default function GlobalSearch({ open, onClose }: Props) {
 
     const items: ResultItem[] = [];
 
-    // peptides
+    // peptides — fuzzy match (handles bpc157 → BPC-157, Arabic alef variants)
     const peps = peptideSearchIndex.filter(
-      (p) => normalize(p.nameAr).includes(q) || p.nameEn.toLowerCase().includes(q)
+      (p) => fuzzyMatch(p.nameAr, query) || fuzzyMatch(p.nameEn, query)
     );
     for (const p of peps.slice(0, 5)) items.push({ type: 'peptide', data: p });
 
     // glossary
     const terms = GLOSSARY_TERMS.filter(
       (t) =>
-        normalize(t.ar).includes(q) ||
-        t.en.toLowerCase().includes(q) ||
-        normalize(t.definition).includes(q)
+        fuzzyMatch(t.ar, query) ||
+        fuzzyMatch(t.en, query) ||
+        fuzzyMatch(t.definition, query)
     );
     for (const t of terms.slice(0, 4)) items.push({ type: 'glossary', data: t });
 
@@ -126,8 +147,8 @@ export default function GlobalSearch({ open, onClose }: Props) {
     // pages
     const pages = PAGE_INDEX.filter(
       (p) =>
-        normalize(p.label).includes(q) ||
-        normalize(p.desc).includes(q) ||
+        fuzzyMatch(p.label, query) ||
+        fuzzyMatch(p.desc, query) ||
         p.to.toLowerCase().includes(q)
     );
     for (const p of pages.slice(0, 4)) items.push({ type: 'page', data: p });
@@ -176,7 +197,7 @@ export default function GlobalSearch({ open, onClose }: Props) {
     (e: React.KeyboardEvent) => {
       if (e.key === 'ArrowDown') {
         e.preventDefault();
-        setFocusIdx((i) => Math.min(i + 1, results.length - 1));
+        setFocusIdx((i) => Math.max(0, Math.min(i + 1, results.length - 1)));
       } else if (e.key === 'ArrowUp') {
         e.preventDefault();
         setFocusIdx((i) => Math.max(i - 1, 0));
@@ -225,7 +246,7 @@ export default function GlobalSearch({ open, onClose }: Props) {
       >
         {/* input */}
         <div className="flex items-center gap-3 border-b border-stone-200 dark:border-stone-700 px-4 py-3.5">
-          <Search className="h-5 w-5 shrink-0 text-stone-400 dark:text-stone-300" />
+          <Search className="h-5 w-5 shrink-0 text-stone-500 dark:text-stone-300" />
           <input
             ref={inputRef}
             type="text"
@@ -233,7 +254,7 @@ export default function GlobalSearch({ open, onClose }: Props) {
             onChange={(e) => setQuery(e.target.value)}
             onKeyDown={handleKey}
             placeholder="ابحث عن ببتيد، مصطلح، مقالة، أو صفحة..."
-            className="flex-1 bg-transparent text-base text-stone-900 dark:text-stone-100 placeholder:text-stone-400 dark:placeholder:text-stone-400 outline-none focus:outline-none focus:ring-0"
+            className="flex-1 bg-transparent text-base text-stone-900 dark:text-stone-100 placeholder:text-stone-500 dark:placeholder:text-stone-500 outline-none focus:outline-none focus:ring-0"
             aria-label="بحث شامل"
           />
           <kbd className="hidden rounded-md border border-stone-200 dark:border-stone-700 bg-stone-100 dark:bg-stone-800 px-1.5 py-0.5 text-[10px] font-medium text-stone-500 dark:text-stone-300 sm:inline">
@@ -241,7 +262,7 @@ export default function GlobalSearch({ open, onClose }: Props) {
           </kbd>
           <button
             onClick={onClose}
-            className="flex h-9 w-9 items-center justify-center rounded-lg text-stone-400 hover:bg-stone-100 dark:hover:bg-stone-800 hover:text-stone-600 dark:hover:text-stone-300 transition-colors sm:hidden"
+            className="flex h-9 w-9 min-h-[44px] min-w-[44px] items-center justify-center rounded-lg text-stone-400 hover:bg-stone-100 dark:hover:bg-stone-800 hover:text-stone-600 dark:hover:text-stone-300 transition-colors sm:hidden"
             aria-label="إغلاق"
           >
             <X className="h-5 w-5" />
@@ -370,7 +391,7 @@ export default function GlobalSearch({ open, onClose }: Props) {
 
         {/* footer */}
         {results.length > 0 && (
-          <div className="flex items-center justify-between border-t border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-800/50 px-4 py-2.5 text-[10px] text-stone-400 dark:text-stone-300">
+          <div className="flex items-center justify-between border-t border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-800/50 px-4 py-2.5 text-[10px] text-stone-500 dark:text-stone-300">
             <span className="font-medium">{results.length} نتيجة</span>
             <span className="flex items-center gap-2">
               <kbd className="rounded border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-700 px-1.5 py-0.5 text-stone-600 dark:text-stone-300">↑↓</kbd>

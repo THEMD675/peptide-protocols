@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useCallback } from 'react';
+import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { toast } from 'sonner';
 import { copyToClipboard } from '@/lib/utils';
@@ -10,7 +10,7 @@ import {
   AlertTriangle,
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
-import { peptides as allPeptides } from '@/data/peptides';
+import { peptidesPublic as allPeptides } from '@/data/peptides-public';
 import {
   DANGEROUS_COMBOS, SYNERGISTIC_COMBOS, DRUG_INTERACTIONS, InteractionResult,
 } from '@/data/interactions';
@@ -93,6 +93,7 @@ function parseCostRange(costStr?: string): { min: number; max: number } | null {
   const nums = costStr.match(/[\d,]+/g);
   if (!nums || nums.length === 0) return null;
   const values = nums.map((n) => parseInt(n.replace(/,/g, ''), 10));
+  if (values.length === 0) return null;
   return { min: Math.min(...values), max: Math.max(...values) };
 }
 
@@ -127,7 +128,7 @@ function extractBenefits(peps: typeof allPeptides): string[] {
     // Use summaryAr - take the first sentence/phrase before the long dash
     const summary = p.summaryAr ?? '';
     const parts = summary.split('—');
-    if (parts.length > 1) {
+    if (parts.length >= 2 && parts[1]) {
       // Second part typically has the key benefit
       const benefit = parts[1].trim().split('.')[0].trim();
       if (benefit && benefit.length > 5) benefits.push(`${p.nameAr}: ${benefit}`);
@@ -312,7 +313,11 @@ function loadSavedStacks(): SavedStack[] {
 }
 
 function saveStacks(stacks: SavedStack[]) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(stacks));
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(stacks));
+  } catch {
+    toast.error('فشل حفظ التجميعة — مساحة التخزين ممتلئة');
+  }
 }
 
 /* ── Sub-components ──────────────────────────────────────── */
@@ -348,22 +353,45 @@ export default function StackBuilder() {
   const [activeGoalStack, setActiveGoalStack] = useState<string | null>(null);
   const [pendingGoalStack, setPendingGoalStack] = useState<GoalStack | null>(null);
 
-  // Load from URL params on mount
+  // Ref to break circular URL ↔ selectedIds sync
+  const syncSource = useRef<'url' | 'user' | null>(null);
+
+  // Load saved stacks on mount
   useEffect(() => {
-    const urlPeptides = searchParams.get('stack');
-    if (urlPeptides) {
-      const ids = urlPeptides.split(',').filter((id) => realPeptides.some((p) => p.id === id));
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      if (ids.length > 0) setSelectedIds(ids.slice(0, MAX_STACK_SIZE));
-    }
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     setSavedStacks(loadSavedStacks());
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Reactive URL param reading — watches for external changes (e.g. "Use as Template" buttons)
+  const stackParam = searchParams.get('stack');
+  useEffect(() => {
+    if (syncSource.current === 'user') {
+      syncSource.current = null;
+      return;
+    }
+    if (stackParam) {
+      const ids = stackParam.split(',').filter((id) => realPeptides.some((p) => p.id === id)).slice(0, MAX_STACK_SIZE);
+      if (ids.length > 0) {
+        syncSource.current = 'url';
+        setSelectedIds(prev => {
+          const same = prev.length === ids.length && prev.every((id, i) => id === ids[i]);
+          return same ? prev : ids;
+        });
+      }
+    }
+  }, [stackParam]);
 
   // Update URL when selection changes
   useEffect(() => {
+    if (syncSource.current === 'url') {
+      syncSource.current = null;
+      return;
+    }
+    const current = searchParams.get('stack') ?? '';
+    const next = selectedIds.join(',');
+    if (next === current) return; // no-op
+    syncSource.current = 'user';
     if (selectedIds.length > 0) {
-      setSearchParams({ stack: selectedIds.join(',') }, { replace: true });
+      setSearchParams({ stack: next }, { replace: true });
     } else {
       searchParams.delete('stack');
       setSearchParams(searchParams, { replace: true });
@@ -469,24 +497,6 @@ export default function StackBuilder() {
     setPendingGoalStack(null);
   };
 
-  const SafetyBadge = ({ safety }: { safety: 'safe' | 'warning' | 'dangerous' }) => {
-    if (safety === 'dangerous') return (
-      <span className="inline-flex items-center gap-1 rounded-full bg-red-100 dark:bg-red-900/30 px-3 py-1 text-xs font-bold text-red-700 dark:text-red-400">
-        <ShieldX className="h-3.5 w-3.5" /> خطير
-      </span>
-    );
-    if (safety === 'warning') return (
-      <span className="inline-flex items-center gap-1 rounded-full bg-amber-100 dark:bg-amber-900/30 px-3 py-1 text-xs font-bold text-amber-700 dark:text-amber-400">
-        <ShieldAlert className="h-3.5 w-3.5" /> تحذير
-      </span>
-    );
-    return (
-      <span className="inline-flex items-center gap-1 rounded-full bg-emerald-100 dark:bg-emerald-900/30 px-3 py-1 text-xs font-bold text-emerald-700 dark:text-emerald-400">
-        <ShieldCheck className="h-3.5 w-3.5" /> آمن
-      </span>
-    );
-  };
-
   return (
     <div className="space-y-8">
       {/* ── Section Header ──────────────────────────────── */}
@@ -536,7 +546,7 @@ export default function StackBuilder() {
             >
               <div className="flex w-full items-center justify-between">
                 <gs.icon className="h-6 w-6 text-emerald-600 dark:text-emerald-400" />
-                <span className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${
+                <span className={`rounded-full px-2 py-0.5 text-xs font-bold ${
                   gs.difficulty === 'مبتدئ' ? 'bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-400' :
                   gs.difficulty === 'متوسط' ? 'bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-400' :
                   'bg-red-100 dark:bg-red-900/40 text-red-700 dark:text-red-400'
@@ -548,17 +558,17 @@ export default function StackBuilder() {
                 {gs.peptideIds.map((id) => {
                   const p = realPeptides.find((x) => x.id === id);
                   return p ? (
-                    <span key={id} className="rounded-full bg-emerald-500/10 px-2 py-0.5 text-[10px] font-medium text-emerald-700 dark:text-emerald-400">
+                    <span key={id} className="rounded-full bg-emerald-500/10 px-2 py-0.5 text-xs font-medium text-emerald-700 dark:text-emerald-400">
                       {p.nameAr}
                     </span>
                   ) : (
-                    <span key={id} className="rounded-full bg-stone-100 dark:bg-stone-800 px-2 py-0.5 text-[10px] font-medium text-stone-500 dark:text-stone-300">
+                    <span key={id} className="rounded-full bg-stone-100 dark:bg-stone-800 px-2 py-0.5 text-xs font-medium text-stone-500 dark:text-stone-300">
                       {id}
                     </span>
                   );
                 })}
               </div>
-              <div className="flex items-center gap-3 mt-auto pt-2 text-[11px] text-stone-500 dark:text-stone-300">
+              <div className="flex items-center gap-3 mt-auto pt-2 text-xs text-stone-500 dark:text-stone-300">
                 <span className="flex items-center gap-1"><DollarSign className="h-3 w-3" />{gs.monthlyCostSAR}</span>
                 <span className="flex items-center gap-1"><Clock className="h-3 w-3" />{gs.durationAr}</span>
               </div>
@@ -685,7 +695,7 @@ export default function StackBuilder() {
               <div key={s.id} className="flex items-center justify-between rounded-lg bg-white dark:bg-stone-900 px-3 py-2 border border-stone-200 dark:border-stone-600">
                 <button type="button" onClick={() => handleLoadStack(s)} className="flex-1 text-start">
                   <span className="text-sm font-medium text-stone-900 dark:text-stone-100">{s.name}</span>
-                  <span className="block text-[10px] text-stone-500 dark:text-stone-300">{s.peptideIds.length} ببتيدات • {new Date(s.createdAt).toLocaleDateString('ar-SA')}</span>
+                  <span className="block text-xs text-stone-500 dark:text-stone-300">{s.peptideIds.length} ببتيدات • {new Date(s.createdAt).toLocaleDateString('ar-u-nu-latn')}</span>
                 </button>
                 <button type="button" onClick={() => handleDelete(s.id)} aria-label={`حذف ${s.name}`} className="flex items-center justify-center rounded-lg p-2 min-h-[44px] min-w-[44px] text-red-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors">
                   <Trash2 className="h-4 w-4" />
@@ -717,7 +727,7 @@ export default function StackBuilder() {
                     onChange={(e) => setSearchQuery(e.target.value)}
                     placeholder="ابحث عن ببتيد..."
                     aria-label="البحث عن ببتيد"
-                    className="w-full rounded-lg border border-stone-200 dark:border-stone-600 bg-stone-50 dark:bg-stone-800 py-2 pe-10 ps-3 text-sm text-stone-900 dark:text-stone-100 placeholder:text-stone-400 focus:border-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900"
+                    className="w-full rounded-lg border border-stone-200 dark:border-stone-600 bg-stone-50 dark:bg-stone-800 py-2 pe-10 ps-3 text-sm text-stone-900 dark:text-stone-100 placeholder:text-stone-500 focus:border-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-500"
                   />
                 </div>
               </div>
@@ -861,7 +871,7 @@ export default function StackBuilder() {
               </div>
               <p className="text-lg font-bold text-stone-900 dark:text-stone-100">
                 {totalCost.min > 0
-                  ? `${totalCost.min.toLocaleString('ar-SA')}-${totalCost.max.toLocaleString('ar-SA')} ر.س`
+                  ? `${totalCost.min.toLocaleString('ar-u-nu-latn')}-${totalCost.max.toLocaleString('ar-u-nu-latn')} ر.س`
                   : 'غير متوفر'}
               </p>
             </div>
@@ -876,10 +886,10 @@ export default function StackBuilder() {
                 ~{Math.round(weeklyInjections)} حقنة/أسبوع
               </p>
               {weeklyInjections >= 7 ? (
-                <p className="text-[10px] text-stone-400">~{Math.round(weeklyInjections / 7)} يوميًا</p>
-              ) : (
-                <p className="text-[10px] text-stone-400">كل {Math.round(7 / weeklyInjections)} أيام</p>
-              )}
+                <p className="text-xs text-stone-400">~{Math.round(weeklyInjections / 7)} يوميًا</p>
+              ) : weeklyInjections > 0 ? (
+                <p className="text-xs text-stone-400">كل {Math.round(7 / weeklyInjections)} أيام</p>
+              ) : null}
             </div>
 
             {/* Peptide Count */}
@@ -901,7 +911,7 @@ export default function StackBuilder() {
               </div>
               <div className="flex flex-wrap gap-1">
                 {[...new Set(selectedPeptides.map((p) => p.route))].map((r) => (
-                  <span key={r ?? 'default'} className="rounded-full bg-stone-100 dark:bg-stone-800 px-2 py-0.5 text-[10px] font-medium text-stone-600 dark:text-stone-300">
+                  <span key={r ?? 'default'} className="rounded-full bg-stone-100 dark:bg-stone-800 px-2 py-0.5 text-xs font-medium text-stone-600 dark:text-stone-300">
                     {getRouteLabel(r)}
                   </span>
                 ))}
@@ -962,16 +972,16 @@ export default function StackBuilder() {
                     <Link to={`/peptide/${p.id}`} className="text-sm font-bold text-emerald-700 dark:text-emerald-400 hover:underline">
                       {p.nameAr}
                     </Link>
-                    <span className="text-[10px] text-stone-400">{p.nameEn}</span>
+                    <span className="text-xs text-stone-400">{p.nameEn}</span>
                   </div>
                   <div className="grid gap-2 sm:grid-cols-2 text-xs text-stone-600 dark:text-stone-300">
                     <div>
                       <span className="font-bold text-stone-500 dark:text-stone-300">الجرعة: </span>
-                      <span className="line-clamp-2">{p.dosageAr}</span>
+                      <span className="line-clamp-2">{p.dosageAr ?? 'اشترك لعرض الجرعة'}</span>
                     </div>
                     <div>
                       <span className="font-bold text-stone-500 dark:text-stone-300">التوقيت: </span>
-                      <span>{p.timingAr}</span>
+                      <span>{p.timingAr ?? 'اشترك لعرض التوقيت'}</span>
                     </div>
                     <div>
                       <span className="font-bold text-stone-500 dark:text-stone-300">التكرار: </span>
@@ -1001,7 +1011,7 @@ export default function StackBuilder() {
               onChange={(e) => setStackName(e.target.value)}
               placeholder="اسم البروتوكول (اختياري)"
               aria-label="اسم البروتوكول"
-              className="flex-1 rounded-xl border border-stone-200 dark:border-stone-600 bg-stone-50 dark:bg-stone-800 px-4 py-2.5 text-sm text-stone-900 dark:text-stone-100 placeholder:text-stone-400 focus:border-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900"
+              className="flex-1 rounded-xl border border-stone-200 dark:border-stone-600 bg-stone-50 dark:bg-stone-800 px-4 py-2.5 text-sm text-stone-900 dark:text-stone-100 placeholder:text-stone-500 focus:border-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-500"
             />
             <div className="flex gap-2">
               <button

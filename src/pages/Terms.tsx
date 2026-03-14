@@ -15,6 +15,8 @@ export default function Terms() {
         <meta property="og:image" content={`${SITE_URL}/og-image.jpg`} />
         <meta property="og:locale" content="ar_SA" />
         <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="شروط الاستخدام | pptides" />
+        <meta name="twitter:description" content="شروط الاستخدام لموقع pptides.com — الاشتراكات، الاسترداد، وحدود المسؤولية." />
         <link rel="canonical" href={`${SITE_URL}/terms`} />
         <script type="application/ld+json">{JSON.stringify({
           '@context': 'https://schema.org',
@@ -41,7 +43,7 @@ export default function Terms() {
             <ul className="list-disc space-y-2 ps-6">
               <li>الخطة الأساسية: {PRICING.essentials.label} شهريًا</li>
               <li>الخطة المتقدّمة: {PRICING.elite.label} شهريًا</li>
-              <li>تجربة مجانية: {TRIAL_DAYS} أيام على جميع الخطط</li>
+              <li>تجربة مجانية: {TRIAL_DAYS} أيام على جميع الخطط — يُخصم المبلغ تلقائيًا بعد انتهاء التجربة المجانية ما لم تُلغِ قبل ذلك</li>
               <li>الاشتراكات تتجدد تلقائيًا ما لم يُلغَ قبل تاريخ التجديد</li>
               <li>يتم الدفع عبر Stripe بشكل آمن ومشفّر</li>
             </ul>
@@ -49,7 +51,7 @@ export default function Terms() {
 
           <section>
             <h2 className="mb-3 text-xl font-bold text-stone-900 dark:text-stone-100">3. سياسة الاسترداد</h2>
-            <p>نقدّم ضمان استرداد كامل خلال {TRIAL_DAYS} أيام من تاريخ الاشتراك. إذا لم تكن راضيًا، تواصل معنا عبر <a href={`mailto:${SUPPORT_EMAIL}`} className="inline-flex min-h-[44px] items-center text-emerald-700 underline">{SUPPORT_EMAIL}</a> واسترد أموالك بالكامل. بعد مرور {TRIAL_DAYS} أيام، لا يمكن استرداد المبالغ المدفوعة.</p>
+            <p>نقدّم ضمان استرداد كامل خلال {TRIAL_DAYS} أيام من تاريخ الاشتراك. إذا لم تكن راضيًا، تواصل معنا عبر <a href={`mailto:${SUPPORT_EMAIL}`} className="inline-flex min-h-[44px] items-center text-emerald-700 underline">{SUPPORT_EMAIL}</a> واسترد أموالك بالكامل. يُسترد المبلغ إلى وسيلة الدفع الأصلية خلال 5-10 أيام عمل. بعد مرور {TRIAL_DAYS} أيام، لا يمكن استرداد المبالغ المدفوعة.</p>
           </section>
 
           <section>
@@ -64,7 +66,12 @@ export default function Terms() {
 
           <section>
             <h2 className="mb-3 text-xl font-bold text-stone-900 dark:text-stone-100">6. حدود المسؤولية</h2>
-            <p>يُقدَّم الموقع والمحتوى "كما هو" بدون أي ضمانات صريحة أو ضمنية. لا نتحمّل أي مسؤولية عن أضرار مباشرة أو غير مباشرة ناتجة عن استخدام الموقع أو المحتوى، بما في ذلك على سبيل المثال لا الحصر: القرارات الصحية، نتائج البروتوكولات، أو انقطاع الخدمة. مسؤوليتنا القصوى لا تتجاوز المبلغ الذي دفعته خلال آخر 3 أشهر.</p>
+            <p>يُقدَّم الموقع والمحتوى "كما هو" بدون أي ضمانات صريحة أو ضمنية. لا نتحمّل أي مسؤولية عن أضرار مباشرة أو غير مباشرة ناتجة عن استخدام الموقع أو المحتوى، بما في ذلك على سبيل المثال لا الحصر: القرارات الصحية، نتائج البروتوكولات، أو انقطاع الخدمة. لا نتحمل المسؤولية عن تعديل الجرعات أو خلط الببتيدات بدون إشراف طبي. مسؤوليتنا القصوى لا تتجاوز المبلغ الذي دفعته خلال آخر 3 أشهر.</p>
+          </section>
+
+          <section>
+            <h2 className="mb-3 text-xl font-bold text-stone-900 dark:text-stone-100">6.1 المحتوى المنشور من المستخدمين</h2>
+            <p>تحتفظ بملكية المحتوى الذي تنشره على المنصة (التجارب، التقييمات، التعليقات). بنشرك للمحتوى، تمنحنا ترخيصًا غير حصري لعرضه على المنصة. يمكنك حذف محتواك في أي وقت.</p>
           </section>
 
           <section>
@@ -76,9 +83,9 @@ export default function Terms() {
             <h2 className="mb-3 text-xl font-bold text-stone-900 dark:text-stone-100">8. الاحتفاظ بالبيانات</h2>
             <ul className="list-disc space-y-2 ps-6">
               <li>نحتفظ ببيانات حسابك طوال فترة اشتراكك النشط</li>
-              <li>عند حذف حسابك، تُحذف بياناتك الشخصية خلال 30 يومًا</li>
+              <li>عند حذف حسابك، تُحذف بياناتك الشخصية فوريًا ونهائيًا</li>
               <li>سجلات الدفع تُحفظ لدى Stripe وفقًا لمتطلبات الامتثال المالي</li>
-              <li>محادثات المدرب الذكي تُحذف خلال 90 يومًا من إغلاق الحساب</li>
+              <li>محادثات المدرب الذكي تُحذف فوريًا عند حذف الحساب</li>
             </ul>
           </section>
 

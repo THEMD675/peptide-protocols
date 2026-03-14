@@ -70,14 +70,14 @@ serve(async (req) => {
       .maybeSingle()
 
     if (!sub?.stripe_customer_id) {
-      return new Response(JSON.stringify({ error: 'No billing account found' }), {
+      return new Response(JSON.stringify({ error: 'لم يتم العثور على حساب فوترة — تواصل معنا' }), {
         status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       })
     }
 
     const session = await stripe.billingPortal.sessions.create({
       customer: sub.stripe_customer_id,
-      return_url: `${appUrl}/account`,
+      return_url: `${appUrl}/account?portal_return=1`,
     })
 
     return new Response(JSON.stringify({ url: session.url }), {
@@ -85,7 +85,7 @@ serve(async (req) => {
     })
   } catch (error) {
     console.error('create-portal-session error:', error)
-    return new Response(JSON.stringify({ error: 'Failed to create portal session' }), {
+    return new Response(JSON.stringify({ error: 'تعذّر فتح صفحة إدارة الدفع — حاول مرة أخرى' }), {
       status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     })
   }

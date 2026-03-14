@@ -3,6 +3,7 @@ import { Check, MessageSquare, Send } from 'lucide-react';
 import { toast } from 'sonner';
 import { cn, sanitizeInput } from '@/lib/utils';
 import { supabase } from '@/lib/supabase';
+import { logError } from '@/lib/logger';
 
 interface EnquiryFormProps {
   userEmail?: string;
@@ -21,8 +22,8 @@ export default function EnquiryForm({ userEmail, userId }: EnquiryFormProps) {
     if (!userId) return;
     let mounted = true;
     supabase.from('enquiries').select('id, subject, status, created_at, peptide_name').eq('user_id', userId).order('created_at', { ascending: false }).limit(5)
-      .then(({ data, error }) => { if (error) console.error('enquiries history query failed:', error); if (mounted && data) setHistory(data); })
-      .catch(() => {});
+      .then(({ data, error }) => { if (error) logError('enquiries history query failed:', error); if (mounted && data) setHistory(data); })
+      .catch(e => logError('enquiries fetch failed:', e));
     return () => { mounted = false; };
   }, [userId, sent]);
 
@@ -87,7 +88,7 @@ export default function EnquiryForm({ userEmail, userId }: EnquiryFormProps) {
               placeholder="مثال: BPC-157"
               dir="ltr"
               maxLength={100}
-              className="w-full rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 px-4 py-2.5 text-sm text-stone-900 dark:text-stone-100 placeholder:text-stone-500 dark:text-stone-300 outline-none focus:border-emerald-300 dark:border-emerald-700 focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900"
+              className="w-full rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 px-4 py-2.5 text-sm text-stone-900 dark:text-stone-100 placeholder:text-stone-500 dark:text-stone-300 outline-none focus:border-emerald-300 dark:border-emerald-700 focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-500"
             />
           </div>
           <div>
@@ -99,7 +100,7 @@ export default function EnquiryForm({ userEmail, userId }: EnquiryFormProps) {
               onChange={e => setSubject(e.target.value)}
               placeholder="جرعة، تعارض، بروتوكول..."
               maxLength={200}
-              className="w-full rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 px-4 py-2.5 text-sm text-stone-900 dark:text-stone-100 placeholder:text-stone-500 dark:text-stone-300 outline-none focus:border-emerald-300 dark:border-emerald-700 focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900"
+              className="w-full rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 px-4 py-2.5 text-sm text-stone-900 dark:text-stone-100 placeholder:text-stone-500 dark:text-stone-300 outline-none focus:border-emerald-300 dark:border-emerald-700 focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-500"
             />
           </div>
           <div>
@@ -112,14 +113,14 @@ export default function EnquiryForm({ userEmail, userId }: EnquiryFormProps) {
               rows={4}
               maxLength={2000}
               required
-              className="w-full rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 px-4 py-2.5 text-sm text-stone-900 dark:text-stone-100 placeholder:text-stone-500 dark:text-stone-300 outline-none resize-none focus:border-emerald-300 dark:border-emerald-700 focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900"
+              className="w-full rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 px-4 py-2.5 text-sm text-stone-900 dark:text-stone-100 placeholder:text-stone-500 dark:text-stone-300 outline-none resize-none focus:border-emerald-300 dark:border-emerald-700 focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-500"
             />
-            <p className="text-[10px] text-stone-500 dark:text-stone-300 mt-1 text-left" dir="ltr">{message.length}/2000</p>
+            <p className="text-xs text-stone-500 dark:text-stone-300 mt-1 text-end" dir="ltr">{message.length}/2000</p>
           </div>
           <button
             type="submit"
             disabled={!message.trim() || sending}
-            className="w-full flex items-center justify-center gap-2 rounded-full bg-emerald-600 px-6 py-3 text-sm font-bold text-white transition-all hover:bg-emerald-700 disabled:opacity-50 disabled:pointer-events-none"
+            className="w-full flex items-center justify-center gap-2 rounded-full bg-emerald-600 px-6 py-3 text-sm font-bold text-white transition-all hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none"
           >
             {sending ? (
               <span className="inline-flex items-center gap-2">
