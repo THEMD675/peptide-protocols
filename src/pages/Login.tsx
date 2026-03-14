@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import { Eye, EyeOff, Shield } from 'lucide-react';
 import { toast } from 'sonner';
@@ -778,13 +778,13 @@ export default function Login() {
               {tab === 'signup' && (
                 <p className="text-center text-xs text-stone-500 dark:text-stone-300 leading-relaxed">
                   بإنشاء حساب، أنت توافق على{' '}
-                  <a href="/terms" target="_blank" rel="noopener noreferrer" className="text-emerald-700 hover:underline">
+                  <Link to="/terms" className="text-emerald-700 hover:underline">
                     شروط الاستخدام
-                  </a>
+                  </Link>
                   {' '}و{' '}
-                  <a href="/privacy" target="_blank" rel="noopener noreferrer" className="text-emerald-700 hover:underline">
+                  <Link to="/privacy" className="text-emerald-700 hover:underline">
                     سياسة الخصوصية
-                  </a>
+                  </Link>
                 </p>
               )}
 

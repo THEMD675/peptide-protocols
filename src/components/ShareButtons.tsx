@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Copy, Check, Send, Share2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { events } from '@/lib/analytics';
+import { copyToClipboard } from '@/lib/utils';
 
 interface ShareButtonsProps {
   /** Page URL to share */
@@ -29,13 +30,13 @@ export default function ShareButtons({
   const tweetText = `${title}\n${url}`;
 
   const handleCopyLink = async () => {
-    try {
-      await navigator.clipboard.writeText(url);
+    const ok = await copyToClipboard(url);
+    if (ok) {
       setCopied(true);
       toast.success('تم نسخ الرابط');
       events.shareClick('copy_link');
       setTimeout(() => setCopied(false), 2000);
-    } catch {
+    } else {
       toast.error('تعذّر نسخ الرابط');
     }
   };

@@ -13,7 +13,7 @@ import Tooltip from '@/components/Tooltip';
 import ProtocolWizard from '@/components/ProtocolWizard';
 import { peptides as allPeptides } from '@/data/peptides';
 import { toast } from 'sonner';
-import { cn } from '@/lib/utils';
+import { cn, copyToClipboard } from '@/lib/utils';
 import { PEPTIDE_COUNT, SITE_URL } from '@/lib/constants';
 import { DOSE_PRESETS as PEPTIDE_PRESETS_DATA, type DoseUnit } from '@/data/dose-presets';
 
@@ -436,10 +436,9 @@ export default function DoseCalculator() {
     if (navigator.share) {
       try { await navigator.share({ title: `حساب جرعة ${selectedPreset}`, text }); } catch { /* cancelled */ }
     } else {
-      try {
-        await navigator.clipboard.writeText(text);
-        toast.success('تم نسخ الحساب');
-      } catch { toast.error('تعذّر النسخ'); }
+      const ok = await copyToClipboard(text);
+      if (ok) { toast.success('تم نسخ الحساب'); }
+      else { toast.error('تعذّر النسخ'); }
     }
   }, [selectedPreset, doseValue, doseUnit, vialMg, waterMl, results]);
 
@@ -1267,8 +1266,9 @@ export default function DoseCalculator() {
                       if (navigator.share) {
                         try { await navigator.share({ title: 'نتيجة حاسبة التخفيف', text }); } catch { /* cancelled */ }
                       } else {
-                        try { await navigator.clipboard.writeText(text); toast.success('تم نسخ النتيجة'); }
-                        catch { toast.error('تعذّر النسخ'); }
+                        const ok = await copyToClipboard(text);
+                        if (ok) { toast.success('تم نسخ النتيجة'); }
+                        else { toast.error('تعذّر النسخ'); }
                       }
                     }}
                     className="flex items-center gap-2 rounded-xl border border-blue-200 dark:border-blue-800 bg-blue-50 dark:bg-blue-900/20 px-4 py-2 min-h-[44px] text-sm font-bold text-blue-700 dark:text-blue-400 transition-all hover:bg-blue-100"

@@ -18,6 +18,7 @@ interface BlogPost {
 }
 
 const BLOG_PAGE_SIZE = 12;
+const BLOG_CACHE_TTL = 30 * 60 * 1000; // 30 minutes
 
 export default function Blog() {
   const [posts, setPosts] = useState<BlogPost[]>([]);
@@ -60,23 +61,40 @@ export default function Blog() {
 
       if (cancelled) return;
       if (fetchError) {
-        // Try cache as fallback
+        // Try cache as fallback — only if within TTL
         try {
           const cached = localStorage.getItem('pptides_cache_blog_posts');
           if (cached) {
-            const { data: cachedData } = JSON.parse(cached) as { data: BlogPost[] };
-            setPosts(cachedData);
-            setHasMore(false);
-            setLoading(false);
-            return;
+            const parsed = JSON.parse(cached) as { ts: number; data: BlogPost[] };
+            if (Date.now() - parsed.ts < BLOG_CACHE_TTL) {
+              setPosts(parsed.data);
+              setHasMore(false);
+              setLoading(false);
+              return;
+            }
+            // Cache expired — remove stale data
+            localStorage.removeItem('pptides_cache_blog_posts');
           }
         } catch { /* ignore */ }
         setError('fetch');
       } else {
-        setPosts(data ?? []);
-        setHasMore((data ?? []).length === BLOG_PAGE_SIZE);
-        // Cache for offline use
-        try { localStorage.setItem('pptides_cache_blog_posts', JSON.stringify({ ts: Date.now(), data: data ?? [] })); } catch { /* quota */ }
+        const freshPosts = data ?? [];
+        setPosts(freshPosts);
+        setHasMore(freshPosts.length === BLOG_PAGE_SIZE);
+        // Cache-busting: compare latest published_at with cached version
+        // If a post was added or updated, invalidate old cache entirely
+        try {
+          const latestPublishedAt = freshPosts.length > 0 ? freshPosts[0].published_at : null;
+          const cached = localStorage.getItem('pptides_cache_blog_posts');
+          if (cached) {
+            const parsed = JSON.parse(cached) as { latestPublishedAt?: string };
+            if (parsed.latestPublishedAt && latestPublishedAt !== parsed.latestPublishedAt) {
+              // Content changed — clear old cache before writing fresh
+              localStorage.removeItem('pptides_cache_blog_posts');
+            }
+          }
+          localStorage.setItem('pptides_cache_blog_posts', JSON.stringify({ ts: Date.now(), latestPublishedAt, data: freshPosts }));
+        } catch { /* quota */ }
       }
       setLoading(false);
     })();
@@ -100,9 +118,10 @@ export default function Blog() {
       // Update cache
       try {
         const cached = localStorage.getItem('pptides_cache_blog_posts');
-        const existing = cached ? (JSON.parse(cached) as { data: BlogPost[] }).data : [];
-        const merged = [...existing, ...data];
-        localStorage.setItem('pptides_cache_blog_posts', JSON.stringify({ ts: Date.now(), data: merged }));
+        const parsed = cached ? JSON.parse(cached) as { data: BlogPost[]; latestPublishedAt?: string } : { data: [] as BlogPost[] };
+        const merged = [...parsed.data, ...data];
+        const latestPublishedAt = parsed.latestPublishedAt ?? (merged.length > 0 ? merged[0].published_at : null);
+        localStorage.setItem('pptides_cache_blog_posts', JSON.stringify({ ts: Date.now(), latestPublishedAt, data: merged }));
       } catch { /* quota */ }
     }
     setLoadingMore(false);

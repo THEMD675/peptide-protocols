@@ -14,26 +14,8 @@
     <link rel="alternate" hreflang="ar" href="https://pptides.com/" />
     <link rel="alternate" hreflang="x-default" href="https://pptides.com/" />
 
-    <!-- Open Graph -->
-    <meta property="og:type" content="website" />
-    <meta property="og:locale" content="ar_SA" />
-    <meta property="og:title" content="pptides | أشمل دليل عربي للببتيدات العلاجية" />
-    <meta property="og:description" content="48+ ببتيد مع بروتوكولات كاملة، حاسبة جرعات، دليل تحاليل، مدرب ذكي. 3 أيام مجانًا." />
-    <meta property="og:url" content="https://pptides.com/" />
-    <meta property="og:site_name" content="pptides" />
-    <meta property="og:image" content="https://pptides.com/og-image.jpg" />
-    <meta property="og:image:width" content="1200" />
-    <meta property="og:image:height" content="630" />
-    <meta property="og:image:alt" content="pptides — أشمل دليل عربي للببتيدات العلاجية" />
-
-    <!-- Twitter Card -->
-    <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="pptides | أشمل دليل عربي للببتيدات العلاجية" />
-    <meta name="twitter:description" content="48+ ببتيد مع بروتوكولات كاملة، حاسبة جرعات، دليل تحاليل، مدرب ذكي. 3 أيام مجانًا." />
-    <meta name="twitter:image" content="https://pptides.com/og-image.jpg" />
-    <meta name="twitter:site" content="@pptides" />
-    <meta name="twitter:creator" content="@pptides" />
-    <meta name="twitter:image:alt" content="pptides — أشمل دليل عربي للببتيدات العلاجية" />
+    <!-- OG/Twitter meta tags removed from static HTML — served dynamically by
+         middleware.ts → api/og.ts for social bots, and by react-helmet-async for JS users -->
 
     <!-- CSP is set via HTTP header in vercel.json — no meta tag needed -->
 
@@ -207,7 +189,6 @@
       // Prevent flash of wrong theme — apply dark class before paint
       (function(){try{var t=localStorage.getItem('pptides_theme');if(t==='dark'||(t==null&&window.matchMedia('(prefers-color-scheme:dark)').matches)){document.documentElement.classList.add('dark')}}catch(e){}})();
     </script>
-    <a href="#main-content" class="skip-link">تخطّي إلى المحتوى</a>
     <div id="root"></div>
     <noscript>
       <div dir="rtl" style="text-align:center;padding:60px 20px;font-family:Cairo,sans-serif;">

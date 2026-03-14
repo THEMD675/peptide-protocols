@@ -222,7 +222,8 @@ export default function TrackerHistory({
       const rows = (allLogs ?? []) as InjectionLog[];
       const html2canvas = (await import('html2canvas')).default;
       const container = document.createElement('div');
-      container.style.cssText = 'position:fixed;top:-9999px;right:0;width:800px;padding:40px;background:#fff;direction:rtl;font-family:Cairo,sans-serif;';
+      container.setAttribute('dir', 'rtl');
+      container.style.cssText = 'position:fixed;top:-9999px;right:0;width:800px;padding:40px;background:#fff;direction:rtl;unicode-bidi:embed;font-family:Cairo,sans-serif;';
       container.innerHTML = `
         <div style="text-align:center;margin-bottom:24px;">
           <h1 style="font-size:24px;color:#059669;margin:0;">سجل الحقن — pptides</h1>

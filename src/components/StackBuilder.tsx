@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { toast } from 'sonner';
+import { copyToClipboard } from '@/lib/utils';
 import {
   Beaker, Shield, ShieldAlert, ShieldCheck, ShieldX,
   Clock, DollarSign, BarChart3, Syringe, X, ChevronDown,
@@ -442,12 +443,11 @@ export default function StackBuilder() {
     toast.success(`تم تحميل: ${stack.name}`);
   };
 
-  const handleShareLink = () => {
+  const handleShareLink = async () => {
     const url = `${window.location.origin}/stacks?stack=${selectedIds.join(',')}`;
-    navigator.clipboard.writeText(url).then(
-      () => toast.success('تم نسخ الرابط'),
-      () => toast.error('فشل نسخ الرابط'),
-    );
+    const ok = await copyToClipboard(url);
+    if (ok) { toast.success('تم نسخ الرابط'); }
+    else { toast.error('فشل نسخ الرابط'); }
   };
 
   const loadGoalStack = (stack: GoalStack) => {

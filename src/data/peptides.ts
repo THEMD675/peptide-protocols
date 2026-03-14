@@ -1406,6 +1406,8 @@ const STRUCTURED_DATA: Record<string, Partial<Pick<Peptide, 'doseMcg' | 'doseMax
   'kpv': { doseMcg: 500, doseMaxMcg: 1000, frequency: 'od', cycleDurationWeeks: 6, route: 'oral' },
   'll-37': { doseMcg: 200, doseMaxMcg: 400, frequency: 'od', cycleDurationWeeks: 3, route: 'subq' },
   'ara-290': { doseMcg: 2000, doseMaxMcg: 4000, frequency: 'od', cycleDurationWeeks: 6, route: 'subq' },
+  'orforglipron': { frequency: 'od', route: 'oral' },
+  'foxo4-dri': { doseMcg: 5000, doseMaxMcg: 10000, frequency: 'eod', cycleDurationWeeks: 3, route: 'subq' },
   'melanotan-ii': { doseMcg: 250, doseMaxMcg: 1000, frequency: 'od', route: 'subq' },
   'mk-677': { frequency: 'od', cycleDurationWeeks: 10, restPeriodWeeks: 6, route: 'oral' },
   'humanin': { doseMcg: 1000, doseMaxMcg: 5000, frequency: 'od', cycleDurationWeeks: 6, restPeriodWeeks: 4, route: 'subq' },

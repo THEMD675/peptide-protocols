@@ -25,16 +25,68 @@ export const supabase: SupabaseClient = createClient(
   },
 );
 
-if (supabaseUrl && typeof window !== 'undefined') {
-  fetch(`${supabaseUrl}/rest/v1/`, {
-    method: 'HEAD',
-    headers: { apikey: supabaseAnonKey || '' },
-  }).catch((err) => {
+// Supabase health check with exponential backoff (max 3 retries)
+export let supabaseHealthy = true;
+let healthCheckDone = false;
+
+async function checkSupabaseHealth(attempt = 0): Promise<void> {
+  const MAX_RETRIES = 3;
+  try {
+    const res = await fetch(`${supabaseUrl}/rest/v1/`, {
+      method: 'HEAD',
+      headers: { apikey: supabaseAnonKey || '' },
+    });
+    if (!res.ok && attempt < MAX_RETRIES) {
+      const delay = Math.min(1000 * 2 ** attempt, 8000);
+      await new Promise(r => setTimeout(r, delay));
+      return checkSupabaseHealth(attempt + 1);
+    }
+    supabaseHealthy = res.ok;
+  } catch (err) {
+    if (attempt < MAX_RETRIES) {
+      const delay = Math.min(1000 * 2 ** attempt, 8000);
+      await new Promise(r => setTimeout(r, delay));
+      return checkSupabaseHealth(attempt + 1);
+    }
+    supabaseHealthy = false;
     if (err instanceof TypeError) {
       toast.error(
         'يبدو أن مانع الإعلانات يحجب الاتصال — يرجى تعطيله لاستخدام التطبيق',
         { duration: 15000, id: 'adblocker-warning' },
       );
     }
-  });
+  }
+}
+
+/**
+ * Global auth-error handler for Supabase query results.
+ * Call after any `.from()` query to catch expired-session errors
+ * and show a toast with a login button instead of a cryptic message.
+ */
+export function handleAuthError(error: { message?: string; code?: string; status?: number } | null): boolean {
+  if (!error) return false;
+  const isAuthError =
+    error.message?.includes('JWT') ||
+    error.message?.includes('token') ||
+    error.code === 'PGRST301' ||
+    error.status === 401;
+  if (isAuthError) {
+    toast.error('انتهت جلستك — أعد تسجيل الدخول', {
+      id: 'session-expired',
+      duration: 10000,
+      action: {
+        label: 'تسجيل الدخول',
+        onClick: () => { window.location.href = '/login'; },
+      },
+    });
+    return true;
+  }
+  return false;
+}
+
+if (supabaseUrl && typeof window !== 'undefined' && !healthCheckDone) {
+  healthCheckDone = true;
+  checkSupabaseHealth();
+  // Re-check when user comes back online
+  window.addEventListener('online', () => checkSupabaseHealth(), { once: false });
 }

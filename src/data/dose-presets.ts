@@ -57,6 +57,9 @@ export const DOSE_PRESETS: DosePreset[] = [
   { name: 'NA-Semax-Amidate', dose: 400, unit: 'mcg', vialMg: 5, waterMl: 1, minDose: 200, maxDose: 1000 },
   { name: 'Testicular Bioregulators', dose: 10, unit: 'mg', vialMg: 20, waterMl: 1, minDose: 10, maxDose: 20 },
   { name: 'Copper Peptides Topical', dose: 200, unit: 'mcg', vialMg: 5, waterMl: 2, minDose: 100, maxDose: 500 },
+  { name: 'Orforglipron', dose: 3, unit: 'mg', vialMg: 45, waterMl: 1, minDose: 3, maxDose: 45 },
+  { name: 'MK-677 / Ibutamoren', dose: 25, unit: 'mg', vialMg: 25, waterMl: 1, minDose: 10, maxDose: 25 },
+  { name: 'VIP (Vasoactive Intestinal Peptide)', dose: 50, unit: 'mcg', vialMg: 1, waterMl: 1, minDose: 50, maxDose: 200 },
 ];
 
 const PT141_PRESET = DOSE_PRESETS.find(p => p.name === 'PT-141');

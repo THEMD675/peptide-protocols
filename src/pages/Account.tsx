@@ -7,7 +7,7 @@ import { Link, Navigate, useNavigate, useLocation } from 'react-router-dom';
 import { User, Crown, LogOut, Trash2, AlertTriangle, Mail, ArrowUpCircle, KeyRound, XCircle, Download, CreditCard, Gift, Copy, Share2, Check, Send, MessageSquare, UserCircle, Camera, BarChart3, Syringe, Bot, Calendar, Heart, FlaskConical, Moon, Sun, Chrome, Bell, BellOff } from 'lucide-react';
 
 import { toast } from 'sonner';
-import { cn, arPlural, sanitizeInput } from '@/lib/utils';
+import { cn, arPlural, sanitizeInput, copyToClipboard } from '@/lib/utils';
 import { SUPPORT_EMAIL, STATUS_LABELS, TIER_LABELS, PEPTIDE_COUNT, SITE_URL, PRICING } from '@/lib/constants';
 import { useTheme } from '@/hooks/useTheme';
 import { useAuth } from '@/contexts/AuthContext';
@@ -257,20 +257,31 @@ export default function Account() {
     if (!user) return;
     toast('جارٍ تجهيز بياناتك...');
     try {
+      const EXPORT_LIMIT = 10000;
       const [logsRes, protosRes, reviewsRes, communityRes, subsRes, wellnessRes, labRes, sideEffectRes, profileRes] = await Promise.all([
-        supabase.from('injection_logs').select('*').eq('user_id', user.id),
-        supabase.from('user_protocols').select('*').eq('user_id', user.id),
-        supabase.from('reviews').select('*').eq('user_id', user.id),
-        supabase.from('community_logs').select('*').eq('user_id', user.id),
-        supabase.from('subscriptions').select('*').eq('user_id', user.id),
-        supabase.from('wellness_logs').select('*').eq('user_id', user.id),
-        supabase.from('lab_results').select('*').eq('user_id', user.id),
-        supabase.from('side_effect_logs').select('*').eq('user_id', user.id),
-        supabase.from('user_profiles').select('*').eq('user_id', user.id),
+        supabase.from('injection_logs').select('*').eq('user_id', user.id).order('logged_at', { ascending: false }).limit(EXPORT_LIMIT),
+        supabase.from('user_protocols').select('*').eq('user_id', user.id).limit(EXPORT_LIMIT),
+        supabase.from('reviews').select('*').eq('user_id', user.id).limit(EXPORT_LIMIT),
+        supabase.from('community_logs').select('*').eq('user_id', user.id).limit(EXPORT_LIMIT),
+        supabase.from('subscriptions').select('*').eq('user_id', user.id).limit(EXPORT_LIMIT),
+        supabase.from('wellness_logs').select('*').eq('user_id', user.id).limit(EXPORT_LIMIT),
+        supabase.from('lab_results').select('*').eq('user_id', user.id).limit(EXPORT_LIMIT),
+        supabase.from('side_effect_logs').select('*').eq('user_id', user.id).limit(EXPORT_LIMIT),
+        supabase.from('user_profiles').select('*').eq('user_id', user.id).limit(EXPORT_LIMIT),
       ]);
       if (logsRes.error || protosRes.error || reviewsRes.error) {
         toast.error('تعذّر تحميل بعض البيانات. حاول مرة أخرى.');
         return;
+      }
+      // Warn if any table hit the export limit (data may be truncated)
+      const truncatedTables: string[] = [];
+      if ((logsRes.data?.length ?? 0) >= EXPORT_LIMIT) truncatedTables.push('سجل الحقن');
+      if ((wellnessRes.data?.length ?? 0) >= EXPORT_LIMIT) truncatedTables.push('سجل العافية');
+      if ((sideEffectRes.data?.length ?? 0) >= EXPORT_LIMIT) truncatedTables.push('الآثار الجانبية');
+      if ((communityRes.data?.length ?? 0) >= EXPORT_LIMIT) truncatedTables.push('منشورات المجتمع');
+      if ((labRes.data?.length ?? 0) >= EXPORT_LIMIT) truncatedTables.push('نتائج المختبر');
+      if (truncatedTables.length > 0) {
+        toast.warning(`تم تصدير أحدث ${EXPORT_LIMIT.toLocaleString()} سجل فقط في: ${truncatedTables.join('، ')}. تواصل مع الدعم لتصدير كامل.`, { duration: 8000 });
       }
 
       const download = (blob: Blob, filename: string) => {
@@ -605,6 +616,7 @@ export default function Account() {
                 placeholder="name@example.com"
                 dir="ltr"
                 autoComplete="email"
+                maxLength={254}
                 className="w-full rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 px-4 py-3 text-left text-base text-stone-900 dark:text-stone-100 placeholder:text-stone-500 dark:text-stone-300 focus:border-emerald-300 dark:border-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900"
               />
             </div>
@@ -1289,21 +1301,21 @@ function ReferralSection({ userId }: { userId?: string }) {
   const shareText = REFERRAL.shareText(shareUrl);
 
   const handleCopy = async () => {
-    try {
-      await navigator.clipboard.writeText(shareUrl);
+    const ok = await copyToClipboard(shareUrl);
+    if (ok) {
       setCopied(true);
       toast.success(REFERRAL.copySuccess);
       setTimeout(() => setCopied(false), 2000);
-    } catch { toast.error('تعذّر النسخ'); }
+    } else { toast.error('تعذّر النسخ'); }
   };
 
   const handleCopyReward = async (rewardCode: string) => {
-    try {
-      await navigator.clipboard.writeText(rewardCode);
+    const ok = await copyToClipboard(rewardCode);
+    if (ok) {
       setCopiedReward(rewardCode);
       toast.success('تم نسخ كود المكافأة');
       setTimeout(() => setCopiedReward(null), 2000);
-    } catch { toast.error('تعذّر النسخ'); }
+    } else { toast.error('تعذّر النسخ'); }
   };
 
   if (loading) return (

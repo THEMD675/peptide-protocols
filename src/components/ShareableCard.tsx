@@ -3,6 +3,7 @@ import { Share2, Copy, Check, MessageCircle, Download, Twitter, Send } from 'luc
 import { useState } from 'react';
 import { toast } from 'sonner';
 import { SITE_URL, FREQUENCY_LABELS } from '@/lib/constants';
+import { copyToClipboard } from '@/lib/utils';
 
 interface ShareableCardProps {
   peptideName: string;
@@ -34,12 +35,12 @@ export default memo(function ShareableCard(props: ShareableCardProps) {
   };
 
   const handleCopy = async () => {
-    try {
-      await navigator.clipboard.writeText(shareBody + `\n\n${SITE_URL}`);
+    const ok = await copyToClipboard(shareBody + `\n\n${SITE_URL}`);
+    if (ok) {
       setCopied(true);
       toast.success('تم نسخ البروتوكول');
       setTimeout(() => setCopied(false), 2000);
-    } catch {
+    } else {
       toast.error('تعذّر نسخ النص — حاول مرة أخرى');
     }
   };

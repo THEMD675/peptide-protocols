@@ -15,6 +15,30 @@ export function arPlural(count: number, singular: string, dual: string, plural: 
   return `${n} ${accusative ?? singular}`;
 }
 
+/**
+ * Copy text to clipboard with fallback for in-app browsers (Instagram, TikTok, etc.)
+ * where navigator.clipboard.writeText is blocked.
+ */
+export async function copyToClipboard(text: string): Promise<boolean> {
+  try {
+    await navigator.clipboard.writeText(text);
+    return true;
+  } catch {
+    try {
+      const ta = document.createElement('textarea');
+      ta.value = text;
+      ta.style.cssText = 'position:fixed;left:-9999px;top:-9999px';
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand('copy');
+      document.body.removeChild(ta);
+      return true;
+    } catch {
+      return false;
+    }
+  }
+}
+
 /** Strip HTML tags and limit length — use before any DB insert of user text */
 export function sanitizeInput(s: string, maxLength = 2000): string {
   return s.trim().replace(/<[^>]+>/g, '').slice(0, maxLength);

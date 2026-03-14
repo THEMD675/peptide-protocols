@@ -21,6 +21,7 @@ const PEPTIDE_META: Record<string, { nameAr: string; nameEn: string; summaryAr: 
   'semaglutide': { nameAr: 'سيماغلوتايد', nameEn: 'Semaglutide', summaryAr: 'أشهر ببتيد معتمد لإنقاص الوزن — يحقق فقدان 15-20% من وزن الجسم عبر تقليل الشهية وتحسين حساسية الأنسولين.' },
   'tirzepatide': { nameAr: 'تيرزيباتايد', nameEn: 'Tirzepatide', summaryAr: 'أحدث وأقوى ببتيد لإنقاص الوزن — الناهض المزدوج الأول (GLP-1 + GIP) يحقق فقدان وزن يصل إلى 22.5%.' },
   'retatrutide': { nameAr: 'ريتاتروتايد', nameEn: 'Retatrutide', summaryAr: 'أول ناهض ثلاثي المستقبلات يستهدف GLP-1 وGIP والجلوكاجون معًا، محققًا فقدان وزن يصل إلى 24%.' },
+  'orforglipron': { nameAr: 'أورفورغليبرون', nameEn: 'Orforglipron', summaryAr: 'أول GLP-1 فموي غير ببتيدي — حبة يومية بدلاً من حقن أسبوعية. سيغيّر قواعد اللعبة في علاج السمنة.' },
   'tesamorelin': { nameAr: 'تيساموريلين', nameEn: 'Tesamorelin', summaryAr: 'ببتيد GHRH معتمد من FDA يستهدف الدهون الحشوية تحديدًا ويحفّز هرمون النمو بنمط فسيولوجي طبيعي.' },
   'aod-9604': { nameAr: 'AOD-9604', nameEn: 'AOD-9604', summaryAr: 'جزء معزول من هرمون النمو يستهدف حرق الدهون فقط دون رفع سكر الدم أو IGF-1.' },
   '5-amino-1mq': { nameAr: '5-أمينو-1MQ', nameEn: '5-Amino-1MQ', summaryAr: 'جزيء فموي يثبّط إنزيم NNMT لزيادة حرق الدهون ورفع NAD+.' },

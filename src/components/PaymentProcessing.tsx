@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Loader2, CheckCircle, BookOpen, Bot, Calculator } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { PEPTIDE_COUNT, SUPPORT_EMAIL } from '@/lib/constants';
+import { events } from '@/lib/analytics';
 
 export default function PaymentProcessing() {
   const navigate = useNavigate();
@@ -44,6 +45,7 @@ export default function PaymentProcessing() {
       queueMicrotask(() => {
         setStage('success');
         setProgress(100);
+        events.subscriptionCreated(subscription.tier);
         if (timerRef.current) clearInterval(timerRef.current);
         // Clean URL so refresh doesn't re-show overlay
         try {
@@ -77,7 +79,7 @@ export default function PaymentProcessing() {
         {stage === 'success' ? (
           <>
             {/* CSS Confetti */}
-            <div className="pointer-events-none fixed inset-0 z-[10000] overflow-hidden" aria-hidden="true">
+            <div className="pointer-events-none fixed inset-0 z-[9998] overflow-hidden" aria-hidden="true">
               {confettiParticles.map((p, i) => (
                 <div
                   key={i}
@@ -134,7 +136,10 @@ export default function PaymentProcessing() {
             <h2 className="text-xl font-bold text-stone-900 dark:text-stone-100">لم نتمكن من التأكد من الدفع</h2>
             <p className="mt-2 text-sm text-stone-600 dark:text-stone-300">إذا تم خصم المبلغ، سيتم تفعيل اشتراكك خلال دقائق. تواصل معنا إذا استمرت المشكلة:</p>
             <a href={`mailto:${SUPPORT_EMAIL}?subject=تفعيل الاشتراك`} className="mt-4 inline-block text-emerald-700 font-bold underline">{SUPPORT_EMAIL}</a>
-            <button onClick={() => navigateTo('/dashboard')} className="mt-6 w-full rounded-full bg-emerald-600 py-3 text-sm font-bold text-white hover:bg-emerald-700 transition-colors">
+            <button onClick={() => window.location.reload()} className="mt-6 w-full rounded-full bg-emerald-600 py-3 text-sm font-bold text-white hover:bg-emerald-700 transition-colors min-h-[44px]">
+              حاول مرة أخرى
+            </button>
+            <button onClick={() => navigateTo('/dashboard')} className="mt-3 w-full rounded-full border border-stone-200 dark:border-stone-600 py-3 text-sm font-bold text-stone-700 dark:text-stone-200 hover:bg-stone-50 dark:hover:bg-stone-800 transition-colors min-h-[44px]">
               العودة للوحة التحكم
             </button>
           </>

@@ -16,7 +16,7 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { events } from '@/lib/analytics';
-import { cn } from '@/lib/utils';
+import { cn, copyToClipboard } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
 import { peptidesLite as allPeptides } from '@/data/peptides-lite';
@@ -58,13 +58,12 @@ function formatDate(iso: string, useHijri = false) {
   return useHijri ? hijriFormatter.format(d) : gregorianFormatter.format(d);
 }
 
-function computeStreak(logs: InjectionLog[], includeToday = false): number {
-  const daySet = new Set(logs.map(l => new Date(l.logged_at).toDateString()));
-  if (includeToday) daySet.add(new Date().toDateString());
+function computeStreak(daySet: Set<string>, includeToday = false): number {
+  const set = includeToday ? new Set([...daySet, new Date().toDateString()]) : daySet;
   let streak = 0;
   const d = new Date();
-  if (!daySet.has(d.toDateString())) d.setDate(d.getDate() - 1);
-  while (daySet.has(d.toDateString())) { streak++; d.setDate(d.getDate() - 1); }
+  if (!set.has(d.toDateString())) d.setDate(d.getDate() - 1);
+  while (set.has(d.toDateString())) { streak++; d.setDate(d.getDate() - 1); }
   return streak;
 }
 
@@ -205,7 +204,7 @@ export default function Tracker() {
       const nextIn = freq === 'bid' ? '12 ساعة' : freq === 'tid' ? '8 ساعات' : 'غدًا';
       setTimeout(() => toast(`الجرعة التالية: ${nextIn}`, { duration: 5000 }), 2000);
       const newTotal = (totalCount || logs.length) + 1;
-      celebrate(newTotal, computeStreak(logs, true));
+      celebrate(newTotal, computeStreak(streakDaySet, true));
     } catch { toast.error('تعذّر حفظ الحقنة — تحقق من اتصالك وحاول مرة أخرى'); }
     finally { setIsSubmitting(false); }
   };
@@ -236,7 +235,7 @@ export default function Tracker() {
       await fetchLogs();
       toast.success(`تم تسجيل ${last.peptide_name} — ${last.dose} ${last.dose_unit}`);
       const newTotal = (totalCount || logs.length) + 1;
-      celebrate(newTotal, computeStreak(logs, true));
+      celebrate(newTotal, computeStreak(streakDaySet, true));
     } catch { toast.error('تعذّر حفظ الحقنة — تحقق من اتصالك وحاول مرة أخرى'); }
     finally { setIsSubmitting(false); }
   };
@@ -244,21 +243,44 @@ export default function Tracker() {
   // Stats data
   const [fullStatsData, setFullStatsData] = useState<{ uniquePeptides: number; last7: number } | null>(null);
   const [allLogsForStats, setAllLogsForStats] = useState<InjectionLog[]>([]);
+  // Dedicated lightweight set of ALL distinct log dates for accurate streak calculation
+  const [streakDaySet, setStreakDaySet] = useState<Set<string>>(new Set());
   useEffect(() => {
     if (!user) return;
     let mounted = true;
+    // Single unbounded query for all stats (logged_at, injection_site, peptide_name)
+    // plus a lightweight count for last-7-days. This replaces 4 separate queries.
     Promise.all([
-      supabase.from('injection_logs').select('peptide_name').eq('user_id', user.id).limit(10000),
+      // Paginate to fetch ALL rows (Supabase default cap is 1000)
+      (async () => {
+        let allRows: { logged_at: string; injection_site: string; peptide_name: string }[] = [];
+        let from = 0;
+        const batchSize = 1000;
+        while (true) {
+          const { data, error } = await supabase
+            .from('injection_logs')
+            .select('logged_at, injection_site, peptide_name')
+            .eq('user_id', user.id)
+            .order('logged_at', { ascending: false })
+            .range(from, from + batchSize - 1);
+          if (error) { console.error('injection_logs stats query failed:', error); break; }
+          if (!data || data.length === 0) break;
+          allRows = allRows.concat(data);
+          if (data.length < batchSize) break;
+          from += batchSize;
+        }
+        return allRows;
+      })(),
       supabase.from('injection_logs').select('id', { count: 'exact', head: true }).eq('user_id', user.id).gte('logged_at', new Date(Date.now() - 7 * 86400000).toISOString()),
-      supabase.from('injection_logs').select('logged_at, injection_site, peptide_name').eq('user_id', user.id).order('logged_at', { ascending: false }).limit(10000),
-    ]).then(([pepRes, weekRes, allRes]) => {
+    ]).then(([allRows, weekRes]) => {
       if (!mounted) return;
-      if (pepRes.error) console.error('injection_logs peptide_name query failed:', pepRes.error);
       if (weekRes.error) console.error('injection_logs weekly count failed:', weekRes.error);
-      if (allRes.error) console.error('injection_logs full stats query failed:', allRes.error);
-      const unique = new Set((pepRes.data ?? []).map((r: { peptide_name: string }) => r.peptide_name)).size;
+      const unique = new Set(allRows.map(r => r.peptide_name)).size;
       setFullStatsData({ uniquePeptides: unique, last7: weekRes.count ?? 0 });
-      setAllLogsForStats((allRes.data as InjectionLog[]) ?? []);
+      setAllLogsForStats(allRows as InjectionLog[]);
+      // Build complete day set for streak from the same data
+      const days = new Set(allRows.map(r => new Date(r.logged_at).toDateString()));
+      setStreakDaySet(days);
     }).catch(() => {});
     return () => { mounted = false; };
   }, [user, logs.length]);
@@ -267,14 +289,14 @@ export default function Tracker() {
     if (logs.length === 0) return null;
     const totalInjections = totalCount || logs.length;
     const uniquePeptides = fullStatsData?.uniquePeptides ?? new Set(logs.map(l => l.peptide_name)).size;
-    const streak = computeStreak(allLogsForStats.length > 0 ? allLogsForStats : logs);
+    const streak = computeStreak(streakDaySet);
     const last7 = fullStatsData?.last7 ?? logs.filter(l => Date.now() - new Date(l.logged_at).getTime() < 7 * 24 * 60 * 60 * 1000).length;
     const msSinceLast = Date.now() - new Date(logs[0].logged_at).getTime();
     const hoursSince = Math.floor(msSinceLast / (1000 * 60 * 60));
     const daysSince = Math.floor(hoursSince / 24);
     const timeSinceLabel = daysSince > 0 ? `منذ ${daysSince} يوم` : hoursSince > 0 ? `منذ ${hoursSince} ساعة` : 'الآن';
     return { totalInjections, uniquePeptides, streak, last7, timeSinceLabel };
-  }, [logs, allLogsForStats, totalCount, fullStatsData?.last7, fullStatsData?.uniquePeptides]);
+  }, [logs, streakDaySet, totalCount, fullStatsData?.last7, fullStatsData?.uniquePeptides]);
 
   const monthlySummary = useMemo(() => {
     const src = allLogsForStats.length > 0 ? allLogsForStats : logs;
@@ -289,9 +311,9 @@ export default function Tracker() {
     const units = new Set(thisMonth.map(l => l.dose_unit));
     const avgDose = units.size === 1 ? Math.round((thisMonth.reduce((sum, l) => sum + l.dose, 0) / thisMonth.length) * 10) / 10 : null;
     const avgUnit = units.size === 1 ? (thisMonth[0]?.dose_unit ?? 'mcg') : null;
-    const streak = computeStreak(src);
+    const streak = computeStreak(streakDaySet);
     return { totalInjections, mostUsedPeptide: mostUsed?.[0] ?? '', mostUsedCount: mostUsed?.[1] ?? 0, avgDose, avgUnit, streak };
-  }, [logs, allLogsForStats]);
+  }, [logs, allLogsForStats, streakDaySet]);
 
   const weeklyActivity = useMemo(() => {
     const src = allLogsForStats.length > 0 ? allLogsForStats : logs;
@@ -566,7 +588,7 @@ export default function Tracker() {
                           const pepName = peptide?.nameAr ?? proto.peptide_id;
                           const injCount = logs.filter(l => l.peptide_name === (peptide?.nameEn ?? proto.peptide_id)).length;
                           const text = `أكملت دورة ${pepName} على pptides! — ${totalDays} يوم — ${injCount} حقنة. pptides.com`;
-                          try { if (navigator.share) { await navigator.share({ text }); } else { await navigator.clipboard.writeText(text); toast.success('تم نسخ الرسالة'); } } catch { /* user cancelled */ }
+                          try { if (navigator.share) { await navigator.share({ text }); } else { await copyToClipboard(text); toast.success('تم نسخ الرسالة'); } } catch { /* user cancelled */ }
                         }}
                         className="inline-flex items-center gap-2 rounded-full bg-emerald-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-emerald-700"
                       >
@@ -691,7 +713,7 @@ export default function Tracker() {
           totalCount={totalCount}
           logsLength={logs.length}
           celebrate={celebrate}
-          computeStreak={() => computeStreak(logs, true)}
+          computeStreak={() => computeStreak(streakDaySet, true)}
           activeProtocols={activeProtocols.map(p => ({ peptide_id: p.peptide_id, frequency: p.frequency }))}
         />
       )}

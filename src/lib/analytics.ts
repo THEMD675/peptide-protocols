@@ -131,4 +131,10 @@ export const events = {
 
   // Contact / enquiry
   enquirySubmit: () => trackEvent('enquiry_submit'),
+
+  // Conversion funnel
+  trialStarted: (tier: string) => trackEvent('trial_started', { tier }),
+  subscriptionCreated: (tier: string, billing?: string) => trackEvent('subscription_created', { tier, billing }),
+  subscriptionCancelled: (tier: string) => trackEvent('subscription_cancelled', { tier }),
+  featureUsedFirstTime: (feature: string) => trackEvent('feature_used_first_time', { feature }),
 } as const;

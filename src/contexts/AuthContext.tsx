@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { supabase } from '@/lib/supabase';
 import { SUPPORT_EMAIL } from '@/lib/constants';
+import { events } from '@/lib/analytics';
 import type { User as SupabaseUser, Session } from '@supabase/supabase-js';
 
 type SubscriptionTier = 'free' | 'essentials' | 'elite';
@@ -155,6 +156,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [subscription, setSubscription] = useState<Subscription>(DEFAULT_SUBSCRIPTION);
   const [isLoading, setIsLoading] = useState(true);
 
+  const trialEventFiredRef = useRef(false);
+
   const fetchSubscription = useCallback(async (userId: string) => {
     try {
       // Guard: only query subscriptions when there's a valid session (prevents 401 for logged-out users)
@@ -184,7 +187,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
 
 
-      setSubscription(buildSubscription(data));
+      const built = buildSubscription(data);
+      setSubscription(built);
+
+      // Fire trial_started event once per session when a trial is first detected
+      if (built.isTrial && !trialEventFiredRef.current) {
+        trialEventFiredRef.current = true;
+        events.trialStarted(built.tier);
+      }
     } catch {
       toast.error('تعذّر تحميل بيانات الاشتراك. حاول تحديث الصفحة.');
       setSubscription(DEFAULT_SUBSCRIPTION);

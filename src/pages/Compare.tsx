@@ -14,7 +14,7 @@ import {
   ChevronLeft,
 } from 'lucide-react';
 import { toast } from 'sonner';
-import { cn } from '@/lib/utils';
+import { cn, copyToClipboard } from '@/lib/utils';
 import { peptides, type Peptide } from '@/data/peptides';
 import { categoryLabels, evidenceLabels } from '@/lib/peptide-labels';
 import { SITE_URL } from '@/lib/constants';
@@ -301,12 +301,12 @@ export default function Compare() {
   }, [ids]);
 
   const handleShare = async () => {
-    try {
-      await navigator.clipboard.writeText(shareUrl);
+    const ok = await copyToClipboard(shareUrl);
+    if (ok) {
       setCopied(true);
       toast.success('تم نسخ رابط المقارنة ✓', { description: 'شاركه مع أي شخص ليرى نفس المقارنة' });
       setTimeout(() => setCopied(false), 2500);
-    } catch {
+    } else {
       toast.error('فشل نسخ الرابط');
     }
   };

@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import { useScrollReveal } from '@/hooks/useScrollReveal';
 import { Helmet } from 'react-helmet-async';
-import { Link, useSearchParams } from 'react-router-dom';
+import { Link, useSearchParams, useNavigate } from 'react-router-dom';
 import {
   MessageSquare, Send, Clock, FlaskConical, User, Flag, Star, MessageCircle,
   ChevronDown, ChevronUp, Trash2, BadgeCheck, ThumbsUp, Search, X, Trophy,
@@ -348,6 +348,7 @@ function Leaderboard({ leaders }: { leaders: LeaderEntry[] }) {
 
 export default function Community() {
   useScrollReveal();
+  const navigate = useNavigate();
   const { user, subscription } = useAuth();
   const [logs, setLogs] = useState<LogEntry[]>([]);
   const [loading, setLoading] = useState(true);
@@ -448,15 +449,26 @@ export default function Community() {
 
   const loadReplyCounts = useCallback(async (postIds: string[]) => {
     if (postIds.length === 0) return;
-    const { data } = await supabase
-      .from('community_replies')
-      .select('post_id')
-      .in('post_id', postIds);
-    if (data) {
-      const counts: Record<string, number> = {};
-      for (const r of data) counts[r.post_id] = (counts[r.post_id] ?? 0) + 1;
-      setReplyCountByPost(prev => ({ ...prev, ...counts }));
+    // Single batch query: fetch post_id + id, paginate to avoid 1000-row default cap
+    let allRows: { post_id: string }[] = [];
+    let from = 0;
+    const batchSize = 1000;
+    while (true) {
+      const { data } = await supabase
+        .from('community_replies')
+        .select('post_id')
+        .in('post_id', postIds)
+        .range(from, from + batchSize - 1);
+      if (!data || data.length === 0) break;
+      allRows = allRows.concat(data);
+      if (data.length < batchSize) break;
+      from += batchSize;
     }
+    const counts: Record<string, number> = {};
+    // Initialize all requested posts to 0 so missing ones show 0 not undefined
+    for (const id of postIds) counts[id] = 0;
+    for (const r of allRows) counts[r.post_id] = (counts[r.post_id] ?? 0) + 1;
+    setReplyCountByPost(prev => ({ ...prev, ...counts }));
   }, []);
 
   const loadLeaderboard = useCallback(async () => {
@@ -1291,19 +1303,20 @@ export default function Community() {
                         {(() => {
                           const isLong = (log.results?.length ?? 0) > 200;
                           const isExpanded = expandedPosts.has(log.id);
-                          if (!isLong) return <p>{log.results}</p>;
-                          const display = isExpanded ? log.results : `${log.results!.slice(0, 200)}...`;
+                          if (!isLong) return <p className="whitespace-pre-line break-words overflow-hidden">{log.results}</p>;
                           return (
-                            <p className={!isExpanded ? 'line-clamp-4' : ''}>
-                              {display}
+                            <div>
+                              <p className={cn('whitespace-pre-line break-words overflow-hidden', !isExpanded && 'line-clamp-6')}>
+                                {log.results}
+                              </p>
                               <button
                                 type="button"
                                 onClick={() => toggleExpand(log.id)}
-                                className="me-2 font-bold text-emerald-700 hover:underline"
+                                className="mt-2 text-sm font-bold text-emerald-700 dark:text-emerald-400 hover:underline"
                               >
-                                {isExpanded ? 'اقرأ أقل' : 'اقرأ المزيد'}
+                                {isExpanded ? 'عرض أقل' : 'عرض المزيد'}
                               </button>
-                            </p>
+                            </div>
                           );
                         })()}
                       </div>
@@ -1322,7 +1335,7 @@ export default function Community() {
                             <button
                               type="button"
                               onClick={async () => {
-                                if (!user) { toast('سجّل الدخول للتفاعل مع التجارب', { action: { label: 'تسجيل الدخول', onClick: () => window.location.href = '/login' } }); return; }
+                                if (!user) { toast('سجّل الدخول للتفاعل مع التجارب', { action: { label: 'تسجيل الدخول', onClick: () => navigate('/login') } }); return; }
                                 if (upvotedPosts.has(log.id)) return;
                                 const next = new Set(upvotedPosts).add(log.id);
                                 setUpvotedPosts(next);

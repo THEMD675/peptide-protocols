@@ -11,7 +11,7 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { events } from '@/lib/analytics';
-import { cn, arPlural } from '@/lib/utils';
+import { cn, arPlural, copyToClipboard } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
 import { SITE_URL, PRICING, TRIAL_DAYS } from '@/lib/constants';
 import ProtocolWizard from '@/components/ProtocolWizard';
@@ -960,10 +960,9 @@ export default function Coach() {
                     <button
                       onClick={async () => {
                         try {
-                          await navigator.clipboard.writeText(msg.content);
-                          setCopiedIdx(i);
-                          toast.success('تم النسخ');
-                          setTimeout(() => setCopiedIdx(null), 2000);
+                          const ok = await copyToClipboard(msg.content);
+                          if (ok) { setCopiedIdx(i); toast.success('تم النسخ'); setTimeout(() => setCopiedIdx(null), 2000); }
+                          else { toast.error('تعذّر نسخ المحتوى إلى الحافظة'); }
                         } catch {
                           toast.error('تعذّر نسخ المحتوى إلى الحافظة');
                         }
@@ -1010,10 +1009,9 @@ export default function Coach() {
                       <button
                         onClick={async () => {
                           try {
-                            await navigator.clipboard.writeText(msg.content);
-                            setCopiedIdx(i);
-                            toast.success('تم النسخ');
-                            setTimeout(() => setCopiedIdx(null), 2000);
+                            const ok = await copyToClipboard(msg.content);
+                            if (ok) { setCopiedIdx(i); toast.success('تم النسخ'); setTimeout(() => setCopiedIdx(null), 2000); }
+                            else { toast.error('تعذّر نسخ المحتوى إلى الحافظة'); }
                           } catch {
                             toast.error('تعذّر نسخ المحتوى إلى الحافظة');
                           }
@@ -1109,7 +1107,7 @@ export default function Coach() {
 
           {/* ═══ INPUT AREA ═══ */}
           {intakeStep === 'done' && (
-            <div className="border-t border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 p-4">
+            <div className="border-t border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 p-4 pb-[max(1rem,env(safe-area-inset-bottom))] md:pb-4">
               {limitReached ? (
                 subscription.tier === 'essentials' ? (
                 <div className="rounded-xl border-2 border-emerald-400 bg-gradient-to-b from-emerald-50 to-white dark:to-stone-950 p-6 text-center shadow-sm dark:shadow-stone-900/30">
@@ -1167,6 +1165,7 @@ export default function Coach() {
                       <textarea value={input} onChange={e => setInput(e.target.value)}
                         onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendToAI(input); } }}
                         onInput={e => { const t = e.currentTarget; t.style.height = 'auto'; t.style.height = Math.min(t.scrollHeight, 120) + 'px'; }}
+                        onFocus={e => { setTimeout(() => e.target.scrollIntoView({ behavior: 'smooth', block: 'center' }), 300); }}
                         placeholder="اكتب سؤالك هنا..." rows={2} maxLength={2000} disabled={isLoading}
                         dir="rtl"
                         aria-label="اكتب رسالتك"

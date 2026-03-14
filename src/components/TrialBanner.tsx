@@ -32,7 +32,7 @@ export default function TrialBanner() {
   const isFreePage = FREE_PATHS.some(p => pathname === p || pathname.startsWith(p + '/')) || isPeptideFree;
 
   const needsSubscription = !isLoading && user && subscription &&
-    !subscription.isPaidSubscriber && !subscription.isTrial;
+    !subscription.isProOrTrial;
 
   const showsBlockingModal = needsSubscription && !isFreePage;
 

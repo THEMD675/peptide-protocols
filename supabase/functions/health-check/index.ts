@@ -106,6 +106,38 @@ serve(async (req) => {
     checks.webhook_activity = { status: 'warning', detail: String(e), ms: Date.now() - errStart }
   }
 
+  // 8. Client errors in last 24h
+  const clientErrStart = Date.now()
+  try {
+    const admin = createClient(supabaseUrl, supabaseServiceKey)
+    const dayAgo = new Date(Date.now() - 24 * 3600000).toISOString()
+    const { count, error } = await admin.from('client_errors').select('id', { count: 'exact', head: true }).gte('created_at', dayAgo)
+    const errCount = count ?? 0
+    checks.client_errors_24h = {
+      status: error ? 'warning' : errCount > 100 ? 'error' : errCount > 20 ? 'warning' : 'ok',
+      detail: error ? error.message : `${errCount} client errors in last 24h`,
+      ms: Date.now() - clientErrStart,
+    }
+  } catch (e) {
+    checks.client_errors_24h = { status: 'warning', detail: String(e), ms: Date.now() - clientErrStart }
+  }
+
+  // 9. Admin audit log — recent failures
+  const auditStart = Date.now()
+  try {
+    const admin = createClient(supabaseUrl, supabaseServiceKey)
+    const dayAgo = new Date(Date.now() - 24 * 3600000).toISOString()
+    const { count, error } = await admin.from('admin_audit_log').select('id', { count: 'exact', head: true }).eq('success', false).gte('created_at', dayAgo)
+    const failCount = count ?? 0
+    checks.admin_failures_24h = {
+      status: error ? 'warning' : failCount > 10 ? 'error' : failCount > 0 ? 'warning' : 'ok',
+      detail: error ? error.message : `${failCount} failed admin actions in last 24h`,
+      ms: Date.now() - auditStart,
+    }
+  } catch (e) {
+    checks.admin_failures_24h = { status: 'warning', detail: String(e), ms: Date.now() - auditStart }
+  }
+
   const allOk = Object.values(checks).every(c => c.status === 'ok')
   const hasError = Object.values(checks).some(c => c.status === 'error')
 

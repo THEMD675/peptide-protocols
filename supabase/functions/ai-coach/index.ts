@@ -334,7 +334,7 @@ serve(async (req) => {
       });
     }
 
-    let body: { messages?: unknown; stream?: unknown }
+    let body: { messages?: unknown; stream?: unknown; conversationId?: unknown }
     try {
       body = JSON.parse(rawBody)
     } catch {
@@ -344,7 +344,18 @@ serve(async (req) => {
       })
     }
 
-    const { messages, stream } = body
+    const { messages, stream, conversationId } = body
+
+    // Validate conversationId ownership if provided
+    if (conversationId && typeof conversationId === 'string') {
+      const { data: conv } = await supabase.from('coach_conversations').select('user_id').eq('id', conversationId).single()
+      if (!conv || conv.user_id !== user.id) {
+        return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+          status: 403,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        })
+      }
+    }
     if (!Array.isArray(messages) || messages.length === 0) {
       return new Response(JSON.stringify({ error: 'الرسائل غير صحيحة' }), {
         status: 400,

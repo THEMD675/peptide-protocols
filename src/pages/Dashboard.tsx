@@ -27,7 +27,7 @@ import {
   AlertCircle,
 } from 'lucide-react';
 import { toast } from 'sonner';
-import { cn, arPlural } from '@/lib/utils';
+import { cn, arPlural, copyToClipboard } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
 import { PEPTIDE_COUNT, STATUS_LABELS, TIER_LABELS, FREQUENCY_LABELS, STORAGE_KEYS } from '@/lib/constants';
@@ -935,7 +935,7 @@ export default function Dashboard() {
                           if (navigator.share) {
                             await navigator.share({ title: 'شهادة إتمام بروتوكول', text }).catch(() => {});
                           } else {
-                            await navigator.clipboard.writeText(text).catch(() => {});
+                            await copyToClipboard(text);
                             toast.success('تم نسخ الشهادة');
                           }
                         }}
@@ -1381,7 +1381,7 @@ export default function Dashboard() {
               localStorage.setItem(WELCOME_KEY, '1');
               if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
                 setTimeout(() => {
-                  import('canvas-confetti').then(m => m.default({ particleCount: 60, spread: 80, origin: { y: 0.5 }, colors: ['#10b981', '#f59e0b', '#8b5cf6', '#3b82f6'], zIndex: 9999 }));
+                  import('canvas-confetti').then(m => m.default({ particleCount: 60, spread: 80, origin: { y: 0.5 }, colors: ['#10b981', '#f59e0b', '#8b5cf6', '#3b82f6'], zIndex: 9999 })).catch(() => {});
                 }, 700);
               }
             }

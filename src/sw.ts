@@ -1,8 +1,5 @@
 import { cleanupOutdatedCaches, precacheAndRoute } from 'workbox-precaching';
 import { registerRoute, NavigationRoute } from 'workbox-routing';
-import { CacheFirst, NetworkFirst } from 'workbox-strategies';
-import { ExpirationPlugin } from 'workbox-expiration';
-import { CacheableResponsePlugin } from 'workbox-cacheable-response';
 
 declare let self: ServiceWorkerGlobalScope;
 
@@ -42,33 +39,6 @@ precacheAndRoute(self.__WB_MANIFEST);
 // ═══ Offline fallback page ═══
 const OFFLINE_PAGE = '/offline.html';
 const OFFLINE_CACHE = 'pptides-offline-v2';
-
-// ═══ Runtime caching: Google Fonts ═══
-// NOTE: These must live in sw.ts (not vite.config.ts workbox section)
-// because injectManifest strategy only injects __WB_MANIFEST; workbox
-// plugin-level runtimeCaching is silently ignored with injectManifest.
-
-registerRoute(
-  ({ url }) => url.origin === 'https://fonts.googleapis.com',
-  new CacheFirst({
-    cacheName: 'google-fonts-stylesheets',
-    plugins: [
-      new CacheableResponsePlugin({ statuses: [0, 200] }),
-      new ExpirationPlugin({ maxEntries: 10, maxAgeSeconds: 60 * 60 * 24 * 365 }),
-    ],
-  })
-);
-
-registerRoute(
-  ({ url }) => url.origin === 'https://fonts.gstatic.com',
-  new CacheFirst({
-    cacheName: 'google-fonts-webfonts',
-    plugins: [
-      new CacheableResponsePlugin({ statuses: [0, 200] }),
-      new ExpirationPlugin({ maxEntries: 30, maxAgeSeconds: 60 * 60 * 24 * 365 }),
-    ],
-  })
-);
 
 // ═══ Navigation fallback: app shell for all non-API routes ═══
 // Serve offline.html when a navigation request fails (no network, no precache match)
