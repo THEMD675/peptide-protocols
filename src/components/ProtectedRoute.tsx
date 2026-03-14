@@ -1,7 +1,7 @@
-import { createContext, useContext } from 'react';
+import { createContext, useContext, useState, useEffect } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
-import { ADMIN_EMAILS } from '@/lib/constants';
+import { isAdmin, isAdminSync } from '@/lib/constants';
 
 /** When true, the user's subscription has expired but they can view their own data read-only */
 const ReadOnlyContext = createContext(false);
@@ -19,8 +19,15 @@ interface ProtectedRouteProps {
 export default function ProtectedRoute({ children, requiresSubscription = true, requiresAdmin = false }: ProtectedRouteProps) {
   const { user, subscription, isLoading } = useAuth();
   const location = useLocation();
+  const [adminChecked, setAdminChecked] = useState(!requiresAdmin);
+  const [adminResult, setAdminResult] = useState(isAdminSync());
 
-  if (isLoading) return (
+  useEffect(() => {
+    if (!requiresAdmin || !user?.email) return;
+    isAdmin(user.email).then(v => { setAdminResult(v); setAdminChecked(true); });
+  }, [requiresAdmin, user?.email]);
+
+  if (isLoading || (requiresAdmin && !adminChecked)) return (
     <div className="flex min-h-screen items-center justify-center bg-stone-50 dark:bg-stone-950">
       <div className="flex flex-col items-center gap-4">
         <div className="h-10 w-10 animate-spin rounded-full border-4 border-emerald-200 border-t-emerald-600" />
@@ -32,7 +39,7 @@ export default function ProtectedRoute({ children, requiresSubscription = true, 
     <Navigate to={`/login?redirect=${encodeURIComponent(location.pathname + location.search)}`} replace />
   );
 
-  if (requiresAdmin && (!user.email || !ADMIN_EMAILS.includes(user.email.toLowerCase()))) {
+  if (requiresAdmin && !adminResult) {
     return <Navigate to="/dashboard" replace />;
   }
 

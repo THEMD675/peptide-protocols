@@ -37,7 +37,23 @@ export const VALUE_SAVINGS_ELITE = '750 ر.س+';
 export const REFERRAL_CODE_REGEX = /^PP-[A-Z0-9]{6}$/i;
 
 export const SUPPORT_EMAIL = 'contact@pptides.com';
-export const ADMIN_EMAILS = ['abdullah@amirisgroup.co', 'abdullahalameer@gmail.com', 'contact@pptides.com'];
+// Admin check uses truncated SHA-256 hashes so emails aren't in the client bundle.
+// Real authorization is enforced server-side in edge functions.
+const ADMIN_HASHES = new Set(['9caf029e7d15881b','be5d3d48617efe3a','0537e83ca68d6f5e','2a9065084fdeea45']);
+async function hashEmail(email: string): Promise<string> {
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(email.toLowerCase()));
+  return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('').slice(0, 16);
+}
+export async function isAdmin(email: string | undefined): Promise<boolean> {
+  if (!email) return false;
+  return ADMIN_HASHES.has(await hashEmail(email));
+}
+// Synchronous version for initial render — populated after first async check
+let _cachedIsAdmin = false;
+export function isAdminSync(): boolean { return _cachedIsAdmin; }
+export function setAdminCache(v: boolean): void { _cachedIsAdmin = v; }
+// Legacy — kept for compatibility but now empty at build time
+export const ADMIN_EMAILS: string[] = [];
 export const USD_TO_SAR = 3.75;
 
 /** Free peptides + trial-exclusive peptides. The 5 IDs below are hardcoded trial-exclusive peptides (beyond FREE_PEPTIDE_IDS) — not in the free tier, but available during trial. */

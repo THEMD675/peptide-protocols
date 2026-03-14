@@ -6,7 +6,7 @@ import { cn } from '@/lib/utils';
 
 const FocusTrap = lazy(() => import('focus-trap-react'));
 import { useAuth } from '@/contexts/AuthContext';
-import { ADMIN_EMAILS, TIER_LABELS, STATUS_LABELS } from '@/lib/constants';
+import { isAdmin, isAdminSync, setAdminCache, TIER_LABELS, STATUS_LABELS } from '@/lib/constants';
 import NotificationBell from '@/components/NotificationBell';
 import { useTheme } from '@/hooks/useTheme';
 const GlobalSearch = lazy(() => import('@/components/GlobalSearch'));
@@ -59,9 +59,19 @@ export default memo(function Header() {
   const [moreOpen, setMoreOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
+  const [userIsAdmin, setUserIsAdmin] = useState(isAdminSync());
   const { toggleTheme, isDark } = useTheme();
   const dropdownRef = useRef<HTMLDivElement>(null);
   const moreDropdownRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (user?.email) {
+      isAdmin(user.email).then(v => { setUserIsAdmin(v); setAdminCache(v); });
+    } else {
+      setUserIsAdmin(false);
+      setAdminCache(false);
+    }
+  }, [user?.email]);
 
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
@@ -320,7 +330,7 @@ export default memo(function Header() {
                     >
                       إعدادات الحساب
                     </Link>
-                    {ADMIN_EMAILS.includes(user?.email ?? '') && (
+                    {userIsAdmin && (
                     <Link
                       to="/admin"
                       role="menuitem"
@@ -503,7 +513,7 @@ export default memo(function Header() {
                   <User className="h-4 w-4" />
                   إعدادات الحساب
                 </Link>
-                {ADMIN_EMAILS.includes(user?.email ?? '') && (
+                {userIsAdmin && (
                 <Link
                   to="/admin"
                   onClick={() => setMobileOpen(false)}
