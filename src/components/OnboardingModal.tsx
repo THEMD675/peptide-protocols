@@ -300,7 +300,7 @@ export default function OnboardingModal({ forceOpen, onClose: externalClose }: {
               <div className="space-y-3">
                 {getTrialPlan(selectedGoal).map((item, i) => (
                   <Link
-                    key={i}
+                    key={item.day}
                     to={item.to}
                     onClick={handleComplete}
                     className="flex items-center gap-4 rounded-xl border border-stone-200 dark:border-stone-600 px-4 py-4 transition-all hover:border-emerald-300 dark:border-emerald-700 hover:bg-emerald-50 dark:bg-emerald-900/20 min-h-[44px]"

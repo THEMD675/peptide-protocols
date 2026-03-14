@@ -878,6 +878,17 @@ export default function Coach() {
                     </div>
                   );
                 })()}
+                {/* Welcome empty state for new users */}
+                {intakeStep === 'goal' && messages.length === 0 && (
+                  <div className="flex flex-col items-center justify-center gap-3 py-12 text-center">
+                    <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-100 dark:bg-emerald-900/30">
+                      <Bot className="h-7 w-7 text-emerald-700" />
+                    </div>
+                    <h2 className="text-lg font-bold text-stone-900 dark:text-stone-100">مرحبًا بك في المدرب الذكي</h2>
+                    <p className="text-sm text-stone-600 dark:text-stone-300 max-w-sm">سأساعدك في اختيار البروتوكول المناسب لأهدافك الصحية</p>
+                  </div>
+                )}
+
                 {/* Coach greeting */}
                 <div className="flex justify-end">
                   <div className="max-w-[88%] rounded-2xl rounded-bl-md border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 px-5 py-3">

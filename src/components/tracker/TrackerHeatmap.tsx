@@ -52,6 +52,18 @@ export default function TrackerHeatmap({
   setHeatmapView,
   siteRotationData,
 }: TrackerHeatmapProps) {
+  if (!calendarData && !heatmapData && !siteRotationData) {
+    return (
+      <div className="animate-pulse">
+        <div className="grid grid-cols-7 gap-1">
+          {Array.from({ length: 35 }).map((_, i) => (
+            <div key={`skel-${i}`} className="aspect-square rounded bg-stone-200 dark:bg-stone-700" />
+          ))}
+        </div>
+      </div>
+    );
+  }
+
   return (
     <>
       {/* Monthly Calendar */}

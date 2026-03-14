@@ -18,6 +18,17 @@ if (hasConsent && import.meta.env.PROD) {
   import('@/lib/web-vitals').then(({ initWebVitals }) => initWebVitals()).catch(e => logError('web-vitals init failed:', e));
 }
 
+if (import.meta.env.PROD) {
+  const w = window as unknown as Record<string, unknown[]>;
+  w.dataLayer = w.dataLayer || [];
+  function gtag(...a: unknown[]) { w.dataLayer!.push(a); }
+  gtag('consent', 'default', {
+    ad_storage: 'denied', ad_user_data: 'denied',
+    ad_personalization: 'denied',
+    analytics_storage: hasConsent ? 'granted' : 'denied',
+  });
+}
+
 if (hasConsent && import.meta.env.PROD) {
   const ga4Id = import.meta.env.VITE_GA4_ID;
   if (ga4Id) {

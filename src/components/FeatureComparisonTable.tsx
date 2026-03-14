@@ -48,18 +48,18 @@ export default function FeatureComparisonTable() {
       </p>
 
       <div className="overflow-x-auto rounded-2xl border border-stone-200 dark:border-stone-600/60 bg-white dark:bg-stone-900 shadow-lg dark:shadow-stone-900/40">
-        <table className="w-full text-sm">
+        <table className="w-full text-sm" aria-label="مقارنة مزايا خطط الاشتراك">
           <thead>
             <tr className="border-b border-stone-200 dark:border-stone-600 bg-stone-50 dark:bg-stone-900">
-              <th className="px-5 py-4 text-start font-semibold text-stone-700 dark:text-stone-200 min-w-[100px] md:min-w-[140px]">الميزة</th>
-              <th className="px-4 py-4 text-center font-semibold text-stone-500 dark:text-stone-300 min-w-[70px] md:min-w-[100px]">
+              <th scope="col" className="px-5 py-4 text-start font-semibold text-stone-700 dark:text-stone-200 min-w-[100px] md:min-w-[140px]">الميزة</th>
+              <th scope="col" className="px-4 py-4 text-center font-semibold text-stone-500 dark:text-stone-300 min-w-[70px] md:min-w-[100px]">
                 مجاني
               </th>
-              <th className="px-4 py-4 text-center font-semibold text-stone-700 dark:text-stone-200 min-w-[80px] md:min-w-[120px]">
+              <th scope="col" className="px-4 py-4 text-center font-semibold text-stone-700 dark:text-stone-200 min-w-[80px] md:min-w-[120px]">
                 <span className="block">الأساسية</span>
                 <span className="text-xs font-normal text-stone-500 dark:text-stone-300">Essentials</span>
               </th>
-              <th className="px-4 py-4 text-center min-w-[80px] md:min-w-[120px]">
+              <th scope="col" className="px-4 py-4 text-center min-w-[80px] md:min-w-[120px]">
                 <div className="flex items-center justify-center gap-1.5 font-semibold text-emerald-700 dark:text-emerald-400">
                   <Crown className="h-4 w-4" />
                   <span>المتقدّمة</span>

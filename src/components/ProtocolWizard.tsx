@@ -112,7 +112,7 @@ export default function ProtocolWizard({ peptideId, prefillDose, prefillUnit, on
     <div role="dialog" aria-modal="true" aria-label="معالج البروتوكول" className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" onClick={onClose}>
       <div className="rounded-2xl bg-white dark:bg-stone-900 p-6 text-center" onClick={e => e.stopPropagation()}>
         <p className="text-stone-600 dark:text-stone-300">الببتيد غير موجود</p>
-        <button onClick={onClose} className="mt-4 rounded-full bg-emerald-600 px-6 py-2 text-sm font-bold text-white">إغلاق</button>
+        <button onClick={onClose} className="mt-4 rounded-full bg-emerald-600 px-6 py-2 min-h-[44px] text-sm font-bold text-white">إغلاق</button>
       </div>
     </div>
   );
@@ -204,6 +204,8 @@ export default function ProtocolWizard({ peptideId, prefillDose, prefillUnit, on
                 <label htmlFor="wizard-dose" className="mb-1 block text-sm font-bold text-stone-700 dark:text-stone-200">الجرعة</label>
                 <input
                   id="wizard-dose"
+                  name="peptide"
+                  required
                   type="number"
                   inputMode="decimal"
                   value={dose}
@@ -218,7 +220,7 @@ export default function ProtocolWizard({ peptideId, prefillDose, prefillUnit, on
               </div>
               <div className="w-24">
                 <label htmlFor="wizard-unit" className="mb-1 block text-sm font-bold text-stone-700 dark:text-stone-200">الوحدة</label>
-                <select id="wizard-unit" value={unit} onChange={e => setUnit(e.target.value)} className="w-full rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 px-3 py-3 text-base text-stone-900 dark:text-stone-100 focus:border-emerald-300 dark:border-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-500">
+                <select id="wizard-unit" name="dose_unit" required value={unit} onChange={e => setUnit(e.target.value)} className="w-full rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 px-3 py-3 text-base text-stone-900 dark:text-stone-100 focus:border-emerald-300 dark:border-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-500">
                   <option value="mcg">mcg</option>
                   <option value="mg">mg</option>
                 </select>
@@ -227,7 +229,7 @@ export default function ProtocolWizard({ peptideId, prefillDose, prefillUnit, on
 
             <div>
               <label htmlFor="wizard-frequency" className="mb-1 block text-sm font-bold text-stone-700 dark:text-stone-200">التكرار</label>
-              <select id="wizard-frequency" value={frequency} onChange={e => { const v = e.target.value; setFrequency(v as keyof typeof FREQUENCY_LABELS); }} className="w-full rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 px-4 py-3 text-base text-stone-900 dark:text-stone-100 focus:border-emerald-300 dark:border-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-500">
+              <select id="wizard-frequency" name="frequency" required value={frequency} onChange={e => { const v = e.target.value; setFrequency(v as keyof typeof FREQUENCY_LABELS); }} className="w-full rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 px-4 py-3 text-base text-stone-900 dark:text-stone-100 focus:border-emerald-300 dark:border-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-500">
                 {Object.entries(FREQUENCY_LABELS).map(([k, v]) => (
                   <option key={k} value={k}>{v}</option>
                 ))}
@@ -238,6 +240,8 @@ export default function ProtocolWizard({ peptideId, prefillDose, prefillUnit, on
               <label htmlFor="wizard-cycle" className="mb-1 block text-sm font-bold text-stone-700 dark:text-stone-200">مدة الدورة (أسابيع)</label>
               <input
                 id="wizard-cycle"
+                name="cycle_weeks"
+                required
                 type="number"
                 inputMode="numeric"
                 value={cycleWeeks}

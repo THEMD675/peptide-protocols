@@ -327,7 +327,7 @@ export default function InteractionChecker() {
 
         <div className="mb-6 space-y-3">
           {selected.map((sel, idx) => (
-            <div key={idx} className="flex items-center gap-2">
+            <div key={`slot-${idx}`} className="flex items-center gap-2">
               <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-emerald-100 dark:bg-emerald-900/30 text-xs font-bold text-emerald-700 dark:text-emerald-400">{idx + 1}</span>
               <select
                 value={sel}
@@ -360,12 +360,12 @@ export default function InteractionChecker() {
           ))}
           <div className="flex gap-2">
           {selected.length < 5 && (
-            <button onClick={addSlot} className="flex flex-1 items-center justify-center gap-2 rounded-xl border-2 border-dashed border-stone-200 dark:border-stone-600 py-3 text-sm font-medium text-stone-500 dark:text-stone-300 hover:border-emerald-300 dark:border-emerald-700 transition-colors hover:text-emerald-700">
+            <button onClick={addSlot} className="flex flex-1 items-center justify-center gap-2 rounded-xl border-2 border-dashed border-stone-200 dark:border-stone-600 py-3 min-h-[44px] text-sm font-medium text-stone-500 dark:text-stone-300 hover:border-emerald-300 dark:border-emerald-700 transition-colors hover:text-emerald-700">
               + أضف ببتيد آخر
             </button>
           )}
           {filledPeptides.length > 0 && (
-            <button onClick={resetAll} className="rounded-xl border border-stone-200 dark:border-stone-600 px-4 py-3 text-sm font-medium text-stone-500 dark:text-stone-300 hover:border-red-200 dark:border-red-800 hover:text-red-500 dark:text-red-400 transition-colors">
+            <button onClick={resetAll} className="rounded-xl border border-stone-200 dark:border-stone-600 px-4 py-3 min-h-[44px] text-sm font-medium text-stone-500 dark:text-stone-300 hover:border-red-200 dark:border-red-800 hover:text-red-500 dark:text-red-400 transition-colors">
               مسح الكل
             </button>
           )}
@@ -432,7 +432,7 @@ export default function InteractionChecker() {
               const name2 = p2?.nameEn ?? m2?.nameEn ?? pair.id2;
               const isGated = idx > 0 && !canSeeFullResults;
               return (
-                <div key={idx} className={cn(
+                <div key={`${pair.id1}-${pair.id2}`} className={cn(
                   'rounded-xl border p-4 transition-all hover:shadow-sm dark:shadow-stone-900/30',
                   !pair.result.safe ? 'border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-900/20' :
                   pair.result.warning ? 'border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-900/20' :

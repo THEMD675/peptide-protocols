@@ -238,7 +238,7 @@ export default function FAQ() {
             <button
               onClick={() => setSearch('')}
               aria-label="مسح البحث"
-              className="absolute end-4 top-1/2 -translate-y-1/2 flex h-6 w-6 items-center justify-center rounded-full bg-stone-200 dark:bg-stone-700 text-stone-500 dark:text-stone-300 transition-colors hover:bg-stone-300 dark:hover:bg-stone-600"
+              className="absolute end-4 top-1/2 -translate-y-1/2 flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full bg-stone-200 dark:bg-stone-700 text-stone-500 dark:text-stone-300 transition-colors hover:bg-stone-300 dark:hover:bg-stone-600"
             >
               <span className="text-xs font-bold">✕</span>
             </button>

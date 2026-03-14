@@ -71,6 +71,11 @@ export default function CookieConsent() {
       delete w.dataLayer;
       delete (window as Record<string, unknown>).gtag;
     }
+    // Signal Google Consent Mode update
+    const wc = window as unknown as Record<string, unknown[]>;
+    wc.dataLayer = wc.dataLayer || [];
+    function gtagUpdate(...a: unknown[]) { wc.dataLayer!.push(a); }
+    gtagUpdate('consent', 'update', { analytics_storage: prefs.optional ? 'granted' : 'denied' });
   };
 
   const acceptAll = () => save({ essential: true, optional: true });
@@ -101,7 +106,7 @@ export default function CookieConsent() {
               <span className="text-xs text-stone-500 dark:text-stone-300 block">تسجيل الدخول والجلسة — مطلوبة لعمل الموقع</span>
             </div>
           </label>
-          <label className="flex items-center gap-3 rounded-lg bg-stone-50 dark:bg-stone-900 px-3 py-2 cursor-pointer">
+          <label className="flex items-center gap-3 rounded-lg bg-stone-50 dark:bg-stone-900 px-3 py-2 min-h-[44px] cursor-pointer">
             <input
               type="checkbox"
               checked={optionalChecked}

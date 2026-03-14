@@ -230,7 +230,7 @@ export default function Glossary() {
                 key={letter}
                 type="button"
                 onClick={() => scrollToLetter(letter)}
-                className={`flex h-10 w-10 min-w-[40px] items-center justify-center rounded-xl text-sm font-bold transition-all min-h-[44px] ${
+                className={`flex h-10 w-10 min-w-[44px] items-center justify-center rounded-xl text-sm font-bold transition-all min-h-[44px] ${
                   activeLetter === letter
                     ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-200 scale-110'
                     : 'border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 text-stone-700 dark:text-stone-200 hover:border-emerald-300 hover:bg-emerald-50 dark:hover:bg-stone-800 hover:text-emerald-700'

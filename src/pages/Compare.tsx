@@ -175,7 +175,7 @@ function PeptideSelector({
               onChange('');
               setOpen(false);
             }}
-            className="shrink-0 rounded-full p-1 hover:bg-emerald-100 dark:hover:bg-emerald-800 transition-colors"
+            className="shrink-0 rounded-full p-1 min-h-[44px] min-w-[44px] flex items-center justify-center hover:bg-emerald-100 dark:hover:bg-emerald-800 transition-colors"
             aria-label="إزالة"
           >
             <X className="h-3.5 w-3.5" />
@@ -371,7 +371,7 @@ export default function Compare() {
         <div className="flex items-center gap-2">
           {[0, 1, 2].map((i) => (
             <span
-              key={i}
+              key={`dot-${i}`}
               className={cn(
                 'h-2 w-2 rounded-full transition-colors duration-300',
                 ids[i] ? 'bg-emerald-500' : i < 2 ? 'bg-stone-300 dark:bg-stone-600' : 'bg-stone-200 dark:bg-stone-700',
@@ -392,7 +392,7 @@ export default function Compare() {
           <button
             type="button"
             onClick={clearAll}
-            className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs text-stone-500 dark:text-stone-300 hover:bg-red-50 dark:hover:bg-red-900/20 hover:text-red-600 dark:hover:text-red-400 transition-colors"
+            className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 min-h-[44px] text-xs text-stone-500 dark:text-stone-300 hover:bg-red-50 dark:hover:bg-red-900/20 hover:text-red-600 dark:hover:text-red-400 transition-colors"
           >
             <Trash2 className="h-3.5 w-3.5" />
             مسح الكل
@@ -591,31 +591,31 @@ export default function Compare() {
           <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
             <Link
               to={`/interactions?${ids.map((id, i) => `p${i + 1}=${id}`).join('&')}`}
-              className="inline-flex items-center gap-2 rounded-xl border border-stone-200 dark:border-stone-700 px-6 py-3 text-sm font-bold text-emerald-700 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 transition-colors"
+              className="inline-flex items-center gap-2 rounded-xl border border-stone-200 dark:border-stone-700 px-6 py-3 min-h-[44px] text-sm font-bold text-emerald-700 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 transition-colors"
             >
               فحص التعارضات بين هذه الببتيدات
             </Link>
             <Link
               to={`/calculator?preset=${encodeURIComponent(selectedPeptides[0]?.nameEn ?? '')}`}
-              className="inline-flex items-center gap-2 rounded-xl border border-stone-200 dark:border-stone-700 px-6 py-3 text-sm font-bold text-stone-700 dark:text-stone-200 hover:bg-stone-50 dark:hover:bg-stone-800 transition-colors"
+              className="inline-flex items-center gap-2 rounded-xl border border-stone-200 dark:border-stone-700 px-6 py-3 min-h-[44px] text-sm font-bold text-stone-700 dark:text-stone-200 hover:bg-stone-50 dark:hover:bg-stone-800 transition-colors"
             >
               حاسبة الجرعات
             </Link>
             <Link
               to="/stacks"
-              className="inline-flex items-center gap-2 rounded-xl border border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-900/30 px-6 py-3 text-sm font-bold text-emerald-700 dark:text-emerald-400 hover:bg-emerald-100 dark:hover:bg-emerald-900/50 transition-colors"
+              className="inline-flex items-center gap-2 rounded-xl border border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-900/30 px-6 py-3 min-h-[44px] text-sm font-bold text-emerald-700 dark:text-emerald-400 hover:bg-emerald-100 dark:hover:bg-emerald-900/50 transition-colors"
             >
               ابدأ بروتوكول
             </Link>
             <Link
               to={`/coach?q=${encodeURIComponent(`قارنت بين ${selectedPeptides.map(p => p.nameAr).join(' و ')} — أيهم أنسب لي؟`)}`}
-              className="inline-flex items-center gap-2 rounded-xl border border-stone-200 dark:border-stone-700 px-6 py-3 text-sm font-bold text-stone-700 dark:text-stone-200 hover:bg-stone-50 dark:hover:bg-stone-800 transition-colors"
+              className="inline-flex items-center gap-2 rounded-xl border border-stone-200 dark:border-stone-700 px-6 py-3 min-h-[44px] text-sm font-bold text-stone-700 dark:text-stone-200 hover:bg-stone-50 dark:hover:bg-stone-800 transition-colors"
             >
               اسأل المدرب
             </Link>
             <Link
               to="/tracker"
-              className="inline-flex items-center gap-2 rounded-xl border border-stone-200 dark:border-stone-700 px-6 py-3 text-sm font-bold text-stone-700 dark:text-stone-200 hover:bg-stone-50 dark:hover:bg-stone-800 transition-colors"
+              className="inline-flex items-center gap-2 rounded-xl border border-stone-200 dark:border-stone-700 px-6 py-3 min-h-[44px] text-sm font-bold text-stone-700 dark:text-stone-200 hover:bg-stone-50 dark:hover:bg-stone-800 transition-colors"
             >
               سجّل حقنة
             </Link>

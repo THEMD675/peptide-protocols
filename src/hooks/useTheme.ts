@@ -24,6 +24,11 @@ function applyTheme(theme: Theme) {
   } else {
     root.classList.remove('dark');
   }
+  document.querySelectorAll('meta[name="theme-color"]').forEach(m => m.remove());
+  const meta = document.createElement('meta');
+  meta.name = 'theme-color';
+  meta.content = theme === 'dark' ? '#0c0a09' : '#059669';
+  document.head.appendChild(meta);
 }
 
 export function useTheme() {

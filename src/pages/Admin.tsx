@@ -160,13 +160,13 @@ function Pagination({ page, total, onChange }: { page: number; total: number; on
   if (pages <= 1) return null;
   return (
     <div className="flex items-center justify-center gap-1 pt-3">
-      <button disabled={page <= 1} onClick={() => onChange(page - 1)} className="rounded-lg border border-stone-200 dark:border-stone-600 px-3 py-1.5 text-xs font-medium text-stone-600 dark:text-stone-300 hover:bg-stone-50 dark:hover:bg-stone-800 disabled:opacity-50 disabled:cursor-not-allowed">&laquo;</button>
+      <button disabled={page <= 1} onClick={() => onChange(page - 1)} className="rounded-lg border border-stone-200 dark:border-stone-600 px-3 py-1.5 min-h-[44px] text-xs font-medium text-stone-600 dark:text-stone-300 hover:bg-stone-50 dark:hover:bg-stone-800 disabled:opacity-50 disabled:cursor-not-allowed">&laquo;</button>
       {Array.from({ length: pages }, (_, i) => i + 1).filter(p => p === 1 || p === pages || Math.abs(p - page) <= 2)
         .reduce<(number | 'e')[]>((a, p, i, arr) => { if (i > 0 && p - (arr[i - 1]) > 1) a.push('e'); a.push(p); return a; }, [])
         .map((p, i) => p === 'e' ? <span key={`e${i}`} className="px-1 text-xs text-stone-400">&hellip;</span> :
-          <button key={p} onClick={() => onChange(p)} className={cn('rounded-lg px-2.5 py-1.5 text-xs font-medium', page === p ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400' : 'text-stone-600 dark:text-stone-300 hover:bg-stone-100 dark:hover:bg-stone-800')}>{p}</button>
+          <button key={p} onClick={() => onChange(p)} className={cn('rounded-lg px-2.5 py-1.5 min-h-[44px] text-xs font-medium', page === p ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400' : 'text-stone-600 dark:text-stone-300 hover:bg-stone-100 dark:hover:bg-stone-800')}>{p}</button>
         )}
-      <button disabled={page >= pages} onClick={() => onChange(page + 1)} className="rounded-lg border border-stone-200 dark:border-stone-600 px-3 py-1.5 text-xs font-medium text-stone-600 dark:text-stone-300 hover:bg-stone-50 dark:hover:bg-stone-800 disabled:opacity-50 disabled:cursor-not-allowed">&raquo;</button>
+      <button disabled={page >= pages} onClick={() => onChange(page + 1)} className="rounded-lg border border-stone-200 dark:border-stone-600 px-3 py-1.5 min-h-[44px] text-xs font-medium text-stone-600 dark:text-stone-300 hover:bg-stone-50 dark:hover:bg-stone-800 disabled:opacity-50 disabled:cursor-not-allowed">&raquo;</button>
     </div>
   );
 }

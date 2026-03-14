@@ -453,6 +453,9 @@ export default function Dashboard() {
   const wellnessTrend = useWellnessTrend(user?.id);
   const { dashboardCards } = useProactiveCoach(user?.id);
   const [shareProtocolId, setShareProtocolId] = useState<string | null>(null);
+  const [checklistDismissed, setChecklistDismissed] = useState(() => {
+    try { return localStorage.getItem('pptides_checklist_dismissed') === 'true'; } catch { return false; }
+  });
   // Fix 5: Initialize onboarding show state synchronously from localStorage to prevent flash
   const [showOnboarding, setShowOnboarding] = useState(false);
   const onboardingCompleted = useMemo(() => {
@@ -877,6 +880,36 @@ export default function Dashboard() {
                 </Link>
               );
             })}
+          </div>
+        </div>
+      )}
+
+      {/* Checklist for brand-new subscribers with no data */}
+      {!checklistDismissed && !activity.loading && activity.totalInjections === 0 && activeProtocols.length === 0 && (
+        <div className="mb-6 rounded-2xl border border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-900/20 p-5">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-base font-bold text-stone-900 dark:text-stone-100">ابدأ رحلتك</h3>
+            <button
+              onClick={() => { setChecklistDismissed(true); try { localStorage.setItem('pptides_checklist_dismissed', 'true'); } catch {} }}
+              className="text-xs text-stone-500 dark:text-stone-400 hover:text-stone-700 min-h-[44px] min-w-[44px] flex items-center justify-center"
+              aria-label="إخفاء"
+            >
+              ✕
+            </button>
+          </div>
+          <div className="space-y-2">
+            <Link to="/library" className="flex items-center gap-3 rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-900 px-4 py-3 text-sm font-medium text-stone-800 dark:text-stone-200 transition-all hover:border-emerald-300 min-h-[44px]">
+              <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-emerald-100 dark:bg-emerald-900/30 text-xs font-bold text-emerald-700">١</span>
+              اختر ببتيد من المكتبة
+            </Link>
+            <Link to="/tracker" className="flex items-center gap-3 rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-900 px-4 py-3 text-sm font-medium text-stone-800 dark:text-stone-200 transition-all hover:border-emerald-300 min-h-[44px]">
+              <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-emerald-100 dark:bg-emerald-900/30 text-xs font-bold text-emerald-700">٢</span>
+              ابدأ بروتوكول
+            </Link>
+            <Link to="/tracker" className="flex items-center gap-3 rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-900 px-4 py-3 text-sm font-medium text-stone-800 dark:text-stone-200 transition-all hover:border-emerald-300 min-h-[44px]">
+              <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-emerald-100 dark:bg-emerald-900/30 text-xs font-bold text-emerald-700">٣</span>
+              سجّل حقنتك الأولى
+            </Link>
           </div>
         </div>
       )}

@@ -121,6 +121,16 @@ export default function Pricing() {
   // Unified coupon: from URL params via SalesFlowService, fallback to initial capture
   const couponFromUrl = checkoutCoupon || offer.coupon || initialCouponRef.current;
 
+  // Dynamic Stripe preconnect — only on Pricing page
+  useEffect(() => {
+    const link = document.createElement('link');
+    link.rel = 'preconnect';
+    link.href = 'https://js.stripe.com';
+    link.crossOrigin = '';
+    document.head.appendChild(link);
+    return () => { link.remove(); };
+  }, []);
+
   useEffect(() => { navigatingRef.current = false; events.pricingView(); return () => { navigatingRef.current = false; }; }, []);
 
   // Fix: BFCache restore resets navigatingRef so checkout button works after Back
@@ -134,8 +144,8 @@ export default function Pricing() {
     let mounted = true;
     // eslint-disable-next-line react-hooks/set-state-in-effect
     try { const c = localStorage.getItem('pptides_user_count'); if (c) setUserCount(Number(c)); } catch { /* expected */ }
-    supabase.from('subscriptions').select('status', { count: 'exact', head: true }).in('status', ['active', 'trial']).not('stripe_subscription_id', 'is', null)
-      .then(({ count }) => { if (mounted && count != null && count > 0) { setUserCount(count); try { localStorage.setItem('pptides_user_count', String(count)); } catch { /* expected */ } } });
+    supabase.rpc('get_active_subscriber_count')
+      .then(({ data }) => { if (mounted && data != null && data > 0) { setUserCount(data); try { localStorage.setItem('pptides_user_count', String(data)); } catch { /* expected */ } } });
     return () => { mounted = false; };
   }, []);
 

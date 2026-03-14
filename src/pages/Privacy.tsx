@@ -17,6 +17,7 @@ export default function Privacy() {
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content="سياسة الخصوصية | pptides" />
         <meta name="twitter:description" content="سياسة الخصوصية لموقع pptides.com — كيف نحمي بياناتك الشخصية." />
+        <meta name="twitter:image" content={`${SITE_URL}/og-image.jpg`} />
         <link rel="canonical" href={`${SITE_URL}/privacy`} />
         <script type="application/ld+json">{JSON.stringify({
           '@context': 'https://schema.org',

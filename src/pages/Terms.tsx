@@ -17,6 +17,7 @@ export default function Terms() {
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content="شروط الاستخدام | pptides" />
         <meta name="twitter:description" content="شروط الاستخدام لموقع pptides.com — الاشتراكات، الاسترداد، وحدود المسؤولية." />
+        <meta name="twitter:image" content={`${SITE_URL}/og-image.jpg`} />
         <link rel="canonical" href={`${SITE_URL}/terms`} />
         <script type="application/ld+json">{JSON.stringify({
           '@context': 'https://schema.org',

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { Link } from 'react-router-dom';
 import {
@@ -16,6 +16,8 @@ import { TRIAL_DAYS } from '@/config/trial';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
 import { sanitizeInput } from '@/lib/utils';
+
+const TURNSTILE_SITE_KEY = import.meta.env.VITE_TURNSTILE_SITE_KEY ?? '';
 
 const SUBJECTS = [
   { value: '', label: 'اختر الموضوع...' },
@@ -65,6 +67,10 @@ export default function Contact() {
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
+  const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
+  const [turnstileUnavailable, setTurnstileUnavailable] = useState(false);
+  const turnstileRef = useRef<HTMLDivElement>(null);
+  const turnstileWidgetId = useRef<string | null>(null);
 
   useEffect(() => {
     if (user?.email && !email) setEmail(user.email);
@@ -89,6 +95,39 @@ export default function Contact() {
     window.addEventListener('beforeunload', handler);
     return () => window.removeEventListener('beforeunload', handler);
   }, [isDirty]);
+
+  useEffect(() => {
+    if (!TURNSTILE_SITE_KEY || !turnstileRef.current) return;
+    let fallbackTimer: ReturnType<typeof setTimeout> | null = null;
+    let loaded = false;
+    const renderWidget = () => {
+      loaded = true;
+      if (fallbackTimer) { clearTimeout(fallbackTimer); fallbackTimer = null; }
+      if (!turnstileRef.current || turnstileWidgetId.current) return;
+      turnstileWidgetId.current = window.turnstile?.render(turnstileRef.current, {
+        sitekey: TURNSTILE_SITE_KEY,
+        callback: (token: string) => setTurnstileToken(token),
+        'error-callback': () => setTurnstileToken(null),
+        'expired-callback': () => setTurnstileToken(null),
+        theme: document.documentElement.classList.contains('dark') ? 'dark' : 'light',
+        size: 'flexible',
+        language: 'ar',
+      }) ?? null;
+    };
+    if (window.turnstile) { renderWidget(); return () => { turnstileWidgetId.current = null; }; }
+    const script = document.createElement('script');
+    script.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit';
+    script.async = true;
+    script.onload = renderWidget;
+    script.onerror = () => { if (!loaded) setTurnstileUnavailable(true); };
+    document.head.appendChild(script);
+    fallbackTimer = setTimeout(() => { if (!loaded && !window.turnstile) setTurnstileUnavailable(true); }, 5000);
+    return () => {
+      turnstileWidgetId.current = null;
+      if (fallbackTimer) clearTimeout(fallbackTimer);
+      if (script.parentNode) script.parentNode.removeChild(script);
+    };
+  }, []);
 
   if (isLoading) {
     // Show a layout-matching skeleton instead of a bare spinner to avoid flash
@@ -161,6 +200,10 @@ export default function Contact() {
     }
 
     if (hp) return;
+    if (TURNSTILE_SITE_KEY && !turnstileToken && !turnstileUnavailable) {
+      setFieldErrors(prev => ({ ...prev, turnstile: 'يرجى إكمال التحقق الأمني' }));
+      return;
+    }
     setSubmitting(true);
     try {
       const { error } = await supabase.from('enquiries').insert({
@@ -312,6 +355,7 @@ export default function Contact() {
             </label>
             <input
               id="contact-name"
+              name="name"
               type="text"
               required
               value={name}
@@ -336,6 +380,7 @@ export default function Contact() {
             </label>
             <input
               id="contact-email"
+              name="email"
               type="email"
               required
               value={email}
@@ -361,6 +406,7 @@ export default function Contact() {
             <div className="relative">
               <select
                 id="contact-subject"
+                name="subject"
                 required
                 value={subject}
                 onChange={(e) => { setSubject(e.target.value); clearFieldError('subject'); }}
@@ -395,6 +441,7 @@ export default function Contact() {
             </div>
             <textarea
               id="contact-message"
+              name="message"
               required
               rows={5}
               maxLength={5000}
@@ -408,6 +455,10 @@ export default function Contact() {
             />
             {fieldErrors.message && <p id="message-error" role="alert" className="mt-1 text-sm text-red-600 dark:text-red-400">{fieldErrors.message}</p>}
           </div>
+
+          {TURNSTILE_SITE_KEY && (
+            <div ref={turnstileRef} className="flex justify-center" />
+          )}
 
           {/* Submit */}
           <button

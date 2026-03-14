@@ -288,6 +288,7 @@ export default function SideEffectLog() {
               </label>
               <textarea
                 id="se-notes"
+                name="notes"
                 value={notes}
                 onChange={e => setNotes(e.target.value)}
                 placeholder="تفاصيل إضافية..."

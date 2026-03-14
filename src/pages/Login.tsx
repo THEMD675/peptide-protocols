@@ -686,6 +686,7 @@ export default function Login() {
                   ref={emailRef}
                   id="email"
                   type="email"
+                  required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="بريدك@example.com"
@@ -704,6 +705,7 @@ export default function Login() {
                   <input
                     id="password"
                     type={showPassword ? 'text' : 'password'}
+                    required
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="••••••••"

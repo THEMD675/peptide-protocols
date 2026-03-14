@@ -318,6 +318,11 @@ function OverlayGate() {
   );
 }
 
+function SpeedInsightsWithRoute() {
+  const location = useLocation();
+  return <SpeedInsights route={location.pathname} />;
+}
+
 export default function App() {
   return (
     <HelmetProvider>
@@ -383,7 +388,7 @@ export default function App() {
           <OverlayGate />
           <LazyFallback><Suspense fallback={null}><InstallPrompt /></Suspense></LazyFallback>
           {hasOptionalConsent() && <Suspense fallback={null}><Analytics /></Suspense>}
-          {hasOptionalConsent() && <Suspense fallback={null}><SpeedInsights /></Suspense>}
+          {hasOptionalConsent() && <Suspense fallback={null}><SpeedInsightsWithRoute /></Suspense>}
         </div>
         </ErrorBoundary>
       </AuthProvider>

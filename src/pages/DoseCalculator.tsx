@@ -899,7 +899,7 @@ export default function DoseCalculator() {
                     className="w-full appearance-none rounded-xl border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-900 px-4 py-3 pe-10 text-base text-stone-900 dark:text-stone-100 transition-colors focus:border-emerald-300 focus:outline-none focus:ring-1 focus:ring-emerald-100"
                   >
                     {SYRINGE_OPTIONS.map((opt, i) => (
-                      <option key={i} value={i} className="bg-white dark:bg-stone-900 text-stone-900 dark:text-stone-100">
+                      <option key={opt.label} value={i} className="bg-white dark:bg-stone-900 text-stone-900 dark:text-stone-100">
                         {opt.label}
                       </option>
                     ))}
@@ -1267,7 +1267,7 @@ export default function DoseCalculator() {
                       aria-label="حجم السيرنج"
                     >
                       {SYRINGE_OPTIONS.map((opt, i) => (
-                        <option key={i} value={i}>{opt.label}</option>
+                        <option key={opt.label} value={i}>{opt.label}</option>
                       ))}
                     </select>
                     <ChevronDown className="pointer-events-none absolute end-3 top-1/2 h-4 w-4 -translate-y-1/2 text-stone-500 dark:text-stone-300" />
@@ -1352,7 +1352,7 @@ export default function DoseCalculator() {
                   <thead>
                     <tr className="border-b border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-900">
                       {['القارورة', 'الماء', 'التركيز', '100 مكغ', '250 مكغ', '500 مكغ'].map((h, i) => (
-                        <th key={i} scope="col" className={cn('px-4 py-3 text-xs font-semibold text-stone-800 dark:text-stone-200', i < 3 ? 'text-start' : 'text-center')}>
+                        <th key={h} scope="col" className={cn('px-4 py-3 text-xs font-semibold text-stone-800 dark:text-stone-200', i < 3 ? 'text-start' : 'text-center')}>
                           {h}
                         </th>
                       ))}
@@ -1360,7 +1360,7 @@ export default function DoseCalculator() {
                   </thead>
                   <tbody>
                     {referenceData.map((row, i) => (
-                      <tr key={i} className={cn('border-b border-stone-200 dark:border-stone-600 last:border-b-0', i % 2 === 0 ? 'bg-stone-50 dark:bg-stone-900' : 'bg-transparent')}>
+                      <tr key={`${row.vialMg}-${row.waterMl}`} className={cn('border-b border-stone-200 dark:border-stone-600 last:border-b-0', i % 2 === 0 ? 'bg-stone-50 dark:bg-stone-900' : 'bg-transparent')}>
                         <td className="px-4 py-3 text-sm text-stone-800 dark:text-stone-200">{row.vialMg} ملغ</td>
                         <td className="px-4 py-3 text-sm text-stone-800 dark:text-stone-200">{row.waterMl} مل</td>
                         <td className="px-4 py-3 text-sm text-stone-800 dark:text-stone-200">{row.concentration.toLocaleString('ar-u-nu-latn')} مكغ/مل</td>
@@ -1453,13 +1453,13 @@ export default function DoseCalculator() {
                     <thead>
                       <tr className="border-b border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-900">
                         {['الببتيد', 'السعر/قارورة', 'التكلفة/جرعة', 'التكلفة/أسبوع', 'التكلفة/شهر', 'دورة 12 أسبوع', ''].map((h, i) => (
-                          <th key={i} className="px-3 py-3 text-xs font-semibold text-stone-800 dark:text-stone-200 text-start">{h}</th>
+                          <th key={h || `col-${i}`} className="px-3 py-3 text-xs font-semibold text-stone-800 dark:text-stone-200 text-start">{h}</th>
                         ))}
                       </tr>
                     </thead>
                     <tbody>
-                      {costResults.map((r, i) => (
-                        <tr key={i} className="border-b border-stone-200 dark:border-stone-600 last:border-b-0">
+                      {costResults.map((r) => (
+                        <tr key={r.peptide} className="border-b border-stone-200 dark:border-stone-600 last:border-b-0">
                           <td className="px-3 py-3 text-sm font-bold text-stone-900 dark:text-stone-100" dir="ltr">{r.peptide}</td>
                           <td className="px-3 py-3 text-sm text-stone-700 dark:text-stone-200">{r.pricePerVial} ر.س</td>
                           <td className="px-3 py-3 text-sm text-emerald-700 font-bold">{fmt(r.costPerDose, 1)} ر.س</td>
@@ -1865,7 +1865,7 @@ function QuickRef({ title, items }: { title: string; items: string[] }) {
       <p className="text-xs font-bold text-stone-900 dark:text-stone-100 mb-2" dir="ltr">{title}</p>
       <div className="space-y-1">
         {items.map((item, i) => (
-          <p key={i} className="text-xs text-stone-600 dark:text-stone-300" dir="ltr">{item}</p>
+          <p key={`item-${i}`} className="text-xs text-stone-600 dark:text-stone-300" dir="ltr">{item}</p>
         ))}
       </div>
     </div>
