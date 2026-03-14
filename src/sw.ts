@@ -48,10 +48,10 @@ const OFFLINE_PAGE = '/offline.html';
 
 const navigationHandler = new NetworkFirst({
   cacheName: 'pages-cache',
-  networkTimeoutSeconds: 5,
+  networkTimeoutSeconds: 10,
   plugins: [
-    new CacheableResponsePlugin({ statuses: [0, 200] }),
-    new ExpirationPlugin({ maxEntries: 20, maxAgeSeconds: 24 * 60 * 60 }),
+    new CacheableResponsePlugin({ statuses: [200] }),
+    new ExpirationPlugin({ maxEntries: 5, maxAgeSeconds: 60 * 60 }),
   ],
 });
 
@@ -145,9 +145,23 @@ self.addEventListener('message', (event) => {
   }
 });
 
-// Pre-cache offline fallback page
+// Auto-activate new SW immediately on install — don't wait for tabs to close
 self.addEventListener('install', (event) => {
   event.waitUntil(
-    caches.open(OFFLINE_CACHE).then((cache) => cache.add(OFFLINE_PAGE))
+    Promise.all([
+      caches.open(OFFLINE_CACHE).then((cache) => cache.add(OFFLINE_PAGE)),
+      self.skipWaiting(),
+    ])
+  );
+});
+
+// Take control of all clients immediately — ensures new code runs without requiring page refresh
+self.addEventListener('activate', (event) => {
+  event.waitUntil(
+    Promise.all([
+      self.clients.claim(),
+      // Clear old navigation cache to prevent serving stale HTML with wrong chunk hashes
+      caches.delete('pages-cache'),
+    ])
   );
 });
