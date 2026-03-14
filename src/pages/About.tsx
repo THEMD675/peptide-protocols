@@ -399,6 +399,15 @@ export default function About() {
           </Link>
           <p className="mt-4 text-sm text-stone-500 dark:text-stone-300">{TRIAL_DAYS} أيام مجانًا — إلغاء في أي وقت، بدون أسئلة</p>
         </div>
+
+        <section className="mt-12 pt-8 border-t border-stone-200 dark:border-stone-800 text-center">
+          <h3 className="text-lg font-bold text-stone-900 dark:text-stone-100 mb-4">استكشف المزيد</h3>
+          <div className="flex flex-wrap justify-center gap-3">
+            <Link to="/library" className="rounded-full bg-emerald-600 px-6 py-2.5 text-sm font-bold text-white hover:bg-emerald-700">تصفّح المكتبة</Link>
+            <Link to="/calculator" className="rounded-full border-2 border-stone-300 dark:border-stone-600 px-6 py-2.5 text-sm font-bold hover:bg-stone-50 dark:hover:bg-stone-800">حاسبة الجرعات</Link>
+            <Link to="/quiz" className="rounded-full border-2 border-stone-300 dark:border-stone-600 px-6 py-2.5 text-sm font-bold hover:bg-stone-50 dark:hover:bg-stone-800">اختبار الببتيدات</Link>
+          </div>
+        </section>
       </div>
     </div>
   );

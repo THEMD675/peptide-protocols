@@ -197,6 +197,7 @@ export default function GlobalSearch({ open, onClose }: Props) {
     (e: React.KeyboardEvent) => {
       if (e.key === 'ArrowDown') {
         e.preventDefault();
+        if (results.length === 0) return;
         setFocusIdx((i) => Math.max(0, Math.min(i + 1, results.length - 1)));
       } else if (e.key === 'ArrowUp') {
         e.preventDefault();

@@ -677,7 +677,7 @@ export default function Tracker() {
                   <div className="flex items-center gap-3">
                     <ChartErrorBoundary><ProgressRing current={daysSinceStart} total={totalDays} size={56} /></ChartErrorBoundary>
                     <div className="flex-1 min-w-0">
-                      <p className="font-bold text-stone-900 dark:text-stone-100 truncate">{peptide?.nameAr ?? proto.peptide_id}</p>
+                      <p className="font-bold text-stone-900 dark:text-stone-100 truncate" title={peptide?.nameAr ?? proto.peptide_id}>{peptide?.nameAr ?? proto.peptide_id}</p>
                       <p className="text-xs text-stone-500 dark:text-stone-300" dir="ltr">{proto.dose} {proto.dose_unit}</p>
                       <p className="text-xs text-stone-500 dark:text-stone-300">الأسبوع {weekNumber} من {totalWeeks}</p>
                       <p className="text-xs text-stone-500 dark:text-stone-300">بدأ {formatDate(proto.started_at, useHijri)}</p>
@@ -958,7 +958,7 @@ export default function Tracker() {
 
       {/* Floating Action Button — always-visible log entry point */}
       {subscription.isProOrTrial && !showForm && user && (
-        <div className="fixed bottom-6 inset-x-0 z-40 flex justify-center pointer-events-none">
+        <div className="fixed bottom-[calc(1.5rem+56px+env(safe-area-inset-bottom))] inset-x-0 z-40 flex justify-center pointer-events-none">
           <button
             onClick={() => { setShowForm(true); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
             className="pointer-events-auto flex items-center gap-2 rounded-full bg-emerald-600 px-8 py-3.5 text-base font-semibold text-white shadow-2xl ring-4 ring-emerald-200/60 dark:ring-emerald-800/60 transition-all hover:bg-emerald-700 active:scale-95"

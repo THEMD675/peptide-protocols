@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#10b981" />
   <title>غير متصل | pptides</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -89,17 +90,17 @@
   <div class="card">
     <div class="logo">pp<span>tides</span></div>
     <div class="icon-bg">
-      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
         <path stroke-linecap="round" stroke-linejoin="round" d="M8.288 15.038a5.25 5.25 0 017.424 0M5.106 11.856c3.807-3.808 9.98-3.808 13.788 0M1.924 8.674c5.565-5.565 14.587-5.565 20.152 0M12.53 18.22l-.53.53-.53-.53a.75.75 0 011.06 0z" />
       </svg>
     </div>
     <h1>أنت غير متصل بالإنترنت</h1>
     <p class="subtitle">تحقق من اتصالك بالإنترنت وحاول مرة أخرى. بعض المحتوى متاح في وضع عدم الاتصال.</p>
-    <button class="btn" id="retryBtn" onclick="manualRetry()">
-      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182"/></svg>
+    <button class="btn" id="retryBtn" onclick="manualRetry()" aria-label="إعادة المحاولة">
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182"/></svg>
       حاول مرة أخرى
     </button>
-    <div class="retry-status" id="retryStatus"></div>
+    <div class="retry-status" id="retryStatus" aria-live="polite"></div>
   </div>
 
   <script>
@@ -140,9 +141,11 @@
       clearTimeout(retryTimer);
       var btn = document.getElementById('retryBtn');
       btn.disabled = true;
+      btn.setAttribute('aria-busy', 'true');
       setStatus('جارٍ التحقق…');
       fetch('/favicon.ico', { method: 'HEAD', cache: 'no-store' })
         .then(function(res) {
+          btn.removeAttribute('aria-busy');
           if (res.ok || res.status === 304) {
             setStatus('✓ تم استعادة الاتصال! جارٍ إعادة التوجيه…');
             setTimeout(function() { window.location.href = '/'; }, 800);
@@ -154,6 +157,7 @@
         })
         .catch(function() {
           btn.disabled = false;
+          btn.removeAttribute('aria-busy');
           setStatus('لا يزال الاتصال منقطعًا.');
           scheduleRetry();
         });

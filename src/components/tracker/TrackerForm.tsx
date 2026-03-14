@@ -365,7 +365,7 @@ export default function TrackerForm({
         </div>
 
         {/* Side Effect Quick-Log */}
-        <div>
+        <div role="group" aria-label="أعراض جانبية">
           <label className="mb-1 block text-sm font-bold text-stone-700 dark:text-stone-200">أعراض جانبية <span className="text-xs text-emerald-700 font-normal me-1">اختياري</span></label>
           <div className="flex flex-wrap gap-2">
             {[
@@ -398,6 +398,7 @@ export default function TrackerForm({
               onChange={(e) => setCustomSideEffect(e.target.value)}
               placeholder="اكتب الأعراض الجانبية..."
               maxLength={60}
+              aria-label="عرض جانبي مخصص"
               className="mt-2 w-full rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 px-4 py-2.5 text-sm text-stone-900 dark:text-stone-100 placeholder:text-stone-500 dark:placeholder:text-stone-500 focus:border-emerald-300 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900"
             />
           )}

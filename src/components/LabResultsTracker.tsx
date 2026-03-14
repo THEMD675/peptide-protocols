@@ -14,6 +14,7 @@ import {
 import { Link } from 'react-router-dom';
 import { cn, escapeHtml } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
+import { useTheme } from '@/hooks/useTheme';
 import { supabase } from '@/lib/supabase';
 
 // ─── Biomarker Definitions ──────────────────────────────────────────────────
@@ -240,12 +241,21 @@ function generateInsights(entries: LabEntry[]): Insight[] {
 function BiomarkerTrendChart({
   entries,
   biomarkerId,
+  isDark,
 }: {
   entries: LabEntry[];
   biomarkerId: string;
+  isDark: boolean;
 }) {
   const biomarker = getBiomarker(biomarkerId);
   if (!biomarker) return null;
+
+  const gridStroke = isDark ? '#374151' : '#e7e5e4';
+  const axisStroke = isDark ? '#4B5563' : '#d6d3d1';
+  const tickFill = isDark ? '#9CA3AF' : '#57534e';
+  const tooltipBg = isDark ? '#1F2937' : '#f5f5f4';
+  const tooltipBorder = isDark ? '#374151' : '#e7e5e4';
+  const tooltipText = isDark ? '#F9FAFB' : '#0a0a0a';
 
   const sorted = [...entries]
     .filter(e => e.results[biomarkerId] != null)
@@ -264,26 +274,26 @@ function BiomarkerTrendChart({
     <div className="h-44 w-full mt-3">
       <ResponsiveContainer width="100%" height="100%">
         <ComposedChart data={chartData} margin={{ top: 8, right: 8, bottom: 4, left: 8 }}>
-          <CartesianGrid strokeDasharray="3 3" stroke="#374151" opacity={0.3} />
+          <CartesianGrid strokeDasharray="3 3" stroke={gridStroke} opacity={0.3} />
           <XAxis
             dataKey="date"
             reversed
-            tick={{ fontSize: 10, fill: '#9CA3AF' }}
-            stroke="#4B5563"
+            tick={{ fontSize: 10, fill: tickFill }}
+            stroke={axisStroke}
           />
           <YAxis
-            tick={{ fontSize: 10, fill: '#9CA3AF' }}
-            stroke="#4B5563"
+            tick={{ fontSize: 10, fill: tickFill }}
+            stroke={axisStroke}
             width={45}
             domain={['auto', 'auto']}
           />
           <Tooltip
             contentStyle={{
-              backgroundColor: '#1F2937',
-              border: '1px solid #374151',
+              backgroundColor: tooltipBg,
+              border: `1px solid ${tooltipBorder}`,
               borderRadius: 12,
               fontSize: 12,
-              color: '#F9FAFB',
+              color: tooltipText,
               direction: 'rtl',
             }}
             formatter={(v: number) => [`${v} ${biomarker.unit}`, biomarker.nameAr]}
@@ -613,6 +623,7 @@ async function exportAsImage(entries: LabEntry[]) {
 
 export default function LabResultsTracker() {
   const { user } = useAuth();
+  const { isDark } = useTheme();
   const [entries, setEntries] = useState<LabEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
@@ -979,7 +990,7 @@ export default function LabResultsTracker() {
               <p className="text-xs text-stone-400 mb-1" dir="ltr">
                 النطاق الطبيعي: {getBiomarker(selectedBiomarker)?.normalMin}–{getBiomarker(selectedBiomarker)?.normalMax} {getBiomarker(selectedBiomarker)?.unit}
               </p>
-              <BiomarkerTrendChart entries={entries} biomarkerId={selectedBiomarker} />
+              <BiomarkerTrendChart entries={entries} biomarkerId={selectedBiomarker} isDark={isDark} />
               {/* Summary stats */}
               {(() => {
                 const vals = entries
@@ -1024,7 +1035,7 @@ export default function LabResultsTracker() {
                     <span className="text-xs font-bold text-stone-300">{bio.nameAr}</span>
                     <span className="text-xs text-stone-400" dir="ltr">{bio.unit}</span>
                   </div>
-                  <BiomarkerTrendChart entries={entries} biomarkerId={bio.id} />
+                  <BiomarkerTrendChart entries={entries} biomarkerId={bio.id} isDark={isDark} />
                 </div>
               ))}
             </div>

@@ -171,7 +171,7 @@ export default function CoachHistory({
                       >
                         <ChevronLeft className={cn('h-4 w-4 shrink-0 text-stone-400 transition-transform', isExpanded && '-rotate-90')} />
                         <div className="min-w-0 flex-1">
-                          <p className="text-sm font-bold text-stone-800 dark:text-stone-200 truncate">{topic}</p>
+                          <p className="text-sm font-bold text-stone-800 dark:text-stone-200 truncate" title={topic}>{topic}</p>
                           <p className="text-[10px] text-stone-500 dark:text-stone-300">
                             {msgCount} رسالة · {formatDate(conv.updated_at)}
                           </p>

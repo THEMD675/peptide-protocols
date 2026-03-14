@@ -6,6 +6,8 @@ Disallow: /tracker
 Disallow: /login
 Disallow: /signup
 Disallow: /admin
+Disallow: /coach
+Disallow: /logout
 
 User-agent: GPTBot
 Disallow: /
@@ -16,4 +18,4 @@ Disallow: /
 User-agent: Google-Extended
 Disallow: /
 
-Sitemap: https://pptides.com/sitemap.xml
+Sitemap: https://pptides.com/api/sitemap

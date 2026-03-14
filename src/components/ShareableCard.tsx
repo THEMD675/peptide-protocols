@@ -1,6 +1,5 @@
-import { memo, useRef, useCallback } from 'react';
+import { memo, useRef, useCallback, useState, useEffect } from 'react';
 import { Share2, Copy, Check, MessageCircle, Download, Twitter, Send } from 'lucide-react';
-import { useState } from 'react';
 import { toast } from 'sonner';
 import { SITE_URL, FREQUENCY_LABELS, REFERRAL_CODE_REGEX } from '@/lib/constants';
 import { copyToClipboard } from '@/lib/utils';
@@ -21,6 +20,9 @@ export default memo(function ShareableCard(props: ShareableCardProps) {
   const [copied, setCopied] = useState(false);
   const [exporting, setExporting] = useState(false);
   const cardRef = useRef<HTMLDivElement>(null);
+  const copyTimerRef = useRef<ReturnType<typeof setTimeout>>();
+
+  useEffect(() => () => { clearTimeout(copyTimerRef.current); }, []);
 
   const shareBody = `بروتوكولي على pptides:\n${props.peptideName} (${props.peptideNameEn})\n${props.dose} ${props.unit} — ${FREQUENCY_LABELS[props.frequency] ?? props.frequency}\nمدة الدورة: ${props.cycleWeeks} أسابيع\nاليوم ${props.daysSinceStart} من ${props.cycleWeeks * 7}\n${props.adherencePercent != null ? `الالتزام: ${props.adherencePercent}%` : ''}`;
 
@@ -40,7 +42,7 @@ export default memo(function ShareableCard(props: ShareableCardProps) {
     if (ok) {
       setCopied(true);
       toast.success('تم نسخ البروتوكول');
-      setTimeout(() => setCopied(false), 2000);
+      copyTimerRef.current = setTimeout(() => setCopied(false), 2000);
     } else {
       toast.error('تعذّر نسخ النص — حاول مرة أخرى');
     }

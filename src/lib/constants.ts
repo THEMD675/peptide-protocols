@@ -1,6 +1,6 @@
 // PERF: These values are hardcoded to avoid importing peptides.ts (145KB) in the main bundle.
 // Update manually when adding/removing peptides or changing isFree/pubmedIds fields.
-// Last synced: 2026-03-14 (69 peptides, 7 free, 127 PubMed IDs)
+// Last synced: 2026-03-14 (47 peptides, 7 free, 127 PubMed IDs)
 
 /** Free peptide IDs — peptides with isFree: true in src/data/peptides.ts */
 export const FREE_PEPTIDE_IDS = new Set([
@@ -13,7 +13,7 @@ export const PRICING = {
 } as const;
 
 /** Total peptide count — update when adding/removing peptides */
-export const PEPTIDE_COUNT = 69;
+export const PEPTIDE_COUNT = 47;
 
 /** Unique PubMed ID count across all peptides — update when pubmedIds change */
 export const PUBMED_SOURCE_COUNT = 127;
@@ -82,9 +82,9 @@ export const STATUS_LABELS: Record<string, string> = {
 /** Routes any user can access without subscription — single source of truth for TrialBanner and gating */
 export const FREE_ROUTE_PREFIXES = [
   '/calculator', '/pricing', '/login', '/signup', '/privacy', '/terms', '/',
-  '/glossary', '/sources', '/reviews', '/account', '/interactions',
+  '/glossary', '/sources', '/community', '/account', '/interactions',
   '/library', '/table', '/stacks', '/lab-guide', '/guide',
-  '/community', '/about', '/faq', '/quiz', '/blog', '/contact', '/transparency',
+  '/about', '/faq', '/quiz', '/blog', '/contact', '/transparency',
 ] as const;
 
 export function isFreeRoute(pathname: string): boolean {

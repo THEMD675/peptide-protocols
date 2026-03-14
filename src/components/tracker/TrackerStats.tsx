@@ -114,7 +114,7 @@ export default function TrackerStats({
               <p className="text-xs text-stone-500 dark:text-stone-300">حقنة هذا الشهر</p>
             </div>
             <div className="text-center">
-              <p className="text-lg font-black text-stone-900 dark:text-stone-100 truncate" dir="ltr">{monthlySummary.mostUsedPeptide}</p>
+              <p className="text-lg font-black text-stone-900 dark:text-stone-100 truncate" dir="ltr" title={monthlySummary.mostUsedPeptide}>{monthlySummary.mostUsedPeptide}</p>
               <p className="text-xs text-stone-500 dark:text-stone-300">الأكثر استخدامًا ({monthlySummary.mostUsedCount}×)</p>
             </div>
             <div className="text-center">

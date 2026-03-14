@@ -51,6 +51,7 @@ const navigationHandler = new NetworkFirst({
   networkTimeoutSeconds: 5,
   plugins: [
     new CacheableResponsePlugin({ statuses: [0, 200] }),
+    new ExpirationPlugin({ maxEntries: 5, maxAgeSeconds: 24 * 60 * 60 }),
   ],
 });
 
@@ -76,6 +77,13 @@ navigationRoute.handler = async (params) => {
 };
 
 registerRoute(navigationRoute);
+
+// Prompt-based updates: respond to SKIP_WAITING from the app
+self.addEventListener('message', (event) => {
+  if (event.data?.type === 'SKIP_WAITING') {
+    self.skipWaiting();
+  }
+});
 
 // Pre-cache offline fallback page
 self.addEventListener('install', (event) => {

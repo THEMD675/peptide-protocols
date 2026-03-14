@@ -119,7 +119,7 @@ export default function BlogPost() {
         <meta property="og:locale" content="ar_SA" />
         <meta property="article:published_time" content={post.published_at} />
         <meta property="article:author" content={post.author} />
-        {post.tags.map(tag => (
+        {(post.tags ?? []).map(tag => (
           <meta key={tag} property="article:tag" content={tag} />
         ))}
         <link rel="canonical" href={`${SITE_URL}/blog/${post.slug}`} />
@@ -191,10 +191,10 @@ export default function BlogPost() {
               {new Date(post.published_at).toLocaleDateString('ar-u-nu-latn', { year: 'numeric', month: 'long', day: 'numeric' })}
             </time>
           </div>
-          {post.tags.length > 0 && (
+          {(post.tags?.length ?? 0) > 0 && (
             <div className="flex items-center gap-1.5">
               <Tag className="h-4 w-4" />
-              {post.tags.join('، ')}
+              {post.tags?.join('، ') ?? ''}
             </div>
           )}
           <div className="flex items-center gap-1.5">

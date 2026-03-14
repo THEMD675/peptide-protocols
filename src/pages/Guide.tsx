@@ -61,7 +61,7 @@ function getProgress(): Record<string, boolean> {
 function setProgress(moduleId: string, completed: boolean) {
   const p = getProgress();
   p[moduleId] = completed;
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(p));
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(p)); } catch { /* storage full */ }
 }
 
 /* ═══════════════════════════════════════════════════

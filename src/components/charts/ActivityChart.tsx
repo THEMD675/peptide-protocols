@@ -46,7 +46,7 @@ export default memo(function ActivityChart({ data }: ActivityChartProps) {
             {data.map((entry, index) => (
               <Cell
                 key={index}
-                fill={entry.isToday ? (isDark ? '#34d399' : '#10b981') : entry.count > 0 ? (isDark ? '#6ee7b7' : '#6ee7b7') : emptyBarColor}
+                fill={entry.isToday ? (isDark ? '#34d399' : '#10b981') : entry.count > 0 ? (isDark ? '#10b981' : '#6ee7b7') : emptyBarColor}
               />
             ))}
           </Bar>

@@ -204,7 +204,7 @@ export default function Blog() {
         {!loading && !error && posts.length > 0 && (
           <div className="mb-8 space-y-4">
             {/* Search input */}
-            <div className="relative">
+            <div role="search" className="relative">
               <Search className="pointer-events-none absolute start-3 top-1/2 h-4 w-4 -translate-y-1/2 text-stone-400" />
               <input
                 type="search"

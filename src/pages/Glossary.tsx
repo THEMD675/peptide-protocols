@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback } from 'react';
+import { useState, useMemo, useCallback, useRef, useEffect } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { Link } from 'react-router-dom';
 import { BookA, Search, X, FlaskConical, ChevronDown } from 'lucide-react';
@@ -127,6 +127,9 @@ export default function Glossary() {
   const [search, setSearch] = useState('');
   const [activeLetter, setActiveLetter] = useState<string | null>(null);
   const [expandedLetters, setExpandedLetters] = useState<Set<string>>(new Set());
+  const letterTimerRef = useRef<ReturnType<typeof setTimeout>>();
+
+  useEffect(() => () => { clearTimeout(letterTimerRef.current); }, []);
 
   const filtered = useMemo(() => {
     if (!search.trim()) return TERMS;
@@ -155,7 +158,7 @@ export default function Glossary() {
     const el = document.getElementById(`glossary-${letter}`);
     el?.scrollIntoView({ behavior: 'smooth', block: 'start' });
     // Reset active state after animation
-    setTimeout(() => setActiveLetter(null), 1500);
+    letterTimerRef.current = setTimeout(() => setActiveLetter(null), 1500);
   }, []);
 
   return (
@@ -299,6 +302,15 @@ export default function Glossary() {
           <Link to="/coach" className="rounded-full border border-emerald-300 px-6 py-2.5 text-sm font-bold text-emerald-700 transition-colors hover:bg-emerald-100 min-h-[44px] inline-flex items-center justify-center">اسأل المدرب الذكي</Link>
         </div>
       </div>
+
+      <section className="mt-12 pt-8 border-t border-stone-200 dark:border-stone-800 text-center">
+        <h3 className="text-lg font-bold text-stone-900 dark:text-stone-100 mb-4">استكشف المزيد</h3>
+        <div className="flex flex-wrap justify-center gap-3">
+          <Link to="/library" className="rounded-full bg-emerald-600 px-6 py-2.5 text-sm font-bold text-white hover:bg-emerald-700">تصفّح المكتبة</Link>
+          <Link to="/calculator" className="rounded-full border-2 border-stone-300 dark:border-stone-600 px-6 py-2.5 text-sm font-bold hover:bg-stone-50 dark:hover:bg-stone-800">حاسبة الجرعات</Link>
+          <Link to="/quiz" className="rounded-full border-2 border-stone-300 dark:border-stone-600 px-6 py-2.5 text-sm font-bold hover:bg-stone-50 dark:hover:bg-stone-800">اختبار الببتيدات</Link>
+        </div>
+      </section>
     </div>
   );
 }

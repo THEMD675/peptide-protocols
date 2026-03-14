@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { Copy, Check, Send, Share2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { events } from '@/lib/analytics';
@@ -25,6 +25,9 @@ export default function ShareButtons({
   layout = 'row-label',
 }: ShareButtonsProps) {
   const [copied, setCopied] = useState(false);
+  const copyTimerRef = useRef<ReturnType<typeof setTimeout>>();
+
+  useEffect(() => () => { clearTimeout(copyTimerRef.current); }, []);
 
   const waUrl = `${url}${url.includes('?') ? '&' : '?'}utm_source=whatsapp&utm_medium=share`;
   const twUrl = `${url}${url.includes('?') ? '&' : '?'}utm_source=twitter&utm_medium=share`;
@@ -38,7 +41,7 @@ export default function ShareButtons({
       setCopied(true);
       toast.success('تم نسخ الرابط');
       events.shareClick('copy_link');
-      setTimeout(() => setCopied(false), 2000);
+      copyTimerRef.current = setTimeout(() => setCopied(false), 2000);
     } else {
       toast.error('تعذّر نسخ الرابط');
     }

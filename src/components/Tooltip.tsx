@@ -28,7 +28,7 @@ export default function Tooltip({ content, children, icon = true, position = 'to
       if (localStorage.getItem(key)) return;
       const t = setTimeout(() => {
         setVisible(true);
-        localStorage.setItem(key, '1');
+        try { localStorage.setItem(key, '1'); } catch { /* storage full */ }
         autoHideRef.current = setTimeout(() => setVisible(false), 4000);
       }, 1500);
       return () => { clearTimeout(t); clearTimeout(autoHideRef.current); };

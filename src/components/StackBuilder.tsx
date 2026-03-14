@@ -613,7 +613,7 @@ export default function StackBuilder() {
               <h3 className="text-lg font-bold text-stone-900 dark:text-stone-100 flex items-center gap-2">
                 <gs.icon className="h-5 w-5 shrink-0 text-emerald-600 dark:text-emerald-400" />{gs.nameAr}
               </h3>
-              <button type="button" onClick={() => setActiveGoalStack(null)} className="text-stone-400 hover:text-stone-600 dark:hover:text-stone-300">
+              <button type="button" onClick={() => setActiveGoalStack(null)} aria-label="إغلاق" className="text-stone-400 hover:text-stone-600 dark:hover:text-stone-300">
                 <X className="h-5 w-5" />
               </button>
             </div>
@@ -709,6 +709,7 @@ export default function StackBuilder() {
         <div className="relative">
           <button
             type="button"
+            aria-expanded={dropdownOpen}
             onClick={() => setDropdownOpen(!dropdownOpen)}
             className="flex w-full items-center justify-between rounded-xl border border-stone-200 dark:border-stone-600 bg-stone-50 dark:bg-stone-800 px-4 py-3 text-sm text-stone-700 dark:text-stone-200 hover:border-emerald-300 dark:hover:border-emerald-700 transition-colors"
           >
@@ -771,7 +772,7 @@ export default function StackBuilder() {
                 className="inline-flex items-center gap-1.5 rounded-full bg-emerald-100 dark:bg-emerald-900/30 px-3 py-1.5 text-xs font-medium text-emerald-700 dark:text-emerald-400"
               >
                 {p.nameAr}
-                <button type="button" onClick={() => togglePeptide(p.id)} className="hover:text-red-500 transition-colors">
+                <button type="button" onClick={() => togglePeptide(p.id)} aria-label="إزالة" className="hover:text-red-500 transition-colors">
                   <X className="h-3 w-3" />
                 </button>
               </span>

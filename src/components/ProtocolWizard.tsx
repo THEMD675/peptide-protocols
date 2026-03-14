@@ -282,7 +282,7 @@ export default function ProtocolWizard({ peptideId, prefillDose, prefillUnit, on
             )}
           >
             {submitting ? (
-              <span className="inline-flex items-center gap-2"><span className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />جارٍ الإنشاء...</span>
+              <span className="inline-flex items-center gap-2" role="status" aria-label="جارٍ التحميل"><span className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" aria-hidden />جارٍ الإنشاء...</span>
             ) : (
               <>
                 <Play className="h-4 w-4" />

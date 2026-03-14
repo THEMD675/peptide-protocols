@@ -1,14 +1,7 @@
-import { createContext, useContext, useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { isAdmin, isAdminSync } from '@/lib/constants';
-
-/** When true, the user's subscription has expired but they can view their own data read-only */
-const ReadOnlyContext = createContext(false);
-export const useReadOnly = () => useContext(ReadOnlyContext);
-
-/** Routes that show user's own data and should allow read-only after trial */
-const READ_ONLY_PATHS = ['/dashboard', '/tracker', '/coach'];
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -43,18 +36,9 @@ export default function ProtectedRoute({ children, requiresSubscription = true, 
     return <Navigate to="/dashboard" replace />;
   }
 
-  if (requiresSubscription && !subscription.isProOrTrial) {
-    // Allow read-only access to user's own data pages instead of hard redirect
-    const isReadOnlyAllowed = READ_ONLY_PATHS.some(p => location.pathname === p || location.pathname.startsWith(p + '/'));
-    if (isReadOnlyAllowed) {
-      return (
-        <ReadOnlyContext.Provider value={true}>
-          {children}
-        </ReadOnlyContext.Provider>
-      );
-    }
+  if (requiresSubscription && !subscription?.isProOrTrial) {
     return (
-      <Navigate to="/pricing?expired=1" replace />
+      <Navigate to="/pricing?expired=1" replace state={{ message: 'انتهت فترة التجربة أو اشتراكك — حدّث اشتراكك للمتابعة' }} />
     );
   }
 

@@ -157,8 +157,18 @@ function clearPptidesStorage() {
 
 async function fetchWithRetry<T>(fn: () => Promise<T>, retries = 2, delay = 1000): Promise<T> {
   for (let i = 0; i <= retries; i++) {
-    try { return await fn(); }
-    catch (e) { if (i === retries) throw e; await new Promise(r => setTimeout(r, delay * Math.pow(2, i))); }
+    try {
+      const result = await Promise.race([
+        fn(),
+        new Promise<never>((_, reject) =>
+          setTimeout(() => reject(new Error('Query timeout')), 10000)
+        ),
+      ]);
+      return result;
+    } catch (e) {
+      if (i === retries) throw e;
+      await new Promise(r => setTimeout(r, delay * Math.pow(2, i)));
+    }
   }
   throw new Error('unreachable');
 }
@@ -170,6 +180,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [subscriptionError, setSubscriptionError] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const subFetchFailCountRef = useRef(0);
+  const upgradingRef = useRef(false);
 
   const trialEventFiredRef = useRef(false);
 
@@ -251,7 +262,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     } catch (err) {
       logError('subscription fetch failed', err);
       subFetchFailCountRef.current += 1;
-      toast.error('تعذّر تحديث حالة الاشتراك');
+      toast.error('تعذّر تحديث حالة الاشتراك', { id: 'sub-fetch-error' });
       if (subFetchFailCountRef.current >= 3) {
         setSubscriptionError(true);
       }
@@ -275,6 +286,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       toast.error('تعذّر إتمام الدفع. تحقق من بطاقتك أو جرّب وسيلة دفع أخرى.');
       return;
     }
+    // Let PaymentProcessing handle payment=success exclusively — avoid double polling
+    if (params.get('payment') === 'success') return;
     if (params.get('payment') !== 'success' || !user) return;
 
     const expectedTier = params.get('tier') || null;
@@ -295,8 +308,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     // Check if subscription is already active before starting poll
     const preCheck = async () => {
       try {
-        const { data } = await supabase.from('subscriptions').select('status, tier').eq('user_id', user.id).maybeSingle();
-        if (data?.status === 'active' || data?.status === 'trial') {
+        const { data } = await supabase.from('subscriptions').select('status, tier, stripe_subscription_id').eq('user_id', user.id).maybeSingle();
+        if (data?.status === 'active' || (data?.status === 'trial' && data?.stripe_subscription_id)) {
           await fetchSubscription(user.id);
           cleanUrl();
           toast.success('تم تفعيل اشتراكك بنجاح!');
@@ -361,7 +374,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const initDoneRef = useRef(false);
   const fetchPromiseRef = useRef<Promise<void> | null>(null);
   const lastFetchedUserIdRef = useRef<string | null>(null);
-  const welcomeEmailSentRef = useRef(false);
+  const welcomeEmailSentRef = useRef(
+    (() => { try { return sessionStorage.getItem('pptides_welcome_sent') === '1'; } catch { return false; } })()
+  );
 
   useEffect(() => {
     // eslint-disable-next-line prefer-const -- reassigned on line below
@@ -436,6 +451,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
         if (event === 'SIGNED_IN' && session?.user && !welcomeEmailSentRef.current) {
           welcomeEmailSentRef.current = true;
+          try { sessionStorage.setItem('pptides_welcome_sent', '1'); } catch { /* restricted env */ }
           const edgeFnUrl = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/send-welcome-email`;
           fireAndForgetFetch(edgeFnUrl, {
             method: 'POST',
@@ -465,8 +481,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     timeout = setTimeout(() => {
       if (!initDoneRef.current) {
         if (fetchPromiseRef.current) {
-          // Subscription fetch still in flight — don't set isLoading false yet or we break
-          // ProtectedRoute/TrialBanner (they'd see default subscription). Let the fetch complete.
+          // Subscription fetch still in flight — re-schedule to check again in 10s
+          timeout = setTimeout(() => {
+            initDoneRef.current = true;
+            setIsLoading(false);
+          }, 10000);
           return;
         }
         logError('Auth init timeout (30s) — resolving with current state');
@@ -517,8 +536,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }).catch((err) => { logError('Visibility refresh failed:', err); });
       }
     };
+    const handleOnline = () => {
+      if (user) fetchSubRef.current(user.id);
+    };
     document.addEventListener('visibilitychange', handleVisibility);
-    return () => document.removeEventListener('visibilitychange', handleVisibility);
+    window.addEventListener('online', handleOnline);
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibility);
+      window.removeEventListener('online', handleOnline);
+    };
   }, [user]);
 
   const login = useCallback(async (email: string, password: string) => {
@@ -568,20 +594,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       try { refCode = localStorage.getItem('pptides_referral'); } catch { /* expected */ }
       const validRef = refCode && REFERRAL_CODE_REGEX.test(refCode) ? refCode.toUpperCase() : null;
 
-      const edgeFnUrl = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/send-welcome-email`;
-      fireAndForgetFetch(edgeFnUrl, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${data.session?.access_token ?? import.meta.env.VITE_SUPABASE_ANON_KEY}`,
-          apikey: import.meta.env.VITE_SUPABASE_ANON_KEY,
-        },
-        body: JSON.stringify({ email, name: '', referralCode: validRef }),
-      }, 'Welcome email (signup)');
+      if (data.session?.access_token) {
+        const edgeFnUrl = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/send-welcome-email`;
+        fireAndForgetFetch(edgeFnUrl, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${data.session.access_token}`,
+            apikey: import.meta.env.VITE_SUPABASE_ANON_KEY,
+          },
+          body: JSON.stringify({ email, name: '', referralCode: validRef }),
+        }, 'Welcome email (signup)');
+      }
 
       if (validRef) {
         events.referralConversion(validRef);
-        try { localStorage.removeItem('pptides_referral'); } catch { /* expected */ }
       }
     }
   }, []);
@@ -629,6 +656,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [user, subscription.status, subscription.trialDaysLeft, subscription.isPaidSubscriber, fetchSubscription]);
 
   const upgradeTo = useCallback(async (tier: 'essentials' | 'elite', billing: 'monthly' | 'annual' = 'monthly', coupon?: string) => {
+    if (upgradingRef.current) return;
+    upgradingRef.current = true;
     try {
       const session = await supabase.auth.getSession();
       const token = session.data.session?.access_token;
@@ -703,6 +732,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     } catch (e) {
       toast.error(`تعذّر التحويل لصفحة الدفع. تواصل معنا: ${SUPPORT_EMAIL}`);
       throw e;
+    } finally {
+      upgradingRef.current = false;
     }
   }, [navigate, refreshSubscription]);
 

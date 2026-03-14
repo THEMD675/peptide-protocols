@@ -21,7 +21,7 @@ export default memo(function DoseTitrationTimeline({ schedule, currentWeek, unit
   return (
     <div className="rounded-xl border border-stone-200 dark:border-stone-600 bg-stone-50 dark:bg-stone-900 p-4">
       <p className="mb-3 text-xs font-bold text-stone-700 dark:text-stone-200">جدول زيادة الجرعة</p>
-      <div className="flex items-center gap-1 overflow-x-auto pb-1">
+      <div className="flex items-center gap-1 overflow-x-auto pb-1" role="list">
         {schedule.map((step, i) => {
           const isNext = i < schedule.length - 1 && schedule[i + 1];
           const nextWeek = isNext ? schedule[i + 1].week : Infinity;
@@ -29,7 +29,7 @@ export default memo(function DoseTitrationTimeline({ schedule, currentWeek, unit
           const isPast = currentWeek >= nextWeek;
 
           return (
-            <div key={step.week} className="flex items-center gap-1">
+            <div key={step.week} className="flex items-center gap-1" role="listitem" aria-current={isCurrent ? 'step' : undefined}>
               <div className={cn(
                 'flex flex-col items-center rounded-lg px-3 py-2 text-center min-w-[60px] transition-all',
                 isCurrent ? 'bg-emerald-100 dark:bg-emerald-900/30 border-2 border-emerald-400 ring-2 ring-emerald-100' :

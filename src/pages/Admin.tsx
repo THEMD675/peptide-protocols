@@ -160,13 +160,13 @@ function Pagination({ page, total, onChange }: { page: number; total: number; on
   if (pages <= 1) return null;
   return (
     <div className="flex items-center justify-center gap-1 pt-3">
-      <button disabled={page <= 1} onClick={() => onChange(page - 1)} className="rounded-lg border border-stone-200 dark:border-stone-600 px-3 py-1.5 min-h-[44px] text-xs font-medium text-stone-600 dark:text-stone-300 hover:bg-stone-50 dark:hover:bg-stone-800 disabled:opacity-50 disabled:cursor-not-allowed">&laquo;</button>
+      <button disabled={page <= 1} onClick={() => onChange(page - 1)} aria-label="الصفحة السابقة" className="rounded-lg border border-stone-200 dark:border-stone-600 px-3 py-1.5 min-h-[44px] text-xs font-medium text-stone-600 dark:text-stone-300 hover:bg-stone-50 dark:hover:bg-stone-800 disabled:opacity-50 disabled:cursor-not-allowed">&laquo;</button>
       {Array.from({ length: pages }, (_, i) => i + 1).filter(p => p === 1 || p === pages || Math.abs(p - page) <= 2)
         .reduce<(number | 'e')[]>((a, p, i, arr) => { if (i > 0 && p - (arr[i - 1]) > 1) a.push('e'); a.push(p); return a; }, [])
-        .map((p, i) => p === 'e' ? <span key={`e${i}`} className="px-1 text-xs text-stone-400">&hellip;</span> :
-          <button key={p} onClick={() => onChange(p)} className={cn('rounded-lg px-2.5 py-1.5 min-h-[44px] text-xs font-medium', page === p ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400' : 'text-stone-600 dark:text-stone-300 hover:bg-stone-100 dark:hover:bg-stone-800')}>{p}</button>
+        .map((p, i) => p === 'e' ? <span key={`e${i}`} className="px-1 text-xs text-stone-500 dark:text-stone-400">&hellip;</span> :
+          <button key={p} onClick={() => onChange(p)} aria-label={`صفحة ${p}`} className={cn('rounded-lg px-2.5 py-1.5 min-h-[44px] text-xs font-medium', page === p ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400' : 'text-stone-600 dark:text-stone-300 hover:bg-stone-100 dark:hover:bg-stone-800')}>{p}</button>
         )}
-      <button disabled={page >= pages} onClick={() => onChange(page + 1)} className="rounded-lg border border-stone-200 dark:border-stone-600 px-3 py-1.5 min-h-[44px] text-xs font-medium text-stone-600 dark:text-stone-300 hover:bg-stone-50 dark:hover:bg-stone-800 disabled:opacity-50 disabled:cursor-not-allowed">&raquo;</button>
+      <button disabled={page >= pages} onClick={() => onChange(page + 1)} aria-label="الصفحة التالية" className="rounded-lg border border-stone-200 dark:border-stone-600 px-3 py-1.5 min-h-[44px] text-xs font-medium text-stone-600 dark:text-stone-300 hover:bg-stone-50 dark:hover:bg-stone-800 disabled:opacity-50 disabled:cursor-not-allowed">&raquo;</button>
     </div>
   );
 }
@@ -544,9 +544,13 @@ export default function Admin() {
   // Auth gate: redirect unauthenticated users to login
   if (!user) return (
     <div className="flex min-h-screen items-center justify-center bg-stone-50 dark:bg-stone-950">
-      <Helmet><title>404 | pptides</title></Helmet>
+      <Helmet>
+        <title>404 | pptides</title>
+        <meta name="description" content="الصفحة غير موجودة — ارجع للرئيسية أو تصفّح المكتبة" />
+        <meta name="robots" content="noindex, nofollow" />
+      </Helmet>
       <div className="text-center px-4">
-        <h1 className="text-4xl font-bold text-stone-200 mb-4 sm:text-6xl">404</h1>
+        <h2 className="text-4xl font-bold text-stone-200 mb-4 sm:text-6xl">404</h2>
         <p className="text-lg font-bold text-stone-900 dark:text-stone-100 mb-2">الصفحة غير موجودة</p>
         <p className="text-sm text-stone-600 dark:text-stone-300 mb-6">الصفحة التي تبحث عنها غير موجودة.</p>
         <Link to="/" className="inline-flex items-center gap-2 rounded-full bg-emerald-600 px-8 py-3.5 text-base font-semibold text-white hover:bg-emerald-700 transition-colors">
@@ -558,9 +562,13 @@ export default function Admin() {
   // Client-side admin hash guard — non-admin users see a 404
   if (forbidden) return (
     <div className="flex min-h-screen items-center justify-center bg-stone-50 dark:bg-stone-950">
-      <Helmet><title>404 | pptides</title></Helmet>
+      <Helmet>
+        <title>404 | pptides</title>
+        <meta name="description" content="الصفحة غير موجودة — ارجع للرئيسية أو تصفّح المكتبة" />
+        <meta name="robots" content="noindex, nofollow" />
+      </Helmet>
       <div className="text-center px-4">
-        <h1 className="text-4xl font-bold text-stone-200 mb-4 sm:text-6xl">404</h1>
+        <h2 className="text-4xl font-bold text-stone-200 mb-4 sm:text-6xl">404</h2>
         <p className="text-lg font-bold text-stone-900 dark:text-stone-100 mb-2">الصفحة غير موجودة</p>
         <p className="text-sm text-stone-600 dark:text-stone-300 mb-6">الصفحة التي تبحث عنها غير موجودة.</p>
         <Link to="/" className="inline-flex items-center gap-2 rounded-full bg-emerald-600 px-8 py-3.5 text-base font-semibold text-white hover:bg-emerald-700 transition-colors">
@@ -602,7 +610,10 @@ export default function Admin() {
 
   return (
     <div className="min-h-screen bg-stone-50 dark:bg-stone-950" lang="ar" dir="rtl">
-      <Helmet><title>لوحة التحكم | pptides</title></Helmet>
+      <Helmet>
+        <title>لوحة التحكم | pptides</title>
+        <meta name="robots" content="noindex, nofollow" />
+      </Helmet>
 
       {/* ===================== HEADER ===================== */}
       <div className="sticky top-[64px] md:top-[72px] z-30 bg-white dark:bg-stone-900 border-b border-stone-200 dark:border-stone-600 px-4 py-3">
@@ -622,7 +633,7 @@ export default function Admin() {
               className="flex items-center gap-1.5 rounded-lg border border-stone-200 dark:border-stone-600 px-3 py-1.5 text-xs font-medium text-stone-600 dark:text-stone-300 hover:bg-stone-50 dark:hover:bg-stone-800">
               <Send className="h-3.5 w-3.5" /> بريد
             </button>
-            <button onClick={() => fetchStats()} disabled={loading}
+            <button onClick={() => fetchStats()} disabled={loading} aria-label="تحديث الإحصائيات"
               className="flex items-center gap-1.5 rounded-lg border border-stone-200 dark:border-stone-600 px-3 py-1.5 text-xs font-medium text-stone-600 dark:text-stone-300 hover:bg-stone-50 dark:hover:bg-stone-800">
               <RefreshCw className={cn('h-3.5 w-3.5', loading && 'animate-spin')} /> تحديث
             </button>
@@ -715,7 +726,7 @@ export default function Admin() {
                   <div className="flex items-center justify-between mb-4">
                     <h3 className="text-xs font-bold text-stone-700 dark:text-stone-200 flex items-center gap-1.5" dir="rtl">
                       <TrendingUp className="h-3.5 w-3.5 text-emerald-500" /> التسجيلات — {periodLabel}
-                      <span className="text-[10px] font-normal text-stone-400 ms-1">({totalInPeriod} إجمالي)</span>
+                      <span className="text-[10px] font-normal text-stone-500 dark:text-stone-400 ms-1">({totalInPeriod} إجمالي)</span>
                     </h3>
                     <div className="flex gap-1">
                       {(['daily', 'weekly', 'monthly'] as const).map(p => (
@@ -851,7 +862,7 @@ export default function Admin() {
                     const tl = trialLeft(u.subscription?.trial_ends_at ?? null);
                     return (
                       <div key={u.id} className="flex items-center justify-between text-sm mb-2">
-                        <span className="font-mono text-xs text-stone-700 dark:text-stone-200 truncate max-w-[200px]">{u.email}</span>
+                        <span className="font-mono text-xs text-stone-700 dark:text-stone-200 truncate max-w-[200px]" title={u.email}>{u.email}</span>
                         <div className="flex items-center gap-1">
                           {tl && <span className={cn('rounded-full px-2 py-0.5 text-xs font-medium', tl.urgent ? 'bg-red-100 text-red-700 dark:text-red-400' : 'bg-blue-100 text-blue-700 dark:text-blue-400')}>{tl.text}</span>}
                           <button onClick={() => openUserAction('extend_trial', u)} className="rounded p-1.5 min-h-[44px] min-w-[44px] flex items-center justify-center hover:bg-stone-100 dark:hover:bg-stone-800" title="تمديد" aria-label="تمديد التجربة"><CalendarPlus className="h-3.5 w-3.5 text-emerald-700" /></button>
@@ -871,13 +882,13 @@ export default function Admin() {
                   <button onClick={() => { setEmailTo(''); setEmailSubject(''); setEmailBody(''); setEmailTemplate('custom'); setModal('send_email'); setModalTarget(null); }} className="w-full flex items-center gap-2 rounded-lg border border-stone-200 dark:border-stone-600 px-3 py-2 text-xs font-medium text-stone-700 dark:text-stone-200 hover:bg-stone-50 dark:hover:bg-stone-800">
                     <Send className="h-3.5 w-3.5 text-blue-500" /> إرسال بريد إلكتروني
                   </button>
-                  <button onClick={runHealthCheck} disabled={healthLoading} className="w-full flex items-center gap-2 rounded-lg border border-stone-200 dark:border-stone-600 px-3 py-2 text-xs font-medium text-stone-700 dark:text-stone-200 hover:bg-stone-50 dark:hover:bg-stone-800 disabled:opacity-50 disabled:cursor-not-allowed">
+                  <button onClick={runHealthCheck} disabled={healthLoading} aria-label="فحص صحة النظام" className="w-full flex items-center gap-2 rounded-lg border border-stone-200 dark:border-stone-600 px-3 py-2 text-xs font-medium text-stone-700 dark:text-stone-200 hover:bg-stone-50 dark:hover:bg-stone-800 disabled:opacity-50 disabled:cursor-not-allowed">
                     {healthLoading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Heart className="h-3.5 w-3.5 text-red-500 dark:text-red-400" />} فحص صحة النظام
                   </button>
-                  <button onClick={() => exportCSV('users')} className="w-full flex items-center gap-2 rounded-lg border border-stone-200 dark:border-stone-600 px-3 py-2 text-xs font-medium text-stone-700 dark:text-stone-200 hover:bg-stone-50 dark:hover:bg-stone-800">
+                  <button onClick={() => exportCSV('users')} aria-label="تصدير CSV" className="w-full flex items-center gap-2 rounded-lg border border-stone-200 dark:border-stone-600 px-3 py-2 text-xs font-medium text-stone-700 dark:text-stone-200 hover:bg-stone-50 dark:hover:bg-stone-800">
                     <Download className="h-3.5 w-3.5 text-emerald-500" /> تصدير المستخدمين CSV
                   </button>
-                  <button onClick={() => exportCSV('subscriptions')} className="w-full flex items-center gap-2 rounded-lg border border-stone-200 dark:border-stone-600 px-3 py-2 text-xs font-medium text-stone-700 dark:text-stone-200 hover:bg-stone-50 dark:hover:bg-stone-800">
+                  <button onClick={() => exportCSV('subscriptions')} aria-label="تصدير CSV" className="w-full flex items-center gap-2 rounded-lg border border-stone-200 dark:border-stone-600 px-3 py-2 text-xs font-medium text-stone-700 dark:text-stone-200 hover:bg-stone-50 dark:hover:bg-stone-800">
                     <Download className="h-3.5 w-3.5 text-emerald-500" /> تصدير الاشتراكات
                   </button>
                 </div>
@@ -926,7 +937,7 @@ export default function Admin() {
                     </button>
                   ))}
                 </div>
-                <button onClick={() => exportCSV('users')} className="flex items-center gap-1 rounded-lg border border-stone-200 dark:border-stone-600 px-3 py-1.5 text-xs font-medium text-stone-600 dark:text-stone-300 hover:bg-stone-50 dark:hover:bg-stone-800">
+                <button onClick={() => exportCSV('users')} aria-label="تصدير CSV" className="flex items-center gap-1 rounded-lg border border-stone-200 dark:border-stone-600 px-3 py-1.5 text-xs font-medium text-stone-600 dark:text-stone-300 hover:bg-stone-50 dark:hover:bg-stone-800">
                   <Download className="h-3.5 w-3.5" /> CSV
                 </button>
                 <button onClick={() => { setEmailSubject(''); setEmailBody(''); setBulkAudience('all'); setEmailTemplate('custom'); setModal('bulk_email'); }} className="flex items-center gap-1 rounded-lg border border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-900/20 px-3 py-1.5 text-xs font-medium text-emerald-700 dark:text-emerald-400 hover:bg-emerald-100 dark:bg-emerald-900/30">
@@ -996,8 +1007,8 @@ export default function Admin() {
                   return (
                     <div key={i} className="flex items-center gap-3 px-4 py-3">
                       <div className={cn('rounded-full p-1.5', ACTIVITY_COLOR[item.type] ?? 'bg-stone-100 dark:bg-stone-800 text-stone-600 dark:text-stone-300')}><Ic className="h-3.5 w-3.5" /></div>
-                      <div className="flex-1 min-w-0"><p className="text-sm text-stone-800 dark:text-stone-200">{item.description}</p>{item.email && <p className="text-xs text-stone-500 dark:text-stone-300 font-mono truncate">{item.email}</p>}</div>
-                      <span className="text-xs text-stone-400 whitespace-nowrap">{timeAgo(item.created_at)}</span>
+                      <div className="flex-1 min-w-0"><p className="text-sm text-stone-800 dark:text-stone-200">{item.description}</p>{item.email && <p className="text-xs text-stone-500 dark:text-stone-300 font-mono truncate" title={item.email}>{item.email}</p>}</div>
+                      <span className="text-xs text-stone-500 dark:text-stone-400 whitespace-nowrap">{timeAgo(item.created_at)}</span>
                     </div>
                   );
                 })}
@@ -1090,7 +1101,7 @@ export default function Admin() {
           <div className="space-y-3">
             <div className="flex items-center justify-between">
               <h2 className="text-sm font-bold text-stone-700 dark:text-stone-200">قائمة البريد ({stats.emailList.length})</h2>
-              <button onClick={() => exportCSV('email_list')} className="flex items-center gap-1 rounded-lg border border-stone-200 dark:border-stone-600 px-3 py-1.5 text-xs font-medium text-stone-600 dark:text-stone-300 hover:bg-stone-50 dark:hover:bg-stone-800"><Download className="h-3.5 w-3.5" /> تصدير</button>
+              <button onClick={() => exportCSV('email_list')} aria-label="تصدير CSV" className="flex items-center gap-1 rounded-lg border border-stone-200 dark:border-stone-600 px-3 py-1.5 text-xs font-medium text-stone-600 dark:text-stone-300 hover:bg-stone-50 dark:hover:bg-stone-800"><Download className="h-3.5 w-3.5" /> تصدير</button>
             </div>
             {stats.emailList.length === 0 ? <div className="rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 p-8 text-center"><Mail className="mx-auto h-8 w-8 text-stone-300 mb-2" /><p className="text-sm text-stone-500 dark:text-stone-300">لا يوجد مشتركين</p></div> :
               <div className="overflow-x-auto rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900"><table className="w-full text-sm"><thead><tr className="border-b border-stone-200 dark:border-stone-600 bg-stone-50 dark:bg-stone-900"><th className={TH_CLASS}>البريد</th><th className={TH_CLASS}>التاريخ</th></tr></thead><tbody>{stats.emailList.map(e => <tr key={e.id} className="border-b border-stone-100 dark:border-stone-700 hover:bg-stone-50 dark:hover:bg-stone-800"><td className="px-3 py-2 font-mono text-xs">{e.email}</td><td className="px-3 py-2 text-xs text-stone-500 dark:text-stone-300">{timeAgo(e.created_at)}</td></tr>)}</tbody></table></div>}
@@ -1194,7 +1205,7 @@ export default function Admin() {
           <div className="space-y-3">
             <div className="flex items-center justify-between">
               <h2 className="text-sm font-bold text-stone-700 dark:text-stone-200 flex items-center gap-1.5"><ClipboardList className="h-4 w-4 text-stone-500 dark:text-stone-300" /> سجل المراجعة</h2>
-              <button onClick={fetchAuditLog} disabled={auditLoading} className="flex items-center gap-1.5 rounded-lg border border-stone-200 dark:border-stone-600 px-3 py-1.5 text-xs font-medium text-stone-600 dark:text-stone-300 hover:bg-stone-50 dark:hover:bg-stone-800 disabled:opacity-50 disabled:cursor-not-allowed">
+              <button onClick={fetchAuditLog} disabled={auditLoading} aria-label="جلب سجل العمليات" className="flex items-center gap-1.5 rounded-lg border border-stone-200 dark:border-stone-600 px-3 py-1.5 text-xs font-medium text-stone-600 dark:text-stone-300 hover:bg-stone-50 dark:hover:bg-stone-800 disabled:opacity-50 disabled:cursor-not-allowed">
                 {auditLoading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <RefreshCw className="h-3.5 w-3.5" />} تحديث
               </button>
             </div>
@@ -1225,7 +1236,7 @@ export default function Admin() {
                           <td className="px-3 py-2 font-mono text-xs">{entry.admin_email}</td>
                           <td className="px-3 py-2 text-xs"><span className="rounded-full bg-stone-100 dark:bg-stone-800 px-2 py-0.5 text-xs font-medium text-stone-700 dark:text-stone-200">{entry.action}</span></td>
                           <td className="px-3 py-2 font-mono text-xs text-stone-500 dark:text-stone-300">{entry.target_user_id ? entry.target_user_id.slice(0, 8) + '...' : '—'}</td>
-                          <td className="px-3 py-2 text-xs text-stone-500 dark:text-stone-300 max-w-[300px] truncate">{entry.details ? JSON.stringify(entry.details) : '—'}</td>
+                          <td className="px-3 py-2 text-xs text-stone-500 dark:text-stone-300 max-w-[300px] truncate" title={entry.details ? JSON.stringify(entry.details) : '—'}>{entry.details ? JSON.stringify(entry.details) : '—'}</td>
                         </tr>
                       ))}
                     </tbody>
@@ -1489,8 +1500,8 @@ export default function Admin() {
                         <span className="text-stone-500 dark:text-stone-300">الباقة</span><span>{ud.subscription.tier || '—'}</span>
                         <span className="text-stone-500 dark:text-stone-300">نهاية الفترة</span><span>{ud.subscription.current_period_end ? new Date(ud.subscription.current_period_end).toLocaleDateString('ar-u-nu-latn') : '—'}</span>
                         <span className="text-stone-500 dark:text-stone-300">انتهاء التجربة</span><span>{ud.subscription.trial_ends_at ? new Date(ud.subscription.trial_ends_at).toLocaleDateString('ar-u-nu-latn') : '—'}</span>
-                        <span className="text-stone-500 dark:text-stone-300">اشتراك Stripe</span><span className="font-mono text-xs truncate">{ud.subscription.stripe_subscription_id || '—'}</span>
-                        <span className="text-stone-500 dark:text-stone-300">عميل Stripe</span><span className="font-mono text-xs truncate">{ud.subscription.stripe_customer_id || '—'}</span>
+                        <span className="text-stone-500 dark:text-stone-300">اشتراك Stripe</span><span className="font-mono text-xs truncate" title={ud.subscription.stripe_subscription_id || '—'}>{ud.subscription.stripe_subscription_id || '—'}</span>
+                        <span className="text-stone-500 dark:text-stone-300">عميل Stripe</span><span className="font-mono text-xs truncate" title={ud.subscription.stripe_customer_id || '—'}>{ud.subscription.stripe_customer_id || '—'}</span>
                       </div>
                     ) : <p className="text-sm text-stone-500 dark:text-stone-300">لا يوجد اشتراك</p>}
                   </section>
@@ -1538,7 +1549,7 @@ export default function Admin() {
                               <td className="px-2 py-1.5">{String(l.energy ?? l.energy_level ?? '—')}</td>
                               <td className="px-2 py-1.5">{String(l.sleep ?? l.sleep_quality ?? '—')}</td>
                               <td className="px-2 py-1.5">{String(l.mood ?? '—')}</td>
-                              <td className="px-2 py-1.5 max-w-[120px] truncate">{String(l.notes ?? '—')}</td>
+                              <td className="px-2 py-1.5 max-w-[120px] truncate" title={String(l.notes ?? '—')}>{String(l.notes ?? '—')}</td>
                               <td className="px-2 py-1.5 text-stone-500 dark:text-stone-300">{l.created_at ? timeAgo(String(l.created_at)) : '—'}</td>
                             </tr>
                           ))}</tbody>

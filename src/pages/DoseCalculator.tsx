@@ -568,10 +568,14 @@ export default function DoseCalculator() {
         )}
 
         {/* ═══════════════ TABS ═══════════════ */}
-        {isProOrTrial && <div className="mb-6 flex gap-1 overflow-x-auto scrollbar-hide -mx-1 px-1 pb-1">
+        {isProOrTrial && <div role="tablist" className="mb-6 flex gap-1 overflow-x-auto scrollbar-hide -mx-1 px-1 pb-1">
           {TABS.map((tab) => (
             <button
               key={tab.id}
+              role="tab"
+              aria-selected={activeTab === tab.id}
+              aria-controls={`panel-${tab.id}`}
+              id={`tab-${tab.id}`}
               onClick={() => setActiveTab(tab.id)}
               className={cn(
                 'flex shrink-0 items-center gap-2 rounded-2xl px-4 py-3 min-h-[44px] text-sm font-medium transition-all',
@@ -588,7 +592,7 @@ export default function DoseCalculator() {
 
         {/* ═══════════════ TAB 1: DOSE CALCULATOR ═══════════════ */}
         {isProOrTrial && activeTab === 'dose' && (
-          <>
+          <div role="tabpanel" id="panel-dose" aria-labelledby="tab-dose">
             {/* Common Protocols Quick-Select */}
             <div className="mb-6">
               <div className="flex items-center justify-center gap-2 mb-3">
@@ -693,8 +697,9 @@ export default function DoseCalculator() {
               </div>
               <div className="grid gap-4 sm:grid-cols-2">
                 <div className="space-y-2">
-                  <label className="block text-sm font-medium text-stone-800 dark:text-stone-200">وزن الجسم (كجم)</label>
+                  <label htmlFor="calc-body-weight" className="block text-sm font-medium text-stone-800 dark:text-stone-200">وزن الجسم (كجم)</label>
                   <input
+                    id="calc-body-weight"
                     type="number"
                     inputMode="decimal"
                     min={30}
@@ -703,11 +708,10 @@ export default function DoseCalculator() {
                     value={bodyWeight}
                     onChange={(e) => setBodyWeight(Math.max(0, Number(e.target.value) || 0))}
                     className="w-full rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-900 px-4 py-3 text-base text-stone-900 dark:text-stone-100 focus:border-emerald-300 focus:outline-none focus:ring-1 focus:ring-emerald-200"
-                    aria-label="وزن الجسم"
                   />
                 </div>
-                <div className="space-y-2">
-                  <label className="block text-sm font-medium text-stone-800 dark:text-stone-200">مستوى الهدف</label>
+                <div className="space-y-2" role="group" aria-labelledby="calc-goal-label">
+                  <label id="calc-goal-label" className="block text-sm font-medium text-stone-800 dark:text-stone-200">مستوى الهدف</label>
                   <div className="flex rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-900 p-1">
                     {(Object.keys(GOAL_LABELS) as GoalLevel[]).map(g => (
                       <button
@@ -910,8 +914,8 @@ export default function DoseCalculator() {
 
               {/* Frequency + Cost */}
               <div className="mb-8 grid gap-5 md:grid-cols-2">
-                <div className="space-y-2">
-                  <label className="block text-sm font-medium text-stone-800 dark:text-stone-200">تكرار الجرعة</label>
+                <div className="space-y-2" role="group" aria-labelledby="calc-freq-label">
+                  <label id="calc-freq-label" className="block text-sm font-medium text-stone-800 dark:text-stone-200">تكرار الجرعة</label>
                   <div className="flex gap-1 overflow-x-auto scrollbar-hide -mx-1 px-1 pb-1">
                     {([
                       { label: '3×/أسبوع', value: 3 / 7, hint: '3 مرات أسبوعيًا' },
@@ -1135,12 +1139,12 @@ export default function DoseCalculator() {
                 </div>
               </div>
             )}
-          </>
+          </div>
         )}
 
         {/* ═══════════════ TAB 2: RECONSTITUTION CALCULATOR ═══════════════ */}
         {isProOrTrial && activeTab === 'reconstitution' && (
-          <div className="space-y-6">
+          <div role="tabpanel" id="panel-reconstitution" aria-labelledby="tab-reconstitution" className="space-y-6">
             <div className="rounded-2xl border border-stone-200 dark:border-stone-600 bg-stone-50 dark:bg-stone-900 p-6 md:p-8">
               <div className="flex items-center gap-2 mb-6">
                 <FlaskConical className="h-5 w-5 text-emerald-700" />
@@ -1192,7 +1196,7 @@ export default function DoseCalculator() {
               <div className="grid gap-5 md:grid-cols-2">
                 {/* Vial Size */}
                 <div className="space-y-2">
-                  <label className="block text-sm font-medium text-stone-800 dark:text-stone-200">حجم القارورة (ملغ)</label>
+                  <label htmlFor="recon-vial-mg" className="block text-sm font-medium text-stone-800 dark:text-stone-200">حجم القارورة (ملغ)</label>
                   <div className="flex rounded-xl border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-900 p-1">
                     {[5, 10, 15, 20, 30].map(mg => (
                       <button key={mg} onClick={() => setReconVialMg(mg)}
@@ -1203,17 +1207,17 @@ export default function DoseCalculator() {
                     ))}
                   </div>
                   <input
+                    id="recon-vial-mg"
                     type="number" inputMode="decimal" min={0.5} step={0.5} value={reconVialMg}
                     onChange={e => setReconVialMg(Math.min(1000, Math.max(0, Number(e.target.value) || 0)))}
                     className="w-full rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-900 px-4 py-3 text-base text-stone-900 dark:text-stone-100 focus:border-emerald-300 focus:outline-none focus:ring-1 focus:ring-emerald-200"
                     placeholder="أو أدخل قيمة مخصصة"
-                    aria-label="حجم القارورة مخصص"
                   />
                 </div>
 
                 {/* Water Volume */}
                 <div className="space-y-2">
-                  <label className="block text-sm font-medium text-stone-800 dark:text-stone-200">كمية الماء (مل)</label>
+                  <label htmlFor="recon-water-ml" className="block text-sm font-medium text-stone-800 dark:text-stone-200">كمية الماء (مل)</label>
                   <div className="flex rounded-xl border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-900 p-1">
                     {[1, 2, 3, 5].map(ml => (
                       <button key={ml} onClick={() => setReconWaterMl(ml)}
@@ -1224,24 +1228,24 @@ export default function DoseCalculator() {
                     ))}
                   </div>
                   <input
+                    id="recon-water-ml"
                     type="number" inputMode="decimal" min={0.1} step={0.5} value={reconWaterMl}
                     onChange={e => setReconWaterMl(Math.min(100, Math.max(0, Number(e.target.value) || 0)))}
                     className="w-full rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-900 px-4 py-3 text-base text-stone-900 dark:text-stone-100 focus:border-emerald-300 focus:outline-none focus:ring-1 focus:ring-emerald-200"
                     placeholder="أو أدخل قيمة مخصصة"
-                    aria-label="كمية الماء مخصصة"
                   />
                 </div>
 
                 {/* Target Dose */}
                 <div className="space-y-2">
-                  <label className="block text-sm font-medium text-stone-800 dark:text-stone-200">الجرعة المطلوبة</label>
+                  <label htmlFor="recon-target-dose" className="block text-sm font-medium text-stone-800 dark:text-stone-200">الجرعة المطلوبة</label>
                   <div className="flex gap-2">
                     <input
+                      id="recon-target-dose"
                       type="number" inputMode="decimal" min={0} step={reconDoseUnit === 'mcg' ? 50 : 0.05}
                       value={reconTargetDose}
                       onChange={e => setReconTargetDose(Math.min(100000, Math.max(0, Number(e.target.value) || 0)))}
                       className="flex-1 rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-900 px-4 py-3 text-base text-stone-900 dark:text-stone-100 focus:border-emerald-300 focus:outline-none focus:ring-1 focus:ring-emerald-200"
-                      aria-label="الجرعة المطلوبة"
                     />
                     <div className="flex rounded-xl border border-stone-200 dark:border-stone-700 p-1">
                       <button onClick={() => setReconDoseUnit('mcg')}
@@ -1258,13 +1262,13 @@ export default function DoseCalculator() {
 
                 {/* Syringe */}
                 <div className="space-y-2">
-                  <label className="block text-sm font-medium text-stone-800 dark:text-stone-200">حجم السيرنج</label>
+                  <label htmlFor="recon-syringe" className="block text-sm font-medium text-stone-800 dark:text-stone-200">حجم السيرنج</label>
                   <div className="relative">
                     <select
+                      id="recon-syringe"
                       value={reconSyringeIdx}
                       onChange={e => setReconSyringeIdx(Number(e.target.value))}
                       className="w-full appearance-none rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-900 px-4 py-3 pe-10 text-base text-stone-900 dark:text-stone-100 focus:border-emerald-300 focus:outline-none focus:ring-1 focus:ring-emerald-200"
-                      aria-label="حجم السيرنج"
                     >
                       {SYRINGE_OPTIONS.map((opt, i) => (
                         <option key={opt.label} value={i}>{opt.label}</option>
@@ -1378,7 +1382,7 @@ export default function DoseCalculator() {
 
         {/* ═══════════════ TAB 3: COST CALCULATOR ═══════════════ */}
         {isProOrTrial && activeTab === 'cost' && (
-          <div className="space-y-6">
+          <div role="tabpanel" id="panel-cost" aria-labelledby="tab-cost" className="space-y-6">
             <div className="rounded-2xl border border-stone-200 dark:border-stone-600 bg-stone-50 dark:bg-stone-900 p-6 md:p-8">
               <div className="flex items-center gap-2 mb-6">
                 <DollarSign className="h-5 w-5 text-emerald-700" />
@@ -1389,9 +1393,10 @@ export default function DoseCalculator() {
               {/* Add Entry Form */}
               <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 mb-6">
                 <div className="space-y-2">
-                  <label className="block text-xs font-medium text-stone-800 dark:text-stone-200">الببتيد</label>
+                  <label htmlFor="cost-peptide" className="block text-xs font-medium text-stone-800 dark:text-stone-200">الببتيد</label>
                   <div className="relative">
                     <select
+                      id="cost-peptide"
                       value={costPeptide}
                       onChange={e => {
                         setCostPeptide(e.target.value);
@@ -1402,7 +1407,6 @@ export default function DoseCalculator() {
                         }
                       }}
                       className="w-full appearance-none rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-900 px-4 py-3 pe-10 text-sm text-stone-900 dark:text-stone-100 focus:border-emerald-300 focus:outline-none focus:ring-1 focus:ring-emerald-200"
-                      aria-label="اختر الببتيد"
                     >
                       <option value="">اختر ببتيد...</option>
                       {PEPTIDE_PRESETS.map(p => (
@@ -1413,19 +1417,19 @@ export default function DoseCalculator() {
                   </div>
                 </div>
                 <div className="space-y-2">
-                  <label className="block text-xs font-medium text-stone-800 dark:text-stone-200">سعر القارورة (ر.س)</label>
-                  <input type="number" inputMode="decimal" min={0} step={5} value={costPrice || ''} onChange={e => setCostPrice(Number(e.target.value))}
-                    placeholder="مثال: 40" className="w-full rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-900 px-4 py-3 text-sm text-stone-900 dark:text-stone-100 placeholder:text-stone-500 dark:text-stone-300 focus:border-emerald-300 focus:outline-none focus:ring-1 focus:ring-emerald-200" aria-label="سعر القارورة" />
+                  <label htmlFor="cost-price" className="block text-xs font-medium text-stone-800 dark:text-stone-200">سعر القارورة (ر.س)</label>
+                  <input id="cost-price" type="number" inputMode="decimal" min={0} step={5} value={costPrice || ''} onChange={e => setCostPrice(Number(e.target.value))}
+                    placeholder="مثال: 40" className="w-full rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-900 px-4 py-3 text-sm text-stone-900 dark:text-stone-100 placeholder:text-stone-500 dark:text-stone-300 focus:border-emerald-300 focus:outline-none focus:ring-1 focus:ring-emerald-200" />
                 </div>
                 <div className="space-y-2">
-                  <label className="block text-xs font-medium text-stone-800 dark:text-stone-200">حجم القارورة (ملغ)</label>
-                  <input type="number" inputMode="decimal" min={0.5} step={1} value={costVialMg} onChange={e => setCostVialMg(Number(e.target.value))}
-                    className="w-full rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-900 px-4 py-3 text-sm text-stone-900 dark:text-stone-100 focus:border-emerald-300 focus:outline-none focus:ring-1 focus:ring-emerald-200" aria-label="حجم القارورة" />
+                  <label htmlFor="cost-vial-mg" className="block text-xs font-medium text-stone-800 dark:text-stone-200">حجم القارورة (ملغ)</label>
+                  <input id="cost-vial-mg" type="number" inputMode="decimal" min={0.5} step={1} value={costVialMg} onChange={e => setCostVialMg(Number(e.target.value))}
+                    className="w-full rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-900 px-4 py-3 text-sm text-stone-900 dark:text-stone-100 focus:border-emerald-300 focus:outline-none focus:ring-1 focus:ring-emerald-200" />
                 </div>
                 <div className="space-y-2">
-                  <label className="block text-xs font-medium text-stone-800 dark:text-stone-200">الجرعة (مكغ)</label>
-                  <input type="number" inputMode="decimal" min={0} step={50} value={costDoseMcg} onChange={e => setCostDoseMcg(Number(e.target.value))}
-                    className="w-full rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-900 px-4 py-3 text-sm text-stone-900 dark:text-stone-100 focus:border-emerald-300 focus:outline-none focus:ring-1 focus:ring-emerald-200" aria-label="الجرعة بالمايكروغرام" />
+                  <label htmlFor="cost-dose-mcg" className="block text-xs font-medium text-stone-800 dark:text-stone-200">الجرعة (مكغ)</label>
+                  <input id="cost-dose-mcg" type="number" inputMode="decimal" min={0} step={50} value={costDoseMcg} onChange={e => setCostDoseMcg(Number(e.target.value))}
+                    className="w-full rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-900 px-4 py-3 text-sm text-stone-900 dark:text-stone-100 focus:border-emerald-300 focus:outline-none focus:ring-1 focus:ring-emerald-200" />
                 </div>
                 <div className="space-y-2">
                   <label className="block text-xs font-medium text-stone-800 dark:text-stone-200">الجرعات/يوم</label>
@@ -1550,7 +1554,7 @@ export default function DoseCalculator() {
 
         {/* ═══════════════ TAB 4: UNIT CONVERTER ═══════════════ */}
         {isProOrTrial && activeTab === 'converter' && (
-          <div className="space-y-6">
+          <div role="tabpanel" id="panel-converter" aria-labelledby="tab-converter" className="space-y-6">
             <div className="rounded-2xl border border-stone-200 dark:border-stone-600 bg-stone-50 dark:bg-stone-900 p-6 md:p-8">
               <div className="flex items-center gap-2 mb-6">
                 <ArrowLeftRight className="h-5 w-5 text-emerald-700" />
@@ -1560,8 +1564,9 @@ export default function DoseCalculator() {
               <div className="grid gap-5 md:grid-cols-3 mb-6">
                 {/* Value */}
                 <div className="space-y-2">
-                  <label className="block text-sm font-medium text-stone-800 dark:text-stone-200">القيمة</label>
+                  <label htmlFor="converter-value" className="block text-sm font-medium text-stone-800 dark:text-stone-200">القيمة</label>
                   <input
+                    id="converter-value"
                     type="number"
                     inputMode="decimal"
                     min={0}
@@ -1569,13 +1574,12 @@ export default function DoseCalculator() {
                     value={converterValue}
                     onChange={e => setConverterValue(Math.max(0, Number(e.target.value) || 0))}
                     className="w-full rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-900 px-4 py-3 text-base text-stone-900 dark:text-stone-100 focus:border-emerald-300 focus:outline-none focus:ring-1 focus:ring-emerald-200"
-                    aria-label="قيمة التحويل"
                   />
                 </div>
 
                 {/* From */}
-                <div className="space-y-2">
-                  <label className="block text-sm font-medium text-stone-800 dark:text-stone-200">من</label>
+                <div className="space-y-2" role="group" aria-labelledby="converter-from-label">
+                  <label id="converter-from-label" className="block text-sm font-medium text-stone-800 dark:text-stone-200">من</label>
                   <div className="flex rounded-xl border border-stone-200 dark:border-stone-700 p-1">
                     {(['mcg', 'mg', 'iu'] as const).map(u => (
                       <button key={u} onClick={() => setConverterFrom(u)}
@@ -1587,8 +1591,8 @@ export default function DoseCalculator() {
                 </div>
 
                 {/* To */}
-                <div className="space-y-2">
-                  <label className="block text-sm font-medium text-stone-800 dark:text-stone-200">إلى</label>
+                <div className="space-y-2" role="group" aria-labelledby="converter-to-label">
+                  <label id="converter-to-label" className="block text-sm font-medium text-stone-800 dark:text-stone-200">إلى</label>
                   <div className="flex rounded-xl border border-stone-200 dark:border-stone-700 p-1">
                     {(['mcg', 'mg', 'iu'] as const).map(u => (
                       <button key={u} onClick={() => setConverterTo(u)}

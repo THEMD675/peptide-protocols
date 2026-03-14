@@ -2,7 +2,7 @@ import { lazy, Suspense, useEffect, useState, useSyncExternalStore, Component, t
 import { BrowserRouter, Routes, Route, Link, Navigate, useLocation, useNavigationType, useParams } from 'react-router-dom';
 import { useAuth, AuthProvider } from '@/contexts/AuthContext';
 import { Helmet, HelmetProvider } from 'react-helmet-async';
-import { Toaster } from 'sonner';
+import { Toaster, toast } from 'sonner';
 const Analytics = lazy(() => import('@vercel/analytics/react').then(m => ({ default: m.Analytics })));
 const SpeedInsights = lazy(() => import('@vercel/speed-insights/react').then(m => ({ default: m.SpeedInsights })));
 import { SITE_URL, STORAGE_KEYS, REFERRAL_CODE_REGEX } from '@/lib/constants';
@@ -206,6 +206,7 @@ function ReferralCapture() {
       const ref = new URLSearchParams(search).get('ref');
       if (ref && REFERRAL_CODE_REGEX.test(ref)) {
         localStorage.setItem('pptides_referral', ref);
+        toast('صديقك دعاك! ستحصل على خصم 40% على شهرك الثاني 🎁', { duration: 10000 });
         const url = new URL(window.location.href);
         url.searchParams.delete('ref');
         window.history.replaceState({}, '', url.toString());
@@ -327,6 +328,7 @@ export default function App() {
   return (
     <HelmetProvider>
     <BrowserRouter>
+      <ErrorBoundary>
       <AuthProvider>
         <ErrorBoundary>
           <div className="min-h-screen flex flex-col bg-white dark:bg-stone-950 text-stone-900 dark:text-stone-100 overflow-x-hidden">
@@ -392,6 +394,7 @@ export default function App() {
         </div>
         </ErrorBoundary>
       </AuthProvider>
+      </ErrorBoundary>
     </BrowserRouter>
     </HelmetProvider>
   );

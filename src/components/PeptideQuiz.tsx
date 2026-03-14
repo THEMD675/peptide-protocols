@@ -14,6 +14,9 @@ import { supabase } from '@/lib/supabase';
 import { events } from '@/lib/analytics';
 import { logError } from '@/lib/logger';
 import { peptidesPublic as allPeptides } from '@/data/peptides-public';
+import { peptides as fullPeptides } from '@/data/peptides';
+
+const fullPeptideMap = new Map(fullPeptides.map(p => [p.id, p]));
 import ShareButtons from '@/components/ShareButtons';
 import { SITE_URL } from '@/lib/constants';
 
@@ -219,7 +222,7 @@ const ORAL_NASAL_TOPICAL_IDS = new Set([
 function hasHealthConflict(peptideId: string, healthIssues: HealthIssueId[]): string | null {
   const peptide = allPeptides.find(p => p.id === peptideId);
   if (!peptide) return null;
-  const contra = (peptide.contraindicationsAr ?? '').toLowerCase();
+  const contra = (fullPeptideMap.get(peptideId)?.contraindicationsAr ?? '').toLowerCase();
 
   if (healthIssues.includes('diabetes')) {
     if (['semaglutide', 'tirzepatide', 'retatrutide'].includes(peptideId)) {
@@ -327,7 +330,7 @@ function getProtocol(answers: QuizAnswers): ProtocolResult {
 
   // Build dosing schedule
   const pData = primary.peptide;
-  let dosingSchedule = (pData.dosageAr ?? 'اشترك لعرض الجرعة').split('.')[0] + '.';
+  let dosingSchedule = (fullPeptideMap.get(pData.id)?.dosageAr ?? 'اشترك لعرض الجرعة').split('.')[0] + '.';
   if (exp === 'beginner') {
     dosingSchedule += ' يُنصح بالبدء بأقل جرعة والزيادة تدريجياً.';
   }
@@ -354,7 +357,8 @@ function getProtocol(answers: QuizAnswers): ProtocolResult {
     warnings.push('ابدأ بجرعات منخفضة وزِد تدريجياً — الاستجابة تختلف مع العمر.');
   }
 
-  const cycleDur = pData.cycleAr ? pData.cycleAr.split('.')[0] + '.' : 'اشترك لعرض مدة الدورة';
+  const cycleAr = fullPeptideMap.get(pData.id)?.cycleAr;
+  const cycleDur = cycleAr ? cycleAr.split('.')[0] + '.' : 'اشترك لعرض مدة الدورة';
 
   return {
     primary: {
@@ -401,7 +405,7 @@ function SlideTransition({ children, stepKey, direction }: { children: ReactNode
     <div
       className={cn(
         'transition-all duration-300 ease-out',
-        visible ? 'opacity-100 translate-x-0' : direction === 'forward' ? 'opacity-0 translate-x-4' : 'opacity-0 -translate-x-4',
+        visible ? 'opacity-100 translate-x-0' : direction === 'forward' ? 'opacity-0 rtl:-translate-x-4 ltr:translate-x-4' : 'opacity-0 rtl:translate-x-4 ltr:-translate-x-4',
       )}
     >
       {children}
@@ -459,13 +463,14 @@ export default function PeptideQuiz() {
     // If no saved result matches, check if the peptide exists and build a minimal result
     const peptide = allPeptides.find(p => p.id === resultParam);
     if (peptide) {
+      const fullP = fullPeptideMap.get(peptide.id);
       const minimalResult: ProtocolResult = {
         primary: { peptideId: peptide.id, nameAr: peptide.nameAr, nameEn: peptide.nameEn, reason: (peptide.summaryAr ?? '').split('.').slice(0, 2).join('.') + '.' },
         supporting: [],
-        dosingSchedule: peptide.dosageAr ? peptide.dosageAr.split('.')[0] + '.' : 'اشترك لعرض الجرعة',
+        dosingSchedule: fullP?.dosageAr ? fullP.dosageAr.split('.')[0] + '.' : 'اشترك لعرض الجرعة',
         monthlyCost: peptide.costEstimate || 'غير محدد',
         warnings: [],
-        protocolDuration: peptide.cycleAr ? peptide.cycleAr.split('.')[0] + '.' : 'اشترك لعرض مدة الدورة',
+        protocolDuration: fullP?.cycleAr ? fullP.cycleAr.split('.')[0] + '.' : 'اشترك لعرض مدة الدورة',
       };
       setResult(minimalResult);
       setPhase('result');
@@ -671,8 +676,8 @@ export default function PeptideQuiz() {
                 <FlaskConical className="h-5 w-5 text-emerald-700 dark:text-emerald-400" />
               </div>
               <div className="min-w-0">
-                <p className="text-sm font-bold text-stone-900 dark:text-stone-100 truncate">{previousData.result.primary.nameAr}</p>
-                <p className="text-xs text-stone-500 dark:text-stone-300 truncate">{previousData.result.primary.nameEn}</p>
+                <p className="text-sm font-bold text-stone-900 dark:text-stone-100 truncate" title={previousData.result.primary.nameAr}>{previousData.result.primary.nameAr}</p>
+                <p className="text-xs text-stone-500 dark:text-stone-300 truncate" title={previousData.result.primary.nameEn}>{previousData.result.primary.nameEn}</p>
               </div>
             </div>
             {previousData.result.supporting.length > 0 && (
@@ -713,6 +718,7 @@ export default function PeptideQuiz() {
 
   if (phase === 'result' && result) {
     const primaryData = allPeptides.find(p => p.id === result.primary.peptideId);
+    const primaryFull = fullPeptideMap.get(result.primary.peptideId);
     const hasCalcPreset = primaryData && !ORAL_NASAL_TOPICAL_IDS.has(result.primary.peptideId);
     const showSubscribeCTA = !user;
 
@@ -745,12 +751,12 @@ export default function PeptideQuiz() {
             <div className="space-y-2 text-sm">
               <div className="flex gap-2 items-start">
                   <span className="font-bold text-stone-700 dark:text-stone-200 shrink-0">الجرعة:</span>
-                  <span className="text-stone-600 dark:text-stone-300">{primaryData?.dosageAr ? primaryData.dosageAr.split('.')[0] : 'اشترك لعرض الجرعة'}</span>
+                  <span className="text-stone-600 dark:text-stone-300">{primaryFull?.dosageAr ? primaryFull.dosageAr.split('.')[0] : 'اشترك لعرض الجرعة'}</span>
                 </div>
-              {primaryData?.timingAr && (
+              {primaryFull?.timingAr && (
                 <div className="flex gap-2 items-start">
                   <span className="font-bold text-stone-700 dark:text-stone-200 shrink-0">التوقيت:</span>
-                  <span className="text-stone-600 dark:text-stone-300">{primaryData.timingAr.split('.')[0]}</span>
+                  <span className="text-stone-600 dark:text-stone-300">{primaryFull.timingAr.split('.')[0]}</span>
                 </div>
               )}
               <div className="flex gap-2 items-start">

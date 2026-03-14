@@ -3,7 +3,7 @@ import { Link, useLocation } from 'react-router-dom';
 import {
   LayoutDashboard, Syringe, BookOpen, MoreHorizontal,
   Bot, Calculator, FlaskConical, Layers, GitCompare, BookText, X,
-  FileText,
+  FileText, Home, CreditCard, LogIn,
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { cn } from '@/lib/utils';
@@ -67,7 +67,47 @@ export default memo(function BottomNav() {
     return () => document.removeEventListener('mousedown', handleClick);
   }, [moreOpen]);
 
-  if (!user || keyboardOpen) return null;
+  if (keyboardOpen) return null;
+
+  if (!user) {
+    return (
+      <nav
+        className="fixed inset-x-0 bottom-0 z-30 border-t border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 pb-[env(safe-area-inset-bottom)] md:hidden"
+        aria-label="تنقل الضيوف"
+      >
+        <div className="flex justify-around items-center h-14">
+          <Link
+            to="/"
+            className="flex flex-col items-center gap-0.5 text-xs text-stone-500 dark:text-stone-300 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors py-2"
+          >
+            <Home className="h-5 w-5" />
+            <span>الرئيسية</span>
+          </Link>
+          <Link
+            to="/library"
+            className="flex flex-col items-center gap-0.5 text-xs text-stone-500 dark:text-stone-300 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors py-2"
+          >
+            <FlaskConical className="h-5 w-5" />
+            <span>المكتبة</span>
+          </Link>
+          <Link
+            to="/pricing"
+            className="flex flex-col items-center gap-0.5 text-xs text-stone-500 dark:text-stone-300 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors py-2"
+          >
+            <CreditCard className="h-5 w-5" />
+            <span>الأسعار</span>
+          </Link>
+          <Link
+            to="/login"
+            className="flex flex-col items-center gap-0.5 text-xs text-stone-500 dark:text-stone-300 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors py-2"
+          >
+            <LogIn className="h-5 w-5" />
+            <span>دخول</span>
+          </Link>
+        </div>
+      </nav>
+    );
+  }
 
   return (
     <>

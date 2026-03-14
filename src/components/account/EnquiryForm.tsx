@@ -1,9 +1,11 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Check, MessageSquare, Send } from 'lucide-react';
 import { toast } from 'sonner';
 import { cn, sanitizeInput } from '@/lib/utils';
 import { supabase } from '@/lib/supabase';
 import { logError } from '@/lib/logger';
+
+const RATE_LIMIT_MS = 60_000;
 
 interface EnquiryFormProps {
   userEmail?: string;
@@ -16,7 +18,18 @@ export default function EnquiryForm({ userEmail, userId }: EnquiryFormProps) {
   const [peptide, setPeptide] = useState('');
   const [sending, setSending] = useState(false);
   const [sent, setSent] = useState(false);
+  const [cooldownRemaining, setCooldownRemaining] = useState(0);
+  const lastSubmitRef = useRef(0);
   const [history, setHistory] = useState<Array<{ id: string; subject: string; status: string; created_at: string; peptide_name: string | null }>>([]);
+
+  useEffect(() => {
+    if (cooldownRemaining <= 0) return;
+    const timer = setInterval(() => {
+      const remaining = Math.max(0, Math.ceil((lastSubmitRef.current + RATE_LIMIT_MS - Date.now()) / 1000));
+      setCooldownRemaining(remaining);
+    }, 1000);
+    return () => clearInterval(timer);
+  }, [cooldownRemaining]);
 
   useEffect(() => {
     if (!userId) return;
@@ -31,6 +44,10 @@ export default function EnquiryForm({ userEmail, userId }: EnquiryFormProps) {
     e.preventDefault();
     if (!message.trim() || !userId) return;
     if (sending) return;
+    if (Date.now() - lastSubmitRef.current < RATE_LIMIT_MS) {
+      toast.error('انتظر قليلاً قبل المحاولة مرة أخرى');
+      return;
+    }
     setSending(true);
     (document.activeElement as HTMLElement)?.blur();
 
@@ -54,6 +71,8 @@ export default function EnquiryForm({ userEmail, userId }: EnquiryFormProps) {
       setSubject('');
       setMessage('');
       setPeptide('');
+      lastSubmitRef.current = Date.now();
+      setCooldownRemaining(RATE_LIMIT_MS / 1000);
       setTimeout(() => setSent(false), 5000);
     } catch {
       toast.error('فشل الاتصال بالخادم — تحقق من اتصالك بالإنترنت');
@@ -119,7 +138,7 @@ export default function EnquiryForm({ userEmail, userId }: EnquiryFormProps) {
           </div>
           <button
             type="submit"
-            disabled={!message.trim() || sending}
+            disabled={!message.trim() || sending || cooldownRemaining > 0}
             className="w-full flex items-center justify-center gap-2 rounded-full bg-emerald-600 px-6 py-3 text-sm font-bold text-white transition-all hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none"
           >
             {sending ? (
@@ -127,6 +146,8 @@ export default function EnquiryForm({ userEmail, userId }: EnquiryFormProps) {
                 <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />
                 جارٍ الإرسال...
               </span>
+            ) : cooldownRemaining > 0 ? (
+              <span>انتظر {cooldownRemaining} ث</span>
             ) : (
               <>
                 <Send className="h-4 w-4" />
@@ -144,7 +165,7 @@ export default function EnquiryForm({ userEmail, userId }: EnquiryFormProps) {
             {history.map(h => (
               <div key={h.id} className="flex items-center justify-between rounded-lg border border-stone-100 dark:border-stone-700 bg-stone-50 dark:bg-stone-900 px-3 py-2">
                 <div className="min-w-0 flex-1">
-                  <p className="text-xs font-medium text-stone-800 dark:text-stone-200 truncate">{h.subject}</p>
+                  <p className="text-xs font-medium text-stone-800 dark:text-stone-200 truncate" title={h.subject}>{h.subject}</p>
                   <p className="text-[10px] text-stone-500 dark:text-stone-300">{new Date(h.created_at).toLocaleDateString('ar-u-nu-latn')}</p>
                 </div>
                 <span className={cn('shrink-0 rounded-full px-2 py-0.5 text-[10px] font-bold', h.status === 'replied' ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400' : h.status === 'closed' ? 'bg-stone-200 dark:bg-stone-700 text-stone-600 dark:text-stone-300' : 'bg-amber-100 text-amber-700 dark:text-amber-400')}>{h.status === 'replied' ? 'تم الرد' : h.status === 'closed' ? 'مغلق' : 'قيد المراجعة'}</span>

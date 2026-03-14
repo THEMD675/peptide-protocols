@@ -41,6 +41,17 @@ export default function EmailCapture() {
     setErrorMsg('');
 
     try {
+      try {
+        const disifyRes = await fetch(`https://www.disify.com/api/email/${encodeURIComponent(email)}`);
+        if (disifyRes.ok) {
+          const disifyData = await disifyRes.json();
+          if (disifyData.disposable) {
+            setStatus('error');
+            setErrorMsg('لا يمكن التسجيل ببريد إلكتروني مؤقت — استخدم بريدك الحقيقي');
+            return;
+          }
+        }
+      } catch { /* non-blocking -- proceed if Disify is down */ }
       const { error } = await supabase.from('email_list').insert({ email });
 
       if (error) {
@@ -90,6 +101,7 @@ export default function EmailCapture() {
             onChange={(e) => setEmail(e.target.value)}
             placeholder="بريدك@example.com"
             aria-label="البريد الإلكتروني"
+            autoComplete="email"
             required
             className="w-full rounded-full bg-white/10 dark:bg-white/5 border border-stone-300 dark:border-stone-600 py-3.5 ps-11 pe-4 text-stone-900 dark:text-white placeholder:text-stone-500 dark:placeholder:text-white/40 outline-none focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-500 transition-all"
           />

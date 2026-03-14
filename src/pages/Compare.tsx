@@ -94,6 +94,7 @@ function ExpandableCell({ text, isDiff }: { text: string; isDiff: boolean }) {
         <button
           type="button"
           onClick={() => setExpanded((v) => !v)}
+          aria-expanded={expanded}
           className={cn(
             'mt-1 block text-xs font-bold underline-offset-2 hover:underline transition-colors',
             isDiff ? 'text-amber-600 dark:text-amber-400' : 'text-stone-500 dark:text-stone-300',
@@ -237,6 +238,9 @@ export default function Compare() {
   const [showDiffsOnly, setShowDiffsOnly] = useState(false);
   const tableRef = useRef<HTMLDivElement>(null);
   const [canScrollTable, setCanScrollTable] = useState(false);
+  const copyTimerRef = useRef<ReturnType<typeof setTimeout>>();
+
+  useEffect(() => () => { clearTimeout(copyTimerRef.current); }, []);
 
   const [ids, setIds] = useState<[string, string, string]>(() => {
     const idsParam = searchParams.get('ids');
@@ -309,7 +313,7 @@ export default function Compare() {
     if (ok) {
       setCopied(true);
       toast.success('تم نسخ رابط المقارنة ✓', { description: 'شاركه مع أي شخص ليرى نفس المقارنة' });
-      setTimeout(() => setCopied(false), 2500);
+      copyTimerRef.current = setTimeout(() => setCopied(false), 2500);
     } else {
       toast.error('فشل نسخ الرابط');
     }
@@ -345,6 +349,8 @@ export default function Compare() {
           property="og:description"
           content="قارن بين الببتيدات جنبًا إلى جنب — الجرعات، الفوائد، الأعراض الجانبية، والأسعار"
         />
+        <meta property="og:type" content="website" />
+        <meta property="og:locale" content="ar_SA" />
         <meta property="og:image" content={`${SITE_URL}/og-image.jpg`} />
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content="مقارنة الببتيدات | pptides" />

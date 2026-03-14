@@ -7,7 +7,7 @@ import type { VercelRequest, VercelResponse } from '@vercel/node';
 const SITE_URL = 'https://pptides.com';
 
 // ── Supabase config ──
-const SUPABASE_URL = process.env.VITE_SUPABASE_URL || 'https://rxxzphwojutewvbfzgqd.supabase.co';
+const SUPABASE_URL = process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL;
 const SUPABASE_ANON_KEY = process.env.VITE_SUPABASE_ANON_KEY || '';
 
 // ── Static routes with changefreq and priority ──
@@ -37,15 +37,15 @@ const STATIC_ROUTES: { path: string; changefreq: string; priority: number }[] = 
 
 // ── Peptide IDs (from PEPTIDE_META in og.ts) ──
 const PEPTIDE_IDS: string[] = [
-  'semaglutide', 'tirzepatide', 'retatrutide', 'tesamorelin', 'aod-9604',
+  'semaglutide', 'tirzepatide', 'retatrutide', 'orforglipron', 'tesamorelin', 'aod-9604',
   '5-amino-1mq', 'bpc-157', 'tb-500', 'cjc-1295', 'ipamorelin',
-  'sermorelin', 'ghrp-2', 'ghrp-6', 'hexarelin', 'igf-1-lr3',
+  'sermorelin', 'ghrp-2', 'ghrp-6', 'hexarelin', 'mk-677', 'igf-1-lr3',
   'follistatin-344', 'kisspeptin-10', 'pt-141', 'testicular-bioregulators',
   'gnrh-triptorelin', 'semax', 'na-semax-amidate', 'selank', 'dihexa',
-  'cerebrolysin', 'p21', 'epithalon', 'dsip', 'ss-31', 'mots-c',
+  'cerebrolysin', 'p21', 'epithalon', 'dsip', 'ss-31', 'mots-c', 'humanin',
   'foxo4-dri', 'thymalin', 'thymosin-alpha-1', 'collagen-peptides',
   'ghk-cu', 'copper-peptides-topical', 'larazotide', 'kpv', 'll-37',
-  'ara-290', 'melanotan-ii',
+  'ara-290', 'melanotan-ii', 'vip', 'oxytocin', 'snap-8',
 ];
 
 // ── Fetch published blog posts from Supabase ──
@@ -85,6 +85,9 @@ function urlEntry(loc: string, lastmod: string, changefreq: string, priority: nu
 
 // ── Handler ──
 export default async function handler(_req: VercelRequest, res: VercelResponse) {
+  if (!SUPABASE_URL) {
+    return res.status(500).json({ error: 'SUPABASE_URL not configured' });
+  }
   try {
     const today = new Date().toISOString().split('T')[0];
     const entries: string[] = [];

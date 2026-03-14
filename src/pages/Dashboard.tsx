@@ -1,6 +1,5 @@
 import { Helmet } from 'react-helmet-async';
 const GuidedTour = lazy(() => import('@/components/GuidedTour'));
-import { isTourDone } from '@/components/tour-utils';
 import { Link, Navigate } from 'react-router-dom';
 import { useState, useEffect, useCallback, useMemo, lazy, Suspense, useRef } from 'react';
 import { useNowMs } from '@/hooks/useNowMs';
@@ -41,6 +40,7 @@ import WellnessCheckin from '@/components/WellnessCheckin';
 const LabResultsTracker = lazy(() => import('@/components/LabResultsTracker'));
 import PushNotificationPrompt from '@/components/PushNotificationPrompt';
 import DashboardCoachCards from '@/components/DashboardCoachCards';
+import SavedProtocols from '@/components/SavedProtocols';
 import { useProactiveCoach } from '@/hooks/useProactiveCoach';
 import WeeklyProgressReport from '@/components/WeeklyProgressReport';
 import { AlertTriangle, HeartPulse } from 'lucide-react';
@@ -489,10 +489,11 @@ export default function Dashboard() {
     // For new users: wait until onboarding modal closes (onboardingJustClosed flag)
     if (isNewUserWithNoData && !onboardingJustClosed) return;
     const timer = setTimeout(() => {
-      if (!isTourDone('dashboard') && !showOnboarding) setRunTour(true);
+      const notOnboarded = (() => { try { return localStorage.getItem('pptides_onboarded') !== '1'; } catch { return true; } })();
+      if (notOnboarded && activity.logs.length === 0 && !showOnboarding) setRunTour(true);
     }, 1200);
     return () => clearTimeout(timer);
-  }, [user, isNewUserWithNoData, activity.loading, showOnboarding, onboardingJustClosed]);
+  }, [user, isNewUserWithNoData, activity.loading, activity.logs.length, showOnboarding, onboardingJustClosed]);
 
   // Re-trigger tour via header "?" button
   useEffect(() => {
@@ -565,7 +566,7 @@ export default function Dashboard() {
   return (
     <div className="mx-auto max-w-5xl px-4 pb-24 pt-8 md:px-6 md:pt-12 animate-fade-in">
       {/* Guided Tour */}
-      <Suspense fallback={null}><GuidedTour tourId="dashboard" run={runTour} onFinish={() => setRunTour(false)} /></Suspense>
+      <Suspense fallback={null}><GuidedTour tourId="dashboard" run={runTour} onFinish={() => { try { localStorage.setItem('pptides_onboarded', '1'); } catch { /* storage full */ } setRunTour(false); }} /></Suspense>
       <Helmet>
         <title>لوحة التحكم | pptides</title>
         <meta name="description" content="لوحة التحكم — أدواتك في مكان واحد" />
@@ -747,6 +748,24 @@ export default function Dashboard() {
         )}
       </div>
 
+      {/* Get Started card — when dashboard has zero data */}
+      {!activity.loading && activity.logs.length === 0 && activeProtocols.length === 0 && (
+        <div className="mb-8 rounded-2xl border border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-950/30 p-6 text-center space-y-4">
+          <h3 className="text-lg font-bold text-stone-900 dark:text-stone-100">مرحبًا! ابدأ رحلتك</h3>
+          <div className="grid gap-3 sm:grid-cols-3">
+            <Link to="/library" className="rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 px-4 py-3 text-sm font-bold text-stone-800 dark:text-stone-200 transition-colors hover:border-emerald-300 hover:bg-emerald-50 dark:hover:bg-stone-800 min-h-[44px] inline-flex items-center justify-center">
+              تصفّح المكتبة
+            </Link>
+            <Link to="/calculator" className="rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 px-4 py-3 text-sm font-bold text-stone-800 dark:text-stone-200 transition-colors hover:border-emerald-300 hover:bg-emerald-50 dark:hover:bg-stone-800 min-h-[44px] inline-flex items-center justify-center">
+              جرّب الحاسبة
+            </Link>
+            <Link to="/coach" className="rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 px-4 py-3 text-sm font-bold text-stone-800 dark:text-stone-200 transition-colors hover:border-emerald-300 hover:bg-emerald-50 dark:hover:bg-stone-800 min-h-[44px] inline-flex items-center justify-center">
+              اسأل المدرب الذكي
+            </Link>
+          </div>
+        </div>
+      )}
+
       {/* Trial countdown card — show hours remaining for trial users */}
       {subscription.isTrial && subscription.trialDaysLeft > 0 && (() => {
         const trialEndMs = subscription.currentPeriodEnd
@@ -890,7 +909,7 @@ export default function Dashboard() {
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-base font-bold text-stone-900 dark:text-stone-100">ابدأ رحلتك</h3>
             <button
-              onClick={() => { setChecklistDismissed(true); try { localStorage.setItem('pptides_checklist_dismissed', 'true'); } catch {} }}
+              onClick={() => { setChecklistDismissed(true); try { localStorage.setItem('pptides_checklist_dismissed', 'true'); } catch { /* storage full */ } }}
               className="text-xs text-stone-500 dark:text-stone-400 hover:text-stone-700 min-h-[44px] min-w-[44px] flex items-center justify-center"
               aria-label="إخفاء"
             >
@@ -922,6 +941,11 @@ export default function Dashboard() {
       {/* Coach Insight Cards — proactive coaching on Dashboard */}
       {!activity.loading && dashboardCards.length > 0 && subscription.isProOrTrial && (
         <DashboardCoachCards cards={dashboardCards} />
+      )}
+
+      {/* Saved Protocols from AI Coach */}
+      {user && subscription.isProOrTrial && (
+        <SavedProtocols userId={user.id} />
       )}
 
       {/* Re-open onboarding */}
@@ -1243,7 +1267,7 @@ export default function Dashboard() {
                   <div className="flex items-start gap-4">
                     <ChartErrorBoundary><ProgressRing current={daysSinceStart} total={totalDays} size={64} label={`يوم ${daysSinceStart}`} /></ChartErrorBoundary>
                     <div className="flex-1 min-w-0">
-                      <p className="font-bold text-stone-900 dark:text-stone-100 truncate">{peptide?.nameAr ?? proto.peptide_id}</p>
+                      <p className="font-bold text-stone-900 dark:text-stone-100 truncate" title={peptide?.nameAr ?? proto.peptide_id}>{peptide?.nameAr ?? proto.peptide_id}</p>
                       <p className="text-xs text-stone-500 dark:text-stone-300 mt-0.5" dir="ltr">{proto.dose} {proto.dose_unit} — {FREQUENCY_LABELS[proto.frequency] ?? proto.frequency}</p>
                       <p className="text-xs text-stone-500 dark:text-stone-300 mt-1">{daysLeft > 0 ? `${daysLeft} يوم متبقي` : 'انتهت الدورة'}</p>
                       <p className="text-xs font-semibold text-emerald-700 mt-1">
@@ -1461,11 +1485,11 @@ export default function Dashboard() {
                       <FlaskConical className="h-5 w-5 text-emerald-700" />
                     </div>
                     <div className="min-w-0">
-                      <p className="font-bold text-stone-900 dark:text-stone-100 truncate">{peptide.nameAr}</p>
-                      <p className="text-xs text-stone-500 dark:text-stone-300" dir="ltr">{peptide.nameEn}</p>
+                      <p className="font-bold text-stone-900 dark:text-stone-100 truncate" title={peptide.nameAr}>{peptide.nameAr}</p>
+                      <p className="text-xs text-stone-500 dark:text-stone-300" dir="ltr" title={peptide.nameEn}>{peptide.nameEn}</p>
                     </div>
                   </div>
-                  <p className="text-xs text-stone-600 dark:text-stone-300 line-clamp-2 leading-relaxed">{peptide.summaryAr}</p>
+                  <p className="text-xs text-stone-600 dark:text-stone-300 line-clamp-2 leading-relaxed" title={peptide.summaryAr}>{peptide.summaryAr}</p>
                 </Link>
               ))}
             </div>

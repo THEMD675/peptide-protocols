@@ -1,10 +1,10 @@
 #!/bin/bash
 # pptides — Run Health & Stripe verification
 # Requires: CRON_SECRET and optionally STRIPE_SECRET_KEY from Supabase Dashboard → Edge Functions → Secrets
-# Get them from: https://supabase.com/dashboard/project/hexnuldwerzwbljorokw/settings/functions
+# Get them from: https://supabase.com/dashboard/project/rxxzphwojutewvbfzgqd/settings/functions
 
 set -e
-PROJECT_URL="https://hexnuldwerzwbljorokw.supabase.co"
+PROJECT_URL="https://rxxzphwojutewvbfzgqd.supabase.co"
 
 echo "=== pptides Verification ==="
 echo ""

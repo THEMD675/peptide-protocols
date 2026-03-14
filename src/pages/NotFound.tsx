@@ -52,6 +52,7 @@ export default function NotFound() {
     <div id="main-content" className="min-h-screen flex flex-col items-center justify-center pt-16 pb-24 px-6 animate-fade-in" dir="rtl">
       <Helmet>
         <title>الصفحة غير موجودة | pptides</title>
+        <meta name="description" content="الصفحة غير موجودة — تصفّح مكتبة الببتيدات أو ارجع للرئيسية" />
         <meta name="robots" content="noindex" />
       </Helmet>
 
@@ -73,8 +74,9 @@ export default function NotFound() {
       </p>
 
       {/* Search Bar */}
-      <form onSubmit={handleSearch} className="w-full max-w-md mb-10">
-        <div className="relative">
+      <div role="search">
+        <form onSubmit={handleSearch} className="w-full max-w-md mb-10">
+          <div className="relative">
           <Search className="absolute start-4 top-1/2 -translate-y-1/2 h-5 w-5 text-stone-400" />
           <input
             type="search"
@@ -84,7 +86,8 @@ export default function NotFound() {
             className="w-full rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 ps-12 pe-4 py-3 text-stone-900 dark:text-stone-100 placeholder-stone-400 dark:placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-shadow"
           />
         </div>
-      </form>
+        </form>
+      </div>
 
       {/* Quick Links */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 w-full max-w-lg mb-10">
@@ -112,7 +115,7 @@ export default function NotFound() {
                 className="flex items-center justify-between gap-4 rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 p-4 hover:border-emerald-300 dark:hover:border-emerald-700 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 transition-colors group"
               >
                 <div className="min-w-0">
-                  <p className="font-bold text-stone-900 dark:text-stone-100 truncate group-hover:text-emerald-700 dark:group-hover:text-emerald-400 transition-colors">
+                  <p className="font-bold text-stone-900 dark:text-stone-100 truncate group-hover:text-emerald-700 dark:group-hover:text-emerald-400 transition-colors" title={post.title_ar}>
                     {post.title_ar}
                   </p>
                   <p className="text-xs text-stone-500 dark:text-stone-300 mt-1">

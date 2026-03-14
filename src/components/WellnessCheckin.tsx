@@ -196,8 +196,8 @@ export default function WellnessCheckin() {
       </div>
 
       {loading ? (
-        <div className="flex items-center justify-center py-8">
-          <Loader2 className="h-5 w-5 animate-spin text-emerald-700" />
+        <div className="flex items-center justify-center py-8" role="status" aria-label="جارٍ التحميل">
+          <Loader2 className="h-5 w-5 animate-spin text-emerald-700" aria-hidden />
         </div>
       ) : (
         <div className="space-y-4">
@@ -216,6 +216,7 @@ export default function WellnessCheckin() {
                       key={level}
                       type="button"
                       disabled={isReadonly}
+                      aria-label={`${metric.label}: ${level} من 5`}
                       onClick={() =>
                         setValues(prev => ({ ...prev, [metric.key]: level }))
                       }

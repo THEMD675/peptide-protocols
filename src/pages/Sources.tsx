@@ -121,7 +121,7 @@ function SourcingInterestForm() {
           <div>
             <label htmlFor="src-phone" className="mb-1 block text-sm font-medium text-stone-800 dark:text-stone-200">رقم التواصل (واتساب)</label>
             <input id="src-phone" type="tel" value={phone} onChange={e => setPhone(e.target.value)} placeholder="+966 5X XXX XXXX" dir="ltr"
-              autoComplete="tel" maxLength={20}
+              autoComplete="tel" maxLength={20} aria-label="رقم الهاتف"
               className="w-full rounded-xl border border-stone-200 dark:border-stone-600 bg-stone-50 dark:bg-stone-800 px-4 py-3 text-base text-stone-900 dark:text-stone-100 placeholder:text-stone-500 focus:border-emerald-300 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-500" />
           </div>
         </div>
@@ -797,6 +797,15 @@ export default function Sources() {
             <Link to="/calculator" className="rounded-full border border-emerald-300 dark:border-emerald-700 px-6 py-2.5 text-sm font-bold text-emerald-700 dark:text-emerald-400 transition-colors hover:bg-emerald-100 dark:hover:bg-emerald-900/30 min-h-[44px] inline-flex items-center justify-center">حاسبة الجرعات</Link>
           </div>
         </div>
+
+        <section className="mt-12 pt-8 border-t border-stone-200 dark:border-stone-800 text-center">
+          <h3 className="text-lg font-bold text-stone-900 dark:text-stone-100 mb-4">استكشف المزيد</h3>
+          <div className="flex flex-wrap justify-center gap-3">
+            <Link to="/library" className="rounded-full bg-emerald-600 px-6 py-2.5 text-sm font-bold text-white hover:bg-emerald-700">تصفّح المكتبة</Link>
+            <Link to="/calculator" className="rounded-full border-2 border-stone-300 dark:border-stone-600 px-6 py-2.5 text-sm font-bold hover:bg-stone-50 dark:hover:bg-stone-800">حاسبة الجرعات</Link>
+            <Link to="/quiz" className="rounded-full border-2 border-stone-300 dark:border-stone-600 px-6 py-2.5 text-sm font-bold hover:bg-stone-50 dark:hover:bg-stone-800">اختبار الببتيدات</Link>
+          </div>
+        </section>
       </div>
     </div>
   );

@@ -15,7 +15,7 @@ function isVerified(): boolean {
 function persistVerified(): void {
   try { localStorage.setItem(STORAGE_KEY, 'true'); localStorage.setItem('pptides_visited', '1'); } catch { /* expected */ }
   try { sessionStorage.setItem(STORAGE_KEY, 'true'); } catch { /* fallback */ }
-  document.cookie = `${COOKIE_NAME}=1;path=/;max-age=${365 * 24 * 60 * 60};SameSite=Lax`;
+  document.cookie = `${COOKIE_NAME}=1;path=/;max-age=${365 * 24 * 60 * 60};SameSite=Lax;Secure`;
 }
 
 export default function AgeGate() {
@@ -44,7 +44,7 @@ export default function AgeGate() {
     if (!visible) return;
     const trap = (e: KeyboardEvent) => {
       if (e.key !== 'Tab') return;
-      const focusable = dialogRef.current?.querySelectorAll<HTMLElement>('button, [tabindex]');
+      const focusable = dialogRef.current?.querySelectorAll<HTMLElement>('button, [tabindex], a[href]');
       if (!focusable?.length) return;
       const first = focusable[0], last = focusable[focusable.length - 1];
       if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
@@ -76,7 +76,7 @@ export default function AgeGate() {
             <p className="text-sm leading-relaxed text-stone-600 dark:text-stone-300">
               هذا الموقع مخصص لمن هم فوق 18 عامًا
             </p>
-            <a href="https://google.com" className="mt-4 inline-block text-sm text-stone-400 underline">مغادرة الموقع</a>
+            <a href="https://google.com" rel="noopener noreferrer" target="_blank" className="mt-4 inline-block text-sm text-stone-400 underline">مغادرة الموقع</a>
           </>
         ) : (
           <>

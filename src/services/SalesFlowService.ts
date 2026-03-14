@@ -92,34 +92,38 @@ export function getOffer(state: UserState, urlParams?: UrlParams): Offer {
     };
   }
 
-  // URL param overrides for win-back coupons
-  if (urlParams?.coupon) {
-    const percent = parseCouponPercent(urlParams.coupon);
-    return {
-      type: 'winback',
-      heading: WINBACK.couponBanner(percent),
-      body: WINBACK.couponBanner(percent),
-      cta: TRIAL.ctaFree,
-      ctaUrl: '/pricing',
-      coupon: urlParams.coupon,
-      discountPercent: percent,
-      urgent: true,
-      blocking: false,
-    };
-  }
+  // Skip URL param overrides (coupon/referral) for active subscribers
+  const isActivePaidSubscriber = sub.isPaidSubscriber || sub.status === 'active';
+  if (!isActivePaidSubscriber) {
+    // URL param overrides for win-back coupons
+    if (urlParams?.coupon) {
+      const percent = parseCouponPercent(urlParams.coupon);
+      return {
+        type: 'winback',
+        heading: WINBACK.couponBanner(percent),
+        body: WINBACK.couponBanner(percent),
+        cta: TRIAL.ctaFree,
+        ctaUrl: '/pricing',
+        coupon: urlParams.coupon,
+        discountPercent: percent,
+        urgent: true,
+        blocking: false,
+      };
+    }
 
-  // URL param: referral context
-  if (urlParams?.referralCode) {
-    return {
-      type: 'referral_friend',
-      heading: REFERRAL.friendBanner(urlParams.referralCode),
-      body: REFERRAL.friendBanner(urlParams.referralCode),
-      cta: isLoggedIn ? TRIAL.ctaFree : TRIAL.ctaSignup,
-      ctaUrl: isLoggedIn ? '/pricing' : `/signup?redirect=/pricing&referral=${urlParams.referralCode}`,
-      referralCode: urlParams.referralCode,
-      urgent: false,
-      blocking: false,
-    };
+    // URL param: referral context
+    if (urlParams?.referralCode) {
+      return {
+        type: 'referral_friend',
+        heading: REFERRAL.friendBanner(urlParams.referralCode),
+        body: REFERRAL.friendBanner(urlParams.referralCode),
+        cta: isLoggedIn ? TRIAL.ctaFree : TRIAL.ctaSignup,
+        ctaUrl: isLoggedIn ? '/pricing' : `/signup?redirect=/pricing&referral=${urlParams.referralCode}`,
+        referralCode: urlParams.referralCode,
+        urgent: false,
+        blocking: false,
+      };
+    }
   }
 
   // Not logged in → trial CTA
@@ -170,6 +174,7 @@ export function getOffer(state: UserState, urlParams?: UrlParams): Offer {
       body: TRIAL.expiredModalBody,
       cta: UPGRADE.subscribeCta,
       ctaUrl: '/pricing?expired=1',
+      coupon: 'retention_20_pct',
       discountPercent: WINBACK.defaultPercent,
       urgent: true,
       blocking: true,

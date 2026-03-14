@@ -66,6 +66,7 @@ export default function Login() {
   const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
   const [turnstileUnavailable, setTurnstileUnavailable] = useState(false);
   const [turnstileExpired, setTurnstileExpired] = useState(false);
+  const [googleRenderFailed, setGoogleRenderFailed] = useState(false);
   /** Track whether token was ever set, to detect expiry (null after being non-null) */
   const turnstileWasSet = useRef(false);
   const turnstileRef = useRef<HTMLDivElement>(null);
@@ -302,6 +303,17 @@ export default function Login() {
         await login(email, password);
         events.login('email');
       } else {
+        try {
+          const disifyRes = await fetch(`https://www.disify.com/api/email/${encodeURIComponent(email)}`);
+          if (disifyRes.ok) {
+            const disifyData = await disifyRes.json();
+            if (disifyData.disposable) {
+              toast.error('لا يمكن التسجيل ببريد إلكتروني مؤقت — استخدم بريدك الحقيقي');
+              setLoading(false);
+              return;
+            }
+          }
+        } catch { /* non-blocking -- proceed if Disify is down */ }
         await signup(email, password);
         events.signup('email');
       }
@@ -369,15 +381,20 @@ export default function Login() {
       if (googleBtnRef.current) {
         // Bug 2 fix: clear container before each render to prevent duplicate buttons on tab switch
         googleBtnRef.current.innerHTML = '';
-        window.google.accounts.id.renderButton(googleBtnRef.current, {
-          type: 'standard',
-          shape: 'rectangular',
-          theme: 'outline',
-          size: 'large',
-          width: googleBtnRef.current.offsetWidth,
-          text: tab === 'login' ? 'signin_with' : 'signup_with',
-          locale: 'ar',
-        });
+        setGoogleRenderFailed(false);
+        try {
+          window.google.accounts.id.renderButton(googleBtnRef.current, {
+            type: 'standard',
+            shape: 'rectangular',
+            theme: 'outline',
+            size: 'large',
+            width: googleBtnRef.current.offsetWidth,
+            text: tab === 'login' ? 'signin_with' : 'signup_with',
+            locale: 'ar',
+          });
+        } catch {
+          setGoogleRenderFailed(true);
+        }
       }
     };
     if (window.google?.accounts?.id) {
@@ -499,7 +516,7 @@ export default function Login() {
           <div className="overflow-hidden rounded-2xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 shadow-lg">
             <div className="bg-emerald-600 px-6 pb-6 pt-8 text-center">
               <h1 className="mb-1 text-2xl font-bold text-white">تغيير كلمة المرور</h1>
-              <p className="text-sm text-white/70">أدخل كلمة مرور جديدة لحسابك</p>
+              <p className="text-sm text-white/80">أدخل كلمة مرور جديدة لحسابك</p>
             </div>
             <div className="px-6 pb-8 pt-6">
               {error && <div role="alert" className="mb-4 rounded-lg bg-red-50 dark:bg-red-900/20 px-4 py-3 text-sm text-red-700 dark:text-red-400">{error}</div>}
@@ -566,7 +583,7 @@ export default function Login() {
             <h1 className="mb-1 text-2xl font-bold text-white">
               {tab === 'login' ? 'مرحبًا بعودتك' : 'أنشئ حسابك'}
             </h1>
-            <p className="text-sm text-white/70">
+            <p className="text-sm text-white/80">
               {tab === 'login'
                 ? 'سجّل دخولك للوصول إلى مكتبة الببتيدات'
                 : 'ابدأ رحلتك مع دليل الببتيدات الشامل'}
@@ -617,38 +634,61 @@ export default function Login() {
                 {/* Hidden GIS container — still needed to initialise the Google ID token flow */}
                 <div ref={googleBtnRef} className="hidden" aria-hidden="true" />
 
-                {/* Visible custom Arabic button */}
-                <button
-                  type="button"
-                  aria-label="تسجيل الدخول عبر جوجل"
-                  disabled={loading || googleLoading}
-                  onClick={async () => {
-                    // Respect ?redirect= param so Google sign-in from /signup?redirect=/pricing lands on /pricing
-                    const oauthRedirectPath = safeRedirect(new URLSearchParams(window.location.search).get('redirect'));
-                    const oauthRedirectTo = `${window.location.origin}${oauthRedirectPath}`;
-                    // Always use OAuth redirect on button click — One Tap prompt() fires
-                    // its callback asynchronously which loses user gesture context and
-                    // causes browsers to block the redirect as a popup.
-                    setGoogleLoading(true);
-                    await supabase.auth.signInWithOAuth({
-                      provider: 'google',
-                      options: { redirectTo: oauthRedirectTo },
-                    });
-                  }}
-                  className="mb-4 flex w-full items-center justify-center gap-3 rounded-full border border-stone-300 dark:border-stone-600 bg-white dark:bg-stone-900 px-6 py-3 text-sm font-medium text-stone-700 dark:text-stone-200 shadow-sm transition-all hover:bg-stone-50 dark:hover:bg-stone-800 hover:border-stone-300 dark:hover:border-stone-500 disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  {googleLoading ? (
-                    <span className="h-5 w-5 animate-spin rounded-full border-2 border-stone-300 border-t-stone-600" />
-                  ) : (
-                    <svg className="h-5 w-5 shrink-0" viewBox="0 0 48 48" aria-hidden="true">
-                      <path fill="#4285F4" d="M46.5 24.5c0-1.6-.1-3.1-.4-4.5H24v8.5h12.7c-.6 3-2.3 5.5-4.9 7.2v6h7.9c4.6-4.2 7.2-10.5 7.2-17.2z"/>
-                      <path fill="#34A853" d="M24 48c6.5 0 11.9-2.1 15.9-5.8l-7.9-6c-2.1 1.4-4.9 2.3-8 2.3-6.1 0-11.3-4.1-13.2-9.7H2.7v6.2C6.7 42.8 14.8 48 24 48z"/>
-                      <path fill="#FBBC05" d="M10.8 28.8c-.5-1.4-.8-2.8-.8-4.3s.3-3 .8-4.3v-6.2H2.7C1 17.3 0 20.5 0 24s1 6.7 2.7 9.5l8.1-4.7z"/>
-                      <path fill="#EA4335" d="M24 9.5c3.4 0 6.5 1.2 8.9 3.5l6.6-6.6C35.9 2.4 30.4 0 24 0 14.8 0 6.7 5.2 2.7 12.7l8.1 4.7C12.7 13.6 17.9 9.5 24 9.5z"/>
-                    </svg>
-                  )}
-                  <span>{tab === 'login' ? 'تسجيل الدخول بـ Google' : 'إنشاء حساب بـ Google'}</span>
-                </button>
+                {/* Visible custom Arabic button — or fallback text button if renderButton threw */}
+                {googleRenderFailed ? (
+                  <button
+                    type="button"
+                    aria-label="تسجيل الدخول عبر جوجل"
+                    disabled={loading || googleLoading}
+                    onClick={async () => {
+                      const oauthRedirectPath = safeRedirect(new URLSearchParams(window.location.search).get('redirect'));
+                      setGoogleLoading(true);
+                      await supabase.auth.signInWithOAuth({
+                        provider: 'google',
+                        options: { redirectTo: `${window.location.origin}${oauthRedirectPath}` },
+                      });
+                    }}
+                    className="mb-4 flex w-full items-center justify-center gap-3 rounded-full border border-stone-300 dark:border-stone-600 bg-white dark:bg-stone-900 px-6 py-3 text-sm font-medium text-stone-700 dark:text-stone-200 shadow-sm transition-all hover:bg-stone-50 dark:hover:bg-stone-800 hover:border-stone-300 dark:hover:border-stone-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {googleLoading ? (
+                      <span className="h-5 w-5 animate-spin rounded-full border-2 border-stone-300 border-t-stone-600" />
+                    ) : (
+                      'تسجيل الدخول عبر Google'
+                    )}
+                  </button>
+                ) : (
+                  <button
+                    type="button"
+                    aria-label="تسجيل الدخول عبر جوجل"
+                    disabled={loading || googleLoading}
+                    onClick={async () => {
+                      // Respect ?redirect= param so Google sign-in from /signup?redirect=/pricing lands on /pricing
+                      const oauthRedirectPath = safeRedirect(new URLSearchParams(window.location.search).get('redirect'));
+                      const oauthRedirectTo = `${window.location.origin}${oauthRedirectPath}`;
+                      // Always use OAuth redirect on button click — One Tap prompt() fires
+                      // its callback asynchronously which loses user gesture context and
+                      // causes browsers to block the redirect as a popup.
+                      setGoogleLoading(true);
+                      await supabase.auth.signInWithOAuth({
+                        provider: 'google',
+                        options: { redirectTo: oauthRedirectTo },
+                      });
+                    }}
+                    className="mb-4 flex w-full items-center justify-center gap-3 rounded-full border border-stone-300 dark:border-stone-600 bg-white dark:bg-stone-900 px-6 py-3 text-sm font-medium text-stone-700 dark:text-stone-200 shadow-sm transition-all hover:bg-stone-50 dark:hover:bg-stone-800 hover:border-stone-300 dark:hover:border-stone-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {googleLoading ? (
+                      <span className="h-5 w-5 animate-spin rounded-full border-2 border-stone-300 border-t-stone-600" />
+                    ) : (
+                      <svg className="h-5 w-5 shrink-0" viewBox="0 0 48 48" aria-hidden="true">
+                        <path fill="#4285F4" d="M46.5 24.5c0-1.6-.1-3.1-.4-4.5H24v8.5h12.7c-.6 3-2.3 5.5-4.9 7.2v6h7.9c4.6-4.2 7.2-10.5 7.2-17.2z"/>
+                        <path fill="#34A853" d="M24 48c6.5 0 11.9-2.1 15.9-5.8l-7.9-6c-2.1 1.4-4.9 2.3-8 2.3-6.1 0-11.3-4.1-13.2-9.7H2.7v6.2C6.7 42.8 14.8 48 24 48z"/>
+                        <path fill="#FBBC05" d="M10.8 28.8c-.5-1.4-.8-2.8-.8-4.3s.3-3 .8-4.3v-6.2H2.7C1 17.3 0 20.5 0 24s1 6.7 2.7 9.5l8.1-4.7z"/>
+                        <path fill="#EA4335" d="M24 9.5c3.4 0 6.5 1.2 8.9 3.5l6.6-6.6C35.9 2.4 30.4 0 24 0 14.8 0 6.7 5.2 2.7 12.7l8.1 4.7C12.7 13.6 17.9 9.5 24 9.5z"/>
+                      </svg>
+                    )}
+                    <span>{tab === 'login' ? 'تسجيل الدخول بـ Google' : 'إنشاء حساب بـ Google'}</span>
+                  </button>
+                )}
 
                 <div className="mb-4 flex items-center gap-3">
                   <div className="h-px flex-1 bg-stone-200 dark:bg-stone-700" />
@@ -659,7 +699,7 @@ export default function Login() {
             )}
 
             {error && (
-              <div role="alert" className="mb-4 rounded-lg bg-red-50 dark:bg-red-900/20 px-4 py-3 text-sm text-red-700 dark:text-red-400">
+              <div id="login-error" role="alert" className="mb-4 rounded-lg bg-red-50 dark:bg-red-900/20 px-4 py-3 text-sm text-red-700 dark:text-red-400">
                 {error}
               </div>
             )}
@@ -692,6 +732,9 @@ export default function Login() {
                   autoFocus
                   autoComplete="email"
                   dir="ltr"
+                  required
+                  aria-invalid={!!error}
+                  aria-describedby={error ? 'login-error' : undefined}
                   className="w-full rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 px-4 py-3 text-left text-base text-stone-900 dark:text-stone-100 placeholder:text-stone-500 dark:text-stone-300 outline-none transition-shadow focus:border-emerald-300 dark:border-emerald-700 focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900"
                 />
               </div>
@@ -709,6 +752,9 @@ export default function Login() {
                     placeholder="••••••••"
                     autoComplete={tab === 'login' ? 'current-password' : 'new-password'}
                     dir="ltr"
+                    required
+                    aria-invalid={!!error}
+                    aria-describedby={error ? 'login-error' : undefined}
                     {...(tab === 'signup' ? { minLength: 8 } : {})}
                     className="w-full rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 px-4 py-3 ps-12 text-left text-base text-stone-900 dark:text-stone-100 placeholder:text-stone-500 dark:text-stone-300 outline-none transition-shadow focus:border-emerald-300 dark:border-emerald-700 focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900"
                   />

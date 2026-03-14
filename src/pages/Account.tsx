@@ -213,15 +213,26 @@ export default function Account() {
         const confirmedEmail = session.user.email;
         if (!confirmedEmail || !session.user.email_confirmed_at) return;
         // Sync email_list
-        await supabase.from('email_list').update({ email: confirmedEmail.toLowerCase() }).eq('user_id', session.user.id).catch((e) => { logError('Account: email_list sync failed', e); });
+        await supabase.from('email_list').update({ email: confirmedEmail.toLowerCase() }).eq('email', user.email).catch((e) => { logError('Account: email_list sync failed', e); });
         // Sync Stripe
         const { data: sub } = await supabase.from('subscriptions').select('stripe_customer_id').eq('user_id', session.user.id).maybeSingle();
         if (sub?.stripe_customer_id) {
-          fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/admin-actions`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${session.access_token}` },
-            body: JSON.stringify({ action: 'sync_email', user_id: session.user.id, new_email: confirmedEmail.toLowerCase() }),
-          }).catch((e: unknown) => { logError('Account: Stripe email sync failed', e); toast.error('تعذّر مزامنة البريد مع نظام الدفع'); });
+          try {
+            const res = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/admin-actions`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${session.access_token}` },
+              body: JSON.stringify({ action: 'sync_email', user_id: session.user.id, new_email: confirmedEmail.toLowerCase() }),
+            });
+            if (res.status === 403) {
+              logError('Account: sync_email 403 (non-admin)', { status: 403 });
+            } else if (!res.ok) {
+              logError('Account: Stripe email sync failed', await res.text());
+              toast.error('تعذّر مزامنة البريد مع نظام الدفع');
+            }
+          } catch (e: unknown) {
+            logError('Account: Stripe email sync failed', e);
+            toast.error('تعذّر مزامنة البريد مع نظام الدفع');
+          }
         }
       },
     );
@@ -312,7 +323,7 @@ export default function Account() {
         trackQuery(supabase.from('user_protocols').select('id, peptide_id, dose, dose_unit, frequency, cycle_weeks, started_at, status, created_at').eq('user_id', user.id).limit(EXPORT_LIMIT)),
         trackQuery(supabase.from('reviews').select('id, rating, title, body, name, is_approved, is_verified, helpful_count, created_at, updated_at').eq('user_id', user.id).limit(EXPORT_LIMIT)),
         trackQuery(supabase.from('community_logs').select('id, content, category, rating, upvotes, peptide_name, goal, protocol, duration_weeks, results, likes, display_name, created_at, updated_at').eq('user_id', user.id).limit(EXPORT_LIMIT)),
-        trackQuery(supabase.from('subscriptions').select('id, status, tier, stripe_customer_id, stripe_subscription_id, trial_start, trial_end, trial_ends_at, current_period_end, cancel_at_period_end, referral_code, referred_by, grant_source, billing_interval, created_at, updated_at').eq('user_id', user.id).limit(EXPORT_LIMIT)),
+        trackQuery(supabase.from('subscriptions').select('id, status, tier, stripe_customer_id, stripe_subscription_id, trial_start, trial_ends_at, current_period_end, cancel_at_period_end, referral_code, referred_by, grant_source, billing_interval, created_at, updated_at').eq('user_id', user.id).limit(EXPORT_LIMIT)),
         trackQuery(supabase.from('wellness_logs').select('id, energy, sleep, pain, mood, appetite, weight_kg, notes, logged_at, created_at').eq('user_id', user.id).limit(EXPORT_LIMIT)),
         trackQuery(supabase.from('lab_results').select('id, test_date, lab_name, results, notes, created_at').eq('user_id', user.id).limit(EXPORT_LIMIT)),
         trackQuery(supabase.from('side_effect_logs').select('id, symptom, severity, peptide_id, notes, protocol_id, logged_at, created_at').eq('user_id', user.id).limit(EXPORT_LIMIT)),
@@ -1490,13 +1501,22 @@ function ReferralSection({ userId }: { userId?: string }) {
       <p className="text-sm text-stone-600 dark:text-stone-300 mb-4">{REFERRAL.accountDescription}</p>
 
       <div className="flex items-center gap-2 mb-4">
-        <div className="flex-1 rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 px-4 py-3 text-sm font-mono text-stone-700 dark:text-stone-200 truncate" dir="ltr">
+        <div className="flex-1 rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 px-4 py-3 text-sm font-mono text-stone-700 dark:text-stone-200 truncate" dir="ltr" title={shareUrl}>
           {shareUrl}
         </div>
         <button onClick={handleCopy} className="shrink-0 rounded-xl border border-emerald-300 dark:border-emerald-700 bg-emerald-50 dark:bg-emerald-900/20 p-3 text-emerald-700 transition-colors hover:bg-emerald-100 dark:bg-emerald-900/30">
           {copied ? <Check className="h-5 w-5" /> : <Copy className="h-5 w-5" />}
         </button>
       </div>
+
+      <img
+        src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(shareUrl)}`}
+        alt="رمز QR للإحالة"
+        width={150}
+        height={150}
+        className="mx-auto rounded-xl border border-stone-200 dark:border-stone-700 mb-4"
+        loading="lazy"
+      />
 
       <div className="flex gap-2 mb-5">
         <a

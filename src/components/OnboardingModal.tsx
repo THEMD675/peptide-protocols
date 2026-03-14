@@ -231,6 +231,7 @@ export default function OnboardingModal({ forceOpen, onClose: externalClose }: {
                       {[1, 2, 3, 4, 5].map(v => (
                         <button
                           key={v}
+                          aria-label={`${metric.label}: ${v} من 5`}
                           onClick={() => setBaseline(prev => ({ ...prev, [metric.key]: v }))}
                           className={`flex-1 min-h-[44px] rounded-xl border-2 text-sm font-bold transition-all ${
                             baseline[metric.key] === v

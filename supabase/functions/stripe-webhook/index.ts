@@ -397,7 +397,7 @@ serve(async (req) => {
         const stripeSubId = invoice.subscription as string | null
         const amountPaid = invoice.amount_paid ?? 0
 
-        if (stripeSubId && amountPaid > 0) {
+        if (stripeSubId && amountPaid >= 0) {
           try {
             // FIX: pass p_clear_trial=true so trial_ends_at is cleared when a real payment is processed.
             // Previously COALESCE would keep the stale trial_ends_at value even after conversion to paid.
@@ -554,10 +554,23 @@ serve(async (req) => {
       case 'checkout.session.async_payment_succeeded': {
         const session = event.data.object as Stripe.Checkout.Session
         const userId = session.client_reference_id
+        const stripeCustomerId = session.customer as string | null
+        const stripeSubscriptionId = session.subscription as string | null
+        let tier = session.metadata?.tier ?? 'essentials'
+        if (!session.metadata?.tier && session.amount_total) {
+          const eliteMinHalalas = parseInt(Deno.env.get('ELITE_AMOUNT_MIN_HALALAS') ?? '9900', 10)
+          tier = session.amount_total >= eliteMinHalalas ? 'elite' : 'essentials'
+        }
         if (userId) {
           const { error } = await supabase
             .from('subscriptions')
-            .update({ status: 'active', updated_at: new Date().toISOString() })
+            .update({
+              status: 'active',
+              stripe_customer_id: stripeCustomerId,
+              stripe_subscription_id: stripeSubscriptionId,
+              tier,
+              updated_at: new Date().toISOString(),
+            })
             .eq('user_id', userId)
           if (error) { console.error('async_payment_succeeded DB error:', error); dbFailed = true }
         }
@@ -739,6 +752,7 @@ serve(async (req) => {
     }
 
     if (dbFailed) {
+      await supabase.from('processed_webhook_events').delete().eq('event_id', event.id).catch(() => {})
       console.error(JSON.stringify({ severity: 'CRITICAL', action: 'webhook_db_failed', event_type: event.type, event_id: event.id, timestamp: new Date().toISOString() }))
       return jsonResponse({ error: 'Database update failed' }, 500)
     }

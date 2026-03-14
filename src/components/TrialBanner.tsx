@@ -3,7 +3,9 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 
 const FocusTrap = lazy(() => import('focus-trap-react'));
 import { useAuth } from '@/contexts/AuthContext';
-import { Shield, X, Clock } from 'lucide-react';
+import { useSalesFlow } from '@/hooks/useSalesFlow';
+import { supabase } from '@/lib/supabase';
+import { Shield, X, Clock, Loader2 } from 'lucide-react';
 import { cn, arPlural } from '@/lib/utils';
 import { PRICING, FREE_PEPTIDE_IDS, isFreeRoute, isPaymentWallFreeRoute } from '@/lib/constants';
 import { useNowMs } from '@/hooks/useNowMs';
@@ -16,10 +18,36 @@ const DISMISS_KEY = 'pptides_trial_banner_dismissed';
 
 export default function TrialBanner() {
   const navigate = useNavigate();
-  const { user, subscription, isLoading } = useAuth();
+  const { user, subscription, isLoading, upgradeTo } = useAuth();
+  const { offer } = useSalesFlow();
   const { pathname } = useLocation();
   const nowMs = useNowMs();
   const [dismissed, setDismissed] = useState(() => { try { return sessionStorage.getItem(DISMISS_KEY) === '1'; } catch { return false; } });
+  const [upgradeLoading, setUpgradeLoading] = useState(false);
+  const [userStats, setUserStats] = useState<{ injections: number; protocols: number } | null>(null);
+
+  useEffect(() => {
+    const showExpiredModal = subscription?.status === 'expired' || subscription?.status === 'cancelled' || (subscription?.status === 'trial' && (subscription?.trialDaysLeft ?? 0) <= 0);
+    if (!user || !showExpiredModal) return;
+    Promise.all([
+      supabase.from('injection_logs').select('id', { count: 'exact', head: true }).eq('user_id', user.id),
+      supabase.from('user_protocols').select('id', { count: 'exact', head: true }).eq('user_id', user.id),
+    ]).then(([logs, protocols]) => {
+      const inj = (logs as { count?: number | null }).count ?? 0;
+      const prot = (protocols as { count?: number | null }).count ?? 0;
+      setUserStats({ injections: inj, protocols: prot });
+    }).catch(() => {});
+  }, [user, subscription?.status]);
+
+  const handleUpgrade = async (coupon?: string) => {
+    if (upgradeLoading) return;
+    setUpgradeLoading(true);
+    try {
+      await upgradeTo('essentials', 'monthly', coupon);
+    } catch {
+      setUpgradeLoading(false);
+    }
+  };
 
   const peptideId = pathname.startsWith('/peptide/') ? pathname.split('/')[2] : null;
   const isPeptideFree = peptideId ? FREE_PEPTIDE_IDS.has(peptideId) : false;
@@ -51,7 +79,15 @@ export default function TrialBanner() {
           <p className="text-sm font-semibold text-white">
             {TRIAL.paymentWallBanner}
             <span className="mx-2">—</span>
-            <Link to="/pricing" className="font-bold underline underline-offset-2 bg-white/20 rounded px-2 py-0.5 hover:bg-white/30 transition-colors">{COMMON.completeSetup}</Link>
+            <button
+              type="button"
+              onClick={() => handleUpgrade()}
+              disabled={upgradeLoading}
+              className="font-bold underline underline-offset-2 bg-white/20 rounded px-2 py-0.5 hover:bg-white/30 transition-colors disabled:opacity-70 disabled:cursor-not-allowed inline-flex items-center gap-1.5"
+            >
+              {upgradeLoading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : null}
+              {COMMON.completeSetup}
+            </button>
           </p>
         </div>
       );
@@ -73,12 +109,15 @@ export default function TrialBanner() {
             {TRIAL.paymentWallFinePrint}
           </p>
           <div className="flex flex-col gap-3">
-            <Link
-              to="/pricing"
-              className="inline-block rounded-full bg-emerald-600 px-10 py-3.5 font-bold text-white shadow-lg transition-all hover:bg-emerald-700 hover:scale-105 active:scale-[0.98]"
+            <button
+              type="button"
+              onClick={() => handleUpgrade()}
+              disabled={upgradeLoading}
+              className="inline-flex items-center justify-center gap-2 rounded-full bg-emerald-600 px-10 py-3.5 font-bold text-white shadow-lg transition-all hover:bg-emerald-700 hover:scale-105 active:scale-[0.98] disabled:opacity-70 disabled:cursor-not-allowed disabled:hover:scale-100"
             >
+              {upgradeLoading ? <Loader2 className="h-5 w-5 animate-spin" /> : null}
               {TRIAL.paymentWallCta}
-            </Link>
+            </button>
           </div>
           <button
             onClick={() => window.history.length > 1 ? window.history.back() : navigate('/')}
@@ -97,7 +136,15 @@ export default function TrialBanner() {
       <div className="sticky top-[var(--header-height)] z-40 bg-amber-500 text-center py-2 px-4">
         <p className="text-sm font-semibold text-white">
           {RETENTION.cancelledBanner}{' '}
-          <Link to="/pricing" className="underline underline-offset-2 hover:opacity-80">{RETENTION.resubscribeCta}</Link>
+          <button
+            type="button"
+            onClick={() => handleUpgrade(offer.coupon)}
+            disabled={upgradeLoading}
+            className="underline underline-offset-2 hover:opacity-80 disabled:opacity-70 disabled:cursor-not-allowed inline-flex items-center gap-1.5"
+          >
+            {upgradeLoading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : null}
+            {RETENTION.resubscribeCta}
+          </button>
         </p>
       </div>
     );
@@ -134,7 +181,21 @@ export default function TrialBanner() {
       return (
         <div className="sticky top-[var(--header-height)] z-40 bg-amber-600 text-center py-2.5 px-4">
           <p className="text-sm font-semibold text-white">
-            {RETENTION.cancelledBannerNoAccess} — <Link to="/pricing" className="underline underline-offset-2 hover:opacity-80">{RETENTION.resubscribeCta}</Link>
+            {RETENTION.cancelledBannerNoAccess} —{' '}
+            <button
+              type="button"
+              onClick={() => handleUpgrade(offer.coupon)}
+              disabled={upgradeLoading}
+              className="underline underline-offset-2 hover:opacity-80 disabled:opacity-70 disabled:cursor-not-allowed inline-flex items-center gap-1.5"
+            >
+              {upgradeLoading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : null}
+              {RETENTION.resubscribeCta}
+            </button>
+            {offer.discountPercent != null ? (
+              <span className="me-2 ms-1 inline-flex items-center rounded-full bg-white/20 px-2 py-0.5 text-xs font-medium">
+                خصم {offer.discountPercent}% — عرض خاص
+              </span>
+            ) : null}
           </p>
         </div>
       );
@@ -156,7 +217,20 @@ export default function TrialBanner() {
           <p className="text-sm font-semibold text-white">
             {bannerText}
             <span className="mx-2">—</span>
-            <Link to="/pricing" className="underline underline-offset-2 hover:opacity-80">اشترك الآن</Link>
+            <button
+              type="button"
+              onClick={() => handleUpgrade(offer.coupon)}
+              disabled={upgradeLoading}
+              className="underline underline-offset-2 hover:opacity-80 disabled:opacity-70 disabled:cursor-not-allowed inline-flex items-center gap-1.5"
+            >
+              {upgradeLoading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : null}
+              اشترك الآن
+            </button>
+            {offer.discountPercent != null ? (
+              <span className="me-2 ms-1 inline-flex items-center rounded-full bg-white/20 px-2 py-0.5 text-xs font-medium">
+                خصم {offer.discountPercent}% — عرض خاص
+              </span>
+            ) : null}
           </p>
         </div>
       );
@@ -170,16 +244,32 @@ export default function TrialBanner() {
           <h2 id="trial-modal-title" className="mb-3 text-2xl font-bold text-stone-900 dark:text-stone-100">
             {modalTitle}
           </h2>
+          {offer.discountPercent != null ? (
+            <p className="mb-2 rounded-full bg-amber-100 dark:bg-amber-900/40 px-4 py-1.5 text-sm font-medium text-amber-800 dark:text-amber-200">
+              خصم {offer.discountPercent}% — عرض خاص
+            </p>
+          ) : null}
           <p id="sub-modal-desc-expired" className="mb-4 text-stone-700 dark:text-stone-200">
             {TRIAL.expiredModalBody}
           </p>
+          {userStats && (userStats.injections > 0 || userStats.protocols > 0) && (
+            <p className="text-sm font-semibold text-amber-700 dark:text-amber-300 mt-2">
+              لديك {userStats.injections > 0 ? `${userStats.injections} حقنة مسجّلة` : ''}
+              {userStats.injections > 0 && userStats.protocols > 0 ? ' و' : ''}
+              {userStats.protocols > 0 ? `${userStats.protocols} بروتوكول نشط` : ''}
+              {' — اشترك للحفاظ على بياناتك'}
+            </p>
+          )}
           <div className="flex flex-col gap-3">
-            <Link
-              to="/pricing"
-              className="inline-block rounded-full bg-emerald-600 px-10 py-3.5 font-bold text-white shadow-lg transition-all hover:bg-emerald-700 hover:scale-105 active:scale-[0.98]"
+            <button
+              type="button"
+              onClick={() => handleUpgrade(offer.coupon)}
+              disabled={upgradeLoading}
+              className="inline-flex items-center justify-center gap-2 rounded-full bg-emerald-600 px-10 py-3.5 font-bold text-white shadow-lg transition-all hover:bg-emerald-700 hover:scale-105 active:scale-[0.98] disabled:opacity-70 disabled:cursor-not-allowed disabled:hover:scale-100"
             >
+              {upgradeLoading ? <Loader2 className="h-5 w-5 animate-spin" /> : null}
               اشترك — {PRICING.essentials.label}/شهريًا
-            </Link>
+            </button>
           </div>
           <div className="mt-6 flex flex-wrap justify-center gap-3 text-sm">
             <span className="text-stone-500 dark:text-stone-300">أو تصفّح المجاني:</span>
@@ -269,33 +359,41 @@ export default function TrialBanner() {
             <>
               <Clock className="inline h-4 w-4 me-1 align-text-bottom" /> {TRIAL.bannerLastDay}
               <span className="mx-2">—</span>
-              <Link
-                to="/pricing"
-                className="font-bold underline underline-offset-2 bg-white/20 rounded px-2 py-0.5 hover:bg-white/30 transition-colors"
+              <button
+                type="button"
+                onClick={() => handleUpgrade()}
+                disabled={upgradeLoading}
+                className="font-bold underline underline-offset-2 bg-white/20 rounded px-2 py-0.5 hover:bg-white/30 transition-colors disabled:opacity-70 disabled:cursor-not-allowed inline-flex items-center gap-1.5"
               >
+                {upgradeLoading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : null}
                 {UPGRADE.subscribeCta}
-              </Link>
+              </button>
             </>
           ) : (
             <>
               {TRIAL.bannerDaysLeft(daysText)}
               <span className="mx-2">—</span>
-              <Link
-                to="/pricing"
-                className="font-bold underline underline-offset-2 bg-white/20 rounded px-2 py-0.5 hover:bg-white/30 transition-colors"
+              <button
+                type="button"
+                onClick={() => handleUpgrade()}
+                disabled={upgradeLoading}
+                className="font-bold underline underline-offset-2 bg-white/20 rounded px-2 py-0.5 hover:bg-white/30 transition-colors disabled:opacity-70 disabled:cursor-not-allowed inline-flex items-center gap-1.5"
               >
+                {upgradeLoading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : null}
                 {UPGRADE.subscribeCta}
-              </Link>
+              </button>
             </>
           )}
         </p>
-        <button
-          onClick={handleDismiss}
-          aria-label="إغلاق"
-          className="absolute end-3 top-1/2 -translate-y-1/2 rounded-full p-1 min-h-[44px] min-w-[44px] flex items-center justify-center transition-colors text-white/70 hover:text-white hover:bg-white dark:bg-stone-900/10"
-        >
-          <X className="h-4 w-4" />
-        </button>
+        {!isLastDay && (
+          <button
+            onClick={handleDismiss}
+            aria-label="إغلاق"
+            className="absolute end-3 top-1/2 -translate-y-1/2 rounded-full p-1 min-h-[44px] min-w-[44px] flex items-center justify-center transition-colors text-white/70 hover:text-white hover:bg-white dark:bg-stone-900/10"
+          >
+            <X className="h-4 w-4" />
+          </button>
+        )}
       </div>
     );
   }

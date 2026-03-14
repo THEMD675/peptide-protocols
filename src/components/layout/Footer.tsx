@@ -3,14 +3,12 @@ import { Link } from 'react-router-dom';
 import { Lock, Shield, Mail } from 'lucide-react';
 import { PEPTIDE_COUNT, SUPPORT_EMAIL, TRIAL_DAYS } from '@/lib/constants';
 import { prefetchRoute } from '@/lib/prefetch';
+import { cn } from '@/lib/utils';
+import { COOKIE_CONSENT_STORAGE_KEY } from '@/lib/cookie-utils';
 
 function PLink(props: ComponentProps<typeof Link>) {
   const to = typeof props.to === 'string' ? props.to : '';
   return <Link {...props} onMouseEnter={() => prefetchRoute(to)} onFocus={() => prefetchRoute(to)} className={cn(props.className, 'focus-visible:outline-2 focus-visible:outline-emerald-600 focus-visible:outline-offset-2 rounded-sm')} />;
-}
-
-function cn(...args: (string | undefined | null | false)[]) {
-  return args.filter(Boolean).join(' ');
 }
 
 export default memo(function Footer() {
@@ -29,10 +27,7 @@ export default memo(function Footer() {
               <Mail className="h-3.5 w-3.5 shrink-0" /> {SUPPORT_EMAIL}
             </a>
             <div className="mt-3 flex gap-3">
-              <a href="https://x.com/pptides" target="_blank" rel="noopener noreferrer" className="flex h-11 w-11 items-center justify-center rounded-lg text-stone-500 dark:text-stone-300 transition-colors hover:bg-stone-100 dark:hover:bg-stone-800 hover:text-emerald-700 focus-visible:outline-2 focus-visible:outline-emerald-600 focus-visible:outline-offset-2" aria-label="X/Twitter">
-                <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
-              </a>
-              <a href={`mailto:${SUPPORT_EMAIL}`} className="flex h-11 w-11 items-center justify-center rounded-lg text-stone-500 dark:text-stone-300 transition-colors hover:bg-stone-100 dark:hover:bg-stone-800 hover:text-emerald-700 focus-visible:outline-2 focus-visible:outline-emerald-600 focus-visible:outline-offset-2" aria-label="البريد الإلكتروني">
+              <a href={`mailto:${SUPPORT_EMAIL}`} className="flex h-11 w-11 items-center justify-center rounded-lg text-stone-500 dark:text-stone-300 transition-colors hover:bg-stone-100 dark:hover:bg-stone-800 hover:text-emerald-700 focus-visible:outline-2 focus-visible:outline-emerald-600 focus-visible:outline-offset-2" aria-label="تواصل معنا عبر البريد الإلكتروني">
                 <Mail className="h-5 w-5" />
               </a>
             </div>
@@ -74,7 +69,7 @@ export default memo(function Footer() {
               <PLink to="/privacy" className="min-h-[44px] flex items-center text-stone-600 dark:text-stone-300 transition-colors hover:text-emerald-700 dark:hover:text-emerald-400 hover:underline underline-offset-4 active:text-emerald-700 dark:active:text-emerald-300">سياسة الخصوصية</PLink>
               <PLink to="/terms" className="min-h-[44px] flex items-center text-stone-600 dark:text-stone-300 transition-colors hover:text-emerald-700 dark:hover:text-emerald-400 hover:underline underline-offset-4 active:text-emerald-700 dark:active:text-emerald-300">شروط الاستخدام</PLink>
               <PLink to="/transparency" className="min-h-[44px] flex items-center text-stone-600 dark:text-stone-300 transition-colors hover:text-emerald-700 dark:hover:text-emerald-400 hover:underline underline-offset-4 active:text-emerald-700 dark:active:text-emerald-300">كيف نكسب المال</PLink>
-              <button onClick={() => { try { localStorage.removeItem('pptides_cookie_consent'); } catch { /* storage unavailable */ } window.location.reload(); }} className="min-h-[44px] flex items-center text-start text-sm text-stone-600 dark:text-stone-300 hover:text-emerald-700 transition-colors focus-visible:outline-2 focus-visible:outline-emerald-600 focus-visible:outline-offset-2 rounded-sm" aria-label="إدارة ملفات تعريف الارتباط">
+              <button onClick={() => { try { localStorage.removeItem(COOKIE_CONSENT_STORAGE_KEY); } catch { /* storage unavailable */ } window.location.reload(); }} className="min-h-[44px] flex items-center text-start text-sm text-stone-600 dark:text-stone-300 hover:text-emerald-700 transition-colors focus-visible:outline-2 focus-visible:outline-emerald-600 focus-visible:outline-offset-2 rounded-sm" aria-label="إدارة ملفات تعريف الارتباط">
                 إدارة ملفات تعريف الارتباط
               </button>
             </nav>

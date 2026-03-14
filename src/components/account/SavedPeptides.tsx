@@ -58,10 +58,10 @@ export default function SavedPeptides() {
                 <FlaskConical className="h-5 w-5 text-emerald-700" />
               </div>
               <Link to={`/peptide/${p.id}`} className="min-w-0 flex-1">
-                <p className="font-bold text-stone-900 dark:text-stone-100 group-hover:text-emerald-700 transition-colors truncate">
+                <p className="font-bold text-stone-900 dark:text-stone-100 group-hover:text-emerald-700 transition-colors truncate" title={p.nameAr}>
                   {p.nameAr}
                 </p>
-                <p className="text-xs text-stone-500 dark:text-stone-300 truncate">{p.nameEn}</p>
+                <p className="text-xs text-stone-500 dark:text-stone-300 truncate" title={p.nameEn}>{p.nameEn}</p>
               </Link>
               <button
                 type="button"

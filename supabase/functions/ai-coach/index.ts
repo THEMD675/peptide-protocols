@@ -338,7 +338,7 @@ serve(async (req) => {
       })
     }
 
-    const { messages, stream, conversationId: rawConvId } = body
+    const { messages, stream, conversationId: rawConvId, lang } = body
     const conversationId = typeof rawConvId === 'string' ? rawConvId : null
 
     // Validate conversationId ownership if provided
@@ -563,8 +563,12 @@ serve(async (req) => {
     const userMessages = messages.filter((m: { role: string }) => m.role !== 'system').slice(-MAX_CONTEXT_MESSAGES)
     const wantStream = stream === true
 
+    let systemPrompt = SYSTEM_PROMPT
+    if (lang === 'en') {
+      systemPrompt += '\n\nThe user is writing in English. Respond in English.'
+    }
     const systemMessages: Array<{ role: string; content: string }> = [
-      { role: 'system', content: SYSTEM_PROMPT },
+      { role: 'system', content: systemPrompt },
     ]
     if (userContextMsg) {
       systemMessages.push({ role: 'system', content: userContextMsg.trim() })

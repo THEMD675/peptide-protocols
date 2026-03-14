@@ -24,6 +24,7 @@ async function invokeFunction(name: string): Promise<{ name: string; ok: boolean
       headers: {
         Authorization: `Bearer ${SUPABASE_SERVICE_KEY}`,
         'Content-Type': 'application/json',
+        'x-cron-secret': process.env.CRON_SECRET ?? '',
       },
       body: JSON.stringify({ source: 'vercel-cron' }),
     });

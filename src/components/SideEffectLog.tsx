@@ -198,6 +198,7 @@ export default function SideEffectLog() {
     <div className="rounded-2xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 shadow-sm dark:shadow-stone-900/30">
       <button
         onClick={() => setIsOpen(prev => !prev)}
+        aria-expanded={isOpen}
         className="flex w-full items-center justify-between p-5 text-start"
       >
         <div className="flex items-center gap-3">
@@ -240,6 +241,7 @@ export default function SideEffectLog() {
                   <button
                     key={level}
                     type="button"
+                    aria-pressed={severity === level}
                     onClick={() => setSeverity(level)}
                     className={cn(
                       'flex-1 rounded-lg border py-2 min-h-[44px] text-xs font-bold transition-all btn-press',
@@ -339,12 +341,13 @@ export default function SideEffectLog() {
           {!loading && entries.length > 0 && (
             <div className="space-y-3">
               <div className="relative">
-                <Search className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-stone-400" />
+                <Search className="absolute end-3 top-1/2 -translate-y-1/2 h-4 w-4 text-stone-400" />
                 <input
                   type="text"
                   value={searchQuery}
                   onChange={e => setSearchQuery(e.target.value)}
                   placeholder="ابحث عن عرض..."
+                  aria-label="ابحث عن عرض جانبي"
                   className="w-full rounded-xl border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 pe-9 ps-4 py-2 text-sm text-stone-900 dark:text-stone-100 placeholder:text-stone-400 focus:border-emerald-300 focus:outline-none focus:ring-2 focus:ring-emerald-100 dark:focus:ring-emerald-900"
                 />
               </div>
@@ -353,6 +356,7 @@ export default function SideEffectLog() {
                   <button
                     key={val}
                     type="button"
+                    aria-pressed={dateFilter === val}
                     onClick={() => setDateFilter(val)}
                     className={cn(
                       'rounded-lg px-3 py-1.5 text-xs font-bold transition-colors',

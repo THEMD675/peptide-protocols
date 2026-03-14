@@ -69,7 +69,7 @@ if ('serviceWorker' in navigator && import.meta.env.PROD) {
       newSW.addEventListener('statechange', () => {
         if (newSW.state === 'installed' && navigator.serviceWorker.controller) {
           toast('يتوفر إصدار جديد', {
-            duration: 30000,
+            duration: Infinity,
             action: {
               label: 'تحديث',
               onClick: () => {

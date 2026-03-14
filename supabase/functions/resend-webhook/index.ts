@@ -20,8 +20,8 @@ function timingSafeEqual(a: string, b: string): boolean {
 
 async function verifySvixSignature(rawBody: string, headers: Headers): Promise<boolean> {
   if (!RESEND_WEBHOOK_SECRET) {
-    console.warn('resend-webhook: RESEND_WEBHOOK_SECRET not set — skipping verification')
-    return true
+    console.warn('resend-webhook: RESEND_WEBHOOK_SECRET not set — rejecting request')
+    return false
   }
 
   const svixId = headers.get('svix-id')
@@ -122,6 +122,10 @@ serve(async (req) => {
           await supabase.from('email_logs').insert(
             { email, type: 'resend_event', status: 'bounced', resend_id: emailId, details: JSON.stringify(data), created_at: new Date().toISOString() }
           ).catch(e => console.warn('email_logs insert failed:', e))
+          await supabase.from('user_profiles')
+            .update({ email_notifications_enabled: false, updated_at: new Date().toISOString() })
+            .eq('email', email)
+            .catch(err => console.warn('resend-webhook: failed to suppress email:', err))
         }
         break
 
@@ -131,6 +135,10 @@ serve(async (req) => {
           await supabase.from('email_logs').insert(
             { email, type: 'resend_event', status: 'complained', resend_id: emailId, details: JSON.stringify(data), created_at: new Date().toISOString() }
           ).catch(e => console.warn('email_logs insert failed:', e))
+          await supabase.from('user_profiles')
+            .update({ email_notifications_enabled: false, updated_at: new Date().toISOString() })
+            .eq('email', email)
+            .catch(err => console.warn('resend-webhook: failed to suppress email:', err))
         }
         break
 

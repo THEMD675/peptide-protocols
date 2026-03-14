@@ -6,7 +6,7 @@ import {
   ArrowUpDown, ArrowUp, ArrowDown, Download, Columns3, ChevronDown,
   X, GitCompareArrows,
 } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { cn, escapeHtml } from '@/lib/utils';
 import { categories, stacks } from '@/data/peptides';
 import { peptidesPublic as peptides, type PeptidePublic as Peptide } from '@/data/peptides-public';
 import { useAuth } from '@/contexts/AuthContext';
@@ -167,13 +167,13 @@ async function exportAsImage(data: Peptide[], visibleCols: ColumnKey[]) {
     <table style="width:100%;border-collapse:collapse;font-size:11px;">
       <thead>
         <tr style="background:#f5f5f4;border-bottom:2px solid #d6d3d1;">
-          ${headers.map(h => `<th style="padding:8px;text-align:right;">${h}</th>`).join('')}
+          ${headers.map(h => `<th style="padding:8px;text-align:right;">${escapeHtml(h)}</th>`).join('')}
         </tr>
       </thead>
       <tbody>
         ${rows.map((row, i) => `
           <tr style="border-bottom:1px solid #e7e5e4;${i % 2 === 0 ? 'background:#fafaf9;' : ''}">
-            ${row.map(cell => `<td style="padding:6px 8px;">${cell}</td>`).join('')}
+            ${row.map(cell => `<td style="padding:6px 8px;">${escapeHtml(cell)}</td>`).join('')}
           </tr>
         `).join('')}
       </tbody>
@@ -283,7 +283,7 @@ export default function PeptideTable() {
 
   // Persist column visibility
   useEffect(() => {
-    localStorage.setItem(LS_KEY, JSON.stringify(visibleCols));
+    try { localStorage.setItem(LS_KEY, JSON.stringify(visibleCols)); } catch { /* storage full */ }
   }, [visibleCols]);
 
   // ── Derived data ───────────────────────────────────────
@@ -392,6 +392,8 @@ export default function PeptideTable() {
         <meta property="og:title" content={`جدول الببتيدات الشامل | ${PEPTIDE_COUNT} ببتيد | pptides`} />
         <meta property="og:description" content={`أشمل جدول مقارنة ببتيدات بالعربي — ${PEPTIDE_COUNT} ببتيد مع الجرعات والبروتوكولات.`} />
         <meta property="og:url" content={`${SITE_URL}/table`} />
+        <meta property="og:type" content="website" />
+        <meta property="og:locale" content="ar_SA" />
         <meta property="og:image" content={`${SITE_URL}/og-image.jpg`} />
         <meta name="twitter:card" content="summary_large_image" />
         <script type="application/ld+json">{JSON.stringify({

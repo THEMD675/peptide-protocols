@@ -114,12 +114,18 @@ export default function Pricing() {
   const [userCount, setUserCount] = useState(0);
   const [isLoadingPortal, setIsLoadingPortal] = useState(false);
   const navigatingRef = useRef(false);
+  const [guestCurrency, setGuestCurrency] = useState<{ code: string; rate: number; symbol: string } | null>(null);
 
   // Capture coupon on first render so setSearchParams({}) doesn't lose it
   const initialCouponRef = useRef(searchParams.get('coupon') || undefined);
 
   // Unified coupon: from URL params via SalesFlowService, fallback to initial capture
   const couponFromUrl = checkoutCoupon || offer.coupon || initialCouponRef.current;
+
+  // Referral: from URL params or localStorage (ReferralCapture strips ?ref= from URL)
+  const referralFromStorage = (() => { try { return localStorage.getItem('pptides_referral'); } catch { return null; } })();
+  const hasReferral = urlParams?.referralCode || referralFromStorage;
+  const referralCode = urlParams?.referralCode || referralFromStorage;
 
   // Dynamic Stripe preconnect — only on Pricing page
   useEffect(() => {
@@ -129,6 +135,39 @@ export default function Pricing() {
     link.crossOrigin = '';
     document.head.appendChild(link);
     return () => { link.remove(); };
+  }, []);
+
+  // GeoJS + Frankfurter: auto-detect Gulf currency for non-Saudi visitors
+  useEffect(() => {
+    const cached = sessionStorage.getItem('pptides_currency');
+    if (cached) {
+      try { setGuestCurrency(JSON.parse(cached)); } catch { /* invalid */ }
+      return;
+    }
+    fetch('https://get.geojs.io/v1/ip/country.json')
+      .then(r => r.json())
+      .then(data => {
+        const currencyMap: Record<string, { code: string; symbol: string }> = {
+          AE: { code: 'AED', symbol: 'د.إ' },
+          KW: { code: 'KWD', symbol: 'د.ك' },
+          BH: { code: 'BHD', symbol: 'د.ب' },
+          QA: { code: 'QAR', symbol: 'ر.ق' },
+          OM: { code: 'OMR', symbol: 'ر.ع' },
+        };
+        const match = currencyMap[data.country];
+        if (!match) return; // Saudi or unknown -- keep SAR
+        return fetch(`https://api.frankfurter.app/latest?from=SAR&to=${match.code}`)
+          .then(r => r.json())
+          .then((fx: { rates?: Record<string, number> }) => {
+            const rate = fx.rates?.[match.code];
+            if (rate) {
+              const currency = { ...match, rate };
+              setGuestCurrency(currency);
+              try { sessionStorage.setItem('pptides_currency', JSON.stringify(currency)); } catch { /* quota */ }
+            }
+          });
+      })
+      .catch(() => { /* non-blocking */ });
   }, []);
 
   useEffect(() => { navigatingRef.current = false; events.pricingView(); return () => { navigatingRef.current = false; }; }, []);
@@ -376,18 +415,18 @@ export default function Pricing() {
 
       <div className="mx-auto max-w-6xl px-4 pb-24 pt-8 md:px-6 md:pt-12">
         {/* Contextual banners from SalesFlowService */}
-        {urlParams.referralCode && (
+        {hasReferral && (
           <div className="mb-6 rounded-2xl border border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-900/20 p-4 text-center">
             <div className="flex items-center justify-center gap-2 mb-1">
               <Gift className="h-5 w-5 text-emerald-700" />
               <p className="text-sm font-bold text-emerald-800 dark:text-emerald-300">صديقك دعاك!</p>
             </div>
             <p className="text-sm text-emerald-700 dark:text-emerald-400">
-              {REFERRAL.friendBanner(urlParams.referralCode)}
+              {REFERRAL.friendBanner(referralCode)}
             </p>
           </div>
         )}
-        {urlParams.coupon && !urlParams.referralCode && (
+        {urlParams.coupon && !hasReferral && (
           <div className="mb-6 rounded-2xl border border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-900/20 p-4 text-center">
             <p className="text-sm font-bold text-amber-800 dark:text-amber-300">
               {WINBACK.couponBanner(offer.discountPercent ?? WINBACK.defaultPercent)}
@@ -476,6 +515,11 @@ export default function Pricing() {
               <span className="price-huge text-stone-900 dark:text-stone-100">{billingCycle === 'annual' ? PRICING.essentials.annualLabel : PRICING.essentials.label}</span>
               <span className="text-lg text-stone-600 dark:text-stone-300"> /{billingCycle === 'annual' ? 'سنويًا' : 'شهريًا'}</span>
             </div>
+            {guestCurrency && (
+              <p className="text-xs text-stone-500 dark:text-stone-400 mt-1" dir="ltr">
+                ≈ {((billingCycle === 'monthly' ? PRICING.essentials.monthly : PRICING.essentials.annualTotal) * guestCurrency.rate).toFixed(1)} {guestCurrency.symbol}
+              </p>
+            )}
             {billingCycle === 'monthly' && <p className="mb-2 text-xs font-bold text-emerald-700">~١.١ ر.س/يوم</p>}
             {billingCycle === 'monthly' && <p className="mb-2 text-xs text-emerald-700 font-medium">سنوي: <span dir="ltr">{PRICING.essentials.annualLabel}</span>/سنة — وفّر 27%</p>}
             {billingCycle === 'annual' && (
@@ -523,6 +567,11 @@ export default function Pricing() {
               <span className="price-huge text-stone-900 dark:text-stone-100">{billingCycle === 'annual' ? PRICING.elite.annualLabel : PRICING.elite.label}</span>
               <span className="text-lg text-stone-600 dark:text-stone-300"> /{billingCycle === 'annual' ? 'سنويًا' : 'شهريًا'}</span>
             </div>
+            {guestCurrency && (
+              <p className="text-xs text-stone-500 dark:text-stone-400 mt-1" dir="ltr">
+                ≈ {((billingCycle === 'monthly' ? PRICING.elite.monthly : PRICING.elite.annualTotal) * guestCurrency.rate).toFixed(1)} {guestCurrency.symbol}
+              </p>
+            )}
             {billingCycle === 'monthly' && <p className="mb-2 text-xs font-bold text-emerald-700">~١٢.٤ ر.س/يوم</p>}
             {billingCycle === 'monthly' && <p className="mb-2 text-xs text-emerald-700 font-medium">سنوي: <span dir="ltr">{PRICING.elite.annualLabel}</span>/سنة — وفّر 33%</p>}
             {billingCycle === 'annual' && (

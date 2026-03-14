@@ -128,11 +128,12 @@ const PeptideCard = memo(function PeptideCard({
               ? 'text-stone-900 dark:text-stone-100 group-hover:text-emerald-700'
               : 'text-stone-900 dark:text-stone-100',
           )}
+          title={peptide.nameAr}
         >
           {peptide.nameAr}
         </h3>
         <div className="mt-0.5 flex items-center gap-2">
-          <p className="min-w-0 text-xs text-stone-800 dark:text-stone-200 truncate" dir="ltr">{peptide.nameEn}</p>
+          <p className="min-w-0 text-xs text-stone-800 dark:text-stone-200 truncate" dir="ltr" title={peptide.nameEn}>{peptide.nameEn}</p>
           {isUsed && <span className="shrink-0 rounded-full bg-emerald-100 dark:bg-emerald-900/30 px-1.5 py-0.5 text-xs font-bold text-emerald-700 dark:text-emerald-400">مستخدم</span>}
         </div>
       </div>
@@ -154,12 +155,12 @@ const PeptideCard = memo(function PeptideCard({
       </div>
 
       {(hasAccess || peptide.isFree) ? (
-        <p className="mb-3 line-clamp-2 text-sm leading-relaxed text-stone-800 dark:text-stone-200">
+        <p className="mb-3 line-clamp-2 text-sm leading-relaxed text-stone-800 dark:text-stone-200" title={peptide.summaryAr}>
           {peptide.summaryAr}
         </p>
       ) : (
         <div className="mb-3">
-          <p className="text-sm leading-relaxed text-stone-500 dark:text-stone-300 line-clamp-2">
+          <p className="text-sm leading-relaxed text-stone-500 dark:text-stone-300 line-clamp-2" title={peptide.summaryAr}>
             {(() => {
               const max = 65;
               if (peptide.summaryAr.length <= max) return peptide.summaryAr;
@@ -174,7 +175,7 @@ const PeptideCard = memo(function PeptideCard({
       {(hasAccess || peptide.isFree) && (
         <div className="mb-3 flex items-center gap-1.5 text-stone-600 dark:text-stone-300">
           <FlaskConical className="h-3 w-3 shrink-0" />
-          <span className="text-xs truncate">{peptide.route ? ({'subq':'حقن تحت الجلد','im':'حقن عضلي','nasal':'بخاخ أنفي','oral':'عن طريق الفم','topical':'موضعي'}[peptide.route] ?? '—') : '—'}</span>
+          <span className="text-xs truncate" title={peptide.route ? ({'subq':'حقن تحت الجلد','im':'حقن عضلي','nasal':'بخاخ أنفي','oral':'عن طريق الفم','topical':'موضعي'}[peptide.route] ?? '—') : '—'}>{peptide.route ? ({'subq':'حقن تحت الجلد','im':'حقن عضلي','nasal':'بخاخ أنفي','oral':'عن طريق الفم','topical':'موضعي'}[peptide.route] ?? '—') : '—'}</span>
         </div>
       )}
 
@@ -255,7 +256,7 @@ export default function Library() {
   const { subscription, isLoading } = useAuth();
   const isPaid = !isLoading && (subscription?.isPaidSubscriber ?? false);
   const isTrial = !isLoading && (subscription?.isTrial ?? false);
-  const hasFullAccess = isPaid || isTrial;
+  const hasFullAccess = isPaid;
   const usedPeptides = useUsedPeptides();
 
   const [searchParams, setSearchParams] = useSearchParams();
@@ -934,7 +935,7 @@ export default function Library() {
               </div>
               <h3 className="mb-2 text-xl font-bold text-stone-900 dark:text-stone-100">{p.nameAr}</h3>
               <p className="mb-1 text-sm text-stone-500 dark:text-stone-300" dir="ltr">{p.nameEn}</p>
-              <p className="mb-4 text-sm text-stone-700 dark:text-stone-200 leading-relaxed line-clamp-2">{p.summaryAr}</p>
+              <p className="mb-4 text-sm text-stone-700 dark:text-stone-200 leading-relaxed line-clamp-2" title={p.summaryAr}>{p.summaryAr}</p>
               <div className="mb-5 rounded-xl bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 p-4">
                 <p className="text-sm text-emerald-800 dark:text-emerald-300 font-semibold mb-1">البروتوكول الكامل يتضمن:</p>
                 <p className="text-xs text-emerald-700 dark:text-emerald-400">الجرعة الدقيقة • التوقيت المثالي • الأعراض الجانبية • التجميعات • التخزين • التحاليل المطلوبة</p>

@@ -1,5 +1,6 @@
 import { useId } from 'react';
 import { cn } from '@/lib/utils';
+import { useTheme } from '@/hooks/useTheme';
 
 export interface SyringeOption {
   label: string;
@@ -19,12 +20,11 @@ export default function SyringeVisual({
   compact = false,
 }: SyringeVisualProps) {
   const gradientId = useId();
+  const { isDark } = useTheme();
   const totalUnits = syringeOption.units;
   if (totalUnits <= 0) return null;
   const clampedUnits = Math.min(Math.max(drawUnits, 0), totalUnits);
   const displayUnits = isFinite(clampedUnits) ? clampedUnits : 0;
-
-  const isDark = typeof document !== 'undefined' && document.documentElement.classList.contains('dark');
   const tickColor = isDark ? 'rgba(255,255,255,0.35)' : 'rgba(0,0,0,0.3)';
   const tickColorStrong = isDark ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.2)';
   const textColor = isDark ? 'rgba(255,255,255,0.55)' : 'rgba(0,0,0,0.5)';

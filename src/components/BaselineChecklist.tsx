@@ -49,6 +49,8 @@ export default function BaselineChecklist({ peptide, onAllChecked }: BaselineChe
           return (
             <button
               key={item.id}
+              role="checkbox"
+              aria-checked={done}
               onClick={() => toggle(item.id)}
               className={cn(
                 'flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-start text-sm transition-all',

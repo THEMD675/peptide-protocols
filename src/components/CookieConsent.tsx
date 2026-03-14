@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { COOKIE_CONSENT_STORAGE_KEY, type CookiePreferences } from '@/lib/cookie-utils';
 import { STORAGE_KEYS } from '@/lib/constants';
@@ -47,7 +47,7 @@ export default function CookieConsent() {
   const save = (prefs: CookiePreferences) => {
     try { localStorage.setItem(COOKIE_CONSENT_STORAGE_KEY, JSON.stringify(prefs)); } catch { /* expected */ }
     try { sessionStorage.setItem(COOKIE_CONSENT_STORAGE_KEY, JSON.stringify(prefs)); } catch { /* fallback */ }
-    document.cookie = `${COOKIE_NAME}=1;path=/;max-age=${365 * 24 * 60 * 60};SameSite=Lax`;
+    document.cookie = `${COOKIE_NAME}=1;path=/;max-age=${365 * 24 * 60 * 60};SameSite=Lax;Secure`;
     setVisible(false);
     if (prefs.optional) {
       // Dynamically inject GA4 script without page reload
@@ -68,7 +68,7 @@ export default function CookieConsent() {
       document.querySelectorAll('script[src*="googletagmanager.com/gtag/js"]').forEach(el => el.remove());
       document.querySelectorAll('script[data-cookie-consent="analytics"]').forEach(el => el.remove());
       const w = window as unknown as Record<string, unknown[]>;
-      delete w.dataLayer;
+      w.dataLayer = [];
       delete (window as Record<string, unknown>).gtag;
     }
     // Signal Google Consent Mode update
@@ -80,7 +80,7 @@ export default function CookieConsent() {
 
   const acceptAll = () => save({ essential: true, optional: true });
   const savePreferences = () => save({ essential: true, optional: optionalChecked });
-  const rejectOptional = () => save({ essential: true, optional: false });
+  const rejectOptional = useCallback(() => save({ essential: true, optional: false }), []);
 
   useEffect(() => {
     if (!visible) return;

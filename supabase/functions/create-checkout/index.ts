@@ -109,6 +109,13 @@ serve(async (req) => {
       .eq('user_id', user.id)
       .maybeSingle()
 
+    // Block if user already has a Stripe subscription (prevents duplicate Stripe subs, incl. trial users).
+    // Trial users without stripe_subscription_id (manual trial) are allowed to checkout to upgrade to paid.
+    if (existingSub?.stripe_subscription_id) {
+      return new Response(JSON.stringify({ error: 'لديك اشتراك فعّال بالفعل', alreadySubscribed: true }), {
+        status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      })
+    }
     if (existingSub?.status === 'active' || existingSub?.status === 'past_due') {
       return new Response(JSON.stringify({ error: 'لديك اشتراك فعّال بالفعل', alreadySubscribed: true }), {
         status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' },

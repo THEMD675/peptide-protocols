@@ -47,6 +47,9 @@ interface LeaderEntry {
 
 /* ──────────────────── Constants ──────────────────── */
 
+// DEFERRED: Google Safe Browsing for community post URLs — requires server-side API key.
+// Would need a Supabase edge function to validate links; client-side cannot call Safe Browsing API.
+
 const GOALS = [
   'فقدان دهون',
   'تعافي وإصابات',
@@ -101,6 +104,16 @@ const SEED_EXPERIENCES: LogEntry[] = [
 ];
 
 /* ──────────────────── Helpers ──────────────────── */
+
+async function checkProfanity(text: string): Promise<boolean> {
+  try {
+    const res = await fetch(`https://www.purgomalum.com/service/containsprofanity?text=${encodeURIComponent(text)}`);
+    const hasProfanity = await res.text();
+    return hasProfanity === 'true';
+  } catch {
+    return false;
+  }
+}
 
 function getAvatarColor(userId: string): string {
   let hash = 0;
@@ -592,6 +605,11 @@ export default function Community() {
   const submitReply = useCallback(async (postId: string) => {
     const content = sanitizeInput((replyText[postId] ?? '').trim(), 500);
     if (!user || !content) return;
+    const hasProfanity = await checkProfanity(content);
+    if (hasProfanity) {
+      toast.error('يحتوي المحتوى على كلمات غير مناسبة — يرجى تعديل النص');
+      return;
+    }
     setSubmittingReply(prev => new Set(prev).add(postId));
     const isSub = subscription?.isProOrTrial ?? false;
     const optimistic: Reply = {
@@ -659,6 +677,16 @@ export default function Community() {
       const peptideStr = selectedPeptides.join(', ');
       // Sanitize user inputs: strip HTML, limit length
       const sanitize = (s: string, max: number) => sanitizeInput(s.trim(), max);
+      const contentToCheck = [goal, protocol, results].filter(Boolean).join(' ');
+      if (contentToCheck) {
+        const hasProfanity = await checkProfanity(contentToCheck);
+        if (hasProfanity) {
+          submittingRef.current = false;
+          setSubmitting(false);
+          toast.error('يحتوي المحتوى على كلمات غير مناسبة — يرجى تعديل النص');
+          return;
+        }
+      }
       const { error } = await supabase.from('community_logs').insert({
         user_id: user.id,
         peptide_name: peptideStr,
@@ -1435,14 +1463,17 @@ export default function Community() {
                                 setUpvotedPosts(next);
                                 try { localStorage.setItem(`pptides_upvoted_${user?.id ?? 'anon'}`, JSON.stringify([...next])); } catch { /* */ }
                                 setLogs(prev => prev.map(l => l.id === log.id ? { ...l, upvotes: (l.upvotes ?? 0) + 1 } : l));
-                                const { error } = await supabase
-                                  .rpc('increment_upvote', { p_post_id: log.id, p_user_id: user.id });
-                                if (error) {
-                                  setLogs(prev => prev.map(l => l.id === log.id ? { ...l, upvotes: (l.upvotes ?? 0) - 1 } : l));
-                                  const reverted = new Set(upvotedPosts);
-                                  reverted.delete(log.id);
-                                  setUpvotedPosts(reverted);
-                                  try { localStorage.setItem(`pptides_upvoted_${user?.id ?? 'anon'}`, JSON.stringify([...reverted])); } catch { /* */ }
+                                try {
+                                  const { error } = await supabase
+                                    .rpc('increment_upvote', { p_post_id: log.id, p_user_id: user.id });
+                                  if (error) {
+                                    setLogs(prev => prev.map(l => l.id === log.id ? { ...l, upvotes: (l.upvotes ?? 0) - 1 } : l));
+                                    const reverted = new Set(upvotedPosts);
+                                    reverted.delete(log.id);
+                                    setUpvotedPosts(reverted);
+                                    try { localStorage.setItem(`pptides_upvoted_${user?.id ?? 'anon'}`, JSON.stringify([...reverted])); } catch { /* */ }
+                                  }
+                                } finally {
                                   upvotingRef.current.delete(log.id);
                                 }
                               }}

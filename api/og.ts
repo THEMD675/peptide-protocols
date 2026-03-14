@@ -9,10 +9,10 @@ const SITE_URL = 'https://pptides.com';
 const DEFAULT_OG_IMAGE = `${SITE_URL}/og-image.jpg`;
 const SITE_NAME = 'pptides';
 const DEFAULT_TITLE = 'pptides | أشمل دليل عربي للببتيدات العلاجية';
-const DEFAULT_DESC = '41+ ببتيد مع بروتوكولات كاملة، حاسبة جرعات، دليل تحاليل، مدرب ذكي. 3 أيام مجانًا.';
+const DEFAULT_DESC = '47+ ببتيد مع بروتوكولات كاملة، حاسبة جرعات، دليل تحاليل، مدرب ذكي. 3 أيام مجانًا.';
 
 // ── Supabase config for blog post lookups ──
-const SUPABASE_URL = process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL || '';
+const SUPABASE_URL = process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL;
 const SUPABASE_ANON_KEY = process.env.VITE_SUPABASE_ANON_KEY || '';
 
 // ── Peptide data (id → { nameAr, nameEn, summaryAr }) ──
@@ -60,6 +60,11 @@ const PEPTIDE_META: Record<string, { nameAr: string; nameEn: string; summaryAr: 
   'll-37': { nameAr: 'LL-37', nameEn: 'LL-37', summaryAr: 'ببتيد مضاد للميكروبات من جهاز المناعة الفطري — يقتل البكتيريا والفيروسات ويُنظّم الاستجابة المناعية.' },
   'ara-290': { nameAr: 'ARA-290', nameEn: 'ARA-290', summaryAr: 'ببتيد يستهدف مستقبل EPO غير المكوّن للدم — يحمي الأعصاب ويقلل الالتهاب المزمن والألم العصبي.' },
   'melanotan-ii': { nameAr: 'ميلانوتان II', nameEn: 'Melanotan II', summaryAr: 'ببتيد تسمير يحفّز الميلانين ويؤثر على الرغبة الجنسية — شائع لكنه يحمل مخاطر جدية تستوجب الحذر.' },
+  'mk-677': { nameAr: 'إم كي-677 / إيبوتامورين', nameEn: 'MK-677 / Ibutamoren', summaryAr: 'محفز إفراز هرمون النمو الفموي — يعمل عبر مستقبلات الغريلين لزيادة IGF-1 وتحسين النوم والتعافي.' },
+  'humanin': { nameAr: 'هيومانين', nameEn: 'Humanin', summaryAr: 'ببتيد ميتوكوندري يُحمي الخلايا من الإجهاد والشيخوخة — واعد لطول العمر والوظيفة العصبية.' },
+  'vip': { nameAr: 'الببتيد المعوي الفعال في الأوعية', nameEn: 'VIP', summaryAr: 'ببتيد عصبي ينظّم توسع الأوعية والالتهاب والمناعة — يُفرز في الأمعاء والجهاز العصبي.' },
+  'oxytocin': { nameAr: 'أوكسيتوسين', nameEn: 'Oxytocin', summaryAr: 'هرمون الترابط الاجتماعي — يزيد الثقة والتعاطف والترابط بين الأفراد.' },
+  'snap-8': { nameAr: 'سناب-8', nameEn: 'SNAP-8', summaryAr: 'ببتيد مضاد للتجاعيد — يقلل الخطوط والتجاعيد عند التطبيق الموضعي على الجلد.' },
 };
 
 // ── Static route meta ──
@@ -76,7 +81,7 @@ const STATIC_META: Record<string, { title: string; description: string }> = {
   '/guide': { title: 'دليل البدء | pptides', description: 'دليل شامل للمبتدئين — كيف تبدأ مع الببتيدات العلاجية خطوة بخطوة.' },
   '/lab-guide': { title: 'دليل التحاليل المخبرية | pptides', description: 'تحاليل أساسية قبل وأثناء وبعد استخدام الببتيدات — مع القيم المرجعية والتفسير.' },
   '/quiz': { title: 'اختبار الببتيد المناسب | pptides', description: 'أجب على أسئلة بسيطة واكتشف الببتيد الأنسب لأهدافك الصحية.' },
-  '/library': { title: 'مكتبة الببتيدات | pptides', description: '41+ ببتيد مع بروتوكولات مفصّلة — ابحث، قارن، واختر الببتيد المناسب لك.' },
+  '/library': { title: 'مكتبة الببتيدات | pptides', description: '47+ ببتيد مع بروتوكولات مفصّلة — ابحث، قارن، واختر الببتيد المناسب لك.' },
   '/table': { title: 'جدول المقارنة | pptides', description: 'قارن جميع الببتيدات في جدول واحد — الجرعات، مستوى الأدلة، الفئة، والتكلفة التقديرية.' },
   '/stacks': { title: 'البروتوكولات المُجمَّعة | pptides', description: 'بروتوكولات جاهزة تجمع ببتيدات متكاملة لأهداف محددة — تعافي، أيض، هرمونات، وأكثر.' },
   '/interactions': { title: 'فحص التعارضات | pptides', description: 'تحقق من تعارضات الببتيدات قبل الاستخدام — أداة تفاعلية لفحص التوافق والمخاطر.' },
@@ -228,7 +233,7 @@ function getHomepageJsonLd(): object[] {
       "name": "pptides",
       "alternateName": "دليل البيبتايدات",
       "url": "https://pptides.com/",
-      "description": "أشمل دليل عربي للببتيدات العلاجية — 41+ ببتيد مع بروتوكولات كاملة",
+      "description": "أشمل دليل عربي للببتيدات العلاجية — 47+ ببتيد مع بروتوكولات كاملة",
       "inLanguage": "ar",
       "potentialAction": {
         "@type": "SearchAction",
@@ -240,7 +245,7 @@ function getHomepageJsonLd(): object[] {
       "@context": "https://schema.org",
       "@type": "Product",
       "name": "pptides — دليل البيبتايدات العلاجية",
-      "description": "وصول كامل لأكثر من 41 ببتيد مع بروتوكولات مفصّلة، حاسبة جرعات، دليل تحاليل مخبرية، مدرب ذكي بالذكاء الاصطناعي",
+      "description": "وصول كامل لأكثر من 47 ببتيد مع بروتوكولات مفصّلة، حاسبة جرعات، دليل تحاليل مخبرية، مدرب ذكي بالذكاء الاصطناعي",
       "brand": { "@type": "Brand", "name": "pptides" },
       "offers": [
         {
@@ -305,7 +310,7 @@ function getPeptideJsonLd(pep: { nameAr: string; nameEn: string; summaryAr: stri
 // FAQ schema (top 10 questions hardcoded)
 function getFaqJsonLd(): object {
   const faqs = [
-    { q: 'ما هو pptides؟', a: 'pptides هي أول منصة عربية متخصصة في تعليم الببتيدات العلاجية. نقدّم مكتبة شاملة تضم 41+ ببتيد مع بروتوكولات استخدام مفصّلة، حاسبة جرعات دقيقة، ودليل تحاليل مخبرية — كل ذلك باللغة العربية ومبني على أبحاث علمية موثّقة.' },
+    { q: 'ما هو pptides؟', a: 'pptides هي أول منصة عربية متخصصة في تعليم الببتيدات العلاجية. نقدّم مكتبة شاملة تضم 47+ ببتيد مع بروتوكولات استخدام مفصّلة، حاسبة جرعات دقيقة، ودليل تحاليل مخبرية — كل ذلك باللغة العربية ومبني على أبحاث علمية موثّقة.' },
     { q: 'هل المحتوى موثوق علمياً؟', a: 'نعم. جميع المعلومات في pptides مستندة إلى أبحاث علمية منشورة في مجلات محكّمة (PubMed). كل ببتيد مرفق بمصادره العلمية التي يمكنك مراجعتها.' },
     { q: 'هل هذا استشارة طبية؟', a: 'لا. محتوى pptides تعليمي بالكامل ولا يُعدّ بديلًا عن الاستشارة الطبية المتخصصة. يجب دائمًا استشارة طبيبك قبل استخدام أي ببتيد.' },
     { q: 'هل تبيعون ببتيدات؟', a: 'لا. pptides منصة تعليمية ومعلوماتية فقط. لا نبيع أي ببتيدات أو مكمّلات أو أدوية.' },
@@ -333,7 +338,7 @@ function getPricingJsonLd(): object {
     "@context": "https://schema.org",
     "@type": "Product",
     "name": "pptides - بروتوكولات الببتيد",
-    "description": "وصول كامل لأكثر من 41 ببتيد مع بروتوكولات مفصّلة، حاسبة جرعات، دليل تحاليل مخبرية",
+    "description": "وصول كامل لأكثر من 47 ببتيد مع بروتوكولات مفصّلة، حاسبة جرعات، دليل تحاليل مخبرية",
     "brand": { "@type": "Brand", "name": "pptides" },
     "offers": [
       { "@type": "Offer", "price": "34", "priceCurrency": "SAR", "name": "الأساسية", "availability": "https://schema.org/InStock", "url": "https://pptides.com/pricing" },
@@ -435,6 +440,9 @@ ${jsonLdTags}
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   const path = (req.query.path as string) || '/';
 
+  if (!SUPABASE_URL) {
+    return res.status(500).json({ error: 'SUPABASE_URL not configured' });
+  }
   try {
     const meta = await resolveMeta(path);
     const html = renderOgHtml(meta, path);

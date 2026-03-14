@@ -150,7 +150,7 @@ serve(async (req) => {
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
         <div style="background: #f5f5f4; border-radius: 8px; padding: 16px; margin-bottom: 16px;">
           <p style="margin: 4px 0; font-size: 13px; color: #78716c;"><strong>From:</strong> ${escapeHtml(from)}</p>
-          <p style="margin: 4px 0; font-size: 13px; color: #78716c;"><strong>To:</strong> ${escapeHtml(recipients)}</p>
+          <p style="margin: 4px 0; font-size: 13px; color: #78716c;"><strong>To:</strong> ${escapeHtml(recipients ?? '')}</p>
           <p style="margin: 4px 0; font-size: 13px; color: #78716c;"><strong>Subject:</strong> ${escapeHtml(subject ?? '(no subject)')}</p>
         </div>
         <div style="padding: 8px 0;">

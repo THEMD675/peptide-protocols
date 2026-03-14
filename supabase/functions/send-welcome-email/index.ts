@@ -281,14 +281,14 @@ serve(async (req) => {
             referral_code: referralCode,
             referred_email: email,
             status: flagForReview ? 'pending_review' : 'signed_up',
-          }).catch(() => {})
+          }).catch((err) => { console.error('referral insert failed:', err); })
 
           // Mark the new user's subscription as referred
           await serviceSupabase
             .from('subscriptions')
             .update({ referred_by: referralCode })
             .eq('user_id', user.id)
-            .catch(() => {})
+            .catch((err) => { console.error('referral referred_by update failed:', err); })
         }
       } catch (refErr) {
         console.error('referral tracking failed:', refErr)

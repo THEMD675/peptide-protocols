@@ -270,7 +270,7 @@ export default memo(function Header() {
               aria-label="بحث"
             >
               <Search className="h-4 w-4" />
-              <kbd className="hidden rounded-md border border-stone-200 dark:border-stone-600 bg-stone-100 dark:bg-stone-800 px-1 py-0.5 text-[10px] font-medium text-stone-400 lg:inline">⌘K</kbd>
+              <kbd className="hidden rounded-md border border-stone-200 dark:border-stone-600 bg-stone-100 dark:bg-stone-800 px-1 py-0.5 text-[10px] font-medium text-stone-500 dark:text-stone-400 lg:inline">⌘K</kbd>
             </button>
             <Suspense fallback={null}><GlobalSearch open={searchOpen} onClose={() => setSearchOpen(false)} /></Suspense>
 
@@ -307,7 +307,7 @@ export default memo(function Header() {
                     else if (e.key === 'Escape') { setDropdownOpen(false); }
                   }}>
                     <div className="border-b border-stone-200 dark:border-stone-600 px-4 py-2">
-                      <p className="truncate text-sm text-stone-800 dark:text-stone-200">{user.email}</p>
+                      <p className="truncate text-sm text-stone-800 dark:text-stone-200" title={user.email}>{user.email}</p>
                       {displayTier && (
                         <span className={cn('mt-1 inline-block rounded-full px-2 py-0.5 text-[11px] font-semibold', tierBadgeColor)}>
                           {displayTier}
@@ -412,7 +412,7 @@ export default memo(function Header() {
           mobileOpen ? 'pointer-events-auto opacity-100' : 'pointer-events-none opacity-0',
         )}
         aria-hidden={!mobileOpen}
-        {...(mobileOpen ? {} : { inert: '' as unknown as boolean })}
+        {...(mobileOpen ? {} : { inert: '' as unknown as boolean }) /* TODO: inert has limited support in older browsers; consider polyfill or fallback for legacy browsers */}
       >
         <div
           className="absolute inset-0 bg-black/50 backdrop-blur-sm"
@@ -497,7 +497,7 @@ export default memo(function Header() {
                     {initial}
                   </span>
                   <div className="min-w-0">
-                    <p className="truncate text-sm text-stone-800 dark:text-stone-200">{user.email}</p>
+                    <p className="truncate text-sm text-stone-800 dark:text-stone-200" title={user.email}>{user.email}</p>
                     {displayTier && (
                       <span className={cn('mt-0.5 inline-block rounded-full px-2 py-0.5 text-[11px] font-semibold', tierBadgeColor)}>
                         {displayTier}

@@ -25,6 +25,16 @@ const APP_URL = Deno.env.get('APP_URL') ?? 'https://pptides.com'
 const supabaseUrl = Deno.env.get('SUPABASE_URL') ?? ''
 const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
 
+function timingSafeEqual(a: string, b: string): boolean {
+  if (a.length !== b.length) return false
+  const enc = new TextEncoder()
+  const ab = enc.encode(a)
+  const bb = enc.encode(b)
+  let result = 0
+  for (let i = 0; i < ab.length; i++) result |= ab[i] ^ bb[i]
+  return result === 0
+}
+
 function daysSince(dateStr: string): number {
   return Math.floor((Date.now() - new Date(dateStr).getTime()) / (1000 * 60 * 60 * 24))
 }
@@ -50,9 +60,12 @@ serve(async (req) => {
   const cronSecretHeader = req.headers.get('x-cron-secret')
   const cronSecret = Deno.env.get('CRON_SECRET')
 
-  const ADMIN_EMAILS = ['abdullah@amirisgroup.co', 'abdullahalameer@gmail.com', 'abdullahameeer32@gmail.com', 'contact@pptides.com']
+  const ADMIN_EMAILS = (Deno.env.get('ADMIN_EMAIL_WHITELIST') || '').split(',').map(e => e.trim()).filter(Boolean)
   let authorized = false
-  if (cronSecret && (authHeader === `Bearer ${cronSecret}` || cronSecretHeader === cronSecret)) {
+  if (cronSecret && (
+    (authHeader && timingSafeEqual(authHeader.replace(/^Bearer\s+/i, ''), cronSecret)) ||
+    (cronSecretHeader && timingSafeEqual(cronSecretHeader, cronSecret))
+  )) {
     authorized = true
   } else if (authHeader) {
     const token = authHeader.replace('Bearer ', '')
@@ -144,10 +157,9 @@ serve(async (req) => {
       const key = `${userId}:${title}`
       const set = dedup === 'weekly' ? recentSet7d : recentSet24h
       if (set.has(key)) return
-      // FIX 3: Respect notification preferences — skip users who opted out
-      if (emailPrefsMap.get(userId) === false) return
+      // Always add in-app notification — email_notifications_enabled only gates email, not in-app
       notifications.push({ user_id: userId, type: 'coach', title_ar: title, body_ar: body })
-      // Only add push target if user has product_updates_enabled
+      // Only add push target if user has product_updates_enabled (and optionally email_notifications_enabled for email)
       if (pushPrefsMap.get(userId) !== false) {
         pushTargets.push({ user_id: userId, title, body, url })
       }

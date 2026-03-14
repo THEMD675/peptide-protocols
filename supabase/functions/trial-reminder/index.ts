@@ -64,7 +64,21 @@ serve(async (req) => {
 
     const supabase = createClient(supabaseUrl, supabaseServiceKey)
 
+    // Check if today is a Saudi holiday — skip non-critical (win-back, weekly summary, reengagement) emails
+    let isSaudiHoliday = false
+    try {
+      const year = new Date().getFullYear()
+      const holidayRes = await fetch(`https://date.nager.at/api/v3/PublicHolidays/${year}/SA`)
+      if (holidayRes.ok) {
+        const holidays = await holidayRes.json()
+        const today = new Date().toISOString().slice(0, 10)
+        isSaudiHoliday = holidays.some((h: { date: string }) => h.date === today)
+      }
+    } catch { /* non-blocking */ }
+
     const now = new Date()
+    // Saudi Arabia (AST = UTC+3): use Saudi "today" for day calculations
+    const saudiNow = new Date(now.getTime() + 3 * 60 * 60 * 1000)
 
     const { data: trialUsers, error: queryError } = await supabase
       .from('subscriptions')
@@ -149,8 +163,8 @@ serve(async (req) => {
           continue
         }
 
-        const daysSinceSignup = Math.floor((now.getTime() - createdAt.getTime()) / (1000 * 60 * 60 * 24))
-        const daysUntilExpiry = Math.ceil((trialEnds.getTime() - now.getTime()) / (1000 * 60 * 60 * 24))
+        const daysSinceSignup = Math.floor((saudiNow.getTime() - createdAt.getTime()) / (1000 * 60 * 60 * 24))
+        const daysUntilExpiry = Math.ceil((trialEnds.getTime() - saudiNow.getTime()) / (1000 * 60 * 60 * 24))
 
         let subject = ''
         let body = ''
@@ -250,6 +264,12 @@ serve(async (req) => {
           continue
         }
 
+        if (isSaudiHoliday && ['day7_winback', 'day14_winback', 'day30_winback'].includes(reminderType)) {
+          console.log('trial-reminder: skipping non-critical emails — Saudi holiday')
+          skipped++
+          continue
+        }
+
         if (reminderType === 'last_day' && sub.stripe_subscription_id) {
           skipped++
           continue
@@ -317,6 +337,9 @@ serve(async (req) => {
       return `${x.getFullYear()}-W${String(weekNo).padStart(2, '0')}`
     }
     try {
+    if (isSaudiHoliday) {
+      console.log('trial-reminder: skipping weekly summary — Saudi holiday')
+    } else {
     const { data: activeSubscribers } = await supabase
       .from('subscriptions')
       .select('user_id')
@@ -347,7 +370,6 @@ serve(async (req) => {
 
       for (const sub of activeSubscribers) {
         if (weeklySummaryProcessed >= WEEKLY_SUMMARY_LIMIT) break
-        weeklySummaryProcessed++
         try {
           const email = userIdToEmail.get(sub.user_id)
           if (!email) continue
@@ -362,6 +384,7 @@ serve(async (req) => {
 
           if (!weeklyCount || weeklyCount === 0) continue
 
+          weeklySummaryProcessed++
           const { data: wellnessData } = await supabase
             .from('wellness_logs')
             .select('energy, sleep, mood')
@@ -451,12 +474,16 @@ serve(async (req) => {
         }
       }
     }
+    }
     } catch (weeklySummaryErr) {
       console.error('trial-reminder: weekly summary section failed:', weeklySummaryErr)
     }
 
     // PRO8: Proactive coach check-in — active subscribers who haven't logged injection in 3+ days
     try {
+    if (isSaudiHoliday) {
+      console.log('trial-reminder: skipping inactive checkin — Saudi holiday')
+    } else {
     const threeDaysAgo = new Date(now.getTime() - 3 * 24 * 60 * 60 * 1000).toISOString()
     const inactiveCheckinWeekKey = `inactive_checkin_${getISOWeekKey(now)}`
     const { data: activeSubsForCheckin } = await supabase
@@ -523,6 +550,7 @@ serve(async (req) => {
           console.error('trial-reminder: inactive_checkin error for user', sub.user_id, e)
         }
       }
+    }
     }
     } catch (checkinErr) {
       console.error('trial-reminder: inactive checkin section failed:', checkinErr)
@@ -645,6 +673,9 @@ serve(async (req) => {
 
     // RT2: Re-engagement emails for churned/expired users (30-day and 60-day win-back)
     try {
+    if (isSaudiHoliday) {
+      console.log('trial-reminder: skipping winback — Saudi holiday')
+    } else {
     const { data: churnedUsers } = await supabase
       .from('subscriptions')
       .select('user_id, status, updated_at')
@@ -710,6 +741,7 @@ serve(async (req) => {
           }
         } catch (e) { console.error('winback email error:', e) }
       }
+    }
     }
     } catch (winbackErr) {
       console.error('trial-reminder: winback section failed:', winbackErr)

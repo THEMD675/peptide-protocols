@@ -52,6 +52,10 @@ serve(async (req) => {
       signal: AbortSignal.timeout(10000),
     })
 
+    if (!verifyResponse.ok) {
+      return jsonResponse({ success: false, error: 'Turnstile verification service error' }, 502, corsHeaders)
+    }
+
     const result = await verifyResponse.json()
 
     if (!result.success) {

@@ -268,8 +268,8 @@ export default function InteractionChecker() {
 
   if (authLoading) {
     return (
-      <div className="flex min-h-[60vh] items-center justify-center">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-emerald-200 dark:border-emerald-800 border-t-emerald-600" />
+      <div className="flex min-h-[60vh] items-center justify-center" role="status" aria-label="جارٍ التحميل">
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-emerald-200 dark:border-emerald-800 border-t-emerald-600" aria-hidden />
       </div>
     );
   }

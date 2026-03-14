@@ -19,6 +19,9 @@ import ProtocolWizard from '@/components/ProtocolWizard';
 import CoachHistory from '@/components/CoachHistory';
 import CoachInsightsBanner from '@/components/CoachInsightsBanner';
 import DailyBriefingCard from '@/components/DailyBriefingCard';
+import SuggestedChips from '@/components/SuggestedChips';
+import SaveProtocolButton from '@/components/SaveProtocolButton';
+import { generateFollowUps, hasProtocolContent } from '@/lib/coachFollowUps';
 import { useProactiveCoach } from '@/hooks/useProactiveCoach';
 
 
@@ -82,7 +85,7 @@ async function buildUserContext(userId: string): Promise<string> {
         .limit(15),
       supabase
         .from('side_effect_logs')
-        .select('peptide_name, effect, severity, logged_at')
+        .select('peptide_name, symptom, severity, logged_at')
         .eq('user_id', userId)
         .order('logged_at', { ascending: false })
         .limit(10),
@@ -100,7 +103,7 @@ async function buildUserContext(userId: string): Promise<string> {
     }
     if (sideEffects && sideEffects.length > 0) {
       ctx += `\nأعراض جانبية مسجّلة:\n`;
-      sideEffects.forEach(s => { ctx += `- ${s.peptide_name}: ${s.effect} (شدة: ${s.severity}/5)\n`; });
+      sideEffects.forEach(s => { ctx += `- ${s.peptide_name}: ${s.symptom} (شدة: ${s.severity}/5)\n`; });
       ctx += `ضع هذه الأعراض في اعتبارك عند التوصية.\n`;
     }
     if (wellness && wellness.length > 0) {
@@ -501,6 +504,8 @@ export default function Coach() {
   }, [user?.id]);
 
   const isLoadingRef = useRef(false);
+  const conversationIdRef = useRef(conversationId);
+  conversationIdRef.current = conversationId;
   const messagesRef = useRef<ChatMessage[]>(messages);
   messagesRef.current = messages;
 
@@ -535,6 +540,8 @@ export default function Coach() {
     const stageTimer1 = setTimeout(() => setLoadingStage(1), 3000);
     const stageTimer2 = setTimeout(() => setLoadingStage(2), 8000);
     let streamTimeout: ReturnType<typeof setTimeout> | undefined;
+    const isArabic = /[\u0600-\u06FF]/.test(trimmed);
+    const lang = isArabic ? 'ar' : 'en';
     try {
       const token = await getSessionToken();
       const res = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/ai-coach`, {
@@ -547,7 +554,8 @@ export default function Coach() {
         body: JSON.stringify({
           messages: updated.map(m => ({ role: m.role, content: m.content })),
           stream: true,
-          conversationId,
+          conversationId: conversationIdRef.current,
+          ...(lang === 'en' ? { lang: 'en' } : {}),
         }),
         signal: controller.signal,
       });
@@ -734,6 +742,9 @@ export default function Coach() {
   const peptideActions = lastAI ? extractPeptideActions(lastAI.content) : [];
   const aiMsgCount = messages.filter(m => m.role === 'assistant').length;
   const followUps = lastAI ? getFollowUps(lastAI.content, aiMsgCount <= 1) : [];
+  const contextualChips = useMemo(() => lastAI && !lastAI.content.startsWith('__ERROR') ? generateFollowUps(lastAI.content) : [], [lastAI?.content]);
+  const showProtocolSave = useMemo(() => lastAI ? hasProtocolContent(lastAI.content) : false, [lastAI?.content]);
+  const isUserTyping = input.trim().length > 0;
 
   return (
     <div className="min-h-screen animate-fade-in">
@@ -1254,7 +1265,25 @@ export default function Coach() {
                         </Link>
                       </div>
                     </div>
+                    {/* Save Protocol button */}
+                    {showProtocolSave && user && (
+                      <div className="mt-2 flex justify-end">
+                        <SaveProtocolButton
+                          protocolText={msg.content}
+                          userId={user.id}
+                          conversationId={conversationId}
+                        />
+                      </div>
+                    )}
                   </div>
+                )}
+                {/* Contextual follow-up chips — only on last assistant message, hidden when typing */}
+                {msg.role === 'assistant' && i === messages.length - 1 && !isLoading && !isUserTyping && !msg.content.startsWith('__ERROR') && msg.content.length > 50 && (
+                  <SuggestedChips
+                    suggestions={contextualChips}
+                    onSelect={sendToAI}
+                    disabled={isLoading}
+                  />
                 )}
               </div>
             ))}

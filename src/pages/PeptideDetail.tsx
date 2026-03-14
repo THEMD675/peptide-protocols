@@ -664,8 +664,12 @@ export default function PeptideDetail() {
 function InlineDoseCalc({ peptide }: { peptide: { nameEn: string } }) {
   const preset = DOSE_PRESETS[peptide.nameEn];
 
+  if (!preset || preset.waterMl === 0)
+    return (
+      <p className="text-sm text-stone-500 dark:text-stone-400 text-center py-3">هذا الببتيد يؤخذ عن طريق الفم — لا يحتاج تخفيف أو حقن.</p>
+    );
+
   const calc = useMemo(() => {
-    if (!preset) return null;
     const concentrationMcgPerMl = (preset.vialMg * 1000) / preset.waterMl;
     const volumeMl = preset.dose / concentrationMcgPerMl;
     return {
@@ -674,7 +678,7 @@ function InlineDoseCalc({ peptide }: { peptide: { nameEn: string } }) {
     };
   }, [preset]);
 
-  if (!preset || !calc) return null;
+  if (!calc) return null;
   const { syringeUnits, dosesPerVial } = calc;
 
   return (
