@@ -145,7 +145,8 @@ export default function Pricing() {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     try { const c = localStorage.getItem('pptides_user_count'); if (c) setUserCount(Number(c)); } catch { /* expected */ }
     supabase.rpc('get_active_subscriber_count')
-      .then(({ data }) => { if (mounted && data != null && data > 0) { setUserCount(data); try { localStorage.setItem('pptides_user_count', String(data)); } catch { /* expected */ } } });
+      .then(({ data }) => { if (mounted && data != null && data > 0) { setUserCount(data); try { localStorage.setItem('pptides_user_count', String(data)); } catch { /* expected */ } } })
+      .catch(() => { /* RPC not available — use cached count */ });
     return () => { mounted = false; };
   }, []);
 
