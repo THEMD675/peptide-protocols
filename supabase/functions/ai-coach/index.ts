@@ -369,7 +369,7 @@ serve(async (req) => {
 
     const now = new Date()
     const trialEnd = sub?.trial_ends_at ? new Date(sub.trial_ends_at) : null
-    const isTrialValid = sub?.status === 'trial' && trialEnd && trialEnd > now
+    const isTrialValid = sub?.status === 'trial' && !!trialEnd && trialEnd > now
     const isActive = sub?.status === 'active' || sub?.status === 'past_due'
     const cancelledButPaid = sub?.status === 'cancelled' && sub?.current_period_end && new Date(sub.current_period_end) > now
     const hasFullAccess = isTrialValid || isActive || cancelledButPaid
@@ -400,7 +400,7 @@ serve(async (req) => {
       });
     }
 
-    let body: { messages?: unknown; stream?: unknown; conversationId?: unknown }
+    let body: { messages?: unknown; stream?: unknown; conversationId?: unknown; lang?: unknown }
     try {
       body = JSON.parse(rawBody)
     } catch {
@@ -617,8 +617,8 @@ serve(async (req) => {
     }
 
     // Proactive context injection: time of day + date
-    const now = new Date()
-    const hour = now.getHours()
+    const nowDate = new Date()
+    const hour = nowDate.getHours()
     const timeContext = hour < 6 ? 'وقت متأخر من الليل' : hour < 12 ? 'صباحًا' : hour < 18 ? 'بعد الظهر' : 'مساءً'
     userContextMsg += `\n\nالوقت الحالي: ${now.toLocaleDateString('ar-u-nu-latn', { weekday: 'long', month: 'long', day: 'numeric' })} (${timeContext})`
     userContextMsg += `\nملاحظة: كن استباقيًا. ابدأ بتعليق ذكي على حالة المستخدم قبل الإجابة على سؤاله. اختم دائمًا بتوصية عملية محددة يقدر ينفذها اليوم.`
