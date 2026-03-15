@@ -63,13 +63,25 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   const results = await Promise.all(functions.map(invokeFunction));
 
   if (schedule === 'daily' && SUPABASE_URL && SUPABASE_SERVICE_KEY) {
+    const headers = { apikey: SUPABASE_SERVICE_KEY, Authorization: `Bearer ${SUPABASE_SERVICE_KEY}`, Prefer: 'return=minimal' };
     try {
-      const cutoff = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
-      await fetch(`${SUPABASE_URL}/rest/v1/notifications?created_at=lt.${cutoff}&read=eq.true`, {
-        method: 'DELETE',
-        headers: { apikey: SUPABASE_SERVICE_KEY, Authorization: `Bearer ${SUPABASE_SERVICE_KEY}`, Prefer: 'return=minimal' },
+      const cutoff30d = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
+      await fetch(`${SUPABASE_URL}/rest/v1/notifications?created_at=lt.${cutoff30d}&read=eq.true`, {
+        method: 'DELETE', headers,
       });
-    } catch { /* non-critical cleanup */ }
+    } catch { /* non-critical */ }
+    try {
+      const cutoff90d = new Date(Date.now() - 90 * 24 * 60 * 60 * 1000).toISOString();
+      await fetch(`${SUPABASE_URL}/rest/v1/email_logs?created_at=lt.${cutoff90d}`, {
+        method: 'DELETE', headers,
+      });
+    } catch { /* non-critical */ }
+    try {
+      const cutoff7d = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
+      await fetch(`${SUPABASE_URL}/rest/v1/processed_webhook_events?processed_at=lt.${cutoff7d}`, {
+        method: 'DELETE', headers,
+      });
+    } catch { /* non-critical */ }
   }
 
   const ok = results.every(r => r.ok);
