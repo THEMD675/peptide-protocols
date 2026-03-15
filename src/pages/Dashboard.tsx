@@ -196,6 +196,7 @@ function useRecentActivity(userId: string | undefined) {
           setLogs(data);
           setHasMore(data.length === PAGE_SIZE);
           setLastRefresh(new Date());
+          setError(false);
         }
         setLoading(false);
       })
