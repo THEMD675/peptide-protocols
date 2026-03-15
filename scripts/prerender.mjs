@@ -328,7 +328,7 @@ async function main() {
   console.log(`\nPrerender complete: ${success} succeeded, ${failed} failed out of ${routes.length} routes`);
 }
 
-main().catch((err) => {
+main().catch(async (err) => {
   console.warn('Prerender failed (non-fatal):', err.message);
   // Last resort: try lightweight fallback even if main() crashed
   try {
