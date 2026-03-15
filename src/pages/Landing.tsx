@@ -696,9 +696,8 @@ export default function Landing() {
           <>
             <div className="mx-auto mb-12 flex flex-col items-center gap-3">
               {(() => {
-                const avg = testimonials.length > 0
-                  ? testimonials.reduce((sum, t) => sum + t.rating, 0) / testimonials.length
-                  : 5;
+                if (testimonials.length === 0) return null;
+                const avg = testimonials.reduce((sum, t) => sum + t.rating, 0) / testimonials.length;
                 const rounded = Math.round(avg * 10) / 10;
                 return (
                   <div className="flex items-center gap-1.5" dir="ltr">

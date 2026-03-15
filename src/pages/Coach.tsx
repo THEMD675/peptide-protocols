@@ -680,7 +680,7 @@ export default function Coach() {
       setIsLoading(false);
       isLoadingRef.current = false;
       setLoadingStage(0);
-      if (!isTrial) setDailyMsgCount(c => c + 1);
+      setDailyMsgCount(c => c + 1);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps -- sendToAI intentionally stable
   }, []);
@@ -741,8 +741,8 @@ export default function Coach() {
   const isTrial = subscription.isTrial;
   const limit = isElite ? Infinity : hasAccess && !isTrial ? 15 : isTrial ? 5 : 5;
 
-  const convMsgCount = messages.filter(m => m.role === 'user').length;
-  const userMsgCount = isTrial ? convMsgCount : dailyMsgCount;
+  const _convMsgCount = messages.filter(m => m.role === 'user').length;
+  const userMsgCount = dailyMsgCount;
   const limitReached = userMsgCount >= limit;
 
   const lastAI = [...messages].reverse().find(m => m.role === 'assistant');
