@@ -180,7 +180,7 @@ serve(async (req) => {
     const rawName = name && name.trim()
       ? name.trim()
       : email.split('@')[0]
-          .split(/[._+\-]/)[0]  // take only the first segment (john from john.doe+test)
+          .split(/[._+-]/)[0]  // take only the first segment (john from john.doe+test)
           .replace(/\d+$/, '')  // strip trailing digits (user123 → user)
     // Capitalize first letter for a friendly greeting
     const cleanName = rawName.charAt(0).toUpperCase() + rawName.slice(1).toLowerCase()
