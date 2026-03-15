@@ -11,14 +11,6 @@ const supabaseUrl = Deno.env.get('SUPABASE_URL') ?? ''
 const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
 const stripeKey = Deno.env.get('STRIPE_SECRET_KEY') ?? ''
 
-function constantTimeCompare(a: string, b: string): boolean {
-  if (a.length !== b.length) return false
-  let result = 0
-  for (let i = 0; i < a.length; i++) {
-    result |= a.charCodeAt(i) ^ b.charCodeAt(i)
-  }
-  return result === 0
-}
 
 serve(async (req) => {
   const corsHeaders = getCorsHeaders(req)
