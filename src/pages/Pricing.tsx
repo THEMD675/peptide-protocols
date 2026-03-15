@@ -371,7 +371,7 @@ export default function Pricing() {
 
     return (
       <Link
-        to={`/signup?redirect=/pricing?auto_checkout=${planKey}`}
+        to={`/signup?redirect=${encodeURIComponent(`/pricing?auto_checkout=${planKey}`)}`}
         className={cn(
           'inline-flex w-full items-center justify-center rounded-full px-8 py-3.5',
           'text-base font-semibold transition-all duration-300',
@@ -944,7 +944,7 @@ export default function Pricing() {
             </button>
           ) : (
             <Link
-              to="/signup?redirect=/pricing?auto_checkout=elite"
+              to={`/signup?redirect=${encodeURIComponent('/pricing?auto_checkout=elite')}`}
               className="btn-primary-glow inline-flex w-full items-center justify-center gap-2 rounded-full bg-emerald-600 px-8 py-3.5 text-base font-semibold text-white transition-all hover:bg-emerald-700 active:scale-[0.98] sm:w-auto sm:px-10 sm:py-4 sm:text-lg"
             >
               <span>{TRIAL.signupBottomCta}</span>
@@ -1010,7 +1010,7 @@ export default function Pricing() {
             </button>
           ) : (
             <Link
-              to="/signup?redirect=/pricing?auto_checkout=elite"
+              to={`/signup?redirect=${encodeURIComponent('/pricing?auto_checkout=elite')}`}
               className="btn-primary-glow flex w-full items-center justify-center gap-2 rounded-full bg-emerald-600 px-6 py-3.5 text-base font-semibold text-white transition-all hover:bg-emerald-700"
             >
               {TRIAL.ctaSignup}
