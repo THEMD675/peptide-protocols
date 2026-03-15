@@ -13,7 +13,7 @@ function PLink(props: ComponentProps<typeof Link>) {
 
 export default memo(function Footer() {
   return (
-    <footer className="border-t border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-900">
+    <footer className="border-t border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-900 pb-20 md:pb-0">
       <div className="mx-auto max-w-7xl px-4 py-16 md:px-6 md:py-20">
         <div className="grid gap-8 md:grid-cols-4">
           <div>

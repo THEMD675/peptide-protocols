@@ -75,42 +75,31 @@ export default memo(function BottomNav() {
         className="fixed inset-x-0 bottom-0 z-30 border-t border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 pb-[env(safe-area-inset-bottom)] md:hidden"
         aria-label="تنقل الضيوف"
       >
-        <div className="flex justify-around items-center h-14">
-          <Link
-            to="/"
-            className="flex flex-col items-center justify-center gap-0.5 text-xs text-stone-500 dark:text-stone-300 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors py-2 min-h-[44px]"
-          >
-            <Home className="h-5 w-5" />
-            <span>الرئيسية</span>
-          </Link>
-          <Link
-            to="/library"
-            className="flex flex-col items-center justify-center gap-0.5 text-xs text-stone-500 dark:text-stone-300 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors py-2 min-h-[44px]"
-          >
-            <FlaskConical className="h-5 w-5" />
-            <span>المكتبة</span>
-          </Link>
-          <Link
-            to="/calculator"
-            className="flex flex-col items-center justify-center gap-0.5 text-xs text-stone-500 dark:text-stone-300 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors py-2 min-h-[44px]"
-          >
-            <Calculator className="h-5 w-5" />
-            <span>الحاسبة</span>
-          </Link>
-          <Link
-            to="/community"
-            className="flex flex-col items-center justify-center gap-0.5 text-xs text-stone-500 dark:text-stone-300 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors py-2 min-h-[44px]"
-          >
-            <Users className="h-5 w-5" />
-            <span>المجتمع</span>
-          </Link>
-          <Link
-            to="/login"
-            className="flex flex-col items-center justify-center gap-0.5 text-xs text-stone-500 dark:text-stone-300 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors py-2 min-h-[44px]"
-          >
-            <LogIn className="h-5 w-5" />
-            <span>دخول</span>
-          </Link>
+        <div className="flex items-stretch">
+          {([
+            { to: '/', icon: Home, label: 'الرئيسية' },
+            { to: '/library', icon: FlaskConical, label: 'المكتبة' },
+            { to: '/calculator', icon: Calculator, label: 'الحاسبة' },
+            { to: '/community', icon: Users, label: 'المجتمع' },
+            { to: '/login', icon: LogIn, label: 'دخول' },
+          ] as const).map(({ to, icon: Icon, label }) => {
+            const active = pathname === to || (to !== '/' && pathname.startsWith(to));
+            return (
+              <Link
+                key={to}
+                to={to}
+                aria-label={label}
+                aria-current={active ? 'page' : undefined}
+                className={cn(
+                  'relative flex min-h-[56px] flex-1 flex-col items-center justify-center gap-1 py-2 text-xs font-medium transition-colors',
+                  active ? 'text-emerald-700 dark:text-emerald-400' : 'text-stone-500 dark:text-stone-300 active:text-stone-600',
+                )}
+              >
+                <Icon className="h-5 w-5" />
+                <span>{label}</span>
+              </Link>
+            );
+          })}
         </div>
       </nav>
     );
