@@ -37,8 +37,13 @@ export default function ProtectedRoute({ children, requiresSubscription = true, 
   }
 
   if (requiresSubscription && !subscription?.isProOrTrial) {
+    const isNewUser = subscription?.status === 'none';
     return (
-      <Navigate to="/pricing?expired=1" replace state={{ message: 'انتهت فترة التجربة أو اشتراكك — حدّث اشتراكك للمتابعة' }} />
+      <Navigate
+        to={isNewUser ? '/pricing' : '/pricing?expired=1'}
+        replace
+        state={isNewUser ? undefined : { message: 'انتهت فترة التجربة أو اشتراكك — حدّث اشتراكك للمتابعة' }}
+      />
     );
   }
 

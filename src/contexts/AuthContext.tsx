@@ -348,16 +348,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     // eslint-disable-next-line prefer-const -- reassigned on line below
     let timeout: ReturnType<typeof setTimeout>;
 
-    const syncProfile = (userId: string, su: SupabaseUser) => {
-      const displayName = (su.user_metadata?.full_name ?? su.user_metadata?.name) as string | undefined;
-      const dn = ((displayName && displayName.trim()) || su.email?.split('@')[0] || '').replace(/<[^>]+>/g, '').slice(0, 50);
-      supabase.from('user_profiles').select('user_id').eq('user_id', userId).maybeSingle().then(({ data: existing }) => {
+    const syncProfile = async (userId: string, su: SupabaseUser) => {
+      try {
+        const displayName = (su.user_metadata?.full_name ?? su.user_metadata?.name) as string | undefined;
+        const dn = ((displayName && displayName.trim()) || su.email?.split('@')[0] || '').replace(/<[^>]+>/g, '').slice(0, 50);
+        const { data: existing } = await supabase.from('user_profiles').select('user_id').eq('user_id', userId).maybeSingle();
         if (existing) {
-          supabase.from('user_profiles').update({ display_name: dn, updated_at: new Date().toISOString() }).eq('user_id', userId).catch((e) => logError('profile update failed:', e));
+          const { error } = await supabase.from('user_profiles').update({ display_name: dn, updated_at: new Date().toISOString() }).eq('user_id', userId);
+          if (error) logError('profile update failed:', error);
         } else {
-          supabase.from('user_profiles').insert({ user_id: userId, display_name: dn, updated_at: new Date().toISOString() }).catch((e) => logError('profile insert failed:', e));
+          const { error } = await supabase.from('user_profiles').insert({ user_id: userId, display_name: dn, updated_at: new Date().toISOString() });
+          if (error) logError('profile insert failed:', error);
         }
-      }).catch((e) => logError('profile check failed:', e));
+      } catch (e) {
+        logError('profile sync failed:', e);
+      }
     };
 
     const handleSession = async (session: Session | null, event?: string) => {
