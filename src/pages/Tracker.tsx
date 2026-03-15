@@ -653,6 +653,13 @@ export default function Tracker() {
         </div>
       )}
 
+      {dashboardStats && dashboardStats.streak === 0 && dashboardStats.totalInjections > 0 && (
+        <div className="mb-6 rounded-2xl border border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-950/20 p-4 text-center">
+          <p className="text-sm font-bold text-stone-900 dark:text-stone-100">التزامك فاتك يوم — لا بأس! ابدأ من جديد اليوم</p>
+          <p className="text-xs text-stone-500 dark:text-stone-400 mt-1">سجّل حقنة لبدء سلسلة التزام جديدة</p>
+        </div>
+      )}
+
       {/* Referral CTA at streak milestones (7, 14, 30 days) */}
       {dashboardStats && [7, 14, 30].includes(dashboardStats.streak) && referralCode && (
         <div className="mb-6 rounded-2xl border border-emerald-200 dark:border-emerald-800 bg-gradient-to-l from-emerald-50 to-amber-50 dark:from-emerald-950/30 dark:to-amber-950/20 p-4 text-center">
