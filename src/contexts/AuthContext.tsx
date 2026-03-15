@@ -369,6 +369,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (session?.user) {
         hadSessionRef.current = true;
         const mapped = mapUser(session.user);
+        if (event === 'SIGNED_IN') setIsLoading(true);
         setUser(mapped);
         if (mapped) {
           if (fetchPromiseRef.current && mapped.id === lastFetchedUserIdRef.current) {
@@ -379,7 +380,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             lastFetchedUserIdRef.current = mapped.id;
             try { await p; } finally { fetchPromiseRef.current = null; }
           }
+          if (event === 'SIGNED_IN') setIsLoading(false);
           syncProfile(mapped.id, session.user);
+        } else {
+          if (event === 'SIGNED_IN') setIsLoading(false);
         }
       } else {
         if (event === 'SIGNED_OUT' && hadSessionRef.current) {

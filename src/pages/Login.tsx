@@ -75,7 +75,7 @@ export default function Login() {
   const emailRef = useRef<HTMLInputElement>(null);
 
   const navigate = useNavigate();
-  const { login, signup, user } = useAuth();
+  const { login, signup, user, isLoading: authLoading } = useAuth();
   const googleBtnRef = useRef<HTMLDivElement>(null);
   const [referralCode] = useState(() => {
     try { const r = localStorage.getItem('pptides_referral'); return r && REFERRAL_CODE_REGEX.test(r) ? r : null; } catch { return null; }
@@ -177,11 +177,11 @@ export default function Login() {
   }, [lockoutUntil]);
 
   useEffect(() => {
-    if (user && !isRecovery) {
+    if (user && !isRecovery && !authLoading) {
       const redirectTo = safeRedirect(new URLSearchParams(window.location.search).get('redirect'));
       navigate(redirectTo, { replace: true });
     }
-  }, [user, isRecovery, navigate]);
+  }, [user, isRecovery, authLoading, navigate]);
 
   useEffect(() => {
     // Restore recovery state from sessionStorage (survives browser restart)
