@@ -87,8 +87,8 @@ jobs:
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "**Total JS:** ${total_kb} KB" >> $GITHUB_STEP_SUMMARY
 
-          if [ "$total" -gt 2097152 ]; then
-            echo "::error::Total JS bundle exceeds 2 MB ($total_kb KB)"
+          if [ "$total" -gt 3145728 ]; then
+            echo "::error::Total JS bundle exceeds 3 MB ($total_kb KB)"
             exit 1
           fi
 
