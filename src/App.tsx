@@ -14,6 +14,7 @@ import Footer from '@/components/layout/Footer';
 import BottomNav from '@/components/layout/BottomNav';
 import TrialBanner from '@/components/TrialBanner';
 import BackToTop from '@/components/BackToTop';
+import GlobalBreadcrumbs from '@/components/GlobalBreadcrumbs';
 import ProtectedRoute from '@/components/ProtectedRoute';
 import PageTransition from '@/components/PageTransition';
 
@@ -359,6 +360,7 @@ export default function App() {
           <Header />
           <TrialBanner />
           <ScrollToTop />
+          <GlobalBreadcrumbs />
           <ReferralCapture />
           <TrackPageView />
           <RouteAnnouncer />
