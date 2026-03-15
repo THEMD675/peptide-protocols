@@ -80,8 +80,9 @@ export async function sendEmail(payload: EmailPayload): Promise<{ ok: boolean; e
   }
 
   if (SMTP_USER && SMTP_PASS) {
+    let client: SMTPClient | undefined
     try {
-      const client = new SMTPClient({
+      client = new SMTPClient({
         connection: { hostname: SMTP_HOST, port: SMTP_PORT, tls: true, auth: { username: SMTP_USER, password: SMTP_PASS } },
       })
       const smtpTimeout = new Promise<never>((_, reject) => setTimeout(() => reject(new Error('SMTP timeout after 15s')), 15000))
@@ -93,10 +94,11 @@ export async function sendEmail(payload: EmailPayload): Promise<{ ok: boolean; e
         }),
         smtpTimeout,
       ])
-      await client.close()
       return { ok: true }
     } catch (err) {
       console.error('sendEmail: SMTP error:', err)
+    } finally {
+      try { await client?.close() } catch { /* ignore close errors */ }
     }
   }
 

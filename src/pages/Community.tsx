@@ -457,7 +457,6 @@ export default function Community() {
     const prev = logs;
     setLogs(l => l.filter(x => x.id !== postId));
     setDeletingPostId(null);
-    await supabase.from('community_replies').delete().eq('post_id', postId);
     const { error } = await supabase
       .from('community_logs')
       .delete()
@@ -467,6 +466,7 @@ export default function Community() {
       setLogs(prev);
       toast.error('تعذّر حذف المشاركة');
     } else {
+      await supabase.from('community_replies').delete().eq('post_id', postId);
       toast.success('تم حذف المشاركة');
     }
   }, [user, logs]);
@@ -730,6 +730,8 @@ export default function Community() {
       // Duplicate content detection: check if user's most recent post has same results text
       const userMostRecent = logs.find(l => l.user_id === user.id);
       if (userMostRecent && userMostRecent.results === results.trim()) {
+        submittingRef.current = false;
+        setSubmitting(false);
         toast.error('يبدو أنك نشرت هذه التجربة مسبقًا');
         return;
       }

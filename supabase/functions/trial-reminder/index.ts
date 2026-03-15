@@ -583,7 +583,8 @@ serve(async (req) => {
       for (const t of expiredTrials) {
         const { data: sub } = await supabase.from('subscriptions').select('stripe_subscription_id').eq('id', t.id).maybeSingle()
         if (!sub?.stripe_subscription_id) {
-          await supabase.from('subscriptions').update({ status: 'expired', updated_at: new Date().toISOString() }).eq('id', t.id)
+          const { error: expireErr } = await supabase.from('subscriptions').update({ status: 'expired', updated_at: new Date().toISOString() }).eq('id', t.id)
+          if (expireErr) console.error(`trial-reminder: failed to expire subscription ${t.id} for user ${t.user_id}:`, expireErr)
         }
       }
     }

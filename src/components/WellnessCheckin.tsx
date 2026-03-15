@@ -86,7 +86,7 @@ export default function WellnessCheckin() {
         .order('logged_at', { ascending: false })
         .limit(7);
 
-      if (error || !data || data.length === 0) {
+      if (error || !data || !Array.isArray(data) || data.length === 0) {
         setLoading(false);
         return;
       }

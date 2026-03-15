@@ -22,17 +22,10 @@ serve(async (req) => {
       status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     })
   }
-  try {
-    const jwt = authHeader.replace('Bearer ', '')
-    const payload = JSON.parse(atob(jwt.split('.')[1]))
-    if (payload.role !== 'service_role') {
-      return new Response(JSON.stringify({ error: 'Forbidden: service_role required' }), {
-        status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      })
-    }
-  } catch {
-    return new Response(JSON.stringify({ error: 'Invalid token' }), {
-      status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+  const bearerToken = authHeader.replace('Bearer ', '')
+  if (bearerToken !== supabaseServiceKey) {
+    return new Response(JSON.stringify({ error: 'Forbidden: service_role required' }), {
+      status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     })
   }
 
@@ -75,12 +68,16 @@ serve(async (req) => {
           const expectedDbStatus = statusMap[stripeStatus] ?? row.status
 
           if (expectedDbStatus !== row.status) {
-            await supabase.from('subscriptions').update({
+            const { error: updateErr } = await supabase.from('subscriptions').update({
               status: expectedDbStatus,
               updated_at: new Date().toISOString(),
             }).eq('id', row.id)
-            console.log(`stripe-reconciliation: fixed ${row.user_id} ${row.status} → ${expectedDbStatus}`)
-            fixed++
+            if (updateErr) {
+              console.error(`stripe-reconciliation: failed to update ${row.user_id}:`, updateErr)
+            } else {
+              console.log(`stripe-reconciliation: fixed ${row.user_id} ${row.status} → ${expectedDbStatus}`)
+              fixed++
+            }
           }
         } catch (e) {
           const err = e as { code?: string; message?: string }

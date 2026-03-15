@@ -322,15 +322,17 @@ describe('buildSubscription', () => {
   })
 
   // ── Expired subscription ──
-  it('expired with remaining period still has access', () => {
+  // Expired subs should NOT get grace-period access even with future period_end.
+  // Only 'cancelled' status gets grace-period access.
+  it('expired with remaining period does NOT have access', () => {
     const sub = buildSubscription({
       status: 'expired',
       tier: 'essentials',
       current_period_end: daysFromNow(2),
     })
     expect(sub.status).toBe('expired')
-    expect(sub.isProOrTrial).toBe(true)
-    expect(sub.isPaidSubscriber).toBe(true)
+    expect(sub.isProOrTrial).toBe(false)
+    expect(sub.isPaidSubscriber).toBe(false)
   })
 
   it('expired without remaining period has no access', () => {

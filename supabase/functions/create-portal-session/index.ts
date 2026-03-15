@@ -75,9 +75,11 @@ serve(async (req) => {
       })
     }
 
+    const portalConfigId = Deno.env.get('STRIPE_PORTAL_CONFIG_ID')
     const session = await stripe.billingPortal.sessions.create({
       customer: sub.stripe_customer_id,
       return_url: `${appUrl}/account?portal_return=1`,
+      ...(portalConfigId ? { configuration: portalConfigId } : {}),
     })
 
     return new Response(JSON.stringify({ url: session.url }), {

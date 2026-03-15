@@ -65,16 +65,31 @@ export default function CookieConsent() {
         w.dataLayer.push(['config', ga4Id, { send_page_view: true }]);
       }
     } else {
-      // Revoke: remove GA4 script tags and clear dataLayer
+      // Revoke: disable GA4 tracking, clear cookies, then remove scripts
+      const ga4Id = import.meta.env.VITE_GA4_ID;
+      if (ga4Id) {
+        (window as unknown as Record<string, boolean>)[`ga-disable-${ga4Id}`] = true;
+      }
+      // Revoke consent via the consent API before severing dataLayer
+      const wd = window as unknown as Record<string, unknown[]>;
+      wd.dataLayer = wd.dataLayer || [];
+      wd.dataLayer.push(['consent', 'update', { analytics_storage: 'denied' }]);
+      // Delete GA4 cookies (_ga, _ga_*, _gid)
+      const cookiesToDelete = document.cookie.split(';').map(c => c.trim().split('=')[0]).filter(n => /^_ga|^_gid$/.test(n));
+      for (const name of cookiesToDelete) {
+        document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/;domain=${window.location.hostname}`;
+        document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/`;
+      }
+      // Remove GA4 scripts and sever dataLayer
       document.querySelectorAll('script[src*="googletagmanager.com/gtag/js"]').forEach(el => el.remove());
       document.querySelectorAll('script[data-cookie-consent="analytics"]').forEach(el => el.remove());
-      const w = window as unknown as Record<string, unknown[]>;
-      w.dataLayer = [];
+      wd.dataLayer = [];
       delete (window as unknown as Record<string, unknown>).gtag;
+      return;
     }
     const wc = window as unknown as Record<string, unknown[]>;
     wc.dataLayer = wc.dataLayer || [];
-    wc.dataLayer.push(['consent', 'update', { analytics_storage: prefs.optional ? 'granted' : 'denied' }]);
+    wc.dataLayer.push(['consent', 'update', { analytics_storage: 'granted' }]);
   };
 
   const acceptAll = () => save({ essential: true, optional: true });

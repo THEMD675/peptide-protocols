@@ -81,7 +81,8 @@ export default function NotificationBell() {
           setNotifications(data as Notification[]);
           setHasMore(data.length === PAGE_SIZE);
         }
-        if (mounted) {
+        if (mounted && !sessionStorage.getItem('notif_pruned')) {
+          sessionStorage.setItem('notif_pruned', '1');
           supabase
             .from('notifications')
             .delete()

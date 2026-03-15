@@ -422,7 +422,7 @@ export default function Tracker() {
       setStatsLoaded(true);
     }).catch((e: unknown) => { logError('stats fetch failed:', e); if (mounted) setStatsLoaded(true); });
     return () => { mounted = false; };
-  }, [user, logs.length]);
+  }, [user, logs]);
 
   const streak = useMemo(() => computeStreak(allLogsForStats), [allLogsForStats]);
 
@@ -542,7 +542,7 @@ export default function Tracker() {
     if (src.length === 0) return null;
     const now = new Date();
     const dayCounts = new Map<string, number>();
-    src.forEach(l => { const key = new Date(l.logged_at).toISOString().slice(0, 10); dayCounts.set(key, (dayCounts.get(key) ?? 0) + 1); });
+    src.forEach(l => { const key = toLocalDateStr(new Date(l.logged_at)); dayCounts.set(key, (dayCounts.get(key) ?? 0) + 1); });
     const maxCount = Math.max(...dayCounts.values(), 1);
     if (heatmapView === 'weekly') {
       const weeks: { date: Date; count: number; key: string }[][] = [];
@@ -644,11 +644,15 @@ export default function Tracker() {
         </Link>
       </div>
 
-      {!dashboardStats && activeProtocols.length === 0 && !loading && (
+      {!dashboardStats && activeProtocols.length === 0 && !isLoadingLogs && (
         <div className="mb-6 rounded-2xl border border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-950/20 p-6 text-center">
           <Syringe className="h-8 w-8 text-emerald-600 dark:text-emerald-400 mx-auto mb-3" />
           <p className="text-lg font-bold text-stone-900 dark:text-stone-100">مرحبًا بك في سجل الحقن</p>
           <p className="mt-2 text-sm text-stone-600 dark:text-stone-300">ابدأ ببروتوكول جديد أو سجّل أول حقنة لمتابعة تقدّمك</p>
+          <div className="mt-4 flex flex-wrap items-center justify-center gap-3">
+            <button onClick={() => setShowWizard(true)} className="inline-flex items-center gap-2 rounded-xl bg-emerald-600 px-5 py-2.5 text-sm font-bold text-white shadow hover:bg-emerald-700 transition-colors"><Plus className="h-4 w-4" /> بروتوكول جديد</button>
+            <button onClick={() => setShowManualLog(true)} className="inline-flex items-center gap-2 rounded-xl border border-emerald-300 dark:border-emerald-700 px-5 py-2.5 text-sm font-bold text-emerald-700 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 transition-colors"><Syringe className="h-4 w-4" /> سجّل حقنة</button>
+          </div>
         </div>
       )}
 

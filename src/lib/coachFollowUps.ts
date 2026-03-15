@@ -11,7 +11,7 @@ export function generateFollowUps(responseText: string): string[] {
   // Detect mentioned peptides
   const mentionedPeptides: { nameAr: string; nameEn: string }[] = [];
   for (const p of peptidesLite) {
-    if (lower.includes(p.nameEn.toLowerCase()) || responseText.includes(p.nameAr)) {
+    if (_lower.includes(p.nameEn.toLowerCase()) || responseText.includes(p.nameAr)) {
       mentionedPeptides.push({ nameAr: p.nameAr, nameEn: p.nameEn });
     }
   }

@@ -253,7 +253,7 @@ export default function Pricing() {
         });
         if (!res.ok) { toast.error('تعذّر فتح إدارة الدفع'); return; }
         const { url } = await res.json();
-        if (url) window.location.href = url;
+        if (url && typeof url === 'string' && url.startsWith('https://') && url.includes('stripe.com')) window.location.href = url;
       } catch { toast.error('تعذّر فتح إدارة الدفع. حاول مرة أخرى.'); } finally { setIsLoadingPortal(false); }
     };
 
@@ -1010,7 +1010,7 @@ export default function Pricing() {
             </button>
           ) : (
             <Link
-              to="/signup?redirect=/pricing?auto_checkout=essentials"
+              to="/signup?redirect=/pricing?auto_checkout=elite"
               className="btn-primary-glow flex w-full items-center justify-center gap-2 rounded-full bg-emerald-600 px-6 py-3.5 text-base font-semibold text-white transition-all hover:bg-emerald-700"
             >
               {TRIAL.ctaSignup}

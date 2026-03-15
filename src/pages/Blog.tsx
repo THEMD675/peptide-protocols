@@ -385,10 +385,10 @@ export default function Blog() {
                           {new Date(post.published_at).toLocaleDateString('ar-u-nu-latn', { year: 'numeric', month: 'long', day: 'numeric' })}
                         </time>
                       </div>
-                      {post.tags.length > 0 && (
+                      {post.tags?.length > 0 && (
                         <div className="flex flex-wrap items-center gap-1.5">
                           <Tag className="h-3.5 w-3.5" />
-                          {post.tags.map(tag => (
+                          {(post.tags ?? []).map(tag => (
                             <span
                               key={tag}
                               role="button"

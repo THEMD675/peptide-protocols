@@ -138,13 +138,13 @@ serve(async (req) => {
       // No subscription row — try to clean up orphaned Stripe customer by email
       try {
         const { data: customers } = await stripe.customers.list({ email: user.email, limit: 10 })
-        if (customers.data.length > 0) {
-          for (const c of customers.data) {
+        if (customers.length > 0) {
+          for (const c of customers) {
             const { data: subs } = await stripe.subscriptions.list({ customer: c.id, status: 'all' })
             for (const s of subs) {
-              await stripe.subscriptions.cancel(s.id).catch(() => {})
+              await stripe.subscriptions.cancel(s.id).catch(e => console.warn('orphan cleanup error:', e))
             }
-            await stripe.customers.del(c.id).catch(() => {})
+            await stripe.customers.del(c.id).catch(e => console.warn('orphan cleanup error:', e))
           }
           stripeCleanupSucceeded = true
           console.log('delete-account: cleaned orphaned Stripe customer(s) for', user.email)

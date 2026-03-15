@@ -61,11 +61,14 @@ export function useBookmarks(): {
                 toSync.map((slug) => ({ user_id: user.id, peptide_slug: slug })),
                 { onConflict: 'user_id,peptide_slug' },
               )
-              .then(() => {
+              .then(({ error: upsertErr }) => {
+                if (upsertErr) {
+                  logError('bookmark sync failed:', upsertErr);
+                  return;
+                }
                 if (mounted) {
                   toSync.forEach((s) => slugs.add(s));
                   setBookmarks(slugs);
-                  // Clear localStorage after sync
                   try { localStorage.removeItem('pptides_favorites'); } catch (e) { logError('bookmark op failed:', e); }
                 }
               });

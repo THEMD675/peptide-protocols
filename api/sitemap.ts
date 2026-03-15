@@ -30,6 +30,7 @@ const STATIC_ROUTES: { path: string; changefreq: string; priority: number }[] = 
   { path: '/about', changefreq: 'monthly', priority: 0.6 },
   { path: '/transparency', changefreq: 'monthly', priority: 0.6 },
   { path: '/faq', changefreq: 'monthly', priority: 0.6 },
+  { path: '/reviews', changefreq: 'weekly', priority: 0.7 },
   { path: '/contact', changefreq: 'yearly', priority: 0.5 },
   { path: '/privacy', changefreq: 'yearly', priority: 0.4 },
   { path: '/terms', changefreq: 'yearly', priority: 0.4 },
@@ -73,10 +74,13 @@ async function fetchPublishedBlogPosts(): Promise<BlogRow[]> {
   }
 }
 
-// ── Build XML entry ──
+function escapeXml(s: string): string {
+  return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&apos;');
+}
+
 function urlEntry(loc: string, lastmod: string, changefreq: string, priority: number): string {
   return `  <url>
-    <loc>${loc}</loc>
+    <loc>${escapeXml(loc)}</loc>
     <lastmod>${lastmod}</lastmod>
     <changefreq>${changefreq}</changefreq>
     <priority>${priority.toFixed(1)}</priority>

@@ -11,7 +11,9 @@ import type { User as SupabaseUser, Session } from '@supabase/supabase-js';
 /** Fire-and-forget fetch with 1 retry after 5s delay */
 function fireAndForgetFetch(url: string, opts: RequestInit, label: string) {
   const attempt = (n: number) => {
-    fetch(url, opts).catch((e) => {
+    fetch(url, opts).then((res) => {
+      if (!res.ok) throw new Error(`${label}: HTTP ${res.status}`);
+    }).catch((e) => {
       logError(`${label} attempt ${n} failed:`, e);
       if (n < 2) setTimeout(() => attempt(n + 1), 5000);
     });
@@ -131,7 +133,7 @@ export function buildSubscription(row: Record<string, unknown> | null): Subscrip
 
   const periodEnd = row.current_period_end ? new Date(row.current_period_end as string) : null;
   const hasRemainingPeriod = periodEnd != null && periodEnd.getTime() > nowUtcMs;
-  const cancelledButActive = (status === 'cancelled' || status === 'expired') && hasRemainingPeriod;
+  const cancelledButActive = status === 'cancelled' && hasRemainingPeriod;
 
   const pastDueGrace = status === 'past_due' && periodEnd != null &&
     (periodEnd.getTime() + 7 * 24 * 60 * 60 * 1000) > nowUtcMs;
@@ -149,8 +151,9 @@ export function buildSubscription(row: Record<string, unknown> | null): Subscrip
   const isAdminGrant = row.grant_source?.toString().startsWith('admin') || (!hasStripeSubscription && status === 'active' && tier !== 'free' && !isTrial);
 
   const cancelReason = row.cancel_reason as string | undefined;
+  const billingInterval = (row.billing_interval as string) || null;
 
-  return { status, tier, trialDaysLeft, isProOrTrial, isPaidSubscriber, isTrial, currentPeriodEnd, hasStripeSubscription, needsPaymentSetup, isAdminGrant, cancelReason };
+  return { status, tier, trialDaysLeft, isProOrTrial, isPaidSubscriber, isTrial, currentPeriodEnd, hasStripeSubscription, needsPaymentSetup, isAdminGrant, cancelReason, billingInterval };
 }
 
 
@@ -206,7 +209,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const { data, error } = await fetchWithRetry(() =>
         supabase
           .from('subscriptions')
-          .select('status, tier, trial_ends_at, stripe_subscription_id, current_period_end, referral_code, grant_source, billing_interval, referred_by')
+          .select('status, tier, trial_ends_at, stripe_subscription_id, current_period_end, referral_code, grant_source, billing_interval, referred_by, cancel_reason')
           .eq('user_id', userId)
           .maybeSingle()
       );
@@ -220,7 +223,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             try {
               const { data: retryData, error: retryError } = await supabase
                 .from('subscriptions')
-                .select('status, tier, trial_ends_at, stripe_subscription_id, current_period_end, referral_code, grant_source, billing_interval, referred_by')
+                .select('status, tier, trial_ends_at, stripe_subscription_id, current_period_end, referral_code, grant_source, billing_interval, referred_by, cancel_reason')
                 .eq('user_id', userId)
                 .maybeSingle();
               if (!retryError) {
@@ -266,7 +269,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           await new Promise(r => setTimeout(r, 2000));
           const { data: retryData } = await supabase
             .from('subscriptions')
-            .select('status, tier, trial_ends_at, stripe_subscription_id, current_period_end, referral_code, grant_source, billing_interval, referred_by')
+            .select('status, tier, trial_ends_at, stripe_subscription_id, current_period_end, referral_code, grant_source, billing_interval, referred_by, cancel_reason')
             .eq('user_id', userId)
             .maybeSingle();
           if (retryData) { resolvedData = retryData; break; }
@@ -345,6 +348,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   );
 
   useEffect(() => {
+    // eslint-disable-next-line prefer-const -- reassigned in setTimeout below
     let timeout: ReturnType<typeof setTimeout>;
 
     const syncProfile = async (userId: string, su: SupabaseUser) => {
@@ -398,62 +402,67 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     const { data: { subscription: authListener } } = supabase.auth.onAuthStateChange(
       async (event: string, session: Session | null) => {
-        if (event === 'INITIAL_SESSION') {
-          clearTimeout(timeout);
-          // 16.2: If initial session is null but localStorage has tokens, attempt refresh
-          if (!session) {
-            try {
-              const hasTokens = Object.keys(localStorage).some(k => k.startsWith('sb-') && k.endsWith('-auth-token'));
-              if (hasTokens) {
-                const { data: refreshData } = await supabase.auth.refreshSession();
-                if (refreshData?.session) {
-                  await handleSession(refreshData.session, event);
-                  initDoneRef.current = true;
-                  setIsLoading(false);
-                  return;
+        try {
+          if (event === 'INITIAL_SESSION') {
+            clearTimeout(timeout);
+            // 16.2: If initial session is null but localStorage has tokens, attempt refresh
+            if (!session) {
+              try {
+                const hasTokens = Object.keys(localStorage).some(k => k.startsWith('sb-') && k.endsWith('-auth-token'));
+                if (hasTokens) {
+                  const { data: refreshData } = await supabase.auth.refreshSession();
+                  if (refreshData?.session) {
+                    await handleSession(refreshData.session, event);
+                    initDoneRef.current = true;
+                    setIsLoading(false);
+                    return;
+                  }
                 }
+              } catch {
+                // Refresh failed — proceed with null session
               }
-            } catch {
-              // Refresh failed — proceed with null session
+            }
+            await handleSession(session, event);
+            initDoneRef.current = true;
+            setIsLoading(false);
+            return;
+          }
+
+          if (event === 'SIGNED_IN' && session?.user && !welcomeEmailSentRef.current) {
+            welcomeEmailSentRef.current = true;
+            try { sessionStorage.setItem('pptides_welcome_sent', '1'); } catch { /* restricted env */ }
+            const isOAuth = session.user.app_metadata?.provider && session.user.app_metadata.provider !== 'email';
+            if (isOAuth) {
+              const edgeFnUrl = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/send-welcome-email`;
+              fireAndForgetFetch(edgeFnUrl, {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                  Authorization: `Bearer ${session.access_token}`,
+                  apikey: import.meta.env.VITE_SUPABASE_ANON_KEY,
+                },
+                body: JSON.stringify({ email: session.user.email, name: session.user.user_metadata?.full_name ?? '', referralCode: (() => { try { const r = localStorage.getItem('pptides_referral'); return r && /^PP-[A-Z0-9]{6}$/i.test(r) ? r : undefined; } catch { return undefined; } })() }),
+              }, 'Welcome email (OAuth SIGNED_IN)');
             }
           }
+
           await handleSession(session, event);
-          initDoneRef.current = true;
-          setIsLoading(false);
-          return;
-        }
 
-        if (event === 'SIGNED_IN' && session?.user && !welcomeEmailSentRef.current) {
-          welcomeEmailSentRef.current = true;
-          try { sessionStorage.setItem('pptides_welcome_sent', '1'); } catch { /* restricted env */ }
-          const isOAuth = session.user.app_metadata?.provider && session.user.app_metadata.provider !== 'email';
-          if (isOAuth) {
-            const edgeFnUrl = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/send-welcome-email`;
-            fireAndForgetFetch(edgeFnUrl, {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-                Authorization: `Bearer ${session.access_token}`,
-                apikey: import.meta.env.VITE_SUPABASE_ANON_KEY,
-              },
-              body: JSON.stringify({ email: session.user.email, name: session.user.user_metadata?.full_name ?? '', referralCode: (() => { try { const r = localStorage.getItem('pptides_referral'); return r && /^PP-[A-Z0-9]{6}$/i.test(r) ? r : undefined; } catch { return undefined; } })() }),
-            }, 'Welcome email (OAuth SIGNED_IN)');
+          if (event === 'SIGNED_IN' && session?.user?.app_metadata?.provider === 'google') {
+            const createdAt = session.user.created_at ? new Date(session.user.created_at).getTime() : 0;
+            const isNewUser = Date.now() - createdAt < 60_000;
+            const hasRedirect = new URLSearchParams(window.location.search).has('redirect');
+            if (isNewUser && window.location.pathname !== '/dashboard' && !hasRedirect) {
+              navigate('/dashboard', { replace: true });
+            }
           }
-        }
-
-        await handleSession(session, event);
-
-        if (event === 'SIGNED_IN' && session?.user?.app_metadata?.provider === 'google') {
-          const createdAt = session.user.created_at ? new Date(session.user.created_at).getTime() : 0;
-          const isNewUser = Date.now() - createdAt < 60_000;
-          if (isNewUser && window.location.pathname !== '/dashboard') {
-            navigate('/dashboard', { replace: true });
+        } catch (err) {
+          logError('Auth state change handler failed:', err);
+        } finally {
+          if (!initDoneRef.current) {
+            initDoneRef.current = true;
+            setIsLoading(false);
           }
-        }
-
-        if (!initDoneRef.current) {
-          initDoneRef.current = true;
-          setIsLoading(false);
         }
       }
     );
@@ -466,19 +475,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     timeout = setTimeout(() => {
       if (!initDoneRef.current) {
-        if (fetchPromiseRef.current) {
-          // Subscription fetch still in flight — re-schedule to check again in 10s
-          timeout = setTimeout(() => {
-            initDoneRef.current = true;
-            setIsLoading(false);
-          }, 10000);
-          return;
-        }
-        logError('Auth init timeout (30s) — resolving with current state');
+        logError('Auth init timeout (10s) — resolving with current state');
         initDoneRef.current = true;
         setIsLoading(false);
       }
-    }, 30000);
+    }, 10000);
 
     return () => { authListener.unsubscribe(); clearTimeout(timeout); clearTimeout(slowWarning); };
   }, [fetchSubscription, navigate]);
@@ -649,16 +650,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (user) await fetchSubscription(user.id);
   }, [user, fetchSubscription]);
 
-  const pollTierRef = useRef<string>('none');
   useEffect(() => {
     if (!user) return;
     const isTrial = subscription.status === 'trial' && subscription.trialDaysLeft > 0;
     const isActive = subscription.status === 'active' || subscription.status === 'past_due';
     const isCancelledButActive = subscription.status === 'cancelled' && subscription.isPaidSubscriber;
     const tier = isTrial ? 'trial' : (isActive || isCancelledButActive) ? 'active' : 'none';
-    if (tier === 'none') { pollTierRef.current = 'none'; return; }
-    if (tier === pollTierRef.current) return;
-    pollTierRef.current = tier;
+    if (tier === 'none') return;
     const intervalMs = tier === 'trial' ? 30_000 : 300_000;
     const jitter = Math.random() * intervalMs * 0.2;
     const interval = setInterval(() => {
@@ -784,7 +782,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
               </button>
               <button
                 type="button"
-                onClick={() => setSubscriptionError(false)}
+                onClick={() => { subFetchFailCountRef.current = 0; setSubscriptionError(false); }}
                 className="text-sm font-medium text-stone-500 dark:text-stone-400 hover:text-stone-700 dark:hover:text-stone-200 transition-colors"
               >
                 متابعة بدون تحديث

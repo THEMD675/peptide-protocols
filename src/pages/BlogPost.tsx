@@ -171,7 +171,7 @@ export default function BlogPost() {
               decoding="async"
               width="800"
               height="320"
-              onError={(e) => { (e.target as HTMLImageElement).parentElement!.style.display = 'none'; }}
+              onError={(e) => { const p = (e.target as HTMLImageElement).parentElement; if (p) p.style.display = 'none'; }}
             />
           </div>
         )}

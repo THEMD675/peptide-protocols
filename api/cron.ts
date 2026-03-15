@@ -4,6 +4,7 @@
  * Configured in vercel.json crons section.
  */
 import type { VercelRequest, VercelResponse } from '@vercel/node';
+import { timingSafeEqual } from 'crypto';
 
 const SUPABASE_URL = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL;
 const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
@@ -27,9 +28,9 @@ async function invokeFunction(name: string): Promise<{ name: string; ok: boolean
   if (!SUPABASE_URL || !SUPABASE_SERVICE_KEY) {
     return { name, ok: false, status: 0 };
   }
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 25000);
   try {
-    const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 25000);
     const res = await fetch(`${SUPABASE_URL}/functions/v1/${name}`, {
       method: 'POST',
       signal: controller.signal,
@@ -40,17 +41,26 @@ async function invokeFunction(name: string): Promise<{ name: string; ok: boolean
       },
       body: JSON.stringify({ source: 'vercel-cron' }),
     });
-    clearTimeout(timeout);
     return { name, ok: res.ok, status: res.status };
   } catch {
     return { name, ok: false };
+  } finally {
+    clearTimeout(timeout);
   }
 }
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
-  // Verify cron secret to prevent unauthorized invocation
-  const authHeader = req.headers.authorization;
-  if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
+  const cronSecret = process.env.CRON_SECRET;
+  if (!cronSecret) {
+    console.error('CRON_SECRET is not configured');
+    return res.status(500).json({ error: 'Server misconfigured' });
+  }
+
+  const authHeader = req.headers.authorization ?? '';
+  const expected = `Bearer ${cronSecret}`;
+  const a = Buffer.from(authHeader);
+  const b = Buffer.from(expected);
+  if (a.length !== b.length || !timingSafeEqual(a, b)) {
     return res.status(401).json({ error: 'Unauthorized' });
   }
 

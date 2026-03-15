@@ -169,7 +169,7 @@ serve(async (req) => {
             .limit(1)
             .maybeSingle()
           if (referrerRow?.referrer_id) {
-            await supabase.from('referrals')
+            const { error: refErr } = await supabase.from('referrals')
               .upsert({
                 referral_code: code,
                 referrer_id: referrerRow.referrer_id,
@@ -177,7 +177,7 @@ serve(async (req) => {
                 status: 'converted',
                 converted_at: new Date().toISOString(),
               }, { onConflict: 'referral_code,referred_id' })
-              .then(({ error: refErr }) => { if (refErr) console.error('referral upsert failed:', refErr) })
+            if (refErr) console.error('referral upsert failed:', refErr)
           }
         }
 
@@ -194,24 +194,28 @@ serve(async (req) => {
           }
 
           if (session.customer_email) {
-            sendEmail({
-              to: session.customer_email,
-              subject: 'تم تفعيل اشتراكك في pptides',
-              tags: [{ name: 'type', value: 'subscription_activated' }, { name: 'category', value: 'transactional' }],
-              html: emailWrapper(`
-                  <h1 style="color: #1c1917; font-size: 24px;">مرحبًا بك في pptides!</h1>
-                  <p style="color: #44403c; font-size: 16px; line-height: 1.8;">تم تفعيل اشتراكك في باقة <strong style="color: #059669;">${tier === 'elite' ? 'المتقدّمة' : 'الأساسية'}</strong> بنجاح.</p>
-                  <div style="background: #ecfdf5; border-radius: 12px; padding: 20px; margin: 20px 0;">
-                    <p style="margin: 8px 0; font-size: 15px;"><strong style="color: #059669;">الخطوة التالية:</strong> تصفّح <a href="${APP_URL}/library" style="color: #059669; font-weight: bold;">مكتبة الببتيدات</a> واكتشف البروتوكول المناسب لك</p>
-                    <p style="margin: 8px 0; font-size: 15px;"><strong style="color: #059669;">المدرب الذكي:</strong> اسأل <a href="${APP_URL}/coach" style="color: #059669; font-weight: bold;">المدرب</a> عن بروتوكول مخصّص</p>
-                  </div>
-                  <div style="text-align: center; margin: 24px 0;">
-                    ${emailButton('ابدأ الآن', `${APP_URL}/dashboard`)}
-                  </div>
-                  <p style="color: #78716c; font-size: 13px;">ضمان استرداد كامل خلال ${TRIAL_DAYS} أيام — تواصل معنا: contact@pptides.com</p>
-                `),
-              replyTo: 'contact@pptides.com',
-            }).catch(e => console.error('payment confirmation email failed:', e))
+            try {
+              await sendEmail({
+                to: session.customer_email,
+                subject: 'تم تفعيل اشتراكك في pptides',
+                tags: [{ name: 'type', value: 'subscription_activated' }, { name: 'category', value: 'transactional' }],
+                html: emailWrapper(`
+                    <h1 style="color: #1c1917; font-size: 24px;">مرحبًا بك في pptides!</h1>
+                    <p style="color: #44403c; font-size: 16px; line-height: 1.8;">تم تفعيل اشتراكك في باقة <strong style="color: #059669;">${tier === 'elite' ? 'المتقدّمة' : 'الأساسية'}</strong> بنجاح.</p>
+                    <div style="background: #ecfdf5; border-radius: 12px; padding: 20px; margin: 20px 0;">
+                      <p style="margin: 8px 0; font-size: 15px;"><strong style="color: #059669;">الخطوة التالية:</strong> تصفّح <a href="${APP_URL}/library" style="color: #059669; font-weight: bold;">مكتبة الببتيدات</a> واكتشف البروتوكول المناسب لك</p>
+                      <p style="margin: 8px 0; font-size: 15px;"><strong style="color: #059669;">المدرب الذكي:</strong> اسأل <a href="${APP_URL}/coach" style="color: #059669; font-weight: bold;">المدرب</a> عن بروتوكول مخصّص</p>
+                    </div>
+                    <div style="text-align: center; margin: 24px 0;">
+                      ${emailButton('ابدأ الآن', `${APP_URL}/dashboard`)}
+                    </div>
+                    <p style="color: #78716c; font-size: 13px;">ضمان استرداد كامل خلال ${TRIAL_DAYS} أيام — تواصل معنا: contact@pptides.com</p>
+                  `),
+                replyTo: 'contact@pptides.com',
+              })
+            } catch (e) {
+              console.error('payment confirmation email failed:', e)
+            }
           }
 
         }
@@ -246,10 +250,11 @@ serve(async (req) => {
         if (metaTier && (metaTier === 'essentials' || metaTier === 'elite')) {
           tierUpdate = metaTier
         } else if (subscription.items?.data?.length) {
-          // Infer tier from price amount — elite threshold from env or default 9900 halalas (99 SAR)
           const totalAmount = subscription.items.data.reduce((sum, item) => sum + ((item.price?.unit_amount ?? 0) * (item.quantity ?? 1)), 0)
+          const interval = subscription.items.data[0]?.price?.recurring?.interval
+          const normalizedAmount = interval === 'year' ? Math.round(totalAmount / 12) : totalAmount
           const eliteMinHalalas = parseInt(Deno.env.get('ELITE_AMOUNT_MIN_HALALAS') ?? '9900', 10)
-          tierUpdate = totalAmount >= eliteMinHalalas ? 'elite' : 'essentials'
+          tierUpdate = normalizedAmount >= eliteMinHalalas ? 'elite' : 'essentials'
         }
 
         // Extract billing interval from Stripe price
@@ -279,15 +284,12 @@ serve(async (req) => {
             dbFailed = true
           }
 
-          // Store billing_interval separately (not in the existing RPC)
           if (billingInterval) {
-            await supabase
+            const { error: biErr } = await supabase
               .from('subscriptions')
               .update({ billing_interval: billingInterval })
               .eq('stripe_subscription_id', stripeSubId)
-              .then(({ error: biErr }) => {
-                if (biErr) console.error('billing_interval update failed:', biErr)
-              })
+            if (biErr) console.error('billing_interval update failed:', biErr)
           }
         } catch (dbErr) {
           console.error('subscription.updated DB exception:', dbErr)
@@ -471,16 +473,17 @@ serve(async (req) => {
                         console.log('referral reward promo code created (fallback):', promoCode.code, 'for referrer:', referral.referrer_id)
                       }
 
-                      await supabase.from('referrals')
+                      const { error: rewardUpdateErr } = await supabase.from('referrals')
                         .update({
                           status: 'rewarded',
                           converted_at: new Date().toISOString(),
                           reward_given: true,
                           ...(rewardCode ? { reward_code: rewardCode, stripe_promotion_code_id: promoId } : {}),
                         })
-                        .eq('referred_id', userId).eq('referral_code', userSub.referred_by)
+                        .eq('referred_id', userId).eq('referral_code', userSub.referred_by).eq('reward_given', false)
+                      if (rewardUpdateErr) console.error('referral reward update failed:', rewardUpdateErr)
 
-                      await supabase.from('notifications').insert({
+                      const { error: notifErr } = await supabase.from('notifications').insert({
                         user_id: referral.referrer_id,
                         type: 'referral',
                         title_ar: '🎁 مكافأة إحالة!',
@@ -488,6 +491,7 @@ serve(async (req) => {
                           ? 'شكرًا! تم تطبيق شهر مجاني على اشتراكك تلقائيًا لأنك دعوت صديقًا.'
                           : `شكرًا! حصلت على شهر مجاني لأنك دعوت صديقًا. استخدم الكود: ${rewardCode}`,
                       })
+                      if (notifErr) console.error('referral reward notification insert failed:', notifErr)
                     }
                   }
                 }

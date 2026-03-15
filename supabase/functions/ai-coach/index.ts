@@ -10,7 +10,7 @@ if (!supabaseUrl || !supabaseServiceKey) {
 const envReady = !!(supabaseUrl && supabaseServiceKey)
 
 import { getCorsHeaders } from '../_shared/cors.ts'
-const MAX_USER_MESSAGES = 999
+const MAX_USER_MESSAGES = 100
 const MAX_CONTEXT_MESSAGES = 30
 
 const RATE_LIMIT_WINDOW_SECONDS = 60
@@ -277,22 +277,26 @@ function sanitizeForPrompt(text: string): string {
   return text
     .replace(/[#*`|]/g, '')
     .replace(/\n{2,}/g, '\n')
-    .replace(/(ignore|forget|disregard|override|system|prompt|instruction)/gi, '[filtered]')
+    .replace(/(ignore\s+(all\s+)?(previous\s+)?instructions|forget\s+(everything|all)|disregard\s+(above|previous)|override\s+system|system\s+prompt|reveal\s+instructions)/gi, '[filtered]')
     .slice(0, 500)
 }
 
 const DOSAGE_WARNING = '\n\n⚠️ تحقق من الجرعة — قد تحتوي على خطأ'
-const MCG_PEPTIDE_RE = /(?:BPC[-‑]?157|TB[-‑]?500|Semax|Selank|DSIP|Ipamorelin|CJC[-‑]?1295|Kisspeptin|AOD[-‑]?9604|Triptorelin|Follistatin)/gi
+const MCG_PEPTIDE_RE = /(?:BPC[-‑]?157|TB[-‑]?500|Semax|Selank|DSIP|Ipamorelin|CJC[-‑]?1295|Kisspeptin|AOD[-‑]?9604|Triptorelin|Follistatin|PT[-‑]?141|Epithalon|Thymosin[-‑]?Alpha[-‑]?1|GHK[-‑]?Cu|GHRP[-‑]?2|GHRP[-‑]?6|Tesamorelin)/gi
 
 function checkDangerousDosage(text: string): boolean {
   MCG_PEPTIDE_RE.lastIndex = 0
   let match: RegExpExecArray | null
   while ((match = MCG_PEPTIDE_RE.exec(text)) !== null) {
-    const window = text.slice(match.index, match.index + 150)
-    const mgMatch = window.match(/(\d+)\s*mg\b/i)
-    if (mgMatch && parseInt(mgMatch[1]) >= 50) return true
+    const forwardWindow = text.slice(match.index, match.index + 150)
+    const backwardWindow = text.slice(Math.max(0, match.index - 80), match.index)
+    const mgRe = /(\d+)\s*mg\b/i
+    const fwdMatch = forwardWindow.match(mgRe)
+    if (fwdMatch && parseInt(fwdMatch[1]) >= 5) return true
+    const bwdMatch = backwardWindow.match(mgRe)
+    if (bwdMatch && parseInt(bwdMatch[1]) >= 5) return true
   }
-  if (/\d{5,}\s*mcg/i.test(text)) return true
+  if (/[\d,]{5,}\s*mcg/i.test(text)) return true
   return false
 }
 
@@ -333,7 +337,7 @@ serve(async (req) => {
     }
 
     const authHeader = req.headers.get('authorization')
-    const token = authHeader?.replace('Bearer ', '')
+    const token = authHeader?.replace(/^Bearer\s+/i, '')
     if (!token) {
       return new Response(JSON.stringify({ error: 'غير مصرّح' }), {
         status: 401,
@@ -379,6 +383,14 @@ serve(async (req) => {
     if (!tierCheck.allowed) {
       return new Response(JSON.stringify({ error: tierCheck.message ?? 'وصلت حد الرسائل' }), {
         status: 429,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      })
+    }
+
+    const cl = parseInt(req.headers.get('content-length') || '0', 10)
+    if (cl > 102400) {
+      return new Response(JSON.stringify({ error: 'Body too large' }), {
+        status: 413,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       })
     }
@@ -507,7 +519,7 @@ serve(async (req) => {
     // Injection history with adherence analysis
     if (injectionData.length > 0) {
       const entries = injectionData.slice(0, 15).map(l =>
-        `${new Date(l.logged_at).toLocaleDateString('en-CA')}: ${l.peptide_name} ${l.dose}${l.dose_unit}`
+        `${new Date(l.logged_at).toLocaleDateString('en-CA')}: ${sanitizeForPrompt(String(l.peptide_name))} ${l.dose}${sanitizeForPrompt(String(l.dose_unit))}`
       ).join('\n')
       userContextMsg += `\n\nسجل الحقن (آخر ${Math.min(injectionData.length, 15)}):\n${entries}`
 
@@ -534,9 +546,9 @@ serve(async (req) => {
       const entries = protocolData.map(p => {
         const start = p.started_at ? new Date(p.started_at).toLocaleDateString('en-CA') : 'unknown'
         const daysIn = p.started_at ? Math.floor((Date.now() - new Date(p.started_at).getTime()) / (1000 * 60 * 60 * 24)) : 0
-        const totalDays = p.cycle_weeks * 7
+        const totalDays = (p.cycle_weeks ?? 0) * 7
         const remaining = Math.max(totalDays - daysIn, 0)
-        return `${p.peptide_id}: ${p.dose}${p.dose_unit} ${p.frequency}, ${p.cycle_weeks}w cycle, started ${start}, day ${daysIn}/${totalDays}, ${remaining} days remaining, status=${p.status}`
+        return `${sanitizeForPrompt(String(p.peptide_id))}: ${p.dose}${sanitizeForPrompt(String(p.dose_unit))} ${sanitizeForPrompt(String(p.frequency))}, ${p.cycle_weeks ?? 0}w cycle, started ${start}, day ${daysIn}/${totalDays}, ${remaining} days remaining, status=${p.status}`
       }).join('\n')
       userContextMsg += `\n\nبروتوكولات المستخدم (مع تحليل التقدم):\n${entries}`
     }
@@ -578,7 +590,7 @@ serve(async (req) => {
         const labName = row.lab_name ? ` (${row.lab_name})` : ''
         if (row.results && typeof row.results === 'object') {
           for (const [biomarker, value] of Object.entries(row.results as Record<string, number>)) {
-            entries.push(`${date}${labName}: ${biomarker} = ${value}`)
+            entries.push(`${date}${labName}: ${sanitizeForPrompt(String(biomarker))} = ${value}`)
           }
         }
         if (row.notes) entries.push(`ملاحظات: ${sanitizeForPrompt(String(row.notes))}`)
@@ -591,7 +603,7 @@ serve(async (req) => {
     // Side effects
     if (sideEffectData.length > 0) {
       const entries = sideEffectData.map(s =>
-        `${s.created_at}: ${s.symptom} (severity=${s.severity}/5)${s.peptide_id ? ` — ${s.peptide_id}` : ''}${s.notes ? ` — ${sanitizeForPrompt(String(s.notes))}` : ''}`
+        `${s.created_at}: ${sanitizeForPrompt(String(s.symptom))} (severity=${s.severity}/5)${s.peptide_id ? ` — ${sanitizeForPrompt(String(s.peptide_id))}` : ''}${s.notes ? ` — ${sanitizeForPrompt(String(s.notes))}` : ''}`
       ).join('\n')
       userContextMsg += `\n\nأعراض جانبية أبلغ عنها المستخدم:\n${entries}`
     }
@@ -695,7 +707,11 @@ serve(async (req) => {
         if (insertErr) console.warn('ai-coach: usage tracking insert failed:', insertErr.message)
       }
 
+      const decoder = new TextDecoder('utf-8', { stream: true })
+      let lineBuffer = ''
+
       const outStream = new ReadableStream({
+        cancel() { reader.cancel().catch(() => {}); },
         async pull(controller) {
           try {
             const { done, value } = await reader.read()
@@ -715,10 +731,12 @@ serve(async (req) => {
               controller.close()
               return
             }
-            const text = new TextDecoder().decode(value)
-            // Parse lines first to accumulate content for leak detection, track [DONE]
+            const text = decoder.decode(value, { stream: true })
+            lineBuffer += text
+            const lines = lineBuffer.split('\n')
+            lineBuffer = lines.pop() ?? ''
             let foundDone = false
-            for (const line of text.split('\n')) {
+            for (const line of lines) {
               if (!line.startsWith('data: ')) continue
               const payload = line.slice(6).trim()
               if (payload === '[DONE]') { foundDone = true; break }
@@ -769,12 +787,12 @@ serve(async (req) => {
       })
     }
 
-    // Usage tracking for non-streaming — response fully received
-    const { error: insertErr } = await supabase.from('ai_coach_requests').insert({ user_id: user.id })
-    if (insertErr) console.warn('ai-coach: usage tracking insert failed:', insertErr.message)
-
     const data = await response.json()
     let content = data?.choices?.[0]?.message?.content ?? ''
+
+    // Usage tracking for non-streaming — after content extraction
+    const { error: insertErr } = await supabase.from('ai_coach_requests').insert({ user_id: user.id })
+    if (insertErr) console.warn('ai-coach: usage tracking insert failed:', insertErr.message)
     if (typeof content === 'string' && containsPromptLeak(content)) {
       if (data.choices?.[0]) {
         data.choices[0].message = data.choices[0].message ?? {}
@@ -794,12 +812,12 @@ serve(async (req) => {
     // Save conversation server-side (non-streaming)
     if (conversationId && content && !containsPromptLeak(content)) {
       const fullMsgs = [...userMessages, { role: 'assistant', content }]
-      supabase.from('coach_conversations')
+      const { error: saveErr } = await supabase.from('coach_conversations')
         .update({ messages: fullMsgs, updated_at: new Date().toISOString() })
         .eq('id', conversationId).eq('user_id', user.id)
-        .then(({ error: saveErr }) => { if (saveErr) console.warn('ai-coach: non-stream save failed:', saveErr.message) })
+      if (saveErr) console.warn('ai-coach: non-stream save failed:', saveErr.message)
     }
-    return new Response(JSON.stringify(data), {
+    return new Response(JSON.stringify({ content }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     })
   } catch (error) {

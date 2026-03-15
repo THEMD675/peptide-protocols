@@ -246,14 +246,14 @@ serve(async (req) => {
     }
 
     // Handle referral tracking with service role (bypasses RLS)
-    if (referralCode) referralCode = referralCode.toUpperCase()
-    if (referralCode && /^PP-[A-Z0-9]{6}$/.test(referralCode) && serviceSupabase) {
+    const upperCode = referralCode?.toUpperCase()
+    if (upperCode && /^PP-[A-Z0-9]{6}$/.test(upperCode) && serviceSupabase) {
       try {
         // Find the referrer by their referral code
         const { data: referrerSub } = await serviceSupabase
           .from('subscriptions')
           .select('user_id')
-          .eq('referral_code', referralCode)
+          .eq('referral_code', upperCode)
           .maybeSingle()
 
         if (referrerSub?.user_id && referrerSub.user_id !== user.id) {
@@ -278,7 +278,7 @@ serve(async (req) => {
           await serviceSupabase.from('referrals').insert({
             referrer_id: referrerSub.user_id,
             referred_id: user.id,
-            referral_code: referralCode,
+            referral_code: upperCode,
             referred_email: email,
             status: flagForReview ? 'pending_review' : 'signed_up',
           }).catch((err) => { console.error('referral insert failed:', err); })
@@ -286,7 +286,7 @@ serve(async (req) => {
           // Mark the new user's subscription as referred
           await serviceSupabase
             .from('subscriptions')
-            .update({ referred_by: referralCode })
+            .update({ referred_by: upperCode })
             .eq('user_id', user.id)
             .catch((err) => { console.error('referral referred_by update failed:', err); })
         }

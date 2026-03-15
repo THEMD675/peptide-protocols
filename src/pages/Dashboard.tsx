@@ -600,7 +600,7 @@ export default function Dashboard() {
                   });
                   if (!res.ok) throw new Error('Portal request failed');
                   const data = await res.json();
-                  if (data.url) window.location.href = data.url;
+                  if (data.url && typeof data.url === 'string' && data.url.startsWith('https://') && data.url.includes('stripe.com')) window.location.href = data.url;
                 } catch {
                   toast.error('تعذّر فتح صفحة إدارة الدفع — حاول مرة أخرى');
                 } finally {
@@ -997,16 +997,16 @@ export default function Dashboard() {
         return (
           <div className="mb-8">
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-3">
-              <div className="rounded-xl border border-emerald-100 bg-gradient-to-b from-emerald-50 to-white dark:to-stone-950 p-3 text-center">
-                <p className="text-2xl font-black text-emerald-700">{total}</p>
+              <div className="rounded-2xl border border-emerald-100 dark:border-emerald-800 bg-gradient-to-b from-emerald-50 to-white dark:from-emerald-900/20 dark:to-stone-950 p-3 text-center">
+                <p className="text-2xl font-black text-emerald-700 dark:text-emerald-400">{total}</p>
                 <p className="text-xs font-medium text-stone-500 dark:text-stone-300">حقنة مسجّلة</p>
               </div>
-              <div className="rounded-xl border border-emerald-100 bg-gradient-to-b from-emerald-50 to-white dark:to-stone-950 p-3 text-center">
-                <p className="text-2xl font-black text-emerald-700">{allNonDaily ? total : activity.streak}</p>
+              <div className="rounded-2xl border border-emerald-100 dark:border-emerald-800 bg-gradient-to-b from-emerald-50 to-white dark:from-emerald-900/20 dark:to-stone-950 p-3 text-center">
+                <p className="text-2xl font-black text-emerald-700 dark:text-emerald-400">{allNonDaily ? total : activity.streak}</p>
                 <p className="text-xs font-medium text-stone-500 dark:text-stone-300">{allNonDaily ? 'جرعة مسجّلة' : 'يوم متتالي'}</p>
               </div>
-              <div className="rounded-xl border border-emerald-100 bg-gradient-to-b from-emerald-50 to-white dark:to-stone-950 p-3 text-center">
-                <p className="text-2xl font-black text-emerald-700">{activeProtocols.length}</p>
+              <div className="rounded-2xl border border-emerald-100 dark:border-emerald-800 bg-gradient-to-b from-emerald-50 to-white dark:from-emerald-900/20 dark:to-stone-950 p-3 text-center">
+                <p className="text-2xl font-black text-emerald-700 dark:text-emerald-400">{activeProtocols.length}</p>
                 <p className="text-xs font-medium text-stone-500 dark:text-stone-300">بروتوكول نشط</p>
               </div>
             </div>

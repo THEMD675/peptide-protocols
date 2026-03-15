@@ -26,10 +26,20 @@ export default memo(function ShareableCard(props: ShareableCardProps) {
 
   const shareBody = `بروتوكولي على pptides:\n${props.peptideName} (${props.peptideNameEn})\n${props.dose} ${props.unit} — ${FREQUENCY_LABELS[props.frequency] ?? props.frequency}\nمدة الدورة: ${props.cycleWeeks} أسابيع\nاليوم ${props.daysSinceStart} من ${props.cycleWeeks * 7}\n${props.adherencePercent != null ? `الالتزام: ${props.adherencePercent}%` : ''}`;
 
+  const getShareUrl = () => {
+    let url = SITE_URL;
+    try {
+      const refCode = localStorage.getItem('pptides_referral_code') ?? localStorage.getItem('pptides_referral');
+      if (refCode && REFERRAL_CODE_REGEX.test(refCode)) url += `?ref=${refCode}`;
+    } catch { /* expected */ }
+    return url;
+  };
+
   const handleShare = async () => {
+    const url = getShareUrl();
     if (navigator.share) {
       try {
-        await navigator.share({ title: `بروتوكول ${props.peptideName}`, text: `${shareBody}\n\n${SITE_URL}` });
+        await navigator.share({ title: `بروتوكول ${props.peptideName}`, text: `${shareBody}\n\n${url}` });
         toast.success('تمت المشاركة بنجاح!', { duration: 3000 });
       } catch { /* user cancelled */ }
     } else {
@@ -38,7 +48,8 @@ export default memo(function ShareableCard(props: ShareableCardProps) {
   };
 
   const handleCopy = async () => {
-    const ok = await copyToClipboard(shareBody + `\n\n${SITE_URL}`);
+    const url = getShareUrl();
+    const ok = await copyToClipboard(shareBody + `\n\n${url}`);
     if (ok) {
       setCopied(true);
       toast.success('تم نسخ البروتوكول');
@@ -49,24 +60,21 @@ export default memo(function ShareableCard(props: ShareableCardProps) {
   };
 
   const handleTwitter = () => {
-    const tweetText = `${shareBody}\n\n${SITE_URL}`;
+    const url = getShareUrl();
+    const tweetText = `${shareBody}\n\n${url}`;
     window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(tweetText)}`, '_blank', 'noopener,noreferrer');
   };
 
   const handleWhatsApp = () => {
-    let shareText = `شوف تقدّمي في بروتوكول الببتيدات\n\n` + shareBody + '\n\n' + SITE_URL;
-    try {
-      const refCode = localStorage.getItem('pptides_referral_code') ?? localStorage.getItem('pptides_referral');
-      if (refCode && REFERRAL_CODE_REGEX.test(refCode)) {
-        shareText += `\nكود إحالة: ${refCode}`;
-      }
-    } catch { /* expected */ }
+    const url = getShareUrl();
+    const shareText = `شوف تقدّمي في بروتوكول الببتيدات\n\n` + shareBody + '\n\n' + url;
     window.open(`https://wa.me/?text=${encodeURIComponent(shareText)}`, '_blank', 'noopener,noreferrer');
   };
 
   const handleTelegram = () => {
-    const text = shareBody + '\n\n' + SITE_URL;
-    window.open(`https://t.me/share/url?url=${encodeURIComponent(SITE_URL)}&text=${encodeURIComponent(text)}`, '_blank', 'noopener,noreferrer');
+    const url = getShareUrl();
+    const text = shareBody + '\n\n' + url;
+    window.open(`https://t.me/share/url?url=${encodeURIComponent(url)}&text=${encodeURIComponent(text)}`, '_blank', 'noopener,noreferrer');
   };
 
   const handleImageExport = useCallback(async () => {

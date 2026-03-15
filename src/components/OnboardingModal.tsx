@@ -119,11 +119,12 @@ export default function OnboardingModal({ forceOpen, onClose: externalClose }: {
     try { localStorage.setItem(ONBOARDING_KEY, 'true'); } catch (e) { logError('onboarding:', e); }
     // C13: Persist goals to Supabase user_profiles table
     if (user && selectedGoal) {
-      supabase.from('user_profiles').update({
+      supabase.from('user_profiles').upsert({
+        user_id: user.id,
         onboarding_goals: { goal: selectedGoal, ts: Date.now() },
         onboarding_completed_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
-      }).eq('user_id', user.id).then(({ error }) => { if (error) { logError('OnboardingModal: failed to persist goals', error); toast.error('تعذّر حفظ أهدافك — حاول لاحقًا من الإعدادات'); } }).catch((e) => { logError('OnboardingModal: failed to persist goals', e); });
+      }, { onConflict: 'user_id' }).then(({ error }) => { if (error) { logError('OnboardingModal: failed to persist goals', error); toast.error('تعذّر حفظ أهدافك — حاول لاحقًا من الإعدادات'); } }).catch((e) => { logError('OnboardingModal: failed to persist goals', e); });
     }
     setShow(false);
     externalClose?.();

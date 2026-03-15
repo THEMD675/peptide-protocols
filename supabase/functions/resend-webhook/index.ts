@@ -130,7 +130,7 @@ serve(async (req) => {
           ).catch(e => console.warn('email_logs insert failed:', e))
           await supabase.from('user_profiles')
             .update({ email_notifications_enabled: false, updated_at: new Date().toISOString() })
-            .eq('email', email)
+            .ilike('email', email)
             .catch(err => console.warn('resend-webhook: failed to suppress email:', err))
         }
         break
@@ -143,7 +143,7 @@ serve(async (req) => {
           ).catch(e => console.warn('email_logs insert failed:', e))
           await supabase.from('user_profiles')
             .update({ email_notifications_enabled: false, updated_at: new Date().toISOString() })
-            .eq('email', email)
+            .ilike('email', email)
             .catch(err => console.warn('resend-webhook: failed to suppress email:', err))
         }
         break

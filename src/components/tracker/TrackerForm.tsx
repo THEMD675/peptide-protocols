@@ -422,7 +422,7 @@ export default function TrackerForm({
             onChange={(e) => setInjectedAt(e.target.value)}
             onFocus={(e) => { setTimeout(() => e.target.scrollIntoView({ behavior: 'smooth', block: 'center' }), 300); }}
             min="2020-01-01T00:00"
-            max={new Date().toISOString().slice(0, 16)}
+            max={(() => { const n = new Date(); return `${n.getFullYear()}-${String(n.getMonth()+1).padStart(2,'0')}-${String(n.getDate()).padStart(2,'0')}T${String(n.getHours()).padStart(2,'0')}:${String(n.getMinutes()).padStart(2,'0')}`; })()}
             required
             aria-label="التاريخ والوقت"
             dir="ltr"

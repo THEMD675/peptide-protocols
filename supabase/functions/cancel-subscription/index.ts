@@ -98,7 +98,7 @@ serve(async (req) => {
       }
       try {
         const stripeSub = await stripe.subscriptions.retrieve(sub.stripe_subscription_id)
-        if (stripeSub.discount) {
+        if ((stripeSub as unknown as Record<string, unknown[]>).discounts?.length > 0) {
           return new Response(JSON.stringify({ ok: true, already_discounted: true }), {
             headers: { ...corsHeaders, 'Content-Type': 'application/json' },
           })
@@ -179,7 +179,26 @@ serve(async (req) => {
       })
     }
 
-    const currentSub = await stripe.subscriptions.retrieve(sub.stripe_subscription_id)
+    let currentSub: Stripe.Subscription
+    try {
+      currentSub = await stripe.subscriptions.retrieve(sub.stripe_subscription_id)
+    } catch (retrieveErr: unknown) {
+      const err = retrieveErr as { code?: string; type?: string }
+      if (err.code === 'resource_missing' || err.type === 'StripeInvalidRequestError') {
+        await supabase
+          .from('subscriptions')
+          .update({ status: 'cancelled', cancel_at_period_end: true })
+          .eq('id', sub.id)
+        return new Response(JSON.stringify({
+          success: true,
+          already_cancelled: true,
+          message: 'Subscription no longer exists in Stripe — marked as cancelled',
+        }), {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        })
+      }
+      throw retrieveErr
+    }
     if (currentSub.cancel_at_period_end) {
       const periodEnd = new Date(currentSub.current_period_end * 1000).toISOString()
       return new Response(JSON.stringify({
@@ -244,7 +263,7 @@ serve(async (req) => {
             <h2 style="color:#1c1917;font-size:20px;">تم إلغاء اشتراكك</h2>
             <p style="color:#44403c;line-height:1.8;">ستحتفظ بالوصول حتى نهاية الفترة الحالية (${periodEnd.split('T')[0]}).</p>
             <div style="text-align:center;margin:24px 0;">
-              ${emailButton('أعد الاشتراك', `${APP_URL}/pricing`)}
+              ${emailButton('أعد الاشتراك', `${APP_URL}/pricing?coupon=${COUPON_RETENTION}`)}
             </div>
           `),
         replyTo: 'contact@pptides.com',

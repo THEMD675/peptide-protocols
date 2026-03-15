@@ -125,7 +125,7 @@ export default function GlobalSearch({ open, onClose }: Props) {
           .from('blog_posts')
           .select('slug, title_ar, excerpt_ar')
           .eq('is_published', true)
-          .or(`title_ar.ilike.%${q.replace(/[{}%_]/g, '')}%,excerpt_ar.ilike.%${q.replace(/[{}%_]/g, '')}%,tags.cs.{${q.replace(/[{}%_]/g, '')}}`)
+          .or(`title_ar.ilike.%${q.replace(/[{}%_.,]/g, '')}%,excerpt_ar.ilike.%${q.replace(/[{}%_.,]/g, '')}%,tags.cs.{${q.replace(/[{}%_.,]/g, '')}}`)
           .limit(5);
         setBlogResults(data ?? []);
       } catch { setBlogResults([]); }

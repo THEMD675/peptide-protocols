@@ -20,7 +20,9 @@ function persistVerified(): void {
 
 export default function AgeGate() {
   const [visible, setVisible] = useState(() => !isVerified());
-  const [blocked, setBlocked] = useState(false);
+  const [blocked, setBlocked] = useState(() => {
+    try { return sessionStorage.getItem('pptides_age_blocked') === '1'; } catch { return false; }
+  });
 
   const handleVerified = () => {
     persistVerified();
@@ -29,6 +31,7 @@ export default function AgeGate() {
 
   const handleUnder = () => {
     setBlocked(true);
+    try { sessionStorage.setItem('pptides_age_blocked', '1'); } catch { /* safari private */ }
   };
 
   const dialogRef = useRef<HTMLDivElement>(null);

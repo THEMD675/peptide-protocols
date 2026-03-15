@@ -663,7 +663,7 @@ export default function Admin() {
                       {a.type === 'trial_expiring' && a.data?.emails && (
                         <button
                           onClick={() => {
-                            const emails = a.data!.emails as string[];
+                            const emails = (a.data?.emails ?? []) as string[];
                             setBulkAudience('trial');
                             const tpl = EMAIL_TEMPLATES.find(t => t.key === 'trial_ending')!;
                             setEmailSubject(tpl.subject);
@@ -979,7 +979,7 @@ export default function Admin() {
                   </tbody>
                 </table>
               </div>
-              <Pagination page={usersPage} total={filtered.length} onChange={setUsersPage} />
+              <Pagination page={usersPage} total={filtered.length} onChange={(p: number) => { setUsersPage(p); fetchStats(userSearch || undefined, p, userFilter); }} />
             </div>
           );
         })()}
@@ -1589,14 +1589,8 @@ export default function Admin() {
                           if (coachConvoOpen) { setCoachConvoOpen(false); return; }
                           setCoachConvoLoading(true);
                           try {
-                            const { supabase } = await import('@/lib/supabase');
-                            const { data } = await supabase
-                              .from('coach_conversations')
-                              .select('id, user_message, coach_reply, created_at')
-                              .eq('user_id', ud.user.id)
-                              .order('created_at', { ascending: false })
-                              .limit(20);
-                            setCoachConversations(data ?? []);
+                            const res = await adminAction({ action: 'get_coach_conversations', user_id: ud.user.id });
+                            setCoachConversations(res.data ?? []);
                             setCoachConvoOpen(true);
                           } catch { setCoachConversations([]); }
                           finally { setCoachConvoLoading(false); }

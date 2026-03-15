@@ -40,7 +40,7 @@ function getDailyInjections(freq?: string, route?: string): number {
     case 'daily-10': return 10 / 30;
     case 'daily-20': return 20 / 30;
     case 'weekly': return 1 / 7;
-    case 'biweekly': return 1 / 14;
+    case 'biweekly': return 2 / 7;
     case 'prn': return 0.5;
     default: return 1;
   }

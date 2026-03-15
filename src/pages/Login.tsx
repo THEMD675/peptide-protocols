@@ -18,7 +18,8 @@ type Tab = 'login' | 'signup';
 /** Validate redirect path: must start with "/" but not "//" (open redirect) */
 function safeRedirect(raw: string | null, fallback = '/dashboard'): string {
   if (!raw || typeof raw !== 'string') return fallback;
-  return raw.startsWith('/') && !raw.startsWith('//') ? raw : fallback;
+  const denied = ['/logout', '/login', '/signup'];
+  return raw.startsWith('/') && !raw.startsWith('//') && !denied.some(d => raw === d || raw.startsWith(d + '?')) ? raw : fallback;
 }
 
 const friendlyError = (msg: string) => {

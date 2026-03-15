@@ -14,7 +14,7 @@ function danger(message: string, details: string): InteractionResult {
   return { safe: false, warning: false, severity: 'dangerous', severityAr: 'خطير', message, details };
 }
 function warn(message: string, details: string): InteractionResult {
-  return { safe: true, warning: true, severity: 'warning', severityAr: 'تحذير', message, details };
+  return { safe: false, warning: true, severity: 'warning', severityAr: 'تحذير', message, details };
 }
 function dangerWarn(message: string, details: string): InteractionResult {
   return { safe: false, warning: true, severity: 'dangerous', severityAr: 'خطير', message, details };

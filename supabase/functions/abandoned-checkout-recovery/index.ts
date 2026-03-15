@@ -82,10 +82,24 @@ serve(async (req) => {
       })
     }
 
+    // Filter out users who opted out of email notifications
+    const abandonedUserIds = abandoned.map(r => r.user_id).filter(Boolean) as string[]
+    const optedOutSet = new Set<string>()
+    if (abandonedUserIds.length > 0) {
+      const { data: optedOut } = await supabase
+        .from('user_profiles')
+        .select('user_id')
+        .in('user_id', abandonedUserIds)
+        .eq('email_notifications_enabled', false)
+      for (const p of optedOut ?? []) optedOutSet.add(p.user_id)
+    }
+
     let sent = 0
     let skipped = 0
 
     for (const record of abandoned) {
+      if (record.user_id && optedOutSet.has(record.user_id)) { skipped++; continue }
+
       // Skip if user already has an active subscription
       if (record.user_id) {
         const { data: sub } = await supabase

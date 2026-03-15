@@ -85,14 +85,24 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY);
 
-  // Find the user by email
-  const { data: { users }, error: listErr } = await supabase.auth.admin.listUsers({ perPage: 1000 });
-  if (listErr) {
-    console.error('unsubscribe: listUsers error:', listErr);
-    return res.status(500).send(htmlPage('خطأ', '<h1>خطأ في الخادم</h1>'));
+  // Find the user by email (paginated to search all users)
+  let allUsers: Array<{ id: string; email?: string }> = [];
+  {
+    let page = 1;
+    while (true) {
+      const { data: { users: pageUsers }, error: listErr } = await supabase.auth.admin.listUsers({ page, perPage: 1000 });
+      if (listErr) {
+        console.error('unsubscribe: listUsers error:', listErr);
+        return res.status(500).send(htmlPage('خطأ', '<h1>خطأ في الخادم</h1>'));
+      }
+      if (!pageUsers || pageUsers.length === 0) break;
+      allUsers = allUsers.concat(pageUsers);
+      if (pageUsers.length < 1000) break;
+      page++;
+    }
   }
 
-  const targetUser = (users ?? []).find(u => u.email?.toLowerCase() === email);
+  const targetUser = allUsers.find(u => u.email?.toLowerCase() === email);
   if (!targetUser) {
     // Return success anyway to avoid email enumeration
     return res.status(200).send(htmlPage('تم إلغاء الاشتراك', '<h1>تم إلغاء الاشتراك</h1><p>لن تصلك رسائل بريد إلكتروني تسويقية بعد الآن.</p><p><a href="https://pptides.com">العودة إلى pptides</a></p>'));

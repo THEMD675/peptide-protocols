@@ -594,8 +594,8 @@ export default function Account() {
                 <p className="text-xs font-bold text-emerald-600 mt-0.5" dir="ltr">
                   {(() => {
                     const tier = subscription.tier === 'elite' ? PRICING.elite : PRICING.essentials;
-                    const interval = (subscription as Record<string, unknown>).billingInterval;
-                    if (interval === 'year') return `${tier.annualLabel} / سنة`;
+                    const interval = subscription.billingInterval;
+                    if (interval === 'year' || interval === 'annual' || interval === 'yearly') return `${tier.annualLabel} / سنة`;
                     return `${tier.monthly} ر.س / شهر`;
                   })()}
                 </p>
@@ -1339,7 +1339,12 @@ export default function Account() {
                       body: JSON.stringify({ apply_coupon: true, reason: cancelReason }),
                     });
                     if (res.ok) {
-                      toast.success(RETENTION.appliedToast);
+                      const body = await res.json().catch(() => ({}));
+                      if (body.already_discounted) {
+                        toast.info('الخصم مُطبّق مسبقًا على اشتراكك');
+                      } else {
+                        toast.success(RETENTION.appliedToast);
+                      }
                       await refreshSubscription();
                       setShowCancelDialog(false); setCancelStep(null);
                     } else {

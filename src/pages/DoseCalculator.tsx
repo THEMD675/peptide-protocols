@@ -1461,7 +1461,7 @@ export default function DoseCalculator() {
                       </tr>
                     </thead>
                     <tbody>
-                      {costResults.map((r) => (
+                      {costResults.map((r, i) => (
                         <tr key={r.peptide} className="border-b border-stone-200 dark:border-stone-600 last:border-b-0">
                           <td className="px-3 py-3 text-sm font-bold text-stone-900 dark:text-stone-100" dir="ltr">{r.peptide}</td>
                           <td className="px-3 py-3 text-sm text-stone-700 dark:text-stone-200">{r.pricePerVial} ر.س</td>

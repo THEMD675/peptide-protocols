@@ -8,7 +8,11 @@ CREATE INDEX IF NOT EXISTS idx_subscriptions_user_id ON subscriptions(user_id);
 CREATE INDEX IF NOT EXISTS idx_subscriptions_active ON subscriptions(user_id) WHERE status = 'active';
 CREATE INDEX IF NOT EXISTS idx_email_logs_email_created ON email_logs(email, created_at);
 CREATE INDEX IF NOT EXISTS idx_admin_audit_log_created ON admin_audit_log(created_at);
-CREATE INDEX IF NOT EXISTS idx_lab_results_user_date ON lab_results(user_id, test_date);
+DO $$ BEGIN
+  IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'lab_results') THEN
+    CREATE INDEX IF NOT EXISTS idx_lab_results_user_date ON lab_results(user_id, test_date);
+  END IF;
+END $$;
 
 ----------------------------------------------------------------------
 -- 2. delete_user_data() — add missing tables

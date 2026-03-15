@@ -7,6 +7,7 @@ const stripe = new Stripe(stripeKey, { apiVersion: '2024-06-20', timeout: 10000 
 const supabaseUrl = Deno.env.get('SUPABASE_URL') ?? ''
 const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY') ?? ''
 const appUrl = Deno.env.get('APP_URL') ?? 'https://pptides.com'
+const TRIAL_DAYS = parseInt(Deno.env.get('TRIAL_DAYS') ?? '3', 10)
 
 import { getCorsHeaders, handleCorsPreflightIfOptions } from '../_shared/cors.ts'
 import { checkRateLimit } from '../_shared/rate-limit.ts'
@@ -89,7 +90,9 @@ serve(async (req) => {
     const tier = body.tier as string
     const billing = body.billing === 'annual' ? 'annual' : 'monthly'
     const referralCode = (body.referralCode && /^PP-[A-Z0-9]{6}$/i.test(String(body.referralCode))) ? String(body.referralCode).toUpperCase() : undefined
-    const couponParam = body.coupon && /^[a-zA-Z0-9_-]+$/.test(String(body.coupon)) ? String(body.coupon) : undefined
+    const ALLOWED_COUPONS = ['retention_20_pct', 'referral_friend_40_second']
+    let couponParam = body.coupon && /^[a-zA-Z0-9_-]+$/.test(String(body.coupon)) ? String(body.coupon) : undefined
+    if (couponParam && !ALLOWED_COUPONS.includes(couponParam)) couponParam = undefined
     if (!tier || !PRICE_IDS[tier]) {
       return new Response(JSON.stringify({ error: 'Invalid tier' }), {
         status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -114,7 +117,7 @@ serve(async (req) => {
     if (existingSub?.status === 'cancelled' && existingSub?.stripe_subscription_id) {
       try {
         const stripeSub = await stripe.subscriptions.retrieve(existingSub.stripe_subscription_id)
-        if (stripeSub.status === 'active' && stripeSub.cancel_at_period_end) {
+        if ((stripeSub.status === 'active' || stripeSub.status === 'trialing') && stripeSub.cancel_at_period_end) {
           await stripe.subscriptions.update(existingSub.stripe_subscription_id, {
             cancel_at_period_end: false,
           })
@@ -163,6 +166,7 @@ serve(async (req) => {
         s.metadata?.tier === tier &&
         s.metadata?.billing === billing &&
         (s.metadata?.coupon ?? '') === (couponParam ?? '') &&
+        (s.metadata?.referral_code ?? '') === (referralCode ?? '') &&
         Date.now() - (s.created * 1000) < 5 * 60 * 1000,
     )
     if (reusable?.url) {
@@ -213,7 +217,7 @@ serve(async (req) => {
           const monthAgo = new Date(Date.now() - 30 * 86400000).toISOString()
           const { count: referralCount } = await adminDb.from('subscriptions')
             .select('id', { count: 'exact', head: true })
-            .eq('referred_by', referrerSub.user_id)
+            .eq('referred_by', referralCode)
             .gte('created_at', monthAgo)
           
           const MAX_REFERRALS_PER_MONTH = 10
@@ -238,7 +242,7 @@ serve(async (req) => {
       client_reference_id: user.id,
       ...(existingCustomerId ? { customer: existingCustomerId } : { customer_email: user.email }),
       subscription_data: {
-        trial_period_days: hadTrialOrSub ? undefined : 3,
+        trial_period_days: hadTrialOrSub ? undefined : TRIAL_DAYS,
         metadata: { tier, user_id: user.id, ...(validatedReferralCode ? { referral_code: validatedReferralCode } : {}) },
         description: `pptides — ${tier === 'elite' ? 'الباقة المتقدمة' : 'الباقة الأساسية'}`,
       },

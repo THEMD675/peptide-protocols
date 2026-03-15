@@ -108,6 +108,11 @@ serve(async (req) => {
       const durationDays = body.duration_days != null ? Number(body.duration_days) : 30
       if (!userId || !tier || !Number.isFinite(durationDays) || durationDays < 1) return json({ error: 'Missing user_id, tier, or invalid duration' }, 400, cors)
 
+      const GRANT_VALID_TIERS = ['free', 'essentials', 'elite']
+      const GRANT_VALID_STATUSES = ['active', 'trial', 'cancelled', 'expired', 'past_due', 'none']
+      if (!GRANT_VALID_TIERS.includes(tier)) return json({ error: `Invalid tier: ${tier}. Must be one of: ${GRANT_VALID_TIERS.join(', ')}` }, 400, cors)
+      if (!GRANT_VALID_STATUSES.includes(status)) return json({ error: `Invalid status: ${status}. Must be one of: ${GRANT_VALID_STATUSES.join(', ')}` }, 400, cors)
+
       // Verify user exists before granting
       const { data: authUser, error: authErr } = await admin.auth.admin.getUserById(userId)
       if (authErr || !authUser?.user) return json({ error: 'User not found — check the user_id' }, 404, cors)
@@ -182,10 +187,15 @@ serve(async (req) => {
         }
       }
 
-      const { error } = await admin.from('subscriptions').update({
-        updated_at: new Date().toISOString(),
-      }).eq('user_id', userId)
+      const cancelUpdate: Record<string, unknown> = { updated_at: new Date().toISOString() }
+      if (!sub?.stripe_subscription_id) {
+        cancelUpdate.status = 'cancelled'
+      }
+      const { error } = await admin.from('subscriptions').update(cancelUpdate).eq('user_id', userId)
       if (error) return json({ error: error.message }, 500, cors)
+      if (!sub?.stripe_subscription_id) {
+        return json({ ok: true, note: 'No Stripe subscription — DB status set to cancelled directly' }, 200, cors)
+      }
       return json({ ok: true, note: 'Stripe set to cancel_at_period_end — DB status will update when period ends via webhook' }, 200, cors)
     }
 
@@ -218,8 +228,9 @@ serve(async (req) => {
       const userId = body.user_id as string
       if (!userId) return json({ error: 'Missing user_id' }, 400, cors)
 
-      const { data: { user: targetUser } } = await admin.auth.admin.getUserById(userId)
-      if (targetUser?.email && ADMIN_EMAILS.includes(targetUser.email.toLowerCase())) {
+      const { data: { user: targetUser }, error: getUserErr } = await admin.auth.admin.getUserById(userId)
+      if (getUserErr || !targetUser) return json({ error: getUserErr?.message ?? 'User not found' }, 404, cors)
+      if (targetUser.email && ADMIN_EMAILS.includes(targetUser.email.toLowerCase())) {
         return json({ error: 'Cannot suspend an admin account' }, 403, cors)
       }
 
@@ -239,11 +250,12 @@ serve(async (req) => {
       const { error } = await admin.auth.admin.updateUserById(userId, { ban_duration: '87600h' })
       if (error) return json({ error: error.message }, 500, cors)
 
-      await admin.from('subscriptions').update({
+      const { error: subUpdateErr } = await admin.from('subscriptions').update({
         status: 'expired',
         pre_suspend_status: sub?.status ?? null,
         updated_at: new Date().toISOString(),
       }).eq('user_id', userId)
+      if (subUpdateErr) console.error('suspend_user: subscription status update failed:', subUpdateErr)
       return json({ ok: true }, 200, cors)
     }
 
@@ -259,10 +271,27 @@ serve(async (req) => {
 
       // Restore pre-suspension subscription status if available
       const { data: sub } = await admin.from('subscriptions')
-        .select('pre_suspend_status').eq('user_id', userId).maybeSingle()
+        .select('pre_suspend_status, stripe_subscription_id').eq('user_id', userId).maybeSingle()
       if (sub?.pre_suspend_status) {
+        let restoredStatus = sub.pre_suspend_status
+
+        // If the pre-suspend status was active/trial, verify the Stripe subscription still exists
+        if (['active', 'trial'].includes(sub.pre_suspend_status) && sub.stripe_subscription_id && stripeKey) {
+          try {
+            const stripe = new Stripe(stripeKey, { apiVersion: '2024-06-20', timeout: 10000 })
+            const stripeSub = await stripe.subscriptions.retrieve(sub.stripe_subscription_id)
+            if (stripeSub.status === 'canceled' || stripeSub.status === 'unpaid' || stripeSub.status === 'incomplete_expired') {
+              restoredStatus = 'expired'
+              console.warn('unsuspend_user: Stripe subscription no longer active — setting status to expired instead of', sub.pre_suspend_status)
+            }
+          } catch {
+            restoredStatus = 'expired'
+            console.warn('unsuspend_user: Stripe subscription lookup failed — setting status to expired')
+          }
+        }
+
         await admin.from('subscriptions').update({
-          status: sub.pre_suspend_status,
+          status: restoredStatus,
           pre_suspend_status: null,
           updated_at: new Date().toISOString(),
         }).eq('user_id', userId)
@@ -440,10 +469,11 @@ serve(async (req) => {
           tags: [{ name: 'type', value: 'admin_bulk' }, { name: 'audience', value: audience }],
         }))
 
-        const { sent, failed } = await sendBatchEmails(batchPayload)
+        const { sent, failed, ids } = await sendBatchEmails(batchPayload)
 
-        for (const email of batch) {
-          await admin.from('email_logs').insert({ email, type: 'admin_bulk', status: 'sent' }).catch((e) => console.error('email_logs insert failed (bulk):', e))
+        for (let i = 0; i < batch.length; i++) {
+          const logStatus = i < sent ? 'sent' : 'failed'
+          await admin.from('email_logs').insert({ email: batch[i], type: 'admin_bulk', status: logStatus, ...(ids[i] ? { resend_id: ids[i] } : {}) }).catch((e) => console.error('email_logs insert failed (bulk):', e))
         }
 
         // Log bulk send to audit log with details
@@ -813,12 +843,19 @@ serve(async (req) => {
       if (!userId || !newEmail) return json({ error: 'Missing user_id or new_email' }, 400, cors)
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/
       if (!emailRegex.test(newEmail)) return json({ error: 'Invalid email format' }, 400, cors)
+
+      const { error: authUpdateErr } = await admin.auth.admin.updateUserById(userId, { email: newEmail })
+      if (authUpdateErr) return json({ error: `Auth email update failed: ${authUpdateErr.message}` }, 500, cors)
+
       const { data: sub } = await admin.from('subscriptions').select('stripe_customer_id').eq('user_id', userId).maybeSingle()
       if (sub?.stripe_customer_id && stripeKey) {
         const stripe = new Stripe(stripeKey, { apiVersion: '2024-06-20', timeout: 10000 })
         try {
           await stripe.customers.update(sub.stripe_customer_id, { email: newEmail })
-        } catch (e) { console.error('sync_email Stripe error:', e) }
+        } catch (e) {
+          console.error('sync_email Stripe error:', e)
+          return json({ error: 'Auth email updated but Stripe sync failed — update Stripe manually' }, 502, cors)
+        }
       }
       return json({ ok: true }, 200, cors)
     }
@@ -907,6 +944,23 @@ serve(async (req) => {
         mismatches,
         synced: mismatches.length === 0,
       }, 200, cors)
+    }
+
+    // ================================================================
+    // GET COACH CONVERSATIONS (for user detail panel)
+    // ================================================================
+    if (action === 'get_coach_conversations') {
+      const userId = body.user_id as string
+      if (!userId) return json({ error: 'Missing user_id' }, 400, cors)
+
+      const { data, error } = await admin
+        .from('coach_conversations')
+        .select('id, user_message, coach_reply, created_at')
+        .eq('user_id', userId)
+        .order('created_at', { ascending: false })
+        .limit(20)
+      if (error) return json({ error: error.message }, 500, cors)
+      return json({ ok: true, data: data ?? [] }, 200, cors)
     }
 
     return json({ error: `Unknown action: ${action}` }, 400, cors)

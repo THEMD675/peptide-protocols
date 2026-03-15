@@ -248,6 +248,7 @@ function CanonicalUrl() {
       <link rel="canonical" href={url} />
       <meta property="og:site_name" content="pptides" />
       <meta property="og:image:alt" content="pptides — أشمل دليل عربي للببتيدات العلاجية" />
+      <meta name="twitter:card" content="summary_large_image" />
       <meta name="twitter:site" content="@pptides" />
       <meta name="twitter:creator" content="@pptides" />
     </Helmet>

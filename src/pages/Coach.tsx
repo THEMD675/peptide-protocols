@@ -11,7 +11,7 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { events } from '@/lib/analytics';
-import { cn, arPlural, copyToClipboard } from '@/lib/utils';
+import { cn, arPlural, copyToClipboard, timeoutSignal } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
 import { SITE_URL, PRICING, TRIAL_DAYS } from '@/lib/constants';
 import { logError } from '@/lib/logger';
@@ -548,6 +548,10 @@ export default function Coach() {
     const lang = isArabic ? 'ar' : 'en';
     try {
       const token = await getSessionToken();
+      const connTimeout = timeoutSignal(30000);
+      const combinedSignal = typeof AbortSignal !== 'undefined' && 'any' in AbortSignal
+        ? AbortSignal.any([controller.signal, connTimeout])
+        : controller.signal;
       const res = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/ai-coach`, {
         method: 'POST',
         headers: {
@@ -561,7 +565,7 @@ export default function Coach() {
           conversationId: conversationIdRef.current,
           ...(lang === 'en' ? { lang: 'en' } : {}),
         }),
-        signal: controller.signal,
+        signal: combinedSignal,
       });
       if (!res.ok) {
         let errMsg = String(res.status);
@@ -618,7 +622,7 @@ export default function Coach() {
               const normalized = normalizeDigits(accumulated);
               setMessages(prev => {
                 const copy = [...prev];
-                copy[copy.length - 1] = { role: 'assistant', content: normalized };
+                copy[copy.length - 1] = { ...copy[copy.length - 1], content: normalized };
                 return copy;
               });
             }

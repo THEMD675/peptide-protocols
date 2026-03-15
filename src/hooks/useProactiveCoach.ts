@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { supabase } from '@/lib/supabase';
 import { logError } from '@/lib/logger';
 
@@ -701,6 +701,13 @@ export function useProactiveCoach(userId: string | undefined) {
   const [dailyBriefing, setDailyBriefing] = useState<DailyBriefing | null>(null);
   const [dashboardCards, setDashboardCards] = useState<ProactiveInsight[]>([]);
   const [loading, setLoading] = useState(true);
+  const lastRefreshRef = useRef(0);
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
+
+  const refresh = useCallback(() => {
+    lastRefreshRef.current = Date.now();
+    setRefreshTrigger(t => t + 1);
+  }, []);
 
   useEffect(() => {
     if (!userId) {
@@ -725,7 +732,7 @@ export function useProactiveCoach(userId: string | undefined) {
       });
 
     return () => { mounted = false; };
-  }, [userId]);
+  }, [userId, refreshTrigger]);
 
-  return { smartStarters, insights, dailyBriefing, dashboardCards, loading };
+  return { smartStarters, insights, dailyBriefing, dashboardCards, loading, refresh };
 }

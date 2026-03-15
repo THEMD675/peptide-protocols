@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { Component, type ErrorInfo, type ReactNode } from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App';
 import './index.css';
@@ -7,6 +7,33 @@ import { toast } from 'sonner';
 import { migrateQuizStorage } from '@/lib/quiz-migration';
 import { hasOptionalConsent } from '@/lib/cookie-utils';
 import { logError } from '@/lib/logger';
+
+class RootErrorBoundary extends Component<{ children: ReactNode }, { hasError: boolean }> {
+  state = { hasError: false };
+  static getDerivedStateFromError() { return { hasError: true }; }
+  componentDidCatch(error: Error, info: ErrorInfo) {
+    logError('Root ErrorBoundary caught:', error, info.componentStack);
+  }
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div dir="rtl" style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'Cairo, sans-serif', background: '#fafaf9', padding: 24 }}>
+          <div style={{ textAlign: 'center', maxWidth: 420 }}>
+            <h1 style={{ fontSize: 24, fontWeight: 'bold', color: '#1c1917', marginBottom: 12 }}>حدث خطأ غير متوقع</h1>
+            <p style={{ fontSize: 16, color: '#57534e', marginBottom: 24, lineHeight: 1.7 }}>نعتذر عن هذا الخطأ. يرجى إعادة تحميل الصفحة.</p>
+            <button
+              onClick={() => window.location.reload()}
+              style={{ background: '#059669', color: '#fff', border: 'none', borderRadius: 9999, padding: '14px 40px', fontSize: 16, fontWeight: 'bold', cursor: 'pointer' }}
+            >
+              إعادة تحميل
+            </button>
+          </div>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
 
 // Migrate old quiz/onboarding localStorage keys to unified key
 migrateQuizStorage();
@@ -77,7 +104,9 @@ window.addEventListener('unhandledrejection', (e) => {
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
-    <App />
+    <RootErrorBoundary>
+      <App />
+    </RootErrorBoundary>
   </React.StrictMode>
 );
 
@@ -91,6 +120,19 @@ if ('serviceWorker' in navigator && import.meta.env.PROD) {
       type: 'SET_SUPABASE_CONFIG',
       url: import.meta.env.VITE_SUPABASE_URL,
       key: import.meta.env.VITE_SUPABASE_ANON_KEY,
+    });
+    // Send user token to SW for offline injection replay (RLS requires user JWT)
+    import('@/lib/supabase').then(({ supabase }) => {
+      supabase.auth.getSession().then(({ data }) => {
+        if (data.session?.access_token) {
+          reg.active?.postMessage({ type: 'SET_USER_TOKEN', token: data.session.access_token });
+        }
+      });
+      supabase.auth.onAuthStateChange((_event, session) => {
+        if (session?.access_token) {
+          reg.active?.postMessage({ type: 'SET_USER_TOKEN', token: session.access_token });
+        }
+      });
     });
     reg.addEventListener('updatefound', () => {
       const newSW = reg.installing;

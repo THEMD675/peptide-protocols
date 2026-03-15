@@ -39,9 +39,14 @@ let flushTimer: ReturnType<typeof setTimeout> | null = null;
 
 async function flushEvents() {
   if (eventQueue.length === 0) return;
-  const batch = eventQueue.splice(0, eventQueue.length);
+  const batch = [...eventQueue];
   try {
-    await supabase.from('analytics_events').insert(batch);
+    const { error } = await supabase.from('analytics_events').insert(batch);
+    if (error) {
+      logError('[analytics] flush failed:', error);
+      return;
+    }
+    eventQueue.splice(0, batch.length);
   } catch (e) {
     logError('[analytics] flush failed:', e);
   }

@@ -215,6 +215,23 @@ export default function Contact() {
     }
     setSubmitting(true);
     try {
+      if (TURNSTILE_SITE_KEY && turnstileToken) {
+        const verifyRes = await fetch(
+          `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/validate-turnstile`,
+          {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', apikey: import.meta.env.VITE_SUPABASE_ANON_KEY },
+            body: JSON.stringify({ token: turnstileToken }),
+          }
+        );
+        const verifyData = await verifyRes.json().catch(() => ({ success: false }));
+        if (!verifyRes.ok || !verifyData.success) {
+          setFieldErrors(prev => ({ ...prev, turnstile: verifyData.error || 'فشل التحقق الأمني — حاول مرة أخرى' }));
+          setSubmitting(false);
+          return;
+        }
+      }
+
       const { error } = await supabase.from('enquiries').insert({
         user_id: user?.id ?? null,
         email: email.trim().slice(0, 320),

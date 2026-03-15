@@ -46,6 +46,8 @@ export default function TrialBanner() {
       const tier = (subscription.tier === 'elite' || subscription.tier === 'essentials') ? subscription.tier : 'essentials';
       await upgradeTo(tier, 'monthly', coupon);
     } catch {
+      // handled by finally
+    } finally {
       setUpgradeLoading(false);
     }
   };

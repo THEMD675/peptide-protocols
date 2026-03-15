@@ -299,12 +299,11 @@ serve(async (req) => {
       let monthRevenue = 0
       for (const s of paidSubs) {
         if (!s.current_period_end || s.status === 'trial') continue
-        const periodEnd = new Date(s.current_period_end).getTime()
         const createdAt = new Date(s.created_at).getTime()
-        if (periodEnd >= monthStart && createdAt < nextMonth) {
-          const isAnnual = s.billing_interval === 'annual' || s.billing_interval === 'yearly'
-          if (s.tier === 'essentials') monthRevenue += isAnnual ? mrrEssentialsAnnual / 12 : mrrEssentialsMonthly
-          else if (s.tier === 'elite') monthRevenue += isAnnual ? mrrEliteAnnual / 12 : mrrEliteMonthly
+        if (createdAt >= monthStart && createdAt < nextMonth) {
+          const isAnnual = s.billing_interval === 'year'
+          if (s.tier === 'essentials') monthRevenue += isAnnual ? mrrEssentialsAnnual : mrrEssentialsMonthly
+          else if (s.tier === 'elite') monthRevenue += isAnnual ? mrrEliteAnnual : mrrEliteMonthly
         }
       }
       revenueByMonth.push({ month: monthStr, revenue: Math.round(monthRevenue) })
@@ -380,12 +379,16 @@ serve(async (req) => {
         arr: Math.round(mrr * 12),
         arpu: mrrEligibleSubs.length > 0 ? Math.round((mrr / mrrEligibleSubs.length) * 100) / 100 : 0,
         churnRate: (() => {
-          const cancelledThisMonth = subs.filter(s =>
+          const cancelledThisMonth = paidSubs.filter(s =>
             (s.status === 'cancelled' || s.status === 'expired') &&
-            s.updated_at && new Date(s.updated_at) > monthAgo &&
-            s.stripe_subscription_id
+            s.current_period_end &&
+            new Date(s.current_period_end) > monthAgo &&
+            new Date(s.current_period_end) <= now
           ).length
-          const activeAtMonthStart = activeSubs.length + cancelledThisMonth
+          const establishedActive = activeSubs.filter(s =>
+            new Date(s.created_at) <= monthAgo
+          ).length
+          const activeAtMonthStart = establishedActive + cancelledThisMonth
           return activeAtMonthStart > 0 ? Math.round((cancelledThisMonth / activeAtMonthStart) * 100) : 0
         })(),
         totalInjectionLogs: logsResult.count ?? logs.length,

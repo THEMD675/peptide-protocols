@@ -29,10 +29,8 @@ const userNavLinks = [
 const guestToolLinks = [
   { to: '/calculator', label: 'حاسبة الجرعات' },
   { to: '/table', label: 'جدول المقارنة' },
-  { to: '/interactions', label: 'فحص التعارضات' },
   { to: '/compare', label: 'مقارنة الببتيدات' },
   { to: '/stacks', label: 'البروتوكولات المُجمَّعة' },
-  { to: '/lab-guide', label: 'دليل التحاليل' },
   { to: '/glossary', label: 'المصطلحات' },
   { to: '/sources', label: 'المصادر العلمية' },
 ] as const;

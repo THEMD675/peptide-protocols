@@ -98,10 +98,23 @@ serve(async (req) => {
       page++
     }
 
+    // Filter out users who opted out of email notifications
+    const trialUserIds = trialUsers.map(s => s.user_id)
+    const optedOutSet = new Set<string>()
+    if (trialUserIds.length > 0) {
+      const { data: optedOut } = await supabase
+        .from('user_profiles')
+        .select('user_id')
+        .in('user_id', trialUserIds)
+        .eq('email_notifications_enabled', false)
+      for (const p of optedOut ?? []) optedOutSet.add(p.user_id)
+    }
+
     let sent = 0, skipped = 0, failed = 0
 
     for (const sub of trialUsers) {
       try {
+        if (optedOutSet.has(sub.user_id)) { skipped++; continue }
         const email = userIdToEmail.get(sub.user_id)
         if (!email) { skipped++; continue }
 

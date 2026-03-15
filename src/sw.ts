@@ -107,10 +107,11 @@ async function replayQueue() {
     try {
       const supabaseUrl = (self as unknown as Record<string, string>).__SUPABASE_URL;
       const supabaseKey = (self as unknown as Record<string, string>).__SUPABASE_KEY;
-      if (!supabaseUrl || !supabaseKey) break;
+      const userToken = (self as unknown as Record<string, string>).__USER_TOKEN;
+      if (!supabaseUrl || !supabaseKey || !userToken) break;
       const res = await fetch(`${supabaseUrl}/rest/v1/injection_logs`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', apikey: supabaseKey, Authorization: `Bearer ${supabaseKey}`, Prefer: 'return=minimal' },
+        headers: { 'Content-Type': 'application/json', apikey: supabaseKey, Authorization: `Bearer ${userToken}`, Prefer: 'return=minimal' },
         body: JSON.stringify(item.payload),
       });
       if (res.ok) {
@@ -136,15 +137,14 @@ self.addEventListener('message', (event) => {
     (self as unknown as Record<string, string>).__SUPABASE_URL = event.data.url;
     (self as unknown as Record<string, string>).__SUPABASE_KEY = event.data.key;
   }
+  if (event.data?.type === 'SET_USER_TOKEN') {
+    (self as unknown as Record<string, string>).__USER_TOKEN = event.data.token;
+  }
 });
 
-// Auto-activate new SW immediately on install — don't wait for tabs to close
 self.addEventListener('install', (event) => {
   event.waitUntil(
-    Promise.all([
-      caches.open(OFFLINE_CACHE).then((cache) => cache.add(OFFLINE_PAGE)),
-      self.skipWaiting(),
-    ])
+    caches.open(OFFLINE_CACHE).then((cache) => cache.add(OFFLINE_PAGE))
   );
 });
 
