@@ -65,7 +65,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (schedule === 'daily' && SUPABASE_URL && SUPABASE_SERVICE_KEY) {
     try {
       const cutoff = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
-      await fetch(`${SUPABASE_URL}/rest/v1/notifications?created_at=lt.${cutoff}&is_read=eq.true`, {
+      await fetch(`${SUPABASE_URL}/rest/v1/notifications?created_at=lt.${cutoff}&read=eq.true`, {
         method: 'DELETE',
         headers: { apikey: SUPABASE_SERVICE_KEY, Authorization: `Bearer ${SUPABASE_SERVICE_KEY}`, Prefer: 'return=minimal' },
       });
