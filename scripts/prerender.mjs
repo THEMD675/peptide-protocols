@@ -84,6 +84,21 @@ function extractPeptideIds() {
   return [...new Set(matches.map((m) => m[1]))];
 }
 
+/** Fetch published blog post slugs from Supabase for prerendering */
+async function fetchBlogSlugs() {
+  const url = process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL;
+  const key = process.env.VITE_SUPABASE_ANON_KEY;
+  if (!url || !key) { console.log('  Skipping blog slug fetch (no Supabase env vars)'); return []; }
+  try {
+    const res = await fetch(`${url}/rest/v1/blog_posts?is_published=eq.true&select=slug&order=published_at.desc&limit=100`, {
+      headers: { apikey: key, Authorization: `Bearer ${key}` },
+    });
+    if (!res.ok) { console.log(`  Blog slug fetch failed: ${res.status}`); return []; }
+    const posts = await res.json();
+    return posts.map(p => `/blog/${p.slug}`);
+  } catch (e) { console.log(`  Blog slug fetch error: ${e.message}`); return []; }
+}
+
 /** Serve dist/ on a random port and return { server, port } */
 function startServer() {
   return new Promise((resolve) => {
@@ -198,12 +213,15 @@ async function main() {
     process.exit(1);
   }
 
-  // Collect all routes
+  // Collect all routes including blog posts
   const peptideIds = extractPeptideIds();
   const peptideNames = extractPeptideNames();
+  const blogSlugs = await fetchBlogSlugs();
+  if (blogSlugs.length > 0) console.log(`  Found ${blogSlugs.length} blog posts to prerender`);
   const routes = [
     ...STATIC_ROUTES,
     ...peptideIds.map((id) => `/peptide/${id}`),
+    ...blogSlugs,
   ];
 
   // Fallback: if Puppeteer unavailable, inject metadata via string replacement
@@ -316,7 +334,8 @@ main().catch((err) => {
   try {
     const peptideIds = extractPeptideIds();
     const peptideNames = extractPeptideNames();
-    const routes = [...STATIC_ROUTES, ...peptideIds.map((id) => `/peptide/${id}`)];
+    const blogSlugsRetry = await fetchBlogSlugs().catch(() => []);
+    const routes = [...STATIC_ROUTES, ...peptideIds.map((id) => `/peptide/${id}`), ...blogSlugsRetry];
     console.log('Attempting lightweight metadata injection as last resort...');
     lightweightPrerender(routes, peptideNames);
   } catch (fallbackErr) {
