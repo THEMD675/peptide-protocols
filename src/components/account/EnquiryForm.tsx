@@ -166,9 +166,9 @@ export default function EnquiryForm({ userEmail, userId }: EnquiryFormProps) {
               <div key={h.id} className="flex items-center justify-between rounded-lg border border-stone-100 dark:border-stone-700 bg-stone-50 dark:bg-stone-900 px-3 py-2">
                 <div className="min-w-0 flex-1">
                   <p className="text-xs font-medium text-stone-800 dark:text-stone-200 truncate" title={h.subject}>{h.subject}</p>
-                  <p className="text-[10px] text-stone-500 dark:text-stone-300">{new Date(h.created_at).toLocaleDateString('ar-u-nu-latn')}</p>
+                  <p className="text-xs text-stone-500 dark:text-stone-300">{new Date(h.created_at).toLocaleDateString('ar-u-nu-latn')}</p>
                 </div>
-                <span className={cn('shrink-0 rounded-full px-2 py-0.5 text-[10px] font-bold', h.status === 'replied' ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400' : h.status === 'closed' ? 'bg-stone-200 dark:bg-stone-700 text-stone-600 dark:text-stone-300' : 'bg-amber-100 text-amber-700 dark:text-amber-400')}>{h.status === 'replied' ? 'تم الرد' : h.status === 'closed' ? 'مغلق' : 'قيد المراجعة'}</span>
+                <span className={cn('shrink-0 rounded-full px-2 py-0.5 text-xs font-bold', h.status === 'replied' ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400' : h.status === 'closed' ? 'bg-stone-200 dark:bg-stone-700 text-stone-600 dark:text-stone-300' : 'bg-amber-100 text-amber-700 dark:text-amber-400')}>{h.status === 'replied' ? 'تم الرد' : h.status === 'closed' ? 'مغلق' : 'قيد المراجعة'}</span>
               </div>
             ))}
           </div>

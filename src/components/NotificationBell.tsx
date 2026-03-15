@@ -208,7 +208,7 @@ export default function NotificationBell() {
       >
         <Bell className="h-5 w-5" />
         {unreadCount > 0 && (
-          <span className="absolute -end-0.5 -top-0.5 flex h-5 min-w-[20px] items-center justify-center rounded-full bg-emerald-600 px-1 text-[10px] font-bold text-white">
+          <span className="absolute -end-0.5 -top-0.5 flex h-5 min-w-[20px] items-center justify-center rounded-full bg-emerald-600 px-1 text-xs font-bold text-white">
             {unreadCount > 9 ? '٩+' : unreadCount}
           </span>
         )}
@@ -261,7 +261,7 @@ export default function NotificationBell() {
                         {n.title_ar}
                       </p>
                       <p className="mt-0.5 text-xs text-stone-500 dark:text-stone-300 line-clamp-2">{n.body_ar}</p>
-                      <p className="mt-1 text-[10px] text-stone-400">
+                      <p className="mt-1 text-xs text-stone-400">
                         {formatTimeAgo(n.created_at)}
                       </p>
                     </div>

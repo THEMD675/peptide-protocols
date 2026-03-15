@@ -76,9 +76,9 @@ export default function SavedProtocols({ userId }: SavedProtocolsProps) {
                     <p className="text-sm font-bold text-stone-900 dark:text-stone-100 truncate">{protocol.title}</p>
                     <div className="flex items-center gap-2 mt-0.5">
                       {protocol.peptides.slice(0, 3).map(p => (
-                        <span key={p} className="text-[10px] rounded-full bg-stone-100 dark:bg-stone-800 px-2 py-0.5 text-stone-600 dark:text-stone-300 font-medium">{p}</span>
+                        <span key={p} className="text-xs rounded-full bg-stone-100 dark:bg-stone-800 px-2 py-0.5 text-stone-600 dark:text-stone-300 font-medium">{p}</span>
                       ))}
-                      <span className="text-[10px] text-stone-500 dark:text-stone-400">
+                      <span className="text-xs text-stone-500 dark:text-stone-400">
                         {new Date(protocol.created_at).toLocaleDateString('ar-u-nu-latn', { month: 'short', day: 'numeric' })}
                       </span>
                     </div>

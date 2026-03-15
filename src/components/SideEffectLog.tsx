@@ -330,7 +330,7 @@ export default function SideEffectLog() {
                 {frequencyInsights.map(([name, count]) => (
                   <span key={name} className="inline-flex items-center gap-1 rounded-full bg-amber-100 dark:bg-amber-900/40 px-2.5 py-1 text-xs font-bold text-amber-800 dark:text-amber-300">
                     {name}
-                    <span className="rounded-full bg-amber-200 dark:bg-amber-800 px-1.5 text-[10px]">{count}×</span>
+                    <span className="rounded-full bg-amber-200 dark:bg-amber-800 px-1.5 text-xs">{count}×</span>
                   </span>
                 ))}
               </div>
@@ -398,7 +398,7 @@ export default function SideEffectLog() {
                         <span className="text-sm font-bold text-stone-900 dark:text-stone-100">{entry.symptom}</span>
                         <span
                           className={cn(
-                            'rounded-full px-2 py-0.5 text-[10px] font-bold border',
+                            'rounded-full px-2 py-0.5 text-xs font-bold border',
                             SEVERITY_COLORS[Math.max(0, Math.min(4, (entry.severity || 1) - 1))],
                           )}
                         >

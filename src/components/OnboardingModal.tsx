@@ -245,7 +245,7 @@ export default function OnboardingModal({ forceOpen, onClose: externalClose }: {
                         </button>
                       ))}
                     </div>
-                    <div className="mt-1 flex justify-between text-[10px] text-stone-400 dark:text-stone-500">
+                    <div className="mt-1 flex justify-between text-xs text-stone-400 dark:text-stone-500">
                       <span>{metric.low}</span>
                       <span>{metric.high}</span>
                     </div>
@@ -312,7 +312,7 @@ export default function OnboardingModal({ forceOpen, onClose: externalClose }: {
                   >
                     <div className="relative flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-100 dark:bg-emerald-900/30">
                       <item.icon className="h-5 w-5 text-emerald-700" />
-                      <span className="absolute -top-1 -end-1 flex h-5 w-5 items-center justify-center rounded-full bg-emerald-600 text-[10px] font-bold text-white">{i + 1}</span>
+                      <span className="absolute -top-1 -end-1 flex h-5 w-5 items-center justify-center rounded-full bg-emerald-600 text-xs font-bold text-white">{i + 1}</span>
                     </div>
                     <div>
                       <p className="text-xs font-bold text-emerald-700">{item.day}</p>

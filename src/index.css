@@ -10,6 +10,10 @@ html.dark {
 @tailwind utilities;
 
 :root {
+  /* ═══ Brand colors ═══ */
+  --emerald-500: var(--emerald-500, #10b981);
+  --emerald-600: #059669;
+
   /* ═══ Core design tokens ═══ */
   --text: #0a0a0a;
   --muted: #78716c;
@@ -142,7 +146,7 @@ html.dark {
     text-align: start;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    caret-color: var(--color-emerald-500, #10b981);
+    caret-color: var(--color-emerald-500, var(--emerald-500, #10b981));
     overflow-x: hidden;
     padding-bottom: env(safe-area-inset-bottom);
   }
@@ -176,7 +180,7 @@ html.dark {
   input:focus,
   textarea:focus,
   select:focus {
-    caret-color: var(--color-emerald-500, #10b981);
+    caret-color: var(--color-emerald-500, var(--emerald-500, #10b981));
   }
 }
 
@@ -205,7 +209,7 @@ html.dark {
 
   /* ═══ Gradient utilities — remapped to emerald ═══ */
   .primary-gradient {
-    background: linear-gradient(135deg, var(--color-emerald-500, #10b981) 0%, #34d399 100%);
+    background: linear-gradient(135deg, var(--color-emerald-500, var(--emerald-500, #10b981)) 0%, #34d399 100%);
   }
   .primary-border {
     border: 1px solid rgba(16, 185, 129, 0.3);
@@ -574,7 +578,7 @@ html.dark ::-webkit-scrollbar-thumb:hover { background: #57534e; }
   transform: translateX(-50%);
   z-index: 9990;
   padding: 0.75rem 1.5rem;
-  background: var(--color-emerald-500, #10b981);
+  background: var(--color-emerald-500, var(--emerald-500, #10b981));
   color: white;
   font-weight: 700;
   font-size: 0.875rem;
@@ -589,7 +593,7 @@ html.dark ::-webkit-scrollbar-thumb:hover { background: #57534e; }
 }
 
 *:focus-visible {
-  outline: 2px solid var(--color-emerald-500, #10b981);
+  outline: 2px solid var(--color-emerald-500, var(--emerald-500, #10b981));
   outline-offset: 2px;
   border-radius: 4px;
 }
@@ -654,7 +658,7 @@ html.dark ::-webkit-scrollbar-thumb:hover { background: #57534e; }
 
 /* ═══ Primary CTA gradient ═══ */
 .btn-cta-gradient {
-  background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+  background: linear-gradient(135deg, #059669 0%, var(--emerald-500, #10b981) 100%);
   box-shadow: 0 4px 14px rgba(16, 185, 129, 0.25), 0 1px 3px rgba(0, 0, 0, 0.12);
   transition: all 0.25s cubic-bezier(0.23, 1, 0.32, 1);
 }

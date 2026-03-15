@@ -129,7 +129,7 @@ export default function CoachHistory({
           <History className="h-4 w-4 text-stone-500 dark:text-stone-300" />
           <span className="text-sm font-bold text-stone-700 dark:text-stone-200">المحادثات السابقة</span>
           {conversations.length > 0 && (
-            <span className="rounded-full bg-stone-100 dark:bg-stone-800 px-2 py-0.5 text-[10px] font-bold text-stone-500 dark:text-stone-300">
+            <span className="rounded-full bg-stone-100 dark:bg-stone-800 px-2 py-0.5 text-xs font-bold text-stone-500 dark:text-stone-300">
               {conversations.length}
             </span>
           )}
@@ -172,7 +172,7 @@ export default function CoachHistory({
                         <ChevronLeft className={cn('h-4 w-4 shrink-0 text-stone-400 transition-transform', isExpanded && '-rotate-90')} />
                         <div className="min-w-0 flex-1">
                           <p className="text-sm font-bold text-stone-800 dark:text-stone-200 truncate" title={topic}>{topic}</p>
-                          <p className="text-[10px] text-stone-500 dark:text-stone-300">
+                          <p className="text-xs text-stone-500 dark:text-stone-300">
                             {msgCount} رسالة · {formatDate(conv.updated_at)}
                           </p>
                         </div>

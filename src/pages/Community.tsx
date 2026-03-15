@@ -1556,7 +1556,7 @@ export default function Community() {
                               <MessageCircle className="h-4 w-4" />
                               <span>رد</span>
                               {replyCount > 0 && (
-                                <span className="rounded-full bg-emerald-600 px-1.5 py-0.5 text-[10px] font-bold text-white leading-none">
+                                <span className="rounded-full bg-emerald-600 px-1.5 py-0.5 text-xs font-bold text-white leading-none">
                                   {replyCount}
                                 </span>
                               )}
@@ -1589,7 +1589,7 @@ export default function Community() {
                                   <div className="min-w-0 flex-1">
                                     <div className="flex items-center gap-2 flex-wrap">
                                       {reply.is_subscriber && (
-                                        <span className="inline-flex items-center gap-0.5 rounded-full bg-emerald-100 dark:bg-emerald-900/30 px-2 py-0.5 text-[10px] font-bold text-emerald-700 dark:text-emerald-400">
+                                        <span className="inline-flex items-center gap-0.5 rounded-full bg-emerald-100 dark:bg-emerald-900/30 px-2 py-0.5 text-xs font-bold text-emerald-700 dark:text-emerald-400">
                                           <BadgeCheck className="h-3 w-3" />
                                           مشترك
                                         </span>

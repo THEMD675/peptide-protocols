@@ -33,7 +33,8 @@ export default function Modal({ open, title, children, onClose, maxWidth = 'max-
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" onClick={onClose}>
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 animate-fade-in" onClick={onClose}>
+      <div className="absolute inset-0 bg-black/50" aria-hidden="true" />
       <Suspense fallback={null}>
       <FocusTrap focusTrapOptions={{ allowOutsideClick: true }}>
       <div
@@ -42,7 +43,7 @@ export default function Modal({ open, title, children, onClose, maxWidth = 'max-
         role="dialog"
         aria-modal="true"
         aria-labelledby={titleId}
-        className={cn('w-full max-h-[90vh] overflow-y-auto rounded-2xl bg-white dark:bg-stone-800 p-6 shadow-xl dark:shadow-stone-900/40 outline-none', maxWidth)}
+        className={cn('relative w-full max-h-[90vh] overflow-y-auto rounded-2xl bg-white dark:bg-stone-800 p-6 shadow-xl dark:shadow-stone-900/40 outline-none animate-scale-in', maxWidth)}
         onClick={e => e.stopPropagation()}
       >
         <div className="flex items-center justify-between mb-4">
@@ -59,6 +60,6 @@ export default function Modal({ open, title, children, onClose, maxWidth = 'max-
       </div>
       </FocusTrap>
       </Suspense>
-    </div>
+      </div>
   );
 }

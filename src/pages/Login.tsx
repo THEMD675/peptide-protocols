@@ -833,19 +833,19 @@ export default function Login() {
                       )}
                       <ul className="space-y-1 text-xs" aria-label="متطلبات كلمة المرور">
                         <li className={cn('flex items-center gap-2', hasMinLength ? 'text-emerald-700' : 'text-stone-500 dark:text-stone-300')}>
-                          <span className={cn('flex h-4 w-4 shrink-0 items-center justify-center rounded-full text-[10px] font-bold', hasMinLength ? 'bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700' : 'bg-stone-100 dark:bg-stone-800 text-stone-400')} aria-hidden>
+                          <span className={cn('flex h-4 w-4 shrink-0 items-center justify-center rounded-full text-xs font-bold', hasMinLength ? 'bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700' : 'bg-stone-100 dark:bg-stone-800 text-stone-400')} aria-hidden>
                             {hasMinLength ? '✓' : '○'}
                           </span>
                           8 أحرف على الأقل
                         </li>
                         <li className={cn('flex items-center gap-2', hasLetter ? 'text-emerald-700' : 'text-stone-500 dark:text-stone-300')}>
-                          <span className={cn('flex h-4 w-4 shrink-0 items-center justify-center rounded-full text-[10px] font-bold', hasLetter ? 'bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700' : 'bg-stone-100 dark:bg-stone-800 text-stone-400')} aria-hidden>
+                          <span className={cn('flex h-4 w-4 shrink-0 items-center justify-center rounded-full text-xs font-bold', hasLetter ? 'bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700' : 'bg-stone-100 dark:bg-stone-800 text-stone-400')} aria-hidden>
                             {hasLetter ? '✓' : '○'}
                           </span>
                           حرف واحد على الأقل
                         </li>
                         <li className={cn('flex items-center gap-2', hasNumber ? 'text-emerald-700' : 'text-stone-500 dark:text-stone-300')}>
-                          <span className={cn('flex h-4 w-4 shrink-0 items-center justify-center rounded-full text-[10px] font-bold', hasNumber ? 'bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700' : 'bg-stone-100 dark:bg-stone-800 text-stone-400')} aria-hidden>
+                          <span className={cn('flex h-4 w-4 shrink-0 items-center justify-center rounded-full text-xs font-bold', hasNumber ? 'bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700' : 'bg-stone-100 dark:bg-stone-800 text-stone-400')} aria-hidden>
                             {hasNumber ? '✓' : '○'}
                           </span>
                           رقم واحد على الأقل

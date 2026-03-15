@@ -272,7 +272,7 @@ export default memo(function Header() {
               aria-label="بحث"
             >
               <Search className="h-4 w-4" />
-              <kbd className="hidden rounded-md border border-stone-200 dark:border-stone-600 bg-stone-100 dark:bg-stone-800 px-1 py-0.5 text-[10px] font-medium text-stone-500 dark:text-stone-400 lg:inline">⌘K</kbd>
+              <kbd className="hidden rounded-md border border-stone-200 dark:border-stone-600 bg-stone-100 dark:bg-stone-800 px-1 py-0.5 text-xs font-medium text-stone-500 dark:text-stone-400 lg:inline">⌘K</kbd>
             </button>
             <Suspense fallback={null}><GlobalSearch open={searchOpen} onClose={() => setSearchOpen(false)} /></Suspense>
 

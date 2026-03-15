@@ -889,7 +889,7 @@ export default function Coach() {
                       </div>
                       <div className="mt-1.5 flex justify-between">
                         {intakeSteps.map((step, idx) => (
-                          <span key={step} className={cn('text-[10px]', idx + 1 <= currentStep ? 'text-emerald-600 dark:text-emerald-400 font-medium' : 'text-stone-400 dark:text-stone-500')}>
+                          <span key={step} className={cn('text-xs', idx + 1 <= currentStep ? 'text-emerald-600 dark:text-emerald-400 font-medium' : 'text-stone-400 dark:text-stone-500')}>
                             {stepLabels[step]}
                           </span>
                         ))}
@@ -1141,13 +1141,13 @@ export default function Coach() {
                 </div>
                 {/* Timestamp */}
                 {msg.timestamp && !msg.content.startsWith('__ERROR') && (
-                  <p className={cn('mt-1 text-[10px] text-stone-500 dark:text-stone-300', msg.role === 'user' ? 'text-start ms-9' : 'text-end max-w-[88%] ms-auto')}>
+                  <p className={cn('mt-1 text-xs text-stone-500 dark:text-stone-300', msg.role === 'user' ? 'text-start ms-9' : 'text-end max-w-[88%] ms-auto')}>
                     {formatMessageTime(msg.timestamp)}
                   </p>
                 )}
                 {msg.role === 'assistant' && !msg.content.startsWith('__ERROR') && (
                   <div className="mt-1 flex items-center justify-end gap-2 max-w-[88%] ms-auto">
-                    <p className="text-[10px] text-stone-500 dark:text-stone-300">هذه معلومات تعليمية وليست نصيحة طبية — استشر طبيبك</p>
+                    <p className="text-xs text-stone-500 dark:text-stone-300">هذه معلومات تعليمية وليست نصيحة طبية — استشر طبيبك</p>
                     {!isLoading && msg.content.length > 20 && (
                       <div className="flex items-center gap-0.5 shrink-0">
                         <button

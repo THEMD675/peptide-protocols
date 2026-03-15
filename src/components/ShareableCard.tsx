@@ -133,7 +133,7 @@ export default memo(function ShareableCard(props: ShareableCardProps) {
             </div>
           )}
         </div>
-        <p className="mt-3 text-[10px] text-stone-400">pptides.com</p>
+        <p className="mt-3 text-xs text-stone-400">pptides.com</p>
       </div>
       <div className="mt-3 flex flex-wrap gap-2">
         <button

@@ -666,7 +666,7 @@ export default function PeptideQuiz() {
             <div className="flex items-center justify-between mb-3">
               <p className="text-xs font-bold text-emerald-700 dark:text-emerald-400">نتيجتك السابقة</p>
               {previousData.ts && (
-                <span className="text-[10px] text-stone-400">
+                <span className="text-xs text-stone-400">
                   {new Date(previousData.ts).toLocaleDateString('ar-u-nu-latn', { month: 'short', day: 'numeric' })}
                 </span>
               )}
@@ -739,7 +739,7 @@ export default function PeptideQuiz() {
           {/* Primary Peptide */}
           <div className="rounded-xl border border-emerald-200 dark:border-emerald-800 bg-white dark:bg-stone-900 p-5 mb-4">
             <div className="flex items-center gap-2 mb-1">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-700 bg-emerald-100 dark:bg-emerald-900/40 px-2 py-0.5 rounded-full">الببتيد الرئيسي</span>
+              <span className="text-xs font-bold uppercase tracking-wider text-emerald-700 bg-emerald-100 dark:bg-emerald-900/40 px-2 py-0.5 rounded-full">الببتيد الرئيسي</span>
             </div>
             <div className="flex items-center justify-between mb-2">
               <h3 className="text-xl font-black text-stone-900 dark:text-stone-100">{result.primary.nameAr}</h3>

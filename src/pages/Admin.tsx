@@ -613,7 +613,7 @@ export default function Admin() {
               مركز التحكم
               {critAlerts > 0 && <span className="rounded-full bg-red-100 px-2 py-0.5 text-xs font-bold text-red-700 dark:text-red-400">{critAlerts}</span>}
             </h1>
-            {lastFetched && <p className="text-[10px] text-stone-500 dark:text-stone-300">آخر تحديث {lastFetched.toLocaleTimeString('ar-u-nu-latn')}</p>}
+            {lastFetched && <p className="text-xs text-stone-500 dark:text-stone-300">آخر تحديث {lastFetched.toLocaleTimeString('ar-u-nu-latn')}</p>}
             </div>
           </div>
           <div className="flex items-center gap-2">
@@ -714,11 +714,11 @@ export default function Admin() {
                   <div className="flex items-center justify-between mb-4">
                     <h3 className="text-xs font-bold text-stone-700 dark:text-stone-200 flex items-center gap-1.5" dir="rtl">
                       <TrendingUp className="h-3.5 w-3.5 text-emerald-500" /> التسجيلات — {periodLabel}
-                      <span className="text-[10px] font-normal text-stone-500 dark:text-stone-400 ms-1">({totalInPeriod} إجمالي)</span>
+                      <span className="text-xs font-normal text-stone-500 dark:text-stone-400 ms-1">({totalInPeriod} إجمالي)</span>
                     </h3>
                     <div className="flex gap-1">
                       {(['daily', 'weekly', 'monthly'] as const).map(p => (
-                        <button key={p} onClick={() => setSignupsPeriod(p)} className={cn('rounded-lg px-2 py-1 text-[10px] font-medium', signupsPeriod === p ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400' : 'text-stone-500 dark:text-stone-300 hover:bg-stone-100 dark:hover:bg-stone-800')}>
+                        <button key={p} onClick={() => setSignupsPeriod(p)} className={cn('rounded-lg px-2 py-1 text-xs font-medium', signupsPeriod === p ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400' : 'text-stone-500 dark:text-stone-300 hover:bg-stone-100 dark:hover:bg-stone-800')}>
                           {p === 'daily' ? 'يومي' : p === 'weekly' ? 'أسبوعي' : 'شهري'}
                         </button>
                       ))}
@@ -816,11 +816,11 @@ export default function Admin() {
                   <div className="flex gap-4 mt-3 pt-3 border-t border-stone-100 dark:border-stone-700">
                     <div className="text-center flex-1">
                       <p className={cn('text-lg font-bold', stats.funnel.signupToTrial >= 20 ? 'text-emerald-700' : stats.funnel.signupToTrial >= 10 ? 'text-amber-600' : 'text-red-600')}>{stats.funnel.signupToTrial}%</p>
-                      <p className="text-[10px] text-stone-500 dark:text-stone-300">تسجيل ← تجريبي</p>
+                      <p className="text-xs text-stone-500 dark:text-stone-300">تسجيل ← تجريبي</p>
                     </div>
                     <div className="text-center flex-1">
                       <p className={cn('text-lg font-bold', stats.funnel.trialToPaid >= 30 ? 'text-emerald-700' : stats.funnel.trialToPaid >= 15 ? 'text-amber-600' : 'text-red-600')}>{stats.funnel.trialToPaid}%</p>
-                      <p className="text-[10px] text-stone-500 dark:text-stone-300">تجريبي ← مدفوع</p>
+                      <p className="text-xs text-stone-500 dark:text-stone-300">تجريبي ← مدفوع</p>
                     </div>
                   </div>
                 </div>
@@ -952,7 +952,7 @@ export default function Admin() {
                       const tl = u.subscription?.status === 'trial' ? trialLeft(u.subscription?.trial_ends_at ?? null) : null;
                       return (
                         <tr key={u.id} className="border-b border-stone-100 dark:border-stone-700 hover:bg-stone-50 dark:hover:bg-stone-800">
-                          <td className="px-3 py-2 font-mono text-xs"><button onClick={() => fetchUserDetail(u.id)} className="text-emerald-700 dark:text-emerald-400 hover:underline">{u.email}</button>{!u.confirmed && <span className="ms-1 text-[10px] text-amber-600">(غير مؤكد)</span>}</td>
+                          <td className="px-3 py-2 font-mono text-xs"><button onClick={() => fetchUserDetail(u.id)} className="text-emerald-700 dark:text-emerald-400 hover:underline">{u.email}</button>{!u.confirmed && <span className="ms-1 text-xs text-amber-600">(غير مؤكد)</span>}</td>
                           <td className="px-3 py-2 text-xs"><span className={cn('rounded-full px-2 py-0.5 text-xs', u.provider === 'google' ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400' : 'bg-stone-100 dark:bg-stone-800 text-stone-600 dark:text-stone-300')}>{u.provider}</span></td>
                           <td className="px-3 py-2"><Badge status={u.subscription?.status ?? 'none'} /></td>
                           <td className="px-3 py-2 text-xs">{u.subscription?.tier ?? '—'}</td>
@@ -1273,7 +1273,7 @@ export default function Admin() {
                         {c.status === 'ok' ? <CheckCircle className="h-4 w-4 text-emerald-500" /> : c.status === 'warning' ? <AlertTriangle className="h-4 w-4 text-amber-500" /> : <XCircle className="h-4 w-4 text-red-500 dark:text-red-400" />}
                       </div>
                       <p className="text-xs text-stone-600 dark:text-stone-300">{c.detail}</p>
-                      {c.ms > 0 && <p className="text-[10px] text-stone-400 mt-1">{c.ms}ms</p>}
+                      {c.ms > 0 && <p className="text-xs text-stone-400 mt-1">{c.ms}ms</p>}
                     </div>
                   ))}
                 </div>
@@ -1616,7 +1616,7 @@ export default function Admin() {
                           <div key={c.id} className="rounded-lg border border-stone-100 dark:border-stone-700 p-2 text-xs space-y-1">
                             <p className="text-stone-700 dark:text-stone-200"><span className="font-bold">المستخدم:</span> {c.user_message?.slice(0, 200)}</p>
                             <p className="text-emerald-700 dark:text-emerald-400"><span className="font-bold">المدرب:</span> {c.coach_reply?.slice(0, 200)}</p>
-                            <p className="text-stone-400 text-[10px]">{c.created_at ? timeAgo(c.created_at) : ''}</p>
+                            <p className="text-stone-400 text-xs">{c.created_at ? timeAgo(c.created_at) : ''}</p>
                           </div>
                         ))}
                       </div>
@@ -1698,7 +1698,7 @@ export default function Admin() {
                         {ud.side_effect_logs.map((s, i) => (
                           <li key={i} className="rounded-lg border border-stone-100 dark:border-stone-700 px-3 py-2 text-xs">
                             <span className="font-medium">{String(s.side_effect ?? s.effect ?? s.type ?? '—')}</span>
-                            {s.severity && <span className={cn('ms-2 rounded-full px-2 py-0.5 text-[10px] font-medium', String(s.severity) === 'severe' ? 'bg-red-100 text-red-700 dark:text-red-400' : String(s.severity) === 'moderate' ? 'bg-amber-100 text-amber-700 dark:text-amber-400' : 'bg-stone-100 dark:bg-stone-800 text-stone-600 dark:text-stone-300')}>{String(s.severity)}</span>}
+                            {s.severity && <span className={cn('ms-2 rounded-full px-2 py-0.5 text-xs font-medium', String(s.severity) === 'severe' ? 'bg-red-100 text-red-700 dark:text-red-400' : String(s.severity) === 'moderate' ? 'bg-amber-100 text-amber-700 dark:text-amber-400' : 'bg-stone-100 dark:bg-stone-800 text-stone-600 dark:text-stone-300')}>{String(s.severity)}</span>}
                             {s.notes && <span className="ms-2 text-stone-500 dark:text-stone-300">{String(s.notes)}</span>}
                             <span className="ms-2 text-stone-400">{s.created_at ? timeAgo(String(s.created_at)) : ''}</span>
                           </li>
@@ -1730,7 +1730,7 @@ export default function Admin() {
                         {ud.enquiries.map((eq, i) => (
                           <li key={i} className="rounded-lg border border-stone-100 dark:border-stone-700 px-3 py-2 text-xs">
                             <span className="font-medium">{String(eq.subject ?? '—')}</span>
-                            <span className={cn('ms-2 rounded-full px-2 py-0.5 text-[10px] font-medium', eq.status === 'pending' ? 'bg-amber-100 text-amber-700 dark:text-amber-400' : 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400')}>{String(eq.status)}</span>
+                            <span className={cn('ms-2 rounded-full px-2 py-0.5 text-xs font-medium', eq.status === 'pending' ? 'bg-amber-100 text-amber-700 dark:text-amber-400' : 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400')}>{String(eq.status)}</span>
                             <span className="ms-2 text-stone-400">{eq.created_at ? timeAgo(String(eq.created_at)) : ''}</span>
                           </li>
                         ))}
@@ -1746,7 +1746,7 @@ export default function Admin() {
                         {ud.email_logs.map((el, i) => (
                           <li key={i} className="flex items-center justify-between rounded-lg border border-stone-100 dark:border-stone-700 px-3 py-2 text-xs">
                             <span>{String(el.type ?? '—')}</span>
-                            <span className={cn('rounded-full px-2 py-0.5 text-[10px] font-medium', el.status === 'sent' ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400' : 'bg-red-100 text-red-700 dark:text-red-400')}>{String(el.status)}</span>
+                            <span className={cn('rounded-full px-2 py-0.5 text-xs font-medium', el.status === 'sent' ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400' : 'bg-red-100 text-red-700 dark:text-red-400')}>{String(el.status)}</span>
                             <span className="text-stone-400">{el.created_at ? timeAgo(String(el.created_at)) : ''}</span>
                           </li>
                         ))}
@@ -1764,7 +1764,7 @@ export default function Admin() {
                         {userNotes.map(n => (
                           <li key={n.id} className="rounded-lg border border-stone-100 dark:border-stone-700 px-3 py-2">
                             <p className="text-sm text-stone-800 dark:text-stone-200 whitespace-pre-wrap">{n.note}</p>
-                            <div className="mt-1 flex items-center gap-2 text-[10px] text-stone-400">
+                            <div className="mt-1 flex items-center gap-2 text-xs text-stone-400">
                               <span className="font-mono">{n.admin_email}</span>
                               <span>{timeAgo(n.created_at)}</span>
                             </div>

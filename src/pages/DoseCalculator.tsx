@@ -616,7 +616,7 @@ export default function DoseCalculator() {
                     <proto.icon className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
                     <div className="text-start">
                       <p className="text-xs font-bold text-stone-900 dark:text-stone-100">{proto.name}</p>
-                      <p className="text-[10px] text-stone-500 dark:text-stone-300" dir="ltr">{proto.peptides.join(' + ')}</p>
+                      <p className="text-xs text-stone-500 dark:text-stone-300" dir="ltr">{proto.peptides.join(' + ')}</p>
                     </div>
                   </button>
                 ))}
@@ -1615,7 +1615,7 @@ export default function DoseCalculator() {
                       <button key={name} onClick={() => setConverterPeptide(name)}
                         className={cn('flex-1 rounded-lg py-2.5 min-h-[44px] text-xs font-medium transition-all', converterPeptide === name ? 'bg-emerald-600 text-white' : 'text-stone-700 dark:text-stone-200')}>
                         <span className="block">{name}</span>
-                        <span className="block text-[10px] opacity-70">{data.note}</span>
+                        <span className="block text-xs opacity-70">{data.note}</span>
                       </button>
                     ))}
                   </div>

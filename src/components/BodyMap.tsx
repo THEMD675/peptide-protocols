@@ -59,7 +59,7 @@ export default memo(function BodyMap({ selected, suggested: suggestedProp, onSel
               onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onSelect(site.id); } }}
             />
             {suggested === site.id && selected !== site.id && (
-              <text x={site.cx} y={site.cy + 3} textAnchor="middle" className="fill-emerald-700 text-[10px] font-bold pointer-events-none">
+              <text x={site.cx} y={site.cy + 3} textAnchor="middle" className="fill-emerald-700 text-xs font-bold pointer-events-none">
                 ←
               </text>
             )}
