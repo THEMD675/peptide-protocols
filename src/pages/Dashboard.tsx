@@ -183,10 +183,14 @@ function useRecentActivity(userId: string | undefined) {
       .order('logged_at', { ascending: false })
       .gte('logged_at', cutoff)
       .limit(PAGE_SIZE)
-      .then(({ data, error: fetchError }) => {
+      .then(async ({ data, error: fetchError }) => {
         if (!mounted) return;
         resolved = true;
         if (fetchError) {
+          if (fetchError.message?.includes('JWT') || (fetchError as Record<string, unknown>).code === 'PGRST301') {
+            const { error: refreshErr } = await supabase.auth.refreshSession();
+            if (!refreshErr && mounted) { setRefetchKey(k => k + 1); return; }
+          }
           setError(true);
         } else if (data) {
           setLogs(data);
