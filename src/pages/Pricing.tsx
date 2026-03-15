@@ -243,15 +243,25 @@ export default function Pricing() {
       if (isLoadingPortal) return;
       setIsLoadingPortal(true);
       try {
-        const { data: { session } } = await supabase.auth.getSession();
+        let { data: { session } } = await supabase.auth.getSession();
         if (!session?.access_token) { toast.error('يرجى تسجيل الدخول'); return; }
         toast('جارٍ فتح إدارة الدفع...');
-        const res = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/create-portal-session`, {
+        let res = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/create-portal-session`, {
           method: 'POST',
           signal: timeoutSignal(15000),
           headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${session.access_token}`, apikey: import.meta.env.VITE_SUPABASE_ANON_KEY },
         });
-        if (!res.ok) { toast.error('تعذّر فتح إدارة الدفع'); return; }
+        if (res.status === 401) {
+          const { data: refreshData } = await supabase.auth.refreshSession();
+          if (refreshData?.session) {
+            res = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/create-portal-session`, {
+              method: 'POST',
+              signal: timeoutSignal(15000),
+              headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${refreshData.session.access_token}`, apikey: import.meta.env.VITE_SUPABASE_ANON_KEY },
+            });
+          }
+        }
+        if (!res.ok) { toast.error('تعذّر فتح إدارة الدفع — أعد تسجيل الدخول وحاول مرة أخرى'); return; }
         const { url } = await res.json();
         if (url && typeof url === 'string' && url.startsWith('https://') && url.includes('stripe.com')) window.location.href = url;
       } catch { toast.error('تعذّر فتح إدارة الدفع. حاول مرة أخرى.'); } finally { setIsLoadingPortal(false); }
