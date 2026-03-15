@@ -242,6 +242,8 @@ function PeptideReferenceCard({ presetName }: { presetName: string }) {
 export default function DoseCalculator() {
   const { subscription, isLoading: authLoading } = useAuth();
   const isProOrTrial = !authLoading && (subscription?.isProOrTrial ?? false);
+  const showDoseTab = true; // dose tab is always free — advertised on landing page
+  const showAdvancedTabs = isProOrTrial;
   const [activeTab, setActiveTab] = useState<TabId>('dose');
   const [doseUnit, setDoseUnit] = useState<DoseUnit>('mcg');
   const [doseValue, setDoseValue] = useState(250);
@@ -549,13 +551,43 @@ export default function DoseCalculator() {
           هذه الحاسبة للأغراض التعليمية فقط — استشر طبيبك قبل تعديل أي جرعة
         </div>
 
-        {/* ═══════════════ SUBSCRIPTION GATE ═══════════════ */}
-        {!authLoading && !isProOrTrial && (
+        {/* ═══════════════ TABS ═══════════════ */}
+        <div role="tablist" className="mb-6 flex gap-1 overflow-x-auto scrollbar-hide -mx-1 px-1 pb-1">
+          {TABS.map((tab) => {
+            const isLocked = tab.id !== 'dose' && !showAdvancedTabs;
+            return (
+              <button
+                key={tab.id}
+                role="tab"
+                aria-selected={activeTab === tab.id}
+                aria-controls={`panel-${tab.id}`}
+                id={`tab-${tab.id}`}
+                onClick={() => isLocked ? undefined : setActiveTab(tab.id)}
+                disabled={isLocked}
+                className={cn(
+                  'flex shrink-0 items-center gap-2 rounded-2xl px-4 py-3 min-h-[44px] text-sm font-medium transition-all',
+                  activeTab === tab.id
+                    ? 'bg-emerald-600 text-white shadow-md'
+                    : isLocked
+                    ? 'border border-stone-200/50 dark:border-stone-700/50 bg-stone-100 dark:bg-stone-900/50 text-stone-400 dark:text-stone-500 cursor-not-allowed'
+                    : 'border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 text-stone-600 dark:text-stone-300 hover:border-emerald-300 hover:text-emerald-700',
+                )}
+              >
+                {tab.icon}
+                <span>{tab.label}</span>
+                {isLocked && <Lock className="h-3 w-3" />}
+              </button>
+            );
+          })}
+        </div>
+
+        {/* ═══════════════ SUBSCRIPTION GATE (only when clicking locked tab) ═══════════════ */}
+        {!authLoading && !isProOrTrial && activeTab !== 'dose' && (
           <div className="mb-8 rounded-2xl border-2 border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-900/20 p-8 text-center">
             <Lock className="mx-auto mb-3 h-8 w-8 text-emerald-600" />
             <h2 className="text-xl font-bold text-stone-900 dark:text-stone-100 mb-2">اشترك للوصول الكامل</h2>
             <p className="text-sm text-stone-600 dark:text-stone-300 mb-4 max-w-md mx-auto">
-              حاسبة الجرعات الكاملة متاحة للمشتركين — حساب الجرعة، التخفيف، التكلفة الشهرية، ومحوّل الوحدات
+              حاسبة التخفيف، التكلفة الشهرية، ومحوّل الوحدات متاحة للمشتركين
             </p>
             <Link
               to="/pricing"
@@ -566,31 +598,8 @@ export default function DoseCalculator() {
           </div>
         )}
 
-        {/* ═══════════════ TABS ═══════════════ */}
-        {isProOrTrial && <div role="tablist" className="mb-6 flex gap-1 overflow-x-auto scrollbar-hide -mx-1 px-1 pb-1">
-          {TABS.map((tab) => (
-            <button
-              key={tab.id}
-              role="tab"
-              aria-selected={activeTab === tab.id}
-              aria-controls={`panel-${tab.id}`}
-              id={`tab-${tab.id}`}
-              onClick={() => setActiveTab(tab.id)}
-              className={cn(
-                'flex shrink-0 items-center gap-2 rounded-2xl px-4 py-3 min-h-[44px] text-sm font-medium transition-all',
-                activeTab === tab.id
-                  ? 'bg-emerald-600 text-white shadow-md'
-                  : 'border border-stone-200 dark:border-stone-600 bg-white dark:bg-stone-900 text-stone-600 dark:text-stone-300 hover:border-emerald-300 hover:text-emerald-700',
-              )}
-            >
-              {tab.icon}
-              <span>{tab.label}</span>
-            </button>
-          ))}
-        </div>}
-
-        {/* ═══════════════ TAB 1: DOSE CALCULATOR ═══════════════ */}
-        {isProOrTrial && activeTab === 'dose' && (
+        {/* ═══════════════ TAB 1: DOSE CALCULATOR (always free) ═══════════════ */}
+        {activeTab === 'dose' && (
           <div role="tabpanel" id="panel-dose" aria-labelledby="tab-dose">
             {/* Common Protocols Quick-Select */}
             <div className="mb-6">
@@ -1142,7 +1151,7 @@ export default function DoseCalculator() {
         )}
 
         {/* ═══════════════ TAB 2: RECONSTITUTION CALCULATOR ═══════════════ */}
-        {isProOrTrial && activeTab === 'reconstitution' && (
+        {showAdvancedTabs && activeTab === 'reconstitution' && (
           <div role="tabpanel" id="panel-reconstitution" aria-labelledby="tab-reconstitution" className="space-y-6">
             <div className="rounded-2xl border border-stone-200 dark:border-stone-600 bg-stone-50 dark:bg-stone-900 p-6 md:p-8">
               <div className="flex items-center gap-2 mb-6">
@@ -1380,7 +1389,7 @@ export default function DoseCalculator() {
         )}
 
         {/* ═══════════════ TAB 3: COST CALCULATOR ═══════════════ */}
-        {isProOrTrial && activeTab === 'cost' && (
+        {showAdvancedTabs && activeTab === 'cost' && (
           <div role="tabpanel" id="panel-cost" aria-labelledby="tab-cost" className="space-y-6">
             <div className="rounded-2xl border border-stone-200 dark:border-stone-600 bg-stone-50 dark:bg-stone-900 p-6 md:p-8">
               <div className="flex items-center gap-2 mb-6">
@@ -1552,7 +1561,7 @@ export default function DoseCalculator() {
         )}
 
         {/* ═══════════════ TAB 4: UNIT CONVERTER ═══════════════ */}
-        {isProOrTrial && activeTab === 'converter' && (
+        {showAdvancedTabs && activeTab === 'converter' && (
           <div role="tabpanel" id="panel-converter" aria-labelledby="tab-converter" className="space-y-6">
             <div className="rounded-2xl border border-stone-200 dark:border-stone-600 bg-stone-50 dark:bg-stone-900 p-6 md:p-8">
               <div className="flex items-center gap-2 mb-6">
@@ -1664,7 +1673,7 @@ export default function DoseCalculator() {
         )}
 
         {/* ═══════════════ FORMULAS (visible on dose tab) ═══════════════ */}
-        {isProOrTrial && activeTab === 'dose' && (
+        {activeTab === 'dose' && (
           <div className="mb-8 rounded-2xl border border-stone-200 dark:border-stone-600 bg-stone-50 dark:bg-stone-900">
             <button
               onClick={() => setShowFormulas(!showFormulas)}
