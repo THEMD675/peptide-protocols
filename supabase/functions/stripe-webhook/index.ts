@@ -808,8 +808,7 @@ serve(async (req) => {
       await supabase.from('failed_webhook_events').insert({
         event_id: event.id,
         event_type: event.type,
-        error_detail: `DB update failed for ${event.type}`,
-        processed_at: new Date().toISOString(),
+        error_message: `DB update failed for ${event.type}`,
       }).catch((e) => console.error('failed_webhook_events insert failed:', e))
       console.error(JSON.stringify({ severity: 'CRITICAL', action: 'webhook_db_failed', event_type: event.type, event_id: event.id, timestamp: new Date().toISOString() }))
       return jsonResponse({ error: 'Database update failed' }, 500)
