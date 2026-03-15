@@ -6,7 +6,7 @@ import tseslint from 'typescript-eslint'
 import { defineConfig, globalIgnores } from 'eslint/config'
 
 export default defineConfig([
-  globalIgnores(['dist']),
+  globalIgnores(['dist', '.next', 'node_modules', 'coverage']),
   {
     files: ['**/*.{ts,tsx}'],
     extends: [
@@ -22,6 +22,12 @@ export default defineConfig([
     rules: {
       '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_', varsIgnorePattern: '^_' }],
       'no-console': ['warn', { allow: ['warn', 'error'] }],
+    },
+  },
+  {
+    files: ['supabase/functions/**/*.ts', 'api/**/*.ts'],
+    rules: {
+      'no-console': 'off',
     },
   },
 ])

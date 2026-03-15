@@ -37,7 +37,7 @@ export default function TrialBanner() {
       const prot = (protocols as { count?: number | null }).count ?? 0;
       setUserStats({ injections: inj, protocols: prot });
     }).catch(() => {});
-  }, [user, subscription?.status]);
+  }, [user, subscription?.status, subscription?.trialDaysLeft]);
 
   const handleUpgrade = async (coupon?: string) => {
     if (upgradeLoading) return;

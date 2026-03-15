@@ -324,8 +324,7 @@ export default function DoseCalculator() {
     if (savedCalcs.length > 0) {
       loadSavedCalc(savedCalcs[0]);
     }
-  }, [selectedPreset, savedCalcs]); // eslint-disable-line react-hooks/exhaustive-deps
-  /* eslint-enable react-hooks/set-state-in-effect */
+  }, [selectedPreset, savedCalcs]);
 
   const syringe = SYRINGE_OPTIONS[syringeIdx];
   const recommendedWater = getRecommendedWater(vialMg);

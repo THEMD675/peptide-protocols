@@ -459,7 +459,7 @@ export default function Coach() {
           .catch(onSaveError);
       }
     }
-  }, [messages, intake, storageKey, isLoading, user?.id]);
+  }, [messages, intake, storageKey, isLoading, user?.id, conversationId]);
 
   useEffect(() => {
     try { sessionStorage.setItem(stepStorageKey, intakeStep); } catch { /* expected */ }
@@ -749,8 +749,9 @@ export default function Coach() {
   const peptideActions = lastAI ? extractPeptideActions(lastAI.content) : [];
   const aiMsgCount = messages.filter(m => m.role === 'assistant').length;
   const followUps = lastAI ? getFollowUps(lastAI.content, aiMsgCount <= 1) : [];
-  const contextualChips = useMemo(() => lastAI && !lastAI.content.startsWith('__ERROR') ? generateFollowUps(lastAI.content) : [], [lastAI?.content]);
-  const showProtocolSave = useMemo(() => lastAI ? hasProtocolContent(lastAI.content) : false, [lastAI?.content]);
+  const lastAIContent = lastAI?.content;
+  const contextualChips = useMemo(() => lastAIContent && !lastAIContent.startsWith('__ERROR') ? generateFollowUps(lastAIContent) : [], [lastAIContent]);
+  const showProtocolSave = useMemo(() => lastAIContent ? hasProtocolContent(lastAIContent) : false, [lastAIContent]);
   const isUserTyping = input.trim().length > 0;
 
   return (

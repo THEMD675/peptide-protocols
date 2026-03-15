@@ -67,5 +67,5 @@ export function logWarn(msg: string, data?: unknown): void {
 }
 
 export function logDebug(msg: string, data?: unknown): void {
-  if (import.meta.env.DEV) console.log(msg, data);
+  if (import.meta.env.DEV) console.warn('[debug]', msg, data);
 }

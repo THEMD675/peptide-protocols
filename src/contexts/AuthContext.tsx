@@ -345,7 +345,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   );
 
   useEffect(() => {
-    // eslint-disable-next-line prefer-const -- reassigned on line below
     let timeout: ReturnType<typeof setTimeout>;
 
     const syncProfile = async (userId: string, su: SupabaseUser) => {

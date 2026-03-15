@@ -121,8 +121,9 @@ export default function Tracker() {
 
   // Cleanup timeout on unmount
   useEffect(() => {
+    const ref = nextDoseTimerRef;
     return () => {
-      if (nextDoseTimerRef.current) clearTimeout(nextDoseTimerRef.current);
+      if (ref.current) clearTimeout(ref.current);
     };
   }, []);
 

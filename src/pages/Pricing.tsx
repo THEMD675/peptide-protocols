@@ -179,11 +179,11 @@ export default function Pricing() {
     const h = (e: PageTransitionEvent) => { if (e.persisted) { navigatingRef.current = false; setLoadingPlan(null); try { const saved = sessionStorage.getItem('pptides_billing_cycle'); if (saved === 'annual' || saved === 'monthly') setBillingCycle(saved); } catch { /* expected */ } } };
     window.addEventListener('pageshow', h);
     return () => window.removeEventListener('pageshow', h);
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- setBillingCycle is a stable useState setter
   }, []);
 
   useEffect(() => {
     let mounted = true;
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     try { const c = localStorage.getItem('pptides_user_count'); if (c) setUserCount(Number(c)); } catch { /* expected */ }
     supabase.rpc('get_active_subscriber_count')
       .then(({ data }) => { if (mounted && data != null && data > 0) { setUserCount(data); try { localStorage.setItem('pptides_user_count', String(data)); } catch { /* expected */ } } })
@@ -210,6 +210,7 @@ export default function Pricing() {
         toast.error(mapStripeError(msg));
       });
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- one-time auto-checkout on mount, guarded by autoCheckoutFired ref
   }, [searchParams, user, authLoading]);
 
   useEffect(() => {

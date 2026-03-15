@@ -426,6 +426,7 @@ export default function Community() {
     if (validS !== sortBy) setSortBy(validS);
     if (pf !== filterPeptide) setFilterPeptide(pf);
     if (p.trim() && user && subscription?.isProOrTrial) setShowForm(true);
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- intentional: only re-run on URL param changes, not on filter state changes (would loop)
   }, [searchParams, user, subscription]);
 
   const [hasMore, setHasMore] = useState(true);
@@ -677,7 +678,7 @@ export default function Community() {
       toast.error('تعذّر حذف الرد');
       await loadReplies(reply.post_id);
     }
-  }, [loadReplies]);
+  }, [loadReplies, user?.id]);
 
   useEffect(() => {
     loadCommunityLogs();
