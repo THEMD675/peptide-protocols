@@ -25,7 +25,7 @@
 | / | No | Landing (redirects to /dashboard if subscribed) |
 | /login | No | Login/signup |
 | /signup | No | Same as /login |
-| /library | No | 41+ peptide cards with FREE filter |
+| /library | No | 47 peptide cards with FREE filter |
 | /peptide/:id | No | Peptide detail + tease paywall (3 rows visible) |
 | /calculator | No | Dose calculator (free tool, SAR costs) |
 | /quiz | No | Goal-finding quiz |
@@ -98,7 +98,6 @@
 - Rate limiting on create-checkout, cancel-subscription, create-portal-session
 - CRON_SECRET constant-time comparison
 - Coach XSS: DOMPurify on print
-- Sentry maskAllText: true
 - Admin auth: server-side only (no ADMIN_EMAILS in client bundle)
 - Login rate limiting: persisted in sessionStorage
 - SW denylist: /dashboard, /tracker, /coach, /account, /admin

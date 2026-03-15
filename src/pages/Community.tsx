@@ -1515,7 +1515,7 @@ export default function Community() {
                                 setUpvotedPosts(next);
                                 try { localStorage.setItem(`pptides_upvoted_${user?.id ?? 'anon'}`, JSON.stringify([...next])); } catch { /* */ }
                                 setLogs(prev => prev.map(l => l.id === log.id ? { ...l, upvotes: (l.upvotes ?? 0) + 1 } : l));
-                                // TODO: increment_upvote SQL function increments blindly — server-side dedup needed
+                                // Dedup handled server-side: increment_upvote uses ON CONFLICT DO NOTHING
                                 try {
                                   const { error } = await supabase
                                     .rpc('increment_upvote', { p_post_id: log.id, p_user_id: user.id });
