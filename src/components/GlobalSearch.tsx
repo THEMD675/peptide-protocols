@@ -6,6 +6,7 @@ import { peptideSearchIndex, type PeptideSearchEntry } from '@/data/peptide-sear
 import { GLOSSARY_TERMS, type GlossaryTerm } from '@/data/glossary';
 import { supabase } from '@/lib/supabase';
 import { STORAGE_KEYS } from '@/lib/constants';
+import { events } from '@/lib/analytics';
 
 /* ── static page index ── */
 const PAGE_INDEX = [
@@ -89,6 +90,7 @@ export default function GlobalSearch({ open, onClose }: Props) {
   const [blogResults, setBlogResults] = useState<
     { slug: string; title_ar: string; excerpt_ar: string }[]
   >([]);
+  const searchTrackTimer = useRef<ReturnType<typeof setTimeout>>();
   const blogTimer = useRef<ReturnType<typeof setTimeout>>();
 
   /* focus input on open */
@@ -100,6 +102,17 @@ export default function GlobalSearch({ open, onClose }: Props) {
       requestAnimationFrame(() => inputRef.current?.focus());
     }
   }, [open]);
+
+  useEffect(() => {
+    if (searchTrackTimer.current) clearTimeout(searchTrackTimer.current);
+    const q = query.trim();
+    if (q.length >= 3) {
+      searchTrackTimer.current = setTimeout(() => {
+        events.searchUse(q.slice(0, 50));
+      }, 2000);
+    }
+    return () => { if (searchTrackTimer.current) clearTimeout(searchTrackTimer.current); };
+  }, [query]);
 
   /* debounced blog search */
   useEffect(() => {
