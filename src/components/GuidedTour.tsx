@@ -2,6 +2,7 @@ import { useCallback, useMemo } from 'react';
 import Joyride, { type CallBackProps, type Step, STATUS, EVENTS } from 'react-joyride';
 import { useTheme } from '@/hooks/useTheme';
 import { type TourId, markTourDone } from '@/components/tour-utils';
+import { PEPTIDE_COUNT } from '@/lib/constants';
 
 /* ─── Types ─────────────────────────────────────────────────── */
 
@@ -22,7 +23,7 @@ const DASHBOARD_STEPS: Step[] = [
   {
     target: '[data-tour="dash-library"]',
     placement: 'top',
-    content: 'المكتبة تحتوي على 48 ببتيد مع بروتوكولات كاملة',
+    content: `المكتبة تحتوي على ${PEPTIDE_COUNT} ببتيد مع بروتوكولات كاملة`,
     disableBeacon: true,
   },
   {

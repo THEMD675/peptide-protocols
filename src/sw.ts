@@ -1,6 +1,6 @@
 import { precacheAndRoute, cleanupOutdatedCaches } from 'workbox-precaching';
 import { registerRoute, NavigationRoute } from 'workbox-routing';
-import { CacheFirst } from 'workbox-strategies';
+import { CacheFirst, NetworkFirst } from 'workbox-strategies';
 import { CacheableResponsePlugin } from 'workbox-cacheable-response';
 import { ExpirationPlugin } from 'workbox-expiration';
 
@@ -45,15 +45,22 @@ registerRoute(
 // ═══ Navigation fallback: app shell for all non-API routes ═══
 const OFFLINE_CACHE = 'offline-fallback';
 const OFFLINE_PAGE = '/offline.html';
+const PAGES_CACHE = 'pages-cache';
 
-// Navigation: ALWAYS hit the network for HTML pages.
-// Never serve cached HTML — stale HTML references chunk hashes that no longer
-// exist on the server, causing white screens. Offline fallback is the only exception.
+// Navigation: NetworkFirst with pages-cache (maxEntries: 20) for offline.
+// On SW activate we clear pages-cache to avoid stale HTML referencing old chunk hashes.
+const pagesStrategy = new NetworkFirst({
+  cacheName: PAGES_CACHE,
+  networkTimeoutSeconds: 5,
+  plugins: [
+    new CacheableResponsePlugin({ statuses: [0, 200] }),
+    new ExpirationPlugin({ maxEntries: 20, maxAgeSeconds: 7 * 24 * 60 * 60 }),
+  ],
+});
 const navigationRoute = new NavigationRoute(
-  async ({ request }) => {
+  async (options) => {
     try {
-      const response = await fetch(request, { cache: 'no-store' });
-      return response;
+      return await pagesStrategy.handle(options);
     } catch {
       const cache = await caches.open(OFFLINE_CACHE);
       const fallback = await cache.match(OFFLINE_PAGE);
@@ -154,7 +161,7 @@ self.addEventListener('activate', (event) => {
     Promise.all([
       self.clients.claim(),
       // Clear old navigation cache to prevent serving stale HTML with wrong chunk hashes
-      caches.delete('pages-cache'),
+      caches.delete(PAGES_CACHE),
     ])
   );
 });

@@ -229,6 +229,13 @@ serve(async (req) => {
               `باقي ${daysRemaining} أيام على نهاية دورتك. اسأل المدرب الذكي عن الخطوة التالية — هل تحتاج فترة راحة أو دورة جديدة؟`,
               `${APP_URL}/coach`,
             )
+          } else if (daysRemaining <= 0 && daysRemaining >= -3 && proto.status === 'active') {
+            addNotification(
+              userId,
+              `انتهت دورة ${proto.peptide_id}`,
+              `انتهت دورتك. الخطوة التالية: فترة راحة أو تحاليل مخبرية. اسأل المدرب الذكي عن الخطة المناسبة.`,
+              `${APP_URL}/coach`,
+            )
           }
         }
       }
