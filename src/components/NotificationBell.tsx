@@ -86,7 +86,7 @@ export default function NotificationBell() {
             .from('notifications')
             .delete()
             .eq('user_id', user.id)
-            .eq('is_read', true)
+            .eq('read', true)
             .lt('created_at', new Date(Date.now() - 90 * 24 * 60 * 60 * 1000).toISOString())
             .then(({ error: pruneErr }) => {
               if (pruneErr) logError('notification pruning failed:', pruneErr);
