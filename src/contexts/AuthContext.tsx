@@ -427,16 +427,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         if (event === 'SIGNED_IN' && session?.user && !welcomeEmailSentRef.current) {
           welcomeEmailSentRef.current = true;
           try { sessionStorage.setItem('pptides_welcome_sent', '1'); } catch { /* restricted env */ }
-          const edgeFnUrl = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/send-welcome-email`;
-          fireAndForgetFetch(edgeFnUrl, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              Authorization: `Bearer ${session.access_token}`,
-              apikey: import.meta.env.VITE_SUPABASE_ANON_KEY,
-            },
-            body: JSON.stringify({ email: session.user.email, name: session.user.user_metadata?.full_name ?? '', referralCode: (() => { try { const r = localStorage.getItem('pptides_referral'); return r && /^PP-[A-Z0-9]{6}$/i.test(r) ? r : undefined; } catch { return undefined; } })() }),
-          }, 'Welcome email (SIGNED_IN)');
+          const isOAuth = session.user.app_metadata?.provider && session.user.app_metadata.provider !== 'email';
+          if (isOAuth) {
+            const edgeFnUrl = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/send-welcome-email`;
+            fireAndForgetFetch(edgeFnUrl, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${session.access_token}`,
+                apikey: import.meta.env.VITE_SUPABASE_ANON_KEY,
+              },
+              body: JSON.stringify({ email: session.user.email, name: session.user.user_metadata?.full_name ?? '', referralCode: (() => { try { const r = localStorage.getItem('pptides_referral'); return r && /^PP-[A-Z0-9]{6}$/i.test(r) ? r : undefined; } catch { return undefined; } })() }),
+            }, 'Welcome email (OAuth SIGNED_IN)');
+          }
         }
 
         await handleSession(session, event);
