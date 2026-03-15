@@ -242,7 +242,6 @@ function PeptideReferenceCard({ presetName }: { presetName: string }) {
 export default function DoseCalculator() {
   const { subscription, isLoading: authLoading } = useAuth();
   const isProOrTrial = !authLoading && (subscription?.isProOrTrial ?? false);
-  const showDoseTab = true; // dose tab is always free — advertised on landing page
   const showAdvancedTabs = isProOrTrial;
   const [activeTab, setActiveTab] = useState<TabId>('dose');
   const [doseUnit, setDoseUnit] = useState<DoseUnit>('mcg');
