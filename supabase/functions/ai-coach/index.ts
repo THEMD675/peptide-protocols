@@ -296,6 +296,13 @@ function checkDangerousDosage(text: string): boolean {
   return false
 }
 
+const SAFETY_DISCLAIMER = '\n\n⚠️ هذه المعلومات تعليمية فقط — استشر طبيبك قبل أي استخدام.'
+const SAFETY_TRIGGER_RE = /(?:inject yourself|حقن نفسك|buy from|اشترِ من|vendor|بائع|source.*online|مصدر.*أونلاين|where to (?:buy|get|purchase)|من أين (?:أشتري|أحصل)|prescription.*not needed|بدون وصفة|self[\s-]?medicate|علاج ذاتي)/i
+
+function checkOutputSafety(text: string): boolean {
+  return SAFETY_TRIGGER_RE.test(text)
+}
+
 serve(async (req) => {
   const corsHeaders = getCorsHeaders(req)
 
@@ -694,9 +701,12 @@ serve(async (req) => {
             const { done, value } = await reader.read()
             if (done || leaked) {
               if (!leaked) {
-                if (checkDangerousDosage(accumulatedContent)) {
-                  accumulatedContent += DOSAGE_WARNING
-                  controller.enqueue(encoder.encode(`data: ${JSON.stringify({ choices: [{ delta: { content: DOSAGE_WARNING } }] })}\n\n`))
+                let appendix = ''
+                if (checkDangerousDosage(accumulatedContent)) appendix += DOSAGE_WARNING
+                if (checkOutputSafety(accumulatedContent)) appendix += SAFETY_DISCLAIMER
+                if (appendix) {
+                  accumulatedContent += appendix
+                  controller.enqueue(encoder.encode(`data: ${JSON.stringify({ choices: [{ delta: { content: appendix } }] })}\n\n`))
                 }
                 await saveConversation(accumulatedContent)
                 await trackUsage()
@@ -729,9 +739,12 @@ serve(async (req) => {
               const doneIdx = text.indexOf('data: [DONE]')
               const contentPart = doneIdx > 0 ? text.slice(0, doneIdx) : ''
               if (contentPart.trim()) controller.enqueue(encoder.encode(contentPart))
-              if (checkDangerousDosage(accumulatedContent)) {
-                accumulatedContent += DOSAGE_WARNING
-                controller.enqueue(encoder.encode(`data: ${JSON.stringify({ choices: [{ delta: { content: DOSAGE_WARNING } }] })}\n\n`))
+              let appendix = ''
+              if (checkDangerousDosage(accumulatedContent)) appendix += DOSAGE_WARNING
+              if (checkOutputSafety(accumulatedContent)) appendix += SAFETY_DISCLAIMER
+              if (appendix) {
+                accumulatedContent += appendix
+                controller.enqueue(encoder.encode(`data: ${JSON.stringify({ choices: [{ delta: { content: appendix } }] })}\n\n`))
               }
               await saveConversation(accumulatedContent)
               await trackUsage()
@@ -767,10 +780,15 @@ serve(async (req) => {
         data.choices[0].message = data.choices[0].message ?? {}
         data.choices[0].message.content = SANITIZED_RESPONSE
       }
-    } else if (typeof content === 'string' && checkDangerousDosage(content)) {
-      content += DOSAGE_WARNING
-      if (data.choices?.[0]?.message) {
-        data.choices[0].message.content = content
+    } else if (typeof content === 'string') {
+      let appendix = ''
+      if (checkDangerousDosage(content)) appendix += DOSAGE_WARNING
+      if (checkOutputSafety(content)) appendix += SAFETY_DISCLAIMER
+      if (appendix) {
+        content += appendix
+        if (data.choices?.[0]?.message) {
+          data.choices[0].message.content = content
+        }
       }
     }
     // Save conversation server-side (non-streaming)
