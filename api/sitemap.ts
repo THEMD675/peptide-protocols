@@ -89,7 +89,7 @@ export default async function handler(_req: VercelRequest, res: VercelResponse) 
     return res.status(500).json({ error: 'SUPABASE_URL not configured' });
   }
   try {
-    const BUILD_DATE = '2026-03-14';
+    const BUILD_DATE = (process.env.VERCEL_GIT_COMMIT_DATE || new Date().toISOString()).split('T')[0];
     const entries: string[] = [];
 
     // 1. Static pages

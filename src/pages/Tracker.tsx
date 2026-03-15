@@ -317,7 +317,7 @@ export default function Tracker() {
       setLastLoggedPeptide(peptide?.nameEn ?? proto.peptide_id);
       const freq = proto.frequency;
       const nextIn = freq === 'bid' ? '12 ساعة' : freq === 'tid' ? '8 ساعات' : 'غدًا';
-      toast.success(`تم تسجيل ${peptide?.nameAr ?? proto.peptide_id} — ${proto.dose} ${proto.dose_unit}`, { duration: 6000, description: `الجرعة التالية: ${nextIn} — استمر في الالتزام!`, action: insertedId ? { label: 'تراجع', onClick: async () => { await supabase.from('injection_logs').delete().eq('id', insertedId).eq('user_id', user.id); fetchLogs(); toast.success('تم التراجع عن التسجيل'); } } : undefined });
+      toast.success(`تم تسجيل ${peptide?.nameAr ?? proto.peptide_id} — ${proto.dose} ${proto.dose_unit}`, { id: 'quick-log-result', duration: 6000, description: `الجرعة التالية: ${nextIn} — استمر في الالتزام!`, action: insertedId ? { label: 'تراجع', onClick: async () => { await supabase.from('injection_logs').delete().eq('id', insertedId).eq('user_id', user.id); fetchLogs(); toast.success('تم التراجع عن التسجيل'); } } : undefined });
       const newTotal = (totalCount || logs.length) + 1;
       if (statsLoaded) celebrate(newTotal, computeStreak(allLogsForStats, true));
     } catch (err) { logError('injection save failed', err); toast.error('تعذّر حفظ الحقنة — تحقق من اتصالك وحاول مرة أخرى'); }

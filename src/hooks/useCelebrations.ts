@@ -111,6 +111,7 @@ export function useCelebrations() {
     if (totalInjections === 1 && !celebrated['first_injection']) {
       markCelebration('first_injection');
       safeTimeout(() => {
+        toast.dismiss('quick-log-result');
         fireConfetti();
         toast.success('مبروك! سجّلت أول حقنة لك', {
           id: 'injection-celebration',
@@ -137,6 +138,7 @@ export function useCelebrations() {
           desc: 'التزامك مثال يُحتذى',
         };
         safeTimeout(() => {
+          toast.dismiss('quick-log-result');
           fireStreakCelebration();
           toast.success(msg.title, { id: 'injection-celebration', duration: 5000, description: msg.desc });
         }, 300);
@@ -147,6 +149,7 @@ export function useCelebrations() {
     if (totalInjections >= 10 && !celebrated['ten_injections']) {
       markCelebration('ten_injections');
       safeTimeout(() => {
+        toast.dismiss('quick-log-result');
         fireStreakCelebration();
         toast.success('10 حقنات مسجّلة!', {
           id: 'injection-celebration',
@@ -160,6 +163,7 @@ export function useCelebrations() {
     if (totalInjections >= 25 && !celebrated['milestone_25']) {
       markCelebration('milestone_25');
       safeTimeout(() => {
+        toast.dismiss('quick-log-result');
         fireStreakCelebration();
         toast.success('25 حقنة! أنت ملتزم بشكل رائع', {
           id: 'injection-celebration',
@@ -172,6 +176,7 @@ export function useCelebrations() {
     if (totalInjections >= 50 && !celebrated['fifty_injections']) {
       markCelebration('fifty_injections');
       safeTimeout(() => {
+        toast.dismiss('quick-log-result');
         fireConfetti();
         toast.success('50 حقنة! مستخدم متقدّم', {
           id: 'injection-celebration',
@@ -185,6 +190,7 @@ export function useCelebrations() {
     if (totalInjections >= 100 && !celebrated['milestone_100']) {
       markCelebration('milestone_100');
       safeTimeout(() => {
+        toast.dismiss('quick-log-result');
         fireGrandCelebration();
         toast.success('100 حقنة! إنجاز استثنائي', {
           id: 'injection-celebration',
