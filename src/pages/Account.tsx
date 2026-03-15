@@ -1514,6 +1514,7 @@ function ReferralSection({ userId }: { userId?: string }) {
   const shareUrl = `${SITE_URL}/?ref=${code}`;
   const shareText = REFERRAL.shareText(shareUrl);
 
+
   const handleCopy = async () => {
     const ok = await copyToClipboard(shareUrl);
     if (ok) {
@@ -1565,6 +1566,7 @@ function ReferralSection({ userId }: { userId?: string }) {
         height={150}
         className="mx-auto rounded-xl border border-stone-200 dark:border-stone-700 mb-4"
         loading="lazy"
+        referrerPolicy="no-referrer"
       />
 
       <div className="flex gap-2 mb-5">
