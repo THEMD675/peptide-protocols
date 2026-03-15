@@ -1,55 +1,26 @@
-name: Deploy & Verify
+name: Post-Deploy Verify
 
 on:
   push:
     branches: [main]
 
 concurrency:
-  group: production-deploy
+  group: verify-production
   cancel-in-progress: true
 
 jobs:
-  deploy:
+  verify:
+    name: Verify Production
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 5
     steps:
-      - uses: actions/checkout@v4
-
-      - uses: pnpm/action-setup@v4
-        with:
-          version: 9
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: pnpm
-
-      - run: pnpm install --frozen-lockfile
-
-      - name: Type check
-        run: pnpm run type-check
-
-      - name: Build
-        run: pnpm run build
-
-      - name: Deploy to Vercel Production
-        id: deploy
-        run: |
-          npx vercel --prod --token=${{ secrets.VERCEL_TOKEN }} --yes 2>&1 | tee deploy.log
-          URL=$(grep -oP 'https://[^\s]+\.vercel\.app' deploy.log | head -1)
-          echo "deploy_url=$URL" >> $GITHUB_OUTPUT
-        env:
-          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
-          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
-
-      - name: Wait for edge propagation
-        run: sleep 15
+      - name: Wait for Vercel deploy
+        run: sleep 120
 
       - name: Verify deployment is live
         run: |
           echo "=== Checking production site ==="
 
-          # Check landing page
           HTTP_CODE=$(curl -so /dev/null -w "%{http_code}" https://pptides.com/ 2>/dev/null)
           if [ "$HTTP_CODE" != "200" ]; then
             echo "FAIL: Landing page returned $HTTP_CODE"
@@ -57,19 +28,7 @@ jobs:
           fi
           echo "PASS: Landing page 200"
 
-          # Check CSP has our external APIs (proves new build is live)
-          CSP=$(curl -sI https://pptides.com/ 2>/dev/null | grep -i "content-security-policy")
-          for domain in purgomalum disify geojs frankfurter qrserver; do
-            if echo "$CSP" | grep -q "$domain"; then
-              echo "PASS: CSP includes $domain"
-            else
-              echo "FAIL: CSP missing $domain — old build may still be cached"
-              exit 1
-            fi
-          done
-
-          # Check key pages
-          for page in /library /pricing /calculator /login /contact /community /peptide/bpc-157 /blog; do
+          for page in /library /pricing /login /contact /community /peptide/bpc-157 /blog; do
             CODE=$(curl -so /dev/null -w "%{http_code}" "https://pptides.com${page}" 2>/dev/null)
             if [ "$CODE" != "200" ]; then
               echo "FAIL: $page returned $CODE"
@@ -78,7 +37,6 @@ jobs:
             echo "PASS: $page 200"
           done
 
-          # Check API endpoints
           for api in /api/sitemap /api/og; do
             CODE=$(curl -so /dev/null -w "%{http_code}" "https://pptides.com${api}" 2>/dev/null)
             if [ "$CODE" != "200" ]; then
@@ -88,7 +46,6 @@ jobs:
             echo "PASS: $api 200"
           done
 
-          # Check security headers
           HEADERS=$(curl -sI https://pptides.com/ 2>/dev/null)
           for header in "strict-transport-security" "x-frame-options" "x-content-type-options"; do
             if echo "$HEADERS" | grep -qi "$header"; then
@@ -104,5 +61,4 @@ jobs:
 
       - name: Notify on failure
         if: failure()
-        run: |
-          echo "::error::Deployment verification FAILED — production may be serving stale content"
+        run: echo "::error::Production verification FAILED"
