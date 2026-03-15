@@ -373,6 +373,21 @@ export default function Community() {
       return stored ? new Set(JSON.parse(stored)) : new Set();
     } catch { return new Set(); }
   });
+
+  useEffect(() => {
+    if (!user) return;
+    supabase.from('community_upvotes').select('post_id').eq('user_id', user.id)
+      .then(({ data }) => {
+        if (data && data.length > 0) {
+          setUpvotedPosts(prev => {
+            const merged = new Set(prev);
+            data.forEach(r => merged.add(r.post_id));
+            return merged;
+          });
+        }
+      });
+  }, [user]);
+
   const [submitted, setSubmitted] = useState(false);
   const [searchParams, setSearchParams] = useSearchParams();
   const validGoals = ['all', ...GOALS];
@@ -717,13 +732,15 @@ export default function Community() {
         toast.error('يبدو أنك نشرت هذه التجربة مسبقًا');
         return;
       }
+      const sanitizedResults = sanitize(results, 2000);
       const { error } = await supabase.from('community_logs').insert({
         user_id: user.id,
         peptide_name: peptideStr,
         goal: sanitize(goal, 200),
         protocol: sanitize(protocol, 1000),
         duration_weeks: dur,
-        results: sanitize(results, 2000),
+        results: sanitizedResults,
+        content: sanitizedResults,
         rating,
         is_subscriber: isPaid,
       });

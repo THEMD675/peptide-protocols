@@ -13,6 +13,7 @@ const GlobalSearch = lazy(() => import('@/components/GlobalSearch'));
 
 const guestNavLinks = [
   { to: '/library', label: 'المكتبة' },
+  { to: '/community', label: 'المجتمع' },
   { to: '/blog', label: 'المدونة' },
   { to: '/pricing', label: 'الأسعار' },
 ] as const;

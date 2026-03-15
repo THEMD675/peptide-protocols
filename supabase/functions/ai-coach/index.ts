@@ -237,10 +237,25 @@ const PROMPT_LEAK_PATTERNS = [
   '## BLOOD WORK',
 ]
 
+const SEMANTIC_LEAK_REGEXES = [
+  /repeat (your|the) (instructions|system|rules)/i,
+  /translate.*(instructions|prompt|rules).*(english|arabic)/i,
+  /rephrase.*(instructions|prompt|system)/i,
+  /what (are|were) your (instructions|rules|guidelines)/i,
+  /show me.*(prompt|instructions|rules)/i,
+  /أعد.*تعليماتك/,
+  /اعرض.*التعليمات/,
+  /ترجم.*التعليمات/,
+  /ما هي.*قواعدك/,
+]
+
 function containsPromptLeak(text: string): boolean {
   const lower = text.toLowerCase()
   for (const p of PROMPT_LEAK_PATTERNS) {
     if (lower.includes(p.toLowerCase())) return true
+  }
+  for (const r of SEMANTIC_LEAK_REGEXES) {
+    if (r.test(text)) return true
   }
   return false
 }
