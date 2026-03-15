@@ -414,7 +414,8 @@ export default memo(function Header() {
           mobileOpen ? 'pointer-events-auto opacity-100' : 'pointer-events-none opacity-0',
         )}
         aria-hidden={!mobileOpen}
-        {...(mobileOpen ? {} : { inert: '' as unknown as boolean }) /* TODO: inert has limited support in older browsers; consider polyfill or fallback for legacy browsers */}
+        {...(mobileOpen ? {} : { inert: '' as unknown as boolean })}
+        aria-hidden={!mobileOpen}
       >
         <div
           className="absolute inset-0 bg-black/50 backdrop-blur-sm"
