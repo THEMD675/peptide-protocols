@@ -330,7 +330,7 @@ export default function PeptideDetail() {
                 <span className="text-xs text-stone-500 dark:text-stone-300">التكلفة التقريبية:</span>
                 <span className="text-sm font-bold text-stone-900 dark:text-stone-100" dir="ltr">{peptide.costEstimate}</span>
               </div>
-              <p className="mt-1 text-xs text-stone-400 dark:text-stone-500">* تقديري — تختلف الأسعار حسب المورد والمنطقة</p>
+              <p className="mt-1 text-xs text-stone-400 dark:text-stone-500">* تقديري (Q1 2026) — تختلف الأسعار حسب المورد والمنطقة وقد تتغير</p>
             </div>
           )}
 
