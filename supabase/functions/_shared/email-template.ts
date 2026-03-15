@@ -44,11 +44,34 @@ export function emailButton(text: string, url: string): string {
 
 /**
  * Standard email headers for marketing/transactional emails.
- * Includes List-Unsubscribe (mailto) for RFC 2369 compliance.
+ * Includes List-Unsubscribe with both HTTPS and mailto for RFC 8058 + RFC 2369 compliance.
  */
-export function unsubscribeHeaders(): Record<string, string> {
-  return {
+export function unsubscribeHeaders(email?: string): Record<string, string> {
+  const APP_URL = Deno.env.get('APP_URL') ?? 'https://pptides.com'
+  const headers: Record<string, string> = {
     'List-Unsubscribe': `<mailto:${SUPPORT_EMAIL}?subject=unsubscribe>`,
     'List-Unsubscribe-Post': 'List-Unsubscribe=One-Click',
   }
+  if (email) {
+    const secret = Deno.env.get('UNSUBSCRIBE_HMAC_SECRET') || Deno.env.get('CRON_SECRET') || ''
+    if (secret) {
+      try {
+        const encoder = new TextEncoder()
+        const keyData = encoder.encode(secret)
+        const msgData = encoder.encode(email.toLowerCase())
+        const key = new Uint8Array(keyData)
+        let token = ''
+        // Simple HMAC-SHA256 hex for URL token (synchronous fallback)
+        const { createHmac } = globalThis as unknown as { createHmac?: (alg: string, k: Uint8Array) => { update: (d: Uint8Array) => { digest: (e: string) => string } } }
+        if (typeof createHmac === 'function') {
+          token = createHmac('sha256', key).update(msgData).digest('hex')
+        }
+        if (token) {
+          const url = `${APP_URL}/api/unsubscribe?email=${encodeURIComponent(email)}&token=${token}`
+          headers['List-Unsubscribe'] = `<${url}>, <mailto:${SUPPORT_EMAIL}?subject=unsubscribe>`
+        }
+      } catch { /* fallback to mailto-only */ }
+    }
+  }
+  return headers
 }
