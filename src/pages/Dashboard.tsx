@@ -25,7 +25,7 @@ import {
   AlertCircle,
 } from 'lucide-react';
 import { toast } from 'sonner';
-import { cn, arPlural, copyToClipboard, timeoutSignal } from '@/lib/utils';
+import { cn, arPlural, timeoutSignal } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
 import { PEPTIDE_COUNT, STATUS_LABELS, TIER_LABELS, FREQUENCY_LABELS, STORAGE_KEYS } from '@/lib/constants';
@@ -346,7 +346,6 @@ function useActiveProtocols(userId: string | undefined) {
         supabase.from('user_protocols').update({ status: 'completed', updated_at: new Date().toISOString() }).in('id', ids).eq('user_id', userId)
           .then(({ error }) => {
             if (error) logError('Auto-complete protocols failed:', error);
-            else fetchProtocols();
           })
           .catch((err) => logError('Auto-complete protocols error:', err));
       }
@@ -436,7 +435,7 @@ export default function Dashboard() {
     try { return localStorage.getItem('pptides_onboarded') === 'true'; } catch { return false; }
   }, []);
   const [confirmEndId, setConfirmEndId] = useState<string | null>(null);
-  const [lastRefresh, setLastRefresh] = useState(() => new Date());
+  const [lastRefresh, _setLastRefresh] = useState(() => new Date());
   const welcomeConfettiFired = useRef(false);
   const [showPremiumWelcome, setShowPremiumWelcome] = useState(false);
   const [isLoadingPortal, setIsLoadingPortal] = useState(false);

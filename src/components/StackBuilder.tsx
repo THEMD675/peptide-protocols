@@ -358,6 +358,7 @@ export default function StackBuilder() {
 
   // Load saved stacks on mount
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- sync localStorage on mount
     setSavedStacks(loadSavedStacks());
   }, []);
 
@@ -372,6 +373,7 @@ export default function StackBuilder() {
       const ids = stackParam.split(',').filter((id) => realPeptides.some((p) => p.id === id)).slice(0, MAX_STACK_SIZE);
       if (ids.length > 0) {
         syncSource.current = 'url';
+        // eslint-disable-next-line react-hooks/set-state-in-effect -- sync URL params on mount
         setSelectedIds(prev => {
           const same = prev.length === ids.length && prev.every((id, i) => id === ids[i]);
           return same ? prev : ids;

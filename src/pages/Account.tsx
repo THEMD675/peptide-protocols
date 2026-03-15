@@ -8,7 +8,7 @@ import { User, Crown, LogOut, Trash2, AlertTriangle, Mail, ArrowUpCircle, KeyRou
 
 import { toast } from 'sonner';
 import { cn, arPlural, sanitizeInput, copyToClipboard, timeoutSignal } from '@/lib/utils';
-import { SUPPORT_EMAIL, STATUS_LABELS, TIER_LABELS, PEPTIDE_COUNT, SITE_URL, PRICING } from '@/lib/constants';
+import { SUPPORT_EMAIL, STATUS_LABELS, TIER_LABELS, SITE_URL, PRICING } from '@/lib/constants';
 import { useTheme } from '@/hooks/useTheme';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';

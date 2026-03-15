@@ -24,6 +24,7 @@ export default function BackToTop() {
       setCookieBannerVisible(document.body.classList.contains('cookie-banner-visible'));
     });
     observer.observe(document.body, { attributes: true, attributeFilter: ['class'] });
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- sync initial DOM state
     setCookieBannerVisible(document.body.classList.contains('cookie-banner-visible'));
     return () => observer.disconnect();
   }, []);

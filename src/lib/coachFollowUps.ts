@@ -5,7 +5,7 @@ import { peptidesLite } from '@/data/peptides-lite';
  * Uses simple heuristic detection — no API calls needed.
  */
 export function generateFollowUps(responseText: string): string[] {
-  const lower = responseText.toLowerCase();
+  const _lower = responseText.toLowerCase();
   const suggestions: string[] = [];
 
   // Detect mentioned peptides
@@ -73,7 +73,7 @@ export function generateFollowUps(responseText: string): string[] {
  * Detect if the AI response contains a protocol/dosing plan worth saving.
  */
 export function hasProtocolContent(text: string): boolean {
-  const lower = text.toLowerCase();
+  const _lower = text.toLowerCase();
   // Must have dosing info AND some structure
   const hasDosing = /جرعة|dose|mcg|mg|ملغ|ميكروغرام|وحدة|iu/i.test(text);
   const hasStructure = /بروتوكول|protocol|المرحلة|الأسبوع|يومي|أسبوعي|دورة|cycle/i.test(text);

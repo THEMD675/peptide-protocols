@@ -5,7 +5,7 @@ import { Link, useSearchParams, useNavigate } from 'react-router-dom';
 import {
   MessageSquare, Send, Clock, FlaskConical, Flag, Star, MessageCircle,
   Trash2, BadgeCheck, ThumbsUp, Search, X, Trophy,
-  Sparkles, Loader2, Shield, Users, FlaskRound, Pencil,
+  Loader2, Shield, Users, FlaskRound, Pencil,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { useAuth } from '@/contexts/AuthContext';

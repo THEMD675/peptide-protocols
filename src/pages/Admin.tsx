@@ -9,7 +9,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
 import {
   Users, CreditCard, MessageSquare, Star, Mail, Activity, TrendingUp,
-  AlertTriangle, RefreshCw, Shield, Reply, Send, X, Clock, Zap,
+  AlertTriangle, RefreshCw, Reply, Send, X, Clock, Zap,
   AlertCircle, Info, ArrowUpRight, ArrowDownRight, Download,
   Trash2, Ban, CalendarPlus, Heart, ShieldCheck,
   CheckCircle, XCircle, Loader2, RotateCcw, ClipboardList,

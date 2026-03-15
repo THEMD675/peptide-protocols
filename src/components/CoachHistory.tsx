@@ -56,7 +56,7 @@ export default function CoachHistory({
   const [fetchError, setFetchError] = useState(false);
   const mountedRef = useRef(true);
 
-  const refreshHistory = useCallback(() => setRefreshSignal(s => s + 1), []);
+  const _refreshHistory = useCallback(() => setRefreshSignal(s => s + 1), []);
 
   useEffect(() => {
     mountedRef.current = true;

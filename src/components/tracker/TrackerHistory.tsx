@@ -454,7 +454,7 @@ export default function TrackerHistory({
                                   isDestructive: true,
                                   onConfirm: async () => {
                                     setConfirmBusy(true);
-                                    const deletedLog = logs.find(l => l.id === log.id);
+                                    const _deletedLog = logs.find(l => l.id === log.id);
                                     setLogs(prev => prev.filter(l => l.id !== log.id));
                                     const { error } = await supabase.from('injection_logs').delete().eq('id', log.id).eq('user_id', userId);
                                     if (error) {

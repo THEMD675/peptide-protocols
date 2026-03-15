@@ -68,6 +68,7 @@ export default memo(function Header() {
     if (user?.email) {
       isAdmin(user.email).then(v => { setUserIsAdmin(v); setAdminCache(v); });
     } else {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- clear admin state when user changes
       setUserIsAdmin(false);
       setAdminCache(false);
     }

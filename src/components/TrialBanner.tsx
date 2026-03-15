@@ -7,7 +7,7 @@ import { useSalesFlow } from '@/hooks/useSalesFlow';
 import { supabase } from '@/lib/supabase';
 import { Shield, X, Clock, Loader2 } from 'lucide-react';
 import { cn, arPlural } from '@/lib/utils';
-import { PRICING, FREE_PEPTIDE_IDS, isFreeRoute, isPaymentWallFreeRoute } from '@/lib/constants';
+import { FREE_PEPTIDE_IDS, isFreeRoute, isPaymentWallFreeRoute } from '@/lib/constants';
 import { useNowMs } from '@/hooks/useNowMs';
 import { TRIAL, RETENTION, UPGRADE, COMMON } from '@/constants/sales-copy';
 
@@ -24,7 +24,7 @@ export default function TrialBanner() {
   const nowMs = useNowMs();
   const [dismissed, setDismissed] = useState(() => { try { return sessionStorage.getItem(DISMISS_KEY) === '1'; } catch { return false; } });
   const [upgradeLoading, setUpgradeLoading] = useState(false);
-  const [userStats, setUserStats] = useState<{ injections: number; protocols: number } | null>(null);
+  const [_userStats, setUserStats] = useState<{ injections: number; protocols: number } | null>(null);
 
   useEffect(() => {
     const showExpiredModal = subscription?.status === 'expired' || subscription?.status === 'cancelled' || (subscription?.status === 'trial' && (subscription?.trialDaysLeft ?? 0) <= 0);
@@ -210,7 +210,7 @@ export default function TrialBanner() {
   ) {
     const isTrial = subscription.status === 'trial' || (subscription.status === 'expired' && subscription.tier === 'free');
     const bannerText = isTrial ? TRIAL.expiredBannerTrial : TRIAL.expiredBannerPaid;
-    const modalTitle = isTrial ? TRIAL.expiredModalTitleTrial : TRIAL.expiredModalTitlePaid;
+    const _modalTitle = isTrial ? TRIAL.expiredModalTitleTrial : TRIAL.expiredModalTitlePaid;
 
     if (isFreePage) {
       return (
