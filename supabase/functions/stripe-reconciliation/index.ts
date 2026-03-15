@@ -24,15 +24,22 @@ serve(async (req) => {
   const corsHeaders = getCorsHeaders(req)
   if (req.method === 'OPTIONS') return new Response('ok', { headers: corsHeaders })
 
-  const expectedSecret = Deno.env.get('CRON_SECRET')
-  if (!expectedSecret) {
-    return new Response(JSON.stringify({ error: 'CRON_SECRET not configured' }), {
-      status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+  const authHeader = req.headers.get('Authorization') ?? ''
+  if (!authHeader.startsWith('Bearer ')) {
+    return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+      status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     })
   }
-  const cronSecret = req.headers.get('x-cron-secret')
-  if (!cronSecret || !constantTimeCompare(cronSecret, expectedSecret)) {
-    return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+  try {
+    const jwt = authHeader.replace('Bearer ', '')
+    const payload = JSON.parse(atob(jwt.split('.')[1]))
+    if (payload.role !== 'service_role') {
+      return new Response(JSON.stringify({ error: 'Forbidden: service_role required' }), {
+        status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      })
+    }
+  } catch {
+    return new Response(JSON.stringify({ error: 'Invalid token' }), {
       status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     })
   }
