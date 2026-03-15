@@ -588,7 +588,7 @@ export default function Dashboard() {
                   const token = session?.access_token;
                   if (!token) { toast.error('يرجى تسجيل الدخول'); return; }
                   toast('جارٍ فتح إدارة الدفع...');
-                  const res = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/create-portal-session`, {
+                  let res = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/create-portal-session`, {
                     method: 'POST',
                     signal: timeoutSignal(15000),
                     headers: {
@@ -598,6 +598,17 @@ export default function Dashboard() {
                     },
                     body: JSON.stringify({}),
                   });
+                  if (res.status === 401) {
+                    const { data: rd } = await supabase.auth.refreshSession();
+                    if (rd?.session) {
+                      res = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/create-portal-session`, {
+                        method: 'POST',
+                        signal: timeoutSignal(15000),
+                        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${rd.session.access_token}`, apikey: import.meta.env.VITE_SUPABASE_ANON_KEY },
+                        body: JSON.stringify({}),
+                      });
+                    }
+                  }
                   if (!res.ok) throw new Error('Portal request failed');
                   const data = await res.json();
                   if (data.url && typeof data.url === 'string' && data.url.startsWith('https://') && data.url.includes('stripe.com')) window.location.href = data.url;

@@ -1068,12 +1068,22 @@ export default function Account() {
                     const token = session.data.session?.access_token;
                     if (!token) { toast.error('يرجى تسجيل الدخول'); return; }
                     toast('جارٍ فتح إدارة الدفع...');
-                    const res = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/create-portal-session`, {
+                    let res = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/create-portal-session`, {
                       method: 'POST',
                       signal: timeoutSignal(15000),
                       headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}`, apikey: import.meta.env.VITE_SUPABASE_ANON_KEY },
                     });
-                    if (!res.ok) { toast.error('تعذّر فتح إدارة الدفع'); return; }
+                    if (res.status === 401) {
+                      const { data: rd } = await supabase.auth.refreshSession();
+                      if (rd?.session) {
+                        res = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/create-portal-session`, {
+                          method: 'POST',
+                          signal: timeoutSignal(15000),
+                          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${rd.session.access_token}`, apikey: import.meta.env.VITE_SUPABASE_ANON_KEY },
+                        });
+                      }
+                    }
+                    if (!res.ok) { toast.error('تعذّر فتح إدارة الدفع — أعد تسجيل الدخول وحاول مرة أخرى'); return; }
                     const { url } = await res.json();
                     if (url) { window.location.href = url; } else { toast.error('تعذّر فتح صفحة الدفع — تواصل مع الدعم'); }
                   } catch { toast.error('تعذّر فتح إدارة الدفع. حاول مرة أخرى.'); } finally { setIsLoadingPortal(false); }
