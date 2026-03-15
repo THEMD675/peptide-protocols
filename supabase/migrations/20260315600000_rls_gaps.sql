@@ -39,14 +39,16 @@ BEGIN
   END IF;
 END $$;
 
--- webhook_events: no public access, only service role should read/write
+-- webhook_events: skip if table doesn't exist (was never created)
 DO $$
 BEGIN
-  IF NOT EXISTS (
-    SELECT 1 FROM pg_policies WHERE tablename = 'webhook_events' AND policyname = 'Deny all public access to webhook_events'
-  ) THEN
-    CREATE POLICY "Deny all public access to webhook_events"
-      ON webhook_events FOR ALL
-      USING (false);
+  IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'webhook_events') THEN
+    IF NOT EXISTS (
+      SELECT 1 FROM pg_policies WHERE tablename = 'webhook_events' AND policyname = 'Deny all public access to webhook_events'
+    ) THEN
+      CREATE POLICY "Deny all public access to webhook_events"
+        ON webhook_events FOR ALL
+        USING (false);
+    END IF;
   END IF;
 END $$;
