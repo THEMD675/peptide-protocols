@@ -129,7 +129,7 @@
       (function(){try{var t=localStorage.getItem('pptides_theme');if(t==='dark'||(t==null&&window.matchMedia('(prefers-color-scheme:dark)').matches)){document.documentElement.classList.add('dark')}}catch(e){}})();
       // Force-clear stale service workers and caches to prevent broken page navigation
       // This runs once per build hash — won't re-run on same build
-      (function(){try{var BUILD='20260315f';var k='pptides_sw_build';if(localStorage.getItem(k)!==BUILD){localStorage.setItem(k,BUILD);if('serviceWorker' in navigator){navigator.serviceWorker.getRegistrations().then(function(r){r.forEach(function(reg){reg.unregister()})});}if(typeof caches!=='undefined'){caches.keys().then(function(names){names.forEach(function(name){caches.delete(name)})});}window.location.reload();return;}}catch(e){}})();
+      (function(){try{var BUILD='20260315g';var k='pptides_sw_build';if(localStorage.getItem(k)!==BUILD){localStorage.setItem(k,BUILD);if('serviceWorker' in navigator){navigator.serviceWorker.getRegistrations().then(function(r){r.forEach(function(reg){reg.unregister()})});}if(typeof caches!=='undefined'){caches.keys().then(function(names){names.forEach(function(name){caches.delete(name)})});}window.location.reload();return;}}catch(e){}})();
     </script>
     <div id="root"></div>
     <noscript>
