@@ -118,29 +118,35 @@ export default function Login() {
         language: 'ar',
       }) ?? null;
     };
-    if (window.turnstile) { renderWidget(); return () => { turnstileWidgetId.current = null; }; }
-    const script = document.createElement('script');
-    script.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit';
-    script.async = true;
-    script.onload = renderWidget;
-    script.onerror = () => {
-      if (!loaded) {
-        setTurnstileUnavailable(true);
-        toast.error('تعذّر تحميل التحقق الأمني — يمكنك المتابعة بدون CAPTCHA');
-      }
-    };
-    document.head.appendChild(script);
-    // Fallback: if Turnstile CDN fails to load within 5s, disable CAPTCHA requirement
-    fallbackTimer = setTimeout(() => {
-      if (!loaded && !window.turnstile) {
-        setTurnstileUnavailable(true);
-        toast.error('تعذّر تحميل التحقق الأمني — يمكنك المتابعة بدون CAPTCHA');
-      }
-    }, 5000);
+    if (window.turnstile) { renderWidget(); }
+    else {
+      const script = document.createElement('script');
+      script.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit';
+      script.async = true;
+      script.onload = renderWidget;
+      script.onerror = () => {
+        if (!loaded) {
+          setTurnstileUnavailable(true);
+        }
+      };
+      document.head.appendChild(script);
+      fallbackTimer = setTimeout(() => {
+        if (!loaded && !window.turnstile) {
+          setTurnstileUnavailable(true);
+        }
+      }, 5000);
+    }
+    // Secondary fallback: if widget loads but token never arrives within 8s, bypass CAPTCHA
+    const tokenFallback = setTimeout(() => {
+      setTurnstileToken(prev => {
+        if (!prev) setTurnstileUnavailable(true);
+        return prev;
+      });
+    }, 8000);
     return () => {
       turnstileWidgetId.current = null;
+      clearTimeout(tokenFallback);
       if (fallbackTimer) clearTimeout(fallbackTimer);
-      if (script.parentNode) script.parentNode.removeChild(script);
     };
   }, []);
   // Detect turnstile token expiry: token becomes null after being set

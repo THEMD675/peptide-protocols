@@ -53,11 +53,8 @@ Listed via `supabase secrets list`. **Do not store these in git.**
 **File:** `supabase/functions/_shared/admin-auth.ts`
 
 ```ts
-export const ADMIN_EMAILS = [
-  'abdullah@amirisgroup.co',
-  'abdullahalameer@gmail.com',
-  'contact@pptides.com',
-]
+// Loaded from ADMIN_EMAIL_WHITELIST env var (comma-separated)
+export const ADMIN_EMAILS = getAdminEmails()
 ```
 
 To add an admin: edit this file, commit, redeploy `admin-stats` and `admin-actions`:

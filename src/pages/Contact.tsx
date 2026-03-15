@@ -115,18 +115,26 @@ export default function Contact() {
         language: 'ar',
       }) ?? null;
     };
-    if (window.turnstile) { renderWidget(); return () => { turnstileWidgetId.current = null; }; }
-    const script = document.createElement('script');
-    script.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit';
-    script.async = true;
-    script.onload = renderWidget;
-    script.onerror = () => { if (!loaded) setTurnstileUnavailable(true); };
-    document.head.appendChild(script);
-    fallbackTimer = setTimeout(() => { if (!loaded && !window.turnstile) setTurnstileUnavailable(true); }, 5000);
+    if (window.turnstile) { renderWidget(); }
+    else {
+      const script = document.createElement('script');
+      script.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit';
+      script.async = true;
+      script.onload = renderWidget;
+      script.onerror = () => { if (!loaded) setTurnstileUnavailable(true); };
+      document.head.appendChild(script);
+      fallbackTimer = setTimeout(() => { if (!loaded && !window.turnstile) setTurnstileUnavailable(true); }, 5000);
+    }
+    const tokenFallback = setTimeout(() => {
+      setTurnstileToken(prev => {
+        if (!prev) setTurnstileUnavailable(true);
+        return prev;
+      });
+    }, 8000);
     return () => {
       turnstileWidgetId.current = null;
+      clearTimeout(tokenFallback);
       if (fallbackTimer) clearTimeout(fallbackTimer);
-      if (script.parentNode) script.parentNode.removeChild(script);
     };
   }, []);
 
