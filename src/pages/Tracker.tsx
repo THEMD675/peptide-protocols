@@ -456,9 +456,15 @@ export default function Tracker() {
       thisMonth.forEach(l => { unitCounts[l.dose_unit] = (unitCounts[l.dose_unit] || 0) + 1; });
       primaryUnit = Object.entries(unitCounts).sort((a, b) => b[1] - a[1])[0]?.[0] ?? null;
     }
-    const avgDose = units.size === 1 ? Math.round((thisMonth.reduce((sum, l) => sum + l.dose, 0) / thisMonth.length) * 10) / 10 : null;
-    const avgUnit = units.size === 1 ? (thisMonth[0]?.dose_unit ?? 'mcg') : null;
-    return { totalInjections, mostUsedPeptide: mostUsed?.[0] ?? '', mostUsedCount: mostUsed?.[1] ?? 0, avgDose, avgUnit, streak, mixedUnits, primaryUnit };
+    const normalizeDoseMcg = (dose: number, unit: string) => {
+      if (unit === 'mg') return dose * 1000;
+      if (unit === 'iu' || unit === 'IU') return dose;
+      return dose;
+    };
+    const normalizedDoses = thisMonth.map(l => normalizeDoseMcg(l.dose, l.dose_unit));
+    const avgDose = Math.round((normalizedDoses.reduce((a, b) => a + b, 0) / normalizedDoses.length) * 10) / 10;
+    const avgUnit = units.size === 1 ? (thisMonth[0]?.dose_unit ?? 'mcg') : 'mcg';
+    return { totalInjections, mostUsedPeptide: mostUsed?.[0] ?? '', mostUsedCount: mostUsed?.[1] ?? 0, avgDose, avgUnit: avgUnit as string, streak, mixedUnits, primaryUnit };
   }, [logs, allLogsForStats, streak]);
 
   const weeklyActivity = useMemo(() => {
