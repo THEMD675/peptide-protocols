@@ -42,31 +42,4 @@ export function emailButton(text: string, url: string): string {
   return `<a href="${url}" style="display: inline-block; background: ${BRAND_COLOR}; color: white; padding: 16px 40px; border-radius: 9999px; text-decoration: none; font-weight: bold; font-size: 16px;">${text}</a>`
 }
 
-/**
- * Standard email headers for marketing/transactional emails.
- * Includes List-Unsubscribe with both HTTPS and mailto for RFC 8058 + RFC 2369 compliance.
- */
-export async function unsubscribeHeaders(email?: string): Promise<Record<string, string>> {
-  const APP_URL = Deno.env.get('APP_URL') ?? 'https://pptides.com'
-  const headers: Record<string, string> = {
-    'List-Unsubscribe': `<mailto:${SUPPORT_EMAIL}?subject=unsubscribe>`,
-    'List-Unsubscribe-Post': 'List-Unsubscribe=One-Click',
-  }
-  if (email) {
-    const secret = Deno.env.get('UNSUBSCRIBE_HMAC_SECRET') || Deno.env.get('CRON_SECRET') || ''
-    if (secret) {
-      try {
-        const encoder = new TextEncoder()
-        const key = await crypto.subtle.importKey(
-          'raw', encoder.encode(secret),
-          { name: 'HMAC', hash: 'SHA-256' }, false, ['sign']
-        )
-        const sig = await crypto.subtle.sign('HMAC', key, encoder.encode(email.toLowerCase()))
-        const token = Array.from(new Uint8Array(sig)).map(b => b.toString(16).padStart(2, '0')).join('')
-        const url = `${APP_URL}/api/unsubscribe?email=${encodeURIComponent(email)}&token=${token}`
-        headers['List-Unsubscribe'] = `<${url}>, <mailto:${SUPPORT_EMAIL}?subject=unsubscribe>`
-      } catch { /* fallback to mailto-only */ }
-    }
-  }
-  return headers
-}
+// unsubscribeHeaders is now in send-email.ts as buildUnsubHeaders (async, Deno-compatible)
