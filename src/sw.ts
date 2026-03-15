@@ -46,35 +46,28 @@ registerRoute(
 const OFFLINE_CACHE = 'offline-fallback';
 const OFFLINE_PAGE = '/offline.html';
 
-const navigationHandler = new NetworkFirst({
-  cacheName: 'pages-cache',
-  networkTimeoutSeconds: 10,
-  plugins: [
-    new CacheableResponsePlugin({ statuses: [200] }),
-    new ExpirationPlugin({ maxEntries: 5, maxAgeSeconds: 60 * 60 }),
-  ],
-});
-
-const navigationRoute = new NavigationRoute(navigationHandler, {
-  // Never intercept API / server-side routes
-  denylist: [
-    /^\/api\//,
-    /^\/rest\//,
-    /^\/_vercel\//,
-  ],
-});
-
-// Wrap to add offline fallback
-const originalHandler = navigationRoute.handler;
-navigationRoute.handler = async (params) => {
-  try {
-    return await originalHandler.handle(params);
-  } catch {
-    const cache = await caches.open(OFFLINE_CACHE);
-    const fallback = await cache.match(OFFLINE_PAGE);
-    return fallback || new Response('غير متصل', { status: 503, headers: { 'Content-Type': 'text/plain;charset=utf-8' } });
+// Navigation: ALWAYS hit the network for HTML pages.
+// Never serve cached HTML — stale HTML references chunk hashes that no longer
+// exist on the server, causing white screens. Offline fallback is the only exception.
+const navigationRoute = new NavigationRoute(
+  async ({ request }) => {
+    try {
+      const response = await fetch(request, { cache: 'no-store' });
+      return response;
+    } catch {
+      const cache = await caches.open(OFFLINE_CACHE);
+      const fallback = await cache.match(OFFLINE_PAGE);
+      return fallback || new Response('غير متصل', { status: 503, headers: { 'Content-Type': 'text/plain;charset=utf-8' } });
+    }
+  },
+  {
+    denylist: [
+      /^\/api\//,
+      /^\/rest\//,
+      /^\/_vercel\//,
+    ],
   }
-};
+);
 
 registerRoute(navigationRoute);
 

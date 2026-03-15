@@ -46,12 +46,31 @@ if (hasConsent && import.meta.env.PROD) {
 // Global error tracking — capture unhandled errors and rejections
 window.addEventListener('error', (e) => {
   logError('Uncaught error:', e.error ?? e.message);
+  const msg = e.error?.message ?? e.message ?? '';
+  if (/Loading chunk|Failed to fetch dynamically imported/i.test(msg)) {
+    const reloaded = sessionStorage.getItem('pptides_chunk_reload');
+    if (!reloaded) {
+      sessionStorage.setItem('pptides_chunk_reload', '1');
+      window.location.reload();
+      return;
+    }
+    sessionStorage.removeItem('pptides_chunk_reload');
+  }
 });
 window.addEventListener('unhandledrejection', (e) => {
   logError('Unhandled rejection:', e.reason);
   const msg = e.reason?.message ?? String(e.reason ?? '');
-  const expected = /chunk|dynamically imported|loading css|fetch|network|timeout|timed out|abort|cancel|DOMException|signal|supabase|ResizeObserver/i;
-  if (msg && !expected.test(msg)) {
+  if (/Loading chunk|Failed to fetch dynamically imported/i.test(msg)) {
+    const reloaded = sessionStorage.getItem('pptides_chunk_reload');
+    if (!reloaded) {
+      sessionStorage.setItem('pptides_chunk_reload', '1');
+      window.location.reload();
+      return;
+    }
+    sessionStorage.removeItem('pptides_chunk_reload');
+  }
+  const noise = /fetch|network|timeout|timed out|abort|cancel|DOMException|signal|supabase|ResizeObserver/i;
+  if (msg && !noise.test(msg)) {
     toast.error('حدث خطأ غير متوقع — حاول تحديث الصفحة', { id: 'unhandled-rejection' });
   }
 });
