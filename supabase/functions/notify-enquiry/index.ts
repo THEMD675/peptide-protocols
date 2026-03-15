@@ -50,6 +50,24 @@ serve(async (req) => {
       tags: [{ name: 'type', value: 'enquiry-notification' }],
     })
 
+    // DV5: Send auto-acknowledgment to the user
+    if (senderEmail && senderEmail !== 'unknown') {
+      const refNum = `ENQ-${Date.now().toString(36).toUpperCase()}`
+      const ackHtml = emailWrapper(`
+        <h2 style="color:#059669;margin-bottom:16px;">شكرًا لتواصلك مع pptides</h2>
+        <p>استلمنا استفسارك بنجاح وسنرد عليك في أقرب وقت.</p>
+        <p><strong>رقم المرجع:</strong> ${refNum}</p>
+        <p><strong>الموضوع:</strong> ${subject}</p>
+        <p style="margin-top:16px;color:#78716c;">فريق pptides</p>
+      `)
+      sendEmail({
+        to: senderEmail,
+        subject: `تم استلام استفسارك — ${refNum}`,
+        html: ackHtml,
+        tags: [{ name: 'type', value: 'enquiry-ack' }],
+      }).catch(e => console.error('enquiry auto-reply failed:', e))
+    }
+
     return jsonResponse({ ok: true }, 200, corsHeaders)
   } catch (err) {
     console.error('notify-enquiry error:', err)
