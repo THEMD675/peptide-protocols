@@ -32,3 +32,4 @@ coverage/
 next-env.d.ts
 # Don't ignore PNGs — PWA icons and og-image need to be tracked
 # *.png
+
