@@ -637,6 +637,14 @@ export default function Tracker() {
         </Link>
       </div>
 
+      {!dashboardStats && activeProtocols.length === 0 && !loading && (
+        <div className="mb-6 rounded-2xl border border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-950/20 p-6 text-center">
+          <Syringe className="h-8 w-8 text-emerald-600 dark:text-emerald-400 mx-auto mb-3" />
+          <p className="text-lg font-bold text-stone-900 dark:text-stone-100">مرحبًا بك في سجل الحقن</p>
+          <p className="mt-2 text-sm text-stone-600 dark:text-stone-300">ابدأ ببروتوكول جديد أو سجّل أول حقنة لمتابعة تقدّمك</p>
+        </div>
+      )}
+
       {/* Prominent Streak Counter */}
       {dashboardStats && dashboardStats.streak != null && dashboardStats.streak > 0 && (
         <div className="mb-6 rounded-2xl bg-gradient-to-l from-orange-500 to-amber-500 p-5 text-center shadow-lg">
