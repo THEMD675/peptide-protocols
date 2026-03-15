@@ -28,8 +28,11 @@ async function invokeFunction(name: string): Promise<{ name: string; ok: boolean
     return { name, ok: false, status: 0 };
   }
   try {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 25000);
     const res = await fetch(`${SUPABASE_URL}/functions/v1/${name}`, {
       method: 'POST',
+      signal: controller.signal,
       headers: {
         Authorization: `Bearer ${SUPABASE_SERVICE_KEY}`,
         'Content-Type': 'application/json',
@@ -37,6 +40,7 @@ async function invokeFunction(name: string): Promise<{ name: string; ok: boolean
       },
       body: JSON.stringify({ source: 'vercel-cron' }),
     });
+    clearTimeout(timeout);
     return { name, ok: res.ok, status: res.status };
   } catch {
     return { name, ok: false };
