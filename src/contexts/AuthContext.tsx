@@ -745,7 +745,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       window.location.href = data.url;
     } catch (e) {
-      toast.error(`تعذّر التحويل لصفحة الدفع. تواصل معنا: ${SUPPORT_EMAIL}`);
+      const msg = e instanceof Error ? e.message : '';
+      if (/coupon|promotion|discount/i.test(msg)) {
+        toast.error('كود الخصم غير صالح أو منتهي الصلاحية. حاول بدون كود.');
+      } else {
+        toast.error(`تعذّر التحويل لصفحة الدفع. تواصل معنا: ${SUPPORT_EMAIL}`);
+      }
       throw e;
     } finally {
       upgradingRef.current = false;

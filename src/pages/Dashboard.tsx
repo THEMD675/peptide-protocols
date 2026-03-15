@@ -435,7 +435,12 @@ export default function Dashboard() {
     try { return localStorage.getItem('pptides_onboarded') === 'true'; } catch { return false; }
   }, []);
   const [confirmEndId, setConfirmEndId] = useState<string | null>(null);
-  const [lastRefresh, _setLastRefresh] = useState(() => new Date());
+  const [lastRefresh, setLastRefresh] = useState(() => new Date());
+  const prevLoadingRef = useRef(true);
+  useEffect(() => {
+    if (prevLoadingRef.current && !activity.loading) setLastRefresh(new Date());
+    prevLoadingRef.current = activity.loading;
+  }, [activity.loading]);
   const welcomeConfettiFired = useRef(false);
   const [showPremiumWelcome, setShowPremiumWelcome] = useState(false);
   const [isLoadingPortal, setIsLoadingPortal] = useState(false);

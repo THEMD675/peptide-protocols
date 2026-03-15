@@ -523,7 +523,7 @@ export default function TrackerForm({
           <button
             type="submit"
             disabled={submitDisabled}
-            className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-emerald-600 px-6 py-3 text-sm font-bold text-white transition-all hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-emerald-600 px-6 py-3 min-h-[44px] text-sm font-bold text-white transition-all hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {isSubmitting ? (
               <>
@@ -537,7 +537,7 @@ export default function TrackerForm({
           <button
             type="button"
             onClick={onCancel}
-            className="rounded-xl border border-stone-200 dark:border-stone-600 px-6 py-3 text-sm font-bold text-stone-700 dark:text-stone-200 transition-all hover:bg-stone-50 dark:hover:bg-stone-800"
+            className="rounded-xl border border-stone-200 dark:border-stone-600 px-6 py-3 min-h-[44px] text-sm font-bold text-stone-700 dark:text-stone-200 transition-all hover:bg-stone-50 dark:hover:bg-stone-800"
           >
             إلغاء
           </button>
