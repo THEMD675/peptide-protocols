@@ -1024,7 +1024,8 @@ export default function Tracker() {
       )}
 
       {/* Post-injection feedback card */}
-      <div className="min-h-0 transition-all duration-300 ease-out overflow-hidden" style={{ maxHeight: lastLoggedPeptide ? '500px' : '0' }}>
+      <div className="grid transition-[grid-template-rows] duration-300 ease-out" style={{ gridTemplateRows: lastLoggedPeptide ? '1fr' : '0fr' }}>
+      <div className="overflow-hidden">
       {lastLoggedPeptide && (() => {
         const matched = allPeptides.find(p => p.nameEn === lastLoggedPeptide || p.id === lastLoggedPeptide);
         const category = matched?.category ?? 'recovery';
@@ -1053,6 +1054,7 @@ export default function Tracker() {
           </div>
         );
       })()}
+      </div>
       </div>
 
       {/* Side Effect Log */}

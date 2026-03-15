@@ -46,7 +46,7 @@ export function emailButton(text: string, url: string): string {
  * Standard email headers for marketing/transactional emails.
  * Includes List-Unsubscribe with both HTTPS and mailto for RFC 8058 + RFC 2369 compliance.
  */
-export function unsubscribeHeaders(email?: string): Record<string, string> {
+export async function unsubscribeHeaders(email?: string): Promise<Record<string, string>> {
   const APP_URL = Deno.env.get('APP_URL') ?? 'https://pptides.com'
   const headers: Record<string, string> = {
     'List-Unsubscribe': `<mailto:${SUPPORT_EMAIL}?subject=unsubscribe>`,
@@ -57,19 +57,14 @@ export function unsubscribeHeaders(email?: string): Record<string, string> {
     if (secret) {
       try {
         const encoder = new TextEncoder()
-        const keyData = encoder.encode(secret)
-        const msgData = encoder.encode(email.toLowerCase())
-        const key = new Uint8Array(keyData)
-        let token = ''
-        // Simple HMAC-SHA256 hex for URL token (synchronous fallback)
-        const { createHmac } = globalThis as unknown as { createHmac?: (alg: string, k: Uint8Array) => { update: (d: Uint8Array) => { digest: (e: string) => string } } }
-        if (typeof createHmac === 'function') {
-          token = createHmac('sha256', key).update(msgData).digest('hex')
-        }
-        if (token) {
-          const url = `${APP_URL}/api/unsubscribe?email=${encodeURIComponent(email)}&token=${token}`
-          headers['List-Unsubscribe'] = `<${url}>, <mailto:${SUPPORT_EMAIL}?subject=unsubscribe>`
-        }
+        const key = await crypto.subtle.importKey(
+          'raw', encoder.encode(secret),
+          { name: 'HMAC', hash: 'SHA-256' }, false, ['sign']
+        )
+        const sig = await crypto.subtle.sign('HMAC', key, encoder.encode(email.toLowerCase()))
+        const token = Array.from(new Uint8Array(sig)).map(b => b.toString(16).padStart(2, '0')).join('')
+        const url = `${APP_URL}/api/unsubscribe?email=${encodeURIComponent(email)}&token=${token}`
+        headers['List-Unsubscribe'] = `<${url}>, <mailto:${SUPPORT_EMAIL}?subject=unsubscribe>`
       } catch { /* fallback to mailto-only */ }
     }
   }

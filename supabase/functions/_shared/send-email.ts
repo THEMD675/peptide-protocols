@@ -29,7 +29,26 @@ interface BatchEmailPayload {
   tags?: Array<{ name: string; value: string }>
 }
 
+async function buildUnsubHeaders(email: string): Promise<Record<string, string>> {
+  const h: Record<string, string> = {
+    'List-Unsubscribe': '<mailto:contact@pptides.com?subject=unsubscribe>',
+    'List-Unsubscribe-Post': 'List-Unsubscribe=One-Click',
+  }
+  try {
+    const secret = Deno.env.get('UNSUBSCRIBE_HMAC_SECRET') || Deno.env.get('CRON_SECRET') || ''
+    if (!secret) return h
+    const enc = new TextEncoder()
+    const key = await crypto.subtle.importKey('raw', enc.encode(secret), { name: 'HMAC', hash: 'SHA-256' }, false, ['sign'])
+    const sig = await crypto.subtle.sign('HMAC', key, enc.encode(email.toLowerCase()))
+    const token = Array.from(new Uint8Array(sig)).map(b => b.toString(16).padStart(2, '0')).join('')
+    const APP_URL = Deno.env.get('APP_URL') ?? 'https://pptides.com'
+    h['List-Unsubscribe'] = `<${APP_URL}/api/unsubscribe?email=${encodeURIComponent(email)}&token=${token}>, <mailto:contact@pptides.com?subject=unsubscribe>`
+  } catch { /* fallback to mailto */ }
+  return h
+}
+
 export async function sendEmail(payload: EmailPayload): Promise<{ ok: boolean; error?: string; id?: string }> {
+  const unsubHeaders = await buildUnsubHeaders(payload.to)
   if (RESEND_API_KEY && RESEND_API_KEY.startsWith('re_')) {
     try {
       const res = await fetch('https://api.resend.com/emails', {
@@ -46,10 +65,7 @@ export async function sendEmail(payload: EmailPayload): Promise<{ ok: boolean; e
           html: payload.html,
           ...(payload.replyTo ? { reply_to: payload.replyTo } : {}),
           ...(payload.tags?.length ? { tags: payload.tags } : {}),
-          headers: {
-            'List-Unsubscribe': '<mailto:contact@pptides.com?subject=unsubscribe>',
-            'List-Unsubscribe-Post': 'List-Unsubscribe=One-Click',
-          },
+          headers: unsubHeaders,
         }),
       })
       if (res.ok) {
@@ -73,7 +89,7 @@ export async function sendEmail(payload: EmailPayload): Promise<{ ok: boolean; e
         client.send({
           from: FROM_EMAIL_SMTP, to: payload.to, subject: payload.subject,
           content: 'Please view this email in an HTML-capable client.', html: payload.html,
-          headers: { 'Reply-To': payload.replyTo || 'contact@pptides.com', 'List-Unsubscribe': '<mailto:contact@pptides.com?subject=unsubscribe>', 'List-Unsubscribe-Post': 'List-Unsubscribe=One-Click' },
+          headers: { 'Reply-To': payload.replyTo || 'contact@pptides.com', ...unsubHeaders },
         }),
         smtpTimeout,
       ])
@@ -119,17 +135,17 @@ export async function sendBatchEmails(emails: BatchEmailPayload[]): Promise<{ se
           'Content-Type': 'application/json',
           Authorization: `Bearer ${RESEND_API_KEY}`,
         },
-        body: JSON.stringify(chunk.map(e => ({
-          from: FROM_EMAIL_RESEND,
-          to: e.to,
-          subject: e.subject,
-          html: e.html,
-          ...(e.replyTo ? { reply_to: e.replyTo } : {}),
-          ...(e.tags?.length ? { tags: e.tags } : {}),
-          headers: {
-            'List-Unsubscribe': '<mailto:contact@pptides.com?subject=unsubscribe>',
-            'List-Unsubscribe-Post': 'List-Unsubscribe=One-Click',
-          },
+        body: JSON.stringify(await Promise.all(chunk.map(async e => {
+          const hdrs = await buildUnsubHeaders(e.to)
+          return {
+            from: FROM_EMAIL_RESEND,
+            to: e.to,
+            subject: e.subject,
+            html: e.html,
+            ...(e.replyTo ? { reply_to: e.replyTo } : {}),
+            ...(e.tags?.length ? { tags: e.tags } : {}),
+            headers: hdrs,
+          }
         }))),
       })
 
