@@ -6,7 +6,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
 import { REFERRAL } from '@/constants/sales-copy';
 // BPC-157 data inlined to avoid loading the full 131KB peptides dataset on landing
-const BPC_157_PREVIEW = {
+const _BPC_157_PREVIEW = {
   nameAr: 'BPC-157',
   nameEn: 'BPC-157',
   dosageAr: '250-500 ميكروغرام مرة إلى مرتين يوميًا. للإصابات الحادة: 500 ميكروغرام مرتين يوميًا. للصيانة: 250 ميكروغرام مرة واحدة.',

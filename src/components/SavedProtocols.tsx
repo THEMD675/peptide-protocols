@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { BookmarkCheck, Trash2, ChevronDown, ChevronUp, FlaskConical, ArrowLeft } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { cn as _cn } from '@/lib/utils';
 import { supabase } from '@/lib/supabase';
 import { toast } from 'sonner';
 import { logError } from '@/lib/logger';

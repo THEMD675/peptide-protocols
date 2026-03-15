@@ -90,8 +90,8 @@ describe('TrialBanner — free route logic', () => {
     expect(isFreePage('/glossary')).toBe(true)
   })
 
-  it('interactions is free', () => {
-    expect(isFreePage('/interactions')).toBe(true)
+  it('interactions requires auth (not free)', () => {
+    expect(isFreePage('/interactions')).toBe(false)
   })
 
   it('blog is free', () => {

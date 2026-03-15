@@ -100,7 +100,7 @@ serve(async (req) => {
       })
     }
 
-    let { email, name, referralCode } = body
+    const { email, name, referralCode } = body
 
     if (!email) {
       return new Response(JSON.stringify({ error: 'Missing required field: email' }), {

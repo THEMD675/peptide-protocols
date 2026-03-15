@@ -456,7 +456,7 @@ export default function Dashboard() {
   }, [subscription.status]);
 
   const isNewUserWithNoData = !activity.loading && activity.logs.length === 0 && activeProtocols.length === 0;
-  const [onboardingJustClosed, setOnboardingJustClosed] = useState(false);
+  const [_onboardingJustClosed, setOnboardingJustClosed] = useState(false);
   const showOnboardButton = useMemo(() => {
     try { return localStorage.getItem('pptides_onboarded') === 'true'; } catch { return false; }
   }, []);

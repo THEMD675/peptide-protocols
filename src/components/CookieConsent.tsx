@@ -59,11 +59,10 @@ export default function CookieConsent() {
         script.async = true;
         script.dataset.cookieConsent = 'analytics';
         document.head.appendChild(script);
-        const w = window as any;
+        const w = window as unknown as Record<string, unknown[]>;
         w.dataLayer = w.dataLayer || [];
-        function gtag(..._args: any[]) { w.dataLayer.push(arguments); }
-        gtag('js', new Date());
-        gtag('config', ga4Id, { send_page_view: true });
+        w.dataLayer.push(['js', new Date()]);
+        w.dataLayer.push(['config', ga4Id, { send_page_view: true }]);
       }
     } else {
       // Revoke: remove GA4 script tags and clear dataLayer
@@ -71,12 +70,11 @@ export default function CookieConsent() {
       document.querySelectorAll('script[data-cookie-consent="analytics"]').forEach(el => el.remove());
       const w = window as unknown as Record<string, unknown[]>;
       w.dataLayer = [];
-      delete (window as Record<string, unknown>).gtag;
+      delete (window as unknown as Record<string, unknown>).gtag;
     }
-    const wc = window as any;
+    const wc = window as unknown as Record<string, unknown[]>;
     wc.dataLayer = wc.dataLayer || [];
-    function gtagConsent(..._a: any[]) { wc.dataLayer.push(arguments); }
-    gtagConsent('consent', 'update', { analytics_storage: prefs.optional ? 'granted' : 'denied' });
+    wc.dataLayer.push(['consent', 'update', { analytics_storage: prefs.optional ? 'granted' : 'denied' }]);
   };
 
   const acceptAll = () => save({ essential: true, optional: true });

@@ -76,7 +76,7 @@ class ErrorBoundary extends Component<{ children: ReactNode }, { hasError: boole
     const isChunk = error.message?.includes('Loading chunk') || error.message?.includes('Failed to fetch dynamically imported');
     return { hasError: true, isChunkError: isChunk };
   }
-  componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
+  componentDidCatch(error: Error, _errorInfo: React.ErrorInfo) {
     if (this.state.isChunkError) {
       try {
         const reloaded = sessionStorage.getItem('pptides_chunk_reload');
@@ -140,7 +140,7 @@ class RouteErrorBoundary extends Component<
   static getDerivedStateFromError(error: Error) {
     return { hasError: true, error };
   }
-  componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
+  componentDidCatch(error: Error, _errorInfo: React.ErrorInfo) {
     logError('[RouteErrorBoundary]', error);
   }
   reset = () => this.setState(prev => ({ hasError: false, error: null, retryCount: prev.retryCount + 1 }));
