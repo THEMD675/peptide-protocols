@@ -243,13 +243,18 @@ export default function Pricing() {
       if (isLoadingPortal) return;
       setIsLoadingPortal(true);
       try {
-        let { data: { session } } = await supabase.auth.getSession();
-        if (!session?.access_token) { toast.error('يرجى تسجيل الدخول'); return; }
+        const { data: { session } } = await supabase.auth.getSession();
+        let token = session?.access_token;
+        if (!token) {
+          const { data: rd } = await supabase.auth.refreshSession();
+          token = rd?.session?.access_token ?? null;
+        }
+        if (!token) { toast.error('يرجى تسجيل الدخول'); return; }
         toast('جارٍ فتح إدارة الدفع...');
         let res = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/create-portal-session`, {
           method: 'POST',
           signal: timeoutSignal(15000),
-          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${session.access_token}`, apikey: import.meta.env.VITE_SUPABASE_ANON_KEY },
+          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}`, apikey: import.meta.env.VITE_SUPABASE_ANON_KEY },
         });
         if (res.status === 401) {
           const { data: refreshData } = await supabase.auth.refreshSession();

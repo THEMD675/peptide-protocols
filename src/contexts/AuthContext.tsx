@@ -671,8 +671,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (upgradingRef.current) return;
     upgradingRef.current = true;
     try {
-      let session = await supabase.auth.getSession();
-      let token = session.data.session?.access_token;
+      const session = await supabase.auth.getSession();
+      let token = session.data.session?.access_token ?? null;
       if (!token) {
         const { data: refreshData } = await supabase.auth.refreshSession();
         token = refreshData?.session?.access_token ?? null;
