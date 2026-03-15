@@ -1024,7 +1024,7 @@ export default function Tracker() {
       )}
 
       {/* Post-injection feedback card */}
-      <div className="min-h-0" style={{ containIntrinsicSize: '0 180px', contentVisibility: 'visible' }}>
+      <div className="min-h-0 transition-all duration-300 ease-out overflow-hidden" style={{ maxHeight: lastLoggedPeptide ? '500px' : '0' }}>
       {lastLoggedPeptide && (() => {
         const matched = allPeptides.find(p => p.nameEn === lastLoggedPeptide || p.id === lastLoggedPeptide);
         const category = matched?.category ?? 'recovery';
