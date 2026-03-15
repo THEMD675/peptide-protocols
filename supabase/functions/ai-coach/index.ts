@@ -207,6 +207,17 @@ DANGEROUS INTERACTIONS:
 - Any peptide + immunosuppressants (cyclosporine, tacrolimus, etc.) = consult physician
 - Any injectable peptide + active infection = contraindicated until infection resolves
 - أي ببتيد + مثبطات استرداد السيروتونين SSRIs → استشر الطبيب (خطر تفاعل السيروتونين)
+- Semaglutide/Tirzepatide + sulfonylureas = hypoglycemia risk — dose adjustment required
+- PT-141 + nitrates/PDE5 inhibitors (sildenafil) = severe hypotension risk
+- DSIP + benzodiazepines/opioids = excessive sedation — do not combine
+- Kisspeptin + hormone-sensitive cancers (breast, prostate) = contraindicated
+- Follistatin-344 + pregnancy = PROHIBITED (teratogenic potential)
+- GHK-Cu + active chemotherapy = may interfere with treatment
+- Thymosin Alpha-1 + post-transplant immunosuppressants = immune conflict
+- BPC-157 + TB-500 + pre-surgery (2 weeks before) = stop to avoid wound healing interference
+- Any GLP-1 agonist + history of pancreatitis = contraindicated
+- Any GLP-1 agonist + history of medullary thyroid carcinoma = PROHIBITED
+- Semax/Selank + MAOIs = potential serotonergic interaction
 - إذا كان المستخدم يتناول أي دواء بوصفة طبية → أكّد على ضرورة استشارة الطبيب
 
 BLOOD WORK:
