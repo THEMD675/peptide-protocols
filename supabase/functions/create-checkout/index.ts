@@ -162,6 +162,7 @@ serve(async (req) => {
         s.url &&
         s.metadata?.tier === tier &&
         s.metadata?.billing === billing &&
+        (s.metadata?.coupon ?? '') === (couponParam ?? '') &&
         Date.now() - (s.created * 1000) < 5 * 60 * 1000,
     )
     if (reusable?.url) {
@@ -241,7 +242,7 @@ serve(async (req) => {
         metadata: { tier, user_id: user.id, ...(validatedReferralCode ? { referral_code: validatedReferralCode } : {}) },
         description: `pptides — ${tier === 'elite' ? 'الباقة المتقدمة' : 'الباقة الأساسية'}`,
       },
-      metadata: { tier, billing, user_id: user.id, ...(validatedReferralCode ? { referral_code: validatedReferralCode } : {}) },
+      metadata: { tier, billing, user_id: user.id, ...(validatedReferralCode ? { referral_code: validatedReferralCode } : {}), ...(couponParam ? { coupon: couponParam } : {}) },
       success_url: `${appUrl}/dashboard?payment=success&tier=${tier}&session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${appUrl}/pricing?payment=cancelled`,
       // When a discount coupon is auto-applied, don't also allow manual promo codes (prevents stacking)
