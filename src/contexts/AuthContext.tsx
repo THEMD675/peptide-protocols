@@ -302,6 +302,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
+
+    // Handle OAuth callback errors (e.g. Google sign-in failure)
+    const oauthError = params.get('error_description') || params.get('error');
+    if (oauthError) {
+      const url = new URL(window.location.href);
+      url.searchParams.delete('error');
+      url.searchParams.delete('error_code');
+      url.searchParams.delete('error_description');
+      window.history.replaceState({}, '', url.toString());
+      const msg = oauthError.includes('denied') || oauthError.includes('cancelled')
+        ? 'تم إلغاء تسجيل الدخول — حاول مرة أخرى'
+        : 'تعذّر تسجيل الدخول — حاول مرة أخرى أو استخدم البريد وكلمة المرور';
+      toast.error(msg, { id: 'oauth-error', duration: 10000 });
+      return;
+    }
+
     if (params.get('payment') === 'cancelled' && window.location.pathname !== '/pricing') {
       const url = new URL(window.location.href);
       url.searchParams.delete('payment');

@@ -688,17 +688,25 @@ export default function Login() {
                     aria-label="تسجيل الدخول عبر جوجل"
                     disabled={loading || googleLoading}
                     onClick={async () => {
-                      // Respect ?redirect= param so Google sign-in from /signup?redirect=/pricing lands on /pricing
                       const oauthRedirectPath = safeRedirect(new URLSearchParams(window.location.search).get('redirect'));
                       const oauthRedirectTo = `${window.location.origin}${oauthRedirectPath}`;
-                      // Always use OAuth redirect on button click — One Tap prompt() fires
-                      // its callback asynchronously which loses user gesture context and
-                      // causes browsers to block the redirect as a popup.
                       setGoogleLoading(true);
-                      await supabase.auth.signInWithOAuth({
-                        provider: 'google',
-                        options: { redirectTo: oauthRedirectTo },
-                      });
+                      setError('');
+                      try {
+                        const { error: oauthError } = await supabase.auth.signInWithOAuth({
+                          provider: 'google',
+                          options: { redirectTo: oauthRedirectTo },
+                        });
+                        if (oauthError) {
+                          setError(friendlyError(oauthError.message));
+                          toast.error('تعذّر الدخول بـ Google — جرّب البريد وكلمة المرور');
+                          setGoogleLoading(false);
+                        }
+                      } catch (err) {
+                        setError(err instanceof Error ? friendlyError(err.message) : 'تعذّر الدخول بـ Google');
+                        toast.error('تعذّر الدخول بـ Google — جرّب البريد وكلمة المرور');
+                        setGoogleLoading(false);
+                      }
                     }}
                     className="mb-4 flex w-full items-center justify-center gap-3 rounded-full border border-stone-300 dark:border-stone-600 bg-white dark:bg-stone-900 px-6 py-3 text-sm font-medium text-stone-700 dark:text-stone-200 shadow-sm transition-all hover:bg-stone-50 dark:hover:bg-stone-800 hover:border-stone-300 dark:hover:border-stone-500 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
