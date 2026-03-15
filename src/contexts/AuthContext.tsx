@@ -671,8 +671,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (upgradingRef.current) return;
     upgradingRef.current = true;
     try {
-      const session = await supabase.auth.getSession();
-      const token = session.data.session?.access_token;
+      let session = await supabase.auth.getSession();
+      let token = session.data.session?.access_token;
+      if (!token) {
+        const { data: refreshData } = await supabase.auth.refreshSession();
+        token = refreshData?.session?.access_token ?? null;
+      }
       if (!token) {
         toast.error('يرجى تسجيل الدخول أولًا');
         navigate('/login?redirect=/pricing');
